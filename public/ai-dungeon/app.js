@@ -825,7 +825,10 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  }
  // Authority polling is independent of the browser's WebGL lifecycle. Never
  // hide a graphics failure merely because the autonomous game keeps ticking.
- if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
+ if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus)){
+  $('recovery').hidden=true;
+  document.body.dataset.streamConnection='live';
+ }
  const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
@@ -1421,7 +1424,30 @@ function animate(t){
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardenImpactScars:world.userData.wardenImpactScars?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET,projected:inspectBattlefieldCrowding(state,lastStagePositions,camera.position)},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
-async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
+async function poll(){
+ try{
+  const r=await fetch('/dungeon/state',{cache:'no-store'});
+  if(!r.ok)throw Error('State '+r.status);
+  const data=await r.json();
+  // A successful 200 with the same old tick is not evidence that a
+  // disconnected autonomous stream has advanced. Keep the last-known-state
+  // warning visible until a new authoritative tick/run arrives.
+  if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}
+  else if(errorAt)errorAt=0;
+ }catch(e){
+  errorAt++;
+  if(errorAt>=3){
+   if($('loading-state'))$('loading-state').hidden=true;
+   if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus)){
+    $('recovery').hidden=false;
+    $('recovery').dataset.connection='stale';
+    document.body.dataset.streamConnection='reconnecting';
+   }
+   $('status').textContent='VIEW DEGRADED — RETRYING';
+   if(errorAt===3||errorAt%30===0)console.warn('Dungeon view recovery',String(e));
+  }
+ }finally{setTimeout(poll,190)}
+}
 $('party').addEventListener('click',e=>{
  const node=e.target.closest('[data-hero-id]');if(!node)return;
  const unit=state?.units.find(u=>u.id===node.dataset.heroId&&u.faction==='party'&&u.hp>0);
