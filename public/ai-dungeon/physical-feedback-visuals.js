@@ -213,6 +213,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     flightFraction:limitedFlight?.fraction??1,
     lastHand:type==='trail'?{...start}:null,
     measuredPath:null,lastMeasuredAge:-Infinity};
+   // A new visible instance needs a posed GPU matrix before the first actual
+   // render. Otherwise the audio receipt might refer to a hidden setup slot.
+   // A trail still uses hideMatrix() until genuine new wrist travel is sampled.
+   pool.mesh.setMatrixAt(index,transform(pool,pool.slots[index]));
+   pool.mesh.instanceMatrix.needsUpdate=true;
    // No fabricated arc is drawn at emission; first sample has no motion.
    if(type!=='trail')pool.mesh.visible=true;
    created++;spawned++;

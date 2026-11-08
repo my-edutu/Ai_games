@@ -67,3 +67,37 @@ test('new D04 frame gate module has a stream route',()=>{
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
  assert.ok(server.includes("['/dungeon/physical-feedback-frame-gate.js','physical-feedback-frame-gate.js']"));
 });
+
+
+test('newly due swing survives a 260ms browser frame without replaying a stale VFX lifetime',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const positions=new Map(),ordered=[],sounds=[];
+ const visualAdapter={
+  emit(c){ordered.push('emit');positions.set(c.id,0);return true},
+  advance(_dt,raw){ordered.push('age');for(const [id,age] of positions){
+   if(age+raw>=.23)positions.delete(id);else positions.set(id,age+raw);
+  }},
+  hasLiveCue:id=>positions.has(id),reset(){positions.clear()},dispose(){}
+ };
+ const audioAdapter={enable(){return true},emit(c){sounds.push(c.id);return true},
+  disable(){},flush(){},cleanup(){},dispose(){}};
+ const director=createPhysicalCombatFeedback({visualAdapter,audioAdapter,requirePresentedFrame:true});
+ const s=(tick,action)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
+  hp:30,maxHp:30,action,actionTick:tick
+ }]});
+ assert.equal(director.enableAudioFromGesture(),true);
+ director.acceptSnapshot(s(10,'idle'));director.acceptSnapshot(s(11,'attack'));
+ director.advance(.05,.05);director.advance(.05,.05);
+ assert.equal(positions.size,0,'not-yet-due swing must not fabricate early art');
+ director.advance(.05,.26);
+ assert.deepEqual(ordered.slice(-2),['age','emit'],
+  'previous frame art ages before a newly due swing is first staged');
+ assert.equal(positions.size,1,'freshly admitted art survives its first GPU submission');
+ assert.equal(director.acknowledgePresentedFrame('swing-first-submit',.012),1);
+ assert.equal(sounds.length,1,'genuine swing whoosh releases once after render');
+ assert.equal(director.acknowledgePresentedFrame('swing-first-submit',.012),0);
+ director.advance(.05,.26);
+ assert.equal(positions.size,0,'older, previously submitted art still expires on stalls');
+ director.dispose();
+});

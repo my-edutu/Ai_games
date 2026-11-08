@@ -65,8 +65,10 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  const {T,scene}=three();
  const actors=new Map();const a=(id,x,z)=>({
   u:{id,action:'attack',actionTick:11},authored:id==='vanguard',
-  rigHandBone:id==='vanguard'?{world:{x:x-9+.15,y:1.1,z:z-9},
-   updateWorldMatrix(){},getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}}:null,
+  assetRoot:id==='vanguard'?{}:null,
+  rigMeleeBones:id==='vanguard'?[{part:'wrist',bone:{isBone:true,
+   world:{x:x-9+.15,y:1.1,z:z-9},updateWorldMatrix(){},
+   getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}}}]:[],
   root:{visible:true,position:{x:x-9,y:0,z:z-9},rotation:{y:.4}}
  });
  actors.set('vanguard',a('vanguard',2,2));actors.set('revenant',a('revenant',3,2));
@@ -74,7 +76,7 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
  assert.equal(stage.emit(cue({kind:'swing',visual:'trail',proof:'authority-attempt-not-hit',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null})),true);
  assert.equal(stage.stats().activeDrawCalls,0,'stationary sword hand cannot draw an invented arc');
- actors.get('vanguard').rigHandBone.world.x+=.12;
+ actors.get('vanguard').rigMeleeBones[0].bone.world.x+=.12;
  stage.advance(.016);
  assert.equal(stage.stats().activeDrawCalls,1,'actual animated hand displacement produces a single measured ribbon draw');
  assert.ok(stage.stats().measuredTrailFrames>=1);
@@ -300,4 +302,22 @@ test('D04 true 16ms frames preserve fresh visual cues; malformed frame intervals
  v.advance(.016,NaN);
  assert.equal(v.stats().active,0,'unknown raw-frame duration cannot certify VFX continuity');
  v.dispose();
+});
+
+test('new confirmed injury initializes retained GPU instance matrices before first real submission',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene,created}=three();
+ const stage=createPhysicalFeedbackVisuals(T,scene);
+ const hitPool=created.meshes[1]; // pool creation order: trail, hit, block ...
+ let admissionWrites=0;
+ const originalSet=hitPool.setMatrixAt.bind(hitPool);
+ hitPool.setMatrixAt=(i,m)=>{admissionWrites++;originalSet(i,m)};
+ hitPool.instanceMatrix.needsUpdate=false;
+ const damage=cue({id:'1:1:12:damage:-:revenant'});
+ assert.equal(stage.emit(damage),true);
+ assert.equal(admissionWrites,5,'every first-frame chip receives a world transform');
+ assert.equal(hitPool.instanceMatrix.needsUpdate,true,'initial instance matrices must upload');
+ assert.equal(stage.hasLiveCue(damage.id),true);
+ assert.equal(stage.stats().activeDrawCalls,1);
+ stage.reset();stage.dispose();
 });

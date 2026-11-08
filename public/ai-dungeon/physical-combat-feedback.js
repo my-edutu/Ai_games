@@ -175,7 +175,11 @@ export function createPhysicalCombatFeedback({
   observedSeconds+=unverifiedFrameInterval?
    MAX_AUDIO_VISUAL_STALENESS_SECONDS+.01:Math.min(actualFrameSeconds,3600);
   const before=pending.length;
-  popDue(dt);safeCall(()=>visuals?.advance?.(dt,actualFrameSeconds));safeCall(()=>foley?.cleanup?.());
+  // First expire retained art against the actual browser interval. A cue
+  // that becomes due THIS frame has not survived that interval yet; it must
+  // get a first genuine render opportunity rather than instantly aging out.
+  safeCall(()=>visuals?.advance?.(dt,actualFrameSeconds));
+  popDue(dt);safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
  function attachAudioContext(context,{output=null}={}){
