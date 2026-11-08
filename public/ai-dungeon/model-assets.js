@@ -3,6 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport} from '/dungeon/full-body-animation-controller.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
 import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
@@ -628,7 +629,7 @@ const NATIVE_MELEE_NO_ROOT=Object.freeze({x:0,y:0,z:0,pitch:0,roll:0,yaw:0});
 function stageRigMeleeAfterMixer(actor,since,reducedMotion){
  actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;
  if(!actor.rigMeleeBones?.length)return;
- const pose=planRigMeleeFollowThrough(actor.u.kind,actor.u.action||'idle',since,
+ const pose=planRigMeleeFollowThrough(actor.u.kind,actor.fullBody?.owner.duel?'attack':'idle',since,
   actor.combatFacing?.distance,actor.combatFacing?.targetId,reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigMeleeBones){
   // One genuine imported bone receives ONE original melee performance,
@@ -660,7 +661,7 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
 // Genuine ranged release follows the actual imported chest/shoulder/elbow
 // joints and composes into the existing reversible mount quaternion.
 function stageRigRangedAfterMixer(actor,since,reducedMotion){
- const p=planRangedBodyPose(actor.u.kind,actor.u.action||'idle',since,
+ const p=planRangedBodyPose(actor.u.kind,actor.fullBody?.mode||actor.u.action||'idle',since,
   actor.combatFacing?.distance,actor.combatFacing?.targetId,reducedMotion||actor.u.hp<=0);
  actor.rigRangedActive=p.weight>.1;
  actor.rigRangedPeak=Math.max(actor.rigRangedPeak||0,p.weight);
@@ -679,7 +680,7 @@ function stageRigRangedAfterMixer(actor,since,reducedMotion){
 function stageRigArmsAfterMixer(actor,since,reducedMotion){
  // Keep legacy/no-bone rigs lightweight and compatible with offline fallback.
  if(!actor.rigUpperArms?.length)return;
- const pose=planRigArmGesture(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
+ const pose=planRigArmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.u.action||'idle',since,reducedMotion);
  // Real Warden warnings articulate the original imported shoulders in three
  // distinct attack silhouettes. All deltas are reversed before the next mixer frame.
  const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&
@@ -711,7 +712,7 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
 
 function stageRigForearmsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigForearms?.length)return;
- const pose=planRigForearmGesture(actor.u.kind,actor.u.action||'idle',since,
+ const pose=planRigForearmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.u.action||'idle',since,
   reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigForearms){
   // One anatomical elbow has a single mechanical envelope. Two truthful
@@ -742,7 +743,7 @@ function stageRigGroundedStride(actor,reducedMotion){
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
  if(current&&previous)previous.copy(current);
  const combat=['attack','cast','hurt','guard'].includes(actor.groundedPerformance?.clipAction);
- const stopped=reducedMotion||actor.u.hp<=0||combat;
+ const stopped=reducedMotion||actor.u.hp<=0||combat||!actor.fullBody?.owner.locomotion;
  const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,
   actor.locomotionTeleport?Infinity:stopped?0:Math.min(travel,.30),stopped);
  actor.rigGaitPhase=gait.phase;actor.rigGaitWeight=gait.weight;
@@ -754,12 +755,16 @@ function stageRigGroundedStride(actor,reducedMotion){
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigGaitBones?.length)return;
  const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
+  const footSupport=planConstrainedFootSupport(actor.rigGaitPhase,actor.rigGaitWeight,{
+   moving:Boolean(actor.fullBody?.owner.locomotion),teleport:Boolean(actor.locomotionTeleport),
+   reducedMotion:reducedMotion||actor.u.hp<=0
+  });
  // Never invent a melee target: the app supplies only a grid-validated,
  // unobstructed public facing, and we require exactly one-cell contact.
  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
  // The source-rig attack's own real planted footwork supersedes the old
  // independent knee/ankle contact brace instead of rubber-stacking it.
- const brace=nativeMelee?NATIVE_MELEE_NO_BRACE:planRigContactBrace(actor.u.kind,actor.u.action||'idle',since,
+ const brace=nativeMelee?NATIVE_MELEE_NO_BRACE:planRigContactBrace(actor.u.kind,actor.fullBody?.owner.duel?'attack':'idle',since,
   actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  // The actual 3-beat public NOVA plants genuine imported leg bones, without
  // additional grid steps or persistent changes to the animation mixer.
@@ -771,7 +776,7 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   const plant=(warningBrace+releaseBrace)*(mount.part==='upper'?(mount.side==='left'?.72:1):
    mount.part==='lower'?-1.05:.28);
   const nativeContact=actor.nativeDuel?.legs?.[mount.side]?.[mount.part]??0;
-  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+contact+plant+nativeContact+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
+  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+footSupport[mount.side][mount.part]+contact+plant+nativeContact+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
   // The previous real Chromium native-brace diagnostic reported 0 because
   // it measured only the intentionally suppressed LEGACY contact brace.
   // Measure the actual imported source-rig plant as well, without stacking
@@ -781,6 +786,7 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGaitPeak=Math.max(actor.rigGaitPeak||0,Math.abs(angle));
+   actor.footSupportPeak=Math.max(actor.footSupportPeak||0,Math.abs(footSupport[mount.side][mount.part]));
  }
 }
 
@@ -870,6 +876,8 @@ function attachCharacter(actor){
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
+   actor.importedClipAudit=auditImportedAnimationClips(actor.availableClips);
+   actor.fullBody=null;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;
   actor.textureReadiness=textureReadiness.get(gltf);
   bindRigArmGestures(actor);
   // Original adult-scale skinned figures replace the visible low-poly source
@@ -919,11 +927,11 @@ function attachCharacter(actor){
  }).catch(e=>{failures.add(asset);return false});
  return request;
 }
-function changeAction(actor,action){
+function changeAction(actor,action,forceRestart=false){
  const oneShot=['attack','cast','hurt'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.u.actionTick??null;
- const newEvent=oneShot&&actor.currentActionTick!==tick;
+ const newEvent=oneShot&&(actor.currentActionTick!==tick||forceRestart);
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
  if(actor.currentAction===action&&!newEvent){
@@ -944,7 +952,7 @@ function changeAction(actor,action){
   next.setLoop(oneShot?THREE.LoopOnce:THREE.LoopRepeat,oneShot?1:Infinity);
   next.clampWhenFinished=oneShot;
   next.play();
-  if(previous&&previous!==next)next.crossFadeFrom(previous,oneShot?.12:.23,true);
+  if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),true);
   actor.activeClip=next;
  }
  actor.currentAction=action;actor.currentActionTick=tick;
@@ -1045,7 +1053,13 @@ function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
 function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!actor.authored||!actor.mixer)return;
  // Do not loop walk clips when the authoritative move has already settled.
- changeAction(actor,actor.groundedPerformance?.clipAction??actor.u.action??'idle');
+ actor.fullBody=advanceFullBodyController(actor.fullBody,{
+   unit:actor.u,grounded:actor.groundedPerformance,damageBeat:actor.damageBeat,
+   evasionBeat:actor.evasionBeat,actionAge:since,frameDelta:dt,reducedMotion
+  });
+  if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
+  if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
+  changeAction(actor,actor.fullBody.clipAction,actor.fullBody.restarted);
  restoreRigArmsBeforeMixer(actor);
  restoreRigForearmsBeforeMixer(actor);
  restoreRigLegsBeforeMixer(actor);
@@ -1055,20 +1069,20 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
  // A witnessed local sword action now carries an original, single coherent
  // pose across the genuine skinned head, hips, torso, arms, wrist and feet.
- actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.u.action||'idle',since,{
+ actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',since,{
   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
   alive:actor.u.hp>0,reducedMotion
  });
  actor.nativeDuelPeak=Math.max(actor.nativeDuelPeak||0,actor.nativeDuel.strength);
  if(actor.nativeDuel.contactWeight>.65)actor.nativeDuelContactFrames=Math.min(1000000,(actor.nativeDuelContactFrames||0)+1);
- actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.u.action||'idle',since,{
+ actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',since,{
   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
   alive:actor.u.hp>0,reducedMotion
  });
- actor.evasionFrame=planEvasionPerformance(actor.u.kind,actor.evasionBeat?.age,actor.evasionBeat,
+ actor.evasionFrame=planEvasionPerformance(actor.u.kind,actor.evasionBeat?.age,actor.fullBody.owner.evasion?actor.evasionBeat:null,
   {reducedMotion:reducedMotion||actor.u.hp<=0,yaw:actor.root?.rotation?.y??0});
  actor.evasionPosePeak=Math.max(actor.evasionPosePeak||0,actor.evasionFrame.strength);
- actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.u.action||'idle',since,actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
+ actor.rigBearing=planRigBearing(actor.u.kind,actor.u.hp,actor.u.maxHp,actor.fullBody.mode,actor.fullBody.age,actor.combatFacing?.distance,reducedMotion||actor.u.hp<=0);
  stageRigGroundedStride(actor,reducedMotion);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
@@ -1085,16 +1099,17 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   // Legacy pivot lunge + contact recoil + secondary lunge must NOT accumulate
   // over the genuine bone-planted stance (which already owns this weight shift).
   const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
-  const pose=nativeMelee?NATIVE_MELEE_NO_ROOT:
-   planAuthoredMotion(actor.u.kind,actor.u.action||'idle',since,reducedMotion);
-  const contact=nativeMelee?NATIVE_MELEE_NO_ROOT:
-   planContactBodyLanguage(actor.u.kind,actor.u.action||'idle',since,{
+  const blocking=actor.fullBody.owner.injury||actor.fullBody.owner.defeat||actor.fullBody.owner.evasion;
+   const pose=nativeMelee||blocking?NATIVE_MELEE_NO_ROOT:
+    planAuthoredMotion(actor.u.kind,actor.fullBody.mode,since,reducedMotion);
+  const contact=nativeMelee||blocking?NATIVE_MELEE_NO_ROOT:
+    planContactBodyLanguage(actor.u.kind,actor.fullBody.mode,since,{
     targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
     reducedMotion:reducedMotion||actor.u.hp<=0
    });
-  const beat=nativeMelee?NATIVE_MELEE_NO_ROOT:actor.performanceBeat.root,
+  const beat=nativeMelee||blocking?NATIVE_MELEE_NO_ROOT:actor.performanceBeat.root,
    dodge=actor.evasionFrame.root,native=actor.nativeDuel?.root;
-  const ground=actor.groundedPerformance;
+  const ground=actor.fullBody.owner.locomotion?actor.groundedPerformance:null;
   actor.visualPivot.position.set(pose.x+contact.x+beat.x+dodge.x+(native?.x??0),
    pose.y+contact.y+beat.y+dodge.y+(native?.y??0)+(ground?.bodyLift??0),pose.z+contact.z+beat.z+dodge.z+(native?.z??0));
   // Real visible travel adds a restrained forward weight shift atop the
@@ -1153,7 +1168,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
+ actor.fullBody=null;actor.importedClipAudit=null;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map,onAssetReady=null){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -1194,7 +1209,13 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
- return{nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
+ return{
+   fullBodyModes:authored.reduce((m,a)=>{const mode=a.fullBody?.mode||'idle';m[mode]=(m[mode]||0)+1;return m},{}),
+   fullBodyInterruptions:authored.reduce((n,a)=>n+(a.fullBodyInterruptions||0),0),
+   fullBodyRestarts:authored.reduce((n,a)=>n+(a.fullBodyRestarts||0),0),
+   fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
+   sourceClipAudits:authored.slice(0,6).map(a=>({kind:a.u.kind,clips:a.importedClipAudit?.clips||[],rootMotionTracks:a.importedClipAudit?.rootMotionTracks||[]})),
+   nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
   nativeDuelActiveActors:authored.filter(a=>a.nativeDuel&&a.nativeDuel.mode!=='rest').length,
   nativeDuelPeak:Math.max(0,...authored.map(a=>a.nativeDuelPeak||0)),
   nativeDuelContactFrames:authored.reduce((n,a)=>n+(a.nativeDuelContactFrames||0),0),
