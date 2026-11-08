@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -924,7 +924,7 @@ function changeAction(actor,action,forceRestart=false){
  const oneShot=['attack','cast','hurt','defeat'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
- const newEvent=oneShot&&(actor.currentActionTick!==tick||forceRestart);
+ const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
  if(actor.currentAction===action&&!newEvent){

@@ -206,6 +206,20 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
 }
 
 /**
+ * A source GLB death is a terminal one-shot, not a new attack on each server
+ * heartbeat. DungeonRuntime legally increments every unit's actionTick even
+ * after HP reaches zero, so using the general one-shot tick rule would reset
+ * Death_A every 350 ms instead of letting its original 0.792 s pose settle.
+ * Only a true living->defeated source-action transition starts/restarts death.
+ * A genuine revival changes the source action away from defeat first.
+ */
+export function shouldRestartImportedOneShot(action,previousAction,previousTick,nextTick,forceRestart=false){
+ if(!['attack','cast','hurt','defeat'].includes(action))return false;
+ if(action==='defeat')return previousAction!=='defeat';
+ return previousTick!==nextTick||Boolean(forceRestart);
+}
+
+/**
  * Place only a newly witnessed lawful original one-shot at its exact event
  * age. Never scrub an already running mixer clip with this entry function;
  * uninterrupted recovery is owned by the monotonic forward-only planner.

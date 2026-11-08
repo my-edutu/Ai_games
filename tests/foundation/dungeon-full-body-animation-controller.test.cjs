@@ -307,6 +307,34 @@ test('source AnimationMixer uses captured visual tick and single controller pose
 });
 
 
+test('Death_A is not re-triggered by every fixed-step actionTick while HP stays zero',async()=>{
+ const {shouldRestartImportedOneShot:restart,advanceFullBodyController:step}=await load();
+ // Real DungeonRuntime.step sets actionTick=state.tick for EVERY unit each 350 ms,
+ // including already fallen actors. The source death clip is 0.792 s long.
+ assert.equal(restart('defeat','attack',17,18),true,'first lawful HP-zero selects death');
+ for(let tick=19;tick<=32;tick++)
+  assert.equal(restart('defeat','defeat',18,tick),false,
+   'source Death_A must continue across authoritative tick '+tick);
+ assert.equal(restart('defeat','defeat',18,35,true),false,
+  'an unrelated forceRestart cannot relaunch an already defeated source clip');
+ const down=step(null,frame(hero('hurt',18,0)));
+ const later=step(down,frame(hero('idle',19,0),{actionAge:.35}));
+ assert.equal(later.mode,'defeat');
+ assert.equal(later.owner.defeat,true);
+ assert.equal(restart('idle','defeat',18,20),false,'revival selects living idle');
+ assert.equal(restart('defeat','idle',20,21),true,'a NEW genuine death after revival can play');
+ for(const mode of ['attack','cast','hurt']){
+  assert.equal(restart(mode,mode,21,22),true,mode+' remains tick-driven');
+  assert.equal(restart(mode,mode,22,22),false,mode+' must not replay each render frame');
+  assert.equal(restart(mode,mode,22,22,true),true,'real interruption retains its restart');
+ }
+ assert.equal(restart('move','move',21,22),false);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const authority=fs.readFileSync(path.join(root,'games/ai-dungeon/src/index.ts'),'utf8');
+ assert.match(authority,/unit\.action='idle';unit\.actionTick=s\.tick/);
+ assert.ok(model.includes('const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);'));
+});
+
 test('licensed native death plays once after real HP zero and releases on revival',async()=>{
  const {chooseImportedSourceClip:choose,advanceFullBodyController:step}=await load();
  const originals=['Idle','Death_A','Walking_A'].map(name=>({name,duration:.792}));
