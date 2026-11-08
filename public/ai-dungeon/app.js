@@ -17,6 +17,7 @@ import {planCinematicShot,planCinematicVisibleHero,planReadableExpeditionLens,pl
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects,planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
+import {planFullBodyVisibleFrameStep} from '/dungeon/full-body-animation-controller.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
@@ -1070,7 +1071,9 @@ function animate(t){
   // not skip the attack, spell or impact before the spectator sees its first pose.
   const oneShot=['attack','cast','hurt'].includes(a.u.action);
   const since=oneShot?(a.visualActionAge??0):time-(a.actionStarted??time);
-  if(oneShot)a.visualActionAge=advancePresentationActionAge(since,dt);
+  if(oneShot)a.visualActionAge=advancePresentationActionAge(since,
+    planFullBodyVisibleFrameStep({mode:a.u.action,frameDelta:dt,frameInterval,
+     reducedMotion:reduced,visible:!document.hidden}));
   if(a.evasionBeat){a.evasionBeat.age=advancePresentationActionAge(a.evasionBeat.age,dt);
    if(a.evasionBeat.age>=EVASION_BEAT_DURATION)a.evasionBeat=null;}
   const phase=Math.max(0,Math.min(1,since/.32));

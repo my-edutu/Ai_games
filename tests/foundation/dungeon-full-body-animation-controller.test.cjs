@@ -548,3 +548,43 @@ test('ongoing clips, stale events, defeat and reduced motion cannot phase-seek o
  assert.ok(model.includes('age:actor.fullBody?.mode===action?actor.fullBody.age:NaN'));
  assert.ok(model.includes('reducedMotion:Boolean(actor.fullBody?.reducedMotion)'));
 });
+
+test('genuine slow visible frames advance the SAME authentic attack/cast event clock without false strikes',async()=>{
+ const {planFullBodyVisibleFrameStep:visibleStep,
+  planImportedLivingSourceStep:sourceStep,advanceFullBodyController:step}=await load();
+ assert.equal(Math.ceil(.62/.05),13,'reproduce the previous thirteen-frame sword');
+ assert.equal(visibleStep({mode:'attack',frameDelta:.05,frameInterval:1}),.28);
+ assert.equal(visibleStep({mode:'cast',frameDelta:.05,frameInterval:1}),.28);
+ assert.equal(visibleStep({mode:'attack',frameDelta:.016,frameInterval:.016}),.016);
+ for(const mode of ['idle','move','guard','hurt','evade','defeat'])
+  assert.equal(visibleStep({mode,frameDelta:.05,frameInterval:1}),.05,
+   'no unrelated source motion may accelerate');
+ for(const flags of [{visible:false},{reducedMotion:true},{frameInterval:-1},
+  {frameInterval:NaN}])
+  assert.equal(visibleStep({mode:'attack',frameDelta:.05,frameInterval:1,...flags}),.05);
+ const started=step(null,frame(hero('attack',98),{actionAge:.16}));
+ const held=step(started,frame(hero('idle',99),{
+  frameDelta:.05,frameInterval:1,visible:true,actionAge:0}));
+ assert.equal(held.mode,'attack');assert.equal(held.actionTick,98);
+ assert.ok(Math.abs(held.age-.44)<1e-9,
+  'native hips/shoulders and imported source must share the original recovered age');
+ assert.equal(step(started,frame(hero('idle',99),{
+  frameDelta:.05,frameInterval:1,visible:false})).age,.21);
+ const sample={mode:'attack',age:0,sourceTime:0,sourceDuration:1.042,
+  effectiveSpeed:1.68,frameDelta:.05,frameInterval:1};
+ assert.equal(sourceStep(sample),.05,'first legal imported pose retains anticipation');
+ const next=sourceStep({...sample,age:.28,sourceTime:.084});
+ assert.ok(next>.25&&next<=.28,'subsequent actual samples catch up without source snapback');
+ for(const params of [{mode:'idle',age:.45},{mode:'hurt',age:.45},
+  {visible:false,age:.45},{reducedMotion:true,age:.45},{sourceDuration:0,age:.45},
+  {sourceTime:NaN,age:.45},{age:-1},{frameInterval:-1}])
+  assert.equal(sourceStep({...sample,...params}),.05);
+ assert.equal(sourceStep({...sample,age:.1,sourceTime:.5}),.05,
+  'ahead-of-owner source must not scrub backward or leap ahead');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
+ assert.match(model,/frameInterval:sourceFrameInterval,visible:sourceFrameVisible/);
+ assert.match(app,/planFullBodyVisibleFrameStep\(\{mode:a\.u\.action/);
+ assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+});

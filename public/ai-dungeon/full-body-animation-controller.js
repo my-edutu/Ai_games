@@ -87,7 +87,7 @@ export function auditImportedAnimationClips(clips=[]){
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
  unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,
- actionAge=0,frameDelta=0,reducedMotion=false
+ actionAge=0,frameDelta=0,frameInterval=frameDelta,visible=true,reducedMotion=false
 }={}){
  const raw=unit?.action;
  const authorityAction=ACTIONS.has(raw)?raw:'idle';
@@ -121,7 +121,9 @@ export function advanceFullBodyController(previous=null,{
   Number.isSafeInteger(previous?.actionTick)&&Number.isSafeInteger(actionTick)&&
   actionTick>=previous.actionTick&&actionTick-previous.actionTick<=1&&
   finite(previous.age)&&previous.age>=0);
- const inheritedAge=eligibleHold?Math.min(5,previous.age+delta):0;
+ const heldStep=planFullBodyVisibleFrameStep({mode:priorOneShot??'idle',
+  frameDelta,frameInterval,reducedMotion,visible});
+ const inheritedAge=eligibleHold?Math.min(5,previous.age+heldStep):0;
  const holding=Boolean(eligibleHold&&inheritedAge<ONE_SHOT_RECOVERY[priorOneShot]);
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
   requestedOneShot?authorityAction:holding?priorOneShot:
@@ -239,6 +241,37 @@ export function planImportedOneShotEntry({mode='idle',age=0,sourceDuration=0,
  * Cap catch-up to 280ms to keep 3 distinct sampled native joint poses.
  * All nonterminal actions keep their former 50ms/frame behaviour.
  */
+/**
+ * A single bounded visible clock for authentic attack/cast source and overlay.
+ * This cannot invent an event, move an authority actor or accelerate a hidden
+ * scene. Keep distinct anticipatory poses despite sparse WebGL frame delivery.
+ */
+export function planFullBodyVisibleFrameStep({mode='idle',frameDelta=0,
+ frameInterval=frameDelta,reducedMotion=false,visible=true}={}){
+ const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ if(reducedMotion||visible!==true||!['attack','cast'].includes(mode)||
+  !finite(frameInterval)||frameInterval<0)return ordinary;
+ return Math.max(ordinary,Math.min(.28,frameInterval));
+}
+
+/**
+ * Advance the original GLB only toward the SAME witnessed visual event age.
+ * On a delayed first sample preserve original anticipation; on later samples
+ * catch up in bounded steps. The source clock never moves backwards.
+ */
+export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
+ sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=frameDelta,
+ reducedMotion=false,visible=true}={}){
+ const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ if(reducedMotion||visible!==true||!['attack','cast'].includes(mode)||
+  ![age,sourceTime,sourceDuration,effectiveSpeed,frameInterval].every(finite)||
+  age<0||sourceTime<0||sourceDuration<=.002||effectiveSpeed<=.001||
+  frameInterval<0)return ordinary;
+ const ceiling=Math.max(0,sourceDuration-.002);
+ const deficit=Math.max(0,Math.min(ceiling/effectiveSpeed,age)-sourceTime/effectiveSpeed);
+ return Math.max(ordinary,Math.min(.28,frameInterval,deficit+ordinary));
+}
+
 export function planImportedDeathSourceStep({mode='idle',sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=0,
  reducedMotion=false,visible=true}={}){
@@ -267,7 +300,7 @@ export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sour
   ![age,sourceTime,sourceDuration,effectiveSpeed,frameDelta].every(Number.isFinite)||
   age<0||sourceTime<0||sourceDuration<=.002||effectiveSpeed<=.001||frameDelta<0)return invalid;
  const ceiling=Math.max(0,sourceDuration-.002);
- const step=Math.min(.05,frameDelta),advance=step*effectiveSpeed;
+ const step=Math.min(.28,frameDelta),advance=step*effectiveSpeed;
  const target=Math.min(ceiling,age*effectiveSpeed);
  const projected=Math.min(ceiling,sourceTime+advance);
  const driftSeconds=(target-projected)/effectiveSpeed;

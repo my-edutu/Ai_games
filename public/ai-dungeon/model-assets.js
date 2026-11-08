@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1061,7 +1061,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  actor.fullBody=advanceFullBodyController(actor.fullBody,{
    unit:actor.u,grounded:actor.groundedPerformance,damageBeat:actor.damageBeat,
    evasionBeat:actor.evasionBeat,combatFacing:actor.combatFacing,
-   actionAge:since,frameDelta:dt,reducedMotion
+   actionAge:since,frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,reducedMotion
   });
   if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
   if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
@@ -1093,13 +1093,15 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  // Align source GLB to the same witnessed action-age clock as original
  // skinned hip, torso, shoulder, wrist, ankle and reactive fabric layers.
  const sourceClip=actor.activeClip?.getClip?.();
- const sourceStep=freezeSource?0:planImportedDeathSourceStep({
-  mode:actor.fullBody.mode,sourceTime:actor.activeClip?.time??0,
+ const originalStep={
+  mode:actor.fullBody.mode,age:poseAge,sourceTime:actor.activeClip?.time??0,
   sourceDuration:sourceClip?.duration??0,
   effectiveSpeed:actor.activeClip?.getEffectiveTimeScale?.()??1,
   frameDelta:dt,frameInterval:sourceFrameInterval,
   reducedMotion,visible:sourceFrameVisible
- });
+ };
+ const sourceStep=freezeSource?0:actor.fullBody.mode==='defeat'?
+  planImportedDeathSourceStep(originalStep):planImportedLivingSourceStep(originalStep);
  const sourceSync=!freezeSource&&sourceClip?planImportedOneShotPhase({
   mode:actor.fullBody.mode,actionTick:actor.fullBody.actionTick,age:poseAge,
   sourceTime:actor.activeClip.time,sourceDuration:sourceClip.duration,
