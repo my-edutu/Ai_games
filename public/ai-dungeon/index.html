@@ -22,11 +22,11 @@
       <div class="floor-splash" id="floor-splash" role="status" aria-live="polite" hidden>
         <div class="splash-frame"><span class="splash-sigil">✦</span><p id="splash-eyebrow">THE EXPEDITION DESCENDS</p><div class="splash-depth">FLOOR <strong id="splash-floor">02</strong></div><h2 id="splash-name">THE EMBER CATHEDRAL</h2><div class="splash-line"></div><span class="splash-foot">NO TWO JOURNEYS ARE THE SAME</span></div>
       </div>
-      <div class="arena-lower"><div class="mission-chip"><span class="mission-symbol">⟡</span><div><small>OBJECTIVE</small><strong id="intent" data-testid="intent">Mapping the uncharted halls</strong></div></div><div class="camera-label"><span>◉ CINEMATIC FOLLOW</span><span id="focus-label">FOLLOWING ASHEN VANGUARD</span><span>CAM 01 / PROCEDURAL WORLD</span></div></div>
-      <div class="vignette" aria-hidden="true"></div>
+      <div class="arena-lower"><div class="mission-chip"><span class="mission-symbol">⟡</span><div><small>OBJECTIVE</small><strong id="intent" data-testid="intent">Mapping the uncharted halls</strong></div></div><div id="danger-readout" class="danger-readout" aria-label="Current verified danger" hidden><span id="danger-title"></span><strong id="danger-detail"></strong></div><div class="camera-label"><span>◉ CINEMATIC FOLLOW</span><span id="focus-label">FOLLOWING ASHEN VANGUARD</span><span>CAM 01 / PROCEDURAL WORLD</span></div></div>
+      <nav id="spectator-quickbar" class="spectator-quickbar" aria-label="Party health and hero focus"></nav><div class="vignette" aria-hidden="true"></div>
       <div class="watermark">EDUTU / INFINITE WORLDS</div>
-      <div id="run-result" class="run-result" role="status" hidden><span class="result-mark" aria-hidden="true">◇</span><p>EXPEDITION ENDED</p><h2>The dungeon claims its due.</h2><span id="result-summary"></span><small>A new expedition is forming automatically.</small></div>
-      <div id="recovery" class="recovery" hidden>◈ RECONNECTING TO THE EXPEDITION<br><small>Game state remains autonomous</small></div>
+      <div id="loading-state" class="loading-state" role="status" aria-live="polite"><strong>Opening the dungeon</strong><small>Awaiting the first verified expedition state…</small></div><div id="run-result" class="run-result" role="status" hidden><span class="result-mark" aria-hidden="true">◇</span><p>EXPEDITION ENDED</p><h2>The dungeon claims its due.</h2><span id="result-summary"></span><small id="restart-status" aria-live="off">An automatic restart is preparing.</small></div>
+      <div id="recovery" class="recovery" role="alert" hidden>View interrupted · reconnecting<small>Last known state may be stale. Retrying automatically.</small></div>
     </section>
 
     <aside id="game-hud" class="sidebar" aria-label="Adventure command center">
@@ -40,7 +40,7 @@
     </aside>
   </main>
 
-  <section class="lower-rail" aria-label="Narrative event timeline"><div class="rail-label"><span class="rail-icon">✦</span><div><small>LIVE STORY</small><strong>CHRONICLE</strong></div></div><ol id="events" data-testid="events" class="event-rail" aria-live="polite"></ol><div class="rail-end">∞ <span>STORY UNFOLDING</span></div></section>
+  <section class="lower-rail" aria-label="Narrative event timeline"><div class="rail-label"><span class="rail-icon">✦</span><div><small>LIVE STORY</small><strong>CHRONICLE</strong></div></div><ol id="events" data-testid="events" class="event-rail" aria-live="off"></ol><div class="rail-end">∞ <span>STORY UNFOLDING</span></div></section>
   <footer class="footer"><span class="brand-foot">EDUTU <b>✦</b> GAMES</span><span>✦ ONE WORLD. ENDLESS ADVENTURES.</span><span class="footer-right"><i>●</i> SELF-PLAYING EXPERIENCE <b> / </b> NO HUMAN INPUT NEEDED</span></footer>
 </div>
 <dialog id="journal-dialog" class="journal-dialog" aria-labelledby="journal-title"><div class="journal-heading"><div><small>THE EXPEDITION RECORD</small><h2 id="journal-title">Dungeon journal</h2></div><button id="journal-close" class="icon-button" type="button" aria-label="Close expedition journal">×</button></div><p class="journal-description">The latest events from this autonomous run.</p><ol id="journal-events"></ol><footer class="journal-shortcuts"><span><kbd>H</kbd> Interface</span><span><kbd>M</kbd> Map</span><span><kbd>V</kbd> Camera</span><span><kbd>1–3</kbd> Follow hero</span><span><kbd>Esc</kbd> Close</span></footer></dialog>
