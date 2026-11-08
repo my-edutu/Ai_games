@@ -99,6 +99,7 @@ test('real Warden warning stays visible on 390px even when ordinary objective is
  await expect(page.locator('.arena-lower')).toBeHidden();
  await expect(page.locator('#danger-readout')).toBeVisible();
  await expect(page.locator('#danger-title')).toHaveText('WARDEN WARNING');
+ await expect(page.locator('#boss-phase')).toHaveText('WARDEN WARNING');
  await expect(page.locator('#danger-detail')).toContainText('impact in 1 turn');
  const stage=await page.locator('.arena').boundingBox();
  const notice=await page.locator('#danger-readout').boundingBox();
@@ -154,4 +155,55 @@ test('a genuine recent authority outcome is shown as a small history note, not a
  await expect(page.locator('#outcome-text')).toContainText(event.text.slice(0,40));
  await expect(page.locator('#assistive-announcement')).toBeEmpty();
  await page.screenshot({path:'artifacts/dungeon-spectator-recent-outcome-mobile.png',fullPage:true});
+});
+
+test('a real Warden cast is labelled as released, not falsely confirmed as landed',async({page})=>{
+ const game=DungeonRuntime.create('warden-counterwindow-browser-M1'),s=game.state;
+ const boss=s.units.find(u=>u.kind==='warden'),hero=s.units.find(u=>u.id==='vanguard');
+ for(const u of s.units)if(u.faction==='enemy'&&u!==boss||u.faction==='party'&&u!==hero)u.hp=0;
+ hero.x=boss.x+1;hero.z=boss.z;s.tick=5;
+ expect(s.map[hero.z][hero.x]).toBe('.');
+ let snapshot=game.publicState();
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:30000}).toBe(5);
+ snapshot=game.step();
+ expect(snapshot.bossRecovery?.remaining).toBe(2);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:30000}).toBe(6);
+ await expect(page.locator('#boss-phase')).toHaveText('STRIKE RELEASED');
+ await expect(page.locator('#boss-phase')).not.toContainText('LANDED');
+ await expect(page.locator('#danger-title')).toHaveText('WARDEN STRIKE');
+ await page.screenshot({path:'artifacts/dungeon-spectator-warden-release-real.png'});
+});
+
+test('disconnect remains visible until a new authentic state tick proves recovery',async({page})=>{
+ const game=DungeonRuntime.create('dungeon-ui-round17');for(let i=0;i<18;i++)game.step();
+ let snapshot=game.publicState(),offline=false;
+ await page.route('**/dungeon/state',route=>offline?
+  route.fulfill({status:503,json:{error:'unavailable'}}):route.fulfill({json:snapshot}));
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:30000}).toBe(snapshot.tick);
+ offline=true;
+ await expect(page.locator('#recovery')).toBeVisible({timeout:12000});
+ await expect(page.locator('body')).toHaveAttribute('data-stream-connection','reconnecting');
+ offline=false;
+ // HTTP 200 from a stale replica is not a recovered autonomous expedition.
+ await expect(page.locator('#recovery')).toBeVisible();
+ snapshot=game.step();
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__?.tick??0),{timeout:15000}).toBe(snapshot.tick);
+ await expect(page.locator('#recovery')).toBeHidden();
+ await expect(page.locator('body')).toHaveAttribute('data-stream-connection','live');
+});
+
+test('original audio is never started by a page reload',async({page})=>{
+ await pinRealRun(page,{size:{width:390,height:844}});
+ const audio=page.locator('#audio-toggle');
+ await expect(audio).toHaveAttribute('aria-pressed','false');
+ await audio.click();
+ if(await audio.getAttribute('aria-pressed')==='true')await audio.click();
+ await expect(audio).toHaveAttribute('aria-pressed','false');
+ expect(await page.evaluate(()=>localStorage.getItem('edutu-dungeon-audio-muted'))).toBe('true');
+ await page.reload();
+ await expect(audio).toHaveAttribute('aria-pressed','false');
+ await expect(audio).toHaveAccessibleName(/enable original dungeon audio/i);
 });
