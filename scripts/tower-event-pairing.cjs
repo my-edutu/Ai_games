@@ -2,6 +2,7 @@
 // SOURCE EVENT SEARCH ONLY. Never manufacture frame-time calibration, reviewed
 // footage, identical gameplay or acceptance from matching event names.
 const fs=require('node:fs'),path=require('node:path');
+const {createHash}=require('node:crypto');
 const FROZEN='1731b380851162741761c5569e2bc152a0869ca9';
 const SCENARIOS=['ascent','danger','moving','outcome'],VIEWPORTS=['desktop','portrait'];
 const KINDS=new Set(['route-selection','guardian-present','guardian-hp-decrease',
@@ -50,6 +51,34 @@ function nativeViewport(m){
  if(v?.width===960&&v?.height===600)return 'desktop';
  if(v?.width===390&&v?.height===844)return 'portrait';
  return null;
+}
+// An event index cannot authenticate an unedited film by itself. A matched
+// viewport needs its ffprobe audit AND exact video bytes. This is a source/
+// transport admission veto, never an independent gameplay or quality score.
+function inspectNativeFilmTransport(record) {
+ const problems=[];
+ const report=record?.nativeFilmAudit;
+ if(!report||report.schemaVersion!==1||report.status!=='SOURCE_VIDEO_TRANSPORT_ONLY')
+   problems.push('report-missing-or-blocked');
+ if(report&&(report.sourceSha!==record.sourceSha||report.scenario!==record.scenario))
+   problems.push('report-source-or-scenario-mismatch');
+ const matches=Array.isArray(report?.viewports)
+   ?report.viewports.filter(v=>v?.viewport===record.viewport):[];
+ if(matches.length!==1)problems.push('viewport-audit-missing-or-duplicated');
+ else {
+  const row=matches[0];
+  if(row.status!=='SOURCE_VIDEO_TRANSPORT_ONLY'||
+     !Array.isArray(row.problems)||row.problems.length||
+     row.sourceSha!==record.sourceSha||row.scenario!==record.scenario)
+    problems.push('viewport-audit-blocked-or-mismatched');
+  if(!/^[0-9a-f]{64}$/.test(record.videoSha256||'')||
+     record.videoSha256!==row.originalWebMSha256)
+    problems.push('original-WebM-sha256-does-not-match-audit');
+  if(!Number.isSafeInteger(record.videoBytes)||record.videoBytes<=0||
+     row.videoBytes!==record.videoBytes)
+    problems.push('original-WebM-byte-count-does-not-match-audit');
+ }
+ return {status:problems.length?'BLOCKED':'SOURCE_VIDEO_TRANSPORT_ONLY',problems};
 }
 // Native-video clock alignment yields inspection timestamps, NEVER a visible
 // action or a blind preference. Both original recordings remain unmodified.
@@ -178,11 +207,17 @@ function auditPairs(recordings,candidateSha){
   else if(Math.abs(bStart.tick-cStart.tick)>60)
     faults.push('initial source ticks differ by over 3 seconds');
   if(!before.videoPresent||!after.videoPresent)faults.push('native WebM missing');
+  const baselineTransport=inspectNativeFilmTransport(before);
+  const candidateTransport=inspectNativeFilmTransport(after);
+  for(const [label,transport] of [['baseline',baselineTransport],['candidate',candidateTransport]])
+    for(const problem of transport.problems)faults.push(label+'-native-WebM-'+problem);
   if(!(before.index?.sourceTicksObserved>1&&after.index?.sourceTicksObserved>1))
    faults.push('missing passive source ticks');
   const aligned=matchSourceEvents(before.index.events,after.index.events);
-  const baselineClock=inspectedSourceTimebase(before);
-  const candidateClock=inspectedSourceTimebase(after);
+  const baselineClock=faults.length?{status:'NOT EVALUATED',
+    reason:'native film integrity or source provenance veto'}:inspectedSourceTimebase(before);
+  const candidateClock=faults.length?{status:'NOT EVALUATED',
+    reason:'native film integrity or source provenance veto'}:inspectedSourceTimebase(after);
   const pairedSourceSearch=aligned.pairs.map(pair=>{
     const baseline=originalFilmEventSearch(baselineClock,pair,'baseline');
     const candidate=originalFilmEventSearch(candidateClock,pair,'candidate');
@@ -224,6 +259,7 @@ function auditPairs(recordings,candidateSha){
    sourceStorySequenceObserved:candidateStory.sameEpisodeSourceSequenceObserved&&
      baselineStory.sameEpisodeSourceSequenceObserved,
    sourceStoryEpisodes:{baseline:baselineStory,candidate:candidateStory},faults,sourceStory,
+   nativeFilmTransport:{baseline:baselineTransport,candidate:candidateTransport},
    baselineArtifact:before.artifact,candidateArtifact:after.artifact,
    baselineVideo:before.videoPath,candidateVideo:after.videoPath,
    nativeSourceVideoTimebase:{
@@ -239,7 +275,7 @@ function auditPairs(recordings,candidateSha){
  }
  // Timebase alignment is independent of all film-visibility and UX gates.
  result.calibratedTimebasePairs=result.comparisons.filter(p=>
-   p.nativeSourceVideoTimebase.baseline==='CALIBRATED'&&
+   p.provenanceVerified&&p.nativeSourceVideoTimebase.baseline==='CALIBRATED'&&
    p.nativeSourceVideoTimebase.candidate==='CALIBRATED').length;
  result.videoTimecodesCalibrated=result.comparisons.length===8&&
    result.missingPairs.length===0&&result.calibratedTimebasePairs===8;
@@ -263,7 +299,23 @@ function collect(root){
     if(!fs.existsSync(motionPath))continue;
     const index=JSON.parse(fs.readFileSync(full,'utf8'));
     const motion=JSON.parse(fs.readFileSync(motionPath,'utf8'));
+    // Hosted captures place the audit at scenario root; existing offline
+    // archives may place it at artifact root. Neither is game source.
+    const auditPaths=[path.join(path.dirname(dir),'native-film-integrity.json'),
+      path.join(root,entry.name,'native-film-integrity.json')];
+    const auditFile=auditPaths.find(candidate=>fs.existsSync(candidate));
+    let nativeFilmAudit=null;
+    if(auditFile)try{nativeFilmAudit=JSON.parse(fs.readFileSync(auditFile,'utf8'));}
+      catch{nativeFilmAudit={status:'BLOCKED',schemaVersion:1,
+        error:'unreadable native film audit JSON'};}
     const webm=path.join(dir,'live.webm');
+    const videoPresent=fs.existsSync(webm);
+    let videoSha256=null,videoBytes=null;
+    if(videoPresent)try{
+      const bytes=fs.readFileSync(webm);
+      videoBytes=bytes.length;
+      videoSha256=createHash('sha256').update(bytes).digest('hex');
+    }catch{videoSha256=null;videoBytes=null;}
     const clockPath=path.join(dir,'native-video-clock.json');
     let videoClock=null;
     if(fs.existsSync(clockPath)){
@@ -273,7 +325,8 @@ function collect(root){
     }
     rows.push({artifact:entry.name,source:match[1],scenario:match[2],
       viewport:path.basename(dir),sourceSha:motion.sourceSha,motion,index,videoClock,
-      videoPath:path.relative(root,webm),videoPresent:fs.existsSync(webm)});
+      videoPath:path.relative(root,webm),videoPresent,
+      videoSha256,videoBytes,nativeFilmAudit});
    }
   }
   visit(path.join(root,entry.name));

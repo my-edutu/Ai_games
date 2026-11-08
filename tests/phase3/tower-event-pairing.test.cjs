@@ -3,8 +3,13 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {FROZEN,matchSourceEvents,auditPairs}=require('../../scripts/tower-event-pairing.cjs');
 function rec(source,scenario='danger',viewport='portrait'){
  const sha=source==='baseline'?FROZEN:'c'.repeat(40);
+ const filmSha='f'.repeat(64),videoBytes=4096;
  return {source,scenario,viewport,artifact:'authentic-'+source,sourceSha:sha,
-  videoPath:'original/live.webm',videoPresent:true,
+  videoPath:'original/live.webm',videoPresent:true,videoSha256:filmSha,videoBytes,
+  nativeFilmAudit:{schemaVersion:1,sourceSha:sha,scenario,
+   status:'SOURCE_VIDEO_TRANSPORT_ONLY',viewports:[{
+    viewport,sourceSha:sha,scenario,status:'SOURCE_VIDEO_TRANSPORT_ONLY',
+    problems:[],originalWebMSha256:filmSha,videoBytes}]},
   motion:{sourceSha:sha,seed:'same-seed',graphicsTier:'low',reducedMotion:false,
    soundEnabled:false,actualWallSeconds:68,
    viewport:viewport==='portrait'?{width:390,height:844}:{width:960,height:600},
@@ -89,7 +94,8 @@ test('tampering, missing film, invalid phone width and short run are detected',(
  b.sourceSha='bad';c.videoPresent=false;c.motion.actualWallSeconds=22;
  c.motion.viewport.width=800;
  const a=auditPairs([b,c],'c'.repeat(40));
- assert.equal(a.comparisons[0].faults.length,5);
+ assert.ok(a.comparisons[0].faults.length>=5);
+ assert.ok(a.comparisons[0].faults.some(s=>s.includes('report-source-or-scenario-mismatch')));
  assert.equal(a.missingPairs.length,7);
  assert.equal(a.verdict,'NOT EVALUATED');
 });
@@ -240,4 +246,25 @@ test('outcome without a real intermission is incomplete, not a film success',()=
  before.index.events=[result,intermission,restart];
  after.index.events=[result,intermission,restart];
  assert.equal(auditPairs([before,after],'c'.repeat(40)).sourceStoryDefects.length,0);
+});
+
+test('native transport audit is required for every candidate/baseline pairing',()=>{
+ const base=rec('baseline','ascent','desktop'),current=rec('candidate','ascent','desktop');
+ const sha='c'.repeat(40);
+ assert.equal(auditPairs([base,current],sha).comparisons[0].provenanceVerified,true);
+ delete current.nativeFilmAudit;
+ let r=auditPairs([base,current],sha);
+ assert.equal(r.comparisons[0].provenanceVerified,false);
+ assert.ok(r.comparisons[0].faults.some(f=>f.includes('report-missing-or-blocked')));
+ current.nativeFilmAudit={...base.nativeFilmAudit,sourceSha:current.sourceSha,
+  viewports:[{...base.nativeFilmAudit.viewports[0],sourceSha:current.sourceSha}]};
+ current.nativeFilmAudit.viewports[0].originalWebMSha256='e'.repeat(64);
+ r=auditPairs([base,current],sha);
+ assert.ok(r.comparisons[0].faults.some(f=>f.includes('sha256-does-not-match-audit')));
+ current.nativeFilmAudit.viewports[0].originalWebMSha256=current.videoSha256;
+ current.nativeFilmAudit.status='BLOCKED';
+ r=auditPairs([base,current],sha);
+ assert.equal(r.comparisons[0].nativeSourceVideoTimebase.candidate,'NOT EVALUATED');
+ assert.equal(r.provenanceDefects.length,1);
+ assert.equal(r.verdict,'NOT EVALUATED');
 });
