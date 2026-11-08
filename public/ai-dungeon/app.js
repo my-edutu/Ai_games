@@ -30,6 +30,7 @@ import {createCombatDirector} from '/dungeon/combat-director.js';
 import {planCombatStage,stagePoint,MAX_STAGE_OFFSET,inspectBattlefieldCrowding} from '/dungeon/combat-staging-plan.js';
 import {createCombatShotContinuity} from '/dungeon/combat-shot-continuity.js';
 import {createPhysicalCameraDirector} from '/dungeon/physical-camera-director.js';
+import {createAdventureCameraDirector} from '/dungeon/adventure-camera-director.js';
 import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
 import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
@@ -67,6 +68,11 @@ function directCamera(s){
 }
 const combatShotContinuity=createCombatShotContinuity();
 const physicalCameraDirector=createPhysicalCameraDirector();
+const adventureCameraDirector=createAdventureCameraDirector({
+ continuity:combatShotContinuity,
+ physical:{resolve(state,base,options){return physicalCameraDirector.resolve(state,base,options)},
+  reset(){physicalCameraDirector.reset();}}
+});
 const actorOcclusionStage=createActorOcclusionStage(THREE);
 const renderContextPlan=planRendererAntialias(()=>document.createElement('canvas'));
 const renderer=new THREE.WebGLRenderer({canvas,antialias:renderContextPlan.antialias,powerPreference:'high-performance',alpha:false});
@@ -824,7 +830,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
  spectatorUI.render(s);
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
- if(sceneChanged){combatShotContinuity.reset();physicalCameraDirector.reset();impactCameraHold=null;lightInjury=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
+ if(sceneChanged){adventureCameraDirector.reset();impactCameraHold=null;lightInjury=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
  // Only the authoritative Warden attack which follows its previous public
  // warning can permanently fracture walkable stone. No fake contact.
  world.userData.wardenImpactScars?.accept(previousState,s,timeNow());
@@ -1010,6 +1016,7 @@ function animate(t){
   directBudget=nextDirectBudget;
  }
  if(w&&h&&(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio()))){renderer.setSize(w,h,false);if(composer){const budget=planPostFXBudget(w,h,renderer.getPixelRatio(),bloomPixelCap);if(budget.pixelRatio!==postFXBudget?.pixelRatio)composer.setPixelRatio(budget.pixelRatio);composer.setSize(w,h);postFXBudget=budget;}camera.aspect=w/h;camera.updateProjectionMatrix()}
+ const cameraType=cameraModes[cameraIndex]||'cinematic';
  const leader=(actors.get(focusedHeroId)?.u.hp>0?actors.get(focusedHeroId):null)||[...actors.values()].find(a=>a.u.faction==='party'&&a.u.hp>0);
  const encounterFrame=autoDirector&&cameraModes[cameraIndex]==='cinematic'?planEncounterFrame(state):null;
  const heldImpact=impactCameraHold?.age<(impactCameraHold?.encounter.mode==='final-blow'?.72:.43)&&!state?.bossWarning?impactCameraHold.encounter:null;
@@ -1030,7 +1037,9 @@ function animate(t){
   // Sustain the camera side through an ACTUAL ongoing two-body engagement;
   // emergency ground telegraphs, death, floor changes and new targets always
   // override immediately. The shot mode/aim/subjects still come from NOW.
-  const cinematicShot=combatShotContinuity.resolve(state,rawCinematicShot,frameInterval,{reducedMotion:reduced});
+  const directorFrame=adventureCameraDirector.begin(state,rawCinematicShot,frameInterval,
+   {autoDirector,view:cameraType,reducedMotion:reduced});
+  const cinematicShot=directorFrame.shot;
  const encounterLighting=cinematicShot?planEncounterLighting(state,cinematicShot,{damageBeat:lightInjury?.beat,reducedMotion:reduced}):null;
  const storyStage=planWorldStoryStage(state,cinematicShot,{width:w,reducedMotion:reduced});
  const target=cinematicShot?new THREE.Vector3(cinematicShot.x-9,0,cinematicShot.z-9):encounterFrame?new THREE.Vector3(encounterFrame.x-9,0,encounterFrame.z-9):(leader?.at??new THREE.Vector3(0,0,0));
@@ -1176,7 +1185,6 @@ function animate(t){
  // Camera composition must favour real readable characters over empty skyline.
  // Focus stays locked on the chosen AI protagonist and widens only if party
  // members truly diverge. These are 3D metre offsets, not CSS zoom tricks.
- const cameraType=cameraModes[cameraIndex]||'cinematic';
  const cinematicLens=cameraType==='cinematic'&&cinematicShot?planReadableExpeditionLens(cinematicShot,{width:w,height:h,reducedMotion:reduced}):null;
  const spread=state?.units.filter(u=>u.faction==='party'&&u.hp>0)
   .reduce((highest,u)=>Math.max(highest,Math.hypot((u.x-9)-target.x,(u.z-9)-target.z)),0)??0;
@@ -1238,8 +1246,8 @@ function animate(t){
    return bodyPoints.length>=3?{...subject,bodyPoints}:subject;
   });
  const basePlannedCamera=duelCamera??vistaCamera??authoredCamera;
- const occlusionCamera=cameraType==='cinematic'&&autoDirector?
-  physicalCameraDirector.resolve(state,basePlannedCamera,{
+ const occlusionCamera=directorFrame.allowPhysical?
+  adventureCameraDirector.selectPhysical(state,basePlannedCamera,{
    subjects:partySightlines,wallPositions:world.userData.wallPositions,
    wallHeights:world.userData.wallHeights,facades:world.userData.dressing?.occlusionFaces,
    facadeReveal:world.userData.dressing?.facadeReveal,
@@ -1253,21 +1261,25 @@ function animate(t){
  // One lens update, no extra GPU passes. Measured actor scale takes priority
  // over distant party coverage; imminent real hazards trigger a wide overview.
  const wantedFov=cinematicLens?.fov??50;
- const nextFov=reduced?wantedFov:camera.fov+(wantedFov-camera.fov)*Math.min(1,cameraDt*5.2);
- if(Math.abs(camera.fov-nextFov)>.015){camera.fov=nextFov;camera.updateProjectionMatrix()}
- const cam=new THREE.Vector3(plannedCamera.position.x,plannedCamera.position.y,plannedCamera.position.z);
- // Avoid flying through walls on first frame before the cinematic camera settles.
- if(!camera.userData.dungeonInitialized){camera.position.copy(cam);camera.userData.dungeonInitialized=true;}
- else camera.position.lerp(cam,reduced?1:Math.min(1,cameraDt*(cinematicLens?.following??4.6)));
- // Body-height aiming makes armor and weapon contact legible, with eased
- // transitions across real scene states instead of neck-snapping camera cuts.
- // The group-vista director can centre the true party without moving any
- // authoritative character. Optical aim follows the same bounded shot as
- // the chosen camera orbit, avoiding the former off-screen companions.
+ // One director owns the entire transition budget: a true imminent warning
+ // widens visibility immediately, while release/counter/recovery inherit a
+ // coherent and bounded camera/aim easing policy. Spectator manual views
+ // never receive a cinematic orbit or automatic subject choice.
  const viewedAim=plannedCamera.look??look;
- const desiredAim=new THREE.Vector3(viewedAim.x,cinematicLens?.lookY??cinematicShot?.lookY??0,viewedAim.z);
- if(!camera.userData.aimInitialized){cameraAim.copy(desiredAim);camera.userData.aimInitialized=true;}
- else cameraAim.lerp(desiredAim,reduced?1:Math.min(1,cameraDt*5.5));
+ const cameraPose=adventureCameraDirector.transition(
+  {position:camera.position,aim:cameraAim,fov:camera.fov},
+  {position:plannedCamera.position,
+   aim:{x:viewedAim.x,y:cinematicLens?.lookY??cinematicShot?.lookY??0,z:viewedAim.z},
+   fov:wantedFov},
+  cameraDt,{following:cinematicLens?.following??4.6,reducedMotion:reduced,
+   initialized:Boolean(camera.userData.dungeonInitialized&&camera.userData.aimInitialized)}
+ );
+ if(cameraPose){
+  if(Math.abs(camera.fov-cameraPose.fov)>.015){camera.fov=cameraPose.fov;camera.updateProjectionMatrix();}
+  camera.position.set(cameraPose.position.x,cameraPose.position.y,cameraPose.position.z);
+  cameraAim.set(cameraPose.aim.x,cameraPose.aim.y,cameraPose.aim.z);
+  camera.userData.dungeonInitialized=true;camera.userData.aimInitialized=true;
+ }
  camera.lookAt(cameraAim);
  // The genuine visible Warden, nearest frontline hero and real danger cells
  // outrank a cinematic close-up that CROPS the encounter. Fit their current
@@ -1407,7 +1419,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
+ combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},adventureCamera:adventureCameraDirector.metrics(),cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
