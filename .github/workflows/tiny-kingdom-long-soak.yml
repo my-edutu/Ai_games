@@ -11,6 +11,8 @@ on:
       - 'scripts/tiny-kingdom-w123-foreground-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
       - 'scripts/tiny-kingdom-w125-runtime-budget-contract.cjs'
+      - 'scripts/tiny-kingdom-w126e-environment-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
       - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
@@ -58,6 +60,7 @@ jobs:
           node scripts/tiny-kingdom-w122-worker-vbo-contract.cjs
           node scripts/tiny-kingdom-w122-workday-supply-contract.cjs
           node scripts/tiny-kingdom-w123-foreground-resident-contract.cjs
+          node scripts/tiny-kingdom-w126e-environment-contract.cjs
           node scripts/tiny-kingdom-w125-market-household-contract.cjs
           node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
       - name: W125 exact-source real ticks, bounded commuter GPU writes and face topology
@@ -65,6 +68,10 @@ jobs:
       - name: W125 authentic worker GPU joint skeleton and exact bound tool/boot endpoints
         run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
       - run: npx playwright install --with-deps chromium
+      - name: W126E real WebGL aerial and human scale
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126e-environment.spec.cjs --workers=1
       - name: Real WebGL 120-day settlement and replay soak
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
