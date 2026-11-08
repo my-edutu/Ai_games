@@ -100,10 +100,16 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
     Math.max(256,Math.ceil(hz*.28)));
    const buffer=ctx.createBuffer(1,sampleCount,hz),samples=buffer.getChannelData(0);
    let seed=0x674cc87d;
+   // Retain one ORIGINAL noise texture across long Warden, warning and
+   // defeat cues. The former non-looping 280ms buffer fell silent before
+   // their 430-600ms envelopes finished, leaving resonator-only tails.
+   // A brief symmetric edge taper avoids a discontinuity on each wrap.
+   const edge=Math.max(8,Math.min(Math.floor(hz*.003),Math.floor(sampleCount/32)));
    for(let i=0;i<sampleCount;i++){
     seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-    const t=i/sampleCount,fade=Math.pow(1-t,.46);
-    samples[i]=((seed/4294967296)*2-1)*fade;
+    const fadeIn=Math.min(1,i/edge),fadeOut=Math.min(1,(sampleCount-1-i)/edge);
+    const edgeGain=Math.sin(Math.min(fadeIn,fadeOut)*Math.PI*.5)**2;
+    samples[i]=((seed/4294967296)*2-1)*edgeGain;
    }
    bus=b;limiter=c;noiseBuffer=buffer;started=true;return true;
   }catch{
@@ -144,7 +150,7 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
    // is monotonic and short; no harsh perpetual synthesized chime is needed.
    const n=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
    sources.push(n);nodes.push(n,filter,gain);
-   n.buffer=noiseBuffer;filter.type=profile.filter;
+   n.buffer=noiseBuffer;n.loop=true;filter.type=profile.filter;
    const brightness=material.brightness;
    filter.frequency.setValueAtTime(clamp(profile.low*brightness,80,9500),t);
    filter.frequency.exponentialRampToValueAtTime(clamp(profile.high*brightness,80,9500),t+duration);
