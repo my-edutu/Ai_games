@@ -84,3 +84,58 @@ test('production-path wiring reuses existing material instances and environmenta
  assert.match(biome,/roleMat\('dampStone'/);
  assert.ok(server.includes("['/dungeon/environment-look-plan.js','environment-look-plan.js']"));
 });
+
+
+test('spatial wear follows actual walkability, preserves exit clarity and never consumes game RNG',async()=>{
+ const {planEnvironmentSurfaceWear:plan}=await load();
+ const map=['#########','#.......#','#.##..#.#','#.......#','#..#....#','#.......#','#.###...#','#.......#','#########'];
+ const before=map.slice(),exit={x:7,z:7};
+ const a=plan(map,1,exit),same=plan(map,1,exit),later=plan(map,2,exit);
+ assert.deepEqual(a,same,'identical real geometry and floor make identical finish');
+ assert.deepEqual(map,before,'planner never alters the authority grid');
+ assert.equal(a.size,map.length);
+ assert.equal(a.tiles.length,map.length**2);
+ let count=0,minimum=1;
+ for(let z=0;z<map.length;z++)for(let x=0;x<map.length;x++){
+  const tile=a.tiles[z*map.length+x];
+  if(map[z][x]!=='#'){
+   count++;assert.equal(tile.x,x);assert.equal(tile.z,z);
+   assert.ok(['traffic','damp','soot','dry'].includes(tile.wear));
+   for(const color of [tile.r,tile.g,tile.b]){
+    assert.ok(color>=.65&&color<=1.08,'walkable stone retains readable value');
+    minimum=Math.min(minimum,color);
+   }
+   assert.ok(Object.isFrozen(tile));
+  }else assert.equal(tile,null,'no finish over solid collision cells');
+ }
+ assert.equal(a.metrics.tiles,count);
+ assert.equal(a.metrics.instanceColorBytes,count*12);
+ assert.equal(a.metrics.bleedIntoWalls,0);
+ assert.ok(a.metrics.damp+a.metrics.soot>0,'visible wear must not be uniform');
+ assert.ok(minimum>=.65);
+ assert.notDeepEqual(a.tiles,later.tiles,'different floors age differently');
+ assert.equal(a.metrics.exitLit,true);
+ assert.ok(Object.isFrozen(a.tiles)&&Object.isFrozen(a.metrics));
+});
+test('environment light presets change direction and physical bounce, never add lights',async()=>{
+ const {planEnvironmentLightPreset:plan}=await load();
+ const keys=new Set(),sky=new Set();
+ for(let i=1;i<=4;i++){
+  const p=plan(i);
+  assert.equal(p.keyDirection.length,3);
+  assert.ok(p.keyDirection.every(Number.isFinite));
+  assert.ok(p.keyDirection[1]>=12&&p.keyDirection[1]<=25);
+  assert.match(p.hemisphereSky,/^#[a-f0-9]{6}$/i);
+  assert.match(p.hemisphereGround,/^#[a-f0-9]{6}$/i);
+  keys.add(p.keyDirection.join('/'));sky.add(p.hemisphereSky);
+  assert.ok(Object.isFrozen(p.keyDirection));
+ }
+ assert.ok(keys.size>=3&&sky.size>=3);
+});
+test('surface-weathering hooks target only existing floor instances and their original cladding',()=>{
+ const app=read('app.js'),environment=read('environment.js');
+ assert.match(app,/planEnvironmentSurfaceWear\(s\.map,s\.floor,s\.exit\)/);
+ assert.match(app,/world\.userData\.floorSurfaceWear=/);
+ assert.match(environment,/batched\(world,box,floorSurface,floorDetails,\{variation:true,floor,wear/);
+ assert.doesNotMatch(app,/\.bossHP\s*=/);
+});
