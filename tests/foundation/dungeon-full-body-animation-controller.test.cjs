@@ -306,6 +306,33 @@ test('source AnimationMixer uses captured visual tick and single controller pose
  assert.match(model,/stageRigArmsAfterMixer\(actor,poseAge,reducedMotion\)/);
 });
 
+
+test('genuine HP-zero source skeleton freezes its living mixer while preserving the existing collapse layer',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const standing=step(null,frame(hero('idle',56,30)));
+ const fallen=step(standing,frame(hero('hurt',57,0),{damageBeat:{
+  id:'hero-1',kind:'vanguard',damage:30,maxHp:30,age:.06,fatal:true}}));
+ assert.equal(fallen.mode,'defeat');
+ assert.equal(fallen.owner.defeat,true);
+ assert.equal(fallen.owner.locomotion,false);
+ assert.equal(fallen.owner.duel,false);
+ const after=step(fallen,frame(hero('idle',58,0),{actionAge:2}));
+ assert.equal(after.mode,'defeat');
+ assert.equal(after.owner.defeat,true);
+ const recovered=step(after,frame(hero('idle',59,30),{actionAge:0}));
+ assert.equal(recovered.mode,'idle','legal revival releases the terminal source-pose hold');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat/);
+ assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
+ assert.match(model,/actor\.mixer\.update\(freezeSource\?0:Math\.min\(/);
+ assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
+ assert.match(model,/fullBodyFrozenSourceActors:/);
+ assert.match(model,/fullBodyFrozenSourceFrames:/);
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-endgame-epilogue.spec.cjs'),'utf8');
+ assert.match(browser,/fullBodyFrozenSourceActors/);
+ assert.match(browser,/fullBodyFrozenSourceFrames/);
+});
+
 test('real renderer consumes exactly one arbiter before imported mixer and preserves reversible bones',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
