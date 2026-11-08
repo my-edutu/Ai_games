@@ -314,6 +314,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(dirty)pool.mesh.visible=visibleSlots>0;
   }
  }
+ // Query retained slots once per pending sound receipt, after actual-frame
+ // lifetime aging. A live swing slot does not certify a successful hit.
+ function hasLiveCue(cueId){
+  if(disposed||typeof cueId!=='string'||!cueId)return false;
+  for(const pool of pools.values())
+   for(const slot of pool.slots)
+    if(slot?.cue?.id===cueId&&slot.age<slot.life)return true;
+  return false;
+ }
  function reset(){
   if(disposed)return;
   for(const pool of pools.values()){
@@ -339,5 +348,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasLiveCue,reset,dispose,stats});
 }

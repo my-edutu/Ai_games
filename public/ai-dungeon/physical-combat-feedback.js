@@ -1,5 +1,6 @@
 import {planPhysicalFeedback} from './physical-feedback-plan.js';
 import {createPhysicalFeedbackVisuals} from './physical-feedback-visuals.js';
+import {classifySubmittedCombatAudio} from './physical-feedback-frame-gate.js';
 import {createOriginalCombatFoley,createCombatMutePreference} from './original-combat-foley.js';
 /**
  * D04 handoff orchestrator: one rendered-frame clock drives physical cues and
@@ -33,7 +34,8 @@ export function createPhysicalCombatFeedback({
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
-  framesAcknowledged=0,staleAudioDropped=0,lastPresentedFrame=null;
+  framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
+   unverifiedVisualLiveness=0,lastPresentedFrame=null;
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
  function flush(){
@@ -41,10 +43,10 @@ export function createPhysicalCombatFeedback({
   lastPresentedFrame=null;
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
- function retainReceipt(cue,visual,audio=false,frameId=null){
+ function retainReceipt(cue,visual,audio=false,frameId=null,decision=null){
   const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
-   intendedDelayMs:Math.round(cue.delay*1000),visual,audio,frameId});
+   intendedDelayMs:Math.round(cue.delay*1000),visual,audio,frameId,decision});
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
@@ -86,15 +88,31 @@ export function createPhysicalCombatFeedback({
   lastPresentedFrame=frameId;framesAcknowledged++;
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
-   if(item.sceneId!==sceneId||
-    unverifiedFrameInterval||!Number.isFinite(renderSubmissionSeconds)||
-    renderSubmissionSeconds<0||
-    observedSeconds+renderSubmissionSeconds-item.at>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
-    staleAudioDropped++;retainReceipt(item.cue,item.visual,false,frameId);continue;
+   // Actual raw-frame aging may expire 230ms injury art in a 300ms frame,
+   // while the separate generic 400ms audio deadline has not yet expired.
+   let visualAlive=null;
+   if(item.visual){
+    if(typeof visuals?.hasLiveCue==='function')
+     visualAlive=safeCall(()=>visuals.hasLiveCue(item.cue.id))===true;
+    else unverifiedVisualLiveness++; // Older injected adapters only.
+   }
+   const decision=classifySubmittedCombatAudio({
+    sceneMatches:item.sceneId===sceneId,
+    observedFrameVerified:!unverifiedFrameInterval,
+    elapsedSeconds:observedSeconds-item.at,
+    submissionSeconds:renderSubmissionSeconds,
+    maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
+    visualAccepted:item.visual,visualAlive
+   });
+   if(decision!=='deliver'){
+    staleAudioDropped++;
+    if(decision==='expired-visual')expiredVisualAudioDropped++;
+    retainReceipt(item.cue,item.visual,false,frameId,decision);continue;
    }
    const audible=!!safeCall(()=>foley?.emit?.(item.cue));
    if(audible){audioAccepted++;released++}
-   retainReceipt(item.cue,item.visual,audible,frameId);
+   retainReceipt(item.cue,item.visual,audible,frameId,
+    audible?'delivered':'foley-rejected');
   }
   return released;
  }
@@ -188,7 +206,8 @@ export function createPhysicalCombatFeedback({
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   expiredQueuedCues,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
-  staleAudioDropped,requirePresentedFrame,
+  staleAudioDropped,expiredVisualAudioDropped,unverifiedVisualLiveness,
+   requirePresentedFrame,
   recentDeliveryReceipts:[...receipts],duplicateCues:duplicates,
   pendingOverflow:overflow,adapterFailures,sceneResets,
   limits:{maxPending:MAX_PHYSICAL_PENDING,maxSeen:MAX_PHYSICAL_SEEN_IDS,
