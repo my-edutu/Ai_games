@@ -128,4 +128,10 @@ test('capture and CI use the same neutral original-video calibration for both fr
   assert.match(capture,/sourceEvents:eventIndex\.events/);
   assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
   assert.doesNotMatch(capture,/videoClockCalibration:'PASS'/);
+  const workflow=fs.readFileSync(path.resolve(__dirname,
+    '../../.github/workflows/tower-transformation-visual-evidence.yml'),'utf8');
+  // The frozen checkout never had this script or test. Copying only the
+  // browser spec made EVERY baseline recording fail before video capture.
+  assert.match(workflow,/cp current-harness\/scripts\/tower-video-timebase\.cjs source\/scripts\/tower-video-timebase\.cjs/);
+  assert.match(workflow,/cp current-harness\/tests\/phase3\/tower-video-timebase\.test\.cjs source\/tests\/phase3\/tower-video-timebase\.test\.cjs/);
 });
