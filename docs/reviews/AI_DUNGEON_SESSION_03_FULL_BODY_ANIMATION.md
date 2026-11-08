@@ -70,6 +70,14 @@ All imports are still owned by Three.js `AnimationMixer`, which owns **base join
 
 **Acceptance evidence is not yet claimed.** CI must execute against this exact branch HEAD and produce inspectable moving gameplay, not just static code assertions. Full corridor-to-boss/restart, long-video clip cadence, high-motion shoulder–weapon coupling, edge-case skin and cloth deformation, phone viewport, and matched pinned baseline (`281735d0910c6b2443648af976003d50412ee324`) require actual independent review.
 
+## Follow-on implementation — unified footfall and planted idle arrival
+
+The previous second native-gait oscillator could become dephased from the existing distance-derived ground stamp and footsteps after a genuine attack interrupted traversal. This candidate now binds source thigh/knee/ankle and opposite torso/shoulder stride to the **same** `groundedPerformance.footPhase` that owns actual stamped footsteps. A new `alignRigFootfallPhase()` contract rejects invalid phase inputs and resets only on genuine teleport, hard action interruption or accessibility stop.
+
+When a legal traversing actor naturally settles into idle, `advanceRigGait()` now accepts bounded `frameDelta` and fades the last planted pose over a short fixed physical interval rather than snapping the feet and pelvis to neutral. Attack, cast, guard, genuine injury, verified evasion, defeat, floor teleport and reduced-motion still release it immediately. The existing `planConstrainedFootSupport()` remains bounded visual joint counterrotation: **not** world-space IK or proof of a locked foot mesh. Browser diagnostics now expose live frame phase error and settling actor counts; browser tests assert bounded real-body phase alignment, and pure tests exercise parity, stage continuity, impossible teleports and exact rest.
+
+`dungeon-fullbody-animation-session.yml` now includes **two separate exact-code organic film jobs** (desktop 1440px and mobile 390px), using unmodified `DungeonRuntime.step()` over the actual connected entry → combat → Warden → floor → defeat/restart milestones, with WebGL video and genuine opt-in original WebAudio. These are **scheduled validation requirements**, not already inspected successes. This additional recording cannot replace independent judged matched baseline comparison.
+
 ## Resource / correctness budget
 
 - One small per-source-actor controller state and one clip-audit object; no clone of GLB geometry or animation clips, no new SkinnedMesh, Mixer or GPU draw call.
