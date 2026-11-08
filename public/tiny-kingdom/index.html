@@ -962,6 +962,8 @@ body[data-street="on"] #camera-tools > :not(#camera-home):not(#camera-street){di
   <div class="supply-stage"><small>Field</small><output id="supply-field">No harvest underway</output></div>
   <div class="supply-stage"><small>In transit</small><output id="supply-cargo">No loaded courier</output></div>
   <div class="supply-stage"><small>Market receipt</small><output id="supply-receipt">No delivery recorded</output></div>
+  <div class="supply-stage"><small>Verified market transfer</small><output id="supply-trade">No traced market transfer</output></div>
+  <div class="supply-stage"><small>Resident meal</small><output id="supply-meal">No traced household meal</output></div>
   <div class="supply-stage"><small>Households</small><output id="supply-home">Waiting for residents</output></div>
   <button id="world-trace-follow" type="button" aria-label="Follow a real producer or loaded courier">Follow real work</button>
  </div>
@@ -12555,11 +12557,13 @@ function completeActualDelivery(p){
  }
  // Older pre-W09 saves booked the load at work time; never double-book.
  if(d.escrowed===true)state[d.resource]+=d.amount;
- deliveryReceipts.unshift({id:d.id,citizen:p.name,job:p.job,
+ const receipt={id:d.id,citizen:p.name,job:p.job,
   resource:d.resource,amount:d.amount,origin:d.origin.slice(),
   destination:d.destination.slice(),time:state.t,
-  creditedAtUnloading:d.escrowed===true});
+  creditedAtUnloading:d.escrowed===true};
+ deliveryReceipts.unshift(receipt);
  if(deliveryReceipts.length>12)deliveryReceipts.length=12;
+ if(d.escrowed===true)registerFarmerReceipt(receipt);
  delete p.delivery;
  const notice=document.getElementById('workday-activity');
  if(document.body.dataset.workday==='delivery'&&
@@ -13308,6 +13312,57 @@ function citizenHomeDestination(p){
 // W126 Living Valley: original workers collect genuine communal grain for
 // the homes they already inhabit; no new villagers, workshops or production.
 const HOUSEHOLD_GRAIN_UNITS=.8,HOUSEHOLD_COLLECTION_HOURS=.65;
+/* W125 PROVENANCE BEGIN */
+// Bind a real farmer's completed escrowed unload to finite market food.
+// The record only reserves existing spendable village inventory; no new food.
+const RECEIPT_GRAIN_LOT_CAP=40,RECEIPT_HOUSEHOLD_EVENT_CAP=24;
+function receiptReservedFood(){
+ return Math.round((state.receiptGrainLots||[]).reduce((sum,lot)=>sum+lot.remaining,0)*1000)/1000;
+}
+function registerFarmerReceipt(receipt){
+ if(!receipt||receipt.job!=='farmer'||receipt.resource!=='food'||
+  receipt.creditedAtUnloading!==true||!Number.isFinite(receipt.amount)||
+  receipt.amount<.8||!Number.isFinite(receipt.time)||
+  typeof receipt.id!=='string'||!receipt.id)return false;
+ const lots=state.receiptGrainLots||(state.receiptGrainLots=[]);
+ if(lots.some(lot=>lot.id===receipt.id))return false;
+ if(lots.length>=RECEIPT_GRAIN_LOT_CAP){
+  const exhausted=lots.findIndex(lot=>lot.remaining<.001);
+  if(exhausted===-1)return false; // Never remove owned grain.
+  lots.splice(exhausted,1);
+ }
+ const reserved=Math.round(receipt.amount*1000)/1000;
+ if(state.food-receiptReservedFood()+1e-7<reserved)return false;
+ lots.push({id:receipt.id,remaining:reserved,time:receipt.time});
+ return true;
+}
+function issueReceiptGrain(p,amount){
+ if(!p||p.provisionReceiptId||!Number.isFinite(amount)||amount<=0)return null;
+ const lot=(state.receiptGrainLots||[]).find(row=>row.remaining+1e-7>=amount);
+ if(!lot||state.food+1e-7<amount)return null;
+ const issued=Math.round(amount*1000)/1000;
+ lot.remaining=Math.max(0,Math.round((lot.remaining-issued)*1000)/1000);
+ state.food-=issued;
+ p.provisions=(p.provisions||0)+issued;
+ p.provisionReceiptId=lot.id;
+ p.provisionMealRecorded=false;
+ const transfer={id:p.name+':'+Math.floor(state.t*30),citizen:p.name,
+  receiptId:lot.id,amount:issued,time:state.t};
+ state.householdTrades=[transfer,...(state.householdTrades||[])]
+  .slice(0,RECEIPT_HOUSEHOLD_EVENT_CAP);
+ return lot.id;
+}
+function receiptHouseholdAudit(){
+ return {source:'verified-farmer-receipt-market-household',
+  reservedFood:receiptReservedFood(),
+  outstandingLots:(state.receiptGrainLots||[]).filter(lot=>lot.remaining>.001)
+   .map(lot=>({id:lot.id,remaining:lot.remaining})),
+  latestVerifiedTrade:(state.householdTrades||[])[0]||null,
+  latestVerifiedMeal:(state.householdMeals||[])[0]||null,
+  issuedCount:(state.householdTrades||[]).length,
+  mealCount:(state.householdMeals||[]).length};
+}
+/* W125 PROVENANCE END */
 function shouldCollectHouseholdProvisions(p){
  const day=Math.floor(state.t/24),hour=((state.t%24)+24)%24;
  if(!dayShiftAt(state.t)||hour<8||hour>=18||
@@ -13328,13 +13383,24 @@ function finishHouseholdProvisions(p){
   p.target=DELIVERY_MARKET.food.slice();routeCitizen(p);
   return false;
  }
- if(state.food<people.length*4+HOUSEHOLD_GRAIN_UNITS){
-  p.workTimer=0;choose(p);return false;
+ // A staffed market grants traceable farm-to-home food only when another
+ // genuine merchant is physically working. Earlier communal grain pickups
+ // remain valid but must never spend the farmer's reserved receipt stock.
+ const staffed=people.some(q=>q!==p&&q.job==='merchant'&&
+  isWorkingAtSite(q)&&Math.hypot(q.x-DELIVERY_MARKET.food[0],
+   q.z-DELIVERY_MARKET.food[1])<6.5);
+ const provenance=staffed?issueReceiptGrain(p,HOUSEHOLD_GRAIN_UNITS):null;
+ if(!provenance){
+  if(state.food-receiptReservedFood()<people.length*4+HOUSEHOLD_GRAIN_UNITS){
+   p.workTimer=0;choose(p);return false;
+  }
+  state.food-=HOUSEHOLD_GRAIN_UNITS;
+  p.provisions=(p.provisions||0)+HOUSEHOLD_GRAIN_UNITS;
+  delete p.provisionReceiptId;
+  delete p.provisionMealRecorded;
  }
- // Only this physically completed handoff transfers actual town stock
- // to a serialized household ration; balance is not duplicated.
- state.food-=HOUSEHOLD_GRAIN_UNITS;
- p.provisions=(p.provisions||0)+HOUSEHOLD_GRAIN_UNITS;
+ // A recorded, escrowed, physically reached farmer receipt is necessary
+ // to claim an origin-specific sale. Otherwise this is communal stock.
  p.provisionVisits=(p.provisionVisits||0)+1;
  p.activity='Traveling home with provisions';
  p.target=citizenHomeDestination(p);p.workTimer=0;routeCitizen(p);
@@ -13361,6 +13427,7 @@ function householdProvisionAudit(){
    storedFood:supplied.reduce((sum,p)=>sum+p.provisions,0),
    homesSupplied:new Set(supplied.map(citizenHomeIndex)).size,
    townFood:state.food,realCitizens:people.length,
+   receiptProvenance:receiptHouseholdAudit(),
    maximumDailyTrips:1,createdActors:0,createdFood:0};
 }
 // The existing real citizen's moving wrist is the only anchor for this bag.
@@ -13426,7 +13493,7 @@ function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;
 function work(p){if(p.energy<30||p.hunger>88){p.activity='Seeking a safe meal';return}const workBefore={food:state.food,wood:state.wood,gold:state.gold,buildings:city.length};p.activity=jobWorkActivity(p);if(p.job==='farmer')state.food+=2.8*climateAt(state.t).yieldMultiplier;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.wood<people.length*.8&&state.gold>=4){
  state.gold-=4;state.wood+=8;p.activity='Importing timber for village repairs';
  if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} arranged a timber shipment for the village workshops.`)}
- }else if(p.job==='merchant'&&state.food>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'){const construction=getBuilderConstructionIntent(p);
+ }else if(p.job==='merchant'&&state.food-receiptReservedFood()>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'){const construction=getBuilderConstructionIntent(p);
   if(construction.canBuild){state.wood-=construction.costWood;
    city.push(construction.site);state.buildCount++;
    report(`${p.name} finished a new cottage for the growing village.`)}}p.energy=Math.max(0,p.energy-3.5);p.hunger=Math.min(100,p.hunger+2);recount(p);recordActualWork(p,workBefore)}
@@ -13496,10 +13563,21 @@ let communityConsumption=0;
 for(const person of people){
  const use=dt*.016,stock=person.activity==='Resting at home'?
   Math.min(use,Math.max(0,person.provisions||0)):0;
- if(stock>0)person.provisions=Math.max(0,person.provisions-stock);
+ if(stock>0){
+  // Only a resident actually resting at their reached home can consume.
+  if(person.provisionReceiptId&&!person.provisionMealRecorded){
+   person.provisionMealRecorded=true;
+   state.householdMeals=[{id:person.name+':'+person.provisionReceiptId,
+    citizen:person.name,receiptId:person.provisionReceiptId,
+    homeIndex:citizenHomeIndex(person),time:state.t,
+    amount:stock,remainingBefore:person.provisions},
+    ...(state.householdMeals||[])].slice(0,RECEIPT_HOUSEHOLD_EVENT_CAP);
+  }
+  person.provisions=Math.max(0,person.provisions-stock);
+ }
  communityConsumption+=use-stock;
 }
-state.food=Math.max(0,state.food-communityConsumption);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
+state.food=Math.max(receiptReservedFood(),state.food-communityConsumption);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
 state.happiness=Math.max(15,Math.min(98,80+(state.food>15?6:-28)-people.reduce((s,p)=>s+p.hunger,0)/people.length*.28+Math.sin(state.t/12)*5));let last=Math.floor((state.t-dt)/24),now=Math.floor(state.t/24);if(now>last){const oldClimate=climateAt((state.t-dt)),newClimate=climateAt(state.t);
  if(oldClimate.season!==newClimate.season)report(`${newClimate.seasonName} arrives in the valley. The fields and village work change with the season.`);
  if(newClimate.weather!==oldClimate.weather&&newClimate.weather==='snow')report('Snow settles over the valley; farmers turn to winter stores.');
@@ -13546,7 +13624,7 @@ function updateUI(){const day=Math.floor(state.t/24)+1; const time=state.t%24;co
 const SAVE_KEY='tiny-kingdom:living-valley:v1',SNAPSHOT_SCHEMA=1;
 function cloneData(value){return JSON.parse(JSON.stringify(value))}
 function checksum(value){let hash=2166136261;const str=JSON.stringify(value);for(let i=0;i<str.length;i++){hash^=str.charCodeAt(i);hash=Math.imul(hash,16777619)}return (hash>>>0).toString(16).padStart(8,'0')}
-function exportSnapshot(){const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};return {schema:SNAPSHOT_SCHEMA,game:'tiny-ai-civilization',algorithm:'seeded-v1',payload,checksum:checksum(payload)}}
+function exportSnapshot(){const payload={seed:seed>>>0,state:cloneData(state),city:cloneData(city),people:cloneData(people),stories:cloneData(stories)};if(deliveryReceipts.length)Object.assign(payload,{deliveryReceipts:cloneData(deliveryReceipts)});return {schema:SNAPSHOT_SCHEMA,game:'tiny-ai-civilization',algorithm:'seeded-v1',payload,checksum:checksum(payload)}}
 function validScalar(n,min,max){return typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max}
 function validPoint(v){return Array.isArray(v)&&v.length===2&&v.every(n=>validScalar(n,-40,40))}
 function validText(s,max=160){return typeof s==='string'&&s.length>0&&s.length<=max&&![...s].some(c=>c.charCodeAt(0)<32)}
@@ -13574,8 +13652,37 @@ function validateSnapshot(snapshot){
    const bonds=Object.entries(p.bonds);return bonds.length<=28&&bonds.every(([k,v])=>validText(k,40)&&validScalar(v,0,1e8));
  }))throw Error('Save contains invalid citizens');
  if(!Array.isArray(q.stories)||q.stories.length>6||!q.stories.every(e=>e&&Number.isInteger(e.day)&&e.day>0&&validText(e.text,240)))throw Error('Save contains invalid chronicles');
+ // W125 additive provenance validation remains compatible with old saves.
+ if(s.receiptGrainLots!==undefined&&(!Array.isArray(s.receiptGrainLots)||
+  s.receiptGrainLots.length>RECEIPT_GRAIN_LOT_CAP||
+  !s.receiptGrainLots.every(l=>l&&validText(l.id,100)&&
+   validScalar(l.remaining,0,1e5)&&validScalar(l.time,0,s.t))||
+  new Set(s.receiptGrainLots.map(l=>l.id)).size!==s.receiptGrainLots.length||
+  s.receiptGrainLots.reduce((sum,l)=>sum+l.remaining,0)>s.food+.002))
+  throw Error('Save contains invalid provenance reservations');
+ for(const key of ['householdTrades','householdMeals'])if(
+  s[key]!==undefined&&(!Array.isArray(s[key])||
+  s[key].length>RECEIPT_HOUSEHOLD_EVENT_CAP||
+  !s[key].every(e=>e&&validText(e.id,120)&&validText(e.citizen,40)&&
+   validText(e.receiptId,100)&&validScalar(e.amount,0,1e5)&&
+   validScalar(e.time,0,s.t))))
+  throw Error('Save contains invalid '+key);
+ if(q.deliveryReceipts!==undefined&&(!Array.isArray(q.deliveryReceipts)||
+  q.deliveryReceipts.length>12||!q.deliveryReceipts.every(r=>
+   r&&validText(r.id,100)&&validText(r.citizen,40)&&
+   ['food','wood'].includes(r.resource)&&
+   validScalar(r.amount,.001,1e5)&&validScalar(r.time,0,s.t)&&
+   validPoint(r.origin)&&validPoint(r.destination)&&
+   typeof r.creditedAtUnloading==='boolean')))
+  throw Error('Save contains invalid delivery receipts');
+ if(q.people.some(p=>
+  (p.provisionReceiptId!==undefined&&!validText(p.provisionReceiptId,100))||
+  (p.provisionMealRecorded!==undefined&&
+   typeof p.provisionMealRecorded!=='boolean')))
+  throw Error('Save contains invalid resident provisioning');
+
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -16877,7 +16984,8 @@ function getSupplyTrailSnapshot(){
     creditedAtUnloading:latest.creditedAtUnloading===true}:null,
   homeTime:!dayShiftAt(state.t),occupiedHomes:homes.length,
   provisions:{collecting:provisions.collecting,carrying:provisions.carrying,
-   homesSupplied:provisions.homesSupplied,storedFood:provisions.storedFood},
+   homesSupplied:provisions.homesSupplied,storedFood:provisions.storedFood,
+   receiptProvenance:provisions.receiptProvenance},
   residentsResting:homes.reduce((sum,h)=>sum+h.residents.length,0),
   noSyntheticActors:true,noSyntheticTransactions:true
  };
@@ -16902,8 +17010,15 @@ function updateSupplyTrail(force=false){
   flow.provisions.collecting+flow.provisions.carrying>0?
     flow.provisions.collecting+' collecting · '+flow.provisions.carrying+' taking grain home':
     'Day shift · residents at work';
+ const provenance=flow.provisions.receiptProvenance;
+ const trade=provenance.latestVerifiedTrade,meal=provenance.latestVerifiedMeal;
+ const traded=trade?trade.citizen+' received '+trade.amount.toFixed(1)+
+  ' food · farmer receipt '+trade.receiptId:'No traced market transfer';
+ const eaten=meal?meal.citizen+' ate at home · receipt '+meal.receiptId:
+  'No traced household meal';
  const labels=[['supply-field',field],['supply-cargo',carried],
-  ['supply-receipt',received],['supply-home',shelter]];
+  ['supply-receipt',received],['supply-trade',traded],
+  ['supply-meal',eaten],['supply-home',shelter]];
  for(const [id,value] of labels){
   const node=document.getElementById(id);
   if(node.textContent!==value)node.textContent=value;
@@ -18319,7 +18434,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  getForegroundResidentAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
+getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
