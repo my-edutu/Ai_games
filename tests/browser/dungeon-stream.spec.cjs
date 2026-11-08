@@ -469,3 +469,36 @@ test('ongoing real dungeon snapshots cannot dismiss a WebGL recovery warning',as
  expect(await page.locator('body').getAttribute('data-renderer-status')).toBe('context-lost');
  await expect(page.locator('#recovery')).toBeVisible();
 });
+
+
+test('D01: real dungeon retains the WebGL framebuffer between unchanged presentation frames',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/dungeon',{waitUntil:'domcontentloaded'});
+ await expect.poll(()=>page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return Boolean(d?.frame>=4&&d.renderSurface?.setSizeCalls>=1&&d.triangles>100&&d.activeUnits>=3);
+ }),{timeout:60000}).toBe(true);
+ const first=await page.evaluate(()=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
+  return {frame:d.frame,surface:d.renderSurface,run:s?.run,tick:s?.tick,software:d.softwareWebGL};
+ });
+ // The live authority progresses regardless of how many WebGL frames arrive.
+ await expect.poll(()=>page.evaluate(previous=>{
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
+  return Boolean(d?.frame>=previous.frame+5&&s&&
+   (s.run>previous.run||(s.run===previous.run&&s.tick>previous.tick)));
+ },first),{timeout:60000}).toBe(true);
+ const after=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ const next=after.renderSurface;
+ // Genuine layout transitions are allowed; unchanged CSS size must never cause
+ // backing-canvas reallocation, even if the pixel ratio is fractional.
+ if(next.cssWidth===first.surface.cssWidth&&next.cssHeight===first.surface.cssHeight){
+  expect(next.setSizeCalls).toBe(first.surface.setSizeCalls);
+ }
+ expect(next.setSizeCalls).toBeLessThanOrEqual(next.transitions);
+ expect(next.backingPixels).toBeGreaterThan(0);
+ expect(after.directRenderBudget.renderPixels).toBe(next.backingPixels);
+ expect(after.activeUnits).toBeGreaterThanOrEqual(3);
+ if(after.softwareWebGL)expect(next.backingPixels).toBeLessThanOrEqual(650000);
+ expect(errors).toEqual([]);
+});

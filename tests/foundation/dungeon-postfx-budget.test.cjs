@@ -176,3 +176,40 @@ test('actual live WebGL renderer caps only CPU rasterization and reports real do
  assert.match(app,/directRenderBudget:directBudget/);
  assert.match(app,/directDownshifts,/);
 });
+
+
+test('D01: fractional software DPR does not force a same-size framebuffer reset every frame',async()=>{
+ const {planRenderSurfaceChange}=await load();
+ const initial=planRenderSurfaceChange({width:0,height:0,pixelRatio:.708},1440,900,.708);
+ assert.equal(initial.resized,true);assert.equal(initial.sizeChanged,true);
+ assert.equal(initial.ratioChanged,false);assert.equal(initial.framebufferWidth,1019);
+ assert.equal(initial.framebufferHeight,637);
+ assert.notEqual(initial.framebufferWidth,Math.round(1440*.708),
+  'Three.js floors backing pixels, while the old render loop checked Math.round');
+ const retained=planRenderSurfaceChange({width:1440,height:900,pixelRatio:.708},1440,900,.708);
+ assert.equal(retained.resized,false);
+ assert.equal(retained.sizeChanged,false);
+ assert.equal(retained.ratioChanged,false);
+});
+test('D01: only a real CSS viewport/DPR transition reallocates a live renderer surface',async()=>{
+ const {planRenderSurfaceChange}=await load();
+ const before={width:1440,height:900,pixelRatio:.708};
+ const viewport=planRenderSurfaceChange(before,1440,832,.708);
+ assert.equal(viewport.resized,true);assert.equal(viewport.sizeChanged,true);
+ assert.equal(viewport.ratioChanged,false);
+ const downshift=planRenderSurfaceChange(before,1440,900,.603);
+ assert.equal(downshift.resized,true);assert.equal(downshift.sizeChanged,false);
+ assert.equal(downshift.ratioChanged,true);
+ const mobile=planRenderSurfaceChange(before,390,844,1);
+ assert.equal(mobile.framebufferWidth,390);assert.equal(mobile.framebufferHeight,844);
+ for(const dims of [[0,900,.708],[390,0,1],[390,844,NaN],[390,844,0],[16385,844,1]])
+  assert.equal(planRenderSurfaceChange(before,...dims).resized,false);
+});
+test('D01: production scene no longer compares rounded framebuffer dimensions',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planRenderSurfaceChange\(directSurface,w,h,nextDirectBudget\.pixelRatio\)/);
+ assert.match(app,/if\(surfaceChange\.sizeChanged\)\{\s*renderer\.setSize\(w,h,false\)/);
+ assert.doesNotMatch(app,/canvas\.width\s*!==\s*Math\.round\(/);
+ assert.doesNotMatch(app,/canvas\.height\s*!==\s*Math\.round\(/);
+ assert.match(app,/renderSurface:\{setSizeCalls:renderSurfaceSetSizeCalls/);
+});
