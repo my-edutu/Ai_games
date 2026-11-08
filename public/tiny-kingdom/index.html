@@ -1550,8 +1550,29 @@ function workSkinPoint(q,rig,body,bind){
  const co=Math.cos(bind.angle),si=Math.sin(bind.angle);
  return [bind.x+co*x+si*z,bind.ground+y,bind.z-si*x+co*z];
 }
-function workSkinSegments(rig,body,bind){
- const v=q=>workSkinPoint(q,rig,body,bind),segments=new Array(13);
+// W128: EXACT full-detail villager pose transform: physical elbow, wrist,
+// boot and occupational tool contacts were baked after hip lean/crouch and
+// spine shift, unlike the compact worker's lower pelvis hinge. The GPU
+// applies joint DELTAS inside that original detailed coordinate system.
+function workSkinDetailedPoint(q,rig,body,bind){
+ const size=bind.scale;
+ let x=q[0]*size,y=q[1]*size,z=q[2]*size;
+ if(rig.working){
+  const rise=Math.max(0,Math.min(1.55*size,y-.44*size));
+  if(rise>0){
+   z+=rise*rig.acting.lean;
+   y-=rig.acting.crouch*Math.min(1,rise/(.65*size));
+  }
+ }
+ const influence=Math.max(0,Math.min(1,(y-.43*size)/(.77*size)));
+ x+=size*body.spineShift*influence;
+ z+=size*body.forwardLean*influence;
+ y+=size*body.rise*influence;
+ const co=Math.cos(bind.angle),si=Math.sin(bind.angle);
+ return [bind.x+co*x+si*z,bind.ground+y,bind.z-si*x+co*z];
+}
+function workSkinSegments(rig,body,bind,point=workSkinPoint){
+ const v=q=>point(q,rig,body,bind),segments=new Array(13);
  segments[0]=[v([0,.43,0]),v([0,1.08,0])];
  for(let side=0;side<2;side++){
   const leg=rig.legs[side],arm=rig.arms[side],j=side===0?1:6;
@@ -1619,6 +1640,14 @@ function workSkinRigidMatrix(from,to){
 function workSkinMatrices(entry,p){
  const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
  const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry);
+ const matrices=new Float32Array(13*16);
+ for(let k=0;k<13;k++)
+  matrices.set(workSkinRigidMatrix(entry.bindSegments[k],current[k]),k*16);
+ return matrices;
+}
+function workSkinDetailedMatrices(entry,p){
+ const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
+ const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry,workSkinDetailedPoint);
  const matrices=new Float32Array(13*16);
  for(let k=0;k<13;k++)
   matrices.set(workSkinRigidMatrix(entry.bindSegments[k],current[k]),k*16);
@@ -1859,6 +1888,7 @@ function setWorkingSkinEnabledForTesting(enabled){
  if(typeof enabled!=='boolean')throw Error('Expected boolean GPU joint mode');
  workingSkinCapable=workingSkinSupported&&enabled;
  resetWorkingResidents();
+ resetForegroundResidents();
  cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
  presentationEpoch++;lastFrozenFrameKey=null;
  return getWorkingSkinAudit();
@@ -1877,6 +1907,13 @@ function setWorkingSkinEnabledForTesting(enabled){
 const FOREGROUND_RESIDENT_MAX=8,FOREGROUND_RESIDENT_FLOAT_BUDGET=760000;
 let foregroundResidentEnabled=true;
 const FOREGROUND_ROOT_METERS=.045,FOREGROUND_ROOT_RADIANS=.035;
+// Same original full villager mesh, one extra 1-float-per-vertex joint-ID
+// buffer. Never duplicates the 10-float vertex stream or adds triangles.
+let foregroundResidentJointBuffer=null,foregroundResidentJointCapacity=0,
+ foregroundResidentJointData=new Float32Array(0),
+ foregroundSkinDrawCalls=0,foregroundSkinMatrices=0,
+ foregroundSkinBindBuilds=0,foregroundSkinFullUploads=0,
+ foregroundSkinPartialUploads=0,foregroundSkinFallbacks=0;
 let foregroundResidentCache=new Map(),foregroundResidentVisible=[],
  foregroundResidentBuffer=null,foregroundResidentCapacity=0,
  foregroundResidentMesh=new Float32Array(0),foregroundResidentLayoutKey='',
@@ -1909,13 +1946,18 @@ function realForegroundFacing(p){
  return focus?Math.atan2(focus[0]-p.x,focus[1]-p.z):0;
 }
 function realForegroundPoseKey(p,i){
- // WorkTimer is the authoritative occupational phase: the GPU must never
- // retain a farmer's sheaf/tool pose across a real production-phase change.
- const active=isWorkingAtSite(p);
+ // Full-detail workers observed as <11.5% of the viewport keep the EXACT
+ // original one-time coat/face/hat geometry. Their 13 true work bones and
+ // local root continue moving each authority tick on the GPU. Re-bake when
+ // a legitimate job/prop/action changes; non-skinned villagers retain the
+ // original fine per-step CPU pose policy.
+ const active=isWorkingAtSite(p),skinned=active&&workingSkinCapable;
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
   p.target?.[0],p.target?.[1],
-  Math.floor(p.phase/(active?.07:.12)),
-  active?Math.floor(p.workTimer/.08):-1,
+  skinned?Math.floor((state.t+i*.23)/1.5):
+   Math.floor(p.phase/(active?.07:.12)),
+  active?(skinned?citizenRigPose(p).acting.action:
+   Math.floor(p.workTimer/.08)):-1,
   Math.floor(p.energy/5),Math.floor(p.hunger/5),
   climateAt(state.t).season].join(':');
 }
@@ -1924,7 +1966,10 @@ function realForegroundPoseStale(entry,p,key,angle){
  const turn=Math.atan2(Math.sin(angle-entry.angle),
   Math.cos(angle-entry.angle));
  const active=isWorkingAtSite(p);
- // 1.5cm / .01rad contact limit for genuine moving hand-held implements.
+ // Only a truly GPU-skinned tiny worker can move continuously by real
+ // shader root and hand joint palette without invalidating mesh vertices.
+ if(active&&workingSkinCapable&&entry.skinned)return false;
+ // All observed work contacts keep the original live CPU limits.
  return Math.hypot(p.x-entry.x,p.z-entry.z)>(active?.015:FOREGROUND_ROOT_METERS)||
   Math.abs(turn)>(active?.010:FOREGROUND_ROOT_RADIANS);
 }
@@ -1942,7 +1987,10 @@ function prepareForegroundResidents(rows){
   let entry=foregroundResidentCache.get(i),fresh=false;
   if(realForegroundPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
+   const skinned=workingSkinCapable&&isWorkingAtSite(p);
+   const labels=[];
    data=[];
+   if(skinned)workSkinCapture=labels;
    try{
     villager(p); // Entire ORIGINAL sculpted face, coat, boots and gait.
     const mesh=new Float32Array(data),after=restingActorCounters();
@@ -1950,9 +1998,17 @@ function prepareForegroundResidents(rows){
     delta.roles=Object.fromEntries(Object.keys(after.roles)
       .map(role=>[role,(after.roles[role]||0)-(before.roles[role]||0)]));
     entry={key,x:p.x,z:p.z,ground:terrain(p.x,p.z),angle,
-     mesh,delta,revision:++foregroundResidentPoseBuilds};
+     mesh,delta,revision:++foregroundResidentPoseBuilds,skinned};
+    if(skinned){
+     entry.scale=.92+(i%5)*.045;
+     const bindRig=citizenRigPose(p);
+     entry.bindSegments=workSkinSegments(bindRig,
+      citizenEmbodiedPose(p,i,bindRig),entry,workSkinDetailedPoint);
+     entry.joints=workSkinTags(mesh.length/10,labels);
+     foregroundSkinBindBuilds++;
+    }
     fresh=true;
-   }finally{data=prior;currentMaterial=materialBefore}
+   }finally{data=prior;currentMaterial=materialBefore;workSkinCapture=null}
   }else{
    applyRestingActorMetrics(entry.delta);
    foregroundResidentReuses++;
@@ -1973,12 +2029,15 @@ function prepareForegroundResidents(rows){
   offset+=row.entry.mesh.length;
  }
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const needJoint=workingSkinCapable&&selected.some(row=>row.entry.skinned);
  if(!foregroundResidentBuffer)foregroundResidentBuffer=gl.createBuffer();
- if(!foregroundResidentBuffer){
+ if(needJoint&&!foregroundResidentJointBuffer)
+  foregroundResidentJointBuffer=gl.createBuffer();
+ if(!foregroundResidentBuffer||(needJoint&&!foregroundResidentJointBuffer)){
   resetRestingActorMetrics(beforeAll);
   foregroundResidentVisible=[];foregroundResidentLayoutKey='';
   foregroundResidentMesh=new Float32Array(0);
-  foregroundResidentFallbacks++;return false;
+  foregroundResidentFallbacks++;foregroundSkinFallbacks++;return false;
  }
  bindGeometry(foregroundResidentBuffer);
  const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
@@ -1986,9 +2045,26 @@ function prepareForegroundResidents(rows){
   n+(row.fresh?row.entry.mesh.length:0),0);
  const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
  if(layoutKey!==foregroundResidentLayoutKey||
-    foregroundResidentMesh.length!==total||coalesce){
+    foregroundResidentMesh.length!==total||
+    (needJoint&&foregroundResidentJointData.length!==total/10)||
+    coalesce){
   const packed=new Float32Array(total);
   for(const row of selected)packed.set(row.entry.mesh,row.offset*10);
+  if(needJoint){
+   // The extra joint IDs are one float per real original vertex and are
+   // retained for the entire full-detail worker's actual occupation beat.
+   const joints=new Float32Array(total/10);
+   for(const row of selected)if(row.entry.skinned)
+    joints.set(row.entry.joints,row.offset);
+   gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentJointBuffer);
+   if(joints.length>foregroundResidentJointCapacity){
+    foregroundResidentJointCapacity=Math.ceil(joints.length/8192)*8192;
+    gl.bufferData(gl.ARRAY_BUFFER,foregroundResidentJointCapacity*4,gl.DYNAMIC_DRAW);
+   }
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,joints);
+   foregroundResidentJointData=joints;foregroundSkinFullUploads++;
+   gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentBuffer);
+  }else foregroundResidentJointData=new Float32Array(0);
   if(total>foregroundResidentCapacity){
    foregroundResidentCapacity=Math.ceil(total/65536)*65536;
    gl.bufferData(gl.ARRAY_BUFFER,foregroundResidentCapacity*4,gl.DYNAMIC_DRAW);
@@ -2001,6 +2077,14 @@ function prepareForegroundResidents(rows){
    if(!row.fresh)continue;
    gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*40,row.entry.mesh);
    foregroundResidentMesh.set(row.entry.mesh,row.offset*10);
+   if(needJoint){
+    const joints=row.entry.skinned?row.entry.joints:new Float32Array(row.count);
+    gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentJointBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*4,joints);
+    foregroundResidentJointData.set(joints,row.offset);
+    foregroundSkinPartialUploads++;
+    gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentBuffer);
+   }
    foregroundResidentUploads++;foregroundResidentPartialUploads++;
    foregroundResidentUploadBytes+=row.entry.mesh.length*4;
   }
@@ -2011,6 +2095,36 @@ function prepareForegroundResidents(rows){
 function drawForegroundResidentMesh(){
  if(!gpuAvailable||!foregroundResidentVisible.length||!foregroundResidentBuffer)return;
  bindGeometry(foregroundResidentBuffer);
+ const skin=workingSkinCapable&&foregroundResidentJointBuffer&&
+  foregroundResidentVisible.some(row=>row.entry.skinned);
+ if(skin){
+  gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentJointBuffer);
+  gl.enableVertexAttribArray(skinJointAttribute);
+  gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0);
+  gl.uniform1f(uniforms.commuterEnabled,1);
+  try{
+   for(const {p,entry,offset,count} of foregroundResidentVisible){
+    gl.uniform1f(uniforms.workSkinActive,entry.skinned?1:0);
+    if(entry.skinned){
+     gl.uniformMatrix4fv(uniforms.workBone,false,workSkinDetailedMatrices(entry,p));
+     foregroundSkinMatrices++;foregroundSkinDrawCalls++;
+    }
+    const facing=realForegroundFacing(p);
+    const yaw=Math.atan2(Math.sin(facing-entry.angle),
+     Math.cos(facing-entry.angle));
+    gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
+    gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
+     terrain(p.x,p.z)-entry.ground,yaw);
+    gl.drawArrays(gl.TRIANGLES,offset,count);
+    foregroundResidentDrawCalls++;foregroundResidentRootDrawCalls++;
+   }
+  }finally{
+   gl.uniform1f(uniforms.workSkinActive,0);
+   gl.uniform1f(uniforms.commuterEnabled,0);
+   gl.disableVertexAttribArray(skinJointAttribute);
+  }
+  return;
+ }
  const drift=foregroundResidentVisible.some(({p,entry})=>
   Math.hypot(p.x-entry.x,p.z-entry.z)>1e-5||
   Math.abs(Math.atan2(Math.sin(realForegroundFacing(p)-entry.angle),
@@ -2043,6 +2157,7 @@ function setForegroundResidentEnabledForTesting(enabled){
 function resetForegroundResidents(){
  foregroundResidentCache.clear();foregroundResidentVisible=[];
  foregroundResidentMesh=new Float32Array(0);foregroundResidentLayoutKey='';
+ foregroundResidentJointData=new Float32Array(0);
  // Keep only a bounded reusable GPU allocation, never stale scene persons.
 }
 function getForegroundResidentAudit(){
@@ -2071,6 +2186,23 @@ function getForegroundResidentAudit(){
   observedWorkerLive:true,authorityModified:false,physicalHardwareFpsUnmeasured:true};
 }
 
+function getForegroundSkinAudit(){
+ return {source:'actual-original-full-villager-13-joint-worksite-gpu',
+  realWorkers:foregroundResidentVisible.filter(row=>row.entry.skinned).length,
+  names:foregroundResidentVisible.filter(row=>row.entry.skinned).map(row=>row.p.name),
+  jointBuffers:foregroundResidentJointBuffer?1:0,
+  jointFloats:foregroundResidentJointData.length,
+  jointCapacityFloats:foregroundResidentJointCapacity,
+  maxActors:FOREGROUND_RESIDENT_MAX,maxMeshFloats:FOREGROUND_RESIDENT_FLOAT_BUDGET,
+  bindBuilds:foregroundSkinBindBuilds,fullJointUploads:foregroundSkinFullUploads,
+  partialJointUploads:foregroundSkinPartialUploads,
+  jointDraws:foregroundSkinDrawCalls,matrices:foregroundSkinMatrices,
+  fallbacks:foregroundSkinFallbacks,
+  exactlyOneOriginalActorPerCitizen:true,
+  followedAndLargeWorkerCPUContactsPreserved:true,
+  deliveryAndMarketUnloadingOriginalHandsPreserved:true,
+  authorityChanged:false,physicalFpsUnmeasured:true};
+}
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
  actorGpuAllocations=0,actorGpuUploads=0,actorGpuDrawCalls=0;
 function setActorStreamSplitForTesting(enabled){
@@ -7724,19 +7856,31 @@ box(x,y+.685*size,z+.211*size,.078*size,.082*size,.026*size,rgb(0xd9c091));
 // Individual gait, boots, hands, long sleeves and silhouettes.
 const worldJoint=q=>[x+q[0]*size,y+q[1]*size,z+q[2]*size];
 for(let sideIndex=0;sideIndex<2;sideIndex++){
- const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex];
+ const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex],j=sideIndex===0?1:6;
  const trouser=rgb(0x534637);
+ let from=data.length;
  taperedMedievalLimb(worldJoint(leg.hip),worldJoint(leg.knee),
   .108*size,.088*size,trouser,6);
+ tagWorkSkinRange(j,from);
+ from=data.length;
  taperedMedievalLimb(worldJoint(leg.knee),worldJoint(leg.ankle),
   .088*size,.061*size,trouser,6);
- const foot=worldJoint(leg.ankle);renderRollingBoot(foot[0],foot[1]+.015*size,foot[2]+.095*size,
+ tagWorkSkinRange(j+1,from);
+ const foot=worldJoint(leg.ankle);from=data.length;
+ renderRollingBoot(foot[0],foot[1]+.015*size,foot[2]+.095*size,
    .19*size,.12*size,.30*size,rgb(0x40382e),leg);
+ tagWorkSkinRange(j+2,from);
+ from=data.length;
  taperedMedievalLimb(worldJoint(arm.shoulder),worldJoint(arm.elbow),
   .115*size,.084*size,c,6);
+ tagWorkSkinRange(j+3,from);
+ from=data.length;
  taperedMedievalLimb(worldJoint(arm.elbow),worldJoint(arm.wrist),
   .084*size,.061*size,c,6);
+ tagWorkSkinRange(j+4,from);
+ from=data.length;
  renderArticulatedHand(worldJoint(arm.wrist),size,skin,sideIndex===0?-1:1);
+ tagWorkSkinRange(j+4,from);
 }
 // Sculpted neck and head with a real facial front (positive Z).
 const headMeshStart=data.length;
@@ -7746,6 +7890,7 @@ sculptedFace(x,y,z,size,skin,hair,faceProfile(p,idx),
 ellipsoid(x,y+1.67*size,z-.035*size,.235*size,.115*size,.185*size,hair,8);
 rescaleCitizenHead(headMeshStart,data.length,x,y,z,size);
 turnCitizenHead(headMeshStart,data.length,x,y,z,size,embodiment);
+tagWorkSkinRange(11,headMeshStart);
 // Gauntlet 019: character-by-character authored visual identity, independent
 // from simulation RNG, so save/replay behaviour remains bit-for-bit stable.
 const mantle=rgb([0x395b51,0x72513c,0x6e3647,0x405879,0x746342,0x4e5a63][idx%6]);
@@ -7773,6 +7918,7 @@ if(idx%4===0){
 rescaleCitizenHead(hairMeshStart,data.length,x,y,z,size);
 turnCitizenHead(hairMeshStart,data.length,x,y,z,size,embodiment);
 renderMedievalHairline(p,idx,x,y,z,size,hair,embodiment);
+tagWorkSkinRange(11,hairMeshStart);
 // Leather satchel with buckles is unique to odd-index citizens.
 if(idx%2===1){
  box(x+.255*size,y+.37*size,z-.12*size,.24*size,.28*size,.15*size,rgb(0x805534));
@@ -7804,7 +7950,9 @@ if(p.job==='builder'){
 if(p.job==='merchant'){box(x-.31*size,y+.55*size,z+.13,.20*size,.36*size,.18*size,rgb(0x7d5433));box(x-.31*size,y+.86*size,z+.13,.13*size,.045*size,.16*size,rgb(0xe0be74))}
 if(p.job==='craftsperson'){box(x+.33*size,y+.48*size,z,.10*size,.48*size,.1*size,rgb(0x6e5140));box(x+.33*size,y+.81*size,z,.23*size,.12*size,.17*size,rgb(0xa3a9a1))}
 if(busy){box(x,y+.1*size,z-.30*size,.10*size,.04*size,.14*size,rgb(0x68533a))}
+const toolStart=data.length;
 emitWorkdayHandTool(p,rig,worldJoint,size);
+tagWorkSkinRange(12,toolStart);
 const bodyEnd=data.length;
 emitStreetCargo(p,x,y,z,size);
 renderCommuterLantern(p,x,y,z,size,rig);
@@ -18731,7 +18879,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
  getWorkingSkinAudit,setWorkingSkinEnabledForTesting,
- getForegroundResidentAudit,setForegroundResidentEnabledForTesting,
+ getForegroundResidentAudit,getForegroundSkinAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
