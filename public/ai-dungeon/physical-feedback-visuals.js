@@ -21,20 +21,27 @@ const clamp=(n,lo,hi)=>Number.isFinite(n)?Math.min(hi,Math.max(lo,n)):lo;
 const cell=p=>p&&Number.isInteger(p.x)&&Number.isInteger(p.z)&&
  p.x>=0&&p.z>=0&&p.x<256&&p.z<256;
 const finite3=p=>p&&[p.x,p.y,p.z].every(Number.isFinite);
-/** A tiny straight, tapered ribbon: the real moving hand defines its world pose.
- * The old swept crescent was generated even when the actual wrist stayed still.
- * Keeping one shared geometry and one retained instanced pool avoids per-hit meshes.
+/** A short, crossed, tapered ribbon: genuine hand motion defines its pose.
+ * The original single XY face vanishes when seen edge-on from a second camera.
+ * Two narrow perpendicular faces share ONE geometry and ONE instanced pool:
+ * no new draw calls, new meshes, synthetic arc, contact claim, or bone edits.
  */
 export function createOriginalBladeStreakGeometry(THREE){
  const vertices=[],indices=[],uvs=[],segments=16;
- for(let i=0;i<=segments;i++){
-  const t=i/segments;
-  const width=.003+.027*Math.pow(Math.sin(Math.PI*t),1.5);
-  for(const side of [-1,1]){
-   vertices.push(side*width,t-.5,0);
-   uvs.push(t,(side+1)/2);
+ for(let plane=0;plane<2;plane++){
+  const offset=vertices.length/3;
+  for(let i=0;i<=segments;i++){
+   const t=i/segments;
+   // Two slimmer faces avoid turning the doubled silhouette into a neon bar.
+   const width=.003+.019*Math.pow(Math.sin(Math.PI*t),1.5);
+   for(const side of [-1,1]){
+    vertices.push(plane===0?side*width:0,t-.5,plane===1?side*width:0);
+    uvs.push(t,(side+1)/2);
+   }
+   if(i<segments){
+    const k=offset+i*2;indices.push(k,k+2,k+1,k+1,k+2,k+3);
+   }
   }
-  if(i<segments){const k=i*2;indices.push(k,k+2,k+1,k+1,k+2,k+3)}
  }
  const g=new THREE.BufferGeometry();
  g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
