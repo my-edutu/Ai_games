@@ -24,7 +24,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const g=window.__tinyKingdom;
    g.setSpeed(0);
    let sites=g.getActiveWorksites(),ticks=0;
-   for(;!sites.length&&ticks<9000;ticks++){
+   // Demand an authentic work beat with enough time left to observe
+   // several original fixed-step poses; do not mistake a job finishing
+   // naturally for a skinning/disappearance failure.
+   for(;!sites.some(site=>site.remaining>.35)&&ticks<9000;ticks++){
     g.step(1/30);
     if(ticks%6===0)sites=g.getActiveWorksites();
    }
@@ -36,7 +39,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   // resident: the near-detail cache is only valid at projected <11.5%
   // height. Find a legitimate currently-working subject, no invented labor.
   let chosen=null;
-  for(const site of selection.sites.slice(0,8)){
+  for(const site of selection.sites.filter(s=>s.remaining>.35)
+   .sort((a,b)=>b.remaining-a.remaining).slice(0,8)){
    const before=await page.evaluate(({x,z})=>{
     const g=window.__tinyKingdom;
     g.setCamera({focus:[x,z],yaw:.55,pitch:.85,zoom:18});
