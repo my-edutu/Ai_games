@@ -82,6 +82,8 @@
   }
  },1000);
  const timer=setInterval(()=>{
+  // Background-tab throttling must not count as a failed cold start.
+  if(document.hidden){ticks=0;return}
   ticks++;
   if(contextLost){ticks=0;return}
   // The post-restore health probe owns graphics recovery and reports a true
