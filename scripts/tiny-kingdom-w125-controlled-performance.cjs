@@ -86,6 +86,48 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
     frames:snapshotStats.renderer.framesDrawn-prev.frames,
     observedSoftwareFps:(snapshotStats.renderer.framesDrawn-prev.frames)/duration,
     beforeHeapBytes:prev.memory,...snapshotStats};
+   // W147 capture-integrity gate: the six-second LIVE profiling window has
+   // already advanced different numbers of authoritative ticks on slower and
+   // faster source variants. That moving workload is legitimate for timing,
+   // but a screenshot of its endpoint is NOT a matched-seed A/B. Restore the
+   // exact original snapshot while PAUSED and draw genuine original world
+   // geometry once before taking the source-matched visual comparison.
+   const priorFrame=snapshotStats.renderer.framesDrawn;
+   const captureWitness=await page.evaluate(({snapshot,workday,camera})=>{
+    const g=window.__tinyKingdom;
+    g.restoreSnapshot(snapshot); // also invalidates retained static/dynamic meshes
+    if(workday){
+     if(!g.getActiveWorksites().length)
+      throw Error('No authentic worksite survives matched snapshot restore');
+     if(!g.watchLiveWorkday())
+      throw Error('Authentic workday follow could not be re-established');
+    }else g.setCamera(camera);
+    return {checksum:g.exportSnapshot().checksum,
+     workday:workday?'original-authoritative-worker':'same-physical-town-lens',
+     citizen:workday?g.getSelectedCitizen():null};
+   },{snapshot,workday,camera:originalCamera});
+   assert.equal(captureWitness.checksum,snapshot.checksum,
+    'Screenshot world must be exact captured source snapshot');
+   await page.waitForFunction(prior=>
+    window.__tinyKingdom.renderQuality().framesDrawn>prior,priorFrame);
+   // The genuine camera director may ease to a moving worker even while the
+   // original simulation is paused. No fake work or actor is introduced.
+   if(workday)await page.waitForTimeout(1000);
+   const captured=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {checksum:g.exportSnapshot().checksum,metrics:g.metrics(),
+     camera:g.getPresentedCameraFrame(),view:g.getCamera()};
+   });
+   assert.equal(captured.checksum,snapshot.checksum,
+    'Paused screenshot cannot inherit different end-of-profiling simulation');
+   result.matchedScreenshot={
+    source:'original-world-restored-snapshot-render',
+    checksum:captured.checksum,
+    day:captured.metrics.day,citizens:captured.metrics.citizens,
+    buildings:captured.metrics.buildings,food:captured.metrics.food,
+    wood:captured.metrics.wood,gold:captured.metrics.gold,
+    physicalCamera:captured.camera,view:captured.view,
+    witness:captureWitness};
    await page.screenshot({path:path.join(dir,currentCase+'-'+label+'.png')});
    assert.equal(result.glError,0,'GL error '+currentCase+' '+label);
    assert(result.frames>0,'No real frame '+currentCase+' '+label);
@@ -167,7 +209,11 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
    .map(label=>{
     const old=a.samples[label],newer=b.samples[label];
     const enough=old.cpu?.samples>=15&&newer.cpu?.samples>=15;
-    return [label,{paired:old.status==='RECORDED'&&newer.status==='RECORDED',
+    assert.equal(old.matchedScreenshot?.checksum,newer.matchedScreenshot?.checksum,
+     'Source A/B screenshots depict different authoritative '+label+' worlds');
+    return [label,{paired:old.status==='RECORDED'&&newer.status==='RECORDED'&&
+      old.matchedScreenshot?.checksum===newer.matchedScreenshot?.checksum,
+     screenshotWorldChecksum:old.matchedScreenshot?.checksum??null,
      enoughForExploratoryP95:enough,
      priorCpuP95Ms:old.cpu?.stages.total.p95??null,
      candidateCpuP95Ms:newer.cpu?.stages.total.p95??null,
