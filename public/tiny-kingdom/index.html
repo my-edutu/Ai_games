@@ -5349,12 +5349,14 @@ function applyHouseCountersDelta(delta){
   }
  }
 }
-/* W76: original inhabited cottages are independently GPU-resident in bounded
- * spatial blocks. Construction refreshes ONLY the block containing the new
- * authoritative home; climate reuses existing seasonal blocks. Every original
- * wall, roof, porch, planter and material stays identical, with no proxy homes.
- * SwiftShader keeps the proven single-settlement renderer unless a test forces
- * this alternative. Real hardware quality/performance remains an open gate. */
+/* W138: Enable original genuine home-block residency for grown SwiftShader
+ * scenes as well as hardware WebGL. Preserve the prior two-buffer rendering
+ * on small software settlements; at 18 existing authoritative homes the
+ * unchanged city architecture is stored in 16m dirty-region VBO blocks.
+ * Only the changed home block is rebuilt when a real builder constructs a
+ * cottage. Every real home, material, actor and collision stays authoritative.
+ * This software scheduling hypothesis needs matched Day120 filming and CPU
+ * profiling; no FPS gain or experience pass is assumed. */
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -5366,8 +5368,10 @@ let homeClusterDisposals=0,homeClusterEvictions=0,homeClusterStaleDrawn=0;
 // not merely the original uncompressed 3D material geometry length.
 let homeClusterReservedFloats=0,homeClusterReusedGpuHandles=0;
 let homeClusterSubDataUploads=0,homeClusterStorageAllocations=0;
+const SOFTWARE_HOME_CLUSTER_MIN_HOMES=18;
 function homeClustersEnabled(){
- return Boolean(gpuAvailable&&(homeClusterOverride===null?!swiftGpu:homeClusterOverride));
+ return Boolean(gpuAvailable&&(homeClusterOverride===null?
+  (!swiftGpu||city.length>=SOFTWARE_HOME_CLUSTER_MIN_HOMES):homeClusterOverride));
 }
 function homeClusterFloats(){
  return homeClusterActive.reduce((sum,entry)=>sum+entry.mesh.length,0);
@@ -5383,6 +5387,10 @@ function getHomePartitionAudit(){
  const keys=new Set(homeClusterActive.map(entry=>entry.key));
  const activeHomes=homeClusterActive.reduce((n,entry)=>n+entry.homes,0);
  return {enabled:homeClustersEnabled(),activeHomes,
+  softwareGrowthThresholdHomes:SOFTWARE_HOME_CLUSTER_MIN_HOMES,
+  softwareRenderer:swiftGpu,
+  mode:!homeClustersEnabled()?'single-settlement':
+   swiftGpu?'real-grown-town-dirty-blocks':'hardware-dirty-blocks',
   activeParts:homeClusterActive.length,
   triangles:homeClusterFloats()/30,
   cachedFloats:homeClusterCachedFloats,
