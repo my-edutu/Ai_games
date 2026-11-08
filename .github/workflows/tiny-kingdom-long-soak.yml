@@ -24,6 +24,8 @@ on:
       - 'scripts/tiny-kingdom-w135-civic-forge-contract.cjs'
       - 'scripts/tiny-kingdom-w136-scene-hud-contract.cjs'
       - 'scripts/tiny-kingdom-w137-original-workskin-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w139-bvh-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
       - 'tests/browser/tiny-kingdom-w136-scene-hud.spec.cjs'
       - 'tests/browser/tiny-kingdom-w135-civic-forge-motion.spec.cjs'
       - 'tests/browser/tiny-kingdom-w128-visible-road.spec.cjs'
@@ -102,6 +104,8 @@ jobs:
         run: node scripts/tiny-kingdom-w136-scene-hud-contract.cjs
       - name: W137 real original workskin camera-LOD continuity contract
         run: node scripts/tiny-kingdom-w137-original-workskin-residency-contract.cjs
+      - name: W139 original static scene spatial BVH and exact AABB visibility parity
+        run: node scripts/tiny-kingdom-w139-bvh-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium

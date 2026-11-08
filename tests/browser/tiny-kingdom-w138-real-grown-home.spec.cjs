@@ -49,6 +49,7 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
     geometry:g.getGeometryAudit(),profile:g.getFrameProfile(),
     cadence:g.getDrawCadenceAudit(),draw:g.getScenicVisibilityStats(),
     names:g.getState().people.map(p=>p.name),world:g.getSupplyTrailSnapshot(),
+    cull:g.getScenicCullReferenceAudit(),bvh:g.getScenicBvhAudit(),
     error:gl?.getError()??-1,overflow:document.documentElement.scrollWidth-innerWidth,
     softwareRenderer:g.renderQuality().softwareRenderer??g.renderQuality().tier};
   });
@@ -60,6 +61,9 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
   expect(current.authority).toBe(snapshot);
   expect(current.names).toEqual(originalNames);
   expect(current.error).toBe(0);
+  expect(current.cull.missingChunks).toBe(0);
+  expect(current.cull.falseVisibleChunks).toBe(0);
+  expect(current.bvh.authoritativeStateChanged).toBe(false);
   expect(current.overflow).toBeLessThanOrEqual(0);
   expect(current.geometry.totalTriangles).toBeLessThan(160000);
   if(mode===true||mode===null){
