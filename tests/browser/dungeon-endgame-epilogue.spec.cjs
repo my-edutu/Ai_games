@@ -38,6 +38,12 @@ test('organic campaign death remains a legible 3D last stand on real desktop and
  // This MUST inspect actual imported skinned body joints, not just a flat defeat-card image.
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.skinnedDefeatActors??0),
   {timeout:90000}).toBeGreaterThan(0);
+ // Real HP-zero bodies must be still at the imported clip level. Only the
+ // genuine static/finite skinned collapse owns the defeated source rig.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceActors??0),
+  {timeout:30000}).toBeGreaterThanOrEqual(3);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceFrames??0),
+  {timeout:30000}).toBeGreaterThan(0);
  await expect(page.locator('#run-result')).toBeVisible();
  await page.locator('#world').screenshot({path:'artifacts/dungeon-m1-natural-last-stand-desktop-real.png',timeout:90000});
  await page.setViewportSize({width:390,height:844});
@@ -49,6 +55,8 @@ test('organic campaign death remains a legible 3D last stand on real desktop and
   tick:terminal.tick,run:terminal.run,floor:terminal.floor,distinctFloors:floors.size,
   combatSnapCount:combat,deadHeroCount:3,
   skinnedDefeatActors:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.skinnedDefeatActors??0),
+  frozenNativeSourceActors:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceActors??0),
+  frozenNativeSourceFrames:await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceFrames??0),
   baselineSha:'281735d0910c6b2443648af976003d50412ee324',
   matchedFullBeforeAfter:false,originalAudioMotionCaptured:false,independentCritics:false
  },null,2)),contentType:'application/json'});
