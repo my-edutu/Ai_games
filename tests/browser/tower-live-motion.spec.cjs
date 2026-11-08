@@ -142,6 +142,11 @@ for (const viewport of viewports) {
         // source HP observation. Unlike a source-only geometry fixture, this
         // records whether the guardian and gate are actually inside the
         // continuous desktop/portrait video camera crop.
+        // Candidate-only passive 3D diagnostic: which original decorative mesh
+        // actually projected across the current living actor's phone frame.
+        // Baseline may lack this field; never compare absent data as a win.
+        observedDecorativeOcclusion: Array.isArray(d.world?.decorativeOcclusionEvidence)
+          ? d.world.decorativeOcclusionEvidence : [],
         observedCamera: d.encounterCamera || null,
         observedActor: d.actorCamera || null,
         observedEarnedGatewayFrame: d.earnedGatewayCamera || null,
@@ -497,6 +502,30 @@ for (const viewport of viewports) {
     JSON.stringify({ sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||
       process.env.GITHUB_SHA||null, crossfireSummary,crossfireWitnesses,
       note:'Read-only source+render telemetry. Not visual quality evidence or a substitute for native WebM.'},null,2));
+  // Passive forensic camera index paired by observed source tick and wall time.
+  // No watermark, fake actor, HUD, source mutation or altered video frames.
+  // Browser samples are NOT calibrated to native WebM presentation timestamps.
+  const obstructionSamples=observations.filter(s=>Array.isArray(s.observedDecorativeOcclusion)&&
+    s.observedDecorativeOcclusion.length).map(s=>({
+      atMs:s.atMs, sourceTick:s.tick, runToken:s.runToken, floor:s.floor,
+      decorativeObjects:s.observedDecorativeOcclusion,
+    }));
+  const foregroundCandidates=obstructionSamples.flatMap(s=>s.decorativeObjects
+    .filter(o=>o.inFrontOfActor&&o.screenCoverage>=.12)
+    .map(o=>({atMs:s.atMs,sourceTick:s.sourceTick,runToken:s.runToken,
+      floor:s.floor,name:o.name,kind:o.kind,coverage:o.screenCoverage,
+      rayContactCount:o.rayContactCount,intendedAlpha:o.intendedAlpha,
+      renderedAlpha:o.renderedAlpha,nearPlaneCrossing:o.nearPlaneCrossing})))
+    .sort((a,b)=>b.coverage-a.coverage).slice(0,64);
+  fs.writeFileSync(path.join(dir,'camera-occlusion-forensics.json'),
+    JSON.stringify({sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
+      scenario,viewport:viewport.name,captureObserver:'read-only-current-scene-camera',
+      originalGameplayVideoUnmodified:true,videoClockCalibration:'NOT EVALUATED',
+      originalSourceFrameObservations:obstructionSamples.length,
+      sourceTickLinkedSamples:obstructionSamples,
+      largestProjectedForegroundCandidates:foregroundCandidates,
+      verdict:'NOT EVALUATED',
+      caveat:'Source/render camera footprint evidence only. A broad AABB is conservative; field names do not prove actual pixels, WebM timecode alignment or a quality preference.'},null,2));
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
     outcomeWitness,
