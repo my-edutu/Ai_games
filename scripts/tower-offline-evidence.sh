@@ -98,7 +98,7 @@ for source in baseline candidate; do
   printf '%s\n' "$ORIGIN_HOST" > "$OUTPUT/$source-original-host-blob.txt"
   echo "Installing/building the unmodified $source gameplay at $SHA"
   INTEGRITY_TESTS=(tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-harness-dependency-check.test.cjs)
-  if [[ "$source" == candidate ]]; then INTEGRITY_TESTS+=(tests/phase3/tower-campaign-audit.test.cjs); fi
+  if [[ "$source" == candidate ]]; then INTEGRITY_TESTS+=(tests/phase3/tower-campaign-audit.test.cjs tests/phase3/tower-native-film-integrity.test.cjs); fi
   (cd "$DIR" && npm ci --no-audit --no-fund && npm run build &&
     node --test "${INTEGRITY_TESTS[@]}") \
     > "$OUTPUT/$source-build-and-integrity.log" 2>&1 ||
@@ -169,6 +169,17 @@ for scenario in ascent danger outcome moving; do
     done
     if [[ -d "$DIR/artifacts/tower-motion/$scenario" ]]; then
       cp -a "$DIR/artifacts/tower-motion/$scenario/." "$DEST/$scenario/"
+    fi
+    # Probe the ACTUAL saved native WebMs, not their claimed viewport sizes.
+    # Both unedited recordings must have >=60s of decoded frame coverage,
+    # the declared original source SHA/seed and the correct first floor.
+    # Sparse motion remains explicitly NOT EVALUATED for human judgement.
+    if ! (cd "$NEW_DIR" && node scripts/tower-native-film-integrity.cjs \
+        "$DEST/$scenario" "$SHA" "$scenario") \
+        > "$DEST/native-film-integrity.json" \
+        2> "$DEST/native-film-integrity.stderr"; then
+      echo "Native WebM transport/provenance veto: $ARTIFACT; retained original film and diagnostics" >&2
+      FAILED=1
     fi
     if [[ "$(git hash-object "$DIR/scripts/serve-tower-stream.cjs")" != "$(git rev-parse "$SHA:scripts/serve-tower-stream.cjs")" ]]; then
       echo "Host changed during recording; provenance invalid." >&2; exit 5
