@@ -58,17 +58,21 @@ export function advanceFullBodyController(previous=null,{
  const authorityAction=ACTIONS.has(raw)?raw:'idle';
  const actionTick=Number.isSafeInteger(unit?.actionTick)&&unit.actionTick>=0?unit.actionTick:null;
  const alive=!(finite(unit?.hp)&&unit.hp<=0);
- const injury=alive&&damageBeat&&finite(damageBeat.damage)&&damageBeat.damage>0&&
+ const injury=alive&&damageBeat&&damageBeat.id===unit.id&&damageBeat.kind===unit.kind&&
+  finite(damageBeat.damage)&&damageBeat.damage>0&&
   finite(damageBeat.maxHp)&&damageBeat.maxHp>0&&
-  finite(damageBeat.age)&&damageBeat.age>=0&&damageBeat.age<.38&&!damageBeat.fatal;
- const evasion=alive&&!injury&&evasionBeat&&
-  finite(evasionBeat.age)&&evasionBeat.age>=0&&evasionBeat.age<.48;
+  finite(damageBeat.age)&&damageBeat.age>=0&&damageBeat.age<.55&&!damageBeat.fatal;
+ const evasion=alive&&!injury&&evasionBeat&&evasionBeat.id===unit.id&&
+  evasionBeat.kind===unit.kind&&Number.isSafeInteger(evasionBeat.tick)&&
+  Number.isInteger(evasionBeat.dx)&&Number.isInteger(evasionBeat.dz)&&
+  Math.abs(evasionBeat.dx)+Math.abs(evasionBeat.dz)===1&&
+  finite(evasionBeat.age)&&evasionBeat.age>=0&&evasionBeat.age<.58;
  // Never animate a "move" that has no actual rendered displacement.
  const walking=alive&&grounded?.moving===true&&grounded?.clipAction==='move'&&
   !reducedMotion;
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
   authorityAction==='attack'?'attack':authorityAction==='cast'?'cast':
-  authorityAction==='hurt'?'hurt':authorityAction==='guard'?'guard':
+  authorityAction==='hurt'?'idle':authorityAction==='guard'?'guard':
   walking?'move':'idle';
  const clipAction=mode==='evade'||mode==='defeat'?'idle':mode;
  const beatAge=mode==='hurt'&&injury?damageBeat.age:
