@@ -108,7 +108,9 @@ export function planAlternateDungeonGallery(map,floor,exit,main,units=[],traps=[
  const possible=[];
  // Mount physical dressing on EXISTING stone adjoining the lateral passage.
  // The traversable cells contain no upright, furniture, or fictitious stair.
- for(let k=1;k<best.path.length-1;k++){
+ for(let k=0;k<best.path.length;k++){
+  // Include the genuine branch/rejoin portals: an open service hall may not
+  // touch a wall midway, but its real thresholds still meet solid masonry.
   const p=best.path[k];if(cheb(p,exit)<=5)continue;
   for(const [dx,dz] of DIRS){
    const x=p.x+dx,z=p.z+dz;
