@@ -3803,9 +3803,55 @@ function planVisibleStaticDraws(ranges,planes,allowBridge){
   savedDrawCalls:strictDrawCalls-runs.length,
   maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,invalidRanges};
 }
+// W136 Phase 1: retain the *exact* original frustum run plan while the actual
+// physical spectator camera is stationary. The world, workers, shaders, sun,
+// market state and GPU draws continue at every genuinely submitted frame.
+// Each immutable geometry-range identity owns only TWO exact-view plans.
+// No angle rounding, estimated visibility, new culling or missing citizens.
+const SCENIC_DRAW_PLAN_VIEWS_PER_MESH=2;
+const scenicDrawPlanCache=new WeakMap();
+let scenicDrawPlanHits=0,scenicDrawPlanBuilds=0,scenicDrawPlanEvictions=0;
+let scenicDrawPlanBypasses=0;
+function planRetainedStaticDraws(ranges,planes,bridge){
+ // Reject nonfinite/partial camera data; never reuse a plan against an
+ // uncertain lens. The genuine legacy planner remains the authority.
+ if(!Array.isArray(planes)||planes.length!==6||
+    planes.some(p=>!Array.isArray(p)||p.length!==4||
+     p.some(v=>!Number.isFinite(v)))){
+  scenicDrawPlanBypasses++;
+  return planVisibleStaticDraws(ranges,planes,bridge);
+ }
+ const key=(bridge?'bridge':'strict')+'|'+
+  planes.map(p=>p.join(',')).join('|');
+ let entries=scenicDrawPlanCache.get(ranges);
+ if(!entries){entries=[];scenicDrawPlanCache.set(ranges,entries);}
+ const found=entries.findIndex(entry=>entry.key===key);
+ if(found!==-1){
+  const hit=entries.splice(found,1)[0];
+  entries.push(hit);scenicDrawPlanHits++;
+  return hit.plan;
+ }
+ // The original complete per-cell conservative AABB planner builds once for
+ // each exact projection. Every draw range and bridge count is identical.
+ const plan=planVisibleStaticDraws(ranges,planes,bridge);
+ entries.push({key,plan});scenicDrawPlanBuilds++;
+ if(entries.length>SCENIC_DRAW_PLAN_VIEWS_PER_MESH){
+  entries.shift();scenicDrawPlanEvictions++;
+ }
+ return plan;
+}
+function getScenicDrawPlanCacheAudit(){
+ return {source:'original-geometry-exact-camera-draw-command-residency',
+  viewsPerMeshLimit:SCENIC_DRAW_PLAN_VIEWS_PER_MESH,
+  hits:scenicDrawPlanHits,builds:scenicDrawPlanBuilds,
+  evictions:scenicDrawPlanEvictions,bypasses:scenicDrawPlanBypasses,
+  noCitizenOrHouseOmission:true,authorityChanged:false,
+  condition:'same immutable range array, exact six frustum planes and batching mode',
+  measurement:'CPU planner work only; not GPU FPS or experience PASS'};
+}
 function drawVisibleStaticChunks(target,ranges,planes){
  const bridge=staticBatchBridgeOverride===null?!swiftGpu:staticBatchBridgeOverride;
- const {runs,...audit}=planVisibleStaticDraws(ranges,planes,bridge);
+ const {runs,...audit}=planRetainedStaticDraws(ranges,planes,bridge);
  // Identical visibility and exact vertex ranges on both paths. The optional
  // native multi-draw call reduces repeated JS->driver calls on supported GPUs.
  // Unsupported devices and oversized batches submit every original run.
@@ -18756,6 +18802,33 @@ function updateWorldActorTag(cameraMatrix){
  audit.label=title;audit.cargoId=load?.id||null;
  worldActorTagAudit=audit;
 }
+// W136: the old every-14-rendered-frame HUD cadence made REAL food, worker,
+// courier and household events appear up to eight seconds late at ~1.7
+// SwiftShader FPS. Wall-clock cadence is a presentation boundary only.
+// Every submitted slow/software frame refreshes truth; hardware refreshes
+// at most about 4.5 times/second, independent of rendering frame rate.
+// No offscreen simulation, fake courier or synthetic UI snapshot is inserted.
+const LIVE_HUD_MAX_WALL_INTERVAL_MS=220;
+let liveHudLastWall=-Infinity,liveHudUpdates=0,liveHudSkippedFrames=0;
+function presentResponsiveWorldHud(wallNow){
+ const lowFrameRate=swiftGpu||!gpuAvailable;
+ const refresh=liveHudUpdates===0||lowFrameRate||
+  wallNow-liveHudLastWall>=LIVE_HUD_MAX_WALL_INTERVAL_MS;
+ frames++;
+ if(!refresh){liveHudSkippedFrames++;return false;}
+ updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon();
+ liveHudLastWall=wallNow;liveHudUpdates++;
+ return true;
+}
+function getLiveHudCadenceAudit(){
+ return {source:'actual-authoritative-state-live-hud',
+  softwareEverySubmittedFrame:true,
+  hardwareWallIntervalMs:LIVE_HUD_MAX_WALL_INTERVAL_MS,
+  softwareMode:swiftGpu||!gpuAvailable,updates:liveHudUpdates,
+  skippedHardwareFrames:liveHudSkippedFrames,lastWallMs:
+   Number.isFinite(liveHudLastWall)?liveHudLastWall:null,
+  immutableAuthority:true,rendererFPSUnchangedClaim:false};
+}
 function render(now){requestAnimationFrame(render);
  // The 159k-triangle scene was rebuilt/redrawn up to 12 times per second even
  // after Pause in Canvas2D and SwiftShader, starving camera-button input in CI.
@@ -19446,7 +19519,7 @@ drawResidentCommuters();
 drawWorkingResidentMesh();
 drawForegroundResidentMesh();
  if(gpuAvailable)drawResidentWeather(atmosphere);
- endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();if((frames++%14)===0){updateUI();drawAtlas();updateRealmSignal();updateWorldRibbon()}
+ endGpuFrameTimer(frameGpuQuery);refreshPickedCitizenCaption();presentResponsiveWorldHud(performance.now());
  // Track real unloading on every drawn software frame (rather than waiting
  // 14 frames at ~1.7 FPS). Cap hardware DOM updates to 220ms and changed ticks.
  if(supplyTrailOpen)updateSupplyTrail();
@@ -19506,7 +19579,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
