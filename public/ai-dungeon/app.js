@@ -924,8 +924,8 @@ function actualHeroVisibility(s,at){
  ].filter(o=>o?.visible!==false);
  let tested=0,clear=0,blocked=0,bosses=0,clearBosses=0,blockedBosses=0,samples=0;
  let fullBodyHeroes=0,partiallyVisibleHeroes=0,fullBodyBosses=0,bodySamples=0;
- const blockedByWorld=actorOcclusionStage.createDiagnosticSampler(obstacles);
  const auditStarted=performance.now();
+ const blockedByWorld=actorOcclusionStage.createDiagnosticSampler(obstacles);
  camera.getWorldPosition(rayStart);
  for(const hero of s.units.filter(u=>u.hp>0&&(u.faction==='party'||u.kind==='warden'))){
   const actor=actors.get(hero.id);if(!actor||actor.root.visible===false)continue;
