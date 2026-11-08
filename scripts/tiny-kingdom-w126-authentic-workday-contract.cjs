@@ -120,7 +120,7 @@ assert.equal(nonCargo.hauling,false,'no movie cart without original escrow');
 const stageFixture=new Function('job','activity','fraction','wood',[
  "const p={name:'Genuine Worker Fixture',job,x:7,z:-4,phase:3,",
  " workTimer:fraction*2,activity,path:[],target:[7,-4]};",
- "const state={t:100,wood},city:Array.from({length:12},(_,i)=>[-i,9,i%3]),",
+ "const state={t:100,wood},city=Array.from({length:12},(_,i)=>[-i,9,i%3]),",
  " people=[p],DELIVERY_UNLOAD_HOURS=1;",
  "const isMarketUnloading=()=>false,isWorkingAtSite=()=>true,workDuration=()=>2;",
  extract('getBuilderConstructionIntent'),extract('getAuthenticWorkGesture'),
