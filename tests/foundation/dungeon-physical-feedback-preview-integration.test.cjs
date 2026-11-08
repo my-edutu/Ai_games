@@ -68,3 +68,17 @@ test('stream routes, disposal, effect caps and immutable authority boundaries ar
  const gameplay=read('games/ai-dungeon/src/index.ts');
  assert.ok(gameplay.includes('publicState()'),'the unchanged runtime remains public-state driven');
 });
+
+// An import present on disk but omitted from the stream allowlist is a hard
+// browser module 404: D04 never starts, even though detached unit tests pass.
+test('D04 transitive relative modules are routable in the real stream (not just in Node)',()=>{
+ const server=read('scripts/serve-dungeon-stream.cjs');
+ const modules=['physical-combat-feedback.js','physical-feedback-visuals.js'];
+ for(const module of modules){
+  const source=read('public/ai-dungeon/'+module);
+  for(const [,dependency] of source.matchAll(/from ['"]\.\/([^'"]+\.js)['"]/g)){
+   assert.ok(server.includes("['/dungeon/"+dependency+"','"+dependency+"']"),
+    module+' imports '+dependency+' but /dungeon/'+dependency+' returns 404');
+  }
+ }
+});
