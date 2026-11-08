@@ -140,7 +140,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null){
  // named physical role also usable by the independently built architecture.
  const surface=(role,params)=>{
   const spec=getEnvironmentMaterialRole(role);
-  const mat=new THREE.MeshStandardMaterial({...params,roughness:spec.roughness,metalness:spec.metalness});
+  const mat=new THREE.MeshStandardMaterial({...params,roughness:params.roughness??spec.roughness,metalness:params.metalness??spec.metalness});
   mat.userData.environmentMaterialRole=role;return mat;
  };
  const cryptGrade=(floor-1)%4===0;
