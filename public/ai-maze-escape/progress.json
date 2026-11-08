@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T14:57:25.000Z",
+  "updatedAt": "2026-11-08T15:54:30.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass211 evidence gate: same-run native pressure frames now require the photographed publicly visible trap's OWN modeled jaw to open >=0.60 rad and its real pressure clock >=0.68, then return to <=0.21 rad on approach/withdrawal; other visible traps cannot impersonate its motion. Original full-frame 320/390 SHA/canvas/framing/44px/privacy tests unchanged. Source parsed but current-HEAD runtime WebGL/CI and independent Nintendo critic PENDING while Actions queued and coding tunnel disconnected. This is NOT a rendered quality win. Draft PR #53 active, unmerged/undeployed."
+    "summary": "Pass212 strengthens original WebGL acceptance: only a complete same-run PUBLIC approach, contact and withdrawal to the same trap counts as captured. One-sided chronology is recorded as missing evidence, never a successful three-beat playthrough. Pass211 per-cell hinge, strict actual full-frame native SHA/framing/44px/privacy and resource limits unchanged. This is source-only; HEAD-matched Actions and independent critic are blocked, Nintendo quality bar NOT MET; PR #53 remains open draft, unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass212 2026-11-08: Full genuine public Tide-Shear arc required before claiming source-bound continuous 3D gameplay evidence. Incomplete approach or withdrawal now produces captured:false with explicit missing side; complete all-three retains original hinge, same-canvas/WebGL, SHA, NDC, 44px and privacy gates. Evidence-only source candidate; new HEAD runtime/visual criticism unavailable (Actions queued and workspace disconnected). Fixed Nintendo bar NOT MET, PR draft active.",
     "Pass211 2026-11-08: Corrected a material native evidence false-positive: merely advancing the same WebGL renderer was not proof of the pictured pressure hazard opening. The actual visible source-bound cell now reports its real modeled jaw radians and clock; public approach/pressure/withdrawal Playwright screenshots require clear real opening/release. Original strict full-scene SHA, physical ±0.95, Pip/jaw minimum sizes, canvas continuity, privacy, accessibility and resource budgets remain. Source candidate only, Actions queued, detached critic unavailable, Nintendo bar NOT met.",
     "Pass210 2026-11-08: Source-bound visual evidence repair, not a visual win. Actual pressure approach/contact/withdrawal screenshots previously reloaded the WebGL world at each published tick and reset its mechanism clock. New test keeps the same source-authoritative running scene/canvas within each viewport and checks real renderer-frame advancement while retaining strict native framing, controls and SHA provenance. New head WebGL/CI + independent critic pending.",
     "Pass209 2026-11-08: Source-proven Phase-0 test bug repaired without relaxing thresholds: Pass208 expected left hip positive rotation, but physical rig correctly gives right +0.14 and left -0.14 rad at pressure 0.55. Strict tests now verify both outward planted hips and both reset. No production changes or new screenshot verdict; runner queue and workspace remain unavailable, draft PR #53 active.",

@@ -1,3 +1,9 @@
+# Pass212 — full public pressure arc is mandatory for native gameplay evidence (2026-11-08 UTC)
+
+- The source-bound chronology previously accepted a one-sided 2-frame sequence as `captured:true` when no public approach OR withdrawal existed. That could certify pressure motion without proving BOTH anticipation and release in genuine autonomous play.
+- Strict evidence-only fix: require the same public run to contain all **three** original approach → contact → withdrawal phases, or record an explicit `captured:false` blocker with which side was absent. Keep all original renderer-frame, same-canvas, per-cell jaw >=0.60rad, full-frame original SHA, ±0.95 crop, mobile scale, 44px, privacy, and six-run <100 / spread <=8 acceptance unchanged. No game authority/visual model changed; not a rendered win.
+- New exact-HEAD WebGL/whole-repo tests and independent Nintendo visual comparison remain PENDING while GitHub Actions queued and coding/critic tunnel disconnected. [Dated review](./maze-3d/pass-212-full-public-pressure-arc-evidence-gate-2026-11-08.md). Existing PR #53 remains open draft, no merge/deploy/force.
+
 ### Pass211 — require an actual per-cell pressure opening/release in continuous WebGL evidence (2026-11-08 UTC)
 
 - **Phase-0 blocker:** Pass210's continuous camera/canvas test could still capture the first un-opened warning render; the world diagnostic previously exposed only the largest hinge angle across ALL public traps, so one mechanism could impersonate another.

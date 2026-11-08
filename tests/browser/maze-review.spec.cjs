@@ -1634,12 +1634,15 @@ test('a real close public encounter frames both autonomous actors and saves date
     }
   }
   const chronologyManifest=path.join(dir,'public-tide-shear-chronology.json');
-  if(!chronology){
-    // An absent autonomous approach/withdrawal is an EVIDENCE BLOCKER, not
+  if(!chronology?.before || !chronology?.after){
+    // A PARTIAL autonomous encounter is also an EVIDENCE BLOCKER: two
+    // authentic stills cannot prove a full warning → contact → withdrawal.
     // permission to manufacture an animation or to award a visual pass.
     fs.writeFileSync(chronologyManifest,JSON.stringify({
       capturedAt:new Date().toISOString(),captured:false,
-      reason:'No same-run nearby/withdrawn published tide-shear trajectory within 24 genuine ticks; visual motion NOT verified.',
+      reason:'No COMPLETE same-run approach, contact and withdrawal for one publicly witnessed tide-shear within 24 genuine ticks; full visual motion NOT verified.',
+      containsRealApproach:!!chronology?.before,
+      containsRealWithdrawal:!!chronology?.after,
       source:'Source-authoritative MazeRuntime public frames only',
       testedSeeds:sequences.map(items=>items[0]?.seed).filter(Boolean),
       sourceSha256:nativeSourceHashes,
@@ -1647,7 +1650,10 @@ test('a real close public encounter frames both autonomous actors and saves date
     },null,2));
   }else{
     const motionPhases=[['approach',chronology.before],['pressure',chronology.near],
-      ['withdrawal',chronology.after]].filter(([,phase])=>phase);
+      ['withdrawal',chronology.after]];
+    expect(motionPhases.map(([phase])=>phase),
+      'one continuous public Tide-Shear playthrough must show all three real beats')
+      .toEqual(['approach','pressure','withdrawal']);
     const chronologicalTicks=motionPhases.map(([,phase])=>phase.sample.frame.snapshot.tick);
     expect(chronologicalTicks).toEqual([...chronologicalTicks].sort((a,b)=>a-b));
     expect(new Set(motionPhases.map(([,phase])=>phase.sample.frame.snapshot.runToken)).size)
