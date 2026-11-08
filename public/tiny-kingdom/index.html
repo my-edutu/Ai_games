@@ -1556,22 +1556,41 @@ function isForegroundResidentCandidate(p,i,nearPeople){
  return [p.x,p.z,p.phase,p.energy,p.hunger].every(Number.isFinite)&&
   typeof p.activity==='string'&&typeof p.name==='string';
 }
+// W124: full original villager rig, not a distant impostor. Only an
+// unobserved, physically small-but-near REAL professional may reuse a
+// bounded GPU pose. Human-sized hands, the followed actor, loaded freight
+// and receipt handoffs remain continuously live in the original path.
+function isForegroundWorksiteCandidate(p,i,nearPeople,frame){
+ if(!gpuAvailable||!foregroundResidentEnabled||!p||!nearPeople.has(i)||
+    !isWorkingAtSite(p)||p.delivery||isMarketUnloading(p)||
+    ((follow||liveWorkday)&&i===selectedCitizen)||
+    ![p.x,p.z,p.phase,p.workTimer].every(Number.isFinite))return false;
+ const view=projectRealCitizenDetail(p,frame);
+ return !view.visible||view.heightFraction<.115;
+}
 function realForegroundFacing(p){
  const focus=p.path?.length?p.path[0]:p.target;
  return focus?Math.atan2(focus[0]-p.x,focus[1]-p.z):0;
 }
 function realForegroundPoseKey(p,i){
+ // WorkTimer is the authoritative occupational phase: the GPU must never
+ // retain a farmer's sheaf/tool pose across a real production-phase change.
+ const active=isWorkingAtSite(p);
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
   p.target?.[0],p.target?.[1],
-  Math.floor(p.phase/.12),Math.floor(p.energy/5),
-  Math.floor(p.hunger/5),climateAt(state.t).season].join(':');
+  Math.floor(p.phase/(active?.07:.12)),
+  active?Math.floor(p.workTimer/.08):-1,
+  Math.floor(p.energy/5),Math.floor(p.hunger/5),
+  climateAt(state.t).season].join(':');
 }
 function realForegroundPoseStale(entry,p,key,angle){
  if(!entry||entry.key!==key)return true;
  const turn=Math.atan2(Math.sin(angle-entry.angle),
   Math.cos(angle-entry.angle));
- return Math.hypot(p.x-entry.x,p.z-entry.z)>FOREGROUND_ROOT_METERS||
-  Math.abs(turn)>FOREGROUND_ROOT_RADIANS;
+ const active=isWorkingAtSite(p);
+ // 1.5cm / .01rad contact limit for genuine moving hand-held implements.
+ return Math.hypot(p.x-entry.x,p.z-entry.z)>(active?.015:FOREGROUND_ROOT_METERS)||
+  Math.abs(turn)>(active?.010:FOREGROUND_ROOT_RADIANS);
 }
 function prepareForegroundResidents(rows){
  foregroundResidentVisible=[];
@@ -1691,6 +1710,14 @@ function getForegroundResidentAudit(){
   enabled:foregroundResidentEnabled,
   visiblePeople:foregroundResidentVisible.length,
   originalNames:foregroundResidentVisible.map(row=>row.p.name),
+  // These are genuine occupational actors with authentic original tool and
+  // two-bone body geometry; followed/large workers are NEVER cached.
+  realWorksiteNames:foregroundResidentVisible
+   .filter(row=>isWorkingAtSite(row.p)).map(row=>row.p.name),
+  realWorksiteCount:foregroundResidentVisible
+   .filter(row=>isWorkingAtSite(row.p)).length,
+  contactLimitMeters:.015,contactLimitRadians:.010,
+  followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
   fullOriginalTriangles:foregroundResidentMesh.length/30,
   floats:foregroundResidentMesh.length,maxFloats:FOREGROUND_RESIDENT_FLOAT_BUDGET,
   maxPeople:FOREGROUND_RESIDENT_MAX,capacityFloats:foregroundResidentCapacity,
@@ -16785,11 +16812,12 @@ const workingRows=gpuAvailable?people.map((p,i)=>({p,i}))
 const workingReady=prepareWorkingResidents(workingRows);
 const workingIndices=workingReady?
  new Set(workingResidentVisible.map(row=>row.i)):new Set();
-// Retain the ORIGINAL sculpted near-person geometry for actual off-duty
-// neighbours only. Foreground followed professionals, hand contact and cargo
-// always render every authoritative animation frame as before.
+// W124: retain original sculpted near-person geometry for off-duty people
+// AND small, genuinely working mid-distance professionals. Visible large or
+// followed workers, cargo and actual receiving hands stay continuously live.
 const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
- .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)):[];
+ .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)||
+  isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)):[];
 const foregroundReady=prepareForegroundResidents(foregroundRows);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();

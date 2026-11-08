@@ -17,7 +17,7 @@ for(const n of ['isForegroundResidentCandidate','realForegroundPoseStale',
  'getForegroundResidentAudit'])assert(fn(n).length>100);
 const code=fn('isForegroundResidentCandidate')+';'+fn('realForegroundPoseStale')+
  ';({isForegroundResidentCandidate,realForegroundPoseStale})';
-const ctx={gpuAvailable:true,follow:true,liveWorkday:false,selectedCitizen:0,
+const ctx={gpuAvailable:true,foregroundResidentEnabled:true,follow:true,liveWorkday:false,selectedCitizen:0,
  isMarketUnloading:p=>p.activity==='unloading',
  isWorkingAtSite:p=>p.activity==='harvesting'};
 const {isForegroundResidentCandidate:eligible,realForegroundPoseStale:stale}=
@@ -53,4 +53,27 @@ assert(s.includes('resetWorkingResidents();resetForegroundResidents();'),
  'reset/restore must invalidate original residents');
 assert(s.includes('getForegroundResidentAudit,'),
  'frame evidence must expose real resident counters');
+// W124 RED-before / GREEN-after: genuine near profession hands must keep
+// their real workTimer/phase, exclude followed actors and freight, and
+// retain the full authored rig only when physically small on screen.
+const workerFn=fn('isForegroundWorksiteCandidate');
+assert(workerFn.includes('isWorkingAtSite(p)'));
+assert(workerFn.includes('projectRealCitizenDetail(p,frame)'));
+assert(workerFn.includes('p.delivery'));
+assert(fn('realForegroundPoseKey').includes('p.workTimer'));
+assert(fn('realForegroundPoseStale').includes('active?.015'));
+assert(s.includes('isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)'));
+const workCtx={...ctx,projectRealCitizenDetail:(p,f)=>f};
+const active=vm.runInNewContext(workerFn+';isForegroundWorksiteCandidate',workCtx);
+const farmer={...citizen,job:'farmer',activity:'harvesting',workTimer:2.04};
+assert.equal(active(farmer,1,new Set([1]),{visible:true,heightFraction:.09}),true);
+assert.equal(active(farmer,1,new Set([1]),{visible:true,heightFraction:.20}),false);
+assert.equal(active(farmer,1,new Set(),{visible:false,heightFraction:0}),false);
+assert.equal(active({...farmer,delivery:{id:'real cargo'}},1,new Set([1]),{visible:false,heightFraction:0}),false);
+assert.equal(active({...farmer,activity:'unloading'},1,new Set([1]),{visible:false,heightFraction:0}),false);
+assert.equal(active(farmer,0,new Set([0]),{visible:false,heightFraction:0}),false);
+assert(s.includes('realWorksiteNames:foregroundResidentVisible'));
+assert(s.includes('followedWorkerHandsFullyLive:true'));
+console.log('W124 source-only worksite rig eligibility/real-timer/contact policy PASS; runtime WebGL and FPS unmeasured');
+
 console.log('W123 foreground resident GPU original-pose safety contracts PASS');

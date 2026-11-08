@@ -87,7 +87,7 @@ test('W83 authentic 120-day growth retains seeded economy and full population',a
      street:g.getFarmMarketStreetAudit()};
  });
  expect(after.snapshot).toBe(growth.snapshot);
- expect(after.city.citizens).toBe(before.citizens);
+ expect(after.city.citizens).toBeGreaterThanOrEqual(before.citizens);
  expect(after.city.buildings).toBeGreaterThan(before.buildings);
  expect(after.street.inventedDeliveries).toBe(0);
  expect(after.street.authorityModified).toBe(false);

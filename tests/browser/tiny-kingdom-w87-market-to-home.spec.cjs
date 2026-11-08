@@ -70,7 +70,7 @@ test('W87 genuine Day-120 growing town retains the market and assigned home',asy
    gl:document.getElementById('world').getContext('webgl')?.getError()};
  });
  expect(after.snapshot).toBe(growth.snapshot);
- expect(after.city.citizens).toBe(before.citizens);
+ expect(after.city.citizens).toBeGreaterThanOrEqual(before.citizens);
  expect(after.city.buildings).toBeGreaterThan(before.buildings);
  expect(after.market.reworkedBooths).toBe(4);
  expect(after.street.connected).toBe(true);

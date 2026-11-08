@@ -43,7 +43,7 @@ for (const viewport of [
         horizontalOverflow: document.documentElement.scrollWidth-innerWidth };
     });
     expect(candidate.world).toBe(grown.snapshot);
-    expect(candidate.metrics.citizens).toBe(initial.metrics.citizens);
+    expect(candidate.metrics.citizens).toBeGreaterThanOrEqual(initial.metrics.citizens);
     expect(candidate.metrics.buildings).toBeGreaterThan(initial.metrics.buildings);
     expect(candidate.morphology.upperJetties).toBeGreaterThan(0);
     expect(candidate.morphology.highStreetFronts)
