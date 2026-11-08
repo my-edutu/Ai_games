@@ -84,7 +84,7 @@ export function installSpectatorUI(doc=document){
  const $=id=>doc.getElementById(id),body=doc.body;
  const hud=$('hud-toggle'),map=$('map-toggle'),journal=$('journal-dialog'),open=$('journal-toggle');
  const quickbar=$('spectator-quickbar'),danger=$('danger-readout'),outcome=$('quick-outcome');
- let clean=false,mapOpen=doc.defaultView?.matchMedia?.('(min-width: 760px)')?.matches??true,lastEvents='',lastScene='',lastAnnouncedTick=null;
+ let clean=false,mapOpen=doc.defaultView?.matchMedia?.('(min-width: 760px)')?.matches??true,lastEvents='',lastScene='',lastAnnouncedTick=null,lastAnnouncedRun=null,lastAnnouncedFloor=null;
  function sync(){
   body.dataset.hud=clean?'clean':'visible';body.dataset.map=mapOpen?'open':'closed';
   hud.setAttribute('aria-pressed',String(clean));hud.setAttribute('aria-label',clean?'Show interface (H)':'Hide interface (H)');
@@ -194,12 +194,13 @@ export function installSpectatorUI(doc=document){
     ...(s.cultistWarnings||[]),...(s.revenantWarnings||[])
    ].map(m=>m.impactTick||Infinity)));
   const announce=$('assistive-announcement');
-  if(announce&&lastAnnouncedTick!==null&&s.tick>lastAnnouncedTick&&
+  if(announce&&lastAnnouncedRun===s.run&&lastAnnouncedFloor===s.floor&&
+     lastAnnouncedTick!==null&&s.tick>lastAnnouncedTick&&
      sceneKey!==lastScene&&(cue?.kind==='warning'||cue?.kind==='release'||
        cue?.kind==='counter'||cue?.kind==='hex'||cue?.kind==='breach'))
    announce.textContent=cue.title+'. '+cue.detail;
   if(lastScene!==sceneKey)lastScene=sceneKey;
-  lastAnnouncedTick=s.tick;
+  lastAnnouncedTick=s.tick;lastAnnouncedRun=s.run;lastAnnouncedFloor=s.floor;
   renderQuickbar(s);
   const events=Array.isArray(s.events)?s.events:[];
   const signature=s.run+':'+JSON.stringify(events);
