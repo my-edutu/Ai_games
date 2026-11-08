@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {assessVideoTimebase,distance,visuallyMatchAnchor,
-  meaningfulSourceEvents,FRAME_BYTES} =
+  meaningfulSourceEvents,mapObservedEventTimecodes,FRAME_BYTES} =
   require('../../scripts/tower-video-timebase.cjs');
 
 function anchor(wallAtMs,videoPtsSeconds,extra={}) {
@@ -93,6 +93,31 @@ test('only present observed run/source events receive timecode candidates',()=>{
   assert.ok(actual.every(e=>e.runToken==='A'||e.runToken==='B'));
 });
 
+test('only authentic indexed events receive calibrated original-film search windows',()=>{
+ const indexed=[
+   {kind:'guardian-source-defeated',atMs:120000,sourceTick:400,
+     floor:8,observedRunToken:'run-0',observedEpisode:0},
+   {kind:'guardian-source-physical-threshold',atMs:122000,sourceTick:440,
+     floor:9,observedRunToken:'run-0',observedEpisode:0,
+     fromFloor:8,toFloor:9},
+   {kind:'source-run-token-change',atMs:200000,sourceTick:0,
+     floor:0,observedRunToken:'run-1',observedEpisode:1},
+   {kind:'fake',atMs:121000,sourceTick:'not-source',floor:8,
+     observedRunToken:'run-0'},
+ ];
+ const cal={status:'CALIBRATED',offsetMs:-110000,maxResidualMs:30};
+ const mapped=mapObservedEventTimecodes(indexed,cal,75);
+ assert.equal(mapped.length,3);
+ assert.equal(mapped[0].nativeVideoSeconds,10);
+ assert.equal(mapped[1].nativeVideoSeconds,12);
+ assert.equal(mapped[1].inOriginalVideo,true);
+ assert.equal(mapped[2].inOriginalVideo,false);
+ assert.equal(mapped[0].eventVisibleInVideo,'NOT EVALUATED');
+ assert.equal(mapped[1].sourceToPresentedFrameLatency,'NOT EVALUATED');
+ assert.equal(mapObservedEventTimecodes(indexed,{status:'NOT EVALUATED'},75).length,0);
+ assert.equal(mapObservedEventTimecodes(indexed,cal,NaN).length,0);
+});
+
 test('capture and CI use the same neutral original-video calibration for both frozen and candidate',()=>{
   const capture=fs.readFileSync(path.resolve(__dirname,
     '../browser/tower-live-motion.spec.cjs'),'utf8');
@@ -100,6 +125,7 @@ test('capture and CI use the same neutral original-video calibration for both fr
   assert.match(capture,/native-video-clock\.json/);
   assert.match(capture,/calibrateOriginalVideo\(\{/);
   assert.match(capture,/sourceTicks:passiveSourceTicks\.ticks/);
+  assert.match(capture,/sourceEvents:eventIndex\.events/);
   assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
   assert.doesNotMatch(capture,/videoClockCalibration:'PASS'/);
 });
