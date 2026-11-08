@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T00:13:00Z",
+  "updatedAt": "2026-11-08T02:10:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass201 2026-11-08: Pass200 exact WebGL six-run geometry 37,37,42,42,46,46 spread 9 FAILS fixed <=8, all <100 and stable 37 currently visible referenced shapes. Source candidate protects only actually live scene geometry on guardian withdrawal, rather than stale Pip CPU-cache refs from rigid batching. Full/balanced installed-Three ownership test strengthened. New-HEAD CI/WebGL screenshot and independent Nintendo comparison PENDING; whole CI separately fails missing tiny:stream:self-test. Open draft PR only; never merge/deploy/force."
+    "summary": "Pass202 2026-11-08: previous exact-HEAD WebGL 42429364155 PASSED six-run geometry <100 and spread <=8. Source-bound scene candidate aligns public tide-shear jaw warning/full stroke with existing bronze-relay/ivory-shutter pressure clock and Pip physical reaction; no independent new-HEAD rendered approval or Nintendo quality win yet. Workstream runner and fresh critic disconnected; whole CI still fails missing unrelated Tiny Kingdom stream script. PR #53 stays open draft; no merge/deploy/force."
   },
   "captures": [
     {

@@ -119,3 +119,49 @@ test('unpublished danger, remembered-only trap and next-run reset cannot animate
     assert.equal(world.stats().responsiveTrapSignals,0);
   }finally{world.dispose();cleanup();}
 });
+
+test('both real pressure jaws now act on one public relay/shutter/piston clock, not instant proximity', async()=>{
+  const {THREE,game,world,cleanup}=await loadWorld();
+  try {
+    const state=published(),frozen=JSON.stringify(state);
+    world.update(state);
+    const jaws=[-1,1].map(side=>world.group.getObjectByName(
+      'Disclosed tide-shear hinged jaw 4 '+side));
+    const shutters=[-1,1].map(side=>world.group.getObjectByName(
+      'Published tide-shear floor shutter '+side));
+    assert.ok(jaws.every(x=>x?.isGroup));
+    const pos=game.cellPosition(4,3,3);
+    const near=new THREE.Vector3(pos.x,0,pos.z);
+    const far=new THREE.Vector3(pos.x+40,0,pos.z+40);
+    const budget=world.stats();
+    world.animate(0,{explorerPosition:far,reducedMotion:false});
+    close(Math.abs(jaws[0].rotation.z),.06,'unobserved contact keeps jaws fully braced at rest');
+    world.animate(.05,{explorerPosition:near,reducedMotion:false});
+    const warning=Math.abs(jaws[0].rotation.z);
+    assert.ok(warning>.06 && warning<.30,
+      'first public contact tips real warning jaws but cannot instantly throw them open');
+    close(Math.abs(shutters[0].rotation.z),.03,'the actual floor is still closed during warning');
+    world.animate(.30,{explorerPosition:near,reducedMotion:false});
+    const middle=Math.abs(jaws[0].rotation.z);
+    assert.ok(middle>warning && middle<.66,
+      'both real jaws now follow the opening shutter stroke instead of jumping ahead');
+    world.animate(.65,{explorerPosition:near,reducedMotion:false});
+    for(const [i,side] of [-1,1].entries())
+      close(jaws[i].rotation.z,-side*.66,'paired jaws reach unchanged full physical opening');
+    close(Math.abs(shutters[0].rotation.z),1.11,'the actual floor opened on the same clock');
+    world.animate(.70,{explorerPosition:far,reducedMotion:false});
+    close(Math.abs(jaws[0].rotation.z),.06,'retreat immediately retracts the real jaws');
+    world.animate(.80,{explorerPosition:near,reducedMotion:true});
+    close(Math.abs(jaws[0].rotation.z),.24,'reduced motion retains the existing recognizable jaw pose');
+    world.update(published({visibleCells:[]}));
+    world.animate(.90,{explorerPosition:near,reducedMotion:true});
+    close(Math.abs(jaws[0].rotation.z),.06,'remembered-only pressure never signals danger');
+    world.update(published({result:'trap-death'}));
+    world.animate(.95,{explorerPosition:near,reducedMotion:false});
+    close(Math.abs(jaws[0].rotation.z),.06,'terminal pressure cannot stage a false encounter');
+    for(const key of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(world.stats()[key],budget[key],
+        'event choreography must not allocate another geometry or texture');
+    assert.equal(JSON.stringify(state),frozen,'public choreography never mutates game authority');
+  }finally{world.dispose();cleanup();}
+});

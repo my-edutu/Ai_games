@@ -2244,14 +2244,9 @@ export function createMazeWorld(options = {}) {
     // approaches an already-visible trap. Unknown/remembered-only hazards do
     // not animate. Reduced motion gives both jaws a stable, recognizable pose.
     // All objects were allocated at rebuild time; this loop creates nothing.
-    for (const jaw of trapJaws) {
-      const visible = !snapshot?.result && Array.isArray(snapshot?.visibleCells)
-        && snapshot.visibleCells.includes(jaw.cell);
-      const distance = Math.hypot(hx - jaw.x, hz - jaw.z);
-      const near = visible ? Math.max(0, 1 - distance / (CELL_SIZE * 1.2)) : 0;
-      const angle = reduced && visible ? .24 : .06 + .60 * Math.min(1, near * 2.2);
-      jaw.object.rotation.z = -jaw.side * angle;
-    }
+    // Physical warning jaws share the *same disclosed pressure timeline* as
+    // the floor shutters and piston below. Their pose is updated AFTER those
+    // mechanisms, never from a separate instant proximity snap.
     // The same REAL visible public trap contact drives the grounded piston
     // and two connected shields. Hidden or remembered traps rest, never
     // hint at a private hazard. Reduced motion holds one readable static pose.
@@ -2327,6 +2322,24 @@ export function createMazeWorld(options = {}) {
         // the known tile footprint, changing Pip, or inventing a new hazard.
         shutter.object.rotation.z = -shutter.side * (reduced && visible ? .24 : .03 + 1.08 * shutterBeat);
       }
+    }
+    // One witnessed three-beat MACHINE: bronze relays tip the warning jaws,
+    // then opening ivory shutters carry both tall jaws to their full stroke.
+    // The old independent proximity loop jumped the jaws completely open on
+    // contact while the floor was still closed, breaking the physical story
+    // in native phone footage. The same public progress drives Pip's brace.
+    // No new geometry, warning, damage, collision or undisclosed route cue.
+    // Do not allocate temporary collections in this render-frame loop.
+    for (const jaw of trapJaws) {
+      const signal = trapSignals.find(item => item.cell === jaw.cell);
+      const visible = !snapshot?.result && Array.isArray(snapshot?.visibleCells)
+        && snapshot.visibleCells.includes(jaw.cell);
+      const phase = visible && signal ? signal.publicProgress ?? 0 : 0;
+      const relayBeat = Math.min(1, Math.max(0, phase / .17));
+      const shutterBeat = Math.min(1, Math.max(0, (phase - .34) / .36));
+      const angle = reduced && visible ? .24
+        : .06 + .14 * relayBeat + .46 * shutterBeat;
+      jaw.object.rotation.z = -jaw.side * angle;
     }
     for (const relic of fossilSails) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
