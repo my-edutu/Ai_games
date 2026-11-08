@@ -661,3 +661,31 @@ test('the authentic GLB hand/sole clock cannot outrun its owned full-body stroke
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
  assert.match(app,/updateActor\(a,dt,since,reduced,frameInterval,!document\.hidden\)/);
 });
+
+test('actual visual teleport releases old sword recovery and imported contact pose ownership',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const witnessed=step(null,frame({...hero('attack',71),targetId:'revenant-2'},{
+  actionAge:.215,combatFacing:{targetId:'revenant-2',distance:1,yaw:0}
+ }));
+ assert.equal(witnessed.mode,'attack');
+ assert.equal(witnessed.confirmedContact?.targetId,'revenant-2');
+ const nextIdle=hero('idle',72);
+ const normal=step(witnessed,frame(nextIdle,{actionAge:0,frameDelta:.05,
+  grounded:{moving:false,clipAction:'idle'},teleport:false}));
+ assert.equal(normal.mode,'attack','an ordinary idle tick still permits recovery');
+ const movedToFloor=step(witnessed,frame(nextIdle,{actionAge:0,frameDelta:.05,
+  grounded:{moving:false,clipAction:'idle'},teleport:true}));
+ assert.equal(movedToFloor.mode,'idle','a genuine source-root teleport ends old one-shot ownership');
+ assert.equal(movedToFloor.holding,false);
+ assert.equal(movedToFloor.confirmedContact,null,'previous floor target may not remain visually attached');
+ assert.equal(movedToFloor.actionTick,72,'source action tick must belong to the new floor');
+ assert.equal(movedToFloor.owner.duel,false);
+ const noFakeStride=step(null,frame(hero('move',73),{
+  grounded:{moving:true,clipAction:'move'},teleport:true}));
+ assert.equal(noFakeStride.mode,'idle','teleport is not travelled locomotion');
+ const later=step(movedToFloor,frame(nextIdle,{actionAge:0,teleport:false}));
+ assert.equal(later.mode,'idle','an interrupted source attack cannot reappear after arrival');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/teleport:Boolean\(actor\.locomotionTeleport\)/,
+  'controller consumes actual planExpeditionStep visual teleport, never synthetic grid movement');
+});

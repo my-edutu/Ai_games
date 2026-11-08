@@ -87,7 +87,7 @@ export function auditImportedAnimationClips(clips=[]){
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
  unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,
- actionAge=0,frameDelta=0,frameInterval=frameDelta,visible=true,reducedMotion=false
+ actionAge=0,frameDelta=0,frameInterval=frameDelta,visible=true,reducedMotion=false,teleport=false
 }={}){
  const raw=unit?.action;
  const authorityAction=ACTIONS.has(raw)?raw:'idle';
@@ -103,7 +103,7 @@ export function advanceFullBodyController(previous=null,{
   Math.abs(evasionBeat.dx)+Math.abs(evasionBeat.dz)===1&&
   finite(evasionBeat.age)&&evasionBeat.age>=0&&evasionBeat.age<.58;
  // Never animate a "move" that has no actual rendered displacement.
- const walking=alive&&grounded?.moving===true&&grounded?.clipAction==='move'&&
+ const walking=alive&&!teleport&&grounded?.moving===true&&grounded?.clipAction==='move'&&
   !reducedMotion;
  const requestedAge=safeAge(actionAge);
  const requestedOneShot=Object.hasOwn(ONE_SHOT_RECOVERY,authorityAction)&&
@@ -116,7 +116,7 @@ export function advanceFullBodyController(previous=null,{
  const priorOneShot=previous?.mode==='attack'||previous?.mode==='cast'?
   previous.mode:null;
  const delta=finite(frameDelta)?clamp(frameDelta,0,.05):0;
- const eligibleHold=Boolean(alive&&!injury&&!evasion&&!reducedMotion&&
+ const eligibleHold=Boolean(alive&&!teleport&&!injury&&!evasion&&!reducedMotion&&
   authorityAction==='idle'&&!walking&&priorOneShot&&
   Number.isSafeInteger(previous?.actionTick)&&Number.isSafeInteger(actionTick)&&
   actionTick>=previous.actionTick&&actionTick-previous.actionTick<=1&&

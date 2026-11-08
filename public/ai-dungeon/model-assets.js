@@ -1061,7 +1061,8 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  actor.fullBody=advanceFullBodyController(actor.fullBody,{
    unit:actor.u,grounded:actor.groundedPerformance,damageBeat:actor.damageBeat,
    evasionBeat:actor.evasionBeat,combatFacing:actor.combatFacing,
-   actionAge:since,frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,reducedMotion
+   actionAge:since,frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,reducedMotion,
+    teleport:Boolean(actor.locomotionTeleport)
   });
   if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
   if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
