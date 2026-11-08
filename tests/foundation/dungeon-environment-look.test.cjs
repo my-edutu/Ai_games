@@ -156,7 +156,7 @@ test('original aged metal, timber and cloth detail is bounded and opt-out on sof
  const source=read('dungeon-setpieces.js');
  const atmosphere=read('biome-atmosphere.js');
  const app=read('app.js');
- assert.match(source,/if\(surfaceDetailEnabled\)\{/);
+ assert.match(source,/if\(surfaceDetailEnabled&&placements\.length\)\{/);
  assert.match(source,/materialDetailMaps/);
  assert.match(source,/for\(const texture of detailTextures\)texture\.dispose\(\)/);
  assert.match(atmosphere,/createDungeonSetpieces\(root,map,floor,exit,\{surfaceDetailEnabled\}\)/);
