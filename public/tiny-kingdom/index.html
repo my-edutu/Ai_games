@@ -5589,8 +5589,8 @@ function grainwardMasonryFacing(x,z,variant,index,isCompact){
    const wall=(a,b,lo,hi,col)=>{
     const p=[a,lo,face],q=[b,lo,face],
      r=[b,hi,face],t=[a,hi,face];
-    if(facing<0)quad(p,q,r,t,col);
-    else quad(t,r,q,p,col);
+    if(facing<0)quad(t,r,q,p,col);
+    else quad(p,q,r,t,col);
    };
    // Two uninterrupted stone-laden bays either side of the REAL door;
    // no false new opening, no wall across the pedestrian threshold.
@@ -5627,8 +5627,8 @@ function grainwardMasonryFacing(x,z,variant,index,isCompact){
    const face=z+facing*(d*.5+.125),half=w*.48;
    const p=[x-half,elevation,face],q=[x+half,elevation,face],
     r=[x+half,elevation+.115,face],t=[x-half,elevation+.115,face];
-   if(facing<0)quad(p,q,r,t,oak);
-   else quad(t,r,q,p,oak);
+   if(facing<0)quad(t,r,q,p,oak);
+   else quad(p,q,r,t,oak);
   }
  });
  villageVisualLod.grainwardMasonryHomes++;
