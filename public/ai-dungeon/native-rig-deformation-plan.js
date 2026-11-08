@@ -61,3 +61,30 @@ export function measureSourceRigDeformation(sample,reference=null){
    bounded(sample.skinnedMeshes,0,256):0
  });
 }
+
+
+/** Two original source GLB joint-world observations, NOT sole mesh contact. */
+export function measureSourceJointTravel(before,after){
+ const unavailable=reason=>Object.freeze({comparable:false,reason});
+ const point=p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite);
+ if(!before||!after||!before.sourceInstanceId||before.sourceInstanceId!==after.sourceInstanceId||
+  before.id!==after.id||before.kind!==after.kind)return unavailable('different-source-actor');
+ if(!point(before.rootWorld)||!point(after.rootWorld))return unavailable('missing-world-root');
+ for(const side of ['left','right'])if(!point(before.footJointWorld?.[side])||
+  !point(after.footJointWorld?.[side]))return unavailable('missing-original-foot-joint');
+ const horizontal=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);
+ const relative=(foot,root)=>[foot[0]-root[0],foot[1]-root[1],foot[2]-root[2]];
+ const rounded=n=>Number(n.toFixed(4));
+ const footWorldDeltaMeters={},footRelativeToRootDeltaMeters={},footVerticalDeltaMeters={};
+ for(const side of ['left','right']){
+  const x=before.footJointWorld[side],y=after.footJointWorld[side];
+  footWorldDeltaMeters[side]=rounded(horizontal(x,y));
+  footRelativeToRootDeltaMeters[side]=rounded(horizontal(relative(x,before.rootWorld),relative(y,after.rootWorld)));
+  footVerticalDeltaMeters[side]=rounded(Math.abs(x[1]-y[1]));
+ }
+ return Object.freeze({comparable:true,source:'original-world-ankle-joints-not-sole-contact',
+  actorId:before.id,kind:before.kind,rootTravelMeters:rounded(horizontal(before.rootWorld,after.rootWorld)),
+  footWorldDeltaMeters,footRelativeToRootDeltaMeters,footVerticalDeltaMeters,
+  beforePhase:Number.isFinite(before.groundedFootPhase)?before.groundedFootPhase:null,
+  afterPhase:Number.isFinite(after.groundedFootPhase)?after.groundedFootPhase:null});
+}

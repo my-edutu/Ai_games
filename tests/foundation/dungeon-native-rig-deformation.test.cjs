@@ -104,3 +104,32 @@ test('live deformation reference comes from original inverse-bind matrices, neve
  assert.match(model,/bindReferenceComplete:actorsOut\.length>0&&actorsOut\.every/);
  assert.match(model,/sourceRigDeformationBaselines\.set\(actor\.assetRoot,baseline\)/);
 });
+
+test('source GLB joint-world trajectory distinguishes ankle displacement from whole-actor travel',async()=>{
+ const {measureSourceJointTravel:measure}=await load();
+ const p={id:'v',kind:'vanguard',sourceInstanceId:'original-1',rootWorld:[0,0,0],
+  groundedFootPhase:.25,footJointWorld:{left:[-.1,.09,0],right:[.1,.08,0]}};
+ const q={...p,rootWorld:[.2,0,0],groundedFootPhase:.28,
+  footJointWorld:{left:[-.09,.09,0],right:[.3,.08,0]}};
+ const result=measure(p,q);
+ assert.equal(result.comparable,true);assert.equal(result.rootTravelMeters,.2);
+ assert.deepEqual(result.footWorldDeltaMeters,{left:.01,right:.2});
+ assert.deepEqual(result.footRelativeToRootDeltaMeters,{left:.19,right:0});
+ assert.equal(result.source,'original-world-ankle-joints-not-sole-contact');
+ assert.deepEqual(p.rootWorld,[0,0,0]);
+});
+
+test('missing ankle, nonfinite matrices and re-created source clones fail closed',async()=>{
+ const {measureSourceJointTravel:measure}=await load();
+ const p={id:'v',kind:'ranger',sourceInstanceId:'source-one',
+  rootWorld:[0,0,0],footJointWorld:{left:[-.1,0,0],right:[.1,0,0]}};
+ assert.equal(measure(p,{...p,sourceInstanceId:'recreated'}).reason,'different-source-actor');
+ assert.equal(measure(p,{...p,rootWorld:[NaN,0,0]}).reason,'missing-world-root');
+ assert.equal(measure(p,{...p,footJointWorld:{left:null,right:[.1,0,0]}}).reason,'missing-original-foot-joint');
+ assert.equal(measure(p,{...p,footJointWorld:{left:[Infinity,0,0],right:[.1,0,0]}}).comparable,false);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(model,/footJointWorld=\{left:worldJoint\(feet\.left\),right:worldJoint\(feet\.right\)\}/);
+ assert.match(model,/sourceInstanceId:actor\.assetRoot\.uuid,rootWorld,footJointWorld/);
+ assert.match(browser,/measureSourceJointTravel\(beforeActor,walkingActor\)/);
+});

@@ -1347,11 +1347,21 @@ function inspectSourceRigDeformation(actors){
   const bindReferenceComplete=segments.length===8&&baseline.validSegments===8&&
    baseline.segments.length===segments.length;
   const result=measureSourceRigDeformation(sample,bindReferenceComplete?baseline:null);
+  // Demand-only source-ankle joints; not true toe or sole contact.
+  const worldJoint=bone=>{
+   if(!bone?.getWorldPosition)return null;
+   bone.getWorldPosition(v1);
+   return [v1.x,v1.y,v1.z].every(Number.isFinite)?v1.toArray():null;
+  };
+  const footJointWorld={left:worldJoint(feet.left),right:worldJoint(feet.right)};
+  const rootWorld=worldJoint(actor.root);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
    bindReferenceSource:'original-inverse-bind-matrices',
    bindReferenceSegments:baseline.segments.length,bindReferenceComplete,
    sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,
    sourceHandName:actor.rigHandBoneName||null,
+   sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
+   groundedFootPhase:Number.isFinite(actor.groundedPerformance?.footPhase)?actor.groundedPerformance.footPhase:null,
    sourceClock:actor.sourceClockMode?{mode:actor.sourceClockMode,
     age:actor.fullBody?.age??null,
     sourceTime:actor.activeClip?.time??null,

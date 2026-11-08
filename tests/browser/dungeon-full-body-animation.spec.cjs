@@ -101,6 +101,7 @@ test('real authority movement drives bounded support on original leg bones witho
  test.setTimeout(120000);
  const event=travel(),stage=await loadStage(page,event.before);
  const beforeRig=await nativeRigProof(page);
+ const beforeFrame=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0);
  stage.set(event.after);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFootSupportPeakRad??0),
   {timeout:22000,intervals:[70,90,110,140]}).toBeGreaterThan(.003);
@@ -112,6 +113,18 @@ test('real authority movement drives bounded support on original leg bones witho
  expect(d.authored3D.fullBodySettlingActors).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.rigGaitBones).toBeGreaterThanOrEqual(4);
  const walkingRig=await nativeRigProof(page);
+ // The native rig must have advanced real WebGL frames, not only a route mock.
+ expect(d.frame).toBeGreaterThan(beforeFrame);
+ const originalRigCode=fs.readFileSync(require('node:path').join(__dirname,
+  '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
+ const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
+  Buffer.from(originalRigCode).toString('base64'));
+ const beforeActor=beforeRig.actors.find(a=>a.id===event.actor.id);
+ const walkingActor=walkingRig.actors.find(a=>a.id===event.actor.id);
+ const jointTrajectory=measureSourceJointTravel(beforeActor,walkingActor);
+ expect(jointTrajectory.comparable,'same original GLB and both source ankles').toBe(true);
+ expect(jointTrajectory.rootTravelMeters).toBeGreaterThanOrEqual(0);
+ expect(Object.values(jointTrajectory.footWorldDeltaMeters).every(Number.isFinite)).toBe(true);
  expect(walkingRig.summary.maxStretchFraction).toBeLessThanOrEqual(.20);
  expect(beforeRig.summary.sourceActors).toBeGreaterThanOrEqual(3);
  expect(d.authored3D.missingAssets).toBe(0);
@@ -123,7 +136,8 @@ test('real authority movement drives bounded support on original leg bones witho
   source:'unmodified DungeonRuntime publicState',supportPeak:d.authored3D.fullBodyFootSupportPeakRad,
   gaitBones:d.authored3D.rigGaitBones,phaseErrorRad:d.authored3D.fullBodyFootfallPhaseErrorRad,
   settlingActors:d.authored3D.fullBodySettlingActors,owners:d.authored3D.fullBodyModes,
-  beforeRig,walkingRig
+  beforeRig,walkingRig,jointTrajectory,
+  warning:'Ankle-joint displacement is NOT physical sole-to-stone locking.'
  },null,2))});
 });
 
