@@ -1,3 +1,19 @@
+## W147 · Evidence-corrected active Phase 1 backlog · 8 November 2026
+
+**Current active milestone:** one authentic farmer harvest → named loaded courier → verified market unload → real buyer carrying provisions → real inhabited cottage and matching meal; include real Day120 town and 390px. Pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`; PR #64 remains OPEN DRAFT UNMERGED. **No phase pass.**
+
+**Top five blockers, ranked by measured user impact:**
+
+1. **Rendering spine / scene rebuild spikes (performance owner).** New ARCHIVED W125 genuine SwiftShader A/B [artifact 13629269413](https://github.com/my-edutu/Ai_games/actions/runs/42432688402/artifacts/13629269413) shows Day1 STATIC p95 920→968ms and workday 1241→803ms, with sustained software renderer only ~3–5 FPS at 1024px. This source is older than current. DONE when current-head paired Day1/workday/Day120 CPU stages, native-driver/GPU split, p95<=33.3ms on documented real devices, no blank/cut citizens and <160k triangles are proven; stale data is NOT a current pass.
+2. **Snapshot-equivalent original A/B film (capture/evidence owner).** Prior W125 screenshots were taken AFTER variable six-second live profiling; visible Day1 food HUD 175 vs 177, Day120 gold 550 vs 548. W147 executable harness now restores the identical original authority snapshot before photographing, with checksums required on each side. DONE when exact source G088 vs current-head complete footage and checksummed staged frames are genuinely available, including unchanged authoritative navigation/economy, normal uninterrupted motion and 390px.
+3. **Contiguous believable inhabited medieval district (environment architecture owner).** Reviewed archived real town imagery still repeats pale flat houses/overgrown roof screen, simple distant terrain and sparsely legible working people. DONE when actual authentic farm/granary/market/cottage is coherently reconstructed, camera-clear, budget-safe and visually preferred in blinded running-game A/B; roof pigment/extra triangles are not sufficient.
+4. **Legible genuine labor and food provenance (character/interaction owner).** Already implemented original carrying, receipt-to-home evidence and household eating gestures, but they lack current-head uninterrupted WebGL proof. DONE when same real farmer/parcel/market/household and 4 occupational motions appear aligned without invented resources or staged actors and are filmed in actual autonomous motion.
+5. **Long running hardware/mobile integrity and independent review (acceptance owner).** Current CI backlog, current-branch soak failed without jobs, 390px physical touch and p95 frame time unmeasured, critics unavailable. DONE when bounded-memory Day120+ soak, deterministic replay and restoration, no GL errors, representative physical mobile/desktop 30+ sustained FPS with p95<=33.3ms, and genuinely fresh blinded critics pass LOOK/FEEL/PLAY; B commercial score remains separate.
+
+**W147 code:** [bc4e9e6](https://github.com/my-edutu/Ai_games/commit/bc4e9e67e363dbf1c3c45aa3bab4ada2baec7b13) updates the actual browser comparison harness (V8 syntax PASS; full Node/Chromium not yet run). No playable source changes, no new current-head game footage. A LOOK NOT PROVEN / FEEL software FAIL hardware unknown / PLAY NOT PROVEN; B commercial FAIL. Keep workstream active; never merge.
+
+---
+
 ## W146 · 8 November 2026 · Verified CURRENT at-home eating is now an actual 3D wrist action · Phase 1 / NOT PROVEN
 
 **Approved scope:** only OPEN DRAFT PR #64 branch `feat/tiny-kingdom-post-main-gauntlet-20261031`, exact parent `2816308b4866525a3cc9d3b18751b568a0364f40`, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No merges or divergent PR changes.
