@@ -22,13 +22,13 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Verify genuine controller, clips, source bones and deterministic combat
-        run: node --test tests/foundation/dungeon-full-body-animation-controller.test.cjs tests/foundation/dungeon-native-duel-performance.test.cjs tests/foundation/dungeon-grounded-performance.test.cjs tests/foundation/dungeon-evasion-performance.test.cjs tests/foundation/dungeon-rig-attachments.test.cjs tests/foundation/dungeon-m1-native-continuity.test.cjs
+        run: node --test tests/foundation/dungeon-full-body-animation-controller.test.cjs tests/foundation/dungeon-native-duel-performance.test.cjs tests/foundation/dungeon-grounded-performance.test.cjs tests/foundation/dungeon-evasion-performance.test.cjs tests/foundation/dungeon-fabric-drape.test.cjs tests/foundation/dungeon-rig-attachments.test.cjs tests/foundation/dungeon-m1-native-continuity.test.cjs
       - name: Deterministic authoritative dungeon campaign
         run: npm run dungeon:gauntlet
       - run: npm run dungeon:assets:strict
       - run: npx playwright install --with-deps chromium
       - name: Capture real imported rig travel, combat, skin and defeat
-        run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs tests/browser/dungeon-full-body-animation.spec.cjs tests/browser/dungeon-authored-motion.spec.cjs tests/browser/dungeon-rig-attachments.spec.cjs tests/browser/dungeon-endgame-epilogue.spec.cjs
+        run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs tests/browser/dungeon-full-body-animation.spec.cjs tests/browser/dungeon-authored-motion.spec.cjs tests/browser/dungeon-rig-attachments.spec.cjs tests/browser/dungeon-fabric-drape.spec.cjs tests/browser/dungeon-endgame-epilogue.spec.cjs
         env:
           DUNGEON_REQUIRE_MODELS: '1'
       - name: Preserve authentic screenshots, video, JSON and errors
