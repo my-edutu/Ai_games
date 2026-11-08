@@ -8,6 +8,8 @@ on:
       - scripts/tower-source-capture-server.cjs
       - games/infinite-tower-climb/src/**
       - public/infinite-tower-climb/visuals/**
+      - public/infinite-tower-climb/app.js
+      - public/infinite-tower-climb/index.html
       - public/infinite-tower-climb/styles.css
       - public/infinite-tower-climb/ux-v2.css
       - tests/browser/tower-ledge-contact.spec.cjs
@@ -15,6 +17,7 @@ on:
       - tests/phase3/tower-transformation-sanctuary.test.cjs
       - tests/phase3/tower-earned-gateway-frame.test.cjs
       - scripts/tower-motion-evidence.cjs
+      - scripts/tower-crossfire-evidence.cjs
       - scripts/tower-causal-playthrough.cjs
       - scripts/tower-guardian-source-witness.cjs
       - scripts/tower-campaign-audit.cjs
