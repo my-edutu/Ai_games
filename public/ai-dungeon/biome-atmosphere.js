@@ -31,7 +31,7 @@ function gradientTexture(biome,floor){
  for(let i=0;i<270;i++){const x=pick(i,7,floor)*128,y=pick(i,13,floor)*128;ctx.fillStyle=i%4?'#ffffff0d':'#00000020';ctx.fillRect(x,y,1.5,1.5);}
  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;
 }
-export function createBiomeAtmosphere(root,map,floor,exit){
+export function createBiomeAtmosphere(root,map,floor,exit,{surfaceDetailEnabled=false}={}){
  const f=(floor-1)%BIOMES.length,biome=BIOMES[f],size=map.length,offset=(size-1)/2,objects=new THREE.Group();root.add(objects);
  const material=[],geometries=[],textures=[],lights=[],animation=[];
  let quietZone=null;
@@ -112,7 +112,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  const shafts=[];
  // A small number of floor-specific sculpted reliefs replaces four repeated
  // giant white-glowing obelisks. Render-only anchors hug real wall tiles.
- const setpieces=createDungeonSetpieces(root,map,floor,exit);
+ const setpieces=createDungeonSetpieces(root,map,floor,exit,{surfaceDetailEnabled});
  // Five animated pools at most; every other source of intensity is stable.
  const selected=pools.slice(0,5);
  selected.forEach(([x,,z],i)=>{
@@ -137,7 +137,7 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   setpieces.update(time);
   for(let i=0;i<lights.length;i++)lights[i].intensity=.78+Math.sin(time*2+i)*.065;
  };
- const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length,environmentMaterialRoles:['magicInset','carvedStone','dampStone','hangingCloth'],maxAmbientPointLights:5};
+ const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,extraDetailTextures:setpieces.metrics.materialDetailMaps,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length,environmentMaterialRoles:['magicInset','carvedStone','dampStone','hangingCloth'],maxAmbientPointLights:5};
  return{update,accept(state){quietZone=planCombatQuietZone(state);},metrics,dispose(){
   setpieces.dispose();objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
