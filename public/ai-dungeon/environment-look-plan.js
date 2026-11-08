@@ -64,18 +64,23 @@ export function makeEnvironmentDetailPixels(role,floor,size=128){
  const height=new Uint8Array(pixels);
  const stone=spec.family==='stone',wood=spec.family==='wood',cloth=spec.family==='cloth',metal=spec.family==='metal';
  const cell=stone?size/4:wood?size/8:size/16;
+ // The original live main-wall albedo has 31px courses and 44px staggered
+ // bricks. Match that physical relief rather than lighting a different grid.
+ const masonry=role==='masonry';
+ const courseHeight=masonry?31:cell,brickWidth=masonry?44:cell;
+ const stagger=masonry?22:cell/2;
  const wrap=n=>(n%size+size)%size;
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
-  const i=y*size+x,j=i*4,row=Math.floor(y/cell);
-  const tiledX=(x+(row%2)*cell/2)%size,ax=tiledX%cell,ay=y%cell;
-  const seam=stone&&(ax<1.5||ay<1.5);
+  const i=y*size+x,j=i*4,row=Math.floor(y/courseHeight);
+  const tiledX=x+(row%2)*stagger,ax=tiledX%brickWidth,ay=y%courseHeight;
+  const seam=stone&&(ax<2||ay<2);
   const fiber=wood&&((x+Math.floor(Math.sin(y*.11)*2))%8<1);
   const weave=cloth&&((x+y)%6===0);
   const grain=(hash(x,y,floor)%45)-22;
   const chip=hash(x>>1,y>>1,floor+29)%73===0;
   const stain=hash(Math.floor(x/8),Math.floor(y/8),floor+13)%13===0;
   const damp=role==='dampStone'&&stain;
-  const base=wood?168:metal?151:cloth?171:role==='soot'?92:193;
+  const base=wood?168:metal?151:cloth?171:role==='soot'?92:stone?221:193;
   const dark=seam?-.56:chip?-.22:damp?-.27:stain?-.09:0;
   const shade=clamp(Math.round(base*(1+dark)+grain*.43+(fiber?-15:0)),12,240);
   albedoPixels[j]=shade;albedoPixels[j+1]=clamp(shade+(wood?6:cloth?4:0),0,255);
