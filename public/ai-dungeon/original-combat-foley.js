@@ -62,6 +62,33 @@ const MATERIALS=Object.freeze({
  cloth:Object.freeze({noise:.54,brightness:.8}),
  neutral:Object.freeze({noise:1,brightness:1})
 });
+/**
+ * Presentation-only phase separation for simultaneous original noise voices.
+ * One shared generated mono buffer remains in use; bounded 16-way search
+ * avoids exact coherent summation when several notes start in one audio frame.
+ * Phases follow AudioContext time, never the authoritative simulation clock.
+ */
+export function chooseOriginalNoisePhaseOffset(duration,nowSeconds,voices=[]){
+ if(!Number.isFinite(duration)||duration<=0||!Number.isFinite(nowSeconds)||
+  !Array.isArray(voices))return 0;
+ const candidates=16,maxVoices=MAX_ORIGINAL_COMBAT_VOICES;
+ let selected=0,widestGap=-1;
+ for(let i=0;i<candidates;i++){
+  const offset=i*duration/candidates;
+  let gap=duration;
+  for(let j=0;j<Math.min(maxVoices,voices.length);j++){
+   const voice=voices[j];
+   if(!Number.isFinite(voice?.noiseOffset)||!Number.isFinite(voice?.startedAt))continue;
+   const elapsed=Math.max(0,nowSeconds-voice.startedAt);
+   const phase=((voice.noiseOffset+elapsed)%duration+duration)%duration;
+   const delta=Math.abs(offset-phase);
+   gap=Math.min(gap,delta,duration-delta);
+  }
+  if(gap>widestGap){selected=offset;widestGap=gap}
+ }
+ return selected;
+}
+
 export function createOriginalCombatFoley(ctx,{output=null}={}){
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
@@ -144,6 +171,9 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   const duration=clamp(profile.duration,.05,.7),severity=clamp(cue?.severity,0,1),
    peak=Math.min(.12,profile.peak*(.83+.19*severity)),
    material=MATERIALS[cue?.detail?.materialRole]??MATERIALS.neutral;
+  // Offset each simultaneously active noise texture to avoid coherent peaks.
+  // No new buffer, voice, listener or per-sample work is introduced.
+  const noiseOffset=chooseOriginalNoisePhaseOffset(noiseBuffer?.duration,t,active);
   const sources=[],nodes=[];
   try{
    // Air, debris and impacts are predominantly filtered noise. Filter motion
@@ -168,10 +198,14 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
     osc.connect(partialGain);partialGain.connect(bus);
    }
    const stopAt=t+duration+.035;
-   const voice={sources,nodes,stopAt,priority,done:false};
+   const voice={sources,nodes,stopAt,priority,noiseOffset,startedAt:t,done:false};
    const lastSource=sources.at(-1);
    if(lastSource)lastSource.onended=()=>stopVoice(voice);
-   for(const source of sources){source.start(t);source.stop(stopAt)}
+   for(const source of sources){
+    if(source===n)source.start(t,noiseOffset);
+    else source.start(t);
+    source.stop(stopAt);
+   }
    active.push(voice);lastPlayed.set(cue.audio,t);
    played++;peakVoices=Math.max(peakVoices,active.length);
    return true;
