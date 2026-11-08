@@ -35,26 +35,30 @@
     "nativeFilmEventPairIntegrationImplementationSha": "cbbb6668b0707d8a5b195be38e4a0fc79812767f",
     "nativeFilmEventPairIntegrationEvidenceStatus": "P0 NOT EVALUATED: baseline original-harness dependency fix plus genuine event-index-to-native WebM search timecodes integrated; GitHub runners queued and original workspace unavailable. No original Node/Chromium/FFmpeg run or new film; no gameplay/rendering change, no blind critics or device evidence.",
     "stackedForegroundImplementationSha": "307c6a63d637e77bb091e646288d8c7dc04a0bc6",
-    "stackedForegroundEvidenceStatus": "P0 OPEN / NOT EVALUATED: at 307c6a63d637e77bb091e646288d8c7dc04a0bc6 camera-relative non-colliding clock, clockcase and 42-unit power-rack opacity decisions now share one overlapping-on-screen composite budget via bounded two-pass renderer. Solo clock retains existing budget and gameplay machinery remains opaque. Source syntax compiles in isolated JS realm; extracted policy checks pass, but original repository Node/Three.js, browser WebM, PTS event alignment and hardware tests NOT EXECUTED because coding tunnel unavailable and Actions runners queued. Previously observed 390x844 giant wheel at ~16-18s has NOT been proven fixed. Independent reviews LOOKS/FEELS/PLAYS 0/5 each."
+    "stackedForegroundEvidenceStatus": "P0 OPEN / NOT EVALUATED: at 307c6a63d637e77bb091e646288d8c7dc04a0bc6 camera-relative non-colliding clock, clockcase and 42-unit power-rack opacity decisions now share one overlapping-on-screen composite budget via bounded two-pass renderer. Solo clock retains existing budget and gameplay machinery remains opaque. Source syntax compiles in isolated JS realm; extracted policy checks pass, but original repository Node/Three.js, browser WebM, PTS event alignment and hardware tests NOT EXECUTED because coding tunnel unavailable and Actions runners queued. Previously observed 390x844 giant wheel at ~16-18s has NOT been proven fixed. Independent reviews LOOKS/FEELS/PLAYS 0/5 each.",
+    "openClockworkRimCutawayImplementationSha": "c257a02d95e91249a4b0c782685658350bd12aed",
+    "openClockworkRimCutawayEvidenceStatus": "P0 OPEN / NOT EVALUATED: observed giant opaque near-side ring/case in prior genuine candidate portrait WebM at ~16–18s. New original source clockwork decorative architecture at e29754d1 and c257a02d replaces 2 unbroken concentric steel rims with 8 actual partial 3D torus fragments and splits the previously continuous case crossrails to leave real daylight. FOUR angular windows per concentric rim, each .62 rad wide (~39.5% circumference open), aligned so inner ring cannot fill outer ring openings. Original 3 animated clock gears, 42-unit rack, deterministic simulation, collidable platforms, crusher, projectiles, source gate and guardian preserved. V8 syntax-only source and test parsing passed, mathematical section-count/gap guards checked. New original-Three raycast regression at 8995736d is committed but NOT EXECUTED: Node22+Three runner/Chromium/FFmpeg unavailable, queued prior quality/capture workflows have no assigned runner. No new source-pinned footage, no actual-device metrics, blind reviewers LOOKS/FEELS/PLAYS 0/5 each; do not assert visible improvement."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "255bfc4e5d68e934fa325656df1b705451c42b28",
-      "actualRenderedGameSourceSha": "307c6a63d637e77bb091e646288d8c7dc04a0bc6",
-      "actualWorldVisualBehaviorLastChangedSha": "307c6a63d637e77bb091e646288d8c7dc04a0bc6",
+      "sourceHeadAtInspection": "8995736de08e30efbbfa10df9d4d77844f359066",
+      "actualRenderedGameSourceSha": "c257a02d95e91249a4b0c782685658350bd12aed",
+      "actualWorldVisualBehaviorLastChangedSha": "c257a02d95e91249a4b0c782685658350bd12aed",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": true,
-      "instrumentationChangedThisExecution": true,
+      "instrumentationChangedThisExecution": false,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Last genuine 390x844 candidate guardian film shows giant foreground clockwork wheel/case obscuring actor/guardian around 16–18s. Current overlap-budget correction is UNFILMED and NOT EVALUATED; cannot claim improvement.",
-      "primaryVerifiedBlocker": "GitHub Actions queue is repo-wide: verified exact-HEAD original quality 42447636876 queued with no assigned runner; 9-job capture 42443989847 also 9/9 queued with no runner; original /app-projects coding runtime tunnel disconnected. No exact new source real browser/FFmpeg/Node22 results.",
-      "implementation": "Repaired systemic stacked-scenery visibility policy: previously independently faded non-colliding clock/rack assemblies could composite opaque in the same physical actor/guardian shot. Implemented camera-bound two-pass shared opacity budget for actual screen-overlapping foreground assemblies only, preserving source, camera animation, physics, hazards, environment and resources.",
+      "largestObservedGap": "Authentic older portrait film at native seconds ~16–18 has continuous near-camera metal rim/case hiding climber/guardian. New split-ring 3D architecture changes this cause in source; candidate video remains NOT EVALUATED and a real camera-view comparison is required.",
+      "primaryVerifiedBlocker": "GitHub Actions exact-source quality 42451929941 has one queued job and current 9-job capture 42451929839 has all nine jobs queued with zero artifacts at inspection; no usable runner. Live app-projects coding tunnel still NOT_FOUND. No original Node22+Three/Chromium/FFmpeg or source-pinned new WebM executable evidence.",
+      "implementation": "Converted giant near-camera non-colliding clockwork rim/case from continuous occluding geometry into original, mechanically readable split-ring assembly. Two concentric rings now share four full 3D daylight apertures; continuous case crossbars were shortened into corner braces. Existing actual animated gears/rack, source gameplay, guardian and gateway remain intact. A new original-Three raycast regression is committed but cannot execute until runner resumes.",
       "concreteCommits": [
-        "307c6a63d637e77bb091e646288d8c7dc04a0bc6"
+        "e29754d15e71d2a5091846dd56e902accbb077a8",
+        "c257a02d95e91249a4b0c782685658350bd12aed",
+        "8995736de08e30efbbfa10df9d4d77844f359066"
       ],
       "modifiedFiles": [
         "public/infinite-tower-climb/visuals/world.mjs",
@@ -62,41 +66,41 @@
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
         "public/infinite-tower-climb/gauntlet/transformation.json"
       ],
-      "isolatedSourceChecks": "Actual authored world/test syntax compiled in isolated JS realm. Source-extracted helpers passed solo=old appearance, projected-overlap/disjoint, 3x4 combined opacity math, invalid-count guards. Full original Node22/Three.js suite, browser, video and supported device NOT EXECUTED.",
+      "isolatedSourceChecks": "V8 source syntax parsed after removing browser import/export only; JS test parsed; actual source confirms 4x.62rad daylight windows aligned in both concentric rings, 8 partial TorusGeometry fragments, retains 3 original rotating gears and decorative drive rack. New Node22+real Three raycast test NOT EXECUTED; no browser/device/video verification.",
       "currentExactCodeQuality": {
-        "sha": "307c6a63d637e77bb091e646288d8c7dc04a0bc6",
-        "runId": 42447636876,
-        "status": "NOT EXECUTED at new SHA; prior queued run 42447636876 belongs to older 255bfc4e",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42447636876"
+        "sha": "8995736de08e30efbbfa10df9d4d77844f359066",
+        "runId": null,
+        "status": "NOT EXECUTED at this source/test SHA. Earlier run 42451929941 remains queued for old 35f5792f; no new runner-confirmed suite.",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42451929941"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "307c6a63d637e77bb091e646288d8c7dc04a0bc6",
+        "candidateSourceSha": "c257a02d95e91249a4b0c782685658350bd12aed",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42443989847,
-        "status": "NOT EVALUATED at new SHA; prior 9/9 queued run 42443989847 belongs to older dbc0236f",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42443989847"
+        "runId": null,
+        "status": "NOT EVALUATED for this 3D geometry SHA. Prior capture 42451929839 remains 9/9 queued, refers to earlier 35f5792f source.",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42451929839"
       },
-      "videoEventAlignment": "NOT EVALUATED: no current-source unedited WebM or calibrated native-video PTS",
+      "videoEventAlignment": "NOT EVALUATED for split-ring source: no unedited current-source WebM or native timecode calibration; older film still available for defect diagnosis only.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED; supported-device p50/p95/p99 and memory unavailable",
-      "developmentWorkspace": "UNAVAILABLE: /app-projects connector NOT_FOUND, tunnel client not seen for 300 seconds",
+      "hardwareFrameTimeMemory": "NOT EVALUATED; supported device p50/p95/p99 and memory unavailable",
+      "developmentWorkspace": "UNAVAILABLE: /app-projects connector NOT_FOUND (tunnel client absent over 300 seconds); fallback GitHub repository file writes verified",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Recover allocated runner or authenticated checkout; execute original Node22+Three tests and nine-job exact-head matched original WebMs, inspect actual four-assembly forensic overlap and intended/rendered alpha during 16–18s guardian, then verify visible grounded gate crossing, floor9 onward, outcome/restart with native video PTS. Reopen visual composition if over-soft or still occluded; actual-device metrics and genuine blind critics remain required.",
-      "restrictions": "Frozen baseline unchanged, PR58 untouched, PR68 remains open draft. No merge, deploy, force-push or source rebase."
+      "nextHighImpactAction": "Restore executable Node22/Three runner and exact-source WebM capture; run new real geometry raycast plus original full suite, inspect 390x844 and 960x600 normal-speed new/unchanged baseline guardian film for open-ring sightline and unforeseen depth artifacts; align source ticks to video for full physical gateway crossing, floor-nine onward, genuine outcome/restart; if obstruction persists revise scene/camera at P0. Then acquire device metrics and 5 blind independent reviews per pillar.",
+      "restrictions": "Frozen baseline unchanged; PR58 untouched; PR68 open draft; no merge/deploy/force-push, source rebase or baseline movement."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — shared screen-overlap clockwork compositor authored; no source-pinned post-change gameplay film, no new exact-head CI, no visual acceptance.",
+    "state": "P0 OPEN — actual original 3D clockwork ring/case interrupted, source syntax verified; exact-current game film and original runtime quality remain UNEXECUTED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Recover allocated runner or authenticated checkout; execute original Node22+Three tests and nine-job exact-head matched original WebMs, inspect actual four-assembly forensic overlap and intended/rendered alpha during 16–18s guardian, then verify visible grounded gate crossing, floor9 onward, outcome/restart with native video PTS. Reopen visual composition if over-soft or still occluded; actual-device metrics and genuine blind critics remain required.",
+    "nextDecision": "Restore executable Node22/Three runner and exact-source WebM capture; run new real geometry raycast plus original full suite, inspect 390x844 and 960x600 normal-speed new/unchanged baseline guardian film for open-ring sightline and unforeseen depth artifacts; align source ticks to video for full physical gateway crossing, floor-nine onward, genuine outcome/restart; if obstruction persists revise scene/camera at P0. Then acquire device metrics and 5 blind independent reviews per pillar.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Last genuine 390x844 candidate guardian film shows giant foreground clockwork wheel/case obscuring actor/guardian around 16–18s. Current overlap-budget correction is UNFILMED and NOT EVALUATED; cannot claim improvement.",
+    "biggestRemainingExperienceGap": "Authentic older portrait film at native seconds ~16–18 has continuous near-camera metal rim/case hiding climber/guardian. New split-ring 3D architecture changes this cause in source; candidate video remains NOT EVALUATED and a real camera-view comparison is required.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
-    "biggestGap": "Last genuine 390x844 candidate guardian film shows giant foreground clockwork wheel/case obscuring actor/guardian around 16–18s. Current overlap-budget correction is UNFILMED and NOT EVALUATED; cannot claim improvement.",
+    "biggestGap": "Authentic older portrait film at native seconds ~16–18 has continuous near-camera metal rim/case hiding climber/guardian. New split-ring 3D architecture changes this cause in source; candidate video remains NOT EVALUATED and a real camera-view comparison is required.",
     "p0SourceContract": {
       "sourceSha": "503fbc4ad41fad84c9003710b80361d6706cabda",
       "testsSha": "fb67205f356025b0d931eeffbfa66e6ea02cfd85",
