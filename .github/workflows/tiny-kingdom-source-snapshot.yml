@@ -4,24 +4,32 @@ on:
     branches: [feat/tiny-kingdom-gauntlet-3d]
     paths:
       - '.github/workflows/tiny-kingdom-source-snapshot.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/tiny-kingdom-source-snapshot.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   snapshot:
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - name: Archive exact reviewed source
+      - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
-          git archive --format=tar HEAD | gzip -1 > tiny-kingdom-source.tgz
+          tar -czf tiny-kingdom-source.tgz \
+            AGENTS.md package.json package-lock.json playwright.config.cjs \
+            public/tiny-kingdom games/tiny-ai-civilization \
+            scripts/tiny-kingdom* tests/browser/tiny-kingdom*
       - uses: actions/upload-artifact@v4
         with:
-          name: tiny-kingdom-source-${{ github.sha }}
+          name: tiny-kingdom-source-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             source-sha.txt
             tiny-kingdom-source.tgz
