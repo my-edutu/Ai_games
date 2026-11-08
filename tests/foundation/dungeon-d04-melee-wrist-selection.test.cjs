@@ -48,5 +48,5 @@ test('real D04 visual stage connects the joint selector on the actual sample and
  assert.doesNotMatch(visuals,/!actor\.rigHandBone\)\)return null/);
  assert.match(assets,/actor\.rigMeleeBones=\[\]/);
  assert.match(assets,/const hand=\['vanguard','revenant','warden'\]\.includes\(actor\.u\.kind\)\?selectHandBone/);
- assert.match(grip,/if\(bone\)actor\.rigMeleeBones\.push\(/);
+ assert.match(assets,/if\(bone\)actor\.rigMeleeBones\.push\(/);\n assert.match(grip,/export function selectHandBone\(/);
 });
