@@ -44,11 +44,17 @@ jobs:
         run: npm run build
       - name: Test transformation verdict gate
         run: node --test tests/phase3/tower-transformation-acceptance.test.cjs
-      - name: Observe actual 3200-tick guardian survival, pickups and progress (not quality)
+      - name: Veto missing or divergent original same-run guardian/crusher-to-restart evidence
+        shell: bash
         run: |
-          mkdir -p artifacts/tower-source-chain
-          git rev-parse HEAD > artifacts/tower-source-chain/source-sha.txt
-          node scripts/tower-guardian-source-witness.cjs | tee artifacts/tower-source-chain/causal-witness.json
+          set -euo pipefail
+          dir=artifacts/tower-source-chain
+          mkdir -p "$dir"
+          git rev-parse HEAD > "$dir/source-sha.txt"
+          for replay in 1 2; do
+            node scripts/tower-guardian-source-witness.cjs > "$dir/replay-${replay}.json" 2>"$dir/replay-${replay}.stderr"
+          done
+          node scripts/tower-campaign-audit.cjs "$dir/replay-1.json" "$dir/replay-2.json" "$dir/audit.json" "$(git rev-parse HEAD)"
       - name: Preserve ungraded exact-source guardian/game-loop chain
         if: always()
         uses: actions/upload-artifact@v4

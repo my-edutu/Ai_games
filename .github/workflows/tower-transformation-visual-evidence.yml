@@ -56,6 +56,20 @@ jobs:
           mkdir -p artifacts/tower-ledge-contact
           git rev-parse HEAD > artifacts/tower-ledge-contact/source-sha.txt
           npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-ledge-contact.spec.cjs
+      # Capture source proof can fail while browser stills are retained. Never
+      # allow continue-on-error to silently turn an incomplete source chain
+      # into a successful original-game evidence job.
+      - name: Veto incomplete guardian/crusher through real restart source chain
+        if: always()
+        shell: bash
+        env:
+          SOURCE_CHAIN_OUTCOME: ${{ steps.source-chain.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ "$SOURCE_CHAIN_OUTCOME" != success ]]; then
+            echo 'Original 3200-tick guardian/crusher -> grounded gateway -> floor nine -> result/intermission/restart chain was not proved. P0 remains NOT EVALUATED.' >&2
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
