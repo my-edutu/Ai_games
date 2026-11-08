@@ -201,11 +201,38 @@ const assert=require('node:assert/strict');
    // increases in cache-hit counts. A presentation frame follows each
    // legitimate ten-day authority chunk; its original VBO is auditable.
    await page.waitForTimeout(140);
-   const resident=await page.evaluate(()=>window.__tinyKingdom.getSettlementResidentStats());
+   const capacities=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {settlement:g.getSettlementResidentStats(),
+     commuters:g.getResidentCommuterAudit(),
+     workers:g.getWorkingResidentAudit(),
+     foreground:g.getForegroundResidentAudit(),
+     actorRing:g.getActorResidencyAudit(),
+     worldRing:g.getDynamicGpuRingAudit(),
+     heap:performance.memory?.usedJSHeapSize??null,
+     heapLimit:performance.memory?.jsHeapSizeLimit??null};
+   });
+   const resident=capacities.settlement;
    evidence.checkpoints.push({simulatedDay:day,...metrics,checksum,
-      pathCache,nonFinite,invalidAgents,resident});
+      pathCache,nonFinite,invalidAgents,resident,capacities});
    assert(resident.entries<=resident.maxEntries,'Season town LRU exceeds entry cap');
    assert(resident.cachedFloats<=resident.floatBudget,'Town mesh LRU exceeds byte cap');
+   for(const [name,cache] of [
+    ['commuters',capacities.commuters],
+    ['workers',capacities.workers],
+    ['foreground',capacities.foreground]]){
+    assert(cache.floats<=cache.maxFloats,
+     name+' original GPU citizen vertex residency exceeded budget');
+    assert(cache.cachedPoseEntries===undefined||
+     cache.cachedPoseEntries<=cache.maxCitizens||
+     cache.cachedPoseEntries<=cache.maxActors,
+     name+' original citizen pose cache exceeded actor limit');
+   }
+   assert(capacities.actorRing.bufferCount<=capacities.actorRing.maxBufferCount,
+    'Original live actor GPU ring escaped bounded capacity');
+   if(capacities.heap!==null&&capacities.heapLimit!==null)
+    assert(capacities.heap<=capacities.heapLimit,
+     'Browser heap exceeded reported Chromium limit');
    assert.equal(nonFinite,false,'Non-finite resources or counters at day '+day);
    assert.deepEqual(invalidAgents,[],'Invalid citizen coordinates at day '+day);
    assert(pathCache.entries<=1800,'Route cache exceeded bounded capacity');
