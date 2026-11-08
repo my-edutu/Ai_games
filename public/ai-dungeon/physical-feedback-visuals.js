@@ -104,8 +104,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     const bound=hand?2.8:3.1;
     if(finite3(sampled)&&sampled.y>=.34&&sampled.y<=bound&&
       Math.hypot(sampled.x-root.x,sampled.z-root.z)<=(hand?.84:.72))
-     return {x:sampled.x,y:sampled.y,z:sampled.z,yaw:actor.root.rotation?.y??0,
-      rootX:root.x,rootY:root.y,rootZ:root.z};
+     {
+      const point={x:sampled.x,y:sampled.y,z:sampled.z,yaw:actor.root.rotation?.y??0,
+       rootX:root.x,rootY:root.y,rootZ:root.z};
+      // Transient reference, retained only by this D04 trail slot. No rig edit.
+      if(requireBone)point.sourceBone=bone;
+      return point;
+     }
    }catch{}
   }
   if(requireBone)return null; // Never counterfeit a moving sword hand from a static root.
@@ -297,7 +302,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       // stale wrist samples just because their presentation clocks were capped.
       const freshFrame=Number.isFinite(actualFrameSeconds)&&actualFrameSeconds>0&&
        actualFrameSeconds<=MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS;
-      const segment=freshFrame&&slot.lastHand?
+      const sameBone=Boolean(slot.lastHand?.sourceBone&&
+       slot.lastHand.sourceBone===hand.sourceBone);
+      if(!sameBone){
+       // Hot-swapped rig: drop the old ribbon immediately, not after its
+       // normal 55ms visual grace interval. The new wrist needs two samples.
+       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;
+      }
+      const segment=freshFrame&&sameBone?
        planMeasuredHandTrail(slot.lastHand,hand,actualFrameSeconds):null;
       slot.lastHand={...hand};
       if(!freshFrame){

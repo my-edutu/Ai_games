@@ -28,6 +28,12 @@ export function selectObservedWeaponHandBone(actor){
 }
 
 export function planMeasuredHandTrail(previous,current,frameSeconds){
+ // A GLB can finish loading or be replaced during one authoritative attack.
+ // Never stitch samples from two different physical skinned wrists into one
+ // apparently continuous blade stroke. Older pure numeric callers are valid.
+ if(previous?.sourceBone!==undefined||current?.sourceBone!==undefined){
+  if(!previous?.sourceBone||previous.sourceBone!==current?.sourceBone)return null;
+ }
  if(!finite(previous)||!finite(current)||!Number.isFinite(frameSeconds)||
   frameSeconds<=0||frameSeconds>MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS)return null;
  // Remove rigid-body root yaw as well as translation BEFORE deciding whether

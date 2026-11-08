@@ -23,3 +23,17 @@ test('D04 malformed, stalled or teleported rig-hand samples are suppressed, neve
  assert.equal(planMeasuredHandTrail(p,hand(NaN,1,0),.016),null);
  assert.equal(planMeasuredHandTrail(p,{...q,rootZ:Infinity},.016),null);
 });
+
+test('D04 never creates an apparent wrist sweep when the GLB hand identity changes mid-attack',async()=>{
+ const {planMeasuredHandTrail}=await load();
+ const oldBone={isBone:true,name:'old skinned wrist'},newBone={isBone:true,name:'replacement skinned wrist'};
+ const before={...hand(0,1.1,0),sourceBone:oldBone};
+ const replacement={...hand(.13,1.15,0),sourceBone:newBone};
+ assert.equal(planMeasuredHandTrail(before,replacement,.016),null,
+  'an asset hot-swap is not an observed sword stroke');
+ assert.equal(planMeasuredHandTrail(before,{...replacement,sourceBone:null},.016),null,
+  'missing wrist provenance cannot complete a trail');
+ const same={...replacement,sourceBone:oldBone};
+ assert.ok(planMeasuredHandTrail(before,same,.016),
+  'genuine displacement on one stable skinned wrist remains visible');
+});

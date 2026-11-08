@@ -326,3 +326,30 @@ test('new confirmed injury initializes retained GPU instance matrices before fir
  assert.equal(stage.stats().activeDrawCalls,1);
  stage.reset();stage.dispose();
 });
+
+test('D04 discards the old blade ribbon immediately when a replacement authored wrist appears',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three(),cueId='1:1:11:swing:vanguard:-';
+ const bone=x=>({isBone:true,world:{x,y:1.2,z:-7},
+  updateWorldMatrix(){},getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}});
+ const first=bone(-6.85),replacement=bone(-6.60);
+ const actor={u:{id:'vanguard',kind:'vanguard',action:'attack',actionTick:11},
+  authored:true,assetRoot:{},rigMeleeBones:[{part:'wrist',bone:first}],
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:()=>actor});
+ assert.equal(stage.emit(cue({id:cueId,kind:'swing',visual:'trail',actorId:'vanguard',
+  targetId:null,from:{x:2,z:2},to:null,proof:'authority-attempt-not-hit'})),true);
+ first.world.x+=.10;stage.advance(.016,.016);
+ assert.equal(stage.hasDrawableCue(cueId),true,'real same-bone motion draws');
+ actor.rigMeleeBones=[{part:'wrist',bone:replacement}];stage.advance(.016,.016);
+ assert.equal(stage.hasDrawableCue(cueId),false,
+  'a new source rig cannot inherit an earlier drawn ribbon');
+ assert.equal(stage.stats().activeDrawCalls,0);
+ replacement.world.x+=.09;stage.advance(.016,.016);
+ assert.equal(stage.hasDrawableCue(cueId),true,
+  'new stable wrist can earn a fresh genuine movement segment');
+ assert.equal(stage.stats().reservedInstances,102);
+ assert.equal(stage.stats().drawCalls,7);
+ stage.reset();assert.equal(stage.stats().active,0);
+ stage.dispose();
+});
