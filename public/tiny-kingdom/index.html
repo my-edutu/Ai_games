@@ -12858,7 +12858,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -12993,11 +12993,87 @@ function citizenHomeDestination(p){
  const nearby=navSnap(hx,hz);
  return nearby?navPoint(...nearby):[p.x,p.z];
 }
+// W126 Living Valley: original workers collect genuine communal grain for
+// the homes they already inhabit; no new villagers, workshops or production.
+const HOUSEHOLD_GRAIN_UNITS=.8,HOUSEHOLD_COLLECTION_HOURS=.65;
+function shouldCollectHouseholdProvisions(p){
+ const day=Math.floor(state.t/24),hour=((state.t%24)+24)%24;
+ if(!dayShiftAt(state.t)||hour<8||hour>=18||
+    p.lastProvisionAttemptDay===day||(p.provisions||0)>.1||
+    p.energy<40||p.hunger>78||
+    state.food<people.length*4+HOUSEHOLD_GRAIN_UNITS)return false;
+ // Market-based traders and local gatherers have a physically reachable
+ // errand; one real citizen per day is selected in deterministic rotation.
+ const candidates=people.filter(q=>q.job==='merchant'||q.job==='gatherer');
+ return candidates.length>0&&candidates[day%candidates.length]===p;
+}
+function finishHouseholdProvisions(p){
+ if(p.activity!=='Collecting household provisions'||
+    p.workTimer<HOUSEHOLD_COLLECTION_HOURS)return false;
+ if(Math.hypot(p.x-DELIVERY_MARKET.food[0],
+   p.z-DELIVERY_MARKET.food[1])>1.35){
+  p.activity='Traveling to market for provisions';
+  p.target=DELIVERY_MARKET.food.slice();routeCitizen(p);
+  return false;
+ }
+ if(state.food<people.length*4+HOUSEHOLD_GRAIN_UNITS){
+  p.workTimer=0;choose(p);return false;
+ }
+ // Only this physically completed handoff transfers actual town stock
+ // to a serialized household ration; balance is not duplicated.
+ state.food-=HOUSEHOLD_GRAIN_UNITS;
+ p.provisions=(p.provisions||0)+HOUSEHOLD_GRAIN_UNITS;
+ p.provisionVisits=(p.provisionVisits||0)+1;
+ p.activity='Traveling home with provisions';
+ p.target=citizenHomeDestination(p);p.workTimer=0;routeCitizen(p);
+ if(state.t-state.lastStory>5){
+  state.lastStory=state.t;
+  report(p.name+' carried market grain to their household.');
+ }
+ return true;
+}
+function householdProvisionAudit(){
+ const citizens=people.filter(p=>p.activity==='Traveling to market for provisions'||
+  p.activity==='Collecting household provisions'||
+  p.activity==='Traveling home with provisions').map(p=>({
+   name:p.name,job:p.job,activity:p.activity,position:[p.x,p.z],
+   homeIndex:citizenHomeIndex(p),provisions:p.provisions||0,
+   remainingWaypoints:p.path?.length||0
+  }));
+ const supplied=people.filter(p=>(p.provisions||0)>0);
+ return {source:'real-physical-market-to-household-ledger',
+   market:DELIVERY_MARKET.food.slice(),citizens,
+   collecting:citizens.filter(p=>p.activity!=='Traveling home with provisions').length,
+   carrying:citizens.filter(p=>p.activity==='Traveling home with provisions').length,
+   visits:people.reduce((sum,p)=>sum+(p.provisionVisits||0),0),
+   storedFood:supplied.reduce((sum,p)=>sum+p.provisions,0),
+   homesSupplied:new Set(supplied.map(citizenHomeIndex)).size,
+   townFood:state.food,realCitizens:people.length,
+   maximumDailyTrips:1,createdActors:0,createdFood:0};
+}
+// The existing real citizen's moving wrist is the only anchor for this bag.
+// No unauthorised crowd or perpetual cart is created in the GPU/Canvas scene.
+function renderCarriedHouseholdProvisions(p){
+ if(p.activity!=='Traveling home with provisions'||!(p.provisions>0))return;
+ const index=people.indexOf(p),scale=.92+(Math.max(0,index)%5)*.045;
+ const hand=citizenRigPose(p).arms[1].wrist;
+ const x=p.x+hand[0]*scale,
+   y=terrain(p.x,p.z)+hand[1]*scale,
+   z=p.z+hand[2]*scale;
+ materialScope(MATERIAL.GENERAL,()=>{
+  ellipsoid(x,y-.16*scale,z,.13*scale,.17*scale,.12*scale,
+   rgb(0xad9168),6);
+  box(x,y-.035*scale,z,.045*scale,.05*scale,.045*scale,
+   rgb(0x7c6244));
+ });
+}
 function dailyRhythmAudit(){
   const hour=((state.t%24)+24)%24;
   return {source:'real-autonomous-agents',hour,shift:dayShiftAt(state.t)?'day-work':'night-rest',
    householdCount:city.length,
    counts:{working:people.filter(isWorkingAtSite).length,
+    provisionCollecting:householdProvisionAudit().collecting,
+    provisionCarrying:householdProvisionAudit().carrying,
     returning:people.filter(p=>p.activity==='Returning home at dusk').length,
     resting:people.filter(p=>p.activity==='Resting at home').length,
     delivering:people.filter(p=>Boolean(p.delivery)).length},
@@ -13023,9 +13099,15 @@ function occupiedHouseholds(){
 }
 function choose(p){if(p.delivery){routeLoadedWorker(p);return}
   if(!dayShiftAt(state.t)){
-   p.activity='Returning home at dusk';
+   p.activity=p.activity==='Traveling home with provisions'&&p.provisions>0?
+    'Traveling home with provisions':'Returning home at dusk';
    p.target=citizenHomeDestination(p);
    routeCitizen(p);return;
+  }
+  if(shouldCollectHouseholdProvisions(p)){
+   p.lastProvisionAttemptDay=Math.floor(state.t/24);
+   p.activity='Traveling to market for provisions';
+   p.target=DELIVERY_MARKET.food.slice();routeCitizen(p);return;
   }
   let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?CRAFT_YARD:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
 function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;const actions={farmer:`${p.name} gathered grain from the eastern fields.`,forester:`${p.name} delivered timber from the forest.`,builder:`${p.name} is repairing the village dwellings.`,merchant:`${p.name} bartered surplus food for coin in the market.`,craftsperson:`${p.name} crafted household supplies for local families.`,gatherer:`${p.name} returned with wild herbs and food.`};report(actions[p.job])}
@@ -13045,13 +13127,13 @@ function step(dt){presentationEpoch++;
   updateUI();}
  for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);// Real commuting feet cycle in time with actual faster road locomotion;
  // hands retain the deliberate measured work beat when at a station.
-const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ')||p.activity.startsWith('Traveling with ');
+const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ')||p.activity.startsWith('Traveling with ')||p.activity==='Traveling home with provisions';
 // Physically traveled distance, not elapsed time, drives swinging legs and
 // wrist-held lanterns; a blocked commuter must not visibly skate in place.
 if(!onRoad)p.phase+=dt*2.2;
 p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
 const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
-if(remaining>.24){const homeward=!onShift&&p.activity==='Returning home at dusk';
+if(remaining>.24){const homeward=p.activity==='Traveling home with provisions'||(!onShift&&p.activity==='Returning home at dusk');
 const workbound=onShift&&p.activity.startsWith('Traveling to ');
 const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;if(onRoad)p.phase+=move*2.60;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
 else if(p.path&&p.path.length){p.path.shift()}
@@ -13064,14 +13146,23 @@ else if(p.activity==='Waiting for a safe route'){
 }else if(p.delivery&&p.activity.startsWith('Traveling with ')){
  // Enter the market before a receipt exists. Unloading must be performed.
  beginMarketHandoff(p);
+}else if(p.activity==='Traveling to market for provisions'){
+ if(Math.hypot(p.x-DELIVERY_MARKET.food[0],p.z-DELIVERY_MARKET.food[1])<=1.35){
+  p.activity='Collecting household provisions';p.workTimer=0;
+ }else routeCitizen(p);
+}else if(p.activity==='Collecting household provisions'){
+ finishHouseholdProvisions(p);
+}else if(p.activity==='Traveling home with provisions'){
+ p.activity='Resting at home';p.workTimer=0;
 }else if(p.activity==='Returning home at dusk'){
  // A real physically navigated arrival, NOT a disappearance or instant sleep.
  p.activity='Resting at home';p.workTimer=0;
-}else if(p.activity==='Resting at home'&&!onShift){
+}else if(p.activity==='Resting at home'){
  // Rest restores actual citizen energy. Food still depletes only through
  // the existing authoritative village consumption system.
  p.energy=Math.min(100,p.energy+dt*5);
- if(state.food>1)p.hunger=Math.max(0,p.hunger-dt*.85);
+ if(state.food>1||p.provisions>0)p.hunger=Math.max(0,p.hunger-dt*.85);
+ if(onShift&&p.workTimer>=1){p.workTimer=0;choose(p)}
 }else if(p.activity==='Resting and gathering food'){
  // Rest and eat at a real, physically reached village stop, never the
  // worker's distant cottage or an inaccessible workstation.
@@ -13081,17 +13172,26 @@ else if(p.activity==='Waiting for a safe route'){
 }else if(p.activity.startsWith('Traveling to ')){
  if(p.energy<30||p.hunger>88)choose(p);
  else{p.activity=jobWorkActivity(p);p.workTimer=0}
-}else if(isWorkingAtSite(p)||p.activity==='Resting at home'){
+}else if(isWorkingAtSite(p)){
  if(p.workTimer>=workDuration(p)){work(p);p.workTimer=0;if(!startActualDelivery(p))choose(p)}
 }else if(p.workTimer>=2.5){p.workTimer=0;choose(p)}}
 recordRealCourierMovement();
 // Relationships are generated only by real proximity between villagers, not invented stories.
 for(let i=0;i<people.length;i++)for(let j=i+1;j<people.length;j++){let a=people[i],b=people[j];if(Math.abs(a.x-b.x)<1.3&&Math.abs(a.z-b.z)<1.3&&(a.x-b.x)**2+(a.z-b.z)**2<1.69){const inc=dt*.65;a.bonds[b.name]=(a.bonds[b.name]||0)+inc;b.bonds[a.name]=(b.bonds[a.name]||0)+inc;if(a.bonds[b.name]>3&&!a.friend){a.friend=b.name;if(state.t-state.lastStory>2){report(`${a.name} and ${b.name} became friends after meeting in the village.`);state.lastStory=state.t}}}}
-state.food=Math.max(0,state.food-dt*people.length*.016);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
+// Original per-person food consumption is unchanged. A ration previously
+// taken from town stores is consumed first only while actually at home.
+let communityConsumption=0;
+for(const person of people){
+ const use=dt*.016,stock=person.activity==='Resting at home'?
+  Math.min(use,Math.max(0,person.provisions||0)):0;
+ if(stock>0)person.provisions=Math.max(0,person.provisions-stock);
+ communityConsumption+=use-stock;
+}
+state.food=Math.max(0,state.food-communityConsumption);if(state.food<1)for(const p of people)p.hunger=Math.min(100,p.hunger+dt*.38);
 state.happiness=Math.max(15,Math.min(98,80+(state.food>15?6:-28)-people.reduce((s,p)=>s+p.hunger,0)/people.length*.28+Math.sin(state.t/12)*5));let last=Math.floor((state.t-dt)/24),now=Math.floor(state.t/24);if(now>last){const oldClimate=climateAt((state.t-dt)),newClimate=climateAt(state.t);
  if(oldClimate.season!==newClimate.season)report(`${newClimate.seasonName} arrives in the valley. The fields and village work change with the season.`);
  if(newClimate.weather!==oldClimate.weather&&newClimate.weather==='snow')report('Snow settles over the valley; farmers turn to winter stores.');
- report(`Day ${now+1} begins. The settlement now has ${people.length} citizens and ${state.buildCount} buildings.`);if(now%6===0&&people.length<28&&state.food>60&&state.buildCount>=Math.ceil((people.length+1)/3)){let n=uniqueCitizenName(people.length);let citizen={name:n,job:jobs[people.length%jobs.length],trait:'hopeful',x:0,z:0,target:[rand()*12,rand()*12],phase:0,energy:90,hunger:15,friend:null,bonds:{},activity:'Finding a home',workTimer:0};people.push(citizen);if(!walkable(citizen.x,citizen.z)){const spot=navSnap(citizen.x,citizen.z);if(spot)[citizen.x,citizen.z]=navPoint(...spot)}choose(citizen);report(`${n} joined the growing community as its newest citizen.`)}updateUI();}}
+ report(`Day ${now+1} begins. The settlement now has ${people.length} citizens and ${state.buildCount} buildings.`);if(now%6===0&&people.length<28&&state.food>60&&state.buildCount>=Math.ceil((people.length+1)/3)){let n=uniqueCitizenName(people.length);let citizen={name:n,job:jobs[people.length%jobs.length],trait:'hopeful',x:0,z:0,target:[rand()*12,rand()*12],phase:0,energy:90,hunger:15,friend:null,bonds:{},activity:'Finding a home',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1};people.push(citizen);if(!walkable(citizen.x,citizen.z)){const spot=navSnap(citizen.x,citizen.z);if(spot)[citizen.x,citizen.z]=navPoint(...spot)}choose(citizen);report(`${n} joined the growing community as its newest citizen.`)}updateUI();}}
 // Render-only historical economy graph. Sampling occurs at most once per day.
 const uiHistory=[];const trendColors={food:'#73f4bd',wood:'#ffcd73',gold:'#ff9299'};
 function renderResourceTrends(day){
@@ -13145,6 +13245,9 @@ function validateSnapshot(snapshot){
  if(!Array.isArray(q.city)||q.city.length<12||q.city.length>35||!q.city.every(c=>Array.isArray(c)&&c.length===3&&validScalar(c[0],-40,40)&&validScalar(c[1],-40,40)&&Number.isInteger(c[2])&&c[2]>=0&&c[2]<=2)||s.buildCount!==q.city.length+2)throw Error('Save contains invalid buildings');
  if(!Array.isArray(q.people)||q.people.length<12||q.people.length>28||!q.people.every(p=>{
    if(!p||!validText(p.name,40)||!jobs.includes(p.job)||!validText(p.trait,40)||!validText(p.activity,100)||!validPoint([p.x,p.z])||!validPoint(p.target)||!Array.isArray(p.path)||p.path.length>100||!p.path.every(validPoint)||!validScalar(p.phase,0,1e9)||!validScalar(p.energy,0,100)||!validScalar(p.hunger,0,100)||!validScalar(p.workTimer,0,10000)||
+   (p.provisions!==undefined&&!validScalar(p.provisions,0,2))||
+   (p.provisionVisits!==undefined&&(!Number.isInteger(p.provisionVisits)||!validScalar(p.provisionVisits,0,1e8)))||
+   (p.lastProvisionAttemptDay!==undefined&&(!Number.isInteger(p.lastProvisionAttemptDay)||!validScalar(p.lastProvisionAttemptDay,-1,1e8)))||
    (p.deliveryTally!==undefined&&(!Number.isInteger(p.deliveryTally)||!validScalar(p.deliveryTally,0,1e8)))||
    (p.delivery!==undefined&&(!p.delivery||
     !validText(p.delivery.id,100)||
@@ -16421,9 +16524,15 @@ function updateWorldRibbon(){
  const narrative=story?Array.from(story.childNodes)
   .filter(node=>node.nodeType===3)
   .map(node=>node.textContent.trim()).filter(Boolean).join(' '):'';
- document.getElementById('world-story').textContent=narrative?
-  narrative.replace(/\s+/g,' ').slice(0,140):
-  'Your villagers write their own chronicle.';
+ const errand=householdProvisionAudit().citizens[0];
+ const life=errand?errand.activity==='Collecting household provisions'?
+   errand.name+' is picking up household grain at the market':
+   errand.activity==='Traveling home with provisions'?
+   errand.name+' is carrying grain home':
+   errand.name+' is walking to the real market for grain':null;
+ document.getElementById('world-story').textContent=life||
+  (narrative?narrative.replace(/\s+/g,' ').slice(0,140):
+  'Your villagers write their own chronicle.');
  updateSupplyTrail();
 }
 
@@ -16437,7 +16546,7 @@ function getSupplyTrailSnapshot(){
  const carrying=deliveries.find(d=>d.stage==='unloading')||deliveries[0]||null;
  const latest=deliveryReceipts[0]||null;
  const market=marketSupplyView();
- const homes=occupiedHouseholds();
+ const homes=occupiedHouseholds(),provisions=householdProvisionAudit();
  const recent=latest&&state.t-latest.time<=6?latest:null;
  return {
   source:'read-only-authentic-farm-courier-market-home',
@@ -16455,6 +16564,8 @@ function getSupplyTrailSnapshot(){
     resource:latest.resource,amount:latest.amount,time:latest.time,
     creditedAtUnloading:latest.creditedAtUnloading===true}:null,
   homeTime:!dayShiftAt(state.t),occupiedHomes:homes.length,
+  provisions:{collecting:provisions.collecting,carrying:provisions.carrying,
+   homesSupplied:provisions.homesSupplied,storedFood:provisions.storedFood},
   residentsResting:homes.reduce((sum,h)=>sum+h.residents.length,0),
   noSyntheticActors:true,noSyntheticTransactions:true
  };
@@ -16474,8 +16585,11 @@ function updateSupplyTrail(force=false){
   r.amount.toFixed(1)+' '+r.resource+
   (r.creditedAtUnloading?' credited':' receipt, credit prior'):'No receipt yet';
  const shelter=flow.homeTime?
-  flow.residentsResting+' citizens resting in '+flow.occupiedHomes+' homes':
-  'Day shift · residents at work';
+  flow.residentsResting+' resting in '+flow.occupiedHomes+' homes · '+
+    flow.provisions.homesSupplied+' homes holding grain':
+  flow.provisions.collecting+flow.provisions.carrying>0?
+    flow.provisions.collecting+' collecting · '+flow.provisions.carrying+' taking grain home':
+    'Day shift · residents at work';
  const labels=[['supply-field',field],['supply-cargo',carried],
   ['supply-receipt',received],['supply-home',shelter]];
  for(const [id,value] of labels){
@@ -17626,6 +17740,7 @@ for(let i=0;i<people.length;i++){
   villageVisualLod.compactCitizens++;
  }
 }
+for(const person of people)renderCarriedHouseholdProvisions(person);
 actorFrameCitizens=people.length;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorFrameData=data;
@@ -17875,7 +17990,7 @@ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON
  getForegroundResidentAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
+getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
