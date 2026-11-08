@@ -5,6 +5,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,
  '../../public/tiny-kingdom/index.html'),'utf8');
+test.use({video:'on'}); // Genuine moving browser recording, never a static mock.
 const scenes=[{width:1024,height:640},{width:390,height:844}];
 for(const viewport of scenes){
  test('W125 same genuine worksite with original/GPU joints '+viewport.width,
@@ -105,5 +106,59 @@ for(const viewport of scenes){
   expect(candidate.glError).toBe(0);
   expect(candidate.overflow).toBeLessThanOrEqual(0);
   expect(pageErrors).toEqual([]);
+  // W125 moving acceptance: replay exactly the SAME authoritative saved
+  // worker shift in original CPU and articulated GPU modes. Each snapshot
+  // is advanced by the same real deterministic ticks. The recorded video
+  // contains actual changing worker frames, no fake actor/film transaction.
+  const anchor=JSON.parse(original.authority);
+  const motion=async skinned=>{
+   await page.evaluate(({snapshot,mode})=>{
+    const g=window.__tinyKingdom;g.setSpeed(0);
+    g.restoreSnapshot(snapshot);
+    g.setCamera({focus:[0,0],yaw:.45,pitch:.86,zoom:80});
+    g.setWorkingSkinEnabledForTesting(mode);
+   },{snapshot:anchor,mode:skinned});
+   const trace=[];
+   for(let k=0;k<6;k++){
+    const prior=await page.evaluate(()=>{
+     const g=window.__tinyKingdom,n=g.getFrameProfile().totalFrames;
+     g.step(1/30);return n;
+    });
+    await page.waitForFunction(n=>
+     window.__tinyKingdom.getFrameProfile().totalFrames>n,
+     prior,{timeout:125000});
+    if(k===0||k===5)
+     await info.attach('w125-'+(skinned?'gpu':'original')+
+      '-genuine-moving-frame-'+k+'-'+viewport.width,
+      {body:await page.screenshot(),contentType:'image/png'});
+    trace.push(await page.evaluate(()=>{
+     const g=window.__tinyKingdom;
+     return {checksum:g.exportSnapshot().checksum,
+      citizens:g.metrics().citizens,
+      workers:g.getActiveWorksites().length,
+      triangles:g.renderStats().lastFrameTriangles,
+      glError:document.getElementById('world').getContext('webgl')?.getError()??-1,
+      skin:g.getWorkingSkinAudit(),
+      cpuStages:g.getFrameProfile().stages,
+      gpuTimer:g.getGpuFrameTimerAudit()};
+    }));
+   }
+   return {snapshot:await page.evaluate(()=>
+    JSON.stringify(window.__tinyKingdom.exportSnapshot())),trace};
+  };
+  const originalMotion=await motion(false),gpuMotion=await motion(true);
+  expect(gpuMotion.snapshot).toBe(originalMotion.snapshot);
+  expect(gpuMotion.trace.map(x=>x.checksum)).toEqual(
+   originalMotion.trace.map(x=>x.checksum));
+  expect(gpuMotion.trace.map(x=>x.citizens)).toEqual(
+   originalMotion.trace.map(x=>x.citizens));
+  for(const frameEvidence of gpuMotion.trace){
+   expect(frameEvidence.triangles).toBeLessThan(160000);
+   expect(frameEvidence.glError).toBe(0);
+  }
+  await info.attach('w125-identical-true-autonomous-motion-'+viewport.width,
+   {body:Buffer.from(JSON.stringify({viewport,
+    original:originalMotion.trace,candidate:gpuMotion.trace},null,2)),
+    contentType:'application/json'});
  });
 }
