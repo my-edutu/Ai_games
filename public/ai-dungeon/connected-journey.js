@@ -4,7 +4,7 @@ import {planPartyWallReveal} from '/dungeon/party-visibility-plan.js';
 
 /**
  * Original, structurally connected entry / ordinary chamber / Warden court.
- * Five capped GPU batches, a shared material-role family and dirty cutaways.
+ * Eleven capped role-specific GPU batches, three shared material roles and dirty cutaways.
  * Threshold uprights are anchored to real blocked flank cells. The 2.25m+
  * arch spans are overhead only, so every actual fighting lane stays open.
  */
@@ -36,37 +36,90 @@ function geometry(build){
  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
  return g;
 }
-const facadeStone=()=>geometry(({slab,beam,prism})=>{
- // Thick socket course and two genuinely load-bearing pier stacks.
- slab(0,.15,.92,.30,.16,.47);
+const facadeStone=(role)=>geometry(({slab,beam,prism})=>{
+ // Three independently sculpted stone silhouettes, all within existing #
+ // tiles. Load-bearing courses align across the entire expedition.
+ const entry=role==='entry',court=role==='warden';
+ const shoulder=entry?1.79:court?2.48:2.20;
+ const peak=entry?2.74:court?3.48:3.17;
+ slab(0,.15,.94,.30,.15,.47);
  for(const side of [-1,1]){
-  slab(side*.35,.36,.245,.52,.17,.46);
-  prism([[side*.22,.56],[side*.47,.56],[side*.43,2.17],
-   [side*.28,2.33]],.22,.45);
-  slab(side*.35,.72,.25,.12,.16,.49);
-  slab(side*.35,2.20,.31,.18,.19,.49);
-  beam(side*.35,2.29,side*.21,2.74,.13,.19,.47);
-  beam(side*.21,2.74,0,3.02,.115,.19,.47);
-  // Narrow upper flying ribs remain rooted in the real wall mass.
-  beam(side*.46,1.52,side*.46,2.47,.07,.27,.49);
-  beam(side*.46,2.47,side*.28,2.82,.068,.25,.48);
+  const column=side*.36;
+  slab(column,.40,entry?.30:court?.30:.25,.58,.16,.46);
+  prism([[column-.105,.63],[column+.105,.63],
+   [column+.08,shoulder-.10],[column-.075,shoulder]],.18,.455);
+  slab(column,.75,.27,.12,.17,.495);
+  slab(column,shoulder-.05,.32,.19,.17,.495);
+  // Visible stone cheeks and rear flying rib preserve physical wall depth.
+  beam(side*.465,1.26,side*.465,shoulder+.12,.068,.23,.48);
+  if(entry){
+   // Battered arrival gate: thick defensive lintels, worn squared crown,
+   // asymmetric high rubble; no pretend staircase or navigable doorway.
+   beam(column,shoulder,side*.20,2.26,.19,.16,.46);
+   beam(side*.20,2.26,0,2.46,.17,.16,.47);
+   slab(side*.31,2.34,.22,.17,.15,.47);
+  }else if(court){
+   // The Warden court's tall counterforts carry a double flying ogee:
+   // a severe vertical, forked stone silhouette unlike the earlier nave.
+   beam(column,shoulder,side*.26,3.12,.17,.17,.47);
+   beam(side*.26,3.12,0,peak-.11,.155,.17,.47);
+   beam(side*.46,shoulder-.15,side*.46,shoulder+.36,.098,.25,.49);
+   beam(side*.46,shoulder+.36,side*.22,peak-.21,.11,.23,.49);
+   slab(side*.44,2.06,.18,.085,.26,.49);
+  }else{
+   // The inhabited encounter nave rises higher than the entrance. Repeated
+   // true pointed ribs, crown springers and corbels frame combat from outside.
+   beam(column,shoulder,side*.205,2.81,.14,.16,.47);
+   beam(side*.205,2.81,0,peak-.16,.135,.16,.47);
+   beam(side*.465,shoulder-.12,side*.29,peak-.19,.07,.25,.485);
+   slab(side*.38,1.59,.10,.23,.29,.49);
+  }
  }
- prism([[-.12,2.87],[.12,2.87],[.10,3.05],[0,3.18],[-.10,3.05]],.18,.495);
+ if(entry){
+  // The arrival lintel is battered, not a bright shrine or fantasy doorway.
+  slab(0,2.41,.63,.14,.14,.475);
+  prism([[-.15,2.42],[.14,2.42],[.12,2.60],[0,2.71],[-.12,2.59]],.16,.49);
+ }else if(court){
+  // Forged chapter keystone with genuinely thick cross-sectional voussoirs.
+  prism([[-.16,3.25],[.16,3.25],[.14,3.50],[0,3.63],[-.14,3.50]],.18,.49);
+  slab(0,2.78,.14,.11,.20,.48);
+ }else{
+  prism([[-.14,2.98],[.14,2.98],[.12,3.16],[0,3.27],[-.12,3.16]],.18,.49);
+ }
 });
-const facadeShadow=()=>geometry(({prism})=>{
- // Blind, solid dark backing: this is a RECESS in impassable masonry,
- // not a false playable doorway or usable stairway.
- prism([[-.24,.42],[.24,.42],[.24,2.15],[.16,2.41],[0,2.72],
-  [-.16,2.41],[-.24,2.15]],.09,.195);
+const facadeShadow=(role)=>geometry(({prism,beam})=>{
+ // Real non-traversable shallow darkness backed by existing solid map stone.
+ const height=role==='entry'?1.79:role==='warden'?2.60:2.27;
+ prism([[-.24,.45],[.24,.45],[.24,height],[.15,height+.26],
+  [0,height+.47],[-.15,height+.26],[-.24,height]],.07,.19);
+ if(role==='warden')for(const side of [-1,1])
+  beam(side*.18,1.14,side*.18,height+.05,.045,.19,.23);
 });
-const facadeIron=()=>geometry(({slab,beam,prism})=>{
- slab(0,.56,.39,.035,.458,.49);
- slab(0,2.24,.32,.045,.465,.50);
+const facadeIron=(role)=>geometry(({slab,beam,prism})=>{
+ slab(0,.56,.42,.039,.457,.49);
  for(const side of [-1,1]){
-  beam(side*.21,2.40,0,2.82,.024,.462,.50);
-  slab(side*.34,1.34,.024,.56,.466,.50);
+  slab(side*.35,1.24,.028,.47,.464,.495);
+  if(role==='entry'){
+   slab(side*.28,1.86,.025,.40,.467,.495);
+   beam(side*.26,2.22,0,2.46,.026,.46,.495);
+  }else if(role==='warden'){
+   // Iron lance barbs and vertical court heraldry, not bright effects.
+   beam(side*.29,2.48,0,3.25,.037,.46,.494);
+   beam(side*.15,2.42,side*.37,2.02,.031,.464,.496);
+   slab(side*.35,1.70,.042,.44,.459,.49);
+  }else{
+   beam(side*.26,2.48,0,3.06,.026,.464,.494);
+   slab(side*.32,1.73,.030,.50,.458,.492);
+  }
  }
- prism([[0,1.42],[.10,1.65],[0,1.89],[-.10,1.65]],.472,.505);
+ if(role==='warden'){
+  prism([[0,1.25],[.14,1.62],[0,2.07],[-.14,1.62]],.462,.495);
+  slab(0,2.27,.28,.046,.462,.49);
+ }else if(role==='entry'){
+  prism([[-.15,1.47],[.15,1.47],[0,1.86]],.46,.494);
+ }else{
+  prism([[0,1.42],[.12,1.67],[0,1.93],[-.12,1.67]],.462,.493);
+ }
 });
 const thresholdStone=()=>geometry(({slab,beam,prism})=>{
  for(const side of [-1,1]){
@@ -109,15 +162,32 @@ export function createConnectedDungeonJourney(world,map,floor,exit,units=[]){
  const stone=ownMaterial('bearing-stone-and-foundation'),
   shadow=ownMaterial('solid-blind-recess'),
   iron=ownMaterial('aged-iron-fittings');
- const shapes=[ownGeometry(facadeStone),ownGeometry(facadeShadow),
-  ownGeometry(facadeIron),ownGeometry(thresholdStone),ownGeometry(thresholdIron)];
- const batches=[
-  {name:'carved-court-and-chamber-bays',sites:plan.facades,geo:shapes[0],material:stone},
-  {name:'solid-blind-masonry-recesses',sites:plan.facades,geo:shapes[1],material:shadow},
-  {name:'forged-masonry-fittings',sites:plan.facades,geo:shapes[2],material:iron},
-  {name:'complete-route-threshold-arches',sites:plan.thresholds,geo:shapes[3],material:stone},
-  {name:'threshold-iron-ribs',sites:plan.thresholds,geo:shapes[4],material:iron}
- ];
+ // Three independent architectural profiles, three material roles, two
+ // overhead threshold profiles: no more than ELEVEN instanced draws/floor.
+ const batches=[],profiles={};
+ for(const role of ['entry','ordinary','warden']){
+  const indices=plan.facades.flatMap((site,i)=>site.role===role?[i]:[]);
+  if(!indices.length)continue;
+  const sites=indices.map(i=>plan.facades[i]);
+  const shapes=[ownGeometry(()=>facadeStone(role)),
+   ownGeometry(()=>facadeShadow(role)),ownGeometry(()=>facadeIron(role))];
+  const materialsByPart=[stone,shadow,iron];
+  const names=['bearing-piers-and-crown','solid-blind-stone-recess',
+   'original-ironwork-and-heraldry'];
+  profiles[role]=shapes.reduce((n,g)=>n+(g.index?.count||0)/3,0);
+  for(let part=0;part<3;part++)batches.push({
+   family:'facade',indices,sites,name:role+'-'+names[part],
+   geo:shapes[part],material:materialsByPart[part]
+  });
+ }
+ if(plan.thresholds.length){
+  const indices=plan.thresholds.map((_,i)=>i);
+  const archStone=ownGeometry(thresholdStone),archIron=ownGeometry(thresholdIron);
+  batches.push({family:'threshold',indices,sites:plan.thresholds,
+   name:'load-bearing-complete-vaulted-threshold',geo:archStone,material:stone});
+  batches.push({family:'threshold',indices,sites:plan.thresholds,
+   name:'aged-iron-vault-ribs',geo:archIron,material:iron});
+ }
  const facadeState=new Uint8Array(plan.facades.length).fill(255),
   thresholdState=new Uint8Array(plan.thresholds.length).fill(255);
  function transform(mesh,index,site,hidden){
@@ -148,37 +218,54 @@ export function createConnectedDungeonJourney(world,map,floor,exit,units=[]){
   meshes.reduce((sum,m)=>sum+m.instanceMatrix.array.byteLength+
    (m.instanceColor?.array.byteLength||0),0);
  const metrics={source:plan.metrics.source,reachable:plan.metrics.reachable,
-  routeCells:plan.metrics.routeCells||0,actualOrdinaryEnemy:plan.metrics.actualOrdinaryEnemy||false,
+  routeCells:plan.metrics.routeCells||0,
+  actualOrdinaryEnemy:plan.metrics.actualOrdinaryEnemy||false,
   chapters:plan.chapters.map(c=>({role:c.role,gridX:c.gridX,gridZ:c.gridZ,source:c.source})),
   thresholds:plan.thresholds.length,facades:plan.facades.length,
   drawCalls:meshes.length,triangles:triangleCount,allocatedBytes,
+  memoryAccounting:'static vertex, index, normal and instancing arrays; excludes WebGL driver overhead',
+  distinctProfiles:Object.freeze({...profiles}),
   geometryCount:geometries.length,materialCount:materials.length,
   textureCount:0,dynamicLights:0,collisionEffects:0,walkableGroundObstacles:0,
   occluderBounds:plan.occluderBounds.length,hiddenForSightlines:0,matrixWrites:0};
- const stageGroups=[{sites:plan.facades,states:facadeState,meshes:batches.slice(0,3)},
-  {sites:plan.thresholds,states:thresholdState,meshes:batches.slice(3)}];
  function cutaway(eyes,camera,wallPad=2.1){
-  const subjects=Array.isArray(eyes)?eyes:[eyes];let hidden=0,writes=0;
-  for(const group of stageGroups){
-   const touched=new Set();
-   for(let i=0;i<group.sites.length;i++){
-    const site=group.sites[i],
+  const subjects=Array.isArray(eyes)?eyes:[eyes];
+  const changed={facade:new Uint8Array(plan.facades.length),
+   threshold:new Uint8Array(plan.thresholds.length)};
+  let hidden=0,writes=0;
+  for(const [family,sites,states] of [
+   ['facade',plan.facades,facadeState],
+   ['threshold',plan.thresholds,thresholdState]
+  ]){
+   for(let i=0;i<sites.length;i++){
+    const site=sites[i],
      reveal=planPartyWallReveal(site.x,site.z,subjects,camera,wallPad);
-    const conceal=reveal==='sightline'||group===stageGroups[0]&&reveal==='nearby';
+    const conceal=reveal==='sightline'||family==='facade'&&reveal==='nearby';
     if(conceal)hidden++;
     const band=Number(conceal);
-    if(group.states[i]===band)continue;
-    group.states[i]=band;writes++;
-    for(const batch of group.meshes){
-     if(!batch.mesh)continue;
-     transform(batch.mesh,i,site,conceal);touched.add(batch.mesh);
-    }
+    if(states[i]===band)continue;
+    states[i]=band;changed[family][i]=1;writes++;
    }
-   for(const mesh of touched)mesh.instanceMatrix.needsUpdate=true;
+  }
+  // The three sculpted chapter profiles use different instance index lists.
+  // Translate the SAME site-band changes to each draw, never address an
+  // entry mesh with an unrelated global Warden-face index.
+  for(const batch of batches){
+   if(!batch.mesh)continue;let dirty=false;
+   for(let local=0;local<batch.indices.length;local++){
+    const global= batch.indices[local];
+    if(changed[batch.family][global]!==1)continue;
+    transform(batch.mesh,local,batch.sites[local],
+     Boolean(batch.family==='facade'?facadeState[global]:thresholdState[global]));
+    dirty=true;
+   }
+   if(dirty)batch.mesh.instanceMatrix.needsUpdate=true;
   }
   metrics.hiddenForSightlines=hidden;metrics.matrixWrites=writes;
  }
- return {plan,metrics,occluderBounds:plan.occluderBounds,cutaway,
+ const occluderVolumes=Object.freeze(plan.occluderBounds.map(b=>Object.freeze([
+  b.minX,b.minY,b.minZ,b.maxX,b.maxY,b.maxZ])));
+ return {plan,metrics,occluderBounds:plan.occluderBounds,occluderVolumes,cutaway,
   dispose(){
    for(const mesh of meshes){world.remove(mesh);mesh.dispose();}
    for(const g of geometries)g.dispose();

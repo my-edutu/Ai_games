@@ -255,15 +255,28 @@ test('real autonomous fight and traversal keep every living actor in distinct le
 test('real Mystic healing spends finite focus instead of granting infinite emergency saves',()=>{
  const game=DungeonRuntime.create('mystic-healing-resolve-M1'),s=game.state;
  const mystic=s.units.find(u=>u.kind==='mystic'),hero=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
  assert.equal(mystic.focus,5);assert.equal(mystic.maxFocus,5);
  for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ // Stable, actual adjacent heal contact: walls north/west, occupied walkable
+ // east/south. Repose only between artificial clock cycles to isolate the
+ // finite resource contract, not during a simulated game step.
+ s.map=Array.from({length:19},(_,z)=>z===0||z===18?'#'.repeat(19):'#'+'.'.repeat(17)+'#');
+ s.map[3]=s.map[3].slice(0,4)+'#'+s.map[3].slice(5);
+ s.map[4]=s.map[4].slice(0,3)+'#'+s.map[4].slice(4);
+ s.exit={x:16,z:16};s.traps=[];s.relics=[];
+ const holdLane=()=>{
+  Object.assign(hero,{x:4,z:4,hp:5});
+  Object.assign(ranger,{x:5,z:4});
+  Object.assign(mystic,{x:4,z:5});
+ };
  for(let i=0;i<5;i++){
-  s.tick=i*3+2;hero.hp=5;
+  s.tick=i*3+2;holdLane();
   const view=game.step();
   assert.equal(mystic.focus,4-i,'authentic heals consume finite real focus');
   assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='healing'));
  }
- s.tick=17;hero.hp=5;
+ s.tick=17;holdLane();
  const exhausted=game.step();
  assert.equal(mystic.focus,0);
  assert.equal(hero.hp,5,'the sixth emergency cannot secretly heal without focus');
@@ -395,4 +408,222 @@ test('legacy v0.5.0 signed runs retain legacy AI until an explicit new-run migra
  const next=restored.step();
  assert.equal(next.run,2);assert.equal(restored.state.rulesVersion,2);
  assert.equal(DungeonRuntime.restore(restored.save()).state.rulesVersion,2);
+});
+
+const {wardenSealActive}=require('../../dist/games/ai-dungeon/src/index.js');
+// Real authority tick fixture: the Vanguard and Warden share an open fighting
+// lane, but one living seal defender stands well beyond any legal weapon range.
+function contactFixture(rules=2,guardAdjacent=false){
+ const game=DungeonRuntime.create('m1-v2-target-contact'),s=game.state;
+ s.map=Array.from({length:19},(_,z)=>z===0||z===18?'#'.repeat(19):'#'+'.'.repeat(17)+'#');
+ s.exit={x:10,z:8};s.relics=[];s.traps=[];s.tick=1;
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ const mystic=s.units.find(u=>u.id==='mystic');
+ const boss=s.units.find(u=>u.kind==='warden');
+ const defender=s.units.find(u=>u.kind!=='warden'&&u.faction==='enemy');
+ for(const enemy of s.units.filter(u=>u.faction==='enemy'&&u!==boss&&u!==defender))
+  enemy.hp=0;
+ Object.assign(vanguard,{x:9,z:8,hp:vanguard.maxHp});
+ Object.assign(ranger,{x:2,z:2,hp:ranger.maxHp});
+ Object.assign(mystic,{x:3,z:2,hp:mystic.maxHp});
+ Object.assign(boss,{x:10,z:8});
+ Object.assign(defender,{x:guardAdjacent?9:15,z:guardAdjacent?9:15,hp:defender.maxHp});
+ if(rules===1)delete s.rulesVersion;
+ assert.equal(wardenSealActive(s),true);
+ assertDungeonState(s);
+ return {game,s,vanguard,boss,defender};
+}
+
+test('v2 attacks a physically adjacent sealed Warden rather than ignoring real contact because of a remote living defender',()=>{
+ const {game,vanguard,boss,defender}=contactFixture();
+ const oldBoss=boss.hp,oldGuard=defender.hp,mirror=DungeonRuntime.restore(game.save());
+ const result=game.step();
+ assert.equal(result.rulesVersion,2);
+ assert.ok(boss.hp<oldBoss,'the nearby Warden must receive REAL seal-reduced damage');
+ assert.equal(defender.hp,oldGuard,'a distant binding defender cannot be attacked through stone');
+ assert.equal(vanguard.targetId,boss.id);
+ // Warden retaliation may overwrite the hero's final animation action; the
+ // real boss HP loss and attacker's target ID remain authoritative.
+ assert.equal(result.checksum,mirror.step().checksum,'v2 choice must replay deterministically');
+ assertDungeonState(game.state);
+});
+
+test('a genuinely reachable nearby binding guard still takes priority over the sealed Warden',()=>{
+ const {game,vanguard,boss,defender}=contactFixture(2,true);
+ const bossBefore=boss.hp,guardBefore=defender.hp;
+ game.step();
+ assert.ok(defender.hp<guardBefore);
+ assert.equal(boss.hp,bossBefore,'do not bypass the binding guard when it is actually within a legal melee lane');
+ assert.equal(vanguard.targetId,defender.id);
+ assertDungeonState(game.state);
+});
+
+test('restored legacy behavior does not silently acquire v2 opportunistic boss targeting mid-run',()=>{
+ const {game,boss}=contactFixture(1);
+ const before=boss.hp,save=game.save(),legacy=DungeonRuntime.restore(save);
+ game.step();legacy.step();
+ assert.equal(boss.hp,before,'the 0.5.0 tactics continue for the original run');
+ assert.equal(game.state.rulesVersion,undefined);
+ assert.deepEqual(game.save(),legacy.save(),'legacy rules and RNG are replay-stable');
+});
+
+function mysticDistanceFixture(rules=2,{wall=false,near=false}={}){
+ const game=DungeonRuntime.create('mystic-legal-heal-lane'),s=game.state;
+ s.map=Array.from({length:19},(_,z)=>z===0||z===18?'#'.repeat(19):'#'+'.'.repeat(17)+'#');
+ s.exit={x:16,z:16};s.relics=[];s.traps=[];s.tick=2;
+ for(const enemy of s.units.filter(u=>u.faction==='enemy'))enemy.hp=0;
+ const healer=s.units.find(u=>u.id==='mystic');
+ const target=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ Object.assign(healer,{x:3,z:3,hp:healer.maxHp,focus:3,maxFocus:5});
+ Object.assign(target,{x:near?5:11,z:3,hp:9});
+ Object.assign(ranger,{x:2,z:2,hp:ranger.maxHp});
+ if(wall)s.map[3]=s.map[3].slice(0,4)+'#'+s.map[3].slice(5);
+ if(rules===1)delete s.rulesVersion;
+ assertDungeonState(s);
+ return {game,s,healer,target};
+}
+
+test('v2 Mystic cannot heal a gravely wounded ally across distant rooms; must move one legal tile toward a real heal lane',()=>{
+ const {game,s,healer,target}=mysticDistanceFixture();
+ const previous={focus:healer.focus,hp:target.hp,x:healer.x,z:healer.z};
+ const mirror=DungeonRuntime.restore(game.save());
+ const result=game.step();
+ assert.equal(result.checksum,mirror.step().checksum);
+ assert.equal(target.hp,previous.hp,'distant healing must not teleport through the dungeon');
+ assert.equal(healer.focus,previous.focus,'no charges spent for an out-of-range heal');
+ assert.equal(Math.abs(healer.x-previous.x)+Math.abs(healer.z-previous.z),1,'healer should spend one honest repositioning step');
+ assert.equal(healer.action,'move');
+ assertDungeonState(s);
+});
+
+test('v2 urgent heal requires an actual unobstructed three-cell healing lane',()=>{
+ const blocked=mysticDistanceFixture(2,{near:true,wall:true});
+ const hp=blocked.target.hp,focus=blocked.healer.focus;
+ const mirror=DungeonRuntime.restore(blocked.game.save());
+ const result=blocked.game.step();
+ assert.equal(result.checksum,mirror.step().checksum);
+ assert.equal(blocked.target.hp,hp,'heal cannot pass through solid stone');
+ assert.equal(blocked.healer.focus,focus,'blocked spells cannot consume a charge or restore HP');
+ assertDungeonState(blocked.s);
+ const clear=mysticDistanceFixture(2,{near:true});
+ const before=clear.target.hp,f=clear.healer.focus;
+ const next=clear.game.step();
+ assert.ok(clear.target.hp>before,'genuine nearby clear lane should resolve a real heal');
+ assert.equal(clear.healer.focus,f-1);
+ assert.ok(next.events.some(e=>e.tick===next.tick&&e.kind==='healing'));
+});
+
+test('legacy restored Mystic retains old in-run healing rules while v2 restricts reach',()=>{
+ const {game,s,healer,target}=mysticDistanceFixture(1);
+ const saved=game.save(),oldHp=target.hp,oldFocus=healer.focus;
+ const replay=DungeonRuntime.restore(saved);
+ game.step();replay.step();
+ assert.ok(target.hp>oldHp,'signed legacy run must not change decisions mid-expedition');
+ assert.equal(healer.focus,oldFocus-1);
+ assert.equal(s.rulesVersion,undefined);
+ assert.deepEqual(game.save(),replay.save());
+});
+
+function provisionedPortalFixture({gold=82,rangerHp=2,legacy=false}={}){
+ const game=DungeonRuntime.create('v2-earned-respite-supplies'),s=game.state;
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ for(const foe of s.units.filter(u=>u.faction==='enemy'))foe.hp=0;
+ Object.assign(vanguard,{x:s.exit.x+1,z:s.exit.z,hp:vanguard.maxHp});
+ Object.assign(ranger,{x:s.exit.x,z:s.exit.z,hp:rangerHp});
+ s.relics=[];s.gold=gold;s.tick=3;
+ if(legacy)delete s.rulesVersion;
+ assertDungeonState(s);
+ return {game,s,ranger};
+}
+
+test('earned gold becomes one real bounded automatic medical supply decision at a cleared portal',()=>{
+ const {game,ranger}=provisionedPortalFixture();
+ const saved=game.save(),mirror=DungeonRuntime.restore(saved);
+ const view=game.step();
+ assert.equal(view.checksum,mirror.step().checksum);
+ assert.equal(view.floor,2);
+ assert.equal(view.rulesVersion,2);
+ assert.equal(view.gold,22,'60 actually earned gold must be deducted from the signed expedition');
+ assert.equal(view.units.find(u=>u.id==='ranger').hp,50,
+  'actual 26 HP respite plus 22 paid HP, not a free full heal');
+ assert.ok(view.events.some(e=>e.tick===view.tick&&e.kind==='provision'&&e.text.includes('ranger')),
+  'the choice and its cost must be visible in actual authoritative events');
+ assertDungeonState(game.state);
+});
+
+test('expedition supplies cannot be fabricated when gold is short or no health is needed',()=>{
+ for(const settings of [{gold:59,rangerHp:2},{gold:82,rangerHp:65}]){
+  const {game}=provisionedPortalFixture(settings),start=game.state.gold;
+  const view=game.step();
+  assert.equal(view.floor,2);
+  assert.equal(view.gold,start);
+  assert.ok(!view.events.some(e=>e.tick===view.tick&&e.kind==='provision'));
+  assertDungeonState(game.state);
+ }
+});
+
+test('legacy signed expeditions retain their unspent-gold semantics across a normal floor',()=>{
+ const {game}=provisionedPortalFixture({legacy:true});
+ const copy=DungeonRuntime.restore(game.save()),view=game.step();
+ assert.equal(view.checksum,copy.step().checksum);
+ assert.equal(view.rulesVersion,1);
+ assert.equal(view.floor,2);
+ assert.equal(view.gold,82);
+ assert.equal(view.units.find(u=>u.id==='ranger').hp,28);
+ assert.ok(!view.events.some(e=>e.kind==='provision'));
+});
+
+test('session-7 declared holdout campaign records genuine new-rule tactical decisions and replay across eight seeds',()=>{
+ const seeds=Array.from({length:8},(_,i)=>'dungeon-s7-holdout-v2-'+i);
+ const totals={seeds:seeds.length,ticksPerSeed:600,floorAdvances:0,restarts:0,
+  warningEvents:0,healingEvents:0,interruptEvents:0,provisionEvents:0,
+  evadeEvents:0,formationEvents:0,legalMovementTicks:0};
+ const runs=[];
+ for(const seed of seeds){
+  const game=DungeonRuntime.create(seed),mirror=DungeonRuntime.create(seed);
+  let lastFloor=1,lastRun=1,localMoves=0,localWarnings=0;
+  for(let i=0;i<600;i++){
+   const previous=new Map(game.state.units.filter(u=>u.hp>0).map(u=>
+    [u.id,{x:u.x,z:u.z}]));
+   const beforeFloor=game.state.floor,beforeRun=game.state.run;
+   const result=game.step(),replay=mirror.step();
+   assert.equal(result.rulesVersion,2,'holdout trials must evaluate the new rules only');
+   assert.equal(result.checksum,replay.checksum,'seed '+seed+' tick '+result.tick);
+   if(result.floor===beforeFloor&&result.run===beforeRun){
+    const living=result.units.filter(u=>u.hp>0);
+    assert.equal(new Set(living.map(u=>u.x+','+u.z)).size,living.length,
+     'living combatants cannot occupy the same real tile in '+seed+' tick '+result.tick);
+    for(const u of living){
+     const p=previous.get(u.id);
+     if(!p)continue;
+     const moved=Math.abs(p.x-u.x)+Math.abs(p.z-u.z);
+     assert.ok(moved<=1,'no off-grid teleport '+seed+' '+u.id+' at '+result.tick);
+     if(moved===1){localMoves++;totals.legalMovementTicks++;}
+    }
+   }
+   totals.floorAdvances+=result.floor!==lastFloor&&result.floor>lastFloor?1:0;
+   totals.restarts+=result.run-lastRun;
+   lastFloor=result.floor;lastRun=result.run;
+   for(const e of result.events.filter(e=>e.tick===result.tick)){
+    if(e.kind==='telegraph'){totals.warningEvents++;localWarnings++;}
+    if(e.kind==='healing')totals.healingEvents++;
+    if(e.kind==='interrupt')totals.interruptEvents++;
+    if(e.kind==='provision')totals.provisionEvents++;
+    if(e.kind==='evade')totals.evadeEvents++;
+    if(e.kind==='formation')totals.formationEvents++;
+   }
+   if(i%120===0){
+    assertDungeonState(game.state);
+    assert.deepEqual(DungeonRuntime.restore(game.save()).save(),game.save());
+   }
+  }
+  runs.push({seed,floor:lastFloor,run:lastRun,legalMovementTicks:localMoves,
+   warningEvents:localWarnings});
+ }
+ assert.ok(totals.legalMovementTicks>0&&totals.warningEvents>0,
+  'a genuine seed cohort must include movement and Warden or elite warnings');
+ console.log('DUNGEON_S7_HOLDOUT_TRACE '+JSON.stringify({totals,runs}));
 });

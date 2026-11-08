@@ -57,6 +57,29 @@ export function planDungeonRespite(nextFloor:number):number{
  if(!Number.isSafeInteger(nextFloor)||nextFloor<2)return 0;
  return Math.max(6,Math.ceil(26/Math.ceil(nextFloor/2)));
 }
+/** A genuinely earned, optional use for previously score-only gold:
+ * once at each real cleared portal, a gravely weakened ally can receive
+ * medicine purchased with spoils actually held by the squad. The decision
+ * is pure, deterministic, never grants money, and never converts spectator
+ * interaction into combat authority. Former signed runs keep all their gold.
+ */
+export const EXPEDITION_MEDICINE_COST=60;
+export const EXPEDITION_MEDICINE_HEAL=22;
+export function planExpeditionProvision(
+ s:Pick<DungeonState,'rulesVersion'|'floor'|'gold'|'units'>
+):{recipientId:string;goldCost:number;heal:number}|null{
+ if(!s||s.rulesVersion!==2||!Number.isSafeInteger(s.floor)||s.floor<2||
+  !Number.isSafeInteger(s.gold)||s.gold<EXPEDITION_MEDICINE_COST||
+  !Array.isArray(s.units))return null;
+ const candidates=s.units.filter(u=>u.faction==='party'&&
+   Number.isSafeInteger(u.hp)&&Number.isSafeInteger(u.maxHp)&&
+   u.maxHp>0&&u.hp>0&&u.hp<=Math.floor(u.maxHp*.55)&&
+   u.maxHp-u.hp>=12)
+  .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id));
+ const patient=candidates[0];
+ return patient?{recipientId:patient.id,goldCost:EXPEDITION_MEDICINE_COST,
+  heal:Math.min(EXPEDITION_MEDICINE_HEAL,patient.maxHp-patient.hp)}:null;
+}
 export function planWardenRecovery(s:Pick<DungeonState,'tick'|'units'>,boss?:Unit){
  const until=boss?.recoveryUntilTick;
  if(!boss||boss.kind!=='warden'||boss.hp<=0||!Number.isSafeInteger(s?.tick)||
@@ -224,6 +247,23 @@ function clearTacticalLane(s:Pick<DungeonState,'map'|'units'>,
   if(s.units.some(u=>u.hp>0&&u.id!==sourceId&&u.x===x&&u.z===z))return false;
  }
  return true;
+}
+/** The Starweaver can heal herself, or a living teammate within a real
+ * unobstructed three-cell channel. This rule consumes the same authoritative
+ * line-of-sight and body positions as tactical spell targeting. Neither walls
+ * nor distance may be bypassed by presentation-only action cues.
+ */
+export const MYSTIC_HEAL_RANGE=3;
+export function planMysticHealingLane(
+ s:Pick<DungeonState,'map'|'units'>,healer:Unit,patient:Unit
+):boolean{
+ if(!s||!Array.isArray(s.map)||!Array.isArray(s.units)||
+  healer?.kind!=='mystic'||healer.faction!=='party'||healer.hp<=0||
+  patient?.faction!=='party'||patient.hp<=0||
+  !walkable(s.map,healer.x,healer.z)||!walkable(s.map,patient.x,patient.z))return false;
+ return healer.id===patient.id||
+  (dist(healer,patient)<=MYSTIC_HEAL_RANGE&&
+   clearTacticalLane(s,healer,patient,healer.id));
 }
 // Each ranged hero searches no more than 81 candidate tiles with bounded BFS.
 function approachFiringLane(s:DungeonState,hero:Unit,enemy:Unit,range:number){
@@ -849,24 +889,46 @@ export class DungeonRuntime {
    // A genuine charged hex or breach aimed at a still-marked ally outranks
    // an incidental nearby foe. Actual attack range and blocked lanes remain.
    const threatenedCasters=planThreatInterceptions(s,hero);
+   // V2: the last real defender keeps top priority when contact is legal.
+   // However, a remote/out-of-lane defender must not make an adjacent Warden
+   // untouchable. The seal still taxes boss damage through the existing
+   // authoritative formula: this is NEVER a free unseal or imaginary attack.
+   // Existing signed legacy runs retain their old ordering until new-run migration.
    const attackable=[...threatenedCasters,...(recoveringWarden?[recoveringWarden]:[]),
-    ...(defenders.length?defenders:enemies)]
+    ...(defenders.length?defenders:enemies),
+    ...(s.rulesVersion===2?enemies.filter(e=>e.kind==='warden'):[])]
     .filter((foe,i,all)=>all.findIndex(other=>other.id===foe.id)===i);
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'){
     const urgent=party.some(u=>u.hp>0&&u.hp<=u.maxHp*.35);
     const focus=hero.focus??0;
-    // Save scarce healing focus for mortal danger after the first three
-    // charges. Restores only from genuine dungeon relics and new floors.
-    const threshold=focus<=2?.48:.70;
-    const wounded=focus>0&&(urgent?s.tick%3===0:s.tick%6===0)?
+    // Spend real finite healing focus, earned through relics and new floors.
+    // Legacy signed runs preserve their historical unlimited-range choice.
+    const threshold=focus<=2?.48:.70,due=urgent?s.tick%3===0:s.tick%6===0;
+    const wounded=focus>0?
      party.filter(u=>u.hp>0&&u.hp<u.maxHp*threshold)
       .sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id))[0]:null;
     if(wounded){
-     hero.focus=focus-1;
-     wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
-     hero.action='cast';s.intent='Starweaver spends healing focus to restore '+wounded.kind;
-     push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');continue;
+     const legal=s.rulesVersion!==2||planMysticHealingLane(s,hero,wounded);
+     if(due&&legal){
+      hero.focus=focus-1;
+      wounded.hp=Math.min(wounded.maxHp,wounded.hp+15+s.level);
+      hero.action='cast';
+      s.intent='Starweaver spends healing focus to restore '+wounded.kind;
+      push(s,'healing','Starweaver healed '+wounded.kind+' · '+hero.focus+' focus left');
+      continue;
+     }
+     if(s.rulesVersion===2&&urgent&&!legal&&wounded.id!==hero.id){
+      // One normal turn of lawful movement toward a healing position,
+      // without remote HP gain, extra action or fake successful cast.
+      const step=planTacticalStep(s,hero,wounded,'engage');
+      if(step&&!s.traps.some(t=>t.active&&!t.disarmed&&t.x===step.x&&t.z===step.z)){
+       hero.x=step.x;hero.z=step.z;hero.action='move';
+       s.intent='Starweaver opening a real healing lane to '+wounded.kind;
+       if(s.tick%3===0)push(s,'reposition','Starweaver closing to heal wounded '+wounded.kind);
+       continue;
+      }
+     }
     }
    }
    // Choose the nearest actual visible hostile instead of a wall-blocked nearest one.
@@ -1146,7 +1208,17 @@ export class DungeonRuntime {
    const nextFloor=s.floor+1;const next=createFloor(this.seed,nextFloor,this.rng,s.run,s);
    const respite=planDungeonRespite(nextFloor);
    next.units.filter(u=>u.faction==='party').forEach(u=>u.hp=Math.min(u.maxHp,u.hp+respite));
+   // A single between-floor choice uses only verified earned gold and actual
+   // missing HP. Never purchase during combat or bypass a live guardian.
+   const medicine=planExpeditionProvision(next);
+   if(medicine){
+    const patient=next.units.find(u=>u.id===medicine.recipientId)!;
+    patient.hp+=medicine.heal;next.gold-=medicine.goldCost;
+   }
    this.state=next;push(next,'floor','FLOOR '+nextFloor+' · '+next.theme);
+   if(medicine)push(next,'provision','Expedition spent '+medicine.goldCost+
+    ' earned gold on medical supplies for '+medicine.recipientId+
+    ' · +'+medicine.heal+' HP');
   }
   assertDungeonState(this.state);return this.publicState();
  }
