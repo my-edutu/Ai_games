@@ -1116,7 +1116,7 @@ function animate(t){
   // The actual public Warden warning, and only that warning, brings his
   // arms and torso into an escalating pre-strike silhouette. Imported skeleton
   // animations stay intact and take precedence when the real attack lands.
-  if(a.u.kind==='warden'&&a.u.hp>0){
+  if(a.u.kind==='warden'&&a.u.hp>0&&(!a.authored||a.fullBody?.owner.warning)){
    const anticipation=a.wardenCharge,exposed=a.wardenExposure;
    if(a.authored&&a.visualPivot){
     a.visualPivot.position.y+=anticipation.lift-(exposed?.dip??0)+(a.wardenStrikePose?.rootLift??0);
