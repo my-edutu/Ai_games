@@ -2,7 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {makeWallMasonryPixels} from '/dungeon/wall-masonry-plan.js';
 import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-wall-plan.js';
 import {planCutawayWallTransform,planCutawayFoundationTransform,planCutawayParapetTransform} from '/dungeon/cutaway-floor-plan.js';
-import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
+import {encounterTarget,isSceneAlert,describeSpectatorDanger,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createFloorRuins} from '/dungeon/floor-ruins.js';
@@ -742,22 +742,30 @@ function renderDashboard(s){
  const wardenRelease=Boolean(nearBoss&&Number.isSafeInteger(s.tick)&&
   boss.action==='cast'&&boss.actionTick===s.tick);
   const tactical=planWardenTacticalCue(s,{nearBoss});
+  const verifiedCue=nearBoss?describeSpectatorDanger(s):null;
  $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');
  $('theme').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('tick').textContent='TICK '+String(s.tick).padStart(5,'0');
  $('kills').textContent=s.kills.toLocaleString();$('gold').textContent=s.gold.toLocaleString();$('level').textContent=s.level;
  $('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
  $('party-count').textContent=alive+' / '+heroes.length;$('party-condition').textContent=alive===heroes.length?'READY':alive?'COMPROMISED':'FALLEN';
  $('status').textContent=s.phase==='intermission'?'THE NEXT EXPEDITION IS FORMING':'AI HEROES EXPLORING THE UNKNOWN';
- $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':
+ $('floor-status').textContent=s.phase==='intermission'?'NEW RUN FORMING':
   s.guardianWard?'BINDING GUARDS · '+s.defendersRemaining:
-  tactical?.floor??(foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED');
+  tactical?.mode==='warning'?'WARDEN WARNING · '+(s.bossWarning.attackTick-s.tick)+' TURNS':
+  tactical?.mode==='release'?'WARDEN STRIKE RELEASED':
+  tactical?.mode==='counter'?'WARDEN RECOVERING':
+  tactical?.floor??(foes.length?'ENEMIES REMAIN':'PORTAL AVAILABLE');
  const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
  $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  document.body.dataset.wardenFocus=nearBoss?'true':'false';
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
   const phase=s.bossPhase||'SENTINEL',exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
-  $('boss-phase').textContent=tactical?.label??phase;
+  // This spectator must not issue player commands or claim an unverified hit.
+  $('boss-phase').textContent=verifiedCue?.kind==='warning'?'WARDEN WARNING':
+   verifiedCue?.kind==='release'?'STRIKE RELEASED':
+   verifiedCue?.kind==='counter'?'EXPOSED · RECOVERING':
+   verifiedCue?.kind==='guard'?'SEALED · '+phase:phase;
    bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));bossStrip.dataset.recovery=String(exposed);
   bossStrip.dataset.striking=String(wardenRelease);
   const attackInterval=phase==='ECLIPSE'?4:6;
