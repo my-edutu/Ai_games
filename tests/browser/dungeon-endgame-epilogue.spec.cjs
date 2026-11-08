@@ -40,6 +40,8 @@ test('organic campaign death remains a legible 3D last stand on real desktop and
   {timeout:90000}).toBeGreaterThan(0);
  // Real HP-zero bodies must be still at the imported clip level. Only the
  // genuine static/finite skinned collapse owns the defeated source rig.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.nativeDeathSourceActors??0),
+  {timeout:90000}).toBeGreaterThanOrEqual(3);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceActors??0),
   {timeout:30000}).toBeGreaterThanOrEqual(3);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.fullBodyFrozenSourceFrames??0),

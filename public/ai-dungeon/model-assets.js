@@ -921,7 +921,7 @@ function attachCharacter(actor){
  return request;
 }
 function changeAction(actor,action,forceRestart=false){
- const oneShot=['attack','cast','hurt'].includes(action);
+ const oneShot=['attack','cast','hurt','defeat'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
  const newEvent=oneShot&&(actor.currentActionTick!==tick||forceRestart);
@@ -1037,7 +1037,8 @@ function stageSkinnedHitAfterMixer(actor,reducedMotion){
 function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
  actor.skinnedDefeatWeight=0;
  if(!actor.authored||!actor.root||actor.root.visible===false)return;
- const pose=planSkinnedDefeatPose(actor.u.kind,actor.u.hp,actor.damageBeat?.age??null,
+ if(actor.nativeDeathSourceActive&&!reducedMotion){actor.skinnedDefeatWeight=1;return;}
+  const pose=planSkinnedDefeatPose(actor.u.kind,actor.u.hp,actor.damageBeat?.age??null,
   Boolean(actor.damageBeat?.fatal),reducedMotion,Boolean(actor.defeatIntermission));
  if(pose.weight<=0)return;
  actor.skinnedDefeatWeight=pose.weight;
@@ -1070,13 +1071,19 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
    actor.fullBodyHeldFrames=Math.min(1000000,(actor.fullBodyHeldFrames||0)+1);
    if(actor.fullBody.confirmedContact)actor.fullBodyContactRecoveryFrames=Math.min(1000000,(actor.fullBodyContactRecoveryFrames||0)+1);
   }
-  // A true HP-zero character must not continue a living imported idle/walk
-  // animation beneath the existing genuine skinned collapse. Preserve the
-  // last legal source pose; the real verified defeat overlays still progress.
-  // A valid revival or replacement actor selects a fresh imported clip.
-  const freezeSource=actor.fullBody.owner.defeat;
+  // Only a true HP-zero pose may select original Death_A, then hold its
+  // terminal frame. Never stack two native death/overlay performances.
+  // No Death_A or reduced motion retains the previous frozen-source fallback.
+  const genuineDeath=actor.fullBody.owner.defeat&&!reducedMotion?
+   chooseImportedSourceClip(actor.availableClips,'defeat',actor.u.kind):null;
+  const deathFinished=Boolean(genuineDeath&&actor.currentAction==='defeat'&&
+   actor.activeClip?.getClip?.()===genuineDeath&&
+   (actor.activeClip.paused===true||actor.activeClip.time>=genuineDeath.duration-.002));
+  const freezeSource=actor.fullBody.owner.defeat&&(!genuineDeath||deathFinished);
   if(!freezeSource)changeAction(actor,actor.fullBody.clipAction,actor.fullBody.restarted);
   else actor.fullBodyFrozenFrames=Math.min(1000000,(actor.fullBodyFrozenFrames||0)+1);
+  actor.nativeDeathSourceActive=Boolean(genuineDeath&&actor.currentAction==='defeat'&&
+   actor.activeClip?.getClip?.()===genuineDeath);
  restoreRigArmsBeforeMixer(actor);
  restoreRigForearmsBeforeMixer(actor);
  restoreRigLegsBeforeMixer(actor);
@@ -1370,6 +1377,7 @@ function stats(actors){
    fullBodyHeldRecoveryFrames:authored.reduce((n,a)=>n+(a.fullBodyHeldFrames||0),0),
    fullBodyFrozenSourceActors:authored.filter(a=>a.fullBody?.owner.defeat).length,
    fullBodyFrozenSourceFrames:authored.reduce((n,a)=>n+(a.fullBodyFrozenFrames||0),0),
+    nativeDeathSourceActors:authored.filter(a=>a.nativeDeathSourceActive).length,
    fullBodyVerifiedContactRecoveryFrames:authored.reduce((n,a)=>n+(a.fullBodyContactRecoveryFrames||0),0),
    fullBodyInterruptions:authored.reduce((n,a)=>n+(a.fullBodyInterruptions||0),0),
    fullBodyRestarts:authored.reduce((n,a)=>n+(a.fullBodyRestarts||0),0),

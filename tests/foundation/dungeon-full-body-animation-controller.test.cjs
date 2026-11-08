@@ -92,7 +92,7 @@ test('defeat is absorbing at HP zero and does not advance gait, strikes or injur
   damageBeat:{id:'hero-1',kind:'vanguard',damage:40,maxHp:30,age:.2,fatal:true},
   evasionBeat:{id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.08}
  }));
- assert.equal(fallen.mode,'defeat');assert.equal(fallen.clipAction,'idle');
+ assert.equal(fallen.mode,'defeat');assert.equal(fallen.clipAction,'defeat');
  assert.equal(fallen.owner.defeat,true);assert.equal(fallen.owner.duel,false);
  assert.equal(fallen.owner.warning,false);assert.equal(fallen.phase,'down');
 });
@@ -307,6 +307,22 @@ test('source AnimationMixer uses captured visual tick and single controller pose
 });
 
 
+test('licensed native death plays once after real HP zero and releases on revival',async()=>{
+ const {chooseImportedSourceClip:choose,advanceFullBodyController:step}=await load();
+ const originals=['Idle','Death_A','Walking_A'].map(name=>({name,duration:.792}));
+ for(const kind of ['vanguard','revenant','warden','ranger','mystic','cultist'])
+  assert.equal(choose(originals,'defeat',kind).name,'Death_A');
+ assert.equal(choose(originals.filter(c=>c.name!=='Death_A'),'defeat','vanguard'),null);
+ const down=step(null,frame(hero('hurt',18,0)));
+ assert.equal(down.mode,'defeat');assert.equal(down.clipAction,'defeat');
+ const back=step(down,frame(hero('idle',19,30)));
+ assert.equal(back.mode,'idle');assert.equal(back.clipAction,'idle');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.nativeDeathSourceActive=Boolean\(genuineDeath/);
+ assert.match(model,/if\(actor\.nativeDeathSourceActive&&!reducedMotion\)/);
+ assert.match(model,/nativeDeathSourceActors:/);
+});
+
 test('genuine HP-zero source skeleton freezes its living mixer while preserving the existing collapse layer',async()=>{
  const {advanceFullBodyController:step}=await load();
  const standing=step(null,frame(hero('idle',56,30)));
@@ -322,7 +338,7 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  const recovered=step(after,frame(hero('idle',59,30),{actionAge:0}));
  assert.equal(recovered.mode,'idle','legal revival releases the terminal source-pose hold');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat/);
+ assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat&&\(!genuineDeath\|\|deathFinished\)/);
  assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
  assert.match(model,/const sourceStep=freezeSource\?0:Math\.min\(/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);

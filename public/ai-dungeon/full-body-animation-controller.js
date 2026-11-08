@@ -35,11 +35,13 @@ const SOURCE_CLIP_PREFERENCES=Object.freeze({
  attack:[/attack/i,/melee/i,/slash/i,/shoot/i],
  cast:[/cast/i,/spell/i,/magic/i,/attack/i],
  hurt:[/hit/i,/hurt/i,/damage/i,/impact/i],
+ defeat:[/^death(?:[_\s-]|$)/i],
  guard:[/block/i,/shield/i,/defend/i,/idle/i]
 });
 const RANGER_SOURCE_RELEASE=/(?:ranged|bow|archer)[_\s-]*(?:shoot|attack|release)/i;
 export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  if(!Array.isArray(available))return null;
+ if(action==='defeat')return available.find(c=>typeof c?.name==='string'&&SOURCE_CLIP_PREFERENCES.defeat[0].test(c.name))||null;
  if(kind==='ranger'&&action==='attack'){
   const ranged=available.find(clip=>typeof clip?.name==='string'&&
    RANGER_SOURCE_RELEASE.test(clip.name));
@@ -125,7 +127,7 @@ export function advanceFullBodyController(previous=null,{
   requestedOneShot?authorityAction:holding?priorOneShot:
   authorityAction==='guard'?'guard':walking?'move':'idle';
  const visualActionTick=holding?previous.actionTick:actionTick;
- const clipAction=mode==='evade'||mode==='defeat'?'idle':mode;
+ const clipAction=mode==='evade'?'idle':mode;
  const beatAge=mode==='hurt'&&injury?damageBeat.age:
   mode==='evade'?evasionBeat.age:holding?inheritedAge:requestedAge;
  const age=safeAge(beatAge);
