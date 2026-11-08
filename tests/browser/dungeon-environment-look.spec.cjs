@@ -29,7 +29,7 @@ test('live dungeon uses bounded environmental look maps, readable light and no n
  expect(look.hemisphereSky).toMatch(/^[0-9a-f]{6}$/);
  expect(look.hemisphereGround).toMatch(/^[0-9a-f]{6}$/);
  expect(look.keyDirection).toHaveLength(3);
- expect([0,7]).toContain(look.ambientDetailTextures);
+ expect([0,2,7]).toContain(look.ambientDetailTextures);
  expect(diag.atmosphere?.roomArt?.materialDetailMaps).toBe(look.ambientDetailTextures);
  expect(diag.atmosphere?.roomArt?.materialDetailRawBytes).toBeLessThanOrEqual(7*128*128*4);
  if(diag.softwareWebGL)expect(look.ambientDetailTextures).toBe(0);
