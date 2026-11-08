@@ -45,7 +45,7 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
+      "sourceHeadAtInspection": "f983f9babade91cfcf2d87c7d86d601a0bca7155",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
@@ -53,44 +53,45 @@
       "renderedGameplayExperienceChangedThisExecution": false,
       "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Last independently inspected authentic old candidate portrait WebM at e0fe7729 still has a giant foreground wheel/rack hiding climber and guardian near 16–18s. Post-cutaway real rendered world f1fe522e remains uncaptured/unreviewed; live guardian victory, grounded doorway crossing, floor-nine onward and restart lack current-source matched normal-speed visual acceptance.",
-      "primaryVerifiedBlocker": "Actual repository checkout/browser workspace unavailable (coding tunnel NOT_FOUND); hosted exact-3bf0eedf quality 42478473700 and nine-job capture 42478473694 QUEUED. GitHub API reports 1754 queued repository workflows at inspection; cause of runner absence unknown. No real current-source WebM or Node/Three integration suite ran.",
-      "implementation": "Strengthened the SOURCE-PINNED original-WebM continuity/provenance veto instead of another speculative renderer patch: native decoded PTS span must be >=60 actual seconds (no old one-second grace), no >0.5s frame gap, >=12 encoded original recorded frames/s, no >1s opening or >1.5s trailing blank, matched declared low graphics/reduced-motion-off/muted conditions, correct launch floor, unchanged source run and no browser errors. Added four negative tests for shortened film, blackout/freeze, sparse frames and mismatched session; fail closed before accepting input for later blind judging. Does not certify gameplay visibility or frame-rate on hardware.",
+      "primarySourceDefect": "Original TowerRuntime.step holds authoritative tick constant during result and intermission. Previous source event index dropped running→result and result→intermission same-tick public states as duplicate observations; previous source-story pairing erroneously treated result→new run without an intermission as a complete outcome cycle.",
+      "implementation": "Restored genuine same-tick terminal phase indexing while discarding repeated/stale lifecycle polls; source-story coverage and expected event search now separately require game result, real game intermission, then next-episode run-token change. Original gameplay runtime, camera, world, guardian, crusher, gateway and source seed unchanged.",
       "concreteCommits": [
-        "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f"
+        "f983f9babade91cfcf2d87c7d86d601a0bca7155"
       ],
       "modifiedFiles": [
-        "scripts/tower-native-film-integrity.cjs",
-        "tests/phase3/tower-native-film-integrity.test.cjs",
+        "scripts/tower-event-alignment.cjs",
+        "scripts/tower-event-pairing.cjs",
+        "tests/phase3/tower-event-alignment.test.cjs",
+        "tests/phase3/tower-event-pairing.test.cjs",
         "public/infinite-tower-climb/gauntlet/transformation.json",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "Executed the EXACT GitHub-fetched newly committed inspectFilmMetadata pure function in a JS sandbox, not a replica: clean 60.83s/12fps provenance reported SOURCE_VIDEO_TRANSPORT_ONLY; 10fps 60.5s film BLOCKED; opening/2s mid-film freeze/trailing blank BLOCKED with all three defects; wrong launch floor BLOCKED. Exact GitHub file readback passed. Complete original Node22 tests, FFprobe on NEW WebMs, Chromium, current video event-alignment and real hardware NOT EXECUTED.",
+      "sourceRedGreen": "RED: exact GitHub-fetched prior CommonJS functions in isolated V8 omitted same-tick intermission and falsely accepted game result→restart with no intermission. GREEN: patched exact CommonJS source syntax parsed and isolated source-phase/strict outcome probes accepted true result→intermission→restart while rejecting incomplete chain. Full original Node22/Three.js/Chromium/FFmpeg/browser tests NOT EXECUTED.",
       "currentExactCodeQuality": {
-        "sha": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
-        "status": "QUEUED: hosted original repository Node/Three tests not executed",
-        "runId": 42478473700,
+        "sha": "f983f9babade91cfcf2d87c7d86d601a0bca7155",
+        "status": "NOT EVALUATED: original repo Node/Three.js suite not executed on exact new commit; connected coding tunnel unavailable; prior hosted run applies to earlier SHA only",
+        "olderQueuedRunId": 42478473700,
         "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473700"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
-        "renderedWorldLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
+        "status": "NOT EVALUATED at new SHA: prior earlier-SHA 9-job gameplay capture had all jobs queued at last inspection; no fresh normal-speed film",
+        "olderQueuedRunId": 42478473694,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473694",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42478473694,
-        "status": "QUEUED: eight source-pinned normal-speed clips + ledge, no current-source artifacts or verified movement",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473694"
+        "candidateRuntimeSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a"
       },
-      "videoEventAlignment": "NOT EVALUATED: current source WebM native PTS-to-events unavailable; prior genuine old e0fe film is not recent 3D candidate.",
+      "largestObservedGap": "Old genuinely captured portrait candidate e0fe7729 film still shows giant foreground wheel/case hiding the climber and guardian around 16–18s. Latest cutaway geometry f1fe522e and continuous grounded gateway crossing, floor-nine continuation, outcome/intermission/restart have NOT received current-source full-motion acceptance.",
+      "primaryExecutionBlocker": "Connected /app-projects coding tunnel returned NOT_FOUND: tunnel-client not seen for 300s. Hosted quality/capture workflow jobs were queued without runners at inspection. Cause of runner scarcity unknown.",
+      "videoEventAlignment": "NOT EVALUATED: no current native-PTS calibrated authentic film evidence. Source-phase indexing repair is not proof that result/intermission pixels were visible in WebM.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual device p50/p95/p99/memory",
-      "developmentWorkspace": "UNAVAILABLE: /app-projects coding tunnel-client NOT_FOUND; GitHub connector read/write available.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported-device frame-time p50/p95/p99 or memory measurements",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Restore runner or full local checkout; run exact 3bf0eedf tests and both 60+ s source-pinned native captures, inspect uncut moving/guardian/combat/outcome films and diagnostic occlusion camera rays. Verify newest open geometry clears actual 390x844 at 16–18s, calibrate guardian/crusher/gateway/floor-nine/restart events to genuine video PTS, then correct largest current visible gameplay flaw. Physical target devices and 5 genuinely independent blind critics per pillar remain required.",
-      "restrictions": "Preserve frozen 1731b380851162741761c5569e2bc152a0869ca9, PR58, PR68 draft, no merge/deploy/force push.",
+      "nextHighImpactAction": "Recover runnable complete original checkout/CI, run exact-head Node/Three.js terminal and film regressions, fresh immutable-source normal-speed 960x600 and 390x844 baseline/candidate capture, inspect full-motion giant clockwork occlusion, and correlate authoritative guardian/crusher→grounded gateway/floor-nine→painted game result→intermission→restart with native video PTS. Never infer success from source event names. Recruit genuine fresh blind critics and device profiling only after real videos.",
+      "restrictions": "PR68 remains draft/open; PR58 and frozen baseline untouched; no merge, deploy, force push or baseline move.",
       "newSourcePinnedCaptureLinks": []
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
@@ -5492,5 +5493,25 @@
     "actualDeviceMetrics": "NOT EVALUATED",
     "nextAction": "Run original Node22/Three.js suite and source-pinned normal-speed 960x600 + 390x844 gameplay. Inspect authentic film together with per-source-tick camera-occlusion-forensics.json around portrait guardian 16–18s; identify actual clock/rack covering live hero or guardian and correct the biggest verified 3D obstruction. Calibrate native WebM timestamps against real crusher/guardian/grounded gateway/floor9/outcome/restart. Obtain device p50/p95/p99/memory and 5 independent blind critics per LOOKS/FEELS/PLAYS pillar.",
     "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
+  },
+  "p0SameTickOutcomeEvidenceTruth20261108": {
+    "stage": "P0 OPEN",
+    "sourceImplementationSha": "f983f9babade91cfcf2d87c7d86d601a0bca7155",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "realSourceBehavior": "Authority holds tick steady in result and intermission; two genuine lifecycle changes must not be treated as duplicate polls.",
+    "formerFalseAcceptance": "Result→run token change passed source outcome search despite omitted authentic intermission.",
+    "repairedContract": "Same-tick result and intermission preserved, duplicate same-tick holds/reversals rejected, source outcome requires result→intermission in one episode then restart in next.",
+    "redGreen": "Actual fetched prior and patched CommonJS functions evaluated in isolated V8; full original repo/browser/video unexecuted.",
+    "quality": "NOT EVALUATED",
+    "evidenceUrls": [
+      "https://github.com/my-edutu/Ai_games/commit/f983f9babade91cfcf2d87c7d86d601a0bca7155"
+    ],
+    "blindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "nextAction": "Execute original full checks and source-pinned full-motion video, verify visible intermission and gateway, address actual large wheel obstruction."
   }
 }
