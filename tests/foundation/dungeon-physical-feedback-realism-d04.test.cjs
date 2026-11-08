@@ -268,3 +268,36 @@ test('map-backed D04 preview clips projectiles at true stone and suppresses adja
  assert.equal(stage.stats().instancesByPool.hit,0,'no wall crossing may synthesize an impact');
  stage.dispose();
 });
+
+test('D04 actual 720ms browser stall expires injury fragments instead of preserving capped-time ghosts',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();const v=createPhysicalFeedbackVisuals(T,scene);
+ assert.equal(v.emit(cue()),true);
+ assert.ok(v.stats().instancesByPool.hit>0);
+ v.advance(.016,.72);
+ assert.equal(v.stats().instancesByPool.hit,0,'stale contact debris cannot outlive real elapsed time');
+ assert.equal(v.stats().activeDrawCalls,0);
+ v.dispose();
+});
+test('D04 900ms render stall expires unconfirmed arrow without fabricating arrival damage',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();const v=createPhysicalFeedbackVisuals(T,scene);
+ const arrow=cue({kind:'ranged-release',visual:'launch',actorId:'ranger',
+  targetId:'revenant',from:{x:2,z:2},to:{x:5,z:2},proof:'authority-action-not-hit'});
+ assert.equal(v.emit(arrow),true);
+ assert.equal(v.stats().instancesByPool.projectile,1);
+ v.advance(.016,.9);
+ assert.equal(v.stats().instancesByPool.projectile,0);
+ assert.equal(v.stats().confirmedFragments,0,'expiry is not an authoritative projectile hit');
+ v.dispose();
+});
+test('D04 true 16ms frames preserve fresh visual cues; malformed frame intervals fail closed',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();const v=createPhysicalFeedbackVisuals(T,scene);
+ assert.equal(v.emit(cue()),true);
+ v.advance(.016,.016);
+ assert.ok(v.stats().active>0);
+ v.advance(.016,NaN);
+ assert.equal(v.stats().active,0,'unknown raw-frame duration cannot certify VFX continuity');
+ v.dispose();
+});

@@ -268,11 +268,18 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return;
   const dt=clamp(frameSeconds,0,.05);
+  // Authoritative pose dt is deliberately clamped, but VFX lifetime must
+  // follow the ACTUAL browser interval. Otherwise a 720ms blocked WebGL
+  // submit leaves ancient arrows/debris drifting through the next scene.
+  // Every admitted visual duration is <= .70s; invalid frame evidence expires
+  // existing effects instead of certifying uninterrupted motion.
+  const observedAge=Number.isFinite(actualFrameSeconds)&&actualFrameSeconds>0?
+   Math.max(dt,Math.min(actualFrameSeconds,.70)):.70;
   for(const pool of pools.values()){
    let dirty=false,visibleSlots=0;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];if(!slot)continue;
-    slot.age+=dt;dirty=true;
+    slot.age+=observedAge;dirty=true;
     if(slot.age>=slot.life){
      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
     }
