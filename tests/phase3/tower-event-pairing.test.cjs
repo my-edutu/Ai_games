@@ -166,14 +166,15 @@ test('outcome requires game result then NEXT episode restart, not technical or s
  const current=rec('candidate','outcome');
  const completed=[
   witness('source-result-phase',8,6000,0,{phase:'result',resultKind:'game',reason:'fall'}),
+  witness('source-result-phase',8,6500,0,{phase:'intermission',resultKind:'game',reason:'fall'}),
   witness('source-run-token-change',8,9000,1),
  ];
  base.index.events=completed.map(e=>({...e}));
  current.index.events=completed.map(e=>({...e}));
  assert.deepEqual(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects,[]);
- current.index.events[1].observedEpisode=0;
+ current.index.events[2].observedEpisode=0;
  assert.equal(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects.length,1);
- current.index.events[1].observedEpisode=1;
+ current.index.events[2].observedEpisode=1;
  current.index.events[0].resultKind='technical';
  assert.equal(auditPairs([base,current],'c'.repeat(40)).sourceStoryDefects.length,1);
 });
@@ -222,4 +223,21 @@ test('a missing first source observation cannot be silently treated as matched',
  const report=auditPairs([base,current],'c'.repeat(40));
  assert.equal(report.provenanceDefects.length,1);
  assert.equal(report.comparisons[0].sourceStorySequenceObserved,false);
+});
+
+test('outcome without a real intermission is incomplete, not a film success',()=>{
+ const before=rec('baseline','outcome'),after=rec('candidate','outcome');
+ const result=witness('source-result-phase',0,6000,0,
+  {phase:'result',resultKind:'game',reason:'fall'});
+ const restart=witness('source-run-token-change',0,9000,1);
+ before.index.events=[result,restart];after.index.events=[result,restart];
+ const failed=auditPairs([before,after],'c'.repeat(40));
+ assert.equal(failed.sourceStoryDefects.length,1);
+ assert.ok(failed.sourceStoryDefects[0].candidateMissingBeats
+  .includes('source-result-phase:intermission'));
+ const intermission=witness('source-result-phase',0,6500,0,
+  {phase:'intermission',resultKind:'game',reason:'fall'});
+ before.index.events=[result,intermission,restart];
+ after.index.events=[result,intermission,restart];
+ assert.equal(auditPairs([before,after],'c'.repeat(40)).sourceStoryDefects.length,0);
 });

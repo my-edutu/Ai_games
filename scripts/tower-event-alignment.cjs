@@ -33,7 +33,7 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
   const defeatedGuardian = s => (Array.isArray(s.guardians) ? s.guardians : [])
     .find(g => g && g.active === false && Number.isFinite(g.health) &&
       g.health <= 0 && typeof g.id === 'string' && g.id);
-  let observedEpisode = 0;
+  let observedEpisode = 0, sameTickLifecyclePhaseTransitions = 0;
   function record(kind, s, detail = {}) {
     if (events.length >= CAP || (counts[kind] || 0) >= PER_KIND_CAP) return;
     counts[kind] = (counts[kind] || 0) + 1;
@@ -73,7 +73,14 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
       invalidOrder++; continue;
     }
     if (previous && s.runToken === previous.runToken &&
-      s.tick === previous.tick) { repeated++; continue; }
+      s.tick === previous.tick) {
+      // Original TowerRuntime.step holds the tick through result/intermission.
+      // Accept real source lifecycle edges, never duplicate held public polls.
+      const transition=previous.lifecycle+'>'+s.lifecycle;
+      if (transition!=='running>result' &&
+          transition!=='result>intermission') { repeated++; continue; }
+      sameTickLifecyclePhaseTransitions++;
+    }
     valid++;
     const sameRun = previous?.runToken === s.runToken;
     if (!previous || !sameRun) distinctRuns++;
@@ -227,7 +234,8 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     videoClockCalibration: 'NOT EVALUATED: event offsets are relative to first browser observation, not certified WebM timecodes',
     baselineCandidateEventMatched: false, verdict: 'NOT EVALUATED',
     sourceTicksObserved: valid, malformedSamples: malformed,
-    repeatedPublicTickSamples: repeated, outOfOrderSamples: invalidOrder,
+    repeatedPublicTickSamples: repeated,
+    sameTickLifecyclePhaseTransitions, outOfOrderSamples: invalidOrder,
     unobservedFixedStepTicks: missingTicks, observedRuns: distinctRuns,
     eventCounts: { ...counts }, events,
     biggestEvidenceLimitation: valid === 0 ? 'No authentic source samples available' :

@@ -96,16 +96,19 @@ function sourceStoryCoverage(record,scenario,source){
         'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
         'guardian-source-physical-threshold']
      : ['guardian-present','guardian-hp-decrease']
-   :scenario==='outcome'?['source-result-phase','source-run-token-change']
+   :scenario==='outcome'?['source-result-phase:result',
+       'source-result-phase:intermission','source-run-token-change']
    :scenario==='moving'?['observed-moving-deck-position-change']
    :['route-selection'];
- const valid=(e,kind)=>e.kind===kind&&
+ const valid=(e,kind)=>e.kind===(kind.startsWith('source-result-phase:')
+   ?'source-result-phase':kind)&&
    (scenario!=='danger'||(kind==='guardian-earned-floor-nine-handoff'||
      kind==='guardian-source-physical-threshold'?e.floor===9&&
      e.fromFloor===8&&e.toFloor===9:e.floor===8))&&
    (scenario!=='moving'||e.floor===7)&&
    (scenario!=='ascent'||e.floor===0)&&
-   (kind!=='source-result-phase'||e.resultKind==='game');
+   (!kind.startsWith('source-result-phase:')||
+    (e.resultKind==='game'&&e.phase===kind.slice('source-result-phase:'.length)));
  const missing=ordered.filter(kind=>!relevant.some(e=>valid(e,kind)));
  const episodes=[...new Set(relevant.map(e=>e.observedEpisode))];
  let completedEpisode=null;
@@ -115,7 +118,7 @@ function sourceStoryCoverage(record,scenario,source){
      const kind=ordered[index];
      // A genuine restart changes the run token, so its indexed episode
      // must advance exactly once from the preceding game result episode.
-     const requiredEpisode=episode+(scenario==='outcome'&&index===1?1:0);
+     const requiredEpisode=episode+(scenario==='outcome'&&index===2?1:0);
      const match=relevant.find(e=>e.observedEpisode===requiredEpisode&&
        valid(e,kind)&&e.atMs>=previousAt);
      if(!match){success=false;break;}
@@ -192,13 +195,15 @@ function auditPairs(recordings,candidateSha){
     pair.calibratedSourceEventSearch.bothInOriginalVideo).length;
   // Source-story gaps are inspection priorities, not film failures or quality
   // votes. Baseline naturally need not contain the new physical threshold.
-  const sourceKinds=record=>new Set((record.index?.events||[]).map(e=>e.kind));
+  const sourceKinds=record=>new Set((record.index?.events||[]).map(e=>
+    e.kind==='source-result-phase'?e.kind+':'+e.phase:e.kind));
   const expected=scenario==='danger'
     ?['guardian-present','guardian-hp-decrease','guardian-source-defeated',
       'source-supported-gate-approach','guardian-earned-floor-nine-handoff',
       'guardian-source-physical-threshold']
     :scenario==='moving'?['observed-moving-deck-position-change']
-    :scenario==='outcome'?['source-result-phase','source-run-token-change']
+    :scenario==='outcome'?['source-result-phase:result',
+       'source-result-phase:intermission','source-run-token-change']
     :['route-selection'];
   const candidateObserved=sourceKinds(after),baselineObserved=sourceKinds(before);
   const sourceStory={requiredSearchEvents:expected,

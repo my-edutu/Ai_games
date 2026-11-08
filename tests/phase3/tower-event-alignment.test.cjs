@@ -158,3 +158,34 @@ test('source-authentic guardian/cap chain survives sparse browser polling',()=>{
  assert.equal(after.sourceWitnessMode,'original-host-fixed-step');
  assert.equal(after.verdict,'NOT EVALUATED');
 });
+
+test('source outcome carries two valid same-tick phases, not duplicate polls',()=>{
+ const terminal={kind:'game',reason:'health-depleted'};
+ const ticks=[
+  source(10,{floor:0,guardians:[]}),
+  source(10,{atMs:1510,floor:0,guardians:[],lifecycle:'result',result:terminal}),
+  source(10,{atMs:1520,floor:0,guardians:[],lifecycle:'result',result:terminal}),
+  source(10,{atMs:1540,floor:0,guardians:[],lifecycle:'intermission',result:terminal}),
+  source(10,{atMs:1560,floor:0,guardians:[],lifecycle:'intermission',result:terminal}),
+  source(0,{atMs:1600,floor:0,runToken:'run-b',guardians:[]}),
+ ];
+ const before=JSON.stringify(ticks),index=indexTowerCaptureEvents(ticks,[]);
+ assert.deepEqual(index.events.filter(e=>e.kind==='source-result-phase').map(e=>e.phase),
+  ['result','intermission']);
+ assert.equal(index.sameTickLifecyclePhaseTransitions,2);
+ assert.equal(index.repeatedPublicTickSamples,2);
+ assert.equal(index.eventCounts['source-run-token-change'],1);
+ assert.equal(index.verdict,'NOT EVALUATED');
+ assert.equal(JSON.stringify(ticks),before);
+});
+test('same-tick lifecycle reversal cannot fabricate terminal source evidence',()=>{
+ const terminal={kind:'game',reason:'fall'};
+ const index=indexTowerCaptureEvents([
+  source(10,{floor:0,guardians:[],lifecycle:'result',result:terminal}),
+  source(10,{atMs:1510,floor:0,guardians:[],lifecycle:'running'}),
+  source(10,{atMs:1520,floor:0,guardians:[],lifecycle:'intermission',result:terminal})
+ ],[]);
+ assert.equal(index.eventCounts['source-result-phase']||0,1);
+ assert.equal(index.sameTickLifecyclePhaseTransitions,1);
+ assert.equal(index.repeatedPublicTickSamples,1);
+});
