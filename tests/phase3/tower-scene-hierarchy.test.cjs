@@ -117,13 +117,24 @@ test('real same-floor guardian death keeps clockwork sightlines and hazard hiera
   const released = Object.freeze({
     ...base, player: Object.freeze({ ...base.player, halfWidth: 10000,
       halfHeight: 16000 }),
-    enemies: Object.freeze([Object.freeze({ ...body, active: false, health: 0 })]),
+    enemies: Object.freeze([Object.freeze({ ...body, active: false, health: 0,
+      halfHeight: 15000 })]),
     platforms: Object.freeze([Object.freeze(cap)]),
+    guardianExitX: cap.x + Math.floor(cap.width * .76),
   });
   const unchanged = JSON.stringify(released);
   assert.deepEqual(observe(released), { kind: 'guardian-release', focus: .93 },
     'the physical body and authentic cap must remain visible through its earned doorway');
   assert.equal(JSON.stringify(released), unchanged, 'the scene director cannot edit replay');
+  assert.deepEqual(observe({ ...released, guardianExitX: undefined }),
+    { kind: 'ascent', focus: 0 },
+    'a historic defeated guardian without an authoritative exit is not an earned release');
+  assert.deepEqual(observe({ ...released, guardianExitX: released.guardianExitX + 1 }),
+    { kind: 'ascent', focus: 0 },
+    'the exact fixed-step floor-cap crossing must match the source exit');
+  assert.deepEqual(observe({ ...released, enemies: [{ ...released.enemies[0], id: 'old-guardian', x: 8000 },
+    released.enemies[0]] }), { kind: 'guardian-release', focus: .93 },
+    'only the eligible nearby source guardian may authorize the stage');
   assert.deepEqual(observe({ ...released, enemies: [{ ...body, active: true, health: 0 }] }),
     { kind: 'ascent', focus: 0 }, 'an invalid still-active zero-HP boss is not a victory');
   assert.deepEqual(observe({ ...released, platforms: [] }), { kind: 'ascent', focus: 0 },

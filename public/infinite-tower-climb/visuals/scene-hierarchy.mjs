@@ -1,4 +1,5 @@
 import { observedNearbyGuardianCrossfire } from './guardian-shot-stage.mjs';
+import { observedUnlockedGuardianCap } from './guardian-passage.mjs';
 
 // A cross-biome action hierarchy for the real Tower. This is an observation
 // only: it cannot choose a route, change a collider, predict an impact or
@@ -72,21 +73,22 @@ export function observedSceneHierarchy(source) {
     ? source.intent.mode.replace(/^oracle-/, '') : '';
   const combat = combatModes.has(mode) || actor.attacking === true;
   const contact = observedImmediateTrap(source);
+  // A defeated enemy and a cap-shaped deck do not authorize a victory cue.
+  // Use the SAME current-source, full-body-clearable exit contract as the
+  // world gate, camera, action light and in-deck guardian passage.
+  const earnedRelease = observedUnlockedGuardianCap(source);
   for (const enemy of source.enemies || []) {
     if (enemy?.kind !== 'guardian' ||
         !finite(enemy.x, enemy.y, enemy.health, enemy.maxHealth) ||
         enemy.maxHealth <= 0 ||
         Math.abs(enemy.x - actor.x) > 135000 ||
         Math.abs(enemy.y - actor.y) > 65000) continue;
-    // After the REAL source guardian dies, the player still has to traverse
-    // its unlocked cap. Do not let foreground machinery suddenly become
-    // opaque at the decisive visual beat. No fabricated victory: require
-    // inactive zero HP AND the source's actual same-floor upper-cap deck.
-    // An urgent surviving crusher still owns the danger visual hierarchy.
+    // After a REAL source-authorized guardian defeat the player still has
+    // to walk through the cap exit. Missing/mismatched guardianExitX or a
+    // historical dead boss cannot suppress the world as a false victory.
+    // A surviving crusher retains its immediate physical warning priority.
     if (enemy.active === false && enemy.health <= 0 &&
-        source.platforms?.some(p => p?.id === `f${source.floor}:cap` &&
-          finite(p.x, p.y, p.width, p.height) &&
-          p.width > 0 && p.height > 0))
+        earnedRelease?.guardian.id === enemy.id)
       return contact ? DANGER : RELEASE;
     if (enemy.active !== true || enemy.health <= 0) continue;
     // No generic guardian suppression from a far-away, untouched boss.
