@@ -680,7 +680,7 @@ function stageRigRangedAfterMixer(actor,since,reducedMotion){
 function stageRigArmsAfterMixer(actor,since,reducedMotion){
  // Keep legacy/no-bone rigs lightweight and compatible with offline fallback.
  if(!actor.rigUpperArms?.length)return;
- const pose=planRigArmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.u.action||'idle',since,reducedMotion);
+ const pose=planRigArmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.fullBody?.mode||actor.u.action||'idle',since,reducedMotion);
  // Real Warden warnings articulate the original imported shoulders in three
  // distinct attack silhouettes. All deltas are reversed before the next mixer frame.
  const warningLift=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&
@@ -712,7 +712,7 @@ function stageRigArmsAfterMixer(actor,since,reducedMotion){
 
 function stageRigForearmsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigForearms?.length)return;
- const pose=planRigForearmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.u.action||'idle',since,
+ const pose=planRigForearmGesture(actor.u.kind,['hurt','defeat','evade'].includes(actor.fullBody?.mode)?'idle':actor.fullBody?.mode||actor.u.action||'idle',since,
   reducedMotion||actor.u.hp<=0);
  for(const mount of actor.rigForearms){
   // One anatomical elbow has a single mechanical envelope. Two truthful
@@ -930,7 +930,7 @@ function attachCharacter(actor){
 function changeAction(actor,action,forceRestart=false){
  const oneShot=['attack','cast','hurt'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
- const tick=actor.u.actionTick??null;
+ const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
  const newEvent=oneShot&&(actor.currentActionTick!==tick||forceRestart);
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
@@ -1065,6 +1065,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   });
   if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
   if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
+  const poseAge=actor.fullBody.age;
   changeAction(actor,actor.fullBody.clipAction,actor.fullBody.restarted);
  restoreRigArmsBeforeMixer(actor);
  restoreRigForearmsBeforeMixer(actor);
@@ -1075,13 +1076,13 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  actor.mixer.update(Math.min(.05,Math.max(0,dt)));
  // A witnessed local sword action now carries an original, single coherent
  // pose across the genuine skinned head, hips, torso, arms, wrist and feet.
- actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',since,{
+ actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',poseAge,{
   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
   alive:actor.u.hp>0,reducedMotion
  });
  actor.nativeDuelPeak=Math.max(actor.nativeDuelPeak||0,actor.nativeDuel.strength);
  if(actor.nativeDuel.contactWeight>.65)actor.nativeDuelContactFrames=Math.min(1000000,(actor.nativeDuelContactFrames||0)+1);
- actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',since,{
+ actor.performanceBeat=planCombatPerformanceBeat(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',poseAge,{
   targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
   alive:actor.u.hp>0,reducedMotion
  });
@@ -1094,11 +1095,11 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  stageRigGroundedStride(actor,reducedMotion);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
- stageRigArmsAfterMixer(actor,since,reducedMotion);
- stageRigForearmsAfterMixer(actor,since,reducedMotion);
- stageRigLegsAfterMixer(actor,since,reducedMotion);
- stageRigMeleeAfterMixer(actor,since,reducedMotion);
- stageRigRangedAfterMixer(actor,since,reducedMotion);
+ stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigForearmsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigMeleeAfterMixer(actor,poseAge,reducedMotion);
+ stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
  stageSkinnedHitAfterMixer(actor,reducedMotion);
  stageSkinnedDefeatAfterMixer(actor,reducedMotion);
  stageWardenChapterRegalia(actor,reducedMotion);
@@ -1109,9 +1110,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
   const blocking=actor.fullBody.owner.injury||actor.fullBody.owner.defeat||actor.fullBody.owner.evasion;
    const pose=nativeMelee||blocking?NATIVE_MELEE_NO_ROOT:
-    planAuthoredMotion(actor.u.kind,actor.fullBody.mode,since,reducedMotion);
+    planAuthoredMotion(actor.u.kind,actor.fullBody.mode,poseAge,reducedMotion);
   const contact=nativeMelee||blocking?NATIVE_MELEE_NO_ROOT:
-    planContactBodyLanguage(actor.u.kind,actor.fullBody.mode,since,{
+    planContactBodyLanguage(actor.u.kind,actor.fullBody.mode,poseAge,{
     targetId:actor.combatFacing?.targetId,distance:actor.combatFacing?.distance,
     reducedMotion:reducedMotion||actor.u.hp<=0
    });
@@ -1132,7 +1133,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  }
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
-   const clothAge=actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?actor.fullBody.age:since;
+   const clothAge=actor.fullBody?.holding||actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?poseAge:since;
    const poseKey=drapePoseKey(clothAction,clothAge,reducedMotion);
   if(poseKey!==actor.draperyPoseKey){
    actor.draperyPoseKey=poseKey;
