@@ -9,6 +9,7 @@ on:
       - 'scripts/tiny-kingdom-w122-worker-vbo-contract.cjs'
       - 'scripts/tiny-kingdom-w122-workday-supply-contract.cjs'
       - 'scripts/tiny-kingdom-w123-foreground-resident-contract.cjs'
+      - 'scripts/tiny-kingdom-w125-runtime-budget-contract.cjs'
       - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
       - '.github/workflows/tiny-kingdom-long-soak.yml'
@@ -56,6 +57,8 @@ jobs:
           node scripts/tiny-kingdom-w122-workday-supply-contract.cjs
           node scripts/tiny-kingdom-w123-foreground-resident-contract.cjs
           node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
+      - name: W125 exact-source real ticks, bounded commuter GPU writes and face topology
+        run: node scripts/tiny-kingdom-w125-runtime-budget-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real WebGL 120-day settlement and replay soak
         env:
