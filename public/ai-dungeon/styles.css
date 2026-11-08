@@ -208,3 +208,12 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  body[data-hud=clean] .arena{height:calc(100svh - 158px)}
 }
 body[data-hud=clean] .danger-readout{display:none}
+
+/* Broadcast legibility on a full desktop canvas. At narrower widths the
+   original compact roster rules continue to avoid clipping. */
+@media(min-width:1200px){
+ .hero-heading>b{font-size:12px}
+ .hero-heading>small{font-size:11px;line-height:1.4}
+ .hero-sub b{font-size:10px}
+ .life{height:5px}
+}
