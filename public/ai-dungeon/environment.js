@@ -1,5 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
-import {getEnvironmentMaterialRole,planEnvironmentLightPreset} from '/dungeon/environment-look-plan.js';
+import {getEnvironmentMaterialRole,planEnvironmentLightPreset,planEnvironmentSurfaceWear} from '/dungeon/environment-look-plan.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
@@ -92,7 +92,18 @@ function batched(world,geometry,material,transforms,options={}){
  const matrix=new THREE.Matrix4(),pos=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),euler=new THREE.Euler();
  for(let i=0;i<transforms.length;i++){
   const t=transforms[i];pos.set(t[0],t[1],t[2]);euler.set(0,t[6]||0,0);rot.setFromEuler(euler);scale.set(t[3],t[4],t[5]);matrix.compose(pos,rot,scale);mesh.setMatrixAt(i,matrix);
-  if(options.variation){const shade=.79+rand(i,transforms.length,options.floor||1)*.30;mesh.setColorAt(i,new THREE.Color().setRGB(shade,shade,shade))}
+  if(options.variation){
+   // Ground wear is consistent with the main floor batch, even when
+   // cutaway exposes the backing. Wall reliefs keep their original variance.
+   const wear=options.wear,tileX=wear?Math.round(t[0]+(wear.size-1)/2):-1;
+   const tileZ=wear?Math.round(t[2]+(wear.size-1)/2):-1;
+   const tint=wear?.tiles[tileZ*wear.size+tileX]??null;
+   if(tint)mesh.setColorAt(i,new THREE.Color().setRGB(tint.r,tint.g,tint.b));
+   else{
+    const shade=.79+rand(i,transforms.length,options.floor||1)*.30;
+    mesh.setColorAt(i,new THREE.Color().setRGB(shade,shade,shade));
+   }
+  }
  }
  mesh.instanceMatrix.needsUpdate=true;mesh.receiveShadow=true;mesh.castShadow=Boolean(options.shadow);mesh.frustumCulled=false;world.add(mesh);return mesh;
 }
@@ -120,6 +131,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // over its upper volume. Source map, collision and AI stay completely intact.
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
+ const surfaceWear=planEnvironmentSurfaceWear(map,floor,exit);
  const wardenCourt=createWardenCourt(world,map,exit,floor);
  const connectedJourney=createConnectedDungeonJourney(world,map,floor,exit,encounterUnits);
  const masonryProfiles=planDungeonWallProfiles(map,floor);
@@ -226,7 +238,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   carpet.rotation.set(-Math.PI/2,0,(h%2)*Math.PI/2);
   carpet.position.set(px,.027,pz);carpet.receiveShadow=true;world.add(carpet);
  }
-  batched(world,box,floorSurface,floorDetails,{variation:true,floor});
+  batched(world,box,floorSurface,floorDetails,{variation:true,floor,wear:surfaceWear});
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
  const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
  const stoneWeather=planStoneRelief(wallFaces,floor);
@@ -467,6 +479,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=torchIntensity*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,surfaceWear:surfaceWear.metrics,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 
