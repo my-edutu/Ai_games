@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -945,12 +945,16 @@ function changeAction(actor,action,forceRestart=false){
   next.setLoop(oneShot?THREE.LoopOnce:THREE.LoopRepeat,oneShot?1:Infinity);
   next.clampWhenFinished=oneShot;
   next.play();
-  // A verified injury or escape temporarily owns the rig without altering the
-  // original authority tick. Resuming the same legal one-shot must not replay
-  // an impossible second windup while its target has already been attacked.
-  if(oneShot&&!newEvent&&previous&&previous!==next&&actor.fullBody?.interrupted&&
-   actor.fullBody?.mode===action&&Number.isFinite(actor.fullBody.age)&&clip.duration>0)
-   next.time=Math.min(Math.max(0,actor.fullBody.age*clipSpeed),Math.max(0,clip.duration-.001));
+  // Late-observed lawful action starts at its witnessed source keyframe.
+  // This covers fresh ticks and true interrupt returns without a fake
+  // second windup; no continuous clip or unverified hit is ever sought.
+  const sourceEntry=planImportedOneShotEntry({
+   mode:action,age:actor.fullBody?.mode===action?actor.fullBody.age:NaN,
+   sourceDuration:clip.duration,effectiveSpeed:clipSpeed,
+   legalTransition:Boolean(newEvent||actor.currentAction!==action),
+   reducedMotion:Boolean(actor.fullBody?.reducedMotion)
+  });
+  if(sourceEntry!==null)next.time=sourceEntry;
   if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),false);
   actor.activeClip=next;
   actor.activeImportedClipName=clip.name;

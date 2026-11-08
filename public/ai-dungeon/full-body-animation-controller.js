@@ -204,6 +204,20 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
 }
 
 /**
+ * Place only a newly witnessed lawful original one-shot at its exact event
+ * age. Never scrub an already running mixer clip with this entry function;
+ * uninterrupted recovery is owned by the monotonic forward-only planner.
+ */
+export function planImportedOneShotEntry({mode='idle',age=0,sourceDuration=0,
+ effectiveSpeed=1,legalTransition=false,reducedMotion=false}={}){
+ if(!legalTransition||reducedMotion||!Object.hasOwn(ONE_SHOT_RECOVERY,mode)||
+  ![age,sourceDuration,effectiveSpeed].every(Number.isFinite)||
+  age<0||age>=ONE_SHOT_RECOVERY[mode]||sourceDuration<=.002||
+  effectiveSpeed<=.001)return null;
+ return Math.min(Math.max(0,sourceDuration-.002),age*effectiveSpeed);
+}
+
+/**
  * Imported skinned source clips and reversible native full-body overlays must
  * share one witnessed clock. Slow browser frames can advance mixer time by
  * only 50ms even while the real event has moved into recovery. This bounded

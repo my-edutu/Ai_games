@@ -344,8 +344,10 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
  assert.match(model,/actor\.fullBody\.owner\.duel\?'attack':'idle'/);
  assert.match(model,/fullBodyInterruptions:/);
  assert.match(model,/sourceClipAudits:/);
- assert.match(model,/next\.time=Math\.min\(Math\.max\(0,actor\.fullBody\.age\*clipSpeed\)/,
-  'legal interrupted one-shots must resume at their current imported-clip age');
+ assert.match(model,/const sourceEntry=planImportedOneShotEntry\\(\\{/,
+  'a new legal action must match the original source pose age');
+ assert.match(model,/if\\(sourceEntry!==null\\)next\\.time=sourceEntry;/,
+  'only source action transitions can align the first imported pose');
  assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
  assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
@@ -439,4 +441,35 @@ test('actual licensed Ranger chooses original native ranged release, not horizon
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/chooseImportedSourceClip\(actor\.availableClips,action,actor\.u\.kind\)/);
  assert.match(model,/sourceClipBindings:/);
+});
+
+test('late-witnessed licensed one-shots begin at the genuine full-body age',async()=>{
+ const {planImportedOneShotEntry:enter}=await load();
+ const samples=[['vanguard-contact','attack',.215,1.042,1.6806],
+  ['ranger-bow-release','attack',.31,1.042,1.6806],
+  ['mystic-cast-recovery','cast',.40,.917,1.4328],
+  ['actual-HP-loss-hurt','hurt',.15,.667,1.7553]];
+ for(const [name,mode,age,sourceDuration,effectiveSpeed] of samples){
+  const start=enter({mode,age,sourceDuration,effectiveSpeed,legalTransition:true});
+  assert.ok(Math.abs(start-age*effectiveSpeed)<1e-7,name+' must not fake a new windup');
+ }
+ assert.equal(enter({mode:'attack',age:0,sourceDuration:1.042,effectiveSpeed:1.6806,
+  legalTransition:true}),0,'a fresh legal tick begins with native anticipation');
+ assert.equal(enter({mode:'cast',age:.63,sourceDuration:.21,effectiveSpeed:1.45,
+  legalTransition:true}),.208,'never seek beyond the original clip keyframes');
+});
+test('ongoing clips, stale events, defeat and reduced motion cannot phase-seek on entry',async()=>{
+ const {planImportedOneShotEntry:enter}=await load();
+ const base={mode:'attack',age:.215,sourceDuration:1.042,
+  effectiveSpeed:1.6806,legalTransition:true};
+ for(const changes of [{legalTransition:false},{reducedMotion:true},{mode:'defeat'},
+  {mode:'move'},{mode:'evade'},{mode:'idle'},{age:-1},{age:NaN},
+  {age:.70},{sourceDuration:0},{sourceDuration:NaN},
+  {effectiveSpeed:0},{effectiveSpeed:Infinity}]){
+  assert.equal(enter({...base,...changes}),null,JSON.stringify(changes));
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/legalTransition:Boolean\\(newEvent\\|\\|actor\\.currentAction!==action\\)/);
+ assert.match(model,/age:actor\\.fullBody\\?\\.mode===action\\?actor\\.fullBody\\.age:NaN/);
+ assert.match(model,/reducedMotion:Boolean\\(actor\\.fullBody\\?\\.reducedMotion\\)/);
 });
