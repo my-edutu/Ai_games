@@ -3,6 +3,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {createOrderedReplayFeed}=require('./dungeon-m1-ordered-feed.cjs');
+const {finalizeOriginalJourneyRecording}=require('./dungeon-m1-recording-lifecycle.cjs');
 const BASELINE='281735d0910c6b2443648af976003d50412ee324',SEED='gauntlet-corpus-v1-0';
 const VIEW=process.env.DUNGEON_M1_VIEWPORT==='mobile'?'mobile':'desktop';
 const SIZE=VIEW==='mobile'?{width:390,height:844}:{width:1440,height:832};
@@ -132,8 +133,10 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  const recording=await beginRecording(page,VIEW==='desktop'),started=Date.now();
  // Preserve independent live original PCM signal evidence, not just WebM
  // track count (which cannot establish actual audible or synchronized sound).
- let pcmRequested=false;
+ let pcmRequested=false,stageFailure=null,failedStage=null;
+ try{
  for(const stage of ['combat','warden','floor','defeat','restart']){
+  failedStage=stage;
   const index=milestones[stage],expected=snapshots[index];
   if(stage==='warden'){
    // Arm the native bus before the FIRST ACTUAL Warden HP-loss checkpoint,
@@ -183,18 +186,37 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   // A review-playback hold of the unchanged real snapshot, not a staged win.
   await page.waitForTimeout(420);
  }
+ }catch(error){stageFailure=error;}
  const feedMetrics=feed.metrics();
- expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
- expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
- const film=recording.status==='RECORDING'?await stopRecording(page):recording;
- await new Promise((resolve,reject)=>{
-  if(sinkError)return reject(Error(sinkError));
-  filmOutput.once('error',reject);filmOutput.end(resolve);
+ // A browser timeout is NOT a reason to discard its genuine WebGL/Opus film.
+ // Always stop the original recorder and flush its disk sink before returning
+ // the original failure; record the exact unfulfilled authoritative milestone.
+ const finalization=await finalizeOriginalJourneyRecording({
+  stop:async()=>recording.status==='RECORDING'?await stopRecording(page):recording,
+  close:async()=>await new Promise((resolve,reject)=>{
+   if(sinkError)return reject(Error(sinkError));
+   filmOutput.once('error',reject);filmOutput.end(resolve);
+  }),
+  persist:async ({recording:captured,finalizationErrors})=>{
+   fs.writeFileSync(stem+'-capture-finalization.json',JSON.stringify({
+    sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+    baselineSha:BASELINE,view:VIEW,seed:SEED,
+    verdict:stageFailure||finalizationErrors.length?'INCOMPLETE':'STAGES_RENDERED',
+    failedStage:stageFailure?failedStage:null,
+    failure:stageFailure?String(stageFailure):null,
+    actualRenderedStages:milestoneFrameProof.map(p=>({stage:p.stage,index:p.index,checksum:p.checksum,frame:p.frame})),
+    deliveredAuthoritySteps:feedMetrics.uniqueDelivered,
+    expectedAuthoritySteps:snapshots.length,
+    recording:captured,finalizationErrors
+   },null,2));
+  }
  });
- if(film.status==='RECORDED'&&(savedBytes!==film.bytes||savedChunks!==film.chunks))
-  throw Error('WebM integrity mismatch between true MediaRecorder and streamed disk chunks');
+ const film=finalization.recording;
+ const mediaIntegrityError=film.status==='RECORDED'&&(savedBytes!==film.bytes||savedChunks!==film.chunks)?
+  'WebM integrity mismatch between true MediaRecorder and streamed disk chunks':null;
  if(film.status!=='RECORDED')fs.rmSync(filmPath,{force:true});
- const pcm=pcmRequested?await page.evaluate(async()=>{
+ let pcm;
+ try{pcm=pcmRequested?await page.evaluate(async()=>{
   const recorded=await window.__M1_PCM_CAPTURE__;
   const {wav,...meta}=recorded||{status:'UNAVAILABLE',reason:'Missing PCM result'};
   if(!wav)return meta;
@@ -203,6 +225,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    parts.push(String.fromCharCode(...raw.subarray(i,i+16384)));
   return {...meta,base64:btoa(parts.join(''))};
  }):{status:'UNAVAILABLE',reason:'Original PCM recorder unavailable'};
+ }catch(error){pcm={status:'UNAVAILABLE',reason:'Original PCM collection failed: '+String(error)}}
  const pcmPath='artifacts/dungeon-m1-organic-journey-'+VIEW+'-original-warden.wav';
  if(pcm.base64)fs.writeFileSync(pcmPath,Buffer.from(pcm.base64,'base64'));
  const {base64:pcmBase64,...pcmFacts}=pcm;
@@ -214,6 +237,11 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    [name,{index,run:snapshots[index].run,tick:snapshots[index].tick,floor:snapshots[index].floor,
     checksum:snapshots[index].checksum}])),
   elapsedMs:Date.now()-started,playbackCadence:'browser polling, held real milestone frames, not original live cadence',orderedFeed:feedMetrics,audioGestureOptIn:audioOptedIn,
+  journeyCapture:{status:stageFailure||finalization.finalizationErrors.length||mediaIntegrityError||
+    film.status!=='RECORDED'||milestoneFrameProof.length<5?'INCOMPLETE':'STAGES_RENDERED',
+   failedStage:stageFailure?failedStage:null,failure:stageFailure?String(stageFailure):null,
+   mediaIntegrityError,finalizationErrors:finalization.finalizationErrors,
+   actualStageCount:milestoneFrameProof.length},
   recorder:{status:film.status,reason:film.reason,bytes:film.bytes||0,mime:film.mime,
    requestedFps:film.requestedFps||recording.requestedFps||0,
    videoBitrate:film.videoBitrate||recording.videoBitrate||0,
@@ -231,7 +259,15 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   matchedLockedBaseline:false,blindCritics:0,looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED',
   milestoneFrameProof,observations,pageErrors:errors};
  fs.writeFileSync(stem+'.json',JSON.stringify(receipt,null,2));
- await page.locator('#world').screenshot({path:stem+'-real-restart.png',timeout:90000});
+ try{await page.locator('#world').screenshot({
+  path:stem+(stageFailure?'-actual-last-rendered.png':'-real-restart.png'),timeout:90000});}
+ catch(error){fs.writeFileSync(stem+'-last-frame-error.txt',String(error))}
+ if(stageFailure)throw stageFailure;
+ if(mediaIntegrityError)throw Error(mediaIntegrityError);
+ if(finalization.finalizationErrors.length)
+  throw Error('Original recording finalization failed: '+finalization.finalizationErrors.join('; '));
+ expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
+ expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
  expect(errors).toEqual([]);
  expect(observations.some(o=>o.frame>0)).toBe(true);
  // Capturing a film is NOT evidence of transformed looks, feels or plays.

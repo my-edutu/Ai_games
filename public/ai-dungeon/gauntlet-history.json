@@ -6127,6 +6127,25 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect genuine new-head 1440/390 WebGL warnings/contact, p50/p95/p99, original opt-in audiovisual; fix regression. Capture 5/5 organic stages, M1 matched baseline A/B and >=3 blind critics."
+    },
+    "m1AuthenticEvidenceRecovery": {
+      "date": "2026-11-08",
+      "parentSha": "13710720a3eb18144b31aa2c6a649a7a3bf9af0e",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "stage": "A_INCOMPLETE",
+      "scope": "Original Chromium MediaRecorder and real source-step ordered-feed evidence retention on failed checkpoint; no gameplay/render speed change",
+      "actualChange": "Browser test now stops original recorder, flushes Opus/WebM disk chunks, captures original PCM when available, writes source-checked explicitly INCOMPLETE metadata and rethrows real failed milestone; partial final screenshot is never labelled natural restart",
+      "validation": "5/5 isolated Node lifecycle behavior tests PASS; integrated source V8 parse PASS; exact-head real Chromium NOT OBSERVED",
+      "newHeadFilm": "UNVERIFIED",
+      "originalImpactSync": "UNVERIFIED",
+      "organicFiveStages": "UNVERIFIED",
+      "parallelAnimationCandidate": "PR #72 at 181ac4f54e127950d69fe8864763d73cf8266bbc NOT integrated; exact-head workflow queued",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Measure and correct actual browser/software WebGL draw/frame-delivery cost without skips; then authenticate complete natural desktop/mobile five-stage video+sound, match fixed baseline and obtain 3 blinded critics"
     }
   }
 }
