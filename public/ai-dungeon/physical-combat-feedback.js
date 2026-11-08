@@ -143,9 +143,9 @@ export function createPhysicalCombatFeedback({
   popDue(dt);safeCall(()=>visuals?.advance?.(dt));safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
- function attachAudioContext(context){
+ function attachAudioContext(context,{output=null}={}){
   if(disposed)return false;
-  if(!foley&&context)foley=createOriginalCombatFoley(context);
+  if(!foley&&context)foley=createOriginalCombatFoley(context,{output});
   return !!foley;
  }
  function enableAudioFromGesture(){

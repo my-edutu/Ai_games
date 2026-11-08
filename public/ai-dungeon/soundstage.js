@@ -61,7 +61,11 @@ const stopAndDisconnect=voice=>{
  try{voice.gain.disconnect()}catch{}
  try{voice.foley?.stop()}catch{}
 };
-export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
+const D04_OWNED_LEGACY_COMBAT_CUES=new Set(['weapon','ranged','magic','impact','kill',
+ 'guard','block','evade','interrupt','counter','opening','boss','warning',
+ 'warning-rising','warning-final','eclipse-rising','eclipse-final','danger',
+ 'breach','cover-impact','defeat']);
+export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=false}={}){
  if(!ctx||typeof ctx.createGain!=='function'||typeof ctx.createOscillator!=='function')return null;
  let started=false,enabled=false,previous=null,sceneMood=null,disposed=false;
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
@@ -256,7 +260,8 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
   if(!s||disposed)return;
   if(previous&&(previous.run!==s.run||previous.floor!==s.floor))pending.length=0;
   const mood=planSoundMood(s);setMood(mood);
-  const cues=planSoundCues(previous,s,(u,current)=>planVisualContact(u,current));
+  const cues=planSoundCues(previous,s,(u,current)=>planVisualContact(u,current))
+   .filter(c=>!suppressCombat||!D04_OWNED_LEGACY_COMBAT_CUES.has(c.kind));
   // Share the exact true-HP-loss / legal-sword-contact proof used by the skinned
   // hit reaction and physical debris. Melee contact waits for the blade; all
   // fatal, ranged, ambiguous and reduced-motion damage is audible immediately.
@@ -322,7 +327,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
    enabled,started,disposed,voices:active.length,peakVoices,voiceCap:MAX_VOICES,
    cuesPlayed:played,cuesSuppressed:suppressed,sceneChanges,
    mood:sceneMood?.mood??'unavailable',biome:sceneMood?.biome??null,
-   lastCue,masterGain:MASTER_GAIN,pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
+   lastCue,masterGain:MASTER_GAIN,suppressCombat,pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
    foley:foley?.stats()??null,engine:'original-synth-web-audio'
   };
  }
@@ -333,5 +338,6 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
   for(const node of nodes)try{node.disconnect()}catch{}
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
- return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,recordOriginalPcm,stats,dispose};
+ return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,
+  combatEffectsInput:()=>started&&enabled?fxBus:null,recordOriginalPcm,stats,dispose};
 }

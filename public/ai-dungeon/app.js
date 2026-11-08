@@ -21,11 +21,12 @@ import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
-import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
+import {planCombatFacing,planVisualContact,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
 import {createCombatDirector} from '/dungeon/combat-director.js';
+import {createPhysicalCombatFeedback} from '/dungeon/physical-combat-feedback.js';
 import {planCombatStage,stagePoint,MAX_STAGE_OFFSET,inspectBattlefieldCrowding} from '/dungeon/combat-staging-plan.js';
 import {createCombatShotContinuity} from '/dungeon/combat-shot-continuity.js';
 import {createPhysicalCameraDirector} from '/dungeon/physical-camera-director.js';
@@ -46,6 +47,8 @@ import {createChapterNaves} from '/dungeon/chapter-nave.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const spectatorUI=installSpectatorUI();
+// D04 opt-in preview only; the known legacy spectator remains default.
+const D04_PREVIEW=new URLSearchParams(location.search).get('feedback')==='d04';
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
 function directCamera(s){
  const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
@@ -218,6 +221,12 @@ const actors=new Map(),world=new THREE.Group();scene.add(world);
 let crowdedStageActors=0,lastStagePositions=Object.create(null);
 const combatOverlay=createCombatOverlay($('battle-overlay'));
 const combatDirector=createCombatDirector(scene,{reducedMotion:reduced,actorById:id=>actors.get(id)});
+const physicalFeedback=D04_PREVIEW?createPhysicalCombatFeedback({THREE,scene,
+ actorById:id=>actors.get(id),storage:(()=>{try{return window.localStorage}catch{return null}})(),
+ reducedMotion:reduced,reducedFlash:reduced,resolveContact:planVisualContact,
+ deriveDamageBeats:planAuthorityDamageBeats,verifiedMeleeDelay:planVerifiedMeleeImpactDelay,
+ requirePresentedFrame:true}):null;
+let d04PresentedFrameSerial=0;
 const floorThemes=[
  // Lighting and core PBR tint follow each real floor. The crypt is warm
  // weathered limestone, leaving deliberately cold blues for the obsidian vault.
@@ -412,7 +421,7 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function clearWorld(){actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();physicalFeedback?.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
@@ -700,7 +709,7 @@ $('audio-toggle').addEventListener('click',async()=>{
   try{ambience=new Audio()}catch(error){setEnabled(false);button.title='Audio output device unavailable';return}
  }
  if(button.getAttribute('aria-pressed')==='true'){
-  setEnabled(false);soundstage?.disable();
+  setEnabled(false);soundstage?.disable();physicalFeedback?.muteAudio();
   try{await settleAudio(ambience.suspend());button.removeAttribute('title')}
   catch(error){button.title='Audio device could not be suspended'}
   return;
@@ -710,12 +719,16 @@ $('audio-toggle').addEventListener('click',async()=>{
  try{
   await settleAudio(ambience.resume());
   if(ambience.state!=='running')throw Error('Audio output remains suspended');
-  if(!soundstage)soundstage=createDungeonSoundstage(ambience,{reducedMotion:reduced});
+  if(!soundstage)soundstage=physicalFeedback
+    ?createDungeonSoundstage(ambience,{reducedMotion:reduced,suppressCombat:true})
+    :createDungeonSoundstage(ambience,{reducedMotion:reduced});
   if(!soundstage?.enable())throw Error('Original soundstage failed to initialize');
+  if(physicalFeedback){physicalFeedback.attachAudioContext(ambience,{output:soundstage.combatEffectsInput()});
+   if(!physicalFeedback.enableAudioFromGesture())throw Error('D04 original combat foley failed to initialize');}
   if(state)soundstage.acceptSnapshot(state);
   setEnabled(true);button.removeAttribute('title');soundstage.cueWelcome();
  }catch(error){
-  soundstage?.disable();setEnabled(false);button.title='Audio blocked or unavailable in this browser';
+  soundstage?.disable();physicalFeedback?.muteAudio();setEnabled(false);button.title='Audio blocked or unavailable in this browser';
   Promise.resolve(ambience.suspend()).catch(()=>{});
  }
 });
@@ -869,9 +882,10 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
    a.telegraph.visible=u.hp>0&&Boolean(s.bossWarning);
    a.telegraph.material.color.set(s.bossPhase==='ECLIPSE'?'#c97aff':s.bossPhase==='RUPTURE'?'#ff9f62':'#ff7049');
   }}
- combatDirector.accept(s,camera.position);
- combatDirector.recordDamage(damageBeats,s);
- combatDirector.recordEvasions(evasionBeats);
+ if(physicalFeedback)physicalFeedback.acceptSnapshot(s);
+ else{combatDirector.accept(s,camera.position);
+  combatDirector.recordDamage(damageBeats,s);
+  combatDirector.recordEvasions(evasionBeats);}
  world.userData.wardenRitual?.accept(s);
  world.userData.dressing?.accept?.(s);
  world.userData.livingWorld?.accept?.(s);
@@ -1148,7 +1162,8 @@ function animate(t){
   oathguardImpactRing.scale.setScalar(.72+impactProgress*.63);
  }
  // Pose every live rig before sampling its skinned weapon hand for effects.
- combatDirector.animate(dt);
+ if(physicalFeedback)physicalFeedback.advance(dt);
+ else combatDirector.animate(dt);
  soundstage?.advanceVisualFrame(dt);
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
@@ -1402,12 +1417,15 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
+ // A real successful WebGL submit (including fallback), never a synthetic tick.
+ physicalFeedback?.acknowledgePresentedFrame(++d04PresentedFrameSerial);
  combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,directRenderBudget:directBudget,directRenderMs,directDownshifts,heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardenImpactScars:world.userData.wardenImpactScars?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
- lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET,projected:inspectBattlefieldCrowding(state,lastStagePositions,camera.position)},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
+ lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,physicalFeedback:physicalFeedback?.stats()??null,
+  d04PreviewEnabled:Boolean(physicalFeedback),combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET,projected:inspectBattlefieldCrowding(state,lastStagePositions,camera.position)},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
@@ -1430,4 +1448,5 @@ $('director-toggle').addEventListener('click',()=>{
 });
 const cameraModes=['cinematic','tactical','chase'];let cameraIndex=0;const viewButton=$('view-toggle');
 viewButton.addEventListener('click',()=>{cameraIndex=(cameraIndex+1)%cameraModes.length;viewButton.querySelector('span').textContent=cameraModes[cameraIndex].toUpperCase();viewButton.setAttribute('aria-label','Camera: '+cameraModes[cameraIndex]+'; change view');});
+window.addEventListener('pagehide',()=>physicalFeedback?.dispose(),{once:true});
 document.body.dataset.reducedMotion=String(reduced);requestAnimationFrame(animate);poll();
