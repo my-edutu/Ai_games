@@ -195,3 +195,14 @@ test('public error UI never exposes raw module failures or internal URLs',()=>{
  assert.doesNotMatch(source,/detail\.textContent=errors\./);
  assert.match(source,/check browser graphics support and the stream connection/);
 });
+
+test('hidden browser tab does not consume a false cold-start failure budget',()=>{
+ const h=launch();h.document.hidden=true;
+ h.advance(32000);
+ assert.notEqual(h.document.body.dataset.rendererStatus,'failed');
+ assert.equal(h.loading.hidden,false);
+ h.document.hidden=false;
+ h.advance(13500);
+ assert.equal(h.document.body.dataset.rendererStatus,'failed');
+ assert.equal(h.loading.hidden,true);
+});
