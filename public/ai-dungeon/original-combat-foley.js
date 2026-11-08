@@ -10,6 +10,10 @@
 export const MAX_ORIGINAL_COMBAT_VOICES=8;
 export const ORIGINAL_COMBAT_MASTER_GAIN=.12;
 export const ORIGINAL_COMBAT_MAX_NOISE_SAMPLES=19200;
+// Fixed-rate original texture: WebAudio resamples it for each device context.
+// This preserves one 280ms period at 8/44.1/48/96kHz without exceeding cap.
+export const ORIGINAL_COMBAT_NOISE_TEXTURE_RATE=48000;
+export const ORIGINAL_COMBAT_NOISE_TEXTURE_SAMPLES=13440;
 export const COMBAT_MUTE_PREFERENCE_KEY='ai-dungeon:physical-combat-muted-v1';
 const P=(duration,peak,noise,low,high,partials=[],filter='bandpass')=>Object.freeze({
  duration,peak,noise,low,high,partials,filter
@@ -122,22 +126,28 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
     c.ratio.value=3.5;c.attack.value=.003;c.release.value=.105;
     b.connect(c);c.connect(output??ctx.destination);
    }else b.connect(output??ctx.destination);
-   const hz=clamp(ctx.sampleRate,8000,96000,48000);
-   const sampleCount=Math.min(ORIGINAL_COMBAT_MAX_NOISE_SAMPLES,
-    Math.max(256,Math.ceil(hz*.28)));
+   // A WebAudio AudioBuffer may have a different sample rate from its
+   // AudioContext. The browser resamples this fixed 48kHz mono texture at
+   // playback, so the 280ms loop period does not shorten on 96kHz devices.
+   const hz=ORIGINAL_COMBAT_NOISE_TEXTURE_RATE;
+   const sampleCount=ORIGINAL_COMBAT_NOISE_TEXTURE_SAMPLES;
    const buffer=ctx.createBuffer(1,sampleCount,hz),samples=buffer.getChannelData(0);
    let seed=0x674cc87d;
-   // Retain one ORIGINAL noise texture across long Warden, warning and
-   // defeat cues. The former non-looping 280ms buffer fell silent before
-   // their 430-600ms envelopes finished, leaving resonator-only tails.
-   // A brief symmetric edge taper avoids a discontinuity on each wrap.
-   const edge=Math.max(8,Math.min(Math.floor(hz*.003),Math.floor(sampleCount/32)));
    for(let i=0;i<sampleCount;i++){
     seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-    const fadeIn=Math.min(1,i/edge),fadeOut=Math.min(1,(sampleCount-1-i)/edge);
-    const edgeGain=Math.sin(Math.min(fadeIn,fadeOut)*Math.PI*.5)**2;
-    samples[i]=((seed/4294967296)*2-1)*edgeGain;
+    samples[i]=(seed/4294967296)*2-1;
    }
+   // Equal-power seam crossfade, computed ONCE at init. The earlier symmetric
+   // fade-to-zero imposed two 3ms silence troughs every loop, repeatedly
+   // thinning 430-600ms Warden tails. Preserve the natural seeded-noise RMS
+   // while matching the last sample exactly to the first; no new audio nodes.
+   const edge=Math.max(8,Math.min(Math.floor(hz*.003),Math.floor(sampleCount/32)));
+   for(let i=0;i<edge;i++){
+    const phase=(i+1)/edge,tail=sampleCount-edge+i;
+    samples[tail]=samples[tail]*Math.cos(phase*Math.PI*.5)+
+     samples[(i+1)%edge]*Math.sin(phase*Math.PI*.5);
+   }
+   samples[sampleCount-1]=samples[0];
    bus=b;limiter=c;noiseBuffer=buffer;started=true;return true;
   }catch{
    try{b?.disconnect()}catch{}try{c?.disconnect()}catch{}
@@ -229,6 +239,8 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   activeVoices:active.length,peakVoices,voiceCap:MAX_ORIGINAL_COMBAT_VOICES,
   played,dropped,stopped,deviceFailures,masterGain:ORIGINAL_COMBAT_MASTER_GAIN,
   limiterAvailable:!!limiter,noiseSamples:noiseBuffer?.length??0,
+  noiseSampleRate:noiseBuffer?.sampleRate??0,
+  noisePeriodMs:Math.round((noiseBuffer?.duration??0)*1000),
   originalAssets:'local-seeded-filtered-noise-and-bounded-resonators',externalSamples:0
  })}
  return Object.freeze({enable,emit,cleanup,disable,flush,reset,dispose,stats});
