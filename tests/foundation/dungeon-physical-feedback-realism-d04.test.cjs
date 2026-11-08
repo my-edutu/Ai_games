@@ -140,6 +140,7 @@ test('unpresented effects and stale scene revisions never leak queued audio on a
  const u=(hp)=>({id:'ranger',kind:'ranger',faction:'party',x:1,z:1,hp,maxHp:30,action:'hurt',actionTick:11});
  const s=(tick,run=1,hp=30)=>({run,floor:1,tick,units:[u(hp)],events:[]});
  director.acceptSnapshot(s(10));director.acceptSnapshot(s(11,1,20));
+ director.advance(.016,.016);
  assert.ok(director.stats().awaitingPresentation>0);
  director.acceptSnapshot(s(0,2,30));
  assert.equal(director.acknowledgePresentedFrame('stale'),0);
@@ -199,6 +200,7 @@ test('a missed render deadline drops stale audio rather than playing a delayed c
  const u=(tick,hp,action='idle')=>({id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,hp,maxHp:30,action,actionTick:tick});
  const s=(tick,hp,action='idle')=>({tick,run:1,floor:1,units:[u(tick,hp,action)],events:[]});
  controller.acceptSnapshot(s(10,30));controller.acceptSnapshot(s(11,21,'hurt'));
+ controller.advance(.016,.016);
  assert.ok(controller.stats().awaitingPresentation>=1);
  const frames=Math.ceil((MAX_AUDIO_VISUAL_STALENESS_SECONDS+.06)/.05);
  for(let i=0;i<frames;i++)controller.advance(.05);

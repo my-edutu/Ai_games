@@ -162,7 +162,13 @@ export function createPhysicalCombatFeedback({
    }
    pending.push({cue,remaining:clamp(cue.delay,0,.5),queuedAt:observedSeconds});queued++;
   }
-  popDue(0);return cues.length;
+  // In the submission-gated D04 preview, a zero-delay HP injury may arrive
+  // between animation frames. Do not give that unsubmitted art a 300ms
+  // lifetime before its first draw: the next advance() ages old pools FIRST,
+  // then admits fresh cues for the imminent genuine WebGL submission.
+  // The non-gated adapter keeps its established immediate dispatch contract.
+  if(!requirePresentedFrame)popDue(0);
+  return cues.length;
  }
  function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return 0;

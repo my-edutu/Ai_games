@@ -38,17 +38,35 @@ async function run(config,interval){
   visualAdapter:f.visuals,audioAdapter:f.sounds,requirePresentedFrame:true});
  assert.equal(d.enableAudioFromGesture(),true);
  d.acceptSnapshot(snapshot(10,30));d.acceptSnapshot(snapshot(11,20));
- assert.ok(d.stats().awaitingPresentation>0,'actual HP loss makes contact');
+ assert.equal(d.stats().pending,1,'real HP loss is queued until a measured frame');
+ assert.equal(d.stats().awaitingPresentation,0,'no unsent visual is treated as staged');
  d.advance(Math.min(interval,.05),interval);
  return {f,d};
 }
-test('expired retained impact never plays late audio but leaves a reasoned receipt',async()=>{
- const {f,d}=await run({expired:true},.30);
+test('previously staged injury art expiring before submission suppresses late sound',async()=>{
+ const {f,d}=await run({expired:true},.016);
+ assert.equal(d.stats().awaitingPresentation,1);
+ d.advance(.05,.30); // already staged in the previous frame, not new art
  assert.equal(d.acknowledgePresentedFrame(1,.015),0);
  assert.equal(f.audio.length,0);
  assert.ok(d.stats().expiredVisualAudioDropped>0);
  assert.equal(d.stats().recentDeliveryReceipts.at(-1).decision,'expired-visual');
  d.dispose();
+});
+test('zero-delay HP injury survives its first 300ms submitted frame but not a 720ms stall',async()=>{
+ const fresh=await run({expired:true},.30);
+ assert.equal(fresh.d.stats().awaitingPresentation,1);
+ assert.equal(fresh.d.acknowledgePresentedFrame('300ms-first',.012),1);
+ assert.equal(fresh.f.audio.length,1);
+ assert.equal(fresh.d.acknowledgePresentedFrame('300ms-first',.012),0);
+ assert.equal(fresh.d.stats().recentDeliveryReceipts.at(-1).decision,'delivered');
+ fresh.d.dispose();
+ const stale=await run({expired:true},.72);
+ assert.equal(stale.d.stats().awaitingPresentation,0);
+ assert.equal(stale.d.stats().expiredQueuedCues,1);
+ assert.equal(stale.d.acknowledgePresentedFrame('720ms-first',.012),0);
+ assert.equal(stale.f.audio.length,0);
+ stale.d.dispose();
 });
 test('fresh retained impact plays once; duplicate submitted frame does not replay',async()=>{
  const {f,d}=await run({},.016);
