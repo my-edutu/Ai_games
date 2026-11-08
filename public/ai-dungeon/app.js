@@ -791,11 +791,11 @@ function renderDashboard(s){
   card.classList.toggle('down',u.hp<=0);card.setAttribute('aria-disabled',String(u.hp<=0));
   card.dataset.class=u.kind;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.hp>0&&u.id===focusedHeroId);
   if(u.kind==='mystic')card.dataset.focusExhausted=String(Number.isInteger(u.focus)&&u.focus<=0);
-  card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera'+(u.kind==='mystic'?' · healing focus '+(u.focus??'unavailable')+' of '+(u.maxFocus??5):''));
+  card.setAttribute('aria-label',(u.hp>0?'Follow ':'Fallen hero: ')+meta.name+' · '+u.hp+' of '+u.maxHp+' health'+(u.kind==='mystic'?' · healing focus '+(u.focus??'unavailable')+' of '+(u.maxFocus??5):''));
   card.setAttribute('aria-pressed',String(u.hp>0&&u.id===focusedHeroId));
   card.querySelector('.hero-icon').textContent=meta.icon;
   card.querySelector('.hero-heading b').textContent=meta.name;
-  card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP'+(u.kind==='mystic'?' · ✦'+(Number.isInteger(u.focus)?u.focus:'—'):'');
+  card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP'+(u.kind==='mystic'?' · Focus '+(Number.isInteger(u.focus)?u.focus+'/'+(u.maxFocus??5):'—'):'');
   card.querySelector('.hero-sub span').textContent=meta.title;
   const covering=u.kind==='vanguard'&&u.hp>0&&u.action==='guard'&&
    u.guardTick===s.tick&&heroes.find(ally=>ally.id===u.targetId&&ally.hp>0);
