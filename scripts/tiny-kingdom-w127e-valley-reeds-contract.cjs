@@ -89,7 +89,8 @@ for(const season of [0,1,2,3]){
    points.push(...a,...b,...c,...col);
   }
  });
- assert.equal(points.length,audit.triangles*18);
+ assert.equal(points.length,audit.triangles*12,
+  'the isolated triangle spy captures 9 coordinates and 3 RGB values per triangle');
  assert.equal(audit.clusters,69);
  assert.equal(audit.stems,207);
  assert.equal(audit.triangles,1242);
