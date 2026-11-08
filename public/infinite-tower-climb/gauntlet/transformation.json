@@ -45,7 +45,7 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "7a6ef2578e02a45e48d1cd896abcad309d9334de",
+      "sourceHeadAtInspection": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
@@ -53,21 +53,24 @@
       "renderedGameplayExperienceChangedThisExecution": false,
       "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Last available source-pinned 390x844 candidate film e0fe7729 still shows large clockwork foreground obstruction of the climber/guardian at native seconds 16–18. Subsequent open rims, rotor apertures and rack cutaways remain unfilmed at exact current source; physical gateway in moving film and full restart acceptance are still open.",
-      "primaryVerifiedBlocker": "GitHub PR68 quality run 42463522918 and all nine jobs of real-game capture 42463522898 were still queued without runners at inspection; /app-projects tunnel returned NOT_FOUND. A separate verified offline capture sequencing flaw combined desktop and portrait in one Playwright invocation despite shared webServer lifetime: desktop 60+ seconds of actual 20Hz simulation can advance the same original-source host before portrait begins, invalidating fixed floor-8 danger matching.",
-      "implementation": "Fixed fallback source-authentic capture sequencing: separate browser test invocation and fresh original 20Hz server for each of eight baseline/candidate/scenario pairs and for each 960x600 desktop/390x844 portrait viewport. Each preserves exact source SHA, seed, original stream host and unmodified speed; saves distinct capture logs and test-results folders before the next invocation clears them. Added specific regression to require separate hosts. This is an evidence-integrity unblocker; no new game code, film, full-loop video, independent review or actual-device result.",
+      "largestObservedGap": "Most recent independently inspected authentic candidate 390x844 film e0fe7729 still has giant decorative foreground clockwork masking live guardian/climber around native 16–18s. Later structural rim/gear/rack cutaways remain without current continuous footage; physically visible floor-nine crossing and restart not video-accepted.",
+      "primaryVerifiedBlocker": "At current PR68 head ff3dc036, GitHub nine-job capture 42476738867 and quality 42476738709 queued with no completed exact-code result. Original /app-projects tunnel returned NOT_FOUND (not connected for 300s), so original Node/Three, Chromium and current WebM cannot run in workspace.",
+      "implementation": "Added original-WebM transport/provenance auditor using ffprobe to inspect the ACTUAL files for 960x600 and 390x844 native dimensions, >=60s container AND decoded native-PTS span, monotonic video frame timestamps, first real source floor, immutable source SHA, matching scenario/seed and actual browser observation duration. Emits per-film original SHA256, frame cadence/dropout warnings and hard source-integrity vetoes, while explicitly retaining NOT EVALUATED for motion feel, events on-screen, device metrics and critics. Integrated into both source-authentic offline baseline/candidate capture AND every hosted original-source 9-job workflow, copied only as observational code to frozen checkout. No renderer, gameplay rules or PR58 changes.",
       "concreteCommits": [
-        "883ff91d274f2f8f772c81e6529eff01d47598b4",
-        "7bedb79c2c1660dc108cc31a1c64b7211122b0ff",
-        "7a6ef2578e02a45e48d1cd896abcad309d9334de"
+        "f8aa67d68fa750190246f7e3f43e9e956661b9ef",
+        "54c4af51f1c9c9b166d3f563f99fe9aa1e62423b",
+        "66ae309c7d2af5bc4c6f367c1b37587e9d994c5b",
+        "ff3dc0369ebbade26bbc7169dd2e58580fe07e98"
       ],
       "modifiedFiles": [
+        "scripts/tower-native-film-integrity.cjs",
+        "tests/phase3/tower-native-film-integrity.test.cjs",
         "scripts/tower-offline-evidence.sh",
-        "tests/phase3/tower-harness-dependency-check.test.cjs",
+        ".github/workflows/tower-transformation-visual-evidence.yml",
         "public/infinite-tower-climb/gauntlet/transformation.json",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "GitHub connector exact-branch readback verified unique native viewport loop, shell-expanded --grep per viewport, separate logs and Playwright failure directories; current new test asserts all four. Red structural check showed prior combined invocation lacks separate viewport loop. The real Bash/Node/Playwright/Chromium path and native-WebM calibration are NOT EXECUTED in a complete checkout; static checks do not establish film quality or even full-shell execution.",
+      "isolatedSourceChecks": "Exact GitHub branch-file readback verified ffprobe and source/viewport guards, four authored regression fixtures, offline CLI after both viewport source captures, hosted baseline observational-copy and both pinned viewport audit before artifact upload. Original Node22 tests/Bash/ffprobe on generated WebM NOT EXECUTED due disconnected workspace and unassigned Actions runner. Static checks are not a test PASS.",
       "recoveredAuthenticPriorCapture": {
         "artifactId": 13594459833,
         "sha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
@@ -76,36 +79,38 @@
         "sourceEventToNativePts": "NOT EVALUATED: old artifact predates anchored WebM native-clock sidecars"
       },
       "currentExactCodeQuality": {
-        "sha": "7a6ef2578e02a45e48d1cd896abcad309d9334de",
-        "status": "NOT EVALUATED: the exact-head original repository suite has not executed; older quality workflow 42463522918 queued without runner."
+        "sha": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
+        "status": "QUEUED: exact-head workflow has not executed or passed",
+        "runId": 42476738709,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42476738709"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "2975e4a4e802b4455107e45437d2834e8c2340d6",
+        "candidateSourceSha": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
         "renderedWorldLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42463522898,
-        "status": "nine jobs queued without runners; no new exact-source candidate game video",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42463522898"
+        "runId": 42476738867,
+        "status": "QUEUED: 9 jobs expected; no new captures or executed frame integrity audits",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867"
       },
-      "videoEventAlignment": "NOT EVALUATED: no current-source baseline/candidate real WebM after portrait host-isolation repair; event-match with 60+ seconds source/PTS not executed.",
+      "videoEventAlignment": "NOT EVALUATED: no current-source intact 60+s WebM + source-index from new capture; native-video clock sidecars and newly added transport integrity still unexecuted.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no supported-device p50/p95/p99 or memory.",
-      "developmentWorkspace": "UNAVAILABLE: approved /app-projects tunnel returned NOT_FOUND; separate container has Node, Chromium and ffmpeg but no complete repo/dependencies or GitHub access.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no physical target-device p50/p95/p99 frame-time or memory",
+      "developmentWorkspace": "UNAVAILABLE: chat coding tunnel NOT_FOUND: tunnel-client has not been seen for 300 seconds. GitHub connector read/write available, verified hosted jobs queued.",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Run bash scripts/tower-offline-evidence.sh 7a6ef2578e02a45e48d1cd896abcad309d9334de in a full checkout with both commits and original Chromium runtime, OR recover GitHub Actions runners. Confirm desktop and portrait EACH start on the intended source floor with separate fresh host, run original Node/Three fixtures and source campaigns, inspect the real native portrait guardian film at 16-18s for whether the cutaway wheel/rack actually clear, then verify grounded gate crossing -> floor nine -> outcome/restart with event-matched normal-speed footage. Correct the largest verified remaining visual defect, not more speculative geometry.",
-      "restrictions": "Baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58 untouched; PR68 remains OPEN DRAFT. No merge/deploy/force-push/base change.",
+      "nextHighImpactAction": "Get actual original code executing: run the new 9-job GitHub capture or offline evidence script from a complete checkout. Require native-film-integrity for BOTH frozen and candidate, inspect true native 390x844 guardian fight at 16–18s and 960x600 equivalent in full-motion; check actual PTS/event index for crusher, earned HP defeat, grounded threshold, floor-nine continuation, terminal and restart; then correct the largest current-source visible flaw, not another speculative geometry patch. Run original Node/Three tests, deterministic replay and supported-device metrics before blind reviews.",
+      "restrictions": "Keep frozen baseline 1731b380851162741761c5569e2bc152a0869ca9; no PR58 edits, merge, deploy, force push, branch move or PR68 draft conversion.",
       "newSourcePinnedCaptureLinks": []
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — original three real gear faces and tall decorative rack physically cut through in source; original post-batch Three runtime tests and current gameplay film remain QUEUED/NOT EVALUATED.",
+    "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Recover executing runner; run original Three.js post-batch raycast tests and repository suite, then inspect 960x600 and 390x844 f1fe522e normal-speed candidate alongside immutable 1731b380 baseline. Verify new gear/rack actually clear source actor/guardian without over-fading original world; align earned defeat, grounded crossing, floor-nine onward and restart to native PTS. If still obstructed, correct actual camera-relative geometry at P0. Then complete device and independent blinded gates.",
+    "nextDecision": "Get actual original code executing: run the new 9-job GitHub capture or offline evidence script from a complete checkout. Require native-film-integrity for BOTH frozen and candidate, inspect true native 390x844 guardian fight at 16–18s and 960x600 equivalent in full-motion; check actual PTS/event index for crusher, earned HP defeat, grounded threshold, floor-nine continuation, terminal and restart; then correct the largest current-source visible flaw, not another speculative geometry patch. Run original Node/Three tests, deterministic replay and supported-device metrics before blind reviews.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
+    "biggestRemainingExperienceGap": "Most recent independently inspected authentic candidate 390x844 film e0fe7729 still has giant decorative foreground clockwork masking live guardian/climber around native 16–18s. Later structural rim/gear/rack cutaways remain without current continuous footage; physically visible floor-nine crossing and restart not video-accepted.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -1341,6 +1346,16 @@
         "plays": 0
       },
       "hardware": "NOT EVALUATED"
+    },
+    "p0NativeFilmTransportIntegrity20261108": {
+      "status": "IMPLEMENTED, NOT EXECUTED IN ORIGINAL GAME",
+      "sourceHeadAtInspection": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
+      "originalSourceProvenance": "Unedited WebM file hashes + decoded native PTS, viewport and immutable game source sidecars; no gameplay edits or altered video",
+      "outputs": "Each scenario records native-film-integrity.json beside authentic WebM; baseline observational probe copied only into frozen checkout",
+      "branchChecks": "Readback only; original Node/test and current browser run pending",
+      "leadVerdict": "NOT EVALUATED",
+      "ciQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738709",
+      "ciCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867"
     }
   },
   "scenarios": [
