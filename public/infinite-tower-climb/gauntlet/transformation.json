@@ -29,64 +29,71 @@
     "machinedGuardianPassageImplementationSha": "faa29eaf4f84628057783c6b27f72bc1de9be111",
     "machinedGuardianPassageEvidenceStatus": "P0 OPEN: actual original 390x844 normal-speed WebM 70.96 seconds retrieved at render SHA faa29eaf (workflow 42423754924, artifact 13594284754), sampled native frames show skinned climber visible through source-earned floor9 bronze at ~25.5s, where previous 01ccf675 film showed a solid brown/bronze slab; only bounded visible frame improvement NOT full-motion event-matched acceptance. Source event index expressly has videoClockCalibration NOT EVALUATED. Remaining giant rim during guardian 15-16s, small actor, biome change and PORTRAIT and desktop full comparison. Full corrected CI 42424125412 queued at inspection, prior stale Phase5 regex failure addressed at 95e35dec. No independent critic or real-device data.",
     "distalClockworkImplementationSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
-    "distalClockworkEvidenceStatus": "P0 NOT EVALUATED; actual 9-job native capture 42426089449 succeeded at e0fe7729, but 390x844 original candidate film 13594459833 still shows full-size foreground wheel/case obscuring skinned actor/guardian at ~16-18s. Static shoulder angle relocation did NOT solve camera-relative sightline. Exact-head original suite 42426205457 at f9bb975f failed 1/1216 because new world integration test used undefined `loaded`; test bridge/fixture fixed in 2fe0c7fc, fresh CI 42429981553 in progress at first inspection. Source-tick/native-PTS event matching and blind reviews/device metrics NOT EVALUATED; baseline untouched."
+    "distalClockworkEvidenceStatus": "P0 NOT EVALUATED; actual 9-job native capture 42426089449 succeeded at e0fe7729, but 390x844 original candidate film 13594459833 still shows full-size foreground wheel/case obscuring skinned actor/guardian at ~16-18s. Static shoulder angle relocation did NOT solve camera-relative sightline. Exact-head original suite 42426205457 at f9bb975f failed 1/1216 because new world integration test used undefined `loaded`; test bridge/fixture fixed in 2fe0c7fc, fresh CI 42429981553 in progress at first inspection. Source-tick/native-PTS event matching and blind reviews/device metrics NOT EVALUATED; baseline untouched.",
+    "cameraOcclusionForensicsImplementationSha": "217660021cd3ef0a369b508400e62e98f056236b",
+    "cameraOcclusionForensicsEvidenceStatus": "P0 OPEN, NOT EVALUATED: source-tick/camera projected on-screen occlusion diagnostics added at 21766002 and unaltered film sidecar at 3ffee715. Genuine original Three scene fixture added e4d45f9c, but full Node22/Chromium unavailable (tunnel-client disconnected) and exact-head GitHub quality/capture jobs queued. This adds forensic evidence for real 3 clocks + rack, not verified visual improvement. Previously filmed giant wheel still uncorrected pending current film. Native WebM PTS, blind critics 0/5 each, real device budgets NOT EVALUATED."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "f65bacdf1e2dbf6d122c8ac0223503226a12bab7",
-      "actualRenderedGameSourceSha": "be3e49491fdb0305dce165e7abc4e59c58416fe9",
+      "sourceHeadAtInspection": "da518fb71bdeef75730732d7ae6ee20e06b69c3e",
+      "actualRenderedGameSourceSha": "217660021cd3ef0a369b508400e62e98f056236b",
+      "actualWorldVisualBehaviorLastChangedSha": "be3e49491fdb0305dce165e7abc4e59c58416fe9",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": true,
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Prior true portrait candidate film ~16–18 seconds still shows giant clock rim/backing and unprotected power rack dominating the climber/guardian; no post-change film inspected.",
-      "primaryRootCauseFound": "3 rotor-centre projections cannot cover camera-relative post-batch case/rack extents; 42-unit rack absent from sightline registry.",
-      "implementation": "Render-only: project full real clock-case bounds, depth-gate to source actor, and privately material-own and register the original noncolliding 42-unit power rack, preserving the three live decorative rotors and all gameplay hazards.",
+      "largestObservedGap": "Previous real portrait film shows 16–18s wheel/backing/rack occlusion. New opacity implementation be3e4949 remains without completed new source-pinned film, so effect is UNKNOWN.",
+      "primaryVerifiedBlocker": "No per-assembly real-camera source-tick occlusion provenance. All 9 browser capture jobs and original quality remain queued; workspace tunnel-client unavailable; cannot identify the true occluder or evaluate newest scene.",
+      "implementation": "Instrument actual 3D world with bounded per-assembly live camera area/depth/near-plane/rays/material alpha. Preserve unmodified native video and write separate source-tick-linked camera-occlusion-forensics.json for future film diagnosis. Genuine Three.js world ownership tests written, not executed.",
       "concreteCommits": [
-        "be3e49491fdb0305dce165e7abc4e59c58416fe9",
-        "f65bacdf1e2dbf6d122c8ac0223503226a12bab7"
+        "217660021cd3ef0a369b508400e62e98f056236b",
+        "3ffee715ceee53258c75944d1e3a8e2a95c8464d",
+        "e4d45f9cc018d5ef79712db1928e4dbb462e8dd2",
+        "da518fb71bdeef75730732d7ae6ee20e06b69c3e"
       ],
       "modifiedFiles": [
         "public/infinite-tower-climb/visuals/world.mjs",
+        "tests/browser/tower-live-motion.spec.cjs",
         "tests/phase3/tower-clockwork-guardian-sightlines.test.cjs",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md",
         "public/infinite-tower-climb/gauntlet/transformation.json"
       ],
-      "isolatedSourceChecks": "5/5 exact-source pure-helper boundary cases pass; not original Three.js or gameplay acceptance",
+      "isolatedSourceChecks": "Three modified JS files parsed after GitHub roundtrip; exact source baseline JSON validated. NOT an original Node, browser, renderer, game or experience test.",
       "currentExactCodeQuality": {
-        "sha": "f65bacdf1e2dbf6d122c8ac0223503226a12bab7",
-        "runId": 42434742879,
+        "sha": "e4d45f9cc018d5ef79712db1928e4dbb462e8dd2",
+        "runId": 42438849465,
         "status": "QUEUED; NOT EVALUATED",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42434742879"
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42438849465"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "be3e49491fdb0305dce165e7abc4e59c58416fe9",
+        "candidateSourceSha": "3ffee715ceee53258c75944d1e3a8e2a95c8464d",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42434680765,
+        "runId": 42438806588,
         "status": "QUEUED; NOT EVALUATED",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42434680765"
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42438806588"
       },
-      "videoEventAlignment": "NOT EVALUATED: current native candidate/baseline WebM and genuine source PTS mapping unavailable",
+      "videoEventAlignment": "NOT EVALUATED; first-source-observation time differs from native WebM frame zero; new camera diagnostics are not native video PTS.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual supported device results",
-      "developmentWorkspace": "UNAVAILABLE: tunnel-client not seen for 300 seconds",
+      "hardwareFrameTimeMemory": "NOT EVALUATED; no supported hardware measurements",
+      "developmentWorkspace": "UNAVAILABLE: tunnel-client has not been seen for 300 seconds",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Inspect exact test CI and native 960x600 + 390x844 real-game source-pinned films at SHA be3e4949; verify giant wheel/rack visibility and any new overfade; calibrate event PTS against guardian, crusher, grounded gateway, floor-nine and restart; repair largest authentic filmed defect and validate actual-device performance.",
-      "restrictions": "Baseline frozen; PR58 untouched; PR68 remains draft; no merge/deploy/force-push."
+      "nextHighImpactAction": "Run original Node22/Three.js suite and source-pinned normal-speed 960x600 + 390x844 gameplay. Inspect authentic film together with per-source-tick camera-occlusion-forensics.json around portrait guardian 16–18s; identify actual clock/rack covering live hero or guardian and correct the biggest verified 3D obstruction. Calibrate native WebM timestamps against real crusher/guardian/grounded gateway/floor9/outcome/restart. Obtain device p50/p95/p99/memory and 5 independent blind critics per LOOKS/FEELS/PLAYS pillar.",
+      "restrictions": "Frozen baseline unchanged; PR58 untouched; PR68 draft/open; no merge/deploy/force-push."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — current camera-relative clockwork/rack renderer implementation unverified by exact-source film; P0 progression/recording, event PTS, blind reviews and hardware gates still unmet.",
+    "state": "P0 OPEN — bounded source-tick camera diagnostics authored, but previous giant foreground clockwork obstruction not yet source-video-confirmed as corrected; no independent acceptance.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect exact test CI and native 960x600 + 390x844 real-game source-pinned films at SHA be3e4949; verify giant wheel/rack visibility and any new overfade; calibrate event PTS against guardian, crusher, grounded gateway, floor-nine and restart; repair largest authentic filmed defect and validate actual-device performance.",
+    "nextDecision": "Run original Node22/Three.js suite and source-pinned normal-speed 960x600 + 390x844 gameplay. Inspect authentic film together with per-source-tick camera-occlusion-forensics.json around portrait guardian 16–18s; identify actual clock/rack covering live hero or guardian and correct the biggest verified 3D obstruction. Calibrate native WebM timestamps against real crusher/guardian/grounded gateway/floor9/outcome/restart. Obtain device p50/p95/p99/memory and 5 independent blind critics per LOOKS/FEELS/PLAYS pillar.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Prior true portrait candidate film ~16–18 seconds still shows giant clock rim/backing and unprotected power rack dominating the climber/guardian; no post-change film inspected.",
+    "biggestRemainingExperienceGap": "Authentic guardian portrait 16–18s giant wheel/rack foreground obstruction still lacks confirmed current film remediation; exact 3D culprit now traceable if source-pinned runners execute.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Unverified source-new 3D wheel/case clearance in normal-speed portrait guardian/cap crossing; previously giant foreground rotor at ~17-19s, event/video PTS uncalibrated; gateway floor9/outcome/restart visual sequence still not independently inspected.",
@@ -5365,5 +5372,39 @@
       "plays": 0
     },
     "nextAction": "Obtain the in-progress diagnostic original-runtime test output for 2 cap-clearance failures, correct verified fixture/physics inconsistency without weakening source truth; run full unchanged 3200-tick campaigns; then collect exact new SHA candidate/baseline native desktop and portrait video and inspect whether earned airborne camera keeps actual hero + door readable across real boss death, gateway crossing, floor nine, outcome/restart. Calibrate event PTS. No P1 until P0 video acceptance."
+  },
+  "latestP0CameraOcclusionForensics20261108": {
+    "stage": "P0",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementationSha": "217660021cd3ef0a369b508400e62e98f056236b",
+    "captureHarnessSha": "3ffee715ceee53258c75944d1e3a8e2a95c8464d",
+    "threeRuntimeTestSha": "e4d45f9cc018d5ef79712db1928e4dbb462e8dd2",
+    "forensicFields": [
+      "sourceTick",
+      "name",
+      "kind",
+      "screenCoverage",
+      "nearestWorldDepth",
+      "sourceActorDepth",
+      "inFrontOfActor",
+      "nearPlaneCrossing",
+      "rayContactCount",
+      "intendedAlpha",
+      "renderedAlpha",
+      "clockCaseMeshes"
+    ],
+    "diagnosticArtifact": "camera-occlusion-forensics.json in each future source-pinned tower-motion recording",
+    "exactSourceSyntax": "PASS (JavaScript parsing on GitHub reloaded world, browser harness, original Three scene test; no runtime browser executed)",
+    "exactHeadQuality": "QUEUED at workflow 42438849465",
+    "capturedFullMotion": "NOT EVALUATED — source-pinned workflow 42438806588 queued, no new film",
+    "blindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceMetrics": "NOT EVALUATED",
+    "nextAction": "Run original Node22/Three.js suite and source-pinned normal-speed 960x600 + 390x844 gameplay. Inspect authentic film together with per-source-tick camera-occlusion-forensics.json around portrait guardian 16–18s; identify actual clock/rack covering live hero or guardian and correct the biggest verified 3D obstruction. Calibrate native WebM timestamps against real crusher/guardian/grounded gateway/floor9/outcome/restart. Obtain device p50/p95/p99/memory and 5 independent blind critics per LOOKS/FEELS/PLAYS pillar.",
+    "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
   }
 }
