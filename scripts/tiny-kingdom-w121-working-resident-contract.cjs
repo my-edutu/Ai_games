@@ -62,15 +62,24 @@ assert.equal(make(true,true)(working,5,new Set(),{}),false,
 assert.equal(JSON.stringify(working),before,
  'eligibility must never mutate authority');
 const clock={t:22};
-const signature=new Function('state','climateAt',
+const makeSignature=skinned=>new Function(
+ 'state','climateAt','workingSkinCapable','actualForgeHandTarget','workDuration',
  keySrc+';return realWorkerPoseKey;')(
- clock,t=>({season:Math.floor(t/120)}));
+ clock,t=>({season:Math.floor(t/120)}),skinned,()=>null,()=>3);
+const signature=makeSignature(true);
 const key=signature(working,3);
 assert.equal(key,signature(working,3),'same actual source state reuses worker pose');
-assert.notEqual(key,signature({...working,phase:2.12},3),
- 'true gait phase invalidates worker pose');
-assert.notEqual(key,signature({...working,workTimer:3.7},3),
- 'real workTimer phase invalidates worker pose');
+assert.equal(key,signature({...working,phase:2.12},3),
+ 'GPU bones follow real gait without regenerating the full actor topology');
+assert.equal(key,signature({...working,workTimer:3.7},3),
+ 'GPU bone transforms follow real workTimer without CPU mesh reconstruction');
+const originalFallback=makeSignature(false);
+assert.notEqual(originalFallback(working,3),
+ originalFallback({...working,phase:2.12},3),
+ 'CPU fallback still regenerates the original real gait phase');
+assert.notEqual(originalFallback(working,3),
+ originalFallback({...working,workTimer:3.7},3),
+ 'CPU fallback still regenerates original real workTimer phases');
 assert.notEqual(key,signature({...working,activity:'Constructing cottages'},3),
  'real job activity changes invalidate worker pose');
 assert.equal(key,signature({...working,x:18.1},3),
