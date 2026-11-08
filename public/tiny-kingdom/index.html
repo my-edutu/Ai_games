@@ -3147,8 +3147,104 @@ function getDynamicGpuRingAudit(){
   preservesWorldGeometry:true,authoritativeStateChanged:false,
   measurement:'buffer capacity and upload counts only; no FPS claim'};
 }
+// W140 Phase 1: preserve the original material/geometry byte stream while
+// reusing *hardware-only* WebGL1 vertex attribute bindings across the real
+// farm, town, homes, workers, civic quarter and retained worksite buffers.
+// Every draw still submits its original vertices. SwiftShader and unsupported
+// devices use the exact previous pointer setup for comparable evidence.
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
-function bindGeometry(target){gl.bindBuffer(gl.ARRAY_BUFFER,target);for(const {loc,size,offset} of attributes){if(loc<0)continue;gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset)}}
+const GEOMETRY_VAO_MAX_BUFFERS=24;
+const geometryVaoExt=gpuAvailable&&!swiftGpu&&typeof gl.getExtension==='function'?
+ gl.getExtension('OES_vertex_array_object'):null;
+const geometryVaoBuffers=new Map();
+let geometryVaoOverride=null,geometryVaoHits=0,geometryVaoBuilds=0,
+ geometryVaoEvictions=0,geometryVaoRetirements=0,geometryVaoFallbacks=0;
+function geometryVaoEnabled(){return Boolean(geometryVaoExt&&geometryVaoOverride!==false);}
+function dropGeometryVao(target){
+ if(!geometryVaoExt||!geometryVaoBuffers.has(target))return;
+ const vao=geometryVaoBuffers.get(target);
+ geometryVaoBuffers.delete(target);
+ geometryVaoExt.bindVertexArrayOES(null);
+ geometryVaoExt.deleteVertexArrayOES(vao);
+ geometryVaoRetirements++;
+}
+function releaseGeometryBuffer(target){
+ if(!target)return;
+ dropGeometryVao(target);
+ gl.deleteBuffer(target);
+}
+function bindGeometry(target){
+ if(geometryVaoEnabled()&&target){
+  let vao=geometryVaoBuffers.get(target);
+  if(vao){
+   // VAOs preserve the attribute pointers, NOT the WebGL ARRAY_BUFFER binding
+   // used for subsequent actual original-geometry bufferSubData uploads.
+   geometryVaoExt.bindVertexArrayOES(vao);
+   gl.bindBuffer(gl.ARRAY_BUFFER,target);
+   geometryVaoBuffers.delete(target);geometryVaoBuffers.set(target,vao);
+   geometryVaoHits++;return;
+  }
+  vao=geometryVaoExt.createVertexArrayOES();
+  if(vao){
+   geometryVaoExt.bindVertexArrayOES(vao);
+   gl.bindBuffer(gl.ARRAY_BUFFER,target);
+   for(const {loc,size,offset} of attributes){
+    if(loc<0)continue;
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset);
+   }
+   geometryVaoBuffers.set(target,vao);geometryVaoBuilds++;
+   while(geometryVaoBuffers.size>GEOMETRY_VAO_MAX_BUFFERS){
+    const oldest=geometryVaoBuffers.keys().next().value;
+    const retired=geometryVaoBuffers.get(oldest);
+    geometryVaoBuffers.delete(oldest);
+    geometryVaoExt.deleteVertexArrayOES(retired);
+    geometryVaoEvictions++;
+   }
+   return;
+  }
+  geometryVaoFallbacks++;
+ }
+ // The old WebGL1 pointer path remains exact, including Canvas2D shims.
+ // Always leave any previous VAO before changing global attribute state.
+ if(geometryVaoExt)geometryVaoExt.bindVertexArrayOES(null);
+ gl.bindBuffer(gl.ARRAY_BUFFER,target);
+ for(const {loc,size,offset} of attributes){
+  if(loc<0)continue;
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,size,gl.FLOAT,false,stride,offset);
+ }
+}
+function setGeometryVaoEnabledForTesting(value){
+ if(value!==null&&typeof value!=='boolean')return false;
+ if(value===true&&!geometryVaoExt){
+  lastFrozenFrameKey=null;return false;
+ }
+ if(value===geometryVaoOverride){
+  lastFrozenFrameKey=null;return true;
+ }
+ geometryVaoOverride=value;
+ // Even a paused real camera must genuinely resubmit the original live world
+ // after switching the GPU binding architecture for matched A/B evidence.
+ lastFrozenFrameKey=null;
+ if(geometryVaoExt){
+  geometryVaoExt.bindVertexArrayOES(null);
+  for(const vao of geometryVaoBuffers.values())
+   geometryVaoExt.deleteVertexArrayOES(vao);
+  geometryVaoBuffers.clear();
+ }
+ return true;
+}
+function getGeometryVaoAudit(){
+ return {source:'original-gpu-stream-hardware-vao-residency',
+  supported:Boolean(geometryVaoExt),enabled:geometryVaoEnabled(),
+  softwareRenderer:swiftGpu,maxBuffers:GEOMETRY_VAO_MAX_BUFFERS,
+  residentBindings:geometryVaoBuffers.size,hits:geometryVaoHits,
+  builds:geometryVaoBuilds,evictions:geometryVaoEvictions,
+  retirements:geometryVaoRetirements,fallbacks:geometryVaoFallbacks,
+  exactOriginalVertexStreams:true,noDrawOrEntityRemoved:true,
+  authorityChanged:false,hardwareFps:'NOT MEASURED'};
+}
 bindGeometry(buffer);
 
 // G128: resident original material atlas for ALL actual medieval construction.
@@ -4050,6 +4146,9 @@ function skyColorProfile(time){
 }
 function drawAtmosphere(a){
  if(!gpuAvailable)return;
+ // The sky has a different shader and 2-float vertex layout. Never modify
+ // a cached world-geometry VAO while setting up its full-screen triangle.
+ if(geometryVaoExt)geometryVaoExt.bindVertexArrayOES(null);
  gl.useProgram(skyAtmosphereProgram);
  gl.disable(gl.DEPTH_TEST);gl.depthMask(false);
  gl.bindBuffer(gl.ARRAY_BUFFER,skyAtmosphereBuffer);
@@ -4099,7 +4198,7 @@ let civicBuffer=null,civicChunkRanges=[],civicGpuUploads=0,civicGpuDisposals=0;
 function activeCivicMesh(){return civicGpuResidencyEnabled?(civicSceneryCache.get(civicActiveKey)?.vertices||[]):[]}
 function clearCivicSceneryCache(){
  for(const item of civicSceneryCache.values())if(item.buffer&&gpuAvailable){
-  gl.deleteBuffer(item.buffer);civicGpuDisposals++;
+  releaseGeometryBuffer(item.buffer);civicGpuDisposals++;
  }
  civicSceneryCache.clear();civicBuffer=null;civicChunkRanges=[];civicActiveKey='';
 }
@@ -4142,7 +4241,7 @@ function rememberCivicScenery(key,vertices,stats){
   civicGpuUploads++;ranges=packed.ranges;
  }
  const previous=civicSceneryCache.get(key);
- if(previous?.buffer&&previous.buffer!==buffer){gl.deleteBuffer(previous.buffer);civicGpuDisposals++}
+ if(previous?.buffer&&previous.buffer!==buffer){releaseGeometryBuffer(previous.buffer);civicGpuDisposals++}
  civicSceneryCache.delete(key);
  civicSceneryCache.set(key,{vertices:retained,stats,buffer,ranges});
  civicBuffer=buffer;civicChunkRanges=ranges;
@@ -4151,7 +4250,7 @@ function rememberCivicScenery(key,vertices,stats){
   const oldest=civicSceneryCache.keys().next().value;
   const item=civicSceneryCache.get(oldest);
   civicSceneryCache.delete(oldest);
-  if(item.buffer){gl.deleteBuffer(item.buffer);civicGpuDisposals++}
+  if(item.buffer){releaseGeometryBuffer(item.buffer);civicGpuDisposals++}
   civicCacheEvictions++;
  }
  return civicSceneryCache.has(key);
@@ -4208,7 +4307,7 @@ function getSettlementResidentStats(){
 function clearSettlementSeasonCache(){
  for(const entry of settlementSeasonCache.values()){
   if(entry.buffer&&gpuAvailable){
-   gl.deleteBuffer(entry.buffer);settlementSeasonBufferDisposals++;
+   releaseGeometryBuffer(entry.buffer);settlementSeasonBufferDisposals++;
   }
  }
  settlementSeasonCache.clear();settlementSeasonFloats=0;
@@ -4254,13 +4353,13 @@ function uploadGrowingSettlement(packed,key){
   const capacity=prior.capacityFloats||prior.mesh.length;
   if(!reusable||capacity>reusable.capacity){
    if(reusable){
-    gl.deleteBuffer(reusable.buffer);
+    releaseGeometryBuffer(reusable.buffer);
     settlementSeasonBufferDisposals++;
     settlementSeasonStaleDisposals++;
    }
    reusable={buffer:prior.buffer,capacity};
   }else{
-   gl.deleteBuffer(prior.buffer);
+   releaseGeometryBuffer(prior.buffer);
    settlementSeasonBufferDisposals++;
    settlementSeasonStaleDisposals++;
   }
@@ -4289,7 +4388,7 @@ function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.lengt
  const prior=settlementSeasonCache.get(key);
  if(prior){
   settlementSeasonCache.delete(key);settlementSeasonFloats-=prior.mesh.length;
-  if(prior.buffer!==buffer){gl.deleteBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
+  if(prior.buffer!==buffer){releaseGeometryBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
  }
  const entry={mesh,ranges,buffer,capacityFloats,
   homeKeys:homeClusterActive.map(entry=>entry.key),
@@ -4311,7 +4410,7 @@ function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.lengt
   const evicted=settlementSeasonCache.get(oldest);
   settlementSeasonCache.delete(oldest);
   settlementSeasonFloats-=evicted.mesh.length;
-  gl.deleteBuffer(evicted.buffer);
+  releaseGeometryBuffer(evicted.buffer);
   settlementSeasonBufferDisposals++;settlementSeasonEvictions++;
  }
 }
@@ -4329,7 +4428,7 @@ let landscapeSeasonCachedFloats=0,landscapeSeasonHits=0,landscapeSeasonEvictions
 let landscapeSeasonBufferCreations=0,landscapeSeasonBufferDisposals=0;
 function clearLandscapeSeasonCache(){
  for(const entry of landscapeSeasonCache.values())if(entry.buffer&&gpuAvailable){
-  gl.deleteBuffer(entry.buffer);landscapeSeasonBufferDisposals++;
+  releaseGeometryBuffer(entry.buffer);landscapeSeasonBufferDisposals++;
  }
  landscapeSeasonCache.clear();landscapeSeasonCachedFloats=0;
  landscapeBuffer=null;
@@ -4365,7 +4464,7 @@ function retainLandscapeSeason(key,mesh,buffer,ranges){
   const item=landscapeSeasonCache.get(oldest);
   landscapeSeasonCache.delete(oldest);
   landscapeSeasonCachedFloats-=item.mesh.length;
-  if(item.buffer){gl.deleteBuffer(item.buffer);landscapeSeasonBufferDisposals++;}
+  if(item.buffer){releaseGeometryBuffer(item.buffer);landscapeSeasonBufferDisposals++;}
   landscapeSeasonEvictions++;
  }
 }
@@ -5031,7 +5130,7 @@ let solarShadowGpuDisposals=0,solarShadowDynamicStaticCopies=0;
 let solarShadowGpuCreations=0,solarShadowGpuHandleReuses=0;
 function clearStaticShadowCache(){
  if(gpuAvailable)for(const entry of solarShadowCache.values())
-  if(entry.buffer){gl.deleteBuffer(entry.buffer);solarShadowGpuDisposals++;}
+  if(entry.buffer){releaseGeometryBuffer(entry.buffer);solarShadowGpuDisposals++;}
  solarShadowCache.clear();solarShadowCachedFloats=0;
  solarShadowActive=null;solarShadowPrior=null;solarShadowTransition=0;
  solarShadowInvalidations++;
@@ -5115,7 +5214,7 @@ function directionalCastShadows(time){
      solarShadowEvictions++;
      if(obsolete.buffer&&gpuAvailable){
       if(!recycled)recycled=obsolete;
-      else{gl.deleteBuffer(obsolete.buffer);solarShadowGpuDisposals++;}
+      else{releaseGeometryBuffer(obsolete.buffer);solarShadowGpuDisposals++;}
      }
     }
     const vertices=new Float32Array(data.slice(first));
@@ -5458,7 +5557,7 @@ function homeClusterFloats(){
 }
 function clearHomeClusterCache(){
  if(gpuAvailable)for(const entry of homeClusterCache.values()){
-  gl.deleteBuffer(entry.buffer);homeClusterDisposals++;
+  releaseGeometryBuffer(entry.buffer);homeClusterDisposals++;
  }
  homeClusterCache.clear();homeClusterCachedFloats=0;
  homeClusterReservedFloats=0;homeClusterActive=[];
@@ -5600,7 +5699,7 @@ function buildHomeClusters(fullHomes,climateKey){
   homeClusterCache.delete(key);
   homeClusterCachedFloats-=entry.mesh.length;
   homeClusterReservedFloats-=(entry.capacityFloats||entry.mesh.length);
-  gl.deleteBuffer(entry.buffer);homeClusterDisposals++;homeClusterEvictions++;
+  releaseGeometryBuffer(entry.buffer);homeClusterDisposals++;homeClusterEvictions++;
  }
  if(homeClusterCachedFloats>HOME_CLUSTER_FLOAT_BUDGET||
     homeClusterReservedFloats>HOME_CLUSTER_FLOAT_BUDGET)
@@ -10603,7 +10702,7 @@ function economyResidencyRequested(){
 }
 function disposeEconomyResidentMesh(){
  if(economyResidentBuffer&&gpuAvailable){
-  gl.deleteBuffer(economyResidentBuffer);economyResidentDisposals++;
+  releaseGeometryBuffer(economyResidentBuffer);economyResidentDisposals++;
  }
  economyResidentBuffer=null;economyResidentMesh=null;economyResidentKey='';
  economyResidentCapacity=0;economyResidentActive=false;
@@ -10837,7 +10936,7 @@ function farmFieldLodChoice(distance,previous='far'){
 }
 function disposeResidentFarmFields(){
  if(gpuAvailable)for(const entry of [farmFieldNear,farmFieldFar]){
-  if(entry?.buffer){gl.deleteBuffer(entry.buffer);farmFieldDisposals++}
+  if(entry?.buffer){releaseGeometryBuffer(entry.buffer);farmFieldDisposals++}
  }
  farmFieldNear=null;farmFieldFar=null;farmFieldResidentSeason=-1;
  farmFieldLastTriangles=0;farmFieldLastDistance=null;
@@ -10912,7 +11011,7 @@ function prepareResidentFarmFields(season){
   farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
   farmFieldLod='far';return true;
  }catch(error){
-  for(const buffer of created){gl.deleteBuffer(buffer);farmFieldDisposals++}
+  for(const buffer of created){releaseGeometryBuffer(buffer);farmFieldDisposals++}
   Object.assign(farmScene,before);
   farmFieldNear=null;farmFieldFar=null;farmFieldResidentDisabled=true;
   farmFieldFailures++;
@@ -11329,7 +11428,7 @@ function livingVillagePlan(){
 }
 function disposeLivingVillageMotion(){
  if(livingVillageBuffer&&gpuAvailable){
-  gl.deleteBuffer(livingVillageBuffer);livingVillageDisposals++;
+  releaseGeometryBuffer(livingVillageBuffer);livingVillageDisposals++;
  }
  livingVillageBuffer=null;livingVillageMesh=null;
  livingVillageKey='';livingVillageActive=false;
@@ -12479,7 +12578,7 @@ function nightHomesResidencyRequested(){
  return Boolean(gpuAvailable&&(nightHomesOverride===null?!swiftGpu:nightHomesOverride));
 }
 function disposeNightHomesResidentMesh(){
- if(nightHomesBuffer&&gpuAvailable){gl.deleteBuffer(nightHomesBuffer);nightHomesDisposals++}
+ if(nightHomesBuffer&&gpuAvailable){releaseGeometryBuffer(nightHomesBuffer);nightHomesDisposals++}
  nightHomesBuffer=null;nightHomesMesh=null;nightHomesKey='';
  nightHomesCapacity=0;nightHomesActive=false;
 }
@@ -12735,7 +12834,7 @@ function cottageDoorResidencyRequested(){
 }
 function disposeCottageDoorResidentMesh(){
  if(cottageDoorResidentBuffer&&gpuAvailable){
-  gl.deleteBuffer(cottageDoorResidentBuffer);cottageDoorResidentDisposals++;
+  releaseGeometryBuffer(cottageDoorResidentBuffer);cottageDoorResidentDisposals++;
  }
  cottageDoorResidentBuffer=null;cottageDoorResidentMesh=null;
  cottageDoorResidentKey='';cottageDoorResidentCapacity=0;
@@ -12883,7 +12982,7 @@ function recordedWorkResidencyRequested(){
  return Boolean(gpuAvailable&&(recordedWorkOverride===null?!swiftGpu:recordedWorkOverride));
 }
 function disposeRecordedWorkResidentMesh(){
- if(recordedWorkBuffer&&gpuAvailable){gl.deleteBuffer(recordedWorkBuffer);recordedWorkDisposals++}
+ if(recordedWorkBuffer&&gpuAvailable){releaseGeometryBuffer(recordedWorkBuffer);recordedWorkDisposals++}
  recordedWorkBuffer=null;recordedWorkMesh=null;recordedWorkKey='';
  recordedWorkCapacity=0;recordedWorkActive=false;
 }
@@ -12966,7 +13065,7 @@ function worksiteFixtureResidencyRequested(){
 }
 function disposeWorksiteFixtureMesh(){
  if(worksiteFixtureBuffer&&gpuAvailable){
-  gl.deleteBuffer(worksiteFixtureBuffer);worksiteFixtureDisposals++;
+  releaseGeometryBuffer(worksiteFixtureBuffer);worksiteFixtureDisposals++;
  }
  worksiteFixtureBuffer=null;worksiteFixtureMesh=null;worksiteFixtureKey='';
  worksiteFixtureCapacity=0;worksiteFixtureActive=false;
@@ -13514,7 +13613,7 @@ function courierTrailResidencyRequested(){
 }
 function disposeCourierTrailResidentMesh(){
  if(courierTrailResidentBuffer&&gpuAvailable){
-  gl.deleteBuffer(courierTrailResidentBuffer);courierTrailResidentDisposals++;
+  releaseGeometryBuffer(courierTrailResidentBuffer);courierTrailResidentDisposals++;
  }
  courierTrailResidentBuffer=null;courierTrailResidentMesh=null;
  courierTrailResidentKey='';courierTrailResidentCapacity=0;
@@ -19700,7 +19799,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getGeometryVaoAudit,setGeometryVaoEnabledForTesting,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
