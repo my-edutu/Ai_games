@@ -395,6 +395,12 @@ export function createExplorer(options = {}) {
     // Standalone actor callers lacking the optional stage retain old behavior.
     const pressureStage=Number.isFinite(options.pressureProgress)
       ? Math.max(0,Math.min(1,options.pressureProgress)) : 1;
+    // Relay warning turns the full connected upper body before the shutters move.
+    // Bracing plants the feet only on the witnessed opening, and the piston
+    // gives the lantern arm a second readable release beat. All three use the
+    // SAME published stage clock; no new ability, root translation or meshes.
+    const pressureWarning=pressureReaction*(s.reduced?1
+      : Math.max(0,Math.min(1,pressureStage/.20)));
     const pressureBrace=pressureReaction*(s.reduced?1
       : Math.max(0,Math.min(1,(pressureStage-.20)/.50)));
     const pressureClimax=pressureReaction*(s.reduced?.4
@@ -444,28 +450,28 @@ export function createExplorer(options = {}) {
     // no run movement, new gameplay ability or undisclosed target is invented.
     // The entire gesture clears as soon as public attention is withdrawn.
     body.position.x=-.025*rest;
-    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08-pressureBrace*.09;
-    body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055-pressureBrace*.055;
-    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.15,
+    body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08-pressureBrace*.12-pressureClimax*.035;
+    body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055-pressureBrace*.08-pressureClimax*.045;
+    body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.21-pressureClimax*.07,
       lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
-      .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureBrace*.16,
+      .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14-Math.sign(pressureYaw)*pressureWarning*.08);
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
-      s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10);
+      s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10-Math.sign(pressureYaw)*pressureClimax*.08);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
       // Two planted, widened knees sell a real physical startle without
       // moving the authoritative public cell or suggesting retreat movement.
       legs[i].hip.rotation.x=step*sign*.62-alert*.22-pressureBrace*.18;
-      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14;
-      legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14+pressureBrace*.30;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14)-pressureBrace*(i===1?.90:.24);
+      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14+sign*pressureBrace*.20;
+      legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14+pressureBrace*.46+pressureClimax*.08;
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14)-pressureWarning*(i===1?.40:.06)-pressureBrace*(i===1?1.03:.46)-pressureClimax*(i===1?.30:.18);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.
       arms[i].shoulder.rotation.y=i===0?keyYaw*1.1:0;
-      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+(i===0?defensiveFlinch*1.24:0)+gateCelebrate*(i===1?.36:-.21)+gatePerformance*(i===1?.28:-.35)-(i===0?pickupCelebrate*.56:0)+fossilFocus*(i===1?.22:-.10)+pressureBrace*(i===1?.50:-.12);
-      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-(i===0?defensiveFlinch*.42:0)-gateCelebrate*(i===1?.3:.12)-gatePerformance*.26-pickupCelebrate*(i===1?.23:.18)-fossilFocus*(i===1?.19:0);
+      arms[i].shoulder.rotation.z=(i===0?-1:1)*(s.win?.95:i===1?.34:.15)+(i===0?keyYaw*.25:0)+(i===0?-1:1)*alert*.65+(i===0?defensiveFlinch*1.24:0)+gateCelebrate*(i===1?.36:-.21)+gatePerformance*(i===1?.28:-.35)-(i===0?pickupCelebrate*.56:0)+fossilFocus*(i===1?.22:-.10)+pressureWarning*(i===1?.15:-.06)+pressureBrace*(i===1?.70:-.21);
+      arms[i].elbow.rotation.x=-.16-(i===1?.22:0)-(s.danger*.3)-(i===0?keyReach*.7:0)-alert*(i===1?.38:.24)-(i===0?defensiveFlinch*.42:0)-gateCelebrate*(i===1?.3:.12)-gatePerformance*.26-pickupCelebrate*(i===1?.23:.18)-fossilFocus*(i===1?.19:0)-pressureClimax*(i===1?.36:.16);
       // Counter-turn the connected wrist as the shoulder aims at the known lock.
       // Keep the actual glove/key face visible rather than twisting its bow
       // behind the sealed gate's foreground masonry. No hidden-state input.
@@ -507,7 +513,7 @@ export function createExplorer(options = {}) {
     if (s.win) body.position.y += amount*Math.max(0,Math.sin(s.time*5))*.075;
     // Scarf reacts to the same public startle, including a static pose when
     // reduced motion is requested; return to neutral without lingering cues.
-    tail.rotation.x=-stride*.28+step*.1-alert*.27-guardianAnswer*.18+gateCelebrate*.22+gatePerformance*.21+pickupCelebrate*.24+fossilFocus*.10+pressureBrace*.13;
+    tail.rotation.x=-stride*.28+step*.1-alert*.27-guardianAnswer*.18+gateCelebrate*.22+gatePerformance*.21+pickupCelebrate*.24+fossilFocus*.10+pressureWarning*.08+pressureBrace*.13+pressureClimax*.14;
     tail.rotation.z=alert*.22-gateYaw*.16+gatePerformance*.13;
     // Keep the hanging cage upright beneath the outward arm; let it trail the stride.
     lantern.rotation.z=-arms[1].shoulder.rotation.z-step*.17;
@@ -516,8 +522,8 @@ export function createExplorer(options = {}) {
     // One existing physical lantern and emissive crystal now perform the
     // opening beat. No extra dynamic light, material, geometry, shader,
     // timer or unauthorized key/exit data is introduced.
-    lamp.scale.setScalar(1+gatePerformance*.17+fossilFocus*.10+guardianAnswer*.12+pressureClimax*.10);
-    glow.emissiveIntensity=s.lose?.45:1.45+gatePerformance*.95+fossilFocus*.4+guardianAnswer*.55+pressureClimax*.60;
+    lamp.scale.setScalar(1+gatePerformance*.17+fossilFocus*.10+guardianAnswer*.12+pressureClimax*.19);
+    glow.emissiveIntensity=s.lose?.45:1.45+gatePerformance*.95+fossilFocus*.4+guardianAnswer*.55+pressureClimax*1.05;
   }};
 }
 
