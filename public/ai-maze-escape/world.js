@@ -2305,9 +2305,13 @@ export function createMazeWorld(options = {}) {
       // Recompute every frame; retreat, terminal and hidden states clear it.
       const reducedContact = reduced && nearContact;
       signal.reducedContact = reducedContact;
-      const earlyRelay = Math.min(1, stagedPressure / .17);
-      const shutterBeat = Math.min(1, Math.max(0, (stagedPressure - .34) / .36));
-      const pistonRelay = Math.min(1, Math.max(0, (stagedPressure - .76) / .24));
+      // Reduced motion is TWO static contact states, never a partly animated
+      // diagonal/far warning. Suppress the continuous visual clock entirely
+      // until contact; the still near-contact pose is handled below.
+      const activeProgress = reduced ? 0 : stagedPressure;
+      const earlyRelay = Math.min(1, activeProgress / .17);
+      const shutterBeat = Math.min(1, Math.max(0, (activeProgress - .34) / .36));
+      const pistonRelay = Math.min(1, Math.max(0, (activeProgress - .76) / .24));
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
         relay.object.position.y = .28 + (reducedContact ? .04 : .15 * pistonRelay);
@@ -2339,7 +2343,9 @@ export function createMazeWorld(options = {}) {
       const signal = trapSignals.find(item => item.cell === jaw.cell);
       const visible = !snapshot?.result && Array.isArray(snapshot?.visibleCells)
         && snapshot.visibleCells.includes(jaw.cell);
-      const phase = visible && signal ? signal.publicProgress ?? 0 : 0;
+      // In reduced motion a distant diagonal warning must not animate the
+      // jaws while every other connected joint remains in its static rest.
+      const phase = !reduced && visible && signal ? signal.publicProgress ?? 0 : 0;
       const relayBeat = Math.min(1, Math.max(0, phase / .17));
       const shutterBeat = Math.min(1, Math.max(0, (phase - .34) / .36));
       const angle = signal?.reducedContact ? .24
