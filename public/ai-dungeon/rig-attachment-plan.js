@@ -206,13 +206,31 @@ const clampWeight=n=>Number.isFinite(n)?Math.max(0,Math.min(1,n)):0;
  * otherwise stationary dungeon actor march in place. Teleports and corrupt
  * numerical inputs reset rather than generating unbounded joint rotation.
  */
-export function advanceRigGait(phase=0,weight=0,travelMeters=0,reducedMotion=false){
+export function advanceRigGait(phase=0,weight=0,travelMeters=0,reducedMotion=false,frameDelta=null){
  if(reducedMotion||!Number.isFinite(travelMeters)||travelMeters<0||travelMeters>.32)
   return {phase:0,weight:0};
  const p=Number.isFinite(phase)?((phase%TAU)+TAU)%TAU:0;
  const w=clampWeight(weight);
- if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-.18)};
+ // A legal move can finish while the imported walk/idle clips crossfade.
+ // Keep the latest genuine planted foot for a short, time-based deceleration;
+ // a strike, teleport, death or accessibility hard stop still clears instantly.
+ // Without frameDelta preserve the original contract for existing callers.
+ const decay=Number.isFinite(frameDelta)?Math.min(.35,Math.max(0,frameDelta))/.16:.18;
+ if(travelMeters<=.0015)return {phase:p,weight:Math.max(0,w-decay)};
  return {phase:(p+Math.min(travelMeters,.24)*TAU/1.05)%TAU,weight:Math.min(1,w+.58)};
+}
+
+/**
+ * Drive native ankle/hip/shoulder gait from the EXACT visual footfall cycle
+ * already used by footsteps and ground marks. The old additive gait could
+ * drift from the stamp parity when combat interrupted and movement resumed.
+ * Retain a planted phase while decelerating; never invent a traversal tick.
+ */
+export function alignRigFootfallPhase(previous=0,footPhase=0,moving=false,teleport=false){
+ if(teleport)return 0;
+ const p=Number.isFinite(previous)?((previous%TAU)+TAU)%TAU:0;
+ if(!moving||!Number.isFinite(footPhase)||footPhase<0||footPhase>1)return p;
+ return (footPhase*TAU)%TAU;
 }
 /** Full-body travel transfers genuine stride phase through hips, spine and
  * opposing shoulders while both feet share the same real displacement.
