@@ -71,7 +71,9 @@ test('dormant public Thornback releases its WebGL registrations but preserves CP
     const baseline = rigPrimitiveResourceStats();
     const pip = createExplorer({balanced}), warden = createWarden({balanced});
     const pipGeometry = new Set(), wardenGeometry = new Set();
-    pip.group.traverse(object => {if (object.geometry) pipGeometry.add(object.geometry);});
+    // Only actually visible Pip meshes hold live renderer registrations.
+    // Hidden/rigid-batched CPU primitives must not protect dormant Warden GPU.
+    pip.group.traverseVisible(object => {if (object.geometry) pipGeometry.add(object.geometry);});
     warden.group.traverse(object => {if (object.geometry) wardenGeometry.add(object.geometry);});
     const privateShapes = [...wardenGeometry].filter(g => !pipGeometry.has(g));
     const sharedShapes = [...wardenGeometry].filter(g => pipGeometry.has(g));
