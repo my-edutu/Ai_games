@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
 
 /**
  * Four distinct original stone architectures composed along the real legal
@@ -129,9 +130,9 @@ function metalwork(style){
 export function createVaultedWallGallery(world,sites,wallIndices,floor){
  const count=Math.min(MAX_BAYS,Array.isArray(sites)?sites.length:0),theme=THEMES[((floor-1)%4+4)%4];
  const materials=[
-  new THREE.MeshStandardMaterial({color:theme.stone,roughness:.92,metalness:.07,side:THREE.DoubleSide,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:theme.stone,...((({roughness,metalness})=>({roughness,metalness}))(getEnvironmentMaterialRole('masonry'))),side:THREE.DoubleSide,flatShading:true}),
   new THREE.MeshStandardMaterial({color:theme.shadow,roughness:1,metalness:0,side:THREE.DoubleSide}),
-  new THREE.MeshStandardMaterial({color:theme.metal,roughness:.51,metalness:.40,side:THREE.DoubleSide,flatShading:true})
+  new THREE.MeshStandardMaterial({color:theme.metal,...((({roughness,metalness})=>({roughness,metalness}))(getEnvironmentMaterialRole('agedMetal'))),side:THREE.DoubleSide,flatShading:true})
  ];
  const groups=[],geometries=[],allMeshes=[];
  for(let style=0;style<4;style++){
