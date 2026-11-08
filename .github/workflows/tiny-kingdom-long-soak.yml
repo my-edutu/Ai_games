@@ -18,6 +18,8 @@ on:
       - 'scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
+      - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w128-detailed-workskin.spec.cjs'
       - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
       - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
       - '.github/workflows/tiny-kingdom-long-soak.yml'
@@ -72,6 +74,8 @@ jobs:
         run: node scripts/tiny-kingdom-w125-runtime-budget-contract.cjs
       - name: W125 authentic worker GPU joint skeleton and exact bound tool/boot endpoints
         run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - name: W128 real full-detail worker joint map and GPU resident buffer contract
+        run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium
