@@ -102,6 +102,28 @@ export function observedLayeredSceneryOpacity(composite, layers) {
   return 1 - Math.pow(1 - composite, 1 / layers);
 }
 
+// Four genuine decorative clock/rack assemblies may stack over the SAME
+// skinned silhouette. A separate opacity allowance for every assembly
+// recreates an opaque curtain even when each wheel individually fades.
+export function observedScreenEnvelopeOverlap(a,b) {
+  if (![a?.minX,a?.maxX,a?.minY,a?.maxY,
+    b?.minX,b?.maxX,b?.minY,b?.maxY].every(Number.isFinite)) return false;
+  if (a.minX>a.maxX || a.minY>a.maxY ||
+      b.minX>b.maxX || b.minY>b.maxY) return false;
+  const width=Math.min(1,a.maxX,b.maxX)-Math.max(-1,a.minX,b.minX);
+  const height=Math.min(1,a.maxY,b.maxY)-Math.max(-1,a.minY,b.minY);
+  return width>=.16 && height>=.18;
+}
+
+export function observedStackedDecorativeOpacity(composite, ownLayers, companions=0) {
+  if (!Number.isFinite(composite) || composite<0 || composite>1 ||
+      !Number.isSafeInteger(ownLayers) || ownLayers<1 || ownLayers>8 ||
+      !Number.isSafeInteger(companions) || companions<0 || companions>3) return 1;
+  // One budget for all ACTUALLY overlapping non-gameplay metal surfaces.
+  // There are no new actors, hazard cues, camera cuts or physics changes.
+  return 1-Math.pow(1-composite,1/(ownLayers*(companions+1)));
+}
+
 // A physical clock face can cover the same narrow PHONE corridor as the
 // guardian even after its rotating gear teeth fade. Its rigid dial, posts and
 // backing are decorative only: they have no authored collider or gameplay
@@ -1667,6 +1689,7 @@ export function createTowerWorld(){
       Number.isFinite(camera.position?.x)&&Number.isFinite(camera.position?.y)&&
       Number.isFinite(camera.position?.z);
     let softened=0, screenSoftened=0, corridorSoftened=0, clockFacesSoftened=0;
+    const pendingDecorativeOpacity=[];
     const targets=enabled?[actor,guardian,landing]:[];
     let corridorCount=0, actorDepth=0;
     if(enabled){
@@ -1688,7 +1711,7 @@ export function createTowerWorld(){
     for(const entry of decorativeSightlines){
       let requiredOpacity=1, softByProjection=false, softByCorridor=false;
       let projectedScreenCoverage=0, sceneFrontDepth=null, rayContactCount=0,
-        projectedNearPlane=false, projectedActorFront=false;
+        projectedNearPlane=false, projectedActorFront=false, screenBounds=null;
       if(enabled){
         // Sibling clock backings share the gear's sightline, but not its
         // scene subtree. Refresh their matrices before authentic ray queries.
@@ -1736,6 +1759,7 @@ export function createTowerWorld(){
           if(nearClipped){left=Math.min(left,-1);right=Math.max(right,1);
             bottom=Math.min(bottom,-1);top=Math.max(top,1);}
           projectedNearPlane=nearClipped;
+          screenBounds={minX:left,maxX:right,minY:bottom,maxY:top};
           projectedScreenCoverage=Math.max(0,Math.min(1,right)-Math.max(-1,left))*
             Math.max(0,Math.min(1,top)-Math.max(-1,bottom))*.25;
           sceneFrontDepth=decoratedBounds.distanceToPoint(camera.position);
@@ -1813,12 +1837,36 @@ export function createTowerWorld(){
           }
         }
       }
-      // Multiple transparent dial surfaces composite back to opacity. Limit
-      // their total contribution instead of fading only one gear mesh while
-      // the merged clock-case still hides the climber. This only affects
-      // decor whose CURRENT source actor/corridor was proven obstructed.
-      if(requiredOpacity<1)requiredOpacity=observedLayeredSceneryOpacity(
-        requiredOpacity,Math.min(8,2+entry.sceneryMeshes.length));
+      // Keep the decision until ALL current foreground assemblies have been
+      // projected. Old one-by-one alpha could never bound multi-wheel stacking.
+      pendingDecorativeOpacity.push({
+        entry,rawOpacity:requiredOpacity,screenBounds,projectedActorFront,
+        softByProjection,softByCorridor,projectedScreenCoverage,
+        sceneFrontDepth,projectedNearPlane,rayContactCount,actorDepth,
+      });
+    }
+    // One camera-frame composite budget across source-independent decorative
+    // wheels and rack. At most 4 decisions / 12 other-pair comparisons.
+    // Real player, guardian, collidable decks, pressure traps and exit unchanged.
+    for(const decision of pendingDecorativeOpacity){
+      const {entry,screenBounds,projectedActorFront,softByProjection,
+        softByCorridor,projectedScreenCoverage,sceneFrontDepth,
+        projectedNearPlane,rayContactCount,actorDepth}=decision;
+      let companions=0;
+      if(decision.rawOpacity<1 && screenBounds &&
+          (projectedActorFront || rayContactCount>0)){
+        for(const other of pendingDecorativeOpacity){
+          if(other===decision || other.rawOpacity>=1 ||
+             !other.screenBounds ||
+             !(other.projectedActorFront || other.rayContactCount>0))continue;
+          if(observedScreenEnvelopeOverlap(screenBounds,other.screenBounds))
+            companions++;
+        }
+      }
+      const requiredOpacity=decision.rawOpacity<1
+        ? observedStackedDecorativeOpacity(decision.rawOpacity,
+            Math.min(8,2+entry.sceneryMeshes.length),Math.min(3,companions))
+        : 1;
       const strength=options.reducedMotion||!enabled?1:
         Math.max(0,Math.min(1,(Number.isFinite(dt)?dt:0)*10));
       entry.alloy.opacity+=(requiredOpacity-entry.alloy.opacity)*strength;
@@ -1830,7 +1878,6 @@ export function createTowerWorld(){
       entry.trim.depthWrite=solid;
       const protectedClockFace=syncClockFaceSightline(entry);
       if(enabled){
-        // Source ticks identify the observed episode; native video PTS remains uncalibrated.
         decorativeOcclusionEvidence.push({
           name:entry.sceneryParent?.name||entry.root.parent?.name||entry.root.name,
           kind:foregroundRacks.includes(entry)?'decorative-rack':'decorative-clock',
@@ -1843,6 +1890,8 @@ export function createTowerWorld(){
           rayContactCount,
           cameraProjectionSoftened:softByProjection,
           actionCorridorSoftened:softByCorridor,
+          stackedForegroundCompanions:companions,
+          rawAssemblyAlpha:Number(decision.rawOpacity.toFixed(4)),
           intendedAlpha:Number(requiredOpacity.toFixed(4)),
           renderedAlpha:Number(entry.alloy.opacity.toFixed(4)),
           clockCaseMeshes:entry.sceneryMeshes.length,

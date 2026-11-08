@@ -293,3 +293,26 @@ test('recording harness preserves clean gameplay video while saving the separate
   assert.match(capture,/videoClockCalibration:'NOT EVALUATED'/);
   assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
 });
+
+test('overlapping real foreground clock/rack assemblies share a single bounded portrait alpha budget',()=>{
+  const overlap=helper('observedScreenEnvelopeOverlap');
+  const budget=helper('observedStackedDecorativeOpacity');
+  const a={minX:-.6,maxX:.5,minY:-.8,maxY:.6};
+  const b={minX:-.3,maxX:.8,minY:-.4,maxY:.9};
+  const outside={minX:.89,maxX:1.3,minY:-.4,maxY:.2};
+  assert.equal(overlap(a,b),true);
+  assert.equal(overlap(a,outside),false);
+  assert.equal(overlap(a,{minX:Infinity,maxX:1,minY:-1,maxY:1}),false);
+  const solo=budget(.24,4,0),stacked=budget(.24,4,2);
+  assert.ok(stacked<solo,'overlapping assemblies cannot each retain full alpha');
+  assert.ok(Math.abs(1-Math.pow(1-stacked,12)-.24)<1e-10,
+    'three overlapping four-layer scenic assemblies retain one composite budget');
+  assert.equal(solo,helper('observedLayeredSceneryOpacity')(.24,4),
+    'solo clock retains its original appearance');
+  assert.equal(budget(.24,4,4),1,'invalid number of entries never silently softens');
+  assert.match(source,/pendingDecorativeOpacity\.push/);
+  assert.match(source,/observedScreenEnvelopeOverlap\(screenBounds,other\.screenBounds\)/);
+  assert.match(source,/stackedForegroundCompanions:companions/);
+  assert.match(source,/const protectedClockFace=syncClockFaceSightline\(entry\)/);
+  assert.match(source,/entry\.alloy\.opacity\+=\(requiredOpacity-entry\.alloy\.opacity\)\*strength/);
+});
