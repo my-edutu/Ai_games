@@ -1,0 +1,61 @@
+{
+  "contractVersion": "D04-PHYSICAL-FEEDBACK-v2",
+  "sourceGame": "my-edutu/Ai_games / AI Dungeon: Endless Adventure",
+  "baselineRevision": "c51342c0253435325d6a46e4d9f02b337a2ad138",
+  "milestoneBeforeRevision": "281735d0910c6b2443648af976003d50412ee324",
+  "authority": "read-only DungeonRuntime.publicState previous/next snapshots; NEVER writes HP, RNG, ticks, replay or movement",
+  "cueIdentity": "run:floor:tick:kind:actor-or-dash:target-or-dash",
+  "provenanceRules": {
+    "swing": "fresh attack action only; attempting actor can be known, hit and victim are NOT implied",
+    "damage": "victim HP genuinely decreases between consecutive same-scene public states no more than 5 ticks apart; never invent attacker",
+    "verifiedMeleeDelay": "215 ms only when upstream matchIncomingLane can validate one same-tick adjacent melee source; does NOT prove causation",
+    "rangedRelease": "fresh attack with explicit targetId and legal grid/range/axis/wall resolver; no arrival hit effect",
+    "spellRelease": "fresh cast with explicit legal target; exclude same-tick healing/disarm and radial Warden attacks",
+    "blockEvadeInterrupt": "same-tick semantic event; unidentified block/interrupt have sound only, evade dust needs one witnessed single-cell displacement",
+    "wardenWarning": "active live Warden, public bossWarning truth, nonempty cells, attackTick equals currentTick plus remaining count",
+    "wardenRelease": "fresh Warden cast action; no inferred damaged victim or danger cell",
+    "opening": "public Warden opening event; no invented counterattack",
+    "counter": "public counter event AND observed Warden HP drop AND prior exposed recovery window",
+    "defeat": "fresh authoritative terminal event; never treat a disconnected browser as defeat"
+  },
+  "runtime": {
+    "perSnapshotCueLimit": 24,
+    "maxPublicEventsScanned": 96,
+    "maxTickGap": 5,
+    "maxPendingCues": 32,
+    "maxSeenIdentifiers": 192,
+    "maxReceipts": 64,
+    "maxSoundsAwaitingPresentedFrame": 32,
+    "maxRenderedClockSoundStalenessSeconds": 0.4,
+    "requiresExplicitOptInBeforeAnyAudio": true,
+    "persistentPreference": "mute only; restoration never autoplays",
+    "presentedFrameAcknowledgment": "must follow a successful actual WebGL render submission; not proof of pixels encoded or sample arrival"
+  },
+  "visualResources": {
+    "retainedPools": {"trail":8,"hit":48,"block":8,"dust":12,"signal":8,"projectile":10,"spell":8},
+    "maximumRetainedInstances":102,
+    "geometryCount":7,
+    "materialCount":7,
+    "maximumEffectDrawCallsWhenAllVisible":7,
+    "idleEffectDrawCalls":0,
+    "newTextureBytes":0,
+    "fullScreenEffects":0,
+    "dynamicLights":0,
+    "hitFragmentsPerVerifiedInjury":"4 to 6, never on miss or projectile arrival",
+    "reducedMotion":"suppress sword afterimage and moving dodge dust; preserve truth and genuine injury",
+    "reducedFlash":"all visual effect material alpha at most 0.25"
+  },
+  "audioResources": {
+    "source":"new authored procedural WebAudio; no external licensed samples, tracks, or microphone",
+    "maxVoices":8,
+    "maxRetainedNoiseSamples":19200,
+    "maximumRetainedNoiseBufferBytes":76800,
+    "masterGainMax":0.12,
+    "compressor":"optional available-device protection only; integrated and true peaks still require measurement",
+    "roles":"whoosh is noise only; hit includes low thud; steel block includes inharmonic resonators",
+    "materialRole":"optional trusted renderer hint stone, steel, wood, cloth or neutral; never evidence of collision causation",
+    "mute":"stop active voices, clear pending, revoke opt-in, persist muted preference"
+  },
+  "prohibitedChanges": ["games/ai-dungeon/src/**", "camera director", "HUD", "characters and skeletal clips", "global renderer/light/material pipeline", "boss behavior", "gamestate/saves"],
+  "acceptance": "Requires D10 integration, actual same-seed running-game audiovisual capture and measured contact onset; 25 local contracts and original-foley audition do NOT establish 3D transformation or production readiness"
+}

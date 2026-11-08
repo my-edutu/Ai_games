@@ -1,0 +1,183 @@
+import {planPhysicalFeedback} from './physical-feedback-plan.js';
+import {createPhysicalFeedbackVisuals} from './physical-feedback-visuals.js';
+import {createOriginalCombatFoley,createCombatMutePreference} from './original-combat-foley.js';
+/**
+ * D04 handoff orchestrator: one rendered-frame clock drives physical cues and
+ * original sound together. Runs safely without WebAudio or usable WebGL.
+ *
+ * Integration: call acceptSnapshot(s) where the real app accepts public
+ * DungeonRuntime snapshots; call advance(dt) after pose updates; call
+ * enableAudioFromGesture() ONLY inside a real user interaction. D10 must
+ * retire duplicate combat output in the older combatDirector/soundstage before
+ * enabling this replacement. No authoritative damage/ticks ever change.
+ */
+export const MAX_PHYSICAL_PENDING=32;
+export const MAX_PHYSICAL_SEEN_IDS=192;
+export const MAX_PHYSICAL_RECEIPTS=64;
+export const MAX_AUDIO_AWAITING_FRAME=32;
+export const MAX_AUDIO_VISUAL_STALENESS_SECONDS=.40;
+const clamp=(v,min,max)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):min;
+const key=s=>s&&Number.isSafeInteger(s.run)&&Number.isSafeInteger(s.floor)?s.run+':'+s.floor:null;
+export function createPhysicalCombatFeedback({
+ THREE=null,scene=null,ctx=null,actorById=()=>null,
+ storage=null,reducedMotion=false,reducedFlash=false,
+ resolveContact=()=>null,deriveDamageBeats=null,verifiedMeleeDelay=null,
+ visualAdapter=null,audioAdapter=null,requirePresentedFrame=false
+}={}){
+ const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
+  {actorById,reducedMotion,reducedFlash}):null);
+ let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
+ const preference=createCombatMutePreference(storage);
+ let previous=null,sceneId=null,disposed=false,optedIn=false,
+  queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
+  visualAccepted=0,audioAccepted=0,renderedSeconds=0,
+  framesAcknowledged=0,staleAudioDropped=0,lastPresentedFrame=null;
+ const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
+ function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
+ function flush(){
+  pending.length=0;awaitingPresentation.length=0;seen.clear();
+  lastPresentedFrame=null;
+  safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
+ }
+ function retainReceipt(cue,visual,audio=false,frameId=null){
+  const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
+   scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
+   intendedDelayMs:Math.round(cue.delay*1000),visual,audio,frameId});
+  receipts.push(receipt);
+  if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
+ }
+ function emit(cue){
+  if(disposed)return;
+  const visual=!!safeCall(()=>visuals?.emit?.(cue));
+  if(visual)visualAccepted++;
+  // The integrator can require evidence of a real renderer submission before
+  // launching a combat transient. No guessing a frame from a time delay.
+  if(optedIn&&requirePresentedFrame){
+   if(awaitingPresentation.length>=MAX_AUDIO_AWAITING_FRAME){
+    let weakest=0;
+    for(let i=1;i<awaitingPresentation.length;i++)
+     if(awaitingPresentation[i].cue.priority<awaitingPresentation[weakest].cue.priority)weakest=i;
+    if(awaitingPresentation[weakest].cue.priority>=cue.priority){
+     staleAudioDropped++;retainReceipt(cue,visual,false);played++;return;
+    }
+    awaitingPresentation.splice(weakest,1);staleAudioDropped++;
+   }
+   awaitingPresentation.push({cue,visual,at:renderedSeconds,sceneId});
+  }else{
+   const audio=optedIn?!!safeCall(()=>foley?.emit?.(cue)):false;
+   if(audio)audioAccepted++;
+   retainReceipt(cue,visual,audio);
+  }
+  played++;
+ }
+ /**
+  * D10 calls this once AFTER actually submitting the genuine Three.js canvas
+  * to WebGL. The acknowledgement is a real render-submission boundary, not
+  * proof that pixels were displayed, encoded or audible samples delivered.
+  * It must never be called from a timer, synthetic recorder or state poll.
+  */
+ function acknowledgePresentedFrame(frameId){
+  if(disposed||!requirePresentedFrame||!optedIn||
+   !(typeof frameId==='string'&&frameId.length>0&&frameId.length<=128||
+     Number.isSafeInteger(frameId)&&frameId>=0)||
+   frameId===lastPresentedFrame)return 0;
+  lastPresentedFrame=frameId;framesAcknowledged++;
+  let released=0;
+  for(const item of awaitingPresentation.splice(0)){
+   if(item.sceneId!==sceneId||
+    renderedSeconds-item.at>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+    staleAudioDropped++;retainReceipt(item.cue,item.visual,false,frameId);continue;
+   }
+   const audible=!!safeCall(()=>foley?.emit?.(item.cue));
+   if(audible){audioAccepted++;released++}
+   retainReceipt(item.cue,item.visual,audible,frameId);
+  }
+  return released;
+ }
+ function popDue(dt){
+  if(!pending.length)return;
+  for(const item of pending)item.remaining-=dt;
+  const due=pending.filter(x=>x.remaining<=0).sort((a,b)=>
+   b.cue.priority-a.cue.priority||a.cue.tick-b.cue.tick||
+   a.cue.id.localeCompare(b.cue.id,'en'));
+  for(const item of due){
+   const at=pending.indexOf(item);
+   if(at!==-1){pending.splice(at,1);emit(item.cue)}
+  }
+ }
+ function acceptSnapshot(snapshot){
+  if(disposed||!snapshot||!Number.isSafeInteger(snapshot.tick)||!key(snapshot))return 0;
+  const nextKey=key(snapshot);
+  if(!previous||sceneId!==nextKey){
+   if(previous){flush();sceneResets++}
+   sceneId=nextKey;previous=snapshot;
+   return 0; // No historical first-load, floor, run or restore replay.
+  }
+  if(snapshot.tick<=previous.tick)return 0;
+  let cues=[];
+  try{cues=planPhysicalFeedback(previous,snapshot,{
+   resolveContact,deriveDamageBeats,verifiedMeleeDelay,reducedMotion});}
+  catch{adapterFailures++}
+  previous=snapshot;
+  for(const cue of cues){
+   if(seen.has(cue.id)){duplicates++;continue}
+   seen.add(cue.id);
+   if(seen.size>MAX_PHYSICAL_SEEN_IDS){
+    const oldest=seen.values().next().value;seen.delete(oldest);
+   }
+   if(pending.length>=MAX_PHYSICAL_PENDING){
+    let weakest=0;
+    for(let i=1;i<pending.length;i++)if(pending[i].cue.priority<pending[weakest].cue.priority)weakest=i;
+    if(pending[weakest].cue.priority>=cue.priority){overflow++;continue}
+    pending.splice(weakest,1);overflow++;
+   }
+   pending.push({cue,remaining:clamp(cue.delay,0,.5)});queued++;
+  }
+  popDue(0);return cues.length;
+ }
+ function advance(frameSeconds){
+  if(disposed)return 0;
+  const dt=clamp(frameSeconds,0,.05);
+  renderedSeconds+=dt;
+  const before=pending.length;
+  popDue(dt);safeCall(()=>visuals?.advance?.(dt));safeCall(()=>foley?.cleanup?.());
+  return Math.max(0,before-pending.length);
+ }
+ function attachAudioContext(context){
+  if(disposed)return false;
+  if(!foley&&context)foley=createOriginalCombatFoley(context);
+  return !!foley;
+ }
+ function enableAudioFromGesture(){
+  if(disposed||!safeCall(()=>foley?.enable?.()))return false;
+  optedIn=true;preference.write(false);return true;
+ }
+ function muteAudio(){
+  optedIn=false;awaitingPresentation.length=0;preference.write(true);
+  safeCall(()=>foley?.disable?.());
+ }
+ // 'unmuted' preference does not mean automatic playback after a page reload;
+ // only a NEW real gesture enables oscillator synthesis on this page.
+ function preferredMuted(){return preference.read()}
+ function reset(){flush();previous=null;sceneId=null;}
+ function dispose(){
+  if(disposed)return;
+  flush();disposed=true;previous=null;
+  optedIn=false;safeCall(()=>foley?.dispose?.());safeCall(()=>visuals?.dispose?.());
+ }
+ function stats(){return Object.freeze({
+  implementation:'D04-physical-authority-feedback',disposed,scene:sceneId,
+  audioOptedIn:optedIn,preferredMuted:preferredMuted(),
+  pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
+  awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
+  staleAudioDropped,requirePresentedFrame,
+  recentDeliveryReceipts:[...receipts],duplicateCues:duplicates,
+  pendingOverflow:overflow,adapterFailures,sceneResets,
+  limits:{maxPending:MAX_PHYSICAL_PENDING,maxSeen:MAX_PHYSICAL_SEEN_IDS,
+   maxReceipts:MAX_PHYSICAL_RECEIPTS,maxAudioAwaitingFrame:MAX_AUDIO_AWAITING_FRAME},
+  visuals:visuals?.stats?.()??null,audio:foley?.stats?.()??null
+ });}
+ return Object.freeze({acceptSnapshot,advance,acknowledgePresentedFrame,
+  attachAudioContext,enableAudioFromGesture,muteAudio,
+  preferredMuted,reset,dispose,stats});
+}
