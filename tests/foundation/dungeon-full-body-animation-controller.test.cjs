@@ -153,6 +153,84 @@ test('one verified evade owns a finite cloth lag and injury/defeat cannot keep a
  assert.match(model,/planDrapeSwing\(clothAction,clothAge,reducedMotion\)/);
 });
 
+test('witnessed strike survives one empty authority tick to complete its physical recovery',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const started=step(null,frame(hero('attack',31),{actionAge:.21}));
+ assert.equal(started.mode,'attack');assert.equal(started.age,.21);
+ let pose=step(started,frame(hero('idle',32),{actionAge:0,frameDelta:.05}));
+ assert.equal(pose.mode,'attack','source contact must not vanish at next fixed simulation tick');
+ assert.equal(pose.actionTick,31,'visual action source tick must remain the REAL witnessed attack tick');
+ assert.equal(pose.authorityAction,'idle','authority remains idle while presentation completes prior action');
+ assert.ok(pose.age>.21&&pose.age<.28,'rendered recovery advances a bounded visual age');
+ assert.equal(pose.restarted,false,'holding the same visual one-shot never restarts it');
+ let previous=pose;
+ for(let i=0;i<10;i++){pose=step(pose,frame(hero('idle',32),{actionAge:0,frameDelta:.05}));
+  assert.ok(pose.age>=previous.age||pose.mode==='idle');
+  previous=pose;
+ }
+ assert.equal(pose.mode,'idle','source one-shot cannot hold a stale strike forever');
+ assert.equal(pose.owner.duel,false);
+});
+
+test('a real casting animation recovers between authority ticks without inventing another spell',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const caster={...hero('cast',44),kind:'mystic'};
+ const initial=step(null,frame(caster,{actionAge:.30}));
+ const held=step(initial,frame({...caster,action:'idle',actionTick:45},{actionAge:.02,frameDelta:.04}));
+ assert.equal(held.mode,'cast');
+ assert.equal(held.actionTick,44);assert.equal(held.owner.cast,true);
+ assert.equal(held.restarted,false);
+ assert.equal(held.owner.duel,false);
+ let current=held;
+ for(let i=0;i<12;i++)current=step(current,frame({...caster,action:'idle',actionTick:45},{actionAge:0,frameDelta:.05}));
+ assert.equal(current.mode,'idle','source cast settles instead of hanging in final keyframe');
+});
+
+test('legitimate interruptions and skipped authority ticks override recovered one-shot',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const attack=step(null,frame(hero('attack',60),{actionAge:.23}));
+ const idle={...hero('idle',61)};
+ const baseline=step(attack,frame(idle,{actionAge:0,frameDelta:.05}));
+ assert.equal(baseline.mode,'attack');
+ const guard=step(attack,frame(hero('guard',61)));
+ assert.equal(guard.mode,'guard');assert.equal(guard.interrupted,true);
+ const move=step(attack,frame(hero('move',61),{grounded:{moving:true,clipAction:'move'}}));
+ assert.equal(move.mode,'move');
+ const injury=step(attack,frame(hero('idle',61,25),{damageBeat:{
+  id:'hero-1',kind:'vanguard',damage:5,maxHp:30,age:.14,fatal:false}}));
+ assert.equal(injury.mode,'hurt');assert.equal(injury.owner.duel,false);
+ const evade=step(attack,frame(hero('idle',61),{evasionBeat:{
+  id:'hero-1',kind:'vanguard',tick:61,dx:1,dz:0,age:.14}}));
+ assert.equal(evade.mode,'evade');
+ assert.equal(step(attack,frame(hero('idle',61,0))).mode,'defeat');
+ assert.equal(step(attack,frame(hero('idle',61),{reducedMotion:true})).mode,'idle');
+ assert.equal(step(attack,frame(hero('idle',66))).mode,'idle',
+  'more than one skipped authority tick cannot replay a long stale strike');
+ const second=step(attack,frame(hero('attack',61),{actionAge:0}));
+ assert.equal(second.mode,'attack');assert.equal(second.restarted,true);
+ assert.equal(second.age,0,'new legitimate action begins on its own confirmed tick');
+});
+
+test('elapsed one-shots settle into idle and cannot restart from a stale authority label',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const finished=step(null,frame(hero('attack',73),{actionAge:1.4}));
+ assert.equal(finished.mode,'idle');
+ assert.equal(finished.owner.duel,false);
+ const second=step(finished,frame(hero('attack',73),{actionAge:1.6}));
+ assert.equal(second.mode,'idle');
+ assert.equal(second.owner.duel,false);
+});
+
+test('source AnimationMixer uses captured visual tick and single controller pose clock',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/const tick=actor\.fullBody\?\.actionTick\?\?actor\.u\.actionTick/,
+  'an idle authority tick cannot restart a visually finishing legal source clip');
+ assert.match(model,/const poseAge=actor\.fullBody\.age/);
+ assert.match(model,/planNativeDuelPose\(actor\.u\.kind,actor\.fullBody\.owner\.duel\?'attack':'idle',poseAge/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,poseAge,reducedMotion\)/);
+ assert.match(model,/stageRigArmsAfterMixer\(actor,poseAge,reducedMotion\)/);
+});
+
 test('real renderer consumes exactly one arbiter before imported mixer and preserves reversible bones',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
