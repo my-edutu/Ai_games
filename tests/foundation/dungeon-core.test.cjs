@@ -326,3 +326,21 @@ test('a genuine party attack interrupts a channelled shadow hex before it can re
  assert.equal(mystic.hp,beforeHp,'an interrupted cultist cannot deal phantom damage');
  assertDungeonState(s);
 });
+
+test('gauntlet seed 11 cannot stall a living expedition indefinitely after clearing the approach',()=>{
+ const game=DungeonRuntime.create('gauntlet-corpus-v1-11'),trace=[];
+ for(let i=0;i<900;i++){
+  const view=game.step();
+  if([300,450,600,750,899].includes(i)){
+   const boss=game.state.units.find(u=>u.kind==='warden');
+   trace.push({tick:view.tick,floor:view.floor,run:view.run,phase:view.phase,
+    boss:boss&&{hp:boss.hp,x:boss.x,z:boss.z,action:boss.action},
+    party:game.state.units.filter(u=>u.faction==='party').map(u=>({id:u.id,hp:u.hp,x:u.x,z:u.z,action:u.action,targetId:u.targetId})),
+    defenders:game.state.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,
+    intent:view.intent});
+  }
+ }
+ assert.ok(game.state.floor>1||game.state.run>1,
+  '900-tick deadlock in real campaign seed 11: '+JSON.stringify(trace));
+ assertDungeonState(game.state);
+});
