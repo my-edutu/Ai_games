@@ -930,6 +930,36 @@ body[data-street="on"] #camera-tools > :not(#camera-home):not(#camera-street){di
   min-height:44px!important;padding:7px 6px}
 }
 
+
+/* W125: opening real economic evidence must visibly EXPAND the world ledger.
+   Earlier compact 390px max-height:54px!important clipped all six receipts.
+   Closed mode remains the thin unobtrusive ribbon. */
+body[data-command="world"][data-supply="open"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
+ display:flex!important;flex-wrap:wrap!important;
+ justify-content:space-between!important;align-content:flex-start!important;
+ align-items:center!important;gap:8px!important;
+ width:min(720px,calc(100vw - 16px))!important;
+ max-width:calc(100vw - 16px)!important;
+ max-height:min(42vh,340px)!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ white-space:normal!important;z-index:30;
+}
+body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden]){
+ display:grid!important;flex:0 0 100%!important;width:100%!important;
+ min-width:0!important;white-space:normal!important
+}
+@media(max-width:520px){
+ body[data-command="world"][data-supply="open"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
+  top:auto!important;bottom:63px!important;
+  left:7px!important;right:7px!important;transform:none!important;
+  width:calc(100vw - 14px)!important;max-height:min(46vh,340px)!important;
+  padding:8px!important;gap:5px!important;
+ }
+ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden]){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important
+ }
+}
+
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -17112,6 +17142,7 @@ function updateSupplyTrail(force=false){
 }
 function toggleSupplyTrail(){
  supplyTrailOpen=!supplyTrailOpen;
+ document.body.dataset.supply=supplyTrailOpen?'open':'closed';
  document.getElementById('world-supply-trail').hidden=!supplyTrailOpen;
  document.getElementById('world-trace-toggle')
   .setAttribute('aria-expanded',String(supplyTrailOpen));
