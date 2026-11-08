@@ -45,7 +45,7 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
+      "sourceHeadAtInspection": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
@@ -53,79 +53,44 @@
       "renderedGameplayExperienceChangedThisExecution": false,
       "instrumentationChangedThisExecution": true,
       "experienceChangeVerifiedInVideo": false,
-      "largestObservedGap": "Most recent independently inspected authentic candidate 390x844 film e0fe7729 still has giant decorative foreground clockwork masking live guardian/climber around native 16–18s. Later structural rim/gear/rack cutaways remain without current continuous footage; physically visible floor-nine crossing and restart not video-accepted.",
-      "primaryVerifiedBlocker": "At current PR68 head ff3dc036, GitHub nine-job capture 42476738867 and quality 42476738709 queued with no completed exact-code result. Original /app-projects tunnel returned NOT_FOUND (not connected for 300s), so original Node/Three, Chromium and current WebM cannot run in workspace.",
-      "implementation": "Added original-WebM transport/provenance auditor using ffprobe to inspect the ACTUAL files for 960x600 and 390x844 native dimensions, >=60s container AND decoded native-PTS span, monotonic video frame timestamps, first real source floor, immutable source SHA, matching scenario/seed and actual browser observation duration. Emits per-film original SHA256, frame cadence/dropout warnings and hard source-integrity vetoes, while explicitly retaining NOT EVALUATED for motion feel, events on-screen, device metrics and critics. Integrated into both source-authentic offline baseline/candidate capture AND every hosted original-source 9-job workflow, copied only as observational code to frozen checkout. No renderer, gameplay rules or PR58 changes.",
+      "largestObservedGap": "Last independently inspected authentic old candidate portrait WebM at e0fe7729 still has a giant foreground wheel/rack hiding climber and guardian near 16–18s. Post-cutaway real rendered world f1fe522e remains uncaptured/unreviewed; live guardian victory, grounded doorway crossing, floor-nine onward and restart lack current-source matched normal-speed visual acceptance.",
+      "primaryVerifiedBlocker": "Actual repository checkout/browser workspace unavailable (coding tunnel NOT_FOUND); hosted exact-3bf0eedf quality 42478473700 and nine-job capture 42478473694 QUEUED. GitHub API reports 1754 queued repository workflows at inspection; cause of runner absence unknown. No real current-source WebM or Node/Three integration suite ran.",
+      "implementation": "Strengthened the SOURCE-PINNED original-WebM continuity/provenance veto instead of another speculative renderer patch: native decoded PTS span must be >=60 actual seconds (no old one-second grace), no >0.5s frame gap, >=12 encoded original recorded frames/s, no >1s opening or >1.5s trailing blank, matched declared low graphics/reduced-motion-off/muted conditions, correct launch floor, unchanged source run and no browser errors. Added four negative tests for shortened film, blackout/freeze, sparse frames and mismatched session; fail closed before accepting input for later blind judging. Does not certify gameplay visibility or frame-rate on hardware.",
       "concreteCommits": [
-        "f8aa67d68fa750190246f7e3f43e9e956661b9ef",
-        "54c4af51f1c9c9b166d3f563f99fe9aa1e62423b",
-        "66ae309c7d2af5bc4c6f367c1b37587e9d994c5b",
-        "ff3dc0369ebbade26bbc7169dd2e58580fe07e98"
+        "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f"
       ],
       "modifiedFiles": [
         "scripts/tower-native-film-integrity.cjs",
         "tests/phase3/tower-native-film-integrity.test.cjs",
-        "scripts/tower-offline-evidence.sh",
-        ".github/workflows/tower-transformation-visual-evidence.yml",
         "public/infinite-tower-climb/gauntlet/transformation.json",
         "docs/reviews/2026-11-07-tower-pr68-current-film-and-source-integrity-veto.md"
       ],
-      "isolatedSourceChecks": "Exact GitHub branch-file readback verified ffprobe and source/viewport guards, four authored regression fixtures, offline CLI after both viewport source captures, hosted baseline observational-copy and both pinned viewport audit before artifact upload. Original Node22 tests/Bash/ffprobe on generated WebM NOT EXECUTED due disconnected workspace and unassigned Actions runner. Static checks are not a test PASS. Successfully executed local FFprobe against genuine recovered *older* original-source desktop and portrait WebMs; both native dimensions true and decoded 71s video with 0.04s maximum frame gaps. This validates prior artifact transport only, NOT authored new CLI, latest PR68 experience or blind full-motion verdict.",
-      "recoveredAuthenticPriorCapture": {
-        "artifactId": 13594459833,
-        "sourceSha": "e0fe77294359c32c84cdcff3c0698ba0c7e3a067",
-        "workflowId": 42426089449,
-        "measuredFrom": "Actually recovered original original-source candidate danger artifact and ran local ffprobe directly on BOTH untouched older WebMs in this run. This is historic renderer footage, NOT current-head video, NOT execution of the new auditor module.",
-        "desktop": {
-          "videoDimensions": "960x600",
-          "videoCodec": "vp8",
-          "containerSeconds": 71.2,
-          "decodedFrames": 1780,
-          "decodedPtsSpanSeconds": 71.16,
-          "maxFrameGapSeconds": 0.04,
-          "sha256": "f32f92c89cf11b7dc618e3183bebbe41fef879f717f0cc2c8251e89eeded5458",
-          "sourceLaunchFloor": 8,
-          "sourceStartTick": 63
-        },
-        "portrait": {
-          "videoDimensions": "390x844",
-          "videoCodec": "vp8",
-          "containerSeconds": 71.12,
-          "decodedFrames": 1778,
-          "decodedPtsSpanSeconds": 71.08,
-          "maxFrameGapSeconds": 0.04,
-          "sha256": "4b20860ac990e4af4a310a6c78192367f113ba9cae876cee9177adbd5a2b1b53",
-          "sourceLaunchFloor": 8,
-          "sourceStartTick": 47
-        },
-        "videoDefect": "Actually sampled original native portrait seconds 17.2 and 27.0 in this run. At 17.2s foreground ring/rack strongly masks standing climber and central fighting line; at 27s HUD shows floor 9 with climber and deck visible. This is older e0fe game code only; authentic source-event markers do not visually certify filmed guardian death/grounded threshold/restart.",
-        "filmVisibilityGate": "NOT EVALUATED for new PR68 geometry; prior original source film proves transport is native 390x844 rather than a letterboxed 960x600, but movement/action quality requires normal-speed uninterrupted human critique."
-      },
+      "isolatedSourceChecks": "Executed the EXACT GitHub-fetched newly committed inspectFilmMetadata pure function in a JS sandbox, not a replica: clean 60.83s/12fps provenance reported SOURCE_VIDEO_TRANSPORT_ONLY; 10fps 60.5s film BLOCKED; opening/2s mid-film freeze/trailing blank BLOCKED with all three defects; wrong launch floor BLOCKED. Exact GitHub file readback passed. Complete original Node22 tests, FFprobe on NEW WebMs, Chromium, current video event-alignment and real hardware NOT EXECUTED.",
       "currentExactCodeQuality": {
-        "sha": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
-        "status": "QUEUED: exact-head workflow has not executed or passed",
-        "runId": 42476738709,
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42476738709"
+        "sha": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
+        "status": "QUEUED: hosted original repository Node/Three tests not executed",
+        "runId": 42478473700,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473700"
       },
       "currentNineJobCapture": {
-        "candidateSourceSha": "ff3dc0369ebbade26bbc7169dd2e58580fe07e98",
+        "candidateSourceSha": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
         "renderedWorldLastChangedSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
         "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-        "runId": 42476738867,
-        "status": "QUEUED: 9 jobs expected; no new captures or executed frame integrity audits",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867"
+        "runId": 42478473694,
+        "status": "QUEUED: eight source-pinned normal-speed clips + ledge, no current-source artifacts or verified movement",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42478473694"
       },
-      "videoEventAlignment": "NOT EVALUATED: no current-source intact 60+s WebM + source-index from new capture; native-video clock sidecars and newly added transport integrity still unexecuted.",
+      "videoEventAlignment": "NOT EVALUATED: current source WebM native PTS-to-events unavailable; prior genuine old e0fe film is not recent 3D candidate.",
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "hardwareFrameTimeMemory": "NOT EVALUATED: no physical target-device p50/p95/p99 frame-time or memory",
-      "developmentWorkspace": "UNAVAILABLE: chat coding tunnel NOT_FOUND: tunnel-client has not been seen for 300 seconds. GitHub connector read/write available, verified hosted jobs queued.",
+      "hardwareFrameTimeMemory": "NOT EVALUATED: no actual device p50/p95/p99/memory",
+      "developmentWorkspace": "UNAVAILABLE: /app-projects coding tunnel-client NOT_FOUND; GitHub connector read/write available.",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Get actual original code executing: run the new 9-job GitHub capture or offline evidence script from a complete checkout. Require native-film-integrity for BOTH frozen and candidate, inspect true native 390x844 guardian fight at 16–18s and 960x600 equivalent in full-motion; check actual PTS/event index for crusher, earned HP defeat, grounded threshold, floor-nine continuation, terminal and restart; then correct the largest current-source visible flaw, not another speculative geometry patch. Run original Node/Three tests, deterministic replay and supported-device metrics before blind reviews.",
-      "restrictions": "Keep frozen baseline 1731b380851162741761c5569e2bc152a0869ca9; no PR58 edits, merge, deploy, force push, branch move or PR68 draft conversion.",
+      "nextHighImpactAction": "Restore runner or full local checkout; run exact 3bf0eedf tests and both 60+ s source-pinned native captures, inspect uncut moving/guardian/combat/outcome films and diagnostic occlusion camera rays. Verify newest open geometry clears actual 390x844 at 16–18s, calibrate guardian/crusher/gateway/floor-nine/restart events to genuine video PTS, then correct largest current visible gameplay flaw. Physical target devices and 5 genuinely independent blind critics per pillar remain required.",
+      "restrictions": "Preserve frozen 1731b380851162741761c5569e2bc152a0869ca9, PR58, PR68 draft, no merge/deploy/force push.",
       "newSourcePinnedCaptureLinks": []
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
@@ -1380,6 +1345,14 @@
       "ciQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738709",
       "ciCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42476738867",
       "actualHistoricalVideoInspection": "Recovered older candidate danger ZIP artifact 13594459833. Genuine original WebM file FFprobe: desktop 960x600 71.20s/1780 frames, portrait 390x844 71.12s/1778 frames, max gap 0.04s each. Source e0fe7729 old. Sampled portrait 17.2s obstructed, 27.0s floor9; not new source. The NEW audit's full original Node tests remain unexecuted."
+    },
+    "p0NativeFilmContinuity20261108": {
+      "sourceImplementationSha": "3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f",
+      "verifiedInIsolatedPureFunction": true,
+      "originalRepositoryNodeTests": "NOT EVALUATED",
+      "fullMotionCurrentSource": "NOT EVALUATED",
+      "genuineCritics": "0/5 each",
+      "url": "https://github.com/my-edutu/Ai_games/commit/3bf0eedf584ca1cfdf7063e1885bc1bb1be2e76f"
     }
   },
   "scenarios": [
