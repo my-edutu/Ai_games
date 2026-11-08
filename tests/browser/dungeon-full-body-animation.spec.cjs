@@ -67,6 +67,10 @@ test('real authority movement drives bounded support on original leg bones witho
   {timeout:22000,intervals:[70,90,110,140]}).toBeGreaterThan(.003);
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.authored3D.fullBodyFootSupportPeakRad).toBeLessThanOrEqual(.063);
+ // Additive hips/ankles and authentic footsteps must have the same phase.
+ // Do not claim soles are world-locked merely because these numbers agree.
+ expect(d.authored3D.fullBodyFootfallPhaseErrorRad).toBeLessThanOrEqual(.002);
+ expect(d.authored3D.fullBodySettlingActors).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.rigGaitBones).toBeGreaterThanOrEqual(4);
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.webgl).toBe(true);expect(stage.errors).toEqual([]);
@@ -75,6 +79,7 @@ test('real authority movement drives bounded support on original leg bones witho
  await test.info().attach('genuine-stride-frame',{contentType:'application/json',body:Buffer.from(JSON.stringify({
   seed:event.seed,tick:event.after.tick,actorId:event.actor.id,
   source:'unmodified DungeonRuntime publicState',supportPeak:d.authored3D.fullBodyFootSupportPeakRad,
-  gaitBones:d.authored3D.rigGaitBones,owners:d.authored3D.fullBodyModes
+  gaitBones:d.authored3D.rigGaitBones,phaseErrorRad:d.authored3D.fullBodyFootfallPhaseErrorRad,
+  settlingActors:d.authored3D.fullBodySettlingActors,owners:d.authored3D.fullBodyModes
  },null,2))});
 });
