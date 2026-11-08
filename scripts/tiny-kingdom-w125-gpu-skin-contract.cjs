@@ -91,6 +91,23 @@ assert.notDeepEqual(oldSegments[10],newSegments[10],
 const wristMatrix=math.workSkinRigidMatrix(oldSegments[12],newSegments[12]);
 assert(close(apply(wristMatrix,oldSegments[12][0]),newSegments[12][0]),
  'authentic tool grip must remain fixed to real changed wrist');
+ // A changing occupational crouch changes the rendered limb's geometric
+ // length. A rotation-only matrix leaves hands/tools off their true target.
+ // GPU axial stretch MUST preserve both real fixed-step endpoints EXACTLY.
+const bent=JSON.parse(JSON.stringify(baseRig));
+bent.acting={lean:.37,crouch:.20};
+bent.arms[1].elbow=[.31,.72,.24];
+bent.arms[1].wrist=[.28,.39,.61];
+const changedBody={...body,forwardLean:.06,spineShift:.025,rise:.013};
+const movedSegments=math.workSkinSegments(bent,changedBody,base);
+for(let joint=0;joint<13;joint++){
+ const m=math.workSkinRigidMatrix(oldSegments[joint],movedSegments[joint]);
+ assert(close(apply(m,oldSegments[joint][0]),movedSegments[joint][0],.00002),
+  'Original worker joint '+joint+' begins at its actual new position');
+ assert(close(apply(m,oldSegments[joint][1]),movedSegments[joint][1],.00002),
+  'Original worker joint '+joint+' endpoint MUST remain physically attached');
+}
+
 assert.equal(oldSegments.length,13);
 assert.equal(newSegments.length,13);
 console.log('W125 source+CPU bone math PASS: original real workers, 13 joint tags, exact endpoint transforms, bounded VBO, fallback; real GL and FPS separately gated.');
