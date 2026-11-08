@@ -3727,9 +3727,85 @@ function getScenicVisibilityGroups(ranges){
  scenicVisibilityGroupStats.rangeSetsBuilt++;
  return groups;
 }
+// W139: bounded BVH over the real material-packed scenery's SPATIAL envelopes.
+// Never change any original vertex, mesh or camera-plane classification.
+const SCENIC_BVH_LEAF_SIZE=8,SCENIC_BVH_MIN_CHUNKS=64;
+const scenicBvhCache=new WeakMap();
+const scenicBvhStats={builds:0,treeNodes:0,maxDepth:0,planeTests:0,
+ rejectedNodes:0,rejectedChunks:0,individualTests:0,usedFrames:0,legacyFallbacks:0};
+function scenicBvhFor(ranges){
+ if(ranges.length<SCENIC_BVH_MIN_CHUNKS)return null;
+ const prior=scenicBvhCache.get(ranges);if(prior)return prior;
+ const ids=[];
+ for(let i=0;i<ranges.length;i++){
+  const b=ranges[i];
+  if(![b.minX,b.minY,b.minZ,b.maxX,b.maxY,b.maxZ].every(Number.isFinite)||
+    b.minX>b.maxX||b.minY>b.maxY||b.minZ>b.maxZ)return null;
+  ids.push(i);
+ }
+ function build(items,depth){
+  let minX=Infinity,minY=Infinity,minZ=Infinity,
+   maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
+  for(const i of items){
+   const b=ranges[i];
+   minX=Math.min(minX,b.minX);minY=Math.min(minY,b.minY);
+   minZ=Math.min(minZ,b.minZ);maxX=Math.max(maxX,b.maxX);
+   maxY=Math.max(maxY,b.maxY);maxZ=Math.max(maxZ,b.maxZ);
+  }
+  const node={minX,minY,minZ,maxX,maxY,maxZ,size:items.length};
+  scenicBvhStats.treeNodes++;
+  scenicBvhStats.maxDepth=Math.max(scenicBvhStats.maxDepth,depth);
+  if(items.length<=SCENIC_BVH_LEAF_SIZE){node.indices=items;return node;}
+  const spans=[maxX-minX,maxY-minY,maxZ-minZ];
+  const axis=spans.indexOf(Math.max(...spans));
+  const lo=['minX','minY','minZ'][axis],hi=['maxX','maxY','maxZ'][axis];
+  items.sort((a,b)=>{
+   const delta=(ranges[a][lo]+ranges[a][hi])-
+    (ranges[b][lo]+ranges[b][hi]);
+   return delta||a-b;
+  });
+  const mid=items.length>>>1;
+  node.left=build(items.slice(0,mid),depth+1);
+  node.right=build(items.slice(mid),depth+1);
+  return node;
+ }
+ const entry={root:build(ids,0),mask:new Uint8Array(ranges.length)};
+ scenicBvhCache.set(ranges,entry);scenicBvhStats.builds++;return entry;
+}
+function scenicBvhVisibilityMask(ranges,planes){
+ if(!Array.isArray(planes)||planes.length!==6||
+   planes.some(p=>!Array.isArray(p)||p.length!==4||
+    p.some(v=>!Number.isFinite(v)))){
+  scenicBvhStats.legacyFallbacks++;return null;
+ }
+ const entry=scenicBvhFor(ranges);
+ if(!entry){scenicBvhStats.legacyFallbacks++;return null;}
+ const mask=entry.mask;mask.fill(0);
+ function traverse(node){
+  scenicBvhStats.planeTests++;
+  if(!sceneChunkInFrustum(node,planes)){
+   scenicBvhStats.rejectedNodes++;
+   scenicBvhStats.rejectedChunks+=node.size;return;
+  }
+  if(node.indices){
+   for(const i of node.indices){
+    scenicBvhStats.individualTests++;
+    if(sceneChunkInFrustum(ranges[i],planes))mask[i]=1;
+   }
+  }else{traverse(node.left);traverse(node.right);}
+ }
+ traverse(entry.root);scenicBvhStats.usedFrames++;return mask;
+}
+function getScenicBvhAudit(){
+ return {kind:'bounded-spatial-aabb-bvh-over-original-real-scenery',
+  leafSize:SCENIC_BVH_LEAF_SIZE,minChunks:SCENIC_BVH_MIN_CHUNKS,
+  ...scenicBvhStats,authoritativeStateChanged:false,
+  originalMeshesAndVertexOrderUnchanged:true,matchingRuntimeVideoRequired:true};
+}
 function getScenicCullHierarchyAudit(){
  return {source:'resident-static-spatial-aabb-hierarchy',
   groupEdge:SCENIC_VISIBILITY_GROUP_EDGE,...scenicVisibilityGroupStats,
+  bvh:getScenicBvhAudit(),
   authorityChanged:false,drawsAltered:false,housingVisibilityUnchanged:true,
   requirement:'exact source-chunk visibility; never prune real citizens or homes',
   measurement:'conservative hierarchy counts, NOT hardware FPS'};
@@ -3748,12 +3824,14 @@ function getScenicCullReferenceAudit(){
   ['landscape',landscapeChunkRanges],
   ['settlement',settlementChunkRanges],['civic',civicChunkRanges]]){
   sizes[name]=ranges.length;
+  const originalBvhMask=scenicBvhVisibilityMask(ranges,planes);
   for(const group of getScenicVisibilityGroups(ranges)){
    const envelopeVisible=sceneChunkInFrustum(group,planes);
    groupsChecked++;
    for(let i=group.start;i<group.end;i++){
     const original=sceneChunkInFrustum(ranges[i],planes);
-    const candidate=envelopeVisible&&original;
+    const candidate=originalBvhMask?originalBvhMask[i]===1:
+     envelopeVisible&&original;
     if(original&&!candidate)missingChunks++;
     if(!original&&candidate)falseVisibleChunks++;
     checkedChunks++;
@@ -3770,10 +3848,11 @@ function planVisibleStaticDraws(ranges,planes,allowBridge){
   visibleTriangles=0,culledTriangles=0,visibleChunks=0,
   bridgedTriangles=0,bridgedChunks=0,strictDrawCalls=0,
   lastRangeEnd=null,lastWasVisible=false,invalidRanges=0;
- const groups=getScenicVisibilityGroups(ranges);
+ const bvhMask=scenicBvhVisibilityMask(ranges,planes);
+ const groups=bvhMask?null:getScenicVisibilityGroups(ranges);
  let groupIndex=-1,nextGroupEnd=0,groupVisible=true;
  for(let index=0;index<ranges.length;index++){
-  if(index===nextGroupEnd){
+  if(!bvhMask&&index===nextGroupEnd){
    const group=groups[++groupIndex];
    groupVisible=sceneChunkInFrustum(group,planes);
    nextGroupEnd=group.end;
@@ -3789,8 +3868,9 @@ function planVisibleStaticDraws(ranges,planes,allowBridge){
    throw Error('W73 invalid scenery range');
   const contiguous=lastRangeEnd===null||lastRangeEnd===chunk.first;
   if(!contiguous)invalidRanges++;
-  const visible=groupVisible&&sceneChunkInFrustum(chunk,planes);
-  if(groupVisible)scenicVisibilityGroupStats.individualTests++;
+  const visible=bvhMask?bvhMask[index]===1:
+   groupVisible&&sceneChunkInFrustum(chunk,planes);
+  if(!bvhMask&&groupVisible)scenicVisibilityGroupStats.individualTests++;
   if(visible){
    visibleTriangles+=chunk.count/3;visibleChunks++;
    if(!lastWasVisible||!contiguous)strictDrawCalls++;
@@ -19620,7 +19700,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
