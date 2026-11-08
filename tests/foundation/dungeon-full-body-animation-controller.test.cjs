@@ -47,45 +47,50 @@ test('repeated legal strike restarts once at a new authoritative actionTick',asy
 test('true positive HP loss interrupts a sword pose, then hands control back',async()=>{
  const {advanceFullBodyController:step}=await load();
  const attack=step(null,frame(hero('attack',22)));
- const beat={damage:5,maxHp:30,age:.12,fatal:false};
+ const beat={id:'hero-1',kind:'vanguard',damage:5,maxHp:30,age:.12,fatal:false};
  const hurt=step(attack,frame(hero('attack',22,25),{damageBeat:beat}));
  assert.equal(hurt.mode,'hurt');assert.equal(hurt.clipAction,'hurt');
  assert.equal(hurt.owner.injury,true);assert.equal(hurt.owner.duel,false);
  assert.equal(hurt.interrupted,true);
  const still=step(hurt,frame(hero('attack',22,25),{damageBeat:{...beat,age:.20}}));
  assert.equal(still.changed,false);
- const recovered=step(still,frame(hero('attack',22,25),{damageBeat:{...beat,age:.50}}));
+ const recovered=step(still,frame(hero('attack',22,25),{damageBeat:{...beat,age:.58}}));
  assert.equal(recovered.mode,'attack');assert.equal(recovered.owner.duel,true);
  assert.equal(recovered.interrupted,true);
 });
 test('no counterfeit damage, evade or defeat from invalid beats',async()=>{
  const {advanceFullBodyController:step}=await load();
- for(const damageBeat of [null,{damage:0,maxHp:30,age:.1},
-  {damage:3,maxHp:30,age:-.2},{damage:3,maxHp:30,age:.5},
-  {damage:3,maxHp:30,age:NaN}]){
+ for(const damageBeat of [null,{id:'hero-1',kind:'vanguard',damage:0,maxHp:30,age:.1},
+  {id:'hero-1',kind:'vanguard',damage:3,maxHp:30,age:-.2},
+  {id:'hero-1',kind:'vanguard',damage:3,maxHp:30,age:.6},
+  {id:'hero-1',kind:'vanguard',damage:3,maxHp:30,age:NaN},
+  {id:'unrelated',kind:'vanguard',damage:3,maxHp:30,age:.2}]){
   const f=step(null,frame(hero('attack'),{damageBeat}));
   assert.equal(f.mode,'attack');assert.equal(f.owner.injury,false);
  }
- const noEvade=step(null,frame(hero('idle'),{evasionBeat:{age:Infinity}}));
+ const noEvade=step(null,frame(hero('idle'),{evasionBeat:{id:'hero-1',kind:'vanguard',tick:22,dx:1,dz:0,age:Infinity}}));
  assert.equal(noEvade.mode,'idle');
+ assert.equal(step(null,frame(hero('hurt'))).mode,'idle', 'a stale hurt label alone is not damage');
+ assert.equal(step(null,frame(hero('idle'),{evasionBeat:{id:'hero-1',kind:'vanguard',tick:22,dx:0,dz:0,age:.08}})).mode,'idle', 'only a real one-cell escape can interrupt');
+ assert.equal(step(null,frame(hero('idle'),{evasionBeat:{id:'other',kind:'vanguard',tick:22,dx:1,dz:0,age:.08}})).mode,'idle', 'other actors cannot own this pose');
  const alive=step(null,frame(hero('idle',12,1)));assert.equal(alive.mode,'idle');
 });
 test('verified evasion temporarily owns the body instead of layering over a cast',async()=>{
  const {advanceFullBodyController:step}=await load();
  const cast=step(null,frame(hero('cast',17)));
- const evade=step(cast,frame(hero('cast',17),{evasionBeat:{age:.08}}));
+ const evade=step(cast,frame(hero('cast',17),{evasionBeat:{id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.08}}));
  assert.equal(evade.mode,'evade');assert.equal(evade.clipAction,'idle');
  assert.equal(evade.owner.evasion,true);assert.equal(evade.owner.cast,false);
  assert.equal(evade.owner.duel,false);assert.equal(evade.interrupted,true);
- const recovered=step(evade,frame(hero('cast',17),{evasionBeat:{age:.50}}));
+ const recovered=step(evade,frame(hero('cast',17),{evasionBeat:{id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.61}}));
  assert.equal(recovered.mode,'cast');assert.equal(recovered.clipAction,'cast');
 });
 test('defeat is absorbing at HP zero and does not advance gait, strikes or injury',async()=>{
  const {advanceFullBodyController:step}=await load();
  const fallen=step(null,frame(hero('attack',17,0),{
   grounded:{moving:true,clipAction:'move'},
-  damageBeat:{damage:40,maxHp:30,age:.2,fatal:true},
-  evasionBeat:{age:.08}
+  damageBeat:{id:'hero-1',kind:'vanguard',damage:40,maxHp:30,age:.2,fatal:true},
+  evasionBeat:{id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.08}
  }));
  assert.equal(fallen.mode,'defeat');assert.equal(fallen.clipAction,'idle');
  assert.equal(fallen.owner.defeat,true);assert.equal(fallen.owner.duel,false);
