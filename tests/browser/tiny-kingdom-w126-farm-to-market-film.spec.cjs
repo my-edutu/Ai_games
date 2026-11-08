@@ -114,11 +114,12 @@ test('W126 genuine farmer cutting to original escrowed cart and physical market 
  const end=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {triangles:g.renderStats().lastFrameTriangles,
-   overflow:document.documentElement.scrollWidth-innerWidth-innerWidth,
+   overflow:document.documentElement.scrollWidth-innerWidth,
    glError:document.getElementById('world').getContext('webgl')?.getError(),
    citizens:g.metrics().citizens,buildings:g.metrics().buildings};
  });
  expect(end.triangles).toBeLessThan(160000);
+ expect(end.overflow).toBeLessThanOrEqual(0);
  expect(end.glError).toBe(0);
  expect(errors).toEqual([]);
  evidence.end=end;
