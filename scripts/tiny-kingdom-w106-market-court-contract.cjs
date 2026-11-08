@@ -43,7 +43,9 @@ const context={data,MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
 vm.createContext(context);
 vm.runInContext(square+'\n'+court+'\nmarketCobblestoneSquare();marketReceivingCourt();',context);
 assert.ok(stats.pavingStones>=180&&stats.pavingStones<=260);
-assert.equal(stats.mortarTriangles,64);
+// W129 replaces the unsafe 64 long radial slices with 224 short terrain-conforming faces.
+// Retain the original strict <900-triangle floor/receiving-court cap below.
+assert.equal(stats.mortarTriangles,224);
 assert.equal(stats.entryPathStones,42);
 assert.equal(stats.marketWheelPassages,22);
 assert.equal(stats.marketDrainSegments,22);
