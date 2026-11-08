@@ -849,8 +849,14 @@ export class DungeonRuntime {
    // A genuine charged hex or breach aimed at a still-marked ally outranks
    // an incidental nearby foe. Actual attack range and blocked lanes remain.
    const threatenedCasters=planThreatInterceptions(s,hero);
+   // V2: the last real defender keeps top priority when contact is legal.
+   // However, a remote/out-of-lane defender must not make an adjacent Warden
+   // untouchable. The seal still taxes boss damage through the existing
+   // authoritative formula: this is NEVER a free unseal or imaginary attack.
+   // Existing signed legacy runs retain their old ordering until new-run migration.
    const attackable=[...threatenedCasters,...(recoveringWarden?[recoveringWarden]:[]),
-    ...(defenders.length?defenders:enemies)]
+    ...(defenders.length?defenders:enemies),
+    ...(s.rulesVersion===2?enemies.filter(e=>e.kind==='warden'):[])]
     .filter((foe,i,all)=>all.findIndex(other=>other.id===foe.id)===i);
    const range=hero.kind==='vanguard'?1:hero.kind==='ranger'?4:3;
    if(hero.kind==='mystic'){
