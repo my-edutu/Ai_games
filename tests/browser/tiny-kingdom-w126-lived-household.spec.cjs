@@ -19,14 +19,58 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
  expect(start.ledger.visits).toBe(0);
  expect(start.ledger.createdActors).toBe(0);
  await page.screenshot({path:path.join(dir,'day1-desktop.png')});
+ // Film only an authentic already-running citizen. Advance the original
+ // 30Hz world, never set an activity, location or inventory for the camera.
+ const witnessed=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  let current=g.getHouseholdProvisionAudit();
+  for(let i=0;i<5*24*30&&!current.citizens.length;i++){
+   g.step(1/30);current=g.getHouseholdProvisionAudit();
+  }
+  const before=JSON.stringify(g.exportSnapshot());
+  document.getElementById('world-watch-life').click();
+  const after=JSON.stringify(g.exportSnapshot());
+  return {active:current.citizens.length>0,
+   citizen:current.citizens[0]?.name||null,
+   selected:g.getSelectedCitizen(),following:g.getCamera().follow,
+   cameraOnly:before===after,ledger:current};
+ });
+ expect(witnessed.active).toBe(true);
+ expect(witnessed.selected).toBe(witnessed.citizen);
+ expect(witnessed.following).toBe(true);
+ expect(witnessed.cameraOnly).toBe(true);
+ await page.waitForTimeout(1200);
+ await page.screenshot({path:path.join(dir,'real-household-errand-desktop.png')});
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(1200);
+ await page.screenshot({path:path.join(dir,'real-household-errand-mobile.png')});
+ await page.setViewportSize({width:1024,height:640});
+ // Keep an uncut wall-time segment of genuine game animation in the
+ // Playwright video. Restore the original saved world afterward to allow
+ // fair fixed-step Day-120/160 verification without film-driven authority.
+ await page.evaluate(()=>{window.__tinyKingdom.setSpeed(4);document.getElementById('pause').click()});
+ await page.waitForTimeout(7000);
+ await page.evaluate(()=>{document.getElementById('pause').click();window.__tinyKingdom.setSpeed(0)});
+ await page.screenshot({path:path.join(dir,'real-household-errand-after-motion.png')});
+ await page.evaluate(save=>{
+  const g=window.__tinyKingdom;g.restoreSnapshot(save);
+  document.getElementById('camera-home').click();
+ },start.saved);
  const five=await page.evaluate(()=>{
   const g=window.__tinyKingdom,receipts=[],lastVisits=new Map();
   let maxCarrying=0,maxDisplacement=0,previous=new Map(),maxNoRoute=0;
+  let seenLiveObservation=false;
   const market=g.getHouseholdProvisionAudit().market;
   for(let tick=0;tick<5*24*30;tick++){
    g.step(1/30);
    const ledger=g.getHouseholdProvisionAudit();
    maxCarrying=Math.max(maxCarrying,ledger.carrying);
+   if(!seenLiveObservation&&ledger.citizens.length&&!g.getActiveDeliveries().length){
+    const before=JSON.stringify(g.exportSnapshot());
+    document.getElementById('world-watch-life').click();
+    seenLiveObservation=g.getSelectedCitizen()===ledger.citizens[0].name&&
+      g.getCamera().follow===true&&JSON.stringify(g.exportSnapshot())===before;
+   }
    const people=g.exportSnapshot().payload.people;
    for(const p of people){
     const prior=previous.get(p.name);
@@ -40,9 +84,10 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
     if(p.activity==='Waiting for a safe route')maxNoRoute++;
    }
   }
-  return {receipts,maxCarrying,maxDisplacement,maxNoRoute,ledger:g.getHouseholdProvisionAudit(),
+  return {receipts,maxCarrying,maxDisplacement,maxNoRoute,seenLiveObservation,ledger:g.getHouseholdProvisionAudit(),
     metrics:g.metrics(),navigation:g.getNavigation()};
  });
+ expect(five.seenLiveObservation).toBe(true);
  expect(five.receipts.length).toBeGreaterThan(0);
  expect(five.receipts.every(r=>r.dist<=1.35&&r.food>0&&r.townFood>=0)).toBe(true);
  expect(five.maxDisplacement).toBeLessThan(.24);
@@ -80,6 +125,7 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
  const replay=await advance(40);
  expect(JSON.stringify(replay.snapshot)).toBe(JSON.stringify(day160.snapshot));
  await page.evaluate(save=>window.__tinyKingdom.restoreSnapshot(save),day120.snapshot);
+ await page.evaluate(()=>document.getElementById('camera-home').click());
  await page.waitForTimeout(1000); // render exact restored authority
  const before=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
  const scene=await page.evaluate(()=>window.__tinyKingdom.getGeometryAudit());
