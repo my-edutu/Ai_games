@@ -5654,10 +5654,16 @@ function grainwardMarketArcadePlan(){
    ground0=terrain(outerX,z0),ground1=terrain(outerX,z1),
    y0=Math.max(terrain(from.x,from.z)+eaveA,ground0+2.39),
    y1=Math.max(terrain(to.x,to.z)+eaveB,ground1+2.39);
+  // Measure the actual intervening terrain too: a raised crown between
+  // end-stalls must not become an invented impassable roof or invisible pole.
+  const middleGround=terrain(outerX,(z0+z1)*.5);
+  const minimumClearance=Math.min(y0-ground0,y1-ground1,
+   (y0+y1)*.5-middleGround)-.13;
+  if(minimumClearance<2.05)
+   throw Error('W131 physical arcade would obstruct the original open way');
   return {source:'W131-two-actual-market-stall-arcades',realMarketEndpointA:a,
    realMarketEndpointB:b,outerX,innerX,z0,z1,y0,y1,
-   minClearance:Math.min(y0-ground0,y1-ground1)-.13,
-   noNewGroundPosts:true};
+   minClearance:minimumClearance,noNewGroundPosts:true};
  });
 }
 function grainwardTradeArcade(){
