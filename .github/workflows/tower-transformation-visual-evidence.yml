@@ -162,6 +162,10 @@ jobs:
           cp current-harness/scripts/tower-crossfire-evidence.cjs source/scripts/tower-crossfire-evidence.cjs
           cp current-harness/scripts/tower-event-alignment.cjs source/scripts/tower-event-alignment.cjs
           cp current-harness/scripts/tower-event-pairing.cjs source/scripts/tower-event-pairing.cjs
+          # The immutable baseline predates native-video calibration. Copy
+          # ONLY observational harness code; never alter its game or host.
+          cp current-harness/scripts/tower-video-timebase.cjs source/scripts/tower-video-timebase.cjs
+          cp current-harness/tests/phase3/tower-video-timebase.test.cjs source/tests/phase3/tower-video-timebase.test.cjs
           cp current-harness/scripts/tower-capture-window.cjs source/scripts/tower-capture-window.cjs
           cp current-harness/scripts/tower-fixed-step-trace.cjs source/scripts/tower-fixed-step-trace.cjs
           cp current-harness/scripts/tower-source-trace-poller.cjs source/scripts/tower-source-trace-poller.cjs
