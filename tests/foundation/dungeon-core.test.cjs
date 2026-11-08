@@ -454,3 +454,61 @@ test('restored legacy behavior does not silently acquire v2 opportunistic boss t
  assert.equal(game.state.rulesVersion,undefined);
  assert.deepEqual(game.save(),legacy.save(),'legacy rules and RNG are replay-stable');
 });
+
+function mysticDistanceFixture(rules=2,{wall=false,near=false}={}){
+ const game=DungeonRuntime.create('mystic-legal-heal-lane'),s=game.state;
+ s.map=Array.from({length:19},(_,z)=>z===0||z===18?'#'.repeat(19):'#'+'.'.repeat(17)+'#');
+ s.exit={x:16,z:16};s.relics=[];s.traps=[];s.tick=2;
+ for(const enemy of s.units.filter(u=>u.faction==='enemy'))enemy.hp=0;
+ const healer=s.units.find(u=>u.id==='mystic');
+ const target=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ Object.assign(healer,{x:3,z:3,hp:healer.maxHp,focus:3,maxFocus:5});
+ Object.assign(target,{x:near?5:11,z:3,hp:9});
+ Object.assign(ranger,{x:2,z:2,hp:ranger.maxHp});
+ if(wall)s.map[3]=s.map[3].slice(0,4)+'#'+s.map[3].slice(5);
+ if(rules===1)delete s.rulesVersion;
+ assertDungeonState(s);
+ return {game,s,healer,target};
+}
+
+test('v2 Mystic cannot heal a gravely wounded ally across distant rooms; must move one legal tile toward a real heal lane',()=>{
+ const {game,s,healer,target}=mysticDistanceFixture();
+ const previous={focus:healer.focus,hp:target.hp,x:healer.x,z:healer.z};
+ const mirror=DungeonRuntime.restore(game.save());
+ const result=game.step();
+ assert.equal(result.checksum,mirror.step().checksum);
+ assert.equal(target.hp,previous.hp,'distant healing must not teleport through the dungeon');
+ assert.equal(healer.focus,previous.focus,'no charges spent for an out-of-range heal');
+ assert.equal(Math.abs(healer.x-previous.x)+Math.abs(healer.z-previous.z),1,'healer should spend one honest repositioning step');
+ assert.equal(healer.action,'move');
+ assertDungeonState(s);
+});
+
+test('v2 urgent heal requires an actual unobstructed three-cell healing lane',()=>{
+ const blocked=mysticDistanceFixture(2,{near:true,wall:true});
+ const hp=blocked.target.hp,focus=blocked.healer.focus;
+ const mirror=DungeonRuntime.restore(blocked.game.save());
+ const result=blocked.game.step();
+ assert.equal(result.checksum,mirror.step().checksum);
+ assert.equal(blocked.target.hp,hp,'heal cannot pass through solid stone');
+ assert.equal(blocked.healer.focus,focus,'blocked spells cannot consume a charge or restore HP');
+ assertDungeonState(blocked.s);
+ const clear=mysticDistanceFixture(2,{near:true});
+ const before=clear.target.hp,f=clear.healer.focus;
+ const next=clear.game.step();
+ assert.ok(clear.target.hp>before,'genuine nearby clear lane should resolve a real heal');
+ assert.equal(clear.healer.focus,f-1);
+ assert.ok(next.events.some(e=>e.tick===next.tick&&e.kind==='healing'));
+});
+
+test('legacy restored Mystic retains old in-run healing rules while v2 restricts reach',()=>{
+ const {game,s,healer,target}=mysticDistanceFixture(1);
+ const saved=game.save(),oldHp=target.hp,oldFocus=healer.focus;
+ const replay=DungeonRuntime.restore(saved);
+ game.step();replay.step();
+ assert.ok(target.hp>oldHp,'signed legacy run must not change decisions mid-expedition');
+ assert.equal(healer.focus,oldFocus-1);
+ assert.equal(s.rulesVersion,undefined);
+ assert.deepEqual(game.save(),replay.save());
+});
