@@ -27,6 +27,7 @@ on:
       - 'scripts/tiny-kingdom-w139-bvh-contract.cjs'
       - 'scripts/tiny-kingdom-w140-vao-contract.cjs'
       - 'scripts/tiny-kingdom-w141-real-provenance-contract.cjs'
+      - 'scripts/tiny-kingdom-w142-household-continuity-contract.cjs'
       - 'tests/browser/tiny-kingdom-w141-real-grain-journey.spec.cjs'
       - 'tests/browser/tiny-kingdom-w140-resident-vao.spec.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
@@ -114,6 +115,8 @@ jobs:
         run: node scripts/tiny-kingdom-w140-vao-contract.cjs
       - name: W141 one authentic grain receipt through one real household
         run: node scripts/tiny-kingdom-w141-real-provenance-contract.cjs
+      - name: W142 no cross-family receipt/meal, physical continuity and on-world household tag
+        run: node scripts/tiny-kingdom-w142-household-continuity-contract.cjs
       - name: W126 exact four-profession inventory, contact and clock contract
         run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
       - run: npx playwright install --with-deps chromium

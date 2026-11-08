@@ -15,9 +15,10 @@ const farmer=(delivery=null,activity='Harvesting grain')=>({
 });
 const source={producer:'Amin',deliveryId:null};
 const load={id:'grain-5',resource:'food',stage:'hauling',amount:11};
-const receipt={id:'grain-5',resource:'food',citizen:'Amin',amount:11};
-const trade={id:'trade-3',receiptId:'grain-5',citizen:'Hala',amount:.8};
-const meal={id:'meal-3',receiptId:'grain-5',citizen:'Hala',amount:.01};
+const receipt={id:'grain-5',resource:'food',citizen:'Amin',job:'farmer',amount:11,time:12,creditedAtUnloading:true};
+const trade={id:'trade-3',receiptId:'grain-5',citizen:'Hala',amount:.8,time:13};
+const meal={id:'trade-3',receiptId:'grain-5',citizen:'Hala',amount:.01,time:14,homeIndex:1};
+const household={name:'Hala',job:'builder'};
 const expectStage=(row,stage)=>assert.equal(row.stage,stage);
 expectStage(plan(source,[farmer()],[],[],[]),'harvesting');
 expectStage(plan(source,[farmer(null,'Walking')],[],[],[]),'awaiting-harvest');
@@ -26,10 +27,10 @@ expectStage(row,'hauling');assert.equal(row.deliveryId,'grain-5');
 expectStage(plan({...source,deliveryId:'grain-5'},[farmer({...load,stage:'unloading'})],[],[],[]),'unloading');
 expectStage(plan({...source,deliveryId:'grain-5'},[farmer(null,'Walking')],[],[],[]),'awaiting-receipt');
 expectStage(plan({...source,deliveryId:'grain-5'},[farmer()],[receipt],[],[]),'received');
-row=plan({...source,deliveryId:'grain-5'},[farmer()],[receipt],[trade],[]);
+row=plan({...source,deliveryId:'grain-5'},[farmer(),household],[receipt],[trade],[]);
 expectStage(row,'provisioning');assert.equal(row.citizen,'Hala');
-row=plan({...source,deliveryId:'grain-5'},[farmer()],[receipt],[trade],[meal]);
-expectStage(row,'consumed');assert.equal(row.mealId,'meal-3');
+row=plan({...source,deliveryId:'grain-5'},[farmer(),household],[receipt],[trade],[meal]);
+expectStage(row,'consumed');assert.equal(row.mealId,'trade-3');
 // A different farmer's receipt cannot become this farmer's meal.
 expectStage(plan({...source,deliveryId:'grain-5'},[farmer()],
  [{...receipt,id:'grain-6'}],[{...trade,receiptId:'grain-6'}],
@@ -38,7 +39,7 @@ expectStage(plan({...source,deliveryId:'grain-5'},[farmer()],
 assert.equal(plan({...source,deliveryId:'grain-5'},[farmer()],[receipt],[],[]).tradeId,undefined);
 // The presentation helper is a pure projection of saved authority.
 const before=JSON.stringify({source,load,receipt,trade,meal});
-plan({...source,deliveryId:'grain-5'},[farmer(load)],[receipt],[trade],[meal]);
+plan({...source,deliveryId:'grain-5'},[farmer(load),household],[receipt],[trade],[meal]);
 assert.equal(before,JSON.stringify({source,load,receipt,trade,meal}));
 assert(js.includes('if(grainJourney)advanceRealGrainJourney()'));
 assert(js.includes("getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney"));
