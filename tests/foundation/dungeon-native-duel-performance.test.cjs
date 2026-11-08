@@ -79,8 +79,8 @@ test('native source-skinned attack owns one coherent bone/root layer, not three 
  assert.match(source,/nativeMelee\?RIG_ZERO:\(actor\.performanceBeat\?\.\[mount\.part\]/);
  assert.match(source,/nativeMelee\?RIG_ZERO:pose\[mount\.side\]/);
  assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_BRACE:planRigContactBrace/);
- assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:\s*planAuthoredMotion/);
- assert.match(source,/nativeMelee\?NATIVE_MELEE_NO_ROOT:actor\.performanceBeat\.root/);
+ assert.match(source,/nativeMelee\|\|blocking\?NATIVE_MELEE_NO_ROOT:\s*planAuthoredMotion/);
+ assert.match(source,/nativeMelee\|\|blocking\?NATIVE_MELEE_NO_ROOT:actor\.performanceBeat\.root/);
  assert.match(source,/actor\.nativeDuel\?\.forearms/);
  assert.match(source,/actor\.nativeDuel\?\.legs/);
  assert.match(source,/restoreRigArmsBeforeMixer[\s\S]*?actor\.mixer\.update[\s\S]*?stageRigMeleeAfterMixer/);
