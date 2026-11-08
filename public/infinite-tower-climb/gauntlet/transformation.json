@@ -88,7 +88,18 @@
       "leadingTransformationVerdict": "NOT EVALUATED",
       "largestObservedGap": "Old real portrait e0fe7729 footage at ~16–18 seconds shows foreground clockwork obscuring hero and guardian. Newer structural cutaways at f1fe522e have not been filmed in continuous motion.",
       "nextHighImpactAction": "Recover original-game Node22/Three/Chromium checkout or GitHub runner access. Run exact-HEAD revised P0 source audit and source-pinned 960x600/390x844 native WebM from deliberate capture-request.json when workers can execute, align genuine guardian/crusher victory -> grounded threshold -> floor9 -> outcome/intermission/restart, inspect current motion and fix the biggest actual experience defect. Then proceed through P1-P6 without skipping any acceptance.",
-      "restrictions": "PR58/main/baseline unchanged, PR68 draft preserved. Do not merge, deploy, force push, fabricate film or votes, or call quality passed from source checks."
+      "restrictions": "PR58/main/baseline unchanged, PR68 draft preserved. Do not merge, deploy, force push, fabricate film or votes, or call quality passed from source checks.",
+      "sourceGuardrailImplementationCommitSha": "c6499473645f7db1743f5c2d533308ef74b5f5d2",
+      "sourceGuardrailCommitUrl": "https://github.com/my-edutu/Ai_games/commit/c6499473645f7db1743f5c2d533308ef74b5f5d2",
+      "newExactSourceQuality": {
+        "runId": 42511394201,
+        "sha": "c6499473645f7db1743f5c2d533308ef74b5f5d2",
+        "status": "queued",
+        "assignedRunners": 0,
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42511394201",
+        "note": "Not executed; neither quality proof nor game improvement"
+      },
+      "currentSourceVideo": "NOT EVALUATED — no full-speed native film from the current rendered-game source"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
