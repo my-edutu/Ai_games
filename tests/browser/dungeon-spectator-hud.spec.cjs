@@ -207,3 +207,18 @@ test('original audio is never started by a page reload',async({page})=>{
  await expect(audio).toHaveAttribute('aria-pressed','false');
  await expect(audio).toHaveAccessibleName(/enable original dungeon audio/i);
 });
+
+test('320px narrow phone preserves every 44px control without horizontal scroll',async({page})=>{
+ await pinRealRun(page,{size:{width:320,height:740}});
+ const width=await page.evaluate(()=>document.documentElement.scrollWidth);
+ expect(width).toBeLessThanOrEqual(320);
+ const header=await page.locator('.masthead').boundingBox();
+ expect(header.height).toBeGreaterThanOrEqual(155);
+ for(const id of ['director-toggle','view-toggle','fx-toggle','audio-toggle',
+  'map-toggle','journal-toggle','hud-toggle']){
+  const bounds=await page.locator('#'+id).boundingBox();
+  expect(bounds.width,id).toBeGreaterThanOrEqual(44);
+  expect(bounds.height,id).toBeGreaterThanOrEqual(44);
+ }
+ await page.screenshot({path:'artifacts/dungeon-spectator-320px-real.png',fullPage:true});
+});
