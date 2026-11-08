@@ -116,6 +116,41 @@ test('constrained foot support respects actual movement, planted side and bounds
     assert.ok(Number.isFinite(x)&&Math.abs(x)<=.063);
   }
 });
+test('native skinned stride synchronizes to actual alternating footfall stamps and releases stance smoothly',async()=>{
+ const pathToRig=path.join(root,'public/ai-dungeon/rig-attachment-plan.js');
+ const {advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride}=
+  await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(pathToRig,'utf8')).toString('base64'));
+ const tau=2*Math.PI;
+ const prior=advanceRigGait(0,0,.13,false,.016);
+ assert.ok(prior.weight>.50&&prior.phase>0,'legal source displacement starts a real stride');
+ const actual=alignRigFootfallPhase(prior.phase,.25,true);
+ assert.ok(Math.abs(actual-tau*.25)<1e-9,'both original source ankles must use the stamped foot cycle');
+ const changedParity=alignRigFootfallPhase(prior.phase,.75,true);
+ assert.ok(Math.abs(changedParity-actual-Math.PI)<1e-9,'every second stamped step swaps the planted foot');
+ assert.equal(alignRigFootfallPhase(actual,.75,false),actual,'idle is not a counterfeit footstep');
+ assert.equal(alignRigFootfallPhase(actual,.75,true,true),0,'teleport resets');
+ assert.equal(alignRigFootfallPhase(actual,Infinity,true),actual,'malformed foot signal is ignored');
+ assert.equal(alignRigFootfallPhase(actual,-.10,true),actual);
+ assert.equal(alignRigFootfallPhase(actual,1.5,true),actual);
+ const slow=advanceRigGait(actual,1,0,false,.016);
+ const faster=advanceRigGait(actual,1,0,false,.032);
+ assert.ok(slow.weight>0&&slow.weight<1,'standing down fades the last physically planted step');
+ assert.ok(faster.weight<slow.weight,'longer rendered frames should consume more of the same physical time');
+ assert.equal(slow.phase,actual,'fading pose cannot create travel');
+ assert.ok(planRigLegGesture(slow.phase,slow.weight).left.upper!==0);
+ assert.ok(Math.abs(planRigFullBodyStride('vanguard',slow.phase,slow.weight).hips.yaw)>0);
+ let settled=slow;
+ for(let i=0;i<24;i++)settled=advanceRigGait(settled.phase,settled.weight,0,false,.016);
+ assert.equal(settled.weight,0,'the idle pose reaches exact rest, not endless skating');
+ assert.deepEqual(advanceRigGait(slow.phase,slow.weight,0,true,.016),{phase:0,weight:0});
+ assert.deepEqual(advanceRigGait(slow.phase,slow.weight,Infinity,false,.016),{phase:0,weight:0});
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/stageRigGroundedStride\(actor,reducedMotion,dt\)/);
+ assert.match(model,/alignRigFootfallPhase\(gait\.phase,actor\.groundedPerformance\?\.footPhase,walking/);
+ assert.match(model,/fullBodyFootfallPhaseErrorRad:/);
+ assert.match(model,/fullBodySettlingActors:/);
+});
+
 test('source clips are auditable by native track without altering original GLBs',async()=>{
  const {auditImportedAnimationClips:audit}=await load();
  const clip={name:'Run',duration:1.2,tracks:[
