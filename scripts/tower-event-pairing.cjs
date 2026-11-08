@@ -51,6 +51,37 @@ function nativeViewport(m){
  if(v?.width===390&&v?.height===844)return 'portrait';
  return null;
 }
+// Native-video clock alignment yields inspection timestamps, NEVER a visible
+// action or a blind preference. Both original recordings remain unmodified.
+function inspectedSourceTimebase(row) {
+ const clock=row?.videoClock;
+ if(!clock)return {status:'NOT EVALUATED',reason:'native-video-clock.json absent'};
+ if(clock.sourceSha!==row.sourceSha||
+    clock.scenario!==row.scenario||
+    nativeViewport({viewport:clock.viewport})!==row.viewport||
+    clock.seed!==row.index?.seed||
+    clock.graphicsTier!==row.motion?.graphicsTier)
+   return {status:'NOT EVALUATED',reason:'native-video sidecar provenance mismatch'};
+ if(clock.status!=='CALIBRATED'||!Number.isFinite(clock.calibration?.offsetMs)||
+    !Array.isArray(clock.sourceEventTimecodes))
+   return {status:'NOT EVALUATED',
+    reason:clock.calibration?.reason||clock.error||'native frame anchors not calibrated'};
+ return {status:'CALIBRATED',
+   sourceEventsAvailable:clock.sourceEventTimecodes.length,
+   events:clock.sourceEventTimecodes};
+}
+function originalFilmEventSearch(clock,pair,side) {
+ if(clock.status!=='CALIBRATED')return null;
+ const atMs=side==='baseline'?pair.baselineObservationMs:pair.candidateObservationMs;
+ const candidates=clock.events.filter(e=>e.atMs===atMs&&e.kind===pair.kind&&
+    e.floor===pair.floor&&Number.isFinite(e.nativeVideoSeconds)&&
+    e.inOriginalVideo===true&&e.eventVisibleInVideo==='NOT EVALUATED');
+ if(candidates.length!==1)return null;
+ return {nativeVideoSeconds:candidates[0].nativeVideoSeconds,
+   observedEpisode:candidates[0].observedEpisode??null,
+   sourceTick:candidates[0].sourceTick??candidates[0].tick??null,
+   caveat:'Calibrated source search handle; on-screen event NOT EVALUATED'};
+}
 // A 60-second file can still contain the WRONG gameplay: a floor-eight
 // danger capture may begin on floor ten after an unrelated restart. Check
 // that source-observed beats occur in the SAME real episode, in order.
@@ -147,6 +178,18 @@ function auditPairs(recordings,candidateSha){
   if(!(before.index?.sourceTicksObserved>1&&after.index?.sourceTicksObserved>1))
    faults.push('missing passive source ticks');
   const aligned=matchSourceEvents(before.index.events,after.index.events);
+  const baselineClock=inspectedSourceTimebase(before);
+  const candidateClock=inspectedSourceTimebase(after);
+  const pairedSourceSearch=aligned.pairs.map(pair=>{
+    const baseline=originalFilmEventSearch(baselineClock,pair,'baseline');
+    const candidate=originalFilmEventSearch(candidateClock,pair,'candidate');
+    return {...pair,calibratedSourceEventSearch:{
+      baseline,candidate,bothInOriginalVideo:!!baseline&&!!candidate,
+      eventVisibleInBothVideos:false,
+      verdict:'NOT EVALUATED: calibrated source-clock pointers, not viewed frames'}};
+  });
+  const pairedCalibratedSearchCount=pairedSourceSearch.filter(pair=>
+    pair.calibratedSourceEventSearch.bothInOriginalVideo).length;
   // Source-story gaps are inspection priorities, not film failures or quality
   // votes. Baseline naturally need not contain the new physical threshold.
   const sourceKinds=record=>new Set((record.index?.events||[]).map(e=>e.kind));
@@ -178,11 +221,25 @@ function auditPairs(recordings,candidateSha){
    sourceStoryEpisodes:{baseline:baselineStory,candidate:candidateStory},faults,sourceStory,
    baselineArtifact:before.artifact,candidateArtifact:after.artifact,
    baselineVideo:before.videoPath,candidateVideo:after.videoPath,
-   sourceEventPairs:aligned.pairs,missingFromBaseline:aligned.missingFromBaseline,
+   nativeSourceVideoTimebase:{
+     baseline:baselineClock.status,candidate:candidateClock.status,
+     baselineReason:baselineClock.reason||null,
+     candidateReason:candidateClock.reason||null,
+     calibratedSourceEventPairSearchHandles:pairedCalibratedSearchCount,
+     visualEventVerification:'NOT EVALUATED'},
+   sourceEventPairs:pairedSourceSearch,missingFromBaseline:aligned.missingFromBaseline,
    missingFromCandidate:aligned.missingFromCandidate,
    verdict:'NOT EVALUATED: authentic matching event NAMES are not video-visible matches'});
   if(faults.length)result.provenanceDefects.push({scenario,viewport,faults});
  }
+ // Timebase alignment is independent of all film-visibility and UX gates.
+ result.calibratedTimebasePairs=result.comparisons.filter(p=>
+   p.nativeSourceVideoTimebase.baseline==='CALIBRATED'&&
+   p.nativeSourceVideoTimebase.candidate==='CALIBRATED').length;
+ result.videoTimecodesCalibrated=result.comparisons.length===8&&
+   result.missingPairs.length===0&&result.calibratedTimebasePairs===8;
+ result.fullMotionPaired=false;
+ result.verdict='NOT EVALUATED';
  return result;
 }
 function collect(root){
@@ -202,8 +259,15 @@ function collect(root){
     const index=JSON.parse(fs.readFileSync(full,'utf8'));
     const motion=JSON.parse(fs.readFileSync(motionPath,'utf8'));
     const webm=path.join(dir,'live.webm');
+    const clockPath=path.join(dir,'native-video-clock.json');
+    let videoClock=null;
+    if(fs.existsSync(clockPath)){
+      try {videoClock=JSON.parse(fs.readFileSync(clockPath,'utf8'));}
+      catch {videoClock={status:'NOT EVALUATED',
+        error:'Unreadable native-video-clock.json'};}
+    }
     rows.push({artifact:entry.name,source:match[1],scenario:match[2],
-      viewport:path.basename(dir),sourceSha:motion.sourceSha,motion,index,
+      viewport:path.basename(dir),sourceSha:motion.sourceSha,motion,index,videoClock,
       videoPath:path.relative(root,webm),videoPresent:fs.existsSync(webm)});
    }
   }
