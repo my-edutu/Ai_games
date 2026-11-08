@@ -78,7 +78,7 @@ export function recentExpeditionOutcome(s){
   e.tick<=s.tick&&s.tick-e.tick<=6&&accepted.has(e.kind)&&typeof e.text==='string');
  return event?{kind:clip(event.kind.toUpperCase(),22),text:clip(event.text,110),tick:event.tick}:null;
 }
-const heroName={vanguard:'Vanguard',ranger:'Ranger',mystic:'Mystic'};
+const heroName={vanguard:'Vanguard',ranger:'Wildshadow',mystic:'Starweaver'};
 /** Focus controls only delegate to the existing real hero-card selection. */
 export function installSpectatorUI(doc=document){
  const $=id=>doc.getElementById(id),body=doc.body;
