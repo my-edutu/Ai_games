@@ -1,14 +1,14 @@
 import {NamedRng, type RngSnapshot} from '../../../packages/seeded-rng/src/index';
 import {checksum} from '../../../packages/replay/src/index';
 
-export const DUNGEON_VERSION='0.5.0';
+export const DUNGEON_VERSION='0.6.0';
 export const MAP_SIZE=19;
 export type UnitKind='vanguard'|'ranger'|'mystic'|'revenant'|'cultist'|'warden';
 export type Faction='party'|'enemy';
 export interface Unit {id:string;kind:UnitKind;faction:Faction;x:number;z:number;hp:number;maxHp:number;attack:number;cooldown:number;action?:'idle'|'move'|'attack'|'cast'|'hurt'|'guard';actionTick?:number;guardTick?:number;targetId?:string;recoveryUntilTick?:number;focus?:number;maxFocus?:number;channelUntilTick?:number;channelTargetId?:string;channelX?:number;channelZ?:number;breachUntilTick?:number;breachTargetId?:string;breachX?:number;breachZ?:number}
 export interface DungeonEvent {tick:number;kind:string;text:string}
 export interface DungeonTrap{id:string;x:number;z:number;kind:'ember'|'arcane';active:boolean;cooldown:number;disarmed:boolean;triggers:number}
-export interface DungeonState {schemaVersion:1;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
+export interface DungeonState {schemaVersion:1;rulesVersion?:2;tick:number;floor:number;run:number;phase:'exploring'|'intermission';intermission:number;theme:string;map:string[];exit:{x:number;z:number};units:Unit[];relics:{x:number;z:number}[];traps:DungeonTrap[];kills:number;gold:number;level:number;intent:string;events:DungeonEvent[]}
 export interface DungeonSave {version:string;seed:string;rng:RngSnapshot;state:DungeonState;signature:string}
 export type WardenPhase='SENTINEL'|'RUPTURE'|'ECLIPSE'|'VANQUISHED';
 export function wardenPhase(boss?:Pick<Unit,'hp'|'maxHp'>):WardenPhase{
@@ -366,6 +366,48 @@ export function planTacticalStep(
  return fallback?.first??null;
 }
 /**
+ * New-rule expedition coordination: a front-line leader must not be trapped
+ * behind a support ally in an authentic one-cell hallway. Only the ACTUAL
+ * first tile of the leader's walkable route may request right-of-way, after
+ * the leader's real movement planner has failed. The companion pays one
+ * legal movement turn; never swap positions, cross bodies or move through
+ * warned stone. No persistent reservation or seeded RNG is necessary.
+ */
+export function planSquadRightOfWay(
+ s:Pick<DungeonState,'map'|'units'|'traps'|'tick'>,leader:Unit,
+ blocker:Unit,goal:TacticalCell,mode:TacticalMode
+):TacticalCell|null{
+ if(!s||!leader||!blocker||leader.id===blocker.id||
+  leader.faction!=='party'||blocker.faction!=='party'||
+  leader.hp<=0||blocker.hp<=0||!Array.isArray(s.map)||
+  !Array.isArray(s.units)||!Array.isArray(s.traps)||
+  !walkable(s.map,leader.x,leader.z)||!walkable(s.map,blocker.x,blocker.z)||
+  !walkable(s.map,goal?.x,goal?.z)||
+  !['engage','exit'].includes(mode))return null;
+ const route=shortestPath(s.map,leader,goal);
+ if(!route.length||route[0].x!==blocker.x||route[0].z!==blocker.z||
+  (mode==='exit'&&dist(blocker,goal)===0))return null;
+ const occupied=new Set(s.units.filter(u=>u.hp>0&&u.id!==blocker.id).map(u=>key(u.x,u.z)));
+ const hazardous=new Set(s.traps.filter(t=>t.active&&!t.disarmed).map(t=>key(t.x,t.z)));
+ const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
+ const strike=boss?planWardenStrike(s,boss):null;
+ const marked=new Set((strike&&(strike.warning||strike.turnsUntilImpact===0)?
+  strike.cells:[]).map(p=>key(p.x,p.z)));
+ const permitted=(p:TacticalCell)=>walkable(s.map,p.x,p.z)&&
+  dist(p,blocker)===1&&!occupied.has(key(p.x,p.z))&&
+  !hazardous.has(key(p.x,p.z))&&!marked.has(key(p.x,p.z));
+ const tactical=planTacticalStep(s,blocker,goal,mode);
+ if(tactical&&permitted(tactical))return tactical;
+ // In a single-wide passage the next free stone might not be an ideal
+ // shooting position yet. Advance as a real escort rather than immobilizing
+ // the whole expedition for the sake of a cosmetic formation.
+ const options=DIRS.map(([dx,dz])=>({x:blocker.x+dx,z:blocker.z+dz}))
+  .filter(permitted)
+  .sort((a,b)=>dist(a,goal)-dist(b,goal)||a.z-b.z||a.x-b.x);
+ return options[0]??null;
+}
+
+/**
  * Back-line retreat is a genuine turn of movement. No phantom spell,
  * grid collision, untargetable teleport or protected unknown tile.
  */
@@ -632,10 +674,11 @@ function createFloor(seed:string,floor:number,rng:NamedRng,run:number,previous?:
   const index=rng.nextInt('trap-positions:'+floor+':'+run,trapTiles.length),p=trapTiles.splice(index,1)[0];
   traps.push({id:'hazard-'+floor+'-'+i,x:p.x,z:p.z,kind:i%2?'arcane':'ember',active:true,cooldown:0,disarmed:false,triggers:0});
  }
- return {schemaVersion:1,tick:previous?.tick??0,floor,run,phase:'exploring',intermission:0,theme:THEMES[(floor-1)%THEMES.length],map:rows,exit,units,relics,traps,kills:previous?.kills??0,gold:previous?.gold??0,level:previous?.level??1,intent:'Mapping the uncharted halls',events:previous?.events??[]};
+ const rules=previous?(previous.rulesVersion===2?{rulesVersion:2 as const}:{}):{rulesVersion:2 as const};
+ return {schemaVersion:1,...rules,tick:previous?.tick??0,floor,run,phase:'exploring',intermission:0,theme:THEMES[(floor-1)%THEMES.length],map:rows,exit,units,relics,traps,kills:previous?.kills??0,gold:previous?.gold??0,level:previous?.level??1,intent:'Mapping the uncharted halls',events:previous?.events??[]};
 }
 export function assertDungeonState(s:DungeonState){
- if(s.schemaVersion!==1||s.map.length!==MAP_SIZE||s.map.some(r=>r.length!==MAP_SIZE))throw Error('Invalid dungeon map');
+ if(s.schemaVersion!==1||(s.rulesVersion!==undefined&&s.rulesVersion!==2)||s.map.length!==MAP_SIZE||s.map.some(r=>r.length!==MAP_SIZE))throw Error('Invalid dungeon map');
  if(!walkable(s.map,1,1)||!walkable(s.map,s.exit.x,s.exit.z)||shortestPath(s.map,{x:1,z:1},s.exit).length===0)throw Error('Dungeon exit unreachable');
  const ids=new Set<string>();
  for(const u of s.units){if(ids.has(u.id)||!walkable(s.map,u.x,u.z)||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp)throw Error('Invalid unit '+u.id);ids.add(u.id);
@@ -674,7 +717,17 @@ export class DungeonRuntime {
  private rng:NamedRng;
  private constructor(private seed:string, rng:NamedRng,state:DungeonState){this.rng=rng;this.state=state;assertDungeonState(state)}
  static create(seed='ashen-dungeon'){const rng=NamedRng.fromSeed(seed);return new DungeonRuntime(seed,rng,createFloor(seed,1,rng,1))}
- static restore(save:DungeonSave){if(save.version!==DUNGEON_VERSION||save.signature!==checksum({seed:save.seed,rng:save.rng,state:save.state}))throw Error('Dungeon snapshot checksum mismatch');return new DungeonRuntime(save.seed,NamedRng.restore(save.rng),clone(save.state))}
+ static restore(save:DungeonSave){
+  if(!save||!['0.5.0',DUNGEON_VERSION].includes(save.version))
+   throw Error('Unsupported dungeon gameplay version; start a new expedition rather than replaying incompatible rules');
+  if(save.signature!==checksum({seed:save.seed,rng:save.rng,state:save.state}))
+   throw Error('Dungeon snapshot checksum mismatch');
+  // Previous signed 0.5.0 expeditions lack rulesVersion. Keep their exact old
+  // tactics through the current run; only an earned defeat/restart starts v2.
+  if(save.version==='0.5.0'&&save.state?.rulesVersion!==undefined)
+   throw Error('Invalid v0.5.0 dungeon rules metadata');
+  return new DungeonRuntime(save.seed,NamedRng.restore(save.rng),clone(save.state));
+ }
  save():DungeonSave {const state=clone(this.state),rng=this.rng.snapshot();return {version:DUNGEON_VERSION,seed:this.seed,rng,state,signature:checksum({seed:this.seed,rng,state})}}
  step(){
   const s=this.state;const warden=s.units.find(u=>u.kind==='warden');const previousWardenPhase=wardenPhase(warden),wardAtStart=wardenSealActive(s);s.tick++;for(const unit of s.units){unit.action='idle';unit.actionTick=s.tick;delete unit.targetId;
@@ -691,6 +744,7 @@ export class DungeonRuntime {
   }
   if(s.phase==='intermission'){if(--s.intermission<=0){const run=s.run+1;this.state=createFloor(this.seed,1,this.rng,run);push(this.state,'restart','A new expedition enters the dungeon.')}return this.publicState()}
   const party=s.units.filter(u=>u.faction==='party'&&u.hp>0),foes=s.units.filter(u=>u.faction==='enemy'&&u.hp>0),leader=party[0];
+  let leaderBlockedGoal:TacticalCell|null=null,leaderBlockedMode:TacticalMode='engage';
   if(!leader){s.phase='intermission';s.intermission=14;push(s,'defeat','The expedition was lost. A new run begins shortly.');return this.publicState()}
   // Traps cool down on authoritative ticks. Ranger can permanently disarm a nearby hazard.
   for(const trap of s.traps)if(!trap.disarmed&&!trap.active&&trap.cooldown>0){trap.cooldown--;if(trap.cooldown===0)trap.active=true}
@@ -862,6 +916,15 @@ export class DungeonRuntime {
    const imminentInterception=hero.kind!=='vanguard'?
     threatenedCasters.find(enemy=>dist(hero,enemy)<=range+2):null;
    const engagement=imminentInterception??(recoveringWarden||minion||(hero===leader?boss:nearbyBoss));
+   if(hero!==leader&&s.rulesVersion===2&&leaderBlockedGoal&&!imminentInterception){
+    const lane=planSquadRightOfWay(s,leader,hero,leaderBlockedGoal,leaderBlockedMode);
+    if(lane){
+     hero.x=lane.x;hero.z=lane.z;hero.action='move';hero.targetId=leader.id;
+     s.intent=hero.kind+' yielding the real passage for the expedition front line';
+     push(s,'formation',hero.kind+' opened a lawful route through the narrow passage');
+     continue;
+    }
+   }
    if(hero!==leader&&!engagement){
     const next=planTacticalStep(s,hero,leader,'escort');
     if(next){hero.x=next.x;hero.z=next.z;hero.action='move';
@@ -876,6 +939,14 @@ export class DungeonRuntime {
     s.intent=imminentInterception&&engagement===imminentInterception?'Seeking a lawful interrupt lane before the locked strike':
      recoveringWarden?'Closing on the Warden counterattack':hero.kind==='vanguard'?(minion?'Intercepting '+minion.kind:engagement?'Confronting the Warden':'Claiming the portal'):
      hero.kind==='ranger'?'Wildshadow seeking an open shot':'Starweaver taking a safe spell lane';
+   }else if(hero===leader&&s.rulesVersion===2){
+    // The leader truly failed to move; request a follower to clear the FIRST
+    // physical path cell later in this very same authoritative party tick.
+    const goal=engagement??s.exit,route=shortestPath(s.map,hero,goal);
+    if(route.length&&party.some(u=>u.id!==hero.id&&u.x===route[0].x&&u.z===route[0].z)){
+     leaderBlockedGoal={x:goal.x,z:goal.z};
+     leaderBlockedMode=engagement?'engage':'exit';
+    }
    }
   }
   // One authoritative transition when the last binding guard falls or the Warden's first phase breaks.
@@ -1084,6 +1155,6 @@ export class DungeonRuntime {
   const boss=s.units.find(u=>u.kind==='warden'&&u.hp>0);
   const strike=boss?planWardenStrike(s,boss):null;
   const bossWarning=strike?.warning&&s.units.some(u=>u.faction==='party'&&u.hp>0&&dist(u,boss!)<=5)?strike:null;
-  return {version:DUNGEON_VERSION,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),cultistWarnings:s.units.filter(u=>u.kind==='cultist'&&u.hp>0&&u.channelUntilTick!==undefined&&u.channelUntilTick>s.tick).slice(0,6).map(u=>({sourceId:u.id,targetId:u.channelTargetId,x:u.channelX,z:u.channelZ,impactTick:u.channelUntilTick})),revenantWarnings:s.units.filter(u=>u.kind==='revenant'&&u.hp>0&&u.breachUntilTick!==undefined&&u.breachUntilTick>s.tick).slice(0,8).map(u=>({sourceId:u.id,targetId:u.breachTargetId,x:u.breachX,z:u.breachZ,impactTick:u.breachUntilTick})),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
+  return {version:DUNGEON_VERSION,rulesVersion:s.rulesVersion??1,tick:s.tick,run:s.run,floor:s.floor,theme:s.theme,phase:s.phase,bossPhase:wardenPhase(s.units.find(u=>u.kind==='warden')),guardianWard:wardenSealActive(s),cultistWarnings:s.units.filter(u=>u.kind==='cultist'&&u.hp>0&&u.channelUntilTick!==undefined&&u.channelUntilTick>s.tick).slice(0,6).map(u=>({sourceId:u.id,targetId:u.channelTargetId,x:u.channelX,z:u.channelZ,impactTick:u.channelUntilTick})),revenantWarnings:s.units.filter(u=>u.kind==='revenant'&&u.hp>0&&u.breachUntilTick!==undefined&&u.breachUntilTick>s.tick).slice(0,8).map(u=>({sourceId:u.id,targetId:u.breachTargetId,x:u.breachX,z:u.breachZ,impactTick:u.breachUntilTick})),bossWarning,bossRecovery:boss?planWardenRecovery(s,boss):null,defendersRemaining:s.units.filter(u=>u.faction==='enemy'&&u.kind!=='warden'&&u.hp>0).length,intermission:s.intermission,map:s.map,exit:s.exit,units:s.units.map(u=>({...u})),relics:s.relics.map(r=>({...r})),traps:s.traps.map(t=>({...t})),kills:s.kills,gold:s.gold,level:s.level,intent:s.intent,events:s.events.map(e=>({...e})),checksum:checksum({tick:s.tick,run:s.run,floor:s.floor,units:s.units,relics:s.relics,traps:s.traps,gold:s.gold})};
  }
 }
