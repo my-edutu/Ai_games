@@ -6,6 +6,9 @@ on:
       - '.github/workflows/tiny-kingdom-source-snapshot.yml'
   pull_request:
     paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
       - '.github/workflows/tiny-kingdom-source-snapshot.yml'
   workflow_dispatch:
 permissions:
