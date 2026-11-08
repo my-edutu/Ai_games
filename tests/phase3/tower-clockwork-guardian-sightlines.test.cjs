@@ -316,3 +316,46 @@ test('overlapping real foreground clock/rack assemblies share a single bounded p
   assert.match(source,/const protectedClockFace=syncClockFaceSightline\(entry\)/);
   assert.match(source,/entry\.alloy\.opacity\+=\(requiredOpacity-entry\.alloy\.opacity\)\*strength/);
 });
+
+test('original clockwork split rings preserve actual ray-clear structural windows',async()=>{
+  const [THREE]=await loaded;
+  const apertures=helper('observedClockworkRimApertures')();
+  const opening=.62,step=Math.PI/2;
+  assert.equal(apertures.length,4);
+  const fragments=apertures.map((section,index)=>{
+    assert.ok(Math.abs(section.start-(index*step+opening*.5))<1e-9);
+    assert.ok(Math.abs(section.arc-(step-opening))<1e-9);
+    assert.ok(section.arc<step,'monumental ring must have REAL openings');
+    const geometry=new THREE.TorusGeometry(6.4,.45,7,20,section.arc);
+    const segment=new THREE.Mesh(geometry,
+      new THREE.MeshBasicMaterial({side:THREE.DoubleSide}));
+    segment.rotation.z=section.start;
+    segment.updateMatrixWorld(true);
+    return segment;
+  });
+  const ray=new THREE.Raycaster();
+  const countHits=angle=>{
+    ray.set(new THREE.Vector3(Math.cos(angle)*6.4,
+      Math.sin(angle)*6.4,5),new THREE.Vector3(0,0,-1));
+    ray.near=0;ray.far=10;
+    return ray.intersectObjects(fragments,false).length;
+  };
+  try{
+    for(let index=0;index<4;index++){
+      assert.equal(countHits(index*step),0,
+        'a real ray through each gap must miss ALL remaining 3D segments');
+      assert.ok(countHits(index*step+step*.5)>0,
+        'interrupted rim must still contain physically present metal arcs');
+    }
+    assert.ok(fragments.every(mesh=>mesh.geometry.parameters.arc<Math.PI/2));
+    assert.ok(source.includes('openClockRim(clock,6.4,.45,materials.copper,.9)'));
+    assert.ok(source.includes('openClockRim(clock,5.8,.11,materials.edge,1)'));
+    assert.ok(!source.includes('new THREE.TorusGeometry(6.4,.45,8,48)'));
+    assert.ok(source.includes('foregroundRacks.push(rackEntry)'),
+      'decorative drive architecture remains');
+    assert.ok(source.includes('const main=gear(clock,4.8'),
+      'the original animated gear remains part of the game');
+  }finally{
+    for(const part of fragments){part.geometry.dispose();part.material.dispose();}
+  }
+});
