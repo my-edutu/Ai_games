@@ -23,8 +23,14 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# P0 runner admission: this is the latest-source SAFETY VETO, not an
+# immutable baseline/candidate film. Multiple PR68 hourly source updates had
+# left separate exact-SHA quality jobs pending without runners. GitHub retains
+# at most one PENDING quality run per branch group and replaces an older pending
+# one with a newer HEAD; do not interrupt a job which is actually running.
+# The separate 9-job real-game capture keeps its immutable per-SHA group.
 concurrency:
-  group: tower-transformation-${{ github.sha }}
+  group: tower-transformation-quality-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   integrity-not-quality:
