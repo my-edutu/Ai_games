@@ -19,6 +19,9 @@ test('short 230ms hit visual expires during still-eligible 300ms submitted frame
  assert.equal(gate(observation({observedFrameVerified:false})),'unverified-frame');
  assert.equal(gate(observation({sceneMatches:false})),'scene-changed');
  assert.equal(gate(observation({visualAlive:null})),'deliver');
+ assert.equal(gate(observation({visualAlive:true,visualDrawable:false})),'await-drawable-visual');
+ assert.equal(gate(observation({visualAlive:true,visualDrawable:true})),'deliver');
+ assert.equal(gate(observation({visualAlive:false,visualDrawable:false})),'expired-visual');
 });
 const snapshot=(tick,hp)=>({tick,run:1,floor:1,events:[],units:[{
  id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
@@ -118,4 +121,62 @@ test('newly due swing survives a 260ms browser frame without replaying a stale V
  director.advance(.05,.26);
  assert.equal(positions.size,0,'older, previously submitted art still expires on stalls');
  director.dispose();
+});
+
+test('sound waits until the specific genuine wrist trail becomes drawable in a submitted frame',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const live=new Set(),drawable=new Set(),sounds=[];let moved=false;
+ const visuals={
+  emit(c){live.add(c.id);return true},
+  advance(){if(moved)for(const id of live)drawable.add(id)},
+  hasLiveCue:id=>live.has(id),hasDrawableCue:id=>drawable.has(id),
+  reset(){live.clear();drawable.clear()},dispose(){}
+ };
+ const audio={enable(){return true},emit(c){sounds.push(c.id);return true},
+  disable(){},flush(){},cleanup(){},dispose(){}};
+ const d=createPhysicalCombatFeedback({visualAdapter:visuals,audioAdapter:audio,requirePresentedFrame:true});
+ const s=(tick,action)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,hp:30,maxHp:30,action,actionTick:tick
+ }]});
+ d.enableAudioFromGesture();d.acceptSnapshot(s(10,'idle'));d.acceptSnapshot(s(11,'attack'));
+ for(let i=0;i<3;i++)d.advance(.05,.05);
+ assert.equal(d.stats().awaitingPresentation,1);
+ assert.equal(d.acknowledgePresentedFrame('hidden',.01),0);
+ assert.equal(d.stats().awaitingPresentation,1,'hidden ribbon keeps its deadline, not a false receipt');
+ assert.equal(sounds.length,0);
+ moved=true;d.advance(.016,.016);
+ assert.equal(d.acknowledgePresentedFrame('moving',.01),1);
+ assert.equal(d.stats().awaitingPresentation,0);
+ assert.equal(d.acknowledgePresentedFrame('moving',.01),0);
+ assert.equal(sounds.length,1);
+ d.dispose();
+});
+test('stationary unmeasured sword sound expires; mute clears waiting sounds',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const live=new Set(),sounds=[];
+ const v={emit(c){live.add(c.id);return true},
+  advance(_dt,raw){if(raw>=.23)live.clear()},
+  hasLiveCue:id=>live.has(id),hasDrawableCue(){return false},
+  reset(){live.clear()},dispose(){}};
+ const a={enable(){return true},emit(c){sounds.push(c.id);return true},
+  disable(){},flush(){},cleanup(){},dispose(){}};
+ const d=createPhysicalCombatFeedback({visualAdapter:v,audioAdapter:a,requirePresentedFrame:true});
+ const s=(tick,action)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,hp:30,maxHp:30,action,actionTick:tick
+ }]});
+ d.enableAudioFromGesture();d.acceptSnapshot(s(10,'idle'));d.acceptSnapshot(s(11,'attack'));
+ for(let i=0;i<3;i++)d.advance(.05,.05);
+ assert.equal(d.acknowledgePresentedFrame('hidden',.01),0);
+ d.advance(.05,.24);
+ assert.equal(d.acknowledgePresentedFrame('expired',.01),0);
+ assert.equal(d.stats().recentDeliveryReceipts.at(-1)?.decision,'expired-visual');
+ assert.equal(sounds.length,0);
+ d.acceptSnapshot(s(12,'idle'));d.acceptSnapshot(s(13,'attack'));
+ for(let i=0;i<3;i++)d.advance(.05,.05);
+ assert.equal(d.acknowledgePresentedFrame('hidden2',.01),0);
+ d.muteAudio();
+ assert.equal(d.stats().awaitingPresentation,0);
+ assert.equal(d.acknowledgePresentedFrame('muted',.01),0);
+ assert.equal(sounds.length,0);
+ d.dispose();
 });

@@ -328,6 +328,18 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     if(slot?.cue?.id===cueId&&slot.age<slot.life)return true;
   return false;
  }
+ // A retained, alive trail is hidden until the observed wrist actually moves.
+ // Require this individual slot's drawn geometry, not merely pool visibility.
+ function hasDrawableCue(cueId){
+  if(disposed||typeof cueId!=='string'||!cueId)return false;
+  for(const pool of pools.values()){
+   if(!pool.mesh.visible)continue;
+   for(const slot of pool.slots)
+    if(slot?.cue?.id===cueId&&slot.age<slot.life&&
+      (pool.name!=='trail'||slot.measuredPath!==null))return true;
+  }
+  return false;
+ }
  function reset(){
   if(disposed)return;
   for(const pool of pools.values()){
@@ -353,5 +365,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasLiveCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasLiveCue,hasDrawableCue,reset,dispose,stats});
 }

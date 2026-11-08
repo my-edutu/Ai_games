@@ -76,9 +76,12 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
  assert.equal(stage.emit(cue({kind:'swing',visual:'trail',proof:'authority-attempt-not-hit',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null})),true);
  assert.equal(stage.stats().activeDrawCalls,0,'stationary sword hand cannot draw an invented arc');
+ assert.equal(stage.hasLiveCue(cue().id),true,'hidden trail retains a live slot');
+ assert.equal(stage.hasDrawableCue(cue().id),false,'hidden blade cannot certify a drawn passage');
  actors.get('vanguard').rigMeleeBones[0].bone.world.x+=.12;
  stage.advance(.016);
  assert.equal(stage.stats().activeDrawCalls,1,'actual animated hand displacement produces a single measured ribbon draw');
+ assert.equal(stage.hasDrawableCue(cue().id),true,'observed wrist movement makes this slot drawable');
  assert.ok(stage.stats().measuredTrailFrames>=1);
  assert.equal(stage.emit(cue({kind:'ranged-release',visual:'launch',actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
  assert.equal(stage.emit(cue({kind:'spell-release',visual:'cast',actorId:'mystic',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);

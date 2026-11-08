@@ -90,11 +90,13 @@ export function createPhysicalCombatFeedback({
   for(const item of awaitingPresentation.splice(0)){
    // Actual raw-frame aging may expire 230ms injury art in a 300ms frame,
    // while the separate generic 400ms audio deadline has not yet expired.
-   let visualAlive=null;
+   let visualAlive=null,visualDrawable=null;
    if(item.visual){
     if(typeof visuals?.hasLiveCue==='function')
      visualAlive=safeCall(()=>visuals.hasLiveCue(item.cue.id))===true;
     else unverifiedVisualLiveness++; // Older injected adapters only.
+    if(typeof visuals?.hasDrawableCue==='function')
+     visualDrawable=safeCall(()=>visuals.hasDrawableCue(item.cue.id))===true;
    }
    const decision=classifySubmittedCombatAudio({
     sceneMatches:item.sceneId===sceneId,
@@ -102,8 +104,13 @@ export function createPhysicalCombatFeedback({
     elapsedSeconds:observedSeconds-item.at,
     submissionSeconds:renderSubmissionSeconds,
     maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
-    visualAccepted:item.visual,visualAlive
+    visualAccepted:item.visual,visualAlive,visualDrawable
    });
+   if(decision==='await-drawable-visual'){
+    // Keep the ORIGINAL deadline and queue priority while awaiting genuine
+    // skinned-hand movement on a later actual WebGL submission.
+    awaitingPresentation.push(item);continue;
+   }
    if(decision!=='deliver'){
     staleAudioDropped++;
     if(decision==='expired-visual')expiredVisualAudioDropped++;

@@ -5,7 +5,8 @@
  */
 export function classifySubmittedCombatAudio({
  sceneMatches=false,observedFrameVerified=false,elapsedSeconds,
- submissionSeconds,maxStalenessSeconds=.40,visualAccepted=false,visualAlive=null
+ submissionSeconds,maxStalenessSeconds=.40,visualAccepted=false,visualAlive=null,
+ visualDrawable=null
 }={}){
  if(!sceneMatches)return 'scene-changed';
  if(!observedFrameVerified||!Number.isFinite(elapsedSeconds)||elapsedSeconds<0||
@@ -13,5 +14,7 @@ export function classifySubmittedCombatAudio({
    !Number.isFinite(maxStalenessSeconds)||maxStalenessSeconds<=0)return 'unverified-frame';
  if(elapsedSeconds+submissionSeconds>maxStalenessSeconds)return 'stale-frame';
  if(visualAccepted&&visualAlive===false)return 'expired-visual';
+ // A live but hidden sword ribbon is not a submitted moving blade.
+ if(visualAccepted&&visualDrawable===false)return 'await-drawable-visual';
  return 'deliver';
 }
