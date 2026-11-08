@@ -122,9 +122,10 @@ test('secondary route validates legal boundaries over genuine seeded DungeonRunt
   for(const f of second.facades)assert.equal(s.map[f.gridZ][f.gridX],'#');
   assert.equal(second.metrics.combatEdits,0);
  }
- // Some authentic seeds can have no loop; this is a valid and explicit fallback,
- // not evidence of a made-up alternate passage.
- assert.ok(found>=0);
+ // Individual authentic seeds can legitimately have no alternative.
+ // Across this fixed seed corpus, however, at least one true level must
+ // exercise the new topology and architecture instead of only its fallback.
+ assert.ok(found>=1,'exercise at least one genuine runtime secondary route');
 });
 test('side gallery integration is render-only and has a bounded disposal path',()=>{
  const env=fs.readFileSync(path.join(folder,'environment.js'),'utf8');
