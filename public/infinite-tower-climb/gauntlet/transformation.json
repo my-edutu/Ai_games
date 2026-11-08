@@ -45,48 +45,50 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-08",
-      "sourceHeadAtInspection": "9e30989a495b46c4d723e624c13d4fb943eb070b",
+      "sourceHeadAtInspection": "3469816043de378dc92382bf470b7e1ce07fb4f3",
       "actualRenderedGameSourceSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
-      "instrumentationChangedThisExecution": true,
-      "completedOutcome": "Verified that every ordinary PR68 code push queues eight source-pinned browser recordings plus a ledge task, despite zero runners assigned to latest capture/quality jobs. Made this heavyweight workflow explicit-request-only via GitHub workflow_dispatch or deliberate capture-request.json change. Baseline, gameplay, renderer, tests, matrix, host and original film remain untouched. Existing queued runs persist; this does not repair worker assignment or prove any game experience improvement.",
+      "instrumentationChangedThisExecution": false,
+      "completedOutcome": "Verified previously overlooked capture-launch blocker in PR68-only workflow: the nine-job workflow_dispatch entry cannot be used because the file is absent from repository default branch main (GitHub's documented requirement). The opt-in PR-branch push trigger references capture-request.json, which is also absent; future source/evidence commits cannot launch new capture. Do NOT create a request file while 1,651 repository workflows remain queued; the sole currently viable deliberate route is a new commit to that path once runners can execute. No code, source movie or test execution this run.",
       "verifiedBlocker": {
-        "developmentWorkspace": "Authorized app-project command returned NOT_FOUND: tunnel-client has not been seen for 300 seconds. Local container has no repository checkout; git ls-remote cannot resolve github.com. GitHub connector authenticated source operations remain available.",
-        "capture": {
-          "runId": 42490211469,
-          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469",
-          "sourceSha": "fcf98aa21bda724f354f53ca048432eb48341537",
-          "status": "queued",
-          "jobs": 9,
-          "assignedRunners": 0
-        },
-        "quality": {
-          "runId": 42490211058,
-          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42490211058",
-          "sourceSha": "fcf98aa21bda724f354f53ca048432eb48341537",
+        "developmentWorkspace": "Authorized app-project command returned NOT_FOUND: tunnel-client not connected for 300s. Container checkout absent and git ls-remote fails DNS resolution for github.com. GitHub source connector available.",
+        "currentQuality": {
+          "runId": 42495536337,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42495536337",
+          "sha": "3469816043de378dc92382bf470b7e1ce07fb4f3",
           "status": "queued",
           "jobs": 1,
           "assignedRunners": 0
         },
-        "branchQueuedRuns": 70,
-        "repositoryRunnerCause": "NOT EVALUATED: assignment absent, underlying capacity/billing/permissions cause unknown. New workflow admission reduces future pressure but cannot assign or cancel existing jobs.",
-        "lastObservedCompletedSuccess": {
-          "runId": 42430308217,
-          "sourceSha": "52a80f54e3fd3b34c40e67544d9c3f0e2fb4175d",
-          "at": "2026-11-08T00:36:30Z",
-          "note": "Older source only; does not verify current candidate"
-        }
+        "priorCapture": {
+          "runId": 42490211469,
+          "url": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469",
+          "sha": "fcf98aa21bda724f354f53ca048432eb48341537",
+          "status": "queued",
+          "jobs": 9,
+          "assignedRunners": 0
+        },
+        "branchQueuedWorkflows": 73,
+        "repositoryQueuedWorkflows": 1651,
+        "manualDispatchAvailable": false,
+        "manualDispatchReason": "Workflow .github/workflows/tower-transformation-visual-evidence.yml is absent from main. GitHub's workflow_dispatch event requires workflow file on default branch. PR-only workflow cannot be manually dispatched; do NOT copy it to main or retarget PR.",
+        "requestPathExistsOnPR": false,
+        "viableTrigger": "Only when runners recover, add or change public/infinite-tower-climb/gauntlet/capture-request.json in a normal non-force commit to PR68, verifying HEAD and frozen SHA before request. The push-path filter then schedules an immutable-source 9-job capture.",
+        "runnerRootCause": "NOT EVALUATED; no permission to inspect repository billing, account concurrency or runner administration. Queued status does not itself identify root cause."
       },
-      "currentSourceVideo": "NOT EVALUATED: no current-renderer continuous 60+s native WebM with validated guardian/crusher victory, gateway crossing, floor-nine continuation and real outcome/restart.",
-      "largestObservedGap": "Previous genuine candidate portrait WebM at old e0fe7729 renderer shows large near-field clock face obscuring living guardian/climber around native 17–19s; later f1fe522e physical cutaways have not been filmed, so visual improvement is NOT EVALUATED.",
+      "currentSourceVideo": "NOT EVALUATED — no continuous 60+ second original game film from current renderer; no source/PTS-matched gateway, guardian and restart video.",
+      "largestObservedGap": "Older authentic 390x844 renderer e0fe7729 film at 16–18s shows giant foreground clockwork hiding the climber/guardian. Later open-rim/gear/rack source f1fe522e not captured; cannot claim improved current gameplay.",
       "testsAndCapturesProducedThisExecution": [
-        "Read actual open/draft PR68 head/base, frozen baseline and source-bound evidence workflow",
-        "Read latest native capture 42490211469 (nine queued jobs, zero runners) and quality 42490211058 (one queued job, zero runners)",
-        "Static source admission check: only deliberate capture-request.json push or workflow_dispatch may schedule nine-job evidence; 8-scenario matrix and frozen baseline SHA unchanged",
-        "No original Node/Three.js/Chromium capture, actual-device performance or real blind reviewers: executable checkout and GitHub workers unavailable"
+        "Read open/draft PR68 HEAD 34698160 and unchanged PR58 base 1731b380",
+        "Read AGENTS.md, 2026-11-01 design, GAUNTLET.md, source physics/rules/scene/world, capture workflow and latest review",
+        "GitHub Actions API: exact-head quality 42495536337 queued 0 runners; previous 9-job capture 42490211469 all queued 0 runners; 73 queued PR branch workflows and 1,651 repository workflows",
+        "Fetched PR68 and main file existence: visual workflow present ONLY on PR68; capture-request.json missing on PR68",
+        "GitHub workflow_dispatch official documented default-branch requirement verified; no effective manual dispatch until authorized default-branch integration",
+        "Local authenticated development tunnel failed; container has Node22/Chromium/ffmpeg but no source checkout and no GitHub DNS resolution",
+        "No exact-source runtime/Three/browser clip, real independent critic or hardware measurement executed"
       ],
       "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
@@ -96,8 +98,8 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "nextHighImpactAction": "Once runner capacity or authorized checkout is recovered, deliberately trigger source-pinned PR68 film through Actions workflow_dispatch or a dedicated capture-request.json commit. Run genuine original Node/Three tests and full 960x600/390x844 baseline/candidate game recordings; inspect actual clockwork occlusion in motion and earned guardian/crusher-to-grounded-threshold-to-floor-nine-to-result/intermission/restart. Fix largest newly filmed systemic defect; no P1 or independent scoring until evidence.",
-      "restrictions": "Frozen 1731b380... baseline immutable; no PR58/main edits, merge, deployment, force push, draft conversion, invented critics or evidence."
+      "nextHighImpactAction": "Recover an executable Node22 + Chromium + ffmpeg checkout or GitHub hosted runners. After queue recovery, produce one deliberate capture-request.json branch commit (NOT workflow_dispatch) and verify all 9 immutable-source jobs plus exact-HEAD quality. Watch both 960x600 and 390x844 videos at normal speed, align authentic crusher, guardian victory, grounded threshold, floor nine, outcome/intermission/restart, fix largest CURRENT observed defect. Avoid source guesses and new queued jobs while workers remain absent.",
+      "restrictions": "Baseline and PR58 immutable; PR68 stays open/draft; no merge/deploy/force push; no manufactured film, tests, reviewer votes or hardware data."
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
     "state": "P0 OPEN — source-earned game-loop witness exists at earlier SHA; current camera cutaway and native full motion remain NOT EVALUATED",
@@ -1428,6 +1430,24 @@
       "leadingTransformationVerdict": "NOT EVALUATED",
       "nextHighImpactAction": "Recover runner assignment or authenticated full local checkout; execute the already prepared offline capture from the exact candidate immutable source, run actual Node/Three + 3200-tick causal witness, then watch original baseline/candidate portrait and desktop WebM in full motion with bounded event-to-PTS search. Repair the largest current filmed fault rather than changing unverified clockwork again. Do not advance P1, count synthetic critics or promote CI as quality.",
       "restrictions": "No change to PR58, frozen baseline, PR68 draft state, deployment or merge; no force push."
+    },
+    "p0CaptureDispatchDiagnosis20261108": {
+      "sourceHeadAtInspection": "3469816043de378dc92382bf470b7e1ce07fb4f3",
+      "stage": "P0 OPEN",
+      "defaultBranch": "main",
+      "workflowPath": ".github/workflows/tower-transformation-visual-evidence.yml",
+      "workflowFileOnDefaultBranch": false,
+      "workflowFileOnPr68": true,
+      "dispatchAvailable": false,
+      "pushedRequestPath": "public/infinite-tower-climb/gauntlet/capture-request.json",
+      "requestFileOnPr68": false,
+      "deliberatePushTriggerAvailableInDefinition": true,
+      "jobsFromPriorRunUnassigned": 9,
+      "repositoryQueuedRuns": 1651,
+      "branchQueuedRuns": 73,
+      "evidenceStatus": "VERIFIED CODE/CONTROL-PLANE BLOCKER; NO film, gameplay or quality evidence",
+      "officialDocs": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch",
+      "next": "Recover executor capacity, then commit a deliberate request file on PR68 or run offline evidence. Do not copy workflow to main without authorization."
     }
   },
   "scenarios": [
