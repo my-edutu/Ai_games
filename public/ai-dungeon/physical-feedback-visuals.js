@@ -108,9 +108,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function anchor(cue,type){
   if(type==='dust')return cell(cue.from)?world(cue.from,.07):null;
   const victim=type==='hit';
-  const at=victim?cue.to:cue.from;
+  // A genuine counter never discloses the source combatant. It DOES contain
+  // an HP-confirmed Warden victim; place the reaction on that body rather
+  // than demanding a fictitious actorId or silently losing the visual.
+  const earnedCounter=type==='signal'&&cue.kind==='counter'&&
+   cue.proof==='authority-counter-and-HP';
+  const at=victim||earnedCounter?cue.to:cue.from;
   if(!cell(at))return null;
-  const id=victim?cue.targetId:cue.actorId;
+  const id=victim||earnedCounter?cue.targetId:cue.actorId;
   // An observed wound is still a real wound when the art asset has not loaded;
   // show a neutral body-height shard at the authoritative cell instead.
   let actor=null;
@@ -148,6 +153,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const type=category(cue),pool=pools.get(type);
   if(!pool)return false;
   if(type==='hit'&&cue.proof!=='observed-hp-drop')return false;
+  if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
+  if(type==='block'&&cue.proof!=='authority-block-unique-guarded-hp')return false;
   if((type==='projectile'||type==='spell')&&(!cue.targetId||!cell(cue.to)))return false;
   if(type==='dust'&&(!cell(cue.from)||!cell(cue.to)||
    Math.abs(cue.to.x-cue.from.x)+Math.abs(cue.to.z-cue.from.z)!==1))return false;

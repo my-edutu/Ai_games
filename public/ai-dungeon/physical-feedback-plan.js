@@ -143,7 +143,24 @@ export function planPhysicalFeedback(previous,next,{
     push('threat-warning',e.tick,{verified:true,proof:'authority-event'});
     break;
    }
-   case 'block': push('block',e.tick,{verified:true,proof:'authority-event'});break;
+   case 'block': {
+    // A public block event identifies neither defender nor attacker. Anchor a
+    // shield contact ONLY if exactly one same-tick block occurred and exactly
+    // one party defender demonstrably guarded AND lost HP at that tick.
+    // Multiple guards, simultaneous blocks, or fully absorbed blows retain
+    // the neutral sound without assigning an invented body or direction.
+    const blockEvents=events.filter(x=>x?.kind==='block'&&x.tick===e.tick);
+    const defenders=next.units.slice(0,96).filter(u=>{
+     const prior=oldUnits.get(u?.id);
+     return validId(u?.id)&&u.faction==='party'&&u.action==='guard'&&
+      u.guardTick===e.tick&&point(u)&&positiveHealthDrop(prior,u);
+    });
+    const lone=blockEvents.length===1&&defenders.length===1?defenders[0]:null;
+    push('block',e.tick,{actorId:lone?.id??null,
+     from:lone?point(lone):null,verified:true,
+     proof:lone?'authority-block-unique-guarded-hp':'authority-event'});
+    break;
+   }
    case 'evade': {
     // An evasive FOOTPRINT may be attached only to exactly one witnessed
     // cardinal, one-cell party displacement on this very event tick.

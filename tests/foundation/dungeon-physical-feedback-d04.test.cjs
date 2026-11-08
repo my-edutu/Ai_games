@@ -348,3 +348,21 @@ test('persisted unmute never re-enables audio automatically on reload; broken op
  assert.equal(reloaded.stats().audioOptedIn,false,'persistent preference is NEVER autoplay consent');
  reloaded.dispose();
 });
+
+test('D04 block VFX requires one corroborated guarded HP loss, no invented blocker from prose or ambiguous simultaneous blocks',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const old=snap(10);
+ const event={tick:11,kind:'block',text:'the enemy says vanguard is attacking'};
+ const valid=snap(11,{units:[hero({hp:21,action:'guard',actionTick:11,guardTick:11}),foe()],events:[event]});
+ const anchor=planPhysicalFeedback(old,valid).find(c=>c.kind==='block');
+ assert.equal(anchor.actorId,'vanguard');assert.equal(anchor.targetId,null);
+ assert.deepEqual(anchor.from,{x:2,z:2});
+ assert.equal(anchor.proof,'authority-block-unique-guarded-hp');
+ const priorAmbiguous=snap(10,{units:[hero(),foe({id:'ally',kind:'ranger',faction:'party'})]});
+ const ambiguous=snap(11,{units:[hero({hp:21,action:'guard',guardTick:11}),foe({id:'ally',kind:'ranger',faction:'party',hp:23,action:'guard',guardTick:11})],events:[event]});
+ assert.equal(planPhysicalFeedback(priorAmbiguous,ambiguous).find(c=>c.kind==='block').actorId,null);
+ const duplicate={...valid,events:[event,{...event,text:'different alleged actor'}]};
+ assert.equal(planPhysicalFeedback(old,duplicate).find(c=>c.kind==='block').actorId,null);
+ const absorbed={...valid,units:[hero({hp:30,action:'guard',guardTick:11}),foe()]};
+ assert.equal(planPhysicalFeedback(old,absorbed).find(c=>c.kind==='block').actorId,null);
+});

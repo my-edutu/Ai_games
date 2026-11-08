@@ -218,3 +218,19 @@ test('original noise buffer is deterministic across separate explicitly activate
  }
  assert.deepEqual(records[0],records[1]);
 });
+
+test('earned Warden counter receives actual victim-anchored restrained VFX with no inferred attacker',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three(),stage=createPhysicalFeedbackVisuals(T,scene);
+ const counter=cue({kind:'counter',visual:'counter',audio:'counter',actorId:null,
+  targetId:'warden',from:null,to:{x:4,z:4},proof:'authority-counter-and-HP'});
+ assert.equal(stage.emit(counter),true,'known Warden victim must not be lost for missing source actor');
+ assert.equal(stage.stats().instancesByPool.signal,1);
+ assert.equal(stage.emit({...counter,id:'forgery',proof:'unverified'}),false);
+ const block=cue({kind:'block',visual:'block',audio:'block',actorId:'vanguard',
+  targetId:null,from:{x:2,z:2},to:null,proof:'authority-block-unique-guarded-hp'});
+ assert.equal(stage.emit(block),true);
+ assert.equal(stage.emit({...block,id:'guess',proof:'authority-event'}),false,
+  'unattributed block events must be sound-only');
+ stage.reset();assert.equal(stage.stats().active,0);stage.dispose();
+});
