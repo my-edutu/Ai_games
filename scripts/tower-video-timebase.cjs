@@ -132,7 +132,32 @@ function meaningfulSourceEvents(ticks) {
   return events.slice(0,240);
 }
 
-function calibrateOriginalVideo({video,anchors,sourceTicks}) {
+// Calibrated source-event search handles are NOT visually verified events.
+// Accept only real events emitted by the original read-only event index. Their
+// source wall clock and native recording timebase must be separately measured.
+function mapObservedEventTimecodes(events,calibration,durationSeconds) {
+  if(calibration?.status!=='CALIBRATED'||
+     !Number.isFinite(calibration.offsetMs)||
+     !Number.isFinite(durationSeconds)||durationSeconds<0)return [];
+  return (Array.isArray(events)?events:[]).filter(event=>
+    event&&typeof event.kind==='string'&&event.kind.length>0&&
+    Number.isFinite(event.atMs)&&Number.isSafeInteger(event.floor)&&
+    Number.isSafeInteger(event.sourceTick??event.tick)&&
+    typeof (event.observedRunToken??event.runToken)==='string'&&
+    (event.observedRunToken??event.runToken).length>0)
+    .slice(0,400).map(event=>{
+      const nativeVideoSeconds=(event.atMs+calibration.offsetMs)/1000;
+      return {...event,nativeVideoSeconds,
+        inOriginalVideo:nativeVideoSeconds>=0&&nativeVideoSeconds<=durationSeconds,
+        matchingMethod:'calibrated-wall-to-native-PTS-event-search',
+        eventVisibleInVideo:'NOT EVALUATED',
+        // The observer does not synchronize to GPU submission. Residuals
+        // measure anchor agreement, not the source-to-raster presentation lag.
+        sourceToPresentedFrameLatency:'NOT EVALUATED'};
+    });
+}
+
+function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
   const evidence={status:'NOT EVALUATED',originalVideoUnmodified:true,
     imageAnchorsChecked:0,sourceEventTimecodes:[],
     originalSourceEventVisibility:'NOT EVALUATED',
@@ -159,14 +184,17 @@ function calibrateOriginalVideo({video,anchors,sourceTicks}) {
       screenshot:file.split(/[\\/]/).at(-1),...values}));
     if(result.status!=='CALIBRATED')return evidence;
     const duration=frames.pts.at(-1);
-    evidence.sourceEventTimecodes=meaningfulSourceEvents(sourceTicks).map(event=>({
-      ...event,
-      // This maps a source-observed wall clock to the original video clock.
-      // It does NOT assert that the GPU submitted this same tick.
-      nativeVideoSeconds:(event.atMs+result.offsetMs)/1000,
-      inOriginalVideo:(event.atMs+result.offsetMs)/1000>=0 &&
-        (event.atMs+result.offsetMs)/1000<=duration,
-    }));
+    // Prefer the SAME original-source event index used by the 8-pair audit.
+    // The old generic source-event extractor remains a backward-compatible
+    // fallback for standalone consumers, not an independently inferred story.
+    const observedEvents=Array.isArray(sourceEvents)
+      ?sourceEvents:meaningfulSourceEvents(sourceTicks);
+    evidence.sourceEventTimecodes=mapObservedEventTimecodes(
+      observedEvents,result,duration);
+    evidence.timecodeProvenance=Array.isArray(sourceEvents)
+      ?'unaltered-original-source-event-index'
+      :'read-only-source-tick-fallback';
+    evidence.calibratedSourceEventSearchOnly=true;
     evidence.originalVideoDurationSeconds=duration;
     return evidence;
   } catch(error) {
@@ -176,4 +204,5 @@ function calibrateOriginalVideo({video,anchors,sourceTicks}) {
 }
 
 module.exports={assessVideoTimebase,distance,visuallyMatchAnchor,
-  meaningfulSourceEvents,calibrateOriginalVideo,FRAME_BYTES};
+  meaningfulSourceEvents,mapObservedEventTimecodes,calibrateOriginalVideo,
+  FRAME_BYTES};
