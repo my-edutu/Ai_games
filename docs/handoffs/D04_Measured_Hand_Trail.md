@@ -11,7 +11,7 @@ The earlier D04 blade was a pre-curved mesh, rotated by an arbitrary elapsed-tim
 
 ## Boundaries and tests
 
-Retains seven instanced VFX pools, 104 reserved instances and at most seven effect draw calls. No per-frame geometry, new materials, lights, sockets, buffers or character rig writes. Trail sampling is bounded to eight active slots; samples are read-only and validated against same-cell active attack/action tick. Old HP-damage proof, audio frame receipts, opt-in/mute, reduced-motion/flash, dedupe and scene cleanup remain unchanged.
+Retains seven instanced VFX pools, 102 reserved instances (within the 104-instance acceptance ceiling) and at most seven effect draw calls. No per-frame geometry, new materials, lights, sockets, buffers or character rig writes. Trail sampling is bounded to eight active slots; samples are read-only and validated against same-cell active attack/action tick. Old HP-damage proof, audio frame receipts, opt-in/mute, reduced-motion/flash, dedupe and scene cleanup remain unchanged.
 
 TDD: two isolated pure hand-path contracts were first run **RED** locally without the module (ERR_MODULE_NOT_FOUND), then **GREEN 2/2** with the new pure module on Node 22. The repository's broader existing suite, build and Playwright were **not run** because the shared coding tunnel was offline. Integration test fixtures now require a real mocked moving hand to authorize a visible trail; this new fixture has **not** been executed within the full repository, and must be checked by CI or a live worktree.
 
