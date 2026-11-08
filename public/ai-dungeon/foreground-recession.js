@@ -4,7 +4,7 @@
  * Render-only: never changes map, navigation, HP, AI, saves, seed, or replay.
  */
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
-export function applyForegroundRecession(group,blocked,frameDelta=0,reducedMotion=false,box=null){
+export function applyForegroundRecession(group,blocked,frameDelta=0,reducedMotion=false,box=null,slowFrame=false){
  if(!group?.position||!group.userData||!Number.isFinite(group.position.y)||
   typeof group.visible!=='boolean')return false;
  let state=group.userData.dungeonForegroundRecession;
@@ -15,9 +15,11 @@ export function applyForegroundRecession(group,blocked,frameDelta=0,reducedMotio
  }
  const dt=Number.isFinite(frameDelta)?clamp(frameDelta,0,.05):0;
  // Fast genuine obstruction clearance, slower original architectural return.
- // Every step is bounded even when software WebGL stalls; reduced motion
- // and first-shot sightline protection remain immediate.
- state.fraction=reducedMotion?(blocked?0:1):blocked?
+ // On authentic sparse WebGL delivery, stepped sinking/returning would
+ // appear as several seconds of giant masonry floating through combat.
+ // Keep original easing at normal cadence; resolve true cutaways in one
+ // rendered frame after a measured >250ms frame interval or reduced motion.
+ state.fraction=(reducedMotion||slowFrame)?(blocked?0:1):blocked?
   Math.max(0,state.fraction-12*dt):Math.min(1,state.fraction+4*dt);
  const smooth=state.fraction*state.fraction*(3-2*state.fraction);
  group.position.y=state.baseY-state.depth*(1-smooth);
