@@ -1656,20 +1656,39 @@ test('a real close public encounter frames both autonomous actors and saves date
     // One warmed page and browser only: SwiftShader is severely throttled in
     // shared CI, but no test uses wall-clock latency as a gameplay metric.
     for(const [nativeWidth,nativeHeight] of [[320,740],[390,844]]){
+      // A genuine approach/contact/withdrawal *motion* comparison must keep
+      // ONE live WebGL scene per viewport. Reloading for each tick reset the
+      // pressure clock and camera, producing disconnected stills rather than
+      // the physical action that an autonomous viewer actually experiences.
+      // Only the next genuine source-authoritative PUBLIC frame changes.
+      await page.setViewportSize({width:nativeWidth,height:nativeHeight});
+      activeFrame=motionPhases[0][1].sample.frame;
+      await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+      const browserOrigin=await page.evaluate(()=>performance.timeOrigin);
+      let originalCanvas=null;
       for(const [phase,entry] of motionPhases){
+        const previousFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
         activeFrame=entry.sample.frame;
         const state=activeFrame.snapshot;
-        await page.setViewportSize({width:nativeWidth,height:nativeHeight});
-        await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
-        await page.waitForFunction(({tick,token,cell,aspect})=>{
+        await page.waitForFunction(({tick,token,cell,aspect,previousFrames})=>{
           const d=window.__MAZE_3D__;
-          return d?.renderer==='webgl'&&d.frames>=3&&d.tick===tick
-            &&d.runToken===token&&d.cameraMode==='follow'
+          return d?.renderer==='webgl'&&d.frames>=3&&d.frames>previousFrames
+            &&d.tick===tick&&d.runToken===token
+            &&d.cameraMode==='follow'
             &&Math.abs(d.cameraAspect-aspect)<.01
             &&d.observedTrapPhysicalBounds?.some(v=>v.cell===cell);
         },{tick:state.tick,token:chronology.runToken,
-          cell:chronology.publicTrapCell,aspect:nativeWidth/nativeHeight},
+          cell:chronology.publicTrapCell,aspect:nativeWidth/nativeHeight,previousFrames},
         {timeout:45000});
+        expect(await page.evaluate(()=>performance.timeOrigin),
+          'same-viewport pressure phases must never reload their live browser scene').toBe(browserOrigin);
+        if(!originalCanvas) originalCanvas=await page.locator('#maze').elementHandle();
+        expect(await originalCanvas.evaluate(node=>
+          node.isConnected&&node===document.getElementById('maze')),
+          'real pressure chronology must preserve its original canvas across public ticks').toBe(true);
+        const sourceRendererFrames=await page.evaluate(()=>window.__MAZE_3D__.frames);
+        expect(sourceRendererFrames,
+          'each authentic pressure tick must receive a new rendered WebGL frame').toBeGreaterThan(previousFrames);
         const native=await page.evaluate(()=>({
           diagnostic:window.__MAZE_3D__,
           canvas:document.getElementById('maze').getBoundingClientRect().toJSON(),
@@ -1691,6 +1710,7 @@ test('a real close public encounter frames both autonomous actors and saves date
           publicTrapCell:chronology.publicTrapCell,
           publicDistanceCells:entry.distance,viewport:{width:nativeWidth,height:nativeHeight},
           image:filename,imageSha256:hash(image),sourceSha256:nativeSourceHashes,
+          continuousBrowserOrigin:browserOrigin,sourceRendererFrames,
           physicalHazardBounds:bound,
           observedPhysicalHingeRadians:native.diagnostic.world?.trapJawOpenMaxRadians,
           explorerPhysicalBounds:native.diagnostic.explorerPhysicalBounds,
