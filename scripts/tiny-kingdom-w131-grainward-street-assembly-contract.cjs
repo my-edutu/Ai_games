@@ -48,8 +48,45 @@ assert.equal(mesh.length%30,0,'real triangle stride');
 for(const t of wallTriangles){
  if(Math.abs(t.n[2])>1e-7){
   const side=Math.sign(t.a[2]-(-7));
-  assert(t.n[2]*side>1e-7,'outward-facin gable / masonry, not invisible inside faces');
+  assert(t.n[2]*side>1e-7,'outward-facing gable / masonry, not invisible inside faces');
  }
 }
+
+// Exercise the ORIGINAL connected market-shelter geometry, including upward
+// roof face orientation under actual WebGL back-face culling. Synthetic mesh
+// only here; browser WebGL, counters and authoritative economy remain separate.
+const civicEnd=game.indexOf('function renderCachedHomeLot(',stop);
+assert(civicEnd>stop,'actual static arcade occupies cached town build');
+const arcadeMesh=[],roofFaces=[],marketAudit={};
+let material=0;
+const ROOF_MATERIAL=7;
+const arcadeQuad=(a,b,c,d)=>{
+ const u=b.map((v,i)=>v-a[i]),v=c.map((v,i)=>v-a[i]);
+ const n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+ assert([a,b,c,d,n].flat().every(Number.isFinite),'nonfinite market roof');
+ assert(Math.hypot(...n)>1e-7,'degenerate market roof panel');
+ if(material===ROOF_MATERIAL)roofFaces.push(n);
+ for(let i=0;i<60;i++)arcadeMesh.push(0);
+};
+const arcadeLimb=(a,b)=>{
+ assert([...a,...b].every(Number.isFinite),'nonfinite anchored oak truss');
+ for(let i=0;i<240;i++)arcadeMesh.push(0);
+};
+const buildArcade=new Function('data','MARKET_STALLS','terrain',
+ 'marketStallProfile','rgb','materialScope','MATERIAL','quad',
+ 'limbSegment','marketQuarterStats',
+ game.slice(start,civicEnd)+';return grainwardTradeArcade;');
+const runArcade=buildArcade(arcadeMesh,stalls,()=>.25,
+ index=>({eave:index<2?3:2.16}),c=>[c,c,c],
+ (m,draw)=>{const prior=material;material=m;draw();material=prior},
+ {ROOF:ROOF_MATERIAL,WOOD:6},arcadeQuad,arcadeLimb,marketAudit);
+const drawnArcade=runArcade();
+assert.equal(drawnArcade,96,'small, bounded market-span material cost');
+assert.equal(marketAudit.grainwardArcadeSpans,2);
+assert.equal(marketAudit.grainwardArcadeNoPosts,true);
+assert.equal(arcadeMesh.length/30,drawnArcade);
+assert.equal(roofFaces.length,8);
+for(const normal of roofFaces)assert(normal[1]>1e-7,
+ 'open market roof must face upward under actual WebGL backface culling');
 
 console.log('W131 original market corridor plan and full executable game parse PASS; actual WebGL/day120 evidence separate');
