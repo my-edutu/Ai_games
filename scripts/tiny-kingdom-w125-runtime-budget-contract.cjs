@@ -76,6 +76,20 @@ const state={
  restingActorDifference:()=>({roles:{}}),
  applyRestingActorMetrics:()=>{},resetRestingActorMetrics:()=>{}
 };
+const batchUploads=vm.runInNewContext(named('shouldCoalesceResidentGpuUploads')+
+ ';shouldCoalesceResidentGpuUploads');
+assert.equal(batchUploads(600,1,500),false,
+ 'one genuine pose must never trigger unrelated uploads');
+assert.equal(batchUploads(600,3,400),true,
+ 'three dense dirty actors should combine into one driver submission');
+assert.equal(batchUploads(6000,7,210),true,
+ 'many small disjoint edits should not flood GPU driver calls');
+assert.equal(batchUploads(600,2,600),false,
+ 'tiny authentic worker groups may use two exact dirty writes');
+state.shouldCoalesceResidentGpuUploads=batchUploads;
+for(const name of ['prepareWorkingResidents','prepareForegroundResidents'])
+ assert(named(name).includes('shouldCoalesceResidentGpuUploads('),
+  name+' must share driver-bounded dense original poses');
 const prepare=vm.runInNewContext(named('prepareResidentCommuters')+
  ';prepareResidentCommuters',state);
 const a={name:'Real A',job:'farmer',activity:'Traveling to work',
@@ -103,6 +117,19 @@ assert.deepEqual(writes[3],{offset:0,bytes:120},
 assert.equal(state.commuterResidentFullUploads,2);
 assert(allocations.length===1&&allocations[0]===65536*4,
  'the resident VBO retains one bounded capacity allocation');
+const dense=Array.from({length:8},(_,i)=>({...a,name:'Real '+i,x:i+1,phase:3}));
+assert.equal(prepare(dense.map((p,i)=>({p,i}))),true);
+assert.equal(writes.at(-1).bytes,960,'true population membership repacks safely');
+const beforeDense=writes.length;
+for(const p of dense)p.phase=4;
+assert.equal(prepare(dense.map((p,i)=>({p,i}))),true);
+assert.equal(writes.length,beforeDense+1,
+ 'eight genuine refreshed poses use ONE complete GPU upload');
+assert.equal(writes.at(-1).bytes,960,
+ 'dense coalescing preserves all original 8 citizens and mesh bytes');
+assert.equal(state.commuterResidentFullUploads,4);
+assert.equal(state.commuterResidentPartialUploads,2);
+assert.equal(state.commuterResidentCache.size,8);
 // The face cache must be keyed by genuine profile geometry, not mutable
 // character indexes or changing animation time.
 const faceCacheSrc=html.slice(html.indexOf('const FACE_NORMAL_CACHE_MAX='),
