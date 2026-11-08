@@ -133,8 +133,8 @@ test('real same-floor guardian death keeps clockwork sightlines and hazard hiera
     { kind: 'ascent', focus: 0 },
     'the exact fixed-step floor-cap crossing must match the source exit');
   assert.deepEqual(observe({ ...released, enemies: [{ ...released.enemies[0], id: 'old-guardian', x: 8000 },
-    released.enemies[0]] }), { kind: 'guardian-release', focus: .93 },
-    'only the eligible nearby source guardian may authorize the stage');
+    released.enemies[0]] }), { kind: 'ascent', focus: 0 },
+    'ambiguous historical first-boss source cannot claim the current victory even when another body is near');
   assert.deepEqual(observe({ ...released, enemies: [{ ...body, active: true, health: 0 }] }),
     { kind: 'ascent', focus: 0 }, 'an invalid still-active zero-HP boss is not a victory');
   assert.deepEqual(observe({ ...released, platforms: [] }), { kind: 'ascent', focus: 0 },
