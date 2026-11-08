@@ -1,0 +1,102 @@
+/**
+ * AI Dungeon environmental look contract (Session 6).
+ * No Three.js import, random source, authority mutation or geometry ownership.
+ * Material roles are stable across original and future Session-5 architecture.
+ * Original procedural atlases: authored here, no third-party bitmap licenses.
+ */
+const define = options => Object.freeze(options);
+export const ENVIRONMENT_MATERIAL_ROLES = Object.freeze({
+ masonry:define({family:'stone',roughness:.94,metalness:.015,normalScale:.40,texelsPerMeter:128,emissiveIntensity:0}),
+ floorStone:define({family:'stone',roughness:.91,metalness:.012,normalScale:.34,texelsPerMeter:128,emissiveIntensity:0}),
+ carvedStone:define({family:'stone',roughness:.93,metalness:.018,normalScale:.25,texelsPerMeter:128,emissiveIntensity:0}),
+ dampStone:define({family:'stone',roughness:.78,metalness:.025,normalScale:.25,texelsPerMeter:128,emissiveIntensity:0}),
+ agedMetal:define({family:'metal',roughness:.66,metalness:.62,normalScale:.20,texelsPerMeter:128,emissiveIntensity:0}),
+ brass:define({family:'metal',roughness:.55,metalness:.70,normalScale:.16,texelsPerMeter:128,emissiveIntensity:0}),
+ timber:define({family:'wood',roughness:.87,metalness:0,normalScale:.25,texelsPerMeter:128,emissiveIntensity:0}),
+ hangingCloth:define({family:'cloth',roughness:.96,metalness:0,normalScale:.12,texelsPerMeter:128,emissiveIntensity:0}),
+ soot:define({family:'soot',roughness:.98,metalness:0,normalScale:.08,texelsPerMeter:128,emissiveIntensity:0}),
+ magicInset:define({family:'stone',roughness:.69,metalness:.04,normalScale:.16,texelsPerMeter:128,emissiveIntensity:.62})
+});
+export const ENVIRONMENT_SURFACE_DETAIL_BUDGET=define({
+ size:128,wallMaps:2,floorMaps:3,textureCount:5,
+ rawBytes:5*128*128*4,maxMipmappedBytes:440000,
+ colorMapsAreSRGB:true,dataMapsAreLinear:true,shadowMapsAdded:0,lightSourcesAdded:0
+});
+const LIGHT_PRESETS=[
+ define({biome:'SUNKEN CRYPT',ambientScale:.97,moonIntensity:1.76,
+   fogDensity:.0165,exposure:1.20,torchIntensity:1.85}),
+ define({biome:'EMBER CATHEDRAL',ambientScale:.95,moonIntensity:1.76,
+   fogDensity:.0175,exposure:1.18,torchIntensity:1.78}),
+ define({biome:'OBSIDIAN VAULT',ambientScale:1.02,moonIntensity:1.84,
+   fogDensity:.0145,exposure:1.23,torchIntensity:1.72}),
+ define({biome:'HOLLOW SANCTUM',ambientScale:1.00,moonIntensity:1.78,
+   fogDensity:.0170,exposure:1.21,torchIntensity:1.78})
+];
+const validFloor=floor=>Number.isSafeInteger(floor)&&floor>=1;
+export function getEnvironmentMaterialRole(role){
+ if(!Object.prototype.hasOwnProperty.call(ENVIRONMENT_MATERIAL_ROLES,role))
+  throw new RangeError('Unknown environmental material role: '+String(role));
+ return ENVIRONMENT_MATERIAL_ROLES[role];
+}
+export function planEnvironmentLightPreset(floor){
+ if(!validFloor(floor))throw new RangeError('Invalid dungeon floor');
+ return LIGHT_PRESETS[(floor-1)%LIGHT_PRESETS.length];
+}
+function hash(x,y,z){
+ let n=Math.imul((x|0)+157,0x45d9f3b)^Math.imul((y|0)+349,0x27d4eb2d)^Math.imul((z|0)+563,0x165667b1);
+ n=Math.imul(n^(n>>>16),0x7feb352d);return(n^(n>>>15))>>>0;
+}
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+/**
+ * Make tileable, original color/roughness/tangent-normal textures. Height is
+ * regenerated from the SAME deterministic stone courses as its normal map;
+ * the roughness channel follows pores, grout, pitting, damp marks or weave.
+ * Four-byte RGBA layouts are ready for THREE.DataTexture without conversions.
+ * No repeat texture allocations within a frame: caller creates once per floor.
+ */
+export function makeEnvironmentDetailPixels(role,floor,size=128){
+ const spec=getEnvironmentMaterialRole(role);
+ if(!validFloor(floor))throw new RangeError('Invalid dungeon floor');
+ if(!Number.isInteger(size)||size<32||size>256||size%32!==0)
+  throw new RangeError('Invalid environment texture dimension');
+ const pixels=size*size,albedoPixels=new Uint8Array(pixels*4);
+ const normalPixels=new Uint8Array(pixels*4),roughnessPixels=new Uint8Array(pixels*4);
+ const height=new Uint8Array(pixels);
+ const stone=spec.family==='stone',wood=spec.family==='wood',cloth=spec.family==='cloth',metal=spec.family==='metal';
+ const cell=stone?size/4:wood?size/8:size/16;
+ const wrap=n=>(n%size+size)%size;
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const i=y*size+x,j=i*4,row=Math.floor(y/cell);
+  const tiledX=(x+(row%2)*cell/2)%size,ax=tiledX%cell,ay=y%cell;
+  const seam=stone&&(ax<1.5||ay<1.5);
+  const fiber=wood&&((x+Math.floor(Math.sin(y*.11)*2))%8<1);
+  const weave=cloth&&((x+y)%6===0);
+  const grain=(hash(x,y,floor)%45)-22;
+  const chip=hash(x>>1,y>>1,floor+29)%73===0;
+  const stain=hash(Math.floor(x/8),Math.floor(y/8),floor+13)%13===0;
+  const damp=role==='dampStone'&&stain;
+  const base=wood?168:metal?151:cloth?171:role==='soot'?92:193;
+  const dark=seam?-.56:chip?-.22:damp?-.27:stain?-.09:0;
+  const shade=clamp(Math.round(base*(1+dark)+grain*.43+(fiber?-15:0)),12,240);
+  albedoPixels[j]=shade;albedoPixels[j+1]=clamp(shade+(wood?6:cloth?4:0),0,255);
+  albedoPixels[j+2]=clamp(shade+(metal?7:0),0,255);albedoPixels[j+3]=255;
+  height[i]=clamp(Math.round((seam?38:wood?144:metal?164:cloth?130:171)+grain*.62-
+    (chip?43:0)-(weave?14:0)-(fiber?22:0)),18,220);
+  const rough=clamp(Math.round(255*(spec.roughness*.94+
+    (grain/22)*.035+(seam?.065:0)+(stain?.025:0)-(damp?.14:0))),60,250);
+  roughnessPixels[j]=rough;roughnessPixels[j+1]=rough;roughnessPixels[j+2]=rough;roughnessPixels[j+3]=255;
+ }
+ const strength=spec.normalScale*1.5;
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const sample=(u,v)=>height[wrap(v)*size+wrap(u)];
+  const dx=(sample(x+1,y)-sample(x-1,y))/255*strength;
+  const dy=(sample(x,y+1)-sample(x,y-1))/255*strength;
+  const inv=1/Math.sqrt(1+dx*dx+dy*dy),j=(y*size+x)*4;
+  normalPixels[j]=Math.round(clamp((1-dx*inv)*127.5,0,255));
+  normalPixels[j+1]=Math.round(clamp((1-dy*inv)*127.5,0,255));
+  normalPixels[j+2]=Math.round(clamp(inv*255,0,255));
+  normalPixels[j+3]=255;
+ }
+ return {width:size,height:size,albedoPixels,normalPixels,roughnessPixels,
+  rawBytes:3*pixels*4,role,floor};
+}
