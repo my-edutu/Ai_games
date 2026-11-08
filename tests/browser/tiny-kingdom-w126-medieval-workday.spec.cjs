@@ -91,7 +91,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     const replayB=JSON.stringify(g.exportSnapshot());
     return {seen,readOnly,firstLoaded,firstReceipt,firstHarvest,
      firstBuilder,phaseEvents,maxGrip,maxWorkContact,wrongPhase,
-     replayIdentical:replayA===replayB,initialPeople:validWorld.people.length,
+     replayIdentical:replayA===replayB,initialPeople:validWorld.payload.people.length,
      finalPeople:g.metrics().citizens,day:g.metrics().day,
      triangles:g.renderStats().lastFrameTriangles,lastStep,
      overflow:document.documentElement.scrollWidth-innerWidth,
