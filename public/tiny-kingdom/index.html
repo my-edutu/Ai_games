@@ -17025,6 +17025,8 @@ function updateSupplyTrail(force=false){
  }
  const action=document.getElementById('world-trace-follow');
  action.textContent=cargo?'Follow loaded courier':
+  flow.provisions.carrying?'Follow grain home':
+  flow.provisions.collecting?'Follow market pickup':
   flow.farmer?'Follow real farmer':'Watch village work';
 }
 function toggleSupplyTrail(){
@@ -17134,7 +17136,25 @@ document.body.dataset.command='world';
   }
   return changed;
  }
+ function watchHouseholdErrand(){
+  // Select ONLY a present original citizen; camera never edits world state.
+  const index=people.findIndex(p=>p.activity==='Traveling to market for provisions'||
+   p.activity==='Collecting household provisions'||
+   p.activity==='Traveling home with provisions');
+  if(index<0)return null;
+  if(liveWorkday||document.body.dataset.workday==='delivery'||
+     document.body.dataset.workday==='homecoming')stopWorkdayWatch();
+  villageDocumentary=null;document.body.dataset.villageDocumentary='off';
+  selectedCitizen=index;setCitizenFollow(true);updateFollowCamera();
+  document.body.dataset.workday='household';
+  setCommandView('world');updateUI();
+  return {...householdProvisionAudit(),observing:true,
+   citizen:people[index].name,following:follow,authoritativeChanges:false};
+ }
  function watchVillageLife(){
+  if(!people.some(person=>Boolean(person.delivery))){
+   const errand=watchHouseholdErrand();if(errand)return errand;
+  }
   const result=people.some(person=>Boolean(person.delivery))?
    watchDelivery():watchLiveWorkday();
   if(!result)return null;
@@ -17156,6 +17176,7 @@ document.body.dataset.command='world';
  button('world-trace-follow',()=>{
   const flow=getSupplyTrailSnapshot();
   if(flow.cargo)watchDelivery(flow.cargo.id);
+  else if(flow.provisions.collecting+flow.provisions.carrying)watchHouseholdErrand();
   else if(flow.farmer)watchHarvestShift();
   else watchVillageLife();
   updateSupplyTrail(true);
@@ -18220,7 +18241,7 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   [focusPoint[0]+Math.sin(yaw)*rad,elevation+focusHeight,focusPoint[1]+Math.cos(yaw)*rad];
  // Use the real worker's reachable bench as the actual WebGL view target,
  // not just as a goal in the orbit planner. Camera movement remains cosmetic.
- const activeWorker=follow&&(liveWorkday||document.body.dataset.workday==='delivery')&&
+ const activeWorker=follow&&(liveWorkday||document.body.dataset.workday==='delivery'||document.body.dataset.workday==='household')&&
   lastFollowShot&&people[selectedCitizen];
  const workTarget=activeWorker?[
   focusPoint[0]+lastFollowShot.target[0]-people[selectedCitizen].x,
