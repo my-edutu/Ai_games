@@ -1,3 +1,15 @@
+## W137 · 8 November 2026 · Phase 1 source checkpoint — real medium-size GPU skin continuity / measured actor CPU phases
+
+Exact game source **blob** `6428446790c9532cbc5673f1704c785bdd9cd8ba`, PR #64 open DRAFT, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Actual working farmer/merchant/haulier original roles and full previous rendered mesh remain; no authoritative economy, nav, save/replay/RNG changes, no other PR/main merge.
+
+Code: medium-distance unselected real working bodies use existing 13-joint GPU original mesh on entry at 15.5% of physical screen height and retain down to a 19.5% release, identity-safe after role change/restart. Followed worker, full-screen/large, loaded goods, merchant unloading and unsupported GPU use original per-frame CPU pose. Two additional scene-aware per-frame CPU stages separate actor-VBO management from necessarily live actual worker/tool mesh generation. Source V8 syntax and ten isolated entry/hold/exit/invalid/fallback checks passed; checked-in Node contract and integrated workflow remain pending actual runner execution. Source alone does not prove visuals or FPS.
+
+Downloaded and inspected historical genuine images/footage [artifact 13596453409](https://github.com/my-edutu/Ai_games/actions/runs/42428317690/artifacts/13596453409). Old candidate's central market is denser than G088 but figures and homes still visibly low-poly. Historical archived Day121 warm single CPU-frame sample: ~26.3ms citizen geometry of ~41.9ms total; NOT same-head p95, GPU timing or FPS. Prior exact-source [run 42431909101](https://github.com/my-edutu/Ai_games/actions/runs/42431909101) failed on older SHA with undefined-filter browser startup; do not attribute to W137. The [old long-soak run 42431909116](https://github.com/my-edutu/Ai_games/actions/runs/42431909116) failed before new W125 ledger existed; current source includes ledger but fresh terminal 120-day proof pending.
+
+A EXPERIENCE: LOOK NOT PROVEN; FEEL FAIL against ≥30 FPS target / real hardware UNMEASURED; PLAY NOT PROVEN. B COMMERCIAL: FAIL. Need new exact-source uncropped Day-1, actual farmer-to-household continuous video, Day120/390px, CPU/GPU p95, 160k, deterministic restore, physical hardware and independent fresh critics. Do not advance phase or merge.
+
+---
+
 ## W136 · 8 November 2026 · Exact-camera scene commands + truthful world/economic HUD cadence · PHASE 1 ACTIVE / NOT PROVEN
 
 **Approved scope and exact playable source:** [f53616adb88d45ed570ac761f6649a485200be51](https://github.com/my-edutu/Ai_games/commit/f53616adb88d45ed570ac761f6649a485200be51) on [open DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64), branch `feat/tiny-kingdom-post-main-gauntlet-20261031` only. Pinned immutable G088 source `2f6deb43feb1a1557848d44def53a6109deb1ab1`. **One integrated true playable slice:** actual farmer harvest → escrowed loaded courier → verified market inventory receipt → real inhabited and provisioned cottage, with Day-120 growth and 390px. No main/#43/#59/#62 merge, game authority, inventory, population, save, path, or RNG changes.

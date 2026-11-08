@@ -1979,6 +1979,28 @@ function isForegroundResidentCandidate(p,i,nearPeople){
  return [p.x,p.z,p.phase,p.energy,p.hunger].every(Number.isFinite)&&
   typeof p.activity==='string'&&typeof p.name==='string';
 }
+// W137: real unselected workers retain one original GPU-skinned full-detail
+// mesh through a small camera change. Every actual foot/hand joint is updated
+// from current authoritative motion; followed workers, freight and physical
+// receiving contact remain in the original per-tick CPU geometry.
+const WORKSITE_SKIN_ENTER_SCREEN_HEIGHT=.155;
+const WORKSITE_SKIN_RETAIN_SCREEN_HEIGHT=.195;
+const WORKSITE_SKIN_FALLBACK_SCREEN_HEIGHT=.115;
+function worksiteGpuSkinSizeGate(heightFraction,previouslySkinned,capable){
+ if(!Number.isFinite(heightFraction)||heightFraction<0)return false;
+ return heightFraction<(capable?(previouslySkinned?
+  WORKSITE_SKIN_RETAIN_SCREEN_HEIGHT:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):
+  WORKSITE_SKIN_FALLBACK_SCREEN_HEIGHT);
+}
+function getWorksiteSkinContinuityAudit(){
+ return {source:'same-genuine-worker-gpu-joint-and-orbit-continuity',
+  enterHeight:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT,
+  retainHeight:WORKSITE_SKIN_RETAIN_SCREEN_HEIGHT,
+  fallbackHeight:WORKSITE_SKIN_FALLBACK_SCREEN_HEIGHT,
+  residentSkinnedWorkers:foregroundResidentVisible.filter(r=>r.entry.skinned).length,
+  selectedLargeWorkersDeliveryAndMarketHandsLive:true,
+  hardwareFps:'NOT MEASURED',authorityChanged:false};
+}
 // W124: full original villager rig, not a distant impostor. Only an
 // unobserved, physically small-but-near REAL professional may reuse a
 // bounded GPU pose. Human-sized hands, the followed actor, loaded freight
@@ -1989,7 +2011,12 @@ function isForegroundWorksiteCandidate(p,i,nearPeople,frame){
     ((follow||liveWorkday)&&i===selectedCitizen)||
     ![p.x,p.z,p.phase,p.workTimer].every(Number.isFinite))return false;
  const view=projectRealCitizenDetail(p,frame);
- return !view.visible||view.heightFraction<.115;
+ // A previous resident actor must have the SAME identity after save/restart.
+ // Other large/selected people already exit above and keep CPU-owned hands.
+ const prior=foregroundResidentCache.get(i);
+ const held=Boolean(prior?.skinned&&typeof prior.key==='string'&&
+  prior.key.startsWith([i,p.name,p.job].join(':')+':'));
+ return !view.visible||worksiteGpuSkinSizeGate(view.heightFraction,held,workingSkinCapable);
 }
 function realForegroundFacing(p){
  const focus=p.path?.length?p.path[0]:p.target;
@@ -2390,7 +2417,7 @@ function getDrawCadenceAudit(){
 
 const FRAME_PROFILE_LIMIT=48,frameProfileSamples=[];
 let frameProfileScene=null,frameProfileSceneResets=0;
-const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','residentWorkGeometry','householdGeometry','economyGeometry','residentEconomyGeometry','ambientGeometry','citizenGeometry','weatherGeometry','citizenDetailSelection','gpuUpload'];
+const FRAME_PROFILE_KEYS=['simulationAndSky','staticGeometry','dynamicGeometry','drawSubmission','total','worksiteGeometry','residentWorkGeometry','householdGeometry','economyGeometry','residentEconomyGeometry','ambientGeometry','citizenGeometry','residentActorManagement','liveActorGeometry','weatherGeometry','citizenDetailSelection','gpuUpload'];
 let frameProfileCount=0;
 function getFrameProfile(){
  const stages={};
@@ -19139,7 +19166,8 @@ if(homeClustersEnabled())refreshIndependentHousing(nextTerrainKey,staticKey);
 const frameDynamicStart=performance.now();
 const dynamicPhaseTimes={
  worksiteGeometry:0,residentWorkGeometry:0,householdGeometry:0,economyGeometry:0,
- residentEconomyGeometry:0,ambientGeometry:0,citizenGeometry:0,weatherGeometry:0,gpuUpload:0
+ residentEconomyGeometry:0,ambientGeometry:0,citizenGeometry:0,
+ residentActorManagement:0,liveActorGeometry:0,weatherGeometry:0,gpuUpload:0
 };
 const citizenDetailStarted=performance.now();
 const detailPlan=selectVisibleCitizenDetail(),nearPeople=detailPlan.indices;
@@ -19254,6 +19282,7 @@ villageVisualLod.compactFacingCount=0;villageVisualLod.compactTurnedCitizens=0;v
  villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0,
   workAprons:0,geometryTriangles:0,roles:new Set()};
 const citizenGeometryStart=performance.now();
+const residentActorManagementStart=performance.now();
 // A truly resting, stationary distant human can retain the SAME original
 // compact mesh on the GPU while the genuinely moving and working citizens
 // continue rebuilding live IK/held-tool geometry every authoritative step.
@@ -19287,6 +19316,7 @@ const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
 const foregroundReady=prepareForegroundResidents(foregroundRows);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
+dynamicPhaseTimes.residentActorManagement=performance.now()-residentActorManagementStart;
 // Keep genuine person, gait, tool, loaded cart and physical hand generation
 // EXACTLY as before for every active or visible detailed human.
 const worldPropsStream=data;
@@ -19294,6 +19324,7 @@ if(gpuAvailable&&actorStreamSplitEnabled){
  actorDynamicVertexScratch.length=0;
  data=actorDynamicVertexScratch;
 }
+const liveActorGeometryStart=performance.now();
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){
   if(!foregroundIndices.has(i))villager(people[i]);
@@ -19305,6 +19336,7 @@ for(let i=0;i<people.length;i++){
  }
 }
 for(const person of people)renderCarriedHouseholdProvisions(person);
+dynamicPhaseTimes.liveActorGeometry=performance.now()-liveActorGeometryStart;
 actorFrameCitizens=people.length;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorFrameData=data;
@@ -19556,6 +19588,7 @@ drawForegroundResidentMesh();
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
+ getWorksiteSkinContinuityAudit,
  getAuthenticWorkdayAudit,getCourierCartGripAudit,
  getAuthenticWorkGesture:index=>Number.isInteger(index)&&index>=0&&index<people.length?
   cloneData(getAuthenticWorkGesture(people[index])):null,
