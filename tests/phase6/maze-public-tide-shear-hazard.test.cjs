@@ -59,24 +59,31 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
     const hero=new THREE.Vector3(pos.x,ground,pos.z);
     const resources=world.stats();
     world.animate(0,{gateTime:0,reducedMotion:false,explorerPosition:hero});
+    assert.ok(parts[0].rotation.z>.19 && parts[0].rotation.z<.21
+      && parts[1].rotation.z<-.19 && parts[1].rotation.z>-.21,
+      'first witnessed contact must warn through the hinge before the ivory floor opens');
+    world.animate(.35,{gateTime:.35,reducedMotion:false,explorerPosition:hero});
+    assert.ok(parts.every(jaw=>Math.abs(jaw.rotation.z)>.20
+      && Math.abs(jaw.rotation.z)<.66),
+      'middle beat opens both real jaws only as their floor shutters move');
+    world.animate(1.25,{gateTime:1.25,reducedMotion:false,explorerPosition:hero});
     assert.ok(parts[0].rotation.z>.60 && parts[1].rotation.z<-.60,
-      'visible danger opens both connected physical jaw silhouettes OUTWARD when actual Pip arrives');
+      'continued witnessed contact completes the physical OUTWARD jaw opening');
     world.animate(0,{gateTime:0,reducedMotion:false,explorerPosition:hero});
     assert.equal(parts[0].rotation.z,-parts[1].rotation.z,
       'same public pose yields symmetrical deterministic positions');
     // The genuine native capture shows autonomous Pip adjacent to the
     // published trap, not standing on it. Require a physical signal at one
     // whole public tile of separation, without altering any engine hazard.
-    world.animate(0,{gateTime:0,reducedMotion:false,
+    world.animate(1.25,{gateTime:1.25,reducedMotion:false,
       explorerPosition:new THREE.Vector3(pos.x+source.CELL_SIZE,ground,pos.z)});
-    assert.ok(parts.every(jaw=>Math.abs(jaw.rotation.z)>.27
-      && Math.abs(jaw.rotation.z)<.29),
-      'adjacent public pressure must cause a substantially visible hinge gesture');
-    world.animate(0,{gateTime:0,reducedMotion:false,
+    assert.ok(parts.every(jaw=>Math.abs(jaw.rotation.z)>.60),
+      'sustained one-cell public contact keeps both completed physical jaws visible');
+    world.animate(1.25,{gateTime:1.25,reducedMotion:false,
       explorerPosition:new THREE.Vector3(pos.x+40,ground,pos.z+40)});
     assert.ok(parts.every(jaw=>Math.abs(Math.abs(jaw.rotation.z)-.06)<1e-9),
       'withdrawal returns to a small closed/resting gesture without imagined pursuit');
-    world.animate(0,{gateTime:0,reducedMotion:true,explorerPosition:hero});
+    world.animate(1.25,{gateTime:1.25,reducedMotion:true,explorerPosition:hero});
     assert.ok(parts.every(jaw=>Math.abs(Math.abs(jaw.rotation.z)-.24)<1e-9),
       'reduced motion uses stable recognizable physical pose with zero oscillation');
     assert.equal(world.stats().geometryCount,resources.geometryCount,
@@ -100,8 +107,11 @@ test('no private trap, remembered-only cue or previous run may animate a hidden 
       'remembered but currently invisible hazard cannot stage a fresh event');
     world.update(published({visibleCells:[4]}));
     world.animate(1,{explorerPosition:hero});
+    assert.ok(jaws(world).every(jaw=>Math.abs(Math.abs(jaw.rotation.z)-.20)<1e-8),
+      'newly re-visible near contact earns only an honest relay warning first');
+    world.animate(2.25,{explorerPosition:hero});
     assert.ok(jaws(world).every(jaw=>Math.abs(jaw.rotation.z)>.60),
-      'only current true public visibility can animate discovered hazard');
+      'only continued public contact completes the full jaw stroke');
     world.update(published({cells:[cell(false)],privateTrapCells:[4],
       hiddenDanger:{cell:4},privateRoute:[4,5,8]}));
     assert.ok(jaws(world).every(jaw=>!jaw),

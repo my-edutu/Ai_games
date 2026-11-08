@@ -2300,27 +2300,32 @@ export function createMazeWorld(options = {}) {
       // Pip witnesses the SAME physical relay/shutter/piston clock, never a second timer.
       // A stale or hidden cell cannot lend its old phase to the explorer.
       signal.publicProgress = stagedPressure;
+      // Static reduced-motion contact is earned by Pip's currently observed
+      // near approach, NOT mere visibility of a known trap across the room.
+      // Recompute every frame; retreat, terminal and hidden states clear it.
+      const reducedContact = reduced && nearContact;
+      signal.reducedContact = reducedContact;
       const earlyRelay = Math.min(1, stagedPressure / .17);
       const shutterBeat = Math.min(1, Math.max(0, (stagedPressure - .34) / .36));
       const pistonRelay = Math.min(1, Math.max(0, (stagedPressure - .76) / .24));
       for (const relay of signal.relays) {
-        relay.object.rotation.z = -relay.side * (reduced && visible ? .40 : .05 + .65 * earlyRelay);
-        relay.object.position.y = .28 + (reduced && visible ? .04 : .15 * pistonRelay);
+        relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
+        relay.object.position.y = .28 + (reducedContact ? .04 : .15 * pistonRelay);
       }
-      signal.carriage.position.y = reduced && visible ? .29 : .16 + .28 * pistonRelay;
+      signal.carriage.position.y = reducedContact ? .29 : .16 + .28 * pistonRelay;
       for (const leaf of signal.diaphragms)
-        leaf.object.rotation.z = -leaf.side * (reduced && visible ? .34 : .08 + .70 * pistonRelay);
+        leaf.object.rotation.z = -leaf.side * (reducedContact ? .34 : .08 + .70 * pistonRelay);
       // Physical, source-bound open/close beat: these are connected floor
       // shutters, not a CSS flash or a simulated engine state. Their centres
       // spread out while their inner edges rise; a retreat or lost public
       // visibility restores the exact resting pose in the same render tick.
       for (const shutter of signal.shutters) {
-        shutter.object.position.x = shutter.side * (.52 + (reduced && visible ? .09 : .18 * shutterBeat));
+        shutter.object.position.x = shutter.side * (.52 + (reducedContact ? .09 : .18 * shutterBeat));
         // The original .81rad opening still looked almost flat under the
         // real elevated camera. A stronger 1.11rad physical hinge and ivory
         // face create a distinct adjacent-cell visual beat, without expanding
         // the known tile footprint, changing Pip, or inventing a new hazard.
-        shutter.object.rotation.z = -shutter.side * (reduced && visible ? .24 : .03 + 1.08 * shutterBeat);
+        shutter.object.rotation.z = -shutter.side * (reducedContact ? .24 : .03 + 1.08 * shutterBeat);
       }
     }
     // One witnessed three-beat MACHINE: bronze relays tip the warning jaws,
@@ -2337,7 +2342,7 @@ export function createMazeWorld(options = {}) {
       const phase = visible && signal ? signal.publicProgress ?? 0 : 0;
       const relayBeat = Math.min(1, Math.max(0, phase / .17));
       const shutterBeat = Math.min(1, Math.max(0, (phase - .34) / .36));
-      const angle = reduced && visible ? .24
+      const angle = signal?.reducedContact ? .24
         : .06 + .14 * relayBeat + .46 * shutterBeat;
       jaw.object.rotation.z = -jaw.side * angle;
     }

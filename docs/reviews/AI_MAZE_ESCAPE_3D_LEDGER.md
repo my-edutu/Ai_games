@@ -1,3 +1,9 @@
+### Pass205 — reduced-motion pressure requires actual public contact (2026-11-08 UTC)
+
+- **Player-visible semantic defect:** a disclosed but distant trap wrongly held the same active reduced-motion pose as near Pip across relay, shutter, piston, diaphragm and both jaws. One current publicly visible near-contact flag now drives all five, so an unrelated visible pressure tile stays closed until an authentic approach; retreat, diagonal, terminal and remembered-only state restore rest. No extra geometry or engine authority.
+- **Stronger installed-Three source contracts authored:** actual far/diagonal/near/retreat/hidden/terminal/reset joints, unchanged budgets, and old immediate-open jaw tests upgraded to the Pass202 three-phase clock while keeping the >.60 complete-open threshold.
+- **Verification status PENDING:** Pass204 exact-HEAD GitHub CI/WebGL remained queued; workspace + independent workers disconnected. No new native render, executable test pass, outside critic or Nintendo win claimed. [Dated review](./maze-3d/pass-205-public-contact-reduced-pressure-2026-11-08.md). Open DRAFT PR #53; keep hourly Gauntlet active.
+
 ### Pass204 — immediate published pressure stage outranks unrelated closed-gate camera (2026-11-08 UTC)
 
 - **Original visual diagnosis:** authentic prior 390×844/320×740 WebGL pressure screenshots from [artifact 13597475546](https://github.com/my-edutu/Ai_games/actions/runs/42429364155/artifacts/13597475546) show moving jaws high/right and a larger sealed gate filling the foreground while Pip is one public tile from the danger; true old-source +0.931939 physical right NDC, still inside unchanged +0.95. Prior 37 PNG/hash evidence only, not new-source approval.
