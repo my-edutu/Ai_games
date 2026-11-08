@@ -1,3 +1,9 @@
+### Pass204 — immediate published pressure stage outranks unrelated closed-gate camera (2026-11-08 UTC)
+
+- **Original visual diagnosis:** authentic prior 390×844/320×740 WebGL pressure screenshots from [artifact 13597475546](https://github.com/my-edutu/Ai_games/actions/runs/42429364155/artifacts/13597475546) show moving jaws high/right and a larger sealed gate filling the foreground while Pip is one public tile from the danger; true old-source +0.931939 physical right NDC, still inside unchanged +0.95. Prior 37 PNG/hash evidence only, not new-source approval.
+- **Production camera/story change:** strictly public adjacent pressure event wins portrait Follow framing over the ordinary sealed gate/key background. Paired Pip/physical-hazard aim retains original 4.70 keyed-pressure optical baseline, while actual witnessed gate opening, pickup, guardian, manual/landscape/diagonal, terminal and hidden states retain priority. Three focused privacy/composition/integration regressions. No game-rule, model, camera crop, threshold or GPU allocation change.
+- **New-HEAD source code/tests/render **PENDING**:** GitHub Actions queued and direct workspace/independent critic unavailable at inspection. No newly tested or rendered win; official Nintendo bar **NOT MET**. [Dated review](./maze-3d/pass-204-public-pressure-camera-story-priority-2026-11-08.md). Keep PR #53 OPEN DRAFT, hourly Gauntlet active.
+
 ### Pass203 — visible published pressure hazard takes precedence in the live mission (2026-11-08 UTC)
 
 - **Original screenshot evidence:** prior exact-source [WebGL artifact 13597475546](https://github.com/my-edutu/Ai_games/actions/runs/42429364155/artifacts/13597475546), all 37 original PNG hashes checked. Real 390×844 tick-6 pressure shows Pip one cell from visible moving jaws, but mission still foregrounds “Key for gate”; source-bound mission priority is a real gameplay-awareness error.

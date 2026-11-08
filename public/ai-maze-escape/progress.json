@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T03:18:00Z",
+  "updatedAt": "2026-11-08T04:35:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass203 2026-11-08: Verified all 37 ORIGINAL prior source WebGL screenshot hashes (artifact 13597475546). Authentic 390px pressure tick6 shows Pip one published cell from visible jaws but the primary HUD still says Key for gate. Source-only fix gives actual visible adjacent pressure priority over gate/key/landmark in the EXISTING mission chip, preserving true AI intent, privacy, accessibility and terminal/warden priority. Three Node tests authored; exact new-HEAD WebGL/render/CI and independent Nintendo-quality verdict PENDING. Pass202 jaw-clock run also queued. PR #53 open draft; no merge/deploy/force."
+    "summary": "Pass204 2026-11-08: Inspected authentic PRIOR-source full-frame 320/390 WebGL pressure (artifact 13597475546), a genuine adjacent moving jaw pushed upper-right while an unrelated closed-gate camera dominates foreground. Added strictly public pressure-first portrait Follow scene selection keeping existing keyed-pressure scale and guardian/opening/pickup/manual/terminal/hidden priorities. Three focused source tests authored. Exact new-head Node/CI/WebGL, no-crop and independent benchmark verdict PENDING: coding workspace unavailable, GitHub runs queued. Not a passed/rendered change; draft PR #53 unmerged/undeployed."
   },
   "captures": [
     {

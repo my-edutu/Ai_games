@@ -40,6 +40,45 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
  * pan fraction, not a gameplay command, a camera zoom or an invented event.
  * Detail, overview, landscape, and non-portrait layouts are untouched.
  */
+/**
+ * Native 320/390 pressure gameplay showed the actual jaws in the top-right
+ * while a merely known closed gate dictated the camera (and occupied the
+ * foreground). Once Pip is genuinely beside a CURRENTLY VISIBLE trap, the
+ * immediate physical danger deserves the shared shot rather than the stale
+ * gate portrait. This selects only a cosmetic Follow camera, never AI intent.
+ *
+ * Validate the original published cells/current cell AGAIN instead of
+ * trusting a caller-supplied candidate. Witnessed gate opening, actual
+ * guardian, pickup, terminal, hidden and manual camera always outrank it.
+ */
+export function publicPressureTakesFocus(snapshot, trap, cellSize, aspect,
+  cameraMode = 'follow', hasGuardian = false, gateOpening = false, pickup = false) {
+  if (!snapshot || snapshot.result || cameraMode !== 'follow'
+    || hasGuardian || gateOpening || pickup
+    || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)
+    || !(Number.isFinite(cellSize) && cellSize > 0)
+    || !(Number.isFinite(trap?.distance) && trap.distance >= 0
+      && trap.distance <= cellSize * 1.06)
+    || !(Number.isFinite(trap?.weight) && trap.weight >= .34)
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width < 2
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height < 2
+    || !Number.isSafeInteger(snapshot.currentCell)
+    || snapshot.currentCell < 0
+    || snapshot.currentCell >= snapshot.width * snapshot.height
+    || !Number.isSafeInteger(trap.cell) || trap.cell < 0
+    || trap.cell >= snapshot.width * snapshot.height
+    || !Array.isArray(snapshot.cells)
+    || !Array.isArray(snapshot.visibleCells)) return false;
+  const known = snapshot.cells.find(cell => cell?.cell === trap.cell
+    && cell.trap === true && cell.blocked !== true);
+  if (!known || !snapshot.visibleCells.includes(trap.cell)) return false;
+  const distance = Math.abs(trap.cell % snapshot.width
+    - snapshot.currentCell % snapshot.width)
+    + Math.abs(Math.floor(trap.cell / snapshot.width)
+    - Math.floor(snapshot.currentCell / snapshot.width));
+  return distance <= 1;
+}
+
 export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) {
   if (!snapshot || snapshot.result
     || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)

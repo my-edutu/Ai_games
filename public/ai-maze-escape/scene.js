@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -730,14 +730,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // On a public coastline, a hero-only camera can leave half the screen
       // empty water. Rebalance toward the *known nearby stage* but keep Pip
       // visible, and avoid fighting the threat-encounter framing.
+      // Source-authentic pressure screenshots showed a stale closed gate
+      // filling the foreground while Pip was one disclosed step from the
+      // moving jaw. Give the immediate PUBLIC danger its own hero/mechanism
+      // camera priority. Never demote a witnessed opening, pickup, guardian,
+      // terminal state or manual spectator camera.
+      const pressureFirst = publicPressureTakesFocus(
+        s, publicPressureTrap, CELL_SIZE, aspect, cameraMode,
+        !!closestThreat?.strength, !!openingGateBeat, !!showPickup);
       const nearObservedGoal = cameraMode === 'follow' && !result
         && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength
-        && !openingGateBeat;
+        && !openingGateBeat && !pressureFirst;
       if (cameraMode === 'follow' && !result && !closestThreat?.strength) {
         // The visual obstruction is never promoted to a movement objective:
         // it is only a currently rendered, source-disclosed *closed* gate.
-        nearObservedGate = !nearObservedGoal ? publicNearbySealedGate(s) : null;
-        cameraGate = openingGateBeat || nearObservedGate;
+        nearObservedGate = !pressureFirst && !nearObservedGoal ? publicNearbySealedGate(s) : null;
+        cameraGate = pressureFirst ? null : openingGateBeat || nearObservedGate;
         openingKeyedBeat = !!openingGateBeat?.keyed;
         let focus;
         if (cameraGate) {
@@ -758,16 +766,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             : keyLockCloseup
               ? composePublicKeyLockFocus(stageBias, gateDelta, aspect)
               : composePublicSealedGateFocus(stageBias, gateDelta, aspect);
-        } else {
-          // A near, already-observed goal does not erase the public coastline
-          // correction. Keep Pip and its legitimate first step in the diorama.
+        } else if (!pressureFirst) {
+          // Ordinary exploration retains its prior public coastline/goal
+          // staging. An immediate observed mechanism instead frames only
+          // Pip + the physical jaw, not unrelated terrain or a sealed gate.
           const goal = nearObservedGoal
             ? cellPosition(objectiveCue.cell, s.width, s.height) : null;
           focus = composePublicCameraFocus(stageBias, goal
             ? {x: goal.x - pose.x, z: goal.z - pose.z} : null, nearObservedGoal, aspect);
         }
-        desiredTarget.x += focus.x;
-        desiredTarget.z += focus.z;
+        if (focus) {
+          desiredTarget.x += focus.x;
+          desiredTarget.z += focus.z;
+        }
         // Real Pass167 native 320px pressure tick6 caught an ACTUAL framed
         // key/lock close-up with a simultaneously published tide-shear jaw
         // extending to +1.0503 NDC (unchanged safe limit +.95). The gate
@@ -819,6 +830,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         : height < 340 ? 5.4
         : cameraGate ? (gateStoryCloseup ? 3.92
           : ((keyLockCloseup || openingKeyedBeat) ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05)))
+        // Match the previously recorded safe keyed-pressure optical scale,
+        // but place that budget around the ACTUAL actor/jaw pair rather than
+        // a foreground gate. No false mesh enlargement or screenshot crop.
+        : pressureFirst ? 4.70
         : aspect < .9 ? 6.2 : nearObservedGoal ? 6.25 : 7.3;
       // A live full-viewport portrait is narrower in WORLD units than the
       // old in-page canvas. Preserve the already-disclosed pair/terrain span
@@ -843,7 +858,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // The existing gate/guardian/key and reduced-motion camera contracts
         // retain their separate verified in-frame bounds and behaviour.
         if (!result && !cameraGate && !closestThreat?.strength
-          && !nearObservedGoal && !settings.reducedMotion)
+          && !nearObservedGoal && !pressureFirst && !settings.reducedMotion)
           targetHeight = publicCompactExplorationHalfHeight(aspect,targetHeight,s);
         // Original Pass161 390x844 native screenshot: the full connected
         // tide-shear jaws reached +1.082 NDC (strict limit +.95), while
@@ -853,7 +868,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // authority, camera scale and autonomous AI remain unchanged.
         // Public guardian, goal, key, gate and pickup stories take priority.
         if (publicPressureTrap && !cameraGate && !nearObservedGoal
-          && !keyGateCue && !showPickup) {
+          && (pressureFirst || !keyGateCue) && !showPickup) {
           pressureCameraBeat = true;
           desiredTarget.x += (publicPressureTrap.x-pose.x)*publicPressureTrap.weight;
           desiredTarget.z += (publicPressureTrap.z-pose.z)*publicPressureTrap.weight;
@@ -864,7 +879,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           // physical models, gameplay or the original strict silhouette bar.
           // Never force a zoom for terminal, reduced-motion, hidden, gate,
           // pickup, guardian, overview or landscape frames.
-          if (!settings.reducedMotion && aspect >= .35 && aspect < .60)
+          if (!pressureFirst && !settings.reducedMotion && aspect >= .35 && aspect < .60)
             targetHeight = Math.max(5.8, targetHeight * .86);
         }
         // Pass131: native images show the physically unfolding tide-organ and
