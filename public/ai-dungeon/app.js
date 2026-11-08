@@ -44,7 +44,7 @@ import {planWorldStoryStage} from '/dungeon/world-story-stage-plan.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {createChapterNaves} from '/dungeon/chapter-nave.js';
-import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
+import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats,inspectSourceRigDeformation} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const spectatorUI=installSpectatorUI();
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
