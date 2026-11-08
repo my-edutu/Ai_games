@@ -1,3 +1,13 @@
+## W148 · Persistent single Phase 1 milestone · 8 November 2026
+
+Original farm → actual loaded courier → market receipt → verified buyer/home/meal, grown Day120 and mobile remain the ONE vertical slice. Current candidate static-render exact terrain-residency source blob `547d8681e3174aee72cf8b73a2add5d8f6a43ccf`. Cache is bounded to 32,768 render-only samples, with an A/B override and audit; there is **no verified gameplay FPS or appearance gain**.
+
+**Five load-bearing remaining gates, unchanged ownership:** (1) scene-matched actual-game static rebuild p95 vs original, GPU/driver/JS split and <160k triangles; (2) correct G088/current exact-world video including uncut real workday/handoff and 390px; (3) major original coherent continuous medieval built environment and landscape; (4) visible physical real jobs and market-to-cottage consumption, no fabricated ledger; (5) deterministic long growth, real desktop/mobile sustained >=30fps and p95<=33.3ms, bounded memory/no GL errors and separate fresh-context blinded critics. All current acceptance gates NOT PROVEN; B commercial FAIL.
+
+**Execution status:** live workspace tunnel unavailable. Current previous-head A/B and GPU [42514175307](https://github.com/my-edutu/Ai_games/actions/runs/42514175307), [42514175308](https://github.com/my-edutu/Ai_games/actions/runs/42514175308) PENDING at check. Added source-parity executable `scripts/tiny-kingdom-w148-static-terrain-residency-contract.cjs`; isolated V8 source checks pass, Node/Chromium not yet run. Next do real playback and p95 before judging the renderer change; revert if wrong. Do not advance phase or merge.
+
+---
+
 ## W147 · Evidence-corrected active Phase 1 backlog · 8 November 2026
 
 **Current active milestone:** one authentic farmer harvest → named loaded courier → verified market unload → real buyer carrying provisions → real inhabited cottage and matching meal; include real Day120 town and 390px. Pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`; PR #64 remains OPEN DRAFT UNMERGED. **No phase pass.**

@@ -4840,12 +4840,46 @@ function highlandRidgeRelief(x,z){
  const riverSafe=streamBlend*streamBlend*(3-2*streamBlend);
  return fade*riverSafe*(1.45*(crest-.25)-.63*(eroded-.25)+.29*strata);
 }
-function terrain(x,z){
+function rawTerrain(x,z){
  const d=Math.hypot(x,z),edge=Math.max(0,Math.min(1,(d-24)/18));
  const upland=edge*edge*(2.8+1.8*Math.sin(x*.18+z*.11)*Math.cos(z*.24));
  return .13*Math.sin(x*.32)*Math.cos(z*.24)+
   .7*Math.pow(Math.abs(x)/40,2)+.25*Math.pow(Math.abs(z)/38,2)+upland+
   highlandRidgeRelief(x,z);
+}
+// W148 Phase 1: retain exact pure world-height evaluations across authentic
+// static geometry construction, including recurring seasons and grown homes.
+// Dynamic citizens, navigation, and simulation always use rawTerrain directly
+// through the disabled-by-default fast path. Never quantize coordinates: roads,
+// riverbanks, architecture and normals require bit-identical heights.
+const STATIC_TERRAIN_MEMO_LIMIT=32768;
+const staticTerrainMemo=new Map();
+let staticTerrainMemoActive=false,staticTerrainMemoOverride=null;
+let staticTerrainMemoHits=0,staticTerrainMemoMisses=0,staticTerrainMemoClears=0;
+function terrain(x,z){
+ if(!staticTerrainMemoActive||!Number.isFinite(x)||!Number.isFinite(z))
+  return rawTerrain(x,z);
+ const key=x+','+z,hit=staticTerrainMemo.get(key);
+ if(hit!==undefined){staticTerrainMemoHits++;return hit}
+ const height=rawTerrain(x,z);staticTerrainMemoMisses++;
+ if(staticTerrainMemo.size>=STATIC_TERRAIN_MEMO_LIMIT){
+  staticTerrainMemo.clear();staticTerrainMemoClears++;
+ }
+ staticTerrainMemo.set(key,height);
+ return height;
+}
+function setStaticTerrainMemoEnabledForTesting(value){
+ if(value!==null&&value!==true&&value!==false)throw Error('Invalid W148 static terrain memo override');
+ staticTerrainMemoOverride=value;
+ lastFrozenFrameKey=null;presentationEpoch++;
+ return value!==false;
+}
+function getStaticTerrainMemoAudit(){
+ return {source:'pure-render-terrain-samples',active:staticTerrainMemoActive,
+  size:staticTerrainMemo.size,cap:STATIC_TERRAIN_MEMO_LIMIT,
+  enabled:staticTerrainMemoOverride!==false,
+  hits:staticTerrainMemoHits,misses:staticTerrainMemoMisses,
+  clears:staticTerrainMemoClears,changesNavigation:false,changesAuthority:false};
 }
 // Continuous grass vertex colours and normals remove the obvious checkerboard mesh.
 // G050 ecological material factors are pure presentation parameters; neither
@@ -19630,7 +19664,7 @@ function render(now){requestAnimationFrame(render);
   lastFollowShot=plan;
  }
  }
-}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else if(!grainJourney)updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();
+}advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else if(!grainJourney)updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);const frameStaticStart=performance.now();staticTerrainMemoActive=staticTerrainMemoOverride!==false;
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
@@ -19811,7 +19845,7 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
 // Real new homes refresh their changed original 16m block, NOT the
 // unchanged civic/farm/market settlement VBO.
 if(homeClustersEnabled())refreshIndependentHousing(nextTerrainKey,staticKey);
-const frameDynamicStart=performance.now();
+staticTerrainMemoActive=false;const frameDynamicStart=performance.now();
 const dynamicPhaseTimes={
  worksiteGeometry:0,residentWorkGeometry:0,householdGeometry:0,economyGeometry:0,
  residentEconomyGeometry:0,ambientGeometry:0,citizenGeometry:0,
@@ -20280,7 +20314,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
