@@ -285,6 +285,6 @@ document.addEventListener('keydown',e=>{
  one("button('pause',()=>{frozen=!frozen;",keyboard+"button('pause',()=>{frozen=!frozen;","keyboard");
  one('getCameraMotionAudit:cameraMotionAudit,getCamera:()=>',
  'getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>','public audits');
- one('setCamera:o=>{// G068:', 'setCamera:o=>{// G068:\n freeCameraReturn=null;','API overrides');
+ one('setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.', 'setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.\n freeCameraReturn=null;','API overrides');
  return {content:out,applied};
 };
