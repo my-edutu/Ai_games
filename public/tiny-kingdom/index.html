@@ -1197,7 +1197,9 @@ let commuterResidentCache=new Map(),commuterResidentVisible=[],
  commuterResidentMesh=new Float32Array(0),commuterResidentKey='',
  commuterResidentBuilds=0,commuterResidentReuses=0,
  commuterResidentUploads=0,commuterResidentDrawCalls=0,
- commuterResidentFallbacks=0,commuterResidentRebuilds=0;
+ commuterResidentFallbacks=0,commuterResidentRebuilds=0,
+ commuterResidentLayoutKey='',commuterResidentFullUploads=0,
+ commuterResidentPartialUploads=0,commuterResidentUploadBytes=0;
 function isResidentCommuterCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||nearPeople.has(i)||!p||p.delivery||
     isWorkingAtSite(p)||isMarketUnloading(p))return false;
@@ -1228,7 +1230,7 @@ function prepareResidentCommuters(rows){
  commuterResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   commuterResidentCache.clear();
-  commuterResidentKey='';
+  commuterResidentKey='';commuterResidentLayoutKey='';
   commuterResidentMesh=new Float32Array(0);
   return false;
  }
@@ -1237,7 +1239,7 @@ function prepareResidentCommuters(rows){
  let total=0;
  for(const {p,i} of limited){
   const angle=realCommuterFacing(p);
-  let entry=commuterResidentCache.get(i);
+  let entry=commuterResidentCache.get(i),fresh=false;
   if(commuterPoseStale(entry,p,angle)){
    const prior=data,before=restingActorCounters();
    data=[];
@@ -1253,7 +1255,7 @@ function prepareResidentCommuters(rows){
      x:p.x,z:p.z,phase:p.phase,energy:p.energy,hunger:p.hunger,
      ground:terrain(p.x,p.z),angle,mesh,delta,
      revision:++commuterResidentBuilds};
-    commuterResidentRebuilds++;
+    commuterResidentRebuilds++;fresh=true;
    }finally{data=prior;}
   }else{
    applyRestingActorMetrics(entry.delta);
@@ -1264,48 +1266,57 @@ function prepareResidentCommuters(rows){
      entry.mesh.length%30!==0||!entry.mesh.length){
    // Full original live compact meshes are emitted by the caller instead.
    resetRestingActorMetrics(beforeAll);
-   commuterResidentVisible=[];
+   commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
    commuterResidentFallbacks++;
-   commuterResidentKey='';
+   commuterResidentKey='';commuterResidentLayoutKey='';
    return false;
   }
   next.set(i,entry);
-  selected.push({p,i,entry});
+  selected.push({p,i,entry,fresh});
  }
- const key=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
- if(key!==commuterResidentKey||!commuterResidentBuffer){
+ let offset=0;
+ for(const row of selected){
+  row.offset=offset/10;row.count=row.entry.mesh.length/10;
+  offset+=row.entry.mesh.length;
+ }
+ // Geometry layout changes require one complete repack. An original
+ // commuter's gait-only pose change otherwise uploads JUST that actor's
+ // original mesh into its stable VBO range; other citizens never churn.
+ const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const wholeUpload=layoutKey!==commuterResidentLayoutKey||
+  !commuterResidentBuffer||commuterResidentMesh.length!==total;
+ if(!commuterResidentBuffer)commuterResidentBuffer=gl.createBuffer();
+ if(!commuterResidentBuffer){
+  resetRestingActorMetrics(beforeAll);
+  commuterResidentFallbacks++;commuterResidentVisible=[];
+  commuterResidentKey='';commuterResidentLayoutKey='';
+  commuterResidentMesh=new Float32Array(0);return false;
+ }
+ bindGeometry(commuterResidentBuffer);
+ if(wholeUpload){
   const packed=new Float32Array(total);
-  let offset=0;
-  for(const row of selected){
-   packed.set(row.entry.mesh,offset);
-   row.offset=offset/10;
-   row.count=row.entry.mesh.length/10;
-   offset+=row.entry.mesh.length;
-  }
-  if(!commuterResidentBuffer)commuterResidentBuffer=gl.createBuffer();
-  if(!commuterResidentBuffer){
-   resetRestingActorMetrics(beforeAll);
-   commuterResidentFallbacks++;commuterResidentVisible=[];
-   commuterResidentKey='';return false;
-  }
-  bindGeometry(commuterResidentBuffer);
+  for(const row of selected)packed.set(row.entry.mesh,row.offset*10);
   if(total>commuterResidentCapacity){
    commuterResidentCapacity=Math.ceil(total/65536)*65536;
    gl.bufferData(gl.ARRAY_BUFFER,commuterResidentCapacity*4,gl.DYNAMIC_DRAW);
   }
   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed);
-  commuterResidentUploads++;
-  commuterResidentMesh=packed;commuterResidentKey=key;
+  commuterResidentMesh=packed;
+  commuterResidentUploads++;commuterResidentFullUploads++;
+  commuterResidentUploadBytes+=total*4;
  }else{
-  let offset=0;
   for(const row of selected){
-   row.offset=offset/10;
-   row.count=row.entry.mesh.length/10;
-   offset+=row.entry.mesh.length;
+   if(!row.fresh)continue;
+   gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*40,row.entry.mesh);
+   commuterResidentMesh.set(row.entry.mesh,row.offset*10);
+   commuterResidentUploads++;commuterResidentPartialUploads++;
+   commuterResidentUploadBytes+=row.entry.mesh.length*4;
   }
  }
  commuterResidentCache=next;
  commuterResidentVisible=selected;
+ commuterResidentLayoutKey=layoutKey;
+ commuterResidentKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
  return true;
 }
 function drawResidentCommuters(){
@@ -1332,12 +1343,16 @@ function getResidentCommuterAudit(){
   gpuCapacityFloats:commuterResidentCapacity,builds:commuterResidentBuilds,
   poseRebuilds:commuterResidentRebuilds,reuses:commuterResidentReuses,
   uploads:commuterResidentUploads,drawCalls:commuterResidentDrawCalls,
+  fullUploads:commuterResidentFullUploads,
+  partialUploads:commuterResidentPartialUploads,
+  uploadBytes:commuterResidentUploadBytes,layoutKey:commuterResidentLayoutKey,
   overflowFallbacks:commuterResidentFallbacks,
   originalMovementAndOccupationOnly:true,nearWorkersAndCargoAlwaysLive:true,
   physicalHardwareFpsNotMeasured:true,authorityModified:false};
 }
 function resetResidentCommuters(){
  commuterResidentCache.clear();commuterResidentKey='';
+ commuterResidentLayoutKey='';
  commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
  // Reuse one bounded allocation across resets; never keep old citizen data.
 }
@@ -2075,6 +2090,29 @@ function getFrameProfile(){
 function simulationFrameDelta(elapsedSeconds){
  if(!Number.isFinite(elapsedSeconds))throw Error('Invalid renderer elapsed seconds');
  return Math.min(.75,Math.max(0,elapsedSeconds));
+}
+// W125: a frame budget limits synchronous work, NOT authoritative progress.
+// The old 16x path processed 64 of hundreds of due ticks and erased the rest.
+// Retain precise unprocessed fixed-step credit for subsequent frames instead.
+let renderTicksExecuted=0,renderBacklogFrames=0,renderMaxPendingTicks=0;
+function drainRenderTickBacklog(debt,advance,maxTicks=64){
+ if(!Number.isFinite(debt)||debt<0)throw Error('Invalid fixed-step debt');
+ if(typeof advance!=='function'||!Number.isInteger(maxTicks)||
+  maxTicks<1||maxTicks>64)throw Error('Invalid fixed-step budget');
+ let executed=0;
+ while(debt>=FIXED_STEP&&executed<maxTicks){
+  advance(FIXED_STEP);debt-=FIXED_STEP;executed++;
+ }
+ return {remaining:debt,executed,pendingTicks:Math.floor(debt/FIXED_STEP)};
+}
+function getSimulationTickDebtAudit(){
+ return {source:'all-earned-fixed-step-ticks-preserved',unit:'ticks',
+  pendingTicks:Math.floor(accumulator/FIXED_STEP),
+  maxPendingTicks:renderMaxPendingTicks,
+  deferredFrames:renderBacklogFrames,completedTicks:renderTicksExecuted,
+  maxPerPresentationFrame:64,droppedTicks:0,
+  simSpeedRequested:speed,authoritySkipAllowed:false,
+  caution:'backpressure can reduce effective speed; not an FPS claim'};
 }
 
 // W70: real WebGL GPU elapsed time is NOT the synchronous CPU draw-submission
@@ -6618,9 +6656,26 @@ function faceProfile(p,idx){
 // quad() independently computed a flat normal for each triangular facet,
 // making twelve-sided jaws and cheekbones look like slabs under the sun.
 // This is presentation-only: exact original 156 triangles and seeded state.
+const FACE_NORMAL_CACHE_MAX=24,faceNormalCache=new Map();
+let faceNormalCacheHits=0,faceNormalCacheBuilds=0;
+function getFaceTopologyCacheAudit(){
+ return {kind:'bounded-exact-morphology-normal-field',
+  entries:faceNormalCache.size,maxEntries:FACE_NORMAL_CACHE_MAX,
+  builds:faceNormalCacheBuilds,hits:faceNormalCacheHits,
+  replaysAuthority:false,trianglesRemoved:0};
+}
 function faceNormalField(profile){
  const rings=profile.rings,n=profile.segments;
- return rings.map((ring,j)=>{
+ // The normal surface depends on the exact profile, not animation time.
+ // Include every source field so modified face shapes never reuse stale
+ // topology; cache size is independent of world lifetime or citizen count.
+ const key=n+':'+rings.map(r=>[r.y,r.rx,r.rz,r.z].join(',')).join(';');
+ const cached=faceNormalCache.get(key);
+ if(cached){
+  faceNormalCache.delete(key);faceNormalCache.set(key,cached);
+  faceNormalCacheHits++;return cached;
+ }
+ const normals=rings.map((ring,j)=>{
   const low=rings[Math.max(0,j-1)],high=rings[Math.min(rings.length-1,j+1)];
   const rise=Math.max(1e-6,high.y-low.y);
   return Array.from({length:n},(_,i)=>{
@@ -6638,6 +6693,10 @@ function faceNormalField(profile){
    return cross.map(v=>v/length);
   });
  });
+ faceNormalCache.set(key,normals);faceNormalCacheBuilds++;
+ if(faceNormalCache.size>FACE_NORMAL_CACHE_MAX)
+  faceNormalCache.delete(faceNormalCache.keys().next().value);
+ return normals;
 }
 // G148: facial acting is driven by real occupation, phase and energy.
 // It is an authored expression of authoritative animation, not fake moods,
@@ -6666,11 +6725,15 @@ function getCitizenActingAudit(name=people[selectedCitizen]?.name){
 function sculptedFace(x,y,z,size,skin,hair,profile,acting={effort:0,blink:0,squint:0,mouthOpen:0}){
  const previousMaterial=currentMaterial;currentMaterial=MATERIAL.GENERAL;
  const n=profile.segments,rings=profile.rings,normals=faceNormalField(profile);
- const vertex=(j,i)=>{
-  const k=i%n,r=rings[j],angle=k*2*Math.PI/n;
-  return {position:[x+Math.sin(angle)*r.rx*size,y+r.y*size,
-      z+(Math.cos(angle)*r.rz+r.z)*size],normal:normals[j][k]};
- };
+ // W125: one face vertex per genuine morphology ring/segment. Previously
+ // every quad called vertex() four times and repeated hundreds of sin/cos,
+ // 3D allocations and floating-point transforms per detailed citizen.
+ // Exact original vertex order, normal, shaded materials and 156 triangles.
+ const angles=Array.from({length:n},(_,i)=>i*2*Math.PI/n);
+ const faceVertexRows=rings.map((r,j)=>angles.map((angle,i)=>({
+  position:[x+Math.sin(angle)*r.rx*size,y+r.y*size,
+   z+(Math.cos(angle)*r.rz+r.z)*size],normal:normals[j][i]
+ })));
  const emitFace=(a,b,c,color)=>{
   for(const v of [a,b,c])
    data.push(...v.position,...v.normal,...color,currentMaterial);
@@ -6681,11 +6744,12 @@ function sculptedFace(x,y,z,size,skin,hair,profile,acting={effort:0,blink:0,squi
  for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
   const shade=j===0?.90:j===3?1.035:j===4?.96:1;
   const color=skin.map(v=>Math.min(1,v*shade));
-  quadFace(vertex(j,i),vertex(j,i+1),vertex(j+1,i+1),vertex(j+1,i),color);
+  quadFace(faceVertexRows[j][i],faceVertexRows[j][(i+1)%n],
+   faceVertexRows[j+1][(i+1)%n],faceVertexRows[j+1][i],color);
  }
  const apex={position:[x,y+1.735*size,z-.026*size],normal:[0,1,0]};
- for(let i=0;i<n;i++)emitFace(apex,vertex(rings.length-1,i),
-  vertex(rings.length-1,i+1),skin);
+ for(let i=0;i<n;i++)emitFace(apex,faceVertexRows[rings.length-1][i],
+  faceVertexRows[rings.length-1][(i+1)%n],skin);
  const eyeWhite=rgb(0xc9bba9),iris=rgb(0x49493e),mouth=rgb(0x845c51);
  const eyelid=Math.max(.10,1-.85*acting.blink-.22*acting.squint);
  for(const side of [-1,1]){
@@ -16614,7 +16678,14 @@ function render(now){requestAnimationFrame(render);
  // the camera on actual elapsed wall time with bounded collision substeps.
  const wallDt=Math.max(0,Math.min(.75,(now-(timer||now))/1000));
  const dt=Math.min(.18,wallDt),simulationDt=simulationFrameDelta(wallDt);timer=now;
- if(streetWalk)advanceStreetViewClock(wallDt);const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){accumulator+=simulationDt*speed*1.35;let ticks=0;while(accumulator>=FIXED_STEP&&ticks++<64){step(FIXED_STEP);accumulator-=FIXED_STEP}if(ticks>=64)accumulator=0;}
+ if(streetWalk)advanceStreetViewClock(wallDt);const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){
+  accumulator+=simulationDt*speed*1.35;
+  const drained=drainRenderTickBacklog(accumulator,step,64);
+  accumulator=drained.remaining;
+  renderTicksExecuted+=drained.executed;
+  renderMaxPendingTicks=Math.max(renderMaxPendingTicks,drained.pendingTicks);
+  if(drained.pendingTicks)renderBacklogFrames++;
+ }
  // Continue an actual workday across real occupations after a shift ends.
  if(follow&&liveWorkday)advanceLiveWorkdayDirector();
  pollForgeSound();
@@ -17290,6 +17361,7 @@ drawForegroundResidentMesh();
 }
 requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
+ getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
  getForegroundResidentAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
