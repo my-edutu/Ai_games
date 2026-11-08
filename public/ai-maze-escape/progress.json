@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T15:54:30.000Z",
+  "updatedAt": "2026-11-08T21:06:32.187Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass212 strengthens original WebGL acceptance: only a complete same-run PUBLIC approach, contact and withdrawal to the same trap counts as captured. One-sided chronology is recorded as missing evidence, never a successful three-beat playthrough. Pass211 per-cell hinge, strict actual full-frame native SHA/framing/44px/privacy and resource limits unchanged. This is source-only; HEAD-matched Actions and independent critic are blocked, Nintendo quality bar NOT MET; PR #53 remains open draft, unmerged/undeployed."
+    "summary": "Pass213 source-only verification repair: actual Playwright pressure chronology now delivers ALL original intermediate same-run public ticks to ONE living WebGL canvas, with per-tick frame advance and full Pip framing; three SHA-bound approach/contact/withdrawal images remain true source milestones. Prior Pass212 omitted intermediate states. Production visuals unchanged; queued exact-HEAD CI/native capture and independent Nintendo critic NOT VERIFIED. Benchmark NOT MET; PR #53 open draft, unmerged and undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass213 2026-11-08: Replaced three-frame jumps inside the claimed continuous native pressure performance with every original sequential partial-observation MazeRuntime public tick on one WebGL canvas per viewport. Assert renderer updates and Pip's full body frame on every intermediate tick. Record original tick list, preserve real three beat images and strict hazards/crop/mobile/privacy/resources. Source-only candidate, runtime and independent critic unavailable; NOT a gameplay visual win.",
     "Pass212 2026-11-08: Full genuine public Tide-Shear arc required before claiming source-bound continuous 3D gameplay evidence. Incomplete approach or withdrawal now produces captured:false with explicit missing side; complete all-three retains original hinge, same-canvas/WebGL, SHA, NDC, 44px and privacy gates. Evidence-only source candidate; new HEAD runtime/visual criticism unavailable (Actions queued and workspace disconnected). Fixed Nintendo bar NOT MET, PR draft active.",
     "Pass211 2026-11-08: Corrected a material native evidence false-positive: merely advancing the same WebGL renderer was not proof of the pictured pressure hazard opening. The actual visible source-bound cell now reports its real modeled jaw radians and clock; public approach/pressure/withdrawal Playwright screenshots require clear real opening/release. Original strict full-scene SHA, physical ±0.95, Pip/jaw minimum sizes, canvas continuity, privacy, accessibility and resource budgets remain. Source candidate only, Actions queued, detached critic unavailable, Nintendo bar NOT met.",
     "Pass210 2026-11-08: Source-bound visual evidence repair, not a visual win. Actual pressure approach/contact/withdrawal screenshots previously reloaded the WebGL world at each published tick and reset its mechanism clock. New test keeps the same source-authoritative running scene/canvas within each viewport and checks real renderer-frame advancement while retaining strict native framing, controls and SHA provenance. New head WebGL/CI + independent critic pending.",
@@ -278,6 +279,7 @@
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim."
   ],
   "nextGaps": [
+    "Pass213 next: obtain actual exact-HEAD Playwright uninterrupted source-tick 320/390 performance and unaltered full-resolution SHA images; validate real pressure jaw/contact/release, the unchanged six-run geometry <100/spread<=8, 844 landscape/1280 desk, privacy/crop and independent official Captain Toad comparison. Do NOT accept this source edit or claim a graphics win on syntax alone.",
     "Pass211 next: execute current-head installed-Three and native Playwright tests, verify new per-cell pressure hinge evidence against original full-size 320/390/844/1280 captures and exact hashes, confirm 6-run resource <100/spread <=8, verify camera cutaway/no private reveal and obtain independent Captain Toad gameplay comparison. No rendered win has yet been verified.",
     "Pass210 next: obtain actual new-HEAD focused WebGL and six-real-run reset results; verify original 320/390 complete screenshots demonstrate one continuous pressure relay/shutter/piston/Pip action without full-actor crop (strict ±0.95) or incorrect cutaway, with exact SHA/date and native 844/1280/key/gate/guardian evidence. Then independent fixed Nintendo reference comparison. No claim that queued CI or offline critics passed.",
     "Pass195 next: confirm exact-head new two-ring public pressure sightline from unaltered full-frame native 320/390/844/1280 WebGL, verify 37+ screenshot SHA256; reject if hardware clipped (strict ±.95 / withdrawal >=.70), a known wall incorrectly opens, or the trap still loses visual hierarchy. Separately diagnose strict six-run geometry spread 9 vs unchanged <=8 from exact public resource inventories without altering budgets. Whole CI still blocked by unrelated missing tiny:stream:self-test; do not claim green. Independent Nintendo comparison remains open.",
@@ -808,6 +810,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass213 true original public-intermediate pressure playback",
+      "status": "SOURCE PARSE ONLY — native full-run WebGL, strict resource/CI, independent benchmark PENDING; no visual win",
+      "detail": "Replays every authentic public MazeRuntime snapshot from approach through contact and withdrawal with one live WebGL canvas per viewport, no skipped original intermediate ticks; every original tick must advance real renderer frames and keep Pip's full original geometry framed. Milestone image SHA/physical jaw and strict resource and privacy gates unchanged. Browser execution and source-bound PNGs unavailable due disconnected tunnel / queued Actions.",
+      "sourceCommit": "pending atomic PR commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "name": "Pass210 actual continuous source-bound pressure WebGL chronology",
       "status": "SOURCE-ONLY CANDIDATE; exact-head Playwright/6-run budget/whole CI QUEUED; Nintendo benchmark NOT MET",

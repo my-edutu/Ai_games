@@ -1,3 +1,9 @@
+# Pass213 — replay the original intermediate public pressure frames before milestone screenshots (2026-11-08 UTC)
+
+- **Found genuine evidence loophole:** prior "continuous" native pressure test retained one WebGL canvas but skipped every authentic MazeRuntime update between three milestone frames. This was NOT a complete autonomous performance, and could miss mid-beat physical Pip cropping.
+- **Strict browser harness patch:** feed all original same-run public intermediate ticks, require a new real rendered WebGL frame and fully framed Pip for each, capture the original three unmodified milestone images and record the full source-tick list. No synthetic positions, hidden map, runtime AI, photo crop or budget relaxation. Original ±0.95, jaw .60/.21rad, 44px, 390px size and six-run <100/spread<=8 checks retained.
+- **Source-only gate:** V8 syntax parsed; actual Playwright/whole CI/independent critic are still unavailable while the workspace tunnel is disconnected and GitHub Actions queued. NOT a visual/gameplay win, fixed Nintendo bar NOT MET. [Dated review](./maze-3d/pass-213-original-intermediate-pressure-playback-gate-2026-11-08.md). PR #53 remains open draft; no merge/deploy/force.
+
 # Pass212 — full public pressure arc is mandatory for native gameplay evidence (2026-11-08 UTC)
 
 - The source-bound chronology previously accepted a one-sided 2-frame sequence as `captured:true` when no public approach OR withdrawal existed. That could certify pressure motion without proving BOTH anticipation and release in genuine autonomous play.

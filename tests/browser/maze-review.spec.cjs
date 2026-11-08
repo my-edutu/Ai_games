@@ -1651,6 +1651,22 @@ test('a real close public encounter frames both autonomous actors and saves date
   }else{
     const motionPhases=[['approach',chronology.before],['pressure',chronology.near],
       ['withdrawal',chronology.after]];
+    // Three milestone photos are not uninterrupted autonomous gameplay.
+    // Deliver EVERY recorded public source update between the earned beats
+    // to the same real WebGL canvas, in authentic tick order. Do not invent
+    // positions, hidden cells, animation frames or inferred AI decisions.
+    const sourceSequence=sequences.find(items=>items.includes(chronology.near.sample));
+    const firstIndex=sourceSequence?.indexOf(chronology.before.sample)??-1;
+    const lastIndex=sourceSequence?.indexOf(chronology.after.sample)??-1;
+    expect(firstIndex,'real approach must exist in source history').toBeGreaterThanOrEqual(0);
+    expect(lastIndex,'real withdrawal must follow approach').toBeGreaterThan(firstIndex);
+    const actualPublicFrames=sourceSequence.slice(firstIndex,lastIndex+1);
+    const publicPlaybackTicks=actualPublicFrames.map(item=>item.frame.snapshot.tick);
+    expect(actualPublicFrames.length,'at least three original autonomous source frames').toBeGreaterThanOrEqual(3);
+    expect(actualPublicFrames.every(item=>item.frame.snapshot.runToken===chronology.runToken),
+      'intermediate public source frames must belong to the SAME run').toBe(true);
+    expect(publicPlaybackTicks.every((tick,index)=>index===0||tick>publicPlaybackTicks[index-1]),
+      'original public playback must advance by actual engine ticks').toBe(true);
     expect(motionPhases.map(([phase])=>phase),
       'one continuous public Tide-Shear playthrough must show all three real beats')
       .toEqual(['approach','pressure','withdrawal']);
@@ -1668,11 +1684,15 @@ test('a real close public encounter frames both autonomous actors and saves date
       // the physical action that an autonomous viewer actually experiences.
       // Only the next genuine source-authoritative PUBLIC frame changes.
       await page.setViewportSize({width:nativeWidth,height:nativeHeight});
-      activeFrame=motionPhases[0][1].sample.frame;
+      activeFrame=actualPublicFrames[0].frame;
       await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
       const browserOrigin=await page.evaluate(()=>performance.timeOrigin);
       let originalCanvas=null;
-      for(const [phase,entry] of motionPhases){
+      for(const stageSample of actualPublicFrames){
+        const marked=motionPhases.find(([,item])=>item.sample===stageSample);
+        const phase=marked?.[0]??'intermediate';
+        const entry=marked?.[1]??{sample:stageSample,
+          distance:publicTrapDistance(stageSample,chronology.publicTrapCell,chronology.runToken)};
         const previousFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
         activeFrame=entry.sample.frame;
         const state=activeFrame.snapshot;
@@ -1683,7 +1703,7 @@ test('a real close public encounter frames both autonomous actors and saves date
           // largest angle of some other hazard elsewhere in the scene.
           const joint=d?.world?.witnessedPressureMechanisms
             ?.find(value=>value.cell===cell);
-          const beat=phase==='pressure'
+          const beat=phase==='intermediate' ? true : phase==='pressure'
             ? joint?.progress>=.68&&joint?.jawRadians>=.60
             : joint?.progress<=.20&&joint?.jawRadians<=.21;
           return d?.renderer==='webgl'&&d.frames>=3&&d.frames>previousFrames
@@ -1704,6 +1724,11 @@ test('a real close public encounter frames both autonomous actors and saves date
         const sourceRendererFrames=await page.evaluate(()=>window.__MAZE_3D__.frames);
         expect(sourceRendererFrames,
           'each authentic pressure tick must receive a new rendered WebGL frame').toBeGreaterThan(previousFrames);
+        if(phase==='intermediate'){
+          expect(await page.evaluate(()=>window.__MAZE_3D__.explorerModelFullyInFrame),
+            'Pip must remain fully framed during original intermediate gameplay, not only milestone photos').toBe(true);
+          continue;
+        }
         const native=await page.evaluate(()=>({
           diagnostic:window.__MAZE_3D__,
           canvas:document.getElementById('maze').getBoundingClientRect().toJSON(),
@@ -1778,6 +1803,8 @@ test('a real close public encounter frames both autonomous actors and saves date
       containsRealApproach:!!chronology.before,
       containsRealWithdrawal:!!chronology.after,
       originalChronologicalTicks:chronologicalTicks,
+      originalSourcePlaybackTicks:publicPlaybackTicks,
+      originalSourceFramesRenderedPerViewport:actualPublicFrames.length,
       sourceSha256:nativeSourceHashes,
       images:records.map(({phase,tick,viewport,image,imageSha256,
         publicDistanceCells,observedPhysicalHingeRadians,physicalHazardBounds,
