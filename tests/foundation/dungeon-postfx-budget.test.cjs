@@ -176,3 +176,58 @@ test('actual live WebGL renderer caps only CPU rasterization and reports real do
  assert.match(app,/directRenderBudget:directBudget/);
  assert.match(app,/directDownshifts,/);
 });
+
+
+test('fractional software WebGL surface never repeatedly reallocates the same real backing buffer',async()=>{
+ const {planRenderSurfaceUpdate:plan}=await load();
+ const original={cssWidth:1440,cssHeight:832,pixelRatio:.736,
+  appliedWidth:1440,appliedHeight:832,appliedPixelRatio:.736,backingWidth:1059,backingHeight:612};
+ assert.equal(Math.round(1440*.736),1060,'old app incorrectly expects this width');
+ assert.equal(Math.floor(1440*.736),1059,'WebGLRenderer uses floored backing dimensions');
+ for(let i=0;i<1000;i++){
+  const p=plan(original);assert.equal(p.valid,true);
+  assert.equal(p.setSize,false);assert.equal(p.setPixelRatio,false);
+  assert.equal(p.resizeComposer,false);assert.equal(p.updateProjection,false);
+ }
+});
+test('mobile software DPR and hardware DPR preserve existing WebGL framebuffer sizes',async()=>{
+ const {planRenderSurfaceUpdate:plan}=await load();
+ for(const [w,h,dpr] of [[390,844,.779],[390,844,1],[1440,832,1.5]]){
+  const p=plan({cssWidth:w,cssHeight:h,pixelRatio:dpr,appliedWidth:w,appliedHeight:h,
+   appliedPixelRatio:dpr,backingWidth:Math.floor(w*dpr),backingHeight:Math.floor(h*dpr)});
+  assert.equal(p.valid,true);assert.equal(p.setSize,false);assert.equal(p.resizeComposer,false);
+ }
+});
+test('legitimate CSS resize updates canvas/composer/projection without extra DPR modification',async()=>{
+ const {planRenderSurfaceUpdate:plan}=await load();
+ const p=plan({cssWidth:390,cssHeight:844,pixelRatio:.779,appliedWidth:1440,
+  appliedHeight:832,appliedPixelRatio:.779,backingWidth:1059,backingHeight:612});
+ assert.equal(p.setSize,true);assert.equal(p.resizeComposer,true);
+ assert.equal(p.updateProjection,true);assert.equal(p.setPixelRatio,false);
+});
+test('measured DPR downshift uses Three.js setPixelRatio instead of duplicate canvas setSize',async()=>{
+ const {planRenderSurfaceUpdate:plan}=await load();
+ const p=plan({cssWidth:1440,cssHeight:832,pixelRatio:.55,appliedWidth:1440,
+  appliedHeight:832,appliedPixelRatio:.736,backingWidth:1059,backingHeight:612});
+ assert.equal(p.setPixelRatio,true);assert.equal(p.setSize,false);
+ assert.equal(p.resizeComposer,true);assert.equal(p.updateProjection,false);
+});
+test('unexpected WebGL buffer loss repairs canvas once and invalid sizes never resize',async()=>{
+ const {planRenderSurfaceUpdate:plan}=await load();
+ const p=plan({cssWidth:1440,cssHeight:832,pixelRatio:.736,appliedWidth:1440,
+  appliedHeight:832,appliedPixelRatio:.736,backingWidth:1,backingHeight:1});
+ assert.equal(p.setSize,true);assert.equal(p.resizeComposer,true);assert.equal(p.updateProjection,false);
+ for(const bad of [{},{cssWidth:0,cssHeight:844,pixelRatio:1},
+  {cssWidth:1440,cssHeight:NaN,pixelRatio:1},{cssWidth:1440,cssHeight:832,pixelRatio:Infinity}]){
+  const o=plan(bad);assert.equal(o.valid,false);assert.equal(o.setSize,false);
+  assert.equal(o.setPixelRatio,false);assert.equal(o.resizeComposer,false);
+ }
+});
+test('actual world renderer uses surface mutation arbitration and exposes resize counts',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planRenderSurfaceUpdate\(/);
+ assert.match(app,/if\(surfaceUpdate\.setSize\)/);
+ assert.match(app,/if\(surfaceUpdate\.updateProjection\)/);
+ assert.match(app,/surfaceResizes:\{renderer:surfaceRendererResizes/);
+ assert.doesNotMatch(app,/canvas\.width!==Math\.round\(w\*renderer\.getPixelRatio\(\)\)/);
+});

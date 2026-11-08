@@ -6146,6 +6146,27 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Measure and correct actual browser/software WebGL draw/frame-delivery cost without skips; then authenticate complete natural desktop/mobile five-stage video+sound, match fixed baseline and obtain 3 blinded critics"
+    },
+    "m1FractionalSurfaceReallocationGuard": {
+      "date": "2026-11-08",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "fc41d39ffa654855b552e906e15dc97d69e9a4ea",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceDefect": "WebGLRenderer backing-size uses floor(css*DPR) but live render hot path compared Math.round; at 1440*.736 true 1059px versus demanded 1060px, repetitively calling setSize/composer/camera for unchanged frames",
+      "candidate": "Production WebGL surface lifecycle arbitration avoids redundant GPU framebuffer resize, double DPR realloc and unnecessary projection rebuild; preserves actual authority, full original scene and audio",
+      "validation": "Six isolated Node source-contract behavior tests passed; new integrated repository/headless/browser source not yet verified",
+      "originalOrganicRun": "https://github.com/my-edutu/Ai_games/actions/runs/42444918201",
+      "newHeadRealMotion": "NOT_OBSERVED",
+      "measuredPerformance": "UNVERIFIED",
+      "audioImpactSync": "UNVERIFIED",
+      "naturalFiveStage": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "animationSession": "PR72 is a candidate only; not integrated",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect actual exact-head 1440px/390px surfaceResizes versus frames, directRenderMs, p95 delivery, bodies and hazards; confirm no scene regression; then fix next measured bottleneck and integrate independently validated animation with safe concurrency"
     }
   }
 }

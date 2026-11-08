@@ -114,3 +114,33 @@ export function adaptDirectRenderPixelCap(currentCap,renderMs,previousSlow=0){
  const maxPixels=reduce?Math.max(MIN_CPU_DIRECT_PIXELS,Math.floor(cap*.65/1000)*1000):cap;
  return {maxPixels,slowStreak,downshift:maxPixels<cap};
 }
+
+
+/**
+ * One authoritative Three.js WebGL surface-mutation decision.
+ * WebGLRenderer.setSize floors CSS pixel * DPR; comparing with Math.round
+ * formerly forced the entire canvas and optional composer through repeated
+ * reallocation every frame at common software-rasterizer fractional ratios.
+ * Three's setPixelRatio itself calls setSize: never duplicate that resize.
+ * Only presentation resources change; authority/replay/ticks remain intact.
+ */
+export function planRenderSurfaceUpdate({
+ cssWidth,cssHeight,pixelRatio,appliedWidth,appliedHeight,appliedPixelRatio,
+ backingWidth,backingHeight
+}={}){
+ const safe=Number.isSafeInteger(cssWidth)&&cssWidth>0&&cssWidth<=16384&&
+  Number.isSafeInteger(cssHeight)&&cssHeight>0&&cssHeight<=16384&&
+  Number.isFinite(pixelRatio)&&pixelRatio>0&&pixelRatio<=4;
+ if(!safe)return Object.freeze({valid:false,setPixelRatio:false,setSize:false,
+  resizeComposer:false,updateProjection:false,expectedWidth:null,expectedHeight:null});
+ const expectedWidth=Math.max(1,Math.floor(cssWidth*pixelRatio));
+ const expectedHeight=Math.max(1,Math.floor(cssHeight*pixelRatio));
+ const sizeChanged=appliedWidth!==cssWidth||appliedHeight!==cssHeight;
+ const ratioChanged=appliedPixelRatio!==pixelRatio;
+ const backingMismatch=backingWidth!==expectedWidth||backingHeight!==expectedHeight;
+ return Object.freeze({valid:true,setPixelRatio:ratioChanged,
+  setSize:sizeChanged||(!ratioChanged&&backingMismatch),
+  resizeComposer:sizeChanged||ratioChanged||backingMismatch,
+  updateProjection:sizeChanged,expectedWidth,expectedHeight,
+  backingMismatch,sizeChanged,ratioChanged});
+}
