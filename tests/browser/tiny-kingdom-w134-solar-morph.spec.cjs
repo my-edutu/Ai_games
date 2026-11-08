@@ -40,7 +40,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(before.geo.totalTriangles).toBeLessThan(160000);
   const crossed=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   g.step(.05); // 07:46 to 07:31; crossing 07:30 stage by authentic step
+   g.step(.05); // 07:28 to 07:31; cross the 07:30 boundary via a genuine step
    return {state:g.getState().state.t,frame:g.getFrameProfile().totalFrames};
   });
   await page.waitForFunction(({frame})=>{
