@@ -694,6 +694,10 @@ for (const viewport of viewports) {
   const nativeVideoTimebase = calibrateOriginalVideo({
     video:path.join(dir, 'live.webm'), anchors,
     sourceTicks:passiveSourceTicks.ticks,
+    // Use the EXACT read-only event-index records also used by the source
+    // pairing audit. Never infer guardian or gateway timestamps from a
+    // separately invented interpretation of sparse 50ms source samples.
+    sourceEvents:eventIndex.events,
   });
   fs.writeFileSync(path.join(dir, 'native-video-clock.json'),
     JSON.stringify({sourceSha,scenario,viewport,seed:process.env.TOWER_SEED ||
