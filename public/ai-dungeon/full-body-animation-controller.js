@@ -304,6 +304,15 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
   // no phase seek, no artificial leg target or unverified sole locking.
   return clamp(groundedTravel/1.06*sourceDuration/effectiveSpeed,ordinary,.28);
  }
+ // Authentic Hit_A cannot outrun the age of a witnessed positive HP loss.
+ // This prevents source wrist/spine recoil preceding the owned injury pose.
+ // Never seek a still-playing source clip backwards or create another hit.
+ if(mode==='hurt'&&!reducedMotion&&visible===true&&
+  [age,sourceTime,sourceDuration,effectiveSpeed].every(finite)&&
+  age>=0&&sourceTime>=0&&sourceDuration>.002&&effectiveSpeed>.001){
+  const target=Math.min(sourceDuration-.002,age*effectiveSpeed);
+  return Math.min(ordinary,Math.max(0,(target-sourceTime)/effectiveSpeed));
+ }
  if(reducedMotion||visible!==true||!['attack','cast'].includes(mode)||
   ![age,sourceTime,sourceDuration,effectiveSpeed,frameInterval].every(finite)||
   age<0||sourceTime<0||sourceDuration<=.002||effectiveSpeed<=.001||

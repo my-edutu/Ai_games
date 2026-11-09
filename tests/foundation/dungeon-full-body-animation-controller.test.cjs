@@ -651,6 +651,37 @@ test('actor action age must not double-clamp its witnessed 280ms native-rig step
  assert.doesNotMatch(app,/advancePresentationActionAge\(since,\s*planFullBodyVisibleFrameStep/);
 });
 
+test('native Hit_A only samples actually witnessed positive-HP-loss age',async()=>{
+ const {advanceFullBodyController:owner,planImportedLivingSourceStep:sourceStep}=await load();
+ const wounded=owner(null,frame(hero('idle',345,24),{actionAge:0,frameDelta:.05,
+  damageBeat:{id:'hero-1',kind:'vanguard',damage:6,maxHp:30,age:0,eventTick:345,fatal:false}}));
+ assert.equal(wounded.mode,'hurt','the source action requires a true HP-loss beat');
+ assert.equal(wounded.actionTick,345,'injury belongs to its witnessed event tick');
+ const speed=1.2127;
+ const sample={mode:wounded.mode,age:wounded.age,sourceTime:0,sourceDuration:.667,
+  effectiveSpeed:speed,frameDelta:.05,frameInterval:1,visible:true};
+ const close=(actual,expected,message)=>assert.ok(Number.isFinite(actual)&&
+  Math.abs(actual-expected)<1e-9,message+' (expected '+expected+', got '+actual+')');
+ // RED on the previous controller: the imported Hit_A advanced 50ms on the
+ // initial zero-age impact and then kept outrunning the owned torso/weapon.
+ close(sourceStep(sample),0,'no future source pose at witnessed impact age zero');
+ close(sourceStep({...sample,age:.04}),.04,'source may advance to a later witnessed age');
+ close(sourceStep({...sample,age:.04,sourceTime:.04*speed}),0,
+  'an already-aligned source clip must not skip one extra injury frame');
+ close(sourceStep({...sample,age:.04,sourceTime:.12*speed}),0,
+  'an ahead source clip must never be rewound or advanced again');
+ close(sourceStep({...sample,age:.28,sourceTime:.05*speed}),.05,
+  'late injury catch-up remains within the original 50ms visual frame budget');
+ close(sourceStep({...sample,reducedMotion:true}),.05,
+  'reduced-motion playback retains its existing conservative source policy');
+ close(sourceStep({...sample,visible:false}),.05,
+  'hidden-scene mixer timing retains its established policy');
+ close(sourceStep({...sample,mode:'idle'}),.05,'unrelated idle behavior is unchanged');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedLivingSourceStep\\(originalStep\\)/,
+  'actual imported Three.js mixer consumes this hurt source-time planner');
+});
+
 test('the authentic GLB hand/sole clock cannot outrun its owned full-body stroke on sparse frames',async()=>{
  const {planImportedLivingSourceStep:step,planImportedOneShotPhase:phase}=await load();
  const speed=1.68,duration=1.042;
