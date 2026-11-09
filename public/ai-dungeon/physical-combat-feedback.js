@@ -62,7 +62,7 @@ export function createPhysicalCombatFeedback({
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
- function emit(cue,plannedAudioEpoch=null){
+ function emit(cue,plannedAudioEpoch=null,observedActionAt=observedSeconds){
   if(disposed)return;
   // A gesture authorizes only cues planned during that enabled session.
   // Delayed cues accepted before opt-in (or before mute/re-enable) stay silent.
@@ -81,7 +81,10 @@ export function createPhysicalCombatFeedback({
     }
     awaitingPresentation.splice(weakest,1);staleAudioDropped++;
    }
-   awaitingPresentation.push({cue,visual,at:observedSeconds,sceneId});
+   // Preserve the timestamp when the authority action was first observed.
+   // Resetting this clock at delayed VFX admission could make a 290ms spell
+   // sound another 400ms later, long after its genuine animated release.
+   awaitingPresentation.push({cue,visual,at:observedActionAt,sceneId});
   }else{
    const audio=soundEligible?!!safeCall(()=>foley?.emit?.(cue)):false;
    if(audio)audioAccepted++;
@@ -156,7 +159,7 @@ export function createPhysicalCombatFeedback({
    a.cue.id.localeCompare(b.cue.id,'en'));
   for(const item of due){
    const at=pending.indexOf(item);
-   if(at!==-1){pending.splice(at,1);emit(item.cue,item.audioEpoch)}
+   if(at!==-1){pending.splice(at,1);emit(item.cue,item.audioEpoch,item.queuedAt)}
   }
  }
  function acceptSnapshot(snapshot){
