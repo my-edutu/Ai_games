@@ -11,7 +11,7 @@
     "sha": null,
     "title": "OPEN 3D Tower: real earned threshold cannot be bypassed by absent guardian; exact fixed-step grounded body clearance is recorded before real floor-nine spawn. Neither this source change nor film is quality-approved.",
     "portraitRenderBudgetImplementationSha": "df509f2329df9c50660218c30c009e29e1b1f4da",
-    "portraitRenderBudgetEvidenceStatus": "P0 OPEN / NOT EVALUATED. Exact-source original portrait danger WebM at 3ed44c36086cb015b8d833eae0ec45fe2f0b3885, run 42658123598, artifact 13692763346: 71.68s original film; observed submissions p50 216.5ms, p95 596.1ms, p99 808ms, source floor9 tick451 search at 22.73s but sampled native image HUD first floor9 at about 25s; large decorative wheel persists at native 14-18s. Those intervals are NOT physical GPU/display FPS. New implementation df509f23 removes low-tier MSAA allocation and enables bounded responsive 3D-only framebuffer scaling on compact displays (min 78%, reset on resize), keeping CSS HUD native. New browser sidecar reports actual resolution; code committed but exact HEAD original Node/Three/browser and source-pinned new WebM NOT YET evaluated. Full visual improvement, source-to-presented-frame latency, physical devices, blind votes (0/5 each) NOT EVALUATED. Next: inspect current original capture source-vs-native timecodes and measure rendered resolution/actor visibility and film continuity before any P1 claim.",
+    "portraitRenderBudgetEvidenceStatus": "P0 OPEN / NOT EVALUATED. Original b489786c (nine-job 42667914556): unmodified candidate 390×844 danger video ~68.34s, JS render callback gaps p50 298.1ms / p95 924.9ms / p99 1969ms; ALL 68 renderer observation entries scale=1 and adaptations=0, although individual scene-call durations were generally 10–30ms. Physical-device FPS NOT measured. Source tick451 floor8→9 calibrated to native video search 22.23s; sampled first visible floor9 HUD near 26s. Large decorative wheel/case overwhelms guardian shots around 14–18s. Pairing timebase calibrated 8/8, no exact-event image-match or independent quality preference proven. Implementation 59fd238e9bd0bc04b23bf857d5fc8f012466a2cf corrects rAF starvation detection; new original Node/Three/browser/full-film, hardware performance, independent 0/5 LOOKS/FEELS/PLAYS remain unverified.",
     "implementationSha": "7238708471828dec3a0100a7534e5c0ad863cb8e",
     "implementationEvidenceStatus": "NOT EVALUATED: game rules still at gameplay implementation 7238708471828dec3a0100a7534e5c0ad863cb8e. 2026-11-06 P0 diagnosed repeatedly cancelled/zero-job source capture runs (e.g. 42130752551: nine cancelled jobs; more recent 42154966516 and 42155378252 still pending, no artifacts at last inspection). GitHub concurrency with group per branch allows later pending pushes to replace earlier pending runs even when cancel-in-progress=false. Fixed the 9-job visual workflow and full quality workflow concurrency grouping by immutable github.sha on PR68 at commits 7480dee106 and 6cb1d2aaac, respectively. No current exact-source video or 3200-tick campaign result was produced in this execution. Sampled real frame imagery from historic original-host 42104896643 candidate 8fd9018f (NOT current game source) shows portrait floor-eight climber tiny amid machinery at ~21-24s and floor-nine at ~39s without a clearly legible grounded doorway crossing. This older evidence cannot establish the latest guardian/camera fix or current quality. Independent LOOKS/FEELS/PLAYS critics 0/5 each; device performance not evaluated. 2026-11-06 P0 evidence-only continuation 503fbc4ad41fad84c9003710b80361d6706cabda (7/7 sourced simulated Node fixture adapters at fb67205f; no gameplay or visual change): real same-run crusher pressure, landed onward floor-nine route and playable game terminal are now mandatory for complete source chain. Current source-run result remains unexecuted; not a quality PASS.",
     "cameraImplementationSha": "5997c76b0317b76cf89dde878f0301ad11f22687",
@@ -61,33 +61,32 @@
       "leadingTransformationVerdict": "NOT EVALUATED",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "baselineMoved": false,
-      "inspectedBranchHead": "3713751db67bca48dc971d011be3fd0b72aefe04",
-      "originalRuntimeWorldRestagingSha": "2149b73f074899847a503235309194c4b52acc31",
-      "thisExecutionImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
-      "codeChange": "Recovered original 9-job source-pinned 42634400305 and fixed baseline desktop danger native-frame calibration sampling density. Passive bounded Chrome compositor witnesses increased from 9 / 7s to 16 / 3.5s with 8th-frame screen readback; no gameplay or candidate aesthetics altered.",
-      "observedEvidence": "8/8 original source/transport pairs from 42634400305; 7/8 original native-film timebases CALIBRATED for search only, baseline desktop danger 2/5 unique frames, not enough for 3-anchor gate. Original candidate portrait 390x844 video shows foreground wheel/case dominate at 16–18s; source event floor8→9 tick451 maps to search t22.32s but the visible floor9 change is only seen near 26s in sampled original frames. Visual event matching unverified.",
-      "rootCauseOfTimebaseBlocker": "Baseline desktop danger CDP collector kept only 5 sparse >=7s witnesses; only original native PTS 22.76s and 44.92s image matches had acceptable uniqueness. Remaining 3 matched poorly by very small uniqueness margin, not a correct video clock. Do not weaken >=3 distinct matching anchors.",
-      "completedOutcome": "Source sampling bound and 3.5s/16-frame density implemented at e580a5fb. Exact original Node/Three quality run 42648717628: 1281/1282 passed; 1 stale old 7-second literal assertion failed, not a game/runtime defect. Replaced that assertion with policy-derived MIN_SPACING_MS at 306a2974; exact fixed-HEAD quality workflow 42649442157 pending. Original captures from 9c6d1321 in progress, but that commit predates the test recovery, so fresh final fixed-source recording requested. No P0 stage acceptance or device/critic conclusion.",
+      "inspectedBranchHead": "b489786c25a28c6887902821fa7dd61807b11d5c",
+      "thisExecutionImplementationSha": "59fd238e9bd0bc04b23bf857d5fc8f012466a2cf",
+      "codeChange": "Corrected real 3D adaptive resolution: three consecutive visible rAF gaps >=120ms now trigger bounded pixel resolution reduction even if individual WebGL calls are fast. Explicit >2400ms pause and hidden/stale state veto, clear pacing on visibility/context resets, preserve .78 phone/.60 desktop floors and CSS HUD resolution, recover after 90 healthy callback intervals. Added pure and actual scene integration test cases; no gameplay authority/camera/world mesh changes.",
+      "observedEvidence": "Original b489786c (nine-job 42667914556): unmodified candidate 390×844 danger video ~68.34s, JS render callback gaps p50 298.1ms / p95 924.9ms / p99 1969ms; ALL 68 renderer observation entries scale=1 and adaptations=0, although individual scene-call durations were generally 10–30ms. Physical-device FPS NOT measured. Source tick451 floor8→9 calibrated to native video search 22.23s; sampled first visible floor9 HUD near 26s. Large decorative wheel/case overwhelms guardian shots around 14–18s. Pairing timebase calibrated 8/8, no exact-event image-match or independent quality preference proven.",
+      "completedOutcome": "Source code and test committed at 59fd238e9bd0bc04b23bf857d5fc8f012466a2cf. Isolated JavaScript extracted-policy probe PASSED for 298ms sustained phone gaps -> .78 and 2700ms pause -> no adaptation. Exact original Node/Three CI, new native source-pinned video, full-motion gateway and hardware/critics NOT YET VERIFIED. P0 remains OPEN.",
       "independentReviewCount": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-      "nativeVideoCalibration": "P0: 7/8 pairs CALIBRATED for source search handles only; baseline desktop danger NOT EVALUATED (2/5 distinct native matches). Source event t22.32 vs visually labeled floor9 near 26s requires evidence-first presentation lag analysis; no visible frame match certified.",
-      "sourceVideoRunRequested": "New fixed-test 9-job capture requested with capture-request.json evidence commit based on 306a29742a1bccb281a164761328484ad419da03. Existing capture 42649085768 pinned 9c6d1321 (old test assertion) in progress; do not confuse its source provenance with new fixed-head run.",
-      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-native-danger-film-anchor-sufficiency.md",
-      "biggestExperienceGap": "Giant source-independent clockwork/rim and framing repeatedly obscure or crowd the 390x844 guardian around original video seconds 16–18. In source-pinned candidate danger film source crossing is timecoded ~22.32s, but visually floor9 appears near 26s; exact authoritative-to-pixel latency cannot yet be explained.",
-      "nextHighestImpactAction": "Verify Node full suite 42649442157 then exact fixed-test capture. Require >=3 unique native source-frame matches on baseline desktop danger; inspect true frame-visible guardian defeat, floor8→9 threshold, and ~3.7s between timecoded source crossing and first sampled floor9 display. Guardian wheel still blocks 390x844 around 16–18s. Then meaningful visual/game synchronization repair, 5 independent reviewers/pillar, hardware memory/FPS.",
-      "safety": "PR68 branch only, open draft, no merge/deploy/force-push. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched.",
-      "testRecoverySha": "306a29742a1bccb281a164761328484ad419da03"
+      "nativeVideoCalibration": "8/8 source/video pairing timebases calibrated for search in run 42667914556; no source event itself visually verified on original WebM",
+      "existingRun": "https://github.com/my-edutu/Ai_games/actions/runs/42667914556",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42667914556/artifacts/13696879288",
+      "requestedNextRun": "Capture-request.json changed in evidence commit; future exact candidate source is immutable github.sha of request commit, NOT the implementation SHA. Do not claim run dispatched until verified.",
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-real-portrait-rAF-starvation-and-nonadapting-framebuffer.md",
+      "biggestExperienceGap": "Oversized foreground clockwork and 298ms median rAF callback delivery in original 390x844 guardian sequence; both must improve without obfuscating the source-earned gateway or making the climber too small.",
+      "nextHighestImpactAction": "Read new quality CI and full unmodified 960×600/390×844 WebMs, verify phone renderResolution.adaptations genuinely activates under overload, visually review the guardian 14–18s, source tick451 vs image floor9 and real outcome/restart; compare baseline and candidate, then fix any unresolved world-camera obstruction. Physical devices and independent blind reviews remain required.",
+      "safety": "PR68 draft only; no main/PR58 edits, merge/deploy/force-push or baseline move."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
     "nextDecision": "Run exact-current-head original Playwright ledge desktop/portrait and full Node/Three tests; inspect ticks129–139 for helmet and soles AND continuous normal-speed footage for source-locked pose snap. Repeat 60+s paired desktop960x600/portrait390x844 with frozen baseline and candidate; inspect authentic 16–20s guardian occlusion; verify complete guardian/crusher victory→grounded gateway→floor9→outcome/restart before redesigning biggest system-level occlusion. Never fabricate votes/quality.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Even after pipeline repair the actual candidate portrait danger film at 82fb02dc has giant foreground clockwork competing with real airborne action around 16–18s. Also the exact-source desktop ledge frame crossed opaque deck at tick 131; source-bound 3D fix now committed but unverified for smoothness. No blind quality or device acceptance.",
+    "biggestRemainingExperienceGap": "Oversized foreground clockwork and 298ms median rAF callback delivery in original 390x844 guardian sequence; both must improve without obfuscating the source-earned gateway or making the climber too small.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -926,7 +925,7 @@
       "reviewUrl": "https://github.com/my-edutu/Ai_games/blob/feat/tower-transformation-gauntlet-20261101/docs/reviews/2026-11-07-tower-pr68-portrait-clockwork-frame-dominance.md",
       "restrictions": "Base SHA 1731b380851162741761c5569e2bc152a0869ca9 preserved; PR68 open/draft; PR58 unmodified; no merge/deploy/force push."
     },
-    "biggestExperienceGap": "P0 live source-pinned portrait camera/guardian occlusion and unverified physical gateway clip; GitHub Actions 1816 queued workflows/5 in progress; no runner and coding tunnel unavailable.",
+    "biggestExperienceGap": "Oversized foreground clockwork and 298ms median rAF callback delivery in original 390x844 guardian sequence; both must improve without obfuscating the source-earned gateway or making the climber too small.",
     "p0GroundHazardValidation20261107": {
       "validatorImplementationSha": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
       "originalRuntimeTestCommitSha": "828070b0c11876ee8f7b49c4f338681c02bb242b",
@@ -1854,6 +1853,32 @@
         "plays": 0
       },
       "devicePerformance": "NOT EVALUATED"
+    },
+    "priorEvidenceRunBeforeCallbackRecovery20261109": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "baselineMoved": false,
+      "inspectedBranchHead": "3713751db67bca48dc971d011be3fd0b72aefe04",
+      "originalRuntimeWorldRestagingSha": "2149b73f074899847a503235309194c4b52acc31",
+      "thisExecutionImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
+      "codeChange": "Recovered original 9-job source-pinned 42634400305 and fixed baseline desktop danger native-frame calibration sampling density. Passive bounded Chrome compositor witnesses increased from 9 / 7s to 16 / 3.5s with 8th-frame screen readback; no gameplay or candidate aesthetics altered.",
+      "observedEvidence": "8/8 original source/transport pairs from 42634400305; 7/8 original native-film timebases CALIBRATED for search only, baseline desktop danger 2/5 unique frames, not enough for 3-anchor gate. Original candidate portrait 390x844 video shows foreground wheel/case dominate at 16–18s; source event floor8→9 tick451 maps to search t22.32s but the visible floor9 change is only seen near 26s in sampled original frames. Visual event matching unverified.",
+      "rootCauseOfTimebaseBlocker": "Baseline desktop danger CDP collector kept only 5 sparse >=7s witnesses; only original native PTS 22.76s and 44.92s image matches had acceptable uniqueness. Remaining 3 matched poorly by very small uniqueness margin, not a correct video clock. Do not weaken >=3 distinct matching anchors.",
+      "completedOutcome": "Source sampling bound and 3.5s/16-frame density implemented at e580a5fb. Exact original Node/Three quality run 42648717628: 1281/1282 passed; 1 stale old 7-second literal assertion failed, not a game/runtime defect. Replaced that assertion with policy-derived MIN_SPACING_MS at 306a2974; exact fixed-HEAD quality workflow 42649442157 pending. Original captures from 9c6d1321 in progress, but that commit predates the test recovery, so fresh final fixed-source recording requested. No P0 stage acceptance or device/critic conclusion.",
+      "independentReviewCount": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "nativeVideoCalibration": "P0: 7/8 pairs CALIBRATED for source search handles only; baseline desktop danger NOT EVALUATED (2/5 distinct native matches). Source event t22.32 vs visually labeled floor9 near 26s requires evidence-first presentation lag analysis; no visible frame match certified.",
+      "sourceVideoRunRequested": "New fixed-test 9-job capture requested with capture-request.json evidence commit based on 306a29742a1bccb281a164761328484ad419da03. Existing capture 42649085768 pinned 9c6d1321 (old test assertion) in progress; do not confuse its source provenance with new fixed-head run.",
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-native-danger-film-anchor-sufficiency.md",
+      "biggestExperienceGap": "Giant source-independent clockwork/rim and framing repeatedly obscure or crowd the 390x844 guardian around original video seconds 16–18. In source-pinned candidate danger film source crossing is timecoded ~22.32s, but visually floor9 appears near 26s; exact authoritative-to-pixel latency cannot yet be explained.",
+      "nextHighestImpactAction": "Verify Node full suite 42649442157 then exact fixed-test capture. Require >=3 unique native source-frame matches on baseline desktop danger; inspect true frame-visible guardian defeat, floor8→9 threshold, and ~3.7s between timecoded source crossing and first sampled floor9 display. Guardian wheel still blocks 390x844 around 16–18s. Then meaningful visual/game synchronization repair, 5 independent reviewers/pillar, hardware memory/FPS.",
+      "safety": "PR68 branch only, open draft, no merge/deploy/force-push. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched.",
+      "testRecoverySha": "306a29742a1bccb281a164761328484ad419da03"
     }
   },
   "scenarios": [
@@ -6425,5 +6450,32 @@
     "nextHighestImpact": "Run exact-current Node22/Three/Playwright quality and 9-job real baseline/candidate original-source film. Match source floor-nine tick with native video PTS and visible HUD/body/gateway; confirm 60+s guardian/restart in 960x600/390x844. If lag persists investigate presentation authority; otherwise fix visible physical foreground collision/action hierarchy. Independent device and blind review gates remain unmet.",
     "review": "docs/reviews/2026-11-09-tower-pr68-original-film-nonblocking-source-timing.md",
     "safety": "Baseline frozen 1731b380851162741761c5569e2bc152a0869ca9; main and PR58 untouched; PR68 draft open; no deploy/merge/force push."
+  },
+  "p0ActualCallbackStarvation20261109": {
+    "stage": "P0 OPEN",
+    "implementationSha": "59fd238e9bd0bc04b23bf857d5fc8f012466a2cf",
+    "originalCandidateSha": "b489786c25a28c6887902821fa7dd61807b11d5c",
+    "originalRun": "https://github.com/my-edutu/Ai_games/actions/runs/42667914556",
+    "originalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42667914556/artifacts/13696879288",
+    "sourceObserved": {
+      "portrait": "390x844",
+      "callbackGapMs": {
+        "p50": 298.1,
+        "p95": 924.9,
+        "p99": 1969
+      },
+      "renderResolutionObservations": 68,
+      "adaptationCount": 0
+    },
+    "isolatedPolicyProbe": "PASSED",
+    "originalNodeThree": "NOT YET VERIFIED",
+    "newVideo": "NOT YET CAPTURED/VERIFIED",
+    "votes": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevice": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
   }
 }
