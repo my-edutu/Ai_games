@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
+import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -464,7 +464,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     explorer.group.position.set(pose.x, ground, pose.z);
     if (pose.moving) heading = pose.heading;
     const result = frame.scene === 'result' || frame.scene === 'intermission' ? s.result?.reason ?? 'failure' : null;
-    let closestThreat = null;
+    let closestThreat = null, closestWarning = null;
     for (const entry of wardens.values()) {
       if (settings.reducedMotion || result) { entry.cells = [entry.cell]; entry.progress = 0; }
       else if (entry.cells.length > 1) {
@@ -484,7 +484,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Read at native gameplay scale: a disclosed warden one or two cells
       // away must provoke a visible head/lantern/mask reaction, not just HUD copy.
       // Keep the same 6.6-world-unit disclosure radius and never consult AI truth.
-      const attentionStrength=result?0:clamp((6.6-separation)/2.2,0,1);
+      const warningStrength=result?0:clamp((6.6-separation)/2.2,0,1);
+      const witnessedLocally=warningStrength>.35 && publicLanternWarning(s,entry.cell);
+      // Nearby publicly observed danger is not an open sightline.
+      // Keep the self-warning across sealed turns, but synchronize Pip's gaze,
+      // Thornback's brace/release and pair camera only along disclosed,
+      // reciprocal, unblocked one- or two-cell corridors.
+      if (witnessedLocally && warningStrength>(closestWarning?.strength??0))
+        closestWarning={cell:entry.cell,strength:warningStrength};
+      const attentionStrength=witnessedLocally
+        && publicGuardianOpenSightline(s,entry.cell) ? warningStrength : 0;
       if (attentionStrength>(closestThreat?.strength??0))
         closestThreat={x:threatPose.x,y:threatGround,z:threatPose.z,cell:entry.cell,strength:attentionStrength};
       // Per-guardian source-authentic encounter: first PUBLIC attention starts
@@ -650,11 +659,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
     lanternWarning.visible = Boolean(!result && explorerLantern
-      && closestThreat?.strength > .35
-      && publicLanternWarning(s, closestThreat.cell));
+      && closestWarning?.strength > .35));
     if (lanternWarning.visible) {
       const pulse = settings.reducedMotion ? 0 : Math.sin(elapsed * 6.5) * .10;
-      lanternWarning.scale.setScalar(1.1 + closestThreat.strength * .2 + pulse);
+      lanternWarning.scale.setScalar(1.1 + closestWarning.strength * .2 + pulse);
       lanternWarningMaterial.opacity = (settings.highContrast ? .32 : .23)
         + (settings.reducedMotion ? 0 : .04 * Math.sin(elapsed * 6.5));
     }

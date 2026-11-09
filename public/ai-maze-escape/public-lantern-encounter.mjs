@@ -45,6 +45,35 @@ export function publicLanternWarning(snapshot, guardianCell) {
   return dx*dx+dy*dy <= 5; // sqrt(5) cells; zero distance already rejected
 }
 
+
+// A TWO-CELL OPEN PUBLIC CORRIDOR permits a real shared Pip/Thornback
+// performance before the actors touch adjacent tiles. A local warning can
+// still light Pip's lantern across a sealed turn; it cannot authorize a
+// face-to-face camera, projected beam, movement route or invented passage.
+// Return the number of confirmed open cardinal links (1 or 2), or zero.
+export function publicGuardianOpenSightline(snapshot, guardianCell) {
+  if (!publicLanternWarning(snapshot, guardianCell)) return 0;
+  const width = snapshot.width, hero = snapshot.currentCell;
+  const dx = guardianCell % width - hero % width;
+  const dy = Math.floor(guardianCell / width) - Math.floor(hero / width);
+  const distance = Math.abs(dx) + Math.abs(dy);
+  if (distance < 1 || distance > 2 || (dx !== 0 && dy !== 0)) return 0;
+  const step = dx ? Math.sign(dx) : Math.sign(dy) * width;
+  let current = hero;
+  for (let i = 0; i < distance; i++) {
+    const next = current + step;
+    if (!snapshot.visibleCells.includes(next)) return 0;
+    const from = snapshot.cells.find(cell => cell.cell === current && !cell.blocked);
+    const to = snapshot.cells.find(cell => cell.cell === next && !cell.blocked);
+    if (!from || !to || !Array.isArray(from.neighbors) || !Array.isArray(to.neighbors)
+      || !from.neighbors.includes(next) || !to.neighbors.includes(current)
+      || snapshot.doors.some(door => !door.open && ((door.a === current && door.b === next)
+        || (door.b === current && door.a === next)))) return 0;
+    current = next;
+  }
+  return distance;
+}
+
 // Three linked, authored PERFORMANCE beats, not new authoritative AI behavior.
 // 0-.24: notice; .24-.60: physically brace; .60-1: unfold shell.
 // Input is elapsed VISUAL time since the FIRST nearby PUBLIC witness; hidden
