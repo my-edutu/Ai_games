@@ -1048,3 +1048,22 @@ test('licensed Walking_A re-entry preserves actual alternating foot parity witho
  assert.match(model,/if\(walkingEntry!==null\)next\.time=walkingEntry/);
  assert.match(model,/groundedMoving:Boolean\(actor\.fullBody\?\.owner\.locomotion&&actor\.groundedPerformance\?\.moving\)/);
 });
+
+test('capped native Walking_A re-entry aligns stamped footfall after single mixer step',async()=>{
+ const {planImportedLivingSourceStep:step,planImportedWalkingEntryPhase:entry}=await load();
+ const duration=1.0416666666666667,speed=1.25,travel=.53,phase=.74;
+ const options={mode:'move',previousMode:'guard',sourceDuration:duration,
+  effectiveSpeed:speed,frameDelta:.05,frameInterval:.5,visible:true,
+  footPhase:phase,groundedTravel:travel,groundedMoving:true,
+  walkingClip:true,teleport:false,reducedMotion:false};
+ const applied=step({...options,sourceTime:0});
+ assert.equal(applied,.28,'original source step is bounded on sparse rendered frames');
+ const initial=entry(options);
+ assert.ok(Number.isFinite(initial),'legal native source re-entry must be finite');
+ assert.ok(Math.abs(((initial+applied*speed)/duration)%1-phase)<1e-8,
+  'native source ankles must meet genuine stamped footfall phase after capped mixer update');
+ for(const patch of [{visible:false},{frameInterval:0},{frameDelta:0},
+  {effectiveSpeed:0},{effectiveSpeed:NaN}]){
+  assert.equal(entry({...options,...patch}),null,'untrusted source clock cannot seek');
+ }
+});
