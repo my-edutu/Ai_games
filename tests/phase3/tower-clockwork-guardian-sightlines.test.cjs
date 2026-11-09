@@ -229,8 +229,17 @@ test('actual clockwork scene gives upper-cap action a physically open vertical b
     for(const [name,box] of [['main',drive],['low clutch',clutch],['rack',spine]])
       assert.ok(box.max.y<8,
         name+' must clear the full upper-cap silhouette and gateway airspace: '+box.max.y);
-    assert.ok(raised.min.y>28,
-      'high satellite rotor must start above the central action band: '+raised.min.y);
+    // The source-pinned portrait film at native 15s proved that merely
+    // positioning the third rotor above y=28 still lets its steel hoop/case
+    // physically occupy the guardian and grounded-gateway action band.
+    // Enforce the real post-batch 3D bounds of the entire decorated rotor,
+    // including its open clock case, above the cap action (approximately
+    // 35-44 source world units), not just the rotor group origin.
+    assert.ok(raised.min.y>45,
+      'real upper clockwork assembly still spans the source guardian encounter: '+raised.min.y);
+    const raisedHeight=raised.max.y-raised.min.y;
+    assert.ok(raisedHeight>2 && raisedHeight<13,
+      'keep a credible but bounded original third-rotor silhouette: '+raisedHeight);
     const rotors=[];
     world.group.traverse(node=>{
       if(node.name==='CameraResponsiveDecorativeGear')rotors.push(node);

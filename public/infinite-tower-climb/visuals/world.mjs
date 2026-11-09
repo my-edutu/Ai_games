@@ -1088,12 +1088,20 @@ export function createTowerWorld(){
     // Stage the three real decorative machines as a low left mechanism,
     // reduced central monument and high right landmark. Their angular and
     // height separation leaves real negative space at the cap encounter.
-    // Raise the non-colliding high rotor ABOVE the guardian sightline.
+    // Source-pinned 590f4dc6 candidate portrait danger WebM at native ~15s
+    // still showed a giant steel hoop and case across live floor-eight
+    // guardian combat. Earlier passes lowered the main drive and rack, but
+    // left the HIGH satellite centred at y=35.5: directly in the genuine
+    // upper-cap fighting band. Keep the third rotating mechanism and its
+    // distinct right-shoulder landmark while lifting the entire authored
+    // gear/case hierarchy above the cap, and reduce its solid projected mass.
+    // This is real non-colliding architecture, never a visibility override of
+    // the source guardian, crusher, platform, gateway, or walkable threshold.
     // The lower and main drive retain the foreground mechanical hierarchy.
     // The separate low clutch remains below the middle drive, and both
     // stay below source-owned climbing and upper-cap combat lanes. The high
     // right rotor still marks the tower's vertical scale.
-    for(const [a,y,size,speed,scale]of [[-2.20,-37,3.6,-.11,.80],[2.34,35.5,3.1,.15,.74]]){
+    for(const [a,y,size,speed,scale]of [[-2.20,-37,3.6,-.11,.80],[2.34,height+19,3.1,.15,.54]]){
       const root=new THREE.Group();radial(root,a,21.3,y);
       root.scale.setScalar(scale);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
