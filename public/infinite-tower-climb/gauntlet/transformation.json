@@ -6385,5 +6385,43 @@
     "hardware": "NOT EVALUATED",
     "verdict": "NOT EVALUATED",
     "testRecoverySha": "306a29742a1bccb281a164761328484ad419da03"
+  },
+  "p0NonblockingAuthenticFilm20261109": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "historicalSourceHead": "da7900744215dc8e5aec5c041ce2511567820849",
+    "originalNineJobRun": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304/artifacts/13688528656",
+    "originalBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304/artifacts/13689452298",
+    "sourceEventPairs": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304/artifacts/13689916053",
+    "beforeChangeObservation": "Authentic 390x844 candidate source tick451 floor-eight/floor-nine handoff mapped to native ~22.72s search time; source-pinned video sampled pixels first show floor nine ~25.0s; discrepancy ~2.3s NOT causally attributed. Opaque giant near-camera clockwork still competes with airborne climber/guardian at 14-18s. Real replay/source chain passed, film-visible event and preference not accepted.",
+    "primaryEvidenceBlocker": "Original capture's repeated 2–8s software-WebGL canvas/full-page screenshots blocked browser polling/render while independent 20Hz host kept advancing. This contaminates apparent source-to-pixel latency. The original film is unedited, but screenshot side effects are not gameplay.",
+    "implementationCommitShas": [
+      "f750b76cf90b99f0ab706fadae2c9ac34970c666",
+      "3e9b53ee3d40389278e8132729bce65b9fbcf59b",
+      "d0de2347c13908bca04ca044dc7a235d9d9532be",
+      "f4a6671cc75f0dc4a39ac9dc5aef6969fdf903e3",
+      "21c62a564fe15a34bbb0c90803bcd6a003bfa842"
+    ],
+    "implemented": "Removed blocking screenshots within BOTH original baseline/candidate normal-speed native WebM captures. Uses bounded original Chrome compositor JPEG pixel hashes/time, separately byte-validated, while retaining source tick traces, strict scope integrity, original recorded WebM, result/restart DOM witnesses and native SHA/PTS calibration. No gameplay/physics/world/guardian changes.",
+    "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42649442157 — PASS only for prior da790074 source; current updated suite NOT YET VERIFIED",
+    "newExactHeadSourceTest": "NOT EVALUATED until GitHub CI executes and new native capture is downloaded",
+    "newOriginalNativeDesktopPortraitFilm": "NOT EVALUATED until exact immutable source re-recording",
+    "independentlyViewedFullMotion": "NOT EVALUATED — time-sequenced source-pinned original WebM frames sampled, no genuine independent blind full-motion panel",
+    "actualDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "critics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "biggestExperienceGap": "Unproven source-to-visible gateway/floor-nine timing after nonblocking recorder, plus real giant wheel crowding guardian and airborne climber at 14–18s.",
+    "nextHighestImpact": "Run exact-current Node22/Three/Playwright quality and 9-job real baseline/candidate original-source film. Match source floor-nine tick with native video PTS and visible HUD/body/gateway; confirm 60+s guardian/restart in 960x600/390x844. If lag persists investigate presentation authority; otherwise fix visible physical foreground collision/action hierarchy. Independent device and blind review gates remain unmet.",
+    "review": "docs/reviews/2026-11-09-tower-pr68-original-film-nonblocking-source-timing.md",
+    "safety": "Baseline frozen 1731b380851162741761c5569e2bc152a0869ca9; main and PR58 untouched; PR68 draft open; no deploy/merge/force push."
   }
 }
