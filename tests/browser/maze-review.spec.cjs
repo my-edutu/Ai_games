@@ -196,7 +196,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   const { createHash } = require('node:crypto');
   const { scenarios } = require('../../scripts/capture-maze-3d.cjs');
   const { encounter: nearestThreat, sequences } = scenarios();
-  const { publicLanternWarning, publicGuardianOpenSightline } =
+  const { publicLanternWarning, publicLanternEncounter, publicGuardianOpenSightline } =
     await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
   // A Euclidean-near threat may be diagonal or behind a closed turn.
   // Only authentic public production frames with reciprocal open 1-2 cell
@@ -228,6 +228,16 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(encounter.distanceCells).toBeLessThanOrEqual(2.25);
   const eligibleWarning=frame.snapshot.threats.some(threat =>
     publicLanternWarning(frame.snapshot,threat.cell));
+  // Pass225 naturally generates a true ONE-cell reciprocal open confrontation.
+  // Earlier distant/diagonal evidence never permitted a projected beam. Judge
+  // the original real scene against the exact published adjacent-only beam
+  // contract, not a stale always-false assertion from a different encounter.
+  const eligibleBeam=frame.snapshot.threats.some(threat =>
+    publicLanternEncounter(frame.snapshot,threat.cell));
+  expect(eligibleBeam,
+    'only an actual adjacent reciprocal PUBLIC corridor can illuminate a guardian')
+    .toBe(frame.snapshot.threats.some(threat =>
+      publicGuardianOpenSightline(frame.snapshot,threat.cell) === 1));
 
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -776,7 +786,9 @@ test('a real close public encounter frames both autonomous actors and saves date
       expect(control.right).toBeLessThanOrEqual(390);
     }
     expect(prior.warningVisible,'only real public warning can trigger acting').toBe(eligibleWarning);
-    expect(prior.coneVisible,'2.236-cell warning cannot suggest an invented open passage').toBe(false);
+    expect(prior.coneVisible,
+      'physical lantern beam must exactly match a publicly witnessed adjacent reciprocal OPEN link')
+      .toBe(eligibleBeam);
     // Release this exact game renderer after its native image is safely
     // stored; Playwright/screenshot animation callbacks never stopped.
     await page.evaluate(()=>window.__MAZE_EVIDENCE_HOLD__?.resume());
