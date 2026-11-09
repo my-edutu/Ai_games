@@ -300,7 +300,12 @@ export function planPhysicalFeedback(previous,next,{
    }
   }
  }
- if(gap<=PHYSICAL_FEEDBACK_MAX_TICK_GAP){
+ if(gap===1){
+  // Only adjacent observed authoritative ticks can localize a transient
+  // injury to this position and submission frame. Across skipped ticks the
+  // HP delta is real, but its contact time and position are unobserved:
+  // render the updated health through the legacy state view, never invent
+  // a late impact VFX or foley at a unit's final cell.
   // The authoritative HP delta is the only damage authorization; matched
   // incoming geometry may delay the cue but DOES NOT establish causation.
   let beats=null;

@@ -13,7 +13,7 @@ const warden=(hp,extra={})=>({id:'warden',kind:'warden',faction:'enemy',
  x:4,z:4,hp,maxHp:75,action:'idle',actionTick:10,...extra});
 const snap=(tick,units,events=[])=>({run:1,floor:1,tick,units,events});
 
-test('block event from skipped ticks retains true neutral sound and HP-only injury, not guessed shield contact',async()=>{
+test('block event from skipped ticks retains neutral sound without an invented late injury or shield contact',async()=>{
  const {planPhysicalFeedback}=await load();
  const before=snap(10,[hero(),enemy()]);
  const after=snap(13,[hero(24,{action:'guard',guardTick:11,actionTick:11}),enemy()],
@@ -24,9 +24,8 @@ test('block event from skipped ticks retains true neutral sound and HP-only inju
  assert.equal(block.actorId,null);
  assert.equal(block.from,null);
  assert.equal(block.proof,'authority-event');
- const damage=cues.find(c=>c.kind==='damage');
- assert.equal(damage.targetId,'vanguard');
- assert.equal(damage.actorId,null,'HP decrease identifies victim, not attacker');
+ assert.equal(cues.some(c=>c.kind==='damage'||c.kind==='damage-fatal'),false,
+  'a multi-tick HP delta cannot establish a frame-accurate contact');
 });
 
 test('even a block event on the latest tick cannot time-stamp an HP loss across an unseen intermediate tick',async()=>{
@@ -38,7 +37,8 @@ test('even a block event on the latest tick cannot time-stamp an HP loss across 
  assert.ok(block);
  assert.equal(block.actorId,null);
  assert.equal(block.audio,'block');
- assert.ok(cues.some(c=>c.kind==='damage'&&c.targetId==='vanguard'));
+ assert.equal(cues.some(c=>c.kind==='damage'&&c.targetId==='vanguard'),false,
+  'latest-tick block does not time-stamp an older, unobserved HP drop');
 });
 
 test('a delayed evade event cannot claim final-position footfall as an exact dodge cell',async()=>{
@@ -57,9 +57,8 @@ test('a delayed counter event plus multi-tick Warden HP loss cannot claim an ear
   [{tick:25,kind:'counter'}]);
  const cues=planPhysicalFeedback(before,after);
  assert.equal(cues.some(c=>c.kind==='counter'),false);
- const damage=cues.find(c=>c.kind==='damage'&&c.targetId==='warden');
- assert.ok(damage,'real HP decrease remains an independently true injury');
- assert.equal(damage.actorId,null);
+ assert.equal(cues.some(c=>c.kind==='damage'&&c.targetId==='warden'),false,
+  'multi-tick real HP loss updates state but cannot fake a timed Warden impact');
 });
 
 test('adjacent-tick evidence preserves grounded guarded contact, dodge dust, and earned Warden counter',async()=>{
