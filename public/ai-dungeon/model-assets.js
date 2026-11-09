@@ -1091,7 +1091,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
   if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
   const poseAge=actor.fullBody.age;
-  actor.animationFacing=actor.fullBody.confirmedContact??actor.combatFacing;
+  // Ranger keeps only a source-verified pose aim through legitimate idle
+  // recovery. Do NOT route it to gameplay targets, combat cues or damage.
+  actor.animationFacing=actor.fullBody.confirmedContact??actor.fullBody.witnessedRangedAim??actor.combatFacing;
   if(actor.fullBody.holding){
    actor.fullBodyHeldFrames=Math.min(1000000,(actor.fullBodyHeldFrames||0)+1);
    if(actor.fullBody.confirmedContact)actor.fullBodyContactRecoveryFrames=Math.min(1000000,(actor.fullBodyContactRecoveryFrames||0)+1);

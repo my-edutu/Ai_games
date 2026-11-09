@@ -196,13 +196,31 @@ export function advanceFullBodyController(previous=null,{
   Object.freeze({targetId:unit.targetId,distance:1,actionTick}):null;
  const confirmedContact=holding&&previous?.confirmedContact?.actionTick===visualActionTick?
   previous.confirmedContact:confirmedAtSource;
+ // Keep the original Ranger's witnessed aim only while the SAME legitimate
+ // 2H_Ranged_Shoot recovers through one idle authority tick. That tick has
+ // already erased targetId; dropping the source aim there otherwise strips
+ // its pelvis, planted legs, spine and weapon-supporting arms in mid-release.
+ // Pose-only: this value is never an attack, hit, target selection or event.
+ const rangedAtSource=unit?.kind==='ranger'&&mode==='attack'&&!holding&&
+  authorityAction==='attack'&&Number.isSafeInteger(actionTick)&&
+  typeof unit?.id==='string'&&unit.id.length>0&&unit.id.length<=96&&
+  typeof unit?.targetId==='string'&&unit.targetId.trim().length>0&&
+  unit.targetId.length<=96&&combatFacing?.targetId===unit.targetId&&
+  Number.isInteger(combatFacing?.distance)&&combatFacing.distance>=1&&
+  combatFacing.distance<=4&&finite(combatFacing?.yaw)?
+  Object.freeze({actorId:unit.id,targetId:unit.targetId,
+   distance:combatFacing.distance,actionTick}):null;
+ const witnessedRangedAim=holding&&unit?.kind==='ranger'&&
+  previous?.witnessedRangedAim?.actorId===unit?.id&&
+  previous.witnessedRangedAim.actionTick===visualActionTick?
+  previous.witnessedRangedAim:rangedAtSource;
  const phase=mode==='attack'?age<.12?'anticipation':age<.28?'contact':age<.62?'recovery':'settled':
   mode==='cast'?age<.16?'anticipation':age<.48?'release':'recovery':
   mode==='hurt'?age<.12?'impact':'recovery':
   mode==='evade'?age<.16?'departure':'recovery':
   mode==='defeat'?'down':mode==='move'?'stride':mode;
  return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
-  holding,completed,confirmedContact,changed,restarted,interrupted,transition,owner,
+  holding,completed,confirmedContact,witnessedRangedAim,changed,restarted,interrupted,transition,owner,
   teleportSuppressedTick,interruptionSuppressedTick,reducedMotion:Boolean(reducedMotion)});
 }
 
