@@ -214,11 +214,13 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
       !validSample({ atMs:s.atMs, tick:s.tick, floor:s.floor,
         runToken:s.runToken, lifecycle:s.scene })) continue;
     const key = [s.runToken, s.floor, s.tick, touch.platformId].join(':');
-    if (seenContacts.has(key)) continue;
+    // A renderer contact sampled from an unknown source episode cannot
+    // borrow the most recently processed source run's episode number.
+    if (seenContacts.has(key) || !episodeByRun.has(s.runToken)) continue;
     seenContacts.add(key);
     record('sampled-render-deck-contact', {
       atMs:s.atMs, runToken:s.runToken, floor:s.floor, tick:s.tick,
-    }, { platformId:touch.platformId,
+    }, { observedEpisode:episodeByRun.get(s.runToken), platformId:touch.platformId,
       interpretation:'source-adjacent renderer diagnostic; frame visibility and contact physics require independent film review' });
   }
   // The fixed-step guardian floor-nine clearance is found in a secondary

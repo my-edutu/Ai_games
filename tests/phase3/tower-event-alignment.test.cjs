@@ -187,6 +187,8 @@ test('real floor-nine threshold and render contacts stay in event-time order bef
  const contact=index.events.findIndex(event=>event.kind==='sampled-render-deck-contact');
  assert.ok(crossing>=0&&outcome>crossing&&restart>outcome);
  assert.ok(contact>=0&&contact<crossing,'independent actual render contact retains its earlier wall time');
+ assert.equal(index.events[contact].observedEpisode,0,
+   'late-added render contacts must belong to their source run, not the last restart');
  assert.equal(index.events[crossing].observedEpisode,0);
  assert.equal(index.events[restart].observedEpisode,1);
  assert.equal(index.verdict,'NOT EVALUATED');
