@@ -665,8 +665,18 @@ test('genuine slow visible frames advance the SAME authentic attack/cast event c
   {visible:false,age:.45},{reducedMotion:true,age:.45},{sourceDuration:0,age:.45},
   {sourceTime:NaN,age:.45},{age:-1},{frameInterval:-1}])
   assert.equal(sourceStep({...sample,...params}),.05);
- assert.equal(sourceStep({...sample,age:.1,sourceTime:.5}),.05,
-  'ahead-of-owner source must not scrub backward or leap ahead');
+ // The imported source is ALREADY ~198ms ahead of the lawful body's
+ // witnessed age. A new 50ms mixer step would make the visible weapon and
+ // wrist drift even further ahead of their event owner. Freeze until the
+ // original event catches up; never rewind the source or invent a new hit.
+ assert.equal(sourceStep({...sample,age:.1,sourceTime:.5}),0,
+  'ahead-of-owner source must hold rather than advance or reverse');
+ assert.equal(sourceStep({...sample,age:.1,sourceTime:.5,
+  frameDelta:.016,frameInterval:.016}),0,
+  'the same source-age clamp applies at ordinary desktop/mobile frame rates');
+ const witnessCatchesUp=sourceStep({...sample,age:.4,sourceTime:.5});
+ assert.ok(Math.abs(witnessCatchesUp-(.4-.5/1.68))<1e-9,
+  'after the lawful event catches up, advance only as far as its observed age');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
