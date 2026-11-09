@@ -75,6 +75,33 @@ test('a long healthy render run progressively restores resolution; a lone fast c
   assert.equal(state.scale, 1);
 });
 
+
+test('sustained visible callback starvation adapts when individual WebGL calls are fast; pauses and hidden tabs do not', () => {
+  const state = policy();
+  state.setCompact(true);
+  assert.equal(state.record(19, true, 298), false);
+  assert.equal(state.record(20, true, 298), false);
+  assert.equal(state.scale, 1, 'do not treat two isolated rAF stalls as sustained overload');
+  assert.equal(state.record(19, true, 298), true);
+  assert.equal(state.scale, .8);
+  for (let i = 0; i < 12; i++) state.record(18, true, 300);
+  assert.equal(state.scale, .78, 'real phone image remains above its clarity floor');
+  assert.equal(state.lastCallbackGapMs, 300);
+  assert.equal(state.lastSubmissionMs, 18);
+  const adaptationCount = state.adaptations;
+  state.record(12, true, 2700);
+  state.record(12, true, 2700);
+  state.record(12, false, 300);
+  assert.equal(state.adaptations, adaptationCount, 'hidden/resume periods never trigger new downscales');
+  assert.equal(state.lastCallbackGapMs, null);
+  for (let i = 0; i < 92; i++) state.record(13, true, 16.7);
+  assert.ok(state.scale > .78, 'actual sustained healthy callback pace restores resolution');
+  state.clearPacing();
+  assert.equal(state.lastCallbackGapMs, null);
+  state.reset();
+  assert.equal(state.scale, 1);
+});
+
 test('the real Tower scene uses adaptive backing resolution without downgrading its chosen graphics tier', async () => {
   const real = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
@@ -147,6 +174,13 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
     assert.equal(view.diagnostics().resolution.compact, true);
     assert.equal(view.diagnostics().resolution.minimumScale, .78);
     assert.equal(renderer.pixelRatios.at(-1), 1);
+    // The previous film showed very small individual render calls but starved
+    // requestAnimationFrame callbacks. Exercise the ORIGINAL scene frame loop.
+    duration = 12;
+    for (let i = 0; i < 10; i++) scheduled(now + 240);
+    assert.equal(view.diagnostics().resolution.scale, .78,
+      'real portrait rAF starvation now adapts even when WebGL calls are short');
+    assert.ok(view.diagnostics().resolution.callbackGapMs >= 240);
     duration = 596;
     for (let i = 0; i < 12; i++) frame();
     assert.equal(view.diagnostics().resolution.scale, .78);

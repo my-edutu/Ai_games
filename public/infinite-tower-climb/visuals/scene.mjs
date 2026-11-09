@@ -1624,10 +1624,14 @@ function createReflectionEnvironment(renderer, theme, lighting) {
   }
 }
 
-// GPU submission duration is an overload signal, NOT a presented-frame/FPS
-// measurement. Keep every art/lighting feature from the chosen quality tier;
-// only reduce the drawing-buffer pixel count when repeated submissions stall.
-// Independently reviewed hardware performance remains a separate release gate.
+// Both scene/render execution duration and the interval between visible
+// requestAnimationFrame callbacks are bounded adaptation signals, NOT display
+// FPS or physical GPU timing. The original 390px source-pinned danger WebM at
+// b489786c showed ~298ms median callback interval but ~20ms scene calls:
+// the old call-duration-only controller NEVER adapted (scale=1, 0 adaptations).
+// Keep real gameplay, lighting tier and full-resolution DOM HUD unchanged;
+// lower only 3D framebuffer cost after sustained actually observed starvation.
+// Independent supported-device benchmarks remain a separate release gate.
 function createTowerResolutionPolicy() {
   // Real portrait danger film at 3ed44c36 recorded median 216ms submission
   // intervals and >600ms tail stalls. A fixed full-resolution phone framebuffer
@@ -1636,30 +1640,48 @@ function createTowerResolutionPolicy() {
   let compact = false;
   const minimumScale = () => compact ? .78 : .6;
   let scale = 1, overload = 0, healthy = 0, cooldown = 0, adaptations = 0;
-  let lastSubmissionMs = null;
+  let lastSubmissionMs = null, lastCallbackGapMs = null;
   return {
     get scale() { return scale; }, get adaptations() { return adaptations; },
     get compact() { return compact; }, get minimumScale() { return minimumScale(); },
     get lastSubmissionMs() { return lastSubmissionMs; },
+    get lastCallbackGapMs() { return lastCallbackGapMs; },
+    clearPacing() { overload = 0; healthy = 0; lastCallbackGapMs = null; },
     setCompact(next) {
       // Width/orientation changes re-enter a full-density baseline before
       // profiling again; a stale desktop throttle must not blur a phone HUD.
       if (typeof next !== 'boolean' || next === compact) return false;
       compact = next;
       scale = 1; overload = 0; healthy = 0; cooldown = 0;
-      lastSubmissionMs = null;
+      lastSubmissionMs = null; lastCallbackGapMs = null;
       return true;
     },
-    record(durationMs, visible) {
+    record(durationMs, visible, callbackGapMs = null) {
       if (!visible || !Number.isFinite(durationMs) || durationMs < 0) {
-        overload = 0; healthy = 0; return false;
+        overload = 0; healthy = 0; lastCallbackGapMs = null; return false;
       }
       lastSubmissionMs = Math.round(durationMs * 10) / 10;
+      // A 2.4-second+ callback gap indicates a tab suspension or a heavily
+      // interrupted browser. Never downscale the recovered game for ONE pause.
+      // This is also capped to reject timestamp anomalies; null is permitted
+      // for legacy unit probes where no callback cadence is available.
+      const gapValid = Number.isFinite(callbackGapMs) && callbackGapMs > 0;
+      if (gapValid && callbackGapMs > 2400) {
+        overload = 0; healthy = 0; lastCallbackGapMs = null; return false;
+      }
+      const gap = gapValid ? callbackGapMs : null;
+      lastCallbackGapMs = gap === null ? null : Math.round(gap * 10) / 10;
       if (cooldown) cooldown--;
-      if (durationMs >= 180) { overload++; healthy = 0; }
-      else if (durationMs <= 35) { healthy++; overload = 0; }
-      else { overload = 0; healthy = 0; }
-      if (overload >= 2 && cooldown === 0 && scale > minimumScale()) {
+      const slowCall = durationMs >= 180;
+      const starvedCallback = gap !== null && gap >= 120;
+      if (slowCall || starvedCallback) { overload++; healthy = 0; }
+      else if (durationMs <= 35 && (gap === null || gap <= 50)) {
+        healthy++; overload = 0;
+      } else { overload = 0; healthy = 0; }
+      // Two genuinely slow scene calls OR three consecutive starved visible
+      // animation callbacks earn one limited resolution change. A short scene
+      // call during a 300ms rAF backlog must NOT count as a healthy frame.
+      if (overload >= (slowCall ? 2 : 3) && cooldown === 0 && scale > minimumScale()) {
         scale = Math.max(minimumScale(), Math.round(scale * 80) / 100);
         overload = 0; healthy = 0; cooldown = 2; adaptations++;
         return true;
@@ -1671,7 +1693,8 @@ function createTowerResolutionPolicy() {
       }
       return false;
     },
-    reset() { scale = 1; overload = 0; healthy = 0; cooldown = 0; adaptations = 0; lastSubmissionMs = null; },
+    reset() { scale = 1; overload = 0; healthy = 0; cooldown = 0;
+      adaptations = 0; lastSubmissionMs = null; lastCallbackGapMs = null; },
   };
 }
 
@@ -2158,6 +2181,7 @@ export function createTowerScene(canvas, settings = {}) {
   let actorYaw = 0;
   const visibilityChanged = () => {
     lastTime = 0;
+    resolutionPolicy.clearPacing();
     renderProgress.setVisible(document.visibilityState === 'visible', performance.now());
   };
   const cachedRestore = event => {
@@ -3850,7 +3874,7 @@ export function createTowerScene(canvas, settings = {}) {
       const submissionStart = performance.now();
       update(motionDt); renderer.render(scene, camera);
       if (resolutionPolicy.record(performance.now() - submissionStart,
-        document.visibilityState === 'visible' && !options.stale)) resolutionDirty = true;
+        document.visibilityState === 'visible' && !options.stale, deltaMs)) resolutionDirty = true;
       // Count a contact frame only after Three has submitted it. Delayed
       // software rendering must not consume an unseen cue on elapsed time.
       for (const entry of enemies.values()) {
@@ -3882,6 +3906,7 @@ export function createTowerScene(canvas, settings = {}) {
   }
   const lost = event => {
     event.preventDefault(); contextLost = true;
+    resolutionPolicy.clearPacing();
     clearTowerRenderFault();
     options.onStatus?.('Graphics interrupted · ascent continues', 'recovering');
     rebuildGraphicsResources();
@@ -4041,7 +4066,8 @@ export function createTowerScene(canvas, settings = {}) {
       resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: resolutionPolicy.scale,
         compact: resolutionPolicy.compact, minimumScale: resolutionPolicy.minimumScale,
         adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,
-        measurement: 'JS scene-update-and-render-call duration; not presented FPS' },
+        callbackGapMs: resolutionPolicy.lastCallbackGapMs,
+        measurement: 'JS scene duration and visible requestAnimationFrame callback gap; neither is presented FPS' },
       renderProgress: submissionProgress,
       calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries,
       textures: renderer.info.memory.textures, programs: renderer.info.programs.length, characters: 1 + enemies.size,
