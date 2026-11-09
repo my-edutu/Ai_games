@@ -678,7 +678,7 @@ test('native Hit_A only samples actually witnessed positive-HP-loss age',async()
   'hidden-scene mixer timing retains its established policy');
  close(sourceStep({...sample,mode:'idle'}),.05,'unrelated idle behavior is unchanged');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/planImportedLivingSourceStep\\(originalStep\\)/,
+ assert.match(model,/planImportedLivingSourceStep\(originalStep\)/,
   'actual imported Three.js mixer consumes this hurt source-time planner');
 });
 
