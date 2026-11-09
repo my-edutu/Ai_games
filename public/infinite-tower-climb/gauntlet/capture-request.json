@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "f3427a2dc257697d57f27ad391e6589442fbf8bd",
-  "reason": "Request NEW exact-trigger-SHA original baseline/candidate 960x600 and 390x844 normal-speed full-motion film after production foreground-occlusion ReferenceError repair and source-accurate Three.js harness recovery. Prior f342 CI 1267/1273 (6 failures), cee tests corrected but still unverified at request time. Keep 3200-tick source and native PTS/film integrity vetoes mandatory; neither prior successful source audit nor film completion is a quality PASS.",
+  "repairedSourceSha": "c8a13787a5c7bebbb280fd50c279830077320d4f",
+  "reason": "Re-capture same frozen baseline and immutable new PR68 candidate on a real 20Hz host following installed/verified ffprobe and ffmpeg toolchain recovery at c8a13787; original prior 8c3ed755 run created eight 60+s paired WebM jobs with source sidecars and 25fps motion, but hosted audit could not execute (spawnSync ffprobe ENOENT). Previous Node22 original CI 1272/1273, single stale real-gateway test aligned. Keep baseline/outcome portrait missing same-run source episode and guardian 16–18s foreground occlusion visible; neither transport PASS nor green CI is experience acceptance.",
   "scenarios": [
     "ascent",
     "moving",
@@ -32,7 +32,7 @@
     "feels": 0,
     "plays": 0
   },
-  "historicalObservedDefect": "Old portrait e0fe7729 guardian frame 16.5–18s contained giant decorative foreground occlusion; source current change cannot be judged without fresh film.",
-  "sourceTestRecoverySha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
+  "historicalObservedDefect": "Real new candidate 8c3ed755 portrait danger 16–18s still shows near-side clockwork competing with airborne guardian/climber; inspect source-pinned normal-speed A/B before any P1 claim.",
+  "sourceTestRecoverySha": "c8a13787a5c7bebbb280fd50c279830077320d4f",
   "triggerRule": "Workflow uses its immutable github.sha for every candidate run, not the earlier renderer/test implementation SHA; compare fixed baseline 1731b... at identical seed, tier, scenario and viewport. If original preflight fails, record for diagnosis but final audit must fail."
 }
