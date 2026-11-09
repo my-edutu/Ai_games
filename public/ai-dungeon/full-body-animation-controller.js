@@ -111,8 +111,17 @@ export function advanceFullBodyController(previous=null,{
  // or the first landed frame can replay a displaced swing or casting gesture.
  const teleportSuppressedTick=teleport?actionTick:
   previous?.teleportSuppressedTick===actionTick?actionTick:null;
+ // An actual HP-loss reaction or legal one-cell evasion interrupts the
+ // original sword/spell one-shot. The surviving public action label cannot
+ // restart that imported clip after Hit_A or dodge; only a NEW source tick
+ // may authorize a new attack/cast. No damage or movement is synthesized.
+ const interruptionSuppressedTick=(injury||evasion)&&
+  ['attack','cast'].includes(authorityAction)&&actionTick!==null?actionTick:
+  Number.isSafeInteger(previous?.interruptionSuppressedTick)&&
+   previous.interruptionSuppressedTick===actionTick?actionTick:null;
  const sourceOneShotSuppressed=Boolean(teleport||(
-  Number.isSafeInteger(teleportSuppressedTick)&&teleportSuppressedTick===actionTick));
+  Number.isSafeInteger(teleportSuppressedTick)&&teleportSuppressedTick===actionTick)||(
+  Number.isSafeInteger(interruptionSuppressedTick)&&interruptionSuppressedTick===actionTick));
  const requestedOneShot=!sourceOneShotSuppressed&&
   Object.hasOwn(ONE_SHOT_RECOVERY,authorityAction)&&
   authorityAction!=='hurt'&&requestedAge<ONE_SHOT_RECOVERY[authorityAction];
@@ -194,7 +203,7 @@ export function advanceFullBodyController(previous=null,{
   mode==='defeat'?'down':mode==='move'?'stride':mode;
  return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
   holding,completed,confirmedContact,changed,restarted,interrupted,transition,owner,
-  teleportSuppressedTick,reducedMotion:Boolean(reducedMotion)});
+  teleportSuppressedTick,interruptionSuppressedTick,reducedMotion:Boolean(reducedMotion)});
 }
 
 /**

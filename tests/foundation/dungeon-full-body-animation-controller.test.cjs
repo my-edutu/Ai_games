@@ -55,7 +55,8 @@ test('true positive HP loss interrupts a sword pose, then hands control back',as
  const still=step(hurt,frame(hero('attack',22,25),{damageBeat:{...beat,age:.20}}));
  assert.equal(still.changed,false);
  const recovered=step(still,frame(hero('attack',22,25),{damageBeat:{...beat,age:.58}}));
- assert.equal(recovered.mode,'attack');assert.equal(recovered.owner.duel,true);
+ assert.equal(recovered.mode,'idle','old sword cannot replay after a real injury');
+ assert.equal(recovered.owner.duel,false);assert.equal(recovered.interruptionSuppressedTick,22);
  assert.equal(recovered.interrupted,true);
 });
 test('one witnessed HP loss owns one source Hit_A across subsequent authority ticks',async()=>{
@@ -119,8 +120,51 @@ test('verified evasion temporarily owns the body instead of layering over a cast
  assert.equal(evade.owner.evasion,true);assert.equal(evade.owner.cast,false);
  assert.equal(evade.owner.duel,false);assert.equal(evade.interrupted,true);
  const recovered=step(evade,frame(hero('cast',17),{evasionBeat:{id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.61}}));
- assert.equal(recovered.mode,'cast');assert.equal(recovered.clipAction,'cast');
+ assert.equal(recovered.mode,'idle','old cast cannot replay after a legal dodge');
+ assert.equal(recovered.clipAction,'idle');assert.equal(recovered.interruptionSuppressedTick,17);
 });
+
+test('verified injury or evasion cancels stale imported attack/cast without blocking a NEW legal tick',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const damage={id:'hero-1',kind:'vanguard',damage:5,maxHp:30,
+  age:.12,eventTick:22,fatal:false};
+ const first=step(null,frame(hero('attack',22)));
+ const injured=step(first,frame(hero('attack',22,25),{damageBeat:damage}));
+ assert.equal(injured.mode,'hurt','real HP loss owns Hit_A');
+ const cleared=step(injured,frame(hero('attack',22,25),{
+  damageBeat:{...damage,age:.58}}));
+ assert.equal(cleared.mode,'idle','no second sword windup after witnessed hurt');
+ assert.equal(cleared.interruptionSuppressedTick,22);
+ assert.equal(step(cleared,frame(hero('attack',22,25))).clipAction,'idle');
+ const nextAttack=step(cleared,frame(hero('attack',23,25),{actionAge:0}));
+ assert.equal(nextAttack.mode,'attack','only a new legal source tick starts a sword');
+ assert.equal(nextAttack.interruptionSuppressedTick,null);
+ const continuingHurt=step(injured,frame(hero('attack',23,25),{
+  damageBeat:{...damage,age:.3}}));
+ assert.equal(continuingHurt.mode,'hurt','active real injury interrupts even newer action labels');
+ assert.equal(step(continuingHurt,frame(hero('attack',23,25),{
+  damageBeat:{...damage,age:.58}})).mode,'idle');
+ assert.equal(step(continuingHurt,frame(hero('attack',24,25),{
+  damageBeat:{...damage,age:.58}})).mode,'attack');
+ const verified={id:'hero-1',kind:'vanguard',tick:17,dx:1,dz:0,age:.08};
+ const cast=step(null,frame(hero('cast',17)));
+ const evade=step(cast,frame(hero('cast',17),{evasionBeat:verified}));
+ assert.equal(evade.mode,'evade','only legal one-cell escape interrupts casting');
+ const landed=step(evade,frame(hero('cast',17),{
+  evasionBeat:{...verified,age:.61}}));
+ assert.equal(landed.mode,'idle','do not conjure a second spell on landing');
+ assert.equal(step(landed,frame(hero('cast',17))).mode,'idle');
+ assert.equal(step(landed,frame(hero('cast',18),{actionAge:0})).mode,'cast');
+ const invalid=step(null,frame(hero('attack',22),{
+  damageBeat:{...damage,id:'someone-else'},evasionBeat:{...verified,dx:0,dz:0}}));
+ assert.equal(invalid.mode,'attack','ambiguous injury or evasion cannot cancel lawful combat');
+ const terminal=step(injured,frame(hero('attack',22,0),{damageBeat:damage}));
+ assert.equal(terminal.mode,'defeat','real HP zero remains absorbing');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/advanceFullBodyController\(actor\.fullBody,/);
+ assert.match(model,/changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
+});
+
 test('defeat is absorbing at HP zero and does not advance gait, strikes or injury',async()=>{
  const {advanceFullBodyController:step}=await load();
  const fallen=step(null,frame(hero('attack',17,0),{
