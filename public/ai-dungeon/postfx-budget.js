@@ -404,3 +404,60 @@ export function createRetainedStaticDetailBatches(THREE,parent,geometry,entries,
   dispose(){if(disposed)return;disposed=true;for(const mesh of meshes){parent.remove(mesh);mesh.dispose()}}
  };
 }
+
+
+
+/**
+ * Bounded scene-light shader budget on VERIFIED CPU software WebGL only.
+ * Retain each original decorative light/fixture and all important hero, boss,
+ * encounter and warning lights. Limit nonessential warm practials nearest to
+ * the physical camera target, with a small same-light hysteresis. This affects
+ * *only* visible scene lights, never actor authority, geometry, audio or PBR.
+ * Hardware WebGL uses every original practical without modification.
+ */
+export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDecorativeLights=2}={}){
+ if(typeof THREE?.Vector3!=='function'||typeof world?.traverse!=='function'||
+   !Number.isSafeInteger(maxDecorativeLights)||maxDecorativeLights<1||maxDecorativeLights>8)
+  throw new TypeError('Invalid software practical light budget');
+ const practicals=[];
+ world.traverse(node=>{
+  if(node?.isPointLight===true&&node.userData?.dungeonDecorativePractical===true)
+   practicals.push({light:node,originalVisible:node.visible!==false});
+ });
+ const point=new THREE.Vector3();
+ let previous=new Set(),updates=0,visibilityChanges=0,disposed=false;
+ const eligible=light=>{
+  for(let ancestor=light.parent;ancestor&&ancestor!==world;ancestor=ancestor.parent){
+   if(ancestor.visible===false)return false;
+  }
+  return true;
+ };
+ function update(focus){
+  if(disposed||!software||!Number.isFinite(focus?.x)||!Number.isFinite(focus?.z))return stats();
+  const ranked=[];
+  for(let i=0;i<practicals.length;i++){
+   const {light,originalVisible}=practicals[i];
+   if(!originalVisible||!eligible(light))continue;
+   light.getWorldPosition(point);
+   const dx=point.x-focus.x,dz=point.z-focus.z;
+   ranked.push({i,d:(dx*dx+dz*dz)/(previous.has(i)?1.12:1)});
+  }
+  ranked.sort((a,b)=>a.d-b.d||a.i-b.i);
+  const next=new Set(ranked.slice(0,maxDecorativeLights).map(entry=>entry.i));
+  for(let i=0;i<practicals.length;i++){
+   const {light,originalVisible}=practicals[i],show=originalVisible&&next.has(i);
+   if(light.visible!==show){light.visible=show;visibilityChanges++}
+  }
+  previous=next;updates++;
+  return stats();
+ }
+ function stats(){return {software,available:practicals.length,
+  selected:software?previous.size:practicals.filter(p=>p.light.visible).length,
+  suppressed:software?Math.max(0,practicals.length-previous.size):0,
+  maxDecorativeLights,updates,visibilityChanges,disposed}}
+ function dispose(){if(disposed)return;disposed=true;
+  for(const {light,originalVisible} of practicals)light.visible=originalVisible;
+  previous.clear();
+ }
+ return {update,stats,dispose};
+}
