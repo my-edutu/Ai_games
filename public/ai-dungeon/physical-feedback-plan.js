@@ -97,6 +97,14 @@ function validBossWarning(w,s){
  w.cells.some(c=>point(c));
 }
 const overlap = (a,b) => a && b && a.x===b.x && a.z===b.z;
+/**
+ * An anonymous event can corroborate a physical body contact only when
+ * consecutive observed states BRACKET that exact authority tick. Across
+ * missed ticks, later HP loss or movement cannot prove that contact's owner
+ * or timing. Retain genuine event sound, but not a guessed world anchor.
+ */
+const observedEventAtAdjacentTick = (previous,next,eventTick) =>
+ next.tick===eventTick && previous.tick+1===next.tick;
 /** The only target a launch may display is the explicitly targeted, verified one. */
 function verifiedAim(unit,snapshot,resolveContact){
  if(!validId(unit.targetId) || typeof resolveContact!=='function')return null;
@@ -175,7 +183,8 @@ export function planPhysicalFeedback(previous,next,{
     // Multiple guards, simultaneous blocks, or fully absorbed blows retain
     // the neutral sound without assigning an invented body or direction.
     const blockEvents=events.filter(x=>x?.kind==='block'&&x.tick===e.tick);
-    const defenders=next.units.slice(0,96).filter(u=>{
+    const adjacent=observedEventAtAdjacentTick(previous,next,e.tick);
+    const defenders=(adjacent?next.units.slice(0,96):[]).filter(u=>{
      const prior=oldUnits.get(u?.id);
      return validId(u?.id)&&u.faction==='party'&&u.action==='guard'&&
       u.guardTick===e.tick&&point(u)&&positiveHealthDrop(prior,u);
@@ -199,7 +208,8 @@ export function planPhysicalFeedback(previous,next,{
    case 'evade': {
     // An evasive FOOTPRINT may be attached only to exactly one witnessed
     // cardinal, one-cell party displacement on this very event tick.
-    const moved=next.units.filter(u=>{
+    const moved=(observedEventAtAdjacentTick(previous,next,e.tick)?
+     next.units.slice(0,96):[]).filter(u=>{
      const b=oldUnits.get(u?.id);
      return b && u.faction==='party' && u.hp>0 && validCoord(u.x)&&validCoord(u.z)&&
       validCoord(b.x)&&validCoord(b.z) && u.actionTick===e.tick &&
@@ -219,7 +229,8 @@ export function planPhysicalFeedback(previous,next,{
    case 'counter': {
     const prior=previous.units.find(u=>u?.kind==='warden'),
      current=next.units.find(u=>u?.id===prior?.id&&u?.kind==='warden');
-    if(positiveHealthDrop(prior,current) &&
+    if(observedEventAtAdjacentTick(previous,next,e.tick) &&
+     positiveHealthDrop(prior,current) &&
      validTick(prior.recoveryUntilTick) && prior.recoveryUntilTick>=e.tick)
      push('counter',e.tick,{targetId:current.id,to:point(current),
       severity:(prior.hp-current.hp)/current.maxHp,verified:true,
