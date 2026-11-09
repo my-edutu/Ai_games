@@ -375,6 +375,47 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  * The mixer will advance this rendered frame's distance ONCE after re-entry.
  * No continuous seeking, assumed sole geometry or invented movement.
  */
+/**
+ * A long *genuine* root step may need more than the permitted 280ms of native
+ * Walking_A playback. If the source clip was in phase before that step, the
+ * cap leaves its ankles behind the already-advanced real grounded footfall.
+ * Align only the missed fraction within this SAME displayed travel frame.
+ * Never wind the native feet forward on planted/hidden/teleported frames.
+ *
+ * This is bounded source-clip retiming, NOT IK or evidence of sole contact.
+ * Reject source/foot phases that were already unrelated rather than seeking
+ * arbitrary animation frames. The existing mixer still evaluates once.
+ */
+export function planImportedWalkingContinuity({mode='idle',continuous=false,
+ sourceTime=0,sourceDuration=0,effectiveSpeed=1,sourceStep=0,
+ groundedTravel=NaN,footPhase=NaN,groundedMoving=false,walkingClip=false,
+ frameInterval=0,visible=true,teleport=false,reducedMotion=false}={}){
+ if(mode!=='move'||continuous!==true||!groundedMoving||!walkingClip||
+  teleport||reducedMotion||visible!==true||
+  ![sourceTime,sourceDuration,effectiveSpeed,sourceStep,groundedTravel,footPhase,frameInterval].every(finite)||
+  sourceDuration<=.002||sourceDuration>10||sourceTime<0||sourceTime>sourceDuration+.002||
+  effectiveSpeed<=.001||sourceStep<0||sourceStep>.28||frameInterval<=0||
+  groundedTravel<=.003||groundedTravel>.54||footPhase<0||footPhase>1)return null;
+ const needed=groundedTravel/1.06*sourceDuration/effectiveSpeed;
+ // A normal 60Hz step already reached the stamped native phase. Only a
+ // genuinely capped movement frame is allowed to seek a source skeleton.
+ if(needed-sourceStep<=.02||Math.abs(sourceStep-.28)>.00001)return null;
+ const cycle=x=>((x%1)+1)%1;
+ const priorExpected=cycle(footPhase-groundedTravel/1.06);
+ const priorActual=cycle(sourceTime/sourceDuration);
+ const cyclicError=Math.min(Math.abs(priorExpected-priorActual),
+  1-Math.abs(priorExpected-priorActual));
+ if(cyclicError>.025)return null;
+ const projected=cycle((sourceTime+sourceStep*effectiveSpeed)/sourceDuration);
+ const missing=cycle(footPhase-projected);
+ const expectedMissing=(needed-sourceStep)*effectiveSpeed/sourceDuration;
+ // Reject a phase wrap that would reverse or skip too much source animation.
+ // A legal .53m movement at original speed 1.25 needs only .164 of a cycle.
+ if(missing<.018||missing>.20||Math.abs(missing-expectedMissing)>.025)return null;
+ const start=cycle(sourceTime/sourceDuration+missing)*sourceDuration;
+ return Number.isFinite(start)?start:null;
+}
+
 export function planImportedWalkingEntryPhase({mode='idle',previousMode='idle',
  sourceDuration=0,effectiveSpeed=1,frameDelta=.016,frameInterval=frameDelta,
  visible=true,footPhase=NaN,groundedTravel=NaN,groundedMoving=false,

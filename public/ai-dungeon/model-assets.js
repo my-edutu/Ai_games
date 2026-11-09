@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1128,6 +1128,21 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  };
  const sourceStep=freezeSource?0:actor.fullBody.mode==='defeat'?
   planImportedDeathSourceStep(originalStep):planImportedLivingSourceStep(originalStep);
+ // On an actual large movement frame the licensed cycle may be capped at
+ // 280ms while the genuine grounded footfall advanced a larger distance.
+ // Reconcile ONLY a validated shortfall in ongoing walking, once, before
+ // the mixer consumes the original source step. No idle treadmill or IK.
+ const continuousWalk=planImportedWalkingContinuity({...originalStep,sourceStep,
+  continuous:Boolean(!actor.fullBody.changed&&actor.currentAction==='move'),
+  footPhase:actor.groundedPerformance?.footPhase});
+ if(continuousWalk!==null&&actor.activeClip){
+  const former=actor.activeClip.time;
+  actor.activeClip.time=continuousWalk;
+  actor.walkingPhaseReconciledFrames=Math.min(1000000,(actor.walkingPhaseReconciledFrames||0)+1);
+  const clipSeconds=originalStep.sourceDuration||1;
+  actor.walkingPhaseReconciledPeakCycles=Math.max(actor.walkingPhaseReconciledPeakCycles||0,
+   ((continuousWalk-former)/clipSeconds+1)%1);
+ }
  if(actor.fullBody.mode==='move'&&sourceStep>Math.min(.05,dt)+.005)
   actor.walkingSourceCatchupFrames=Math.min(1000000,(actor.walkingSourceCatchupFrames||0)+1);
  const sourceSync=!freezeSource&&sourceClip?planImportedOneShotPhase({

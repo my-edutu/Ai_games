@@ -1069,3 +1069,47 @@ test('capped native Walking_A re-entry aligns stamped footfall after single mixe
   assert.equal(entry({...options,...patch}),null,'untrusted source clock cannot seek');
  }
 });
+
+test('real large walking steps cannot leave original source ankles permanently behind witnessed footfall parity',async()=>{
+ const {planImportedLivingSourceStep:step,planImportedWalkingContinuity:align}=await load();
+ const duration=1.0416666666666667,speed=1.25;
+ const base={mode:'move',continuous:true,sourceTime:duration*.24,sourceDuration:duration,
+  effectiveSpeed:speed,frameDelta:.05,frameInterval:.5,visible:true,
+  groundedTravel:.53,footPhase:.74,groundedMoving:true,walkingClip:true,
+  teleport:false,reducedMotion:false};
+ const consumed=step(base);
+ assert.equal(consumed,.28,'a genuine sparse-frame .53m move retains its 280ms source playback cap');
+ const uncaught=((base.sourceTime+consumed*speed)/duration)%1;
+ assert.ok(Math.abs(uncaught-.576)<1e-8,
+  'RED predecessor: ongoing Walking_A lags grounded ankle phase by .164 cycle');
+ const entry=align({...base,sourceStep:consumed});
+ assert.ok(Number.isFinite(entry)&&entry>=0&&entry<duration,
+  'licensed source keyframe alignment must be finite and in the real clip');
+ const final=((entry+consumed*speed)/duration)%1;
+ assert.ok(Math.abs(final-base.footPhase)<1e-8,
+  'the single same-frame mixer step lands on witnessed left/right foot parity');
+ assert.ok(Math.abs(((entry-base.sourceTime)/duration+1)%1-.164)<1e-8,
+  'only the 16.4%-cycle capped shortfall is repaired, not a counterfeit footstep');
+ // If real root displacement has stopped, no source seek may move planted feet.
+ for(const [reason,patch] of Object.entries({
+  stopped:{groundedTravel:0},tiny:{groundedTravel:.002},
+  idle:{mode:'idle'},newWalk:{continuous:false},
+  invalidClip:{walkingClip:false},noAuthorityMove:{groundedMoving:false},
+  teleport:{teleport:true},reduced:{reducedMotion:true},hidden:{visible:false},
+  badClock:{sourceTime:NaN},badFoot:{footPhase:NaN},outOfRange:{footPhase:1.1},
+  unrelatedPhase:{footPhase:.44},badDisplacement:{groundedTravel:.7},
+  slowSourceOvershoot:{effectiveSpeed:.8,sourceStep:.28},
+  noFrame:{frameInterval:0}
+ })){
+  assert.equal(align({...base,sourceStep:consumed,...patch}),null,reason+' must not retime any original joint');
+ }
+ const gentle={...base,sourceTime:duration*.24,groundedTravel:.05,
+  footPhase:.24+.05/1.06,frameDelta:.016,frameInterval:.016};
+ assert.equal(align({...gentle,sourceStep:step(gentle)}),null,
+  'ordinary fully-consumed source motion never scrubs a licensed clip');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedWalkingContinuity\(\{\.\.\.originalStep,sourceStep/);
+ assert.match(model,/actor\.activeClip\.time=continuousWalk/);
+ assert.match(model,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/,
+  'the original Three.js mixer must still evaluate exactly once per visible frame');
+});
