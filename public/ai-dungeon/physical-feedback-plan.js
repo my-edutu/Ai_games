@@ -1,3 +1,4 @@
+import {planAuthorityEvasions} from './evasion-performance-plan.js';
 /**
  * D04 — truthful, presentation-only physical combat feedback plan.
  *
@@ -211,19 +212,15 @@ export function planPhysicalFeedback(previous,next,{
     const evadeEvents=events.filter(x=>x?.kind==='evade'&&x.tick===e.tick);
     if(evadeEvents.length!==1||
      !observedEventAtAdjacentTick(previous,next,e.tick))break;
-    const moved=next.units.slice(0,96).filter(u=>{
-     const b=oldUnits.get(u?.id);
-     return validId(u?.id)&&sameIdUnit(b,u)&&u.faction==='party'&&
-      u.hp>0&&b.hp>0&&u.action==='move'&&u.actionTick===e.tick&&
-      validCoord(u.x)&&validCoord(u.z)&&validCoord(b.x)&&validCoord(b.z)&&
-      Math.abs(u.x-b.x)+Math.abs(u.z-b.z)===1;
-    });
-    // Two same-tick events or two movers cannot uniquely name a dodger:
-    // neither the boot sound nor dust is authorized without this witness.
-    if(moved.length!==1)break;
-    const lone=moved[0];
+    // A single mover with an unrelated empty-stone miss is not a dodge.
+    // Reuse the existing spectator animation's legal, semantic evasion witness:
+    // matching threat event, valid terrain, living one-cell step and phase.
+    // Its event text validates escape semantics, NEVER an attacker identity.
+    const witnessed=planAuthorityEvasions(previous,next);
+    if(witnessed.length!==1)break;
+    const lone=witnessed[0];
     push('evade',e.tick,{actorId:lone.id,
-     from:point(oldUnits.get(lone.id)),to:point(lone),
+     from:lone.from,to:lone.to,
      verified:true,proof:'authority-event-and-observed-step'});
     break;
    }
