@@ -28,3 +28,9 @@
 
 ## Exact next action
 Run the updated original source-bound ledge desktop+portrait job and full Node/Three suite. Inspect tick 129–139 actual skinned helmet, ankles, and root screen position against source timing, with normal-speed contact/mantle footage; if the newly source-locked pose looks like a snap, stage a source-derived pre-contact transition without allowing deck penetration. Re-capture matched 960×600 and 390×844 60+s baseline/candidate, inspect full 16–20s guardian clockwork obstruction, verify same-run earned guardian/crusher victory → grounded gateway → floor nine → outcome/restart and then rebuild the worst demonstrated systemic visibility defect. No pillar or commercial-quality claim before independent blind and actual-device checks.
+
+## Exact-source CI follow-up
+
+- [Quality run 42609745176](https://github.com/my-edutu/Ai_games/actions/runs/42609745176) at implementation SHA `1b841eba` executed the original Node22 suite and failed **one** file: `tests/phase3/tower-ground-contact.test.cjs` searched for the retired four-argument helper declaration and call; 1269/1270 completed tests passed. Do not count this as green.
+- [176ce622](https://github.com/my-edutu/Ai_games/commit/176ce622173537d7ad9535db7c91b20bd59e0823) repairs that source-shape assertion to the new five-argument contract, supplies `.copy()` in its pure vector fixture, and exercises *both* source-triggered boundary locking across three browser blends and ordinary non-contact airborne interpolation.
+- [Quality run 42610553152](https://github.com/my-edutu/Ai_games/actions/runs/42610553152), exact test SHA `176ce622`, was **PENDING/unassigned at first inspection**. Any eventual pass remains a veto-only engineering result, not source-bound motion evidence.
