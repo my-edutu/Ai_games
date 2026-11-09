@@ -1,0 +1,28 @@
+# Infinite Tower Climb — P0: source-pinned guardian film and physical upper-rotor clearance
+
+**Date:** 10 November 2026. **Scope:** ONLY Draft PR #68 on `feat/tower-transformation-gauntlet-20261101`, frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`. **Transformation verdict: NOT EVALUATED.**
+
+## Original-game evidence reviewed before changing any art
+
+The immutable original-source [ten-job recording](https://github.com/my-edutu/Ai_games/actions/runs/42720286839) at candidate `590f4dc66144ade1c76589ed826318c0e48747e3` **completed successfully**, including eight baseline/candidate scenario recordings (16 native desktop/portrait WebMs). Its [native source-event pairing artifact](https://github.com/my-edutu/Ai_games/actions/runs/42720286839/artifacts/13719574523) reports 16 recordings, 8/8 calibrated timebases, no missing comparisons, no provenance or source-story defects. Its own `fullMotionPaired` verdict is **false**: authentic source event order and video timestamps do **not** independently prove visibility, playable feel, blind preference, or the complete causal gateway traversal onscreen.
+
+I examined an actual still extracted at native ~15 seconds from the unedited [candidate 390×844 danger WebM](https://github.com/my-edutu/Ai_games/actions/runs/42720286839/artifacts/13719966646) and cross-checked its original `camera-occlusion-forensics.json`: a huge steel hoop with bronze rectangular supports dominates most of the fighting space, while the live guardian and player are much smaller and partially hidden. This is a serious observed presentation problem, not an inferred proxy metric.
+
+The corrected original Three.js evidence collector now works: **56 bounded, run/tick-owned camera-mesh witnesses** on floor eight, unlike the preceding empty collector. Around source ticks 293, 333 and 345 the rays hit real **post-batch `rigid-material-batch` triangles** attached to `floor:8:clockwork` at approximately world y=37–42, in addition to actual guardian body and gateway-lattice meshes at other rays. These are concrete physical owner witnesses, not composited-pixel ground truth. Static rigid merging discards the pre-batch component name, so **the four samples do not conclusively assign every visible hoop pixel to one named authored gear**. Do not claim that they do.
+
+Original source inspection revealed a specific remaining spatial violation: the **upper-right decorative rotor and its open clock case** were still centered at **local y=35.5**, directly inside the source-confirmed guardian/cap visual corridor, while the other two rotors and 42-unit rack had already been restaged below it. Clock cases are rigid-batched separately from the animated gears; earlier tests inspected the rotor groups but could miss the opaque submitted backing, explaining why a technically “clear” test did not guarantee readable video.
+
+## Substantive implementation and safety
+
+- **`0daa4abb8deaab58bc5191fd6352692e4a175556`** raises the *whole third decorative machine* and its case to local `height+19` and shrinks its projected footprint from scale `.74` to `.54`. The assembly remains the high right-hand architectural landmark, still a functioning 3D rotating original rotor, with open real clock casing. This physical restage is not an actor X-ray, screen fade, hidden hazard, camera teleport, new pass, or gameplay-rule change.
+- **`0daa4abb8deaab58bc5191fd6352692e4a175556`** strengthens a real Three.js bounds test: upper rotor must physically begin above y=45, not the insufficient y=28, and retain actual scale/geometry.
+- **`93fbb40f046caeb6ef8041da946c7240345ebca1`** extends the test to inspect **actual submitted, post-batch `SightlineResponsiveClockFace` mesh bounds**, forbidding *any* decorative clockcase geometry from crossing the live y=28–45 guardian band. A gear-origin-only test can no longer certify the uninspected solid frame. The test verifies geometry and retention of three live rotors, not gameplay quality.
+- Frozen baseline, PR58, main, simulation authority, deterministic source ticks, guardian, crusher, moving platforms, gateway, floor-nine, source audio and HUD are not changed.
+
+## Result and open acceptance
+
+Previously verified exact-source **quality** at `590f4dc66144ade1c76589ed826318c0e48747e3`: [green quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/42720286489). Current implementation **quality at `93fbb40f046caeb6ef8041da946c7240345ebca1`**: requested, **NOT YET VERIFIED** at review-authoring time. The new physically restaged candidate has **NO inspected exact-SHA WebM yet**; no claim of improved scene visibility, movement or frame pacing is authorized.
+
+The past source-observed guardian defeat/gateway/floor-nine chain and authentic result/restart are encouraging but still require **real uninterrupted paired film** with pixel-level event matching at desktop 960×600 and phone 390×844. Actual device p50/p95/p99 and memory **NOT EVALUATED**. Truly independent blind critics: LOOKS **0/5**, FEELS **0/5**, PLAYS **0/5**. P0 remains OPEN.
+
+**Next decisive action:** recover the next exact-HEAD candidate danger recording and inspect native 13–22 seconds in *motion*, verifying giant steel hoop/case no longer dominates live actor + guardian. Compare real guardian defeat, crusher, gateway physical crossing and continued floor-nine then outcome/restart with matched source-tick/native-video witnesses; if obstruction persists, use the new post-batch mesh owner paths to correct the actual material/assembly, not another guessed camera-opacity tweak. Retain strict geometry/build gate and flag regressions; then proceed to hardware and independent critics, not before.

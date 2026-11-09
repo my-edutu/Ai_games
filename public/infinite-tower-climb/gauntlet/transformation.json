@@ -56,35 +56,41 @@
     "distinctAirborneGatewayAndLandingEvidenceStatus": "P0 OPEN / NOT EVALUATED: scene.mjs supplied the observedAirborneGatewayShot OBJECT to a strict boolean (=== true) gateway-priority contract. When the source had an airborne destination, gate and landing were not both prioritized, leaving the earned threshold without the intended foreground route clearance. The old scene reused one mutable target vector for different destinations; a gate-leading shot could displace the real landing clearance. scene.mjs passes the actual realAirborneCap boolean, retains a separate exact selected-landing Vector3, and passes both that source-owned landing and authenticated gateway into world.protectRouteSightlines. world.mjs now handles four independently observed guardian/landing/hazard/gateway corridors and five physical target rays with preallocated endpoint vectors. No source simulation, collision, NPC decisions, game progression, game assets or PR58 edits. Commit 50cf618ea1176b9369a91c099974516327c18ca2 read back; original Node/Three and full current footage not executed; 0/5 blind critics per pillar, no actual-device measurement.",
     "portraitGuardianNegativeSpaceImplementationSha": "8eebf2a07459a4e358a92b27d155b2f5d6c3a28e",
     "portraitGuardianNegativeSpaceTestSha": "c282decb355bb20c1d53ef968bb5d37a6b2ca51f",
-    "portraitGuardianNegativeSpaceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Original source-pinned prior candidate danger portrait WebM (run 42690134996, artifact 13706622172; immutable source 42b67b83, baseline 1731b380 unchanged) visually shows still-dominant near-continuous decor ring masking guardian/hero at native video 15.2s. Even after previous modest y9.1 and scale0.52 restage, the original portrait boss view remains compositionally overwhelmed. Corrected original quality workflow 42690700570 succeeded on previous stage source; all 10 prior recording jobs succeeded, 8/8 calibrated native pair clocks, 0 provenance/source-story defects, NOT raster-verified. New production geometry 8eebf2a0 sinks decor-only main drive with all moving rims/case, separate low clutch and long rack to lower mechanical basement while keeping raised far shoulder and all real gameplay; original Three Box3/regression at c282decb. After-change exact-source full quality, normal-speed desktop/portrait WebM, real devices and genuine blinded critiques NOT EVALUATED; no evidence of visual victory."
+    "portraitGuardianNegativeSpaceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Original source-pinned prior candidate danger portrait WebM (run 42690134996, artifact 13706622172; immutable source 42b67b83, baseline 1731b380 unchanged) visually shows still-dominant near-continuous decor ring masking guardian/hero at native video 15.2s. Even after previous modest y9.1 and scale0.52 restage, the original portrait boss view remains compositionally overwhelmed. Corrected original quality workflow 42690700570 succeeded on previous stage source; all 10 prior recording jobs succeeded, 8/8 calibrated native pair clocks, 0 provenance/source-story defects, NOT raster-verified. New production geometry 8eebf2a0 sinks decor-only main drive with all moving rims/case, separate low clutch and long rack to lower mechanical basement while keeping raised far shoulder and all real gameplay; original Three Box3/regression at c282decb. After-change exact-source full quality, normal-speed desktop/portrait WebM, real devices and genuine blinded critiques NOT EVALUATED; no evidence of visual victory.",
+    "upperRotorGuardianClearanceImplementationSha": "0daa4abb8deaab58bc5191fd6352692e4a175556",
+    "upperRotorGuardianClearanceRegressionSha": "93fbb40f046caeb6ef8041da946c7240345ebca1",
+    "upperRotorGuardianClearanceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Source-pinned older portrait guardian shows giant steel hoop at native 15s; original floor8 forensic rays at y37-42 hit generic post-batch rigid-material-batch triangles. Candidate lifts upper decorative clock case out of cap band and adds original Three/post-batch geometry tests; exact-new-source footage, independent reviews and supported hardware remain unverified."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "leadingTransformationVerdict": "NOT EVALUATED",
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "implementationSha": "36ccfe589ca609d1cfbfa30717760c6360bd7105",
-      "regressionFixSha": "3800b0fcfdeb00cfc72cb62a19a05f16a14fb6aa",
-      "previousCandidateSourceSha": "2c99e99d2c0eef778f2a0758b8564e854c84f058",
-      "previousSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42715099747",
+      "implementationSha": "0daa4abb8deaab58bc5191fd6352692e4a175556",
+      "regressionFixSha": "93fbb40f046caeb6ef8041da946c7240345ebca1",
+      "previousCandidateSourceSha": "590f4dc66144ade1c76589ed826318c0e48747e3",
+      "previousSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839",
       "baselineCandidateFilms": "8 original WebMs / 16 viewport recordings, 60s+ each, 10/10 capture workflow jobs successful; event pairing 8/8 clock-calibrated, 0 story/integrity defects. Native event timing is not actual image-event visibility or independent quality.",
       "actualInspectedCandidatePortraitDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42715099747/artifacts/13716364753",
       "actualInspectedCandidatePortraitOutcome": "https://github.com/my-edutu/Ai_games/actions/runs/42715099747/artifacts/13717796443",
       "actualVisualObservation": "Selected authentic portrait 390x844 WebM frames at ~14-18s show giant physical clockwork/frame dominating live hero and guardian. Outcome WebM frames near ~49-53s show genuine floor-5 timer-expired result card; at ~56s a restarted floor-zero run is visible. This is sampled source video, NOT accepted uninterrupted blind playback.",
-      "forensicBlocker": "Recorded camera-occlusion-forensics.json from exact source 2c99 shows 34 decorated observations but 0 source-ticked physical triangle owner samples. The normal host app calls diagnostics() ~20Hz and consumed one-shot 12-tick ray witnesses before the ~1Hz browser recorder could read them.",
-      "completedCodeChange": "Read-only 8-distinct-tick bounded per-run floor-eight portrait mesh owner history, no duplicate raycasts, no source mutation; browser recorder now records diagnostics readiness and deduplicates actual run/floor/tick samples. Stale previous no-repeat test assertion corrected for truthful cached evidence.",
-      "qualityAtImplementationSha": "https://github.com/my-edutu/Ai_games/actions/runs/42719256094 — FAILED 1/1294: previous test expected empty read on same real tick. New no-duplicate-raycast retained-read test at 3800b0fcfdeb00cfc72cb62a19a05f16a14fb6aa queued https://github.com/my-edutu/Ai_games/actions/runs/42719997065.",
-      "latestNativeVideo": "NOT EVALUATED — newly fixed exact source not captured yet; next capture request changes this commit",
-      "actualDeviceMetrics": "NOT EVALUATED — runner/software WebGL is not a supported physical device",
+      "forensicBlocker": "Previous empty live-owner collector resolved: 56 bounded real floor-eight source-tick camera mesh witnesses. Ray hits at y37-42 on post-batch floor:8:clockwork rigid-material-batch. Static merge obscures pre-batch component label; do not assert definitive pixel-owner mapping.",
+      "completedCodeChange": "3rd original, noncolliding clockwork rotor and its static open case move from authored y35.5 (overlapping guardian band) to y=height+19 and scale .74->.54, preserving all 3 animated gears. Actual Three integration test validates post-batch clockcase triangles cannot occupy source y28..45; authority/hazards/gateway untouched.",
+      "qualityAtImplementationSha": "Exact source quality at previous 590f4dc6 https://github.com/my-edutu/Ai_games/actions/runs/42720286489 SUCCEEDED. New code 0daa4abb and strict post-batch test 93fbb40f quality requested, not yet verified.",
+      "latestNativeVideo": "NOT EVALUATED — new geometry has not yet been viewed in a source-pinned normal-speed recording.",
+      "actualDeviceMetrics": "NOT EVALUATED — software Chromium is not supported-device FPS or memory.",
       "blindIndependentReviewCount": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "majorFootageDefect": "In the actual original 390x844 candidate danger film at ~15-18 s, enormous orange/steel mechanism and frame obstruct the actual climber/guardian. The four registered decorative clock/rack projected AABBs showed 0 effective coverage near the scene, so the true physical triangle owner is unproven. Do not blindly move another clock.",
-      "preciseNextAction": "Capture the immutable candidate source at this exact request commit and frozen baseline; inspect source-ticked live portrait cameraRayMeshOwnerSamples and meshOwnerAuditStatus (not only successful CI). Match the dominant triangle material/path/face to original 15-18s WebM; reconstruct only the proven mesh or camera/world relation, then validate true guardian+crusher->grounded gateway->floor9 and outcome/restart in desktop/portrait full motion, supported device metrics and 5 independent blind looks/feels/plays critics each.",
-      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-source-tick-physical-mesh-owner-evidence-unblock.md",
-      "safety": "Unchanged frozen baseline, PR58 and main; PR68 open draft, no merge, deployment or force push"
+      "majorFootageDefect": "Original portrait guardian film around 15s was dominated by huge near-camera steel hoop and rectangular supports despite restaged low gears. A third, high satellite with rigid-batched clock case still occupied live cap y35-42.",
+      "preciseNextAction": "Capture implementation at exact next request SHA; compare native guardian 13-22s full motion to source event indices, prove clearance without losing authentic guardian/crusher warnings and physical gateway floor9. Test outcome/restart, supported devices and genuinely independent 5 LOOKS/FEELS/PLAYS; do not advance P0 prematurely.",
+      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-source-video-guardian-upper-rotor-reconstruction.md",
+      "safety": "Unchanged frozen baseline, PR58 and main; PR68 open draft, no merge, deployment or force push",
+      "latestReviewedSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839",
+      "previousVideoIntegrity": "10/10 source-pinned jobs completed; 16 original WebMs, 8/8 video clocks, 0 missing pairs/provenance/source-story defects. Video manifest fullMotionPaired=false; no visual/independent quality proof.",
+      "originalPortraitLiveFrameObservation": "Actual unedited candidate danger 390x844 at native 15 seconds: huge silver clock rim and bronze frame dominate real guardian/climber scene."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — captured source chains remain ungraded; portrait guardian mesh remains unowned",
@@ -1924,7 +1930,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "FAILED at exact f3427a2d original quality 42602161907: 1267/1273 passed and 6 failed; follow-up exact cee5361e run 42603324529 IN PROGRESS at evidence snapshot. No green CI claim or quality promotion.",
+    "ci": "Prior exact-source 590f4dc6 original quality workflow 42720286489 SUCCESS. New upper-rotor source 0daa4abb and post-batch regression 93fbb40f currently pending; CI remains veto and is not a quality score.",
     "replay": "Original fixed-step source 3200-tick witness at gameplay SHA dc3c3108 shows physical same-run guardian/crusher victory, floor9 onward and restart; broader deterministic replay gate and production devices still NOT EVALUATED.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
     "performance": "NOT EVALUATED — no supported hardware frame-time p50/p95/p99 or memory.",
@@ -6599,5 +6605,28 @@
       "plays": 0
     },
     "supportedHardware": "NOT EVALUATED"
+  },
+  "p0OriginalFilmUpperRotorReconstruction20261110": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousCandidateSha": "590f4dc66144ade1c76589ed826318c0e48747e3",
+    "reviewedOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839",
+    "reviewedDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839/artifacts/13719966646",
+    "pairedEventsArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839/artifacts/13719574523",
+    "originalVideoEvidence": "8/8 source event clocks calibrated; 16 original viewport videos; native portrait at approx 15s obscured; 56 real floor8 mesh owner witnesses. Not continuous full-motion quality acceptance.",
+    "physicalDefect": "High-right noncolliding rotating decorative clock/case at local y=35.5 overlaps actual cap combat y~35-42; the static case is rigid-batched separately from live gear so earlier group-origin tests were insufficient.",
+    "implementationSha": "0daa4abb8deaab58bc5191fd6352692e4a175556",
+    "postBatchRegressionSha": "93fbb40f046caeb6ef8041da946c7240345ebca1",
+    "newExactShaQuality": "NOT EVALUATED — pending exact-HEAD original quality workflow",
+    "newExactShaFootage": "NOT EVALUATED — capture request in same evidence commit",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextAction": "Inspect new exact-source guardian portrait 13-22s full motion and solid gateway/floor9/outcome/restart event-pixel continuity. If steel frame remains, identify actual surviving post-batch surface. Leave P0 open.",
+    "reviewPath": "docs/reviews/2026-11-10-tower-pr68-source-video-guardian-upper-rotor-reconstruction.md"
   }
 }
