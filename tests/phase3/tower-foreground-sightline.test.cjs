@@ -273,8 +273,8 @@ test('authentic clockwork upper-cap spectacle is flanked outside the playable gu
     assert.ok(centers.some(center=>center.angle>1.32) &&
       centers.some(center=>center.angle< -1.32),
       'flank real ascent from both distant tower shoulders rather than stacking the boss camera foreground');
-    assert.ok(centers.some(center=>Math.abs(center.y-31)<.2),
-      'keep a high clock silhouette as a world-owned landmark instead of deleting the mechanical biome');
+    assert.ok(centers.some(center=>center.y>=34 && center.y<=38),
+      'keep a real high-right clock silhouette ABOVE the new guardian action band, never delete its machine');
     const owned=[];
     world.group.traverse(object=>{
       if(object.isMesh && object.material?.name==='SightlineResponsiveClockFace')owned.push(object);
