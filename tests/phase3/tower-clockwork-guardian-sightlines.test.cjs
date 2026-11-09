@@ -59,7 +59,7 @@ function sourceFrame(theme, floor) {
 function helper(name) {
   const at = source.indexOf(`export function ${name}(`);
   assert.ok(at >= 0, `missing actual world helper ${name}`);
-  const end = source.indexOf('\n}', at);
+  // Match the actual top-level closure, not the `}` in a multiline\n  // destructured function argument (which previously broke VM source tests).\n  const end = source.indexOf('\n}\n', at);
   assert.ok(end > at);
   return vm.runInNewContext(
     source.slice(at, end + 2).replace('export ', '') + '; ' + name);

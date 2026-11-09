@@ -51,7 +51,7 @@ test('a real THREE ray from a smoothed exterior camera softens ONLY a blocking d
     camera.position.copy(root.localToWorld(new THREE.Vector3(0,3.4,22)));
     camera.lookAt(actor);
     let state=world.protectRouteSightlines(camera,actor,null,null,.1,{quality:'low'});
-    assert.equal(state.total,3,'no unbounded foreground occluder registry');
+    assert.equal(state.total,4,\n      'three real decorative rotors plus one bounded noncolliding power rack');\n    assert.equal(world.diagnostics().decorativeSightlineGears,3);\n    assert.equal(world.diagnostics().decorativeSightlineRacks,1);
     for(let i=0;i<12;i++)state=world.protectRouteSightlines(camera,actor,null,null,.05,{quality:'low'});
     assert.ok(state.softened>=1,'real geometry blocks this actual source-supplied subject ray');
     assert.ok(world.diagnostics().occludedForegroundGears>=1);
