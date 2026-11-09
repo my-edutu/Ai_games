@@ -27,7 +27,8 @@ export function createPhysicalCombatFeedback({
 }={}){
  let previous=null;
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
-  {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map}):null);
+  {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map,
+   getCurrentSnapshot:()=>previous}):null);
  let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
  const preference=createCombatMutePreference(storage);
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
