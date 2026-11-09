@@ -377,6 +377,58 @@ test('an ambiguous or out-of-range target never authorizes planted contact durin
  assert.equal(step(good,frame(hero('idle',91),{reducedMotion:true})).confirmedContact,null);
 });
 
+
+test('ranged release retains only witnessed source aim through lawful idle recovery',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const original={id:'ranger-1',kind:'ranger',hp:32,maxHp:32,
+  action:'attack',actionTick:140,targetId:'warden-1'};
+ const facing={targetId:'warden-1',distance:3,yaw:.28};
+ const first=step(null,{unit:original,actionAge:.31,frameDelta:.016,combatFacing:facing});
+ assert.equal(first.mode,'attack');
+ assert.equal(first.confirmedContact,null,'ranged aim never masquerades as melee contact');
+ assert.deepEqual(first.witnessedRangedAim,{
+  actorId:'ranger-1',targetId:'warden-1',distance:3,actionTick:140
+ },'only explicit same-actor source-target range may anchor the skinned Ranger shot');
+ const nextIdle={...original,action:'idle',targetId:null,actionTick:141};
+ const held=step(first,{unit:nextIdle,actionAge:0,frameDelta:.04,combatFacing:null});
+ assert.equal(held.holding,true,'the original licensed shot is still recovering');
+ assert.equal(held.mode,'attack');
+ assert.deepEqual(held.witnessedRangedAim,first.witnessedRangedAim,
+  'loss of public target on idle must not abruptly remove original pelvis/leg/weapon recovery');
+ assert.equal(held.confirmedContact,null);
+ const {planRangedBodyPose}=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/ranged-encounter-plan.js'),'utf8')).toString('base64'));
+ assert.ok(planRangedBodyPose('ranger',held.mode,held.age,
+  held.witnessedRangedAim?.distance,held.witnessedRangedAim?.targetId,false,.8).weight>0,
+  'the original full-body recovery channels retain a lawful range witness');
+ for(const bad of [
+  {targetId:'other',distance:3,yaw:.28},
+  {targetId:'warden-1',distance:5,yaw:.28},
+  {targetId:'warden-1',distance:0,yaw:.28},
+  {targetId:'warden-1',distance:3,yaw:NaN},
+  null
+ ]){
+  const invalid=step(null,{unit:original,actionAge:.31,frameDelta:.016,combatFacing:bad});
+  assert.equal(invalid.witnessedRangedAim,null,'no ambiguous ranged target may be carried');
+ }
+ const skipped=step(first,{unit:{...nextIdle,actionTick:142},frameDelta:.04});
+ assert.equal(skipped.witnessedRangedAim,null,'skipped authority heartbeat cannot retain stale aim');
+ const interrupted=step(first,{unit:nextIdle,frameDelta:.04,damageBeat:{
+  id:'ranger-1',kind:'ranger',damage:4,maxHp:32,age:.08,fatal:false
+ }});
+ assert.equal(interrupted.witnessedRangedAim,null,'real injury releases the old aim');
+ for(const props of [{reducedMotion:true},{teleport:true}]){
+  assert.equal(step(first,{unit:nextIdle,frameDelta:.04,...props}).witnessedRangedAim,null);
+ }
+ const unrelated=step(first,{unit:{...nextIdle,id:'different-ranger'},frameDelta:.04});
+ assert.equal(unrelated.witnessedRangedAim,null,'other actors cannot inherit ranger aim');
+ const renewed=step(first,{unit:{...original,actionTick:141,targetId:'other-foe'},
+  actionAge:0,combatFacing:{targetId:'other-foe',distance:2,yaw:0}});
+ assert.equal(renewed.witnessedRangedAim?.targetId,'other-foe','new source attack owns new aim');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.animationFacing=actor\.fullBody\.confirmedContact\?\?actor\.fullBody\.witnessedRangedAim\?\?actor\.combatFacing/);
+});
+
 test('source AnimationMixer uses captured visual tick and single controller pose clock',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const tick=actor\.fullBody\?\.actionTick\?\?actor\.u\.actionTick/,
