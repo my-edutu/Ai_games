@@ -18,11 +18,14 @@ test('D04: a 720ms real frame stalls audio even when simulation dt is capped to 
  const {createPhysicalCombatFeedback}=await load();
  const {controller,played}=fakeFeedback(createPhysicalCombatFeedback);
  controller.acceptSnapshot(snap(10,30));controller.acceptSnapshot(snap(11,21));
- assert.ok(controller.stats().awaitingPresentation>0);
+ assert.equal(controller.stats().pending,1,
+  'D04 stages even an immediate HP injury in the first measured frame');
+ assert.equal(controller.stats().awaitingPresentation,0);
  controller.advance(.05,.72);
  assert.equal(controller.acknowledgePresentedFrame('true-webgl-1'),0);
  assert.equal(played.length,0);
- assert.ok(controller.stats().staleAudioDropped>=1);
+ assert.ok(controller.stats().expiredQueuedCues>=1,
+  'unpresented injury must expire before admission after a 720ms stall');
  controller.dispose();
 });
 test('D04: a slow actual WebGL render blocks even a fresh damage cue from audible late delivery',async()=>{

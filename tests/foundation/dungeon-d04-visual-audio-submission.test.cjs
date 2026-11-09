@@ -90,15 +90,17 @@ test('new D04 frame gate module has a stream route',()=>{
 });
 
 
-test('newly due swing survives a 260ms browser frame without replaying a stale VFX lifetime',async()=>{
+test('early staged sword waits for observed moving blade before opt-in audio',async()=>{
  const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
- const positions=new Map(),ordered=[],sounds=[];
+ const positions=new Map(),ordered=[],sounds=[];let measured=false;
  const visualAdapter={
   emit(c){ordered.push('emit');positions.set(c.id,0);return true},
   advance(_dt,raw){ordered.push('age');for(const [id,age] of positions){
    if(age+raw>=.23)positions.delete(id);else positions.set(id,age+raw);
   }},
-  hasLiveCue:id=>positions.has(id),reset(){positions.clear()},dispose(){}
+  hasLiveCue:id=>positions.has(id),
+  hasDrawableCue:id=>measured&&positions.has(id),
+  reset(){positions.clear()},dispose(){}
  };
  const audioAdapter={enable(){return true},emit(c){sounds.push(c.id);return true},
   disable(){},flush(){},cleanup(){},dispose(){}};
@@ -109,17 +111,21 @@ test('newly due swing survives a 260ms browser frame without replaying a stale V
  }]});
  assert.equal(director.enableAudioFromGesture(),true);
  director.acceptSnapshot(s(10,'idle'));director.acceptSnapshot(s(11,'attack'));
- director.advance(.05,.05);director.advance(.05,.05);
- assert.equal(positions.size,0,'not-yet-due swing must not fabricate early art');
- director.advance(.05,.26);
+ director.advance(.016,.016);
  assert.deepEqual(ordered.slice(-2),['age','emit'],
-  'previous frame art ages before a newly due swing is first staged');
- assert.equal(positions.size,1,'freshly admitted art survives its first GPU submission');
- assert.equal(director.acknowledgePresentedFrame('swing-first-submit',.012),1);
- assert.equal(sounds.length,1,'genuine swing whoosh releases once after render');
- assert.equal(director.acknowledgePresentedFrame('swing-first-submit',.012),0);
+  'D04 now admits the sword immediately after first aging existing art');
+ assert.equal(positions.size,1,'new sword gets a genuine first render opportunity');
+ assert.equal(director.acknowledgePresentedFrame('hidden',.006),0);
+ assert.equal(sounds.length,0,'mere accepted art is not a measured blade');
+ measured=true;
+ director.advance(.016,.016);
+ assert.equal(director.acknowledgePresentedFrame('measured',.006),1);
+ assert.equal(sounds.length,1,'observed motion earns one submitted-frame whoosh');
+ assert.equal(director.acknowledgePresentedFrame('measured',.006),0);
  director.advance(.05,.26);
- assert.equal(positions.size,0,'older, previously submitted art still expires on stalls');
+ assert.equal(positions.size,0,'already submitted art expires after a real stall');
+ assert.equal(director.acknowledgePresentedFrame('late',.006),0);
+ assert.equal(sounds.length,1,'stale effects never repeat audio');
  director.dispose();
 });
 
