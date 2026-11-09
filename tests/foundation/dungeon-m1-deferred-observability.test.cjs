@@ -58,3 +58,52 @@ test('restore original authored PBR on both hardware and CPU renderers after adv
  assert.match(app,/stone\.map=wallMasonryTexture/);
  assert.match(app,/createRetainedStaticDetailBatches/);
 });
+
+
+test('actual original CPU-world light budget keeps two nearest decorative practicals, core combat lights, and restores on floor teardown',async()=>{
+ const {createSoftwareWorldLightBudget}=await load();
+ class Vector3{set(x,y,z){Object.assign(this,{x,y,z});return this}}
+ const THREE={Vector3};
+ const decorative=[0,1,4,9,12].map((x,index)=>({
+  isPointLight:true,userData:{dungeonDecorativePractical:true},visible:true,
+  getWorldPosition(vector){return vector.set(x,1,0)}
+ }));
+ const warning={isPointLight:true,userData:{},visible:true};
+ const world={traverse(visitor){for(const light of [...decorative,warning])visitor(light)}};
+ decorative.forEach(light=>light.parent=world);
+ const budget=createSoftwareWorldLightBudget(THREE,world,{software:true,maxDecorativeLights:2});
+ assert.equal(budget.update({x:0,z:0}).selected,2);
+ assert.deepEqual(decorative.map(light=>light.visible),[true,true,false,false,false]);
+ assert.equal(warning.visible,true,'authoritative Warden/hero lights are excluded');
+ assert.equal(budget.update({x:12,z:0}).selected,2);
+ assert.deepEqual(decorative.map(light=>light.visible),[false,false,false,true,true],
+  'only two authored practicals nearest the actual scene focus remain active');
+ assert.equal(budget.stats().suppressed,3);
+ budget.dispose();
+ assert.ok(decorative.every(light=>light.visible),'floor teardown restores all authored lights');
+ assert.equal(warning.visible,true);
+});
+
+test('hardware rendering retains every authored practical; invalid focus or capacity never changes scene',async()=>{
+ const {createSoftwareWorldLightBudget}=await load();
+ class Vector3{set(x,y,z){Object.assign(this,{x,y,z});return this}}
+ const torch={isPointLight:true,userData:{dungeonDecorativePractical:true},visible:true,
+  getWorldPosition(v){return v.set(1,1,2)}};
+ const world={traverse(fn){fn(torch)}};
+ torch.parent=world;
+ const budget=createSoftwareWorldLightBudget({Vector3},world,{software:false});
+ budget.update({x:100,z:100});
+ assert.equal(torch.visible,true);
+ assert.equal(budget.stats().suppressed,0);
+ const soft=createSoftwareWorldLightBudget({Vector3},world,{software:true});
+ assert.equal(soft.update({x:NaN,z:0}).updates,0);
+ assert.equal(torch.visible,true);
+ assert.throws(()=>createSoftwareWorldLightBudget({Vector3},world,{maxDecorativeLights:0}),TypeError);
+ assert.throws(()=>createSoftwareWorldLightBudget({},world),TypeError);
+ soft.dispose();
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/softwareWorldLights\?\.update\(\{x:cameraAim\.x,z:cameraAim\.z\}\)/);
+ assert.match(app,/softwareWorldLights\?\.dispose\(\)/);
+ assert.match(environment,/light\.userData\.dungeonDecorativePractical=true/);
+});
