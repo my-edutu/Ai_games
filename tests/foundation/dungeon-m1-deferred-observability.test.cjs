@@ -51,27 +51,10 @@ test('production 3D entry module parses before browser start',()=>{
 });
 
 
-test('original world remains intact on hardware; CPU world shader budget is reversible and never touches danger or skinned actors',async()=>{
- const {createSoftwareWorldSurfaceTier}=await load();
- const THREE={MeshLambertMaterial:class{constructor(x){Object.assign(this,x);this.disposed=false}dispose(){this.disposed=true}}};
- const standard=(id,x={})=>({isMeshStandardMaterial:true,transparent:false,opacity:1,alphaTest:0,color:{id,clone(){return {id}}},map:{id},emissive:{r:0,g:0,b:0},emissiveIntensity:1,...x});
- const stone=standard('stone'),iron=standard('iron'),fire=standard('fire',{emissive:{r:.4,g:0,b:0}}),glass=standard('glass',{transparent:true});
- const mesh=(material,x={})=>({material,isInstancedMesh:true,name:'static-stone',...x});
- const meshes=[mesh(stone),mesh(stone),mesh(iron),mesh(fire),mesh(glass),mesh(stone,{isSkinnedMesh:true}),mesh(stone,{name:'warden-warning-ring'}),mesh(stone,{isInstancedMesh:false})];
- const scene={traverse(fn){meshes.forEach(fn)}};
- const gpu=createSoftwareWorldSurfaceTier(THREE,false);
- assert.equal(gpu.apply(scene).activeBatches,0);assert.equal(meshes[0].material,stone);
- const cpu=createSoftwareWorldSurfaceTier(THREE,true);
- assert.equal(cpu.apply(scene).activeBatches,3);assert.equal(cpu.stats().activeAlternativeMaterials,2);
- assert.equal(meshes[0].material,meshes[1].material);
- assert.equal(meshes[0].material.map,stone.map);
- assert.deepEqual(meshes[0].material.color,{id:'stone'});
- for(let i=3;i<meshes.length;i++)assert.equal(meshes[i].material,i===3?fire:i===4?glass:stone);
- const shader=meshes[0].material;cpu.restore();
- assert.equal(meshes[0].material,stone);assert.equal(meshes[2].material,iron);assert.equal(shader.disposed,true);
- cpu.restore();assert.equal(cpu.apply(scene).activeBatches,3);cpu.restore();
+test('restore original authored PBR on both hardware and CPU renderers after adverse genuine film evidence',()=>{
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
- assert.match(app,/softwareWorldTier\.apply\(world\)/);
- assert.match(app,/function clearWorld\(\)\{softwareWorldTier\.restore\(\)/);
- assert.match(app,/softwareWorldTier:\(\)=>softwareWorldTier\.stats\(\)/);
+ assert.doesNotMatch(app,/createSoftwareWorldSurfaceTier|softwareWorldTier\.apply/);
+ assert.match(app,/world=new THREE\.Group\(\)/);
+ assert.match(app,/stone\.map=wallMasonryTexture/);
+ assert.match(app,/createRetainedStaticDetailBatches/);
 });

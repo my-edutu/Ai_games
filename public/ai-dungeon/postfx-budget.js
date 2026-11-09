@@ -367,58 +367,40 @@ export function createAuthorityCueBatch(THREE,scene,{
 }
 
 /**
- * The measured software-WebGL renderer is CPU render-submission bound.
- * Preserve authored world meshes/textures; simplify ONLY nonemissive opaque
- * static InstancedMesh shader work on actual CPU software rasterizers.
- * Original material bindings restore before world/floor disposal.
+ * Source-faithful STATIC detail draw consolidation. A set of independent
+ * identical-geometry Mesh objects with the same original material becomes
+ * a bounded retained InstancedMesh for each distinct original material.
+ * Parent transforms (including revolving Warden court and disarming traps)
+ * still apply; no semantic actor, collision, telegraph or trap state changes.
+ * The group owns only GPU instance buffers, NEVER shared geometry/materials.
  */
-export function createSoftwareWorldSurfaceTier(THREE,enabled=false) {
- const originalByMesh=new Map(),shaders=new Map();
- let lastConverted=0,applications=0;
- function accepts(mesh,material) {
-  if(!enabled||!mesh?.isInstancedMesh||mesh.isSkinnedMesh||
-   !material?.isMeshStandardMaterial||Array.isArray(material)||
-   material.transparent||material.opacity!==1||
-   (material.alphaTest||0)>0||material.userData?.dungeonCritical||
-   mesh.userData?.dungeonCritical)return false;
-  if(/danger|hazard|telegraph|warning|boss|warden|cultist|revenant|rift|strike|impact|combat|shield|seal|scar|pulse|effect/i.test(mesh.name||''))return false;
-  if((material.emissiveIntensity||0)>0&&Math.max(
-   material.emissive?.r||0,material.emissive?.g||0,material.emissive?.b||0)>.012)return false;
-  if(Object.prototype.hasOwnProperty.call(material,'onBeforeCompile'))return false;
-  return true;
+export function createRetainedStaticDetailBatches(THREE,parent,geometry,entries,{castShadow=false,maxInstances=256}={}){
+ if(!Array.isArray(entries)||!Number.isSafeInteger(maxInstances)||maxInstances<1||maxInstances>512||entries.length>maxInstances)
+  throw new RangeError('Invalid static detail batch size');
+ const byMaterial=new Map();
+ for(const entry of entries){
+  const finite3=value=>Array.isArray(value)&&value.length===3&&value.every(Number.isFinite);
+  if(!entry?.material||!finite3(entry.position)||!finite3(entry.scale)||entry.scale.some(v=>v<=0)||
+     !Number.isFinite(entry.rotationY??0))throw new TypeError('Invalid static detail transform or material');
+  if(!byMaterial.has(entry.material))byMaterial.set(entry.material,[]);
+  byMaterial.get(entry.material).push(entry);
  }
- function restore() {
-  for(const [mesh,original] of originalByMesh)
-   if(mesh.material===shaders.get(original))mesh.material=original;
-  for(const alternate of shaders.values())alternate.dispose();
-  originalByMesh.clear();shaders.clear();
+ const meshes=[],matrix=new THREE.Matrix4(),pos=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);
+ for(const [material,group] of byMaterial){
+  const mesh=new THREE.InstancedMesh(geometry,material,group.length);
+  mesh.name='Retained original trap/court details';
+  mesh.castShadow=castShadow;mesh.receiveShadow=true;mesh.frustumCulled=false;
+  // Both original geometry and original material belong to the outer world.
+  mesh.userData.sharedAssetGeometry=true;
+  for(let i=0;i<group.length;i++){
+   const g=group[i];pos.set(...g.position);rot.setFromAxisAngle(up,g.rotationY??0);scale.set(...g.scale);
+   matrix.compose(pos,rot,scale);mesh.setMatrixAt(i,matrix);
+  }
+  mesh.instanceMatrix.needsUpdate=true;
+  parent.add(mesh);meshes.push(mesh);
  }
- function apply(world) {
-  restore();
-  if(enabled&&typeof world?.traverse==='function')world.traverse(mesh=>{
-   if(originalByMesh.size>=64)return;
-   const original=mesh?.material;
-   if(!accepts(mesh,original))return;
-   let alternate=shaders.get(original);
-   if(!alternate){
-    alternate=new THREE.MeshLambertMaterial({
-     color:original.color.clone(),map:original.map||null,
-     vertexColors:original.vertexColors,side:original.side,
-     flatShading:original.flatShading,fog:original.fog,
-     depthWrite:original.depthWrite,depthTest:original.depthTest
-    });
-    shaders.set(original,alternate);
-   }
-   originalByMesh.set(mesh,original);
-   mesh.material=alternate;
-  });
-  lastConverted=originalByMesh.size;applications++;return stats();
- }
- function stats(){return {
-  enabled:Boolean(enabled),activeBatches:originalByMesh.size,
-  activeAlternativeMaterials:shaders.size,lastConverted,applications,
-  maxBatches:64,originalGeometryUnchanged:true,hardwareUnchanged:!enabled,
-  visualAndMotionVerdict:'UNVERIFIED_PENDING_ORIGINAL_BROWSER_COMPARISON'
- }}
- return {apply,restore,stats};
+ let disposed=false;
+ return {meshes,instances:entries.length,drawCalls:meshes.length,savedDraws:entries.length-meshes.length,
+  dispose(){if(disposed)return;disposed=true;for(const mesh of meshes){parent.remove(mesh);mesh.dispose()}}
+ };
 }

@@ -6464,6 +6464,51 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Capture genuine exact-head 1440/390 same-seed original motion/audio and render tails. Reject tier if no motion improvement or legibility loss; repair rig-cranial browser failure; PR72 unintegrated; immutable baseline and blinded critics required."
+    },
+    "m1StaticTruthfulDrawConsolidation": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "ae5617c72f83d2f8df329506b7e1722ddd71ef25",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "priorVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/42642253586",
+      "currentHeadVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/42652526285",
+      "bothTrueFiveStageJourneys": true,
+      "authoritySnapshotsEach": 946,
+      "audioOriginalNonSilent": true,
+      "impactAudioSynchronization": "UNVERIFIED",
+      "wardenSubmitP95Ms": {
+        "desktopBefore": 1378,
+        "desktopAfter": 1482,
+        "mobileBefore": 2629,
+        "mobileAfter": 1909
+      },
+      "mobileOtherSubmitP95RegressionsMs": {
+        "combatBefore": 4536,
+        "combatAfter": 6036,
+        "floorBefore": 1835,
+        "floorAfter": 3038,
+        "defeatBefore": 2670,
+        "defeatAfter": 3122
+      },
+      "videoDecodedFps": {
+        "desktopBefore": 2.01,
+        "desktopAfter": 2.14,
+        "mobileBefore": 1.26,
+        "mobileAfter": 1.01
+      },
+      "mobileWebGLResizes": 1,
+      "decision": "Reject CPU-only Lambert tier after real mixed-negative motion. Keep all originally authored PBR materials; batch source-faithful court and trap gold/teal glyphs without removing actors, warnings or decorations.",
+      "implementation": "Retained original-material instance groups (court 12-to-2, trap 6-to-2) with exact transforms, disarm-parent scale, on-demand draw statistics and bounded floor cleanup; potential 10+4N draws saved for N traps.",
+      "tests": "383/383 Node Dungeon foundation PASS, including actual Three.js matrix contracts. Original 24x900 seed campaign zero replay failures, entry syntax checked.",
+      "newHeadAuthenticWebGL": "NOT_OBSERVED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentCritics": 0,
+      "rigCranialBrowser": "FAILURE_OPEN_0_EXPECTED_5",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "animationPr72": "SEPARATE_UNINTEGRATED",
+      "next": "Real exact-head desktop/mobile same-seed original motion+audio. Verify batches visually, WebGL draw calls/submit p95/p99, actual character visibility, natural defeat and restart. Fix cranial rig browser failure, validate PR72 exact head before safe selective integration. Matched immutable baseline and >=3 independent blind critics required."
     }
   }
 }
