@@ -10,7 +10,7 @@ import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
-import {configureSoftwareStoneSurfaces} from '/dungeon/postfx-budget.js';
+import {configureSoftwareStoneSurfaces,fuseOriginalForegroundGroup} from '/dungeon/postfx-budget.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -129,6 +129,16 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const masonryHeights=planLegibleWallMass(map,floor,vaultedSites);
  const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
  const geometries=[],materials=[],textures=[],flames=[];
+ // Camera-recessed original torch, pillar and sculpture Groups keep their
+ // full physical triangles, UVs and moving flames while merging static
+ // parts sharing the SAME source material before first WebGL submission.
+ const foregroundFusion={sourceDraws:0,outputDraws:0,drawsSaved:0,sourceTriangles:0,mergedTriangles:0,mergedGroups:0};
+ const fuseLocalDecor=(group,protectedParts=[])=>{
+  const fusion=fuseOriginalForegroundGroup(THREE,group,{preserve:protectedParts});
+  geometries.push(...fusion.geometries);
+  for(const key of Object.keys(foregroundFusion))foregroundFusion[key]+=fusion[key];
+ };
+
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
  const floorTex=texture(floor,'floor',biome),wallTex=texture(floor,'wall',biome);textures.push(floorTex,wallTex);
  // Generated masonry relief yields real physically based surface response rather than flat colour tiles.
@@ -269,6 +279,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   const cup=new THREE.Mesh(new THREE.CylinderGeometry(.2,.1,.12,9),chrome);cup.position.y=1.82;group.add(cup);
   const fire=new THREE.Mesh(new THREE.ConeGeometry(.15,.46,9),flameMaterial);fire.position.y=2.04;group.add(fire);
   const inner=new THREE.Mesh(new THREE.ConeGeometry(.065,.26,8),new THREE.MeshBasicMaterial({color:'#fff2c7',transparent:true,opacity:.87,depthWrite:false}));inner.position.y=1.99;group.add(inner);
+  fuseLocalDecor(group,[fire,inner]);
   world.add(group);foregroundGroups.push(group);
   let light=null;
   if(flames.length<5){
@@ -283,6 +294,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=yaw;
   const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,2.12,8),chrome);pillar.position.y=1.1;root.add(pillar);
   for(const y of [.14,1.02,1.99]){const collar=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.14,8),brass);collar.position.y=y;root.add(collar)}
+  fuseLocalDecor(root);
   world.add(root);foregroundGroups.push(root);
   if(h%3===0&&flames.length<12)buildTorch(x,z,yaw,h);
  }
@@ -320,7 +332,8 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  }
  // Bespoke altar islands and guardian statues provide landmarks; caps prevent resource growth.
  for(const [x,z,h] of worldAnchors.slice(0,3)){
-  foregroundGroups.push(buildStatue(world,x,z,chrome,wallSurface,jade,h));
+  const statue=buildStatue(world,x,z,chrome,wallSurface,jade,h);
+  fuseLocalDecor(statue);foregroundGroups.push(statue);
   const halo=new THREE.Mesh(ring,jade);halo.position.set(x,1.58,z);halo.rotation.x=Math.PI/2;world.add(halo);foregroundGroups.push(halo);
  }
  // Architectural accents share this floor's resource budget and the same camera cutaway.
@@ -341,7 +354,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
  const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
- const sceneMetrics={stoneRasterBudget,clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ const sceneMetrics={stoneRasterBudget,foregroundFusion,clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the

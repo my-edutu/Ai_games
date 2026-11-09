@@ -482,3 +482,92 @@ export function configureSoftwareStoneSurfaces(stones,{software=false}={}){
  return {software:Boolean(software),mutated,preservedColorMaps,
   source:'original PBR/albedo unchanged; software raster omits only stone bump sampling'};
 }
+
+
+/**
+ * Fuse ONLY small, original, static foreground *group-local* triangles by the
+ * same authored material. Original normals/UVs and local transforms are baked
+ * once at floor construction; the parent Group retains its actual 3D transform,
+ * cutaway recession and moving fire/PointLight children. No shared resource,
+ * animation owner, actor rig, threat cell or authoritative world is touched.
+ *
+ * The caller opts in known locally-owned decorative groups only; never run
+ * this over independent Warden court or source-rig models.
+ */
+export function fuseOriginalForegroundGroup(THREE,group,{preserve=[]}={}){
+ if(!THREE?.BufferGeometry||!THREE?.Float32BufferAttribute||!THREE?.Mesh||
+    !group?.isGroup||!Array.isArray(preserve))
+  throw new TypeError('Expected real Three.js and an original decorative Group');
+ const protectedMeshes=new Set(preserve);
+ const sourceDraws=group.children.filter(n=>n.isMesh).length;
+ const groups=new Map();
+ // Limit one physical source group; excluded translucent or animated children
+ // remain owned by their original scene code.
+ if(group.children.length>48)return {sourceDraws,outputDraws:sourceDraws,drawsSaved:0,
+  sourceTriangles:0,mergedTriangles:0,geometries:[],mergedGroups:0};
+ for(const mesh of [...group.children]){
+  if(!mesh.isMesh||mesh.isSkinnedMesh||mesh.isInstancedMesh||
+     protectedMeshes.has(mesh)||!mesh.visible||!mesh.geometry||
+     !mesh.material||Array.isArray(mesh.material)||
+     mesh.material.transparent||mesh.material.wireframe||
+     Object.keys(mesh.geometry.morphAttributes??{}).some(k=>mesh.geometry.morphAttributes[k]?.length)||
+     !['position','normal','uv'].every(k=>Boolean(mesh.geometry.getAttribute(k)))||
+     Object.keys(mesh.geometry.attributes).some(k=>!['position','normal','uv'].includes(k)))
+   continue;
+  let sameMaterial=groups.get(mesh.material);
+  if(!sameMaterial){sameMaterial=new Map();groups.set(mesh.material,sameMaterial)}
+  const key=[mesh.castShadow,mesh.receiveShadow,mesh.renderOrder,mesh.layers.mask].join('/');
+  if(!sameMaterial.has(key))sameMaterial.set(key,[]);
+  sameMaterial.get(key).push(mesh);
+ }
+ const geometries=[];
+ let sourceTriangles=0,mergedTriangles=0,mergedGroups=0;
+ for(const [material,subgroups] of groups){
+  for(const originals of subgroups.values()){
+   if(originals.length<2)continue;
+   const count=originals.reduce((sum,m)=>sum+(m.geometry.index?
+    m.geometry.index.count:m.geometry.getAttribute('position').count),0);
+   if(count>15000)continue; // bounded floor construction + resource ceiling
+   const values={position:[],normal:[],uv:[]},parts=[];
+   let valid=true;
+   for(const mesh of originals){
+    mesh.updateMatrix();
+    const part=mesh.geometry.index?mesh.geometry.toNonIndexed():mesh.geometry.clone();
+    part.applyMatrix4(mesh.matrix);
+    const vertexCount=part.getAttribute('position')?.count;
+    if(!vertexCount||!['normal','uv'].every(k=>part.getAttribute(k)?.count===vertexCount)){
+     part.dispose();valid=false;break;
+    }
+    parts.push(part);
+   }
+   if(!valid){for(const part of parts)part.dispose();continue}
+   for(const part of parts){
+    for(const k of ['position','normal','uv']){
+     const a=part.getAttribute(k);
+     for(let i=0;i<a.count;i++)for(let j=0;j<a.itemSize;j++)values[k].push(a.getComponent(i,j));
+    }
+    part.dispose();
+   }
+   const geometry=new THREE.BufferGeometry();
+   for(const [key,size] of [['position',3],['normal',3],['uv',2]])
+    geometry.setAttribute(key,new THREE.Float32BufferAttribute(values[key],size));
+   geometry.computeBoundingBox();geometry.computeBoundingSphere();
+   const fused=new THREE.Mesh(geometry,material);
+   const sample=originals[0];
+   fused.name='Original foreground static material fusion';
+   fused.castShadow=sample.castShadow;fused.receiveShadow=sample.receiveShadow;
+   fused.renderOrder=sample.renderOrder;fused.layers.mask=sample.layers.mask;
+   // The recession owner moves/hides the whole Group. Each baked vertex is
+   // expressed in its original LOCAL parent frame, not in world coordinates.
+   for(const old of originals)group.remove(old);
+   group.add(fused);
+   geometries.push(geometry);
+   const triangles=count/3;
+   sourceTriangles+=triangles;mergedTriangles+=geometry.getAttribute('position').count/3;
+   mergedGroups++;
+  }
+ }
+ const outputDraws=group.children.filter(n=>n.isMesh).length;
+ return {sourceDraws,outputDraws,drawsSaved:sourceDraws-outputDraws,
+  sourceTriangles,mergedTriangles,geometries,mergedGroups};
+}
