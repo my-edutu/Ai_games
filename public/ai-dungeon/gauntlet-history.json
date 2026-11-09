@@ -6429,6 +6429,41 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Exact-head desktop/mobile organic motion and audio, compare mobile WebGL resizes, draw calls, frame and submit p95 and genuine warnings. Address dominant software submission stalls and original rig cranial gap. PR72 remains separate."
+    },
+    "m1CpuStaticWorldTier": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "e6bd43c866a07af26ec1c617f4fd25e8c3b1fd6a",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "genuineParentVideo": "https://github.com/my-edutu/Ai_games/actions/runs/42642253586",
+      "bothFiveStageOrganicJourneys": true,
+      "authoritySnapshotsEach": 946,
+      "mobileRendererResizes": {
+        "before": 62,
+        "after": 1
+      },
+      "mobileDprChanges": {
+        "before": 58,
+        "after": 1
+      },
+      "wardenRenderSubmitP95Ms": {
+        "desktop": 1378,
+        "mobile": 2629
+      },
+      "wardenFrameDeliveryP95Ms": {
+        "desktop": 1517,
+        "mobile": 2650
+      },
+      "integratedChange": "On actual CPU software WebGL only: <=64 static nonemissive opaque instanced world materials use cheaper Lambert lighting while source geometry, authored albedo, actors, effects, hardware PBR and authority stay untouched; restore and dispose on floor retirement",
+      "tests": "Production behavioral Node test added; standalone helper contracts checked; full new-head CI/Chromium still UNVERIFIED",
+      "afterRealMotion": "NOT_OBSERVED",
+      "originalImpactAudioSync": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Capture genuine exact-head 1440/390 same-seed original motion/audio and render tails. Reject tier if no motion improvement or legibility loss; repair rig-cranial browser failure; PR72 unintegrated; immutable baseline and blinded critics required."
     }
   }
 }

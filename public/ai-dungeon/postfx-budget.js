@@ -365,3 +365,60 @@ export function createAuthorityCueBatch(THREE,scene,{
  return {emitParticle,emitPulse,advance,stats,dispose,
   meshes:{particles:particleMesh,ring:ringMesh,chapter:shockMesh}};
 }
+
+/**
+ * The measured software-WebGL renderer is CPU render-submission bound.
+ * Preserve authored world meshes/textures; simplify ONLY nonemissive opaque
+ * static InstancedMesh shader work on actual CPU software rasterizers.
+ * Original material bindings restore before world/floor disposal.
+ */
+export function createSoftwareWorldSurfaceTier(THREE,enabled=false) {
+ const originalByMesh=new Map(),shaders=new Map();
+ let lastConverted=0,applications=0;
+ function accepts(mesh,material) {
+  if(!enabled||!mesh?.isInstancedMesh||mesh.isSkinnedMesh||
+   !material?.isMeshStandardMaterial||Array.isArray(material)||
+   material.transparent||material.opacity!==1||
+   (material.alphaTest||0)>0||material.userData?.dungeonCritical||
+   mesh.userData?.dungeonCritical)return false;
+  if(/danger|hazard|telegraph|warning|boss|warden|cultist|revenant|rift|strike|impact|combat|shield|seal|scar|pulse|effect/i.test(mesh.name||''))return false;
+  if((material.emissiveIntensity||0)>0&&Math.max(
+   material.emissive?.r||0,material.emissive?.g||0,material.emissive?.b||0)>.012)return false;
+  if(Object.prototype.hasOwnProperty.call(material,'onBeforeCompile'))return false;
+  return true;
+ }
+ function restore() {
+  for(const [mesh,original] of originalByMesh)
+   if(mesh.material===shaders.get(original))mesh.material=original;
+  for(const alternate of shaders.values())alternate.dispose();
+  originalByMesh.clear();shaders.clear();
+ }
+ function apply(world) {
+  restore();
+  if(enabled&&typeof world?.traverse==='function')world.traverse(mesh=>{
+   if(originalByMesh.size>=64)return;
+   const original=mesh?.material;
+   if(!accepts(mesh,original))return;
+   let alternate=shaders.get(original);
+   if(!alternate){
+    alternate=new THREE.MeshLambertMaterial({
+     color:original.color.clone(),map:original.map||null,
+     vertexColors:original.vertexColors,side:original.side,
+     flatShading:original.flatShading,fog:original.fog,
+     depthWrite:original.depthWrite,depthTest:original.depthTest
+    });
+    shaders.set(original,alternate);
+   }
+   originalByMesh.set(mesh,original);
+   mesh.material=alternate;
+  });
+  lastConverted=originalByMesh.size;applications++;return stats();
+ }
+ function stats(){return {
+  enabled:Boolean(enabled),activeBatches:originalByMesh.size,
+  activeAlternativeMaterials:shaders.size,lastConverted,applications,
+  maxBatches:64,originalGeometryUnchanged:true,hardwareUnchanged:!enabled,
+  visualAndMotionVerdict:'UNVERIFIED_PENDING_ORIGINAL_BROWSER_COMPARISON'
+ }}
+ return {apply,restore,stats};
+}
