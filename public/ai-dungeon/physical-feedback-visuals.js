@@ -233,21 +233,25 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    (cue.proof==='authority-warning-window'?
     selectPhysicalWarningMarkers(cue.detail?.cells):[]):null;
   if(warningMarkers&&warningMarkers.length===0){suppressed++;return false}
-  const start=warningMarkers?world(warningMarkers[0],.075):anchor(cue,type);
-  if(!start){suppressed++;return false}
-  // A new validated warning replaces obsolete cells; the confirmed Warden
-  // release clears its older final tell before allocating a release signal.
-  // Unknown/forged warning geometry cannot retire a valid footprint.
+  // An authentic release closes its spent danger window even if a stale
+  // actor root cannot anchor the body glyph. Danger-cell chronology is
+  // authority evidence, not a consequence of successfully drawing that glyph.
+  const witnessedRelease=cue.kind==='warden-release'&&
+   cue.proof==='authority-action'&&cue.verified===true&&
+   Number.isSafeInteger(cue.tick)&&cue.tick>=0&&
+   typeof cue.sceneKey==='string'&&cue.sceneKey.length>0&&
+   typeof cue.actorId==='string'&&cue.actorId.length>0&&cell(cue.from);
   if(warningMarkers&&isStaleWardenWarning(cue,pools.get('signal')?.slots,
    warningHistory.get(warningOwner(cue)))){
    suppressed++;staleWarningCues++;return false;
   }
-  if(warningMarkers||cue.kind==='warden-release'&&cue.proof==='authority-action')
-   retireWarningMarkers(cue);
-  // An authentic release closes the spent strike even if the eight-slot
-  // signal pool cannot allocate a matching release glyph.
-  if(cue.kind==='warden-release'&&cue.proof==='authority-action')
-   rememberWardenCue(cue);
+  // Retire only older warnings owned by the attack/scene, preserving new
+  // danger and unrelated signals. Even an unanchorable release closes the
+  // bounded chronology, so delayed spent tells cannot reappear.
+  if(warningMarkers||witnessedRelease)retireWarningMarkers(cue);
+  if(witnessedRelease)rememberWardenCue(cue);
+  const start=warningMarkers?world(warningMarkers[0],.075):anchor(cue,type);
+  if(!start){suppressed++;return false}
   // An aimed target is NOT proof the missile connected. Shorten the rendered
   // flight so an unconfirmed projectile never pierces a target body volume.
   const flightDestination=(type==='projectile'||type==='spell')&&cell(cue.to)?
