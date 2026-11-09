@@ -1629,12 +1629,27 @@ function createReflectionEnvironment(renderer, theme, lighting) {
 // only reduce the drawing-buffer pixel count when repeated submissions stall.
 // Independently reviewed hardware performance remains a separate release gate.
 function createTowerResolutionPolicy() {
-  const floor = .6;
+  // Real portrait danger film at 3ed44c36 recorded median 216ms submission
+  // intervals and >600ms tail stalls. A fixed full-resolution phone framebuffer
+  // made that overload permanent. Keep at least 78% linear pixel density on
+  // compact views, while desktop retains its established 60% emergency floor.
+  let compact = false;
+  const minimumScale = () => compact ? .78 : .6;
   let scale = 1, overload = 0, healthy = 0, cooldown = 0, adaptations = 0;
   let lastSubmissionMs = null;
   return {
     get scale() { return scale; }, get adaptations() { return adaptations; },
+    get compact() { return compact; }, get minimumScale() { return minimumScale(); },
     get lastSubmissionMs() { return lastSubmissionMs; },
+    setCompact(next) {
+      // Width/orientation changes re-enter a full-density baseline before
+      // profiling again; a stale desktop throttle must not blur a phone HUD.
+      if (typeof next !== 'boolean' || next === compact) return false;
+      compact = next;
+      scale = 1; overload = 0; healthy = 0; cooldown = 0;
+      lastSubmissionMs = null;
+      return true;
+    },
     record(durationMs, visible) {
       if (!visible || !Number.isFinite(durationMs) || durationMs < 0) {
         overload = 0; healthy = 0; return false;
@@ -1644,8 +1659,8 @@ function createTowerResolutionPolicy() {
       if (durationMs >= 180) { overload++; healthy = 0; }
       else if (durationMs <= 35) { healthy++; overload = 0; }
       else { overload = 0; healthy = 0; }
-      if (overload >= 2 && cooldown === 0 && scale > floor) {
-        scale = Math.max(floor, Math.round(scale * 80) / 100);
+      if (overload >= 2 && cooldown === 0 && scale > minimumScale()) {
+        scale = Math.max(minimumScale(), Math.round(scale * 80) / 100);
         overload = 0; healthy = 0; cooldown = 2; adaptations++;
         return true;
       }
@@ -1706,7 +1721,12 @@ export function createTowerScene(canvas, settings = {}) {
   scene.background = new THREE.Color(0x83534d);
   scene.fog = new THREE.FogExp2(0x9a5751, 0.0045);
   const camera = new THREE.PerspectiveCamera(42, 1, 0.2, 1200);
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  // Low-tier playback is fill-rate constrained in recorded software WebGL;
+  // never allocate multisample color buffers for its entire tower scene.
+  // UI captions/status remain independent DOM text at full CSS resolution.
+  const renderer = new THREE.WebGLRenderer({ canvas,
+    antialias: options.quality === 'high' && innerWidth >= 700,
+    alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
@@ -2153,10 +2173,12 @@ export function createTowerScene(canvas, settings = {}) {
     if (disposed) return;
     const rect = canvas.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width)), h = Math.max(1, Math.round(rect.height));
-    basePixelRatio = options.quality === 'low' || innerWidth < 700 ? 1 : Math.min(devicePixelRatio || 1, 1.5);
-    // Protect 390px mobile readability and the existing one-pixel-per-CSS-pixel
-    // phone contract. Desktop overload can adapt without changing the art tier.
-    renderPixelRatio = Math.round(basePixelRatio * (innerWidth >= 700 ? resolutionPolicy.scale : 1) * 1000) / 1000;
+    const compact = w < 700;
+    resolutionPolicy.setCompact(compact);
+    basePixelRatio = options.quality === 'low' || compact ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+    // High-density HUD is still CSS/DOM; only the 3D framebuffer adapts when
+    // repeated real submissions stall. Keep an explicit 78% phone clarity floor.
+    renderPixelRatio = Math.round(basePixelRatio * resolutionPolicy.scale * 1000) / 1000;
     renderer.setPixelRatio(renderPixelRatio);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
@@ -3827,7 +3849,7 @@ export function createTowerScene(canvas, settings = {}) {
       if (resolutionDirty) { resize(); resolutionDirty = false; }
       const submissionStart = performance.now();
       update(motionDt); renderer.render(scene, camera);
-      if (innerWidth >= 700 && resolutionPolicy.record(performance.now() - submissionStart,
+      if (resolutionPolicy.record(performance.now() - submissionStart,
         document.visibilityState === 'visible' && !options.stale)) resolutionDirty = true;
       // Count a contact frame only after Three has submitted it. Delayed
       // software rendering must not consume an unseen cue on elapsed time.
@@ -4016,7 +4038,8 @@ export function createTowerScene(canvas, settings = {}) {
       duelDollyApplications, duelAirborneApplications,
       duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
       duelDollyEvidence: 'Real portrait body projection only; not verified raster visibility or quality vote',
-      resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
+      resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: resolutionPolicy.scale,
+        compact: resolutionPolicy.compact, minimumScale: resolutionPolicy.minimumScale,
         adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,
         measurement: 'JS scene-update-and-render-call duration; not presented FPS' },
       renderProgress: submissionProgress,

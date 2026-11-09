@@ -30,6 +30,25 @@ test('two slow renderer calls shrink the framebuffer; consecutive overloads cann
   assert.ok(state.adaptations >= 2);
 });
 
+test('source-observed 390px recording overload adapts its 3D framebuffer without shrinking DOM or over-blurring the actor', () => {
+  const state = policy();
+  assert.equal(state.setCompact(true), true);
+  assert.equal(state.compact, true);
+  assert.equal(state.minimumScale, .78);
+  state.record(216, true);
+  assert.equal(state.record(596, true), true);
+  assert.equal(state.scale, .8);
+  for (let i = 0; i < 40; i++) state.record(596, true);
+  assert.equal(state.scale, .78, 'keep at least 78% linear resolution on portrait');
+  const held = state.adaptations;
+  state.record(2500, false);
+  assert.equal(state.adaptations, held, 'hidden frames cannot compound overload');
+  assert.equal(state.setCompact(false), true);
+  assert.equal(state.scale, 1, 'rotate back to desktop at full resolution');
+  assert.equal(state.minimumScale, .6);
+  assert.equal(state.setCompact(false), false);
+});
+
 test('hidden frames, clock anomalies and a single intermittent pause cannot trigger a change', () => {
   const state = policy();
   state.record(2000, false);
@@ -76,7 +95,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   const { observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage } = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href);
   let now = 0, duration = 900, scheduled = null, renderer;
   class Renderer {
-    constructor() { renderer = this; this.pixelRatios = []; this.shadowMap = {}; this.xr = { enabled: false }; this.info = { render: {}, memory: {}, programs: [] }; }
+    constructor(options) { renderer = this; this.options = options; this.pixelRatios = []; this.shadowMap = {}; this.xr = { enabled: false }; this.info = { render: {}, memory: {}, programs: [] }; }
     setPixelRatio(value) { this.pixelRatios.push(value); }
     setSize() {} dispose() {} getRenderTarget() { return null; } getActiveCubeFace() { return 0; } getActiveMipmapLevel() { return 0; } setRenderTarget() {}
     render() { now += duration; }
@@ -93,7 +112,8 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   };
   fillMissingBindings(context, await shippedSceneNamedBindings(sceneSource));
   vm.runInNewContext(sceneSource.replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
-  const canvas = { dataset: {}, getBoundingClientRect: () => ({ width: 1920, height: 1080 }), addEventListener() {}, removeEventListener() {} };
+  let viewportWidth = 1920;
+  const canvas = { dataset: {}, getBoundingClientRect: () => ({ width: viewportWidth, height: viewportWidth < 700 ? 844 : 1080 }), addEventListener() {}, removeEventListener() {} };
   const view = context.createTowerScene(canvas, { quality: 'low', reducedMotion: true });
   const snapshot = { runToken: 'resolution-test', revision: 1, publicChecksum: 'a', floor: 0, theme: 'foundry', tick: 1,
     chunkBaseY: 0, chunkHeight: 360000, worldWidth: 480000, platforms: [], hazards: [], enemies: [], pickups: [], projectiles: [], intent: {},
@@ -101,6 +121,7 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   const frame = () => scheduled(now + 16);
   try {
     view.accept({ snapshot });
+    assert.equal(renderer.options.antialias, false, 'low-tier tower never allocates unnecessary multisample buffers');
     assert.equal(renderer.pixelRatios.at(-1), 1);
     frame(); frame();
     assert.equal(renderer.pixelRatios.at(-1), 1, 'do not clear the successfully submitted second frame');
@@ -119,5 +140,22 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
     duration = 12;
     for (let i = 0; i < 10; i++) frame();
     assert.equal(view.diagnostics().resolution.scale, 1, 'healthy frames cannot lower resolution');
+    // Retain the same real 3D scene, source snapshot and WebGL instance
+    // across a desktop-to-phone CSS layout change, without a new simulation.
+    viewportWidth = 390;
+    view.setQuality('low');
+    assert.equal(view.diagnostics().resolution.compact, true);
+    assert.equal(view.diagnostics().resolution.minimumScale, .78);
+    assert.equal(renderer.pixelRatios.at(-1), 1);
+    duration = 596;
+    for (let i = 0; i < 12; i++) frame();
+    assert.equal(view.diagnostics().resolution.scale, .78);
+    assert.equal(renderer.pixelRatios.at(-1), .78);
+    assert.equal(view.diagnostics().quality, 'low');
+    viewportWidth = 1920;
+    view.setQuality('high');
+    assert.equal(view.diagnostics().resolution.compact, false);
+    assert.equal(view.diagnostics().resolution.scale, 1);
+    assert.equal(renderer.pixelRatios.at(-1), 1.5);
   } finally { view.dispose(); }
 });
