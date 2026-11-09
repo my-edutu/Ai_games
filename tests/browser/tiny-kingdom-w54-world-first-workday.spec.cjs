@@ -21,7 +21,16 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(actor,'must be observing a genuinely simulated worker, not a staged NPC').not.toBeNull();
   // Genuine household provisioning is a valid observed village documentary stage.
   expect(['live','delivery','homecoming','household']).toContain(actor.stage);
+  // W175 RED-first: household viewers must remain part of the genuine
+  // continuous documentary, not leave it when an actual citizen buys food.
+  expect(actor.film?.active).toBe(true);
   expect(actor.film?.following).toBe(true);
+  expect(actor.film?.citizen).toEqual(actor.film?.citizen?.trim());
+  if(actor.stage==='household'){
+   expect(['travel-to-market','market-purchase','returning-with-provisions',
+    'at-home','observing-household']).toContain(actor.film.stage);
+   expect(actor.film?.household?.realCitizen).toBe(true);
+  }
   await page.waitForTimeout(350);
   const audit=await page.evaluate(()=>{
    const rect=selector=>{const e=document.querySelector(selector),r=e.getBoundingClientRect(),cs=getComputedStyle(e);
