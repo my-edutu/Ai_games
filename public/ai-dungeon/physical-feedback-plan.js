@@ -91,9 +91,16 @@ const positiveHealthDrop = (prior,u) => sameIdUnit(prior,u) &&
  prior.maxHp===u.maxHp && u.maxHp>0 &&
  prior.hp<=prior.maxHp && u.hp>=0 && u.hp<prior.hp;
 function validBossWarning(w,s){
+ // Authority grants three actual movement beats for the wide Sentinel NOVA
+ // and Eclipse sweep; only the narrow RIFT_CROSS has a two-beat tell.
+ // The old [1,2] gate silently erased the first public three-beat warning.
+ // Never extend an unknown shape's or a rift's window from event prose.
+ const horizon=w?.turnsUntilImpact;
+ const witnessedWindow=horizon===1||horizon===2||
+  horizon===3&&(w?.shape==='NOVA'||w?.shape==='ECLIPSE_SWEEP');
  return w?.warning===true && validTick(w.attackTick) &&
- [1,2].includes(w.turnsUntilImpact) &&
- w.attackTick===s.tick+w.turnsUntilImpact &&
+ witnessedWindow &&
+ w.attackTick===s.tick+horizon &&
  Array.isArray(w.cells) && w.cells.length>0 && w.cells.length<=300 &&
  w.cells.some(c=>point(c));
 }
