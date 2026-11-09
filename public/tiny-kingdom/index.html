@@ -19708,10 +19708,19 @@ function getVillageDocumentaryAudit(){
   const p=people[selectedCitizen],d=p?.delivery;
   const receipt=villageDocumentary.deliveryId?
    deliveryReceipts.find(r=>r.id===villageDocumentary.deliveryId)||null:null;
+  // W175: a real food buyer is an equally valid documentary subject.
+  // Display only current authoritative activity, carried goods and actual
+  // trade references. Never imply a purchase, receipt or meal occurred.
+  const household=villageDocumentary.household?{
+   realCitizen:Boolean(p&&people.includes(p)),activity:p?.activity||null,
+   provisions:p?.provisions||0,receiptId:p?.provisionReceiptId||null,
+   tradeId:p?.provisionTradeId||null,visits:p?.provisionVisits||0,
+   atHome:p?.activity==='Resting at home',authorityModified:false
+  }:null;
   return {active:true,source:'observed-authoritative-production-and-market-receipts',
    citizen:p?.name||null,job:p?.job||null,
    stage:villageDocumentary.stage,deliveryId:villageDocumentary.deliveryId,
-   resource:d?.resource||receipt?.resource||null,
+   household,resource:d?.resource||receipt?.resource||null,
    amount:d?.amount??receipt?.amount??null,
    receipt:receipt?cloneData(receipt):null,
    realWork:Boolean(p&&isWorkingAtSite(p)),actualLoad:Boolean(d),
@@ -19724,7 +19733,8 @@ function getVillageDocumentaryAudit(){
  }
  function advanceVillageDocumentary(){
   if(!villageDocumentary)return false;
-  if(!follow||(!liveWorkday&&document.body.dataset.workday!=='delivery')){
+  if(!follow||(!liveWorkday&&
+     !['delivery','household'].includes(document.body.dataset.workday))){
    villageDocumentary=null;document.body.dataset.villageDocumentary='off';
    return false;
   }
@@ -19733,15 +19743,23 @@ function getVillageDocumentaryAudit(){
   if(p.name!==villageDocumentary.citizen){
    // Live-shift director can move to another real producer between tasks;
    // never assign one citizen's load or receipt to a different actor.
+   const household=villageDocumentary.household===true;
    villageDocumentary={citizen:p.name,stage:'observing',deliveryId:null,
-    stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0};
+    stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0,
+    household};
   }
   const d=p.delivery;
   if(d&&d.id!==villageDocumentary.deliveryId)
    villageDocumentary.deliveryId=d.id;
   const receipt=villageDocumentary.deliveryId?
    deliveryReceipts.find(r=>r.id===villageDocumentary.deliveryId):null;
-  const stage=receipt?'received':d?
+  const stage=villageDocumentary.household?
+   (p.activity==='Traveling to market for provisions'?'travel-to-market':
+    p.activity==='Collecting household provisions'?'market-purchase':
+    p.activity==='Traveling home with provisions'?'returning-with-provisions':
+    p.activity==='Resting at home'&&p.provisions>0?'at-home':
+    'observing-household'):
+   receipt?'received':d?
    (d.stage==='unloading'?'unloading':'hauling'):
    isWorkingAtSite(p)?'working':'travel';
   const changed=stage!==villageDocumentary.stage;
@@ -19758,7 +19776,9 @@ function getVillageDocumentaryAudit(){
    // viewpoint EVERY rendered frame and eases or snaps only if genuinely
    // obstructed. Invalidate a stale plan; do not forcibly updateFollowCamera
    // or interrupt the fixed-step jobs, goods and real courier.
-   if(follow&&(stage==='hauling'||stage==='unloading'||stage==='received')){
+   if(follow&&(stage==='hauling'||stage==='unloading'||stage==='received'||
+      (villageDocumentary.household&&
+       (stage==='market-purchase'||stage==='returning-with-provisions')))){
     liveShotPlanCache=null;
     villageDocumentary.continuityTransitions++;
    }
@@ -19766,8 +19786,20 @@ function getVillageDocumentaryAudit(){
   const label=document.getElementById('workday-activity');
   label.dataset.storyStage=stage==='working'?'AT WORK':
    stage==='hauling'?'ON THE ROAD':stage==='unloading'?'UNLOADING':
-   stage==='received'?'RECEIVED':'VILLAGE LIFE';
-  if(stage==='received'&&receipt){
+   stage==='received'?'RECEIVED':
+   stage==='market-purchase'?'AT MARKET':
+   stage==='returning-with-provisions'?'RETURNING HOME':
+   stage==='at-home'?'AT HOME':'VILLAGE LIFE';
+  if(villageDocumentary.household){
+   const message=stage==='travel-to-market'?'walking to the real market':
+    stage==='market-purchase'?'collecting market provisions':
+    stage==='returning-with-provisions'?
+     'carrying '+p.provisions+' real provisions home':
+    stage==='at-home'?'resting at home with '+p.provisions+' provisions':
+    p.activity;
+   const text=p.name+' · '+message;
+   if(label.textContent!==text)label.textContent=text;
+  }else if(stage==='received'&&receipt){
    const text=p.name+' · Market received '+receipt.amount+' '+receipt.resource;
    if(label.textContent!==text)label.textContent=text;
   }
@@ -19779,11 +19811,21 @@ function getVillageDocumentaryAudit(){
    p.activity==='Collecting household provisions'||
    p.activity==='Traveling home with provisions');
   if(index<0)return null;
-  if(liveWorkday||document.body.dataset.workday==='delivery'||
-     document.body.dataset.workday==='homecoming')stopWorkdayWatch();
-  villageDocumentary=null;document.body.dataset.villageDocumentary='off';
-  selectedCitizen=index;setCitizenFollow(true);updateFollowCamera();
+  if(grainJourney||liveWorkday||
+     ['delivery','homecoming'].includes(document.body.dataset.workday))
+   stopWorkdayWatch();
+  selectedCitizen=index;
+  actionCameraZoom=null;actionCameraPitch=null;
+  // W175: set the true household stage BEFORE surveying camera geometry.
+  // Keep the original physical follow, real buyer and existing UI, while
+  // documenting the physical purchase and return instead of turning film off.
   document.body.dataset.workday='household';
+  setCitizenFollow(true);updateFollowCamera();
+  villageDocumentary={citizen:people[index].name,stage:'observing-household',
+   deliveryId:null,household:true,stagesSeen:[],cameraCuts:0,
+   continuityTransitions:0,transitions:0};
+  document.body.dataset.villageDocumentary='on';
+  advanceVillageDocumentary();
   setCommandView('world');updateUI();
   return {...householdProvisionAudit(),observing:true,
    citizen:people[index].name,following:follow,authoritativeChanges:false};
