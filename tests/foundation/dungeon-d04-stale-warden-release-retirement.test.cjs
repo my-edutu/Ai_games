@@ -87,12 +87,13 @@ test('forged, malformed and foreign Warden releases cannot retire real danger',a
  assert.equal(v.stats().retiredWarningMarkers,0);
  v.dispose();
 });
-test('release from authoritative cell still renders when no asset is mounted',async()=>{
+test('missing Warden model retires spent danger without a fake floor-level release glyph',async()=>{
  const v=await create(false);
  assert.equal(v.emit(warning('spent',49,50)),true);
- assert.equal(v.emit(release(50)),true);
+ assert.equal(v.emit(release(50)),false);
  assert.equal(v.hasLiveCue('spent'),false);
- assert.equal(v.hasLiveCue('release-50'),true);
+ assert.equal(v.hasLiveCue('release-50'),false);
+ assert.equal(v.stats().unanchoredWardenSignals,1);
  assert.equal(v.stats().reservedInstances,102);
  assert.equal(v.stats().drawCalls,7);
  v.dispose();
