@@ -3,6 +3,48 @@
 const { test, expect } = require('@playwright/test');
 const base = 'http://127.0.0.1:4174';
 
+/**
+ * Preserve the unchanged native WebGL and overlay acceptance conditions,
+ * but surface the ACTUAL source and browser failure when the renderer never
+ * starts. A missing draw must never consume an entire 8-minute image run.
+ * No mock frames, screenshot crop, retries or acceptance concessions.
+ */
+async function waitForRealMazeStage(page, {minFrames=1, requireClearCard=false, timeout=30000}={}) {
+  const failures=[];
+  page.on('pageerror',error=>failures.push('pageerror: '+error.message));
+  page.on('console',message=>{
+    if(['warning','error'].includes(message.type()))
+      failures.push(message.type()+': '+message.text());
+  });
+  try {
+    await page.waitForFunction(({minFrames,requireClearCard}) =>
+      window.__MAZE_3D__?.renderer === 'webgl'
+      && window.__MAZE_3D__.frames >= minFrames
+      && (!requireClearCard || document.getElementById('scene-card')?.hidden === true),
+      {minFrames,requireClearCard},{timeout});
+  }catch(error){
+    const state=await page.evaluate(()=>({
+      canvasRenderer:document.getElementById('maze')?.dataset.renderer ?? null,
+      graphicsStatus:document.getElementById('graphics-status')?.hidden ?? null,
+      graphicsMessage:document.getElementById('graphics-message')?.textContent ?? null,
+      sceneCardHidden:document.getElementById('scene-card')?.hidden ?? null,
+      sceneTitle:document.getElementById('scene-title')?.textContent ?? null,
+      publicScene:document.getElementById('broadcast')?.dataset.scene ?? null,
+      connection:document.getElementById('broadcast')?.dataset.connection ?? null,
+      frameReceived:!!window.__MAZE_PUBLIC_STATE__,
+      diagnostic:window.__MAZE_3D__ ? {
+        renderer:window.__MAZE_3D__.renderer,
+        frames:window.__MAZE_3D__.frames,
+        tick:window.__MAZE_3D__.tick,
+        quality:window.__MAZE_3D__.quality,
+      } : null,
+    })).catch(diagnosticError=>({diagnosticError:String(diagnosticError)}));
+    throw new Error('Authentic Maze 3D render not ready: '+error.message
+      +'\nActual browser source status: '+JSON.stringify(state)
+      +'\nBrowser errors: '+JSON.stringify(failures.slice(-16)));
+  }
+}
+
 test('maze camera focuses the discovered public map instead of the full hidden grid', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(`${base}/maze`, { waitUntil: 'domcontentloaded' });
@@ -26,9 +68,7 @@ test('native game-first stage occupies the screen without concealing public cont
   // REAL production canvas has rendered and the card has been withdrawn,
   // rather than rejecting a healthy scene for its first 1-second loading UI.
   // Do not accept a fallback, hide the card by test code, or relax framing.
-  await page.waitForFunction(() => window.__MAZE_3D__?.renderer === 'webgl'
-    && window.__MAZE_3D__.frames > 0
-    && document.getElementById('scene-card')?.hidden === true, null, {timeout:30000});
+  await waitForRealMazeStage(page, {minFrames:1, requireClearCard:true, timeout:30000});
   const rects = await page.evaluate(() => {
     const rect = id => {
       const el=document.getElementById(id),r=el.getBoundingClientRect();
@@ -195,6 +235,9 @@ test('a real close public encounter frames both autonomous actors and saves date
   let activeFrame = frame;
   await page.route('**/maze/state*', route => route.fulfill({ json: activeFrame }));
   await page.goto(base + '/maze?camera=detail&reducedMotion=1', { waitUntil: 'domcontentloaded' });
+  // Expose a true failed renderer, instead of waiting eight minutes for a
+  // fictional encounter animation. The later real-event gates are unchanged.
+  await waitForRealMazeStage(page, {minFrames:1, timeout:45000});
   await page.waitForFunction(({ tick, token }) =>
     window.__MAZE_3D__?.frames >= 3
     && window.__MAZE_3D__?.tick === tick
