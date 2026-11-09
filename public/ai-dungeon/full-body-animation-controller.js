@@ -346,6 +346,29 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  return Math.min(.28,frameInterval,deficit);
 }
 
+
+/**
+ * Native Walking_A is distance-paced, while Three.js mixer fades must be
+ * elapsed-time-paced. A single mixer.update(distanceStep) would incorrectly
+ * drag out the old idle pose on creeping movement, and prematurely finish a
+ * crossfade on large valid steps. The renderer may temporarily time-scale
+ * only the active original walk action around mixer.update(visibleDelta).
+ * Returning null preserves the existing clock for every other action.
+ */
+export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
+ frameDelta=0,frameInterval=frameDelta,sourceDuration=0,sourceTime=0,
+ effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
+ teleport=false,reducedMotion=false,visible=true}={}){
+ const visibleStep=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ if(mode!=='move'||!walkingClip||!groundedMoving||teleport||reducedMotion||
+  visible!==true||visibleStep<=0||
+  ![sourceStep,frameInterval,sourceDuration,sourceTime,effectiveSpeed,groundedTravel].every(finite)||
+  sourceStep<0||sourceStep>.28||frameInterval<=0||
+  sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
+  groundedTravel<0||groundedTravel>.54)return null;
+ return sourceStep/visibleStep;
+}
+
 export function planImportedDeathSourceStep({mode='idle',sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=0,
  reducedMotion=false,visible=true}={}){

@@ -913,6 +913,62 @@ test('original Walking_A source cadence follows actual 60Hz and sparse-frame dis
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
 });
 
+
+test('licensed Walking_A crossfades run on visible seconds while native feet follow real metres',async()=>{
+ const {planImportedLivingSourceStep,planImportedWalkingBlendRate}=await load();
+ const base={mode:'move',age:0,sourceTime:.18,sourceDuration:1.0416666666666667,
+  effectiveSpeed:.91,frameDelta:.016,frameInterval:.016,visible:true,
+  groundedTravel:.05,groundedMoving:true,walkingClip:true,teleport:false};
+ for(const [dt,travel] of [[.016,.004],[.016,.05],[.05,.53]]){
+  const frame={...base,frameDelta:dt,frameInterval:dt,groundedTravel:travel};
+  const distanceStep=planImportedLivingSourceStep(frame);
+  const rate=planImportedWalkingBlendRate({...frame,sourceStep:distanceStep});
+  assert.ok(Number.isFinite(rate)&&rate>=0,'licensed walking has a safe temporary scale');
+  assert.ok(Math.abs(dt*rate-distanceStep)<1e-9,
+   'native source feet advance by the prior exact distance-calibrated clock');
+  assert.ok(Math.abs(dt*base.effectiveSpeed*rate-
+   distanceStep*base.effectiveSpeed)<1e-9,
+   'the original GLB timeScale and sole cadence remain equivalent');
+ }
+ const creeping={...base,groundedTravel:.004};
+ const slowStep=planImportedLivingSourceStep(creeping);
+ assert.ok(slowStep<creeping.frameDelta/3,'old source-distance mixer retards crossfades');
+ let elapsed=0,oldBlendElapsed=0,newSourceElapsed=0;
+ for(let i=0;i<15;i++){
+  const rate=planImportedWalkingBlendRate({...creeping,sourceStep:slowStep});
+  elapsed+=creeping.frameDelta;
+  oldBlendElapsed+=slowStep;
+  newSourceElapsed+=creeping.frameDelta*rate;
+ }
+ assert.ok(elapsed>=.23&&oldBlendElapsed<.07,
+  'a 230ms idle-to-walk blend finishes on screen rather than after metres');
+ assert.ok(Math.abs(newSourceElapsed-oldBlendElapsed)<1e-9,
+  'the corrected blend NEVER invents additional source foot-cycle motion');
+ const catchup={...base,frameDelta:.05,frameInterval:.5,groundedTravel:.53};
+ const catchupSource=planImportedLivingSourceStep(catchup);
+ assert.equal(catchupSource,.28,'large legitimate source travel remains capped');
+ assert.ok(planImportedWalkingBlendRate({...catchup,sourceStep:catchupSource})>5,
+  'source feet may catch up without instantly consuming a 230ms fade');
+ for(const [label,patch] of [
+  ['idle',{mode:'idle'}],['attack',{mode:'attack'}],['death',{mode:'defeat'}],
+  ['missing licensed walk',{walkingClip:false}],
+  ['no witnessed travel',{groundedMoving:false}],
+  ['teleport',{teleport:true}],['reduced motion',{reducedMotion:true}],
+  ['invisible',{visible:false}],['zero visible frame',{frameDelta:0}],
+  ['unbounded jump',{groundedTravel:.8}],['bad clip',{sourceDuration:0}],
+  ['invalid clock',{sourceTime:NaN}],['bad scale',{effectiveSpeed:0}]
+ ]){
+  const changed={...base,...patch};
+  assert.equal(planImportedWalkingBlendRate({...changed,
+   sourceStep:planImportedLivingSourceStep(changed)}),null,label);
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedWalkingBlendRate\(\{\.\.\.originalStep,sourceStep\}\)/);
+ assert.match(model,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*walkingBlendRate\)/);
+ assert.match(model,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/);
+ assert.match(model,/finally\{actor\.activeClip\.setEffectiveTimeScale\(normalScale\);\}/);
+});
+
 test('actual browser witness contract rejects a real HP-loss-overlapped attack tick',()=>{
  const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery}=require('../browser/dungeon-animation-witness.cjs');
  // Exact-head Playwright trace run 42604195673: revenant enemy-1-2 lost

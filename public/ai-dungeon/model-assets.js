@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1127,7 +1127,19 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    actor.sourceClockCorrectedFrames=Math.min(1000000,(actor.sourceClockCorrectedFrames||0)+1);
   }
  }
- actor.mixer.update(sourceStep);
+ // The original source foot-cycle advances by measured root metres; mixer
+ // crossfades must independently advance in real bounded visible seconds.
+ // Temporarily retime ONLY the active licensed walk action, restoring its
+ // normal speed immediately after the single mixer update.
+ const walkingBlendRate=planImportedWalkingBlendRate({...originalStep,sourceStep});
+ if(walkingBlendRate===null){
+  actor.mixer.update(sourceStep);
+ }else{
+  const normalScale=actor.activeClip.getEffectiveTimeScale();
+  actor.activeClip.setEffectiveTimeScale(normalScale*walkingBlendRate);
+  try{actor.mixer.update(Math.min(.05,dt));}
+  finally{actor.activeClip.setEffectiveTimeScale(normalScale);}
+ }
  if(sourceSync?.valid){
   actor.sourceClockRemainingSeconds=Math.abs(sourceSync.remainingSeconds);
   actor.sourceClockMode=actor.fullBody.mode;
