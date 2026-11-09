@@ -308,12 +308,18 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
    walkingClip!==true||
    ![sourceDuration,effectiveSpeed,sourceTime,frameInterval,groundedTravel].every(finite)||
    sourceDuration<=.002||effectiveSpeed<=.001||sourceTime<0||
-   frameInterval<=0||groundedTravel<=.003||groundedTravel>.54)return ordinary;
+   frameInterval<=0||groundedTravel>.54)return ordinary;
   // Base source gait time on the SAME real root travel at 60Hz and slow capture.
   // Fixed-frame playback at ordinary rates previously lagged a fast-moving
   // root and oversped a creeping actor relative to its real footfall phase.
   // Two 0.53m footfall intervals approximate one original Walking_A cycle;
   // this is bounded cadence calibration, not verified sole-contact IK.
+  // A valid moving owner can spend several real WebGL frames with its root
+  // planted between server snapshots. Original Walking_A must not cycle its
+  // imported feet while that measured root travel is exactly zero. Sub-3mm
+  // genuine movement likewise advances only its tiny witnessed distance,
+  // rather than falling back to a 16/50ms wall-clock step. The visible ground
+  // stamp and leg stride already use this same root-distance clock.
   // Never seek backwards or fabricate movement, contact or footsteps.
   return clamp(groundedTravel/1.06*sourceDuration/effectiveSpeed,0,.28);
  }

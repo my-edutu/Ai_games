@@ -872,10 +872,32 @@ test('original Walking_A source cadence follows actual 60Hz and sparse-frame dis
    'real 60Hz root travel '+meters+'m must determine imported gait phase');
   assert.ok(actual>=0&&actual<=.28,'native mixer time remains bounded');
  }
- assert.equal(sourceStep({...normal,groundedTravel:0}),.016,
-  'missing valid travel retains conservative mixer advance');
+ // This was RED on the exact predecessor: with a real move owner but 0m
+ // measured travel, the native source feet advanced by 16ms/50ms while
+ // the ground stamp and supported hips remained planted. Tiny movement also
+ // fell through to an unrelated wall-clock stride, breaking cadence.
+ for(const meters of [0,.0005,.002,.003]){
+  const actual=sourceStep({...normal,groundedTravel:meters});
+  const expected=meters/1.06*normal.sourceDuration/normal.effectiveSpeed;
+  assert.ok(Math.abs(actual-expected)<1e-9,
+   'original feet may move only as far as the real root moved: '+meters+'m');
+ }
+ // Several parked WebGL frames must not wind the source clip in place.
+ let parkedSourceTime=.2;
+ for(let frame=0;frame<9;frame++){
+  const step=sourceStep({...normal,sourceTime:parkedSourceTime,
+   groundedTravel:0});
+  assert.equal(step,0,'genuine held root cannot produce treadmill Walking_A');
+  parkedSourceTime+=step*normal.effectiveSpeed;
+ }
+ assert.equal(parkedSourceTime,.2);
+ const resumed=sourceStep({...normal,sourceTime:parkedSourceTime,
+  groundedTravel:.042});
+ assert.ok(Math.abs(resumed-(.042/1.06)*normal.sourceDuration/normal.effectiveSpeed)<1e-9,
+  'first genuine displacement resumes the native source without a restart');
+ assert.equal(sourceStep({...sample,groundedTravel:0}),0,
+  'same physically planted source clock holds through sparse frame delivery');
  for(const [label,changed] of [
-  ['stationary',{groundedTravel:0}],
   ['impossible jump',{groundedTravel:.8}],['teleport',{teleport:true}],
   ['not imported walking',{walkingClip:false}],['not real travel',{groundedMoving:false}],
   ['hidden',{visible:false}],['reduced motion',{reducedMotion:true}],
