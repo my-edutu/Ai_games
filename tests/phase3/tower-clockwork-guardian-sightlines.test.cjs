@@ -240,6 +240,28 @@ test('actual clockwork scene gives upper-cap action a physically open vertical b
     const raisedHeight=raised.max.y-raised.min.y;
     assert.ok(raisedHeight>2 && raisedHeight<13,
       'keep a credible but bounded original third-rotor silhouette: '+raisedHeight);
+    // Physical source-film ray evidence identifies solid post-batch metal
+    // 'rigid-material-batch' triangles near y=37..42 during live guardian
+    // combat, while the decorative registry reports little coverage. The
+    // upper clock CASE is merged into rigid static meshes, so inspecting only
+    // the animated rotor group would silently miss its actual opaque frame.
+    // Verify production Three.js *submitted* geometry by its owned, named
+    // decorative material; avoid testing a removed pre-batch authoring node.
+    const renderedClockCases=[];
+    world.group.traverse(object=>{
+      if (!object.isMesh || object.material?.name!=='SightlineResponsiveClockFace')
+        return;
+      const box=new THREE.Box3().setFromObject(object);
+      assert.ok(!box.isEmpty(),'actual rendered decorative clock case must have triangles');
+      renderedClockCases.push(box);
+      assert.ok(box.max.y<28 || box.min.y>45,
+        'opaque post-batch decorative clock frame overlaps source guardian band: ['+
+        box.min.y+', '+box.max.y+']');
+    });
+    assert.ok(renderedClockCases.length>=3,
+      'rendered full clock CASES must survive static material batching');
+    assert.ok(renderedClockCases.some(box=>box.min.y>45),
+      'the physically rendered upper satellite backing must be above the live cap');
     const rotors=[];
     world.group.traverse(node=>{
       if(node.name==='CameraResponsiveDecorativeGear')rotors.push(node);
