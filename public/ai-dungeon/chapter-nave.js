@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
 import {planChapterNaves,planChapterTension,planChapterEncounterBeat} from '/dungeon/chapter-nave-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 
@@ -20,10 +21,15 @@ export function createChapterNaves(world,map,exit,floor,{reducedMotion=false,enc
   {stone:'#64758e',metal:'#8e9db4',lumen:'#9ba8c1'},
   {stone:'#797188',metal:'#aa9aa9',lumen:'#aa94b9'}
  ][(floor-1)%4];
- const stone=ownedMat(new THREE.MeshStandardMaterial({color:palette.stone,roughness:.91,metalness:.06,flatShading:true}));
- const iron=ownedMat(new THREE.MeshStandardMaterial({color:palette.metal,roughness:.58,metalness:.43}));
- const reliefLight=ownedMat(new THREE.MeshStandardMaterial({color:palette.lumen,roughness:.62,metalness:.19,
+ const carved=getEnvironmentMaterialRole('carvedStone'),aged=getEnvironmentMaterialRole('agedMetal');
+ const inset=getEnvironmentMaterialRole('magicInset');
+ const stone=ownedMat(new THREE.MeshStandardMaterial({color:palette.stone,roughness:carved.roughness,metalness:carved.metalness,flatShading:true}));
+ const iron=ownedMat(new THREE.MeshStandardMaterial({color:palette.metal,roughness:aged.roughness,metalness:aged.metalness}));
+ const reliefLight=ownedMat(new THREE.MeshStandardMaterial({color:palette.lumen,roughness:inset.roughness,metalness:inset.metalness,
   emissive:palette.lumen,emissiveIntensity:.045}));
+ stone.userData.environmentMaterialRole='carvedStone';
+ iron.userData.environmentMaterialRole='agedMetal';
+ reliefLight.userData.environmentMaterialRole='magicInset';
  // Single PBR batch with per-vertex stone/brass tones; a physical forged
  // seal, double iron ring and actual sword relief remain visible inside it.
  // Fusing floor and inlays avoids three extra draw calls in live combat.

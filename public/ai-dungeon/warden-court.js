@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
 import {planWardenCourt} from '/dungeon/warden-court-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand} from '/dungeon/party-visibility-plan.js';
 
@@ -26,8 +27,11 @@ export function createWardenCourt(world,map,exit,floor){
  const reliefGeo=ownGeo(new THREE.ExtrudeGeometry(shield,{depth:.065,steps:1,
   bevelEnabled:true,bevelThickness:.024,bevelSize:.023,bevelSegments:2,curveSegments:5}));
  const crestGeo=ownGeo(new THREE.TorusGeometry(.175,.018,7,24,Math.PI).rotateZ(Math.PI));
- const reliefMat=ownMat(new THREE.MeshStandardMaterial({color:'#4e5057',roughness:.87,metalness:.18}));
- const brassMat=ownMat(new THREE.MeshStandardMaterial({color:'#c1a17c',roughness:.37,metalness:.72}));
+ const stoneRole=getEnvironmentMaterialRole('carvedStone'),brassRole=getEnvironmentMaterialRole('brass');
+ const reliefMat=ownMat(new THREE.MeshStandardMaterial({color:'#4e5057',roughness:stoneRole.roughness,metalness:stoneRole.metalness}));
+ const brassMat=ownMat(new THREE.MeshStandardMaterial({color:'#c1a17c',roughness:brassRole.roughness,metalness:brassRole.metalness}));
+ reliefMat.userData.environmentMaterialRole='carvedStone';
+ brassMat.userData.environmentMaterialRole='brass';
  function reliefPose(mesh,i,item,hidden=false,arc=false){
   position.set(item.x,arc?1.21:.98,item.z);
   rotation.setFromAxisAngle(up,item.yaw);

@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole,planEnvironmentLightPreset,planEnvironmentSurfaceWear,makeFacadeMasonryPixels,makeFacadeMasonryReliefPixels,makeFacadeMasonryAtlas} from '/dungeon/environment-look-plan.js';
 import {addDungeonWindows} from '/dungeon/architecture.js';
 import {planStoneRelief} from '/dungeon/stone-relief-plan.js';
 import {planCutawayFloorBacking,planCutawayCapTransform} from '/dungeon/cutaway-floor-plan.js';
@@ -22,31 +23,15 @@ const BIOMES=[
 ];
 function hash(a,b,c){let n=Math.imul(a+37,374761393)^Math.imul(b+93,668265263)^Math.imul(c+17,1442695041);n=Math.imul(n^(n>>>13),1274126177);return(n^(n>>>16))>>>0}
 function rand(a,b,c){return hash(a,b,c)/4294967296}
-function texture(floor,kind,biome){
- const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;const c=canvas.getContext('2d');
- c.fillStyle=biome.mortar;c.fillRect(0,0,256,256);
- const base=new THREE.Color(biome.stone),edge=new THREE.Color(biome.edge);
- for(let row=0;row<5;row++){
-  const y=row*52-15;
-  for(let col=-1;col<5;col++){
-   const shift=(row%2)*27,x=col*66+shift-14;
-   const h=rand(col+10,row+10,floor),rgb=base.clone().lerp(edge,.08+h*.35).multiplyScalar(.7+h*.48);
-   c.fillStyle='#'+rgb.getHexString();c.fillRect(x+2,y+3,62,47);
-   const light=rgb.clone().multiplyScalar(1.18);c.fillStyle='#'+light.getHexString();c.fillRect(x+4,y+4,57,2);
-   c.fillStyle='rgba(0,0,0,.2)';c.fillRect(x+3,y+47,59,2);
-   if(rand(col+31,row+6,floor)> .32){
-    c.beginPath();c.lineWidth=.7+rand(row,col,floor);
-    c.strokeStyle='rgba(13,23,37,.52)';
-    c.moveTo(x+15+rand(col,row+1,floor)*15,y+3);
-    c.lineTo(x+12+rand(col,row+2,floor)*15,y+19);
-    c.lineTo(x+35+rand(col,row+3,floor)*20,y+32);
-    c.stroke();
-   }
-  }
- }
- for(let i=0;i<900;i++){const x=Math.floor(rand(i,41,floor)*256),y=Math.floor(rand(53,i,floor)*256);c.fillStyle=i%3===0?'#ffffff15':'#02071321';c.fillRect(x,y,1+(i%2),1+(i%2))}
- if(kind==='wall'){c.strokeStyle='#00000045';c.lineWidth=3;for(let y=0;y<256;y+=51){c.beginPath();c.moveTo(0,y);c.lineTo(256,y);c.stroke()}}
- const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;t.colorSpace=THREE.SRGBColorSpace;return t;
+function texture(floor,kind,biome,surfaceAtlas=null){
+ // Rebuild the existing two 256px CanvasTextures with coherent original
+ // chipped mineral courses instead of repeated rectangular highlights.
+ const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
+ const context=canvas.getContext('2d'),image=context.createImageData(256,256);
+ image.data.set(surfaceAtlas?(kind==='wall'?surfaceAtlas.wallPixels:surfaceAtlas.floorPixels):makeFacadeMasonryPixels(floor,kind,256,biome));
+ context.putImageData(image,0,0);
+ const t=new THREE.CanvasTexture(canvas);t.wrapS=t.wrapT=THREE.RepeatWrapping;
+ t.anisotropy=4;t.colorSpace=THREE.SRGBColorSpace;return t;
 }
 // Original hand-patterned fantasy tapestries add warm, readable landmarks to
 // bare rooms. Rugs lie flat and never change autonomous navigation.
@@ -92,7 +77,18 @@ function batched(world,geometry,material,transforms,options={}){
  const matrix=new THREE.Matrix4(),pos=new THREE.Vector3(),rot=new THREE.Quaternion(),scale=new THREE.Vector3(),euler=new THREE.Euler();
  for(let i=0;i<transforms.length;i++){
   const t=transforms[i];pos.set(t[0],t[1],t[2]);euler.set(0,t[6]||0,0);rot.setFromEuler(euler);scale.set(t[3],t[4],t[5]);matrix.compose(pos,rot,scale);mesh.setMatrixAt(i,matrix);
-  if(options.variation){const shade=.79+rand(i,transforms.length,options.floor||1)*.30;mesh.setColorAt(i,new THREE.Color().setRGB(shade,shade,shade))}
+  if(options.variation){
+   // Ground wear is consistent with the main floor batch, even when
+   // cutaway exposes the backing. Wall reliefs keep their original variance.
+   const wear=options.wear,tileX=wear?Math.round(t[0]+(wear.size-1)/2):-1;
+   const tileZ=wear?Math.round(t[2]+(wear.size-1)/2):-1;
+   const tint=wear?.tiles[tileZ*wear.size+tileX]??null;
+   if(tint)mesh.setColorAt(i,new THREE.Color().setRGB(tint.r,tint.g,tint.b));
+   else{
+    const shade=.79+rand(i,transforms.length,options.floor||1)*.30;
+    mesh.setColorAt(i,new THREE.Color().setRGB(shade,shade,shade));
+   }
+  }
  }
  mesh.instanceMatrix.needsUpdate=true;mesh.receiveShadow=true;mesh.castShadow=Boolean(options.shadow);mesh.frustumCulled=false;world.add(mesh);return mesh;
 }
@@ -120,6 +116,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // over its upper volume. Source map, collision and AI stay completely intact.
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
+ const surfaceWear=planEnvironmentSurfaceWear(map,floor,exit);
  const wardenCourt=createWardenCourt(world,map,exit,floor);
  const connectedJourney=createConnectedDungeonJourney(world,map,floor,exit,encounterUnits);
  const alternateGallery=createAlternateDungeonGallery(world,map,floor,exit,
@@ -129,29 +126,28 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const claddingHeightByTile=new Map(masonryProfiles.map((p,i)=>[p.z*N+p.x,masonryHeights[i]]));
  const geometries=[],materials=[],textures=[],flames=[];
  const box=new THREE.BoxGeometry(1,1,1),blade=new THREE.OctahedronGeometry(1,0),ring=new THREE.TorusGeometry(.36,.055,8,24);
- const floorTex=texture(floor,'floor',biome),wallTex=texture(floor,'wall',biome);textures.push(floorTex,wallTex);
+ // Produce original floor/wall albedos and relief from ONE sampled mineral
+ // field. Keep existing texture owners and floor-change disposal unchanged.
+ const surfaceAtlas=makeFacadeMasonryAtlas(floor,256,biome);
+ const floorTex=texture(floor,'floor',biome,surfaceAtlas),wallTex=texture(floor,'wall',biome,surfaceAtlas);textures.push(floorTex,wallTex);
  // Generated masonry relief yields real physically based surface response rather than flat colour tiles.
  const relief=document.createElement('canvas');relief.width=256;relief.height=256;const rc=relief.getContext('2d');
- const image=rc.createImageData(256,256),pix=image.data;
- for(let y=0;y<256;y++)for(let x=0;x<256;x++){
-  const row=Math.floor((y+15)/52),brick=(x-((row%2)*27)+14)%66;
-  const grout=((y+15)%52<3)||brick<3||brick>63;
-  const h=((x*11+y*29+floor*43)^(x*y*3))&31,grain=140+Math.floor(h*.85);
-  const depth=grout?40:grain,i=(y*256+x)*4;pix[i]=depth;pix[i+1]=depth;pix[i+2]=depth;pix[i+3]=255;
- }
+ const image=rc.createImageData(256,256);
+ image.data.set(surfaceAtlas.reliefPixels??makeFacadeMasonryReliefPixels(floor,256));
  rc.putImageData(image,0,0);const reliefTex=new THREE.CanvasTexture(relief);reliefTex.wrapS=reliefTex.wrapT=THREE.RepeatWrapping;textures.push(reliefTex);
  const cryptGrade=(floor-1)%4===0;
- const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:cryptGrade?'#f3e5d1':'#e4efff',roughness:.84,metalness:.11});
- const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:cryptGrade?'#f0e2cf':'#dcecff',roughness:.9,metalness:.07});
- const chrome=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.38,metalness:.72});
- const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
- const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});
- const moss=new THREE.MeshStandardMaterial({color:biome.foliage,roughness:1});
+ const floorSurface=surface('floorStone',{map:floorTex,bumpMap:reliefTex,bumpScale:.045,color:cryptGrade?'#f3e5d1':'#e4efff'});
+ const wallSurface=surface('masonry',{map:wallTex,bumpMap:reliefTex,bumpScale:.075,color:cryptGrade?'#f0e2cf':'#dcecff'});
+ const chrome=surface('agedMetal',{color:biome.edge});
+ const brass=surface('brass',{color:'#d0a879'});
+ const jade=surface('magicInset',{color:biome.glow,emissive:biome.glow,emissiveIntensity:getEnvironmentMaterialRole('magicInset').emissiveIntensity});
+ const moss=surface('dampStone',{color:biome.foliage,roughness:1});
+ const torchIntensity=planEnvironmentLightPreset(floor).torchIntensity;
  // Warm candlelight against cold enchanted stone creates shape and depth;
  // earlier genuine captures were 98% cyan/blue and read as monotonous.
  const warmPalette=['#ffb96b','#ff8749','#ffce8e','#ffb3db'];
  const warmTorch=warmPalette[(floor-1)%4];
- const flameMaterial=new THREE.MeshStandardMaterial({color:warmTorch,emissive:warmTorch,emissiveIntensity:2.4,roughness:.3,metalness:0});
+ const flameMaterial=new THREE.MeshStandardMaterial({color:warmTorch,emissive:warmTorch,emissiveIntensity:1.60,roughness:.75,metalness:0});
  materials.push(flameMaterial);
  const bannerCanvas=document.createElement('canvas');bannerCanvas.width=128;bannerCanvas.height=256;
  const bc=bannerCanvas.getContext('2d'),bannerGrad=bc.createLinearGradient(0,0,0,256);
@@ -161,7 +157,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  bc.fillStyle='#172f50';bc.font='64px Georgia';bc.textAlign='center';bc.fillText(['✦','✧','◆','♜'][(floor-1)%4],64,119);
  bc.lineWidth=2;bc.strokeStyle='#4d627e';for(let i=0;i<5;i++){bc.beginPath();bc.moveTo(26,166+i*12);bc.lineTo(102,166+i*12);bc.stroke()}
  const bannerTexture=new THREE.CanvasTexture(bannerCanvas);bannerTexture.colorSpace=THREE.SRGBColorSpace;textures.push(bannerTexture);
- const cloth=new THREE.MeshStandardMaterial({map:bannerTexture,color:biome.banner,roughness:.87,side:THREE.DoubleSide});
+ const cloth=surface('hangingCloth',{map:bannerTexture,color:biome.banner,side:THREE.DoubleSide});
  materials.push(floorSurface,wallSurface,chrome,brass,jade,moss,cloth);geometries.push(box,blade,ring);
  const floorDetails=[],wallFaces=[],columnCap=[],columnCapParents=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
  const rugs=[],rugCandidates=[];
@@ -212,7 +208,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // at a glance, even during fast autonomous combat.
  if(!rugs.length&&rugCandidates.length)rugs.push(rugCandidates[0]);
  const rugTexture=weaveTexture(floor);textures.push(rugTexture);
- const rugMaterial=new THREE.MeshStandardMaterial({map:rugTexture,roughness:.94,metalness:0,side:THREE.DoubleSide,emissive:'#21161c',emissiveIntensity:.15});
+ const rugMaterial=surface('hangingCloth',{map:rugTexture,side:THREE.DoubleSide,emissive:'#21161c',emissiveIntensity:.07});
  materials.push(rugMaterial);
  const rugGeometry=new THREE.PlaneGeometry(.88,1.34);geometries.push(rugGeometry);
  for(const [px,pz,h] of rugs){
@@ -220,7 +216,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   carpet.rotation.set(-Math.PI/2,0,(h%2)*Math.PI/2);
   carpet.position.set(px,.027,pz);carpet.receiveShadow=true;world.add(carpet);
  }
-  batched(world,box,floorSurface,floorDetails,{variation:true,floor});
+  batched(world,box,floorSurface,floorDetails,{variation:true,floor,wear:surfaceWear});
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
  const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
  const stoneWeather=planStoneRelief(wallFaces,floor);
@@ -270,7 +266,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   world.add(group);foregroundGroups.push(group);
   let light=null;
   if(flames.length<5){
-   light=new THREE.PointLight(warmTorch,2.1,7.2,2);
+   light=new THREE.PointLight(warmTorch,torchIntensity,7.2,2);
    light.position.set(0,2.04,.12);group.add(light);
   }
   // Torch visibility and its actual light now obey the SAME cinematic cutaway.
@@ -455,13 +451,13 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
    (Array.isArray(s?.bossWarning?.cells)&&s.bossWarning.cells.length>0)?0.34:
    s?.bossRecovery?.remaining?-0.12:0;
   sceneMetrics.encounterTorchMood=encounterLight;
-  for(const p of flames)if(p.light)p.light.intensity=2.1*(1+encounterLight);
+  for(const p of flames)if(p.light)p.light.intensity=torchIntensity*(1+encounterLight);
  };
  const animate=time=>{wardenCourt.animate(time);for(const p of flames){
   const t=time*5+p.phase,scale=1+Math.sin(t)*.13;
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
-  if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
+  if(p.light)p.light.intensity=torchIntensity*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,environmentMaterialRoles:['floorStone','masonry','agedMetal','brass','magicInset','dampStone','hangingCloth'],environmentTorchIntensity:torchIntensity,facadeSurface:'original cohesive chipped-stone albedo and relief',texturedSurfaces:floorDetails.length+wallFaces.length,surfaceWear:surfaceWear.metrics,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 

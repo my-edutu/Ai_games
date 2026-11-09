@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
 
 // Cosmetic architecture only: no pathfinding, authority or collider changes.
 // Every GPU resource is registered with enrichEnvironment's floor disposal list.
@@ -26,9 +27,15 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  ctx.fillStyle=colors[2];ctx.beginPath();ctx.moveTo(64,58);ctx.lineTo(85,95);ctx.lineTo(64,132);ctx.lineTo(43,95);ctx.closePath();ctx.fill();
  ctx.strokeStyle='#f8e9c6';ctx.lineWidth=2;ctx.stroke();
  const glassTexture=new THREE.CanvasTexture(canvas);glassTexture.colorSpace=THREE.SRGBColorSpace;textures.push(glassTexture);
- const glass=new THREE.MeshStandardMaterial({map:glassTexture,emissive:biome.glow,emissiveIntensity:.24,roughness:.35,metalness:.12,side:THREE.DoubleSide});
- const frame=new THREE.MeshStandardMaterial({color:biome.edge,metalness:.46,roughness:.5});
- const stone=new THREE.MeshStandardMaterial({color:biome.stone,metalness:.06,roughness:.9});
+ // Stained panes are transmissive-looking PBR glass (not stone); their
+ // bonded lead frames and supporting stone follow the environment roles.
+ const frameRole=getEnvironmentMaterialRole('agedMetal'),stoneRole=getEnvironmentMaterialRole('carvedStone');
+ const glass=new THREE.MeshStandardMaterial({map:glassTexture,emissive:biome.glow,
+  emissiveIntensity:.12,roughness:.40,metalness:.04,side:THREE.DoubleSide});
+ const frame=new THREE.MeshStandardMaterial({color:biome.edge,metalness:frameRole.metalness,roughness:frameRole.roughness});
+ const stone=new THREE.MeshStandardMaterial({color:biome.stone,metalness:stoneRole.metalness,roughness:stoneRole.roughness});
+ frame.userData.environmentMaterialRole='agedMetal';
+ stone.userData.environmentMaterialRole='carvedStone';
  materials.push(glass,frame,stone);
  const jamb=new THREE.CylinderGeometry(.065,.09,1.1,8);
  const arch=new THREE.TorusGeometry(.34,.055,7,20,Math.PI);

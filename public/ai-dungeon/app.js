@@ -1,5 +1,7 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {makeWallMasonryPixels} from '/dungeon/wall-masonry-plan.js';
+import {ENVIRONMENT_SURFACE_DETAIL_BUDGET,getEnvironmentMaterialRole,planEnvironmentLightPreset,makeEnvironmentDetailPixels,planEnvironmentSurfaceWear} from '/dungeon/environment-look-plan.js';
+
 import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-wall-plan.js';
 import {planCutawayWallTransform,planCutawayFoundationTransform,planCutawayParapetTransform} from '/dungeon/cutaway-floor-plan.js';
 import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
@@ -98,6 +100,8 @@ renderer.setPixelRatio(directBudget.pixelRatio);
 appliedSurfaceDpr=directBudget.pixelRatio;
 renderer.shadowMap.enabled=directBudget.shadows;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#070d18');scene.fog=new THREE.FogExp2('#090f1a',.024);
+let environmentLightPreset=planEnvironmentLightPreset(1);
+
 // One bounded real-GPU draw for all marked cultist impacts. This is placed at
 // the authority's *locked* attack tile; it never predicts a fictional hit.
 const CULTIST_TELL_MAX=6;
@@ -399,7 +403,27 @@ let impactCameraHold=null,lightInjury=null,observedDamageBeats=0,observedFatalBe
 const palette={vanguard:['#4a87a8','#bed8df','#eab967'],ranger:['#527c58','#bdd19f','#d2b178'],mystic:['#65508f','#c2abf0','#76d8e0'],revenant:['#54656e','#b3c4bd','#dfb76f'],cultist:['#743e4c','#b18a89','#f0636b'],warden:['#483552','#c79a62','#ec7f42']};
 const mat=(color,metalness=.1,roughness=.75)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
 const stone=mat('#26303d',.1,.95),stoneEdge=mat('#404957',.15,.88),floorMat=mat('#28313b',.05,.95),gold=mat('#c9a366',.7,.33),black=mat('#111724',.2,.8);
-let wallMasonryTexture=null;
+// Shared environmental PBR roles. Never mutate character material instances.
+for(const [material,role] of [[stone,'masonry'],[stoneEdge,'carvedStone'],[floorMat,'floorStone']]){
+ const profile=getEnvironmentMaterialRole(role);
+ material.metalness=profile.metalness;material.roughness=profile.roughness;
+ material.userData.environmentMaterialRole=role;
+}
+let wallMasonryTexture=null,environmentDetailTextures=[];
+function clearEnvironmentDetailTextures(){
+ for(const texture of environmentDetailTextures)texture.dispose();
+ environmentDetailTextures=[];
+}
+function createOriginalDetailTexture(pixels,role='data'){
+ const size=ENVIRONMENT_SURFACE_DETAIL_BUDGET.size;
+ const map=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat,THREE.UnsignedByteType);
+ map.name='original-dungeon-environment-'+role;
+ map.wrapS=map.wrapT=THREE.RepeatWrapping;map.anisotropy=2;
+ if(role==='albedo')map.colorSpace=THREE.SRGBColorSpace;
+ map.generateMipmaps=true;map.needsUpdate=true;
+ environmentDetailTextures.push(map);
+ return map;
+}
 const tealGlow=new THREE.MeshStandardMaterial({color:'#53aebc',emissive:'#228a98',emissiveIntensity:2.2,roughness:.2});
 const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f18',emissiveIntensity:2.3});
 const wallVertical=new THREE.Vector3(0,1,0);
@@ -424,6 +448,12 @@ function disposeActor(a){
 }
 function clearWorld(){actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];lastCutawayKey='';
+ // Rebuild only on a true floor/run transition. CPU rasterizer retains the
+ // established low-cost wall albedo; optional normals/roughness are GPU-only.
+ clearEnvironmentDetailTextures();
+ stone.normalMap=null;stone.roughnessMap=null;
+ stoneEdge.normalMap=null;stoneEdge.roughnessMap=null;
+ floorMat.map=null;floorMat.normalMap=null;floorMat.roughnessMap=null;
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
  // 128px PBR albedo gives every overhead-visible top/side real stone courses.
@@ -443,12 +473,44 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    }
   }
  }catch(error){console.warn('[DUNGEON] original masonry texture unavailable, retaining simple wall material:',String(error))}
-
- const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);scene.fog.color.set(theme.fog);moon.color.set(theme.fill);ambient.intensity=1.95;
+ if(!softwareWebGL){
+  try{
+   const wallDetail=makeEnvironmentDetailPixels('masonry',s.floor,ENVIRONMENT_SURFACE_DETAIL_BUDGET.size);
+   const floorDetail=makeEnvironmentDetailPixels('floorStone',s.floor,ENVIRONMENT_SURFACE_DETAIL_BUDGET.size);
+   stone.normalMap=createOriginalDetailTexture(wallDetail.normalPixels,'wall-normal');
+   stone.roughnessMap=createOriginalDetailTexture(wallDetail.roughnessPixels,'wall-roughness');
+   stone.normalScale.set(getEnvironmentMaterialRole('masonry').normalScale,getEnvironmentMaterialRole('masonry').normalScale);
+   stoneEdge.normalMap=stone.normalMap;stoneEdge.roughnessMap=stone.roughnessMap;
+   stoneEdge.normalScale.set(.25,.25);
+   floorMat.map=createOriginalDetailTexture(floorDetail.albedoPixels,'albedo');
+   floorMat.normalMap=createOriginalDetailTexture(floorDetail.normalPixels,'floor-normal');
+   floorMat.roughnessMap=createOriginalDetailTexture(floorDetail.roughnessPixels,'floor-roughness');
+   floorMat.normalScale.set(getEnvironmentMaterialRole('floorStone').normalScale,getEnvironmentMaterialRole('floorStone').normalScale);
+  }catch(error){
+   console.warn('[DUNGEON] optional surface detail unavailable; falling back to existing stone:',String(error));
+   clearEnvironmentDetailTextures();
+   stone.normalMap=null;stone.roughnessMap=null;stoneEdge.normalMap=null;stoneEdge.roughnessMap=null;
+   floorMat.map=null;floorMat.normalMap=null;floorMat.roughnessMap=null;
+  }
+ }
+ stone.needsUpdate=true;stoneEdge.needsUpdate=true;floorMat.needsUpdate=true;
+ environmentLightPreset=planEnvironmentLightPreset(s.floor);
+ const theme=floorThemes[(s.floor-1)%floorThemes.length];scene.background=new THREE.Color(theme.sky);
+ scene.fog.color.set(theme.fog);scene.fog.density=environmentLightPreset.fogDensity;
+ renderer.toneMappingExposure=environmentLightPreset.exposure;
+ moon.color.set(theme.fill);ambient.intensity=1.95*environmentLightPreset.ambientScale;
+ // One directional source and one hemisphere source, graded only on floor
+ // changes: no extra GPU lights, shadow passes, or combat-event fiction.
+ moon.position.set(...environmentLightPreset.keyDirection);
+ ambient.color.set(environmentLightPreset.hemisphereSky);
+ ambient.groundColor.set(environmentLightPreset.hemisphereGround);
  // Re-grade the actual existing instanced surfaces and key/fill lights on floor change only.
  stone.color.set(theme.wallTint);floorMat.color.set(theme.floorTint);stoneEdge.color.set(theme.trimTint);
  partyGlow.color.set(theme.partyFill);partyGlow.intensity=theme.partyIntensity;
  const floors=[],walls=[],trim=[];const size=s.map.length,offset=Math.floor(size/2);
+ const floorWear=planEnvironmentSurfaceWear(s.map,s.floor,s.exit);
+ world.userData.floorSurfaceWear=floorWear.metrics;
+
  const wallIndexByTile=new Int32Array(size*size).fill(-1);
  const sculpture=planFracturedWallStone(s.floor);
  const fracturedWall=new THREE.BufferGeometry();
@@ -468,8 +530,20 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const vaultedWallIndices=vaultedSites.map(site=>wallIndexByTile[site.gridZ*size+site.gridX]);
  const spectatorMassing=planLegibleWallMass(s.map,s.floor,vaultedSites);
   for(let i=0;i<wallHeights.length;i++)wallHeights[i]=spectatorMassing[i]??wallHeights[i];
- const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i];const weather=planWallStoneVariation(data[i][0],data[i][2],s.floor);quaternion.setFromAxisAngle(wallVertical,weather.yaw);mesh.setColorAt(i,new THREE.Color().setRGB(weather.shade,weather.shade,weather.shade));}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh)};
- instance(geo.cube,floorMat,floors,[.99,.16,.99]);
+ const instance=(geometry,material,data,scale,heights=null)=>{const mesh=new THREE.InstancedMesh(geometry,material,data.length);const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scaling=new THREE.Vector3(...scale);for(let i=0;i<data.length;i++){position.set(...data[i]);if(heights){position.y=heights[i]/2-.03;scaling.y=heights[i];const weather=planWallStoneVariation(data[i][0],data[i][2],s.floor);quaternion.setFromAxisAngle(wallVertical,weather.yaw);mesh.setColorAt(i,new THREE.Color().setRGB(weather.shade,weather.shade,weather.shade));}matrix.compose(position,quaternion,scaling);mesh.setMatrixAt(i,matrix)}mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.castShadow=!reduced;mesh.receiveShadow=true;world.add(mesh);return mesh};
+ const mainFloor=instance(geo.cube,floorMat,floors,[.99,.16,.99]);
+ // Spatial colours only: real walkability and ground transforms are fixed.
+ // This adds a small instanced attribute, not a decal, geometry or draw call.
+ if(mainFloor){
+  const floorTint=new THREE.Color();
+  for(let i=0;i<floors.length;i++){
+   const [wx,,wz]=floors[i],x=wx+offset,z=wz+offset;
+   const tint=floorWear.tiles[z*size+x];
+   if(tint)mainFloor.setColorAt(i,floorTint.setRGB(tint.r,tint.g,tint.b));
+  }
+  if(mainFloor.instanceColor)mainFloor.instanceColor.needsUpdate=true;
+ }
+
  world.userData.expeditionStonework=createExpeditionStonework(world,s.map,s.floor,s.exit);
  world.userData.floorRuins=createFloorRuins(world,s.map,s.floor,s.exit);
  instance(fracturedWall,stone,walls,[1.015,2.6,1.015],wallHeights);
@@ -597,7 +671,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.chapterNaves=createChapterNaves(world,s.map,s.exit,s.floor,{
   reducedMotion:reduced,encounterUnits:s.units
  });
- world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit);
+ world.userData.atmosphere=createBiomeAtmosphere(world,s.map,s.floor,s.exit,{surfaceDetailEnabled:!softwareWebGL});
  world.userData.livingWorld=createLivingWorld(world,s.map,s.floor);
  const authoredSceneKey=worldFloor;
  world.userData.authoredProps=putEnvironment(world,authoredSceneKey,s.map,()=>{
@@ -1377,8 +1451,8 @@ function animate(t){
  heroKey.position.set(heroAt.x+towardX/nearLength*.85,2.75,heroAt.z+towardZ/nearLength*.85);
  heroKey.intensity=(leader?.u.action==='cast'?3.6:leader?.u.action==='attack'?3.1:2.65)*(cinematicLens?.keyScale??1);
  heroKey.intensity*=storyStage?.keyScale??1;
- ambient.intensity=storyStage?.ambient??1.75;
- moon.intensity=1.65*(storyStage?.moonScale??1);
+ ambient.intensity=Math.max(1.45,(storyStage?.ambient??1.75)*environmentLightPreset.ambientScale);
+ moon.intensity=environmentLightPreset.moonIntensity*(storyStage?.moonScale??1);
  const litFloor=Number.isSafeInteger(state?.floor)&&state.floor>=1?state.floor:1;
  partyGlow.intensity=floorThemes[(litFloor-1)%floorThemes.length].partyIntensity*(storyStage?.partyScale??1);
  // Build legible real hero-versus-hostile volumetric silhouettes with THREE
@@ -1453,7 +1527,7 @@ function animate(t){
   }
  }}
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
- combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
+ combatOverlay.render(state,actors,camera,time,focusedHeroId);if(state)window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},composition:inspectComposition(state),visibility:actualHeroVisibility(state,time),frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicContinuity:combatShotContinuity.metrics(),cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},cameraOcclusion:physicalCameraDirector.metrics(),physicalActorStage:actorOcclusionStage.metrics(),focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,vaultedGallery:world.userData.vaultedGallery?.metrics()??null,environmentLook:{preset:environmentLightPreset.biome,spatialWear:world.userData.floorSurfaceWear??null,hemisphereSky:ambient.color.getHexString(),hemisphereGround:ambient.groundColor.getHexString(),keyDirection:[moon.position.x,moon.position.y,moon.position.z],materialRoles:['masonry','floorStone','carvedStone'],normalMapsEnabled:Boolean(stone.normalMap&&floorMat.normalMap),roughnessMapsEnabled:Boolean(stone.roughnessMap&&floorMat.roughnessMap),detailTextureCount:environmentDetailTextures.length,detailTextureRawBytes:environmentDetailTextures.length*ENVIRONMENT_SURFACE_DETAIL_BUDGET.size**2*4,detailTextureBudgetBytes:ENVIRONMENT_SURFACE_DETAIL_BUDGET.rawBytes,ambientDetailTextures:world.userData.atmosphere?.metrics?.extraDetailTextures??0,fogDensity:scene.fog.density,ambientScale:environmentLightPreset.ambientScale,moonIntensity:environmentLightPreset.moonIntensity,exposure:renderer.toneMappingExposure,additionalLights:0,additionalShadowMaps:0,source:'original procedural PBR'},stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},floorRuins:world.userData.floorRuins?.metrics??null,expeditionStonework:world.userData.expeditionStonework?.metrics??null,hiddenForegroundProps:world.userData.hiddenForegroundProps??0,portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,

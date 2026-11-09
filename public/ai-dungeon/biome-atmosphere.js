@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {getEnvironmentMaterialRole} from '/dungeon/environment-look-plan.js';
 import {planCombatQuietZone,ambientVisibilityAt} from '/dungeon/ambient-focus-plan.js';
 import {createDungeonSetpieces} from '/dungeon/dungeon-setpieces.js';
 import {planCavernRim} from '/dungeon/cavern-rim-plan.js';
@@ -30,16 +31,23 @@ function gradientTexture(biome,floor){
  for(let i=0;i<270;i++){const x=pick(i,7,floor)*128,y=pick(i,13,floor)*128;ctx.fillStyle=i%4?'#ffffff0d':'#00000020';ctx.fillRect(x,y,1.5,1.5);}
  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;
 }
-export function createBiomeAtmosphere(root,map,floor,exit){
+export function createBiomeAtmosphere(root,map,floor,exit,{surfaceDetailEnabled=false}={}){
  const f=(floor-1)%BIOMES.length,biome=BIOMES[f],size=map.length,offset=(size-1)/2,objects=new THREE.Group();root.add(objects);
  const material=[],geometries=[],textures=[],lights=[],animation=[];
  let quietZone=null;
  const register=(mat)=>{material.push(mat);return mat},geometry=(geo)=>{geometries.push(geo);return geo};
- const emissive=register(new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:1.15,metalness:.38,roughness:.25}));
- const pale=register(new THREE.MeshStandardMaterial({color:biome.bright,emissive:biome.secondary,emissiveIntensity:.32,metalness:.28,roughness:.42}));
- const dark=register(new THREE.MeshStandardMaterial({color:biome.shadow,metalness:.68,roughness:.41}));
- const plant=register(new THREE.MeshStandardMaterial({color:biome.plant,roughness:.9,side:THREE.DoubleSide}));
- const glimmer=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.38,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+ // Material roles prevent the same cold cavern stone from reading as chrome.
+ // The signal remains emissive but no longer floods ordinary combat lanes.
+ const roleMat=(role,options)=>{
+  const grade=getEnvironmentMaterialRole(role);
+  const mat=register(new THREE.MeshStandardMaterial({...options,metalness:grade.metalness,roughness:grade.roughness}));
+  mat.userData.environmentMaterialRole=role;return mat;
+ };
+ const emissive=roleMat('magicInset',{color:biome.glow,emissive:biome.glow,emissiveIntensity:.58});
+ const pale=roleMat('carvedStone',{color:biome.bright,emissive:biome.secondary,emissiveIntensity:.13});
+ const dark=roleMat('dampStone',{color:biome.shadow});
+ const plant=roleMat('hangingCloth',{color:biome.plant,side:THREE.DoubleSide});
+ const glimmer=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.23,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
  const glowTexture=gradientTexture(biome,floor);textures.push(glowTexture);glimmer.map=glowTexture;glimmer.needsUpdate=true;
  const pools=[],innerPools=[],spires=[],spikeCaps=[],growth=[],mushroomHeads=[],plinths=[],runes=[],ceilingDrops=[];
  const stoneGeo=geometry(new THREE.BoxGeometry(1,1,1)),spearGeo=geometry(new THREE.ConeGeometry(.5,1,7));
@@ -104,11 +112,11 @@ export function createBiomeAtmosphere(root,map,floor,exit){
  const shafts=[];
  // A small number of floor-specific sculpted reliefs replaces four repeated
  // giant white-glowing obelisks. Render-only anchors hug real wall tiles.
- const setpieces=createDungeonSetpieces(root,map,floor,exit);
+ const setpieces=createDungeonSetpieces(root,map,floor,exit,{surfaceDetailEnabled});
  // Five animated pools at most; every other source of intensity is stable.
  const selected=pools.slice(0,5);
  selected.forEach(([x,,z],i)=>{
-  const light=new THREE.PointLight(biome.glow,1.1,3.4,2);light.position.set(x,1.15,z);objects.add(light);lights.push(light);
+  const light=new THREE.PointLight(biome.glow,.78,3.4,2);light.position.set(x,1.15,z);objects.add(light);lights.push(light);
  });
  const moteGeo=geometry(new THREE.IcosahedronGeometry(.03,0)),moteMat=register(new THREE.MeshBasicMaterial({color:biome.bright,transparent:true,opacity:.6,depthWrite:false}));
  const count=48,particle=new THREE.InstancedMesh(moteGeo,moteMat,count);
@@ -127,9 +135,9 @@ export function createBiomeAtmosphere(root,map,floor,exit){
   }
   particle.instanceMatrix.needsUpdate=true;
   setpieces.update(time);
-  for(let i=0;i<lights.length;i++)lights[i].intensity=1.05+Math.sin(time*2+i)*.16;
+  for(let i=0;i<lights.length;i++)lights[i].intensity=.78+Math.sin(time*2+i)*.065;
  };
- const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length};
+ const metrics={biome:biome.name,landmarks:setpieces.metrics.landmarks,roomArt:setpieces.metrics,extraDetailTextures:setpieces.metrics.materialDetailMaps,glowSources:lights.length,particles:count,liquidOrRifts:pools.length,crystalClusters:spires.length,backgroundStructures:rim.near.length+rim.far.length,rimNear:rim.near.length,rimFar:rim.far.length,lightShafts:shafts.length,environmentMaterialRoles:['magicInset','carvedStone','dampStone','hangingCloth'],maxAmbientPointLights:5};
  return{update,accept(state){quietZone=planCombatQuietZone(state);},metrics,dispose(){
   setpieces.dispose();objects.parent?.remove(objects);
   for(const m of material)m.dispose();for(const t of textures)t.dispose();for(const g of geometries)g.dispose();
