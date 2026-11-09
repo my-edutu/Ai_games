@@ -12510,6 +12510,128 @@ function renderDeliveryReceipts(){
   }
  });
 }
+
+/* W155 Phase 1: retain the original physical ledger witness geometry.
+   Earned receipt/market exchange/home-meal props are static only while
+   exactly the same authoritative delivery, citizen proximity and home
+   continue to justify them. Moving cart->hand->dock parcels stay live.
+   This changes render residency, not work, trade, stock or actor state. */
+const LEDGER_WITNESS_RESIDENT_MAX_FLOATS=90000;
+let ledgerWitnessResidentBuffer=null,ledgerWitnessResidentMesh=null;
+let ledgerWitnessResidentKey='',ledgerWitnessResidentCapacity=0;
+let ledgerWitnessResidentActive=false,ledgerWitnessResidentOverride=null;
+let ledgerWitnessResidentBuilds=0,ledgerWitnessResidentReuses=0;
+let ledgerWitnessResidentUploads=0,ledgerWitnessResidentDrawCalls=0;
+let ledgerWitnessResidentFallbacks=0,ledgerWitnessResidentDisposals=0;
+function ledgerWitnessResidencyKey(now,receipts,trades,meals,residents,homes,market){
+ const activeReceipts=(receipts||[]).filter(r=>r&&Number.isFinite(r.time)&&
+   now>=r.time&&now-r.time<=1.6).map(r=>
+   [r.id,r.time,r.resource,r.amount,r.destination[0],r.destination[1]]);
+ const transfer=(trades||[])[0];
+ let exchange=null;
+ if(transfer&&now>=transfer.time&&now-transfer.time<1.3){
+  const resident=(residents||[]).find(p=>p.name===transfer.citizen);
+  if(resident&&Math.hypot(resident.x-market[0],resident.z-market[1])<3.4)
+   exchange=[transfer.id,transfer.time,transfer.citizen,market[0],market[1]];
+ }
+ const meal=(meals||[])[0];
+ let homeMeal=null;
+ if(meal&&now>=meal.time&&now-meal.time<2.4){
+  const lot=(homes||[])[meal.homeIndex];
+  if(lot)homeMeal=[meal.id,meal.time,meal.homeIndex,...lot];
+ }
+ // No approximate time bucket or guessed event. Changed receipts and
+ // same-count restored home coordinates invalidate the visual VBO.
+ return JSON.stringify([activeReceipts,exchange,homeMeal]);
+}
+function ledgerWitnessResidencyRequested(){
+ return Boolean(gpuAvailable&&
+  (ledgerWitnessResidentOverride===null?!swiftGpu:ledgerWitnessResidentOverride));
+}
+function disposeLedgerWitnessResidentMesh(){
+ if(ledgerWitnessResidentBuffer&&gpuAvailable){
+  releaseGeometryBuffer(ledgerWitnessResidentBuffer);
+  ledgerWitnessResidentDisposals++;
+ }
+ ledgerWitnessResidentBuffer=null;ledgerWitnessResidentMesh=null;
+ ledgerWitnessResidentKey='';ledgerWitnessResidentCapacity=0;
+ ledgerWitnessResidentActive=false;
+}
+function prepareLedgerWitnessResidentMesh(){
+ ledgerWitnessResidentActive=false;
+ if(!ledgerWitnessResidencyRequested())return false;
+ const key=ledgerWitnessResidencyKey(state.t,deliveryReceipts,
+  state.householdTrades||[],state.householdMeals||[],people,city,DELIVERY_MARKET.food);
+ if(ledgerWitnessResidentMesh&&ledgerWitnessResidentKey===key&&
+    (!ledgerWitnessResidentMesh.length||ledgerWitnessResidentBuffer)){
+  ledgerWitnessResidentActive=true;ledgerWitnessResidentReuses++;
+  return true;
+ }
+ const previousData=data,previousMaterial=currentMaterial;
+ let mesh;
+ try{
+  data=[];
+  renderDeliveryReceipts();
+  renderVerifiedEconomicMilestones();
+  mesh=new Float32Array(data);
+ }finally{
+  data=previousData;currentMaterial=previousMaterial;
+ }
+ if(mesh.length%30||mesh.length>LEDGER_WITNESS_RESIDENT_MAX_FLOATS){
+  ledgerWitnessResidentFallbacks++;disposeLedgerWitnessResidentMesh();
+  return false;
+ }
+ if(mesh.length){
+  if(!ledgerWitnessResidentBuffer)
+   ledgerWitnessResidentBuffer=gl.createBuffer();
+  if(!ledgerWitnessResidentBuffer){
+   ledgerWitnessResidentFallbacks++;
+   disposeLedgerWitnessResidentMesh();
+   return false;
+  }
+  bindGeometry(ledgerWitnessResidentBuffer);
+  if(mesh.length>ledgerWitnessResidentCapacity){
+   ledgerWitnessResidentCapacity=Math.ceil(mesh.length/8192)*8192;
+   gl.bufferData(gl.ARRAY_BUFFER,ledgerWitnessResidentCapacity*4,gl.DYNAMIC_DRAW);
+  }
+  gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
+  ledgerWitnessResidentUploads++;
+ }
+ ledgerWitnessResidentMesh=mesh;ledgerWitnessResidentKey=key;
+ ledgerWitnessResidentActive=true;ledgerWitnessResidentBuilds++;
+ return true;
+}
+function drawLedgerWitnessResidentMesh(){
+ if(!ledgerWitnessResidentActive||!ledgerWitnessResidentBuffer||
+    !ledgerWitnessResidentMesh?.length)return;
+ bindGeometry(ledgerWitnessResidentBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,ledgerWitnessResidentMesh.length/10);
+ ledgerWitnessResidentDrawCalls++;
+}
+function setLedgerWitnessResidencyForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('Invalid original-economy ledger witness renderer override');
+ ledgerWitnessResidentOverride=value;
+ disposeLedgerWitnessResidentMesh();
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function getLedgerWitnessResidencyAudit(){
+ return {source:'real-authoritative-receipt-exchange-meal-gpu-residency',
+  requested:ledgerWitnessResidencyRequested(),active:ledgerWitnessResidentActive,
+  maxBuffers:1,buffers:ledgerWitnessResidentBuffer?1:0,
+  currentFloats:ledgerWitnessResidentMesh?.length||0,
+  capacityFloats:ledgerWitnessResidentCapacity,
+  floatBudget:LEDGER_WITNESS_RESIDENT_MAX_FLOATS,
+  builds:ledgerWitnessResidentBuilds,reuses:ledgerWitnessResidentReuses,
+  uploads:ledgerWitnessResidentUploads,
+  drawCalls:ledgerWitnessResidentDrawCalls,
+  fallbacks:ledgerWitnessResidentFallbacks,
+  disposals:ledgerWitnessResidentDisposals,
+  movingParcelsRemainLive:true,transactionsUnaffected:true,
+  measurement:'resident geometry work only; real hardware FPS unproven'};
+}
+
 /* G099 live handoff: dynamic bags and logs are drawn only for real,
    authoritative couriers currently unloading. No counterfeit NPCs,
    inventory or resource transactions are created by rendering. */
@@ -14617,7 +14739,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -15271,7 +15393,7 @@ function validateSnapshot(snapshot){
   throw Error('Save contains invalid resident provisioning');
 
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -20051,7 +20173,7 @@ if(homeClustersEnabled())refreshIndependentHousing(nextTerrainKey,staticKey);
 staticTerrainMemoActive=false;const frameDynamicStart=performance.now();
 const dynamicPhaseTimes={
  worksiteGeometry:0,residentWorkGeometry:0,householdGeometry:0,economyGeometry:0,
- residentEconomyGeometry:0,ambientGeometry:0,citizenGeometry:0,
+ residentEconomyGeometry:0,ledgerWitnessGeometry:0,ambientGeometry:0,citizenGeometry:0,
  residentActorManagement:0,liveActorGeometry:0,weatherGeometry:0,gpuUpload:0
 };
 const citizenDetailStarted=performance.now();
@@ -20112,8 +20234,12 @@ else{
  marketOperatingRenderStats.triangles=marketShutterResidentMesh.length/30;
  marketOperatingRenderStats.openFraction=marketOperatingAudit().openFraction;
 }
-renderDeliveryReceipts();
-renderVerifiedEconomicMilestones();
+const ledgerWitnessStart=performance.now();
+if(!prepareLedgerWitnessResidentMesh()){
+ renderDeliveryReceipts();
+ renderVerifiedEconomicMilestones();
+}
+dynamicPhaseTimes.ledgerWitnessGeometry=performance.now()-ledgerWitnessStart;
 renderMarketHandoffs();
 renderObservedWorkLight(observedWorkLightProfile());
 dynamicPhaseTimes.economyGeometry=performance.now()-economyGeometryStart;
@@ -20290,6 +20416,7 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  activeCivicMesh().length+homeClusterFloats()+farmFieldLastTriangles*30+data.length+
   (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
+  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
  (courierTrailResidentActive?courierTrailResidentMesh?.length||0:0)+
@@ -20370,6 +20497,7 @@ if(gpuAvailable){
 }
 const gpuUploadStart=performance.now();
 drawEconomyResidentMesh();
+drawLedgerWitnessResidentMesh();
 drawRecordedWorkResidentMesh();
 drawWorksiteFixtureResidentMesh();
 drawCourierTrailResidentMesh();
@@ -20520,7 +20648,8 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+ getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
