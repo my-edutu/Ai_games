@@ -6355,6 +6355,24 @@
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "independentAnimationPR72": "NOT_INTEGRATED",
       "next": "Exact-head 1440/390 startup, full original film/audio and frame samples; compare with fixed baseline; fix measured frame bottleneck and Vanguard/Warden legibility; verify independent animation candidate before selective integration"
+    },
+    "stageAProductionProfile": {
+      "at": "2026-11-09",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "inspectedSourceSha": "3ce140b956bd0f86aa9e8533efd0847c6b836618",
+      "stage": "A",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "priorRealEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/42609995007",
+      "desktop": "real original WebGL 3/5 rendered milestones, 634/946 states, natural defeat timed out; Warden RAF p50 683ms p95 2750ms",
+      "mobile": "real original WebGL 5/5 milestones incl floor10 natural defeat and restart, non-silent original audio; sustained fluid motion and hit-sync unverified",
+      "implementation": "bounded actual scene/render/overlay main-thread sampler; original diagnostics on-demand rather than eager per RAF; authentic journey receipt now includes direct render budget, delivery, surface and phase timings",
+      "actualAfter": "NOT_OBSERVED",
+      "tests": "isolated Node profiler contract passed; new exact-head CI/browser unverified",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect measured render phase vs RAF and media timestamps; fix dominant genuine cause and re-record; resolve hero visibility/cranial regressions and organic desktop defeat; PR72 remains separate"
     }
   }
 }

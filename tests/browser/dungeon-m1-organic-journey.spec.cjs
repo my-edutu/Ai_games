@@ -193,6 +193,10 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
     publicChecksum:s?.checksum??null,composition:d?.composition,
     visibility:d?.visibility,frameDelivery:d?.frameDelivery,
+    renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
+    directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
+    surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
+    webglRendererName:d?.webglRendererName,postFX:d?.postFX,drawCalls:d?.drawCalls,
     triangles:d?.triangles,soundstage:d?.soundstage};
   });
   expect(proof.frame,'real rendered frame for '+stage).toBeGreaterThan(0);
@@ -206,6 +210,10 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,
    visibility:proof.visibility,frameDelivery:proof.frameDelivery,
+   renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
+   directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
+   surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,
+   webglRendererName:proof.webglRendererName,postFX:proof.postFX,drawCalls:proof.drawCalls,
    triangles:proof.triangles,soundstage:proof.soundstage});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
   await page.waitForTimeout(420);

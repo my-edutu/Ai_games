@@ -226,3 +226,39 @@ export function deferRenderDiagnostics(report,producers){
  }
  return report;
 }
+
+/**
+ * Bounded main-thread profiler of actual production WebGL presentation frames.
+ * Does not time GPU completion or MediaRecorder/browser composition.
+ * Each accepted observation allocates no new arrays; summary is requested only
+ * for browser evidence, outside the rendering hot path.
+ */
+export function createRenderPhaseProfiler(requestedCapacity=180){
+ const capacity=Number.isSafeInteger(requestedCapacity)&&requestedCapacity>=8?Math.min(512,requestedCapacity):180;
+ const names=['scene','submit','overlay'];
+ const samples=Object.fromEntries(names.map(k=>[k,new Float32Array(capacity)]));
+ let count=0,next=0,invalidSamples=0,clampedSamples=0;
+ function observe({sceneMs,submitMs,overlayMs}={}){
+  const values=[sceneMs,submitMs,overlayMs];
+  if(values.some(v=>!Number.isFinite(v)||v<0)){
+   invalidSamples=Math.min(2147483647,invalidSamples+1);return false;
+  }
+  values.forEach((v,i)=>{
+   if(v>60000)clampedSamples=Math.min(2147483647,clampedSamples+1);
+   samples[names[i]][next]=Math.min(60000,v);
+  });
+  next=(next+1)%capacity;count=Math.min(capacity,count+1);
+  return true;
+ }
+ function summary(){
+  const out={sampleCount:count,capacity,invalidSamples,clampedSamples,
+   description:'Measured main-thread scene preparation, synchronous Three.js/WebGL submission, and 2D overlay; excludes compositor/encoder/GPU completion/RAF idle time'};
+  for(const name of names){
+   const sorted=Array.from(samples[name].subarray(0,count)).sort((a,b)=>a-b);
+   const p=f=>count?sorted[Math.ceil(count*f)-1]:0;
+   out[name]={p50Ms:p(.5),p95Ms:p(.95),p99Ms:p(.99),worstMs:count?sorted[count-1]:0};
+  }
+  return out;
+ }
+ return Object.freeze({observe,summary});
+}
