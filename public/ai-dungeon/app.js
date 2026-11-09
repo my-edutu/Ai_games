@@ -20,7 +20,7 @@ import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
-import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches} from '/dungeon/postfx-budget.js';
+import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createSoftwareWorldLightBudget} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
 import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -415,7 +415,7 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function clearWorld(){world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];world.userData.staticDetailBatches=[];lastCutawayKey='';
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
@@ -526,7 +526,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
 
  // Lit path markers, carved stone columns and modest dynamic lighting budget.
  const corners=[[1,1],[17,1],[1,17],[17,17],[s.exit.x,s.exit.z]];
- corners.forEach(([x,z],i)=>{const px=x-offset,pz=z-offset;column(world,px+.43,pz+.43);const lantern=make(geo.sphere,i===4?tealGlow:dangerGlow,world,px+.43,2.15,pz+.43,.11,.19,.11);lantern.castShadow=false;if(i<3){const light=new THREE.PointLight(i===4?'#4af6e2':theme.torch,i===4?5:3,9,2);light.position.copy(lantern.position);world.add(light)}});
+ corners.forEach(([x,z],i)=>{const px=x-offset,pz=z-offset;column(world,px+.43,pz+.43);const lantern=make(geo.sphere,i===4?tealGlow:dangerGlow,world,px+.43,2.15,pz+.43,.11,.19,.11);lantern.castShadow=false;if(i<3){const light=new THREE.PointLight(i===4?'#4af6e2':theme.torch,i===4?5:3,9,2);light.position.copy(lantern.position);light.userData.dungeonDecorativePractical=true;world.add(light)}});
  // Ruined altars and relic vaults are used sparingly to preserve navigational readability.
  const openCells=floors.filter(([x,,z])=>(Math.abs(x)+Math.abs(z))>3&&Math.abs(x)+Math.abs(z)<22);
  let placed=0;
@@ -625,6 +625,10 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.cameraPropVolumes=[...world.userData.foregroundPropVolumes,
   ...(world.userData.dressing?.occlusionPropVolumes||[]),
   ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
+ // On known CPU WebGL only, keep the two nearest original decorative warm
+ // practicals instead of evaluating every torch per PBR fragment. Original
+ // hero, Warden, chapter combat and warning lights are never candidates.
+ world.userData.softwareWorldLights=createSoftwareWorldLightBudget(THREE,world,{software:softwareWebGL,maxDecorativeLights:2});
 }
 function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat(colors[1],.45,.4),accent=mat(colors[2],.55,.3),enemy=u.faction==='enemy',boss=u.kind==='warden';
  const root=new THREE.Group(),impactPivot=new THREE.Group(),body=new THREE.Group();root.add(impactPivot);impactPivot.add(body);const scale=boss?WARDEN_STAGE_PROFILE.worldScale:enemy?1.04:1;root.scale.setScalar(scale);
@@ -1412,6 +1416,9 @@ function animate(t){
   heroKey.distance=6.8;partyGlow.distance=7.7;
   if(!aliveWarden){wardenSpot.intensity=0;wardenSpot.distance=9.5;}
  }
+ // Select only actual present decorative world lights, after all genuine
+ // stage animations and cutaways, without mutating core combat/hero lights.
+ world.userData.softwareWorldLights?.update({x:cameraAim.x,z:cameraAim.z});
  const sceneCpuMs=performance.now()-frameCpuStart;
  renderer.info.reset();
  const submitCpuStart=performance.now();
@@ -1475,6 +1482,7 @@ function animate(t){
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),};  deferRenderDiagnostics(diagnostics,{
    renderPipeline:()=>renderPhaseProfiler.summary(),
+   softwareWorldLights:()=>world.userData.softwareWorldLights?.stats()??null,
    staticDetailBatches:()=>({batches:world.userData.staticDetailBatches?.length||0,
     beforeDraws:(world.userData.staticDetailBatches||[]).reduce((n,b)=>n+b.instances,0),
     afterDraws:(world.userData.staticDetailBatches||[]).reduce((n,b)=>n+b.drawCalls,0),
