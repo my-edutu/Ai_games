@@ -115,7 +115,8 @@ export function createPhysicalCombatFeedback({
     elapsedSeconds:observedSeconds-item.at,
     submissionSeconds:renderSubmissionSeconds,
     maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
-    visualAccepted:item.visual,visualAlive,visualDrawable
+    visualAccepted:item.visual,visualAlive,visualDrawable,
+    requiresMeasuredBlade:item.cue.kind==='swing'&&!reducedMotion
    });
    if(decision==='await-drawable-visual'){
     // Keep the ORIGINAL deadline and queue priority while awaiting genuine
