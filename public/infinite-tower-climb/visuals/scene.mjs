@@ -89,9 +89,18 @@ function poseProjectileRibbon(ribbon,shot,frame){
 // Position-only correction runs inside the real scene module. The scene's
 // CPU/VM fixtures intentionally remove ESM imports to test WebGL boundaries;
 // keeping this pure helper local also makes those fixtures exercise actual code.
-function followClimberContact(position, target, blend, state) {
-  position.lerp(target, blend);
-  if (state === 'standing') position.y = target.y;
+function followClimberContact(position, target, blend, state, sourceRimBoundary = false) {
+  // A genuine fingertip grip or authoritative sole-over-deck transition is a
+  // solid geometric boundary, not an interpolation target. At low browser
+  // cadence the smoothed root otherwise intersects the opaque deck even
+  // though the same source tick looks correct at another viewport/frame rate.
+  // Lock only these source-observed boundary poses; ordinary locomotion
+  // retains its damped, continuous follow. No simulated x/y or collision moves.
+  if (sourceRimBoundary) position.copy(target);
+  else {
+    position.lerp(target, blend);
+    if (state === 'standing') position.y = target.y;
+  }
   return position;
 }
 
@@ -2579,8 +2588,17 @@ export function createTowerScene(canvas, settings = {}) {
     const moving = Math.abs(p.vx) > 500;
     const desiredYaw = mapped.angle + (moving || p.state === 'dashing' ? p.facing * Math.PI / 2 : p.facing * .32);
     const blend = 1 - Math.exp(-dt * 17);
+    // The exact-source ledge film exposed desktop-only contact penetration:
+    // at tick 131 the desktop root lagged to r=27.606 and its helmet cut into
+    // the slab, while the same portrait snapshot was safely at r=28.041.
+    // The real authoritative hand grip and actual sole crossing must never
+    // be delayed by wall-clock smoothing into solid architecture. A cosmetic
+    // landing cue, guessed future jump or dormant platform cannot trigger it.
+    const sourceSoleOverRim = !!ledgeMantle && !!targetPlatform &&
+      p.y - p.halfHeight >= targetPlatform.y + targetPlatform.height;
+    const sourceRimBoundary = !!ledgeContact || sourceSoleOverRim;
     if (!initialized) { climber.group.position.copy(actorTarget); actorYaw = desiredYaw; }
-    else { followClimberContact(climber.group.position, actorTarget, blend, p.state); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
+    else { followClimberContact(climber.group.position, actorTarget, blend, p.state, sourceRimBoundary); actorYaw += Math.atan2(Math.sin(desiredYaw - actorYaw), Math.cos(desiredYaw - actorYaw)) * blend; }
     climber.group.rotation.y = actorYaw;
     climber.group.scale.setScalar(p.halfHeight * 2 / SCALE / 2.8);
     recoveryTransfer.update(snapshot, climber.group.position, elapsed, options);
