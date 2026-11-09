@@ -3950,6 +3950,76 @@ export function createTowerScene(canvas, settings = {}) {
     renderer.shadowMap.needsUpdate = true;
     resize();
   }
+  // P0 source-authentic guardian film: the visible 390x844 giant wheel at
+  // 15.2s was NOT identified by the four registered decorative clock/rack
+  // AABBs (each recorded zero screen coverage). Never guess and move another
+  // gameplay-adjacent mesh. During explicitly opted-in evidence capture ONLY,
+  // raycast real submitted Three objects at four fixed portrait film samples.
+  // These are mesh/triangle witnesses, NOT proof of final composited pixels.
+  const ownerAuditRay = new THREE.Raycaster();
+  const ownerAuditNdc = new THREE.Vector2();
+  const ownerAuditHits = [];
+  let ownerAuditLastRun = '', ownerAuditLastTick = -Infinity;
+  function observedCameraMeshOwners() {
+    if (typeof window === 'undefined' || window.__TOWER_MESH_OWNER_AUDIT__ !== true ||
+        !snapshot || snapshot.floor !== 8 || snapshot.theme !== 'clockwork' ||
+        snapshot.lifecycle !== 'running' || options.stale ||
+        !snapshot.player || snapshot.player.health <= 0 ||
+        !Number.isSafeInteger(snapshot.tick) || camera.aspect >= .85) return [];
+    // No effect on authority, appearance, camera, frame cadence or ordinary
+    // players. At most four actual-camera triangle queries per 12 source ticks.
+    if (ownerAuditLastRun === snapshot.runToken &&
+        snapshot.tick - ownerAuditLastTick < 12) return [];
+    ownerAuditLastRun = snapshot.runToken;
+    ownerAuditLastTick = snapshot.tick;
+    camera.updateMatrixWorld(true);
+    scene.updateMatrixWorld(true);
+    const samples = [[-.55,.26],[-.34,.26],[-.16,.10],[.04,-.08]];
+    const report = [];
+    for (const [x,y] of samples) {
+      ownerAuditNdc.set(x,y);
+      ownerAuditRay.setFromCamera(ownerAuditNdc,camera);
+      ownerAuditRay.near = .15;
+      ownerAuditRay.far = 125;
+      ownerAuditHits.length = 0;
+      ownerAuditRay.intersectObjects(scene.children,true,ownerAuditHits);
+      const hits = [];
+      for (const hit of ownerAuditHits) {
+        if (!hit.object?.isMesh) continue;
+        let current = hit.object, visible = true;
+        const path = [];
+        for (let depth=0;current && depth<7;depth++,current=current.parent) {
+          if (!current.visible) visible=false;
+          path.push(current.name || current.type || 'unnamed');
+        }
+        if (!visible) continue;
+        const material = Array.isArray(hit.object.material)
+          ? hit.object.material[hit.face?.materialIndex || 0]
+          : hit.object.material;
+        if (!material || material.visible === false ||
+            (material.transparent && material.opacity <= .01)) continue;
+        hits.push({
+          path, type:hit.object.type,
+          geometry:hit.object.geometry?.type || 'buffer-batch',
+          material:material.name || 'unnamed',
+          color:material.color?.getHexString?.() || null,
+          opacity:Number((material.opacity ?? 1).toFixed(3)),
+          distance:Number(hit.distance.toFixed(3)),
+          point:hit.point.toArray().map(n=>Number(n.toFixed(2))),
+          faceIndex:Number.isSafeInteger(hit.faceIndex)?hit.faceIndex:null,
+          instanceId:Number.isSafeInteger(hit.instanceId)?hit.instanceId:null,
+        });
+        if (hits.length===5) break;
+      }
+      report.push({ndc:[x,y],hits});
+    }
+    ownerAuditHits.length=0;
+    return [{runToken:snapshot.runToken,floor:snapshot.floor,
+      tick:snapshot.tick,viewportAspect:Number(camera.aspect.toFixed(4)),
+      cameraPosition:camera.position.toArray().map(n=>Number(n.toFixed(2))),
+      probes:report,source:'opt-in bounded current-Three-mesh raycasts',
+      limitation:'Ray intersection is NOT proof of composited WebM pixels, occlusion quality or source-event timecode'}];
+  }
   function diagnostics() {
     const { frameMs, ...submissionProgress } = renderProgress.diagnostics(performance.now());
     const liveGuardian = snapshot?.enemies?.find(enemy => enemy.kind === 'guardian' && enemy.active);
@@ -4119,6 +4189,7 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
+      cameraRayMeshOwners: observedCameraMeshOwners(),
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
       authenticRestartSweep: authenticRestartSweep ? {
         sourceBound: true, runToken: authenticRestartSweep.runToken,
