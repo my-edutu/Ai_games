@@ -212,20 +212,25 @@ test('actual clockwork scene gives upper-cap action a physically open vertical b
     world.update(source,.016,0,{quality:'low'});
     world.group.updateWorldMatrix(true,true);
     const main=world.group.getObjectByName('clockwork-monumental-left-shoulder');
+    const lower=world.group.getObjectByName('clockwork-lower-left-shoulder');
     const upper=world.group.getObjectByName('clockwork-upper-right-shoulder');
     const rack=world.group.getObjectByName('clockwork-far-shoulder-power-rack');
-    for(const [name,object] of [['main',main],['upper',upper],['rack',rack]])
+    for(const [name,object] of [['main',main],['lower',lower],['upper',upper],['rack',rack]])
       assert.ok(object,'missing physical original '+name+' clockwork');
     const boundsOf=object=>new THREE.Box3().setFromObject(object);
-    const drive=boundsOf(main), raised=boundsOf(upper), spine=boundsOf(rack);
-    assert.ok([drive,raised,spine].every(box=>!box.isEmpty()),
+    const drive=boundsOf(main), clutch=boundsOf(lower), raised=boundsOf(upper), spine=boundsOf(rack);
+    assert.ok([drive,clutch,raised,spine].every(box=>!box.isEmpty()),
       'inspect actual submitted 3D mechanism geometry, not empty proxy groups');
-    assert.ok(drive.max.y<24,
-      'giant original main rim must finish below the authentic upper battle band: '+drive.max.y);
+    // The actual original candidate portrait film at 15.2 s showed the ring
+    // dominating source-live combat despite the previous <24 m drive bound.
+    // Verify the entire Three.js case, turning wheel, low clutch and 42 m
+    // rack physically live BELOW the first ascent action, not merely a tiny
+    // rim center outside the guardian's collision band.
+    for(const [name,box] of [['main',drive],['low clutch',clutch],['rack',spine]])
+      assert.ok(box.max.y<8,
+        name+' must clear the full upper-cap silhouette and gateway airspace: '+box.max.y);
     assert.ok(raised.min.y>28,
       'high satellite rotor must start above the central action band: '+raised.min.y);
-    assert.ok(spine.max.y<23,
-      'long decor-only rack must not rise through guardian action: '+spine.max.y);
     const rotors=[];
     world.group.traverse(node=>{
       if(node.name==='CameraResponsiveDecorativeGear')rotors.push(node);
