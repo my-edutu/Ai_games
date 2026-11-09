@@ -17,3 +17,6 @@ The development tunnel was disconnected; this code needs exact-head GitHub Node,
 NEXT: inspect the newly triggered exact-source quality and nine-job capture, verify authentic unedited WebM timestamps align with result/restart and guardian→crusher→walkable gateway→floor9, then fix the single strongest observed gameplay/presentation defect. Genuine independent LOOKS/FEELS/PLAYS critics **0/5 each**. **NOT EVALUATED.**
 
 Nothing merged, deployed, force-pushed, converted from draft, or changed in PR #58 / main.
+
+## CI integration follow-up — current witness source 0f929c5f
+The immediate source-pinned workflow 42707474114 exposed a concrete harness-overlay defect: its frozen baseline recording job could not import `../../scripts/tower-public-state-witness.cjs` because the baseline checkout's explicit neutral-harness allowlist did not copy this new module. This is an actual engineering failure (not a missing original-game result). Corrected the overlay to copy the new read-only source observer and its focused tests; retained the baseline host hash check, no gameplay mutation. Added a repository-integrated contract that enumerates ALL required neutral script imports and fails if a future capture helper is missing from the allowlist. The new exact-source browser/video quality result remains **NOT EVALUATED** until it runs.
