@@ -59,25 +59,25 @@
       "leadingTransformationVerdict": "NOT EVALUATED",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "baselineMoved": false,
-      "inspectedBranchHead": "2149b73f074899847a503235309194c4b52acc31",
+      "inspectedBranchHead": "3713751db67bca48dc971d011be3fd0b72aefe04",
       "originalRuntimeWorldRestagingSha": "2149b73f074899847a503235309194c4b52acc31",
-      "thisExecutionImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
-      "codeChange": "Added passive Chromium CDP compositor-frame timestamp anchors for real full-viewport WebM-to-source event search. Integrated independent baseline and candidate harness without altering either game's authoritative source, native WebM bytes, Playwright recording size, physics or PR58.",
-      "observedEvidence": "Original 9-job paired full-motion run 42618963049 SUCCESS for source/transport. Independently downloaded genuine candidate/baseline danger archive and inspected actual portrait video at 14-20s (candidate clockwork eclipses hero at ~14,16,17.6-18s); event-index source chain reports real guardian defeat, earned physical 8-to-9 crossing, floor10 and later game outcome/restart. Still not visually event-matched or independently judged.",
-      "rootCauseOfTimebaseBlocker": "All original whole-viewport browser screenshot anchors were too slow for the existing <=350ms calibration gate: candidate portrait 7 intervals 2194-4698ms (median 3055ms), candidate desktop 4 intervals 4526-5532ms (median 5234.5ms); baseline portrait 6 intervals 4140-5475ms (median 4492ms), baseline desktop 4 intervals 6074-8274ms (median 6542.5ms). Both recorded native-video-clock.json statuses NOT EVALUATED with zero anchors accepted. NEVER relax clock uncertainty to 3-8 seconds.",
-      "completedOutcome": "Actual capture blocker repaired in harness by passively sampling bounded original browser compositor frames with Chrome-issued epoch timestamps; frame SHA/PTS pixel matching still required. Original Node syntax for new helper, test and browser fixture parsed in V8; original full Node/Three/Playwright not executed locally. Last exact pre-change quality 42630187191 at 2149b73f succeeded. New quality workflow 42633967544 queued at code commit.",
+      "thisExecutionImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
+      "codeChange": "Recovered original 9-job source-pinned 42634400305 and fixed baseline desktop danger native-frame calibration sampling density. Passive bounded Chrome compositor witnesses increased from 9 / 7s to 16 / 3.5s with 8th-frame screen readback; no gameplay or candidate aesthetics altered.",
+      "observedEvidence": "8/8 original source/transport pairs from 42634400305; 7/8 original native-film timebases CALIBRATED for search only, baseline desktop danger 2/5 unique frames, not enough for 3-anchor gate. Original candidate portrait 390x844 video shows foreground wheel/case dominate at 16–18s; source event floor8→9 tick451 maps to search t22.32s but the visible floor9 change is only seen near 26s in sampled original frames. Visual event matching unverified.",
+      "rootCauseOfTimebaseBlocker": "Baseline desktop danger CDP collector kept only 5 sparse >=7s witnesses; only original native PTS 22.76s and 44.92s image matches had acceptable uniqueness. Remaining 3 matched poorly by very small uniqueness margin, not a correct video clock. Do not weaken >=3 distinct matching anchors.",
+      "completedOutcome": "Implemented anchor-density recovery and regression at e580a5fb5cdea05117e67607c29f6af670100f96. Read-only exact-source original native WebM and sidecar inspected. Original Node/Three/browser checks at current implementation not yet complete; exact-source paired recapture requested by evidence commit. No full-motion accept/review/device certification.",
       "independentReviewCount": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
       "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-      "nativeVideoCalibration": "NOT EVALUATED until new exact-source original WebM produces >=3 unique matchable anchors and interleaved observed source events; CDP captures are only candidates, not acceptance.",
-      "sourceVideoRunRequested": "New 9-job capture requested by modifying capture-request.json in evidence commit. Capture run/job/artifacts still not available at time of request.",
-      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-original-native-frame-timebase-unblock.md",
-      "biggestExperienceGap": "Massive near-side clockwork and a tall rack repeatedly occlude or visually overwhelm the real climber/guardian in 390x844 native candidate danger footage around 14-18 seconds. Source 2149b73f physically restages these mechanisms but HAS NO new film yet; gameplay gateway visibility and film-timecode authenticity are unverified.",
-      "nextHighestImpactAction": "Verify exact capture at this request commit: browser CDP anchors must actually arrive, match native WebM with >=3 unique spread out anchors, and produce only bounded source-event search handles. Inspect 960x600 and 390x844 native film for wheel and visual pop, grounded gateway walk, floor9 continuation, outcome/restart. If uncalibrated, inspect CDP errors/anchor uniqueness and repair the source-vs-video bottleneck; never grade without independent fresh blind critics and actual hardware.",
-      "safety": "PR68 branch only, open draft. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched; no merge, deploy or force push."
+      "nativeVideoCalibration": "P0: 7/8 pairs CALIBRATED for source search handles only; baseline desktop danger NOT EVALUATED (2/5 distinct native matches). Source event t22.32 vs visually labeled floor9 near 26s requires evidence-first presentation lag analysis; no visible frame match certified.",
+      "sourceVideoRunRequested": "New 9-job original native-film capture requested by capture-request.json update on this evidence commit, pinned by workflow github.sha. Wait for actual run+SHA+artifacts before any claim.",
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-native-danger-film-anchor-sufficiency.md",
+      "biggestExperienceGap": "Giant source-independent clockwork/rim and framing repeatedly obscure or crowd the 390x844 guardian around original video seconds 16–18. In source-pinned candidate danger film source crossing is timecoded ~22.32s, but visually floor9 appears near 26s; exact authoritative-to-pixel latency cannot yet be explained.",
+      "nextHighestImpactAction": "Inspect exact-source refilmed native danger with >=3 distinct baseline desktop anchors; independently compare true source event vs presented frame timing for real guardian/crusher defeat, physical gateway crossing, floor9, outcome and restart. Then repair the largest observed 3D occlusion/latency flaw, repeat authentic mobile/desktop footage, independent critics and supported-device metrics.",
+      "safety": "PR68 branch only, open draft, no merge/deploy/force-push. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
@@ -6366,5 +6366,22 @@
     "verdict": "NOT EVALUATED",
     "engineeringReview": "docs/reviews/2026-11-09-tower-pr68-source-authentic-phone-backdrop-composition.md",
     "nextHighestImpact": "Inspect exact-source 9-job WebM and full-motion native 14-24s phone danger; verify clock face de-emphasis actually clears climber/guardian and earned gate without ghosting or popping, and monitor new ledge snap. Calibrate source events to native frame time; inspect floor-nine ground crossing/outcome/restart; if obstruction is actual gameplay machinery reopen P0 camera framing rather than hide collidable threats."
+  },
+  "p0NativeDangerAnchorSufficiency20261109": {
+    "stage": "P0 OPEN",
+    "implementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
+    "referenceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42634400305",
+    "nativeClock": "7/8 source-film search clocks calibrated; baseline danger desktop only 2/5 unique matches => NOT EVALUATED",
+    "actualVisualProblem": "390x844 true candidate guardian around 16-18s partially masked by foreground wheel; source floor9 tick451 ~22.32s whereas floor9 label first sampled near 26s",
+    "codeChange": "bounded CDP compositor JPEG witnesses 9/7000ms -> 16/3500ms, everyNthFrame 15 -> 8",
+    "fullGameTests": "PENDING",
+    "newRecording": "REQUESTED by exact SHA evidence commit",
+    "blindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "hardware": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
   }
 }

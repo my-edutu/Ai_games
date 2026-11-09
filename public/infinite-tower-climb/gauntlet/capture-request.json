@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "20d835b4699873e6e0264215dd6019827c8b5486",
-  "reason": "P0 original nine-job native baseline/candidate danger capture 42618963049 succeeded but source-event film timing was uncalibrated: EVERY original browser full-page screenshot took 2.194–8.274 seconds, failing the honest <=350ms anchor gate (0 matched) in both builds. Passive Chrome Page.screencastFrame compositor timestamps now provide bounded original-frame screenshot witnesses without editing game source or WebM. This exact-request-SHA recapture must prove unique native WebM pixel matches and source-event search handles, then inspect 14–20s portrait 3D guardian/wheel sightlines AFTER physical world restaging at 2149b73f. No visual, source-film or independence acceptance claimed.",
+  "repairedSourceSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
+  "reason": "Original complete 9-job 42634400305 had eight authentic baseline/candidate recordings and 8/8 source stories, with 7/8 source-to-PTS search clocks CALIBRATED. The remaining frozen-baseline desktop danger clock accepted only TWO distinct native-frame anchors out of five, while three were visually ambiguous. This source-only recovery increases passive Chrome compositor witness density WITHOUT changing the >=3 matching-native-frame test or game mechanics. New capture must also investigate source guardian threshold tick451 (~22.32s) versus original portrait frame-observed floor-nine label (~26s) and physically giant foreground wheel at 16-18s. Every visual/quality claim NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -32,16 +32,17 @@
     "feels": 0,
     "plays": 0
   },
-  "historicalObservedDefect": "Actual original candidate 994541e4 390x844 danger full-motion footage 14-18s shows gigantic rotating wheel occasionally blocking the climber/guardian, and source chapter physically crosses floor 8 -> floor 9 but native time mapping remains UNCALIBRATED. New physical clockwork restage at 2149b73f and passive compositor anchor capture at 20d835b have not been filmed together.",
+  "historicalObservedDefect": "Original 390x844 candidate danger from 42634400305 shows giant clockwork across action around 16–18s. Authenticated physical floor-eight-to-nine source handoff tick451 is search-timed ~22.32s, while source-pinned native video sampled frames first display floor nine near 26s. Causality/presentation delay NOT EVALUATED. World restage 2149b73f is in filmed candidate but did not eliminate wheel dominance.",
   "sourceTestRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823",
   "triggerRule": "Freeze baseline 1731b380851162741761c5569e2bc152a0869ca9. Capture actual candidate at exact immutable github.sha of THIS request-file commit; never use a branch alias as source witness. Original source if preflight/browser ledge fails: preserve recordings, fail final audit honestly.",
-  "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42610816382",
+  "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42634400305",
   "priorLedgeFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
   "newPresentationSourceSha": "dfde793de254fdb936b389f46e6aee7e8f8bbe9f",
   "newPresentationAcceptance": "NOT EVALUATED — source-level 7/7 pure checks, no new film/device/critic result",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
-  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42618963049",
-  "currentCalibratedEventGate": "NOT EVALUATED: require >=3 independently matched original full viewport Chrome compositor samples spanning >=15s, native PTS and source-event lookup; no manufactured end-to-end timebase.",
-  "newSourceVideoAcceptance": "NOT EVALUATED: capture exact immutable commit containing this request, verify baseline frozen SHA and candidate SHA from workflow; full-motion and independent blind review still required."
+  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42634400305",
+  "currentCalibratedEventGate": "7/8 baseline/candidate source-to-video clocks calibrated as bounded search only; baseline desktop danger NOT EVALUATED with 2/5 distinct original pixel matches. New capture needs >=3 unambiguous anchors, matched native frame event and actual video evidence, not just interpolation.",
+  "newSourceVideoAcceptance": "NOT EVALUATED. Capture must pin candidate to exact github.sha of this evidence commit with implementation e580a5fb5cdea05117e67607c29f6af670100f96; check baseline unchanged, original 960x600/390x844 WebM, 3+ native pixel-matched unambiguous anchors, full-motion floor-nine gateway and restart, 5 actual blind critics each and device metrics.",
+  "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96"
 }
