@@ -91,7 +91,7 @@ test('healing and trap-disarm remain utility, not offensive magic or projectiles
  }
 });
 
-test('only real semantic block, evade, interrupt and Warden opening events produce those cues',async()=>{
+test('anonymous event kinds cannot invent a dodge without actual movement',async()=>{
  const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
  const old=snap(10);
  const next=snap(11,{events:[{tick:11,kind:'block',text:'hero dealt 99 damage'},
@@ -101,7 +101,7 @@ test('only real semantic block, evade, interrupt and Warden opening events produ
   {tick:11,kind:'opening',text:'warden vulnerable'},
   {tick:11,kind:'noise',text:'ignore'}]});
  const cues=planPhysicalFeedback(old,next);
- assert.deepEqual(kinds(cues),['interrupt','opening','block','evade']);
+ assert.deepEqual(kinds(cues),['interrupt','opening','block']);
  assert.equal(cues.find(c=>c.kind==='block').actorId,null,
   'semantic text alone cannot anchor a block to one combatant');
  const walking=snap(11,{units:[hero({x:2,z:3,action:'move',actionTick:11}),foe()],events:[{tick:11,kind:'evade',text:'whatever'}]});

@@ -206,19 +206,26 @@ export function planPhysicalFeedback(previous,next,{
     break;
    }
    case 'evade': {
-    // An evasive FOOTPRINT may be attached only to exactly one witnessed
-    // cardinal, one-cell party displacement on this very event tick.
-    const moved=(observedEventAtAdjacentTick(previous,next,e.tick)?
-     next.units.slice(0,96):[]).filter(u=>{
+    // The public kind also describes spells/breaches missing empty stone.
+    // Event prose carries no trustworthy dodger or contact identity.
+    const evadeEvents=events.filter(x=>x?.kind==='evade'&&x.tick===e.tick);
+    if(evadeEvents.length!==1||
+     !observedEventAtAdjacentTick(previous,next,e.tick))break;
+    const moved=next.units.slice(0,96).filter(u=>{
      const b=oldUnits.get(u?.id);
-     return b && u.faction==='party' && u.hp>0 && validCoord(u.x)&&validCoord(u.z)&&
-      validCoord(b.x)&&validCoord(b.z) && u.actionTick===e.tick &&
+     return validId(u?.id)&&sameIdUnit(b,u)&&u.faction==='party'&&
+      u.hp>0&&b.hp>0&&u.action==='move'&&u.actionTick===e.tick&&
+      validCoord(u.x)&&validCoord(u.z)&&validCoord(b.x)&&validCoord(b.z)&&
       Math.abs(u.x-b.x)+Math.abs(u.z-b.z)===1;
     });
-    const lone=moved.length===1?moved[0]:null;
-    push('evade',e.tick,{actorId:lone?.id??null,
-     from:lone?point(oldUnits.get(lone.id)):null,to:lone?point(lone):null,
-     verified:true,proof:'authority-event'});break;
+    // Two same-tick events or two movers cannot uniquely name a dodger:
+    // neither the boot sound nor dust is authorized without this witness.
+    if(moved.length!==1)break;
+    const lone=moved[0];
+    push('evade',e.tick,{actorId:lone.id,
+     from:point(oldUnits.get(lone.id)),to:point(lone),
+     verified:true,proof:'authority-event-and-observed-step'});
+    break;
    }
    case 'interrupt':push('interrupt',e.tick,{verified:true,proof:'authority-event'});break;
    case 'opening': {

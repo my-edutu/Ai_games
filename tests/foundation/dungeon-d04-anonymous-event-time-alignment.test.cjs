@@ -46,12 +46,8 @@ test('a delayed evade event cannot claim final-position footfall as an exact dod
  const cues=planPhysicalFeedback(snap(10,[hero(),enemy()]),
   snap(13,[hero(30,{x:3,action:'move',actionTick:11}),enemy()],
    [{tick:11,kind:'evade'}]));
- const evade=cues.find(c=>c.kind==='evade');
- assert.ok(evade);
- assert.equal(evade.audio,'evade');
- assert.equal(evade.actorId,null);
- assert.equal(evade.from,null);
- assert.equal(evade.to,null);
+ assert.equal(cues.some(c=>c.kind==='evade'),false,
+  'stale generic evade may denote a missed attack, never a verified bootstep');
 });
 
 test('a delayed counter event plus multi-tick Warden HP loss cannot claim an earned melee contact',async()=>{
