@@ -988,3 +988,30 @@ test('actual browser witness contract rejects a real HP-loss-overlapped attack t
  assert.equal(isUninjuredIdleRecovery(attackState,{...idleState,units:[{...cleanAttack,
   action:'hurt',hp:9,actionTick:25}]},cleanAttack.id),false);
 });
+
+
+test('exact native Ranger frame witness cannot turn a later idle or another actor into release proof',()=>{
+ const {isExactNativeClipWitness,isUninterruptedRangedWitness}=require('../browser/dungeon-animation-witness.cjs');
+ const expected={id:'ranger',kind:'ranger',action:'attack',sourceTick:41,clipName:'2H_Ranged_Shoot'};
+ const actor={id:'ranger',kind:'ranger',sourceMeshCount:8,sourceHandName:'handr'};
+ const rig={actors:[actor],summary:{invalidMatrixCount:0,invalidQuaternionCount:0,
+  disconnectedSegments:0,bindReferenceComplete:true}};
+ const frame={binding:{...expected},actor,rig};
+ assert.equal(isExactNativeClipWitness(frame,expected),true);
+ for(const [name,patch] of [
+  ['idle', {binding:{...expected,action:'idle',clipName:'Idle'}}],
+  ['stale tick',{binding:{...expected,sourceTick:40}}],
+  ['wrong actor',{binding:{...expected,id:'other'}}],
+  ['missing original grip',{actor:{...actor,sourceHandName:null}}],
+  ['broken skin',{rig:{...rig,summary:{...rig.summary,invalidMatrixCount:1}}}],
+  ['unbound skin',{rig:{...rig,summary:{...rig.summary,bindReferenceComplete:false}}}]
+ ])assert.equal(isExactNativeClipWitness({...frame,...patch},expected),false,name);
+ const previous={id:'ranger',kind:'ranger',action:'idle',hp:32,actionTick:40};
+ const released={...previous,action:'attack',actionTick:41};
+ const before={units:[previous]},after={units:[released]};
+ assert.equal(isUninterruptedRangedWitness(before,after,released),true);
+ assert.equal(isUninterruptedRangedWitness(before,{units:[{...released,hp:20}]},
+  {...released,hp:20}),false,'HP-loss reaction owns source, not arrow release');
+ assert.equal(isUninterruptedRangedWitness({units:[{...previous,action:'hurt'}]},
+  after,released),false,'carry-over injury cannot be counted as clean release');
+});

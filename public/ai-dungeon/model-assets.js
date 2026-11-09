@@ -1433,7 +1433,7 @@ function stats(actors){
     .map(a=>Math.abs(Math.atan2(Math.sin(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase),
       Math.cos(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase))))),
    sourceClipAudits:authored.slice(0,6).map(a=>({kind:a.u.kind,clips:a.importedClipAudit?.clips||[],rootMotionTracks:a.importedClipAudit?.rootMotionTracks||[]})),
-   sourceClipBindings:authored.slice(0,6).map(a=>({kind:a.u.kind,action:a.currentAction,clipName:a.activeImportedClipName??null,sourceTick:a.currentActionTick})),
+   sourceClipBindings:authored.slice(0,6).map(a=>({id:a.u.id,kind:a.u.kind,action:a.currentAction,clipName:a.activeImportedClipName??null,sourceTick:a.currentActionTick})),
    nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
   nativeDuelActiveActors:authored.filter(a=>a.nativeDuel&&a.nativeDuel.mode!=='rest').length,
   nativeDuelPeak:Math.max(0,...authored.map(a=>a.nativeDuelPeak||0)),

@@ -27,4 +27,34 @@ function isUninjuredIdleRecovery(attack,idle,actorId){
   Number.isSafeInteger(attack.tick)&&idle.tick===attack.tick+1&&
   next.actionTick===idle.tick);
 }
-module.exports={isUninterruptedMeleeWitness,isUninjuredIdleRecovery};
+/**
+ * A live source-rig witness must be atomic: the licensed one-shot may legally
+ * complete between two Playwright calls. Require the SAME real actor, tick,
+ * original clip and original skinned bind audit in one browser sample.
+ */
+function isExactNativeClipWitness(sample,{id,kind,action,sourceTick,clipName}={}){
+ const binding=sample?.binding,actor=sample?.actor,rig=sample?.rig;
+ return Boolean(typeof id==='string'&&id.length>0&&
+  Number.isSafeInteger(sourceTick)&&sourceTick>=0&&
+  binding?.id===id&&binding.kind===kind&&binding.action===action&&
+  binding.sourceTick===sourceTick&&binding.clipName===clipName&&
+  actor?.id===id&&actor.kind===kind&&actor.sourceMeshCount>0&&
+  typeof actor.sourceHandName==='string'&&actor.sourceHandName.length>0&&
+  rig?.summary?.invalidMatrixCount===0&&
+  rig.summary.invalidQuaternionCount===0&&
+  rig.summary.disconnectedSegments===0&&rig.summary.bindReferenceComplete===true);
+}
+/** Select a real Ranger release with no simultaneous HP-loss reaction. */
+function isUninterruptedRangedWitness(before,after,actor){
+ if(actor?.kind!=='ranger'||actor.action!=='attack'||
+  !Number.isFinite(actor.hp)||actor.hp<=0||
+  !Number.isSafeInteger(actor.actionTick)||!Array.isArray(after?.units))return false;
+ const prior=before?.units?.find(u=>u?.id===actor.id&&u.kind==='ranger');
+ return Boolean(prior&&Number.isFinite(prior.hp)&&prior.hp>0&&
+  actor.hp>=prior.hp&&prior.action!=='hurt'&&
+  prior.actionTick!==actor.actionTick&&
+  after.units.some(u=>u.id===actor.id&&u.kind==='ranger'&&
+   u.actionTick===actor.actionTick&&u.hp===actor.hp));
+}
+module.exports={isUninterruptedMeleeWitness,isUninjuredIdleRecovery,
+ isExactNativeClipWitness,isUninterruptedRangedWitness};

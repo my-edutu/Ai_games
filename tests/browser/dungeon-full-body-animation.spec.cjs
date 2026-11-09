@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
-const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery}=require('./dungeon-animation-witness.cjs');
+const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery,isExactNativeClipWitness,isUninterruptedRangedWitness}=require('./dungeon-animation-witness.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witness(accept){
@@ -198,31 +198,50 @@ test('genuine adjacent strike preserves skinned attack follow-through into the n
 
 test('Ranger witnessed arrow action selects native 41-joint ranged release in actual WebGL',async({page})=>{
  test.setTimeout(120000);
- const event=witness((u,before)=>u.kind==='ranger'&&u.hp>0&&u.action==='attack'&&
-  before.units.some(old=>old.id===u.id&&old.actionTick!==u.actionTick));
+ const event=witness((u,before,after)=>isUninterruptedRangedWitness(before,after,u));
  const stage=await loadStage(page,event.before);
  stage.set(event.after);
- await expect.poll(()=>page.evaluate(()=>
-  window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.sourceClipBindings?.
-   find(b=>b.kind==='ranger'&&b.action==='attack')?.clipName??null
- ),{timeout:18000,intervals:[70,90,120,180]}).toBe('2H_Ranged_Shoot');
- const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- const binding=d.authored3D.sourceClipBindings.find(b=>b.kind==='ranger');
- expect(binding.clipName).toBe('2H_Ranged_Shoot');
- expect(binding.sourceTick).toBe(event.actor.actionTick);
- expect(d.authored3D.sourceClipAudits.some(x=>x.kind==='ranger'&&
+ // The original 2H_Ranged_Shoot legitimately crossfades to Idle in 620ms.
+ // Polling the action then reading sourceClipBindings AGAIN can capture the
+ // later idle frame and falsely fail a genuine source release. Capture source
+ // binding, exact event tick and original source-joint audit atomically.
+ const expected={id:event.actor.id,kind:'ranger',action:'attack',
+  sourceTick:event.actor.actionTick,clipName:'2H_Ranged_Shoot'};
+ let observed=null;
+ await expect.poll(async()=>{
+  const sample=await page.evaluate(({id,tick})=>{
+   const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+   const binding=d?.authored3D?.sourceClipBindings?.find(b=>
+    b.id===id&&b.kind==='ranger'&&b.action==='attack'&&b.sourceTick===tick);
+   if(binding?.clipName!=='2H_Ranged_Shoot')return null;
+   const rig=window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.();
+   return {binding,rig,actor:rig?.actors?.find(a=>a.id===id)??null,
+    clipAudits:d.authored3D.sourceClipAudits,frame:d.frame,
+    missingAssets:d.authored3D.missingAssets};
+  },{id:event.actor.id,tick:event.actor.actionTick});
+  if(isExactNativeClipWitness(sample,expected))observed=sample;
+  return observed!==null;
+ },{timeout:18000,intervals:[70,90,120,180]}).toBe(true);
+ expect(observed.binding.clipName).toBe('2H_Ranged_Shoot');
+ expect(observed.binding.sourceTick).toBe(event.actor.actionTick);
+ expect(observed.clipAudits.some(x=>x.kind==='ranger'&&
   x.clips.some(c=>c.name==='2H_Ranged_Shoot'&&c.rotation>0))).toBe(true);
- const rig=await nativeRigProof(page);
- expect(rig.summary.invalidMatrixCount).toBe(0);
+ expect(observed.missingAssets).toBe(0);
+ expect(observed.rig.summary.maxStretchFraction).toBeLessThanOrEqual(.20);
+ expect(observed.rig.summary.invalidMatrixCount).toBe(0);
  expect(stage.errors).toEqual([]);
+ // This image is a real later frame, NOT evidence the fleeting release is
+ // still held. The atomic source witness above and the genuine WebM are the
+ // authoritative evidence of the short-lived release.
  await page.locator('#world').screenshot({path:'artifacts/dungeon-full-body-real-ranger-release.png',timeout:60000});
  await test.info().attach('genuine-ranger-source-release',{contentType:'application/json',
   body:Buffer.from(JSON.stringify({seed:event.seed,sourceTick:event.actor.actionTick,
-   realActor:event.actor.id,clip:binding.clipName,source:'unmodified DungeonRuntime.step()',
-   deformation:rig.summary,clipAudits:d.authored3D.sourceClipAudits,
-   frame:d.frame,sourceSha:process.env.GITHUB_SHA??null},null,2))});
+   realActor:event.actor.id,clip:observed.binding.clipName,
+   source:'one atomic original WebGL frame from unmodified DungeonRuntime.step()',
+   deformation:observed.rig.summary,hand:observed.actor.sourceHandName,
+   clipAudits:observed.clipAudits,frame:observed.frame,
+   sourceSha:process.env.GITHUB_SHA??null},null,2))});
 });
-
 /**
  * A still attack/travel pair cannot demonstrate a continuous original-rig
  * gait. Only nine CONSECUTIVE genuine source ticks qualify for this film.
