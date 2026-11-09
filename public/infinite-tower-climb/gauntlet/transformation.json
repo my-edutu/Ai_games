@@ -6000,5 +6000,37 @@
     "biggestExperienceGap": "No current verified continuous-motion evidence that the combined 3D camera, full-body gear, selected landing and earned physical gateway remain readable. Recent fixes cannot be visually accepted from source checks.",
     "nextHighestImpactAction": "Recover a real executable original-game runner; run exact 50cf618ea1176b9369a91c099974516327c18ca2 Node/Three regression, two 3200-tick complete guardian/crusher-to-restart campaigns, and match 60+s native desktop 960x600 and portrait 390x844 baseline/candidate footage and tick events. Watch entire film for clockwork occlusion, landing continuity, grounded gateway crossing, floor-nine continuation, actual outcome/restart. Fix the largest observed defect before P1.",
     "reviewFile": "docs/reviews/2026-11-09-tower-pr68-distinct-earned-gateway-airborne-landing.md"
+  },
+  "p0NineJobPreflightRecovery20261109": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "inspectedParentSha": "215907cfad2772753a916ed0b354d97667424ef9",
+    "implementationSha": "ce0f751cdeedf5eadf2ea1d17434fd7e24fa64b0",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "cause": "New GitHub run 42490211469 ACTUALLY allocated runners: one original 3200-tick gameplay witness completed; eight native film-capture jobs failed their shared preflight after exact-source build, before Chromium. The preflight had 3 known failures: same-tick result>running reversal admitted fabricated intermission evidence; 12fps fixture incorrectly expected no cadence warning; timebase caveat assertion matched outdated prose.",
+    "repair": "Original-source event index now quarantines subsequent phase evidence after an impossible same-tick lifecycle reversal, while preserving genuine same-tick result>intermission and run rollover. Two preflight test contracts match honest cadence warning and current conservative NOT-established-on-screen caveat. Identical capture preflight is used for immutable baseline and candidate; baseline code unchanged.",
+    "codePaths": [
+      "scripts/tower-event-alignment.cjs",
+      "tests/phase3/tower-event-alignment.test.cjs",
+      "tests/phase3/tower-native-film-integrity.test.cjs",
+      "tests/phase3/tower-video-timebase.test.cjs"
+    ],
+    "exactWorkflowEvidence": {
+      "nineJobRun": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469",
+      "baselineMovingJob": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469/job/128760727068",
+      "candidateDangerJob": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469/job/128760727118",
+      "originalSourceWitness": "COMPLETED SUCCESS: authentic-ledge; source campaign and build only, NOT video approval.",
+      "nativeFilmCapture": "BLOCKED: eight capture jobs failed test preflight with 3 failures; no new WebM artifact from those jobs.",
+      "afterCodeRepair": "NOT EVALUATED: fixes committed but no new original Node suite/Chromium/WebM execution at the repaired SHA.",
+      "currentExactHeadCI": "NOT EVALUATED: previous PR68 latest quality workflow 42581895071 pending before this repair.",
+      "historicalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 — old renderer e0fe7729, portrait clockwork obscures action around native 16.5–18s; NOT present-source evidence.",
+      "realDevices": "NOT EVALUATED — p50/p95/p99/memory unavailable.",
+      "independentCritics": "LOOKS 0/5; FEELS 0/5; PLAYS 0/5."
+    },
+    "outcome": "Verified original CI capture-blocker from real allocated runner logs; targeted source and contract changes committed. Not yet verified fixed in runner; no new gameplay graphics or play-feel claims.",
+    "largestExperienceGap": "Missing current-head 60+s continuous native desktop 960x600/portrait 390x844 footage; foreground giant clockwork historically blocks airborne climber and guardian. Floor-nine/gateway/outcome have not been visually matched on current source.",
+    "nextHighestImpactAction": "Execute repaired exact-source 49/51-case preflight and full Node/Three suite on original runner. If green, restart full eight paired baseline/candidate normal-speed films with source-pinned current candidate (not older fcf98aa2), verify two complete 3200-tick source campaigns and native PTS/20Hz event alignment; inspect current visible occlusion, earned guardian/crusher, real threshold, floor-nine/restart. Reopen largest observed visual/plays gap until whole continuous clip accepted; then device budgets and five genuine blind critics per pillar.",
+    "safety": "No edits to frozen baseline SHA, PR58/main, other games; PR68 remains OPEN DRAFT; no force push, merge or deploy."
   }
 }
