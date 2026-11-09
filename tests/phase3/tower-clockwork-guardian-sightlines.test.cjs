@@ -551,17 +551,26 @@ test('real Three.js clockwork restages the decorative monument below the guardia
     const lower=named('clockwork-lower-left-shoulder');
     const upper=named('clockwork-upper-right-shoulder');
     const rack=named('clockwork-far-shoulder-power-rack');
-    assert.ok(main.position.y+8*main.scale.y<19 &&
-      main.scale.x<=.76&&main.scale.z<=.76,
-      'the large 3D clock frame must no longer climb into cap combat height');
-    assert.ok(rack.position.y+21*rack.scale.y<23,
-      'the actual 42-unit authoring-space rack must sit below the earned cap');
+    // Source-pinned 390x844 film retained a vast ring at second 15 even
+    // after the previous smaller height adjustment. Test real rendered Three
+    // bounds, not only authored origin positions or a favorable camera ray.
+    const floorY=main.parent.getWorldPosition(new THREE.Vector3()).y;
+    const actualTop=object=>{
+      const bounds=new THREE.Box3().setFromObject(object);
+      assert.ok(!bounds.isEmpty(),'retain REAL geometry for '+object.name);
+      return bounds.max.y-floorY;
+    };
+    assert.ok(actualTop(main)<-12 && actualTop(lower)<-24 &&
+      actualTop(rack)<-12,
+      'full lower/middle/rack 3D machinery must remain physically beneath the genuine guardian climb');
+    assert.ok(main.scale.x<=.76&&main.scale.z<=.76,
+      'the monumental frame retains the bounded original footprint');
     assert.ok(Math.abs(Math.atan2(main.position.x,main.position.z)-
       Math.atan2(rack.position.x,rack.position.z))>=.5,
       'the clock and rack must not form a single opaque angular wall');
     assert.ok(lower.position.y<main.position.y &&
-      upper.position.y>main.position.y+10,
-      'original distinct low, middle and high clockwork destinations survive');
+      upper.position.y>main.position.y+10 && actualTop(upper)>25,
+      'low/middle/high clockwork silhouette destinations remain distinct');
     let rotors=0;
     world.group.traverse(object=>{
       if(object.name==='CameraResponsiveDecorativeGear')rotors++;
