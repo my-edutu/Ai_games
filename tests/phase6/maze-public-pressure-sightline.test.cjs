@@ -123,3 +123,62 @@ test('a real disclosed two-cell pressure nonpassage gets a low solid cutaway; an
     assert.equal(world.stats().responsiveTrapSignals,0);
   }finally{world.dispose();cleanup();}
 });
+
+function apronArt(world,THREE,cell){
+  const centerX=(cell%9-4)*2.4,centerZ=(Math.floor(cell/9)-4)*2.4;
+  const floorY=(2-Math.floor(Math.floor(cell/9)*3/9))*1.4;
+  const matrix=new THREE.Matrix4(),point=new THREE.Vector3(),
+    q=new THREE.Quaternion(),scale=new THREE.Vector3();
+  const slabs=[],petals=[];
+  world.group.children[1].traverse(node=>{
+    if(!node.isInstancedMesh)return;
+    for(let i=0;i<node.count;i++){
+      node.getMatrixAt(i,matrix);matrix.decompose(point,q,scale);
+      if(Math.abs(point.x-centerX)>.0001||Math.abs(point.z-centerZ)>.0001)continue;
+      if(node.geometry?.type==='ExtrudeGeometry'
+        &&Math.abs(point.y-(floorY-.035))<.0001
+        &&Math.abs(scale.x-2.31)<.0001&&Math.abs(scale.y-.07)<.0001
+        &&Math.abs(scale.z-2.31)<.0001)
+        slabs.push(node.material.color.getHexString());
+      if(node.geometry?.type==='ShapeGeometry'
+        &&Math.abs(point.y-(floorY+.024))<.0001
+        &&Math.abs(scale.x-.82)<.0001&&Math.abs(scale.y-.77)<.0001)
+        petals.push(i);
+    }
+  });
+  return {slabs,petals:petals.length};
+}
+
+test('published two-cell Tide-Shear court builds one calm connected apron around real moving jaws',async()=>{
+  const {THREE,world,cleanup}=await loadWorld();
+  const ordinary=published(),known=published({pressure:true});
+  const original=JSON.stringify(known);
+  try{
+    world.update(ordinary);
+    const baseline=apronArt(world,THREE,39);
+    assert.deepEqual(baseline.slabs,[],
+      'cell 39 baseline really uses four smaller floor tiles');
+    assert.equal(baseline.petals,5,'baseline has the original busy five-leaf floor relief');
+    world.update(known);
+    const quiet=apronArt(world,THREE,39);
+    assert.deepEqual(quiet.slabs,['cead72'],
+      'one actual mineral slab replaces both noisy tiling and unrelated signal-like art');
+    assert.equal(quiet.petals,0,'the disclosed pressure stage leaves real negative space');
+    assert.ok(world.group.getObjectByName('Published tide-shear pressure mast 40'),
+      'moving hazard is retained at the actual disclosed cell');
+    const before=world.stats();
+    world.animate(0,{explorerPosition:new THREE.Vector3(0,0,0),reducedMotion:false});
+    world.animate(1.5,{explorerPosition:new THREE.Vector3(0,0,0),reducedMotion:true});
+    const after=world.stats();
+    for(const key of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(after[key],before[key],'no repeated-frame allocations');
+    assert.ok(before.geometryCount<=16&&before.materialCount<=26&&before.textureCount<=3);
+    assert.equal(JSON.stringify(known),original,'rendering cannot mutate public authority');
+    world.update(published({privateOnly:true}));
+    assert.deepEqual(apronArt(world,THREE,39),baseline,
+      'undisclosed/private-only traps never alter the ordinary playable paving');
+    world.update(published({runToken:'reset',pressure:false}));
+    assert.deepEqual(apronArt(world,THREE,39),baseline);
+  }finally{world.dispose();cleanup();}
+});
+

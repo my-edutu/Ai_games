@@ -1,3 +1,8 @@
+# Pass216 — public pressure stage receives a connected mineral floor (2026-11-09 UTC)
+
+- Historic source-bound 320/390 full-frame gameplay (artifact 13597475546) establishes the **old** busy petal/tile pressure theatre; it does NOT validate Pass215/216. One substantially authored world-space court correction unites ONLY previously disclosed safe neighbors into continuous light mineral paving and removes false-competing ornamental floor glyphs around the real clay trigger and rising shutters. All public keys, exit, traps, stairs, walls, blocked door, Pip and authoritative mechanics persist; no new GPU classes or runtime allocations. [Review](./maze-3d/pass-216-public-pressure-theatre-continuous-floor-2026-11-09.md).
+- Added installed-Three actual-mesh/privacy/reset/material/resource regression. The coding tunnel is still disconnected; no actual new-HEAD Node or WebGL test, current-source PNG, strict six-run budget or fresh independent critic available. **Official Nintendo bar NOT MET**. Preserve ±0.95, guardian >=0.70, geometry <100 six-run / spread <=8, 44px, accessibility/AI privacy. Open DRAFT PR #53; no merge/deploy/force.
+
 # Pass215 — known pressure court recesses nonfunctional gate decoration (2026-11-09 UTC)
 
 - The earlier original mobile pressure images (320/390) found the physical jaw action crowded by a *public* adjacent crossed gate. An authored gate stage now moves its decorative pulley/weights/rods/tide-wings from the **front** to a physically rooted **rear** plane; a still-genuine known key emblem shifts onto its true right stile (0.68 scale). Retains the actual impassable grille, lock, X seal, full jaws, public-only coordinates, deterministic authority, no new GPU geometry and 44px HUD.

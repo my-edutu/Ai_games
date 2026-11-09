@@ -826,6 +826,16 @@ export function createMazeWorld(options = {}) {
       const { x, z } = cellPosition(c.cell, s.width, s.height);
       const floorY = cellHeight(c.cell, s.width, s.height);
       const pressureSightline = pressureSightlines.has(c.cell);
+      // A discovered moving Tide-Shear needs an actual *continuous* stage,
+      // not another carpet of tiny floor glyphs. Unite only surrounding
+      // already-published ordinary walkable tiles into a quiet mineral apron.
+      // Keep the trap's original clay trigger, known key/exit/checkpoint/clue,
+      // all authentic walls, stair elevations and traversable footprints.
+      // This is not a safety signal or private route prediction: both the
+      // disclosed trap and each affected neighbor are in s.cells.
+      const pressureCourtApron = pressureSightline && !c.blocked && !c.trap
+        && !c.checkpoint && !c.clue && c.cell !== s.exitCell
+        && !s.keys.some(key => key.cell === c.cell);
       // Terrace foundations always reach the same underwater bed, never float.
       // Authored terraced-support mineral hierarchy: the original large,
       // near-black undercroft swallowed the actor in authentic 1280/390 WebGL.
@@ -854,11 +864,15 @@ export function createMazeWorld(options = {}) {
       // Keep that truthful original high-court contrast. The lower two tiers
       // add one intentional district of warm clay and sea-glass respectively,
       // while adjacent courts retain a clear ivory/stone separation.
-      const floorMaterial = tier === 2
-        ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
-        : tier === 1 ? (patina > .64 ? clay : lightStone)
-          : (variation(district) > .75 ? seaGlass : stone);
-      if (variation(c.cell + 50) > .55) {
+      const floorMaterial = pressureCourtApron
+        ? (tier === 2 ? lightStone : tier === 1 ? stone : seaGlass)
+        : tier === 2
+          ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
+          : tier === 1 ? (patina > .64 ? clay : lightStone)
+            : (variation(district) > .75 ? seaGlass : stone);
+      // One unbroken physical slab per disclosed apron tile, rather than
+      // random 2x2 squares. No added GPU class, floating deck or fake route.
+      if (pressureCourtApron || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
           add(box, deepStone, x + sign * .99, .003, z, .025, .006, 1.98, c.cell);
@@ -891,7 +905,7 @@ export function createMazeWorld(options = {}) {
       // lower walkable terrace from the lagoon without suggesting a corridor.
       // The relief is flush (under 2cm in scene units), has no collision or
       // extra draw call and is batched with existing reused geometry/material.
-      if (tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+      if (!pressureCourtApron && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         for (const sign of [-1, 1]) {
           add(box, lightStone, x + sign * .99, .015, z, .034, .012, 1.75, c.cell);
           add(box, lightStone, x, .015, z + sign * .99, 1.75, .012, .034, c.cell);
@@ -905,7 +919,8 @@ export function createMazeWorld(options = {}) {
       const gateCourt=gateCourtCells.has(c.cell)&&!c.blocked
         &&!c.trap&&!c.checkpoint&&!c.clue;
       const courtSeed = variation(c.cell * 41 + 709);
-      if (courtSeed > .68 && !gateCourt && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+      if (!pressureCourtApron && courtSeed > .68 && !gateCourt
+        && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         const pigment = courtSeed > .85 ? seaGlass : clay;
         for (let petal = 0; petal < 4; petal++) {
           const angle = Math.PI / 4 + petal * Math.PI / 2;
@@ -925,7 +940,8 @@ export function createMazeWorld(options = {}) {
       // and mineral materials in the same GPU batches, with no extra draw
       // resources or render-frame allocations. Never cover known hazards,
       // treasure hardware or a checkpoint with a look-alike objective symbol.
-      if (!gateCourt && !c.blocked && !c.trap && !c.checkpoint && !c.clue
+      if (!pressureCourtApron && !gateCourt && !c.blocked && !c.trap
+          && !c.checkpoint && !c.clue
           && variation(c.cell * 71 + 138) > .36) {
         const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
         for (let petal = 0; petal < 5; petal++) {
@@ -933,9 +949,10 @@ export function createMazeWorld(options = {}) {
             c.cell, -Math.PI / 2, 0, (petal * TAU / 5) + .18);
         }
       }
-      if (gateCourt) gateCourtRosette(x,z,c.cell);
-      // Low inset corner tiles, cracks, and occasional flecks never block a path.
-      for (let j = 0; j < 2; j++) {
+      if (gateCourt && !pressureCourtApron) gateCourtRosette(x,z,c.cell);
+      // Small scattered flecks belong to ordinary courts; the large disclosed
+      // mechanism gets deliberate negative space around the actual moving jaws.
+      if (!pressureCourtApron) for (let j = 0; j < 2; j++) {
         const sign = j ? 1 : -1;
         add(box, deepStone, x + sign * .91, .003, z - .9, .14, .006, .035, c.cell, 0, .2);
         add(box, inlay, x + sign * .86, .006, z + .86, .12, .009, .12, c.cell, 0, Math.PI / 4);
