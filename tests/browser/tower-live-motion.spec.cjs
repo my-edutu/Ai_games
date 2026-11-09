@@ -14,6 +14,8 @@ const { createTowerSourceTracePoller } =
 const { calibrateOriginalVideo } = require('../../scripts/tower-video-timebase.cjs');
 const { beginTowerNativeCompositorAnchors } =
   require('../../scripts/tower-native-compositor-anchors.cjs');
+const { createTowerPublicStateWitness } =
+  require('../../scripts/tower-public-state-witness.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -429,6 +431,22 @@ for (const viewport of viewports) {
     return response?.ok()?response.json():null;
   },{cadenceMs:5000});
   await sourceTraceObserver.start();
+  // Original frozen host lacks the optional fixed-step trace endpoint. Poll
+  // its UNMODIFIED public HTTP state independently of Chromium's potentially
+  // stalled renderer. Apply the SAME passive observer to candidate footage.
+  // A result tick is admitted only if the original host actually returned it.
+  const publicSourceWitness=createTowerPublicStateWitness(async()=>{
+    const response=await page.request.get(
+      '/tower/state?w='+viewport.width+'&h='+viewport.height+
+      '&reducedMotion=0&cleanFeed=0&muted=1',{timeout:2500});
+    if(!response.ok())throw new Error('original-public-state-'+response.status());
+    return (await response.json()).snapshot;
+  },{cadenceMs:25});
+  await publicSourceWitness.start();
+  const observedSourceTicks=(browserTicks)=>{
+    const independent=publicSourceWitness.snapshot();
+    return independent.length>1?independent:browserTicks;
+  };
   // Source collector begins before the first browser diagnostic observation.
   // No screenshots are performed inside the recorded source window.
   await sample(0);
@@ -449,7 +467,8 @@ for (const viewport of viewports) {
     if (observedMs < MIN_CAPTURE_MS || observedMs < nextSourceProbeMs) continue;
     const passive = await page.evaluate(() =>
       [...(window.__TOWER_CAPTURE_PUBLIC_TICKS__ || [])]);
-    const provisional = indexTowerCaptureEvents(passive, [], {
+    const provisional = indexTowerCaptureEvents(observedSourceTicks(passive), [], {
+      publicWitnessMode:publicSourceWitness.snapshot().length>1,
       sourceSha, scenario, viewport, seed:process.env.TOWER_SEED ||
         'tower-stream-reference', quality:'low',
       authoritativeTrace:sourceTraceObserver.snapshot(),
@@ -470,6 +489,13 @@ for (const viewport of viewports) {
     return {ticks:[...(window.__TOWER_CAPTURE_PUBLIC_TICKS__||[])],
       dropped:window.__TOWER_CAPTURE_PUBLIC_TICK_DROPS__||0};
   });
+  const publicWitnessReport=await publicSourceWitness.finish();
+  const originalHostPublicTicks=publicSourceWitness.snapshot();
+  fs.writeFileSync(path.join(dir,'original-host-public-source-witness.json'),
+    JSON.stringify({sourceSha,scenario,viewport,method:'read-only-original-HTTP-state',
+      publicWitnessReport,sourceTicks:originalHostPublicTicks,
+      fidelity:'Original immutable host snapshots; NO simulation acceleration or manufactured lifecycle events; native WebM pixel verification still required',
+      verdict:'NOT EVALUATED'},null,2));
   const outcomeWitness = scenario === 'outcome' ?
     await page.evaluate(() => {
       clearInterval(window.__TOWER_CAPTURE_RESULT_WITNESS_TIMER__);
@@ -559,8 +585,9 @@ for (const viewport of viewports) {
   // Same passive public-state method for BOTH builds: the frozen source host
   // cannot supply the newer candidate-only /tower/capture-trace endpoint.
   // Source event offsets are search handles, NOT calibrated WebM timecodes.
-  const eventIndex = indexTowerCaptureEvents(passiveSourceTicks.ticks,
+  const eventIndex = indexTowerCaptureEvents(observedSourceTicks(passiveSourceTicks.ticks),
     observations, {
+      publicWitnessMode:originalHostPublicTicks.length>1,
       sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
       scenario, viewport, seed:process.env.TOWER_SEED||'tower-stream-reference',
       quality:'low', authoritativeTrace:sourceTicks,
@@ -636,6 +663,7 @@ for (const viewport of viewports) {
       item.observedResultCard?.visible && item.observedResultCard?.pointerPassThrough).length,
     realFullViewportResultStillCount: 0,
     passiveOriginalCompositorFrameCount: compositorFrameEvidence.length,
+    independentOriginalHostPublicWitness:publicWitnessReport,
     note: 'Original source result-card is non-interactive; inherited pointer-events:none makes elementFromPoint skip it. Passive real DOM/card witnesses and original CDP compositor JPEGs are archived without blocking WebGL screenshot stalls. Neither proves the result appears in the unmodified WebM; review the entire original film before outcome acceptance.',
   };
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({

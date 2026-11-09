@@ -74,23 +74,24 @@
       "sourcePairedManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42690134996/artifacts/13707336173",
       "exactPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42690700570 — SUCCESS after valid physical high-right rotor Y35.5 test correction",
       "measuredOldNativeVideo": "Candidate portrait ~72.56s and frozen comparator ~71.16s original native normal-speed WebMs; prior capture eight candidate/baseline films, original ledge and event pairing: 10/10 jobs successful, 8/8 calibrated native clocks, no source story/provenance defects. Not blind-quality proof.",
-      "mostImportantFootageDefect": "Native portrait candidate danger ~15.2 seconds: massive near-continuous-looking foreground circular machine and rectangular frame dominate live climber and guardian against actual baseline; old modest clock restage inadequate. Real full-motion comparison and event-to-raster matched gateway crossing still unverified.",
-      "meaningfulProductionChange": "Physical clockwork main case+annular rotating gear y9.1→-8.5 and scale (.52,.54,.54)→(.42,.42,.42); independent low clutch y5.5→-8 and 42-unit rack y4→-14, retaining 3 authentic rotating gear models and high rotor y35.5; no physics, guardian, source platform, gate, floor9 or result changes.",
-      "productionImplementationSha": "8eebf2a07459a4e358a92b27d155b2f5d6c3a28e",
+      "mostImportantFootageDefect": "Candidate portrait danger original at 15s shows an intrusive clockwork ring/case over the climber/guardian; physical source restage has no accepted full-motion retest.",
+      "meaningfulProductionChange": "Read-only original-host source polling decoupled from the software-WebGL browser renderer; captures actual result+intermission tick boundaries for both builds while retaining strict no-inference evidence policy.",
+      "productionImplementationSha": "SEE_CURRENT_SOURCE_PINNED_GITHUB_COMMIT",
       "fullThreeGeometryTestSha": "c282decb355bb20c1d53ef968bb5d37a6b2ca51f",
-      "afterChangeQuality": "NOT YET VERIFIED — latest original-node/Three quality CI pending job dispatch",
-      "afterChangeNativeVideo": "NOT EVALUATED — new exact-source capture request follows",
+      "afterChangeQuality": "NOT EVALUATED — exact source quality suite required",
+      "afterChangeNativeVideo": "NOT EVALUATED — exact-head capture requested",
       "sourceVisibleFullLoop": "SOURCE EVENTS paired in prior video, but grounded gateway body crossing, floor-nine, outcome/restart authenticity NOT visually event-matched in both viewports.",
       "reviewerCount": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "deviceFrameTimeAndMemory": "NOT EVALUATED — no supported physical hardware",
-      "biggestExperienceGap": "Real full-scale action composition and readable physical guardian-to-gateway journey in 390x844; prior ring visibly dwarfs actual autonomous climber.",
-      "nextHighestImpactAction": "Run exact post-change Node/Three quality and paired normal-speed 960x600/390x844 original-game capture against immutable frozen comparator; inspect continuous 14–25s; ensure giant gear actually clears real guardian+hero, verify native images align to source-witnessed grounded gate→floor9→terminal/restart. If ring still present, raycast and name exact submitted mesh parent instead of further blind geometry tweaks.",
+      "deviceFrameTimeAndMemory": "NOT EVALUATED",
+      "biggestExperienceGap": "Actual portrait guardian/hero action visibility and source-authentic outcome/restart are unresolved.",
+      "nextHighestImpactAction": "Validate read-only server-sourced outcome sequence on frozen baseline and candidate; inspect native 390x844 / 960x600 true WebMs 14–26s with exact event PTS and authentic earned gateway into floor9. Fix whichever genuine source/play defect appears; only then advance.",
       "reviewFile": "docs/reviews/2026-11-09-tower-pr68-native-guardian-clockwork-clearance-and-raf-fixture.md",
-      "policy": "No PR58/main edits, baseline change, merge, deployment, force-push or draft conversion."
+      "policy": "No PR58/main edits, baseline change, merge, deployment, force-push or draft conversion.",
+      "sourcePairDefect": "Original 42695480406 baseline portrait outcome failed genuine source-result-phase:result and transport audit, 6/8 clocks calibrated; immutable frozen result must not be fabricated."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
@@ -6534,5 +6535,24 @@
     },
     "verdict": "NOT EVALUATED",
     "nextHighestImpact": "Capture exact immutable repaired HEAD both viewports, replay the entire danger 14–20s and outcome/restart with native event handles. If the big ring survives the below-foundation restage, identify its exact rendered mesh and path rather than blindly moving another ornament. Investigate unobservable frozen baseline result phase without inventing result samples; repair failures, then benchmark actual devices and recruit independent critics."
+  },
+  "p0IndependentOriginalHostResultWitness20261109": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceEvidence": "Previous exact-source 42695480406 recorded eight original WebMs, but frozen baseline outcome portrait missed source-result-phase:result; same episode intermission observed, quality pairing failed and native clocks only 6/8 calibrated. Do not infer result from intermission.",
+    "meaningfulChange": "Add an independent bounded read-only HTTP /tower/state public-source witness at 25ms on BOTH immutable hosts, allowing authentic 50ms result/intermission phase edges to be indexed without Chromium WebGL/render-loop starvation. Never synthesize a lifecycle phase or alter original host/runtime. Retain original WebMs, raw source witness trace, provenance and source sequence strict gates.",
+    "commitSha": "SEE_CURRENT_SOURCE_PINNED_GITHUB_COMMIT",
+    "previousVerifiedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42704550370 (passed at earlier source 61d718bd, not this new witness)",
+    "previousFailedEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/42695480406",
+    "newNodeAndBrowserChecks": "NOT EXECUTED before exact-head GitHub workflow; development tunnel disconnected. New source witness tests require actual Node runner.",
+    "newSourcePinnedVideo": "NOT EVALUATED — request exact github.sha; screenshot, test assertions or source index are not visual or hardware quality",
+    "reviewerCounts": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceMetrics": "NOT EVALUATED",
+    "largestExperienceGap": "Portrait guardian sightline still obscured by monumental clockwork at native ~15s on previous 8448e2c film; new 61d below-route staging remains film-unverified. Baseline result-source authenticity also unproven on failed portrait episode.",
+    "nextHighestImpact": "Inspect current nine-job recording and new capture source witness/real WebMs; require genuinely observed baseline result→intermission→restart, native timecode calibration and full-motion physical guardian/gateway/floor9 continuity. Do not advance P0 until source AND raster evidence pass."
   }
 }

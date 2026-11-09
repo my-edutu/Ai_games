@@ -253,9 +253,12 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     scenario: options.scenario || null, viewport: options.viewport || null,
     seed: options.seed || null, recordingQuality: options.quality || null,
     source:fixedStepWitness?
-      'candidate original-host fixed-step public source; frozen baseline uses passive browser observer':
-      'read-only 50ms browser witness of immutable public game state; identical baseline/candidate capture observer',
-    sourceWitnessMode:fixedStepWitness?'original-host-fixed-step':'passive-browser-poll',
+      'candidate original-host fixed-step public source; same public HTTP observer also runs on both versions':
+      options.publicWitnessMode?
+        'original immutable host 25ms HTTP public source witness independent of Chromium renderer':
+        'read-only 50ms browser witness of immutable public game state',
+    sourceWitnessMode:fixedStepWitness?'original-host-fixed-step':
+      options.publicWitnessMode?'read-only-original-host-HTTP':'passive-browser-poll',
     hostSourceTicksUsed:fixedStepWitness?trace.length:0,
     fixedStepTraceCompleteness: 'NOT GUARANTEED: async browser samples may skip source ticks',
     videoClockCalibration: 'NOT EVALUATED: event offsets are relative to first browser observation, not certified WebM timecodes',
