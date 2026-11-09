@@ -1,0 +1,41 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const load=()=>import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/postfx-budget.js'),'utf8')).toString('base64'));
+
+test('read-only physical ray audits and 3D composition work run only when inspected, once per actual frame',async()=>{
+ const {deferRenderDiagnostics}=await load();
+ const counts={physical:0,composition:0,actor:0};
+ const report={frame:87,renderedState:{tick:47,checksum:'authority-47'},webgl:true};
+ deferRenderDiagnostics(report,{
+  visibility:()=>{counts.physical++;return {rays:24,blocked:2}},
+  composition:()=>{counts.composition++;return {visibleHeroes:3}},
+  authored3D:()=>{counts.actor++;return {riggedActors:5}}
+ });
+ assert.deepEqual(counts,{physical:0,composition:0,actor:0},'the actual render loop must not execute optional diagnostic raycasts');
+ assert.equal(report.frame,87);assert.equal(report.renderedState.checksum,'authority-47');
+ assert.ok(Object.keys(report).includes('visibility'),'full report remains enumerable for browser evidence');
+ assert.deepEqual(report.visibility,{rays:24,blocked:2});
+ assert.equal(report.visibility,report.visibility,'one expensive ray scan per requested frame');
+ assert.deepEqual(counts,{physical:1,composition:0,actor:0});
+ assert.equal(JSON.parse(JSON.stringify(report)).composition.visibleHeroes,3,'JSON evidence retains the complete diagnostic schema');
+ assert.deepEqual(counts,{physical:1,composition:1,actor:1});
+ report.autoDirector=false;assert.equal(report.autoDirector,false,'manual spectator controls may still update their read-only status');
+ const next={frame:88,renderedState:{tick:48}};
+ deferRenderDiagnostics(next,{visibility:()=>{counts.physical++;return {rays:3}}});
+ assert.equal(next.frame,88);assert.equal(counts.physical,1);
+ assert.equal(next.visibility.rays,3);assert.equal(counts.physical,2,'a new real render frame receives a fresh audit');
+});
+
+test('invalid producers cannot corrupt truthful cheap rendering fields',async()=>{
+ const {deferRenderDiagnostics}=await load();
+ const record={frame:13,webgl:true};
+ assert.equal(deferRenderDiagnostics(record,{invalid:null}),record);
+ assert.equal(record.webgl,true);
+ assert.equal('invalid' in record,false);
+ assert.throws(()=>deferRenderDiagnostics(null,{}),TypeError);
+ assert.throws(()=>deferRenderDiagnostics(record,null),TypeError);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/deferRenderDiagnostics\(diagnostics,/);
+ assert.doesNotMatch(app,/visibility:\s*actualHeroVisibility\(/,'actual occlusion tests cannot execute eagerly for each WebGL frame');
+});

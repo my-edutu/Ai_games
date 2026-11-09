@@ -6282,6 +6282,55 @@
       "plays": "UNVERIFIED",
       "critics": 0,
       "next": "Fresh exact-head 1440/390 authored WebGL + original-audio evidence; inspect capture, Warden legibility, natural five-stage delivery and PR72 independently; no merge/deploy."
+    },
+    "m1ExactHeadFiveStageMotionRecovery": {
+      "date": "2026-11-09",
+      "sourceHead": "36cea8e53a74afda152ac2a6e5bfbb33cf8f4946",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "realBrowserWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42598329043",
+      "desktopArtifact": 13664918823,
+      "mobileArtifact": 13665520813,
+      "realWebGL": "BOTH_DESKTOP_AND_MOBILE_3D_BOOTED",
+      "seed": "gauntlet-corpus-v1-0",
+      "authorityStepsEach": 946,
+      "renderedMilestones": {
+        "entry": "run1 tick0 ad7929bd",
+        "combat": "run1 tick3 ea172656",
+        "warden": "run1 tick47 9f1704fd",
+        "floor": "run1 tick123 floor2 0f98f07a",
+        "naturalDefeat": "run1 tick931 floor10 f006a407",
+        "restart": "run2 tick0 a77a04ce"
+      },
+      "originalOptInAudio": "Original Opus video track and non-silent WebAudio PCM 4s in each artifact; actual impact sync UNVERIFIED",
+      "sourceAudioPcmRms": {
+        "desktop": 0.008336612330377248,
+        "mobile": 0.008854018295393609
+      },
+      "realPhysicalMotion": "SPARSE—genuine frames approximately 1-2 fps; held real milestone frames are NOT natural live cadence",
+      "matchedBaseline": false,
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED"
+    },
+    "m1DeferredFrameObservabilityCandidate": {
+      "date": "2026-11-09",
+      "parentHead": "36cea8e53a74afda152ac2a6e5bfbb33cf8f4946",
+      "stage": "A_INCOMPLETE",
+      "largestRealDefect": "Severely sparse original 3D frame delivery and miniature Warden fighters",
+      "integratedSource": "One per-frame lazy, enumerable, memoized read-only 3D scene diagnostics contract; keeps expensive masonry ray, composition projection, rig, stage and atmosphere probes off RAF unless actually requested, retaining scene, cuts, authoritative gameplay, replay, sound",
+      "tests": "Local 375/375 Node dungeon:test PASS including 2 new RED/GREEN lazy diagnostics cases and correction of 2 previously failing test fixtures/assertions; real new-head FPS still NOT_OBSERVED",
+      "genuineAfterFPS": "NOT_OBSERVED",
+      "audioImpact": "UNVERIFIED",
+      "fiveStagesPriorHead": "BOTH_OBSERVED_WITH_BROWSER_HELD_REAL_MILESTONES",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Original exact next-head 1440/390 genuine films and sound, p50/p95/p99 WebGL render delivery and CPU/GPU/encoder/diagnostic overhead; reject if no meaningful motion benefit; protect Warden warning cells, improve original adult rigs/contact; matched moving immutable baseline, genuine audio synchronization and three independent blind critics still required. PR72 unintegrated."
     }
   }
 }

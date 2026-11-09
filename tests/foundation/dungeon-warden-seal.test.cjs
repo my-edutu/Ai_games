@@ -62,7 +62,7 @@ test('living reinforcements prevent an unearned floor exit after defeating the W
 });
 test('authoritative ward, focused pursuit and real presentation are wired without mutating save schema',()=>{
  const game=DungeonRuntime.create('binding-guard-replay-4'),s=game.state;
- assert.equal(s.schemaVersion,1);assert.equal(game.save().version,'0.5.0');
+ assert.equal(s.schemaVersion,1);assert.equal(game.save().version,'0.6.0');
  const restored=DungeonRuntime.restore(game.save());
  for(let tick=0;tick<140;tick++)assert.equal(game.step().checksum,restored.step().checksum);
  const root=path.resolve(__dirname,'../..'),app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');

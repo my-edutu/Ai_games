@@ -138,7 +138,7 @@ test('true four-body-point visibility reuses exact original masonry bounds witho
   multiplyScalar(n){this.x*=n;this.y*=n;this.z*=n;return this}
  }
  class Matrix{
-  multiplyMatrices(a,b){this.x=(a.x||0)+(b.x||0);this.y=(a.y||0)+(b.y||0);this.z=(a.z||0);return this}
+  multiplyMatrices(a,b){this.x=(a.x||0)+(b.x||0);this.y=(a.y||0)+(b.y||0);this.z=(a.z||0)+(b.z||0);return this}
   getMaxScaleOnAxis(){return 1}
  }
  class Mesh{

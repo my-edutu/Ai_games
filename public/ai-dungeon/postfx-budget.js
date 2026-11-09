@@ -200,3 +200,29 @@ export function createSoftwareDeliveryBudgetGovernor(){
  return {observe,reset,stats:()=>({trialActive:!!trial,rejected,successfulTrials,rejectedTrials})};
 }
 
+
+
+/**
+ * Remove optional read-only original-scene evidence work from the
+ * presentation RAF. Inspection still receives enumerable, memoized truth
+ * from its requested frame; never defer actual cutaways or gameplay.
+ */
+export function deferRenderDiagnostics(report,producers){
+ if(!report||typeof report!=='object'||!producers||typeof producers!=='object')
+  throw new TypeError('A diagnostic report and metric producers are required');
+ for(const [name,produce] of Object.entries(producers)){
+  if(typeof produce!=='function')continue;
+  if(Object.prototype.hasOwnProperty.call(report,name))
+   throw new TypeError(`Cannot overwrite eager diagnostic ${name}`);
+  Object.defineProperty(report,name,{
+   enumerable:true,configurable:true,
+   get(){
+    const result=produce();
+    Object.defineProperty(report,name,{value:result,enumerable:true,configurable:true,writable:true});
+    return result;
+   },
+   set(value){Object.defineProperty(report,name,{value,enumerable:true,configurable:true,writable:true})}
+  });
+ }
+ return report;
+}
