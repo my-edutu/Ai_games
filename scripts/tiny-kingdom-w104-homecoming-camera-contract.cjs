@@ -40,5 +40,20 @@ assert.match(doorstep,/if\(!isReadableHomecomingShot\(sightline,portrait,true\)\
  'a blocked physical doorstep cannot override the moving citizen shot');
 assert.match(doorstep,/return best\?\{\.\.\.best,clearShots,readableShots,checkedShots:checked\}:null;/,
  'no safe real outside position must report unavailable, never a fake shot');
+// W173: closed oak door is an honest physical subject when the worker
+// already rests beyond the wall; it must never pretend their body is visible.
+const closedStart=source.indexOf('function isReadableClosedHomeShot(');
+assert.ok(closedStart>0,'true closed-door physical camera criterion is present');
+const closedEnd=source.indexOf('\n}\n',closedStart);
+assert.ok(closedEnd>closedStart,'closed-door check has a bounded function body');
+const closed=vm.runInNewContext(source.slice(closedStart,closedEnd+2)+'\nisReadableClosedHomeShot');
+const shut={...clear,eyeClear:true,outsideDoor:true,projectedWorkerHeightFraction:0};
+assert.equal(closed(shut),true,'observed real shut oak door does not require an invented visible resident');
+for(const patch of [{outsideDoor:false},{eyeClear:false},{doorRayBlockers:1},
+ {vegetationFaceBlockers:1},{foregroundVegetationCover:.34},
+ {foregroundSceneCover:.32},{blockers:1}]){
+ assert.equal(closed({...shut,...patch}),false,
+  'closed doorway film cannot hide physical obstructions to stage an arrival');
+}
 assert.match(source,/function getHomecomingThresholdCameraAudit\(\)/);
-console.log('W104 PASS: inline JS parses; 13 physical mobile camera cases and real render-path selection contracts pass. Actual running-browser/390px FPS and filmed readability remain unproven.');
+console.log('W104/W173 PASS: JavaScript parses; original real open-door and genuinely closed-door sightline checks pass. Running-browser, performance and quality remain separately unproven.');

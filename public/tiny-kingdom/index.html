@@ -18276,9 +18276,11 @@ function planHomecomingThresholdCamera(citizen,entry){
        'real-arriving-citizen-and-door',
       witnessMode:resting?'resting-threshold':'threshold',
       portraitLens:portrait};
-     const readable=resting?isReadableClosedHomeShot(sightline):
-      isReadableHomecomingShot(sightline,portrait,true);
-     if(!readable)continue;
+     // Original real, open doorway keeps the strict human visibility rule.
+     // A genuinely shut leaf is judged as a physical cottage view instead.
+     if(!resting){
+      if(!isReadableHomecomingShot(sightline,portrait,true))continue;
+     }else if(!isReadableClosedHomeShot(sightline))continue;
      readableShots++;
      if(cost<bestCost){bestCost=cost;best=sightline;}
     }
