@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
+const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery}=require('./dungeon-animation-witness.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witness(accept){
@@ -153,13 +154,11 @@ async function witnessedSourceRecovery(){
   let before=game.publicState();
   for(let i=0;i<1350;i++){
    const after=game.step();
-   const fighter=after.units.find(u=>u.hp>0&&['vanguard','revenant','warden'].includes(u.kind)&&
-    u.action==='attack'&&typeof u.targetId==='string'&&
-    planCombatFacing(u,after.units,after.map)?.distance===1);
+   const fighter=after.units.find(u=>isUninterruptedMeleeWitness(
+    before,after,u,planCombatFacing(u,after.units,after.map)));
    if(fighter){
     const idle=game.step();
-    const updated=idle.units.find(u=>u.id===fighter.id);
-    if(updated?.hp>0&&updated.action==='idle'&&updated.actionTick===idle.tick)
+    if(isUninjuredIdleRecovery(after,idle,fighter.id))
      return {seed,before,attack:after,idle,actorId:fighter.id};
     before=idle;
    }else before=after;

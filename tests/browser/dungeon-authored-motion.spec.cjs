@@ -160,11 +160,16 @@ test('actual Chromium melee animates the true cloned spine and weapon wrist on a
  await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
+ const activeFramesBefore=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigMeleeObservedActiveFrames??0);
  state=frames.after;
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigMeleeCurrentPeakRad??0),{intervals:[50,80,110],timeout:20000}).toBeGreaterThan(.12);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigMeleeObservedActiveFrames??0),
+  {intervals:[50,80,110],timeout:20000}).toBeGreaterThan(activeFramesBefore);
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.authored3D.rigMeleeBones).toBeGreaterThanOrEqual(2);
- expect(d.authored3D.rigMeleeActiveActors).toBeGreaterThanOrEqual(1);
+ // True active posing can finish before a later slow-WebGL diagnostic read.
+ // Require actual observed-active source frames since the staged real attack.
+ expect(d.authored3D.rigMeleeObservedActiveFrames).toBeGreaterThan(activeFramesBefore);
+ expect(d.authored3D.rigMeleePeakRad).toBeGreaterThan(.12);
  expect(d.authored3D.rigMeleeCurrentPeakRad).toBeLessThanOrEqual(.36);
  expect(d.authored3D.missingAssets).toBe(0);
  expect(d.composition.visibleHeroes).toBeGreaterThan(0);
@@ -178,7 +183,8 @@ test('actual Chromium melee animates the true cloned spine and weapon wrist on a
   source:'unmodified DungeonRuntime step publicState and planCombatFacing',
   rigMeleeBones:d.authored3D.rigMeleeBones,
   currentPeak:d.authored3D.rigMeleeCurrentPeakRad,
-  active:d.authored3D.rigMeleeActiveActors,
+  active:d.authored3D.rigMeleeActiveActors,observedActiveFrames:d.authored3D.rigMeleeObservedActiveFrames,
+  priorActiveFrames:activeFramesBefore,
   composition:d.composition,visibility:d.visibility,drawCalls:d.drawCalls,triangles:d.triangles
  },null,2)),contentType:'application/json'});
 });

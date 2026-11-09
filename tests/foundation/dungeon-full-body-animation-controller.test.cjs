@@ -890,3 +890,23 @@ test('original Walking_A source cadence follows actual 60Hz and sparse-frame dis
  assert.match(model,/walkingClip:\/\(\?:walk\|run\|move\)\/i\.test/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
 });
+
+test('actual browser witness contract rejects a real HP-loss-overlapped attack tick',()=>{
+ const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery}=require('../browser/dungeon-animation-witness.cjs');
+ // Exact-head Playwright trace run 42604195673: revenant enemy-1-2 lost
+ // 12 HP on tick 24 while public action said attack. Hit_A owns that beat.
+ const prior={id:'enemy-1-2',kind:'revenant',hp:21,action:'hurt',actionTick:23};
+ const striking={...prior,hp:9,action:'attack',actionTick:24,targetId:'mystic'};
+ const face={targetId:'mystic',distance:1,yaw:1.1};
+ assert.equal(isUninterruptedMeleeWitness({units:[prior]},{units:[striking]},striking,face),false);
+ const cleanPrior={...prior,action:'idle'},cleanAttack={...striking,hp:21};
+ const attackState={run:1,floor:1,tick:24,units:[cleanAttack]};
+ const idleState={run:1,floor:1,tick:25,units:[{...cleanAttack,action:'idle',actionTick:25}]};
+ assert.equal(isUninterruptedMeleeWitness({units:[cleanPrior]},attackState,cleanAttack,face),true);
+ assert.equal(isUninterruptedMeleeWitness({units:[cleanPrior]},attackState,cleanAttack,
+  {...face,targetId:'warden-1'}),false,'must be SAME actual adjacent target');
+ assert.equal(isUninjuredIdleRecovery(attackState,idleState,cleanAttack.id),true);
+ assert.equal(isUninjuredIdleRecovery(attackState,{...idleState,floor:2},cleanAttack.id),false);
+ assert.equal(isUninjuredIdleRecovery(attackState,{...idleState,units:[{...cleanAttack,
+  action:'hurt',hp:9,actionTick:25}]},cleanAttack.id),false);
+});
