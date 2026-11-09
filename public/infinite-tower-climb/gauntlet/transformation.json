@@ -6509,5 +6509,30 @@
     "hardware": "NOT EVALUATED",
     "verdict": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect new native WebM full motion and source-to-video timecodes; if giant wheel still dominates actual fight rebuild camera/architectural envelope rather than lowering quality gates."
+  },
+  "p0RealFilmIdentifiedRingAndSourceTruth20261109": {
+    "stage": "P0 OPEN",
+    "exactSourceInspected": "8448e2c01e547e41075d710141b65ee0d2b11a76",
+    "originalFilmRun": "https://github.com/my-edutu/Ai_games/actions/runs/42695480406",
+    "originalPortraitDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42695480406/artifacts/13708543926",
+    "originalBaselineOutcomeArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42695480406/artifacts/13708638646",
+    "directMotionInspection": "Original unmodified 390×844 portrait WebM decoded at native 15s: a large open-ring/case consumes most left and central action image while the skinned blue climber is squeezed beside its lower frame. At 17–18s the climber is more readable; obstruction is transient but severe. Actual camera-forensics groups report 0 projected screen coverage around tick308 despite the visible ring, so exact mesh ownership is NOT proven. Screenshot/dump alone is not a blind full-motion verdict.",
+    "nativeMotion": "Unmodified candidate portrait danger ~72.64s verified playable media by offline ffprobe; source-story alone records floor8 guardian defeat and handoff, not rendered-frame proof of physical gateway or floor9 in same continuous evaluation.",
+    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42695480005",
+    "latestQualityResult": "FAILED: original Node suite 1285/1286; installed-Three clockwork ordering test reported low y (-8) not below main y (-8.5). Build and transformation structural gate passed, but remaining browser/authority checks skipped. Never report green CI.",
+    "sourcePairDefect": "Original ten-job run 42695480406 yielded eight WebM artifacts and seven successful recording jobs; baseline outcome recording failed in portrait after 119.7 seconds, with intermission/result-card observation but missing sampled source-result-phase:result in one same-run episode. Pair-source-events job failed; 6/8 original native clocks calibrated. Frozen baseline remains immutable and original incomplete evidence is retained, NOT accepted.",
+    "implementationSha": "61d718bd8315457a1c1e47a1ca2f03523f0c24a8",
+    "regressionSha": "a8d335ab6029d6c48a4325df3f6a99e69a1d8d1a",
+    "implementedChange": "Lower the full non-colliding clockwork main drive to local y=-24, low clutch to y=-37 and open 42-unit rack to y=-34; preserve upper rotor, all three original mechanisms, gameplay meshes and source mechanics. Original Three.js test now validates actual post-batch Box3 upper bounds rather than only origin and source-frame equality.",
+    "scopedSourceTests": "NOT EXECUTED in this tool session: workspace tunnel disconnected. Exact SHA GitHub Actions required; moving decor in source is not proof of a better picture.",
+    "matchedFullMotionAcceptance": "NOT EVALUATED",
+    "realDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "verdict": "NOT EVALUATED",
+    "nextHighestImpact": "Capture exact immutable repaired HEAD both viewports, replay the entire danger 14–20s and outcome/restart with native event handles. If the big ring survives the below-foundation restage, identify its exact rendered mesh and path rather than blindly moving another ornament. Investigate unobservable frozen baseline result phase without inventing result samples; repair failures, then benchmark actual devices and recruit independent critics."
   }
 }
