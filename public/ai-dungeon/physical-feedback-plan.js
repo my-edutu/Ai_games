@@ -231,9 +231,13 @@ export function planPhysicalFeedback(previous,next,{
     // still-active recovery on the exact adjacent observed event tick.
     if(!observedEventAtAdjacentTick(previous,next,e.tick)||
        next.guardianWard===true)break;
-    const candidates=next.units.slice(0,96).filter(u=>
-     validId(u?.id)&&u.kind==='warden'&&u.faction==='enemy'&&u.hp>0&&
-     point(u)&&sameIdUnit(oldUnits.get(u.id),u)&&
+    // The event carries no boss identity. Two living Wardens make even
+    // one observed cast insufficient to assign its anonymous recovery cue.
+    const livingWardens=next.units.slice(0,96).filter(u=>
+     u?.kind==='warden'&&u?.faction==='enemy'&&u.hp>0);
+    if(livingWardens.length!==1)break;
+    const candidates=livingWardens.filter(u=>
+     validId(u?.id)&&point(u)&&sameIdUnit(oldUnits.get(u.id),u)&&
      u.action==='cast'&&u.actionTick===e.tick&&
      validTick(u.recoveryUntilTick)&&u.recoveryUntilTick>=e.tick&&
      u.recoveryUntilTick<=e.tick+2);
@@ -248,9 +252,17 @@ export function planPhysicalFeedback(previous,next,{
      verified:true,proof:'authority-opening-recovery-window'});break;
    }
    case 'counter': {
-    const prior=previous.units.find(u=>u?.kind==='warden'),
-     current=next.units.find(u=>u?.id===prior?.id&&u?.kind==='warden');
-    if(observedEventAtAdjacentTick(previous,next,e.tick) &&
+    // Anonymous counter prose cannot select array-first boss. Require a
+    // unique Warden identity across both observed authority snapshots.
+    // The real victim's HP loss may still receive independent damage audio.
+    const priorWardens=previous.units.slice(0,96).filter(u=>
+     u?.kind==='warden'&&u?.faction==='enemy'&&u.hp>0);
+    const currentWardens=next.units.slice(0,96).filter(u=>
+     u?.kind==='warden'&&u?.faction==='enemy');
+    if(priorWardens.length!==1||currentWardens.length!==1)break;
+    const prior=priorWardens[0],current=currentWardens[0];
+    if(prior.id===current.id &&
+     observedEventAtAdjacentTick(previous,next,e.tick) &&
      positiveHealthDrop(prior,current) &&
      validTick(prior.recoveryUntilTick) && prior.recoveryUntilTick>=e.tick)
      push('counter',e.tick,{targetId:current.id,to:point(current),
