@@ -27,6 +27,35 @@ test('a live changing canvas and advancing source earns a scoped motion-capture 
   assert.equal(result.performanceGate, 'UNVERIFIED: submitted intervals are not presented GPU frames or intended-device FPS');
 });
 
+
+test('passive original Chrome compositor witnesses prove changing recorded pixels without blocking WebGL screenshots', () => {
+  const samples = evidence().map(sample => ({...sample, canvasHash: null}));
+  const witness = (atMs, char) => ({
+    witness: 'unaltered-Chromium-compositor-CDP-frame',
+    startAtMs: atMs, endAtMs: atMs, sha256: char.repeat(64),
+  });
+  const options = {compositorFrameEvidence: [witness(2000, 'a'), witness(6000, 'b'), witness(10000, 'c')]};
+  const result = assessTowerMotion(samples, options);
+  assert.equal(result.scopedPass, true, JSON.stringify(result.blockers));
+  assert.equal(result.uniqueCanvasFrames, 0);
+  assert.equal(result.uniqueCompositorFrames, 3);
+  assert.equal(result.pixelEvidence, 'passive-original-compositor-witnesses');
+  assert.equal(result.performanceGate,
+    'UNVERIFIED: submitted intervals are not presented GPU frames or intended-device FPS');
+  // The proof is a source-independent capture guardrail, not LOOKS/FEELS/PLAYS approval.
+  for (const invalid of [
+    [witness(2000, 'a'), witness(6000, 'a')],
+    [witness(2000, 'a'), witness(2100, 'b')],
+    [{...witness(2000, 'a'), witness: 'synthetic'}, witness(6000, 'b')],
+    [{...witness(2000, 'a'), endAtMs: 4000}, witness(6000, 'b')],
+    [{...witness(2000, 'a'), sha256: 'not-a-sha'}, witness(6000, 'b')],
+  ]) {
+    const rejected = assessTowerMotion(samples, {compositorFrameEvidence: invalid});
+    assert.equal(rejected.scopedPass, false);
+    assert.ok(rejected.blockers.includes('canvas-pixels-not-changing'));
+  }
+});
+
 test('fresh renderer submissions cannot conceal a frozen authoritative run', () => {
   const samples = evidence();
   samples.forEach(sample => { sample.tick = 100; sample.checksum = 'same'; });
