@@ -59,22 +59,30 @@ async function poll() {
     audio.accept(data);
     const diagnostics = window.__TOWER_RENDER_DIAGNOSTICS__();
     const renderState = diagnostics.renderProgress?.state;
+    const faultState = diagnostics.renderFault?.state;
+    const graphicsFault = faultState === 'retrying' || faultState === 'failed';
     const graphicsPending = ['waiting', 'starting', 'stalled'].includes(renderState);
     const terminal = ['result', 'intermission'].includes(data.scene);
-    const recovery = !view || diagnostics.contextLost || data.scene === 'recovery' || (graphicsPending && !terminal);
+    const recovery = !view || diagnostics.contextLost || graphicsFault ||
+      data.scene === 'recovery' || (graphicsPending && !terminal);
     const recoveryKind = !view ? 'unavailable'
       : diagnostics.contextLost ? 'context'
+      : faultState === 'failed' ? 'render-failed'
+      : faultState === 'retrying' ? 'render-retry'
       : data.scene === 'recovery' ? 'authority'
       : renderState === 'stalled' ? 'stalled'
       : graphicsPending ? 'starting' : undefined;
     const recoveryMessage = !view ? 'Your browser could not start 3D graphics. Enable WebGL and reload this page.'
       : diagnostics.contextLost ? 'Graphics are reconnecting. The expedition continues.'
+      : faultState === 'failed' ? '3D rendering stopped after bounded retries. Switch graphics quality or reload; the expedition continues.'
+      : faultState === 'retrying' ? 'The 3D renderer is retrying. The expedition continues without inventing frames.'
       : data.scene === 'recovery' ? 'The expedition is restoring verified game state.'
       : renderState === 'stalled' ? 'The 3D view is delayed. The expedition continues; try Low graphics quality.'
       : graphicsPending ? 'Preparing the 3D view. The expedition continues.'
       : 'The expedition is restoring verified game state.';
     hud.update(recovery ? { ...data, scene: 'recovery' } : data, { ...diagnostics, recoveryMessage, recoveryKind, sourceScene: data.scene });
-    if (recovery || graphicsPending) hud.status(renderState === 'stalled' ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
+    if (faultState === 'failed') hud.status('3D rendering stopped · switch graphics quality or reload', 'error');
+    else if (recovery || graphicsPending) hud.status(renderState === 'stalled' && !graphicsFault ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
     else hud.status('LIVE EXPEDITION', 'online');
   } catch (error) {
     if (closed || suspended || request !== pending) return;

@@ -24,6 +24,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
+import { towerRenderFaultDecision, towerRenderRetryReady } from './render-recovery.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
@@ -2049,6 +2050,10 @@ export function createTowerScene(canvas, settings = {}) {
   // ability input. Render-only for the original climber's existing rig.
   let airbornePulse = null, guardianCounterPulse = null;
   let elapsed = 0, lastTime = 0, renderErrors = 0, contextLost = false, disposed = false;
+  // A JavaScript/render-submission exception is NOT WebGL context loss. The
+  // fixed-step expedition must continue while view recovery is bounded.
+  let renderFaultState = 'live', renderFaultRetryAt = 0;
+  let renderRecoveryAttempts = 0, renderFaultCount = 0;
   let contactUntil=0,contactHero=false,contactEnemyId=null;
   let landingMoment=-Infinity,landingRun=null,landingFloor=null,landingWeight=0;
   let physicalTouchdown = null;
@@ -3765,44 +3770,78 @@ export function createTowerScene(canvas, settings = {}) {
       actionLightTarget.z + Math.cos(lightAzimuth) * 34);
   }
 
+  function clearTowerRenderFault() {
+    renderErrors = 0;
+    renderFaultState = 'live';
+    renderFaultRetryAt = 0;
+    renderRecoveryAttempts = 0;
+    lastTime = 0;
+  }
   function animate(now) {
     if (disposed) return;
     frameHandle = requestAnimationFrame(animate);
     const deltaMs = lastTime ? now - lastTime : 16.67;
     lastTime = now;
-    if (contextLost || !snapshot) return;
+    if (contextLost || !snapshot || renderFaultState === 'failed') return;
+    if (renderFaultState === 'retrying' &&
+        !towerRenderRetryReady(renderFaultState, renderFaultRetryAt, now)) return;
     const dt = clamp(deltaMs / 1000, .001, .5);
     const motionDt = options.stale ? 0 : dt;
-    elapsed += motionDt;
     try {
-      // A drawing-buffer resize invalidates its previous contents. Always
-      // resize BEFORE the next render, never immediately after submission.
+      // Recover the existing 3D renderer state WITHOUT creating another
+      // authoritative run, resetting replay, or simulating any missing ticks.
+      // Do not rebuild/dispose the world on a JavaScript exception: that path
+      // belongs to an actual webglcontextlost event.
+      if (renderFaultState === 'retrying') {
+        renderer.resetState();
+        resolutionDirty = true;
+        lastTime = 0;
+        renderFaultState = 'live';
+      }
+      elapsed += motionDt;
       if (resolutionDirty) { resize(); resolutionDirty = false; }
       const submissionStart = performance.now();
       update(motionDt); renderer.render(scene, camera);
       if (innerWidth >= 700 && resolutionPolicy.record(performance.now() - submissionStart,
         document.visibilityState === 'visible' && !options.stale)) resolutionDirty = true;
       // Count a contact frame only after Three has submitted it. Delayed
-      // software rendering must not consume an unseen cue on elapsed time
-      // alone; submissions are NOT proof of displayed hardware FPS.
+      // software rendering must not consume an unseen cue on elapsed time.
       for (const entry of enemies.values()) {
         if (entry.impact.visible && entry.impactFramesRemaining > 0) entry.impactFramesRemaining--;
       }
       renderProgress.submitted(snapshot, performance.now());
+      // Only a genuinely completed source frame clears a transient failure
+      // streak. A fresh source tick alone cannot certify a graphics recovery.
+      if (renderErrors || renderRecoveryAttempts) {
+        options.onStatus?.('3D view restored · expedition continues', 'online');
+      }
+      renderErrors = 0;
+      renderRecoveryAttempts = 0;
+      renderFaultRetryAt = 0;
+      renderFaultState = 'live';
     } catch (error) {
-      renderErrors++; options.onStatus?.('The 3D view is recovering', 'error');
+      renderErrors++;
+      renderFaultCount++;
       if (renderErrors === 1) console.error('Tower renderer:', error);
-      // A persistent view error should be visible and bounded, while server ticks continue.
-      if (renderErrors >= 3) contextLost = true;
+      const decision = towerRenderFaultDecision(renderErrors, renderRecoveryAttempts, now);
+      renderFaultState = decision.state;
+      renderRecoveryAttempts = decision.attempts;
+      renderFaultRetryAt = decision.retryAt ?? 0;
+      options.onStatus?.(renderFaultState === 'failed'
+        ? '3D graphics stopped · switch graphics quality or reload'
+        : '3D view recovering · expedition continues',
+        renderFaultState === 'failed' ? 'error' : 'degraded');
     }
   }
   const lost = event => {
     event.preventDefault(); contextLost = true;
+    clearTowerRenderFault();
     options.onStatus?.('Graphics interrupted · ascent continues', 'recovering');
     rebuildGraphicsResources();
   };
   const restored = () => {
-    contextLost = false; renderErrors = 0; lastTime = 0;
+    contextLost = false;
+    clearTowerRenderFault();
     renderProgress.reset(performance.now());
     resolutionPolicy.reset(); resolutionDirty = false;
     resize(); options.onStatus?.('Preparing the 3D view', 'recovering');
@@ -3827,6 +3866,10 @@ export function createTowerScene(canvas, settings = {}) {
     const nextQuality = quality === 'low' ? 'low' : 'high';
     if (options.quality !== nextQuality) {
       options.quality = nextQuality;
+      // Explicit tier switching is a user-controlled escape from a terminal
+      // view-only fault; the authoritative simulation is not restarted.
+      clearTowerRenderFault();
+      renderProgress.reset(performance.now());
       resolutionPolicy.reset(); resolutionDirty = false;
       reflectionDirty = true;
       reflectionFirstFrame = true;
@@ -3934,6 +3977,10 @@ export function createTowerScene(canvas, settings = {}) {
     // GPU completion or visibility in a captured/composited output.
     return { renderer: 'three-webgl', frames: submissionProgress.submittedFrames, tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0, theme: snapshot?.theme ?? '',
       camera: options.camera, quality: options.quality, reducedMotion: options.reducedMotion, stale: !!options.stale, contextLost, renderErrors,
+      renderFault: { state: renderFaultState, resetAttempts: renderRecoveryAttempts,
+        retryRemainingMs: renderFaultState === 'retrying'
+          ? Math.max(0, Math.round(renderFaultRetryAt - performance.now())) : null,
+        totalExceptions: renderFaultCount, authoritativeGameplayPaused: false },
       actorSafeRefinements,
       portraitAimCorrections,
       jointShotApplications,
