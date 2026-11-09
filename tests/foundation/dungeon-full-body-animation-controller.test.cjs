@@ -689,3 +689,36 @@ test('actual visual teleport releases old sword recovery and imported contact po
  assert.match(model,/teleport:Boolean\(actor\.locomotionTeleport\)/,
   'controller consumes actual planExpeditionStep visual teleport, never synthetic grid movement');
 });
+
+test('teleported source rig cannot resurrect an old attack/cast on the next landed render frame',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ for(const action of ['attack','cast']){
+  const original=hero(action,71),began=step(null,frame(original,{actionAge:.215}));
+  assert.equal(began.mode,action);
+  const snapped=step(began,frame(original,{
+   actionAge:.31,teleport:true,grounded:{moving:false,clipAction:'idle'}
+  }));
+  assert.equal(snapped.mode,'idle','relocation cannot carry same-tick source one-shot');
+  assert.equal(snapped.owner.duel,false);assert.equal(snapped.owner.cast,false);
+  assert.equal(snapped.confirmedContact,null);
+  assert.equal(snapped.teleportSuppressedTick,71);
+  const landed=step(snapped,frame(original,{actionAge:.38,teleport:false}));
+  assert.equal(landed.mode,'idle','landing must not resurrect the old action');
+  const newAction=step(landed,frame(hero(action,72),{actionAge:.03}));
+  assert.equal(newAction.mode,action,'new lawful source tick starts normally');
+  assert.equal(newAction.teleportSuppressedTick,null);
+  assert.equal(newAction.actionTick,72);
+ }
+});
+test('teleport tick quarantine retains genuine injury and death and leaves ordinary strikes unchanged',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const original=hero('attack',81),began=step(null,frame(original,{actionAge:.21}));
+ assert.equal(step(began,frame(original,{actionAge:.25})).mode,'attack');
+ const damage={id:'hero-1',kind:'vanguard',damage:5,maxHp:30,age:.12,fatal:false};
+ const injured=step(began,frame(hero('attack',81,25),{teleport:true,damageBeat:damage}));
+ assert.equal(injured.mode,'hurt','witnessed HP loss retains priority');
+ const dead=step(began,frame(hero('attack',81,0),{teleport:true}));
+ assert.equal(dead.mode,'defeat','source death retains priority');
+ const fresh=step(null,frame(hero('attack',82),{actionAge:.03}));
+ assert.equal(fresh.mode,'attack','fresh characters are not quarantined');
+});

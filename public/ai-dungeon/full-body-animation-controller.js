@@ -106,7 +106,15 @@ export function advanceFullBodyController(previous=null,{
  const walking=alive&&!teleport&&grounded?.moving===true&&grounded?.clipAction==='move'&&
   !reducedMotion;
  const requestedAge=safeAge(actionAge);
- const requestedOneShot=Object.hasOwn(ONE_SHOT_RECOVERY,authorityAction)&&
+ // A genuine visual teleport cancels the old source attack/cast even if its
+ // action label persists. Keep that tick quarantined until a NEW lawful tick,
+ // or the first landed frame can replay a displaced swing or casting gesture.
+ const teleportSuppressedTick=teleport?actionTick:
+  previous?.teleportSuppressedTick===actionTick?actionTick:null;
+ const sourceOneShotSuppressed=Boolean(teleport||(
+  Number.isSafeInteger(teleportSuppressedTick)&&teleportSuppressedTick===actionTick));
+ const requestedOneShot=!sourceOneShotSuppressed&&
+  Object.hasOwn(ONE_SHOT_RECOVERY,authorityAction)&&
   authorityAction!=='hurt'&&requestedAge<ONE_SHOT_RECOVERY[authorityAction];
  // Each fixed authoritative tick resets the unit action and actionTick, but
  // an imported sword/spell one-shot lasts longer than the 350ms server tick.
@@ -178,7 +186,7 @@ export function advanceFullBodyController(previous=null,{
   mode==='defeat'?'down':mode==='move'?'stride':mode;
  return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
   holding,completed,confirmedContact,changed,restarted,interrupted,transition,owner,
-  reducedMotion:Boolean(reducedMotion)});
+  teleportSuppressedTick,reducedMotion:Boolean(reducedMotion)});
 }
 
 /**
