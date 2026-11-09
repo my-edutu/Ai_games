@@ -183,8 +183,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(type==='trail'||wardenBodySignal)return null;
   if(actor)return null; // Stale/wrong-cell actor: suppress disconnected art.
   if(victim)return world(at,1.07);
-  // For warning/release without a loaded actor, the public world cell remains
-  // authoritative. Unidentified events never get a fabricated world point.
+  // Other neutral utility cues may use their known public world cell;
+  // Warden release/recovery already returned above without a real body.
+  // Unidentified events never get a fabricated world point.
   return typeof id==='string'?world(at,type==='signal'?.08:1.10):null;
  }
  function allocate(pool,priority){
