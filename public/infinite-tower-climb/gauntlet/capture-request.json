@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "c8a13787a5c7bebbb280fd50c279830077320d4f",
-  "reason": "Re-capture same frozen baseline and immutable new PR68 candidate on a real 20Hz host following installed/verified ffprobe and ffmpeg toolchain recovery at c8a13787; original prior 8c3ed755 run created eight 60+s paired WebM jobs with source sidecars and 25fps motion, but hosted audit could not execute (spawnSync ffprobe ENOENT). Previous Node22 original CI 1272/1273, single stale real-gateway test aligned. Keep baseline/outcome portrait missing same-run source episode and guardian 16–18s foreground occlusion visible; neither transport PASS nor green CI is experience acceptance.",
+  "repairedSourceSha": "1b841eba80e40f739222a5f1a530f2089fb4b83d",
+  "reason": "P0 exact-source new recording after evidence-backed real 3D ledge correction: previous run 42606453096 delivered all eight 60+s original paired WebMs plus 8/8 event pairing, but its source-bound actual desktop WebGL ledge sequence failed genuine helmet/deck penetration at tick131 while identical portrait source tick was clear. Scene now source-locks only real fingertip grip and authoritative sole-over-rim poses (1b841eba); browser assertion also checks skinned helmet clearance (afaf4df3); stale original Node helper shape fixture corrected (176ce622). Request new immutable candidate github.sha film and source-bound authentic ledge tests. Examine camera/frame cadence snap and known candidate portrait giant foreground wheel around native 16–18s, then inspect actual grounded gateway floor9 and terminal/restart; no quality PASS inferred.",
   "scenarios": [
     "ascent",
     "moving",
@@ -32,7 +32,9 @@
     "feels": 0,
     "plays": 0
   },
-  "historicalObservedDefect": "Real new candidate 8c3ed755 portrait danger 16–18s still shows near-side clockwork competing with airborne guardian/climber; inspect source-pinned normal-speed A/B before any P1 claim.",
-  "sourceTestRecoverySha": "c8a13787a5c7bebbb280fd50c279830077320d4f",
-  "triggerRule": "Workflow uses its immutable github.sha for every candidate run, not the earlier renderer/test implementation SHA; compare fixed baseline 1731b... at identical seed, tier, scenario and viewport. If original preflight fails, record for diagnosis but final audit must fail."
+  "historicalObservedDefect": "Most recent exact original-host candidate 82fb02dc portrait danger 16–18s still shows giant near-side clockwork wheel masking airborne climber/guardian; original real WebGL ledge desktop tick131 rendered helmet clearance -0.43 against stone (portrait +0.158). New source-derived correction unverified in film.",
+  "sourceTestRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823",
+  "triggerRule": "Freeze baseline 1731b380851162741761c5569e2bc152a0869ca9. Capture actual candidate at exact immutable github.sha of THIS request-file commit; never use a branch alias as source witness. Original source if preflight/browser ledge fails: preserve recordings, fail final audit honestly.",
+  "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096",
+  "priorLedgeFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198"
 }
