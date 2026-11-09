@@ -2062,14 +2062,29 @@ function realForegroundFacing(p){
  const focus=p.path?.length?p.path[0]:p.target;
  return focus?Math.atan2(focus[0]-p.x,focus[1]-p.z):0;
 }
-function realForegroundPoseKey(p,i){
+// Phase 1 real GPU traveler rigs: keep original full detailed citizen geometry
+// and actual authoritative feet/route; only the binding pose stays resident.
+// The live shader bone palette changes every frame from the real current rig.
+function isForegroundWalkingSkinCandidate(p,i,frame){
+ if(!workingSkinCapable||!gpuAvailable||!frame||!p||p.delivery||
+  isMarketUnloading(p)||isWorkingAtSite(p)||
+  ((follow||liveWorkday)&&i===selectedCitizen)||
+  !/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(p.activity||''))return false;
+ if(![p.x,p.z,p.phase].every(Number.isFinite))return false;
+ const projected=projectRealCitizenDetail(p,frame);
+ // Preserve genuine CPU hand/face detail for large visible and followed people.
+ // Evaluate both 1024px and 390px through the SAME actual camera.
+ return !projected.visible||projected.heightFraction<.115;
+}
+function realForegroundPoseKey(p,i,walkingSkin=false){
  // Full-detail workers observed as <11.5% of the viewport keep the EXACT
  // original one-time coat/face/hat geometry. Their 13 true work bones and
  // local root continue moving each authority tick on the GPU. Re-bake when
  // a legitimate job/prop/action changes; non-skinned villagers retain the
  // original fine per-step CPU pose policy.
- const active=isWorkingAtSite(p),skinned=active&&workingSkinCapable;
+ const active=isWorkingAtSite(p),skinned=workingSkinCapable&&(active||walkingSkin);
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
+  skinned?'real-joint-palette-v2':'cpu-fine-pose',
   p.target?.[0],p.target?.[1],
   skinned?Math.floor((state.t+i*.23)/1.5):
    Math.floor(p.phase/(active?.07:.12)),
@@ -2085,12 +2100,12 @@ function realForegroundPoseStale(entry,p,key,angle){
  const active=isWorkingAtSite(p);
  // Only a truly GPU-skinned tiny worker can move continuously by real
  // shader root and hand joint palette without invalidating mesh vertices.
- if(active&&workingSkinCapable&&entry.skinned)return false;
+ if(workingSkinCapable&&entry.skinned)return false;
  // All observed work contacts keep the original live CPU limits.
  return Math.hypot(p.x-entry.x,p.z-entry.z)>(active?.015:FOREGROUND_ROOT_METERS)||
   Math.abs(turn)>(active?.010:FOREGROUND_ROOT_RADIANS);
 }
-function prepareForegroundResidents(rows){
+function prepareForegroundResidents(rows,frame){
  foregroundResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   foregroundResidentCache.clear();foregroundResidentLayoutKey='';
@@ -2100,11 +2115,12 @@ function prepareForegroundResidents(rows){
  const next=new Map(),selected=[],limited=rows.slice(0,FOREGROUND_RESIDENT_MAX);
  let total=0;
  for(const {p,i} of limited){
-  const key=realForegroundPoseKey(p,i),angle=realForegroundFacing(p);
+  const walkingSkin=isForegroundWalkingSkinCandidate(p,i,frame);
+  const key=realForegroundPoseKey(p,i,walkingSkin),angle=realForegroundFacing(p);
   let entry=foregroundResidentCache.get(i),fresh=false;
   if(realForegroundPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
-   const skinned=workingSkinCapable&&isWorkingAtSite(p);
+   const skinned=workingSkinCapable&&(isWorkingAtSite(p)||walkingSkin);
    const labels=[];
    data=[];
    if(skinned)workSkinCapture=labels;
@@ -2288,6 +2304,8 @@ function getForegroundResidentAudit(){
    .filter(row=>isWorkingAtSite(row.p)).map(row=>row.p.name),
   realWorksiteCount:foregroundResidentVisible
    .filter(row=>isWorkingAtSite(row.p)).length,
+  physicallySkinnedCommuters:foregroundResidentVisible
+   .filter(row=>row.entry.skinned&&!isWorkingAtSite(row.p)).length,
   contactLimitMeters:.015,contactLimitRadians:.010,
   followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
   fullOriginalTriangles:foregroundResidentMesh.length/30,
@@ -20632,7 +20650,7 @@ const workingIndices=workingReady?
 const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
  .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)||
   isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)):[];
-const foregroundReady=prepareForegroundResidents(foregroundRows);
+const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
 dynamicPhaseTimes.residentActorManagement=performance.now()-residentActorManagementStart;
