@@ -186,6 +186,23 @@ jobs:
       - name: Install Chromium
         working-directory: source
         run: npx playwright install --with-deps chromium
+      # GitHub ubuntu-24.04 runners do not guarantee ffprobe/ffmpeg in PATH.
+      # An actual 60+s WebM was already captured on both viewports while the
+      # native PTS/sha256 audit failed with 'spawnSync ffprobe ENOENT'.
+      # Install and verify transport tools without changing original game code.
+      - name: Install and verify native WebM transport auditors
+        working-directory: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends ffmpeg
+          fi
+          command -v ffprobe
+          command -v ffmpeg
+          ffprobe -version | head -n 1
+          ffmpeg -version | head -n 1
       - name: Pin provenance and capture full-motion authentic desktop and phone play
         id: pin_source
         working-directory: source

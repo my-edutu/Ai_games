@@ -105,5 +105,9 @@ test('actual native 3D follow rig extends both physically earned lens and foregr
   assert.match(source,/sightlinePriorities\.arrival\?observedLandingSightline:/);
   assert.match(source,/sightlinePriorities\.gate&&sightlinePriorities\.arrival/);
   assert.match(source,/\?earnedGatewayFocus:null\)/);
-  assert.match(source,/\(!protectArrival \|\| !!sourceAirborneWalk\)/);
+  // The real scene protects an airborne landing and an earned gateway as
+  // independent camera-relative targets; the retired protectArrival variable
+  // must not be reinstated merely to satisfy this source-contract test.
+  assert.match(source,/protectLiveRoute&&sightlinePriorities\.arrival\?observedLandingSightline:/);
+  assert.match(source,/protectLiveRoute&&sightlinePriorities\.gate&&sightlinePriorities\.arrival\s*\?earnedGatewayFocus:null/);
 });
