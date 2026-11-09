@@ -4418,7 +4418,7 @@ const SETTLEMENT_SEASON_FLOAT_BUDGET=
 const settlementSeasonCache=new Map();
 let settlementSeasonFloats=0,settlementSeasonHits=0,settlementSeasonMisses=0;
 let settlementSeasonEvictions=0,settlementSeasonBufferCreations=0;
-let settlementSeasonBufferDisposals=0;
+let settlementSeasonBufferDisposals=0,settlementSeasonGrowthReuses=0;
 // W39: no GPU buffer belonging to an obsolete town topology may remain
 // cached after real construction changes the town. Recycle a valid WebGL
 // handle and its preallocated capacity instead of allocating a new large
@@ -4468,7 +4468,14 @@ function recallSettlementSeason(key){
  const civic=civicSceneryCache.get(entry.civicKey);
  // A recalled settlement must point at the EXACT originally cached home
  // partitions; never display last season's buildings during a new climate.
- if(!recallHomeClusterKeys(entry.homeKeys))return false;
+ // A saved seasonal town can be revisited after genuine new homes were built
+ // in another season. The stationary civic scene is still the right scene;
+ // only its complete, independent inhabited-home partitions are stale.
+ // A single-mesh renderer must instead rebuild the full original scene.
+ const storedHomeCount=entry.homeCount??
+  (entry.lod.detailedHomes+entry.lod.compactHomes);
+ const homeKeysExact=recallHomeClusterKeys(entry.homeKeys);
+ if(!homeKeysExact&&!homeClustersEnabled())return false;
  // A seasonal housing GPU buffer must never recall a missing civic quarter.
  if(civicGpuResidencyEnabled&&!civic?.buffer)return false;
  if(civicGpuResidencyEnabled){
@@ -4486,6 +4493,25 @@ function recallSettlementSeason(key){
  restoreCivicStats(entry.civic);
  civicActiveKey=entry.civicKey;
  festivalStaticMeshTriangles=entry.festivalTriangles;
+ if(!homeKeysExact){
+  // The real buildings changed, not the hall, roads, fields or market. Repair
+  // only invalidated 16m home regions, keeping every authoritative cottage.
+  // buildHomeClusters asserts complete home coverage before the next draw.
+  resetHomeVisualStats();
+  buildHomeClusters(detailedHomeSet(),landscapeMeshKey);
+  entry.homeKeys=homeClusterActive.map(part=>part.key);
+  entry.homeCount=city.length;
+  entry.lod={...villageVisualLod,
+   compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()};
+  entry.facade={...cottageFacadeStats,styles:cottageFacadeStats.styles.slice()};
+  entry.street={...streetMorphologyStats,
+   archetypes:streetMorphologyStats.archetypes.slice()};
+  scenicMeshTriangles=(scenicMeshCache.length+landscapeMeshCache.length+
+   activeCivicMesh().length+homeClusterFloats())/30;
+  independentHousingRefreshes++;
+  if(city.length>storedHomeCount)independentHousingGrowthSkips++;
+  settlementSeasonGrowthReuses++;
+ }
  settlementSeasonHits++;
  return true;
 }
@@ -4540,7 +4566,7 @@ function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.lengt
   if(prior.buffer!==buffer){releaseGeometryBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
  }
  const entry={mesh,ranges,buffer,capacityFloats,
-  homeKeys:homeClusterActive.map(entry=>entry.key),
+  homeKeys:homeClusterActive.map(entry=>entry.key),homeCount:city.length,
   lod:{...villageVisualLod,
    compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()},
   facade:{...cottageFacadeStats,styles:cottageFacadeStats.styles.slice()},
@@ -6512,6 +6538,7 @@ function refreshIndependentHousing(climateKey,sceneKey){
  const resident=settlementSeasonCache.get(sceneKey);
  if(resident){
   resident.homeKeys=homeClusterActive.map(entry=>entry.key);
+  resident.homeCount=city.length;
   resident.lod={...villageVisualLod,
    compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()};
   resident.facade={...cottageFacadeStats,styles:cottageFacadeStats.styles.slice()};
@@ -6530,6 +6557,7 @@ function getStationarySettlementAudit(){
   civicInvariantKey:homeClustersEnabled()?stationaryFounders():null,
   homes:city.length,activeClusterHomes:homeClusterActive.reduce((n,e)=>n+e.homes,0),
   growthClusterRefreshes:independentHousingRefreshes,
+  seasonGrowthReuses:settlementSeasonGrowthReuses,
   avoidedTownRebuilds:independentHousingGrowthSkips,
   scenicRebuilds:scenicMeshRebuilds,changesAuthority:false};
 }
