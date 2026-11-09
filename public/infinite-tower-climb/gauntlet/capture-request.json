@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
-  "reason": "Original complete 9-job 42634400305 had eight authentic baseline/candidate recordings and 8/8 source stories, with 7/8 source-to-PTS search clocks CALIBRATED. The remaining frozen-baseline desktop danger clock accepted only TWO distinct native-frame anchors out of five, while three were visually ambiguous. This source-only recovery increases passive Chrome compositor witness density WITHOUT changing the >=3 matching-native-frame test or game mechanics. New capture must also investigate source guardian threshold tick451 (~22.32s) versus original portrait frame-observed floor-nine label (~26s) and physically giant foreground wheel at 16-18s. Every visual/quality claim NOT EVALUATED.",
+  "repairedSourceSha": "306a29742a1bccb281a164761328484ad419da03",
+  "reason": "Fix source-pinned native-video search evidence without easing acceptance: baseline desktop danger in 42634400305 accepted only 2/5 unambiguous compositor anchors, so denser 3.5s/16 frame passive screencast at e580a5fb should increase genuine samples. Exact source quality at e580a5fb showed 1281/1282 passing; its single stale 7s literal test failed. Test was repaired at 306a29742a1bccb281a164761328484ad419da03 using policy-derived MIN_SPACING_MS. Request fresh exact-commit capture only after this actual code and test recovery. Validate native PTS image uniqueness, 3+ matches baseline desktop, physical gateway/floor9 actual pixels vs source timing, 16-18s wheel occlusion, normal speed and all independent acceptance requirements. No quality pass claimed.",
   "scenarios": [
     "ascent",
     "moving",
@@ -41,8 +41,10 @@
   "newPresentationAcceptance": "NOT EVALUATED — source-level 7/7 pure checks, no new film/device/critic result",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
-  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42634400305",
+  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42649085768",
   "currentCalibratedEventGate": "7/8 baseline/candidate source-to-video clocks calibrated as bounded search only; baseline desktop danger NOT EVALUATED with 2/5 distinct original pixel matches. New capture needs >=3 unambiguous anchors, matched native frame event and actual video evidence, not just interpolation.",
-  "newSourceVideoAcceptance": "NOT EVALUATED. Capture must pin candidate to exact github.sha of this evidence commit with implementation e580a5fb5cdea05117e67607c29f6af670100f96; check baseline unchanged, original 960x600/390x844 WebM, 3+ native pixel-matched unambiguous anchors, full-motion floor-nine gateway and restart, 5 actual blind critics each and device metrics.",
-  "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96"
+  "newSourceVideoAcceptance": "NOT EVALUATED: current request triggers an exact immutable github.sha including code density and repaired policy assertion; 3+ unique native-frame matches and source-to-pixel gateway verification remain mandatory.",
+  "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
+  "anchorSpacingTestRecoverySha": "306a29742a1bccb281a164761328484ad419da03",
+  "originalSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42634400305"
 }

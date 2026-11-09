@@ -65,7 +65,7 @@
       "codeChange": "Recovered original 9-job source-pinned 42634400305 and fixed baseline desktop danger native-frame calibration sampling density. Passive bounded Chrome compositor witnesses increased from 9 / 7s to 16 / 3.5s with 8th-frame screen readback; no gameplay or candidate aesthetics altered.",
       "observedEvidence": "8/8 original source/transport pairs from 42634400305; 7/8 original native-film timebases CALIBRATED for search only, baseline desktop danger 2/5 unique frames, not enough for 3-anchor gate. Original candidate portrait 390x844 video shows foreground wheel/case dominate at 16–18s; source event floor8→9 tick451 maps to search t22.32s but the visible floor9 change is only seen near 26s in sampled original frames. Visual event matching unverified.",
       "rootCauseOfTimebaseBlocker": "Baseline desktop danger CDP collector kept only 5 sparse >=7s witnesses; only original native PTS 22.76s and 44.92s image matches had acceptable uniqueness. Remaining 3 matched poorly by very small uniqueness margin, not a correct video clock. Do not weaken >=3 distinct matching anchors.",
-      "completedOutcome": "Implemented anchor-density recovery and regression at e580a5fb5cdea05117e67607c29f6af670100f96. Read-only exact-source original native WebM and sidecar inspected. Original Node/Three/browser checks at current implementation not yet complete; exact-source paired recapture requested by evidence commit. No full-motion accept/review/device certification.",
+      "completedOutcome": "Source sampling bound and 3.5s/16-frame density implemented at e580a5fb. Exact original Node/Three quality run 42648717628: 1281/1282 passed; 1 stale old 7-second literal assertion failed, not a game/runtime defect. Replaced that assertion with policy-derived MIN_SPACING_MS at 306a2974; exact fixed-HEAD quality workflow 42649442157 pending. Original captures from 9c6d1321 in progress, but that commit predates the test recovery, so fresh final fixed-source recording requested. No P0 stage acceptance or device/critic conclusion.",
       "independentReviewCount": {
         "looks": 0,
         "feels": 0,
@@ -73,11 +73,12 @@
       },
       "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
       "nativeVideoCalibration": "P0: 7/8 pairs CALIBRATED for source search handles only; baseline desktop danger NOT EVALUATED (2/5 distinct native matches). Source event t22.32 vs visually labeled floor9 near 26s requires evidence-first presentation lag analysis; no visible frame match certified.",
-      "sourceVideoRunRequested": "New 9-job original native-film capture requested by capture-request.json update on this evidence commit, pinned by workflow github.sha. Wait for actual run+SHA+artifacts before any claim.",
+      "sourceVideoRunRequested": "New fixed-test 9-job capture requested with capture-request.json evidence commit based on 306a29742a1bccb281a164761328484ad419da03. Existing capture 42649085768 pinned 9c6d1321 (old test assertion) in progress; do not confuse its source provenance with new fixed-head run.",
       "reviewFile": "docs/reviews/2026-11-09-tower-pr68-native-danger-film-anchor-sufficiency.md",
       "biggestExperienceGap": "Giant source-independent clockwork/rim and framing repeatedly obscure or crowd the 390x844 guardian around original video seconds 16–18. In source-pinned candidate danger film source crossing is timecoded ~22.32s, but visually floor9 appears near 26s; exact authoritative-to-pixel latency cannot yet be explained.",
-      "nextHighestImpactAction": "Inspect exact-source refilmed native danger with >=3 distinct baseline desktop anchors; independently compare true source event vs presented frame timing for real guardian/crusher defeat, physical gateway crossing, floor9, outcome and restart. Then repair the largest observed 3D occlusion/latency flaw, repeat authentic mobile/desktop footage, independent critics and supported-device metrics.",
-      "safety": "PR68 branch only, open draft, no merge/deploy/force-push. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched."
+      "nextHighestImpactAction": "Verify Node full suite 42649442157 then exact fixed-test capture. Require >=3 unique native source-frame matches on baseline desktop danger; inspect true frame-visible guardian defeat, floor8→9 threshold, and ~3.7s between timecoded source crossing and first sampled floor9 display. Guardian wheel still blocks 390x844 around 16–18s. Then meaningful visual/game synchronization repair, 5 independent reviewers/pillar, hardware memory/FPS.",
+      "safety": "PR68 branch only, open draft, no merge/deploy/force-push. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched.",
+      "testRecoverySha": "306a29742a1bccb281a164761328484ad419da03"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
@@ -6374,14 +6375,15 @@
     "nativeClock": "7/8 source-film search clocks calibrated; baseline danger desktop only 2/5 unique matches => NOT EVALUATED",
     "actualVisualProblem": "390x844 true candidate guardian around 16-18s partially masked by foreground wheel; source floor9 tick451 ~22.32s whereas floor9 label first sampled near 26s",
     "codeChange": "bounded CDP compositor JPEG witnesses 9/7000ms -> 16/3500ms, everyNthFrame 15 -> 8",
-    "fullGameTests": "PENDING",
-    "newRecording": "REQUESTED by exact SHA evidence commit",
+    "fullGameTests": "1281/1282 at e580a5fb, stale test assertion failure fixed at 306a29742a1bccb281a164761328484ad419da03; exact HEAD rerun pending",
+    "newRecording": "REQUESTED again from fixed source SHA via evidence commit; earlier 9c capture in progress, test contract invalid until fixed",
     "blindCritics": {
       "looks": 0,
       "feels": 0,
       "plays": 0
     },
     "hardware": "NOT EVALUATED",
-    "verdict": "NOT EVALUATED"
+    "verdict": "NOT EVALUATED",
+    "testRecoverySha": "306a29742a1bccb281a164761328484ad419da03"
   }
 }
