@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-09T22:00:44.000Z",
+  "updatedAt": "2026-11-09T23:00:22.237Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass225 production candidate: authentic route-side Thornback patrol now prefers an existing straight two-cell reciprocal side corridor, making one/two-link public Pip–Thornback acting physically possible at either patrol endpoint. This does not fabricate a meeting or change AI privacy, collision or camera gates. Exact new-head full WebGL captures, 320/390/844/1280 framing, six-reset <100 budget, gameplay success and independent Nintendo visual critique remain unverified. PR #53 open draft; benchmark NOT MET."
+    "summary": "Pass226 production boot blocker diagnosed: original browser capture showed the REAL 3D scene failed to start (SyntaxError; native stage fell back to 2D), traced to an extra closing parenthesis added in the public lantern-warning expression at Pass222. The exact source is now syntactically repaired and a real browser ESM syntax gate is added. NEW exact-HEAD Node/WebGL, rendered 320/390/844/1280 image hashes, guardian encounter, six-run geometry budget, and independent Nintendo comparison are still pending. PR #53 open draft; quality bar NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass226: repaired genuine scene.js module SyntaxError that forced the live 3D viewer into map fallback; added native browser ESM syntax test. Exact-head screenshots/CI/critique pending.",
     "Pass224b actual AI policy: after real route-side guardian generation, stop early global evasion on distant/diagonal/blocked visible threats; preserve defensive action at a presently observed reciprocal open straight one/two-cell guardian corridor. Public-only tests for diagonal, sealed and one-way threat paths. New exact-head CI and native image evidence pending; no Nintendo parity.",
     "Pass224 source candidate: original generator prioritizes one real off-route two-cell moving Thornback patrol visibly adjacent to the journey on existing traversable corridors; fallback for no eligible branch, no forced encounter, hidden route or new renderer meshes. Six unmodified production seeds regression contract added. Exact-source WebGL/CI and original image critic PENDING; benchmark NOT MET.",
     "Pass222 source candidate: authoritative public reciprocal one/two-cell sightline now controls Pip/Thornback shared acting and camera, with nearby lantern caution across sealed turns preserved. New-HEAD visual/test acceptance pending; no benchmark win.",

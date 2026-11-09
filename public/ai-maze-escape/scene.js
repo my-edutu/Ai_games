@@ -659,7 +659,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
     lanternWarning.visible = Boolean(!result && explorerLantern
-      && closestWarning?.strength > .35));
+      && closestWarning?.strength > .35);
     if (lanternWarning.visible) {
       const pulse = settings.reducedMotion ? 0 : Math.sin(elapsed * 6.5) * .10;
       lanternWarning.scale.setScalar(1.1 + closestWarning.strength * .2 + pulse);
