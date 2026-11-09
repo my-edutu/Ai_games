@@ -128,12 +128,12 @@ test('recovery and earned HP-confirmed counter have different restrained body-le
  stage.dispose();
 });
 
-test('missing art retains only cell-level neutral fallback, never invents a torso',async()=>{
+test('missing art suppresses actor-local Warden release glyph instead of drawing a false floor hazard',async()=>{
  const {stage,ring}=await createRigStage(false);
- assert.equal(stage.emit(baseCue('warden-release','warden')),true);
- const matrix=firstMatrix(ring);
- assert.ok(matrix.position.y<.2,'no claimed body transform without loaded actor');
- assert.equal(matrix.position.x,-5);
+ assert.equal(stage.emit(baseCue('warden-release','warden')),false);
+ assert.equal(stage.stats().instancesByPool.signal,0);
+ assert.equal(stage.stats().unanchoredWardenSignals,1);
+ assert.equal(ring.visible,false);
  stage.dispose();
 });
 
