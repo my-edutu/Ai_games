@@ -63,7 +63,8 @@ test('late older danger never reappears after newer marker fades; floor reset cl
 test('released attack cannot redraw spent tell; future danger survives, including different owners',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {THREE,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(THREE,scene);
- assert.equal(v.emit(release(50)),true);
+ assert.equal(v.emit(release(50)),false,
+  'authority release closes its spent warning without fabricating missing actor art');
  v.advance(.5,.5);
  assert.equal(v.emit(warning('spent',49,50)),false);
  assert.equal(v.emit(warning('future',51,53)),true);
