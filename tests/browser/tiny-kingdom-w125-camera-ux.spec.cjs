@@ -65,6 +65,16 @@ test('W125 desktop free orbit, keyboard, collision-aware zoom and smooth overvie
 test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real selected citizen',async({page})=>{
  const errors=await loaded(page,390,844);
  await page.emulateMedia({reducedMotion:'reduce'});
+ // W159 deliberately collapses original camera actions on 390px viewports.
+ // Verify the user-facing disclosure before checking the actual touch targets.
+ const disclosure=page.locator('#camera-disclosure');
+ await expect(disclosure).toBeVisible();
+ await expect(disclosure).toHaveAttribute('aria-expanded','false');
+ const disclosureBounds=await disclosure.boundingBox();
+ expect(disclosureBounds.height).toBeGreaterThanOrEqual(44);
+ expect(disclosureBounds.width).toBeGreaterThanOrEqual(44);
+ await disclosure.click();
+ await expect(disclosure).toHaveAttribute('aria-expanded','true');
  for(const id of ['camera-home','camera-near','camera-far','camera-street']){
   const box=await page.locator('#'+id).boundingBox();
   expect(box,id+' missing').not.toBeNull();
@@ -109,9 +119,13 @@ test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real s
  expect(after.zoom).toBeLessThan(before.zoom);
  expect(await page.evaluate(()=>window.__tinyKingdom.getCameraNavigationAudit().pinchGestures)).toBeGreaterThan(0);
  await page.locator('#camera-home').click();
+ await expect(disclosure).toHaveAttribute('aria-expanded','false');
  const back=await page.evaluate(()=>window.__tinyKingdom.getCameraNavigationAudit());
  expect(back.transitionActive).toBe(false);
+ await disclosure.click();
  await page.locator('#camera-near').click();
+ await expect(disclosure).toHaveAttribute('aria-expanded','false');
+ await disclosure.click();
  await page.locator('#camera-far').click();
  const zoomAudit=await page.evaluate(()=>window.__tinyKingdom.getFreeCameraCollisionAudit());
  expect(zoomAudit.eyeClear).toBe(true);
@@ -119,6 +133,7 @@ test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real s
  await page.keyboard.press('f');
  const selected=await page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen());
  expect(typeof selected).toBe('string');
+ await disclosure.click();
  await page.locator('#camera-home').click();
  expect(await page.evaluate(()=>window.__tinyKingdom.getSelectedCitizen())).toBe(selected);
  await page.screenshot({path:path.join(OUT,'mobile-390-world.png'),fullPage:true});

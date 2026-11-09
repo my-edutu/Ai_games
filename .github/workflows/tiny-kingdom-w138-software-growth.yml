@@ -28,6 +28,10 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Test-first grown SwiftShader dirty-block policy and original resident geometry
         run: node scripts/tiny-kingdom-w138-software-home-contract.cjs
+      # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
+      # Without a compiled replay package, the W138 Day-120 game never launches.
+      - name: Build shared browser server dependencies before 120-day WebGL capture
+        run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Genuine 120-day old/new renderer comparison and real 390px gameplay
         env:
