@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "ce0f751cdeedf5eadf2ea1d17434fd7e24fa64b0",
-  "reason": "Rerun original immutable-source baseline versus candidate 960x600/390x844 normal-speed capture after resolving the three REAL preflight failures observed in 42490211469. Do not treat test success or a capture request as film acceptance.",
+  "repairedSourceSha": "f3427a2dc257697d57f27ad391e6589442fbf8bd",
+  "reason": "Request NEW exact-trigger-SHA original baseline/candidate 960x600 and 390x844 normal-speed full-motion film after production foreground-occlusion ReferenceError repair and source-accurate Three.js harness recovery. Prior f342 CI 1267/1273 (6 failures), cee tests corrected but still unverified at request time. Keep 3200-tick source and native PTS/film integrity vetoes mandatory; neither prior successful source audit nor film completion is a quality PASS.",
   "scenarios": [
     "ascent",
     "moving",
@@ -32,5 +32,7 @@
     "feels": 0,
     "plays": 0
   },
-  "historicalObservedDefect": "Old portrait e0fe7729 guardian frame 16.5–18s contained giant decorative foreground occlusion; source current change cannot be judged without fresh film."
+  "historicalObservedDefect": "Old portrait e0fe7729 guardian frame 16.5–18s contained giant decorative foreground occlusion; source current change cannot be judged without fresh film.",
+  "sourceTestRecoverySha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
+  "triggerRule": "Workflow uses its immutable github.sha for every candidate run, not the earlier renderer/test implementation SHA; compare fixed baseline 1731b... at identical seed, tier, scenario and viewport. If original preflight fails, record for diagnosis but final audit must fail."
 }

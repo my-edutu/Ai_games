@@ -56,50 +56,47 @@
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
-      "assessedAt": "2026-11-09",
-      "sourceHeadAtInspection": "50cf618ea1176b9369a91c099974516327c18ca2",
-      "actualRenderedGameSourceSha": null,
-      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "frozenBaselineMoved": false,
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "baselineMoved": false,
+      "implementationSha": "f3427a2dc257697d57f27ad391e6589442fbf8bd",
+      "sourceTestRecoverySha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
+      "lastExactSourceInspectedSha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": true,
-      "completedOutcome": "scene.mjs passes the actual realAirborneCap boolean, retains a separate exact selected-landing Vector3, and passes both that source-owned landing and authenticated gateway into world.protectRouteSightlines. world.mjs now handles four independently observed guardian/landing/hazard/gateway corridors and five physical target rays with preallocated endpoint vectors. No source simulation, collision, NPC decisions, game progression, game assets or PR58 edits.",
-      "verifiedBlocker": {
-        "sourceFinding": "scene.mjs supplied the observedAirborneGatewayShot OBJECT to a strict boolean (=== true) gateway-priority contract. When the source had an airborne destination, gate and landing were not both prioritized, leaving the earned threshold without the intended foreground route clearance. The old scene reused one mutable target vector for different destinations; a gate-leading shot could displace the real landing clearance.",
-        "previouslyObservedVideo": "Historical portrait source e0fe7729, https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833, ~16.5–18s: foreground clockwork obscured genuine airborne climber and guardian. This is NOT current 50cf618ea1176b9369a91c099974516327c18ca2 footage."
+      "actualRendererCodeChangedThisExecution": true,
+      "completedOutcome": "Closed real production render exception: world.mjs's second stacked-clockwork composite used first-pass rayBoundsRejects/rayNarrowphaseChecks from an inaccessible block scope. Four source-authored decorated decisions now retain, destructure and validate those counts; unchanged visible world/route source. Five copied original Three.js test fixtures now resolve both real ESM guardian source dependencies and preserve true source gate/recording contracts. Subsequent test-only commit aligns six additional stale assertions with source behavior, not a new cosmetic or gameplay claim.",
+      "observedSourceFailure": {
+        "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42595128133 — original Node22 1237/1273 passed, 36 failed including camera render ReferenceError and 5 copied ESM fixture import failures",
+        "postRendererQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42602161907 — exact f342 1267/1273 passed; six stale/changed-scene assertions still failed",
+        "currentQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42603324529 — exact cee5361e quality dispatched; IN PROGRESS at this evidence snapshot; no green claim",
+        "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42593395530 — original guardian/crusher-to-restart and moving deck source prechecks passed at older 9ece candidate; eight video jobs all failed pre-Chromium, three original 3D geometry preflight assertions failed",
+        "historicalFootage": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 — older e0fe7729 portrait ~16.5–18s real opaque foreground clockwork covering climber and guardian; cannot establish current result"
       },
-      "testsAndCapturesProducedThisExecution": {
-        "githubCommittedAndReadback": "CONFIRMED: implementation 50cf618ea1176b9369a91c099974516327c18ca2 on PR68, changed exactly the two Tower render sources and one focused test, not authoritative rules.",
-        "sourceAssertions": "CONFIRMED: exact committed source readback preserves boolean realAirborneCap contract, separate 3D landing/gateway rays and four bounded route corridor slots.",
-        "newRegression": "AUTHORED BUT NOT EXECUTED: focused exact-module regression asserts boolean source contract and independent world endpoints; no local repository checkout and current GitHub runners still unavailable.",
-        "originalNodeThree": "NOT EXECUTED; current machine cannot fetch repository over network and original runner remains pending.",
-        "exactHeadCI": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; earlier quality run https://github.com/my-edutu/Ai_games/actions/runs/42575202281 pending/unassigned at last check.",
-        "source3200TickCampaign": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; historical same-run evidence from earlier SHA is not proof at this SHA.",
-        "nativeDesktopPortraitMotion": "NOT EVALUATED: no new normal-speed 960x600 / 390x844 matched videos at 50cf618ea1176b9369a91c099974516327c18ca2.",
-        "independentCritics": "LOOKS 0/5; FEELS 0/5; PLAYS 0/5.",
-        "deviceFrameTimeMemory": "NOT EVALUATED"
+      "verification": {
+        "githubSourceAndNonForceCommit": "CONFIRMED: PR68 remained open DRAFT, base SHA immutable; f342 exact world readback confirms first-to-second pass diagnostic fields; cee test-only patch committed",
+        "sourceSnapshot": "https://github.com/my-edutu/Ai_games/actions/runs/42602161879 — SUCCESS at f342; only source provenance",
+        "originalFullNodeThree": "NOT EVALUATED at cee5361e until its GitHub quality workflow completes; 1267/1273 passed at f342 with six actual failures",
+        "source3200TickCampaign": "NOT EVALUATED at current cee5361e; historical previous 9ece source witness succeeded, not current proof",
+        "nativeWebMDesktopPortrait": "NOT EVALUATED: no fresh exact-cee matched unedited 60+s 960x600/390x844 recording",
+        "nativePTSAndVisibleGameplayEvents": "NOT EVALUATED",
+        "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+        "independentReviewCount": {
+          "looks": 0,
+          "feels": 0,
+          "plays": 0
+        }
       },
-      "primaryExperienceGap": "No current verified continuous-motion evidence that the combined 3D camera, full-body gear, selected landing and earned physical gateway remain readable. Recent fixes cannot be visually accepted from source checks.",
-      "sourceHeadCI": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; earlier quality run https://github.com/my-edutu/Ai_games/actions/runs/42575202281 pending/unassigned at last check.",
-      "nativeVideoEvidence": "Historical portrait source e0fe7729, https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833, ~16.5–18s: foreground clockwork obscured genuine airborne climber and guardian. This is NOT current 50cf618ea1176b9369a91c099974516327c18ca2 footage.",
-      "actualDevicePerformance": "NOT EVALUATED",
-      "independentCritics": {
-        "looks": 0,
-        "feels": 0,
-        "plays": 0
-      },
-      "nextHighestImpactAction": "Recover a real executable original-game runner; run exact 50cf618ea1176b9369a91c099974516327c18ca2 Node/Three regression, two 3200-tick complete guardian/crusher-to-restart campaigns, and match 60+s native desktop 960x600 and portrait 390x844 baseline/candidate footage and tick events. Watch entire film for clockwork occlusion, landing continuity, grounded gateway crossing, floor-nine continuation, actual outcome/restart. Fix the largest observed defect before P1.",
-      "implementationCommits": [
-        "50cf618ea1176b9369a91c099974516327c18ca2"
-      ],
-      "verdict": "NOT EVALUATED"
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-real-foreground-ray-and-source-film-unblock.md",
+      "biggestExperienceGap": "Historical real portrait giant clockwork hides airborne guardian at 16.5–18s; current camera/full-body/gear/earned-gateway motion still NOT verified by new source-pinned film.",
+      "nextHighestImpactAction": "Obtain exact-head clean original Node22/Three CI, trigger established nine-job original-source 20Hz guardian witness plus 8 matched baseline/candidate 960x600/390x844 captures at request commit; verify full 3200-tick replay, native WebM 60+s, event/PTS alignment, grounded gateway/floor nine and outcome restart; watch full motion and then rebuild the largest verified scene/play defect. Keep P0 until proof.",
+      "safety": "Do not move baseline, edit PR58/main or other games, merge, deploy, force-push or change PR draft status."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Recover a real executable original-game runner; run exact 50cf618ea1176b9369a91c099974516327c18ca2 Node/Three regression, two 3200-tick complete guardian/crusher-to-restart campaigns, and match 60+s native desktop 960x600 and portrait 390x844 baseline/candidate footage and tick events. Watch entire film for clockwork occlusion, landing continuity, grounded gateway crossing, floor-nine continuation, actual outcome/restart. Fix the largest observed defect before P1.",
+    "nextDecision": "Obtain exact-head clean original Node22/Three CI, trigger established nine-job original-source 20Hz guardian witness plus 8 matched baseline/candidate 960x600/390x844 captures at request commit; verify full 3200-tick replay, native WebM 60+s, event/PTS alignment, grounded gateway/floor nine and outcome restart; watch full motion and then rebuild the largest verified scene/play defect. Keep P0 until proof.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "No current verified continuous-motion evidence that the combined 3D camera, full-body gear, selected landing and earned physical gateway remain readable. Recent fixes cannot be visually accepted from source checks.",
+    "biggestRemainingExperienceGap": "Historical real portrait giant clockwork hides airborne guardian at 16.5–18s; current camera/full-body/gear/earned-gateway motion still NOT verified by new source-pinned film.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -1664,6 +1661,46 @@
         "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f"
       ],
       "verdict": "NOT EVALUATED"
+    },
+    "priorEvidenceRunBeforeRayFault20261109": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "assessedAt": "2026-11-09",
+      "sourceHeadAtInspection": "50cf618ea1176b9369a91c099974516327c18ca2",
+      "actualRenderedGameSourceSha": null,
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineMoved": false,
+      "authoritativeGameplayChangedThisExecution": false,
+      "renderedGameplayExperienceChangedThisExecution": true,
+      "completedOutcome": "scene.mjs passes the actual realAirborneCap boolean, retains a separate exact selected-landing Vector3, and passes both that source-owned landing and authenticated gateway into world.protectRouteSightlines. world.mjs now handles four independently observed guardian/landing/hazard/gateway corridors and five physical target rays with preallocated endpoint vectors. No source simulation, collision, NPC decisions, game progression, game assets or PR58 edits.",
+      "verifiedBlocker": {
+        "sourceFinding": "scene.mjs supplied the observedAirborneGatewayShot OBJECT to a strict boolean (=== true) gateway-priority contract. When the source had an airborne destination, gate and landing were not both prioritized, leaving the earned threshold without the intended foreground route clearance. The old scene reused one mutable target vector for different destinations; a gate-leading shot could displace the real landing clearance.",
+        "previouslyObservedVideo": "Historical portrait source e0fe7729, https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833, ~16.5–18s: foreground clockwork obscured genuine airborne climber and guardian. This is NOT current 50cf618ea1176b9369a91c099974516327c18ca2 footage."
+      },
+      "testsAndCapturesProducedThisExecution": {
+        "githubCommittedAndReadback": "CONFIRMED: implementation 50cf618ea1176b9369a91c099974516327c18ca2 on PR68, changed exactly the two Tower render sources and one focused test, not authoritative rules.",
+        "sourceAssertions": "CONFIRMED: exact committed source readback preserves boolean realAirborneCap contract, separate 3D landing/gateway rays and four bounded route corridor slots.",
+        "newRegression": "AUTHORED BUT NOT EXECUTED: focused exact-module regression asserts boolean source contract and independent world endpoints; no local repository checkout and current GitHub runners still unavailable.",
+        "originalNodeThree": "NOT EXECUTED; current machine cannot fetch repository over network and original runner remains pending.",
+        "exactHeadCI": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; earlier quality run https://github.com/my-edutu/Ai_games/actions/runs/42575202281 pending/unassigned at last check.",
+        "source3200TickCampaign": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; historical same-run evidence from earlier SHA is not proof at this SHA.",
+        "nativeDesktopPortraitMotion": "NOT EVALUATED: no new normal-speed 960x600 / 390x844 matched videos at 50cf618ea1176b9369a91c099974516327c18ca2.",
+        "independentCritics": "LOOKS 0/5; FEELS 0/5; PLAYS 0/5.",
+        "deviceFrameTimeMemory": "NOT EVALUATED"
+      },
+      "primaryExperienceGap": "No current verified continuous-motion evidence that the combined 3D camera, full-body gear, selected landing and earned physical gateway remain readable. Recent fixes cannot be visually accepted from source checks.",
+      "sourceHeadCI": "NOT EVALUATED at 50cf618ea1176b9369a91c099974516327c18ca2; earlier quality run https://github.com/my-edutu/Ai_games/actions/runs/42575202281 pending/unassigned at last check.",
+      "nativeVideoEvidence": "Historical portrait source e0fe7729, https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833, ~16.5–18s: foreground clockwork obscured genuine airborne climber and guardian. This is NOT current 50cf618ea1176b9369a91c099974516327c18ca2 footage.",
+      "actualDevicePerformance": "NOT EVALUATED",
+      "independentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "nextHighestImpactAction": "Recover a real executable original-game runner; run exact 50cf618ea1176b9369a91c099974516327c18ca2 Node/Three regression, two 3200-tick complete guardian/crusher-to-restart campaigns, and match 60+s native desktop 960x600 and portrait 390x844 baseline/candidate footage and tick events. Watch entire film for clockwork occlusion, landing continuity, grounded gateway crossing, floor-nine continuation, actual outcome/restart. Fix the largest observed defect before P1.",
+      "implementationCommits": [
+        "50cf618ea1176b9369a91c099974516327c18ca2"
+      ],
+      "verdict": "NOT EVALUATED"
     }
   },
   "scenarios": [
@@ -1704,7 +1741,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "FAILED (most recent completed exact-game CI 42404054865: 1209/1211 passed, 2 obsolete camera source-regex tests failed). Test-only fixes 8241f8bd and 6abd124c unexecuted in original Node suite; no green CI claim.",
+    "ci": "FAILED at exact f3427a2d original quality 42602161907: 1267/1273 passed and 6 failed; follow-up exact cee5361e run 42603324529 IN PROGRESS at evidence snapshot. No green CI claim or quality promotion.",
     "replay": "Original fixed-step source 3200-tick witness at gameplay SHA dc3c3108 shows physical same-run guardian/crusher victory, floor9 onward and restart; broader deterministic replay gate and production devices still NOT EVALUATED.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
     "performance": "NOT EVALUATED — no supported hardware frame-time p50/p95/p99 or memory.",
@@ -6060,5 +6097,42 @@
     "biggestExperienceGap": "No authentic current-source full-motion proof of readable airborne climber vs giant foreground machinery, guardian/crusher victory, physical gateway walk, floor nine onward and genuine outcome/restart.",
     "nextHighestImpactAction": "Inspect queued original run 42593395530 when real runner evidence exists, rerun original tests at latest source, request fresh pinned capture after capacity returns to exercise fail-but-film collection while retaining strict CI veto; watch full desktop and portrait game film with event timestamps, then rebuild the largest actual gameplay/composition defect. Do not advance P0 without video proof.",
     "reviewFile": "docs/reviews/2026-11-09-tower-pr68-unblocked-film-after-preflight-failure.md"
+  },
+  "p0ForegroundRayAndOriginalSourceTests20261109": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineMoved": false,
+    "implementationSha": "f3427a2dc257697d57f27ad391e6589442fbf8bd",
+    "sourceTestRecoverySha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
+    "lastExactSourceInspectedSha": "cee5361e1303d4bc5d92d5df44affc2ee0518c0f",
+    "authoritativeGameplayChangedThisExecution": false,
+    "actualRendererCodeChangedThisExecution": true,
+    "completedOutcome": "Closed real production render exception: world.mjs's second stacked-clockwork composite used first-pass rayBoundsRejects/rayNarrowphaseChecks from an inaccessible block scope. Four source-authored decorated decisions now retain, destructure and validate those counts; unchanged visible world/route source. Five copied original Three.js test fixtures now resolve both real ESM guardian source dependencies and preserve true source gate/recording contracts. Subsequent test-only commit aligns six additional stale assertions with source behavior, not a new cosmetic or gameplay claim.",
+    "observedSourceFailure": {
+      "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42595128133 — original Node22 1237/1273 passed, 36 failed including camera render ReferenceError and 5 copied ESM fixture import failures",
+      "postRendererQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42602161907 — exact f342 1267/1273 passed; six stale/changed-scene assertions still failed",
+      "currentQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42603324529 — exact cee5361e quality dispatched; IN PROGRESS at this evidence snapshot; no green claim",
+      "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42593395530 — original guardian/crusher-to-restart and moving deck source prechecks passed at older 9ece candidate; eight video jobs all failed pre-Chromium, three original 3D geometry preflight assertions failed",
+      "historicalFootage": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 — older e0fe7729 portrait ~16.5–18s real opaque foreground clockwork covering climber and guardian; cannot establish current result"
+    },
+    "verification": {
+      "githubSourceAndNonForceCommit": "CONFIRMED: PR68 remained open DRAFT, base SHA immutable; f342 exact world readback confirms first-to-second pass diagnostic fields; cee test-only patch committed",
+      "sourceSnapshot": "https://github.com/my-edutu/Ai_games/actions/runs/42602161879 — SUCCESS at f342; only source provenance",
+      "originalFullNodeThree": "NOT EVALUATED at cee5361e until its GitHub quality workflow completes; 1267/1273 passed at f342 with six actual failures",
+      "source3200TickCampaign": "NOT EVALUATED at current cee5361e; historical previous 9ece source witness succeeded, not current proof",
+      "nativeWebMDesktopPortrait": "NOT EVALUATED: no fresh exact-cee matched unedited 60+s 960x600/390x844 recording",
+      "nativePTSAndVisibleGameplayEvents": "NOT EVALUATED",
+      "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+      "independentReviewCount": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      }
+    },
+    "reviewFile": "docs/reviews/2026-11-09-tower-pr68-real-foreground-ray-and-source-film-unblock.md",
+    "biggestExperienceGap": "Historical real portrait giant clockwork hides airborne guardian at 16.5–18s; current camera/full-body/gear/earned-gateway motion still NOT verified by new source-pinned film.",
+    "nextHighestImpactAction": "Obtain exact-head clean original Node22/Three CI, trigger established nine-job original-source 20Hz guardian witness plus 8 matched baseline/candidate 960x600/390x844 captures at request commit; verify full 3200-tick replay, native WebM 60+s, event/PTS alignment, grounded gateway/floor nine and outcome restart; watch full motion and then rebuild the largest verified scene/play defect. Keep P0 until proof.",
+    "safety": "Do not move baseline, edit PR58/main or other games, merge, deploy, force-push or change PR draft status."
   }
 }
