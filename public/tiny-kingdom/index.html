@@ -5495,7 +5495,67 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
  materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
- materialScope(MATERIAL.PLASTER,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
+ // W156 physically connected upper cottage storey. On genuine tall founding
+ // homes, the overhanging room is a COMPLETE plaster volume sitting on the
+ // original lower room, beneath the existing roof. The earlier street windows,
+ // roof, threshold, home lot, jobs and real residents all remain in place.
+ const detailedJetty=houseVisualProfile(x,z,variant,false).height>2.5;
+ const plasterTone=variant%2?rgb(0xe1c7a0):rgb(0xd1bc97);
+ materialScope(MATERIAL.PLASTER,()=>{
+  if(detailedJetty){
+   box(x,y+.19*scale,z,w,1.36*scale,d,plasterTone);
+   box(x,y+1.55*scale,z,w+.28*scale,h-1.55*scale,
+    d+.30*scale,plasterTone);
+  }else box(x,y+.19*scale,z,w,h-.19*scale,d,plasterTone);
+ });
+ if(detailedJetty){
+  const oak=rgb(0x694d36),frame=rgb(0xbfad91),glass=rgb(0x4e6771);
+  materialScope(MATERIAL.WOOD,()=>{
+   // Four real undercroft braces and two continuous oak floor plates
+   // visibly bear the upper room. All remain above the ground-level path.
+   for(const face of [-1,1]){
+    const outerZ=z+face*(d*.5+.155*scale);
+    box(x,y+1.51*scale,outerZ,w+.25*scale,.09*scale,.085*scale,oak);
+    for(const side of [-1,1]){
+     const xx=x+side*w*.39;
+     limbSegment([xx,y+1.21*scale,z+face*(d*.5-.045*scale)],
+      [xx,y+1.59*scale,outerZ],.045*scale,oak,4);
+    }
+   }
+  });
+  // A visible room has working outward casements on both long walls and its
+  // rear: the front shares the ALREADY EXISTING real high-street casements.
+  // Reuse exactly the original shader/material stream, no new GPU buffers.
+  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+   for(const side of [-1,1]){
+    const sx=x+side*(w*.5+.154*scale),lo=y+1.91*scale,
+     hi=y+2.27*scale,za=z-.25*scale,zb=z+.25*scale;
+    const a=[sx,lo,za],b=[sx,lo,zb],c=[sx,hi,zb],d0=[sx,hi,za];
+    if(side<0)quad(a,b,c,d0,glass);else quad(d0,c,b,a,glass);
+   }
+   for(const offset of [-.25,.25]){
+    const cx=x+offset*w,zz=z+d*.5+.154*scale,
+     lo=y+1.91*scale,hi=y+2.27*scale;
+    quad([cx-.18*scale,lo,zz],[cx+.18*scale,lo,zz],
+     [cx+.18*scale,hi,zz],[cx-.18*scale,hi,zz],glass);
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const side of [-1,1]){
+    const sx=x+side*(w*.5+.161*scale),
+     lo=y+1.91*scale,hi=y+2.27*scale,za=z-.024*scale,zb=z+.024*scale;
+    const a=[sx,lo,za],b=[sx,lo,zb],c=[sx,hi,zb],d0=[sx,hi,za];
+    if(side<0)quad(a,b,c,d0,frame);else quad(d0,c,b,a,frame);
+   }
+   for(const offset of [-.25,.25]){
+    const cx=x+offset*w,zz=z+d*.5+.165*scale,
+     lo=y+1.91*scale,hi=y+2.27*scale;
+    quad([cx-.022*scale,lo,zz],[cx+.022*scale,lo,zz],
+     [cx+.022*scale,hi,zz],[cx-.022*scale,hi,zz],frame);
+   }
+  });
+ }
+
  let ridge=h+houseVisualProfile(x,z,variant,false).pitch*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
 materialScope(MATERIAL.ROOF,()=>{
@@ -5645,12 +5705,15 @@ function houseVisualProfile(x,z,variant,compact){
 function getInhabitedSkylineAudit(){
  const detailed=detailedHomeSet();
  const lots=city.map(([x,z,k],i)=>{
-  const p=houseVisualProfile(x,z,k,!detailed.has(i));
-  return {lot:i,x,z,compact:!detailed.has(i),style:p.style,
-   eave:p.height,ridge:p.height+p.pitch};
+  const compact=!detailed.has(i),p=houseVisualProfile(x,z,k,compact);
+  return {lot:i,x,z,compact,style:p.style,
+   eave:p.height,ridge:p.height+p.pitch,
+   physicallyProjectedUpperRoom:!compact&&p.height>2.5,
+   projectedUpperWidth:!compact&&p.height>2.5?2.4+k*.42+.28:null};
  });
  return {source:'genuine-town-original-roof-massing',lots,
   foundingHomes:Math.min(city.length,12),realHomes:city.length,
+  projectedDetailedUpperRooms:lots.filter(l=>l.physicallyProjectedUpperRoom).length,
   presentationOnly:true,authorityChanged:false};
 }
 let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
