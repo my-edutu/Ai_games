@@ -2524,7 +2524,7 @@
       "nextImplementation": "Inspect true exact-head 1440/390 synchronized WebM/Opus, renderSurface/DPR/frame-delivery diagnostics and Warden actor readability. Do not count unverified software budget or PR72 as an experiential win. Complete organic defeat/restart and blinded critics."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Software WebGL source film: sparse Warden frames and miniature combatants; desktop defeat checkpoint still times out; exact-head pooled event-cue visual/performance not yet observed.",
+    "biggestRemainingGap": "Multi-second CPU WebGL render submission stalls, incomplete desktop organic journey and miniature Warden fighters (37px mobile). Original impact/audio timing unverified.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5716,7 +5716,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Verify fresh exact-head 1440/390 Chromium module loading and actual 3D frames after P1 five-route startup repair, then capture organic synchronized audio/video, identify largest experiential cost and improve actual game; PR72 independent and baseline immutable.",
+    "executableNextTask": "Inspect exact NEW head 1440px and 390px organic motion and audio: source-faithful colors, spotlight/Warden warning exposure, practical selected count, WebGL p95/p99 and RAF, natural five stages. Reject/rework if luminance or performance regresses. Repair rigCranialActors=0, validate PR72 real clips before optional selective port. Fixed baseline A/B and 3 fresh blind critics required.",
     "phasePlan": [
       {
         "phase": "A",
@@ -6509,6 +6509,37 @@
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "animationPr72": "SEPARATE_UNINTEGRATED",
       "next": "Real exact-head desktop/mobile same-seed original motion+audio. Verify batches visually, WebGL draw calls/submit p95/p99, actual character visibility, natural defeat and restart. Fix cranial rig browser failure, validate PR72 exact head before safe selective integration. Matched immutable baseline and >=3 independent blind critics required."
+    },
+    "m1SoftwareWorldPracticalBudget": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "3e01682abdb48f40a9f12e83e7bf09af072a1a6a",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "originalBaselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+      "exactHeadBeforeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42658408694",
+      "exactBeforeMobileArtifact": 13693626937,
+      "exactBeforeDesktopArtifact": 13692854718,
+      "sourceBeforeMobile": "ALL_946_ORGANIC_SNAPSHOTS_FIVE_STAGES",
+      "sourceBeforeDesktop": "FAILED_NATURAL_DEFEAT_616_OF_946",
+      "wardenMobileSubmitP95Ms": 1734,
+      "wardenDesktopSubmitP95Ms": 2359.8,
+      "wardenMobileDrawCalls": 555,
+      "wardenDesktopDrawCalls": 567,
+      "mobileMinHeroPixels": 37,
+      "desktopMinHeroPixels": 80,
+      "integratedCandidate": "CPU-only nearest-two real authored torch/lantern PointLights bounded by physical stage focus and 12% hysteresis. Hero/boss/true combat chapter lights exempt, hardware scene identical. Restore all source light visibilities on floor retirement.",
+      "sourceCodeCommit": "001bae3ad9cc774b8a02b415b61eaa9198dc35ff",
+      "testCommit": "5774dda5b06be1cfa1573d9e08a4d84ccb380ddb",
+      "isolatedBehavior": "4/4 Node mock real-selection cases PASS; repository full test and new-head authentic Chromium UNVERIFIED",
+      "realAfterMovingGameplay": "NOT_OBSERVED",
+      "preciseOriginalHitAudio": "UNVERIFIED",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "separatePr72": "NOT_INTEGRATED",
+      "next": "Inspect exact NEW head 1440px and 390px organic motion and audio: source-faithful colors, spotlight/Warden warning exposure, practical selected count, WebGL p95/p99 and RAF, natural five stages. Reject/rework if luminance or performance regresses. Repair rigCranialActors=0, validate PR72 real clips before optional selective port. Fixed baseline A/B and 3 fresh blind critics required."
     }
   }
 }
