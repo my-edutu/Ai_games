@@ -1339,6 +1339,7 @@ test('licensed Walking_A freezes its outgoing source keyframe while a genuinely 
  // This exercises the REAL THREE.AnimationMixer fade clock rather than merely
  // comparing strings. A paused outgoing source action must keep its planted
  // bone keyframe while its weight fades on mixer time and Idle becomes active.
+ const THREE=require('three');
  const bone=new THREE.Object3D();
  const walkClip=new THREE.AnimationClip('Walking_A',1,[
   new THREE.VectorKeyframeTrack('.position',[0,.5,1],[0,0,0,0,.25,0,0,0,0])
