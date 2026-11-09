@@ -19966,13 +19966,23 @@ function citizenProjectionCacheAudit(){return {
  noOmittedCitizens:true,noNewPeople:true,authorityModified:false};}
 function selectVisibleCitizenDetail(){
  const n=people.length;
- const mode=n<=12?'all':streetWalk?'street':follow?'follow':
+ // The original Day-1 founding hamlet has 6–12 full sculpted 3D citizens.
+ // At its wide overview camera these bodies occupy only a few pixels,
+ // yet all twelve rebuilt expensive detailed articulated geometry each tick.
+ // Use the original compact/GPU-rendered citizen path at overview distance;
+ // close, followed, pedestrian and live-documentary views retain full hands,
+ // faces, coats and work poses. Never remove a citizen or alter authority.
+ const foundingOverview=n>5&&n<=12&&!streetWalk&&!follow&&
+  !liveWorkday&&zoom>=32;
+ const mode=n<=12?(foundingOverview?'founding-overview':'all'):
+  streetWalk?'street':follow?'follow':
   zoom>=18?'overview':zoom>=13?'mid':'close';
  // Grown-town eyes and hand targets are costly; eight near rigs selected
  // by 2D radial distance formerly spent full detail on offscreen people.
  // Five real large-in-frame subjects still keep the scene inhabited, while
  // compact neighbors preserve genuine gait, role gear, occupation and cargo.
- const budget=n<=12?n:mode==='overview'?3:
+ const budget=n<=12?(foundingOverview?Math.min(5,n):n):
+  mode==='overview'?3:
   mode==='street'?5:mode==='mid'?5:mode==='follow'?5:5;
  const activeIndex=streetWalk&&streetEncounterName?
   people.findIndex(p=>p.name===streetEncounterName):-1;
@@ -20017,13 +20027,15 @@ function selectVisibleCitizenDetail(){
  }
  // A tiny founding village is always drawn with its original detailed
  // figures, matching the established Day-1 authored visual baseline.
- if(n<=12)for(let i=0;i<n;i++)if(!selected.includes(i))selected.push(i);
+ if(n<=12&&!foundingOverview)
+  for(let i=0;i<n;i++)if(!selected.includes(i))selected.push(i);
  const indices=new Set(selected);
  const midIndices=new Set(onScreen.filter(row=>!indices.has(row.i)&&
    row.heightFraction>=.036).slice(0,Math.min(8,n-indices.size)).map(row=>row.i));
  const offscreenFullDetail=selected.filter(i=>!projected[i]?.visible).length;
  const audit={
   source:'real-viewport-actor-detail',mode,
+  foundingOverviewLod:foundingOverview,
   population:n,budget,fullDetailCount:indices.size,
   compactCount:n-indices.size,middleCount:midIndices.size,
   farCount:n-indices.size-midIndices.size,anchorIndex,
