@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -957,6 +957,20 @@ function changeAction(actor,action,forceRestart=false){
    reducedMotion:Boolean(actor.fullBody?.reducedMotion)
   });
   if(sourceEntry!==null)next.time=sourceEntry;
+  // Walking_A is re-entered after an actual earlier step, not a new character
+  // spawn. Preserve the stamped left/right foot parity across combat/guard.
+  // Subtract current-frame travel because mixer.update advances it once more.
+  const current=actor.root?.position,prior=actor.rigGaitPosition;
+  const walkingEntry=planImportedWalkingEntryPhase({
+   mode:action,previousMode:actor.currentAction,sourceDuration:clip.duration,
+   footPhase:actor.groundedPerformance?.footPhase,
+   groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
+   groundedMoving:Boolean(actor.fullBody?.owner.locomotion&&actor.groundedPerformance?.moving),
+   walkingClip:/(?:walk|run|move)/i.test(clip.name),
+   teleport:Boolean(actor.locomotionTeleport),
+   reducedMotion:Boolean(actor.fullBody?.reducedMotion)
+  });
+  if(walkingEntry!==null)next.time=walkingEntry;
   if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),false);
   actor.activeClip=next;
   actor.activeImportedClipName=clip.name;

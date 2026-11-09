@@ -1015,3 +1015,36 @@ test('exact native Ranger frame witness cannot turn a later idle or another acto
  assert.equal(isUninterruptedRangedWitness({units:[{...previous,action:'hurt'}]},
   after,released),false,'carry-over injury cannot be counted as clean release');
 });
+
+test('licensed Walking_A re-entry preserves actual alternating foot parity without double-advancing the displayed step',async()=>{
+ const {planImportedWalkingEntryPhase:plan}=await load();
+ const duration=1.0416666666666667;
+ const close=(got,want,why)=>assert.ok(Number.isFinite(got)&&Math.abs(got-want)<1e-8,
+  why+': '+got+' expected '+want);
+ const base={mode:'move',previousMode:'attack',sourceDuration:duration,
+  groundedMoving:true,walkingClip:true,teleport:false,reducedMotion:false};
+ const odd={...base,footPhase:.5+.05/1.06,groundedTravel:.05};
+ const entry=plan(odd);
+ close(entry,duration*.5,'odd planted left/right foot persists after a real strike');
+ close((entry+.05/1.06*duration)/duration,odd.footPhase,
+  'original source ankle phase matches planted native foot after one mixer update');
+ close(plan({...base,previousMode:'idle',footPhase:.1,groundedTravel:.106}),0,
+  'first source step begins at native source cycle start');
+ close(plan({...base,previousMode:'guard',footPhase:0,groundedTravel:.53}),
+  duration*.5,'crossing a true half-cycle wraps the source walking clock');
+ close(plan({...base,previousMode:'cast',footPhase:.25+.004/1.06,groundedTravel:.004}),
+  duration*.25,'a valid tiny movement resumes without fresh clip reset');
+ for(const [label,patch] of Object.entries({
+  activeWalk:{previousMode:'move'},idle:{mode:'idle'},missingClip:{walkingClip:false},
+  stationary:{groundedTravel:0},notMoving:{groundedMoving:false},
+  teleport:{teleport:true},reduced:{reducedMotion:true},
+  invalidPhase:{footPhase:NaN},negativePhase:{footPhase:-.1},
+  invalidDistance:{groundedTravel:.55},badDuration:{sourceDuration:0}
+ })){
+  assert.equal(plan({...odd,...patch}),null,label);
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedWalkingEntryPhase\(\{/);
+ assert.match(model,/if\(walkingEntry!==null\)next\.time=walkingEntry/);
+ assert.match(model,/groundedMoving:Boolean\(actor\.fullBody\?\.owner\.locomotion&&actor\.groundedPerformance\?\.moving\)/);
+});

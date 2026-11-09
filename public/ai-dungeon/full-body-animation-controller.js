@@ -369,6 +369,27 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  return sourceStep/visibleStep;
 }
 
+/**
+ * Rejoin the original Walking_A keyframes on the same real left/right planted
+ * foot as the distance-paced original-world ground stamps and joint overlays.
+ * The mixer will advance this rendered frame's distance ONCE after re-entry.
+ * No continuous seeking, assumed sole geometry or invented movement.
+ */
+export function planImportedWalkingEntryPhase({mode='idle',previousMode='idle',
+ sourceDuration=0,footPhase=NaN,groundedTravel=NaN,groundedMoving=false,
+ walkingClip=false,teleport=false,reducedMotion=false}={}){
+ if(mode!=='move'||previousMode==='move'||groundedMoving!==true||
+  walkingClip!==true||teleport||reducedMotion||
+  ![sourceDuration,footPhase,groundedTravel].every(finite)||
+  sourceDuration<=.002||sourceDuration>10||
+  footPhase<0||footPhase>1||groundedTravel<=.003||groundedTravel>.54)return null;
+ const previousPhase=footPhase-groundedTravel/1.06;
+ // Floating-point subtraction of two exactly equal stride fractions must
+ // not wrap zero to the final Walking_A keyframe.
+ const phase=Math.abs(previousPhase)<1e-10?0:((previousPhase%1+1)%1);
+ return phase*sourceDuration;
+}
+
 export function planImportedDeathSourceStep({mode='idle',sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=0,
  reducedMotion=false,visible=true}={}){
