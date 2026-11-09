@@ -57,49 +57,27 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "baselineMoved": false,
-      "implementationSha": "1b841eba80e40f739222a5f1a530f2089fb4b83d",
-      "regressionSha": "176ce622173537d7ad9535db7c91b20bd59e0823",
-      "reviewSha": "e38ba00dc8eb728cd72e0619922dbd0a0e5ba634",
-      "lastExactSourceInspectedSha": "82fb02dc7afe12598627a58b7cad0e4399018640",
-      "authoritativeGameplayChangedThisExecution": false,
-      "actualRendererCodeChangedThisExecution": true,
-      "completedOutcome": "Original 9-job capture 42606453096 FINISHED: 8/8 real desktop+portrait frozen-baseline/candidate native-WebM recording jobs succeeded with FFprobe transport auditor; source-event pair job succeeded (8/8, zero missing/split stories), not a quality pass. Original real-scene ledge job failed desktop at actual source tick 131: root radius 27.605658 and skinned helmet clearance about -0.43 into opaque deck; portrait SAME source tick r28.0412 and clearance +0.158. Examined both original screenshot sequences and recovered current-head candidate danger WebM frame samples; giant foreground clockwork still competes with airborne action at video seconds 16-18. Fixed the physically meaningful cross-cadence grip/sole boundary presentation fault in the real scene and tightened original Playwright check to reject actual helmet penetration. No new current-source WebM or suite pass yet.",
-      "observedSourceFailure": {
-        "oldSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096",
-        "originalLedgeArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
-        "originalCandidateDangerFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668102830",
-        "eventPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668527588",
-        "sourceRoot": "Desktop true contact tick131 root r=27.605658 and actual helmet clearance -0.43, portrait same exact source tick root r=28.0412 and clearance +0.158: time-smoothed real 3D character penetrated solid slab at one browser cadence.",
-        "majorFilmDefect": "Authentic candidate portrait danger WebM from source 82fb02dc still displays giant foreground wheel/rack at seconds 16–18 obscuring or competing with real climber/guardian; source truth does not establish quality."
+      "inspectedBranchHead": "2149b73f074899847a503235309194c4b52acc31",
+      "originalRuntimeWorldRestagingSha": "2149b73f074899847a503235309194c4b52acc31",
+      "thisExecutionImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
+      "codeChange": "Added passive Chromium CDP compositor-frame timestamp anchors for real full-viewport WebM-to-source event search. Integrated independent baseline and candidate harness without altering either game's authoritative source, native WebM bytes, Playwright recording size, physics or PR58.",
+      "observedEvidence": "Original 9-job paired full-motion run 42618963049 SUCCESS for source/transport. Independently downloaded genuine candidate/baseline danger archive and inspected actual portrait video at 14-20s (candidate clockwork eclipses hero at ~14,16,17.6-18s); event-index source chain reports real guardian defeat, earned physical 8-to-9 crossing, floor10 and later game outcome/restart. Still not visually event-matched or independently judged.",
+      "rootCauseOfTimebaseBlocker": "All original whole-viewport browser screenshot anchors were too slow for the existing <=350ms calibration gate: candidate portrait 7 intervals 2194-4698ms (median 3055ms), candidate desktop 4 intervals 4526-5532ms (median 5234.5ms); baseline portrait 6 intervals 4140-5475ms (median 4492ms), baseline desktop 4 intervals 6074-8274ms (median 6542.5ms). Both recorded native-video-clock.json statuses NOT EVALUATED with zero anchors accepted. NEVER relax clock uncertainty to 3-8 seconds.",
+      "completedOutcome": "Actual capture blocker repaired in harness by passively sampling bounded original browser compositor frames with Chrome-issued epoch timestamps; frame SHA/PTS pixel matching still required. Original Node syntax for new helper, test and browser fixture parsed in V8; original full Node/Three/Playwright not executed locally. Last exact pre-change quality 42630187191 at 2149b73f succeeded. New quality workflow 42633967544 queued at code commit.",
+      "independentReviewCount": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
       },
-      "verification": {
-        "githubReadback": "Original PR68 was open/draft, branch HEAD 82fb02dc inspected; real scene implementation committed at 1b841eba, GPU regression at afaf4df3, review at 60fcb1d4. Frozen baseline preserved.",
-        "originalNodeThreeAndBrowserAtNewHead": "NOT EVALUATED: latest scene fix and new assertion require exact-HEAD CI and source-bound WebGL sequence replay.",
-        "originalSource3200TickCampaign": "PASS at previous 82fb02dc original 9-job ledge source campaign, two same-run campaigns, unchanged authoritative rules; not re-run at new scene SHA.",
-        "nativeWebmDesktopPortrait": "PASS for recording transport at OLD 82fb02dc candidate and frozen baseline: 8/8 jobs, 60+s original WebM each, FFprobe installed on runner. Visual source-matched quality remains NOT EVALUATED.",
-        "sourceEventPairing": "8/8 source stories indexed, 0 missing/split, 0 integrity defects in 42606453096 pair-source-events; no independent film-event visual certification.",
-        "originalWebglLedge": "FAIL at 82fb02dc: 3/4 Playwright tests passed; source-bound desktop transition failed, actual skinned head clipped deck.",
-        "newSkinnedHelmetBoundary": "UNEXECUTED at 1b841eba/afaf4df3; avoid claiming a pass.",
-        "actualFullMotionReviewed": "NOT EVALUATED: original 75s portrait danger film selectively sampled at 5,10,14,16,17,18,19,20,25,30,40,60s; not independent continuous film rating.",
-        "nativePTSAndVisibleGameplayEvents": "Native capture transport exists, but visual player/guardian/gateway event-to-frame proof and accepted matched normal-speed study remain open.",
-        "actualDeviceFrameTimeMemory": "NOT EVALUATED: GitHub CI Chromium/software renderer is not supported real hardware",
-        "independentReviewCount": {
-          "looks": 0,
-          "feels": 0,
-          "plays": 0
-        },
-        "originalNodeAtFirstImplementation": "FAIL at 1b841eba: 1269/1270 original Node suite, sole retired helper signature assertion in tower-ground-contact.test.cjs; actual 3D change not yet validated.",
-        "originalNodeAtCorrectedFixture": "PENDING exact-source original Node quality run 42610553152 at 176ce622; no PASS claim until complete.",
-        "originalBrowserAndFilmAtCorrectedFixture": "NOT EVALUATED: needs real WebGL/Chromium ledge and 60+s source-pinned films."
-      },
-      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-source-locked-real-ledge-contact.md",
-      "biggestExperienceGap": "Even after pipeline repair the actual candidate portrait danger film at 82fb02dc has giant foreground clockwork competing with real airborne action around 16–18s. Also the exact-source desktop ledge frame crossed opaque deck at tick 131; source-bound 3D fix now committed but unverified for smoothness. No blind quality or device acceptance.",
-      "nextHighestImpactAction": "Run exact-current-head original Playwright ledge desktop/portrait and full Node/Three tests; inspect ticks129–139 for helmet and soles AND continuous normal-speed footage for source-locked pose snap. Repeat 60+s paired desktop960x600/portrait390x844 with frozen baseline and candidate; inspect authentic 16–20s guardian occlusion; verify complete guardian/crusher victory→grounded gateway→floor9→outcome/restart before redesigning biggest system-level occlusion. Never fabricate votes/quality.",
-      "safety": "PR68 draft branch only; baseline unchanged; do not touch PR58/main or merge, deploy, force push or remove draft.",
-      "originalBrowserRegressionSha": "afaf4df36c94b958ca62d5a4c6a100811c28ef41",
-      "nodeFixtureFailureRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823"
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "nativeVideoCalibration": "NOT EVALUATED until new exact-source original WebM produces >=3 unique matchable anchors and interleaved observed source events; CDP captures are only candidates, not acceptance.",
+      "sourceVideoRunRequested": "New 9-job capture requested by modifying capture-request.json in evidence commit. Capture run/job/artifacts still not available at time of request.",
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-original-native-frame-timebase-unblock.md",
+      "biggestExperienceGap": "Massive near-side clockwork and a tall rack repeatedly occlude or visually overwhelm the real climber/guardian in 390x844 native candidate danger footage around 14-18 seconds. Source 2149b73f physically restages these mechanisms but HAS NO new film yet; gameplay gateway visibility and film-timecode authenticity are unverified.",
+      "nextHighestImpactAction": "Verify exact capture at this request commit: browser CDP anchors must actually arrive, match native WebM with >=3 unique spread out anchors, and produce only bounded source-event search handles. Inspect 960x600 and 390x844 native film for wheel and visual pop, grounded gateway walk, floor9 continuation, outcome/restart. If uncalibrated, inspect CDP errors/anchor uniqueness and repair the source-vs-video bottleneck; never grade without independent fresh blind critics and actual hardware.",
+      "safety": "PR68 branch only, open draft. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; main/PR58 untouched; no merge, deploy or force push."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
@@ -1784,6 +1762,95 @@
       "biggestExperienceGap": "Newest authentic candidate portrait danger 8c3ed755 still presents large near-side wheel/rack around 16–18s, competing with airborne climber, guardian and the selected landing. Even with 25fps encoded film, no accepted continuous video proof or independent improvement preference exists.",
       "nextHighestImpactAction": "Run new exact-SHA baseline/candidate film with verified FFprobe/FFmpeg transport tools, examine any native PTS/anchor failures, repair baseline portrait outcome missing same-run story without fabricating events, then inspect full motion and fix the largest current occlusion/readability defect before P1.",
       "safety": "PR68 branch only, frozen baseline unchanged. Do not touch PR58/main, move baseline, merge/deploy/force-push, or mark ready for review."
+    },
+    "priorEvidenceRunBeforeCompositorAnchor20261109": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "baselineMoved": false,
+      "implementationSha": "1b841eba80e40f739222a5f1a530f2089fb4b83d",
+      "regressionSha": "176ce622173537d7ad9535db7c91b20bd59e0823",
+      "reviewSha": "e38ba00dc8eb728cd72e0619922dbd0a0e5ba634",
+      "lastExactSourceInspectedSha": "82fb02dc7afe12598627a58b7cad0e4399018640",
+      "authoritativeGameplayChangedThisExecution": false,
+      "actualRendererCodeChangedThisExecution": true,
+      "completedOutcome": "Original 9-job capture 42606453096 FINISHED: 8/8 real desktop+portrait frozen-baseline/candidate native-WebM recording jobs succeeded with FFprobe transport auditor; source-event pair job succeeded (8/8, zero missing/split stories), not a quality pass. Original real-scene ledge job failed desktop at actual source tick 131: root radius 27.605658 and skinned helmet clearance about -0.43 into opaque deck; portrait SAME source tick r28.0412 and clearance +0.158. Examined both original screenshot sequences and recovered current-head candidate danger WebM frame samples; giant foreground clockwork still competes with airborne action at video seconds 16-18. Fixed the physically meaningful cross-cadence grip/sole boundary presentation fault in the real scene and tightened original Playwright check to reject actual helmet penetration. No new current-source WebM or suite pass yet.",
+      "observedSourceFailure": {
+        "oldSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096",
+        "originalLedgeArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
+        "originalCandidateDangerFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668102830",
+        "eventPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668527588",
+        "sourceRoot": "Desktop true contact tick131 root r=27.605658 and actual helmet clearance -0.43, portrait same exact source tick root r=28.0412 and clearance +0.158: time-smoothed real 3D character penetrated solid slab at one browser cadence.",
+        "majorFilmDefect": "Authentic candidate portrait danger WebM from source 82fb02dc still displays giant foreground wheel/rack at seconds 16–18 obscuring or competing with real climber/guardian; source truth does not establish quality."
+      },
+      "verification": {
+        "githubReadback": "Original PR68 was open/draft, branch HEAD 82fb02dc inspected; real scene implementation committed at 1b841eba, GPU regression at afaf4df3, review at 60fcb1d4. Frozen baseline preserved.",
+        "originalNodeThreeAndBrowserAtNewHead": "NOT EVALUATED: latest scene fix and new assertion require exact-HEAD CI and source-bound WebGL sequence replay.",
+        "originalSource3200TickCampaign": "PASS at previous 82fb02dc original 9-job ledge source campaign, two same-run campaigns, unchanged authoritative rules; not re-run at new scene SHA.",
+        "nativeWebmDesktopPortrait": "PASS for recording transport at OLD 82fb02dc candidate and frozen baseline: 8/8 jobs, 60+s original WebM each, FFprobe installed on runner. Visual source-matched quality remains NOT EVALUATED.",
+        "sourceEventPairing": "8/8 source stories indexed, 0 missing/split, 0 integrity defects in 42606453096 pair-source-events; no independent film-event visual certification.",
+        "originalWebglLedge": "FAIL at 82fb02dc: 3/4 Playwright tests passed; source-bound desktop transition failed, actual skinned head clipped deck.",
+        "newSkinnedHelmetBoundary": "UNEXECUTED at 1b841eba/afaf4df3; avoid claiming a pass.",
+        "actualFullMotionReviewed": "NOT EVALUATED: original 75s portrait danger film selectively sampled at 5,10,14,16,17,18,19,20,25,30,40,60s; not independent continuous film rating.",
+        "nativePTSAndVisibleGameplayEvents": "Native capture transport exists, but visual player/guardian/gateway event-to-frame proof and accepted matched normal-speed study remain open.",
+        "actualDeviceFrameTimeMemory": "NOT EVALUATED: GitHub CI Chromium/software renderer is not supported real hardware",
+        "independentReviewCount": {
+          "looks": 0,
+          "feels": 0,
+          "plays": 0
+        },
+        "originalNodeAtFirstImplementation": "FAIL at 1b841eba: 1269/1270 original Node suite, sole retired helper signature assertion in tower-ground-contact.test.cjs; actual 3D change not yet validated.",
+        "originalNodeAtCorrectedFixture": "PENDING exact-source original Node quality run 42610553152 at 176ce622; no PASS claim until complete.",
+        "originalBrowserAndFilmAtCorrectedFixture": "NOT EVALUATED: needs real WebGL/Chromium ledge and 60+s source-pinned films."
+      },
+      "reviewFile": "docs/reviews/2026-11-09-tower-pr68-source-locked-real-ledge-contact.md",
+      "biggestExperienceGap": "Even after pipeline repair the actual candidate portrait danger film at 82fb02dc has giant foreground clockwork competing with real airborne action around 16–18s. Also the exact-source desktop ledge frame crossed opaque deck at tick 131; source-bound 3D fix now committed but unverified for smoothness. No blind quality or device acceptance.",
+      "nextHighestImpactAction": "Run exact-current-head original Playwright ledge desktop/portrait and full Node/Three tests; inspect ticks129–139 for helmet and soles AND continuous normal-speed footage for source-locked pose snap. Repeat 60+s paired desktop960x600/portrait390x844 with frozen baseline and candidate; inspect authentic 16–20s guardian occlusion; verify complete guardian/crusher victory→grounded gateway→floor9→outcome/restart before redesigning biggest system-level occlusion. Never fabricate votes/quality.",
+      "safety": "PR68 draft branch only; baseline unchanged; do not touch PR58/main or merge, deploy, force push or remove draft.",
+      "originalBrowserRegressionSha": "afaf4df36c94b958ca62d5a4c6a100811c28ef41",
+      "nodeFixtureFailureRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823"
+    },
+    "p0NativeFrameTimebase20261109": {
+      "status": "OPEN — NOT EVALUATED",
+      "gamePresentationSourceSha": "2149b73f074899847a503235309194c4b52acc31",
+      "frameAnchorImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
+      "historicalSourceBoundRecording": "https://github.com/my-edutu/Ai_games/actions/runs/42618963049",
+      "baselineCandidateFilmShaStatus": "Transport pass only; original native-video-clock.json four danger viewports uncalibrated.",
+      "historicalNativeScreenshotCaptureIntervalsMs": {
+        "baselineDesktop": {
+          "count": 4,
+          "min": 6074,
+          "median": 6542.5,
+          "max": 8274
+        },
+        "baselinePortrait": {
+          "count": 6,
+          "min": 4140,
+          "median": 4492,
+          "max": 5475
+        },
+        "candidateDesktop": {
+          "count": 4,
+          "min": 4526,
+          "median": 5234.5,
+          "max": 5532
+        },
+        "candidatePortrait": {
+          "count": 7,
+          "min": 2194,
+          "median": 3055,
+          "max": 4698
+        }
+      },
+      "fact": "No slow screenshot under original <=350ms wall/video calibration tolerance; attempting calibration from these alone would misdate event causes.",
+      "fix": "Capture up to nine separate passive CDP compositor frames >=7s apart with Chrome-supplied epoch capture timestamp; compare each original JPEG to original video PTS at 48x30 gray and require existing uniqueness, offset and monotonic-slope checks. Do not pretend pixels or game events were reviewed by a critic.",
+      "regressionStatus": "New Node fixture shipped but no full original browser proof yet.",
+      "independentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "devicePerformance": "NOT EVALUATED"
     }
   },
   "scenarios": [
