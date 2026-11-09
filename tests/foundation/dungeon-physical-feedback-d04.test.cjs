@@ -101,7 +101,8 @@ test('anonymous event kinds cannot invent a dodge without actual movement',async
   {tick:11,kind:'opening',text:'warden vulnerable'},
   {tick:11,kind:'noise',text:'ignore'}]});
  const cues=planPhysicalFeedback(old,next);
- assert.deepEqual(kinds(cues),['interrupt','opening','block']);
+ assert.deepEqual(kinds(cues),['interrupt','block'],
+  'an anonymous opening string without a Warden recovery is not physical proof');
  assert.equal(cues.find(c=>c.kind==='block').actorId,null,
   'semantic text alone cannot anchor a block to one combatant');
  const walking=snap(11,{units:[hero({x:2,z:3,action:'move',actionTick:11}),foe()],events:[{tick:11,kind:'evade',text:'whatever'}]});
@@ -121,7 +122,9 @@ test('Warden warning cadence, cast release, earned recovery and actual counter l
  assert.deepEqual(kinds(planPhysicalFeedback(rising,final)),['boss-warning-final']);
  const release=snap(23,{units:[hero(),boss(75,'cast',23)],bossWarning:null});
  assert.deepEqual(kinds(planPhysicalFeedback(final,release)),['warden-release']);
- const opening=snap(24,{units:[hero(),boss(75,'guard',23,25)],events:[{tick:24,kind:'opening',text:'warden exposed'}]});
+ const opening=snap(24,{units:[hero(),boss(75,'cast',24,25)],
+  bossRecovery:{remaining:2},guardianWard:false,
+  events:[{tick:24,kind:'opening',text:'warden exposed'}]});
  assert.deepEqual(kinds(planPhysicalFeedback(release,opening)),['opening']);
  const counter=snap(25,{units:[hero(),boss(49,'hurt',25)],events:[{tick:25,kind:'counter',text:'hero counters'}]});
  assert.deepEqual(kinds(planPhysicalFeedback(opening,counter)),['counter','damage']);
