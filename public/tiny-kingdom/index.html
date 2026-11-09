@@ -5529,8 +5529,10 @@ function grainwardStructuralDormer(x,z,eave,ridge,roofHalf,edgeZ,face,style,scal
   for(const sign of [-1,1]){
    const xx=center+sign*half,low=slope(xx)-.046*scale;
    const p0=f(xx,low),p1=b(xx,low),p2=b(xx,shoulder),p3=f(xx,shoulder);
-   if(sign<0)quad(p3,p2,p1,p0,plaster);
-   else quad(p0,p1,p2,p3,plaster);
+   // Always face outward under backface culling, including the many
+   // negative-Z founding-cottage and granary dormers.
+   if((sign<0)===(face<0))quad(p0,p1,p2,p3,plaster);
+   else quad(p3,p2,p1,p0,plaster);
   }
  });
  materialScope(MATERIAL.ROOF,()=>{
