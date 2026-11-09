@@ -1145,3 +1145,48 @@ test('native sword pelvis-to-wrist overlays track actual original-clip crossfade
  assert.match(model,/sourceBlend:\s*actor\.activeClip\?\.getEffectiveWeight\?\.\(\)/,
   'actual post-mixer Three.js source action weight must own ALL additive duel joints and root');
 });
+test('licensed Ranger and caster one-shots have exclusive source-faded full-body shoulder, elbow and spine ownership',async()=>{
+ const filename=path.join(root,'public/ai-dungeon/ranged-encounter-plan.js');
+ const ranged=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(filename,'utf8')).toString('base64'));
+ const own=ranged.ownsImportedRangedUpperBody;
+ assert.equal(typeof own,'function','a real source-rig release must have explicit upper-body pose ownership');
+ const vectors=p=>[p.weight,p.spine.pitch,p.spine.yaw,p.spine.roll,
+  ...['left','right'].flatMap(side=>[
+   p.shoulders[side].pitch,p.shoulders[side].roll,p.elbows[side]])];
+ for(const [kind,action,clipName] of [
+  ['ranger','attack','2H_Ranged_Shoot'],
+  ['mystic','cast','Spellcast_Shoot'],
+  ['cultist','cast','Spellcast_Shoot']
+ ]){
+  assert.equal(own(kind,action,clipName,0,false),true,
+   kind+' must own the additive arm chain from the FIRST zero-weight source fade frame');
+  assert.equal(own(kind,action,clipName,.5,false),true);
+  assert.equal(own(kind,action,clipName,1,false),true);
+  const args=[kind,action,.24,2,'genuine-witnessed-target',false];
+  const start=vectors(ranged.planRangedBodyPose(...args,0));
+  const mid=vectors(ranged.planRangedBodyPose(...args,.5));
+  const full=vectors(ranged.planRangedBodyPose(...args,1));
+  assert.ok(full.some(n=>Math.abs(n)>.04),'real original upper-body release should remain visibly articulated');
+  assert.ok(start.every(n=>n===0),kind+' must not jump ahead of imported source crossfade');
+  for(let i=0;i<full.length;i++)assert.ok(Math.abs(mid[i]-full[i]*.5)<1e-9,
+   kind+' unified original source upper-body fade component '+i);
+  assert.equal(own(kind,action,'Idle',.5,false),false,'no fake source ownership on fallback Idle');
+  assert.equal(own(kind,action,'1H_Melee_Attack_Slice_Horizontal',.5,false),false,
+   'a melee clip cannot own the Ranger/caster release');
+  assert.equal(own(kind,action,clipName,NaN,false),false,'invalid mixer weight must fail closed');
+  assert.equal(own(kind,action,clipName,.5,true),false,'reduced motion must not force native release');
+ }
+ assert.equal(own('vanguard','attack','2H_Ranged_Shoot',.5,false),false,
+  'do not steal Vanguard genuine melee action ownership');
+ assert.equal(own('ranger','idle','2H_Ranged_Shoot',.5,false),false,
+  'old source clip cannot animate a fresh idle action');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/ownsImportedRangedUpperBody\(/,
+  'native source release must be explicitly recognized in the running renderer');
+ assert.match(model,/nativeReleaseOwnsUpperBody\s*\?\s*'idle'/,
+  'generic shoulder and elbow gesture channels must relinquish the original release');
+ assert.match(model,/planRangedBodyPose\([\s\S]{0,360}getEffectiveWeight\?\.\(\)/,
+  'the specialized source release must inherit the live AnimationAction weight');
+});
+
