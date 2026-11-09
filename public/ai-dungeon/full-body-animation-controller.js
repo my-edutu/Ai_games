@@ -376,16 +376,30 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  * No continuous seeking, assumed sole geometry or invented movement.
  */
 export function planImportedWalkingEntryPhase({mode='idle',previousMode='idle',
- sourceDuration=0,footPhase=NaN,groundedTravel=NaN,groundedMoving=false,
+ sourceDuration=0,effectiveSpeed=1,frameDelta=.016,frameInterval=frameDelta,
+ visible=true,footPhase=NaN,groundedTravel=NaN,groundedMoving=false,
  walkingClip=false,teleport=false,reducedMotion=false}={}){
  if(mode!=='move'||previousMode==='move'||groundedMoving!==true||
-  walkingClip!==true||teleport||reducedMotion||
-  ![sourceDuration,footPhase,groundedTravel].every(finite)||
-  sourceDuration<=.002||sourceDuration>10||
+  walkingClip!==true||teleport||reducedMotion||visible!==true||
+  ![sourceDuration,effectiveSpeed,frameDelta,frameInterval,footPhase,groundedTravel].every(finite)||
+  sourceDuration<=.002||sourceDuration>10||effectiveSpeed<=.001||
+  frameDelta<=0||frameInterval<=0||
   footPhase<0||footPhase>1||groundedTravel<=.003||groundedTravel>.54)return null;
- const previousPhase=footPhase-groundedTravel/1.06;
+ // Three.js caps source travel to 280ms per visible frame. The earlier
+ // walking-entry seek subtracted UNBOUNDED root distance from a stamped
+ // footfall, then mixer.update() advanced only the capped source time.
+ // On a legal .53m visible step this left source ankles as much as 16.4%
+ // of the original cycle out of phase with real grounded leg overlays.
+ // Use the EXACT step the source planner will apply this frame, including
+ // clip speed, bound, visibility and teleport checks. No second mixer step,
+ // fake footprint, root motion or joint alteration is introduced here.
+ const step=planImportedLivingSourceStep({mode:'move',sourceTime:0,
+  sourceDuration,effectiveSpeed,frameDelta,frameInterval,
+  reducedMotion,visible,groundedTravel,groundedMoving,walkingClip,teleport});
+ const sourceCycleAdvance=step*effectiveSpeed/sourceDuration;
+ const previousPhase=footPhase-sourceCycleAdvance;
  // Floating-point subtraction of two exactly equal stride fractions must
- // not wrap zero to the final Walking_A keyframe.
+ // not wrap zero to the last Walking_A keyframe.
  const phase=Math.abs(previousPhase)<1e-10?0:((previousPhase%1+1)%1);
  return phase*sourceDuration;
 }

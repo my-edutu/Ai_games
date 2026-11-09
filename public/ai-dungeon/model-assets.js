@@ -922,7 +922,7 @@ function attachCharacter(actor){
  }).catch(e=>{failures.add(asset);return false});
  return request;
 }
-function changeAction(actor,action,forceRestart=false){
+function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFrameInterval=frameDelta,sourceFrameVisible=true){
  const oneShot=['attack','cast','hurt','defeat'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
@@ -963,7 +963,8 @@ function changeAction(actor,action,forceRestart=false){
   const current=actor.root?.position,prior=actor.rigGaitPosition;
   const walkingEntry=planImportedWalkingEntryPhase({
    mode:action,previousMode:actor.currentAction,sourceDuration:clip.duration,
-   footPhase:actor.groundedPerformance?.footPhase,
+    effectiveSpeed:clipSpeed,frameDelta,frameInterval:sourceFrameInterval,
+    visible:sourceFrameVisible,footPhase:actor.groundedPerformance?.footPhase,
    groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
    groundedMoving:Boolean(actor.fullBody?.owner.locomotion&&actor.groundedPerformance?.moving),
    walkingClip:/(?:walk|run|move)/i.test(clip.name),
@@ -1097,7 +1098,8 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    actor.activeClip?.getClip?.()===genuineDeath&&
    (actor.activeClip.paused===true||actor.activeClip.time>=genuineDeath.duration-.002));
   const freezeSource=actor.fullBody.owner.defeat&&(!genuineDeath||deathFinished);
-  if(!freezeSource)changeAction(actor,actor.fullBody.clipAction,actor.fullBody.restarted);
+  if(!freezeSource)changeAction(actor,actor.fullBody.clipAction,actor.fullBody.restarted,
+    dt,sourceFrameInterval,sourceFrameVisible);
   else actor.fullBodyFrozenFrames=Math.min(1000000,(actor.fullBodyFrozenFrames||0)+1);
   actor.nativeDeathSourceActive=Boolean(genuineDeath&&actor.currentAction==='defeat'&&
    actor.activeClip?.getClip?.()===genuineDeath);
