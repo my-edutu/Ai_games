@@ -1319,3 +1319,54 @@ test('native Ranger/caster release support recovers to neutral BEFORE its genuin
    kind+' early and recovery angles must remain tied to native mixer fade');
  }
 });
+
+
+test('licensed Walking_A freezes its outgoing source keyframe while a genuinely stopped actor crossfades to idle',async()=>{
+ const {planImportedWalkArrivalFreeze:freeze}=await load();
+ assert.equal(typeof freeze,'function','requires explicit original-source walking exit contract');
+ const options={previousMode:'move',nextMode:'idle',previousClipName:'Walking_A',
+  groundedMoving:false,groundedTravel:0,teleport:false,reducedMotion:false,
+  visible:true};
+ assert.equal(freeze(options),true,'source must stop stepping its ankles after genuine travel ends');
+ for(const [reason,patch] of Object.entries({
+  stillWalking:{groundedMoving:true},rootStillTravelling:{groundedTravel:.015},
+  microscopicInterp:{groundedTravel:.0016},otherOwner:{previousMode:'attack'},
+  newAttack:{nextMode:'attack'},newGuard:{nextMode:'guard'},
+  noSource:{previousClipName:'Idle'},unknownSource:{previousClipName:'None'},
+  teleported:{teleport:true},accessibility:{reducedMotion:true},
+  hidden:{visible:false},invalidTravel:{groundedTravel:NaN}
+ }))assert.equal(freeze({...options,...patch}),false,reason+' retains existing mixer behavior');
+ // This exercises the REAL THREE.AnimationMixer fade clock rather than merely
+ // comparing strings. A paused outgoing source action must keep its planted
+ // bone keyframe while its weight fades on mixer time and Idle becomes active.
+ const bone=new THREE.Object3D();
+ const walkClip=new THREE.AnimationClip('Walking_A',1,[
+  new THREE.VectorKeyframeTrack('.position',[0,.5,1],[0,0,0,0,.25,0,0,0,0])
+ ]);
+ const idleClip=new THREE.AnimationClip('Idle',1,[
+  new THREE.VectorKeyframeTrack('.position',[0,1],[0,0,0,0,0,0])
+ ]);
+ const mixer=new THREE.AnimationMixer(bone);
+ const walking=mixer.clipAction(walkClip).play();
+ mixer.update(.21);
+ const plantedTime=walking.time,plantedWorldY=bone.position.y;
+ const idle=mixer.clipAction(idleClip);
+ idle.reset().play().crossFadeFrom(walking,.23,false);
+ if(freeze(options))walking.paused=true;
+ mixer.update(.07);
+ assert.equal(walking.time,plantedTime,
+  'outgoing skinned source feet cannot keep pedalling on stationary ground');
+ assert.ok(walking.getEffectiveWeight()<1&&walking.getEffectiveWeight()>0,
+  'the old original source pose must fade continuously, not pop off');
+ assert.ok(idle.getEffectiveWeight()>0,
+  'the genuine idle source must take over during the same elapsed-time fade');
+ assert.ok(Number.isFinite(bone.position.y)&&Math.abs(bone.position.y-plantedWorldY)<.3,
+  'no malformed original joint blending');
+ walking.reset().play();
+ assert.equal(walking.paused,false,'next lawful Walking_A entry must unpause the source');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedWalkArrivalFreeze\(\{/,
+  'running Three.js source mixer must use the guarded stop-to-idle planner');
+ assert.match(model,/previous\.paused=true/,
+  'outgoing licensed source action must hold its true planted keyframe during fade');
+});
