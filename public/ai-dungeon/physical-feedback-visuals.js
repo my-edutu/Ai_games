@@ -68,6 +68,27 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
   sampled=new THREE.Vector3();
+ // Bounded, scene-owned chronological evidence outlives a 300ms GPU marker.
+ // No per-frame allocations, audio nodes or extra visual pools are introduced.
+ const MAX_WARNING_HISTORY_OWNERS=8,warningHistory=new Map();
+ const warningOwner=cue=>typeof cue?.sceneKey==='string'&&cue.sceneKey.length>0&&
+  typeof cue?.actorId==='string'&&cue.actorId.length>0?
+  JSON.stringify([cue.sceneKey,cue.actorId]):null;
+ function rememberWardenCue(cue){
+  const owner=warningOwner(cue);
+  if(!owner||!Number.isSafeInteger(cue.tick)||cue.tick<0)return;
+  const previous=warningHistory.get(owner)??{lastWarning:null,lastRelease:null};
+  let next=previous;
+  if(cue.visual==='warning'&&cue.proof==='authority-warning-window')
+   next={...previous,lastWarning:cue};
+  else if(cue.kind==='warden-release'&&cue.proof==='authority-action'&&
+   (!previous.lastRelease||cue.tick>previous.lastRelease.tick))
+   next={...previous,lastRelease:cue};
+  if(next===previous)return;
+  warningHistory.delete(owner);warningHistory.set(owner,next);
+  if(warningHistory.size>MAX_WARNING_HISTORY_OWNERS)
+   warningHistory.delete(warningHistory.keys().next().value);
+ }
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,confirmedFragments=0,measuredTrailFrames=0,
   unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
@@ -217,11 +238,16 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // A new validated warning replaces obsolete cells; the confirmed Warden
   // release clears its older final tell before allocating a release signal.
   // Unknown/forged warning geometry cannot retire a valid footprint.
-  if(warningMarkers&&isStaleWardenWarning(cue,pools.get('signal')?.slots)){
+  if(warningMarkers&&isStaleWardenWarning(cue,pools.get('signal')?.slots,
+   warningHistory.get(warningOwner(cue)))){
    suppressed++;staleWarningCues++;return false;
   }
   if(warningMarkers||cue.kind==='warden-release'&&cue.proof==='authority-action')
    retireWarningMarkers(cue);
+  // An authentic release closes the spent strike even if the eight-slot
+  // signal pool cannot allocate a matching release glyph.
+  if(cue.kind==='warden-release'&&cue.proof==='authority-action')
+   rememberWardenCue(cue);
   // An aimed target is NOT proof the missile connected. Shorten the rendered
   // flight so an unconfirmed projectile never pierces a target body volume.
   const flightDestination=(type==='projectile'||type==='spell')&&cell(cue.to)?
@@ -272,6 +298,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    created++;spawned++;
   }
   if(type==='hit')confirmedFragments+=created;
+  if(warningMarkers&&created>0)rememberWardenCue(cue);
   peak=Math.max(peak,active);
   return created>0;
  }
@@ -403,7 +430,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    for(let i=0;i<pool.max;i++)pool.mesh.setMatrixAt(i,hideMatrix());
    pool.mesh.instanceMatrix.needsUpdate=true;pool.mesh.visible=false;
   }
-  active=0;
+  active=0;warningHistory.clear();
  }
  function dispose(){
   if(disposed)return;
@@ -414,7 +441,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pools.clear();
  }
  function stats(){return Object.freeze({
-  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,confirmedFragments,
+  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,
+  warningHistoryOwners:warningHistory.size,confirmedFragments,
   measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,

@@ -13,18 +13,28 @@ const sameOwner=(a,b)=>validOwner(a)&&validOwner(b)&&
  a.sceneKey===b.sceneKey&&a.actorId===b.actorId;
 const attackTick=cue=>validTick(cue?.detail?.attackTick)?cue.detail.attackTick:null;
 
-/** The slot list is the existing eight-item retained signal pool, not a cache. */
-export function isStaleWardenWarning(incoming,slots=[]){
+/**
+ * A witnessed Warden tell remains newer after its transient GPU glyph expires.
+ * A genuine release also closes its spent warning. Both are presentation-only
+ * observations scoped to the existing scene and actor; no strike is inferred.
+ */
+function laterWarning(live,incoming){
+ if(!actualWarning(live)||!sameOwner(live,incoming))return false;
+ if(live.tick>incoming.tick)return true;
+ if(live.tick!==incoming.tick)return false;
+ const incomingAttack=attackTick(incoming),liveAttack=attackTick(live);
+ return incomingAttack!==null&&liveAttack!==null&&liveAttack>incomingAttack;
+}
+/** Retained slots and optional bounded history are treated as read-only. */
+export function isStaleWardenWarning(incoming,slots=[],history=null){
  if(!actualWarning(incoming)||!Array.isArray(slots))return false;
- for(const slot of slots){
-  const live=slot?.cue??slot;
-  if(!actualWarning(live)||!sameOwner(live,incoming))continue;
-  if(live.tick>incoming.tick)return true;
-  if(live.tick===incoming.tick){
-   const liveAttack=attackTick(live),incomingAttack=attackTick(incoming);
-   if(liveAttack!==null&&incomingAttack!==null&&liveAttack>incomingAttack)return true;
-  }
- }
+ const release=history?.lastRelease,expected=attackTick(incoming);
+ if(validOwner(release)&&release.kind==='warden-release'&&
+  release.proof==='authority-action'&&sameOwner(release,incoming)&&
+  expected!==null&&expected<=release.tick)return true;
+ if(laterWarning(history?.lastWarning,incoming))return true;
+ for(const slot of slots)
+  if(laterWarning(slot?.cue??slot,incoming))return true;
  return false;
 }
 
