@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — resolve from workflow run, never from this text or branch alias",
-  "repairedSourceSha": "21c62a564fe15a34bbb0c90803bcd6a003bfa842",
-  "reason": "P0 investigation of original paired native films from run 42649795304: source-earned floor-nine tick451 search time ~22.72s, actual 390x844 film pixels first show floor-nine HUD ~25.0s, plus giant wheel overwhelms hero/guardian ~14-18s. Old evidence harness blocked filmed Chromium with repeated multi-second canvas/full-page screenshots while 20Hz source advanced. New neutral baseline-and-candidate recorder omits all blocking screenshot calls and derives distinct changing pixels from byte-validated passive Chrome compositor JPEG anchors, preserves 60+s unedited WebM and all genuine source/terminal checks. Generate matched baseline/candidate at exact github.sha of this request commit, compare source tick→visible video PTS and 960x600/390x844 guardian/gateway/floor9/restart without assigning cause or granting quality before film. New source tests at 21c62a and evidence review c316b92.",
+  "repairedSourceSha": "df509f2329df9c50660218c30c009e29e1b1f4da",
+  "reason": "P0 source-first portrait action performance correction. Fresh 2026-11-09 original 71.68s candidate portrait danger at 3ed44c36 has observed JS WebGL submissions p50 216.5ms/p95 596.1ms/p99 808ms, and 22.73s source floor-nine vs first 25s sampled HUD; a wheel remains dominant around 14-18s. New df509f23 removes low-tier multisample render-buffer cost, enables conservative dynamic portrait 3D backing resolution with 78% floor and viewport reset (CSS HUD remains native), records actual render-resolution adaptation sidecar. Capture exact immutable github.sha of THIS request commit with matched baseline, both viewports, same seed/tier and unmodified original WebM; assess whether image delivery, camera frame pacing and source-to-visible timing actually improve. No quality score until original film and physical hardware are independently reviewed.",
   "scenarios": [
     "ascent",
     "moving",
@@ -41,12 +41,14 @@
   "newPresentationAcceptance": "NOT EVALUATED — source-level 7/7 pure checks, no new film/device/critic result",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
-  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42649085768",
-  "currentCalibratedEventGate": "Run 42649795304 8/8 original baseline/candidate source clocks calibrated to original frame search windows but NOT verified video-visible events or gameplay quality. New source capture must show whether ~2.3s floor9 source-to-HUD gap persists without screenshot-induced stalling; real physical wheel and hero action readability still require review.",
-  "newSourceVideoAcceptance": "NOT EVALUATED: requested immutable-source current film not yet executed; no current source native video/pixel causal proof, actual-device p50/p95/p99/memory or independent LOOKS/FEELS/PLAYS 4/5.",
+  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42658123598",
+  "currentCalibratedEventGate": "3ed44c original nine-job run 42658123598 completed 10/10 including pairing, 8/8 source clock matches; no individual event certified raster-visible, guardian circle 14-18s remains visually problematic. JS WebGL submission intervals p50/p95/p99=216.5/596.1/808ms candidate portrait, NOT hardware FPS. New adaptive candidate must be measured at exact future github.sha.",
+  "newSourceVideoAcceptance": "NOT EVALUATED: code committed df509f23; original exact-source new film, performance, independent feedback and human visible-event proof pending. Previous 3ed44c original capture did not satisfy full-motion independent grading.",
   "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
   "anchorSpacingTestRecoverySha": "306a29742a1bccb281a164761328484ad419da03",
   "originalSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304",
   "nonblockingNativeFilmTestSha": "21c62a564fe15a34bbb0c90803bcd6a003bfa842",
-  "nonblockingNativeFilmReview": "docs/reviews/2026-11-09-tower-pr68-original-film-nonblocking-source-timing.md"
+  "nonblockingNativeFilmReview": "docs/reviews/2026-11-09-tower-pr68-original-film-nonblocking-source-timing.md",
+  "portaitRenderBudgetImplementationSha": "df509f2329df9c50660218c30c009e29e1b1f4da",
+  "expectedPortraitResolutionEvidence": "Candidate original motion.json observations[].renderResolution must show measured overload-adapted scale >=0.78 on 390x844; baseline lacks field and is not inferred. Inspect original native WebM for legible actor, true guardian/crusher, physical gate crossing, floor9 and restart, no excessive blur/popping. No fabricated GPU FPS."
 }
