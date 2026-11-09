@@ -177,8 +177,14 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
     world.update(published({privateOnly:true}));
     assert.deepEqual(apronArt(world,THREE,39),baseline,
       'undisclosed/private-only traps never alter the ordinary playable paving');
-    world.update(published({runToken:'reset',pressure:false}));
+    // Change the actual public run token, not just a destructured fixture
+    // option: a new unseen board must remove every prior disclosed floor.
+    const nextRun={...published(),runToken:'reset'};
+    world.update(nextRun);
     assert.deepEqual(apronArt(world,THREE,39),baseline);
+    world.update({...nextRun,cells:[],visibleCells:[]});
+    assert.deepEqual(world.stats().renderedCells,[],
+      'a new undisclosed run cannot retain the previous pressure apron');
   }finally{world.dispose();cleanup();}
 });
 
