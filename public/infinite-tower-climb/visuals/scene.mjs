@@ -23,6 +23,7 @@ import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborn
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
+import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
 // A tiny 3D attack lane follows only a REAL enemy telegraph. The curved ribbon
@@ -2056,6 +2057,9 @@ export function createTowerScene(canvas, settings = {}) {
   const actorTarget = new THREE.Vector3();
   const actorFramePoint = new THREE.Vector3();
   const actorOrbitTarget = new THREE.Vector3();
+  // One retained source-hazard sightline, independent of the real selected
+  // landing. Neither is allowed to disappear during the same airborne duel.
+  const observedHazardSightline = new THREE.Vector3();
   const actorSafeProjection = new THREE.Vector3();
   const actorSafePreviousCamera = new THREE.Vector3();
   const actorSafePreviousGaze = new THREE.Vector3();
@@ -3642,6 +3646,18 @@ export function createTowerScene(canvas, settings = {}) {
     // the already source-gated finale group, never a simulated victory.
     const protectTerminalScene=terminalStaged && !options.stale &&
       options.camera==='follow' && !!finale.sightlineAnchor(actorOrbitTarget);
+    // A real source-selected airborne destination is mandatory even when the
+    // decorative landing beacon is not yet visible. The live shutter/trap
+    // is a SECOND safety target, never a replacement for that landing.
+    const sightlinePriorities=sourceCriticalSightlinePriorities({
+      live:protectLiveRoute,
+      observedLanding:!!targetPlatform &&
+        (landingApproach.diagnostics().visible || airborneDuelLanding),
+      observedHazard:actionStage?.kind==='hazard' &&
+        [actionStage.x,actionStage.y].every(Number.isFinite),
+      earnedGateway:gatewayEarned,
+      airborneGateway:sourceAirborneWalk,
+    });
     if(protectLiveRoute || protectTerminalScene){
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y+=p.halfHeight/SCALE;
@@ -3654,40 +3670,42 @@ export function createTowerScene(canvas, settings = {}) {
       // Actual gate takes precedence over a distant future landing ONLY
       // during the near-roof earned airborne crossing. Crusher warnings and
       // the source-driven enemy still retain their safety priority.
-      if (gatewayEarned && sourceAirborneWalk && actionStage?.kind !== 'hazard') {
+      if (sightlinePriorities.gate && sourceAirborneWalk) {
         actorOrbitTarget.copy(earnedGatewayFocus);
-      } else if(targetPlatform&&landingApproach.diagnostics().visible){
+      } else if(sightlinePriorities.arrival){
         const landing=pointFor(observedSourceLandingX(snapshot,targetPlatform),
           targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
           snapshot.worldWidth,26.7);
         actorOrbitTarget.set(landing.x,landing.y,landing.z);
-      } else if (actionStage?.kind === 'hazard') {
-        // The same imminent physical shutter that leads the source-driven
-        // light/camera also clears any decorative foreground gears. The
-        // actual landing retains precedence when present.
+      } else if (sightlinePriorities.hazard) {
+        // Only when there is no real landing, the hazard is the primary
+        // destination. When there IS a landing it remains a separate ray.
         const hazard=pointFor(actionStage.x,actionStage.y,
           snapshot.chunkBaseY,snapshot.worldWidth,27.1);
         actorOrbitTarget.set(hazard.x,hazard.y,hazard.z);
-      } else if (gatewayEarned) {
+      } else if (sightlinePriorities.gate) {
         // Use the EXISTING gear sightline corridor for the defeated boss's
         // real deck threshold after enemy, landing and hazard protection.
         actorOrbitTarget.copy(earnedGatewayFocus);
       }
       }
     }
-    const protectArrival=!!targetPlatform&&landingApproach.diagnostics().visible;
-    const protectImmediateTrap=actionStage?.kind==='hazard';
-    const protectEarnedGate=gatewayEarned&&!protectImmediateTrap&&
-      (!protectArrival || !!sourceAirborneWalk);
+    if(sightlinePriorities.hazard){
+      const sourceHazard=pointFor(actionStage.x,actionStage.y,
+        snapshot.chunkBaseY,snapshot.worldWidth,27.1);
+      observedHazardSightline.set(sourceHazard.x,sourceHazard.y,sourceHazard.z);
+    }
     world.protectRouteSightlines(camera,
       (protectLiveRoute||protectTerminalScene)?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
       protectTerminalScene?actorOrbitTarget:
-        protectLiveRoute&&(protectArrival||protectImmediateTrap||protectEarnedGate)?actorOrbitTarget:null,
+        protectLiveRoute&&(sightlinePriorities.arrival||sightlinePriorities.gate)
+          ?actorOrbitTarget:null,
       dt,options,
       (protectLiveRoute||protectTerminalScene)?p.halfHeight/SCALE:0,
       protectLiveRoute&&sourceGuardian&&Number.isFinite(sourceGuardian.halfHeight)
-        ?sourceGuardian.halfHeight/SCALE:0);
+        ?sourceGuardian.halfHeight/SCALE:0,
+      sightlinePriorities.hazard?observedHazardSightline:null);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);

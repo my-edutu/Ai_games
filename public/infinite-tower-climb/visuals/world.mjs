@@ -415,8 +415,8 @@ export function createTowerWorld(){
   const screenFocus = new THREE.Vector3();
   const silhouettePoint = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
-  const corridorTo = [new THREE.Vector3(), new THREE.Vector3()];
-  const corridorDepths = [0, 0], corridorGuardians = [false, false];
+  const corridorTo = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  const corridorDepths = [0, 0, 0], corridorGuardians = [false, false, false];
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
   const sphere=()=>geometry('sphere',()=>new THREE.SphereGeometry(1,10,7));
@@ -1754,7 +1754,7 @@ export function createTowerWorld(){
   // gear teeth as progressively translucent near an authentic subject; actual
   // platforms, guardian, hazards and moving-deck machinery remain opaque.
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
-      actorHalfHeight=0, guardianHalfHeight=0) {
+      actorHalfHeight=0, guardianHalfHeight=0, hazard=null) {
     if(disposed)return {total:0,softened:0};
     decorativeOcclusionEvidence.length=0;
     if(!decorativeSightlines.length){
@@ -1766,21 +1766,22 @@ export function createTowerWorld(){
       Number.isFinite(camera.position?.z);
     let softened=0, screenSoftened=0, corridorSoftened=0, clockFacesSoftened=0;
     const pendingDecorativeOpacity=[];
-    const targets=enabled?[actor,guardian,landing]:[];
+    const targets=enabled?[actor,guardian,landing,hazard]:[];
     let corridorCount=0, actorDepth=0;
     if(enabled){
       camera.updateMatrixWorld(true);
       corridorFrom.copy(actor).project(camera);
       actorDepth=camera.position.distanceTo(actor);
-      // The guardian and actually selected landing are the only possible
-      // corridor endpoints. No route inference, future positions or extra ray
-      // collections. Preallocated projections keep work bounded at two.
-      for(let index=0;index<2;index++){
-        const partner=index===0?guardian:landing;
+      // The real guardian, actual landing and imminent source-observed hazard
+      // are three independent possible action endpoints. A guardian/shutter
+      // fight must not hide the selected landing just because danger exists.
+      // All three projections and their rays are preallocated and bounded.
+      for(let index=0;index<3;index++){
+        const partner=index===0?guardian:index===1?landing:hazard;
         if(!partner||![partner.x,partner.y,partner.z].every(Number.isFinite))continue;
         corridorTo[corridorCount].copy(partner).project(camera);
         corridorDepths[corridorCount]=camera.position.distanceTo(partner);
-        corridorGuardians[corridorCount]=index===0;
+        corridorGuardians[corridorCount]=index!==1;
         corridorCount++;
       }
     }
@@ -1875,7 +1876,8 @@ export function createTowerWorld(){
           if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
           // The existing center ray missed genuine hero/guardian legs behind
           // clock cases in portrait. Protect their real full-body silhouettes,
-          // sampled from source half-height; landings remain a single point.
+          // sampled from source half-height; landings and genuine hazard warning
+          // positions each remain a single, non-predicted world point.
           const span=observedSilhouetteSpan(index===0?actorHalfHeight:
             index===1?guardianHalfHeight:0);
           for(let sample=0;sample<(span>0?3:1);sample++){
@@ -1966,6 +1968,8 @@ export function createTowerWorld(){
           rayContactCount,
           cameraProjectionSoftened:softByProjection,
           actionCorridorSoftened:softByCorridor,
+          sourceActionEndpoints:corridorCount,
+          sourceHazardObserved:!!hazard,
           stackedForegroundCompanions:companions,
           rawAssemblyAlpha:Number(decision.rawOpacity.toFixed(4)),
           intendedAlpha:Number(requiredOpacity.toFixed(4)),
