@@ -19164,7 +19164,9 @@ document.body.dataset.command='world';
   if(commandUserPreference===null)setCommandView('world');
  }
  compactViewport.addEventListener('change',syncResponsiveCommand);
- syncResponsiveCommand();
+ // Authoritative villagers initialize in queueMicrotask(start) above.
+ // Schedule HUD reads after that microtask, never against undefined people.
+ queueMicrotask(syncResponsiveCommand);
  button('command-toggle',()=>setCommandView(commandView==='command'?'world':'command','user'));
  // Enter an honest, actual autonomous workday. A stocked courier takes
  // priority; otherwise follow an existing producer, including their authentic
