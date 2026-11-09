@@ -162,7 +162,7 @@ test('verified injury or evasion cancels stale imported attack/cast without bloc
  assert.equal(terminal.mode,'defeat','real HP zero remains absorbing');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/advanceFullBodyController\(actor\.fullBody,/);
- assert.match(model,/changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
+ assert.match(model,/changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted,\s*dt,sourceFrameInterval,sourceFrameVisible\)/);
 });
 
 test('defeat is absorbing at HP zero and does not advance gait, strikes or injury',async()=>{
@@ -448,7 +448,7 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  assert.equal(recovered.mode,'idle','legal revival releases the terminal source-pose hold');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat&&\(!genuineDeath\|\|deathFinished\)/);
- assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
+ assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted,\s*dt,sourceFrameInterval,sourceFrameVisible\)/);
  assert.match(model,/const sourceStep=freezeSource\?0:actor\.fullBody\.mode==='defeat'\?/);
  assert.match(model,/planImportedDeathSourceStep\(originalStep\):planImportedLivingSourceStep\(originalStep\)/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
