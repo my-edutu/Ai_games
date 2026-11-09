@@ -226,9 +226,26 @@ export function planPhysicalFeedback(previous,next,{
    }
    case 'interrupt':push('interrupt',e.tick,{verified:true,proof:'authority-event'});break;
    case 'opening': {
-    const boss=next.units.find(u=>u?.kind==='warden'&&u.hp>0);
-    push('opening',e.tick,{actorId:boss?.id??null,from:boss?point(boss):null,
-     verified:true,proof:'authority-event'});break;
+    // An anonymous opening event cannot locate a current Warden or prove
+    // recovery after skipped authority ticks. Require the actual cast and
+    // still-active recovery on the exact adjacent observed event tick.
+    if(!observedEventAtAdjacentTick(previous,next,e.tick)||
+       next.guardianWard===true)break;
+    const candidates=next.units.slice(0,96).filter(u=>
+     validId(u?.id)&&u.kind==='warden'&&u.faction==='enemy'&&u.hp>0&&
+     point(u)&&sameIdUnit(oldUnits.get(u.id),u)&&
+     u.action==='cast'&&u.actionTick===e.tick&&
+     validTick(u.recoveryUntilTick)&&u.recoveryUntilTick>=e.tick&&
+     u.recoveryUntilTick<=e.tick+2);
+    if(candidates.length!==1)break; // Do not select an arbitrary owner.
+    const boss=candidates[0];
+    // A real public snapshot exposes bossRecovery. If that field exists,
+    // contradictory or sealed recovery cannot stage a physical opening.
+    if(Object.hasOwn(next,'bossRecovery')&&
+     (!next.bossRecovery||next.bossRecovery.remaining!==
+      boss.recoveryUntilTick-next.tick+1))break;
+    push('opening',e.tick,{actorId:boss.id,from:point(boss),
+     verified:true,proof:'authority-opening-recovery-window'});break;
    }
    case 'counter': {
     const prior=previous.units.find(u=>u?.kind==='warden'),
