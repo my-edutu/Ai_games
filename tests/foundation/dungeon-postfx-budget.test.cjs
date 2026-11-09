@@ -351,3 +351,38 @@ test('source-verified impact VFX uses retained instancing rather than per-cue me
  fx.dispose();assert.equal(scene.children.length,0);
  assert.equal(fx.emitPulse({kind:'ring',x:0,y:0,z:0,from:.5,to:1,duration:.5,color:'#f00'}),false);
 });
+
+
+test('software raster PBR stone omits costly bump sampling yet keeps authored color, roughness, geometry and real Three material',async()=>{
+ const {configureSoftwareStoneSurfaces}=await load();const THREE=require('three');
+ const albedo=new THREE.Texture(),relief=new THREE.Texture();
+ const stones=[
+  new THREE.MeshStandardMaterial({map:albedo,bumpMap:relief,bumpScale:.07,roughness:.84,metalness:.11}),
+  new THREE.MeshStandardMaterial({map:albedo,bumpMap:relief,bumpScale:.14,roughness:.9,metalness:.07})
+ ];
+ const versions=stones.map(m=>m.version),result=configureSoftwareStoneSurfaces(stones,{software:true});
+ assert.equal(result.mutated,2);assert.equal(result.preservedColorMaps,2);assert.equal(result.software,true);
+ for(let i=0;i<stones.length;i++){const m=stones[i];assert.equal(m.isMeshStandardMaterial,true);
+  assert.equal(m.map,albedo);assert.equal(m.bumpMap,null);assert.equal(m.bumpScale,0);
+  assert.ok(m.version>versions[i]);}
+ assert.equal(stones[0].roughness,.84);assert.equal(stones[1].metalness,.07);
+ assert.equal(relief.isTexture,true);stones.forEach(m=>m.dispose());albedo.dispose();relief.dispose();
+});
+test('hardware retains original full relief, critical emissive materials stay untouched',async()=>{
+ const {configureSoftwareStoneSurfaces}=await load();const THREE=require('three');
+ const map=new THREE.Texture(),bump=new THREE.Texture();
+ const wall=new THREE.MeshStandardMaterial({map,bumpMap:bump,bumpScale:.14});
+ const critical=new THREE.MeshStandardMaterial({emissive:'#ff1111'});
+ const original=wall.version,hardware=configureSoftwareStoneSurfaces([wall,critical],{software:false});
+ assert.equal(hardware.mutated,0);assert.equal(wall.map,map);assert.equal(wall.bumpMap,bump);
+ assert.equal(wall.bumpScale,.14);assert.equal(wall.version,original);
+ assert.equal(configureSoftwareStoneSurfaces([critical],{software:true}).mutated,0);
+ wall.dispose();critical.dispose();map.dispose();bump.dispose();
+});
+test('production world owns the software-only stone plan and reports true source diagnostic',()=>{
+ const env=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/environment.js'),'utf8');
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(env,/configureSoftwareStoneSurfaces\(\[floorSurface,wallSurface\],\{software:softwareWebGL\}\)/);
+ assert.match(env,/sceneMetrics=\{stoneRasterBudget,/);
+ assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units,s\.traps,\{softwareWebGL\}\)/);
+});

@@ -10,6 +10,7 @@ import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
+import {configureSoftwareStoneSurfaces} from '/dungeon/postfx-budget.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -114,7 +115,7 @@ function buildStatue(world,x,z,metal,stone,glow,variant){
  for(const side of [-1,1]){const horn=make(new THREE.ConeGeometry(.11,.48,7),stone,side*.14,1.96,-.02);horn.rotation.z=-side*.28}
  world.add(group);return group;
 }
-export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,encounterUnits=[],traps=[]){
+export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,encounterUnits=[],traps=[],{softwareWebGL=false}={}){
  // The arch cannot be a solid cube with a pretty ornament. Every selected
  // impassable tile uses a physically low facade as the Gothic gallery takes
  // over its upper volume. Source map, collision and AI stay completely intact.
@@ -143,6 +144,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const cryptGrade=(floor-1)%4===0;
  const floorSurface=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:reliefTex,bumpScale:.07,color:cryptGrade?'#f3e5d1':'#e4efff',roughness:.84,metalness:.11});
  const wallSurface=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:reliefTex,bumpScale:.14,color:cryptGrade?'#f0e2cf':'#dcecff',roughness:.9,metalness:.07});
+ const stoneRasterBudget=configureSoftwareStoneSurfaces([floorSurface,wallSurface],{software:softwareWebGL});
  const chrome=new THREE.MeshStandardMaterial({color:biome.edge,roughness:.38,metalness:.72});
  const brass=new THREE.MeshStandardMaterial({color:'#efbb76',roughness:.33,metalness:.68});
  const jade=new THREE.MeshStandardMaterial({color:biome.glow,emissive:biome.glow,emissiveIntensity:2.0,roughness:.20,metalness:.08});
@@ -339,7 +341,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
  const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
- const sceneMetrics={clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ const sceneMetrics={stoneRasterBudget,clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the

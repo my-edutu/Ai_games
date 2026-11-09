@@ -6540,6 +6540,41 @@
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "separatePr72": "NOT_INTEGRATED",
       "next": "Inspect exact NEW head 1440px and 390px organic motion and audio: source-faithful colors, spotlight/Warden warning exposure, practical selected count, WebGL p95/p99 and RAF, natural five stages. Reject/rework if luminance or performance regresses. Repair rigCranialActors=0, validate PR72 real clips before optional selective port. Fixed baseline A/B and 3 fresh blind critics required."
+    },
+    "m1SoftwareStoneRasterBudget": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "7bacf2c3d6fbcccd16b78cc23b816978cfa9685b",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "priorRun": "https://github.com/my-edutu/Ai_games/actions/runs/42658408694",
+      "genuineHeadRun": "https://github.com/my-edutu/Ai_games/actions/runs/42662037957",
+      "mobileAuthority": "946/946_FIVE_ORGANIC_STAGES",
+      "desktopAuthority": "726/946_DEFEAT_TIMEOUT",
+      "wardenSubmitP95Ms": {
+        "mobileBefore": 1734,
+        "mobileCurrent": 680,
+        "desktopBefore": 2360,
+        "desktopCurrent": 1481
+      },
+      "wardenRafP95Ms": {
+        "mobileBefore": 1950,
+        "mobileCurrent": 1067,
+        "desktopBefore": 2767,
+        "desktopCurrent": 2167
+      },
+      "causality": "UNVERIFIED_SEPARATE_RUNNERS",
+      "implemented": "CPU-only PBR stone relief shader simplification for 2 extensive floor/wall material samples; retain original color maps, roughness, metalness, geometry and critical lighting; hardware original relief.",
+      "validation": "388/388 Node foundation PASS; 24x900 deterministic seeds 0 divergences; local browser ERR_BLOCKED_BY_ADMINISTRATOR",
+      "currentAfterMotion": "NOT_OBSERVED",
+      "currentAfterAudioSynchronization": "UNVERIFIED",
+      "browserRigCranial": "FAIL_0_EXPECTED_5",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentPR72": "63ee510091f95edbd68c6dfce352cd8a0728f723_NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Same-seed 1440/390 source-frame/audio comparison at NEW head; measure p95/p99 and check original stone/tell readability, reject candidate if unhelpful; fix cranial 0/5, desktop natural defeat, PR72 safe animation review, immutable BEFORE/AFTER and 3 fresh blind critics."
     }
   }
 }

@@ -461,3 +461,24 @@ export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDe
  }
  return {update,stats,dispose};
 }
+
+
+/**
+ * Protect expensive source-authored broad stone coverage on measured CPU
+ * software WebGL: retain MeshStandardMaterial original PBR color map, actual
+ * geometry, roughness and metalness; omit only per-fragment bump sampling.
+ * Hardware WebGL always retains full original stone relief. Only the
+ * floor-owned original stone materials are altered, never actor/boss VFX.
+ */
+export function configureSoftwareStoneSurfaces(stones,{software=false}={}){
+ if(!Array.isArray(stones)||stones.some(s=>!s?.isMeshStandardMaterial))
+  throw new TypeError('Expected original MeshStandardMaterial stone surfaces');
+ let mutated=0,preservedColorMaps=0;
+ for(const material of stones){
+  if(material.map)preservedColorMaps++;
+  if(!software||!material.map||!material.bumpMap)continue;
+  material.bumpMap=null;material.bumpScale=0;material.needsUpdate=true;mutated++;
+ }
+ return {software:Boolean(software),mutated,preservedColorMaps,
+  source:'original PBR/albedo unchanged; software raster omits only stone bump sampling'};
+}
