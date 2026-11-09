@@ -120,17 +120,19 @@ test('Warden warning cadence, cast release, earned recovery and actual counter l
  const earlier=warning(20,3),rising=warning(21,2),final=warning(22,1);
  assert.deepEqual(kinds(planPhysicalFeedback(earlier,rising)),['boss-warning-rising']);
  assert.deepEqual(kinds(planPhysicalFeedback(rising,final)),['boss-warning-final']);
- const release=snap(23,{units:[hero(),boss(75,'cast',23)],bossWarning:null});
- assert.deepEqual(kinds(planPhysicalFeedback(final,release)),['warden-release']);
- const opening=snap(24,{units:[hero(),boss(75,'cast',24,25)],
-  bossRecovery:{remaining:2},guardianWard:false,
-  events:[{tick:24,kind:'opening',text:'warden exposed'}]});
- assert.deepEqual(kinds(planPhysicalFeedback(release,opening)),['opening']);
- const counter=snap(25,{units:[hero(),boss(49,'hurt',25)],events:[{tick:25,kind:'counter',text:'hero counters'}]});
- assert.deepEqual(kinds(planPhysicalFeedback(opening,counter)),['counter','damage']);
- const fake={...counter,units:[hero(),boss(75,'hurt',25)]};
- assert.equal(planPhysicalFeedback(opening,fake).some(c=>c.kind==='counter'),false);
- const staleRecovery={...opening,units:[hero(),boss(75,'guard',23,23)]};
+ // The real authority issues opening on the SAME tick as the actual
+ // Warden cast and records a future recoveryUntilTick. Do not fake a
+ // second cast on the next tick just to attach the recovery event.
+ const release=snap(23,{units:[hero(),boss(75,'cast',23,24)],
+  bossWarning:null,bossRecovery:{remaining:2},guardianWard:false,
+  events:[{tick:23,kind:'opening',text:'warden exposed'}]});
+ assert.deepEqual(kinds(planPhysicalFeedback(final,release)),['warden-release','opening']);
+ const counter=snap(24,{units:[hero(),boss(49,'hurt',24)],
+  events:[{tick:24,kind:'counter',text:'hero counters'}]});
+ assert.deepEqual(kinds(planPhysicalFeedback(release,counter)),['counter','damage']);
+ const fake={...counter,units:[hero(),boss(75,'hurt',24)]};
+ assert.equal(planPhysicalFeedback(release,fake).some(c=>c.kind==='counter'),false);
+ const staleRecovery={...release,units:[hero(),boss(75,'cast',23,22)]};
  assert.equal(planPhysicalFeedback(staleRecovery,counter).some(c=>c.kind==='counter'),false);
 });
 
