@@ -19,7 +19,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     before:JSON.stringify(g.exportSnapshot())};
   });
   expect(actor,'must be observing a genuinely simulated worker, not a staged NPC').not.toBeNull();
-  expect(['live','delivery','homecoming']).toContain(actor.stage);
+  // Genuine household provisioning is a valid observed village documentary stage.
+  expect(['live','delivery','homecoming','household']).toContain(actor.stage);
   expect(actor.film?.following).toBe(true);
   await page.waitForTimeout(350);
   const audit=await page.evaluate(()=>{

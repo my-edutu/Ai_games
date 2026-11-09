@@ -27,6 +27,8 @@ jobs:
           node-version: '22.16.0'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # The real Playwright game server imports compiled replay modules.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Real original escrowed courier, desktop and 390px WebGL, camera and authority invariant
         env:

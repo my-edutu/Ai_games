@@ -27,6 +27,8 @@ const env={
   createBuffer(){return {buffer:1}},deleteBuffer(){this.deletes++},
   bufferData(){},bufferSubData(){this.uploads++},
   drawArrays(_,__,n){this.draws=n}},
+ // Mirror real renderer GPU lifecycle in isolated cleanup stub.
+ releaseGeometryBuffer(target){if(target)env.gl.deleteBuffer(target)},
  bindGeometry(){},
  skyConditions(){return {daylight:env.daylight}},
  climateAt(){return {season:2}},

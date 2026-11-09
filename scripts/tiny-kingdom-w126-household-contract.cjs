@@ -11,7 +11,8 @@ const tokens=[
  'p.provisions=(p.provisions||0)+HOUSEHOLD_GRAIN_UNITS',
  'state.food-=HOUSEHOLD_GRAIN_UNITS',
  "p.activity='Traveling home with provisions'",
- 'state.food=Math.max(0,state.food-communityConsumption)',
+ // A real issued receipt reserves food before community consumption.
+ 'state.food=Math.max(receiptReservedFood(),state.food-communityConsumption)',
  'renderCarriedHouseholdProvisions(person);',
  'getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit())',
  'flow.provisions.homesSupplied','p.lastProvisionAttemptDay===day',

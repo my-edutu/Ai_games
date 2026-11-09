@@ -29,6 +29,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: W126 deterministic source contract
         run: node scripts/tiny-kingdom-w126-household-contract.cjs
+      # Required by the real browser server; the JS source test alone is insufficient.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Original Day-1/120/160 food collection, movement, replay, desktop/mobile and WebGL
         env:

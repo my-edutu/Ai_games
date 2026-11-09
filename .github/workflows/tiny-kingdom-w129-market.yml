@@ -52,6 +52,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # The real Playwright game server imports compiled replay modules.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: W129 genuine WebGL 1024/390, four true stalls, navigation and 120-day replay
         env:

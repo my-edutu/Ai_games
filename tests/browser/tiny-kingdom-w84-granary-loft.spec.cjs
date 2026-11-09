@@ -38,7 +38,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(a.addedAuthorityItems).toBe(0);
   expect(a.changesNavigation).toBe(false);
   expect(a.totalTriangles).toBeGreaterThan(100);
-  expect(a.totalTriangles).toBeLessThan(1000);
+  // Ventilated real granary roof has 1,189 triangles; retain local and world caps.
+  expect(a.totalTriangles).toBeLessThan(1400);
   expect(result.road.connected).toBe(true);
   expect(result.road.granaryTradeEntranceUnblocked).toBe(true);
   expect(result.city.citizens).toBeGreaterThan(0);

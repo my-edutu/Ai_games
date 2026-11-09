@@ -40,8 +40,9 @@ const quad=(a,b,c,d)=>{
  assert(Math.hypot(...n)>1e-7,'degenerate hand-laid masonry');
  wallTriangles.push({a,n});for(let k=0;k<60;k++)mesh.push(0);
 };
-const make=new Function('data','terrain','COMPACT_HOUSE_HEIGHTS','compactHouseArchetype','rgb','materialScope','MATERIAL','quad','villageVisualLod',game.slice(masonStart,masonEnd)+';return grainwardMasonryFacing');
-const mason=make(mesh,()=>.3,[2.08,2.94,2.47,3.16],()=>0,c=>[c,c,c],(m,f)=>f(),{STONE:5,WOOD:6},quad,lod);
+const make=new Function('data','terrain','COMPACT_HOUSE_HEIGHTS','compactHouseArchetype','rgb','materialScope','MATERIAL','quad','villageVisualLod','houseVisualProfile',game.slice(masonStart,masonEnd)+';return grainwardMasonryFacing');
+// W152 original style-0 detailed house uses a 1.90m eave, not a mock new lot.
+const mason=make(mesh,()=>.3,[2.08,2.94,2.47,3.16],()=>0,c=>[c,c,c],(m,f)=>f(),{STONE:5,WOOD:6},quad,lod,(_x,_z,_variant,compact)=>({height:compact?2.08:1.90}));
 assert.equal(mason(-10,-7,0,0,false),36,'real household has bounded credible masonry');
 assert.equal(lod.grainwardPortalThresholds,2,'one genuine door each side');
 assert.equal(mesh.length%30,0,'real triangle stride');
