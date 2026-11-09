@@ -22,12 +22,17 @@ export function ownsImportedRangedUpperBody(kind,action,clipName,sourceWeight,re
 export function planRangedBodyPose(kind,action,age=0,distance=null,targetId=null,reducedMotion=false,sourceBlend=1){
  const archer=kind==='ranger'&&action==='attack';
  const caster=(kind==='mystic'||kind==='cultist')&&action==='cast';
- if((!archer&&!caster)||reducedMotion||!Number.isFinite(age)||age<0||age>=.72||
+ const recoveryEnd=archer?.62:.64; // Matches the original full-body owner exit.
+ if((!archer&&!caster)||reducedMotion||!Number.isFinite(age)||age<0||age>=recoveryEnd||
   !Number.isFinite(sourceBlend)||sourceBlend<0||sourceBlend>1)return ZERO;
  if(archer&&(!Number.isInteger(distance)||distance<1||distance>4||
   typeof targetId!=='string'||targetId.length<1||targetId.length>128))return ZERO;
  const draw=sourceBlend*(age<.18?ease(age/.18):age<.34?1-ease((age-.18)/.16):0);
- const release=sourceBlend*(age<.18?0:age<.35?ease((age-.18)/.17):1-ease((age-.35)/.37));
+  // Authentic attack/cast owners finish at .62/.64, not .72. Settle
+ // original hips, both planted leg chains and source weapon-supporting arms
+ // with a zero-slope smoothstep BEFORE owner handoff to neutral idle.
+ const release=sourceBlend*(age<.18?0:age<.35?ease((age-.18)/.17):
+  1-ease((age-.35)/(recoveryEnd-.35)));
  const w=Math.max(draw,release);if(w<=0)return ZERO;
  if(archer)return {weight:w,
   // Original 41-bone archer crouches behind the forward plant while the
