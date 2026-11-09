@@ -91,7 +91,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,unanchoredWardenSignals=0,
-  confirmedFragments=0,measuredTrailFrames=0,
+  retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
   unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
@@ -401,6 +401,20 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     if(slot.age>=slot.life){
      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
     }
+    if(pool.name==='signal'&&
+      (slot.cue.kind==='warden-release'||slot.cue.kind==='opening')){
+     // These body-local strike/recovery rings must stay on the observed
+     // Warden as its existing animation moves. If the rig disappears, its
+     // public action/tick changes, or it leaves the public cell, retire the
+     // ghost glyph before the next WebGL submission. Real floor warnings
+     // remain anchored to authority-supplied danger cells.
+     const observed=anchor(slot.cue,'signal');
+     if(!observed){
+      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+      active--;retiredUnanchoredBodySignals++;continue;
+     }
+     slot.origin=observed;
+    }
     if(pool.name==='trail'){
      const hand=anchor(slot.cue,'trail');
      if(!hand){slot.lastHand=null;slot.measuredPath=null}
@@ -479,7 +493,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function stats(){return Object.freeze({
   active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,
-  warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,confirmedFragments,
+  warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
+   retiredUnanchoredBodySignals,confirmedFragments,
   measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
