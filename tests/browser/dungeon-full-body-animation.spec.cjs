@@ -222,3 +222,84 @@ test('Ranger witnessed arrow action selects native 41-joint ranged release in ac
    deformation:rig.summary,clipAudits:d.authored3D.sourceClipAudits,
    frame:d.frame,sourceSha:process.env.GITHUB_SHA??null},null,2))});
 });
+
+/**
+ * A still attack/travel pair cannot demonstrate a continuous original-rig
+ * gait. Only nine CONSECUTIVE genuine source ticks qualify for this film.
+ * Do not inject an HP value, event, target, path or invented gameplay frame.
+ */
+function witnessedNativeStrideSequence(){
+ const seeds=['visual-room-art-18','gauntlet-corpus-v1-0','gauntlet-corpus-v1-1'];
+ for(const seed of seeds){
+  const game=DungeonRuntime.create(seed),history=[game.publicState()];
+  for(let tick=0;tick<1000;tick++){
+   const state=game.step();history.push(state);
+   if(history.length>9)history.shift();
+   if(history.length!==9||history.some(s=>s.floor!==history[0].floor||s.run!==history[0].run))continue;
+   for(const unit of history[0].units.filter(u=>u.faction==='party'&&u.hp>0)){
+    let legalSteps=0,legal=true;
+    for(let i=1;i<history.length;i++){
+     const a=history[i-1].units.find(u=>u.id===unit.id),
+      b=history[i].units.find(u=>u.id===unit.id);
+     if(!a||!b||a.hp<=0||b.hp<=0||a.kind!==b.kind){legal=false;break;}
+     const dist=Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
+     if(!Number.isInteger(dist)||dist>1){legal=false;break;}
+     if(dist===1)legalSteps++;
+    }
+    if(legal&&legalSteps>=2)return {seed,actorId:unit.id,
+     states:history.slice(),legalSteps};
+   }
+  }
+ }
+ throw Error('No two legal source travel steps in a single nine-tick witness');
+}
+
+for(const view of [
+ {name:'desktop',width:1440,height:900},
+ {name:'mobile',width:390,height:844}
+])test('original imported skeleton maintains continuous witnessed travel across nine live ticks: '+view.name,async({page})=>{
+ test.setTimeout(220000);
+ await page.setViewportSize({width:view.width,height:view.height});
+ const sequence=witnessedNativeStrideSequence();
+ const stage=await loadStage(page,sequence.states[0]);
+ const code=fs.readFileSync(require('node:path').join(__dirname,
+  '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
+ const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
+  Buffer.from(code).toString('base64'));
+ const trace=[];
+ let previous=null;
+ for(const snap of sequence.states){
+  stage.set(snap);
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.tick??null),
+   {timeout:22000,intervals:[80,120,200]}).toBe(snap.tick);
+  // Let the original mixer display real in-between poses. Do not synthesize
+  // another authority tick, alter source HP or change the public action.
+  await page.waitForTimeout(160);
+  const audit=await nativeRigProof(page);
+  const actor=audit.actors.find(a=>a.id===sequence.actorId);
+  expect(actor?.sourceInstanceId,'the same original GLB clone remains bound').toBeTruthy();
+  expect(actor.validSegments).toBeGreaterThanOrEqual(4);
+  expect(actor.maxStretchFraction).toBeLessThanOrEqual(.20);
+  const travel=previous?measureSourceJointTravel(previous,actor):null;
+  if(travel)expect(travel.comparable,'never compare different source clones').toBe(true);
+  trace.push({tick:snap.tick,floor:snap.floor,sourceId:actor.sourceInstanceId,
+   rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
+   sourceClip:actor.sourceClock,footPhase:actor.groundedFootPhase,
+   jointTravel:travel,deformation:audit.summary});
+  previous=actor;
+ }
+ const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
+ expect(measured.every(Number.isFinite)).toBe(true);
+ // Measured movement of real source joints is necessary, not proof of sole
+ // mesh contact or a completed foot-lock IK solver.
+ expect(measured.some(n=>n>.005),'source skeleton cannot remain frozen').toBe(true);
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-full-body-nine-tick-'+view.name+'.png',timeout:60000});
+ await test.info().attach('original-GLB-nine-tick-moving-trace',{contentType:'application/json',
+  body:Buffer.from(JSON.stringify({seed:sequence.seed,actorId:sequence.actorId,
+   legalSteps:sequence.legalSteps,view:view.name,source:'real consecutive DungeonRuntime.step snapshots',
+   limitation:'Original foot joints are not skinned sole vertices; no sole lock or IK claim.',
+   trace},null,2))});
+});
+
