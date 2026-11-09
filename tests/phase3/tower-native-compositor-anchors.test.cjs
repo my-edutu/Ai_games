@@ -13,7 +13,7 @@ test('Chrome compositor timestamp must be epoch seconds near runner clock, not D
 });
 test('only bounded, temporally separated original compositor frames are eligible',()=>{
   const anchors=[{startAtMs:100000}];
-  assert.equal(retainAnchor(anchors,106999),false);
+  assert.equal(retainAnchor(anchors,100000+MIN_SPACING_MS-1),false);
   assert.equal(retainAnchor(anchors,100000+MIN_SPACING_MS),true);
   assert.equal(retainAnchor(Array.from({length:MAX_ANCHORS},()=>anchors[0]),200000),false);
 });
