@@ -308,10 +308,14 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
    walkingClip!==true||
    ![sourceDuration,effectiveSpeed,sourceTime,frameInterval,groundedTravel].every(finite)||
    sourceDuration<=.002||effectiveSpeed<=.001||sourceTime<0||
-   frameInterval<=.05||groundedTravel<=.003||groundedTravel>.54)return ordinary;
-  // Two real 0.53m footfalls span one Walking_A cycle. Bounded at 280ms,
-  // no phase seek, no artificial leg target or unverified sole locking.
-  return clamp(groundedTravel/1.06*sourceDuration/effectiveSpeed,ordinary,.28);
+   frameInterval<=0||groundedTravel<=.003||groundedTravel>.54)return ordinary;
+  // Base source gait time on the SAME real root travel at 60Hz and slow capture.
+  // Fixed-frame playback at ordinary rates previously lagged a fast-moving
+  // root and oversped a creeping actor relative to its real footfall phase.
+  // Two 0.53m footfall intervals approximate one original Walking_A cycle;
+  // this is bounded cadence calibration, not verified sole-contact IK.
+  // Never seek backwards or fabricate movement, contact or footsteps.
+  return clamp(groundedTravel/1.06*sourceDuration/effectiveSpeed,0,.28);
  }
  // Authentic Hit_A cannot outrun the age of a witnessed positive HP loss.
  // This prevents source wrist/spine recoil preceding the owned injury pose.

@@ -835,7 +835,7 @@ test('teleport tick quarantine retains genuine injury and death and leaves ordin
 });
 
 
-test('original Walking_A source cadence follows WITNESSED sparse-frame travel, never labels or teleports',async()=>{
+test('original Walking_A source cadence follows actual 60Hz and sparse-frame displacement',async()=>{
  const {planImportedLivingSourceStep:sourceStep}=await load();
  const sample={mode:'move',age:0,sourceTime:0,sourceDuration:1.0416666666666667,
   effectiveSpeed:.8,frameDelta:.05,frameInterval:1,visible:true,
@@ -845,8 +845,22 @@ test('original Walking_A source cadence follows WITNESSED sparse-frame travel, n
  const gentle=sourceStep({...sample,groundedTravel:.08,effectiveSpeed:1});
  assert.ok(Math.abs(gentle-(.08/1.06)*sample.sourceDuration)<1e-9,
   'source gait time must correspond to witnessed root travel');
+ // The old source used only 16ms at normal refresh even when the same
+ // authoritative rendered root travelled 0.05m in the frame (requiring
+ // about 39.3ms of licensed Walking_A time at source speed 1.25).
+ const normal={...sample,sourceTime:.25,frameDelta:.016,
+  frameInterval:.016,effectiveSpeed:1.25};
+ for(const meters of [.004,.016,.05,.12]){
+  const actual=sourceStep({...normal,groundedTravel:meters});
+  const wanted=Math.min(.28,meters/1.06*normal.sourceDuration/normal.effectiveSpeed);
+  assert.ok(Math.abs(actual-wanted)<1e-9,
+   'real 60Hz root travel '+meters+'m must determine imported gait phase');
+  assert.ok(actual>=0&&actual<=.28,'native mixer time remains bounded');
+ }
+ assert.equal(sourceStep({...normal,groundedTravel:0}),.016,
+  'missing valid travel retains conservative mixer advance');
  for(const [label,changed] of [
-  ['normal 60Hz',{frameInterval:.016}],['stationary',{groundedTravel:0}],
+  ['stationary',{groundedTravel:0}],
   ['impossible jump',{groundedTravel:.8}],['teleport',{teleport:true}],
   ['not imported walking',{walkingClip:false}],['not real travel',{groundedMoving:false}],
   ['hidden',{visible:false}],['reduced motion',{reducedMotion:true}],
