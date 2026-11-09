@@ -155,11 +155,34 @@ test('a real close public encounter frames both autonomous actors and saves date
   const path = require('node:path');
   const { createHash } = require('node:crypto');
   const { scenarios } = require('../../scripts/capture-maze-3d.cjs');
-  const { encounter, sequences } = scenarios();
-  const {publicLanternWarning}=await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
-  // Never fabricate or move a guardian into place just to obtain a screenshot.
-  expect(encounter, 'A production run must expose two nearby, distinct real actors').toBeTruthy();
+  const { encounter: nearestThreat, sequences } = scenarios();
+  const { publicLanternWarning, publicGuardianOpenSightline } =
+    await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
+  // A Euclidean-near threat may be diagonal or behind a closed turn.
+  // Only authentic public production frames with reciprocal open 1-2 cell
+  // corridors can demonstrate Pip/Thornback's shared performance.
+  expect(nearestThreat, 'A production run must disclose a nearby guardian').toBeTruthy();
+  let encounter = null;
+  for (const sequence of sequences) {
+    for (const sample of sequence) {
+      const snapshot = sample.frame.snapshot;
+      if (snapshot.lifecycle !== 'running' || snapshot.result) continue;
+      const guardian = snapshot.threats.find(threat =>
+        publicGuardianOpenSightline(snapshot, threat.cell) > 0);
+      if (!guardian) continue;
+      const distanceCells = Math.hypot(
+        guardian.cell % snapshot.width - snapshot.currentCell % snapshot.width,
+        Math.floor(guardian.cell / snapshot.width) - Math.floor(snapshot.currentCell / snapshot.width));
+      if (!encounter || distanceCells < encounter.distanceCells)
+        encounter = { ...sample, distanceCells };
+    }
+  }
+  expect(encounter,
+    'No authentic open public reciprocal guardian corridor in production seeds: reject rather than fabricate an encounter or wait eight minutes').toBeTruthy();
   const frame = encounter.frame;
+  expect(frame.snapshot.threats.some(threat =>
+    publicGuardianOpenSightline(frame.snapshot, threat.cell) > 0),
+    'Public sightline qualifies for paired actor staging').toBe(true);
   expect(frame.snapshot.threats.length).toBeGreaterThan(0);
   expect(encounter.distanceCells).toBeGreaterThanOrEqual(1);
   expect(encounter.distanceCells).toBeLessThanOrEqual(2.25);

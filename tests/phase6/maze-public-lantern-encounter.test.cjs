@@ -84,8 +84,12 @@ test('actual production scene builds one reusable Three light volume with dispos
   const server=fs.readFileSync(path.join(root,'scripts/serve-maze-stream.cjs'),'utf8');
   assert.match(server,/['"]public-lantern-encounter\.mjs['"]/,
     'production HTTP asset allowlist must serve the real imported helper');
-  assert.match(scene,/import \{ publicLanternEncounter, publicLanternWarning, publicGuardianEncounterBeat \} from '\.\/public-lantern-encounter\.mjs'/,
+  assert.match(scene,/import \{ publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat \} from '\.\/public-lantern-encounter\.mjs'/,
     'the actual public-only cone and warning helpers stay wired alongside the staged guardian acting');
+  assert.match(scene,/publicGuardianOpenSightline\\(s,entry\\.cell\\)/,
+    'paired guardian acting must require a real public open reciprocal corridor');
+  assert.match(scene,/attentionStrength=witnessedLocally/,
+    'nearby caution alone cannot authorize paired acting');
   assert.match(scene,/publicGuardianEncounterBeat\(gateVisualTime-entry\.encounterStart,settings\.reducedMotion\)/,
     'the newly imported effect must be attached to the existing public-only visual clock');
   assert.match(scene,/new THREE\.CylinderGeometry\(\.055, \.47, 1, 16, 1, true\)/);

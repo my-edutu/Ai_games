@@ -1,3 +1,9 @@
+# Pass223 — real open corridor evidence blocker (2026-11-09 UTC)
+
+- On exact starting `663cc2c6ba2d2bae9f63b5301a7ddaf3c6ae3b18` [focused WebGL 42678513623](https://github.com/my-edutu/Ai_games/actions/runs/42678513623) FAILED two browser tests (30s live-stage startup; 480s stale nearest-distance guardian condition), no native PNGs or 6-run verdict. [Whole CI 42678513640](https://github.com/my-edutu/Ai_games/actions/runs/42678513640) 717/718 Node tests passed, one outdated import-text assertion.
+- Narrow test/evidence repair: require real newly wired public sightline helper alongside existing physical lantern guards; select unchanged source-generated genuinely reciprocal open public corridor for guardian renders or fail fast without faking character/route. No production code or thresholds changed. [Dated review](./maze-3d/pass-223-real-open-corridor-native-evidence-fix-2026-11-09.md). New exact-head runs, images, 6-run resource budget, independent critic still PENDING.
+- Official Nintendo visual bar NOT MET. Existing PR #53 open draft, unmerged, undeployed; hourly work active.
+
 # Pass222 — public reciprocal corridor governs Pip–Thornback staging (2026-11-09 UTC)
 
 - **Entry exact source:** `61ba8a947b7e433b949b3c6b4e3059fd6b71d47e`. [Current WebGL 42662334351](https://github.com/my-edutu/Ai_games/actions/runs/42662334351) SUCCESS with five original Chromium capture cases and six-run geometry gate. Whole CI [42662334240](https://github.com/my-edutu/Ai_games/actions/runs/42662334240) passed 714/714 Node tests but failed an unrelated Tiny Kingdom script. Fixed Nintendo bar still **NOT MET**.
