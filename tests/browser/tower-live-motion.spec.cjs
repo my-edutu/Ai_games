@@ -54,6 +54,9 @@ for (const viewport of viewports) {
   if (scenario === 'danger' && viewport.width === 390)
     await page.addInitScript(() => { window.__TOWER_MESH_OWNER_AUDIT__ = true; });
   await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
+  if (scenario === 'danger' && viewport.width === 390)
+    expect(await page.evaluate(() => window.__TOWER_MESH_OWNER_AUDIT__ === true),
+      'the genuine portrait mesh-owner witness must be armed before filming').toBe(true);
   await page.waitForFunction(() => {
     const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
     return d?.frames >= 8 && d.renderProgress?.state === 'current' && d.lighting?.environmentState !== 'pending';
@@ -162,6 +165,7 @@ for (const viewport of viewports) {
           ? d.world.decorativeOcclusionEvidence : [],
         observedCameraRayMeshOwners: Array.isArray(d.cameraRayMeshOwners)
           ? d.cameraRayMeshOwners : [],
+        observedCameraRayMeshOwnerAudit: d.cameraRayMeshOwnerAudit || null,
         observedCamera: d.encounterCamera || null,
         observedActor: d.actorCamera || null,
         observedEarnedGatewayFrame: d.earnedGatewayCamera || null,
@@ -545,11 +549,20 @@ for (const viewport of viewports) {
   // objects report zero projected coverage but original video still has a
   // giant near-side wheel. Report actual ray mesh/material/triangle ownership
   // without claiming that intersection alone proves raster visibility.
-  const meshOwnerSamples=observations.flatMap(s=>
-    (s.observedCameraRayMeshOwners||[]).map(witness=>({
-      atMs:s.atMs,sourceTick:s.tick,runToken:s.runToken,
-      sourceFloor:s.floor, ...witness,
-    })));
+  // A rolling scene audit is read by the app and the capture harness.
+  // Deduplicate by the ORIGINAL source witness, never by the later read.
+  const meshOwnerByTick = new Map();
+  for(const observation of observations)for(const witness of observation.observedCameraRayMeshOwners||[]){
+    if(!witness || !Number.isSafeInteger(witness.tick) ||
+       typeof witness.runToken !== 'string' ||
+       !Number.isSafeInteger(witness.floor))continue;
+    const key = witness.runToken + ':' + witness.floor + ':' + witness.tick;
+    if(!meshOwnerByTick.has(key))meshOwnerByTick.set(key,{
+      readAtMs:observation.atMs,sourceTick:witness.tick,
+      sourceFloor:witness.floor,...witness,
+    });
+  }
+  const meshOwnerSamples=[...meshOwnerByTick.values()];
   const foregroundCandidates=obstructionSamples.flatMap(s=>s.decorativeObjects
     .filter(o=>o.inFrontOfActor&&o.screenCoverage>=.12)
     .map(o=>({atMs:s.atMs,sourceTick:s.sourceTick,runToken:s.runToken,
@@ -564,6 +577,8 @@ for (const viewport of viewports) {
       originalSourceFrameObservations:obstructionSamples.length,
       sourceTickLinkedSamples:obstructionSamples,
       cameraRayMeshOwnerSamples:meshOwnerSamples,
+      meshOwnerAuditStatus:observations.filter(s=>s.observedCameraRayMeshOwnerAudit)
+        .map(s=>({atMs:s.atMs,...s.observedCameraRayMeshOwnerAudit})),
       cameraRayOwnershipLimitations:'Only opt-in candidate portrait danger; actual camera triangle hits with stable material, face and source tick, NOT native WebM raster pixel proof',
       largestProjectedForegroundCandidates:foregroundCandidates,
       verdict:'NOT EVALUATED',

@@ -3960,16 +3960,33 @@ export function createTowerScene(canvas, settings = {}) {
   const ownerAuditNdc = new THREE.Vector2();
   const ownerAuditHits = [];
   let ownerAuditLastRun = '', ownerAuditLastTick = -Infinity;
+  // Diagnostics is consumed by the live app on every 20Hz host poll.
+  // Retain the last eight real camera ray witnesses for the independent
+  // 1Hz recorder; otherwise the application's poll silently eats them.
+  const ownerAuditRetained = [];
+  let ownerAuditEpisode = '';
   function observedCameraMeshOwners() {
     if (typeof window === 'undefined' || window.__TOWER_MESH_OWNER_AUDIT__ !== true ||
-        !snapshot || snapshot.floor !== 8 || snapshot.theme !== 'clockwork' ||
+        !snapshot || snapshot.floor !== 8 ||
         snapshot.lifecycle !== 'running' || options.stale ||
         !snapshot.player || snapshot.player.health <= 0 ||
-        !Number.isSafeInteger(snapshot.tick) || camera.aspect >= .85) return [];
+        !Number.isSafeInteger(snapshot.tick) || camera.aspect >= .85) {
+      ownerAuditRetained.length = 0;
+      ownerAuditEpisode = '';
+      return [];
+    }
+    // Scope to the real floor and camera, not a guessed theme string.
+    // The actual rendered theme is captured in each witness.
     // No effect on authority, appearance, camera, frame cadence or ordinary
     // players. At most four actual-camera triangle queries per 12 source ticks.
+    const episode = snapshot.runToken + ':' + snapshot.floor;
+    if (ownerAuditEpisode !== episode) {
+      ownerAuditEpisode = episode;
+      ownerAuditRetained.length = 0;
+    }
     if (ownerAuditLastRun === snapshot.runToken &&
-        snapshot.tick - ownerAuditLastTick < 12) return [];
+        snapshot.tick - ownerAuditLastTick < 12)
+      return ownerAuditRetained.slice();
     ownerAuditLastRun = snapshot.runToken;
     ownerAuditLastTick = snapshot.tick;
     camera.updateMatrixWorld(true);
@@ -4014,11 +4031,17 @@ export function createTowerScene(canvas, settings = {}) {
       report.push({ndc:[x,y],hits});
     }
     ownerAuditHits.length=0;
-    return [{runToken:snapshot.runToken,floor:snapshot.floor,
-      tick:snapshot.tick,viewportAspect:Number(camera.aspect.toFixed(4)),
+    // Return a run-isolated, tick-keyed rolling window, not a one-time event.
+    // No new renderer draws, gameplay mutations, hidden props or synthetic hits.
+    const witness = {runToken:snapshot.runToken,floor:snapshot.floor,
+      tick:snapshot.tick,theme:snapshot.theme ?? null,
+      viewportAspect:Number(camera.aspect.toFixed(4)),
       cameraPosition:camera.position.toArray().map(n=>Number(n.toFixed(2))),
       probes:report,source:'opt-in bounded current-Three-mesh raycasts',
-      limitation:'Ray intersection is NOT proof of composited WebM pixels, occlusion quality or source-event timecode'}];
+      limitation:'Ray intersection is NOT proof of composited WebM pixels, occlusion quality or source-event timecode'};
+    ownerAuditRetained.push(witness);
+    if(ownerAuditRetained.length>8) ownerAuditRetained.shift();
+    return ownerAuditRetained.slice();
   }
   function diagnostics() {
     const { frameMs, ...submissionProgress } = renderProgress.diagnostics(performance.now());
@@ -4190,6 +4213,15 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       cameraRayMeshOwners: observedCameraMeshOwners(),
+      cameraRayMeshOwnerAudit: {
+        requested: typeof window !== 'undefined' &&
+          window.__TOWER_MESH_OWNER_AUDIT__ === true,
+        floor: snapshot?.floor ?? null, theme: snapshot?.theme ?? null,
+        sourceTick: snapshot?.tick ?? null, health: snapshot?.player?.health ?? null,
+        current: snapshot?.lifecycle === 'running' && !options.stale,
+        retained: ownerAuditRetained.length,
+        evidenceOnly: true,
+      },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
       authenticRestartSweep: authenticRestartSweep ? {
         sourceBound: true, runToken: authenticRestartSweep.runToken,
