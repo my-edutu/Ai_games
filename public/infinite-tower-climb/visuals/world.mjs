@@ -1062,8 +1062,15 @@ export function createTowerWorld(){
     // ~14–18s. Rebuild its physical hierarchy BELOW the real cap approach,
     // rather than adding another conditional transparency rule. The original
     // rim, animated rotor, daylight openings and materials remain in 3D.
-    const clock=new THREE.Group();radial(clock,-2.49,19.2,12.5);
-    clock.scale.set(.72,.76,.72);
+    // Native 390x844 guardian video at 62e18f7e still has the monumental
+    // decorative rotor occupying the live fight around seconds 14-18 while
+    // the climber and guardian appear tiny. Its position is non-colliding
+    // scenery: lower the drive behind the approach and reduce its REAL 3D
+    // silhouette instead of waiting for a translucent material policy.
+    // Keep the original moving teeth and support shafts, but allow generous
+    // architectural daylight around the authoritative upper-cap encounter.
+    const clock=new THREE.Group();radial(clock,-2.49,19.2,9.1);
+    clock.scale.set(.52,.54,.54);
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
@@ -1076,7 +1083,9 @@ export function createTowerWorld(){
     // Stage the three real decorative machines as a low left mechanism,
     // reduced central monument and high right landmark. Their angular and
     // height separation leaves real negative space at the cap encounter.
-    for(const [a,y,size,speed,scale]of [[-2.20,5.5,3.6,-.11,.84],[2.34,31,3.1,.15,.88]]){
+    // Raise the non-colliding high rotor ABOVE the guardian sightline.
+    // The lower and main drive retain the foreground mechanical hierarchy.
+    for(const [a,y,size,speed,scale]of [[-2.20,5.5,3.6,-.11,.84],[2.34,35.5,3.1,.15,.74]]){
       const root=new THREE.Group();radial(root,a,21.3,y);
       root.scale.setScalar(scale);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
@@ -1087,8 +1096,10 @@ export function createTowerWorld(){
     // Keep the original open, 42-unit authoring-space toothed rack, but
     // stage its rendered mass below and aside from the actual guardian arc.
     // No gameplay-driven mechanical deck or collider is affected.
-    const rack=new THREE.Group();radial(rack,-1.91,20.4,6);
-    rack.scale.set(.70,.72,.84);
+    // Bury the long, open non-colliding rack's upper teeth below the cap
+    // approach, while preserving its full 42-unit pitched mechanical drive.
+    const rack=new THREE.Group();radial(rack,-1.91,20.4,4);
+    rack.scale.set(.70,.65,.84);
     rack.name='clockwork-far-shoulder-power-rack';floorGroup.add(rack);
     // The actual forty-two-unit solid decorative rack was outside the gear
     // registry, so an orbiting camera could still see a complete opaque wall.
