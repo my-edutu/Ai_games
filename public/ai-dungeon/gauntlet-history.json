@@ -6403,6 +6403,32 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect authentic new-head original desktop/mobile movie, VFX color/alignment, event pool metrics, render p95, original audio and source checksums; fix regressions and bottleneck; full same-seed baseline A/B and 3 blind critics"
+    },
+    "m1MobileStableBattleSurface": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "20a44685c81176c2b481a823252b7f35e833fb5f",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "authenticReferenceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42632913453",
+      "authenticStages": "BOTH 5/5; 946/946 each; natural floor10 defeat/restart; held genuine frames",
+      "mobileMeasuredSurfaceResizes": 62,
+      "mobileMeasuredDprMutations": 58,
+      "desktopMeasuredSurfaceResizes": 1,
+      "mobileWardenSubmitP95Ms": 3104,
+      "mobileWardenFrameP95Ms": 3150,
+      "desktopWardenSubmitP95Ms": 1584,
+      "desktopWardenFrameP95Ms": 1667,
+      "implemented": "One stable mobile 78svh WebGL canvas across entry/combat/Warden/floor/defeat/restart; preserve clean viewport, all hero controls and Warden warnings. True CSSOM/WebGL regression added.",
+      "actualNewHeadMotion": "NOT_OBSERVED",
+      "mobileReallocationsAfter": "UNVERIFIED",
+      "originalImpactAudioSync": "UNVERIFIED",
+      "baselineMovingAB": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Exact-head desktop/mobile organic motion and audio, compare mobile WebGL resizes, draw calls, frame and submit p95 and genuine warnings. Address dominant software submission stalls and original rig cranial gap. PR72 remains separate."
     }
   }
 }

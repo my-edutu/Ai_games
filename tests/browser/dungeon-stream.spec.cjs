@@ -469,3 +469,37 @@ test('ongoing real dungeon snapshots cannot dismiss a WebGL recovery warning',as
  expect(await page.locator('body').getAttribute('data-renderer-status')).toBe('context-lost');
  await expect(page.locator('#recovery')).toBeVisible();
 });
+
+ 
+// Real CSSOM/browser geometry gate for the stable battle surface. Changing
+// only a CSS state label never creates gameplay events or artificial damage.
+// Rendering remains the actual WebGL canvas with its authentic hero DOM.
+test('390px live dungeon keeps one physical canvas size across combat and Warden stages',async({page})=>{
+ test.setTimeout(120000);
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl===true),{timeout:35000}).toBe(true);
+ const geometry=await page.evaluate(()=>{
+  const arena=document.querySelector('.arena'),canvas=document.getElementById('world');
+  const initial=document.body.dataset.encounterStage;
+  const stages=['exploring','combat','warden','floor','intermission','restart'];
+  const reads=stages.map(stage=>{
+   document.body.dataset.encounterStage=stage;
+   const a=arena.getBoundingClientRect(),c=canvas.getBoundingClientRect();
+   return {stage,height:a.height,width:a.width,canvasHeight:c.height,canvasWidth:c.width};
+  });
+  if(initial===undefined)delete document.body.dataset.encounterStage;
+  else document.body.dataset.encounterStage=initial;
+  const party=document.querySelector('.squad-panel')?.getBoundingClientRect();
+  return {reads,partyWidth:party?.width??0,horizontalOverflow:document.documentElement.scrollWidth-innerWidth};
+ });
+ const [initial,...rest]=geometry.reads;
+ expect(initial.height).toBeGreaterThan(600);
+ for(const item of rest){
+  expect(Math.abs(item.height-initial.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(item.canvasHeight-initial.canvasHeight)).toBeLessThanOrEqual(1);
+  expect(Math.abs(item.canvasWidth-initial.canvasWidth)).toBeLessThanOrEqual(1);
+ }
+ expect(geometry.partyWidth).toBeGreaterThan(340);
+ expect(geometry.horizontalOverflow).toBeLessThanOrEqual(1);
+});
