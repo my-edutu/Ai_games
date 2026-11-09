@@ -21,6 +21,9 @@ test('real Chromium original textured weapons and skinned hands remain continuou
  await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
+ // Real imported source heads must already be staged at GLB readiness;
+ // do not mistake decoded textures for a completed physical pose.
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigCranialActors??0),{timeout:60000}).toBeGreaterThanOrEqual(5);
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.authored3D.nativeContinuousActors).toBeGreaterThanOrEqual(3);
  expect(d.webgl).toBe(true);

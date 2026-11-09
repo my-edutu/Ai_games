@@ -915,6 +915,12 @@ function attachCharacter(actor){
   if(isBoss)addWardenRegalia(actor);
   else if(actor.nativePresentation.complete)addAnatomicalKit(actor);
   changeAction(actor,actor.u.action||'idle');
+  // Source GLB decoding is asynchronous. Apply the genuine head-bone adult
+  // proportion before the actor can be painted on its first loaded frame.
+  // Otherwise slow software WebGL can display the unscaled toy head until
+  // the next RAF (and the first browser capture reports zero staged heads).
+  // The regular updateActor path reverses this overlay before Mixer updates.
+  stageRigCranialAfterMixer(actor);
   return true;
  }).catch(e=>{failures.add(asset);return false});
  return request;
