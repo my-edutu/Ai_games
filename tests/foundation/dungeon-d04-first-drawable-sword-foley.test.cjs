@@ -52,6 +52,9 @@ test('D04 gated sword stages before 120ms: sound waits for actual drawable submi
  assert.deepEqual(h.audio.map(c=>c.audio),['whoosh']);
  assert.equal(h.director.acknowledgePresentedFrame('moving',.002),0);
  assert.equal(h.director.stats().awaitingPresentation,0);
+ const receipt=h.director.stats().recentDeliveryReceipts.at(-1);
+ assert.equal(receipt.intendedDelayMs,120,'original policy delay stays inspectable');
+ assert.equal(receipt.scheduledDelayMs,0,'telemetry must reveal first-draw override');
  h.director.dispose();
 });
 
@@ -100,7 +103,7 @@ test('mute and scene restart cancel early sword cues without leaking foley',asyn
  restarted.director.dispose();
 });
 
-test('reduced-motion gated swing still requires consent and a submitted visible alternative',async()=>{
+test('reduced-motion simulated adapter remains consent-gated even for an early staged swing',async()=>{
  const h=await harness({gated:true,reducedMotion:true});
  h.director.advance(.016,.016);
  assert.deepEqual(h.visual.map(c=>c.kind),['swing']);
