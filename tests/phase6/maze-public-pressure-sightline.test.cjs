@@ -148,7 +148,7 @@ function apronArt(world,THREE,cell){
   const floorY=(2-Math.floor(Math.floor(cell/9)*3/9))*1.4;
   const matrix=new THREE.Matrix4(),point=new THREE.Vector3(),
     q=new THREE.Quaternion(),scale=new THREE.Vector3();
-  const slabs=[],petals=[];
+  const slabs=[],basins=[],grooves=[],petals=[];
   world.group.children[1].traverse(node=>{
     if(!node.isInstancedMesh)return;
     for(let i=0;i<node.count;i++){
@@ -159,13 +159,27 @@ function apronArt(world,THREE,cell){
         &&Math.abs(scale.x-2.31)<.0001&&Math.abs(scale.y-.07)<.0001
         &&Math.abs(scale.z-2.31)<.0001)
         slabs.push(node.material.color.getHexString());
+      // In the true public one-cell basin, a 2.39-wide mineral deck
+      // REPLACES the old 2.31 tiled apron. Preserve distinct measured
+      // assertions rather than weakening the former source contract.
+      if(node.geometry?.type==='ExtrudeGeometry'
+        &&Math.abs(point.y-(floorY-.035))<.0001
+        &&Math.abs(scale.x-2.39)<.0001&&Math.abs(scale.y-.07)<.0001
+        &&Math.abs(scale.z-2.39)<.0001)
+        basins.push(node.material.color.getHexString());
+      if(node.geometry?.type==='BoxGeometry'
+        &&Math.abs(point.y-(floorY+.012))<.0001
+        &&Math.abs(Math.abs(point.z-centerZ)-.48)<.0001
+        &&Math.abs(scale.x-1.82)<.0001&&Math.abs(scale.y-.016)<.0001
+        &&Math.abs(scale.z-.18)<.0001
+        &&node.material.color.getHexString()==='5d968e')grooves.push(i);
       if(node.geometry?.type==='ShapeGeometry'
         &&Math.abs(point.y-(floorY+.024))<.0001
         &&Math.abs(scale.x-.82)<.0001&&Math.abs(scale.y-.77)<.0001)
         petals.push(i);
     }
   });
-  return {slabs,petals:petals.length};
+  return {slabs,basins,grooves:grooves.length,petals:petals.length};
 }
 
 test('published two-cell Tide-Shear court builds one calm connected apron around real moving jaws',async()=>{
@@ -180,8 +194,14 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
     assert.equal(baseline.petals,5,'baseline has the original busy five-leaf floor relief');
     world.update(known);
     const quiet=apronArt(world,THREE,39);
-    assert.deepEqual(quiet.slabs,['cead72'],
-      'one actual mineral slab replaces both noisy tiling and unrelated signal-like art');
+    assert.deepEqual(quiet.slabs,[],
+      'the generic 2.31m apron does not sit over the actual inner basin');
+    assert.deepEqual(quiet.basins,['28574f'],
+      'the actual PUBLIC one-cell inner court is a broad 2.39m jade deck');
+    assert.equal(quiet.grooves,2,
+      'paired full-size flush physical sea-glass channels connect the public device to its court');
+    assert.deepEqual(apronArt(world,THREE,38).slabs,['cead72'],
+      'the separately public TWO-cell outer ring retains its quiet ivory shoulder');
     assert.equal(quiet.petals,0,'the disclosed pressure stage leaves real negative space');
     assert.ok(world.group.getObjectByName('Published tide-shear pressure mast 40'),
       'moving hazard is retained at the actual disclosed cell');

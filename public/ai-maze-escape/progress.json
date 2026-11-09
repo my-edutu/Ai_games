@@ -3,7 +3,7 @@
   "updatedAt": "2026-11-09T16:35:14.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass220 exact-HEAD 42648698257 WebGL SUCCESS: 37 original PNGs, 35/35 paired SHA records, 6-reset geometry PASS, real 320 contact jaw .66rad/right +.846276. Genuine full-frame 320/390/1280 critique still REJECTS beige court repetition. Pass221 source CANDIDATE reauthors the one-cell public pressure ring as contiguous dark-jade basin with two physical sea-glass channels and light outer shoulder; gameplay/privacy/resource/strict framing unchanged. New native captures and independent Nintendo side-by-side PENDING. PR open draft."
+    "summary": "Pass220 exact-HEAD 42648698257 WebGL SUCCESS: 37 original PNGs, 35/35 paired SHA records, 6-reset geometry PASS, real 320 contact jaw .66rad/right +.846276. Genuine full-frame 320/390/1280 critique still REJECTS beige court repetition. Pass221 source CANDIDATE reauthors the one-cell public pressure ring as contiguous dark-jade basin with two physical sea-glass channels and light outer shoulder; gameplay/privacy/resource/strict framing unchanged. New native captures and independent Nintendo side-by-side PENDING. PR open draft. Pass221 first whole-repo CI 42658442034 had 713/714 passing; the only failure was stale assertion expecting old 2.31m beige slab in the newly rebuilt public inner court. Corrected regression to assert new 2.39m jade deck, two physical channels and still-bright 2-ring shoulder, no threshold relaxation. New exact-HEAD CI/render pending."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass221 CI follow-up: run 42658442034 showed 713/714 passes, one stale installed-Three apron test expecting old 2.31m beige slab. Replaced it with stronger 2.39m dark-jade physical deck, both 1.82m insets and retained two-ring ivory/privacy/resource assertions. Exact-HEAD rerun pending.",
     "Pass221 2026-11-09: exact Pass220 WebGL 42648698257 success, 35/35 original individually SHA-verified screenshot pairs, six-reset geometry PASS. Native critic still rejects beige court; new source candidate gives immediately disclosed pressure-neighbor floors a joined dark-jade basin and paired sea-glass insets, leaving outer known ring ivory. New-HEAD rendered evidence/independent acceptance PENDING; benchmark unmet.",
     "Pass220: exact Pass219 WebGL 42638290313 passed real browser/full-size original scenes and strict 6-reset resource budget. Current 320/390/1280 native criticism rejects disjoint red stakes. Reconstructed BOTH real published pressure hinges as visually coherent ivory/bronze hooked shear talons; fresh exact-head visual acceptance PENDING.",
     "Pass219: real disclosed pressure stage gains a four-quarter physically separating and tilting sea-glass floor iris, synchronized to actual existing pressure shutters, with installed-Three phases/privacy/resource/reset tests. This is a source candidate pending original WebGL side-by-side visual proof.",
