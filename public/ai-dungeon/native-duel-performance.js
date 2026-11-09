@@ -50,12 +50,16 @@ export function planNativeOneShotSpeed(action,duration){
  * Reduced-motion mode keeps the unchanged imported skin and static cues.
  */
 export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=null,
- alive=true,reducedMotion=false}={}){
+ alive=true,reducedMotion=false,sourceBlend=1}={}){
  const p=role[kind];
  if(!p||action!=='attack'||!alive||reducedMotion||
   typeof targetId!=='string'||!targetId.trim()||targetId.length>96||
-  distance!==1||!Number.isFinite(age)||age<0||age>=NATIVE_DUEL_DURATION)return rest;
- const w=p.power,s=p.side,foot=p.plant,t=age;
+  distance!==1||!Number.isFinite(age)||age<0||age>=NATIVE_DUEL_DURATION||
+  !Number.isFinite(sourceBlend)||sourceBlend<0||sourceBlend>1)return rest;
+ // Actual THREE.AnimationAction post-mixer fade weight owns every additive
+ // bone in the same connected strike. Do not jump hips/soles/wrist ahead
+ // while the genuine source one-shot is still crossfading from locomotion.
+ const w=p.power*sourceBlend,s=p.side,foot=p.plant*sourceBlend,t=age;
  const wind=t<p.wind?ease(t/p.wind):t<NATIVE_CONTACT_TIME?
   1-ease((t-p.wind)/(NATIVE_CONTACT_TIME-p.wind)):0;
  const release=t<.105?0:t<NATIVE_CONTACT_TIME?
@@ -86,8 +90,8 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  const legs=s>0?{left:lead,right:rear}:{left:rear,right:lead};
  return {
   mode:p.style,phase:t<NATIVE_CONTACT_TIME?'windup':t<.355?'impact':'recovery',
-  contactWeight:round(release*(1-.32*settle)),
-  strength:round(clamp(.55*wind+.8*release)),
+  contactWeight:round(sourceBlend*release*(1-.32*settle)),
+  strength:round(sourceBlend*clamp(.55*wind+.8*release)),
   head:{pitch:round(w*(-.047*wind+.030*release)),yaw:round(s*w*(.060*wind-.07*release)),roll:round(-s*w*.022*settle)},
   hips:{pitch:round(w*(.069*wind-.082*release)),yaw:round(s*w*(-.091*wind+.117*release)),roll:round(s*w*(.032*wind-.038*release))},
   spine:{pitch:round(w*(.067*wind-.117*release)),yaw:round(s*w*(-.107*wind+.155*release)),roll:round(s*w*(.056*wind-.060*release))},
@@ -98,8 +102,8 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
   },
   forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.113*release))},
   legs,
-  root:{x:round(s*(.018*wind+.014*drive)),
-   y:round(-.042*foot*wind-.026*release+.012*settle),
-   z:round(.023*wind-.20*foot*drive+heelRecovery)}
+  root:{x:round(sourceBlend*s*(.018*wind+.014*drive)),
+   y:round(sourceBlend*(-.042*p.plant*wind-.026*release+.012*settle)),
+   z:round(sourceBlend*(.023*wind-.20*p.plant*drive+heelRecovery))}
  };
 }

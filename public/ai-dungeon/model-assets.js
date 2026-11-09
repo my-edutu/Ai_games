@@ -1179,7 +1179,8 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  // pose across the genuine skinned head, hips, torso, arms, wrist and feet.
  actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.fullBody.owner.duel?'attack':'idle',poseAge,{
   targetId:actor.animationFacing?.targetId,distance:actor.animationFacing?.distance,
-  alive:actor.u.hp>0,reducedMotion
+  alive:actor.u.hp>0,reducedMotion,
+  sourceBlend:actor.activeClip?.getEffectiveWeight?.()??NaN
  });
  actor.nativeDuelPeak=Math.max(actor.nativeDuelPeak||0,actor.nativeDuel.strength);
  if(actor.nativeDuel.contactWeight>.65)actor.nativeDuelContactFrames=Math.min(1000000,(actor.nativeDuelContactFrames||0)+1);
