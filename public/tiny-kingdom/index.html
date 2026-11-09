@@ -5382,12 +5382,12 @@ function getRoofCoursingAudit(){
   fullHouseCount:city.length,noRemovedResidents:true,noAuthorityChanges:true};
 }
 // G055: remove permanent opaque green house/windmill floor decals.
-function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
+function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
  materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
  materialScope(MATERIAL.PLASTER,()=>box(x,y+.19*scale,z,w,h-.19*scale,d,variant%2?rgb(0xe1c7a0):rgb(0xd1bc97)));
- let ridge=h+1.25*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
+ let ridge=h+houseVisualProfile(x,z,variant,false).pitch*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
 materialScope(MATERIAL.ROOF,()=>{
  quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);
@@ -5447,7 +5447,7 @@ function solidWallBrace(faceX,side,y0,z0,y1,z1,thickness,tone){
  for(let i=0;i<4;i++)quad(front[i],back[i],back[(i+1)%4],front[(i+1)%4],tone);
 }
 function cottageSideFacades(x,z,scale,variant){
- const first=data.length,y=terrain(x,z),h=1.9*scale;
+ const first=data.length,y=terrain(x,z),h=houseVisualProfile(x,z,variant,false).height*scale;
  const w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale;
  const style=(variant+Math.floor(biomeHash(Math.round(x*17+z*31+variant*53))*4))%4;
  const plaster=[rgb(0xd9c4a1),rgb(0xcbbda5),rgb(0xb3b5a6),rgb(0xe0c39b)][style];
@@ -5521,6 +5521,28 @@ const COMPACT_HOUSE_HEIGHTS=[2.08,2.94,2.47,3.16];
 const COMPACT_HOUSE_PITCHES=[1.18,1.70,1.47,1.82];
 function compactHouseArchetype(x,z,variant){
  return Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
+}
+// W152: one deterministic architectural silhouette for each genuine cottage.
+// Day-1 detailed homes and grown compact homes share this roof with their
+// actual chimneys, active hearth smoke and physical camera blockers. Only
+// presentation proportions change, never pathfinding, jobs or RNG.
+const DETAILED_HOUSE_HEIGHTS=Object.freeze([1.90,2.55,2.16,2.78]);
+const DETAILED_HOUSE_PITCHES=Object.freeze([1.25,1.53,1.42,1.69]);
+function houseVisualProfile(x,z,variant,compact){
+ const style=compactHouseArchetype(x,z,variant);
+ return {style,height:(compact?COMPACT_HOUSE_HEIGHTS:DETAILED_HOUSE_HEIGHTS)[style],
+  pitch:(compact?COMPACT_HOUSE_PITCHES:DETAILED_HOUSE_PITCHES)[style]};
+}
+function getInhabitedSkylineAudit(){
+ const detailed=detailedHomeSet();
+ const lots=city.map(([x,z,k],i)=>{
+  const p=houseVisualProfile(x,z,k,!detailed.has(i));
+  return {lot:i,x,z,compact:!detailed.has(i),style:p.style,
+   eave:p.height,ridge:p.height+p.pitch};
+ });
+ return {source:'genuine-town-original-roof-massing',lots,
+  foundingHomes:Math.min(city.length,12),realHomes:city.length,
+  presentationOnly:true,authorityChanged:false};
 }
 let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
@@ -5866,8 +5888,8 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
  if(x < -18.7||x > 22.6||z < -14.5||z > 17.7)return;
  const start=data.length,y=terrain(x,z),w=2.4+variant*.42,
   d=2.1+variant*.18,style=compactHouseArchetype(x,z,variant);
- const h=isCompact?COMPACT_HOUSE_HEIGHTS[style]:1.9,
-  pitch=isCompact?COMPACT_HOUSE_PITCHES[style]:1.25,
+ const profile=houseVisualProfile(x,z,variant,isCompact);
+ const h=profile.height,pitch=profile.pitch,
   loft=h>2.5,half=w*.5+(isCompact?(loft?.30:.15):.25),
   faceExtra=isCompact?(loft?.33:.13):.18,
   timber=rgb([0x72543c,0x624936,0x675442,0x604a3b][style]);
@@ -5993,8 +6015,7 @@ function grainwardMasonryFacing(x,z,variant,index,isCompact){
  // These are the SAME real households selected by the established district.
  if(x < -18.7||x>22.6||z < -14.5||z>17.7)return 0;
  const first=data.length,y=terrain(x,z),w=2.4+variant*.42,
-  d=2.1+variant*.18,h=isCompact?
-   COMPACT_HOUSE_HEIGHTS[compactHouseArchetype(x,z,variant)]:1.90;
+  d=2.1+variant*.18,h=houseVisualProfile(x,z,variant,isCompact).height;
  const style=(index+variant)%4,
   stone=[rgb(0x9d9888),rgb(0xb1a48e),rgb(0xa9a18f),rgb(0x968f82)][style],
   mortar=[rgb(0x79776d),rgb(0x8d8475),rgb(0x888378),rgb(0x77766b)][style],
@@ -6584,7 +6605,7 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
 function medievalStreetMorphology(x,z,variant,index,isCompact){
  const start=data.length,style=compactHouseArchetype(x,z,variant),
   y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18,
-  h=isCompact?COMPACT_HOUSE_HEIGHTS[style]:1.90,
+  h=houseVisualProfile(x,z,variant,isCompact).height,
   front=z-d*.5-.23,face=z-d*.5-.11,
   timber=rgb([0x594535,0x473c33,0x634c3a,0x53463b][style]),
   lit=rgb([0xbba383,0xa28d72,0xc0a380,0xb4a18d][style]),
@@ -6680,7 +6701,7 @@ function medievalStreetMorphology(x,z,variant,index,isCompact){
 }
 
 function cottageDetails(x,z,scale,variant){
- const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=1.9*scale;
+ const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  const beam=rgb(0x594536),stone=rgb(0xa5a091),iron=rgb(0x3b4545);
  cottageSideFacades(x,z,scale,variant);
  // Layered stone foundations and timber framing on both gable ends.
@@ -6697,7 +6718,7 @@ function cottageDetails(x,z,scale,variant){
  }
  // Eave brackets and handmade ceramic ridge caps.
  for(let zz of [-.36,0,.36]){
-   box(x,y+h+1.22*scale,z+zz*d,.16*scale,.13*scale,.22*scale,rgb(0xb18b63));
+   box(x,y+h+(houseVisualProfile(x,z,variant,false).pitch-.03)*scale,z+zz*d,.16*scale,.13*scale,.22*scale,rgb(0xb18b63));
  }
  // A small timber stack beside each home, visible at settlement scale.
  const bx=x+w*.57,bz=z+d*.43;
@@ -6705,7 +6726,7 @@ function cottageDetails(x,z,scale,variant){
  // Gauntlet 034: authentic roof silhouettes; original geometric chimney masonry,
  // soot-darkened flue, hand-carved window planters and climbing greenery.
  const chimneyX=x+(variant%2?-.24:.24)*w,chimneyZ=z+d*.22;
- const roofSlope=1.25*scale*(1-Math.min(1,2*Math.abs(chimneyX-x)/w));
+ const roofSlope=houseVisualProfile(x,z,variant,false).pitch*scale*(1-Math.min(1,2*Math.abs(chimneyX-x)/w));
  const chimneyBottom=y+h+roofSlope-.22*scale;
  const plaster=rgb(variant%2?0xe2ccb1:0xc8baa0),mortar=rgb(0x877768);
  box(chimneyX,chimneyBottom,chimneyZ,.36*scale,1.14*scale,.40*scale,plaster);
@@ -11448,9 +11469,9 @@ function chimneySmoke(x,z,variant,time,scale=1,compact=false){
  if(Math.abs(x)>33||Math.abs(z)>33)return;
  const y=terrain(x,z),w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,
   style=compactHouseArchetype(x,z,variant),
-  h=(compact?COMPACT_HOUSE_HEIGHTS[style]:1.9)*scale;
+  h=houseVisualProfile(x,z,variant,compact).height*scale;
  const cx=x+(variant%2?-.24:.24)*w,cz=z+d*.22;
- const slope=(compact?COMPACT_HOUSE_PITCHES[style]:1.25)*scale*
+ const slope=houseVisualProfile(x,z,variant,compact).pitch*scale*
   (1-Math.min(1,2*Math.abs(cx-x)/w));
  const top=y+h+slope+1.06*scale;
  const breeze=Math.sin(time*.031+x*.13)*.30;
@@ -11520,9 +11541,9 @@ function prepareLivingVillageMotion(plan){
    const [x,z,k]=home.lot,y=terrain(x,z),w=2.4+k*.42,d=2.1+k*.18;
    const compact=!plan.full.has(home.homeIndex);
    const style=compactHouseArchetype(x,z,k);
-   const h=compact?COMPACT_HOUSE_HEIGHTS[style]:1.9;
+   const h=houseVisualProfile(x,z,k,compact).height;
    const cx=x+(k%2?-.24:.24)*w,cz=z+d*.22;
-   const slope=(compact?COMPACT_HOUSE_PITCHES[style]:1.25)*
+   const slope=houseVisualProfile(x,z,k,compact).pitch*
     (1-Math.min(1,2*Math.abs(cx-x)/w));
    const top=y+h+slope+1.06,tint=rgb(0x989c93);
    for(let i=0;i<plan.density;i++){
@@ -12566,8 +12587,7 @@ function renderOccupiedHearths(){
  for(const home of households.slice(0,14)){
   const [x,z,k]=city[home.homeIndex],y=terrain(x,z);
   const w=2.4+k*.42,d=2.1+k*.18;
-  const h=full.has(home.homeIndex)?1.9:
-   COMPACT_HOUSE_HEIGHTS[compactHouseArchetype(x,z,k)];
+  const h=houseVisualProfile(x,z,k,!full.has(home.homeIndex)).height;
   const level=y+Math.min(1.08,h*.51);
   const amber=[.86+.14*intensity,.47+.22*intensity,.18+.12*intensity];
   materialScope(MATERIAL.LANTERN_GLOW,()=>{
@@ -16682,13 +16702,8 @@ function followCameraRoofs(){
  // Presentation-only: no extra authoritative building/collision primitives.
  const detailed=detailedHomeSet();
  const roofs=city.map(([x,z,k],i)=>{
-  let roofHeight=3.5;
-  if(!detailed.has(i)){
-   const style=compactHouseArchetype(x,z,k);
-   const height=COMPACT_HOUSE_HEIGHTS[style],
-    pitch=COMPACT_HOUSE_PITCHES[style];
-   roofHeight=Math.max(3.5,height+pitch+.24);
-  }
+  const profile=houseVisualProfile(x,z,k,!detailed.has(i));
+  const roofHeight=Math.max(3.5,profile.height+profile.pitch+.24);
   const base=terrain(x,z);
   return {x,z,rx:(2.4+k*.42)*.5+.35,rz:(2.1+k*.18)*.5+.35,
    bottom:base-.22,top:base+roofHeight,kind:'home',tall:roofHeight>3.6};
@@ -20337,7 +20352,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
  getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
