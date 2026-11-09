@@ -1113,3 +1113,35 @@ test('real large walking steps cannot leave original source ankles permanently b
  assert.match(model,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/,
   'the original Three.js mixer must still evaluate exactly once per visible frame');
 });
+
+test('native sword pelvis-to-wrist overlays track actual original-clip crossfade weight, never snap ahead of the licensed skeleton',async()=>{
+ const nativeFile=path.join(root,'public/ai-dungeon/native-duel-performance.js');
+ const {planNativeDuelPose:plan}=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(nativeFile,'utf8')).toString('base64'));
+ const scalars=pose=>[pose.strength,pose.contactWeight,
+  ...['head','hips','spine','wrist'].flatMap(k=>['pitch','yaw','roll'].map(a=>pose[k][a])),
+  ...['left','right'].flatMap(side=>[pose.arms[side].pitch,pose.arms[side].roll,
+   pose.forearms[side],pose.legs[side].upper,pose.legs[side].lower,pose.legs[side].foot]),
+  pose.root.x,pose.root.y,pose.root.z];
+ for(const kind of ['vanguard','revenant','warden']){
+  const args={targetId:'real-adjacent-enemy',distance:1,alive:true,reducedMotion:false};
+  const zero=plan(kind,'attack',.2,{...args,sourceBlend:0});
+  const half=plan(kind,'attack',.2,{...args,sourceBlend:.5});
+  const full=plan(kind,'attack',.2,{...args,sourceBlend:1});
+  assert.notEqual(zero.mode,'rest','real attack must keep exclusive pose ownership during fade-in');
+  const z=scalars(zero),h=scalars(half),f=scalars(full);
+  assert.ok(f.some(n=>Math.abs(n)>.04),'source duel needs a visible connected original performance');
+  assert.ok(z.every(n=>n===0),'no pelvis/weapon/sole additive jump before source clip fades in: '+kind);
+  for(let i=0;i<h.length;i++)assert.ok(Math.abs(h[i]-f[i]*.5)<.00013,
+   kind+' synchronized partial source fade component '+i);
+  const invalid=plan(kind,'attack',.2,{...args,sourceBlend:NaN});
+  assert.equal(invalid.mode,'rest','invalid source weight must not distort original joints');
+  assert.equal(plan(kind,'attack',.2,{...args,sourceBlend:2}).mode,'rest',
+   'out-of-range mixer weight must fail closed');
+  assert.equal(plan(kind,'attack',.2,{...args,sourceBlend:.5,distance:2}).mode,'rest',
+   'the fade cannot invent an adjacent contact');
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/sourceBlend:\s*actor\.activeClip\?\.getEffectiveWeight\?\.\(\)/,
+  'actual post-mixer Three.js source action weight must own ALL additive duel joints and root');
+});
