@@ -530,7 +530,7 @@ for (const viewport of viewports) {
   const compositorFrameEvidence = compositorAnchors.anchors.flatMap(anchor => {
     if(anchor.witness !== 'unaltered-Chromium-compositor-CDP-frame' ||
        anchor.startAtMs !== anchor.endAtMs ||
-       !/^compositor-frame-\\d{2}\\.jpg$/.test(anchor.file)) return [];
+       !/^compositor-frame-\d{2}\.jpg$/.test(anchor.file)) return [];
     const file = path.join(dir, anchor.file);
     let bytes;
     try { bytes = fs.readFileSync(file); } catch { return []; }
