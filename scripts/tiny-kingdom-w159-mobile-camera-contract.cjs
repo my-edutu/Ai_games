@@ -1,0 +1,23 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const source=fs.readFileSync(path.join(__dirname,'../public/tiny-kingdom/index.html'),'utf8');
+// RED before W159: original 390px camera toolbar showed all actions permanently.
+assert.match(source,/<nav id="camera-tools"[^>]*data-expanded="false"/);
+assert.match(source,/id="camera-disclosure"[^>]*aria-expanded="false"/);
+for(const id of ['camera-home','camera-near','camera-far','camera-street']) assert.match(source,new RegExp('id="'+id+'"'));
+assert.ok(source.includes('#camera-tools[data-expanded="false"] > button:not(#camera-disclosure)'));
+assert.ok(source.includes('body[data-street="on"] #camera-tools[data-expanded="true"]'));
+assert.ok(source.includes("cameraToolNav.addEventListener('keydown'"));
+assert.ok(source.includes("event.key==='Escape'"));
+const body=source.slice(source.indexOf('<script>')+8,source.lastIndexOf('</script>'));
+new Function(body);
+const definition=source.match(/function setCameraToolsExpanded\(expanded\)\{[\s\S]*?\n \}/);
+assert.ok(definition);
+const nav={dataset:{expanded:'false'}};
+const button={attrs:{},setAttribute(k,v){this.attrs[k]=v}};
+const toggle=new Function('cameraToolNav','cameraDisclosure',definition[0]+'\nreturn setCameraToolsExpanded')(nav,button);
+assert.equal(toggle(true),true);assert.equal(nav.dataset.expanded,'true');
+assert.equal(button.attrs['aria-expanded'],'true');assert.match(button.attrs['aria-label'],/Hide/);
+assert.equal(toggle(false),false);assert.equal(nav.dataset.expanded,'false');
+assert.equal(button.attrs['aria-expanded'],'false');assert.match(button.attrs['aria-label'],/Show/);
+console.log('W159 source DOM toggle contracts PASS; real WebGL/mobile play NOT RUN');
