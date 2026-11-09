@@ -36,12 +36,20 @@ const append=(positions,triangles)=>{
 };
 const terrain=(x,z)=>.13*Math.sin(x*.32)*Math.cos(z*.24);
 const random=x=>{const f=Math.sin(x*12.9898)*43758.5453;return f-Math.floor(f);};
-const context={data,MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
+// W166 isolated market-ground test: the real W158 freight node is verified
+// separately. Do not require its world/navigation dependencies in this
+// geometry-only scope, nor claim the stub proves the transfer aisle.
+const transferSites=[];
+const context={grainwardTransferNode:site=>{
+ assert.equal(site,'market');transferSites.push(site);
+ return {site,source:'external-real-freight-node-tested-separately',triangles:0};
+},data,MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
  terrain,biomeHash:random,rgb:n=>n,marketQuarterStats:stats,
  materialScope:(_,fn)=>fn(),MATERIAL:{ROAD:3},
  tri:(a,b,c)=>append([a,b,c],1),quad:(a,b,c,d)=>append([a,b,c,d],2)};
 vm.createContext(context);
 vm.runInContext(square+'\n'+court+'\nmarketCobblestoneSquare();marketReceivingCourt();',context);
+assert.deepEqual(transferSites,['market'],'receiving court calls one actual independent transfer node');
 assert.ok(stats.pavingStones>=180&&stats.pavingStones<=260);
 // W129 replaces the unsafe 64 long radial slices with 224 short terrain-conforming faces.
 // Retain the original strict <900-triangle floor/receiving-court cap below.
