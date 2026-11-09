@@ -173,7 +173,14 @@ export function createPhysicalCombatFeedback({
     if(pending[weakest].cue.priority>=cue.priority){overflow++;continue}
     pending.splice(weakest,1);overflow++;
    }
-   pending.push({cue,remaining:clamp(cue.delay,0,.5),queuedAt:observedSeconds,
+   // The opt-in submitted-frame path observes the REAL animated sword hand.
+    // A 120ms pre-staging delay can miss early blade passage and play a
+    // belated whoosh after the strike. Stage only swings immediately, hidden
+    // until the measured wrist travels; frame acknowledgment still gates
+    // foley. Keep all non-melee timing and non-gated callers unchanged.
+    const presentationDelay=requirePresentedFrame&&cue.kind==='swing'
+     ?0:clamp(cue.delay,0,.5);
+    pending.push({cue,remaining:presentationDelay,queuedAt:observedSeconds,
     audioEpoch:optedIn?audioEpoch:null});queued++;
   }
   // In the submission-gated D04 preview, a zero-delay HP injury may arrive
