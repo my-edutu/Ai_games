@@ -4,9 +4,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),
  path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.resolve(__dirname,'../public/tiny-kingdom/index.html'),'utf8');
-const inline=source.match(/<script>([\\s\\S]*?)<\\/script>/);
-assert(inline,'complete original playable game script');
-new vm.Script(inline[1],{filename:'tiny-kingdom-original-game.js'});
+const scriptStart=source.indexOf('<script>'),scriptEnd=source.indexOf('</script>',scriptStart);
+assert(scriptStart>=0&&scriptEnd>scriptStart,'complete original playable game script');
+new vm.Script(source.slice(scriptStart+8,scriptEnd),{filename:'tiny-kingdom-original-game.js'});
 function extract(a,b){
  const start=source.indexOf(a),end=source.indexOf(b,start+a.length);
  assert(start>=0&&end>start,'original GPU actor contract: '+a);
