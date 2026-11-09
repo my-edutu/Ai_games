@@ -58,7 +58,6 @@ for (const viewport of viewports) {
   // timestamps instead; match their ORIGINAL pixels to the unedited WebM.
   const compositorAnchors=await beginTowerNativeCompositorAnchors({page,dir,viewport});
   const observations = [];
-  const canvas = page.locator('#tower-canvas');
   async function sample(index) {
     const observation = await page.evaluate(() => {
       const d = window.__TOWER_RENDER_DIAGNOSTICS__();
@@ -174,32 +173,14 @@ for (const viewport of viewports) {
         calls: d.calls, triangles: d.triangles, geometries: d.geometries, textures: d.textures,
         canvasHash: null };
     });
-    if (index % 10 === 0) {
-      const file = 'canvas-' + String(index).padStart(2, '0') + '.png';
-      const png = await canvas.screenshot({ path: path.join(dir, file), timeout: 90000 });
-      observation.canvasHash = createHash('sha256').update(png).digest('hex');
-      // Original unmodified full-viewport screenshot anchors: match against
-      // the native WebM frame pixels, never a guessed start/PTS offset. Capture
-      // actual start/end wall clock bounds because slow screenshots cannot
-      // safely be treated as instantaneous.
-      if (index === 0 || (index > 0 && index <= 70 && index % 10 === 0)) {
-        const name = 'full-' + String(index).padStart(2, '0') + '.png';
-        const startAtMs = Date.now();
-        await page.screenshot({ path: path.join(dir, name), timeout: 90000 });
-        observation.nativeFrameAnchor = { file: name, startAtMs,
-          endAtMs: Date.now() };
-      }
-    }
-    // Real screenshot of the same LIVE and unmodified viewport at a genuine
-    // terminal observation. Capture no more than two such frames per outcome
-    // viewport: prove the non-interactive DOM card actually paints, rather
-    // than awarding integrity from source run-token transitions alone.
-    if (scenario === 'outcome' && observation.observedResultCard?.visible &&
-      observations.filter(o => o.observedResultCard?.fullViewportScreenshot).length < 2) {
-      const name = 'live-result-visible-' + String(index).padStart(3, '0') + '.png';
-      await page.screenshot({ path: path.join(dir, name), timeout: 90000 });
-      observation.observedResultCard.fullViewportScreenshot = name;
-    }
+    // No synchronous Playwright screenshots while the original WebM is live.
+    // Actual 2026-11-09 candidate danger film showed the source's floor-nine
+    // transition ~2 seconds before its first visible HUD change. The old
+    // canvas/full screenshots cost multiple seconds apiece on software WebGL
+    // and can starve browser polling while the independent host keeps ticking.
+    // Keep observational DOM/source samples; passive CDP compositor frames
+    // above are independently matched against unedited native WebM afterward.
+    // This removes a real capture contaminant, not evidence of a game fix.
     observations.push(observation);
   }
   // Neutral, passive evidence observer. The original game and source server
@@ -447,8 +428,8 @@ for (const viewport of viewports) {
     return response?.ok()?response.json():null;
   },{cadenceMs:5000});
   await sourceTraceObserver.start();
-  // Do not let the first potentially 90s WebGL screenshot delay source
-  // collection. The native browser recorder was already running.
+  // Source collector begins before the first browser diagnostic observation.
+  // No screenshots are performed inside the recorded source window.
   await sample(0);
   while (true) {
     const decision = captureWindowDecision(scenario,
@@ -543,9 +524,25 @@ for (const viewport of viewports) {
       largestProjectedForegroundCandidates:foregroundCandidates,
       verdict:'NOT EVALUATED',
       caveat:'Source/render camera footprint evidence only. A broad AABB is conservative; field names do not prove actual pixels, WebM timecode alignment or a quality preference.'},null,2));
+  // Source-independent, nonblocking original compositor evidence. Validate
+  // the actual archived JPEG bytes before using a frame as a scoped integrity
+  // witness. A distinct hash alone never proves visual gameplay quality.
+  const compositorFrameEvidence = compositorAnchors.anchors.flatMap(anchor => {
+    if(anchor.witness !== 'unaltered-Chromium-compositor-CDP-frame' ||
+       anchor.startAtMs !== anchor.endAtMs ||
+       !/^compositor-frame-\\d{2}\\.jpg$/.test(anchor.file)) return [];
+    const file = path.join(dir, anchor.file);
+    let bytes;
+    try { bytes = fs.readFileSync(file); } catch { return []; }
+    if(bytes.length < 128 || bytes.length > 2_000_000 ||
+       bytes[0] !== 0xff || bytes[1] !== 0xd8 ||
+       bytes[bytes.length-2] !== 0xff || bytes[bytes.length-1] !== 0xd9)
+      return [];
+    return [{...anchor,sha256:createHash('sha256').update(bytes).digest('hex')}];
+  });
   const assessment = assessTowerMotion(observations, {
     minDurationMs: 60000, requireOutcomeRestart: scenario === 'outcome',
-    outcomeWitness,
+    outcomeWitness, compositorFrameEvidence,
   });
   // The shared CI host can now witness every REAL fixed simulation tick,
   // including the frozen baseline's 50ms result. This trace is comparison
@@ -636,12 +633,12 @@ for (const viewport of viewports) {
       item.observedResultCard.runToken === item.runToken).length,
     nonInteractiveVisibleCards: observations.filter(item =>
       item.observedResultCard?.visible && item.observedResultCard?.pointerPassThrough).length,
-    realFullViewportResultStillCount: observations.filter(item =>
-      item.observedResultCard?.fullViewportScreenshot).length,
-    note: 'Original source result-card is visually painted but non-interactive; inherited pointer-events:none makes elementFromPoint skip it. Verify ancestor cascade and actual viewport, archive 2 untouched full-frame result stills, and independently inspect original WebM. Source 50ms result may fall between samples; intermission is authentic.',
+    realFullViewportResultStillCount: 0,
+    passiveOriginalCompositorFrameCount: compositorFrameEvidence.length,
+    note: 'Original source result-card is non-interactive; inherited pointer-events:none makes elementFromPoint skip it. Passive real DOM/card witnesses and original CDP compositor JPEGs are archived without blocking WebGL screenshot stalls. Neither proves the result appears in the unmodified WebM; review the entire original film before outcome acceptance.',
   };
   fs.writeFileSync(path.join(dir, 'motion.json'), JSON.stringify({
-    method: 'Real live unmodified host at nominal 20 authoritative ticks/s; browser video and distinct WebGL canvas captures; CI software renderer, not intended device',
+    method: 'Real unmodified 20Hz host with native original WebM and passive Chrome compositor witnesses; zero blocking WebGL screenshots during filming; not intended-device evidence',
     sourceSha: process.env.TOWER_CAPTURE_SOURCE_SHA || process.env.GITHUB_SHA || null,
     seed: process.env.TOWER_SEED || 'tower-stream-reference',
     scenario, launchFloor: process.env.TOWER_LAUNCH_FLOOR || '0',
@@ -654,7 +651,7 @@ for (const viewport of viewports) {
       ...captureWindowDecision(scenario,
         Date.now() - recordingStartedAt, sourceStory.sameEpisodeSourceSequenceObserved),
       sourceType: sourceLabel,
-      windowMethod: 'absolute real-wall deadlines; source polled independently from screenshot stalls; native uncut footage',
+      windowMethod: 'absolute real-wall deadlines; zero blocking screenshots inside live film; native original WebM and passive compositor witness',
       provisionalStoryAtLastProbe: liveStoryCoverage,
       caveat: 'Real source milestones are NOT timecode-calibrated WebM pixels, playability or independent verdicts.',
     },
@@ -700,15 +697,13 @@ for (const viewport of viewports) {
     ? createHash('sha256').update(originalWebMBytes).digest('hex') : null;
   const originalWebMByteCount = originalWebMBytes?.length ?? null;
   // Native PTS is NOT Date.now() - recordingStartedAt: Chromium's recorder
-  // starts before the first source observation, and screenshots can block.
+  // starts before the first source observation. Passive CDP timestamps avoid
+  // introducing the very software-WebGL screenshot stalls being measured.
   // A separate optional offline tool pixel-matches genuine viewport stills
   // against original WebM frames and rejects missing/ambiguous clock anchors.
   // No extra overlay, video edit, altered source, fake event or accelerated tick.
-  const anchors = [
-    ...compositorAnchors.anchors,
-    ...observations.filter(o => o.nativeFrameAnchor)
-      .map(o => o.nativeFrameAnchor),
-  ].map(anchor => ({...anchor,file:path.join(dir,anchor.file)}));
+  const anchors = compositorAnchors.anchors.map(anchor =>
+    ({...anchor,file:path.join(dir,anchor.file)}));
   const nativeVideoTimebase = calibrateOriginalVideo({
     video:originalWebMPath, anchors,
     sourceTicks:passiveSourceTicks.ticks,
