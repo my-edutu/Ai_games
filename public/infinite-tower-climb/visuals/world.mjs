@@ -1057,7 +1057,13 @@ export function createTowerWorld(){
     // world geometry (not camera HUD, x-ray, teleport, or hidden hazard).
     // Keep the original rotor mechanics, parallax, materials, draw budget and
     // all unchanged physical routes, guardian, gate and gameplay snapshots.
-    const clock=new THREE.Group();radial(clock,-2.26,18.6,20);
+    // Source-pinned 390x844 guardian footage at 994541e4 still shows this
+    // massive non-colliding wheel swallowing the real hero/guardian shot at
+    // ~14–18s. Rebuild its physical hierarchy BELOW the real cap approach,
+    // rather than adding another conditional transparency rule. The original
+    // rim, animated rotor, daylight openings and materials remain in 3D.
+    const clock=new THREE.Group();radial(clock,-2.49,19.2,12.5);
+    clock.scale.set(.72,.76,.72);
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
@@ -1067,14 +1073,23 @@ export function createTowerWorld(){
     openClockRim(clock,5.8,.11,materials.edge,1);
     const markers=[];for(let i=0;i<12;i++){const a=i/12*TAU;markers.push({p:[Math.sin(a)*5.45,Math.cos(a)*5.45,1],s:[.2,.65,.16],r:[0,0,-a]});}instanced(clock,bevel(),materials.edge,markers);
     const main=gear(clock,4.8,.45,materials.copper);main.position.z=1.2;rotors.push({o:main,speed:.045});
-    for(const [a,y,size,speed]of [[-2.38,7,3.6,-.11],[2.34,31,3.1,.15]]){
-      const root=new THREE.Group();radial(root,a,21.3,y);floorGroup.add(root);
+    // Stage the three real decorative machines as a low left mechanism,
+    // reduced central monument and high right landmark. Their angular and
+    // height separation leaves real negative space at the cap encounter.
+    for(const [a,y,size,speed,scale]of [[-2.20,5.5,3.6,-.11,.84],[2.34,31,3.1,.15,.88]]){
+      const root=new THREE.Group();radial(root,a,21.3,y);
+      root.scale.setScalar(scale);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
       const g=gear(root,size,.42,materials.copper);rotors.push({o:g,speed});
       openClockCase(root,size*1.9,size*2.1);
       linkClockFaceScenery(foregroundGears.find(entry => entry.root===g),root,floorMaterials);
     }
-    const rack=new THREE.Group();radial(rack,-2.18,20.4,15);rack.name='clockwork-far-shoulder-power-rack';floorGroup.add(rack);
+    // Keep the original open, 42-unit authoring-space toothed rack, but
+    // stage its rendered mass below and aside from the actual guardian arc.
+    // No gameplay-driven mechanical deck or collider is affected.
+    const rack=new THREE.Group();radial(rack,-1.91,20.4,6);
+    rack.scale.set(.70,.72,.84);
+    rack.name='clockwork-far-shoulder-power-rack';floorGroup.add(rack);
     // The actual forty-two-unit solid decorative rack was outside the gear
     // registry, so an orbiting camera could still see a complete opaque wall.
     // Own its two materials separately from ALL structural and lethal meshes.

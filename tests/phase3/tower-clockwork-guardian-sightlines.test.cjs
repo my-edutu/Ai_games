@@ -487,3 +487,46 @@ test('real clockwork power rack has a source-independent transparent structural 
       'decorative rack retires cleanly after authentic progression');
   }finally{world.dispose();}
 });
+
+
+test('real Three.js clockwork restages the decorative monument below the guardian lane',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const frame=sourceFrame('clockwork',8),unchanged=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const named=name=>{
+      const object=world.group.getObjectByName(name);
+      assert.ok(object,'real floor-eight world has '+name);
+      return object;
+    };
+    const main=named('clockwork-monumental-left-shoulder');
+    const lower=named('clockwork-lower-left-shoulder');
+    const upper=named('clockwork-upper-right-shoulder');
+    const rack=named('clockwork-far-shoulder-power-rack');
+    assert.ok(main.position.y+8*main.scale.y<19 &&
+      main.scale.x<=.76&&main.scale.z<=.76,
+      'the large 3D clock frame must no longer climb into cap combat height');
+    assert.ok(rack.position.y+21*rack.scale.y<23,
+      'the actual 42-unit authoring-space rack must sit below the earned cap');
+    assert.ok(Math.abs(Math.atan2(main.position.x,main.position.z)-
+      Math.atan2(rack.position.x,rack.position.z))>=.5,
+      'the clock and rack must not form a single opaque angular wall');
+    assert.ok(lower.position.y<main.position.y &&
+      upper.position.y>main.position.y+10,
+      'original distinct low, middle and high clockwork destinations survive');
+    let rotors=0;
+    world.group.traverse(object=>{
+      if(object.name==='CameraResponsiveDecorativeGear')rotors++;
+    });
+    assert.equal(rotors,3,'retain all three true animated 3D clock mechanisms');
+    assert.equal(world.diagnostics().decorativeSightlineRacks,1,
+      'the source-independent rack keeps its original visibility contract');
+    assert.equal(JSON.stringify(frame),unchanged,
+      'decorative geometry cannot rewrite source-owned combat/progression');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-monumental-left-shoulder'),undefined);
+    assert.equal(world.group.getObjectByName('clockwork-far-shoulder-power-rack'),undefined);
+  }finally{world.dispose();}
+});
