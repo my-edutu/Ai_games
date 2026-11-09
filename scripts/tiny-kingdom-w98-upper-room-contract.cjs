@@ -10,6 +10,9 @@ function functionBody(name) {
 }
 const house=functionBody('compactHouse');
 const street=functionBody('medievalStreetMorphology');
+// W166: the real facade now uses the shared profile function. Extract that
+// unchanged production helper instead of testing an obsolete broken scope.
+const profile=functionBody('houseVisualProfile');
 assert.match(house,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/,
  'Complete upper-room volume, not a front-only facade');
 assert.doesNotMatch(street,/box\(x,y\+1\.55,front-\.06,w\*\.82,h-1\.62,\.24,plaster\)/,
@@ -37,6 +40,7 @@ function sample(style,variant) {
     data.length+=courses*2*4*30;villageVisualLod.compactRoofCourses+=courses*2;
     villageVisualLod.compactRoofTiles+=courses*2*4
    };
+  ${profile}
   ${house}
   ${street}
   compactHouse(3,-7,${variant});
