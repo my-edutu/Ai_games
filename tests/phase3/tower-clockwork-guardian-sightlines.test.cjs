@@ -271,7 +271,8 @@ test('camera forensic evidence is bounded to the actual four original decorative
     for(const s of evidence){
       assert.equal(s.sourceTick,source.tick);
       assert.equal(typeof s.name,'string');
-      assert.ok(s.name.startsWith('clockwork-'));
+      assert.ok(s.name.length>0&&!s.name.includes('undefined'),
+        'real source assembly identity is retained even when its parent is batched');
       assert.ok(s.screenCoverage>=0 && s.screenCoverage<=1);
       assert.ok(s.sourceActorDepth>0 && Number.isFinite(s.sourceActorDepth));
       assert.ok(s.intendedAlpha>=0 && s.intendedAlpha<=1);
@@ -304,7 +305,8 @@ test('recording harness preserves clean gameplay video while saving the separate
   assert.match(capture,/camera-occlusion-forensics\.json/);
   assert.match(capture,/originalGameplayVideoUnmodified:true/);
   assert.match(capture,/videoClockCalibration:'NOT EVALUATED'/);
-  assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
+  assert.match(capture,/const originalWebMPath = path\.join\(dir, 'live\.webm'\)/);
+  assert.match(capture,/if \(video\) await video\.saveAs\(originalWebMPath\)/);
 });
 
 test('overlapping real foreground clock/rack assemblies share a single bounded portrait alpha budget',()=>{

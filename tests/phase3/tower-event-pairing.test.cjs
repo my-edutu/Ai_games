@@ -176,7 +176,10 @@ test('full-length native danger WebM with a split guardian episode is NOT source
  candidate.index.events[2].observedEpisode=1;
  candidate.motion.actualWallSeconds=132;
  const report=auditPairs([baseline,candidate],'c'.repeat(40));
- assert.equal(report.provenanceDefects.length,0);
+ assert.equal(report.provenanceDefects.length,1,
+   'a split episode with a later return to an earlier episode is a provenance violation');
+ assert.ok(report.provenanceDefects[0].faults.some(f=>
+   f.includes('nonmonotonic-source-episode-index')));
  assert.equal(report.sourceStoryDefects.length,1);
  assert.equal(report.comparisons[0].sourceStorySequenceObserved,false);
  assert.deepEqual(report.sourceStoryDefects[0].candidateMissingBeats,[]);

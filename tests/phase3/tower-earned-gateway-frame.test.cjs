@@ -101,6 +101,9 @@ test('actual native 3D follow rig extends both physically earned lens and foregr
   assert.match(source,/observedAirborneGatewayShot\(snapshot, liveExit, camera\.aspect, zoom\)/);
   assert.match(source,/sourceEarnedWalk \|\| sourceAirborneWalk \|\| sourceLastStand/);
   assert.match(source,/!!sourceAirborneWalk\?\.realAirborneCap/);
-  assert.match(source,/gatewayEarned && sourceAirborneWalk && actionStage\?\.kind !== 'hazard'/);
+  assert.match(source,/airborneGateway:sourceAirborneWalk\?\.realAirborneCap === true/);
+  assert.match(source,/sightlinePriorities\.arrival\?observedLandingSightline:/);
+  assert.match(source,/sightlinePriorities\.gate&&sightlinePriorities\.arrival/);
+  assert.match(source,/\?earnedGatewayFocus:null\)/);
   assert.match(source,/\(!protectArrival \|\| !!sourceAirborneWalk\)/);
 });

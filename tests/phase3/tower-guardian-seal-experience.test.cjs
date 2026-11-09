@@ -248,10 +248,10 @@ test('guardian approach anchors one stationary physical gate without relocating 
     const cap = sourceFrame.platforms.find(platform => platform.id.endsWith(':cap'));
     const original = JSON.stringify(sourceFrame);
     const x = guardianGateAnchorX(sourceFrame, cap);
-    assert.equal(x, cap.x + 40000,
-      'the fixed encounter approach places the lock within the real cap bounds');
-    assert.ok(x < cap.x + cap.width / 2 - 40000,
-      'do not leave the guardian-facing lock at a distant cap midpoint');
+    assert.equal(x, sourceFrame.guardianExitX,
+      'source-authored clearance anchors the real lock, never enemy movement');
+    assert.ok(x > cap.x + cap.width / 2 && x < cap.x + cap.width,
+      'the source-backed gate remains on the actual traversable cap rather than a staged midpoint');
     world.update(sourceFrame, .016, 0, { quality: 'low' });
     const gate = named(world.group, 'AuthoritativeGuardianGate');
     const deck = named(world.group, `platform:f${sourceFrame.floor}:cap`);

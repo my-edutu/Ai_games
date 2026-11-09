@@ -89,8 +89,19 @@ test('ordinary biomes, reduced-motion and full restart never leave a phantom tra
     const camera=new THREE.PerspectiveCamera(42,1.6,.2,1200);
     camera.position.copy(root.localToWorld(new THREE.Vector3(0,3.4,22)));
     world.protectRouteSightlines(camera,subject,null,null,.05,{reducedMotion:true});
-    assert.ok(world.diagnostics().occludedForegroundGears>=1,
-      'reduced motion retains steady static line-of-sight protection');
+    const reduced=world.diagnostics();
+    assert.equal(reduced.decorativeOcclusionEvidence.length,4);
+    for(const entry of reduced.decorativeOcclusionEvidence){
+      assert.equal(entry.renderedAlpha,entry.intendedAlpha,
+        'reduced motion applies exact observed geometry opacity without temporal interpolation');
+      assert.equal(entry.raySamples,entry.rayBoundsRejects+entry.rayNarrowphaseChecks);
+    }
+    if(reduced.decorativeOcclusionEvidence.some(e=>e.rayContactCount>0))
+      assert.ok(reduced.occludedForegroundGears>=1,
+        'physical ray impact must still protect sightlines under reduced motion');
+    else assert.equal(reduced.occludedForegroundGears,
+      reduced.decorativeOcclusionEvidence.filter(e=>e.intendedAlpha<.985).length,
+      'an open mechanical aperture must not invent an exact triangle obstruction');
     world.update(sourceFrame('ruins',1),.016,1,{});
     assert.equal(world.diagnostics().decorativeSightlineGears,0,
       'new floor retires original rotor materials and sightline state');
