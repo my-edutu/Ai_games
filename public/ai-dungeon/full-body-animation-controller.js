@@ -136,7 +136,15 @@ export function advanceFullBodyController(previous=null,{
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
   requestedOneShot?authorityAction:holding?priorOneShot:
   authorityAction==='guard'?'guard':walking?'move':'idle';
- const visualActionTick=holding?previous.actionTick:actionTick;
+ // The renderer may hold one witnessed positive-HP-loss beat while the
+ // authoritative heartbeat advances actionTick on every 350ms snapshot.
+ // Source Hit_A belongs to the HP-drop EVENT, not the unrelated current
+ // public tick: otherwise its skeleton and weapon snap back to impact.
+ // A subsequent genuine HP drop carries a new eventTick and may restart.
+ const damageEventTick=injury&&Number.isSafeInteger(damageBeat?.eventTick)&&
+  damageBeat.eventTick>=0?damageBeat.eventTick:null;
+ const visualActionTick=holding?previous.actionTick:
+  mode==='hurt'&&damageEventTick!==null?damageEventTick:actionTick;
  const clipAction=mode==='evade'?'idle':mode;
  const beatAge=mode==='hurt'&&injury?damageBeat.age:
   mode==='evade'?evasionBeat.age:holding?inheritedAge:requestedAge;

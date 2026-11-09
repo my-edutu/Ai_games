@@ -58,6 +58,42 @@ test('true positive HP loss interrupts a sword pose, then hands control back',as
  assert.equal(recovered.mode,'attack');assert.equal(recovered.owner.duel,true);
  assert.equal(recovered.interrupted,true);
 });
+test('one witnessed HP loss owns one source Hit_A across subsequent authority ticks',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const beat={id:'hero-1',kind:'vanguard',damage:5,maxHp:30,
+  fatal:false,eventTick:210,age:.08};
+ const first=step(null,frame(hero('idle',210,25),{damageBeat:beat}));
+ assert.equal(first.mode,'hurt');assert.equal(first.actionTick,210);
+ const continuing=step(first,frame(hero('idle',211,25),{
+  damageBeat:{...beat,age:.23}
+ }));
+ assert.equal(continuing.mode,'hurt','the same positive-HP-loss beat remains visible');
+ assert.equal(continuing.actionTick,210,'source clip retains original HP-loss tick');
+ assert.equal(continuing.changed,false,'authority heartbeat is not a second impact');
+ assert.equal(continuing.restarted,false,'Hit_A must not restart at the next server tick');
+ assert.equal(continuing.interrupted,false);
+ assert.equal(continuing.age,.23,'flinch continues toward its original recovery');
+ const newBeat=step(continuing,frame(hero('idle',212,20),{
+  damageBeat:{...beat,eventTick:212,age:.025}
+ }));
+ assert.equal(newBeat.mode,'hurt');
+ assert.equal(newBeat.actionTick,212);
+ assert.equal(newBeat.restarted,true,'a separate real HP drop may start a fresh Hit_A');
+ assert.equal(newBeat.interrupted,true);
+ const after=step(newBeat,frame(hero('idle',213,20),{
+  damageBeat:{...beat,eventTick:212,age:.18}
+ }));
+ assert.equal(after.restarted,false,'newer beat does not replay every heartbeat');
+ assert.equal(after.actionTick,212);
+ const released=step(after,frame(hero('idle',213,20),{
+  damageBeat:{...beat,eventTick:212,age:.57}
+ }));
+ assert.equal(released.mode,'idle','expired injury must release physical pose');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/if\(damage\)a\.damageBeat=\{\.\.\.damage,eventTick:s\.tick,age:/,
+  'the production viewer stamps ONLY planAuthorityDamageBeats witnesses');
+});
+
 test('no counterfeit damage, evade or defeat from invalid beats',async()=>{
  const {advanceFullBodyController:step}=await load();
  for(const damageBeat of [null,{id:'hero-1',kind:'vanguard',damage:0,maxHp:30,age:.1},
