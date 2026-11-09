@@ -1,3 +1,9 @@
+# Pass220 — original full-frame pressure critic and paired physical tide-shear talons (2026-11-09 UTC)
+
+- Verified exact Pass219 WebGL [42638290313](https://github.com/my-edutu/Ai_games/actions/runs/42638290313) SUCCESS on `013fb686`: source-bound original 37 PNGs, 35 individual sidecars matched byte SHA256 (two gate pair PNGs lack individual sidecars), strict six-run budget PASS, 320 real pressure physical right +.858013 inside original ±.95. Original 390/1280 full-frame criticism REJECTS tiny red-pole jaws and repetitive square court against official Nintendo reference.
+- NEW original player-visible candidate: re-author the actual two pressure jaws into rooted articulated ivory/bronze hooked shear talons, with broad contrasting danger faces and swept tips, all following the SAME real public relay/shutter clock. Installed-Three morphology/parentage/visibility assertions strengthened. No AI/authority/collision/private-state change, no new geometry classes or looser camera/HUD/resource gates.
+- New exact-head screenshots, full CI and independent visual verdict PENDING; no Nintendo parity claim. [Dated criticism](./maze-3d/pass-220-public-shearing-talons-2026-11-09.md). PR #53 remains OPEN DRAFT, unmerged and undeployed.
+
 # Pass219 — source-bound four-part tideglass pressure-floor iris (2026-11-09 UTC)
 
 - Exact Pass218 [native WebGL 42621333226](https://github.com/my-edutu/Ai_games/actions/runs/42621333226), head `8c5fafc77b9e15915e41847083250f8e2445399c`, artifact 13676188026: original 37/37 native PNG hashes verified against their own UTC sidecars/gate transition manifest. At 320px actual pressure=.99, jaw=.66 radians, hazard physical right +.837809 inside unchanged +.95. In exact 390/1280 screenshot the four-corner clay stage still lacks a legible mechanically changing floor.

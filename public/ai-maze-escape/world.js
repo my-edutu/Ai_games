@@ -2032,37 +2032,39 @@ export function createMazeWorld(options = {}) {
       mesh(jaw, bevel, lightStone, -side * .12, .68, 0, .52, .12, .76);
       mesh(jaw, bevel, danger, -side * .14, .36, .344, .23, .39, .075);
       mesh(jaw, cone, gold, -side * .12, .83, 0, .12, .23, .12);
-      // Original 390px WebGL critique: the existing short clay jaws vanish
-      // among nearby fossil fronds and read as anonymous masonry. Give each
-      // REAL hinged jaw a tall physical warning vane with a warm, pointed
-      // silhouette. The vane is parented to the SAME joint, so an already-
-      // published pressure threat visibly opens rather than merely changing
-      // a HUD badge. Reuse shared geometry/materials, never inspect hidden
-      // neighbors or add a synthetic collision or damage event.
+      // Pass220 actual 320/390/1280 WebGL critique: thin red posts and
+      // scattered metal bars still resemble ruin trim, not an unmistakable
+      // paired shear. Rebuild the TWO existing moving jaws as coherent
+      // bronze-rooted, ivory-faced hooked talons with broad warm danger
+      // inlays. The original public pressure hinge remains the ONLY driver.
+      // Every tip turns with its actual jaw, folds outward, and stays inward
+      // of its original cell-margin pivot; there is no extra threat, damage,
+      // collision, AI instruction or newly disclosed path. Shared pooled
+      // geometry/materials keep the six-reset resource gate unchanged.
       const vane = mesh(jaw, bevel, danger,
-        -side * .18, 1.17, .29, .24, .67, .23, 0, 0, side * .12);
+        -side * .21, 1.12, .26, .37, .76, .24, 0, 0, side * .13);
       vane.name = 'Published tide-shear warning vane';
-      mesh(jaw, bevel, gold,
-        -side * .18, 1.55, .30, .29, .10, .26);
+      mesh(jaw, bevel, lightStone,
+        -side * .27, 1.46, .36, .35, .12, .27);
       const fang = mesh(jaw, cone, amber,
-        -side * .18, 1.77, .30, .15, .40, .15);
+        -side * .25, 1.76, .30, .18, .39, .18, 0, 0, side * .15);
       fang.name = 'Published tide-shear warning fang';
-      // The original 320/390px WebGL review found that only one warning
-      // vane read from the isometric camera: the opposite pivot disappeared
-      // into the masonry. A pair of *front-facing*, inward-rooted blades
-      // makes the existing TWO hinges read as one pressure mechanism. Each
-      // permanently joined arm swings OUTWARD with its real jaw as Pip
-      // approaches, exposing the open route between them. These are physical
-      // Three meshes inside an already-disclosed cell, never a new hazard or
-      // a hint about undiscovered tiles. Inset the near edges rather than
-      // extending the cell bounds to preserve the narrow portrait framing.
+      // Continuous diagonal bronze shoulder: a real supporting arm joins
+      // the ground hinge to its broad ivory blade rather than leaving a
+      // floating spike. It remains fixed to the same joint at every phase.
       const forearm = mesh(jaw, bevel, darkMetal,
-        -side * .30, .60, .48, .58, .15, .18, 0, 0, -side * .22);
+        -side * .36, .64, .45, .66, .23, .25, 0, 0, -side * .31);
       forearm.name = 'Published tide-shear inward brace';
-      const blade = mesh(jaw, bevel, danger,
-        -side * .43, 1.04, .49, .17, .83, .14, 0, 0, side * .16);
+      const blade = mesh(jaw, bevel, lightStone,
+        -side * .47, 1.06, .48, .36, .87, .23, 0, 0, side * .20);
       blade.name = 'Published tide-shear front blade';
-      mesh(jaw, bevel, gold, -side * .43, 1.47, .50, .25, .09, .20);
+      const bladeInlay = mesh(jaw, bevel, danger,
+        -side * .47, 1.09, .61, .19, .67, .07, 0, 0, side * .20);
+      bladeInlay.name = 'Published tide-shear forward danger inlay';
+      mesh(jaw, bevel, gold, -side * .47, 1.50, .50, .28, .09, .23);
+      const hookedTip = mesh(jaw, cone, amber,
+        -side * .50, 1.66, .55, .17, .34, .18, 0, 0, -side * .32);
+      hookedTip.name = 'Published tide-shear hooked ceramic talon';
       trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
     }
   }

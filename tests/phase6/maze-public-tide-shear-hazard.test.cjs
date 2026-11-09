@@ -54,6 +54,22 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
       assert.equal(vane.parent,jaw,'signal follows the real hinge, not a HUD or a floating marker');
       assert.ok(vane.position.y>1 && fang.position.y>vane.position.y,
         'original signal must remain tall enough to stand apart from same-color miniature masonry');
+      const blade=jaw.getObjectByName('Published tide-shear front blade');
+      const inlay=jaw.getObjectByName('Published tide-shear forward danger inlay');
+      const talon=jaw.getObjectByName('Published tide-shear hooked ceramic talon');
+      const brace=jaw.getObjectByName('Published tide-shear inward brace');
+      assert.ok(blade?.isMesh && inlay?.isMesh && talon?.isMesh && brace?.isMesh,
+        'the actual pressure hinge must own one complete broad ivory/bronze danger claw');
+      assert.ok([blade,inlay,talon,brace].every(part=>part.parent===jaw),
+        'a joined talon follows the true moving pressure joint, not an invented HUD event');
+      assert.ok(blade.scale.x>=.34 && blade.scale.y>=.84 && inlay.scale.y>=.60,
+        'the primary danger face is substantial enough to be meaningful in real portrait output');
+      assert.ok(brace.scale.x>=.60 && talon.position.y>blade.position.y,
+        'connected diagonal shoulder ends in a distinct swept tooth');
+      assert.notEqual(blade.material,inlay.material,
+        'the claw has an ivory silhouette and a separate contrasting real danger face');
+      assert.ok(Math.abs(blade.position.x)+blade.scale.x/2<.80,
+        'inward claw geometry stays inside the actual published tile-margin hinge');
     }
     const pos=source.cellPosition(4,3,3),ground=source.cellHeight(4,3,3);
     const hero=new THREE.Vector3(pos.x,ground,pos.z);
