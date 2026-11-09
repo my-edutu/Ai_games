@@ -177,7 +177,17 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
     // The previous film showed very small individual render calls but starved
     // requestAnimationFrame callbacks. Exercise the ORIGINAL scene frame loop.
     duration = 12;
-    for (let i = 0; i < 10; i++) scheduled(now + 240);
+    // The original mock renderer advances performance.now() by only 12ms.
+    // A scheduled(now + 240) call alone does NOT emulate a delayed rAF: the
+    // next callback would still arrive just 12ms after the preceding one.
+    // Advance BOTH the wall clock and callback timestamp by 240ms, leaving
+    // each actual WebGL scene call at 12ms, as witnessed in the phone film.
+    let callbackAt = now;
+    for (let i = 0; i < 10; i++) {
+      callbackAt += 240;
+      now = callbackAt;
+      scheduled(callbackAt);
+    }
     assert.equal(view.diagnostics().renderFault.state, 'live',
       'the original scene must submit live real 3D frames after graphic tier/orientation changes: ' +
       JSON.stringify(view.diagnostics().renderFault));
