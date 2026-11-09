@@ -91,6 +91,46 @@ export function observedPortraitDecorativeEnvelope({
   return x>.56&&y>.58 ? .14 : .36;
 }
 
+// Native 390x844 danger footage (42610816382, candidate) still spends
+// several seconds with a source-independent clock face occupying the action.
+// The older *foreground-only* safety veto reported full opacity for the
+// same clock when its nearest bound was behind the actor. That is physically
+// correct for occlusion but still visually buries the actor/guardian/gateway
+// composition in a tall phone crop. This separate stage-presence policy
+// de-emphasizes ONLY decorative non-colliding scenery whose observed
+// projected screen envelope competes with TWO genuine source endpoints.
+// It never alters moving decks, combat, hazards, traversal or the camera.
+// No fake actors, predicted routes or unearned gateway triggers are created.
+export function observedPortraitActionBackdropOpacity({
+  aspect, bounds, actor, partners, partnerCount, coverage,
+}) {
+  if (![aspect,coverage,bounds?.minX,bounds?.maxX,bounds?.minY,bounds?.maxY,
+    actor?.x,actor?.y,actor?.z].every(Number.isFinite) ||
+    aspect<=.35 || aspect>=.85 || coverage<.22 || coverage>1 ||
+    !Array.isArray(partners) || !Number.isSafeInteger(partnerCount) ||
+    partnerCount<1 || partnerCount>4 ||
+    bounds.minX>bounds.maxX || bounds.minY>bounds.maxY ||
+    actor.z< -1 || actor.z>1 || Math.abs(actor.x)>.94 ||
+    Math.abs(actor.y)>.9) return 1;
+  const left=Math.max(-.82,bounds.minX),right=Math.min(.82,bounds.maxX);
+  const bottom=Math.max(-.78,bounds.minY),top=Math.min(.78,bounds.maxY);
+  if(right-left<.5 || top-bottom<.48)return 1;
+  for(let i=0;i<partnerCount;i++){
+    const target=partners[i];
+    if(!target || ![target.x,target.y,target.z].every(Number.isFinite) ||
+       target.z< -1 || target.z>1 || Math.abs(target.x)>.95 ||
+       Math.abs(target.y)>.92)continue;
+    const centerX=(actor.x+target.x)*.5;
+    const centerY=(actor.y+target.y)*.5;
+    const actorCovered=actor.x>=left-.08 && actor.x<=right+.08 &&
+      actor.y>=bottom-.08 && actor.y<=top+.08;
+    const storyCovered=centerX>=left-.08 && centerX<=right+.08 &&
+      centerY>=bottom-.08 && centerY<=top+.08;
+    if(actorCovered || storyCovered)return coverage>=.33?.30:.46;
+  }
+  return 1;
+}
+
 // A decorative clock face is a STACK of overlapping wheel, spindle, dial,
 // plate and bezel surfaces. Giving every surface 42% alpha can still leave a
 // nearly opaque curtain across the tiny live actor. Bound the combined opacity
@@ -1791,7 +1831,8 @@ export function createTowerWorld(){
       }
     }
     for(const entry of decorativeSightlines){
-      let requiredOpacity=1, softByProjection=false, softByCorridor=false;
+      let requiredOpacity=1, softByProjection=false, softByCorridor=false,
+        softByBackdrop=false;
       let projectedScreenCoverage=0, sceneFrontDepth=null, rayContactCount=0,
         rayBoundsRejects=0, rayNarrowphaseChecks=0,
         projectedNearPlane=false, projectedActorFront=false, screenBounds=null;
@@ -1933,11 +1974,27 @@ export function createTowerWorld(){
           }
         }
       }
+      // A true action has at least two source-selected endpoints. A giant
+      // backdrop may monopolize the phone shot even when its nearest world
+      // bound sits behind the actor, so exact front-only ray tests cannot
+      // address this distinct visual-readability failure.
+      if(enabled && screenBounds && !projectedActorFront &&
+          rayContactCount===0) {
+        const backdrop=observedPortraitActionBackdropOpacity({
+          aspect:camera.aspect,bounds:screenBounds,actor:corridorFrom,
+          partners:corridorTo,partnerCount:corridorCount,
+          coverage:projectedScreenCoverage,
+        });
+        if(backdrop<requiredOpacity){
+          requiredOpacity=backdrop;softByProjection=true;
+          softByBackdrop=true;
+        }
+      }
       // Keep the decision until ALL current foreground assemblies have been
       // projected. Old one-by-one alpha could never bound multi-wheel stacking.
       pendingDecorativeOpacity.push({
         entry,rawOpacity:requiredOpacity,screenBounds,projectedActorFront,
-        softByProjection,softByCorridor,projectedScreenCoverage,
+        softByProjection,softByCorridor,softByBackdrop,projectedScreenCoverage,
         sceneFrontDepth,projectedNearPlane,rayContactCount,actorDepth,
         rayBoundsRejects,rayNarrowphaseChecks,
       });
@@ -1947,16 +2004,17 @@ export function createTowerWorld(){
     // Real player, guardian, collidable decks, pressure traps and exit unchanged.
     for(const decision of pendingDecorativeOpacity){
       const {entry,screenBounds,projectedActorFront,softByProjection,
-        softByCorridor,projectedScreenCoverage,sceneFrontDepth,
+        softByCorridor,softByBackdrop,projectedScreenCoverage,sceneFrontDepth,
         projectedNearPlane,rayContactCount,actorDepth,
         rayBoundsRejects,rayNarrowphaseChecks}=decision;
       let companions=0;
       if(decision.rawOpacity<1 && screenBounds &&
-          (projectedActorFront || rayContactCount>0)){
+          (projectedActorFront || rayContactCount>0 || softByBackdrop)){
         for(const other of pendingDecorativeOpacity){
           if(other===decision || other.rawOpacity>=1 ||
              !other.screenBounds ||
-             !(other.projectedActorFront || other.rayContactCount>0))continue;
+             !(other.projectedActorFront || other.rayContactCount>0 ||
+                other.softByBackdrop))continue;
           if(observedScreenEnvelopeOverlap(screenBounds,other.screenBounds))
             companions++;
         }
@@ -1991,6 +2049,7 @@ export function createTowerWorld(){
           raySamples:rayBoundsRejects+rayNarrowphaseChecks,
           cameraProjectionSoftened:softByProjection,
           actionCorridorSoftened:softByCorridor,
+          decorativeBackdropSoftened:softByBackdrop,
           sourceActionEndpoints:corridorCount,
           sourceHazardObserved:!!hazard,
           stackedForegroundCompanions:companions,

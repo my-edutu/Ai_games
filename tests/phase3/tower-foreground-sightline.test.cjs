@@ -284,3 +284,39 @@ test('authentic clockwork upper-cap spectacle is flanked outside the playable gu
     assert.equal(source.floor,8,'art direction cannot mutate fixed-step source truth');
   }finally{world.dispose();}
 });
+
+test('real portrait guardian action gives an oversized noncolliding CLOCKWORK backdrop one bounded composite budget even behind the hero',async()=>{
+  const [,{observedPortraitActionBackdropOpacity:opacity}]=await loaded;
+  const photographed={
+    aspect:390/844,
+    bounds:{minX:-.7,maxX:.7,minY:-.62,maxY:.65},
+    actor:{x:.12,y:-.12,z:.3},
+    partners:[{x:-.24,y:.3,z:.5}],
+    partnerCount:1,
+    coverage:.351,
+  };
+  assert.equal(opacity(photographed),.30,
+    'source-owned boss stage must not disappear behind an opaque decorative BACKDROP merely because its bound is farther than the hero');
+  assert.equal(opacity({...photographed,coverage:.25}),.46,
+    'smaller photographic competition uses a restrained fade');
+  assert.equal(opacity({...photographed,aspect:960/600}),1,
+    'desktop architectural spectacle must remain unchanged');
+  assert.equal(opacity({...photographed,coverage:.12}),1,
+    'small background mechanisms must remain solid');
+  assert.equal(opacity({...photographed,partnerCount:0}),1,
+    'an isolated robot does not synthesize a boss/gateway story');
+  assert.equal(opacity({...photographed,partners:[{x:1.7,y:0,z:.3}]}),1,
+    'off-screen action partners do not justify fading architecture');
+  assert.equal(opacity({...photographed,actor:{x:1.3,y:0,z:.2}}),1,
+    'an off-screen actor cannot request invisible-scene compensation');
+  assert.equal(opacity({...photographed,bounds:{minX:.82,maxX:.96,minY:-.2,maxY:.1}}),1,
+    'a decorative edge must stay solid');
+  assert.equal(opacity({...photographed,coverage:NaN}),1,
+    'invalid video geometry fails closed');
+  const original=fs.readFileSync(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(original,/observedPortraitActionBackdropOpacity\(\{/);
+  assert.match(original,/decorativeBackdropSoftened:softByBackdrop/);
+  assert.match(original,/other\.softByBackdrop/);
+  assert.match(original,/!projectedActorFront &&\s*rayContactCount===0/);
+});
