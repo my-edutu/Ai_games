@@ -179,7 +179,13 @@ test('no screenshot coverage means no source-event film timecode, even if the so
 test('capture and CI use the same neutral original-video calibration for both frozen and candidate',()=>{
   const capture=fs.readFileSync(path.resolve(__dirname,
     '../browser/tower-live-motion.spec.cjs'),'utf8');
-  assert.match(capture,/nativeFrameAnchor = \{ file: name, startAtMs,/);
+  // The native original WebM must never be stalled by seconds-long software
+  // WebGL canvas/full-page screenshots. Capture BOTH frozen and candidate
+  // with the same passive, source-independent compositor frame witnesses.
+  assert.match(capture,/const compositorAnchors=await beginTowerNativeCompositorAnchors/);
+  assert.match(capture,/compositorFrameEvidence/);
+  assert.match(capture,/compositorAnchors\.anchors\.map/);
+  assert.doesNotMatch(capture,/\b(?:page|canvas)\.screenshot\(/);
   assert.match(capture,/native-video-clock\.json/);
   assert.match(capture,/calibrateOriginalVideo\(\{/);
   assert.match(capture,/sourceTicks:passiveSourceTicks\.ticks/);
