@@ -157,3 +157,55 @@ test('D04 warning cleanup preserves other signals; forged warning and cross-scen
  assert.equal(v.stats().activeDrawCalls,0);
  v.dispose();
 });
+
+test('D04 older release cannot retire the next Warden danger footprint',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const future={...lifecycleCue('boss-warning-final','next-warning',
+  [{x:3,z:3},{x:4,z:3},{x:5,z:3}]),tick:45,
+  detail:{attackTick:48,cells:[{x:3,z:3},{x:4,z:3},{x:5,z:3}]}};
+ assert.equal(v.emit(future),true);
+ const oldRelease={...lifecycleCue('warden-release','prior-release'),tick:43};
+ assert.equal(v.emit(oldRelease),true,'existing signal room still supports release art');
+ assert.equal(v.hasLiveCue(future.id),true,'future danger must survive delayed old release');
+ assert.equal(v.stats().instancesByPool.signal,4);
+ assert.equal(v.stats().retiredWarningMarkers,0);
+ const matchingRelease={...oldRelease,id:'real-next-release',tick:48};
+ assert.equal(v.emit(matchingRelease),true);
+ assert.equal(v.hasLiveCue(future.id),false,'matching actual release retires its own tell');
+ assert.equal(v.stats().retiredWarningMarkers,3);
+ v.dispose();
+});
+
+test('D04 late older warnings cannot replace a newer danger footprint',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const oldCells=Array.from({length:6},(_,i)=>({x:i+2,z:3}));
+ const newCells=[{x:10,z:10},{x:11,z:10},{x:12,z:10}];
+ const older={...lifecycleCue('boss-warning-rising','old-warning',oldCells),
+  tick:41,detail:{attackTick:44,cells:oldCells}};
+ const newer={...lifecycleCue('boss-warning-rising','new-warning',newCells),
+  tick:43,detail:{attackTick:46,cells:newCells}};
+ assert.equal(v.emit(newer),true);
+ assert.equal(v.emit(older),false,'out-of-order previous tell is stale');
+ assert.equal(v.stats().staleWarningCues,1);
+ assert.equal(v.hasLiveCue(newer.id),true);
+ assert.equal(v.stats().instancesByPool.signal,3);
+ assert.equal(v.stats().retiredWarningMarkers,0);
+ v.dispose();
+});
+
+test('D04 same-scene warnings of different actors do not erase each other',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const first={...lifecycleCue('boss-warning-rising','other-actor',[{x:3,z:3}]),
+  tick:42,actorId:'warden-A',detail:{attackTick:45,cells:[{x:3,z:3}]}};
+ const next={...lifecycleCue('boss-warning-final','next-actor',[{x:4,z:4}]),
+  tick:43,actorId:'warden-B',detail:{attackTick:46,cells:[{x:4,z:4}]}};
+ assert.equal(v.emit(first),true);
+ assert.equal(v.emit(next),true);
+ assert.equal(v.hasLiveCue(first.id),true);
+ assert.equal(v.hasLiveCue(next.id),true);
+ assert.equal(v.stats().instancesByPool.signal,2);
+ v.dispose();
+});
