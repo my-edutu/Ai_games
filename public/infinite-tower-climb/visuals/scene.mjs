@@ -2065,6 +2065,7 @@ export function createTowerScene(canvas, settings = {}) {
   // One retained source-hazard sightline, independent of the real selected
   // landing. Neither is allowed to disappear during the same airborne duel.
   const observedHazardSightline = new THREE.Vector3();
+  const observedLandingSightline = new THREE.Vector3();
   const actorSafeProjection = new THREE.Vector3();
   const actorSafePreviousCamera = new THREE.Vector3();
   const actorSafePreviousGaze = new THREE.Vector3();
@@ -3661,7 +3662,7 @@ export function createTowerScene(canvas, settings = {}) {
       observedHazard:actionStage?.kind==='hazard' &&
         [actionStage.x,actionStage.y].every(Number.isFinite),
       earnedGateway:gatewayEarned,
-      airborneGateway:sourceAirborneWalk,
+      airborneGateway:sourceAirborneWalk?.realAirborneCap === true,
     });
     if(protectLiveRoute || protectTerminalScene){
       actorFramePoint.copy(climber.group.position);
@@ -3675,13 +3676,17 @@ export function createTowerScene(canvas, settings = {}) {
       // Actual gate takes precedence over a distant future landing ONLY
       // during the near-roof earned airborne crossing. Crusher warnings and
       // the source-driven enemy still retain their safety priority.
-      if (sightlinePriorities.gate && sourceAirborneWalk) {
-        actorOrbitTarget.copy(earnedGatewayFocus);
-      } else if(sightlinePriorities.arrival){
+      if (sightlinePriorities.arrival) {
         const landing=pointFor(observedSourceLandingX(snapshot,targetPlatform),
           targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,
           snapshot.worldWidth,26.7);
-        actorOrbitTarget.set(landing.x,landing.y,landing.z);
+        observedLandingSightline.set(landing.x,landing.y,landing.z);
+      }
+      if (sightlinePriorities.gate && sourceAirborneWalk?.realAirborneCap === true) {
+        // The gate camera must not erase a physical airborne landing.
+        actorOrbitTarget.copy(earnedGatewayFocus);
+      } else if(sightlinePriorities.arrival){
+        actorOrbitTarget.copy(observedLandingSightline);
       } else if (sightlinePriorities.hazard) {
         // Only when there is no real landing, the hazard is the primary
         // destination. When there IS a landing it remains a separate ray.
@@ -3704,13 +3709,15 @@ export function createTowerScene(canvas, settings = {}) {
       (protectLiveRoute||protectTerminalScene)?actorFramePoint:null,
       protectLiveRoute&&sourceGuardian?guardianRescuePoint:null,
       protectTerminalScene?actorOrbitTarget:
-        protectLiveRoute&&(sightlinePriorities.arrival||sightlinePriorities.gate)
-          ?actorOrbitTarget:null,
+        protectLiveRoute&&sightlinePriorities.arrival?observedLandingSightline:
+        protectLiveRoute&&sightlinePriorities.gate?earnedGatewayFocus:null,
       dt,options,
       (protectLiveRoute||protectTerminalScene)?p.halfHeight/SCALE:0,
       protectLiveRoute&&sourceGuardian&&Number.isFinite(sourceGuardian.halfHeight)
         ?sourceGuardian.halfHeight/SCALE:0,
-      sightlinePriorities.hazard?observedHazardSightline:null);
+      sightlinePriorities.hazard?observedHazardSightline:null,
+      protectLiveRoute&&sightlinePriorities.gate&&sightlinePriorities.arrival
+        ?earnedGatewayFocus:null);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);

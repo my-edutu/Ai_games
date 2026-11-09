@@ -408,8 +408,8 @@ export function createTowerWorld(){
   let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,occludedForegroundClockFaces=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
   let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
-  // The original post-batch foreground protection can sample up to eight
-  // genuine source-body/landing/hazard rays per assembly per presented frame.
+  // The foreground protection can sample at most nine actual body/guardian/landing
+  // hazard/gateway rays per decorative assembly per presented frame.
   // Retain the hit array and reject rays missing the full WORLD AABB before
   // invoking Three.js recursive mesh/triangle intersection. Empty bounds
   // fail open to the old exact path; alpha and all source truth stay unchanged.
@@ -421,8 +421,9 @@ export function createTowerWorld(){
   const screenFocus = new THREE.Vector3();
   const silhouettePoint = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
-  const corridorTo = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
-  const corridorDepths = [0, 0, 0], corridorGuardians = [false, false, false];
+  const corridorTo = [new THREE.Vector3(), new THREE.Vector3(),
+    new THREE.Vector3(), new THREE.Vector3()];
+  const corridorDepths = [0, 0, 0, 0], corridorGuardians = [false, false, false, false];
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
   const sphere=()=>geometry('sphere',()=>new THREE.SphereGeometry(1,10,7));
@@ -1760,7 +1761,7 @@ export function createTowerWorld(){
   // gear teeth as progressively translucent near an authentic subject; actual
   // platforms, guardian, hazards and moving-deck machinery remain opaque.
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
-      actorHalfHeight=0, guardianHalfHeight=0, hazard=null) {
+      actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null) {
     if(disposed)return {total:0,softened:0};
     decorativeOcclusionEvidence.length=0;
     if(!decorativeSightlines.length){
@@ -1772,22 +1773,20 @@ export function createTowerWorld(){
       Number.isFinite(camera.position?.z);
     let softened=0, screenSoftened=0, corridorSoftened=0, clockFacesSoftened=0;
     const pendingDecorativeOpacity=[];
-    const targets=enabled?[actor,guardian,landing,hazard]:[];
+    const targets=enabled?[actor,guardian,landing,hazard,gateway]:[];
     let corridorCount=0, actorDepth=0;
     if(enabled){
       camera.updateMatrixWorld(true);
       corridorFrom.copy(actor).project(camera);
       actorDepth=camera.position.distanceTo(actor);
-      // The real guardian, actual landing and imminent source-observed hazard
-      // are three independent possible action endpoints. A guardian/shutter
-      // fight must not hide the selected landing just because danger exists.
-      // All three projections and their rays are preallocated and bounded.
-      for(let index=0;index<3;index++){
-        const partner=index===0?guardian:index===1?landing:hazard;
+      // The real guardian, source-selected landing, observed trap and earned
+      // gateway are four independent source endpoints with retained buffers.
+      for(let index=0;index<4;index++){
+        const partner=index===0?guardian:index===1?landing:index===2?hazard:gateway;
         if(!partner||![partner.x,partner.y,partner.z].every(Number.isFinite))continue;
         corridorTo[corridorCount].copy(partner).project(camera);
         corridorDepths[corridorCount]=camera.position.distanceTo(partner);
-        corridorGuardians[corridorCount]=index!==1;
+        corridorGuardians[corridorCount]=index===0 || index===2;
         corridorCount++;
       }
     }

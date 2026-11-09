@@ -45,3 +45,21 @@ test('truth flags are boolean, not truthy UI strings', async () => {
   assert.deepEqual(prioritize({live:'yes', observedLanding:1, observedHazard:'hazard'}),
     {arrival:false, hazard:false, gate:false});
 });
+
+test('earned airborne gateway and real landing remain independent in source and 3D render', async () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const root = path.resolve(__dirname,'../..');
+  const scene = fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const world = fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const prioritize = await policy();
+  assert.deepEqual(prioritize({live:true,observedLanding:true,earnedGateway:true,airborneGateway:true}),
+    {arrival:true,hazard:false,gate:true});
+  assert.match(scene,/airborneGateway:sourceAirborneWalk\?\.realAirborneCap === true/);
+  assert.match(scene,/observedLandingSightline\.set\(landing\.x,landing\.y,landing\.z\)/);
+  assert.match(scene,/protectLiveRoute&&sightlinePriorities\.arrival\?observedLandingSightline/);
+  assert.match(scene,/sightlinePriorities\.gate&&sightlinePriorities\.arrival\s*\?earnedGatewayFocus:null/);
+  assert.match(world,/hazard=null, gateway=null\)/);
+  assert.match(world,/const targets=enabled\?\[actor,guardian,landing,hazard,gateway\]:\[\]/);
+  assert.match(world,/for\(let index=0;index<4;index\+\+\)/);
+  assert.match(world,/corridorGuardians\[corridorCount\]=index===0 \|\| index===2/);
+});
