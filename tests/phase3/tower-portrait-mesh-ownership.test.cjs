@@ -66,12 +66,18 @@ test('actual scene probe identifies source-ticked post-batch physical triangles,
   assert.equal(observed[0].probes[0].hits[0].faceIndex,19);
   assert.equal(observed[0].probes[0].hits[0].material,'ClockworkCaseAlloy');
   assert.equal(probe.rays,4,'four known film rays, no unbounded diagnostic scan');
-  assert.equal(probe.observe().length,0,'never raycast twice on the same source tick');
-  assert.equal(probe.rays,4);
+  // Diagnostics is also consumed by the production app every host poll.
+  // Repeat reads must retain real source witnesses, without repeating rays.
+  const repeated=probe.observe();
+  assert.equal(repeated.length,1,'read the same genuine tick without consuming it');
+  assert.equal(repeated[0].tick,300);
+  assert.equal(probe.rays,4,'never raycast twice on the same source tick');
   probe.snapshot.tick=311;
-  assert.equal(probe.observe().length,0,'12-tick throttle on 20 Hz source');
+  assert.equal(probe.observe().length,1,'12-tick throttle retains prior evidence');
+  assert.equal(probe.rays,4);
   probe.snapshot.tick=312;
-  assert.equal(probe.observe().length,1);
+  assert.equal(probe.observe().length,2,'retain both distinct source tick witnesses');
+  assert.deepEqual(Array.from(probe.observe(), w=>w.tick),[300,312]);
   assert.equal(probe.rays,8);
   assert.equal(JSON.stringify({...probe.snapshot,tick:300}),frozen,
     'never mutate the original gameplay run, health or combat');
