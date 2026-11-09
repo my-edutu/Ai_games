@@ -12,6 +12,7 @@
 export const PHYSICAL_FEEDBACK_MAX_CUES = 24;
 export const PHYSICAL_FEEDBACK_MAX_TICK_GAP = 5;
 export const PHYSICAL_FEEDBACK_MAX_EVENT_SCAN = 96;
+export const PHYSICAL_FEEDBACK_MAX_WARNING_MARKERS = 8;
 export const PHYSICAL_FEEDBACK_DELAYS = Object.freeze({
   swing: .12, rangedRelease: .21, spellRelease: .29,
   wardenRelease: .23, verifiedMeleeImpact: .215
@@ -51,6 +52,30 @@ const validTick = v => Number.isSafeInteger(v) && v>=0;
 const validScene = s => s && validTick(s.tick) && validTick(s.run) &&
  Number.isSafeInteger(s.floor) && s.floor>=1 && Array.isArray(s.units);
 const validCoord = n => Number.isInteger(n) && n>=0 && n<256;
+/**
+ * Select a small, stable subset of ACTUAL public Warden danger cells.
+ * Existing authoritative floor tiles still show the entire footprint.
+ * This adds no cells or simulated danger, and never uses the boss location
+ * as a substitute for an unknown threatened area.
+ */
+export function selectPhysicalWarningMarkers(cells){
+ if(!Array.isArray(cells))return Object.freeze([]);
+ const unique=new Map();
+ for(const p of cells.slice(0,300)){
+  if(!p||!validCoord(p.x)||!validCoord(p.z))continue;
+  const key=p.x+':'+p.z;
+  if(!unique.has(key))unique.set(key,{x:p.x,z:p.z});
+ }
+ const ordered=[...unique.values()].sort((a,b)=>a.z-b.z||a.x-b.x);
+ const count=Math.min(PHYSICAL_FEEDBACK_MAX_WARNING_MARKERS,ordered.length);
+ if(count===0)return Object.freeze([]);
+ const selected=[];
+ for(let i=0;i<count;i++){
+  const p=ordered[Math.floor((i+.5)*ordered.length/count)];
+  selected.push(Object.freeze({x:p.x,z:p.z}));
+ }
+ return Object.freeze(selected);
+}
 const validId = n => typeof n==='string' && n.length>0 && n.length<=128;
 const sameIdUnit = (u,v) => u && v && u.kind===v.kind && u.faction===v.faction;
 const point = u => u && validCoord(u.x) && validCoord(u.z) ? {x:u.x,z:u.z}:null;
@@ -203,7 +228,8 @@ export function planPhysicalFeedback(previous,next,{
   const boss=next.units.find(u=>u?.kind==='warden'&&u.hp>0);
   push(w.turnsUntilImpact===1?'boss-warning-final':'boss-warning-rising',next.tick,{
    actorId:boss.id,from:point(boss),verified:true,proof:'authority-warning-window',
-   detail:{shape:w.shape,attackTick:w.attackTick}
+   detail:{shape:w.shape,attackTick:w.attackTick,
+    cells:selectPhysicalWarningMarkers(w.cells)}
   });
  }
  // Real actions may RELEASE sound/weapon motion, never assert an injury.

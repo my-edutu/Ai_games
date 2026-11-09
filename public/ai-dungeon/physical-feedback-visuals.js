@@ -7,6 +7,7 @@
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
 import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
+import {selectPhysicalWarningMarkers} from './physical-feedback-plan.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
 import {planMapFlightClearance} from './occluded-projectile-path.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
@@ -185,7 +186,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(type==='dust'&&(!cell(cue.from)||!cell(cue.to)||
    Math.abs(cue.to.x-cue.from.x)+Math.abs(cue.to.z-cue.from.z)!==1))return false;
   if(reducedMotion&&['trail','dust'].includes(type))return false;
-  const start=anchor(cue,type);
+  // The boss cell is NOT the strike footprint. Ground markers may only
+  // occupy the actual public danger cells, never an inferred radial zone.
+  // Reject a missing/forged footprint instead of drawing a false boss ring.
+  const warningMarkers=cue.visual==='warning'?
+   (cue.proof==='authority-warning-window'?
+    selectPhysicalWarningMarkers(cue.detail?.cells):[]):null;
+  if(warningMarkers&&warningMarkers.length===0){suppressed++;return false}
+  const start=warningMarkers?world(warningMarkers[0],.075):anchor(cue,type);
   if(!start){suppressed++;return false}
   // An aimed target is NOT proof the missile connected. Shorten the rendered
   // flight so an unconfirmed projectile never pierces a target body volume.
@@ -207,7 +215,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(!limitedFlight){suppressed++;blockedFlights++;return false}
    if(limitedFlight.clipped)occludedFlights++;
   }
-  const n=type==='hit'?Math.max(4,Math.min(6,4+Math.floor(clamp(cue.severity,0,1)*2))):
+  const n=warningMarkers?warningMarkers.length:
+    type==='hit'?Math.max(4,Math.min(6,4+Math.floor(clamp(cue.severity,0,1)*2))):
     type==='dust'?2:1;
   const length=clamp(cue.duration,.10,.70),severity=clamp(cue.severity,0,1);
   // Keep the arrow kinetic at short ranges without inventing an impact frame.
@@ -220,7 +229,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(!pool.slots[index])active++;
    const speed=type==='hit'||type==='dust'?spray(cue.id,i):null;
    pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
-    origin:{...start},end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
+    origin:warningMarkers?world(warningMarkers[i],.075):{...start},
+    end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
     flightFraction:limitedFlight?.fraction??1,
     lastHand:type==='trail'?{...start}:null,
