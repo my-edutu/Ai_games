@@ -17381,6 +17381,18 @@ function followRayBlockers(eye,target,roofs){
  }
  return hits;
 }
+// W169: real worker cameras cannot occupy an actual roof or building.
+// Market canopies remain walkable below their physically elevated underside.
+const PHYSICAL_FOLLOW_EYE_KINDS=new Set(['home','hall','granary','craft-district','belfry','street-shop','market-stall','village-market','receiving-hall-roof','granary-porch-roof','arcade','receiving-hall-post','granary-porch-post']);
+function physicalFollowEyeClearance(eye,roofs){
+ if(!Array.isArray(eye)||eye.length!==3||eye.some(v=>!Number.isFinite(v)))return {clear:false,kind:'invalid-eye'};
+ for(const volume of roofs){
+  if(!PHYSICAL_FOLLOW_EYE_KINDS.has(volume.kind))continue;
+  const bottom=volume.bottom??(terrain(volume.x,volume.z)-.22);
+  if(eye[0]>volume.x-volume.rx-.06&&eye[0]<volume.x+volume.rx+.06&&eye[2]>volume.z-volume.rz-.06&&eye[2]<volume.z+volume.rz+.06&&eye[1]>bottom-.06&&eye[1]<volume.top+.10)return {clear:false,kind:volume.kind};
+ }
+ return {clear:true,kind:null};
+}
 // A clear centre ray is not enough: the foreground roof in the real G105
 // recording covered the worker's hands and most of the scene. Inspect the
 // real actor's silhouette and surrounding court at candidate eye positions.
@@ -17875,7 +17887,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
    foregroundVegetationCover:0,vegetationFaceBlockers:0,
-   marketPostSightline,blockers:followRayBlockers(eye,target,roofs)};
+   marketPostSightline,eyeCollision:physicalFollowEyeClearance(eye,roofs),
+   blockers:followRayBlockers(eye,target,roofs)};
  };
  const original=candidate(preferredYaw);
  const offsets=[0,Math.PI/10,-Math.PI/10,Math.PI/5,-Math.PI/5,
@@ -17932,7 +17945,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // genuinely clear exterior camera can see the same working hands.
   const cropEye=realFarmWork&&FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
    shot.eye[0]>=x0&&shot.eye[0]<=x1&&shot.eye[2]>=z0&&shot.eye[2]<=z1);
-  const coarse=shot.blockers*1000+oppositeYard+rearPenalty+crowd*325+
+  const coarse=shot.blockers*1000+
+   (shot.eyeCollision.clear?0:9000)+oppositeYard+rearPenalty+crowd*325+
    (cropEye?650:0)+
    (shot.marketPostSightline?.centerCover||0)*6400+sizePenalty+routeSizePenalty+
    shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
@@ -20309,6 +20323,10 @@ function render(now){requestAnimationFrame(render);
   const nextEye=[focusPoint[0]+Math.sin(nextYaw)*nextRadius,
    terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(nextPitch)*nextZoom,
    focusPoint[1]+Math.cos(nextYaw)*nextRadius];
+  // Avoid multi-second views from inside genuine occupied roof envelopes.
+  const plannedEyeClear=Boolean(plan.eye&&physicalFollowEyeClearance(plan.eye,roofs).clear);
+  const repairEye=plannedEyeClear&&(!physicalFollowEyeClearance(eye,roofs).clear||
+   !physicalFollowEyeClearance(nextEye,roofs).clear);
   // At 2–5 SOFTWARE FPS even a fast orbit can travel through a whole
   // market post for seconds. When a physically clear REAL destination exists
   // and the interpolated view is still blocked, cut to that actual eye.
@@ -20322,7 +20340,8 @@ function render(now){requestAnimationFrame(render);
    (followRayBlockers(nextEye,target,roofs)>0||
     (clearDestination&&(foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42||
     foregroundVegetationProjection(nextEye,plan.target).faceBlockers>0)));
-  if((mustRepairPost||repairGeneral)&&plan.blockers===0){
+  if((repairEye||mustRepairPost||repairGeneral)&&plan.blockers===0&&
+     plannedEyeClear){
    focusPoint=[citizen.x,citizen.z];
    yaw=plan.yaw;pitch=plan.pitch;zoom=plan.zoom;
    if(mustRepairPost){
