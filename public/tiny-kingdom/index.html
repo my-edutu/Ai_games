@@ -2113,6 +2113,9 @@ function prepareForegroundResidents(rows,frame){
  }
  const beforeAll=restingActorCounters();
  const next=new Map(),selected=[],limited=rows.slice(0,FOREGROUND_RESIDENT_MAX);
+ // A moving camera must not permute the same physical citizens in the VBO.
+ // Stable actor slots avoid needless large repacks when perspective changes.
+ limited.sort((a,b)=>a.i-b.i);
  let total=0;
  for(const {p,i} of limited){
   const walkingSkin=isForegroundWalkingSkinCandidate(p,i,frame);
@@ -19990,8 +19993,24 @@ function selectVisibleCitizenDetail(){
   .sort((a,b)=>b.heightFraction-a.heightFraction||
    Math.abs(a.screenX)+Math.abs(a.screenY)-
    Math.abs(b.screenX)-Math.abs(b.screenY)||a.i-b.i);
+ // Camera-bounded detail must prioritize TRUE cargo handoffs and contact
+ // actions that the viewer can actually see. No simulated actors or props.
+ // Preserve the existing fixed triangle/rig budget and dominant close face.
+ const largestVisible=onScreen[0]?.heightFraction||0;
+ const visibleWorkContacts=onScreen.filter(row=>{
+  const actor=people[row.i];
+  return row.heightFraction>=Math.max(.052,largestVisible*.48)&&
+   (Boolean(actor.delivery)||isMarketUnloading(actor)||isWorkingAtSite(actor));
+ });
  const selected=[];
  if(anchorIndex>=0)selected.push(anchorIndex);
+ if(onScreen.length&&largestVisible>=.13&&selected.length<budget&&
+    !selected.includes(onScreen[0].i))selected.push(onScreen[0].i);
+ let reservedWorkDetails=0;
+ for(const row of visibleWorkContacts){
+  if(selected.length>=budget||reservedWorkDetails>=2)break;
+  if(!selected.includes(row.i)){selected.push(row.i);reservedWorkDetails++}
+ }
  for(const row of onScreen){
   if(selected.length>=budget)break;
   if(!selected.includes(row.i))selected.push(row.i);
@@ -20010,6 +20029,8 @@ function selectVisibleCitizenDetail(){
   farCount:n-indices.size-midIndices.size,anchorIndex,
   anchorDetailed:anchorIndex<0||indices.has(anchorIndex),
   visibleCandidates:onScreen.length,
+  visibleWorkContacts:visibleWorkContacts.length,
+  detailedWorkContacts:visibleWorkContacts.filter(row=>indices.has(row.i)).length,
   detailedNames:selected.map(i=>people[i].name),
   offscreenFullDetail,
   viewport:[frame.lens.viewportWidth,frame.lens.viewportHeight],

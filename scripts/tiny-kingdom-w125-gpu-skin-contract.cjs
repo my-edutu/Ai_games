@@ -30,7 +30,8 @@ assert(html.includes('gl.disableVertexAttribArray(skinJointAttribute)'));
 assert(html.includes('gl.uniformMatrix4fv(uniforms.workBone,false,workSkinMatrices(entry,p))'));
 assert(html.includes('workingResidentJointCapacity=Math.ceil(joints.length/8192)*8192;'));
 assert(html.includes('workingResidentJointData=new Float32Array(0);'));
-assert(html.includes('getWorkingSkinAudit,setWorkingSkinEnabledForTesting,'));
+assert(/getWorkingSkinAudit\s*,\s*(?:getWorkSkinPaletteAudit\s*,\s*)?setWorkingSkinEnabledForTesting\s*,/.test(html),
+ 'both original skin audit controls remain exported; palette audit may sit between them');
 assert(html.includes('!workingIndices.has(i))compactVillager(people[i]);'));
 assert(html.includes('addSceneGeometryStats(animated,workingResidentMesh);'));
 assert(html.includes('(workingResidentVisible.length?workingResidentMesh.length:0)'));

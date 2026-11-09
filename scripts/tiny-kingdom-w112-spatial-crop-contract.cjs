@@ -23,6 +23,7 @@ const env={
   bufferData(){this.uploads++},
   drawArrays(mode,start,count){this.draws.push({mode,start,count})}},
  bindGeometry(){},
+ releaseGeometryBuffer(buffer){this.gl.deleteBuffer(buffer)},
  sceneChunkInFrustum(b,planes){
   return planes.every(([nx,ny,nz,d])=>
    (nx>=0?b.maxX:b.minX)*nx+
