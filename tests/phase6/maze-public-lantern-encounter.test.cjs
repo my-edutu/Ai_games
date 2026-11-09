@@ -86,7 +86,7 @@ test('actual production scene builds one reusable Three light volume with dispos
     'production HTTP asset allowlist must serve the real imported helper');
   assert.match(scene,/import \{ publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat \} from '\.\/public-lantern-encounter\.mjs'/,
     'the actual public-only cone and warning helpers stay wired alongside the staged guardian acting');
-  assert.match(scene,/publicGuardianOpenSightline\\(s,entry\\.cell\\)/,
+  assert.match(scene,/publicGuardianOpenSightline\(s,entry\.cell\)/,
     'paired guardian acting must require a real public open reciprocal corridor');
   assert.match(scene,/attentionStrength=witnessedLocally/,
     'nearby caution alone cannot authorize paired acting');

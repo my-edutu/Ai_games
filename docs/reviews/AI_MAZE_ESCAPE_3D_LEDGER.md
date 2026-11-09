@@ -1,3 +1,9 @@
+# Pass223b — exact-HEAD critic finds absent real connected guardian scene (2026-11-09 UTC)
+
+- [Exact WebGL 42692398650](https://github.com/my-edutu/Ai_games/actions/runs/42692398650) focused Node 96/96 and stream-host PASS; browser 3/5 only. A true open reciprocal 1–2-cell guardian scene **does not appear in currently selected real production runtime seeds**; truthful browser fixture fails promptly instead of waiting eight minutes. Separate 30s WebGL live-stage startup timeout still unexplained. No exact-head screenshot/six-run approval.
+- [Whole CI 42692398268](https://github.com/my-edutu/Ai_games/actions/runs/42692398268) 717/718 Node PASS; remaining test failure caused by over-escaped follow-up regex, now corrected and matched against real source. No production art/rules/camera/accessibility/crop/budget changes. [Review](./maze-3d/pass-223-real-open-corridor-native-evidence-fix-2026-11-09.md). New SHA full CI, native WebGL, hardware/accounting, independent critic all pending.
+- This is a **real content/verification blocker**; don't invent a linked path or claim Nintendo parity. Draft PR remains unmerged/undeployed; Gauntlet continues.
+
 # Pass223 — real open corridor evidence blocker (2026-11-09 UTC)
 
 - On exact starting `663cc2c6ba2d2bae9f63b5301a7ddaf3c6ae3b18` [focused WebGL 42678513623](https://github.com/my-edutu/Ai_games/actions/runs/42678513623) FAILED two browser tests (30s live-stage startup; 480s stale nearest-distance guardian condition), no native PNGs or 6-run verdict. [Whole CI 42678513640](https://github.com/my-edutu/Ai_games/actions/runs/42678513640) 717/718 Node tests passed, one outdated import-text assertion.
