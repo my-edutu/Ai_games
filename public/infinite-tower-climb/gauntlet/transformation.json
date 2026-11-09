@@ -41,30 +41,32 @@
     "openRotorRackCutawayImplementationSha": "f1fe522ec6a4da8d0a33cd620ca2c85357a04d6a",
     "openRotorRackCutawayEvidenceStatus": "P0 OPEN / NOT EVALUATED: source geometry at f1fe522e now replaces all three broad decorative gear discs with a .72r physical centre aperture and substitutes the 42-unit solid rack spine with two instanced side rails plus preserved mechanical teeth. Existing three rotors, clock faces, rack materials, guardian, hazards, gateway, deterministic physics and floor-nine transition remain. Original-runtime raycast tests at 88361aa0 target final post-batch THREE.BufferGeometry (not retired authoring meshes), but exact-HEAD GitHub quality 42459977022 and gameplay capture 42459862584 are QUEUED. Local coding tunnel unavailable; only read-only source-formula checks verified gear opening at .60r, ring metal at .82r, rack daylight at y=0 and tooth at y=.4. No new WebM, actual Three.js test, independent critic or supported-device benchmark. Prior native portrait giant-wheel defect around seconds 16–18 remains NOT proven resolved.",
     "terminalSightlineImplementationSha": "8071970dc94f6a4408fc0f9623666f1384f7ccc5",
-    "terminalSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: genuine terminal result/intermission source left the world.clockwork decorative-scene cutaways OFF when protectLiveRoute required running lifecycle and HP>0. At 8071970d the existing outcome camera now supplies the actual final hero and world-transformed earned-rung memorial as the same live decorative sightline subjects. Result-only, intermission-only, and true restart gate tests committed. Original runtime Node22/Three/Chromium/FFmpeg UNEXECUTED: quality run 42517968173 queued. No current 960x600/390x844 film and no evidence of actual LOOKS/FEELS/PLAYS improvement; giant wheel historically occludes guardian at e0fe7729 native ~16–18s and recent open clockwork is unverified."
+    "terminalSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: genuine terminal result/intermission source left the world.clockwork decorative-scene cutaways OFF when protectLiveRoute required running lifecycle and HP>0. At 8071970d the existing outcome camera now supplies the actual final hero and world-transformed earned-rung memorial as the same live decorative sightline subjects. Result-only, intermission-only, and true restart gate tests committed. Original runtime Node22/Three/Chromium/FFmpeg UNEXECUTED: quality run 42517968173 queued. No current 960x600/390x844 film and no evidence of actual LOOKS/FEELS/PLAYS improvement; giant wheel historically occludes guardian at e0fe7729 native ~16–18s and recent open clockwork is unverified.",
+    "nativeFilmClockImplementationSha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
+    "nativeFilmClockEvidenceStatus": "P0 OPEN / NOT EVALUATED: source fixture verified that a stale screenshot-to-PTS clock from a different original WebM was previously admitted as CALIBRATED when SHA/scenario/viewport matched. Commit 08ce21ca binds the original unedited Playwright WebM SHA-256 and byte count to its native-video-clock.json; event pairing now vetoes missing, swapped or wrong-length native clock evidence. Isolated V8 red-green source probe passed; original Node22/Chromium/FFmpeg NOT executed (development tunnel disconnected and exact-source quality 42551931345 pending). No new footage, visual claim, independent reviewers or supported-device metrics."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-09",
-      "sourceHeadAtInspection": "097b0b4e1d7b5438d7bb33cfb8652368047e796c",
-      "actualRenderedGameSourceSha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
+      "sourceHeadAtInspection": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
+      "actualRenderedGameSourceSha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
-      "completedOutcome": "Repaired a load-bearing P0 footage-evidence chronology defect across the source event index and native baseline/candidate pairing. The original index appended true fixed-step floor-nine guardian-threshold and sampled moving-deck contacts after later result/restart beats. Native source matching followed array order, producing false missing/out-of-order film-search clues. Events now retain stable wall-clock chronology; historical nonmonotonic/episode-regressed indexes fail film provenance; passive contacts are attributed to their original source run instead of the most recent restart. Two code commits and new regression fixtures, not a transformed gameplay milestone.",
+      "completedOutcome": "Fixed source-authentic full-motion evidence admission: a native screenshot-to-WebM clock could previously be transferred from a different film with the same scenario, seed, source SHA and viewport; pairing called it CALIBRATED even when the original WebM bytes differed. The browser recorder now saves the native video digest and byte length after Playwright closes the recording; source pairing requires both to agree with independently probed and SHA-256-audited WebM bytes. Production capture and native frame visibility remain unexecuted and unverified; this is a P0 truth blocker repair, not gameplay transformation.",
       "verifiedBlocker": {
-        "defect": "Real indexTowerCaptureEvents() first records main-source timeline, then appends a secondary authoritative guardian-source-physical-threshold pass and a third sampled-render-deck-contact pass. Both may contain earlier atMs than previously emitted later result/restart beats, corrupting matchSourceEvents() sequential comparisons; renderer contact previously borrowed final observedEpisode.",
-        "implementation": "8315eca331ae166fd53045e5603c31128beefda5 + d6b77faecd8cafb1653357842e65e2d20162e4b9. Only scripts/tower-event-alignment.cjs, scripts/tower-event-pairing.cjs and their two Tower phase3 regressions touched.",
-        "developmentWorkspace": "Authorized original-game checkout NOT_FOUND: tunnel-client has not been seen for 300 seconds; original Node22/Three/Chromium/FFmpeg, source-pinned 960x600 and 390x844 recordings and tests not executed.",
-        "githubActions": "Exact-source quality run 42547486349 for d6b77fa pending; 42547255181 for 8315eca cancelled by quality pending-run coalescence, not an executed test. GitHub runner root cause unconfirmed."
+        "defect": "Source-level red reproduction: scripts/tower-event-pairing.cjs accepted a clock calibration from a swapped WebM; its timebase checked metadata but had no cryptographic video binding. Existing ffprobe transport audit certified the real video bytes separately, so stale clock sidecars could yield false calibrated source-event search handles.",
+        "implementation": "08ce21ca0c1af42219dc77555e5edc4c2483fa03; scripts/tower-event-pairing.cjs, tests/browser/tower-live-motion.spec.cjs, tests/phase3/tower-event-pairing.test.cjs only. Native WebM bytes are hashed after browser recording is closed; the independent matching audit now requires exact digest and size.",
+        "developmentWorkspace": "NOT_FOUND: tunnel-client has not been seen for 300 seconds; original Node22, Three.js, Chromium, FFmpeg, source campaigns and new native recordings unavailable.",
+        "githubActions": "New exact-code quality run 42551931345 pending with no verified runner result. Earlier capture/quality jobs remain queued; root cause of runner shortage not established."
       },
       "testsAndCapturesProducedThisExecution": [
-        "Inspected real source event iterator, two post-source evidence passes, native event-pair chronology and exact original phase3 tests; implemented chronological event sort, true source-episode attribution and read-only provenance vetoes.",
-        "Added genuine original-repository regressions for physically grounded floor-nine crossing before result/restart, earlier moving-deck render contact, correct episode after source restart, malformed historical event order and regression in observed run episodes.",
-        "GitHub readback and non-force expected-head ref updates verified two commits. These are source/form checks only, not executed original Node/Three tests.",
-        "No new original WebM, calibrated native PTS, 3200-tick source campaign, hardware frame-time/memory, or independent critic output."
+        "Reproduced original defect using actual fetched JavaScript module in isolated V8: swapped WebM digest still produced CALIBRATED source timebase and 2 source-film search handles despite a separately valid genuine transport audit.",
+        "Isolated red-green V8 source execution after patch: original digest CALIBRATED; swapped SHA-256, mismatched byte count and absent legacy binding all NOT EVALUATED with zero calibrated pair search handles.",
+        "Committed targeted original-repository source recorder, pairing gate and phase3 regression fixture. Exact branch ref fast-forwarded without force. Full original Node22/Three.js suite, Playwright browser and native ffprobe audit NOT RUN.",
+        "No new source-pinned 960x600 or 390x844 WebM, no current complete 3200-tick full loop replay, no physical-device metrics and no blind independent reviews."
       ],
       "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
@@ -74,26 +76,25 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "largestObservedGap": "Older authentic source-pinned e0fe7729 portrait video shows oversized near-side foreground clockwork obscuring the hero and guardian around 16–18s; recently opened annular geometry and source-earned gateway still lack current uninterrupted verified video.",
-      "nextHighImpactAction": "Run exact d6b77fa source tests, two source-authentic 3200-tick guardian/crusher→grounded gate→floor9→outcome/restart campaigns when original Node22 checkout or assigned runner is usable. Then trigger and inspect immutable baseline/candidate normal-speed 60+s WebM for 960x600/390x844 under matched seed/tier, authenticate WebM+native PTS+source-event chronology, rebuild biggest observed playable defect; only later request actual-device p50/p95/p99/memory and five genuinely independent blinded reviewers in EACH pillar.",
-      "restrictions": "Baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58/main/other games untouched; PR68 open/draft. No merge, deploy, force-push, fictitious reviews or acceptance.",
+      "largestObservedGap": "Last inspected authentic older e0fe7729 candidate portrait native WebM had oversized near-side clockwork obscuring the climber and guardian around 16–18 seconds. Recent annular geometry and camera/earned-gateway source changes still have no current original-speed 960x600/390x844 gameplay verification.",
+      "nextHighImpactAction": "Recover an executable original-game checkout or GitHub Actions runner; execute exact 08ce21ca source tests and two deterministic unchanged 3200-tick guardian/crusher to grounded threshold/floor-nine/result/restart campaigns. Capture fresh immutable baseline and candidate native 60+s WebM in 960x600 desktop and 390x844 portrait under matched seed/tier, validate the newly bound native-video-clock sidecars, inspect full-motion actor/guardian obstruction and physical threshold crossing, and rebuild the largest current defect. Actual supported-device frame-time/memory and five independent blinded LOOKS, FEELS, PLAYS reviews are later mandatory.",
+      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; active PR58 and main untouched, PR68 remains open/draft. No merge, deploy, force push, other-game edits or fabricated reviews.",
       "implementationCommits": [
-        "8315eca331ae166fd53045e5603c31128beefda5",
-        "d6b77faecd8cafb1653357842e65e2d20162e4b9"
+        "08ce21ca0c1af42219dc77555e5edc4c2483fa03"
       ],
       "newExactSourceQuality": {
-        "runId": 42547486349,
-        "sha": "d6b77faecd8cafb1653357842e65e2d20162e4b9",
+        "runId": 42551931345,
+        "sha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
         "status": "pending",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42547486349",
-        "note": "No job result; no original Node/Three execution or new video."
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42551931345",
+        "note": "No actual Node or browser execution verified; this is not game or safety acceptance."
       },
       "currentSourceVideo": "NOT EVALUATED"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — two original Three.js test vetoes source-corrected; new exact-SHA CI pending; source-authentic full-motion and device acceptance NOT EVALUATED",
+    "state": "P0 OPEN — source-to-native-film clock is now byte-bound; current normal-speed visual and device acceptance NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Restore a Node22/Three/Chromium executable checkout or assigned Actions worker. First run exact candidate c182abda original Node/Three tests, two unmodified 3200-tick guardian/crusher-to-floor9-to-result/restart campaigns, and review failing job details. Then request source-pinned 60+s normal-speed immutable baseline/candidate 960x600 and 390x844 WebM and validate native PTS/event alignment. Inspect current FULL-MOTION obscuration and correct the largest observed defect. Only after source+film passes seek actual device p50/p95/p99/memory and independent 5-reviewer randomized blind LOOKS/FEELS/PLAYS.",
+    "nextDecision": "Recover original checkout or assigned GitHub runner; validate exact source and film byte-bound calibrated event clocks, then critique real continuous current portrait/desktop guardian to grounded floor-nine/restart footage before advancing P1.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
     "biggestRemainingExperienceGap": "Older genuine original renderer e0fe7729 portrait WebM shows a giant near-side clockwork wheel hiding the climber and guardian around native 16–18s. The later physical annular rotors, cutaway opacity and source-locked earned gate have no source-matched current normal-speed video; visual outcome NOT EVALUATED.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
