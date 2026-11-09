@@ -63,7 +63,8 @@ function spray(id,index){
   spin:(((h>>>4)%997)/997-.5)*6};
 }
 export function createPhysicalFeedbackVisuals(THREE,scene,{
- actorById=()=>null,reducedMotion=false,reducedFlash=false,getFloorMap=null
+ actorById=()=>null,reducedMotion=false,reducedFlash=false,getFloorMap=null,
+ getCurrentSnapshot=null
 }={}){
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
@@ -170,7 +171,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    (cue.kind==='warden-release'||cue.kind==='opening');
   if(wardenBodySignal&&(!actor||actor.u?.id!==id||
     actor.u?.kind!=='warden'||actor.u?.action!=='cast'||
-    actor.u?.actionTick!==cue.tick))return null;
+    actor.u?.actionTick!==cue.tick||
+    Number.isFinite(actor.u?.hp)&&actor.u.hp<=0))return null;
+  // A witnessed recovery is a TIME-BOUNDED vulnerability, not a permanent
+  // property of a lingering cast pose. Retire its body ring as soon as the
+  // current public authority seals the Warden or ends that recovery window.
+  // The getter reads the controller's latest snapshot; no gameplay mutation.
+  if(cue.kind==='opening'&&typeof getCurrentSnapshot==='function'){
+   let current=null;
+   try{current=getCurrentSnapshot()}catch{return null}
+   if(!current||!Number.isSafeInteger(current.tick)||
+     `${current.run}:${current.floor}`!==cue.sceneKey||
+     !Number.isSafeInteger(actor.u.recoveryUntilTick)||
+     current.tick>actor.u.recoveryUntilTick||current.guardianWard===true||
+     Object.hasOwn(current,'bossRecovery')&&
+       (!current.bossRecovery||!Number.isInteger(current.bossRecovery.remaining)||
+        current.bossRecovery.remaining<=0))return null;
+  }
   // The sword streak must come from the current actually animated right-hand
   // bone on this witnessed swing. An idle or stale reused actor is not a blade.
   if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
