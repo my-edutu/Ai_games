@@ -373,6 +373,24 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  * only the active original walk action around mixer.update(visibleDelta).
  * Returning null preserves the existing clock for every other action.
  */
+/**
+ * On an actual stop-to-idle arrival the rendered root has stopped travelling,
+ * but Three.js continues the outgoing Walking_A AnimationAction as it fades.
+ * Its original knee/ankle keyframes therefore cycle in place for ~230ms.
+ * Freeze ONLY that outgoing clip's time while its weight fades; genuine Idle
+ * still blends in on mixer time. The next lawful walk reset unpauses it.
+ * This is not a world-space sole lock and never moves the authority root.
+ */
+export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idle',
+ previousClipName='',groundedMoving=false,groundedTravel=NaN,
+ teleport=false,reducedMotion=false,visible=true}={}){
+ return previousMode==='move'&&nextMode==='idle'&&
+  typeof previousClipName==='string'&&/^(?:walking[_\s-]*a|walk|run|move)/i.test(previousClipName)&&
+  groundedMoving===false&&Number.isFinite(groundedTravel)&&
+  groundedTravel>=0&&groundedTravel<=.0015&&
+  !teleport&&!reducedMotion&&visible===true;
+}
+
 export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  frameDelta=0,frameInterval=frameDelta,sourceDuration=0,sourceTime=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,

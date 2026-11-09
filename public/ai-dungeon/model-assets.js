@@ -979,7 +979,25 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
    reducedMotion:Boolean(actor.fullBody?.reducedMotion)
   });
   if(walkingEntry!==null)next.time=walkingEntry;
-  if(previous&&previous!==next)next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),false);
+  if(previous&&previous!==next){
+   next.crossFadeFrom(previous,actor.fullBody?.interrupted ? .09 : (oneShot ? .12 : .23),false);
+   // Three.js fades the previous source clip's WEIGHT over elapsed mixer time.
+   // On a genuine stopped-to-idle arrival, freeze only its last planted
+   // Walking_A keyframe so the skinned ankles cannot treadmill in place while
+   // Idle blends in. Never freeze a root that is still physically moving.
+   if(planImportedWalkArrivalFreeze({
+    previousMode:actor.currentAction,nextMode:action,
+    previousClipName:previous.getClip?.()?.name,
+    groundedMoving:Boolean(actor.groundedPerformance?.moving),
+    groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
+    teleport:Boolean(actor.locomotionTeleport),
+    reducedMotion:Boolean(actor.fullBody?.reducedMotion),
+    visible:sourceFrameVisible
+   })){
+    previous.paused=true;
+    actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
+   }
+  }
   actor.activeClip=next;
   actor.activeImportedClipName=clip.name;
  }
@@ -1491,6 +1509,7 @@ function stats(actors){
    fullBodySourceClockPeakDriftSeconds:Math.max(0,...authored.map(a=>a.sourceClockDriftPeakSeconds||0)),
    fullBodySourceClockMaxRemainingSeconds:Math.max(0,...authored.map(a=>a.sourceClockRemainingSeconds||0)),
    fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
+   fullBodySourceWalkArrivalPlants:authored.reduce((n,a)=>n+(a.walkArrivalFrozenActions||0),0),
    fullBodyOriginalReleaseSupportPeakRad:Math.max(0,...authored.map(a=>a.rigRangedSupportPeak||0)),
    fullBodySettlingActors:authored.filter(a=>a.rigGaitSettling).length,
    fullBodyFootfallPhaseErrorRad:Math.max(0,...authored.filter(a=>a.fullBody?.owner.locomotion&&a.rigGaitWeight>0)
