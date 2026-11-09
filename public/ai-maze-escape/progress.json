@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-09T16:35:14.000Z",
+  "updatedAt": "2026-11-09T17:12:09.572Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass220 exact-HEAD 42648698257 WebGL SUCCESS: 37 original PNGs, 35/35 paired SHA records, 6-reset geometry PASS, real 320 contact jaw .66rad/right +.846276. Genuine full-frame 320/390/1280 critique still REJECTS beige court repetition. Pass221 source CANDIDATE reauthors the one-cell public pressure ring as contiguous dark-jade basin with two physical sea-glass channels and light outer shoulder; gameplay/privacy/resource/strict framing unchanged. New native captures and independent Nintendo side-by-side PENDING. PR open draft. Pass221 first whole-repo CI 42658442034 had 713/714 passing; the only failure was stale assertion expecting old 2.31m beige slab in the newly rebuilt public inner court. Corrected regression to assert new 2.39m jade deck, two physical channels and still-bright 2-ring shoulder, no threshold relaxation. New exact-HEAD CI/render pending."
+    "summary": "Pass221 native source-bound WebGL 42659499815 SUCCESS, strict six-run geometry reset PASS, original 37 PNGs with 35/35 available sidecar SHA records; 320/390/1280 pressure visuals independently examined, physical dark-jade court readable but still below Captain Toad for sculptural variety/character acting. PR exact HEAD c45af77 714 tests: 713 passed, one false-negative apron helper excluded actual ±0.48m offset conduits before detection. New test candidate repairs physical orientation gate for E/W and N/S without relaxing privacy, resource/framing or accessibility tests. New HEAD CI and images pending; whole CI not green; PR remains open draft, no merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass221 verified original native 37 screenshots at exact c45af77, 35/35 available individual SHA-256 pairs and six reset geometry PASS; inspected untouched 320/390/1280 pressure frames. Corrected actual false-negative in installed-Three apronArt: its centre-only matrix prefilter hid both ±0.48m insets, now requires real twin grooves in BOTH cardinal trap orientations. Independent critic unavailable; new-HEAD CI pending.",
     "Pass221 CI follow-up: run 42658442034 showed 713/714 passes, one stale installed-Three apron test expecting old 2.31m beige slab. Replaced it with stronger 2.39m dark-jade physical deck, both 1.82m insets and retained two-ring ivory/privacy/resource assertions. Exact-HEAD rerun pending.",
     "Pass221 2026-11-09: exact Pass220 WebGL 42648698257 success, 35/35 original individually SHA-verified screenshot pairs, six-reset geometry PASS. Native critic still rejects beige court; new source candidate gives immediately disclosed pressure-neighbor floors a joined dark-jade basin and paired sea-glass insets, leaving outer known ring ivory. New-HEAD rendered evidence/independent acceptance PENDING; benchmark unmet.",
     "Pass220: exact Pass219 WebGL 42638290313 passed real browser/full-size original scenes and strict 6-reset resource budget. Current 320/390/1280 native criticism rejects disjoint red stakes. Reconstructed BOTH real published pressure hinges as visually coherent ivory/bronze hooked shear talons; fresh exact-head visual acceptance PENDING.",

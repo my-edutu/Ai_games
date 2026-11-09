@@ -153,6 +153,28 @@ function apronArt(world,THREE,cell){
     if(!node.isInstancedMesh)return;
     for(let i=0;i<node.count;i++){
       node.getMatrixAt(i,matrix);matrix.decompose(point,q,scale);
+      // Both real physical channels are OFFSET by 0.48m from the cell
+      // centre. Inspect them BEFORE filtering centred slabs: the old helper
+      // accidentally excluded both valid channels and caused CI failure 665.
+      // Validate both cardinal orientations, dimensions, actual material and
+      // physical surface height, never a mere source-code token.
+      if(node.geometry?.type==='BoxGeometry'
+        &&Math.abs(point.y-(floorY+.012))<.0001
+        &&Math.abs(scale.y-.016)<.0001
+        &&node.material.color.getHexString()==='5d968e'
+        &&((
+          Math.abs(point.x-centerX)<.0001
+          &&Math.abs(Math.abs(point.z-centerZ)-.48)<.0001
+          &&Math.abs(scale.x-1.82)<.0001
+          &&Math.abs(scale.z-.18)<.0001
+        )||(
+          Math.abs(point.z-centerZ)<.0001
+          &&Math.abs(Math.abs(point.x-centerX)-.48)<.0001
+          &&Math.abs(scale.x-.18)<.0001
+          &&Math.abs(scale.z-1.82)<.0001
+        ))) grooves.push(Math.abs(point.z-centerZ)>.1
+          ? (point.z<centerZ?'z:negative':'z:positive')
+          : (point.x<centerX?'x:negative':'x:positive'));
       if(Math.abs(point.x-centerX)>.0001||Math.abs(point.z-centerZ)>.0001)continue;
       if(node.geometry?.type==='ExtrudeGeometry'
         &&Math.abs(point.y-(floorY-.035))<.0001
@@ -167,19 +189,13 @@ function apronArt(world,THREE,cell){
         &&Math.abs(scale.x-2.39)<.0001&&Math.abs(scale.y-.07)<.0001
         &&Math.abs(scale.z-2.39)<.0001)
         basins.push(node.material.color.getHexString());
-      if(node.geometry?.type==='BoxGeometry'
-        &&Math.abs(point.y-(floorY+.012))<.0001
-        &&Math.abs(Math.abs(point.z-centerZ)-.48)<.0001
-        &&Math.abs(scale.x-1.82)<.0001&&Math.abs(scale.y-.016)<.0001
-        &&Math.abs(scale.z-.18)<.0001
-        &&node.material.color.getHexString()==='5d968e')grooves.push(i);
       if(node.geometry?.type==='ShapeGeometry'
         &&Math.abs(point.y-(floorY+.024))<.0001
         &&Math.abs(scale.x-.82)<.0001&&Math.abs(scale.y-.77)<.0001)
         petals.push(i);
     }
   });
-  return {slabs,basins,grooves:grooves.length,petals:petals.length};
+  return {slabs,basins,grooves:grooves.sort(),petals:petals.length};
 }
 
 test('published two-cell Tide-Shear court builds one calm connected apron around real moving jaws',async()=>{
@@ -198,8 +214,27 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
       'the generic 2.31m apron does not sit over the actual inner basin');
     assert.deepEqual(quiet.basins,['28574f'],
       'the actual PUBLIC one-cell inner court is a broad 2.39m jade deck');
-    assert.equal(quiet.grooves,2,
-      'paired full-size flush physical sea-glass channels connect the public device to its court');
+    assert.deepEqual(quiet.grooves,['z:negative','z:positive'],
+      'both real 1.82m flush conduits straddle the E/W-linked public pressure court');
+    // Rotate the ACTUAL public trap one cardinal direction. Each source-bound
+    // 1.82m conduit must rotate with the visible mechanism, without a private
+    // map, per-frame model allocation, or directional guess.
+    const northSouth=published();
+    northSouth.runToken='public-pressure-rotated-court';
+    northSouth.visibleCells=[...northSouth.visibleCells,30];
+    northSouth.cells=[...northSouth.cells,{
+      cell:30,neighbors:[],blocked:false,trap:true,checkpoint:false,clue:false
+    }];
+    const northSouthFrozen=JSON.stringify(northSouth);
+    world.update(northSouth);
+    const rotated=apronArt(world,THREE,39);
+    assert.deepEqual(rotated.basins,['28574f'],
+      'the public N/S-linked pressure court retains its actual physical basin');
+    assert.deepEqual(rotated.grooves,['x:negative','x:positive'],
+      'both full-size conduits physically rotate with the real N/S-linked trap');
+    assert.equal(JSON.stringify(northSouth),northSouthFrozen,
+      'rotation may not rewrite known public pressure or navigation state');
+    world.update(known);
     assert.deepEqual(apronArt(world,THREE,38).slabs,['cead72'],
       'the separately public TWO-cell outer ring retains its quiet ivory shoulder');
     assert.equal(quiet.petals,0,'the disclosed pressure stage leaves real negative space');
