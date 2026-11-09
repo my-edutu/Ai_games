@@ -180,7 +180,17 @@ export function planPhysicalFeedback(previous,next,{
      return validId(u?.id)&&u.faction==='party'&&u.action==='guard'&&
       u.guardTick===e.tick&&point(u)&&positiveHealthDrop(prior,u);
     });
-    const lone=blockEvents.length===1&&defenders.length===1?defenders[0]:null;
+    // The public block event does not identify a defender or a source.
+    // Concurrent attacking enemies or another wounded body make a seemingly
+    // unique guard/HP observation ambiguous: preserve neutral block audio,
+    // but do NOT point a contact marker at a guessed actor.
+    const candidate=blockEvents.length===1&&defenders.length===1?defenders[0]:null;
+    const simultaneousThreats=candidate?next.units.slice(0,96).filter(u=>
+     u?.faction!=='party'&&(u?.hp>0||oldUnits.get(u?.id)?.hp>0)&&
+     (u.action==='attack'||u.action==='cast')&&u.actionTick===e.tick).length:0;
+    const competingVictim=candidate&&next.units.slice(0,96).some(u=>
+     u?.id!==candidate.id&&positiveHealthDrop(oldUnits.get(u?.id),u));
+    const lone=simultaneousThreats>1||competingVictim?null:candidate;
     push('block',e.tick,{actorId:lone?.id??null,
      from:lone?point(lone):null,verified:true,
      proof:lone?'authority-block-unique-guarded-hp':'authority-event'});
