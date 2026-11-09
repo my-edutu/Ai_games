@@ -17,6 +17,9 @@ export const MAX_PHYSICAL_SEEN_IDS=192;
 export const MAX_PHYSICAL_RECEIPTS=64;
 export const MAX_AUDIO_AWAITING_FRAME=32;
 export const MAX_AUDIO_VISUAL_STALENESS_SECONDS=.40;
+// String frame IDs are supported by test/capture adapters. Keep bounded
+// history so a non-adjacent replay cannot masquerade as a new WebGL submit.
+const MAX_RECENT_STRING_FRAME_IDS=64;
 const clamp=(v,min,max)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):min;
 const key=s=>s&&Number.isSafeInteger(s.run)&&Number.isSafeInteger(s.floor)?s.run+':'+s.floor:null;
 export function createPhysicalCombatFeedback({
@@ -37,7 +40,9 @@ export function createPhysicalCombatFeedback({
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
-   unverifiedVisualLiveness=0,lastPresentedFrame=null;
+   unverifiedVisualLiveness=0,lastPresentedFrame=null,
+   highestNumericPresentedFrame=-1,replayedFrameAcks=0;
+ const recentStringFrameIds=new Set();
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
  // Preserve the requested envelope in receipts even when the D04
@@ -52,7 +57,8 @@ export function createPhysicalCombatFeedback({
   ?0:clamp(cue?.delay,0,.5);
  function flush(){
   pending.length=0;awaitingPresentation.length=0;seen.clear();
-  lastPresentedFrame=null;
+  lastPresentedFrame=null;highestNumericPresentedFrame=-1;
+  recentStringFrameIds.clear();
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
  function retainReceipt(cue,visual,audio=false,frameId=null,decision=null){
@@ -104,8 +110,23 @@ export function createPhysicalCombatFeedback({
  function acknowledgePresentedFrame(frameId,renderSubmissionSeconds=0){
   if(disposed||!requirePresentedFrame||!optedIn||
    !(typeof frameId==='string'&&frameId.length>0&&frameId.length<=128||
-     Number.isSafeInteger(frameId)&&frameId>=0)||
-   frameId===lastPresentedFrame)return 0;
+     Number.isSafeInteger(frameId)&&frameId>=0))return 0;
+  // A second call bearing an old frame ID is not a new render submission.
+  // Remember monotonic numeric serials (used by the actual Dungeon app) and
+  // a bounded history of opaque string IDs (used by capture/test adapters).
+  // Without this, A -> B -> A could drain freshly queued combat foley on
+  // recycled frame A even though only the older attack was truly submitted.
+  if(frameId===lastPresentedFrame||
+    typeof frameId==='number'&&frameId<=highestNumericPresentedFrame||
+    typeof frameId==='string'&&recentStringFrameIds.has(frameId)){
+   replayedFrameAcks++;return 0;
+  }
+  if(typeof frameId==='number')highestNumericPresentedFrame=frameId;
+  else{
+   recentStringFrameIds.add(frameId);
+   if(recentStringFrameIds.size>MAX_RECENT_STRING_FRAME_IDS)
+    recentStringFrameIds.delete(recentStringFrameIds.values().next().value);
+  }
   lastPresentedFrame=frameId;framesAcknowledged++;
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
@@ -251,6 +272,7 @@ export function createPhysicalCombatFeedback({
   audioOptedIn:optedIn,preferredMuted:preferredMuted(),
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
+  replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
   expiredQueuedCues,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
   staleAudioDropped,expiredVisualAudioDropped,retroactiveAudioSuppressed,
   unverifiedVisualLiveness,
