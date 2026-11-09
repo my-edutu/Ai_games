@@ -105,3 +105,42 @@ test('D04 genuine unsealed recovery continues to track body within its authority
  assert.equal(fx.stats().reservedInstances,102);
  fx.dispose();
 });
+
+test('D04 controller gates late recovery audio on the latest public state before the first WebGL submission',async()=>{
+ const {createPhysicalCombatFeedback}=await import(pathToFileURL(path.resolve(__dirname,
+  '../../public/ai-dungeon/physical-combat-feedback.js')).href);
+ const {THREE,scene}=stage(),body=boss(),sounds=[];
+ const director=createPhysicalCombatFeedback({THREE,scene,
+  actorById:()=>body,requirePresentedFrame:true,
+  audioAdapter:{enable(){return true},emit(c){sounds.push(c.audio);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}});
+ const unit=(tick,action='idle',actionTick=tick)=>({
+  id:'warden',kind:'warden',faction:'enemy',x:6,z:6,
+  hp:70,maxHp:90,action,actionTick,recoveryUntilTick:12
+ });
+ const snapshot=(tick,u,events=[],remaining=0)=>({
+  run:1,floor:1,tick,units:[u],events,guardianWard:false,
+  bossRecovery:{remaining}
+ });
+ const early=unit(10);
+ const casting=unit(11,'cast',11);
+ assert.equal(director.enableAudioFromGesture(),true);
+ director.acceptSnapshot(snapshot(10,early));
+ body.u={...casting};
+ director.acceptSnapshot(snapshot(11,casting,[{tick:11,kind:'opening',text:'recovery'}],2));
+ director.advance(.016,.016);
+ assert.equal(director.stats().visuals.instancesByPool.signal,2);
+ // The actual authority has moved past the recovery window, but the same
+ // animated cast pose remains. No previous WebGL submission was acknowledged.
+ const later=unit(13,'cast',11);body.u={...later};
+ director.acceptSnapshot(snapshot(13,later,[],0));
+ director.advance(.016,.016);
+ assert.equal(director.stats().visuals.instancesByPool.signal,1,
+  'expired recovery must retire; genuine cast release glyph may continue');
+ assert.equal(director.acknowledgePresentedFrame('first-rendered-frame',.004),1);
+ assert.deepEqual(sounds,['warden-release'],
+  'the stale recovery is not eligible for a falsely synchronized sound');
+ assert.deepEqual(director.stats().recentDeliveryReceipts.map(r=>r.decision),
+  ['delivered','expired-visual']);
+ director.dispose();
+});
