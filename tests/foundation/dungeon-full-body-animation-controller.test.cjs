@@ -1190,3 +1190,45 @@ test('licensed Ranger and caster one-shots have exclusive source-faded full-body
   'the specialized source release must inherit the live AnimationAction weight');
 });
 
+
+
+test('source-faded Ranger and priest releases support the original hips and BOTH planted leg chains without fabricated travel',async()=>{
+ const ranged=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/ranged-encounter-plan.js'),'utf8')).toString('base64'));
+ const vector=p=>[
+  p.hips.pitch,p.hips.yaw,p.hips.roll,
+  ...['left','right'].flatMap(side=>[
+   p.legs[side].upper,p.legs[side].lower,p.legs[side].foot
+  ])
+ ];
+ for(const [kind,action,distance,target] of [
+  ['ranger','attack',2,'genuine-adjacent-line-of-sight-target'],
+  ['mystic','cast',null,null],
+  ['cultist','cast',null,null]
+ ]){
+  const args=[kind,action,.25,distance,target,false];
+  const atZero=vector(ranged.planRangedBodyPose(...args,0));
+  const half=vector(ranged.planRangedBodyPose(...args,.5));
+  const whole=vector(ranged.planRangedBodyPose(...args,1));
+  assert.ok(atZero.every(x=>x===0),kind+' planted hips and original ankles must enter WITH the source fade');
+  assert.ok(Math.abs(whole[0])>.008,kind+' original hips need a measurable load transfer');
+  assert.ok(whole.slice(3,6).some(x=>Math.abs(x)>.016),kind+' genuine left thigh/knee/foot must support release');
+  assert.ok(whole.slice(6,9).some(x=>Math.abs(x)>.016),kind+' genuine right thigh/knee/foot must support release');
+  assert.ok(whole.every(x=>Number.isFinite(x)&&Math.abs(x)<.15),kind+' bounds protect source bind/deformation');
+  for(let i=0;i<whole.length;i++)assert.ok(Math.abs(half[i]-whole[i]*.5)<1e-9,
+   kind+' native hips and soles must fade together at component '+i);
+  assert.ok(vector(ranged.planRangedBodyPose(kind,'idle',.25,distance,target,false,1)).every(x=>x===0),
+   kind+' idle may not continue the release plant');
+  assert.ok(vector(ranged.planRangedBodyPose(...args.slice(0,5),true,1)).every(x=>x===0),
+   kind+' reduced motion has no forced planted release');
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.rigRangedPose\s*=\s*planRangedBodyPose\(/,
+  'source release should compute one coherent post-mixer full-body pose');
+ assert.match(model,/releaseSupport\?\.hips/,
+  'the real original pelvis must consume that SAME sourced release');
+ assert.match(model,/releaseSupport\?\.legs\?\.\[mount\.side\]/,
+  'the genuine original thigh, calf and ankle mounts must consume that same release');
+ assert.doesNotMatch(model,/if\(!actor\.rigRangedActive\)return;/,
+  'diagnostic 0.1-weight threshold must not make source-faded joint overlays pop on');
+});
