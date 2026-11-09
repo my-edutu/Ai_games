@@ -460,10 +460,12 @@ export function createExplorer(options = {}) {
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10-Math.sign(pressureYaw)*pressureClimax*.08);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
-      // Two planted, widened knees sell a real physical startle without
-      // moving the authoritative public cell or suggesting retreat movement.
+      // Opposite-signed hip roll plants each boot OUTWARD from its own side;
+      // the previous +sign pressure term turned both feet inward. This is
+      // local full-body acting, not a cell, route or collision displacement.
+      // Two planted knees retain the authentic public pressure stage clock.
       legs[i].hip.rotation.x=step*sign*.62-alert*.22-pressureBrace*.18;
-      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14+sign*pressureBrace*.20;
+      legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14-sign*pressureBrace*.20;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14+pressureBrace*.46+pressureClimax*.08;
       arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14)-pressureWarning*(i===1?.40:.06)-pressureBrace*(i===1?1.03:.46)-pressureClimax*(i===1?.30:.18);
       // Aim the raised physical glove toward the publicly disclosed lock,

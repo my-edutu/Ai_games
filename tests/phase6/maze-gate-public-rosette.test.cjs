@@ -61,7 +61,9 @@ test('undisclosed, diagonal, isolated, blocked or hazard tiles never receive fic
    [[door],[cell(77,[76]),cell(76,[77]),cell(95)],0],
    [[{...door,a:77,b:95}],known,0],
    [[door],[cell(77),cell(94)],0],
-   [[door],[{...cell(77,[76]),trap:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],1],
+   // The real disclosed pressure trap takes visual priority over a decorative
+   // gate rosette on its public apron; it must not look like a safe marker.
+   [[door],[{...cell(77,[76]),trap:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],0],
    [[door],[{...cell(77,[76]),blocked:true},cell(76,[77]),cell(94,[95]),cell(95,[94])],0],
    [[door],[cell(77,[76]),{...cell(76,[77]),blocked:true},cell(94,[95]),{...cell(95,[94]),blocked:true}],0],
    [[door],[cell(77,[62]),cell(62),cell(94,[79]),cell(79)],0]

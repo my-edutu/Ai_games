@@ -36,6 +36,6 @@ test('never select compact framing from one-way, nonadjacent, hidden or private-
 test('the renderer excludes the hero close-up in dangerous, keyed, observed goal, terminal and reduced-motion states',()=>{
  const src=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
  assert.match(src,/!result && !cameraGate && !closestThreat\?\.strength/);
- assert.match(src,/!nearObservedGoal && !settings\.reducedMotion/);
+ assert.match(src,/!nearObservedGoal && !pressureFirst && !settings\.reducedMotion/);
  assert.match(src,/targetHeight = publicCompactExplorationHalfHeight\(aspect,targetHeight,s\)/);
 });

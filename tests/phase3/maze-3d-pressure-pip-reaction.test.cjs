@@ -44,7 +44,12 @@ test('full-body physical Pip acts, neutral/guardian/terminal clears, zero new me
       const neutral={heading:0,time:0,delta:0,reducedMotion};
       pip.update(neutral);
       const idleHeadYaw=head.rotation.y, idleBodyY=body.position.y;
-      const opts={...neutral,pressureHeading:Math.PI/2,pressureStrength:1};
+      const opts={...neutral,pressureHeading:Math.PI/2,pressureStrength:1,pressureProgress:1};
+      if(reducedMotion){
+        pip.update({...opts,pressureProgress:.20});
+        assert.equal(knee.rotation.x,0,'reduced-motion cannot invent a planted boot at remote warning');
+        assert.equal(body.position.y,idleBodyY,'uncontacted shutters cannot cause a static crouch');
+      }
       pip.update(opts);
       assert.ok(body.position.y<.72,'Pip crouches as pressure opens');
       assert.ok(head.rotation.y>.5,'eyes face the real device');
