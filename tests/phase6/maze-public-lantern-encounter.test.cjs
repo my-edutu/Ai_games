@@ -107,7 +107,12 @@ test('actual production scene builds one reusable Three light volume with dispos
   assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis, lanternBeamDirection\)/);
   assert.match(scene,/lanternBeamGeometry\.dispose\(\); lanternBeamMaterial\.dispose\(\)/);
   assert.match(scene,/witnessedLanternConeVisible: lanternBeam\.visible/);
-  assert.match(scene,/publicLanternWarning\(s, closestThreat\.cell\)/);
+  assert.match(scene,/publicLanternWarning\(s,\s*entry\.cell\)/,
+    'each guardian caution cue must be gated to its own currently disclosed public cell');
+  assert.match(scene,/lanternWarning\.visible = Boolean\(!result && explorerLantern/,
+    'the caution glow must remain a local Pip lantern effect, not a remote projected beam');
+  assert.match(scene,/closestWarning\?\.strength > \.35/,
+    'only an actually witnessed nearby public guardian can light the caution lantern');
   assert.match(scene,/explorerLantern\?\.add\(lanternWarning\)/);
   assert.match(scene,/lanternWarningGeometry\.dispose\(\); lanternWarningMaterial\.dispose\(\)/);
   assert.match(scene,/witnessedLanternWarningVisible: lanternWarning\.visible/);

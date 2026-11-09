@@ -1,3 +1,9 @@
+# Pass223c — exact source old warning contract corrected, genuine encounter blocker still open (2026-11-09 UTC)
+
+- [WebGL 42693235169](https://github.com/my-edutu/Ai_games/actions/runs/42693235169) exact `2bba1110`: focused 96/96 Node passed, browser 3/5, startup 30s timeout persists; truthful currently sampled original production scenarios **lack public reciprocal-open Pip/Thornback stage**. No native image or six-reset result.
+- [Whole CI 42693235645](https://github.com/my-edutu/Ai_games/actions/runs/42693235645) exact `2bba1110`: Node 717/718; remaining old import-adjacent assertion mistakenly expects local warning for globally chosen `closestThreat` rather than per-guardian `entry.cell`. This contract updated to require *actual* already disclosed local per-guardian warning and visible Pip lantern gates while preserving beam/privacy checks. [Dated review](./maze-3d/pass-223-real-open-corridor-native-evidence-fix-2026-11-09.md). New CI pending.
+- Material blockers remain: source-generated natural linked guardian encounter and independently diagnosed live-stage startup timeout. No production behavioral changes or Nintendo victory. Draft PR stays active, no merge/deploy/force push.
+
 # Pass223b — exact-HEAD critic finds absent real connected guardian scene (2026-11-09 UTC)
 
 - [Exact WebGL 42692398650](https://github.com/my-edutu/Ai_games/actions/runs/42692398650) focused Node 96/96 and stream-host PASS; browser 3/5 only. A true open reciprocal 1–2-cell guardian scene **does not appear in currently selected real production runtime seeds**; truthful browser fixture fails promptly instead of waiting eight minutes. Separate 30s WebGL live-stage startup timeout still unexplained. No exact-head screenshot/six-run approval.
