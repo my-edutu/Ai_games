@@ -111,6 +111,16 @@ function inspectedSourceTimebase(row) {
     clock.seed!==row.index?.seed||
     clock.graphicsTier!==row.motion?.graphicsTier)
    return {status:'NOT EVALUATED',reason:'native-video sidecar provenance mismatch'};
+ // A visually matched screenshot-to-PTS fit from a DIFFERENT recording can
+ // otherwise authenticate the wrong film despite identical seed and source.
+ // Require the clock's SHA-256 and byte count to match the ORIGINAL WebM
+ // independently audited by the native film transport gate.
+ if(!/^[0-9a-f]{64}$/.test(clock.originalWebMSha256||'')||
+    clock.originalWebMSha256!==row.videoSha256||
+    !Number.isSafeInteger(clock.originalWebMBytes)||
+    clock.originalWebMBytes!==row.videoBytes)
+   return {status:'NOT EVALUATED',
+     reason:'native-video clock does not match the exact original WebM bytes'};
  if(clock.status!=='CALIBRATED'||!Number.isFinite(clock.calibration?.offsetMs)||
     !Array.isArray(clock.sourceEventTimecodes))
    return {status:'NOT EVALUATED',

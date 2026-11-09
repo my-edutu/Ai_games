@@ -682,7 +682,15 @@ for (const viewport of viewports) {
   const video = page.video();
   await page.close();
   await context.close();
-  if (video) await video.saveAs(path.join(dir, 'live.webm'));
+  const originalWebMPath = path.join(dir, 'live.webm');
+  if (video) await video.saveAs(originalWebMPath);
+  // Record native bytes after Playwright flushes them. This links a real
+  // screenshot-to-PTS fit to THIS film; it is not proof an event was visible.
+  const originalWebMBytes = fs.existsSync(originalWebMPath)
+    ? fs.readFileSync(originalWebMPath) : null;
+  const originalWebMSha256 = originalWebMBytes
+    ? createHash('sha256').update(originalWebMBytes).digest('hex') : null;
+  const originalWebMByteCount = originalWebMBytes?.length ?? null;
   // Native PTS is NOT Date.now() - recordingStartedAt: Chromium's recorder
   // starts before the first source observation, and screenshots can block.
   // A separate optional offline tool pixel-matches genuine viewport stills
@@ -692,7 +700,7 @@ for (const viewport of viewports) {
     .map(o => ({...o.nativeFrameAnchor,
       file: path.join(dir, o.nativeFrameAnchor.file)}));
   const nativeVideoTimebase = calibrateOriginalVideo({
-    video:path.join(dir, 'live.webm'), anchors,
+    video:originalWebMPath, anchors,
     sourceTicks:passiveSourceTicks.ticks,
     // Use the EXACT read-only event-index records also used by the source
     // pairing audit. Never infer guardian or gateway timestamps from a
@@ -702,6 +710,7 @@ for (const viewport of viewports) {
   fs.writeFileSync(path.join(dir, 'native-video-clock.json'),
     JSON.stringify({sourceSha,scenario,viewport,seed:process.env.TOWER_SEED ||
       'tower-stream-reference',graphicsTier:'low',
+      originalWebMSha256,originalWebMBytes:originalWebMByteCount,
       ...nativeVideoTimebase},null,2));
   // Keep the unedited film AND sidecars even when the initial scene is wrong.
   // CI vetoes an unrepresentative episode instead of certifying a complete

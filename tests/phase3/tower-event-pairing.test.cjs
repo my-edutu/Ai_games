@@ -27,6 +27,7 @@ function withOriginalFilmClock(record) {
  record.videoClock={sourceSha:record.sourceSha,scenario:record.scenario,
    viewport:record.motion.viewport,seed:record.motion.seed,
    graphicsTier:record.motion.graphicsTier,status:'CALIBRATED',
+   originalWebMSha256:record.videoSha256,originalWebMBytes:record.videoBytes,
    calibration:{status:'CALIBRATED',offsetMs:-1000,maxResidualMs:20},
    originalVideoDurationSeconds:75,
    sourceEventTimecodes:record.index.events.map(e=>({...e,
@@ -51,6 +52,30 @@ test('calibrated event-index clocks yield honest event-relative film search hand
  assert.equal(report.fullMotionPaired,false);
  assert.equal(report.verdict,'NOT EVALUATED');
 });
+test('native calibration cannot transfer to mismatched or unbound WebM bytes',()=>{
+ const baseline=withOriginalFilmClock(rec('baseline'));
+ const candidate=withOriginalFilmClock(rec('candidate'));
+ assert.equal(auditPairs([baseline,candidate],'c'.repeat(40))
+   .comparisons[0].nativeSourceVideoTimebase.candidate,'CALIBRATED');
+ const originalSha=candidate.videoClock.originalWebMSha256;
+ const originalBytes=candidate.videoClock.originalWebMBytes;
+ const cases=[
+   ['swapped-video-digest',()=>{candidate.videoClock.originalWebMSha256='a'.repeat(64);}],
+   ['wrong-video-length',()=>{candidate.videoClock.originalWebMBytes=originalBytes+1;}],
+   ['legacy-unbound-sidecar',()=>{delete candidate.videoClock.originalWebMSha256;}],
+ ];
+ for(const [label,corrupt] of cases) {
+   candidate.videoClock.originalWebMSha256=originalSha;
+   candidate.videoClock.originalWebMBytes=originalBytes;
+   corrupt();
+   const comparison=auditPairs([baseline,candidate],'c'.repeat(40)).comparisons[0];
+   assert.equal(comparison.nativeFilmTransport.candidate.status,
+     'SOURCE_VIDEO_TRANSPORT_ONLY',label);
+   assert.equal(comparison.nativeSourceVideoTimebase.candidate,'NOT EVALUATED',label);
+   assert.equal(comparison.nativeSourceVideoTimebase.calibratedSourceEventPairSearchHandles,0,label);
+ }
+});
+
 test('stale, tampered or absent clock cannot create an event-matched film claim',()=>{
  const before=withOriginalFilmClock(rec('baseline'));
  const after=withOriginalFilmClock(rec('candidate'));
