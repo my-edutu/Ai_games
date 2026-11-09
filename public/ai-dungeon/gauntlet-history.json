@@ -2512,7 +2512,16 @@
         "realGameEffect": "NOT_OBSERVED",
         "criticCount": 0
       },
-      "nextImplementation": "Inspect true exact-head 1440/390 synchronized WebM/Opus, renderSurface/DPR/frame-delivery diagnostics and Warden actor readability. Do not count unverified software budget or PR72 as an experiential win. Complete organic defeat/restart and blinded critics."
+      "renderDrivenFilmCandidate": {
+      "stage": "A",
+      "source": "Existing Draft PR #49, 2026-11-09",
+      "approach": "Actual rendered WebGL frames only; original opt-in audio and ordered MediaRecorder chunks; finite capture-pump with fallback",
+      "pureNodeTests": "3/3 passed in isolated local candidate",
+      "exactHeadBrowser": "UNVERIFIED",
+      "actualPlayableImprovement": "NOT_OBSERVED",
+      "next": "Capture exact-head desktop/mobile moving gameplay and compare original frame delivery, WebM PTS, audio and Warden scale"
+    },
+    "nextImplementation": "Inspect true exact-head 1440/390 synchronized WebM/Opus, renderSurface/DPR/frame-delivery diagnostics and Warden actor readability. Do not count unverified software budget or PR72 as an experiential win. Complete organic defeat/restart and blinded critics."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Authentic Warden combat looks miniature and cluttered at ~0.5fps software-Chromium recording; natural defeat/restart footage and original hit-synchronized sound unverified.",

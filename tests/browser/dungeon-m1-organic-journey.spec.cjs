@@ -36,21 +36,39 @@ function organicExpedition(){
 // bounded chunks. The previous 8fps/480kbps and final in-page base64
 // accumulation could not review natural sword/camera motion reliably.
 async function beginRecording(page,isDesktop){
- return page.evaluate((desktop)=>{
+ return page.evaluate(async(desktop)=>{
   try{
    const canvas=document.getElementById('world');
    const mime=['video/webm;codecs=vp8,opus','video/webm'].find(t=>window.MediaRecorder?.isTypeSupported(t));
    if(!canvas?.captureStream||!mime||typeof window.__M1_MEDIA_CHUNK__!=='function')
     return {status:'UNAVAILABLE',reason:'WebGL MediaRecorder or bounded disk sink unavailable'};
    const requestedFps=24,videoBitrate=desktop?2400000:1100000;
-   const video=canvas.captureStream(requestedFps),audio=window.__DUNGEON_CAPTURE_SOUND__?.();
-   const v=video.getVideoTracks(),a=audio?.getAudioTracks()||[];
+   // Request each actual completed WebGL frame rather than 24 synthetic
+   // resamples of a browser that may only present a few real frames per second.
+   let video=canvas.captureStream(0),v=video.getVideoTracks();
+   let frameCaptureMode='render-driven';
+   if(v.length===1&&typeof v[0].requestFrame!=='function'){
+    video.getTracks().forEach(t=>t.stop());
+    video=canvas.captureStream(requestedFps);v=video.getVideoTracks();
+    frameCaptureMode='timed-fallback';
+   }
+   const audio=window.__DUNGEON_CAPTURE_SOUND__?.(),a=audio?.getAudioTracks()||[];
    if(v.length!==1)return {status:'UNAVAILABLE',reason:'No WebGL video track'};
+   let framePump=null;
+   if(frameCaptureMode==='render-driven'){
+    const {createRenderedFrameCapture}=await import('/dungeon/rendered-frame-capture.js');
+    framePump=createRenderedFrameCapture({
+     readFrame:()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame,
+     requestFrame:()=>v[0].requestFrame(),
+     schedule:fn=>requestAnimationFrame(fn),
+     cancel:id=>cancelAnimationFrame(id)
+    });
+   }
    const stream=new MediaStream([...v,...a]);
    const recorder=new MediaRecorder(stream,{mimeType:mime,
     videoBitsPerSecond:videoBitrate,audioBitsPerSecond:112000});
    let sequence=Promise.resolve(),bytes=0,parts=0,failure=null;
-   window.__M1_RECORD__={recorder,stream,video};
+   window.__M1_RECORD__={recorder,stream,video,framePump};
    window.__M1_RESULT__=new Promise(resolve=>{
     recorder.ondataavailable=e=>{
      if(!e.data?.size)return;
@@ -68,19 +86,24 @@ async function beginRecording(page,isDesktop){
     };
     recorder.onerror=e=>{failure=String(e.error||e)};
     recorder.onstop=async()=>{
+     const capture=framePump?.stop()??null;
      try{
       await sequence;
-      resolve({status:bytes>2048&&parts>0&&!failure?'RECORDED':'UNAVAILABLE',
-       reason:failure||(bytes>2048?undefined:'Empty WebGL film'),bytes,
+      const frameFault=capture?.failure??null;
+      resolve({status:bytes>2048&&parts>0&&!failure&&!frameFault?'RECORDED':'UNAVAILABLE',
+       reason:frameFault||failure||(bytes>2048?undefined:'Empty WebGL film'),bytes,
        chunks:parts,mime,audioTracks:a.length,videoTracks:v.length,
-       requestedFps,videoBitrate,audioBitrate:112000});
+       requestedFps,videoBitrate,audioBitrate:112000,frameCaptureMode,
+       requestedRenderedFrames:capture?.requestedFrames??null,
+       lastRequestedRenderFrame:capture?.lastFrame??null});
      }catch(e){resolve({status:'UNAVAILABLE',reason:String(e),bytes,chunks:parts})}
      finally{stream.getTracks().forEach(t=>t.stop());video.getTracks().forEach(t=>t.stop())}
     };
    });
    recorder.start(1600);
+   framePump?.start();
    return {status:'RECORDING',mime,audioTracks:a.length,videoTracks:v.length,
-    requestedFps,videoBitrate,audioBitrate:112000};
+    requestedFps,videoBitrate,audioBitrate:112000,frameCaptureMode};
   }catch(e){return {status:'UNAVAILABLE',reason:String(e)}}
  },isDesktop);
 }
@@ -90,6 +113,7 @@ async function stopRecording(page){
   page.evaluate(async()=>{
    const c=window.__M1_RECORD__;
    if(!c)return {status:'UNAVAILABLE',reason:'Never started'};
+   c.framePump?.stop();
    if(c.recorder.state!=='inactive')c.recorder.stop();
    return window.__M1_RESULT__;
   }),
