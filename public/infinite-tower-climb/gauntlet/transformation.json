@@ -43,32 +43,41 @@
     "terminalSightlineImplementationSha": "8071970dc94f6a4408fc0f9623666f1384f7ccc5",
     "terminalSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: genuine terminal result/intermission source left the world.clockwork decorative-scene cutaways OFF when protectLiveRoute required running lifecycle and HP>0. At 8071970d the existing outcome camera now supplies the actual final hero and world-transformed earned-rung memorial as the same live decorative sightline subjects. Result-only, intermission-only, and true restart gate tests committed. Original runtime Node22/Three/Chromium/FFmpeg UNEXECUTED: quality run 42517968173 queued. No current 960x600/390x844 film and no evidence of actual LOOKS/FEELS/PLAYS improvement; giant wheel historically occludes guardian at e0fe7729 native ~16–18s and recent open clockwork is unverified.",
     "nativeFilmClockImplementationSha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
-    "nativeFilmClockEvidenceStatus": "P0 OPEN / NOT EVALUATED: source fixture verified that a stale screenshot-to-PTS clock from a different original WebM was previously admitted as CALIBRATED when SHA/scenario/viewport matched. Commit 08ce21ca binds the original unedited Playwright WebM SHA-256 and byte count to its native-video-clock.json; event pairing now vetoes missing, swapped or wrong-length native clock evidence. Isolated V8 red-green source probe passed; original Node22/Chromium/FFmpeg NOT executed (development tunnel disconnected and exact-source quality 42551931345 pending). No new footage, visual claim, independent reviewers or supported-device metrics."
+    "nativeFilmClockEvidenceStatus": "P0 OPEN / NOT EVALUATED: source fixture verified that a stale screenshot-to-PTS clock from a different original WebM was previously admitted as CALIBRATED when SHA/scenario/viewport matched. Commit 08ce21ca binds the original unedited Playwright WebM SHA-256 and byte count to its native-video-clock.json; event pairing now vetoes missing, swapped or wrong-length native clock evidence. Isolated V8 red-green source probe passed; original Node22/Chromium/FFmpeg NOT executed (development tunnel disconnected and exact-source quality 42551931345 pending). No new footage, visual claim, independent reviewers or supported-device metrics.",
+    "airborneGuardianDuelImplementationSha": "22a57d977ff0967a469ce6f6fe9664f633c64e57",
+    "airborneGuardianDuelEvidenceStatus": "P0 OPEN / NOT EVALUATED: genuine native ~71.12s 390x844 danger film from OLD original renderer e0fe77294359c32c84cdcff3c0698ba0c7e3a067, workflow 42426089449 artifact 13594459833, shows near-side clockwork dominating the guardian/climber at roughly video 16.5–18s. 22a57d97 extends the existing actual 3D, two-body portrait dolly to an airborne source-selected target platform, but vetoes moving the real selected landing out of safe NDC bounds or away from the center. Six isolated V8 pure-policy cases passed and source parsing/readback passed, not full Node/Three tests. Neither current SHA gameplay footage, exact source 3200-tick campaign, supported device frame-time or blind votes exists. LOOKS/FEELS/PLAYS 0/5 each, verdict NOT EVALUATED."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-09",
-      "sourceHeadAtInspection": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
-      "actualRenderedGameSourceSha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
+      "sourceHeadAtInspection": "cce544443b7d09392474dd9c9575f84a0bd39fe4",
+      "actualRenderedGameSourceSha": "22a57d977ff0967a469ce6f6fe9664f633c64e57",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": false,
-      "completedOutcome": "Fixed source-authentic full-motion evidence admission: a native screenshot-to-WebM clock could previously be transferred from a different film with the same scenario, seed, source SHA and viewport; pairing called it CALIBRATED even when the original WebM bytes differed. The browser recorder now saves the native video digest and byte length after Playwright closes the recording; source pairing requires both to agree with independently probed and SHA-256-audited WebM bytes. Production capture and native frame visibility remain unexecuted and unverified; this is a P0 truth blocker repair, not gameplay transformation.",
+      "renderedGameplayExperienceChangedThisExecution": true,
+      "completedOutcome": "Implemented one source-bound 3D portrait guardian camera continuity change: existing grounded two-body dolly now also handles actual midair guardian exchanges ONLY when the real source-selected landing stays in safe projected view before/after, with a slower bounded radial move and rollback otherwise. This is source/presentation change, not evidence of improved LOOKS/FEELS/PLAYS. Recovered and inspected authentic historical native portrait footage from original older source and exact frozen baseline; no current source video or fresh normal-speed full-cycle game proof.",
       "verifiedBlocker": {
-        "defect": "Source-level red reproduction: scripts/tower-event-pairing.cjs accepted a clock calibration from a swapped WebM; its timebase checked metadata but had no cryptographic video binding. Existing ffprobe transport audit certified the real video bytes separately, so stale clock sidecars could yield false calibrated source-event search handles.",
-        "implementation": "08ce21ca0c1af42219dc77555e5edc4c2483fa03; scripts/tower-event-pairing.cjs, tests/browser/tower-live-motion.spec.cjs, tests/phase3/tower-event-pairing.test.cjs only. Native WebM bytes are hashed after browser recording is closed; the independent matching audit now requires exact digest and size.",
-        "developmentWorkspace": "NOT_FOUND: tunnel-client has not been seen for 300 seconds; original Node22, Three.js, Chromium, FFmpeg, source campaigns and new native recordings unavailable.",
-        "githubActions": "New exact-code quality run 42551931345 pending with no verified runner result. Earlier capture/quality jobs remain queued; root cause of runner shortage not established."
+        "observedExperienceDefect": "Older genuine candidate 390x844 native danger WebM (source e0fe7729) around 16.5–18.0 seconds shows an oversized near-side clockwork rim/case dominating the image while the airborne climber and live guardian become hard to read. Source events are not certified aligned with WebM native PTS. Later physical annular/clockwork/camera changes are not in this film.",
+        "productionChange": "22a57d977ff0967a469ce6f6fe9664f633c64e57. Existing duel dolly extended through 3D airborne guardian combat with authoritative targetPlatformId and real physical landing point. NDC landing before/after, clip and relative-motion safety veto, existing actor+guardian core and full-body safety, rollback, reduced-motion/mute/camera-mode gates unchanged; bounded airborne dolly and diagnostic counter. No AI, rules, collision, baseline, moving-deck or guardian HP modification.",
+        "historicalVideo": "Run https://github.com/my-edutu/Ai_games/actions/runs/42426089449, candidate danger https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 (source e0fe77294359c32c84cdcff3c0698ba0c7e3a067) and baseline danger artifact 13594988657 (frozen 1731b380851162741761c5569e2bc152a0869ca9), both native 390x844 ~71s WebM retrieved; these do not evaluate today's implementation.",
+        "developmentWorkspace": "BLOCKED: live approved coding tunnel returned 'Tunnel-client has not been seen for 300 seconds'; no original Node22, Three.js, Chromium or FFmpeg capture on this HEAD.",
+        "githubActions": "Latest previously read quality run https://github.com/my-edutu/Ai_games/actions/runs/42551931345 at source 08ce21ca remained pending without assigned runner; no exact current-implementation completed CI evidence."
       },
       "testsAndCapturesProducedThisExecution": [
-        "Reproduced original defect using actual fetched JavaScript module in isolated V8: swapped WebM digest still produced CALIBRATED source timebase and 2 source-film search handles despite a separately valid genuine transport audit.",
-        "Isolated red-green V8 source execution after patch: original digest CALIBRATED; swapped SHA-256, mismatched byte count and absent legacy binding all NOT EVALUATED with zero calibrated pair search handles.",
-        "Committed targeted original-repository source recorder, pairing gate and phase3 regression fixture. Exact branch ref fast-forwarded without force. Full original Node22/Three.js suite, Playwright browser and native ffprobe audit NOT RUN.",
-        "No new source-pinned 960x600 or 390x844 WebM, no current complete 3200-tick full loop replay, no physical-device metrics and no blind independent reviews."
+        "Source implementation committed with non-force, expected-head fast-forward and exact GitHub readback of 3 files. Correct draft PR68 and frozen base confirmed.",
+        "Six isolated V8 pure-policy scenario assertions passed: valid real midair landing accepted; missing landing, unsafe projected landing, excessive landing drift and blocked guardian rejected; ordinary grounded behavior preserved. Full original Node/Three.js tests NOT EXECUTED.",
+        "Exact after-write source syntax checks: import-stripped 3D scene module, pure lens module and CJS test fixture parse; source-level tests alone do not verify real-camera composition.",
+        "Recovered historic candidate and baseline 390x844 original native ~71-second danger WebMs; sampled throughout and around live 16.5-18s obstruction. This is PRE-IMPLEMENTATION source, so no new exact-SHA WebM or accepted film-event calibration.",
+        "No current 3200-tick two-run guardian/crusher -> real cap threshold -> floor nine -> outcome/restart check, no fresh desktop 960x600 or portrait 390x844 film, no native supported-device performance, no independent blind reviews."
       ],
       "newSourcePinnedCaptureLinks": [],
+      "historicalCaptureLinks": [
+        "https://github.com/my-edutu/Ai_games/actions/runs/42426089449",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833",
+        "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594988657"
+      ],
       "independentBlindReviews": {
         "looks": 0,
         "feels": 0,
@@ -76,27 +85,20 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "largestObservedGap": "Last inspected authentic older e0fe7729 candidate portrait native WebM had oversized near-side clockwork obscuring the climber and guardian around 16–18 seconds. Recent annular geometry and camera/earned-gateway source changes still have no current original-speed 960x600/390x844 gameplay verification.",
-      "nextHighImpactAction": "Recover an executable original-game checkout or GitHub Actions runner; execute exact 08ce21ca source tests and two deterministic unchanged 3200-tick guardian/crusher to grounded threshold/floor-nine/result/restart campaigns. Capture fresh immutable baseline and candidate native 60+s WebM in 960x600 desktop and 390x844 portrait under matched seed/tier, validate the newly bound native-video-clock sidecars, inspect full-motion actor/guardian obstruction and physical threshold crossing, and rebuild the largest current defect. Actual supported-device frame-time/memory and five independent blinded LOOKS, FEELS, PLAYS reviews are later mandatory.",
-      "restrictions": "Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved; active PR58 and main untouched, PR68 remains open/draft. No merge, deploy, force push, other-game edits or fabricated reviews.",
+      "largestObservedGap": "Current unfilmed source still lacks validated continuous portrait guardian/climber composition and physical gateway/floor-nine/outcome/restart; older authentic e0fe7729 video showed giant near-side clockwork rim obscuring action at 16.5–18s, with the subsequent gear and camera changes entirely unassessed in a new real source-pinned recording.",
+      "nextHighImpactAction": "Recover executable original Node22/Three/Chromium/FFmpeg runner and full original-game checkout, execute original tests and both authentic 3200-tick same-run guardian/crusher-to-restart campaigns, record 60+s normal-speed frozen-baseline and 22a57d97 candidate at 960x600 and 390x844 matched seed/tier with native WebM/P TS-to-source event alignment. Watch full-motion and correct dominant real visual/route defect; then benchmark actual devices and acquire 5 genuinely independent blind randomized critics per LOOKS/FEELS/PLAYS. Do not advance beyond P0 until verified.",
+      "restrictions": "Preserve frozen baseline 1731b380851162741761c5569e2bc152a0869ca9, main and PR58; PR68 remains open/draft. No merge, deployment, force-push, other game edits, manufactured evidence, fabricated critic or device score.",
       "implementationCommits": [
-        "08ce21ca0c1af42219dc77555e5edc4c2483fa03"
+        "22a57d977ff0967a469ce6f6fe9664f633c64e57"
       ],
-      "newExactSourceQuality": {
-        "runId": 42551931345,
-        "sha": "08ce21ca0c1af42219dc77555e5edc4c2483fa03",
-        "status": "pending",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42551931345",
-        "note": "No actual Node or browser execution verified; this is not game or safety acceptance."
-      },
       "currentSourceVideo": "NOT EVALUATED"
     },
     "title": "SAME coherent playable 3D Tower experience: source-earned airborne traversal/weight → moving-deck arrival → upper-cap guardian/crusher victory → real threshold crossing and authentic outcome",
-    "state": "P0 OPEN — source-to-native-film clock is now byte-bound; current normal-speed visual and device acceptance NOT EVALUATED",
+    "state": "P0 OPEN — authentic source-selected airborne guardian duel camera implemented, real exact-head film and acceptance NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Recover original checkout or assigned GitHub runner; validate exact source and film byte-bound calibrated event clocks, then critique real continuous current portrait/desktop guardian to grounded floor-nine/restart footage before advancing P1.",
+    "nextDecision": "Capture the actual source-pinned midair guardian and post-boss full loop at 390x844/960x600; prove no foreground wheel or missed landing, then choose the largest visible genuine defect.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Older genuine original renderer e0fe7729 portrait WebM shows a giant near-side clockwork wheel hiding the climber and guardian around native 16–18s. The later physical annular rotors, cutaway opacity and source-locked earned gate have no source-matched current normal-speed video; visual outcome NOT EVALUATED.",
+    "biggestRemainingExperienceGap": "Older native e0fe7729 portrait shows a massive wheel occluding the midair climber/guardian around 16.5–18 seconds. New real-landing-safe 3D duel dolly and earlier annular clockwork cuts are source-only until exact-HEAD full-motion comparative evidence exists.",
     "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
