@@ -28,6 +28,7 @@ on:
       - 'scripts/tiny-kingdom-w112-spatial-crop-contract.cjs'
       - 'scripts/tiny-kingdom-w114-night-households-contract.cjs'
       - 'scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs'
+      - 'scripts/tiny-kingdom-w164-forge-smoke-material-contract.cjs'
       - 'tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs'
       - 'tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs'
       - 'tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs'
@@ -492,6 +493,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: W164 RED-first real forge-smoke material integrity
+        run: node scripts/tiny-kingdom-w164-forge-smoke-material-contract.cjs
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium

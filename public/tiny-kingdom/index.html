@@ -4658,6 +4658,14 @@ function validMaterialTag(material){
   const index=Math.round(value-.5);
   return index>=0&&index<4&&Math.abs(value-(index+.5))<.00005;
  }
+ // W164: the existing forge chimney emits THREE resident shader-animated
+ // puff IDs 19+(k+.5)/16. The 19..20 shader branch renders them, but the
+ // stale geometry auditor rejected all 432 genuine forge vertices.
+ // Admit ONLY those three encoded IDs; other malformed tags still fail.
+ if(material>19&&material<20){
+  const value=(material-19)*16,puff=Math.round(value-.5);
+  return puff>=0&&puff<3&&Math.abs(value-(puff+.5))<.00005;
+ }
  return false;
 }
 function inspectMeshGeometry(vertices){
