@@ -2524,7 +2524,7 @@
       "nextImplementation": "Inspect true exact-head 1440/390 synchronized WebM/Opus, renderSurface/DPR/frame-delivery diagnostics and Warden actor readability. Do not count unverified software budget or PR72 as an experiential win. Complete organic defeat/restart and blinded critics."
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Authentic Warden combat looks miniature and cluttered at ~0.5fps software-Chromium recording; natural defeat/restart footage and original hit-synchronized sound unverified.",
+    "biggestRemainingGap": "Software WebGL source film: sparse Warden frames and miniature combatants; desktop defeat checkpoint still times out; exact-head pooled event-cue visual/performance not yet observed.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5664,7 +5664,7 @@
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect authentic exact new-head 1440/390 Warden warning orbit, critical danger-cell fit, skinned boot/blade visibility and camera easing; measure p50/p95/p99 true raster; finish 5 organic stages and matched baseline before any acceptance.",
+    "nextImplementationTask": "Inspect NEW SHA authentic 1440px/390px original Warden frame video, stage draw calls, p50/p95/p99 scene/submit/delivery and original audio against 5499299/locked M1; reject regressive pooled effects; fix visible rig attachment and complete desktop natural defeat before safe PR72 animation acceptance.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -6373,6 +6373,36 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect measured render phase vs RAF and media timestamps; fix dominant genuine cause and re-record; resolve hero visibility/cranial regressions and organic desktop defeat; PR72 remains separate"
+    },
+    "m1RetainedAuthorityCueBatch": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "54992996958adedec4d03aaf7680983b9c5544e7",
+      "priorRun": "https://github.com/my-edutu/Ai_games/actions/runs/42621821773",
+      "softwareWardenDesktop": {
+        "drawCalls": 630,
+        "minHeroPx": 80,
+        "submitP95Ms": 2498.2,
+        "frameDeliveryP95Ms": 2816.6
+      },
+      "softwareWardenMobile": {
+        "drawCalls": 623,
+        "minHeroPx": 36,
+        "frameDeliveryP95Ms": 1866.6
+      },
+      "fix": "Pool original authority-gated particles and pulses into 3 retained InstancedMesh submissions, bounded 72+12 slots, instead of up to 84 individual mesh/material draws; preserve original event timing/position/colors and reduced motion",
+      "isolatedBehavior": "4/4 local fake-Three behavioral tests PASS before integration; repository foundation contract committed but current-head CI not yet executed",
+      "afterRealMotion": "NOT_OBSERVED",
+      "desktopNaturalDefeat": "UNVERIFIED",
+      "originalImpactAudioSync": "UNVERIFIED",
+      "pr72": "UNINTEGRATED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect authentic new-head original desktop/mobile movie, VFX color/alignment, event pool metrics, render p95, original audio and source checksums; fix regressions and bottleneck; full same-seed baseline A/B and 3 blind critics"
     }
   }
 }

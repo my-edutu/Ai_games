@@ -313,3 +313,41 @@ test('viewport reset restores original cap only for unverified trial, not accept
  assert.equal(gate.stats().trialActive,false);
  assert.equal(gate.reset(),null);
 });
+
+
+test('source-verified impact VFX uses retained instancing rather than per-cue mesh/material allocations',async()=>{
+ const {createAuthorityCueBatch}=await load();
+ class Vec{set(x,y,z){Object.assign(this,{x,y,z});return this}setScalar(x){return this.set(x,x,x)}}
+ class Quat{setFromAxisAngle(){return this}}
+ class Matrix{compose(p,q,s){this.pose={x:p.x,y:p.y,z:p.z,size:s.x};return this}}
+ class Color{constructor(value){this.value=value;this.brightness=1}copy(c){this.value=c.value;this.brightness=c.brightness;return this}multiplyScalar(n){this.brightness*=n;return this}}
+ class Geometry{dispose(){this.disposed=true}}
+ class Material{constructor(cfg){this.cfg=cfg}dispose(){this.disposed=true}}
+ class Instances{
+  constructor(geometry,material,capacity){Object.assign(this,{geometry,material,capacity,count:capacity,matrixWrites:0});
+   this.instanceMatrix={setUsage(){},needsUpdate:false};this.instanceColor={needsUpdate:false};this.poses=[]}
+  setMatrixAt(i,m){this.poses[i]={...m.pose};this.matrixWrites++}
+  setColorAt(i,c){this.lastTint=c.value}
+ }
+ const THREE={OctahedronGeometry:Geometry,MeshBasicMaterial:Material,InstancedMesh:Instances,
+  Matrix4:Matrix,Vector3:Vec,Quaternion:Quat,Color,DynamicDrawUsage:35048,DoubleSide:2,AdditiveBlending:3};
+ const scene={children:[],add(x){this.children.push(x)},remove(x){this.children.splice(this.children.indexOf(x),1)}};
+ const fx=createAuthorityCueBatch(THREE,scene,{maxParticles:72,maxPulses:12,
+  ringGeometry:new Geometry(),shockGeometry:new Geometry()});
+ assert.equal(scene.children.length,3);
+ assert.equal(fx.stats().activeDrawCalls,0);
+ for(let i=0;i<200;i++)assert.equal(fx.emitParticle({x:i,y:1,z:2,vx:0,vy:1,vz:0,
+  scale:.5,duration:.7,color:'#e99159'}),true);
+ for(let i=0;i<30;i++)assert.equal(fx.emitPulse({kind:i%2?'ring':'chapter',
+  x:i,y:.068,z:0,from:.8,to:1.8,duration:.9,color:'#ffe7a1'}),true);
+ fx.advance(.05);
+ assert.deepEqual([fx.stats().activeParticles,fx.stats().activePulses,fx.stats().activeDrawCalls],[72,12,3]);
+ assert.ok(fx.meshes.particles.poses[0].x>=128,'oldest cues retired at bounded capacity');
+ assert.equal(fx.meshes.particles.lastTint,'#e99159');
+ assert.equal(scene.children.length,3,'one source visual GPU mesh per original cue class');
+ assert.equal(fx.emitParticle({x:NaN,y:0,z:0,vx:0,vy:0,vz:0,scale:1,duration:1,color:'#f00'}),false);
+ for(let i=0;i<30;i++)fx.advance(.05);
+ assert.equal(fx.stats().activeDrawCalls,0,'no stale cue survives recovery/expiration');
+ fx.dispose();assert.equal(scene.children.length,0);
+ assert.equal(fx.emitPulse({kind:'ring',x:0,y:0,z:0,from:.5,to:1,duration:.5,color:'#f00'}),false);
+});

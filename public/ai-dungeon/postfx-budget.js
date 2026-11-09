@@ -262,3 +262,106 @@ export function createRenderPhaseProfiler(requestedCapacity=180){
  }
  return Object.freeze({observe,summary});
 }
+
+
+/**
+ * Retained, bounded visual-only instancing for real public-authority event
+ * cues. Never decides that an attack hit; the event priority contract does.
+ * The original particle and pulse geometry are reused, not omitted.
+ */
+export function createAuthorityCueBatch(THREE,scene,{
+ maxParticles=72,maxPulses=12,ringGeometry,shockGeometry
+}={}){
+ if(!Number.isSafeInteger(maxParticles)||maxParticles<1||maxParticles>512||
+    !Number.isSafeInteger(maxPulses)||maxPulses<1||maxPulses>128||
+    !ringGeometry||!shockGeometry)throw new RangeError('Invalid authority cue capacity or geometry');
+ const particleGeometry=new THREE.OctahedronGeometry(.07,0);
+ const material=(opacity,additive=false)=>new THREE.MeshBasicMaterial({
+  color:'#ffffff',transparent:true,opacity,depthWrite:false,
+  ...(additive?{side:THREE.DoubleSide,blending:THREE.AdditiveBlending}:{})
+ });
+ const create=(geometry,mat,capacity,name)=>{
+  const mesh=new THREE.InstancedMesh(geometry,mat,capacity);
+  mesh.name=name;mesh.count=0;mesh.frustumCulled=false;
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  scene.add(mesh);
+  return mesh;
+ };
+ const particleMesh=create(particleGeometry,material(.8),maxParticles,'source-event-particles');
+ const pulseMaterial=material(.55,true);
+ const ringMesh=create(ringGeometry,pulseMaterial,maxPulses,'source-event-ring-pulses');
+ const shockMesh=create(shockGeometry,pulseMaterial,maxPulses,'source-event-chapter-pulses');
+ const particles=[],pulses=[];
+ const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),size=new THREE.Vector3();
+ const rotation=new THREE.Quaternion(),floorRotation=new THREE.Quaternion()
+  .setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2);
+ const displayColor=new THREE.Color();
+ let disposed=false;
+ const isFiniteNumber=n=>typeof n==='number'&&Number.isFinite(n);
+ const positive=n=>isFiniteNumber(n)&&n>0;
+ function emitParticle({x,y,z,vx,vy,vz,scale,duration,color}){
+  if(disposed)return false;
+  if(![x,y,z,vx,vy,vz].every(isFiniteNumber)||!positive(scale)||!positive(duration)||!color)return false;
+  if(particles.length>=maxParticles)particles.shift();
+  particles.push({x,y,z,vx,vy,vz,scale,duration,color:new THREE.Color(color),life:0});
+  return true;
+ }
+ function emitPulse({x,y,z,from,to,duration,color,kind}){
+  if(disposed)return false;
+  if(![x,y,z,from,to].every(isFiniteNumber)||!positive(duration)||!color)return false;
+  if(pulses.length>=maxPulses)pulses.shift();
+  pulses.push({x,y,z,from,to,duration,color:new THREE.Color(color),
+   kind:kind==='chapter'?'chapter':'ring',life:0});
+  return true;
+ }
+ function compactAndAge(entries,step,particle){
+  for(let i=entries.length-1;i>=0;i--){
+   const e=entries[i];e.life+=step;
+   if(e.life>=e.duration){entries.splice(i,1);continue}
+   if(particle){e.x+=e.vx*step;e.y+=e.vy*step;e.z+=e.vz*step}
+  }
+ }
+ function write(mesh,entries,isParticle){
+  let count=0;
+  for(const e of entries){
+   if(!isParticle&&(e.kind==='chapter')!==(mesh===shockMesh))continue;
+   const progress=Math.max(0,Math.min(1,e.life/e.duration));
+   // Shared shaders use restrained brightness and geometric recession
+   // instead of allocating a mutable opacity material for each cue.
+   const fade=Math.max(0,1-progress);
+   const radius=isParticle?e.scale*(.42+.58*fade):e.from+(e.to-e.from)*progress;
+   position.set(e.x,e.y,e.z);size.setScalar(Math.max(.0001,radius));
+   matrix.compose(position,isParticle?rotation:floorRotation,size);
+   mesh.setMatrixAt(count,matrix);
+   displayColor.copy(e.color).multiplyScalar(fade);
+   mesh.setColorAt(count,displayColor);
+   count++;
+  }
+  mesh.count=count;
+  if(count){
+   mesh.instanceMatrix.needsUpdate=true;
+   if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
+  }
+ }
+ function advance(deltaSeconds){
+  if(disposed)return;
+  const step=isFiniteNumber(deltaSeconds)?Math.max(0,Math.min(.05,deltaSeconds)):0;
+  compactAndAge(particles,step,true);compactAndAge(pulses,step,false);
+  write(particleMesh,particles,true);
+  write(ringMesh,pulses,false);
+  write(shockMesh,pulses,false);
+ }
+ function stats(){return {
+  activeParticles:particles.length,activePulses:pulses.length,
+  activeDrawCalls:Number(particleMesh.count>0)+Number(ringMesh.count>0)+Number(shockMesh.count>0),
+  peakDrawCalls:3,particleCapacity:maxParticles,pulseCapacity:maxPulses,
+  independentEventMaterials:0,authorityDriven:true
+ }}
+ function dispose(){
+  if(disposed)return;disposed=true;particles.length=0;pulses.length=0;
+  for(const mesh of [particleMesh,ringMesh,shockMesh]){mesh.count=0;scene.remove(mesh)}
+  particleGeometry.dispose();particleMesh.material.dispose();pulseMaterial.dispose();
+ }
+ return {emitParticle,emitPulse,advance,stats,dispose,
+  meshes:{particles:particleMesh,ring:ringMesh,chapter:shockMesh}};
+}

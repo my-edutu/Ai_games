@@ -20,7 +20,7 @@ import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
-import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler} from '/dungeon/postfx-budget.js';
+import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
 import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -345,10 +345,12 @@ function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,fram
  if(wallMatrixWrites)mesh.instanceMatrix.needsUpdate=true;
 }
 
-const particles=[],MAX_PARTICLES=72;const seenEventIds=new Set();
-const effects=[],MAX_EFFECTS=12,
- ringGeometry=new THREE.RingGeometry(.66,.76,40),
- shockGeometry=new THREE.RingGeometry(1.12,1.24,48);
+const seenEventIds=new Set();
+const cueBatch=createAuthorityCueBatch(THREE,scene,{
+ maxParticles:72,maxPulses:12,
+ ringGeometry:new THREE.RingGeometry(.66,.76,40),
+ shockGeometry:new THREE.RingGeometry(1.12,1.24,48)
+});
 let shakeStrength=0;
 function genuineWardenGroundEvent(event){
  return (event?.kind==='danger'||event?.kind==='evade')&&
@@ -359,18 +361,9 @@ function pulseFX(plan,s){
  const p=plan.pulse;if(!p)return;
  const origin=s.units.find(u=>u.id===p.targetId);
  if(!origin)return;
- if(effects.length>=MAX_EFFECTS){
-  const oldest=effects.shift();scene.remove(oldest.mesh);oldest.mesh.material.dispose();
- }
- const material=new THREE.MeshBasicMaterial({color:p.theme,transparent:true,
-  opacity:.55,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
- const mesh=new THREE.Mesh(p.kind==='chapter'?shockGeometry:ringGeometry,material);
- mesh.rotation.x=-Math.PI/2;mesh.position.set(origin.x-9,.068,origin.z-9);
- mesh.scale.setScalar(p.from);scene.add(mesh);
- effects.push({mesh,life:0,duration:p.duration,from:p.from,to:p.to});
+ cueBatch.emitPulse({kind:p.kind,x:origin.x-9,y:.068,z:origin.z-9,
+  from:p.from,to:p.to,duration:p.duration,color:p.theme});
 }
-const particleGeo=new THREE.OctahedronGeometry(.07,0);
-function disposeParticle(p){scene.remove(p.mesh);p.mesh.material.dispose()}
 function cue(event,s){
  if(reduced)return;
  const visualPlan=planEventVisualPriority(event,s);
@@ -387,11 +380,11 @@ function cue(event,s){
   s.units.find(u=>u.id==='mystic')||s.units[0];
  const x=(target?.x??s.exit.x)-9,z=(target?.z??s.exit.z)-9;
  const count=visualPlan.particleCount;
- for(let i=0;i<count;i++){if(particles.length>=MAX_PARTICLES)disposeParticle(particles.shift());
+ for(let i=0;i<count;i++){
   const angle=i*2.399963+event.tick*.25,velocity=.4+(i%4)*.15;
-  const material=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthWrite:false});
-  const mesh=new THREE.Mesh(particleGeo,material);mesh.position.set(x,1.2+(i%3)*.09,z);mesh.scale.setScalar(.55+(i%3)*.27);scene.add(mesh);
-  particles.push({mesh,life:0,duration:.45+(i%3)*.18,vx:Math.cos(angle)*velocity,vy:.5+(i%5)*.16,vz:Math.sin(angle)*velocity});
+  cueBatch.emitParticle({x,y:1.2+(i%3)*.09,z,scale:.55+(i%3)*.27,
+   duration:.45+(i%3)*.18,vx:Math.cos(angle)*velocity,
+   vy:.5+(i%5)*.16,vz:Math.sin(angle)*velocity,color});
  }
 }
 let state=null,worldFloor='',received=false,lastTick=-1,errorAt=0;
@@ -1001,13 +994,10 @@ function animate(t){
  const cameraDt=Math.min(.24,frameInterval);
  if(impactCameraHold)impactCameraHold.age=advancePresentationActionAge(impactCameraHold.age,dt);
  if(lightInjury){lightInjury.age=advancePresentationActionAge(lightInjury.age,dt);if(lightInjury.age>=.36)lightInjury=null;}
- for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life+=dt;
-  if(e.life>=e.duration){scene.remove(e.mesh);e.mesh.material.dispose();effects.splice(i,1);continue}
-  const progression=e.life/e.duration;e.mesh.scale.setScalar(e.from+(e.to-e.from)*progression);e.mesh.material.opacity=.55*(1-progression);
- }
+ // Source-backed pulses, hit particles and chapter cues now share three
+ // retained GPU submissions, rather than a new draw call and material per cue.
+ cueBatch.advance(dt);
  shakeStrength=Math.max(0,shakeStrength-dt*.25);
- for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life+=dt;if(p.life>=p.duration){disposeParticle(p);particles.splice(i,1);continue}
-  p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.mesh.material.opacity=.75*(1-p.life/p.duration);p.mesh.scale.multiplyScalar(1-.35*dt)}
 
  const w=canvas.clientWidth,h=canvas.clientHeight;
  if(w&&h){
@@ -1470,6 +1460,7 @@ function animate(t){
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),};  deferRenderDiagnostics(diagnostics,{
    renderPipeline:()=>renderPhaseProfiler.summary(),
+   sourceCueBatch:()=>cueBatch.stats(),
    webglRendererName:()=>webglRendererName,
    cinematicContinuity:()=>combatShotContinuity.metrics(),
    cameraOcclusion:()=>physicalCameraDirector.metrics(),
