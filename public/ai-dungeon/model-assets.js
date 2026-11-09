@@ -1099,10 +1099,19 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   sourceDuration:sourceClip?.duration??0,
   effectiveSpeed:actor.activeClip?.getEffectiveTimeScale?.()??1,
   frameDelta:dt,frameInterval:sourceFrameInterval,
-  reducedMotion,visible:sourceFrameVisible
+  reducedMotion,visible:sourceFrameVisible,
+  // The same real root displacement is consumed by stageRigGroundedStride.
+  groundedTravel:actor.root&&actor.rigGaitPosition?
+   Math.hypot(actor.root.position.x-actor.rigGaitPosition.x,
+    actor.root.position.z-actor.rigGaitPosition.z):0,
+  groundedMoving:Boolean(actor.fullBody?.owner.locomotion&&actor.groundedPerformance?.moving),
+  walkingClip:/(?:walk|run|move)/i.test(actor.activeImportedClipName||''),
+  teleport:Boolean(actor.locomotionTeleport)
  };
  const sourceStep=freezeSource?0:actor.fullBody.mode==='defeat'?
   planImportedDeathSourceStep(originalStep):planImportedLivingSourceStep(originalStep);
+ if(actor.fullBody.mode==='move'&&sourceStep>Math.min(.05,dt)+.005)
+  actor.walkingSourceCatchupFrames=Math.min(1000000,(actor.walkingSourceCatchupFrames||0)+1);
  const sourceSync=!freezeSource&&sourceClip?planImportedOneShotPhase({
   mode:actor.fullBody.mode,actionTick:actor.fullBody.actionTick,age:poseAge,
   sourceTime:actor.activeClip.time,sourceDuration:sourceClip.duration,
@@ -1394,6 +1403,7 @@ function stats(actors){
  return{
    fullBodyModes:authored.reduce((m,a)=>{const mode=a.fullBody?.mode||'idle';m[mode]=(m[mode]||0)+1;return m},{}),
    fullBodyHeldRecoveryFrames:authored.reduce((n,a)=>n+(a.fullBodyHeldFrames||0),0),
+   fullBodyGroundedSourceCatchupFrames:authored.reduce((n,a)=>n+(a.walkingSourceCatchupFrames||0),0),
    fullBodyFrozenSourceActors:authored.filter(a=>a.fullBody?.owner.defeat).length,
    fullBodyFrozenSourceFrames:authored.reduce((n,a)=>n+(a.fullBodyFrozenFrames||0),0),
     nativeDeathSourceActors:authored.filter(a=>a.nativeDeathSourceActive).length,

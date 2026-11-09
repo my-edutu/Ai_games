@@ -722,3 +722,31 @@ test('teleport tick quarantine retains genuine injury and death and leaves ordin
  const fresh=step(null,frame(hero('attack',82),{actionAge:.03}));
  assert.equal(fresh.mode,'attack','fresh characters are not quarantined');
 });
+
+
+test('original Walking_A source cadence follows WITNESSED sparse-frame travel, never labels or teleports',async()=>{
+ const {planImportedLivingSourceStep:sourceStep}=await load();
+ const sample={mode:'move',age:0,sourceTime:0,sourceDuration:1.0416666666666667,
+  effectiveSpeed:.8,frameDelta:.05,frameInterval:1,visible:true,
+  groundedTravel:.53,groundedMoving:true,walkingClip:true,teleport:false};
+ assert.equal(sourceStep(sample),.28,
+  'real 0.53m displacement must advance licensed walking beyond a 50ms freeze');
+ const gentle=sourceStep({...sample,groundedTravel:.08,effectiveSpeed:1});
+ assert.ok(Math.abs(gentle-(.08/1.06)*sample.sourceDuration)<1e-9,
+  'source gait time must correspond to witnessed root travel');
+ for(const [label,changed] of [
+  ['normal 60Hz',{frameInterval:.016}],['stationary',{groundedTravel:0}],
+  ['impossible jump',{groundedTravel:.8}],['teleport',{teleport:true}],
+  ['not imported walking',{walkingClip:false}],['not real travel',{groundedMoving:false}],
+  ['hidden',{visible:false}],['reduced motion',{reducedMotion:true}],
+  ['invalid source clock',{sourceTime:NaN}],['invalid GLB duration',{sourceDuration:0}],
+  ['not locomotion',{mode:'idle'}]
+ ])assert.equal(sourceStep({...sample,...changed}),.05,label);
+ assert.ok(Math.abs(sourceStep({...sample,mode:'attack',age:.28,sourceTime:.084,
+  effectiveSpeed:1.68})-.23)<1e-9,'original attack/recovery timing unchanged');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/groundedTravel:actor\.root&&actor\.rigGaitPosition/);
+ assert.match(model,/groundedMoving:Boolean\(actor\.fullBody\?\.owner\.locomotion/);
+ assert.match(model,/walkingClip:\/\(\?:walk\|run\|move\)\/i\.test/);
+ assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+});

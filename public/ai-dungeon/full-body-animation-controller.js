@@ -279,8 +279,23 @@ export function advanceFullBodyVisibleActionAge(elapsed,options={}){
  */
 export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=frameDelta,
- reducedMotion=false,visible=true}={}){
+ reducedMotion=false,visible=true,groundedTravel=0,groundedMoving=false,
+ walkingClip=false,teleport=false}={}){
  const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ // Authentic Walking_A has a 41-joint foot cycle but sparse WebGL delivery
+ // previously advanced its imported clip by 50ms while the actual actor root
+ // and its witnessed footfall travelled up to 0.54m. Share the real distance
+ // clock with original source locomotion; never create an authority move.
+ if(mode==='move'){
+  if(reducedMotion||visible!==true||teleport||groundedMoving!==true||
+   walkingClip!==true||
+   ![sourceDuration,effectiveSpeed,sourceTime,frameInterval,groundedTravel].every(finite)||
+   sourceDuration<=.002||effectiveSpeed<=.001||sourceTime<0||
+   frameInterval<=.05||groundedTravel<=.003||groundedTravel>.54)return ordinary;
+  // Two real 0.53m footfalls span one Walking_A cycle. Bounded at 280ms,
+  // no phase seek, no artificial leg target or unverified sole locking.
+  return clamp(groundedTravel/1.06*sourceDuration/effectiveSpeed,ordinary,.28);
+ }
  if(reducedMotion||visible!==true||!['attack','cast'].includes(mode)||
   ![age,sourceTime,sourceDuration,effectiveSpeed,frameInterval].every(finite)||
   age<0||sourceTime<0||sourceDuration<=.002||effectiveSpeed<=.001||
