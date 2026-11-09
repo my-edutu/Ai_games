@@ -340,9 +340,25 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pose.rotation.z=-.15+t*.35;
    pose.scale.setScalar((.72+.35*t)*fade+.006);
   }else if(p==='signal'){
-   pose.rotation.x=-Math.PI/2;
-   pose.position.y=.075;
-   pose.scale.setScalar((.8+.38*t)*fade+.007);
+   if(cue.visual==='warning'){
+    // Only confirmed danger cells are horizontal floor markers.
+    pose.rotation.x=-Math.PI/2;
+    pose.position.y=.075;
+    pose.scale.setScalar((.8+.38*t)*fade+.007);
+   }else{
+    // Released strikes, recovery openings, earned counters and utility
+    // signals are actor-local physical beats, not extra floor hazards.
+    // The retained RingGeometry lies in a vertical XY plane by default.
+    // Preserve the witnessed root/chest height and actor heading instead
+    // of throwing those measurements away to draw a false ground ring.
+    pose.rotation.y=origin.yaw??0;
+    pose.position.y=origin.y;
+    const onset=cue.kind==='warden-release'?.90:
+     cue.kind==='opening'?1.08:cue.kind==='counter'?.68:.66;
+    const growth=cue.kind==='warden-release'?.75:
+     cue.kind==='opening'?-.28:cue.kind==='counter'?.80:.24;
+    pose.scale.setScalar((onset+growth*t)*fade+.007);
+   }
   }
   pose.updateMatrix();return pose.matrix;
  }
