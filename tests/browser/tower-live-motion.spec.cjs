@@ -49,6 +49,10 @@ for (const viewport of viewports) {
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   expect(page.viewportSize()).toEqual({ width: viewport.width, height: viewport.height });
+  // Only the neutral, pinned original-video capture opts in. The frozen
+  // baseline ignores this inert flag. It never alters gameplay or render art.
+  if (scenario === 'danger' && viewport.width === 390)
+    await page.addInitScript(() => { window.__TOWER_MESH_OWNER_AUDIT__ = true; });
   await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
     const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
@@ -156,6 +160,8 @@ for (const viewport of viewports) {
         // Baseline may lack this field; never compare absent data as a win.
         observedDecorativeOcclusion: Array.isArray(d.world?.decorativeOcclusionEvidence)
           ? d.world.decorativeOcclusionEvidence : [],
+        observedCameraRayMeshOwners: Array.isArray(d.cameraRayMeshOwners)
+          ? d.cameraRayMeshOwners : [],
         observedCamera: d.encounterCamera || null,
         observedActor: d.actorCamera || null,
         observedEarnedGatewayFrame: d.earnedGatewayCamera || null,
@@ -535,6 +541,15 @@ for (const viewport of viewports) {
       atMs:s.atMs, sourceTick:s.tick, runToken:s.runToken, floor:s.floor,
       decorativeObjects:s.observedDecorativeOcclusion,
     }));
+  // A full Three scene ray witness is required when all registered decorative
+  // objects report zero projected coverage but original video still has a
+  // giant near-side wheel. Report actual ray mesh/material/triangle ownership
+  // without claiming that intersection alone proves raster visibility.
+  const meshOwnerSamples=observations.flatMap(s=>
+    (s.observedCameraRayMeshOwners||[]).map(witness=>({
+      atMs:s.atMs,sourceTick:s.tick,runToken:s.runToken,
+      sourceFloor:s.floor, ...witness,
+    })));
   const foregroundCandidates=obstructionSamples.flatMap(s=>s.decorativeObjects
     .filter(o=>o.inFrontOfActor&&o.screenCoverage>=.12)
     .map(o=>({atMs:s.atMs,sourceTick:s.sourceTick,runToken:s.runToken,
@@ -548,6 +563,8 @@ for (const viewport of viewports) {
       originalGameplayVideoUnmodified:true,videoClockCalibration:'NOT EVALUATED',
       originalSourceFrameObservations:obstructionSamples.length,
       sourceTickLinkedSamples:obstructionSamples,
+      cameraRayMeshOwnerSamples:meshOwnerSamples,
+      cameraRayOwnershipLimitations:'Only opt-in candidate portrait danger; actual camera triangle hits with stable material, face and source tick, NOT native WebM raster pixel proof',
       largestProjectedForegroundCandidates:foregroundCandidates,
       verdict:'NOT EVALUATED',
       caveat:'Source/render camera footprint evidence only. A broad AABB is conservative; field names do not prove actual pixels, WebM timecode alignment or a quality preference.'},null,2));
