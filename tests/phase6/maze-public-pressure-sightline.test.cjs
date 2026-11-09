@@ -83,7 +83,7 @@ test('private-only trap data cannot change the disclosed 3D sightline',async()=>
 });
 
 test('a real disclosed two-cell pressure nonpassage gets a low solid cutaway; an unknown edge cannot',async()=>{
-  const {world,cleanup}=await loadWorld();
+  const {THREE,world,cleanup}=await loadWorld();
   try {
     // The public hazard is cell 40. Cell 42 is two Manhattan steps away,
     // while cell 43 is three steps away. Their 42/43 edge is a CONFIRMED
@@ -109,6 +109,25 @@ test('a real disclosed two-cell pressure nonpassage gets a low solid cutaway; an
       'the original physical pressure hazard must remain present');
     assert.equal(publicCourt.geometryCount,prior.geometryCount,
       'public two-ring cutaway must use existing pooled GPU geometry');
+    // Check the ACTUAL instanced masonry at the known east 42/43 wall:
+    // cell 42's +X edge sits at x=6, with piers at z=+/-0.99. A physically
+    // lowered post, not a screenshot mask or deleted collider, must be built.
+    const matrix=new THREE.Matrix4(),point=new THREE.Vector3(),
+      quat=new THREE.Quaternion(),scale=new THREE.Vector3();
+    const pierHeights=[];
+    world.group.traverse(node=>{
+      if(!node.isInstancedMesh || node.geometry?.type!=='ExtrudeGeometry')return;
+      for(let i=0;i<node.count;i++){
+        node.getMatrixAt(i,matrix);matrix.decompose(point,quat,scale);
+        if(Math.abs(point.x-6)<.0001 &&
+          Math.abs(Math.abs(point.z)-.99)<.0001 &&
+          Math.abs(scale.x-.24)<.0001 && Math.abs(scale.z-.24)<.0001)
+          pierHeights.push(scale.y);
+      }
+    });
+    assert.ok(pierHeights.length>=2,'real public pressure-edge piers are retained');
+    assert.ok(pierHeights.every(h=>Math.abs(h-.40)<.0001),
+      'pressure parapet uses rooted 0.40-unit masonry, not 0.64-unit sightline blockers');
     assert.equal(JSON.stringify(withPublishedEdge),edgeOriginal,
       'the real published map and collision authority are immutable');
 

@@ -318,13 +318,21 @@ export function createMazeWorld(options = {}) {
       horizontal ? .39 : 2.32, cell);
     add(box, lightStone, x, .355, z, horizontal ? 2.34 : .44, .075,
       horizontal ? .44 : 2.34, cell);
-    add(box, seaGlass, x, .410, z, horizontal ? 2.06 : .19, .037,
+    // The real pressure mechanism is the only moving center of this disclosed
+    // court. Keep the solid NONPASSAGE wall but remove its repetitive bright
+    // rail; ordinary disclosed gates retain their full architectural trim.
+    if (!pressureStage) add(box, seaGlass, x, .410, z, horizontal ? 2.06 : .19, .037,
       horizontal ? .19 : 2.06, cell);
     for (const side of [-1, 1]) {
       const px = x + (horizontal ? side * .99 : 0);
       const pz = z + (horizontal ? 0 : side * .99);
-      block(stone, px, .32, pz, .24, .64, .24, cell);
-      add(box, lightStone, px, .66, pz, .28, .055, .28, cell);
+      // A pressure-court parapet has short rooted terminal piers, rather than
+      // identical tall corner blocks repeated across Pip's hazard sightline.
+      // The low SOLID barrier remains visually closed; neither wall edge nor
+      // the real collision/navigation topology is changed.
+      const pierHeight = pressureStage ? .40 : .64;
+      block(stone, px, pierHeight / 2, pz, .24, pierHeight, .24, cell);
+      add(box, lightStone, px, pressureStage ? .43 : .66, pz, .28, .055, .28, cell);
     }
   }
   // A physical original tile rosette distinguishes already-disclosed gate

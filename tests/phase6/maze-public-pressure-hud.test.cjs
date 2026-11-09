@@ -42,7 +42,9 @@ test('live mission source uses the exact public cue before gate, pickup and goal
   assert.match(source,/const pressureCue=!ended && !exposedDanger \? publicImmediatePressureCue\(snapshot\) : null/);
   assert.match(source,/const keyedSealedGate=!ended && !urgent/);
   assert.match(source,/const freshKey=!ended && !urgent/);
-  assert.match(source,/pressureCue\?'Pressure jaws ahead'/);
+  assert.match(source,/pressureCue\?'Avoid jaws'/);
+  assert.doesNotMatch(source,/pressureCue\?'Pressure jaws ahead'/,
+    'the 320px native hazard call cannot be clipped before its action verb');
   assert.match(source,/pressureCue\?'Keep clear of the jaws'/);
   assert.doesNotMatch(source,/pressureCue.*privateMap/,'HUD cannot depend on secret topology');
 });

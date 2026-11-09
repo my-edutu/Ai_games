@@ -135,7 +135,7 @@ function update(value){
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
   byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':pressureCue?'Visible pressure hazard':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Pressure jaws ahead':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Avoid jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
   byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':pressureCue?'Keep clear of the jaws':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
