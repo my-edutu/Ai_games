@@ -1232,3 +1232,38 @@ test('source-faded Ranger and priest releases support the original hips and BOTH
  assert.doesNotMatch(model,/if\(!actor\.rigRangedActive\)return;/,
   'diagnostic 0.1-weight threshold must not make source-faded joint overlays pop on');
 });
+
+
+test('native Ranger/caster release support recovers to neutral BEFORE its genuine owner expires, without a joint snap',async()=>{
+ const filename=path.join(root,'public/ai-dungeon/ranged-encounter-plan.js');
+ const ranged=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(filename,'utf8')).toString('base64'));
+ const components=p=>[p.weight,p.hips.pitch,p.hips.yaw,p.hips.roll,
+  p.spine.pitch,p.spine.yaw,p.spine.roll,
+  ...['left','right'].flatMap(side=>[
+   p.legs[side].upper,p.legs[side].lower,p.legs[side].foot,
+   p.shoulders[side].pitch,p.shoulders[side].roll,p.elbows[side]
+  ])];
+ for(const [kind,action,end,distance,target] of [
+  ['ranger','attack',.62,2,'true-range-target'],
+  ['mystic','cast',.64,null,null],
+  ['cultist','cast',.64,null,null]
+ ]){
+  const pose=(age,sourceBlend=1)=>ranged.planRangedBodyPose(
+   kind,action,age,distance,target,false,sourceBlend);
+  const peak=components(pose(.35));
+  const settling=components(pose(end-.02));
+  const terminal=components(pose(end));
+  const next=components(pose(end+.015));
+  assert.ok(peak.some(v=>Math.abs(v)>.08),kind+' needs a real integrated release');
+  assert.ok(settling.every(Number.isFinite),kind+' recovery must be finite');
+  assert.ok(settling.some(v=>Math.abs(v)>0),kind+' must ease rather than abruptly cut its supported pose');
+  assert.ok(Math.max(...settling.map(Math.abs))<.021,
+   kind+' near-owner expiry must settle hips, legs, spine, shoulders AND elbows');
+  assert.ok(terminal.every(v=>v===0),
+   kind+' original source owner expiration must not snap any supported joint');
+  assert.deepEqual(next,terminal,kind+' post-owner idle must not retain a fake release');
+  assert.ok(components(pose(.35,.5)).every((v,i)=>Math.abs(v-peak[i]*.5)<1e-9),
+   kind+' early and recovery angles must remain tied to native mixer fade');
+ }
+});
