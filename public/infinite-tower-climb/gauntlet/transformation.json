@@ -6271,5 +6271,33 @@
     "next": "Exact-head browser run and continuous matched film after code; do not conflate renderer change with verified visual improvement",
     "testRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823",
     "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42610553152 — PENDING at inspection"
+  },
+  "p0PortraitActionBackdrop20261109": {
+    "stage": "P0 OPEN — evidence + game-loop truth; cannot advance to P1",
+    "codeSourceSha": "dfde793de254fdb936b389f46e6aee7e8f8bbe9f",
+    "assessedPriorSha": "8e8d015db79ac6eb41e8ed767e959dabce309af4",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "authenticCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42610816382",
+    "authenticCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42610816382/artifacts/13670072777",
+    "authenticBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42610816382/artifacts/13670766270",
+    "newCampaignAndNativeFilmFinding": "9/9 recording and authentic-ledge jobs completed successfully at 8e8d015d; all 8 desktop/portrait WebMs generated. Two source campaigns and browser ledge assertions passed. Sidecars record film integrity and source event order, but videoClockCalibration remains NOT EVALUATED, with no independent visual source-event matching.",
+    "largestObservedDefect": "In original candidate 390x844 normal-speed danger video around native 16-18s the large clockwork silhouette dominates actor/guardian framing; sample of this recording's actual source camera at tick445 reports monumental-left-shoulder projectedScreenCoverage=0.3507, nearestDepth=54.94 vs actorDepth=20.96, inFront=false, renderedAlpha=1. These are separate uncalibrated moments, NOT a verified tick-to-video match.",
+    "actualChange": "Source-selected portrait actor+guardian/landing/hazard/gateway two-endpoint composition now de-emphasizes only genuinely large, projected noncolliding clockwork backdrops even when depth-correctly behind actor. Existing front-of-action raycasts, moving decks, actual hazards and authority unchanged; stacked decorations share bounded composite alpha.",
+    "targetedVerification": "Pure exact committed function policy probes 7/7 passed using the blob from dfde793d. Full GitHub quality workflow 42618415109 in progress when recorded. New head WebM and original-browser effect NOT EVALUATED.",
+    "baselineChanged": false,
+    "independentBlindReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "genuineHardware": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "verdict": "NOT EVALUATED",
+    "engineeringReview": "docs/reviews/2026-11-09-tower-pr68-source-authentic-phone-backdrop-composition.md",
+    "nextHighestImpact": "Inspect exact-source 9-job WebM and full-motion native 14-24s phone danger; verify clock face de-emphasis actually clears climber/guardian and earned gate without ghosting or popping, and monitor new ledge snap. Calibrate source events to native frame time; inspect floor-nine ground crossing/outcome/restart; if obstruction is actual gameplay machinery reopen P0 camera framing rather than hide collidable threats."
   }
 }
