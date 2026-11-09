@@ -90,7 +90,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    warningHistory.delete(warningHistory.keys().next().value);
  }
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
-  preempted=0,retiredWarningMarkers=0,staleWarningCues=0,confirmedFragments=0,measuredTrailFrames=0,
+  preempted=0,retiredWarningMarkers=0,staleWarningCues=0,unanchoredWardenSignals=0,
+  confirmedFragments=0,measuredTrailFrames=0,
   unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
@@ -162,6 +163,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // show a neutral body-height shard at the authoritative cell instead.
   let actor=null;
   try{actor=typeof actorById==='function'?actorById(id):null}catch{}
+  // Release/recovery are BODY signals, not floor hazards. A missing model,
+  // idle pose or another tick's cast cannot be used to localize this beat.
+  // Actual danger warnings still use independently witnessed floor cells.
+  const wardenBodySignal=type==='signal'&&
+   (cue.kind==='warden-release'||cue.kind==='opening');
+  if(wardenBodySignal&&(!actor||actor.u?.id!==id||
+    actor.u?.kind!=='warden'||actor.u?.action!=='cast'||
+    actor.u?.actionTick!==cue.tick))return null;
   // The sword streak must come from the current actually animated right-hand
   // bone on this witnessed swing. An idle or stale reused actor is not a blade.
   if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
@@ -169,7 +178,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const sampledPoint=sampleActor(id,at,{hand:type==='trail'||type==='projectile'||type==='spell',
    chest:victim,requireBone:type==='trail'});
   if(sampledPoint)return sampledPoint;
-  if(type==='trail')return null;
+  // A stale or invisible body never falls back to a fake floor-height
+  // release/recovery ring, even though the authority proved the event.
+  if(type==='trail'||wardenBodySignal)return null;
   if(actor)return null; // Stale/wrong-cell actor: suppress disconnected art.
   if(victim)return world(at,1.07);
   // For warning/release without a loaded actor, the public world cell remains
@@ -251,7 +262,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(warningMarkers||witnessedRelease)retireWarningMarkers(cue);
   if(witnessedRelease)rememberWardenCue(cue);
   const start=warningMarkers?world(warningMarkers[0],.075):anchor(cue,type);
-  if(!start){suppressed++;return false}
+  if(!start){
+   suppressed++;
+   if(type==='signal'&&(cue.kind==='warden-release'||cue.kind==='opening'))
+    unanchoredWardenSignals++;
+   return false;
+  }
   // An aimed target is NOT proof the missile connected. Shorten the rendered
   // flight so an unconfirmed projectile never pierces a target body volume.
   const flightDestination=(type==='projectile'||type==='spell')&&cell(cue.to)?
@@ -462,7 +478,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function stats(){return Object.freeze({
   active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,
-  warningHistoryOwners:warningHistory.size,confirmedFragments,
+  warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,confirmedFragments,
   measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
