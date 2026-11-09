@@ -112,6 +112,41 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
   } finally {world.dispose();cleanup();}
 });
 
+test('real public pressure court has joined mineral deck and two actual Three conduits, not private trap hints',async()=>{
+  const {THREE,source,world,cleanup}=await actualWorld();
+  try {
+    const neighbor={cell:5,neighbors:[4],blocked:false,trap:false,checkpoint:false,clue:false};
+    const state=published({cells:[{...cell(),neighbors:[5]},neighbor],visibleCells:[4,5]});
+    const untouched=JSON.stringify(state),pos=source.cellPosition(5,3,3);
+    const pieces=()=>{
+      let deck=0,grooves=0;
+      const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();
+      world.group.traverse(node=>{
+        if(!node.isInstancedMesh)return;
+        for(let i=0;i<node.count;i++){
+          node.getMatrixAt(i,matrix);matrix.decompose(p,q,s);
+          if(Math.abs(p.x-pos.x)>.001 || Math.abs(p.z-pos.z)>.70)continue;
+          const color=node.material.color?.getHexString();
+          if(color==='28574f'&&Math.abs(s.x-2.39)<.01&&Math.abs(s.z-2.39)<.01)deck++;
+          if(color==='5d968e'&&Math.abs(s.x-1.82)<.01&&Math.abs(s.z-.18)<.01)grooves++;
+        }
+      });
+      return {deck,grooves};
+    };
+    world.update(state);
+    assert.ok(pieces().deck>=1,'public trap has a physically joined dark-jade deck');
+    assert.ok(pieces().grooves>=2,'two physical sea-glass insets face the actual published trap');
+    assert.equal(JSON.stringify(state),untouched,'public state stays immutable');
+    const budget=world.stats();
+    world.animate(1,{explorerPosition:new THREE.Vector3(pos.x,source.cellHeight(5,3,3),pos.z)});
+    assert.equal(world.stats().geometryCount,budget.geometryCount,'no animated geometry allocations');
+    assert.equal(world.stats().materialCount,budget.materialCount,'no animated material allocations');
+    world.update(published({cells:[{...cell(false),neighbors:[5]},neighbor],
+      visibleCells:[4,5],privateTrapCells:[4],hiddenDanger:{cell:4}}));
+    assert.equal(pieces().deck,0,'private trap data cannot create a predictive public basin');
+  } finally{world.dispose();cleanup();}
+});
+
 test('no private trap, remembered-only cue or previous run may animate a hidden hazard',async()=>{
   const {THREE,source,world,cleanup}=await actualWorld();
   try {

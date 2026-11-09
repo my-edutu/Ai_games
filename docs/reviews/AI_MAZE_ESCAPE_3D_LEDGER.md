@@ -1,3 +1,10 @@
+# Pass221 — authored public pressure basin, not another checkerboard (2026-11-09 UTC)
+
+- Verified Pass220 [native WebGL 42648698257](https://github.com/my-edutu/Ai_games/actions/runs/42648698257) SUCCESS, strict six-run geometry PASSED. Inspected 37 untouched full-frame PNGs, independently audited 35/35 paired image SHA-256 records; two genuine gate images have no standalone JSON. Real 320 contact 2026-11-09T15:58:52.275Z: .66rad jaw and right +.846276 NDC under the unchanged +.95.
+- The actual talons are more readable, but a wide uniform cream checkerboard still dominates and visually dilutes the hazard. Captain Toad parity REJECTED.
+- Source candidate: replace the immediate safe, publicly disclosed pressure ring with physically continuous dark jade deck and paired flush sea-glass channels; leave outer publicly disclosed ivory sightline ring. New installed-Three physical-asset/privacy test. No rule, route, collision, camera, HUD, hidden state, GPU resource class or accessibility contract changed.
+- New source-bound 320/390/844/1280 captures, 6-reset resources and independent full-frame critic PENDING. [Dated review](./maze-3d/pass-221-pressure-basin-court-2026-11-09.md). Stay OPEN DRAFT, no merge/deploy/force-push.
+
 # Pass220 — original full-frame pressure critic and paired physical tide-shear talons (2026-11-09 UTC)
 
 - Verified exact Pass219 WebGL [42638290313](https://github.com/my-edutu/Ai_games/actions/runs/42638290313) SUCCESS on `013fb686`: source-bound original 37 PNGs, 35 individual sidecars matched byte SHA256 (two gate pair PNGs lack individual sidecars), strict six-run budget PASS, 320 real pressure physical right +.858013 inside original ±.95. Original 390/1280 full-frame criticism REJECTS tiny red-pole jaws and repetitive square court against official Nintendo reference.

@@ -844,6 +844,19 @@ export function createMazeWorld(options = {}) {
       const pressureCourtApron = pressureSightline && !c.blocked && !c.trap
         && !c.checkpoint && !c.clue && c.cell !== s.exitCell
         && !s.keys.some(key => key.cell === c.cell);
+      // Pass221: a real, publicly disclosed pressure mechanism earns a
+      // singular dark mineral basin one cardinal tile out, with its already
+      // known second ring providing the light architectural shoulder.
+      // No undiscovered trap, private topology, presumed safe route or AI
+      // decision influences this 100% visual, public-state-only district.
+      const pressureCourtBasin = pressureCourtApron && s.cells.some(known =>
+        known.trap === true && !known.blocked
+        && Math.abs(c.cell % s.width - known.cell % s.width)
+          + Math.abs(Math.floor(c.cell / s.width) - Math.floor(known.cell / s.width)) === 1);
+      const basinFacesEastWest = pressureCourtBasin && s.cells.some(known =>
+        known.trap === true && !known.blocked
+        && Math.floor(c.cell / s.width) === Math.floor(known.cell / s.width)
+        && Math.abs(c.cell % s.width - known.cell % s.width) === 1);
       // Terrace foundations always reach the same underwater bed, never float.
       // Authored terraced-support mineral hierarchy: the original large,
       // near-black undercroft swallowed the actor in authentic 1280/390 WebGL.
@@ -872,7 +885,7 @@ export function createMazeWorld(options = {}) {
       // Keep that truthful original high-court contrast. The lower two tiers
       // add one intentional district of warm clay and sea-glass respectively,
       // while adjacent courts retain a clear ivory/stone separation.
-      const floorMaterial = pressureCourtApron
+      const floorMaterial = pressureCourtBasin ? darkJade : pressureCourtApron
         ? (tier === 2 ? lightStone : tier === 1 ? stone : seaGlass)
         : tier === 2
           ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
@@ -880,7 +893,24 @@ export function createMazeWorld(options = {}) {
             : (variation(district) > .75 ? seaGlass : stone);
       // One unbroken physical slab per disclosed apron tile, rather than
       // random 2x2 squares. No added GPU class, floating deck or fake route.
-      if (pressureCourtApron || variation(c.cell + 50) > .55) {
+      if (pressureCourtBasin) {
+        // Replace the checkerboard with a near edge-to-edge continuous
+        // mineral deck. Two broad, paired flush sea-glass conduits join its
+        // actual public machine-facing axis; no arrowhead, fake key, raised
+        // obstacle, passage, new material or GPU geometry class is invented.
+        // The 2.39m deck lives inside the existing 2.40m tile boundary.
+        block(floorMaterial, x, -.035, z, 2.39, .07, 2.39, c.cell);
+        for (const sign of [-1, 1]) {
+          const px = x + (basinFacesEastWest ? 0 : sign * .48);
+          const pz = z + (basinFacesEastWest ? sign * .48 : 0);
+          add(box, seaGlass, px, .012, pz,
+            basinFacesEastWest ? 1.82 : .18, .016,
+            basinFacesEastWest ? .18 : 1.82, c.cell);
+          add(box, inlay, px, .024, pz,
+            basinFacesEastWest ? 1.69 : .045, .009,
+            basinFacesEastWest ? .045 : 1.69, c.cell);
+        }
+      } else if (pressureCourtApron || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
           add(box, deepStone, x + sign * .99, .003, z, .025, .006, 1.98, c.cell);
