@@ -274,17 +274,35 @@ export function planPhysicalFeedback(previous,next,{
    default:break;
   }
  }
- // Real multi-turn boss tell; the window belongs to actual cells and clock.
+ // The public bossWarning footprint is real, but carries NO Warden ID.
+ // Never assign its glyph to the first live Warden in array order. Even a
+ // single current Warden is not ownership evidence when the previously
+ // observed boss was absent or different. A neutral sound preserves an
+ // ambiguous public warning without forging its owner or warning history.
  const w=next.bossWarning,pw=previous.bossWarning;
- if(next.units.some(u=>u?.kind==='warden'&&u.hp>0)&&
-    validBossWarning(w,next)&&
+ const liveWardens=next.units.slice(0,96).filter(u=>
+  u?.kind==='warden'&&u.faction==='enemy'&&u.hp>0);
+ if(liveWardens.length>0&&validBossWarning(w,next)&&
     (!pw||pw.attackTick!==w.attackTick||pw.turnsUntilImpact>w.turnsUntilImpact)){
-  const boss=next.units.find(u=>u?.kind==='warden'&&u.hp>0);
-  push(w.turnsUntilImpact===1?'boss-warning-final':'boss-warning-rising',next.tick,{
-   actorId:boss.id,from:point(boss),verified:true,proof:'authority-warning-window',
-   detail:{shape:w.shape,attackTick:w.attackTick,
-    cells:selectPhysicalWarningMarkers(w.cells)}
-  });
+  const priorWardens=previous.units.slice(0,96).filter(u=>
+   u?.kind==='warden'&&u.faction==='enemy'&&u.hp>0);
+  const boss=liveWardens.length===1&&priorWardens.length===1&&
+   liveWardens[0].id===priorWardens[0].id&&validId(liveWardens[0].id)&&
+   point(liveWardens[0])&&sameIdUnit(priorWardens[0],liveWardens[0])?
+   liveWardens[0]:null;
+  if(boss){
+   push(w.turnsUntilImpact===1?'boss-warning-final':'boss-warning-rising',next.tick,{
+    actorId:boss.id,from:point(boss),verified:true,proof:'authority-warning-window',
+    detail:{shape:w.shape,attackTick:w.attackTick,
+     cells:selectPhysicalWarningMarkers(w.cells)}
+   });
+  }else{
+   // It remains a true authority warning, but no body-local authored
+   // effect or owner-specific release retirement may be inferred.
+   push('threat-warning',next.tick,{
+    verified:true,proof:'authority-warning-unattributed'
+   });
+  }
  }
  // Real actions may RELEASE sound/weapon motion, never assert an injury.
  // Strictly require the actor to survive and to have a fresh, witnessed action.
