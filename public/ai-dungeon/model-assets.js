@@ -574,10 +574,11 @@ function restoreRigPelvisBeforeMixer(actor){
 function stageRigPelvisAfterMixer(actor){
  const m=actor.rigPelvisBearing;if(!m)return;const p=actor.rigBearing?.hips||RIG_ZERO;
  const g=actor.groundedPerformance,stride=actor.rigFullBodyStride?.hips||RIG_ZERO,duel=actor.nativeDuel?.hips||RIG_ZERO;
+ const releaseSupport=actor.rigRangedPose;
  m.next.setFromEuler(m.euler.set(
-  Math.max(-.2,Math.min(.2,p.pitch+(g?.bodyPitch??0)*.32+stride.pitch+duel.pitch)),
-  Math.max(-.15,Math.min(.15,p.yaw+stride.yaw+duel.yaw)),
-  Math.max(-.16,Math.min(.16,p.roll+(g?.bodyRoll??0)*.65+stride.roll+duel.roll)),'YXZ'));
+  Math.max(-.2,Math.min(.2,p.pitch+(g?.bodyPitch??0)*.32+stride.pitch+duel.pitch+(releaseSupport?.hips?.pitch??0))),
+  Math.max(-.15,Math.min(.15,p.yaw+stride.yaw+duel.yaw+(releaseSupport?.hips?.yaw??0))),
+  Math.max(-.16,Math.min(.16,p.roll+(g?.bodyRoll??0)*.65+stride.roll+duel.roll+(releaseSupport?.hips?.roll??0))),'YXZ'));
  m.bone.quaternion.multiply(m.next);m.last.copy(m.next);
 }
 function restoreRigArmsBeforeMixer(actor){
@@ -651,14 +652,13 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
 // Genuine ranged release follows the actual imported chest/shoulder/elbow
 // joints and composes into the existing reversible mount quaternion.
 function stageRigRangedAfterMixer(actor,since,reducedMotion){
- // A real original GLB release, not a stale actor label, owns the pose.
- if(!actor.nativeReleaseOwnsUpperBody){actor.rigRangedActive=false;return;}
- const p=planRangedBodyPose(actor.u.kind,actor.fullBody?.mode||actor.u.action||'idle',since,
-  actor.animationFacing?.distance,actor.animationFacing?.targetId,reducedMotion||actor.u.hp<=0,
-  actor.activeClip?.getEffectiveWeight?.()??NaN);
- actor.rigRangedActive=p.weight>.1;
+ // Source-owning Ranger/Mystic/Cultist uses ONE cached original-clock pose.
+ // A diagnostic >.1 threshold must NEVER gate actual ankle/hip/arm posing:
+ // that produced a visible source-fade discontinuity at the threshold.
+ const p=actor.rigRangedPose;
+ actor.rigRangedActive=Boolean(actor.nativeReleaseOwnsUpperBody&&p?.weight>.1);
+ if(!actor.nativeReleaseOwnsUpperBody||!p||p.weight<=0)return;
  actor.rigRangedPeak=Math.max(actor.rigRangedPeak||0,p.weight);
- if(!actor.rigRangedActive)return;
  const apply=(mount,pitch,yaw=0,roll=0)=>{
   mount.next.setFromEuler(mount.euler.set(pitch,yaw,roll,'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
@@ -755,6 +755,7 @@ function stageRigGroundedStride(actor,reducedMotion,dt){
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigGaitBones?.length)return;
  const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
+ const releaseSupport=actor.rigRangedPose;
   const footSupport=planConstrainedFootSupport(actor.rigGaitPhase,actor.rigGaitWeight,{
    moving:Boolean(actor.fullBody?.owner.locomotion||actor.rigGaitSettling),teleport:Boolean(actor.locomotionTeleport),
    reducedMotion:reducedMotion||actor.u.hp<=0
@@ -776,7 +777,8 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   const plant=(warningBrace+releaseBrace)*(mount.part==='upper'?(mount.side==='left'?.72:1):
    mount.part==='lower'?-1.05:.28);
   const nativeContact=actor.nativeDuel?.legs?.[mount.side]?.[mount.part]??0;
-  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+footSupport[mount.side][mount.part]+contact+plant+nativeContact+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
+  const sourcedReleasePlant=releaseSupport?.legs?.[mount.side]?.[mount.part]??0;
+  const angle=Math.max(-.30,Math.min(.30,pose[mount.side][mount.part]+footSupport[mount.side][mount.part]+contact+plant+nativeContact+sourcedReleasePlant+(actor.evasionFrame?.legs?.[mount.side]?.[mount.part]??0)));
   // The previous real Chromium native-brace diagnostic reported 0 because
   // it measured only the intentionally suppressed LEGACY contact brace.
   // Measure the actual imported source-rig plant as well, without stacking
@@ -1183,6 +1185,20 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   actor.currentAction===actor.fullBody.mode&&
   ownsImportedRangedUpperBody(actor.u.kind,actor.fullBody.mode,releaseClip.name,
    actor.activeClip?.getEffectiveWeight?.()??NaN,reducedMotion||actor.u.hp<=0));
+ // Pelvis, thighs, calves, ankles, original torso and shoulders share ONE
+ // authenticated source clip release clock (and ONE reversible mixer frame).
+ // No source owner, verified hurt, evade, death or accessibility transition
+ // can continue an obsolete plant or cast a false spell/arrow.
+ actor.rigRangedPose=planRangedBodyPose(actor.u.kind,
+  actor.nativeReleaseOwnsUpperBody?actor.fullBody.mode:'idle',poseAge,
+  actor.animationFacing?.distance,actor.animationFacing?.targetId,
+  reducedMotion||actor.u.hp<=0,actor.activeClip?.getEffectiveWeight?.()??NaN);
+ actor.rigRangedSupportPeak=Math.max(actor.rigRangedSupportPeak||0,
+  Math.abs(actor.rigRangedPose.hips.pitch),
+  Math.abs(actor.rigRangedPose.legs.left.upper),
+  Math.abs(actor.rigRangedPose.legs.left.lower),
+  Math.abs(actor.rigRangedPose.legs.right.upper),
+  Math.abs(actor.rigRangedPose.legs.right.lower));
  if(sourceSync?.valid){
   actor.sourceClockRemainingSeconds=Math.abs(sourceSync.remainingSeconds);
   actor.sourceClockMode=actor.fullBody.mode;
@@ -1473,6 +1489,7 @@ function stats(actors){
    fullBodySourceClockPeakDriftSeconds:Math.max(0,...authored.map(a=>a.sourceClockDriftPeakSeconds||0)),
    fullBodySourceClockMaxRemainingSeconds:Math.max(0,...authored.map(a=>a.sourceClockRemainingSeconds||0)),
    fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
+   fullBodyOriginalReleaseSupportPeakRad:Math.max(0,...authored.map(a=>a.rigRangedSupportPeak||0)),
    fullBodySettlingActors:authored.filter(a=>a.rigGaitSettling).length,
    fullBodyFootfallPhaseErrorRad:Math.max(0,...authored.filter(a=>a.fullBody?.owner.locomotion&&a.rigGaitWeight>0)
     .map(a=>Math.abs(Math.atan2(Math.sin(a.rigGaitPhase-2*Math.PI*a.groundedPerformance.footPhase),

@@ -1,6 +1,10 @@
 /** Pure read-only skeletal release and original 3D shot plan. */
 const ease=n=>{const t=Math.max(0,Math.min(1,n));return t*t*(3-2*t)};
-const ZERO=Object.freeze({weight:0,spine:{pitch:0,yaw:0,roll:0},shoulders:{left:{pitch:0,roll:0},right:{pitch:0,roll:0}},elbows:{left:0,right:0}});
+const ZERO_HIPS=Object.freeze({pitch:0,yaw:0,roll:0});
+const ZERO_LEG=Object.freeze({upper:0,lower:0,foot:0});
+const ZERO_LEGS=Object.freeze({left:ZERO_LEG,right:ZERO_LEG});
+const ZERO=Object.freeze({weight:0,spine:ZERO_HIPS,hips:ZERO_HIPS,legs:ZERO_LEGS,
+ shoulders:{left:{pitch:0,roll:0},right:{pitch:0,roll:0}},elbows:{left:0,right:0}});
 /**
  * The original 41-joint imported source owns the connected shot/cast upper
  * body, including the first zero-weight THREE.AnimationAction fade frame.
@@ -26,12 +30,30 @@ export function planRangedBodyPose(kind,action,age=0,distance=null,targetId=null
  const release=sourceBlend*(age<.18?0:age<.35?ease((age-.18)/.17):1-ease((age-.35)/.37));
  const w=Math.max(draw,release);if(w<=0)return ZERO;
  if(archer)return {weight:w,
+  // Original 41-bone archer crouches behind the forward plant while the
+  // shoulders draw the genuine bow. Fade the hips, knees and ankles together
+  // with the source shoot clip; NO root translation or synthetic footstep.
+  hips:{pitch:-.066*draw-.038*release,yaw:.029*draw-.025*release,
+   roll:-.028*draw+.019*release},
+  legs:{left:{upper:.062*draw-.038*release,lower:-.078*draw+.052*release,
+    foot:.049*draw-.031*release},
+   right:{upper:-.085*draw+.058*release,lower:.103*draw-.068*release,
+    foot:-.058*draw+.039*release}},
   spine:{pitch:.045*draw-.095*release,yaw:.10*draw-.06*release,roll:-.045*draw},
   shoulders:{left:{pitch:-.26*draw+.16*release,roll:-.14*draw},
    right:{pitch:.18*draw-.24*release,roll:.12*draw-.06*release}},
   elbows:{left:.23*draw-.10*release,right:-.20*draw+.16*release}};
  const sign=kind==='cultist'?-1:1;
  return {weight:w,
+  // The original priest legs support the same draw and spell-release
+  // envelope: bounded stance flex, not an invented combat dodge or grid step.
+  // Cultist counters the Mystic's turning load on the existing source pelvis.
+  hips:{pitch:.075*draw-.038*release,yaw:sign*(.023*draw-.028*release),
+   roll:sign*(.021*draw-.019*release)},
+  legs:{left:{upper:.066*draw-.026*release,lower:.095*draw-.048*release,
+    foot:-.053*draw+.030*release},
+   right:{upper:.054*draw-.032*release,lower:.071*draw-.042*release,
+    foot:-.039*draw+.026*release}},
   spine:{pitch:-.065*draw-.082*release,yaw:sign*.08*release,roll:sign*.055*draw},
   shoulders:{left:{pitch:-.22*draw-.17*release,roll:-.12*draw-.06*release},
    right:{pitch:-.24*draw-.18*release,roll:.12*draw+.05*release}},
