@@ -26,7 +26,9 @@ test('transport check reads original 960x600 WebM PTS and source provenance with
  const a=inspectFilmMetadata(f.probe,f.motion,f.index,f.expected);
  assert.equal(a.status,'SOURCE_VIDEO_TRANSPORT_ONLY',a.problems.join(','));
  assert.deepEqual(a.problems,[]);
- assert.deepEqual(a.warnings,[]);
+ assert.deepEqual(a.warnings,['original-film-has-low-motion-sampling'],
+   '12fps authentic transport is not automatically motion-reviewable');
+ assert.match(a.motionReviewability,/cadence warnings/);
  assert.equal(a.visibleGameplayEvents,'NOT EVALUATED');
  assert.equal(a.independentBlindReviews,'NOT EVALUATED');
  assert.equal(a.realDevicePerformance,'NOT EVALUATED');

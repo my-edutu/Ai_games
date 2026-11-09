@@ -34,6 +34,10 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     .find(g => g && g.active === false && Number.isFinite(g.health) &&
       g.health <= 0 && typeof g.id === 'string' && g.id);
   let observedEpisode = 0, sameTickLifecyclePhaseTransitions = 0;
+  // A reversed lifecycle at the SAME fixed tick is contradictory evidence.
+  // Quarantine subsequent result/intermission claims on that tick, without
+  // rewriting the authoritative trace or treating duplicate polls as faults.
+  let lifecycleQuarantine = null, invalidSameTickLifecycleEdges = 0;
   function record(kind, s, detail = {}) {
     if (events.length >= CAP || (counts[kind] || 0) >= PER_KIND_CAP) return;
     counts[kind] = (counts[kind] || 0) + 1;
@@ -72,13 +76,25 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
       (s.runToken === previous.runToken && s.tick < previous.tick))) {
       invalidOrder++; continue;
     }
+    const tickIdentity = s.runToken + ':' + s.tick;
+    if (lifecycleQuarantine !== null && lifecycleQuarantine !== tickIdentity)
+      lifecycleQuarantine = null;
     if (previous && s.runToken === previous.runToken &&
       s.tick === previous.tick) {
       // Original TowerRuntime.step holds the tick through result/intermission.
-      // Accept real source lifecycle edges, never duplicate held public polls.
+      // Duplicate held polls are innocuous; a contradictory lifecycle EDGE
+      // taints further terminal evidence at that tick, even if a later poll
+      // would otherwise resemble an allowed result>intermission transition.
       const transition=previous.lifecycle+'>'+s.lifecycle;
       if (transition!=='running>result' &&
-          transition!=='result>intermission') { repeated++; continue; }
+          transition!=='result>intermission') {
+        if (s.lifecycle !== previous.lifecycle) {
+          lifecycleQuarantine = tickIdentity;
+          invalidSameTickLifecycleEdges++;
+        }
+        repeated++;
+        continue;
+      }
       sameTickLifecyclePhaseTransitions++;
     }
     valid++;
@@ -148,6 +164,7 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
           interpretation: 'actual source charge, visibility in recorded film NOT proven' });
     }
     if (s.lifecycle !== previous?.lifecycle &&
+      lifecycleQuarantine !== tickIdentity &&
       ['result', 'intermission'].includes(s.lifecycle) &&
       ['game', 'technical', 'operator'].includes(s.result?.kind)) {
       record('source-result-phase', s, { phase: s.lifecycle,
@@ -245,7 +262,8 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     baselineCandidateEventMatched: false, verdict: 'NOT EVALUATED',
     sourceTicksObserved: valid, malformedSamples: malformed,
     repeatedPublicTickSamples: repeated,
-    sameTickLifecyclePhaseTransitions, outOfOrderSamples: invalidOrder,
+    sameTickLifecyclePhaseTransitions, invalidSameTickLifecycleEdges,
+    outOfOrderSamples: invalidOrder,
     unobservedFixedStepTicks: missingTicks, observedRuns: distinctRuns,
     eventCounts: { ...counts }, events,
     biggestEvidenceLimitation: valid === 0 ? 'No authentic source samples available' :

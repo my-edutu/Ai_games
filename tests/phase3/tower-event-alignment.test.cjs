@@ -221,6 +221,9 @@ test('same-tick lifecycle reversal cannot fabricate terminal source evidence',()
   source(10,{atMs:1520,floor:0,guardians:[],lifecycle:'intermission',result:terminal})
  ],[]);
  assert.equal(index.eventCounts['source-result-phase']||0,1);
+ assert.equal(index.events.find(e=>e.kind==='source-result-phase').phase,'result',
+   'the initial observed result survives but a post-reversal intermission does not');
  assert.equal(index.sameTickLifecyclePhaseTransitions,1);
+ assert.equal(index.invalidSameTickLifecycleEdges,1);
  assert.equal(index.repeatedPublicTickSamples,1);
 });

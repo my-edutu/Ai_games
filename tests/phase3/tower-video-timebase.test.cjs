@@ -21,7 +21,7 @@ test('multiple original-frame anchors map actual browser wall time to native vid
   assert.equal(result.anchorsAccepted,4);
   assert.equal(result.offsetMs,-100000);
   assert.equal(result.maxResidualMs,0);
-  assert.match(result.caveat,/not establish on-screen/);
+  assert.match(result.caveat,/NOT established; no on-screen or blind-review acceptance/);
 });
 
 test('rejects a single attractive still or duplicate screenshots as proof',()=>{
