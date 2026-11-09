@@ -1,3 +1,9 @@
+# Pass224 — real authored route-side guardian watchpost candidate (2026-11-09 UTC)
+
+- Exact starting source `7b65fc9119310a4cce884dcbb8ef3c1cc2a53c09`: [WebGL 42694025302](https://github.com/my-edutu/Ai_games/actions/runs/42694025302) 96/96 focused Node + stream PASS but browser 3/5 (no genuine open Pip–Thornback corridor; independent 30s stage startup timeout). [Whole CI 42694025147](https://github.com/my-edutu/Ai_games/actions/runs/42694025147) **718/718 Node PASS**, overall FAIL from Tiny Kingdom missing script.
+- New **real gameplay generator candidate** places first existing moving guardian on a generated noncritical two-cell side patrol adjacent to the mandatory route, safely away from spawn; its ordinary visibility/AI/path/collision remains authoritative. No invented on-screen guardian, hidden route or forced capture; no additional runtime meshes. Six fixed production seed/test contracts added, fallback if no eligible branch. [Detailed dated gate](./maze-3d/pass-224-natural-guardian-watchpost-2026-11-09.md).
+- Newly authored source is **unrendered and untested at exact new HEAD**; full browser/CI, 6-run geometry, complete actual 320/390/844/1280 captures, replay compatibility and independent critic remain open. Startup timeout remains a separate real blocker. No Nintendo parity claim. Draft PR #53 remains active, unmerged and undeployed.
+
 # Pass223c — exact source old warning contract corrected, genuine encounter blocker still open (2026-11-09 UTC)
 
 - [WebGL 42693235169](https://github.com/my-edutu/Ai_games/actions/runs/42693235169) exact `2bba1110`: focused 96/96 Node passed, browser 3/5, startup 30s timeout persists; truthful currently sampled original production scenarios **lack public reciprocal-open Pip/Thornback stage**. No native image or six-reset result.
