@@ -31,8 +31,8 @@ test('real one-shot attack is coherent from anticipation through recovery',async
  value=step(contact,frame(hero('attack',19),{actionAge:.45}));
  assert.equal(value.phase,'recovery');
  const finish=step(value,frame(hero('attack',19),{actionAge:.7}));
- assert.equal(finish.phase,'settled');
- assert.equal(finish.owner.duel,true,'same authority tick does not manufacture a second hit');
+ assert.equal(finish.mode,'idle','expired .62s source one-shot releases the pose');
+ assert.equal(finish.phase,'idle');assert.equal(finish.owner.duel,false);
 });
 test('repeated legal strike restarts once at a new authoritative actionTick',async()=>{
  const {advanceFullBodyController:step}=await load();
@@ -188,6 +188,7 @@ test('constrained foot support respects actual movement, planted side and bounds
  ])assert.deepEqual(bad,still);
  const stance=pose(Math.PI/2,1,{moving:true});
  assert.equal(stance.left.foot,0);
+ assert.equal(Object.is(stance.left.foot,-0),false,'unloaded genuine foot stays canonical zero');
  assert.ok(stance.right.foot<-.05);
  for(const t of [0,.5,1,2,Math.PI,4,5.5,9.1])
   for(const w of [0,.1,.8,1,2,NaN]){
@@ -264,7 +265,7 @@ test('one verified evade owns a finite cloth lag and injury/defeat cannot keep a
  }
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const clothAction=actor\.fullBody\?\.mode/);
- assert.match(model,/const clothAge=actor\.fullBody\?\.owner\.injury\|\|actor\.fullBody\?\.owner\.evasion/);
+ assert.match(model,/const clothAge=actor\.fullBody\?\.holding\|\|actor\.fullBody\?\.owner\.injury\|\|actor\.fullBody\?\.owner\.evasion/);
  assert.match(model,/planDrapeSwing\(clothAction,clothAge,reducedMotion\)/);
 });
 
@@ -448,7 +449,8 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/const freezeSource=actor\.fullBody\.owner\.defeat&&\(!genuineDeath\|\|deathFinished\)/);
  assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted\)/);
- assert.match(model,/const sourceStep=freezeSource\?0:planImportedDeathSourceStep\(/);
+ assert.match(model,/const sourceStep=freezeSource\?0:actor\.fullBody\.mode==='defeat'\?/);
+ assert.match(model,/planImportedDeathSourceStep\(originalStep\):planImportedLivingSourceStep\(originalStep\)/);
  assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
  assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
  assert.match(model,/fullBodyFrozenSourceActors:/);
@@ -474,7 +476,9 @@ test('real renderer consumes exactly one arbiter before imported mixer and prese
   'only source action transitions can align the first imported pose');
  assert.match(model,/actor\.fullBody\?\.owner\.warning/,'Warden warnings must release joint ownership on damage and evasion');
  assert.ok(server.includes("['/dungeon/full-body-animation-controller.js','full-body-animation-controller.js']"));
- assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
+ // Comment names do not imply imported simulation authority dependencies.
+ const executable=code.replace(/\/\*[\s\S]*?\*\//g,'');
+ assert.doesNotMatch(executable,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
 });
 
 test('authentic Death_A completes across three bounded native frames under true render stalls',async()=>{
@@ -504,7 +508,8 @@ test('authentic Death_A completes across three bounded native frames under true 
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.ok(app.includes('updateActor(a,dt,since,reduced,frameInterval,!document.hidden)'));
- assert.ok(model.includes('planImportedDeathSourceStep({'));
+ assert.ok(model.includes('planImportedDeathSourceStep(originalStep)'),
+  'terminal source uses the same bounded original-frame descriptor');
  assert.ok(model.includes('frameDelta:dt,frameInterval:sourceFrameInterval'));
 });
 
@@ -648,8 +653,8 @@ test('genuine slow visible frames advance the SAME authentic attack/cast event c
  assert.equal(held.mode,'attack');assert.equal(held.actionTick,98);
  assert.ok(Math.abs(held.age-.44)<1e-9,
   'native hips/shoulders and imported source must share the original recovered age');
- assert.equal(step(started,frame(hero('idle',99),{
-  frameDelta:.05,frameInterval:1,visible:false})).age,.21);
+ assert.ok(Math.abs(step(started,frame(hero('idle',99),{
+  frameDelta:.05,frameInterval:1,visible:false})).age-.21)<1e-9);
  const sample={mode:'attack',age:0,sourceTime:0,sourceDuration:1.042,
   effectiveSpeed:1.68,frameDelta:.05,frameInterval:1};
  assert.equal(sourceStep(sample),.05,'first legal imported pose retains anticipation');

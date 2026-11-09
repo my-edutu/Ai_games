@@ -302,7 +302,8 @@ test('real GLB shins receive contact braces only from validated public grid faci
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(model,/planRigContactBrace/);
- assert.match(model,/actor\.combatFacing\?\.distance/);
+ assert.match(model,/actor\.animationFacing\?\.distance/);
+ assert.match(model,/actor\.animationFacing=actor\.fullBody\.confirmedContact\?\?actor\.combatFacing/);
  assert.match(model,/stageRigLegsAfterMixer\(actor,since,reducedMotion\)/);
  assert.match(model,/actor\.mixer\.update[\s\S]*?stageRigLegsAfterMixer/);
  assert.match(model,/rigContactBracePeakRad:/);

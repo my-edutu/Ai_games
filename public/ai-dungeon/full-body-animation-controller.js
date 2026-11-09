@@ -227,8 +227,8 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
  // through its visual support by a hip-led side-to-side gait. The original
  // heel and toe meshes remain children of the SAME imported foot joint.
  return {
-  left:{upper:-.011*left,lower:.034*left,foot:-.062*left},
-  right:{upper:-.011*right,lower:.034*right,foot:-.062*right}
+  left:left>0?{upper:-.011*left,lower:.034*left,foot:-.062*left}:NEUTRAL_LEGS.left,
+  right:right>0?{upper:-.011*right,lower:.034*right,foot:-.062*right}:NEUTRAL_LEGS.right
  };
 }
 
