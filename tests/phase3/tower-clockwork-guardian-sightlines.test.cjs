@@ -201,6 +201,47 @@ test('full 3D clockwork boss corridor is clear of giant rim AND 42-unit noncolli
   }finally{world.dispose();}
 });
 
+// This probes the real assembled Three.js groups rather than an authoring regex.
+// It constrains the deliberate architectural negative space around the upper
+// guardian battle; it is still NOT a substitute for matched full-motion film.
+test('actual clockwork scene gives upper-cap action a physically open vertical band',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const source=sourceFrame('clockwork',8), unchanged=JSON.stringify(source);
+    world.update(source,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const main=world.group.getObjectByName('clockwork-monumental-left-shoulder');
+    const upper=world.group.getObjectByName('clockwork-upper-right-shoulder');
+    const rack=world.group.getObjectByName('clockwork-far-shoulder-power-rack');
+    for(const [name,object] of [['main',main],['upper',upper],['rack',rack]])
+      assert.ok(object,'missing physical original '+name+' clockwork');
+    const boundsOf=object=>new THREE.Box3().setFromObject(object);
+    const drive=boundsOf(main), raised=boundsOf(upper), spine=boundsOf(rack);
+    assert.ok([drive,raised,spine].every(box=>!box.isEmpty()),
+      'inspect actual submitted 3D mechanism geometry, not empty proxy groups');
+    assert.ok(drive.max.y<24,
+      'giant original main rim must finish below the authentic upper battle band: '+drive.max.y);
+    assert.ok(raised.min.y>28,
+      'high satellite rotor must start above the central action band: '+raised.min.y);
+    assert.ok(spine.max.y<23,
+      'long decor-only rack must not rise through guardian action: '+spine.max.y);
+    const rotors=[];
+    world.group.traverse(node=>{
+      if(node.name==='CameraResponsiveDecorativeGear')rotors.push(node);
+    });
+    assert.equal(rotors.length,3,
+      'all three genuinely rotating original decorative machines still exist');
+    assert.equal(JSON.stringify(source),unchanged,
+      'physically clearer world art cannot alter fixed-step gameplay authority');
+    assert.ok(world.diagnostics().meshes+world.diagnostics().shadowCasterMeshes<=100,
+      'do not trade guardian visibility for a new phone render-budget regression');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-monumental-left-shoulder'),undefined,
+      'former floor-eight hardware must retire when the actual floor-nine world loads');
+  }finally{world.dispose();}
+});
+
 test('portrait world-envelope protects actor even if a huge clock centre is outside the image', () => {
   const envelope=helper('observedPortraitDecorativeEnvelope');
   const current={aspect:390/844, minX:-1.2,maxX:1.15,
