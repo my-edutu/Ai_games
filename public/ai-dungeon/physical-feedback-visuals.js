@@ -68,7 +68,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
   sampled=new THREE.Vector3();
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
-  preempted=0,confirmedFragments=0,measuredTrailFrames=0,
+  preempted=0,retiredWarningMarkers=0,confirmedFragments=0,measuredTrailFrames=0,
   unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
@@ -162,6 +162,24 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(pool.slots[least].priority>=priority)return -1;
   preempted++;return least;
  }
+ // The lower-priority Warden release must not be hidden by eight older
+ // final-warning slots. Retire only authoritative warning art in this scene;
+ // preserve other signal cues, their matrices, and the fixed resource budget.
+ function retireWarningMarkers(sceneKey){
+  const pool=pools.get('signal');let retired=0;
+  if(!pool||typeof sceneKey!=='string')return 0;
+  for(let i=0;i<pool.max;i++){
+   const slot=pool.slots[i];
+   if(slot?.cue?.visual!=='warning'||slot.cue.sceneKey!==sceneKey)continue;
+   pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;retired++;
+  }
+  if(retired){
+   retiredWarningMarkers+=retired;
+   pool.mesh.instanceMatrix.needsUpdate=true;
+   pool.mesh.visible=pool.slots.some(Boolean);
+  }
+  return retired;
+ }
  function category(cue){
   switch(cue?.visual){
    case 'trail':return 'trail';
@@ -195,6 +213,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(warningMarkers&&warningMarkers.length===0){suppressed++;return false}
   const start=warningMarkers?world(warningMarkers[0],.075):anchor(cue,type);
   if(!start){suppressed++;return false}
+  // A new validated warning replaces obsolete cells; the confirmed Warden
+  // release clears its older final tell before allocating a release signal.
+  // Unknown/forged warning geometry cannot retire a valid footprint.
+  if(warningMarkers||cue.kind==='warden-release'&&cue.proof==='authority-action')
+   retireWarningMarkers(cue.sceneKey);
   // An aimed target is NOT proof the missile connected. Shorten the rendered
   // flight so an unconfirmed projectile never pierces a target body volume.
   const flightDestination=(type==='projectile'||type==='spell')&&cell(cue.to)?
@@ -387,7 +410,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pools.clear();
  }
  function stats(){return Object.freeze({
-  active,peak,spawned,suppressed,preempted,confirmedFragments,
+  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,confirmedFragments,
   measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,

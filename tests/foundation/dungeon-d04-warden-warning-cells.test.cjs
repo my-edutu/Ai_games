@@ -89,3 +89,71 @@ test('D04 warning rejects forged / invalid footprints without drawing a fictitio
  assert.equal(v.emit({...cue,proof:'untrusted-text',detail:{cells:[{x:3,z:2}]}}),false);
  v.dispose();
 });
+
+const lifecycleCue=(kind,id,cells=null,sceneKey='1:1')=>({
+ id,tick:31,sceneKey,kind,
+ visual:kind==='warden-release'?'warden':kind==='opening'?'opening':'warning',
+ verified:true,priority:kind==='boss-warning-final'?8:kind==='opening'?6:7,
+ duration:.30,from:{x:6,z:6},actorId:'warden',
+ proof:kind==='warden-release'||kind==='opening'?'authority-action':'authority-warning-window',
+ detail:cells?{cells}:null
+});
+test('D04 full eight-cell final warning cannot suppress genuine lower-priority Warden release',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const cells=Array.from({length:8},(_,i)=>({x:i+2,z:4}));
+ const warning=lifecycleCue('boss-warning-final','warning-last',cells);
+ const release=lifecycleCue('warden-release','release-real');
+ assert.equal(v.emit(warning),true);
+ assert.equal(v.stats().instancesByPool.signal,8);
+ assert.equal(v.emit({...release,id:'unverified-release',verified:false}),false);
+ assert.equal(v.hasLiveCue(warning.id),true,'invalid release cannot erase genuine warning');
+ assert.equal(v.emit(release),true,
+  'authority release must not be denied by its own older warning signal budget');
+ assert.equal(v.hasLiveCue(warning.id),false,'obsolete final warning retired');
+ assert.equal(v.hasLiveCue(release.id),true,'release occupies retained signal pool');
+ assert.equal(v.stats().instancesByPool.signal,1);
+ assert.equal(v.stats().retiredWarningMarkers,8);
+ assert.equal(v.stats().activeDrawCalls,1);
+ assert.equal(v.stats().reservedInstances,102,'no extra pool or draw call');
+ v.dispose();
+});
+test('D04 successive same-priority warning footprints replace, not overlap or disappear',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const old=lifecycleCue('boss-warning-rising','warning-A',
+  Array.from({length:8},(_,i)=>({x:2+i,z:3})));
+ const newer=lifecycleCue('boss-warning-rising','warning-B',
+  [{x:10,z:10},{x:11,z:10},{x:12,z:10}]);
+ assert.equal(v.emit(old),true);
+ assert.equal(v.emit(newer),true,'old same-priority slots must not block fresh warning');
+ assert.equal(v.hasLiveCue(old.id),false);
+ assert.equal(v.hasDrawableCue(newer.id),true);
+ assert.equal(v.stats().instancesByPool.signal,3);
+ assert.equal(v.stats().retiredWarningMarkers,8);
+ v.dispose();
+});
+test('D04 warning cleanup preserves other signals; forged warning and cross-scene cue cannot retire a live tell',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=fakeThree(),v=createPhysicalFeedbackVisuals(T,scene);
+ const opening=lifecycleCue('opening','opening-real');
+ const w=lifecycleCue('boss-warning-rising','witnessed',
+  Array.from({length:6},(_,i)=>({x:i+2,z:4})));
+ assert.equal(v.emit(opening),true);
+ assert.equal(v.emit(w),true);
+ assert.equal(v.emit({...w,id:'forged',proof:'text-guessed'}),false);
+ assert.equal(v.emit(lifecycleCue('warden-release','cross-scene',null,'2:1')),true);
+ assert.equal(v.hasLiveCue(w.id),true,'release in another scene cannot retire this scene');
+ const replacement=lifecycleCue('boss-warning-final','valid-new',
+  [{x:3,z:5},{x:4,z:5}]);
+ assert.equal(v.emit(replacement),true);
+ assert.equal(v.hasLiveCue(opening.id),true,'unrelated opening remains allocated');
+ assert.equal(v.hasLiveCue(w.id),false);
+ assert.equal(v.stats().instancesByPool.signal,4,
+  'opening, foreign release and two current danger cells remain');
+ assert.equal(v.stats().retiredWarningMarkers,6);
+ v.reset();
+ assert.equal(v.stats().active,0);
+ assert.equal(v.stats().activeDrawCalls,0);
+ v.dispose();
+});
