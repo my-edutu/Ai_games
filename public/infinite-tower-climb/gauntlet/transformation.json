@@ -47,45 +47,48 @@
     "airborneGuardianDuelImplementationSha": "22a57d977ff0967a469ce6f6fe9664f633c64e57",
     "airborneGuardianDuelEvidenceStatus": "P0 OPEN / NOT EVALUATED: genuine native ~71.12s 390x844 danger film from OLD original renderer e0fe77294359c32c84cdcff3c0698ba0c7e3a067, workflow 42426089449 artifact 13594459833, shows near-side clockwork dominating the guardian/climber at roughly video 16.5–18s. 22a57d97 extends the existing actual 3D, two-body portrait dolly to an airborne source-selected target platform, but vetoes moving the real selected landing out of safe NDC bounds or away from the center. Six isolated V8 pure-policy cases passed and source parsing/readback passed, not full Node/Three tests. Neither current SHA gameplay footage, exact source 3200-tick campaign, supported device frame-time or blind votes exists. LOOKS/FEELS/PLAYS 0/5 each, verdict NOT EVALUATED.",
     "simultaneousSightlineImplementationSha": "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f",
-    "simultaneousSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: 3D view now respects both the source-selected actual airborne landing and concurrently observed source hazard; three preallocated corridor endpoints guard real guardian + landing + shutter without replacing one another. Exactly authored pure policy module & regression fixture blob-SHA matched and 7/7 isolated Node22 tests passed. No original Three.js, exact-head 3200-tick game, current WebM, event pairing, independent critics or real-device metrics. Previous e0fe7729 portrait film 16.5–18s occlusion cannot certify this patch."
+    "simultaneousSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: 3D view now respects both the source-selected actual airborne landing and concurrently observed source hazard; three preallocated corridor endpoints guard real guardian + landing + shutter without replacing one another. Exactly authored pure policy module & regression fixture blob-SHA matched and 7/7 isolated Node22 tests passed. No original Three.js, exact-head 3200-tick game, current WebM, event pairing, independent critics or real-device metrics. Previous e0fe7729 portrait film 16.5–18s occlusion cannot certify this patch.",
+    "renderFaultRecoveryImplementationSha": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
+    "renderFaultRecoveryEvidenceStatus": "P0 OPEN / NOT EVALUATED: existing render path permanently flagged WebGL context lost after three ordinary JS/render exceptions, with no possible webglcontextrestored to recover. Code at 3936f68c2c6b7136431be559e8950c63d8b0e4c6 distinguishes bounded 250/750/1800ms state-only reset attempts and honest HUD failure from real context loss; isolated helper 3/3 Node22, exact V8 parse 4/4, original Three/browser/gameplay NOT run. CI 42575202281 pending, capture 42490211469 nine unassigned jobs (old candidate). No new film, no matched independent reviewers/device metrics; baseline unchanged."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-09",
-      "sourceHeadAtInspection": "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f",
-      "actualRenderedGameSourceSha": "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f",
+      "sourceHeadAtInspection": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
+      "actualRenderedGameSourceSha": null,
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
-      "renderedGameplayExperienceChangedThisExecution": true,
-      "completedOutcome": "The real portrait camera's foreground-gear clearing protected an approach-beacon landing OR an imminent trap, not both, and skipped a genuine source-selected airborne landing until the decorative beacon became visible. This could conceal the committed landing or shutter cue in the same real guardian exchange. PR68 now retains independently sourced landing and hazard world points simultaneously and includes both in the preallocated 3D ray/corridor transparency system; guardian, gate, restarts, colliders and authoritative decisions remain unchanged. Code-only fix; current native gameplay still NOT EVALUATED.",
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "completedOutcome": "Distinct bounded renderer-fault state: after consecutive failures, state-only renderer.resetState retries at 250/750/1800ms; successful actual frame submission resets the streak. Persistent faults stop retrying and surface a truthful graphics-tier/reload message. Actual WebGL context-loss disposal/rebuild remains separate; source state, gameplay ticks, collision, guardian, gateway, floor nine and restart logic unchanged.",
       "verifiedBlocker": {
-        "sourceFinding": "Existing scene.mjs checked only landingApproach.diagnostics().visible for decorative sightlines, even while its portrait duel dolly recognized the source-selected airborne platform. Existing else-if hazard placement reused the same actorOrbitTarget and world.mjs only exposed 2 partner corridors; landing and imminent hazard could not both occupy the world-space protection request.",
-        "previouslyObservedVideo": "Older authentic 390x844 candidate danger WebM, source e0fe77294359c32c84cdcff3c0698ba0c7e3a067, ~16.5–18s, large foreground clockwork obscuring actor/guardian; later camera and rim reconstruction are not present in that clip.",
-        "implementation": "Source implementation f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f extends source-truth visibility (not AI) across scene.mjs + world.mjs + new pure critical-sightlines.mjs. Retains true alive guardian, actual selected landing (even when beacon unseen), and imminent snapshot-backed danger as independent render-space targets. Up to three corridor destinations and four exact present-world points (actor/guardian/landing/hazard), bounded reuse, clockwork decorative materials only.",
-        "workspace": "Authenticated app-project tunnel remains disconnected ('Tunnel-client has not been seen for 300 seconds'); no original production-game checkout available in a runnable browser.",
-        "githubActions": "As of source commit inspection, zero completed exact-HEAD workflow results were returned. Historic quality runs were queued/pending and frequently superseded. No runner evidence can certify current source."
+        "sourceFinding": "The renderer treated three caught JavaScript/render exceptions as contextLost=true and thereafter returned on EVERY animation frame. A JavaScript exception does not fire webglcontextrestored, leaving the 3D view permanently blank while the real source state kept advancing; the HUD falsely told viewers graphics were reconnecting.",
+        "previouslyObservedVideo": "The last source-pinned original 390x844 danger film from renderer e0fe7729 (run 42426089449, artifact 13594459833) still shows a giant near-camera clockwork assembly masking the airborne climber and guardian around native seconds 16.5–18. Recent actual source geometry and camera changes lack matched current full-motion desktop/portrait observation."
       },
-      "testsAndCapturesProducedThisExecution": [
-        "Atomic non-force GitHub source commit f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f on same draft PR68, parent 01f598a6c682e1af8143aa805cb8460c1151a2fc.",
-        "Authored new pure-source helper and 7 focused Node22 assertions for concurrent source landing/hazard, single danger, real doorway, airborne doorway, terminal inactivity and boolean strictness.",
-        "Checked local Node22 exact-byte copy against actual Git blob hashes 8821295888932e1cd0231862cea01027c4fdf698 and b9dd63ec83b39fe499d4f396111644f295b46dc9; both syntax checks and all 7 test assertions passed. This is NOT the full original repository or browser suite.",
-        "Source-binding inspection: actual targetPlatform ID/landing X, source actionStage.x/y, living sourceGuardian and historical film provenance; no gameplay simulation event or visual capture fabricated.",
-        "No new 960x600/390x844 source-pinned WebM, 3200-tick same-run replay, matched event/native clock, real device profile or independent blind critic footage."
-      ],
-      "primaryExperienceGap": "Current exact-PR68 video still absent; giant clockwork obscuring air-duel in old 390x844 footage not re-evaluated with annular wheel, camera and simultaneous critical-ray changes. Full-loop gateway/floor-nine/outcome must be filmed and matched against real events.",
-      "sourceHeadCI": "NOT EVALUATED — runner pending/no original exact-head executed CI at inspection",
-      "nativeVideoEvidence": "NOT EVALUATED (historical portrait e0fe7729 only; no new unedited source-pinned original game WebM)",
+      "testsAndCapturesProducedThisExecution": {
+        "localPureNode22": "3/3 focused recovery-policy tests PASS in isolated matching pure helper source; this is NOT the original repository runtime.",
+        "githubExactBlobV8": "PASS: exact implementation SHA's four changed files parsed as JavaScript after stripping imports/exports for V8 parser; NOT an integration run.",
+        "originalNodeAndThree": "NOT EXECUTED — development tunnel disconnected; GitHub job unassigned.",
+        "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/42575202281 — PENDING; no jobs returned at inspection",
+        "nineJobRecording": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469 — 9 queued jobs without runner (candidate points at OLD fcf98aa2, not current implementation)",
+        "currentSourceCapture": "NOT EVALUATED — no new full-motion 960x600/390x844 files",
+        "real3DRecoveryTrial": "NOT EVALUATED — no in-browser thrown-renderer-error or lost-context test",
+        "sourcePacedCampaign": "NOT EVALUATED at this renderer SHA; older 3200-tick source gameplay witness exists",
+        "frameTimeP50P95P99AndMemory": "NOT EVALUATED — no target devices"
+      },
+      "primaryExperienceGap": "The last source-pinned original 390x844 danger film from renderer e0fe7729 (run 42426089449, artifact 13594459833) still shows a giant near-camera clockwork assembly masking the airborne climber and guardian around native seconds 16.5–18. Recent actual source geometry and camera changes lack matched current full-motion desktop/portrait observation.",
+      "sourceHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/42575202281 — PENDING; no jobs returned at inspection",
+      "nativeVideoEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 — historical candidate, NOT current source.",
       "actualDevicePerformance": "NOT EVALUATED",
       "independentCritics": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "nextHighestImpactAction": "Restore original game browser/Node22+Three execution and run targeted source-bound ray/visibility tests plus 2 complete 3200-tick campaigns. Capture 60s+ exact-head 960x600/390x844 matched baseline/candidate normal-speed clips; verify live guardian/crusher decision, source-selected landing, threshold/floor nine, outcome/restart, honest PTS-event alignment, then correct largest current visible defect and measure p50/p95/p99 on actual supported devices.",
+      "nextHighestImpactAction": "When a real runner becomes available, execute original Node/Three tests and browser fault injection (single exception, reset recovery, permanent failure and true WebGL loss), then source-pinned 60+s normal-speed desktop 960x600 and portrait 390x844 runs of ascent, moving/hazardous platforms, crusher/guardian, physical gateway crossing, floor-nine onward, outcome and restart. Inspect entire footage and fix the largest visible defect; retain P0 until complete.",
       "implementationCommits": [
-        "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f"
+        "3936f68c2c6b7136431be559e8950c63d8b0e4c6"
       ],
       "verdict": "NOT EVALUATED"
     },
@@ -94,8 +97,8 @@
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
     "nextDecision": "Inspect candidate exact-source original gameplay to prove BOTH genuine landing and live shutter are readable during the guardian duel, alongside full earned gateway → floor nine → outcome/restart; do not advance stage from source tests.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Older genuine portrait danger film at e0fe7729 shows dominant foreground clockwork around 16.5–18s. New art, camera and four-point source sightline system are code only until exact-head full-motion film/PTS corroborates their behavior.",
-    "unverifiedImplementationBranchHead": "dc3c31082f0168dd5ef4ccb5a6b4f32e6738b05d",
+    "biggestRemainingExperienceGap": "The last source-pinned original 390x844 danger film from renderer e0fe7729 (run 42426089449, artifact 13594459833) still shows a giant near-camera clockwork assembly masking the airborne climber and guardian around native seconds 16.5–18. Recent actual source geometry and camera changes lack matched current full-motion desktop/portrait observation.",
+    "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
     "p0SourceContract": {
@@ -1620,6 +1623,45 @@
         "22a57d977ff0967a469ce6f6fe9664f633c64e57"
       ],
       "currentSourceVideo": "NOT EVALUATED"
+    },
+    "previousEvidenceRunBeforeRenderRecovery20261109": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "assessedAt": "2026-11-09",
+      "sourceHeadAtInspection": "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f",
+      "actualRenderedGameSourceSha": "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineMoved": false,
+      "authoritativeGameplayChangedThisExecution": false,
+      "renderedGameplayExperienceChangedThisExecution": true,
+      "completedOutcome": "The real portrait camera's foreground-gear clearing protected an approach-beacon landing OR an imminent trap, not both, and skipped a genuine source-selected airborne landing until the decorative beacon became visible. This could conceal the committed landing or shutter cue in the same real guardian exchange. PR68 now retains independently sourced landing and hazard world points simultaneously and includes both in the preallocated 3D ray/corridor transparency system; guardian, gate, restarts, colliders and authoritative decisions remain unchanged. Code-only fix; current native gameplay still NOT EVALUATED.",
+      "verifiedBlocker": {
+        "sourceFinding": "Existing scene.mjs checked only landingApproach.diagnostics().visible for decorative sightlines, even while its portrait duel dolly recognized the source-selected airborne platform. Existing else-if hazard placement reused the same actorOrbitTarget and world.mjs only exposed 2 partner corridors; landing and imminent hazard could not both occupy the world-space protection request.",
+        "previouslyObservedVideo": "Older authentic 390x844 candidate danger WebM, source e0fe77294359c32c84cdcff3c0698ba0c7e3a067, ~16.5–18s, large foreground clockwork obscuring actor/guardian; later camera and rim reconstruction are not present in that clip.",
+        "implementation": "Source implementation f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f extends source-truth visibility (not AI) across scene.mjs + world.mjs + new pure critical-sightlines.mjs. Retains true alive guardian, actual selected landing (even when beacon unseen), and imminent snapshot-backed danger as independent render-space targets. Up to three corridor destinations and four exact present-world points (actor/guardian/landing/hazard), bounded reuse, clockwork decorative materials only.",
+        "workspace": "Authenticated app-project tunnel remains disconnected ('Tunnel-client has not been seen for 300 seconds'); no original production-game checkout available in a runnable browser.",
+        "githubActions": "As of source commit inspection, zero completed exact-HEAD workflow results were returned. Historic quality runs were queued/pending and frequently superseded. No runner evidence can certify current source."
+      },
+      "testsAndCapturesProducedThisExecution": [
+        "Atomic non-force GitHub source commit f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f on same draft PR68, parent 01f598a6c682e1af8143aa805cb8460c1151a2fc.",
+        "Authored new pure-source helper and 7 focused Node22 assertions for concurrent source landing/hazard, single danger, real doorway, airborne doorway, terminal inactivity and boolean strictness.",
+        "Checked local Node22 exact-byte copy against actual Git blob hashes 8821295888932e1cd0231862cea01027c4fdf698 and b9dd63ec83b39fe499d4f396111644f295b46dc9; both syntax checks and all 7 test assertions passed. This is NOT the full original repository or browser suite.",
+        "Source-binding inspection: actual targetPlatform ID/landing X, source actionStage.x/y, living sourceGuardian and historical film provenance; no gameplay simulation event or visual capture fabricated.",
+        "No new 960x600/390x844 source-pinned WebM, 3200-tick same-run replay, matched event/native clock, real device profile or independent blind critic footage."
+      ],
+      "primaryExperienceGap": "Current exact-PR68 video still absent; giant clockwork obscuring air-duel in old 390x844 footage not re-evaluated with annular wheel, camera and simultaneous critical-ray changes. Full-loop gateway/floor-nine/outcome must be filmed and matched against real events.",
+      "sourceHeadCI": "NOT EVALUATED — runner pending/no original exact-head executed CI at inspection",
+      "nativeVideoEvidence": "NOT EVALUATED (historical portrait e0fe7729 only; no new unedited source-pinned original game WebM)",
+      "actualDevicePerformance": "NOT EVALUATED",
+      "independentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "nextHighestImpactAction": "Restore original game browser/Node22+Three execution and run targeted source-bound ray/visibility tests plus 2 complete 3200-tick campaigns. Capture 60s+ exact-head 960x600/390x844 matched baseline/candidate normal-speed clips; verify live guardian/crusher decision, source-selected landing, threshold/floor nine, outcome/restart, honest PTS-event alignment, then correct largest current visible defect and measure p50/p95/p99 on actual supported devices.",
+      "implementationCommits": [
+        "f4f683ec89b30fb5a8e1412ef5378da22d2e2d7f"
+      ],
+      "verdict": "NOT EVALUATED"
     }
   },
   "scenarios": [
@@ -5885,5 +5927,44 @@
     "specAndEngineeringReview": "docs/reviews/2026-11-09-tower-pr68-render-ray-broadphase-and-camera-test-repair.md",
     "nextHighestImpactAction": "Restore executable source runner, run repaired exact-head original Node22/Three/Chromium suite and two 3200-tick guardian/crusher→grounded gateway→floor-nine→outcome/restart campaigns; obtain 60+s normal-speed 960x600/390x844 frozen/candidate original films, pair real source events with native WebM PTS and inspect all frames; choose largest current systemic gameplay/visual weakness before proceeding to P1. Then device p50/p95/p99/memory and 5 genuinely independent blind reviewers per pillar.",
     "safety": "Frozen baseline and PR58/main unchanged; PR68 remains open/draft; no force push, deployment, merge, or unrelated game edits."
+  },
+  "p0BoundedRendererRecovery20261109": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "inspectedParentSha": "43c4e9df01e96e76582ba3f002d6d0207a635436",
+    "implementationSha": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "realGameplayRuleChanges": false,
+    "verifiedSourceBlocker": "The renderer treated three caught JavaScript/render exceptions as contextLost=true and thereafter returned on EVERY animation frame. A JavaScript exception does not fire webglcontextrestored, leaving the 3D view permanently blank while the real source state kept advancing; the HUD falsely told viewers graphics were reconnecting.",
+    "actualSourceChange": "Distinct bounded renderer-fault state: after consecutive failures, state-only renderer.resetState retries at 250/750/1800ms; successful actual frame submission resets the streak. Persistent faults stop retrying and surface a truthful graphics-tier/reload message. Actual WebGL context-loss disposal/rebuild remains separate; source state, gameplay ticks, collision, guardian, gateway, floor nine and restart logic unchanged.",
+    "codePaths": [
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/render-recovery.mjs",
+      "public/infinite-tower-climb/app.js",
+      "tests/phase5/tower-render-recovery.test.cjs"
+    ],
+    "validation": {
+      "localPureNode22": "3/3 focused recovery-policy tests PASS in isolated matching pure helper source; this is NOT the original repository runtime.",
+      "githubExactBlobV8": "PASS: exact implementation SHA's four changed files parsed as JavaScript after stripping imports/exports for V8 parser; NOT an integration run.",
+      "originalNodeAndThree": "NOT EXECUTED — development tunnel disconnected; GitHub job unassigned.",
+      "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/42575202281 — PENDING; no jobs returned at inspection",
+      "nineJobRecording": "https://github.com/my-edutu/Ai_games/actions/runs/42490211469 — 9 queued jobs without runner (candidate points at OLD fcf98aa2, not current implementation)",
+      "currentSourceCapture": "NOT EVALUATED — no new full-motion 960x600/390x844 files",
+      "real3DRecoveryTrial": "NOT EVALUATED — no in-browser thrown-renderer-error or lost-context test",
+      "sourcePacedCampaign": "NOT EVALUATED at this renderer SHA; older 3200-tick source gameplay witness exists",
+      "frameTimeP50P95P99AndMemory": "NOT EVALUATED — no target devices"
+    },
+    "originalObservedFootage": "https://github.com/my-edutu/Ai_games/actions/runs/42426089449/artifacts/13594459833 — historical candidate, NOT current source.",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "noMaterialRegressions": "NOT EVALUATED",
+    "biggestExperienceGap": "The last source-pinned original 390x844 danger film from renderer e0fe7729 (run 42426089449, artifact 13594459833) still shows a giant near-camera clockwork assembly masking the airborne climber and guardian around native seconds 16.5–18. Recent actual source geometry and camera changes lack matched current full-motion desktop/portrait observation.",
+    "nextHighestImpactAction": "When a real runner becomes available, execute original Node/Three tests and browser fault injection (single exception, reset recovery, permanent failure and true WebGL loss), then source-pinned 60+s normal-speed desktop 960x600 and portrait 390x844 runs of ascent, moving/hazardous platforms, crusher/guardian, physical gateway crossing, floor-nine onward, outcome and restart. Inspect entire footage and fix the largest visible defect; retain P0 until complete.",
+    "independentCriticStatus": "0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS; NOT EVALUATED",
+    "reviewFile": "docs/reviews/2026-11-09-tower-pr68-bounded-render-fault-recovery.md"
   }
 }
