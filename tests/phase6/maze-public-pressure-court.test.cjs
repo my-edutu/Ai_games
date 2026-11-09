@@ -87,3 +87,56 @@ test('private-only or withdrawn-public pressure knowledge cannot create a false 
       'new run destroys previously disclosed court rather than leaking the old location');
   } finally {world.dispose();cleanup();}
 });
+
+test('real disclosed pressure-gate court moves ornament behind the sealed gate without changing AI or hidden privacy',async()=>{
+  const {THREE,createMazeWorld,cleanup}=await loadWorld();
+  const world=createMazeWorld({balanced:true});
+  const cells=[
+    {cell:4,neighbors:[5],blocked:false,trap:true,checkpoint:false,clue:false},
+    {cell:5,neighbors:[4],blocked:false,trap:false,checkpoint:false,clue:false}
+  ];
+  const door={a:4,b:5,open:false,requiredKeyId:'known-key'};
+  const state=published({cells,visibleCells:[4,5],doors:[door],inventory:['known-key']});
+  const exactState=JSON.stringify(state);
+  try{
+    world.update(state);
+    const gate=world.group.getObjectByName('Withdrawable gate bars');
+    const crossed=world.group.getObjectByName('Closed crossed barrier');
+    const lock=world.group.getObjectByName('Physical recessed keyhole');
+    const emblem=world.group.getObjectByName('Disclosed matching key emblem');
+    const wheel=world.group.getObjectByName('Right gate drive wheel');
+    const weight=world.group.getObjectByName('Right hanging gate weight');
+    const wing=world.group.getObjectByName('Disclosed gate folding tide-wing 1');
+    assert.ok(gate?.visible && crossed && lock && emblem && wheel && weight && wing,
+      'genuine sealed grille, keyed lock and both functional + decorative mechanisms remain');
+    assert.equal(emblem.parent,gate,'public key emblem stays attached to real blocked grille');
+    assert.equal(emblem.position.x,.58,'compact emblem is over the actual right lock');
+    assert.equal(emblem.position.y,1.87);
+    assert.equal(emblem.scale.x,.68);
+    assert.equal(wheel.position.z,-.21,'counterweight wheel is behind the pressure sightline');
+    assert.equal(weight.position.z,-.17,'hanging weight is behind the pressure sightline');
+    assert.equal(wing.position.z,-.05,'nonfunctional tide-wing is no longer in the near foreground');
+    assert.ok(gate.children.filter(child=>child.isMesh).length>=7,
+      'five real closed bars and crosspieces must never be removed');
+    const before=world.stats();
+    world.animate(0,{explorerPosition:new THREE.Vector3(0,0,0),reducedMotion:true});
+    const after=world.stats();
+    for(const k of ['geometryCount','materialCount','textureCount','instances'])
+      assert.equal(after[k],before[k],'pressure gate cannot allocate graphics per frame');
+    assert.equal(JSON.stringify(state),exactState,'no mutation of authoritative snapshot');
+
+    // An invisible/private danger cannot drive decorative gate cutaways.
+    const plainCells=cells.map(c=>({...c,trap:false}));
+    world.update(published({runToken:'next-private-run',cells:plainCells,
+      visibleCells:[4,5],doors:[door],inventory:['known-key'],
+      privateTrapCells:[4],privateMap:{4:{trap:true}}}));
+    const normalEmblem=world.group.getObjectByName('Disclosed matching key emblem');
+    const normalWheel=world.group.getObjectByName('Right gate drive wheel');
+    const normalWing=world.group.getObjectByName('Disclosed gate folding tide-wing 1');
+    assert.equal(normalEmblem.position.x,0,'private trap cannot compact known key emblem');
+    assert.equal(normalEmblem.position.y,2.12);
+    assert.equal(normalEmblem.scale.x,1);
+    assert.equal(normalWheel.position.z,.48);
+    assert.equal(normalWing.position.z,.38);
+  }finally{world.dispose();cleanup();}
+});

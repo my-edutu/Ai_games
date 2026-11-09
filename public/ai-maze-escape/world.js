@@ -1748,18 +1748,25 @@ export function createMazeWorld(options = {}) {
     // gate a physical cause-and-effect silhouette. The wheels and hanging
     // stones live on its actual jambs, never over the traversable doorway.
     // Reuse shared geometry/materials; no false key, passage or game action.
+    // The actual pressure jaws must remain visible in the same fully disclosed
+    // gate-court shot. Keep functional bars, key socket, seal and structure;
+    // recess ONLY the nonfunctional counterweight ornament behind the bars.
+    // This is solid Three geometry on known public gates, never a camera crop.
+    const pulleyDepth = pressureCourtGate ? -.21 : .48;
+    const counterweightDepth = pressureCourtGate ? -.17 : .49;
+    const driveRodDepth = pressureCourtGate ? -.21 : .44;
     const drive = new THREE.Group(); drive.name = 'Disclosed gate pulley mechanism'; p.add(drive);
     const wheels = [], weights = [];
     for (const side of [-1, 1]) {
       const wheel = new THREE.Group();
       wheel.name = side < 0 ? 'Left gate drive wheel' : 'Right gate drive wheel';
-      wheel.position.set(side * .91, 1.83, .48);
+      wheel.position.set(side * .91, 1.83, pulleyDepth);
       drive.add(wheel);
       mesh(wheel, ring, inlay, 0, 0, 0, .23, .23, .14);
       // An asymmetric spoke makes the real rotation legible in a still frame.
       mesh(wheel, bevel, lightStone, .075, 0, .04, .20, .055, .075, 0, 0, .35);
-      mesh(drive, bevel, darkMetal, side * .91, 1.15, .44, .035, 1.07, .06);
-      const weight = mesh(drive, bevel, deepStone, side * .91, .61, .49, .21, .30, .18);
+      mesh(drive, bevel, darkMetal, side * .91, 1.15, driveRodDepth, .035, 1.07, .06);
+      const weight = mesh(drive, bevel, deepStone, side * .91, .61, counterweightDepth, .21, .30, .18);
       weight.name = side < 0 ? 'Left hanging gate weight' : 'Right hanging gate weight';
       wheels.push(wheel); weights.push(weight);
     }
@@ -1773,7 +1780,7 @@ export function createMazeWorld(options = {}) {
     for (const side of [-1, 1]) {
       const wing = new THREE.Group();
       wing.name = 'Disclosed gate folding tide-wing ' + side;
-      wing.position.set(side * 1.11, 1.05, .38);
+      wing.position.set(side * 1.11, 1.05, pressureCourtGate ? -.05 : .38);
       // A substantial REAL geometric silhouette cutaway, not transparency,
       // a screenshot crop or an invented gate opening. The pivot remains on
       // the actual outside stile; the same compact form opens with the grille.
@@ -1851,7 +1858,14 @@ export function createMazeWorld(options = {}) {
         const crest = new THREE.Group();
         crest.name = 'Disclosed matching key emblem';
         crest.userData.keyState = carried ? 'carried' : 'observed';
-        crest.position.set(0, 2.12, .43); gate.add(crest);
+        // When the known pressure trap shares this court, mount the genuine
+        // matching-key emblem above its ACTUAL right-hand key socket, not
+        // against the moving foreground jaws. Normal gates keep original art.
+        // Public disclosure only, no invented unlock, hidden danger or route.
+        crest.position.set(pressureCourtGate ? .58 : 0,
+          pressureCourtGate ? 1.87 : 2.12, .43);
+        if (pressureCourtGate) crest.scale.setScalar(.68);
+        gate.add(crest);
         // Reuse the actual collectible's octagonal bow and two-tooth profile.
         // Raised ivory/amber means known key; mint means that exact key is
         // carried, NOT that the still-crossed gate is already traversable.

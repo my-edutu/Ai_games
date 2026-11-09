@@ -1,3 +1,9 @@
+# Pass215 — known pressure court recesses nonfunctional gate decoration (2026-11-09 UTC)
+
+- The earlier original mobile pressure images (320/390) found the physical jaw action crowded by a *public* adjacent crossed gate. An authored gate stage now moves its decorative pulley/weights/rods/tide-wings from the **front** to a physically rooted **rear** plane; a still-genuine known key emblem shifts onto its true right stile (0.68 scale). Retains the actual impassable grille, lock, X seal, full jaws, public-only coordinates, deterministic authority, no new GPU geometry and 44px HUD.
+- New installed-Three regression checks real blocked gate + private-only trap behavior, static resource counts and unmodified snapshot. V8 **syntax-only** checks passed. **Not** executed in installed Three/Playwright because shared workspace tunnel remains disconnected; exact-source Github CI WebGL jobs queued. Prior native screenshots are not HEAD matched. See [dated review](./maze-3d/pass-215-pressure-court-gate-silhouette-source-candidate-2026-11-09.md).
+- Fixed Nintendo benchmark **NOT MET**. Six-run <100 / <=8 spread, 320/390/844/1280 full original frames, strict ±.95 crop / >=.70 guardian withdrawal, privacy/accessibility and independent image judgement remain OPEN. PR #53 OPEN DRAFT, no merge/deploy/force.
+
 # Pass214 — repair two demonstrated installed-Three pressure-clock CI regressions (2026-11-09 UTC)
 
 - A completed earlier SHA `6cbcedc` [CI failure 42436991713](https://github.com/my-edutu/Ai_games/actions/runs/42436991713) exposed four failing pressure tests; the old WebGL job failed its source gate before any image. On current HEAD, the Phase-3 pressure test still expected an instantaneous 0.66rad full throw, and the Phase-6 coupled test demanded 0.66rad at t=.65 when real motion is 0.634444rad. Two other historical failures have since been edited and await exact-head rerun.
