@@ -14,16 +14,26 @@ function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:strin
 // not a cinematic spawn, hidden-information oracle or forced capture.
 function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng){
   const routeCells=new Set(route),ideal=Math.floor(route.length*0.35);
-  const choices:{approachIndex:number;spawn:number;retreat:number}[]=[];
+  const choices:{approachIndex:number;spawn:number;retreat:number;straight:boolean}[]=[];
   for(let index=Math.max(2,minimumDistance);index<route.length-2;index++){
     const approach=route[index]!;
     if(unavailable.has(approach))continue;
     for(const spawn of passageNeighbors(world,approach)){
       if(routeCells.has(spawn)||unavailable.has(spawn)
+        ||!passageNeighbors(world,spawn).includes(approach)
         ||shortestDistance(world,world.start,spawn)<minimumDistance)continue;
-      const retreat=passageNeighbors(world,spawn)
-        .filter(cell=>!routeCells.has(cell)&&!unavailable.has(cell)).sort((a,b)=>a-b)[0];
-      if(retreat!==undefined)choices.push({approachIndex:index,spawn,retreat});
+      const retreatOptions=passageNeighbors(world,spawn)
+        .filter(cell=>!routeCells.has(cell)&&!unavailable.has(cell)
+          &&passageNeighbors(world,cell).includes(spawn)).sort((a,b)=>a-b);
+      // A genuine two-cell straight approach makes Thornback readable whether
+      // it is advancing or withdrawing. Never cut new passages to stage it.
+      const fromRow=Math.floor(approach/world.width),fromCol=approach%world.width;
+      const spawnRow=Math.floor(spawn/world.width),spawnCol=spawn%world.width;
+      const aligned=retreatOptions.find(cell=>
+        Math.floor(cell/world.width)-spawnRow===spawnRow-fromRow
+        &&cell%world.width-spawnCol===spawnCol-fromCol);
+      const retreat=aligned??retreatOptions[0];
+      if(retreat!==undefined)choices.push({approachIndex:index,spawn,retreat,straight:aligned!==undefined});
     }
   }
   if(!choices.length)return null;
@@ -32,7 +42,12 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
   // named seeded stream retain replayable generation in the new content.
   choices.sort((a,b)=>Math.abs(a.approachIndex-ideal)-Math.abs(b.approachIndex-ideal)
     ||a.approachIndex-b.approachIndex||a.spawn-b.spawn||a.retreat-b.retreat);
-  const shortlist=choices.slice(0,Math.min(6,choices.length));
+  // If a real straight side corridor exists, NEVER randomly select an
+  // off-axis bend. At both patrol endpoints the public one/two-cell view
+  // then supports the same physical Pip–Thornback encounter contract.
+  const alignedChoices=choices.filter(choice=>choice.straight);
+  const pool=alignedChoices.length?alignedChoices:choices;
+  const shortlist=pool.slice(0,Math.min(6,pool.length));
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }
 
