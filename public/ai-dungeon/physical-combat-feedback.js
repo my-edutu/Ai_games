@@ -39,6 +39,10 @@ export function createPhysicalCombatFeedback({
    unverifiedVisualLiveness=0,lastPresentedFrame=null;
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
+ // Keep the source cue's original envelope separate from the D04
+ // first-draw staging time so synchronization receipts remain truthful.
+ const presentationDelay=cue=>requirePresentedFrame&&cue?.kind==='swing'
+  ?0:clamp(cue?.delay,0,.5);
  function flush(){
   pending.length=0;awaitingPresentation.length=0;seen.clear();
   lastPresentedFrame=null;
@@ -47,7 +51,8 @@ export function createPhysicalCombatFeedback({
  function retainReceipt(cue,visual,audio=false,frameId=null,decision=null){
   const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
-   intendedDelayMs:Math.round(cue.delay*1000),visual,audio,frameId,decision});
+   intendedDelayMs:Math.round(cue.delay*1000),
+   scheduledDelayMs:Math.round(presentationDelay(cue)*1000),visual,audio,frameId,decision});
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
@@ -178,9 +183,7 @@ export function createPhysicalCombatFeedback({
     // belated whoosh after the strike. Stage only swings immediately, hidden
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
-    const presentationDelay=requirePresentedFrame&&cue.kind==='swing'
-     ?0:clamp(cue.delay,0,.5);
-    pending.push({cue,remaining:presentationDelay,queuedAt:observedSeconds,
+    pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
     audioEpoch:optedIn?audioEpoch:null});queued++;
   }
   // In the submission-gated D04 preview, a zero-delay HP injury may arrive
