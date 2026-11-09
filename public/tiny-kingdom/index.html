@@ -17995,7 +17995,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
-  (portraitLens?[3.9,4.5,5.2,6.0]:[3.8,4.4,5.0,5.9]):
+  (portraitLens?[3.15,3.45,3.8,4.2,4.8,5.6]:[3.8,4.4,5.0,5.9]):
   unloading?[5.1,5.7,6.8]:
   filmedLoadedCourier?(portraitLens?[4.2,5.0,5.8,6.5]:[4.6,5.4,6.2,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
@@ -18022,7 +18022,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // communicate their visible labor. Prefer actual human-scale coverage
   // across the full orbit (without accepting roof or hand occlusion).
   const sizePenalty=working&&realWork?
-   Math.max(0,(portraitLens?.27:.29)-shot.projectedWorkerHeightFraction)*5200:0;
+   Math.max(0,(portraitLens?.31:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   // Do not choose a physically clear EMPTY road over the genuine
    // escrowed courier. Favor the actual projected actor and real cargo.
    const routeSizePenalty=filmedLoadedCourier?
@@ -20563,7 +20563,8 @@ currentMaterial=MATERIAL.FOLIAGE;
  // Upload climate-dependent terrain, rivers and forest only on climate change.
  // New cottages update the settlement VBO without re-uploading landscape.
  if(gpuAvailable){
-  const packed=packSpatialScenery(landscapeMeshCache);
+  const packed=packLinearResidentScenery(landscapeMeshCache,'landscape')||
+   packSpatialScenery(landscapeMeshCache);
   landscapeChunkRanges=packed.ranges;
   landscapeBuffer=gl.createBuffer();landscapeSeasonBufferCreations++;
   bindGeometry(landscapeBuffer);

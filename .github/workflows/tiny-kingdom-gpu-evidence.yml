@@ -34,6 +34,7 @@ on:
       - 'scripts/tiny-kingdom-w168-founding-overview-contract.cjs'
       - 'scripts/tiny-kingdom-w169-physical-eye-clearance-contract.cjs'
       - 'scripts/tiny-kingdom-w171-static-pack-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w172-landscape-camera-contract.cjs'
       - 'tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs'
       - 'tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs'
       - 'tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs'
@@ -65,7 +66,7 @@ jobs:
         with:
           node-version: '22'
       - name: W104 full-playable-JS syntax and truthful physical camera selection
-        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs && node scripts/tiny-kingdom-w105-draw-cadence-contract.cjs && node scripts/tiny-kingdom-w106-market-court-contract.cjs && node scripts/tiny-kingdom-w107-burgage-joinery-contract.cjs && node scripts/tiny-kingdom-w108-citizen-projection-contract.cjs && node scripts/tiny-kingdom-w109-gpu-scene-governor-contract.cjs && node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs && node scripts/tiny-kingdom-w167-work-contact-priority.cjs && node scripts/tiny-kingdom-w168-founding-overview-contract.cjs && node scripts/tiny-kingdom-w169-physical-eye-clearance-contract.cjs && node scripts/tiny-kingdom-w171-static-pack-camera-contract.cjs && node scripts/tiny-kingdom-w114-night-households-contract.cjs && node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
+        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs && node scripts/tiny-kingdom-w105-draw-cadence-contract.cjs && node scripts/tiny-kingdom-w106-market-court-contract.cjs && node scripts/tiny-kingdom-w107-burgage-joinery-contract.cjs && node scripts/tiny-kingdom-w108-citizen-projection-contract.cjs && node scripts/tiny-kingdom-w109-gpu-scene-governor-contract.cjs && node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs && node scripts/tiny-kingdom-w167-work-contact-priority.cjs && node scripts/tiny-kingdom-w168-founding-overview-contract.cjs && node scripts/tiny-kingdom-w169-physical-eye-clearance-contract.cjs && node scripts/tiny-kingdom-w171-static-pack-camera-contract.cjs && node scripts/tiny-kingdom-w172-landscape-camera-contract.cjs && node scripts/tiny-kingdom-w114-night-households-contract.cjs && node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
   # W83: source-following original granary-to-market medieval carriageway
   # and the real barn loading porch, with NO added citizen or navigation edge.
   # Verify rendered desktop and 390px WebGL, full real Day-120 growth,

@@ -14,7 +14,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,
    null,{timeout:110000});
   const baseline=await page.evaluate(()=>{const g=window.__tinyKingdom;
-   g.setSpeed(0);g.setActorStreamSplitForTesting(false);
+   const citizen=g.getState().people.find(p=>Number.isFinite(p.x)&&Number.isFinite(p.z));
+   if(!citizen)throw Error('W93 no true autonomous citizen for physical close-up');
+   g.setSpeed(0);g.setCamera({yaw:.8,pitch:.22,zoom:3.4,focus:[citizen.x,citizen.z]});
+   g.setActorStreamSplitForTesting(false);
    return g.getFrameProfile().totalFrames;
   });
   await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,

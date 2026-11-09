@@ -30,8 +30,10 @@ test('W39 growing town retires obsolete GPU generations and reuses bounded buffe
   expect(row.r.cachedFloats).toBeLessThanOrEqual(row.r.floatBudget);
   expect(row.r.cachedGpuFloats).toBeLessThanOrEqual(row.r.floatBudget);
   expect(row.r.staleTopologyEntries).toBe(0);
-  // Every resident scene on real WebGL must represent this exact topology.
-  expect(row.r.cachedKeys.every(key=>Number(key.split(':').at(-1))===row.buildings-2)).toBe(true);
+  // W172: with independently growing homes, civic resident topologies track
+  // the immutable founding lots, not the new total house count. Still reject
+  // truly stale founding-town geometry; populated homes use separate VBOs.
+  expect(row.r.cachedKeys.every(key=>key.split(':').at(-1)===row.r.activeKey.split(':').at(-1))).toBe(true);
   observations.push(row);
  }
  const end=observations.at(-1);
