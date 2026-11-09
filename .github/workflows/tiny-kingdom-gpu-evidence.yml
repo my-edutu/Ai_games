@@ -1804,3 +1804,35 @@ jobs:
             artifacts/tiny-kingdom-w123/
           if-no-files-found: warn
           retention-days: 14
+
+  # W173: genuine already-simulated closed cottage after software FPS misses
+  # its opening; same physical street lens tracks REAL moving delivery carts.
+  # This is a playable camera correctness gate, never AAA/hardware FPS proof.
+  w173-real-closed-home-and-live-cart:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Truthful closed cottage witness and original mobile street geometry
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w173-lived-door-camera.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w173-actual-closed-door-and-live-cart
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w173/
+          if-no-files-found: warn
+          retention-days: 14
