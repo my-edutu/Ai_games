@@ -1,3 +1,9 @@
+# Pass214 — repair two demonstrated installed-Three pressure-clock CI regressions (2026-11-09 UTC)
+
+- A completed earlier SHA `6cbcedc` [CI failure 42436991713](https://github.com/my-edutu/Ai_games/actions/runs/42436991713) exposed four failing pressure tests; the old WebGL job failed its source gate before any image. On current HEAD, the Phase-3 pressure test still expected an instantaneous 0.66rad full throw, and the Phase-6 coupled test demanded 0.66rad at t=.65 when real motion is 0.634444rad. Two other historical failures have since been edited and await exact-head rerun.
+- **Atomic tested-contract candidate** (no scene/camera/gameplay change): same authentic public contact at 0.20rad warning, intermediate hinge, exact full 0.66rad after sustained contact, then actual withdrawal/reduced/hidden reset. Full shutter 1.11rad and all original geometry, crop, scale, privacy and accessibility thresholds retained. [Dated review](./maze-3d/pass-214-ci-pressure-clock-truth-gate-2026-11-09.md).
+- Real installed Three/browser execution, six-run budget and independent render critic STILL PENDING while coding tunnel disconnected / exact-head Actions queued. No visual win, official Captain Toad quality bar NOT MET, PR #53 OPEN DRAFT, no merge/deploy/force.
+
 # Pass213 — replay the original intermediate public pressure frames before milestone screenshots (2026-11-08 UTC)
 
 - **Found genuine evidence loophole:** prior "continuous" native pressure test retained one WebGL canvas but skipped every authentic MazeRuntime update between three milestone frames. This was NOT a complete autonomous performance, and could miss mid-beat physical Pip cropping.

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T21:06:32.187Z",
+  "updatedAt": "2026-11-09T00:32:19.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass213 source-only verification repair: actual Playwright pressure chronology now delivers ALL original intermediate same-run public ticks to ONE living WebGL canvas, with per-tick frame advance and full Pip framing; three SHA-bound approach/contact/withdrawal images remain true source milestones. Prior Pass212 omitted intermediate states. Production visuals unchanged; queued exact-HEAD CI/native capture and independent Nintendo critic NOT VERIFIED. Benchmark NOT MET; PR #53 open draft, unmerged and undeployed."
+    "summary": "Pass214 Phase-0 source regression repair: old completed CI found pressure timing assertions incorrectly demanding instant 0.66rad or full jaw at 0.60s of a real 1.25s public choreography (actual 0.634444rad). Tests now demand warning, partial opening, exact 0.66rad completed contact and honest withdrawal; production visuals unchanged. New exact-HEAD CI/WebGL, six-run geometry <100 and independent Nintendo critic NOT VERIFIED. PR #53 open draft, unmerged, undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass214 2026-11-09: Repaired TWO demonstrated stale real-Three pressure test timings from historic CI run 42436991713. Require first public 0.20rad warning, intermediate actual jaw motion and final UNCHANGED 0.66rad full stroke on the 1.25s clock; Phase6 exact full stroke now sampled at 0.65s elapsed, not 0.60s. Existing 1.11rad floor shutter, reduced/hidden/retreat and strict resource/crop/AI/privacy/44px gates retained. Source-only; exact-HEAD runtime and Nintendo images unavailable.",
     "Pass213 2026-11-08: Replaced three-frame jumps inside the claimed continuous native pressure performance with every original sequential partial-observation MazeRuntime public tick on one WebGL canvas per viewport. Assert renderer updates and Pip's full body frame on every intermediate tick. Record original tick list, preserve real three beat images and strict hazards/crop/mobile/privacy/resources. Source-only candidate, runtime and independent critic unavailable; NOT a gameplay visual win.",
     "Pass212 2026-11-08: Full genuine public Tide-Shear arc required before claiming source-bound continuous 3D gameplay evidence. Incomplete approach or withdrawal now produces captured:false with explicit missing side; complete all-three retains original hinge, same-canvas/WebGL, SHA, NDC, 44px and privacy gates. Evidence-only source candidate; new HEAD runtime/visual criticism unavailable (Actions queued and workspace disconnected). Fixed Nintendo bar NOT MET, PR draft active.",
     "Pass211 2026-11-08: Corrected a material native evidence false-positive: merely advancing the same WebGL renderer was not proof of the pictured pressure hazard opening. The actual visible source-bound cell now reports its real modeled jaw radians and clock; public approach/pressure/withdrawal Playwright screenshots require clear real opening/release. Original strict full-scene SHA, physical ±0.95, Pip/jaw minimum sizes, canvas continuity, privacy, accessibility and resource budgets remain. Source candidate only, Actions queued, detached critic unavailable, Nintendo bar NOT met.",
@@ -279,6 +280,7 @@
     "Fourteenth pass: the original disclosed closed gate's coral crossed brace and gold lock now sit on the camera-facing side of its physical bars, for both door orientations; open or undisclosed barriers remain absent. Exact-source CI passed 523 Node and 25 browser checks. Real same-seed/tick21 1280×900 screenshot at 2026-10-31T05:04:37.546Z (SHA256 3ef0814c04f38a2465687b7feded50c6d8b7dc24c3da6ed2278de74f356ef668) shows the X clearly but gate is small at the far left and Pip partly obscured. Nintendo remains stronger; no independent critic or GPU performance claim."
   ],
   "nextGaps": [
+    "Pass214 next: run real current-HEAD installed-Three/whole-repo CI and continuous real Playwright WebGL; confirm two corrected clock contracts AND all other tests, strict six-run <100 and <=8, all 320/390/844/1280 full-frame original SHA images and independent Nintendo side-by-side. Do not claim the old failed CI is current-head proof or call source timing arithmetic a visual win.",
     "Pass213 next: obtain actual exact-HEAD Playwright uninterrupted source-tick 320/390 performance and unaltered full-resolution SHA images; validate real pressure jaw/contact/release, the unchanged six-run geometry <100/spread<=8, 844 landscape/1280 desk, privacy/crop and independent official Captain Toad comparison. Do NOT accept this source edit or claim a graphics win on syntax alone.",
     "Pass211 next: execute current-head installed-Three and native Playwright tests, verify new per-cell pressure hinge evidence against original full-size 320/390/844/1280 captures and exact hashes, confirm 6-run resource <100/spread <=8, verify camera cutaway/no private reveal and obtain independent Captain Toad gameplay comparison. No rendered win has yet been verified.",
     "Pass210 next: obtain actual new-HEAD focused WebGL and six-real-run reset results; verify original 320/390 complete screenshots demonstrate one continuous pressure relay/shutter/piston/Pip action without full-actor crop (strict ±0.95) or incorrect cutaway, with exact SHA/date and native 844/1280/key/gate/guardian evidence. Then independent fixed Nintendo reference comparison. No claim that queued CI or offline critics passed.",
@@ -810,6 +812,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass214 real pressure stroke CI contract",
+      "status": "HISTORICAL CI FAILURE CONFIRMED / SOURCE CLOCK CONTRACT REPAIRED — NEW EXACT-HEAD CI + WEBGL UNEXECUTED; fixed benchmark NOT MET",
+      "detail": "Historic 6cbcedc CI 42436991713 confirms two stale timing errors (initial on-contact expected .66rad; end at .60s actual .634444rad). Latest tests now require full authentic 0.20rad warning → intermediate true jaw → final unchanged .66rad and exact 1.11rad shutter. No weakened thresholds or new game scene claims; independent Chromium/current SHA and strict six-run resources still pending.",
+      "sourceCommit": "atomic Pass214 branch commit (see GitHub PR #53)",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "name": "Pass213 true original public-intermediate pressure playback",
       "status": "SOURCE PARSE ONLY — native full-run WebGL, strict resource/CI, independent benchmark PENDING; no visual win",

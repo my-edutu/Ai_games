@@ -55,15 +55,21 @@ test('two real joined pressure blades spread apart on published approach, then r
   assert.ok(Math.abs(left.rotation.z-.06)<1e-9 && Math.abs(right.rotation.z+.06)<1e-9);
   const restingSpan = point();
   world.animate(2,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
+  assert.ok(Math.abs(left.rotation.z-.20)<1e-9 && Math.abs(right.rotation.z+.20)<1e-9,
+    'first true public contact warns through both joined hinges before the floor opens');
+  world.animate(2.4,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
+  assert.ok(Math.abs(left.rotation.z)>.35 && Math.abs(left.rotation.z)<.66,
+    'the middle beat opens both physical jaws progressively, not instantaneously');
+  world.animate(3.25,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
   assert.ok(Math.abs(left.rotation.z-.66)<1e-9 && Math.abs(right.rotation.z+.66)<1e-9,
-    'actual published contact opens both opposing pivots, not a fake marker');
+    'sustained true public contact reaches the UNCHANGED full outward 0.66rad stroke');
   const openSpan = point();
   assert.ok(openSpan > restingSpan + .4,
     `paired foreground blades must spread unmistakably (${restingSpan} -> ${openSpan})`);
-  world.animate(3,{explorerPosition:new Vector3(center.x+50,0,center.z+50),reducedMotion:false});
+  world.animate(4,{explorerPosition:new Vector3(center.x+50,0,center.z+50),reducedMotion:false});
   assert.ok(Math.abs(point()-restingSpan)<1e-8,
     'original reversible pressure geometry returns when Pip moves away');
-  world.animate(4,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:true});
+  world.animate(4.1,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:true});
   assert.ok(Math.abs(left.rotation.z-.24)<1e-9 && Math.abs(right.rotation.z+.24)<1e-9,
     'reduced motion uses a readable, settled symmetric pose');
   assert.equal(world.stats().geometryCount,budget.geometryCount);
