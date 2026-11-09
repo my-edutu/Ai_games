@@ -126,3 +126,42 @@ test('D04 authoritative danger cells stay visible when a Warden body becomes sta
  fx.reset();assert.equal(fx.stats().instancesByPool.signal,0);
  fx.dispose();
 });
+
+test('D04 frame gate cannot play an already attached Warden sound from a lost body ring',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load();
+ const {createPhysicalCombatFeedback}=await import(pathToFileURL(path.resolve(__dirname,
+  '../../public/ai-dungeon/physical-combat-feedback.js')).href);
+ const {THREE,scene}=stage();
+ const body=warden();
+ const fx=createPhysicalFeedbackVisuals(THREE,scene,{actorById:()=>body});
+ const sounds=[];
+ const director=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter:fx,
+  audioAdapter:{enable(){return true},emit(c){sounds.push(c.audio);return true},
+   disable(){},flush(){},cleanup(){},dispose(){}}
+ });
+ const unit=(tick,props={})=>({
+  id:'warden',kind:'warden',faction:'enemy',hp:75,maxHp:90,
+  x:6,z:6,action:'idle',actionTick:tick,...props
+ });
+ const shot=(tick,unitState,events=[])=>({
+  run:1,floor:1,tick,units:[unitState],events,guardianWard:false,
+  bossRecovery:{remaining:tick===11?2:0}
+ });
+ assert.equal(director.enableAudioFromGesture(),true);
+ director.acceptSnapshot(shot(10,unit(10)));
+ director.acceptSnapshot(shot(11,unit(11,{
+  action:'cast',recoveryUntilTick:12
+ }),[{tick:11,kind:'opening',text:'recovery'}]));
+ director.advance(.016,.016);
+ assert.equal(fx.stats().instancesByPool.signal,2);
+ body.root.visible=false;
+ director.advance(.016,.016);
+ assert.equal(fx.stats().retiredUnanchoredBodySignals,2);
+ assert.equal(fx.stats().instancesByPool.signal,0);
+ assert.equal(director.acknowledgePresentedFrame('after-body-loss',.004),0);
+ assert.deepEqual(sounds,[],'previously accepted but now missing body art cannot be claimed as synced');
+ assert.deepEqual(director.stats().recentDeliveryReceipts.map(r=>r.decision),
+  ['expired-visual','expired-visual']);
+ director.dispose();fx.dispose();
+});
