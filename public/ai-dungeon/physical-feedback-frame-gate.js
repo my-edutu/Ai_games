@@ -18,7 +18,12 @@ export function classifySubmittedCombatAudio({
  // suppresses the trail deliberately in reduced-motion mode.
  if(requiresMeasuredBlade&&!visualAccepted)return 'missing-measured-blade';
  if(visualAccepted&&visualAlive===false)return 'expired-visual';
+ // A drawable blade demands affirmative evidence from BOTH production
+ // retained-slot queries. Legacy adapters may omit them, but absence of
+ // proof must never authorize physical sword passage audio.
+ if(requiresMeasuredBlade&&visualAlive!==true)return 'unverified-blade-visual';
  // A live but hidden sword ribbon is not a submitted moving blade.
  if(visualAccepted&&visualDrawable===false)return 'await-drawable-visual';
+ if(requiresMeasuredBlade&&visualDrawable!==true)return 'unverified-blade-visual';
  return 'deliver';
 }
