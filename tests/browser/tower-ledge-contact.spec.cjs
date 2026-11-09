@@ -146,7 +146,19 @@ for(const view of [{name:'desktop',w:960,h:600},{name:'portrait',w:390,h:844}]){
     // soles clear the upper slab the presentation root must enter its walking
     // band. The previous >27.95 expectation at tick300 was left behind by
     // the intentional G45 fix and rejected correct source-bound GPU output.
-    const grip=afterGrip.get(contact)?.ledgeProjection;
+    const gripObservation=afterGrip.get(contact);
+    const grip=gripObservation?.ledgeProjection;
+    // The actual WebGL root may lie outside the nominal ring while the
+    // skinned helmet still clips it. The previous desktop native capture
+    // showed r=27.606 and negative helmet clearance for the SAME tick that
+    // was safe in portrait. Require source-authentic hand and head clearance
+    // in both viewport sequences, not only the radial proxy.
+    expect(gripObservation?.ledgeContact?.platformId,'grip is the real intended platform')
+      .toBeTruthy();
+    expect(gripObservation?.ledgeContact?.errorWorld,'actual raised fingertip meets the source deck')
+      .toBeLessThan(.02);
+    expect(gripObservation?.ledgeContact?.helmetClearanceWorld,
+      'visible 3D helmet cannot clip opaque deck at source grip').toBeGreaterThan(0);
     const released=afterGrip.get(contact+1)?.ledgeProjection;
     const overDeck=afterGrip.get(contact+2)?.ledgeProjection;
     expect(grip?.rootRadius,'contact tick must remain outside opaque stone').toBeGreaterThan(27.95);
