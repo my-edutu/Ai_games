@@ -39,9 +39,15 @@ export function createPhysicalCombatFeedback({
    unverifiedVisualLiveness=0,lastPresentedFrame=null;
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
- // Keep the source cue's original envelope separate from the D04
- // first-draw staging time so synchronization receipts remain truthful.
- const presentationDelay=cue=>requirePresentedFrame&&cue?.kind==='swing'
+ // Preserve the requested envelope in receipts even when the D04
+ // submitted-frame clock must stage the action at its first drawable frame.
+ // A real Warden cast emits its opening on the SAME authority tick: deferring
+ // release by 230ms while rendering recovery immediately reverses the causal
+ // sequence. Admit both together, priority-order release before recovery, and
+ // keep BOTH sounds behind the actual frame-submission acknowledgment.
+ // Legacy/non-submission callers retain their original presentation delays.
+ const presentationDelay=cue=>requirePresentedFrame&&
+  (cue?.kind==='swing'||cue?.kind==='warden-release')
   ?0:clamp(cue?.delay,0,.5);
  function flush(){
   pending.length=0;awaitingPresentation.length=0;seen.clear();
