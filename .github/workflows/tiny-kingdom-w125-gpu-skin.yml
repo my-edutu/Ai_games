@@ -33,6 +33,9 @@ jobs:
           node-version: '22.16.0'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # Playwright's shared webServer imports the compiled replay package;
+      # missing build aborted original-worker browser capture before it booted.
+      - run: npm run build
       - name: Prove original worker joint tags and exact mathematical endpoints
         run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
       - name: Verify original full-detail worker joint-space mapping
