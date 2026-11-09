@@ -31,13 +31,13 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     schemaVersion: 1,
     cells: {
       '0': beliefCell(0, [1, 5]),
-      '1': beliefCell(1, [0]),
-      '3': beliefCell(3, []),
+      '1': beliefCell(1, [0, 2]),
+      '2': beliefCell(2, [1]),
       '5': beliefCell(5, [0]),
     },
     doors: {},
     keys: {},
-    threats: { threat: { id: 'threat', cell: 3, lastSeenTick: 0 } },
+    threats: { threat: { id: 'threat', cell: 2, lastSeenTick: 0 } },
     frontiers: [],
     revision: 1,
     lastUpdatedTick: 0,
@@ -46,7 +46,7 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     schemaVersion: 1,
     tick: 0,
     currentCell: 0,
-    visibleCells: [0, 1, 3, 5],
+    visibleCells: [0, 1, 2, 5],
     rememberedCells: [],
     cells: Object.values(belief.cells).map(cell => ({
       cell: cell.cell,
@@ -61,7 +61,7 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     })),
     doors: [],
     keys: [],
-    threats: [{ id: 'threat', cell: 3, lastSeenTick: 0 }],
+    threats: [{ id: 'threat', cell: 2, lastSeenTick: 0 }],
     inventory: [],
     health: 1,
     timeRemaining: 100,
@@ -71,9 +71,32 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
 
   const decision = chooseMazeAction(state, observation, belief);
   assert.equal(decision.intent.mode, 'evading-threat');
-  assert.equal(decision.action.targetCell, 5, 'cell 5 is four Manhattan steps from threat cell 3; cell 1 is only two');
+  assert.equal(decision.action.targetCell, 5, 'cell 5 is three Manhattan steps from threat cell 2; cell 1 is only one');
 });
 
+test('visible diagonal, sealed or unconnected guardians cannot hijack autonomous movement before a real open standoff',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},'standoff-public-only');
+  const state=structuredClone(runtime.state);state.explorer.cell=0;state.ai.recentCells=[0];
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1,5]),'1':beliefCell(1,[0,2]),
+    '2':beliefCell(2,[1]),'5':beliefCell(5,[0]),'6':beliefCell(6,[])},
+    doors:{},keys:{},threats:{},frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,1,2,5,6],rememberedCells:[],
+    cells:Object.values(belief.cells).map(cell=>({...cell,visible:true})),
+    doors:[],keys:[],threats:[{id:'threat',cell:6,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[0]};
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'diagonal danger can warn but cannot force a fictional straight standoff');
+  observation.threats[0].cell=2;
+  observation.doors=[{id:'sealed',a:1,b:2,requiredKeyId:'key-X',open:false}];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'a closed public door prevents a phantom adjacent-guardian evasion');
+  observation.doors=[];
+  observation.cells.find(cell=>cell.cell===2).neighbors=[];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'a one-way/unknown second link is not a verified open danger path');
+});
 test('a paused threat remains visible and avoidable while it is still collidable', () => {
   const runtime = MazeRuntime.create({ width: 11, height: 9, profile: 'hunter', visibilityRadius: 3, threatCount: 1 }, 'review-paused-threat');
   const state = structuredClone(runtime.state);

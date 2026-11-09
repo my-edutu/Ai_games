@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-09T21:40:00.000Z",
+  "updatedAt": "2026-11-09T21:55:38.540Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass224 source candidate: generate one real first guardian side-branch patrol adjacent to the mandatory journey, maintaining public-only sightlines, seeded determinism and honest gameplay. Exact-head authored WebGL, natural linked encounter, six-run <100, whole CI, independent image approval remain PENDING. Pass223 verified 718/718 Node but live-stage startup and missing open-pair browser gates plus unrelated Tiny Kingdom CI blocker remain. Nintendo bar NOT MET. PR draft, no merge/deploy."
+    "summary": "Pass224b companion real gameplay candidate: route-side guardian generation passed 719/719 whole Node tests, but browser still showed no genuine linked encounter and live-stage startup timed out. Source inspection uncovered global early evasion on any visible guardian; AI now only evades an actually public, reciprocal open straight 1–2-cell threat corridor, allowing honest approach. New exact-head native WebGL/CI, strict six-run and independent official Nintendo critic remain PENDING; benchmark NOT MET, PR draft."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass224b actual AI policy: after real route-side guardian generation, stop early global evasion on distant/diagonal/blocked visible threats; preserve defensive action at a presently observed reciprocal open straight one/two-cell guardian corridor. Public-only tests for diagonal, sealed and one-way threat paths. New exact-head CI and native image evidence pending; no Nintendo parity.",
     "Pass224 source candidate: original generator prioritizes one real off-route two-cell moving Thornback patrol visibly adjacent to the journey on existing traversable corridors; fallback for no eligible branch, no forced encounter, hidden route or new renderer meshes. Six unmodified production seeds regression contract added. Exact-source WebGL/CI and original image critic PENDING; benchmark NOT MET.",
     "Pass222 source candidate: authoritative public reciprocal one/two-cell sightline now controls Pip/Thornback shared acting and camera, with nearby lantern caution across sealed turns preserved. New-HEAD visual/test acceptance pending; no benchmark win.",
     "Pass221 verified original native 37 screenshots at exact c45af77, 35/35 available individual SHA-256 pairs and six reset geometry PASS; inspected untouched 320/390/1280 pressure frames. Corrected actual false-negative in installed-Three apronArt: its centre-only matrix prefilter hid both ±0.48m insets, now requires real twin grooves in BOTH cardinal trap orientations. Independent critic unavailable; new-HEAD CI pending.",

@@ -32,6 +32,30 @@ function gridDistance(a: number, b: number, width: number): number {
   return Math.abs(aRow - bRow) + Math.abs(aCol - bCol);
 }
 
+// The explorer should NOT flee merely because a guardian is visible through
+// some other turn. A true standoff is a currently published 1-2 cell STRAIGHT
+// open passage, or an adjacent open passage. That lets Pip progress to a
+// genuine public encounter, but stops the next move before contact.
+function observedOpenThreatPath(observation:MazeObservation,guardianCell:number,width:number):boolean{
+  const hero=observation.currentCell;
+  const dx=guardianCell%width-hero%width;
+  const dy=Math.floor(guardianCell/width)-Math.floor(hero/width);
+  const distance=Math.abs(dx)+Math.abs(dy);
+  if(distance<1||distance>2||(dx!==0&&dy!==0))return false;
+  const cells=new Map(observation.cells.filter(cell=>cell.visible&&!cell.blocked)
+    .map(cell=>[cell.cell,cell] as const));
+  const step=dx?Math.sign(dx):Math.sign(dy)*width;
+  let current=hero;
+  for(let i=0;i<distance;i++){
+    const next=current+step,from=cells.get(current),to=cells.get(next);
+    if(!from||!to||!from.neighbors.includes(next)||!to.neighbors.includes(current)
+      ||observation.doors.some(door=>!door.open&&
+        ((door.a===current&&door.b===next)||(door.a===next&&door.b===current))))return false;
+    current=next;
+  }
+  return true;
+}
+
 function safeObservedNeighbors(
   currentCell: number,
   candidates: number[],
@@ -53,7 +77,11 @@ function chooseEvasion(
   observation: MazeObservation,
   belief: MazeBeliefState,
 ): MazeDecision | null {
-  const threats = observation.threats;
+  // Proximity by Euclidean/grid radius alone is not immediate danger: it
+  // caused endless evasive wandering and prevented real Pip/Thornback scenes.
+  // Only presently OBSERVED reciprocal-open links authorize defensive control.
+  const threats = observation.threats.filter(threat =>
+    observedOpenThreatPath(observation,threat.cell,state.config.width));
   if (!threats.length) return null;
 
   const current = belief.cells[String(observation.currentCell)];

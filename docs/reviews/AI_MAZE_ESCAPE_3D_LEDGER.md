@@ -1,3 +1,8 @@
+# Pass224b — source-visible over-evasion root cause, public corridor tactical approach (2026-11-09 UTC)
+
+- [Pass224a WebGL 42706235935](https://github.com/my-edutu/Ai_games/actions/runs/42706235935) proved the authentic encounter still absent in 6 production seeds after route-side guardian generation; native stage startup still timed out at 30s. [Whole CI 42706235585](https://github.com/my-edutu/Ai_games/actions/runs/42706235585) passed 719/719 Node tests (new watchpost included), overall failed unrelated Tiny Kingdom script.
+- New actual authoritative AI-policy correction: no global evasion merely because any guardian is visible through a corner; present public reciprocal straight one/two-link threat path triggers fair tactical evasion instead. Deterministic path choice and safe observed neighbors still govern actual moves. Added/strengthened grid geometry, sealed/one-way/diagonal/public-only regression tests. [Same dated review](./maze-3d/pass-224-natural-guardian-watchpost-2026-11-09.md). Exact new-HEAD native screenshots/6-run/full CI/critic PENDING. Nintendo bar unmet, Draft PR active, no merge/deploy.
+
 # Pass224 — real authored route-side guardian watchpost candidate (2026-11-09 UTC)
 
 - Exact starting source `7b65fc9119310a4cce884dcbb8ef3c1cc2a53c09`: [WebGL 42694025302](https://github.com/my-edutu/Ai_games/actions/runs/42694025302) 96/96 focused Node + stream PASS but browser 3/5 (no genuine open Pip–Thornback corridor; independent 30s stage startup timeout). [Whole CI 42694025147](https://github.com/my-edutu/Ai_games/actions/runs/42694025147) **718/718 Node PASS**, overall FAIL from Tiny Kingdom missing script.
