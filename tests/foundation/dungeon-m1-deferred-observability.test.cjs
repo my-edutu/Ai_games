@@ -39,3 +39,13 @@ test('invalid producers cannot corrupt truthful cheap rendering fields',async()=
  assert.match(app,/deferRenderDiagnostics\(diagnostics,/);
  assert.doesNotMatch(app,/visibility:\s*actualHeroVisibility\(/,'actual occlusion tests cannot execute eagerly for each WebGL frame');
 });
+
+// Real Chromium on Nov 9 failed with Unexpected end of input at the entrypoint.
+// Parse the production ESM entry, not a mock or a text-pattern approximation.
+test('production 3D entry module parses before browser start',()=>{
+ const {spawnSync}=require('node:child_process');
+ const target=path.join(root,'public/ai-dungeon/app.js');
+ const check=spawnSync(process.execPath,['--check',target],{encoding:'utf8',timeout:12000});
+ assert.equal(check.error,undefined,'source parser should run');
+ assert.equal(check.status,0,'invalid 3D entrypoint prevents every WebGL frame: '+check.stderr);
+});

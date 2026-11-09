@@ -1477,6 +1477,7 @@ function animate(t){
    expeditionStonework:()=>world.userData.expeditionStonework?.metrics??null,
    vaultedGallery:()=>world.userData.vaultedGallery?.metrics()??null
   });
+ }
 }
 async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
 $('party').addEventListener('click',e=>{
