@@ -67,7 +67,7 @@ test('earned guardian defeat lights the exact physical gate, never a phantom vic
   const cap={id:'f3:cap',x:210000,y:1300000,width:65000,height:8000};
   const fallen={id:'f3:guardian',kind:'guardian',active:false,health:0,
     maxHealth:8,x:221000,y:1325000,halfHeight:18000};
-  const snapshot={...f,platforms:[cap],enemies:[fallen],
+  const snapshot={...f,guardianExitX:cap.x+Math.floor(cap.width*.76),platforms:[cap],enemies:[fallen],
     intent:{mode:'aligning',targetPlatformId:'f3:cap'}};
   const original=JSON.stringify(snapshot);
   const actual=observedActionStage(snapshot,cap);

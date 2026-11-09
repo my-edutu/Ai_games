@@ -152,7 +152,7 @@ test('physical head/feet protection is bounded, ignores stale or invalid body ge
   assert.match(source,/const span=observedSilhouetteSpan\(index===0\?actorHalfHeight:/);
   assert.match(source,/index===1\?guardianHalfHeight:0\)/);
   assert.match(source,/sample===1\?-span:span/);
-  assert.match(source,/canopyRay\.intersectObjects\(entry\.sceneryMeshes,false\)/);
+  assert.match(source,/canopyRay\.intersectObjects\(\s*entry\.sceneryMeshes,false,canopyHits\)/);
   assert.match(source,/entry\.sceneryParent\.updateWorldMatrix\(true,true\)/);
   assert.doesNotMatch(source,/source\.player\.x\s*=/);
 });

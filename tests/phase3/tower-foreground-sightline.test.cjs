@@ -55,6 +55,14 @@ test('a real THREE ray from a smoothed exterior camera softens ONLY a blocking d
       'three real decorative rotors plus one bounded noncolliding power rack');
     assert.equal(world.diagnostics().decorativeSightlineGears,3);
     assert.equal(world.diagnostics().decorativeSightlineRacks,1);
+    const rayEvidence=world.diagnostics().decorativeOcclusionEvidence;
+    assert.equal(rayEvidence.length,4,'three original rotors and rack must produce diagnostics');
+    for (const item of rayEvidence) {
+      assert.ok(Number.isSafeInteger(item.rayBoundsRejects)&&item.rayBoundsRejects>=0);
+      assert.ok(Number.isSafeInteger(item.rayNarrowphaseChecks)&&item.rayNarrowphaseChecks>=0);
+      assert.equal(item.raySamples,item.rayBoundsRejects+item.rayNarrowphaseChecks,
+        'compositing must preserve actual first-pass occlusion accounting');
+    }
     for(let i=0;i<12;i++)state=world.protectRouteSightlines(camera,actor,null,null,.05,{quality:'low'});
     assert.ok(state.softened>=1,'real geometry blocks this actual source-supplied subject ray');
     assert.ok(world.diagnostics().occludedForegroundGears>=1);

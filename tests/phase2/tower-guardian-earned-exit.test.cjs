@@ -274,7 +274,7 @@ test('defeated guardian opens the source-authentic 3D doorway before earned floo
   const base={
     runToken:'observed-cap-clearance',tick:121,floor:8,lifecycle:'running',
     chunkBaseY:state.chunks[0].baseY,worldWidth:state.config.worldWidth,
-    player:{health:2},platforms:[cap],
+    player:{health:2},platforms:[cap],guardianExitX:guardianArenaExitX(cap),
     enemies:[{id:'f8:boss',kind:'guardian',active:false,health:0,
       x:cap.x+cap.width/2,y:cap.y+cap.height+18000,halfHeight:18000}],
   };

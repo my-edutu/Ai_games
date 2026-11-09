@@ -17,7 +17,9 @@ const fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-transform-'));
 fs.writeFileSync(path.join(fixtureDir, 'scene-hierarchy.mjs'),
   fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
     .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
-      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href))
+    .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
+      'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href)));
 const srcPath = path.join(ROOT, 'public/infinite-tower-climb/visuals/world.mjs');
 const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href;
 const source = fs.readFileSync(srcPath, 'utf8')

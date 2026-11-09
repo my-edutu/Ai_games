@@ -29,8 +29,10 @@ test('published source exit never drifts after live guardian recoil or death',as
   for(const current of [source,raised,defeated]){
     const before=JSON.stringify(current);
     assert.equal(guardianGateAnchorX(current,cap),exitX);
-    assert.ok(observedPassageApproach(current,{runToken:current.runToken,
-      floor:8,cap})>.5);
+    const proximity=observedPassageApproach(current,{runToken:current.runToken,
+      floor:8,cap});
+    if(current===defeated) assert.ok(proximity>.5,'only source-defeated guardian yields earned light');
+    else assert.equal(proximity,0,'living guardians cannot illuminate the locked passage');
     assert.equal(JSON.stringify(current),before,'presentation cannot mutate authoritative frames');
   }
   assert.notEqual(cap.x+cap.width/2,exitX,

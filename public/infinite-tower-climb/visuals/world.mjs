@@ -1939,6 +1939,7 @@ export function createTowerWorld(){
         entry,rawOpacity:requiredOpacity,screenBounds,projectedActorFront,
         softByProjection,softByCorridor,projectedScreenCoverage,
         sceneFrontDepth,projectedNearPlane,rayContactCount,actorDepth,
+        rayBoundsRejects,rayNarrowphaseChecks,
       });
     }
     // One camera-frame composite budget across source-independent decorative
@@ -1947,7 +1948,8 @@ export function createTowerWorld(){
     for(const decision of pendingDecorativeOpacity){
       const {entry,screenBounds,projectedActorFront,softByProjection,
         softByCorridor,projectedScreenCoverage,sceneFrontDepth,
-        projectedNearPlane,rayContactCount,actorDepth}=decision;
+        projectedNearPlane,rayContactCount,actorDepth,
+        rayBoundsRejects,rayNarrowphaseChecks}=decision;
       let companions=0;
       if(decision.rawOpacity<1 && screenBounds &&
           (projectedActorFront || rayContactCount>0)){

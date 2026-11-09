@@ -15,7 +15,9 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-low-world-'));
 fs.writeFileSync(path.join(scratch, 'scene-hierarchy.mjs'),
   fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
     .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
-      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href))
+    .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
+      'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href)));
 const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href;
 const coordinatesURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
 const surfaceURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/world-surface.mjs')).href;

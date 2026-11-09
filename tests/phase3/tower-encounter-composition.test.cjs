@@ -16,7 +16,9 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-composition-regress
 fs.writeFileSync(path.join(scratch, 'scene-hierarchy.mjs'),
   fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
     .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
-      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href))
+    .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT,
+      'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href)));
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 const loaded = (async () => {
   const THREE = await import(pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.module.js')).href);

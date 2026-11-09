@@ -184,7 +184,8 @@ test('capture and CI use the same neutral original-video calibration for both fr
   assert.match(capture,/calibrateOriginalVideo\(\{/);
   assert.match(capture,/sourceTicks:passiveSourceTicks\.ticks/);
   assert.match(capture,/sourceEvents:eventIndex\.events/);
-  assert.match(capture,/await video\.saveAs\(path\.join\(dir, 'live\.webm'\)\)/);
+  assert.match(capture,/const originalWebMPath = path\.join\(dir, 'live\.webm'\)/);
+  assert.match(capture,/if \(video\) await video\.saveAs\(originalWebMPath\)/);
   assert.doesNotMatch(capture,/videoClockCalibration:'PASS'/);
   const workflowPath=path.resolve(__dirname,
     '../../.github/workflows/tower-transformation-visual-evidence.yml');

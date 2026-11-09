@@ -15,7 +15,9 @@ const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tower-obstacle-stage-'));
 fs.writeFileSync(path.join(temp, 'scene-hierarchy.mjs'),
   fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene-hierarchy.mjs'), 'utf8')
     .replace("'./guardian-shot-stage.mjs'", JSON.stringify(pathToFileURL(path.join(root,
-      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href)));
+      'public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')).href))
+    .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(root,
+      'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href)));
 after(()=>fs.rmSync(temp,{recursive:true,force:true}));
 const threeUrl=pathToFileURL(path.join(root,'node_modules/three/build/three.module.js')).href;
 const coordUrl=pathToFileURL(path.join(root,'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
