@@ -179,6 +179,8 @@ jobs:
         working-directory: source
         run: npm run build
       - name: Prove scoped video integrity before browser capture
+        id: scoped_integrity
+        continue-on-error: true
         working-directory: source
         run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
       - name: Install Chromium
@@ -246,14 +248,15 @@ jobs:
           DESKTOP_OUTCOME: ${{ steps.record_desktop.outcome }}
           PORTRAIT_OUTCOME: ${{ steps.record_portrait.outcome }}
           WEBM_OUTCOME: ${{ steps.audit_original_webm.outcome }}
+          PREFLIGHT_OUTCOME: ${{ steps.scoped_integrity.outcome }}
         run: |
           set -euo pipefail
           mkdir -p artifacts/tower-motion
-          printf 'desktop=%s\nportrait=%s\nnative-webm-integrity=%s\n' \
-            "$DESKTOP_OUTCOME" "$PORTRAIT_OUTCOME" "$WEBM_OUTCOME" \
+          printf 'scoped-preflight=%s\ndesktop=%s\nportrait=%s\nnative-webm-integrity=%s\n' \
+            "$PREFLIGHT_OUTCOME" "$DESKTOP_OUTCOME" "$PORTRAIT_OUTCOME" "$WEBM_OUTCOME" \
             > artifacts/tower-motion/capture-step-outcomes.txt
-          if [[ "$DESKTOP_OUTCOME" != success || "$PORTRAIT_OUTCOME" != success ||
-                "$WEBM_OUTCOME" != success ]]; then
+          if [[ "$PREFLIGHT_OUTCOME" != success || "$DESKTOP_OUTCOME" != success ||
+                "$PORTRAIT_OUTCOME" != success || "$WEBM_OUTCOME" != success ]]; then
             echo 'Original-source capture incomplete. All available native clips, sidecars and per-viewport failure traces are retained; P0 remains NOT EVALUATED.' >&2
             exit 1
           fi
