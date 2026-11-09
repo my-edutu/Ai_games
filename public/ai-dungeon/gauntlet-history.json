@@ -6624,6 +6624,51 @@
       "independentPR72": "15d10b3c7603515122b32320363f4ecbd330c0cd_NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "True same-seed 1440/390 organic motion/audio + Warden draw/submit/rAF p95 and glass/stone cutaway; reject poor fidelity; desktop defeat, rig moving contact, original audio sync and independent 3-critic blind comparison."
+    },
+    "m1OriginalSculptureFusion": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "sourceParentSha": "8455783853a60cddbbb6af4c3ec78b1e5004a053",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "genuineBeforeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42680331554",
+      "mobileAuthority": "946/946_FIVE_ORGANIC_STAGES",
+      "desktopAuthority": "DEFEAT_TIMEOUT",
+      "wardenBefore": {
+        "mobileDrawCalls": 535,
+        "mobileSubmitP95Ms": 1794.5,
+        "mobileDeliveryP95Ms": 2149.9,
+        "mobileMinHeroPx": 37,
+        "desktopDrawCalls": 528,
+        "desktopSubmitP95Ms": 1340
+      },
+      "implementation": "Original ossuary/forge/orrery/scriptorium source triangle baking by authentic material, motif-variant keyed floor-local geometry reuse, exact original PBR/UV/normals, source moving flame/wheel, independent cutaways",
+      "sourceMotifDrawsBefore": [
+        106,
+        126,
+        112,
+        150
+      ],
+      "sourceMotifDrawsAfter": [
+        40,
+        40,
+        56,
+        40
+      ],
+      "originalPhysicalTriangleParity": "ZERO_MISSING_OR_EXTRA_ALL_FOUR_BIOMES",
+      "approximateNewGeometryBytesRange": [
+        177408,
+        289356
+      ],
+      "tests": "393/393 foundation pass; 24x900 replay zero divergences",
+      "browserAfter": "NOT_OBSERVED",
+      "audioImpactSync": "UNVERIFIED",
+      "animationPr72": "NOT_INTEGRATED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Genuine 1440/390 after-gameplay same-seed original motion/Opus, Warden draw/submit/delivery p95/p99, natural desktop defeat, original geometry/animation/occlusion visibility and matched immutable baseline, independent blind critics"
     }
   }
 }

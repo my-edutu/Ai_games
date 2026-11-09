@@ -29,6 +29,77 @@ export function createDungeonSetpieces(world,map,floor,exit){
  const largeRing=geometry(new THREE.TorusGeometry(.32,.036,6,28));
  const arch=geometry(new THREE.TorusGeometry(.34,.065,7,24,Math.PI));
  const relief=geometry(new THREE.DodecahedronGeometry(.5,0));
+ // Static sculptural elements used to submit one draw per tiny shape.
+ // Retain all original PBR materials, triangles, UVs, normals and local
+ // transforms but issue at most one draw per original material per anchor.
+ // Animated flame/orrery children and individual foreground cutaways stay live.
+ const staticBatchMetrics={sourceMeshes:0,retainedMeshes:0,sourceTriangles:0,
+  retainedTriangles:0,originalGeometryPreserved:true,cacheHits:0,uniqueGeometry:0};
+ const fusedCache=new Map();
+ function fuseStaticNiche(anchor,motif,variant){
+  const cacheKey=motif+':'+variant;
+  // Share original geometry across same-motif variants on this one floor.
+  // Every camera-cutaway anchor retains its OWN rendered mesh transforms.
+  const cached=fusedCache.get(cacheKey);
+  const moving=new Set(movables.map(x=>x.object));
+  const groups=cached?null:new Map();
+  for(const child of [...anchor.children]){
+   if(!child.isMesh||moving.has(child))continue;
+   if(Array.isArray(child.material)||!child.geometry?.getAttribute('position')||
+    !child.geometry.getAttribute('normal')||!child.geometry.getAttribute('uv'))continue;
+   const original=child.geometry;
+   staticBatchMetrics.sourceTriangles+=(original.index?.count??original.getAttribute('position').count)/3;
+   staticBatchMetrics.sourceMeshes++;
+   if(!cached){
+    child.updateMatrix();
+    const transformed=original.index?original.toNonIndexed():original.clone();
+    transformed.applyMatrix4(child.matrix);
+    const list=groups.get(child.material)||[];
+    list.push(transformed);groups.set(child.material,list);
+   }
+   anchor.remove(child);
+  }
+  const roleName=material=>material===stone?'stone':material===edge?'edge':
+   material===metal?'metal':material===cloth?'cloth':material===ink?'ink':'lumen';
+  const mount=({material,geometry:combined,triangles})=>{
+   const mesh=new THREE.Mesh(combined,material);
+   mesh.name='retained-authored-'+roleName(material);
+   mesh.receiveShadow=true;mesh.castShadow=false;
+   anchor.add(mesh);
+   staticBatchMetrics.retainedMeshes++;
+   staticBatchMetrics.retainedTriangles+=triangles;
+  };
+  if(cached){
+   staticBatchMetrics.cacheHits++;
+   for(const batch of cached)mount(batch);
+   return;
+  }
+  const newBatches=[];
+  for(const [material,pieces] of groups){
+   const vertexCount=pieces.reduce((n,g)=>n+g.getAttribute('position').count,0);
+   const combined=new THREE.BufferGeometry();
+   for(const [name,size] of [['position',3],['normal',3],['uv',2]]){
+    const array=new Float32Array(vertexCount*size);let offset=0;
+    for(const piece of pieces){
+     const attribute=piece.getAttribute(name);
+     if(!attribute||attribute.itemSize!==size){
+      for(const transient of pieces)transient.dispose();
+      throw new Error('Original niche has incompatible '+name+' geometry');
+     }
+     array.set(attribute.array,offset);offset+=attribute.array.length;
+    }
+    combined.setAttribute(name,new THREE.BufferAttribute(array,size));
+   }
+   combined.computeBoundingSphere();
+   for(const piece of pieces)piece.dispose();
+   geometry(combined);
+   const batch={material,geometry:combined,triangles:vertexCount/3};
+   newBatches.push(batch);mount(batch);
+   staticBatchMetrics.uniqueGeometry++;
+  }
+  fusedCache.set(cacheKey,newBatches);
+ }
+
  const inPlace=(g,geo,mat,x,y,z,sx=1,sy=1,sz=1)=>{
   const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);
   mesh.receiveShadow=true;mesh.castShadow=false;g.add(mesh);return mesh;
@@ -103,13 +174,15 @@ export function createDungeonSetpieces(world,map,floor,exit){
   else if(p.motif==='forge')forge(anchor,p.variant);
   else if(p.motif==='orrery')orrery(anchor,p.variant);
   else scriptorium(anchor,p.variant);
+  fuseStaticNiche(anchor,p.motif,p.variant);
   root.add(anchor);
   // The existing 3D camera clearance protects the party from set-piece occlusion.
   world.userData.foregroundProps?.push(anchor);
  }
  const metrics={landmarks:placements.length,wallReliefs:placements.length,
   motif:placements[0]?.motif??'none',animatedSetpieces:movables.length,
-  uniqueSculptureFamilies:4,meshBudget:placements.length*21};
+  uniqueSculptureFamilies:4,meshBudget:placements.length*21,
+  staticBatch:staticBatchMetrics};
  return{metrics,update(time){
   for(const move of movables){
    if(move.kind==='wheel')move.object.rotation.y=time*.19+move.phase*.25;

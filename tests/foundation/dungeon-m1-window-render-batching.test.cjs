@@ -16,7 +16,7 @@ async function loadArchitecture(){
 }
 function face(x,z){return [x,0,z,0,1.2,0,0,1,0,0]}
 function mockCanvas(){
- const ctx={fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},stroke(){}};
+ const ctx={fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},closePath(){},stroke(){},fill(){}};
  return {width:0,height:0,getContext(){return ctx}};
 }
 function triangles(geometry){return geometry.index?geometry.index.count/3:geometry.getAttribute('position').count/3}
