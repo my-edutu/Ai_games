@@ -271,7 +271,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   let light=null;
   if(flames.length<5){
    light=new THREE.PointLight(warmTorch,2.1,7.2,2);
-   light.position.set(0,2.04,.12);group.add(light);
+   light.position.set(0,2.04,.12);light.userData.dungeonDecorativePractical=true;group.add(light);
   }
   // Torch visibility and its actual light now obey the SAME cinematic cutaway.
   // No invisible floating lights stay on after masonry hides a foreground prop.
