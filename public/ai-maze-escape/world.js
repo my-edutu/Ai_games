@@ -1981,6 +1981,24 @@ export function createMazeWorld(options = {}) {
         .28, .075, .10);
       shutters.push({object: shutter, side});
     }
+    // A connected four-quarter tideglass iris now turns the disclosed hazard
+    // floor into one observable mechanical opening rather than inert clay under
+    // its jaws. All four faces live INSIDE the real trap cell, and use only
+    // existing pooled Three materials/geometry. This is cosmetic 3D only:
+    // no fabricated collision, route, trigger, AI action or hidden-cell read.
+    const iris = [];
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const quarter = new THREE.Group();
+      quarter.name = 'Published tide-shear quarter iris ' + sx + ' ' + sz;
+      quarter.position.set(sx * .47, .065, sz * .42);
+      p.add(quarter);
+      mesh(quarter, bevel, darkMetal, 0, .015, 0, .61, .055, .57);
+      const face = mesh(quarter, bevel, seaGlass, 0, .059, 0, .54, .045, .49);
+      face.name = 'Published tide-shear moving sea-glass quadrant';
+      mesh(quarter, bevel, lightStone, -sx * .115, .092, -sz * .09,
+        .14, .025, .37);
+      iris.push({object: quarter, sx, sz});
+    }
     // Connected bronze relay levers turn FIRST as a visible pressure plate
     // responds, BEFORE the taller piston completes its rise. Two genuinely
     // rooted, low-profile mechanical linkages give the on-camera shutter
@@ -1999,7 +2017,7 @@ export function createMazeWorld(options = {}) {
       mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
       relays.push({object: relay, side});
     }
-    trapSignals.push({carriage, diaphragms, shutters, relays, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
+    trapSignals.push({carriage, diaphragms, shutters, iris, relays, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2393,6 +2411,17 @@ export function createMazeWorld(options = {}) {
         // face create a distinct adjacent-cell visual beat, without expanding
         // the known tile footprint, changing Pip, or inventing a new hazard.
         shutter.object.rotation.z = -shutter.side * (reducedContact ? .24 : .03 + 1.08 * shutterBeat);
+      }
+      // The existing PUBLIC shutter clock parts the same four mineral valves.
+      // No animated preview for hidden, remembered, terminal or stale traps;
+      // reduced motion holds one static genuine-contact aperture.
+      const irisStroke = reducedContact ? .55 : shutterBeat;
+      for (const quarter of signal.iris) {
+        quarter.object.position.x = quarter.sx * (.47 + .14 * irisStroke);
+        quarter.object.position.z = quarter.sz * (.42 + .10 * irisStroke);
+        quarter.object.position.y = .065 + (reducedContact ? .035 : .05 * shutterBeat);
+        quarter.object.rotation.x = quarter.sz * (reducedContact ? .12 : .28 * shutterBeat);
+        quarter.object.rotation.z = -quarter.sx * (reducedContact ? .12 : .28 * shutterBeat);
       }
     }
     // One witnessed three-beat MACHINE: bronze relays tip the warning jaws,
