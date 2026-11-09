@@ -47,24 +47,24 @@
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "assessedAt": "2026-11-09",
-      "sourceHeadAtInspection": "d9800b5e3de18f12f7fa2add5b00309d296f5d1e",
+      "sourceHeadAtInspection": "097b0b4e1d7b5438d7bb33cfb8652368047e796c",
       "actualRenderedGameSourceSha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "frozenBaselineMoved": false,
       "authoritativeGameplayChangedThisExecution": false,
       "renderedGameplayExperienceChangedThisExecution": false,
-      "completedOutcome": "Unblocked TWO genuine original Node/Three regression vetoes found in a completed exact-source GitHub quality job. Multiline destructured world.mjs helper extraction had misidentified the first parameter closing `}` as the end of an ESM function, producing SyntaxError (test 503); the actual clockwork occluder registry now contains THREE real rotors PLUS the one source-independent decorative power rack, while an older test incorrectly asserted 3 (test 584). Updated both real repository tests with a correct top-level closure and exact four-assembly/3+1 diagnostic expectations. Test-only original-game safety unblocker; no rendering source or gameplay logic changed; no visual quality improvement claimed.",
+      "completedOutcome": "Repaired a load-bearing P0 footage-evidence chronology defect across the source event index and native baseline/candidate pairing. The original index appended true fixed-step floor-nine guardian-threshold and sampled moving-deck contacts after later result/restart beats. Native source matching followed array order, producing false missing/out-of-order film-search clues. Events now retain stable wall-clock chronology; historical nonmonotonic/episode-regressed indexes fail film provenance; passive contacts are attributed to their original source run instead of the most recent restart. Two code commits and new regression fixtures, not a transformed gameplay milestone.",
       "verifiedBlocker": {
-        "previousOriginalCI": "Original GitHub Actions quality run 42435070101 at source 8939edd678e3bf088aecddefed21c96043d5f876 failed 2 of 1218 tests: #503 Unexpected token ; in VM extraction, #584 registered occluders 4 !== stale expected 3. Original job log 128592047812 dated 2026-11-08.",
-        "developmentWorkspace": "Authorized chat_on_steriod development checkout unavailable: NOT_FOUND tunnel-client not seen for 300 seconds. Thus current Node22/Three/Chromium/FFmpeg and normal-speed original source capture NOT RUN.",
-        "githubActions": "New quality job 42541794562 for implementation c182abda pending at last inspection; no assigned successful runner/output yet. This source regression fix has NOT passed original CI.",
-        "runnerRootCause": "Unknown; inspect GitHub queue allocation; pending status does not prove runner starvation cause."
+        "defect": "Real indexTowerCaptureEvents() first records main-source timeline, then appends a secondary authoritative guardian-source-physical-threshold pass and a third sampled-render-deck-contact pass. Both may contain earlier atMs than previously emitted later result/restart beats, corrupting matchSourceEvents() sequential comparisons; renderer contact previously borrowed final observedEpisode.",
+        "implementation": "8315eca331ae166fd53045e5603c31128beefda5 + d6b77faecd8cafb1653357842e65e2d20162e4b9. Only scripts/tower-event-alignment.cjs, scripts/tower-event-pairing.cjs and their two Tower phase3 regressions touched.",
+        "developmentWorkspace": "Authorized original-game checkout NOT_FOUND: tunnel-client has not been seen for 300 seconds; original Node22/Three/Chromium/FFmpeg, source-pinned 960x600 and 390x844 recordings and tests not executed.",
+        "githubActions": "Exact-source quality run 42547486349 for d6b77fa pending; 42547255181 for 8315eca cancelled by quality pending-run coalescence, not an executed test. GitHub runner root cause unconfirmed."
       },
       "testsAndCapturesProducedThisExecution": [
-        "Read actual failed original GitHub job logs from 42435070101; reproduced exact parser SyntaxError using original world.mjs exported destructured function source under V8 JS.",
-        "Isolated source compilation after modifying extraction to first top-level `\\n}\\n`: observedPortraitDecorativeEnvelope, observedStageCorridorOpacity, observedPortraitGearDominance, linkClockFaceScenery, syncClockFaceSightline and observedLayeredSceneryOpacity compiled; genuine portrait-envelope synthetic input returned expected .14. This is isolated source syntax, NOT original Node/Three runtime.",
-        "Exact GitHub readback confirms implementation commit c182abda changed ONLY two Tower test files: full-world original 3-rotor plus 1-rack bounded registry assertion and helper parsing correction.",
-        "No new native source-pinned 960x600 or 390x844 film, campaign, browser frame, GPU metric, hardware frame-time/memory or independent review was produced."
+        "Inspected real source event iterator, two post-source evidence passes, native event-pair chronology and exact original phase3 tests; implemented chronological event sort, true source-episode attribution and read-only provenance vetoes.",
+        "Added genuine original-repository regressions for physically grounded floor-nine crossing before result/restart, earlier moving-deck render contact, correct episode after source restart, malformed historical event order and regression in observed run episodes.",
+        "GitHub readback and non-force expected-head ref updates verified two commits. These are source/form checks only, not executed original Node/Three tests.",
+        "No new original WebM, calibrated native PTS, 3200-tick source campaign, hardware frame-time/memory, or independent critic output."
       ],
       "newSourcePinnedCaptureLinks": [],
       "independentBlindReviews": {
@@ -74,17 +74,19 @@
       },
       "hardwareFrameTimeMemory": "NOT EVALUATED",
       "leadingTransformationVerdict": "NOT EVALUATED",
-      "largestObservedGap": "Older genuine original renderer e0fe7729 portrait WebM shows a giant near-side clockwork wheel hiding the climber and guardian around native 16–18s. The later physical annular rotors, cutaway opacity and source-locked earned gate have no source-matched current normal-speed video; visual outcome NOT EVALUATED.",
-      "nextHighImpactAction": "Restore a Node22/Three/Chromium executable checkout or assigned Actions worker. First run exact candidate c182abda original Node/Three tests, two unmodified 3200-tick guardian/crusher-to-floor9-to-result/restart campaigns, and review failing job details. Then request source-pinned 60+s normal-speed immutable baseline/candidate 960x600 and 390x844 WebM and validate native PTS/event alignment. Inspect current FULL-MOTION obscuration and correct the largest observed defect. Only after source+film passes seek actual device p50/p95/p99/memory and independent 5-reviewer randomized blind LOOKS/FEELS/PLAYS.",
-      "restrictions": "Frozen baseline unchanged, PR58/main/other games untouched. PR68 open and draft, no merge, deploy, force-push, fabricated film, metrics or critics.",
-      "sourceGuardrailImplementationCommitSha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
-      "sourceGuardrailCommitUrl": "https://github.com/my-edutu/Ai_games/commit/c182abda66b95c982bc9aed6c2d81306448d8da0",
+      "largestObservedGap": "Older authentic source-pinned e0fe7729 portrait video shows oversized near-side foreground clockwork obscuring the hero and guardian around 16–18s; recently opened annular geometry and source-earned gateway still lack current uninterrupted verified video.",
+      "nextHighImpactAction": "Run exact d6b77fa source tests, two source-authentic 3200-tick guardian/crusher→grounded gate→floor9→outcome/restart campaigns when original Node22 checkout or assigned runner is usable. Then trigger and inspect immutable baseline/candidate normal-speed 60+s WebM for 960x600/390x844 under matched seed/tier, authenticate WebM+native PTS+source-event chronology, rebuild biggest observed playable defect; only later request actual-device p50/p95/p99/memory and five genuinely independent blinded reviewers in EACH pillar.",
+      "restrictions": "Baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; PR58/main/other games untouched; PR68 open/draft. No merge, deploy, force-push, fictitious reviews or acceptance.",
+      "implementationCommits": [
+        "8315eca331ae166fd53045e5603c31128beefda5",
+        "d6b77faecd8cafb1653357842e65e2d20162e4b9"
+      ],
       "newExactSourceQuality": {
-        "runId": 42541794562,
-        "sha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
+        "runId": 42547486349,
+        "sha": "d6b77faecd8cafb1653357842e65e2d20162e4b9",
         "status": "pending",
-        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42541794562",
-        "note": "New original Node22/Three.js job pending, NOT executed; 2 old source test blockers repaired but no green result claimed."
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42547486349",
+        "note": "No job result; no original Node/Three execution or new video."
       },
       "currentSourceVideo": "NOT EVALUATED"
     },
@@ -1516,6 +1518,64 @@
       "leadingVerdict": "NOT EVALUATED",
       "observedLargestOldFilmDefect": "Older genuine original renderer e0fe7729 portrait WebM shows a giant near-side clockwork wheel hiding the climber and guardian around native 16–18s. The later physical annular rotors, cutaway opacity and source-locked earned gate have no source-matched current normal-speed video; visual outcome NOT EVALUATED.",
       "nextAction": "Restore a Node22/Three/Chromium executable checkout or assigned Actions worker. First run exact candidate c182abda original Node/Three tests, two unmodified 3200-tick guardian/crusher-to-floor9-to-result/restart campaigns, and review failing job details. Then request source-pinned 60+s normal-speed immutable baseline/candidate 960x600 and 390x844 WebM and validate native PTS/event alignment. Inspect current FULL-MOTION obscuration and correct the largest observed defect. Only after source+film passes seek actual device p50/p95/p99/memory and independent 5-reviewer randomized blind LOOKS/FEELS/PLAYS."
+    },
+    "p0PreviousEvidenceBeforeChronology20261109": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "assessedAt": "2026-11-09",
+      "sourceHeadAtInspection": "d9800b5e3de18f12f7fa2add5b00309d296f5d1e",
+      "actualRenderedGameSourceSha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "frozenBaselineMoved": false,
+      "authoritativeGameplayChangedThisExecution": false,
+      "renderedGameplayExperienceChangedThisExecution": false,
+      "completedOutcome": "Unblocked TWO genuine original Node/Three regression vetoes found in a completed exact-source GitHub quality job. Multiline destructured world.mjs helper extraction had misidentified the first parameter closing `}` as the end of an ESM function, producing SyntaxError (test 503); the actual clockwork occluder registry now contains THREE real rotors PLUS the one source-independent decorative power rack, while an older test incorrectly asserted 3 (test 584). Updated both real repository tests with a correct top-level closure and exact four-assembly/3+1 diagnostic expectations. Test-only original-game safety unblocker; no rendering source or gameplay logic changed; no visual quality improvement claimed.",
+      "verifiedBlocker": {
+        "previousOriginalCI": "Original GitHub Actions quality run 42435070101 at source 8939edd678e3bf088aecddefed21c96043d5f876 failed 2 of 1218 tests: #503 Unexpected token ; in VM extraction, #584 registered occluders 4 !== stale expected 3. Original job log 128592047812 dated 2026-11-08.",
+        "developmentWorkspace": "Authorized chat_on_steriod development checkout unavailable: NOT_FOUND tunnel-client not seen for 300 seconds. Thus current Node22/Three/Chromium/FFmpeg and normal-speed original source capture NOT RUN.",
+        "githubActions": "New quality job 42541794562 for implementation c182abda pending at last inspection; no assigned successful runner/output yet. This source regression fix has NOT passed original CI.",
+        "runnerRootCause": "Unknown; inspect GitHub queue allocation; pending status does not prove runner starvation cause."
+      },
+      "testsAndCapturesProducedThisExecution": [
+        "Read actual failed original GitHub job logs from 42435070101; reproduced exact parser SyntaxError using original world.mjs exported destructured function source under V8 JS.",
+        "Isolated source compilation after modifying extraction to first top-level `\\n}\\n`: observedPortraitDecorativeEnvelope, observedStageCorridorOpacity, observedPortraitGearDominance, linkClockFaceScenery, syncClockFaceSightline and observedLayeredSceneryOpacity compiled; genuine portrait-envelope synthetic input returned expected .14. This is isolated source syntax, NOT original Node/Three runtime.",
+        "Exact GitHub readback confirms implementation commit c182abda changed ONLY two Tower test files: full-world original 3-rotor plus 1-rack bounded registry assertion and helper parsing correction.",
+        "No new native source-pinned 960x600 or 390x844 film, campaign, browser frame, GPU metric, hardware frame-time/memory or independent review was produced."
+      ],
+      "newSourcePinnedCaptureLinks": [],
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "hardwareFrameTimeMemory": "NOT EVALUATED",
+      "leadingTransformationVerdict": "NOT EVALUATED",
+      "largestObservedGap": "Older genuine original renderer e0fe7729 portrait WebM shows a giant near-side clockwork wheel hiding the climber and guardian around native 16–18s. The later physical annular rotors, cutaway opacity and source-locked earned gate have no source-matched current normal-speed video; visual outcome NOT EVALUATED.",
+      "nextHighImpactAction": "Restore a Node22/Three/Chromium executable checkout or assigned Actions worker. First run exact candidate c182abda original Node/Three tests, two unmodified 3200-tick guardian/crusher-to-floor9-to-result/restart campaigns, and review failing job details. Then request source-pinned 60+s normal-speed immutable baseline/candidate 960x600 and 390x844 WebM and validate native PTS/event alignment. Inspect current FULL-MOTION obscuration and correct the largest observed defect. Only after source+film passes seek actual device p50/p95/p99/memory and independent 5-reviewer randomized blind LOOKS/FEELS/PLAYS.",
+      "restrictions": "Frozen baseline unchanged, PR58/main/other games untouched. PR68 open and draft, no merge, deploy, force-push, fabricated film, metrics or critics.",
+      "sourceGuardrailImplementationCommitSha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
+      "sourceGuardrailCommitUrl": "https://github.com/my-edutu/Ai_games/commit/c182abda66b95c982bc9aed6c2d81306448d8da0",
+      "newExactSourceQuality": {
+        "runId": 42541794562,
+        "sha": "c182abda66b95c982bc9aed6c2d81306448d8da0",
+        "status": "pending",
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/42541794562",
+        "note": "New original Node22/Three.js job pending, NOT executed; 2 old source test blockers repaired but no green result claimed."
+      },
+      "currentSourceVideo": "NOT EVALUATED"
+    },
+    "p0SourceFilmChronology20261109": {
+      "stage": "P0 OPEN",
+      "implementationSha": "d6b77faecd8cafb1653357842e65e2d20162e4b9",
+      "chronologyImplementationSha": "8315eca331ae166fd53045e5603c31128beefda5",
+      "sourceVideoEvidence": "NOT EVALUATED",
+      "independentCritics": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "physicalDeviceMetrics": "NOT EVALUATED",
+      "rootCause": "Fixed-step and render-observation event passes appended old timestamps after terminal/restart in original video search index; contact episode attribution also stale.",
+      "status": "Two implementation commits, true source-episode contact attribution, chronological and provenance-index regressions committed but original Node/Three not executed; quality pending 42547486349."
     }
   },
   "scenarios": [
