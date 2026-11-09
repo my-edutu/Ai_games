@@ -178,8 +178,14 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
     // requestAnimationFrame callbacks. Exercise the ORIGINAL scene frame loop.
     duration = 12;
     for (let i = 0; i < 10; i++) scheduled(now + 240);
+    assert.equal(view.diagnostics().renderFault.state, 'live',
+      'the original scene must submit live real 3D frames after graphic tier/orientation changes: ' +
+      JSON.stringify(view.diagnostics().renderFault));
     assert.equal(view.diagnostics().resolution.scale, .78,
-      'real portrait rAF starvation now adapts even when WebGL calls are short');
+      'real portrait rAF starvation now adapts even when WebGL calls are short; observed: ' +
+      JSON.stringify({ resolution: view.diagnostics().resolution,
+        renderFault: view.diagnostics().renderFault,
+        submitted: view.diagnostics().renderProgress }));
     assert.ok(view.diagnostics().resolution.callbackGapMs >= 240);
     duration = 596;
     for (let i = 0; i < 12; i++) frame();
