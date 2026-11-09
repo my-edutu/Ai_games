@@ -159,6 +159,39 @@ test('source-authentic guardian/cap chain survives sparse browser polling',()=>{
  assert.equal(after.verdict,'NOT EVALUATED');
 });
 
+test('real floor-nine threshold and render contacts stay in event-time order before result/restart',()=>{
+ const cap={id:'f8:cap',x:100000,y:700000,width:400000,height:16000};
+ const player={x:421000,y:734000,halfWidth:12000,halfHeight:18000,health:5};
+ const passage={fromFloor:8,capId:'f8:cap',groundedPlatformId:'f8:cap',
+   guardianId:'f8:guardian',exitX:404000,clearanceX:420000,crossingX:421000};
+ const history=[
+  source(1,{cap,player}),
+  source(2,{cap,player,guardians:[{id:'f8:guardian',active:false,health:0}]}),
+  source(3,{floor:9,cap:null,player,guardians:[],
+    sourceEvents:[{type:'floor-complete',floor:9,guardianPassage:passage}]}),
+  source(4,{floor:9,cap:null,player,guardians:[],lifecycle:'result',
+    result:{kind:'game',reason:'health-depleted'}}),
+  source(0,{atMs:1300,runToken:'run-b',floor:0,cap:null,player,guardians:[]}),
+ ];
+ const observed={atMs:1070,tick:1,runToken:'run-a',floor:8,scene:'running',
+   observedPhysicalTouchdown:{physicalDeckContact:true,platformId:'f8:cap'}};
+ const before=JSON.stringify(history);
+ const index=indexTowerCaptureEvents([], [observed], {authoritativeTrace:history});
+ const times=index.events.map(event=>event.atMs);
+ assert.deepEqual(times,[...times].sort((a,b)=>a-b),
+   'the immutable source timeline must not append crossing/contact AFTER restart');
+ const crossing=index.events.findIndex(event=>
+   event.kind==='guardian-source-physical-threshold');
+ const outcome=index.events.findIndex(event=>event.kind==='source-result-phase');
+ const restart=index.events.findIndex(event=>event.kind==='source-run-token-change');
+ const contact=index.events.findIndex(event=>event.kind==='sampled-render-deck-contact');
+ assert.ok(crossing>=0&&outcome>crossing&&restart>outcome);
+ assert.ok(contact>=0&&contact<crossing,'independent actual render contact retains its earlier wall time');
+ assert.equal(index.events[crossing].observedEpisode,0);
+ assert.equal(index.events[restart].observedEpisode,1);
+ assert.equal(index.verdict,'NOT EVALUATED');
+ assert.equal(JSON.stringify(history),before,'original source never mutated');
+});
 test('source outcome carries two valid same-tick phases, not duplicate polls',()=>{
  const terminal={kind:'game',reason:'health-depleted'};
  const ticks=[

@@ -248,6 +248,43 @@ test('outcome without a real intermission is incomplete, not a film success',()=
  assert.equal(auditPairs([before,after],'c'.repeat(40)).sourceStoryDefects.length,0);
 });
 
+test('native film provenance refuses reordered crossing after restart or regressed run episode',()=>{
+ const baseline=rec('baseline'),candidate=rec('candidate');
+ candidate.index.events.push({
+   kind:'guardian-source-physical-threshold',floor:9,fromFloor:8,toFloor:9,
+   atMs:2500,observedEpisode:0,
+ });
+ let report=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.equal(report.comparisons[0].provenanceVerified,false);
+ assert.ok(report.comparisons[0].faults.includes(
+   'candidate-nonmonotonic-source-event-index'));
+ assert.equal(report.comparisons[0].nativeSourceVideoTimebase.candidate,'NOT EVALUATED');
+ assert.equal(report.verdict,'NOT EVALUATED');
+ // Wall clock monotonic alone is insufficient when the trace switches back
+ // to an earlier episode after the genuine restart marker.
+ candidate.index.events.pop();
+ candidate.index.events=[
+   {kind:'guardian-present',floor:8,atMs:1000,observedEpisode:0},
+   {kind:'source-run-token-change',floor:0,atMs:2000,observedEpisode:1},
+   {kind:'guardian-source-defeated',floor:8,atMs:3000,observedEpisode:0},
+ ];
+ report=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.ok(report.comparisons[0].faults.includes(
+   'candidate-nonmonotonic-source-episode-index'));
+ assert.equal(report.comparisons[0].provenanceVerified,false);
+ // A normal, chronologically indexed source trace is admitted to the
+ // transport gate but STILL cannot claim film-visible gameplay or quality.
+ candidate.index.events=[
+   {kind:'guardian-present',floor:8,atMs:1000,observedEpisode:0},
+   {kind:'guardian-source-defeated',floor:8,atMs:2000,observedEpisode:0},
+   {kind:'floor-transition',floor:9,fromFloor:8,toFloor:9,atMs:2500,observedEpisode:0},
+   {kind:'guardian-source-physical-threshold',floor:9,fromFloor:8,toFloor:9,atMs:2500,observedEpisode:0},
+   {kind:'source-run-token-change',floor:0,atMs:3500,observedEpisode:1},
+ ];
+ report=auditPairs([baseline,candidate],'c'.repeat(40));
+ assert.equal(report.comparisons[0].provenanceVerified,true);
+ assert.equal(report.comparisons[0].verdict.startsWith('NOT EVALUATED'),true);
+});
 test('native transport audit is required for every candidate/baseline pairing',()=>{
  const base=rec('baseline','ascent','desktop'),current=rec('candidate','ascent','desktop');
  const sha='c'.repeat(40);

@@ -46,6 +46,26 @@ function matchSourceEvents(a,b){
  for(let i=cursor;i<current.length;i++)missingFromBaseline.push(signature(current[i]));
  return {pairs,missingFromBaseline,missingFromCandidate};
 }
+// Veto stale native evidence whose serialized source events were appended out
+// of wall-clock or run-episode order. The source collector must repair its
+// ordering BEFORE a film is admitted; sorting here would hide an artifact
+// provenance defect. This is not a claim that the event is visible on camera.
+function sourceEventOrderDefect(index) {
+ const events=index?.events;
+ if(!Array.isArray(events))return 'missing-source-event-index';
+ let lastMs=-Infinity,lastEpisode=-Infinity;
+ for(const event of events) {
+  if(!event||!Number.isFinite(event.atMs))continue;
+  if(event.atMs<lastMs)return 'nonmonotonic-source-event-index';
+  if(Number.isSafeInteger(event.observedEpisode)) {
+   if(event.observedEpisode<lastEpisode)
+    return 'nonmonotonic-source-episode-index';
+   lastEpisode=event.observedEpisode;
+  }
+  lastMs=event.atMs;
+ }
+ return null;
+}
 function nativeViewport(m){
  const v=m?.viewport;
  if(v?.width===960&&v?.height===600)return 'desktop';
@@ -213,6 +233,10 @@ function auditPairs(recordings,candidateSha){
     for(const problem of transport.problems)faults.push(label+'-native-WebM-'+problem);
   if(!(before.index?.sourceTicksObserved>1&&after.index?.sourceTicksObserved>1))
    faults.push('missing passive source ticks');
+  for(const [label,index] of [['baseline',before.index],['candidate',after.index]]) {
+   const orderDefect=sourceEventOrderDefect(index);
+   if(orderDefect)faults.push(label+'-'+orderDefect);
+  }
   const aligned=matchSourceEvents(before.index.events,after.index.events);
   const baselineClock=faults.length?{status:'NOT EVALUATED',
     reason:'native film integrity or source provenance veto'}:inspectedSourceTimebase(before);

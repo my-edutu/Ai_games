@@ -221,6 +221,14 @@ function indexTowerCaptureEvents(sourceTicks, browserObservations, options = {})
     }, { platformId:touch.platformId,
       interpretation:'source-adjacent renderer diagnostic; frame visibility and contact physics require independent film review' });
   }
+  // The fixed-step guardian floor-nine clearance is found in a secondary
+  // source-event pass, and renderer contacts arrive at another sampling rate.
+  // Both are appended AFTER the ordinary source loop. Native PTS lookup and
+  // baseline/candidate matching need one chronological observation index:
+  // otherwise a real floor-nine crossing can appear after result/restart,
+  // shifting later episode comparisons. Stable ties preserve source order.
+  // This changes only passive evidence order, never the original simulation.
+  events.sort((a,b)=>a.atMs-b.atMs);
   return {
     schemaVersion: 1, sourceSha: options.sourceSha || null,
     scenario: options.scenario || null, viewport: options.viewport || null,
