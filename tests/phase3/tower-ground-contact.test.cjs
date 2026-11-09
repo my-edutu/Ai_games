@@ -7,11 +7,12 @@ const vm = require('node:vm');
 
 const scenePath = path.join(__dirname, '../../public/infinite-tower-climb/visuals/scene.mjs');
 const source = fs.readFileSync(scenePath, 'utf8');
-const matched = source.match(/^function followClimberContact\(position, target, blend, state\) \{[\s\S]*?^\}/m);
+const matched = source.match(/^function followClimberContact\(position, target, blend, state, sourceRimBoundary = false\) \{[\s\S]*?^\}/m);
 assert.ok(matched, 'actual shipped scene contains the contact adjustment');
 const followClimberContact = vm.runInNewContext(`${matched[0]}\nfollowClimberContact`);
 const vec = (x, y, z) => ({
   x, y, z,
+  copy(target) { this.x = target.x; this.y = target.y; this.z = target.z; return this; },
   lerp(target, alpha) {
     this.x += (target.x - this.x) * alpha;
     this.y += (target.y - this.y) * alpha;
@@ -46,8 +47,31 @@ test('airborne, dashing, dead and hurt retain smooth 3D motion without invented 
 });
 
 test('scene integration applies platform contact only after authoritative player state is read', () => {
-  assert.match(source, /function followClimberContact\(position, target, blend, state\)/);
-  assert.match(source, /followClimberContact\(climber\.group\.position,\s*actorTarget,\s*blend,\s*p\.state\)/);
+  assert.match(source, /function followClimberContact\(position, target, blend, state, sourceRimBoundary = false\)/);
+  assert.match(source, /followClimberContact\(climber\.group\.position,\s*actorTarget,\s*blend,\s*p\.state,\s*sourceRimBoundary\)/);
   assert.ok(source.indexOf('const p = snapshot.player;') < source.indexOf('followClimberContact(climber.group.position'),
     'contact state comes from the authoritative snapshot');
+});
+
+// Source-bound physical rim events are discrete geometric constraints, not
+// generic high-frequency motion updates. The untouched authority target
+// remains independent of view dimensions and browser frame cadence.
+test('real source grip and actual sole clearance cannot leave the skinned body behind the solid rim', () => {
+  const target = vec(-16.9, 3.83, 22.35);
+  for (const cadence of [0.03, 0.12, 0.45]) {
+    const position = vec(-16.39, 2.58, 21.47);
+    const returned = followClimberContact(position, target, cadence, 'airborne', true);
+    assert.strictEqual(returned, position);
+    assert.deepEqual([position.x, position.y, position.z],
+      [target.x, target.y, target.z], 'physical source grip must not lag at this presentation cadence');
+  }
+});
+
+test('non-contact airborne motion still eases rather than inventing a grip', () => {
+  const target = vec(0, 12, 18), position = vec(0, 8, 10);
+  followClimberContact(position, target, .25, 'airborne', false);
+  assert.deepEqual([position.x, position.y, position.z], [0, 9, 12]);
+  assert.match(source, /const sourceSoleOverRim = !!ledgeMantle && !!targetPlatform/);
+  assert.match(source, /p\.y - p\.halfHeight >= targetPlatform\.y \+ targetPlatform\.height/);
+  assert.match(source, /const sourceRimBoundary = !!ledgeContact \|\| sourceSoleOverRim/);
 });
