@@ -262,7 +262,11 @@ export function planPhysicalFeedback(previous,next,{
  }
  // Real actions may RELEASE sound/weapon motion, never assert an injury.
  // Strictly require the actor to survive and to have a fresh, witnessed action.
- if(gap<=PHYSICAL_FEEDBACK_MAX_TICK_GAP){
+ // A multi-tick observation cannot prove when a weapon passed, an arrow
+ // launched, a spell released or a guard gesture occurred. Even if actionTick
+ // equals the latest tick, the preceding animation/contact pose is missing.
+ // Suppress late action foley/VFX rather than attach it to a later body pose.
+ if(gap===1){
   for(const u of next.units.slice(0,96)){
    const prior=oldUnits.get(u?.id);
    if(!validId(u?.id)||u.hp<=0||!point(u)||
