@@ -128,7 +128,11 @@ test('actual original clockwork scene links its backing to the existing authenti
   assert.match(source,/const protectedClockFace=syncClockFaceSightline\(entry\)/);
   assert.match(source,/occludedForegroundClockFaces=clockFacesSoftened/);
   assert.match(source,/entry\.alloy\.opacity\+=\(requiredOpacity-entry\.alloy\.opacity\)\*strength/);
-  assert.match(source,/canopyRay\.intersectObject\(entry\.root,true\)/);
+  assert.match(source,/canopyRay\.intersectObject\(entry\.root,true,canopyHits\)/);
+  assert.match(source,/canopyRay\.ray\.intersectsBox\(decoratedBounds\)/,
+    'conservative bounds must guard the costly post-batch triangle queries');
+  assert.match(source,/canopyHits\.length=0/,
+    'ray hit arrays are retained instead of allocated on each source silhouette sample');
   assert.match(source,/for\(const entry of foregroundGears\)/);
   assert.doesNotMatch(source,/for\(const target of snapshot\.enemies/);
   assert.match(source,/floorMaterials\.clear\(\)/,
@@ -271,6 +275,13 @@ test('camera forensic evidence is bounded to the actual four original decorative
       assert.ok(s.intendedAlpha>=0 && s.intendedAlpha<=1);
       assert.ok(s.renderedAlpha>=0 && s.renderedAlpha<=1);
       assert.ok(Number.isSafeInteger(s.rayContactCount) && s.rayContactCount>=0);
+      assert.ok(Number.isSafeInteger(s.rayBoundsRejects) && s.rayBoundsRejects>=0);
+      assert.ok(Number.isSafeInteger(s.rayNarrowphaseChecks) && s.rayNarrowphaseChecks>=0);
+      assert.equal(s.raySamples,s.rayBoundsRejects+s.rayNarrowphaseChecks,
+        'each present body ray chooses exactly one bounded geometric path');
+      assert.ok(s.raySamples<=8,'four physical source targets have at most eight silhouette rays');
+      assert.ok(s.rayContactCount<=s.rayNarrowphaseChecks,
+        'broadphase must never claim an untested triangle contact');
       assert.ok(typeof s.inFrontOfActor==='boolean');
       assert.ok(typeof s.nearPlaneCrossing==='boolean');
     }

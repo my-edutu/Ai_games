@@ -408,6 +408,12 @@ export function createTowerWorld(){
   let particles=null,vistaGroup=null,quality='normal',occludedGuardianCaps=0,occludedForegroundGears=0,occludedForegroundScreenGears=0,occludedForegroundCorridorGears=0,occludedForegroundClockFaces=0,ruinsPortalVoussoirs=0,ruinsGateLeaves=0;
   let ruinsSanctuaryArches=0,ruinsSanctuaryPlants=0,ruinsSanctuaryCascadePanels=0;
   const canopyRay = new THREE.Raycaster(), canopyDirection = new THREE.Vector3();
+  // The original post-batch foreground protection can sample up to eight
+  // genuine source-body/landing/hazard rays per assembly per presented frame.
+  // Retain the hit array and reject rays missing the full WORLD AABB before
+  // invoking Three.js recursive mesh/triangle intersection. Empty bounds
+  // fail open to the old exact path; alpha and all source truth stay unchanged.
+  const canopyHits = [];
   // Reuse all projection scratch on the render path.
   const screenGearWorld = new THREE.Vector3(), screenGearCenter = new THREE.Vector3();
   const screenGearRight = new THREE.Vector3(), screenGearTop = new THREE.Vector3();
@@ -1788,6 +1794,7 @@ export function createTowerWorld(){
     for(const entry of decorativeSightlines){
       let requiredOpacity=1, softByProjection=false, softByCorridor=false;
       let projectedScreenCoverage=0, sceneFrontDepth=null, rayContactCount=0,
+        rayBoundsRejects=0, rayNarrowphaseChecks=0,
         projectedNearPlane=false, projectedActorFront=false, screenBounds=null;
       if(enabled){
         // Sibling clock backings share the gear's sightline, but not its
@@ -1888,11 +1895,23 @@ export function createTowerWorld(){
             if(!Number.isFinite(length)||length<=.25)continue;
             canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/length));
             canopyRay.near=0;canopyRay.far=length-.20;
-            // A registered decorative backing can obscure the visible body
-            // even when its rotating teeth miss the exact center ray.
-            const gearHit=canopyRay.intersectObject(entry.root,true).length>0;
-            const caseHit=!gearHit&&entry.sceneryMeshes?.length>0&&
-              canopyRay.intersectObjects(entry.sceneryMeshes,false).length>0;
+            // Conservative BROADPHASE over the already projected, post-batch
+            // world-space bounds of BOTH moving rotor and rendered clock case.
+            // A ray that misses this union cannot hit any owned triangle.
+            // Do not shorten the box test by raycaster.far: an infinite ray
+            // can produce false positives, never a false negative.
+            let gearHit=false,caseHit=false;
+            if(decoratedBounds.isEmpty() ||
+                canopyRay.ray.intersectsBox(decoratedBounds)){
+              rayNarrowphaseChecks++;
+              canopyHits.length=0;
+              gearHit=canopyRay.intersectObject(entry.root,true,canopyHits).length>0;
+              canopyHits.length=0;
+              if(!gearHit&&entry.sceneryMeshes?.length>0)
+                caseHit=canopyRay.intersectObjects(
+                  entry.sceneryMeshes,false,canopyHits).length>0;
+              canopyHits.length=0;
+            }else rayBoundsRejects++;
             if(gearHit||caseHit){
               rayContactCount++;
               requiredOpacity=Math.min(requiredOpacity,index===2?.48:.24);
@@ -1966,6 +1985,9 @@ export function createTowerWorld(){
           inFrontOfActor:projectedActorFront,
           nearPlaneCrossing:projectedNearPlane,
           rayContactCount,
+          rayBoundsRejects,
+          rayNarrowphaseChecks,
+          raySamples:rayBoundsRejects+rayNarrowphaseChecks,
           cameraProjectionSoftened:softByProjection,
           actionCorridorSoftened:softByCorridor,
           sourceActionEndpoints:corridorCount,

@@ -87,36 +87,32 @@ test('ordinary biomes, reduced-motion and full restart never leave a phantom tra
     assert.equal(world.diagnostics().occludedForegroundGears,0);
   }finally{world.dispose();}
 });
-test('the submitted follow camera stages source-observed foreground clarity after camera recovery, not before',()=>{
+test('submitted camera runs source-authenticated multi-target foreground protection after actual camera corrections',async()=>{
   const scene=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
-  assert.match(scene,/world\.protectRouteSightlines\(camera,/);
-  assert.ok(scene.indexOf('world.protectRouteSightlines(camera,')>
-    scene.indexOf('actorRescueFraction = 0;\n    if (!overview'),
-    'sightline protection uses settled actor/guardian recovery and the real last camera');
+  const reveal=scene.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);');
+  const protect=scene.indexOf('world.protectRouteSightlines(camera,');
+  assert.ok(reveal>=0 && protect>reveal,
+    'protection must follow the submitted camera and physical guardian cutaway');
   assert.match(scene,/protectLiveRoute&&sourceGuardian\?guardianRescuePoint:null/);
-  assert.match(scene,/const protectArrival=!!targetPlatform&&landingApproach\.diagnostics\(\)\.visible/);
-  assert.match(scene,/const protectImmediateTrap=actionStage\?\.kind==='hazard'/);
-  // Evaluate the REAL scene's source expression, not a stale copy of its
-  // formatting. A physically witnessed airborne cap passage may temporarily
-  // outrank a landing cue; a nearby real trap always outranks the doorway.
-  const policy=scene.match(/\bconst protectEarnedGate\s*=\s*([\s\S]*?);/);
-  assert.ok(policy,'the submitted scene still declares a cap sightline policy');
-  const gate=(gatewayEarned,protectArrival,protectImmediateTrap,sourceAirborneWalk)=>
-    vm.runInNewContext('('+policy[1]+')',{
-      gatewayEarned,protectArrival,protectImmediateTrap,sourceAirborneWalk,
-    },{timeout:50});
-  assert.equal(gate(false,false,false,null),false,'no dead guardian means no earned gate');
-  assert.equal(gate(true,false,false,null),true,'an actual earned clear gateway stays visible');
-  assert.equal(gate(true,true,false,null),false,'grounded immediate landing takes priority');
-  assert.equal(gate(true,true,false,{realAirborneCap:true}),true,
-    'source-backed airborne cap continuation keeps the physical gate legible');
-  assert.equal(gate(true,false,true,null),false,'an immediate hazard outranks the unlocked door');
-  assert.equal(gate(true,true,true,{realAirborneCap:true}),false,
-    'a real hazard still outranks airborne doorway escort');
-  assert.match(scene,/protectLiveRoute&&\(protectArrival\|\|protectImmediateTrap\|\|protectEarnedGate\)\?actorOrbitTarget:null/);
-  assert.ok(scene.indexOf('const protectArrival=') <
-    scene.indexOf('const protectImmediateTrap='),
-    'an already visible real landing keeps precedence over decorative shielding');
+  assert.match(scene,/const sightlinePriorities=sourceCriticalSightlinePriorities\(/);
+  assert.match(scene,/landingApproach\.diagnostics\(\)\.visible \|\| airborneDuelLanding/);
+  assert.match(scene,/observedHazard:actionStage\?\.kind==='hazard'/);
+  assert.match(scene,/sightlinePriorities\.hazard\?observedHazardSightline:null/);
+  assert.match(scene,/protectTerminalScene\?actorOrbitTarget/);
+  const policyUrl=pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/critical-sightlines.mjs')).href;
+  const {sourceCriticalSightlinePriorities:prioritize}=await import(policyUrl);
+  assert.deepEqual(prioritize({live:true,observedLanding:true,observedHazard:true,
+    earnedGateway:true,airborneGateway:true}),
+    {arrival:true,hazard:true,gate:false},
+    'a present hazard cannot erase the actual selected landing or pretend the gate was crossed');
+  assert.deepEqual(prioritize({live:true,observedLanding:true,
+    earnedGateway:true,airborneGateway:true}),
+    {arrival:true,hazard:false,gate:true},
+    'earned airborne gateway and landing retain independent visibility');
+  assert.deepEqual(prioritize({live:false,observedHazard:true,earnedGateway:true}),
+    {arrival:false,hazard:false,gate:false},
+    'stale and terminal snapshots cannot synthesize live victory visibility');
 });
 
 test('the actual frame protects the BETWEEN-subject corridor, including the central gear axle, without changing replay facts',async()=>{
