@@ -36,3 +36,35 @@ test('real scene requires source guardian, reduced motion gate and rollback', ()
   assert.match(scene, /duelDollyApplications/);
   assert.match(scene, /camera\.position\.copy\(duelPreviousCamera\)/);
 });
+
+test('airborne portrait guardian dolly preserves the real selected landing', async () => {
+  const { acceptObservedDuelDolly: accept } = await lens;
+  const p = { aspect: 390 / 844, actorBefore: [.10, .01, .4, .11],
+    actorAfter: [.11, .01, .4, .125],
+    guardianBefore: [-.2, .02, .5, .18],
+    guardianAfter: [-.18, .02, .5, .19],
+    actorCoreClear: true, guardianCoreClear: true,
+    radiusBefore: 56, radiusAfter: 55.55, airborne: true,
+    landingBefore: [.25, -.23, .45], landingAfter: [.28, -.23, .45] };
+  assert.equal(accept(p), true);
+  assert.equal(accept({ ...p, landingAfter: null }), false);
+  assert.equal(accept({ ...p, landingBefore: null }), false);
+  assert.equal(accept({ ...p, landingAfter: [.94, -.23, .45] }), false);
+  assert.equal(accept({ ...p, landingAfter: [.28, .80, .45] }), false);
+  assert.equal(accept({ ...p, landingAfter: [.29, -.23, 1.8] }), false);
+  assert.equal(accept({ ...p, landingAfter: [.37, -.23, .45] }), false);
+  assert.equal(accept({ ...p, actorAfter: [.87, .01, .4, .125] }), false);
+  assert.equal(accept({ ...p, guardianCoreClear: false }), false);
+  assert.equal(accept({ ...p, airborne: false, landingBefore: null, landingAfter: null }), true);
+});
+test('airborne duel scene gates the lens on a source-selected real landing and safe rollback', () => {
+  const scene = fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  assert.match(scene, /snapshot\.intent\?\.targetPlatformId === targetPlatform\.id/);
+  assert.match(scene, /airborne: !!airborneDuelLanding/);
+  assert.match(scene, /landingBefore: airborneDuelLanding \? jointLandingBefore : null/);
+  assert.match(scene, /landingAfter: airborneDuelLanding \? jointLandingAfter : null/);
+  assert.match(scene, /airborneDuelLanding \? \.46 : \.85/);
+  assert.match(scene, /duelAirborneApplications/);
+  assert.match(scene, /camera\.position\.copy\(duelPreviousCamera\)/);
+});

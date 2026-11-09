@@ -2082,7 +2082,8 @@ export function createTowerScene(canvas, settings = {}) {
   const duelTop = new THREE.Vector3(), duelBottom = new THREE.Vector3();
   const duelActorBefore = [0, 0, 0, 0], duelActorAfter = [0, 0, 0, 0];
   const duelGuardianBefore = [0, 0, 0, 0], duelGuardianAfter = [0, 0, 0, 0];
-  let duelDollyApplications = 0, duelDollyLastStep = 0;
+  let duelDollyApplications = 0, duelAirborneApplications = 0,
+    duelDollyLastStep = 0;
   // One joint camera safety path for a REAL two-body portrait deadlock.
   // The previously approved, source-selected exterior shot is the only
   // destination; the actual rendered frame judges every proposed move.
@@ -2175,7 +2176,8 @@ export function createTowerScene(canvas, settings = {}) {
     crownStage.visible = false; observedCrown = null;
     echoDrawnTick = -1; observedStageLight.reset();
     guardianRescueBlend = 0; guardianRescueApplications = 0;
-    duelDollyApplications = 0; duelDollyLastStep = 0;
+    duelDollyApplications = 0; duelAirborneApplications = 0;
+    duelDollyLastStep = 0;
     actorSafeRefinements = 0;
     terminalCameraRun = null; terminalCameraBegan = 0;
   }
@@ -3224,14 +3226,21 @@ export function createTowerScene(canvas, settings = {}) {
         actorSafeRefinements = Math.min(1000000, actorSafeRefinements + 1);
       }
     }
-    // Authentic portrait danger films show that centered fighters can still
-    // be too tiny to read. During a REAL grounded guardian confrontation
-    // stage a restrained physical two-body close-up after edge/frame recovery.
-    // No fabricated attack, outcome, shot, camera cut, HUD or authority edit.
+    // Older original-source portrait film shows a tiny airborne climber
+    // during real guardian exchanges. Extend the EXISTING two-body safe
+    // physical lens, not another camera layer; the source-selected landing
+    // must remain legible or the proposed dolly is rolled back.
     duelDollyLastStep = 0;
+    const airborneDuelLanding = p.state === 'airborne' &&
+      targetPlatform && typeof targetPlatform.id === 'string' &&
+      snapshot.intent?.targetPlatformId === targetPlatform.id &&
+      [targetPlatform.x, targetPlatform.y, targetPlatform.width,
+        targetPlatform.height].every(Number.isFinite) &&
+      targetPlatform.width > 0 && targetPlatform.height > 0;
     if (!overview && !options.reducedMotion && !options.stale &&
       snapshot.lifecycle === 'running' && p.health > 0 &&
-      p.state === 'standing' && zoom <= 1.02 && camera.aspect < .85 &&
+      (p.state === 'standing' || airborneDuelLanding) &&
+      zoom <= 1.02 && camera.aspect < .85 &&
       sourceGuardian && sourceGuardian.health > 0 &&
       Number.isFinite(sourceGuardian.halfHeight) && sourceGuardian.halfHeight > 0 &&
       Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
@@ -3249,8 +3258,22 @@ export function createTowerScene(canvas, settings = {}) {
         camera, duelTop, duelBottom, duelActorBefore);
       measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
         camera, duelTop, duelBottom, duelGuardianBefore);
+      if (airborneDuelLanding) {
+        const landed = pointFor(observedSourceLandingX(snapshot, targetPlatform),
+          targetPlatform.y + targetPlatform.height,
+          snapshot.chunkBaseY, snapshot.worldWidth, 26.7);
+        portraitAimLanding.set(landed.x, landed.y, landed.z);
+        portraitAimLandingProjection.copy(portraitAimLanding).project(camera);
+        jointLandingBefore[0] = portraitAimLandingProjection.x;
+        jointLandingBefore[1] = portraitAimLandingProjection.y;
+        jointLandingBefore[2] = portraitAimLandingProjection.z;
+      }
       const previousRadius = Math.hypot(camera.position.x, camera.position.z);
-      const nextRadius = Math.max(30.8, previousRadius - Math.min(.85, dt * 13));
+      // A midair motion arc changes the visible body quickly: cap both radius
+      // and frame-rate-dependent displacement below the grounded lens.
+      const nextRadius = Math.max(30.8, previousRadius -
+        Math.min(airborneDuelLanding ? .46 : .85,
+          dt * (airborneDuelLanding ? 8 : 13)));
       if (nextRadius < previousRadius - .1 && duelActorBefore[3] < .16 &&
         previousRadius > 30.9) {
         duelPreviousCamera.copy(camera.position);
@@ -3261,15 +3284,26 @@ export function createTowerScene(canvas, settings = {}) {
           camera, duelTop, duelBottom, duelActorAfter);
         measureDuelBodyNdc(guardianRescuePoint, sourceGuardian.halfHeight / SCALE,
           camera, duelTop, duelBottom, duelGuardianAfter);
+        if (airborneDuelLanding) {
+          portraitAimLandingProjection.copy(portraitAimLanding).project(camera);
+          jointLandingAfter[0] = portraitAimLandingProjection.x;
+          jointLandingAfter[1] = portraitAimLandingProjection.y;
+          jointLandingAfter[2] = portraitAimLandingProjection.z;
+        }
         if (acceptObservedDuelDolly({
           aspect: camera.aspect, actorBefore: duelActorBefore,
           actorAfter: duelActorAfter, guardianBefore: duelGuardianBefore,
           guardianAfter: duelGuardianAfter,
           radiusBefore: previousRadius, radiusAfter: nextRadius,
+          airborne: !!airborneDuelLanding,
+          landingBefore: airborneDuelLanding ? jointLandingBefore : null,
+          landingAfter: airborneDuelLanding ? jointLandingAfter : null,
           actorCoreClear: towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
           guardianCoreClear: towerCoreSightlineClear(camera.position, guardianRescuePoint, 23.5),
         })) {
           duelDollyApplications = Math.min(1000000, duelDollyApplications + 1);
+          if (airborneDuelLanding) duelAirborneApplications =
+            Math.min(1000000, duelAirborneApplications + 1);
           duelDollyLastStep = previousRadius - nextRadius;
         } else {
           camera.position.copy(duelPreviousCamera);
@@ -3889,7 +3923,8 @@ export function createTowerScene(canvas, settings = {}) {
       jointShotEvidence: 'Measured same-frame source-body camera-crop relief only; not full-motion A/B quality, GPU FPS or hardware proof',
       portraitAimLastGain: Number(portraitAimLastGain.toFixed(4)),
       portraitAimEvidence: 'Post-action actual source projection; not raster visibility, A/B quality or device FPS',
-      duelDollyApplications, duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
+      duelDollyApplications, duelAirborneApplications,
+      duelDollyLastStep: Number(duelDollyLastStep.toFixed(4)),
       duelDollyEvidence: 'Real portrait body projection only; not verified raster visibility or quality vote',
       resolution: { basePixelRatio, pixelRatio: renderPixelRatio, scale: innerWidth >= 700 ? resolutionPolicy.scale : 1,
         adaptations: resolutionPolicy.adaptations, submissionMs: resolutionPolicy.lastSubmissionMs,

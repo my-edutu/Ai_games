@@ -5,9 +5,15 @@ const valid = v => Array.isArray(v) && v.length === 4 &&
   v.every(Number.isFinite) && v[3] > 0 && v[2] >= -1 && v[2] <= 1;
 const safe = (v, x, y) =>
   Math.abs(v[0]) + v[3] * .13 < x && Math.abs(v[1]) + v[3] < y;
+// A midair duel camera cannot buy a close-up by ejecting the physically
+// source-selected landing from the real portrait frame.
+const safeLanding = v => Array.isArray(v) && v.length === 3 &&
+  v.every(Number.isFinite) && v[2] >= -1 && v[2] <= 1 &&
+  Math.abs(v[0]) <= .78 && Math.abs(v[1]) <= .76;
 export function acceptObservedDuelDolly({
   aspect, actorBefore, actorAfter, guardianBefore, guardianAfter,
   actorCoreClear, guardianCoreClear, radiusBefore, radiusAfter,
+  airborne = false, landingBefore = null, landingAfter = null,
 }) {
   if (!Number.isFinite(aspect) || aspect <= 0 || aspect >= .85 ||
       ![actorBefore, actorAfter, guardianBefore, guardianAfter].every(valid) ||
@@ -17,6 +23,12 @@ export function acceptObservedDuelDolly({
       !actorCoreClear || !guardianCoreClear) return false;
   // Never override an already-readable duo, a cropped frame, or other existing
   // safety rescue. Head/feet, not a point-centered hero, define image share.
+  // Existing grounded behavior stays intact. When airborne, require that the
+  // genuine target landing is visible before/after, and cannot drift farther
+  // from frame center by more than 4.5% NDC in one physical camera step.
+  if (airborne && (!safeLanding(landingBefore) || !safeLanding(landingAfter) ||
+      Math.hypot(landingAfter[0], landingAfter[1]) >
+      Math.hypot(landingBefore[0], landingBefore[1]) + .045)) return false;
   if (actorBefore[3] >= .16 || actorAfter[3] > .32 ||
       !safe(actorBefore, .74, .76) || !safe(guardianBefore, .76, .78) ||
       !safe(actorAfter, .74, .76) || !safe(guardianAfter, .76, .78)) return false;
