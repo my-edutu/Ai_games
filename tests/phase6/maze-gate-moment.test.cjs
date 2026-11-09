@@ -86,6 +86,20 @@ test('real-opening camera beat is nearby, same-run, public-only and never invent
   const cue = publicGateOpeningCameraCue(old,newer);
   assert.deepEqual(cue,{a:94,b:77,steps:0,keyed:true});
   assert.deepEqual(publicGateOpeningCameraCue(old,newer),cue,'camera cue is deterministic');
+  const twoStep = {...newer,currentCell:43,cells:[
+    {cell:43,blocked:false,neighbors:[60]},
+    {cell:60,blocked:false,neighbors:[43,77]},
+    {cell:77,blocked:false,neighbors:[60,94]},
+    {cell:94,blocked:false,neighbors:[77]}
+  ]};
+  assert.deepEqual(publicGateOpeningCameraCue({...old,currentCell:43},twoStep),
+    {...cue,steps:2},'a physically connected PUBLIC two-step approach retains the real portcullis performance');
+  assert.equal(publicGateOpeningCameraCue(old,{...twoStep,cells:twoStep.cells.map(cell=>
+    cell.cell===60?{...cell,neighbors:[43]}:cell)}),null,
+    'one-way or broken public passages cannot trigger a gate cut');
+  assert.equal(publicGateOpeningCameraCue(old,{...twoStep,currentCell:26,cells:[
+    {cell:26,blocked:false,neighbors:[43]},...twoStep.cells
+  ]}),null,'a remote three-link gate never steals the gameplay camera');
   assert.equal(publicGateOpeningCameraCue(null,newer),null);
   assert.equal(publicGateOpeningCameraCue(old,{...newer,runToken:'another-run'}),null);
   assert.equal(publicGateOpeningCameraCue(old,{...newer,tick:7}),null);

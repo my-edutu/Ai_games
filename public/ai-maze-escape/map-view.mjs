@@ -745,12 +745,31 @@ export function publicGateOpeningCameraCue(before, after) {
     .map(door => [edge(door.a,door.b),door]));
   const distance = cell => Math.abs(cell % after.width - after.currentCell % after.width)
     + Math.abs(Math.floor(cell / after.width) - Math.floor(after.currentCell / after.width));
+  // A real opening can happen while autonomous Pip finishes the next public
+  // step. Preserve that witnessed portcullis reveal at TWO cells only if
+  // both links are already disclosed, reciprocal, and traversable. A nearby
+  // but disconnected door never takes over the camera or leaks a hidden route.
+  const knownCells = new Map(after.cells.filter(cell => known.has(cell.cell))
+    .map(cell => [cell.cell, cell]));
+  const linkedTwoSteps = end => {
+    const first = knownCells.get(after.currentCell);
+    const last = knownCells.get(end);
+    if (!Array.isArray(first?.neighbors) || !Array.isArray(last?.neighbors)) return false;
+    return first.neighbors.some(mid => {
+      const middle = knownCells.get(mid);
+      return Array.isArray(middle?.neighbors)
+        && middle.neighbors.includes(after.currentCell)
+        && middle.neighbors.includes(end)
+        && last.neighbors.includes(mid);
+    });
+  };
   const candidates = after.doors.filter(door => valid(door) && door.open === true
     && previousClosed.has(edge(door.a,door.b)))
     .map(door => {
       const ends=[door.a,door.b].filter(cell => known.has(cell));
       const steps=ends.length ? Math.min(...ends.map(distance)) : Infinity;
-      if (steps > 1) return null;
+      if (steps > 2 || (steps === 2 && !ends.some(end =>
+        distance(end) === 2 && linkedTwoSteps(end)))) return null;
       const closed=previousClosed.get(edge(door.a,door.b));
       return {a:door.a,b:door.b,steps,
         keyed:typeof closed.requiredKeyId==='string' && closed.requiredKeyId.length>0

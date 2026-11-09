@@ -1238,15 +1238,24 @@ test('a real close public encounter frames both autonomous actors and saves date
   // Existing static sealed-gate PNGs and unit tests could not establish that
   // the production WebGL passage ever changes. Never toggle a door in a fixture.
   const {observedGateOpenings} = await import('../../public/ai-maze-escape/gate-moment.mjs');
+  const {publicGateOpeningCameraCue} = await import('../../public/ai-maze-escape/map-view.mjs');
   const publicOpenings=[];
   for (const sequence of sequences) {
     for (let index=1;index<sequence.length;index++) {
       const before=sequence[index-1],after=sequence[index];
       const next=after.frame.snapshot;
       if (next.lifecycle!=='running') continue;
+      // A distant opening cannot satisfy the actual production camera's
+      // public, connected stage. A genuine immediate guardian gets priority
+      // over a gate: select an honest non-conflicting source encounter.
+      const cue=publicGateOpeningCameraCue(before.frame.snapshot,next);
+      if (!cue || next.threats.some(threat =>
+        publicGuardianOpenSightline(next,threat.cell)>0)) continue;
       const known=new Set(next.cells.map(cell=>cell.cell));
       for(const door of observedGateOpenings(before.frame.snapshot,next)) {
         if(!known.has(door.a) && !known.has(door.b)) continue;
+        if (!((cue.a===door.a && cue.b===door.b)
+          || (cue.a===door.b && cue.b===door.a))) continue;
         const distance=Math.min(...[door.a,door.b].map(cell=>
           Math.abs(cell%next.width-next.currentCell%next.width)
           +Math.abs(Math.floor(cell/next.width)-Math.floor(next.currentCell/next.width))));
@@ -1256,7 +1265,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   }
   publicOpenings.sort((a,b)=>a.distance-b.distance||a.after.frame.snapshot.tick-b.after.frame.snapshot.tick);
   const opening=publicOpenings[0];
-  expect(opening, 'At least one production seeded run must visibly open a gate previously disclosed closed').toBeTruthy();
+  expect(opening, 'A real production gate must open on a publicly connected, camera-eligible, non-guardian stage; do not fabricate or wait for an impossible mid-lift').toBeTruthy();
   const beforeGate=opening.before.frame.snapshot,afterGate=opening.after.frame.snapshot;
   expect(observedGateOpenings(beforeGate,afterGate)).toEqual(
     expect.arrayContaining([opening.door]));
