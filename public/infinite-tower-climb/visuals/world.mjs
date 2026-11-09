@@ -1069,8 +1069,15 @@ export function createTowerWorld(){
     // silhouette instead of waiting for a translucent material policy.
     // Keep the original moving teeth and support shafts, but allow generous
     // architectural daylight around the authoritative upper-cap encounter.
-    const clock=new THREE.Group();radial(clock,-2.49,19.2,9.1);
-    clock.scale.set(.52,.54,.54);
+    // Genuine candidate portrait film at immutable 42b67b83 (native 15.2 s)
+    // still had a continuous-looking foreground ring swallowing the climber
+    // and guardian, even after the previous modest art restage. This is NOT
+    // a gameplay machine and provides no collision or source platform.
+    // Lower the ENTIRE main case + driven rotor below floor-eight approach:
+    // keep the authored metal, daylight openings and turning drive in 3D,
+    // but no large rim occupies the real cap combat and earned crossing.
+    const clock=new THREE.Group();radial(clock,-2.49,19.2,-8.5);
+    clock.scale.set(.42,.42,.42);
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
@@ -1085,7 +1092,9 @@ export function createTowerWorld(){
     // height separation leaves real negative space at the cap encounter.
     // Raise the non-colliding high rotor ABOVE the guardian sightline.
     // The lower and main drive retain the foreground mechanical hierarchy.
-    for(const [a,y,size,speed,scale]of [[-2.20,5.5,3.6,-.11,.84],[2.34,35.5,3.1,.15,.74]]){
+    // Preserve the tall high-right landmark above the cap, while its
+    // independent low-left clutch stays below the first fight approach.
+    for(const [a,y,size,speed,scale]of [[-2.20,-8,3.6,-.11,.80],[2.34,35.5,3.1,.15,.74]]){
       const root=new THREE.Group();radial(root,a,21.3,y);
       root.scale.setScalar(scale);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
@@ -1098,7 +1107,10 @@ export function createTowerWorld(){
     // No gameplay-driven mechanical deck or collider is affected.
     // Bury the long, open non-colliding rack's upper teeth below the cap
     // approach, while preserving its full 42-unit pitched mechanical drive.
-    const rack=new THREE.Group();radial(rack,-1.91,20.4,4);
+    // The elongated non-colliding rack used to run up the hero's entire
+    // left portrait shot. Sink it as one original connected lower drive
+    // rather than merely alpha-fading the full-height assembly at impact.
+    const rack=new THREE.Group();radial(rack,-1.91,20.4,-14);
     rack.scale.set(.70,.65,.84);
     rack.name='clockwork-far-shoulder-power-rack';floorGroup.add(rack);
     // The actual forty-two-unit solid decorative rack was outside the gear
