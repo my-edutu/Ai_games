@@ -35,6 +35,21 @@ function assessTowerMotion(samples, options = {}) {
   const renderedDelta = last.frames - first.frames;
   const checksums = new Set(samples.map(s => s.checksum));
   const canvasHashes = new Set(samples.map(s => s.canvasHash).filter(Boolean));
+  // CDP's original compositor JPEGs are passive, timestamped raster witnesses.
+  // They avoid seconds-long Playwright WebGL screenshot calls that can stall
+  // the filmed browser's public-state polling while the 20Hz host advances.
+  // This is a scoped picture-change guardrail, NOT proof that an action
+  // appeared on the original WebM, a supported GPU frame-time, or quality.
+  const compositorEvidence = (Array.isArray(options.compositorFrameEvidence)
+    ? options.compositorFrameEvidence : []).filter(frame =>
+    frame?.witness === 'unaltered-Chromium-compositor-CDP-frame' &&
+    Number.isFinite(frame.startAtMs) && frame.endAtMs === frame.startAtMs &&
+    frame.startAtMs >= first.atMs && frame.startAtMs <= last.atMs &&
+    typeof frame.sha256 === 'string' && /^[a-f0-9]{64}$/.test(frame.sha256));
+  const compositorHashes = new Set(compositorEvidence.map(frame => frame.sha256));
+  const changingCompositor = compositorHashes.size >= 2 &&
+    compositorEvidence.some(a => compositorEvidence.some(b =>
+      a.sha256 !== b.sha256 && Math.abs(a.startAtMs - b.startAtMs) >= 3000));
   if (!(wallMs >= minDurationMs)) blockers.push('capture-too-short');
   // A frozen run's genuine result phase can be shorter than one rendered
   // 25fps frame or a 1s diagnostic sample. The actual result and score persist
@@ -80,7 +95,7 @@ function assessTowerMotion(samples, options = {}) {
   }
   if (!(tickDelta >= 40) || checksums.size < 2) blockers.push('authoritative-ticks-not-advancing');
   if (!(renderedDelta >= 10)) blockers.push('renderer-submissions-not-advancing');
-  if (canvasHashes.size < 2) blockers.push('canvas-pixels-not-changing');
+  if (canvasHashes.size < 2 && !changingCompositor) blockers.push('canvas-pixels-not-changing');
   if (!Number.isFinite(last.frameMs?.samples) || last.frameMs.samples < 8) blockers.push('renderer-intervals-not-measured');
   if (samples.some(s => s.contextLost || s.renderErrors !== 0)) blockers.push('renderer-error-or-context-loss');
   return { scopedPass: blockers.length === 0, blockers, wallMs, minDurationMs, tickDelta, tickAdvance, runTransitions,
@@ -91,6 +106,9 @@ function assessTowerMotion(samples, options = {}) {
     outcomeVideoGate: 'OPEN: DOM visibility and valid source phases do not replace inspection of the full-motion original WebM',
     renderedDelta,
     uniqueChecksums: checksums.size, uniqueCanvasFrames: canvasHashes.size,
+    uniqueCompositorFrames: compositorHashes.size,
+    pixelEvidence: canvasHashes.size >= 2 ? 'original-canvas-screenshots'
+      : changingCompositor ? 'passive-original-compositor-witnesses' : 'insufficient',
     submittedFrameIntervals: last.frameMs ?? null,
     performanceGate: PERFORMANCE_UNVERIFIED };
 }
