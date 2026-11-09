@@ -60,8 +60,8 @@
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "baselineMoved": false,
       "implementationSha": "1b841eba80e40f739222a5f1a530f2089fb4b83d",
-      "regressionSha": "afaf4df36c94b958ca62d5a4c6a100811c28ef41",
-      "reviewSha": "60fcb1d458435edcc51873133e27b7742a0c2486",
+      "regressionSha": "176ce622173537d7ad9535db7c91b20bd59e0823",
+      "reviewSha": "e38ba00dc8eb728cd72e0619922dbd0a0e5ba634",
       "lastExactSourceInspectedSha": "82fb02dc7afe12598627a58b7cad0e4399018640",
       "authoritativeGameplayChangedThisExecution": false,
       "actualRendererCodeChangedThisExecution": true,
@@ -89,12 +89,17 @@
           "looks": 0,
           "feels": 0,
           "plays": 0
-        }
+        },
+        "originalNodeAtFirstImplementation": "FAIL at 1b841eba: 1269/1270 original Node suite, sole retired helper signature assertion in tower-ground-contact.test.cjs; actual 3D change not yet validated.",
+        "originalNodeAtCorrectedFixture": "PENDING exact-source original Node quality run 42610553152 at 176ce622; no PASS claim until complete.",
+        "originalBrowserAndFilmAtCorrectedFixture": "NOT EVALUATED: needs real WebGL/Chromium ledge and 60+s source-pinned films."
       },
       "reviewFile": "docs/reviews/2026-11-09-tower-pr68-source-locked-real-ledge-contact.md",
       "biggestExperienceGap": "Even after pipeline repair the actual candidate portrait danger film at 82fb02dc has giant foreground clockwork competing with real airborne action around 16–18s. Also the exact-source desktop ledge frame crossed opaque deck at tick 131; source-bound 3D fix now committed but unverified for smoothness. No blind quality or device acceptance.",
       "nextHighestImpactAction": "Run exact-current-head original Playwright ledge desktop/portrait and full Node/Three tests; inspect ticks129–139 for helmet and soles AND continuous normal-speed footage for source-locked pose snap. Repeat 60+s paired desktop960x600/portrait390x844 with frozen baseline and candidate; inspect authentic 16–20s guardian occlusion; verify complete guardian/crusher victory→grounded gateway→floor9→outcome/restart before redesigning biggest system-level occlusion. Never fabricate votes/quality.",
-      "safety": "PR68 draft branch only; baseline unchanged; do not touch PR58/main or merge, deploy, force push or remove draft."
+      "safety": "PR68 draft branch only; baseline unchanged; do not touch PR58/main or merge, deploy, force push or remove draft.",
+      "originalBrowserRegressionSha": "afaf4df36c94b958ca62d5a4c6a100811c28ef41",
+      "nodeFixtureFailureRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-bound earned airborne gate and real landing independently presented, original gameplay capture NOT EVALUATED",
@@ -6263,6 +6268,8 @@
       "plays": 0
     },
     "verdict": "NOT EVALUATED",
-    "next": "Exact-head browser run and continuous matched film after code; do not conflate renderer change with verified visual improvement"
+    "next": "Exact-head browser run and continuous matched film after code; do not conflate renderer change with verified visual improvement",
+    "testRecoverySha": "176ce622173537d7ad9535db7c91b20bd59e0823",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/42610553152 — PENDING at inspection"
   }
 }
