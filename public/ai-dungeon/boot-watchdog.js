@@ -8,6 +8,7 @@
  const MAX_WAIT_MS=13000,STEP_MS=500;
  let ticks=0;
  const message=document.getElementById('recovery');
+ const loading=document.getElementById('loading-state');
  const errors=[];
  window.addEventListener('error',event=>{if(event.message)errors.push(String(event.message).slice(0,180))});
  window.addEventListener('unhandledrejection',event=>{errors.push(String(event.reason?.message||event.reason||'Unknown module failure').slice(0,180))});
@@ -18,6 +19,7 @@
  const canvas=document.getElementById('world');
  const degraded=(status,heading)=>{
   document.body.dataset.rendererStatus=status;
+  if(loading)loading.hidden=true;
   if(!message)return;
   message.hidden=false;
   message.textContent=heading+' — the autonomous simulation may still be running.';
@@ -55,6 +57,7 @@
     restoredFrameBaseline=null;restoredTickBaseline=null;restoredAt=0;
     lastFrame=frame;lastTick=tick;lastFrameAt=lastTickAt=now;
     document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;
+    if(loading)loading.hidden=true;
    }else if(now-restoredAt>=12000){
     // Context restoration is not the same as visible recovery. Retain the
     // recovery state until both signals progress; never restart the simulation.
@@ -79,6 +82,8 @@
   }
  },1000);
  const timer=setInterval(()=>{
+  // Background-tab throttling must not count as a failed cold start.
+  if(document.hidden){ticks=0;return}
   ticks++;
   if(contextLost){ticks=0;return}
   // The post-restore health probe owns graphics recovery and reports a true
@@ -87,17 +92,21 @@
   // Reset its budget until both actual signals clear the recovery state.
   if(restoredFrameBaseline!==null){ticks=0;return}
   if(window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame>3&&window.__DUNGEON_PUBLIC_STATE__?.tick>0){
-   clearInterval(timer);document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;return;
+   clearInterval(timer);document.body.dataset.rendererStatus='ready';if(message)message.hidden=true;
+   if(loading)loading.hidden=true;return;
   }
   if(ticks*STEP_MS<MAX_WAIT_MS)return;
   clearInterval(timer);document.body.dataset.rendererStatus='failed';
+  if(loading)loading.hidden=true;
   if(!message)return;
   message.hidden=false;
   message.textContent='';
   const heading=document.createElement('strong');heading.textContent='THE 3D EXPEDITION IS NOT READY';
   const desc=document.createElement('span');desc.className='watchdog-detail';desc.textContent='The browser could not start the dungeon renderer. The autonomous stream may still be running.';
   const detail=document.createElement('small');detail.className='watchdog-detail';
-  detail.textContent=errors.slice(0,2).join(' / ')||'Verify local module routes, WebGL and the /dungeon/health endpoint.';
+  // Public/OBS surfaces must not leak module URLs, stack traces or internal
+  // diagnostics. The actual errors remain in the operator's browser console.
+  detail.textContent='Please try again. If the problem continues, check browser graphics support and the stream connection.';
   const retry=document.createElement('button');retry.type='button';retry.textContent='TRY AGAIN';retry.className='icon-button';
   retry.addEventListener('click',()=>location.reload());
   message.append(heading,desc,detail,retry);

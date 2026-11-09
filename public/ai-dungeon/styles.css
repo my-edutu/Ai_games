@@ -10,7 +10,7 @@
 body[data-hud=clean] .sidebar,body[data-hud=clean] .lower-rail{display:none}body[data-hud=clean] .scene-header,body[data-hud=clean] .arena-lower,body[data-hud=clean] #battle-overlay{visibility:hidden}.arena.world-only-audit>*:not(#world),body:has(.arena.world-only-audit) .sidebar,body:has(.arena.world-only-audit) .lower-rail{visibility:hidden!important}body[data-biome=ember]{--gold:#deb184}body[data-biome=obsidian]{--gold:#b1c5e1}body[data-biome=hollow]{--gold:#d0b5dd}
 @media(min-width:1600px){.hero-heading>b{font-size:12px}.squad-panel{width:750px}.hero-card{min-height:90px;padding:15px}.map-panel{width:190px}}
 @media(max-width:1190px){.top-actions .icon-button span{display:none}.masthead{gap:12px}.squad-panel{width:calc(100% - 330px)}.hero-card{gap:6px;padding:10px 8px}.hero-icon{display:none}.boss-strip{top:106px;width:310px}.floor-flag strong{font-size:23px}}
-@media(max-width:759px){.masthead{height:104px;padding:9px 12px;display:block}.brand{height:37px;gap:10px}.sigil{height:25px;width:25px;font-size:20px;margin-left:4px}.overline{font-size:7px;letter-spacing:1.5px}h1{font-size:19px;margin-top:3px}.top-actions{margin-top:7px;gap:4px;justify-content:space-between;max-width:470px}.icon-button{padding:0 10px;min-width:44px;min-height:44px}.gauntlet-link{display:none}.layout{height:auto;min-height:0}.arena{position:relative;height:62svh;min-height:440px}.scene-header{top:22px;left:16px;right:16px}.floor-flag{padding-left:10px}.flag-label{font-size:9px;letter-spacing:1.2px;margin-bottom:6px}.floor-flag strong{font-size:22px}.arena-lower{left:28px;top:98px;max-width:270px}.mission-chip small{font-size:8px}.mission-chip strong{font-size:12px}.sidebar{position:static;display:flex;flex-direction:column;inset:auto;background:#111813}.squad-panel{position:relative;left:auto;bottom:auto;width:auto;margin:14px}.squad-panel .panel-title{margin-bottom:12px}.party{grid-template-columns:1fr;gap:8px}.hero-card{min-height:69px;padding:12px;gap:13px}.hero-icon{display:grid;width:38px;flex-basis:38px}.hero-heading{flex-direction:row;align-items:baseline;justify-content:space-between;gap:8px}.hero-heading>b{font-size:12px}.hero-heading>small{font-size:11px}.hero-sub{margin:5px 0 7px;justify-content:space-between}.hero-sub span{display:block;font-size:8px;letter-spacing:.6px;color:#bfc6b6}.hero-sub b{font-size:9px}.hero-card[data-focused=true]:after{top:-6px;font-size:7px}.chapter{position:relative;right:auto;bottom:auto;width:auto;margin:0 14px 14px;order:2;padding:12px 14px}.stats small{font-size:8px}.stats b{font-size:20px}.map-panel{top:164px;right:12px;width:152px;padding:10px;z-index:5}.map-panel .panel-title{margin-bottom:8px}.map-panel .panel-title strong{font-size:12px}.lower-rail{display:none}.boss-strip{top:157px;width:calc(100% - 32px)}.boss-title{font-size:15px}.alert-flash{bottom:24px;max-width:calc(100% - 28px);width:calc(100% - 28px);font-size:11px;padding:8px 12px}.run-result{padding:20px;width:340px}.run-result h2{font-size:24px}.splash-frame h2{font-size:24px}.splash-frame{padding:20px}.journal-dialog{padding:18px}.journal-heading h2{font-size:25px}body[data-hud=clean] .arena{height:calc(100svh - 104px)}body[data-map=open]:has(.boss-strip:not([hidden])) .map-panel{top:230px}}
+@media(max-width:759px){.masthead{height:104px;padding:9px 12px;display:block}.brand{height:37px;gap:10px}.sigil{height:25px;width:25px;font-size:20px;margin-left:4px}.overline{font-size:7px;letter-spacing:1.5px}h1{font-size:19px;margin-top:3px}.top-actions{margin-top:7px;gap:4px;justify-content:space-between;max-width:470px}.icon-button{padding:0 10px;min-width:44px;min-height:44px}.gauntlet-link{display:none}.layout{height:auto;min-height:0}.arena{position:relative;height:62svh;min-height:440px}.scene-header{top:22px;left:16px;right:16px}.floor-flag{padding-left:10px}.flag-label{font-size:9px;letter-spacing:1.2px;margin-bottom:6px}.floor-flag strong{font-size:22px}.arena-lower{left:28px;top:98px;max-width:270px}.mission-chip small{font-size:8px}.mission-chip strong{font-size:12px}.sidebar{position:static;display:flex;flex-direction:column;inset:auto;background:#111813}.squad-panel{position:relative;left:auto;bottom:auto;width:auto;margin:14px}.squad-panel .panel-title{margin-bottom:12px}.party{grid-template-columns:1fr;gap:8px}.hero-card{min-height:69px;padding:12px;gap:13px}.hero-icon{display:grid;width:38px;flex-basis:38px}.hero-heading{flex-direction:row;align-items:baseline;justify-content:space-between;gap:8px}.hero-heading>b{font-size:12px}.hero-heading>small{font-size:11px}.hero-sub{margin:5px 0 7px;justify-content:space-between}.hero-sub span{display:block;font-size:8px;letter-spacing:.6px;color:#bfc6b6}.hero-sub b{font-size:9px}.hero-card[data-focused=true]:after{top:-6px;font-size:7px}.chapter{position:relative;right:auto;bottom:auto;width:auto;margin:0 14px 14px;order:2;padding:12px 14px}.stats small{font-size:8px}.stats b{font-size:20px}.map-panel{top:164px;right:12px;width:152px;padding:10px;z-index:5}.map-panel .panel-title{margin-bottom:8px}.map-panel .panel-title strong{font-size:12px}.lower-rail{display:none}.boss-strip{top:157px;width:calc(100% - 32px)}.boss-title{font-size:15px}.alert-flash{bottom:24px;max-width:calc(100% - 28px);width:calc(100% - 28px);font-size:11px;padding:8px 12px}.run-result{padding:20px;width:340px}.run-result h2{font-size:24px}.splash-frame h2{font-size:24px}.splash-frame{padding:20px}.journal-dialog{padding:18px}.journal-heading h2{font-size:25px}body[data-hud=clean] .arena{height:74svh;min-height:500px}body[data-map=open]:has(.boss-strip:not([hidden])) .map-panel{top:230px}}
 @media(max-height:560px) and (min-width:760px){.masthead{height:56px}.layout{height:calc(100svh - 56px);min-height:390px}.squad-panel,.chapter{bottom:14px}.squad-panel .panel-title{display:none}.lower-rail{bottom:113px}.map-panel{width:136px;top:14px}.scene-header{top:17px}.arena-lower{top:90px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
@@ -74,3 +74,162 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
  body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .hero-sub b{font-size:9px}
  body:is([data-encounter-stage="combat"],[data-encounter-stage="warden"]) .life{height:4px}
 }
+
+/* Spectator session 9: compact authority-only cues, with the 3D world still
+   occupying the primary viewport. No per-encounter canvas height switches. */
+.loading-state{
+ position:absolute;z-index:9;top:50%;left:50%;transform:translate(-50%,-50%);
+ width:min(310px,calc(100% - 36px));padding:18px 22px;text-align:center;
+ border:1px solid #c1a16c88;border-radius:5px;background:#111a18ee;
+ pointer-events:none;box-shadow:0 12px 36px #0008
+}
+.loading-state strong{display:block;font:21px/1.3 Georgia,serif;color:#f4e1bc}
+.loading-state small{display:block;margin-top:9px;font-size:12px;line-height:1.5;color:#d6d8c8}
+.danger-readout{
+ display:flex;flex-direction:column;gap:5px;margin-top:12px;max-width:310px;
+ padding:9px 13px;background:#281b19d9;border-left:2px solid #e4a16c;
+ border-radius:2px;text-shadow:0 2px 5px #000;pointer-events:none
+}
+.danger-readout>span{font-size:10px;line-height:1.3;letter-spacing:1.2px;font-weight:800;color:#ffd0a7}
+.danger-readout>strong{font-size:12px;line-height:1.45;font-weight:500;color:#fff0d7}
+.danger-readout[data-kind=counter]{background:#1b2b22dd;border-color:#9bd8aa}
+.danger-readout[data-kind=counter]>span{color:#b6ecc1}
+.danger-readout[data-kind=guard]{background:#202838dd;border-color:#a4bbec}
+.danger-readout[data-kind=guard]>span{color:#baccf2}
+.spectator-quickbar{display:none}
+@media(max-width:759px){
+ /* A stable scene rect prevents a WebGL canvas reallocation whenever the
+    autonomous run moves between exploration, combat and Warden stages. */
+ .arena,body[data-encounter-stage="combat"] .arena,
+ body[data-encounter-stage="warden"] .arena{height:74svh;min-height:500px}
+ body[data-hud=clean] .arena{height:74svh;min-height:500px}
+ .spectator-quickbar{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  position:absolute;left:10px;right:10px;bottom:12px;z-index:5;
+  pointer-events:auto
+ }
+ .quick-hero{
+  min-width:0;min-height:64px;padding:8px 7px;display:flex;flex-direction:column;
+  justify-content:space-between;gap:8px;border:1px solid #b1bcad7d;
+  border-radius:4px;text-align:left;background:#101918ed;color:#f6ecdd;
+  box-shadow:0 2px 10px #0008
+ }
+ .quick-hero[data-focused=true]{border-color:#eed09a;background:#3b3223f2;box-shadow:inset 0 0 0 1px #eed09a6b}
+ .quick-hero[data-condition=critical]{border-left:3px solid #e7966e}
+ .quick-hero[data-condition=fallen]{opacity:.7;background:#282324f2}
+ .quick-top{display:flex;flex-direction:column;gap:4px;min-width:0}
+ .quick-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.2}
+ .quick-hp{font-size:11px;color:#d6d9ca;white-space:nowrap;font-variant-numeric:tabular-nums}
+ .quick-track{display:block;width:100%;height:5px;overflow:hidden;background:#5b676157;border-radius:4px}
+ .quick-fill{display:block;height:100%;background:#91c5a4;transition:width .22s linear}
+ .quick-hero[data-condition=critical] .quick-fill{background:#e7966e}
+ .quick-hero[data-condition=fallen] .quick-fill{background:#938b87}
+ .arena-lower{max-width:min(310px,calc(100% - 40px))}
+ .danger-readout{margin-top:8px;padding:7px 10px;max-width:240px}
+ .danger-readout>span{font-size:9px}
+ .danger-readout>strong{font-size:11px}
+ .alert-flash{bottom:91px}
+ body[data-epilogue=true] .spectator-quickbar,
+ body[data-hud=clean] .spectator-quickbar{display:none}
+}
+@media(prefers-reduced-motion:reduce){.quick-fill{transition:none}}
+
+/* Independently anchored from the ordinary objective: Warden mode suppresses
+   .arena-lower but cannot suppress truthful danger. */
+.danger-readout{
+ position:absolute;left:44px;top:180px;z-index:5;
+ width:min(310px,calc(100% - 88px));margin:0
+}
+@media(max-width:759px){
+ .danger-readout{
+  left:16px;top:185px;width:min(260px,calc(100% - 32px));max-width:260px;margin:0
+ }
+ body[data-warden-focus=true] .danger-readout{top:188px}
+}
+
+/* Session 9, continuation: evidence-backed floor status, never a fabricated
+   percentage of completion. The portal itself is the authoritative threshold. */
+.depth-track{display:none}
+.encounter-metrics{
+ display:grid;grid-template-columns:1fr 1fr;column-gap:10px;row-gap:7px;
+ padding:2px 0 9px;border-bottom:1px solid #c9b48a33;
+ font-size:11px;line-height:1.35;color:#d8d4c6;font-variant-numeric:tabular-nums
+}
+.encounter-metrics>span{white-space:nowrap}
+.encounter-metrics>span b{color:#f0d19c;font-size:13px}
+.encounter-metrics strong{
+ grid-column:1/-1;font-size:10px;letter-spacing:1.15px;color:#e6ba85
+}
+.encounter-metrics strong[data-state=available]{color:#a9e4bd}
+.encounter-metrics strong[data-state="next run"]{color:#b8cbd9}
+.expedition-objective{
+ margin:8px 0 12px;font-size:11px;line-height:1.5;color:#d9d2bd
+}
+.quick-outcome{display:none}
+.visually-hidden{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+}
+@media(max-width:759px){
+ .chapter{order:3}
+ .map-panel{order:2}
+ .quick-outcome{
+  display:block;order:1;min-width:0;margin:0 14px 14px;
+  padding:10px 12px;border-left:2px solid #c8a777;
+  background:#1b241ecf;color:#e9dfc8;border-radius:2px;
+ }
+ .quick-outcome>span{display:block;color:#e8ca92;font-size:10px;letter-spacing:.8px;font-weight:700}
+ .quick-outcome p{
+  margin:5px 0 0;font-size:12px;line-height:1.5;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;overflow-wrap:anywhere
+ }
+ .encounter-metrics{font-size:12px}
+ .encounter-metrics strong{font-size:11px}
+ .expedition-objective{font-size:12px}
+}
+@media(max-width:360px){
+ .quick-name{font-size:11px}
+ .quick-hp{font-size:10px}
+}
+
+/* At 320–359px seven 44px controls cannot fit in one row. A deliberate
+   two-row toolbar is preferable to horizontal scroll or shrinking targets. */
+@media(max-width:359px){
+ .masthead{height:158px}
+ .top-actions{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  width:100%;max-width:none;gap:4px
+ }
+ .top-actions .icon-button{width:100%;padding:0 3px;min-width:44px}
+ .top-actions .icon-button span{display:none}
+ .layout{min-height:0}
+ body[data-hud=clean] .arena{height:74svh;min-height:500px}
+}
+body[data-hud=clean] .danger-readout{display:none}
+
+/* Broadcast legibility on a full desktop canvas. At narrower widths the
+   original compact roster rules continue to avoid clipping. */
+@media(min-width:1200px){
+ .hero-heading>b{font-size:12px}
+ .hero-heading>small{font-size:11px;line-height:1.4}
+ .hero-sub b{font-size:10px}
+ .life{height:5px}
+}
+
+@media(max-width:759px){
+ .flag-label{font-size:10px}
+ .mission-chip small{font-size:10px;letter-spacing:1.1px}
+ .boss-overline{font-size:10px;letter-spacing:1px}
+ .boss-title>span:last-child{font-size:12px}
+}
+
+/* Session 9 continuity: resources and selection have text/shape, not color alone. */
+.quick-detail{display:block;min-height:14px;font:11px/1.3 system-ui,sans-serif;color:#e2d6be;text-align:left}
+.quick-hero[data-focused=true] .quick-name::before{content:'✓ ';color:#f5d795}
+.quick-hero[data-condition=fallen] .quick-detail{color:#f0c8b8}
+.journal-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.journal-tools .journal-description{margin:0;flex:1}
+.journal-refresh{font-size:11px;max-width:140px;white-space:normal;line-height:1.4;flex-shrink:0}
+.journal-refresh[data-pending=true]{border-color:#d3b783;color:#f4dcaa}

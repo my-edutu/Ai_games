@@ -2,7 +2,7 @@ import * as THREE from '/dungeon/vendor/three.module.js';
 import {makeWallMasonryPixels} from '/dungeon/wall-masonry-plan.js';
 import {planFracturedWallStone,planWallStoneVariation} from '/dungeon/fractured-wall-plan.js';
 import {planCutawayWallTransform,planCutawayFoundationTransform,planCutawayParapetTransform} from '/dungeon/cutaway-floor-plan.js';
-import {encounterTarget,isSceneAlert,installSpectatorUI} from '/dungeon/spectator-ui.js';
+import {encounterTarget,isSceneAlert,describeSpectatorDanger,installSpectatorUI} from '/dungeon/spectator-ui.js';
 import {enrichEnvironment} from '/dungeon/environment.js';
 import {planDungeonWallProfiles,planLegibleWallMass} from '/dungeon/wall-profile-plan.js';
 import {createFloorRuins} from '/dungeon/floor-ruins.js';
@@ -703,7 +703,13 @@ const settleAudio=(promise,timeout=1400)=>new Promise((resolve,reject)=>{
 });
 $('audio-toggle').addEventListener('click',async()=>{
  const button=$('audio-toggle'),label=button.querySelector('span');
- const setEnabled=enabled=>{button.setAttribute('aria-pressed',String(enabled));label.textContent=enabled?'Sound on':'Sound off'};
+ // Audio remains opt-in each visit; persist explicit mute only, never autoplay.
+ const setEnabled=enabled=>{
+  button.setAttribute('aria-pressed',String(enabled));
+  button.setAttribute('aria-label',enabled?'Mute original dungeon audio':'Enable original dungeon audio');
+  label.textContent=enabled?'Sound on':'Sound off';
+  try{window.localStorage.setItem('edutu-dungeon-audio-muted',String(!enabled))}catch{}
+ };
  if(!ambience){
   const Audio=window.AudioContext||window.webkitAudioContext;
   if(!Audio){setEnabled(false);button.title='Audio unavailable in this browser';return}
@@ -741,22 +747,30 @@ function renderDashboard(s){
  const wardenRelease=Boolean(nearBoss&&Number.isSafeInteger(s.tick)&&
   boss.action==='cast'&&boss.actionTick===s.tick);
   const tactical=planWardenTacticalCue(s,{nearBoss});
+  const verifiedCue=nearBoss?describeSpectatorDanger(s):null;
  $('floor').textContent=String(s.floor).padStart(2,'0');$('chapter').textContent=String(s.floor).padStart(2,'0');
  $('theme').textContent=s.theme;$('run').textContent=String(s.run).padStart(3,'0');$('tick').textContent='TICK '+String(s.tick).padStart(5,'0');
  $('kills').textContent=s.kills.toLocaleString();$('gold').textContent=s.gold.toLocaleString();$('level').textContent=s.level;
  $('intent').textContent=s.intent;$('reasoning').textContent=s.intent;
  $('party-count').textContent=alive+' / '+heroes.length;$('party-condition').textContent=alive===heroes.length?'READY':alive?'COMPROMISED':'FALLEN';
  $('status').textContent=s.phase==='intermission'?'THE NEXT EXPEDITION IS FORMING':'AI HEROES EXPLORING THE UNKNOWN';
- $('floor-status').textContent=s.phase==='intermission'?'REASSEMBLING':
+ $('floor-status').textContent=s.phase==='intermission'?'NEW RUN FORMING':
   s.guardianWard?'BINDING GUARDS · '+s.defendersRemaining:
-  tactical?.floor??(foes.length?'CLEARING THE CRYPT':'PORTAL UNLOCKED');
- const remaining=s.units.filter(u=>u.faction==='enemy'&&u.hp>0).length;
- $('depth-fill').style.width=Math.max(8,Math.min(100,100-(remaining/(s.units.filter(u=>u.faction==='enemy').length||1)*92)))+'%';
+  tactical?.mode==='warning'?'WARDEN WARNING · '+(s.bossWarning.attackTick-s.tick)+' TURNS':
+  tactical?.mode==='release'?'WARDEN STRIKE RELEASED':
+  tactical?.mode==='counter'?'WARDEN RECOVERING':
+  tactical?.floor??(foes.length?'ENEMIES REMAIN':'PORTAL AVAILABLE');
+ // Source-truth enemy/trap/exit counts are projected in spectator-ui.js.
+ // No fictitious percentage is computed for an endless, summoning dungeon.
  const bossStrip=$('boss-strip');bossStrip.hidden=!nearBoss;
  document.body.dataset.wardenFocus=nearBoss?'true':'false';
  if(boss){const percent=Math.max(0,Math.round(boss.hp/boss.maxHp*100));$('boss-hp').textContent=percent+'%';$('boss-bar').style.width=percent+'%';
   const phase=s.bossPhase||'SENTINEL',exposed=Number.isInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
-  $('boss-phase').textContent=tactical?.label??phase;
+  // This spectator must not issue player commands or claim an unverified hit.
+  $('boss-phase').textContent=verifiedCue?.kind==='warning'?'WARDEN WARNING':
+   verifiedCue?.kind==='release'?'STRIKE RELEASED':
+   verifiedCue?.kind==='counter'?'EXPOSED · RECOVERING':
+   verifiedCue?.kind==='guard'?'SEALED · '+phase:phase;
    bossStrip.dataset.phase=phase;bossStrip.dataset.warded=String(Boolean(s.guardianWard));bossStrip.dataset.recovery=String(exposed);
   bossStrip.dataset.striking=String(wardenRelease);
   const attackInterval=phase==='ECLIPSE'?4:6;
@@ -782,11 +796,11 @@ function renderDashboard(s){
   card.classList.toggle('down',u.hp<=0);card.setAttribute('aria-disabled',String(u.hp<=0));
   card.dataset.class=u.kind;card.dataset.action=u.action||'idle';card.dataset.focused=String(u.hp>0&&u.id===focusedHeroId);
   if(u.kind==='mystic')card.dataset.focusExhausted=String(Number.isInteger(u.focus)&&u.focus<=0);
-  card.setAttribute('aria-label','Follow '+meta.name+' in the cinematic camera'+(u.kind==='mystic'?' · healing focus '+(u.focus??'unavailable')+' of '+(u.maxFocus??5):''));
+  card.setAttribute('aria-label',(u.hp>0?'Follow ':'Fallen hero: ')+meta.name+' · '+u.hp+' of '+u.maxHp+' health'+(u.kind==='mystic'?' · healing focus '+(u.focus??'unavailable')+' of '+(u.maxFocus??5):''));
   card.setAttribute('aria-pressed',String(u.hp>0&&u.id===focusedHeroId));
   card.querySelector('.hero-icon').textContent=meta.icon;
   card.querySelector('.hero-heading b').textContent=meta.name;
-  card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP'+(u.kind==='mystic'?' · ✦'+(Number.isInteger(u.focus)?u.focus:'—'):'');
+  card.querySelector('.hero-heading small').textContent=u.hp+'/'+u.maxHp+' HP'+(u.kind==='mystic'?' · Focus '+(Number.isInteger(u.focus)?u.focus+'/'+(u.maxFocus??5):'—'):'');
   card.querySelector('.hero-sub span').textContent=meta.title;
   const covering=u.kind==='vanguard'&&u.hp>0&&u.action==='guard'&&
    u.guardTick===s.tick&&heroes.find(ally=>ally.id===u.targetId&&ally.hp>0);
@@ -824,10 +838,12 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  }
  // Authority polling is independent of the browser's WebGL lifecycle. Never
  // hide a graphics failure merely because the autonomous game keeps ticking.
- if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus))$('recovery').hidden=true;
+ if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus)){
+  $('recovery').hidden=true;
+  document.body.dataset.streamConnection='live';
+ }
  const selected=s.units.find(u=>u.id===focusedHeroId&&u.hp>0);
  if(!selected){const survivor=s.units.find(u=>u.faction==='party'&&u.hp>0);if(survivor)focusedHeroId=survivor.id;}
- spectatorUI.render(s);
  for(const e of s.events){const id=s.run+':'+e.tick+':'+e.kind+':'+e.text;if(!seenEventIds.has(id)){seenEventIds.add(id);if(seenEventIds.size>150)seenEventIds.delete(seenEventIds.values().next().value);if(!firstSnapshot){cue(e,s);notifyDungeon(e)}}}
  if(sceneChanged){combatShotContinuity.reset();physicalCameraDirector.reset();impactCameraHold=null;lightInjury=null;buildWorld(s);camera.userData.dungeonInitialized=false;camera.userData.aimInitialized=false;lastRayAuditAt=-Infinity;}
  // Only the authoritative Warden attack which follows its previous public
@@ -901,6 +917,8 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  document.body.dataset.epilogue=s.phase==='intermission'?'true':'false';
  directCamera(s);
  renderDashboard(s);
+ // A keyed, accessible quick-focus bar mirrors the final real hero-card state.
+ spectatorUI.render(s);
  window.__DUNGEON_PUBLIC_STATE__=s;
 }
 let lastFrameTime=0;
@@ -1460,7 +1478,30 @@ function animate(t){
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenRitual:world.userData.wardenRitual?.metrics()??null,wardenImpactScars:world.userData.wardenImpactScars?.metrics()??null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,dressing:world.userData.dressing?.metrics??null,atmosphere:world.userData.atmosphere?.metrics??null,livingWorld:world.userData.livingWorld?.metrics??null,overlay:combatOverlay.metrics(),soundstage:soundstage?.stats()??null,combatStage:combatDirector.stats(),damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},combatStaging:{separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET,projected:inspectBattlefieldCrowding(state,lastStagePositions,camera.position)},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,groundSignals:(()=>{const states=[...actors.values()].map(x=>x.ground?.getState?.()).filter(Boolean);return{subjects:states.length,shadows:states.filter(x=>x.shadowVisible).length,ritualSigils:states.filter(x=>x.sigilVisible).length,coronas:states.filter(x=>x.coronaVisible).length}})(),authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),authored3D:assetStats(actors)};
 }
-async function poll(){try{const r=await fetch('/dungeon/state',{cache:'no-store'});if(!r.ok)throw Error('State '+r.status);const data=await r.json();if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}}catch(e){errorAt++;if(errorAt>=3){$('recovery').hidden=false;$('status').textContent='VIEW DEGRADED — RETRYING';console.warn('Dungeon view recovery',String(e))}}finally{setTimeout(poll,190)}}
+async function poll(){
+ try{
+  const r=await fetch('/dungeon/state',{cache:'no-store'});
+  if(!r.ok)throw Error('State '+r.status);
+  const data=await r.json();
+  // A successful 200 with the same old tick is not evidence that a
+  // disconnected autonomous stream has advanced. Keep the last-known-state
+  // warning visible until a new authoritative tick/run arrives.
+  if(data.tick!==lastTick||data.run!==state?.run){lastTick=data.tick;update(data)}
+  else if(errorAt)errorAt=0;
+ }catch(e){
+  errorAt++;
+  if(errorAt>=3){
+   if($('loading-state'))$('loading-state').hidden=true;
+   if(!['context-lost','recovering','stalled','failed'].includes(document.body.dataset.rendererStatus)){
+    $('recovery').hidden=false;
+    $('recovery').dataset.connection='stale';
+    document.body.dataset.streamConnection='reconnecting';
+   }
+   $('status').textContent='VIEW DEGRADED — RETRYING';
+   if(errorAt===3||errorAt%30===0)console.warn('Dungeon view recovery',String(e));
+  }
+ }finally{setTimeout(poll,190)}
+}
 $('party').addEventListener('click',e=>{
  const node=e.target.closest('[data-hero-id]');if(!node)return;
  const unit=state?.units.find(u=>u.id===node.dataset.heroId&&u.faction==='party'&&u.hp>0);

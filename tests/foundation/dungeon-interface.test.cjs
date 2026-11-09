@@ -15,3 +15,18 @@ test('phone boss encounter keeps the optional tactical map below the physical wo
  assert.match(css,/body\[data-warden-focus=true\] \.arena-lower\{display:none\}/);
  assert.match(app,/document\.body\.dataset\.wardenFocus=nearBoss\?'true':'false'/);
 });
+
+test('spectator reports only real imminent danger and honest recovery',async()=>{
+ const {describeSpectatorDanger}=await load();
+ const hero={id:'vanguard',faction:'party',kind:'vanguard',x:8,z:9,hp:70,maxHp:100};
+ const warden={id:'warden',faction:'enemy',kind:'warden',x:9,z:9,hp:150,maxHp:200,action:'idle',actionTick:0};
+ const base={phase:'exploring',tick:12,units:[hero,warden],guardianWard:false};
+ assert.equal(describeSpectatorDanger(base),null);
+ assert.deepEqual(describeSpectatorDanger({...base,bossWarning:{shape:'NOVA',cells:[{x:8,z:9}],attackTick:13}}),{
+  kind:'warning',title:'WARDEN WARNING',detail:'Nova · impact in 1 turn'
+ });
+ assert.deepEqual(describeSpectatorDanger({...base,bossRecovery:{remaining:2}}),{
+  kind:'counter',title:'COUNTER WINDOW',detail:'Warden recovering · 2 turns'
+ });
+ assert.equal(describeSpectatorDanger({...base,phase:'intermission'}),null);
+});
