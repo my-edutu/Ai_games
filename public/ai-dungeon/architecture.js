@@ -45,11 +45,70 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  // without erecting a full opaque slab that hides the moving party.
  const buttressFoot=new THREE.BoxGeometry(.22,.64,.30);
  geometries.push(jamb,arch,pane,keystone,sill,pier,finial,tracery,peakRib,corbel,buttressFoot);
+ // Bake every original lancet component into THREE retained role meshes, once
+ // per floor. Four windows formerly submitted 76 individual WebGL draws. The
+ // same source geometry, transforms, UVs, normals, and original three PBR
+ // materials now submit at most 12 draws, with no lower-fidelity replacements.
+ // Each window remains one cutaway group, so foreground clearance can hide the
+ // entire *physical* lancet without leaving disconnected glass or masonry.
+ const roleParts={glass:[],frame:[],stone:[]};
+ function part(role,shape,x,y,z,angle=0,scaleY=1){
+  roleParts[role].push({shape,x,y,z,angle,scaleY});
+ }
+ part('glass',pane,0,1.43,.092);
+ part('frame',arch,0,1.82,.105);
+ for(const side of [-1,0,1])part('frame',tracery,side*.17,1.43,.15);
+ for(const side of [-1,1]){
+  part('frame',peakRib,side*.145,2.00,.14,-side*.68);
+  part('stone',corbel,side*.42,.91,.075);
+ }
+ for(const side of [-1,1]){
+  part('frame',jamb,side*.34,1.34,.11);
+  part('stone',pier,side*.45,1.42,.015);
+  part('stone',buttressFoot,side*.45,.48,.015);
+ }
+ part('stone',sill,0,.89,.08);
+ part('frame',keystone,0,2.17,.13,0,(floor-1)%4===2?1.75:1.28);
+ for(const side of [-1,1])part('frame',finial,side*.44,2.14,.03,side*.17);
+ const pose=new THREE.Matrix4(),at=new THREE.Vector3(),rotation=new THREE.Quaternion(),
+  size=new THREE.Vector3(),axis=new THREE.Vector3(0,0,1);
+ function joinRole(parts){
+  const pieces=[],names=['position','normal','uv'],width={position:3,normal:3,uv:2};
+  let count=0;
+  for(const spec of parts){
+   const g=spec.shape.index?spec.shape.toNonIndexed():spec.shape.clone();
+   at.set(spec.x,spec.y,spec.z);
+   rotation.setFromAxisAngle(axis,spec.angle);
+   size.set(1,spec.scaleY,1);
+   pose.compose(at,rotation,size);
+   g.applyMatrix4(pose);
+   const positions=g.getAttribute('position');
+   // All original Three primitives carry real normals and UVs. Reject a
+   // missing attribute rather than silently dropping stone shading or glass.
+   if(!positions||!g.getAttribute('normal')||!g.getAttribute('uv')){
+    g.dispose();for(const piece of pieces)piece.dispose();
+    throw new Error('Original lancet geometry lacks normal/UV attributes');
+   }
+   count+=positions.count;pieces.push(g);
+  }
+  const result=new THREE.BufferGeometry();
+  for(const name of names){
+   const values=new Float32Array(count*width[name]);let offset=0;
+   for(const piece of pieces){
+    const valuesFrom=piece.getAttribute(name).array;
+    values.set(valuesFrom,offset);offset+=valuesFrom.length;
+   }
+   result.setAttribute(name,new THREE.BufferAttribute(values,width[name]));
+  }
+  result.computeBoundingSphere();
+  for(const piece of pieces)piece.dispose();
+  geometries.push(result);
+  return result;
+ }
+ const roleGeometry={glass:joinRole(roleParts.glass),
+  frame:joinRole(roleParts.frame),stone:joinRole(roleParts.stone)};
  // Each pane rises from a real impassable 0.88m+ stone wall plinth.
- // The original narrow buttress foot carries the upper mullions and arch:
- // a low open ruin is no longer falsely treated as unsupported empty air.
- // Four spatially separated windows add atmosphere without flooding the
- // software renderer with translucent panels or obscuring the actual party.
+ // Keep the original four separated sites, orientations and atomic cutaways.
  const mounted=faces.filter(face=>Array.isArray(face)&&face[4]>=.88&&face[9]!==1&&
   Number.isFinite(face[0])&&Number.isFinite(face[2])&&
   Math.abs(face[0])<=10&&Math.abs(face[2])<=10);
@@ -58,40 +117,15 @@ export function addDungeonWindows(world,faces,floor,biome,materials,geometries,t
  const stride=Math.max(1,Math.ceil(mounted.length/4));
  for(let i=0;i<mounted.length&&count<4;i+=stride){
   const face=mounted[i];
-  // Original windows should orient a journey, not create a continuous
-  // repetitive wall of glass or mask a single combat sightline.
   if(selected.some(p=>Math.hypot(p[0]-face[0],p[1]-face[2])<2.25))continue;
   const group=new THREE.Group();
   group.position.set(face[0],0,face[2]);
-  // Face the walkable corridor, not an arbitrary world direction; otherwise
-  // the solid wall hides half the panes in actual WebGL screenshots.
   group.rotation.y=Math.atan2(face[7]||0,face[8]||0);
-  const add=(geometry,material,x,y,z)=>{
-   const mesh=new THREE.Mesh(geometry,material);mesh.position.set(x,y,z);group.add(mesh);return mesh;
-  };
-  add(pane,glass,0,1.43,.092);
-  add(arch,frame,0,1.82,.105);
-  // Three-dimensional lead tracery and pointed vault ribs break up flat wall slabs.
-  // Reuse geometries/materials across every window; no per-window GPU allocations.
-  for(const side of [-1,0,1])add(tracery,frame,side*.17,1.43,.15);
-  for(const side of [-1,1]){
-   const rib=add(peakRib,frame,side*.145,2.00,.14);
-   rib.rotation.z=-side*.68;
-   add(corbel,stone,side*.42,.91,.075);
+  for(const [role,material] of [['stone',stone],['frame',frame],['glass',glass]]){
+   const mesh=new THREE.Mesh(roleGeometry[role],material);
+   mesh.name='authored-lancet-'+role;
+   group.add(mesh);
   }
-  for(const side of [-1,1]){
-   add(jamb,frame,side*.34,1.34,.11);
-   add(pier,stone,side*.45,1.42,.015);
-   add(buttressFoot,stone,side*.45,.48,.015);
-  }
-  add(sill,stone,0,.89,.08);
-  const crown=add(keystone,frame,0,2.17,.13);
-  crown.scale.y=(floor-1)%4===2?1.75:1.28;
-  for(const side of [-1,1]){
-   const spire=add(finial,frame,side*.44,2.14,.03);
-   spire.rotation.z=side*.17;
-  }
-  // Never create per-window materials, lights or geometries.
   world.add(group);occluders.push(group);selected.push([face[0],face[2]]);count++;
  }
  return count;

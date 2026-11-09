@@ -5687,7 +5687,7 @@
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect NEW SHA authentic 1440px/390px original Warden frame video, stage draw calls, p50/p95/p99 scene/submit/delivery and original audio against 5499299/locked M1; reject regressive pooled effects; fix visible rig attachment and complete desktop natural defeat before safe PR72 animation acceptance.",
+    "nextImplementationTask": "True same-seed 1440/390 organic motion/audio + Warden draw/submit/rAF p95 and glass/stone cutaway; reject poor fidelity; desktop defeat, rig moving contact, original audio sync and independent 3-critic blind comparison.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -6598,6 +6598,32 @@
       "independentPR72": "63ee510091f95edbd68c6dfce352cd8a0728f723_NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Same-seed 1440/390 source-frame/audio comparison at NEW head; measure p95/p99 and check original stone/tell readability, reject candidate if unhelpful; fix cranial 0/5, desktop natural defeat, PR72 safe animation review, immutable BEFORE/AFTER and 3 fresh blind critics."
+    },
+    "m1OriginalLancetSharedGeometry": {
+      "date": "2026-11-09",
+      "stage": "A_INCOMPLETE",
+      "parentSourceSha": "89c76925e68f162ab287ca8d7c30a7fed289ac45",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceOriginalEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/42674980653",
+      "mobileFiveStage": "946/946_AUTHORITY_PASS_ORIGINAL_OPUS_SPARSE",
+      "desktopFiveStage": "860/946_TIMED_OUT",
+      "beforeMobileWardenDrawCalls": 550,
+      "beforeDesktopWardenDrawCalls": 543,
+      "originalWindowGeometry": "19_MESH_DRAWS_PER_AUTHORED_WINDOW",
+      "retainedCandidate": "3_MESH_DRAWS_PER_AUTHORED_WINDOW_ORIGINAL_PBR_TRIANGLES_UV_NORMALS",
+      "maxFourWindowDraws": "76_TO_12_STRUCTURAL_POTENTIAL_NOT_MEASURED_AFTER",
+      "localFoundation": "390/390_PASS",
+      "localReplay": "24x900_NO_DIVERGENCES",
+      "localBuild": "PASS",
+      "exactHeadAfterBrowser": "UNVERIFIED",
+      "actualMotionImprovement": "NOT_OBSERVED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentPR72": "15d10b3c7603515122b32320363f4ecbd330c0cd_NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "True same-seed 1440/390 organic motion/audio + Warden draw/submit/rAF p95 and glass/stone cutaway; reject poor fidelity; desktop defeat, rig moving contact, original audio sync and independent 3-critic blind comparison."
     }
   }
 }
