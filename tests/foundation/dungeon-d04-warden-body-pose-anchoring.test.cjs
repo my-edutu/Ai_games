@@ -121,3 +121,40 @@ test('D04: missing Warden art never suppresses HP-confirmed counter or neutral d
  assert.equal(effects.stats().confirmedFragments>=4,true);
  effects.reset();effects.dispose();
 });
+
+test('D04: genuine Warden release stays audible after an actual frame when body art is absent',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load();
+ const {createPhysicalCombatFeedback}=await import(pathToFileURL(path.resolve(__dirname,
+  '../../public/ai-dungeon/physical-combat-feedback.js')).href);
+ const {THREE,scene}=stageRig();
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{actorById:()=>null});
+ const played=[];
+ const director=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter:visual,
+  audioAdapter:{
+   enable(){return true},emit(cue){played.push(cue.audio);return true},
+   disable(){},flush(){},cleanup(){},dispose(){}
+  }
+ });
+ const boss=(tick,change={})=>({
+  id:'warden',kind:'warden',faction:'enemy',x:6,z:6,hp:75,maxHp:90,
+  action:'idle',actionTick:tick,...change
+ });
+ const shot=(tick,unit,events=[])=>({
+  run:1,floor:1,tick,units:[unit],events,
+  guardianWard:false,bossRecovery:{remaining:tick===11?2:0}
+ });
+ assert.equal(director.enableAudioFromGesture(),true);
+ director.acceptSnapshot(shot(10,boss(10)));
+ director.acceptSnapshot(shot(11,boss(11,{
+  action:'cast',recoveryUntilTick:12
+ }),[{tick:11,kind:'opening',text:'recovery'}]));
+ director.advance(.016,.016);
+ assert.equal(visual.stats().instancesByPool.signal,0,'do not counterfeit a Warden body');
+ assert.equal(played.length,0,'no release sound before an actual WebGL frame');
+ assert.equal(director.acknowledgePresentedFrame('submitted-frame',.004),2);
+ assert.equal(played.join(','),'warden-release,recovery',
+  'authoritative phase sound survives suppressed art, in release/recovery order');
+ assert.equal(director.acknowledgePresentedFrame('submitted-frame',.004),0);
+ director.muteAudio();director.dispose();
+});
