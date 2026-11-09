@@ -273,8 +273,12 @@ test('authentic clockwork upper-cap spectacle is flanked outside the playable gu
     assert.ok(centers.some(center=>center.angle>1.32) &&
       centers.some(center=>center.angle< -1.32),
       'flank real ascent from both distant tower shoulders rather than stacking the boss camera foreground');
-    assert.ok(centers.some(center=>center.y>=34 && center.y<=38),
-      'keep a real high-right clock silhouette ABOVE the new guardian action band, never delete its machine');
+    // Previous acceptance pinned the ornamental third rotor at y34..38:
+    // exactly the LIVE cap-combat elevation obscured in original 15s
+    // portrait WebM. Retain the visible third rotating mechanism, but keep
+    // its actual world-space centre in the architectural space above it.
+    assert.ok(centers.some(center=>center.y>=50 && center.y<=70),
+      'third real high-right rotor must clear cap combat rather than reoccupy y34..38');
     const owned=[];
     world.group.traverse(object=>{
       if(object.isMesh && object.material?.name==='SightlineResponsiveClockFace')owned.push(object);
