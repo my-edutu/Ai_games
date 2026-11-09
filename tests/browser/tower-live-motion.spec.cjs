@@ -12,6 +12,8 @@ const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
 const { createTowerSourceTracePoller } =
   require('../../scripts/tower-source-trace-poller.cjs');
 const { calibrateOriginalVideo } = require('../../scripts/tower-video-timebase.cjs');
+const { beginTowerNativeCompositorAnchors } =
+  require('../../scripts/tower-native-compositor-anchors.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -50,6 +52,11 @@ for (const viewport of viewports) {
     const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
     return d?.frames >= 8 && d.renderProgress?.state === 'current' && d.lighting?.environmentState !== 'pending';
   }, null, { timeout: 90000 });
+  // Real full-viewport screenshots cost 2–5s in software WebGL, so their
+  // start/end intervals cannot safely anchor a native WebM frame to wall time.
+  // Collect bounded Chrome-composited frame witnesses with browser-issued
+  // timestamps instead; match their ORIGINAL pixels to the unedited WebM.
+  const compositorAnchors=await beginTowerNativeCompositorAnchors({page,dir,viewport});
   const observations = [];
   const canvas = page.locator('#tower-canvas');
   async function sample(index) {
@@ -680,6 +687,7 @@ for (const viewport of viewports) {
       jusantAstroComparison: 'OPEN: requires fresh independent side-by-side evaluation' },
   }, null, 2));
   const video = page.video();
+  await compositorAnchors.stop();
   await page.close();
   await context.close();
   const originalWebMPath = path.join(dir, 'live.webm');
@@ -696,9 +704,11 @@ for (const viewport of viewports) {
   // A separate optional offline tool pixel-matches genuine viewport stills
   // against original WebM frames and rejects missing/ambiguous clock anchors.
   // No extra overlay, video edit, altered source, fake event or accelerated tick.
-  const anchors = observations.filter(o => o.nativeFrameAnchor)
-    .map(o => ({...o.nativeFrameAnchor,
-      file: path.join(dir, o.nativeFrameAnchor.file)}));
+  const anchors = [
+    ...compositorAnchors.anchors,
+    ...observations.filter(o => o.nativeFrameAnchor)
+      .map(o => o.nativeFrameAnchor),
+  ].map(anchor => ({...anchor,file:path.join(dir,anchor.file)}));
   const nativeVideoTimebase = calibrateOriginalVideo({
     video:originalWebMPath, anchors,
     sourceTicks:passiveSourceTicks.ticks,
@@ -711,6 +721,11 @@ for (const viewport of viewports) {
     JSON.stringify({sourceSha,scenario,viewport,seed:process.env.TOWER_SEED ||
       'tower-stream-reference',graphicsTier:'low',
       originalWebMSha256,originalWebMBytes:originalWebMByteCount,
+      passiveCompositorAnchors:{started:compositorAnchors.started,
+        recorded:compositorAnchors.anchors.length,
+        errors:compositorAnchors.errors.slice(0,8),
+        timing:'Original Chrome compositor timestamps; matching against original WebM required',
+        qualityVerdict:'NOT EVALUATED'},
       ...nativeVideoTimebase},null,2));
   // Keep the unedited film AND sidecars even when the initial scene is wrong.
   // CI vetoes an unrepresentative episode instead of certifying a complete

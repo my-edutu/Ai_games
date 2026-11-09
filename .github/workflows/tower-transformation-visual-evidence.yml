@@ -152,6 +152,8 @@ jobs:
           # The immutable baseline predates native-video calibration. Copy
           # ONLY observational harness code; never alter its game or host.
           cp current-harness/scripts/tower-video-timebase.cjs source/scripts/tower-video-timebase.cjs
+          cp current-harness/scripts/tower-native-compositor-anchors.cjs source/scripts/tower-native-compositor-anchors.cjs
+          cp current-harness/tests/phase3/tower-native-compositor-anchors.test.cjs source/tests/phase3/tower-native-compositor-anchors.test.cjs
           cp current-harness/scripts/tower-native-film-integrity.cjs source/scripts/tower-native-film-integrity.cjs
           cp current-harness/tests/phase3/tower-native-film-integrity.test.cjs source/tests/phase3/tower-native-film-integrity.test.cjs
           cp current-harness/tests/phase3/tower-video-timebase.test.cjs source/tests/phase3/tower-video-timebase.test.cjs
@@ -182,7 +184,7 @@ jobs:
         id: scoped_integrity
         continue-on-error: true
         working-directory: source
-        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
+        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
       - name: Install Chromium
         working-directory: source
         run: npx playwright install --with-deps chromium
