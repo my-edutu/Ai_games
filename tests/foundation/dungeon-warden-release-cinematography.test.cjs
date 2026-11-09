@@ -151,3 +151,27 @@ test('authentic compact Warden danger gets grounded physical 3D framing; broad h
  assert.equal(planWardenWarningFocus(malformed,malformed.units[1],malformed.units[2]),null,'invalid warning cannot claim compact framing');
  assert.equal(planCinematicShot(malformed).warningFocus,null,'invalid threat falls back to the stable lens');
 });
+test('genuine compact Warden danger now fills portrait with real adult-scale actors, never crop the hazard field',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await load('public/ai-dungeon/cinematic-chapter-plan.js');
+ const s=fixture();s.units[2].action='idle';s.bossRecovery=null;
+ s.bossWarning={attackTick:s.tick+1,shape:'RIFT_CROSS',cells:[
+  {x:11,z:9},{x:12,z:9},{x:12,z:8},{x:12,z:10}]};
+ const before=JSON.stringify(s),shot=planCinematicShot(s);
+ assert.equal(shot.mode,'warden-warning');
+ assert.ok(shot.warningFocus.closeness>.6);
+ const phone=planReadableExpeditionLens(shot,{width:390,height:844});
+ const c=shot.warningFocus.closeness;
+ const oldRadius=(9.05-2.4*c*.74)*1.24;
+ const oldHeight=(10.55-2.2*c*.74)*1.17;
+ assert.ok(Math.hypot(phone.offsets[0],phone.offsets[2])<oldRadius*.87);
+ assert.ok(phone.offsets[1]<oldHeight*.95);
+ assert.equal(phone.fov,57);
+ assert.equal(phone.dangerPriority,true);
+ const wide=planReadableExpeditionLens({...shot,warningFocus:{extent:11,cells:4,closeness:0}},{width:390,height:844});
+ assert.ok(Math.hypot(...wide.offsets)>Math.hypot(...phone.offsets)+3);
+ assert.ok(wide.offsets[1]>phone.offsets[1]+2);
+ const still=planReadableExpeditionLens(shot,{width:390,height:844,reducedMotion:true});
+ assert.ok(Math.abs(Math.hypot(...still.offsets)-Math.hypot(...wide.offsets))<.002);
+ assert.equal(still.offsets[1],wide.offsets[1]);
+ assert.equal(JSON.stringify(s),before,'camera must never modify authoritative combat');
+});

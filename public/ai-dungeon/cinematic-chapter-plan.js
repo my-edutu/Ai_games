@@ -288,7 +288,11 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // Real current-head WebGL shows physically valid Warden contact from a toy-scale
  // overhead lens. Use a closer real camera after earned counter/contact,
  // but never compress a genuine telegraph, cast or strike hazard.
- const stretch=portrait?(warning?1.24:closeDuel?1.045:1.10):1;
+ const compactPortraitWarning=portrait&&!reducedMotion&&shot.mode==='warden-warning'&&
+  Number.isFinite(shot.warningFocus?.closeness)?clip(shot.warningFocus.closeness,0,1):0;
+ // Only a true compact warned-cell geometry earns a nearer 3D portrait.
+ // The wide real danger field, reduced motion, and critical-subject fit stay intact.
+ const stretch=portrait?(warning?1.24-.30*compactPortraitWarning:closeDuel?1.045:1.10):1;
  // For compact REAL Warden hazards, keep the true skinned boss and defender
  // large enough to read the strike. Wide shapes and reduced-motion retain
  // their original overview; app.js independently fits every danger tile.
@@ -305,7 +309,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
   policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch;
  const y=(policy.height-2.25*approachNear-2.2*threatCloser*threatScale+
   (terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
-  (portrait?(warning?1.17:closeDuel?1.04:1.07):1);
+  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),
