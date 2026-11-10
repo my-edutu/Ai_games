@@ -332,8 +332,20 @@ for(const view of [
  await test.info().attach('original-GLB-nine-tick-moving-trace',{contentType:'application/json',
   body:Buffer.from(JSON.stringify({seed:sequence.seed,actorId:sequence.actorId,
    legalSteps:sequence.legalSteps,view:view.name,source:'real consecutive DungeonRuntime.step snapshots',
-   limitation:'Original foot joints are not skinned sole vertices; no sole lock or IK claim.',
+   limitation:'One weight-painted source sole vertex is not full sole-to-stone contact or proven IK.',
    trace},null,2))});
+ const soleEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
+  provenance:'consecutive real DungeonRuntime.step snapshots and original GLB',
+  sourceSoleFrames:soleObservations.length,
+  rigidGripFrames:soleObservations.filter(s=>s.rigidGripComparable).length,
+  trace:trace.map(t=>({tick:t.tick,soleVertexWorld:t.soleVertexWorld,
+   sourceWeaponGrip:t.sourceWeaponGrip,soleGrip:t.soleGrip})),
+  caveat:'Weighted source sole candidates are not full sole-ground contact or native IK.'};
+ fs.writeFileSync('artifacts/dungeon-full-body-original-sole-hand-'+view.name+'.json',
+  JSON.stringify(soleEvidence,null,2));
+ await test.info().attach('source-GLB-sole-and-hand-evidence',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify(soleEvidence,null,2))
+ });
 });
 
 
