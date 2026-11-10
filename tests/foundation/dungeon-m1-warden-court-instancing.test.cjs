@@ -74,3 +74,49 @@ test('M1 ordinary-motion guardian transitions stay smooth, with Warden warning t
  assert.equal(r.metrics().retractedPlinths,0,'closing authentic guardian ward restores the actual same plinths');
  r.dispose();assert.equal(scene.children.length,0);
 });
+
+test('M1 original Gothic wall niches are four retained draws with exact transforms and truthful body cutaway',async()=>{
+ const {createWardenRitual}=await loadRitual(),rows=map.map(x=>x.split(''));
+ for(const [x,z] of [[13,8],[13,10],[11,13],[8,14]])rows[z][x]='#';
+ const scene=world(),r=createWardenRitual(scene,exit,{map:rows.map(row=>row.join('')),reducedMotion:true});
+ const court=scene.children.find(x=>x.name==='Original immovable Warden cathedral');
+ const sites=court.children.filter(x=>x.name==='Warden cathedral wall buttress');
+ const draws=court.children.filter(x=>/^Warden batched cathedral /.test(x.name));
+ assert.ok(sites.length>=1&&sites.length<=4);
+ assert.equal(draws.length,4);
+ assert.ok(draws.every(x=>x.isInstancedMesh&&x.count===sites.length));
+ assert.equal(r.metrics().cathedralWallBatches,4);
+ assert.equal(r.metrics().cathedralSourceDraws,sites.length*4);
+ const part=draws[2],i=0,local=new THREE.Object3D(),actual=new THREE.Matrix4(),expected=new THREE.Matrix4();
+ sites[i].updateMatrix();local.position.set(0,2.48,-.13);local.rotation.z=Math.PI;local.updateMatrix();
+ expected.multiplyMatrices(sites[i].matrix,local.matrix);part.getMatrixAt(i,actual);
+ for(let k=0;k<16;k++)assert.ok(Math.abs(actual.elements[k]-expected.elements[k])<.000001,
+  'original pointed Gothic crown matrix '+k);
+ const px=court.position.x+sites[i].position.x,pz=court.position.z+sites[i].position.z;
+ r.setSightlines([{x:px+.45,z:pz}],new THREE.Vector3(px,2,pz));
+ part.getMatrixAt(i,actual);
+ assert.ok(r.metrics().hiddenWallButtresses>=1);
+ assert.ok(Math.abs(actual.elements[0])<Math.abs(expected.elements[0])*.001);
+ r.setSightlines([],new THREE.Vector3(px,2,pz));part.getMatrixAt(i,actual);
+ assert.ok(Math.abs(actual.elements[0]-expected.elements[0])<.000001);
+ r.dispose();assert.equal(scene.children.length,0);
+});
+test('M1 authentic breaking guardian ward keeps all twelve original shard trajectories in one instanced draw',async()=>{
+ const {createWardenRitual}=await loadRitual();
+ for(const reducedMotion of [false,true]){
+  const scene=world(),r=createWardenRitual(scene,exit,{map,reducedMotion});
+  const mesh=scene.children[0].children.find(x=>x.name==='Warden authentic breaking-ward fragments');
+  assert.ok(mesh?.isInstancedMesh);assert.equal(mesh.count,0);
+  r.accept(boss(true));r.accept({...boss(false),tick:2});r.animate(.1,.05);
+  assert.equal(mesh.count,12);assert.equal(r.metrics().shatterDrawBatches,1);
+  assert.equal(r.metrics().shatterSourcePieces,12);
+  const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),t=.05/1.05;
+  mesh.getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
+  assert.ok(Math.abs(position.x-(.78+(reducedMotion?.14:t*.9)))<.000001);
+  assert.ok(Math.abs(position.y-(1.1+(reducedMotion?0:.65*t*t)))<.000001);
+  assert.ok(Math.abs(position.z)<.000001);
+  for(let i=0;i<25;i++)r.animate(.15+i*.05,.05);
+  assert.equal(mesh.count,0,'expired fracture is not drawn');
+  r.dispose();assert.equal(scene.children.length,0);
+ }
+});

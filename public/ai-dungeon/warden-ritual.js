@@ -168,29 +168,53 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  const shaft=new THREE.CylinderGeometry(.22,.33,2.3,7),capGeo=new THREE.CylinderGeometry(.43,.31,.19,7);
  const archGeo=new THREE.TorusGeometry(.38,.063,5,18,Math.PI);
  const budGeo=new THREE.DodecahedronGeometry(.17,0);
- const makeWallMesh=(parent,geometry,material,x,y,z)=>{
-  const mesh=new THREE.Mesh(geometry,material);
-  mesh.position.set(x,y,z);mesh.castShadow=false;mesh.receiveShadow=true;
-  parent.add(mesh);return mesh;
- };
+ // Same original Gothic shaft, cap, ogive and finial, in the same genuine
+ // impassable wall niches. Four retained submissions replace up to sixteen
+ // separate objects; visibility follows the exact physical sightline policy.
  for(const c of candidates){
   if(wallProps.length>=archMax)break;
   if(wallProps.some(p=>Math.hypot(p.position.x-c.dx,p.position.z-c.dz)<1.8))continue;
   const buttress=new THREE.Group();buttress.name='Warden cathedral wall buttress';
   buttress.position.set(c.dx,0,c.dz);
-  makeWallMesh(buttress,shaft,buttressStone,0,1.16,0);
-  makeWallMesh(buttress,capGeo,buttressMetal,0,2.26,0);
-  const pointed=makeWallMesh(buttress,archGeo,buttressStone,0,2.48,-.13);
-  pointed.rotation.z=Math.PI;
-  makeWallMesh(buttress,budGeo,buttressMetal,0,2.49,-.14);
   fixedCourt.add(buttress);wallProps.push(buttress);
  }
+ const buttressParts=[
+  {name:'Warden batched cathedral shaft',geometry:shaft,material:buttressStone,y:1.16,z:0},
+  {name:'Warden batched cathedral cap',geometry:capGeo,material:buttressMetal,y:2.26,z:0},
+  {name:'Warden batched cathedral pointed arch',geometry:archGeo,material:buttressStone,y:2.48,z:-.13,roll:Math.PI},
+  {name:'Warden batched cathedral finial',geometry:budGeo,material:buttressMetal,y:2.49,z:-.14}
+ ];
+ const buttressBatches=wallProps.length?buttressParts.map(part=>{
+  const mesh=new THREE.InstancedMesh(part.geometry,part.material,wallProps.length);
+  mesh.name=part.name;mesh.frustumCulled=false;mesh.castShadow=false;mesh.receiveShadow=true;
+  fixedCourt.add(mesh);return mesh;
+ }):[];
+ const buttressPose=new THREE.Object3D(),buttressMatrix=new THREE.Matrix4();
+ const hiddenButtressScale=new THREE.Vector3(.00001,.00001,.00001);
+ function uploadButtressSightlines(){
+  if(!buttressBatches.length)return;
+  for(let i=0;i<wallProps.length;i++){
+   const site=wallProps[i];site.updateMatrix();
+   for(let partIndex=0;partIndex<buttressParts.length;partIndex++){
+    const part=buttressParts[partIndex];
+    buttressPose.position.set(0,part.y,part.z);
+    buttressPose.rotation.set(0,0,part.roll||0);
+    buttressPose.scale.set(1,1,1);buttressPose.updateMatrix();
+    buttressMatrix.multiplyMatrices(site.matrix,buttressPose.matrix);
+    if(!site.visible)buttressMatrix.scale(hiddenButtressScale);
+    buttressBatches[partIndex].setMatrixAt(i,buttressMatrix);
+   }
+  }
+  for(const mesh of buttressBatches)mesh.instanceMatrix.needsUpdate=true;
+ }
+ uploadButtressSightlines();
  let hiddenWallProps=0,hiddenPlinths=0;
  function setSightlines(subjects=[],cameraPosition=null){
   hiddenWallProps=hiddenPlinths=0;
   if(!cameraPosition||!Array.isArray(subjects))return;
   // Six actual ceremonial pylons are anchored to the exit room, rather than
   // running around with the enemy. Ornament yields to real combat silhouettes.
+  let buttressVisibilityChanged=false;
   for(const [props,radius] of [[wallProps,2],[plinths,1.65]]){
    for(const prop of props){
     const wx=fixedCourt.position.x+prop.position.x,wz=fixedCourt.position.z+prop.position.z;
@@ -198,11 +222,13 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
     const blocks=subjects.some(u=>Number.isFinite(u?.x)&&Number.isFinite(u?.z)&&
      Math.hypot(u.x-wx,u.z-wz)<radius&&
      front+.2<Math.hypot(cameraPosition.x-u.x,cameraPosition.z-u.z));
+    if(props===wallProps&&prop.visible===blocks)buttressVisibilityChanged=true;
     prop.visible=!blocks;
     if(blocks){if(props===wallProps)hiddenWallProps++;else hiddenPlinths++;}
    }
   }
   uploadCeremonialPlinths();
+  if(buttressVisibilityChanged)uploadButtressSightlines();
  }
  const rings=[];
  for(const [r,y] of [[1.04,.27],[.86,.85],[.67,1.41]]){
@@ -214,12 +240,17 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   const link=put(group,tetherGeometry,conduit,0,1,0);
   link.name='Authority-backed living ward link '+i;link.visible=false;links.push(link);
  }
- const shards=[],shardGeo=new THREE.TetrahedronGeometry(.12,0);
- for(let i=0;i<12;i++){
-  const angle=i*Math.PI/6;
-  const shard=put(group,shardGeo,fragmentMat,Math.cos(angle)*.78,1.1+(i%3)*.13,Math.sin(angle)*.78);
-  shard.userData.angle=angle;shard.userData.height=shard.position.y;shard.visible=false;shards.push(shard);
- }
+ // Twelve authentic ward-fracture shards retain every original 3D trajectory,
+ // phase and material in one dynamically updated draw. Nothing is invented.
+ const SHATTER_SHARD_COUNT=12,shardGeo=new THREE.TetrahedronGeometry(.12,0);
+ const shardPositions=Array.from({length:SHATTER_SHARD_COUNT},(_,i)=>({
+  angle:i*Math.PI/6,height:1.1+(i%3)*.13
+ }));
+ const shatterShards=new THREE.InstancedMesh(shardGeo,fragmentMat,SHATTER_SHARD_COUNT);
+ shatterShards.name='Warden authentic breaking-ward fragments';shatterShards.count=0;
+ shatterShards.frustumCulled=false;shatterShards.castShadow=false;
+ shatterShards.receiveShadow=false;group.add(shatterShards);
+ const shatterPose=new THREE.Object3D();
  // Predictive stones are actually dangerous in the AI authority. One bounded
  // instanced draw renders all marked tiles below feet, not full-height beams.
  // A threatened cell is a fitted piece of the EXISTING floor, not an
@@ -451,13 +482,18 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
    breakAge=Math.min(SHATTER_TIME,breakAge+Math.max(0,Math.min(.05,dt)));
    const t=breakAge/SHATTER_TIME;
    fragmentMat.opacity=(1-t)*.83;
-   for(const shard of shards){
-    const angle=shard.userData.angle;
-    shard.visible=t<1;
-    shard.position.set(Math.cos(angle)*(.78+(reducedMotion?.14:t*.9)),shard.userData.height+(reducedMotion?0:.65*t*t),Math.sin(angle)*(.78+(reducedMotion?.14:t*.9)));
-    shard.rotation.set(reducedMotion?0:t*2.6,reducedMotion?0:t*1.8,0);
+   shatterShards.count=t<1?SHATTER_SHARD_COUNT:0;
+   if(shatterShards.count){
+    for(let i=0;i<SHATTER_SHARD_COUNT;i++){
+     const shard=shardPositions[i],angle=shard.angle;
+     shatterPose.position.set(Math.cos(angle)*(.78+(reducedMotion?.14:t*.9)),
+      shard.height+(reducedMotion?0:.65*t*t),Math.sin(angle)*(.78+(reducedMotion?.14:t*.9)));
+     shatterPose.rotation.set(reducedMotion?0:t*2.6,reducedMotion?0:t*1.8,0);
+     shatterPose.updateMatrix();shatterShards.setMatrixAt(i,shatterPose.matrix);
+    }
+    shatterShards.instanceMatrix.needsUpdate=true;
    }
-  }else for(const shard of shards)shard.visible=false;
+  }else shatterShards.count=0;
  }
  // Teardown releases the runtime's original scene-owned geometries/materials.
  function dispose(){
@@ -471,5 +507,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   for(const material of allMaterials)material.dispose();
  }
  return {accept,animate,setSightlines,dispose,metrics:()=>({ceremonialDrawBatches:ceremonialBatches.length,
-  concentricDrawBatches:concentricBatches.length,sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};
+  concentricDrawBatches:concentricBatches.length,sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,cathedralWallBatches:buttressBatches.length,
+  cathedralSourceDraws:wallProps.length*4,shatterDrawBatches:shatterShards.count>0?1:0,
+  shatterSourcePieces:SHATTER_SHARD_COUNT,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};
 }

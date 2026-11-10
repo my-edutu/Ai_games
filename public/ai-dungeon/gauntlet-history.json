@@ -7505,6 +7505,40 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect exact-head Chrome trace summary on actual fixed Warden seed to isolate game-side controllable rendering work vs compositor/raster/scheduling. Make one substantial measured production change; run authentic 1440/390 five-stage original audiovisual A/B against immutable baseline and independent critic panel. PR72 remains unintegrated."
+    },
+    "m1NativeTraceAndWardenInstancingCandidate20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "priorHead": "81d264cf7ffaec2380468c1807523cbe319e16e5",
+      "inspectedNativeRun": 42851111973,
+      "nativeTraceViewport": [
+        "1440px",
+        "390px"
+      ],
+      "desktopTrace": "PASS",
+      "mobileTrace": "PASS",
+      "readbackCallsEach": 21,
+      "gpuReadbackInclusiveMs": {
+        "desktop": 14861,
+        "mobile": 11126
+      },
+      "jsProfilerMostlyIdle": true,
+      "organic": {
+        "desktop": "NATURAL_DEFEAT_CHECKSUM_TIMEOUT",
+        "mobile": "FIVE_REAL_STAGES_946_SNAPSHOTS_ORIGINAL_AUDIO"
+      },
+      "sourceChange": "Warden existing 4-piece Gothic buttress geometry per wall niche consolidated into four original-material instance draws; 12 true ward-shatter tetrahedrons consolidated into one animated original-geometry instance draw; physical cutaways preserved.",
+      "maxSourceDraws": 28,
+      "maxCandidateDraws": 5,
+      "afterMotion": "NOT_OBSERVED",
+      "confirmedImpactAudio": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Exact-head real desktop/mobile organic 5-stage same-seed film and original A/V, render draw/time and native readback/compositor comparison, revise any cutaway regression, prove playable motion improvement. PR72 unintegrated."
     }
   }
 }
