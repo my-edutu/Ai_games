@@ -17,6 +17,8 @@ async function inspect(page){
   const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
   const a={source:'running-real-merchant-and-courier-settlement',
    renderer:g.renderer(),market:g.getMarketQuarterStats(),
+   raisedReceivingHall:g.getMarketReceivingHallAudit(),
+   physicalTradeCamera:g.getTradeCorridorCameraAudit(),
    masonry:g.getCompactStoneCoursingAudit(),
    gateway:g.getMarketGatewayAudit(),street:g.getFarmMarketStreetAudit(),
    scene:g.renderStats(),geometry:g.getGeometryAudit(),city:g.metrics(),
@@ -30,6 +32,17 @@ async function inspect(page){
 function assertWorld(a){
  expect(a.renderer).toBe('webgl');
  expect(a.market.stalls).toBe(4);
+ // W206: physical reception roof must no longer sit across the actual
+ // unloading worker's upper body. Check the genuine playable WebGL state.
+ expect(a.raisedReceivingHall.raisedEaveAboveGround).toBeGreaterThanOrEqual(3.1);
+ expect(a.raisedReceivingHall.roofAboveGrainReceiptMeters).toBeGreaterThan(2.8);
+ expect(a.raisedReceivingHall.roofMatchesCameraVolumes).toBe(true);
+ expect(a.raisedReceivingHall.originalBays).toBe(2);
+ expect(a.raisedReceivingHall.loadBearingPosts).toBe(4);
+ expect(a.raisedReceivingHall.roofPanels).toBe(18);
+ expect(a.raisedReceivingHall.frontGablePlasterPanels).toBe(0);
+ expect(a.physicalTradeCamera.marketRoofBands).toBe(4);
+ expect(a.physicalTradeCamera.marketPosts).toBe(4);
  expect(a.market.structuralShopLofts).toBe(2);
  expect(a.market.tradehouseShells).toBe(2);
  expect(a.market.tradehouseWindows).toBe(4);
