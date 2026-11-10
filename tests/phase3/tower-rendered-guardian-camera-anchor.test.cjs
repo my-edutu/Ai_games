@@ -65,12 +65,12 @@ test('original source browser diagnosis consumes a retained same-run 3D camera w
   const update=src.slice(updateStart, diagnosticsStart);
   const diagnostics=src.slice(diagnosticsStart,disposeStart);
   assert.match(src.slice(0,updateStart),
-    /const guardianPlannerWitness = \\{[\\s\\S]*?runToken:null, floor:null, tick:-1, guardianId:null, anchor:null/);
-  assert.match(update,/guardianPlannerWitness\\.runToken = snapshot\\.runToken/);
-  assert.match(update,/guardianPlannerWitness\\.floor = snapshot\\.floor/);
-  assert.match(update,/guardianPlannerWitness\\.tick = snapshot\\.tick/);
-  assert.match(update,/guardianPlannerWitness\\.guardianId = sourceGuardian\\?\\.id/);
-  assert.match(update,/guardianPlannerWitness\\.anchor = !options\\.stale/);
+    /const guardianPlannerWitness = \{[\s\S]*?runToken:null, floor:null, tick:-1, guardianId:null, anchor:null/);
+  assert.match(update,/guardianPlannerWitness\.runToken = snapshot\.runToken/);
+  assert.match(update,/guardianPlannerWitness\.floor = snapshot\.floor/);
+  assert.match(update,/guardianPlannerWitness\.tick = snapshot\.tick/);
+  assert.match(update,/guardianPlannerWitness\.guardianId = sourceGuardian\?\.id/);
+  assert.match(update,/guardianPlannerWitness\.anchor = !options\.stale/);
   assert.doesNotMatch(diagnostics,/followComposition/,
     'the real browser polls diagnostics outside update; never capture a block-local camera');
   for (const guard of [
