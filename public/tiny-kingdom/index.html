@@ -11272,6 +11272,7 @@ function granaryArchitecture(){
   replacedSingleTileTriangles:252,ventilatedGableFaces:0,louverSlats:0,
   structuralDiagonalBraces:0,underfloorJoists:0,
   groundFloorClearanceMet:false,realDoorUnblocked:false,totalTriangles:0,
+  windowFacadePanels:0,ventRecessPanels:0,
   addedAuthorityItems:0,changesNavigation:false};
  materialScope(MATERIAL.STONE,()=>{
   for(const sideX of [-1,1])for(const sideZ of [-1,1]){
@@ -11325,13 +11326,29 @@ function granaryArchitecture(){
     audit.structuralDiagonalBraces++;
    }
   }
+  // These panes sit ON the complete original granary's solid plaster
+  // walls. They previously floated as 18 opaque extruded cuboids (216
+  // triangles) that visibly read as brick-like bumps and consumed the scarce
+  // grown-town WebGL budget. Preserve all six real windows, both oak rails,
+  // all outward faces, and their full dimensions as 36 surface triangles.
+  // The physical building, doorway and occlusion envelope are unchanged.
+  const sideFacadePanel=(faceX,side,lo,hi,z0,z1,tone)=>{
+   const a=[faceX,lo,z0],b=[faceX,lo,z1],
+    c=[faceX,hi,z1],d0=[faceX,hi,z0];
+   if(side<0)quad(a,b,c,d0,tone);
+   else quad(d0,c,b,a,tone);
+   audit.windowFacadePanels++;
+  };
   for(const side of [-1,1]){
-   const xx=x+side*w*.50;
+   const xx=x+side*w*.50,face=xx+side*.052;
    for(let column=0;column<3;column++){
     const zz=z+(column-1)*d*.30;
-    box(xx,y+1.39,zz,.10,.66,.57,rgb(0x415961));
-    box(xx+side*.10,y+1.70,zz,.12,.055,.62,rgb(0xc5a97b));
-    box(xx+side*.13,y+1.40,zz,.12,.065,.62,rgb(0xc5a97b));
+    sideFacadePanel(face,side,y+1.06,y+1.72,
+     zz-.285,zz+.285,rgb(0x415961));
+    sideFacadePanel(face+side*.006,side,y+1.6725,y+1.7275,
+     zz-.31,zz+.31,rgb(0xc5a97b));
+    sideFacadePanel(face+side*.006,side,y+1.3675,y+1.4325,
+     zz-.31,zz+.31,rgb(0xc5a97b));
    }
   }
   const front=z-d*.52;
@@ -11375,7 +11392,15 @@ function granaryArchitecture(){
   // shutters are structural 3D architecture, never a new fake grain item.
   for(const side of [-1,1]){
    const zz=z+side*d*.586;
-   box(x,y+3.71,zz,1.38,.59,.072,rgb(0x403c33));
+   // Black ventilation recess is a flush inset in the existing solid
+   // gable, not an opaque 12-triangle cuboid. Keep the TEN original
+   // raised solid oak louvers and lintels fully three-dimensional.
+   const face=zz+side*.036;
+   const a=[x-.69,y+3.415,face],b=[x+.69,y+3.415,face],
+    c=[x+.69,y+4.005,face],d0=[x-.69,y+4.005,face];
+   if(side<0)quad(d0,c,b,a,rgb(0x403c33));
+   else quad(a,b,c,d0,rgb(0x403c33));
+   audit.ventRecessPanels++;
    for(let i=0;i<5;i++){
     const sx=x+(i-2)*.255;
     box(sx,y+3.71,zz+side*.057,.055,.53,.063,louver);

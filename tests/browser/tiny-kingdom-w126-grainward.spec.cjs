@@ -66,6 +66,8 @@ async function assertAndCapture(page,label,cam){
  expect(result.world.createdDeliveries).toBe(0);
  expect(result.street.unsafeSamples).toBe(0);
  expect(result.street.granaryTradeEntranceUnblocked).toBe(true);
+ expect(result.grain.windowFacadePanels).toBe(18);
+ expect(result.grain.ventRecessPanels).toBe(2);
  expect(result.grain.totalTriangles).toBeLessThan(1000);
  expect(result.geometry.static.invalidComponents).toBe(0);
  expect(result.geometry.dynamic.invalidComponents).toBe(0);
