@@ -1,3 +1,7 @@
+## W201 · 10 November 2026 · Phase 1 supporting feature — NOT PROVEN
+
+A single REAL tracked grain parcel now has five evidence-sensitive steps Field → Cart → Market → Buyer → Home inside the existing opened Supply ledger, with keyboard/touch audit selection. Wrong parcel/receipt IDs, unrelated deliveries or nonexistent homes CANNOT complete later steps. The panel makes no extra offscreen rendering work when closed and does not create citizens, purchases, stock, cinematics or camera cuts. Source-only pure logic tests and HTML script syntax passed in builder; CI and actual fresh gameplay video pending. **A look NOT PROVEN, feel NOT PROVEN, play NOT PROVEN; B commercial FAIL.** No new FPS evidence. The G088 baseline remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Previous head `3bea531ccabf18b510a771a64454a4a054f0501c`, original W200 SwiftShader workday observed ~1.61 recorded FPS (NOT hardware). Day120 W129 158,146 triangles: tight budget. Phase 1 remains active. Next substantive work: matched cold resident actor/driver stall profiling and architectural fix, no disappearance, hardware mobile/desktop acceptance outstanding. PR #64 DRAFT, unmerged.
+
 ## W199 · 10 November 2026 · PHASE 1 continuous farm→courier→market→inhabited-home — **NOT PROVEN**
 
 ### W200 · 10 November 2026 — original recorded-home CLOSE-UP (Phase 1, provisional)

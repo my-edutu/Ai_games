@@ -10,6 +10,7 @@ on:
       - 'scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs'
       - 'scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs'
+      - 'scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
       - '.github/workflows/tiny-kingdom-w129-market.yml'
@@ -45,6 +46,7 @@ jobs:
           node scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs
           node scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs
           node scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs
+          node scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs
 
   original-market-webgl:
     needs: original-market-source

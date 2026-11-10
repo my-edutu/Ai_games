@@ -1055,6 +1055,25 @@ body[data-workday="household"][data-command="world"] .bottom >
   min-height:44px!important;font-size:10px!important;padding:8px 9px!important
  }
 }
+
+/* User-opened authentic ledger: no additional default canvas obstruction */
+#grain-chain{grid-column:1/-1;display:grid;gap:5px;padding:4px 0 9px;
+ border-bottom:1px solid #e0c89466;min-width:0}
+#grain-chain-caption{font:600 10px/1.3 system-ui;color:#e9dac0;
+ overflow-wrap:anywhere}
+#grain-chain-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+#grain-chain-steps button{display:flex;flex-direction:column;align-items:center;
+ justify-content:center;min-width:0;min-height:46px;padding:5px 2px;
+ border:1px solid #d7b97850;border-radius:8px;background:#214039;
+ color:#f7e8c7;font:700 10px/1.2 system-ui;cursor:pointer}
+#grain-chain-steps button small{font:550 9px/1.2 system-ui;color:#dbcfb8}
+#grain-chain-steps button[data-evidence="verified"]{background:#305749;border-color:#cce8bb}
+#grain-chain-steps button[data-evidence="active"]{background:#68522b;border-color:#e9c47b}
+#grain-chain-steps button[data-evidence="live-unlinked"]{border-style:dashed}
+#grain-chain-steps button:focus-visible{outline:3px solid #ffe1a4;outline-offset:1px}
+@media(max-width:520px){#grain-chain-caption{font-size:9px}
+ #grain-chain-steps button{min-height:44px;font-size:9px}
+ #grain-chain-steps button small{font-size:8px}}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1083,7 +1102,7 @@ body[data-workday="household"][data-command="world"] .bottom >
  <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
  <button id="world-watch-life" type="button" aria-label="Follow a real worker or courier in the living village">⚒ Watch village life</button>
  <button id="world-trace-toggle" type="button" aria-expanded="false" aria-controls="world-supply-trail" aria-label="Show the actual farm to market supply trail" aria-keyshortcuts="T">◈ Supply</button>
- <div id="world-supply-trail" role="group" aria-label="Real farm to market to home economic activity" hidden>
+ <div id="world-supply-trail" role="group" aria-label="Real farm to market to home economic activity" hidden><div id="grain-chain" role="group" aria-label="One real parcel evidence stages"><div id="grain-chain-caption">Live town activity is not evidence of one linked parcel</div><div id="grain-chain-steps"><button id="grain-chain-field" type="button" aria-label="Field: Waiting" aria-pressed="false" data-target="supply-field" data-evidence="waiting">Field<small>Waiting</small></button><button id="grain-chain-road" type="button" aria-label="Cart: Waiting" aria-pressed="false" data-target="supply-cargo" data-evidence="waiting">Cart<small>Waiting</small></button><button id="grain-chain-market" type="button" aria-label="Market: Waiting" aria-pressed="false" data-target="supply-receipt" data-evidence="waiting">Market<small>Waiting</small></button><button id="grain-chain-purchase" type="button" aria-label="Buyer: Waiting" aria-pressed="false" data-target="supply-trade" data-evidence="waiting">Buyer<small>Waiting</small></button><button id="grain-chain-meal" type="button" aria-label="Home: Waiting" aria-pressed="false" data-target="supply-meal" data-evidence="waiting">Home<small>Waiting</small></button></div></div>
   <div class="supply-stage"><small>Field</small><output id="supply-field">No harvest underway</output></div>
   <div class="supply-stage"><small>In transit</small><output id="supply-cargo">No loaded courier</output></div>
   <div class="supply-stage"><small>Market receipt</small><output id="supply-receipt">No delivery recorded</output></div>
@@ -20345,6 +20364,68 @@ function getSupplyTrailSnapshot(){
   noSyntheticActors:true,noSyntheticTransactions:true
  };
 }
+
+/* W201: A verified chain is one ORIGINAL farmer's parcel, never five
+ * unrelated village-wide recent events. Read-only; no RNG, economy or camera. */
+function realGrainChainStages(trace,plan,flow){
+ const stages={field:'waiting',road:'waiting',market:'waiting',
+  purchase:'waiting',meal:'waiting'};
+ if(!trace||!plan||typeof trace.producer!=='string'||!trace.producer||
+    !plan.citizen||(trace.deliveryId&&plan.deliveryId!==trace.deliveryId)){
+  if(!trace&&flow){
+   if(flow.farmer?.job==='farmer')stages.field='live-unlinked';
+   if(flow.cargo?.resource==='food'){
+    stages.road='live-unlinked';
+    if(flow.cargo.stage==='unloading')stages.market='live-unlinked';
+   }
+  }
+  return {linked:false,parcel:null,stages,changesAuthority:false};
+ }
+ const id=typeof plan.deliveryId==='string'&&plan.deliveryId?plan.deliveryId:null;
+ const receipt=Boolean(id&&plan.receiptId===id&&
+   plan.hasActualReceipt===true&&plan.linkedToReceipt===true);
+ const loaded=Boolean(id&&plan.hasActualLoad===true);
+ const bought=Boolean(receipt&&plan.hasVerifiedTrade===true&&
+   typeof plan.tradeId==='string'&&plan.tradeId);
+ const eaten=Boolean(bought&&plan.hasVerifiedMeal===true&&
+   typeof plan.mealId==='string'&&plan.mealId&&
+   Number.isInteger(plan.homeIndex)&&plan.homeIndex>=0);
+ if(loaded||receipt)stages.field='verified';
+ else if(plan.stage==='harvesting')stages.field='active';
+ if(receipt)stages.road='verified';
+ else if(loaded&&['hauling','unloading'].includes(plan.stage))
+  stages.road='active';
+ if(receipt)stages.market='verified';
+ else if(loaded&&plan.stage==='unloading')stages.market='active';
+ if(bought)stages.purchase='verified';
+ if(eaten)stages.meal='verified';
+ return {linked:true,parcel:id,producer:trace.producer,stages,
+  changesAuthority:false};
+}
+function renderRealGrainChain(trace,plan,flow){
+ const model=realGrainChainStages(trace,plan,flow);
+ const headings={field:'Field',road:'Cart',market:'Market',
+  purchase:'Buyer',meal:'Home'};
+ const wording={waiting:'Waiting',active:'In progress',
+  verified:'Verified','live-unlinked':'Live, not linked'};
+ for(const name of Object.keys(headings)){
+  const node=document.getElementById('grain-chain-'+name);
+  const status=model.stages[name],label=wording[status];
+  node.dataset.evidence=status;
+  node.setAttribute('aria-pressed',String(status==='verified'));
+  node.setAttribute('aria-label',headings[name]+': '+label+
+   (model.parcel?', parcel '+model.parcel:', no linked parcel'));
+  const stateLabel=node.querySelector('small');
+  if(stateLabel.textContent!==label)stateLabel.textContent=label;
+ }
+ const caption=document.getElementById('grain-chain-caption');
+ const value=model.linked?(model.parcel?'Verified ledger for parcel '+model.parcel:
+   'Following '+model.producer+'; waiting for real parcel'):
+   'Live town activity is not evidence of one linked parcel';
+ if(caption.textContent!==value)caption.textContent=value;
+ return model;
+}
+
 function updateSupplyTrail(force=false){
  if(!supplyTrailOpen)return;
  const wall=performance.now();
@@ -20371,13 +20452,14 @@ function updateSupplyTrail(force=false){
   ' food · farmer receipt '+trade.receiptId:'No traced market transfer';
  const eaten=meal?meal.citizen+' ate at home · receipt '+meal.receiptId:
   'No traced household meal';
+ const chainPlan=grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
+  state.householdTrades||[],state.householdMeals||[]):null;
  let labels=[['supply-field',field],['supply-cargo',carried],
   ['supply-receipt',received],['supply-trade',traded],
   ['supply-meal',eaten],['supply-home',shelter]];
  // Do not mix the newest unrelated farmer, buyer or meal into this lot.
  if(grainJourney){
-  const t=planRealGrainJourney(grainJourney,people,deliveryReceipts,
-   state.householdTrades||[],state.householdMeals||[]);
+  const t=chainPlan;
   const parcel=t?.deliveryId||'pending';
   labels=[
    ['supply-field',grainJourney.producer+' · original observed farmer'],
@@ -20396,6 +20478,7 @@ function updateSupplyTrail(force=false){
     t?.hasVerifiedTrade?'Following genuine recipient home':'Waiting for real household use']
   ];
  }
+ renderRealGrainChain(grainJourney,chainPlan,flow);
  for(const [id,value] of labels){
   const node=document.getElementById(id);
   if(node.textContent!==value)node.textContent=value;
@@ -20900,6 +20983,17 @@ function getVillageDocumentaryAudit(){
   else watchVillageLife();
   updateSupplyTrail(true);
  });
+ for(const name of ['field','road','market','purchase','meal']){
+ const chip=document.getElementById('grain-chain-'+name);
+ chip.addEventListener('click',()=>{
+  const row=document.getElementById(chip.dataset.target)?.closest('.supply-stage');
+  if(!row)return;
+  row.setAttribute('tabindex','-1');
+  row.focus({preventScroll:true});
+  row.scrollIntoView({block:'nearest',inline:'nearest'});
+ });
+}
+
  button('world-trace-home',toggleRealGrainHomeWitness);
  button('world-open-command',()=>setCommandView('command','user'));
  button('camera-home',requestSettlementOverview);
