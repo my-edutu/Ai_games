@@ -1915,3 +1915,29 @@ test('real source-rig low-velocity arrival preserves original ankles while 7mm o
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/frameInterval:sourceFrameInterval/,'original WebGL frame interval must reach the source motion planners');
 });
+
+
+test('licensed source landing and walking re-entry settle on measured visible-frame time instead of an unrelated 50ms clock',async()=>{
+ const {planNativeLandingVisibleDelta:clock}=await load();
+ assert.equal(typeof clock,'function','native source hip-to-sole transitions require a shared measured-frame clock');
+ const legal={frameDelta:.05,frameInterval:.18,visible:true,reducedMotion:false,teleport:false};
+ assert.ok(Math.abs(clock(legal)-.18)<1e-8,
+  '180ms actually visible requires 180ms of source-pose release, not a 50ms pseudo-frame');
+ assert.ok(Math.abs(clock({...legal,frameInterval:.016})-.016)<1e-8,
+  '60Hz source landings preserve the original frame cadence');
+ assert.equal(clock({...legal,frameInterval:.8}),.25,
+  'slow real WebGL must complete a <=200ms support window without remaining frozen for seconds');
+ for(const invalid of [
+  {visible:false},{reducedMotion:true},{teleport:true},
+  {frameInterval:NaN},{frameInterval:0},{frameInterval:-.02},{frameInterval:4},
+  {frameDelta:NaN},{frameDelta:-.01},{frameDelta:.5}
+ ])assert.equal(clock({...legal,...invalid}),0,
+  'hidden, invalid, interrupted, or stale source samples never preserve unsupported leg/hip support');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/landing\.elapsed=Math\.min\(2,landing\.elapsed\+planNativeLandingVisibleDelta\(/,
+  'real imported six-leg plus pelvis landing must consume the verified visible clock');
+ assert.match(model,/reentry\.elapsed=Math\.min\(\.5,reentry\.elapsed\+planNativeLandingVisibleDelta\(/,
+  'the next legally witnessed walking cycle must release frozen source hip-to-sole support on the same clock');
+ assert.match(model,/frameInterval:sourceFrameInterval/,
+  'animation transition timing cannot be inferred from the 50ms mixer step');
+});
