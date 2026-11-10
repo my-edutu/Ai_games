@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T11:46:00.000Z",
+  "updatedAt": "2026-11-10T13:33:30.112Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass244 candidate: real Pass243 exact-source 390px diagonal pressure approach failed strict >.70 connected hazard scale (.6897967), while 320 remains .737 and withdrawal at Pip +.945 NDC is tight. Add a PUBLIC, verified-diagonal-only 390 approach 4% optical close stage, fix two stale outward-sign Node asserts for the intentionally inward .66rad jaws, retain all original strict privacy/resource/framing/UI gates. New exact-HEAD native render/CI and independent Nintendo comparison pending; PR #53 open draft, never merge/deploy."
+    "summary": "Pass245 measured-frame candidate: the exact Pass244 390px chronological diagonal approach still failed full physical jaw scale (0.6897967 NDC, unchanged >0.70 gate), despite the nominal 4% helper; all 33 original PNG/JSON SHA sidecar pairs match. New production lens measures genuine connected Pip/jaw world AABBs and only on a currently publicly discovered diagonal pressure approach composes a 0.76 NDC hazard when both complete models retain a stricter ±0.90 margin. Strict 320/390/844/1280 no-crop, hero scale, six-run <100 geometry budget, AI privacy, and untouched collision/controls still await exact-new-HEAD WebGL; 742/742 Node previously passed; CI still red due unrelated missing Tiny Kingdom script. Draft PR #53 remains unmerged/undeployed; Nintendo benchmark NOT MET."
   },
   "captures": [
     {

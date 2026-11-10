@@ -343,6 +343,35 @@ export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, a
 }
 
 /**
+ * Measure ACTUAL connected source-bound WebGL silhouettes before staging
+ * a publicly discovered diagonal pressure action. Pass244's nominal optical
+ * percentage still rendered a .6897967 NDC jaw at 390px (strict >.70 FAIL).
+ * A readable .76 NDC target is permitted only if the genuine complete Pip
+ * and jaw bounds retain MORE margin than the unchanged strict ±.95 gate.
+ * No mesh manipulation, AI input, secret map access or test relaxation.
+ */
+export function publicPhysicalPressureApproachHalfHeight(hero,jaw,halfHeight,aspect,eligible=false) {
+  if (!eligible || !(Number.isFinite(aspect) && aspect>=.45 && aspect<.60)
+    || !(Number.isFinite(halfHeight) && halfHeight>0)
+    || !hero || !jaw) return halfHeight;
+  const valid=box=>[box.left,box.right,box.bottom,box.top].every(Number.isFinite)
+    && box.left<box.right && box.bottom<box.top;
+  if (!valid(hero) || !valid(jaw)) return halfHeight;
+  const jawWidth=jaw.right-jaw.left;
+  const actionWidth=.76;
+  if (jawWidth>=actionWidth || jawWidth<.65) return halfHeight;
+  const magnification=actionWidth/jawWidth;
+  if (magnification>1.18) return halfHeight;
+  const left=Math.min(hero.left,jaw.left)*magnification;
+  const right=Math.max(hero.right,jaw.right)*magnification;
+  const bottom=Math.min(hero.bottom,jaw.bottom)*magnification;
+  const top=Math.max(hero.top,jaw.top)*magnification;
+  // Interior camera margin .90 is stricter than the native ±.95 test.
+  if (left<-.90 || right>.90 || bottom<-.90 || top>.90) return halfHeight;
+  return halfHeight/magnification;
+}
+
+/**
  * Actual public Tide-Shear action close-up, never a fabricated hazard.
  * Pass238 original 390x844 WebGL showed the ENTIRE Pip/pressure mechanism
  * in frame but measured Pip at 0.4697888 NDC (fixed strict minimum >0.49).

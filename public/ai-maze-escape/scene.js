@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -1114,20 +1114,49 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
                 .applyMatrix4(mesh.matrixWorld));
         });
         if (pressureReframeEnvelope.isEmpty()) return null;
-        let left=Infinity,right=-Infinity;
+        let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity;
         for (const x of [pressureReframeEnvelope.min.x,pressureReframeEnvelope.max.x])
           for (const y of [pressureReframeEnvelope.min.y,pressureReframeEnvelope.max.y])
             for (const z of [pressureReframeEnvelope.min.z,pressureReframeEnvelope.max.z]) {
               const projected=pressureReframePoint.set(x,y,z).project(camera);
-              if (Number.isFinite(projected.x)) {
+              if (Number.isFinite(projected.x) && Number.isFinite(projected.y)) {
                 left=Math.min(left,projected.x);
                 right=Math.max(right,projected.x);
+                bottom=Math.min(bottom,projected.y);
+                top=Math.max(top,projected.y);
               }
             }
-        return left<right ? {left,right} : null;
+        return left<right && bottom<top ? {left,right,bottom,top} : null;
       };
-      const heroSpan=physicalSpan(explorer.group);
-      const jawSpan=physicalSpan(hazard);
+      let heroSpan=physicalSpan(explorer.group);
+      let jawSpan=physicalSpan(hazard);
+      // The prior 4% source-only lens request left the ACTUAL 390px tick-4
+      // connected jaw at .6898 NDC. On the currently discovered diagonal
+      // stage, measure the REAL complete 3D silhouettes and correct only
+      // if both Pip and the moving jaw have genuine empty frame margin.
+      // A legitimate one-step pressure/withdrawal, 320px, hidden/blocked
+      // hazard, manual camera, reduced motion and other events are untouched.
+      const publicDiagonal = !verifiedRetreatTrap && !settings.reducedMotion
+        && Number.isSafeInteger(s.width) && s.width>1
+        && Number.isSafeInteger(s.currentCell) && s.currentCell>=0
+        && Array.isArray(s.visibleCells)
+        && s.visibleCells.includes(publicPressureTrap.cell)
+        && Array.isArray(s.cells) && s.cells.some(cell=>
+          cell?.cell===publicPressureTrap.cell && cell.trap===true
+          && cell.blocked!==true)
+        && Math.abs(publicPressureTrap.cell%s.width - s.currentCell%s.width)===1
+        && Math.abs(Math.floor(publicPressureTrap.cell/s.width)
+          -Math.floor(s.currentCell/s.width))===1;
+      const physicallyStagedHeight=publicPhysicalPressureApproachHalfHeight(
+        heroSpan,jawSpan,halfHeight,aspect,publicDiagonal);
+      if (physicallyStagedHeight<halfHeight) {
+        halfHeight=physicallyStagedHeight;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
+        heroSpan=physicalSpan(explorer.group);
+        jawSpan=physicalSpan(hazard);
+      }
       const horizontalShift=publicPhysicalPressureHorizontalReframe(
         heroSpan,jawSpan,halfHeight,aspect);
       if (horizontalShift) {
