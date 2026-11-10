@@ -323,6 +323,8 @@ for(const view of [
    beforeRootWorld:actor.rootWorld,afterRootWorld:sameTickActor?.rootWorld??null,
    beforeSkinnedSoles:actor.soleVertexWorld,
    afterSkinnedSoles:sameTickActor?.soleVertexWorld??null,
+   beforeLegOwnership:actor.nativeLegOwnership,
+   afterLegOwnership:sameTickActor?.nativeLegOwnership??null,
    measurement:stanceWindow});
 
   if(soleGrip){
@@ -340,9 +342,15 @@ for(const view of [
    rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
    soleVertexWorld:actor.soleVertexWorld,sourceWeaponGrip:actor.sourceWeaponGrip,
    sourceClip:actor.sourceClock,footPhase:actor.groundedFootPhase,
+   nativeLegOwnership:actor.nativeLegOwnership,
    jointTravel:travel,soleGrip,deformation:audit.summary});
   previous=actor;
  }
+ // The same actual original skinned source rig must report bounded imported
+ // Walking_A leg ownership; this is not a world-space IK acceptance check.
+ expect(trace.every(t=>Number.isFinite(t.nativeLegOwnership?.overlayScale)&&
+  t.nativeLegOwnership.overlayScale>=.16&&t.nativeLegOwnership.overlayScale<=1),
+  'live original skinned actors must retain finite bounded leg overlay ownership').toBe(true);
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
  const soleObservations=trace.slice(1).map(t=>t.soleGrip);
@@ -366,6 +374,7 @@ for(const view of [
   sourceSoleFrames:soleObservations.length,
   rigidGripFrames:soleObservations.filter(s=>s.rigidGripComparable).length,
   trace:trace.map(t=>({tick:t.tick,soleVertexWorld:t.soleVertexWorld,
+   nativeLegOwnership:t.nativeLegOwnership,
    sourceWeaponGrip:t.sourceWeaponGrip,soleGrip:t.soleGrip})),
   caveat:'Weighted source sole candidates are not full sole-ground contact or native IK.'};
  fs.writeFileSync('artifacts/dungeon-full-body-original-sole-hand-'+view.name+'.json',
