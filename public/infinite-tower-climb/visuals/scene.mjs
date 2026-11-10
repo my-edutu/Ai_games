@@ -1880,32 +1880,45 @@ export function createTowerScene(canvas, settings = {}) {
   const sharedGeometry = new Set(), sharedMaterials = new Set();
   const ownGeometry = geometry => { sharedGeometry.add(geometry); return geometry; };
   const ownMaterial = material => { sharedMaterials.add(material); return material; };
-  // Architectural objective for the actual current floor. Unlike the tiny
-  // tactical route arrows, this fixed summit silhouette communicates WHY the
-  // autonomous climber keeps ascending. Its location is the source cap, not
-  // a fabricated platform or promised victory. Two bounded depth-tested draws.
+  // Original source-pinned 390x844 guardian film at bca7593d (native 15-17s)
+  // and the actual 3D triangle owner at tick 307 identify THIS objective
+  // halo/spoke assembly as the giant foreground metal wheel between the live
+  // climber and guardian. The three decorative biome rotors were behind them.
+  // Replace the complete near-camera eight-spoked wheel with a physically
+  // OPEN forged summit arch and four small perimeter finials. Its bearing
+  // remains the real authoritative cap; it is an objective, NEVER a victory
+  // badge or gameplay collider. Keep the two bounded depth-tested draws.
   const crownStage = new THREE.Group();
   crownStage.name = 'ObservedCurrentFloorSummitCrown';
   const crownMetal = ownMaterial(new THREE.MeshStandardMaterial({
     color: 0xa38b72, emissive: 0x304650, emissiveIntensity: .13,
     metalness: .68, roughness: .44, depthTest: true, depthWrite: true,
   }));
+  // The lower 115-degree sector is genuine empty space, not opacity.
+  // Half-size outboard silhouette, NO spoke crossing the action corridor.
+  // Opening stays at the bottom through source-tick sway/reduced motion.
   const crownRing = new THREE.Mesh(
-    ownGeometry(new THREE.TorusGeometry(2.85, .18, 8, 40)), crownMetal);
+    ownGeometry(new THREE.TorusGeometry(1.95, .11, 7, 32, Math.PI * 1.36)), crownMetal);
   crownRing.name = 'ActualCapNavigationHalo';
   crownRing.castShadow = false;
   const crownBeams = new THREE.InstancedMesh(
-    ownGeometry(new THREE.BoxGeometry(.22, 1.26, .31)), crownMetal, 8);
+    ownGeometry(new THREE.BoxGeometry(.17, .84, .18)), crownMetal, 4);
   crownBeams.name = 'ActualCapNavigationSpokes';
   crownBeams.castShadow = false;
   crownBeams.receiveShadow = false;
   crownBeams.frustumCulled = false;
   const crownPose = new THREE.Object3D();
-  for (let index = 0; index < 8; index++) {
-    const bearing = index * Math.PI / 4;
-    crownPose.position.set(Math.cos(bearing) * 2.3,
-      Math.sin(bearing) * 2.3, 0);
-    crownPose.rotation.set(0, 0, bearing - Math.PI / 2);
+  // Four real outboard buttress finials carry the open arch, rather than
+  // a centered metal rotor. No vertical/horizontal center bars or near-facing
+  // slab may bury the skinned hero, live guardian or their real cap route.
+  const crownFinials = [
+    [-1.50, -.95, -.13], [1.50, -.95, .13],
+    [-1.71, -.18, -.23], [1.71, -.18, .23],
+  ];
+  for (let index = 0; index < crownFinials.length; index++) {
+    const [x, y, tilt] = crownFinials[index];
+    crownPose.position.set(x, y, 0);
+    crownPose.rotation.set(0, 0, tilt);
     crownPose.scale.set(1, 1, 1);
     crownPose.updateMatrix();
     crownBeams.setMatrixAt(index, crownPose.matrix);
@@ -2603,13 +2616,17 @@ export function createTowerScene(canvas, settings = {}) {
     observedCrown = !options.stale ? observeTowerCrown(snapshot) : null;
     crownStage.visible = !!observedCrown;
     if (observedCrown) {
+      // Inboard by 6.13 world units from the previously camera-facing
+      // radius 28.85, safely beyond the core while behind the real
+      // radius-25..27 bodies. Present objective, not a foreground obstruction.
+      // The cap ID, horizontal bearing and elevation remain source-owned.
       const beacon = pointFor(observedCrown.anchorX,
         observedCrown.top + 37000, observedCrown.baseY,
-        observedCrown.width, 28.85);
+        observedCrown.width, 22.72);
       crownStage.position.set(beacon.x, beacon.y, beacon.z);
       crownStage.rotation.y = beacon.angle;
-      crownRing.rotation.z = options.reducedMotion ? 0 :
-        .075 * Math.sin(observedCrown.sourceTick * .033);
+      crownRing.rotation.z = options.reducedMotion ? -Math.PI * .18 :
+        -Math.PI * .18 + .022 * Math.sin(observedCrown.sourceTick * .033);
       const actualLoss = observedCrown.guardianHealthRatio === null ? 0 :
         1 - observedCrown.guardianHealthRatio;
       crownMetal.color.set(0xa38b72).lerp(paleCrownMetal, actualLoss * .55);
