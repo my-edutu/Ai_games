@@ -91,3 +91,85 @@ test('original procedural whoosh attenuates slower witnessed hand motion but nev
  assert.ok(seen[2]<=seen[3]+1e-10,'measurement may not exceed original envelope peak');
  assert.equal(seen[4],seen[3],'invalid metadata retains original sound recipe');
 });
+
+function realVisualStage(){
+ class Vector3{constructor(x=0,y=0,z=0){this.set(x,y,z)}
+  set(x,y,z){this.x=x;this.y=y;this.z=z;return this}
+  normalize(){return this}}
+ class Geometry{setAttribute(){return this}setIndex(){return this}
+  computeVertexNormals(){}dispose(){}}
+ class Material{dispose(){}}
+ class Object3D{constructor(){
+  this.position=new Vector3();this.rotation={y:0,set(){}};
+  this.quaternion={identity(){},setFromUnitVectors(){}};
+  this.scale={setScalar(){},set(){}};this.matrix={};
+ }updateMatrix(){}}
+ class InstancedMesh{constructor(){this.visible=false;this.instanceMatrix={setUsage(){}}}
+  setMatrixAt(){}}
+ return {THREE:{Vector3,Object3D,BufferGeometry:Geometry,
+  Float32BufferAttribute:class{},MeshBasicMaterial:Material,
+  MeshStandardMaterial:Material,InstancedMesh,TorusGeometry:Geometry,
+  TetrahedronGeometry:Geometry,RingGeometry:Geometry,
+  CylinderGeometry:Geometry,IcosahedronGeometry:Geometry,
+  DoubleSide:2,DynamicDrawUsage:35048},
+  scene:{add(){},remove(){}}};
+}
+test('production retained visual stage measures frame-local wrist speed, not a fictional contact',async()=>{
+ const {createPhysicalFeedbackVisuals}=await source('physical-feedback-visuals.js');
+ const {THREE,scene}=realVisualStage();
+ let wristX=-6.8;
+ const bone={isBone:true,updateWorldMatrix(){},
+  getWorldPosition(v){v.set(wristX,1.17,-6.8)}};
+ const actor={authored:true,assetRoot:{},
+  rigMeleeBones:[{part:'wrist',bone}],
+  root:{visible:true,position:new THREE.Vector3(-7,0,-7),rotation:{y:0}},
+  u:{id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
+   action:'attack',actionTick:11,hp:30}};
+ const effects=createPhysicalFeedbackVisuals(THREE,scene,{actorById:()=>actor});
+ const cue={id:'1:1:11:swing:vanguard:-',sceneKey:'1:1',tick:11,
+  kind:'swing',visual:'trail',audio:'whoosh',
+  proof:'authority-attempt-not-hit',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},
+  duration:.22,priority:2,severity:.2};
+ assert.equal(effects.emit(cue),true);
+ assert.equal(effects.measuredSwingSpeed(cue),null,'one wrist sample is not travel');
+ effects.advance(.016,.016);
+ assert.equal(effects.measuredSwingSpeed(cue),null);
+ wristX-=.12;
+ effects.advance(.016,.016);
+ assert.equal(effects.hasDrawableCue(cue.id),true);
+ assert.ok(Math.abs(effects.measuredSwingSpeed(cue)-7.5)<1e-8);
+ assert.equal(effects.stats().reservedInstances,102);
+ assert.equal(effects.stats().drawCalls,7);
+ wristX+=.20;
+ assert.equal(effects.measuredSwingSpeed(cue),null,
+  'unsampled mid-frame movement cannot inherit the last sound energy');
+ effects.advance(.016,.016);
+ assert.ok(effects.measuredSwingSpeed(cue)>0,'fresh physical motion restores a witness');
+ actor.rigMeleeBones=[{part:'wrist',bone:{...bone}}];
+ assert.equal(effects.measuredSwingSpeed(cue),null,'replacement wrist revokes source');
+ effects.dispose();
+});
+test('a retained, formerly measured ribbon cannot replay old energy after a stationary frame',async()=>{
+ const {createPhysicalFeedbackVisuals}=await source('physical-feedback-visuals.js');
+ const {THREE,scene}=realVisualStage();
+ let wristX=-6.8;
+ const bone={isBone:true,updateWorldMatrix(){},
+  getWorldPosition(v){v.set(wristX,1.17,-6.8)}};
+ const actor={authored:true,assetRoot:{},
+  rigMeleeBones:[{part:'wrist',bone}],
+  root:{visible:true,position:new THREE.Vector3(-7,0,-7),rotation:{y:0}},
+  u:{id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
+   action:'attack',actionTick:11,hp:30}};
+ const effects=createPhysicalFeedbackVisuals(THREE,scene,{actorById:()=>actor});
+ const cue={id:'1:1:11:swing:vanguard:-',sceneKey:'1:1',tick:11,
+  kind:'swing',visual:'trail',audio:'whoosh',proof:'authority-attempt-not-hit',
+  actorId:'vanguard',from:{x:2,z:2},duration:.22,priority:2,verified:true};
+ effects.emit(cue);effects.advance(.016,.016);
+ wristX-=.12;effects.advance(.016,.016);
+ assert.ok(effects.measuredSwingSpeed(cue)>0);
+ effects.advance(.016,.016);
+ assert.equal(effects.hasDrawableCue(cue.id),true,'short retained trail remains drawable');
+ assert.equal(effects.measuredSwingSpeed(cue),null,'no new travel means no new velocity');
+ effects.dispose();
+});
