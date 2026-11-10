@@ -707,3 +707,60 @@ test('only exact published source clearance can stage the earned 3D guardian thr
       observedUnlockedGuardianCap(approaching))>.5);
   }finally{effect.dispose();}
 });
+
+
+test('living guardian energy lock is a see-through full-height lattice, not a wall over combat', async () => {
+  const [THREE, {createTowerGuardianPassage}] = await loaded;
+  const gate = createTowerGuardianPassage(THREE);
+  const cap = {id:'f8:cap', x:115200, y:3212000, width:249600, height:12000};
+  const exitX = cap.x + Math.floor(cap.width * .76);
+  const living = {runToken:'lattice-evidence', floor:8, tick:100,
+    lifecycle:'running', worldWidth:480000, chunkBaseY:2880000,
+    guardianExitX:exitX, guardianSealHeight:140000,
+    player:{health:4}, platforms:[cap],
+    enemies:[{id:'f8:guardian',kind:'guardian',active:true,health:8}]};
+  const unchanged = JSON.stringify(living);
+  function bands() {
+    const gateMesh = gate.group.getObjectByName('SourceLockedGuardianVerticalEnergyLattice');
+    assert.ok(gateMesh?.isInstancedMesh && gateMesh.visible);
+    const pose = new THREE.Matrix4(), position = new THREE.Vector3();
+    const rotation = new THREE.Quaternion(), scale = new THREE.Vector3();
+    const bounds = [];
+    for (let i=0; i<gateMesh.count; i++) {
+      gateMesh.getMatrixAt(i,pose);
+      pose.decompose(position,rotation,scale);
+      bounds.push({x:position.x,y:position.y,
+        width:Math.abs(scale.x),height:Math.abs(scale.y)});
+    }
+    return bounds;
+  }
+  try {
+    assert.equal(gate.lock(living,anchor),true);
+    const first = bands();
+    assert.ok(first.length>=16 && first.length<=40,
+      'one bounded instanced full-height physical-looking energy grate');
+    assert.ok(first.every(b=>b.width*b.height<4),
+      'no single 6-by-14 translucent curtain can obscure live combat');
+    const uprights=first.filter(b=>b.height>13.9 && b.width<.25);
+    assert.ok(uprights.length>=2, 'vertical bars cover the source-solid airborne lock');
+    let rails=first.filter(b=>b.width>5.5 && b.height<.22)
+      .sort((a,b)=>a.y-b.y);
+    assert.ok(rails.length>=12,'clear intervals with repeated closure cues');
+    assert.ok(rails[0].y<.8 && rails.at(-1).y>13.2);
+    assert.ok(rails.every((b,i)=>i===0 || b.y-rails[i-1].y<1.25),
+      'never imply a visually open large enough climb-through passage');
+    // The host source can alter the real lock height during a living encounter.
+    // A prior pose must never leave a misleading lower, visibly passable gate.
+    const taller={...living,tick:101,guardianSealHeight:200000};
+    assert.equal(gate.lock(taller,anchor),true);
+    const high=bands();
+    assert.ok(high.some(b=>b.height>=19.9),
+      'live source height changes must extend to the current locked envelope');
+    rails=high.filter(b=>b.width>5.5 && b.height<.22)
+      .sort((a,b)=>a.y-b.y);
+    assert.ok(rails.at(-1).y>19.2 && rails.every((b,i)=>
+      i===0 || b.y-rails[i-1].y<1.25));
+    assert.equal(JSON.stringify(living),unchanged,
+      'renderer never mutates authentic fixed-step guardian state');
+  } finally {gate.dispose();}
+});
