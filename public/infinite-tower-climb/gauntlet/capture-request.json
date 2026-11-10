@@ -43,7 +43,7 @@
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
   "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42837487481",
   "currentCalibratedEventGate": "3ed44c original nine-job run 42658123598 completed 10/10 including pairing, 8/8 source clock matches; no individual event certified raster-visible, guardian circle 14-18s remains visually problematic. JS WebGL submission intervals p50/p95/p99=216.5/596.1/808ms candidate portrait, NOT hardware FPS. New adaptive candidate must be measured at exact future github.sha.",
-  "newSourceVideoAcceptance": "NOT EVALUATED — new exact-request-commit github.sha source-pinned capture pending.",
+  "newSourceVideoAcceptance": "NOT EVALUATED — new original WebM request queued at immutable github.sha by this file update, not a quality pass.",
   "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
   "anchorSpacingTestRecoverySha": "306a29742a1bccb281a164761328484ad419da03",
   "originalSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42649795304",
@@ -62,12 +62,12 @@
   "priorNewQualityRequest": "https://github.com/my-edutu/Ai_games/actions/runs/42689428953",
   "nativeFilmPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42690134996/artifacts/13707336173",
   "nativeFilmIntegrityStatus": "42695480406 all 8 baseline/candidate WebM artifacts retained; 7/8 video jobs succeeded, baseline outcome failed and source-pair job failed; native timebase calibrated 6/8. Never mark all jobs or matched comparisons green.",
-  "nextHighestImpact": "Inspect source-pinned NEW full-motion candidate/frozen 60+s WebMs in desktop/portrait. Verify guardian and climber projected bodies plus warning, crusher, defeat, physical threshold, floor9, outcome/restart at aligned native PTS/source ticks. Reopen P0 physical environment/camera if the new center is still hidden. Require physical device p50/p95/p99/memory and genuinely independent blinded 5 per LOOKS/FEELS/PLAYS; CI alone veto, never acceptance.",
+  "nextHighestImpact": "Verify actual newly captured two-body combat and landing story in both full-motion viewports, align source events to visible frames, reopen P0 on largest remaining occlusion/feel failure; no stage promotion on CI alone",
   "captureRequestedForExactHead": true,
   "latestCaptureRequestParentSha": "06ee10b5db00ea7f6aa5a25e11d7492375819e88",
   "latestQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42793342425",
   "verifiedPreviousSourceCandidate": "590f4dc66144ade1c76589ed826318c0e48747e3",
-  "lastVisualReview": "docs/reviews/2026-11-10-tower-pr68-native-guardian-duel-clear-centre-seal-and-source-cue.md",
+  "lastVisualReview": "docs/reviews/2026-11-10-tower-pr68-wounded-airborne-duel-hold-source-evidence.md",
   "currentPrimaryUnresolvedSceneDefect": "P0: candidate original source 87eef guardian portrait around 14-24s full-height cyan X energy stays, bronze grille and machinery occupy actor/enemy stage. Correction at 78fe2291 relocates high stays and source-times surge but has NO new post-change film yet. The caster and gate must remain visibly locked and the action must be shown in full.",
   "captureOnlyMeshOwnerRayProbe": "0dcee182a7e092d2c3d839797f81e60d5d36d15e",
   "originalWebmOwnerSidecarIntegration": "b611b444cbaf1673e23562fa9068ab0b0e4f775c",
@@ -266,5 +266,33 @@
       "plays": 0
     },
     "deviceMetrics": "NOT EVALUATED"
+  },
+  "latestP0WoundedAirborneGuardianContinuity20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedOriginalSourceSha": "75b852009a3bf27c25c6a1bb6040aa41faa9921b",
+    "previouslyCompletedCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13778878647",
+    "originalBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779223804",
+    "sourceManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779309338",
+    "manifestTruth": "16 original WebMs, eight of eight native timebase calibrations, zero source provenance defects; fullMotionPaired=false and no independent judgement",
+    "worstObservedExperienceDefect": "Real recorded floor8 portrait candidate source tick321 living wounded guardian HP3/8; climber airborne and sampled -1.86 NDC x outside portrait while boss remains centered. Across original 14–24sec action film, oversized bronze/teal architecture and unstable hero-enemy framing obscure combat.",
+    "regressionSha": "6b118e74bf11afcf5dff0551af41dcd8b6318a9c",
+    "implementationSha": "33b91f5eb9f79a67a0c689b2074ad301a4a6cd87",
+    "solution": "Between genuine individual shots/telegraphs, the still-living wounded guardian remains a physically nearby two-body source camera subject during airborne motion; actual landing and both full 3D silhouettes retain pre-existing safety requirements. Healthy nonthreatening guardian and actual defeated guardian cannot borrow the hold.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-wounded-airborne-duel-hold-source-evidence.md",
+    "testFirstCI": "https://github.com/my-edutu/Ai_games/actions/runs/42851521836 (result not yet verified at request write)",
+    "productionCI": "https://github.com/my-edutu/Ai_games/actions/runs/42851605178 (result not yet verified at request write)",
+    "captureSource": "github.sha of this exact capture-request commit, NEVER production implementation branch alias",
+    "afterChangeOriginalFilm": "NOT EVALUATED; this request is not a capture",
+    "expectedNativeEvidence": ">=60s each 960x600 and 390x844 ascent/moving/danger/outcome at frozen baseline and exact candidate workflow SHA, matching seed/tier/no audio. Inspect source tick321 surroundings, live guardian/crusher, actual source HP0, grounded gateway, floor9 onward, outcome/intermission/restart in continuous matched real video.",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "nextAction": "Verify actual newly captured two-body combat and landing story in both full-motion viewports, align source events to visible frames, reopen P0 on largest remaining occlusion/feel failure; no stage promotion on CI alone"
   }
 }
