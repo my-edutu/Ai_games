@@ -4032,13 +4032,14 @@ const SCENIC_LINEAR_LOCAL_MIN_TRIANGLES=96;
 const SCENIC_LINEAR_LOCAL_EDGE=34;
 const SCENIC_LINEAR_LOCAL_MAX_RANGES=512;
 const scenicLinearPackStats={attempts:0,accepted:0,fallbacks:0,
- residentFloatsWithoutScatter:0,lastClass:null,lastRanges:0,classes:{}};
+ residentFloatsWithoutScatter:0,lastClass:null,lastRanges:0,
+ coalescedPacks:0,coalescedRanges:0,classes:{}};
 function packLinearResidentScenery(mesh,sceneClass){
  scenicLinearPackStats.attempts++;
  if(!(mesh instanceof Float32Array)||mesh.length%30!==0||!mesh.length){
   scenicLinearPackStats.fallbacks++;return null;
  }
- const triCount=mesh.length/30,ranges=[];
+ const triCount=mesh.length/30;let ranges=[];
  let start=0,count=0,minX=Infinity,minY=Infinity,minZ=Infinity,
   maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
  const flush=()=>{
@@ -4055,7 +4056,8 @@ function packLinearResidentScenery(mesh,sceneClass){
   const ux=Math.max(mesh[o],mesh[o+10],mesh[o+20]);
   const uy=Math.max(mesh[o+1],mesh[o+11],mesh[o+21]);
   const uz=Math.max(mesh[o+2],mesh[o+12],mesh[o+22]);
-  if(![tx,ty,tz,ux,uy,uz].every(Number.isFinite))
+  if(!Number.isFinite(tx)||!Number.isFinite(ty)||!Number.isFinite(tz)||
+    !Number.isFinite(ux)||!Number.isFinite(uy)||!Number.isFinite(uz))
    throw Error('W171 nonfinite retained scenery geometry');
   if(count&&(count>=SCENIC_LINEAR_LOCAL_MAX_TRIANGLES||
    (count>=SCENIC_LINEAR_LOCAL_MIN_TRIANGLES&&
@@ -4064,13 +4066,31 @@ function packLinearResidentScenery(mesh,sceneClass){
   minX=Math.min(minX,tx);minY=Math.min(minY,ty);minZ=Math.min(minZ,tz);
   maxX=Math.max(maxX,ux);maxY=Math.max(maxY,uy);maxZ=Math.max(maxZ,uz);
   count++;
-  if(ranges.length>SCENIC_LINEAR_LOCAL_MAX_RANGES){
+  if(ranges.length>SCENIC_LINEAR_LOCAL_MAX_RANGES*8){
    scenicLinearPackStats.fallbacks++;return null;
   }
  }
  flush();
- if(ranges.length>SCENIC_LINEAR_LOCAL_MAX_RANGES){
-  scenicLinearPackStats.fallbacks++;return null;
+ // W189: more than 512 complete, locally bounded scenery runs previously
+ // forced a second full spatial sort and triangle scatter. Merge adjacent
+ // ranges on the ORIGINAL Float32Array: every original vertex, material, roof,
+ // foliage and occupied building remains in exactly the original draw order.
+ // Broader conservative AABBs can reduce culling precision, never drop work.
+ const sourceRanges=ranges.length;
+ while(ranges.length>SCENIC_LINEAR_LOCAL_MAX_RANGES){
+  const joined=[];
+  for(let i=0;i<ranges.length;i+=2){
+   const a=ranges[i],b=ranges[i+1];
+   joined.push(!b?a:{first:a.first,count:a.count+b.count,
+    minX:Math.min(a.minX,b.minX),minY:Math.min(a.minY,b.minY),
+    minZ:Math.min(a.minZ,b.minZ),maxX:Math.max(a.maxX,b.maxX),
+    maxY:Math.max(a.maxY,b.maxY),maxZ:Math.max(a.maxZ,b.maxZ)});
+  }
+  ranges=joined;
+ }
+ if(sourceRanges>ranges.length){
+  scenicLinearPackStats.coalescedPacks++;
+  scenicLinearPackStats.coalescedRanges+=sourceRanges-ranges.length;
  }
  const represented=ranges.reduce((total,range)=>total+range.count,0);
  if(represented!==triCount*3)throw Error('W171 scene range lost real vertices');

@@ -8,6 +8,8 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
+      - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs'
@@ -32,6 +34,10 @@ jobs:
           persist-credentials: false
       - name: W188 real seasonal home-cache source contract and full game syntax
         run: node scripts/tiny-kingdom-w188-home-season-residency-contract.cjs
+      - name: W189 conservative full-geometry packing and W183 submitted camera contract
+        run: |
+          node scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs
+          node scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt

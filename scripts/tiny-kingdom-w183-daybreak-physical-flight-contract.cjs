@@ -27,9 +27,17 @@ for(const axis of [0,2]){
 }
 assert(crossing.eye[1]>=path.clearanceY-1e-5);
 assert.equal(run('acknowledgeDaybreakWorldFrame()'),false);
+// W184+ accepts a camera sample only after a genuine world-frame submission.
+h.lastCitizenPickFrame={eye:[999,999,999],target:[0,0,0]};
+assert.equal(run('recordSubmittedDaybreakWorldFrame()'),false);
+assert.equal(run('acknowledgeDaybreakWorldFrame()'),false);
 h.elapsed=5000;let prev=0;
 for(let i=0;i<9;i++){
  assert(run('advanceDaybreakReturn()'));
+ const submitted=run('daybreakReturn.frame');
+ h.lastCitizenPickFrame={eye:Array.from(submitted.eye),
+  target:Array.from(submitted.target)};
+ assert(run('recordSubmittedDaybreakWorldFrame()'));
  const a=run('getDaybreakReturnAudit()');
  assert(a.progress>=prev&&a.progress-prev<.120001);
  prev=a.progress;
