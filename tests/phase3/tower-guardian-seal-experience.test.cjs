@@ -207,15 +207,44 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const conduit = named(world.group,'GuardianEncounterConduit');
     const capstan = named(world.group,'GuardianGateCapstan');
     const tension = named(world.group,'GuardianCounterweightTension');
+    const overhead = named(world.group,'GuardianOverheadTransmission');
     const THREE = await import(threeUrl);
     const cableMatrix = new THREE.Matrix4();
     const cableScale = new THREE.Vector3();
     const cablePosition = new THREE.Vector3();
     const cableQuaternion = new THREE.Quaternion();
-    tension.getMatrixAt(0,cableMatrix);
-    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
-    assert.ok(Math.abs(cableScale.y-.54)<1e-5,
-      'at full health the original drum has only taut, short undrawn cable');
+    // Measure BOTH actual 3D cable endpoints against the source-driven
+    // counterweight sockets, not a historical drum height constant. The
+    // outboard overhead transmission must never leave floating cables during
+    // damaged, defeated, restarted or reduced-motion states.
+    const assertAttachedCables = phase => {
+      const sockets = [];
+      world.group.traverse(object => {
+        if (object.name === 'GuardianSealCableSocket') sockets.push(object);
+      });
+      assert.equal(sockets.length, 2, phase + ': two distinct mechanical sockets');
+      for (const [index,carriage] of [leftWeight,rightWeight].entries()) {
+        const socket = sockets.find(item => item.parent === carriage);
+        assert.ok(socket, phase + ': cable socket is owned by its real counterweight');
+        tension.getMatrixAt(index,cableMatrix);
+        cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
+        assert.ok(cableScale.y > 0 && Number.isFinite(cableScale.y),
+          phase + ': source-coupled cable has finite positive span');
+        assert.ok(Math.abs(cablePosition.x - socket.position.x) < 1e-5,
+          phase + ': cable and weight occupy the same outboard bay');
+        assert.ok(Math.abs(cablePosition.y + cableScale.y / 2 - overhead.position.y) < 1e-5,
+          phase + ': cable top stays coupled to the real overhead drive');
+        assert.ok(Math.abs(cablePosition.y - cableScale.y / 2 -
+          (socket.position.y + carriage.position.y)) < 1e-5,
+          phase + ': cable bottom follows actual moved counterweight socket');
+      }
+      tension.getMatrixAt(0,cableMatrix);
+      cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
+      return cableScale.y;
+    };
+    const closedCableLength = assertAttachedCables('full-health lock');
+    assert.ok(closedCableLength > 2 && closedCableLength < 3,
+      'raised exterior drive owns genuinely long taut cables at full guardian health');
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
@@ -232,10 +261,9 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       'real guardian HP mechanically lowers the visible counterweights');
     assert.ok(capstan.rotation.z > 1.8,
       'observed real guardian damage visibly turns the winch');
-    tension.getMatrixAt(0,cableMatrix);
-    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
-    assert.ok(cableScale.y>1.5 && cableScale.y<2.9,
-      'the same genuine HP loss physically draws additional load-bearing cable');
+    const damagedCableLength = assertAttachedCables('living guardian damage');
+    assert.ok(damagedCableLength > closedCableLength + 1,
+      'real health loss extends both physical cable spans along the descending sockets');
     assert.equal(leftWeight.position.y,rightWeight.position.y,
       'the pair cannot disagree on authoritative gate progress');
     assert.ok(conduit.scale.z > 1.2 && conduit.scale.z < 1.5,
@@ -261,16 +289,16 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(crest.rotation.z > 1.5, 'the actual lock geometry changes state');
     assert.ok(leftWeight.position.y < -2.3 && rightWeight.position.y < -2.3,
       'an actual finished guardian fully releases the heavy mechanical weights');
-    tension.getMatrixAt(0,cableMatrix);
-    cableMatrix.decompose(cablePosition,cableQuaternion,cableScale);
-    assert.ok(Math.abs(cableScale.y-2.89)<1e-5,
-      'only an observed authentic defeat fully draws the physical cable');
+    const defeatedCableLength = assertAttachedCables('earned guardian victory');
+    assert.ok(defeatedCableLength > damagedCableLength + 1,
+      'only a true source-defeated guardian extends the cable to the full weight travel');
     assert.equal(world.diagnostics().guardianGates[0].unlocked, true);
     assert.ok(conduit.scale.z > 2.25 && conduit.scale.z < 2.3,
       'authentic defeated guardians complete the supported cap-to-threshold conduit');
     assert.equal(JSON.stringify(release), before, 'the observed source remains immutable');
     world.update(frame({ active: true }), .05, 2, { quality: 'low' });
     assert.equal(world.diagnostics().guardianGates[0].unlocked, false);
+    assertAttachedCables('same-floor live reversal');
     assert.ok(Math.abs(left.position.x) < 2.8, 'the same-floor live reversal must not stick open');
   } finally { world.dispose(); }
 });
