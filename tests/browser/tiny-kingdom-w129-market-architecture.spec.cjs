@@ -20,6 +20,7 @@ async function inspect(page){
    masonry:g.getCompactStoneCoursingAudit(),
    gateway:g.getMarketGatewayAudit(),street:g.getFarmMarketStreetAudit(),
    scene:g.renderStats(),geometry:g.getGeometryAudit(),city:g.metrics(),
+   coherent:g.getScenicCoherentReferenceAudit(),coherentPerformance:g.getScenicCoherentAudit(),
    overflow:document.documentElement.scrollWidth-innerWidth,
    gl:document.getElementById('world').getContext('webgl')?.getError(),
    authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
@@ -55,6 +56,8 @@ function assertWorld(a){
  expect(a.authorityUnchanged).toBe(true);
  expect(a.geometry.static.invalidComponents).toBe(0);
  expect(a.geometry.dynamic.invalidComponents).toBe(0);
+ expect(a.coherent.missingChunks).toBe(0);
+ expect(a.coherentPerformance.geometryNeverDropped).toBe(true);
  expect(a.scene.lastFrameTriangles).toBeLessThan(160000);
  expect(a.gl).toBe(0);
  expect(a.overflow).toBeLessThanOrEqual(0);

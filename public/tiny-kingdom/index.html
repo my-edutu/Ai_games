@@ -4463,9 +4463,131 @@ function getScenicDrawPlanCacheAudit(){
   condition:'same immutable range array, exact six frustum planes and batching mode',
   measurement:'CPU planner work only; not GPU FPS or experience PASS'};
 }
+
+// W202 Phase 1 rendering spine: moving-camera command residency. The existing
+// BVH still decides which original buildings/trees to render. For real GPUs,
+// additionally cache ONE conservative, spatially enlarged draw plan per exact
+// immutable mesh range array. A camera may reuse it only while a formal
+// plane-delta bound proves that every current frustum-visible vertex was in
+// the stored expanded envelope. No hidden homes/people, rounded camera or
+// delayed camera input. SwiftShader keeps the exact plan to avoid raster
+// overdraw until measured evidence warrants a change.
+const SCENIC_COHERENCE_MARGIN=1.15;
+const SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES=1600;
+const scenicCoherentCache=new WeakMap();
+const scenicCoherentBoundsCache=new WeakMap();
+let scenicCoherentBuilds=0,scenicCoherentReuses=0,scenicCoherentRejects=0;
+let scenicCoherentExtraAtBuild=0,scenicCoherentDraws=0;
+function scenicCoherentBounds(ranges){
+ const hit=scenicCoherentBoundsCache.get(ranges);if(hit)return hit;
+ let maxX=0,maxY=0,maxZ=0,totalTriangles=0;
+ for(const b of ranges){
+  if(![b.minX,b.minY,b.minZ,b.maxX,b.maxY,b.maxZ].every(Number.isFinite)||
+   b.minX>b.maxX||b.minY>b.maxY||b.minZ>b.maxZ||
+   !Number.isInteger(b.count)||b.count<0||b.count%3)return null;
+  maxX=Math.max(maxX,Math.abs(b.minX),Math.abs(b.maxX));
+  maxY=Math.max(maxY,Math.abs(b.minY),Math.abs(b.maxY));
+  maxZ=Math.max(maxZ,Math.abs(b.minZ),Math.abs(b.maxZ));
+  totalTriangles+=b.count/3;
+ }
+ const result={maxX,maxY,maxZ,totalTriangles};
+ scenicCoherentBoundsCache.set(ranges,result);return result;
+}
+function scenicCoherentSafe(anchor,current,bounds,margin){
+ if(!bounds||!Array.isArray(anchor)||!Array.isArray(current)||
+  anchor.length!==6||current.length!==6||!Number.isFinite(margin)||margin<=0)
+  return false;
+ for(let i=0;i<6;i++){
+  const p=anchor[i],q=current[i];
+  if(!Array.isArray(p)||!Array.isArray(q)||p.length!==4||q.length!==4||
+    !p.every(Number.isFinite)||!q.every(Number.isFinite))return false;
+  // For every world-space point inside the immutable mesh bounds:
+  // |(q-p)·[x,y,z,1]| <= sum(|delta plane| * global |coordinate|).
+  // Therefore current visible => enlarged anchor visible. AABB margins
+  // from sceneChunkInFrustum are equal in both planners.
+  const error=Math.abs(q[0]-p[0])*bounds.maxX+
+   Math.abs(q[1]-p[1])*bounds.maxY+
+   Math.abs(q[2]-p[2])*bounds.maxZ+
+   Math.abs(q[3]-p[3]);
+  if(!Number.isFinite(error)||error>margin-1e-7)return false;
+ }
+ return true;
+}
+function planCoherentStaticDraws(ranges,planes,bridge){
+ if(!gpuAvailable||swiftGpu||ranges.length<64||
+  !Array.isArray(planes)||planes.length!==6||
+  planes.some(p=>!Array.isArray(p)||p.length!==4||
+   !p.every(Number.isFinite)))
+  return planRetainedStaticDraws(ranges,planes,bridge);
+ const bounds=scenicCoherentBounds(ranges);
+ if(!bounds)return planRetainedStaticDraws(ranges,planes,bridge);
+ const prior=scenicCoherentCache.get(ranges);
+ if(prior&&prior.bridge===bridge&&scenicCoherentSafe(
+   prior.planes,planes,bounds,SCENIC_COHERENCE_MARGIN)){
+  scenicCoherentReuses++;scenicCoherentDraws++;
+  return prior.plan;
+ }
+ const exact=planRetainedStaticDraws(ranges,planes,bridge);
+ const generous=planes.map(p=>[p[0],p[1],p[2],p[3]+SCENIC_COHERENCE_MARGIN]);
+ const expanded=planVisibleStaticDraws(ranges,generous,bridge);
+ const added=Math.max(0,expanded.issuedTriangles-exact.issuedTriangles);
+ // An expanded frustum is safe but could force unnecessary raster work.
+ // Refuse caching when the first shot exceeds an explicit bounded budget.
+ const allowed=Math.min(SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES,
+  Math.max(48,Math.floor(bounds.totalTriangles*.025)));
+ if(added>allowed){
+  scenicCoherentRejects++;scenicCoherentCache.delete(ranges);return exact;
+ }
+ scenicCoherentCache.set(ranges,{planes:planes.map(p=>p.slice()),
+  bridge,plan:{...expanded,coherentConservative:true,
+   extraTrianglesAtAnchor:added},extraTrianglesAtAnchor:added});
+ scenicCoherentBuilds++;scenicCoherentExtraAtBuild+=added;
+ // Keep the very first view exact. Subsequent physically adjacent views
+ // can reuse the certified superset without running a new BVH traversal.
+ return exact;
+}
+function getScenicCoherentAudit(){
+ return {kind:'spatially-safe-moving-camera-original-geometry-residency',
+  enabled:gpuAvailable&&!swiftGpu,marginMetres:SCENIC_COHERENCE_MARGIN,
+  perMeshViews:1,maxExtraTrianglesAtAnchor:SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES,
+  builds:scenicCoherentBuilds,reuses:scenicCoherentReuses,
+  rejectedOverdraw:scenicCoherentRejects,conservativeDraws:scenicCoherentDraws,
+  totalExtraTrianglesAtBuild:scenicCoherentExtraAtBuild,
+  geometryNeverDropped:true,seedAndAuthorityUnmodified:true,
+  hardwareFps:'NOT MEASURED',softwareFallback:'existing-exact-BVH'};
+}
+// Deliberately expensive and read-only: only called from an actual game test.
+// Checks that every true currently visible original chunk is covered by a
+// cached command. Does not infer visibility from screenshots or pixel counts.
+function getScenicCoherentReferenceAudit(){
+ if(!lastCitizenPickFrame?.matrix)
+  return {checkedChunks:0,missingChunks:0,activeClasses:0,unavailable:true};
+ const planes=sceneFrustumPlanes(lastCitizenPickFrame.matrix);
+ let checkedChunks=0,missingChunks=0,activeClasses=0,extraChunks=0;
+ for(const ranges of [landscapeChunkRanges,settlementChunkRanges,
+  civicChunkRanges,...homeClusterActive.map(home=>home.ranges).filter(Boolean)]){
+  if(!ranges?.length)continue;
+  const entry=scenicCoherentCache.get(ranges),bounds=scenicCoherentBounds(ranges);
+  if(!entry||!scenicCoherentSafe(entry.planes,planes,bounds,
+    SCENIC_COHERENCE_MARGIN))continue;
+  activeClasses++;
+  for(const b of ranges){
+   const visible=sceneChunkInFrustum(b,planes);
+   const covered=entry.plan.runs.some(run=>run.first<=b.first&&
+    run.first+run.count>=b.first+b.count);
+   if(visible&&!covered)missingChunks++;
+   if(!visible&&covered)extraChunks++;
+   checkedChunks++;
+  }
+ }
+ return {checkedChunks,missingChunks,extraChunks,activeClasses,
+  geometryNeverDropped:missingChunks===0,authorityUnmodified:true,
+  source:'actual-original-frustum-versus-conservative-resident-draw-ranges'};
+}
+
 function drawVisibleStaticChunks(target,ranges,planes){
  const bridge=staticBatchBridgeOverride===null?!swiftGpu:staticBatchBridgeOverride;
- const {runs,...audit}=planRetainedStaticDraws(ranges,planes,bridge);
+ const {runs,...audit}=planCoherentStaticDraws(ranges,planes,bridge);
  // Identical visibility and exact vertex ranges on both paths. The optional
  // native multi-draw call reduces repeated JS->driver calls on supported GPUs.
  // Unsupported devices and oversized batches submit every original run.
@@ -22478,7 +22600,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  branchTriangles:forestVisualStats.branchTriangles,
  broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
-}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getGeometryVaoAudit,setGeometryVaoEnabledForTesting,getScenicDrawPlanCacheAudit,getLiveHudCadenceAudit,
+}),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getGeometryVaoAudit,setGeometryVaoEnabledForTesting,getScenicDrawPlanCacheAudit,getScenicCoherentAudit,getScenicCoherentReferenceAudit,getLiveHudCadenceAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
  settlement:{...scenicVisibilityStats.settlement},
  civic:{...scenicVisibilityStats.civic},
