@@ -7121,6 +7121,75 @@
       "plays": "UNVERIFIED",
       "separatePR72": "NOT_INTEGRATED",
       "next": "Run exact new-head authentic 1440px/390px full organic WebM+Opus; inspect real source contact and cinematicShot subjects, mobile actor pixels, warnings, occlusion, p95/p99, 946/946 natural defeat. Profile actual software WebGL submit spike before a substantial measured Stage A correction. Then independently review PR72 before B and require 3 blind critics, locked-baseline A/B."
+    },
+    "m1StageAExactFilmCadenceAudit20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "exactPr49Head": "12cb6fcb65982088e63a1282b254eda24b9b9f0a",
+      "organicVideoRun": 42797793541,
+      "seed": "gauntlet-corpus-v1-0",
+      "authenticSnapshots": "946/946 desktop and mobile",
+      "naturalStages": "5/5 both; traversal, combat, Warden, floor transition, natural defeat/restart",
+      "sourceFilm": {
+        "desktop": {
+          "artifactId": 13753863930,
+          "videoFrames": 914,
+          "filmDurationSeconds": 289.137,
+          "decodedAverageFramesPerSecond": 3.16,
+          "packetIntervalP50Ms": 269,
+          "packetIntervalP95Ms": 1074,
+          "packetIntervalP99Ms": 1638,
+          "intervalsAbove1000Ms": 54,
+          "wardenDrawCalls": 416,
+          "wardenTriangles": 186925,
+          "wardenSubmitP50Ms": 8.2,
+          "wardenSubmitP95Ms": 509.7,
+          "wardenSubmitP99Ms": 2263.2,
+          "minimumLivingHeroPx": 81
+        },
+        "mobile": {
+          "artifactId": 13755457124,
+          "videoFrames": 796,
+          "filmDurationSeconds": 280.151,
+          "decodedAverageFramesPerSecond": 2.84,
+          "packetIntervalP50Ms": 281,
+          "packetIntervalP95Ms": 1111,
+          "packetIntervalP99Ms": 1911,
+          "intervalsAbove1000Ms": 46,
+          "wardenDrawCalls": 421,
+          "wardenTriangles": 194378,
+          "wardenSubmitP50Ms": 10.9,
+          "wardenSubmitP95Ms": 836.7,
+          "wardenSubmitP99Ms": 2003.9,
+          "minimumLivingHeroPx": 37
+        }
+      },
+      "captureMethod": "ffprobe actual VP8 video stream packet presentation timestamps; full WebM/Opus downloaded and verified; browser-requested 24 FPS not delivered; Chromium SwiftShader software WebGL, ~200k rendered pixels. Milestone frames held by source-authentic browser polling; this is not unaltered live-tick playback cadence.",
+      "judgement": "Neither source lens nor guardian election proves larger mobile hero silhouettes; latest actual phone Warden has tiny crowded actors and scenery. Source-matched runs vary in host load; apparent frame-rate changes across distinct runners are NOT controlled causal proof. Actual confirmed-HP-to-sound synchronization unverified.",
+      "relevantCI": {
+        "dungeonFoundation": "SUCCESS",
+        "threeBrowserShards": "SUCCESS",
+        "visualReview": "SUCCESS",
+        "catalogueCI": "FAILURE",
+        "organicAV": "SUCCESS"
+      },
+      "separatePr72": {
+        "sha": "e1b1b99ef30c218283ccb1d856cd18f441561397",
+        "run": 42802606696,
+        "rigContract": "SUCCESS",
+        "desktopOrganic": "FAILURE",
+        "mobileOrganic": "FAILURE",
+        "integrated": false
+      },
+      "codeChangedThisAudit": false,
+      "reason": "Connected editable/browser workspace unavailable: Tunnel-client has not been seen for 300 seconds. Avoid untested speculative GPU/camera changes from GitHub-only metadata.",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Restore connected implementation and actual Chrome CPU/GPU trace during Warden, partition render submit from SwiftShader raster wait, shader/program changes, buffer/upload, browser composition and WebM recording. Choose the single dominant cause and implement a retained real-game correction. Repeat SAME seed matched desktop+mobile real captures with requested vs delivered cadence, p50/p95/p99, 5/5 natural journey, critical actors/hazard visibility and original audio. Review PR72 only after genuine separate successful film. No merge/deploy."
     }
   }
 }
