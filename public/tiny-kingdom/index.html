@@ -6756,6 +6756,7 @@ function refreshIndependentHousing(climateKey,sceneKey){
  const fullHomes=detailedHomeSet(),groups=homeClusterGroups(fullHomes,climateKey);
  if(groups.length===homeClusterActive.length&&
   groups.every((group,i)=>homeClusterActive[i].key===group.key))return false;
+ const priorCivicKey=civicActiveKey,priorSceneKey=scenicMeshKey;
  const priorHomes=homeClusterActive.reduce((n,e)=>n+e.homes,0);
  resetHomeVisualStats();
  buildHomeClusters(fullHomes,climateKey);
@@ -6777,7 +6778,8 @@ function refreshIndependentHousing(climateKey,sceneKey){
   independentHousingGrowthWitnesses.push({day:state.t/24,
    oldHomes:priorHomes,newHomes:city.length,
    activeHomes:homeClusterActive.reduce((sum,e)=>sum+e.homes,0),
-   civicUnchanged:true,stationaryUnchanged:scenicMeshKey===sceneKey,
+   civicUnchanged:civicActiveKey===priorCivicKey,
+   stationaryUnchanged:scenicMeshKey===priorSceneKey&&scenicMeshKey===sceneKey,
    staleDrawn:getHomePartitionAudit().staleDrawn,sceneKey});
   if(independentHousingGrowthWitnesses.length>32)
    independentHousingGrowthWitnesses.shift();
