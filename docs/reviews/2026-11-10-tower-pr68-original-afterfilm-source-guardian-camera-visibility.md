@@ -1,0 +1,27 @@
+# Infinite Tower PR68 — P0 source-filmed guardian-camera composition (2026-11-10)
+
+## Stage and provenance
+P0 **EVIDENCE + GAME-LOOP TRUTH remains OPEN**. Leading verdict **NOT EVALUATED**. No independent blind preference, physical-device benchmark, or whole-loop visual acceptance is claimed.
+
+- Immutable frozen baseline: `1731b380851162741761c5569e2bc152a0869ca9`. Never changed.
+- Actual prior candidate footage SHA: `9fbd42303e4513f6981aa07f75cb191310abf17a`.
+- [Original 10-job workflow 42776160280](https://github.com/my-edutu/Ai_games/actions/runs/42776160280) **completed successfully** on 2026-11-10 UTC. [Candidate danger original WebMs](https://github.com/my-edutu/Ai_games/actions/runs/42776160280/artifacts/13743877992) and [candidate original outcome WebMs](https://github.com/my-edutu/Ai_games/actions/runs/42776160280/artifacts/13743234759). [Original independent source/video pair index](https://github.com/my-edutu/Ai_games/actions/runs/42776160280/artifacts/13744761041) reports **16 unmodified WebMs, 8/8 native-video clock calibrations, no provenance/source-story faults, fullMotionPaired=false**. This is only recording integrity, NOT LOOKS/FEELS/PLAYS acceptance.
+- [Full Node/browser quality](https://github.com/my-edutu/Ai_games/actions/runs/42776160584) completed successfully at the SAME previous SHA; it did not evaluate the following changes.
+
+## Genuine prior video observation
+Extracted frames from the original 72.8-second 390×844 and 960×600 candidate danger WebMs at native seconds 10,12,14,16,18,20,22,24,26,28,30,32. During real floor-eight combat from 14–24s, a full-height teal source guardian energy cross, barred doorway, bronze side structures, and sometimes a dark tower beam compete with or hide the hero/guardian. The real climber and guardian are often visible but there is no consistent **clear two-body fighting lane**; framing the HP-driven gate as the highest-priority landmark worsens the shot. Distinct purple floor-nine scenery appears in actual sampled frames at 26–32s. This does NOT establish uninterrupted visually causally matched defeat → grounded crossing → new floor.
+
+Extracted frames from the original 71.4-second 390×844 outcome recording at 4,8,...64s: active ascent progresses to floor five around 48s; authentic result panel is visible around 52s, and a restarted floor-zero game around 56s. This corroborates sampled outcome/restart states but is not full-speed independent observation of every event or the guardian-to-floor-nine path.
+
+## Implemented on PR68, no authoritative gameplay changes
+- Test-first new source contract: `tests/phase5/tower-guardian-gate-intrusion.test.cjs` at `0a8d7ccd44a52f11a4e8c9208dd450cbb658adbc`. It was **not executed red** before implementation; do not claim a red/green result.
+- Source-viewed `guardian-gate-intrusion.mjs` at `f06900d7d1f824a0a1d508fe805864a6e0ef5eb6`: computes bounded 2D overlap of real projected actor/guardian silhouettes with the actual source gate footprint, depth-weighting genuine foreground obstruction more strongly than background decoration. Invalid projections yield no speculation.
+- Integrated in the real `scene.mjs` camera at `4b4543bd616ab6d850a9f4682f72eaec9fdd0a6a`: sample four full-height 3D corners of the actual source-locked cap seal in each existing eligible exterior-orbit candidate; penalize a gate that overlaps either genuine combatant (up to 46 quality points) while retaining complete-actor, complete-guardian, real-world solid-core and moving-landing vetoes. The earlier +16 landmark gate bonus no longer automatically beats an obstructed live duel. No camera cut, source motion, collision edit, kill grant, fake success marker, added render pass, or extra raycast. Existing stage smoothing and prior-shot retention remain.
+
+## Specification and quality review
+Specification match: current P0 is the binding requirement; production runtime change targets **real two-body action composition**, not UI cosmetics. Real guardian, crusher, locked seal, true gateway and floor advance remain authoritative. Frozen baseline and PR58 are untouched. The proposed lens change is limited to camera planning and may change viewing angle or render size, **not world rules/replay**.
+
+Quality risks: projected-rectangle penalty is an approximation, not measured native raster occlusion; the opaque structural beam and world machinery may still interrupt visibility. A selected ideal camera may be changed by the later smoothed-camera and rescue passes. The correction requires actual new desktop/portrait continuous WebMs and exact-source event/film checks; no claim of improved pixels yet. Low-device camera CPU/memory impact is unmeasured; per selected live camera candidate there are four 3D corner evaluations and no render passes. Tests need original Node/browser run. Current blind independent critics LOOKS 0/5, FEELS 0/5, PLAYS 0/5; actual device frame-time p50/p95/p99 and memory **NOT EVALUATED**.
+
+## Next largest P0 action
+Inspect newly source-pinned 960×600/390×844 unmodified candidate/baseline danger full-motion, especially 12–27s, compare on-screen hero/guardian/grid visibility and physical gateway from native event-adjacent frames, confirm actual upper-cap source guardian and crusher hits, floor-nine and restart causality. If the obstruction remains, identify exact sightline/mesh and reconstruct the connected guardian scene without hiding real obstacles or weakening the source-lock. Only then revisit P1 and eventual independent 4/5 per pillar gates.
