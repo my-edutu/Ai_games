@@ -9894,6 +9894,9 @@ function getMarketReceivingHallAudit(){
   originalBays:marketQuarterStats.receivingBays,
   roofPanels:marketQuarterStats.receivingHallRoofPanels||0,
   loadBearingPosts:marketQuarterStats.receivingHallPosts||0,
+  openFrontTrussMembers:marketQuarterStats.receivingHallFrontTrussMembers||0,
+  openFrontTrussTriangles:marketQuarterStats.receivingHallFrontTrussTriangles||0,
+  frontGablePlasterPanels:0,rearGablePlasterPanels:2,
   rearShopGables:marketQuarterStats.rearShopGables||0,
   unobstructedCourierAisle:MARKET_RECEIVING_HALL.halfWidth*2-.20,
   lowerRoofClearance:MARKET_RECEIVING_HALL.eaveAboveGround,
@@ -9904,6 +9907,39 @@ function getMarketReceivingHallAudit(){
   authorityModified:false,changesNavigation:false,
   receivingPoints:[[-1.0,10.2],[.85,10.2]]};
 }
+// W205: actual receipt-court front is a sightline, not a plaster billboard.
+// A real oak king-post truss supports the EXISTING clay roof and existing
+// stone/oak unloading shelves without constructing a false wall in front of
+// the authoritative grain handoff. All load-bearing originals remain.
+function marketReceivingOpenFrontTruss(){
+ const site=MARKET_RECEIVING_HALL,cx=site.centerX,
+  ground=marketReceivingRoofDatum(),z=site.frontZ+.03,
+  oak=rgb(0x654a37),aged=rgb(0x957653),soot=rgb(0x4e4136),
+  first=data.length;
+ materialScope(MATERIAL.WOOD,()=>{
+  // Each rafter bears on the original outer post/tie, joining the ridge.
+  // Paired oak knees support the rafters above standing head height.
+  for(const side of [-1,1]){
+   limbSegment([cx+side*site.halfWidth,ground+2.25,z],
+    [cx,ground+3.20,z],.090,oak,5);
+   limbSegment([cx+side*site.halfWidth*.73,ground+2.24,z],
+    [cx+side*site.halfWidth*.56,ground+2.64,z],.064,aged,4);
+   limbSegment([cx+side*site.halfWidth*.31,ground+2.23,z],
+    [cx+side*.13,ground+3.02,z],.054,soot,4);
+  }
+  // A physical horizontal tie and vertical king post express the complete
+  // original gable structure while preserving visibility to real workers.
+  box(cx,ground+2.21,z,site.halfWidth*2,.092,.115,aged);
+  box(cx,ground+2.30,z,.12,.82,.14,oak);
+ });
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles>220||triangles<40)
+  throw Error('W205 original open market truss resource budget');
+ marketQuarterStats.receivingHallFrontTrussMembers=8;
+ marketQuarterStats.receivingHallFrontTrussTriangles=triangles;
+ return triangles;
+}
+
 function marketReceivingDock(){
  const bayX=[-1.0,.85],deliveryZ=10.2;
  for(const [index,x] of bayX.entries()){
@@ -9988,16 +10024,18 @@ function marketReceivingDock(){
  // Keep the authentic courier standing OUTSIDE the eave at z=10.2,
  // while both destination shelves at z=10.92 remain physically sheltered.
  // The 0.57m gap protects the unobstructed follow-camera handoff.
- // Both protected end gables have actual plaster infill, not floating roof
- // polygons; raised above a genuine open-loading clearance.
+ // The photographed original front gable was a huge opaque plaster
+ // triangle masking the genuine unloading and receiving court. Replace that
+ // ORIGINAL front infill with an open king-post timber roof truss; retain the
+ // opposite weather-sheltering rear lime gable and the full 18 roof panels.
+ marketReceivingOpenFrontTruss();
  materialScope(MATERIAL.PLASTER,()=>{
-  for(const z of [site.frontZ+.03,site.backZ-.03]){
-   const left=[cx-site.halfWidth,ground+2.25,z],
-    right=[cx+site.halfWidth,ground+2.25,z],
-    peak=[cx,ground+3.20,z];
-   tri(left,right,peak,lime);
-   tri(peak,right,left,lime);
-  }
+  const z=site.backZ-.03;
+  const left=[cx-site.halfWidth,ground+2.25,z],
+   right=[cx+site.halfWidth,ground+2.25,z],
+   peak=[cx,ground+3.20,z];
+  tri(left,right,peak,lime);
+  tri(peak,right,left,lime);
  });
 }
 // The transfer platform sits on a real connected open court, not under the
