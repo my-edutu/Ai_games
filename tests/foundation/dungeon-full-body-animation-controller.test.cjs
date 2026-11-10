@@ -1867,3 +1867,44 @@ test('landing-to-walk reentry releases measured original source feet rather than
  assert.match(model,/rigGaitBones/,
   'bridge must use genuine imported knees and ankles, not scene-level fake foot geometry');
 });
+
+
+test('real source-rig low-velocity arrival preserves original ankles while 7mm of residual root travel settles',async()=>{
+ const {planSourceWalkMicroArrival:quiet,planImportedWalkArrivalFreeze:freeze,
+  shouldFreezeDeferredImportedWalk:deferred,planSourceRigLandingRelease:landing,
+  planNativeWalkToGuardGait:guard}=await load();
+ assert.equal(typeof quiet,'function','original near-stop requires one physical-velocity witness shared by source planners');
+ const mobile={groundedTravel:.007422825818981,frameInterval:.08,
+  groundedMoving:false,visible:true,teleport:false,reducedMotion:false};
+ const desktop={...mobile,groundedTravel:.003932682360656};
+ assert.equal(quiet(mobile),true,'original mobile move-to-idle WebGL sample has ~7.4mm of final root travel');
+ assert.equal(quiet(desktop),true,'original desktop move-to-idle WebGL sample has ~3.9mm of final root travel');
+ for(const illegal of [
+  {groundedTravel:.012},{groundedTravel:.00742,frameInterval:.016},
+  {groundedTravel:.35},{groundedMoving:true},{visible:false},
+  {teleport:true},{reducedMotion:true},{groundedTravel:NaN},
+  {frameInterval:0},{frameInterval:NaN},{frameInterval:.5}
+ ])assert.equal(quiet({...mobile,...illegal}),false,
+  'rapid movement, unknown timing, concealed frames and teleports never claim a stationary foot');
+ const initial={previousMode:'move',nextMode:'idle',previousClipName:'Walking_A',...mobile};
+ assert.equal(freeze(initial),true,'original low-velocity outgoing Walking_A must stop cycling during Idle fade');
+ assert.equal(freeze({...initial,nextMode:'guard'}),true);
+ assert.equal(freeze({...initial,frameInterval:.016}),false,
+  'faster equivalent travel remains moving and cannot freeze the shoe');
+ const outgoing={targetMode:'idle',currentMode:'idle',clipName:'Walking_A',
+  sourceWeight:.35,sourceRunning:true,sourcePaused:false,alive:true,...mobile};
+ assert.equal(deferred(outgoing),true,'delayed original Walking_A fade shares the same real near-stop criterion');
+ assert.equal(deferred({...outgoing,groundedMoving:true}),false);
+ const sourceLanding={mode:'idle',sourceClipName:'Idle',sourceWalkFrozen:true,
+  rootTravel:mobile.groundedTravel,frameInterval:mobile.frameInterval,
+  elapsed:.085,moving:false,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ const release=landing(sourceLanding);
+ assert.ok(release>0&&release<1,'source pelvis plus six lower-body joints must continue a bounded landing release');
+ assert.equal(landing({...sourceLanding,frameInterval:.016}),null);
+ assert.equal(guard({mode:'guard',sourceWalkFrozen:true,groundedTravel:mobile.groundedTravel,
+  frameInterval:mobile.frameInterval,groundedMoving:false,gaitWeight:.75,
+  guardBlend:.2,alive:true,teleport:false,reducedMotion:false}),true);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/frameInterval:sourceFrameInterval/,'original WebGL frame interval must reach the source motion planners');
+});
