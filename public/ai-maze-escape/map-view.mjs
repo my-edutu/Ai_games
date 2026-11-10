@@ -338,6 +338,22 @@ export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, a
   return clamp(0,minimum,maximum)*halfHeight*aspect;
 }
 
+/**
+ * Actual public Tide-Shear action close-up, never a fabricated hazard.
+ * Pass238 original 390x844 WebGL showed the ENTIRE Pip/pressure mechanism
+ * in frame but measured Pip at 0.4697888 NDC (fixed strict minimum >0.49).
+ * Only an authentic pressure-first Follow stage earns a 6% closer lens;
+ * the original mesh/AI/collision remain unchanged, while the renderer still
+ * has to pass real full-model ±0.95 native portrait framing.
+ */
+export function publicPressureActionHalfHeight(aspect, halfHeight, pressureFirst, reducedMotion=false) {
+  if (!pressureFirst || reducedMotion
+    || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)
+    || !(Number.isFinite(halfHeight) && halfHeight > 0))
+    return halfHeight;
+  return halfHeight * .94;
+}
+
 export function publicCameraSettleRate(pickup=false, encounter=false, pressure=false, opening=false) {
   if (pickup) return 12;
   if (encounter || pressure) return 10;

@@ -108,3 +108,38 @@ test('public keyed diagonal trap restores genuine phone-size physical action wit
   assert.equal(JSON.stringify(published),before,
     'presentation does not mutate published knowledge or autonomous authority');
 });
+
+test('Pass239 actual 390 pressure silhouette earns a physical closer shot without shrinking or cropping either model',async()=>{
+  const {publicPressureActionHalfHeight:stage}=await camera();
+  // Original source-bound exact HEAD f6970f7e, real unedited tick5
+  // 390x844 image/diagnostic, not a guessed sculpture radius.
+  const originalHeight=7.119897427746005;
+  const heroOriginalWidth=.46978883742533656;
+  const jawOriginalLeft=-.8462757949441911;
+  const jawOriginalRight=.32323155536050174;
+  const width320Withdrawal=.8988851364300865-(-.796562483001803);
+  const tighter=stage(390/844,originalHeight,true,false);
+  const physicalGain=originalHeight/tighter;
+  assert.ok(physicalGain>1.06 && physicalGain<1.065);
+  assert.ok(heroOriginalWidth*physicalGain>.49,
+    'original real Pip needs a physically closer lens, not a weaker browser test');
+  assert.ok(jawOriginalLeft*physicalGain>-.95 && jawOriginalRight*physicalGain<.95,
+    'original full real pressure jaw must still fit without clipping');
+  assert.ok(width320Withdrawal*physicalGain<1.90,
+    'even 320px retreat pair must remain jointly reframeable under strict ±.95 NDC');
+  for (const aspect of [320/740,390/844])
+    assert.ok(stage(aspect,originalHeight,true,false)<originalHeight);
+  for(const [aspect,pressure,reduced] of [
+    [844/390,true,false],[1280/900,true,false],[390/844,false,false],
+    [390/844,true,true],[NaN,true,false],[.2,true,false],
+  ])assert.equal(stage(aspect,originalHeight,pressure,reduced),originalHeight,
+    'no unknown, reduced-motion or unrelated shot earns the closer pressure lens');
+  assert.equal(stage(390/844,originalHeight,true,false),tighter,
+    'replaying the same public pressure stage is deterministic and allocation free');
+  assert.equal(stage(390/844,NaN,true,false),NaN,
+    'malformed heights cannot manufacture a camera value');
+  const source=require('node:fs').readFileSync(
+    path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(source,/targetHeight = publicPressureActionHalfHeight\(\s*aspect,targetHeight,pressureFirst,settings\.reducedMotion\)/,
+    'the source renderer must actually use the public-only close-up, not a dead helper');
+});
