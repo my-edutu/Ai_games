@@ -196,3 +196,45 @@ test('real source guardian duel respects both full-body crop and immutable landi
   assert.equal(JSON.stringify(snapshot),initial,
     'the shared exterior lens cannot mutate combat, progression or replay authority');
 });
+
+
+test('a wounded, still-living source guardian stays in the real airborne duel between individual warning ticks', async () => {
+  const { THREE, pointFor, context } = await loaded;
+  const { snapshot, guardian } = realHit();
+  // Source-derived contact pose with the transient action/warning flags off.
+  // This is a controlled transition regression, NOT a recorded gameplay tick.
+  const betweenShots = {
+    ...snapshot,
+    player: { ...snapshot.player, state: 'airborne', attacking: false },
+    intent: { ...snapshot.intent, mode: 'recovering' },
+    enemies: snapshot.enemies.map(enemy =>
+      enemy.id === guardian.id ? { ...enemy, telegraph: false } : enemy),
+    projectiles: [],
+  };
+  const before = JSON.stringify(betweenShots);
+  for (const [width, height] of [[390, 844], [960, 600]]) {
+    const shot = cameraFor(THREE, context, pointFor, betweenShots, width, height);
+    assert.equal(shot.pose.guardianStaged, true,
+      'an already-wounded, nearby living guardian cannot disappear during an airborne recovery');
+    assert.ok(shot.pose.clear && shot.pose.actorFramed && shot.pose.guardianFramed,
+      'the unchanged combatants must share an unobstructed full-body exterior shot');
+    assert.ok(shot.pose.heroFraction >= .15,
+      'the restored guardian shot must not reduce the climber to a thumbnail');
+  }
+  const untouched = {
+    ...betweenShots,
+    enemies: betweenShots.enemies.map(enemy =>
+      enemy.id === guardian.id ? { ...enemy, health: enemy.maxHealth } : enemy),
+  };
+  assert.equal(cameraFor(THREE, context, pointFor, untouched, 390, 844).pose.guardianStaged,
+    false, 'an unwounded untelegraphed airborne encounter cannot steal an ordinary landing');
+  const defeated = {
+    ...betweenShots,
+    enemies: betweenShots.enemies.map(enemy =>
+      enemy.id === guardian.id ? { ...enemy, active: false, health: 0 } : enemy),
+  };
+  assert.equal(cameraFor(THREE, context, pointFor, defeated, 390, 844).pose.guardianStaged,
+    false, 'defeat must immediately retire the living boss camera subject');
+  assert.equal(JSON.stringify(betweenShots), before,
+    'the shot continuity policy cannot mutate the source state or replay');
+});
