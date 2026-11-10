@@ -15,7 +15,9 @@ const between=(start,end)=>{
 const square=between('function marketCobblestoneSquare(){','function marketTimberCart(');
 const court=between('function marketReceivingCourt(){','// W87: the SAME four real market stalls');
 const exchange=between('// W106 continue the SAME market economy','/* G095: central market');
-assert.match(square,/w106-worn-market-surface/);
+// W207 retains the original same-seed, walkable public court while converting
+// the uniform rectangle grid into separated, irregular clay-and-stone setts.
+assert.match(square,/w207-uneven-worn-setts-and-clay-wheelway/);
 assert.match(square,/marketWheelPassages/);
 assert.match(square,/marketDrainSegments/);
 assert.match(court,/receivingDrainSegments/);

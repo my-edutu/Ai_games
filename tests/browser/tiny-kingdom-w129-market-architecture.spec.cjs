@@ -40,6 +40,13 @@ function assertWorld(a){
  expect(a.raisedReceivingHall.originalBays).toBe(2);
  expect(a.raisedReceivingHall.loadBearingPosts).toBe(4);
  expect(a.raisedReceivingHall.roofPanels).toBe(18);
+ // W207 actual 1024px, 390px and Day-121 WebGL scene must contain
+ // a genuinely INWARD wood lining on the original pitched grain roof;
+ // source-only geometry stubs cannot substitute for this running-game gate.
+ expect(a.raisedReceivingHall.receivingSoffitPanels).toBe(18);
+ expect(a.raisedReceivingHall.receivingSoffitRafters).toBe(6);
+ expect(a.raisedReceivingHall.receivingSoffitTriangles).toBeGreaterThanOrEqual(75);
+ expect(a.raisedReceivingHall.receivingSoffitTriangles).toBeLessThan(140);
  expect(a.raisedReceivingHall.frontGablePlasterPanels).toBe(0);
  expect(a.physicalTradeCamera.marketRoofBands).toBe(4);
  expect(a.physicalTradeCamera.marketPosts).toBe(4);
