@@ -1014,14 +1014,13 @@ body[data-workday="household"] #workday-activity{
   background:#dfc392;color:#18382b
  }
 }
-/* W176: a real household shopper is still the observed village
-   protagonist. Keep the genuine market→occupied cottage camera free of the
-   overview resource bar, floating tag and masthead. The available full
-   Command Desk stays one reachable action away. */
+/* W176: the original market shopper and occupied cottage are the
+   protagonist, not a duplicate town dashboard. Household film keeps the
+   genuine four-command control dock, but no blocking ribbon/masthead/tag. */
 body[data-workday="household"] .top,
-body[data-workday="household"] #world-actor-tag,
-body[data-workday="household"][data-command="world"] #world-ribbon,
-body[data-workday="daybreak-return"][data-command="world"] #world-ribbon{
+body[data-workday="household"] #world-actor-tag{display:none!important}
+body[data-command="world"][data-workday="household"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon,
+body[data-command="world"][data-workday="daybreak-return"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon{
  display:none!important
 }
 body[data-workday="household"] .world-tour{
@@ -1036,13 +1035,17 @@ body[data-workday="household"][data-command="world"] .bottom >
  display:none!important
 }
 @media(max-width:520px){
- body[data-workday="household"] .world-tour{
+ /* Beat the earlier overview rules that used four attribute selectors and
+    display:flex!important: the household movie must never be a 54px-tall
+    world ribbon over an actual resident's face. */
+ body[data-command="world"][data-workday="household"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .world-tour{
   top:8px!important;left:6px!important;right:6px!important;
-  transform:none!important;max-width:calc(100vw - 12px)!important;
-  overflow-x:auto;justify-content:flex-start;padding:4px 6px
+  transform:none!important;width:calc(100vw - 12px)!important;
+  max-width:calc(100vw - 12px)!important;overflow-x:auto;
+  justify-content:flex-start;padding:4px 6px
  }
- body[data-workday="household"][data-command="world"] .bottom .btn{
-  font-size:10px;padding:8px 9px;min-height:44px
+ body[data-command="world"][data-workday="household"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]) .bottom .btn{
+  min-height:44px!important;font-size:10px!important;padding:8px 9px!important
  }
 }
 </style></head><body>
