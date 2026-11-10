@@ -22,7 +22,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure } from './guardian-gate-intrusion.mjs';
+import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -1160,6 +1160,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // visible HP-retracting teeth at radius 27.78, especially on a phone. The
   // observed guardian ID must match the opponent this shot is protecting.
   const guardianCircuitSource = contactGuardian ? observedGuardianCircuit(snapshot) : null;
+  const liveLockPriority = guardianLiveFightLockPriority(guardianCircuitSource);
   const lockStage = guardianCircuitSource?.guardianId === contactGuardian?.guardianId
     ? observedGuardianLockStage(guardianCircuitSource) : null;
   const gateAnchorX = lockStage ? guardianCircuitSource.toX : null;
@@ -1215,12 +1216,14 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     center.y = lerp(center.y, contactGuardian.y, .38);
     center.z = lerp(center.z, contactGuardian.z, .38);
   }
-  if (gate) {
-    // A very small shared camera bias brings the true HP-driven architecture
-    // closer to the guardian; the actor/hazard bounds remain the hard limit.
-    center.x = lerp(center.x, gate.x, .12);
-    center.y = lerp(center.y, gate.y + 2.5, .12);
-    center.z = lerp(center.z, gate.z, .12);
+  if (gate && liveLockPriority.focusBias > 0) {
+    // The full-height source lock physically dominates the phone fighting
+    // corridor. Let its pull grow ONLY with authentic guardian HP loss, so
+    // the living combatants remain primary until a truly earned release.
+    // The post-defeat physical threshold has its own existing camera stage.
+    center.x = lerp(center.x, gate.x, liveLockPriority.focusBias);
+    center.y = lerp(center.y, gate.y + 2.5, liveLockPriority.focusBias);
+    center.z = lerp(center.z, gate.z, liveLockPriority.focusBias);
   }
   center.y += height * (routeLanding ? .12 : .08);
   const tangent = Math.tan(42 * Math.PI / 360);
@@ -1462,7 +1465,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     // only among cameras with both actors framed and a clear tower sightline.
     const quality = view => (!view.clear || !view.guardianFramed || view.heroFraction < .15)
       ? -1000 + view.heroFraction
-      : 150 + (view.gateFramed ? 16 + guardianCircuitSource.openedFraction * 12 : 0) +
+      : 150 + (view.gateFramed ? liveLockPriority.frameBonus : 0) +
         (view.relayFramed ? 6 : 0) +
         // Damage must read as a connected battle-to-gate mechanism on a
         // phone; prefer the first true power-spine clutch only among shots

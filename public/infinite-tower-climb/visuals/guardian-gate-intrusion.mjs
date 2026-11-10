@@ -83,3 +83,21 @@ export function guardianDuelEdgePressure(heroCorners, guardianCorners) {
   };
   return Math.min(1, Math.max(edge(hero), edge(guardian)));
 }
+
+
+/**
+ * The lock is an authentic landmark, but the living duel owns the lens.
+ * Give the cap a small, source-HP-earned camera preference without paying
+ * a dominant gate framing reward before a genuine guardian defeat.
+ * This never changes the barrier, collision, combat or authoritative state.
+ */
+export function guardianLiveFightLockPriority(circuit) {
+  if (!circuit || !Number.isFinite(circuit.health) ||
+      !Number.isFinite(circuit.maxHealth) || circuit.maxHealth <= 0 ||
+      circuit.health <= 0 || circuit.health > circuit.maxHealth) {
+    return { focusBias: 0, frameBonus: 0 };
+  }
+  const release = Math.max(0, Math.min(1, 1 - circuit.health / circuit.maxHealth));
+  const earned = release * release;
+  return { focusBias: .014 + .036 * earned, frameBonus: 2 + 5 * earned };
+}
