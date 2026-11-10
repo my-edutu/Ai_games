@@ -33,6 +33,16 @@ function planPair(rows,viewport,candidateSha){
        clock?.viewport?.width!==(viewport==='portrait'?390:960) ||
        clock?.viewport?.height!==(viewport==='portrait'?844:600) ||
        clock?.scenario!=='danger' || meta?.scenario!=='danger' ||
+       record.nativeFilmAudit?.sourceSha!==record.sourceSha ||
+       record.nativeFilmAudit?.scenario!=='danger' ||
+       record.nativeFilmAudit?.status!=='SOURCE_VIDEO_TRANSPORT_ONLY' ||
+       !record.nativeFilmAudit?.viewports?.some(v=>v.viewport===viewport &&
+         v.status==='SOURCE_VIDEO_TRANSPORT_ONLY' && Array.isArray(v.problems) &&
+         v.problems.length===0 && v.originalWebMSha256===record.videoSha256 &&
+         v.videoBytes===record.videoBytes &&
+         v.native?.width===(viewport==='portrait'?390:960) &&
+         v.native?.height===(viewport==='portrait'?844:600) &&
+         v.native?.lastPtsSeconds-v.native?.firstPtsSeconds>=60) ||
        !Array.isArray(clock?.sourceEventTimecodes)){
       plan.failures.push('unverified-original-'+source);
     }
