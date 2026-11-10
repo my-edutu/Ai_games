@@ -208,8 +208,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // bone on this witnessed swing. An idle or stale reused actor is not a blade.
   if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
     actor.u?.actionTick!==cue.tick||!selectObservedWeaponHandBone(actor)))return null;
-  const sampledPoint=sampleActor(id,at,{hand:type==='trail'||type==='projectile'||type==='spell',
-   chest:victim,requireBone:type==='trail'});
+  // Authored ranger/caster models supply a genuine skinned hand. An invalid,
+  // missing or detached joint must NOT quietly become a static actor-root
+  // muzzle. Explicitly procedural fallback bodies keep their existing
+  // approximate source pose; neither representation proves a target impact.
+  const requireObservedEmitter=kineticRelease&&actor?.authored===true;
+  const sampledPoint=sampleActor(id,at,{hand:type==='trail'||kineticRelease,
+   chest:victim,requireBone:type==='trail'||requireObservedEmitter});
   if(sampledPoint)return sampledPoint;
   // A stale or invisible body never falls back to a fake floor-height
   // release/recovery ring, even though the authority proved the event.
