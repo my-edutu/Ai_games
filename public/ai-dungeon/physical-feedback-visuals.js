@@ -557,6 +557,19 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    cue.kind==='spell-release'?'spell':null;
   return type!==null&&anchor(cue,type)!==null;
  }
+ // Some real body-local actions are audio-capable even when the signal
+ // pool is saturated or the ring was otherwise not admitted. Such a sound
+ // must still have an observed live performer: a prior public action tick
+ // does not prove the model/pose remains present at delayed admission.
+ // This is a read-only witness; never draws a ring or invents contact.
+ function hasAuthenticatedBodyPose(cue){
+  if(disposed||cue?.visual!=='warden'&&cue?.visual!=='opening'&&
+   cue?.visual!=='utility')return false;
+  const expected=cue.kind==='warden-release'||cue.kind==='guard'||
+   cue.kind==='cast-utility'?'authority-action':
+   cue.kind==='opening'?'authority-opening-recovery-window':null;
+  return expected!==null&&cue.proof===expected&&anchor(cue,'signal')!==null;
+ }
  // Query retained slots once per pending sound receipt, after actual-frame
  // lifetime aging. A live swing slot does not certify a successful hit.
  function hasLiveCue(cueId){
@@ -605,5 +618,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasAuthenticatedReleasePose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
 }
