@@ -795,7 +795,8 @@ export function createTowerWorld(){
         // Moving the SOLID shaft sideways did not create a window. Give this
         // source-owned clockwork biome a genuinely load-bearing OPEN frame.
         // The 3D model, not an opacity shader or UI overlay, owns the void.
-        // All clockwork floors share the same architecture and draw budget;\n        // the other four biome styles retain their original solid shafts.
+        // All clockwork floors share the same architecture and draw budget;
+        // the other four biome styles retain their original solid shafts.
         const openBase=-18, crown=shoulder+3;
         const corner=p.R*.70, height=crown-openBase;
         const plinth=lathe(body,[[0,p.bottom],[p.R*.72,p.bottom],
