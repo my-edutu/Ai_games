@@ -418,6 +418,39 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  * still blends in on mixer time. The next lawful walk reset unpauses it.
  * This is not a world-space sole lock and never moves the authority root.
  */
+/**
+ * The pinned original 41-joint Walking_A already owns thigh, calf and ankle
+ * swing. The previous independent +/-0.245 rad leg sine layered on TOP of the
+ * imported walking keyframes, lifting skinned shoe soles a second time and
+ * increasing visible skating. Transfer primarily to the authentic GLB while
+ * retaining a small, bounded source-foot support. No joint IK is implied.
+ *
+ * Pure blend contract: only a verified, actively moving imported walking
+ * action can suppress the cosmetic gait. Crossfades enter gradually; the
+ * established share remains unchanged through stationary settling/guard
+ * release so the overlay cannot swell just as the original walk freezes.
+ * Injury, evasion, cast, strike, death, teleport, accessibility or invalid
+ * source evidence always clear ownership; no authoritative movement changes.
+ */
+export function planNativeImportedLegOwnership({previous=1,mode='idle',
+ sourceClipName='',sourceWeight=NaN,groundedMoving=false,settling=false,
+ frameDelta=0,alive=true,teleport=false,reducedMotion=false}={}){
+ if(!finite(previous)||previous<.16||previous>1||!finite(frameDelta)||
+  frameDelta<0||frameDelta>.35||alive!==true||teleport||reducedMotion)return 1;
+ if(mode==='move'&&groundedMoving===true&&
+  typeof sourceClipName==='string'&&/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName)&&
+  finite(sourceWeight)&&sourceWeight>=0&&sourceWeight<=1){
+  const desired=1-.84*sourceWeight;
+  const cap=Math.min(.1,frameDelta*6.25);
+  return clamp(desired,Math.max(.16,previous-cap),Math.min(1,previous+cap));
+ }
+ // The original Walk -> Idle/Guard fade consumes the last valid planted
+ // leg-support pose; do not ramp duplicated swing back up during that fade.
+ if((mode==='idle'||mode==='guard')&&settling===true&&groundedMoving===false)
+  return previous;
+ return 1;
+}
+
 export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idle',
  previousClipName='',groundedMoving=false,groundedTravel=NaN,
  teleport=false,reducedMotion=false,visible=true}={}){
