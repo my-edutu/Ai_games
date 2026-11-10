@@ -7,7 +7,7 @@ const load=()=>import(pathToFileURL(path.resolve(__dirname,
  '../../public/ai-dungeon/physical-combat-feedback.js')).href);
 
 function device(name){
- const events=[];
+ const events=[],listeners=new Set();
  const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
  const node=type=>({
   type,gain:param(),frequency:param(),Q:{value:0},
@@ -17,6 +17,9 @@ function device(name){
   stop(){events.push(['stop',type])}
  });
  const ctx={name,state:'running',currentTime:0,events,destination:node('destination'),
+  addEventListener(type,cb){if(type==='statechange')listeners.add(cb)},
+  removeEventListener(type,cb){if(type==='statechange')listeners.delete(cb)},
+  listenerCount(){return listeners.size},
   createGain:()=>node('gain'),createBiquadFilter:()=>node('filter'),
   createOscillator:()=>node('oscillator'),createBufferSource:()=>node('source'),
   createBuffer(channels,length,rate){
@@ -118,4 +121,36 @@ test('manual mute remains a manual mute across device recovery',async()=>{
  assert.equal(submit(d,1),0);
  assert.equal(replacement.started(),0);
  d.dispose();
+});
+
+test('repeated device recovery retains exactly one current state listener',async()=>{
+ const a=device('a'),b=device('b'),c=device('c'),d=await spectator(a);
+ assert.equal(a.listenerCount(),1);
+ d.enableAudioFromGesture();
+ assert.equal(d.attachAudioContext(b),true);
+ assert.equal(a.listenerCount(),0);
+ assert.equal(b.listenerCount(),1);
+ assert.equal(d.attachAudioContext(b),true);
+ assert.equal(b.listenerCount(),1);
+ assert.equal(d.attachAudioContext(c),true);
+ assert.equal(b.listenerCount(),0);
+ assert.equal(c.listenerCount(),1);
+ d.dispose();
+ assert.equal(c.listenerCount(),0);
+});
+
+test('external audio adapters fail closed on unknown new AudioContext',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const a=device('a'),b=device('b');
+ const audio={enable(){return true},emit(){return true},disable(){},flush(){},dispose(){}};
+ const d=createPhysicalCombatFeedback({ctx:a,audioAdapter:audio,requirePresentedFrame:true});
+ assert.equal(d.enableAudioFromGesture(),true);
+ assert.equal(d.attachAudioContext(b),false,'injected adapter has no device-rebind contract');
+ assert.equal(d.stats().injectedContextMismatch,true);
+ assert.equal(d.stats().audioOptedIn,false);
+ assert.equal(d.enableAudioFromGesture(),false,'cannot play through an unverified output');
+ assert.equal(d.attachAudioContext(a),true,'restore original known device');
+ assert.equal(d.enableAudioFromGesture(),true);
+ d.dispose();
+ assert.equal(a.listenerCount(),0);
 });
