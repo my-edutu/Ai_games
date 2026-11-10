@@ -89,8 +89,13 @@ for(const season of seasons){
   lotContext,{timeout:2000});
  meshFrames.push(lot.data.slice());
 }
+// The first fresh source is a JS Number array; WebGL and the retained
+// resident mesh both store Float32 vertices. Compare their ACTUAL uploaded
+// Float32 representation rather than falsely requiring double precision.
+const canonical=Array.from(new Float32Array(meshFrames[0]));
 for(const frame of meshFrames){
- assert.deepEqual(frame,meshFrames[0],'original geometry and material tags must remain exact');
+ assert.deepEqual(Array.from(new Float32Array(frame)),canonical,
+  'original uploaded WebGL vertex/material tags must remain bit-identical');
  assert.equal(frame.length,30,'no hidden original vertices');
 }
 assert.equal(lot.houseGeometryBuilds,1,'only the first season generates original house mesh');
