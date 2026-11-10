@@ -362,6 +362,36 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
 }
 
 /**
+ * One-time source-rig visual grounding at asset attachment, NOT an IK solver.
+ * Original pinned GLB shoes in the captured live Idle pose were ~0.23m ABOVE
+ * the real authored cube top (-0.02m), despite the artist's asset-wide bounds
+ * having been placed at floor height. Props/weapon tips may set those bounds.
+ * Only trust BOTH real skinned shoe vertices from the same neutral source
+ * clip, with close heights. Never translate DungeonRuntime root or retime
+ * walking/action clips. No per-frame scan, mesh, geometry or GPU work.
+ */
+export function planOriginalSourceSoleGrounding({
+ mode='idle',sourceClipName='',visible=true,reducedMotion=false,
+ floorTopY=NaN,floorEvidence='',leftSoleWorldY=NaN,rightSoleWorldY=NaN
+}={}){
+ if(!['idle','guard'].includes(mode)||sourceClipName!=='Idle'||
+  visible!==true||reducedMotion||floorEvidence!=='authored-cube-floor-top'||
+  ![floorTopY,leftSoleWorldY,rightSoleWorldY].every(finite)||
+  Math.abs(floorTopY+.02)>.003||Math.abs(leftSoleWorldY-rightSoleWorldY)>.035)
+  return null;
+ const minimum=Math.min(leftSoleWorldY,rightSoleWorldY);
+ const gap=minimum-floorTopY;
+ // A tiny gap is source bob; a large/uneven gap is an untrusted pose or
+ // different stage surface. Never ground that actor speculatively.
+ if(gap<.06||gap>.36)return null;
+ return Object.freeze({accepted:true,measuredFrom:'original-skinned-sole-vertices',
+  floorTopY,offsetY:Number((-gap).toFixed(6)),
+  beforeMinSoleY:Number(minimum.toFixed(6)),
+  originalSourceClip:sourceClipName,
+  note:'asset-pivot-only-once; not world-space foot lock or native IK'});
+}
+
+/**
  * A source GLB death is a terminal one-shot, not a new attack on each server
  * heartbeat. DungeonRuntime legally increments every unit's actionTick even
  * after HP reaches zero, so using the general one-shot tick rule would reset

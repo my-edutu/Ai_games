@@ -55,6 +55,55 @@ async function nativeRigProof(page){
  return audit;
 }
 
+/**
+ * True desktop/mobile original source-GLB skin-to-floor acceptance probe.
+ * BEFORE: archived exact-original actor soles ~+.210m above the stone.
+ * AFTER: comparable idle sample must ground without any root translation.
+ */
+for(const view of [
+ {name:'desktop',width:1440,height:900},
+ {name:'mobile',width:390,height:844}
+])test('original skinned idle shoe rests on real stone without moving the authority root: '+view.name,
+ async({page})=>{
+ test.setTimeout(140000);
+ await page.setViewportSize({width:view.width,height:view.height});
+ const start=DungeonRuntime.create('visual-room-art-18').publicState();
+ const stage=await loadStage(page,start),rig=await nativeRigProof(page);
+ const vanguard=rig.actors.find(a=>a.kind==='vanguard'&&a.mode==='idle');
+ expect(vanguard,'genuine source Vanguard Idle must be visible').toBeTruthy();
+ expect(vanguard?.sourceGroundAnchor?.accepted,
+  'the original heel/sole should no longer hover 23cm above stone').toBe(true);
+ expect(vanguard?.sourceGroundAnchor?.measuredFrom).toBe('original-skinned-sole-vertices');
+ expect(vanguard?.sourceGroundAnchor?.offsetY).toBeLessThan(-.06);
+ expect(vanguard?.sourceGroundAnchor?.offsetY).toBeGreaterThan(-.36);
+ const soles=[vanguard.soleVertexWorld.left,vanguard.soleVertexWorld.right];
+ expect(soles.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite))).toBe(true);
+ const minSoleY=Math.min(...soles.map(p=>p[1]));
+ expect(Math.abs(minSoleY-(-.02)),
+  'skinned original sole, not sword-tip bounds, should meet the actual floor').toBeLessThan(.055);
+ expect(vanguard.rootWorld[1],
+  'the fixed-step grid owner must never move because of cosmetic grounding').toBe(0);
+ expect(vanguard.sourceWeaponGrip?.attachedToGripSocket).toBe(true);
+ expect(vanguard.maxStretchFraction).toBeLessThanOrEqual(.20);
+ expect(rig.summary.bindReferenceComplete).toBe(true);
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({
+  path:'artifacts/dungeon-full-body-true-floor-'+view.name+'.png',timeout:60000});
+ await test.info().attach('original-source-skin-to-stone-'+view.name,{
+  contentType:'application/json',body:Buffer.from(JSON.stringify({
+   seed:'visual-room-art-18',viewport:view.name,
+   floorEvidence:'real authored cube upper surface y=-0.02',
+   authorityRoot:vanguard.rootWorld,grounding:vanguard.sourceGroundAnchor,
+   sourceSoleVertexWorld:vanguard.soleVertexWorld,
+   originalWeaponGrip:vanguard.sourceWeaponGrip,
+   deformation:rig.summary,
+   beforeArtifact:'Actions 42900564186 source-rig artifact 13802952358',
+   warning:'Idle attachment corrects baseline hover, not planted stance, full walk or native IK.'
+  },null,2))
+ });
+});
+
 test('real imported rig attack has one named action owner and source-clip audit',async({page,request})=>{
  test.setTimeout(120000);
  expect((await request.get('/dungeon/full-body-animation-controller.js')).status()).toBe(200);
