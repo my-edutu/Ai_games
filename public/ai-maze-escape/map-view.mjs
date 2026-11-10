@@ -122,6 +122,81 @@ export function publicPressureWithdrawalTakesFocus(before, after, trap, cellSize
     && step.x+step.z===1;
 }
 
+/**
+ * Return a PRESENTATION partner for the one real 320px pressure withdrawal,
+ * when an already-observed jaw remains in the known scene but a newly
+ * discovered destination takes Pip outside the current trap-focus search.
+ * Real Pass231 tick6 showed the physical jaw [-1.268,-.585] NDC while a
+ * sealed gate stole the lens. This never queries private state, guesses an
+ * upcoming move, makes a passage, or introduces a new hazard.
+ *
+ * Unlike ordinary live contact, a retreat is verified from TWO public
+ * snapshots: a previously visible cardinally adjacent jaw, the next
+ * authoritative grid step, the currently disclosed reciprocal connection,
+ * and the same already-known trap. Previously seen is not a hidden tile.
+ * The fixed .57 optical pan is the existing disclosed diagonal stage weight.
+ */
+export function publicVerifiedPressureRetreatPartner(before, after, cellSize, aspect,
+  cameraMode='follow', guardian=false, opening=false, pickup=false) {
+  if (!before || !after || before.result || after.result
+    || typeof before.runToken!=='string' || !before.runToken
+    || before.runToken!==after.runToken
+    || !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick)
+    || after.tick!==before.tick+1
+    || !Number.isSafeInteger(after.width) || after.width<2
+    || !Number.isSafeInteger(after.height) || after.height<2
+    || before.width!==after.width || before.height!==after.height
+    || cameraMode!=='follow' || guardian || opening || pickup
+    || !(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
+    || !(Number.isFinite(cellSize) && cellSize>0)
+    || !Array.isArray(before.cells) || !Array.isArray(after.cells)
+    || !Array.isArray(before.visibleCells) || !Array.isArray(after.visibleCells)
+    || !Array.isArray(after.doors)
+    || !Number.isSafeInteger(before.currentCell) || !Number.isSafeInteger(after.currentCell))
+    return null;
+  const limit=after.width*after.height, from=before.currentCell, to=after.currentCell;
+  if(from<0 || to<0 || from>=limit || to>=limit) return null;
+  const distance=(a,b)=>({
+    dx:Math.abs(a%after.width-b%after.width),
+    dz:Math.abs(Math.floor(a/after.width)-Math.floor(b/after.width))
+  });
+  const step=distance(from,to);
+  if(step.dx+step.dz!==1 || !after.visibleCells.includes(to)) return null;
+  const current=new Map(after.cells.map(cell=>[cell?.cell,cell]));
+  const source=new Map(before.cells.map(cell=>[cell?.cell,cell]));
+  const start=current.get(from), end=current.get(to);
+  if(!start || !end || start.blocked || end.blocked
+    || !Array.isArray(start.neighbors) || !start.neighbors.includes(to)
+    || !Array.isArray(end.neighbors) || !end.neighbors.includes(from)
+    || after.doors.some(d=>!d.open
+      && ((d.a===from&&d.b===to)||(d.a===to&&d.b===from))))
+    return null;
+  const candidates=[];
+  for(const cell of before.cells) {
+    const id=cell?.cell, now=current.get(id), old=source.get(id);
+    if(!Number.isSafeInteger(id) || id<0 || id>=limit
+      || !old || old.trap!==true || old.blocked===true
+      || !now || now.trap!==true || now.blocked===true
+      || !before.visibleCells.includes(id)
+      || !Array.isArray(old.neighbors) || !old.neighbors.includes(from)
+      || !Array.isArray(source.get(from)?.neighbors)
+      || !source.get(from).neighbors.includes(id)) continue;
+    const contact=distance(from,id), withdrawn=distance(to,id);
+    if(contact.dx+contact.dz!==1 || withdrawn.dx!==1 || withdrawn.dz!==1)
+      continue;
+    // A previously disclosed physical danger remains a lawful one-step
+    // camera subject even if it has left the CURRENT vision set.
+    // Never introduce a formerly unknown/undiscovered trap or blocked cell.
+    candidates.push(id);
+  }
+  if(candidates.length!==1) return null;
+  const id=candidates[0];
+  return {cell:id,
+    x:(id%after.width-(after.width-1)/2)*cellSize,
+    z:(Math.floor(id/after.width)-(after.height-1)/2)*cellSize,
+    distance:Math.SQRT2*cellSize,weight:.57,verifiedRetreat:true};
+}
+
 export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) {
   if (!snapshot || snapshot.result
     || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)

@@ -196,3 +196,69 @@ test('the actual game-first overlay consumes ONLY the public pressure retreat',(
  assert.match(source,/pressureCue\?'Avoid jaws'/);
  assert.match(source,/pressureCue\?'Keep clear of the jaws'/);
 });
+
+test('native tick6 uses the genuinely witnessed pressure partner after a legal public retreat, not a stale sealed gate',async()=>{
+ const {publicVerifiedPressureRetreatPartner:retain}=await load();
+ const cells=[
+  {cell:24,neighbors:[25],blocked:false},
+  {cell:25,neighbors:[24,32],blocked:false},
+  {cell:32,neighbors:[25],trap:true,blocked:false}
+ ];
+ const before={runToken:'source-tick6',tick:5,width:7,height:7,
+  currentCell:25,cells,visibleCells:[25,32],doors:[],result:null};
+ const after={...before,tick:6,currentCell:24,
+  // Only the newly occupied cell is visible now; the earlier witnessed
+  // physical mechanism remains in the public known maze and still renders.
+  visibleCells:[24],doors:[{a:24,b:17,open:false}]};
+ const untouched=JSON.stringify({before,after});
+ assert.deepEqual(retain(before,after,CELL,ASPECT),{
+  cell:32,x:0,z:CELL,distance:CELL*Math.SQRT2,weight:.57,verifiedRetreat:true
+ });
+ assert.equal(JSON.stringify({before,after}),untouched);
+ assert.equal(retain(before,after,CELL,390/844)?.cell,32);
+ assert.equal(retain(before,after,CELL,844/390),null);
+});
+test('public retreat shot never promotes previously secret, forged, blocked or disconnected geometry',async()=>{
+ const {publicVerifiedPressureRetreatPartner:retain}=await load();
+ const cells=[
+  {cell:24,neighbors:[25],blocked:false},
+  {cell:25,neighbors:[24,32],blocked:false},
+  {cell:32,neighbors:[25],trap:true,blocked:false}
+ ];
+ const before={runToken:'sealed-source',tick:5,width:7,height:7,
+  currentCell:25,cells,visibleCells:[25,32],doors:[],result:null};
+ const after={...before,tick:6,currentCell:24,visibleCells:[24]};
+ const pick=(a=before,b=after,mode='follow',guardian=false,opening=false,pickup=false)=>
+  retain(a,b,CELL,ASPECT,mode,guardian,opening,pickup);
+ assert.equal(pick()?.cell,32);
+ for(const [a,b] of [
+  [{...before,visibleCells:[25]},after],
+  [before,{...after,cells:cells.slice(0,2)}],
+  [before,{...after,cells:cells.map(c=>c.cell===32?{...c,trap:false}:c)}],
+  [before,{...after,cells:cells.map(c=>c.cell===32?{...c,blocked:true}:c)}],
+  [before,{...after,cells:cells.map(c=>c.cell===24?{...c,neighbors:[]}:c)}],
+  [before,{...after,cells:cells.map(c=>c.cell===25?{...c,neighbors:[32]}:c)}],
+  [before,{...after,doors:[{a:24,b:25,open:false}]}],
+  [before,{...after,currentCell:17}],
+  [before,{...after,currentCell:25}],
+  [before,{...after,runToken:'another'}],
+  [before,{...after,tick:7}],
+  [before,{...after,visibleCells:[]}],
+  [before,{...after,result:{reason:'capture'}}]
+ ])assert.equal(pick(a,b),null);
+ assert.equal(pick(before,after,'overview'),null);
+ assert.equal(pick(before,after,'detail'),null);
+ assert.equal(pick(before,after,'follow',true),null);
+ assert.equal(pick(before,after,'follow',false,true),null);
+ assert.equal(pick(before,after,'follow',false,false,true),null);
+ assert.equal(pick(before,after,'follow')?.verifiedRetreat,true);
+});
+test('real production camera keeps the previous witnessed pressure shape without altering its strict silhouette gate',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+ assert.match(source,/const verifiedRetreatTrap = publicVerifiedPressureRetreatPartner\(/);
+ assert.match(source,/\|\| !!verifiedRetreatTrap/);
+ assert.match(source,/const publicPressureTrap = verifiedRetreatTrap/);
+ assert.match(source,/cameraGate = pressureFirst \? null : openingGateBeat \|\| nearObservedGate/);
+ assert.match(source,/pressureCameraBeat = true/);
+});

@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -693,9 +693,19 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const aspect = width / Math.max(1, height);
     // A genuine near, currently visible public hazard is a scene partner,
     // not an off-screen text marker. This is camera composition ONLY.
-    const publicPressureTrap = cameraMode === 'follow' && !result
+    const currentPressureTrap = cameraMode === 'follow' && !result
       && !closestThreat?.strength
       ? publicObservedTrapCameraFocus(s,pose,CELL_SIZE,aspect) : null;
+    // This is a confirmed previous-PUBLIC-frame camera partner only.
+    // If a disclosed jaw recedes from current vision on the next legal
+    // autonomous step, do not abandon its physical release to an unrelated
+    // remembered gate. Never use private map or force a simulated retreat.
+    const verifiedRetreatTrap = publicVerifiedPressureRetreatPartner(
+      priorPublicSnapshot,s,CELL_SIZE,aspect,cameraMode,
+      !!closestThreat?.strength,!!openingGateBeat,!!showPickup);
+    const publicPressureTrap = verifiedRetreatTrap
+      && (!currentPressureTrap || currentPressureTrap.cell===verifiedRetreatTrap.cell)
+      ? verifiedRetreatTrap : currentPressureTrap;
     // The previous close-up used to immediately snap back to a wide water
     // shot as soon as the real gate opened. Keep the SAME disclosed arch and
     // Pip readable briefly while its actual bronze grille withdraws.
@@ -750,7 +760,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         !!closestThreat?.strength, !!openingGateBeat, !!showPickup)
         || publicPressureWithdrawalTakesFocus(
           priorPublicSnapshot, s, publicPressureTrap, CELL_SIZE, aspect,
-          cameraMode, !!closestThreat?.strength, !!openingGateBeat, !!showPickup);
+          cameraMode, !!closestThreat?.strength, !!openingGateBeat, !!showPickup)
+        || !!verifiedRetreatTrap;
       // Current, already-visible jaw must not disappear behind a stale gate
       // during the one lawful retreat from its immediately observed contact.
       const nearObservedGoal = cameraMode === 'follow' && !result
