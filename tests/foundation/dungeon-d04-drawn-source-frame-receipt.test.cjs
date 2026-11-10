@@ -97,6 +97,45 @@ function fakeStage(){
   DoubleSide:2,DynamicDrawUsage:35048},
   scene:{add(){},remove(){}}};
 }
+
+test('real retained measured trail cannot authorize a whoosh after mid-frame actor cancellation',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {THREE,scene}=fakeStage();
+ let wristX=-6.8;
+ const bone={isBone:true,updateWorldMatrix(){},
+  getWorldPosition(v){v.set(wristX,1.17,-6.8)}};
+ const actor={u:null,authored:true,assetRoot:{},rigMeleeBones:[{part:'wrist',bone}],
+  root:{visible:true,position:new THREE.Vector3(-7,0,-7),rotation:{y:0}}};
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{actorById:()=>actor});
+ const heard=[];
+ const feedback=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter:visual,
+  audioAdapter:{enable(){return true},emit(c){heard.push(c.audio);return true},
+   cleanup(){},disable(){},flush(){},dispose(){}}
+ });
+ assert.equal(feedback.enableAudioFromGesture(),true);
+ const before=shot(10,'vanguard'),attack=shot(11,'vanguard','attack');
+ actor.u=before.units[0];feedback.acceptSnapshot(before);
+ actor.u=attack.units[0];feedback.acceptSnapshot(attack);
+ feedback.advance(.016,.016);
+ wristX-=.12;feedback.advance(.016,.016);
+ const cueId='1:1:11:swing:source:-';
+ assert.equal(visual.hasLiveCue(cueId),true);
+ assert.equal(visual.hasDrawableCue(cueId),true);
+ // Authority/actor changes after the last visual advancement, before the
+ // actual submitted-frame receipt. The stale retained GPU slot alone is not
+ // proof of a live attacking body at the sound-scheduling boundary.
+ actor.u={...actor.u,action:'guard',actionTick:12};
+ assert.equal(visual.hasDrawableCue(cueId),true);
+ assert.equal(feedback.acknowledgePresentedFrame(1,.003),0);
+ assert.deepEqual(heard,[]);
+ assert.equal(feedback.stats().recentDeliveryReceipts.at(-1).decision,
+  'revoked-drawn-swing-pose');
+ assert.equal(feedback.stats().visuals.reservedInstances,102);
+ feedback.dispose();
+});
+
 test('production witness requires living matched action and actual wrist, without a new effect',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {THREE,scene}=fakeStage();
