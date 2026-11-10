@@ -395,6 +395,21 @@ export function planOriginalSourceSoleGrounding({
 }
 
 /**
+ * Once an original licensed Idle skinned-shoe pose is calibrated to the
+ * measured stone-top Y, the regular full-body presentation frame must retain
+ * that ONE attachment offset. Recomputing visualPivot.position each frame
+ * previously erased the ground placement, recreating a measured ~23cm hover.
+ * Compose from the independent current-frame performance Y (never prior
+ * pivot.position.y): this is non-accumulating and does not move simulation.
+ */
+export function composeOriginalSourceGroundedPivotY(presentationY=0,anchor=null){
+ if(!finite(presentationY))return 0;
+ const offset=anchor?.accepted===true&&finite(anchor.offsetY)&&
+  anchor.offsetY<=0&&anchor.offsetY>=-.75?anchor.offsetY:0;
+ return presentationY+offset;
+}
+
+/**
  * A source GLB death is a terminal one-shot, not a new attack on each server
  * heartbeat. DungeonRuntime legally increments every unit's actionTick even
  * after HP reaches zero, so using the general one-shot tick rule would reset

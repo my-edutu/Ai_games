@@ -10,6 +10,26 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+test('live frame recomposition must retain measured source-shoe calibration, not erase it',async()=>{
+ const {composeOriginalSourceGroundedPivotY:compose}=await load();
+ assert.equal(typeof compose,'function','native attachment shoe anchor must survive each source animation frame');
+ const anchored={accepted:true,offsetY:-.2303,worldOffsetY:-.2303,originalSourceClip:'Idle'};
+ assert.ok(Math.abs(compose(0,anchored)+.2303)<1e-9);
+ assert.ok(Math.abs(compose(.015,anchored)+.2153)<1e-9,
+  'legal locomotion/attack body lift must be composed over original ground anchor');
+ assert.ok(Math.abs(compose(0,anchored)+.2303)<1e-9,
+  'successive frames cannot compound or forget the original skinned shoe anchor');
+ for(const presentation of [-.035,0,.002,.12])
+  assert.ok(Math.abs(compose(presentation,anchored)-(presentation-.2303))<1e-9);
+ for(const invalid of [null,{}, {accepted:false,offsetY:-.23},
+  {accepted:true,offsetY:NaN},{accepted:true,offsetY:Infinity},
+  {accepted:true,offsetY:.2},{accepted:true,offsetY:-2}])
+  assert.equal(compose(.019,invalid),.019,'untrusted cosmetic offset cannot alter a source rig');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/composeOriginalSourceGroundedPivotY\([\s\S]{0,190}actor\.sourceGroundAnchor\)/,
+  'real frame-owned visualPivot.position.set must preserve one-time sole-to-floor offset');
+});
+
 test('licensed source soles align to the ACTUAL stone top without moving authoritative grid roots or weapon rigs',async()=>{
  const {planOriginalSourceSoleGrounding:plan}=await load();
  assert.equal(typeof plan,'function','a bounded original-skin grounding planner must exist');

@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1604,7 +1604,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    dodge=actor.evasionFrame.root,native=actor.nativeDuel?.root;
   const ground=actor.fullBody.owner.locomotion?actor.groundedPerformance:null;
   actor.visualPivot.position.set(pose.x+contact.x+beat.x+dodge.x+(native?.x??0),
-   pose.y+contact.y+beat.y+dodge.y+(native?.y??0)+(ground?.bodyLift??0),pose.z+contact.z+beat.z+dodge.z+(native?.z??0));
+   composeOriginalSourceGroundedPivotY(pose.y+contact.y+beat.y+dodge.y+(native?.y??0)+(ground?.bodyLift??0),actor.sourceGroundAnchor),pose.z+contact.z+beat.z+dodge.z+(native?.z??0));
   // Real visible travel adds a restrained forward weight shift atop the
   // imported animation, without moving attack hitboxes or the authority grid.
   actor.visualPivot.rotation.set(pose.pitch+contact.pitch+beat.pitch+dodge.pitch+
