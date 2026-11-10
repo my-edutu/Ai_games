@@ -6213,6 +6213,9 @@ function getHomePartitionAudit(){
   builds:homeClusterBuilds,hits:homeClusterHits,
   uploads:homeClusterUploads,disposals:homeClusterDisposals,
   evictions:homeClusterEvictions,
+  localResidentRanges:homeLocalMeshPacked,
+  localSpatialFallbacks:homeLocalMeshFallbacks,
+  unscatteredOriginalFloats:homeLocalMeshFloatsRetained,
   staleDrawn:homeClusterActive.filter(entry=>
    !keys.has(entry.key)||homeClusterCache.get(entry.key)!==entry).length+
    homeClusterStaleDrawn,
@@ -6265,6 +6268,33 @@ function takeStaleHomeClusterForGrowth(group,climateKey,requiredFloats){
  homeClusterReusedGpuHandles++;
  return best;
 }
+// W179 Phase 1: a genuinely constructed 16-metre home partition is ALREADY
+// locally bounded and immutable. Spatial scatter copied every original house
+// triangle into a second typed array on each construction/seasonal rebuild.
+// Keep the identical ten-float GPU vertex stream and its complete original
+// roofs, stone, doors, occupants, while bounding the block conservatively.
+// Overspread outliers use the original complete spatial packer.
+let homeLocalMeshPacked=0,homeLocalMeshFallbacks=0,homeLocalMeshFloatsRetained=0;
+function packLocalHomeResidentMesh(mesh){
+ if(!(mesh instanceof Float32Array)||!mesh.length||mesh.length%30)
+  throw Error('W179 original home triangle stride is invalid');
+ let minX=Infinity,minY=Infinity,minZ=Infinity;
+ let maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
+ for(let i=0;i<mesh.length;i+=10){
+  const x=mesh[i],y=mesh[i+1],z=mesh[i+2];
+  if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z))
+   throw Error('W179 nonfinite original home vertex');
+  minX=Math.min(minX,x);minY=Math.min(minY,y);minZ=Math.min(minZ,z);
+  maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);maxZ=Math.max(maxZ,z);
+ }
+ if(maxX-minX>HOME_CLUSTER_EDGE*1.8||maxZ-minZ>HOME_CLUSTER_EDGE*1.8){
+  homeLocalMeshFallbacks++;
+  return packSpatialScenery(mesh);
+ }
+ homeLocalMeshPacked++;homeLocalMeshFloatsRetained+=mesh.length;
+ return {vertices:mesh,ranges:[{first:0,count:mesh.length/10,
+  minX,minY,minZ,maxX,maxY,maxZ}]};
+}
 function buildHomeClusters(fullHomes,climateKey){
  homeClusterActive=[];
  const groups=homeClusterGroups(fullHomes,climateKey);
@@ -6290,7 +6320,7 @@ function buildHomeClusters(fullHomes,climateKey){
    if(!mesh.length)throw Error('W76 missing actual town geometry');
    if(mesh.length>HOME_CLUSTER_FLOAT_BUDGET)
     throw Error('W76 real home block exceeds bounded VBO budget');
-   const packed=packSpatialScenery(mesh);
+   const packed=packLocalHomeResidentMesh(mesh);
    const obsolete=takeStaleHomeClusterForGrowth(group,climateKey,
     packed.vertices.length);
    const buffer=obsolete?.buffer||gl.createBuffer();
