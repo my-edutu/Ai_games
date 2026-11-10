@@ -53,7 +53,9 @@ test('undrawn Warden cast and recovery without a live body cannot sound as physi
 test('real but visually preempted Warden cast and recovery retain distinct authored sound',async()=>{
  const r=await trial('warden',{witness:true});
  assert.deepEqual(r.sounded.map(c=>c.kind),['warden-release','opening']);
- assert.deepEqual(r.queries,['warden-release','opening']);
+ // Each undrawn body cue must survive BOTH staging and real-frame receipt.
+ assert.deepEqual(r.queries,['warden-release','opening',
+  'warden-release','opening']);
  assert.ok(r.sounded.every(c=>c.actorId==='warden'));
 });
 test('undrawn old guard and utility gestures cannot generate a disconnected body sound',async()=>{
