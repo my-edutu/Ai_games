@@ -308,13 +308,13 @@ test('original GLB heel-to-toe CONTACT PATCH must be witnessed against the actua
  assert.equal(typeof measure,'function');
  const first={id:'vanguard',kind:'vanguard',sourceInstanceId:'real-source-1',mode:'move',
   rootWorld:[0,0,0],solePatchWorld:{
-   left:{heel:[-.16,.082,-.13],toe:[-.16,.085,.07]},
+   left:{heel:[-.16,-.018,-.13],toe:[-.16,-.015,.07]},
    right:{heel:[.16,.17,-.12],toe:[.16,.18,.07]}}};
  const next={...first,rootWorld:[.15,0,0],solePatchWorld:{
-  left:{heel:[-.157,.083,-.129],toe:[-.154,.084,.073]},
+  left:{heel:[-.157,-.017,-.129],toe:[-.154,-.016,.073]},
   right:{heel:[.30,.20,-.13],toe:[.31,.21,.08]}}};
  const m={beforeTick:24,afterTick:24,beforeFrame:32,afterFrame:33,
-  floorTopY:.08,floorEvidence:'authored-cube-floor-top',visible:true};
+  floorTopY:-.02,floorEvidence:'authored-cube-floor-top',visible:true};
  const witness=measure(first,next,m);
  assert.equal(witness.comparable,true);
  assert.deepEqual(witness.potentialContactSides,['left'],
