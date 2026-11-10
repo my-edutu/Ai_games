@@ -462,6 +462,26 @@ export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idl
 }
 
 /**
+ * Real source walk fades can begin while the visual root still travels a few
+ * centimetres. Freeze ONLY the outgoing licensed Walking_A clip after the
+ * very first later visible idle/guard frame where the SAME root has stopped.
+ * This does not impose world-space IK, authoritative movement or extra poses.
+ */
+export function shouldFreezeDeferredImportedWalk({
+ targetMode='idle',currentMode='idle',clipName='',sourceWeight=NaN,
+ sourceRunning=false,sourcePaused=false,groundedMoving=false,
+ groundedTravel=NaN,alive=true,visible=true,teleport=false,reducedMotion=false
+}={}){
+ return ['idle','guard'].includes(targetMode)&&currentMode===targetMode&&
+  typeof clipName==='string'&&/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(clipName)&&
+  finite(sourceWeight)&&sourceWeight>0&&sourceWeight<=1&&
+  sourceRunning===true&&sourcePaused===false&&
+  groundedMoving===false&&finite(groundedTravel)&&
+  groundedTravel>=0&&groundedTravel<=.0015&&
+  alive===true&&visible===true&&!teleport&&!reducedMotion;
+}
+
+/**
  * One existing source Walking_A action has been paused at a REAL no-travel
  * move-to-guard crossfade. Do not instantly delete the reversible skinned
  * thigh/calf/ankle stride that was still supporting its planted foot.

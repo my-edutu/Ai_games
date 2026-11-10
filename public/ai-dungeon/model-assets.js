@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -962,6 +962,8 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
  const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);
  if(actor.currentAction!==action)actor.rigGuardPlantHandoff=false;
+ // Pending original Walking_A belongs only to this same lawful arrival.
+ if(actor.currentAction!==action||newEvent)actor.walkArrivalPendingAction=null;
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
  if(actor.currentAction===action&&!newEvent){
@@ -1027,9 +1029,10 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
    // On a genuine stopped-to-idle arrival, freeze only its last planted
    // Walking_A keyframe so the skinned ankles cannot treadmill in place while
    // Idle blends in. Never freeze a root that is still physically moving.
+   const priorClipName=previous.getClip?.()?.name??'';
    if(planImportedWalkArrivalFreeze({
     previousMode:actor.currentAction,nextMode:action,
-    previousClipName:previous.getClip?.()?.name,
+    previousClipName:priorClipName,
     groundedMoving:Boolean(actor.groundedPerformance?.moving),
     groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
     teleport:Boolean(actor.locomotionTeleport),
@@ -1039,6 +1042,13 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
     previous.paused=true;
     actor.rigGuardPlantHandoff=action==='guard';
     actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
+   }else if(actor.currentAction==='move'&&['idle','guard'].includes(action)&&
+    /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(priorClipName)&&
+    previous.isRunning?.()&&!previous.paused&&
+    !actor.locomotionTeleport&&!actor.fullBody?.reducedMotion&&sourceFrameVisible){
+    // The first source Idle frame can still travel: retain only the fading
+    // original Walking_A action until actual (not asserted) root stop.
+    actor.walkArrivalPendingAction={sourceAction:previous,targetMode:action};
    }
   }
   actor.activeClip=next;
@@ -1173,6 +1183,36 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   else actor.fullBodyFrozenFrames=Math.min(1000000,(actor.fullBodyFrozenFrames||0)+1);
   actor.nativeDeathSourceActive=Boolean(genuineDeath&&actor.currentAction==='defeat'&&
    actor.activeClip?.getClip?.()===genuineDeath);
+ // A visual root may finish moving AFTER its original Walk -> Idle/Guard
+ // crossfade starts. Don't pause the outgoing genuine Walking_A while the
+ // character still travels, but stop its skinned ankle cycle immediately
+ // when a later visible frame witnesses the actual root stop.
+ const arrival=actor.walkArrivalPendingAction;
+ if(arrival){
+  const outgoing=arrival.sourceAction,now=actor.root?.position,then=actor.rigGaitPosition;
+  const remaining=now&&then?Math.hypot(now.x-then.x,now.z-then.z):NaN;
+  if(shouldFreezeDeferredImportedWalk({
+   targetMode:arrival.targetMode,currentMode:actor.fullBody.mode,
+   clipName:outgoing.getClip?.()?.name??'',
+   sourceWeight:outgoing.getEffectiveWeight?.()??NaN,
+   sourceRunning:Boolean(outgoing.isRunning?.()),sourcePaused:Boolean(outgoing.paused),
+   groundedMoving:Boolean(actor.groundedPerformance?.moving),
+   groundedTravel:remaining,alive:actor.u.hp>0,visible:sourceFrameVisible,
+   teleport:Boolean(actor.locomotionTeleport),reducedMotion
+  })){
+   outgoing.paused=true;
+   actor.rigGuardPlantHandoff=arrival.targetMode==='guard';
+   actor.walkArrivalPendingAction=null;
+   actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
+   actor.walkArrivalDeferredStops=Math.min(1000000,(actor.walkArrivalDeferredStops||0)+1);
+  }else if(actor.fullBody.mode!==arrival.targetMode||actor.u.hp<=0||
+   actor.locomotionTeleport||reducedMotion||!sourceFrameVisible||
+   !outgoing.isRunning?.()||outgoing.paused||
+   !(outgoing.getEffectiveWeight?.()>0)){
+   // Retire stale source references at actual fade completion/interruptions.
+   actor.walkArrivalPendingAction=null;
+  }
+ }
  restoreRigArmsBeforeMixer(actor);
  restoreRigForearmsBeforeMixer(actor);
  restoreRigLegsBeforeMixer(actor);
@@ -1607,7 +1647,9 @@ function inspectSourceRigDeformation(actors){
     overlayScale:actor.rigNativeLegOverlayScale??1,
     bodyStrideWeight:actor.rigFullBodyStride?.weight??0,
     gaitWeight:actor.rigGaitWeight??0,
-    settling:Boolean(actor.rigGaitSettling)
+    settling:Boolean(actor.rigGaitSettling),
+    deferredSourceWalkStops:actor.walkArrivalDeferredStops||0,
+    deferredSourceWalkPending:Boolean(actor.walkArrivalPendingAction)
    },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
