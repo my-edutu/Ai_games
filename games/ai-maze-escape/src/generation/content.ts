@@ -51,6 +51,27 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }
 
+// One genuine optional pressure court on the early public journey: earlier
+// traps were scattered across unseen off-route cells. Do not add passage
+// geometry, obstruct the required key/gate/exit path or reveal hidden cells.
+function chooseRoutePressureAlcove(world:MazeWorld,route:number[],offRoute:number[],reserved:Set<number>,visibilityRadius:number){
+  const offRouteCells=new Set(offRoute);
+  const minimum=Math.max(3,visibilityRadius+1);
+  const ideal=Math.max(minimum,Math.floor(route.length*.15));
+  const choices:{approachIndex:number;trap:number}[]=[];
+  for(let index=minimum;index<route.length-2;index++){
+    const approach=route[index]!;
+    if(reserved.has(approach))continue;
+    for(const trap of passageNeighbors(world,approach)){
+      if(!offRouteCells.has(trap)||!passageNeighbors(world,trap).includes(approach))continue;
+      choices.push({approachIndex:index,trap});
+    }
+  }
+  choices.sort((a,b)=>Math.abs(a.approachIndex-ideal)-Math.abs(b.approachIndex-ideal)
+    ||a.approachIndex-b.approachIndex||a.trap-b.trap);
+  return choices[0]?.trap??null;
+}
+
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -65,7 +86,13 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   }
   const reserved=new Set<number>([world.start,world.exit,...world.keys.map(key=>key.cell),...world.doors.flatMap(door=>[door.a,door.b])]);
   const routeSet=new Set(route),offRoute=Array.from({length:world.width*world.height},(_,cell)=>cell).filter(cell=>!reserved.has(cell)&&!routeSet.has(cell));
-  world.traps=chooseUnique(offRoute,Math.min(config.trapCount,offRoute.length),rng,'hazards:traps').sort((a,b)=>a-b);
+  const pressureAlcove=config.trapCount>0
+    ?chooseRoutePressureAlcove(world,route,offRoute,reserved,config.visibilityRadius):null;
+  const remainingOffRoute=pressureAlcove===null?offRoute:offRoute.filter(cell=>cell!==pressureAlcove);
+  const remainingTraps=Math.max(0,config.trapCount-(pressureAlcove===null?0:1));
+  world.traps=[...(pressureAlcove===null?[]:[pressureAlcove]),
+    ...chooseUnique(remainingOffRoute,Math.min(remainingTraps,remainingOffRoute.length),rng,'hazards:traps')]
+    .sort((a,b)=>a-b);
   const clueCandidates=route.slice(1,-1).filter(cell=>!reserved.has(cell));
   world.clues=chooseUnique(clueCandidates,Math.min(Math.max(1,dependencyCount),clueCandidates.length),rng,'dependencies:clues').sort((a,b)=>a-b);
   if(route.length>4)world.checkpoints=[route[Math.floor(route.length/2)]];

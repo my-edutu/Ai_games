@@ -1,3 +1,9 @@
+# Pass228 — original route-side pressure court candidate (2026-11-10 UTC)
+
+- Exact prior HEAD `882f470931abad79d6b34de18d37b2919173deac`: [WebGL 42720883872](https://github.com/my-edutu/Ai_games/actions/runs/42720883872) FAILED 4/5 browser cases at **zero naturally adjacent visible traps**; real six-reset geometry skipped. [Partial original artifact 13720496980](https://github.com/my-edutu/Ai_games/actions/runs/42720883872/artifacts/13720496980) cannot establish current full-game parity. Whole CI 42720883992 failed the unrelated Tiny Kingdom missing script.
+- Production candidate chooses one existing pressure trap in an already connected optional early side branch; never cuts passages, blocks the mandatory key/gate/exit solution, moves the hero or invents private scene state. Original total budget preserved. New source-bound public live-AI and physically connected branch regression. [Dated review](./maze-3d/pass-228-public-early-pressure-court-2026-11-10.md).
+- **New HEAD validation pending**: build/tests, authentic SHA screenshots at four viewports, resource <100 over six resets, ±0.95 NDC and separate official Nintendo critic. No independent worker/Ultracode access; benchmark NOT MET. Remain draft, unmerged, undeployed; Gauntlet active.
+
 # Pass227 — actual camera-eligible PUBLIC connected gate reveal (2026-11-10 UTC)
 
 - Starting exact HEAD `1b90ef3a438c78e6ed70acbd635aaf9376fd1667`: [WebGL 42717682036](https://github.com/my-edutu/Ai_games/actions/runs/42717682036) passed 4/5 Chromium cases and produced 21 genuine full-frame PNGs (20/20 paired SHA-256 manifests independently matched), including connected Pip/Thornback, key pickup and real sealed gate. Failed late on an impossible camera MID expectation for a gate scene selected without the production camera's authentic eligibility contract; no MID image or six-run result. Whole Node 721/721 passed; whole CI still failed unrelated Tiny Kingdom script.

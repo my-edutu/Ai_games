@@ -62,4 +62,50 @@ test('flagship guardian patrols a real open side corridor beside the required jo
   assert.ok(eligible>0,'reference worlds must expose at least one naturally eligible watchpost');
   assert.ok(straightEligible>0,'real sampled seeds must exercise a naturally aligned patrol; otherwise this improvement is unproven');
 });
+test('real early pressure court is an optional reciprocal passage visible during original AI play',()=>{
+  const{parseMazeConfig}=require('../../dist/games/ai-maze-escape/src/config/schema.js');
+  const{passageNeighbors,solveMaze}=require('../../dist/games/ai-maze-escape/src/generation/solver.js');
+  const{buildMazeRenderSnapshot}=require('../../dist/games/ai-maze-escape/src/presentation/snapshot.js');
+  const config=parseMazeConfig({width:17,height:11,profile:'chambers',level:4,visibilityRadius:3,
+    loopChancePermille:170,keyCount:2,trapCount:5,threatCount:1});
+  let eligible=0,publicEncounters=0;
+  for(const seed of [3,13,5,0,1,2].map(index=>`maze-visual-reference-${index}`)){
+    const runtime=MazeRuntime.create(config,seed,{policy:'partial-observation'});
+    const world=runtime.state.world,route=solveMaze(world,{start:world.start,goal:world.exit});
+    assert.ok(route,'pressure court must preserve a real exit route');
+    const routeCells=new Set(route);
+    const reserved=new Set([world.start,world.exit,...world.keys.map(key=>key.cell),
+      ...world.doors.flatMap(door=>[door.a,door.b])]);
+    const minimum=Math.max(3,config.visibilityRadius+1);
+    const sidePassages=route.flatMap((approach,index)=>{
+      if(index<minimum||index>=route.length-2||reserved.has(approach))return [];
+      return passageNeighbors(world,approach)
+        .filter(cell=>!routeCells.has(cell)&&!reserved.has(cell)
+          &&passageNeighbors(world,cell).includes(approach))
+        .map(cell=>({approach,cell}));
+    });
+    assert.ok(world.traps.every(cell=>!routeCells.has(cell)),
+      'never make a lethal trap unavoidable on the mandatory route');
+    if(!sidePassages.length)continue;
+    eligible++;
+    assert.ok(world.traps.some(cell=>sidePassages.some(side=>side.cell===cell)),
+      `a physically reciprocal optional corridor must host one real pressure trap: ${seed}`);
+    for(let step=0;step<1400;step++){
+      const state=buildMazeRenderSnapshot(runtime.state);
+      if(state.lifecycle==='running'&&!state.result&&!state.threats.length){
+        const heroCol=state.currentCell%state.width,heroRow=Math.floor(state.currentCell/state.width);
+        if(state.cells.some(cell=>cell.trap&&state.visibleCells.includes(cell.cell)
+          &&Math.abs(cell.cell%state.width-heroCol)
+            +Math.abs(Math.floor(cell.cell/state.width)-heroRow)===1)){
+          publicEncounters++;
+          break;
+        }
+      }
+      if(runtime.state.result)break;
+      runtime.step();
+    }
+  }
+  assert.ok(eligible>0,'reference topologies must offer a real optional side branch');
+  assert.ok(publicEncounters>0,'at least one natural AI run must visibly encounter an adjacent physical trap without a warden');
+});
 test('invalid content is classified as technical quarantine and excluded from fair loss metrics',()=>{const runtime=MazeRuntime.create({width:9,height:9,profile:'tree'},'invalid-content'),world=structuredClone(runtime.state.world);world.passages.fill(0);const validation=validateMazeContent(world);assert.equal(validation.valid,false);assert.equal(validation.solutionExists,false);const report=runMazeCampaign({fixtures:[{seed:'invalid-fixture',world}],profiles:[],runsPerProfile:0,baseSeed:'invalid'});assert.equal(report.technicalOutcomes,1);assert.equal(report.gameFailures,0);assert.equal(report.invalidContent,1)});
