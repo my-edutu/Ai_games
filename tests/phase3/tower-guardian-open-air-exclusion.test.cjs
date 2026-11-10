@@ -70,8 +70,11 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
     bars=entries(seal);
     assert.ok(bars.some(b=>b.height>=17.9 && Math.abs(b.x)>2.8),
       'source-driven increased vertical exclusion height is visible without recreating geometry');
-    assert.ok(bars.filter(b=>b.height>9&&Math.abs(b.z)>.2).length>=2,
-      'angled high-voltage braces extend as source height changes');
+    assert.ok(bars.filter(b=>b.height>9&&Math.abs(b.x)>2.2).length>=2,
+      'source-height side-channel braces extend without spanning the duel centre');
+    assert.ok(bars.filter(b=>b.height>9&&Math.abs(b.x)>2.2).every(b=>
+      Math.abs(b.x)-Math.abs(Math.sin(b.z))*b.height/2>=1.05),
+      'even at 18m the high energized stays do not re-form the giant mid-air X');
     assert.ok(seal.count<=19,'resource budget stays bounded after source height changes');
     assert.equal(passage.diagnostics().physicallyWalkableThreshold.sourceSimulationSealActive,true);
     const defeated={...taller,tick:284,enemies:[{...guardian,active:false,health:0}]};
