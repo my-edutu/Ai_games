@@ -48,7 +48,10 @@ test('one actual public treadle presses before inward jaws and restores after re
   assert.ok(plate.rotation.x<-.10,'physical plate tips during earned shutter beat');
   assert.ok(jaw.rotation.z>.60,'same public clock closes the REAL inward jaw');
   world.animate(4,{explorerPosition:far,reducedMotion:false});
-  assert.equal(plate.position.y,.035);assert.equal(plate.rotation.x,0);
+  assert.equal(plate.position.y,.035);
+  // A withdrawn Three.js Euler can be -0; signed zero has the same resting
+  // physical pose. Keep the zero-angle requirement without Object.is(-0,0).
+  assert.ok(Math.abs(plate.rotation.x)<1e-12,'the treadle fully un-tilts after withdrawal');
   world.animate(5,{explorerPosition:contact,reducedMotion:true});
   assert.ok(plate.position.y>.001&&plate.position.y<.004,'reduced-motion contact stays held');
   assert.ok(Math.abs(plate.rotation.x+.054)<1e-8);
