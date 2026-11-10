@@ -424,7 +424,15 @@ for(const view of [
   {timeout:30000,intervals:[75,110,180]}).toBe(e.nextAction);
  await page.waitForTimeout(80);
  const first=await read();
- await page.waitForTimeout(190);
+ // Guard uses one bounded visible-frame clock: under software WebGL, 190ms
+ // of test wall time can contain only ONE rendered frame. Wait for actual
+ // original-rig guard pose completion instead of assuming browser FPS.
+ // A stalled/missing pose still fails the same strict .70/.25 threshold.
+ await expect.poll(async()=>{
+  const sample=await read();
+  return sample.actor?.guardBlend??(e.nextAction==='guard'?-1:2);
+ },{timeout:30000,intervals:[100,170,250,350]})[e.nextAction==='guard'?
+  'toBeGreaterThan':'toBeLessThan'](e.nextAction==='guard'?.70:.25);
  const final=await read();
  expect(final.actor?.sourceInstanceId).toBe(before.actor.sourceInstanceId);
  expect(final.actor?.sourceLoop?.clipName).toBe('Idle');

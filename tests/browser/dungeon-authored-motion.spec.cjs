@@ -41,15 +41,24 @@ test('actual WebGL GLB rigs have bounded secondary attack staging, without inven
  expect(diag.combatStage.activeHitFlashes).toBeLessThanOrEqual(24);
  expect(diag.authoredMotionMaxOffset).toBeLessThanOrEqual(.20);
  expect(diag.authoredMotionPeak).toBeLessThanOrEqual(.20);
- // Genuine imported arm bones must move under one real authoritative attack,
- // with bounded local joint angles, not a screenshot-only faux model.
+ // The genuine tick-4 source witness is the Ranger at 3 tiles, so its
+ // licensed 2H_Ranged_Shoot owns the shoulders/elbows instead of the OLD
+ // generic sword gesture. Never re-enable a duplicate arm layer just to make
+ // the retired legacy peak nonzero. Melee still requires native body drive.
+ const attackerKind=frames.after.units.find(u=>u.id===frames.attacker)?.kind;
  expect(diag.authored3D.rigGestureBones).toBeGreaterThanOrEqual(3);
- expect(diag.authored3D.rigGesturePeakRad).toBeGreaterThan(.15);
- expect(diag.authored3D.rigGesturePeakRad).toBeLessThanOrEqual(.43);
- // Actual imported forearm bones now have their own independently bounded
- // elbow arcs, never a second cosmetic mesh pretending to be an animated arm.
  expect(diag.authored3D.rigForearmBones).toBeGreaterThanOrEqual(3);
- expect(diag.authored3D.rigForearmPeakRad).toBeGreaterThan(.12);
+ if(attackerKind==='ranger'){
+  const rangerAudit=diag.authored3D.sourceClipAudits?.find(a=>a.kind==='ranger');
+  expect(rangerAudit?.clips.some(c=>c.name==='2H_Ranged_Shoot'&&c.tracks===123)).toBe(true);
+  expect(diag.authored3D.rigRangedPeak).toBeGreaterThan(.15);
+  expect(diag.authored3D.rigRangedPeak).toBeLessThanOrEqual(1);
+ }else{
+  expect(['vanguard','revenant','warden']).toContain(attackerKind);
+  expect(diag.authored3D.nativeDuelPeak).toBeGreaterThan(.15);
+  expect(diag.authored3D.rigForearmPeakRad).toBeGreaterThan(.12);
+ }
+ expect(diag.authored3D.rigGesturePeakRad).toBeLessThanOrEqual(.43);
  expect(diag.authored3D.rigForearmPeakRad).toBeLessThanOrEqual(.46);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(errors).toEqual([]);
