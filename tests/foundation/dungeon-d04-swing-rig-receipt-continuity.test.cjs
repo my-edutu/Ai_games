@@ -146,3 +146,22 @@ test('a moved wrist may authorize sound after the actual next sampled blade pass
  assert.deepEqual(r.heard,['whoosh']);
  assert.equal(r.visualStats.reservedInstances,102);
 });
+
+test('receipt freshness treats yaw wrap, root drift and non-finite samples conservatively',async()=>{
+ const {isCurrentMeasuredHandReceipt,
+  MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS:limit}=await load('measured-weapon-trail.js');
+ const bone={isBone:true};
+ const sample={x:-6.7,y:1.2,z:-6.8,rootX:-7,rootY:0,rootZ:-7,
+  yaw:Math.PI-.01,sourceBone:bone};
+ assert.equal(isCurrentMeasuredHandReceipt(sample,{
+  ...sample,yaw:-Math.PI+.01}),true,'angular wrap is a tiny valid rotation');
+ assert.equal(isCurrentMeasuredHandReceipt(sample,{
+  ...sample,rootX:sample.rootX+limit+.01}),false,
+  'a moving root cannot authorize a ribbon sampled before that movement');
+ assert.equal(isCurrentMeasuredHandReceipt(sample,{
+  ...sample,x:NaN}),false,'malformed new wrist position fails closed');
+ assert.equal(isCurrentMeasuredHandReceipt(sample,{
+  ...sample,sourceBone:{isBone:true}}),false,'a replacement wrist is never equivalent');
+ assert.equal(isCurrentMeasuredHandReceipt(sample,{
+  ...sample,x:sample.x+limit*.5}),true,'small change remains within tolerance');
+});
