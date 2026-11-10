@@ -334,6 +334,16 @@ jobs:
         run: |
           node --test tests/phase3/tower-event-pairing.test.cjs
           node scripts/tower-event-pairing.cjs artifacts/tower-event-pair-input artifacts/tower-event-pairs/manifest.json
+      # The earlier 8/8 calibrated clocks are search aids, not an A/B film.
+      # Package ACTUAL unmodified full 60+s guardian videos, randomized
+      # anonymously and cued to the respective source's genuine native event
+      # time. Missing source beats stay explicit, never invented as matches.
+      - name: Assemble original full-motion event-relative A/B for human inspection
+        env:
+          TOWER_EXPECTED_CANDIDATE_SHA: ${{ github.sha }}
+        run: |
+          node --test tests/phase3/tower-event-review-playlist.test.cjs
+          node scripts/tower-event-review-playlist.cjs artifacts/tower-event-pair-input artifacts/tower-event-pairs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
