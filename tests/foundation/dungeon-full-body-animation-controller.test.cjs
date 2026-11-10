@@ -2018,7 +2018,7 @@ test('original source Walking_A defers a micro-root entry until witnessed travel
 });
 
 test('original source Idle does not inherit an unearned parallel full-body stride during sub-24mm walk entry or slow-frame arrival',async()=>{
- const {planNativeSourceIdleGaitFrame:handoff}=await load();
+ const {planNativeSourceIdleGaitFrame:handoff,planNativeWalkStartFromTravel:entry}=await load();
  assert.equal(typeof handoff,'function',
   'the original 41-joint source Idle/Walking_A boundary needs one connected native gait clock');
  const sourceIdle={mode:'move',sourceAction:'idle',sourceClipName:'Idle',
@@ -2029,12 +2029,20 @@ test('original source Idle does not inherit an unearned parallel full-body strid
  assert.equal(held.suppress,true,
   'source Walking_A has not started: do not swing skinned thighs/soles or the pelvis twice on 5mm real travel');
  assert.equal(held.releaseDelta,.05,'entry hold may not manufacture extra elapsed source motion');
+ const initial=entry({mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  groundedMoving:true,groundedTravel:0,frameInterval:.36,pendingMeters:0,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false});
+ assert.deepEqual(initial,{defer:true,pendingMeters:0},
+  'the authentic source walking clip must wait while the legal move root is stationary');
+ assert.equal(handoff({...sourceIdle,pendingMeters:initial.pendingMeters}).suppress,true,
+  'zero actual root distance must not restart a synthetic pelvis/sole gait while original Idle owns the full body');
+
  assert.equal(handoff({...sourceIdle,sourceAction:'guard'}).suppress,true,
   'a real guard-to-walk micro-entry keeps the same witnessed original source foot');
  for(const overridden of [
   {mode:'idle'},{mode:'attack'},{sourceAction:'move'},
   {sourceClipName:'Walking_A'},{sourceClipName:'NoRig'},
-  {pendingMeters:0},{pendingMeters:.024},{pendingMeters:NaN},
+  {pendingMeters:.024},{pendingMeters:NaN},
   {pendingMeters:-1},{groundedMoving:false},{alive:false},
   {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true}
  ])assert.equal(handoff({...sourceIdle,...overridden}).suppress,false,
