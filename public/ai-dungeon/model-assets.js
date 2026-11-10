@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,planNativeWalkToGuardGait,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -741,8 +741,20 @@ function stageRigGroundedStride(actor,reducedMotion,dt){
  if(current&&previous)previous.copy(current);
  const mode=actor.fullBody?.mode||'idle';
  const walking=actor.fullBody?.owner.locomotion===true;
+ // The licensed walk source has already stopped stepping at the original
+ // guarded arrival. Its corresponding additive thigh/ankle pose must settle
+ // across the same transition; otherwise the source foot holds position but
+ // the overlay jumps immediately to zero as guardBlend is still entering.
+ const plantedGuard=planNativeWalkToGuardGait({
+  mode,sourceWalkFrozen:Boolean(actor.rigGuardPlantHandoff),
+  groundedMoving:Boolean(actor.groundedPerformance?.moving),
+  groundedTravel:travel,gaitWeight:actor.rigGaitWeight,
+  guardBlend:actor.fullBody?.guardBlend,alive:actor.u.hp>0,
+  teleport:Boolean(actor.locomotionTeleport),reducedMotion
+ });
  const hardStop=reducedMotion||actor.u.hp<=0||actor.locomotionTeleport||
-  ['attack','cast','hurt','guard','evade','defeat'].includes(mode);
+  ['attack','cast','hurt','evade','defeat'].includes(mode)||
+  (mode==='guard'&&!plantedGuard);
  const gait=advanceRigGait(actor.rigGaitPhase,actor.rigGaitWeight,
   walking&&!hardStop?Math.min(travel,.30):0,hardStop,dt);
  const phase=alignRigFootfallPhase(gait.phase,actor.groundedPerformance?.footPhase,walking,Boolean(hardStop));
@@ -936,6 +948,7 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
  const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);
+ if(actor.currentAction!==action)actor.rigGuardPlantHandoff=false;
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
  if(actor.currentAction===action&&!newEvent){
@@ -1011,6 +1024,7 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
     visible:sourceFrameVisible
    })){
     previous.paused=true;
+    actor.rigGuardPlantHandoff=action==='guard';
     actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
    }
   }

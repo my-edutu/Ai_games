@@ -422,6 +422,24 @@ export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idl
   !teleport&&!reducedMotion&&visible===true;
 }
 
+/**
+ * One existing source Walking_A action has been paused at a REAL no-travel
+ * move-to-guard crossfade. Do not instantly delete the reversible skinned
+ * thigh/calf/ankle stride that was still supporting its planted foot.
+ * Release it through the same bounded visible-frame deceleration as idle,
+ * while the independently lawful native guard envelope gains ownership.
+ * No root motion, new authority event, synthetic IK or source clip mutation.
+ */
+export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
+ groundedMoving=false,groundedTravel=NaN,gaitWeight=0,guardBlend=0,alive=true,
+ teleport=false,reducedMotion=false}={}){
+ return mode==='guard'&&sourceWalkFrozen===true&&groundedMoving===false&&
+  finite(groundedTravel)&&groundedTravel>=0&&groundedTravel<=.0015&&
+  finite(gaitWeight)&&gaitWeight>0&&gaitWeight<=1&&
+  finite(guardBlend)&&guardBlend>=0&&guardBlend<1&&
+  alive===true&&!teleport&&!reducedMotion;
+}
+
 export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  frameDelta=0,frameInterval=frameDelta,sourceDuration=0,sourceTime=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
