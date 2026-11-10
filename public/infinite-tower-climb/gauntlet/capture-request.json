@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "8d04e71a055993dd2d29612af254f58a866ec09c",
-  "reason": "New source-pinned post-8d04e71a original-video comparison is required after replacing multiple camera/cutaway source-only guardian camera points with the actual interpolated original 3D guardian rig center. Original 42852710260 390x844 candidate native danger 14–22s remains crowded by wheel/cap/struts; intact baseline has clearer contact at some samples. Existing event evidence retains floor8→9 fixed-step tick451 (~22.65s candidate portrait video search time, NOT visual match), source calibration 8/8. CI at 8d04e71a still IN PROGRESS at request; don't claim quality or visual success. Film original candidate + immutable baseline at 960x600 and 390x844 >=60s for ascent/moving/danger/outcome at identical seed/tier, inspect raw videos and source-match the guardian/crusher win, real grounded gate, floor9 and outcome/restart. Preserve independent reviewers 0/5, no real-device p50/p95/p99/memory evidence. Verdict NOT EVALUATED.",
+  "repairedSourceSha": "a5c03e17e2459bac9d070742ad64bfd43f915d07",
+  "reason": "Request 8 original baseline/candidate desktop 960x600 and portrait 390x844 matched >=60s scenario videos after physical guardian outboard mechanical-gallery and source-shared camera envelope at a5c03e17e2459bac9d070742ad64bfd43f915d07. Previous unmodified candidate ca1b423c guardian portrait film still has large bronze winch covering a major part of climber around 20s and cyan/bronze split fight at 15s. Confirm genuine guardian HP0 tick441, grounded physical crossing and floor9 tick451 in visible continuous film; source-timebase alone is not a visual pass. Check no smaller actor silhouette, missing crusher cue, fake locked-gate bypass or camera jitter. Keep frozen PR58 baseline, no source edits or false clip equivalence. Independent LOOKS/FEELS/PLAYS 0/5, hardware NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -298,5 +298,7 @@
   },
   "lastImplementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42856135130 (in progress at request)",
   "readOnlyPriorNativeFloorNinePortraitSearchSeconds": 22.6462,
-  "latestSourceHeadForRecapture": "8d04e71a055993dd2d29612af254f58a866ec09c"
+  "latestSourceHeadForRecapture": "8d04e71a055993dd2d29612af254f58a866ec09c",
+  "p0SourceSha": "a5c03e17e2459bac9d070742ad64bfd43f915d07",
+  "latestReviewedSourceBefore": "a5c03e17e2459bac9d070742ad64bfd43f915d07"
 }

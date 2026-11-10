@@ -11,3 +11,7 @@ One new immutable `guardian-transmission-layout.mjs` defines the REAL NON-COLLID
 Focused Node contract added. Original repository tests/new normal-speed source-pinned film STILL REQUIRED for the new HEAD. Independent blind LOOKS 0/5, FEELS 0/5, PLAYS 0/5; actual-device frame-time p50/p95/p99 and memory NOT EVALUATED. Biggest gap: candidate guardian fight 12–24s visually crowded and physical gateway crossing not yet accepted as uninterrupted event-matched footage.
 
 **Next:** run exact-HEAD Node/Three/browser suite, then capture identical original gameplay after this physical change at 960x600 and 390x844; inspect whether the combatants are more legible without hiding real hazards, and align authentic defeat/threshold/floor9/outcome/restart with visible video frames. Stay P0.
+
+## Follow-up source-pinned verification request
+
+Physical source commit: [a5c03e17](https://github.com/my-edutu/Ai_games/commit/a5c03e17e2459bac9d070742ad64bfd43f915d07). Requested the existing immutable-source 10-job recording matrix via `public/infinite-tower-climb/gauntlet/capture-request.json` at the next evidence-only commit. All after-code film, source-event pixel matching, genuine critic preferences and real-device frame-time/memory remain **NOT EVALUATED** pending the workflow artifacts. The implementation-source quality workflow [42865871986](https://github.com/my-edutu/Ai_games/actions/runs/42865871986) was **in progress** when this record was written.
