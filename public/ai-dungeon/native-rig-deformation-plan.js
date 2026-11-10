@@ -175,3 +175,44 @@ export function measureSourceSoleGripContinuity(before,after){
   weaponSocketMatrixMaxDelta:socketMatrixDrift===null?null:round(socketMatrixDrift)
  });
 }
+
+
+/**
+ * Real, consecutive rendered-frame evidence of a licensed SOURCE sole.
+ * This is a qualified observation, never IK authorization or a proof that
+ * the complete shoe touches the floor. Source/authority ticks and frame
+ * order are mandatory; large jump samples cannot become planted-foot claims.
+ * Called only by explicit source-rig capture, not in the animation frame loop.
+ */
+export function assessSourceSoleFrameWindow(before,after,meta={}){
+ const unavailable=reason=>Object.freeze({comparable:false,reason,ikAccepted:false});
+ if(meta.visible===false||meta.teleport===true)return unavailable('untrusted-presentation');
+ if(!Number.isSafeInteger(meta.beforeFrame)||!Number.isSafeInteger(meta.afterFrame)||
+  meta.beforeFrame<0||meta.afterFrame<=meta.beforeFrame)
+  return unavailable('missing-consecutive-render-frames');
+ if(!Number.isSafeInteger(meta.beforeTick)||meta.beforeTick<0||
+  meta.beforeTick!==meta.afterTick)return unavailable('different-authority-tick');
+ if(before?.mode!=='move'||after?.mode!=='move')
+  return unavailable('not-witnessed-source-walk');
+ const measured=measureSourceSoleGripContinuity(before,after);
+ if(!measured.comparable)return unavailable(measured.reason);
+ const root=measured.rootTravelMeters;
+ if(!finite(root)||root>.35)return unavailable('skipped-or-large-root-motion');
+ const sides=['left','right'];
+ const candidates=root>=.025?sides.filter(side=>
+  measured.soleWorldDeltaMeters[side]<=.025&&
+  measured.soleVerticalDeltaMeters[side]<=.015):[];
+ const soleMoving=sides.some(side=>measured.soleWorldDeltaMeters[side]>.035);
+ const classification=root>=.025?
+  candidates.length?'potential-plant':'no-observed-plant':
+  root<=.008&&soleMoving?'stationary-source-sole-motion':'insufficient-root-travel';
+ return Object.freeze({comparable:true,classification,
+  source:'two-consecutive-original-WebGL-skin-frames',
+  beforeFrame:meta.beforeFrame,afterFrame:meta.afterFrame,tick:meta.beforeTick,
+  rootTravelMeters:root,soleWorldDeltaMeters:measured.soleWorldDeltaMeters,
+  soleVerticalDeltaMeters:measured.soleVerticalDeltaMeters,
+  potentialPlantSides:Object.freeze(candidates),
+  // Two weighted vertices, even with stationary XZ and Y, do NOT certify
+  // flat sole-to-stone contact. An IK solver must undergo separate review.
+  ikAccepted:false});
+}

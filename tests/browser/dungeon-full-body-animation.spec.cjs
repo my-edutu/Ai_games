@@ -283,9 +283,9 @@ for(const view of [
  const stage=await loadStage(page,sequence.states[0]);
  const code=fs.readFileSync(require('node:path').join(__dirname,
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel,measureSourceSoleGripContinuity}=await import('data:text/javascript;base64,'+
+ const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
- const trace=[];
+ const trace=[],stanceWindows=[];
  let previous=null;
  for(const snap of sequence.states){
   stage.set(snap);
@@ -302,6 +302,29 @@ for(const view of [
   const travel=previous?measureSourceJointTravel(previous,actor):null;
   if(travel)expect(travel.comparable,'never compare different source clones').toBe(true);
   const soleGrip=previous?measureSourceSoleGripContinuity(previous,actor):null;
+
+  // Two consecutive VISIBLE renderer frames at the SAME real source tick,
+  // without inventing a state, move, hit or pose. Only this can distinguish
+  // source joint animation from the coarse 350ms authority snapshots.
+  const beforeFrame=await page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null);
+  expect(Number.isSafeInteger(beforeFrame),'a real rendered frame index').toBe(true);
+  await expect.poll(()=>page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null),
+   {timeout:15000,intervals:[70,130,200,350]}).toBeGreaterThan(beforeFrame);
+  const sameTickAudit=await nativeRigProof(page);
+  const sameTickActor=sameTickAudit.actors.find(a=>a.id===sequence.actorId);
+  const afterFrame=await page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null);
+  const stanceWindow=assessSourceSoleFrameWindow(actor,sameTickActor,{
+   beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true});
+  stanceWindows.push({tick:snap.tick,beforeFrame,afterFrame,
+   beforeMode:actor.mode,afterMode:sameTickActor?.mode??null,
+   beforeRootWorld:actor.rootWorld,afterRootWorld:sameTickActor?.rootWorld??null,
+   beforeSkinnedSoles:actor.soleVertexWorld,
+   afterSkinnedSoles:sameTickActor?.soleVertexWorld??null,
+   measurement:stanceWindow});
+
   if(soleGrip){
    expect(soleGrip.comparable,'same original GLB and skinned source soles').toBe(true);
    // The licensed source clip intentionally rotates handslot.r under
@@ -350,6 +373,19 @@ for(const view of [
  await test.info().attach('source-GLB-sole-and-hand-evidence',{
   contentType:'application/json',body:Buffer.from(JSON.stringify(soleEvidence,null,2))
  });
+
+ const visibleFrameEvidence={seed:sequence.seed,actorId:sequence.actorId,
+  viewport:view.name,source:'same-tick-real-mixer-sole-window',
+  comparisonCount:stanceWindows.length,
+  witnessedPotentialPlants:stanceWindows.filter(w=>w.measurement.classification==='potential-plant').length,
+  caveat:'These are original skinned-vertex observations, NOT validated flat-foot contact, IK, or proven absence of skating.',
+  stanceWindows};
+ fs.writeFileSync('artifacts/dungeon-full-body-native-stance-window-'+view.name+'.json',
+  JSON.stringify(visibleFrameEvidence,null,2));
+ await test.info().attach('same-tick-real-mixer-sole-window',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify(visibleFrameEvidence,null,2))
+ });
+
 });
 
 
