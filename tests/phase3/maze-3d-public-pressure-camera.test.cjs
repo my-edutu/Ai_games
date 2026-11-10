@@ -135,7 +135,10 @@ test('production Follow camera wires pressure-first priority without changing th
  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
  assert.match(source,/const pressureFirst = publicPressureTakesFocus\(/);
  assert.match(source,/\|\| publicPressureWithdrawalTakesFocus\(/);
- assert.match(source,/priorPublicSnapshot = previous/);
+ assert.match(source,/priorPublicSnapshot\s*=\s*publicDistinctPublicPredecessor\(\s*priorPublicSnapshot,\s*previous,\s*snapshot\s*\)/,
+   'only the last DISTINCT consecutive public tick can retain a witnessed jaw');
+ assert.doesNotMatch(source,/priorPublicSnapshot\s*=\s*previous\s*;/,
+   'a repeated same-tick poll must not erase the previously witnessed physical encounter');
  assert.match(source,/cameraGate = pressureFirst \? null : openingGateBeat \|\| nearObservedGate/);
  assert.match(source,/pressureFirst \? 4\.70/,'same optical budget as existing keyed 320/390 stage');
  assert.match(source,/\(pressureFirst \|\| !keyGateCue\)/);
