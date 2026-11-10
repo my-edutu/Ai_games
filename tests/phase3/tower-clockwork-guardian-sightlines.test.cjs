@@ -280,6 +280,55 @@ test('actual clockwork scene gives upper-cap action a physically open vertical b
   }finally{world.dispose();}
 });
 
+// Original normal-speed portrait footage at a0146896 still shows a solid
+// pylon across live guardian combat (15-17s). A rotated solid tower is not a
+// solution: prove real authored triangles leave a central human-scale window
+// through every clockwork structural buttress at the upper-cap action height.
+// This samples the actual assembled, batched Three.js world; not a regex or
+// display-only overlay. Final film quality still requires human inspection.
+test('clockwork guardian pylon reconstruction keeps physically open central bays without touching authority', async () => {
+  const [THREE,{createTowerWorld}]=await loaded;
+  const {sourceTriangleOwner}=await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href);
+  const world=createTowerWorld();
+  try {
+    const frame=sourceFrame('clockwork',8),immutable=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    let authoredPylonParts=0;
+    world.group.traverse(node=>{
+      if(!node.isMesh)return;
+      for(const part of node.geometry?.userData?.originalTriangleOwners||[])
+        if(part.authoringPath?.includes('tapered-structural-pylon'))
+          authoredPylonParts++;
+    });
+    assert.ok(authoredPylonParts>=12,
+      'three full structural buttresses must remain assembled and physically authored');
+    const pylons=[[-.66,16.8],[1.40,16.65],[-.18,8.6]];
+    for(const [angle,radius] of pylons) {
+      const outward=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));
+      // A 2m sightline from in front of each real buttress must pass through
+      // its former central solid shaft at the actual 20m cap-combat level.
+      const origin=new THREE.Vector3(outward.x*(radius+8),20,
+        outward.z*(radius+8));
+      const ray=new THREE.Raycaster(origin,outward.clone().negate(),0,13);
+      const hits=ray.intersectObjects(world.group.children,true);
+      const solidCenter=hits.filter(hit=>{
+        const owner=sourceTriangleOwner(hit.object.geometry,hit.faceIndex);
+        return owner?.authoringPath?.includes('tapered-structural-pylon');
+      });
+      assert.equal(solidCenter.length,0,
+        'physical structural obstruction persists at cap y=20 for buttress angle '+angle);
+    }
+    assert.equal(JSON.stringify(frame),immutable,'opening architecture cannot mutate source gameplay');
+    const diagnostics=world.diagnostics();
+    assert.ok(diagnostics.meshes+diagnostics.shadowCasterMeshes<=100,
+      'open structural supports must remain within actual low-tier drawing budget');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(JSON.stringify(frame),immutable);
+  }finally {world.dispose();}
+});
+
 test('portrait world-envelope protects actor even if a huge clock centre is outside the image', () => {
   const envelope=helper('observedPortraitDecorativeEnvelope');
   const current={aspect:390/844, minX:-1.2,maxX:1.15,
