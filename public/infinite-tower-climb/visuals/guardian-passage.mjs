@@ -275,37 +275,49 @@ export function createTowerGuardianPassage(THREE) {
   thresholdLeaves.receiveShadow = false;
   thresholdLeaves.frustumCulled = false;
   thresholdLeaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  // The same source cap lock is SOLID in the 20-Hz simulation until its
-  // guardian really dies. Show its 14-world-unit energy lattice while active:
-  // low bronze leaves alone could misleadingly suggest an airborne bypass.
-  // Five bounded instanced panes/rails; no independent animation clock,
-  // extra physics body, new collision authority or new light source.
+  // Original full-motion 390x844/960x600 guardian film afa288c3 shows the
+  // old SIX-BY-FOURTEEN translucent field as a giant aqua pane from 14-24s,
+  // hiding the real guardian, climber and source-earned grounded approach.
+  // Make the same authoritative, airborne-solid cap LOCK recognizable as a
+  // dense machined energy GRATE: narrow luminous uprights and sub-body-size
+  // crossbars instead of a camera-facing sheet. No decorative gaps large
+  // enough to imply an unearned passage; no new physics or hit authority.
+  // One bounded instanced draw, one reusable BoxGeometry, no extra lights.
   const sealMaterial = new THREE.MeshBasicMaterial({
-    color: 0x86eadc, transparent: true, opacity: .23, depthWrite: false,
+    color: 0x86eadc, transparent: true, opacity: .72, depthWrite: false,
     depthTest: true, side: THREE.DoubleSide, toneMapped: false,
   });
   ownedMaterials.push(sealMaterial);
-  const sealedLattice = new THREE.InstancedMesh(box, sealMaterial, 5);
+  const MAX_SOURCE_SEAL_BARS = 67;
+  const sealedLattice = new THREE.InstancedMesh(box, sealMaterial, MAX_SOURCE_SEAL_BARS);
   sealedLattice.name = 'SourceLockedGuardianVerticalEnergyLattice';
   sealedLattice.visible = false;
   sealedLattice.castShadow = false;
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
-  // Size the exact SAME 3D seal from the authoritative two-jump envelope;
-  // a fixed 14-unit cosmetic fence let an actual double jump visually clear
-  // a source-solid guardian doorway. Keep the same five mesh instances.
-  let displayedSealHeight = 140000;
+  sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // The real fixed-step two-jump exclusion envelope can change during a
+  // living fight. Never display a lower, visually bypassable lock after
+  // observing a higher source seal; change instances, not draw submissions.
+  let displayedSealHeight = 0;
   function poseSourceSealHeight(sourceHeight) {
-    displayedSealHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
+    const nextHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
       ? sourceHeight : 140000;
+    if (nextHeight === displayedSealHeight) return;
+    displayedSealHeight = nextHeight;
     const h = displayedSealHeight / SCALE;
+    const horizontalCount = Math.max(14, Math.min(64, Math.ceil(h / .9) + 1));
     const latticeShapes = [
-      [0,h/2,0,6,h,.045],
-      [-3.2,h/2,0,.18,h,.18],
-      [3.2,h/2,0,.18,h,.18],
-      [0,h*.44,0,6.2,.13,.13],
-      [0,h*.81,0,6.2,.13,.13],
+      [-3.05, h / 2, 0, .12, h, .12],
+      [0, h / 2, 0, .095, h, .12],
+      [3.05, h / 2, 0, .12, h, .12],
     ];
+    for (let index = 0; index < horizontalCount; index++) {
+      const edge = index === 0 || index === horizontalCount - 1;
+      latticeShapes.push([0, h * index / (horizontalCount - 1), 0,
+        6.22, edge ? .14 : .072, .10]);
+    }
+    sealedLattice.count = latticeShapes.length;
     latticeShapes.forEach(([x,y,z,sx,sy,sz],index) => {
       thresholdPose.position.set(x,y,z);
       thresholdPose.rotation.set(0,0,0);
@@ -624,7 +636,10 @@ export function createTowerGuardianPassage(THREE) {
     if (!thresholdFocus) return false;
     if (stage === 'guardian-locked' && group.visible &&
         runToken === source.runToken && floor === source.floor) {
-      if (source.tick > sourceTick) sourceTick = source.tick;
+      if (source.tick > sourceTick) {
+        poseSourceSealHeight(source.guardianSealHeight);
+        sourceTick = source.tick;
+      }
       return true;
     }
     // Real source-only living guardian, not a new scripted encounter. The
