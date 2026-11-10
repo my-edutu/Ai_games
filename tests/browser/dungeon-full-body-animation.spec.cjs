@@ -283,9 +283,9 @@ for(const view of [
  const stage=await loadStage(page,sequence.states[0]);
  const code=fs.readFileSync(require('node:path').join(__dirname,
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow}=await import('data:text/javascript;base64,'+
+ const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
- const trace=[],stanceWindows=[],fastWalkWindows=[];
+ const trace=[],stanceWindows=[],fastWalkWindows=[],sourcePatchWindows=[];
  let previous=null;
  for(const snap of sequence.states){
   stage.set(snap);
@@ -327,6 +327,12 @@ for(const view of [
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null);
   const stanceWindow=assessSourceSoleFrameWindow(actor,sameTickActor,{
    beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true});
+  const sourcePatch=measureSourceSolePatchContinuity(actor,sameTickActor,{
+   beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true,
+   floorTopY:.08,floorEvidence:'authored-cube-floor-top'});
+  expect(sourcePatch.ikAccepted).toBe(false);
+  sourcePatchWindows.push({tick:snap.tick,beforeFrame,afterFrame,measurement:sourcePatch,
+   first:actor.sourceSolePatchWorld,last:sameTickActor?.sourceSolePatchWorld??null});
   stanceWindows.push({tick:snap.tick,beforeFrame,afterFrame,
    beforeMode:actor.mode,afterMode:sameTickActor?.mode??null,
    beforeRootWorld:actor.rootWorld,afterRootWorld:sameTickActor?.rootWorld??null,
@@ -379,7 +385,8 @@ for(const view of [
   }
   trace.push({tick:snap.tick,floor:snap.floor,sourceId:actor.sourceInstanceId,
    rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
-   soleVertexWorld:actor.soleVertexWorld,sourceWeaponGrip:actor.sourceWeaponGrip,
+   soleVertexWorld:actor.soleVertexWorld,sourceSolePatchWorld:actor.sourceSolePatchWorld,
+   sourceWeaponGrip:actor.sourceWeaponGrip,
    sourceClip:actor.sourceClock,footPhase:actor.groundedFootPhase,
    nativeLegOwnership:actor.nativeLegOwnership,
    jointTravel:travel,soleGrip,deformation:audit.summary});
@@ -438,6 +445,23 @@ for(const view of [
   JSON.stringify(visibleFrameEvidence,null,2));
  await test.info().attach('same-tick-real-mixer-sole-window',{
   contentType:'application/json',body:Buffer.from(JSON.stringify(visibleFrameEvidence,null,2))
+ });
+ // Original walkable cube tile is 0.16m high centred at y=0:
+ // its actual top is +0.08m (public/ai-dungeon/app.js).
+ // Two-point original-skin patch observations are NOT source-rig IK.
+ const patchEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
+  source:'original-source-skinned-shoe-to-authored-upper-tile-y+0.08',
+  usablePairs:sourcePatchWindows.filter(w=>w.measurement.comparable).length,
+  possibleTwoPointContact:sourcePatchWindows.filter(w=>
+   w.measurement.potentialContactSides?.length>0).length,
+  aboveFloor:sourcePatchWindows.filter(w=>
+   w.measurement.classification==='source-patches-above-floor').length,
+  sourcePatchWindows,
+  limitation:'Contact candidates only; no anatomical heel/toe proof, surface raycast, foot lock or tested IK.'};
+ fs.writeFileSync('artifacts/dungeon-full-body-source-contact-patch-'+view.name+'.json',
+  JSON.stringify(patchEvidence,null,2));
+ await test.info().attach('source-GLB-floor-contact-patch',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify(patchEvidence,null,2))
  });
 
 });
