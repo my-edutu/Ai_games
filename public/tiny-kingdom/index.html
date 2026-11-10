@@ -9802,7 +9802,7 @@ function marketTimberCart(x,z){
 // This isolated Canvas2D projection does NOT substitute for exact-head GPU CI.
 const MARKET_RECEIVING_HALL=Object.freeze({
  centerX:-.075,frontZ:10.77,backZ:12.45,
- halfWidth:3.02,eaveAboveGround:2.27,ridgeAboveGround:3.25
+ halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24
 });
 // W103: W83 granary porch and W100 receiving hall were real rendered roofs
 // but missing from the citizen camera's physical occlusion geometry. These
@@ -9824,8 +9824,8 @@ function physicalReceivingHallPosts(){
  for(const side of [-1,1])for(const end of [-1,1]){
   const x=h.centerX+side*(h.halfWidth-.13),
    z=end<0?h.frontZ+.12:h.backZ-.12,foot=terrain(x,z);
-  out.push({x,z,width:.18,height:Math.max(.2,ground+2.31-foot),
-   bottom:foot+.08,top:ground+2.31,kind:'receiving-hall-post'});
+  out.push({x,z,width:.18,height:Math.max(.2,ground+h.eaveAboveGround+.04-foot),
+   bottom:foot+.08,top:ground+h.eaveAboveGround+.04,kind:'receiving-hall-post'});
  }
  return out;
 }
@@ -9890,6 +9890,11 @@ function getTradeCorridorCameraAudit(){
   cached:tradeCorridorCameraEnvelopes!==null};
 }
 function getMarketReceivingHallAudit(){
+ const site=MARKET_RECEIVING_HALL,datum=marketReceivingRoofDatum();
+ const roofBands=physicalTradeCorridorCameraVolumes().filter(v=>
+  v.kind==='receiving-hall-roof');
+ const cameraEave=Math.min(...roofBands.map(v=>v.bottom+.025));
+ const actualFreightElevation=Math.max(terrain(-1,10.2),terrain(.85,10.2));
  return {source:'two-real-trade-bays-one-open-medieval-receiving-hall',
   originalBays:marketQuarterStats.receivingBays,
   roofPanels:marketQuarterStats.receivingHallRoofPanels||0,
@@ -9899,7 +9904,12 @@ function getMarketReceivingHallAudit(){
   frontGablePlasterPanels:0,rearGablePlasterPanels:2,
   rearShopGables:marketQuarterStats.rearShopGables||0,
   unobstructedCourierAisle:MARKET_RECEIVING_HALL.halfWidth*2-.20,
-  lowerRoofClearance:MARKET_RECEIVING_HALL.eaveAboveGround,
+  lowerRoofClearance:site.eaveAboveGround,
+  raisedEaveAboveGround:site.eaveAboveGround,
+  raisedRidgeAboveGround:site.ridgeAboveGround,
+  roofAboveGrainReceiptMeters:datum+site.eaveAboveGround-actualFreightElevation,
+  roofMatchesCameraVolumes:roofBands.length===4&&
+   Math.abs(cameraEave-(datum+site.eaveAboveGround))<.0001,
   openWorkerApproachMeters:MARKET_RECEIVING_HALL.frontZ-10.2,
   originalShelfUnderRoof:10.2+.72>MARKET_RECEIVING_HALL.frontZ&&
     10.2+.72<MARKET_RECEIVING_HALL.backZ,
@@ -9914,27 +9924,31 @@ function getMarketReceivingHallAudit(){
 function marketReceivingOpenFrontTruss(){
  const site=MARKET_RECEIVING_HALL,cx=site.centerX,
   ground=marketReceivingRoofDatum(),z=site.frontZ+.03,
+  eave=ground+site.eaveAboveGround,ridge=ground+site.ridgeAboveGround,
+  rise=ridge-eave,
   oak=rgb(0x654a37),aged=rgb(0x957653),soot=rgb(0x4e4136),
   first=data.length;
  materialScope(MATERIAL.WOOD,()=>{
-  // Each rafter bears on the original outer post/tie, joining the ridge.
-  // Paired oak knees support the rafters above standing head height.
+  // W206: original human-height public grain arcade, no longer a low roof
+  // covering the genuine courier and inventory shelves. Keep exactly
+  // the eight prior oak members and their existing GPU triangle budget.
   for(const side of [-1,1]){
-   limbSegment([cx+side*site.halfWidth,ground+2.25,z],
-    [cx,ground+3.20,z],.090,oak,5);
-   limbSegment([cx+side*site.halfWidth*.73,ground+2.24,z],
-    [cx+side*site.halfWidth*.56,ground+2.64,z],.064,aged,4);
-   limbSegment([cx+side*site.halfWidth*.31,ground+2.23,z],
-    [cx+side*.13,ground+3.02,z],.054,soot,4);
+   limbSegment([cx+side*site.halfWidth,eave-.03,z],
+    [cx,ridge-.05,z],.090,oak,5);
+   limbSegment([cx+side*site.halfWidth*.73,eave-.045,z],
+    [cx+side*site.halfWidth*.56,eave+rise*.38,z],.064,aged,4);
+   limbSegment([cx+side*site.halfWidth*.31,eave-.045,z],
+    [cx+side*.13,ridge-.13,z],.054,soot,4);
   }
-  // A physical horizontal tie and vertical king post express the complete
-  // original gable structure while preserving visibility to real workers.
-  box(cx,ground+2.21,z,site.halfWidth*2,.092,.115,aged);
-  box(cx,ground+2.30,z,.12,.82,.14,oak);
+  // A true king-post reaches the raised central roof, unlike the W205
+  // short timber stranded below its own ridge. The courier aisle remains
+  // free of opaque boards at worker eye-height.
+  box(cx,eave-.07,z,site.halfWidth*2,.092,.115,aged);
+  box(cx,eave-.045,z,.12,rise-.08,.14,oak);
  });
  const triangles=(data.length-first)/30;
  if(!Number.isInteger(triangles)||triangles>220||triangles<40)
-  throw Error('W205 original open market truss resource budget');
+  throw Error('W206 original raised market truss resource budget');
  marketQuarterStats.receivingHallFrontTrussMembers=8;
  marketQuarterStats.receivingHallFrontTrussTriangles=triangles;
  return triangles;
@@ -9963,6 +9977,8 @@ function marketReceivingDock(){
  }
  const site=MARKET_RECEIVING_HALL,cx=site.centerX;
  const ground=marketReceivingRoofDatum();
+ const roofEave=ground+site.eaveAboveGround,
+  roofRidge=ground+site.ridgeAboveGround;
  const oak=rgb(0x654a37),lime=rgb(0xb4a48a),
   tie=rgb(0x94714e),dark=rgb(0x4f3e31);
  // Four real load-bearing uprights OUTSIDE the unloading aisle: open front,
@@ -9979,25 +9995,25 @@ function marketReceivingDock(){
    const x=cx+side*(site.halfWidth-.13),
     z=end<0?site.frontZ+.12:site.backZ-.12;
    const foot=terrain(x,z);
-   box(x,foot+.08,z,.18,ground+2.23-foot,.18,oak);
+   box(x,foot+.08,z,.18,roofEave-foot-.03,.18,oak);
    marketQuarterStats.receivingHallPosts++;
    // Short triangular oak knees carry the roof, not another railing.
-   limbSegment([x,ground+1.72,z],
-    [x-side*.43,ground+2.25,z],.055,tie,4);
+   limbSegment([x,roofEave-.55,z],
+    [x-side*.43,roofEave-.02,z],.055,tie,4);
   }
   for(const end of [-1,1]){
    const z=end<0?site.frontZ+.12:site.backZ-.12;
-   box(cx,ground+2.14,z,site.halfWidth*2-.15,.15,.15,tie);
+   box(cx,roofEave-.13,z,site.halfWidth*2-.15,.15,.15,tie);
   }
   // Keeping the four load-bearing posts, both transverse eave beams and
   // central ridge is enough; omit redundant side timbers for Day-120 budget.
   // Real ridge, exposed eave and one timber tie at the back. No hard
   // horizontal beam crosses the worker's face or the courier camera below.
-  box(cx,ground+3.17,(site.frontZ+site.backZ)/2,
+  box(cx,roofRidge-.08,(site.frontZ+site.backZ)/2,
    .13,.13,site.backZ-site.frontZ+.15,dark);
   for(const side of [-1,1]){
-   limbSegment([cx+side*(site.halfWidth-.18),ground+2.20,site.backZ-.09],
-    [cx,ground+3.19,site.backZ-.09],.052,tie,5);
+   limbSegment([cx+side*(site.halfWidth-.18),roofEave-.07,site.backZ-.09],
+    [cx,roofRidge-.05,site.backZ-.09],.052,tie,5);
   }
  });
  // Continuous two-sided clay-tile covering over BOTH actual freight shelves.
@@ -10031,9 +10047,9 @@ function marketReceivingDock(){
  marketReceivingOpenFrontTruss();
  materialScope(MATERIAL.PLASTER,()=>{
   const z=site.backZ-.03;
-  const left=[cx-site.halfWidth,ground+2.25,z],
-   right=[cx+site.halfWidth,ground+2.25,z],
-   peak=[cx,ground+3.20,z];
+  const left=[cx-site.halfWidth,roofEave-.02,z],
+   right=[cx+site.halfWidth,roofEave-.02,z],
+   peak=[cx,roofRidge-.04,z];
   tri(left,right,peak,lime);
   tri(peak,right,left,lime);
  });
