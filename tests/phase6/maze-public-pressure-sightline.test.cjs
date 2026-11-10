@@ -262,3 +262,41 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
   }finally{world.dispose();cleanup();}
 });
 
+test('real disclosed pressure stage removes busy exterior ornaments but never its solid foundations or private map',async()=>{
+  const {world,cleanup}=await loadWorld();
+  try {
+    const ordinary=published();
+    const privateOnly=published({privateOnly:true});
+    const pressure=published({pressure:true});
+    const frozen=JSON.stringify(pressure);
+    world.update(ordinary);
+    const baseline=world.stats();
+    assert.ok(baseline.undercroftButtresses>0,
+      'before a public hazard the ordinary 3D exterior must actually be sculpted');
+    world.update(pressure);
+    const exposed=world.stats();
+    assert.ok(exposed.undercroftButtresses<baseline.undercroftButtresses,
+      'the real disclosed Tide-Shear loses heavy foreground foundation *decorations*');
+    assert.ok(exposed.hangingFacadeGardens<=baseline.hangingFacadeGardens,
+      'pressure breathing room cannot gain distracting hanging foliage');
+    assert.ok(exposed.closedTideMedallions<=baseline.closedTideMedallions,
+      'pressure breathing room cannot gain unrelated sealed tide-clock dials');
+    assert.equal(exposed.responsiveTrapJaws,2,
+      'the actual connected physical pressure encounter remains rendered');
+    assert.deepEqual(exposed.renderedCells,ordinary.cells.map(c=>c.cell),
+      'never remove real published land or publicly known collision cells');
+    assert.equal(exposed.geometryCount,baseline.geometryCount,
+      'retain identical shared GPU geometry classes for strict six-run budget');
+    assert.equal(JSON.stringify(pressure),frozen,
+      'world composition cannot rewrite the authentic public AI snapshot');
+    world.update(privateOnly);
+    const hidden=world.stats();
+    assert.equal(hidden.undercroftButtresses,baseline.undercroftButtresses,
+      'private-only hazards cannot remove sculpture and leak a secret court');
+    assert.equal(hidden.hangingFacadeGardens,baseline.hangingFacadeGardens);
+    assert.equal(hidden.closedTideMedallions,baseline.closedTideMedallions);
+    assert.equal(hidden.responsiveTrapJaws,0);
+    world.update({...ordinary,runToken:'new-run',cells:[],visibleCells:[]});
+    assert.equal(world.stats().undercroftButtresses,0,'new hidden run must clear old masonry');
+  }finally{world.dispose();cleanup();}
+});

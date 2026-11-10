@@ -1025,7 +1025,14 @@ export function createMazeWorld(options = {}) {
           // threat, or AI instruction. Only visibly exposed east/south
           // sides of public walkable cells receive these non-colliding ribs.
           // The shared instanced geometry and materials add no GPU classes.
-          if ((dx > 0 || dz > 0) && !c.blocked && !c.trap
+          // Genuine 320px WebGL pressure evidence shows these *exterior*
+          // three-course buttresses, closed tide-clock dials and hanging fern
+          // mantles crowding the real moving jaws and Pip. Reserve the already
+          // disclosed two-cell Tide-Shear court for its consequential motion:
+          // only omit decorative exterior layers there. The foundational
+          // stone, actual impassable edges, stairs, gate and playable floor
+          // remain intact. A private/unknown trap must NEVER affect geometry.
+          if ((dx > 0 || dz > 0) && !pressureSightline && !c.blocked && !c.trap
             && !c.checkpoint && !c.clue && c.cell !== s.exitCell
             && !s.keys.some(key => key.cell === c.cell)) {
             const ribY = -floorY / 2 - .97;

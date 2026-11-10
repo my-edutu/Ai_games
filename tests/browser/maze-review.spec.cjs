@@ -1579,6 +1579,33 @@ test('a real close public encounter frames both autonomous actors and saves date
     'native portrait must contain the SAME physical, visible Pip/fossil reaction, not a desktop-only stand-in')
     .toBeGreaterThan(1.012);
 
+  // Tide-Shear has its own FULL original-source WebGL acceptance test below;
+  // this gallery still renders the real guardian, gate, key and fossil stages.
+
+});
+
+test('source-bound Tide-Shear pressure court and autonomous withdrawal render at strict native sizes', async ({page}) => {
+  // The original guardian/key/gate/fossil gallery exhausted the entire
+  // 480-second test budget BEFORE 390px pressure or withdrawal could render.
+  // Isolate the actual public Tide-Shear run with its OWN unchanged 480s
+  // budget; keep every physical ±0.95 NDC, >=.70 silhouette, scene reset,
+  // public-knowledge, full PNG, 44px and motion assertion below intact.
+  // No fabricated snapshot, different renderer or skipped capture is allowed.
+  test.setTimeout(480000);
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const {createHash}=require('node:crypto');
+  const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
+  const {sequences}=scenarios();
+  const dir=path.resolve(__dirname,'../../artifacts/maze-phase3');
+  fs.mkdirSync(dir,{recursive:true});
+  const hash=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const sourceDir=path.resolve(__dirname,'../../public/ai-maze-escape');
+  const nativeSourceHashes=Object.fromEntries(
+    ['index.html','app.js','gameplay-hud.css','map-view.mjs','scene.js','public-lantern-encounter.mjs','pickup-story-camera.mjs','characters.js','world.js','gate-moment.mjs']
+      .map(name=>[name,hash(path.join(sourceDir,name))]));
+  let activeFrame=null;
+  await page.route('**/maze/state*',route=>route.fulfill({json:activeFrame}));
   // Another real authored game-world event, NOT a CSS decoration:
   // only source-produced public trap cells near the true autonomous Pip may
   // show the original two-jaw tide-shear mechanism. No test may fabricate
