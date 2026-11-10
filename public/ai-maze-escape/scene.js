@@ -604,7 +604,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // proximity does not invent an inspection; a public Warden outranks it.
     const pressureInspectionStrength=pressureCue
       && s.intent?.mode==='inspecting-hazard' && !result
-      ? pressureCue.strength : 0;
+      // Only the true public AI WAIT earns a legible lantern survey even at
+      // diagonal distance; this never actuates the physical pressure jaws.
+      ? Math.max(.92,pressureCue.strength) : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,

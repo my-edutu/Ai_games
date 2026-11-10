@@ -2030,3 +2030,66 @@ test('production serves every transitive gate-animation module with JavaScript M
   expect(scene.status()).toBe(200);
   expect(await scene.text()).toContain("from './pickup-story-camera.mjs'");
 });
+
+test('actual published diagonal jaw inspection appears in unaltered mobile WebGL before safe departure',async({page})=>{
+  test.setTimeout(240000);
+  const fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');
+  const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
+  const {sequences}=scenarios();
+  let match=null;
+  for(const seq of sequences){
+    for(let i=0;i<seq.length;i++){
+      const state=seq[i].frame.snapshot;
+      if(state.lifecycle!=='running'||state.result||state.threats.length
+        ||state.intent?.mode!=='inspecting-hazard')continue;
+      const jaw=state.cells.find(c=>c.trap&&state.visibleCells.includes(c.cell)
+        &&Math.abs(c.cell%state.width-state.currentCell%state.width)===1
+        &&Math.abs(Math.floor(c.cell/state.width)-Math.floor(state.currentCell/state.width))===1);
+      if(!jaw)continue;
+      const leave=seq.slice(i+1,i+18).find(s=>s.frame.snapshot.runToken===state.runToken
+        &&s.frame.snapshot.lifecycle==='running'
+        &&s.frame.snapshot.currentCell!==state.currentCell
+        &&s.frame.snapshot.intent?.mode!=='inspecting-hazard');
+      if(leave){match={survey:seq[i],leave,trap:jaw.cell};break}
+    }
+    if(match)break;
+  }
+  expect(match,'real production seeds must witness an actual diagonal survey and safe departure').toBeTruthy();
+  const dir=path.resolve(__dirname,'../../artifacts/maze-phase3');fs.mkdirSync(dir,{recursive:true});
+  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  let activeFrame=match.survey.frame;
+  await page.route('**/maze/state*',route=>route.fulfill({json:activeFrame}));
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+  await waitForRealMazeStage(page,{minFrames:3,timeout:60000});
+  const capture=async(label,sample)=>{
+    activeFrame=sample.frame;
+    const tick=sample.frame.snapshot.tick;
+    await page.waitForFunction(({tick})=>window.__MAZE_3D__?.renderer==='webgl'
+      &&window.__MAZE_3D__?.tick===tick
+      &&window.__MAZE_3D__?.explorerModelFullyInFrame===true,{tick},{timeout:60000});
+    const stage=await page.evaluate(()=>({
+      tick:window.__MAZE_3D__?.tick,frames:window.__MAZE_3D__?.frames,
+      objective:document.getElementById('goal-title')?.textContent,
+      intent:document.getElementById('intent-mode')?.textContent,
+      scrollWidth:document.documentElement.scrollWidth,
+      scrollHeight:document.documentElement.scrollHeight,
+      explorer:window.__MAZE_3D__?.explorerPhysicalBounds
+    }));
+    expect(stage.scrollWidth).toBe(390);expect(stage.scrollHeight).toBeLessThanOrEqual(845);
+    const file=path.join(dir,'public-pressure-inspection-'+label+'-390.png');
+    await page.screenshot({path:file,fullPage:true});
+    fs.writeFileSync(file.replace(/\.png$/,'.json'),JSON.stringify({
+      capturedAt:new Date().toISOString(),source:'Original 390x844 Chromium WebGL from exact public MazeRuntime source; no staged action, manipulated pixels or hidden cells',
+      seed:sample.seed,tick,runToken:sample.frame.snapshot.runToken,
+      publiclyVisibleTrap:match.trap,mode:sample.frame.snapshot.intent?.mode,
+      imageSha256:sha(file),stage,verdict:'Requires original independent Nintendo comparison'
+    },null,2));
+    return stage;
+  };
+  const study=await capture('survey',match.survey);
+  expect(study.objective).toBe('Study jaws');expect(study.intent).toBe('Inspecting jaws');
+  const next=await capture('departure',match.leave);
+  expect(next.tick).toBeGreaterThan(study.tick);
+  expect(next.intent).not.toBe('Inspecting jaws');
+});

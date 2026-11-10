@@ -149,7 +149,10 @@ function update(value){
   const pressureApproach=!ended && !exposedDanger && !pressureCue
     && !witnessedKeyCelebration
     ? publicVisibleDiagonalPressureCue(snapshot) : null;
-  const observingPressure=!ended && !!pressureCue && snapshot.intent.mode==='inspecting-hazard';
+  // Genuine inspection at a currently disclosed diagonal vantage must
+  // outrank only the advisory Watch jaws chip, never a live strike or Warden.
+  const observingPressure=!ended && (!!pressureCue || !!pressureApproach)
+    && snapshot.intent.mode==='inspecting-hazard';
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
   elements.broadcast.dataset.pressureApproach=String(!!pressureApproach);

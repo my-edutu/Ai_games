@@ -1,3 +1,9 @@
+## Pass254 — genuine diagonal public pressure survey / physical lantern candidate (2026-11-10 UTC)
+
+- Last source `6d9f5613` [WebGL 42895051792](https://github.com/my-edutu/Ai_games/actions/runs/42895051792) SUCCESS including unchanged strict six-reset resource budget; still no directly observed, distinct Pip autonomous inspection shot. Root cause: source AI demanded immediate reciprocal neighbor while official live view shows a publicly disclosed diagonal jaw, and its default distant reaction is much too weak.
+- Authored decision now recognizes ONLY a currently visible reciprocal right-angle two-link, unsealed walkable approach and safe exit, keeping all existing Warden/key/exit precedence and avoiding sealed/occluded/private map shortcuts. Actual published `inspecting-hazard` raises Pip's connected lantern at native scale; the physical pressure strike remains independent. Correct native HUD survey priority. Added source/rig tests and genuine unmodified source-bound 390px survey/departure capture gate.
+- [Dated review](./maze-3d/pass-254-public-diagonal-inspection-source-bound-2026-11-10.md). NEW exact-source build, tests, original screenshots/PNG SHA and independent visual verdict PENDING. Original Nintendo benchmark still UNMET. PR OPEN DRAFT, not merged, deployed or force-pushed.
+
 ## Pass253 — inspect-then-depart physical Pip action CANDIDATE (2026-11-10 UTC)
 
 - Verified **Pass252** source `bfa7f70909e98f7207db172ba9ce2f76b3c1951e`: [Maze run 42883197214](https://github.com/my-edutu/Ai_games/actions/runs/42883197214) SUCCESS and original 37 full-frame PNGs inspected, with 35/35 direct SHA-256 pairs verified; two additional before/after gate images have a same-run manifest. Authentic 390px pressure jaws and Pip meet the strict ±.95 bounding box. This DOES NOT verify a visually legible inspection tick.

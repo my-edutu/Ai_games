@@ -157,14 +157,14 @@ function targetDecision(
 }
 
 // A pressure court is an actual observed hazard, not set dressing. On the
-// first arrival at a safe adjacent vantage Pip may spend ONE authoritative
-// wait tick watching its public jaws before choosing a path around it. This
-// uses only the visible reciprocal maze graph and the existing bounded belief
-// visit counter. Revisiting the tile cannot retrigger a scripted pause; a
-// hidden, remembered or sealed trap never causes an inspection.
+// first safe vantage Pip can briefly study the publicly visible jaws.
+// A diagonal court counts ONLY via a currently visible, walkable, reciprocal
+// two-edge approach, with no sealed intermediate edge. The bounded existing
+// visit counter prevents indefinite waiting and forbids hidden map knowledge.
 function chooseVisiblePressureInspection(
   observation: MazeObservation,
   belief: MazeBeliefState,
+  width: number,
 ): MazeDecision | null {
   const current = observation.cells.find(cell =>
     cell.cell === observation.currentCell && cell.visible && !cell.blocked);
@@ -182,18 +182,31 @@ function chooseVisiblePressureInspection(
       && !doorBlocksEdge(belief, current.cell, next, observation.inventory);
   });
   if (!safeRetreat) return null;
-  const pressure = [...published.values()].filter(cell =>
-    cell.trap && !cell.blocked && current.neighbors.includes(cell.cell)
-    && cell.neighbors.includes(current.cell)
-    && !doorBlocksEdge(belief, current.cell, cell.cell, observation.inventory))
-    .sort((a,b) => a.cell - b.cell)[0];
+  const pressure = [...published.values()].filter(cell => {
+    if (!cell.trap || cell.blocked) return false;
+    if (current.neighbors.includes(cell.cell) && cell.neighbors.includes(current.cell))
+      return !doorBlocksEdge(belief, current.cell, cell.cell, observation.inventory);
+    const dx = Math.abs(current.cell % width - cell.cell % width);
+    const dy = Math.abs(Math.floor(current.cell / width) - Math.floor(cell.cell / width));
+    if (dx !== 1 || dy !== 1) return false;
+    // Visible diagonal sculpture is not permission to see through solid walls.
+    // Both steps must be currently public, reciprocal and unsealed; no oracle.
+    return current.neighbors.some(midId => {
+      const mid = published.get(midId);
+      return !!mid && !mid.blocked && !mid.trap
+        && mid.neighbors.includes(current.cell) && mid.neighbors.includes(cell.cell)
+        && cell.neighbors.includes(midId)
+        && !doorBlocksEdge(belief, current.cell, midId, observation.inventory)
+        && !doorBlocksEdge(belief, midId, cell.cell, observation.inventory);
+    });
+  }).sort((a,b) => a.cell - b.cell)[0];
   if (!pressure) return null;
   return {
     action: { kind: 'wait' },
     intent: {
       mode: 'inspecting-hazard',
       confidence: .88,
-      explanation: 'An observed pressure jaw guards a neighboring passage; holding one beat to watch it before taking a safe route.',
+      explanation: 'A visible pressure jaw guards the approach; studying it briefly before choosing a safe passage.',
       nodeExpansions: current.neighbors.length,
       fallbackUsed: false,
     },
@@ -235,7 +248,7 @@ export function chooseMazeAction(
     if (decision) return decision;
   }
 
-  const pressureInspection = chooseVisiblePressureInspection(observation, belief);
+  const pressureInspection = chooseVisiblePressureInspection(observation, belief, state.config.width);
   if (pressureInspection) return pressureInspection;
 
   const cyclic = detectMazeCycle(state.ai.recentCells);

@@ -208,3 +208,27 @@ test('a real public inspection holds Pip lantern-up without inventing a pressure
   assert.match(sceneSource,/s\.intent\?\.mode==='inspecting-hazard'/);
   assert.match(sceneSource,/pressureInspectionStrength,/);
 });
+
+test('connected Pip lantern genuinely reads at public diagonal distance, with no invented piston strike',async()=>{
+  const {createExplorer,rigPrimitiveResourceStats}=await rigs;
+  const budget=rigPrimitiveResourceStats();
+  for(const balanced of [true,false]){
+    const pip=createExplorer({balanced});
+    try{
+      const shoulder=pip.group.getObjectByName('shoulder 1');
+      const knee=pip.group.getObjectByName('knee -1');
+      for(const reducedMotion of [false,true]){
+        const observed={time:0,delta:0,heading:0,reducedMotion,
+          pressureHeading:Math.PI/2,pressureStrength:.079,pressureProgress:0};
+        pip.update(observed);const ordinary=shoulder.rotation.x;
+        pip.update({...observed,pressureInspectionStrength:.92});
+        assert.ok(shoulder.rotation.x<ordinary-.5,'original lantern raises visibly during real survey');
+        assert.equal(knee.rotation.x,0,'inspection does not invent a physical strike');
+        pip.update({...observed,pressureStrength:0,pressureInspectionStrength:0});
+        assert.equal(knee.rotation.x,0,'public state reset preserves original resting legs');
+      }
+    }finally{pip.dispose()}
+  }
+  assert.deepEqual(rigPrimitiveResourceStats(),budget);
+  assert.match(sceneSource,/Math\.max\(\.92,pressureCue\.strength\)/);
+});

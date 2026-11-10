@@ -385,7 +385,8 @@ export function createExplorer(options = {}) {
       &&(!s.reduced || (Number.isFinite(options.pressureProgress)
         && options.pressureProgress >= .99)
         || finite(options.pressureInspectionStrength)>0)
-      ? Math.max(0,Math.min(1,finite(options.pressureStrength))) : 0;
+      ? Math.max(0,Math.min(1,Math.max(
+        finite(options.pressureStrength),finite(options.pressureInspectionStrength)))) : 0;
     const pressureYaw=pressureReaction>0
       ? Math.max(-.75,Math.min(.75,Math.atan2(
         Math.sin(options.pressureHeading-group.rotation.y),

@@ -47,3 +47,46 @@ test('Pip pauses one real tick only at a newly entered, visible and safely escap
   assert.notEqual(behindDoor.intent.explanation,first.intent.explanation,
     'sealed inaccessible mechanisms cannot receive an inspection tick');
 });
+
+test('visible reciprocal diagonal pressure route earns a real inspect tick but hidden/closed corners cannot',()=>{
+  const runtime=MazeRuntime.create({width:17,height:13,profile:'loops',visibilityRadius:2,
+    keyCount:0,trapCount:0,threatCount:0},'diagonal-pressure-survey');
+  const state=structuredClone(runtime.state),width=state.world.width;
+  let triple=null;
+  for(let a=0;a<width*state.world.height&&!triple;a++){
+    if(a===state.world.exit||state.world.blockedCells.includes(a))continue;
+    for(const mid of passageNeighbors(state.world,a)){
+      for(const trap of passageNeighbors(state.world,mid)){
+        if(trap===state.world.exit||trap===a||state.world.blockedCells.includes(trap))continue;
+        if(Math.abs(a%width-trap%width)===1
+          &&Math.abs(Math.floor(a/width)-Math.floor(trap/width))===1){
+          triple={a,mid,trap};break;
+        }
+      }
+      if(triple)break;
+    }
+  }
+  assert.ok(triple,'authored maze needs an actual two-link right-angle passage');
+  const {a,mid,trap}=triple;
+  state.explorer.cell=a;state.explorer.route=[a];
+  state.world.traps=[trap];state.world.keys=[];state.world.doors=[];state.world.threats=[];
+  state.visibleCells=[a,mid,trap];state.discoveredCells=[...state.visibleCells];
+  const seen=createMazeObservation(state),belief=updateBelief(undefined,seen);
+  const decision=chooseMazeAction(state,seen,belief);
+  assert.equal(decision.intent.mode,'inspecting-hazard');
+  assert.equal(decision.action.kind,'wait');
+  assert.equal(decision.targetCell,null,'never route Pip onto the pressure plate');
+  const hidden={...seen,visibleCells:[a,mid],cells:seen.cells.map(c=>({...c,visible:c.cell!==trap}))};
+  assert.notEqual(chooseMazeAction(state,hidden,updateBelief(undefined,hidden)).intent.mode,'inspecting-hazard',
+    'hidden/remembered pressure cannot prompt a survey');
+  const sealed={...seen,doors:[{id:'closed',a:mid,b:trap,requiredKeyId:'unseen',open:false}]};
+  assert.notEqual(chooseMazeAction(state,sealed,updateBelief(undefined,sealed)).intent.mode,'inspecting-hazard',
+    'a sealed bend is not a public walkable corridor');
+  const disconnected={...seen,cells:seen.cells.map(c=>c.cell===mid
+    ? {...c,neighbors:c.neighbors.filter(n=>n!==trap)} : c)};
+  assert.notEqual(chooseMazeAction(state,disconnected,updateBelief(undefined,disconnected)).intent.mode,'inspecting-hazard',
+    'a corner without reciprocal public links cannot reveal a route');
+  const revisited=structuredClone(belief);revisited.cells[String(a)].visits=4;
+  assert.notEqual(chooseMazeAction(state,seen,revisited).intent.mode,'inspecting-hazard',
+    'bounded visit memory prevents replaying the theatrical pause');
+});
