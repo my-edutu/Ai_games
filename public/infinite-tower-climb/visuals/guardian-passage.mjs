@@ -349,7 +349,20 @@ export function createTowerGuardianPassage(THREE) {
     sealedLattice.instanceMatrix.needsUpdate = true;
   }
   poseSourceSealHeight(140000);
-  threshold.add(thresholdStones,thresholdLeaves,sealedLattice);
+  // The original portrait+desktop film has TWO separate stone/bronze doors
+  // sitting over the live duel: the authoritative EXTERIOR lock and this
+  // decorative inner walk-through threshold. Actual source-linked portrait
+  // ray probes near ticks 292-346 hit both WalkableSourceCap* meshes repeatedly.
+  // During combat the exterior gate + live 14m source-driven lattice own the
+  // locked silhouette; the inner solid frame is not yet physically earned.
+  // After real guardian HP0 it rises at the climber's true cap deck radius.
+  // On the genuine floor handoff, retire the inner arch so the old-floor
+  // memory doesn't duplicate it. No source collision or run state changes.
+  const innerDoorAssembly = new THREE.Group();
+  innerDoorAssembly.name = 'EarnedWalkableInnerGateAssembly';
+  innerDoorAssembly.visible = false;
+  innerDoorAssembly.add(thresholdStones, thresholdLeaves);
+  threshold.add(innerDoorAssembly, sealedLattice);
   group.add(threshold);
   const thresholdLeafPose = new THREE.Object3D();
   let lastWalkableOpening = -1;
@@ -594,6 +607,8 @@ export function createTowerGuardianPassage(THREE) {
   function clear() {
     group.visible = false;
     memoryFrame.visible = false;
+    innerDoorAssembly.visible = false;
+    innerDoorAssembly.position.y = 0;
     fragments.visible = false;
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
@@ -675,6 +690,8 @@ export function createTowerGuardianPassage(THREE) {
     stage = 'guardian-locked';
     group.visible = true;
     memoryFrame.visible = false;
+    innerDoorAssembly.visible = false;
+    innerDoorAssembly.position.y = 0;
     poseSourceSealHeight(source.guardianSealHeight);
     sealedLattice.visible = true;
     arc.visible = false;
@@ -722,6 +739,8 @@ export function createTowerGuardianPassage(THREE) {
     // memorial facade would bury the climber during the short grounded walk.
     memoryFrame.visible = false;
     sealedLattice.visible = false;
+    innerDoorAssembly.visible = true;
+    innerDoorAssembly.position.y = -1.4;
     arc.visible = true;
     ring.visible = true;
     lastWalkableOpening = -1;
@@ -761,6 +780,8 @@ export function createTowerGuardianPassage(THREE) {
     // bronze memorial. It remains non-colliding and auto-retires after 2.9s.
     memoryFrame.visible = true;
     sealedLattice.visible = false;
+    innerDoorAssembly.visible = false;
+    innerDoorAssembly.position.y = 0;
     arc.visible = true;
     ring.visible = true;
     lastWalkableOpening = -1;
@@ -791,6 +812,18 @@ export function createTowerGuardianPassage(THREE) {
     const opened = locked ? 0 : still ? 1 : Math.max(approachOpen,
       1 - Math.pow(1 - clamp(age / .95), 3));
     poseWalkableLeaves(opened);
+    // A visible source-earned crossing must emerge as one continuous
+    // mechanism, not suddenly replace the living guardian with solid slabs.
+    // The real path is already unlocked by authority; this is animation only.
+    if (stage === 'earned-open') {
+      innerDoorAssembly.visible = true;
+      const t = still ? 1 : clamp(age / .38);
+      const arrive = t * t * (3 - 2 * t);
+      innerDoorAssembly.position.y = -1.4 * (1 - arrive);
+    } else {
+      innerDoorAssembly.visible = false;
+      innerDoorAssembly.position.y = 0;
+    }
     const fade = stage === 'earned-open' || locked ? 1 :
       1 - .9 * clamp((age - 1.75) / (duration - 1.75));
     for (const { side, wing } of wings) {
@@ -841,6 +874,8 @@ export function createTowerGuardianPassage(THREE) {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
       exteriorMemoryFrameVisible: group.visible && memoryFrame.visible,
+      innerDoorAssemblyVisible: group.visible && innerDoorAssembly.visible,
+      innerDoorAssemblyLift: Number(innerDoorAssembly.position.y.toFixed(4)),
       durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
       sourceMeasuredDefeatFocusWeight: Number(defeatFocusWeight().toFixed(4)),
@@ -857,7 +892,11 @@ export function createTowerGuardianPassage(THREE) {
         originalThroughCutLeafWindows: machinedLeaf.parameters.shapes.holes.length,
         gatewayLeafAlpha: Number(leafMaterial.opacity.toFixed(4)),
         archInstances: thresholdStones.count, retractingLeaves: thresholdLeaves.count,
-        extraDraws: stage === 'guardian-locked' ? 3 : 2,
+        innerAssemblyVisible: innerDoorAssembly.visible,
+        // In the live fight only the actual source-height electrical lock
+        // is drawn here, not two additional solid threshold submissions.
+        extraDraws: stage === 'guardian-locked' ? 1 :
+          stage === 'earned-open' ? 2 : 0,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
         redundantExteriorMemorySuppressed: !memoryFrame.visible,
         verticalLatticeVisible: sealedLattice.visible,
