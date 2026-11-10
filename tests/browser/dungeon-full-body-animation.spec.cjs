@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
+const {pairOriginalSourceFrames}=require('./dungeon-source-raf-pair.cjs');
 const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery,isExactNativeClipWitness,isUninterruptedRangedWitness}=require('./dungeon-animation-witness.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
@@ -334,12 +335,38 @@ for(const view of [
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
  const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
- const trace=[],stanceWindows=[],fastWalkWindows=[],sourcePatchWindows=[];
- let previous=null;
+ const trace=[],stanceWindows=[],fastWalkWindows=[],sourcePatchWindows=[],rafWindows=[];
+ let previous=null,probedMotion=0;
  for(const snap of sequence.states){
   stage.set(snap);
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.tick??null),
    {timeout:22000,intervals:[80,120,200]}).toBe(snap.tick);
+  // The old poll-based source-patch capture mostly skipped rendered frames:
+  // all original patch pairs were unqualified despite real moving footage.
+  // Capture a small, explicit sequence of consecutive original-rig rAF poses
+  // while the SAME legal authority tick is still active. This runs only in
+  // this browser test, never in production per-frame skinning.
+  if(probedMotion<3&&snap.units.find(u=>u.id===sequence.actorId)?.action==='move'){
+   const sampled=await captureOriginalRafSourceFrames(page,sequence.actorId,snap.tick);
+   const paired=pairOriginalSourceFrames(sampled.frames,snap.tick,sequence.actorId);
+   rafWindows.push({tick:snap.tick,callbackCount:sampled.callbacks,
+    observedOriginalFrames:sampled.frames.length,
+    frameIndices:sampled.frames.map(f=>f.frame),rejected:paired.rejected,
+    pairs:paired.pairs.map(pair=>({
+     beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
+     beforeMode:pair.before.mode,afterMode:pair.after.mode,
+     sourceInstanceId:pair.before.sourceInstanceId,
+     sourceClipBefore:pair.before.nativeLegOwnership?.clipName??null,
+     sourceClipAfter:pair.after.nativeLegOwnership?.clipName??null,
+     sourceTimeBefore:pair.before.sourceClock?.sourceTime??null,
+     sourceTimeAfter:pair.after.sourceClock?.sourceTime??null,
+     contact:measureSourceSolePatchContinuity(pair.before,pair.after,{
+      beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
+      beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
+      floorEvidence:'authored-cube-floor-top',floorTopY:-.02})
+    }))});
+   probedMotion++;
+  }
   // Let the original mixer display real in-between poses. Do not synthesize
   // another authority tick, alter source HP or change the public action.
   await page.waitForTimeout(160);
@@ -512,9 +539,54 @@ for(const view of [
  await test.info().attach('source-GLB-floor-contact-patch',{
   contentType:'application/json',body:Buffer.from(JSON.stringify(patchEvidence,null,2))
  });
+ const rafEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
+  source:'on-demand-original-source-GLB-after-render-requestAnimationFrame',
+  legalAuthorityTicks:rafWindows.map(w=>w.tick),rafWindows,
+  consecutiveWitnessPairs:rafWindows.reduce((n,w)=>n+w.pairs.length,0),
+  comparableSourceContactPairs:rafWindows.reduce((n,w)=>n+
+   w.pairs.filter(p=>p.contact.comparable).length,0),
+  possibleSourceFootContacts:rafWindows.reduce((n,w)=>n+
+   w.pairs.filter(p=>p.contact.potentialContactSides?.length).length,0),
+  caveat:'Consecutive original skinned frames are evidence, NOT IK, a floor raycast or validated foot plants.'};
+ expect(rafEvidence.consecutiveWitnessPairs,
+  'an original-rig high-frequency source film must contain real adjacent displayed walking frames').toBeGreaterThan(0);
+ fs.writeFileSync('artifacts/dungeon-full-body-original-raf-patch-'+view.name+'.json',
+  JSON.stringify(rafEvidence,null,2));
+ await test.info().attach('original-consecutive-render-source-patches',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify(rafEvidence,null,2))
+ });
 
 });
 
+
+
+/**
+ * A BOUNDED test-only requestAnimationFrame sampler of original source GLB
+ * skin and imported source clock. Each on-demand audit follows the existing
+ * Three.js render loop; no simulation step or synthetic transform is issued.
+ * The helper subsequently rejects every skipped/hidden/different-tick pair.
+ */
+async function captureOriginalRafSourceFrames(page,actorId,expectedTick){
+ return page.evaluate(({actorId,expectedTick})=>new Promise(resolve=>{
+  const frames=[];let callbacks=0,done=false;
+  const finish=()=>{if(done)return;done=true;clearTimeout(safety);resolve({callbacks,frames});};
+  const safety=setTimeout(finish,11000);
+  function witness(){
+   if(done)return;
+   callbacks++;
+   const diagnostic=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+   const frame=diagnostic?.frame,tick=diagnostic?.renderedState?.tick;
+   if(Number.isSafeInteger(frame)&&Number.isSafeInteger(tick)&&tick===expectedTick){
+    const rig=window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.();
+    const actor=rig?.actors?.find(a=>a.id===actorId);
+    if(actor)frames.push({frame,tick,actor,visible:document.visibilityState==='visible'});
+   }
+   if(callbacks>=14)finish();
+   else requestAnimationFrame(witness);
+  }
+  requestAnimationFrame(witness);
+ }),{actorId,expectedTick});
+}
 
 /**
  * A genuine consecutive public-state guard/idle event, never a fabricated
