@@ -22,7 +22,9 @@ const loaded = (async () => {
   const { createEnemy } = await import(pathToFileURL(castFile).href);
   const guardianCircuit = await import(pathToFileURL(path.join(root,
     'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
-  const context = { THREE, ...coordinates, ...guardianCircuit };
+  const guardianIntrusion = await import(pathToFileURL(path.join(root,
+    'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
   vm.runInNewContext(fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, createEnemy, ...coordinates, context };
@@ -118,4 +120,29 @@ test('real remaining windup ticks progressively thicken a bounded original threa
     assert.ok(geometry.attributes.position.count <= 30, 'bounded resident geometry, no unbounded warning spam');
     assert.equal(JSON.stringify(charged), original);
   } finally { geometry.dispose(); }
+});
+
+// Actual gate composition must prioritize readable living combatants; camera
+// attention can rise with SOURCE-observed damage but cannot win by posing a
+// giant lock over the hero or invent victory while guardian HP remains positive.
+test('live guardian lock attention is bounded and subordinate until authentic source defeat', async () => {
+  const { context } = await loaded;
+  const attention = context.guardianLiveFightLockPriority;
+  assert.equal(typeof attention, 'function', 'real ESM source helper is present in scene integration VM');
+  const missing = attention(null);
+  const invalid = attention({ health: 0, maxHealth: 8 });
+  assert.equal(missing.focusBias, 0);
+  assert.equal(invalid.frameBonus, 0);
+  const full = attention({ health: 8, maxHealth: 8 });
+  const struck = attention({ health: 4, maxHealth: 8 });
+  const weak = attention({ health: 1, maxHealth: 8 });
+  assert.ok(full.focusBias > 0 && full.focusBias <= .025,
+    'an untouched live gate gets minimal center pull during actual combat');
+  assert.ok(full.frameBonus > 0 && full.frameBonus < 8,
+    'the still-locked gate cannot earn the former dominating +16 framing bonus');
+  assert.ok(full.focusBias < struck.focusBias && struck.focusBias < weak.focusBias,
+    'only real source HP loss gradually allows more gate attention');
+  assert.ok(full.frameBonus < struck.frameBonus && struck.frameBonus < weak.frameBonus);
+  assert.ok(weak.focusBias < .06 && weak.frameBonus < 8,
+    'even almost defeated, the living guardian remains the primary subject');
 });
