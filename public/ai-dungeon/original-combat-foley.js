@@ -78,11 +78,24 @@ export function verifiedSwingFoleyActor(cue){
   cue.actorId:null;
 }
 export function createCombatMutePreference(storage){
- const read=()=>{try{return storage?.getItem?.(COMBAT_MUTE_PREFERENCE_KEY)==='false'?false:true}catch{return true}};
+ // Private browsing and embedded canvases may deny localStorage. Explicit
+ // user action must remain truthful for this page, even without persistence.
+ // A fresh page still defaults to muted until a real opt-in gesture.
+ let volatileMuted=true,storageWritable=true;
+ const read=()=>{
+  if(storageWritable)try{
+   const saved=storage?.getItem?.(COMBAT_MUTE_PREFERENCE_KEY);
+   if(saved==='false')volatileMuted=false;
+   else if(saved==='true')volatileMuted=true;
+  }catch{storageWritable=false}
+  return volatileMuted;
+ };
  const write=muted=>{
-  const m=muted!==false;
-  try{storage?.setItem?.(COMBAT_MUTE_PREFERENCE_KEY,String(m))}catch{}
-  return m;
+  volatileMuted=muted!==false;
+  if(storageWritable)try{
+   storage?.setItem?.(COMBAT_MUTE_PREFERENCE_KEY,String(volatileMuted));
+  }catch{storageWritable=false}
+  return volatileMuted;
  };
  return Object.freeze({read,write});
 }
