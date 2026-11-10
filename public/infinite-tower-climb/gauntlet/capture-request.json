@@ -277,7 +277,7 @@
     "originalBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779223804",
     "sourceManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779309338",
     "manifestTruth": "16 original WebMs, eight of eight native timebase calibrations, zero source provenance defects; fullMotionPaired=false and no independent judgement",
-    "worstObservedExperienceDefect": "Real recorded floor8 portrait candidate source tick321 living wounded guardian HP3/8; climber airborne and sampled -1.86 NDC x outside portrait while boss remains centered. Across original 14–24sec action film, oversized bronze/teal architecture and unstable hero-enemy framing obscure combat.",
+    "worstObservedExperienceDefect": "Real candidate portrait floor-eight tick321 during airborne guardian HP3/8: authoritative source-position projection x=-1.8576 NDC outside 390x844, BUT smoothed rendered skinned climber actually projects (-0.2072,-0.1118) NDC IN safe frame. This is source-to-drawn-pose disagreement, NOT evidence the displayed model vanishes. Full-motion 14–24s scene still has crowded machinery and inconsistent fighter readability; requires exact afterfilm.",
     "regressionSha": "6b118e74bf11afcf5dff0551af41dcd8b6318a9c",
     "implementationSha": "33b91f5eb9f79a67a0c689b2074ad301a4a6cd87",
     "solution": "Between genuine individual shots/telegraphs, the still-living wounded guardian remains a physically nearby two-body source camera subject during airborne motion; actual landing and both full 3D silhouettes retain pre-existing safety requirements. Healthy nonthreatening guardian and actual defeated guardian cannot borrow the hold.",
@@ -293,6 +293,7 @@
       "plays": 0
     },
     "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
-    "nextAction": "Verify actual newly captured two-body combat and landing story in both full-motion viewports, align source events to visible frames, reopen P0 on largest remaining occlusion/feel failure; no stage promotion on CI alone"
+    "nextAction": "Verify actual newly captured two-body combat and landing story in both full-motion viewports, align source events to visible frames, reopen P0 on largest remaining occlusion/feel failure; no stage promotion on CI alone",
+    "criticalProjectionCaveat": "Do not confuse observedCamera.actorNdc (current authoritative source point) with observedActor.ndc (smoothed actual skinned draw). A mismatch does not establish raster occlusion, clipping, or latency cause without aligned motion evidence."
   }
 }
