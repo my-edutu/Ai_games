@@ -1701,7 +1701,7 @@ test('the original fading Walking_A slows its skinned shoe cycle with REAL late-
  assert.ok(Math.abs(fast.fadeWeight-braked.fadeWeight)<.001,
   'Idle crossfade must continue normally despite original Walking_A speed reduction');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/planImportedWalkExitBrake\(\{/,
+  assert.match(model.slice(model.indexOf('const walkExitRate=outgoing?planImportedWalkExitBrake({')).split('}):null;')[0],/frameInterval:sourceFrameInterval/,
   'actual renderer must calculate brake from witnessed root delta');
  assert.match(model,/walkArrivalPendingAction\.sourceAction|arrival\.sourceAction/,
   'only the authenticated fading Walking_A may be retimed');
