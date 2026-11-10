@@ -322,3 +322,68 @@ for(const view of [
    trace},null,2))});
 });
 
+
+/**
+ * A genuine consecutive public-state guard/idle event, never a fabricated
+ * state transition. All animation clock observations come from original
+ * SkeletonUtils-cloned source GLB actors inside the running WebGL renderer.
+ */
+function witnessedNativeIdleGuardHandoff(){
+ const seeds=['visual-room-art-18','gauntlet-corpus-v1-0','gauntlet-corpus-v1-5',
+  'gauntlet-corpus-v1-12','gauntlet-corpus-v1-18'];
+ for(const seed of seeds){
+  const game=DungeonRuntime.create(seed);
+  let before=game.publicState();
+  for(let i=0;i<1000;i++){
+   const after=game.step();
+   const actor=after.units.find(u=>{
+    if(u.faction!=='party'||u.hp<=0||!['idle','guard'].includes(u.action))return false;
+    const previous=before.units.find(b=>b.id===u.id&&b.kind===u.kind);
+    return Boolean(previous&&previous.hp===u.hp&&previous.hp>0&&
+     previous.action!==u.action&&['idle','guard'].includes(previous.action)&&
+     previous.x===u.x&&previous.z===u.z&&before.floor===after.floor);
+   });
+   if(actor)return {seed,before,after,actorId:actor.id,
+    priorAction:before.units.find(u=>u.id===actor.id).action,nextAction:actor.action};
+   before=after;
+  }
+ }
+ throw Error('No original consecutive idle/guard public-state witness; do not synthesize one');
+}
+
+test('original native 41-joint Idle keeps source mixer phase during witnessed idle/guard ownership handoff',async({page})=>{
+ test.setTimeout(170000);
+ const e=witnessedNativeIdleGuardHandoff(),stage=await loadStage(page,e.before);
+ const loop=id=>page.evaluate(id=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()
+  ?.actors?.find(a=>a.id===id)?.sourceLoop??null,id);
+ await expect.poll(async()=>{const b=await loop(e.actorId);return b?.mode===e.priorAction?b?.time??0:0;},
+  {timeout:35000,intervals:[75,100,140]}).toBeGreaterThan(.23);
+ const before=await loop(e.actorId);
+ expect(before?.clipName).toBe('Idle');
+ expect(before.running).toBe(true);
+ stage.set(e.after);
+ await expect.poll(()=>page.evaluate(id=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D
+  ?.sourceClipBindings?.find(b=>b.id===id)?.action??null,e.actorId),
+  {timeout:35000,intervals:[70,120,180]}).toBe(e.nextAction);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D
+  ?.fullBodyOriginalIdleClockHandoffs??0),{timeout:15000,intervals:[70,120]}).toBeGreaterThan(0);
+ const after=await loop(e.actorId),rig=await nativeRigProof(page);
+ expect(after?.clipName).toBe('Idle');
+ expect(after.running).toBe(true);
+ expect(after.duration).toBeCloseTo(before.duration,6);
+ expect(after.time).toBeGreaterThanOrEqual(0);
+ expect(after.time).toBeLessThan(after.duration);
+ expect(rig.actors.find(a=>a.id===e.actorId)?.sourceInstanceId).toBeTruthy();
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({path:'artifacts/dungeon-full-body-real-guard-idle-source-clock.png',timeout:60000});
+ await test.info().attach('original-GLB-guard-idle-source-clock',{contentType:'application/json',
+  body:Buffer.from(JSON.stringify({source:'two consecutive authentic DungeonRuntime.step snapshots',
+   seed:e.seed,actorId:e.actorId,authorityTicks:[e.before.tick,e.after.tick],
+   actions:[e.priorAction,e.nextAction],before,after,
+   phaseDeltaSeconds:((after.time-before.time+after.duration)%after.duration),
+   handoffs:(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__
+    ?.authored3D?.fullBodyOriginalIdleClockHandoffs??0)),
+   deformation:rig.summary,
+   limitation:'Native original foot bones are not sole-mesh vertices; phase continuity is not full 3D LOOK/FEEL acceptance.'},null,2))});
+});

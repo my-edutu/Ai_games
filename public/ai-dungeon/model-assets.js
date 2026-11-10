@@ -956,6 +956,7 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
   newEvent
  })){
   actor.activeImportedClipName=clip.name;
+  actor.sharedSourceIdleHandoffs=Math.min(1000000,(actor.sharedSourceIdleHandoffs||0)+1);
   actor.currentAction=action;actor.currentActionTick=tick;
   return;
  }
@@ -1479,6 +1480,15 @@ function inspectSourceRigDeformation(actors){
    sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,
    sourceHandName:actor.rigHandBoneName||null,
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
+   // Explicit ON-DEMAND read of the authentic source action, not a synthetic
+   // animation timer. This never scans skin vertices or advances the mixer.
+   sourceLoop:actor.activeImportedClipName==='Idle'?{
+    mode:actor.currentAction,clipName:actor.activeClip?.getClip?.()?.name||null,
+    time:actor.activeClip?.time??null,
+    duration:actor.activeClip?.getClip?.()?.duration??null,
+    running:Boolean(actor.activeClip?.isRunning?.()),
+    weight:actor.activeClip?.getEffectiveWeight?.()??null
+   }:null,
    groundedFootPhase:Number.isFinite(actor.groundedPerformance?.footPhase)?actor.groundedPerformance.footPhase:null,
    sourceClock:actor.sourceClockMode?{mode:actor.sourceClockMode,
     age:actor.fullBody?.age??null,
@@ -1523,6 +1533,7 @@ function stats(actors){
    fullBodySourceClockMaxRemainingSeconds:Math.max(0,...authored.map(a=>a.sourceClockRemainingSeconds||0)),
    fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
    fullBodySourceWalkArrivalPlants:authored.reduce((n,a)=>n+(a.walkArrivalFrozenActions||0),0),
+   fullBodyOriginalIdleClockHandoffs:authored.reduce((n,a)=>n+(a.sharedSourceIdleHandoffs||0),0),
    fullBodyOriginalReleaseSupportPeakRad:Math.max(0,...authored.map(a=>a.rigRangedSupportPeak||0)),
    fullBodySettlingActors:authored.filter(a=>a.rigGaitSettling).length,
    fullBodyFootfallPhaseErrorRad:Math.max(0,...authored.filter(a=>a.fullBody?.owner.locomotion&&a.rigGaitWeight>0)
