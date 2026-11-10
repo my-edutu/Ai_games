@@ -1,0 +1,28 @@
+# Infinite Tower Climb — P0 source-earned inner gate: genuine after-film recapture (2026-11-10)
+
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH — OPEN. **Leading assessor:** NOT EVALUATED. **Immutable frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9`. Work restricted to DRAFT PR68, base PR58.
+
+## Verified original film and source inspected before initiating capture
+
+- Previous successful 10-job run: [42818985967](https://github.com/my-edutu/Ai_games/actions/runs/42818985967), candidate `2702311ef49b7f88c5b71c1513316f065ff909a9` versus frozen baseline. Downloaded and opened the **original** candidate/baseline danger ZIPs, not renders or marketing images.
+- Independent `ffprobe` read from original WebMs: candidate desktop **960×600, 73.60s**, portrait **390×844, 73.16s**; baseline desktop **960×600, 71.56s**, portrait **390×844, 71.12s**. Each reports a 25/1 average WebM stream frame rate. Decoded native video frames at 8, 12, 14, 16, 18, 20, 22, 24, 26, 28, 31, 40, 60 and 70 seconds. **These are real excerpts from original unmodified full recordings, not proof of reviewed continuous motion.**
+- Candidate **portrait 20s**: giant bronze ring/solid mechanical frame obscures important hero/guardian visibility. Candidate **desktop 16s**: bronze/cyan cap hardware dominates the fighting lane. Portrait 22-24s still has cyan barrier/body/landing competition. Baseline film is less architecturally impressive but presents more negative space around its characters at corresponding broad combat phase; events/timecodes are not identical.
+- The original camera-ray forensic sidecar (`candidate/artifacts/tower-motion/danger/portrait/camera-occlusion-forensics.json`) attributes repeated frame-probe intersections to `WalkableSourceCapArchAndBraces`, `WalkableSourceCapRetractingBronzeLeaves`, `GuardianSealBronzeLatticeLeft` and `SourceLockedGuardianVerticalEnergyLattice` alongside actual actors. These ray hits identify scene owners but cannot prove precise raster occlusion ownership.
+- Pair manifest [13767146765](https://github.com/my-edutu/Ai_games/actions/runs/42818985967/artifacts/13767146765) admits **16 real WebMs**, **8/8 calibrated native timebases** and valid source/story transport; it explicitly marks `fullMotionPaired: false`, visual event matches NOT EVALUATED, no independent critic and no hardware FPS. Importantly, the historical baseline does not exhibit every candidate source-earned floor-eight guardian/crossing event: identical seed alone does not make their event moments frame-identical.
+
+## Why this execution is an evidence unblocker, not a transformed gameplay claim
+
+Since the last recorded review, production PR68 implemented `5ad36a284052e54af6a0f83be84b10857b1b2059` and `e07a4688e80a954f91a88aef7498c41fd3979014` to **hide the redundant inner stone/bronze walkable threshold while a source-real guardian lives**, reveal it only upon witnessed zero-HP source unlock, lift it to the true cap deck without negative-zero pose, then retire it at the physical floor-nine handoff. The source-authoritative exterior guardian gate and crusher remain. The existing source `e07a4688` [exact-head quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/42829335462) **passed**; this is a test veto, not footage acceptance.
+
+No original after-change video existed at the start of this execution. Changing more portal/camera code **without inspecting that after-film** would risk repeating the already documented ineffective render-only micro-patch loop. Therefore I updated `public/infinite-tower-climb/gauntlet/capture-request.json` on the same PR68 branch to trigger [new exact-immutable-source baseline/candidate gameplay capture](https://github.com/my-edutu/Ai_games/actions/runs/42831418395), where the candidate source SHA is the new request commit `9924ca0192347465c5933f4336d8b10800c4470a`. It reuses the same seed, graphics tier, desktop and portrait dimensions and all ascent/moving/danger/outcome matrix scenarios. This changed a real evidence blocker, **not the play simulation or rendered game**, and keeps the historical source untouched.
+
+## Exact acceptance still missing
+
+1. Inspect **new** 12–26s original portrait and desktop candidate film, looking for both live bodies, crusher tell/contact, barrier readability, earned guardian HP0, real grounded threshold crossing and genuinely visible floor-nine continuation. Compare the unchanged baseline and source-trace sidecars. Do not equate 8/8 calibrated transport clocks with matched visible action.
+2. Prove continuous 60+s source-pinned normal-speed play for ascent, moving platform, danger/guardian and outcome/restart; verify the guardian/camera improvement did not create new cropping or bypass-looking lock. If it did, return to P0 and redesign the **remaining exterior/structural scene as a connected composition**.
+3. Run actual supported-device frame time p50/p95/p99 and memory budgets, input/accessibility/recovery guardrails. **NOT EVALUATED.**
+4. Obtain five genuinely independent, fresh, blinded randomized full-motion reviewers for **each** LOOKS, FEELS and PLAYS and at least 4/5 candidate preference for each. **0/5 reviews observed for each pillar; NO acceptance vote claimed.**
+
+**Next highest-impact action:** collect/inspect 42831418395's original WebMs and event-aligned source evidence before another production visual intervention. If runner/browser fails, log exact failed job and preserve original artifacts rather than manufacturing a clip, source result, performance budget or reviewer.
+
+**Boundaries:** No baseline move, PR58 overwrite, main edit, merge, deployment, force-push or draft conversion. No new gameplay/render code in this particular execution.
