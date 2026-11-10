@@ -1410,3 +1410,61 @@ test('original Idle GLB clock survives genuine idle/guard changes without resett
  assert.match(model,/actor\.currentActionTick=tick;[\s\S]{0,130}return;/,
   'source reuse must still update real presentation action ownership and tick');
 });
+
+
+test('lawful guard/idle source-rig transition blends hips, planted legs, shoulders and elbows without a sudden ownership snap',async()=>{
+ const {advanceFullBodyController}=await load();
+ const rigFile=path.join(root,'public/ai-dungeon/rig-attachment-plan.js');
+ const rig=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(rigFile,'utf8')).toString('base64'));
+ assert.equal(typeof rig.planNativeGuardPose,'function','one authentic original-rig chain needs a shared guard pose contract');
+ const sample=(prior,action,dt=.05,opts={})=>advanceFullBodyController(prior,{
+  unit:{id:'guard-vanguard',kind:'vanguard',hp:120,maxHp:120,action,actionTick:24},
+  actionAge:.1,frameDelta:dt,frameInterval:dt,visible:true,...opts
+ });
+ const initial=sample(null,'idle');
+ const first=sample(initial,'guard');
+ assert.equal(first.mode,'guard');
+ assert.ok(first.guardBlend>0&&first.guardBlend<.35,'first real frame must not snap to full pose');
+ let entered=first;
+ for(let i=0;i<5;i++)entered=sample(entered,'guard');
+ assert.ok(entered.guardBlend>.99,'sustained lawful guard reaches a braced stance');
+ const released=sample(entered,'idle');
+ assert.equal(released.mode,'idle');
+ assert.ok(released.guardBlend<entered.guardBlend&&released.guardBlend>.5,
+  'guard exit must settle naturally while original Idle source clip remains continuous');
+ let settled=released;for(let i=0;i<6;i++)settled=sample(settled,'idle');
+ assert.equal(settled.guardBlend,0,'no persistent guard offset after real idle arrival');
+ const interrupted=sample(entered,'attack');
+ assert.equal(interrupted.guardBlend,0,'fresh attack must immediately own the source body');
+ assert.equal(sample(entered,'idle',.05,{teleport:true}).guardBlend,0,'real teleport resets support');
+ assert.equal(sample(entered,'idle',.05,{reducedMotion:true}).guardBlend,0,'accessibility immediately restores neutral');
+ assert.equal(sample(entered,'idle',.05,{unit:{id:'guard-vanguard',kind:'vanguard',hp:0,maxHp:120,action:'idle',actionTick:24}}).guardBlend,0,'defeat cannot retain a living guard');
+ const components=p=>[
+  p.head.pitch,p.chest.pitch,p.hips.pitch,
+  ...['left','right'].flatMap(side=>[
+   p.shoulders[side].pitch,p.shoulders[side].roll,p.elbows[side],
+   p.legs[side].upper,p.legs[side].lower,p.legs[side].foot
+  ])
+ ];
+ const zero=components(rig.planNativeGuardPose(0));
+ const half=components(rig.planNativeGuardPose(.5));
+ const full=components(rig.planNativeGuardPose(1));
+ assert.ok(zero.every(x=>x===0));
+ assert.ok(full.some(x=>Math.abs(x)>.15),'source arms must visibly protect body');
+ assert.ok(full.slice(0,3).some(x=>Math.abs(x)>.01),'original hips/chest/head must share the brace');
+ assert.ok(full.slice(3).some(x=>Math.abs(x)>.025),'both authentic arms and soles support guard');
+ assert.ok(full.every(x=>Number.isFinite(x)&&Math.abs(x)<.4),'native 41-joint angles remain bounded');
+ assert.ok(half.every((x,i)=>Math.abs(x-full[i]*.5)<1e-10),
+  'all source pelvis-to-elbow-and-foot channels share one guard blend');
+ assert.ok(components(rig.planNativeGuardPose(1,true)).every(x=>x===0));
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.rigGuardPose\s*=\s*planNativeGuardPose\(actor\.fullBody\?\.guardBlend/,
+  'real Three.js mixer consumes the same source guardian envelope after action ownership');
+ assert.match(model,/guardPose\?\.legs\?\.\[mount\.side\]/,
+  'original imported thigh/calf/ankle chains must share the authored guard envelope');
+ assert.match(model,/guardPose\?\.shoulders\?\.\[mount\.side\]/,
+  'original shoulder chains must share the same envelope');
+ assert.match(model,/guardPose\?\.elbows\?\.\[mount\.side\]/,
+  'original forearm chains must share the same envelope');
+});
