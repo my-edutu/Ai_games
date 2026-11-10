@@ -212,7 +212,7 @@ test('native tick6 uses the genuinely witnessed pressure partner after a legal p
   visibleCells:[24],doors:[{a:24,b:17,open:false}]};
  const untouched=JSON.stringify({before,after});
  assert.deepEqual(retain(before,after,CELL,ASPECT),{
-  cell:32,x:0,z:CELL,distance:CELL*Math.SQRT2,weight:.57,verifiedRetreat:true
+  cell:32,x:CELL,z:CELL,distance:CELL*Math.SQRT2,weight:.57,verifiedRetreat:true
  });
  assert.equal(JSON.stringify({before,after}),untouched);
  assert.equal(retain(before,after,CELL,390/844)?.cell,32);
