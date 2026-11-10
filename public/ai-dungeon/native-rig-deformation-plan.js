@@ -91,6 +91,18 @@ export function measureSourceJointTravel(before,after){
 
 
 /**
+ * GLTFLoader sanitizes the real pinned TacticalSlash names foot.l/toes.l
+ * into footl/toesl before SkeletonUtils clones them. Match only source
+ * deform bones, never IK-foot, foot-roll controls or opposite leg. This is
+ * ON-DEMAND evidence selection, not presentation or IK.
+ */
+export function isSourceSoleBoneName(name,side){
+ if(typeof name!=='string'||!['left','right'].includes(side))return false;
+ const match=/^(?:foot|toes)[._-]?([lr])$/i.exec(name);
+ return Boolean(match&&match[1].toLowerCase()===(side==='left'?'l':'r'));
+}
+
+/**
  * Compare two GENUINE skinned source-sole vertices and the original
  * hand-relative weapon matrix on the same existing source clone.
  * Evidence only: one weighted sole vertex is NOT full sole-ground contact,

@@ -4,7 +4,7 @@ import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
 import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,planNativeWalkToGuardGait,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
-import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
+import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
 import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
@@ -1432,8 +1432,8 @@ function sourceSoleVertexCandidates(actor){
   if(!positions||!indices||!weights)return;
   const targets={left:new Set(),right:new Set()};
   for(const [index,bone] of mesh.skeleton.bones.entries()){
-   if(/^(?:foot|toes)\.l$/i.test(bone?.name??''))targets.left.add(index);
-   if(/^(?:foot|toes)\.r$/i.test(bone?.name??''))targets.right.add(index);
+   if(isSourceSoleBoneName(bone?.name,'left'))targets.left.add(index);
+   if(isSourceSoleBoneName(bone?.name,'right'))targets.right.add(index);
   }
   if(!targets.left.size&&!targets.right.size)return;
   // Hard cap per original mesh protects the explicit auditing operation.
