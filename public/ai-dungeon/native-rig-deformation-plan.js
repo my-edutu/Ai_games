@@ -135,20 +135,43 @@ export function measureSourceSoleGripContinuity(before,after){
   typeof x.handName==='string'&&x.handName.length>0&&
   Array.isArray(x.handRelativeMatrix)&&x.handRelativeMatrix.length===16&&
   x.handRelativeMatrix.every(finite);
- const rigidGripComparable=validGrip(gripA)&&validGrip(gripB)&&
+ // Both source clips and the legal weapon mount may animate handslot.r
+ // under hand.r. Retain hand-relative change as a diagnostic, but measure
+ // actual attachment integrity in the source weapon's own authored socket.
+ const handComparable=validGrip(gripA)&&validGrip(gripB)&&
   gripA.name===gripB.name&&gripA.handName===gripB.handName;
+ const withSocket=x=>x?.attachedToGripSocket===true&&
+  typeof x.socketName==='string'&&/^handslot[._-]?r$/i.test(x.socketName)&&
+  Array.isArray(x.socketRelativeMatrix)&&x.socketRelativeMatrix.length===16&&
+  x.socketRelativeMatrix.every(finite);
+ const socketDeclared=x=>x&&('socketName' in x||'attachedToGripSocket' in x||
+  'socketRelativeMatrix' in x);
+ const socketComparable=Boolean(handComparable&&withSocket(gripA)&&withSocket(gripB)&&
+  gripA.socketName===gripB.socketName);
+ // Preserve compatibility with older synthetic/legacy hand-only contracts,
+ // but NEVER treat a declared invalid source socket as proof of rigid grip.
+ const rigidGripComparable=Boolean(handComparable&&
+  (!(socketDeclared(gripA)||socketDeclared(gripB))||socketComparable));
  const a=gripA?.handRelativeMatrix,b=gripB?.handRelativeMatrix;
- const drift=rigidGripComparable?dist([a[12],a[13],a[14]],[b[12],b[13],b[14]]):null;
- const matrixDrift=rigidGripComparable?Math.max(...a.map((v,i)=>Math.abs(v-b[i]))):null;
+ const drift=handComparable?dist([a[12],a[13],a[14]],[b[12],b[13],b[14]]):null;
+ const matrixDrift=handComparable?Math.max(...a.map((v,i)=>Math.abs(v-b[i]))):null;
+ const socketA=gripA?.socketRelativeMatrix,socketB=gripB?.socketRelativeMatrix;
+ const socketDrift=socketComparable?
+  dist([socketA[12],socketA[13],socketA[14]],[socketB[12],socketB[13],socketB[14]]):null;
+ const socketMatrixDrift=socketComparable?
+  Math.max(...socketA.map((v,i)=>Math.abs(v-socketB[i]))):null;
  return Object.freeze({comparable:true,
   source:'original-skinned-sole-vertex-and-rigid-source-hand-weapon',
   actorId:before.id,kind:before.kind,
   rootTravelMeters:round(horizontal(before.rootWorld,after.rootWorld)),
   soleWorldDeltaMeters,soleRelativeToRootDeltaMeters,
   soleVerticalDeltaMeters,soleHeightAboveRootMeters,
-  rigidGripComparable:Boolean(rigidGripComparable),
-  weaponName:rigidGripComparable?gripA.name:null,
+  rigidGripComparable,
+  weaponName:handComparable?gripA.name:null,
+  sourceGripSocketName:socketComparable?gripA.socketName:null,
   weaponHandDriftMeters:drift===null?null:round(drift),
-  weaponLocalMatrixMaxDelta:matrixDrift===null?null:round(matrixDrift)
+  weaponLocalMatrixMaxDelta:matrixDrift===null?null:round(matrixDrift),
+  weaponSocketDriftMeters:socketDrift===null?null:round(socketDrift),
+  weaponSocketMatrixMaxDelta:socketMatrixDrift===null?null:round(socketMatrixDrift)
  });
 }

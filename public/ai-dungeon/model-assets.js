@@ -1468,20 +1468,33 @@ function sourceSkinnedSoleWorld(candidate){
 }
 function sourceWeaponHandGrip(actor,rightHand){
  if(!rightHand?.isBone)return null;
- // Original GLB internal weapon nodes, not synthetic rendering accessories.
+ // Audit the ORIGINAL imported grip socket, not a new weapon fitting. The
+ // licensed handslot.r is independently keyed beneath hand.r by source clips;
+ // a moving sword relative to hand.r is not proof of a detached weapon.
  const names=['1H_Sword','Longbow_1','2H_Staff','DarkStaff_1'];
  const weapon=names.map(n=>actor.assetRoot.getObjectByName(n)).find(Boolean);
  if(!weapon)return null;
- let attached=false;
- for(let parent=weapon.parent,depth=0;parent&&depth<24;parent=parent.parent,depth++)
+ let attached=false,sourceSocket=null;
+ for(let parent=weapon.parent,depth=0;parent&&depth<24;parent=parent.parent,depth++){
+  if(!sourceSocket&&parent.isBone&&/^handslot[._-]?r$/i.test(parent.name))
+   sourceSocket=parent;
   if(parent===rightHand){attached=true;break;}
+ }
+ const attachedToGripSocket=Boolean(attached&&sourceSocket&&weapon.parent===sourceSocket);
  rightHand.updateWorldMatrix(true,false);
  weapon.updateWorldMatrix(true,false);
  const values=Array.from(new THREE.Matrix4().copy(rightHand.matrixWorld).invert()
   .multiply(weapon.matrixWorld).elements);
  if(!values.every(Number.isFinite))return null;
+ // Both matrices describe the SAME original skinned/animated hierarchy,
+ // sampled only when the existing on-demand rig inspection is requested.
+ const socketValues=attachedToGripSocket?
+  Array.from(new THREE.Matrix4().copy(sourceSocket.matrixWorld).invert()
+   .multiply(weapon.matrixWorld).elements):null;
  return {name:weapon.name,handName:rightHand.name,attachedToHand:attached,
-  handRelativeMatrix:values};
+  handRelativeMatrix:values,
+  socketName:sourceSocket?.name??null,attachedToGripSocket,
+  socketRelativeMatrix:socketValues?.every(Number.isFinite)?socketValues:null};
 }
 
 function inspectSourceRigDeformation(actors){
