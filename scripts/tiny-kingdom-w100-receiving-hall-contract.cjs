@@ -22,7 +22,12 @@ console.log('W100 original real two-bay open-front receiving arcade source/synta
 const hallFragment=code.slice(code.indexOf('const MARKET_RECEIVING_HALL='),
   code.indexOf('// The transfer platform sits',code.indexOf('const MARKET_RECEIVING_HALL=')));
 assert.ok(hallFragment.includes('function marketReceivingDock()'));
+const farmStart=code.indexOf('const FARMSTEAD=');
+assert.ok(farmStart>=0,'The test requires the same real farm/granary geometry as the playable game');
+const farmDeclaration=code.slice(farmStart,code.indexOf(';',farmStart)+1);
+assert.match(farmDeclaration,/^const FARMSTEAD=Object\.freeze\(\{/);
 const hallGeometry=new Function(`
+${farmDeclaration}
 let data=[];const rgb=hex=>hex,terrain=(x,z)=>Math.sin(x*.03+z*.01)*.07;
 const marketQuarterStats={receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0};
 const MATERIAL={STONE:5,WOOD:6,PLASTER:8,ROOF:7},materialScope=(id,fn)=>fn();
