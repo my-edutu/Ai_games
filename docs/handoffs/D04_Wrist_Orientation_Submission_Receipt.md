@@ -30,17 +30,21 @@ before the fix. This is not a blade-tip or contact measurement.
    invalid current quaternion cannot approve a previously measured pose.
 3. Commit `2d8c84f3af3556359f839f441992e73f5ba745a4`:
    `physical-feedback-visuals.js` uses one retained Three.js Quaternion
-   scratch to sample the live bone's world orientation alongside its world
-   position. It records only finite observed components, never inventing a
-   pose, changing the mesh or mutating the skeleton.
+   scratch to sample live bone world orientation without changing the rig.
+4. Follow-up performance commits `164b9d6e924ea9d9f2f4db02732e1e2f1842ccaa`
+   and `bc56d6e5b4dc3fd20949529dfed8e18277011728` retain four
+   orientation scalars in the already allocated wrist sample instead of
+   allocating another object per frame. The receipt accepts these flat
+   samples and test-only nested objects. Final source-backed 9/9 and full
+   adapted controller re-check passed after these edits.
 
 ## Evidence and limitations
 
 - Detached V8 RED: actual before-fix measured-trail module returned **true**
   for a 0.48-rad same-bone pivot with unchanged world wrist/root positions.
-- Detached V8 GREEN: **8/8** focused production-module assertion cases
+- Detached V8 GREEN: **9/9** final production-module assertion cases
   passed: large rotation denied, small jitter allowed, q/-q parity,
-  missing/NaN/zero quaternion denied, older mock-rig compatibility and
+  missing/invalid quaternion denied, flat and nested orientation witnesses, older mock-rig compatibility and
   replaced bone denied.
 - Detached V8 with the corrected fetched **production visuals module**,
   mocked Three.js rig and actual measured-trail module: genuine two-sample
@@ -49,7 +53,7 @@ before the fix. This is not a blade-tip or contact measurement.
   0.018-rad jitter remained accepted. Retained mock stats: 102 reserved
   instances, 7 new effect draw calls. These are **source-adapted mocks, not
   GPU capture results**.
-- Detached V8 with fetched production planner, original-foley exports,
+- Final detached V8 with fetched production planner, original-foley exports,
   retained visuals, frame gate and controller (mock renderer, mock audio):
   changed wrist pivot produced **0 delivered sounds** with receipt
   `revoked-drawn-swing-pose`, no adapter failure. It is not genuine WebAudio.
