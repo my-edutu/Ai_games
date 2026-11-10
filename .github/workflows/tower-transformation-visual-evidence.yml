@@ -152,6 +152,8 @@ jobs:
           # The immutable baseline predates native-video calibration. Copy
           # ONLY observational harness code; never alter its game or host.
           cp current-harness/scripts/tower-video-timebase.cjs source/scripts/tower-video-timebase.cjs
+          cp current-harness/scripts/tower-event-frame-probes.cjs source/scripts/tower-event-frame-probes.cjs
+          cp current-harness/tests/phase3/tower-event-frame-probes.test.cjs source/tests/phase3/tower-event-frame-probes.test.cjs
           cp current-harness/scripts/tower-native-compositor-anchors.cjs source/scripts/tower-native-compositor-anchors.cjs
           cp current-harness/tests/phase3/tower-native-compositor-anchors.test.cjs source/tests/phase3/tower-native-compositor-anchors.test.cjs
           cp current-harness/scripts/tower-native-film-integrity.cjs source/scripts/tower-native-film-integrity.cjs
@@ -188,7 +190,7 @@ jobs:
         id: scoped_integrity
         continue-on-error: true
         working-directory: source
-        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-public-state-witness.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
+        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-public-state-witness.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-event-frame-probes.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
       - name: Install Chromium
         working-directory: source
         run: npx playwright install --with-deps chromium
@@ -263,6 +265,17 @@ jobs:
             "artifacts/tower-motion/${{ matrix.scenario }}" \
             "$TOWER_CAPTURE_SOURCE_SHA" "${{ matrix.scenario }}" \
             > "artifacts/tower-motion/${{ matrix.scenario }}/native-film-integrity.json"
+      # Read-only, source-tick-indexed stills from the already unmodified
+      # native WebMs. This is an inspection unblocker, not a simulated
+      # gameplay recording or a positive transformation score. It never
+      # changes source host, game, recording frame rate or original film.
+      - name: Extract genuine event-neighbor video frames for human review
+        id: film_frame_probes
+        if: always() && steps.audit_original_webm.outcome == 'success'
+        continue-on-error: true
+        working-directory: source
+        run: |
+          node scripts/tower-event-frame-probes.cjs             "artifacts/tower-motion/${{ matrix.scenario }}"             "$TOWER_CAPTURE_SOURCE_SHA" "${{ matrix.scenario }}"
       - name: Preserve both viewport outcomes and veto failed capture
         if: always() && steps.pin_source.outcome == 'success'
         working-directory: source
@@ -271,15 +284,17 @@ jobs:
           DESKTOP_OUTCOME: ${{ steps.record_desktop.outcome }}
           PORTRAIT_OUTCOME: ${{ steps.record_portrait.outcome }}
           WEBM_OUTCOME: ${{ steps.audit_original_webm.outcome }}
+          FILM_PROBES_OUTCOME: ${{ steps.film_frame_probes.outcome }}
           PREFLIGHT_OUTCOME: ${{ steps.scoped_integrity.outcome }}
         run: |
           set -euo pipefail
           mkdir -p artifacts/tower-motion
-          printf 'scoped-preflight=%s\ndesktop=%s\nportrait=%s\nnative-webm-integrity=%s\n' \
-            "$PREFLIGHT_OUTCOME" "$DESKTOP_OUTCOME" "$PORTRAIT_OUTCOME" "$WEBM_OUTCOME" \
+          printf 'scoped-preflight=%s\ndesktop=%s\nportrait=%s\nnative-webm-integrity=%s\nevent-frame-probes=%s\n' \
+            "$PREFLIGHT_OUTCOME" "$DESKTOP_OUTCOME" "$PORTRAIT_OUTCOME" "$WEBM_OUTCOME" "$FILM_PROBES_OUTCOME" \
             > artifacts/tower-motion/capture-step-outcomes.txt
           if [[ "$PREFLIGHT_OUTCOME" != success || "$DESKTOP_OUTCOME" != success ||
-                "$PORTRAIT_OUTCOME" != success || "$WEBM_OUTCOME" != success ]]; then
+                "$PORTRAIT_OUTCOME" != success || "$WEBM_OUTCOME" != success ||
+                "$FILM_PROBES_OUTCOME" != success ]]; then
             echo 'Original-source capture incomplete. All available native clips, sidecars and per-viewport failure traces are retained; P0 remains NOT EVALUATED.' >&2
             exit 1
           fi
