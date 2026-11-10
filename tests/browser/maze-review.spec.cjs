@@ -1898,6 +1898,13 @@ test('source-bound Tide-Shear pressure court and autonomous withdrawal render at
             .map(el=>el.getBoundingClientRect().toJSON()),
           map:document.querySelector('#map-panel>summary').getBoundingClientRect().toJSON(),
           details:document.querySelector('#intent-details>summary').getBoundingClientRect().toJSON(),
+          // This is the real source-driven mission chip in the same unaltered
+          // WebGL frame, NOT an inferred engine intent or overlay mock.
+          mission:{
+            title:document.getElementById('goal-title')?.textContent?.trim(),
+            urgency:document.getElementById('broadcast')?.dataset.urgency,
+            phase:document.getElementById('run-phase')?.textContent?.trim()
+          },
           scrollWidth:document.documentElement.scrollWidth
         }));
         const bound=native.diagnostic.observedTrapPhysicalBounds
@@ -1925,6 +1932,18 @@ test('source-bound Tide-Shear pressure court and autonomous withdrawal render at
         fs.writeFileSync(path.join(dir,filename.replace('.png','.json')),
           JSON.stringify(observation,null,2));
         records.push(observation);
+        // Genuine prior source-bound WebGL withdrew Pip from visible jaws
+        // while a repeated same-tick stream poll replaced the urgent mission
+        // with Key for gate. Keep HUD and physical mechanism synchronized at
+        // original 320/390 native sizes, including the source-authentic retreat.
+        if(phase==='pressure'||phase==='withdrawal'){
+          expect(native.mission.title,
+            phase+' real mission must warn about the visible moving jaws').toBe('Avoid jaws');
+          expect(native.mission.urgency,
+            phase+' genuine public pressure must own the one compact urgent chip').toBe('true');
+          expect(native.mission.phase,
+            phase+' UI status must match observed pressure, not a sealed gate').toBe('PRESSURE NEARBY');
+        }
         if(phase==='pressure'){
           expect(physicalBeat.progress,
             'selected PUBLIC tide-shear must complete its visible pressure beat').toBeGreaterThanOrEqual(.68);
