@@ -1470,3 +1470,48 @@ test('lawful guard/idle source-rig transition blends hips, planted legs, shoulde
  assert.match(model,/actor\.rigGuardPose\?\.elbows\?\.\[mount\.side\]/,
   'original forearm chains must share the same envelope');
 });
+
+
+// Authored source GLB 'Walking_A' is paused on a genuine source move->guard
+// crossfade. Its reversible original thigh/knee/ankle stride must settle with
+// the incoming native guard support rather than disappearing on frame one.
+// This is an animation-only source contract; NOT world-space sole locking.
+test('authentic walking source planted move-to-guard hands stride support into native guard rather than snapping ankles',async()=>{
+ const {planNativeWalkToGuardGait}=await load();
+ assert.equal(typeof planNativeWalkToGuardGait,'function',
+  'an isolated original-source move-to-guard plant contract must exist');
+ const candidate={mode:'guard',sourceWalkFrozen:true,groundedMoving:false,
+  groundedTravel:0,gaitWeight:.9,guardBlend:.15,alive:true,
+  teleport:false,reducedMotion:false};
+ assert.equal(planNativeWalkToGuardGait(candidate),true);
+ for(const [reason,patch] of Object.entries({
+  notGuard:{mode:'idle'},noOriginalWitness:{sourceWalkFrozen:false},
+  moving:{groundedMoving:true},rootStillTravelling:{groundedTravel:.012},
+  invalidTravel:{groundedTravel:NaN},invalidNegative:{groundedTravel:-.1},
+  alreadyNeutral:{gaitWeight:0},badWeight:{gaitWeight:NaN},
+  fullyGuarded:{guardBlend:1},badBlend:{guardBlend:NaN},
+  defeated:{alive:false},teleport:{teleport:true},
+  reducedMotion:{reducedMotion:true}
+ }))assert.equal(planNativeWalkToGuardGait({...candidate,...patch}),false,reason);
+ // Real existing deterministic original-GLB overlay planners: legal planting
+ // must fade physically across source thigh and ankle, never vanish at t=0.
+ const rig=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8')).toString('base64'));
+ const phase=Math.PI/2,old=rig.planRigLegGesture(phase,.9);
+ const first=rig.advanceRigGait(phase,.9,0,!planNativeWalkToGuardGait(candidate),.016);
+ const firstPose=rig.planRigLegGesture(first.phase,first.weight);
+ assert.ok(old.left.upper>.21&&old.left.foot<-.08);
+ assert.ok(first.weight>0&&first.weight<.9,
+  'first guard frame must reduce source-ankle support without deleting it');
+ assert.ok(Math.abs(old.left.upper-firstPose.left.upper)<.055,
+  'authentic source-thigh performance should not pop by ~.22 rad on guard entry');
+ const terminal=rig.advanceRigGait(first.phase,first.weight,0,false,.16);
+ assert.equal(terminal.weight,0,'the source gait must completely yield to guard');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.rigGuardPlantHandoff\s*=\s*action===['"]guard['"]/,
+  'source Walking_A freeze must record only a genuine guard entry');
+ assert.match(model,/planNativeWalkToGuardGait\(\{/,
+  'the actual Three.js original source actor must apply the plant arbitration');
+ assert.match(model,/sourceWalkFrozen:\s*Boolean\(actor\.rigGuardPlantHandoff\)/,
+  'source guard handoff must not be fabricated from a generic guard label');
+});
