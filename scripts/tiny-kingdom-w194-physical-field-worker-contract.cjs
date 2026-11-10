@@ -2,7 +2,8 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const h=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const script=h.slice(h.indexOf('<script>')+8,h.indexOf('</script>',h.indexOf('<script>'));
+const firstScript=h.indexOf('<script>')+8;
+const script=h.slice(firstScript,h.indexOf('</script>',firstScript));
 new vm.Script(script);
 const reference=h.slice(h.indexOf('function tri('),h.indexOf('// G055:',h.indexOf('function tri(')));
 const quad=h.slice(h.indexOf('// W194 original world geometry'),h.indexOf('// G076:',h.indexOf('// W194 original world geometry')));
