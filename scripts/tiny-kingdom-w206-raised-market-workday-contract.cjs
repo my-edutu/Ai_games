@@ -44,7 +44,7 @@ assert(dock.includes('for(const [index,x] of bayX.entries())')&&
  dock.includes('tri(left,right,peak,lime)'),
  'raise the same two authentic receipts; do not remove the roof or rear infill');
 assert(audit.includes('roofAboveGrainReceiptMeters:')&&
- audit.includes('roofMatchesCameraVolumes:true')&&
+ audit.includes('roofMatchesCameraVolumes:roofBands.length===4')&&
  audit.includes('originalShelfUnderRoof:')&&
  audit.includes('authorityModified:false')&&audit.includes('changesNavigation:false'),
  'real-game inspection must expose clearance and explicitly preserve authority');
