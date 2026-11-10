@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Run exact new-head authentic 1440px/390px full organic WebM+Opus; inspect real source contact and cinematicShot subjects, mobile actor pixels, warnings, occlusion, p95/p99, 946/946 natural defeat. Profile actual software WebGL submit spike before a substantial measured Stage A correction. Then independently review PR72 before B and require 3 blind critics, locked-baseline A/B.",
+    "executableNextTask": "Use connected real Chromium/browser workspace to compare exact identical seed and camera with MediaRecorder ON versus OFF (matched CI runner), Chrome main-thread/WebGL and SwiftShader traces, shader/program switches, buffer and texture uploads, stall frame breakdown and visibility; select largest confirmed synchronous submission cost, implement substantial retained production renderer correction on PR49, run exact-head desktop 1440/mobile 390 organic 5/5 original audiovisual capture and tests. PR72 source-rig work remains separate until its successful authentic film; then 3+ fresh blind critics against immutable baseline.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7190,6 +7190,83 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Restore connected implementation and actual Chrome CPU/GPU trace during Warden, partition render submit from SwiftShader raster wait, shader/program changes, buffer/upload, browser composition and WebM recording. Choose the single dominant cause and implement a retained real-game correction. Repeat SAME seed matched desktop+mobile real captures with requested vs delivered cadence, p50/p95/p99, 5/5 natural journey, critical actors/hazard visibility and original audio. Review PR72 only after genuine separate successful film. No merge/deploy."
+    },
+    "m1StageAFreshRepeatAndOriginalAudioAudit20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "pr49ExactEvidenceHead": "420e9b06404fa964627c8d4385ff894d903f1daa",
+      "unchangedGameplaySourceSha": "12cb6fcb65982088e63a1282b254eda24b9b9f0a",
+      "currentActualOrganicRun": 42805327280,
+      "earlierSameSourceOrganicRun": 42797793541,
+      "seed": "gauntlet-corpus-v1-0",
+      "currentDesktop": {
+        "originalSnapshots": "946/946",
+        "fiveOrganicStages": true,
+        "naturalDefeatRestart": true,
+        "artifactId": 13758715883,
+        "videoFrames": 895,
+        "videoDurationS": 290.07,
+        "actualFps": 3.09,
+        "packetIntervalP95Ms": 1091,
+        "packetIntervalP99Ms": 1750,
+        "gapsOver1S": 54,
+        "wardenDrawCalls": 412,
+        "wardenTriangles": 186385,
+        "wardenSubmitP50Ms": 9,
+        "wardenSubmitP95Ms": 613,
+        "wardenSubmitP99Ms": 3061,
+        "minimumLivingHeroPixels": 81,
+        "original4sPcmInMuxOffsetS": 24.843,
+        "pcmOpusCrossCorrelation": 0.6575
+      },
+      "currentMobile": {
+        "originalSnapshots": "946/946",
+        "fiveOrganicStages": true,
+        "naturalDefeatRestart": true,
+        "artifactId": 13759231045,
+        "videoFrames": 609,
+        "videoDurationS": 298.82,
+        "actualFps": 2.04,
+        "packetIntervalP95Ms": 1509,
+        "packetIntervalP99Ms": 2445,
+        "gapsOver1S": 73,
+        "wardenDrawCalls": 423,
+        "wardenTriangles": 194178,
+        "wardenSubmitP50Ms": 10,
+        "wardenSubmitP95Ms": 979,
+        "wardenSubmitP99Ms": 3630,
+        "minimumLivingHeroPixels": 37,
+        "original4sPcmInMuxOffsetS": 25.68,
+        "pcmOpusCrossCorrelation": 0.8512
+      },
+      "method": "Actual downloaded exact-head Chromium VP8 WebM packet PTS via ffprobe; Opus decoded to 8kHz and FFT cross-correlated against the original four-second 44.1kHz opted-in Warden PCM excerpt. The original master occurs in the mux; this does NOT establish HP-hit-to-audio timing. Single-head repeated CI runs have differing host loads; speed changes do not imply code effects.",
+      "priorSameSourceFps": {
+        "desktop": 3.16,
+        "mobile": 2.84
+      },
+      "requestedRecorderFps": 24,
+      "visualBaseline": "Baseline artifact 13081734898 was retrieved for nonmatched scene review. Full five-stage same-seed baseline video does not exist, so do not use those stills as final blinded A/B.",
+      "latestCi": {
+        "foundation": "SUCCESS",
+        "visualReview": "SUCCESS",
+        "organicOriginalFilm": "SUCCESS",
+        "catalogue": "FAILURE"
+      },
+      "pr72AtInspection": {
+        "head": "496fe78f8b286388d6da7a632be3d0a24fa11b0a",
+        "workflowRun": 42810860038,
+        "workflowStatus": "IN_PROGRESS",
+        "integrated": false
+      },
+      "productionSourceModifiedThisAudit": false,
+      "sourceBlocker": "Connected editable/browser tunnel returned NOT_FOUND: Tunnel-client has not been seen for 300 seconds. GitHub connector can read/write source and media artifacts, but cannot provide local code execution or an independently executed visual candidate.",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Use connected real Chromium/browser workspace to compare exact identical seed and camera with MediaRecorder ON versus OFF (matched CI runner), Chrome main-thread/WebGL and SwiftShader traces, shader/program switches, buffer and texture uploads, stall frame breakdown and visibility; select largest confirmed synchronous submission cost, implement substantial retained production renderer correction on PR49, run exact-head desktop 1440/mobile 390 organic 5/5 original audiovisual capture and tests. PR72 source-rig work remains separate until its successful authentic film; then 3+ fresh blind critics against immutable baseline."
     }
   }
 }
