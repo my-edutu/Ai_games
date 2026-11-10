@@ -60,7 +60,8 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
   document.getElementById('camera-home').click();
  },start.saved);
  const five=await page.evaluate(()=>{
-  const g=window.__tinyKingdom,receipts=[],lastVisits=new Map();
+  const g=window.__tinyKingdom,receipts=[],lastVisits=new Map(
+   g.exportSnapshot().payload.people.map(p=>[p.name,p.provisionVisits||0]));
   let maxCarrying=0,maxDisplacement=0,previous=new Map(),maxNoRoute=0;
   let seenLiveObservation=false;
   const market=g.getHouseholdProvisionAudit().market;
@@ -92,11 +93,25 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
  });
  expect(five.seenLiveObservation).toBe(true);
  expect(five.receipts.length).toBeGreaterThan(0);
- expect(five.receipts.every(r=>r.dist<=1.35&&r.food>0&&r.townFood>=0)).toBe(true);
+ // W178 test-first contract: positions sampled AFTER the 30Hz tick can move
+ // past the real dock threshold. The authoritative handoff itself must record
+ // the exact contact BEFORE the homeward route is activated. Never relax
+ // the actual 1.35m pickup legality check or invent a market visit.
+ expect(five.receipts.every(r=>r.food>0&&r.townFood>=0)).toBe(true);
+ expect(five.ledger.contactHistory?.length).toBeGreaterThan(0);
+ expect(five.ledger.contactHistory.every(c=>
+  c.distance<=1.35&&c.provisionsAfter>0&&c.townFoodAfter>=0&&
+  c.visits>0&&Number.isFinite(c.atHour)&&
+  ['verified-farmer-receipt','communal-market-stock'].includes(c.source)&&
+  c.position.length===2&&c.market.length===2&&
+  Math.abs(Math.hypot(c.position[0]-c.market[0],c.position[1]-c.market[1])-c.distance)<1e-7
+ )).toBe(true);
+ for(const receipt of five.receipts)expect(five.ledger.contactHistory.some(c=>
+  c.citizen===receipt.name&&c.visits===receipt.visits)).toBe(true);
  expect(five.maxDisplacement).toBeLessThan(.24);
  expect(five.maxCarrying).toBeLessThanOrEqual(1);
  expect(five.maxNoRoute).toBeLessThan(5*24*30);
- expect(five.ledger.visits).toBe(five.receipts.length);
+ expect(five.ledger.visits).toBe(start.ledger.visits+five.receipts.length);
  expect(five.navigation.every(r=>Number.isFinite(r.position[0])&&Number.isFinite(r.position[1]))).toBe(true);
  let day120=null,day160=null;
  const advance=async(days)=>{
