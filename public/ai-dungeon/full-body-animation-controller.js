@@ -161,8 +161,15 @@ export function planNativeSourceIdleGaitFrame({
   return {suppress:false,releaseDelta:0};
  const originalIdle=sourceClipName==='Idle'&&
   (sourceAction==='idle'||sourceAction==='guard');
+ // A legitimate move owner can arrive one original-GLB rendered frame
+ // BEFORE any world-root displacement. The Walking_A entry gate legitimately
+ // returns {defer:true,pendingMeters:0} on that frame. Original Idle still
+ // owns the pelvis, shoe joints, chest and weapon arms: the old second gait
+ // may NOT wake up simply because accumulated metres are precisely zero.
+ // Source/action identity, real moving owner and 24mm upper bound remain
+ // mandatory; a missing Walking_A asset still uses the procedural fallback.
  const suppress=mode==='move'&&originalIdle&&groundedMoving===true&&
-  finite(pendingMeters)&&pendingMeters>0&&pendingMeters<.024;
+  finite(pendingMeters)&&pendingMeters>=0&&pendingMeters<.024;
  const slowing=originalIdle&&(mode==='idle'||mode==='guard')&&
   groundedMoving===false;
  return {suppress,releaseDelta:slowing?
