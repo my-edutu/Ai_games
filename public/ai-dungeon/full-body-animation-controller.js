@@ -106,6 +106,37 @@ export function planNativeGuardVisibleDelta({
  return Math.min(.09,Math.max(frameDelta,frameInterval));
 }
 
+/**
+ * Genuine source-Walking_A must not throw an original skinned foot into a
+ * swing on a visually near-stationary Idle/Guard -> Move crossfade. An exact
+ * original-GLB nine-tick trace observed ~5mm root travel but ~163mm of sole
+ * vertex travel at entry. Defer only extremely slow *initial* source clip
+ * selection until 24mm of independently witnessed root travel accumulates.
+ * Gameplay movement, facing and every real authority action stay unchanged.
+ * Normal 60Hz movement and any meaningful physical step enter immediately.
+ */
+const IMMEDIATE_NATIVE_WALK=Object.freeze({defer:false,pendingMeters:0});
+export function planNativeWalkStartFromTravel({
+ mode='idle',previousMode='idle',sourceClipName='',groundedMoving=false,
+ groundedTravel=NaN,frameInterval=NaN,pendingMeters=0,
+ alive=false,visible=true,teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ if(mode!=='move'||!['idle','guard'].includes(previousMode)||
+  typeof sourceClipName!=='string'||
+  !/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName)||
+  groundedMoving!==true||alive!==true||visible!==true||teleport||
+  reducedMotion||interrupted||
+  !finite(groundedTravel)||groundedTravel<0||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>2||
+  !finite(pendingMeters)||pendingMeters<0||pendingMeters>.024)return IMMEDIATE_NATIVE_WALK;
+ const cumulative=Math.min(.024,pendingMeters+groundedTravel);
+ // A real 5mm/16ms step is not equivalent to a 5mm/80ms near-standstill.
+ // Never delay a genuine >=12mm frame or an actor already in Walking_A.
+ const slow=groundedTravel<.012&&groundedTravel/frameInterval<.25;
+ return slow&&cumulative<.024?
+  {defer:true,pendingMeters:cumulative}:IMMEDIATE_NATIVE_WALK;
+}
+
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
  unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,

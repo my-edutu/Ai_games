@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -964,6 +964,30 @@ function attachCharacter(actor){
  return request;
 }
 function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFrameInterval=frameDelta,sourceFrameVisible=true){
+ // The live original 41-joint Walking_A may crossfade from Idle/Guard
+ // while interpolation has moved the actual root only a few millimetres.
+ // That can swing the licensed shoe mesh far ahead of physical travel.
+ // Defer only the SOURCE clip entry, accumulating genuine root travel; never
+ // prevent a public movement step, change actor authority or fabricate gait.
+ const priorRoot=actor.rigGaitPosition,nowRoot=actor.root?.position;
+ const walkingSource=action==='move'&&['idle','guard'].includes(actor.currentAction)&&actor.mixer?
+  chooseImportedSourceClip(actor.availableClips,'move',actor.u.kind):null;
+ const nativeWalkEntry=planNativeWalkStartFromTravel({
+  mode:action,previousMode:actor.currentAction,
+  sourceClipName:walkingSource?.name??'',
+  groundedMoving:Boolean(actor.fullBody?.owner?.locomotion&&actor.groundedPerformance?.moving),
+  groundedTravel:priorRoot&&nowRoot?
+   Math.hypot(nowRoot.x-priorRoot.x,nowRoot.z-priorRoot.z):NaN,
+  frameInterval:sourceFrameInterval,pendingMeters:actor.nativeWalkEntryPendingMeters??0,
+  alive:actor.u?.hp>0,visible:sourceFrameVisible,
+  teleport:Boolean(actor.locomotionTeleport),
+  reducedMotion:Boolean(actor.fullBody?.reducedMotion),
+  interrupted:Boolean(actor.fullBody?.interrupted)
+ });
+ actor.nativeWalkEntryPendingMeters=nativeWalkEntry.pendingMeters;
+ if(nativeWalkEntry.defer)
+  actor.nativeWalkEntryDeferredFrames=Math.min(1000000,(actor.nativeWalkEntryDeferredFrames||0)+1);
+ if(nativeWalkEntry.defer)return;
  const oneShot=['attack','cast','hurt','defeat'].includes(action);
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
@@ -1886,6 +1910,7 @@ function stats(actors){
    fullBodyModes:authored.reduce((m,a)=>{const mode=a.fullBody?.mode||'idle';m[mode]=(m[mode]||0)+1;return m},{}),
    fullBodyHeldRecoveryFrames:authored.reduce((n,a)=>n+(a.fullBodyHeldFrames||0),0),
    fullBodyGroundedSourceCatchupFrames:authored.reduce((n,a)=>n+(a.walkingSourceCatchupFrames||0),0),
+   fullBodyNativeWalkEntryDeferredFrames:authored.reduce((n,a)=>n+(a.nativeWalkEntryDeferredFrames||0),0),
    fullBodyFrozenSourceActors:authored.filter(a=>a.fullBody?.owner.defeat).length,
    fullBodyFrozenSourceFrames:authored.reduce((n,a)=>n+(a.fullBodyFrozenFrames||0),0),
     nativeDeathSourceActors:authored.filter(a=>a.nativeDeathSourceActive).length,
