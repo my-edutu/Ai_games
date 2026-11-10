@@ -31,6 +31,59 @@ function describe(block){
   rafP99Ms:percentile(raf,.99),directP50Ms:percentile(draw,.5),
   directP95Ms:percentile(draw,.95),directP99Ms:percentile(draw,.99)};
 }
+// Native Chrome events are diagnostic inclusive slices, NOT a GPU time proxy.
+// Sample the real held Warden across all three recorder OFF/ON/OFF segments.
+async function startNativeWardenTrace(page){
+ const report={status:'UNAVAILABLE',eventCount:0,method:'CDP Tracing + JS CPU profiler; overlapping slice durations are not wall-clock time'};
+ const names=new Map(),totals=new Map(),long=[];let c=null,started=false,profiler=false,done;
+ const completed=new Promise(resolve=>done=resolve);
+ try{
+  c=await page.context().newCDPSession(page);
+  c.on('Tracing.dataCollected',({value=[]})=>{
+   for(const e of value){
+    report.eventCount++;
+    const tid=e.pid+':'+e.tid;
+    if(e.ph==='M'&&e.name==='thread_name'&&e.args?.name)names.set(tid,String(e.args.name).slice(0,80));
+    if(e.ph!=='X'||!Number.isFinite(e.dur)||e.dur<1000)continue;
+    const ms=e.dur/1000,name=String(e.name).slice(0,100),key=tid+'|'+name;
+    const x=totals.get(key)||{tid,name,count:0,inclusiveMs:0,maxMs:0};
+    x.count++;x.inclusiveMs+=ms;x.maxMs=Math.max(x.maxMs,ms);totals.set(key,x);
+    if(ms>=100&&long.length<160)long.push({tid,name,ms:Math.round(ms),timestampUs:e.ts});
+   }
+  });
+  c.once('Tracing.tracingComplete',()=>done(true));
+  await c.send('Profiler.enable');await c.send('Profiler.start');profiler=true;
+  await c.send('Tracing.start',{
+   categories:'toplevel,devtools.timeline,disabled-by-default-devtools.timeline.frame,blink,cc,gpu,viz,renderer.scheduler,blink.user_timing',
+   transferMode:'ReportEvents',options:'record-as-much-as-possible'
+  });
+  report.status='RUNNING';started=true;
+ }catch(e){report.error=String(e).slice(0,400)}
+ return async()=>{
+  if(profiler)try{
+   const {profile}=await c.send('Profiler.stop'),nodes=new Map((profile?.nodes||[]).map(n=>[n.id,n]));
+   const counts=new Map();for(const id of profile?.samples||[])counts.set(id,(counts.get(id)||0)+1);
+   report.jsCpuSamples=(profile?.samples||[]).length;
+   report.jsHotspots=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,25).map(([id,samples])=>({
+    name:nodes.get(id)?.callFrame?.functionName||'(unknown)',
+    url:String(nodes.get(id)?.callFrame?.url||'').slice(0,150),
+    line:nodes.get(id)?.callFrame?.lineNumber??null,samples
+   }));
+  }catch(e){report.cpuError=String(e).slice(0,400)}
+  if(started)try{
+   await c.send('Tracing.end');
+   report.status=await Promise.race([completed,new Promise(resolve=>setTimeout(()=>resolve(false),25000))])?'RECORDED':'PARTIAL';
+  }catch(e){report.status='PARTIAL';report.stopError=String(e).slice(0,400)}
+  try{await c?.detach()}catch{}
+  report.threads=[...names].map(([id,name])=>({id,name})).slice(0,80);
+  report.topSlices=[...totals.values()].sort((a,b)=>b.inclusiveMs-a.inclusiveMs).slice(0,40)
+   .map(x=>({...x,thread:names.get(x.tid)||'',inclusiveMs:Math.round(x.inclusiveMs),maxMs:Math.round(x.maxMs)}));
+  report.longSlices=long.sort((a,b)=>b.ms-a.ms).slice(0,40)
+   .map(x=>({...x,thread:names.get(x.tid)||''}));
+  return report;
+ };
+}
+
 test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,async({page})=>{
  test.setTimeout(15*60*1000);fs.mkdirSync('artifacts',{recursive:true});
  const {state,tick}=realWarden(),errors=[];
@@ -45,6 +98,7 @@ test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,a
  ),{timeout:120000}).toBeGreaterThan(8);
  await page.locator('#audio-toggle').click();
  const audioEnabled=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
+ const stopNativeTrace=await startNativeWardenTrace(page);
  const observed=await page.evaluate(async()=>{
   const canvas=document.getElementById('world');
   const mime=['video/webm;codecs=vp8,opus','video/webm'].find(t=>window.MediaRecorder?.isTypeSupported(t));
@@ -128,12 +182,14 @@ test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,a
   for(const record of [false,true,false])blocks.push(await measure(record));
   return {mime,blocks,canvas:{width:canvas.clientWidth,height:canvas.clientHeight}};
  });
+ const nativeChromiumTrace=await stopNativeTrace();
  const receipt={
   schemaVersion:1,verdict:'INSTRUMENTED_HOLD_NOT_FULL_ADVENTURE',
   sourceSha:cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   immutableBaseline:'281735d0910c6b2443648af976003d50412ee324',
   viewport:VIEW,seed:SEED,size:SIZE,realWarden:{tick,checksum:state.checksum,run:state.run,floor:state.floor},
   method:'Actual original living-Warden public snapshot held constant; single Chrome SwiftShader renderer, OFF/ON/OFF original MediaRecorder; excludes disk streaming',
+  nativeChromiumTrace,
   requestedEncoderMime:observed.mime,audioOptedIn:audioEnabled,canvas:observed.canvas,
   blocks:observed.blocks.map(describe),pageErrors:errors,
   fiveStageMotionComparison:false,lockedBaselineAB:false,independentBlindCritics:0,
