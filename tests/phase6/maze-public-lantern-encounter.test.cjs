@@ -104,7 +104,8 @@ test('actual production scene builds one reusable Three light volume with dispos
     'do not reintroduce a floating light attached to an invented actor offset');
   assert.match(scene,/lanternBeamDirection\.copy\(lanternFocusOrigin\)/);
   assert.match(scene,/lanternBeam\.position\.copy\(lanternFocusOrigin\)/);
-  assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis, lanternBeamDirection\)/);
+  assert.match(scene,/lanternBeam\.quaternion\.setFromUnitVectors\(lanternBeamAxis,\s*lanternBeamDirection\)/,
+    'physical guardian beam must still orient from the verified live lantern and target');
   assert.match(scene,/lanternBeamGeometry\.dispose\(\); lanternBeamMaterial\.dispose\(\)/);
   assert.match(scene,/witnessedLanternConeVisible: lanternBeam\.visible/);
   assert.match(scene,/publicLanternWarning\(s,\s*entry\.cell\)/,
