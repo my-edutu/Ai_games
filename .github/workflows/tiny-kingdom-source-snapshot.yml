@@ -12,6 +12,7 @@ on:
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs'
       - 'scripts/tiny-kingdom-w192-graded-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs'
       - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
@@ -47,6 +48,8 @@ jobs:
         run: node scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs
       - name: W192 graded physical village roads with real contact seams and untouched economy
         run: node scripts/tiny-kingdom-w192-graded-road-contract.cjs
+      - name: W193 joined real oak-and-stone original village bridge geometry
+        run: node scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt

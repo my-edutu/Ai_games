@@ -12210,25 +12210,130 @@ const SCENIC_SITES=Object.freeze({
 });
 function landmarkStone(x,z){const variation=Math.sin(x*4.19+z*.71)*.035;return [.70+variation,.70+variation*.6,.65+variation*.4]}
 function landmarkStair(x,z,width=3){const y=terrain(x,z);for(let n=0;n<4;n++){let zz=z+n*.48;box(x,terrain(x,zz)-.10,zz,width,.20+n*.075,.43,landmarkStone(x,zz))}}
+// W193: A coherent original timber-and-stone crossing physically joins both
+// riverbanks in the existing playable valley. Restore real width, masonry edge,
+// continuous deck and open water in the single existing civic scenery buffer.
+// No new navigation, road, workforce, citizen, delivery or economy authority.
+let grainwardBridgeStats={source:'unbuilt',topBoards:0,stoneKerbs:0,
+ joinedSideFaces:0,soffitFaces:0,supportJoists:0,stonePosts:0,
+ oakRailPanels:0,oakDiagonalBraces:0,topology:'unbuilt',triangles:0,
+ existingCrossingOnly:true,newNavigationEdges:0,newResidents:0,newEconomyEvents:0};
+function getGrainwardBridgeAudit(){return {...grainwardBridgeStats}}
 function riverBridge(){
+ const begin=data.length;
  const x=SCENIC_SITES.bridge.x,center=SCENIC_SITES.bridge.z;
  const yDeck=z=>terrain(x,z)+.35+.32*Math.max(0,1-Math.pow((z-center)/7,2));
- const stone=rgb(0xb6b4a2),rail=rgb(0x6b5947),rivet=rgb(0xe7d49d);
- // Sixteen terrain-following stone deck sections form a continuous raised foot crossing.
+ const oak=[rgb(0x927558),rgb(0x84684f),rgb(0xa18768),rgb(0x776048)];
+ const stone=[rgb(0x918b7e),rgb(0xaca18c),rgb(0x867f74)];
+ const beam=rgb(0x5e4c3c),trim=rgb(0x79634e);
+ const stats={source:'W193-original-inhabited-stone-and-oak-bridge',
+  topBoards:0,stoneKerbs:0,joinedSideFaces:0,soffitFaces:0,
+  supportJoists:0,stonePosts:0,oakRailPanels:0,oakDiagonalBraces:0,
+  topology:'continuous-original-water-crossing',triangles:0,
+  existingCrossingOnly:true,newNavigationEdges:0,newResidents:0,
+  newEconomyEvents:0,keepsRiverOpen:true,unchangedDeckProfile:true};
+ const deckLeft=x-2.12,deckRight=x+2.12;
+ const edges=[deckLeft,x-1.83,x+1.83,deckRight];
+ const railFace=(side,z0,z1,a0,a1,b0,b1,tone)=>{
+  const fx=x+side*2.27;
+  const p=[fx,a0,z0],q=[fx,a1,z1],r=[fx,b1,z1],s=[fx,b0,z0];
+  // Both outward faces survive existing WebGL backface culling.
+  if(side>0)quad(p,s,r,q,tone);else quad(q,r,s,p,tone);
+ };
  for(let j=0;j<20;j++){
-  const z0=12.5+j*.56,z1=z0+.56,y0=yDeck(z0),y1=yDeck(z1),shade=j%3?rgb(0xb4ad98):rgb(0xc9bfa8);
-  quad([x-2.12,y0,z0],[x-2.12,y1,z1],[x+2.12,y1,z1],[x+2.12,y0,z0],shade);
-  box(x,y0-.24,z0+.28,4.24,.19,.52,stone);
-  // Stone voussoirs and an actual open-water gap beneath the span.
-  if(j%4===0){box(x-2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85));box(x+2.19,y0-.35,z0+.23,.16,.47,.48,rgb(0x8e8d85))}
+  const z0=12.5+j*.56,z1=z0+.56,y0=yDeck(z0),y1=yDeck(z1);
+  // Three full-width physically joined lanes: worn oak transverse boards
+  // between raised limestone kerbs. The centre remains the real crossing.
+  for(let lane=0;lane<3;lane++){
+   const left=edges[lane],right=edges[lane+1];
+   const tint=lane===1?oak[(j+Math.floor(j/4))%oak.length]:
+    stone[(j+lane)%stone.length],rise=lane===1?0:.018;
+   materialScope(lane===1?MATERIAL.WOOD:MATERIAL.STONE,()=>{
+    quad([left,y0+rise,z0],[left,y1+rise,z1],
+         [right,y1+rise,z1],[right,y0+rise,z0],tint);
+   });
+   if(lane===1)stats.topBoards++;else stats.stoneKerbs++;
+  }
+  // Real side fascia and timber soffit, joined in z and leaving the
+  // surrounding river fully visible: no opaque overland stone slab.
+  materialScope(MATERIAL.STONE,()=>{
+   for(const side of [-1,1]){
+    const xx=x+side*2.12;
+    const p=[xx,y0+.018,z0],q=[xx,y1+.018,z1],
+     r=[xx,y1-.24,z1],s=[xx,y0-.24,z0];
+    if(side>0)quad(p,q,r,s,stone[(j+1)%stone.length]);
+    else quad(s,r,q,p,stone[(j+2)%stone.length]);
+    stats.joinedSideFaces++;
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   quad([deckLeft,y0-.24,z0],[deckRight,y0-.24,z0],
+    [deckRight,y1-.24,z1],[deckLeft,y1-.24,z1],beam);
+  });
+  stats.soffitFaces++;
+  // Four transverse supporting joists, no artificial footbridge route.
+  if([0,4,16,19].includes(j)){
+   const zz=(z0+z1)*.5;
+   materialScope(MATERIAL.WOOD,()=>box(x,
+    Math.min(y0,y1)-.33,zz,4.12,.12,.17,beam));
+   stats.supportJoists++;
+  }
  }
  for(const side of [-1,1]){
-   for(let n=0;n<=7;n++){const zz=12.5+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy,zz,.27,.96,.27,stone);cone(x+side*2.2,yy+.94,zz,.27,.22,rivet,7)}
-   for(let n=0;n<7;n++){const zz=13.3+n*1.6,yy=yDeck(zz);box(x+side*2.2,yy+.43,zz,.13,.15,1.65,rail);box(x+side*2.2,yy+.80,zz,.15,.12,1.65,stone)}
+  for(let n=0;n<=7;n++){
+   const zz=12.5+n*1.6,yy=yDeck(zz),xx=x+side*2.27;
+   materialScope(MATERIAL.STONE,()=>{
+    box(xx,yy-.04,zz,.29,.89,.29,stone[(n+2)%stone.length]);
+    box(xx,yy+.84,zz,.39,.10,.40,stone[(n+1)%stone.length]);
+   });
+   stats.stonePosts++;
+  }
+  for(let n=0;n<7;n++){
+   const z0=12.5+n*1.6,z1=z0+1.6,
+    yy0=yDeck(z0),yy1=yDeck(z1);
+   materialScope(MATERIAL.WOOD,()=>{
+    // Genuine slope-following oak handrails between original stone posts.
+    for(const level of [.39,.77]){
+     railFace(side,z0,z1,yy0+level,yy1+level,
+      yy0+level+.115,yy1+level+.115,trim);
+     stats.oakRailPanels++;
+    }
+    const fx=x+side*2.295,thick=.045;
+    const p=[fx,yy0+.48,z0+.21],q=[fx,yy1+.76,z1-.20],
+     r=[fx,yy1+.76+thick,z1-.20],s=[fx,yy0+.48+thick,z0+.21];
+    if(side>0)quad(s,r,q,p,beam);else quad(p,q,r,s,beam);
+    stats.oakDiagonalBraces++;
+   });
+  }
  }
- // Bank approach paving, retaining stones, flower and banner columns.
- for(const z of [10.2,25.8]){const yy=terrain(x,z);box(x,yy-.09,z,4.5,.13,3.4,rgb(0xaba58f));for(let side of [-1,1]){cylinder(x+side*2.5,yy,z,.38,.6,stone,8);cone(x+side*2.5,yy+.55,z,.38,.26,rgb(0xd0bc8f),7)}}
- for(let j=0;j<9;j++){const zz=12.1+j*1.6;for(const side of [-1,1]){const xx=x+side*(3.2+.4*Math.sin(j));const yy=terrain(xx,zz);ellipsoid(xx,yy+.12,zz,.34,.19,.31,rgb(j%2?0x9b9f8a:0xc7b69a),7)}}
+ // Existing bank approaches stay accessible without changing walkability
+ // or authority. Their original terrain supports and stones remain.
+ materialScope(MATERIAL.STONE,()=>{
+  for(const z of [10.2,25.8]){
+   const yy=terrain(x,z);
+   box(x,yy-.09,z,4.5,.13,3.4,rgb(0x9a927e));
+   for(const side of [-1,1]){
+    cylinder(x+side*2.5,yy,z,.38,.6,stone[1],8);
+    cone(x+side*2.5,yy+.55,z,.38,.26,stone[0],7);
+   }
+  }
+  for(let j=0;j<9;j++){
+   const zz=12.1+j*1.6;
+   for(const side of [-1,1]){
+    const xx=x+side*(3.2+.4*Math.sin(j)),yy=terrain(xx,zz);
+    ellipsoid(xx,yy+.12,zz,.34,.19,.31,
+     stone[(j+side+3)%stone.length],7);
+   }
+  }
+ });
+ stats.triangles=(data.length-begin)/30;
+ grainwardBridgeStats=stats;
+ if(!Number.isInteger(stats.triangles)||stats.triangles>1900||
+   stats.topBoards!==20||stats.stoneKerbs!==40||
+   stats.joinedSideFaces!==40||stats.soffitFaces!==20||
+   stats.stonePosts!==16||stats.oakRailPanels!==28||
+   stats.oakDiagonalBraces!==14)
+  throw Error('W193 invalid bounded original bridge geometry');
 }
 function pointedGlassWindow(x,y,z,width=0.7,height=1.55){
  const lead=rgb(0x494f5b),glass=rgb(0x358b9c),glow=rgb(0x9cc7bf),outline=rgb(0xd9c6a2);
@@ -22033,7 +22138,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
  getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
