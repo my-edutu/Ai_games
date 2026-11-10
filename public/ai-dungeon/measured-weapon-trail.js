@@ -14,6 +14,10 @@ export const MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS=.06;
 // These are small drift tolerances, never weapon-tip or contact measurements.
 export const MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS=.06;
 export const MEASURED_HAND_RECEIPT_MAX_ROOT_YAW_RADIANS=.10;
+// A wrist may pivot while its world position remains almost fixed. When
+// genuine skinned rotation is observable, reject a ribbon rendered against a
+// materially different joint orientation at frame acknowledgment.
+export const MEASURED_HAND_RECEIPT_MAX_WRIST_ROTATION_RADIANS=.16;
 const finite=p=>p&&['x','y','z','rootX','rootY','rootZ'].every(k=>Number.isFinite(p[k]))&&
  (p.yaw===undefined||Number.isFinite(p.yaw));
 /**
@@ -52,6 +56,23 @@ export function isCurrentMeasuredHandReceipt(previous,current){
   current.rootY-previous.rootY,current.rootZ-previous.rootZ);
  const yawDrift=Math.abs(Math.atan2(Math.sin((current.yaw??0)-(previous.yaw??0)),
   Math.cos((current.yaw??0)-(previous.yaw??0))));
+ // Only compare when the *rendered* passage had a real world-orientation
+ // witness. Older minimal rigs without getWorldQuaternion retain their
+ // existing translation/yaw contract; never synthesize a missing rotation.
+ if(previous.wristQuaternion!==undefined){
+  const a=previous.wristQuaternion,b=current.wristQuaternion;
+  if(!a||!b||!['x','y','z','w'].every(k=>
+    Number.isFinite(a[k])&&Number.isFinite(b[k])))return false;
+  const aa=a.x*a.x+a.y*a.y+a.z*a.z+a.w*a.w;
+  const bb=b.x*b.x+b.y*b.y+b.z*b.z+b.w*b.w;
+  if(!Number.isFinite(aa)||!Number.isFinite(bb)||
+    aa<.96||aa>1.04||bb<.96||bb>1.04)return false;
+  // The sign of a unit quaternion is not its physical orientation.
+  const dot=Math.abs(a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w)/Math.sqrt(aa*bb);
+  const angularDrift=2*Math.acos(Math.max(0,Math.min(1,dot)));
+  if(!Number.isFinite(angularDrift)||
+    angularDrift>MEASURED_HAND_RECEIPT_MAX_WRIST_ROTATION_RADIANS)return false;
+ }
  return Number.isFinite(handDrift)&&Number.isFinite(rootDrift)&&
   handDrift<=MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS&&
   rootDrift<=MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS&&
