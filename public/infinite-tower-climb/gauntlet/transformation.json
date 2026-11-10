@@ -6713,5 +6713,28 @@
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-10-tower-pr68-original-portrait-structural-open-bay-reconstruction.md",
     "nextHighestImpact": "Inspect original new 12-26s portrait/desktop danger full-motion against frozen baseline and source-ticked occluder ray meshes. Verify actual guardian/crusher defeat, grounded gateway → floor9, outcome/restart. Fix any retained geometric occluder; diagnose but do not bypass source-pair outcome desktop initial-tick veto; P0 stays open. Physical-device and independent blind critics remain outstanding."
+  },
+  "p0SourceOwnedSummitCrestReconstruction20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "immutableFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedOriginalFilmRun": "https://github.com/my-edutu/Ai_games/actions/runs/42737729668",
+    "filmedCandidateSourceSha": "bca7593da3cd15b13b5a21b4c8fd11050c747ff4",
+    "originalCandidate390x844Danger": "https://github.com/my-edutu/Ai_games/actions/runs/42737729668/artifacts/13727083599",
+    "footageDefect": "Unmodified 390×844 ~72.8s original guardian WebM at native 15–17s has huge close silver spoked ring across climber and guardian. Source-tick 307 camera ray [0.04,-0.08] hit ActualCapNavigationHalo/ObservedCurrentFloorSummitCrown at depth 9.367 ahead of guardian depth 14.709; ActualCapNavigationSpokes also directly hit. Three decorative biome gears had screenCoverage=0 and were behind fight. Source ray is actual 3D owner, not guaranteed pixel-perfect whole frame.",
+    "originalSourcePairing": "42737729668 8/8 native timebases calibrated; all 8 baseline/candidate full-length WebMs, no source-story/provenance defect and fullMotionPaired=false. Overall workflow FAILED authentic-ledge test: real clockwork geometry growth from 120224 to 127096 triangles across floor rebuilds; corrected by f58270aa for repeatable all-clockwork open geometry, exact-source quality 42738107384 succeeded. Do not call former capture green.",
+    "implementationCommit": "365905d9119217e290ed23029396e23c0bdf8636",
+    "focusedTestFirstCommit": "2f5d6dab35e9ce7154f51b957679f234e3feb9e4",
+    "realPlayableChange": "Replace source-authentic current-cap navigation objective's full near-camera 2.85-radius 360-degree eight-spoked metal hoop at radius28.85 with smaller physically open 1.95-radius 244.8-degree upper arch, real 115.2-degree lower opening, four peripheral forged buttress pieces and inboard radius22.72. Source cap location and fixed-tick observed state drive geometry; no AI, collision, guardian, hazards, gateway, camera, HUD or authoring baseline changes. Source visuals not yet re-filmed.",
+    "updatedReview": "docs/reviews/2026-11-10-tower-pr68-source-ray-attributed-summit-crown-occlusion.md",
+    "implementationExactHeadQuality": "NOT YET VERIFIED — quality workflow on 365905d9 plus evidence/request commits must finish; prior 42738107384 at 11c305d was successful guardrail only",
+    "newFilm": "NOT YET CAPTURED — latest requested exact immutable git SHA 960x600 and 390x844 matched 60+s WebMs still required",
+    "independentBlindFreshContextReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new exact-source unedited normal-speed portrait/desktop films 12–26s and actual owner rays of cap crown; prove source guardian/crusher earned victory, grounded walkable gateway, floor9, actual outcome/intermission/restart with native event matching. Correct any residual priority obstruction, then advance only when P0 gates satisfied."
   }
 }
