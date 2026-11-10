@@ -435,14 +435,19 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
 export function planNativeImportedLegOwnership({previous=1,mode='idle',
  sourceClipName='',sourceWeight=NaN,groundedMoving=false,settling=false,
  frameDelta=0,alive=true,teleport=false,reducedMotion=false}={}){
- if(!finite(previous)||previous<.16||previous>1||!finite(frameDelta)||
+ if(!finite(previous)||previous<0||previous>1||!finite(frameDelta)||
   frameDelta<0||frameDelta>.35||alive!==true||teleport||reducedMotion)return 1;
  if(mode==='move'&&groundedMoving===true&&
   typeof sourceClipName==='string'&&/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName)&&
   finite(sourceWeight)&&sourceWeight>=0&&sourceWeight<=1){
-  const desired=1-.84*sourceWeight;
-  const cap=Math.min(.1,frameDelta*6.25);
-  return clamp(desired,Math.max(.16,previous-cap),Math.min(1,previous+cap));
+  // The authentic 123-track Walking_A already keys hips, arms and all
+  // imported leg joints. At full source weight it must own them completely:
+  // even a 0.16 residual sine swings the real skinned shoe twice.
+  // Match the original 180ms owner handoff to witnessed visible time,
+  // never add another clip, touch source bind bones or move the grid root.
+  const desired=1-sourceWeight;
+  const cap=Math.min(1,frameDelta/.18);
+  return clamp(desired,Math.max(0,previous-cap),Math.min(1,previous+cap));
  }
  // The original Walk -> Idle/Guard fade consumes the last valid planted
  // leg-support pose; do not ramp duplicated swing back up during that fade.
