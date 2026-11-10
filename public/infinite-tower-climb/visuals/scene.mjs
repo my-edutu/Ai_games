@@ -22,7 +22,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
-import { guardianGateSilhouetteInterference } from './guardian-gate-intrusion.mjs';
+import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure } from './guardian-gate-intrusion.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -1369,11 +1369,22 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
           dot(delta, up) / (depth * tangent), depth]
         : [NaN, NaN, -1];
     };
-    const gateIntrusion = lockCorners
-      ? guardianGateSilhouetteInterference(points.slice(0,4).map(projectNdc),
-        guardianCorners.map(projectNdc), lockCorners.map(projectNdc))
-      : 0;
-    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion,
+    const heroNdcCorners = points.slice(0, 4).map(projectNdc);
+    const guardianNdcCorners = guardianCorners.map(projectNdc);
+    const gateNdcCorners = lockCorners ? lockCorners.map(projectNdc) : null;
+    const gateIntrusion = gateNdcCorners
+      ? guardianGateSilhouetteInterference(heroNdcCorners,
+        guardianNdcCorners, gateNdcCorners) : 0;
+    // A full-height gate that fills the middle of the screen but narrowly
+    // misses both actor rectangles is STILL an unreadable guardian shot.
+    // Favor a shared fighter corridor over visual landmark dominance while
+    // keeping the real lock visible whenever that is actually compatible.
+    const gateDominance = gateNdcCorners
+      ? guardianGateScreenDominance(heroNdcCorners,
+        guardianNdcCorners, gateNdcCorners) : 0;
+    const duelEdgePressure = guardianNdcCorners.length
+      ? guardianDuelEdgePressure(heroNdcCorners, guardianNdcCorners) : 0;
+    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion, gateDominance, duelEdgePressure,
       landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
         towerCoreSightlineClear(position, routeLanding, 23.5),
       duelLandingSoftened: !hardLandingFit,
@@ -1464,7 +1475,15 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // A gate-centered shot can be "framed" and still make the actual
         // fight unreadable. Do not pay +16 gate points for a silhouette-
         // covering foreground lock; protect BOTH real actors first.
-        view.gateIntrusion * 46;
+        view.gateIntrusion * 46 -
+        // The original 72-second 390x844 footage at candidate 180e619e
+        // still places a huge teal lock in the central fighting lane around
+        // 14-24 seconds even when it narrowly misses both rectangles.
+        // Prefer a more legible physical exterior orbit with both bodies
+        // away from the unsafe phone edges. These are scoring preferences,
+        // NOT hidden geometry, gameplay time changes or camera cuts.
+        view.gateDominance * 54 -
+        view.duelEdgePressure * 14;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
       const candidate = solve(direction * amount, hardLandingFit), candidateQuality = quality(candidate);
