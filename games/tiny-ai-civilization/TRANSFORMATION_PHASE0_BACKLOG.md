@@ -1,3 +1,19 @@
+## W202 · Active Phase 1 checkpoint · 10 November 2026 (latest)
+
+Original G088 source `2f6deb43feb1a1557848d44def53a6109deb1ab1`; candidate production `b240386fffbb7559851b35365bc1930f2e337561` on OPEN DRAFT PR #64. **SINGLE active workstream:** genuine farm harvest → freight road → 4 real market stalls → saved market purchase → real occupied home, together with Day-121 and 390px.
+
+| Rank / owner | Measured state on exact W202 source, or explicitly predecessor | User-visible exit / measurable done |
+|---|---|---|
+| 1. Rendering spine / CPU-driver-GPU | W202 new conservative moving-view command residency passed synthetic proof and SwiftShader fallback; **0 real cache uses on SwiftShader** by design. Historical W200 software 1.605 recorded FPS, unpaired with 1.358 baseline. Physical desktop/mobile frame p95 unknown. | Matched representative moving 3D camera original gameplay hardware A/B with actual nonzero safe cache hits; p95 ≤33.3ms and sustained ≥30fps real desktop/mobile, bounded memory and no GL/page errors |
+| 2. Real scene growth and whole-settlement residency | W202 actual [WebGL Day121](https://github.com/my-edutu/Ai_games/actions/runs/42877363987/artifacts/13792497435): **157,872 triangles /160,000**, 28 citizens and 37 structures; 0 GL error/overflow. | ≥120-day representative multi-seed/long-soak, stable VRAM/heap, no missing buildings, no triangles >160k per acceptance workload |
+| 3. Actual animated professionals | W200 real desktop/mobile WebM shows angular/tiny human figures and occlusion; W198-201 truth-linked rig/cargo source contracts but no full visually accepted workday. | Real continuous farmer harvest → loaded courier walk → market unload → buyer → household, with body/hand/contact, in-game not staged, desktop+390 |
+| 4. Joined medieval original art | W200 actual market/Day120 shows repeated roofs, angular open market and thin scene; already-coded material/scene differentiation not commercial. | Credible one-piece farm, granary, market and inhabited street, with physical wall/roof/threshold depth, matched blind A/B visual acceptance |
+| 5. Usable 390px economy/camera | Exact W202 390px browser passes with 0 horizontal overflow, but camera/character legibility and hardware touch responsiveness unproven. | Unoccluded orbit/follow/supply ledger/mobile, no lost input at low FPS, full live original scene in real phone capture |
+
+A LOOK **NOT PROVEN**, FEEL **NOT PROVEN / historical software FAIL**, PLAY **NOT PROVEN**. B commercial quality **FAIL**. Three W202 browser cases + source contract CI SUCCESS != experience milestone. Dedicated independent critic agents unavailable due to worker tunnel. Stay Phase 1; PR #64 draft and unmerged. Next: paired **real hardware** moving-camera BVH cache proof and profiler; continue physical workday/architecture reconstruction rather than isolated roof tweaks.
+
+---
+
 ## W187 · Active Phase 1 durable top-five blockers (10 November 2026)
 
 Pinned G088 remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Only draft PR #64. The continuing single playable slice is authentic harvest → loaded courier → market receipt → inhabitant home, plus grown Day-120 and 390px. These are ordered **blocking impacts**, not completion points:
