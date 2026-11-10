@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T10:30:00.000Z",
+  "updatedAt": "2026-11-10T11:00:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass241: true source-bound Pass240b 320/390 pressure chronology now passes full-model ±.95 (Pip tick6 right +.945) and six-run geometry. All 35 native PNG SHA sidecars verified. Exact original withdrawal images reveal live HUD incorrectly switching to a sealed gate after repeated same-tick polls. Current production HUD now preserves only last distinct consecutive public witness, just like camera; new source test. New HEAD WebGL and independent Nintendo visual review pending; PR #53 OPEN DRAFT, never merge/deploy."
+    "summary": "Pass242: exact original WebGL run 42800717789 SUCCESS incl unchanged six-run geometry; all 35/35 PNG/JSON SHA sidecars match. Actual 320/390 tick6 withdrawal HUD now visibly says 'Avoid jaws' with complete Pip/jaw inside strict ±.95 NDC. Same-HEAD monorepo Node 740/741 uncovered one stale pressure HUD source assertion demanding immediate previous poll. Strengthening public distinct-tick contract plus native source-bound HUD acceptance with no relaxed thresholds; new exact-HEAD CI/capture pending. Nintendo visual/gameplay benchmark NOT met; unmerged draft PR #53, Gauntlet active."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass242: exact-source original native 320/390 pressure HUD now correctly warns Avoid jaws through withdrawal (35/35 PNG hashes; six-run budget green); repair real whole-repo stale Maze source test and add browser native mission-chip regression with original no-crop/resource requirements unchanged.",
     "Pass241: source-bound exact-head authentic 320/390 frame confirms physical pressure no-crop and six-run budget; fix misleading 'Key for gate' during one real pressure withdrawal by retaining only distinct public tick across repeat polls, with stale/new-run/hidden-safety regression. Current new-code native verdict pending.",
     "Pass240b: actual original 320px tick6 world-bounds camera correction moved Pip right +.956261 → +.9500000000000002, rounding-edge crop still blocked. Composed within ±.945 NDC target while unchanged strict ±.95 browser acceptance remains; exact original diagnostic regression. New-HEAD native test pending.",
     "Pass240: correct actual pressure withdrawal source-bound Pip crop using complete world-mesh AABB camera pan; reset erroneous hanging-foliage rebuild counter; source regression uses original real 320px diagnostics, strict thresholds intact. Full current-head WebGL/CI/independent image critic pending.",
