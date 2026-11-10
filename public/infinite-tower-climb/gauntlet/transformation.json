@@ -59,7 +59,9 @@
     "portraitGuardianNegativeSpaceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Original source-pinned prior candidate danger portrait WebM (run 42690134996, artifact 13706622172; immutable source 42b67b83, baseline 1731b380 unchanged) visually shows still-dominant near-continuous decor ring masking guardian/hero at native video 15.2s. Even after previous modest y9.1 and scale0.52 restage, the original portrait boss view remains compositionally overwhelmed. Corrected original quality workflow 42690700570 succeeded on previous stage source; all 10 prior recording jobs succeeded, 8/8 calibrated native pair clocks, 0 provenance/source-story defects, NOT raster-verified. New production geometry 8eebf2a0 sinks decor-only main drive with all moving rims/case, separate low clutch and long rack to lower mechanical basement while keeping raised far shoulder and all real gameplay; original Three Box3/regression at c282decb. After-change exact-source full quality, normal-speed desktop/portrait WebM, real devices and genuine blinded critiques NOT EVALUATED; no evidence of visual victory.",
     "upperRotorGuardianClearanceImplementationSha": "0daa4abb8deaab58bc5191fd6352692e4a175556",
     "upperRotorGuardianClearanceRegressionSha": "93fbb40f046caeb6ef8041da946c7240345ebca1",
-    "upperRotorGuardianClearanceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Source-pinned older portrait guardian shows giant steel hoop at native 15s; original floor8 forensic rays at y37-42 hit generic post-batch rigid-material-batch triangles. Candidate lifts upper decorative clock case out of cap band and adds original Three/post-batch geometry tests; exact-new-source footage, independent reviews and supported hardware remain unverified."
+    "upperRotorGuardianClearanceEvidenceStatus": "P0 OPEN / NOT EVALUATED. Source-pinned older portrait guardian shows giant steel hoop at native 15s; original floor8 forensic rays at y37-42 hit generic post-batch rigid-material-batch triangles. Candidate lifts upper decorative clock case out of cap band and adds original Three/post-batch geometry tests; exact-new-source footage, independent reviews and supported hardware remain unverified.",
+    "mergedFaceOriginalProvenanceImplementationSha": "e6a4804e66583148e6d0349401a9ef905e42d1a3",
+    "mergedFaceOriginalProvenanceStatus": "NOT EVALUATED: real Three.js rigid floor batches now record authored original mesh/instance identity per half-open rendered face range. Opt-in source-ticked portrait mesh-ray sidecar resolves true hit faceIndex to original authoring group. Prior film at 9db4f6bc, real 390x844 72.64s, still shows huge steel ring and bronze casing at 15-17s after high-rotor restaging. Original exact-source Three tests and new WebM NOT YET VERIFIED. No gameplay/world-art visibility fix inferred. 0/5 blind critics each; actual device not evaluated."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
@@ -93,11 +95,11 @@
       "originalPortraitLiveFrameObservation": "Actual unedited candidate danger 390x844 at native 15 seconds: huge silver clock rim and bronze frame dominate real guardian/climber scene."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
-    "state": "P0 OPEN — captured source chains remain ungraded; portrait guardian mesh remains unowned",
+    "state": "P0 OPEN — original guardian-film foreground defect persists; exact authored geometry identity now instrumented, runtime film not yet evaluated",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Capture the immutable candidate source at this exact request commit and frozen baseline; inspect source-ticked live portrait cameraRayMeshOwnerSamples and meshOwnerAuditStatus (not only successful CI). Match the dominant triangle material/path/face to original 15-18s WebM; reconstruct only the proven mesh or camera/world relation, then validate true guardian+crusher->grounded gateway->floor9 and outcome/restart in desktop/portrait full motion, supported device metrics and 5 independent blind looks/feels/plays critics each.",
+    "nextDecision": "Inspect originalAuthoring from next exact-source owner-ray camera samples against actual native portrait 13-22s WebM, identify specific surviving structural mesh, rebuild its real physical relation and verify uninterrupted full-loop and independent experience acceptance; remain P0 OPEN.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "In the actual original 390x844 candidate danger film at ~15-18 s, enormous orange/steel mechanism and frame obstruct the actual climber/guardian. The four registered decorative clock/rack projected AABBs showed 0 effective coverage near the scene, so the true physical triangle owner is unproven. Do not blindly move another clock.",
+    "biggestRemainingExperienceGap": "Source-pinned portrait guardian video at 15-17 seconds still features a massive steel/bronze ring and case obscuring true combat after upper-rotor restage. Post-batch triangles lacked authored mesh identity; attribution instrumented, new source film pending. Do not assume visibility improvement.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -6628,5 +6630,37 @@
     "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "nextAction": "Inspect new exact-source guardian portrait 13-22s full motion and solid gateway/floor9/outcome/restart event-pixel continuity. If steel frame remains, identify actual surviving post-batch surface. Leave P0 open.",
     "reviewPath": "docs/reviews/2026-11-10-tower-pr68-source-video-guardian-upper-rotor-reconstruction.md"
+  },
+  "p0RigidAuthoringTriangleOwnership20261110": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreviousCandidateSha": "9db4f6bc631f4a1edab230a4a40bce4da236bfed",
+    "inspectedOriginalGameplayRun": "https://github.com/my-edutu/Ai_games/actions/runs/42722974373",
+    "inspectedNativePortraitDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42722974373/artifacts/13720833464",
+    "actualMovieObservation": "Original unedited 390x844, 25 fps, 72.64-second candidate danger film has huge steel ring/bronze frame obscuring live climber and guardian at native 15-17s, despite lifted upper rotor. 57 source-ticked real camera-ray witnesses include non-attributed rigid-material-batch floor8 metal triangle hits. Not full-motion blind acceptance.",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42723151855",
+    "implementationCommits": [
+      "088d61fa622105da4eb6960e8a86a0fa597db1d4",
+      "516e57e200b7dbd7a6d1a96eb1fb627472db8415",
+      "e6a4804e66583148e6d0349401a9ef905e42d1a3"
+    ],
+    "testCommits": [
+      "30d29b4f80cc5fc4fef32aa575d203b002664e76",
+      "7452d631e414b602cc7711360b340a312a64766f",
+      "11a338432ab79869f6cbcd3caca77faef0b2af4b",
+      "9c094857f80728d083eeec07dcd4e14f1729c6a3"
+    ],
+    "scope": "Source-authored per-piece triangle range provenance within actual static world material batches; current-source owner-ray sidecar records original authoring path and local face index, without added raycasts or changing simulation, rendering policy, camera, GPU draws, baseline or visual appearance.",
+    "newExactHeadQuality": "NOT EVALUATED: new quality job queued/running; source and strict Three integration acceptance pending",
+    "newExactHeadFilm": "NOT EVALUATED: requested new immutable-source original baseline/candidate desktop/portrait normal-speed capture",
+    "blindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new WebM and originalAuthoring path from true 15-18s camera ray owners. Identify exactly which submitted physical assembly blocks portrait combat, then rebuild real scene, verify actual guardian/crusher -> walked threshold -> floor9 and outcome/restart in continuous matched desktop/portrait footage; independently blind review 5 each and hardware test before P0 exits.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-real-film-original-rigid-mesh-provenance.md"
   }
 }
