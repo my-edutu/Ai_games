@@ -42,7 +42,19 @@ test('true Chromium WebGL has recognisable locally authored Warden regalia, rend
  expect(diag.webgl).toBe(true);expect(diag.drawCalls).toBeLessThan(1600);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);
  expect(diag.composition.bossOnscreen).toBe(true);
- expect(diag.cinematicShot?.mode).toMatch(/^warden-/);
+ // An intact sealed boss may truthfully stay visible while the camera films
+ // the adjacent REAL guardian melee instead of its invulnerable idle body.
+ // A genuine danger/strike/unsealed boss keeps the Warden camera modes.
+ const filmed=diag.cinematicShot;
+ if(['contact','skirmish-approach'].includes(filmed?.mode)){
+  expect(filmed.subjects).toHaveLength(2);
+  const actor=snapshot.units.find(u=>u.id===filmed.subjects[0]);
+  const target=snapshot.units.find(u=>u.id===filmed.subjects[1]);
+  expect(actor?.faction).toBe('party');expect(actor?.hp).toBeGreaterThan(0);
+  expect(target?.faction).toBe('enemy');expect(target?.hp).toBeGreaterThan(0);
+  expect(target?.kind).not.toBe('warden');
+  expect(Math.abs(actor.x-target.x)+Math.abs(actor.z-target.z)).toBeLessThanOrEqual(4);
+ }else expect(filmed?.mode).toMatch(/^warden-/);
  expect(diag.criticalCameraFit?.subjects).toBeGreaterThanOrEqual(4);
  // Round 25: audit the ACTUAL WebGL camera chosen around this genuine Warden encounter.
  // A cinematic offset that leaves the authored dungeon perimeter exposes dead-black space.

@@ -99,3 +99,41 @@ test('a genuinely sealed Warden films the live defender skirmish rather than shr
  s.units[3].hp=34;s.guardianWard=true;
  assert.equal(JSON.stringify(s),original,'read-only director must not alter authoritative state');
 });
+
+test('actual filmed guardian and contact keep human-scale actors despite a distant autonomous companion',async()=>{
+ const {planCinematicShot:shot,planReadableExpeditionLens:lens}=await load('cinematic-chapter-plan.js');
+ const map=Array.from({length:19},()=>'.'.repeat(19));
+ const near={run:1,floor:1,tick:40,phase:'exploring',map,guardianWard:true,
+  bossRecovery:{remaining:0},bossWarning:null,units:[
+   {id:'vanguard',kind:'vanguard',faction:'party',hp:70,x:9,z:9,action:'attack'},
+   {id:'mystic',kind:'mystic',faction:'party',hp:40,x:9,z:8},
+   {id:'ranger',kind:'ranger',faction:'party',hp:44,x:8,z:9},
+   {id:'warden',kind:'warden',faction:'enemy',hp:180,x:12,z:9,action:'idle'},
+   {id:'revenant',kind:'revenant',faction:'enemy',hp:32,x:10,z:9,action:'attack'}
+  ]};
+ const far=structuredClone(near);far.units[1].x=1;far.units[1].z=1;
+ far.units[2].x=17;far.units[2].z=17;
+ const originalNear=JSON.stringify(near),originalFar=JSON.stringify(far);
+ const view={width:390,height:844,focusedHeroId:'vanguard'};
+ for(const encounter of [null,{mode:'contact',actorId:'vanguard',targetId:'revenant',x:9.5,z:9}]){
+  const a=shot(near,encounter,view),b=shot(far,encounter,view);
+  assert.equal(a.mode,encounter?'contact':'skirmish-approach');
+  assert.equal(b.mode,a.mode);
+  assert.deepEqual(b.subjects,a.subjects);
+  assert.deepEqual(b.offsets,a.offsets,
+   'a distant living party member must not zoom out the authenticated local fight');
+  assert.deepEqual(lens(b,view).offsets,lens(a,view).offsets);
+ }
+ // An actual dangerous Warden telegraph is NOT a cosmetic duel. It remains
+ // a wide tactical picture, with warning priority irrespective of companions.
+ near.bossWarning={attackTick:41,shape:'NOVA',cells:[{x:12,z:9}]};
+ far.bossWarning=structuredClone(near.bossWarning);
+ const wideNear=shot(near,null,view),wideFar=shot(far,null,view);
+ assert.equal(wideNear.mode,'warden-warning');assert.equal(wideFar.mode,'warden-warning');
+ assert.ok(lens(wideNear,view).dangerPriority&&lens(wideFar,view).dangerPriority);
+ assert.ok(Math.hypot(...wideFar.offsets)>Math.hypot(...wideNear.offsets),
+  'wide warning still accounts for separated living allies');
+ near.bossWarning=null;far.bossWarning=null;
+ assert.equal(JSON.stringify(near),originalNear);
+ assert.equal(JSON.stringify(far),originalFar);
+});

@@ -2183,7 +2183,7 @@
       }
     },
     "evidence": {
-      "actualContinuousScenarioReel": "UNVERIFIED: dedicated source-to-Chromium uninterrupted desktop/mobile organic audiovisual recorder now added; no exact-source head film or decoded original sound reviewed.",
+      "actualContinuousScenarioReel": "Verified predecessor de06aa3 source real Chrome organic desktop+mobile, same seed gauntlet-corpus-v1-0, 946/946 each, full 5 rendered stages; workflow 42779919564, original Opus tracks. Candidate lens AFTER NOT OBSERVED.",
       "matchedBeforeAfter": "UNVERIFIED: no valid same-seed original baseline vs candidate complete moving scenario; fixed locked baseline remains 281735d0910c6b2443648af976003d50412ee324",
       "mobileBeforeAfter": "UNVERIFIED: previous actual mobile screenshot shows obstruction; new native duel-lane candidate not yet observed, sustained phone performance not measured.",
       "independentCriticPanel": {
@@ -2202,7 +2202,7 @@
       "originalAudioSource": "Synthesized WebAudio oscillators; no external music samples or runtime network dependencies",
       "visualSceneReference": "Locked unchanged: https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
       "actualWebglFramingRegression": "Real-source b8be04f 1440x832 browser screenshot from 41672587065 and Warden boss desktop/mobile screenshot/video artifacts 41672587022 were INSPECTED: new 14 anatomical joint cylinders made elongated opaque spindly/squid-like limbs. Warden encounter head-on 1440x832 has 3 heroes overlapping enemy bodies in the 58% HP boss arena, warning Rift Cross visible but contact indistinguishable; mobile capture progressed into floor 2 but large stylized ballheads persist. This is a NEGATIVE experiential finding compared with da492455 and exact locked baseline; source visual redesign at 71da2ea to cap spans remains unverified. No masked A/B victory.",
-      "latestCandidateWorkflow": "PENDING: Dungeon M1 Authentic Organic Journey Evidence (desktop/mobile matrix) on candidate head; do not assert run completion before checking Actions.",
+      "latestCandidateWorkflow": "PENDING: exact-head Dungeon Foundation, authentic organic AV and visual review not yet inspected; no speedup or baseline winner accepted.",
       "currentPredecessorWebgl": {
         "sourceSha": "9c2b51c41a6a4b70494a86306b21055860456e27",
         "worldArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41962716364/artifacts/13387136348",
@@ -2567,8 +2567,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Genuine current-head desktop natural rendered defeat/restart failure; multi-second software WebGL submission stalls; original mobile Warden fighters only 37px and transient physical sightline failure.",
-    "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
+    "biggestRemainingGap": "Same-seed current-head organic film completes five stages on both viewports, but WebGL synchronous render p99 1.8s mobile / 3.5s desktop and mobile min living hero 37px; full M1 original baseline blind A/B absent.",
+    "currentWork": "Stage A authentic guardian melee lens now frames the two genuine acting actors rather than zooming out for a distant unrelated party member; current exact-head before original audio+video captured, source change awaits true after-film.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Validate exact-head real 1440/390 camera continuity during actual sealed Warden defender fight and natural five-stage original audiovisual gameplay, then isolate measured synchronous WebGL stalls before Stage B. Baseline 281735d remains immutable; A/B critics 0/3.",
+    "executableNextTask": "Run exact-new-head full genuine desktop 1440/mobile 390 946/946 five-stage original film; measure living combat subject pixels versus pre-change, real guardian contact, boss warning/cutaways, sound continuity and render p95/p99; reject if compromised. Then Chrome Warden hot-path trace measured correction. PR72 only after exact successful film. Locked baseline and 3 blind critic gate unchanged.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7034,6 +7034,46 @@
       "plays": "UNVERIFIED",
       "animationPr72": "SEPARATE_NOT_INTEGRATED",
       "next": "run exact-head same-seed authentic 1440/390 organic film + audio, validate actual sealed guardian camera, hero pixels, no hazard occlusion, complete desktop defeat/restart, WebGL p95/p99; then correct measured render stalls and scrutinize PR72 before safe integration"
+    },
+    "m1ActionSubjectLensCandidate20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentSha": "de06aa3dc72f03643958b2ef7d29e058625f7fd5",
+      "realBeforeRun": 42779919564,
+      "seed": "gauntlet-corpus-v1-0",
+      "trueDesktopFiveStages": true,
+      "trueMobileFiveStages": true,
+      "desktopSnapshots": 946,
+      "mobileSnapshots": 946,
+      "desktop": {
+        "draws": 422,
+        "triangles": 187353,
+        "submissionP50Ms": 8.6,
+        "submissionP95Ms": 604.9,
+        "submissionP99Ms": 3508.2,
+        "frameP95Ms": 1266.6,
+        "heroMinPx": 81
+      },
+      "mobile": {
+        "draws": 401,
+        "triangles": 184967,
+        "submissionP50Ms": 8,
+        "submissionP95Ms": 554,
+        "submissionP99Ms": 1771.7,
+        "frameP95Ms": 933.3,
+        "heroMinPx": 37
+      },
+      "sourceChange": "Film only actual close two-body contact/guardian subjects; distant autonomous ally stays represented in actual HUD and full warning overview without miniature zoom. Real-browser regalia test validates either real combat director or Warden priority with on-screen unoccluded boss.",
+      "afterMotion": "NOT_OBSERVED",
+      "impactAudioSync": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "separatePr72": "NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Exact-head same-seed 1440/390 five-stage original WebM/Opus before-after and active fighter body size, warning visibility, rendering tails; revert poor crop/regression; then measured WebGL hot-path production correction; only then Stage B PR72 review."
     }
   }
 }

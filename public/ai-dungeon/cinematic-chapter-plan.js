@@ -241,7 +241,16 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  // Framing is biased toward readable actor height, but gently widens for
  // diverging living party members and portrait mobile. Never let one distant
  // autonomous pathfinding agent zoom the entire stage into miniature scale.
- const spread=Math.max(0,...heroes.map(u=>Math.hypot(u.x-position.x,u.z-position.z)));
+ // In a genuine close duel the acting hero and the actual living defender
+ // own the physical framing. A third hero traversing a distant route is still
+ // truthful in the HUD, but must not shrink the sword/contact into a 37px
+ // tabletop scene. The full party remains in charge of Warden warning/strike
+ // and other overview shots; no camera choice changes authority.
+ const actingSubjects=(mode==='contact'||mode==='skirmish-approach')?
+  s.units.filter(u=>subjects.includes(u.id)&&valid(u,n)&&
+   (u.hp>0||u.id===fallenFoe?.id)):null;
+ const frameScaleUnits=actingSubjects?.length===2?actingSubjects:heroes;
+ const spread=Math.max(0,...frameScaleUnits.map(u=>Math.hypot(u.x-position.x,u.z-position.z)));
  const margin=clip((spread-1.7)*.125,0,1.15);
  const aspect=clip(Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73,.35,3);
  const portrait=aspect<.85?.18:0;
