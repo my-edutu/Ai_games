@@ -301,10 +301,19 @@ for(const view of [
   expect(actor.maxStretchFraction).toBeLessThanOrEqual(.20);
   const travel=previous?measureSourceJointTravel(previous,actor):null;
   if(travel)expect(travel.comparable,'never compare different source clones').toBe(true);
+  const soleGrip=previous?measureSourceSoleGripContinuity(previous,actor):null;
+  if(soleGrip){
+   expect(soleGrip.comparable,'same original GLB and skinned source soles').toBe(true);
+   if(soleGrip.rigidGripComparable){
+    expect(soleGrip.weaponHandDriftMeters).toBeLessThan(.025);
+    expect(soleGrip.weaponLocalMatrixMaxDelta).toBeLessThan(.03);
+   }
+  }
   trace.push({tick:snap.tick,floor:snap.floor,sourceId:actor.sourceInstanceId,
    rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
+   soleVertexWorld:actor.soleVertexWorld,sourceWeaponGrip:actor.sourceWeaponGrip,
    sourceClip:actor.sourceClock,footPhase:actor.groundedFootPhase,
-   jointTravel:travel,deformation:audit.summary});
+   jointTravel:travel,soleGrip,deformation:audit.summary});
   previous=actor;
  }
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
