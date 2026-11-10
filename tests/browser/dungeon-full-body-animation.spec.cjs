@@ -329,7 +329,7 @@ for(const view of [
    beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true});
   const sourcePatch=measureSourceSolePatchContinuity(actor,sameTickActor,{
    beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true,
-   floorTopY:.08,floorEvidence:'authored-cube-floor-top'});
+   floorTopY:-.02,floorEvidence:'authored-cube-floor-top'});
   expect(sourcePatch.ikAccepted).toBe(false);
   sourcePatchWindows.push({tick:snap.tick,beforeFrame,afterFrame,measurement:sourcePatch,
    first:actor.sourceSolePatchWorld,last:sameTickActor?.sourceSolePatchWorld??null});
@@ -446,11 +446,11 @@ for(const view of [
  await test.info().attach('same-tick-real-mixer-sole-window',{
   contentType:'application/json',body:Buffer.from(JSON.stringify(visibleFrameEvidence,null,2))
  });
- // Original walkable cube tile is 0.16m high centred at y=0:
- // its actual top is +0.08m (public/ai-dungeon/app.js).
+ // Original walkable cube tile is 0.16m high centred at y=-0.10m:
+ // its upper stone surface is y=-0.02m (public/ai-dungeon/app.js).
  // Two-point original-skin patch observations are NOT source-rig IK.
  const patchEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
-  source:'original-source-skinned-shoe-to-authored-upper-tile-y+0.08',
+  source:'original-source-skinned-shoe-to-authored-upper-tile-y-0.02',
   usablePairs:sourcePatchWindows.filter(w=>w.measurement.comparable).length,
   possibleTwoPointContact:sourcePatchWindows.filter(w=>
    w.measurement.potentialContactSides?.length>0).length,
