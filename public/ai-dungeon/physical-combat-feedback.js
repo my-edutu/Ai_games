@@ -1,6 +1,7 @@
 import {planPhysicalFeedback} from './physical-feedback-plan.js';
 import {createPhysicalFeedbackVisuals} from './physical-feedback-visuals.js';
 import {classifySubmittedCombatAudio} from './physical-feedback-frame-gate.js';
+import {isLiveWardenWarning} from './warden-warning-lifecycle.js';
 import {createOriginalCombatFoley,createCombatMutePreference} from './original-combat-foley.js';
 /**
  * D04 handoff orchestrator: one rendered-frame clock drives physical cues and
@@ -130,6 +131,16 @@ export function createPhysicalCombatFeedback({
   lastPresentedFrame=frameId;framesAcknowledged++;
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
+   // A revoked/impacted Warden footprint cannot release a ghost warning sound
+   // just because an older cue had once staged successfully on the GPU.
+   // Unattributed threat warnings have separate, event-only semantics.
+   if(item.cue.visual==='warning'&&
+    item.cue.proof==='authority-warning-window'&&
+    !isLiveWardenWarning(item.cue,previous)){
+    staleAudioDropped++;
+    retainReceipt(item.cue,item.visual,false,frameId,'retired-warning');
+    continue;
+   }
    // Actual raw-frame aging may expire 230ms injury art in a 300ms frame,
    // while the separate generic 400ms audio deadline has not yet expired.
    let visualAlive=null,visualDrawable=null;

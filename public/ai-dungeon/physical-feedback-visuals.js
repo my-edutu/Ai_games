@@ -8,7 +8,7 @@
  */
 import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
 import {selectPhysicalWarningMarkers} from './physical-feedback-plan.js';
-import {isStaleWardenWarning,shouldRetireWardenWarning} from './warden-warning-lifecycle.js';
+import {isStaleWardenWarning,shouldRetireWardenWarning,isLiveWardenWarning} from './warden-warning-lifecycle.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
 import {planMapFlightClearance} from './occluded-projectile-path.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
@@ -91,7 +91,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    warningHistory.delete(warningHistory.keys().next().value);
  }
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
-  preempted=0,retiredWarningMarkers=0,staleWarningCues=0,unanchoredWardenSignals=0,
+  preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
   unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
@@ -255,6 +255,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Unidentified events never get a fabricated world point.
   return typeof id==='string'?world(at,type==='signal'?.08:1.10):null;
  }
+ // The effect may outlive an interrupted or completed public tell. A valid
+ // submitted frame alone cannot certify that an old floor cell is dangerous.
+ // Without a snapshot adapter, retain earlier injected-renderer behavior.
+ function warningStillLive(cue){
+  if(typeof getCurrentSnapshot!=='function')return true;
+  let latest=null;
+  try{latest=getCurrentSnapshot()}catch{return false}
+  return isLiveWardenWarning(cue,latest);
+ }
  function allocate(pool,priority){
   let index=pool.slots.findIndex(x=>x===null);
   if(index>=0)return index;
@@ -312,6 +321,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    (cue.proof==='authority-warning-window'?
     selectPhysicalWarningMarkers(cue.detail?.cells):[]):null;
   if(warningMarkers&&warningMarkers.length===0){suppressed++;return false}
+  // Delayed visual admission must not resurrect a cancelled warning.
+  if(warningMarkers&&!warningStillLive(cue)){suppressed++;return false}
   // An authentic release closes its spent danger window even if a stale
   // actor root cannot anchor the body glyph. Danger-cell chronology is
   // authority evidence, not a consequence of successfully drawing that glyph.
@@ -462,11 +473,24 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    Math.max(dt,Math.min(actualFrameSeconds,.70)):.70;
   for(const pool of pools.values()){
    let dirty=false,visibleSlots=0;
+   let checkedWarningCue=null,checkedWarningLive=false;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];if(!slot)continue;
     slot.age+=observedAge;dirty=true;
     if(slot.age>=slot.life){
      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
+    }
+    if(pool.name==='signal'&&slot.cue.visual==='warning'){
+     // Sample current public warning once per contiguous cue group, not
+     // separately for every marker cell; GPU slots and searches stay bounded.
+     if(slot.cue!==checkedWarningCue){
+      checkedWarningCue=slot.cue;
+      checkedWarningLive=warningStillLive(slot.cue);
+     }
+     if(!checkedWarningLive){
+      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+      active--;retiredInvalidWarnings++;continue;
+     }
     }
     if(pool.name==='signal'&&
       (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
@@ -560,7 +584,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pools.clear();
  }
  function stats(){return Object.freeze({
-  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,
+  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
    retiredUnanchoredBodySignals,confirmedFragments,
   measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,

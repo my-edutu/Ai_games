@@ -53,3 +53,37 @@ export function shouldRetireWardenWarning(existing,incoming){
  }
  return true;
 }
+
+/**
+ * A retained Warden tell is only physical danger while the LATEST public
+ * authority still names the same attack, shape and original floor cells.
+ * This does not prove or invent an attacker: the planner already established
+ * one unique observed Warden; any subsequent ambiguity revokes body ownership.
+ * A temporary renderer loss is not permission to replay an expired warning.
+ */
+export function isLiveWardenWarning(cue,snapshot){
+ if(!actualWarning(cue)||!snapshot||
+  !Number.isSafeInteger(snapshot.run)||snapshot.run<0||
+  !Number.isSafeInteger(snapshot.floor)||snapshot.floor<1||
+  !validTick(snapshot.tick)||cue.sceneKey!==snapshot.run+':'+snapshot.floor)return false;
+ const expected=attackTick(cue),w=snapshot.bossWarning;
+ if(expected===null||expected<=snapshot.tick||!w||w.warning!==true||
+  w.attackTick!==expected||w.shape!==cue.detail?.shape)return false;
+ const turns=expected-snapshot.tick;
+ if(w.turnsUntilImpact!==turns||turns<1||turns>3||
+  turns===3&&w.shape!=='NOVA'&&w.shape!=='ECLIPSE_SWEEP')return false;
+ // A warning has no owner field; preserve only the previously unique
+ // living identity, and never promote an array-first replacement Warden.
+ if(!Array.isArray(snapshot.units))return false;
+ const living=snapshot.units.filter(u=>
+  u?.kind==='warden'&&u.faction==='enemy'&&u.hp>0);
+ if(living.length!==1||living[0].id!==cue.actorId)return false;
+ const markers=cue.detail?.cells,cells=w.cells;
+ if(!Array.isArray(markers)||markers.length<1||markers.length>8||
+  !Array.isArray(cells)||cells.length<1||cells.length>300)return false;
+ // Never extend a suppressed/replaced hazard footprint to remembered cells.
+ return markers.every(marker=>Number.isInteger(marker?.x)&&
+  Number.isInteger(marker?.z)&&marker.x>=0&&marker.z>=0&&
+  marker.x<256&&marker.z<256&&cells.some(cell=>
+   cell?.x===marker.x&&cell?.z===marker.z));
+}
