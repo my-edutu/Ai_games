@@ -38,7 +38,8 @@ export function createPhysicalCombatFeedback({
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
-  audioInterruptions=0,observedAudioContext=null,audioStateUnavailable=false,
+  audioInterruptions=0,observedAudioContext=null,audioStateContext=ctx,
+  audioStateUnavailable=false,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
@@ -75,7 +76,8 @@ export function createPhysicalCombatFeedback({
   if(disposed)return;
   // A gesture authorizes only cues planned during that enabled session.
   // Delayed cues accepted before opt-in (or before mute/re-enable) stay silent.
-  const soundEligible=optedIn&&plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
+  const soundEligible=optedIn&&audioReady()&&
+   plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
   const visual=!!safeCall(()=>visuals?.emit?.(cue));
   if(visual)visualAccepted++;
   // Reduced-motion deliberately hides the sword trail, but must NOT
@@ -151,6 +153,9 @@ export function createPhysicalCombatFeedback({
   * It must never be called from a timer, synthetic recorder or state poll.
   */
  function acknowledgePresentedFrame(frameId,renderSubmissionSeconds=0){
+  // Some embedded AudioContext adapters have no statechange EventTarget.
+  // A frame receipt is also an opportunity to revoke an unavailable clock.
+  onAudioStateChange();
   if(disposed||!requirePresentedFrame||!optedIn||
    !(typeof frameId==='string'&&frameId.length>0&&frameId.length<=128||
      Number.isSafeInteger(frameId)&&frameId>=0))return 0;
@@ -293,6 +298,9 @@ export function createPhysicalCombatFeedback({
  }
  function acceptSnapshot(snapshot){
   if(disposed||!snapshot||!Number.isSafeInteger(snapshot.tick)||!key(snapshot))return 0;
+  // An attempt FIRST observed while WebAudio is suspended must never be
+  // retroactively authorized after the browser resumes.
+  onAudioStateChange();
   const nextKey=key(snapshot);
   if(!previous||sceneId!==nextKey){
    if(previous){flush();sceneResets++}
@@ -323,7 +331,7 @@ export function createPhysicalCombatFeedback({
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
     pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
-    audioEpoch:optedIn?audioEpoch:null});queued++;
+    audioEpoch:optedIn&&audioReady()?audioEpoch:null});queued++;
   }
   // In the submission-gated D04 preview, a zero-delay HP injury may arrive
   // between animation frames. Do not give that unsubmitted art a 300ms
@@ -335,6 +343,7 @@ export function createPhysicalCombatFeedback({
  }
  function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return 0;
+  onAudioStateChange();
   const dt=clamp(frameSeconds,0,.05);
   renderedSeconds+=dt;
   // Raw browser time, not the 50ms animation cap, determines late audio.
@@ -354,9 +363,14 @@ export function createPhysicalCombatFeedback({
  // WebAudio's clock freezes on suspend. Without revocation, a queued sword
  // transient can resume minutes later against an obsolete visual frame.
  // Observe ONLY this D04 audio context; do not change the shared soundstage.
+ // Direct state reads cover contexts lacking the optional EventTarget API.
+ function audioReady(){
+  return !audioStateUnavailable&&
+   (!audioStateContext||audioStateContext.state==='running');
+ }
  function onAudioStateChange(){
-  if(disposed||!observedAudioContext)return;
-  if(observedAudioContext.state==='running'){
+  if(disposed||!audioStateContext)return;
+  if(audioStateContext.state==='running'){
    audioStateUnavailable=false;return;
   }
   if(audioStateUnavailable||!optedIn)return;
@@ -376,13 +390,18 @@ export function createPhysicalCombatFeedback({
   catch{adapterFailures++}
  }
  function observeAudioState(context){
-  if(!context||context===observedAudioContext||
-     typeof context.addEventListener!=='function')return;
+  if(!context||context===observedAudioContext)return;
   detachAudioState();
+  audioStateContext=context;
+  // Poll state on snapshot, advance and receipt when the context cannot
+  // dispatch events. Do not silently assume an unavailable clock is live.
+  if(typeof context.addEventListener!=='function'){
+   onAudioStateChange();return;
+  }
   try{context.addEventListener('statechange',onAudioStateChange);
    observedAudioContext=context;audioStateUnavailable=false;
    onAudioStateChange()}
-  catch{adapterFailures++}
+  catch{adapterFailures++;onAudioStateChange()}
  }
  function attachAudioContext(context,{output=null}={}){
   if(disposed)return false;
@@ -406,7 +425,7 @@ export function createPhysicalCombatFeedback({
  function dispose(){
   if(disposed)return;
   flush();disposed=true;previous=null;
-  detachAudioState();
+  detachAudioState();audioStateContext=null;
   optedIn=false;safeCall(()=>foley?.dispose?.());safeCall(()=>visuals?.dispose?.());
  }
  function stats(){return Object.freeze({
