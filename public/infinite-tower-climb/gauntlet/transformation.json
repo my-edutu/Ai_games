@@ -101,9 +101,9 @@
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-authored structural pylon and solid gate visually identified in previous 390x844 game; physical reconstruction is code-verified but full-motion improvement unverified",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect new source-pinned bdb1→request-HEAD 60+s original WebMs, especially normal-speed portrait guardian native 12–26s and same-seed baseline. Validate actual pylon clearance, foreground readability, guardian/crusher, grounded gateway→floor nine and true outcome/restart. Stay P0; no blind or device grading without evidence.",
+    "nextDecision": "Read new exact-source per-event original WebM frame probes for BOTH desktop960x600 and phone390x844 against 60+s continuous matched clips; if still intrusive, change the proven obstructing physical geometry or camera as one coherent P0 game slice, preserve true guardian/locked threshold. Then hardware budgets, real independent 4/5 each LOOKS FEELS PLAYS.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Source-authentic portrait guardian shot around 15–17s at candidate bdb1 contains a large solid structural pylon/bronze guardian frame across the climber and boss. Physical pylon/door reconstruction landed at e1c54871 and passed structural CI, but no original post-change 390×844 or 960×600 footage is inspected. Actual effect NOT EVALUATED.",
+    "biggestRemainingExperienceGap": "Actual portrait action still suffers close-spaced foreground turquoise/bronze gateway obstruction; actual source-authentic guardian-hit→defeat→grounded-gate→floor-nine video-visible cause/effect and source-to-pixel delay require unbiased continuous verification.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -6820,5 +6820,40 @@
     "biggestExperienceGap": "Verify whether original wide-open high X retains credible locked guardian boundary while keeping real climber, counterfire, crusher and earned passage visibly readable at 12-26s in desktop and portrait. Current post-change film absent.",
     "nextHighestImpactAction": "Inspect the requested new exact-source 960x600/390x844 normal-speed 60+s ascent/moving/danger/outcome paired recordings; link source events to visible guardian/crusher defeat, grounded gate crossing, floor9 then authentic result/restart; fix remaining huge opaque geometry if present. Require exact-HEAD green CI and real hardware + independent 4/5 each pillar before any PASS.",
     "review": "docs/reviews/2026-11-10-tower-pr68-original-guardian-prison-grid-open-air-exclusion.md"
+  },
+  "p0OriginalAfterFilmEventFrames20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previouslyVerifiedPr68Head": "41575618d8bc8d89fc708ba4e0cd16ec4b7bd5d1",
+    "previousSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42764516952",
+    "previousSourcePinnedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42764516769 — completed success at previous head only",
+    "previousSourceFilmArtifacts": {
+      "candidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42764516952/artifacts/13739282336",
+      "baselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42764516952/artifacts/13739760421",
+      "candidateOutcome": "https://github.com/my-edutu/Ai_games/actions/runs/42764516952/artifacts/13739227290",
+      "originalEventPairing": "https://github.com/my-edutu/Ai_games/actions/runs/42764516952/artifacts/13738659063"
+    },
+    "originalPairing": "Eight original source-pinned scenario/viewport pairs, native clocks calibrated 8/8 and zero source-story/provenance defects; event-specific on-screen pixels NOT VERIFIED, fullMotionPaired=false, independent review absent.",
+    "visuallyObservedDefect": "In native 390×844 original candidate danger images around 15–17s and 22–23s, turquoise lower gate bars and bronze foreground structure intersect the climber/guardian action despite the newly open upper high-voltage X. Source guardian defeat ~22.00s, supported approach ~22.10s, physical threshold/floor-nine handoff ~22.49s; visible floor-nine color change sampled ~24–26s, exact pixel-event synchronization and uninterrupted narrative not independently verified.",
+    "previousFullSourceQuality": "PASS at 41575618 (supporting CI only). Current evidence-probe CI pending or requires verification.",
+    "evidenceProbeTestFirstSha": "fb9a500a8e9b1abd2da14e988335e255d448c696",
+    "originalFilmProbeImplementationSha": "fdf5d46723a3eef818c491fd5ae56bbed5da8346",
+    "exactEpisodeFixtureSha": "96ad8b1f87d49704840f39656efadaf8a7cb9b49",
+    "exactSourceCaptureIntegrationSha": "cf3176abe648872c8326190b069fc654a1f21aad",
+    "workType": "Substantial evidence inspection unblocker, NOT a game graphics/gameplay/audio change or quality milestone. Original WebM SHA, size, source SHA, seed, viewport, scenario and clock must match before bounded ffmpeg near-event originals are retained; no invented frame-visible events.",
+    "originalSourceGameChangedThisExecution": false,
+    "gameplayAndPresentationSourceChangedThisExecution": false,
+    "newCapture": "NOT EVALUATED — new exact-head recording to be triggered by capture-request.json update; previous original footage does not certify new helper.",
+    "freshQuality": "NOT EVALUATED — exact new-head quality workflow result pending.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-original-open-air-afterfilm-and-event-frame-unblock.md",
+    "blindIndependentReviewCounts": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestRemainingExperienceGap": "Actual portrait action still suffers close-spaced foreground turquoise/bronze gateway obstruction; actual source-authentic guardian-hit→defeat→grounded-gate→floor-nine video-visible cause/effect and source-to-pixel delay require unbiased continuous verification.",
+    "nextHighestImpactAction": "Read new exact-source per-event original WebM frame probes for BOTH desktop960x600 and phone390x844 against 60+s continuous matched clips; if still intrusive, change the proven obstructing physical geometry or camera as one coherent P0 game slice, preserve true guardian/locked threshold. Then hardware budgets, real independent 4/5 each LOOKS FEELS PLAYS."
   }
 }
