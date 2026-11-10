@@ -32,14 +32,16 @@ function carvedFlagstone(){
 export function makeSoftwareChiselledFlagstone(THREE){
  const footprint=[[-.49,-.40],[-.435,-.49],[.235,-.50],[.49,-.405],
   [.475,.28],[.365,.49],[-.40,.48],[-.505,.285]];
+ // Original ExtrudeGeometry rotates -90° about X: source shape Y is world -Z.
+ // Preserve that exact handedness and outward face winding in the CPU tier.
  const points=[],indices=[],N=footprint.length;
- for(const [x,z] of footprint)points.push(x*.987,.017,z*.987);
- for(const [x,z] of footprint)points.push(x,-.017,z);
+ for(const [x,z] of footprint)points.push(x*.987,.017,-z*.987);
+ for(const [x,z] of footprint)points.push(x,-.017,-z);
  // Positive Y on the real walkable top; negative Y on the closed underside.
- for(let i=1;i<N-1;i++)indices.push(0,i+1,i,N,N+i,N+i+1);
+ for(let i=1;i<N-1;i++)indices.push(0,i,i+1,N,N+i+1,N+i);
  for(let i=0;i<N;i++){
   const next=(i+1)%N;
-  indices.push(i,next,N+i,next,N+next,N+i);
+  indices.push(i,N+i,next,next,N+i,N+next);
  }
  const geometry=new THREE.BufferGeometry();
  geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));

@@ -28,8 +28,8 @@ test('CPU-original flagstone has a bounded *closed* physical beveled mesh, not a
  assert.ok(upper.every(p=>Math.abs(p.y-.017)<1e-9));
  assert.ok(lower.every(p=>Math.abs(p.y+.017)<1e-9));
  assert.ok(upper.every((p,i)=>Math.hypot(p.x,p.z)<Math.hypot(lower[i].x,lower[i].z)));
- assert.ok(normalY(vertex(g,0),vertex(g,2),vertex(g,1))>0,'walkable face upwards');
- assert.ok(normalY(vertex(g,8),vertex(g,9),vertex(g,10))<0,'closed underside downwards');
+ assert.ok(normalY(vertex(g,0),vertex(g,1),vertex(g,2))>0,'walkable face upwards');
+ assert.ok(normalY(vertex(g,8),vertex(g,10),vertex(g,9))<0,'closed underside downwards');
  const used=new Set(g.index.array);
  assert.equal(used.size,16,'the real walls and both caps share bounded geometry');
  assert.ok(g.normalComputed&&g.boundsComputed&&g.sphereComputed);
@@ -40,6 +40,7 @@ test('the software geometry is deterministic and its source footprint has the or
  assert.deepEqual(a.getAttribute('position').array,b.getAttribute('position').array);
  assert.deepEqual(a.index.array,b.index.array);
  assert.ok(Math.abs(vertex(a,8).x-(-.49))<1e-9);
- assert.ok(Math.abs(vertex(a,8).z-(-.40))<1e-9);
+ assert.ok(Math.abs(vertex(a,8).z-(+.40))<1e-9);
  assert.ok(Math.abs(vertex(a,12).x-.475)<1e-9);
+ assert.ok(Math.abs(vertex(a,12).z-(-.28))<1e-9,'world z must match original rotated source shape');
 });
