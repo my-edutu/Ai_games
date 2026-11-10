@@ -9,6 +9,11 @@ export const MEASURED_HAND_TRAIL_MIN_METERS=.025;
 export const MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND=.9;
 export const MEASURED_HAND_TRAIL_MAX_METERS=.38;
 export const MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS=.06;
+// Render receipts must refer to the pose that was actually submitted. A stable
+// GLB bone object can move or turn AFTER the trail matrix was last written.
+// These are small drift tolerances, never weapon-tip or contact measurements.
+export const MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS=.06;
+export const MEASURED_HAND_RECEIPT_MAX_ROOT_YAW_RADIANS=.10;
 const finite=p=>p&&['x','y','z','rootX','rootY','rootZ'].every(k=>Number.isFinite(p[k]))&&
  (p.yaw===undefined||Number.isFinite(p.yaw));
 /**
@@ -30,6 +35,27 @@ export function selectObservedWeaponHandBone(actor){
  if(kind==='ranger'||kind==='mystic'||kind==='cultist')
   return actor.rigHandBone?.isBone?actor.rigHandBone:null;
  return null;
+}
+
+/**
+ * Verify that the current animated wrist still occupies the same pose that
+ * authored the retained ribbon at its last VFX update. The actor may retain
+ * the SAME skinned bone while a later animation update changes its position
+ * or facing before WebGL submission. A stale visual cannot certify foley.
+ * Read-only, bounded and independent of HP/target/contact evidence.
+ */
+export function isCurrentMeasuredHandReceipt(previous,current){
+ if(!finite(previous)||!finite(current)||!previous.sourceBone||
+  previous.sourceBone!==current.sourceBone)return false;
+ const handDrift=Math.hypot(current.x-previous.x,current.y-previous.y,current.z-previous.z);
+ const rootDrift=Math.hypot(current.rootX-previous.rootX,
+  current.rootY-previous.rootY,current.rootZ-previous.rootZ);
+ const yawDrift=Math.abs(Math.atan2(Math.sin((current.yaw??0)-(previous.yaw??0)),
+  Math.cos((current.yaw??0)-(previous.yaw??0))));
+ return Number.isFinite(handDrift)&&Number.isFinite(rootDrift)&&
+  handDrift<=MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS&&
+  rootDrift<=MEASURED_HAND_RECEIPT_MAX_SPATIAL_DRIFT_METERS&&
+  yawDrift<=MEASURED_HAND_RECEIPT_MAX_ROOT_YAW_RADIANS;
 }
 
 export function planMeasuredHandTrail(previous,current,frameSeconds){
