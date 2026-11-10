@@ -71,6 +71,17 @@ export function observedLockedGuardianCap(snapshot) {
     tick:snapshot.tick, cap, guardian} : null;
 }
 
+// An explicit live source telegraph, never the renderer clock or inferred
+// damage, is the only reason for the tall guardian field to surge. The passive
+// lock stays visibly closed via its real lower bronze lattice and edge pylons.
+export function observedGuardianSealExcitation(guardian) {
+  return guardian?.kind === 'guardian' && guardian.active === true &&
+    Number.isFinite(guardian.health) && guardian.health > 0 &&
+    guardian.telegraph === true &&
+    Number.isFinite(guardian.telegraphTicksRemaining) &&
+    guardian.telegraphTicksRemaining > 0;
+}
+
 export function observedUnlockedGuardianCap(snapshot) {
   if (!snapshot || snapshot.lifecycle !== 'running' ||
     !Number.isSafeInteger(snapshot.tick) ||
@@ -306,18 +317,29 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
   sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  let displayedSealHeight = 0;
-  function poseSourceSealHeight(sourceHeight) {
+  let displayedSealHeight = 0, displayedSealExcitation = null;
+  function poseSourceSealHeight(sourceHeight, excited=false) {
     const nextHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
       ? sourceHeight : 140000;
-    if (nextHeight === displayedSealHeight) return;
+    if (nextHeight === displayedSealHeight &&
+        excited === displayedSealExcitation) return;
     displayedSealHeight = nextHeight;
+    displayedSealExcitation = excited;
+    // A genuine warning surges through the SAME source-locked device.
+    // Muted standby stops a decorative 14m cyan X from stealing every
+    // climber/guardian frame, without visually pretending the door opened.
+    sealMaterial.opacity = excited ? .76 : .37;
+    sealMaterial.color.setHex(excited ? 0xb8ffff : 0x77c6c4);
     const h = displayedSealHeight / SCALE;
     const doorH = 4.64;
     const upperEnd = h - .22;
     const upperRun = upperEnd - doorH;
-    const diagonalAngle = Math.atan2(5.76, upperRun);
-    const diagonalLength = Math.hypot(5.76, upperRun);
+    // Original full-width X hit the real actor/guardian in source-pinned
+    // portrait film. Two tensioned conductors now track the OUTER 2m
+    // channels; their entire rotated silhouettes leave a central duel bay.
+    const sideDrift = 1.90;
+    const diagonalAngle = Math.atan2(sideDrift, upperRun);
+    const diagonalLength = Math.hypot(sideDrift, upperRun);
     // Each instance is [x, y, z, width, height, depth, rotationZ].
     const latticeShapes = [
       [-3.05, h/2, 0, .115, h, .13, 0],
@@ -331,11 +353,14 @@ export function createTowerGuardianPassage(THREE) {
     // 14-meter screen-filling grate.
     for (const y of [.14, .94, 1.74, 2.54, 3.34, 4.54])
       latticeShapes.push([0,y,0,6.22,.075,.10,0]);
-    // Diagonals terminate on actual source-height side pylons. No visual
-    // "jump over the gate" loophole when authoritative seal height rises.
-    latticeShapes.push([0,(doorH+upperEnd)/2,0,.075,
+    // These two full-height energized structural stays terminate on the
+    // source-height SIDE pylons rather than crossing the guardian's body.
+    // The continuous upper rails, capped high lintel and physically barred
+    // lower gate still convey lethal vertical exclusion. No fake bypass,
+    // no hidden authoring collider and no extra GPU draws.
+    latticeShapes.push([-2.30,(doorH+upperEnd)/2,0,.075,
       diagonalLength,.10,-diagonalAngle]);
-    latticeShapes.push([0,(doorH+upperEnd)/2,0,.075,
+    latticeShapes.push([2.30,(doorH+upperEnd)/2,0,.075,
       diagonalLength,.10,diagonalAngle]);
     latticeShapes.push([0,h-.055,0,6.22,.11,.12,0]);
     sealedLattice.count = latticeShapes.length;
@@ -626,7 +651,8 @@ export function createTowerGuardianPassage(THREE) {
     defeatAge = 0;
     approachOpen = 0;
     sealedLattice.visible = false;
-    displayedSealHeight = 140000;
+    displayedSealHeight = 0;
+    displayedSealExcitation = null;
     arc.visible = true;
     ring.visible = true;
     stage = 'none';
@@ -673,7 +699,8 @@ export function createTowerGuardianPassage(THREE) {
     if (stage === 'guardian-locked' && group.visible &&
         runToken === source.runToken && floor === source.floor) {
       if (source.tick > sourceTick) {
-        poseSourceSealHeight(source.guardianSealHeight);
+        poseSourceSealHeight(source.guardianSealHeight,
+          observedGuardianSealExcitation(observed.guardian));
         sourceTick = source.tick;
       }
       return true;
@@ -692,7 +719,8 @@ export function createTowerGuardianPassage(THREE) {
     memoryFrame.visible = false;
     innerDoorAssembly.visible = false;
     innerDoorAssembly.position.y = 0;
-    poseSourceSealHeight(source.guardianSealHeight);
+    poseSourceSealHeight(source.guardianSealHeight,
+      observedGuardianSealExcitation(observed.guardian));
     sealedLattice.visible = true;
     arc.visible = false;
     ring.visible = false;
@@ -878,6 +906,9 @@ export function createTowerGuardianPassage(THREE) {
       innerDoorAssemblyLift: Number(innerDoorAssembly.position.y.toFixed(4)),
       durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
+      sourceLockedSealExcited: stage === 'guardian-locked' &&
+        displayedSealExcitation === true,
+      sourceLockedSealDrawnBars: sealedLattice.visible ? sealedLattice.count : 0,
       sourceMeasuredDefeatFocusWeight: Number(defeatFocusWeight().toFixed(4)),
       // Public world-space source-pinned anchor for inspecting actual full
       // motion; no fabricated win, private event or gameplay mutation.
