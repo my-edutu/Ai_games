@@ -261,7 +261,8 @@ export function measureSourceSolePatchContinuity(before,after,meta={}){
  const patchSpanMeters={},soleClearanceMeters={},heelWorldDeltaMeters={},
   toeWorldDeltaMeters={},potentialContactSides=[];
  for(const side of ['left','right']){
-  const a=before.solePatchWorld?.[side],b=after.solePatchWorld?.[side];
+  const a=(before.sourceSolePatchWorld??before.solePatchWorld)?.[side],
+    b=(after.sourceSolePatchWorld??after.solePatchWorld)?.[side];
   if(!point(a?.heel)||!point(a?.toe)||!point(b?.heel)||!point(b?.toe))
    return unavailable('missing-original-skinned-contact-patch');
   const spanA=horizontal(a.heel,a.toe),spanB=horizontal(b.heel,b.toe);
