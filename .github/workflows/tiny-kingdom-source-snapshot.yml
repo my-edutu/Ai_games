@@ -9,6 +9,7 @@ on:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
+      - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
@@ -38,6 +39,8 @@ jobs:
         run: |
           node scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs
           node scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs
+      - name: W190 exact 35-home navigation-grid and equal-count restore parity
+        run: node scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
