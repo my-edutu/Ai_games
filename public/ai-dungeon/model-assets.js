@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1405,7 +1405,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
     actor.walkLandingPelvisFrames=Math.min(1000000,
      (actor.walkLandingPelvisFrames||0)+1);
     actor.walkLandingFrames=Math.min(1000000,(actor.walkLandingFrames||0)+1);
-    landing.elapsed=Math.min(2,landing.elapsed+Math.max(0,Math.min(.05,dt)));
+    landing.elapsed=Math.min(2,landing.elapsed+planNativeLandingVisibleDelta({
+      frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,
+      reducedMotion,teleport:Boolean(actor.locomotionTeleport)
+     }));
     if(release>=1)actor.walkLandingPose=null;
    }
   }
@@ -1453,7 +1456,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
     }
     actor.walkLandingReentryFrames=Math.min(1000000,
      (actor.walkLandingReentryFrames||0)+1);
-    reentry.elapsed=Math.min(.5,reentry.elapsed+Math.max(0,Math.min(.05,dt)));
+    reentry.elapsed=Math.min(.5,reentry.elapsed+planNativeLandingVisibleDelta({
+      frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,
+      reducedMotion,teleport:Boolean(actor.locomotionTeleport)
+     }));
    }
   }
  }
