@@ -37,6 +37,7 @@ on:
       - 'scripts/tiny-kingdom-w172-landscape-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w174-ground-atlas-dirty-contract.cjs'
       - 'scripts/tiny-kingdom-w179-home-block-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs'
       - 'tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs'
       - 'tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs'
@@ -1838,3 +1839,23 @@ jobs:
             artifacts/tiny-kingdom-w173/
           if-no-files-found: warn
           retention-days: 14
+
+  # W183: source-bound actual roof-safe dawn camera and real W182 crop VBO
+  # contract. The separate W72/W90 browser jobs still own genuine game frames.
+  # This job proves JS contracts only, never FPS or a visual milestone.
+  w183-physical-dawn-frame-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Original drawn-frame transition and actual retained crop storage
+        run: |
+          node scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs
+          node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs
