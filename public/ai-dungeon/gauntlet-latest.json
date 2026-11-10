@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (M1 capture observer isolation; actual AFTER motion UNVERIFIED)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (same-seed exact-head motion audited, acceptance UNVERIFIED)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -25,6 +25,71 @@
       "catalogueTests": "1147/1150; three existing scene-source assertion failures",
       "handoff": "docs/gauntlet/AI_DUNGEON_M1_CAPTURE_OBSERVER_20261110.md",
       "next": "Review clean native-vs-filmstrip controls and organic A/V; no game quality or smoothness victory until genuine moving comparisons"
+    },
+    "m1_exact_head_motion_20261110": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "exactHead": "333d09c0dcf0fae0917e93929c6dfecdb44d25da",
+      "previous": "27edc295104635a717ab438f116f3dbebd59a674",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "seed": "gauntlet-corpus-v1-0",
+      "beforeRun": 42866909371,
+      "afterRun": 42874282144,
+      "authenticStages": "5/5 BOTH DESKTOP AND MOBILE",
+      "authority": "946/946 per viewport per run",
+      "originalAudio": "PRESENT, HP_CONTACT_SYNC_UNVERIFIED",
+      "desktop": {
+        "prior": {
+          "frames": 848,
+          "fps": 1.71,
+          "p95GapMs": 1933,
+          "over1s": 255,
+          "wardenMinHeroPx": 80
+        },
+        "latest": {
+          "frames": 924,
+          "fps": 3.25,
+          "p95GapMs": 1060,
+          "over1s": 54,
+          "wardenMinHeroPx": 81
+        }
+      },
+      "mobile": {
+        "prior": {
+          "frames": 504,
+          "fps": 1.63,
+          "p95GapMs": 2205,
+          "over1s": 87,
+          "combatMinHeroPx": 86,
+          "wardenMinHeroPx": 37
+        },
+        "latest": {
+          "frames": 509,
+          "fps": 1.58,
+          "p95GapMs": 2106,
+          "over1s": 80,
+          "combatMinHeroPx": 96,
+          "wardenMinHeroPx": 37
+        }
+      },
+      "cleanHeldRafP50Ms": {
+        "desktopPrior": 533,
+        "desktopAfter": 317,
+        "mobilePrior": 433,
+        "mobileAfter": 433
+      },
+      "captureFilmstripVsCleanRatio": {
+        "desktop": 1.105,
+        "mobile": 1.115
+      },
+      "caveats": "Captured CI SwiftShader fps is not real hardware fps. Desktop change not causally linked to mobile-only camera change; 37px smallest living hero may be distant unengaged teammate. Independent blinded majority absent.",
+      "productionSourceChangedThisExecution": false,
+      "visibleExperienceImprovementThisExecution": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Measure engaged Vanguard/guardian and Warden actor-ID-specific bounds, warning cells and occlusion in actual moving 390px film; compare hardware GPU with CI SwiftShader and isolate compositor/readback/dynamic instance uploads, then correct dominant game-side bottleneck with full genuine replay/motion/A-V verification. Review PR72 native rig and video independently before any import."
     }
   },
   "failures": [],
