@@ -34,21 +34,36 @@ export function createLivingWorld(root,map,floor){
  // Multiple encounter/corridor positions, using a stable floor hash.
  walkable.sort((a,b)=>mixHash(a.x,a.z,floor)-mixHash(b.x,b.z,floor));
  const count=Math.min(13,Math.floor(walkable.length/8));
+ // Original authored 3D flight and wing pivots; only draw submissions pooled.
+ // Bake right-wing reflection into geometry to avoid negative instance transforms.
+ const rightWingGeometry=wingGeom.clone();rightWingGeometry.scale(-1,1,1);geos.push(rightWingGeometry);
+ const haloGeometry=floor%4===0?new THREE.TorusGeometry(.14,.015,5,16):null;
+ if(haloGeometry)geos.push(haloGeometry);
  for(let i=0;i<count;i++){
   const spot=walkable[Math.floor(i*walkable.length/Math.max(1,count))];
   if(!spot)continue;
-  const creature=new THREE.Group(),left=new THREE.Group(),right=new THREE.Group();
-  const core=new THREE.Mesh(bodyGeometry,coreMaterial);creature.add(core);
-  const leftWing=new THREE.Mesh(wingGeom,flyingMaterial);leftWing.position.x=-.02;
-  const rightWing=new THREE.Mesh(wingGeom,flyingMaterial);rightWing.scale.x=-1;rightWing.position.x=.02;
+  const creature=new THREE.Object3D(),left=new THREE.Object3D(),right=new THREE.Object3D();
+  const core=new THREE.Object3D(),leftWing=new THREE.Object3D(),rightWing=new THREE.Object3D();
+  creature.add(core);leftWing.position.x=-.02;rightWing.position.x=.02;
   left.add(leftWing);right.add(rightWing);creature.add(left,right);
-  if(floor%4===0){const halo=new THREE.Mesh(new THREE.TorusGeometry(.14,.015,5,16),glowMaterial);halo.rotation.x=Math.PI/2;creature.add(halo);geos.push(halo.geometry)}
+  let halo=null;
+  if(haloGeometry){halo=new THREE.Object3D();halo.rotation.x=Math.PI/2;creature.add(halo)}
   const phase=mixHash(i,floor,21)*Math.PI*2,speed=.45+mixHash(i,floor,22)*.8;
   creature.position.set(spot.x,1.05+mixHash(i,floor,23)*1.5,spot.z);
   creature.scale.setScalar(.65+mixHash(i,floor,24)*.48);
-  const baseScale=creature.scale.x;
-  creatures.push({creature,spot,phase,speed,left,right,baseScale});group.add(creature);
+  creatures.push({creature,spot,phase,speed,left,right,core,leftWing,rightWing,halo,baseScale:creature.scale.x});
  }
+ const instance=(name,geometry,material)=>{
+  if(!creatures.length)return null;
+  const mesh=new THREE.InstancedMesh(geometry,material,creatures.length);
+  mesh.name=name;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  mesh.frustumCulled=false;group.add(mesh);return mesh;
+ };
+ const coreBatch=instance('Original living-world bodies',bodyGeometry,coreMaterial);
+ const leftBatch=instance('Original living-world left wing',wingGeom,flyingMaterial);
+ const rightBatch=instance('Original living-world right wing',rightWingGeometry,flyingMaterial);
+ const haloBatch=haloGeometry?instance('Original living-world spectral halos',haloGeometry,glowMaterial):null;
+ const livingBatches=[coreBatch,leftBatch,rightBatch,haloBatch].filter(Boolean);
  // Bounded spectral sparks; instancing instead of per-particle draw calls.
  const sparkGeometry=new THREE.OctahedronGeometry(.055,0);geos.push(sparkGeometry);
  const sparkCount=Math.min(55,walkable.length);
@@ -61,14 +76,21 @@ export function createLivingWorld(root,map,floor){
  }
  sparkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);sparkMesh.frustumCulled=false;group.add(sparkMesh);
  const update=(t)=>{
-  for(const {creature,spot,phase,speed,left,right,baseScale} of creatures){
+  for(let i=0;i<creatures.length;i++){
+   const {creature,spot,phase,speed,left,right,core,leftWing,rightWing,halo,baseScale}=creatures[i];
    const x=t*speed+phase;
    creature.position.set(spot.x+Math.cos(x)*.46,1.25+Math.sin(x*1.32)*.29,spot.z+Math.sin(x)*.48);
    creature.rotation.y=x+.7;
    creature.scale.setScalar(baseScale*ambientVisibilityAt(creature.position.x,creature.position.z,quietZone));
    left.rotation.z=Math.sin(t*10*speed+phase)*.63;
    right.rotation.z=-Math.sin(t*10*speed+phase)*.63;
+   creature.updateMatrixWorld(true);
+   coreBatch.setMatrixAt(i,core.matrixWorld);
+   leftBatch.setMatrixAt(i,leftWing.matrixWorld);
+   rightBatch.setMatrixAt(i,rightWing.matrixWorld);
+   if(haloBatch)haloBatch.setMatrixAt(i,halo.matrixWorld);
   }
+  for(const batch of livingBatches)batch.instanceMatrix.needsUpdate=true;
   for(let i=0;i<sparkCount;i++){
    const p=sparkData[i],wave=t*p.speed+p.phase;
    position.set(p.x+Math.sin(wave)*.19,p.y+Math.sin(wave*1.6)*.24,p.z+Math.cos(wave)*.18);
@@ -82,7 +104,16 @@ export function createLivingWorld(root,map,floor){
  return{
   update,
   accept(state){quietZone=planCombatQuietZone(state);},
-  metrics:{archetype:biome.name,animatedCreatures:creatures.length,instancedMotes:sparkCount},
-  dispose(){root.remove(group);for(const g of geos)g.dispose();for(const m of mats)m.dispose()}
+  metrics:{archetype:biome.name,animatedCreatures:creatures.length,instancedMotes:sparkCount,
+   sourceDrawUnits:creatures.length*(haloGeometry?4:3)+(sparkCount?1:0),
+   retainedDrawUnits:livingBatches.length+(sparkCount?1:0),
+   original3DGeometry:true,retainedWingAnimation:true},
+  dispose(){
+   root.remove(group);
+   for(const mesh of livingBatches)mesh.dispose?.();
+   sparkMesh.dispose?.();
+   for(const g of geos)g.dispose();
+   for(const m of mats)m.dispose();
+  }
  };
 }

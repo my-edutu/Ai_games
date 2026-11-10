@@ -6801,6 +6801,42 @@
       "separateAnimationPr72": "NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Check exact new-head original 1440px/390px film, 5 true organic stages, real Warden scene draws/p95/p99, torch/pillar/stone visibility and authoritative sound. Reject if worse, then measured render bottleneck, Stage B source rig and PR72 review, baseline A/B and 3 blinded critics."
+    },
+    "m1LivingWorldBatchCandidate": {
+      "date": "2026-11-10",
+      "parentSha": "d29c3e321692b373afb0fc9c40fbad23f3b8aa71",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "beforeRun": 42725363031,
+      "stage": "A_INCOMPLETE",
+      "fiveOrganicDesktop": true,
+      "fiveOrganicMobile": true,
+      "warden": {
+        "desktop": {
+          "draws": 457,
+          "p50": 10.2,
+          "p95": 1061.7,
+          "p99": 5319.7,
+          "rafP95": 1583,
+          "heroPx": 80
+        },
+        "mobile": {
+          "draws": 450,
+          "p50": 12.7,
+          "p95": 1627.3,
+          "p99": 3077.4,
+          "rafP95": 2067,
+          "heroPx": 37
+        }
+      },
+      "change": "3-4 real 3D animated ambient creature instanced batches, original 13 creature wing/halo/quiet-zone and disposal preserved, prior 40->4 or 53->5 source draws",
+      "afterMotion": "NOT_OBSERVED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "pr72": "NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect new-head 1440px and 390px real organic five-stage original audiovisual motion, Warden p50/p95/p99, wing/halo fidelity and original impact sync; revert regressions, isolate main remaining stall; baseline blind A/B and 3 critics required."
     }
   }
 }

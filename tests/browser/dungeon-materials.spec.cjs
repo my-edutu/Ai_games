@@ -81,13 +81,14 @@ test('actual live 3D masonry base walls use a shared stone albedo and bounded bu
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallMasonry?.mapped??false),{timeout:45000}).toBe(true);
  const evidence=await page.evaluate(()=>({
   wallMasonry:window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallMasonry,
+  softwareWebGL:window.__DUNGEON_RENDER_DIAGNOSTICS__?.softwareWebGL,
   wallProfiles:window.__DUNGEON_RENDER_DIAGNOSTICS__?.wallProfiles,
   webgl:window.__DUNGEON_RENDER_DIAGNOSTICS__?.webgl,
   drawCalls:window.__DUNGEON_RENDER_DIAGNOSTICS__?.drawCalls,
   triangles:window.__DUNGEON_RENDER_DIAGNOSTICS__?.triangles
  }));
  expect(evidence.webgl).toBe(true);
- expect(evidence.wallMasonry).toMatchObject({size:128,mapped:true,bump:true,bumpScale:.04});
+ expect(evidence.wallMasonry).toMatchObject({size:128,mapped:true,bump:!evidence.softwareWebGL,bumpScale:evidence.softwareWebGL?0:.04});
  expect(evidence.wallProfiles?.totalWalls).toBeGreaterThan(0);
  expect(evidence.drawCalls).toBeGreaterThan(0);
  expect(evidence.triangles).toBeGreaterThan(0);
