@@ -4,6 +4,7 @@ import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
 import { readRenderedGuardianCenter } from './rendered-guardian-center.mjs';
+import { observedWoundedCapAirDuel } from './wounded-cap-duel.mjs';
 import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
@@ -1160,6 +1161,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // while the guardian is visibly losing HP. Keep a separate, source-backed
   // combat anchor rather than allowing that important opponent to disappear.
   let contactGuardian = null, contactGuardianDistance = Infinity;
+  // The same exact-current-source lock that owns the physical gate makes the
+  // wounded guardian camera-eligible during real cap-bound air-control. This
+  // prevents ordinary landing intent from breaking a still-active 3D duel.
+  const lockedCap = observedLockedGuardianCap(snapshot);
   function consider(x, y, halfWidth, halfHeight, priority = 1, guardian = false, winding = false) {
     const dx = Math.abs(x - player.x), dy = Math.abs(y - player.y);
     if (dx > 90000 || dy > 60000) return;
@@ -1223,11 +1228,13 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         airborneCombatRecovery && enemy.kind === 'guardian' &&
         enemy.health > 0 && healthRatio < 1 &&
         dx <= 90000 && dy <= 60000;
+      const witnessedCapAirDuel = observedWoundedCapAirDuel(snapshot, enemy, lockedCap);
       const activeContact = (player.state !== 'airborne' || witnessedAirShot ||
-        witnessedRangedDuel || witnessedLiveCrossfire || witnessedWoundedAirDuel) &&
+        witnessedRangedDuel || witnessedLiveCrossfire || witnessedWoundedAirDuel ||
+        witnessedCapAirDuel) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
         witnessedAirShot || witnessedRangedDuel || witnessedLiveCrossfire ||
-        witnessedWoundedAirDuel || player.attacking ||
+        witnessedWoundedAirDuel || witnessedCapAirDuel || player.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
       if (!activeContact || dx > (witnessedRangedDuel ? 135000 : 90000) ||
           dy > 60000) continue;
