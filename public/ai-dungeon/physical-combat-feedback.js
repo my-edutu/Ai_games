@@ -38,6 +38,7 @@ export function createPhysicalCombatFeedback({
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
+  audioInterruptions=0,observedAudioContext=null,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
@@ -350,9 +351,35 @@ export function createPhysicalCombatFeedback({
   popDue(dt);safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
+ // WebAudio's clock freezes on suspend. Without revocation, a queued sword
+ // transient can resume minutes later against an obsolete visual frame.
+ // Observe ONLY this D04 audio context; do not change the shared soundstage.
+ function onAudioStateChange(){
+  if(disposed||!optedIn||!observedAudioContext||
+     observedAudioContext.state==='running')return;
+  audioInterruptions++;
+  // Clears pending frame audio, stops existing voices and persists mute.
+  // Returning to 'running' NEVER grants consent or replays old cues.
+  muteAudio();
+ }
+ function detachAudioState(){
+  if(!observedAudioContext)return;
+  const old=observedAudioContext;observedAudioContext=null;
+  try{old.removeEventListener?.('statechange',onAudioStateChange)}
+  catch{adapterFailures++}
+ }
+ function observeAudioState(context){
+  if(!context||context===observedAudioContext||
+     typeof context.addEventListener!=='function')return;
+  detachAudioState();
+  try{context.addEventListener('statechange',onAudioStateChange);
+   observedAudioContext=context}
+  catch{adapterFailures++}
+ }
  function attachAudioContext(context,{output=null}={}){
   if(disposed)return false;
   if(!foley&&context)foley=createOriginalCombatFoley(context,{output});
+  if(foley)observeAudioState(context);
   return !!foley;
  }
  function enableAudioFromGesture(){
@@ -371,11 +398,13 @@ export function createPhysicalCombatFeedback({
  function dispose(){
   if(disposed)return;
   flush();disposed=true;previous=null;
+  detachAudioState();
   optedIn=false;safeCall(()=>foley?.dispose?.());safeCall(()=>visuals?.dispose?.());
  }
  function stats(){return Object.freeze({
   implementation:'D04-physical-authority-feedback',disposed,scene:sceneId,
   audioOptedIn:optedIn,preferredMuted:preferredMuted(),
+  audioInterruptions,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
@@ -389,6 +418,7 @@ export function createPhysicalCombatFeedback({
    maxReceipts:MAX_PHYSICAL_RECEIPTS,maxAudioAwaitingFrame:MAX_AUDIO_AWAITING_FRAME},
   visuals:visuals?.stats?.()??null,audio:foley?.stats?.()??null
  });}
+ observeAudioState(ctx);
  return Object.freeze({acceptSnapshot,advance,acknowledgePresentedFrame,
   attachAudioContext,enableAudioFromGesture,muteAudio,
   preferredMuted,reset,dispose,stats});
