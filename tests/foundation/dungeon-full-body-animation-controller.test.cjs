@@ -10,6 +10,36 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+test('licensed source soles align to the ACTUAL stone top without moving authoritative grid roots or weapon rigs',async()=>{
+ const {planOriginalSourceSoleGrounding:plan}=await load();
+ assert.equal(typeof plan,'function','a bounded original-skin grounding planner must exist');
+ // Captured from exact original source GLB / true skinned Vanguard shoes, 1440px and 390px.
+ // Floor cubes at y=-.10 with height .16, so stone upper face is y=-.02.
+ const observed={mode:'idle',sourceClipName:'Idle',visible:true,reducedMotion:false,
+  floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
+  leftSoleWorldY:.2103,rightSoleWorldY:.2103};
+ const anchored=plan(observed);
+ assert.ok(anchored&&anchored.accepted,'standing original skinned shoes are both above genuine floor');
+ assert.ok(Math.abs(anchored.offsetY+.2303)<.002,
+  'source weapon-tip world bounds must NOT be used to levitate the skinned soles');
+ assert.ok(Math.abs(observed.leftSoleWorldY+anchored.offsetY-observed.floorTopY)<.003);
+ assert.equal(anchored.measuredFrom,'original-skinned-sole-vertices');
+ // The original pose is not an IK instruction. Unknown/uneven/airborne poses fail closed.
+ for(const change of [
+  {mode:'move'}, {sourceClipName:'Walking_A'}, {visible:false},
+  {reducedMotion:true}, {floorEvidence:'estimated'}, {floorTopY:.08},
+  {leftSoleWorldY:.21,rightSoleWorldY:.31},
+  {leftSoleWorldY:-.035,rightSoleWorldY:-.035},
+  {leftSoleWorldY:.65,rightSoleWorldY:.65},
+  {leftSoleWorldY:NaN}, {rightSoleWorldY:Infinity}
+ ])assert.equal(plan({...observed,...change}),null,
+  'no blind lift, pose-guess or ambiguous-contact correction: '+JSON.stringify(change));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceSoleGrounding\(/);
+ assert.match(renderer,/sourceSkinnedSoleWorld\(soleCandidates\.left\)/);
+ assert.match(renderer,/sourceGroundAnchor/,'the real source anchor must be auditable without per-frame skin scans');
+});
+
 test('only witnessed visual displacement animates imported-leg travel',async()=>{
  const {advanceFullBodyController:step}=await load();
  const idle=step(null,frame(hero('move'),{grounded:{moving:false,clipAction:'idle'}}));
