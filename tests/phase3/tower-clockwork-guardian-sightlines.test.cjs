@@ -618,3 +618,60 @@ test('real Three.js clockwork restages the decorative monument below the guardia
     assert.equal(world.group.getObjectByName('clockwork-far-shoulder-power-rack'),undefined);
   }finally{world.dispose();}
 });
+
+
+test('original submitted clockwork triangles retain exact bounded source ownership after static batching',async()=>{
+  const [, { createTowerWorld }] = await loaded;
+  const { sourceTriangleOwner } = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href);
+  const world=createTowerWorld();
+  const input=sourceFrame('clockwork',8);
+  const sourceBefore=JSON.stringify(input);
+  let inspected=0, clockRimFaces=0, clockCaseFaces=0;
+  try {
+    world.update(input,.016,0,{quality:'low'});
+    world.group.traverse(object=>{
+      if(!object.isMesh||object.name!=='rigid-material-batch')return;
+      const geometry=object.geometry;
+      const owners=geometry?.userData?.originalTriangleOwners;
+      assert.ok(Array.isArray(owners)&&owners.length>0,
+        'all submitted static batches must carry bounded per-piece original provenance');
+      const attribute=geometry.attributes.position;
+      assert.equal(attribute.count%3,0,'submitted triangles must be complete');
+      let cursor=0;
+      for(const owner of owners){
+        assert.equal(owner.startFace,cursor,'no gaps, overlaps or guessed face offsets');
+        assert.ok(Number.isSafeInteger(owner.endFace)&&owner.endFace>cursor,
+          'each authored piece owns genuine submitted triangles');
+        assert.ok(Array.isArray(owner.authoringPath)&&owner.authoringPath.length,
+          'preserve a real authored mesh or structural parent name');
+        const first=sourceTriangleOwner(geometry,owner.startFace);
+        const last=sourceTriangleOwner(geometry,owner.endFace-1);
+        assert.equal(first.partFaceIndex,0,'mapped first triangle belongs to first authored face');
+        assert.equal(last.partFaceIndex,owner.endFace-owner.startFace-1,
+          'mapped last triangle remains in the same original source piece');
+        assert.equal(first.authoringGeometry,owner.authoringGeometry);
+        assert.deepEqual(first.authoringPath,owner.authoringPath);
+        if(owner.authoringPath.includes('clockwork-open-rim-fragment'))
+          clockRimFaces+=owner.endFace-owner.startFace;
+        if(owner.authoringPath.some(name=>name.includes('clockwork-upper-right-shoulder')))
+          clockCaseFaces+=owner.endFace-owner.startFace;
+        cursor=owner.endFace;
+      }
+      assert.equal(cursor,attribute.count/3,'cover the whole actual submitted triangle buffer');
+      assert.equal(sourceTriangleOwner(geometry,cursor),null,'out-of-range face must not invent ownership');
+      inspected++;
+    });
+    assert.ok(inspected>5,'inspect genuinely merged tower architecture, not a synthetic object');
+    assert.ok(clockRimFaces>100,'physical decorative main ring must retain original triangle identity');
+    assert.ok(clockCaseFaces>50,'physical upper case must retain its authored ownership');
+    assert.equal(JSON.stringify(input),sourceBefore,'instrumentation never mutates game snapshots');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    let oldClockFace=false;
+    world.group.traverse(object=>{
+      if(object.geometry?.userData?.originalTriangleOwners?.some(entry=>
+        entry.authoringPath.includes('clockwork-open-rim-fragment')))oldClockFace=true;
+    });
+    assert.equal(oldClockFace,false,'floor-nine rebuild must release prior floor mesh owners');
+  }finally{world.dispose();}
+});
