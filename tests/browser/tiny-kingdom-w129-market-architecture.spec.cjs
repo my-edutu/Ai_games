@@ -29,6 +29,10 @@ function assertWorld(a){
  expect(a.renderer).toBe('webgl');
  expect(a.market.stalls).toBe(4);
  expect(a.market.structuralShopLofts).toBe(2);
+ expect(a.market.tradehouseShells).toBe(2);
+ expect(a.market.tradehouseWindows).toBe(4);
+ expect(a.market.tradehouseTriangles).toBeGreaterThan(200);
+ expect(a.market.tradehouseTriangles).toBeLessThan(1600);
  expect(a.market.tallestRoof).toBe(4.05);
  expect(a.market.rearShopGables).toBe(4);
  expect(a.market.marketWheelPassages).toBe(22);
