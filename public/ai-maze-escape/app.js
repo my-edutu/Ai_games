@@ -1,4 +1,4 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicDistinctPublicPredecessor } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
@@ -16,6 +16,9 @@ const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotio
 const audio=createMazeAudio();
 let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, wasNearPressure=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null;
 let hudVisualTime=0, lastHudRenderNow=0;
+// Preserve the last DISTINCT public pressure witness across repeated polls of
+// one authoritative tick. This is a presentation predecessor, not AI memory.
+let lastDistinctPressureSnapshot=null;
 
 function press(id,value,label){const button=byId(id);if(!button)return;button.setAttribute('aria-pressed',String(value));if(label){button.setAttribute('aria-label',label);button.title=label}}
 function applySettings(){
@@ -75,6 +78,13 @@ function update(value){
   if(!value?.snapshot)return;
   const snapshot=value.snapshot;
   const previousPublicSnapshot=frame?.snapshot;
+  // A native tick-6 withdrawal remains on screen while /maze/state can deliver
+  // the same tick repeatedly. Reusing raw frame.snapshot erased the published
+  // tick-5 witness and reverted the live instruction to an unrelated gate.
+  // The shared scene-camera helper rejects run changes, skipped ticks and
+  // malformed/nonconsecutive public evidence; no private route is consulted.
+  lastDistinctPressureSnapshot=publicDistinctPublicPredecessor(
+    lastDistinctPressureSnapshot,previousPublicSnapshot,snapshot);
   // The exact public before→after transition that authorizes Pip's real 3D
   // key shards also earns a single brief game HUD beat. No hidden state or
   // authoritative simulation time is involved.
@@ -123,7 +133,7 @@ function update(value){
   // broader map/gate goal returns immediately thereafter; AI remains real.
   const pressureCue=!ended && !exposedDanger
     ? publicImmediatePressureCue(snapshot)
-      || publicPressureWithdrawalCue(previousPublicSnapshot,snapshot)
+      || publicPressureWithdrawalCue(lastDistinctPressureSnapshot,snapshot)
     : null;
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);

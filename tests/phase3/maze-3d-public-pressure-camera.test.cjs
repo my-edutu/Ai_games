@@ -383,3 +383,45 @@ test('the genuine pressure lens uses conservative world mesh union, not centers 
  assert.match(source,/cameraTarget\.addScaledVector\(pressureReframeRight,horizontalShift\)/);
  assert.doesNotMatch(source,/camera\.zoom\s*=\s*.*horizontalShift/);
 });
+
+test('real pressure retreat HUD survives repeated tick-6 polling without invented stale dangers',async()=>{
+  const {publicDistinctPublicPredecessor:retain,
+    publicImmediatePressureCue:immediate,
+    publicPressureWithdrawalCue:withdraw}=await load();
+  const cells=[
+    {cell:24,neighbors:[25],blocked:false},
+    {cell:25,neighbors:[24,32],blocked:false},
+    {cell:32,neighbors:[25],trap:true,blocked:false}
+  ];
+  const observed={runToken:'retreat-press',tick:5,width:7,height:7,
+    currentCell:25,cells,visibleCells:[24,25,32],doors:[
+      {a:17,b:18,open:false,requiredKeyId:'real-key'}
+    ],inventory:['real-key'],result:null};
+  const depart={...observed,tick:6,currentCell:24};
+  let prior=null, current=null;
+  const publicHudCue=next=>{
+    prior=retain(prior,current,next);
+    current=next;
+    return immediate(next)||withdraw(prior,next);
+  };
+  const original=JSON.stringify({observed,depart});
+  assert.deepEqual(publicHudCue(observed),{cell:32,steps:1});
+  assert.deepEqual(publicHudCue(depart),{cell:32,steps:2,withdrawal:true});
+  assert.deepEqual(publicHudCue({...depart}),{cell:32,steps:2,withdrawal:true},
+    'a second poll of tick6 must not hand the urgent mission to the known gate');
+  assert.equal(publicHudCue({...depart,tick:7}),null,
+    'the next distinct public tick ends the single authorized withdrawal');
+  assert.equal(publicHudCue({...observed,runToken:'new-run',tick:1}),null,
+    'a new run cannot inherit old danger');
+  assert.equal(publicHudCue({...observed,runToken:'new-run',tick:4,currentCell:24}),null,
+    'skipped public ticks cannot inherit old danger');
+  assert.equal(JSON.stringify({observed,depart}),original,
+    'HUD state must not modify any authoritative public snapshot');
+  const fs=require('node:fs'),path=require('node:path');
+  const source=fs.readFileSync(path.resolve(__dirname,
+    '../../public/ai-maze-escape/app.js'),'utf8');
+  assert.match(source,/lastDistinctPressureSnapshot=publicDistinctPublicPredecessor\(\s*lastDistinctPressureSnapshot,previousPublicSnapshot,snapshot\)/);
+  assert.match(source,/publicPressureWithdrawalCue\(lastDistinctPressureSnapshot,snapshot\)/);
+  assert.doesNotMatch(source,/publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/,
+    'production must use distinct public ticks, not an arbitrary repeated poll');
+});

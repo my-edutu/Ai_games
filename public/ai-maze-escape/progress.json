@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T10:22:41.501Z",
+  "updatedAt": "2026-11-10T10:30:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass240b: authentic exact-HEAD WebGL corrected real 320px pressure withdrawal Pip right from +0.956261 to +0.9500000000000002 NDC, still failing unchanged <=+0.95 because of rounding; six-run resource budget PASS, focused 111/111 and whole Node 739/739 PASS, overall CI red from missing unrelated Tiny Kingdom script. Current production camera now targets interior ±.945 optical safety WITHOUT weakening actual ±.95 gate. Next true current-HEAD render/390 chronology and independent Nintendo review PENDING; draft PR #53 unmerged/undeployed."
+    "summary": "Pass241: true source-bound Pass240b 320/390 pressure chronology now passes full-model ±.95 (Pip tick6 right +.945) and six-run geometry. All 35 native PNG SHA sidecars verified. Exact original withdrawal images reveal live HUD incorrectly switching to a sealed gate after repeated same-tick polls. Current production HUD now preserves only last distinct consecutive public witness, just like camera; new source test. New HEAD WebGL and independent Nintendo visual review pending; PR #53 OPEN DRAFT, never merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass241: source-bound exact-head authentic 320/390 frame confirms physical pressure no-crop and six-run budget; fix misleading 'Key for gate' during one real pressure withdrawal by retaining only distinct public tick across repeat polls, with stale/new-run/hidden-safety regression. Current new-code native verdict pending.",
     "Pass240b: actual original 320px tick6 world-bounds camera correction moved Pip right +.956261 → +.9500000000000002, rounding-edge crop still blocked. Composed within ±.945 NDC target while unchanged strict ±.95 browser acceptance remains; exact original diagnostic regression. New-HEAD native test pending.",
     "Pass240: correct actual pressure withdrawal source-bound Pip crop using complete world-mesh AABB camera pan; reset erroneous hanging-foliage rebuild counter; source regression uses original real 320px diagnostics, strict thresholds intact. Full current-head WebGL/CI/independent image critic pending.",
     "Pass237: physical connected-mesh pressure camera safety pan in true public Follow 320/390, with unchanged ±0.95 full silhouettes and no model shrink, AI/hidden-state or collision changes; current-head WebGL image and independent judge pending.",
