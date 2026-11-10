@@ -20022,6 +20022,15 @@ function getFreeCameraCollisionAudit(){
 }
 function applyPlayerCamera(a,t,z){
  freeCameraReturn=null;
+ if(follow&&grainJourney?.marketWitness&&grainJourney.marketLens){
+  const lens=grainJourney.marketLens;
+  const v=safeFreeOrbit(a,t,z,lens.anchor);if(!v)return false;
+  yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;
+  // Actual user orbit becomes the stationary physical receiving-court lens.
+  // No hidden citizen, no scripted stock and no loss of touch/keyboard zoom.
+  grainJourney.marketLens={...lens,yaw,pitch,zoom};
+  presentationEpoch++;return true;
+ }
  if(follow&&grainJourney?.homeWitness){
   const home=getRealGrainHomeWitness();
   if(home){
@@ -20765,6 +20774,78 @@ function realGrainHomeFrontage(home){
  return {homeIndex:home.homeIndex,homeKey:lot.join(','),x,z,
   aim:[x,terrain(x,frontZ)+.96,frontZ]};
 }
+// W204 Phase-1 connected economic documentary: after an ACTUAL credited
+// farmer's market receipt, hold a physical, readable view of that ORIGINAL
+// receiving court until a matching household trade occurs. The camera does
+// not invent goods, buyers, transactions, world actors or a scene proxy.
+// Validity is receipt-scoped, resource-bounded and checked against the SAME
+// built market, foliage and real worksite roofs as the live renderer.
+function chooseRealMarketReceiptLens(receiptId){
+ const receipt=deliveryReceipts.find(row=>row.id===receiptId&&
+  row.resource==='food'&&row.job==='farmer'&&
+  row.creditedAtUnloading===true&&Number.isFinite(row.amount)&&row.amount>0);
+ if(!receipt)return null;
+ const [x,z]=FARM_MARKET_STREET_DESTINATION;
+ const aim=[x,terrain(x,z)+1.04,z],roofs=followCameraRoofs(),
+  ground=terrain(x,z),w=canvas.clientWidth,h=canvas.clientHeight;
+ if(w<=0||h<=0)return null;
+ const angles=[Math.PI,.82,-.82,1.46,-1.46,2.30,-2.30,0,
+  Math.PI+.40,Math.PI-.40,Math.PI+.86,Math.PI-.86];
+ const pitches=[.23,.36,.47],distances=[6.3,7.9,9.5];
+ let checked=0,clear=0,best=null,bestCost=Infinity;
+ for(const pitch of pitches)for(const zoom of distances)for(const yaw of angles){
+  const radius=Math.cos(pitch)*zoom;
+  const eye=[x+Math.sin(yaw)*radius,
+   ground+1.02+Math.sin(pitch)*zoom,
+   z+Math.cos(yaw)*radius];
+  checked++;
+  if(!physicalFollowEyeClearance(eye,roofs).clear||
+     followRayBlockers(eye,aim,roofs)!==0)continue;
+  const tree=foregroundVegetationProjection(eye,aim);
+  if(tree.faceBlockers||tree.cover>=.27)continue;
+  const architecture=foregroundSceneProjection(eye,aim,roofs);
+  if(architecture.cover>=.34||architecture.cargoCover>=.22)continue;
+  clear++;
+  const cost=tree.cover*1300+architecture.cover*1100+
+   architecture.cargoCover*1200+Math.abs(pitch-.36)*30+
+   Math.abs(zoom-7.9)*5+
+   Math.abs(Math.atan2(Math.sin(yaw-Math.PI),
+    Math.cos(yaw-Math.PI)))*7;
+  if(cost<bestCost){
+   bestCost=cost;
+   best={source:'actual-receipt-original-market-physical-camera',
+    receiptId,anchor:[x,z],aim:aim.slice(),eye:eye.slice(),
+    yaw,pitch,zoom,citySize:city.length,
+    viewportWidth:w,viewportHeight:h,
+    sceneCover:architecture.cover,canopyCover:tree.cover,
+    cameraInsideBuilding:false,occludingRoofRays:0,
+    checkedShots:checked,clearShots:clear,authorityChanged:false};
+  }
+ }
+ return best?{...best,checkedShots:checked,clearShots:clear}:null;
+}
+function marketReceiptLensKey(id){
+ return [id,city.map(lot=>lot.join(',')).join(';'),
+  canvas.clientWidth,canvas.clientHeight].join('|');
+}
+function updateRealMarketReceiptWitness(plan){
+ if(!grainJourney)return false;
+ if(!plan||plan.stage!=='received'||!plan.hasActualReceipt||
+    !plan.receiptId||!plan.linkedToReceipt){
+  grainJourney.marketWitness=false;grainJourney.marketLens=null;
+  grainJourney.marketAttempt=null;return false;
+ }
+ const key=marketReceiptLensKey(plan.receiptId);
+ if(grainJourney.marketAttempt!==key){
+  grainJourney.marketAttempt=key;
+  grainJourney.marketLens=chooseRealMarketReceiptLens(plan.receiptId);
+  grainJourney.marketWitness=Boolean(grainJourney.marketLens);
+  // The camera preserves the actual selected courier. The witness freezes
+  // only the spectator lens, never the economy or autonomous society.
+  lastFollowShot=null;liveShotPlanCache=null;
+ }
+ return grainJourney.marketWitness;
+}
 function chooseRealGrainHomeLens(home){
  const front=realGrainHomeFrontage(home);if(!front)return null;
  const roofs=followCameraRoofs(),ground=terrain(front.x,front.z);
@@ -20826,6 +20907,18 @@ function getRealGrainJourneyAudit(){
   realMealHomeIndex:home?.homeIndex??null,
   residentPhysicallyHome:home?.atHome??null,
   homeCameraActive:Boolean(home&&grainJourney.homeWitness),
+  marketCameraActive:Boolean(plan?.stage==='received'&&
+   grainJourney.marketWitness&&grainJourney.marketLens),
+  marketReceiptSightline:plan?.stage==='received'&&
+   grainJourney.marketWitness&&grainJourney.marketLens?{
+    source:grainJourney.marketLens.source,
+    receiptId:grainJourney.marketLens.receiptId,
+    aim:grainJourney.marketLens.aim.slice(),
+    sceneCover:grainJourney.marketLens.sceneCover,
+    canopyCover:grainJourney.marketLens.canopyCover,
+    candidateEyesChecked:grainJourney.marketLens.checkedShots,
+    verifiedClearEyes:grainJourney.marketLens.clearShots,
+    historicalReceiptNotReenacted:true}:null,
   homeExteriorSightline:home&&grainJourney.homeWitness&&grainJourney.homeLens?{
    source:grainJourney.homeLens.source,
    homeIndex:grainJourney.homeLens.homeIndex,
@@ -20875,7 +20968,8 @@ function watchRealGrainJourney(){
  selectedCitizen=people.indexOf(p);
  grainJourney={producer:p.name,deliveryId:p.delivery?.resource==='food'?
     p.delivery.id:null,tradeId:null,stage:'starting',stagesSeen:[],subjectChanges:0,
-    homeWitness:false,homeLens:null};
+    homeWitness:false,homeLens:null,marketWitness:false,marketLens:null,
+    marketAttempt:null};
  document.body.dataset.workday='live';
  if(!follow)setCitizenFollow(true);
  updateFollowCamera(builderStageAngle(p));
@@ -20899,6 +20993,9 @@ function advanceRealGrainJourney(){
    grainJourney.stagesSeen.push(plan.stage);
   if(grainJourney.stagesSeen.length>8)grainJourney.stagesSeen.shift();
  }
+ // After the real credited receipt, give the ORIGINAL receiving market a
+ // physically chosen witness shot while awaiting a matching household buyer.
+ updateRealMarketReceiptWitness(plan);
  // A verified recorded meal can reveal only its ACTUAL physical cottage.
  const realHome=planRealGrainHomeWitness(plan,people,city);
  if(!realHome&&grainJourney.homeWitness){
@@ -21444,6 +21541,10 @@ function actualHomecomingWitnessShot(){
 function currentPhysicalFollowTarget(){
  // The verified historical home camera aims at the ORIGINAL exterior door,
  // rather than a roof centre. The WebGL and human LOD share this exact target.
+ if(follow&&grainJourney?.marketWitness&&
+    grainJourney.marketLens?.receiptId===grainJourney.deliveryId){
+  return grainJourney.marketLens.aim.slice();
+ }
  if(follow&&grainJourney?.homeWitness){
   const home=getRealGrainHomeWitness(),lens=grainJourney.homeLens;
   if(home&&lens?.homeIndex===home.homeIndex&&
@@ -21834,6 +21935,7 @@ function render(now){requestAnimationFrame(render);
  // Preserve exclusive physical camera control throughout the real dawn flight.
 if(follow&&!daybreakReturn){
  const home=grainJourney?.homeWitness?getRealGrainHomeWitness():null;
+ const market=grainJourney?.marketWitness?grainJourney.marketLens:null;
  if(home&&grainJourney.homeLens){
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ease=reduceMotion?1:cameraWallEase(wallDt,5.4);
@@ -21842,6 +21944,18 @@ if(follow&&!daybreakReturn){
   const lens=grainJourney.homeLens;
   yaw+=Math.atan2(Math.sin(lens.yaw-yaw),Math.cos(lens.yaw-yaw))*ease;
   pitch+=(lens.pitch-pitch)*ease;zoom+=(lens.zoom-zoom)*ease;
+  lastFollowShot=null;
+ }else if(market){
+  // A real completed receipt is already in the market's inventory.
+  // Stay on the actual architecture until a VERIFIED household buys it,
+  // rather than following the departed farmer into an unrelated field.
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ease=reduceMotion?1:cameraWallEase(wallDt,4.5);
+  focusPoint[0]+=(market.anchor[0]-focusPoint[0])*ease;
+  focusPoint[1]+=(market.anchor[1]-focusPoint[1])*ease;
+  yaw+=Math.atan2(Math.sin(market.yaw-yaw),Math.cos(market.yaw-yaw))*ease;
+  pitch+=(market.pitch-pitch)*ease;
+  zoom+=(market.zoom-zoom)*ease;
   lastFollowShot=null;
  }else{
  const citizen=people[Math.min(selectedCitizen,people.length-1)];
