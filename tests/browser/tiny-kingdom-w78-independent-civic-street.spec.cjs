@@ -23,16 +23,22 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    await page.waitForFunction(()=>window.__tinyKingdom.getHomePartitionAudit().enabled&&
     window.__tinyKingdom.getHomePartitionAudit().activeHomes>0,null,{timeout:100000});
 
-   // Render after every physical 12-day chunk so a real construction's
-   // independent cache invalidation is observed, not hidden in a big sim jump.
-   const stages=[];
-   for(let block=0;block<10;block++){
-    await page.evaluate(()=>{
+   // W184: real Playwright trace shows 25 genuine houses at Day13 and
+   // 35 at Day25; old 12-day simulation jumps straddled seasons and hid
+   // SAME-climate GPU growth before any physical world render could see it.
+   // Present Days 1–30 individually, then continue actual Day120 in chunks.
+   const stages=[],dayTargets=[...Array.from({length:30},(_,i)=>i+1),
+    42,54,66,78,90,102,114,120];
+   let advancedDays=0;
+   for(const targetDay of dayTargets){
+    const nextDays=targetDay-advancedDays;
+    await page.evaluate(days=>{
      const g=window.__tinyKingdom;
-     for(let i=0;i<12*24*30;i++)g.step(1/30);
-    });
+     for(let i=0;i<days*24*30;i++)g.step(1/30);
+    },nextDays);
+    advancedDays=targetDay;
     await page.waitForFunction(last=>window.__tinyKingdom.metrics().day>=last,
-     (block+1)*12,{timeout:110000});
+     targetDay,{timeout:110000});
     await page.waitForFunction(()=>window.__tinyKingdom.getStationarySettlementAudit()
      .activeSceneKey===window.__tinyKingdom.renderStats().scenicMeshKey,
      null,{timeout:100000});

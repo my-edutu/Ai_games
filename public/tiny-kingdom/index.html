@@ -14945,6 +14945,7 @@ function getDaybreakReturnAudit(){
   progress:active?daybreakReturn.progress:0,
   wallProgress:active?Math.min(1,elapsed/DAYBREAK_RETURN_MS):0,
   renderedFrames:active?daybreakReturn.renderedFrames:0,
+  mismatchedWorldFrames:active?(daybreakReturn.mismatchedWorldFrames||0):0,
   maxPresentedStep:DAYBREAK_MAX_PROGRESS_PER_FRAME,
   completed:daybreakReturnCompleted,
   awaitingSubmittedFinalFrame:Boolean(daybreakReturn?.awaitingSubmittedFinalFrame),
@@ -15053,7 +15054,8 @@ function advanceDaybreakReturn(){
  // Reduced-motion users get one direct stable camera change instead.
  const fraction=window.matchMedia('(prefers-reduced-motion: reduce)').matches?1:
   Math.min(wallProgress,view.progress+DAYBREAK_MAX_PROGRESS_PER_FRAME);
- view.progress=fraction;view.renderedFrames++;
+ // Count only real world-rendered camera frames, never camera plans.
+ view.progress=fraction;
  const ease=fraction*fraction*(3-2*fraction);
  const angle=Math.atan2(Math.sin(view.to.yaw-view.from.yaw),
   Math.cos(view.to.yaw-view.from.yaw));
@@ -15064,27 +15066,48 @@ function advanceDaybreakReturn(){
   view.from.focus[0]+(view.to.focus[0]-view.from.focus[0])*ease,
   view.from.focus[1]+(view.to.focus[1]-view.from.focus[1])*ease];
  view.frame=daybreakWorldCameraAt(view.physical,fraction);
- // Bounded original camera submissions, never fictional recordings or actors.
- const clearance=physicalFollowEyeClearance(view.frame.eye,view.physical.roofs);
- view.samples.push({progress:fraction,eye:view.frame.eye.slice(),
-  target:view.frame.target.slice(),clear:clearance.clear,
-  obstruction:clearance.kind});
- if(view.samples.length>18)view.samples.shift();
+ // W184: plans are not evidence. Samples belong ONLY after the true draw.
  // W183: do not discard the REAL off-axis eye before render() has submitted
  // the last complete world frame. That old premature cleanup could snap
  // directly from the cottage door to the aerial survey at low FPS.
  if(fraction>=1)view.awaitingSubmittedFinalFrame=true;
  return true;
 }
+// W184: make the single real rendered scene the camera-evidence source.
+// A planned interpolation may never count as a submitted WebGL shot.
+function recordSubmittedDaybreakWorldFrame(){
+ const view=daybreakReturn,frame=lastCitizenPickFrame;
+ if(!view||!frame||!Array.isArray(frame.eye)||!Array.isArray(frame.target))
+  return false;
+ const planned=view.frame;
+ if(!planned||frame.eye.length!==3||frame.target.length!==3)return false;
+ const eyeError=Math.hypot(...frame.eye.map((v,i)=>v-planned.eye[i]));
+ const aimError=Math.hypot(...frame.target.map((v,i)=>v-planned.target[i]));
+ if(!Number.isFinite(eyeError)||!Number.isFinite(aimError)||
+    eyeError>.025||aimError>.025){
+  view.mismatchedWorldFrames=(view.mismatchedWorldFrames||0)+1;
+  return false;
+ }
+ const clearance=physicalFollowEyeClearance(frame.eye,view.physical.roofs);
+ view.renderedFrames++;
+ view.samples.push({progress:view.progress,eye:frame.eye.slice(),
+  target:frame.target.slice(),clear:clearance.clear,
+  obstruction:clearance.kind,submittedWorldFrame:true});
+ if(view.samples.length>18)view.samples.shift();
+ return true;
+}
 // Acknowledge only AFTER the real WebGL submission for this physical shot.
 function acknowledgeDaybreakWorldFrame(){
  const view=daybreakReturn;
- if(!view||!view.awaitingSubmittedFinalFrame||view.progress<1)return false;
+ if(!view||!view.awaitingSubmittedFinalFrame||view.progress<1||
+    !view.samples.some(s=>s.submittedWorldFrame&&s.progress>=1))
+  return false;
  daybreakLastCompleted={citizen:view.citizen,progress:view.progress,
   submittedFrames:view.renderedFrames,clearanceY:view.physical.clearanceY,
   crossedRoofs:view.physical.crossedRoofs,samples:view.samples.map(s=>({...s})),
   endEye:view.physical.toEye.slice(),endTarget:view.physical.toTarget.slice(),
-  authorityChanged:false,finalWorldDrawSubmitted:true};
+  authorityChanged:false,mismatchedWorldFrames:view.mismatchedWorldFrames||0,
+  finalWorldDrawSubmitted:view.samples.some(s=>s.submittedWorldFrame&&s.progress>=1)};
  daybreakReturnCompleted++;daybreakReturn=null;
  setCitizenFollow(false);stopWorkdayWatch();setCommandView('world');
  showToast('Daybreak · real villagers return to work');
@@ -21573,8 +21596,8 @@ drawForegroundResidentMesh();
  // Frozen idle time must not masquerade as sluggish active gameplay.
  const drawScenario=frameProfileScenario;
  noteDrawCompletion(frameProfileEnd,drawScenario,idleFrames>0);
- // Camera finalization follows the SAME genuine 3D draw and cannot erase its
- // physical eye/aim before the original world render consumes them.
+ // Record the ACTUAL world-drawn camera before releasing the following lens.
+ recordSubmittedDaybreakWorldFrame();
  acknowledgeDaybreakWorldFrame();
  idleFrames=0;
  // Only a completed presentation may become the reusable frozen frame.

@@ -1,3 +1,15 @@
+## W184 · 10 November 2026 · Phase 1 actual submitted world-camera evidence + real daily housing growth — experience NOT PROVEN
+
+**Scope:** only OPEN DRAFT PR #64, parent `17810d9532f371d20d36b38cfeffc3cc17eb36a9`, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`; never merge or touch main/#43/#59/#62. Same original harvest → courier → market → occupied-home scenario.
+
+**Actual exact-head failures inspected:** [GPU CI 42761204726](https://github.com/my-edutu/Ai_games/actions/runs/42761204726) has W90 original desktop daybreak follow-camera progress timeout, despite 56 other W83 checks passing; W78 real 1024 and 390 housing growth witness failures. A downloaded Playwright trace establishes genuine 25 homes by Day13 and 35 by Day25, with 28 people and no missing GPU partitions or GL error by Day121. The 12-day test jumps skipped real same-season frame evidence, crossing season boundaries before next render. Do not claim those failures are successes or invent a missing-home bug.
+
+**Real playable source change:** record final and intermediate real daybreak physical camera points only after the same WebGL frame actually draws the original physical world, with measured eye/aim matching, bounded samples and post-submission final view release. Planned camera easing alone no longer masquerades as visible animation. No authoritative simulation, actors, paths, buildings, inventories or save/replay changed. W90 verifies actual submitted camera witnesses, permitting a completed real film when slow software rendering consumes its in-flight polling interval. W78 test now physically renders each actual Day1–30 growth day before proceeding to Day120, preserving genuine seeded autonomous settlement, instead of leaping between unrelated seasons and demanding same-season witnessed construction.
+
+**Acceptance:** W184 exact-head Chromium, uncut moving experience, CPU/GPU profiling, long soak and hardware desktop/mobile measurements not yet verified. No separate fresh-context critics or live developer worker tunnel available. A LOOK NOT PROVEN, A FEEL historical software FAIL / physical hardware UNKNOWN, A PLAY NOT PROVEN; B commercial Manor Lords quality FAIL. This is an evidence and camera-continuity correction, NOT a visual environment, animation-realism or FPS milestone. Next integrated Phase 1: inspect new W90/W78 running-game frames, fix any real failures; profile static CPU and GPU work; build substantially more credible connected farm→granary→market→inhabited homes and original labor, not more tiny shader fixes. Keep draft.
+
+---
+
 ## W182 · 10 November 2026 · Phase 1 full original crop-season GPU spine — experience NOT PROVEN
 
 **Scope:** Only open draft PR #64; exact inspected parent 7ae6e7b2a48fe9bd264ed7d4c0ddbb3b375b9571. Immutable baseline G088 source 2f6deb43feb1a1557848d44def53a6109deb1ab1 and [real original footage](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738). W182 actual original game source blob a90ff83c39f108c68909d652fda3c0378f250e8c. Do not alter main, PR #43/#59/#62, or merge.

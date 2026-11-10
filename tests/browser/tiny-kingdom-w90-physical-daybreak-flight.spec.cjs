@@ -59,8 +59,11 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   // The simulation speed remains unchanged by the camera work.
   await page.waitForFunction(()=>{
    const g=window.__tinyKingdom,a=g.getDaybreakReturnAudit(),f=g.getPresentedCameraFrame();
-   return a.active&&a.physicalShot?.progress>.38&&f?.target&&
-    Math.hypot(...f.eye.map((v,i)=>v-a.physicalShot.eye[i]))<.01;
+   const real=a.active?a.submittedFrames:a.lastCompleted?.samples||[];
+   const witnessed=real.some(s=>s.submittedWorldFrame&&s.progress>.38&&s.progress<.97);
+   return witnessed&&((a.active&&a.physicalShot?.progress>.38&&f?.target&&
+    Math.hypot(...f.eye.map((v,i)=>v-a.physicalShot.eye[i]))<.01)||
+    (!a.active&&a.lastCompleted?.finalWorldDrawSubmitted));
   },
     null,{timeout:110000});
   const middle=await page.evaluate(()=>{
@@ -74,6 +77,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   const frames=middle.transition.active?
    middle.transition.submittedFrames:complete?.samples||[];
   expect(frames.length).toBeGreaterThan(3);
+  expect(frames.every(f=>f.submittedWorldFrame)).toBe(true);
   expect(frames.some(f=>f.progress>.38&&f.progress<.97)).toBe(true);
   expect(frames.every(f=>f.eye.every(Number.isFinite)&&
    f.target.every(Number.isFinite))).toBe(true);
