@@ -140,7 +140,14 @@ function update(value){
   // "Find key" card hid the fair visual warning until contact at tick 5.
   // Distinguish sighting from actual one-cell danger: the sighting never
   // asserts a collision, planned movement, an accessible route or an attack.
+  // A source-witnessed key pickup is physically on screen: Pip and its
+  // original shards must agree with the single mission chip. A diagonal
+  // sighting is advisory, NOT an active strike. Restore the Watch jaws cue
+  // after the real pickup beat expires; immediate pressure still wins above.
+  const witnessedKeyCelebration=!ended && pickupMilestone?.runToken===snapshot.runToken
+    && hudVisualTime<pickupMilestone.until;
   const pressureApproach=!ended && !exposedDanger && !pressureCue
+    && !witnessedKeyCelebration
     ? publicVisibleDiagonalPressureCue(snapshot) : null;
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);

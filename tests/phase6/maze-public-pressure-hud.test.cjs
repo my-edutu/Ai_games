@@ -72,6 +72,10 @@ test('live mission source uses the exact public cue before gate, pickup and goal
   assert.match(source,/const urgent=exposedDanger\|\|!!pressureCue/,'actual witnessed warning must outrank gate/landmark presentation');
   assert.match(source,/publicVisibleDiagonalPressureCue\(snapshot\)/,
     'only a genuine currently published diagonal sighting can supply early anticipation');
+  assert.match(source,/const witnessedKeyCelebration=!ended && pickupMilestone\?\.runToken===snapshot\.runToken\s*&& hudVisualTime<pickupMilestone\.until/,
+    'an actual public key pickup needs the same short mission beat as its 3D shards');
+  assert.match(source,/const pressureApproach=!ended && !exposedDanger && !pressureCue\s*&& !witnessedKeyCelebration/,
+    'advisory diagonal pressure may not hide real key collection; urgent contact remains first');
   assert.match(source,/const keyedSealedGate=!ended && !urgent && !pressureApproach/);
   assert.match(source,/const freshGate=!ended && !urgent && !pressureApproach/);
   assert.match(source,/const freshKey=!ended && !urgent && !pressureApproach/);

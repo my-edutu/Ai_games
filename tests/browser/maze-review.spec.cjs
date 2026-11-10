@@ -985,6 +985,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
   await expect(page.locator('#goal-title')).toHaveText('Key collected');
   await expect(page.locator('#objective')).toHaveText('Keep exploring');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-pressure-approach','false');
   // Source-bound REAL before→after collected-key browser state. The compact
   // on-screen Pip chip must not contradict the pickup hero beat while the
   // original authoritative AI mode remains unchanged and accessible.
@@ -1063,6 +1064,7 @@ test('a real close public encounter frames both autonomous actors and saves date
   await expect(page.locator('#goal-label')).toHaveText('KEY FOUND');
   await expect(page.locator('#goal-title')).toHaveText('Key collected');
   await expect(page.locator('#objective')).toHaveText('Keep exploring');
+  await expect(page.locator('#broadcast')).toHaveAttribute('data-pressure-approach','false');
   // Source-bound REAL before→after collected-key browser state. The compact
   // on-screen Pip chip must not contradict the pickup hero beat while the
   // original authoritative AI mode remains unchanged and accessible.
