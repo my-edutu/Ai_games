@@ -1,5 +1,6 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { createTowerWorld, THEMES } from './world.mjs';
+import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
 import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
@@ -4025,6 +4026,11 @@ export function createTowerScene(canvas, settings = {}) {
           point:hit.point.toArray().map(n=>Number(n.toFixed(2))),
           faceIndex:Number.isSafeInteger(hit.faceIndex)?hit.faceIndex:null,
           instanceId:Number.isSafeInteger(hit.instanceId)?hit.instanceId:null,
+          // This identifies the original authored assembly inside a real
+          // submitted, material-merged triangle. Null for untouched meshes.
+          // The original video and authority are unchanged; this is not an
+          // occlusion or visibility verdict.
+          originalAuthoring:sourceTriangleOwner(hit.object.geometry,hit.faceIndex),
         });
         if (hits.length===5) break;
       }
