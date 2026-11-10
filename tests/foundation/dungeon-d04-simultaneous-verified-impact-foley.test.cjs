@@ -16,7 +16,7 @@ function fixture(){
  return ctx;
 }
 const damage=(targetId,audio='impact')=>({
- id:'1:1:12:damage:-:'+targetId,kind:'damage',proof:'observed-hp-drop',
+ id:'1:1:12:damage:-:'+targetId,kind:audio==='fatal-impact'?'damage-fatal':'damage',proof:'observed-hp-drop',
  actorId:null,targetId,audio,priority:5,severity:.45
 });
 test('two independently HP-confirmed victims retain separate impact sounds in one submitted frame',async()=>{
@@ -47,6 +47,14 @@ test('fatal and nonfatal confirmed injury share the same limited simultaneous on
  assert.equal(engine.emit(damage('revenant','fatal-impact')),true);
  assert.equal(engine.emit(damage('vanguard')),true);
  assert.equal(engine.emit(damage('mystic','fatal-impact')),false);
+ engine.dispose();
+});
+test('two independently fatal HP losses each receive a capped sound onset',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const engine=createOriginalCombatFoley(fixture());engine.enable();
+ assert.equal(engine.emit(damage('revenant','fatal-impact')),true);
+ assert.equal(engine.emit(damage('cultist','fatal-impact')),true);
+ assert.equal(engine.emit(damage('warden','fatal-impact')),false);
  engine.dispose();
 });
 test('unknown or attributed impact must not bypass original type cooldown',async()=>{
