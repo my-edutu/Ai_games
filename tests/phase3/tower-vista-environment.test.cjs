@@ -14,6 +14,7 @@ const raw = fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/
 const source = raw.replace("'/tower/vendor/three.module.js'", JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/coordinates.mjs')))
   .replace("'./world-surface.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/world-surface.mjs')))
+  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
   .replace("'./scene-hierarchy.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')));
 const modulePath = path.join(scratch,'world.mjs');fs.writeFileSync(modulePath,source);
 const loaded = Promise.all([import(threeURL),import(pathToFileURL(modulePath).href)]);

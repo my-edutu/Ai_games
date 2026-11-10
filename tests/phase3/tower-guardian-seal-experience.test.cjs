@@ -27,7 +27,8 @@ const surfaceUrl = pathToFileURL(path.join(root, 'public/infinite-tower-climb/vi
 const source = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/world.mjs'), 'utf8')
   .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeUrl))
   .replace("'./coordinates.mjs'", JSON.stringify(coordsUrl))
-  .replace("'./world-surface.mjs'", JSON.stringify(surfaceUrl));
+  .replace("'./world-surface.mjs'", JSON.stringify(surfaceUrl))
+  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
 fs.writeFileSync(path.join(scratch, 'world.mjs'), source);
 const loaded = import(pathToFileURL(path.join(scratch, 'world.mjs')).href);
 test.after(() => fs.rmSync(scratch, { recursive: true, force: true }));

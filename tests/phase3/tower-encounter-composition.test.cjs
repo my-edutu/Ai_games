@@ -35,7 +35,8 @@ const loaded = (async () => {
   const worldSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/world.mjs'), 'utf8')
     .replace("'/tower/vendor/three.module.js'", JSON.stringify(localURL('node_modules/three/build/three.module.js')))
     .replace("'./coordinates.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/coordinates.mjs')))
-    .replace("'./world-surface.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/world-surface.mjs')));
+    .replace("'./world-surface.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/world-surface.mjs')))
+    .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
   fs.writeFileSync(path.join(scratch, 'world.mjs'), worldSource);
   const { createTowerWorld } = await import(pathToFileURL(path.join(scratch, 'world.mjs')).href);
   const castSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/characters.mjs'), 'utf8')
