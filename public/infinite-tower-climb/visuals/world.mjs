@@ -771,7 +771,7 @@ export function createTowerWorld(){
     instanced(root,sphere(),materials.gateTrim,studs);
     return root;
   }
-  function buildTower(height,guardianClockwork=false){
+  function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
     // each biome's machinery belongs to the surrounding architecture.
@@ -789,13 +789,13 @@ export function createTowerWorld(){
     for(const [i,p]of pylons.entries()){
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
       const shoulder=p.top-8;
-      if(guardianClockwork) {
+      if(openClockworkPylons) {
         // Original 390x844 native footage at a0146896 still shows a real
         // 'tapered-structural-pylon' cutting through the living guardian.
         // Moving the SOLID shaft sideways did not create a window. Give this
-        // source-owned upper-cap district a genuinely load-bearing OPEN frame.
+        // source-owned clockwork biome a genuinely load-bearing OPEN frame.
         // The 3D model, not an opacity shader or UI overlay, owns the void.
-        // The unchanged five-biome shafts remain on other districts/floors.
+        // All clockwork floors share the same architecture and draw budget;\n        // the other four biome styles retain their original solid shafts.
         const openBase=-18, crown=shoulder+3;
         const corner=p.R*.70, height=crown-openBase;
         const plinth=lathe(body,[[0,p.bottom],[p.R*.72,p.bottom],
@@ -1680,7 +1680,7 @@ export function createTowerWorld(){
     if(theme==='ruins')weather(materials.landing);
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
-    const height=snapshot.chunkHeight/SCALE;buildTower(height,theme==='clockwork' && snapshot.floor===8);buildDistantWorld(height);buildVista(height);
+    const height=snapshot.chunkHeight/SCALE;buildTower(height,theme==='clockwork');buildDistantWorld(height);buildVista(height);
     // All 3D cap clearance machinery must share the opt-in source exit,
     // not merely the presence of some guardian on a historic floor.
     // No published, exact real exit means no fabricated bronze victory gate.
