@@ -83,6 +83,8 @@ test('a formerly drawable sword trail is silenced and retired on observed death'
  assert.equal(visuals.hasLiveCue(h.cue.id),false,
   'release the now-invalid retained slot promptly, without using its full lifetime');
  assert.equal(visuals.stats().activeDrawCalls,0);
+ assert.equal(visuals.stats().retiredDeadTrails,1,
+  'one observed death promptly returns its retained sword slot');
  assert.equal(classifySubmittedCombatAudio({
   sceneMatches:true,observedFrameVerified:true,elapsedSeconds:.05,
   submissionSeconds:.002,visualAccepted:true,
