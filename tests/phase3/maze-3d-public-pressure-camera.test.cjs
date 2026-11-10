@@ -376,9 +376,9 @@ test('the genuine pressure lens uses conservative world mesh union, not centers 
  assert.match(source,/root\.traverseVisible\(mesh =>/);
  // Original 320px tick6 Pip WORLD envelope (+.956261) exceeded per-mesh
  // projections. Verify the renderer fits the same union as the native gate.
- assert.match(source,/pressureReframeEnvelope\\.makeEmpty\\(\\)/);
- assert.match(source,/pressureReframeEnvelope\\.union\\([\\s\\S]*?applyMatrix4\\(mesh\\.matrixWorld\\)/);
- assert.match(source,/pressureReframePoint\\.set\\(x,y,z\\)\\.project\\(camera\\)/);
+ assert.match(source,/pressureReframeEnvelope\.makeEmpty\(\)/);
+ assert.match(source,/pressureReframeEnvelope\.union\([\s\S]*?applyMatrix4\(mesh\.matrixWorld\)/);
+ assert.match(source,/pressureReframePoint\.set\(x,y,z\)\.project\(camera\)/);
  assert.match(source,/publicPhysicalPressureHorizontalReframe\(/);
  assert.match(source,/cameraTarget\.addScaledVector\(pressureReframeRight,horizontalShift\)/);
  assert.doesNotMatch(source,/camera\.zoom\s*=\s*.*horizontalShift/);
