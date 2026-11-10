@@ -127,6 +127,9 @@ jobs:
       TOWER_MOTION_SCENARIO: ${{ matrix.scenario }}
       TOWER_SEED: tower-transformation-capture-v1
       TOWER_CAPTURE_UNALTERED_SOURCE: '1'
+      # Start each ORIGINAL 20Hz host only after Chrome/video context exists.
+      # Retain the strict <=60 source-tick comparison and all native film gates.
+      TOWER_CAPTURE_LATE_HOST_START: '1'
     steps:
       - name: Checkout the actual game source being assessed
         uses: actions/checkout@v4
@@ -171,6 +174,8 @@ jobs:
           cp current-harness/tests/phase3/tower-capture-window.test.cjs source/tests/phase3/tower-capture-window.test.cjs
           cp current-harness/tests/phase3/tower-event-alignment.test.cjs source/tests/phase3/tower-event-alignment.test.cjs
           cp current-harness/scripts/tower-source-capture-server.cjs source/scripts/tower-source-capture-server.cjs
+          cp current-harness/scripts/tower-capture-host-lifecycle.cjs source/scripts/tower-capture-host-lifecycle.cjs
+          cp current-harness/tests/phase3/tower-capture-host-lifecycle.test.cjs source/tests/phase3/tower-capture-host-lifecycle.test.cjs
           cp current-harness/playwright.tower.config.cjs source/playwright.tower.config.cjs
           # The SOURCE-controlled app, game runtime, scene, and stream host
           # are immutable at the original frozen checkout SHA.
@@ -190,7 +195,7 @@ jobs:
         id: scoped_integrity
         continue-on-error: true
         working-directory: source
-        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-public-state-witness.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-event-frame-probes.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
+        run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-capture-host-lifecycle.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-public-state-witness.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-event-frame-probes.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
       - name: Install Chromium
         working-directory: source
         run: npx playwright install --with-deps chromium

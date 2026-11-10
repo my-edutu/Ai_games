@@ -16,6 +16,8 @@ const { beginTowerNativeCompositorAnchors } =
   require('../../scripts/tower-native-compositor-anchors.cjs');
 const { createTowerPublicStateWitness } =
   require('../../scripts/tower-public-state-witness.cjs');
+const { startFreshOriginalCaptureHost } =
+  require('../../scripts/tower-capture-host-lifecycle.cjs');
 
 // No intercepted snapshots, replay scrubbing, virtual time, time acceleration or
 // post-processed poses: this visits the live, seeded 20 Hz expedition host.
@@ -53,7 +55,25 @@ for (const viewport of viewports) {
   // baseline ignores this inert flag. It never alters gameplay or render art.
   if (scenario === 'danger' && viewport.width === 390)
     await page.addInitScript(() => { window.__TOWER_MESH_OWNER_AUDIT__ = true; });
-  await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
+  // The Playwright video context and page already exist. Only NOW launch a
+  // fresh, unmodified 20Hz source host. Its first source tick is independently
+  // witnessed before the first DOM navigation; the original first-RENDERED
+  // tick and strict cross-version <=60-tick evidence veto remain unchanged.
+  // The process is owned by this individual viewport's film, not another test.
+  let lateHost = null, initialHostSource = null;
+  try {
+    if (process.env.TOWER_CAPTURE_LATE_HOST_START === '1') {
+      lateHost = await startFreshOriginalCaptureHost();
+      const response = await page.request.get('/tower/state?w='+viewport.width+
+        '&h='+viewport.height+'&reducedMotion=0&cleanFeed=0&muted=1',
+        { timeout: 5000 });
+      if (!response.ok()) throw new Error('Original host failed first source probe: '+response.status());
+      initialHostSource = (await response.json()).snapshot;
+      if (!Number.isSafeInteger(initialHostSource?.tick) || initialHostSource.tick < 0 ||
+          initialHostSource.floor !== Number(process.env.TOWER_LAUNCH_FLOOR||'0'))
+        throw new Error('Original fresh host source started on the wrong floor/episode');
+    }
+    await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
   if (scenario === 'danger' && viewport.width === 390)
     expect(await page.evaluate(() => window.__TOWER_MESH_OWNER_AUDIT__ === true),
       'the genuine portrait mesh-owner witness must be armed before filming').toBe(true);
@@ -722,6 +742,18 @@ for (const viewport of viewports) {
     } : null,
     sampledActorOffscreen: observations.filter(item => item.observedActor?.inPicture === false).length,
     sampledActorUnsafe: observations.filter(item => item.observedActor?.inSafeFrame === false).length,
+    sourceHostStartup: lateHost ? {
+      mode: 'fresh-original-source-host-after-native-video-page-allocation',
+      firstOriginalHostSourceTick: initialHostSource.tick,
+      firstOriginalHostSourceFloor: initialHostSource.floor,
+      firstRenderedBrowserSourceTick: observations[0]?.tick??null,
+      sourceTicksElapsedBeforeRender: Number.isSafeInteger(observations[0]?.tick)
+        ? observations[0].tick-initialHostSource.tick : null,
+      sourceHostReadyAtMs: lateHost.readyAtMs,
+      sourceHostLaunchedAtMs: lateHost.launchedAtMs,
+      sourceHostStartupMs: lateHost.readyAtMs-lateHost.launchedAtMs,
+      note:'Real original source: timestamps expose browser/renderer cold-load drift; this does NOT waive the first rendered tick alignment gate or prove a presented film frame.'
+    } : {mode:'legacy-playwright-webserver',note:'No initial cold source witness'},
     // First *rendered* source observation, not a WebM frame-zero timestamp.
     // A late floor-10 portrait host must be rejected even when it records 60s.
     // Run tokens cannot be compared across different immutable source SHAs.
@@ -800,5 +832,10 @@ for (const viewport of viewports) {
   expect(sourceStory.sameEpisodeSourceSequenceObserved,
     'wrong or missing authentic source episode; original WebM and source index retained for P0 diagnosis, NOT a quality pass')
     .toBe(true);
+  } finally {
+    // Never leave a detached independent 20Hz authority running into the
+    // next viewport or another source version, even after a browser error.
+    if (lateHost) await lateHost.stop();
+  }
   });
 }
