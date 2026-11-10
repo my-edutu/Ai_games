@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T17:24:46.000Z",
+  "updatedAt": "2026-11-10T17:34:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass250: Exact HEAD b85c37b failed before source-bound browser captures: 112/113 focused source tests and 746/747 whole Node tests. Previous signed-zero fix covered withdrawal but the hidden/remembered-only treadle still incorrectly required +0. Strict physical rest assertion is now abs(angle)<1e-12 and reduced-motion hidden privacy coverage was added. Exact new-HEAD WebGL, six-reset resource and independent visual judgment pending; original Nintendo benchmark NOT MET. Draft PR #53 remains open and undeployed."
+    "summary": "Pass250b: Exact 9065da source-bound CI still failed before browser capture, 112/113, because the remaining far/diagonal treadle tests used sign-sensitive strictEqual(-0,+0) at line 41. All remaining physically flat rest checks now require strict abs(angle)<1e-12, preserving exact raised height, hidden/reduced-motion privacy and unchanged visual/resource thresholds. New exact-HEAD CI/screenshots and Nintendo judgment PENDING; Draft PR open."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass250b: Latest exact-HEAD WebGL 42865442141 failed at pre-browser far/diagonal signed-zero check (112/113). Corrected BOTH remaining strictly sign-sensitive zero-angle checks to physical abs(angle)<1e-12; earlier withdrawal, hidden and reduced-motion checks preserved. Strict new source/WebGL verdict PENDING, no visual win claimed.",
     "Pass250: Fix actual current-head 112/113 source CI / 746/747 whole Node blockage from hidden pressure-treadle signed-zero while enforcing strict zero-angle rest, plus reduced-motion hidden privacy regression. Prior real native frames remain unchanged evidence; new full-source WebGL and six-reset resource verification PENDING. No Nintendo bar victory.",
     "Pass248: 35/35 original exact-source full-size PNG/JSON SHA pairs verified; key collected HUD and real pressure warning sequence now shown. New production pressure treadle replaces eight inert floor clamp ornaments and physically depresses only on the real public near-contact clock before shutters/jaws; reduced/hidden/retreat/reset and resource constraints preserved. New-head rendered approval PENDING; Nintendo parity UNMET.",
     "Pass247 candidate: exact-HEAD genuine native browser pickup had real WebGL shard release but HUD erroneously displayed 'Disclosed mechanism' because newly introduced nonurgent diagonal Watch jaws outranked public key celebration (WebGL 42837500732, key-gallery failure; pressure chronology and strict 6-run budget passed). Restore same-run short KEY FOUND mission chip above advisory sighting only, retain urgent contact/withdrawal/warden priority and then resume public-only early warning. Source+native desktop/390 tests added; candidate CI/PNG acceptance pending; Nintendo benchmark unmet.",

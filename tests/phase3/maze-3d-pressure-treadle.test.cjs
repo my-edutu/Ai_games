@@ -38,10 +38,10 @@ test('one actual public treadle presses before inward jaws and restores after re
   const diagonal=new Vector3(origin.x+CELL_SIZE,0,origin.z+CELL_SIZE);
   const contact=new Vector3(origin.x,0,origin.z);
   world.animate(1,{explorerPosition:far,reducedMotion:false});
-  assert.equal(plate.position.y,.035);assert.equal(plate.rotation.x,0);
+  assert.equal(plate.position.y,.035);assert.ok(Math.abs(plate.rotation.x)<1e-12,'unactuated published treadle must be physically flat');
   world.animate(1.2,{explorerPosition:diagonal,reducedMotion:false});
   assert.equal(plate.position.y,.035,'public diagonal sight cannot falsely press floor');
-  assert.equal(plate.rotation.x,0);
+  assert.ok(Math.abs(plate.rotation.x)<1e-12,'unactuated published treadle must be physically flat');
   world.animate(2,{explorerPosition:contact,reducedMotion:false});
   world.animate(3.4,{explorerPosition:contact,reducedMotion:false});
   assert.ok(plate.position.y<.01,'real adjacent contact must visibly depress the treadle');
