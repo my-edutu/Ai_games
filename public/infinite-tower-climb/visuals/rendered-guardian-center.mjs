@@ -25,3 +25,25 @@ export function readRenderedGuardianCenter(guardian, entries, output, scale) {
   output.y += guardian.halfHeight / scale;
   return Number.isFinite(output.y);
 }
+
+ 
+// Camera composition must follow the actual rendered combatant, not a
+// potentially distant fixed-step projection, but ONLY after the source has
+// already identified an alive guardian in this run/floor. The observation is
+// a retained previous 3D-submission witness (same or preceding 20Hz tick):
+// no invented next pose, no stale boss after restart, no authority mutation.
+export function observedDrawnGuardianCameraAnchor(guardian, drawnCenter, witness, snapshot) {
+  if (!guardian || guardian.kind !== 'guardian' || guardian.active !== true ||
+      !Number.isFinite(guardian.health) || guardian.health <= 0 ||
+      typeof guardian.id !== 'string' || !guardian.id ||
+      snapshot?.lifecycle !== 'running' || !(snapshot?.player?.health > 0) ||
+      !Number.isSafeInteger(snapshot.tick) ||
+      witness?.id !== guardian.id || witness.runToken !== snapshot.runToken ||
+      witness.floor !== snapshot.floor ||
+      !Number.isSafeInteger(witness.sourceTick) ||
+      witness.sourceTick > snapshot.tick ||
+      snapshot.tick - witness.sourceTick > 1 ||
+      !drawnCenter || ![drawnCenter.x, drawnCenter.y, drawnCenter.z].every(Number.isFinite))
+    return null;
+  return drawnCenter;
+}

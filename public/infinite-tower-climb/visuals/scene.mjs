@@ -3,7 +3,7 @@ import { createTowerWorld, THEMES } from './world.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
-import { readRenderedGuardianCenter } from './rendered-guardian-center.mjs';
+import { readRenderedGuardianCenter, observedDrawnGuardianCameraAnchor } from './rendered-guardian-center.mjs';
 import { observedWoundedCapAirDuel } from './wounded-cap-duel.mjs';
 import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
@@ -1140,7 +1140,7 @@ function observedSourceLandingX(snapshot, deck) {
 // Fit a small local encounter, preserving the hero's 18%-high baseline whenever
 // the actual route fits. A long portrait crossing may require a wider view;
 // that tradeoff is preferable to cropping the real destination or opponent.
-function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null, rangedGuardianId = null, actualPulsePoint = null, liveGuardianId = null, liveShotPoint = null) {
+function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previousGuardianLean = null, threatenedGuardianId = null, threatenedShotPoint = null, rangedGuardianId = null, actualPulsePoint = null, liveGuardianId = null, liveShotPoint = null, drawnGuardian = null, drawnGuardianId = null) {
   const player = snapshot.player, height = player.halfHeight * 2 / SCALE;
   const heroAngle = angleFor(player.x, snapshot.worldWidth);
   const body = { x: hero.x, y: hero.y + height * .52, z: hero.z };
@@ -1241,9 +1241,23 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const score = dx + dy * 1.4;
       if (score < contactGuardianDistance) {
         contactGuardianDistance = score;
-        contactGuardian = { ...pointFor(enemy.x, enemy.y, snapshot.chunkBaseY, snapshot.worldWidth),
+        // The fixed-step source authorizes THIS enemy and its threat. The shot
+        // must nevertheless fit the boss actually drawn by the smoothed rig,
+        // not chase a center that can diverge by >1 NDC during floor-8 combat.
+        // Only an identity/run/floor/tick-validated prior submitted rig may
+        // replace its presentation anchor; neither combat nor target changes.
+        const observedRig = drawnGuardian && drawnGuardianId === enemy.id;
+        const contactPoint = pointFor(enemy.x, enemy.y,
+          snapshot.chunkBaseY, snapshot.worldWidth);
+        if (observedRig) {
+          contactPoint.x = drawnGuardian.x;
+          contactPoint.y = drawnGuardian.y;
+          contactPoint.z = drawnGuardian.z;
+        }
+        contactGuardian = { ...contactPoint,
           halfWidth: enemy.halfWidth / SCALE, halfHeight: enemy.halfHeight / SCALE,
-          sourceX: enemy.x, sourceY: enemy.y, guardianId: enemy.id, healthRatio };
+          sourceX: enemy.x, sourceY: enemy.y, guardianId: enemy.id, healthRatio,
+          renderedAnchor: !!observedRig };
       }
     }
     // A physically charging trap is meaningful to the live climber BEFORE
@@ -1542,6 +1556,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         towerCoreSightlineClear(position, routeLanding, 23.5),
       duelLandingSoftened: !hardLandingFit,
       guardianStaged: !!contactGuardian, guardianFramed, gateFramed, gateCoreClear, gateAnchorX,
+      guardianPlannerAnchor: contactGuardian
+        ? contactGuardian.renderedAnchor ? 'recent-drawn-rig' : 'fixed-step-source' : null,
       relayFramed, powerSpineFramed, shotFramed,
       heroFraction: height * level / (2 * tangent * (distance - bodyDepth)) };
   }
@@ -2395,6 +2411,9 @@ export function createTowerScene(canvas, settings = {}) {
   // the lens, actor protection, real landing, hazard and decorative sightlines.
   const guardianDrawnCenter = new THREE.Vector3();
   let guardianDrawnSourceTick = -1;
+  // Persistent identity prevents a dead boss, floor change or fresh expedition
+  // from borrowing a previous camera-frame position. No per-frame allocation.
+  const guardianDrawnObservation = { id:null, runToken:null, floor:null, sourceTick:-1 };
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -2962,6 +2981,9 @@ export function createTowerScene(canvas, settings = {}) {
     const restartReveal = authenticRestartSweep && !options.stale &&
       !options.reducedMotion && options.camera === 'follow'
       ? Math.pow(1 - clamp((elapsed - authenticRestartSweep.began) / 3.2, 0, 1), 2) : 0;
+    const drawnGuardianAnchor = !options.stale && !options.reducedMotion
+      ? observedDrawnGuardianCameraAnchor(sourceGuardian, guardianDrawnCenter,
+          guardianDrawnObservation, snapshot) : null;
     const followComposition = options.camera === 'overview' ? null :
       composeFollowView(snapshot, climber.group.position, camera.aspect,
         orbit - restartReveal * .11, zoom + restartReveal * .17, guardianShotLean,
@@ -2971,7 +2993,8 @@ export function createTowerScene(canvas, settings = {}) {
         !options.stale && typeof guardianShotStage.pulseFocusPoint === 'function'
           ? guardianShotStage.pulseFocusPoint() : null,
         !options.stale ? guardianWarning.liveHostileGuardianId : null,
-        !options.stale ? guardianShotStage.liveHostileFocusPoint() : null);
+        !options.stale ? guardianShotStage.liveHostileFocusPoint() : null,
+        drawnGuardianAnchor, sourceGuardian?.id ?? null);
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
@@ -3261,6 +3284,15 @@ export function createTowerScene(canvas, settings = {}) {
     guardianDrawnSourceTick = readRenderedGuardianCenter(
       sourceGuardian, enemies, guardianDrawnCenter, SCALE)
       ? snapshot.tick : -1;
+    if (guardianDrawnSourceTick === snapshot.tick) {
+      guardianDrawnObservation.id = sourceGuardian.id;
+      guardianDrawnObservation.runToken = snapshot.runToken;
+      guardianDrawnObservation.floor = snapshot.floor;
+      guardianDrawnObservation.sourceTick = snapshot.tick;
+    } else {
+      guardianDrawnObservation.id = null;
+      guardianDrawnObservation.sourceTick = -1;
+    }
     const currentGuardianDrawPoint = guardianDrawnSourceTick === snapshot.tick
       ? guardianDrawnCenter : null;
     const portrait = camera.aspect < .85;
@@ -4422,6 +4454,7 @@ export function createTowerScene(canvas, settings = {}) {
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
         guardianDrawNdc: drawnGuardianNdc,
         guardianDrawInFrame: visible(drawnGuardianNdc),
+        guardianPlannerAnchor: followComposition?.guardianPlannerAnchor ?? null,
         guardianDrawSourceTick: guardianDrawnSourceTick === snapshot.tick
           ? guardianDrawnSourceTick : null,
         guardianSourceToDrawNdcDelta: drawnGuardianNdc
