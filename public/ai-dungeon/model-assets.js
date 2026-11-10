@@ -1695,6 +1695,7 @@ const sourceRigDeformationBaselines=new WeakMap();
 // Original CC0 skin-weighted sole evidence is selected only on first explicit
 // inspection per original SkeletonUtils clone. No frame-loop scans or IK.
 const sourceSoleVertexCache=new WeakMap();
+const sourceSolePatchVertexCache=new WeakMap();
 function sourceSoleVertexCandidates(actor){
  let found=sourceSoleVertexCache.get(actor.assetRoot);
  if(found)return found;
@@ -1730,6 +1731,51 @@ function sourceSoleVertexCandidates(actor){
  });
  sourceSoleVertexCache.set(actor.assetRoot,found);
  return found;
+}
+/**
+ * Read-on-demand, original SOURCE skinned shoe patch.
+ * Two separated low bind-space strongly source-foot-weighted vertices on
+ * the SAME licensed mesh. No new geometry, rig, IK or per-frame work.
+ * Candidate endpoint labels do not prove the anatomical heel/toe orientation.
+ */
+function sourceSolePatchVertexCandidates(actor){
+ let cached=sourceSolePatchVertexCache.get(actor.assetRoot);
+ if(cached)return cached;
+ cached={left:null,right:null};
+ const anchors=sourceSoleVertexCandidates(actor);
+ for(const side of ['left','right']){
+  const anchor=anchors[side],mesh=anchor?.mesh,geometry=mesh?.geometry;
+  const p=geometry?.getAttribute('position'),i=geometry?.getAttribute('skinIndex'),
+   w=geometry?.getAttribute('skinWeight');
+  if(!p||!i||!w||!mesh?.skeleton)continue;
+  const sideBones=new Set();
+  mesh.skeleton.bones.forEach((bone,index)=>{
+   if(isSourceSoleBoneName(bone?.name,side))sideBones.add(index);
+  });
+  if(!sideBones.size)continue;
+  let minX=null,maxX=null,minZ=null,maxZ=null;
+  for(let v=0,n=Math.min(p.count,8192);v<n;v++){
+   const x=p.getX(v),y=p.getY(v),z=p.getZ(v);
+   if(![x,y,z].every(Number.isFinite)||y<anchor.bindY-.001||
+    y>anchor.bindY+.12)continue;
+   const ids=[i.getX(v),i.getY(v),i.getZ(v),i.getW(v)],
+    weights=[w.getX(v),w.getY(v),w.getZ(v),w.getW(v)];
+   let score=0;for(let k=0;k<4;k++)if(sideBones.has(ids[k]))score+=weights[k];
+   if(score<.55)continue;
+   const candidate={mesh,index:v,bindY:y,weight:score,x,z};
+   if(!minX||x<minX.x)minX=candidate;
+   if(!maxX||x>maxX.x)maxX=candidate;
+   if(!minZ||z<minZ.z)minZ=candidate;
+   if(!maxZ||z>maxZ.z)maxZ=candidate;
+  }
+  const dx=minX&&maxX?Math.abs(maxX.x-minX.x):0,
+   dz=minZ&&maxZ?Math.abs(maxZ.z-minZ.z):0;
+  const endpoints=dz>=dx?[minZ,maxZ]:[minX,maxX];
+  if(Math.max(dx,dz)>.03&&endpoints.every(Boolean)&&endpoints[0].index!==endpoints[1].index)
+   cached[side]={heel:endpoints[0],toe:endpoints[1]};
+ }
+ sourceSolePatchVertexCache.set(actor.assetRoot,cached);
+ return cached;
 }
 function sourceSkinnedSoleWorld(candidate){
  if(!candidate?.mesh?.applyBoneTransform)return null;
@@ -1853,6 +1899,12 @@ function inspectSourceRigDeformation(actors){
   const soleCandidates=sourceSoleVertexCandidates(actor);
   const soleVertexWorld={left:sourceSkinnedSoleWorld(soleCandidates.left),
    right:sourceSkinnedSoleWorld(soleCandidates.right)};
+  const patchCandidates=sourceSolePatchVertexCandidates(actor);
+  const sourceSolePatchWorld=Object.fromEntries(['left','right'].map(side=>{
+   const pair=patchCandidates[side];
+   return [side,pair?{heel:sourceSkinnedSoleWorld(pair.heel),
+    toe:sourceSkinnedSoleWorld(pair.toe)}:null];
+  }));
   const sourceWeaponGrip=sourceWeaponHandGrip(actor,hands.right);
   const rootWorld=worldJoint(actor.root);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
@@ -1885,7 +1937,7 @@ function inspectSourceRigDeformation(actors){
     sourceWalkReentryRejectedFrames:actor.walkLandingReentryRejectedFrames||0
    },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
-   soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
+   soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceWeaponGrip:sourceWeaponGrip,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
    // animation timer. This never scans skin vertices or advances the mixer.
    sourceLoop:actor.activeImportedClipName==='Idle'?{
