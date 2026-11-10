@@ -17,6 +17,7 @@ async function inspect(page){
   const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
   const a={source:'running-real-merchant-and-courier-settlement',
    renderer:g.renderer(),market:g.getMarketQuarterStats(),
+   masonry:g.getCompactStoneCoursingAudit(),
    gateway:g.getMarketGatewayAudit(),street:g.getFarmMarketStreetAudit(),
    scene:g.renderStats(),geometry:g.getGeometryAudit(),city:g.metrics(),
    overflow:document.documentElement.scrollWidth-innerWidth,
@@ -33,6 +34,12 @@ function assertWorld(a){
  expect(a.market.tradehouseWindows).toBe(4);
  expect(a.market.tradehouseTriangles).toBeGreaterThan(200);
  expect(a.market.tradehouseTriangles).toBeLessThan(1600);
+ expect(a.masonry.currentTrianglesPerHome).toBe(8);
+ expect(a.masonry.previousTrianglesPerHome).toBe(48);
+ expect(a.masonry.reclaimedTriangles).toBe(a.masonry.compactHomes*40);
+ expect(a.masonry.fullCottagesStillRendered).toBe(true);
+ expect(a.masonry.stoneAtlasResident).toBe(true);
+ expect(a.masonry.changesAuthority).toBe(false);
  expect(a.market.tallestRoof).toBe(4.05);
  expect(a.market.rearShopGables).toBe(4);
  expect(a.market.marketWheelPassages).toBe(22);
@@ -79,6 +86,8 @@ async({page})=>{
  const day120=await inspect(page);assertWorld(day120);
  expect(day120.city.citizens).toBeGreaterThanOrEqual(before.citizens);
  expect(day120.city.buildings).toBeGreaterThan(before.buildings);
+ expect(day120.masonry.compactHomes).toBeGreaterThanOrEqual(18);
+ expect(day120.masonry.reclaimedTriangles).toBeGreaterThanOrEqual(720);
  const roundtrip=await page.evaluate(snapshot=>{
   const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
   g.restoreSnapshot(snapshot);
