@@ -173,6 +173,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     actor.u?.kind!=='warden'||actor.u?.action!=='cast'||
     actor.u?.actionTick!==cue.tick||
     Number.isFinite(actor.u?.hp)&&actor.u.hp<=0))return null;
+  // Guarding and utility casting are body-local GESTURES, not floor
+  // hazards. A previously observed action does not authorize a ring after
+  // its actor has disappeared, died, or changed pose/tick. Unlike an HP
+  // reaction, these have no independently witnessed contact at an empty cell.
+  // Preserve their genuine action sound behind the normal frame gate, but
+  // never manufacture a visual emitter on a root-height approximation.
+  const actionBoundSignal=type==='signal'&&
+   (cue.kind==='guard'||cue.kind==='cast-utility');
+  if(actionBoundSignal){
+   const u=actor?.u;
+   const actionMatches=cue.kind==='guard'?u?.action==='guard':
+    (u?.kind==='mystic'||u?.kind==='ranger')&&
+    (u?.action==='attack'||u?.action==='cast');
+   if(cue.proof!=='authority-action'||u?.id!==id||
+    !Number.isFinite(u.hp)||u.hp<=0||u.actionTick!==cue.tick||
+    !actionMatches)return null;
+  }
   // A delayed arrow or spell release is an observed ACTION, not a target
   // coordinate that grants permission to spawn a missile. On a slow frame the
   // actor may have gone idle, switched actions, died or been unloaded before
@@ -440,12 +457,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
     }
     if(pool.name==='signal'&&
-      (slot.cue.kind==='warden-release'||slot.cue.kind==='opening')){
-     // These body-local strike/recovery rings must stay on the observed
-     // Warden as its existing animation moves. If the rig disappears, its
-     // public action/tick changes, or it leaves the public cell, retire the
-     // ghost glyph before the next WebGL submission. Real floor warnings
-     // remain anchored to authority-supplied danger cells.
+      (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
+       slot.cue.kind==='guard'||slot.cue.kind==='cast-utility')){
+     // Strike, recovery, guard and utility rings must follow their observed
+     // living action performer, not freeze at a past body position. An
+     // unloaded, dead, moved or stale-pose actor retires the physical glyph
+     // before the next WebGL submission. Independently verified floor danger
+     // warnings and HP-loss effects retain their existing separate policy.
      const observed=anchor(slot.cue,'signal');
      if(!observed){
       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
