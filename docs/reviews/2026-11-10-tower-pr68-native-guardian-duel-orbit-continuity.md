@@ -1,0 +1,22 @@
+# Infinite Tower Climb — P0 genuine portrait guardian film and connected orbit
+
+**10 November 2026 · PR #68 DRAFT · P0 OPEN · Leading assessor NOT EVALUATED**
+
+## Source-authentic evidence inspected first
+
+- Frozen original baseline: `1731b380851162741761c5569e2bc152a0869ca9` (unchanged). Prior camera source: `7fd5fb0a4a38338ed39e836e9bdf92049012e101`.
+- Actual 10/10 original capture jobs at [workflow 42878341492](https://github.com/my-edutu/Ai_games/actions/runs/42878341492), 8/8 source-to-WebM clocks calibrated, 16 baseline/candidate normal-speed >=60-second recordings; [candidate original 390×844 danger WebM + sidecars](https://github.com/my-edutu/Ai_games/actions/runs/42878341492/artifacts/13791404790), [frozen baseline danger film](https://github.com/my-edutu/Ai_games/actions/runs/42878341492/artifacts/13792228908), [source-only event pairing](https://github.com/my-edutu/Ai_games/actions/runs/42878341492/artifacts/13793885756). Video clocks and source events validate **provenance only**, not picture quality.
+- Independently decoded native, unchanged portrait danger WebM frames at 5, 8, 10, 12, 14–24, 26, 28 and 30 seconds and compared actual frozen baseline frames with identical sample timestamps. Previous huge black central tower drum is more open after 7fd5, and source floor nine appears purple at approximately video 26 seconds, but **native 14–23s guardian remains overloaded by vertical structural bars/cyan barrier, actor framing and a giant foreground round machine near 20s**. This is a severe remaining readability defect; native extracted frames are not an authentic full-motion blind preference review.
+- In the read-only real Three scene's `camera-occlusion-forensics.json`, original floor-eight source-tick camera positions around ticks 322–439 move sharply between negative and positive X tower-side orbits, while current probes hit actual guardian, cap, energy lattice and counterweight meshes. The verified issue is not solved by a static rim transparency test. It is a source-observed fast changing follow view, cluttered by real foreground art.
+
+## Implemented P0 system intervention
+
+- **Test-first contract** commit [631a327b](https://github.com/my-edutu/Ai_games/commit/631a327bcc7ad2f44119b5ae72f1496064615043), implementation [0b948aba](https://github.com/my-edutu/Ai_games/commit/0b948aba7cfeac777d5e72e1e9558e0a5e4ca6b5). Production `scene.mjs` now uses a single bounded angular turn for BOTH actual tower camera and its annular focus **only when the current rendered climber and real living guardian are both comfortably projected inside the submitted view, core-clear and on a genuine combat shot**. Portrait bounded at 1.9 rad/s; landscape at 2.3 rad/s; zero new renderer submissions or authoritative state changes. If the actor/guardian falls outside safe bounds, a real occlusion is detected, source becomes stale, reduced motion is requested, a different lifecycle begins or a frame stalls, the limit releases so existing verified actor/guardian rescue can catch up. Other gameplay, manual overview and instant reduced-motion camera remain unchanged.
+- A local V8 compilation of the *actual edited pure camera functions* and a source-geometry sample succeeded. Full original Node/Three/Chromium checks still await exact-head workflow completion at [42882642367](https://github.com/my-edutu/Ai_games/actions/runs/42882642367).
+- **No new source-pinned, post-0b WebM inspected yet.** This may improve legibility, but could also miss fast-moving contact; only native video can decide. This is not a visual PASS. New exact-SHA capture requested separately.
+
+## Next strict acceptance and failback
+
+Run native candidate/frozen desktop 960×600 and portrait 390×844, 60+ seconds in ascent/moving/danger/outcome; require 8/8 native calibrated events, look closely at real source guardian HP, crusher, warning, actor and floor-nine threshold near native 14–26 seconds, true restart and mobile composition. On any missed actor/guardian or remaining giant near-camera steel, **remove/redesign physical obstructing non-colliding geometry and reopen P0** rather than accumulate more ad hoc pose/camera recovery code. Do not claim success solely on CI or clock calibration.
+
+No genuine blinded randomized independent reviewer has voted: **LOOKS 0/5, FEELS 0/5, PLAYS 0/5**. Actual hardware frame-time p50/p95/p99 and memory are NOT EVALUATED. Never merge, deploy, change draft status or freeze a new baseline.
