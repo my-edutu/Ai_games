@@ -74,6 +74,11 @@ function assertWorld(a){
  expect(a.market.pavingStones).toBeLessThanOrEqual(165);
  expect(a.street.connected).toBe(true);
  expect(a.street.unsafeSamples).toBe(0);
+ expect(a.street.boundary.panels).toBeGreaterThan(0);
+ expect(a.street.boundary.panels).toBeLessThanOrEqual(38);
+ expect(a.street.boundary.triangles).toBe(a.street.boundary.panels*20);
+ expect(a.street.boundary.triangles).toBeLessThanOrEqual(760);
+ expect(a.street.boundary.authorityChanged).toBe(false);
  expect(a.street.granaryTradeEntranceUnblocked).toBe(true);
  expect(a.gateway.structuralPosts).toBeGreaterThanOrEqual(18);
  expect(a.city.citizens).toBeGreaterThan(0);
@@ -96,6 +101,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   assertWorld(g);expect(errors).toEqual([]);
   fs.writeFileSync(dir+'/'+viewport.width+'-day1.json',JSON.stringify(g,null,2));
   await page.screenshot({path:dir+'/'+viewport.width+'-day1-market.png'});
+  await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[12,0],yaw:2.35,pitch:.72,zoom:30}));
+  await page.waitForTimeout(600);
+  await page.screenshot({path:dir+'/'+viewport.width+'-day1-service-street.png'});
  });
 }
 test('W129 120-day real town growth, preserved market, replay and geometry safety',

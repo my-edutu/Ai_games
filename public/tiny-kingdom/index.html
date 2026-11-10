@@ -11087,8 +11087,70 @@ let farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-str
  realDestination:FARM_MARKET_STREET_DESTINATION.slice(),
  inventedDeliveries:0,changesNavigation:false,authorityModified:false};
 function getFarmMarketStreetAudit(){return {...farmMarketStreetStats,
+ boundary:{...farmStreetWeaveStats},
  realOrigin:farmMarketStreetStats.realOrigin.slice(),
  realDestination:farmMarketStreetStats.realDestination.slice()}}
+// W210: low original hazel/oak service-road edging follows true courier
+// navigation; no new colliders, homes, citizens, inventory or RNG.
+const FARM_STREET_WEAVE_MAX_PANELS=38,FARM_STREET_WEAVE_MAX_TRIANGLES=760;
+let farmStreetWeaveStats={panels:0,posts:0,wovenBands:0,triangles:0,
+ skipped:0,maxHeight:0,liveRouteOnly:true,authorityChanged:false};
+function renderFarmServiceStreetBoundary(points){
+ const begin=data.length,stats=farmStreetWeaveStats={
+  panels:0,posts:0,wovenBands:0,triangles:0,skipped:0,maxHeight:0,
+  liveRouteOnly:true,authorityChanged:false};
+ if(!Array.isArray(points)||points.length<2)return;
+ const timber=[rgb(0x67513b),rgb(0x796048),rgb(0x87694d)],
+  hazel=[rgb(0x8b7352),rgb(0x6e6148),rgb(0x98805e)];
+ for(let section=0;section<points.length-1&&stats.panels<FARM_STREET_WEAVE_MAX_PANELS;section++){
+  const a=points[section],b=points[section+1],
+   dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);
+  if(!Number.isFinite(len)||len<.20)continue;
+  const tx=dx/len,tz=dz/len,nx=-tz,nz=tx,count=Math.ceil(len/1.18);
+  for(let n=0;n<count&&stats.panels<FARM_STREET_WEAVE_MAX_PANELS;n++){
+   for(const side of [-1,1]){
+    if(stats.panels>=FARM_STREET_WEAVE_MAX_PANELS)break;
+    const place=v=>{
+     const x=a[0]+dx*v+nx*side*1.72,
+      z=a[1]+dz*v+nz*side*1.72;
+     return {x,z,y:terrain(x,z)};
+    };
+    const p0=place(n/count),p1=place((n+1)/count),pm=place((n+.5)/count);
+    // Keep working crops, real homes and receiving/loading points open.
+    if(![p0,p1,pm].every(p=>roadsideEcotoneClear(p.x,p.z))||
+      [p0,p1].some(p=>Math.hypot(p.x-29,p.z+7.6)<4.2||
+       Math.hypot(p.x+1,p.z-10.2)<6.5)){
+     stats.skipped++;continue;
+    }
+    const shade=(section+n+side+8)%3;
+    materialScope(MATERIAL.WOOD,()=>{
+     for(const p of [p0,p1]){
+      const lo=[p.x-tx*.065,p.y+.014,p.z-tz*.065],
+       hi=[lo[0],p.y+.69,lo[2]],
+       lo2=[p.x+tx*.065,p.y+.014,p.z+tz*.065],
+       hi2=[lo2[0],p.y+.69,lo2[2]];
+      quad(lo,hi,hi2,lo2,timber[shade]);
+      quad(lo2,hi2,hi,lo,timber[shade]);stats.posts++;
+     }
+     for(let band=0;band<3;band++){
+      const height=.20+band*.14,offset=(band%2?.035:-.035)*side;
+      const a0=[p0.x+nx*offset,p0.y+height-.039,p0.z+nz*offset],
+       a1=[p0.x+nx*offset,p0.y+height+.039,p0.z+nz*offset],
+       b0=[p1.x+nx*offset,p1.y+height-.039,p1.z+nz*offset],
+       b1=[p1.x+nx*offset,p1.y+height+.039,p1.z+nz*offset];
+      quad(a0,a1,b1,b0,hazel[(shade+band)%3]);
+      quad(b0,b1,a1,a0,hazel[(shade+band)%3]);stats.wovenBands++;
+     }
+    });
+    stats.panels++;stats.maxHeight=Math.max(stats.maxHeight,.69);
+   }
+  }
+ }
+ stats.triangles=(data.length-begin)/30;
+ if(!Number.isInteger(stats.triangles)||stats.triangles!==stats.panels*20||
+    stats.triangles>FARM_STREET_WEAVE_MAX_TRIANGLES)
+  throw Error('W210 unbounded original service-street physical edging');
+}
 // W128: one bounded, low-height ROAD VERGE reconstruction following the
 // SAME actual, traversable farm-to-market routing already audited by W83.
 // It's shallow soil/drainage cut and real-world scrub. No invented navigation,
@@ -11265,6 +11327,7 @@ function farmMarketStreet(){
  // Reconstruct the adjoining real rural drainage and field-edge scrub
  // once in this exact-season civic mesh; preserve the full road centre.
  renderRealRoadsideMicroterrain(points);
+ renderFarmServiceStreetBoundary(points);
  // A low, physically connected threshing/loading APRON in front of the
  // ORIGINAL granary door. It carries no invented sacks or new collision.
  materialScope(MATERIAL.STONE,()=>{
