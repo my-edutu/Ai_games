@@ -37,7 +37,7 @@ function planPair(rows,viewport,candidateSha){
       plan.failures.push('unverified-original-'+source);
     }
   }
-  if(a.motion?.seed!==b.motion?.seed || a.motion?.recordingQuality!==b.motion?.recordingQuality ||
+  if(a.motion?.seed!==b.motion?.seed || a.motion?.graphicsTier!==b.motion?.graphicsTier ||
      a.videoClock?.seed!==b.videoClock?.seed ||
      a.videoClock?.graphicsTier!==b.videoClock?.graphicsTier){
     plan.failures.push('capture-conditions-not-matched');
@@ -47,11 +47,11 @@ function planPair(rows,viewport,candidateSha){
     .filter(e=>e.kind===kind && e.observedEpisode===0 &&
       e.inOriginalVideo===true &&
       e.eventVisibleInVideo==='NOT EVALUATED' &&
-      e.floor===(kind==='floor-transition'?9:8) &&
+      e.floor===(['floor-transition','guardian-source-physical-threshold','guardian-earned-floor-nine-handoff'].includes(kind)?9:8) &&
       Number.isFinite(e.nativeVideoSeconds) &&
       e.nativeVideoSeconds>=3 &&
       e.nativeVideoSeconds<record.videoClock.originalVideoDurationSeconds-3 &&
-      (kind!=='floor-transition'||e.fromFloor===8 && e.toFloor===9))
+      (!['floor-transition','guardian-source-physical-threshold','guardian-earned-floor-nine-handoff'].includes(kind)||e.fromFloor===8 && e.toFloor===9))
     .sort((x,y)=>x.nativeVideoSeconds-y.nativeVideoSeconds)[0]||null;
   for(const kind of [...REQUIRED,...OPTIONAL]){
     const before=first(a,kind),after=first(b,kind);
@@ -128,7 +128,7 @@ function htmlFor(plans){
   // Re-anchor only if >350ms drift; preserved native source speed, no time stretch.
   'setInterval(()=>{if(!playing||!anchor||$("a").paused||$("b").paused)return;'+
   'const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
-  'const delta=(swap?anchor.b-anchor.a:anchor.a-anchor.b);'+
+  'const delta=(swap?anchor.a-anchor.b:anchor.b-anchor.a);'+
   'if(Math.abs(($("b").currentTime-$("a").currentTime)-delta)>.35){$("b").currentTime=$("a").currentTime+delta;}},500);'+
   'reset();</script></html>\n';
 }
