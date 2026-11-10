@@ -80,6 +80,22 @@ export function selectPhysicalWarningMarkers(cells){
 const validId = n => typeof n==='string' && n.length>0 && n.length<=128;
 const sameIdUnit = (u,v) => u && v && u.kind===v.kind && u.faction===v.faction;
 const point = u => u && validCoord(u.x) && validCoord(u.z) ? {x:u.x,z:u.z}:null;
+/**
+ * Lossless, bounded public danger-footprint identity for an existing
+ * authoritative Warden warning. All valid cells count, not just the eight
+ * sample markers D04 can paint. Coordinate ordering/duplicates do not change
+ * identity. No guessed cells, game state mutation or cryptographic claims.
+ */
+export function canonicalPhysicalWarningFootprint(cells){
+ if(!Array.isArray(cells)||cells.length<1||cells.length>300)return null;
+ const unique=new Set();
+ for(const c of cells){
+  if(!point(c))continue;
+  unique.add(c.z*256+c.x);
+ }
+ if(unique.size===0)return null;
+ return [...unique].sort((a,b)=>a-b).join(',');
+}
 const sceneKey = s => `${s.run}:${s.floor}`;
 const wasNewAction = (prior,u,oldTick,newTick) =>
  sameIdUnit(prior,u) && validTick(u.actionTick) && validTick(prior.actionTick) &&
@@ -301,7 +317,8 @@ export function planPhysicalFeedback(previous,next,{
    push(w.turnsUntilImpact===1?'boss-warning-final':'boss-warning-rising',next.tick,{
     actorId:boss.id,from:point(boss),verified:true,proof:'authority-warning-window',
     detail:{shape:w.shape,attackTick:w.attackTick,
-     cells:selectPhysicalWarningMarkers(w.cells)}
+     cells:selectPhysicalWarningMarkers(w.cells),
+     footprintKey:canonicalPhysicalWarningFootprint(w.cells)}
    });
   }else{
    // It remains a true authority warning, but no body-local authored
