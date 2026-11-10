@@ -16,7 +16,10 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
   return {metrics:g.metrics(),ledger:g.getHouseholdProvisionAudit(),saved:g.exportSnapshot()};
  });
  expect(start.metrics.citizens).toBe(12);
- expect(start.ledger.visits).toBe(0);
+ // Browser startup can already simulate an authentic market visit before
+ // Pause; reconcile exact real save receipts rather than demand zero visits.
+ expect(start.ledger.visits).toBe(start.saved.payload.people.reduce(
+  (n,c)=>n+(c.provisionVisits||0),0));
  expect(start.ledger.createdActors).toBe(0);
  await page.screenshot({path:path.join(dir,'day1-desktop.png')});
  // Film only an authentic already-running citizen. Advance the original

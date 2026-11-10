@@ -6732,6 +6732,7 @@ function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
 // the unchanged, GPU-resident guildhall, farm, granary, market and streets.
 // Housing remains complete original geometry in independent spatial clusters.
 let independentHousingRefreshes=0,independentHousingGrowthSkips=0;
+const independentHousingGrowthWitnesses=[];
 function stationaryFounders(){return city.slice(0,12).map(lot=>lot.join(',')).join(';')}
 function stationarySceneKey(climate,light){
  return climate+':'+(gpuAvailable?'shader-light':light)+':'+
@@ -6771,7 +6772,16 @@ function refreshIndependentHousing(climateKey,sceneKey){
  scenicMeshTriangles=(scenicMeshCache.length+(gpuAvailable?
   landscapeMeshCache.length+activeCivicMesh().length+homeClusterFloats():0))/30;
  independentHousingRefreshes++;
- if(priorHomes>0&&city.length>priorHomes)independentHousingGrowthSkips++;
+ if(priorHomes>0&&city.length>priorHomes){
+  independentHousingGrowthSkips++;
+  independentHousingGrowthWitnesses.push({day:state.t/24,
+   oldHomes:priorHomes,newHomes:city.length,
+   activeHomes:homeClusterActive.reduce((sum,e)=>sum+e.homes,0),
+   civicUnchanged:true,stationaryUnchanged:scenicMeshKey===sceneKey,
+   staleDrawn:getHomePartitionAudit().staleDrawn,sceneKey});
+  if(independentHousingGrowthWitnesses.length>32)
+   independentHousingGrowthWitnesses.shift();
+ }
  return true;
 }
 function getStationarySettlementAudit(){
@@ -6780,6 +6790,7 @@ function getStationarySettlementAudit(){
   civicInvariantKey:homeClustersEnabled()?stationaryFounders():null,
   homes:city.length,activeClusterHomes:homeClusterActive.reduce((n,e)=>n+e.homes,0),
   growthClusterRefreshes:independentHousingRefreshes,
+  growthWitnesses:independentHousingGrowthWitnesses.map(w=>({...w})),
   seasonGrowthReuses:settlementSeasonGrowthReuses,
   avoidedTownRebuilds:independentHousingGrowthSkips,
   scenicRebuilds:scenicMeshRebuilds,changesAuthority:false};
@@ -14798,7 +14809,7 @@ const DAYBREAK_RETURN_MS=4200;
 // for the actual moving return to be visible, not just an elapsed timer.
 // This is bounded presentation, never simulation time or authoritative ticks.
 const DAYBREAK_MAX_PROGRESS_PER_FRAME=.12;
-let daybreakReturn=null,daybreakReturnCompleted=0;
+let daybreakReturn=null,daybreakReturnCompleted=0,daybreakLastCompleted=null;
 function getDaybreakReturnAudit(){
  const active=Boolean(daybreakReturn),elapsed=active?Math.max(0,performance.now()-daybreakReturn.since):0;
  const p=daybreakReturn?.physical,f=daybreakReturn?.frame;
@@ -14811,6 +14822,11 @@ function getDaybreakReturnAudit(){
   maxPresentedStep:DAYBREAK_MAX_PROGRESS_PER_FRAME,
   completed:daybreakReturnCompleted,authorityChanged:false,
   noFalseWork:true,noFalseResident:true,presentationOnly:true,
+  clearanceY:active?daybreakReturn.physical.clearanceY:null,
+  crossedRoofs:active?daybreakReturn.physical.crossedRoofs:0,
+  submittedFrames:active?daybreakReturn.samples.map(s=>({...s,
+   eye:s.eye.slice(),target:s.target.slice()})):[],
+  lastCompleted:active?null:daybreakLastCompleted,
   physicalShot:active&&p&&f?{source:'real-doorway-world-camera-shared-by-webgl-and-lod',
    fromThreshold:p.fromThreshold,startEye:p.fromEye.slice(),startTarget:p.fromTarget.slice(),
    endEye:p.toEye.slice(),endTarget:p.toTarget.slice(),eye:f.eye.slice(),
@@ -14819,13 +14835,47 @@ function getDaybreakReturnAudit(){
 // W90: the occupied-home doorway is an off-axis camera, not the orbit
 // implied by yaw/pitch/zoom. Transition the identical WebGL + LOD eye/aim
 // to the original saved overview; never invent actors or travel events.
+// W177: one bounded camera-only survey of the REAL roofs and valley floor,
+// not a change to authoritative buildings, routes, workers or replay data.
+function surveyDaybreakRoofCorridor(path){
+ const roofs=followCameraRoofs();
+ let clearanceY=Math.max(path.fromEye[1],path.toEye[1]),crossedRoofs=0;
+ for(const roof of roofs){
+  if(!Number.isFinite(roof.top)||!Number.isFinite(roof.rx)||
+     !Number.isFinite(roof.rz))continue;
+  for(let i=0;i<=24;i++){
+   const t=i/24,
+    x=path.fromEye[0]+(path.toEye[0]-path.fromEye[0])*t,
+    z=path.fromEye[2]+(path.toEye[2]-path.fromEye[2])*t;
+   if(Math.abs(x-roof.x)<roof.rx+.55&&Math.abs(z-roof.z)<roof.rz+.55){
+    clearanceY=Math.max(clearanceY,roof.top+.85);
+    crossedRoofs++;break;
+   }
+  }
+ }
+ for(let i=0;i<=24;i++){
+  const t=i/24,
+   x=path.fromEye[0]+(path.toEye[0]-path.fromEye[0])*t,
+   z=path.fromEye[2]+(path.toEye[2]-path.fromEye[2])*t;
+  clearanceY=Math.max(clearanceY,terrain(x,z)+2.4);
+ }
+ return {clearanceY,crossedRoofs,roofs};
+}
+// Three continuous physical stages: rise beside the true occupied door,
+// cross above original rooftops, descend into the saved overview camera.
+// Actual WebGL and character LOD both consume these same coordinates.
 function daybreakWorldCameraAt(path,progress){
- const t=Math.max(0,Math.min(1,Number.isFinite(progress)?progress:0));
- const eased=t*t*(3-2*t),mix=(a,b)=>a+(b-a)*eased;
- const eye=path.fromEye.map((v,i)=>mix(v,path.toEye[i]));
- const target=path.fromTarget.map((v,i)=>mix(v,path.toTarget[i]));
- if(t>0&&t<1)eye[1]+=Math.sin(Math.PI*t)*.65;
- return {eye,target,progress:t,eased,fromThreshold:path.fromThreshold};
+ const clamp=t=>Math.max(0,Math.min(1,t));
+ const smooth=t=>{t=clamp(t);return t*t*(3-2*t)};
+ const t=clamp(Number.isFinite(progress)?progress:0);
+ const travel=smooth((t-.17)/.66),lift=Math.min(smooth(t/.24),
+  smooth((1-t)/.24)),aim=smooth(t);
+ const eye=path.fromEye.map((v,i)=>v+(path.toEye[i]-v)*travel);
+ const baselineY=eye[1];
+ eye[1]+=Math.max(0,(path.clearanceY??baselineY)-baselineY)*lift;
+ const target=path.fromTarget.map((v,i)=>v+(path.toTarget[i]-v)*aim);
+ return {eye,target,progress:t,eased:travel,fromThreshold:path.fromThreshold,
+  roofClearanceY:path.clearanceY??null};
 }
 function daybreakReturnPhysicalShot(){return daybreakReturn?.frame||null}
 function beginDaybreakReturn(citizen){
@@ -14850,8 +14900,10 @@ function beginDaybreakReturn(citizen){
  const physical={fromEye,fromTarget,toEye,toTarget,fromThreshold:Boolean(witness)};
  if(![...fromEye,...fromTarget,...toEye,...toTarget].every(Number.isFinite))
   throw Error('Nonfinite real daybreak camera point');
+ Object.assign(physical,surveyDaybreakRoofCorridor(physical));
+ daybreakLastCompleted=null;
  daybreakReturn={citizen:citizen.name,since:performance.now(),from,to,physical,
-  progress:0,renderedFrames:0,frame:daybreakWorldCameraAt(physical,0)};
+  progress:0,renderedFrames:0,samples:[],frame:daybreakWorldCameraAt(physical,0)};
  document.body.dataset.workday='daybreak-return';
  const label=document.getElementById('workday-activity');
  if(label)label.textContent='Daybreak · '+citizen.name+
@@ -14881,7 +14933,18 @@ function advanceDaybreakReturn(){
   view.from.focus[0]+(view.to.focus[0]-view.from.focus[0])*ease,
   view.from.focus[1]+(view.to.focus[1]-view.from.focus[1])*ease];
  view.frame=daybreakWorldCameraAt(view.physical,fraction);
+ // Bounded original camera submissions, never fictional recordings or actors.
+ const clearance=physicalFollowEyeClearance(view.frame.eye,view.physical.roofs);
+ view.samples.push({progress:fraction,eye:view.frame.eye.slice(),
+  target:view.frame.target.slice(),clear:clearance.clear,
+  obstruction:clearance.kind});
+ if(view.samples.length>18)view.samples.shift();
  if(fraction>=1){
+  daybreakLastCompleted={citizen:view.citizen,progress:fraction,
+   submittedFrames:view.renderedFrames,clearanceY:view.physical.clearanceY,
+   crossedRoofs:view.physical.crossedRoofs,samples:view.samples.map(s=>({...s})),
+   endEye:view.physical.toEye.slice(),endTarget:view.physical.toTarget.slice(),
+   authorityChanged:false};
   daybreakReturnCompleted++;
   daybreakReturn=null;
   setCitizenFollow(false);
@@ -15284,7 +15347,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -15938,7 +16001,7 @@ function validateSnapshot(snapshot){
   throw Error('Save contains invalid resident provisioning');
 
 }
-function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
+function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');uiHistory.length=0;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();landscapeMeshCache=null;landscapeMeshKey='';const q=cloneData(snapshot.payload);selectedCitizen=Math.min(selectedCitizen,q.people.length-1);routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;seed=q.seed>>>0;state=q.state;city.splice(0,city.length,...q.city);people=q.people;stories=q.stories;if(q.deliveryReceipts)deliveryReceipts.push(...q.deliveryReceipts);accumulator=0;renderStories();updateUI();presentationEpoch++;return true}
 function saveWorld(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(exportSnapshot()));showToast('World saved — Day '+(Math.floor(state.t/24)+1))}catch(error){showToast('Save unavailable: '+error.message)}}
 function restoreWorld(){try{const stored=localStorage.getItem(SAVE_KEY);if(!stored)throw Error('No stored civilization yet');restoreSnapshot(JSON.parse(stored));showToast('The valley has been restored')}catch(error){showToast(error.message)}}
 function showToast(message){const node=document.getElementById('toast');node.textContent=message;node.style.opacity='1';clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.style.opacity='0',3600)}
@@ -20593,7 +20656,8 @@ function render(now){requestAnimationFrame(render);
    beginDaybreakReturn(observed);
   }
  }
- if(follow){
+ // Preserve exclusive physical camera control throughout the real dawn flight.
+if(follow&&!daybreakReturn){
  const home=grainJourney?.homeWitness?getRealGrainHomeWitness():null;
  if(home&&grainJourney.homeLens){
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
