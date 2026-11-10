@@ -77,6 +77,20 @@ export function createPhysicalCombatFeedback({
   const soundEligible=optedIn&&plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
   const visual=!!safeCall(()=>visuals?.emit?.(cue));
   if(visual)visualAccepted++;
+  // A true public action alone does not authorize a late sound from a source
+  // that no longer has a firing/casting pose. If visual admission failed,
+  // retain sound-only release ONLY with the renderer's current source witness.
+  // This preserves genuine masonry-blocked/no-sprite shots but prevents an
+  // empty cell, detached authored hand or changed action from sounding.
+  // HP-based impacts and neutral events follow their independent evidence.
+  if(requirePresentedFrame&&!visual&&
+     (cue.kind==='ranged-release'||cue.kind==='spell-release')&&
+     safeCall(()=>visuals?.hasAuthenticatedReleasePose?.(cue))!==true){
+   staleAudioDropped++;
+   retainReceipt(cue,false,false,null,'unverified-release-pose');
+   played++;
+   return;
+  }
   // The integrator can require evidence of a real renderer submission before
   // launching a combat transient. No guessing a frame from a time delay.
   if(soundEligible&&requirePresentedFrame){
