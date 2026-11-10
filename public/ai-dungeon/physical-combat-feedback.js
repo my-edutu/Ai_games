@@ -38,7 +38,7 @@ export function createPhysicalCombatFeedback({
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
-  audioInterruptions=0,observedAudioContext=null,
+  audioInterruptions=0,observedAudioContext=null,audioStateUnavailable=false,
   unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
@@ -355,12 +355,19 @@ export function createPhysicalCombatFeedback({
  // transient can resume minutes later against an obsolete visual frame.
  // Observe ONLY this D04 audio context; do not change the shared soundstage.
  function onAudioStateChange(){
-  if(disposed||!optedIn||!observedAudioContext||
-     observedAudioContext.state==='running')return;
-  audioInterruptions++;
-  // Clears pending frame audio, stops existing voices and persists mute.
-  // Returning to 'running' NEVER grants consent or replays old cues.
-  muteAudio();
+  if(disposed||!observedAudioContext)return;
+  if(observedAudioContext.state==='running'){
+   audioStateUnavailable=false;return;
+  }
+  if(audioStateUnavailable||!optedIn)return;
+  audioStateUnavailable=true;audioInterruptions++;
+  // An involuntary browser suspend must not silently flip the already-on
+  // shared soundstage toggle or persist a fake manual mute. Instead revoke
+  // only OLD D04 audio: advancing the consent epoch makes queued old cues
+  // silent after resume, while the existing explicit opt-in remains valid
+  // for genuinely NEW observed actions. Stop all currently scheduled voices.
+  audioEpoch++;awaitingPresentation.length=0;
+  safeCall(()=>foley?.flush?.());
  }
  function detachAudioState(){
   if(!observedAudioContext)return;
@@ -373,7 +380,8 @@ export function createPhysicalCombatFeedback({
      typeof context.addEventListener!=='function')return;
   detachAudioState();
   try{context.addEventListener('statechange',onAudioStateChange);
-   observedAudioContext=context}
+   observedAudioContext=context;audioStateUnavailable=false;
+   onAudioStateChange()}
   catch{adapterFailures++}
  }
  function attachAudioContext(context,{output=null}={}){
