@@ -536,6 +536,22 @@ export function planSourceRigLandingRelease({mode='idle',sourceClipName='',
  * while the independently lawful native guard envelope gains ownership.
  * No root motion, new authority event, synthetic IK or source clip mutation.
  */
+
+/**
+ * Original skinned shoe vertices inherit the licensed pelvis parent.
+ * Preserve the witnessed source hips during the existing <=200ms stationary
+ * landing release, but only across bounded real imported transform changes.
+ * No root movement, retarget, IK or authoritative step is implied.
+ */
+export function planSourceRigLandingPelvisSupport({
+ release=NaN,sourcePelvis=false,localTravelMeters=NaN,angularTravelRadians=NaN
+}={}){
+ if(sourcePelvis!==true||![release,localTravelMeters,angularTravelRadians].every(finite)||
+  release<0||release>1||localTravelMeters<0||localTravelMeters>.085||
+  angularTravelRadians<0||angularTravelRadians>.4)return null;
+ return release;
+}
+
 export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
  groundedMoving=false,groundedTravel=NaN,gaitWeight=0,guardBlend=0,alive=true,
  teleport=false,reducedMotion=false}={}){

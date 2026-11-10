@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planSourceRigLandingPelvisSupport,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1235,8 +1235,14 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   const complete=mounts.length===6&&['left','right'].every(side=>
    ['upper','lower','foot'].every(part=>mounts.some(m=>
     m.side===side&&m.part===part&&m.bone?.isBone)));
-  if(complete){
+  // The original hips are parent to both skinned leg chains: stopping six
+  // descendants alone can lift weighted soles when Idle moves their parent.
+  const pelvisBone=actor.rigPelvisBone?.isBone?actor.rigPelvisBone:null;
+  if(complete&&pelvisBone){
    actor.walkLandingPose={elapsed:0,sourceWalkFrozen:true,
+    pelvis:{bone:pelvisBone,quat:pelvisBone.quaternion.clone(),
+     position:pelvisBone.position.clone(),idleQuat:new THREE.Quaternion(),
+     idlePosition:new THREE.Vector3()},
     legBones:mounts.map(m=>({bone:m.bone,quat:m.bone.quaternion.clone(),
      frame:new THREE.Quaternion()}))};
   }
@@ -1347,13 +1353,33 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   });
   if(release===null){actor.walkLandingPose=null;}
   else{
-   for(const item of landing.legBones){
-    item.frame.copy(item.bone.quaternion);
-    item.bone.quaternion.copy(item.quat).slerp(item.frame,release);
+   const pelvis=landing.pelvis,sourceScale=actor.assetRoot?.scale?.y;
+   const pelvisRelease=pelvis?planSourceRigLandingPelvisSupport({
+    release,sourcePelvis:pelvis.bone?.isBone===true&&
+     Number.isFinite(sourceScale)&&sourceScale>0,
+    localTravelMeters:pelvis.bone.position.distanceTo(pelvis.position)*sourceScale,
+    angularTravelRadians:pelvis.quat.angleTo(pelvis.bone.quaternion)
+   }):null;
+   // An invalid parent transform must not strand a separately frozen knee.
+   if(pelvisRelease===null){
+    actor.walkLandingPose=null;
+    actor.walkLandingPelvisRejectedFrames=Math.min(1000000,
+     (actor.walkLandingPelvisRejectedFrames||0)+1);
+   }else{
+    pelvis.idlePosition.copy(pelvis.bone.position);
+    pelvis.idleQuat.copy(pelvis.bone.quaternion);
+    pelvis.bone.position.copy(pelvis.position).lerp(pelvis.idlePosition,pelvisRelease);
+    pelvis.bone.quaternion.copy(pelvis.quat).slerp(pelvis.idleQuat,pelvisRelease);
+    for(const item of landing.legBones){
+     item.frame.copy(item.bone.quaternion);
+     item.bone.quaternion.copy(item.quat).slerp(item.frame,release);
+    }
+    actor.walkLandingPelvisFrames=Math.min(1000000,
+     (actor.walkLandingPelvisFrames||0)+1);
+    actor.walkLandingFrames=Math.min(1000000,(actor.walkLandingFrames||0)+1);
+    landing.elapsed=Math.min(2,landing.elapsed+Math.max(0,Math.min(.05,dt)));
+    if(release>=1)actor.walkLandingPose=null;
    }
-   actor.walkLandingFrames=Math.min(1000000,(actor.walkLandingFrames||0)+1);
-   landing.elapsed=Math.min(2,landing.elapsed+Math.max(0,Math.min(.05,dt)));
-   if(release>=1)actor.walkLandingPose=null;
   }
  }
  // Read real original clip ownership AFTER the one AnimationMixer update.
@@ -1728,7 +1754,9 @@ function inspectSourceRigDeformation(actors){
     walkExitRate:Number.isFinite(actor.walkArrivalExitRate)?actor.walkArrivalExitRate:null,
     walkExitBrakedFrames:actor.walkArrivalBrakedFrames||0,
     sourceLandingActive:Boolean(actor.walkLandingPose),
-    sourceLandingFrames:actor.walkLandingFrames||0
+    sourceLandingFrames:actor.walkLandingFrames||0,
+    sourceLandingPelvisFrames:actor.walkLandingPelvisFrames||0,
+    sourceLandingPelvisRejectedFrames:actor.walkLandingPelvisRejectedFrames||0
    },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
