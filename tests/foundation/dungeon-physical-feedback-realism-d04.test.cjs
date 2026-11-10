@@ -471,3 +471,43 @@ test('D04 authored ranger and cultist releases use measured rig hands; invalid h
  assert.ok(stage.stats().reservedInstances<=104);
  stage.reset();stage.dispose();assert.equal(scene.children.size,0);
 });
+
+test('D04 guard and utility glyphs require a live, matching actor action at the original tick',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const actor=(id,kind,action)=>({
+  u:{id,kind,action,actionTick:11,hp:18},
+  authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}
+ });
+ const units={vanguard:actor('vanguard','vanguard','guard'),
+  mystic:actor('mystic','mystic','cast')};
+ const visuals=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>units[id]??null});
+ const guard=cue({id:'guard-11',kind:'guard',visual:'utility',
+  audio:'guard',proof:'authority-action',verified:true,actorId:'vanguard',
+  targetId:null,from:{x:2,z:2},to:null,tick:11,duration:.17});
+ const utility=cue({id:'heal-11',kind:'cast-utility',visual:'utility',
+  audio:'utility',proof:'authority-action',verified:true,actorId:'mystic',
+  targetId:null,from:{x:2,z:2},to:null,tick:11,duration:.22});
+ assert.equal(visuals.emit(guard),true,'observed guard creates one body-local cue');
+ assert.equal(visuals.emit(utility),true,'observed healing cast creates one body-local cue');
+ visuals.reset();
+ units.vanguard.u.action='idle';
+ assert.equal(visuals.emit(guard),false,'stale idle actor cannot show a guard glyph');
+ units.vanguard.u.action='guard';units.vanguard.u.actionTick=12;
+ assert.equal(visuals.emit(guard),false,'different tick cannot grant old guard art');
+ units.vanguard.u.actionTick=11;units.vanguard.u.hp=0;
+ assert.equal(visuals.emit(guard),false,'dead actor cannot show a guard');
+ units.vanguard.u.hp=18;delete units.vanguard;
+ assert.equal(visuals.emit(guard),false,'missing actor cannot emit an empty-cell guard ring');
+ units.mystic.u.action='idle';
+ assert.equal(visuals.emit(utility),false,'a completed cast cannot keep releasing utility glyphs');
+ units.mystic.u.action='cast';units.mystic.u.actionTick=12;
+ assert.equal(visuals.emit(utility),false,'different cast tick cannot grant old utility art');
+ units.mystic.u.actionTick=11;units.mystic.u.hp=0;
+ assert.equal(visuals.emit(utility),false,'dead caster cannot release utility art');
+ units.mystic.u.hp=18;delete units.mystic;
+ assert.equal(visuals.emit(utility),false,'missing caster cannot create empty-cell magic ring');
+ assert.equal(visuals.stats().instancesByPool.signal,0);
+ visuals.dispose();
+});
