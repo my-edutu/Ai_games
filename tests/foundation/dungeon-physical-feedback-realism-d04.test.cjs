@@ -230,7 +230,8 @@ test('ranged visual arriving at the target does not fabricate impact spalls or a
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
  const actors=new Map();for(const [id,x,z] of [['ranger',2,2],['revenant',3,2]])
-  actors.set(id,{u:{id,hp:30},root:{visible:true,position:{x:x-9,y:0,z:z-9}}});
+  actors.set(id,{u:{id,kind:id,action:id==='ranger'?'attack':'idle',actionTick:11,hp:30},
+   root:{visible:true,position:{x:x-9,y:0,z:z-9}}});
  const v=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
  const arrow=cue({kind:'ranged-release',visual:'launch',proof:'authority-action-not-hit',
   actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}});
@@ -316,7 +317,10 @@ test('map-backed D04 preview clips projectiles at true stone and suppresses adja
  let map=Array.from({length:19},()=>'.'.repeat(19)),reads=0;
  const block=(x,z)=>{map=map.map((row,i)=>i===z?row.slice(0,x)+'#'+row.slice(x+1):row)};
  block(4,2);
- const stage=createPhysicalFeedbackVisuals(T,scene,{getFloorMap:()=>{reads++;return map}});
+ const ranger={u:{id:'ranger',kind:'ranger',action:'attack',actionTick:11,hp:30},
+  authored:false,root:{visible:true,position:{x:-7,y:0,z:-7}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>id==='ranger'?ranger:null,
+  getFloorMap:()=>{reads++;return map}});
  const shot=cue({kind:'ranged-release',visual:'launch',audio:'ranged-release',
   proof:'authority-action-not-hit',actorId:'ranger',targetId:'revenant',
   from:{x:2,z:2},to:{x:7,z:2}});
@@ -346,7 +350,10 @@ test('D04 actual 720ms browser stall expires injury fragments instead of preserv
 });
 test('D04 900ms render stall expires unconfirmed arrow without fabricating arrival damage',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
- const {T,scene}=three();const v=createPhysicalFeedbackVisuals(T,scene);
+ const {T,scene}=three();
+ const ranger={u:{id:'ranger',kind:'ranger',action:'attack',actionTick:11,hp:30},
+  authored:false,root:{visible:true,position:{x:-7,y:0,z:-7}}};
+ const v=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>id==='ranger'?ranger:null});
  const arrow=cue({kind:'ranged-release',visual:'launch',actorId:'ranger',
   targetId:'revenant',from:{x:2,z:2},to:{x:5,z:2},proof:'authority-action-not-hit'});
  assert.equal(v.emit(arrow),true);
