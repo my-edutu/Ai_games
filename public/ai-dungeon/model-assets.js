@@ -1417,6 +1417,73 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
  * and detached hand chains. Does not inspect or alter collision or combat.
  */
 const sourceRigDeformationBaselines=new WeakMap();
+// Original CC0 skin-weighted sole evidence is selected only on first explicit
+// inspection per original SkeletonUtils clone. No frame-loop scans or IK.
+const sourceSoleVertexCache=new WeakMap();
+function sourceSoleVertexCandidates(actor){
+ let found=sourceSoleVertexCache.get(actor.assetRoot);
+ if(found)return found;
+ found={left:null,right:null};
+ actor.assetRoot.traverse(mesh=>{
+  if(!mesh.isSkinnedMesh||!mesh.skeleton||!mesh.geometry)return;
+  const positions=mesh.geometry.getAttribute('position'),
+   indices=mesh.geometry.getAttribute('skinIndex'),
+   weights=mesh.geometry.getAttribute('skinWeight');
+  if(!positions||!indices||!weights)return;
+  const targets={left:new Set(),right:new Set()};
+  for(const [index,bone] of mesh.skeleton.bones.entries()){
+   if(/^(?:foot|toes)\.l$/i.test(bone?.name??''))targets.left.add(index);
+   if(/^(?:foot|toes)\.r$/i.test(bone?.name??''))targets.right.add(index);
+  }
+  if(!targets.left.size&&!targets.right.size)return;
+  // Hard cap per original mesh protects the explicit auditing operation.
+  for(let i=0,n=Math.min(positions.count,8192);i<n;i++){
+   const joints=[indices.getX(i),indices.getY(i),indices.getZ(i),indices.getW(i)];
+   const skin=[weights.getX(i),weights.getY(i),weights.getZ(i),weights.getW(i)];
+   const y=positions.getY(i);
+   if(!Number.isFinite(y))continue;
+   for(const side of ['left','right']){
+    let weight=0;
+    for(let k=0;k<4;k++)if(targets[side].has(joints[k]))weight+=skin[k];
+    if(weight<.55)continue;
+    const prior=found[side];
+    if(!prior||y<prior.bindY-1e-6||
+     (Math.abs(y-prior.bindY)<=1e-6&&weight>prior.weight))
+     found[side]={mesh,index:i,bindY:y,weight};
+   }
+  }
+ });
+ sourceSoleVertexCache.set(actor.assetRoot,found);
+ return found;
+}
+function sourceSkinnedSoleWorld(candidate){
+ if(!candidate?.mesh?.applyBoneTransform)return null;
+ const position=candidate.mesh.geometry.getAttribute('position');
+ if(!position||candidate.index>=position.count)return null;
+ const point=new THREE.Vector3().fromBufferAttribute(position,candidate.index);
+ candidate.mesh.updateWorldMatrix(true,false);
+ candidate.mesh.applyBoneTransform(candidate.index,point);
+ point.applyMatrix4(candidate.mesh.matrixWorld);
+ return [point.x,point.y,point.z].every(Number.isFinite)?point.toArray():null;
+}
+function sourceWeaponHandGrip(actor,rightHand){
+ if(!rightHand?.isBone)return null;
+ // Original GLB internal weapon nodes, not synthetic rendering accessories.
+ const names=['1H_Sword','Longbow_1','2H_Staff','DarkStaff_1'];
+ const weapon=names.map(n=>actor.assetRoot.getObjectByName(n)).find(Boolean);
+ if(!weapon)return null;
+ let attached=false;
+ for(let parent=weapon.parent,depth=0;parent&&depth<24;parent=parent.parent,depth++)
+  if(parent===rightHand){attached=true;break;}
+ rightHand.updateWorldMatrix(true,false);
+ weapon.updateWorldMatrix(true,false);
+ const values=Array.from(new THREE.Matrix4().copy(rightHand.matrixWorld).invert()
+  .multiply(weapon.matrixWorld).elements);
+ if(!values.every(Number.isFinite))return null;
+ return {name:weapon.name,handName:rightHand.name,attachedToHand:attached,
+  handRelativeMatrix:values};
+}
+
 function inspectSourceRigDeformation(actors){
  const actorsOut=[];
  for(const actor of actors.values()){
@@ -1495,6 +1562,10 @@ function inspectSourceRigDeformation(actors){
    return [v1.x,v1.y,v1.z].every(Number.isFinite)?v1.toArray():null;
   };
   const footJointWorld={left:worldJoint(feet.left),right:worldJoint(feet.right)};
+  const soleCandidates=sourceSoleVertexCandidates(actor);
+  const soleVertexWorld={left:sourceSkinnedSoleWorld(soleCandidates.left),
+   right:sourceSkinnedSoleWorld(soleCandidates.right)};
+  const sourceWeaponGrip=sourceWeaponHandGrip(actor,hands.right);
   const rootWorld=worldJoint(actor.root);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
    bindReferenceSource:'original-inverse-bind-matrices',
@@ -1505,6 +1576,7 @@ function inspectSourceRigDeformation(actors){
    guardBlend:Number.isFinite(actor.fullBody?.guardBlend)?actor.fullBody.guardBlend:0,
    guardOwned:Boolean(actor.fullBody?.owner.guard),
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
+   soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
    // animation timer. This never scans skin vertices or advances the mixer.
    sourceLoop:actor.activeImportedClipName==='Idle'?{
