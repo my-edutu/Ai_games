@@ -1371,3 +1371,42 @@ test('licensed Walking_A freezes its outgoing source keyframe while a genuinely 
  assert.match(model,/previous\.paused=true/,
   'outgoing licensed source action must hold its true planted keyframe during fade');
 });
+
+
+test('original Idle GLB clock survives genuine idle/guard changes without resetting its chest/leg source pose',async()=>{
+ const {shouldRetainImportedSharedIdleClock:keep}=await load();
+ assert.equal(typeof keep,'function','explicit source AnimationAction identity must be protected');
+ const opts={previousMode:'idle',nextMode:'guard',previousClipName:'Idle',
+  nextClipName:'Idle',sameAction:true,sourceRunning:true,newEvent:false};
+ assert.equal(keep(opts),true,'the same licensed Idle animation must retain its phase into guard');
+ assert.equal(keep({...opts,previousMode:'guard',nextMode:'idle'}),true,
+  'guard release must not restart the source skinned legs at frame zero');
+ for(const [reason,patch] of Object.entries({
+  walking:{previousMode:'move'},casting:{previousMode:'cast'},attack:{nextMode:'attack'},
+  sameOwner:{nextMode:'idle'},differentClip:{nextClipName:'Walking_A'},
+  missingClip:{previousClipName:null},differentAction:{sameAction:false},
+  disabledAction:{sourceRunning:false},newLegalEvent:{newEvent:true}
+ }))assert.equal(keep({...opts,...patch}),false,reason+' must not retain unrelated source actions');
+ // Exercising the real THREE.AnimationMixer: resetting the same Idle action
+ // while a guard starts jumps its original animated bone track back to t=0.
+ const THREE=require('three'),bone=new THREE.Object3D();
+ const clip=new THREE.AnimationClip('Idle',1.04166662693,[
+  new THREE.VectorKeyframeTrack('.position',[0,.3,.7,1.04166662693],
+   [0,0,0,0,.12,0,0,-.08,0,0,0,0])
+ ]);
+ const mixer=new THREE.AnimationMixer(bone),source=mixer.clipAction(clip).play();
+ mixer.update(.31);
+ const beforeTime=source.time,beforePose=bone.position.y;
+ if(!keep(opts))source.reset().play();
+ assert.equal(source.time,beforeTime,'idle -> guard must preserve the original GLB source time');
+ mixer.update(.025);
+ assert.ok(source.time>beforeTime,'the genuine source loop must continue advancing');
+ assert.ok(Math.abs(bone.position.y-beforePose)<.05,'the chest/leg track cannot snap at guard entry');
+ if(!keep({...opts,previousMode:'guard',nextMode:'idle'}))source.reset().play();
+ assert.ok(source.time>.31,'guard -> idle must not restart the real source Idle action');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/if\(shouldRetainImportedSharedIdleClock\(\{/,
+  'actual Three.js renderer must protect same-clip idle/guard ownership');
+ assert.match(model,/actor\.currentActionTick=tick;[\s\S]{0,130}return;/,
+  'source reuse must still update real presentation action ownership and tick');
+});
