@@ -20,7 +20,7 @@ import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
-import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createSoftwareWorldLightBudget} from '/dungeon/postfx-budget.js';
+import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
 import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -391,7 +391,11 @@ let state=null,worldFloor='',received=false,lastTick=-1,errorAt=0;
 let impactCameraHold=null,lightInjury=null,observedDamageBeats=0,observedFatalBeats=0;
 const palette={vanguard:['#4a87a8','#bed8df','#eab967'],ranger:['#527c58','#bdd19f','#d2b178'],mystic:['#65508f','#c2abf0','#76d8e0'],revenant:['#54656e','#b3c4bd','#dfb76f'],cultist:['#743e4c','#b18a89','#f0636b'],warden:['#483552','#c79a62','#ec7f42']};
 const mat=(color,metalness=.1,roughness=.75)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
-const stone=mat('#26303d',.1,.95),stoneEdge=mat('#404957',.15,.88),floorMat=mat('#28313b',.05,.95),gold=mat('#c9a366',.7,.33),black=mat('#111724',.2,.8);
+const authoredStone=mat('#26303d',.1,.95),authoredFloor=mat('#28313b',.05,.95);
+const stone=createSoftwareDiffuseMasonry(THREE,authoredStone,{software:softwareWebGL});
+const floorMat=createSoftwareDiffuseMasonry(THREE,authoredFloor,{software:softwareWebGL});
+if(softwareWebGL){authoredStone.dispose();authoredFloor.dispose()}
+const stoneEdge=mat('#404957',.15,.88),gold=mat('#c9a366',.7,.33),black=mat('#111724',.2,.8);
 let wallMasonryTexture=null;
 const tealGlow=new THREE.MeshStandardMaterial({color:'#53aebc',emissive:'#228a98',emissiveIntensity:2.2,roughness:.2});
 const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f18',emissiveIntensity:2.3});
@@ -431,7 +435,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
     const next=new THREE.CanvasTexture(canvas);
     next.colorSpace=THREE.SRGBColorSpace;next.wrapS=next.wrapT=THREE.RepeatWrapping;next.anisotropy=4;
     wallMasonryTexture?.dispose();wallMasonryTexture=next;
-    stone.map=wallMasonryTexture;stone.bumpMap=wallMasonryTexture;stone.bumpScale=.04;
+    stone.map=wallMasonryTexture;stone.bumpMap=softwareWebGL?null:wallMasonryTexture;stone.bumpScale=softwareWebGL?0:.04;
     stone.color.set('#e4e9eb');stone.needsUpdate=true;
    }
   }

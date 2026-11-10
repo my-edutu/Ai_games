@@ -464,6 +464,29 @@ export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDe
 
 
 /**
+ * Software-WebGL-only original masonry shader tier.
+ * Retain authored 3D triangles, world lights, base tint, original color map,
+ * fog and depth. Keep PBR on real GPUs and all actors/boss/telegraph assets.
+ * Caller retires the replaced, unused Standard material at floor teardown.
+ */
+export function createSoftwareDiffuseMasonry(THREE,source,{software=false}={}){
+ if(!source?.isMeshStandardMaterial)
+  throw new TypeError('Only original MeshStandardMaterial stone may be adapted');
+ if(!software)return source;
+ if(typeof THREE?.MeshLambertMaterial!=='function')
+  throw new TypeError('Original Three.js Lambert material is required');
+ const material=new THREE.MeshLambertMaterial({
+  color:source.color,map:source.map,emissive:source.emissive,
+  emissiveMap:source.emissiveMap,emissiveIntensity:source.emissiveIntensity,
+  side:source.side,fog:source.fog,transparent:source.transparent,
+  opacity:source.opacity,alphaTest:source.alphaTest,
+  depthWrite:source.depthWrite,depthTest:source.depthTest
+ });
+ material.name='Original masonry · software diffuse raster';
+ return material;
+}
+
+/**
  * Protect expensive source-authored broad stone coverage on measured CPU
  * software WebGL: retain MeshStandardMaterial original PBR color map, actual
  * geometry, roughness and metalness; omit only per-fragment bump sampling.

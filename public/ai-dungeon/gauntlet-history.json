@@ -2544,6 +2544,26 @@
         "plays": "UNVERIFIED",
         "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
         "next": "Restore exact-head browser job execution, inspect 1440/390 initial source head proportions and real combat motion/audio/performance, reject if deformed; only then validate shader and independent animation candidate; locked A/B plus 3 blind critics mandatory."
+      },
+      "m1SoftwareDiffuseMasonryCandidate": {
+        "date": "2026-11-10",
+        "parentHead": "3ce8b48fad494fa478fea1c7ed87caa4be8c9b75",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "beforeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42704384737",
+        "desktopWardenSubmitP95Ms": 2106,
+        "mobileWardenSubmitP95Ms": 1502,
+        "desktopWardenSubmitP99Ms": 6139,
+        "mobileWardenSubmitP99Ms": 3289,
+        "implementation": "software-only Three.js Lambert for four original broad stone surfaces preserving authentic map, geometry, lighting and physical threat; real GPUs original PBR",
+        "localBrowser": "NOT_FOUND tunnel-client has not been seen for 300 seconds",
+        "afterMotion": "NOT_OBSERVED",
+        "audioSync": "UNVERIFIED",
+        "criticCount": 0,
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+        "next": "Inspect exact new head genuine desktop 1440/mobile 390 five-stage original audiovisual captures, Warden warning/stone appearance/p95-p99 WebGL; reject if degraded. Resolve desktop defeat, preserve baseline and review separate PR72."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
