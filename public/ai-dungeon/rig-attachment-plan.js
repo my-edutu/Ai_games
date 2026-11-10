@@ -281,6 +281,24 @@ export function planRigFullBodyStride(kind,phase=0,weight=0,reducedMotion=false)
   arms:{left:{pitch:-.078*turn,roll:-.019*loading},
    right:{pitch:.078*turn,roll:.019*loading}},weight:w};
 }
+/**
+ * Original licensed Walking_A already has keyed hip, chest and shoulder
+ * rotations as well as both leg chains. Once its Three.js mixer action takes
+ * over the skinned legs, the legacy procedural opposing-arm/pelvis swing
+ * cannot remain at 100%: this doubles rotation and breaks the supporting
+ * foot-to-pelvis-to-weapon mass transfer. All cosmetic gait components yield
+ * through the SAME witnessed imported leg share, in the same visible frame.
+ *
+ * This only adjusts reversible post-mixer rotations, never source clips,
+ * skeleton bind poses, weapon sockets, root translation or authority.
+ * Invalid ownership, defeat and reduced motion fail closed. Not foot IK.
+ */
+export function planSourceOwnedFullBodyStride(kind,phase=0,weight=0,
+ sourceLegShare=1,reducedMotion=false){
+ if(!Number.isFinite(sourceLegShare)||sourceLegShare<.16||sourceLegShare>1)
+  return planRigFullBodyStride(kind,phase,0,true);
+ return planRigFullBodyStride(kind,phase,weight*sourceLegShare,reducedMotion);
+}
 const LEG_REST=Object.freeze({
  left:Object.freeze({upper:0,lower:0,foot:0}),
  right:Object.freeze({upper:0,lower:0,foot:0})

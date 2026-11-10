@@ -19,7 +19,7 @@ import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-ki
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planNativeFigureSculpt,sculptNativeFigureGeometry} from '/dungeon/native-figure-sculpt.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planSourceOwnedFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -772,7 +772,8 @@ function stageRigGroundedStride(actor,reducedMotion,dt){
   alive:actor.u.hp>0,teleport:Boolean(actor.locomotionTeleport),reducedMotion
  });
  actor.rigLegStride=planRigLegGesture(phase,gait.weight,hardStop);
- actor.rigFullBodyStride=planRigFullBodyStride(actor.u.kind,phase,gait.weight,hardStop);
+ actor.rigFullBodyStride=planSourceOwnedFullBodyStride(actor.u.kind,phase,gait.weight,
+  actor.rigNativeLegOverlayScale,hardStop);
  actor.rigFullBodyStridePeak=Math.max(actor.rigFullBodyStridePeak||0,
   Math.abs(actor.rigFullBodyStride.hips.yaw),Math.abs(actor.rigFullBodyStride.chest.yaw));
 }
@@ -1604,6 +1605,7 @@ function inspectSourceRigDeformation(actors){
     clipName:actor.activeImportedClipName??null,
     originalSourceWeight:actor.activeClip?.getEffectiveWeight?.()??null,
     overlayScale:actor.rigNativeLegOverlayScale??1,
+    bodyStrideWeight:actor.rigFullBodyStride?.weight??0,
     gaitWeight:actor.rigGaitWeight??0,
     settling:Boolean(actor.rigGaitSettling)
    },

@@ -351,6 +351,10 @@ for(const view of [
  expect(trace.every(t=>Number.isFinite(t.nativeLegOwnership?.overlayScale)&&
   t.nativeLegOwnership.overlayScale>=.16&&t.nativeLegOwnership.overlayScale<=1),
   'live original skinned actors must retain finite bounded leg overlay ownership').toBe(true);
+ expect(trace.every(t=>Number.isFinite(t.nativeLegOwnership?.bodyStrideWeight)&&
+  Math.abs(t.nativeLegOwnership.bodyStrideWeight-
+   t.nativeLegOwnership.gaitWeight*t.nativeLegOwnership.overlayScale)<1e-8),
+  'genuine source gait must transfer identical ownership to hips, spine, shoulders and original legs').toBe(true);
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
  const soleObservations=trace.slice(1).map(t=>t.soleGrip);
