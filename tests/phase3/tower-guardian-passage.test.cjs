@@ -409,6 +409,56 @@ test('reduced motion presents a still, real defeat and no motion after stale tra
   } finally { effect.dispose(); }
 });
 
+test('live source-locked boss draws one real walkable gateway, not an extra cleared-pass duplicate across combat', async () => {
+  const [THREE, {createTowerGuardianPassage}] = await loaded;
+  const passage = createTowerGuardianPassage(THREE);
+  const cap = {id:'f8:cap', x:115200, y:3212000, width:249600, height:12000};
+  const exit = cap.x + Math.floor(cap.width * .76);
+  const living = {runToken:'actual-boss', floor:8, tick:300,
+    lifecycle:'running', guardianExitX:exit, guardianSealHeight:140000,
+    worldWidth:480000, chunkBaseY:2880000,
+    player:{health:3}, platforms:[cap],
+    enemies:[{id:'f8:guardian', kind:'guardian', active:true, health:2,
+      x:cap.x+60000, y:cap.y+cap.height+18000, halfHeight:18000}]};
+  const dead = {...living, tick:442, enemies:[{...living.enemies[0],
+    active:false, health:0}]};
+  const next = {runToken:'actual-boss', floor:9, tick:451,
+    lifecycle:'running', enemies:[]};
+  const prior = JSON.stringify({living,dead,next});
+  try {
+    const memory = passage.group.getObjectByName('EarnedGuardianPassageMemory');
+    const threshold = passage.group.getObjectByName('ObservedWalkableGuardianThreshold');
+    const seal = passage.group.getObjectByName('SourceLockedGuardianVerticalEnergyLattice');
+    const exteriorLeaf = passage.group.getObjectByName('ClearedPassageBronzeLeaf');
+    assert.ok(memory?.isGroup && threshold?.isGroup && seal?.isInstancedMesh &&
+      exteriorLeaf?.isMesh, 'actual geometry is present for each lifecycle');
+    assert.equal(passage.lock(living,anchor),true);
+    assert.equal(passage.group.visible,true);
+    assert.equal(memory.visible,false,
+      'do not render a cleared-passage outer facade over the living guardian');
+    assert.equal(threshold.visible,true);
+    assert.equal(seal.visible,true,
+      'source-locked deck threshold remains physically legible');
+    assert.equal(passage.diagnostics().stage,'guardian-locked');
+    assert.equal(passage.unlock(dead,anchor),true);
+    passage.update(.05);
+    assert.equal(memory.visible,false,
+      'already open source gate and walkable threshold must not be duplicated while crossing');
+    assert.equal(threshold.visible,true);
+    assert.equal(seal.visible,false);
+    assert.equal(passage.diagnostics().stage,'earned-open');
+    assert.equal(passage.begin(dead,next,anchor),true);
+    assert.equal(memory.visible,true,
+      'outer bronze arch appears only as a source-earned old-floor handoff memory');
+    assert.equal(seal.visible,false);
+    passage.clear();
+    assert.equal(memory.visible,false,
+      'restart must retire the previous run passage facade');
+    assert.equal(JSON.stringify({living,dead,next}),prior,
+      'visual staging never mutates the fixed-step source');
+  } finally { passage.dispose(); }
+});
+
 test('source-earned 3D gate stays visibly open during authentic cap traversal, then hands off without a false second closing', async () => {
   const [THREE, { createTowerGuardianPassage }] = await loaded;
   const effect = createTowerGuardianPassage(THREE);
