@@ -7262,5 +7262,33 @@
     "hardwarePerformance": "NOT EVALUATED — no actual-device p50/p95/p99 or memory",
     "largestRemainingSystemicDefect": "A crowded guardian shot, uncomfortably fast changing tower-side camera and giant foreground round mechanism at ~20s in original portrait danger film; the new orbit budget is not yet checked against native full-motion.",
     "nextAction": "Complete exact-head quality; capture immutable post-camera candidate versus unchanged baseline in 960x600 and 390x844 with full 60+s source beats. Inspect 14-26s native motion and real source guardian/crusher HP, earned threshold, floor9 restart; if cropped or still masked, physically restage the verified obstructing scene rather than adding cosmetic fades. Recruit real independent blinded critics and measure supported hardware later; keep P0."
+  },
+  "p0NativeEventCuedOriginalDuelFilm20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorExactCandidate": "4e788df39d99a23651f537d2983c3ca8dc30171e",
+    "priorSourceVideo": "https://github.com/my-edutu/Ai_games/actions/runs/42883165109",
+    "priorCaptureTruth": "10/10 jobs success; 16 actual full 60+s baseline/candidate original WebMs (ascent/moving/danger/outcome, desktop 960x600 and portrait 390x844); 8/8 original video PTS calibrated, source campaign and pairing audited; per-event pixel visibility still ungraded",
+    "priorExactSafety": "https://github.com/my-edutu/Ai_games/actions/runs/42883165230 (success on 4e788df3, not current HEAD)",
+    "inspectedOriginalFilm": "At 390x844 candidate native 14–24s the climbing character and authentic guardian remain separated by mechanically busy upper-cap bronze rails, ringed guardian and cyan live gate. Baseline & candidate genuine first guardian HP decrease search positions ~11.24s vs ~7.23s; floor8→9 source time candidate ~22.90s baseline ~15.26s; native sample at each still displays floor8, and candidate floor9 visibly appears around 26s. This is source-to-raster discrepancy requiring measured investigation, NOT a proven 3-second GPU lag.",
+    "implemented": "New honest source-native event-cued anonymous A/B viewer of FOUR original unchanged 60+s full 960×600 and 390×844 danger films. Matches witnessed source guardian HP and floor-eight-to-nine event by independent calibrated timestamps, never guesses events absent in baseline. Verifies exact immutable SHA, hash, seed/tier, decoded WebM transport, duration and episode; keeps original film 1x speed. DOES NOT change gameplay/simulation.",
+    "testFirstSha": "62cc9072ec72c5d7ba93f70d3cb7fadc33faded0",
+    "implementationSha": "a087109e0188d37e0884d994803ae949737f5b9a",
+    "clockCorrectionSha": "4de035fd37d5a4fb1327eb1355336b20834d2e84",
+    "filmAuditGuardSha": "63c3b5103560fb6195ee0aa183fd77114711bd30",
+    "focusedTestSha": "7a6147bbf105b0b0d700e0aa41552daed49a6250",
+    "workflowSha": "1846c19b03da702f26541c47a9673fdaf56a974c",
+    "review": "docs/reviews/2026-11-10-tower-pr68-immutable-event-cued-original-guardian-film.md",
+    "nextRecordingSource": "EXACT github.sha of upcoming capture-request commit; freeze current baseline",
+    "newNativeViewer": "NOT EVALUATED until new workflow actually produces artifact and source integrity passes",
+    "newestExactHeadCI": "PENDING at time of ledger write; no claim of pass",
+    "reviewers": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTailsAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Run original exact-HEAD 10-job capture with reviewer package; actually inspect source-to-visible guardian victory, crusher, grounded threshold floor9 and result/restart in full normal-speed desktop+portrait. Measure if source-to-raster lag or oppressive bronze/cyan gate is dominant; implement meaningful real 3D/presentation fix and recapture before blind reviews. Stay P0."
   }
 }
