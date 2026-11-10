@@ -296,3 +296,44 @@ test('real production camera keeps the previous witnessed pressure shape without
  assert.match(source,/pressureCameraPartner: pressureCameraBeat && publicPressureTrap/);
  assert.match(source,/verifiedRetreat:!!verifiedRetreatTrap/);
 });
+
+
+test('real consecutive public pressure witness survives repeated SAME-tick stream polls until its legitimate withdrawal is fully rendered',async()=>{
+ const {publicDistinctPublicPredecessor:hold,publicVerifiedPressureRetreatPartner:retain}=await load();
+ const cells=[
+  {cell:24,neighbors:[25],blocked:false},
+  {cell:25,neighbors:[24],blocked:false},
+  {cell:32,neighbors:[],trap:true,blocked:false}
+ ];
+ const tick5={runToken:'real-pressure-run',tick:5,width:7,height:7,
+  currentCell:25,cells,visibleCells:[25,32],doors:[],result:null};
+ const tick6={...tick5,tick:6,currentCell:24,visibleCells:[24]};
+ const original=JSON.stringify([tick5,tick6]);
+ let prior=hold(null,tick5,tick6);
+ assert.equal(prior,tick5,'one genuine previous public tick is the only witness');
+ for(let poll=0;poll<12;poll++){
+  prior=hold(prior,tick6,{...tick6});
+  assert.equal(prior,tick5,'repeated unchanged tick6 network samples cannot erase real tick5 contact');
+  assert.equal(retain(prior,tick6,CELL,ASPECT)?.verifiedRetreat,true,
+   'the authentic known wall-side jaw remains the camera subject through the real withdrawal');
+ }
+ assert.equal(hold(prior,tick6,{...tick6,runToken:'different-run'}),null);
+ assert.equal(hold(prior,tick6,{...tick6,tick:8}),null,
+  'do not keep camera history across skipped public movement');
+ assert.equal(hold(prior,tick6,{...tick6,tick:5}),null,
+  'never reuse a witnessed jaw when the source moves backward');
+ assert.equal(hold({...tick5,tick:4},tick6,{...tick6}),null,
+  'stale earlier history may not earn an ongoing pressure stage');
+ assert.equal(hold(prior,tick6,{...tick6,tick:7}),tick6,
+  'the actual next public tick replaces the old witness');
+ assert.equal(hold(prior,tick6,{...tick6,tick:NaN}),null);
+ assert.equal(JSON.stringify([tick5,tick6]),original,'no private map mutation or synthetic AI action');
+});
+
+test('native 3D renderer consumes the retained distinct public tick rather than resetting it on each repeat poll',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+ assert.match(source,/publicDistinctPublicPredecessor\(\s*priorPublicSnapshot,previous,snapshot\)/);
+ assert.doesNotMatch(source,/priorPublicSnapshot\s*=\s*previous\s*;/);
+ assert.match(source,/const verifiedRetreatTrap = publicVerifiedPressureRetreatPartner\(/);
+});

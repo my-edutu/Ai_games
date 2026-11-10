@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T06:00:00.000Z",
+  "updatedAt": "2026-11-10T06:09:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass234: last exact-HEAD six-run WebGL geometry/reset test PASSED; original 320/390 pressure images SHA-verified but full 1280 pressure screenshot stalled after 8 minutes. Changed only the native desktop evidence capture to exact-dimension Chromium compositor PNG, preserving real source/canvas/viewport, physical framing, strict budgets and gameplay. New exact-HEAD results and independent Nintendo benchmark are still PENDING."
+    "summary": "Pass235: Pass234 original full WebGL evidence now captured 1280×900 pressure and passed six strict resets; 34 PNGs, 32/32 SHA sidecars matched, but real 320 tick6 pressure withdrawal jaw CROPPED to -1.283 NDC vs fixed -0.95. Repeated same-tick public snapshot deliveries discarded the legitimate previous-tick camera witness. New public-only renderer fix preserves exactly one consecutive distinct public tick; exact-new-HEAD render and independent Nintendo critic still PENDING."
   },
   "captures": [
     {

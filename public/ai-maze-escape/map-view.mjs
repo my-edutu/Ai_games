@@ -86,6 +86,28 @@ export function publicPressureTakesFocus(snapshot, trap, cellSize, aspect,
  * jaw at -1.290725 NDC when an unrelated known closed gate stole the camera.
  * This is presentation-only, NEVER generic diagonal discovery or AI authority.
  */
+/**
+ * Keep the LAST DISTINCT authoritative public tick as the renderer's
+ * presentation predecessor. Real 320px same-source pressure chronology at
+ * tick6 still cropped the complete jaw [-1.28288,-.6017] NDC because repeated
+ * network polls of the SAME tick replaced the previous tick5 witness. This
+ * helper retains exactly one real adjacent published tick, not an invented
+ * frame, guessed route or private simulation state. A new run, skipped tick,
+ * backwards tick or malformed public sample clears the optical witness.
+ */
+export function publicDistinctPublicPredecessor(prior, previous, current) {
+  if (!previous || !current
+    || typeof previous.runToken !== 'string' || !previous.runToken
+    || previous.runToken !== current.runToken
+    || !Number.isSafeInteger(previous.tick) || !Number.isSafeInteger(current.tick))
+    return null;
+  if (current.tick === previous.tick)
+    return prior?.runToken === current.runToken
+      && Number.isSafeInteger(prior.tick)
+      && prior.tick === current.tick-1 ? prior : null;
+  return current.tick === previous.tick+1 ? previous : null;
+}
+
 export function publicPressureWithdrawalTakesFocus(before, after, trap, cellSize, aspect,
   cameraMode='follow', guardian=false, opening=false, pickup=false) {
   if (!before || !after || before.result || after.result

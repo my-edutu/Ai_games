@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -383,8 +383,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
     if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:gateVisualTime,
       cameraHeading:heading};
-    // Only an earlier PUBLIC run frame can authorize a genuine withdrawal.
-    priorPublicSnapshot = previous;
+    // Keep one DISTINCT, consecutive public tick through repeated network
+    // deliveries of the same authoritative state. Otherwise a legal tick5 ->
+    // tick6 pressure withdrawal loses its real witnessed jaw after the next
+    // unchanged tick6 poll, allowing an unrelated sealed gate to crop it.
+    // Never extend across a new run, skipped tick or reversed stream.
+    priorPublicSnapshot = publicDistinctPublicPredecessor(
+      priorPublicSnapshot,previous,snapshot);
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
