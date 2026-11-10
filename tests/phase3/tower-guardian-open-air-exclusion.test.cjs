@@ -44,10 +44,28 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
       'live locked threshold has a short dense crossing barrier at hero height');
     assert.ok(bars.filter(b=>b.height>=13.9 && Math.abs(b.x)>2.8).length>=2,
       'actual 14m high source exclusion is still represented by connected edge pylons');
-    assert.ok(bars.filter(b=>b.height>6 && Math.abs(b.z)>.2).length>=2,
-      'high-voltage X braces visibly deny an invented airborne bypass without a screen-wide mesh');
+    const highBraces = bars.filter(b=>b.height>6 && Math.abs(b.z)>.2);
+    assert.equal(highBraces.length,2,
+      'source-height energized side-channel stays visibly connected on both outer pylons');
+    assert.ok(highBraces.every(b =>
+      Math.abs(b.x) - Math.abs(Math.sin(b.z)) * b.height/2 >= 1.05),
+      'the actual entire high brace silhouettes leave a central airborne duel window');
+    assert.ok(highBraces[0].x * highBraces[1].x < 0,
+      'the energized braces stay split across the live arch, not crossed over the climber');
+    const calmOpacity=seal.material.opacity;
+    const warning={...source,tick:281,enemies:[{...guardian,
+      telegraph:true,telegraphTicksRemaining:5}]};
+    assert.equal(passage.lock(warning,anchor),true);
+    assert.ok(seal.material.opacity>calmOpacity+.12,
+      'only a genuine live guardian telegraph should energize the field more strongly');
+    assert.ok(entries(seal).every(b=>Number.isFinite(b.x) && Number.isFinite(b.y)),
+      'a warning must never move or corrupt the actual source-sized gate frame');
+    const ordinary={...source,tick:282};
+    assert.equal(passage.lock(ordinary,anchor),true);
+    assert.ok(Math.abs(seal.material.opacity-calmOpacity)<1e-9,
+      'after a real warning expires, the gate returns to unobtrusive standby');
     assert.equal(JSON.stringify(source),original,'visual scene cannot mutate source authority');
-    const taller={...source,tick:281,guardianSealHeight:180000};
+    const taller={...source,tick:283,guardianSealHeight:180000};
     assert.equal(passage.lock(taller,anchor),true);
     bars=entries(seal);
     assert.ok(bars.some(b=>b.height>=17.9 && Math.abs(b.x)>2.8),
@@ -56,7 +74,7 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
       'angled high-voltage braces extend as source height changes');
     assert.ok(seal.count<=19,'resource budget stays bounded after source height changes');
     assert.equal(passage.diagnostics().physicallyWalkableThreshold.sourceSimulationSealActive,true);
-    const defeated={...taller,tick:282,enemies:[{...guardian,active:false,health:0}]};
+    const defeated={...taller,tick:284,enemies:[{...guardian,active:false,health:0}]};
     assert.equal(passage.unlock(defeated,anchor),true);
     assert.equal(seal.visible,false,'only genuine source defeat visually retracts the high seal');
     passage.clear();
