@@ -6915,6 +6915,48 @@
       "plays": "UNVERIFIED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Exact-new-head same-seed real 1440/390 Warden geometry/rendering and full organic original video/audio; compare p50/p95/p99 and draw/triangle count, natural desktop defeat, preserve original boss warnings; reject regressed LOD, then profile dominant stalls, validate PR72, pinned A/B and >=3 critics"
+    },
+    "m1RetainedPracticalShaderSlotsCandidate": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceParentSha": "3eb2cf963ce226a77861260401d89cb581a67dde",
+      "genuineBeforeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42754353013",
+      "originalSeed": "gauntlet-corpus-v1-0",
+      "beforeActual": {
+        "desktop": {
+          "snapshots": "946/946",
+          "fiveOrganicStages": true,
+          "wardenDraws": 441,
+          "wardenTriangles": 196236,
+          "submitP50Ms": 9.5,
+          "submitP95Ms": 974.1,
+          "submitP99Ms": 4690,
+          "deliveryP95Ms": 1716.6,
+          "heroPx": 81
+        },
+        "mobile": {
+          "snapshots": "946/946",
+          "fiveOrganicStages": true,
+          "wardenDraws": 407,
+          "wardenTriangles": 185543,
+          "submitP50Ms": 6.7,
+          "submitP95Ms": 653.5,
+          "submitP99Ms": 1436.6,
+          "deliveryP95Ms": 1050,
+          "heroPx": 37
+        }
+      },
+      "sourceChange": "Production software-WebGL world lighting retains 2 constant physically source-anchored PointLight shader slots while original torches/animated mood/cutaways remain; eliminates variable per-frame number of decorative point-light shader programs without removing real geometry or altering authority. Hardware light policy unchanged.",
+      "evidenceStatus": "SOURCE_CANDIDATE_ONLY_AFTER_PLAYABLE_MOTION_NOT_OBSERVED",
+      "impactAudioSync": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "separatePR72": "ee886cc58fc0f06d27c6e21974aa91c2d936db8c_NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Evaluate exact candidate 1440px+390px true original five-stage audiovisual Warden same-seed CI; measure p50/p95/p99 render submit+delivery, WebGL light-slot count, actual torch glow and visibility across camera/cutaway, boss danger, replay/security. Reject if worse. Then further measured stall reduction and Stage B adult original-rig exemplar; locked baseline A/B and >=3 independent critics."
     }
   }
 }

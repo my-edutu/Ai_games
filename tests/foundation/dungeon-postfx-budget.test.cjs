@@ -386,3 +386,55 @@ test('production world owns the software-only stone plan and reports true source
  assert.match(env,/sceneMetrics=\{stoneRasterBudget,/);
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units,s\.traps,\{softwareWebGL\}\)/);
 });
+
+
+test('software renderer reuses original torch illumination through fixed shader-light slots',async()=>{
+ const {createSoftwareWorldLightBudget}=await load(),THREE=require('three');
+ const world=new THREE.Group(),torch=new THREE.Group();world.add(torch);
+ const put=(parent,x,color,power)=>{const p=new THREE.PointLight(color,power,6.2,2);
+  p.userData.dungeonDecorativePractical=true;p.position.set(x,2,0);parent.add(p);return p;};
+ const a=put(world,0,'#ff7f4a',2),b=put(torch,5,'#ffcb79',3),c=put(world,12,'#aabbcc',1);
+ const boss=new THREE.PointLight('#ff0000',4,8,2);world.add(boss);
+ const budget=createSoftwareWorldLightBudget(THREE,world,{software:true,maxDecorativeLights:2});
+ const proxies=world.children.filter(node=>node.userData.dungeonSoftwarePracticalProxy===true);
+ assert.equal(proxies.length,2,'two constant PointLight shader slots, no per-actor shader signature changes');
+ assert.ok(proxies.every(p=>p.visible&&p.castShadow===false&&p.intensity===0));
+ assert.ok([a,b,c].every(p=>p.visible===false),'originals continue to exist but cannot double illuminate');
+ assert.equal(boss.visible,true,'authoritative danger/hero lighting is never selected');
+ budget.update({x:0,z:0});
+ assert.deepEqual(proxies.map(p=>p.intensity),[2,3]);
+ assert.equal(proxies[0].color.getHexString(),a.color.getHexString());
+ assert.equal(proxies[0].distance,a.distance);
+ b.intensity=1.25;budget.update({x:5,z:0});
+ assert.equal(proxies.length,2);
+ assert.deepEqual(proxies.map(p=>p.intensity),[1.25,2]);
+ assert.ok(proxies.every(p=>p.visible),'light count stays stable through camera movement');
+ torch.visible=false;budget.update({x:5,z:0});
+ assert.deepEqual(proxies.map(p=>p.intensity),[2,1]);
+ assert.ok(!proxies.some(p=>p.color.getHexString()===b.color.getHexString()),'cutaway torch cannot ghost-illuminate');
+ const stats=budget.stats();assert.equal(stats.retainedShaderSlots,2);
+ assert.equal(stats.selected,2);assert.equal(stats.fixedShaderSignature,true);
+ world.children.filter(n=>n!==boss&&n!==a&&n!==c&&n!==torch&&n.isPointLight).forEach(n=>assert.ok(proxies.includes(n)));
+ budget.dispose();budget.dispose();
+ assert.ok(proxies.every(p=>p.parent===null),'floor retirement removes every retained slot');
+ assert.ok([a,b,c].every(p=>p.visible===true),'original visibility restored on floor change');
+ assert.equal(boss.parent,world);
+});
+
+test('software decorative light slots remain constant with no eligible props and hardware retains full physical lighting',async()=>{
+ const {createSoftwareWorldLightBudget}=await load(),THREE=require('three');
+ const world=new THREE.Group(),hidden=new THREE.Group();world.add(hidden);
+ const p=new THREE.PointLight('#efb37a',2,7,2);p.userData.dungeonDecorativePractical=true;hidden.add(p);
+ const full=createSoftwareWorldLightBudget(THREE,world,{software:false,maxDecorativeLights:1});
+ assert.equal(full.stats().retainedShaderSlots,0);assert.equal(p.visible,true);full.dispose();
+ hidden.visible=false;
+ const cpu=createSoftwareWorldLightBudget(THREE,world,{software:true,maxDecorativeLights:1});
+ const slot=world.children.find(node=>node.userData.dungeonSoftwarePracticalProxy===true);
+ assert.ok(slot&&slot.visible);cpu.update({x:0,z:0});
+ assert.equal(cpu.stats().selected,0);assert.equal(slot.intensity,0);
+ hidden.visible=true;cpu.update({x:0,z:0});
+ assert.equal(cpu.stats().selected,1);assert.equal(slot.intensity,2);
+ hidden.visible=false;cpu.update({x:0,z:0});
+ assert.ok(slot.visible&&slot.intensity===0,'never remove slot on cutaway and never fake torch light');
+ cpu.dispose();assert.equal(p.visible,true);assert.equal(slot.parent,null);
+});
