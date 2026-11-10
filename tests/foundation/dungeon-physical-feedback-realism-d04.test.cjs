@@ -553,3 +553,39 @@ test('D04 stopped guard gesture cannot authorize frame-gated foley after its gly
   x.kind==='guard'&&x.decision==='expired-visual'));
  controller.dispose();
 });
+
+test('undrawn release audio witness reuses live authored hand and action proof without allocating effects',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const hand={isBone:true,updateWorldMatrix(){},getWorldPosition(out){
+  return out.set(-6.75,1.35,-7);
+ }};
+ const ranger={u:{id:'ranger',kind:'ranger',action:'attack',actionTick:11,hp:30},
+  authored:true,assetRoot:{},rigHandBone:hand,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ let present=true;
+ const renderer=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='ranger'&&present?ranger:null});
+ const shot=cue({id:'ranger:11',kind:'ranged-release',visual:'launch',
+  proof:'authority-action',actorId:'ranger',targetId:'victim',
+  from:{x:2,z:2},to:{x:4,z:2},tick:11});
+ const witness=x=>renderer.hasAuthenticatedReleasePose(x);
+ assert.equal(witness(shot),true,'existing imported hand and firing pose authenticate release');
+ ranger.u.action='idle';
+ assert.equal(witness(shot),false,'a finished shot cannot make a late sound');
+ ranger.u.action='attack';ranger.u.actionTick=12;
+ assert.equal(witness(shot),false,'a new attack cannot witness an older release');
+ ranger.u.actionTick=11;ranger.rigHandBone=null;
+ assert.equal(witness(shot),false,'authored model never substitutes a synthetic root muzzle');
+ ranger.rigHandBone=hand;ranger.root.visible=false;
+ assert.equal(witness(shot),false,'invisible source is not an emitter');
+ ranger.root.visible=true;present=false;
+ assert.equal(witness(shot),false,'unloaded source is not an emitter');
+ present=true;ranger.authored=false;
+ assert.equal(witness(shot),true,'explicit procedural fallback retains its observed root proxy');
+ assert.equal(witness({...shot,proof:'guessed'}),false);
+ assert.equal(witness({...shot,kind:'damage'}),false);
+ assert.equal(renderer.stats().active,0,'witness check cannot create pooled visual effects');
+ assert.equal(renderer.stats().reservedInstances,102);
+ renderer.dispose();
+});
