@@ -274,3 +274,30 @@ test('real-source sole microframe evidence distinguishes potential stance from f
  assert.match(browser,/assessSourceSoleFrameWindow\(/,'live Chromium source-rig test must actually consume the classifier');
  assert.match(browser,/same-tick-real-mixer-sole-window/,'browser must attach honest same-tick source-rig frame evidence');
 });
+
+
+test('actual fast native WebGL displacement remains measurable without claiming a planted sole',async()=>{
+ const {assessSourceSoleFrameWindow:assess}=await load();
+ // 10 November 2026 exact-head original Chromium: the genuine root can
+ // advance ~0.44m across two visible frames of one UNCHANGED authority tick.
+ // The former .35m evidence gate discarded the very largest observed slip.
+ const before={id:'hero-1',kind:'vanguard',sourceInstanceId:'real-GLB-1',mode:'move',
+  rootWorld:[-7.46,0,-7],soleVertexWorld:{
+   left:[-7.27455,.20159,-6.83351],right:[-7.29462,.17648,-7.25512]}};
+ const after={...before,rootWorld:[-7.01924,0,-7],soleVertexWorld:{
+   left:[-6.78144,.21709,-6.86607],right:[-6.77470,.21066,-7.25794]}};
+ const meta={beforeTick:3,afterTick:3,beforeFrame:24,afterFrame:26,visible:true};
+ const evidence=assess(before,after,meta);
+ assert.equal(evidence.comparable,true,'genuine >.35m root travel must be reported, not erased');
+ assert.equal(evidence.classification,'rapid-root-travel-unresolved');
+ assert.deepEqual(evidence.potentialPlantSides,[],
+  'no flat-ground or world-space IK evidence at fast native travel');
+ assert.equal(evidence.ikAccepted,false);
+ assert.ok(evidence.rootTravelMeters>.43);
+ assert.ok(evidence.soleWorldDeltaMeters.left>.49);
+ assert.ok(evidence.soleWorldDeltaMeters.right>.51);
+ assert.equal(assess(before,{...after,rootWorld:[-6.80,0,-7]},meta).comparable,false,
+  'larger-than-physical source jumps still fail closed');
+ assert.equal(assess(before,after,{...meta,afterTick:4}).comparable,false);
+ assert.equal(assess(before,after,{...meta,teleport:true}).comparable,false);
+});
