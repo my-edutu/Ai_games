@@ -129,7 +129,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const root=actor.root.position;
   if(Math.hypot(root.x-(at.x-9),root.z-(at.z-9))>.58)return null;
   const bone=hand&&actor.authored?selectObservedWeaponHandBone(actor):
-   chest&&actor.authored?actor.rigMeleeBones?.find(b=>b.part==='spine')?.bone:null;
+   chest&&actor.authored&&actor.assetRoot?
+    actor.rigMeleeBones?.find(b=>b?.part==='spine'&&b?.bone?.isBone===true)?.bone:null;
   if(bone){
    try{
     bone.updateWorldMatrix?.(true,false);bone.getWorldPosition(sampled);
@@ -230,8 +231,19 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // muzzle. Explicitly procedural fallback bodies keep their existing
   // approximate source pose; neither representation proves a target impact.
   const requireObservedEmitter=kineticRelease&&actor?.authored===true;
-  const sampledPoint=sampleActor(id,at,{hand:type==='trail'||kineticRelease,
-   chest:victim,requireBone:type==='trail'||requireObservedEmitter});
+  // These are body-local authored Warden signals, not floor warnings.
+  // Tie the release ring to the EXISTING animated sword wrist and the
+  // recovery ring to the EXISTING spine, never to a fictitious root-height
+  // socket. A missing/unloaded/implausible bone suppresses the glyph; the
+  // independently witnessed public event remains an action, not contact.
+  // Procedural fallback figures retain their earlier approximate anchor.
+  const requireWardenBone=wardenBodySignal&&actor?.authored===true;
+  const wardenHand=requireWardenBone&&cue.kind==='warden-release';
+  const wardenChest=requireWardenBone&&cue.kind==='opening';
+  const sampledPoint=sampleActor(id,at,{
+   hand:type==='trail'||kineticRelease||wardenHand,
+   chest:victim||wardenChest,
+   requireBone:type==='trail'||requireObservedEmitter||requireWardenBone});
   if(sampledPoint)return sampledPoint;
   // A stale or invisible body never falls back to a fake floor-height
   // release/recovery ring, even though the authority proved the event.
