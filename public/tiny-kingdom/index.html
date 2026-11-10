@@ -15858,7 +15858,20 @@ function choose(p){if(p.delivery){routeLoadedWorker(p);return}
    p.activity='Traveling to market for provisions';
    p.target=DELIVERY_MARKET.food.slice();routeCitizen(p);return;
   }
-  let dest;if(p.energy<30||p.hunger>88){dest=[-3,2];p.activity='Resting and gathering food'}else{dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:p.job==='craftsperson'?CRAFT_YARD:[-8,7];p.activity='Traveling to '+p.job+' work'}p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)}
+  // An exhausted or hungry citizen must reach an ACTUAL occupied home for
+  // nourishment; the former distant central rest point could take longer
+  // than the entire work shift and was abandoned at dusk every day.
+  // No instant meal, teleport, new food, or cosmetic actor is introduced.
+  if(p.energy<30||p.hunger>88){
+   p.activity='Traveling home for a meal';
+   p.target=citizenHomeDestination(p);routeCitizen(p);return;
+  }
+  const dest=p.job==='farmer'?[18,1]:p.job==='forester'?[-21,12]:
+   p.job==='merchant'?[0,5]:p.job==='builder'?[7,-4]:
+   p.job==='craftsperson'?CRAFT_YARD:[-8,7];
+  p.activity='Traveling to '+p.job+' work';
+  p.target=[dest[0]+(rand()-.5)*3,dest[1]+(rand()-.5)*3];routeCitizen(p)
+}
 function recount(p){if(state.t-state.lastStory<5)return;state.lastStory=state.t;const actions={farmer:`${p.name} gathered grain from the eastern fields.`,forester:`${p.name} delivered timber from the forest.`,builder:`${p.name} is repairing the village dwellings.`,merchant:`${p.name} bartered surplus food for coin in the market.`,craftsperson:`${p.name} crafted household supplies for local families.`,gatherer:`${p.name} returned with wild herbs and food.`};report(actions[p.job])}
 function work(p){if(p.energy<30||p.hunger>88){p.activity='Seeking a safe meal';return}const workBefore={food:state.food,wood:state.wood,gold:state.gold,buildings:city.length};p.activity=jobWorkActivity(p);if(p.job==='farmer')state.food+=2.8*climateAt(state.t).yieldMultiplier;if(p.job==='gatherer')state.food+=1.4;if(p.job==='forester')state.wood+=2.1;if(p.job==='merchant'&&state.wood<people.length*.8&&state.gold>=4){
  state.gold-=4;state.wood+=8;p.activity='Importing timber for village repairs';
@@ -15876,13 +15889,13 @@ function step(dt){presentationEpoch++;
   updateUI();}
  for(let i=0;i<people.length;i++){const p=people[i],dx=p.target[0]-p.x,dz=p.target[1]-p.z,dist=Math.hypot(dx,dz);// Real commuting feet cycle in time with actual faster road locomotion;
  // hands retain the deliberate measured work beat when at a station.
-const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ')||p.activity.startsWith('Traveling with ')||p.activity==='Traveling home with provisions';
+const onRoad=p.activity==='Returning home at dusk'||p.activity.startsWith('Traveling to ')||p.activity.startsWith('Traveling with ')||p.activity==='Traveling home with provisions'||p.activity==='Traveling home for a meal';
 // Physically traveled distance, not elapsed time, drives swinging legs and
 // wrist-held lanterns; a blocked commuter must not visibly skate in place.
 if(!onRoad)p.phase+=dt*2.2;
 p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
 const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
-if(remaining>.24){const homeward=p.activity==='Traveling home with provisions'||(!onShift&&p.activity==='Returning home at dusk');
+if(remaining>.24){const homeward=p.activity==='Traveling home with provisions'||p.activity==='Traveling home for a meal'||(!onShift&&p.activity==='Returning home at dusk');
 const workbound=onShift&&p.activity.startsWith('Traveling to ');
 const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;if(onRoad)p.phase+=move*2.60;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
 else if(p.path&&p.path.length){p.path.shift()}
@@ -15901,7 +15914,7 @@ else if(p.activity==='Waiting for a safe route'){
  }else routeCitizen(p);
 }else if(p.activity==='Collecting household provisions'){
  finishHouseholdProvisions(p);
-}else if(p.activity==='Traveling home with provisions'){
+}else if(p.activity==='Traveling home with provisions'||p.activity==='Traveling home for a meal'){
  p.activity='Resting at home';p.workTimer=0;
 }else if(p.activity==='Returning home at dusk'){
  // A real physically navigated arrival, NOT a disappearance or instant sleep.
@@ -15910,8 +15923,15 @@ else if(p.activity==='Waiting for a safe route'){
  // Rest restores actual citizen energy. Food still depletes only through
  // the existing authoritative village consumption system.
  p.energy=Math.min(100,p.energy+dt*5);
- if(state.food>1||p.provisions>0)p.hunger=Math.max(0,p.hunger-dt*.85);
- if(onShift&&p.workTimer>=1){p.workTimer=0;choose(p)}
+ // At a reached real home, a resident can eat from their already-paid-for
+ // household/communal food. Hunger is restored over actual rest hours,
+ // not remotely while walking. Stock expenditure is in the existing
+ // per-person consumption ledger below; famine cannot conjure a meal.
+ if(state.food>1||p.provisions>0)p.hunger=Math.max(0,p.hunger-dt*2.25);
+ // Continue a genuine at-home meal instead of restarting a distant errand
+ // every hour. The existing per-tick town/personal-food consumption remains
+ // the only food expenditure; hungry residents cannot recover on empty stock.
+ if(onShift&&p.workTimer>=1&&p.energy>=55&&p.hunger<70){p.workTimer=0;choose(p)}
 }else if(p.activity==='Resting and gathering food'){
  // Rest and eat at a real, physically reached village stop, never the
  // worker's distant cottage or an inaccessible workstation.
@@ -19974,7 +19994,7 @@ function getVillageDocumentaryAudit(){
    const message=stage==='travel-to-market'?'walking to the real market':
     stage==='market-purchase'?'collecting market provisions':
     stage==='returning-with-provisions'?
-     'carrying '+p.provisions+' real provisions home':
+     'carrying '+Number(p.provisions.toFixed(2))+' provisions home':
     stage==='at-home'?'resting at home with '+p.provisions+' provisions':
     p.activity;
    const text=p.name+' · '+message;
