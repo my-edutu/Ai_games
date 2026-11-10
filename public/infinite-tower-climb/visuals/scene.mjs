@@ -2414,6 +2414,13 @@ export function createTowerScene(canvas, settings = {}) {
   // Persistent identity prevents a dead boss, floor change or fresh expedition
   // from borrowing a previous camera-frame position. No per-frame allocation.
   const guardianDrawnObservation = { id:null, runToken:null, floor:null, sourceTick:-1 };
+  // Diagnostic witness from the LAST genuine camera composition. update() owns
+  // followComposition locally; the public 20Hz recorder calls diagnostics()
+  // independently. Never read an update-local variable there or reuse a shot
+  // across an episode, floor, source tick or stale transport.
+  const guardianPlannerWitness = {
+    runToken:null, floor:null, tick:-1, guardianId:null, anchor:null
+  };
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -2995,6 +3002,13 @@ export function createTowerScene(canvas, settings = {}) {
         !options.stale ? guardianWarning.liveHostileGuardianId : null,
         !options.stale ? guardianShotStage.liveHostileFocusPoint() : null,
         drawnGuardianAnchor, sourceGuardian?.id ?? null);
+    guardianPlannerWitness.runToken = snapshot.runToken;
+    guardianPlannerWitness.floor = snapshot.floor;
+    guardianPlannerWitness.tick = snapshot.tick;
+    guardianPlannerWitness.guardianId = sourceGuardian?.id ?? null;
+    guardianPlannerWitness.anchor = !options.stale &&
+      sourceGuardian?.health > 0 && followComposition?.guardianStaged
+        ? followComposition.guardianPlannerAnchor ?? null : null;
     guardianShotLean = !options.stale && followComposition?.guardianStaged
       ? followComposition.lean : null;
     const viewPosition = initialized ? camera.position : followComposition?.position || camera.position;
@@ -4454,7 +4468,14 @@ export function createTowerScene(canvas, settings = {}) {
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
         guardianDrawNdc: drawnGuardianNdc,
         guardianDrawInFrame: visible(drawnGuardianNdc),
-        guardianPlannerAnchor: followComposition?.guardianPlannerAnchor ?? null,
+        guardianPlannerAnchor: !options.stale &&
+          snapshot?.lifecycle === 'running' && snapshot.player?.health > 0 &&
+          liveGuardian.health > 0 &&
+          guardianPlannerWitness.runToken === snapshot.runToken &&
+          guardianPlannerWitness.floor === snapshot.floor &&
+          guardianPlannerWitness.tick === snapshot.tick &&
+          guardianPlannerWitness.guardianId === liveGuardian.id
+            ? guardianPlannerWitness.anchor : null,
         guardianDrawSourceTick: guardianDrawnSourceTick === snapshot.tick
           ? guardianDrawnSourceTick : null,
         guardianSourceToDrawNdcDelta: drawnGuardianNdc

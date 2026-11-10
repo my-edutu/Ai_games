@@ -55,3 +55,30 @@ test('real scene camera uses rendered rig only after source-first boss eligibili
   assert.ok(src.includes('guardianDrawnObservation.runToken = snapshot.runToken;') &&
     src.includes('guardianDrawnObservation.floor = snapshot.floor;'));
 });
+
+test('original source browser diagnosis consumes a retained same-run 3D camera witness, not update-local scope', () => {
+  const src=fs.readFileSync(path.join(visuals,'scene.mjs'),'utf8');
+  const updateStart=src.indexOf('  function update(dt) {');
+  const diagnosticsStart=src.indexOf('  function diagnostics() {',updateStart);
+  const disposeStart=src.indexOf('  function dispose() {',diagnosticsStart);
+  assert.ok(updateStart>=0 && diagnosticsStart>updateStart && disposeStart>diagnosticsStart);
+  const update=src.slice(updateStart, diagnosticsStart);
+  const diagnostics=src.slice(diagnosticsStart,disposeStart);
+  assert.match(src.slice(0,updateStart),
+    /const guardianPlannerWitness = \\{[\\s\\S]*?runToken:null, floor:null, tick:-1, guardianId:null, anchor:null/);
+  assert.match(update,/guardianPlannerWitness\\.runToken = snapshot\\.runToken/);
+  assert.match(update,/guardianPlannerWitness\\.floor = snapshot\\.floor/);
+  assert.match(update,/guardianPlannerWitness\\.tick = snapshot\\.tick/);
+  assert.match(update,/guardianPlannerWitness\\.guardianId = sourceGuardian\\?\\.id/);
+  assert.match(update,/guardianPlannerWitness\\.anchor = !options\\.stale/);
+  assert.doesNotMatch(diagnostics,/followComposition/,
+    'the real browser polls diagnostics outside update; never capture a block-local camera');
+  for (const guard of [
+    'guardianPlannerWitness.runToken === snapshot.runToken',
+    'guardianPlannerWitness.floor === snapshot.floor',
+    'guardianPlannerWitness.tick === snapshot.tick',
+    'guardianPlannerWitness.guardianId === liveGuardian.id',
+    "snapshot?.lifecycle === 'running'",
+    '!options.stale',
+  ]) assert.ok(diagnostics.includes(guard),'diagnostics must veto stale or cross-episode camera evidence: '+guard);
+});
