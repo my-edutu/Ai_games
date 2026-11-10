@@ -18,10 +18,10 @@ async function startFreshOriginalCaptureHost(options={}) {
     !Number.isFinite(timeoutMs)||timeoutMs<100||timeoutMs>60000)
    throw new RangeError('original capture host launch bounds');
  const launch=options.spawnProcess||spawn;
- const check=options.checkHealth||async url=>{
+ const check=options.checkHealth||(async url=>{
    const response=await fetch(url,{signal:AbortSignal.timeout(1500)});
    return response.ok?response.json():null;
- };
+ });
  const now=options.now||Date.now,wait=options.wait||sleep;
  const launchedAtMs=now();
  // This launches ONLY the current checkout's original host. No baseline
