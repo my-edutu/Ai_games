@@ -146,11 +146,11 @@
       "secondFailedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42867334138 — 14 original Node failures before correction"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
-    "state": "P0 OPEN — actual guardian transmission gallery and two-body camera composition changed in source, full-motion acceptance still unavailable",
+    "state": "P0 OPEN — genuine portrait/desktop danger after-film examined; exact-source cap-bound airborne guardian camera discontinuity corrected in code but new source-pinned post-change film and blind acceptance NOT EVALUATED",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Check exact-HEAD post-5f7d source CI + original 10-job film: guardian foreground body masking at 12–24s in 390x844 and 960x600, stable physical camera / landing, real crusher/HP0/gateway/floor9/restart, then supported device and independent blinded reviews. Stay P0.",
+    "nextDecision": "Verify exact-source 8ef code quality, then original post-change 10-job >=60s native WebMs; inspect two real bodies from 14-24s, source HP0/grounded threshold vs video floor9 (~24.5-25s), whole ascent/moving/outcome/restart, hardware and 5 independent blind critics per category. P0 OPEN.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Original source 9095a5b0, 390x844 t20: real near-camera giant guardian armor/hammer obscures part of the skinned climber despite both character centres in frame; source event→native visible pixel proof and full continuous combat/gateway/restart comparison missing.",
+    "biggestRemainingExperienceGap": "Native 2bb danger 14-23s loses coherent two-body duel: jumping hero and live wounded guardian separate through bronze/cyan gate, 20s portrait hero crops near camera; new 8ef source-locked cap air-control continuation has not yet been filmed or independently preferred.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -7319,5 +7319,48 @@
     "fullMotionPaired": false,
     "biggestGap": "Frame-coherent readable hero + living opponent in both viewports with no nearby guardian body covering actual combat and no frantic camera orbit; source grounded threshold crossing still visually unproved.",
     "nextHighestImpactAction": "Inspect new immutable 10-job original A/B full film with event windows at 12–26s portrait and desktop. If foreground hero remains hidden or smoothness degrades, redesign physical duel staging/camera separation together rather than adding minor cosmetics. Then audit moving, ascent, real guardian/crusher, HP0 gate, floor9, terminal/restart, on actual hardware with true independent blind reviewers."
+  },
+  "p0SourceLockedCapAirDuelContinuity20261110": {
+    "stage": "P0 OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedPreChangeSourceSha": "2bb3a0f83693c7e99ca870c11b649aa69e0e2c5f",
+    "reviewedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42898824459",
+    "reviewedOriginalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42898824459/artifacts/13801569297",
+    "genuineNativeVideo": {
+      "portrait": {
+        "size": "390x844",
+        "seconds": 72.68,
+        "calibratedCompositorAnchors": 15
+      },
+      "desktop": {
+        "size": "960x600",
+        "seconds": 72.52,
+        "calibratedCompositorAnchors": 14
+      },
+      "sampling": "real decoded original WebM at 8-30s including 20-26s half-second search; not uninterrupted blind full-motion or source-to-pixel event confirmation"
+    },
+    "observedLargestDefect": "At 14-23s real portrait guardian fight alternates between distant separated fighter/cage, a huge protagonist foreground crop ~20s and guardian offscreen/low; desktop similarly moves away from connected two-body action during actual cap-bound airborne re-entry.",
+    "verifiedSourceGap": "Real source cap remains targeted during late wounded guardian air-control/settling-landing, but existing contactGuardian camera witness explicitly disallowed those air modes; composer intermittently abandoned living opponent.",
+    "implementationSourceSha": "8ef8f7d59129f129db45d8e667db684a43c6f914",
+    "playableChange": "Actual source-locked living damaged guardian now persists as physical two-body 3D camera subject through genuine selected cap air-control/settling-landing within bounded range; source landing and collision remain untouched.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/wounded-cap-duel.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase4/tower-wounded-cap-air-duel.test.cjs"
+    ],
+    "localChecks": "4/4 standalone pure-helper scenario checks on isolated copy; exact repo Node/build/Chromium not locally available",
+    "exactCodeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42902227068",
+    "qualityStatusAtEntry": "IN PROGRESS — no exact-head pass claimed",
+    "newPostChangeOriginalCapture": "REQUESTED at next exact capture-request commit; not yet executed at entry",
+    "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualSourceToPaintedPixels": "NOT EVALUATED — search timestamps are not confirmed screen events",
+    "reviewFile": "docs/reviews/2026-11-10-tower-pr68-source-locked-airborne-cap-duel-afterfilm.md",
+    "nextHighestImpactAction": "Inspect immutable post-8ef original paired >=60s native danger video in BOTH viewports around living guardian 14-24s, source HP0/real gate/grounded floor9, compare ascent/moving/outcome/restart; reject if hero or guardian still lost, then actual hardware and genuine independent reviews."
   }
 }

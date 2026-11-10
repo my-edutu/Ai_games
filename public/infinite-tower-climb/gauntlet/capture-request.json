@@ -5,7 +5,7 @@
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
   "repairedSourceSha": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
-  "reason": "Capture exact IMMUTABLE github.sha original baseline/candidate 8 normal-speed 60+s WebM matrix + source real ledge and anonymous guardian event-cued full original A/B video (10 jobs). New production 5f7d204b + test 14f6cca do NOT alter source gameplay, but original 9095a5b0 390x844 guardian film ~20s shows nearer giant living guardian armor/weapon obscuring skinned protagonist even though both centers were onscreen. New camera director uses source projected complete hitbox/depth foreground overlap to select physically separated two-body views and rejects stalled smooth orbit on a truly masked protagonist. Need PROVE actual full-motion film improves 12–24s guardian attack, unclipped hero, stable orbit, crusher source, earned HP0 physical threshold and floor9 + outcome/restart; no quality preference until filmed and independently reviewed. Retain exact baseline 1731b380, seed, graphics low and 960x600/390x844. CI tests are veto only, not LOOKS/FEELS/PLAYS.",
+  "reason": "New exact-source original 10-job post-8ef capture: 2bb original 72.68s 390x844 / 72.52s 960x600 live danger reveals real injured floor8 guardian lost as camera shifts to cap-bound air-control/settling-landing, with portrait ~20s huge cropped hero. Production source-locked cap-air duel continuation 8ef now retains living wounded real guardian during source-selected cap re-entry with true route/body/camera vetoes; 4 isolated helper scenarios passed, full exact-source CI pending at request. Film must prove or falsify continuity without inventing guardian events, ground crossing or reviewer votes. Both immutable baseline 1731b380 and PR58 remain unchanged. Candidate pinned to THIS request commit github.sha.",
   "scenarios": [
     "ascent",
     "moving",
@@ -62,12 +62,12 @@
   "priorNewQualityRequest": "https://github.com/my-edutu/Ai_games/actions/runs/42689428953",
   "nativeFilmPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42690134996/artifacts/13707336173",
   "nativeFilmIntegrityStatus": "42695480406 all 8 baseline/candidate WebM artifacts retained; 7/8 video jobs succeeded, baseline outcome failed and source-pair job failed; native timebase calibrated 6/8. Never mark all jobs or matched comparisons green.",
-  "nextHighestImpact": "Inspect source-event-cued FULL original current guardian A/B across desktop and portrait, find actual source-to-visible floor9 discrepancy and physically cluttered live guardian duel, fix measured causal/presentation issue rather than test-count theater; no reviewer or hardware certification.",
+  "nextHighestImpact": "Obtain exact immutable post-8ef original guardian 960x600/390x844 full-motion A/B; verify fight staging, genuine boss/crusher, grounded gate, floor9 and restart; fix worst remaining visible defect. Do not count CI or source timing as visual acceptance.",
   "captureRequestedForExactHead": true,
   "latestCaptureRequestParentSha": "06ee10b5db00ea7f6aa5a25e11d7492375819e88",
   "latestQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42793342425",
   "verifiedPreviousSourceCandidate": "590f4dc66144ade1c76589ed826318c0e48747e3",
-  "lastVisualReview": "docs/reviews/2026-11-10-tower-pr68-native-guardian-duel-orbit-continuity.md",
+  "lastVisualReview": "docs/reviews/2026-11-10-tower-pr68-source-locked-airborne-cap-duel-afterfilm.md",
   "currentPrimaryUnresolvedSceneDefect": "New genuine 7fd5 baseline/candidate original portrait danger WebM 14-23s reveals view-to-view orbit discontinuity/steel obstruction, giant bronze circular machine at 20s, real cyan barrier interfering with climber and guardian. Candidate source reaches floor9 by native video ~26s but no independent FEELS/PLAYS acceptance. Source-authentic new follow-camera intervention unfilmed.",
   "captureOnlyMeshOwnerRayProbe": "0dcee182a7e092d2c3d839797f81e60d5d36d15e",
   "originalWebmOwnerSidecarIntegration": "b611b444cbaf1673e23562fa9068ab0b0e4f775c",
@@ -337,24 +337,28 @@
     "deviceFrameTime": "NOT EVALUATED",
     "nextHighestImpact": "Verify exact-head quality and new full original A/B media, source-to-visible phase timing then fix dominant real scene frame/guardian read. Keep P0."
   },
-  "latestLiveGuardianForegroundCapture": {
-    "stage": "P0 OPEN",
+  "latestLiveGuardianForegroundCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42898824459 — 10/10 completed, 2bb exact immutable source; portrait candidate native 72.68s, desktop 72.52s; sampled 14-24s still poor two-body fight",
+  "p0SourceLockedCapAirDuelRecapture20261110": {
+    "implementationSha": "8ef8f7d59129f129db45d8e667db684a43c6f914",
     "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-    "candidateSource": "github.sha of THIS capture request commit; immutable, not moving branch alias",
-    "productionImplementationSha": "5f7d204b7035478d27fa3bdd458cdb30afcc1966",
-    "testSha": "14f6cca5973f29c3bdeca7091b6fcf8dab537987",
-    "sourceBefore": "9095a5b0f1535e099b6c55e49ce86c7c9721d559",
-    "originalBeforeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42888509021",
-    "observedBefore": "At original 390x844 native video second ~20, huge genuine foreground guardian armor/hammer partially hides climber and bright gate steals sightline; source and film unmodified.",
-    "afterCapture": "NOT EVALUATED — this workflow request must run exact immutable github.sha; report film only after decoding it.",
-    "sourceToPixels": "NOT EVALUATED",
+    "originalReviewSha": "2bb3a0f83693c7e99ca870c11b649aa69e0e2c5f",
+    "verifiedOriginalMovie": "https://github.com/my-edutu/Ai_games/actions/runs/42898824459/artifacts/13801569297",
+    "visualDefect": "Live wounded guardian disappears from 3D encounter lens during genuine source cap-target air-control; observed 14-24s portrait/desktop native film spatial duel discontinuity",
+    "implementation": "Source-owned exact f8:cap lock + injured living guardian and bounded real actor/cap range keeps dual-body camera composition across air-control and settling-landing. Does not modify AI, physics, outcome, door.",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/42902227068 — PENDING when requested",
+    "captureSource": "github.sha exact immutable THIS request-file commit",
+    "requiredScenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
     "independentCritics": {
       "looks": 0,
       "feels": 0,
       "plays": 0
     },
-    "supportedHardware": "NOT EVALUATED",
     "leadingVerdict": "NOT EVALUATED",
-    "nextHighestImpact": "Compare genuine portrait+desktop normal-speed source against old, inspect full guardian HP0/projectile/crusher/physical gate/floor9/outcome & restart, then repair main experiential defect rather than counting tests."
+    "exactNextAction": "Confirm all 10 source capture jobs, 8/8 native timebases and exact-source full-length videos; assess 14-24s living guardian two-body, earned true HP0 grounded gate floor9 and outcome/restart; if not visually coherent, reopen real 3D camera staging. Hardware and independent blinded acceptance remain NOT EVALUATED."
   }
 }
