@@ -1,3 +1,19 @@
+## W187 · Active Phase 1 durable top-five blockers (10 November 2026)
+
+Pinned G088 remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Only draft PR #64. The continuing single playable slice is authentic harvest → loaded courier → market receipt → inhabitant home, plus grown Day-120 and 390px. These are ordered **blocking impacts**, not completion points:
+
+| Priority and owner workstream | Measured current evidence | Required visible/functional completion |
+|---|---|---|
+| 1. Rendering spine — CPU static scene/growth | W186 real software 20-frame CPU static p95 96ms desktop / 83.3ms mobile; worst 427.8 / 408.4ms; W187 physical camera ray 1350-probe exact isolated parity only | Matched before/after CPU/driver/GPU frame traces on same viewport/seed; physical device 30fps+ and p95≤33.3ms; no page/GL errors or missing geometry |
+| 2. Real workday + physical camera | W186 W173 resting-door observer cannot select resting Tarin while Oren walks; W187 code now cycles true resting households, real-browser film PENDING | Continuous uncut filmed physical work + unloading + real resting-home door, unobstructed citizen hands desktop/390, genuine receipt linkage |
+| 3. Expressive animated humans | W186 71.64s desktop/61.8s mobile WebM inspected; tiny angular bodies and weak visually intelligible labour | Original coherent adult proportions, planted feet/hand-tool contact, real farm/haul/forge/build motion during authoritative jobs |
+| 4. Connected medieval environment | W186 35 original occupied home GPU partitions at Day121 both viewports; large roofs/canopies still dominate images | One coherent original farm/granary/market/house street with physically believable massing, negative space and material scale Day1/Day120, <160k per-view contract |
+| 5. Evidence, deterministic soak and physical performance | W186 genuine 1024/390 Day120 2/2 PASS; GPU suite overall FAIL due W66/W173; hardware FPS and blind critics unavailable; long-soak workflow FAIL | Stable 120+ growth/replay/save-restore/390px, hardware FPS and memory proof, identical staged real video vs pinned G088, separate genuinely blinded LOOK/FEEL/PLAY critics |
+
+Current source blob `3b5fa3706d5f7665290f02ac4188af3dd65df031`. W187 exact-head GPU CI [42788980067](https://github.com/my-edutu/Ai_games/actions/runs/42788980067) queued; do not call transformation passed. Phase 1 retained, PR DRAFT/UNMERGED.
+
+---
+
 ## W157 · Active single Phase 1 vertical slice — real harvest → loaded courier → market receipt → inhabited original home (9 Nov 2026)
 
 **KEEP Phase 1 active.** Latest verified playable HTML blob `a1fb676dce1a6c51e50e9b7d8b6e33d9a16cb5f5`, implementation [3ec06dbd](https://github.com/my-edutu/Ai_games/commit/3ec06dbd50dab21d8e313c142568821d3f2832b4), WebGL outward-wall geometry correction [7c66c408](https://github.com/my-edutu/Ai_games/commit/7c66c408bcd81244de7a582f5ae51d9ad90427f7), executable contract [6d9917bd](https://github.com/my-edutu/Ai_games/commit/6d9917bd4e9ac067bf934e3a3aa73235b2aa182e) on [DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64). G088 stays `2f6deb43feb1a1557848d44def53a6109deb1ab1`. W157 materially extends the SAME original street architecture to real house attics, genuine grain loft ventilation and actual permanent-market shop lofts as coherent joined roof geometry, preserving all authoritative actors/transactions. Source V8 and isolated geometry/winding PASS; Node/Chromium current head NOT RUN, hardware and actual footage unavailable. This is an artistic production candidate, **NOT a transformation PASS**. Additional geometry requires strict current-head <160k check.
