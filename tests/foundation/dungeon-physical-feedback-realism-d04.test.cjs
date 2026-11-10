@@ -521,3 +521,35 @@ test('D04 guard and utility glyphs require a live, matching actor action at the 
  assert.equal(visuals.stats().instancesByPool.signal,0);
  visuals.dispose();
 });
+
+test('D04 stopped guard gesture cannot authorize frame-gated foley after its glyph retires',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {T,scene}=three();
+ const before={id:'vanguard',kind:'vanguard',faction:'party',hp:30,maxHp:30,
+  x:2,z:2,action:'idle',actionTick:10};
+ const guarding={...before,action:'guard',actionTick:11};
+ const body={u:guarding,authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const visuals=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='vanguard'?body:null});
+ const sounds=[],controller=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter:visuals,
+  audioAdapter:{enable(){return true},emit(x){sounds.push(x);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}});
+ const snap=(tick,unit)=>({tick,run:1,floor:1,units:[unit],events:[]});
+ assert.equal(controller.enableAudioFromGesture(),true);
+ controller.acceptSnapshot(snap(10,before));
+ controller.acceptSnapshot(snap(11,guarding));
+ controller.advance(.016,.016);
+ assert.equal(visuals.hasLiveCue('1:1:11:guard:vanguard:-'),true);
+ assert.equal(sounds.length,0,'no sound before a genuine submitted frame');
+ body.u={...guarding,action:'idle',actionTick:12};
+ controller.advance(.016,.016);
+ assert.equal(visuals.hasLiveCue('1:1:11:guard:vanguard:-'),false);
+ assert.equal(controller.acknowledgePresentedFrame(1),0);
+ assert.equal(sounds.length,0,'stale guard art cannot release delayed guarded-sound foley');
+ assert.ok(controller.stats().recentDeliveryReceipts.some(x=>
+  x.kind==='guard'&&x.decision==='expired-visual'));
+ controller.dispose();
+});
