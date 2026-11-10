@@ -2074,7 +2074,9 @@ test('actual published diagonal jaw inspection appears in unaltered mobile WebGL
       intent:document.getElementById('intent-mode')?.textContent,
       scrollWidth:document.documentElement.scrollWidth,
       scrollHeight:document.documentElement.scrollHeight,
-      explorer:window.__MAZE_3D__?.explorerPhysicalBounds
+      explorer:window.__MAZE_3D__?.explorerPhysicalBounds,
+      publicSurveyLight:window.__MAZE_3D__?.witnessedPressureSurveyLight,
+      publicSurveyLinks:window.__MAZE_3D__?.witnessedPressureSurveyLinks
     }));
     expect(stage.scrollWidth).toBe(390);expect(stage.scrollHeight).toBeLessThanOrEqual(845);
     const file=path.join(dir,'public-pressure-inspection-'+label+'-390.png');
@@ -2089,7 +2091,10 @@ test('actual published diagonal jaw inspection appears in unaltered mobile WebGL
   };
   const study=await capture('survey',match.survey);
   expect(study.objective).toBe('Study jaws');expect(study.intent).toBe('Inspecting jaws');
+  expect(study.publicSurveyLight,'genuine inspection must light the published jaw corridor').toBe(true);
+  expect(study.publicSurveyLinks,'published diagonal uses two publicly open links').toBe(2);
   const next=await capture('departure',match.leave);
   expect(next.tick).toBeGreaterThan(study.tick);
   expect(next.intent).not.toBe('Inspecting jaws');
+  expect(next.publicSurveyLight,'autonomous departure must clear inspection beam').toBe(false);
 });

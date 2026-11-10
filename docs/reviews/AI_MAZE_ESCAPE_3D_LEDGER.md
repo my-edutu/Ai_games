@@ -1,3 +1,9 @@
+## Pass255 — authentic 390px source-bound inspection; original connected lantern-to-jaw CANDIDATE (2026-11-10 UTC)
+
+- Previous HEAD ee1651c9 [WebGL 42903961407](https://github.com/my-edutu/Ai_games/actions/runs/42903961407) SUCCESS, including strict six-reset resource gate. Downloaded its 26MB artifact; **39/39 original full PNG SHA-256 matches** (37 per-image JSON and 2 gate manifest). The actual 390px tick5 Study jaws -> tick6 departure is genuine, but physical lantern-to-jaw attention is visually absent behind busy masonry. Fixed official Nintendo benchmark remains REJECTED.
+- Authored source-public real lantern survey: during true inspecting-hazard WAIT, connect Pip's real articulated lamp to the actual public pressure jaw through visible reciprocal unsealed corridor segments. One retained extra mesh REUSES existing cone geometry/material; 0 new GPU buffer classes, no fake trap activation, no AI/game rules, secrets, extra HUD panels or threshold relaxation. Clears on public departure or real guardian. Source tests and source-bound 390px original WebGL survey/clearing assertions added.
+- [Dated review](./maze-3d/pass-255-real-public-inspection-lantern-corridor-2026-11-10.md). **New-HEAD tests, strict six-run, real screenshots, independent visual verdict PENDING**. Never claim Nintendo parity until proven; PR OPEN DRAFT, never merge/deploy/force.
+
 ## Pass254 — genuine diagonal public pressure survey / physical lantern candidate (2026-11-10 UTC)
 
 - Last source `6d9f5613` [WebGL 42895051792](https://github.com/my-edutu/Ai_games/actions/runs/42895051792) SUCCESS including unchanged strict six-reset resource budget; still no directly observed, distinct Pip autonomous inspection shot. Root cause: source AI demanded immediate reciprocal neighbor while official live view shows a publicly disclosed diagonal jaw, and its default distant reaction is much too weak.

@@ -84,3 +84,45 @@ export function publicGuardianEncounterBeat(ageSeconds, reducedMotion = false) {
   const t = Math.min(1, ageSeconds / 1.35);
   return t * t * (3 - 2 * t);
 }
+
+/**
+ * A real autonomous inspection may light a CURRENT, PUBLIC pressure machine
+ * only through reciprocal unlocked corridors. Two-edge diagonal surveys bend
+ * at a currently visible intermediate tile, never through an unseen wall.
+ * This is source-observation presentation, NOT movement, AI sight or attack.
+ */
+export function publicPressureSurveySightline(snapshot, pressureCell) {
+  const width=snapshot?.width,height=snapshot?.height,current=snapshot?.currentCell;
+  if(snapshot?.intent?.mode!=='inspecting-hazard'||snapshot.lifecycle!=='running'
+    ||snapshot.result||!Number.isSafeInteger(width)||width<2
+    ||!Number.isSafeInteger(height)||height<2
+    ||!Number.isSafeInteger(current)||current<0||current>=width*height
+    ||!Number.isSafeInteger(pressureCell)||pressureCell<0||pressureCell>=width*height
+    ||pressureCell===current||!Array.isArray(snapshot.cells)
+    ||!Array.isArray(snapshot.visibleCells)||!Array.isArray(snapshot.doors))return null;
+  const visible=new Set(snapshot.visibleCells);
+  if(!visible.has(current)||!visible.has(pressureCell))return null;
+  const known=new Map(snapshot.cells.filter(c=>visible.has(c?.cell)
+    &&Number.isSafeInteger(c.cell)).map(c=>[c.cell,c]));
+  const from=known.get(current),pressure=known.get(pressureCell);
+  if(!from||from.blocked||pressure?.blocked||pressure?.trap!==true)return null;
+  const direct=(a,b)=>{
+    if(!a||!b||a.blocked||b.blocked||!Array.isArray(a.neighbors)
+      ||!Array.isArray(b.neighbors)||!a.neighbors.includes(b.cell)
+      ||!b.neighbors.includes(a.cell))return false;
+    const steps=Math.abs(a.cell%width-b.cell%width)
+      +Math.abs(Math.floor(a.cell/width)-Math.floor(b.cell/width));
+    return steps===1&&!snapshot.doors.some(d=>!d?.open
+      &&((d.a===a.cell&&d.b===b.cell)||(d.b===a.cell&&d.a===b.cell)));
+  };
+  if(direct(from,pressure))return {links:1,midCell:null};
+  const dx=Math.abs(current%width-pressureCell%width);
+  const dy=Math.abs(Math.floor(current/width)-Math.floor(pressureCell/width));
+  if(dx!==1||dy!==1||!Array.isArray(from.neighbors))return null;
+  for(const id of [...new Set(from.neighbors)].sort((a,b)=>a-b)){
+    const mid=known.get(id);
+    if(mid&&mid.trap!==true&&direct(from,mid)&&direct(mid,pressure))
+      return {links:2,midCell:id};
+  }
+  return null;
+}

@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
+import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -98,7 +98,23 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const lanternBeamAxis = new THREE.Vector3(0, 1, 0);
   const lanternBeamDirection = new THREE.Vector3();
   const lanternBeamEnd = new THREE.Vector3();
-  scene.add(lanternBeam);
+  // Share the original lamp's GPU geometry and material: NO new geometry
+  // class or buffer, just one retained mesh for an authentic OPEN corner.
+  const lanternSurveyTurn=new THREE.Mesh(lanternBeamGeometry,lanternBeamMaterial);
+  lanternSurveyTurn.name='Observed pressure survey lantern corner';
+  lanternSurveyTurn.visible=false;
+  scene.add(lanternBeam,lanternSurveyTurn);
+  const lanternSurveyCorner=new THREE.Vector3();
+  const placePublicSurveyCone=(mesh,from,to)=>{
+    lanternBeamDirection.copy(from).sub(to);
+    const length=lanternBeamDirection.length();
+    if(!(length>.3&&length<CELL_SIZE*1.75))return false;
+    mesh.position.copy(from).add(to).multiplyScalar(.5);
+    lanternBeamDirection.multiplyScalar(1/length);
+    mesh.quaternion.setFromUnitVectors(lanternBeamAxis,lanternBeamDirection);
+    mesh.scale.set(1,length,1);
+    mesh.visible=true;return true;
+  };
 
   const explorer = createExplorer({ balanced });
   // Hold the real articulated emissive crystal/cage, not a guessed Pip offset.
@@ -693,22 +709,43 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     // Only a genuinely visible reciprocal OPEN EDGE justifies a projected
     // cone. Real models provide both endpoints; no hidden route/wall guessing.
-    lanternBeam.visible = false;
-    if (!result && explorerLantern && closestThreat?.strength > .35
-      && publicLanternEncounter(s, closestThreat.cell)) {
+    lanternBeam.visible=false;
+    lanternSurveyTurn.visible=false;
+    let pressureSurveySightline=null;
+    if(!result&&explorerLantern&&closestThreat?.strength>.35
+      &&publicLanternEncounter(s,closestThreat.cell)){
       explorerLantern.getWorldPosition(lanternFocusOrigin);
-      lanternBeamEnd.set(closestThreat.x, closestThreat.y + .96, closestThreat.z);
+      lanternBeamEnd.set(closestThreat.x,closestThreat.y+.96,closestThreat.z);
       lanternBeamDirection.copy(lanternFocusOrigin).sub(lanternBeamEnd);
-      const beamLength = lanternBeamDirection.length();
-      if (beamLength > .65 && beamLength < CELL_SIZE * 1.7) {
-        lanternBeam.visible = true;
+      const length=lanternBeamDirection.length();
+      if(length>.65&&length<CELL_SIZE*1.7){
+        lanternBeam.visible=true;
         lanternBeam.position.copy(lanternFocusOrigin).add(lanternBeamEnd).multiplyScalar(.5);
-        lanternBeamDirection.multiplyScalar(1 / beamLength);
-        // Tapered cylinder top is at the existing Pip lamp, wide base at the
-        // real Thornback mask; never create or rotate an actor/game object.
-        lanternBeam.quaternion.setFromUnitVectors(lanternBeamAxis, lanternBeamDirection);
-        lanternBeam.scale.set(1, beamLength, 1);
-        lanternBeamMaterial.opacity = .10 + Math.min(.08, closestThreat.strength * .08);
+        lanternBeamDirection.multiplyScalar(1/length);
+        lanternBeam.quaternion.setFromUnitVectors(lanternBeamAxis,lanternBeamDirection);
+        lanternBeam.scale.set(1,length,1);
+        lanternBeamMaterial.opacity=.10+Math.min(.08,closestThreat.strength*.08);
+      }
+    }else if(!result&&explorerLantern&&pressureInspectionStrength>0&&pressureCue){
+      // A genuine AI WAIT earns a visible lamp-to-jaw observation, not a
+      // fictional pressure strike. Never project through private/closed tiles.
+      pressureSurveySightline=publicPressureSurveySightline(s,pressureCue.cell);
+      if(pressureSurveySightline){
+        explorerLantern.getWorldPosition(lanternFocusOrigin);
+        lanternBeamEnd.set(pressureCue.x,
+          cellHeight(pressureCue.cell,s.width,s.height)+1.15,pressureCue.z);
+        lanternBeamMaterial.opacity=settings.highContrast?.28:.20;
+        if(pressureSurveySightline.links===1){
+          placePublicSurveyCone(lanternBeam,lanternFocusOrigin,lanternBeamEnd);
+        }else{
+          const mid=cellPosition(pressureSurveySightline.midCell,s.width,s.height);
+          lanternSurveyCorner.set(mid.x,
+            cellHeight(pressureSurveySightline.midCell,s.width,s.height)+1.25,mid.z);
+          const first=placePublicSurveyCone(lanternBeam,lanternFocusOrigin,lanternSurveyCorner);
+          const second=first&&placePublicSurveyCone(
+            lanternSurveyTurn,lanternSurveyCorner,lanternBeamEnd);
+          if(!second){lanternBeam.visible=false;lanternSurveyTurn.visible=false;}
+        }
       }
     }
     guide.material.opacity = settings.highContrast ? .95 : .65;
@@ -1359,7 +1396,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           headPitch:explorer.group.getObjectByName('curious head')?.rotation.x ?? null,
           lanternShoulderX:explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
         } : null,
-        witnessedLanternConeVisible: lanternBeam.visible,
+        witnessedLanternConeVisible: lanternBeam.visible && !pressureSurveySightline,
+        witnessedPressureSurveyLight: !!pressureSurveySightline && lanternBeam.visible
+          && (pressureSurveySightline.links===1||lanternSurveyTurn.visible),
+        witnessedPressureSurveyLinks: pressureSurveySightline?.links??0,
         witnessedLanternWarningVisible: lanternWarning.visible,
         // Read the real Three.js light and articulated cage after the actual
         // WebGL render. Diagnostics cannot substitute for native image review.
@@ -1466,7 +1506,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     lanternWarningGeometry.dispose(); lanternWarningMaterial.dispose();
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
-    scene.remove(lanternBeam); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
+    scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.
