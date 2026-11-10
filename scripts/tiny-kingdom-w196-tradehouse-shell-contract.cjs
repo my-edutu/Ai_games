@@ -25,10 +25,10 @@ const make=(index,face)=>{
    tradehouseGroundFrontWalls:0},
   data:[]
  };
- c.quad=(...args)=>{polygons.push(args);c.data.push(...Array(20).fill(0))};
- c.tri=(...args)=>{polygons.push(args);c.data.push(...Array(10).fill(0))};
- c.box=(...args)=>{solids.push(args);c.data.push(...Array(120).fill(0))};
- c.limbSegment=(...args)=>{solids.push(args);c.data.push(...Array(80).fill(0))};
+ c.quad=(...args)=>{polygons.push(args);c.data.push(...Array(60).fill(0))};
+ c.tri=(...args)=>{polygons.push(args);c.data.push(...Array(30).fill(0))};
+ c.box=(...args)=>{solids.push(args);c.data.push(...Array(360).fill(0))};
+ c.limbSegment=(...args)=>{solids.push(args);c.data.push(...Array(300).fill(0))};
  vm.createContext(c);
  vm.runInContext(source,c);
  const before=c.data.length;
