@@ -402,3 +402,43 @@ test('unflagged and mismatched old guardians cannot create a world-space victory
     }finally{world.dispose();}
   }
 });
+
+
+// The original unmodified 9924ca01 portrait danger WebM still masks the
+// climber behind the live exterior bronze wheel/counterweight superstructure
+// around native 20s, even though the redundant *inner* gate was removed.
+// Keep this second gate's source-powered mechanism, but place its moving
+// masses on flanking machinery bays and the upper crown, never in the central
+// climber/guardian sightline. Geometry is real and source feedback persists;
+// this scoped regression is NOT footage/independent quality acceptance.
+test('source-powered exterior lock keeps the live duel open beneath its elevated flanking transmission', async () => {
+  const { createTowerWorld } = await loaded;
+  const world = createTowerWorld();
+  try {
+    const living = { ...frame(), theme:'clockwork', tick: 390 };
+    world.update(living, .016, 0, {quality:'low'});
+    const gate = named(world.group, 'AuthoritativeGuardianGate');
+    const drum = gate.getObjectByName('GuardianGateCapstan');
+    const beam = gate.getObjectByName('GuardianOverheadTransmission');
+    const left = gate.getObjectByName('GuardianCounterweightLeft');
+    const right = gate.getObjectByName('GuardianCounterweightRight');
+    assert.ok(drum && beam && left && right, 'true HP-driven transmission remains on the live cap');
+    assert.ok(drum.position.y >= 6.8,
+      'central drum must clear the 0–5m live climber/guardian combat air');
+    assert.ok(beam.position.y >= 6.7,
+      'cross-gate transmission must be OVER the live duel, not a mid-body occluder');
+    const leftWeight = left.getObjectByName('GuardianSealCounterweight');
+    const rightWeight = right.getObjectByName('GuardianSealCounterweight');
+    assert.ok(leftWeight && rightWeight);
+    assert.ok(leftWeight.position.x <= -6.4 && rightWeight.position.x >= 6.4,
+      'both large counterweight blocks belong to flanking bays, outside central fighter silhouettes');
+    assert.ok(Math.abs(drum.rotation.z) < .000001 && !world.diagnostics().guardianGates[0].unlocked,
+      'living guardian still physically owns the locked gateway and has not paid the source win');
+    world.update({...living,tick:391,enemies: living.enemies.map(enemy => ({
+      ...enemy,health:0,active:false
+    }))}, .3, 1, {quality:'low'});
+    assert.ok(drum.rotation.z > 0, 'a source-earned defeat still turns the original transmission');
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,true,
+      'a truly defeated zero-HP guardian still releases the exterior lock');
+  } finally { world.dispose(); }
+});
