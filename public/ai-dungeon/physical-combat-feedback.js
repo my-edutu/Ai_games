@@ -77,6 +77,19 @@ export function createPhysicalCombatFeedback({
   const soundEligible=optedIn&&plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
   const visual=!!safeCall(()=>visuals?.emit?.(cue));
   if(visual)visualAccepted++;
+  // Reduced-motion deliberately hides the sword trail, but must NOT
+  // bypass living source/action provenance. A witnessed attempt can sound
+  // without a skinned authored blade; a dead/guarding/absent performer cannot.
+  // Older injected visual adapters without this optional probe retain their
+  // pre-existing contract; production D04 visuals implement it.
+  if(requirePresentedFrame&&!visual&&reducedMotion&&cue.kind==='swing'&&
+     typeof visuals?.hasAuthenticatedSwingAction==='function'&&
+     safeCall(()=>visuals.hasAuthenticatedSwingAction(cue))!==true){
+   staleAudioDropped++;
+   retainReceipt(cue,false,false,null,'unverified-reduced-swing-action');
+   played++;
+   return;
+  }
   // A true public action alone does not authorize a late sound from a source
   // that no longer has a firing/casting pose. If visual admission failed,
   // retain sound-only release ONLY with the renderer's current source witness.
@@ -227,6 +240,16 @@ export function createPhysicalCombatFeedback({
    // Recheck at the genuine submission receipt, without assigning a target
    // or mutating authority. Drawn effects use the retained-slot gate above.
    if(!item.visual){
+    // A previously witnessed reduced-motion swing may have been interrupted
+    // between admission and genuine WebGL frame submission. Its body-local
+    // whoosh cannot outlive its attack; no blade geometry is required here.
+    if(reducedMotion&&item.cue.kind==='swing'&&
+       typeof visuals?.hasAuthenticatedSwingAction==='function'&&
+       safeCall(()=>visuals.hasAuthenticatedSwingAction(item.cue))!==true){
+     staleAudioDropped++;
+     retainReceipt(item.cue,false,false,frameId,'revoked-reduced-swing-action');
+     continue;
+    }
     const release=item.cue.kind==='ranged-release'||item.cue.kind==='spell-release';
     const body=item.cue.kind==='warden-release'||item.cue.kind==='opening'||
      item.cue.kind==='guard'||item.cue.kind==='cast-utility';
