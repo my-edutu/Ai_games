@@ -7426,5 +7426,31 @@
     "deviceFrameTimesAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect new exact-SHA original 390x844 and 960x600 danger 13–26s full motion/event-neighbor frames for shown climber and actual boss position/camera stability; ray-own residual near-side bronze/gear/cap foreground, reconstruct its physical mass if persisted. Pair actual guardian defeat, crusher, unlocked gateway physical crossing, floor9 and outcome/restart; benchmark real devices and independent blind reviews before any stage pass.",
     "reviewPath": "docs/reviews/2026-11-10-tower-pr68-drawn-guardian-camera-convergence.md"
+  },
+  "p0OriginalBrowserCameraWitnessCaptureRecovery20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedExactHeadBefore": "1c55057af70839301742bd3b81f59bd21e9ef03a",
+    "actualQualityBefore": "https://github.com/my-edutu/Ai_games/actions/runs/42918129965 — SUCCESS, technical veto only, prior source",
+    "failedOriginalSourceFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42918130217 — FAILED; candidate 2/4 browser scenarios (danger and moving) aborted near startup",
+    "failedFilmTruth": "8 of 10 workflow jobs successful (baseline all four scenarios, candidate ascent/outcome, source witness, pair audit job failed); pair-source-events 4/8 paired, four missing. Candidate moving/danger ZIPs contain partial diagnostics, not accepted >=60-second videos.",
+    "verifiedCrash": "Original browser startup at candidate source 1c55057a: both desktop and portrait Playwright calls to window.__TOWER_RENDER_DIAGNOSTICS__ throw ReferenceError: followComposition is not defined (scene.mjs diagnostics:4457). followComposition is let-scoped inside update(dt), not inside diagnostics(). Source simulation is not blamed.",
+    "implemented": "Read-only retained exact-run/floor/tick/guardian planner-anchor diagnostic witness in actual scene renderer, with stale/lifecycle/HP veto. Camera still uses original live drawn guardian rig and source eligibility; no combat, movement, collision, world art, snapshots, camera planning, visual render, tick rate, random numbers or PR58 changes.",
+    "codeSha": "a1ed799f4cfc2008b9b8be10fcabb1ca92aed435",
+    "testCorrectionSha": "1dcf1e4d26bcd6f71622a7aa2f97730dec8cc417",
+    "sourcePinCapture": "Exact immutable github.sha of this ledger + capture-request commit, not a moving branch; new runner result not claimed",
+    "technicalVerification": "Latest actual a1ed and 1dcf CI not yet accepted at time of evidence request; the 1c550 quality PASS predates correction; no local Node22/Chromium/FFmpeg was executed in the connector-only environment",
+    "newNativeRecording": "NOT EVALUATED: capture-request changed to initiate original ten-job rerun, evidence review required",
+    "sourceToRasterGatewayAndRestart": "NOT EVALUATED: the failed moving/danger candidate cannot prove visual events or camera motion",
+    "largestPreviouslyObservedExperienceGap": "Original successfully recorded 8e54c4 source portrait at normal video 18–23s still shows tiny/split guardian and climber, bronze near-side foreground crossing and left-edge crop. Fixing diagnostic crashes does NOT solve that physical visual defect.",
+    "independentReviewers": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualSupportedDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Confirm exact post-correction Node22 CI and all 10 pinned capture jobs; require >=60s 960x600 and 390x844 per original scenario and 8/8 genuine source/native-clock pairs. Then inspect 13–26s guardian full motion and authentic crusher, earned threshold, floor9 and restart; reconstruct physically occluding scene if still masked. Independently test real devices and blind critics.",
+    "reviewFile": "docs/reviews/2026-11-10-tower-pr68-original-browser-camera-witness-capture-recovery.md"
   }
 }
