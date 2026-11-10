@@ -126,3 +126,26 @@ export function publicPressureSurveySightline(snapshot, pressureCell) {
   }
   return null;
 }
+
+/**
+ * Share a real autonomous pressure-inspection performance between Pip and
+ * the known jaws. Only the 390-class Follow portrait has room for this new
+ * survey shot; tight 320px, landscape and reduced-motion optics stay intact.
+ * Revalidate the genuine currently visible reciprocal unlocked corridor:
+ * a stale survey flag must never allow a hidden or sealed camera reveal.
+ */
+export function publicPressureInspectionTakesFocus(
+  snapshot, pressureCell, sightline, trap, cellSize, aspect,
+  mode='follow', guardian=false, opening=false, pickup=false, reduced=false
+) {
+  if (mode!=='follow' || guardian || opening || pickup || reduced
+    || !(Number.isFinite(aspect)&&aspect>=.45&&aspect<.60)
+    || !(Number.isFinite(cellSize)&&cellSize>0)
+    || !Number.isSafeInteger(pressureCell) || trap?.cell!==pressureCell
+    || !(Number.isFinite(trap?.distance)&&trap.distance>=cellSize
+      &&trap.distance<=cellSize*1.65)
+    || !(Number.isFinite(trap?.weight)&&trap.weight>=.30)
+    || !sightline || (sightline.links!==1&&sightline.links!==2))return false;
+  const actual=publicPressureSurveySightline(snapshot,pressureCell);
+  return !!actual && actual.links===sightline.links && actual.midCell===sightline.midCell;
+}

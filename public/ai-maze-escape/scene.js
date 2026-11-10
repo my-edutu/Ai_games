@@ -4,6 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
+import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
@@ -821,7 +822,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         || publicPressureWithdrawalTakesFocus(
           priorPublicSnapshot, s, publicPressureTrap, CELL_SIZE, aspect,
           cameraMode, !!closestThreat?.strength, !!openingGateBeat, !!showPickup)
-        || !!verifiedRetreatTrap;
+        || !!verifiedRetreatTrap
+        // An authoritative currently observed pressure-jaw inspection is a
+        // deliberate performance: frame the genuine lantern/jaw pair rather
+        // than leaving the active decision in a generic distant-water shot.
+        || publicPressureInspectionTakesFocus(s,pressureCue?.cell,
+          pressureSurveySightline,publicPressureTrap,CELL_SIZE,aspect,
+          cameraMode,!!closestThreat?.strength,!!openingGateBeat,
+          !!showPickup,settings.reducedMotion);
       // Current, already-visible jaw must not disappear behind a stale gate
       // during the one lawful retreat from its immediately observed contact.
       const nearObservedGoal = cameraMode === 'follow' && !result

@@ -38,3 +38,36 @@ test('source uses one shared-geometry physical cone per legal leg, cleans up and
   assert.match(source,/scene\.remove\(lanternBeam,lanternSurveyTurn\)/);
   assert.match(source,/witnessedPressureSurveyLight:/);
 });
+
+
+test('the 390px genuine two-edge AI inspection earns a bounded shared 3D shot, never an invented public hazard',async()=>{
+ const {publicPressureSurveySightline:survey,publicPressureInspectionTakesFocus:stage}=await cue;
+ const s=setup(), sight=survey(s,32);
+ const trap={cell:32,distance:2.4*Math.SQRT2,weight:.57};
+ const before=JSON.stringify(s);
+ const check=(snap=s,seen=sight,obj=trap,aspect=390/844,mode='follow',guardian=false,opening=false,pickup=false,reduced=false)=>
+  stage(snap,32,seen,obj,2.4,aspect,mode,guardian,opening,pickup,reduced);
+ assert.equal(check(),true,'native tick5 public reciprocal pressure jaw');
+ assert.equal(check(s,sight,trap,320/740),false,'the earlier 320px no-crop contract is preserved');
+ assert.equal(check(s,sight,trap,844/390),false);
+ assert.equal(check(s,sight,trap,390/844,'overview'),false);
+ assert.equal(check(s,sight,trap,390/844,'detail'),false);
+ assert.equal(check(s,sight,trap,390/844,'follow',true),false,'guardian priority');
+ assert.equal(check(s,sight,trap,390/844,'follow',false,true),false,'real gate priority');
+ assert.equal(check(s,sight,trap,390/844,'follow',false,false,true),false,'key pickup priority');
+ assert.equal(check(s,sight,trap,390/844,'follow',false,false,false,true),false,'reduce motion');
+ assert.equal(check({...s,intent:{mode:'exploring'}}),false,'not an authentic inspection');
+ assert.equal(check({...s,result:{reason:'capture'}}),false);
+ assert.equal(check({...s,visibleCells:[23,24,25]}),false,'remembered trap');
+ assert.equal(check({...s,visibleCells:[23,24,32]}),false,'missing corridor');
+ assert.equal(check({...s,doors:[{a:25,b:32,open:false}]}),false,'sealed corridor');
+ assert.equal(check({...s,cells:s.cells.map(x=>x.cell===25?{...x,neighbors:[24]}:x)}),false,'one-way link');
+ assert.equal(check(s,{links:2,midCell:23}),false,'forged public survey flag');
+ assert.equal(check(s,{links:1,midCell:null}),false,'forged direct passage');
+ assert.equal(check(s,sight,{...trap,cell:31}),false,'wrong jaw');
+ assert.equal(check(s,sight,{...trap,weight:0}),false);
+ assert.equal(check(s,sight,{...trap,distance:Infinity}),false);
+ assert.match(source,/publicPressureInspectionTakesFocus\(s,pressureCue\?\.cell,/,
+  'the native camera must consume the actual witnessed inspection');
+ assert.equal(JSON.stringify(s),before,'never mutate the public snapshot');
+});
