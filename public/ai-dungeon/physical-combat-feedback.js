@@ -277,7 +277,19 @@ export function createPhysicalCombatFeedback({
      }
     }
    }
-   const audible=!!safeCall(()=>foley?.emit?.(item.cue));
+   // A submitted REAL wrist passage can subtly shape the air-whoosh foley.
+   // No measurement? Preserve the established recipe. Never apply velocity
+   // to damage, target assignment, reduced-motion or other cue families.
+   // This is read-only acoustic metadata; immutable authority cues survive.
+   let soundCue=item.cue;
+   if(drawnSwing&&typeof visuals?.measuredSwingSpeed==='function'){
+    const metersPerSecond=safeCall(()=>visuals.measuredSwingSpeed(item.cue));
+    if(Number.isFinite(metersPerSecond)&&metersPerSecond>0&&
+       metersPerSecond<=48)
+     soundCue={...item.cue,detail:{...item.cue.detail,
+      measuredHandMetersPerSecond:metersPerSecond}};
+   }
+   const audible=!!safeCall(()=>foley?.emit?.(soundCue));
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
     audible?'delivered':'foley-rejected');
