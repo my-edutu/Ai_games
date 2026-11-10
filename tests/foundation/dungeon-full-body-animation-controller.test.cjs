@@ -1736,3 +1736,33 @@ test('original Walking_A exit braking follows physical root velocity across real
   assert.ok(model.slice(model.indexOf('const walkExitRate=outgoing?planImportedWalkExitBrake({'),model.indexOf('const walkExitRate=outgoing?planImportedWalkExitBrake({')+650).includes('frameInterval:sourceFrameInterval'),
    'production mixer must use the same witnessed frame interval as the original source step');
 });
+
+
+test('original skinned legs settle into Idle/Guard with bounded stationary source-pose ownership',async()=>{
+ const {planSourceRigLandingRelease:release}=await load();
+ assert.equal(typeof release,'function','source-rig landing release requires an explicit measured-stop contract');
+ const base={mode:'idle',sourceClipName:'Idle',sourceWalkFrozen:true,rootTravel:0,
+  visible:true,alive:true,moving:false,teleport:false,reducedMotion:false,
+  interrupted:false};
+ const at=(elapsed)=>release({...base,elapsed});
+ assert.equal(at(0),0,'preserve witnessed original sole/hip pose on initial landed frame');
+ assert.equal(at(.02),0,'avoid source knee/ankle jump while original walk first loses weight');
+ assert.ok(at(.10)>.05&&at(.10)<.8,'release lower-body support smoothly, not as a new step');
+ assert.equal(at(.25),1,'release back to entirely authentic Idle after bounded settling');
+ assert.ok(at(.08)<at(.14),'original lower-body handoff must be monotonic');
+ assert.equal(release({...base,mode:'guard',elapsed:.10}),at(.10),
+  'lawful native guard shares only the same actual frozen-walk settling envelope');
+ for(const invalid of [
+  {mode:'move'},{mode:'attack'},{mode:'hurt'},{mode:'defeat'},
+  {sourceClipName:'Walking_A'},{sourceWalkFrozen:false},
+  {rootTravel:.008},{rootTravel:NaN},{rootTravel:-1},
+  {moving:true},{visible:false},{alive:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{elapsed:-.1},{elapsed:Infinity}
+ ])assert.equal(release({...base,elapsed:.08,...invalid}),null,
+  'no unverified plant, running root, injured actor or interrupted source can inherit frozen support');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planSourceRigLandingRelease\(/,
+  'the genuine original-GLB mixer must use the bounded native landing planner');
+ assert.match(model,/rigGaitBones/,
+  'only original imported thigh, calf and ankle bones may receive temporary landing ownership');
+});
