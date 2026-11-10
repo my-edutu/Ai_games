@@ -75,9 +75,9 @@ test('real production scene separates local caution from witnessed pair staging'
     'actual open corridor must gate the connected Pip/Thornback performance');
   assert.match(scene,/closestWarning\?\.strength > \.35/,
     'a public nearby warning stays on Pip lantern behind a sealed passage');
-  assert.match(scene,/lanternBeam\.visible = false;/,
+  assert.match(scene,/lanternBeam\.visible\s*=\s*false\s*;/,
     'the stricter adjacent-only original beam remains the default');
-  assert.match(scene,/publicLanternEncounter\(s, closestThreat\.cell\)/,
+  assert.match(scene,/publicLanternEncounter\(\s*s\s*,\s*closestThreat\.cell\s*\)/,
     'light beam still needs the actual one-link public reciprocal disclosure');
   assert.match(scene,/guardianEncounterBeat:closestThreat\?\.encounterBeat/,
     'same real witnessed clock continues to govern the two physical characters');
