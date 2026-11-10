@@ -97,6 +97,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
+  bodyLocalTrailFrames=0,yawFallbackTrailFrames=0,
   unmeasuredTrailFrames=0,retiredDeadTrails=0,retiredInterruptedTrails=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
@@ -608,6 +609,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       }else if(segment){
        slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;
        slot.lastMeasuredSpeed=segment.length/actualFrameSeconds;measuredTrailFrames++;
+        if(hand.sourceBodyRoot)bodyLocalTrailFrames++;
+        else yawFallbackTrailFrames++;
       }else{
        unmeasuredTrailFrames++;
        if(slot.age-slot.lastMeasuredAge>.055){slot.measuredPath=null;slot.lastMeasuredSpeed=0;}
@@ -751,7 +754,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
    retiredUnanchoredBodySignals,confirmedFragments,
-  measuredTrailFrames,unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,disposed,
+  measuredTrailFrames,bodyLocalTrailFrames,yawFallbackTrailFrames,
+   unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
