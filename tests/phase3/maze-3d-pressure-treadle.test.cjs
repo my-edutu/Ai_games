@@ -61,7 +61,13 @@ test('one actual public treadle presses before inward jaws and restores after re
   world.update({...published,visibleCells:[]});
   world.animate(6,{explorerPosition:contact,reducedMotion:false});
   assert.equal(plate.position.y,.035,'remembered-only hazard stays closed');
-  assert.equal(plate.rotation.x,0);
+  // Like withdrawal, invisibility can yield -0 from an absolute Three.js Euler.
+  // Both signs are the same physical rest pose; the private hazard must NEVER
+  // inherit a visible tilted treadle, including under reduced motion.
+  assert.ok(Math.abs(plate.rotation.x)<1e-12,'hidden-only treadle has no residual tilt');
+  world.animate(6.2,{explorerPosition:contact,reducedMotion:true});
+  assert.equal(plate.position.y,.035,'reduced-motion remembered-only trap cannot depress');
+  assert.ok(Math.abs(plate.rotation.x)<1e-12,'reduced-motion hidden trap cannot tilt');
   world.update({...published,runToken:'new',tick:0,cells:[],visibleCells:[],discoveredCells:[]});
   assert.equal(world.group.getObjectByName('Published tide-shear depressible treadle 24'),undefined);
   world.dispose();

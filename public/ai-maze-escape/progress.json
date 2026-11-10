@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T15:53:00.000Z",
+  "updatedAt": "2026-11-10T17:24:46.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass248: Exact-HEAD d53e44fe native WebGL 42838976733 SUCCESS; original 35/35 PNG SHA256 pairs verified, KEY FOUND and public Watch jaws/Avoid jaws physically inspected, unchanged six-run resource gate passed. Actual court still below Nintendo benchmark. Replaced static corner markings with one physical public-contact depressible treadle source candidate. New-HEAD browser rendering, CI and independent critique pending. Draft PR #53 unmerged, undeployed."
+    "summary": "Pass250: Exact HEAD b85c37b failed before source-bound browser captures: 112/113 focused source tests and 746/747 whole Node tests. Previous signed-zero fix covered withdrawal but the hidden/remembered-only treadle still incorrectly required +0. Strict physical rest assertion is now abs(angle)<1e-12 and reduced-motion hidden privacy coverage was added. Exact new-HEAD WebGL, six-reset resource and independent visual judgment pending; original Nintendo benchmark NOT MET. Draft PR #53 remains open and undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass250: Fix actual current-head 112/113 source CI / 746/747 whole Node blockage from hidden pressure-treadle signed-zero while enforcing strict zero-angle rest, plus reduced-motion hidden privacy regression. Prior real native frames remain unchanged evidence; new full-source WebGL and six-reset resource verification PENDING. No Nintendo bar victory.",
     "Pass248: 35/35 original exact-source full-size PNG/JSON SHA pairs verified; key collected HUD and real pressure warning sequence now shown. New production pressure treadle replaces eight inert floor clamp ornaments and physically depresses only on the real public near-contact clock before shutters/jaws; reduced/hidden/retreat/reset and resource constraints preserved. New-head rendered approval PENDING; Nintendo parity UNMET.",
     "Pass247 candidate: exact-HEAD genuine native browser pickup had real WebGL shard release but HUD erroneously displayed 'Disclosed mechanism' because newly introduced nonurgent diagonal Watch jaws outranked public key celebration (WebGL 42837500732, key-gallery failure; pressure chronology and strict 6-run budget passed). Restore same-run short KEY FOUND mission chip above advisory sighting only, retain urgent contact/withdrawal/warden priority and then resume public-only early warning. Source+native desktop/390 tests added; candidate CI/PNG acceptance pending; Nintendo benchmark unmet.",
     "Pass246: real SHA-verified 320/390 tick4 mechanical relay is visible but HUD still says 'Find key' before tick5 contact. Implemented truthful, public-visible diagonal hazard sighting ('Watch jaws' amber) before genuine 'Avoid jaws' urgent contact/withdrawal, with privacy/terminal/tie/range tests; no AI, collision, renderer geometry or threshold changes. Previous exact-HEAD focused WebGL SUCCESS with 35/35 PNG SHA pairs, 390 0.76 NDC jaw, strict six-run PASS. New-code WebGL verdict pending.",
