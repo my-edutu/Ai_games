@@ -408,23 +408,15 @@ export function createRetainedStaticDetailBatches(THREE,parent,geometry,entries,
 
 
 /**
- * Stable software-WebGL decorative light slots.
- *
- * Real motion footage showed multi-second synchronous WebGL submission tails.
- * Previously selecting 0/1/2 original PointLights by toggling visibility
- * changed the per-frame Three.js light count, potentially recompiling every
- * lit material shader during camera moves and genuine wall cutaways.
- *
- * Preserve ALL original warm fixtures, their colors, intensities, distance,
- * decay, animated mood and cutaway ownership. CPU software rendering alone
- * uses a small, CONSTANT number of retained PointLight shader slots instead
- * of varying the shader signature as the player moves. An unused slot stays
- * visible with zero intensity, never illuminates a hidden torch, and remains
- * entirely presentation-only. Hardware WebGL retains every original light.
+ * Bounded scene-light shader budget on VERIFIED CPU software WebGL only.
+ * Retain each original decorative light/fixture and all important hero, boss,
+ * encounter and warning lights. Limit nonessential warm practials nearest to
+ * the physical camera target, with a small same-light hysteresis. This affects
+ * *only* visible scene lights, never actor authority, geometry, audio or PBR.
+ * Hardware WebGL uses every original practical without modification.
  */
 export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDecorativeLights=2}={}){
  if(typeof THREE?.Vector3!=='function'||typeof world?.traverse!=='function'||
-   (software&&typeof THREE?.PointLight!=='function')||
    !Number.isSafeInteger(maxDecorativeLights)||maxDecorativeLights<1||maxDecorativeLights>8)
   throw new TypeError('Invalid software practical light budget');
  const practicals=[];
@@ -433,28 +425,8 @@ export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDe
    practicals.push({light:node,originalVisible:node.visible!==false});
  });
  const point=new THREE.Vector3();
- let previous=new Set(),updates=0,visibilityChanges=0,slotAssignments=0,disposed=false;
- // These lights are not invented world lights: their positions, colors,
- // energy and radius are copied only from actual currently visible fixtures.
- // Fixed slots prevent per-frame NUM_POINT_LIGHTS shader variant churn.
- const slots=[];
- if(software){
-  for(let i=0;i<Math.min(maxDecorativeLights,practicals.length);i++){
-   const proxy=new THREE.PointLight(0xffffff,0,0,2);
-   proxy.name='Original decorative illumination / retained software slot '+(i+1);
-   proxy.castShadow=false;
-   proxy.visible=true;
-   proxy.userData.dungeonSoftwarePracticalProxy=true;
-   world.add(proxy);
-   slots.push(proxy);
-  }
-  for(const {light} of practicals){
-   if(light.visible!==false){light.visible=false;visibilityChanges++}
-  }
- }
+ let previous=new Set(),updates=0,visibilityChanges=0,disposed=false;
  const eligible=light=>{
-  // A hidden original candle or carved lantern is not an excuse for
-  // a glowing light in a genuinely cleared actor sightline.
   for(let ancestor=light.parent;ancestor&&ancestor!==world;ancestor=ancestor.parent){
    if(ancestor.visible===false)return false;
   }
@@ -471,46 +443,25 @@ export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDe
    ranked.push({i,d:(dx*dx+dz*dz)/(previous.has(i)?1.12:1)});
   }
   ranked.sort((a,b)=>a.d-b.d||a.i-b.i);
-  const chosen=ranked.slice(0,slots.length);
-  const next=new Set(chosen.map(entry=>entry.i));
-  for(let i=0;i<slots.length;i++){
-   const proxy=slots[i],entry=chosen[i];
-   if(!entry){
-    proxy.intensity=0;
-    continue;
-   }
-   const source=practicals[entry.i].light;
-   source.getWorldPosition(point);
-   // world is currently identity, but preserve correct mounting if it moves.
-   if(typeof world.worldToLocal==='function')world.worldToLocal(point);
-   proxy.position.copy(point);
-   proxy.color.copy(source.color);
-   proxy.intensity=Number.isFinite(source.intensity)?Math.max(0,source.intensity):0;
-   proxy.distance=source.distance;
-   proxy.decay=source.decay;
-   proxy.castShadow=false;
+  const next=new Set(ranked.slice(0,maxDecorativeLights).map(entry=>entry.i));
+  for(let i=0;i<practicals.length;i++){
+   const {light,originalVisible}=practicals[i],show=originalVisible&&next.has(i);
+   if(light.visible!==show){light.visible=show;visibilityChanges++}
   }
-  for(const i of next)if(!previous.has(i))slotAssignments++;
   previous=next;updates++;
   return stats();
  }
  function stats(){return {software,available:practicals.length,
   selected:software?previous.size:practicals.filter(p=>p.light.visible).length,
   suppressed:software?Math.max(0,practicals.length-previous.size):0,
-  maxDecorativeLights,retainedShaderSlots:slots.length,
-  activeProxyLights:slots.filter(slot=>slot.intensity>0).length,
-  fixedShaderSignature:software&&slots.length>0,
-  updates,visibilityChanges,slotAssignments,disposed};}
- function dispose(){
-  if(disposed)return;
-  disposed=true;
-  for(const proxy of slots)proxy.removeFromParent();
+  maxDecorativeLights,updates,visibilityChanges,disposed}}
+ function dispose(){if(disposed)return;disposed=true;
   for(const {light,originalVisible} of practicals)light.visible=originalVisible;
-  slots.length=0;
   previous.clear();
  }
  return {update,stats,dispose};
 }
+
 
 /**
  * Software-WebGL-only original masonry shader tier.

@@ -60,56 +60,47 @@ test('restore original authored PBR on both hardware and CPU renderers after adv
 });
 
 
-test('actual CPU-world practicals retain two fixed source-anchored shader slots without ghost torch or false Warden lighting',async()=>{
+test('actual original CPU-world light budget keeps two nearest decorative practicals, core combat lights, and restores on floor teardown',async()=>{
  const {createSoftwareWorldLightBudget}=await load();
- const THREE=require('three'),world=new THREE.Group();
- const decorative=[0,1,4,9,12].map((x,index)=>{
-  const p=new THREE.PointLight('#ffbd76',index+1,8,2);
-  p.userData.dungeonDecorativePractical=true;
-  p.position.set(x,1,0);world.add(p);return p;
- });
- const warning=new THREE.PointLight('#fc4747',5,8,2);world.add(warning);
+ class Vector3{set(x,y,z){Object.assign(this,{x,y,z});return this}}
+ const THREE={Vector3};
+ const decorative=[0,1,4,9,12].map((x,index)=>({
+  isPointLight:true,userData:{dungeonDecorativePractical:true},visible:true,
+  getWorldPosition(vector){return vector.set(x,1,0)}
+ }));
+ const warning={isPointLight:true,userData:{},visible:true};
+ const world={traverse(visitor){for(const light of [...decorative,warning])visitor(light)}};
+ decorative.forEach(light=>light.parent=world);
  const budget=createSoftwareWorldLightBudget(THREE,world,{software:true,maxDecorativeLights:2});
- const slots=world.children.filter(n=>n.userData.dungeonSoftwarePracticalProxy===true);
- assert.equal(slots.length,2,'only two permanently visible software shader slots');
- assert.ok(decorative.every(light=>light.visible===false),'original decorative lights cannot double illuminate');
  assert.equal(budget.update({x:0,z:0}).selected,2);
- assert.deepEqual(slots.map(p=>p.intensity),[1,2],'source energy comes from the two nearest real torches');
- assert.equal(warning.visible,true,'authoritative Warden and hero lighting remains untouched');
+ assert.deepEqual(decorative.map(light=>light.visible),[true,true,false,false,false]);
+ assert.equal(warning.visible,true,'authoritative Warden/hero lights are excluded');
  assert.equal(budget.update({x:12,z:0}).selected,2);
- assert.deepEqual(slots.map(p=>p.intensity),[5,4],
-  'the same two physical slots follow different genuine original positions');
- assert.ok(slots.every(light=>light.visible),'camera movement never toggles shader-light count');
+ assert.deepEqual(decorative.map(light=>light.visible),[false,false,false,true,true],
+  'only two authored practicals nearest the actual scene focus remain active');
  assert.equal(budget.stats().suppressed,3);
- assert.equal(budget.stats().retainedShaderSlots,2);
  budget.dispose();
- assert.ok(slots.every(light=>light.parent===null),'no stale slot survives a floor');
- assert.ok(decorative.every(light=>light.visible),'floor teardown restores original fixtures');
+ assert.ok(decorative.every(light=>light.visible),'floor teardown restores all authored lights');
  assert.equal(warning.visible,true);
 });
 
-test('hardware preserves every authored light; software invalid focus cannot activate a false torch or change shader slots',async()=>{
+test('hardware rendering retains every authored practical; invalid focus or capacity never changes scene',async()=>{
  const {createSoftwareWorldLightBudget}=await load();
- const THREE=require('three'),world=new THREE.Group();
- const torch=new THREE.PointLight('#ffd4aa',3,7,2);
- torch.userData.dungeonDecorativePractical=true;torch.position.set(1,1,2);world.add(torch);
- const hardware=createSoftwareWorldLightBudget(THREE,world,{software:false});
- hardware.update({x:100,z:100});
+ class Vector3{set(x,y,z){Object.assign(this,{x,y,z});return this}}
+ const torch={isPointLight:true,userData:{dungeonDecorativePractical:true},visible:true,
+  getWorldPosition(v){return v.set(1,1,2)}};
+ const world={traverse(fn){fn(torch)}};
+ torch.parent=world;
+ const budget=createSoftwareWorldLightBudget({Vector3},world,{software:false});
+ budget.update({x:100,z:100});
  assert.equal(torch.visible,true);
- assert.equal(hardware.stats().suppressed,0);
- assert.equal(hardware.stats().retainedShaderSlots,0);
- hardware.dispose();
- const soft=createSoftwareWorldLightBudget(THREE,world,{software:true});
- const slot=world.children.find(n=>n.userData.dungeonSoftwarePracticalProxy===true);
- assert.ok(slot&&slot.visible&&slot.intensity===0);
+ assert.equal(budget.stats().suppressed,0);
+ const soft=createSoftwareWorldLightBudget({Vector3},world,{software:true});
  assert.equal(soft.update({x:NaN,z:0}).updates,0);
- assert.equal(torch.visible,false,'original scene light is pooled, not removed from its own floor');
- assert.equal(slot.intensity,0,'an invalid focus must not illuminate a pretend torch');
- assert.equal(soft.stats().retainedShaderSlots,1);
- assert.throws(()=>createSoftwareWorldLightBudget(THREE,world,{maxDecorativeLights:0}),TypeError);
+ assert.equal(torch.visible,true);
+ assert.throws(()=>createSoftwareWorldLightBudget({Vector3},world,{maxDecorativeLights:0}),TypeError);
  assert.throws(()=>createSoftwareWorldLightBudget({},world),TypeError);
  soft.dispose();
- assert.equal(torch.visible,true);assert.equal(slot.parent,null);
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const environment=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  assert.match(app,/softwareWorldLights\?\.update\(\{x:cameraAim\.x,z:cameraAim\.z\}\)/);

@@ -2567,7 +2567,7 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Multi-second CPU WebGL render submission stalls, incomplete desktop organic journey and miniature Warden fighters (37px mobile). Original impact/audio timing unverified.",
+    "biggestRemainingGap": "Genuine current-head desktop natural rendered defeat/restart failure; multi-second software WebGL submission stalls; original mobile Warden fighters only 37px and transient physical sightline failure.",
     "currentWork": "Continuing M1: 22504a2 candidate integrates actual earned Warden counterstrike close shot with native physical duel camera, fight-to-fight continuity and identical renderer/camera foreground cutaways; 48e0300 predecessor had 27/28 Chromium with real counter-frame misclassification. No accepted A/B or new-head moving evidence yet.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Verify original 28-triangle physical software flagstone LOD in actual 1440px/390px same-seed Warden moving/Opus, WebGL p50/p95/p99 and full natural defeat/restart. Reject any readability/fps regression; Stage A incomplete. PR72 separate. Baseline and 3 blind critics mandatory.",
+    "executableNextTask": "Reject unverified software retained-light slots after real mobile p95 1146.8ms and desktop 420s rendered-defeat timeout; verify fast-forward restored actual 1440px/390px five-stage original audiovisual journey and sightlines, then profile and fix dominant measured stall. PR72 stays separate. Baseline matched A/B and 3 independent critics mandatory.",
     "phasePlan": [
       {
         "phase": "A",
@@ -6957,6 +6957,62 @@
       "separatePR72": "ee886cc58fc0f06d27c6e21974aa91c2d936db8c_NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Evaluate exact candidate 1440px+390px true original five-stage audiovisual Warden same-seed CI; measure p50/p95/p99 render submit+delivery, WebGL light-slot count, actual torch glow and visibility across camera/cutaway, boss danger, replay/security. Reject if worse. Then further measured stall reduction and Stage B adult original-rig exemplar; locked baseline A/B and >=3 independent critics."
+    },
+    "m1RetainedShaderSlotsRejectedRealEvidence20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "rejectedHead": "895024707d2528dffb707be9fdaad3de9d048daa",
+      "restoredCandidateSourceFrom": "3eb2cf963ce226a77861260401d89cb581a67dde",
+      "exactHeadRun": 42760136335,
+      "foundationRun": 42760136129,
+      "visualRun": 42760136508,
+      "catalogueRun": 42760136364,
+      "sameSeed": "gauntlet-corpus-v1-0",
+      "mobile": {
+        "authoritySnapshots": "946/946",
+        "organicStages": 5,
+        "naturalDefeatRestart": true,
+        "wardenDrawCalls": 427,
+        "wardenTriangles": 194954,
+        "submitP50Ms": 11.8,
+        "submitP95Ms": 1146.8,
+        "submitP99Ms": 2919.4,
+        "deliveryP95Ms": 1866.5,
+        "minHeroPx": 37,
+        "audio": "original_opus_present_contact_sync_UNVERIFIED",
+        "artifact": 13737771556
+      },
+      "desktop": {
+        "authorityFeedSnapshots": "946/946",
+        "actualRenderedDefeat": false,
+        "realRenderedDefeatTimeoutMs": 420000,
+        "wardenDrawCalls": 424,
+        "wardenTriangles": 187277,
+        "submitP50Ms": 11.1,
+        "submitP95Ms": 937.6,
+        "submitP99Ms": 4927.7,
+        "deliveryP95Ms": 1583.2,
+        "minHeroPx": 81,
+        "artifact": 13737966712
+      },
+      "previousRun": 42754353013,
+      "previousMobileSubmitP95Ms": 653.5,
+      "previousMobileSubmitP99Ms": 1436.6,
+      "previousDesktopComplete": true,
+      "comparison": "distinct_CI_runs_NO_CAUSAL_SPEEDUP_CLAIM",
+      "sourceChange": "fast_forward_revert_only_retained_software_PointLight_slots_and_two_connected_focused_test_files_to_prior_original_visible_source_lights",
+      "afterRestorationBrowser": "NOT_OBSERVED",
+      "criterion": "NO_MOTION_OR_PLAY_ACCEPTANCE",
+      "exactHeadFoundation": "AUTHORITY_PASS_browser_2_of_3_PASS_hero_sightline_FAIL",
+      "fullCi": "FAIL_3_OLD_ASSERTIONS_AND_ARTIFACT_PATHS",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "separatePr72Head": "cdbf13781a548c7f4d1c363d21edd6673a3a5ac2_NOT_INTEGRATED",
+      "next": "Run genuine restored-head same-seed desktop/mobile full five-stage original video+Opus; validate rendered defeat and real occlusion, compare Warden p95/p99 and original lighting; then evidence-based direct-render stall correction before Stage B and independent masked baseline preference gates."
     }
   }
 }
