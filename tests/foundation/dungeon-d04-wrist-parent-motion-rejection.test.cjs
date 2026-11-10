@@ -60,6 +60,20 @@ test('D04 malformed or vanished local-bone matrices fail closed',async()=>{
   {...witness({bone,body,x:.15}),sourceBodyRoot:null}
  ])assert.equal(planMeasuredHandTrail(before,after,.016),null);
 });
+test('D04 invalid projective matrix coefficients never authorize a false sword stroke',async()=>{
+ const {planMeasuredHandTrail}=await load(),bone={},body={};
+ const before=witness({bone,body});
+ for(const index of [3,7,11]){
+  const corrupt=matrix();corrupt[index]=NaN;
+  assert.equal(planMeasuredHandTrail(before,
+   witness({bone,body,x:.14,localX:.14,frame:corrupt}),.016),null,
+   'nonfinite homogeneous coefficients do not describe genuine authored pose');
+ }
+ const distorted=matrix();distorted[3]=.02;
+ assert.equal(planMeasuredHandTrail(before,
+  witness({bone,body,x:.14,localX:.14,frame:distorted}),.016),null,
+  'an unexpected projective matrix cannot be treated as bone world geometry');
+});
 test('D04 older numeric adapters retain the proven yaw/root compensation path',async()=>{
  const {planMeasuredHandTrail}=await load();
  const p={x:0,y:1,z:0,rootX:0,rootY:0,rootZ:0};
