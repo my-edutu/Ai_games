@@ -82,3 +82,61 @@ for (const viewport of [{width: 1024, height: 640}, {width: 390, height: 844}]) 
     await page.screenshot({path: 'artifacts/tiny-kingdom-w69/' + viewport.width + '-living-village.png'});
   });
 }
+
+
+// W185 deterministic navigation spatial spine: RED on the prior source
+// (there is no home-collision broadphase audit), with no mocked homes.
+for (const viewport of [{width:1024,height:640},{width:390,height:844}]) {
+  test('W185 actual cottages preserve footprint and save/restore navigation at '+viewport.width+'px', async ({page})=>{
+    test.setTimeout(180000);
+    const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    await page.setViewportSize(viewport);await page.setContent(html);
+    await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,
+      null,{timeout:110000});
+    const check=await page.evaluate(()=>{
+      const g=window.__tinyKingdom;
+      g.setSpeed(0);
+      const snapshot=g.exportSnapshot(),homes=snapshot.payload.city;
+      const points=[];
+      // Exact real roof-footprint margins, corners and both outside edges.
+      for(const [hx,hz,k] of homes){
+        const rx=(2.4+k*.42)*.5+.39,rz=(2.1+k*.18)*.5+.39;
+        for(const dx of [-rx,-rx+.0001,0,rx-.0001,rx])
+          for(const dz of [-rz,-rz+.0001,0,rz-.0001,rz])
+            points.push([hx+dx,hz+dz]);
+      }
+      for(let x=-39;x<=39;x+=2.75)for(let z=-39;z<=39;z+=2.75)
+        points.push([x,z]);
+      const before=points.map(point=>g.walkable(point));
+      // Every point strictly INSIDE any real home footprint must stay blocked,
+      // even when other genuine static colliders are also present.
+      const missed=points.filter((p,i)=>homes.some(([x,z,k])=>
+        Math.abs(p[0]-x)<(2.4+k*.42)*.5+.39 &&
+        Math.abs(p[1]-z)<(2.1+k*.18)*.5+.39) && before[i]);
+      const beforeAudit=g.getHomeNavigationIndexAudit();
+      g.restoreSnapshot(snapshot);
+      const after=points.map(point=>g.walkable(point));
+      const afterAudit=g.getHomeNavigationIndexAudit();
+      return {population:g.metrics().citizens,homes:homes.length,
+        missed,identical:before.every((value,i)=>value===after[i]),
+        snapshotUnchanged:JSON.stringify(g.exportSnapshot())===JSON.stringify(snapshot),
+        beforeAudit,afterAudit,probes:points.length,
+        gl:document.querySelector('#world').getContext('webgl')?.getError()};
+    });
+    expect(check.missed).toEqual([]);
+    expect(check.identical).toBe(true);
+    expect(check.snapshotUnchanged).toBe(true);
+    expect(check.beforeAudit.indexedHomes).toBe(check.homes);
+    expect(check.afterAudit.indexedHomes).toBe(check.homes);
+    expect(check.afterAudit.rebuilds).toBeGreaterThan(check.beforeAudit.rebuilds);
+    expect(check.beforeAudit.candidateChecks).toBeLessThan(
+      check.beforeAudit.queries*check.homes);
+    expect(check.beforeAudit.bounded).toBe(true);
+    expect(check.beforeAudit.authorityChanged).toBe(false);
+    expect(check.probes).toBeGreaterThan(1000);
+    expect(check.gl).toBe(0);expect(errors).toEqual([]);
+    fs.mkdirSync('artifacts/tiny-kingdom-w69',{recursive:true});
+    fs.writeFileSync('artifacts/tiny-kingdom-w69/'+viewport.width+'-w185-navigation.json',
+      JSON.stringify(check,null,2));
+  });
+}
