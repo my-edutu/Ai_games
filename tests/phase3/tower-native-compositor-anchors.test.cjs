@@ -17,17 +17,19 @@ test('only bounded, temporally separated original compositor frames are eligible
   assert.equal(retainAnchor(anchors,100000+MIN_SPACING_MS),true);
   assert.equal(retainAnchor(Array.from({length:MAX_ANCHORS},()=>anchors[0]),200000),false);
 });
-test('denser source-untouched evidence collects at least three separated frames when available, still bounded to sixteen',()=>{
+test('60-second original compositor sampling leaves room for uniquely matched native frames and remains resource bounded',()=>{
   const anchors=[];
   const origin=1794234700000;
-  for(let i=0;i<21;i++){
+  for(let i=0;i<29;i++){
     const timestamp=origin+i*MIN_SPACING_MS;
     if(retainAnchor(anchors,timestamp))anchors.push({startAtMs:timestamp});
   }
-  assert.equal(MAX_ANCHORS,16);
-  assert.equal(anchors.length,16);
+  assert.equal(MAX_ANCHORS,24);
+  assert.equal(anchors.length,24);
   assert.equal(anchors[2].startAtMs-origin,MIN_SPACING_MS*2);
-  assert.equal(retainAnchor(anchors,origin+21*MIN_SPACING_MS),false);
+  assert.ok(anchors.at(-1).startAtMs-origin >= 60000,
+    'bounded passive witnesses must cover a 60-second original recording');
+  assert.equal(retainAnchor(anchors,origin+29*MIN_SPACING_MS),false);
   assert.equal(retainAnchor([{startAtMs:origin}],origin+MIN_SPACING_MS-1),false);
   // Three acceptance anchors are still independently matched against native
   // WebM pixels. This is source-sampling density, NOT auto-calibration.
@@ -43,7 +45,7 @@ test('passive CDP capture preserves real browser frame metadata, throttles, ackn
     save:(file,bytes)=>written.push({file,length:bytes.length})});
   assert.equal(collector.started,true);
   assert.deepEqual(calls.find(x=>x.method==='Page.startScreencast')?.args,{
-    format:'jpeg',quality:85,everyNthFrame:8,maxWidth:390,maxHeight:844});
+    format:'jpeg',quality:85,everyNthFrame:2,maxWidth:390,maxHeight:844});
   const jpeg=Buffer.from([0xff,0xd8,...Array(160).fill(0),0xff,0xd9]).toString('base64');
   client.emit('Page.screencastFrame',{sessionId:1,
     metadata:{timestamp:now/1000},data:jpeg});

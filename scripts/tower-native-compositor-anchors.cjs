@@ -7,8 +7,14 @@ const path=require('node:path');
 // Original baseline desktop danger 42634400305 yielded only 2/5 distinct
 // native-film matching anchors. Collect more independently matchable frames
 // across the same unchanged WebM without loosening the >=3-anchor gate.
-// Twelve to sixteen passive JPEG witnesses over 60-75s remain bounded.
-const MIN_SPACING_MS=3500, MAX_ANCHORS=16;
+// Original 2026-11-10 baseline moving desktop was missing an event-to-video
+// clock despite two good screenshots: only 2 of 8 sparse compositor frames
+// matched unique unmodified WebM pictures. Request more REAL compositor frames
+// throughout the same continuous 60-75s recording; never relax the three
+// unambiguous, span-separated native video match requirement.
+// At most 24 JPEGs, separated by >=2.8 seconds, are retained (usually <3MB).
+// This is read-only evidence capture, never a game-clock or image substitute.
+const MIN_SPACING_MS=2800, MAX_ANCHORS=24;
 function frameTimestampMs(metadata,nowMs){
   const seconds=metadata?.timestamp;
   if(!Number.isFinite(seconds)||seconds<1_000_000_000)return null;
@@ -53,7 +59,7 @@ async function beginTowerNativeCompositorAnchors({page,dir,viewport,clock=Date.n
     client=await page.context().newCDPSession(page);
     client.on('Page.screencastFrame',onFrame);
     await client.send('Page.startScreencast',{
-      format:'jpeg',quality:85,everyNthFrame:8,
+      format:'jpeg',quality:85,everyNthFrame:2,
       maxWidth:viewport.width,maxHeight:viewport.height});
     started=true;
   }catch(error){
