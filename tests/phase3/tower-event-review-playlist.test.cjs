@@ -12,6 +12,11 @@ function make(source,viewport='portrait',events=null){
     inOriginalVideo:true,eventVisibleInVideo:'NOT EVALUATED'}];
  return {source,scenario:'danger',viewport,sourceSha:sha,videoPresent:true,
   videoSha256:(source==='baseline'?'b':'c').repeat(64),videoBytes:1100,videoPath:'a/live.webm',
+  nativeFilmAudit:{sourceSha:sha,scenario:'danger',status:'SOURCE_VIDEO_TRANSPORT_ONLY',
+    viewports:[{viewport,status:'SOURCE_VIDEO_TRANSPORT_ONLY',problems:[],
+      originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),videoBytes:1100,
+      native:{width:viewport==='portrait'?390:960,
+        height:viewport==='portrait'?844:600,firstPtsSeconds:0,lastPtsSeconds:70}}]},
   index:{sourceSha:sha},motion:{seed:'seed-1',recordingQuality:'low',scenario:'danger'},
   videoClock:{sourceSha:sha,status:'CALIBRATED',originalWebMBytes:1100,
     originalVideoUnmodified:true,
@@ -53,4 +58,10 @@ test('veto changed seed/tier and only export trustworthy paths',()=>{
  b.videoClock.seed='other';
  const p=planPair([a,b],'portrait',CANDIDATE);
  assert.equal(p.canReview,false);assert.match(p.failures.join(','),/capture-conditions/);
+});
+
+test('veto a self-described calibrated film without transport-decoded native PTS',()=>{
+ const a=make('baseline'),b=make('candidate');
+ b.nativeFilmAudit.viewports[0].native.lastPtsSeconds=14;
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).canReview,false);
 });
