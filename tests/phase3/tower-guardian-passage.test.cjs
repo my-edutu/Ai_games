@@ -752,8 +752,11 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       'full source exclusion height remains visibly connected to its top spar');
     assert.equal(rails.filter(b=>b.y>5&&b.y<13).length,0,
       'airborne actors are no longer hidden by screen-wide cyan rungs');
-    assert.ok(first.filter(b=>b.height>6&&Math.abs(b.tilt)>.2).length>=2,
-      'crossed physical energy conduits visibly forbid high bypass');
+    const highStays=first.filter(b=>b.height>6&&Math.abs(b.x)>2.2);
+    assert.equal(highStays.length,2,'two source-locked high voltage side-channel conductors');
+    assert.ok(highStays.every(b=>
+      Math.abs(b.x)-Math.abs(Math.sin(b.tilt))*b.height/2>1.05),
+      'physical locked high stays visibly exclude bypass without crossing the airborne duel');
     // The host source can alter the real lock height during a living encounter.
     // A prior pose must never leave a misleading lower, visibly passable gate.
     const taller={...living,tick:101,guardianSealHeight:200000};
@@ -765,8 +768,11 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       .sort((a,b)=>a.y-b.y);
     assert.ok(rails.at(-1).y>19.2);
     assert.equal(rails.filter(b=>b.y>5&&b.y<19).length,0);
-    assert.ok(high.filter(b=>b.height>14&&Math.abs(b.tilt)>.2).length>=2,
-      'live changed source height also lengthens the crossed anti-bypass conductors');
+    const extended=high.filter(b=>b.height>14&&Math.abs(b.x)>2.2);
+    assert.equal(extended.length,2,'source-height extended voltage stays must exist on each side');
+    assert.ok(extended.every(b=>
+      Math.abs(b.x)-Math.abs(Math.sin(b.tilt))*b.height/2>1.05),
+      'an actual 20m lock must retain high physical exclusion and central body clearance');
     assert.equal(JSON.stringify(living),unchanged,
       'renderer never mutates authentic fixed-step guardian state');
   } finally {gate.dispose();}
