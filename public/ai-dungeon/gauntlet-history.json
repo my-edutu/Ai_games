@@ -7384,6 +7384,103 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Review actual latest Warden OFF/ON/OFF profiler and organic capture to partition main-thread/SwiftShader/software renderer vs capture/composition/encoding; fix one measured production rendering bottleneck on PR49; repeat actual source head full motion with original sound desktop/mobile; retain baseline and isolated PR72."
+    },
+    "m1StageAControlledSwiftShaderRecorderOffOnOff20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "sourceSha": "2820180cf808713a34cefa93d6de941173e633a1",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "browserRun": 42832583123,
+      "assay": "REAL_SCENE_HELD_PROFILE_NOT_ORGANIC_MOTION",
+      "realLivingWardenTick": 47,
+      "seed": "gauntlet-corpus-v1-0",
+      "desktop": {
+        "artifact": 13772039409,
+        "assayPassed": true,
+        "organicJourney": "INCOMPLETE_AT_DEFEAT_CHECKSUM_TIMEOUT",
+        "authoritySnapshots": 946,
+        "recordingMode": "render-driven",
+        "originalAudioTracks": 1,
+        "offBefore": {
+          "frameSamples": 20,
+          "rafP50Ms": 566.6,
+          "rafP95Ms": 883.2,
+          "directRenderP50Ms": 14.5
+        },
+        "recorderOn": {
+          "frameSamples": 20,
+          "rafP50Ms": 583.3,
+          "rafP95Ms": 600,
+          "directRenderP50Ms": 11.5,
+          "encodedBytes": 368463
+        },
+        "offAfter": {
+          "frameSamples": 20,
+          "rafP50Ms": 566.6,
+          "rafP95Ms": 633.3,
+          "directRenderP50Ms": 13.8
+        },
+        "organicVideo": {
+          "frames": 764,
+          "durationSeconds": 497.9,
+          "averageFps": 1.53,
+          "frameGapP95Ms": 2106.4,
+          "frameGapP99Ms": 3240.9,
+          "overOneSecondGaps": 256
+        }
+      },
+      "mobile": {
+        "artifact": 13772612204,
+        "assayPassed": true,
+        "organicJourney": "STAGES_RENDERED_5_OF_5_NATURAL_RESTART",
+        "authoritySnapshots": 946,
+        "recordingMode": "render-driven",
+        "originalAudioTracks": 1,
+        "offBefore": {
+          "frameSamples": 20,
+          "rafP50Ms": 466.6,
+          "rafP95Ms": 849.9,
+          "directRenderP50Ms": 12.5
+        },
+        "recorderOn": {
+          "frameSamples": 20,
+          "rafP50Ms": 466.7,
+          "rafP95Ms": 500,
+          "directRenderP50Ms": 11.6,
+          "encodedBytes": 270204
+        },
+        "offAfter": {
+          "frameSamples": 20,
+          "rafP50Ms": 316.7,
+          "rafP95Ms": 516.6,
+          "directRenderP50Ms": 10.3
+        },
+        "organicVideo": {
+          "frames": 504,
+          "durationSeconds": 312.4,
+          "averageFps": 1.61,
+          "frameGapP95Ms": 2105.4,
+          "frameGapP99Ms": 2931.9,
+          "overOneSecondGaps": 78
+        }
+      },
+      "assessment": "Same-runner recording OFF and ON both have several-hundred-ms RAF median, while sampled direct WebGL submit p50 is 10-15ms; MediaRecorder alone is NOT sufficient explanation. 20-frame samples cannot identify driver/raster/compositor/scheduler mechanism; software-WebGL is observed, not proven sole cause. A stale-stream overlay visibly obscures assay screenshots because authentic Warden snapshot is deliberately held; do NOT use those stills for aesthetics acceptance.",
+      "workflowResults": {
+        "dungeonFoundation": "SUCCESS",
+        "visualReview": "SUCCESS",
+        "originalJourney": "MOBILE_SUCCESS_DESKTOP_FAILURE",
+        "catalogue": "FAILURE_1143_OF_1146_PASS"
+      },
+      "productionCodeModified": false,
+      "realAfterGameplayImprovement": "NOT_OBSERVED",
+      "confirmedHpToOriginalAudioTiming": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "pr72": "SEPARATE_UNINTEGRATED_HEAD_af4fb1f03f9295f20c3918047d5a058ede875771",
+      "next": "Use authentic Warden native Chromium trace with MediaRecorder OFF to partition CPU main thread/SwiftShader raster + browser compositor/RAF schedule vs encoding; select one demonstrably dominant game-side cost and implement bounded original-geometry-preserving optimization, validate matched 1440/390 real five-stage 946 snapshots/audio/video and no AI/replay/accessibility regression. Fix visibly stale profiler screenshot through truthful live state, never hide alerts as a fake screenshot. Independently audit PR72 after successful original motion."
     }
   }
 }
