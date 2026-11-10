@@ -8137,6 +8137,13 @@ function citizenRigPose(p){
  const unloading=isMarketUnloading(p),working=isWorkingAtSite(p)||unloading,
    hauling=isLoadedCourierOnRoad(p);
  const acting=occupationalPerformance(p);
+ // W198: real harvest, anvil, joinery and unloading strokes transfer weight
+ // into flexed knees. Keep both saved-world feet PLANTED in their original
+ // terrain positions; hips descend as the already-authoritative work beat
+ // bends the torso. Travellers and loaded couriers retain their road gait.
+ // No new entities, triangles, resources, clocks or simulation RNG.
+ const pelvisDrop=working&&!traveling&&!hauling?
+  Math.min(.16,Math.max(0,Number.isFinite(acting.crouch)?acting.crouch:0)*.78):0;
  // Workers plant their feet before harvesting/chopping; travelling remains
  // a genuine alternating stride, not a running-in-place animation.
  const intensity=traveling?.72:working||hauling?0:.11;
@@ -8184,14 +8191,14 @@ function citizenRigPose(p){
     (strideT<.18?.145*(1-easing(strideT/.18)):
      strideT>.75?-.18*easing((strideT-.75)/.25):0):
     -.18+.325*easing(strideT);
-  const hip=[footX,.60,0],ankle=[footX,.047+groundOffset+lift,footZ];
+  const hip=[footX,.60-pelvisDrop,0],ankle=[footX,.047+groundOffset+lift,footZ];
   const dz=ankle[2]-hip[2],dy=ankle[1]-hip[1],distance=Math.hypot(dz,dy);
   const reach=Math.max(.0001,Math.min(distance,upper+lower-.0001));
   const along=(upper*upper-lower*lower+reach*reach)/(2*reach);
   const bend=Math.sqrt(Math.max(0,upper*upper-along*along));
   const uz=dz/(distance||1),uy=dy/(distance||1);
   const knee=[footX,hip[1]+uy*along+uz*bend,hip[2]+uz*along-uy*bend];
-  return {hip,knee,ankle,lift,groundOffset,rollRadians,
+  return {hip,knee,ankle,lift,groundOffset,rollRadians,pelvisDrop,
    contact:working||hauling&&!traveling?'stance':traveling?(grounded?'stance':'swing'):'idle',
    stridePhase:unit,stanceMetres:traveling?stanceMetres:0};
  });
@@ -8256,7 +8263,7 @@ function citizenRigPose(p){
   }
   return {shoulder,elbow,wrist};
  });
- const pose={legs,arms,working,traveling,hauling,acting,social,
+ const pose={legs,arms,working,traveling,hauling,acting,social,pelvisDrop,
   stride:Math.sin(phase)*intensity,
   laborCadence:{source:'real-working-citizen',planted:working,
    beat:acting.beat,cycle:acting.cycle,strike:acting.strike,stage:acting.stage,
@@ -8992,7 +8999,7 @@ function getPopulationMotionAudit(){
     legs:rig.legs.map(leg=>({
      hipToKnee:length(leg.hip,leg.knee),
      kneeToAnkle:length(leg.knee,leg.ankle),
-     groundOffset:leg.groundOffset,lift:leg.lift
+     groundOffset:leg.groundOffset,lift:leg.lift,pelvisDrop:leg.pelvisDrop
     })),
     arms:rig.arms.map(arm=>({
      shoulderToElbow:length(arm.shoulder,arm.elbow),
