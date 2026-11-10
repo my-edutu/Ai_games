@@ -24,6 +24,7 @@ import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
+import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -1249,8 +1250,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
           });
         return corners;
       })() : null;
-  const center = { ...body };
-  if (routeLanding) blendTowerStageFocus(center, landing, .38);
+  // Full actual bronze winch/weight envelope, not just the narrow cyan lock.\n  // Frame BOTH real fighters while the non-colliding gallery is behind them.\n  const transmissionCorners = contactGuardian && gate\n    ? observedGuardianTransmissionCorners(gate) : null;\n  const center = { ...body };\n  if (routeLanding) blendTowerStageFocus(center, landing, .38);
   if (threat) blendTowerStageFocus(center, threat, routeLanding ? .18 : .5);
   if (contactGuardian && !threat?.guardian) {
     // Preserve an incoming shot's tactical influence without letting it
@@ -1418,6 +1418,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const heroNdcCorners = points.slice(0, 4).map(projectNdc);
     const guardianNdcCorners = guardianCorners.map(projectNdc);
     const gateNdcCorners = lockCorners ? lockCorners.map(projectNdc) : null;
+    const transmissionNdcCorners = transmissionCorners ? transmissionCorners.map(projectNdc) : null;
     const duelLegibility = contactGuardian
       ? observedGuardianDuelLegibility(heroNdcCorners, guardianNdcCorners)
       : {heroFraction:0,guardianFraction:0,score:0};
@@ -1434,9 +1435,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const gateDominance = gateNdcCorners
       ? guardianGateScreenDominance(heroNdcCorners,
         guardianNdcCorners, gateNdcCorners) : 0;
-    const duelEdgePressure = guardianNdcCorners.length
+    const transmissionIntrusion = transmissionNdcCorners\n      ? guardianGateSilhouetteInterference(heroNdcCorners, guardianNdcCorners, transmissionNdcCorners) : 0;\n    const transmissionDominance = transmissionNdcCorners\n      ? guardianGateScreenDominance(heroNdcCorners, guardianNdcCorners, transmissionNdcCorners) : 0;\n    const duelEdgePressure = guardianNdcCorners.length
       ? guardianDuelEdgePressure(heroNdcCorners, guardianNdcCorners) : 0;
-    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion, gateDominance, duelEdgePressure,
+    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion, gateDominance, transmissionIntrusion, transmissionDominance, duelEdgePressure,
       actorFramed, guardianFraction:duelLegibility.guardianFraction,
       duelLegibility:duelLegibility.score, lensScale,
       landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
@@ -1541,6 +1542,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // away from the unsafe phone edges. These are scoring preferences,
         // NOT hidden geometry, gameplay time changes or camera cuts.
         view.gateDominance * 54 -
+        // Favor a complete source duel over near-camera non-colliding machinery.
+        view.transmissionIntrusion * 54 -
+        view.transmissionDominance * 40 -
         view.duelEdgePressure * 14;
     let bestQuality = quality(best);
     const choose = candidate => {

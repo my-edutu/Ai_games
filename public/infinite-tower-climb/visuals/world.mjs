@@ -3,6 +3,7 @@ import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRI
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
+import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 export const THEMES = Object.freeze({
@@ -1468,15 +1469,15 @@ export function createTowerWorld(){
       // No shadow multiplication, animation timers or fabricated door events.
       const counterweights=[];
       for(const side of [-1,1]){
-        // Two mechanical bays are OUTBOARD of the 6.8-wide walk-through
+        // Original ca1b423c portrait film showed near-camera bronze winch over the living climber.\n        // Move these entirely non-colliding counterweight galleries farther outboard,\n        // rearward and higher, keeping genuine locked leaves and the source seal intact.\n        // Two mechanical bays are OUTBOARD of the 6.8-wide walk-through
         // opening and behind its face, leaving clear combat air in the middle.
-        block(doorway,materials.dark,[side*6.68,2.22,-.66],[.28,4.65,.36]).name='GuardianSealCounterweightRail';
+        block(doorway,materials.dark,[side*GUARDIAN_TRANSMISSION_LAYOUT.counterweightX,2.22,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth],[.28,4.65,.36]).name='GuardianSealCounterweightRail';
         const carriage=new THREE.Group();
         carriage.name=side<0?'GuardianCounterweightLeft':'GuardianCounterweightRight';
         doorway.add(carriage);
-        block(carriage,materials.copper,[side*6.68,3.76,-.43],[.68,1.40,.54]).name='GuardianSealCounterweight';
+        block(carriage,materials.copper,[side*GUARDIAN_TRANSMISSION_LAYOUT.counterweightX,3.76,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth],[.68,1.40,.54]).name='GuardianSealCounterweight';
         const cableSocket=block(carriage,materials.edge,
-          [side*6.68,4.48,-.39],[.78,.14,.6]);
+          [side*GUARDIAN_TRANSMISSION_LAYOUT.counterweightX,4.48,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth],[.78,.14,.6]);
         cableSocket.name='GuardianSealCableSocket';
         counterweights.push({side,carriage,socket:cableSocket});
       }
@@ -1489,12 +1490,12 @@ export function createTowerWorld(){
       // a crown-mounted original capstan. Its centre stays ABOVE the actual
       // 0..5m hero/guardian combat, instead of hovering across the duel.
       const overhead=new THREE.Group();overhead.name='GuardianOverheadTransmission';
-      overhead.position.set(0,6.86,-.63);doorway.add(overhead);
-      const driveBeam=block(overhead,materials.edge,[0,0,0],[13.7,.17,.22]);
+      overhead.position.set(0,GUARDIAN_TRANSMISSION_LAYOUT.overheadY,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth);doorway.add(overhead);
+      const driveBeam=block(overhead,materials.edge,[0,0,0],[GUARDIAN_TRANSMISSION_LAYOUT.beamWidth,.17,.22]);
       driveBeam.name='GuardianOverheadDriveBeam';
       driveBeam.castShadow=false;driveBeam.receiveShadow=false;
       const capstan=new THREE.Group();capstan.name='GuardianGateCapstan';
-      capstan.position.set(0,7.10,-.61);doorway.add(capstan);
+      capstan.position.set(0,GUARDIAN_TRANSMISSION_LAYOUT.capstanY,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth);doorway.add(capstan);
       mesh(capstan,geometry('guardian-gate-capstan-rim',
         ()=>new THREE.TorusGeometry(.56,.09,6,22)),materials.copper);
       mesh(capstan,cylinder(),materials.edge,[0,0,0],[.16,.14,.16],[Math.PI/2,0,0]);

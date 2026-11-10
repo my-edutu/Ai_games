@@ -1,0 +1,13 @@
+# Tower PR68 — real outboard guardian transmission and two-body camera (2026-11-10)
+
+**P0 OPEN; leading verdict NOT EVALUATED.** Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`; Draft PR68 only.
+
+## Observed original motion (not a claim of quality gain)
+Original [capture 42856728610](https://github.com/my-edutu/Ai_games/actions/runs/42856728610) completed 10/10 jobs and recorded unmodified 390x844 and 960x600 danger baseline/candidate WebMs at candidate source `ca1b423c97118ab705e7f1281faaca0b78aa6fb6`. The corresponding [quality run 42856728627](https://github.com/my-edutu/Ai_games/actions/runs/42856728627) passed. Examined actual frames at 9,12,14,16,18,20,22,24,26,28 seconds. Portrait candidate at 15s shows separated hero and guardian behind tall cyan/bronze gateway structure; near 20s large bronze wheel/counterweight machinery fills much of the frame and hides part of the climber. Several frozen-baseline samples have clearer actor presentation. Equal video seconds are NOT matching gameplay events; independent quality remains unassessed. Original source trace: guardian HP approaches zero at ~tick441 and floor9 advances at 451. No visual event-to-pixel approval.
+
+## Connected playable presentation reconstruction
+One new immutable `guardian-transmission-layout.mjs` defines the REAL NON-COLLIDING counterweight/gallery geometry. The existing source HP-driven rails, weights, moving sockets, pulley beam and capstan are physically staged farther outboard, slightly behind and above the locked 6.8m doorway. The real bronze seal/leaves and HP-lock remain exactly where authority expects. The two-body guardian follow camera projects that same mechanical envelope in every candidate and penalizes real foreground interference and screen dominance; it continues enforcing full 3D body, core, danger and airborne landing safety. No avatar/enemy position, source movement, crusher, collision, health, real gateway or next-floor rule changes.
+
+Focused Node contract added. Original repository tests/new normal-speed source-pinned film STILL REQUIRED for the new HEAD. Independent blind LOOKS 0/5, FEELS 0/5, PLAYS 0/5; actual-device frame-time p50/p95/p99 and memory NOT EVALUATED. Biggest gap: candidate guardian fight 12–24s visually crowded and physical gateway crossing not yet accepted as uninterrupted event-matched footage.
+
+**Next:** run exact-HEAD Node/Three/browser suite, then capture identical original gameplay after this physical change at 960x600 and 390x844; inspect whether the combatants are more legible without hiding real hazards, and align authentic defeat/threshold/floor9/outcome/restart with visible video frames. Stay P0.
