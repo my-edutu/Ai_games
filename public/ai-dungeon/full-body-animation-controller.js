@@ -451,14 +451,29 @@ export function planNativeImportedLegOwnership({previous=1,mode='idle',
  return 1;
 }
 
+/**
+ * Quiet final source root motion witnessed in original desktop/mobile WebGL:
+ * ~3.9 / 7.4 mm during source Walking_A -> Idle. A strict 1.5mm stop threshold
+ * misses the original shoe fade. Extend it only for low physical XZ velocity,
+ * honest visible frame timing and a genuinely stopped walking authority owner.
+ * NOT world-space IK or certified sole contact; no invented gameplay movement.
+ */
+export function planSourceWalkMicroArrival({groundedTravel=NaN,frameInterval=NaN,
+ groundedMoving=false,visible=true,teleport=false,reducedMotion=false}={}){
+ if(groundedMoving!==false||visible!==true||teleport||reducedMotion||
+  !finite(groundedTravel)||groundedTravel<0)return false;
+ if(groundedTravel<=.0015)return true;
+ return groundedTravel<=.01&&finite(frameInterval)&&frameInterval>0&&
+  frameInterval<=.35&&groundedTravel/frameInterval<=.35;
+}
+
 export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idle',
  previousClipName='',groundedMoving=false,groundedTravel=NaN,
- teleport=false,reducedMotion=false,visible=true}={}){
+ frameInterval=NaN,teleport=false,reducedMotion=false,visible=true}={}){
  return previousMode==='move'&&['idle','guard'].includes(nextMode)&&
   typeof previousClipName==='string'&&/^(?:walking[_\s-]*a|walk|run|move)/i.test(previousClipName)&&
-  groundedMoving===false&&Number.isFinite(groundedTravel)&&
-  groundedTravel>=0&&groundedTravel<=.0015&&
-  !teleport&&!reducedMotion&&visible===true;
+  planSourceWalkMicroArrival({groundedMoving,groundedTravel,
+   frameInterval,teleport,reducedMotion,visible});
 }
 
 /**
@@ -470,15 +485,14 @@ export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idl
 export function shouldFreezeDeferredImportedWalk({
  targetMode='idle',currentMode='idle',clipName='',sourceWeight=NaN,
  sourceRunning=false,sourcePaused=false,groundedMoving=false,
- groundedTravel=NaN,alive=true,visible=true,teleport=false,reducedMotion=false
+ groundedTravel=NaN,frameInterval=NaN,alive=true,visible=true,teleport=false,reducedMotion=false
 }={}){
  return ['idle','guard'].includes(targetMode)&&currentMode===targetMode&&
   typeof clipName==='string'&&/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(clipName)&&
   finite(sourceWeight)&&sourceWeight>0&&sourceWeight<=1&&
-  sourceRunning===true&&sourcePaused===false&&
-  groundedMoving===false&&finite(groundedTravel)&&
-  groundedTravel>=0&&groundedTravel<=.0015&&
-  alive===true&&visible===true&&!teleport&&!reducedMotion;
+  sourceRunning===true&&sourcePaused===false&&alive===true&&
+  planSourceWalkMicroArrival({groundedMoving,groundedTravel,frameInterval,
+   visible,teleport,reducedMotion});
 }
 
 
@@ -514,14 +528,14 @@ export function planImportedWalkExitBrake({
  * evasion, defeat, lost visibility, reduced motion or interrupted actions.
  */
 export function planSourceRigLandingRelease({mode='idle',sourceClipName='',
- sourceWalkFrozen=false,rootTravel=NaN,elapsed=NaN,moving=false,
- visible=true,alive=true,teleport=false,reducedMotion=false,
+ sourceWalkFrozen=false,rootTravel=NaN,frameInterval=NaN,
+ elapsed=NaN,moving=false,visible=true,alive=true,teleport=false,reducedMotion=false,
  interrupted=false}={}){
  if(!['idle','guard'].includes(mode)||sourceClipName!=='Idle'||
-  sourceWalkFrozen!==true||!finite(rootTravel)||
-  rootTravel<0||rootTravel>.0015||!finite(elapsed)||
-  elapsed<0||elapsed>2||moving!==false||visible!==true||
-  alive!==true||teleport||reducedMotion||interrupted)return null;
+  sourceWalkFrozen!==true||!finite(elapsed)||
+  elapsed<0||elapsed>2||alive!==true||interrupted||
+  !planSourceWalkMicroArrival({groundedTravel:rootTravel,
+   frameInterval,groundedMoving:moving,visible,teleport,reducedMotion}))return null;
  // Let the first authentic stopped foot frame stay planted, then release
  // smoothly to the independent, correctly clocked original Idle source.
  const t=clamp((elapsed-.03)/.17,0,1);
@@ -583,10 +597,12 @@ export function planSourceRigWalkReentryRelease({
 }
 
 export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
- groundedMoving=false,groundedTravel=NaN,gaitWeight=0,guardBlend=0,alive=true,
+ groundedMoving=false,groundedTravel=NaN,frameInterval=NaN,
+ gaitWeight=0,guardBlend=0,alive=true,
  teleport=false,reducedMotion=false}={}){
- return mode==='guard'&&sourceWalkFrozen===true&&groundedMoving===false&&
-  finite(groundedTravel)&&groundedTravel>=0&&groundedTravel<=.0015&&
+ return mode==='guard'&&sourceWalkFrozen===true&&
+  planSourceWalkMicroArrival({groundedTravel,frameInterval,groundedMoving,
+   visible:true,teleport,reducedMotion})&&
   finite(gaitWeight)&&gaitWeight>0&&gaitWeight<=1&&
   finite(guardBlend)&&guardBlend>=0&&guardBlend<1&&
   alive===true&&!teleport&&!reducedMotion;

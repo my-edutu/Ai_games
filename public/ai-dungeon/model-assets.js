@@ -731,7 +731,7 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
 
 // One actual rendered displacement sample feeds every native skeletal layer
 // before posing, avoiding one-frame-late hips and invented footfalls.
-function stageRigGroundedStride(actor,reducedMotion,dt){
+function stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval=dt){
  // Every footstep stamp, cloth bob and real skinned leg now shares the single
  // distance-derived cadence reported by groundedPerformance. A legal move
  // settling to idle fades the last planted stance rather than snapping it off.
@@ -749,7 +749,8 @@ function stageRigGroundedStride(actor,reducedMotion,dt){
  const plantedGuard=planNativeWalkToGuardGait({
   mode,sourceWalkFrozen:Boolean(actor.rigGuardPlantHandoff),
   groundedMoving:Boolean(actor.groundedPerformance?.moving),
-  groundedTravel:travel,gaitWeight:actor.rigGaitWeight,
+  groundedTravel:travel,frameInterval:sourceFrameInterval,
+  gaitWeight:actor.rigGaitWeight,
   guardBlend:actor.fullBody?.guardBlend,alive:actor.u.hp>0,
   teleport:Boolean(actor.locomotionTeleport),reducedMotion
  });
@@ -1061,7 +1062,7 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
     previousClipName:priorClipName,
     groundedMoving:Boolean(actor.groundedPerformance?.moving),
     groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
-    teleport:Boolean(actor.locomotionTeleport),
+    frameInterval:sourceFrameInterval,teleport:Boolean(actor.locomotionTeleport),
     reducedMotion:Boolean(actor.fullBody?.reducedMotion),
     visible:sourceFrameVisible
    })){
@@ -1224,7 +1225,8 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    sourceWeight:outgoing.getEffectiveWeight?.()??NaN,
    sourceRunning:Boolean(outgoing.isRunning?.()),sourcePaused:Boolean(outgoing.paused),
    groundedMoving:Boolean(actor.groundedPerformance?.moving),
-   groundedTravel:remaining,alive:actor.u.hp>0,visible:sourceFrameVisible,
+   groundedTravel:remaining,frameInterval:sourceFrameInterval,
+   alive:actor.u.hp>0,visible:sourceFrameVisible,
    teleport:Boolean(actor.locomotionTeleport),reducedMotion
   })){
    outgoing.paused=true;
@@ -1367,7 +1369,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   const release=planSourceRigLandingRelease({
    mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
    sourceWalkFrozen:landing.sourceWalkFrozen,rootTravel,
-   elapsed:landing.elapsed,moving:Boolean(actor.groundedPerformance?.moving),
+   frameInterval:sourceFrameInterval,elapsed:landing.elapsed,moving:Boolean(actor.groundedPerformance?.moving),
    visible:sourceFrameVisible,alive:actor.u.hp>0,
    teleport:Boolean(actor.locomotionTeleport),reducedMotion,
    interrupted:Boolean(actor.fullBody.interrupted)
@@ -1501,7 +1503,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  actor.rigGuardPose=planNativeGuardPose(actor.fullBody?.guardBlend??0,reducedMotion||actor.u.hp<=0);
  actor.nativeGuardPeak=Math.max(actor.nativeGuardPeak||0,
   actor.rigGuardPose.elbows.right,Math.abs(actor.rigGuardPose.legs.left.lower));
- stageRigGroundedStride(actor,reducedMotion,dt);
+ stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval);
  stageRigCranialAfterMixer(actor);
  stageRigPelvisAfterMixer(actor);
  stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
