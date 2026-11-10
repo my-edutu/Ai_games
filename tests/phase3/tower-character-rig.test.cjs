@@ -82,7 +82,12 @@ function loadFollowView() {
     const coordinates = await import(pathToFileURL(path.join(path.dirname(characterFile), 'coordinates.mjs')).href);
     const guardianCircuit = await import(pathToFileURL(path.join(
       path.dirname(characterFile), 'guardian-circuit.mjs')).href);
-    const context = { THREE, ...coordinates, ...guardianCircuit };
+    // The production scene imports all gate-composition helpers as ESM.
+    // VM extraction strips imports, so expose the real unchanged module rather
+    // than silently omitting source camera policies from character projection.
+    const guardianIntrusion = await import(pathToFileURL(path.join(
+      path.dirname(characterFile), 'guardian-gate-intrusion.mjs')).href);
+    const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
     vm.runInNewContext(fs.readFileSync(path.join(path.dirname(characterFile), 'scene.mjs'), 'utf8')
       .replace(/^import .*;\n/gm, '')
       .replace('export function createTowerScene', 'function createTowerScene'), context);

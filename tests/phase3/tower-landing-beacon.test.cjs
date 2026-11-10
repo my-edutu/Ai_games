@@ -14,7 +14,12 @@ const loaded = (async () => {
     'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
   const landingPressure = await import(pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/landing-pressure.mjs')).href);
-  const context = { THREE, ...coordinates, ...guardianCircuit, ...landingPressure };
+  // Include the source-authored gate policies discarded by the VM's ESM strip.
+  // Keep landing/destination projections evaluated against real scene math.
+  const guardianIntrusion = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit, ...landingPressure,
+    ...guardianIntrusion };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };

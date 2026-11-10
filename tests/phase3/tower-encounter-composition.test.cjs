@@ -25,7 +25,11 @@ const loaded = (async () => {
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
   const guardianCircuit = await import(pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
-  const context = { THREE, ...coordinates, ...guardianCircuit };
+  // Mirror production ESM dependencies for the real source camera VM.
+  // No mocked camera, copied function or alternate scene implementation.
+  const guardianIntrusion = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
   // Evaluate the shipped framing and cue functions with the real projection math.
   // No renderer, browser, alternate scene implementation or authority is started.
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
