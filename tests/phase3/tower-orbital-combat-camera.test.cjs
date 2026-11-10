@@ -220,3 +220,45 @@ test('real projected guardian outside a phone crop accelerates its existing exte
   assert.equal(context.towerCameraGuardianSafetyRate(18, 1.4, .4, portrait), 18,
     'guardian recovery cannot override a faster existing hero-safety requirement');
 });
+
+
+test('a genuinely framed guardian duel retains continuous bounded camera AND focus orbit while emergency framing stays unbounded', async () => {
+  const { THREE, context } = await loaded;
+  const safeHero = {x:.18,y:-.12,z:.4}, safeGuardian={x:-.28,y:.14,z:.5};
+  const portrait=390/844, frame=1/60;
+  const budget=context.towerDuelOrbitBudget(frame,portrait,safeHero,safeGuardian,true,true);
+  assert.ok(budget>.02 && budget<.04,'already readable duel has bounded source-current angular velocity');
+  const start=new THREE.Vector3(-44,38,37),target=new THREE.Vector3(44,40,37);
+  const camera=start.clone(),focus=new THREE.Vector3(-19,38,14);
+  const targetFocus=new THREE.Vector3(19,40,14);
+  const cameraAngle=Math.atan2(camera.x,camera.z),focusAngle=Math.atan2(focus.x,focus.z);
+  context.followTowerCamera(camera,target,.82,budget);
+  context.followTowerFocus(focus,targetFocus,.82,budget);
+  const arc=(before,after)=>Math.abs(Math.atan2(Math.sin(after-before),Math.cos(after-before)));
+  assert.ok(arc(cameraAngle,Math.atan2(camera.x,camera.z))<=budget+1e-7,
+    'one normal-speed frame cannot whip the real camera past the current duel');
+  assert.ok(arc(focusAngle,Math.atan2(focus.x,focus.z))<=budget+1e-7,
+    'the real gaze must remain angularly connected with its bounded camera');
+  assert.ok(Math.hypot(camera.x,camera.z)>=27.35,'camera remains outside real collision core');
+  assert.equal(context.towerDuelOrbitBudget(frame,portrait,{x:.95,y:0,z:.4},
+    safeGuardian,true,true),Infinity,'cropped hero has priority over aesthetics');
+  assert.equal(context.towerDuelOrbitBudget(frame,portrait,safeHero,
+    {x:-.8,y:0,z:.4},true,true),Infinity,'cropped guardian triggers genuine rescue');
+  assert.equal(context.towerDuelOrbitBudget(frame,portrait,safeHero,
+    safeGuardian,true,false),Infinity,'obstructed opponent must not be held in place');
+  assert.equal(context.towerDuelOrbitBudget(.2,portrait,safeHero,
+    safeGuardian,true,true),Infinity,'slow frames must not accumulate a fake camera hold');
+  const free=start.clone();
+  context.followTowerCamera(free,target,.82,Infinity);
+  assert.ok(arc(Math.atan2(start.x,start.z),Math.atan2(free.x,free.z)) > budget*8,
+    'unsafe/restored source shot keeps existing fast camera recovery');
+  assert.ok(target.equals(new THREE.Vector3(44,40,37)),
+    'camera comfort never changes authoritative target or route');
+});
+test('the real scene uses one duel budget for both camera and gaze, after recorded body projection', () => {
+  const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(source,/duelOrbitBudget = towerDuelOrbitBudget\(dt, camera\.aspect, scratch,/);
+  assert.match(source,/followTowerCamera\(camera\.position, destination, cameraBlend, duelOrbitBudget\);/);
+  assert.match(source,/followTowerFocus\(lookAt, focus, cameraBlend, duelOrbitBudget\);/);
+  assert.match(source,/if \(initialized && !overview && !options\.reducedMotion &&/);
+});
