@@ -16,6 +16,7 @@ on:
       - 'scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs'
       - '.github/workflows/tiny-kingdom-w129-market.yml'
   workflow_dispatch:
 
@@ -75,12 +76,13 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           CI: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs --workers=1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tiny-kingdom-w129-original-market-roofs-and-setts
           path: |
             artifacts/tiny-kingdom-w129-market/
+            artifacts/tiny-kingdom-w204/
             test-results/
           retention-days: 14
