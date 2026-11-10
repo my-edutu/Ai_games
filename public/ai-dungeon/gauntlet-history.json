@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Use connected real Chromium/browser workspace to compare exact identical seed and camera with MediaRecorder ON versus OFF (matched CI runner), Chrome main-thread/WebGL and SwiftShader traces, shader/program switches, buffer and texture uploads, stall frame breakdown and visibility; select largest confirmed synchronous submission cost, implement substantial retained production renderer correction on PR49, run exact-head desktop 1440/mobile 390 organic 5/5 original audiovisual capture and tests. PR72 source-rig work remains separate until its successful authentic film; then 3+ fresh blind critics against immutable baseline.",
+    "executableNextTask": "Review actual latest Warden OFF/ON/OFF profiler and organic capture to partition main-thread/SwiftShader/software renderer vs capture/composition/encoding; fix one measured production rendering bottleneck on PR49; repeat actual source head full motion with original sound desktop/mobile; retain baseline and isolated PR72.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7345,6 +7345,45 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Same-runner matched MediaRecorder ON/OFF Warden trace with browser CPU, WebGL program/buffer/texture/draw, SwiftShader/compositor and encoder attribution; implement measured substantive correction, then exact-head desktop/mobile 5-stage A/V and immutable baseline masked critics."
+    },
+    "m1StageAOriginalWardenRecorderAssay20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "milestoneStatus": "IN_PROGRESS_NOT_TRANSFORMED",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "originalBaselineArtifact": 13081734898,
+      "originalSourceHead": "e56316aac7f973b85e0d41d9be49b9a78e674723",
+      "originalOrganicWorkflow": 42821101080,
+      "originalBeforeDesktop": {
+        "completeOrganicStages": 5,
+        "authoritySnapshots": "946/946",
+        "drawCalls": 435,
+        "physicalPixels": 199225,
+        "sceneP95Ms": 65.7,
+        "synchronousWebglSubmitP95Ms": 1037.8
+      },
+      "originalBeforeMobile": {
+        "completeOrganicStages": 5,
+        "authoritySnapshots": "946/946",
+        "sceneP95Ms": 72,
+        "synchronousWebglSubmitP95Ms": 1234.2,
+        "minimumHeroPx": 37
+      },
+      "candidate": "Same Chromium source-authentic held living Warden combat state with actual WebGL render and original opted-in audio, OFF/ON/OFF MediaRecorder capture, actual 20-frame interval and render-CPU samples per segment, exact checksums and screenshot; existing organic journey preserved",
+      "files": [
+        "tests/browser/dungeon-m1-renderer-assay.spec.cjs",
+        "tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs",
+        ".github/workflows/dungeon-m1-journey.yml"
+      ],
+      "productionGameSourceChanged": false,
+      "realAfterGameplayEffect": "NOT_OBSERVED",
+      "exactHeadBrowserAssay": "NOT_OBSERVED",
+      "connectedWorkspaceBlocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Review actual latest Warden OFF/ON/OFF profiler and organic capture to partition main-thread/SwiftShader/software renderer vs capture/composition/encoding; fix one measured production rendering bottleneck on PR49; repeat actual source head full motion with original sound desktop/mobile; retain baseline and isolated PR72."
     }
   }
 }

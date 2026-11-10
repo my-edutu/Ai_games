@@ -40,6 +40,12 @@ jobs:
         env:
           DUNGEON_REQUIRE_MODELS: '1'
           DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Profile the genuine Warden renderer with recording OFF ON OFF
+        if: always()
+        run: npx playwright test -c tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
       - name: Upload real evidence or explicit recording failure with source SHA
         if: always()
         uses: actions/upload-artifact@v4
@@ -47,6 +53,7 @@ jobs:
           name: dungeon-m1-organic-${{ matrix.viewport }}
           path: |
             artifacts/dungeon-m1-organic-journey-${{ matrix.viewport }}*
+            artifacts/dungeon-m1-renderer-assay-${{ matrix.viewport }}*
             test-results/**
           if-no-files-found: warn
           retention-days: 14
