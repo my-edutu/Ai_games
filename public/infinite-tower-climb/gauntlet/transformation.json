@@ -6791,5 +6791,34 @@
     "physicalDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-10-tower-pr68-source-filmed-guardian-containment-grate-readability.md",
     "next": "Inspect exact new source-pinned desktop/portrait unedited 60+s danger film and mesh owner rays 12-26s to verify fewer action obstructions without implying a pass-through lock; certify actual source-match gateway 8->9 and result/intermission/restart. Repair frozen desktop ascent native clock anchor disagreement (7/8) without relaxing veto. Do not move P0 or count blind reviews/hardware without genuine evidence."
+  },
+  "p0OriginalOpenAirGuardianBoundary20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "assessor": "NOT EVALUATED",
+    "sourceOfObservedBeforeFilm": "93c6d680c2c047ddb5a13e5c233d47d82df9fbd0",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42757152698",
+    "originalBeforeCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42757152698/artifacts/13735763375",
+    "originalBeforeFrozenDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42757152698/artifacts/13735714073",
+    "originalCandidateOutcomeArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42757152698/artifacts/13735813912",
+    "originalEventPairsArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42757152698/artifacts/13735799812",
+    "sourceEvidence": "Downloaded and examined actual unedited 73.56s portrait and 74.08s desktop danger WebM native frames sampled at 9,12,14,16,18,20,22,24,26,29,35,45,54,60s. Existing source-height 14m cyan ~17-horizontal-rung grid foreground obstructs airborne climber and living guardian around 14-24s; previously replacing an aqua sheet with a prison fence did NOT solve readability. Sampled portrait floor9 near 26s, floor10 near 35s and separate outcome timer-end near 54s/restart near 60s are not continuous quality acceptance.",
+    "calibratedSourceVideoTimebases": "8/8 in 42757152698 (source/episode/provenance defects 0, 16 recordings), HOWEVER fullMotionPaired=false, independent reviews absent, individual video event matches NOT EVALUATED.",
+    "testFirstSha": "eaa5b73e9ac2a6a0957c67b9b722e5b5502e2398",
+    "realThreePresentationImplementationSha": "5fa9331f5b1e4b104ab9e75d6e9099b0d7c600f2",
+    "correctedHistoricalTestSha": "92984cd5274e285dd98c1bd34a076b807b49d420",
+    "reviewEvidenceCommitSha": "694e06d969e4ebf48c40efda3a209818c1574295",
+    "implementedChange": "One bounded source-driven original 3D high-voltage X-exclusion assembly replaces full 14m ladder of view-blocking turquoise rungs; retains six closely spaced lower doorway bars and source-driven full-height side rails/top cap/X, no authority/collision/guardian/crusher/floor/restart edits, only 14 live instances out of 18 capacity, no extra draw calls.",
+    "quality": "Current exact-source Node/Three/build/browser workflow not verified at evidence writing; source cannot be declared CI green.",
+    "newSourcePinnedCapture": "NOT EVALUATED — requires new exact immutable github.sha of capture-request.json commit with all 8 original baseline/candidate WebMs + event pairing; no post-change WebM inspected.",
+    "independentFreshContextBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "nativeDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "Verify whether original wide-open high X retains credible locked guardian boundary while keeping real climber, counterfire, crusher and earned passage visibly readable at 12-26s in desktop and portrait. Current post-change film absent.",
+    "nextHighestImpactAction": "Inspect the requested new exact-source 960x600/390x844 normal-speed 60+s ascent/moving/danger/outcome paired recordings; link source events to visible guardian/crusher defeat, grounded gate crossing, floor9 then authentic result/restart; fix remaining huge opaque geometry if present. Require exact-HEAD green CI and real hardware + independent 4/5 each pillar before any PASS.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-original-guardian-prison-grid-open-air-exclusion.md"
   }
 }
