@@ -411,3 +411,56 @@ test('D04 discards the old blade ribbon immediately when a replacement authored 
  stage.reset();assert.equal(stage.stats().active,0);
  stage.dispose();
 });
+
+
+test('D04 authored ranger and cultist releases use measured rig hands; invalid hand never falls back to a fictitious muzzle',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {selectObservedWeaponHandBone}=await load('measured-weapon-trail.js');
+ const {T,scene}=three();
+ T.Object3D.prototype.updateMatrix=function(){
+  this.matrix={x:this.position.x,y:this.position.y,z:this.position.z};
+ };
+ const bone=(x,y,z)=>({isBone:true,updateWorldMatrix(){},
+  getWorldPosition(out){return out.set(x,y,z)}});
+ const actor=(id,kind,action,hand,authored=true)=>({
+  u:{id,kind,action,actionTick:11,hp:20},
+  authored,assetRoot:authored?{}:null,rigHandBone:hand,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}
+ });
+ const units={
+  cultist:actor('cultist','cultist','cast',bone(-6.72,1.46,-7)),
+  ranger:actor('ranger','ranger','attack',bone(-6.77,1.38,-7))
+ };
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>units[id]??null});
+ const release=(id,kind,visual)=>cue({id:'rig-'+id+'-'+kind,
+  kind,visual,proof:'authority-action',actorId:id,targetId:'enemy',
+  from:{x:2,z:2},to:{x:4,z:2},tick:11,duration:.26});
+ const spell=release('cultist','spell-release','cast');
+ const arrow=release('ranger','ranged-release','launch');
+ assert.equal(selectObservedWeaponHandBone(units.cultist),units.cultist.rigHandBone,
+  'authored cultist has an actual right-hand joint, not a guessed staff tip');
+ assert.equal(stage.emit(spell),true);
+ assert.equal(stage.emit(arrow),true);
+ const meshes=[...scene.children];
+ assert.ok(Math.abs(meshes[6].matrices[0].x-(-6.72))<1e-6,
+  'first spell frame must start at measured cultist hand, not static torso/root');
+ assert.ok(Math.abs(meshes[6].matrices[0].y-1.46)<1e-6);
+ assert.ok(Math.abs(meshes[5].matrices[0].x-(-6.77))<1e-6,
+  'first arrow frame must start at measured ranger hand');
+ stage.reset();
+ units.ranger.rigHandBone=bone(-3.6,1.4,-7);
+ assert.equal(stage.emit(arrow),false,
+  'implausibly distant imported hand must never silently become a root muzzle');
+ units.ranger.rigHandBone=bone(NaN,1.4,-7);
+ assert.equal(stage.emit(arrow),false,
+  'invalid joint coordinates must fail closed for authored rig');
+ units.ranger.rigHandBone=null;
+ assert.equal(stage.emit(arrow),false,
+  'authored body without rigged hand cannot certify a projectile origin');
+ units.cultist.authored=false;units.cultist.assetRoot=null;units.cultist.rigHandBone=null;
+ assert.equal(stage.emit(spell),true,
+  'existing explicitly procedural non-GLB spectator fallback remains usable');
+ assert.equal(stage.stats().instancesByPool.projectile,0);
+ assert.ok(stage.stats().reservedInstances<=104);
+ stage.reset();stage.dispose();assert.equal(scene.children.size,0);
+});
