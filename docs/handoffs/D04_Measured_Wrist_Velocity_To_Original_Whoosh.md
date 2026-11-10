@@ -40,8 +40,10 @@ separately authorized, without invented attackers.
    `measured-weapon-trail.js`, original foley, controller, physical visuals,
    planner, scene wiring, existing wrist/audio tests, plus game-audio,
    game-feel-vfx, performance-optimization and simulation-QA skills.
-2. Committed six Node test contracts (four controller/audio, two real retained-
-   visual-stage scenarios) **before** production source changes.
+2. Committed four Node controller/audio contracts **before** production
+   source changes. Added two integrated retained-visual-stage tests **after**
+   the first implementation for further regression coverage; these are not
+   independently demonstrated red.
 3. **Red reproduction:** Detached V8 evaluation of the fetched production
    controller did NOT pass the physical measurement to audio; the fetched
    production synth generated identical mock envelope ramp peaks
