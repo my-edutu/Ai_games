@@ -18,13 +18,13 @@ function evidence(){
 test('never accepts a clock from another source, another WebM, or uncalibrated film',()=>{
  const ok=evidence(); assert.equal(validateFilmProvenance(ok).length,0);
  const wrongHash=evidence(); wrongHash.hash='c'.repeat(64);
- assert.match(validateFilmProvenance(wrongHash).join(';'),'original-WebM-sha256');
+ assert.match(validateFilmProvenance(wrongHash).join(';'),/original-WebM-sha256/);
  const wrongSha=evidence(); wrongSha.clock.sourceSha='f'.repeat(40);
- assert.match(validateFilmProvenance(wrongSha).join(';'),'source-sha');
+ assert.match(validateFilmProvenance(wrongSha).join(';'),/source-sha/);
  const wrongTier=evidence(); wrongTier.clock.status='NOT EVALUATED';
- assert.match(validateFilmProvenance(wrongTier).join(';'),'uncalibrated');
+ assert.match(validateFilmProvenance(wrongTier).join(';'),/uncalibrated/);
  const wrongWidth=evidence(); wrongWidth.clock.viewport.width=960;
- assert.match(validateFilmProvenance(wrongWidth).join(';'),'viewport');
+ assert.match(validateFilmProvenance(wrongWidth).join(';'),/viewport/);
 });
 test('selects the same real guardian episode in authoritative order, not a spliced later restart',()=>{
  const events=[
