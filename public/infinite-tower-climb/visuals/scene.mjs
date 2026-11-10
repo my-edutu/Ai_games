@@ -114,7 +114,31 @@ function followClimberContact(position, target, blend, state, sourceRimBoundary 
 // The shortest angular arc keeps the entire transition outside the walkable
 // 27.18-unit outer deck, including overview/follow and floor transitions.
 // This is presentation only and makes no additional render or raycast calls.
-function followTowerCamera(position, target, blend) {
+// Normal-speed original 390x844 guardian film at exact SHA 7fd5fb0a,
+// run 42878341492, shows a fast series of changing tower-side viewpoints
+// around native 14-23s. While BOTH genuinely drawn combatants are safely in
+// picture, allow one calm CONTINUOUS exterior orbit rather than accelerating
+// each small lens-score change into a new near-side architectural close pass.
+// The first clipped actor/guardian, genuine core obstruction, stale source or
+// slow frame INSTANTLY releases this comfort cap so camera safety remains first.
+// This pure function consumes only current rendered projections, not future
+// hits, synthetic boss poses, floor skips or gameplay-mutating events.
+function towerDuelOrbitBudget(dt, aspect, actorNdc, guardianNdc,
+    actorCoreClear, guardianCoreClear) {
+  if (!Number.isFinite(dt) || dt <= 0 || dt > .1 ||
+      !Number.isFinite(aspect) || aspect <= 0 || aspect > 3 ||
+      !actorCoreClear || !guardianCoreClear || !actorNdc || !guardianNdc)
+    return Infinity;
+  const safe = (p, x, y) => [p.x,p.y,p.z].every(Number.isFinite) &&
+    Math.abs(p.x) <= x && Math.abs(p.y) <= y &&
+    p.z >= -1 && p.z <= 1;
+  if (!safe(actorNdc,.66,.68) || !safe(guardianNdc,.69,.68)) return Infinity;
+  // Camera turns at <=109 degrees/sec in an already readable portrait duel;
+  // even landscape gets a bound. True panic/unsafe frames are never limited.
+  return Math.min(.14, dt * (aspect < .85 ? 1.9 : 2.3));
+}
+
+function followTowerCamera(position, target, blend, maxAngularStep = Infinity) {
   const alpha = Math.max(0, Math.min(1, blend));
   const radius = Math.hypot(position.x, position.z);
   const targetRadius = Math.hypot(target.x, target.z);
@@ -125,7 +149,11 @@ function followTowerCamera(position, target, blend) {
   const from = Math.atan2(position.x, position.z);
   const to = Math.atan2(target.x, target.z);
   const turn = Math.atan2(Math.sin(to - from), Math.cos(to - from));
-  const azimuth = from + turn * alpha;
+  const wantedStep = turn * alpha;
+  const boundedStep = Number.isFinite(maxAngularStep) && maxAngularStep >= 0
+    ? Math.sign(wantedStep) * Math.min(Math.abs(wantedStep), maxAngularStep)
+    : wantedStep;
+  const azimuth = from + boundedStep;
   const safeRadius = Math.max(27.35, radius + (targetRadius - radius) * alpha);
   position.set(Math.sin(azimuth) * safeRadius,
     position.y + (target.y - position.y) * alpha,
@@ -138,7 +166,7 @@ function followTowerCamera(position, target, blend) {
 // the empty/opaque core even when the camera itself stays outside. Keep the
 // look-at point on its real source-derived annular route, with no artificial
 // focus offset or anticipation; the endpoint remains the exact chosen pose.
-function followTowerFocus(position, target, blend) {
+function followTowerFocus(position, target, blend, maxAngularStep = Infinity) {
   const alpha = Math.max(0, Math.min(1, blend));
   const radius = Math.hypot(position.x, position.z);
   const targetRadius = Math.hypot(target.x, target.z);
@@ -149,7 +177,11 @@ function followTowerFocus(position, target, blend) {
   const from = Math.atan2(position.x, position.z);
   const to = Math.atan2(target.x, target.z);
   const turn = Math.atan2(Math.sin(to - from), Math.cos(to - from));
-  const azimuth = from + turn * alpha;
+  const wantedStep = turn * alpha;
+  const boundedStep = Number.isFinite(maxAngularStep) && maxAngularStep >= 0
+    ? Math.sign(wantedStep) * Math.min(Math.abs(wantedStep), maxAngularStep)
+    : wantedStep;
+  const azimuth = from + boundedStep;
   const blendedRadius = radius + (targetRadius - radius) * alpha;
   position.set(Math.sin(azimuth) * blendedRadius,
     position.y + (target.y - position.y) * alpha,
@@ -3352,11 +3384,30 @@ export function createTowerScene(canvas, settings = {}) {
           scratch.x, scratch.y, camera.aspect);
       }
     }
+    // Never limit first pose, stale footage, reduced motion, overview,
+    // an unseen guardian, or a cropped/hidden actor. Actual CURRENT submitted
+    // drawn body locations decide whether the stable dual-subject orbit applies.
+    let duelOrbitBudget = Infinity;
+    if (initialized && !overview && !options.reducedMotion &&
+        !options.stale && snapshot.lifecycle === 'running' && p.health > 0 &&
+        sourceGuardian?.active && followComposition?.guardianStaged &&
+        currentGuardianDrawPoint) {
+      camera.lookAt(lookAt);
+      camera.updateMatrixWorld(true);
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      scratch.copy(actorFramePoint).project(camera);
+      guardianRescueEnemyProjection.copy(currentGuardianDrawPoint).project(camera);
+      duelOrbitBudget = towerDuelOrbitBudget(dt, camera.aspect, scratch,
+        guardianRescueEnemyProjection,
+        towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
+        towerCoreSightlineClear(camera.position, currentGuardianDrawPoint, 23.5));
+    }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else {
-      followTowerCamera(camera.position, destination, cameraBlend);
-      followTowerFocus(lookAt, focus, cameraBlend);
+      followTowerCamera(camera.position, destination, cameraBlend, duelOrbitBudget);
+      followTowerFocus(lookAt, focus, cameraBlend, duelOrbitBudget);
     }
     // When the smoothed camera still genuinely loses the visible climber,
     // recover on the EXTERIOR tower arc rather than letting several seconds
