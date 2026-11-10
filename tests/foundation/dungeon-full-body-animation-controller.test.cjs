@@ -1552,3 +1552,45 @@ test('witnessed guarded stance releases through a genuine walking start without 
  assert.equal(next(guard,'move',{damageBeat:{id:'defender-1',kind:'vanguard',damage:5,maxHp:120,age:.08,eventTick:91}}).guardBlend,0);
  assert.equal(next(guard,'move',{evasionBeat:{id:'defender-1',kind:'vanguard',tick:91,dx:1,dz:0,age:.1}}).guardBlend,0);
 });
+
+
+test('original Walking_A owns the primary thigh/calf/ankle swing without duplicated sinusoidal source-rig leg drive',async()=>{
+ const controller=await load();
+ const plan=controller.planNativeImportedLegOwnership;
+ assert.equal(typeof plan,'function','source-rig walking ownership must have an explicit pure bounded contract');
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  groundedMoving:true,settling:false,alive:true,frameDelta:.016};
+ let scale=1;
+ for(let frame=0;frame<18;frame++){
+  const next=plan({...source,previous:scale});
+  assert.ok(Number.isFinite(next)&&next>=.16&&next<=1);
+  assert.ok(next<=scale&&scale-next<=.10001,
+   'the authentic original gait must take ownership gradually, never snap the imported skinned knees');
+  scale=next;
+ }
+ assert.ok(scale<=.20,'the original 41-joint walk clip must carry most of its own foot and thigh motion');
+ const sourceLowerBodyExtra=.245*scale+.063*scale;
+ assert.ok(sourceLowerBodyExtra<.063,
+  'the old 0.245rad thigh plus 0.063rad ankle overlay must be reduced over a genuine native walk');
+ const held=plan({previous:scale,mode:'guard',settling:true,groundedMoving:false,
+  sourceClipName:'Idle',sourceWeight:1,alive:true,frameDelta:.016});
+ assert.equal(held,scale,'native walking support remains suppressed while the planted source fade settles into guard');
+ assert.equal(plan({...source,mode:'idle',groundedMoving:false,settling:true,previous:held}),held);
+ assert.equal(plan({...source,mode:'idle',groundedMoving:false,settling:false,previous:held}),1);
+ for(const interruptions of [
+  {mode:'attack'},{mode:'hurt'},{mode:'cast'},{mode:'evade'},{mode:'defeat'},
+  {teleport:true},{reducedMotion:true},{alive:false}
+ ])assert.equal(plan({...source,previous:scale,...interruptions}),1,
+  'genuine interrupts must release the previous decorative walk leg owner immediately');
+ for(const unverified of [
+  {sourceClipName:'Idle'},{sourceClipName:'2H_Ranged_Shoot'},
+  {groundedMoving:false},{sourceWeight:NaN},{sourceWeight:-.1},
+  {sourceWeight:1.1},{frameDelta:NaN}
+ ])assert.equal(plan({...source,previous:scale,...unverified}),1,
+  'without the actual valid original walking clip there is no source-owned-leg suppression');
+ const rig=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(rig,/planNativeImportedLegOwnership\(\{/,
+  'production Three.js imported source must use the same source-rig ownership plan');
+ assert.match(rig,/rigNativeLegOverlayScale/,
+  'production gait must apply the ownership result to original leg overlay strength');
+});
