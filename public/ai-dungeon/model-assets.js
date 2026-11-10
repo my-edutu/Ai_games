@@ -988,6 +988,7 @@ function attachCharacter(actor){
    const anchor=planOriginalSourceSoleGrounding({
     mode:actor.u.action||'idle',sourceClipName:actor.activeImportedClipName,
     floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
+    parentWorldScaleY:actor.root?.scale?.y,
     leftSoleWorldY:left?.[1],rightSoleWorldY:right?.[1]
    });
    if(anchor){

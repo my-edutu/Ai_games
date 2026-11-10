@@ -372,12 +372,14 @@ export function planConstrainedFootSupport(phase=0,weight=0,{
  */
 export function planOriginalSourceSoleGrounding({
  mode='idle',sourceClipName='',visible=true,reducedMotion=false,
- floorTopY=NaN,floorEvidence='',leftSoleWorldY=NaN,rightSoleWorldY=NaN
+ floorTopY=NaN,floorEvidence='',leftSoleWorldY=NaN,rightSoleWorldY=NaN,
+ parentWorldScaleY=1
 }={}){
  if(!['idle','guard'].includes(mode)||sourceClipName!=='Idle'||
   visible!==true||reducedMotion||floorEvidence!=='authored-cube-floor-top'||
   ![floorTopY,leftSoleWorldY,rightSoleWorldY].every(finite)||
-  Math.abs(floorTopY+.02)>.003||Math.abs(leftSoleWorldY-rightSoleWorldY)>.035)
+  Math.abs(floorTopY+.02)>.003||Math.abs(leftSoleWorldY-rightSoleWorldY)>.035||
+  !finite(parentWorldScaleY)||parentWorldScaleY<.5||parentWorldScaleY>3.5)
   return null;
  const minimum=Math.min(leftSoleWorldY,rightSoleWorldY);
  const gap=minimum-floorTopY;
@@ -385,7 +387,8 @@ export function planOriginalSourceSoleGrounding({
  // different stage surface. Never ground that actor speculatively.
  if(gap<.06||gap>.36)return null;
  return Object.freeze({accepted:true,measuredFrom:'original-skinned-sole-vertices',
-  floorTopY,offsetY:Number((-gap).toFixed(6)),
+  floorTopY,offsetY:Number((-gap/parentWorldScaleY).toFixed(6)),
+  worldOffsetY:Number((-gap).toFixed(6)),parentWorldScaleY,
   beforeMinSoleY:Number(minimum.toFixed(6)),
   originalSourceClip:sourceClipName,
   note:'asset-pivot-only-once; not world-space foot lock or native IK'});

@@ -18,6 +18,19 @@ test('licensed source soles align to the ACTUAL stone top without moving authori
  const observed={mode:'idle',sourceClipName:'Idle',visible:true,reducedMotion:false,
   floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
   leftSoleWorldY:.2103,rightSoleWorldY:.2103};
+ const scale1=plan({...observed,parentWorldScaleY:1});
+ const scaleEnemy=plan({...observed,parentWorldScaleY:1.04});
+ const scaleWarden=plan({...observed,parentWorldScaleY:1.16});
+ assert.ok(scale1&&scaleEnemy&&scaleWarden,
+  'source skinned floor alignment works across original hero, Revenant, Warden scales');
+ for(const [scale,receipt] of [[1,scale1],[1.04,scaleEnemy],[1.16,scaleWarden]]){
+  assert.ok(Math.abs(receipt.offsetY*scale+.2303)<.002,
+   'source visual LOCAL delta must cancel actual WORLD gap for scale '+scale);
+  assert.ok(Math.abs(receipt.worldOffsetY+.2303)<.002);
+ }
+ assert.equal(plan({...observed,parentWorldScaleY:0}),null);
+ assert.equal(plan({...observed,parentWorldScaleY:-1}),null);
+ assert.equal(plan({...observed,parentWorldScaleY:Infinity}),null);
  const anchored=plan(observed);
  assert.ok(anchored&&anchored.accepted,'standing original skinned shoes are both above genuine floor');
  assert.ok(Math.abs(anchored.offsetY+.2303)<.002,
