@@ -1,0 +1,25 @@
+# Infinite Tower Climb — P0 original-source film diagnosis and open pressure-well reconstruction
+
+**10 November 2026 · Draft PR #68 · P0 EVIDENCE + GAME-LOOP TRUTH OPEN · Assessor: NOT EVALUATED**
+
+## Exact original source and observed defect
+
+- Latest branch before change: `91a3bf34041f0d98ce91aeb9209f67e909844bc3`; PR68 remains open draft over PR58. Frozen baseline remains `1731b380851162741761c5569e2bc152a0869ca9`.
+- [Previous original ten-job source-capture 42873903171](https://github.com/my-edutu/Ai_games/actions/runs/42873903171), source candidate `27b46aaf6b0f7691b7c76e6b61cdb223337b9e50`, recorded original 25fps candidate danger portrait **390×844, 71.88 seconds** and desktop **960×600, 72.24 seconds**, alongside unchanged baseline and four full scenarios. [Original candidate danger ZIP](https://github.com/my-edutu/Ai_games/actions/runs/42873903171/artifacts/13791285946); [baseline danger ZIP](https://github.com/my-edutu/Ai_games/actions/runs/42873903171/artifacts/13789899918).
+- Decoded unchanged candidate native portrait WebM at 8,10,12,14,15,16,17,18,19,20,21,22,23,24,26,28,30,40s against similarly extracted baseline film: 14–23 seconds have a dominant dark opaque cylindrical *inner shaft* and side stone forms displacing climber/guardian visibility, with cyan gateway overlay at ~22–23s; by 26s the actual distinct purple floor-nine set is visible. Native stills diagnose a recurring major obstruction; they are **not** independent full-motion quality preference or proof of source-to-visible impact.
+- [Source-event pairing manifest 13790349409](https://github.com/my-edutu/Ai_games/actions/runs/42873903171/artifacts/13790349409) has 16 original WebM and **8/8 genuine native timebase CALIBRATED**, but `fullMotionPaired=false` and on-screen event/quality verdict NOT EVALUATED. All eight video *jobs* from that run failed, not due to absent videos but because old preflight fixture asserted 1 compositor anchor instead of the correct 2, while the 9th authentic-ledge and final source-pair jobs succeeded. Do not relabel this run green. The later [91a3bf34 exact-head quality run](https://github.com/my-edutu/Ai_games/actions/runs/42874249799) passed after fixture repair; this is only engineering safety, not better actual gameplay.
+
+## Meaningful source change: reconstruct connected non-colliding core architecture
+
+Existing PR68 pylon cutaways already opened three peripheral structural buttresses. The **remaining unbroken central full-height stone pressure drum** in `visuals/world.mjs` was not addressed and visually competes with the authentic upper-cap action. The new original clockwork-only architecture builds:
+1. A physically anchored heavy lower machined drum plus upper crown, joined by **eight real slender 3D steel ribs** and two full perimeter collars. The central 20m-height combat view has genuine daylight between ribs rather than cosmetic alpha on a solid central mesh.
+2. Three full-height cliff-like silhouettes replaced with real stone lower footings and elevated roof masses, each supported by paired slender metal vertical ties, leaving middle fighting levels open. The three clockwork gear mechanisms and power rack are not altered.
+3. A post-batch source-provenance + actual Three.js Raycaster regression vetoing filled-in sightline at source live fighting height, plus intact low-tier material/shadow submission cap, immutable source snapshots and floor-nine rebuild. This is geometry work on one connected coherent action space, not HUD/UI/gameplay rule modification.
+
+The real climbing arc, moving platforms, crusher, guardian HP and defeat, source-locked exterior seal, earned walkable threshold, deterministic authority, and floor-nine content remain unchanged. Other four biomes retain their original structural cores. Whether this design produces a compelling source-pinned scene **must** be evaluated from its new original real-video captures; source assertions do not prove quality.
+
+## Evidence status and next decision
+
+This commit also requests the original 10-job matched ascent/moving/danger/outcome baseline/candidate 960×600 + 390×844 60+s source-capture via **immutable github.sha**; the workflow run ID and new after-film were not available when written. Verify exact new-build full suite and original Chrome/FFmpeg/Three results, then inspect actual full-motion danger 12–28s, paid attention to hero/guardian simultaneous action, crusher, cyan HP-locked and zero-HP gate, physical floor-eight-to-nine crossing and floor-nine continuation. Compare baseline and inspect restart and moving-platform action across both viewports. Reopen P0 on largest remaining system-level obstruction or jitter; never advance on render geometry checks or event clocks alone.
+
+**Outstanding:** new exact-source browser evidence and action-frame verification, supported real-device p50/p95/p99/memory, privacy/accessibility/input/recovery, and five genuinely independent randomized blind full-motion critics each for **LOOKS 0/5**, **FEELS 0/5**, **PLAYS 0/5**. **Verdict NOT EVALUATED**. No merge, deployment, baseline move, PR58 rewrite, force-push or draft status change.

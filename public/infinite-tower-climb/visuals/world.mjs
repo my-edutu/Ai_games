@@ -776,7 +776,46 @@ export function createTowerWorld(){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
     // each biome's machinery belongs to the surrounding architecture.
-    lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
+    if(openClockworkPylons && height>30) {
+      // Actual source-pinned 390x844 danger film (42873903171, 14-23s)
+      // still places a massive black CENTRAL pressure-well drum behind the
+      // climber and guardian, even after the three peripheral pylon bays opened.
+      // The authoritative running arc is outside radius 23.4: this entire
+      // pressure well is non-colliding world art, not a new route, shortcut or
+      // removed hazard. Keep a true heavy foundation and crown, but connect
+      // them with exposed steelwork and continuous load paths rather than an
+      // opaque full-height stone cylinder through the 8->9 fighting lane.
+      const lower=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
+        [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
+      lower.name='ClockworkPressureWellRootDrum';lower.userData.structural=true;
+      const upper=lathe(root,[[0,height+10],[10.6,height+10],
+        [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
+      upper.name='ClockworkPressureWellCrownDrum';upper.userData.structural=true;
+      const well=new THREE.Group();
+      well.name='ClockworkOpenCentralPressureWell';
+      well.position.z=-3;root.add(well);
+      const openingBottom=9,openingTop=height+10,opening=openingTop-openingBottom;
+      const ribs=[];
+      for(let i=0;i<8;i++){
+        // Half-sector phase leaves real two-metre-class apertures on the
+        // north/south and east/west actor sightlines; ribbing is not a shader.
+        const a=(i+.5)*TAU/8;
+        ribs.push({p:[Math.sin(a)*10.7,(openingBottom+openingTop)/2,
+          Math.cos(a)*10.7],s:[.42,opening,.42]});
+      }
+      const uprights=instanced(well,bevel(),materials.metal,ribs);
+      uprights.name='ClockworkPressureWellEightLoadRibs';
+      uprights.userData.structural=true;
+      for(const y of [openingBottom+.35,openingTop-.35]){
+        const collar=mesh(well,own(new THREE.TorusGeometry(10.7,.29,6,48)),
+          materials.copper,[0,y,0],[1,1,1],[Math.PI/2,0,0]);
+        collar.name='ClockworkPressureWellPerimeterCollar';
+        collar.userData.structural=true;
+      }
+    } else {
+      lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
+        [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
+    }
     const pylons=[
       {a:-.66,r:16.8,R:4.9,bottom:-31,top:height+16},
       // Actual portrait floor-eight source rays (bdb1b83b, ticks 298-343) hit
@@ -870,7 +909,30 @@ export function createTowerWorld(){
     // the fabricated shells instead of competing with them as giant flat slabs.
     for(const [a,y,w,h,d,v]of [[-1.12,-7,5.8,height+28,6.4,1],[1.18,-11,6.4,height+25,6.1,2],[2.5,2,13,height+43,10,0]]){
       const rock=new THREE.Group();radial(rock,a,16.1,y);root.add(rock);
-      mesh(rock,fracturedMass(v),materials.stone,[0,0,0],[w,h,d]).userData.structural=true;
+      if(openClockworkPylons && height>30){
+        // Three old floor-eight full-height geological slabs also filled
+        // the portrait combat viewport. Retain mined footings and rooftop
+        // stone masses, physically supported by two narrow steel ties each;
+        // leave the middle action elevation genuinely open to daylight.
+        // No collider or authoritative platform is represented by this art.
+        const rootMass=mesh(rock,fracturedMass(v),materials.stone,
+          [0,-17-y,0],[w,17,d]);
+        rootMass.name='ClockworkOpenGeologyFooting';
+        rootMass.userData.structural=true;
+        const headMass=mesh(rock,fracturedMass(v),materials.stone,
+          [0,height+15-y,0],[w*.8,6,d*.78]);
+        headMass.name='ClockworkOpenGeologyRoofMass';
+        headMass.userData.structural=true;
+        const shoulderTies=instanced(rock,bevel(),materials.metal,[
+          {p:[-w*.34,(height-2)/2-y,d*.24],s:[.54,height+32,.54]},
+          {p:[ w*.34,(height-2)/2-y,d*.24],s:[.54,height+32,.54]},
+        ]);
+        shoulderTies.name='ClockworkOpenGeologicalSupportTies';
+        shoulderTies.userData.structural=true;
+      } else {
+        mesh(rock,fracturedMass(v),materials.stone,[0,0,0],[w,h,d])
+          .userData.structural=true;
+      }
     }
     // The overhead manifold leads the eye up through a real junction between
     // the shoulders. There is no large empty lintel hanging above the route.

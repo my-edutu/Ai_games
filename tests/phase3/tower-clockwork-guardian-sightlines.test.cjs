@@ -282,6 +282,53 @@ test('actual clockwork scene gives upper-cap action a physically open vertical b
   }finally{world.dispose();}
 });
 
+// Source-pinned original candidate danger film 42873903171 shows the dark
+// pressure-well drum and full-height geological slabs overwhelming genuine
+// guardian and crossing action at native portrait seconds 14-23. Require REAL
+// post-batch Three geometry to leave a window through the visual core without
+// altering snapshots, floor-nine content or the other four biome vessels.
+test('clockwork central pressure well and geological shoulders are open at live guardian elevation', async () => {
+  const [THREE,{createTowerWorld}]=await loaded;
+  const {sourceTriangleOwner}=await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href);
+  const world=createTowerWorld();
+  try {
+    const input=sourceFrame('clockwork',8),unchanged=JSON.stringify(input);
+    world.update(input,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    let originalWellParts=0,originalGeologyParts=0;
+    world.group.traverse(node=>{
+      if(!node.isMesh)return;
+      for(const piece of node.geometry?.userData?.originalTriangleOwners||[]){
+        if(piece.authoringPath?.includes('ClockworkOpenCentralPressureWell'))
+          originalWellParts++;
+        if(piece.authoringPath?.includes('ClockworkOpenGeologicalSupportTies'))
+          originalGeologyParts++;
+      }
+    });
+    assert.ok(originalWellParts>=3,
+      'original central-pressure well geometry must survive rigid batching');
+    const ray=new THREE.Raycaster(new THREE.Vector3(0,20,32),
+      new THREE.Vector3(0,0,-1),0,70);
+    const intrusions=ray.intersectObjects(world.group.children,true).filter(hit=>{
+      const owner=sourceTriangleOwner(hit.object.geometry,hit.faceIndex);
+      return owner?.authoringPath?.includes('ClockworkOpenCentralPressureWell') ||
+        owner?.authoringPath?.includes('ClockworkPressureWellRootDrum') ||
+        owner?.authoringPath?.includes('ClockworkPressureWellCrownDrum');
+    });
+    assert.equal(intrusions.length,0,
+      'real 20m action sightline must pass the open pressure well, not a fake transparent drum');
+    assert.equal(JSON.stringify(input),unchanged,
+      'opening noncolliding art must not mutate authoritative gameplay');
+    const metrics=world.diagnostics();
+    assert.ok(metrics.meshes+metrics.shadowCasterMeshes<=100,
+      'new pressure-well sculpture must respect existing low-tier draw budget');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(JSON.stringify(input),unchanged,
+      'floor-nine rebuild must not alter prior source frame');
+  } finally {world.dispose();}
+});
+
 // Original normal-speed portrait footage at a0146896 still shows a solid
 // pylon across live guardian combat (15-17s). A rotated solid tower is not a
 // solution: prove real authored triangles leave a central human-scale window
