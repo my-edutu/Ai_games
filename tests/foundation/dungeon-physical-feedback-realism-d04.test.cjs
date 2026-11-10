@@ -589,3 +589,47 @@ test('undrawn release audio witness reuses live authored hand and action proof w
  assert.equal(renderer.stats().reservedInstances,102);
  renderer.dispose();
 });
+
+test('body-local foley witness reads live guard, utility and Warden recovery without spawning art',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const body=(id,kind,action)=>({u:{id,kind,action,actionTick:11,hp:20,
+   recoveryUntilTick:12},authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}});
+ const units=new Map([
+  ['vanguard',body('vanguard','vanguard','guard')],
+  ['mystic',body('mystic','mystic','cast')],
+  ['warden',body('warden','warden','cast')]
+ ]);
+ let current={run:1,floor:1,tick:11,guardianWard:false,
+  bossRecovery:{remaining:2}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>units.get(id),getCurrentSnapshot:()=>current});
+ const make=(kind,id,visual,proof)=>cue({id:id+':'+kind,sceneKey:'1:1',
+  tick:11,kind,actorId:id,visual,proof,from:{x:2,z:2}});
+ const guard=make('guard','vanguard','utility','authority-action');
+ const utility=make('cast-utility','mystic','utility','authority-action');
+ const release=make('warden-release','warden','warden','authority-action');
+ const recovery=make('opening','warden','opening','authority-opening-recovery-window');
+ const witnessed=c=>stage.hasAuthenticatedBodyPose(c);
+ for(const c of [guard,utility,release,recovery])
+  assert.equal(witnessed(c),true,c.kind+' remains witnessed');
+ units.get('vanguard').u.action='idle';
+ assert.equal(witnessed(guard),false,'obsolete guarding pose cannot authorize sound');
+ units.get('mystic').u.actionTick=12;
+ assert.equal(witnessed(utility),false,'later cast does not authorize older utility foley');
+ units.get('warden').root.visible=false;
+ assert.equal(witnessed(release),false,'unloaded Warden is not a release source');
+ assert.equal(witnessed(recovery),false,'unloaded Warden is not a recovery source');
+ units.get('warden').root.visible=true;
+ current={...current,guardianWard:true};
+ assert.equal(witnessed(recovery),false,'resealed vulnerability cannot sound');
+ current={...current,guardianWard:false,tick:13,
+  bossRecovery:{remaining:0}};
+ assert.equal(witnessed(recovery),false,'expired recovery cannot sound');
+ assert.equal(witnessed({...release,proof:'guessed'}),false);
+ assert.equal(witnessed({...guard,kind:'damage',visual:'hit'}),false);
+ assert.equal(stage.stats().active,0,'probe cannot create effects');
+ assert.equal(stage.stats().reservedInstances,102);
+ stage.dispose();
+});
