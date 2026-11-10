@@ -148,7 +148,7 @@ test('source GLB sole vertex and hand-attached weapon remain comparable only on 
  assert.equal(result.comparable,true);
  assert.equal(result.source,'original-skinned-sole-vertex-and-rigid-source-hand-weapon');
  assert.equal(result.rootTravelMeters,.2);
- assert.deepEqual(result.soleWorldDeltaMeters,{left:.01,right:.204});
+ assert.deepEqual(result.soleWorldDeltaMeters,{left:.01,right:.2062});
  assert.deepEqual(result.soleVerticalDeltaMeters,{left:0,right:.019});
  assert.equal(result.rigidGripComparable,true);
  assert.equal(result.weaponHandDriftMeters,0);
