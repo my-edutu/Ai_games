@@ -196,3 +196,41 @@ test('GLTFLoader-sanitized foot bone names identify real original weighted sole 
   'the actual cloned SkeletonUtils skin audit must use the source-name normalization');
  assert.match(renderer,/isSourceSoleBoneName\(bone\?\.name,'right'\)/);
 });
+
+
+test('licensed 1H_Sword remains fixed in animated handslot.r, not artificially fixed in the hand bone',async()=>{
+ const {measureSourceSoleGripContinuity:measure}=await load();
+ const baseMatrix=[1,0,0,0,0,1,0,0,0,0,1,0,.0619,.2323,-.1573,1];
+ const sourceSocket=[1,0,0,0,0,1,0,0,0,0,1,0,.16,-.0619,-.1141,1];
+ const sample={id:'vanguard',kind:'vanguard',sourceInstanceId:'licensed-source-clone',
+  rootWorld:[0,0,0],soleVertexWorld:{left:[-.1,.15,.1],right:[.1,.15,.1]},
+  sourceWeaponGrip:{name:'1H_Sword',handName:'handr',attachedToHand:true,
+   socketName:'handslotr',attachedToGripSocket:true,socketRelativeMatrix:sourceSocket,
+   handRelativeMatrix:baseMatrix}};
+ // Exact original CC0 clip hierarchy: hand.r > handslot.r > 1H_Sword;
+ // 1H_Melee_Attack_Slice_Horizontal keys the handslot.r rotation while the
+ // sword's grip remains rigid relative to that slot. The current filmed trace
+ // measures 0.0369-0.0513m hand-relative translation on a LEGAL source strike.
+ const attackMatrix=[...baseMatrix];
+ attackMatrix[12]=.1064;attackMatrix[13]=.2069;
+ const attack={...sample,sourceWeaponGrip:{...sample.sourceWeaponGrip,
+  handRelativeMatrix:attackMatrix,socketRelativeMatrix:sourceSocket.slice()}};
+ const valid=measure(sample,attack);
+ assert.equal(valid.comparable,true);
+ assert.equal(valid.rigidGripComparable,true);
+ assert.equal(valid.sourceGripSocketName,'handslotr');
+ assert.ok(valid.weaponHandDriftMeters>.05,
+  'preserve diagnostic proof of independently keyed ORIGINAL socket articulation');
+ assert.equal(valid.weaponSocketDriftMeters,0,
+  'a legitimate original handslot rotation cannot masquerade as a dropped sword');
+ assert.equal(valid.weaponSocketMatrixMaxDelta,0);
+ const displaced=[...sourceSocket];displaced[12]+=.08;
+ const slipping=measure(sample,{...attack,sourceWeaponGrip:{...attack.sourceWeaponGrip,
+  socketRelativeMatrix:displaced}});
+ assert.ok(slipping.weaponSocketDriftMeters>.079,
+  'a real weapon slipped 8cm from its authored source socket MUST be rejected');
+ assert.equal(measure(sample,{...attack,sourceWeaponGrip:{...attack.sourceWeaponGrip,
+  attachedToGripSocket:false}}).rigidGripComparable,false);
+ assert.equal(measure(sample,{...attack,sourceWeaponGrip:{...attack.sourceWeaponGrip,
+  socketName:'handslotl'}}).rigidGripComparable,false);
+});

@@ -304,10 +304,14 @@ for(const view of [
   const soleGrip=previous?measureSourceSoleGripContinuity(previous,actor):null;
   if(soleGrip){
    expect(soleGrip.comparable,'same original GLB and skinned source soles').toBe(true);
-   if(soleGrip.rigidGripComparable){
-    expect(soleGrip.weaponHandDriftMeters).toBeLessThan(.025);
-    expect(soleGrip.weaponLocalMatrixMaxDelta).toBeLessThan(.03);
-   }
+   // The licensed source clip intentionally rotates handslot.r under
+   // hand.r; require a rigid sword at its actual authored GRIP socket,
+   // while retaining hand-relative movement as an independent diagnostic.
+   expect(soleGrip.rigidGripComparable,
+    'the actual original right-hand source socket must be witnessed').toBe(true);
+   expect(soleGrip.sourceGripSocketName).toBe('handslotr');
+   expect(soleGrip.weaponSocketDriftMeters).toBeLessThan(.006);
+   expect(soleGrip.weaponSocketMatrixMaxDelta).toBeLessThan(.015);
   }
   trace.push({tick:snap.tick,floor:snap.floor,sourceId:actor.sourceInstanceId,
    rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
