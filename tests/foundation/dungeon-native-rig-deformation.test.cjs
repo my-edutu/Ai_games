@@ -301,3 +301,48 @@ test('actual fast native WebGL displacement remains measurable without claiming 
  assert.equal(assess(before,after,{...meta,afterTick:4}).comparable,false);
  assert.equal(assess(before,after,{...meta,teleport:true}).comparable,false);
 });
+
+
+test('original GLB heel-to-toe CONTACT PATCH must be witnessed against the actual upper tile surface, not inferred from an ankle',async()=>{
+ const {measureSourceSolePatchContinuity:measure}=await load();
+ assert.equal(typeof measure,'function');
+ const first={id:'vanguard',kind:'vanguard',sourceInstanceId:'real-source-1',mode:'move',
+  rootWorld:[0,0,0],solePatchWorld:{
+   left:{heel:[-.16,.082,-.13],toe:[-.16,.085,.07]},
+   right:{heel:[.16,.17,-.12],toe:[.16,.18,.07]}}};
+ const next={...first,rootWorld:[.15,0,0],solePatchWorld:{
+  left:{heel:[-.157,.083,-.129],toe:[-.154,.084,.073]},
+  right:{heel:[.30,.20,-.13],toe:[.31,.21,.08]}}};
+ const m={beforeTick:24,afterTick:24,beforeFrame:32,afterFrame:33,
+  floorTopY:.08,floorEvidence:'authored-cube-floor-top',visible:true};
+ const witness=measure(first,next,m);
+ assert.equal(witness.comparable,true);
+ assert.deepEqual(witness.potentialContactSides,['left'],
+  'both separated skinned shoe points must be near actual floor and stationary during true root travel');
+ assert.equal(witness.provenFootPlant,false,'two samples cannot establish full sole lock or gait correctness');
+ assert.equal(witness.ikAccepted,false,'do not authorize IK from this evidence');
+ assert.ok(witness.patchSpanMeters.left>=.19);
+ assert.ok(witness.soleClearanceMeters.right>.08);
+ const hover=measure({...first,solePatchWorld:{...first.solePatchWorld,
+  left:{heel:[-.16,.21,-.13],toe:[-.16,.22,.07]}}},
+  {...next,solePatchWorld:{...next.solePatchWorld,
+   left:{heel:[-.157,.21,-.129],toe:[-.154,.22,.073]}}},m);
+ assert.equal(hover.potentialContactSides.length,0,'horizontal stationarity alone is not grounded support');
+ for(const [why,changes,a,b] of [
+  ['missing-floor',{floorTopY:NaN},first,next],
+  ['unverified-surface',{floorEvidence:'guess'},first,next],
+  ['different-tick',{afterTick:25},first,next],
+  ['skipped-frame',{afterFrame:35},first,next],
+  ['invisible',{visible:false},first,next],
+  ['teleport',{teleport:true},first,next],
+  ['source-changed',{},first,{...next,sourceInstanceId:'wrong'}],
+  ['invalid-patch',{},first,{...next,solePatchWorld:{...next.solePatchWorld,left:{heel:[NaN,0,0],toe:[0,0,0]}}}],
+  ['unmeasurable-root',{},first,{...next,rootWorld:[2,0,0]}]
+ ])assert.equal(measure(a,b,{...m,...changes}).comparable,false,why);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(renderer,/sourceSolePatchWorld/,'actual original skinned heel and toe must be observable');
+ assert.match(renderer,/sourceSolePatchVertexCache=new WeakMap\(\)/);
+ assert.match(browser,/measureSourceSolePatchContinuity\(/,'the real running WebGL suite must exercise the patch contract');
+ assert.match(browser,/source-GLB-floor-contact-patch/,'the unaltered source evidence must be attached');
+});
