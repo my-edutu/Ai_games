@@ -9677,7 +9677,7 @@ function marketSquareTownPlanAudit(){
 // mesh. No changes to walkability, original citizens or actual deliveries.
 function marketCobblestoneSquare(){
  const {cx,cz,rx,rz}=MARKET_SQUARE,before=data.length;
- marketQuarterStats.surfaceModel='w106-worn-market-surface';
+ marketQuarterStats.surfaceModel='w207-uneven-worn-setts-and-clay-wheelway';
  marketQuarterStats.marketWheelPassages=0;
  marketQuarterStats.marketDrainSegments=0;
  marketQuarterStats.raisedStoneDetails=0;
@@ -9711,15 +9711,23 @@ function marketCobblestoneSquare(){
   }
   for(let row=0;row<15;row++)for(let col=0;col<19;col++){
    const key=col*83+row*1137;
+   // W207: real broken fieldstones over a single continuous compacted clay
+    // market surface; identical candidate count and physical navigation.
+    const drift=(biomeHash(key+151)-.5)*.29;
+    const wander=(biomeHash(key+191)-.5)*.26;
    const x=cx-7.25+(col+.5)*.78+(row%2)*.28+
-    (biomeHash(key+31)-.5)*.045;
-   const z=cz-6.50+(row+.5)*.86+(biomeHash(key+21)-.5)*.045;
+    (biomeHash(key+31)-.5)*.045+drift;
+   const z=cz-6.50+(row+.5)*.86+(biomeHash(key+21)-.5)*.045+wander;
    if(((x-cx)/rx)**2+((z-cz)/rz)**2>.88)continue;
    const chip=biomeHash(key+71),worn=biomeHash(key+47);
    const width=.705+.035*biomeHash(key+7),depth=.755+.040*biomeHash(key+9);
-   const skew=(biomeHash(key+23)-.5)*.055;
-   const left=x-width*.5,right=x+width*.5;
-   const front=z-depth*.5,back=z+depth*.5;
+    // Broken stones vary in physical footprint, rather than pigment alone.
+    // Open clay joints interrupt the W206 uniform 15-by-19 tile checkerboard.
+    const weatheredWidth=width*(.60+.38*biomeHash(key+131));
+    const weatheredDepth=depth*(.60+.36*biomeHash(key+173));
+    const skew=(biomeHash(key+23)-.5)*.13;
+    const left=x-weatheredWidth*.5,right=x+weatheredWidth*.5;
+    const front=z-weatheredDepth*.5,back=z+weatheredDepth*.5;
    const lift=.075+.012*worn;
    const color=rgb(stones[(row*11+col*7)%stones.length]);
    quad(sample(left,front+.07*chip,lift),
@@ -9901,6 +9909,9 @@ function getMarketReceivingHallAudit(){
   loadBearingPosts:marketQuarterStats.receivingHallPosts||0,
   openFrontTrussMembers:marketQuarterStats.receivingHallFrontTrussMembers||0,
   openFrontTrussTriangles:marketQuarterStats.receivingHallFrontTrussTriangles||0,
+   receivingSoffitPanels:marketQuarterStats.receivingSoffitPanels||0,
+   receivingSoffitRafters:marketQuarterStats.receivingSoffitRafters||0,
+   receivingSoffitTriangles:marketQuarterStats.receivingSoffitTriangles||0,
   frontGablePlasterPanels:0,rearGablePlasterPanels:2,
   rearShopGables:marketQuarterStats.rearShopGables||0,
   unobstructedCourierAisle:MARKET_RECEIVING_HALL.halfWidth*2-.20,
@@ -9954,6 +9965,55 @@ function marketReceivingOpenFrontTruss(){
  return triangles;
 }
 
+// W207: complete the OPEN W206 oak grain arcade without faking activity.
+// Its clay roof was one-sided: a real standing courier saw SKY through the
+// supposed shelter. These inward-facing oak planks and six actual rafters
+// share the permanent market VBO; no new roof, physics, inventory or actors.
+function marketReceivingRoofInterior(){
+ const site=MARKET_RECEIVING_HALL,cx=site.centerX,
+  ground=marketReceivingRoofDatum(),first=data.length;
+ const eave=ground+site.eaveAboveGround,
+  rise=site.ridgeAboveGround-site.eaveAboveGround;
+ const shades=[rgb(0x6d5541),rgb(0x775f48),rgb(0x876b4e),rgb(0x61503e)];
+ let panels=0,rafters=0;
+ materialScope(MATERIAL.WOOD,()=>{
+  // Reverse the original clay slopes' winding so the roof has a visible
+  // underside in genuine mobile and desktop playable first-person views.
+  for(const side of [-1,1])for(let course=0;course<9;course++){
+   const a=course/9,b=(course+1)/9,
+    ax=cx+side*(site.halfWidth+.17)*(1-a),
+    bx=cx+side*(site.halfWidth+.17)*(1-b),
+    ay=eave+rise*a-.018,by=eave+rise*b-.018,
+    p0=[ax,ay,site.frontZ],p1=[bx,by,site.frontZ],
+    p2=[bx,by,site.backZ],p3=[ax,ay,site.backZ];
+   const shade=shades[(course+(side<0?1:3))%shades.length];
+   if(side<0)quad(p0,p1,p2,p3,shade);
+   else quad(p3,p2,p1,p0,shade);
+   panels++;
+  }
+  // True supporting timbers at three roof stations, across both slopes.
+  // They remain ABOVE the genuine freight and people's eye-height.
+  for(let bay=0;bay<3;bay++){
+   const z=site.frontZ+.17+
+     (site.backZ-site.frontZ-.34)*(bay/2);
+   for(const side of [-1,1]){
+    limbSegment([cx+side*(site.halfWidth+.13),eave-.045,z],
+     [cx+side*.10,eave+rise-.048,z],
+     .043,shades[(bay+1)%shades.length],4);
+    rafters++;
+   }
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(panels!==18||rafters!==6||!Number.isInteger(triangles)||
+    triangles>140||triangles<50)
+  throw Error('W207 genuine grain arcade roof resource guard');
+ marketQuarterStats.receivingSoffitPanels=panels;
+ marketQuarterStats.receivingSoffitRafters=rafters;
+ marketQuarterStats.receivingSoffitTriangles=triangles;
+ return {source:'original-inward-facing-grain-arcade-roof',
+  panels,rafters,triangles,changesNavigation:false,authorityModified:false};
+}
 function marketReceivingDock(){
  const bayX=[-1.0,.85],deliveryZ=10.2;
  for(const [index,x] of bayX.entries()){
@@ -10045,7 +10105,9 @@ function marketReceivingDock(){
  // ORIGINAL front infill with an open king-post timber roof truss; retain the
  // opposite weather-sheltering rear lime gable and the full 18 roof panels.
  marketReceivingOpenFrontTruss();
- materialScope(MATERIAL.PLASTER,()=>{
+  marketReceivingRoofInterior();
+  // W205: genuine weather-facing rear plaster only, no opaque freight front.
+  materialScope(MATERIAL.PLASTER,()=>{
   const z=site.backZ-.03;
   const left=[cx-site.halfWidth,roofEave-.02,z],
    right=[cx+site.halfWidth,roofEave-.02,z],
@@ -10071,8 +10133,10 @@ function marketReceivingCourt(){
   for(let row=0;row<6;row++)for(let col=0;col<7;col++){
    const key=row*31+col*13,shift=(row%2)*.115;
    const x=-3.55+col*.67+shift,z=11.34+row*.36;
-   const skew=(biomeHash(key+43)-.5)*.065;
-   const w=.52+.025*biomeHash(key+7),d=.24+.025*biomeHash(key+9);
+   // Same walkable receiving court, with separated original irregular stone
+    // rather than cloned 7-column pavement bricks.
+    const skew=(biomeHash(key+43)-.5)*.115;
+    const w=.38+.16*biomeHash(key+7),d=.17+.16*biomeHash(key+9);
    const h=.082+.007*biomeHash(key+17);
    quad(surface(x,z+.018,h),surface(x+skew,z+d,h),
     surface(x+w+skew,z+d-.012,h),surface(x+w,z,h),
