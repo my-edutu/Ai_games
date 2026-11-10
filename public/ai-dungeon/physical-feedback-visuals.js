@@ -622,7 +622,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Newly measured movement earns a fresh receipt on the next genuine frame.
   for(const slot of pools.get('trail')?.slots??[]){
    if(slot?.cue?.id!==cue.id||!slot.measuredPath)continue;
-   return isCurrentMeasuredHandReceipt(slot.lastHand,hand);
+   // A fading ribbon can survive 55ms after its last genuine wrist motion.
+   // It is permissible visual afterglow, NOT a newly submitted air passage:
+   // only the current advance()'s fresh measured segment can authorize a
+   // whoosh. The controller still applies scene/age/frame/consent gates.
+   return slot.lastMeasuredAge===slot.age&&
+    isCurrentMeasuredHandReceipt(slot.lastHand,hand);
   }
   // Standalone source query: the independent receipt gate still requires a
   // drawable, measured retained slot. No contact or victim is inferred.
