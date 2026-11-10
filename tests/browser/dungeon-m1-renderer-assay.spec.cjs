@@ -32,7 +32,7 @@ function describe(block){
   directP95Ms:percentile(draw,.95),directP99Ms:percentile(draw,.99)};
 }
 // Native Chrome events are diagnostic inclusive slices, NOT a GPU time proxy.
-// Sample the real held Warden across all three recorder OFF/ON/OFF segments.
+// Native profiling runs in a separate labelled segment, after clean measurements.
 async function startNativeWardenTrace(page){
  const report={status:'UNAVAILABLE',eventCount:0,method:'CDP Tracing + JS CPU profiler; overlapping slice durations are not wall-clock time'};
  const names=new Map(),totals=new Map(),long=[];let c=null,started=false,profiler=false,done;
@@ -84,22 +84,8 @@ async function startNativeWardenTrace(page){
  };
 }
 
-test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,async({page})=>{
- test.setTimeout(15*60*1000);fs.mkdirSync('artifacts',{recursive:true});
- const {state,tick}=realWarden(),errors=[];
- page.on('pageerror',error=>errors.push(String(error)));
- await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
- await page.setViewportSize(SIZE);await page.goto('/dungeon');
- await expect.poll(()=>page.evaluate(()=>
-  window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
- ),{timeout:120000,intervals:[350,900,1300]}).toBe(state.checksum);
- await expect.poll(()=>page.evaluate(()=>
-  window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0
- ),{timeout:120000}).toBeGreaterThan(8);
- await page.locator('#audio-toggle').click();
- const audioEnabled=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
- const stopNativeTrace=await startNativeWardenTrace(page);
- const observed=await page.evaluate(async()=>{
+async function measureOriginalWarden(page,record){
+ return page.evaluate(async(record)=>{
   const canvas=document.getElementById('world');
   const mime=['video/webm;codecs=vp8,opus','video/webm'].find(t=>window.MediaRecorder?.isTypeSupported(t));
   async function measure(record){
@@ -176,22 +162,65 @@ test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,a
     sourceChecksum:d?.renderedState?.checksum??null,
     softwareWebGL:d?.softwareWebGL,webglRenderer:d?.webglRendererName,
     postFX:d?.postFX,surfaceResizes:d?.surfaceResizes,
+    actualCamera:d?.cameraRig?.actualPosition??null,cinematicAim:d?.cinematicAim??null,
     renderPipeline:d?.renderPipeline??null};
   }
-  const blocks=[];
-  for(const record of [false,true,false])blocks.push(await measure(record));
-  return {mime,blocks,canvas:{width:canvas.clientWidth,height:canvas.clientHeight}};
- });
- const nativeChromiumTrace=await stopNativeTrace();
+  return {...await measure(record),mime,canvas:{width:canvas.clientWidth,height:canvas.clientHeight}};
+ },record);
+}
+
+test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,async({page},testInfo)=>{
+ test.setTimeout(15*60*1000);fs.mkdirSync('artifacts',{recursive:true});
+ const observerPolicy={playwrightTrace:testInfo.project.use.trace,
+  playwrightVideo:testInfo.project.use.video,implicitScreenshot:testInfo.project.use.screenshot,
+  baselineNativeProfiler:false,baselineScreenshotFilmstrip:false};
+ expect(observerPolicy.playwrightTrace).toBe('off');
+ expect(observerPolicy.playwrightVideo).toBe('off');
+ expect(observerPolicy.implicitScreenshot).toBe('off');
+ const {state,tick}=realWarden(),errors=[];
+ page.on('pageerror',error=>errors.push(String(error)));
+ await page.route('**/dungeon/state',route=>route.fulfill({json:state}));
+ await page.setViewportSize(SIZE);await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
+ ),{timeout:120000,intervals:[350,900,1300]}).toBe(state.checksum);
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0
+ ),{timeout:120000}).toBeGreaterThan(8);
+ await page.locator('#audio-toggle').click();
+ const audioEnabled=(await page.locator('#audio-toggle').getAttribute('aria-pressed'))==='true';
+ // First measure the ORIGINAL renderer without either screenshot tracing or
+ // native profiling. Those observers can themselves trigger GPU readbacks.
+ const blocks=[];
+ for(const record of [false,true,false])blocks.push(await measureOriginalWarden(page,record));
+ // Reintroduce ONLY Playwright's screenshot filmstrip in the same scene/process.
+ // This is a causal observer control, never an organic gameplay acceptance reel.
+ const filmstripPath='artifacts/dungeon-m1-renderer-assay-'+VIEW+'-observer-filmstrip.zip';
+ let screenshotObserver=null;
+ await page.context().tracing.start({screenshots:true,snapshots:false,sources:false});
+ try{screenshotObserver=await measureOriginalWarden(page,false);}
+ finally{await page.context().tracing.stop({path:filmstripPath});}
+ const afterScreenshotObserver=await measureOriginalWarden(page,false);
+ // Native trace attribution gets its OWN segment, not the clean baseline.
+ const stopNativeTrace=await startNativeWardenTrace(page);
+ let nativeObserved,nativeChromiumTrace;
+ try{nativeObserved=await measureOriginalWarden(page,false);}
+ finally{nativeChromiumTrace=await stopNativeTrace();}
  const receipt={
-  schemaVersion:1,verdict:'INSTRUMENTED_HOLD_NOT_FULL_ADVENTURE',
+  schemaVersion:2,verdict:'INSTRUMENTED_HOLD_NOT_FULL_ADVENTURE',
   sourceSha:cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   immutableBaseline:'281735d0910c6b2443648af976003d50412ee324',
   viewport:VIEW,seed:SEED,size:SIZE,realWarden:{tick,checksum:state.checksum,run:state.run,floor:state.floor},
-  method:'Actual original living-Warden public snapshot held constant; single Chrome SwiftShader renderer, OFF/ON/OFF original MediaRecorder; excludes disk streaming',
+  method:'Actual original living-Warden snapshot held constant; same Chromium process. Clean MediaRecorder OFF/ON/OFF with no screenshot/native profiler, then screenshot-only observer and clean recovery, then native-only trace. Excludes disk streaming; no live-game smoothness claim.',
+  observerPolicy,
   nativeChromiumTrace,
-  requestedEncoderMime:observed.mime,audioOptedIn:audioEnabled,canvas:observed.canvas,
-  blocks:observed.blocks.map(describe),pageErrors:errors,
+  requestedEncoderMime:blocks[1].mime,audioOptedIn:audioEnabled,canvas:blocks[0].canvas,
+  blocks:blocks.map(describe),
+  screenshotObserverControl:{source:'Playwright tracing screenshots only; MediaRecorder OFF',
+   filmstripPath,on:describe(screenshotObserver),offAfter:describe(afterScreenshotObserver),
+   ratioToCleanMedian:screenshotObserver.samples.length&&blocks[0].samples.length?
+    (describe(blocks[0]).rafP50Ms>0?describe(screenshotObserver).rafP50Ms/describe(blocks[0]).rafP50Ms:null):null},
+  nativeObserverBlock:describe(nativeObserved),pageErrors:errors,
   fiveStageMotionComparison:false,lockedBaselineAB:false,independentBlindCritics:0,
   looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED'
  };
@@ -200,8 +229,11 @@ test('Original living Warden: one-runner unrecorded/recorded/unrecorded '+VIEW,a
  await page.locator('#world').screenshot({path:path+'-actual-warden.png',timeout:90000});
  expect(errors).toEqual([]);
  expect(audioEnabled).toBe(true);
- expect(observed.blocks.map(b=>b.samples.length).every(n=>n>=8)).toBe(true);
- expect(observed.blocks.every(b=>b.sourceChecksum===state.checksum)).toBe(true);
- expect(observed.blocks[1].mode).not.toBe('unavailable');
- expect(observed.blocks[1].bytes).toBeGreaterThan(2048);
+ const allBlocks=[...blocks,screenshotObserver,afterScreenshotObserver,nativeObserved];
+ expect(allBlocks.every(b=>b.samples.length===20),'all six observer conditions deliver 20 real rendered frames').toBe(true);
+ expect(allBlocks.every(b=>b.sourceChecksum===state.checksum),'no observer condition changes the real Warden state').toBe(true);
+ expect(allBlocks.every(b=>b.error===null),'no silent capture failures').toBe(true);
+ expect(blocks[1].mode).not.toBe('unavailable');
+ expect(blocks[1].bytes).toBeGreaterThan(2048);
+ expect(blocks[1].audioTracks).toBeGreaterThan(0);
 });

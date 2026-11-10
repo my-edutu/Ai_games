@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (native GLB full-body duel implementation; new-head motion and masked A/B unverified)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (M1 capture observer isolation; actual AFTER motion UNVERIFIED)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -11,7 +11,21 @@
     "highest_floor_seen": 10,
     "total_floor_advances": 174,
     "total_restarts": 4,
-    "max_seed_elapsed_ms": 1169
+    "max_seed_elapsed_ms": 1169,
+    "m1_capture_observer_update": {
+      "date": "2026-11-10",
+      "parentSourceSha": "47327ba063595c27d19d43f25a016ea2048670e7",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "change": "Remove duplicated Playwright screenshot filmstrip; isolate native profiler from clean OFF/ON/OFF",
+      "stage": "A_INCOMPLETE",
+      "afterGameplay": "NOT_OBSERVED",
+      "critics": 0,
+      "captureContracts": "7/7",
+      "dungeonTests": "403/403",
+      "catalogueTests": "1147/1150; three existing scene-source assertion failures",
+      "handoff": "docs/gauntlet/AI_DUNGEON_M1_CAPTURE_OBSERVER_20261110.md",
+      "next": "Review clean native-vs-filmstrip controls and organic A/V; no game quality or smoothness victory until genuine moving comparisons"
+    }
   },
   "failures": [],
   "runs": [

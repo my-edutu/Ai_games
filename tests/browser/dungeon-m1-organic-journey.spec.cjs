@@ -120,8 +120,15 @@ async function stopRecording(page){
   new Promise(resolve=>{timer=setTimeout(()=>resolve({status:'UNAVAILABLE',reason:'Encoding timeout'}),60000)})
  ])}finally{clearTimeout(timer)}
 }
-test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async({page})=>{
+test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async({page},testInfo)=>{
  test.setTimeout(22*60*1000);
+ // Assert resolved runner options, not a claim inferred from a config filename.
+ const observerPolicy={playwrightVideo:testInfo.project.use.video,
+  playwrightTrace:testInfo.project.use.trace,
+  primaryFilm:'original canvas + spectator-opted-in WebAudio',
+  explicitMilestoneScreenshots:true};
+ expect(observerPolicy.playwrightVideo).toBe('off');
+ expect(observerPolicy.playwrightTrace?.screenshots).toBe(false);
  const {snapshots,milestones}=organicExpedition();
  for(const key of ['combat','warden','floor','defeat','restart'])
   expect(milestones[key],'Missing organic milestone: '+key).not.toBeNull();
@@ -263,7 +270,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  const {base64:pcmBase64,...pcmFacts}=pcm;
  const receipt={schemaVersion:1,sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   baselineSha:BASELINE,baselineArtifact:'https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898',
-  view:VIEW,viewport:SIZE,seed:SEED,source:'actual DungeonRuntime.step to real Chromium WebGL',
+  observerPolicy,view:VIEW,viewport:SIZE,seed:SEED,source:'actual DungeonRuntime.step to real Chromium WebGL',
   scriptedStateChanges:false,authoritySnapshots:snapshots.length,
   milestones:Object.fromEntries(Object.entries(milestones).map(([name,index])=>
    [name,{index,run:snapshots[index].run,tick:snapshots[index].tick,floor:snapshots[index].floor,
