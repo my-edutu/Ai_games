@@ -1594,3 +1594,31 @@ test('original Walking_A owns the primary thigh/calf/ankle swing without duplica
  assert.match(rig,/rigNativeLegOverlayScale/,
   'production gait must apply the ownership result to original leg overlay strength');
 });
+
+
+test('original source Walking_A transfers connected hips, shoulders and ankles to ONE licensed mixer owner',async()=>{
+ const rig=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8')).toString('base64'));
+ assert.equal(typeof rig.planSourceOwnedFullBodyStride,'function',
+  'the 41-joint source walk leg owner must also control hips/chest/opposing arms');
+ const p=Math.PI/2,original=rig.planRigFullBodyStride('vanguard',p,1);
+ assert.ok(Math.abs(original.hips.yaw)>.025&&Math.abs(original.arms.right.pitch)>.05);
+ for(const share of [1,.7,.36,.16]){
+  const pose=rig.planSourceOwnedFullBodyStride('vanguard',p,1,share,false);
+  assert.ok(Math.abs(pose.weight-share)<1e-10);
+  for(const [actual,baseline] of [
+   [pose.hips.yaw,original.hips.yaw],[pose.hips.roll,original.hips.roll],
+   [pose.chest.yaw,original.chest.yaw],[pose.arms.left.pitch,original.arms.left.pitch],
+   [pose.arms.right.pitch,original.arms.right.pitch]
+  ])assert.ok(Math.abs(actual-baseline*share)<1e-9,
+   'do not stack full duplicate shoulder-to-pelvis gait atop original Walking_A');
+  assert.ok(Math.abs(pose.arms.left.pitch+pose.arms.right.pitch)<1e-9);
+ }
+ for(const invalid of [NaN,-1,0,1.2,Infinity])
+  assert.equal(rig.planSourceOwnedFullBodyStride('vanguard',p,1,invalid).weight,0);
+ assert.equal(rig.planSourceOwnedFullBodyStride('vanguard',p,1,.16,true).weight,0);
+ assert.equal(rig.planSourceOwnedFullBodyStride('vanguard',p,0,.16,false).weight,0);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.rigFullBodyStride\s*=\s*planSourceOwnedFullBodyStride\([\s\S]{0,175}actor\.rigNativeLegOverlayScale/,
+  'live Three.js source actor must use the SAME original Walking_A mixer share for hips, shoulders and legs');
+});
