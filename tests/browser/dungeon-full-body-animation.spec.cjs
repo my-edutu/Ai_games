@@ -283,7 +283,7 @@ for(const view of [
  const stage=await loadStage(page,sequence.states[0]);
  const code=fs.readFileSync(require('node:path').join(__dirname,
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
+ const {measureSourceJointTravel,measureSourceSoleGripContinuity}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
  const trace=[];
  let previous=null;
