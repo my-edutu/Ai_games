@@ -579,6 +579,24 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(dirty)pool.mesh.visible=visibleSlots>0;
   }
  }
+ // Reduced-motion intentionally removes the animated sword ribbon. A
+ // real public attack attempt may still make an accessible, sound-only whoosh,
+ // but the same living, visible actor MUST still be performing that attack.
+ // Do not demand an authored sword bone: that would silence legitimate
+ // procedural fallback bodies, precisely in the accessible mode. This is a
+ // read-only body/action witness, NOT a hit, blade-tip or target proof.
+ function hasAuthenticatedSwingAction(cue){
+  if(disposed||cue?.kind!=='swing'||cue?.visual!=='trail'||
+   cue.proof!=='authority-attempt-not-hit'||typeof cue.actorId!=='string')
+   return false;
+  let actor=null;
+  try{actor=actorById(cue.actorId)}catch{return false}
+  const u=actor?.u;
+  if(u?.id!==cue.actorId||!['vanguard','revenant','warden'].includes(u.kind)||
+   u.action!=='attack'||u.actionTick!==cue.tick||
+   !Number.isFinite(u.hp)||u.hp<=0)return false;
+  return sampleActor(cue.actorId,cue.from)!==null;
+ }
  // A delayed launch may be *sound-only* when its retained flight is
  // genuinely blocked by masonry, preempted or unavailable. But a cancelled
  // firing/casting pose is not proof that any physical emitter still existed.
