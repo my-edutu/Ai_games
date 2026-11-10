@@ -1961,6 +1961,21 @@ function inspectSourceRigDeformation(actors){
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    sourceGroundAnchor:actor.sourceGroundAnchor??null,
    soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceWeaponGrip:sourceWeaponGrip,
+   // Real source AnimationAction clock captured only when the explicit
+   // original-rig inspector is called. Live rendering never skin-scans.
+   // This is required to match imported clips/phase across real sole frames.
+   sourceActionSample:actor.activeClip?.getClip?.()?{
+    clipName:actor.activeClip.getClip().name||null,
+    sourceAction:actor.currentAction||null,
+    sourceActionTick:Number.isFinite(actor.currentActionTick)?
+     actor.currentActionTick:null,
+    time:Number.isFinite(actor.activeClip.time)?actor.activeClip.time:null,
+    duration:Number.isFinite(actor.activeClip.getClip().duration)?
+     actor.activeClip.getClip().duration:null,
+    weight:Number.isFinite(actor.activeClip.getEffectiveWeight?.())?
+     actor.activeClip.getEffectiveWeight():null,
+    running:Boolean(actor.activeClip.isRunning?.())
+   }:null,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
    // animation timer. This never scans skin vertices or advances the mixer.
    sourceLoop:actor.activeImportedClipName==='Idle'?{
