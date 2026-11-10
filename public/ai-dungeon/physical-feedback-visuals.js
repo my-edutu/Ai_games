@@ -150,8 +150,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
        try{
         bone.getWorldQuaternion(sampledWristRotation);
         const q=sampledWristRotation;
-        if([q.x,q.y,q.z,q.w].every(Number.isFinite))
-         point.wristQuaternion={x:q.x,y:q.y,z:q.z,w:q.w};
+        if(Number.isFinite(q.x)&&Number.isFinite(q.y)&&
+          Number.isFinite(q.z)&&Number.isFinite(q.w)){
+         // Fold the witness into the point already allocated for this sample.
+         // Never retain a mutable Quaternion or allocate another pose object.
+         point.wristQx=q.x;point.wristQy=q.y;
+         point.wristQz=q.z;point.wristQw=q.w;
+        }
        }catch{} // A missing pose is never invented from the actor's root.
       }
       return point;
