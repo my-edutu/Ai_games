@@ -91,6 +91,20 @@ export function createPhysicalCombatFeedback({
    played++;
    return;
   }
+  // Body-local guard/utility gestures and the Warden's release/recovery
+  // need the same physical provenance as an undrawn spell: an observed
+  // action is not a license to sound from an unloaded/idle/expired performer.
+  // A genuine emitter with a preempted visual retains its original foley.
+  // Neutral event and actual HP-loss sounds remain separately authorized.
+  if(requirePresentedFrame&&!visual&&
+     (cue.kind==='warden-release'||cue.kind==='opening'||
+      cue.kind==='guard'||cue.kind==='cast-utility')&&
+     safeCall(()=>visuals?.hasAuthenticatedBodyPose?.(cue))!==true){
+   staleAudioDropped++;
+   retainReceipt(cue,false,false,null,'unverified-body-pose');
+   played++;
+   return;
+  }
   // The integrator can require evidence of a real renderer submission before
   // launching a combat transient. No guessing a frame from a time delay.
   if(soundEligible&&requirePresentedFrame){
