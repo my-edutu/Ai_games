@@ -38,7 +38,7 @@ const cue=Object.freeze({
  actorId:'source',tick:11,from:{x:2,z:2}
 });
 
-async function trial({swap=false,refresh=false}={}){
+async function trial({swap=false,refresh=false,drift=0,yaw=0}={}){
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
  const {THREE,scene}=stage();
@@ -66,6 +66,10 @@ async function trial({swap=false,refresh=false}={}){
   'a genuinely measured original wrist must be drawn before the rig swap');
  const beforeSwap=visuals.hasAuthenticatedSwingPose(cue);
  if(swap)actor.rigMeleeBones=[{part:'wrist',bone:replacementBone}];
+ // Animate after the VFX advance but before the renderer's submission receipt.
+ // A stable joint identity is insufficient if its spatial pose has changed.
+ wristX+=drift;
+ actor.root.rotation.y=yaw;
  const afterSwap=visuals.hasAuthenticatedSwingPose(cue);
  const staleDrawable=visuals.hasDrawableCue(CUE_ID);
  if(refresh){
@@ -101,6 +105,40 @@ test('a stable, genuinely measured original wrist still releases exactly one sub
 });
 test('new wrist can earn a fresh physical motion after two authentic samples',async()=>{
  const r=await trial({swap:true,refresh:true});
+ assert.equal(r.afterSwap,false);
+ assert.equal(r.finalDrawable,true);
+ assert.equal(r.finalWitness,true);
+ assert.equal(r.sent,1);
+ assert.deepEqual(r.heard,['whoosh']);
+ assert.equal(r.visualStats.reservedInstances,102);
+});
+
+// RED contract: the previous version only checked sourceBone identity at receipt.
+// A delayed same-rig pose change could play a whoosh for an old visible ribbon.
+test('same wrist moving materially after VFX update cannot authorize stale drawn sound',async()=>{
+ const r=await trial({drift:.28});
+ assert.equal(r.beforeSwap,true);
+ assert.equal(r.staleDrawable,true,'previous submitted ribbon remains retained');
+ assert.equal(r.afterSwap,false,'28cm joint drift invalidates physical frame alignment');
+ assert.equal(r.sent,0);
+ assert.deepEqual(r.heard,[]);
+ assert.equal(r.receipts.at(-1).decision,'revoked-drawn-swing-pose');
+});
+test('small same-rig sampling jitter does not silence a fresh submitted whoosh',async()=>{
+ const r=await trial({drift:.012,yaw:.015});
+ assert.equal(r.afterSwap,true);
+ assert.equal(r.sent,1);
+ assert.deepEqual(r.heard,['whoosh']);
+});
+test('same wrist changing root heading after VFX update cannot certify its old ribbon',async()=>{
+ const r=await trial({yaw:.35});
+ assert.equal(r.staleDrawable,true);
+ assert.equal(r.afterSwap,false);
+ assert.equal(r.sent,0);
+ assert.deepEqual(r.heard,[]);
+});
+test('a moved wrist may authorize sound after the actual next sampled blade passage',async()=>{
+ const r=await trial({drift:.28,refresh:true});
  assert.equal(r.afterSwap,false);
  assert.equal(r.finalDrawable,true);
  assert.equal(r.finalWitness,true);
