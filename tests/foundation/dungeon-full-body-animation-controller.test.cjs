@@ -1564,12 +1564,18 @@ test('original Walking_A owns the primary thigh/calf/ankle swing without duplica
  let scale=1;
  for(let frame=0;frame<18;frame++){
   const next=plan({...source,previous:scale});
-  assert.ok(Number.isFinite(next)&&next>=.16&&next<=1);
+  assert.ok(Number.isFinite(next)&&next>=0&&next<=1);
   assert.ok(next<=scale&&scale-next<=.10001,
    'the authentic original gait must take ownership gradually, never snap the imported skinned knees');
   scale=next;
  }
- assert.ok(scale<=.20,'the original 41-joint walk clip must carry most of its own foot and thigh motion');
+ assert.ok(scale<.005,'the fully weighted 41-joint Walking_A must own its thigh, calf, ankle, pelvis and shoulder swing without a residual procedural sine');
+ assert.equal(plan({...source,previous:0}),0,
+  'authentic walk with full original source weight cannot reintroduce secondary leg twitching');
+ assert.ok(Math.abs(plan({...source,previous:1,sourceWeight:.9,frameDelta:.20})-.1)<1e-10,
+  'sparse WebGL frames must follow the actually mixed source ownership, rather than taking ten visible frames');
+ assert.ok(Math.abs(plan({...source,previous:1,sourceWeight:.9,frameDelta:.016})-(1-.016/.18))<1e-10,
+  'normal 60Hz ownership changes are bounded by original walking clip crossfade time');
  const sourceLowerBodyExtra=.245*scale+.063*scale;
  assert.ok(sourceLowerBodyExtra<.063,
   'the old 0.245rad thigh plus 0.063rad ankle overlay must be reduced over a genuine native walk');
