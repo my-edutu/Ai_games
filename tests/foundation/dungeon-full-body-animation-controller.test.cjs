@@ -1974,3 +1974,45 @@ test('authentic native guard enters and exits on bounded witnessed slow WebGL fr
  ])assert.equal(step(guard2,{...slow,...stopped}).guardProgress,0,
   'true injury, evasion, attack, defeat, teleport and accessibility override old guard support immediately');
 });
+
+
+test('original source Walking_A defers a micro-root entry until witnessed travel warrants a leg swing',async()=>{
+ const {planNativeWalkStartFromTravel:entry}=await load();
+ assert.equal(typeof entry,'function','the original source-rig needs a bounded travel-based walking-entry gate');
+ // Original exact-head same-tick desktop source capture saw ~5mm root
+ // movement while an imported skinned foot point shifted ~163mm.
+ // A foot kick based on a source crossfade is not itself real travel.
+ const base={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  groundedMoving:true,groundedTravel:.005,frameInterval:.08,
+  pendingMeters:0,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false};
+ const a=entry(base);
+ assert.deepEqual(a,{defer:true,pendingMeters:.005},
+  'the first very-low-velocity original-GLB move frame keeps Idle');
+ const b=entry({...base,groundedTravel:.007,pendingMeters:a.pendingMeters});
+ assert.deepEqual(b,{defer:true,pendingMeters:.012},
+  'several genuine millimetre movements accumulate without being discarded');
+ assert.deepEqual(entry({...base,groundedTravel:.014,pendingMeters:b.pendingMeters}),
+  {defer:false,pendingMeters:0},
+  'after 26mm cumulative witnessed travel the authentic Walking_A must enter');
+ assert.deepEqual(entry({...base,groundedTravel:.12}),
+  {defer:false,pendingMeters:0},'real movement starts source walking immediately');
+ assert.deepEqual(entry({...base,groundedTravel:.005,frameInterval:.016}),
+  {defer:false,pendingMeters:0},'a genuine normal-frame step is never delayed');
+ assert.deepEqual(entry({...base,previousMode:'guard'}),
+  a,'lawfully released guard retains the same physical source-entry contract');
+ for(const invalid of [
+  {mode:'idle'},{mode:'attack'},{previousMode:'attack'},
+  {sourceClipName:'Idle'},{sourceClipName:'NoClip'}, {groundedMoving:false},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{groundedTravel:NaN},{groundedTravel:-.01},
+  {frameInterval:0},{frameInterval:NaN},{frameInterval:3},
+  {pendingMeters:NaN},{pendingMeters:-1}
+ ])assert.deepEqual(entry({...base,...invalid}),{defer:false,pendingMeters:0},
+  'no stale source-walk suppression may survive unsupported input '+JSON.stringify(invalid));
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planNativeWalkStartFromTravel\(/,
+  'the actual imported Three.js changeAction must use the real travel gate');
+ assert.match(model,/if\(nativeWalkEntry\.defer\)return;/,
+  'only the exact original source action is deferred, not authoritative movement');
+});
