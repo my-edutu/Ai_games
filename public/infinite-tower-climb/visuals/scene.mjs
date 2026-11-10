@@ -1130,18 +1130,22 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const witnessedLiveCrossfire = enemy.id === liveGuardianId &&
         !!liveShotPoint && dx <= 90000 &&
         Math.abs(player.y-enemy.y) <= player.halfHeight+enemy.halfHeight+3500;
-      // The original 390x844 source recording at tick 321 (living guardian
-      // HP 3/8) shows the airborne hero beyond the left picture edge while
-      // the boss remains visible. A single telegraph, projectile or attack
-      // flag is NOT the entire physical encounter: dropping the guardian
-      // between true attack ticks returns the director to a distant landing
-      // panorama and makes the next contact look disconnected. Preserve a
-      // two-body combat composition only for an already-wounded, still-living,
-      // physically nearby guardian; the real airborne destination remains a
-      // protected camera subject. No fabricated telegraph or attacker identity.
+      // The original portrait source episode at tick 321 reveals a large
+      // authority-to-render-camera projection disagreement during an airborne
+      // duel; the physically drawn skinned actor is still inside the frame.
+      // Do not treat every jump/air-control step near a wounded boss as
+      // combat: source-selected airborne landings must retain their camera.
+      // But when the authority is STILL handling the combat or its recovery,
+      // the wounded live opponent must not disappear between telegraph and
+      // projectile ticks. The existing full-body/core/landing vetoes apply.
+      const airborneCombatRecovery = [
+        'recovering', 'engaging-enemy', 'bracing-telegraph',
+        'evading-telegraph', 'evading-projectile'
+      ].includes(snapshot.intent?.mode);
       const witnessedWoundedAirDuel = player.state === 'airborne' &&
-        enemy.kind === 'guardian' && enemy.health > 0 &&
-        healthRatio < 1 && dx <= 90000 && dy <= 60000;
+        airborneCombatRecovery && enemy.kind === 'guardian' &&
+        enemy.health > 0 && healthRatio < 1 &&
+        dx <= 90000 && dy <= 60000;
       const activeContact = (player.state !== 'airborne' || witnessedAirShot ||
         witnessedRangedDuel || witnessedLiveCrossfire || witnessedWoundedAirDuel) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
