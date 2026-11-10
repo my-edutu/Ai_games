@@ -6,7 +6,7 @@
  * loss alone earns a small deterministic fracture. Does not touch animations,
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
-import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone} from './measured-weapon-trail.js';
+import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone,isCurrentMeasuredHandReceipt} from './measured-weapon-trail.js';
 import {selectPhysicalWarningMarkers} from './physical-feedback-plan.js';
 import {isStaleWardenWarning,shouldRetireWardenWarning,isLiveWardenWarning} from './warden-warning-lifecycle.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
@@ -615,11 +615,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // An old measured ribbon can remain drawable when the actual skinned rig
   // changes between the animation update and the WebGL receipt. A replacement
   // wrist at the same position MUST NOT certify the original swing sound.
-  // New motion may earn its own cue after two samples on one stable bone.
+  // Nor may the SAME bone authorize an outdated VFX transform after its
+  // wrist or root heading changes between advance() and frame submission.
+  // Newly measured movement earns a fresh receipt on the next genuine frame.
   for(const slot of pools.get('trail')?.slots??[]){
    if(slot?.cue?.id!==cue.id||!slot.measuredPath)continue;
-   return Boolean(slot.lastHand?.sourceBone&&
-    slot.lastHand.sourceBone===hand.sourceBone);
+   return isCurrentMeasuredHandReceipt(slot.lastHand,hand);
   }
   // Standalone source query: the independent receipt gate still requires a
   // drawable, measured retained slot. No contact or victim is inferred.
