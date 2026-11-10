@@ -67,7 +67,32 @@
     "openGuardianStructuralBayImplementationSha": "6a6188bd6c967a64ddc4b07c2b526e4eb46cea3e",
     "openGuardianStructuralBayFilmStatus": "P0 OPEN / NOT EVALUATED — original code changed, new exact-source native film not yet accepted; RED prior original solid shaft test and code CI pending",
     "latestEarnedGatewayDuelStagingImplementationSha": "5ad36a284052e54af6a0f83be84b10857b1b2059",
-    "latestEarnedGatewayDuelStagingEvidenceStatus": "P0 OPEN / NOT EVALUATED: source-pinned 2702311e original 73.16s portrait+73.60s desktop candidate danger video (run 42818985967) still shows live fight blocked by inner cap stone/bronze and exterior gate; actual source-linked 260-350 tick portrait camera rays hit inner WalkableSourceCapArchAndBraces 14 and RetractingBronzeLeaves 14 times. Test-first commit 3e180d9e confirmed two expected RED tests, quality run 42827479826. Actual production change 5ad36a28 hides second solid inner arch during live source HP>0, retains source locked exterior+high energy lattice; reveals rising walkable frame only after genuine zero-HP, retires it at true floor9, and honors reduced motion/restart. Candidate after-film, CI success, source-raster crossing, supported devices and blind LOOKS/FEELS/PLAYS all NOT EVALUATED."
+    "latestEarnedGatewayDuelStagingEvidenceStatus": "P0 OPEN / NOT EVALUATED: source-pinned 2702311e original 73.16s portrait+73.60s desktop candidate danger video (run 42818985967) still shows live fight blocked by inner cap stone/bronze and exterior gate; actual source-linked 260-350 tick portrait camera rays hit inner WalkableSourceCapArchAndBraces 14 and RetractingBronzeLeaves 14 times. Test-first commit 3e180d9e confirmed two expected RED tests, quality run 42827479826. Actual production change 5ad36a28 hides second solid inner arch during live source HP>0, retains source locked exterior+high energy lattice; reveals rising walkable frame only after genuine zero-HP, retires it at true floor9, and honors reduced motion/restart. Candidate after-film, CI success, source-raster crossing, supported devices and blind LOOKS/FEELS/PLAYS all NOT EVALUATED.",
+    "p0LiveGuardianAfterFilm20261110": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "status": "NOT EVALUATED",
+      "inspectedExactCandidateSha": "2702311ef49b7f88c5b71c1513316f065ff909a9",
+      "preservedImmutableBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "inspectedSourceVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/42818985967",
+      "inspectedCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42818985967/artifacts/13764819494",
+      "checkedNativeVideo": "Real candidate portrait 390x844 73.16s, desktop 960x600 73.60s; baseline portrait 71.12s, desktop 71.56s. ffprobe and decoded native video frames at 8/12/14/16/18/20/22/24/26/28/31/40/60/70s, not continuous-motion verdict.",
+      "mostImportantObservedDefect": "In original candidate 2702311e portrait around 20s, giant bronze ring/solid gate overwhelms climber and guardian; desktop 16s cyan and bronze machinery blocks action. Original ray forensics identify WalkableSourceCapArchAndBraces, WalkableSourceCapRetractingBronzeLeaves, exterior gate and source lattice among contributors. No raster attribution certainty.",
+      "newestSourceRenderingChange": "5ad36a284052e54af6a0f83be84b10857b1b2059 + e07a4688e80a954f91a88aef7498c41fd3979014 source-earned inner gateway visibility and deck landing; code not changed in this evidence-only execution",
+      "previousSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42829335462 — success at exact e07a4688 (engineering veto, not scene acceptance)",
+      "exactSourceCaptureRequestCommit": "9924ca0192347465c5933f4336d8b10800c4470a",
+      "latestSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42831418395 — new source-pinned 10-job matrix dispatched; status last observed IN PROGRESS",
+      "evidenceReview": "docs/reviews/2026-11-10-tower-pr68-post-source-earned-inner-gate-full-film-recapture.md",
+      "originalWebmsPrior": 16,
+      "nativeTimebasesPrior": "8/8 CALIBRATED",
+      "fullMotionPaired": false,
+      "independentBlindReviews": {
+        "looks": 0,
+        "feels": 0,
+        "plays": 0
+      },
+      "supportedDeviceFrameTimesMemory": "NOT EVALUATED",
+      "nextAction": "Inspect newest original WebMs and source event-adjacent pixels in both viewports for real two-character guardian/crusher, earned physical gateway, floor9 and restart; if filmed occlusion persists redesign remaining external physical staging. Do not advance P0 or claim independently verified comparison."
+    }
   },
   "currentTransformation": {
     "latestEvidenceRun": {
