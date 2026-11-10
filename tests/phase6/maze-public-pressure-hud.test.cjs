@@ -46,9 +46,9 @@ test('live mission source uses the exact public cue before gate, pickup and goal
   // exact original WebGL showed the live withdrawal warning vanish in that case.
   // Require the distinct consecutive public-tick predecessor and its common
   // source-camera helper, not merely a renamed variable.
-  assert.match(source,/lastDistinctPressureSnapshot=publicDistinctPublicPredecessor\\(\\s*lastDistinctPressureSnapshot,previousPublicSnapshot,snapshot\\)/,
+  assert.match(source,/lastDistinctPressureSnapshot=publicDistinctPublicPredecessor\(\s*lastDistinctPressureSnapshot,previousPublicSnapshot,snapshot\)/,
     'preserve the last distinct published tick through duplicate deliveries');
-  assert.doesNotMatch(source,/publicPressureWithdrawalCue\\(previousPublicSnapshot,snapshot\\)/,
+  assert.doesNotMatch(source,/publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/,
     'a duplicate poll is not a genuine new witnessed pressure beat');
   assert.match(source,/const keyedSealedGate=!ended && !urgent/);
   assert.match(source,/const freshKey=!ended && !urgent/);
