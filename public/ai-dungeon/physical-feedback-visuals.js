@@ -545,6 +545,18 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(dirty)pool.mesh.visible=visibleSlots>0;
   }
  }
+ // A delayed launch may be *sound-only* when its retained flight is
+ // genuinely blocked by masonry, preempted or unavailable. But a cancelled
+ // firing/casting pose is not proof that any physical emitter still existed.
+ // Use the SAME live actor, tick and rig-hand rules as visual admission;
+ // never infer a projectile hit, fabricate a source or add a mesh/voice.
+ // This is queried only on undrawn release cues at their staging boundary.
+ function hasAuthenticatedReleasePose(cue){
+  if(disposed||cue?.proof!=='authority-action')return false;
+  const type=cue.kind==='ranged-release'?'projectile':
+   cue.kind==='spell-release'?'spell':null;
+  return type!==null&&anchor(cue,type)!==null;
+ }
  // Query retained slots once per pending sound receipt, after actual-frame
  // lifetime aging. A live swing slot does not certify a successful hit.
  function hasLiveCue(cueId){
@@ -593,5 +605,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasLiveCue,hasDrawableCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedReleasePose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
 }
