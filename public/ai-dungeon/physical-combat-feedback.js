@@ -198,6 +198,27 @@ export function createPhysicalCombatFeedback({
     if(decision==='expired-visual')expiredVisualAudioDropped++;
     retainReceipt(item.cue,item.visual,false,frameId,decision);continue;
    }
+   // An undrawn source was authenticated when its cue entered the frame
+   // queue, not necessarily when WebGL actually submitted it. A renderer
+   // stall, asset unload or actor pose change may revoke that permission.
+   // Recheck at the genuine submission receipt, without assigning a target
+   // or mutating authority. Drawn effects use the retained-slot gate above.
+   if(!item.visual){
+    const release=item.cue.kind==='ranged-release'||item.cue.kind==='spell-release';
+    const body=item.cue.kind==='warden-release'||item.cue.kind==='opening'||
+     item.cue.kind==='guard'||item.cue.kind==='cast-utility';
+    if(release||body){
+     const authenticated=safeCall(()=>release?
+      visuals?.hasAuthenticatedReleasePose?.(item.cue):
+      visuals?.hasAuthenticatedBodyPose?.(item.cue))===true;
+     if(!authenticated){
+      staleAudioDropped++;
+      retainReceipt(item.cue,false,false,frameId,
+       release?'revoked-release-pose':'revoked-body-pose');
+      continue;
+     }
+    }
+   }
    const audible=!!safeCall(()=>foley?.emit?.(item.cue));
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
