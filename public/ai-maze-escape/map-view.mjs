@@ -151,7 +151,7 @@ export function publicVerifiedPressureRetreatPartner(before, after, cellSize, as
     || !(Number.isFinite(cellSize) && cellSize>0)
     || !Array.isArray(before.cells) || !Array.isArray(after.cells)
     || !Array.isArray(before.visibleCells) || !Array.isArray(after.visibleCells)
-    || !Array.isArray(after.doors)
+    || !Array.isArray(before.doors) || !Array.isArray(after.doors)
     || !Number.isSafeInteger(before.currentCell) || !Number.isSafeInteger(after.currentCell))
     return null;
   const limit=after.width*after.height, from=before.currentCell, to=after.currentCell;
@@ -165,11 +165,14 @@ export function publicVerifiedPressureRetreatPartner(before, after, cellSize, as
   const current=new Map(after.cells.map(cell=>[cell?.cell,cell]));
   const source=new Map(before.cells.map(cell=>[cell?.cell,cell]));
   const start=current.get(from), end=current.get(to);
-  if(!start || !end || start.blocked || end.blocked
+  const observedStart=source.get(from);
+  const edgeClosed=state=>state.doors.some(d=>!d.open
+    && ((d.a===from&&d.b===to)||(d.a===to&&d.b===from)));
+  if(!start || !end || !observedStart
+    || start.blocked || end.blocked || observedStart.blocked
     || !Array.isArray(start.neighbors) || !start.neighbors.includes(to)
     || !Array.isArray(end.neighbors) || !end.neighbors.includes(from)
-    || after.doors.some(d=>!d.open
-      && ((d.a===from&&d.b===to)||(d.a===to&&d.b===from))))
+    || edgeClosed(before) || edgeClosed(after))
     return null;
   const candidates=[];
   for(const cell of before.cells) {

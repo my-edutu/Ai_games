@@ -239,6 +239,8 @@ test('public retreat shot never promotes previously secret, forged, blocked or d
   [before,{...after,cells:cells.map(c=>c.cell===24?{...c,neighbors:[]}:c)}],
   [before,{...after,cells:cells.map(c=>c.cell===25?{...c,neighbors:[32]}:c)}],
   [before,{...after,doors:[{a:24,b:25,open:false}]}],
+  [{...before,doors:[{a:24,b:25,open:false}]},after],
+  [{...before,cells:cells.map(c=>c.cell===25?{...c,blocked:true}:c)},after],
   [before,{...after,currentCell:17}],
   [before,{...after,currentCell:25}],
   [before,{...after,runToken:'another'}],
