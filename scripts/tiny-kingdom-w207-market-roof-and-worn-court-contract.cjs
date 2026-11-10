@@ -18,7 +18,7 @@ assert.match(ground,/const\s+weatheredWidth=width\*\(\.60\+\.38\*biomeHash\(key\
 assert.match(ground,/weatheredDepth=depth\*\(\.60\+\.36\*biomeHash\(key\+173\)\)/);
 assert.match(ground,/const\s+drift=\(biomeHash\(key\+151\)-\.5\)\*\.29/);
 assert.match(ground,/const\s+wander=\(biomeHash\(key\+191\)-\.5\)\*\.26/);
-assert.match(ground,/marketQuarterStats\.surfaceModel='w207-uneven-worn-setts-and-clay-wheelway'/);
+assert.match(ground,/marketQuarterStats\.surfaceModel='w208-natural-clay-market-and-freight-wagonway'/);
 const interior=section('function marketReceivingRoofInterior(){','function marketReceivingDock(){');
 assert.match(source,/marketReceivingRoofInterior\(\);\s*\/\/ W205/);
 assert.match(source,/receivingSoffitPanels:marketQuarterStats\.receivingSoffitPanels/);

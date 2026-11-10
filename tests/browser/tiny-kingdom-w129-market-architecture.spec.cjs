@@ -45,6 +45,10 @@ function assertWorld(a){
  // source-only geometry stubs cannot substitute for this running-game gate.
  expect(a.raisedReceivingHall.receivingSoffitPanels).toBe(18);
  expect(a.raisedReceivingHall.receivingSoffitRafters).toBe(6);
+ expect(a.raisedReceivingHall.arcadeWallSegments).toBe(4);
+ expect(a.raisedReceivingHall.arcadeWallTriangles).toBeGreaterThan(40);
+ expect(a.raisedReceivingHall.arcadeWallMaxHeight).toBeLessThanOrEqual(1.55);
+ expect(a.raisedReceivingHall.arcadeClearCenterWidth).toBeGreaterThanOrEqual(5.1);
  expect(a.raisedReceivingHall.receivingSoffitTriangles).toBeGreaterThanOrEqual(75);
  expect(a.raisedReceivingHall.receivingSoffitTriangles).toBeLessThan(140);
  expect(a.raisedReceivingHall.frontGablePlasterPanels).toBe(0);
@@ -66,8 +70,8 @@ function assertWorld(a){
  expect(a.market.marketWheelPassages).toBe(22);
  expect(a.market.marketDrainSegments).toBe(22);
  expect(a.market.mortarTriangles).toBe(224);
- expect(a.market.pavingStones).toBeGreaterThan(200);
- expect(a.market.pavingStones).toBeLessThanOrEqual(260);
+ expect(a.market.pavingStones).toBeGreaterThan(90);
+ expect(a.market.pavingStones).toBeLessThanOrEqual(165);
  expect(a.street.connected).toBe(true);
  expect(a.street.unsafeSamples).toBe(0);
  expect(a.street.granaryTradeEntranceUnblocked).toBe(true);

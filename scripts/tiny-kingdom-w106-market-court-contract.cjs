@@ -17,7 +17,7 @@ const court=between('function marketReceivingCourt(){','// W87: the SAME four re
 const exchange=between('// W106 continue the SAME market economy','/* G095: central market');
 // W207 retains the original same-seed, walkable public court while converting
 // the uniform rectangle grid into separated, irregular clay-and-stone setts.
-assert.match(square,/w207-uneven-worn-setts-and-clay-wheelway/);
+assert.match(square,/w208-natural-clay-market-and-freight-wagonway/);
 assert.match(square,/marketWheelPassages/);
 assert.match(square,/marketDrainSegments/);
 assert.match(court,/receivingDrainSegments/);
@@ -52,7 +52,7 @@ const context={grainwardTransferNode:site=>{
 vm.createContext(context);
 vm.runInContext(square+'\n'+court+'\nmarketCobblestoneSquare();marketReceivingCourt();',context);
 assert.deepEqual(transferSites,['market'],'receiving court calls one actual independent transfer node');
-assert.ok(stats.pavingStones>=180&&stats.pavingStones<=260);
+assert.ok(stats.pavingStones>=90&&stats.pavingStones<=165,'irregular stones over real uncluttered clay');
 // W129 replaces the unsafe 64 long radial slices with 224 short terrain-conforming faces.
 // Retain the original strict <900-triangle floor/receiving-court cap below.
 assert.equal(stats.mortarTriangles,224);
