@@ -21,6 +21,11 @@ const env={
   createBuffer(){return {id:++this.next}},
   deleteBuffer(){this.deletes++},
   bufferData(){this.uploads++},
+  // W182's actual crop buffers now use bufferSubData on each genuine season.
+  bufferSubData(type,offset,mesh){
+   assert.equal(type,this.ARRAY_BUFFER);assert.equal(offset,0);
+   assert(mesh.length>0);this.uploads++;
+  },
   drawArrays(mode,start,count){this.draws.push({mode,start,count})}},
  bindGeometry(){},
  releaseGeometryBuffer(buffer){this.gl.deleteBuffer(buffer)},

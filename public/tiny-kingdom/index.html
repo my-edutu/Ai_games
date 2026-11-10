@@ -14946,7 +14946,9 @@ function getDaybreakReturnAudit(){
   wallProgress:active?Math.min(1,elapsed/DAYBREAK_RETURN_MS):0,
   renderedFrames:active?daybreakReturn.renderedFrames:0,
   maxPresentedStep:DAYBREAK_MAX_PROGRESS_PER_FRAME,
-  completed:daybreakReturnCompleted,authorityChanged:false,
+  completed:daybreakReturnCompleted,
+  awaitingSubmittedFinalFrame:Boolean(daybreakReturn?.awaitingSubmittedFinalFrame),
+  authorityChanged:false,
   noFalseWork:true,noFalseResident:true,presentationOnly:true,
   clearanceY:active?daybreakReturn.physical.clearanceY:null,
   crossedRoofs:active?daybreakReturn.physical.crossedRoofs:0,
@@ -14994,8 +14996,11 @@ function daybreakWorldCameraAt(path,progress){
  const clamp=t=>Math.max(0,Math.min(1,t));
  const smooth=t=>{t=clamp(t);return t*t*(3-2*t)};
  const t=clamp(Number.isFinite(progress)?progress:0);
- const travel=smooth((t-.17)/.66),lift=Math.min(smooth(t/.24),
-  smooth((1-t)/.24)),aim=smooth(t);
+ // W183: reach actual roof clearance before lateral movement, traverse the
+ // REAL inhabited skyline entirely above it, then descend at the saved view.
+ // This is camera-only geometry; no citizen or authoritative rule changes.
+ const travel=smooth((t-.24)/.52),lift=Math.min(smooth(t/.22),
+  smooth((1-t)/.22)),aim=smooth(t);
  const eye=path.fromEye.map((v,i)=>v+(path.toEye[i]-v)*travel);
  const baselineY=eye[1];
  eye[1]+=Math.max(0,(path.clearanceY??baselineY)-baselineY)*lift;
@@ -15065,18 +15070,24 @@ function advanceDaybreakReturn(){
   target:view.frame.target.slice(),clear:clearance.clear,
   obstruction:clearance.kind});
  if(view.samples.length>18)view.samples.shift();
- if(fraction>=1){
-  daybreakLastCompleted={citizen:view.citizen,progress:fraction,
-   submittedFrames:view.renderedFrames,clearanceY:view.physical.clearanceY,
-   crossedRoofs:view.physical.crossedRoofs,samples:view.samples.map(s=>({...s})),
-   endEye:view.physical.toEye.slice(),endTarget:view.physical.toTarget.slice(),
-   authorityChanged:false};
-  daybreakReturnCompleted++;
-  daybreakReturn=null;
-  setCitizenFollow(false);
-  stopWorkdayWatch();setCommandView('world');
-  showToast('Daybreak · real villagers return to work');
- }
+ // W183: do not discard the REAL off-axis eye before render() has submitted
+ // the last complete world frame. That old premature cleanup could snap
+ // directly from the cottage door to the aerial survey at low FPS.
+ if(fraction>=1)view.awaitingSubmittedFinalFrame=true;
+ return true;
+}
+// Acknowledge only AFTER the real WebGL submission for this physical shot.
+function acknowledgeDaybreakWorldFrame(){
+ const view=daybreakReturn;
+ if(!view||!view.awaitingSubmittedFinalFrame||view.progress<1)return false;
+ daybreakLastCompleted={citizen:view.citizen,progress:view.progress,
+  submittedFrames:view.renderedFrames,clearanceY:view.physical.clearanceY,
+  crossedRoofs:view.physical.crossedRoofs,samples:view.samples.map(s=>({...s})),
+  endEye:view.physical.toEye.slice(),endTarget:view.physical.toTarget.slice(),
+  authorityChanged:false,finalWorldDrawSubmitted:true};
+ daybreakReturnCompleted++;daybreakReturn=null;
+ setCitizenFollow(false);stopWorkdayWatch();setCommandView('world');
+ showToast('Daybreak · real villagers return to work');
  return true;
 }
 let liveWorkSwitchHour=-Infinity,liveWorkTransitions=0,liveWorkCuts=0;
@@ -21562,6 +21573,9 @@ drawForegroundResidentMesh();
  // Frozen idle time must not masquerade as sluggish active gameplay.
  const drawScenario=frameProfileScenario;
  noteDrawCompletion(frameProfileEnd,drawScenario,idleFrames>0);
+ // Camera finalization follows the SAME genuine 3D draw and cannot erase its
+ // physical eye/aim before the original world render consumes them.
+ acknowledgeDaybreakWorldFrame();
  idleFrames=0;
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;

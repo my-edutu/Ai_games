@@ -58,21 +58,35 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(entering.transition.renderedFrames).toBeGreaterThanOrEqual(0);
   expect(entering.transition.progress).toBeLessThanOrEqual(entering.transition.wallProgress);
   // The simulation speed remains unchanged by the camera work.
-  await page.waitForFunction(()=>window.__tinyKingdom.getDaybreakReturnAudit().progress>.38,
-    null,{timeout:110000});
+  // Real software-renderer stalls may finish between polling and evaluation.
+  // Require an actual submitted in-flight physical frame, not a fake fraction.
+  await page.waitForFunction(()=>{
+   const a=window.__tinyKingdom.getDaybreakReturnAudit();
+   return a.progress>.38||Boolean(a.lastCompleted?.finalWorldDrawSubmitted&&
+    a.lastCompleted.samples.some(s=>s.progress>.38&&s.progress<.97));
+  },null,{timeout:110000});
   const middle=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {camera:g.getCamera(),transition:g.getDaybreakReturnAudit(),
     snapshot:JSON.stringify(g.exportSnapshot())};
   });
-  expect(middle.transition.progress).toBeGreaterThan(.38);
-  expect(middle.transition.progress).toBeLessThanOrEqual(1);
-  expect(middle.transition.renderedFrames).toBeGreaterThanOrEqual(4);
-  expect(middle.transition.progress).toBeLessThanOrEqual(middle.transition.wallProgress);
-  expect(middle.transition.physicalShot?.progress)
-   .toBeCloseTo(middle.transition.progress,5);
-  expect(middle.transition.physicalShot?.eye?.every(Number.isFinite)).toBe(true);
-  expect(middle.transition.physicalShot?.target?.every(Number.isFinite)).toBe(true);
+  const active=middle.transition.active;
+  const samples=active?middle.transition.submittedFrames:
+   middle.transition.lastCompleted?.samples||[];
+  expect(samples.length).toBeGreaterThanOrEqual(4);
+  expect(samples.some(s=>s.progress>.38&&s.progress<.97)).toBe(true);
+  expect(samples.every(s=>s.eye.every(Number.isFinite)&&
+   s.target.every(Number.isFinite))).toBe(true);
+  if(active){
+   expect(middle.transition.progress).toBeGreaterThan(.38);
+   expect(middle.transition.progress).toBeLessThanOrEqual(1);
+   expect(middle.transition.progress).toBeLessThanOrEqual(middle.transition.wallProgress);
+   expect(middle.transition.physicalShot?.progress)
+    .toBeCloseTo(middle.transition.progress,5);
+  }else{
+   expect(middle.transition.lastCompleted?.progress).toBe(1);
+   expect(middle.transition.lastCompleted?.finalWorldDrawSubmitted).toBe(true);
+  }
   expect(middle.snapshot).toBe(morning.snapshot);
   await page.waitForFunction(()=>!window.__tinyKingdom.getDaybreakReturnAudit().active &&
     !window.__tinyKingdom.getCamera().follow &&
