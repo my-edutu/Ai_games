@@ -1328,10 +1328,12 @@ test('licensed Walking_A freezes its outgoing source keyframe while a genuinely 
   groundedMoving:false,groundedTravel:0,teleport:false,reducedMotion:false,
   visible:true};
  assert.equal(freeze(options),true,'source must stop stepping its ankles after genuine travel ends');
+ assert.equal(freeze({...options,nextMode:'guard'}),true,
+  'genuine stopped move-to-guard must hold its last source Walking_A foot while Idle fades into the original defensive pose');
  for(const [reason,patch] of Object.entries({
   stillWalking:{groundedMoving:true},rootStillTravelling:{groundedTravel:.015},
   microscopicInterp:{groundedTravel:.0016},otherOwner:{previousMode:'attack'},
-  newAttack:{nextMode:'attack'},newGuard:{nextMode:'guard'},
+  newAttack:{nextMode:'attack'},newCast:{nextMode:'cast'},
   noSource:{previousClipName:'Idle'},unknownSource:{previousClipName:'None'},
   teleported:{teleport:true},accessibility:{reducedMotion:true},
   hidden:{visible:false},invalidTravel:{groundedTravel:NaN}
