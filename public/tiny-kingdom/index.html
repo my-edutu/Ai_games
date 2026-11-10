@@ -15556,6 +15556,7 @@ const HOME_NAV_BUCKET_SIDE=8;
 let homeNavigationBuckets=null,homeNavigationLength=-1,homeNavigationRebuilds=0,
  homeNavigationQueries=0,homeNavigationCandidateChecks=0;
 function invalidateHomeNavigationIndex(){
+ invalidateNavSegmentMemo();
  homeNavigationBuckets=null;homeNavigationLength=-1;
 }
 function ensureHomeNavigationIndex(){
@@ -15692,7 +15693,51 @@ function navSnap(x,z,requireSight=false){
   return null;
 }
 const NAV_DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function clearSegment(a,b){const len=Math.hypot(a[0]-b[0],a[1]-b[1]);if(len<=.04)return walkable(b[0],b[1]);const steps=Math.ceil(len/.04);for(let i=1;i<=steps;i++){let t=i/steps;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false}return true}
+// W191 NAV_VISIBILITY_BEGIN
+// Exact original 4cm movement sightline samples are expensive during
+// genuine A* route compression. Reuse ONLY bit-identical, directed queries.
+// Building a real home or restoring a saved town invalidates the whole map;
+// reverse rays do not alias because finite sampling order must remain exact.
+const NAV_SEGMENT_MEMO_LIMIT=4096;
+const navSegmentMemo=new Map();
+let navSegmentMemoHits=0,navSegmentMemoMisses=0,
+ navSegmentMemoInvalidations=0,navSegmentMemoBypasses=0;
+function invalidateNavSegmentMemo(){
+ navSegmentMemo.clear();navSegmentMemoInvalidations++;
+}
+function directClearSegment(a,b){const len=Math.hypot(a[0]-b[0],a[1]-b[1]);if(len<=.04)return walkable(b[0],b[1]);const steps=Math.ceil(len/.04);for(let i=1;i<=steps;i++){let t=i/steps;if(!walkable(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t))return false}return true}
+function clearSegment(a,b){
+ // Keep the original oracle for invalid/off-path coordinates, including
+ // its existing behavior; caching must never invent a safer passage.
+ if(!Number.isFinite(a[0])||!Number.isFinite(a[1])||
+    !Number.isFinite(b[0])||!Number.isFinite(b[1])){
+  navSegmentMemoBypasses++;
+  return directClearSegment(a,b);
+ }
+ const key=a[0]+','+a[1]+'>'+b[0]+','+b[1];
+ if(navSegmentMemo.has(key)){
+  navSegmentMemoHits++;
+  return navSegmentMemo.get(key);
+ }
+ const answer=directClearSegment(a,b);
+ if(navSegmentMemo.size>=NAV_SEGMENT_MEMO_LIMIT)
+  navSegmentMemo.delete(navSegmentMemo.keys().next().value);
+ navSegmentMemo.set(key,answer);
+ navSegmentMemoMisses++;
+ return answer;
+}
+function getNavSegmentMemoAudit(){
+ return {source:'exact-directed-original-navigation-sightline-residency',
+  entries:navSegmentMemo.size,limit:NAV_SEGMENT_MEMO_LIMIT,
+  hits:navSegmentMemoHits,misses:navSegmentMemoMisses,
+  invalidations:navSegmentMemoInvalidations,
+  nonFiniteBypasses:navSegmentMemoBypasses,
+  original4cmSampling:true,strictEndpointIdentity:true,
+  reverseDirectionSeparate:true,houseConstructionInvalidation:true,
+  equalCountSaveRestoreInvalidation:true,authorityChanged:false,
+  hardwareFpsNotMeasured:true};
+}
+// W191 NAV_VISIBILITY_END
 // Binary priority queue keeps worst-case A* expansion bounded without repeated full sorts.
 const navCompare=(a,b)=>a.f-b.f||a.g-b.g||a.x-b.x||a.z-b.z;
 function navPush(heap,n){let i=heap.length;heap.push(n);while(i>0){const p=(i-1)>>1;if(navCompare(heap[p],n)<=0)break;heap[i]=heap[p];i=p}heap[i]=n}
@@ -16156,7 +16201,7 @@ function work(p){if(p.energy<30||p.hunger>88){p.activity='Seeking a safe meal';r
  if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} arranged a timber shipment for the village workshops.`)}
  }else if(p.job==='merchant'&&state.food-receiptReservedFood()>people.length*5){state.food-=1.5;state.gold+=1.2}else if(p.job==='merchant'&&state.food<people.length*3&&state.gold>=2){state.gold-=2;state.food+=5;if(state.t-state.lastStory>5){state.lastStory=state.t;report(`${p.name} imported grain to protect the village food reserve.`)}}if(p.job==='craftsperson'&&state.wood>=.7){state.wood-=.7;state.gold+=.45}if(p.job==='builder'){const construction=getBuilderConstructionIntent(p);
   if(construction.canBuild){state.wood-=construction.costWood;
-   city.push(construction.site);state.buildCount++;
+   city.push(construction.site);invalidateHomeNavigationIndex();state.buildCount++;
    report(`${p.name} finished a new cottage for the growing village.`)}}p.energy=Math.max(0,p.energy-3.5);p.hunger=Math.min(100,p.hunger+2);recount(p);recordActualWork(p,workBefore)}
 // W186: preserve exact original (i,j) contact order with a reusable
 // 1.3-metre x-cell index; physically distant citizens do not compare bonds
@@ -21944,7 +21989,7 @@ drawForegroundResidentMesh();
     setCameraToolsExpanded(false);
   });
  }
- requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
+ requestAnimationFrame(render);window.__tinyKingdom={getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:x=>{speed=x},step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavSegmentMemoAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
  getWorksiteSkinContinuityAudit,
  getAuthenticWorkdayAudit,getCourierCartGripAudit,
