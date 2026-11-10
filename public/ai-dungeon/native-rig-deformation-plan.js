@@ -88,3 +88,55 @@ export function measureSourceJointTravel(before,after){
   beforePhase:Number.isFinite(before.groundedFootPhase)?before.groundedFootPhase:null,
   afterPhase:Number.isFinite(after.groundedFootPhase)?after.groundedFootPhase:null});
 }
+
+
+/**
+ * Compare two GENUINE skinned source-sole vertices and the original
+ * hand-relative weapon matrix on the same existing source clone.
+ * Evidence only: one weighted sole vertex is NOT full sole-ground contact,
+ * a joint IK solution, or a basis for synthesizing gameplay events.
+ */
+export function measureSourceSoleGripContinuity(before,after){
+ const unavailable=reason=>Object.freeze({comparable:false,reason});
+ if(!before||!after||!before.sourceInstanceId||
+  before.sourceInstanceId!==after.sourceInstanceId||
+  before.id!==after.id||before.kind!==after.kind)return unavailable('different-source-actor');
+ if(!point(before.rootWorld)||!point(after.rootWorld))return unavailable('missing-world-root');
+ for(const side of ['left','right'])if(!point(before.soleVertexWorld?.[side])||
+  !point(after.soleVertexWorld?.[side]))return unavailable('missing-skinned-sole');
+ const round=x=>Number(x.toFixed(4));
+ const horizontal=(x,y)=>Math.hypot(x[0]-y[0],x[2]-y[2]);
+ const relative=(x,r)=>[x[0]-r[0],x[1]-r[1],x[2]-r[2]];
+ const soleWorldDeltaMeters={},soleRelativeToRootDeltaMeters={},
+  soleVerticalDeltaMeters={},soleHeightAboveRootMeters={};
+ for(const side of ['left','right']){
+  const a=before.soleVertexWorld[side],b=after.soleVertexWorld[side];
+  soleWorldDeltaMeters[side]=round(horizontal(a,b));
+  soleRelativeToRootDeltaMeters[side]=round(horizontal(
+   relative(a,before.rootWorld),relative(b,after.rootWorld)));
+  soleVerticalDeltaMeters[side]=round(Math.abs(a[1]-b[1]));
+  soleHeightAboveRootMeters[side]=round(b[1]-after.rootWorld[1]);
+ }
+ const gripA=before.sourceWeaponGrip,gripB=after.sourceWeaponGrip;
+ const validGrip=x=>x?.attachedToHand===true&&
+  typeof x.name==='string'&&x.name.length>0&&
+  typeof x.handName==='string'&&x.handName.length>0&&
+  Array.isArray(x.handRelativeMatrix)&&x.handRelativeMatrix.length===16&&
+  x.handRelativeMatrix.every(finite);
+ const rigidGripComparable=validGrip(gripA)&&validGrip(gripB)&&
+  gripA.name===gripB.name&&gripA.handName===gripB.handName;
+ const a=gripA?.handRelativeMatrix,b=gripB?.handRelativeMatrix;
+ const drift=rigidGripComparable?dist([a[12],a[13],a[14]],[b[12],b[13],b[14]]):null;
+ const matrixDrift=rigidGripComparable?Math.max(...a.map((v,i)=>Math.abs(v-b[i]))):null;
+ return Object.freeze({comparable:true,
+  source:'original-skinned-sole-vertex-and-rigid-source-hand-weapon',
+  actorId:before.id,kind:before.kind,
+  rootTravelMeters:round(horizontal(before.rootWorld,after.rootWorld)),
+  soleWorldDeltaMeters,soleRelativeToRootDeltaMeters,
+  soleVerticalDeltaMeters,soleHeightAboveRootMeters,
+  rigidGripComparable:Boolean(rigidGripComparable),
+  weaponName:rigidGripComparable?gripA.name:null,
+  weaponHandDriftMeters:drift===null?null:round(drift),
+  weaponLocalMatrixMaxDelta:matrixDrift===null?null:round(matrixDrift)
+ });
+}
