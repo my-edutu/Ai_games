@@ -194,7 +194,12 @@ test('pressure withdrawal never invents a warning across closed, unknown, one-wa
 test('the actual game-first overlay consumes ONLY the public pressure retreat',()=>{
  const fs=require('node:fs'),path=require('node:path');
  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
- assert.match(source,/publicImmediatePressureCue\(snapshot\)\s*\|\| publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/);
+ assert.match(source,/publicImmediatePressureCue\(snapshot\)\s*\|\| publicPressureWithdrawalCue\(lastDistinctPressureSnapshot,snapshot\)/,
+    'game-first HUD must retain the exact distinct public pressure witness across repeated polls');
+  assert.match(source,/lastDistinctPressureSnapshot=publicDistinctPublicPredecessor\(/,
+    'only the same consecutive public ticks may carry a visible withdrawal warning');
+  assert.doesNotMatch(source,/publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/,
+    'immediate previous network poll is not necessarily the preceding authoritative tick');
  assert.match(source,/const urgent=exposedDanger\|\|!!pressureCue/);
  assert.match(source,/pressureCue\?'Avoid jaws'/);
  assert.match(source,/pressureCue\?'Keep clear of the jaws'/);
