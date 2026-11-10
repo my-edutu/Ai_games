@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T18:52:00.000Z",
+  "updatedAt": "2026-11-10T19:13:50.850Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass251b: New mechanical drivetrain exists on branch but its first same-SHA focused CI failed before browser (112/113): JavaScript returned physical -0 when the new rods were fully retracted. All new zero-displacement tests now use abs(z)<1e-12 without loosening full-stroke/viewport/privacy/resource requirements. Prior 183e exact-source 37/37 original WebGL image hashes verified. New-code CI/browser, independent Nintendo visual parity PENDING; PR draft and unmerged."
+    "summary": "Pass252 candidate: inspected source-bound aa3ac85d Maze CI success with six-run budget and 37 authentic PNG hashes verified (35 direct + 2 transition-manifest); original 390px pressure scene shows mechanical jaws but the autonomous observer simply routes past. Added a deterministic one-tick PUBLIC safe-vantage inspection decision before frontier navigation, never when unseen, trapped, sealed, in pursuit, or after repeat visits. NEW head CI and genuine live-play impact pending; independent Nintendo quality bar NOT PASSED; PR draft, no merge/deploy."
   },
   "captures": [
     {

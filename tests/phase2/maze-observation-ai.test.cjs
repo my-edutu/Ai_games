@@ -5,3 +5,44 @@ test('belief update is bounded, ages memory, and derives frontiers from observed
 test('constructive key and door dependencies are solvable and a locked edge blocks traversal without its key',()=>{const runtime=MazeRuntime.create({width:17,height:13,profile:'loops',visibilityRadius:2,keyCount:2,trapCount:4},'dependency-chain'),{world}=runtime.state;assert.equal(world.keys.length,2);assert.equal(world.doors.length,2);assert.ok(solveMazeWithInventory(world));for(const door of world.doors){assert.ok(world.keys.find(item=>item.id===door.requiredKeyId));assert.equal(passageNeighbors(world,door.a).includes(door.b),true)}const firstDoor=world.doors[0],state=structuredClone(runtime.state);state.explorer.cell=firstDoor.a;state.explorer.inventory=[];const observation=createMazeObservation(state),decision=chooseMazeAction(state,observation,state.belief);assert.notEqual(decision.action.targetCell,firstDoor.b)});
 test('partial-observation policy discovers, replans and escapes without remote services',()=>{for(const profile of ['tree','loops','chambers']){const runtime=MazeRuntime.create({width:13,height:11,profile,visibilityRadius:2,keyCount:1,trapCount:2,maxTicks:15000,noProgressTicks:3000},`partial-${profile}`),result=runToTerminal(runtime);assert.equal(result?.kind,'game',`${profile}: ${JSON.stringify(result)}`);assert.equal(result?.reason,'escape',`${profile}: ${JSON.stringify(result)}`);assert.ok(runtime.state.discoveredCells.length<runtime.config.width*runtime.config.height||runtime.state.explorer.steps>=runtime.state.features.shortestSolutionLength);assert.ok(runtime.state.ai.decisions>0);assert.equal(runtime.state.ai.explanation.includes('oracle'),false)}});
 test('visible threats and traps trigger causal evasion rather than illegal or suicidal movement',()=>{const runtime=MazeRuntime.create({width:11,height:11,profile:'hunter',visibilityRadius:3,threatCount:1,trapCount:2,maxTicks:5000},'threat-evasion'),state=structuredClone(runtime.state),neighbor=passageNeighbors(state.world,state.explorer.cell)[0];assert.notEqual(neighbor,undefined);state.world.threats=[{id:'threat-test',cell:neighbor,route:[neighbor,state.explorer.cell],routeIndex:0,direction:1,lastSeenTick:null,active:true}];state.visibleCells=[...new Set([...state.visibleCells,neighbor])];const observation=createMazeObservation(state),decision=chooseMazeAction(state,observation,state.belief);assert.equal(decision.intent.mode,'evading-threat');assert.notEqual(decision.action.targetCell,neighbor);assert.equal(passageNeighbors(state.world,state.explorer.cell).includes(decision.action.targetCell),true)});
+
+test('Pip pauses one real tick only at a newly entered, visible and safely escapable pressure court',()=>{
+  const runtime=MazeRuntime.create({width:13,height:11,profile:'loops',visibilityRadius:2,keyCount:0,trapCount:0,threatCount:0},'public-pressure-inspection');
+  const state=structuredClone(runtime.state);
+  const current=Array.from({length:state.world.width*state.world.height},(_,i)=>i)
+    .find(cell=>cell!==state.world.exit&&!state.world.blockedCells.includes(cell)
+      &&passageNeighbors(state.world,cell).filter(next=>next!==state.world.exit).length>=2);
+  assert.notEqual(current,undefined,'the test needs a real branched published passage');
+  const neighbors=passageNeighbors(state.world,current).filter(cell=>cell!==state.world.exit);
+  const trap=neighbors[0],safe=neighbors[1];
+  state.explorer.cell=current;state.explorer.route=[current];
+  state.world.traps=[trap];state.world.keys=[];state.world.doors=[];state.world.threats=[];
+  state.visibleCells=[current,trap,safe];state.discoveredCells=[...state.visibleCells];
+  const observed=createMazeObservation(state);
+  const firstBelief=updateBelief(undefined,observed);
+  const first=chooseMazeAction(state,observed,firstBelief);
+  assert.equal(first.action.kind,'wait','a truly visible pressure court earns one real inspection tick');
+  assert.equal(first.intent.mode,'exploring');
+  assert.equal(first.targetCell,null,'inspection never orders Pip INTO the trap');
+  assert.deepEqual(first.plannedPath,[current]);
+  assert.ok(first.intent.explanation.includes('pressure jaw'));
+  // Two subsequent normal public observation updates advance the bounded
+  // visit counter, so an idle animation cannot become an infinite wait loop.
+  const second=updateBelief(firstBelief,{...observed,tick:observed.tick+1});
+  const third=updateBelief(second,{...observed,tick:observed.tick+1});
+  const resumed=chooseMazeAction(state,{...observed,tick:observed.tick+1},third);
+  assert.notEqual(resumed.intent.explanation,first.intent.explanation);
+  assert.notEqual(resumed.action.targetCell,trap,'known dangerous cell remains avoided');
+  const hidden={...observed,visibleCells:[current,safe],cells:observed.cells.map(cell=>({
+    ...cell,visible:cell.cell!==trap,
+  }))};
+  const hiddenBelief=updateBelief(undefined,hidden);
+  const unseen=chooseMazeAction(state,hidden,hiddenBelief);
+  assert.notEqual(unseen.intent.explanation,first.intent.explanation,
+    'remembered-only traps must never prompt an anticipatory action');
+  const sealed={...observed,doors:[{id:'sealed',a:current,b:trap,requiredKeyId:'never-seen',open:false}]};
+  const sealedBelief=updateBelief(undefined,sealed);
+  const behindDoor=chooseMazeAction(state,sealed,sealedBelief);
+  assert.notEqual(behindDoor.intent.explanation,first.intent.explanation,
+    'sealed inaccessible mechanisms cannot receive an inspection tick');
+});

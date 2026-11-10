@@ -156,6 +156,52 @@ function targetDecision(
   };
 }
 
+// A pressure court is an actual observed hazard, not set dressing. On the
+// first arrival at a safe adjacent vantage Pip may spend ONE authoritative
+// wait tick watching its public jaws before choosing a path around it. This
+// uses only the visible reciprocal maze graph and the existing bounded belief
+// visit counter. Revisiting the tile cannot retrigger a scripted pause; a
+// hidden, remembered or sealed trap never causes an inspection.
+function chooseVisiblePressureInspection(
+  observation: MazeObservation,
+  belief: MazeBeliefState,
+): MazeDecision | null {
+  const current = observation.cells.find(cell =>
+    cell.cell === observation.currentCell && cell.visible && !cell.blocked);
+  if (!current) return null;
+  const visits = belief.cells[String(current.cell)]?.visits;
+  if (visits === undefined || visits < 1 || visits > 2) return null;
+  const published = new Map(observation.cells.filter(cell => cell.visible)
+    .map(cell => [cell.cell, cell] as const));
+  // Inspection is earned only if Pip also has a known safe exit from this
+  // vantage. No waiting at a dead end, no imaginary collision or oracle route.
+  const safeRetreat = current.neighbors.some(next => {
+    const cell = published.get(next);
+    return !!cell && !cell.blocked && !cell.trap
+      && cell.neighbors.includes(current.cell)
+      && !doorBlocksEdge(belief, current.cell, next, observation.inventory);
+  });
+  if (!safeRetreat) return null;
+  const pressure = [...published.values()].filter(cell =>
+    cell.trap && !cell.blocked && current.neighbors.includes(cell.cell)
+    && cell.neighbors.includes(current.cell)
+    && !doorBlocksEdge(belief, current.cell, cell.cell, observation.inventory))
+    .sort((a,b) => a.cell - b.cell)[0];
+  if (!pressure) return null;
+  return {
+    action: { kind: 'wait' },
+    intent: {
+      mode: 'exploring',
+      confidence: .88,
+      explanation: 'An observed pressure jaw guards a neighboring passage; holding one beat to watch it before taking a safe route.',
+      nodeExpansions: current.neighbors.length,
+      fallbackUsed: false,
+    },
+    plannedPath: [current.cell],
+    targetCell: null,
+  };
+}
+
 export function chooseMazeAction(
   state: MazeState,
   observation: MazeObservation,
@@ -188,6 +234,9 @@ export function chooseMazeAction(
     );
     if (decision) return decision;
   }
+
+  const pressureInspection = chooseVisiblePressureInspection(observation, belief);
+  if (pressureInspection) return pressureInspection;
 
   const cyclic = detectMazeCycle(state.ai.recentCells);
   const frontierCandidates = belief.frontiers
