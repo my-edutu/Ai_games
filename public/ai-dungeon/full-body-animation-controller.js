@@ -552,6 +552,36 @@ export function planSourceRigLandingPelvisSupport({
  return release;
 }
 
+/**
+ * The authentic walking clip can resume just as a witnessed, stationary
+ * Walking_A -> Idle/Guard landing is still releasing its original pelvis and
+ * six leg joints. Deleting that landing on move entry creates a one-frame
+ * source shoe pop even when the actual root has travelled only millimetres.
+ *
+ * Hand off the last presented *licensed source* pose to Walking_A over a
+ * measured <=120ms / <=120mm envelope. This NEVER locks a sole in world
+ * space, changes locomotion or prolongs an attack, evasion, hurt or defeat.
+ * Return null rather than infer anything from missing live source evidence.
+ */
+export function planSourceRigWalkReentryRelease({
+ mode='idle',previousMode='idle',sourceClipName='',witnessedLanding=false,
+ elapsed=NaN,rootTravelMeters=NaN,sourceWeight=NaN,moving=false,
+ alive=true,visible=true,teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ if(mode!=='move'||!['idle','guard'].includes(previousMode)||
+  typeof sourceClipName!=='string'||
+  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(sourceClipName)||
+  witnessedLanding!==true||moving!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![elapsed,rootTravelMeters,sourceWeight].every(finite)||
+  elapsed<0||elapsed>.5||rootTravelMeters<0||rootTravelMeters>.35||
+  sourceWeight<=0||sourceWeight>1)return null;
+ // Actual root translation may end this bridge *earlier* than time does.
+ // Cumulative travel is measured only from genuine rendered actor positions.
+ const t=clamp(Math.max(elapsed/.12,rootTravelMeters/.12),0,1);
+ return t*t*(3-2*t);
+}
+
 export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
  groundedMoving=false,groundedTravel=NaN,gaitWeight=0,guardBlend=0,alive=true,
  teleport=false,reducedMotion=false}={}){
