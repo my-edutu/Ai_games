@@ -1465,6 +1465,6 @@ test('lawful guard/idle source-rig transition blends hips, planted legs, shoulde
   'original imported thigh/calf/ankle chains must share the authored guard envelope');
  assert.match(model,/guardPose\?\.shoulders\?\.\[mount\.side\]/,
   'original shoulder chains must share the same envelope');
- assert.match(model,/guardPose\?\.elbows\?\.\[mount\.side\]/,
+ assert.match(model,/actor\.rigGuardPose\?\.elbows\?\.\[mount\.side\]/,
   'original forearm chains must share the same envelope');
 });
