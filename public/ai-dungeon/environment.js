@@ -10,7 +10,7 @@ import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
-import {configureSoftwareStoneSurfaces,createSoftwareDiffuseMasonry,fuseOriginalForegroundGroup} from '/dungeon/postfx-budget.js';
+import {configureSoftwareStoneSurfaces,createSoftwareDiffuseMasonry,fuseOriginalForegroundGroup,createRetainedForegroundReplicaBatches} from '/dungeon/postfx-budget.js';
 
 // Purely cosmetic, reproducible procedural dressing. This code never touches game authority.
 // All geometry is batched or tightly budgeted so a streaming run can regenerate indefinitely.
@@ -182,6 +182,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const floorDetails=[],wallFaces=[],columnCap=[],columnCapParents=[],mossPatches=[],runeInlays=[],rubble=[],brazierBases=[],vases=[];
  const rugs=[],rugCandidates=[];
  const pillars=[],banners=[],statues=[],worldAnchors=[],foregroundGroups=[];
+ const originalPillarRoots=[],originalBannerRoots=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
  let bossCourtLooseClutterSuppressed=0,bossCourtTallFixturesSuppressed=0;
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
@@ -299,7 +300,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,2.12,8),chrome);pillar.position.y=1.1;root.add(pillar);
   for(const y of [.14,1.02,1.99]){const collar=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.14,8),brass);collar.position.y=y;root.add(collar)}
   fuseLocalDecor(root);
-  world.add(root);foregroundGroups.push(root);
+  world.add(root);foregroundGroups.push(root);originalPillarRoots.push(root);
   if(h%3===0&&flames.length<12)buildTorch(x,z,yaw,h);
  }
  // A crypt without any fire loses depth and encounter landmarks; genuine
@@ -332,7 +333,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   const rod=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.82,7),brass);rod.rotation.z=Math.PI/2;rod.position.y=2.22;root.add(rod);
   const pennant=new THREE.Mesh(new THREE.PlaneGeometry(.56,1.07),cloth);pennant.position.y=1.55;pennant.position.z=.055;root.add(pennant);
   const emblem=new THREE.Mesh(new THREE.IcosahedronGeometry(.095,0),jade);emblem.position.set(0,1.74,.065);root.add(emblem);
-  world.add(root);foregroundGroups.push(root);
+  world.add(root);foregroundGroups.push(root);originalBannerRoots.push(root);
  }
  // Bespoke altar islands and guardian statues provide landmarks; caps prevent resource growth.
  for(const [x,z,h] of worldAnchors.slice(0,3)){
@@ -358,7 +359,13 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  // Instanced caps begin intact, so band zero already matches their GPU matrices.
  const capBands=new Uint8Array(columnCap.length);
  const foregroundVolumes=captureForegroundVolumes(THREE,foregroundGroups);
- const sceneMetrics={stoneRasterBudget,foregroundFusion,clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ // This stage retains the original cutaway/physical-volume roots but replaces
+ // duplicate authored decorative GPU submissions with exact replicas.
+ const foregroundReplicas=[
+  createRetainedForegroundReplicaBatches(THREE,world,originalPillarRoots),
+  createRetainedForegroundReplicaBatches(THREE,world,originalBannerRoots)
+ ];
+ const sceneMetrics={stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the
@@ -459,6 +466,8 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
     if(portrait&&!blocked)portraitCleared++;
   }
   sceneMetrics.clearedForeground=cleared;sceneMetrics.portraitStagePropsCleared=portraitCleared;
+  // Copy actual source foreground roots AFTER their physical recession.
+  sceneMetrics.foregroundReplicaMatrixWrites=foregroundReplicas.reduce((n,b)=>n+b.sync().matrixWrites,0);
   wardenCourt.cutaway(eyes,camera,wallPad);
   connectedJourney.cutaway(eyes,camera,wallPad);
   alternateGallery.cutaway(eyes,camera,wallPad);
@@ -481,6 +490,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const batch of foregroundReplicas)batch.dispose();alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 

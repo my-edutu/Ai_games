@@ -7702,6 +7702,46 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Measure engaged Vanguard/guardian and Warden actor-ID-specific bounds, warning cells and occlusion in actual moving 390px film; compare hardware GPU with CI SwiftShader and isolate compositor/readback/dynamic instance uploads, then correct dominant game-side bottleneck with full genuine replay/motion/A-V verification. Review PR72 native rig and video independently before any import."
+    },
+    "m1OriginalForegroundReplicaBatches20261110": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "parentHead": "214a5dcd93a3829384f63d48604ae0bbbe29d996",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "priorBrowserRun": 42878495571,
+      "observedPriorDrawCalls": {
+        "desktopCombat": 182,
+        "desktopWarden": 417,
+        "mobileCombat": 170,
+        "mobileWarden": 401
+      },
+      "productionChanges": [
+        "retained original Three.js pillar/banner replica groups",
+        "identical-geometry-and-PBR fail-closed instancing",
+        "camera physical sightline recession transform sync",
+        "per-floor deterministic resource cleanup and actual metrics"
+      ],
+      "sourceUpperBound": {
+        "originalSubmissions": 43,
+        "batchedSubmissions": 5,
+        "conditions": "Full 11-pillar + 7-banner floor only; other floors may fail closed"
+      },
+      "tests": {
+        "newFocused": "2/2 PASS genuine Three.js",
+        "dungeonFoundation": "403/403 PASS",
+        "typescript": "PASS",
+        "catalogue": "ATTEMPTED_TIMED_OUT_AT_772"
+      },
+      "newHeadOriginalGameplay": "NOT_OBSERVED",
+      "screenshotFilmAudio": "PENDING_NEW_HEAD_BROWSER",
+      "gamePerformanceGain": "UNVERIFIED",
+      "lockedBaselineComparison": "UNVERIFIED",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "rollback": "Revert only replica helper, environment integration and tests; preserve all other branches and baseline",
+      "next": "Inspect new-head real 1440px/390px original audio organic motion and true per-seed saved draws/visibility, reject regressions, then profile and fix dominant remaining Warden rendering stall; do not advance A without real same-seed baseline comparison and independent critics."
     }
   }
 }

@@ -90,6 +90,17 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Measure engaged Vanguard/guardian and Warden actor-ID-specific bounds, warning cells and occlusion in actual moving 390px film; compare hardware GPU with CI SwiftShader and isolate compositor/readback/dynamic instance uploads, then correct dominant game-side bottleneck with full genuine replay/motion/A-V verification. Review PR72 native rig and video independently before any import."
+    },
+    "m1_original_foreground_replicas_candidate": {
+      "parentSha": "214a5dcd93a3829384f63d48604ae0bbbe29d996",
+      "sourceStage": "A_INCOMPLETE",
+      "physicalDrawBudget": "Maximum 43 original source meshes to 5 retained GPU batches across full populated original pillar and banner groups; NOT FPS",
+      "testStatus": "new 2/2; dungeon 403/403; build PASS; full catalogue timed out",
+      "actualAfterGameplay": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED"
     }
   },
   "failures": [],
@@ -304,7 +315,7 @@
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
     "afterBrowser": "UNVERIFIED",
-    "nextTask": "Inspect 4a599c5 exact desktop/390px moving melee and Warden footage with original audio, reject deformations/frame regressions, then significantly advance native model geometry/materials and capture full five-stage matched A/B with 3 independent critics."
+    "nextTask": "Inspect new-head real 1440px/390px original audio organic motion and true per-seed saved draws/visibility, reject regressions, then profile and fix dominant remaining Warden rendering stall; do not advance A without real same-seed baseline comparison and independent critics."
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
   "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",

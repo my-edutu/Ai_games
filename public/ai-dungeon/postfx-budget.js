@@ -594,3 +594,99 @@ export function fuseOriginalForegroundGroup(THREE,group,{preserve=[]}={}){
  return {sourceDraws,outputDraws,drawsSaved:sourceDraws-outputDraws,
   sourceTriangles,mergedTriangles,geometries,mergedGroups};
 }
+
+/**
+ * Original-GPU replica batching for a SMALL set of identical static foreground
+ * groups, whose independent root transforms can recess for real body sightlines.
+ * Every source vertex/normal/UV, PBR material, local transform, texture and
+ * original Group remain owned by its original floor. The physical sources stay
+ * in the hierarchy (hidden from rendering) so cached camera volumes are still
+ * computed from their exact geometry. Their world-space rendered replicas move
+ * with the SAME groups, including physical sightline recession and restoration.
+ *
+ * Fail CLOSED when a source varies: a broken art template must not silently
+ * disappear or be redrawn with the wrong material. No effect on warnings,
+ * combatants, boss animation, collision, save state or authoritative RNG.
+ */
+export function createRetainedForegroundReplicaBatches(THREE,parent,roots,{maxGroups=16}={}){
+ if(!THREE?.InstancedMesh||!THREE?.Matrix4||!parent?.isGroup||!Array.isArray(roots)||
+    !Number.isSafeInteger(maxGroups)||maxGroups<2||maxGroups>32||roots.length>maxGroups)
+  throw new TypeError('Invalid original foreground replica batch');
+ const sourceDrawCalls=roots.reduce((n,root)=>n+(root?.children?.filter(c=>c.isMesh)?.length||0),0);
+ const noop=()=>({drawCalls:sourceDrawCalls,sourceDrawCalls,savedDrawCalls:0,meshes:[],
+  sync:()=>({matrixWrites:0,hiddenInstances:0}),dispose(){}});
+ if(roots.length<2||roots.some(root=>!root?.isGroup||root.parent!==parent||!root.visible))return noop();
+ const originals=roots.map(root=>root.children.filter(child=>child.isMesh));
+ const sample=originals[0];
+ if(!sample?.length||sample.length>8||originals.some(parts=>parts.length!==sample.length))return noop();
+ const attrEqual=(a,b)=>{
+  if(!a||!b||a.itemSize!==b.itemSize||a.count!==b.count||a.normalized!==b.normalized)return false;
+  if(a.array===b.array)return true;
+  for(let i=0;i<a.array.length;i++)if(a.array[i]!==b.array[i])return false;
+  return true;
+ };
+ const geometryEqual=(a,b)=>{
+  if(a===b)return true;
+  if(!a?.isBufferGeometry||!b?.isBufferGeometry||a.drawRange.start!==b.drawRange.start||
+     a.drawRange.count!==b.drawRange.count||a.groups.length!==b.groups.length||
+     Object.keys(a.attributes).sort().join()!==Object.keys(b.attributes).sort().join())return false;
+  for(let i=0;i<a.groups.length;i++)for(const k of ['start','count','materialIndex'])
+   if(a.groups[i][k]!==b.groups[i][k])return false;
+  if(Boolean(a.index)!==Boolean(b.index))return false;
+  if(a.index&&!attrEqual(a.index,b.index))return false;
+  return Object.keys(a.attributes).every(k=>attrEqual(a.attributes[k],b.attributes[k]));
+ };
+ for(const parts of originals)for(let j=0;j<sample.length;j++){
+  const mesh=parts[j],prototype=sample[j];
+  if(!mesh?.isMesh||mesh.isSkinnedMesh||mesh.isInstancedMesh||!mesh.visible||
+     mesh.children.length||mesh.material!==prototype.material||
+     !mesh.material||Array.isArray(mesh.material)||
+     mesh.castShadow!==prototype.castShadow||mesh.receiveShadow!==prototype.receiveShadow||
+     mesh.renderOrder!==prototype.renderOrder||mesh.layers.mask!==prototype.layers.mask||
+     Object.values(mesh.geometry?.morphAttributes||{}).some(v=>v.length)||
+     !geometryEqual(mesh.geometry,prototype.geometry))return noop();
+ }
+ const meshes=[],cached=sample.map(()=>roots.map(()=>null)),matrix=new THREE.Matrix4(),
+  hiddenMatrix=new THREE.Matrix4().makeScale(0,0,0);
+ try{
+  for(const source of sample){
+   const mesh=new THREE.InstancedMesh(source.geometry,source.material,roots.length);
+   mesh.name='Retained original foreground '+(source.material.name||source.name||'physical part');
+   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+   mesh.frustumCulled=false;mesh.receiveShadow=source.receiveShadow;
+   mesh.castShadow=source.castShadow;mesh.renderOrder=source.renderOrder;
+   mesh.layers.mask=source.layers.mask;
+   // The source Group still owns this exact geometry/material at floor cleanup.
+   mesh.userData.sharedAssetGeometry=true;
+   parent.add(mesh);meshes.push(mesh);
+  }
+  function sync(){
+   let matrixWrites=0,hiddenInstances=0;
+   for(let i=0;i<roots.length;i++){
+    const root=roots[i];root.updateMatrix();
+    if(!root.visible)hiddenInstances++;
+    for(let j=0;j<meshes.length;j++){
+     const part=originals[i][j];part.updateMatrix();
+     matrix.multiplyMatrices(root.matrix,part.matrix);
+     if(!root.visible)matrix.multiply(hiddenMatrix);
+     const now=matrix.elements,previous=cached[j][i];
+     if(previous&&now.every((v,k)=>v===previous[k]))continue;
+     meshes[j].setMatrixAt(i,matrix);
+     cached[j][i]=now.slice();matrixWrites++;
+    }
+   }
+   if(matrixWrites)for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=true;
+   return {matrixWrites,hiddenInstances};
+  }
+  const first=sync();
+  if(first.matrixWrites!==sourceDrawCalls)throw new Error('Incomplete original foreground matrix upload');
+  for(const parts of originals)for(const part of parts)part.visible=false;
+  let disposed=false;
+  return {sourceDrawCalls,drawCalls:meshes.length,
+   savedDrawCalls:sourceDrawCalls-meshes.length,meshes,instances:roots.length,sync,
+   dispose(){if(disposed)return;disposed=true;
+    for(const mesh of meshes){parent.remove(mesh);mesh.dispose()}
+    for(const parts of originals)for(const part of parts)part.visible=true;
+   }};
+ }catch(error){for(const mesh of meshes){parent.remove(mesh);mesh.dispose()}return noop()}
+}
