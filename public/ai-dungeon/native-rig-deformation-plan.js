@@ -222,3 +222,80 @@ export function assessSourceSoleFrameWindow(before,after,meta={}){
   // flat sole-to-stone contact. An IK solver must undergo separate review.
   ikAccepted:false});
 }
+
+
+/**
+ * Audit TWO independently weight-painted locations on each original shoe,
+ * against the actual authored cube-tile upper surface (world Y=+0.08m).
+ * This is a demand-only observation over the licensed GLB; it is not IK,
+ * a game event, a derived target, or a floor raycast. A contact candidate is
+ * merely evidence to inform a separately reviewed native-joint constraint.
+ *
+ * Every claim requires a matching source clone, consecutive VISIBLE render
+ * frames of the SAME authoritative tick, genuine root translation, meaningful
+ * heel/toe separation and both endpoints near the authored floor. A stable
+ * floating shoe must NEVER be mistaken for planted contact.
+ */
+export function measureSourceSolePatchContinuity(before,after,meta={}){
+ const unavailable=reason=>Object.freeze({comparable:false,reason,ikAccepted:false,provenFootPlant:false});
+ if(meta.visible!==true||meta.teleport===true)return unavailable('hidden-or-teleported');
+ if(!Number.isSafeInteger(meta.beforeFrame)||meta.beforeFrame<0||
+  meta.afterFrame!==meta.beforeFrame+1)return unavailable('not-consecutive-displayed-frames');
+ if(!Number.isSafeInteger(meta.beforeTick)||meta.beforeTick<0||
+  meta.beforeTick!==meta.afterTick)return unavailable('different-authority-tick');
+ if(meta.floorEvidence!=='authored-cube-floor-top'||
+  !finite(meta.floorTopY)||meta.floorTopY< -2||meta.floorTopY>5)
+  return unavailable('unknown-authored-floor-surface');
+ if(!before||!after||!before.sourceInstanceId||
+  before.sourceInstanceId!==after.sourceInstanceId||
+  before.id!==after.id||before.kind!==after.kind)
+  return unavailable('different-source-actor');
+ if(before.mode!=='move'||after.mode!=='move')
+  return unavailable('not-witnessed-source-traversal');
+ if(!point(before.rootWorld)||!point(after.rootWorld))
+  return unavailable('invalid-world-root');
+ const horizontal=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);
+ const rootTravel=horizontal(before.rootWorld,after.rootWorld);
+ if(rootTravel<.025||rootTravel>.54)return unavailable('insufficient-or-skipped-root-travel');
+ const round=x=>Number(x.toFixed(4));
+ const patchSpanMeters={},soleClearanceMeters={},heelWorldDeltaMeters={},
+  toeWorldDeltaMeters={},potentialContactSides=[];
+ for(const side of ['left','right']){
+  const a=before.solePatchWorld?.[side],b=after.solePatchWorld?.[side];
+  if(!point(a?.heel)||!point(a?.toe)||!point(b?.heel)||!point(b?.toe))
+   return unavailable('missing-original-skinned-contact-patch');
+  const spanA=horizontal(a.heel,a.toe),spanB=horizontal(b.heel,b.toe);
+  const minSpan=Math.min(spanA,spanB);
+  if(minSpan<.06||minSpan>.65)return unavailable('degenerate-original-shoe-patch');
+  patchSpanMeters[side]=round(minSpan);
+  const clearance=Math.min(b.heel[1],b.toe[1])-meta.floorTopY;
+  soleClearanceMeters[side]=round(clearance);
+  const heelDrift=horizontal(a.heel,b.heel),toeDrift=horizontal(a.toe,b.toe);
+  heelWorldDeltaMeters[side]=round(heelDrift);
+  toeWorldDeltaMeters[side]=round(toeDrift);
+  // Conservative 25mm ground envelope; two shoe vertices must BOTH remain
+  // vertically close, almost flat and horizontally stable across real travel.
+  if(rootTravel<=.35&&Math.abs(a.heel[1]-meta.floorTopY)<=.025&&
+   Math.abs(a.toe[1]-meta.floorTopY)<=.025&&
+   Math.abs(b.heel[1]-meta.floorTopY)<=.025&&
+   Math.abs(b.toe[1]-meta.floorTopY)<=.025&&
+   Math.abs(a.heel[1]-a.toe[1])<=.025&&
+   Math.abs(b.heel[1]-b.toe[1])<=.025&&
+   heelDrift<=.018&&toeDrift<=.018)
+   potentialContactSides.push(side);
+ }
+ return Object.freeze({
+  comparable:true,source:'original-source-skinned-two-point-shoe-patch-and-authored-floor',
+  beforeFrame:meta.beforeFrame,afterFrame:meta.afterFrame,tick:meta.beforeTick,
+  floorTopY:meta.floorTopY,rootTravelMeters:round(rootTravel),
+  patchSpanMeters,soleClearanceMeters,heelWorldDeltaMeters,toeWorldDeltaMeters,
+  potentialContactSides:Object.freeze(potentialContactSides),
+  classification:rootTravel>.35?'rapid-root-travel-unresolved':
+   potentialContactSides.length?'potential-two-point-floor-contact':
+   Object.values(soleClearanceMeters).every(y=>y>.07)?'source-patches-above-floor':
+   'no-demonstrated-two-point-contact',
+  // Exact-video contact must be independently confirmed over several source
+  // frames before a constrained IK or grounded-fidelity acceptance.
+  provenFootPlant:false,ikAccepted:false
+ });
+}
