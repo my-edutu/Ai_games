@@ -25,7 +25,9 @@ export function selectObservedWeaponHandBone(actor){
    actor.rigMeleeBones.filter(entry=>entry?.part==='wrist'&&entry.bone?.isBone):[];
   return matches.length===1?matches[0].bone:null;
  }
- if(kind==='ranger'||kind==='mystic')
+ // The authored cultist also carries a real staff-hand joint in the
+ // existing model-assets pipeline. Read it without changing any rig or mesh.
+ if(kind==='ranger'||kind==='mystic'||kind==='cultist')
   return actor.rigHandBone?.isBone?actor.rigHandBone:null;
  return null;
 }
