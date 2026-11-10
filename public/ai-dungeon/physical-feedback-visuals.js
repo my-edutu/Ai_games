@@ -69,6 +69,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
   sampled=new THREE.Vector3();
+ // One retained read-only quaternion scratch, never a per-frame allocation.
+ // Minimal/mock actor rigs without the world-rotation API keep old behavior.
+ const sampledWristRotation=typeof THREE.Quaternion==='function'?
+  new THREE.Quaternion():null;
  // Bounded, scene-owned chronological evidence outlives a 300ms GPU marker.
  // No per-frame allocations, audio nodes or extra visual pools are introduced.
  const MAX_WARNING_HISTORY_OWNERS=8,warningHistory=new Map();
@@ -142,6 +146,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
        rootX:root.x,rootY:root.y,rootZ:root.z};
       // Transient reference, retained only by this D04 trail slot. No rig edit.
       if(requireBone)point.sourceBone=bone;
+      if(hand&&sampledWristRotation&&typeof bone.getWorldQuaternion==='function'){
+       try{
+        bone.getWorldQuaternion(sampledWristRotation);
+        const q=sampledWristRotation;
+        if([q.x,q.y,q.z,q.w].every(Number.isFinite))
+         point.wristQuaternion={x:q.x,y:q.y,z:q.z,w:q.w};
+       }catch{} // A missing pose is never invented from the actor's root.
+      }
       return point;
      }
    }catch{}
