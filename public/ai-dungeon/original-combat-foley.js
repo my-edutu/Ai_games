@@ -241,8 +241,15 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
    if(active[weakest].priority>=priority){dropped++;return false}
    stopVoice(active[weakest]);active.splice(weakest,1);
   }
+  // Only a genuine witnessed swing can supply this read-only renderer
+  // measurement. Slower measured AIR passage is slightly quieter; even
+  // maximum motion never exceeds the existing original whoosh peak.
+  // Missing/stale measurements preserve the established sound exactly.
+  const handSpeed=swinger!==null?cue?.detail?.measuredHandMetersPerSecond:null;
+  const airLevel=Number.isFinite(handSpeed)&&handSpeed>0?
+   clamp(.84+.16*(handSpeed-.9)/7.1,.84,1):1;
   const duration=clamp(profile.duration,.05,.7),severity=clamp(cue?.severity,0,1),
-   peak=Math.min(.12,profile.peak*(.83+.19*severity)),
+   peak=Math.min(.12,profile.peak*(.83+.19*severity)*airLevel),
    material=MATERIALS[cue?.detail?.materialRole]??MATERIALS.neutral;
   // Offset each simultaneously active noise texture to avoid coherent peaks.
   // No new buffer, voice, listener or per-sample work is introduced.
