@@ -5,7 +5,7 @@
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
   "repairedSourceSha": "5fa9331f5b1e4b104ab9e75d6e9099b0d7c600f2",
-  "reason": "P0 strict recapture after direct inspection of source-authentic candidate 2a6a642 from run 42771687053. Unmodified candidate guardian WebM desktop/portrait at 14–24s still shows large cyan high-X pylons/lower locked grille plus bronze machinery crowding real climber and boss, even after previous removal of 14m horizontal sheet. At 26s actual pixel sample reveals purple floor nine, but source HP0→grounded threshold→floor-nine picture continuity NOT INDEPENDENTLY VERIFIED. Previous 42771687053 preserved all 16 original WebMs with 8/8 calibrated native clocks and zero source story defects, yet all 8 matrix jobs correctly failed preflight because tower-event-frame-probes.test.cjs supplied a literal string to assert.match; recording, ffmpeg, original film frames each independently succeeded. Branch HEAD b7cfe075 corrected test assertion; integrity workflow 42771889397 completed success for recovered test code, but is not game quality. Re-run all 10 untouched original source-authentic jobs at immutable workflow github.sha of THIS new request commit and frozen baseline SHA; preserve any failed clips, do not relax any veto. P0 remains NOT EVALUATED, reviewers 0/5 each, actual hardware budgets absent.",
+  "reason": "P0 RECAPTURE real completed 10-job baseline/candidate original-film matrix from source 9fbd4230 (run 42776160280, original 16 WebMs, 8/8 native clocks calibrated, all jobs successful), after directly seeing full-height turquoise guardian-lock X, barred entrance and bronze machinery visually compete with the true climber/guardian in 390x844 native seconds 14-24, while 960x600 has a similar foreground-heavy gate. Purple original floor nine visible at 26s, original 71.4s outcome source shows terminal panel ~52s and restarted floor zero ~56s; not yet unbroken, paired film evidence. At 4b4543bd, the real camera planner now penalizes depth-aware foreground overlap of the authoritative full-height gate with both genuine silhouettes, subject to existing hero/guardian/tower-core safety. Capture original camera behavior at immutable github.sha of THIS new request commit using frozen baseline SHA, unchanged 4 scenarios, normal-speed desktop/portrait, 60+s, same seed/tier, and preserve all event witnesses. NO gate/HP/collider change; independent critics 0/5 each, device measurements NOT EVALUATED, verdict NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -194,5 +194,10 @@
     },
     "supportedDeviceBenchmarks": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-10-tower-pr68-native-candidate-afterfilm-preflight-recovery.md"
-  }
+  },
+  "p0GuardianCameraSourceSha": "4b4543bd616ab6d850a9f4682f72eaec9fdd0a6a",
+  "previousSuccessfulImmutableCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42776160280",
+  "previousCaptureFilmCaveat": "Original 10-job recording and native clocks passed; full-motion blind matched LOOKS FEELS PLAYS and physical device budget remain NOT EVALUATED.",
+  "newCameraEvaluationGoal": "Full-motion, unedited candidate vs frozen baseline at 960x600 and 390x844: greater actual 2-body hero/guardian clarity 12-27s without shot oscillation, cropped hero, misleading locked threshold, fake source events or degraded gameplay; separately confirm grounded portal crossing floor 9 and outcome/restart against original native video frames.",
+  "engineeringReview": "docs/reviews/2026-11-10-tower-pr68-original-afterfilm-source-guardian-camera-visibility.md"
 }
