@@ -1414,16 +1414,26 @@ export function createTowerWorld(){
       const doorway=new THREE.Group();
       doorway.name='GuardianGateInset';
       doorway.position.z=GUARDIAN_CAP_CORRIDOR.visibleSealRadius;frame.add(doorway);
+      // Real original portrait danger capture 9924ca01 showed the outer gate's
+      // counterweights and centre pulley covering the skinned climber at 20s
+      // after the secondary earned doorway had already been suppressed.
+      // Build an open 3D central lock silhouette: the source barrier is still
+      // the full-height electric X-frame and physical exit remains sealed in
+      // authority. These lightweight piers support a high transmission bridge,
+      // rather than a foreground mechanical wall across the fighting lane.
       for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*3.38,2.35,0],[.58,4.8,.78]);
-        block(doorway,materials.edge,[side*3.38,4.77,.12],[.8,.25,.95]);
+        block(doorway,materials.dark,[side*3.38,2.37,-.24],[.36,4.78,.54]);
+        block(doorway,materials.edge,[side*3.38,4.82,-.20],[.54,.18,.64]);
       }
-      block(doorway,materials.dark,[0,4.7,0],[7.35,.5,.88]);
+      block(doorway,materials.dark,[0,4.86,-.26],[7.05,.26,.54]);
       const wings=[];
       for(const side of [-1,1]){
         const wing=new THREE.Group();
         wing.name=side<0?'GuardianSealWingLeft':'GuardianSealWingRight';
-        wing.position.z=.37;doorway.add(wing);
+        // The source-visible bronze grille stays locked and perforated,
+        // but sits behind the actor plane rather than projecting forward
+        // over both combatant silhouettes.
+        wing.position.z=-.18;doorway.add(wing);
         // Source-locked guardian doors previously were opaque 3.09 x 4.14
         // bronze slabs. Real 390x844 guardian footage shows the cap approach
         // disappearing behind them. Replace each slab with one original 3D
@@ -1458,12 +1468,14 @@ export function createTowerWorld(){
       // No shadow multiplication, animation timers or fabricated door events.
       const counterweights=[];
       for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*4.3,2.25,-.3],[.34,5.1,.42]).name='GuardianSealCounterweightRail';
+        // Two mechanical bays are OUTBOARD of the 6.8-wide walk-through
+        // opening and behind its face, leaving clear combat air in the middle.
+        block(doorway,materials.dark,[side*6.68,2.22,-.66],[.28,4.65,.36]).name='GuardianSealCounterweightRail';
         const carriage=new THREE.Group();
         carriage.name=side<0?'GuardianCounterweightLeft':'GuardianCounterweightRight';
         doorway.add(carriage);
-        block(carriage,materials.copper,[side*4.3,3.76,-.02],[.8,1.45,.65]).name='GuardianSealCounterweight';
-        block(carriage,materials.edge,[side*4.3,4.5,.13],[.9,.16,.7]);
+        block(carriage,materials.copper,[side*6.68,3.76,-.43],[.68,1.40,.54]).name='GuardianSealCounterweight';
+        block(carriage,materials.edge,[side*6.68,4.48,-.39],[.78,.14,.6]);
         counterweights.push({side,carriage});
       }
       // A physically coupled capstan and paired tension lines explain WHY
@@ -1471,10 +1483,18 @@ export function createTowerWorld(){
       // actual health. This is original 3D world geometry, not a HUD meter
       // or a second gameplay authority. Rigid spoke art batches to two
       // materials; the two live cable lengths share one GPU instance draw.
+      // One high spanning beam couples the left/right counterweights to
+      // a crown-mounted original capstan. Its centre stays ABOVE the actual
+      // 0..5m hero/guardian combat, instead of hovering across the duel.
+      const overhead=new THREE.Group();overhead.name='GuardianOverheadTransmission';
+      overhead.position.set(0,6.86,-.63);doorway.add(overhead);
+      const driveBeam=block(overhead,materials.edge,[0,0,0],[13.7,.17,.22]);
+      driveBeam.name='GuardianOverheadDriveBeam';
+      driveBeam.castShadow=false;driveBeam.receiveShadow=false;
       const capstan=new THREE.Group();capstan.name='GuardianGateCapstan';
-      capstan.position.set(0,5.2,.26);doorway.add(capstan);
+      capstan.position.set(0,7.10,-.61);doorway.add(capstan);
       mesh(capstan,geometry('guardian-gate-capstan-rim',
-        ()=>new THREE.TorusGeometry(.66,.105,6,22)),materials.copper);
+        ()=>new THREE.TorusGeometry(.56,.09,6,22)),materials.copper);
       mesh(capstan,cylinder(),materials.edge,[0,0,0],[.16,.14,.16],[Math.PI/2,0,0]);
       for(const angle of [0,Math.PI/2])
         block(capstan,materials.edge,[0,0,-.06],[1.12,.1,.13],[0,0,angle]);
@@ -1491,7 +1511,7 @@ export function createTowerWorld(){
       // separate animated nodes with the exact same visible silhouette.
       // The entire frame remains a floor-owned decorative sibling, never
       // part of the walkable deck or authoritative hitbox.
-      batchRigid(frame,new Set([crest,conduit,capstan,tension,
+      batchRigid(frame,new Set([crest,conduit,capstan,tension,overhead,
         ...wings.map(entry=>entry.wing),
         ...counterweights.map(entry=>entry.carriage)]));
       // Rigid batching creates fresh material-sharing meshes. Mark the final
@@ -1878,9 +1898,12 @@ export function createTowerWorld(){
           // as the true source-driven weights descend. Reduced motion retains
           // the new cable length but not the extra winding rotation.
           gate.capstan.rotation.z=options.reducedMotion?0:gate.progress*Math.PI*1.45;
-          const cableLength=.54+gate.progress*2.35;
+          // The two true HP-driven cable ends remain physically aligned to
+          // their flanking carriages, and start on the elevated support beam.
+          // Length grows as the source-owned counterweights drop.
+          const cableLength=2.38+gate.progress*2.35;
           for(const [index,side] of [-1,1].entries()){
-            gate.tensionPose.position.set(side*4.3,5.12-cableLength*.5,.24);
+            gate.tensionPose.position.set(side*6.68,6.86-cableLength*.5,-.52);
             gate.tensionPose.rotation.set(0,0,0);
             gate.tensionPose.scale.set(.047,cableLength,.047);
             gate.tensionPose.updateMatrix();
