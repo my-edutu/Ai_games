@@ -2,6 +2,7 @@ import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
+import { originalMeshPath } from './mesh-provenance.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 export const THEMES = Object.freeze({
@@ -547,8 +548,19 @@ export function createTowerWorld(){
         const id=`${o.material.uuid}:${o.castShadow}:${o.receiveShadow}`;
         if(!batches.has(id))batches.set(id,{material:o.material,cast:o.castShadow,receive:o.receiveShadow,parts:[]});
         const b=batches.get(id);local.multiplyMatrices(inverse,o.matrixWorld);
-        if(o.isInstancedMesh){for(let i=0;i<o.count;i++){o.getMatrixAt(i,instance);b.parts.push({g:o.geometry,m:new THREE.Matrix4().multiplyMatrices(local,instance)});}}
-        else b.parts.push({g:o.geometry,m:local.clone()});
+        // Rigid batching previously erased the authoring mesh name. The
+        // original portrait film revealed an opaque ring in floor:8's generic
+        // buffer batch, making physical ownership impossible to diagnose.
+        // Retain compact face RANGES, not one identifier per triangle.
+        const authoringPath=originalMeshPath(o,root);
+        if(o.isInstancedMesh){
+          for(let i=0;i<o.count;i++){
+            o.getMatrixAt(i,instance);
+            b.parts.push({g:o.geometry,m:new THREE.Matrix4().multiplyMatrices(local,instance),
+              authoringPath,authoringGeometry:o.geometry.type||'BufferGeometry',authoringInstance:i});
+          }
+        }else b.parts.push({g:o.geometry,m:local.clone(),
+          authoringPath,authoringGeometry:o.geometry.type||'BufferGeometry',authoringInstance:null});
         retired.push(o);
       }
       for(const child of o.children)collect(child);
@@ -558,8 +570,17 @@ export function createTowerWorld(){
       let total=0;for(const p of b.parts)total+=p.g.index?p.g.index.count:p.g.attributes.position.count;
       const positions=new Float32Array(total*3),normals=new Float32Array(total*3),uvs=new Float32Array(total*2);
       const v=new THREE.Vector3(),n=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();let at=0;
+      const originalTriangleOwners=[];
       for(const p of b.parts){
         const a=p.g.attributes,index=p.g.index,count=index?index.count:a.position.count;normalMatrix.getNormalMatrix(p.m);
+        // The new geometry is nonindexed and every three expanded vertices
+        // form one raycast face. Use half-open ranges for exact ownership.
+        originalTriangleOwners.push({
+          startFace:at/3,endFace:(at+count)/3,
+          authoringPath:p.authoringPath,
+          authoringGeometry:p.authoringGeometry,
+          authoringInstance:p.authoringInstance,
+        });
         for(let i=0;i<count;i++){
           const j=index?index.getX(i):i;
           v.fromBufferAttribute(a.position,j).applyMatrix4(p.m);positions.set([v.x,v.y,v.z],at*3);
@@ -567,7 +588,9 @@ export function createTowerWorld(){
           if(a.uv){uvs[at*2]=a.uv.getX(j);uvs[at*2+1]=a.uv.getY(j);}at++;
         }
       }
-      const g=own(new THREE.BufferGeometry());g.setAttribute('position',new THREE.BufferAttribute(positions,3));g.setAttribute('normal',new THREE.BufferAttribute(normals,3));g.setAttribute('uv',new THREE.BufferAttribute(uvs,2));g.computeBoundingSphere();
+      const g=own(new THREE.BufferGeometry());g.setAttribute('position',new THREE.BufferAttribute(positions,3));g.setAttribute('normal',new THREE.BufferAttribute(normals,3));g.setAttribute('uv',new THREE.BufferAttribute(uvs,2));
+      g.userData.originalTriangleOwners=originalTriangleOwners;
+      g.computeBoundingSphere();
       const o=mesh(root,g,b.material);o.name='rigid-material-batch';o.castShadow=b.cast;o.receiveShadow=b.receive;
     }
     for(const o of retired){o.removeFromParent();if(o.isInstancedMesh)o.dispose();}
