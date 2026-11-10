@@ -22,6 +22,7 @@ import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
+import { guardianGateSilhouetteInterference } from './guardian-gate-intrusion.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -1182,6 +1183,28 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       contactGuardian && liveGuardianId === contactGuardian.guardianId ? liveShotPoint : null;
   const gatePoints = lockStage
     ? [lockStage.center, ...lockStage.bolts.slice(2, 6)] : [];
+  // The actual 14m+ source-locked vertical seal is often projected ACROSS
+  // the living climber/guardian on a phone. Existing gateFramed scoring
+  // rewarded the largest obstructing cyan lattice. Sample the REAL gate's
+  // full-height exterior corners: preserve visual lock feedback but favor
+  // a clear pair of bodies over an attractive, blocking doorway close-up.
+  // No camera cuts, new renderer draws, source mutation or fake safe bypass.
+  const lockCorners = contactGuardian && gate
+    ? (() => {
+        const angle = Math.atan2(gate.x, gate.z);
+        const halfWidth = 3.11;
+        const height = Number.isSafeInteger(snapshot.guardianSealHeight) &&
+          snapshot.guardianSealHeight >= 140000
+          ? snapshot.guardianSealHeight / SCALE : 14;
+        const corners = [];
+        for (const side of [-1, 1]) for (const end of [-1, 1])
+          corners.push({
+            x: gate.x + Math.cos(angle) * side * halfWidth,
+            y: gate.y + (end < 0 ? -2.2 : height - 2.2),
+            z: gate.z - Math.sin(angle) * side * halfWidth,
+          });
+        return corners;
+      })() : null;
   const center = { ...body };
   if (routeLanding) blendTowerStageFocus(center, landing, .38);
   if (threat) blendTowerStageFocus(center, threat, routeLanding ? .18 : .5);
@@ -1335,7 +1358,22 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const gateCoreClear = !!gate && towerCoreSightlineClear(position, gate, 23.5);
     const gateFramed = gatePoints.length > 0 && gateCoreClear &&
       gatePoints.every(point => visible(point, .93, .86));
-    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear,
+    // Match body/gate projections in the SAME candidate camera. A distant
+    // landmark in safe crop is not a good shot if its actual 3D lock masks
+    // the hero or the source guardian. Depth distinguishes foreground from
+    // distracting background; no extra raycasts or GPU passes are necessary.
+    const projectNdc = point => {
+      const delta = relative(point), depth = distance - dot(delta, out);
+      return depth > .2
+        ? [dot(delta, right) / (depth * tangent * aspect),
+          dot(delta, up) / (depth * tangent), depth]
+        : [NaN, NaN, -1];
+    };
+    const gateIntrusion = lockCorners
+      ? guardianGateSilhouetteInterference(points.slice(0,4).map(projectNdc),
+        guardianCorners.map(projectNdc), lockCorners.map(projectNdc))
+      : 0;
+    return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion,
       landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
         towerCoreSightlineClear(position, routeLanding, 23.5),
       duelLandingSoftened: !hardLandingFit,
@@ -1422,7 +1460,11 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // Prioritize the actual warning lane while real contact is imminent,
         // never at the expense of a cropped actor or hidden guardian.
         (view.shotFramed ? 11 : 0) +
-        Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6;
+        Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6 -
+        // A gate-centered shot can be "framed" and still make the actual
+        // fight unreadable. Do not pay +16 gate points for a silhouette-
+        // covering foreground lock; protect BOTH real actors first.
+        view.gateIntrusion * 46;
     let bestQuality = quality(best);
     for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
       const candidate = solve(direction * amount, hardLandingFit), candidateQuality = quality(candidate);
