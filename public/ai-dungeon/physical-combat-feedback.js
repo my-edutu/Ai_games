@@ -38,7 +38,8 @@ export function createPhysicalCombatFeedback({
  // An original WebAudio engine is permanently bound to its creation context
  // and FX output. Device recovery must not keep scheduling on the old bus.
  let ownedFoleyContext=injectedFoley?null:ctx,ownedFoleyOutput=null,
-  injectedContextMismatch=false;
+  injectedContextMismatch=false,injectedOutputMismatch=false,
+  injectedOutputObserved=false,injectedFoleyOutput=null;
  const preference=createCombatMutePreference(storage);
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
@@ -411,14 +412,21 @@ export function createPhysicalCombatFeedback({
  function attachAudioContext(context,{output=null}={}){
   if(disposed||!context)return false;
   if(injectedFoley){
-   // An injected adapter cannot be silently rebound to a new device.
-   // Reject the change instead of monitoring an output it does not own.
-   if(audioStateContext&&audioStateContext!==context){
+   // An injected adapter cannot be rebound to a new AudioContext OR FX bus:
+   // its output nodes are externally owned and have no rebind contract.
+   // The first matching-context attachment records a bus identity only;
+   // it does not claim to connect or verify the injected adapter's nodes.
+   const contextMismatch=!!(audioStateContext&&audioStateContext!==context);
+   const outputMismatch=injectedOutputObserved&&injectedFoleyOutput!==output;
+   if(contextMismatch||outputMismatch){
     audioEpoch++;awaitingPresentation.length=0;optedIn=false;
-    injectedContextMismatch=true;safeCall(()=>foley?.disable?.());
+    injectedContextMismatch=contextMismatch;
+    injectedOutputMismatch=outputMismatch;
+    safeCall(()=>foley?.disable?.());
     return false;
    }
-   injectedContextMismatch=false;
+   injectedContextMismatch=false;injectedOutputMismatch=false;
+   injectedOutputObserved=true;injectedFoleyOutput=output;
    if(foley)observeAudioState(context);
    return !!foley;
   }
@@ -438,7 +446,8 @@ export function createPhysicalCombatFeedback({
   return true;
  }
  function enableAudioFromGesture(){
-  if(disposed||injectedContextMismatch||!safeCall(()=>foley?.enable?.()))return false;
+  if(disposed||injectedContextMismatch||injectedOutputMismatch||
+   !safeCall(()=>foley?.enable?.()))return false;
   if(!optedIn)audioEpoch++;
   optedIn=true;preference.write(false);return true;
  }
@@ -459,7 +468,7 @@ export function createPhysicalCombatFeedback({
  function stats(){return Object.freeze({
   implementation:'D04-physical-authority-feedback',disposed,scene:sceneId,
   audioOptedIn:optedIn,preferredMuted:preferredMuted(),
-  audioInterruptions,injectedContextMismatch,
+  audioInterruptions,injectedContextMismatch,injectedOutputMismatch,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
