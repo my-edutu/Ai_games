@@ -411,7 +411,7 @@ test('real pressure retreat HUD survives repeated tick-6 polling without invente
     'a second poll of tick6 must not hand the urgent mission to the known gate');
   assert.equal(publicHudCue({...depart,tick:7}),null,
     'the next distinct public tick ends the single authorized withdrawal');
-  assert.equal(publicHudCue({...observed,runToken:'new-run',tick:1}),null,
+  assert.equal(publicHudCue({...observed,runToken:'new-run',tick:1,currentCell:24}),null,
     'a new run cannot inherit old danger');
   assert.equal(publicHudCue({...observed,runToken:'new-run',tick:4,currentCell:24}),null,
     'skipped public ticks cannot inherit old danger');
