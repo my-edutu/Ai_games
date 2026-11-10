@@ -13,6 +13,11 @@ export const MAX_ORIGINAL_COMBAT_VOICES=8;
 export const MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS=16;
 export const MAX_ORIGINAL_DAMAGE_ONSETS_PER_WINDOW=2;
 export const ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS=.085;
+// Distinct, witnessed sword attempts deserve separately audible air foley.
+// Sound proves no contact; bound every source and each crowded onset window.
+export const MAX_ORIGINAL_SWING_ACTOR_COOLDOWNS=16;
+export const MAX_ORIGINAL_SWING_ONSETS_PER_WINDOW=2;
+export const ORIGINAL_SWING_ONSET_WINDOW_SECONDS=.075;
 export const ORIGINAL_COMBAT_MASTER_GAIN=.12;
 export const ORIGINAL_COMBAT_MAX_NOISE_SAMPLES=19200;
 // Fixed-rate original texture: WebAudio resamples it for each device context.
@@ -63,6 +68,15 @@ export function verifiedDamageFoleyVictim(cue){
   cue.targetId.length>0&&cue.targetId.length<=128&&
   (cue.audio==='impact'||cue.audio==='fatal-impact')?cue.targetId:null;
 }
+/** A real public swing ATTEMPT is not an impact or attacker-victim claim. */
+export function verifiedSwingFoleyActor(cue){
+ return cue?.kind==='swing'&&cue.audio==='whoosh'&&cue.visual==='trail'&&
+  cue.proof==='authority-attempt-not-hit'&&
+  Number.isSafeInteger(cue.tick)&&cue.tick>=0&&
+  typeof cue.sceneKey==='string'&&cue.sceneKey.length>0&&cue.sceneKey.length<=128&&
+  typeof cue.actorId==='string'&&cue.actorId.length>0&&cue.actorId.length<=128?
+  cue.actorId:null;
+}
 export function createCombatMutePreference(storage){
  const read=()=>{try{return storage?.getItem?.(COMBAT_MUTE_PREFERENCE_KEY)==='false'?false:true}catch{return true}};
  const write=muted=>{
@@ -110,7 +124,8 @@ export function chooseOriginalNoisePhaseOffset(duration,nowSeconds,voices=[]){
 export function createOriginalCombatFoley(ctx,{output=null}={}){
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
- const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[];
+ const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[],
+   lastVerifiedSwing=new Map(),swingOnsets=[];
  const now=()=>clamp(ctx?.currentTime,0,1e12,0);
  const usable=()=>ctx&&typeof ctx.createGain==='function'&&
   typeof ctx.createBuffer==='function'&&typeof ctx.createBufferSource==='function'&&
@@ -183,20 +198,30 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   const profile=RECIPES[cue?.audio];
   if(!profile||!bus)return false;
   cleanup();
-  const t=now(),victim=verifiedDamageFoleyVictim(cue);
-  // A single audio-type cooldown used to discard a second distinct confirmed
-  // injury in the same frame. Preserve the old type cooldown for ALL other
-  // signals; only HP-proven victim-local injuries can use this bounded lane.
-  const last=victim!==null?lastVerifiedDamage.get(victim)??-Infinity:
-   lastPlayed.get(cue.audio)??-Infinity;
-  if(t-last<(victim!==null?ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS:
-   COOLDOWN[cue.audio]??.05)){dropped++;return false}
-  if(victim!==null){
-   while(damageOnsets.length&&t-damageOnsets[0]>=ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS)
-    damageOnsets.shift();
-   if(damageOnsets.length>=MAX_ORIGINAL_DAMAGE_ONSETS_PER_WINDOW){dropped++;return false}
-  }
-  const priority=clamp(cue?.priority,0,10,1);
+  const t=now(),victim=verifiedDamageFoleyVictim(cue),
+    swinger=verifiedSwingFoleyActor(cue);
+   // Retain global type cooldown for unverified/anonymous cues. Independent
+   // actor-local air swooshes require the EXACT public attempted-swing proof.
+   const last=victim!==null?lastVerifiedDamage.get(victim)??-Infinity:
+    swinger!==null?lastVerifiedSwing.get(swinger)??-Infinity:
+    lastPlayed.get(cue.audio)??-Infinity;
+   const cooldown=victim!==null?ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS:
+    swinger!==null?ORIGINAL_SWING_ONSET_WINDOW_SECONDS:
+    COOLDOWN[cue.audio]??.05;
+   if(t-last<cooldown){dropped++;return false}
+   if(victim!==null){
+    while(damageOnsets.length&&t-damageOnsets[0]>=ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS)
+     damageOnsets.shift();
+    if(damageOnsets.length>=MAX_ORIGINAL_DAMAGE_ONSETS_PER_WINDOW){dropped++;return false}
+   }
+   // ALL whooshes consume this two-onset air-noise budget. A cue with a
+   // fabricated/missing actor can never bypass the shared density ceiling.
+   if(cue.audio==='whoosh'){
+    while(swingOnsets.length&&t-swingOnsets[0]>=ORIGINAL_SWING_ONSET_WINDOW_SECONDS)
+     swingOnsets.shift();
+    if(swingOnsets.length>=MAX_ORIGINAL_SWING_ONSETS_PER_WINDOW){dropped++;return false}
+   }
+   const priority=clamp(cue?.priority,0,10,1);
   if(active.length>=MAX_ORIGINAL_COMBAT_VOICES){
    let weakest=0;
    for(let i=1;i<active.length;i++)if(active[i].priority<active[weakest].priority)weakest=i;
@@ -247,7 +272,12 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
     if(lastVerifiedDamage.size>MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS)
      lastVerifiedDamage.delete(lastVerifiedDamage.keys().next().value);
     damageOnsets.push(t);
+   }else if(swinger!==null){
+    lastVerifiedSwing.delete(swinger);lastVerifiedSwing.set(swinger,t);
+    if(lastVerifiedSwing.size>MAX_ORIGINAL_SWING_ACTOR_COOLDOWNS)
+     lastVerifiedSwing.delete(lastVerifiedSwing.keys().next().value);
    }else lastPlayed.set(cue.audio,t);
+   if(cue.audio==='whoosh')swingOnsets.push(t);
    played++;peakVoices=Math.max(peakVoices,active.length);
    return true;
   }catch{
@@ -257,7 +287,8 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   }
  }
  function flush(){for(const v of active)stopVoice(v);active.length=0;
-  lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0}
+  lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0;
+   lastVerifiedSwing.clear();swingOnsets.length=0}
  function disable(){enabled=false;flush()}
  function reset(){flush()}
  function dispose(){
@@ -270,6 +301,7 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   engine:'d04-original-material-foley-v2',started,enabled,disposed,
   activeVoices:active.length,peakVoices,voiceCap:MAX_ORIGINAL_COMBAT_VOICES,
   verifiedDamageTargets:lastVerifiedDamage.size,verifiedDamageOnsets:damageOnsets.length,
+   verifiedSwingActors:lastVerifiedSwing.size,swingOnsets:swingOnsets.length,
   played,dropped,stopped,deviceFailures,masterGain:ORIGINAL_COMBAT_MASTER_GAIN,
   limiterAvailable:!!limiter,noiseSamples:noiseBuffer?.length??0,
   noiseSampleRate:noiseBuffer?.sampleRate??0,
