@@ -146,11 +146,11 @@
       "secondFailedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42867334138 — 14 original Node failures before correction"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
-    "state": "P0 OPEN — genuine portrait/desktop danger after-film examined; exact-source cap-bound airborne guardian camera discontinuity corrected in code but new source-pinned post-change film and blind acceptance NOT EVALUATED",
+    "state": "P0 OPEN — exact-head original 3D camera safety contract failed 23 tests from an ESM VM fixture missing the shipped guardian observer; fixture hydrated in ba8006c8. Source-authentic new after-film, exact-head CI pass, device and independent reviews NOT EVALUATED.",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Verify exact-source 8ef code quality, then original post-change 10-job >=60s native WebMs; inspect two real bodies from 14-24s, source HP0/grounded threshold vs video floor9 (~24.5-25s), whole ascent/moving/outcome/restart, hardware and 5 independent blind critics per category. P0 OPEN.",
+    "nextDecision": "Verify ba8006c8 original Node/Three source-hydrated CI. Inspect still-running original 8e54c4ed source 10-job 60+s baseline/candidate WebMs in portrait and desktop; align real guardian 14–24s, crusher, earned HP0 gate crossing, floor-nine and outcome/restart before changing game visuals. P0 stays OPEN.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Native 2bb danger 14-23s loses coherent two-body duel: jumping hero and live wounded guardian separate through bronze/cyan gate, 20s portrait hero crops near camera; new 8ef source-locked cap air-control continuation has not yet been filmed or independently preferred.",
+    "biggestRemainingExperienceGap": "Authentic original portrait boss fight still lacks proof of continuous readable full-body guardian/hero interaction and physical floor-nine gateway crossing; prior observed 2bb 14–23s hero crop/split is unaccepted, new 8e source after-film not yet graded.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -1983,7 +1983,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Prior exact-source 590f4dc6 original quality workflow 42720286489 SUCCESS. New upper-rotor source 0daa4abb and post-batch regression 93fbb40f currently pending; CI remains veto and is not a quality score.",
+    "ci": "Exact game-source 8e54c4ed quality 42903135744 FAILED 23/1344 original Node tests: all 23 ReferenceError observedLockedGuardianCap is not defined in import-stripped VM camera fixtures; not proof of gameplay failure or success. ba8006c8 correctly rehydrates every named shipped scene ESM observer into the original Eight fixture suites. Fresh exact-head CI 42905177383 QUEUED when recorded; NO PASS claim.",
     "replay": "Original fixed-step source 3200-tick witness at gameplay SHA dc3c3108 shows physical same-run guardian/crusher victory, floor9 onward and restart; broader deterministic replay gate and production devices still NOT EVALUATED.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
     "performance": "NOT EVALUATED — no supported hardware frame-time p50/p95/p99 or memory.",
@@ -7362,5 +7362,42 @@
     "actualSourceToPaintedPixels": "NOT EVALUATED — search timestamps are not confirmed screen events",
     "reviewFile": "docs/reviews/2026-11-10-tower-pr68-source-locked-airborne-cap-duel-afterfilm.md",
     "nextHighestImpactAction": "Inspect immutable post-8ef original paired >=60s native danger video in BOTH viewports around living guardian 14-24s, source HP0/real gate/grounded floor9, compare ascent/moving/outcome/restart; reject if hero or guardian still lost, then actual hardware and genuine independent reviews."
+  },
+  "p0Original3DCameraVmContractUnblocker20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalGameImplementationSourceSha": "8e54c4edf26de3bf0578a4b5348d006ce844552f",
+    "testAndHarnessCorrectionCommitSha": "ba8006c8a780821f02e20a439071a08f7aeb5c89",
+    "exactGameSourceQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42903135744 — 1321 pass / 23 fail (same missing imported observedLockedGuardianCap across 8 original scene VM files); Node build and verdict gate passed, downstream browser checks skipped",
+    "observedRootCause": "Existing real source scene.mjs correctly imports observedLockedGuardianCap from guardian-passage.mjs, but tests/phase3 source VM strips all ESM imports then leaves out new real guardian source observer from fixture scope. 23 original camera tests consequently fail ReferenceError rather than check framing. This is a real safety-evidence blocker, not a diagnosed player-visible new runtime bug.",
+    "implemented": "Source-authentic immutable shipping ESM observer rehydration in shared test helper and all eight failing test suites (9 files). Every named local scene import is checked against actual module export; existing fixture Three, world and character constructors are preserved, all other names filled only if missing. No gameplay, camera, boss, asset, sim, PR58 or frozen baseline edits.",
+    "editedPaths": [
+      "tests/phase3/tower-scene-vm-bindings.cjs",
+      "tests/phase3/tower-character-rig.test.cjs",
+      "tests/phase3/tower-encounter-composition.test.cjs",
+      "tests/phase3/tower-guardian-contact-framing.test.cjs",
+      "tests/phase3/tower-guardian-live-crossfire-stage.test.cjs",
+      "tests/phase3/tower-guardian-portrait-story.test.cjs",
+      "tests/phase3/tower-guardian-windup-experience.test.cjs",
+      "tests/phase3/tower-landing-beacon.test.cjs",
+      "tests/phase3/tower-orbital-combat-camera.test.cjs"
+    ],
+    "scopeReview": "The original camera imported ESM code was intact in production; regression was missing test VM bindings. No artificial stubs, no weaker assertions and no bypass of tests.",
+    "localNodeThreeChecks": "NOT EXECUTED — authenticated coding terminal tunnel unavailable, container cannot reach github.com. CI is the verification runner, not a gameplay quality score.",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42905177383 — QUEUED when recorded, NOT a pass",
+    "inFlightOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945 — original source 8e54c4ed 10-job before/after film IN PROGRESS at inspection; result and pixel-matched 60+s film NOT EVALUATED",
+    "originalBeforeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42898824459 — 10/10 original jobs successful at source 2bb3a0f8, authentic video observed but experience not accepted",
+    "biggestRealFilmDefect": "Previously seen original portrait 2bb3a0f8 danger ~14–23s giant foreground hero crop and disconnected two-body guardian staging; post-8e54 gameplay film not inspected, so do not claim corrected.",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "matchedNormalSpeedVideoAcceptance": "NOT EVALUATED",
+    "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "First validate original source VM bindings with full current CI, then inspect real full-motion native baseline/candidate portrait/desktop video at exact 8e54 render SHA and native source event positions. If giant hero/guardian crop or cyan gate persists, reconstruct the connected physical combat staging/camera. Only thereafter progress P1 or recruit independent critics.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-original-camera-vm-observer-contract-recovery.md",
+    "safety": "PR68 draft and PR58 untouched; frozen baseline unchanged; no merge, deploy or force-push."
   }
 }
