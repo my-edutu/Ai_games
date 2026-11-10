@@ -930,14 +930,9 @@ export function createMazeWorld(options = {}) {
       if (c.trap && !c.blocked) {
         block(deepStone, x, -.010, z, 2.12, .030, 2.12, c.cell);
         block(clay, x, .009, z, 1.94, .012, 1.94, c.cell);
-        // Four symmetric ceramic pressure-corner clamps read as one device,
-        // not an arrow pointing to an undiscovered passage or an extra key.
-        for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-          add(box, darkMetal, x + sx * .74, .018, z + sz * .74,
-            .36, .012, .36, c.cell, 0, Math.PI / 4);
-          add(box, danger, x + sx * .74, .026, z + sz * .74,
-            .16, .008, .16, c.cell, 0, Math.PI / 4);
-        }
+        // Replace the eight inert, scattered corner ornaments with ONE
+        // truly depressible linked ceramic treadle in the disclosed trapProp.
+        // The original walkable tile, trigger and collision never change.
       }
       // Low, symmetric ivory-jade edge engraving separates the sea-glass
       // lower walkable terrace from the lagoon without suggesting a corridor.
@@ -1957,6 +1952,20 @@ export function createMazeWorld(options = {}) {
       mesh(p, bevel, danger, Math.cos(a) * .73, .032,
         Math.sin(a) * .73, .15, .05, .11, 0, -a);
     }
+    // This single broad ceramic floor treadle is the legible first action
+    // in the PUBLIC pressure encounter: it sinks before the tall jaws shear.
+    // It replaces eight inert corner ornaments instead of adding clutter.
+    // Entire footprint inside the existing 2.4m real trap tile; all parts
+    // reuse pooled bevel/materials, with no new collision or route authority.
+    const treadle = new THREE.Group();
+    treadle.name = 'Published tide-shear depressible treadle ' + c.cell;
+    treadle.position.set(0, .035, .79);
+    p.add(treadle);
+    mesh(treadle, bevel, darkMetal, 0, -.014, 0, 1.60, .052, .52);
+    mesh(treadle, bevel, lightStone, 0, .019, 0, 1.42, .027, .42);
+    for (const side of [-1, 1])
+      mesh(treadle, bevel, danger, side * .43, .036, .02, .25, .013, .24);
+    mesh(treadle, bevel, gold, 0, .036, .02, .14, .013, .24);
     // A rooted mechanical tide-diaphragm gives the publicly disclosed
     // pressure hazard a visible CAUSE/EFFECT beyond two thin moving posts:
     // its carriage rises and its paired ceramic shields unfold in concert
@@ -2054,7 +2063,7 @@ export function createMazeWorld(options = {}) {
       mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
       relays.push({object: relay, side});
     }
-    trapSignals.push({carriage, diaphragms, shutters, iris, relays, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
+    trapSignals.push({carriage, diaphragms, shutters, iris, relays, treadle, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2432,6 +2441,14 @@ export function createMazeWorld(options = {}) {
       const earlyRelay = Math.min(1, activeProgress / .17);
       const shutterBeat = Math.min(1, Math.max(0, (activeProgress - .34) / .36));
       const pistonRelay = Math.min(1, Math.max(0, (activeProgress - .76) / .24));
+      // True near-contact presses the floor BEFORE the linked shutters/jaws.
+      // A diagonal sighting never actuates it. Withdrawal, lost PUBLIC
+      // visibility, terminal state and reset restore it in the same frame.
+      // Reduced motion holds one stable, earned contact pose.
+      const treadleStroke = reducedContact ? .6 : nearContact ? earlyRelay : 0;
+      signal.treadle.position.y = .035 - .055 * treadleStroke;
+      signal.treadle.rotation.x = -.12 * (reducedContact
+        ? .45 : nearContact ? shutterBeat : 0);
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
         relay.object.position.y = .28 + (reducedContact ? .04 : .15 * pistonRelay);
