@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "a5c03e17e2459bac9d070742ad64bfd43f915d07",
-  "reason": "Request 8 original baseline/candidate desktop 960x600 and portrait 390x844 matched >=60s scenario videos after physical guardian outboard mechanical-gallery and source-shared camera envelope at a5c03e17e2459bac9d070742ad64bfd43f915d07. Previous unmodified candidate ca1b423c guardian portrait film still has large bronze winch covering a major part of climber around 20s and cyan/bronze split fight at 15s. Confirm genuine guardian HP0 tick441, grounded physical crossing and floor9 tick451 in visible continuous film; source-timebase alone is not a visual pass. Check no smaller actor silhouette, missing crusher cue, fake locked-gate bypass or camera jitter. Keep frozen PR58 baseline, no source edits or false clip equivalence. Independent LOOKS/FEELS/PLAYS 0/5, hardware NOT EVALUATED.",
+  "repairedSourceSha": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
+  "reason": "P0 post-gallery source-pinned 10-job capture requested ONLY after real shared gallery syntax and original-world import-fixture corrections. Current latest original immutable source before capture e99b41ab004e5836f221bbcc2ec4a37d8fbc9267; full current Node/Three browser quality workflow still pending, NOT a pass. Earlier candidate capture 42866319096 at c1d0 failed authentic-ledge fixture loading (missing genuine guardian-transmission-layout module), and first quality run 42865871986 had 107/1319 failures due literal escaped source newlines/fixture imports. This follow-up request asks original 60+ sec baseline/candidate normal-speed 960x600 & 390x844 ascent, moving, danger guardian, outcome. Verify original guardian HP0, crusher survival, real grounded gateway crossing and floor9 continuation, result/intermission/restart. Inspect actual 12-26sec portrait fight and compare matched source events; 0/5 independent critics each, real-device performance not measured. No transform verdict pass.",
   "scenarios": [
     "ascent",
     "moving",
@@ -299,6 +299,6 @@
   "lastImplementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42856135130 (in progress at request)",
   "readOnlyPriorNativeFloorNinePortraitSearchSeconds": 22.6462,
   "latestSourceHeadForRecapture": "8d04e71a055993dd2d29612af254f58a866ec09c",
-  "p0SourceSha": "a5c03e17e2459bac9d070742ad64bfd43f915d07",
+  "p0SourceSha": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
   "latestReviewedSourceBefore": "a5c03e17e2459bac9d070742ad64bfd43f915d07"
 }
