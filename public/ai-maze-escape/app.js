@@ -64,8 +64,8 @@ function formatTime(ticks,interval=360){
     ? `${Math.floor(seconds/3600)}:${part(Math.floor(seconds%3600/60))}:${part(seconds%60)}`
     : `${Math.floor(seconds/60)}:${part(seconds%60)}`;
 }
-const intentLabels={'exploring':'Exploring','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
-const goals={'exploring':'Find passage','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
+const intentLabels={'exploring':'Exploring','inspecting-hazard':'Inspecting jaws','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
+const goals={'exploring':'Find passage','inspecting-hazard':'Study jaws','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
   if(/^Key collected:/i.test(value))return 'Pip found a key.';
   if(/^Route unlocked:/i.test(value))return 'A locked passage opened.';
@@ -149,10 +149,11 @@ function update(value){
   const pressureApproach=!ended && !exposedDanger && !pressureCue
     && !witnessedKeyCelebration
     ? publicVisibleDiagonalPressureCue(snapshot) : null;
+  const observingPressure=!ended && !!pressureCue && snapshot.intent.mode==='inspecting-hazard';
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
   elements.broadcast.dataset.pressureApproach=String(!!pressureApproach);
-  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
+  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':observingPressure?'STUDYING JAWS':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
@@ -166,10 +167,10 @@ function update(value){
   const freshKey=!ended && !urgent && !pressureApproach && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':observingPressure?'Observed pressure court':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':observingPressure?'Study jaws':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':observingPressure?'Choosing a safe route':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy
@@ -201,6 +202,11 @@ function update(value){
   if(exposedDanger && !wasInDanger && Array.isArray(snapshot.threats)
     && snapshot.threats.length) eventCaption='Thornback is nearby.';
   if(pressureCue && !wasNearPressure) eventCaption='Pip sees the pressure jaws.';
+  // This is an actual one-tick autonomous WAIT, not a proximity-based
+  // invented mechanic. A missed polling tick cannot generate the caption.
+  if(observingPressure
+    && previousPublicSnapshot?.intent?.mode!=='inspecting-hazard')
+    eventCaption='Pip stops to inspect the jaws.';
   wasInDanger=exposedDanger;
   wasNearPressure=!!pressureCue;
   if(eventCaption){

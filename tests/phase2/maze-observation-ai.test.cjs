@@ -22,7 +22,7 @@ test('Pip pauses one real tick only at a newly entered, visible and safely escap
   const firstBelief=updateBelief(undefined,observed);
   const first=chooseMazeAction(state,observed,firstBelief);
   assert.equal(first.action.kind,'wait','a truly visible pressure court earns one real inspection tick');
-  assert.equal(first.intent.mode,'exploring');
+  assert.equal(first.intent.mode,'inspecting-hazard','the public wait needs a distinct, truthful 3D presentation contract');
   assert.equal(first.targetCell,null,'inspection never orders Pip INTO the trap');
   assert.deepEqual(first.plannedPath,[current]);
   assert.ok(first.intent.explanation.includes('pressure jaw'));
@@ -32,6 +32,7 @@ test('Pip pauses one real tick only at a newly entered, visible and safely escap
   const third=updateBelief(second,{...observed,tick:observed.tick+1});
   const resumed=chooseMazeAction(state,{...observed,tick:observed.tick+1},third);
   assert.notEqual(resumed.intent.explanation,first.intent.explanation);
+  assert.notEqual(resumed.intent.mode,'inspecting-hazard','the same visible tile cannot generate a second waiting beat');
   assert.notEqual(resumed.action.targetCell,trap,'known dangerous cell remains avoided');
   const hidden={...observed,visibleCells:[current,safe],cells:observed.cells.map(cell=>({
     ...cell,visible:cell.cell!==trap,

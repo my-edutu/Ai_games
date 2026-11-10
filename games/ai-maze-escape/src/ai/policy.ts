@@ -191,7 +191,7 @@ function chooseVisiblePressureInspection(
   return {
     action: { kind: 'wait' },
     intent: {
-      mode: 'exploring',
+      mode: 'inspecting-hazard',
       confidence: .88,
       explanation: 'An observed pressure jaw guards a neighboring passage; holding one beat to watch it before taking a safe route.',
       nodeExpansions: current.neighbors.length,

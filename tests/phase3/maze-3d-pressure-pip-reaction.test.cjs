@@ -174,3 +174,37 @@ test('pressure warning, shutter brace and piston recoil are three independent so
   }
   assert.deepEqual(rigPrimitiveResourceStats(),baseline,'shared physical rig resource lifecycle preserved');
 });
+
+test('a real public inspection holds Pip lantern-up without inventing a pressure strike or GPU objects',async()=>{
+  const {createExplorer,rigPrimitiveResourceStats}=await rigs;
+  const baseline=rigPrimitiveResourceStats();
+  for(const balanced of [true,false]){
+    const pip=createExplorer({balanced});
+    try{
+      const shoulder=pip.group.getObjectByName('shoulder 1');
+      const knee=pip.group.getObjectByName('knee -1');
+      const head=pip.group.getObjectByName('curious head');
+      const geometry=[];pip.group.traverse(o=>{if(o.isMesh)geometry.push(o.geometry)});
+      for(const reducedMotion of [false,true]){
+        const visible={time:0,delta:0,heading:0,reducedMotion,
+          pressureHeading:Math.PI/2,pressureStrength:1,pressureProgress:0};
+        pip.update(visible);
+        const ordinaryShoulder=shoulder.rotation.x;
+        pip.update({...visible,pressureInspectionStrength:1});
+        assert.ok(shoulder.rotation.x<ordinaryShoulder-.6,
+          'authoritative public inspection raises the connected lantern before jaw contact');
+        assert.ok(head.rotation.y>.5,'Pip looks toward the real visible pressure mechanism');
+        assert.equal(knee.rotation.x,0,'an observation cannot invent an actual piston strike');
+        pip.update(visible);
+        assert.equal(shoulder.rotation.x,ordinaryShoulder,
+          'lost public inspection clears the survey in the same frame');
+        assert.equal(knee.rotation.x,0);
+      }
+      const after=[];pip.group.traverse(o=>{if(o.isMesh)after.push(o.geometry)});
+      assert.deepEqual(after,geometry,'inspection reuses the existing full-body model');
+    }finally{pip.dispose()}
+  }
+  assert.deepEqual(rigPrimitiveResourceStats(),baseline);
+  assert.match(sceneSource,/s\.intent\?\.mode==='inspecting-hazard'/);
+  assert.match(sceneSource,/pressureInspectionStrength,/);
+});

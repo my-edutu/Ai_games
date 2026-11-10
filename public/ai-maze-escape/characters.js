@@ -382,8 +382,9 @@ export function createExplorer(options = {}) {
       // Reduced-motion must not make Pip brace at a distant diagonal tile
       // while the physical joints are closed. Only the SAME publicly modeled
       // static contact pose (from world.publicPressureProgress) may cue it.
-      &&(!s.reduced || Number.isFinite(options.pressureProgress)
+      &&(!s.reduced || (Number.isFinite(options.pressureProgress)
         && options.pressureProgress >= .99)
+        || finite(options.pressureInspectionStrength)>0)
       ? Math.max(0,Math.min(1,finite(options.pressureStrength))) : 0;
     const pressureYaw=pressureReaction>0
       ? Math.max(-.75,Math.min(.75,Math.atan2(
@@ -395,15 +396,20 @@ export function createExplorer(options = {}) {
     // Standalone actor callers lacking the optional stage retain old behavior.
     const pressureStage=Number.isFinite(options.pressureProgress)
       ? Math.max(0,Math.min(1,options.pressureProgress)) : 1;
+    // A true observed WAIT inspection is a deliberate, visibly different
+    // lantern survey, NOT evidence that the pressure pistons have fired.
+    // It cannot plant the knees or manufacture contact while jaws are closed.
+    const pressureInspection=pressureReaction*Math.max(0,Math.min(1,
+      finite(options.pressureInspectionStrength)));
     // Relay warning turns the full connected upper body before the shutters move.
     // Bracing plants the feet only on the witnessed opening, and the piston
     // gives the lantern arm a second readable release beat. All three use the
     // SAME published stage clock; no new ability, root translation or meshes.
     const pressureWarning=pressureReaction*(s.reduced?1
-      : Math.max(0,Math.min(1,pressureStage/.20)));
-    const pressureBrace=pressureReaction*(s.reduced?1
+      : Math.max(Math.max(0,Math.min(1,pressureStage/.20)),pressureInspection*.92));
+    const pressureBrace=pressureReaction*(s.reduced?(pressureStage>=.99?1:0)
       : Math.max(0,Math.min(1,(pressureStage-.20)/.50)));
-    const pressureClimax=pressureReaction*(s.reduced?.4
+    const pressureClimax=pressureReaction*(s.reduced?(pressureStage>=.99?.4:0)
       : Math.max(0,Math.min(1,(pressureStage-.76)/.24)));
     const fossilFocus=!s.win&&!s.lose&&alert<.1&&keyReach<.1
       &&gateCelebrate<.1&&pickupCelebrate<.1&&pressureReaction<.1
@@ -455,7 +461,7 @@ export function createExplorer(options = {}) {
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.21-pressureClimax*.07,
       lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14-Math.sign(pressureYaw)*pressureWarning*.08);
-    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07,
+    head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07+pressureInspection*.12,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10-Math.sign(pressureYaw)*pressureClimax*.08);
     for (let i=0;i<2;i++) {
@@ -467,7 +473,7 @@ export function createExplorer(options = {}) {
       legs[i].hip.rotation.x=step*sign*.62-alert*.22-pressureBrace*.18;
       legs[i].hip.rotation.z=alert>0?-sign*alert*.3:-sign*gatePerformance*.14-sign*pressureBrace*.20;
       legs[i].knee.rotation.x=Math.max(0,-step*sign)*.58+alert*.3+gatePerformance*.21+pickupCelebrate*.14+pressureBrace*.46+pressureClimax*.08;
-      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14)-pressureWarning*(i===1?.40:.06)-pressureBrace*(i===1?1.03:.46)-pressureClimax*(i===1?.30:.18);
+      arms[i].shoulder.rotation.x=-step*sign*(i===1?.2:.4)-(s.win?.9:0)-(i===1?.16:0)-alert*(i===1?1.55:.95)-(i===1?guardianAnswer*.50:guardianPlant*.16)-(i===0?defensiveFlinch*.72:0)-(i===0?keyReach*2.3:0)-gateCelebrate*(i===1?1.35:.64)-gatePerformance*(i===1?.34:.54)-pickupCelebrate*(i===1?1.43:1.38)-fossilFocus*(i===1?.76:.14)-pressureWarning*(i===1?.40:.06)-(i===1?pressureInspection*.50:0)-pressureBrace*(i===1?1.03:.46)-pressureClimax*(i===1?.30:.18);
       // Aim the raised physical glove toward the publicly disclosed lock,
       // not just upward. Reduced-motion uses the same stable static pose.
       // A terminal result or nearby guardian suppresses keyYaw entirely.

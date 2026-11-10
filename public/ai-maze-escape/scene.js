@@ -599,6 +599,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position});
     const pressureProgress=pressureCue
       ? world.publicPressureProgress(pressureCue.cell) : 0;
+    // Only the new authoritative PUBLIC wait decision, paired with a still
+    // visible pressure prop, earns Pip a held lantern-survey pose. Mere
+    // proximity does not invent an inspection; a public Warden outranks it.
+    const pressureInspectionStrength=pressureCue
+      && s.intent?.mode==='inspecting-hazard' && !result
+      ? pressureCue.strength : 0;
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
@@ -612,6 +618,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       pressureHeading:pressureCue
         ? Math.atan2(pressureCue.x-pose.x,pressureCue.z-pose.z) : undefined,
       pressureStrength:pressureCue?.strength??0,
+      pressureInspectionStrength,
       pressureProgress,
       keyTarget,
       keyCameraPosition: camera.position,
