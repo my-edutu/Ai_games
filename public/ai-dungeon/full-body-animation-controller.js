@@ -532,6 +532,28 @@ export function planImportedWalkExitBrake({
  * Never continue this landing through genuine travel, teleports, damage,
  * evasion, defeat, lost visibility, reduced motion or interrupted actions.
  */
+
+/**
+ * The original Walking_A -> Idle/Guard pelvis + six-leg landing, and lawful
+ * Idle/Guard -> Walking_A re-entry, share a real rendered-frame clock.
+ *
+ * Earlier release timers consumed at most 50ms per frame even when software
+ * WebGL spent 180-800ms presenting that frame. This held a frozen pelvis/sole
+ * for seconds, long after the original 120/200ms source-mixer crossfade.
+ * Use witnessed requestAnimationFrame elapsed time, capped to 250ms to avoid
+ * skipping an entire recovery on one pathological render. Never invent a
+ * gameplay tick, root step, foot plant, original clip or authority event.
+ */
+export function planNativeLandingVisibleDelta({
+ frameDelta=0,frameInterval=frameDelta,visible=true,
+ reducedMotion=false,teleport=false
+}={}){
+ if(visible!==true||reducedMotion||teleport||
+  !finite(frameDelta)||frameDelta<0||frameDelta>.05||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>2)return 0;
+ return Math.min(.25,frameInterval);
+}
+
 export function planSourceRigLandingRelease({mode='idle',sourceClipName='',
  sourceWalkFrozen=false,rootTravel=NaN,frameInterval=NaN,
  elapsed=NaN,moving=false,visible=true,alive=true,teleport=false,reducedMotion=false,
