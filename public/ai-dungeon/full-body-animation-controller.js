@@ -171,6 +171,18 @@ export function advanceFullBodyController(previous=null,{
   (previous.mode!==mode||tickChanged||beatRestart));
  const transition=changed?0:clamp((finite(previous?.transition)?previous.transition:0)+
   (finite(frameDelta)?clamp(frameDelta,0,.05):0),0,1);
+ // One bounded source-rig guard envelope connects pelvis, both soles, chest,
+ // shoulders and elbows. The original imported Idle clip remains the base.
+ // Fade legitimate guard entry and idle release on the SAME sampled frame
+ // clock; injury/attack/evasion/teleport/defeat/reduced motion take immediate
+ // ownership and cannot inherit a fake guard or defensive game effect.
+ const guardWas=finite(previous?.guardProgress)?clamp(previous.guardProgress,0,1):0;
+ const guardDelta=delta/.18;
+ const guardProgress=!alive||teleport||reducedMotion||visible!==true?0:
+  mode==='guard'?clamp(guardWas+guardDelta,0,1):
+  mode==='idle'&&['guard','idle'].includes(previous?.mode)?
+   clamp(guardWas-guardDelta,0,1):0;
+ const guardBlend=guardProgress*guardProgress*(3-2*guardProgress);
  // This is a pose-ownership mask, NOT weights accumulated by several systems.
  const owner=Object.freeze({
   locomotion:mode==='move',
@@ -220,7 +232,8 @@ export function advanceFullBodyController(previous=null,{
   mode==='evade'?age<.16?'departure':'recovery':
   mode==='defeat'?'down':mode==='move'?'stride':mode;
  return Object.freeze({mode,phase,age,actionTick:visualActionTick,authorityAction,clipAction,
-  holding,completed,confirmedContact,witnessedRangedAim,changed,restarted,interrupted,transition,owner,
+  holding,completed,confirmedContact,witnessedRangedAim,changed,restarted,interrupted,transition,
+  guardProgress,guardBlend,owner,
   teleportSuppressedTick,interruptionSuppressedTick,reducedMotion:Boolean(reducedMotion)});
 }
 
