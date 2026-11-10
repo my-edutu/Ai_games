@@ -770,7 +770,12 @@ function stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval=dt){
   sourceClipName:actor.activeImportedClipName??'',
   sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
   groundedMoving:Boolean(walking&&actor.groundedPerformance?.moving),
-  settling:Boolean(actor.rigGaitSettling),frameDelta:dt,
+  settling:Boolean(actor.rigGaitSettling),
+  // Original 180ms mixer ownership must release in the REAL visible frame
+  // interval on a throttled WebGL desktop/mobile, not a 50ms simulation cap.
+  // The effective source clip weight remains the independent truth gate.
+  frameDelta:Number.isFinite(sourceFrameInterval)&&sourceFrameInterval>0?
+   Math.min(.35,sourceFrameInterval):dt,
   alive:actor.u.hp>0,teleport:Boolean(actor.locomotionTeleport),reducedMotion
  });
  actor.rigLegStride=planRigLegGesture(phase,gait.weight,hardStop);
