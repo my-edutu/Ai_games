@@ -37,8 +37,13 @@ const limbSegment=(a,b,r,col,sides)=>{for(let i=0;i<2*sides;i++)data.length+=30;
 ${hallFragment}
 marketReceivingDock();return {triangles:data.length/30,audit:getMarketReceivingHallAudit()}
 `)();
-assert.ok(hallGeometry.triangles<=400,
- 'Actual receiving hall must not exceed original 400-triangle old two-rack mesh');
+assert.ok(hallGeometry.triangles>=750&&hallGeometry.triangles<=950,
+ 'The complete W208 real four-wall, oak-framed, roofed grain arcade must remain within its isolated 750–950-triangle construction envelope');
+assert.equal(hallGeometry.audit.arcadeWallSegments,4,'Existing real side walls must be included');
+assert.equal(hallGeometry.audit.arcadeWallTriangles,320,'Keep physical joinery, not decorative fake planes');
+assert.equal(hallGeometry.audit.receivingSoffitPanels,18,'Do not regress the real interior roof');
+assert.equal(hallGeometry.audit.frontGablePlasterPanels,0,'Physical courier approach stays open');
+assert.ok(hallGeometry.audit.arcadeClearCenterWidth>5,'No freight obstruction');
 assert.ok(hallGeometry.audit.originalBays===2);
 assert.ok(hallGeometry.audit.loadBearingPosts===4);
 assert.ok(hallGeometry.audit.roofPanels===18);
