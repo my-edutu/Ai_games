@@ -36,3 +36,50 @@ export function guardianGateSilhouetteInterference(heroCorners, guardianCorners,
   if (!hero || !guardian || !gate) return 0;
   return Math.max(overlap(hero, gate), overlap(guardian, gate));
 }
+
+
+// A gate may dominate an entire portrait shot WITHOUT touching either
+// fighter's rectangle. The prior overlap-only scorer gave that giant cyan
+// lock a free +16 framing bonus even while it filled the middle of the duel.
+// Measure its real projected viewport footprint as a *soft* composition cost.
+// This is an image-space candidate heuristic, not GPU occlusion truth.
+function clippedFraction(subject, clip) {
+  const width = Math.max(0, Math.min(subject.right, clip.right) -
+    Math.max(subject.left, clip.left));
+  const height = Math.max(0, Math.min(subject.top, clip.top) -
+    Math.max(subject.bottom, clip.bottom));
+  const total = (clip.right - clip.left) * (clip.top - clip.bottom);
+  return total > 0 ? Math.min(1, width * height / total) : 0;
+}
+export function guardianGateScreenDominance(heroCorners, guardianCorners, gateCorners) {
+  const hero = bounds(heroCorners), guardian = bounds(guardianCorners),
+    gate = bounds(gateCorners);
+  if (!hero || !guardian || !gate) return 0;
+  const center = clippedFraction(gate, {
+    left: -.62, right: .62, bottom: -.74, top: .74,
+  });
+  const viewport = clippedFraction(gate, {
+    left: -.94, right: .94, bottom: -.88, top: .88,
+  });
+  // An exterior landmark beyond both combatants may contribute atmosphere;
+  // a foreground or interleaved full-height power barrier owns the shot.
+  const nearest = Math.min(hero.depth, guardian.depth),
+    farthest = Math.max(hero.depth, guardian.depth);
+  const depthWeight = gate.depth <= nearest + .12 ? 1 :
+    gate.depth <= farthest + .12 ? .78 : .32;
+  return Math.min(1, (.78 * center + .22 * viewport) * depthWeight);
+}
+
+// A lens can pass whole-body and core checks yet strand BOTH fighters on
+// opposite portrait edges. Preserve subject size/authority, but prefer a
+// useful shared action area when selecting among already-valid orbits.
+export function guardianDuelEdgePressure(heroCorners, guardianCorners) {
+  const hero = bounds(heroCorners), guardian = bounds(guardianCorners);
+  if (!hero || !guardian) return 0;
+  const edge = subject => {
+    const x = Math.abs((subject.left + subject.right) / 2);
+    const y = Math.abs((subject.bottom + subject.top) / 2);
+    return Math.max(0, (x - .52) / .48, (y - .38) / .62);
+  };
+  return Math.min(1, Math.max(edge(hero), edge(guardian)));
+}
