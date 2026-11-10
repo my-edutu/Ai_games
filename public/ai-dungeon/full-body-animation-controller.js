@@ -265,6 +265,23 @@ export function shouldRestartImportedOneShot(action,previousAction,previousTick,
 }
 
 /**
+ * The genuine source GLB has one "Idle" AnimationAction for both neutral and
+ * guarded stance. Reusing the exact running clip must not reset its 41-joint
+ * keyframe clock when only presentation ownership changes idle <-> guard.
+ * This keeps skinned chest, feet and right-hand weapon attachment continuous;
+ * the separate additive guard layer still owns its normal bounded pose.
+ */
+export function shouldRetainImportedSharedIdleClock({
+ previousMode=null,nextMode=null,previousClipName=null,nextClipName=null,
+ sameAction=false,sourceRunning=false,newEvent=false
+}={}){
+ return sameAction===true&&sourceRunning===true&&newEvent===false&&
+  previousClipName==='Idle'&&nextClipName==='Idle'&&
+  ((previousMode==='idle'&&nextMode==='guard')||
+   (previousMode==='guard'&&nextMode==='idle'));
+}
+
+/**
  * Place only a newly witnessed lawful original one-shot at its exact event
  * age. Never scrub an already running mixer clip with this entry function;
  * uninterrupted recovery is owned by the monotonic forward-only planner.

@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldRestartImportedOneShot,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -946,6 +946,19 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
  // contact envelope instead of each asset independently completing its clip.
  if(oneShot)clipSpeed=planNativeOneShotSpeed(action,clip.duration);
  const next=actor.mixer.clipAction(clip),previous=actor.activeClip;
+ // The source-only Idle/Guard owner switch cannot restart the SAME original
+ // 41-joint Idle clip. Only the additive guard/neutral pose should transition.
+ // Preserve a currently crossfading Idle source weight and animation time.
+ if(shouldRetainImportedSharedIdleClock({
+  previousMode:actor.currentAction,nextMode:action,
+  previousClipName:previous?.getClip?.()?.name,nextClipName:clip.name,
+  sameAction:next===previous,sourceRunning:Boolean(previous?.isRunning?.()),
+  newEvent
+ })){
+  actor.activeImportedClipName=clip.name;
+  actor.currentAction=action;actor.currentActionTick=tick;
+  return;
+ }
  // Consecutive attacks and different actions may use the same AnimationAction.
  // Restart on a new authoritative action, never on every presentation frame.
  if(next!==previous||newEvent||actor.currentAction!==action){
