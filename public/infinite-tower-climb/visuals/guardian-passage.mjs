@@ -206,16 +206,32 @@ export function createTowerGuardianPassage(THREE) {
     parent.add(object);
     return object;
   };
+  // The former exterior release arch is a physical MEMORY of a completed
+  // threshold. It previously rendered on TOP of the separate, live exterior
+  // GuardianGate and the grounded source-locked inner threshold while the
+  // guardian was alive, creating three overlapping full-size bronze gateways.
+  // Original source-pinned 390x844 film c8464f2b at native seconds 14-17
+  // and camera ray owners at source ticks 274-313 show this redundant arch's
+  // ClearedPassageBronzeLeaf / crown / piers obscuring the real fight.
+  // Keep all authored geometry/resources for a genuine next-floor handoff,
+  // but only PRESENT the memory after a source-confirmed 8->9 transition.
+  // While locked/earned-open, the existing source-controlled inner threshold
+  // and original exterior gate carry the visuals. Nothing changes collision,
+  // the source lock, guardian HP, authority, or actual gameplay progression.
+  const memoryFrame = new THREE.Group();
+  memoryFrame.name = 'EarnedGuardianPassageMemory';
+  memoryFrame.visible = false;
+  group.add(memoryFrame);
   for (const side of [-1, 1]) {
-    add('ClearedPassagePier', box, stone, [side * 3.22, 2.35, 0], [.46, 4.7, .55]);
-    add('ClearedPassageCrownSeat', box, bronze, [side * 3.22, 4.73, .03], [.7, .22, .67]);
+    add('ClearedPassagePier', box, stone, [side * 3.22, 2.35, 0], [.46, 4.7, .55], memoryFrame);
+    add('ClearedPassageCrownSeat', box, bronze, [side * 3.22, 4.73, .03], [.7, .22, .67], memoryFrame);
   }
-  add('ClearedPassageLintel', box, stone, [0, 4.72, 0], [6.8, .46, .55]);
+  add('ClearedPassageLintel', box, stone, [0, 4.72, 0], [6.8, .46, .55], memoryFrame);
   const wings = [];
   for (const side of [-1, 1]) {
     const wing = new THREE.Group();
     wing.name = side < 0 ? 'ClearedPassageLeftLeaf' : 'ClearedPassageRightLeaf';
-    group.add(wing);
+    memoryFrame.add(wing);
     add('ClearedPassageBronzeLeaf', machinedLeaf, leafMaterial, [0, 2.12, .15], [2.87, 4.13, .22], wing);
     add('ClearedPassageRib', box, stone, [side * 1.19, 2.1, .32], [.11, 3.66, .07], wing);
     wings.push({ side, wing });
@@ -320,11 +336,11 @@ export function createTowerGuardianPassage(THREE) {
   }
   poseWalkableLeaves(0);
   const emblem = add('ClearedPassageObservedLock', crownGeometry, glow,
-    [0, 4.75, .48], [1, .72, .65]);
+    [0, 4.75, .48], [1, .72, .65], memoryFrame);
   const arc = add('ClearedPassageAscendingLight', openingGeometry, glow,
-    [0, 2.25, -.12], [1, 1.18, 1]);
+    [0, 2.25, -.12], [1, 1.18, 1], memoryFrame);
   const ring = add('ClearedPassageGroundWake', groundGeometry, glow,
-    [0, .16, .15], [1, 1, 1]);
+    [0, .16, .15], [1, 1, 1], memoryFrame);
   ring.rotation.x = Math.PI / 2;
   const fragments = new THREE.InstancedMesh(shardGeometry, bronze, 8);
   fragments.name = 'WitnessedLockSplinters';
@@ -544,6 +560,7 @@ export function createTowerGuardianPassage(THREE) {
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
     group.visible = false;
+    memoryFrame.visible = false;
     fragments.visible = false;
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
@@ -621,6 +638,7 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'guardian-locked';
     group.visible = true;
+    memoryFrame.visible = false;
     poseSourceSealHeight(source.guardianSealHeight);
     sealedLattice.visible = true;
     arc.visible = false;
@@ -663,6 +681,10 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'earned-open';
+    // The real, freshly unlocked deck is already shown by the INNER cap
+    // doorway plus the original exterior guardian gate. A second outer
+    // memorial facade would bury the climber during the short grounded walk.
+    memoryFrame.visible = false;
     sealedLattice.visible = false;
     arc.visible = true;
     ring.visible = true;
@@ -699,6 +721,9 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'handoff';
+    // Only the genuine adjacent-floor source transition earns this old-floor
+    // bronze memorial. It remains non-colliding and auto-retires after 2.9s.
+    memoryFrame.visible = true;
     sealedLattice.visible = false;
     arc.visible = true;
     ring.visible = true;
@@ -779,6 +804,7 @@ export function createTowerGuardianPassage(THREE) {
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
+      exteriorMemoryFrameVisible: group.visible && memoryFrame.visible,
       durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
       sourceMeasuredDefeatFocusWeight: Number(defeatFocusWeight().toFixed(4)),
@@ -797,6 +823,7 @@ export function createTowerGuardianPassage(THREE) {
         archInstances: thresholdStones.count, retractingLeaves: thresholdLeaves.count,
         extraDraws: stage === 'guardian-locked' ? 3 : 2,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
+        redundantExteriorMemorySuppressed: !memoryFrame.visible,
         verticalLatticeVisible: sealedLattice.visible,
         sourceLatticeHeight: displayedSealHeight,
         focusPosition: focusPosition.toArray(),
