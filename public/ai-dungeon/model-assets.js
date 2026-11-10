@@ -1487,6 +1487,9 @@ function inspectSourceRigDeformation(actors){
    bindReferenceSegments:baseline.segments.length,bindReferenceComplete,
    sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,
    sourceHandName:actor.rigHandBoneName||null,
+   // On-demand source-joint defensive transition witness (never a per-frame scan).
+   guardBlend:Number.isFinite(actor.fullBody?.guardBlend)?actor.fullBody.guardBlend:0,
+   guardOwned:Boolean(actor.fullBody?.owner.guard),
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
    // animation timer. This never scans skin vertices or advances the mixer.
