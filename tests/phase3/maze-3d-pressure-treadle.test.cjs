@@ -24,6 +24,10 @@ test('one actual public treadle presses before inward jaws and restores after re
   assert.ok(plate?.isGroup && jaw?.isGroup,'real modeled pressure geometry must exist');
   assert.equal(plate.parent,trap);
   assert.ok(plate.children.length>=5,'large solid treadle replaces fake decorative corners');
+  // World matrices must be current BEFORE Box3.setFromObject; unlike
+  // getWorldPosition it does not traverse and refresh every parent transform.
+  // Otherwise the already translated 2.4m grid cell is measured twice.
+  world.group.updateMatrixWorld(true);
   const bounds=new Box3().setFromObject(plate),origin=trap.getWorldPosition(new Vector3());
   assert.ok(bounds.min.x>origin.x-1.2 && bounds.max.x<origin.x+1.2
     && bounds.min.z>origin.z-1.2 && bounds.max.z<origin.z+1.2,
