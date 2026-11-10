@@ -84,6 +84,28 @@ export function auditImportedAnimationClips(clips=[]){
   rootMotionTracks:rootMotionTracks.slice(0,24)});
 }
 
+/**
+ * The licensed Idle clip and reversible full-body guard envelope must hand
+ * pelvis, loaded ankles, shoulder and weapon elbow ownership to Walking_A
+ * coherently, even when software WebGL delivers only a few real frames.
+ * A 360ms measured frame cannot take seven pseudo-50ms frames to enter guard,
+ * but one frame must not snap the entire original 180ms pose either.
+ *
+ * Bound to 90ms of visible pose progress per sampled frame: at least two
+ * genuinely visible presentations express the complete transfer. Normal
+ * 60Hz playback retains its original 180ms cadence. No event, hit, movement,
+ * clip, geometry or world-space foot contact is invented.
+ */
+export function planNativeGuardVisibleDelta({
+ frameDelta=0,frameInterval=frameDelta,visible=true,
+ reducedMotion=false,teleport=false
+}={}){
+ if(visible!==true||reducedMotion||teleport||
+  !finite(frameDelta)||frameDelta<0||frameDelta>.05||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>2)return 0;
+ return Math.min(.09,Math.max(frameDelta,frameInterval));
+}
+
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
  unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,
@@ -177,7 +199,7 @@ export function advanceFullBodyController(previous=null,{
  // clock; injury/attack/evasion/teleport/defeat/reduced motion take immediate
  // ownership and cannot inherit a fake guard or defensive game effect.
  const guardWas=finite(previous?.guardProgress)?clamp(previous.guardProgress,0,1):0;
- const guardDelta=delta/.18;
+ const guardDelta=planNativeGuardVisibleDelta({frameDelta,frameInterval,visible,reducedMotion,teleport})/.18;
  // Original Idle -> Walking_A must ease out the defensive pelvis, soles,
  // chest, shoulders and weapon elbow while legitimate movement takes over.
  // This is pose-only, sourced from an already witnessed guard. Never retain
