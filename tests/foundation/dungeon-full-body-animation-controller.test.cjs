@@ -1708,3 +1708,31 @@ test('the original fading Walking_A slows its skinned shoe cycle with REAL late-
  assert.match(model,/setEffectiveTimeScale\(.*exitRate|setEffectiveTimeScale\(.*walkExitRate/,
   'original outgoing source action must receive the temporary braking rate');
 });
+
+
+test('original Walking_A exit braking follows physical root velocity across real desktop/mobile frame rates',async()=>{
+  const {planImportedWalkExitBrake:brake}=await load();
+  const original={targetMode:'idle',currentMode:'idle',clipName:'Walking_A',
+   sourceWeight:.42,sourceRunning:true,sourcePaused:false,
+   alive:true,visible:true,teleport:false,reducedMotion:false};
+  const at60=brake({...original,groundedTravel:.008,frameInterval:.016});
+  const at30=brake({...original,groundedTravel:.016,frameInterval:.032});
+  const at20=brake({...original,groundedTravel:.024,frameInterval:.048});
+  assert.ok(Number.isFinite(at60)&&at60>0&&at60<1);
+  assert.ok(Math.abs(at60-at30)<1e-9&&Math.abs(at60-at20)<1e-9,
+   'identical measured m/s may not brake original source feet differently at 60/30/20Hz');
+  const slow60=brake({...original,groundedTravel:.0055,frameInterval:.016});
+  const slow30=brake({...original,groundedTravel:.0055,frameInterval:.032});
+  assert.ok(slow30<slow60/1.99,
+   'the same distance over twice the real frame interval is half the physical velocity');
+  assert.equal(brake({...original,groundedTravel:.04,frameInterval:.016}),1);
+  assert.equal(brake({...original,groundedTravel:.08,frameInterval:.032}),1);
+  assert.equal(brake({...original,targetMode:'guard',currentMode:'guard',
+   groundedTravel:.008,frameInterval:.016}),at60);
+  for(const invalid of [NaN,Infinity,0,-.01,.5])
+   assert.equal(brake({...original,groundedTravel:.0055,frameInterval:invalid}),null,
+    'no witnessed current frame duration means no retiming of a licensed source clip');
+  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+  assert.match(model,/planImportedWalkExitBrake\\(\\{[\\s\\S]*?frameInterval:sourceFrameInterval/,
+   'production mixer must use the same witnessed frame interval as the original source step');
+});
