@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs'
