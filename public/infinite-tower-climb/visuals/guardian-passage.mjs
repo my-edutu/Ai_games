@@ -296,10 +296,10 @@ export function createTowerGuardianPassage(THREE) {
   //
   // Rebuild the same source-locked frame as one coherent OPEN-AIR electrical
   // exclusion assembly: continuous full-height side conductors, a short
-  // tightly crossed physical bronze-door energy barrier at pedestrian
-  // level, two slender high-voltage diagonal braces that span the *whole*
-  // source height, and a bright high crossbeam. The high X makes an unsafe
-  // airborne bypass legible without a full-screen stack of horizontal bars.
+  // tightly barred physical bronze-door energy barrier at pedestrian
+  // level, two slender side-channel high-voltage stays spanning the *whole*
+  // source height, and a high crossbeam. Their outboard energized profile
+  // communicates unsafe airborne bypass without crossing the live duel centre.
   // All geometry stays presentation-only: no physics, authority, victory or
   // guardian changes. The existing source-driven bronze doors remain shut.
   // One existing reusable box geometry, one instanced draw, bounded 14/18
