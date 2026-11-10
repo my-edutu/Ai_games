@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'tests/browser/dungeon-m1-organic-journey.spec.cjs'
+      - 'tests/browser/dungeon-m1-renderer-assay.spec.cjs'
+      - 'tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs'
       - 'tests/browser/dungeon-m1-journey.playwright.config.cjs'
       - '.github/workflows/dungeon-m1-journey.yml'
       - 'games/ai-dungeon/**'
