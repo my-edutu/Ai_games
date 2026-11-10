@@ -61,3 +61,41 @@ test('authentic Warden counter earns a visible adult-body duel on desktop/mobile
  assert.equal(JSON.stringify(original),originalJSON,'render plan must never mutate public game state');
  assert.equal(plan(original,{width:390,height:844,reducedMotion:true}).following,1);
 });
+
+test('a genuinely sealed Warden films the live defender skirmish rather than shrinking the acting party behind the boss',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await load('cinematic-chapter-plan.js');
+ const map=Array.from({length:19},()=>'.'.repeat(19));
+ const s={run:1,floor:1,tick:32,phase:'exploring',map,guardianWard:true,
+  bossRecovery:{remaining:0},bossWarning:null,units:[
+   {id:'vanguard',kind:'vanguard',faction:'party',hp:72,x:9,z:9,action:'attack'},
+   {id:'mystic',kind:'mystic',faction:'party',hp:40,x:8,z:9},
+   {id:'warden',kind:'warden',faction:'enemy',hp:180,x:12,z:9,action:'idle'},
+   {id:'revenant',kind:'revenant',faction:'enemy',hp:34,x:10,z:9,action:'attack'}
+  ]};
+ const original=JSON.stringify(s),phone={width:390,height:844,focusedHeroId:'vanguard'};
+ const guardApproach=planCinematicShot(s,null,phone);
+ assert.equal(guardApproach.mode,'skirmish-approach');
+ assert.deepEqual(guardApproach.subjects,['vanguard','revenant']);
+ const realContact={mode:'contact',actorId:'vanguard',targetId:'revenant',x:9.5,z:9};
+ const guardContact=planCinematicShot(s,realContact,phone);
+ assert.equal(guardContact.mode,'contact');
+ assert.deepEqual(guardContact.subjects,['vanguard','revenant']);
+ const closeLens=planReadableExpeditionLens(guardContact,phone);
+ const watchDistance=Math.hypot(closeLens.offsets[0],closeLens.offsets[1],closeLens.offsets[2]);
+ s.guardianWard=false;
+ const unsealed=planCinematicShot(s,realContact,phone);
+ assert.equal(unsealed.mode,'warden-approach','an unsealed actual boss supersedes remote guardian contact');
+ const bossLens=planReadableExpeditionLens(unsealed,phone);
+ assert.ok(watchDistance<Math.hypot(...bossLens.offsets)-1.2,
+  'the live sealed-guard fight must be shown at visibly more human scale');
+ s.guardianWard=true;
+ s.bossWarning={attackTick:33,shape:'NOVA',cells:[{x:12,z:9}]};
+ const warned=planCinematicShot(s,realContact,phone);
+ assert.equal(warned.mode,'warden-warning','real lethal warning always owns the camera');
+ assert.ok(planReadableExpeditionLens(warned,phone).dangerPriority);
+ s.bossWarning=null;s.units[3].hp=0;
+ assert.equal(planCinematicShot(s,null,phone).mode,'warden-approach',
+  'no fictitious guardian encounter after the genuine defender dies');
+ s.units[3].hp=34;s.guardianWard=true;
+ assert.equal(JSON.stringify(s),original,'read-only director must not alter authoritative state');
+});

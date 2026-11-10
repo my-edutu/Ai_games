@@ -127,6 +127,13 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  const enemies=s.units.filter(u=>u.faction==='enemy'&&u.hp>0&&valid(u,n)).slice(0,64);
  const boss=enemies.find(u=>u.kind==='warden');
  const closeBoss=boss?heroes.slice().sort((a,b)=>distance(a,boss)-distance(b,boss)||a.id.localeCompare(b.id))[0]:null;
+ // While the living Warden is genuinely sealed by guards, film the closest
+ // ACTUAL defending foe beside the frontline instead of a non-damageable
+ // ceremonial boss. The public warning/cast still preempts this view.
+ const wardDefender=boss&&s.guardianWard&&closeBoss?enemies.filter(u=>
+  u.kind!=='warden'&&distance(u,closeBoss)<=3)
+  .sort((a,b)=>distance(a,closeBoss)-distance(b,closeBoss)||
+   a.id.localeCompare(b.id))[0]:null;
  const warning=!!boss&&s.bossWarning&&Number.isSafeInteger(s.bossWarning.attackTick)&&
   s.bossWarning.attackTick>=s.tick&&s.bossWarning.attackTick<=s.tick+3&&
   Array.isArray(s.bossWarning.cells)&&s.bossWarning.cells.length>0;
@@ -185,7 +192,7 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   offsets=planDuelCameraOffset(closeBoss,boss,8.25,7.25,{heroForeground:'recovery'})||[4.4,8.25,5.15];
   lookY=.84;subjects=[closeBoss.id,boss.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=5&&
-  (!realContact||encounter.targetId!==boss.id)){
+  (!realContact||encounter.targetId!==boss.id)&&!wardDefender){
   // A remote ranger/cultist contact is genuine, but it must not cut away from
   // a Warden physically confronting the frontline. Preserve the actual
   // threatening boss and nearest living defender as the scene's subjects.
@@ -204,6 +211,13 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
   position=foe?.kind==='warden'?heroLed(hero,foe):mean(hero,foe);
   offsets=planDuelCameraOffset(hero,foe,foe?.kind==='warden'?8.15:6.6,foe?.kind==='warden'?7.25:5.85,{heroForeground:foe?.kind==='warden'&&!s.guardianWard&&!s.bossWarning&&Number.isSafeInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>=1&&s.bossRecovery.remaining<=6?'recovery':foe?.kind==='warden'})||[4.6,7.35,5.05];
   lookY=foe?.kind==='warden'?(realCounter?1.02:.76):.91;subjects=[hero.id,foe.id];
+ }else if(wardDefender){
+  // The sealed chapter is a real fight against a surviving defender. A
+  // nearer, truthful two-body camera makes the actual guardian skirmish
+  // readable on phones without inventing contact or overriding manual view.
+  mode='skirmish-approach';position=mean(closeBoss,wardDefender);
+  offsets=planDuelCameraOffset(closeBoss,wardDefender,6.75,6.0)||[4.2,6.7,4.3];
+  lookY=.82;subjects=[closeBoss.id,wardDefender.id];
  }else if(boss&&closeBoss&&distance(closeBoss,boss)<=6){
   mode='warden-approach';position=heroLed(closeBoss,boss);
   offsets=planDuelCameraOffset(closeBoss,boss,8.65,7.8,{heroForeground:true})||[4.4,7.45,5.0];lookY=.70;subjects=[closeBoss.id,boss.id];
