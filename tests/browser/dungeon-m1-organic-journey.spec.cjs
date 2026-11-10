@@ -198,7 +198,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   const proof=await page.evaluate(()=>{
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
-    publicChecksum:s?.checksum??null,composition:d?.composition,
+    publicChecksum:s?.checksum??null,composition:d?.composition,actorReadability:d?.actorReadability,
     visibility:d?.visibility,frameDelivery:d?.frameDelivery,
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
@@ -209,13 +209,20 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(proof.frame,'real rendered frame for '+stage).toBeGreaterThan(0);
   expect(proof.renderedState?.checksum,'rendered truth '+stage).toBe(expected.checksum);
   expect(proof.publicChecksum,'consumed truth '+stage).toBe(expected.checksum);
+  expect(proof.actorReadability?.status,'real posed actor projection '+stage).toBe('MEASURED');
+  if(stage==='warden'){
+   expect(proof.actorReadability.actors.some(a=>a.kind==='warden'&&a.inFrame),
+    'real skinned Warden must be in the original 3D camera frame').toBe(true);
+   expect(proof.actorReadability.criticalActorIds.length,
+    'real shot must identify its own engaged subjects by ID').toBeGreaterThan(0);
+  }
   const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
   await page.locator('#world').screenshot({path:screenshot,timeout:90000});
   milestoneFrameProof.push({stage,index,checksum:expected.checksum,frame:proof.frame,
    renderedState:proof.renderedState,screenshot});
   observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
    floor:proof.renderedState.floor,phase:expected.phase,
-   checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,
+   checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,actorReadability:proof.actorReadability,
    visibility:proof.visibility,frameDelivery:proof.frameDelivery,
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,

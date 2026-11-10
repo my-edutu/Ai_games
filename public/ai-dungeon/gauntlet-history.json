@@ -2564,6 +2564,53 @@
         "plays": "UNVERIFIED",
         "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
         "next": "Inspect exact new head genuine desktop 1440/mobile 390 five-stage original audiovisual captures, Warden warning/stone appearance/p95-p99 WebGL; reject if degraded. Resolve desktop defeat, preserve baseline and review separate PR72."
+      },
+      "m1ActorIdScreenProjectionEvidence20261110": {
+        "stage": "A_INCOMPLETE",
+        "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+        "baseline": "281735d0910c6b2443648af976003d50412ee324",
+        "inspectedHead": "5c2bc7ea00d4f3f8cf37aefa9a566adf4b88daf2",
+        "beforeHead": "214a5dcd93a3829384f63d48604ae0bbbe29d996",
+        "beforeWorkflow": 42878495571,
+        "afterWorkflow": 42903608360,
+        "authority": "946/946 per viewport, original 5/5 stages, original opt-in WebAudio",
+        "genuineWardenSameSeed": {
+          "desktopDraws": [
+            417,
+            433
+          ],
+          "mobileDraws": [
+            401,
+            405
+          ],
+          "mobileMinimumLivingHeroPixels": [
+            37,
+            37
+          ],
+          "capturedFps": {
+            "desktopBefore": 2.06,
+            "desktopAfter": 2.1,
+            "mobileBefore": 2.01,
+            "mobileAfter": 1.64
+          }
+        },
+        "interpretation": "Foreground batches locally saved 16 source mesh draw submissions on actual generated first-floor original Three.js geometry, but total Warden draw calls INCREASED; no demonstrated whole-game performance/visual success. CI software raster/capture is not hardware FPS.",
+        "newIntegratedSource": "Original posed native cranial/pelvis/lower-leg and root world points projected through genuine Three.js camera, bound by real actor ID and critical subject IDs, with explicit native/proxy status. Lazy browser evidence only; not a gameplay/render aesthetic improvement.",
+        "tests": {
+          "tddNew": "2/2 focused RED-then-GREEN",
+          "dungeonFoundation": "403/403",
+          "headless": "24 seeds x 900 ticks, 0 replay divergences, 199 floor transitions, 5 natural restarts",
+          "build": "PASS"
+        },
+        "localLiveBrowser": "BLOCKED: net::ERR_BLOCKED_BY_ADMINISTRATOR; connected coding-worker tunnel NOT_FOUND 300 seconds",
+        "exactHeadBrowserWithActorID": "PENDING",
+        "actualNewHeadExperience": "NOT_OBSERVED",
+        "originalHpAudioSync": "UNVERIFIED",
+        "critics": 0,
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED",
+        "next": "Inspect actorReadability per engaged Vanguard/Revenant and Warden at 390px source-authentic actual film with warning cells/occlusion, implement verified substantial physical 3D visibility/renderer correction, re-film desktop/mobile five-stage and original hit/audio, locked baseline A/B and 3+ independent blind critics; do not import divergent PR72 or merge."
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",

@@ -38,6 +38,7 @@ import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
+import {planRealActorScreenReadability} from '/dungeon/actor-screen-readability.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {createWardenImpactScars} from '/dungeon/warden-impact-scars.js';
 import {planWardenExposurePose} from '/dungeon/warden-chapter-plan.js';
@@ -976,6 +977,43 @@ function actualHeroVisibility(s,at){
  return rayAudit;
 }
 
+function inspectTrueCombatActorFrames(s,shot){
+ const noActor=()=>({status:'UNAVAILABLE',method:'No living spectator game state'});
+ if(!s?.units||!Array.isArray(s.units))return noActor();
+ camera.updateMatrixWorld(true);
+ const measured=[];
+ const point=new THREE.Vector3();
+ // Bounded diagnostic demand only: read real imported source-bone locations
+ // and current posed root (including recoil/locomotion) after the WebGL frame.
+ for(const u of s.units.slice(0,32)){
+  if(!(u.hp>0))continue;
+  const a=actors.get(u.id);
+  if(!a?.root?.visible)continue;
+  a.root.updateWorldMatrix(true,true);
+  const points=[],nativeBones=[a.rigCranial?.bone,a.rigPelvisBone,
+   a.rigGaitBones?.find(b=>b.part==='lower'&&b.side==='left')?.bone,
+   a.rigGaitBones?.find(b=>b.part==='lower'&&b.side==='right')?.bone];
+  let nativeAnchorCount=0;
+  for(const bone of nativeBones){
+   if(!bone?.isBone)continue;
+   bone.getWorldPosition(point);
+   if(![point.x,point.y,point.z].every(Number.isFinite))continue;
+   points.push({x:point.x,y:point.y,z:point.z});nativeAnchorCount++;
+  }
+  // Mark proxies as fallback. Do NOT describe these as original GLB pixels.
+  if(points.length<2){
+   for(const y of [.04,u.kind==='warden'?2.38:1.96]){
+    a.root.localToWorld(point.set(0,y,0));points.push({x:point.x,y:point.y,z:point.z});
+   }
+  }
+  measured.push({id:u.id,kind:u.kind,faction:u.faction,hp:u.hp,points,nativeAnchorCount});
+ }
+ return planRealActorScreenReadability(measured,{
+  project:p=>point.set(p.x,p.y,p.z).project(camera),
+  width:Math.max(1,canvas.clientWidth),height:Math.max(1,canvas.clientHeight),
+  criticalIds:Array.isArray(shot?.subjects)?shot.subjects.slice(0,3):[],maxActors:12
+ });
+}
 function inspectComposition(s){
  if(!s)return {visibleHeroes:0,minHeroPixels:0,activeEnemies:0,subjectOnscreen:false,bossOnscreen:false};
  camera.updateMatrixWorld();
@@ -1505,6 +1543,7 @@ function animate(t){
    soundstage:()=>soundstage?.stats()??null,
    combatStage:()=>combatDirector.stats(),
    composition:()=>inspectComposition(observedState),
+   actorReadability:()=>inspectTrueCombatActorFrames(observedState,cinematicShot),
    visibility:()=>actualHeroVisibility(observedState,observedTime),
    combatStaging:()=>({separatedActors:crowdedStageActors,maxOffsetMeters:MAX_STAGE_OFFSET,
     projected:inspectBattlefieldCrowding(observedState,lastStagePositions,camera.position)}),
