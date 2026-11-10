@@ -1475,8 +1475,10 @@ export function createTowerWorld(){
         carriage.name=side<0?'GuardianCounterweightLeft':'GuardianCounterweightRight';
         doorway.add(carriage);
         block(carriage,materials.copper,[side*6.68,3.76,-.43],[.68,1.40,.54]).name='GuardianSealCounterweight';
-        block(carriage,materials.edge,[side*6.68,4.48,-.39],[.78,.14,.6]);
-        counterweights.push({side,carriage});
+        const cableSocket=block(carriage,materials.edge,
+          [side*6.68,4.48,-.39],[.78,.14,.6]);
+        cableSocket.name='GuardianSealCableSocket';
+        counterweights.push({side,carriage,socket:cableSocket});
       }
       // A physically coupled capstan and paired tension lines explain WHY
       // the gate doors and heavy counterweights move as the guardian loses
@@ -1520,8 +1522,8 @@ export function createTowerWorld(){
       frame.traverse(object=>{if(object.isMesh){
         object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
       }});
-      guardianGate={frame,wings,crest,counterweights,conduit,capstan,tension,tensionPose,
-        progress:null,unlocked:false};
+      guardianGate={frame,wings,crest,counterweights,conduit,capstan,
+        overhead,tension,tensionPose,progress:null,unlocked:false};
     }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
@@ -1898,12 +1900,21 @@ export function createTowerWorld(){
           // as the true source-driven weights descend. Reduced motion retains
           // the new cable length but not the extra winding rotation.
           gate.capstan.rotation.z=options.reducedMotion?0:gate.progress*Math.PI*1.45;
-          // The two true HP-driven cable ends remain physically aligned to
-          // their flanking carriages, and start on the elevated support beam.
-          // Length grows as the source-owned counterweights drop.
-          const cableLength=2.38+gate.progress*2.35;
-          for(const [index,side] of [-1,1].entries()){
-            gate.tensionPose.position.set(side*6.68,6.86-cableLength*.5,-.52);
+          // Drive each actual tension line from the positioned overhead
+          // structural support to its OWN physically moving weight socket.
+          // Before this coupling, the outboard rebuild left cable length
+          // animated from a SECOND duplicated formula; the old regression
+          // detected a mismatch when the transmission was raised. There is
+          // now exactly one observable carriage state: guardian HP -> weight
+          // translation -> exact cable endpoint. No future source tick,
+          // physics authority or decorative clock supplies displacement.
+          const anchorY=gate.overhead.position.y;
+          for(const [index,{carriage,socket}] of gate.counterweights.entries()){
+            const socketY=carriage.position.y+socket.position.y;
+            const cableLength=anchorY-socketY;
+            gate.tensionPose.position.set(socket.position.x,
+              (anchorY+socketY)*.5,
+              (gate.overhead.position.z+socket.position.z)*.5);
             gate.tensionPose.rotation.set(0,0,0);
             gate.tensionPose.scale.set(.047,cableLength,.047);
             gate.tensionPose.updateMatrix();
