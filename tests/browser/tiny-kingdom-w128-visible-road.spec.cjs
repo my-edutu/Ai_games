@@ -19,7 +19,7 @@ for(const view of [{width:1024,height:640},{width:390,height:844}]){
     names:g.getState().people.map(p=>p.name),
     economy:g.metrics(),
     freight:g.getFarmMarketStreetAudit(),home:g.getMarketHomeStreetAudit(),
-    roadside:g.getRealRoadscapeAudit(),geometry:g.getGeometryAudit(),
+    roadside:g.getRealRoadscapeAudit(),graded:g.getGradedRoadAudit(),geometry:g.getGeometryAudit(),
     frame:g.getFrameProfile().totalFrames,
     triangles:g.renderStats().lastFrameTriangles,
     glError:gl?.getError()??null,overflow:document.documentElement.scrollWidth-innerWidth
@@ -27,6 +27,14 @@ for(const view of [{width:1024,height:640},{width:390,height:844}]){
   });
   expect(initial.names.length).toBeGreaterThan(0);
   expect(initial.freight.connected).toBe(true);
+  expect(initial.graded.sections).toBeGreaterThan(0);
+  expect(initial.graded.classes.granary).toBeGreaterThan(0);
+  expect(initial.graded.classes.household).toBeGreaterThan(0);
+  expect(initial.graded.triangles).toBe(initial.graded.sections*12);
+  expect(initial.graded.trackDepression).toBeCloseTo(.036,6);
+  expect(initial.graded.maxCrownHeight).toBeLessThan(.07);
+  expect(initial.graded.changesNavigation).toBe(false);
+  expect(initial.graded.changesAuthoritativeState).toBe(false);
   expect(initial.roadside.routeWaypoints).toBeGreaterThan(1);
   expect(initial.roadside.sections).toBeGreaterThan(0);
   expect(initial.roadside.drainagePanels).toBe(initial.roadside.verges*3);
@@ -58,7 +66,7 @@ for(const view of [{width:1024,height:640},{width:390,height:844}]){
    const g=window.__tinyKingdom;
    return {state:JSON.stringify(g.exportSnapshot()),
     names:g.getState().people.map(p=>p.name),
-    economy:g.metrics(),roadside:g.getRealRoadscapeAudit(),
+    economy:g.metrics(),roadside:g.getRealRoadscapeAudit(),graded:g.getGradedRoadAudit(),
     glError:document.getElementById('world').getContext('webgl')?.getError()??null,
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
@@ -66,6 +74,7 @@ for(const view of [{width:1024,height:640},{width:390,height:844}]){
   expect(after.names).toEqual(initial.names);
   expect(after.economy).toEqual(initial.economy);
   expect(after.roadside).toEqual(initial.roadside);
+  expect(after.graded).toEqual(initial.graded);
   expect(after.glError).toBe(0);
   expect(after.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
