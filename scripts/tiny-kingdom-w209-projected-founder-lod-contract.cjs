@@ -13,7 +13,7 @@ const snippet=code.slice(start,end);
 const policy=new Function(snippet+';return foundingScreenScaleDetailPolicy;')();
 // Frame-space policy: a 20px citizen in an overview is not an expensive
 // 160-triangle face; an actually large citizen or close worker still is.
-const evaluate=(height,overrides={})=>policy(12,23,false,false,false,height,...overrides);
+const evaluate=height=>policy(12,23,false,false,false,height);
 assert.equal(evaluate(.035),true,'Distant original hamlet should use real compact citizen rigs');
 assert.equal(evaluate(.094),true,'Subthreshold bodies keep the bounded render spine');
 assert.equal(evaluate(.100),false,'Visible large bodies preserve close sculpted rigs');
@@ -25,6 +25,8 @@ assert.equal(policy(12,34,false,false,false,.20),true,'Established far overview 
 assert.equal(policy(28,34,false,false,false,.012),false,'Do not alter grown-town policy');
 assert.equal(policy(5,34,false,false,false,.010),false,'Original tiny village is not rewritten');
 assert.equal(policy(12,23,false,false,false,NaN),false,'Invalid camera projection fails safe');
+assert.match(code,/foundingProjectedMaxHeight:n<=12\?largestVisible:null/);
+assert.match(code,/streetWalk\?1:0,follow\?1:0,liveWorkday\?1:0,zoom/);
 assert.match(code,/const projected=people\.map\(\(p,i\)=>\(\{i,\.\.\.projectRealCitizenDetail\(p,frame\)\}\)\)/);
 assert.match(code,/foundingScreenScaleDetailPolicy\(n,zoom,streetWalk,follow,liveWorkday,largestVisible\)/);
 assert.match(code,/if\(n<=12&&!foundingOverview\)/,'Keep close citizen detail continuity');

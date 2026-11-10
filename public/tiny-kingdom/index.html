@@ -21800,33 +21800,27 @@ function citizenProjectionCacheAudit(){return {
  projectedActorsLast:citizenProjectionActorsLast,
  cachedActors:citizenProjectionCache?.plan?.audit.population||0,
  noOmittedCitizens:true,noNewPeople:true,authorityModified:false};}
+// W209 Phase 1: actual camera-projected body size, not an arbitrary 32m
+// zoom cutoff, now governs expensive founding-hamlet faces. A small, genuine
+// on-screen original citizen uses the existing complete articulated compact
+// rig, including vocation, feet, hand tools and real cargo. Close workers,
+// pedestrian, documentary and manual follow preserve original full fidelity.
+// No observer setting enters seeded autonomy, saved world or delivery ledger.
+function foundingScreenScaleDetailPolicy(n,zoom,streetWalk,follow,liveWorkday,largestHeight){
+ return n>5&&n<=12&&!streetWalk&&!follow&&!liveWorkday&&
+  Number.isFinite(largestHeight)&&largestHeight>=0&&
+  (zoom>=32||(zoom>=18&&largestHeight<.095));
+}
 function selectVisibleCitizenDetail(){
  const n=people.length;
- // The original Day-1 founding hamlet has 6–12 full sculpted 3D citizens.
- // At its wide overview camera these bodies occupy only a few pixels,
- // yet all twelve rebuilt expensive detailed articulated geometry each tick.
- // Use the original compact/GPU-rendered citizen path at overview distance;
- // close, followed, pedestrian and live-documentary views retain full hands,
- // faces, coats and work poses. Never remove a citizen or alter authority.
- const foundingOverview=n>5&&n<=12&&!streetWalk&&!follow&&
-  !liveWorkday&&zoom>=32;
- const mode=n<=12?(foundingOverview?'founding-overview':'all'):
-  streetWalk?'street':follow?'follow':
-  zoom>=18?'overview':zoom>=13?'mid':'close';
- // Grown-town eyes and hand targets are costly; eight near rigs selected
- // by 2D radial distance formerly spent full detail on offscreen people.
- // Five real large-in-frame subjects still keep the scene inhabited, while
- // compact neighbors preserve genuine gait, role gear, occupation and cargo.
- const budget=n<=12?(foundingOverview?Math.min(5,n):n):
-  mode==='overview'?3:
-  mode==='street'?5:mode==='mid'?5:mode==='follow'?5:5;
  const activeIndex=streetWalk&&streetEncounterName?
   people.findIndex(p=>p.name===streetEncounterName):-1;
  const anchorIndex=activeIndex>=0?activeIndex:Math.min(selectedCitizen,n-1);
  const frame=citizenDetailCameraFrame();
- // Use the exact physical camera eye and lens, even for 390px or actual
- // homecoming; a real authoritative tick changes presentationEpoch.
- const sceneKey=[presentationEpoch,state.t,n,selectedCitizen,mode,
+ // Cache identity includes every mode flag influencing the physical policy:
+ // renderer changes never wrongly carry a distant rig into a close workday.
+ const sceneKey=[presentationEpoch,state.t,n,selectedCitizen,
+  streetWalk?1:0,follow?1:0,liveWorkday?1:0,zoom,
   frame.lens.viewportWidth,frame.lens.viewportHeight,
   frame.tanVertical,frame.tanHorizontal,...frame.eye,...frame.forward,
   ...frame.right,...frame.up].join('|');
@@ -21839,10 +21833,20 @@ function selectVisibleCitizenDetail(){
   .sort((a,b)=>b.heightFraction-a.heightFraction||
    Math.abs(a.screenX)+Math.abs(a.screenY)-
    Math.abs(b.screenX)-Math.abs(b.screenY)||a.i-b.i);
- // Camera-bounded detail must prioritize TRUE cargo handoffs and contact
- // actions that the viewer can actually see. No simulated actors or props.
- // Preserve the existing fixed triangle/rig budget and dominant close face.
  const largestVisible=onScreen[0]?.heightFraction||0;
+ const foundingOverview=foundingScreenScaleDetailPolicy(
+  n,zoom,streetWalk,follow,liveWorkday,largestVisible);
+ const mode=n<=12?(foundingOverview?'founding-overview':'all'):
+  streetWalk?'street':follow?'follow':
+  zoom>=18?'overview':zoom>=13?'mid':'close';
+ // Five original workers with full meshes when truly distant; every other
+ // original citizen remains visible, walking and working on the existing
+ // compact joint rig. Close / hands-on views retain prior 12 full bodies.
+ const budget=n<=12?(foundingOverview?Math.min(5,n):n):
+  mode==='overview'?3:
+  mode==='street'?5:mode==='mid'?5:mode==='follow'?5:5;
+ // W194 on-screen real work contacts and explicitly observed protagonists
+ // retain the priority they had before this isolated rendering change.
  const visibleWorkContacts=onScreen.filter(row=>{
   const actor=people[row.i];
   return row.heightFraction>=Math.max(.052,largestVisible*.48)&&
@@ -21878,6 +21882,8 @@ function selectVisibleCitizenDetail(){
  const audit={
   source:'real-viewport-actor-detail',mode,
   foundingOverviewLod:foundingOverview,
+  foundingProjectedMaxHeight:n<=12?largestVisible:null,
+  foundingPhysicalScreenThreshold:.095,
   population:n,budget,fullDetailCount:indices.size,
   compactCount:n-indices.size,middleCount:midIndices.size,
   farCount:n-indices.size-midIndices.size,anchorIndex,
