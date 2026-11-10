@@ -2481,7 +2481,13 @@ export function createMazeWorld(options = {}) {
       const shutterBeat = Math.min(1, Math.max(0, (phase - .34) / .36));
       const angle = signal?.reducedContact ? .24
         : .06 + .14 * relayBeat + .46 * shutterBeat;
-      jaw.object.rotation.z = -jaw.side * angle;
+      // Native original 390px pressure proved the outward-opening talons
+      // read as unrelated red parapet spikes, not a closing jaw. Bring both
+      // established ivory/bronze shear blades INWARD on real published contact:
+      // left hinge tips right, right hinge tips left. The original source
+      // pressure sequence, authored cell, geometry, AI and collision remain.
+      // Releasing the real public pressure returns both to upright rest.
+      jaw.object.rotation.z = jaw.side * angle;
     }
     for (const relic of fossilSails) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
@@ -2615,7 +2621,13 @@ export function createMazeWorld(options = {}) {
         const hinges = trapJaws.filter(jaw => jaw.cell === signal.cell);
         return {cell: signal.cell, progress: publicPressureProgress(signal.cell),
           jawRadians: hinges.length
-            ? Math.max(...hinges.map(jaw => Math.abs(jaw.object.rotation.z))) : 0};
+            ? Math.max(...hinges.map(jaw => Math.abs(jaw.object.rotation.z))) : 0,
+          // SIGNED, genuine hinge orientation from real published Three.js
+          // bodies. Positive means both blades now converge toward the
+          // centre of this already visible pressure tile. A reversed/fake
+          // outward sweep cannot pass the native browser encounter gate.
+          inwardShearRadians: hinges.length
+            ? Math.min(...hinges.map(jaw => jaw.side * jaw.object.rotation.z)) : 0};
       });
     return { witnessedPressureMechanisms, fossilMotionMaxRadians, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
