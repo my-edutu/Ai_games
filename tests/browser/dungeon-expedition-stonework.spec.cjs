@@ -16,6 +16,11 @@ test('genuine 3D expedition has continuous multi-cell stone and readable party',
  expect(diag.expeditionStonework.routeLength).toBeGreaterThan(5);
  expect(diag.expeditionStonework.largestSpan).toBeGreaterThanOrEqual(2);
  expect(diag.expeditionStonework.drawCalls).toBeLessThanOrEqual(3);
+ if(diag.softwareWebGL){
+  expect(diag.expeditionStonework.rasterTier).toBe('cpu-physical-chamfer');
+  expect(diag.expeditionStonework.trianglesPerSlab).toBe(28);
+  expect(diag.expeditionStonework.totalStoneTriangles).toBe(diag.expeditionStonework.slabs*28);
+ }else expect(diag.expeditionStonework.rasterTier).toBe('original-full-bevel');
  expect(diag.expeditionStonework.maxElevation).toBeLessThan(.08);
  expect(diag.expeditionStonework.collisionEffects).toBe(0);
  expect(diag.composition.visibleHeroes).toBeGreaterThan(0);

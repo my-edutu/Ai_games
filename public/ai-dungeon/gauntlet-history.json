@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect exact NEW head 1440px and 390px organic motion and audio: source-faithful colors, spotlight/Warden warning exposure, practical selected count, WebGL p95/p99 and RAF, natural five stages. Reject/rework if luminance or performance regresses. Repair rigCranialActors=0, validate PR72 real clips before optional selective port. Fixed baseline A/B and 3 fresh blind critics required.",
+    "executableNextTask": "Verify original 28-triangle physical software flagstone LOD in actual 1440px/390px same-seed Warden moving/Opus, WebGL p50/p95/p99 and full natural defeat/restart. Reject any readability/fps regression; Stage A incomplete. PR72 separate. Baseline and 3 blind critics mandatory.",
     "phasePlan": [
       {
         "phase": "A",
@@ -6871,6 +6871,50 @@
       "pr72": "NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect exact-head genuine 1440/390 five-stage original audiovisual run and material fidelity; measure p50/p95/p99 WebGL, frame delivery, warning visibility and hero size; reject regressions, then measured remaining cost and Stage B animation review."
+    },
+    "m1RealPhysicalFlagstoneLODCandidate": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "inspectedParentSha": "883ecf3b5f894c60d5101f219dda61227cf9a621",
+      "realBeforeRun": 42747017742,
+      "seed": "gauntlet-corpus-v1-0",
+      "mobile": {
+        "originalSnapshots": "946/946",
+        "organicStages": 5,
+        "drawCalls": 403,
+        "triangles": 187719,
+        "submitP50Ms": 8,
+        "submitP95Ms": 853.5,
+        "submitP99Ms": 1766.1,
+        "frameP95Ms": 1266.6,
+        "heroPx": 37,
+        "audio": "original_opus_and_pcm_contact_sync_UNVERIFIED"
+      },
+      "desktop": {
+        "originalSnapshots": "924/946",
+        "organicStages": 3,
+        "reason": "timeout_waiting_natural_defeat",
+        "drawCalls": 429,
+        "triangles": 189933,
+        "submitP50Ms": 9.4,
+        "submitP95Ms": 2177.4,
+        "submitP99Ms": 5183.7,
+        "frameP95Ms": 2233.2,
+        "heroPx": 81,
+        "audio": "original_opus_partial_contact_sync_UNVERIFIED"
+      },
+      "sourceEffect": "Only SwiftShader/CPU WebGL uses 28-triangle closed eight-corner physical original multi-cell paving, preserved actual world height/footprint/instancing; hardware full original bevel unchanged",
+      "renderGain": "AFTER_NOT_OBSERVED",
+      "fullCI": "FAIL_PREEXISTING_3_AND_ARTIFACTS",
+      "authorityAndBrowser": "PASS_AT_PARENT",
+      "pr72Head": "2e93b12cf1579a9ece7bfca3069f6a37f6c03032_SEPARATE_NOT_INTEGRATED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Exact-new-head same-seed real 1440/390 Warden geometry/rendering and full organic original video/audio; compare p50/p95/p99 and draw/triangle count, natural desktop defeat, preserve original boss warnings; reject regressed LOD, then profile dominant stalls, validate PR72, pinned A/B and >=3 critics"
     }
   }
 }

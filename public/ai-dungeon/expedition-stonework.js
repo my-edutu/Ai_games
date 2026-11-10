@@ -23,8 +23,33 @@ function carvedFlagstone(){
  geometry.translate(0,-(geometry.boundingBox.min.y+geometry.boundingBox.max.y)/2,0);
  geometry.computeVertexNormals();return geometry;
 }
-export function createExpeditionStonework(world,map,floor,exit){
- const plan=planExpeditionStonework(map,floor,exit),geometry=carvedFlagstone();
+/**
+ * Real original eight-sided flagstone with upper face, stone-depth walls and
+ * a narrow bevel. This is a physical geometry LOD only for confirmed CPU
+ * software WebGL. On real GPU the authored full ExtrudeGeometry remains.
+ * The source contour, multi-cell footprints, weathering and route are shared.
+ */
+export function makeSoftwareChiselledFlagstone(THREE){
+ const footprint=[[-.49,-.40],[-.435,-.49],[.235,-.50],[.49,-.405],
+  [.475,.28],[.365,.49],[-.40,.48],[-.505,.285]];
+ const points=[],indices=[],N=footprint.length;
+ for(const [x,z] of footprint)points.push(x*.987,.017,z*.987);
+ for(const [x,z] of footprint)points.push(x,-.017,z);
+ // Positive Y on the real walkable top; negative Y on the closed underside.
+ for(let i=1;i<N-1;i++)indices.push(0,i+1,i,N,N+i,N+i+1);
+ for(let i=0;i<N;i++){
+  const next=(i+1)%N;
+  indices.push(i,next,N+i,next,N+next,N+i);
+ }
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+ geometry.setIndex(indices);geometry.computeVertexNormals();
+ geometry.computeBoundingBox();geometry.computeBoundingSphere();
+ return geometry;
+}
+export function createExpeditionStonework(world,map,floor,exit,{softwareWebGL=false}={}){
+ const plan=planExpeditionStonework(map,floor,exit),geometry=softwareWebGL?
+  makeSoftwareChiselledFlagstone(THREE):carvedFlagstone();
  const theme=PALETTES[((floor-1)%PALETTES.length+PALETTES.length)%PALETTES.length];
  const materials=theme.map(color=>new THREE.MeshStandardMaterial({color,roughness:.92,
   metalness:.015,flatShading:true}));
@@ -47,7 +72,9 @@ export function createExpeditionStonework(world,map,floor,exit){
   mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
   world.add(mesh);meshes.push(mesh);
  }
- const metrics={slabs:plan.stones.length,coveredCells:plan.coveredCells,
+ const trianglesPerSlab=geometry.index?geometry.index.count/3:geometry.getAttribute('position').count/3;
+ const metrics={rasterTier:softwareWebGL?'cpu-physical-chamfer':'original-full-bevel',trianglesPerSlab,totalStoneTriangles:trianglesPerSlab*plan.stones.length,
+  slabs:plan.stones.length,coveredCells:plan.coveredCells,
   walkableCells:plan.walkableCells,routeLength:plan.routeLength,
   chapters:plan.chapters,largestSpan:plan.largestSpan,drawCalls:meshes.length,
   maxElevation:.030,collisionEffects:0,kind:'continuous route-directed stone floor'};
