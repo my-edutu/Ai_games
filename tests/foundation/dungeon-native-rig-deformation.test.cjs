@@ -133,3 +133,46 @@ test('missing ankle, nonfinite matrices and re-created source clones fail closed
  assert.match(model,/sourceInstanceId:actor\.assetRoot\.uuid,rootWorld,footJointWorld/);
  assert.match(browser,/measureSourceJointTravel\(beforeActor,walkingActor\)/);
 });
+
+
+test('source GLB sole vertex and hand-attached weapon remain comparable only on the same real clone',async()=>{
+ const {measureSourceSoleGripContinuity:measure}=await load();
+ const grip=[1,0,0,0, 0,1,0,0, 0,0,1,0, .02,.03,-.12,1];
+ const before={id:'hero',kind:'vanguard',sourceInstanceId:'source-1',
+  rootWorld:[0,0,0],soleVertexWorld:{left:[-.12,.008,.11],right:[.12,.045,-.10]},
+  sourceWeaponGrip:{name:'1H_Sword',handName:'hand.r',attachedToHand:true,handRelativeMatrix:grip}};
+ const after={...before,rootWorld:[.20,0,0],
+  soleVertexWorld:{left:[-.11,.008,.11],right:[.31,.064,-.18]},
+  sourceWeaponGrip:{...before.sourceWeaponGrip,handRelativeMatrix:grip.slice()}};
+ const result=measure(before,after);
+ assert.equal(result.comparable,true);
+ assert.equal(result.source,'original-skinned-sole-vertex-and-rigid-source-hand-weapon');
+ assert.equal(result.rootTravelMeters,.2);
+ assert.deepEqual(result.soleWorldDeltaMeters,{left:.01,right:.204});
+ assert.deepEqual(result.soleVerticalDeltaMeters,{left:0,right:.019});
+ assert.equal(result.rigidGripComparable,true);
+ assert.equal(result.weaponHandDriftMeters,0);
+ assert.equal(result.weaponLocalMatrixMaxDelta,0);
+ const drift=measure(before,{...after,sourceWeaponGrip:{...after.sourceWeaponGrip,
+  handRelativeMatrix:grip.map((v,i)=>i===12?v+.13:v)}});
+ assert.ok(drift.weaponHandDriftMeters>.12,'real hand/weapon separation cannot be mistaken for stable grip');
+ assert.equal(measure(before,{...after,sourceInstanceId:'other'}).reason,'different-source-actor');
+ assert.equal(measure(before,{...after,soleVertexWorld:{left:null,right:[.31,.06,-.18]}}).reason,'missing-skinned-sole');
+ assert.equal(measure(before,{...after,soleVertexWorld:{left:[Infinity,0,0],right:[.31,.06,-.18]}}).comparable,false);
+ assert.equal(measure(before,{...after,sourceWeaponGrip:{...after.sourceWeaponGrip,attachedToHand:false}}).rigidGripComparable,false);
+ assert.deepEqual(before.rootWorld,[0,0,0],'pure evidence contract must not pose or mutate the actual actor');
+});
+
+test('original GLB sole evidence samples skinned foot-weighted vertices and rigid grip only on demand',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(model,/function inspectSourceRigDeformation\(actors\)/);
+ assert.match(model,/applyBoneTransform\(/,'a real skinned source vertex, not a guessed toe node, must be sampled');
+ assert.match(model,/sourceSoleVertexCache=new WeakMap\(\)/,'source vertex selection must be cached, not rescanned every frame');
+ assert.match(model,/soleVertexWorld:/);
+ assert.match(model,/sourceWeaponGrip:/);
+ assert.match(browser,/measureSourceSoleGripContinuity/);
+ assert.match(browser,/source-GLB-sole-and-hand-evidence/);
+ assert.doesNotMatch(model,/requestAnimationFrame\([\s\S]*?applyBoneTransform\(/,
+  'expensive source skinned vertex samples must be explicitly on demand only');
+});
