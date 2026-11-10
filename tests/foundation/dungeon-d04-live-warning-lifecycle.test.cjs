@@ -10,7 +10,8 @@ const warning=(overrides={})=>({
  sceneKey:'1:1',actorId:'warden',tick:11,
  kind:'boss-warning-rising',visual:'warning',audio:'boss-warning-rising',
  proof:'authority-warning-window',verified:true,priority:7,duration:.30,
- from:{x:6,z:6},detail:{attackTick:14,shape:'NOVA',cells:[cell]},
+ from:{x:6,z:6},detail:{attackTick:14,shape:'NOVA',cells:[cell],
+  footprintKey:'771'}, // 3*256+3; complete one-cell authority footprint
  ...overrides
 });
 const boss={id:'warden',kind:'warden',faction:'enemy',hp:50,maxHp:50,
