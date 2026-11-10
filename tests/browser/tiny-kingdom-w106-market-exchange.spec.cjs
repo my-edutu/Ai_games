@@ -23,8 +23,9 @@ test('W106 real medieval market exchange, wet paving and receiving dock stay pla
  expect(initial.exchange.unverifiedStockProps).toBe(0);
  expect(initial.exchange.triangles).toBeGreaterThan(100);
  expect(initial.exchange.triangles).toBeLessThan(900);
- expect(initial.market.surfaceModel).toBe('w106-worn-market-surface');
- expect(initial.market.pavingStones).toBeGreaterThanOrEqual(180);
+ expect(initial.market.surfaceModel).toBe('w208-natural-clay-market-and-freight-wagonway');
+ expect(initial.market.pavingStones).toBeGreaterThanOrEqual(90);
+ expect(initial.market.pavingStones).toBeLessThanOrEqual(165);
  expect(initial.market.marketWheelPassages).toBe(22);
  expect(initial.market.marketDrainSegments).toBe(22);
  expect(initial.market.receivingDrainSegments).toBe(14);
@@ -45,7 +46,7 @@ test('W106 real medieval market exchange, wet paving and receiving dock stay pla
    changed:JSON.stringify(g.exportSnapshot())!==begin,
    gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
  });
- expect(mobile.surface).toBe('w106-worn-market-surface');
+ expect(mobile.surface).toBe('w208-natural-clay-market-and-freight-wagonway');
  expect(mobile.exchange.roofPanels).toBe(2);
  expect(mobile.overflow).toBeLessThanOrEqual(0);
  expect(mobile.changed).toBe(false);
