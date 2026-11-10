@@ -71,6 +71,9 @@ test('D04 real retained pool: parent-only body lean cannot deliver a physically 
   assert.equal(heard.length,1);
   assert.equal(heard[0].audio,'whoosh');
   assert.equal(heard[0].proof,'authority-attempt-not-hit');
+  assert.equal(d.stats().visuals.bodyLocalTrailFrames,1,
+   'source-level telemetry distinguishes real authored-space rig proof from yaw fallback');
+  assert.equal(d.stats().visuals.yawFallbackTrailFrames,0);
   assert.equal(d.stats().visuals.drawCalls,7);
   assert.equal(d.stats().visuals.reservedInstances,102);
  }finally{d.dispose()}
