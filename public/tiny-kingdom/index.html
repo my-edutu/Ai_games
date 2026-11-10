@@ -1014,6 +1014,13 @@ body[data-workday="household"] #workday-activity{
   background:#dfc392;color:#18382b
  }
 }
+/* W176: the same continuous original village documentary also follows
+   real loaded couriers. Their genuine progress strip is sufficient; hiding
+   the town-resource ribbon prevents it from covering unload contact on both
+   1024px and 390px. Ordinary non-documentary delivery mode is unaffected. */
+body[data-village-documentary="on"][data-command="world"][data-workday="delivery"] #world-ribbon{
+ display:none!important
+}
 /* W176: the original market shopper and occupied cottage are the
    protagonist, not a duplicate town dashboard. Household film keeps the
    genuine four-command control dock, but no blocking ribbon/masthead/tag. */
