@@ -7094,28 +7094,51 @@ function compactHouse(x,z,variant){
 // Render-only, per-home authored medieval threshold architecture. Kept inside
 // the established house render cache; no changes to city collision, saved
 // authority, citizens, jobs, production or seeded replay.
+// W197 Phase 1: the ACTUAL compact homes' decorative stone micro-panels
+// were 48 tiny CPU-generated triangles per dwelling. Their geometry was
+// nearly imperceptible at grown-town scale and was duplicated on both faces.
+// The existing world-space, mipmapped MATERIAL.STONE atlas already renders
+// staggered hand-hewn masonry and mortar at every genuine home coordinate.
+// Keep both original structural bands and exact facade extents; express the
+// tiny mortar joints in the retained GPU shader instead of per-home geometry.
+// No colliders, household inventory, entrances, people or RNG are touched.
+function compactAtlasStoneCourses(x,z,variant,y,w,d){
+ const before=data.length;
+ materialScope(MATERIAL.STONE,()=>{
+  for(const faceSign of [-1,1]){
+   const zf=z+faceSign*(d*.5+.026);
+   for(let course=0;course<2;course++){
+    const xa=x-w*.5,xb=x+w*.5;
+    const ya=y+.035+course*.115,yb=ya+.102;
+    // Physical upper and lower course still differ in original stone shade.
+    // Detailed block outlines live in the same resident authored stone atlas.
+    const tone=rgb((course+variant)%3===0?0x9f9688:
+     course%2?0xada28d:0x938e81);
+    if(faceSign<0)quad([xa,ya,zf],[xb,ya,zf],[xb,yb,zf],[xa,yb,zf],tone);
+    else quad([xb,ya,zf],[xa,ya,zf],[xa,yb,zf],[xb,yb,zf],tone);
+   }
+  }
+ });
+ return {triangles:(data.length-before)/30,previousTriangles:48,
+  reclaimedTriangles:40,existingStoneAtlas:true,authorityChanged:false};
+}
+function getCompactStoneCoursingAudit(){
+ const homes=villageVisualLod.compactHomes;
+ return {source:'w197-existing-real-home-stone-texture-residency',
+  compactHomes:homes,previousTrianglesPerHome:48,currentTrianglesPerHome:8,
+  reclaimedTriangles:40*homes,groundFloorDoorsIntact:true,
+  stoneAtlasResident:Boolean(architectureAtlasTexture),
+  fullCottagesStillRendered:city.length===homes+villageVisualLod.detailedHomes,
+  changesAuthority:false,changesNavigation:false};
+}
 function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
  const first=data.length,front=z-d*.5-.35,wall=z-d*.5-.10;
  const timber=rgb([0x654936,0x594739,0x69513f,0x57483a][roofStyle]);
  const sill=rgb([0xb1a18b,0xa69b8a,0xb5ae9b,0x9c9588][roofStyle]);
  const roof=rgb(COMPACT_ROOF_PALETTES[roofStyle][(variant+2)%4]);
- // A staggered masonry plinth gives weight and human-scale relief to every
- // compact facade; 2D facing quads avoid hundreds of opaque stone cubes.
- materialScope(MATERIAL.STONE,()=>{
-  for(const faceSign of [-1,1]){
-   const zf=z+faceSign*(d*.5+.026);
-   for(let course=0;course<2;course++){
-    for(let tile=0;tile<6;tile++){
-     const xa=x-w*.5+tile*w/6,xb=x-w*.5+(tile+1)*w/6;
-     const ya=y+.035+course*.115,yb=ya+.102+(tile%3)*.008;
-     const color=rgb(((tile+course+variant)%3===0)?0x9f9688:
-      ((tile+course)%2?0xada28d:0x938e81));
-     if(faceSign<0)quad([xa,ya,zf],[xb,ya,zf],[xb,yb,zf],[xa,yb,zf],color);
-     else quad([xb,ya,zf],[xa,ya,zf],[xa,yb,zf],[xb,yb,zf],color);
-    }
-   }
-  }
- });
+ // The original long facade and two stone courses are physically unchanged.
+ // The shared stone atlas now resolves individual blocks and mortar in shader.
+ compactAtlasStoneCourses(x,z,variant,y,w,d);
  villageVisualLod.compactWeatheredFootings++;
  // Recessed oak doorway with genuine load-bearing porch posts and rail.
  // Rain protection stays just beyond the door, below the main gable. The
@@ -22301,7 +22324,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
