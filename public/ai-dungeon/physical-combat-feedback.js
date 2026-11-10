@@ -33,7 +33,12 @@ export function createPhysicalCombatFeedback({
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
   {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map,
    getCurrentSnapshot:()=>previous}):null);
+ const injectedFoley=audioAdapter!==null;
  let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
+ // An original WebAudio engine is permanently bound to its creation context
+ // and FX output. Device recovery must not keep scheduling on the old bus.
+ let ownedFoleyContext=injectedFoley?null:ctx,ownedFoleyOutput=null,
+  injectedContextMismatch=false;
  const preference=createCombatMutePreference(storage);
  let sceneId=null,disposed=false,optedIn=false,audioEpoch=0,
   queued=0,played=0,adapterFailures=0,duplicates=0,overflow=0,sceneResets=0,
@@ -404,13 +409,36 @@ export function createPhysicalCombatFeedback({
   catch{adapterFailures++;onAudioStateChange()}
  }
  function attachAudioContext(context,{output=null}={}){
-  if(disposed)return false;
-  if(!foley&&context)foley=createOriginalCombatFoley(context,{output});
-  if(foley)observeAudioState(context);
-  return !!foley;
+  if(disposed||!context)return false;
+  if(injectedFoley){
+   // An injected adapter cannot be silently rebound to a new device.
+   // Reject the change instead of monitoring an output it does not own.
+   if(audioStateContext&&audioStateContext!==context){
+    audioEpoch++;awaitingPresentation.length=0;optedIn=false;
+    injectedContextMismatch=true;safeCall(()=>foley?.disable?.());
+    return false;
+   }
+   injectedContextMismatch=false;
+   if(foley)observeAudioState(context);
+   return !!foley;
+  }
+  if(foley&&(ownedFoleyContext!==context||ownedFoleyOutput!==output)){
+   // Old scheduled voices and staged receipts cannot follow a new output.
+   // Original visual cues still render, but a fresh gesture is required to
+   // authorize the newly created original synth. Do not persist a fake mute.
+   audioEpoch++;awaitingPresentation.length=0;optedIn=false;
+   safeCall(()=>foley.dispose());
+   foley=null;
+  }
+  if(!foley){
+   foley=createOriginalCombatFoley(context,{output});
+   ownedFoleyContext=context;ownedFoleyOutput=output;
+  }
+  observeAudioState(context);
+  return true;
  }
  function enableAudioFromGesture(){
-  if(disposed||!safeCall(()=>foley?.enable?.()))return false;
+  if(disposed||injectedContextMismatch||!safeCall(()=>foley?.enable?.()))return false;
   if(!optedIn)audioEpoch++;
   optedIn=true;preference.write(false);return true;
  }
@@ -431,7 +459,7 @@ export function createPhysicalCombatFeedback({
  function stats(){return Object.freeze({
   implementation:'D04-physical-authority-feedback',disposed,scene:sceneId,
   audioOptedIn:optedIn,preferredMuted:preferredMuted(),
-  audioInterruptions,
+  audioInterruptions,injectedContextMismatch,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
