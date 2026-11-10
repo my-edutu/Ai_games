@@ -166,3 +166,26 @@ test('the true 320px withdrawal camera must fit complete connected-world Pip bou
   assert.match(source,/pressureReframeEnvelope\.makeEmpty\(\)/,
     'reused AABB must clear before each separately disclosed actor and hazard');
 });
+
+test('the actual source-bound tick6 floating-point crop receives interior optical margin without loosening ±0.95 acceptance',async()=>{
+  const {publicPhysicalPressureHorizontalReframe:fit}=await camera();
+  // Genuine source b2d376f native 320px tick6 AFTER whole-mesh correction:
+  // explorer.right === .9500000000000002, failing the original inclusive limit.
+  const hero={left:.3428891977996888,right:.9500000000000002};
+  const jaw={left:-.8536764669830323,right:-.09993518225397562};
+  const height=7.151637499999999,aspect=320/740;
+  const displacement=fit(hero,jaw,height,aspect)/(height*aspect);
+  assert.ok(displacement>=.0049,
+    'real-source full-model stage must aim INSIDE strict edge, not land on float-equal +.95');
+  assert.ok(hero.right-displacement<=.9450000001,
+    'actual camera target must leave interior slack for the original ±.95 acceptance');
+  assert.ok(jaw.left-displacement>=-.95&&jaw.right-displacement<=.95,
+    'real public jaw remains fully within the UNCHANGED physical no-crop boundary');
+  const safe={left:-.5,right:.5};
+  assert.equal(fit(safe,{left:-.7,right:-.1},height,aspect),0,
+    'existing genuinely safe public scenes retain their current composition');
+  const source=require('node:fs').readFileSync(
+    path.resolve(__dirname,'../../public/ai-maze-escape/map-view.mjs'),'utf8');
+  assert.match(source,/const safe=\.945;/,
+    'production target must preserve 0.005 optical margin within existing ±.95');
+});

@@ -330,7 +330,11 @@ export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, a
     || hero.left>=hero.right || jaw.left>=jaw.right) return 0;
   const left=Math.min(hero.left,jaw.left);
   const right=Math.max(hero.right,jaw.right);
-  const safe=.95; // FIXED existing NDC envelope; do not relax it.
+  // Compose with 0.005 NDC interior slack. The REAL 320px WebGL proof
+  // reached exactly +0.9500000000000002 after correction: floating-point
+  // roundoff defeated the *unchanged* inclusive ±0.95 acceptance gate.
+  // This is a stricter camera TARGET, never a test or clipping-limit change.
+  const safe=.945;
   if(right-left>safe*2) return 0;
   const minimum=right-safe,maximum=left+safe;
   // Positive world camera-right displacement moves the objects left.

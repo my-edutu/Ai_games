@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T10:10:12.182Z",
+  "updatedAt": "2026-11-10T10:22:41.501Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass240: genuine previous 320px pressure withdrawal Pip right +0.956261 NDC failed strict +0.95 while jaw fit and real six-run geometry passed; the production camera candidate now fits actual connected-world AABB, same as real screenshot diagnostic. Fixed stale hanging-garden rebuild statistic that caused whole CI Maze test failure. Original 32 PNG sidecars independently verified. Exact new-HEAD 320/390/844/1280 rendered and independent Nintendo approval PENDING; DRAFT unmerged/undeployed."
+    "summary": "Pass240b: authentic exact-HEAD WebGL corrected real 320px pressure withdrawal Pip right from +0.956261 to +0.9500000000000002 NDC, still failing unchanged <=+0.95 because of rounding; six-run resource budget PASS, focused 111/111 and whole Node 739/739 PASS, overall CI red from missing unrelated Tiny Kingdom script. Current production camera now targets interior ±.945 optical safety WITHOUT weakening actual ±.95 gate. Next true current-HEAD render/390 chronology and independent Nintendo review PENDING; draft PR #53 unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass240b: actual original 320px tick6 world-bounds camera correction moved Pip right +.956261 → +.9500000000000002, rounding-edge crop still blocked. Composed within ±.945 NDC target while unchanged strict ±.95 browser acceptance remains; exact original diagnostic regression. New-HEAD native test pending.",
     "Pass240: correct actual pressure withdrawal source-bound Pip crop using complete world-mesh AABB camera pan; reset erroneous hanging-foliage rebuild counter; source regression uses original real 320px diagnostics, strict thresholds intact. Full current-head WebGL/CI/independent image critic pending.",
     "Pass237: physical connected-mesh pressure camera safety pan in true public Follow 320/390, with unchanged ±0.95 full silhouettes and no model shrink, AI/hidden-state or collision changes; current-head WebGL image and independent judge pending.",
     "Pass232: source-only witnessed physical jaw retreat camera partner, strict public-geometry guards and regression tests; prior 32/32 authentic image SHA pairs verified, six-run resource gate passed, current-head visual fix pending.",
