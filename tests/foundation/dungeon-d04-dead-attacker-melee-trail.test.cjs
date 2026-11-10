@@ -111,3 +111,33 @@ test('missing rig is suppressed without claiming a death; real health loss keeps
  assert.equal(visuals.stats().confirmedFragments>=4,true);
  visuals.dispose();
 });
+
+test('D04 actual controller frame receipt rejects posthumous authored swing audio',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const h=stage(),sounds=[];
+ const visuals=createPhysicalFeedbackVisuals(h.THREE,h.scene,
+  {actorById:()=>h.actor});
+ const director=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter:visuals,
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue.audio);return true},
+   disable(){},flush(){},cleanup(){},dispose(){}}
+ });
+ const shot=(tick,action)=>({run:1,floor:1,tick,events:[],
+  units:[{id:'vanguard',kind:'vanguard',faction:'party',x:6,z:6,
+   hp:30,maxHp:30,action,actionTick:tick}]});
+ const initial=shot(10,'idle'),attack=shot(11,'attack');
+ assert.equal(director.enableAudioFromGesture(),true);
+ h.actor.u=initial.units[0];director.acceptSnapshot(initial);
+ h.actor.u=attack.units[0];director.acceptSnapshot(attack);
+ director.advance(.016,.016);
+ h.shiftWrist();director.advance(.016,.016);
+ assert.equal(visuals.hasDrawableCue(h.cue.id),true);
+ h.actor.u={...attack.units[0],hp:0};
+ h.shiftWrist();director.advance(.016,.016);
+ assert.equal(director.acknowledgePresentedFrame(1,.002),0);
+ assert.deepEqual(sounds,[],'frame receipt cannot authenticate sound from a dead sword arm');
+ assert.equal(director.stats().recentDeliveryReceipts.at(-1)?.decision,'expired-visual');
+ assert.equal(visuals.stats().retiredDeadTrails,1);
+ director.dispose();
+});
