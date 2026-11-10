@@ -391,7 +391,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
     flightFraction:limitedFlight?.fraction??1,
     lastHand:type==='trail'?{...start}:null,
-    measuredPath:null,lastMeasuredAge:-Infinity};
+    measuredPath:null,lastMeasuredAge:-Infinity,lastMeasuredSpeed:0};
    // A new visible instance needs a posed GPU matrix before the first actual
    // render. Otherwise the audio receipt might refer to a hidden setup slot.
    // A trail still uses hideMatrix() until genuine new wrist travel is sampled.
@@ -555,7 +555,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       if(!sameBone){
        // Hot-swapped rig: drop the old ribbon immediately, not after its
        // normal 55ms visual grace interval. The new wrist needs two samples.
-       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;
+       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;slot.lastMeasuredSpeed=0;
       }
       const segment=freshFrame&&sameBone?
        planMeasuredHandTrail(slot.lastHand,hand,actualFrameSeconds):null;
@@ -563,12 +563,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       if(!freshFrame){
        // Suppress even the old ribbon after any stalled frame. The next fresh
        // frame starts from this new actual pose, not from before the stall.
-       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;unmeasuredTrailFrames++;
+       slot.measuredPath=null;slot.lastMeasuredAge=-Infinity;slot.lastMeasuredSpeed=0;
+       unmeasuredTrailFrames++;
       }else if(segment){
-       slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;measuredTrailFrames++;
+       slot.measuredPath=segment;slot.lastMeasuredAge=slot.age;
+       slot.lastMeasuredSpeed=segment.length/actualFrameSeconds;measuredTrailFrames++;
       }else{
        unmeasuredTrailFrames++;
-       if(slot.age-slot.lastMeasuredAge>.055)slot.measuredPath=null;
+       if(slot.age-slot.lastMeasuredAge>.055){slot.measuredPath=null;slot.lastMeasuredSpeed=0;}
       }
      }
     }
@@ -625,6 +627,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Standalone source query: the independent receipt gate still requires a
   // drawable, measured retained slot. No contact or victim is inferred.
   return true;
+ }
+ // Read back ONLY a fresh, individually measured sword-hand passage after
+ // the same skinned wrist and pose have passed the real submission witness.
+ // It is a proxy for AIR movement, never a blade tip, contact, or HP event.
+ // Older retained ribbons may still be drawable, but cannot fabricate a new
+ // velocity for their deferred sound. No extra GPU/audio resources.
+ function measuredSwingSpeed(cue){
+  if(disposed||cue?.kind!=='swing'||cue?.visual!=='trail'||
+   cue?.proof!=='authority-attempt-not-hit'||!hasAuthenticatedSwingPose(cue))
+   return null;
+  for(const slot of pools.get('trail')?.slots??[]){
+   if(slot?.cue?.id!==cue.id||!slot.measuredPath||
+    slot.lastMeasuredAge!==slot.age)continue;
+   return Number.isFinite(slot.lastMeasuredSpeed)&&slot.lastMeasuredSpeed>0?
+    slot.lastMeasuredSpeed:null;
+  }
+  return null;
  }
  function hasAuthenticatedReleasePose(cue){
   if(disposed||cue?.proof!=='authority-action')return false;
@@ -693,5 +712,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,measuredSwingSpeed,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
 }
