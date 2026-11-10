@@ -1,0 +1,30 @@
+# P0 — Keep the authentic wounded guardian fight visible between individual attack ticks
+
+**2026-11-10 · Draft PR #68 only · P0 OPEN · verdict NOT EVALUATED**
+
+## Original-game evidence and exact SHAs
+
+- Frozen unchanged baseline: `1731b380851162741761c5569e2bc152a0869ca9`.
+- Inspected original candidate [10-job source/video capture 42848204499](https://github.com/my-edutu/Ai_games/actions/runs/42848204499), exact candidate `75b852009a3bf27c25c6a1bb6040aa41faa9921b`, baseline original films at same seed/tier in 960×600 and 390×844.
+- Original paired [event manifest artifact 13779309338](https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779309338): 16 native recordings retained, 8/8 source/native timebase calibrations, zero provenance/source-story defects; `fullMotionPaired=false`. This is NOT visual acceptance.
+- Candidate source-motion portrait witness: active floor-eight guardian HP **3/8** at **tick 321**, actual hero `state='airborne'`, sampled hero NDC approximately **(-1.86, +0.64)** while guardian NDC remains in view. Source observation belongs to the real recorded episode, not an invented sample. The source-level actor is **outside the portrait picture** during genuine boss combat; the original ~14–24s portrait and desktop film also show the large environmental lock and machinery competing with both small figures. These are evidence of a material experience weakness, not an accepted baseline-versus-candidate preference.
+- The previous source code made a physically wounded living guardian disappear as a camera subject during every airborne gap with no **current tick** telegraph, allied projectile, or nearby hostile bolt, despite the battle not ending. The generic camera could revert to a panoramic intended-landing shot and then re-acquire the guardian on the next tell. This creates discontinuous fighting composition.
+
+## Connected production camera correction
+
+- [Test-first commit 6b118e74](https://github.com/my-edutu/Ai_games/commit/6b118e74bf11afcf5dff0551af41dcd8b6318a9c) adds genuine Three.js camera integration assertions for wounded airborne contact **between** cues at both original viewports. Its source-derived controlled transition is deliberately labelled as a **constructed regression fixture**, NOT a separately filmed authoritative tick. It also forbids guardian staging when unwounded or truly defeated, checks 3D full-body visibility, and checks that input source remains unchanged.
+- [Production commit 33b91f5e](https://github.com/my-edutu/Ai_games/commit/33b91f5eb9f79a67a0c689b2074ad301a4a6cd87) extends `composeFollowView`'s contact retention to an **already-wounded, positive-HP, active, physically nearby guardian** while the hero is airborne. The old disjunction only recognized one-tick attack/telegraph/shot cues, which are not the entire ongoing fight.
+- The original shared-frame solver still requires both complete projected bodies, exterior tower-core sightlines, bounded stable shoulders and protects the **actual authoritative airborne destination**. A healthy unwarned enemy remains routine traversal, a dead guardian is immediately retired, and a distant enemy cannot hijack the camera. No boss AI, damage, crusher rules, landing, gate, floor-nine authority, sound or HUD alterations; no new draw passes, meshes, random streams or mutable simulation data. Reduced-motion still uses ordinary fixed camera handling.
+- **Risk:** A new continuous combat hold could give less camera room to an impending destination; the existing hard/soft landing safety constraints must be checked in current original after-film, rather than assuming a unit test makes it cinematic.
+
+## Test and acceptance truth
+
+- [Test-first exact-SHA quality workflow 42851521836](https://github.com/my-edutu/Ai_games/actions/runs/42851521836) and [implementation exact-SHA workflow 42851605178](https://github.com/my-edutu/Ai_games/actions/runs/42851605178) were pending/in-progress at initial write. The requested red-green result must be inspected, not assumed.
+- **After-change original WebM:** NOT YET CAPTURED. Correct source and both viewport minimum-60s video must prove whether the real observed tick-321 offscreen combat improves. No fabricated pre/post clips, screen matches, frame-time scores or reviewer votes.
+- **Whole-loop P0:** Full guardian/crusher causal experience, physical HP0 gate and grounded threshold, floor nine continuation, outcome/intermission/restart still require matched visible event-to-frame inspection. Technical source event sequence is a prerequisite but not a film pass.
+- **Actual-device** frame-time p50/p95/p99 and memory: NOT EVALUATED; original software compositor gaps do not count as actual-device performance.
+- Independent fresh-context blind LOOKS **0/5**, FEELS **0/5**, PLAYS **0/5**. No P0/P1 accepted stage, no transformation preference vote. **Leading verdict: NOT EVALUATED.**
+
+## Highest-impact next action
+
+Run exact-HEAD Node/Three checks, produce matched source-pinned real desktop and portrait ascent/moving/danger/outcome WebMs (60+s), inspect the **continuous** guardian episode and tick-321-adjacent visible frames for character size, shot continuity, physical crusher telegraph and protected landing. If the corrected camera still leaves bodies offscreen or machinery occluding them, fix the whole physical encounter/camera staging instead of cosmetic opacity. Keep P0 OPEN. Never alter the frozen baseline, PR58, main, deployment, merge or draft state.
