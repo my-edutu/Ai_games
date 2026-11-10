@@ -1600,6 +1600,13 @@ function inspectSourceRigDeformation(actors){
    // On-demand source-joint defensive transition witness (never a per-frame scan).
    guardBlend:Number.isFinite(actor.fullBody?.guardBlend)?actor.fullBody.guardBlend:0,
    guardOwned:Boolean(actor.fullBody?.owner.guard),
+   nativeLegOwnership:{
+    clipName:actor.activeImportedClipName??null,
+    originalSourceWeight:actor.activeClip?.getEffectiveWeight?.()??null,
+    overlayScale:actor.rigNativeLegOverlayScale??1,
+    gaitWeight:actor.rigGaitWeight??0,
+    settling:Boolean(actor.rigGaitSettling)
+   },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
