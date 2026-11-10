@@ -771,7 +771,7 @@ export function createTowerWorld(){
     instanced(root,sphere(),materials.gateTrim,studs);
     return root;
   }
-  function buildTower(height){
+  function buildTower(height,guardianClockwork=false){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
     // each biome's machinery belongs to the surrounding architecture.
@@ -789,6 +789,54 @@ export function createTowerWorld(){
     for(const [i,p]of pylons.entries()){
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
       const shoulder=p.top-8;
+      if(guardianClockwork) {
+        // Original 390x844 native footage at a0146896 still shows a real
+        // 'tapered-structural-pylon' cutting through the living guardian.
+        // Moving the SOLID shaft sideways did not create a window. Give this
+        // source-owned upper-cap district a genuinely load-bearing OPEN frame.
+        // The 3D model, not an opacity shader or UI overlay, owns the void.
+        // The unchanged five-biome shafts remain on other districts/floors.
+        const openBase=-18, crown=shoulder+3;
+        const corner=p.R*.70, height=crown-openBase;
+        const plinth=lathe(body,[[0,p.bottom],[p.R*.72,p.bottom],
+          [p.R*.94,p.bottom+2.5],[p.R*.93,-20.5],
+          [p.R*.72,openBase],[0,openBase]],materials.stone);
+        plinth.name='ClockworkOpenButtressFoundation';
+        plinth.userData.structural=true;
+        const uprights=[];
+        for(const sideX of [-1,1])for(const sideZ of [-1,1])
+          uprights.push({p:[sideX*corner,openBase+height/2,sideZ*corner],
+            s:[.58,height,.58]});
+        const posts=instanced(body,bevel(),materials.stone,uprights);
+        posts.name='ClockworkOpenButtressFourCornerPosts';
+        posts.userData.structural=true;
+        // Low diagonal knee braces read as credible weight-bearing steelwork
+        // yet stay below the observed guardian action height (y ~ 20-38).
+        for(const sideX of [-1,1])for(const sideZ of [-1,1]){
+          const x=sideX*corner,z=sideZ*corner;
+          const brace=beam(body,[x,openBase+.4,z],
+            [x*.63,openBase+8.4,z],.17,materials.copper);
+          brace.name='ClockworkOpenButtressKneeBrace';
+          brace.userData.structural=true;
+        }
+        // Perimeter lintels connect the four columns. No central face,
+        // opaque upper-cap slab, full-height lathed drum or cross-frame hides
+        // the real actor/guardian/earned physical threshold.
+        const span=corner*2+.65;
+        for(const edge of [-1,1]){
+          block(body,materials.metal,[0,crown,edge*corner],
+            [span,.37,.43]).userData.structural=true;
+          block(body,materials.metal,[edge*corner,crown,0],
+            [.43,.37,span]).userData.structural=true;
+        }
+        // A compact high mast gives the skyline a terminated load path
+        // without restoring the opaque central shaft through combat.
+        const crownPiece=lathe(body,[[p.R*.43,p.top-.6],
+          [p.R*.51,p.top-.45],[p.R*.51,p.top+.35],
+          [p.R*.43,p.top+.5]],materials.copper);
+        crownPiece.name='ClockworkOpenButtressCrown';
+        crownPiece.userData.structural=true;
+      } else {
       lathe(body,[[0,p.bottom],[p.R*.75,p.bottom],[p.R*.96,p.bottom+2],[p.R,p.bottom+7],[p.R,shoulder],[p.R*.96,shoulder+2],[p.R*.82,shoulder+4.5],[p.R*.58,shoulder+6],[p.R*.56,shoulder+8],[0,shoulder+8]],materials.stone).userData.structural=true;
       // Each cladding bay has a curved face, inset joint and a single broad seam.
       // Three groups of bays give an architectural scale above that of the robot.
@@ -813,6 +861,7 @@ export function createTowerWorld(){
         const seal=new THREE.Group();radial(seal,i===0?.34:-.36,p.R+.16,shoulder-4);body.add(seal);
         casting(seal,materials.dark,[0,0,0],[1.8,3.4,.16]);
         for(const y of [-.9,0,.9])casting(seal,materials.copper,[0,y,.12],[1.12,.22,.12]);
+      }
       }
     }
     // Unequal mineral footings retain the expedition setting, but stay behind
@@ -1631,7 +1680,7 @@ export function createTowerWorld(){
     if(theme==='ruins')weather(materials.landing);
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
-    const height=snapshot.chunkHeight/SCALE;buildTower(height);buildDistantWorld(height);buildVista(height);
+    const height=snapshot.chunkHeight/SCALE;buildTower(height,theme==='clockwork' && snapshot.floor===8);buildDistantWorld(height);buildVista(height);
     // All 3D cap clearance machinery must share the opt-in source exit,
     // not merely the presence of some guardian on a historic floor.
     // No published, exact real exit means no fabricated bronze victory gate.
