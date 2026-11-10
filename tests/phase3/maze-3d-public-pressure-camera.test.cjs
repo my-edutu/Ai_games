@@ -368,13 +368,17 @@ test('physical pressure reframe fails closed for impossible, unsupported or forg
  assert.equal(fit(hero,{left:-3,right:-.6},4.7,320/740),0,
    'do not falsely approve a physical pair wider than ±0.95 can contain');
 });
-test('the genuine production pressure lens uses connected physical mesh corners, not centers or hidden map',()=>{
+test('the genuine pressure lens uses conservative world mesh union, not centers or hidden map',()=>{
  const fs=require('node:fs'),path=require('node:path');
  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
  assert.match(source,/if \(pressureCameraBeat && publicPressureTrap && aspect>=\.35/);
  assert.match(source,/world\.group\.getObjectByName\(/);
  assert.match(source,/root\.traverseVisible\(mesh =>/);
- assert.match(source,/\.applyMatrix4\(mesh\.matrixWorld\)\.project\(camera\)/);
+ // Original 320px tick6 Pip WORLD envelope (+.956261) exceeded per-mesh
+ // projections. Verify the renderer fits the same union as the native gate.
+ assert.match(source,/pressureReframeEnvelope\\.makeEmpty\\(\\)/);
+ assert.match(source,/pressureReframeEnvelope\\.union\\([\\s\\S]*?applyMatrix4\\(mesh\\.matrixWorld\\)/);
+ assert.match(source,/pressureReframePoint\\.set\\(x,y,z\\)\\.project\\(camera\\)/);
  assert.match(source,/publicPhysicalPressureHorizontalReframe\(/);
  assert.match(source,/cameraTarget\.addScaledVector\(pressureReframeRight,horizontalShift\)/);
  assert.doesNotMatch(source,/camera\.zoom\s*=\s*.*horizontalShift/);
