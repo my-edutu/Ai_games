@@ -2567,8 +2567,8 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Same-seed current-head organic film completes five stages on both viewports, but WebGL synchronous render p99 1.8s mobile / 3.5s desktop and mobile min living hero 37px; full M1 original baseline blind A/B absent.",
-    "currentWork": "M1 A: true two-actor guardian/contact cinematic camera NOW reduces actual portrait optical lens radius/height and FOV, rather than merely altering offset magnitude; all game state and Warden hazard coverage unchanged. Exact-head AFTER film pending.",
+    "biggestRemainingGap": "Severely interrupted real video motion in software-Chromium and miniature/occluded 390px combat actors; causal hardware performance unverified",
+    "currentWork": "A-stage actual living guardian fighting-body camera candidate; needs new-head desktop/mobile genuine proof",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5690,6 +5690,26 @@
         "plays": "UNVERIFIED",
         "critics": 0,
         "next": "Inspect new-head real desktop/mobile moving strike, foot sliding, source clip timing, rendered armour and Warden counter; correct observed problems, then source-level geometry/rig art leap, complete five-stage matched original audiovisual A/B and three fresh blind critics."
+      },
+      {
+        "id": "M1-STAGE-A-TRUE-GUARDIAN-PORTRAIT-CANDIDATE-20261110",
+        "at": "2026-11-10",
+        "milestone": "DUNGEON-TRANSFORMATION-01",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "sourceParentSha": "27edc295104635a717ab438f116f3dbebd59a674",
+        "stage": "A_INCOMPLETE",
+        "status": "IN_PROGRESS_NOT_TRANSFORMED",
+        "sourceChanges": [
+          "public/ai-dungeon/cinematic-chapter-plan.js",
+          "tests/foundation/dungeon-cinematic-chapter.test.cjs"
+        ],
+        "genuinePriorEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/42866909371",
+        "localValidation": "TDD RED then 26/26 cinematic, 403/403 dungeon foundation, build",
+        "actualAfter": "NOT_OBSERVED",
+        "critics": 0,
+        "looks": "UNVERIFIED",
+        "feels": "UNVERIFIED",
+        "plays": "UNVERIFIED"
       }
     ],
     "implementationContinuation": {
@@ -5707,7 +5727,7 @@
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
     "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "True same-seed 1440/390 organic motion/audio + Warden draw/submit/rAF p95 and glass/stone cutaway; reject poor fidelity; desktop defeat, rig moving contact, original audio sync and independent 3-critic blind comparison.",
+    "nextImplementationTask": "Inspect genuine new-head same-seed Warden/guardian movie and 390px body height, warnings/cell fit and RAF, reject regressions; verify causal software compositor cost",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5759,7 +5779,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Review actual latest Warden OFF/ON/OFF profiler and organic capture to partition main-thread/SwiftShader/software renderer vs capture/composition/encoding; fix one measured production rendering bottleneck on PR49; repeat actual source head full motion with original sound desktop/mobile; retain baseline and isolated PR72.",
+    "executableNextTask": "Inspect genuine new-head same-seed Warden/guardian movie and 390px body height, warnings/cell fit and RAF, reject regressions; verify causal software compositor cost",
     "phasePlan": [
       {
         "phase": "A",
@@ -7539,6 +7559,84 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Exact-head real desktop/mobile organic 5-stage same-seed film and original A/V, render draw/time and native readback/compositor comparison, revise any cutaway regression, prove playable motion improvement. PR72 unintegrated."
+    },
+    "m1StageAGuardianPortraitAndCleanAssay20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentSha": "27edc295104635a717ab438f116f3dbebd59a674",
+      "beforeWorkflow": 42866909371,
+      "beforeDesktopArtifact": 13787479484,
+      "beforeMobileArtifact": 13787104694,
+      "seed": "gauntlet-corpus-v1-0",
+      "trueWardenTick": 47,
+      "trueWardenChecksum": "9f1704fd",
+      "organicAuthoritySnapshotsEach": 946,
+      "originalAudio": "PRESENT_BOTH_PRIOR_FILMS",
+      "video": {
+        "desktop": {
+          "frames": 848,
+          "seconds": 495.2,
+          "averageFps": 1.71,
+          "gapsOver1s": 255
+        },
+        "mobile": {
+          "frames": 504,
+          "seconds": 307.8,
+          "averageFps": 1.63,
+          "gapsOver1s": 87
+        }
+      },
+      "cleanWardenRafP50P95Ms": {
+        "desktop": {
+          "off": [
+            533,
+            1550
+          ],
+          "recorderOn": [
+            550,
+            717
+          ],
+          "offAgain": [
+            50,
+            583
+          ]
+        },
+        "mobile": {
+          "off": [
+            433,
+            1650
+          ],
+          "recorderOn": [
+            483,
+            933
+          ],
+          "offAgain": [
+            17,
+            450
+          ]
+        }
+      },
+      "candidate": "True living hero/Revenant duel earns bounded closer 390px automatic spectator lens only with no actual Warden or guardian warnings; original authority, audio and assets unchanged.",
+      "safety": [
+        "manual-camera",
+        "desktop",
+        "reduced-motion",
+        "warden-warning",
+        "guardian-breach",
+        "critical-subject-fit"
+      ],
+      "localTdd": "NEW CONTRACT RED THEN 26/26 GREEN",
+      "dungeonFoundation": "403/403 PASSED",
+      "build": "PASS",
+      "fullCatalogue": "LOCAL_TIMEOUT; PRIOR_EXISTING_SCENE_HOOK_FAILURE",
+      "actualAfterMotion": "NOT_OBSERVED",
+      "audioImpactSync": "UNVERIFIED",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Review new-head 390px/1440px same-seed organic Warden motion and warning fit, quantify actor pixels; reject regression; isolate real compositor stalls on representative hardware."
     }
   }
 }

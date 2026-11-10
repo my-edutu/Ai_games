@@ -271,11 +271,19 @@ export function planCinematicShot(s,encounter=null,{width=1440,height=832,focuse
  // Only a true living hero's un-warned approach to the physical Warden
  // can earn near-camera tracking. Warning and cast release remain wide.
  const duelDistance=mode==='warden-approach'&&boss&&closeBoss?distance(closeBoss,boss):null;
+ // A legal living hero/guardian duel earns portrait closeness only while
+ // no genuine incoming Warden or Revenant strike requires wider framing.
+ const guardianBreach=Array.isArray(s.revenantWarnings)&&s.revenantWarnings.some(mark=>
+  mark?.sourceId===wardDefender?.id&&mark?.targetId===wardHero?.id&&
+  Number.isSafeInteger(mark.impactTick)&&mark.impactTick>=s.tick&&mark.impactTick<=s.tick+2);
+ const guardianEngagement=Boolean(wardDefender&&wardHero&&!warning&&!guardianBreach&&
+  (mode==='contact'||mode==='skirmish-approach')&&
+  subjects.includes(wardHero.id)&&subjects.includes(wardDefender.id));
  return Object.freeze({
   mode,x:round(position.x),z:round(position.z),lookY,
   oathguard:oathguard?Object.freeze({guardianId:oathguard.guardianId,allyId:oathguard.allyId}):null,
   offsets:Object.freeze(offsets.map(v=>round(v*zoom))),
-  subjects:Object.freeze(subjects),spread:round(spread),duelDistance,warningFocus,
+  subjects:Object.freeze(subjects),spread:round(spread),duelDistance,warningFocus,guardianEngagement,
   warning:!!warning||mode==='breach-warning',
   remainingTurns:warning?s.bossWarning.attackTick-s.tick:
    mode==='breach-warning'?revenantWarning.mark.impactTick-s.tick:null
@@ -338,6 +346,11 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  const actionCloseness=portrait&&!reducedMotion&&
   (shot.mode==='contact'||shot.mode==='skirmish-approach')&&
   Number.isFinite(shot.spread)?clip((2.3-shot.spread)/2.3,0,1):0;
+ // A genuine nearby sealed guardian duel is optically larger on 390px.
+ // Preserve real warnings, manual camera, reduced-motion and desktop.
+ // app.js still independently fits real bodies/danger cells to frame.
+ const guardianCloser=portrait&&!reducedMotion&&shot.guardianEngagement===true&&
+  !shot.warning&&(shot.mode==='contact'||shot.mode==='skirmish-approach')?1:0;
  // For compact REAL Warden hazards, keep the true skinned boss and defender
  // large enough to read the strike. Wide shapes and reduced-motion retain
  // their original overview; app.js independently fits every danger tile.
@@ -351,10 +364,10 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // existing subject-fit gate will widen FOV if a danger cell or body is cut.
  // Warden warnings and cast releases never enter this closer approach.
  const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):
-  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch*(1-.22*actionCloseness);
+  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch*(1-.22*actionCloseness)*(1-.18*guardianCloser);
  const y=(policy.height-2.25*approachNear-2.2*threatCloser*threatScale+
   (terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
-  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1)*(1-.14*actionCloseness);
+  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1)*(1-.14*actionCloseness)*(1-.10*guardianCloser);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),
@@ -362,7 +375,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  ]);
  return Object.freeze({
   mode:shot.mode,offsets,
-  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0)-2.4*actionCloseness,
+  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0)-2.4*actionCloseness-1.2*guardianCloser,
   lookY:policy.aim+(approachNear*.18)+.15*threatCloser+.12*actionCloseness,
   following:reducedMotion?1:policy.follow+(approachNear*1.2),
   keyScale:policy.key,

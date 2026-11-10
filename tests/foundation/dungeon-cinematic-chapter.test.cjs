@@ -398,6 +398,37 @@ test('the live cinematic camera keeps coherent focus and physically fits both tr
 });
 
 
+
+test('a genuine sealed-guardian duel earns a safely tighter 390px fighting-body lens',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await planner(),s=scene();
+ s.guardianWard=true;
+ s.units.find(u=>u.id==='cultist').hp=0;
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ vanguard.x=8;vanguard.z=9;vanguard.action='attack';vanguard.targetId='ward-revenant';
+ s.units.find(u=>u.id==='ranger').x=11;
+ s.units.push({id:'ward-revenant',kind:'revenant',faction:'enemy',hp:54,x:7,z:9});
+ const original=JSON.stringify(s);
+ const shot=planCinematicShot(s,null,{width:390,height:844});
+ assert.equal(shot.mode,'skirmish-approach');
+ assert.equal(JSON.stringify(s),original,'presentation must not mutate the authority');
+ assert.equal(shot.guardianEngagement,true,'only real guardian fighters earn a close lens');
+ const close=planReadableExpeditionLens(shot,{width:390,height:844});
+ const control=planReadableExpeditionLens({...shot,guardianEngagement:false},{width:390,height:844});
+ assert.ok(Math.hypot(close.offsets[0],close.offsets[2])<Math.hypot(control.offsets[0],control.offsets[2])*.87);
+ assert.ok(close.offsets[1]<control.offsets[1]*.93);
+ assert.deepEqual(planReadableExpeditionLens(shot,{width:1440,height:832}),
+  planReadableExpeditionLens({...shot,guardianEngagement:false},{width:1440,height:832}),'desktop unchanged');
+ assert.deepEqual(planReadableExpeditionLens(shot,{width:390,height:844,reducedMotion:true}),
+  planReadableExpeditionLens({...shot,guardianEngagement:false},{width:390,height:844,reducedMotion:true}),'reduced motion unchanged');
+ s.bossWarning={shape:'NOVA',attackTick:s.tick+1,cells:[{x:9,z:9}]};
+ const warning=planCinematicShot(s,null,{width:390,height:844});
+ assert.equal(warning.mode,'warden-warning');
+ assert.equal(warning.guardianEngagement,false,'true Warden danger must remain wide');
+ s.bossWarning=null;
+ s.revenantWarnings=[{sourceId:'ward-revenant',targetId:'vanguard',x:8,z:9,impactTick:s.tick+1}];
+ assert.equal(planCinematicShot(s,null,{width:390,height:844}).guardianEngagement,false,'incoming guardian breach remains wide');
+});
+
 test('a sealed Warden films the ACTUAL distant guardian melee rather than the invulnerable boss',async()=>{
  const {planCinematicShot,planReadableExpeditionLens}=await planner(),s=scene();
  // The ranger stands closest to the boss; the Vanguard is actually fighting
