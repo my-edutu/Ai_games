@@ -318,6 +318,11 @@ for(const view of [
  }
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
+ const soleObservations=trace.slice(1).map(t=>t.soleGrip);
+ expect(soleObservations.every(s=>s?.comparable),
+  'each source GLB action must expose original weighted sole samples');
+ expect(soleObservations.every(s=>Object.values(s.soleWorldDeltaMeters).every(Number.isFinite)),
+  'no nonfinite skinned sole world displacement');
  // Measured movement of real source joints is necessary, not proof of sole
  // mesh contact or a completed foot-lock IK solver.
  expect(measured.some(n=>n>.005),'source skeleton cannot remain frozen').toBe(true);
