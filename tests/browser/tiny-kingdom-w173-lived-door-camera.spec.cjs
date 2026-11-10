@@ -34,7 +34,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    }
    return {closed,view,readOnly:snapshot===JSON.stringify(g.exportSnapshot()),
     camera:g.getHomecomingThresholdCameraAudit(),
-    street:g.getStreetPhysicalOcclusionAudit()};
+    street:g.getStreetPhysicalOcclusionAudit(),
+    ray:g.getCameraRayBroadphaseAudit()};
   });
   expect(proof.closed,'Actual seeded resident must rest in a closed home').not.toBeNull();
   expect(proof.view?.citizen).toBe(proof.closed.citizen);
@@ -47,6 +48,13 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(proof.camera.camera.doorRayBlockers).toBe(0);
   expect(proof.camera.door.homeIndex).toBe(proof.closed.homeIndex);
   expect(proof.street.cartPositionsExact).toBe(true);
+  // The actual 3D view used bounded ray candidates while retaining every
+  // original physical roof, cart, citizen sightline and authoritative state.
+  expect(proof.ray.source).toBe('exact-physical-camera-ray-cell-broadphase');
+  expect(proof.ray.authorityChanged).toBe(false);
+  expect(proof.ray.droppedVolumes).toBe(0);
+  expect(proof.ray.maxCellReferences).toBeLessThanOrEqual(4096);
+  expect(proof.ray.indexedQueries).toBeGreaterThan(0);
   expect(proof.street.realHomes).toBeGreaterThanOrEqual(12);
   await page.waitForFunction(()=>window.__tinyKingdom.getHomecomingThresholdCameraAudit().active,
    null,{timeout:45000});
