@@ -226,7 +226,7 @@ test('native skinned stride synchronizes to actual alternating footfall stamps a
  assert.deepEqual(advanceRigGait(slow.phase,slow.weight,0,true,.016),{phase:0,weight:0});
  assert.deepEqual(advanceRigGait(slow.phase,slow.weight,Infinity,false,.016),{phase:0,weight:0});
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/stageRigGroundedStride\(actor,reducedMotion,dt,sourceFrameInterval\)/,
+ assert.match(model,/stageRigGroundedStride\(actor,reducedMotion,dt,sourceFrameInterval,sourceFrameVisible\)/,
   'actual visible frame interval must propagate to the licensed original-sole landing planner');
  assert.match(model,/alignRigFootfallPhase\(gait\.phase,actor\.groundedPerformance\?\.footPhase,walking/);
  assert.match(model,/fullBodyFootfallPhaseErrorRad:/);

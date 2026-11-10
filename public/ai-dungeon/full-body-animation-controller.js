@@ -137,6 +137,38 @@ export function planNativeWalkStartFromTravel({
   {defer:true,pendingMeters:cumulative}:IMMEDIATE_NATIVE_WALK;
 }
 
+
+/**
+ * Authentic Idle can remain the source clip while the visual root has moved
+ * only 5-12 mm; the original Walking_A entry planner has correctly deferred
+ * a 41-joint swing. Do not start a SECOND procedural pelvis-to-sole gait
+ * before that original source handoff. The 160ms final additive stride
+ * deceleration must also consume bounded REAL displayed time, not assume
+ * every delivered software-WebGL pose represented only <=50ms.
+ *
+ * This is presentation-only: no root movement, keyframes, contact, foot IK,
+ * new skeleton, cast/attack or source clip change. Reject stale/hidden,
+ * invalid, interrupted or dead owner evidence instead of carrying poses.
+ */
+export function planNativeSourceIdleGaitFrame({
+ mode='idle',sourceAction='idle',sourceClipName='',pendingMeters=0,
+ groundedMoving=false,alive=true,visible=true,teleport=false,
+ reducedMotion=false,interrupted=false,frameDelta=0,frameInterval=frameDelta
+}={}){
+ if(alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  !finite(frameDelta)||frameDelta<0||frameDelta>.05||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>2)
+  return {suppress:false,releaseDelta:0};
+ const originalIdle=sourceClipName==='Idle'&&
+  (sourceAction==='idle'||sourceAction==='guard');
+ const suppress=mode==='move'&&originalIdle&&groundedMoving===true&&
+  finite(pendingMeters)&&pendingMeters>0&&pendingMeters<.024;
+ const slowing=originalIdle&&(mode==='idle'||mode==='guard')&&
+  groundedMoving===false;
+ return {suppress,releaseDelta:slowing?
+  Math.min(.09,Math.max(frameDelta,frameInterval)):frameDelta};
+}
+
 /** Classify a real visual frame without relying on wall-clock time. */
 export function advanceFullBodyController(previous=null,{
  unit={},grounded=null,damageBeat=null,evasionBeat=null,combatFacing=null,

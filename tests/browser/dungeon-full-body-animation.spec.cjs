@@ -297,6 +297,15 @@ for(const view of [
   const audit=await nativeRigProof(page);
   const actor=audit.actors.find(a=>a.id===sequence.actorId);
   expect(actor?.sourceInstanceId,'the same original GLB clone remains bound').toBeTruthy();
+  // On original Idle->Walking_A micro-entry, an authentic 5mm visual root
+  // step must NOT drive a second fake native 0.58-weight pelvis/leg stride.
+  // The on-demand source rig measures real GLB, never invented authority.
+  if(actor.nativeLegOwnership?.sourceIdleHandoffHeld){
+   expect(actor.nativeLegOwnership.clipName).toBe('Idle');
+   expect(actor.nativeLegOwnership.nativeWalkEntryPendingMeters).toBeGreaterThan(0);
+   expect(actor.nativeLegOwnership.gaitWeight).toBeLessThan(.001);
+   expect(actor.nativeLegOwnership.bodyStrideWeight).toBeLessThan(.001);
+  }
   expect(actor.validSegments).toBeGreaterThanOrEqual(4);
   expect(actor.maxStretchFraction).toBeLessThanOrEqual(.20);
   const travel=previous?measureSourceJointTravel(previous,actor):null;
