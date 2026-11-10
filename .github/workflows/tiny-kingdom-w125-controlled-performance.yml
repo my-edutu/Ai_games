@@ -30,11 +30,17 @@ jobs:
         with:
           node-version: '22.16.0'
           cache: npm
-      - name: Source-match before/after W125 ONLY, without touching main
+      - name: Compare the CURRENT original game source against its immediately previous game source
         run: |
+          set -eu
           mkdir -p artifacts
-          git show 'c891aec28067a15e0778b94526c02f33048ecac9^:public/tiny-kingdom/index.html' > artifacts/w125-before.html
-          git show 'c891aec28067a15e0778b94526c02f33048ecac9:public/tiny-kingdom/index.html' > artifacts/w125-after.html
+          SOURCE=public/tiny-kingdom/index.html
+          AFTER=$(git log -1 --format=%H -- "$SOURCE")
+          BEFORE=$(git log -2 --format=%H -- "$SOURCE" | tail -n 1)
+          test -n "$AFTER" && test -n "$BEFORE" && test "$AFTER" != "$BEFORE"
+          git show "$BEFORE:$SOURCE" > artifacts/w125-before.html
+          git show "$AFTER:$SOURCE" > artifacts/w125-after.html
+          printf '{"before":"%s","after":"%s","source":"%s","selection":"last-two-real-playable-source-commits"}\n' "$BEFORE" "$AFTER" "$SOURCE" > artifacts/w125-source-pair.json
           node -e "const fs=require('fs');for(const x of ['before','after']){const s=fs.readFileSync('artifacts/w125-'+x+'.html','utf8');new Function(s.slice(s.indexOf('<script>')+8,s.lastIndexOf('</script>')));}"
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium

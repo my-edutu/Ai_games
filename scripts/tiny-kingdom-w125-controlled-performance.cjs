@@ -12,10 +12,18 @@ const cases=[
  ['after',path.resolve('artifacts/w125-after.html')]
 ];
 const originalCamera={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
-const evidence={schema:'tiny-kingdom-w125-controlled-software-v1',
+// Each PR run must compare its own latest playable original-world source
+// against its most recent actual playable predecessor, not an archived W125
+// pair. Documentation/test-only commits MUST NOT become image comparators.
+const sourcePair=JSON.parse(fs.readFileSync(path.resolve('artifacts/w125-source-pair.json'),'utf8'));
+assert.equal(sourcePair.selection,'last-two-real-playable-source-commits');
+assert.match(sourcePair.before,/^[0-9a-f]{40}$/);
+assert.match(sourcePair.after,/^[0-9a-f]{40}$/);
+assert.notEqual(sourcePair.before,sourcePair.after);
+const evidence={schema:'tiny-kingdom-w125-controlled-software-v2',
  browser:'Chromium SwiftShader',physicalHardwareGpuFps:'NOT_PROVEN',
- old:'c891aec28067a15e0778b94526c02f33048ecac9^',
- new:'c891aec28067a15e0778b94526c02f33048ecac9',
+ old:sourcePair.before,new:sourcePair.after,
+ sourcePair,
  limitations:['Software-rendered p95/p99 are not physical desktop/mobile GPU',
   '390px is an emulated viewport, not a real phone',
   'Short captures are exploratory; no causal FPS claim without adequate samples',
