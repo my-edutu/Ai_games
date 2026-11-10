@@ -79,6 +79,49 @@ export function publicPressureTakesFocus(snapshot, trap, cellSize, aspect,
   return distance <= 1;
 }
 
+
+/**
+ * Preserve a real publicly witnessed cardinal pressure confrontation through
+ * its next diagonal withdrawal. Original tick-6 320px WebGL cut the physical
+ * jaw at -1.290725 NDC when an unrelated known closed gate stole the camera.
+ * This is presentation-only, NEVER generic diagonal discovery or AI authority.
+ */
+export function publicPressureWithdrawalTakesFocus(before, after, trap, cellSize, aspect,
+  cameraMode='follow', guardian=false, opening=false, pickup=false) {
+  if (!before || !after || before.result || after.result
+    || typeof before.runToken!=='string' || !before.runToken
+    || before.runToken!==after.runToken
+    || !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick)
+    || after.tick<=before.tick || before.width!==after.width || before.height!==after.height
+    || !Number.isSafeInteger(after.width) || after.width<2
+    || !Number.isSafeInteger(after.height) || after.height<2
+    || !Number.isSafeInteger(before.currentCell) || !Number.isSafeInteger(after.currentCell)
+    || before.currentCell<0 || after.currentCell<0
+    || before.currentCell>=after.width*after.height || after.currentCell>=after.width*after.height
+    || cameraMode!=='follow' || guardian || opening || pickup
+    || !(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
+    || !(Number.isFinite(cellSize) && cellSize>0)
+    || !Number.isSafeInteger(trap?.cell) || trap.cell<0
+    || trap.cell>=after.width*after.height
+    || !(Number.isFinite(trap.distance) && trap.distance>=0
+      && trap.distance<=cellSize*1.82)
+    || !(Number.isFinite(trap.weight) && trap.weight>=.34)) return false;
+  const witnessed=state=>Array.isArray(state.cells)
+    && Array.isArray(state.visibleCells) && state.visibleCells.includes(trap.cell)
+    && state.cells.some(cell=>cell?.cell===trap.cell
+      && cell.trap===true && cell.blocked!==true);
+  if(!witnessed(before)||!witnessed(after))return false;
+  const separation=(a,b)=>({
+    x:Math.abs(a%after.width-b%after.width),
+    z:Math.abs(Math.floor(a/after.width)-Math.floor(b/after.width))
+  });
+  const contact=separation(before.currentCell,trap.cell);
+  const withdrawn=separation(after.currentCell,trap.cell);
+  const step=separation(before.currentCell,after.currentCell);
+  return contact.x+contact.z===1 && withdrawn.x===1 && withdrawn.z===1
+    && step.x+step.z===1;
+}
+
 export function publicObservedTrapCameraFocus(snapshot, hero, cellSize, aspect) {
   if (!snapshot || snapshot.result
     || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)

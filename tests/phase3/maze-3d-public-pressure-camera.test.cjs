@@ -68,6 +68,50 @@ test('a REAL adjacent published pressure hazard takes the 320/390 Follow stage f
  assert.equal(JSON.stringify(withGate),original,'never change public authority');
 });
 
+
+test('exact native tick-5 contact to tick-6 diagonal withdrawal keeps original physical pressure partner',async()=>{
+ const {publicPressureWithdrawalTakesFocus:retain,publicObservedTrapCameraFocus:focus,
+   publicPressureTakesFocus:ordinary}=await load();
+ const before=snap(32,{tick:5,currentCell:25});
+ const after=snap(32,{tick:6,currentCell:24,
+   doors:[{a:24,b:25,open:false,requiredKeyId:'k'}],inventory:['k']});
+ const state=JSON.stringify(after),jaw=focus(after,{x:0,z:0},CELL,ASPECT);
+ assert.ok(jaw.weight>.54,'original diagonal jaw pan remains in place');
+ assert.equal(ordinary(after,jaw,CELL,ASPECT),false,'ordinary diagonal gate camera is unchanged');
+ assert.equal(retain(before,after,jaw,CELL,ASPECT),true,
+   'one PUBLIC adjacent encounter earns an uninterrupted withdrawal camera');
+ assert.equal(retain(before,after,jaw,CELL,390/844),true);
+ assert.equal(JSON.stringify(after),state,'camera may not mutate public authority');
+});
+test('withdrawal shot rejects invented, hidden, stale, disconnected and priority-conflicting evidence',async()=>{
+ const {publicPressureWithdrawalTakesFocus:retain,publicObservedTrapCameraFocus:focus}=await load();
+ const prior=snap(32,{tick:5,currentCell:25}),current=snap(32,{tick:6,currentCell:24});
+ const jaw=focus(current,{x:0,z:0},CELL,ASPECT);
+ const check=(a=prior,b=current,t=jaw,aspect=ASPECT,mode='follow',guardian=false,opening=false,pickup=false)=>
+   retain(a,b,t,CELL,aspect,mode,guardian,opening,pickup);
+ assert.equal(check(),true);
+ for(const [a,b] of [
+  [prior,{...current,visibleCells:[]}],[{...prior,visibleCells:[]},current],
+  [prior,{...current,cells:[{cell:32,trap:false,blocked:false}]}],
+  [prior,{...current,cells:[{cell:32,trap:true,blocked:true}]}],
+  [prior,{...current,runToken:'another-run'}],
+  [prior,{...current,tick:5}],
+  [{...prior,currentCell:24},current],
+  [{...prior,currentCell:17},current],
+  [prior,{...current,currentCell:25}],
+  [prior,{...current,currentCell:16}],
+  [prior,{...current,result:{reason:'capture'}}],
+ ])assert.equal(check(a,b),false,'real current public sequence required');
+ assert.equal(check(prior,current,{...jaw,cell:31}),false);
+ assert.equal(check(prior,current,{...jaw,weight:0}),false);
+ assert.equal(check(prior,current,{...jaw,distance:Infinity}),false);
+ assert.equal(check(prior,current,jaw,844/390),false);
+ assert.equal(check(prior,current,jaw,ASPECT,'detail'),false);
+ assert.equal(check(prior,current,jaw,ASPECT,'overview'),false);
+ assert.equal(check(prior,current,jaw,ASPECT,'follow',true),false);
+ assert.equal(check(prior,current,jaw,ASPECT,'follow',false,true),false);
+ assert.equal(check(prior,current,jaw,ASPECT,'follow',false,false,true),false);
+});
 test('pressure-first camera rejects hidden, remembered, blocked, terminal, diagonal and forged candidates',async()=>{
  const {publicPressureTakesFocus:takes,publicObservedTrapCameraFocus:focus}=await load();
  const visible=snap(25),pressure=focus(visible,{x:0,z:0},CELL,ASPECT);
@@ -90,6 +134,8 @@ test('production Follow camera wires pressure-first priority without changing th
  const fs=require('node:fs'),path=require('node:path');
  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
  assert.match(source,/const pressureFirst = publicPressureTakesFocus\(/);
+ assert.match(source,/\|\| publicPressureWithdrawalTakesFocus\(/);
+ assert.match(source,/priorPublicSnapshot = previous/);
  assert.match(source,/cameraGate = pressureFirst \? null : openingGateBeat \|\| nearObservedGate/);
  assert.match(source,/pressureFirst \? 4\.70/,'same optical budget as existing keyed 320/390 stage');
  assert.match(source,/\(pressureFirst \|\| !keyGateCue\)/);

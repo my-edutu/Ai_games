@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -256,7 +256,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   };
 
   let settings = { ...initialSettings };
-  let frame = null, previous = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null, recentPublicPickup = null;
+  let frame = null, previous = null, priorPublicSnapshot = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null, recentPublicPickup = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
   let lastNow = 0, elapsed = 0, gateVisualTime = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
   let width = 0, height = 0, routeSignature = '', geometryPeak = 0;
@@ -383,6 +383,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (openingCue) recentPublicOpening = {...openingCue, runToken:snapshot.runToken, start:gateVisualTime};
     if (pickupCue) recentPublicPickup = {...pickupCue,runToken:snapshot.runToken,start:gateVisualTime,
       cameraHeading:heading};
+    // Only an earlier PUBLIC run frame can authorize a genuine withdrawal.
+    priorPublicSnapshot = previous;
     previous = snapshot;
     world.update(snapshot);
     updateRoutes(snapshot);
@@ -745,7 +747,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // terminal state or manual spectator camera.
       const pressureFirst = publicPressureTakesFocus(
         s, publicPressureTrap, CELL_SIZE, aspect, cameraMode,
-        !!closestThreat?.strength, !!openingGateBeat, !!showPickup);
+        !!closestThreat?.strength, !!openingGateBeat, !!showPickup)
+        || publicPressureWithdrawalTakesFocus(
+          priorPublicSnapshot, s, publicPressureTrap, CELL_SIZE, aspect,
+          cameraMode, !!closestThreat?.strength, !!openingGateBeat, !!showPickup);
+      // Current, already-visible jaw must not disappear behind a stale gate
+      // during the one lawful retreat from its immediately observed contact.
       const nearObservedGoal = cameraMode === 'follow' && !result
         && objectiveCue && objectiveCue.steps <= 2 && !closestThreat?.strength
         && !openingGateBeat && !pressureFirst;
@@ -1309,7 +1316,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   function contextRestored() {
     if (disposed) return;
     lost = false; lastNow = 0;
-    if (frame?.snapshot) { resetPosition(frame.snapshot); previous = frame.snapshot; }
+    if (frame?.snapshot) { resetPosition(frame.snapshot); previous = frame.snapshot; priorPublicSnapshot = null; }
     for (const entry of wardens.values()) { entry.cells = [entry.cell]; entry.progress = 0; entry.encounterStart = null; entry.encounterBeat = 0; }
     canvas.dataset.renderer = 'webgl'; onStatus?.('ready');
   }
@@ -1340,7 +1347,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     wayfindingCues = [];
     contactGeometry.dispose(); contactMaterial.dispose(); contactTexture.dispose();
     sun.shadow.map?.dispose(); environmentTexture?.dispose(); renderer.dispose(); scene.clear();
-    cells = []; frameTimes.length = 0; frame = null; previous = null; recentPublicOpening = null; recentPublicPickup = null; stageBias = {x: 0, z: 0};
+    cells = []; frameTimes.length = 0; frame = null; previous = null; priorPublicSnapshot = null; recentPublicOpening = null; recentPublicPickup = null; stageBias = {x: 0, z: 0};
   }
   return { update, render, resize, setSettings, setCameraMode, dispose };
 }
