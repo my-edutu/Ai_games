@@ -49,7 +49,10 @@ test('one deterministic locally seeded mono noise texture has quiet loop seam an
   const {buffer,samples}=a.buffers[0];
   assert.equal(buffer.numberOfChannels,1);
   assert.ok(buffer.length<=ORIGINAL_COMBAT_MAX_NOISE_SAMPLES);
-  assert.equal(samples[0],0);assert.equal(samples.at(-1),0);
+  // The original seam-crossfaded texture deliberately retains its noise RMS.
+  // Its last and first samples match exactly; forcing silence here would
+  // reintroduce the audible 280ms volume trough the producer removed.
+  assert.equal(samples[0],samples.at(-1));
   assert.ok(samples.some(n=>Math.abs(n)>.01),'noise is not all silence');
   assert.ok(samples.every(Number.isFinite));
   assert.deepEqual(samples,b.buffers[0].samples);
