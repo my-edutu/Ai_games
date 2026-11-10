@@ -387,3 +387,75 @@ test('original native 41-joint Idle keeps source mixer phase during witnessed id
    deformation:rig.summary,
    limitation:'Native original foot bones are not sole-mesh vertices; phase continuity is not full 3D LOOK/FEEL acceptance.'},null,2))});
 });
+
+
+/**
+ * Genuine adjacent snapshots drive the visible original 41-joint Idle rig.
+ * Never inject a guard, block, HP event, facing, root displacement or target.
+ * Only the authenticated observed actor is compared before/after in WebGL.
+ */
+for(const view of [
+ {name:'desktop',width:1440,height:900},
+ {name:'mobile',width:390,height:844}
+])test('source-rig guard-to-idle physically supported native joint blend: '+view.name,async({page})=>{
+ test.setTimeout(200000);
+ await page.setViewportSize({width:view.width,height:view.height});
+ const e=witnessedNativeIdleGuardHandoff();
+ const stage=await loadStage(page,e.before);
+ const read=()=>page.evaluate(id=>{
+  const audit=window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.();
+  const actor=audit?.actors?.find(a=>a.id===id);
+  const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+  return {actor,summary:audit?.summary??null,frame:d?.frame??null,
+   binding:d?.authored3D?.sourceClipBindings?.find(b=>b.id===id)??null,
+   guardActors:d?.authored3D?.fullBodyNativeGuardActors??null,
+   guardPeakRad:d?.authored3D?.fullBodyNativeGuardPeakRad??null,
+   missingAssets:d?.authored3D?.missingAssets??null};
+ },e.actorId);
+ await page.waitForTimeout(240);
+ const before=await read();
+ expect(before.actor?.sourceLoop?.clipName).toBe('Idle');
+ expect(before.binding?.action).toBe(e.priorAction);
+ expect(before.actor?.sourceInstanceId).toBeTruthy();
+ if(e.priorAction==='guard')expect(before.actor.guardBlend).toBeGreaterThan(.75);
+ else expect(before.actor.guardBlend).toBe(0);
+ stage.set(e.after);
+ await expect.poll(async()=>(await read()).binding?.action,
+  {timeout:30000,intervals:[75,110,180]}).toBe(e.nextAction);
+ await page.waitForTimeout(80);
+ const first=await read();
+ await page.waitForTimeout(190);
+ const final=await read();
+ expect(final.actor?.sourceInstanceId).toBe(before.actor.sourceInstanceId);
+ expect(final.actor?.sourceLoop?.clipName).toBe('Idle');
+ expect(final.actor?.sourceLoop?.running).toBe(true);
+ expect(final.actor?.validSegments).toBeGreaterThanOrEqual(4);
+ expect(final.summary?.bindReferenceComplete).toBe(true);
+ expect(final.summary?.invalidQuaternionCount).toBe(0);
+ expect(final.summary?.maxStretchFraction).toBeLessThanOrEqual(.20);
+ expect(final.guardPeakRad).toBeGreaterThan(.15);
+ expect(final.guardPeakRad).toBeLessThan(.4);
+ expect(final.missingAssets).toBe(0);
+ expect(final.frame).toBeGreaterThan(before.frame);
+ if(e.nextAction==='guard'){
+  expect(final.actor.guardBlend).toBeGreaterThan(.70);
+  expect(final.actor.guardBlend).toBeGreaterThanOrEqual(first.actor.guardBlend);
+ }else{
+  expect(final.actor.guardBlend).toBeLessThan(.25);
+  expect(final.actor.guardBlend).toBeLessThanOrEqual(first.actor.guardBlend);
+ }
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({
+  path:'artifacts/dungeon-full-body-native-guard-blend-'+view.name+'.png',timeout:60000
+ });
+ await test.info().attach('native-source-guard-to-idle-'+view.name,{
+  contentType:'application/json',body:Buffer.from(JSON.stringify({
+   source:'consecutive real DungeonRuntime.step snapshots rendered by original GLB',
+   seed:e.seed,actorId:e.actorId,ticks:[e.before.tick,e.after.tick],
+   actions:[e.priorAction,e.nextAction],view:view.name,
+   before,first,after:final,
+   limitations:'Original foot JOINT positions are not sole-mesh vertices; no shield block or hit is synthesized; no certified foot lock.'
+  },null,2))
+ });
+});
