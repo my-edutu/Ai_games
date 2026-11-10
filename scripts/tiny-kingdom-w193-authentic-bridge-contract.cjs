@@ -19,7 +19,8 @@ const ctx={
  box:()=>{triangles+=12;ctx.data.length+=360;},
  cylinder:()=>{triangles+=24;ctx.data.length+=720;},
  cone:()=>{triangles+=7;ctx.data.length+=210;},
- ellipsoid:()=>{triangles+=28;ctx.data.length+=840;}
+ // Original ellipsoid shell uses 8*segments triangles; bridge stones use 7.
+ ellipsoid:()=>{triangles+=56;ctx.data.length+=1680;}
 };
 vm.createContext(ctx);
 vm.runInContext(file.slice(start,end),ctx,{timeout:2500,filename:'W193-real-original-bridge'});

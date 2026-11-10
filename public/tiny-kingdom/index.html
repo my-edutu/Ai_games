@@ -12317,8 +12317,8 @@ function riverBridge(){
     cone(x+side*2.5,yy+.55,z,.38,.26,stone[0],7);
    }
   }
-  for(let j=0;j<9;j++){
-   const zz=12.1+j*1.6;
+  for(let j=0;j<5;j++){
+   const zz=12.1+j*3.2;
    for(const side of [-1,1]){
     const xx=x+side*(3.2+.4*Math.sin(j)),yy=terrain(xx,zz);
     ellipsoid(xx,yy+.12,zz,.34,.19,.31,
