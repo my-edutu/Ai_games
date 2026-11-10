@@ -11719,6 +11719,7 @@ function fieldToGranaryFootway(){
 // conservative vertex bounds and draw range. The market and home camera
 // need not rasterize fields that are physically outside the view.
 const FARM_FIELD_MESH_FLOAT_LIMIT=650000,FARM_FIELD_MESH_MAX_BUFFERS=2;
+let farmFieldResidentCounters=null;
 let farmFieldResidentSeason=-1,farmFieldNear=null,farmFieldFar=null,
  farmFieldResidentDisabled=false,farmFieldLod='far',
  farmFieldDrawCalls=0,farmFieldBuilds=0,farmFieldUploads=0,
@@ -11737,7 +11738,9 @@ function disposeResidentFarmFields(){
   if(entry?.buffer){releaseGeometryBuffer(entry.buffer);farmFieldDisposals++}
  }
  farmFieldNear=null;farmFieldFar=null;farmFieldResidentSeason=-1;
+ farmFieldResidentCounters=null;
  farmFieldLastTriangles=0;farmFieldLastDistance=null;
+ farmFieldGpuCapacities[0]=0;farmFieldGpuCapacities[1]=0;
  farmFieldPlotLods=[];farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
 }
 function buildOriginalCropMesh(season,compact){
@@ -11779,42 +11782,98 @@ function buildOriginalCropMesh(season,compact){
   throw Error('W112 field mesh exceeds bounded complete storage');
  return mesh;
 }
+// W182: retain all original seasonal near/far crop geometry, no new farming
+// authority. Four original season meshes share a bounded CPU LRU; two genuine
+// WebGL crop buffers survive climate changes without driver reallocation.
+const FARM_FIELD_SEASON_CACHE_MAX_ENTRIES=4;
+const FARM_FIELD_SEASON_CPU_FLOAT_BUDGET=
+ (navigator.deviceMemory&&navigator.deviceMemory<=4)?2600000:4200000;
+const farmFieldSeasonCache=new Map();
+let farmFieldSeasonCachedFloats=0,farmFieldSeasonHits=0,
+ farmFieldSeasonMisses=0,farmFieldSeasonEvictions=0,
+ farmFieldSeasonSkippedOversize=0,farmFieldSeasonAvoidedFloats=0,
+ farmFieldGpuHandleReuses=0,farmFieldGpuResizes=0;
+const farmFieldGpuCapacities=[0,0];
+function getOrBuildFarmSeasonMeshes(season){
+ if(!Number.isInteger(season)||season<0||season>3)
+  throw Error('W182 invalid original farm season');
+ const cached=farmFieldSeasonCache.get(season);
+ if(cached){
+  farmFieldSeasonCache.delete(season);farmFieldSeasonCache.set(season,cached);
+  farmFieldSeasonHits++;
+  farmFieldSeasonAvoidedFloats+=cached.near.length+cached.far.length;
+  Object.assign(farmScene,cached.counters);
+  return cached;
+ }
+ const prior={...farmScene};let near,far,counters;
+ try{
+  near=buildOriginalCropMesh(season,false);
+  counters={...farmScene};Object.assign(farmScene,prior);
+  far=buildOriginalCropMesh(season,true);
+  if(!near.length||!far.length||far.length>near.length||
+   (far.length===near.length&&season!==3)||
+   near.plotRanges.length!==FARMSTEAD.fields.length||
+   far.plotRanges.length!==FARMSTEAD.fields.length)
+   throw Error('W112 invalid authentic plot tiers');
+ }catch(error){Object.assign(farmScene,prior);throw error}
+ Object.assign(farmScene,counters);
+ const entry={near,far,counters},floats=near.length+far.length;
+ farmFieldSeasonMisses++;
+ if(floats<=FARM_FIELD_SEASON_CPU_FLOAT_BUDGET){
+  farmFieldSeasonCache.set(season,entry);farmFieldSeasonCachedFloats+=floats;
+  while(farmFieldSeasonCache.size>FARM_FIELD_SEASON_CACHE_MAX_ENTRIES||
+   farmFieldSeasonCachedFloats>FARM_FIELD_SEASON_CPU_FLOAT_BUDGET){
+   const oldest=farmFieldSeasonCache.keys().next().value,
+    retired=farmFieldSeasonCache.get(oldest);
+   farmFieldSeasonCache.delete(oldest);
+   farmFieldSeasonCachedFloats-=retired.near.length+retired.far.length;
+   farmFieldSeasonEvictions++;
+  }
+ }else farmFieldSeasonSkippedOversize++;
+ return entry;
+}
 function prepareResidentFarmFields(season){
  if(!gpuAvailable||farmFieldResidentDisabled)return false;
- if(season===farmFieldResidentSeason&&farmFieldNear&&farmFieldFar)return true;
- disposeResidentFarmFields();
- const before={...farmScene},created=[];
+ if(season===farmFieldResidentSeason&&farmFieldNear&&farmFieldFar){
+  if(farmFieldResidentCounters)Object.assign(farmScene,farmFieldResidentCounters);
+  return true;
+ }
+ const before={...farmScene},previous=[farmFieldNear?.buffer||null,
+  farmFieldFar?.buffer||null],created=[],buffers=previous.slice();
  try{
-  const near=buildOriginalCropMesh(season,false);
-  const nearCounters={...farmScene};
-  Object.assign(farmScene,before);
-  const far=buildOriginalCropMesh(season,true);
-  Object.assign(farmScene,nearCounters);
-  if(!near.length||!far.length||far.length>near.length||
-    (far.length===near.length&&season!==3)||
-    near.plotRanges.length!==FARMSTEAD.fields.length||
-    far.plotRanges.length!==FARMSTEAD.fields.length)
-   throw Error('W112 invalid authentic plot tiers');
-  for(const mesh of [near,far]){
-   const buffer=gl.createBuffer();
-   if(!buffer)throw Error('W112 field GPU buffer unavailable');
-   created.push(buffer);bindGeometry(buffer);
-   gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
-   farmFieldUploads++;
+  const {near,far}=getOrBuildFarmSeasonMeshes(season),meshes=[near,far];
+  for(let i=0;i<2;i++){
+   if(!buffers[i]){
+    buffers[i]=gl.createBuffer();
+    if(!buffers[i])throw Error('W182 complete farm GPU buffer unavailable');
+    created.push(buffers[i]);
+   }else farmFieldGpuHandleReuses++;
+   bindGeometry(buffers[i]);
+   if(meshes[i].length>farmFieldGpuCapacities[i]){
+    const required=Math.ceil(meshes[i].length/65536)*65536;
+    if(required>Math.ceil(FARM_FIELD_MESH_FLOAT_LIMIT/65536)*65536)
+     throw Error('W182 unbounded genuine farm GPU storage');
+    gl.bufferData(gl.ARRAY_BUFFER,required*4,gl.DYNAMIC_DRAW);
+    farmFieldGpuCapacities[i]=required;farmFieldGpuResizes++;
+   }
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,meshes[i]);farmFieldUploads++;
   }
-  farmFieldNear={mesh:near,buffer:created[0],ranges:near.plotRanges};
-  farmFieldFar={mesh:far,buffer:created[1],ranges:far.plotRanges};
+  farmFieldNear={mesh:near,buffer:buffers[0],ranges:near.plotRanges};
+  farmFieldFar={mesh:far,buffer:buffers[1],ranges:far.plotRanges};
   farmFieldResidentSeason=season;farmFieldBuilds++;
+  farmFieldResidentCounters={...farmScene};
   farmFieldPlotLods=FARMSTEAD.fields.map(()=>'far');
   farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
   farmFieldLod='far';return true;
  }catch(error){
-  for(const buffer of created){releaseGeometryBuffer(buffer);farmFieldDisposals++}
+  for(const buffer of new Set([...previous,...created].filter(Boolean))){
+   releaseGeometryBuffer(buffer);farmFieldDisposals++;
+  }
+  farmFieldGpuCapacities[0]=0;farmFieldGpuCapacities[1]=0;
   Object.assign(farmScene,before);
-  farmFieldNear=null;farmFieldFar=null;farmFieldResidentDisabled=true;
-  farmFieldFailures++;
-  // The original CPU crop path remains the complete visual fallback.
-  return false;
+  farmFieldNear=null;farmFieldFar=null;farmFieldResidentSeason=-1;
+  farmFieldResidentCounters=null;
+  farmFieldResidentDisabled=true;farmFieldFailures++;return false;
  }
 }
 function drawResidentFarmFields(eye,planes=null){
@@ -11880,6 +11939,16 @@ function getFarmFieldResidencyAudit(){
   allOriginalRoots:true,nearAndFarStems:plantedStems,
   builds:farmFieldBuilds,uploads:farmFieldUploads,drawCalls:farmFieldDrawCalls,
   disposals:farmFieldDisposals,failures:farmFieldFailures,
+  seasonCacheKeys:[...farmFieldSeasonCache.keys()],
+  seasonCacheEntries:farmFieldSeasonCache.size,
+  seasonCacheFloats:farmFieldSeasonCachedFloats,
+  seasonCacheBudgetFloats:FARM_FIELD_SEASON_CPU_FLOAT_BUDGET,
+  seasonCacheHits:farmFieldSeasonHits,seasonCacheMisses:farmFieldSeasonMisses,
+  seasonCacheEvictions:farmFieldSeasonEvictions,
+  seasonCacheSkippedOversize:farmFieldSeasonSkippedOversize,
+  avoidedSeasonSourceFloats:farmFieldSeasonAvoidedFloats,
+  reusedGpuHandles:farmFieldGpuHandleReuses,gpuResizes:farmFieldGpuResizes,
+  maxGpuBuffers:2,allOriginalPlotsPreserved:true,
   authorityModified:false,saveModified:false,originalGranaryRetained:true};
 }
 function farmstead(){
