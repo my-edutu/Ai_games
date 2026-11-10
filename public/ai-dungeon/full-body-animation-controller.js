@@ -481,6 +481,24 @@ export function shouldFreezeDeferredImportedWalk({
   alive===true&&visible===true&&!teleport&&!reducedMotion;
 }
 
+
+/** Tempo of only the original fading Walking_A, grounded in witnessed XZ
+ * visual root movement; never IK, collision or authoritative foot motion. */
+export function planImportedWalkExitBrake({
+ targetMode='idle',currentMode='idle',clipName='',sourceWeight=NaN,
+ sourceRunning=false,sourcePaused=false,groundedTravel=NaN,
+ alive=true,visible=true,teleport=false,reducedMotion=false
+}={}){
+ if(!['idle','guard'].includes(targetMode)||currentMode!==targetMode||
+  typeof clipName!=='string'||
+  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(clipName)||
+  !finite(sourceWeight)||sourceWeight<=0||sourceWeight>1||
+  sourceRunning!==true||sourcePaused!==false||
+  !finite(groundedTravel)||groundedTravel<0||
+  alive!==true||visible!==true||teleport||reducedMotion)return null;
+ return clamp(groundedTravel/.04,0,1);
+}
+
 /**
  * One existing source Walking_A action has been paused at a REAL no-travel
  * move-to-guard crossfade. Do not instantly delete the reversible skinned

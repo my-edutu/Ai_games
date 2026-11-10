@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1273,13 +1273,37 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  // Temporarily retime ONLY the active licensed walk action, restoring its
  // normal speed immediately after the single mixer update.
  const walkingBlendRate=planImportedWalkingBlendRate({...originalStep,sourceStep});
- if(walkingBlendRate===null){
-  actor.mixer.update(sourceStep);
- }else{
-  const normalScale=actor.activeClip.getEffectiveTimeScale();
-  actor.activeClip.setEffectiveTimeScale(normalScale*walkingBlendRate);
-  try{actor.mixer.update(Math.min(.05,dt));}
-  finally{actor.activeClip.setEffectiveTimeScale(normalScale);}
+ // Decelerate the exiting LICENSED Walking_A as genuine root motion ends,
+ // without slowing the one Three.js mixer clock or the incoming Idle/Guard.
+ const exit=actor.walkArrivalPendingAction;
+ const outgoing=exit?.sourceAction;
+ const walkExitRate=outgoing?planImportedWalkExitBrake({
+  targetMode:exit.targetMode,currentMode:actor.fullBody.mode,
+  clipName:outgoing.getClip?.()?.name??'',
+  sourceWeight:outgoing.getEffectiveWeight?.()??NaN,
+  sourceRunning:Boolean(outgoing.isRunning?.()),sourcePaused:Boolean(outgoing.paused),
+  groundedTravel:originalStep.groundedTravel,alive:actor.u.hp>0,
+  visible:sourceFrameVisible,teleport:Boolean(actor.locomotionTeleport),reducedMotion
+ }):null;
+ const priorWalkSpeed=walkExitRate!==null&&
+  Number.isFinite(outgoing?.getEffectiveTimeScale?.())&&
+  outgoing.getEffectiveTimeScale()>0?outgoing.getEffectiveTimeScale():null;
+ actor.walkArrivalExitRate=priorWalkSpeed!==null?walkExitRate:null;
+ if(priorWalkSpeed!==null){
+  outgoing.setEffectiveTimeScale(priorWalkSpeed*walkExitRate);
+  actor.walkArrivalBrakedFrames=Math.min(1000000,(actor.walkArrivalBrakedFrames||0)+1);
+ }
+ try{
+  if(walkingBlendRate===null){
+   actor.mixer.update(sourceStep);
+  }else{
+   const normalScale=actor.activeClip.getEffectiveTimeScale();
+   actor.activeClip.setEffectiveTimeScale(normalScale*walkingBlendRate);
+   try{actor.mixer.update(Math.min(.05,dt));}
+   finally{actor.activeClip.setEffectiveTimeScale(normalScale);}
+  }
+ }finally{
+  if(priorWalkSpeed!==null)outgoing.setEffectiveTimeScale(priorWalkSpeed);
  }
  // Read real original clip ownership AFTER the one AnimationMixer update.
  const releaseClip=actor.activeClip?.getClip?.();
@@ -1649,7 +1673,9 @@ function inspectSourceRigDeformation(actors){
     gaitWeight:actor.rigGaitWeight??0,
     settling:Boolean(actor.rigGaitSettling),
     deferredSourceWalkStops:actor.walkArrivalDeferredStops||0,
-    deferredSourceWalkPending:Boolean(actor.walkArrivalPendingAction)
+    deferredSourceWalkPending:Boolean(actor.walkArrivalPendingAction),
+    walkExitRate:Number.isFinite(actor.walkArrivalExitRate)?actor.walkArrivalExitRate:null,
+    walkExitBrakedFrames:actor.walkArrivalBrakedFrames||0
    },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
