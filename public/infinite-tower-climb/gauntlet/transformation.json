@@ -7193,5 +7193,27 @@
     "latestQualityRun": "42867712502 pending, not pass",
     "freshCaptureRequestSource": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
     "qualityIntermediateFailure": "42867334138 14/1319 fail; source gallery valid syntax, single missing original world import in composition temp-fixture and physically outdated full-health cable-span assertion"
+  },
+  "p0OriginalMovingFilmClockRecovery20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceFilmRun": 42868026568,
+    "sourceFilmUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42868026568",
+    "originalCandidateFilmSha": "9b40a097acd3dd5fb4858eecd2cc683f2b40734c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedOriginalFilm": "Genuine 960x600 and 390x844 60+s baseline/candidate danger, ascent, moving, outcome WebMs recorded; 9 of 10 source capture jobs succeeded. Authenticated source campaign and pair-source-events job succeeded; one baseline floor7 moving desktop event-frame-probe failed because timebase NOT EVALUATED despite a preserved actual WebM.",
+    "preciseBlocker": "Baseline moving desktop original Chromium compositor supplied only 8 distinct screenshot time points in ~72s; only 2/8 full-frame matches had uniqueness margin >=1.5, below strict required >=3 unambiguous temporally separated video anchors. Portrait baseline moving calibrated. Do NOT lower native match criteria or declare the failed baseline pair complete.",
+    "originalCandidateVisualDefect": "Builder inspected unedited candidate portrait danger film samples at 10-30s: live guardian/hero split/tiny amid bronze mechanical rail at ~14-18s, large near-side bronze wheel/counterweight fills fight at ~20s. This still fails source-event-matched normal-speed legibility; source screenshot timing is not proof of game rendering quality.",
+    "implementedCodeSha": "a763dcde2c21e5af24a1db4b9c5b6e8a86886c8d",
+    "implementation": "Read-only original-Chromium CDP capture now requests every second composited frame (was every eighth), retains up to 24 JPEG witnesses spaced >=2800ms (was 16 at 3500ms). Source tick, game code, frozen baseline, video recorder, stored WebM and strict three-independent-native-match rule unchanged. Corresponding coverage and bounded-resource regression updated.",
+    "exactHeadQualityPrior": "https://github.com/my-edutu/Ai_games/actions/runs/42868351897 — FAILED 1/1325 unrelated Eko Street Run foundation CI p99 4.618099ms > 4ms in concurrent runner; no Tower gameplay failure in this run, but global guardrail is NOT PASS. Other tests/build completed before veto.",
+    "currentTestAndVideoStatus": "New original Node/Chromium build and 10-job after-change matched film NOT EVALUATED until exact-head workflows finish. Isolated source invariant inspected; no independent quality or hardware result.",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "realDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect exact new immutable-head native baseline moving DESKTOP clock for >=3 real uniqueness-qualified anchors while preserving 60s+ full WebM, source beat and 8/8 native pair integrity. Watch BOTH candidate/frozen normal-speed original guardian 12-26s and at real guardian HP->0, grounded gateway threshold floor9 and outcome/restart source events; if clutter remains, rebuild source-world sightline and two-body stage. Do not advance P0."
   }
 }
