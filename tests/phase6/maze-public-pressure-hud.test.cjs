@@ -39,7 +39,9 @@ test('diagonal, distant, remembered-only, private and blocked hazards cannot fal
 test('live mission source uses the exact public cue before gate, pickup and goals, not a second panel',()=>{
   const fs=require('node:fs');
   const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
-  assert.match(source,/const pressureCue=!ended && !exposedDanger \? publicImmediatePressureCue\(snapshot\) : null/);
+  assert.match(source,/const pressureCue=!ended && !exposedDanger\s*\?\s*publicImmediatePressureCue\(snapshot\)\s*\|\|\s*publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)\s*:\s*null/);
+  assert.match(source,/const urgent=exposedDanger\|\|!!pressureCue/,'actual witnessed warning must outrank gate/landmark presentation');
+  assert.match(source,/const previousPublicSnapshot=frame\?\.snapshot/,'only the public previous frame may authorize an urgent withdrawal');
   assert.match(source,/const keyedSealedGate=!ended && !urgent/);
   assert.match(source,/const freshKey=!ended && !urgent/);
   assert.match(source,/pressureCue\?'Avoid jaws'/);
