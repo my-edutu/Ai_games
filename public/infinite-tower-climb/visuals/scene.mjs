@@ -964,6 +964,10 @@ function observedGuardianDuelLegibility(heroCorners, guardianCorners) {
   };
   const heroFraction = bodyHeight(heroCorners);
   const guardianFraction = bodyHeight(guardianCorners);
+  // Invalid or absent physical bodies never earn a framing preference.
+  // Otherwise a missing guardian would still score the hero on its own.
+  if (heroFraction <= 0 || guardianFraction <= 0)
+    return { heroFraction, guardianFraction, score: 0 };
   const smaller = Math.min(heroFraction, guardianFraction);
   return { heroFraction, guardianFraction,
     score: Math.min(.26, smaller) * 105 +
