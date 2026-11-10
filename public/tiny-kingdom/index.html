@@ -10471,6 +10471,52 @@ function upwardRoadQuad(a,b,c,d,col){
  if(uy>0){quad(a,b,c,d,col);return false}
  quad(a,d,c,b,col);return true;
 }
+// W192: A physically joined crown-and-wheel-groove section for the real
+// farm-to-market-to-home navigation spine, rendered only in retained civic VBO.
+// No new path, citizen, inventory, interaction or change to authority.
+const GRAINWARD_ROAD_PROFILE=Object.freeze({
+ offsets:Object.freeze([-1.30,-1,-.58,0,.58,1,1.30]),
+ heights:Object.freeze([.022,.031,.020,.056,.020,.031,.022])
+});
+let gradedRoadFrameStats={sections:0,triangles:0,crownedMetres:0,
+ sunkenTracks:0,classes:{granary:0,household:0}};
+function renderGradedRoadSection(a,b,t,u,halfWidth,seed,palette,role='granary'){
+ if(!Array.isArray(a)||!Array.isArray(b)||a.length!==2||b.length!==2||
+  ![...a,...b,t,u,halfWidth].every(Number.isFinite)||t<0||u>1||
+  t>=u||halfWidth<=0)throw Error('W192 invalid real-road section');
+ const dx=b[0]-a[0],dz=b[1]-a[1],distance=Math.hypot(dx,dz);
+ if(distance<.005)throw Error('W192 degenerate authentic roadway segment');
+ const nx=-dz/distance,nz=dx/distance,{offsets,heights}=GRAINWARD_ROAD_PROFILE;
+ const point=(along,index)=>{
+  const cross=offsets[index]*halfWidth,
+   x=a[0]+dx*along+nx*cross,z=a[1]+dz*along+nz*cross;
+  return [x,terrain(x,z)+heights[index],z];
+ };
+ for(let band=0;band<offsets.length-1;band++){
+  const tones=band===0||band===5?palette.verge:
+   band===1||band===4?palette.wheel:palette.earth;
+  const color=tones[(Math.abs(seed)+band)%tones.length];
+  upwardRoadQuad(point(t,band),point(u,band),
+   point(u,band+1),point(t,band+1),color);
+ }
+ gradedRoadFrameStats.sections++;
+ gradedRoadFrameStats.triangles+=12;
+ gradedRoadFrameStats.crownedMetres+=(u-t)*distance;
+ gradedRoadFrameStats.sunkenTracks+=2;
+ gradedRoadFrameStats.classes[role]=(gradedRoadFrameStats.classes[role]||0)+1;
+ return {bands:6,triangles:12,wheelGrooves:2,
+  crownMetres:(u-t)*distance,changesAuthority:false};
+}
+function getGradedRoadAudit(){return {
+ source:'continuous-cambered-real-farm-market-home-civic-geometry',
+ ...gradedRoadFrameStats,classes:{...gradedRoadFrameStats.classes},
+ maxCrownHeight:GRAINWARD_ROAD_PROFILE.heights[3],
+ trackDepression:GRAINWARD_ROAD_PROFILE.heights[3]-
+  GRAINWARD_ROAD_PROFILE.heights[2],
+ existingRouteBetweenOnly:true,createsCitizens:false,
+ changesNavigation:false,changesAuthoritativeState:false,
+ budgetProof:'scene-wide <160k and actual matched footage still required'};}
+
 function marketToRealHomeStreet(){
  const first=data.length;
  marketHomeStreetStats={source:'market-to-assigned-real-home',
@@ -10495,26 +10541,23 @@ function marketToRealHomeStreet(){
  audit.homeIndex=citizenHomeIndex(chosen.p);
  audit.waypoints=points.length;
  const earth=[rgb(0x756954),rgb(0x806f59),rgb(0x6d6252)];
- const wheel=[rgb(0x716251),rgb(0x645749)];
+ const wheel=[rgb(0x574d40),rgb(0x645749)];
  const stone=[rgb(0x9e957d),rgb(0xb0a189),rgb(0x868373)];
+ const verge=[rgb(0x727d62),rgb(0x7c816a),rgb(0x746c59)];
+ const roadPalette={earth,wheel,verge};
  materialScope(MATERIAL.ROAD,()=>{
   for(let section=0;section<points.length-1;section++){
-   const a=points[section],b=points[section+1];
-   const dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+   const a=points[section],b=points[section+1],
+    dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
    if(length<.01)continue;
    const nx=-dz/length,nz=dx/length,steps=Math.ceil(length/.95);
    const at=(t,off,h)=>{const x=a[0]+dx*t+nx*off,
     z=a[1]+dz*t+nz*off;return [x,terrain(x,z)+h,z]};
    for(let i=0;i<steps;i++){
     const f=i/steps,g=(i+1)/steps,key=section*83+i;
-    upwardRoadQuad(at(f,-.59,.040),at(g,-.59,.040),
-     at(g,.59,.040),at(f,.59,.040),earth[key%3]);
-    for(const side of [-1,1]){
-     const across=side*.35;
-     upwardRoadQuad(at(f,across-.09,.051),at(g,across-.09,.051),
-      at(g,across+.09,.051),at(f,across+.09,.051),
-      wheel[(key+section)%wheel.length]);
-    }
+    // The same true household route now crosses a physically crowned
+    // public wheelway rather than the former glued-on flat checkerboard.
+    renderGradedRoadSection(a,b,f,g,.59,key,roadPalette,'household');
     if(key%5===0)for(const side of [-1,1]){
      const across=side*.65;
      upwardRoadQuad(at(f,across-.07,.052),at(g,across-.07,.052),
@@ -10723,29 +10766,12 @@ function farmMarketStreet(){
   materialScope(MATERIAL.ROAD,()=>{
    for(let i=0;i<count;i++){
     const t=i/count,u=(i+1)/count,k=section*113+i;
-    const offset=.013*Math.sin(k*2.71);
     audit.sections++;audit.mudBaseStrips++;
-    // Low terrain-following carriageway remains an OPEN path. It never
-    // creates an impassable wall or overlaps a citizen's feet from above.
-    upwardRoadQuad(at(t,-.70,.040),at(u,-.70,.040),
-     at(u,.70,.040),at(t,.70,.040),roadTones[k%3]);
-    // Two wheel depressions, NOT the decorative high-contrast checkerboard
-    // visible in G088. The real courierWheelTrails are still drawn on top.
-    for(const sign of [-1,1]){
-     const across=sign*.39+offset;
-     upwardRoadQuad(at(t,across-.085,.052),at(u,across-.085,.052),
-      at(u,across+.085,.052),at(t,across+.085,.052),
-      rutTones[k%2]);
-     audit.rutBands++;
-     // Vegetated rain-softened shoulders blend directly into the farmland.
-     const inner=sign*.71,outer=sign*(.93+.05*Math.sin(k*.73));
-     upwardRoadQuad(at(t,inner,.033),at(u,inner,.033),
-      at(u,outer,.027),at(t,outer,.027),
-      vergeTones[(k+section)%vergeTones.length]);
-     audit.shoulderStrips++;
-    }
-    // Hand-set small stone edges on bends, with deliberately open intervals
-    // for wagon crossings. They are flush to the soil, never a fake wall.
+    // The real courier travels on a complete cambered earth surface with
+    // sunken wheel grooves, not two higher opaque polygons over flat soil.
+    renderGradedRoadSection(a,b,t,u,.70,k,{
+     earth:roadTones,wheel:rutTones,verge:vergeTones},'granary');
+    audit.rutBands+=2;audit.shoulderStrips+=2;
     if(k%5===0){
      for(const sign of [-1,1]){
       const inner=sign*.78,outer=sign*.94;
