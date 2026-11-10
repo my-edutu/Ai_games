@@ -77,7 +77,21 @@ test('original crown is in real Three scene, bounded and recoverable', () => {
   const audio = fs.readFileSync(path.join(ROOT,
     'public/infinite-tower-climb/visuals/audio.mjs'), 'utf8');
   assert.match(scene, /ObservedCurrentFloorSummitCrown/);
-  assert.match(scene, /new THREE\.InstancedMesh\([\s\S]*?, 8\)/);
+  // Original native guardian footage and retained triangle owners proved the
+  // *foreground* "ActualCapNavigationHalo", not the three far decorative gears,
+  // was covering combat. The objective must be a real open architectural crest
+  // behind the physical hero/guardian, not a complete eight-spoked near-camera
+  // disc. Read only the crown stage, not a coincidental other InstancedMesh.
+  const start = scene.indexOf("const crownStage = new THREE.Group()");
+  const end = scene.indexOf("let observedCrown = null", start);
+  const crest = scene.slice(start, end);
+  assert.ok(start > 0 && end > start);
+  assert.match(crest, /new THREE\.TorusGeometry\(1\.95, \.11, 7, 32, Math\.PI \* 1\.36\)/);
+  assert.match(crest, /new THREE\.InstancedMesh\([\s\S]*?, 4\)/);
+  assert.doesNotMatch(crest, /new THREE\.TorusGeometry\(2\.85, \.18/);
+  assert.match(scene, /observedCrown\.width, 22\.72\)/);
+  assert.doesNotMatch(scene, /observedCrown\.width, 28\.85\)/);
+  assert.match(scene, /crownRing\.rotation\.z = options\.reducedMotion \? -Math\.PI \* \.18/);
   assert.match(scene, /depthTest: true, depthWrite: true/);
   assert.match(scene, /crownStage\.visible = false; observedCrown = null/);
   assert.match(scene, /observedCrown = !options\.stale \? observeTowerCrown\(snapshot\) : null/);
