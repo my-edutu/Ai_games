@@ -15,6 +15,7 @@ on:
       - 'scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs'
       - 'scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs'
       - 'scripts/tiny-kingdom-w205-open-receiving-front-contract.cjs'
+      - 'scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
       - 'tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs'
@@ -56,6 +57,7 @@ jobs:
           node scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs
           node scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs
           node scripts/tiny-kingdom-w205-open-receiving-front-contract.cjs
+          node scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs
 
   original-market-webgl:
     needs: original-market-source
