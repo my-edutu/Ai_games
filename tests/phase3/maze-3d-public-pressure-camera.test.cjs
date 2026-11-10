@@ -255,6 +255,36 @@ test('public retreat shot never promotes previously secret, forged, blocked or d
  assert.equal(pick(before,after,'follow',false,false,true),null);
  assert.equal(pick(before,after,'follow')?.verifiedRetreat,true);
 });
+test('a real previously VISIBLE pressure jaw stays in the retreat camera even across a non-walkable wall',async()=>{
+ const {publicVerifiedPressureRetreatPartner:retain}=await load();
+ // A rendered pressure mechanism may be seen through an opening or over
+ // low masonry without being traversable. Camera staging does not certify
+ // a walking edge to the hazard. Pip's *actual* retreat edge must be open.
+ const cells=[
+   {cell:24,neighbors:[25],blocked:false},
+   {cell:25,neighbors:[24],blocked:false},
+   {cell:32,neighbors:[],trap:true,blocked:false}
+ ];
+ const before={runToken:'wall-side-pressure',tick:5,width:7,height:7,
+   currentCell:25,cells,visibleCells:[25,32],doors:[],result:null};
+ const after={...before,tick:6,currentCell:24,visibleCells:[24]};
+ const unchanged=JSON.stringify([before,after]);
+ const witnessed=retain(before,after,CELL,ASPECT);
+ assert.equal(witnessed?.cell,32,
+   'cannot abandon a physically witnessed jaw simply because Pip cannot walk into its tile');
+ assert.equal(witnessed?.verifiedRetreat,true);
+ assert.equal(witnessed?.weight,.57);
+ assert.equal(JSON.stringify([before,after]),unchanged,'camera must not mutate public state');
+ assert.equal(retain({...before,visibleCells:[25]},after,CELL,ASPECT),null,
+   'an undisclosed pressure mechanism can never become a camera subject');
+ assert.equal(retain(before,{...after,cells:cells.map(c=>c.cell===32?{...c,trap:false}:c)},CELL,ASPECT),null);
+ assert.equal(retain(before,{...after,doors:[{a:24,b:25,open:false}]},CELL,ASPECT),null,
+   'an actually closed retreat edge cannot validate movement');
+ assert.equal(retain(before,{...after,cells:cells.map(c=>c.cell===25?{...c,neighbors:[]}:c)},CELL,ASPECT),null,
+   'a one-way hero retreat is not legitimate');
+ assert.equal(retain(before,after,CELL,844/390),null);
+});
+
 test('real production camera keeps the previous witnessed pressure shape without altering its strict silhouette gate',()=>{
  const fs=require('node:fs'),path=require('node:path');
  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
@@ -263,4 +293,6 @@ test('real production camera keeps the previous witnessed pressure shape without
  assert.match(source,/const publicPressureTrap = verifiedRetreatTrap/);
  assert.match(source,/cameraGate = pressureFirst \? null : openingGateBeat \|\| nearObservedGate/);
  assert.match(source,/pressureCameraBeat = true/);
+ assert.match(source,/pressureCameraPartner: pressureCameraBeat && publicPressureTrap/);
+ assert.match(source,/verifiedRetreat:!!verifiedRetreatTrap/);
 });

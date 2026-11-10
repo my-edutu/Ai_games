@@ -180,10 +180,13 @@ export function publicVerifiedPressureRetreatPartner(before, after, cellSize, as
     if(!Number.isSafeInteger(id) || id<0 || id>=limit
       || !old || old.trap!==true || old.blocked===true
       || !now || now.trap!==true || now.blocked===true
-      || !before.visibleCells.includes(id)
-      || !Array.isArray(old.neighbors) || !old.neighbors.includes(from)
-      || !Array.isArray(source.get(from)?.neighbors)
-      || !source.get(from).neighbors.includes(id)) continue;
+      || !before.visibleCells.includes(id)) continue;
+    // The pressure sculpture was PHYSICALLY SEEN at one-cell distance
+    // in the prior public frame. It need not be a walkable neighbor:
+    // an open-route requirement here incorrectly discarded a genuine
+    // wall-side mechanism and let a sealed gate crop the retreat shot.
+    // The hero's actual from->to movement IS checked reciprocally above;
+    // this visual camera partner grants no passage or attack cue.
     const contact=distance(from,id), withdrawn=distance(to,id);
     if(contact.dx+contact.dz!==1 || withdrawn.dx!==1 || withdrawn.dz!==1)
       continue;

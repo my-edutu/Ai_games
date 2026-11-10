@@ -1290,6 +1290,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             + Math.cos(recentPublicPickup.cameraHeading) * cameraOffset.z)
           / Math.max(.001, Math.hypot(cameraOffset.x, cameraOffset.z))) : null,
         cameraAspect: aspect, cameraHorizontalHalfSpan: halfHeight * aspect,
+        // Actual rendered camera priority, derived solely from already
+        // disclosed pressure geometry. A test or image critic can identify
+        // an unauthorized gate takeover without reading private state.
+        pressureCameraPartner: pressureCameraBeat && publicPressureTrap
+          ? {cell:publicPressureTrap.cell,verifiedRetreat:!!verifiedRetreatTrap}
+          : null,
         cameraOffset: {x: cameraOffset.x, y: cameraOffset.y, z: cameraOffset.z},
         nearbySealedGateProjection: nearObservedGate ? (() => {
           const a = cellPosition(nearObservedGate.a, s.width, s.height);
