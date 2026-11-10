@@ -18,6 +18,9 @@ function mockAdapters(){
   visuals,sounds,
   visualAdapter:{
    emit(cue){visuals.push(cue);return true},
+   // The consent fixture explicitly represents art that reached the draw
+   // boundary. The melee audio gate separately tests real measured blades.
+   hasLiveCue(){return true},hasDrawableCue(){return true},
    advance(){},reset(){},dispose(){}
   },
   audioAdapter:{
