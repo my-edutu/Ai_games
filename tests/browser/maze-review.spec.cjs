@@ -105,8 +105,12 @@ test('native game-first stage occupies the screen without concealing public cont
   expect(rects.objective.display).not.toBe('none');
   expect(rects.objective.visibility).not.toBe('hidden');
   if(rects.urgency){
-    expect(rects.goalCopy,'the visible urgent action must be explicit').toBe('Avoid warden');
-    expect(rects.objectiveCopy,'the suppressed duplicate retains truthful public context').toBe('Keep clear');
+    // Both real public emergencies use explicit, matching one-line actions.
+    // The 2026-11-10 native screenshot has an AUTHENTIC pressure court and
+    // correctly displays 'Avoid jaws', not the old guardian-only text.
+    const truthfulDanger={'Avoid warden':'Keep clear','Avoid jaws':'Keep clear of the jaws'};
+    expect(Object.keys(truthfulDanger),'only genuine urgent actions are permitted').toContain(rects.goalCopy);
+    expect(rects.objectiveCopy,'the suppressed duplicate retains the matching real public danger').toBe(truthfulDanger[rects.goalCopy]);
     expect(rects.objective.width,'urgent secondary prose must not occlude the actors').toBeLessThanOrEqual(2);
     expect(rects.objective.height,'urgent secondary prose must stay visually compact').toBeLessThanOrEqual(2);
   }else{

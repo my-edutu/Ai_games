@@ -645,6 +645,61 @@ export function publicImmediatePressureCue(snapshot) {
   return closest;
 }
 
+
+/**
+ * Carry an already witnessed mechanical pressure warning through Pip's ONE
+ * lawful, publicly known withdrawal step. The actual native 320px encounter
+ * has a cardinal tick-5 pressure beat then a tick-6 diagonal retreat; losing
+ * the imperative to an unrelated gate before the jaws finish was misleading.
+ *
+ * Do not predict a future threat or change AI: both snapshots disclose the
+ * same trap, the movement edge is reciprocally open, and only adjacent to
+ * diagonal one-tick departures qualify. No remembered-only/hidden event.
+ */
+export function publicPressureWithdrawalCue(before, after) {
+  if (!before || !after || before.result || after.result
+    || typeof before.runToken !== 'string' || !before.runToken
+    || before.runToken !== after.runToken
+    || !Number.isSafeInteger(before.tick) || !Number.isSafeInteger(after.tick)
+    || after.tick !== before.tick + 1
+    || !Number.isSafeInteger(before.width) || before.width < 2
+    || !Number.isSafeInteger(before.height) || before.height < 2
+    || before.width !== after.width || before.height !== after.height
+    || !Array.isArray(before.cells) || !Array.isArray(after.cells)
+    || !Array.isArray(before.visibleCells) || !Array.isArray(after.visibleCells)
+    || !Array.isArray(before.doors) || !Array.isArray(after.doors)
+    || !Number.isSafeInteger(before.currentCell)
+    || !Number.isSafeInteger(after.currentCell)
+    || before.currentCell < 0 || after.currentCell < 0
+    || before.currentCell >= before.width * before.height
+    || after.currentCell >= after.width * after.height) return null;
+  const observed = publicImmediatePressureCue(before);
+  if (!observed || observed.steps !== 1 || publicImmediatePressureCue(after)) return null;
+  const from = before.currentCell, to = after.currentCell, trap = observed.cell;
+  const gridDistance = (a, b) => ({
+    x: Math.abs(a % after.width - b % after.width),
+    z: Math.abs(Math.floor(a / after.width) - Math.floor(b / after.width))
+  });
+  const movement = gridDistance(from, to), withdrawal = gridDistance(to, trap);
+  if (movement.x + movement.z !== 1
+    || withdrawal.x !== 1 || withdrawal.z !== 1) return null;
+  const disclosedEdge = state => {
+    const byCell = new Map(state.cells.map(cell => [cell?.cell, cell]));
+    const start = byCell.get(from), end = byCell.get(to), hazard = byCell.get(trap);
+    return !!start && !!end && !!hazard
+      && !start.blocked && !end.blocked && hazard.trap === true
+      && !hazard.blocked && state.visibleCells.includes(trap)
+      && state.visibleCells.includes(state.currentCell)
+      && Array.isArray(start.neighbors) && start.neighbors.includes(to)
+      && Array.isArray(end.neighbors) && end.neighbors.includes(from)
+      && !state.doors.some(door => !door.open
+        && ((door.a === from && door.b === to)
+          || (door.b === from && door.a === to)));
+  };
+  if (!disclosedEdge(before) || !disclosedEdge(after)) return null;
+  return {cell:trap,steps:2,withdrawal:true};
+}
+
 export function publicObjective(snapshot) {
   const {currentCell, width, height} = snapshot ?? {};
   if (!Number.isInteger(currentCell) || !Number.isInteger(width) || !Number.isInteger(height)

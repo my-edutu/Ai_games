@@ -141,3 +141,58 @@ test('production Follow camera wires pressure-first priority without changing th
  assert.match(source,/\(pressureFirst \|\| !keyGateCue\)/);
  assert.match(source,/if \(!pressureFirst && !settings\.reducedMotion/);
 });
+
+
+test('published pressure warning stays actionable for exactly one REAL connected diagonal withdrawal',async()=>{
+ const {publicImmediatePressureCue,publicPressureWithdrawalCue:carry}=await load();
+ const cells=[
+  {cell:24,neighbors:[25],blocked:false},
+  {cell:25,neighbors:[24,32],blocked:false},
+  {cell:32,neighbors:[25],trap:true,blocked:false}
+ ];
+ const before={runToken:'physical-pressure',tick:5,width:7,height:7,
+  currentCell:25,cells,visibleCells:[24,25,32],doors:[],result:null};
+ const after={...before,tick:6,currentCell:24};
+ const original=JSON.stringify({before,after});
+ assert.deepEqual(publicImmediatePressureCue(before),{cell:32,steps:1});
+ assert.equal(publicImmediatePressureCue(after),null);
+ assert.deepEqual(carry(before,after),{cell:32,steps:2,withdrawal:true});
+ assert.equal(carry(after,{...after,tick:7,currentCell:24}),null,
+  'once Pip is diagonal, no indefinite pressure HUD warning');
+ assert.equal(JSON.stringify({before,after}),original,'never mutate publicly streamed game authority');
+});
+test('pressure withdrawal never invents a warning across closed, unknown, one-way or stale events',async()=>{
+ const {publicPressureWithdrawalCue:carry}=await load();
+ const cells=[
+  {cell:24,neighbors:[25],blocked:false},
+  {cell:25,neighbors:[24,32],blocked:false},
+  {cell:32,neighbors:[25],trap:true,blocked:false}
+ ];
+ const before={runToken:'pressure-test',tick:5,width:7,height:7,currentCell:25,
+  cells,visibleCells:[24,25,32],doors:[],result:null};
+ const after={...before,tick:6,currentCell:24};
+ const variants=[
+  [{...before,runToken:'old'},after],
+  [before,{...after,tick:7}],
+  [before,{...after,currentCell:23}],
+  [before,{...after,result:{reason:'capture'}}],
+  [before,{...after,visibleCells:[24,25]}],
+  [{...before,visibleCells:[24,25]},after],
+  [before,{...after,cells:cells.slice(0,2)}],
+  [before,{...after,cells:cells.map(c=>c.cell===32?{...c,trap:false}:c)}],
+  [before,{...after,cells:cells.map(c=>c.cell===24?{...c,blocked:true}:c)}],
+  [before,{...after,cells:cells.map(c=>c.cell===24?{...c,neighbors:[]}:c)}],
+  [before,{...after,doors:[{a:24,b:25,open:false}]}],
+  [{...before,doors:[{a:24,b:25,open:false}]},after]
+ ];
+ for(const [a,b] of variants) assert.equal(carry(a,b),null,
+  'cannot prolong a danger warning from missing or fabricated public movement');
+});
+test('the actual game-first overlay consumes ONLY the public pressure retreat',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
+ assert.match(source,/publicImmediatePressureCue\(snapshot\)\s*\|\| publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/);
+ assert.match(source,/const urgent=exposedDanger\|\|!!pressureCue/);
+ assert.match(source,/pressureCue\?'Avoid jaws'/);
+ assert.match(source,/pressureCue\?'Keep clear of the jaws'/);
+});

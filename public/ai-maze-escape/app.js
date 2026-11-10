@@ -1,4 +1,4 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
@@ -74,6 +74,7 @@ function viewerCaption(value){
 function update(value){
   if(!value?.snapshot)return;
   const snapshot=value.snapshot;
+  const previousPublicSnapshot=frame?.snapshot;
   // The exact public before→after transition that authorizes Pip's real 3D
   // key shards also earns a single brief game HUD beat. No hidden state or
   // authoritative simulation time is involved.
@@ -117,7 +118,13 @@ function update(value){
   // "Key for gate" over visibly moving jaws. Prioritise the ACTUALLY visible
   // adjacent trap in the SAME compact mission chip. This never changes Pip's
   // genuine autonomous intent or invents an undisclosed engine event.
-  const pressureCue=!ended && !exposedDanger ? publicImmediatePressureCue(snapshot) : null;
+  // A pressure mechanism witnessed during a real adjacent approach remains
+  // the urgent objective through ONE witnessed connected withdrawal. The
+  // broader map/gate goal returns immediately thereafter; AI remains real.
+  const pressureCue=!ended && !exposedDanger
+    ? publicImmediatePressureCue(snapshot)
+      || publicPressureWithdrawalCue(previousPublicSnapshot,snapshot)
+    : null;
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
   byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':pressureCue?'PRESSURE NEARBY':'LIVE EXPLORATION';
