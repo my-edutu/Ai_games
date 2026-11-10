@@ -26,8 +26,8 @@ const file=path.join(temp,'world.mjs');
 fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(threeUrl))
   .replace("'./coordinates.mjs'",JSON.stringify(coordUrl))
-  .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl)))
-  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
+  .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl))
+  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href)));
 const loaded=Promise.all([import(threeUrl),import(pathToFileURL(file).href)]);
 function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000,rider=false}={}){
   const base=floor*360000;
