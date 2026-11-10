@@ -585,6 +585,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  // Use the SAME live actor, tick and rig-hand rules as visual admission;
  // never infer a projectile hit, fabricate a source or add a mesh/voice.
  // This is queried only on undrawn release cues at their staging boundary.
+ // Recheck an already drawable sword at the WebGL receipt boundary.
+ // The retained ribbon can still be live from advance() even if the actor
+ // changed action, died or lost its actual wrist before render submission.
+ // This is only pose provenance, NEVER physical contact or attacker proof.
+ function hasAuthenticatedSwingPose(cue){
+  return !disposed&&cue?.kind==='swing'&&cue?.visual==='trail'&&
+   cue?.proof==='authority-attempt-not-hit'&&anchor(cue,'trail')!==null;
+ }
  function hasAuthenticatedReleasePose(cue){
   if(disposed||cue?.proof!=='authority-action')return false;
   const type=cue.kind==='ranged-release'?'projectile':
@@ -652,5 +660,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
 }
