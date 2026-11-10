@@ -819,7 +819,7 @@ export function createTowerGuardianPassage(THREE) {
       innerDoorAssembly.visible = true;
       const t = still ? 1 : clamp(age / .38);
       const arrive = t * t * (3 - 2 * t);
-      innerDoorAssembly.position.y = -1.4 * (1 - arrive);
+      innerDoorAssembly.position.y = arrive >= 1 ? 0 : -1.4 * (1 - arrive);
     } else {
       innerDoorAssembly.visible = false;
       innerDoorAssembly.position.y = 0;
