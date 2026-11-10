@@ -12,6 +12,8 @@ assert.match(src,/marketReceivingSideEnclosure\(\);\s*marketReceivingRoofInterio
  'do not undo original W207 inward roof; connect the same open grain hall');
 const enclosure=between('function marketReceivingSideEnclosure(){','function marketReceivingRoofInterior(){');
 assert.doesNotMatch(enclosure,/state\.(food|wood|gold)\s*[+\-*/]?=/);
+assert.match(enclosure,/box\(x,ground\+\.84,z,\.105,\.91,z1-z0-\.025,plaster\[bay\]\)/,
+ 'a real built hall needs two-sided thick plaster, not one-sided invisible interior quads');
 const calls=[],mesh=[],stats={};
 const site={centerX:-.075,frontZ:10.77,backZ:12.45,halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24};
 const mockBox=(x,y,z,w,h,d)=>{calls.push({type:'box',x,y,z,w,h,d});for(let i=0;i<360;i++)mesh.push(0)};
