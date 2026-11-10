@@ -23,7 +23,7 @@ const visible = {
   doors: [], keys: [], inventory: [], threats: [], exitCell: null
 };
 
-test('two real joined pressure blades spread apart on published approach, then retract without revealing secrets', async () => {
+test('two real joined pressure blades close INWARD on published contact and release without revealing secrets', async () => {
   const {createMazeWorld} = await modulePromise;
   const {Vector3} = await import(three);
   const world = createMazeWorld({balanced:true});
@@ -48,29 +48,34 @@ test('two real joined pressure blades spread apart on published approach, then r
   const center = trap.getWorldPosition(new Vector3());
   const point = () => {
     world.group.updateMatrixWorld(true);
-    return Math.abs(frontRight.getWorldPosition(new Vector3()).x
-      - frontLeft.getWorldPosition(new Vector3()).x);
+    // Signed X-order exposes actual convergence and crossing: absolute
+    // separation would incorrectly accept the old outward-spreading stakes.
+    return frontRight.getWorldPosition(new Vector3()).x
+      - frontLeft.getWorldPosition(new Vector3()).x;
   };
   world.animate(1,{explorerPosition:new Vector3(center.x+50,0,center.z+50),reducedMotion:false});
-  assert.ok(Math.abs(left.rotation.z-.06)<1e-9 && Math.abs(right.rotation.z+.06)<1e-9);
+  assert.ok(Math.abs(left.rotation.z+.06)<1e-9 && Math.abs(right.rotation.z-.06)<1e-9);
   const restingSpan = point();
   world.animate(2,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
-  assert.ok(Math.abs(left.rotation.z-.20)<1e-9 && Math.abs(right.rotation.z+.20)<1e-9,
+  assert.ok(Math.abs(left.rotation.z+.20)<1e-9 && Math.abs(right.rotation.z-.20)<1e-9,
     'first true public contact warns through both joined hinges before the floor opens');
   world.animate(2.4,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
   assert.ok(Math.abs(left.rotation.z)>.35 && Math.abs(left.rotation.z)<.66,
-    'the middle beat opens both physical jaws progressively, not instantaneously');
+    'the middle beat closes both physical jaws progressively, not instantaneously');
   world.animate(3.25,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
-  assert.ok(Math.abs(left.rotation.z-.66)<1e-9 && Math.abs(right.rotation.z+.66)<1e-9,
-    'sustained true public contact reaches the UNCHANGED full outward 0.66rad stroke');
-  const openSpan = point();
-  assert.ok(openSpan > restingSpan + .4,
-    `paired foreground blades must spread unmistakably (${restingSpan} -> ${openSpan})`);
+  assert.ok(Math.abs(left.rotation.z+.66)<1e-9 && Math.abs(right.rotation.z-.66)<1e-9,
+    'sustained true public contact reaches the UNCHANGED full inward 0.66rad stroke');
+  const closedSpan = point();
+  assert.ok(closedSpan < restingSpan - .4,
+    `connected left/right foreground blades must close and cross inward unmistakably (${restingSpan} -> ${closedSpan})`);
+  assert.ok(world.stats().witnessedPressureMechanisms.some(mechanism =>
+    mechanism.cell===24 && mechanism.inwardShearRadians>=.60),
+    'real currently visible public trap must expose its actual inward physical hinge, not absolute motion');
   world.animate(4,{explorerPosition:new Vector3(center.x+50,0,center.z+50),reducedMotion:false});
   assert.ok(Math.abs(point()-restingSpan)<1e-8,
     'original reversible pressure geometry returns when Pip moves away');
   world.animate(4.1,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:true});
-  assert.ok(Math.abs(left.rotation.z-.24)<1e-9 && Math.abs(right.rotation.z+.24)<1e-9,
+  assert.ok(Math.abs(left.rotation.z+.24)<1e-9 && Math.abs(right.rotation.z-.24)<1e-9,
     'reduced motion uses a readable, settled symmetric pose');
   assert.equal(world.stats().geometryCount,budget.geometryCount);
   assert.equal(world.stats().materialCount,budget.materialCount);
@@ -81,7 +86,7 @@ test('two real joined pressure blades spread apart on published approach, then r
   world.update({...visible,visibleCells:[]});
   world.animate(5,{explorerPosition:new Vector3(center.x,0,center.z),reducedMotion:false});
   const remembered = world.group.getObjectByName('Disclosed tide-shear hinged jaw 24 1');
-  if (remembered) assert.ok(Math.abs(remembered.rotation.z+.06)<1e-9,
+  if (remembered) assert.ok(Math.abs(remembered.rotation.z-.06)<1e-9,
     'a hazard that is not currently visible cannot react to hidden proximity');
   world.update({...visible,runToken:'fresh-run',tick:0,cells:[],visibleCells:[],discoveredCells:[]});
   assert.equal(world.group.getObjectByName('Disclosed tide-shear pressure hazard 24'),undefined,
