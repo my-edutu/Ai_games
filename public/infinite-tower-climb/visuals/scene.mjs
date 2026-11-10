@@ -124,7 +124,7 @@ function followClimberContact(position, target, blend, state, sourceRimBoundary 
 // This pure function consumes only current rendered projections, not future
 // hits, synthetic boss poses, floor skips or gameplay-mutating events.
 function towerDuelOrbitBudget(dt, aspect, actorNdc, guardianNdc,
-    actorCoreClear, guardianCoreClear) {
+    actorCoreClear, guardianCoreClear, foregroundPressure=0) {
   if (!Number.isFinite(dt) || dt <= 0 || dt > .1 ||
       !Number.isFinite(aspect) || aspect <= 0 || aspect > 3 ||
       !actorCoreClear || !guardianCoreClear || !actorNdc || !guardianNdc)
@@ -132,7 +132,8 @@ function towerDuelOrbitBudget(dt, aspect, actorNdc, guardianNdc,
   const safe = (p, x, y) => [p.x,p.y,p.z].every(Number.isFinite) &&
     Math.abs(p.x) <= x && Math.abs(p.y) <= y &&
     p.z >= -1 && p.z <= 1;
-  if (!safe(actorNdc,.66,.68) || !safe(guardianNdc,.69,.68)) return Infinity;
+  if (!safe(actorNdc,.66,.68) || !safe(guardianNdc,.69,.68) ||
+      foregroundPressure > .26) return Infinity;
   // Camera turns at <=109 degrees/sec in an already readable portrait duel;
   // even landscape gets a bound. True panic/unsafe frames are never limited.
   return Math.min(.14, dt * (aspect < .85 ? 1.9 : 2.3));
@@ -970,6 +971,42 @@ function sampleGuardianCrownSightlines(head, reuse) {
   return reuse;
 }
 
+// Projected whole-body occlusion is the missing physical camera constraint.
+// Original 390x844 footage at exact 9095a5b0 (20s) shows an enormous
+// foreground guardian/maul obscuring the real climber even when BOTH centres
+// remain inside the cropped screen. Plan from the source's complete hitbox
+// corners; audit the currently submitted view with current model positions.
+// This is a conservative rectangular upper bound, NOT pixel-perfect footage.
+// Both players, AI, guardian collision, hazard, gateway and source ticks remain
+// untouched. No extra rendered objects or per-frame allocations are required.
+function observedDuelBounds(corners) {
+  if (!Array.isArray(corners) || corners.length !== 4 ||
+    corners.some(point => !Array.isArray(point) || point.length !== 3 ||
+      !point.every(Number.isFinite) || point[2] <= 0)) return null;
+  const x = corners.map(point => point[0]), y = corners.map(point => point[1]);
+  return {left:Math.min(...x),right:Math.max(...x),
+    bottom:Math.min(...y),top:Math.max(...y),
+    depth:corners.reduce((sum,point)=>sum+point[2],0)/4};
+}
+function observedGuardianForegroundPressure(actor, guardian) {
+  const fields=['left','right','bottom','top','depth'];
+  if (!actor || !guardian ||
+      [actor,guardian].some(box=>fields.some(key=>!Number.isFinite(box[key])) ||
+        box.right<=box.left || box.top<=box.bottom || box.depth<=0))
+    return {occlusion:0,dominance:0};
+  const actorW=actor.right-actor.left, actorH=actor.top-actor.bottom;
+  const guardianW=guardian.right-guardian.left, guardianH=guardian.top-guardian.bottom;
+  const x=Math.max(0,Math.min(actor.right,guardian.right)-Math.max(actor.left,guardian.left));
+  const y=Math.max(0,Math.min(actor.top,guardian.top)-Math.max(actor.bottom,guardian.bottom));
+  // A larger guardian is legitimate; a 3x-close-up hiding the source hero is
+  // not. Only a genuinely nearer opponent can occlude the player in depth.
+  const inFront=guardian.depth < actor.depth-Math.max(.35,actor.depth*.025);
+  return {
+    occlusion:inFront?Math.min(1,x*y/(actorW*actorH)):0,
+    dominance:inFront?Math.min(1.5,Math.max(0,guardianH/actorH-2.35)/1.9):0,
+  };
+}
+
 // Keep a previously source-safe guardian shot unless the challenger delivers
 // a material gain. Without this, tiny HP/telegraph changes can select a new
 // orbit every fixed tick and make the fight feel like a roaming debug camera.
@@ -978,6 +1015,12 @@ function sampleGuardianCrownSightlines(head, reuse) {
 function retainGuardianCameraShot(best, previous, quality) {
   if (!previous || !previous.clear || !previous.guardianFramed ||
     !Number.isFinite(previous.heroFraction) || previous.heroFraction < .15) return best;
+  // Don't retain a center-safe but physically hidden climber for "comfort".
+  // In a real foreground body overlap the safety correction outranks
+  // hysteresis, but is not triggered by a large guardian BEHIND the hero.
+  if (previous.guardianForegroundOcclusion > .32 &&
+      best.guardianForegroundOcclusion < previous.guardianForegroundOcclusion-.10)
+    return best;
   const priorScore = quality(previous), bestScore = quality(best);
   return Number.isFinite(priorScore) && Number.isFinite(bestScore) &&
     priorScore >= bestScore - 2.25 ? previous : best;
@@ -1460,6 +1503,10 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const duelLegibility = contactGuardian
       ? observedGuardianDuelLegibility(heroNdcCorners, guardianNdcCorners)
       : {heroFraction:0,guardianFraction:0,score:0};
+    const duelForeground=contactGuardian
+      ? observedGuardianForegroundPressure(
+        observedDuelBounds(heroNdcCorners), observedDuelBounds(guardianNdcCorners))
+      : {occlusion:0,dominance:0};
     // A tighter source duel lens is permitted only after validating the full
     // actual hero AND boss in the physical, unobstructed exterior shot.
     const actorFramed = points.slice(0,4).every(point => visible(point,.82,.76));
@@ -1481,7 +1528,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       ? guardianDuelEdgePressure(heroNdcCorners, guardianNdcCorners) : 0;
     return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion, gateDominance, transmissionIntrusion, transmissionDominance, duelEdgePressure,
       actorFramed, guardianFraction:duelLegibility.guardianFraction,
-      duelLegibility:duelLegibility.score, lensScale,
+      duelLegibility:duelLegibility.score,
+      guardianForegroundOcclusion:duelForeground.occlusion,
+      guardianForegroundDominance:duelForeground.dominance, lensScale,
       landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
         towerCoreSightlineClear(position, routeLanding, 23.5),
       duelLandingSoftened: !hardLandingFit,
@@ -1573,6 +1622,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // The smaller actor controls the result, not a decorative capstan.
         view.duelLegibility +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6 -
+        // The actual 9095a5b0 phone fight shows the guardian's close-up
+        // armor/hammer masking the real skinned hero although both centers
+        // technically fit. Penalize observed frontal body obstruction AND
+        // oversized boss scale before rewarding any decorative lock landmark.
+        view.guardianForegroundOcclusion * 125 -
+        view.guardianForegroundDominance * 38 -
         // A gate-centered shot can be "framed" and still make the actual
         // fight unreadable. Do not pay +16 gate points for a silhouette-
         // covering foreground lock; protect BOTH real actors first.
@@ -2337,6 +2392,10 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
   const guardianRescueEnemyProjection = new THREE.Vector3();
+  // Preallocate two physical camera-space projected-body envelopes; the
+  // guardian's massive nearer armor may mask a still-centered real hero.
+  const submittedHeroBounds={left:0,right:0,bottom:0,top:0,depth:0};
+  const submittedGuardianBounds={left:0,right:0,bottom:0,top:0,depth:0};
   const guardianBefore = [0, 0, 0], guardianAfter = [0, 0, 0];
   const actorBefore = [0, 0, 0], actorAfter = [0, 0, 0];
   let guardianRescueBlend = 0, guardianRescueApplications = 0;
@@ -3398,10 +3457,28 @@ export function createTowerScene(canvas, settings = {}) {
       actorFramePoint.y += p.halfHeight / SCALE;
       scratch.copy(actorFramePoint).project(camera);
       guardianRescueEnemyProjection.copy(currentGuardianDrawPoint).project(camera);
+      const heroDepth=camera.position.distanceTo(actorFramePoint);
+      const guardianDepth=camera.position.distanceTo(currentGuardianDrawPoint);
+      const lensTangent=Math.tan(camera.fov*Math.PI/360);
+      const projectBody=(target, center, depth, halfWidth, halfHeight)=>{
+        const factor=1/Math.max(.25,depth*lensTangent);
+        const hx=Math.max(0,halfWidth)*factor/camera.aspect;
+        const hy=Math.max(0,halfHeight)*factor;
+        target.left=center.x-hx;target.right=center.x+hx;
+        target.bottom=center.y-hy;target.top=center.y+hy;
+        target.depth=depth;
+      };
+      projectBody(submittedHeroBounds,scratch,heroDepth,
+        p.halfWidth/SCALE,p.halfHeight/SCALE);
+      projectBody(submittedGuardianBounds,guardianRescueEnemyProjection,guardianDepth,
+        sourceGuardian.halfWidth/SCALE,sourceGuardian.halfHeight/SCALE);
+      const foreground=observedGuardianForegroundPressure(
+        submittedHeroBounds,submittedGuardianBounds);
       duelOrbitBudget = towerDuelOrbitBudget(dt, camera.aspect, scratch,
         guardianRescueEnemyProjection,
         towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
-        towerCoreSightlineClear(camera.position, currentGuardianDrawPoint, 23.5));
+        towerCoreSightlineClear(camera.position, currentGuardianDrawPoint, 23.5),
+        foreground.occlusion+foreground.dominance*.3);
     }
     const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
