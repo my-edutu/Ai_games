@@ -56,7 +56,9 @@ const COOLDOWN=Object.freeze({whoosh:.075,impact:.085,block:.11,
 const clamp=(x,lo,hi,defaultValue=lo)=>Number.isFinite(x)?Math.max(lo,Math.min(hi,x)):defaultValue;
 /** A verified HP-loss cue can identify only its VICTIM, never a guessed striker. */
 export function verifiedDamageFoleyVictim(cue){
- return cue?.kind==='damage'&&cue?.proof==='observed-hp-drop'&&
+ return (cue?.kind==='damage'&&cue.audio==='impact'||
+  cue?.kind==='damage-fatal'&&cue.audio==='fatal-impact')&&
+  cue?.proof==='observed-hp-drop'&&
   cue.actorId===null&&typeof cue.targetId==='string'&&
   cue.targetId.length>0&&cue.targetId.length<=128&&
   (cue.audio==='impact'||cue.audio==='fatal-impact')?cue.targetId:null;
