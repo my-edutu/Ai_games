@@ -21,24 +21,28 @@ test('W204 one actual credited grain parcel physically holds on the true market 
  await page.setContent(html);
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
   null,{timeout:150000});
+ // Start at a real, already loaded food courier. An arbitrary early farmer
+ // harvesting is NOT necessarily the named producer of the next credited lot.
  const producer=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   g.reset();g.setSpeed(0);
-  for(let i=0;i<45000;i++){
+  for(let i=0;i<65000;i++){
    g.step(1/30);
-   if(i%9)continue;
-   const farmer=g.getHarvestInteractionAudit();
-   if(farmer.active&&farmer.progress>.13&&farmer.progress<.65){
-    const old=JSON.stringify(g.exportSnapshot());
-    const start=g.watchRealGrainJourney();
-    return {farmer,trace:start,observedOnly:old===JSON.stringify(g.exportSnapshot())};
-   }
+   if(i%4)continue;
+   const freight=g.getActiveDeliveries().find(d=>d.job==='farmer'&&
+    d.resource==='food'&&d.escrowed&&d.amount>0);
+   if(!freight)continue;
+   const old=JSON.stringify(g.exportSnapshot());
+   const trace=g.watchRealGrainJourney();
+   if(trace?.producer===freight.citizen&&trace.deliveryId===freight.id)
+    return {freight,trace,observedOnly:old===JSON.stringify(g.exportSnapshot())};
+   if(trace)g.stopRealGrainJourney();
   }
   return null;
  });
- expect(producer,'No genuine farmer harvesting, cannot fabricate a handoff').toBeTruthy();
+ expect(producer,'No authentic loaded food courier, cannot fabricate shipment').toBeTruthy();
  expect(producer.observedOnly).toBe(true);
- expect(producer.trace?.producer).toBe(producer.farmer.citizen);
+ expect(producer.trace?.deliveryId).toBe(producer.freight.id);
  const realReceipt=await page.evaluate(name=>{
   const g=window.__tinyKingdom;
   for(let i=0;i<100000;i++){
@@ -52,7 +56,7 @@ test('W204 one actual credited grain parcel physically holds on the true market 
    }
   }
   return null;
- },producer.farmer.citizen);
+ },producer.freight.citizen);
  expect(realReceipt,'Original named farmer never delivered valid grain').toBeTruthy();
  await realDraw(page);
  const before=await page.evaluate(()=>{
@@ -94,7 +98,7 @@ test('W204 one actual credited grain parcel physically holds on the true market 
  await page.screenshot({path:path.join(OUT,'actual-credited-grain-market-390.png')});
  fs.writeFileSync(path.join(OUT,'w204-genuine-market-sightline.json'),
   JSON.stringify({source:'original-same-parcel-autonomous-workday',
-   producer:producer.farmer.citizen,receipt:realReceipt.receipt,
+   producer:producer.freight.citizen,shipment:producer.freight,receipt:realReceipt.receipt,
    originalWorldSource:realReceipt.trace?.source||'grain-chain',
    desktop:{...before,authority:'same checked snapshot'},
    mobile:{...mobile,authority:'identical to desktop'},
