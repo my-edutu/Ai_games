@@ -5,7 +5,7 @@
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
   "repairedSourceSha": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
-  "reason": "Run new 10-job EXACT immutable github.sha original baseline/candidate 60+s source-authentic 960x600 and 390x844 WebM matrix with new source-natively event-cued, anonymous FULL ORIGINAL 60+s guardian portrait+desktop A/B video artifact. Prior 42883165109 original source at 4e788df 10/10 success and 8/8 native clocks calibrated, 16 full original WebMs; post-camera duel still visibly crowded by bronze/cyan gate rails with floating climber during real 14-24s fights. Prior source tick first HP decrease candidate ~7.23s vs baseline ~11.24s; authentic floor8→9 source event candidate ~22.90s vs baseline ~15.26s; original pixels at the sampled source search times still show floor eight, candidate floor9 visibly purple ~26s. These are source-film timing discrepancies, NOT proof of a fixed delay; new paired ORIGINAL film tool preserves full WebMs and never claims visual/independent PASS. Candidate source = EXACT github.sha of THIS request commit, not alias; frozen baseline stays 1731b380. Critically review authentic HP0, crusher, passage/floor9 and outcome/restart full motion across both viewports.",
+  "reason": "Capture exact IMMUTABLE github.sha original baseline/candidate 8 normal-speed 60+s WebM matrix + source real ledge and anonymous guardian event-cued full original A/B video (10 jobs). New production 5f7d204b + test 14f6cca do NOT alter source gameplay, but original 9095a5b0 390x844 guardian film ~20s shows nearer giant living guardian armor/weapon obscuring skinned protagonist even though both centers were onscreen. New camera director uses source projected complete hitbox/depth foreground overlap to select physically separated two-body views and rejects stalled smooth orbit on a truly masked protagonist. Need PROVE actual full-motion film improves 12–24s guardian attack, unclipped hero, stable orbit, crusher source, earned HP0 physical threshold and floor9 + outcome/restart; no quality preference until filmed and independently reviewed. Retain exact baseline 1731b380, seed, graphics low and 960x600/390x844. CI tests are veto only, not LOOKS/FEELS/PLAYS.",
   "scenarios": [
     "ascent",
     "moving",
@@ -336,5 +336,25 @@
     },
     "deviceFrameTime": "NOT EVALUATED",
     "nextHighestImpact": "Verify exact-head quality and new full original A/B media, source-to-visible phase timing then fix dominant real scene frame/guardian read. Keep P0."
+  },
+  "latestLiveGuardianForegroundCapture": {
+    "stage": "P0 OPEN",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "github.sha of THIS capture request commit; immutable, not moving branch alias",
+    "productionImplementationSha": "5f7d204b7035478d27fa3bdd458cdb30afcc1966",
+    "testSha": "14f6cca5973f29c3bdeca7091b6fcf8dab537987",
+    "sourceBefore": "9095a5b0f1535e099b6c55e49ce86c7c9721d559",
+    "originalBeforeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42888509021",
+    "observedBefore": "At original 390x844 native video second ~20, huge genuine foreground guardian armor/hammer partially hides climber and bright gate steals sightline; source and film unmodified.",
+    "afterCapture": "NOT EVALUATED — this workflow request must run exact immutable github.sha; report film only after decoding it.",
+    "sourceToPixels": "NOT EVALUATED",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedHardware": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED",
+    "nextHighestImpact": "Compare genuine portrait+desktop normal-speed source against old, inspect full guardian HP0/projectile/crusher/physical gate/floor9/outcome & restart, then repair main experiential defect rather than counting tests."
   }
 }
