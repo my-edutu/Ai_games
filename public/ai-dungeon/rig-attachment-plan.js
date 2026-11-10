@@ -23,6 +23,36 @@ export function planCranialRatio(kind){
 // and actual legal nearby enemy. These poses never invent game outcomes.
 const REST_BEARING=Object.freeze({head:Object.freeze({pitch:0,yaw:0,roll:0}),chest:Object.freeze({pitch:0,yaw:0,roll:0}),hips:Object.freeze({pitch:0,yaw:0,roll:0})});
 const BEARING=Object.freeze({vanguard:[.75,.65],ranger:[.60,1.15],mystic:[.88,1.06],revenant:[.38,.42],cultist:[.82,1],warden:[.46,.58]});
+/**
+ * Presentation-only supported guard stance on the actual source pelvis,
+ * thigh/calf/ankle, chest, shoulder and elbow bones. The original 41-joint
+ * Idle GLB supplies the base pose, while ONE authentic guard ownership
+ * envelope drives all reversible additions. This never implies a block,
+ * changes combat authority, moves the actor or creates a new source rig.
+ */
+const NATIVE_GUARD_REST=Object.freeze({
+ head:Object.freeze({pitch:0}),chest:Object.freeze({pitch:0}),
+ hips:Object.freeze({pitch:0}),
+ shoulders:Object.freeze({left:Object.freeze({pitch:0,roll:0}),
+  right:Object.freeze({pitch:0,roll:0})}),
+ elbows:Object.freeze({left:0,right:0}),
+ legs:Object.freeze({left:Object.freeze({upper:0,lower:0,foot:0}),
+  right:Object.freeze({upper:0,lower:0,foot:0})})
+});
+export function planNativeGuardPose(weight=0,reducedMotion=false){
+ if(reducedMotion||!Number.isFinite(weight)||weight<=0)return NATIVE_GUARD_REST;
+ const w=Math.min(1,weight);
+ return {
+  head:{pitch:-.018*w},chest:{pitch:.06*w},hips:{pitch:.013*w},
+  shoulders:{left:{pitch:.21*w,roll:-.10*w},
+   right:{pitch:.26*w,roll:.10*w}},
+  elbows:{left:.30*w,right:.38*w},
+  // Opposed knee and ankle loads keep the source chest/weapon brace supported
+  // without any fake foot translation, arbitrary IK or world-space claim.
+  legs:{left:{upper:-.038*w,lower:.055*w,foot:-.029*w},
+   right:{upper:.031*w,lower:.042*w,foot:-.024*w}}
+ };
+}
 export function planRigBearing(kind,hp,maxHp,action,age=0,enemyDistance=null,reducedMotion=false){
  const role=BEARING[kind];
  if(!role||reducedMotion||!Number.isFinite(hp)||!Number.isFinite(maxHp)||hp<=0||maxHp<=0||hp>maxHp||!Number.isFinite(age)||age<0)return REST_BEARING;
