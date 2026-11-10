@@ -93,7 +93,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
-  unmeasuredTrailFrames=0,occludedFlights=0,blockedFlights=0,disposed=false;
+  unmeasuredTrailFrames=0,retiredDeadTrails=0,occludedFlights=0,blockedFlights=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
   pose.position.set(0,-500,0);pose.rotation.set(0,0,0);
@@ -224,8 +224,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   // The sword streak must come from the current actually animated right-hand
   // bone on this witnessed swing. An idle or stale reused actor is not a blade.
+  // An attack action/tick can survive briefly on an actor whose authoritative
+  // health has already reached zero. A dead body's moving wrist is no longer
+  // an active sword attempt: never admit a new trail or a delayed whoosh.
   if(type==='trail'&&(!actor?.authored||actor.u?.action!=='attack'||
-    actor.u?.actionTick!==cue.tick||!selectObservedWeaponHandBone(actor)))return null;
+    actor.u?.actionTick!==cue.tick||
+    Number.isFinite(actor.u?.hp)&&actor.u.hp<=0||
+    !selectObservedWeaponHandBone(actor)))return null;
   // Authored ranger/caster models supply a genuine skinned hand. An invalid,
   // missing or detached joint must NOT quietly become a static actor-root
   // muzzle. Explicitly procedural fallback bodies keep their existing
@@ -509,8 +514,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     }
     if(pool.name==='trail'){
      const hand=anchor(slot.cue,'trail');
-     if(!hand){slot.lastHand=null;slot.measuredPath=null}
-     else{
+     if(!hand){
+      // A dying actor may retain its previous attack action while the death
+      // pose animates. Retire its sword slot immediately instead of keeping
+      // a moving ribbon or consuming its remaining pooled lifetime. A
+      // temporarily unavailable/rebound rig is merely hidden, not marked dead.
+      let deadAttacker=false;
+      try{
+       const actor=actorById(slot.cue.actorId);
+       deadAttacker=actor?.u?.id===slot.cue.actorId&&
+        Number.isFinite(actor.u.hp)&&actor.u.hp<=0;
+      }catch{}
+      if(deadAttacker){
+       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+       active--;retiredDeadTrails++;continue;
+      }
+      slot.lastHand=null;slot.measuredPath=null;
+     }else{
       // The game's normal one-shot animation dt is capped at 50ms, but its
       // ACTUAL browser frame may have stalled for seconds. Never join two
       // stale wrist samples just because their presentation clocks were capped.
@@ -612,7 +632,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
    retiredUnanchoredBodySignals,confirmedFragments,
-  measuredTrailFrames,unmeasuredTrailFrames,occludedFlights,blockedFlights,disposed,
+  measuredTrailFrames,unmeasuredTrailFrames,retiredDeadTrails,occludedFlights,blockedFlights,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
