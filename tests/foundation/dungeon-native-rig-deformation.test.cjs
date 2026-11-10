@@ -234,3 +234,43 @@ test('licensed 1H_Sword remains fixed in animated handslot.r, not artificially f
  assert.equal(measure(sample,{...attack,sourceWeaponGrip:{...attack.sourceWeaponGrip,
   socketName:'handslotl'}}).rigidGripComparable,false);
 });
+
+
+test('real-source sole microframe evidence distinguishes potential stance from foot translation without inventing an IK pass',async()=>{
+ const {assessSourceSoleFrameWindow:assess}=await load();
+ assert.equal(typeof assess,'function','original GLB source-foot evidence requires a same-tick visible-frame classifier');
+ const first={id:'vanguard',kind:'vanguard',sourceInstanceId:'source-live-1',mode:'move',
+  rootWorld:[0,0,0],soleVertexWorld:{left:[-.20,.21,0],right:[.20,.21,0]}};
+ const next={...first,rootWorld:[.12,0,0],soleVertexWorld:{
+  left:[-.196,.213,0],right:[.345,.242,0]}};
+ const meta={beforeTick:28,afterTick:28,beforeFrame:70,afterFrame:71};
+ const supported=assess(first,next,meta);
+ assert.equal(supported.comparable,true);
+ assert.equal(supported.classification,'potential-plant');
+ assert.deepEqual(supported.potentialPlantSides,['left']);
+ assert.ok(supported.rootTravelMeters>=.119);
+ assert.ok(supported.soleWorldDeltaMeters.left<.01);
+ const gliding={...next,soleVertexWorld:{left:[-.079,.21,0],right:[.32,.21,0]}};
+ const uncertified=assess(first,gliding,meta);
+ assert.equal(uncertified.comparable,true);
+ assert.equal(uncertified.classification,'no-observed-plant');
+ assert.deepEqual(uncertified.potentialPlantSides,[]);
+ assert.equal(uncertified.ikAccepted,false,'a two-frame sample cannot justify a world-space IK claim');
+ const still={...first,soleVertexWorld:{left:[-.12,.21,0],right:[.25,.21,0]}};
+ assert.equal(assess(first,still,meta).classification,'stationary-source-sole-motion');
+ for(const [reason,patch,b,a] of [
+  ['same-frame',{afterFrame:70},first,next],
+  ['skipped-tick',{afterTick:29},first,next],
+  ['reverse-frame',{afterFrame:69},first,next],
+  ['no-frame',{afterFrame:NaN},first,next],
+  ['teleport',{teleport:true},first,next],
+  ['invisible',{visible:false},first,next],
+  ['new-source',{},first,{...next,sourceInstanceId:'other'}],
+  ['nonfinite-world',{},first,{...next,soleVertexWorld:{left:[NaN,0,0],right:[1,0,0]}}],
+  ['not-traversing',{},first,{...next,mode:'attack'}],
+  ['skipped-root',{},first,{...next,rootWorld:[1.2,0,0]}]
+ ])assert.equal(assess(b,a,{...meta,...patch}).comparable,false,reason+' cannot certify a visible stance');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(browser,/assessSourceSoleFrameWindow\(/,'live Chromium source-rig test must actually consume the classifier');
+ assert.match(browser,/same-tick-real-mixer-sole-window/,'browser must attach honest same-tick source-rig frame evidence');
+});
