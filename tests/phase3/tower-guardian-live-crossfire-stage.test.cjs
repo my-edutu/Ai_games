@@ -13,6 +13,7 @@ const loaded=Promise.all([
  import(url('public/infinite-tower-climb/visuals/coordinates.mjs')),
  import(url('public/infinite-tower-climb/visuals/guardian-circuit.mjs')),
  import(url('public/infinite-tower-climb/visuals/guardian-shot-stage.mjs')),
+ import(url('public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')),
 ]);
 const frame=()=>({
  lifecycle:'running',runToken:'live-crossfire',floor:8,tick:340,
@@ -64,8 +65,8 @@ test('no phantom warning from passed, retreating, unrelated or dead source',asyn
  ])assert.equal(observedNearbyGuardianCrossfire(broken),null);
 });
 test('source-near physical airborne bolt keeps both combatants while landing stays real',async()=>{
- const [THREE,coordinates,circuit,{observedNearbyGuardianCrossfire}]=await loaded;
- const context={THREE,...coordinates,...circuit};
+ const [THREE,coordinates,circuit,{observedNearbyGuardianCrossfire},gateIntrusion]=await loaded;
+ const context={THREE,...coordinates,...circuit,...gateIntrusion};
  const source=fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8')
   .replace(/^import .*;\n/gm,'').replace('export function createTowerScene','function createTowerScene');
  vm.runInNewContext(source,context);

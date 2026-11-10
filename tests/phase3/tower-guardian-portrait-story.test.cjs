@@ -14,7 +14,9 @@ const loaded = (async () => {
   const coordinates = await import(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href);
   const guardianCircuit = await import(pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/guardian-circuit.mjs')).href);
-  const context = { THREE, ...coordinates, ...guardianCircuit };
+  const gateIntrusion = await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
+  const context = { THREE, ...coordinates, ...guardianCircuit, ...gateIntrusion };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };
