@@ -1941,3 +1941,36 @@ test('licensed source landing and walking re-entry settle on measured visible-fr
  assert.match(model,/frameInterval:sourceFrameInterval/,
   'animation transition timing cannot be inferred from the 50ms mixer step');
 });
+
+
+test('authentic native guard enters and exits on bounded witnessed slow WebGL frames instead of lagging four source frames',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const unit=action=>({id:'vanguard',kind:'vanguard',action,actionTick:91,hp:120,maxHp:120});
+ const slow={frameDelta:.05,frameInterval:.36,visible:true,reducedMotion:false,teleport:false};
+ const guard1=step(null,{...slow,unit:unit('guard')});
+ assert.equal(guard1.mode,'guard');
+ assert.ok(guard1.guardProgress>=.49&&guard1.guardProgress<=.51,
+  'first actual 360ms rendered guard frame must advance a connected partial source-rig pose, not only 50ms');
+ assert.ok(guard1.guardBlend>.45&&guard1.guardBlend<.55,
+  'pelvis, ankles, chest and original weapon-supporting elbows share the intermediate guard pose');
+ const guard2=step(guard1,{...slow,unit:unit('guard')});
+ assert.equal(guard2.guardProgress,1,'second witnessed visible frame may finish defensive entry');
+ const walking={...slow,unit:unit('move'),grounded:{moving:true,clipAction:'move'}};
+ const released1=step(guard2,walking);
+ assert.equal(released1.mode,'move');
+ assert.equal(released1.owner.guard,false,'guard physical release cannot invent gameplay guard');
+ assert.ok(released1.guardProgress>=.49&&released1.guardProgress<=.51,
+  'licensed Walking_A reentry must not tear away knee, hip and weapon-arm guard support in one rendered frame');
+ assert.equal(step(released1,walking).guardProgress,0,
+  'source Walking_A owns the connected body after two witnessed release frames');
+ const fast=step(null,{unit:unit('guard'),frameDelta:.016,frameInterval:.016,visible:true});
+ assert.ok(Math.abs(fast.guardProgress-.016/.18)<1e-8,
+  'normal 60Hz guard pose must preserve the original 180ms timing');
+ for(const stopped of [
+  {unit:unit('attack')},{unit:unit('move'),teleport:true},{unit:unit('guard'),reducedMotion:true},
+  {unit:unit('guard'),visible:false},{unit:{...unit('guard'),hp:0}},
+  {unit:unit('idle'),damageBeat:{id:'vanguard',kind:'vanguard',damage:3,maxHp:120,age:.08}},
+  {unit:unit('idle'),evasionBeat:{id:'vanguard',kind:'vanguard',tick:91,dx:1,dz:0,age:.12}}
+ ])assert.equal(step(guard2,{...slow,...stopped}).guardProgress,0,
+  'true injury, evasion, attack, defeat, teleport and accessibility override old guard support immediately');
+});
