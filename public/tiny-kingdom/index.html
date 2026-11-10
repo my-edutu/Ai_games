@@ -20535,14 +20535,57 @@ function getRealGrainHomeWitness(){
   state.householdTrades||[],state.householdMeals||[]);
  return planRealGrainHomeWitness(plan,people,city);
 }
+// W200: physically survey the real recorded cottage FRONT instead of
+// an overhead 11.5m tree-obscured shot. This never reenacts a historic meal.
+function realGrainHomeFrontage(home){
+ if(!home||!Number.isInteger(home.homeIndex)||home.homeIndex<0)return null;
+ const lot=city[home.homeIndex];
+ if(!Array.isArray(lot)||lot.length<3||!lot.every(Number.isFinite)||
+   !Number.isFinite(home.x)||!Number.isFinite(home.z)||
+   Math.hypot(lot[0]-home.x,lot[1]-home.z)>.05)return null;
+ const [x,z,k]=lot;
+ // Both original full and compact homes model the negative-Z front doorway.
+ // Aim at its outside threshold, never through an occupied wall or roof.
+ const frontZ=z-(2.1+k*.18)*.5-.54;
+ return {homeIndex:home.homeIndex,homeKey:lot.join(','),x,z,
+  aim:[x,terrain(x,frontZ)+.96,frontZ]};
+}
 function chooseRealGrainHomeLens(home){
- if(!home)return null;
- const shot=safeFreeOrbit(yaw,.76,11.5,[home.x,home.z]);
- if(!shot||!Array.isArray(shot.focus)||
-    Math.hypot(shot.focus[0]-home.x,shot.focus[1]-home.z)>.05)return null;
- return {yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
-  citySize:city.length,viewportWidth:canvas.clientWidth,
-  viewportHeight:canvas.clientHeight};
+ const front=realGrainHomeFrontage(home);if(!front)return null;
+ const roofs=followCameraRoofs(),ground=terrain(front.x,front.z);
+ const angles=[0,-.28,.28,-.58,.58,-.95,.95];
+ const pitches=[.16,.25,.35],distances=[5.0,5.9,6.9,8.2];
+ let best=null,bestCost=Infinity,surveyed=0,clear=0;
+ // Measure the SAME physical eye and front-door target actually used by
+ // the WebGL world and the original actor-LOD projection on both viewports.
+ for(const pitch of pitches)for(const zoom of distances)for(const offset of angles){
+  const yaw=Math.PI+offset,radius=Math.cos(pitch)*zoom;
+  const eye=[front.x+Math.sin(yaw)*radius,
+   ground+1.02+Math.sin(pitch)*zoom,
+   front.z+Math.cos(yaw)*radius];
+  if(eye[2]>=front.aim[2]-.25)continue;
+  surveyed++;
+  if(!physicalFollowEyeClearance(eye,roofs).clear||
+     followRayBlockers(eye,front.aim,roofs)>0)continue;
+  const canopy=foregroundVegetationProjection(eye,front.aim);
+  if(canopy.faceBlockers>0||canopy.cover>=.32)continue;
+  const scenic=foregroundSceneProjection(eye,front.aim,roofs);
+  if(scenic.cover>=.44)continue;
+  clear++;
+  const cost=canopy.cover*1100+scenic.cover*850+
+   (scenic.cargoCover||0)*500+Math.abs(offset)*32+
+   Math.abs(pitch-.23)*45+(zoom-5.6)**2*5;
+  if(cost<bestCost){bestCost=cost;
+   best={yaw,pitch,zoom,aim:front.aim.slice(),
+    homeIndex:front.homeIndex,homeKey:front.homeKey,
+    eye:eye.slice(),sceneCover:scenic.cover,canopyCover:canopy.cover,
+    canopyFaceBlockers:canopy.faceBlockers,blockingVolumes:0,
+    source:'real-recorded-cottage-front-exterior',
+    citySize:city.length,viewportWidth:canvas.clientWidth,
+    viewportHeight:canvas.clientHeight};
+  }
+ }
+ return best?{...best,checkedShots:surveyed,clearShots:clear}:null;
 }
 function toggleRealGrainHomeWitness(){
  if(!grainJourney)return false;
@@ -20568,6 +20611,18 @@ function getRealGrainJourneyAudit(){
   realMealHomeIndex:home?.homeIndex??null,
   residentPhysicallyHome:home?.atHome??null,
   homeCameraActive:Boolean(home&&grainJourney.homeWitness),
+  homeExteriorSightline:home&&grainJourney.homeWitness&&grainJourney.homeLens?{
+   source:grainJourney.homeLens.source,
+   homeIndex:grainJourney.homeLens.homeIndex,
+   homeKey:grainJourney.homeLens.homeKey,
+   zoom:grainJourney.homeLens.zoom,
+   sceneCover:grainJourney.homeLens.sceneCover,
+   canopyCover:grainJourney.homeLens.canopyCover,
+   physicalBlockers:grainJourney.homeLens.blockingVolumes,
+   surveyed:grainJourney.homeLens.checkedShots,
+   clear:grainJourney.homeLens.clearShots,
+   aim:grainJourney.homeLens.aim.slice(),
+   historicalMealNotReenacted:true}:null,
   historicalMealNotReenacted:true,
   producer:grainJourney.producer,deliveryId:grainJourney.deliveryId,
   lockedTradeId:grainJourney.tradeId||null,
@@ -20641,6 +20696,7 @@ function advanceRealGrainJourney(){
  }
  if(realHome&&grainJourney.homeWitness&&
    (grainJourney.homeLens?.citySize!==city.length||
+    grainJourney.homeLens?.homeKey!==city[realHome.homeIndex]?.join(',')||
     grainJourney.homeLens?.viewportWidth!==canvas.clientWidth||
     grainJourney.homeLens?.viewportHeight!==canvas.clientHeight)){
   const lens=chooseRealGrainHomeLens(realHome);
@@ -21160,6 +21216,15 @@ function actualHomecomingWitnessShot(){
 // One real action-focus eye target for both physical WebGL and actor LOD:
 // a worker's wrists/bench/dock must not be classified by the feet-centre.
 function currentPhysicalFollowTarget(){
+ // The verified historical home camera aims at the ORIGINAL exterior door,
+ // rather than a roof centre. The WebGL and human LOD share this exact target.
+ if(follow&&grainJourney?.homeWitness){
+  const home=getRealGrainHomeWitness(),lens=grainJourney.homeLens;
+  if(home&&lens?.homeIndex===home.homeIndex&&
+     lens.homeKey===city[home.homeIndex]?.join(',')&&
+     Array.isArray(lens.aim)&&lens.aim.length===3&&
+     lens.aim.every(Number.isFinite))return lens.aim.slice();
+ }
  const p=follow&&(liveWorkday||document.body.dataset.workday==='delivery'||
    document.body.dataset.workday==='household')&&
    lastFollowShot&&people[selectedCitizen];

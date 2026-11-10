@@ -1,5 +1,14 @@
 ## W199 · 10 November 2026 · PHASE 1 continuous farm→courier→market→inhabited-home — **NOT PROVEN**
 
+### W200 · 10 November 2026 — original recorded-home CLOSE-UP (Phase 1, provisional)
+
+The verified W199 exact-head economic film and market browser jobs show real farmer harvest, credited courier delivery, verified market purchase and real household meal. The footage accelerates simulation, is not an uninterrupted natural workday, and leaves the final cottage roof/tree-obscured. RED: W199 home witness fixed zoom=11.5 with zero real occlusion checks. G088 pinned source: `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
+
+W200 changes only presentation: the original lot's real front gable defines a closer doorway target (5.0–8.2 world metres); at most 84 genuine camera eyes are checked for physical roof, clearance, foreground trees and buildings on both viewports. The SAME earned home target now feeds WebGL and actor LOD. Same-count world restoration invalidates a changed home's lens. No physically clear view means NO earned close-up, not a fake activity; historical meal never reenacted. No actors/jobs/buildings/trades/resources/seed or GPU triangles added. Source V8 checks: positive, blocked roof/eye/forest/building, alternate clear angle, invalid home. Real browser/CI and same-seed moving A/B still pending.
+
+EXPERIENCE A — LOOK NOT PROVEN, FEEL historical software FAIL/hardware UNKNOWN, PLAY NOT PROVEN. COMMERCIAL B — FAIL against Manor Lords. Next integrated work: inspect W200 1024px/390px original-home footage; reject obstruction regression; continue measured static-rendering stall reductions and human-scale connected-district/worker reconstruction. PR #64 MUST remain draft and unmerged.
+
+
 **Scope and exact source:** exclusively OPEN DRAFT PR #64 / `feat/tiny-kingdom-post-main-gauntlet-20261031`; no merges, main, #43, #59 or #62. Pinned baseline G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1` + [source-matched screenshot artifact](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738); candidate **new original-game blob** `1ef1b58d335beb76038cc50ed72245774f45bfe7`.
 
 **Actual before-code audit:** inspected [W198 1024px and 390px original WebGL videos](https://github.com/my-edutu/Ai_games/actions/runs/42858910981/artifacts/13784512494), [Day-120 original WebGL CI](https://github.com/my-edutu/Ai_games/actions/runs/42858910861) and [grainward screenshots](https://github.com/my-edutu/Ai_games/actions/runs/42858911001/artifacts/13783963165). These do not show a materially more believable workday: roof-dominant composition, tiny silhouettes, near-static camera. Do not score W198 IK source contract as a visual win. Source/GPU/full comparisons were pending at the first audit; not physical hardware evidence.
