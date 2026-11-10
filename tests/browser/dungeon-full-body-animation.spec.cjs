@@ -367,6 +367,14 @@ for(const view of [
      sourceTimeAfter:pair.after.sourceActionSample?.time??null,
      sourceDurationBefore:pair.before.sourceActionSample?.duration??null,
      sourceDurationAfter:pair.after.sourceActionSample?.duration??null,
+     // Genuine imported source-bone and weighted shoe observations paired to
+     // the SAME displayed frames; no authoritative root or joint alteration.
+     beforeRootWorld:pair.before.rootWorld,
+     afterRootWorld:pair.after.rootWorld,
+     beforeFootJointWorld:pair.before.footJointWorld??null,
+     afterFootJointWorld:pair.after.footJointWorld??null,
+     beforeSourceSolePatchWorld:pair.before.sourceSolePatchWorld??null,
+     afterSourceSolePatchWorld:pair.after.sourceSolePatchWorld??null,
      contact:measureSourceSolePatchContinuity(pair.before,pair.after,{
       beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
       beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
@@ -557,6 +565,16 @@ for(const view of [
   caveat:'Consecutive original skinned frames are evidence, NOT IK, a floor raycast or validated foot plants.'};
  expect(rafEvidence.consecutiveWitnessPairs,
   'an original-rig high-frequency source film must contain real adjacent displayed walking frames').toBeGreaterThan(0);
+ // The old evidence path looked for solePatchWorld while live original GLB
+ // diagnostics emit sourceSolePatchWorld. Reject another silently empty patch
+ // metric for a qualifying imported walking pair on either viewport.
+ for(const window of rafEvidence.rafWindows){
+  for(const p of window.pairs){
+   expect(p.contact.reason,
+    'true source shoe contact must not be discarded by a diagnostic key mismatch'
+   ).not.toBe('missing-original-skinned-contact-patch');
+  }
+ }
  fs.writeFileSync('artifacts/dungeon-full-body-original-raf-patch-'+view.name+'.json',
   JSON.stringify(rafEvidence,null,2));
  await test.info().attach('original-consecutive-render-source-patches',{
