@@ -275,20 +275,30 @@ export function createTowerGuardianPassage(THREE) {
   thresholdLeaves.receiveShadow = false;
   thresholdLeaves.frustumCulled = false;
   thresholdLeaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  // Original full-motion 390x844/960x600 guardian film afa288c3 shows the
-  // old SIX-BY-FOURTEEN translucent field as a giant aqua pane from 14-24s,
-  // hiding the real guardian, climber and source-earned grounded approach.
-  // Make the same authoritative, airborne-solid cap LOCK recognizable as a
-  // dense machined energy GRATE: narrow luminous uprights and sub-body-size
-  // crossbars instead of a camera-facing sheet. No decorative gaps large
-  // enough to imply an unearned passage; no new physics or hit authority.
-  // One bounded instanced draw, one reusable BoxGeometry, no extra lights.
+  // Original 390x844/960x600 source-pinned WebM 42757152698 finally
+  // exposed why the 14m grid redesign was still visually catastrophic:
+  // the *entire* 14m tall ladder of cyan crossbars sits directly across the
+  // airborne climber and living guardian at ~14-24s. This is a physical
+  // composition problem, not a color/filter problem. The real source seal
+  // still reaches 14m and blocks even two-jump bypass attempts, but a
+  // full-height prison fence is neither necessary nor readable.
+  //
+  // Rebuild the same source-locked frame as one coherent OPEN-AIR electrical
+  // exclusion assembly: continuous full-height side conductors, a short
+  // tightly crossed physical bronze-door energy barrier at pedestrian
+  // level, two slender high-voltage diagonal braces that span the *whole*
+  // source height, and a bright high crossbeam. The high X makes an unsafe
+  // airborne bypass legible without a full-screen stack of horizontal bars.
+  // All geometry stays presentation-only: no physics, authority, victory or
+  // guardian changes. The existing source-driven bronze doors remain shut.
+  // One existing reusable box geometry, one instanced draw, bounded 14/18
+  // live instances. No new textures, lights, shadows or postprocessing.
   const sealMaterial = new THREE.MeshBasicMaterial({
-    color: 0x86eadc, transparent: true, opacity: .72, depthWrite: false,
+    color: 0x79ded4, transparent: true, opacity: .64, depthWrite: false,
     depthTest: true, side: THREE.DoubleSide, toneMapped: false,
   });
   ownedMaterials.push(sealMaterial);
-  const MAX_SOURCE_SEAL_BARS = 67;
+  const MAX_SOURCE_SEAL_BARS = 18;
   const sealedLattice = new THREE.InstancedMesh(box, sealMaterial, MAX_SOURCE_SEAL_BARS);
   sealedLattice.name = 'SourceLockedGuardianVerticalEnergyLattice';
   sealedLattice.visible = false;
@@ -296,9 +306,6 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
   sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  // The real fixed-step two-jump exclusion envelope can change during a
-  // living fight. Never display a lower, visually bypassable lock after
-  // observing a higher source seal; change instances, not draw submissions.
   let displayedSealHeight = 0;
   function poseSourceSealHeight(sourceHeight) {
     const nextHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
@@ -306,21 +313,35 @@ export function createTowerGuardianPassage(THREE) {
     if (nextHeight === displayedSealHeight) return;
     displayedSealHeight = nextHeight;
     const h = displayedSealHeight / SCALE;
-    const horizontalCount = Math.max(14, Math.min(64, Math.ceil(h / .9) + 1));
+    const doorH = 4.64;
+    const upperEnd = h - .22;
+    const upperRun = upperEnd - doorH;
+    const diagonalAngle = Math.atan2(5.76, upperRun);
+    const diagonalLength = Math.hypot(5.76, upperRun);
+    // Each instance is [x, y, z, width, height, depth, rotationZ].
     const latticeShapes = [
-      [-3.05, h / 2, 0, .12, h, .12],
-      [0, h / 2, 0, .095, h, .12],
-      [3.05, h / 2, 0, .12, h, .12],
+      [-3.05, h/2, 0, .115, h, .13, 0],
+      [3.05, h/2, 0, .115, h, .13, 0],
+      [-1.5, doorH/2, 0, .07, doorH, .1, 0],
+      [0, doorH/2, 0, .07, doorH, .1, 0],
+      [1.5, doorH/2, 0, .07, doorH, .1, 0],
     ];
-    for (let index = 0; index < horizontalCount; index++) {
-      const edge = index === 0 || index === horizontalCount - 1;
-      latticeShapes.push([0, h * index / (horizontalCount - 1), 0,
-        6.22, edge ? .14 : .072, .10]);
-    }
+    // A dense, small-cell barrier exists at physical doorway height; tall
+    // guardian/hero silhouettes remain readable ABOVE it, not through a
+    // 14-meter screen-filling grate.
+    for (const y of [.14, .94, 1.74, 2.54, 3.34, 4.54])
+      latticeShapes.push([0,y,0,6.22,.075,.10,0]);
+    // Diagonals terminate on actual source-height side pylons. No visual
+    // "jump over the gate" loophole when authoritative seal height rises.
+    latticeShapes.push([0,(doorH+upperEnd)/2,0,.075,
+      diagonalLength,.10,-diagonalAngle]);
+    latticeShapes.push([0,(doorH+upperEnd)/2,0,.075,
+      diagonalLength,.10,diagonalAngle]);
+    latticeShapes.push([0,h-.055,0,6.22,.11,.12,0]);
     sealedLattice.count = latticeShapes.length;
-    latticeShapes.forEach(([x,y,z,sx,sy,sz],index) => {
+    latticeShapes.forEach(([x,y,z,sx,sy,sz,rz],index) => {
       thresholdPose.position.set(x,y,z);
-      thresholdPose.rotation.set(0,0,0);
+      thresholdPose.rotation.set(0,0,rz);
       thresholdPose.scale.set(sx,sy,sz);
       thresholdPose.updateMatrix();
       sealedLattice.setMatrixAt(index,thresholdPose.matrix);
