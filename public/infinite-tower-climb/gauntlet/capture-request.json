@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "9761a45ef398c1cbf88f16fdfe366470b27d4db7",
-  "reason": "New original-source cold-start evidence pipeline: previous real 10-job run 42920000723 recovered all 8 original source browser recordings but failed strict desktop danger origin alignment (baseline first rendered tick 138; candidate tick 75, 63>60). New CI-only late original host launch starts the untouched 20Hz server ONLY after native video page allocation in each viewport. Preserve first rendered source tick and original native WebM; do not bypass original 60-tick veto. Verify initial host source tick, cold-render lag, 8/8 clocks, real guardian/crusher/gateway/floor9 and result/restart; still NOT EVALUATED for looks/feels/plays.",
+  "repairedSourceSha": "9b09f56e910803427c7e9ccd86386d7a20a949fc",
+  "reason": "P0 real source host cold-start parity correction and parser recovery. Last baseline/candidate original run 42920000723 failed genuine desktop danger start tick 138 vs 75 (delta63>60). New source-only host starts after native video context creation; original film a16392ce contained a syntax defect in new optional CI source lifecycle helper. Fixed at 9b09f56e910803427c7e9ccd86386d7a20a949fc. This new request captures EXACT immutable github.sha source with parsed helper, original frozen baseline, strict original provenance and normal-speed 60s+ WebMs. No claim of quality, full-motion event match, device FPS or votes.",
   "scenarios": [
     "ascent",
     "moving",
@@ -304,7 +304,7 @@
   "latestSourceWitnessRepairSha": "a763dcde2c21e5af24a1db4b9c5b6e8a86886c8d",
   "capturePriorKnownRun": "https://github.com/my-edutu/Ai_games/actions/runs/42868026568",
   "capturePriorActualFailure": "baseline moving desktop original-film timebase 2 of 8 unique anchor matches; only native pairing veto, both original browser WebMs and ffprobe transport integrity present",
-  "captureAfterCodeVerdict": "NOT EVALUATED — this exact request commit triggers pinned source; no claim of completed new film",
+  "captureAfterCodeVerdict": "NOT EVALUATED — new strict capture requested from exact github.sha of this commit, not moving branch or broken pre-fix source",
   "latestVisualWork": "Clockwork visual-only open ribbed central well and three anchored open geological shoulders — new exact SHA determined by workflow github.sha. Not a confirmed visual improvement.",
   "latestQualityVetoBeforeChange": "https://github.com/my-edutu/Ai_games/actions/runs/42874249799 — SUCCESS at 91a3bf34",
   "visualBeforeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42878341492/artifacts/13791404790",
@@ -378,7 +378,11 @@
     "plays": 0
   },
   "latestVerifiedBeforeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42920000723",
-  "latestSourceCaptureEngineeringSha": "9761a45ef398c1cbf88f16fdfe366470b27d4db7",
+  "latestSourceCaptureEngineeringSha": "9b09f56e910803427c7e9ccd86386d7a20a949fc",
   "captureStartPolicy": "Same original 20Hz source host, no game edits, no fake warmup; only CI-owned launch moved after native Playwright viewport page exists. Original first-render tick <=250 and baseline/candidate delta <=60 remain unchanged. Real image/content drift still requires film inspection.",
-  "currentPostChangeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092 — PENDING/IN PROGRESS at request authoring"
+  "currentPostChangeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092 — PENDING/IN PROGRESS at request authoring",
+  "syntaxParserRepairCommitSha": "9b09f56e910803427c7e9ccd86386d7a20a949fc",
+  "previousBrokenFreshHostCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42925712777",
+  "previousParserFailureQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092",
+  "pendingSyntaxCorrectionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926000486"
 }
