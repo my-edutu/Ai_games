@@ -1130,10 +1130,23 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       const witnessedLiveCrossfire = enemy.id === liveGuardianId &&
         !!liveShotPoint && dx <= 90000 &&
         Math.abs(player.y-enemy.y) <= player.halfHeight+enemy.halfHeight+3500;
+      // The original 390x844 source recording at tick 321 (living guardian
+      // HP 3/8) shows the airborne hero beyond the left picture edge while
+      // the boss remains visible. A single telegraph, projectile or attack
+      // flag is NOT the entire physical encounter: dropping the guardian
+      // between true attack ticks returns the director to a distant landing
+      // panorama and makes the next contact look disconnected. Preserve a
+      // two-body combat composition only for an already-wounded, still-living,
+      // physically nearby guardian; the real airborne destination remains a
+      // protected camera subject. No fabricated telegraph or attacker identity.
+      const witnessedWoundedAirDuel = player.state === 'airborne' &&
+        enemy.kind === 'guardian' && enemy.health > 0 &&
+        healthRatio < 1 && dx <= 90000 && dy <= 60000;
       const activeContact = (player.state !== 'airborne' || witnessedAirShot ||
-        witnessedRangedDuel || witnessedLiveCrossfire) &&
+        witnessedRangedDuel || witnessedLiveCrossfire || witnessedWoundedAirDuel) &&
         (approachingLockedGate || healthRatio < 1 || enemy.telegraph ||
-        witnessedAirShot || witnessedRangedDuel || witnessedLiveCrossfire || player.attacking ||
+        witnessedAirShot || witnessedRangedDuel || witnessedLiveCrossfire ||
+        witnessedWoundedAirDuel || player.attacking ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode));
       if (!activeContact || dx > (witnessedRangedDuel ? 135000 : 90000) ||
           dy > 60000) continue;
