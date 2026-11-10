@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'tests/browser/tiny-kingdom-w180-home-nourishment.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
       - '.github/workflows/tiny-kingdom-w180-home-nourishment.yml'
   workflow_dispatch:
 permissions:
@@ -25,6 +26,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - name: Check that the actual W180 test is discoverable
+        run: npx playwright test tests/browser/tiny-kingdom-w180-home-nourishment.spec.cjs --list --config=tests/browser/tiny-kingdom-standalone.config.cjs
       - run: npx playwright install --with-deps chromium
       - name: Real 40-day food, movement, physical contacts and 390px WebGL
         env:
