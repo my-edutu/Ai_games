@@ -1599,21 +1599,35 @@ test('a real close public encounter frames both autonomous actors and saves date
   const trapCase=realTrapCandidates[0];
   const trapSnapshot=trapCase.sample.frame.snapshot;
   activeFrame=trapCase.sample.frame;
-  // Reuse this SAME warmed WebGL page: no additional CPU-heavy Chromium
-  // process, no screenshot mock, no manipulated simulation tick or private map.
+  // Pass229: the exact-HEAD SwiftShader run produced authentic 320/390
+  // pressure images, then stalled while constructing a THIRD WebGL scene at
+  // 1280px. Retain the SAME live source-authoritative world/canvas through
+  // native viewport changes, as a real responsive player session does.
+  // Do not lower motion, image size, geometry limits or any framing gate.
+  let captureCanvas=null;
   for(const [nativeWidth,nativeHeight] of [[320,740],[390,844],[1280,900]]){
+    const lastFrames=captureCanvas
+      ? await page.evaluate(()=>window.__MAZE_3D__?.frames ?? 0) : 0;
     await page.setViewportSize({width:nativeWidth,height:nativeHeight});
-    await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(({tick,token,cell,aspect})=>{
+    if(!captureCanvas)
+      await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(({tick,token,cell,aspect,lastFrames})=>{
       const d=window.__MAZE_3D__;
-      return d?.renderer==='webgl' && d.frames>=3 && d.tick===tick
-        &&d.runToken===token&&d.cameraMode==='follow'
+      // A stretched old canvas is NOT a new native capture. The real renderer
+      // must submit fresh WebGL frames after each CSS viewport resize.
+      return d?.renderer==='webgl' && d.frames>=3 && d.frames>lastFrames
+        &&d.tick===tick &&d.runToken===token&&d.cameraMode==='follow'
         &&Math.abs(d.cameraAspect-aspect)<.01
         &&d.world?.responsiveTrapJaws>=2
         &&d.world?.trapJawOpenMaxRadians>.12
         &&d.observedTrapPhysicalBounds?.some(value=>value.cell===cell);
     },{tick:trapSnapshot.tick,token:trapSnapshot.runToken,
-      cell:trapCase.cell,aspect:nativeWidth/nativeHeight},{timeout:45000});
+      cell:trapCase.cell,aspect:nativeWidth/nativeHeight,lastFrames},{timeout:45000});
+    if(!captureCanvas)
+      captureCanvas=await page.evaluateHandle(()=>document.getElementById('maze'));
+    else expect(await captureCanvas.evaluate(node=>node.isConnected
+      &&node===document.getElementById('maze')),
+      'original pressure evidence must retain one real WebGL canvas across native resizes').toBe(true);
     const stage=await page.evaluate(()=>({
       diagnostic:window.__MAZE_3D__,
       canvas:document.getElementById('maze').getBoundingClientRect().toJSON(),
