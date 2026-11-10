@@ -308,6 +308,36 @@ export function publicKeyedPressureStageHalfHeight(aspect, halfHeight,
  * settling only for the selected published pressure stage, never for hidden
  * traps, and retain pickup/gate/neutral priorities without changing AI.
  */
+
+/**
+ * Physical, source-bound portrait pressure-camera safety pan.
+ *
+ * The real 320px rendered retreat previously cropped a jaw at -1.283 NDC
+ * while the actor and hazard together occupied less than the original 1.90
+ * NDC safe width. First stage the genuine public hero/jaw using the existing
+ * camera choreography; only if the ACTUAL projected connected meshes still
+ * breach ±0.95, translate the lens horizontally in world-space enough to
+ * keep BOTH physical silhouettes. Never shrink or move either model, infer
+ * undiscovered geometry, fabricate a hazard or change the strict test bar.
+ *
+ * Returns camera-right WORLD displacement, not a new objective or zoom.
+ * An impossible combined silhouette must remain a failing real visual gate.
+ */
+export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect) {
+  if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
+    || !(Number.isFinite(halfHeight) && halfHeight>0)
+    || !hero || !jaw || ![hero.left,hero.right,jaw.left,jaw.right].every(Number.isFinite)
+    || hero.left>=hero.right || jaw.left>=jaw.right) return 0;
+  const left=Math.min(hero.left,jaw.left);
+  const right=Math.max(hero.right,jaw.right);
+  const safe=.95; // FIXED existing NDC envelope; do not relax it.
+  if(right-left>safe*2) return 0;
+  const minimum=right-safe,maximum=left+safe;
+  // Positive world camera-right displacement moves the objects left.
+  // Choose the smallest necessary translation, preserving safe frames.
+  return clamp(0,minimum,maximum)*halfHeight*aspect;
+}
+
 export function publicCameraSettleRate(pickup=false, encounter=false, pressure=false, opening=false) {
   if (pickup) return 12;
   if (encounter || pressure) return 10;

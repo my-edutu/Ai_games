@@ -4,7 +4,7 @@ import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZ
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -50,6 +50,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // Only authentic public gate openings may use this additional camera azimuth.
   const openingGateCameraOffset = sealedGateCameraOffset.clone();
   const cameraOffset = followCameraOffset.clone();
+  // Reused CPU-only scratch objects; physical portrait fitting never creates
+  // fresh GPU buffers, meshes, or source-private gameplay geometry per frame.
+  const pressureReframePoint = new THREE.Vector3();
+  const pressureReframeRight = new THREE.Vector3();
   const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
   // A lower, closer ORIGINAL 3D story angle is reserved solely for a truly
   // witnessed public key collection. Reuse this offset; no per-frame objects,
@@ -1062,6 +1066,50 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       : portraitEncounterOrbit ? portraitCameraOffset
       : pickupCameraBeat ? pickupCameraOffset : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
+    // Real native 320px pressure withdrawal: the complete jaw was cropped
+    // even though the actor-plus-hazard horizontal stage FIT inside ±.95.
+    // Resolve the remaining lens translation from ACTUAL connected WebGL
+    // meshes after the existing authored public pressure focus has settled.
+    // Only the already selected, disclosed pressure encounter qualifies.
+    // A wide pair that physically cannot fit remains an honest test failure:
+    // NEVER zoom the models out or relax their original silhouette limits.
+    if (pressureCameraBeat && publicPressureTrap && aspect>=.35 && aspect<.60) {
+      const hazard = world.group.getObjectByName(
+        'Disclosed tide-shear pressure hazard ' + publicPressureTrap.cell);
+      const physicalSpan = root => {
+        if (!root?.visible) return null;
+        let left=Infinity,right=-Infinity;
+        root.updateWorldMatrix(true,true);
+        camera.updateMatrixWorld();
+        root.traverseVisible(mesh => {
+          if (!mesh.isMesh || !mesh.geometry) return;
+          if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+          const box=mesh.geometry.boundingBox;
+          if (!box) return;
+          for (const x of [box.min.x,box.max.x])
+            for (const y of [box.min.y,box.max.y])
+              for (const z of [box.min.z,box.max.z]) {
+                const projected=pressureReframePoint.set(x,y,z)
+                  .applyMatrix4(mesh.matrixWorld).project(camera);
+                if (Number.isFinite(projected.x) && projected.z>=-1 && projected.z<=1) {
+                  left=Math.min(left,projected.x);
+                  right=Math.max(right,projected.x);
+                }
+              }
+        });
+        return left<right ? {left,right} : null;
+      };
+      const heroSpan=physicalSpan(explorer.group);
+      const jawSpan=physicalSpan(hazard);
+      const horizontalShift=publicPhysicalPressureHorizontalReframe(
+        heroSpan,jawSpan,halfHeight,aspect);
+      if (horizontalShift) {
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+        cameraTarget.addScaledVector(pressureReframeRight,horizontalShift);
+        camera.position.copy(cameraTarget).add(cameraOffset);
+        camera.lookAt(cameraTarget);
+      }
+    }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
     renderer.render(scene, camera); frames++;

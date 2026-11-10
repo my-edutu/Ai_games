@@ -340,3 +340,42 @@ test('native 3D renderer consumes the retained distinct public tick rather than 
  assert.doesNotMatch(source,/priorPublicSnapshot\s*=\s*previous\s*;/);
  assert.match(source,/const verifiedRetreatTrap = publicVerifiedPressureRetreatPartner\(/);
 });
+
+test('actual full-mesh pressure portrait fits a cropped jaw and Pip without zooming either physical model',async()=>{
+ const {publicPhysicalPressureHorizontalReframe:fit}=await load();
+ const aspect=320/740, height=4.70;
+ // Original exact-source mobile tick6, physical jaw left -1.28288 and
+ // Pip right +.36043; the total real stage width is under strict 1.90 NDC.
+ const hero={left:-.2049,right:.36043},jaw={left:-1.28288,right:-.6017};
+ const original=JSON.stringify([hero,jaw]);
+ const shift=fit(hero,jaw,height,aspect);
+ assert.ok(shift<0,'camera moves left so both real objects move right');
+ const ndc=shift/(height*aspect);
+ assert.ok(Math.min(hero.left,jaw.left)-ndc>=-.95000001);
+ assert.ok(Math.max(hero.right,jaw.right)-ndc<=.95000001);
+ assert.equal(fit({left:-.3,right:.25},{left:-.8,right:-.5},height,aspect),0,
+   'already safe physical shot must keep its established cinematic lens');
+ assert.equal(JSON.stringify([hero,jaw]),original,'no actor or jaw manipulation');
+});
+test('physical pressure reframe fails closed for impossible, unsupported or forged models',async()=>{
+ const {publicPhysicalPressureHorizontalReframe:fit}=await load();
+ const hero={left:-.2,right:.36},jaw={left:-1.29,right:-.6};
+ assert.equal(fit(hero,jaw,4.7,844/390),0,'landscape remains unchanged');
+ assert.equal(fit(hero,jaw,4.7,NaN),0);
+ assert.equal(fit(hero,jaw,-1,320/740),0);
+ assert.equal(fit(null,jaw,4.7,320/740),0);
+ assert.equal(fit(hero,{left:NaN,right:1},4.7,320/740),0);
+ assert.equal(fit(hero,{left:-3,right:-.6},4.7,320/740),0,
+   'do not falsely approve a physical pair wider than ±0.95 can contain');
+});
+test('the genuine production pressure lens uses connected physical mesh corners, not centers or hidden map',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+ assert.match(source,/if \(pressureCameraBeat && publicPressureTrap && aspect>=\.35/);
+ assert.match(source,/world\.group\.getObjectByName\(/);
+ assert.match(source,/root\.traverseVisible\(mesh =>/);
+ assert.match(source,/\.applyMatrix4\(mesh\.matrixWorld\)\.project\(camera\)/);
+ assert.match(source,/publicPhysicalPressureHorizontalReframe\(/);
+ assert.match(source,/cameraTarget\.addScaledVector\(pressureReframeRight,horizontalShift\)/);
+ assert.doesNotMatch(source,/camera\.zoom\s*=\s*.*horizontalShift/);
+});

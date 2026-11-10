@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T06:09:00.000Z",
+  "updatedAt": "2026-11-10T07:25:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass235: Pass234 original full WebGL evidence now captured 1280×900 pressure and passed six strict resets; 34 PNGs, 32/32 SHA sidecars matched, but real 320 tick6 pressure withdrawal jaw CROPPED to -1.283 NDC vs fixed -0.95. Repeated same-tick public snapshot deliveries discarded the legitimate previous-tick camera witness. New public-only renderer fix preserves exactly one consecutive distinct public tick; exact-new-HEAD render and independent Nintendo critic still PENDING."
+    "summary": "Pass237 source-only candidate: exact Pass236 WebGL passed six real strict reset checks and 28/28 original native PNG hashes, but a long 1280 compositor stall prevented critical tick6 withdrawal render. Source-bound physical connected Pip/jaw portrait lens fit now corrects horizontal framing ONLY when both full models fit original ±0.95 NDC at unchanged scale. Exact-new-HEAD real motion captures, independent Nintendo critic and final quality gate PENDING."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass237: physical connected-mesh pressure camera safety pan in true public Follow 320/390, with unchanged ±0.95 full silhouettes and no model shrink, AI/hidden-state or collision changes; current-head WebGL image and independent judge pending.",
     "Pass232: source-only witnessed physical jaw retreat camera partner, strict public-geometry guards and regression tests; prior 32/32 authentic image SHA pairs verified, six-run resource gate passed, current-head visual fix pending.",
     "Pass231: source/public-only one-step jaw withdrawal HUD continuity, strict actual two-danger HUD browser assertions, and earlier unchanged six-reset GPU test before expensive scene evidence. Original source-bound 320/390 pressure artwork inspected; NEW visual win and six-reset verdict still pending.",
     "Pass230: real 320px tick-6 pressure jaw left NDC -1.290725 fails unchanged -0.95 crop; camera-only same-run public one-step departure continuity now protects physical encounter. Exact-head visual/CI, independent critic and six-run geometry PENDING.",
