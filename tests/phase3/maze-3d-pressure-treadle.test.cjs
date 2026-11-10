@@ -27,7 +27,9 @@ test('one actual public treadle presses before inward jaws and restores after re
   const bounds=new Box3().setFromObject(plate),origin=trap.getWorldPosition(new Vector3());
   assert.ok(bounds.min.x>origin.x-1.2 && bounds.max.x<origin.x+1.2
     && bounds.min.z>origin.z-1.2 && bounds.max.z<origin.z+1.2,
-    'complete moving treadle stays inside original disclosed cell');
+    'complete moving treadle stays inside original disclosed cell: '+JSON.stringify({
+      minX:bounds.min.x-origin.x,maxX:bounds.max.x-origin.x,
+      minZ:bounds.min.z-origin.z,maxZ:bounds.max.z-origin.z}));
   const far=new Vector3(origin.x+30,0,origin.z+30);
   const diagonal=new Vector3(origin.x+CELL_SIZE,0,origin.z+CELL_SIZE);
   const contact=new Vector3(origin.x,0,origin.z);
