@@ -94,23 +94,58 @@ export function planMeasuredHandTrail(previous,current,frameSeconds){
  }
  if(!finite(previous)||!finite(current)||!Number.isFinite(frameSeconds)||
   frameSeconds<=0||frameSeconds>MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS)return null;
- // Remove rigid-body root yaw as well as translation BEFORE deciding whether
- // the arm actually moved. Otherwise merely turning to face an enemy makes a
- // large, entirely fictitious 'sword swing' with a planted wrist.
- const pyaw=previous.yaw??0,cyaw=current.yaw??0,
-  pc=Math.cos(pyaw),ps=Math.sin(pyaw),cc=Math.cos(cyaw),cs=Math.sin(cyaw),
-  px=previous.x-previous.rootX,pz=previous.z-previous.rootZ,
-  cx=current.x-current.rootX,cz=current.z-current.rootZ,
-  dxLocal=(cx*cc-cz*cs)-(px*pc-pz*ps),
-  dzLocal=(cx*cs+cz*cc)-(px*ps+pz*pc),
-  dy=(current.y-current.rootY)-(previous.y-previous.rootY),
-  length=Math.hypot(dxLocal,dy,dzLocal);
+ // Genuine GLB bodies can roll, pitch, scale, recoil or lean through
+ // visualPivot / impactPivot while the sword wrist remains planted RELATIVE
+ // to the animated figure. Root X/Z/yaw subtraction alone mistakes that
+ // parent-only movement for a physical sword passage.
+ //
+ // Where the real asset root exposes a local hand witness, measure only the
+ // articulated change in its local coordinates and project that delta with
+ // the CURRENT authored asset world matrix. This accounts for all current
+ // ancestor transforms and non-uniform rig scale without inventing any blade
+ // tip, skinning data or geometry. A lost/malformed witness fails closed.
+ // Numeric/mock adapters without a body-root API retain the old yaw contract.
+ let dx,dy,dz;
+ const hasBodyWitness=previous.sourceBodyRoot!==undefined||
+  current.sourceBodyRoot!==undefined;
+ if(hasBodyWitness){
+  if(!previous.sourceBodyRoot||
+   previous.sourceBodyRoot!==current.sourceBodyRoot||
+   ![previous.localX,previous.localY,previous.localZ,
+     current.localX,current.localY,current.localZ].every(Number.isFinite))
+   return null;
+  const m=current.poseFrameMatrix;
+  if(!m||m.length!==16||
+   ![m[0],m[1],m[2],m[4],m[5],m[6],
+     m[8],m[9],m[10],m[15]].every(Number.isFinite)||
+   Math.abs(m[3])>1e-6||Math.abs(m[7])>1e-6||
+   Math.abs(m[11])>1e-6||Math.abs(m[15]-1)>1e-6)return null;
+  const lx=current.localX-previous.localX;
+  const ly=current.localY-previous.localY;
+  const lz=current.localZ-previous.localZ;
+  dx=m[0]*lx+m[4]*ly+m[8]*lz;
+  dy=m[1]*lx+m[5]*ly+m[9]*lz;
+  dz=m[2]*lx+m[6]*ly+m[10]*lz;
+ }else{
+  // Legacy test/adapter fallback: remove rigid translation and yaw. The
+  // actual authored path above is stronger because it also rejects recoil,
+  // pitch, roll and ancestor transforms not represented by root yaw.
+  const pyaw=previous.yaw??0,cyaw=current.yaw??0,
+   pc=Math.cos(pyaw),ps=Math.sin(pyaw),cc=Math.cos(cyaw),cs=Math.sin(cyaw),
+   px=previous.x-previous.rootX,pz=previous.z-previous.rootZ,
+   cx=current.x-current.rootX,cz=current.z-current.rootZ,
+   dxLocal=(cx*cc-cz*cs)-(px*pc-pz*ps),
+   dzLocal=(cx*cs+cz*cc)-(px*ps+pz*pc);
+  dy=(current.y-current.rootY)-(previous.y-previous.rootY);
+  dx=dxLocal*cc+dzLocal*cs;
+  dz=-dxLocal*cs+dzLocal*cc;
+ }
+ const length=Math.hypot(dx,dy,dz);
  if(!Number.isFinite(length)||length<MEASURED_HAND_TRAIL_MIN_METERS||
   length>MEASURED_HAND_TRAIL_MAX_METERS||
   length/frameSeconds<MEASURED_HAND_TRAIL_MIN_METERS_PER_SECOND)return null;
- // Draw at the CURRENT world-space bone using the measured local limb motion
- // rotated through its current root, never a prerecorded/synthetic blade arc.
- const dx=dxLocal*cc+dzLocal*cs,dz=-dxLocal*cs+dzLocal*cc;
+ // Place one short retained stroke at the CURRENT skinned wrist. This is
+ // observed relative hand travel, never an inferred sword-tip or contact.
  return Object.freeze({
   center:Object.freeze({x:current.x-dx*.5,y:current.y-dy*.5,z:current.z-dz*.5}),
   direction:Object.freeze({x:dx/length,y:dy/length,z:dz/length}),length
