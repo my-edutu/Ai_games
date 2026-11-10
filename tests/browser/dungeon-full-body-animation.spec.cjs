@@ -379,8 +379,8 @@ for(const view of [
  // The same actual original skinned source rig must report bounded imported
  // Walking_A leg ownership; this is not a world-space IK acceptance check.
  expect(trace.every(t=>Number.isFinite(t.nativeLegOwnership?.overlayScale)&&
-  t.nativeLegOwnership.overlayScale>=.16&&t.nativeLegOwnership.overlayScale<=1),
-  'live original skinned actors must retain finite bounded leg overlay ownership').toBe(true);
+  t.nativeLegOwnership.overlayScale>=0&&t.nativeLegOwnership.overlayScale<=1),
+  'the original 41-joint Walking_A may entirely own locomotion with ZERO duplicate sine layers').toBe(true);
  expect(trace.every(t=>Number.isFinite(t.nativeLegOwnership?.bodyStrideWeight)&&
   Math.abs(t.nativeLegOwnership.bodyStrideWeight-
    t.nativeLegOwnership.gaitWeight*t.nativeLegOwnership.overlayScale)<1e-8),
