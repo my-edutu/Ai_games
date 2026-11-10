@@ -8,6 +8,11 @@
  * OPTIONAL and is never proof that damage or a strike occurred.
  */
 export const MAX_ORIGINAL_COMBAT_VOICES=8;
+// Independently HP-confirmed simultaneous wounds deserve distinct but sparse
+// onsets. Bound both victim memory and mix density for long-lived streams.
+export const MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS=16;
+export const MAX_ORIGINAL_DAMAGE_ONSETS_PER_WINDOW=2;
+export const ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS=.085;
 export const ORIGINAL_COMBAT_MASTER_GAIN=.12;
 export const ORIGINAL_COMBAT_MAX_NOISE_SAMPLES=19200;
 // Fixed-rate original texture: WebAudio resamples it for each device context.
@@ -49,6 +54,13 @@ const COOLDOWN=Object.freeze({whoosh:.075,impact:.085,block:.11,
  evade:.1,'boss-warning-final':.15,counter:.14,
  'warden-release':.2,interrupt:.12,defeat:.5});
 const clamp=(x,lo,hi,defaultValue=lo)=>Number.isFinite(x)?Math.max(lo,Math.min(hi,x)):defaultValue;
+/** A verified HP-loss cue can identify only its VICTIM, never a guessed striker. */
+export function verifiedDamageFoleyVictim(cue){
+ return cue?.kind==='damage'&&cue?.proof==='observed-hp-drop'&&
+  cue.actorId===null&&typeof cue.targetId==='string'&&
+  cue.targetId.length>0&&cue.targetId.length<=128&&
+  (cue.audio==='impact'||cue.audio==='fatal-impact')?cue.targetId:null;
+}
 export function createCombatMutePreference(storage){
  const read=()=>{try{return storage?.getItem?.(COMBAT_MUTE_PREFERENCE_KEY)==='false'?false:true}catch{return true}};
  const write=muted=>{
@@ -96,7 +108,7 @@ export function chooseOriginalNoisePhaseOffset(duration,nowSeconds,voices=[]){
 export function createOriginalCombatFoley(ctx,{output=null}={}){
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
- const active=[],lastPlayed=new Map();
+ const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[];
  const now=()=>clamp(ctx?.currentTime,0,1e12,0);
  const usable=()=>ctx&&typeof ctx.createGain==='function'&&
   typeof ctx.createBuffer==='function'&&typeof ctx.createBufferSource==='function'&&
@@ -169,8 +181,19 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   const profile=RECIPES[cue?.audio];
   if(!profile||!bus)return false;
   cleanup();
-  const t=now(),last=lastPlayed.get(cue.audio)??-Infinity;
-  if(t-last<(COOLDOWN[cue.audio]??.05)){dropped++;return false}
+  const t=now(),victim=verifiedDamageFoleyVictim(cue);
+  // A single audio-type cooldown used to discard a second distinct confirmed
+  // injury in the same frame. Preserve the old type cooldown for ALL other
+  // signals; only HP-proven victim-local injuries can use this bounded lane.
+  const last=victim!==null?lastVerifiedDamage.get(victim)??-Infinity:
+   lastPlayed.get(cue.audio)??-Infinity;
+  if(t-last<(victim!==null?ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS:
+   COOLDOWN[cue.audio]??.05)){dropped++;return false}
+  if(victim!==null){
+   while(damageOnsets.length&&t-damageOnsets[0]>=ORIGINAL_DAMAGE_ONSET_WINDOW_SECONDS)
+    damageOnsets.shift();
+   if(damageOnsets.length>=MAX_ORIGINAL_DAMAGE_ONSETS_PER_WINDOW){dropped++;return false}
+  }
   const priority=clamp(cue?.priority,0,10,1);
   if(active.length>=MAX_ORIGINAL_COMBAT_VOICES){
    let weakest=0;
@@ -216,7 +239,13 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
     else source.start(t);
     source.stop(stopAt);
    }
-   active.push(voice);lastPlayed.set(cue.audio,t);
+   active.push(voice);
+   if(victim!==null){
+    lastVerifiedDamage.delete(victim);lastVerifiedDamage.set(victim,t);
+    if(lastVerifiedDamage.size>MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS)
+     lastVerifiedDamage.delete(lastVerifiedDamage.keys().next().value);
+    damageOnsets.push(t);
+   }else lastPlayed.set(cue.audio,t);
    played++;peakVoices=Math.max(peakVoices,active.length);
    return true;
   }catch{
@@ -225,7 +254,8 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
    deviceFailures++;dropped++;return false;
   }
  }
- function flush(){for(const v of active)stopVoice(v);active.length=0;lastPlayed.clear()}
+ function flush(){for(const v of active)stopVoice(v);active.length=0;
+  lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0}
  function disable(){enabled=false;flush()}
  function reset(){flush()}
  function dispose(){
@@ -237,6 +267,7 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
  function stats(){cleanup();return Object.freeze({
   engine:'d04-original-material-foley-v2',started,enabled,disposed,
   activeVoices:active.length,peakVoices,voiceCap:MAX_ORIGINAL_COMBAT_VOICES,
+  verifiedDamageTargets:lastVerifiedDamage.size,verifiedDamageOnsets:damageOnsets.length,
   played,dropped,stopped,deviceFailures,masterGain:ORIGINAL_COMBAT_MASTER_GAIN,
   limiterAvailable:!!limiter,noiseSamples:noiseBuffer?.length??0,
   noiseSampleRate:noiseBuffer?.sampleRate??0,
