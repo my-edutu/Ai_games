@@ -6930,5 +6930,31 @@
     "supportedDeviceFrameTimesP50P95P99Memory": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-10-tower-pr68-original-guardian-fullheight-gate-composition.md",
     "nextHighestImpact": "Check fresh original normal-speed after-change guardian film and source event-neighbor frames for actual readable two-body fight, crusher event, guardian HP0, real grounded gateway cross, floor9 and outcome/restart in BOTH desktop and portrait. Fix proven remaining dominant physical/composition system defect; do not certify P0, LOOKS/FEELS/PLAYS or hardware without genuine external evidence."
+  },
+  "p0LiveGuardianFightFirstAfterfilm20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "filmInspectedSourceSha": "98f9b364be90635fa985a74dfb2d9469d2da1134",
+    "exactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42793342419",
+    "candidateGuardianOriginalWebms": "https://github.com/my-edutu/Ai_games/actions/runs/42793342419/artifacts/13752527781",
+    "baselineGuardianOriginalWebms": "https://github.com/my-edutu/Ai_games/actions/runs/42793342419/artifacts/13752592372",
+    "originalCandidateOutcomeWebms": "https://github.com/my-edutu/Ai_games/actions/runs/42793342419/artifacts/13753377390",
+    "nativeSourcePairIndex": "https://github.com/my-edutu/Ai_games/actions/runs/42793342419/artifacts/13751788291",
+    "directFootageObservation": "Unedited candidate danger 390x844 73.2s and 960x600 72.08s, source-PTS frame samples ~10–30s. Bronze/cyan full-height gateway dominates fighter corridor near ~12–14s and ~21.5–23.5s. Source guardian HP0 fixed tick441 and authentic grounded floor8→9 threshold fixed tick451, and source outcome timer-expired→intermission→restart are independently attested in source event files. Floor9 visible near native ~24s, portrait restart visible near ~56s. These screen samples are NOT uninterrupted source-event-to-pixel causality, judged full-motion, or independent preference.",
+    "currentExactSourceQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42793342425 — 1311/1312; test 693 in tests/phase3/tower-guardian-windup-experience.test.cjs VM stripped scene ESM imports and omitted guardianDuelEdgePressure. Production import was present; test fixture false failure, NOT a clean CI pass.",
+    "testFirstAndVMRepairSha": "c6483318d36e3cdedd6bece0ef74d7ca5177c330",
+    "connectedCameraImplementationSha": "1d7630f3f9968abb8135da38d4b43f631ff2594f",
+    "change": "Source HP-bounded live lock camera bias reduced from unconditional 0.12 to 0.014+0.036*(observedDamageFraction)^2; gate-frame camera reward reduced from 16+12*observedDamageFraction to 2+5*(observedDamageFraction)^2. Only positive-health genuine guardian circuit may earn gate attention; keep two actor crop/core/landing and source hazard vetoes, genuine locked gateway visible and collision-authoritative. Test VM now evaluates genuine imported gate math, with new bounded source priority regression. NO AI, physics, combat, fabricated victory or gameplay source-tick changes.",
+    "exactImplementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42801925825 — requested, completion NOT EVALUATED at authorship",
+    "newSourcePinnedCapture": "NOT EVALUATED — exact-source 10-job capture requested by upcoming capture-request.json commit; no after-change film inspected",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "physicalDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestRemainingExperienceGap": "An actual normal-speed, visually clear two-body guardian/crusher exchange and earned gateway crossing without a cyan steel barrier monopolizing the phone viewport has not been proven after the source-first camera correction.",
+    "nextHighestImpact": "Complete exact-HEAD quality veto and original baseline/candidate 60+s danger/outcome desktop+portrait video, inspect native 12–27s in full motion with source event-neighbor frames and restart. If gateway still obstructs actual characters, rebuild specifically verified source-owned physical foreground mesh or camera presentation as one P0 slice; then supported devices and five independent fresh-context blind reviewers per LOOKS/FEELS/PLAYS."
   }
 }
