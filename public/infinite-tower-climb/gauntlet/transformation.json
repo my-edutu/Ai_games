@@ -117,7 +117,9 @@
       "supportedDevices": "NOT EVALUATED — hardware p50/p95/p99 and memory missing",
       "fullMotionPaired": false,
       "nextHighestImpactAction": "Inspect new exact-source original desktop+portrait full-motion danger for real climber/guardian contact, crusher and earned HP-zero gate, original grounded floor8->9; compare sampled lines and source events to frozen baseline; if new openings do not improve obstruction, reopen central composition/camera not another micro-fade. Inspect moving, ascent, outcome/restart films and complete device + independent critics before any stage advancement."
-    }
+    },
+    "drawnGuardianCameraImplementationSha": "59f243dc9621ce506ad5836c7252ca9c348f4055",
+    "drawnGuardianCameraEvidenceStatus": "P0 OPEN / NOT EVALUATED: prior authentic 10/10 original source capture 42903135945 at 8e54c4ed includes 16 native >=60s original WebMs and 8/8 calibrated source/video timebases, zero event pairing provenance/source-story defects; 390x844 living guardian exchange 18–23s alternates tiny/split fighters, giant bronze wheel/rail, and cropped hero near ~20s. Native/authoritative fixed-step and actually submitted interpolated guardian can disagree. Source 59f243dc now source-authorizes contact as before but fits existing two-body camera around current/previous-tick run/floor/ID validated drawn boss, with source landing and core vetoes preserved. New exact-SHA browser film, event-to-raster inspection and independent quality verdict NOT YET RUN; hardware and true critics remain 0/5."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
@@ -1983,7 +1985,7 @@
     "plays": []
   },
   "guardrails": {
-    "ci": "Exact game-source 8e54c4ed quality 42903135744 FAILED 23/1344 original Node tests: all 23 ReferenceError observedLockedGuardianCap is not defined in import-stripped VM camera fixtures; not proof of gameplay failure or success. ba8006c8 correctly rehydrates every named shipped scene ESM observer into the original Eight fixture suites. Fresh exact-head CI 42905177383 QUEUED when recorded; NO PASS claim.",
+    "ci": "Verified technical safety: source-pinned Node22 quality workflow 42905177383 completed SUCCESS at camera fixture implementation ba8006c8; new drawn-guardian source camera 59f243dc exact-source quality 42917672196 IN PROGRESS when evidence recorded. A green result is only a veto guardrail, not transformation approval.",
     "replay": "Original fixed-step source 3200-tick witness at gameplay SHA dc3c3108 shows physical same-run guardian/crusher victory, floor9 onward and restart; broader deterministic replay gate and production devices still NOT EVALUATED.",
     "accessibility": "NOT EVALUATED — earned gateway camera requires actual source cap grounded contact; historical/y-only guesses cannot authorize shot. Reduced-motion, mobile screen reader and physical controls need real browser testing.",
     "performance": "NOT EVALUATED — no supported hardware frame-time p50/p95/p99 or memory.",
@@ -7399,5 +7401,30 @@
     "nextHighestImpactAction": "First validate original source VM bindings with full current CI, then inspect real full-motion native baseline/candidate portrait/desktop video at exact 8e54 render SHA and native source event positions. If giant hero/guardian crop or cyan gate persists, reconstruct the connected physical combat staging/camera. Only thereafter progress P1 or recruit independent critics.",
     "review": "docs/reviews/2026-11-10-tower-pr68-original-camera-vm-observer-contract-recovery.md",
     "safety": "PR68 draft and PR58 untouched; frozen baseline unchanged; no merge, deploy or force-push."
+  },
+  "p0DrawnGuardianCameraSourceConvergence20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedOriginalGameSourceSha": "8e54c4edf26de3bf0578a4b5348d006ce844552f",
+    "observedOriginalSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945",
+    "sourceEventPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945/artifacts/13805106852",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945/artifacts/13804421444",
+    "baselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945/artifacts/13805280146",
+    "observedOriginalEvidence": "10/10 original jobs successful, 16 desktop/portrait native 60+s WebMs, 8/8 native compositor calibrated source pairs, fullMotionPaired FALSE. At original portrait 390x844 danger 18–23s moving portrait duel alternates tiny, separated, partly occluded live bodies; giant near-side bronze wheel/rail ~19.5s; hero clipped near left edge ~20s. Source event timestamps not sufficient for a pixel-visible continuous combat quality PASS.",
+    "rootCauseFocus": "Camera planner authorizes from fixed-step guardian and positions its planned visual boss from un-interpolated source point; later camera safety correctly uses drawn rig. Divergent source-to-rendered 3D boss positions produce conflicting two-body objectives and can destabilize orbit while active battle and doorway are visible. This code change addresses planner target disagreement, not the physically observed obstruction itself.",
+    "implementationSha": "59f243dc9621ce506ad5836c7252ca9c348f4055",
+    "implementation": "Existing source eligibility, HP, danger, source-selected real landing and core constraints unchanged. Camera stage may replace ONLY presentation guardian world anchor using observed prior submitted genuine Three rig, same guardian ID/run/floor, at same or previous 20Hz source tick; never future, defeated, stale, intermission, restart. Persistent one-object witness, no new draw, collision, authority, gameplay rule or renderer pass. New focused source tests added.",
+    "exactBeforeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42905177383 — SUCCESS on ba8006c8 technical safety only",
+    "exactImplementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42917672196 — IN PROGRESS at source review; no pass claim",
+    "newSourcePinnedCapture": "Requested via immutable same-branch capture-request.json commit after this implementation; not yet available",
+    "reviewers": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "deviceFrameTimesAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new exact-SHA original 390x844 and 960x600 danger 13–26s full motion/event-neighbor frames for shown climber and actual boss position/camera stability; ray-own residual near-side bronze/gear/cap foreground, reconstruct its physical mass if persisted. Pair actual guardian defeat, crusher, unlocked gateway physical crossing, floor9 and outcome/restart; benchmark real devices and independent blind reviews before any stage pass.",
+    "reviewPath": "docs/reviews/2026-11-10-tower-pr68-drawn-guardian-camera-convergence.md"
   }
 }
