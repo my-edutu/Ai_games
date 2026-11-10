@@ -1014,6 +1014,37 @@ body[data-workday="household"] #workday-activity{
   background:#dfc392;color:#18382b
  }
 }
+/* W176: a real household shopper is still the observed village
+   protagonist. Keep the genuine market→occupied cottage camera free of the
+   overview resource bar, floating tag and masthead. The available full
+   Command Desk stays one reachable action away. */
+body[data-workday="household"] .top,
+body[data-workday="household"] #world-actor-tag,
+body[data-workday="household"][data-command="world"] #world-ribbon,
+body[data-workday="daybreak-return"][data-command="world"] #world-ribbon{
+ display:none!important
+}
+body[data-workday="household"] .world-tour{
+ top:10px!important;max-width:calc(100vw - 14px)
+}
+body[data-workday="household"][data-command="world"] .bottom{
+ width:max-content;max-width:calc(100vw - 16px);gap:4px;
+ flex-wrap:nowrap;padding:6px 8px;border-radius:13px
+}
+body[data-workday="household"][data-command="world"] .bottom >
+ :not(#pause):not(#speed1):not(#focus):not(#command-toggle){
+ display:none!important
+}
+@media(max-width:520px){
+ body[data-workday="household"] .world-tour{
+  top:8px!important;left:6px!important;right:6px!important;
+  transform:none!important;max-width:calc(100vw - 12px)!important;
+  overflow-x:auto;justify-content:flex-start;padding:4px 6px
+ }
+ body[data-workday="household"][data-command="world"] .bottom .btn{
+  font-size:10px;padding:8px 9px;min-height:44px
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -14752,6 +14783,11 @@ let liveWorkerPresentedAt=0;
 // authentic resident into morning, then float the view back to the saved
 // original overview over wall time. This never pauses or rewrites any shift.
 const DAYBREAK_RETURN_MS=4200;
+// W176: browser software rendering can stall for multiple seconds between
+// frames. A world-camera transition needs enough *presented* camera samples
+// for the actual moving return to be visible, not just an elapsed timer.
+// This is bounded presentation, never simulation time or authoritative ticks.
+const DAYBREAK_MAX_PROGRESS_PER_FRAME=.12;
 let daybreakReturn=null,daybreakReturnCompleted=0;
 function getDaybreakReturnAudit(){
  const active=Boolean(daybreakReturn),elapsed=active?Math.max(0,performance.now()-daybreakReturn.since):0;
@@ -14759,7 +14795,10 @@ function getDaybreakReturnAudit(){
  return {source:'real-citizen-daybreak-continuity',
   mode:'real-daybreak-camera-return',active,
   citizen:daybreakReturn?.citizen||null,durationMs:DAYBREAK_RETURN_MS,
-  progress:active?Math.min(1,elapsed/DAYBREAK_RETURN_MS):0,
+  progress:active?daybreakReturn.progress:0,
+  wallProgress:active?Math.min(1,elapsed/DAYBREAK_RETURN_MS):0,
+  renderedFrames:active?daybreakReturn.renderedFrames:0,
+  maxPresentedStep:DAYBREAK_MAX_PROGRESS_PER_FRAME,
   completed:daybreakReturnCompleted,authorityChanged:false,
   noFalseWork:true,noFalseResident:true,presentationOnly:true,
   physicalShot:active&&p&&f?{source:'real-doorway-world-camera-shared-by-webgl-and-lod',
@@ -14802,7 +14841,7 @@ function beginDaybreakReturn(citizen){
  if(![...fromEye,...fromTarget,...toEye,...toTarget].every(Number.isFinite))
   throw Error('Nonfinite real daybreak camera point');
  daybreakReturn={citizen:citizen.name,since:performance.now(),from,to,physical,
-  frame:daybreakWorldCameraAt(physical,0)};
+  progress:0,renderedFrames:0,frame:daybreakWorldCameraAt(physical,0)};
  document.body.dataset.workday='daybreak-return';
  const label=document.getElementById('workday-activity');
  if(label)label.textContent='Daybreak · '+citizen.name+
@@ -14812,8 +14851,16 @@ function beginDaybreakReturn(citizen){
 function advanceDaybreakReturn(){
  if(!daybreakReturn||!follow)return false;
  const view=daybreakReturn;
- const fraction=Math.min(1,Math.max(0,
+ const wallProgress=Math.min(1,Math.max(0,
   (performance.now()-view.since)/DAYBREAK_RETURN_MS));
+ // A 100+ms or multi-second SwiftShader stall must not skip the only
+ // physical doorway-to-valley motion. At ordinary hardware FPS elapsed time
+ // remains the controlling clock; under stalls, use at most 12% per actual
+ // submitted render, preserving every intermediate real camera eye and aim.
+ // Reduced-motion users get one direct stable camera change instead.
+ const fraction=window.matchMedia('(prefers-reduced-motion: reduce)').matches?1:
+  Math.min(wallProgress,view.progress+DAYBREAK_MAX_PROGRESS_PER_FRAME);
+ view.progress=fraction;view.renderedFrames++;
  const ease=fraction*fraction*(3-2*fraction);
  const angle=Math.atan2(Math.sin(view.to.yaw-view.from.yaw),
   Math.cos(view.to.yaw-view.from.yaw));

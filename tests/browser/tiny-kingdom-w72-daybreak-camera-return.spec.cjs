@@ -51,6 +51,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(entering.transition.durationMs).toBeGreaterThanOrEqual(3500);
   expect(entering.camera.follow).toBe(true);
   expect(entering.transition.citizen).toBe(morning.citizen);
+  // W176 RED on prior exact source: actual wall-clock stalls could jump from
+  // the authentic cottage door directly to finished overview with no frame-
+  // acknowledged intermediate world-camera eye/target being rendered.
+  expect(entering.transition.maxPresentedStep).toBeLessThanOrEqual(.12);
+  expect(entering.transition.renderedFrames).toBeGreaterThanOrEqual(0);
+  expect(entering.transition.progress).toBeLessThanOrEqual(entering.transition.wallProgress);
   // The simulation speed remains unchanged by the camera work.
   await page.waitForFunction(()=>window.__tinyKingdom.getDaybreakReturnAudit().progress>.38,
     null,{timeout:110000});
@@ -61,6 +67,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   });
   expect(middle.transition.progress).toBeGreaterThan(.38);
   expect(middle.transition.progress).toBeLessThanOrEqual(1);
+  expect(middle.transition.renderedFrames).toBeGreaterThanOrEqual(4);
+  expect(middle.transition.progress).toBeLessThanOrEqual(middle.transition.wallProgress);
+  expect(middle.transition.physicalShot?.progress)
+   .toBeCloseTo(middle.transition.progress,5);
+  expect(middle.transition.physicalShot?.eye?.every(Number.isFinite)).toBe(true);
+  expect(middle.transition.physicalShot?.target?.every(Number.isFinite)).toBe(true);
   expect(middle.snapshot).toBe(morning.snapshot);
   await page.waitForFunction(()=>!window.__tinyKingdom.getDaybreakReturnAudit().active &&
     !window.__tinyKingdom.getCamera().follow &&
