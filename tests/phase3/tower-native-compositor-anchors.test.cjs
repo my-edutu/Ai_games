@@ -52,7 +52,7 @@ test('passive CDP capture preserves real browser frame metadata, throttles, ackn
   assert.equal(collector.anchors.length,1);
   assert.equal(collector.anchors[0].claimedVideoMatch,false);
   assert.equal(collector.anchors[0].startAtMs,collector.anchors[0].endAtMs);
-  now+=3000;
+  now+=MIN_SPACING_MS-100;
   client.emit('Page.screencastFrame',{sessionId:2,
     metadata:{timestamp:now/1000},data:jpeg});
   assert.equal(collector.anchors.length,1);
