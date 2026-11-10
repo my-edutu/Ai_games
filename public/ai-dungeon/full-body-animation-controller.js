@@ -178,10 +178,16 @@ export function advanceFullBodyController(previous=null,{
  // ownership and cannot inherit a fake guard or defensive game effect.
  const guardWas=finite(previous?.guardProgress)?clamp(previous.guardProgress,0,1):0;
  const guardDelta=delta/.18;
+ // Original Idle -> Walking_A must ease out the defensive pelvis, soles,
+ // chest, shoulders and weapon elbow while legitimate movement takes over.
+ // This is pose-only, sourced from an already witnessed guard. Never retain
+ // a gameplay guard, invent travel or carry the brace into hurt/evasion/death.
+ const settlingGuard=guardWas>0&&
+  (mode==='idle'||mode==='move')&&
+  ['guard','idle','move'].includes(previous?.mode);
  const guardProgress=!alive||teleport||reducedMotion||visible!==true?0:
   mode==='guard'?clamp(guardWas+guardDelta,0,1):
-  mode==='idle'&&['guard','idle'].includes(previous?.mode)?
-   clamp(guardWas-guardDelta,0,1):0;
+  settlingGuard?clamp(guardWas-guardDelta,0,1):0;
  const guardBlend=guardProgress*guardProgress*(3-2*guardProgress);
  // This is a pose-ownership mask, NOT weights accumulated by several systems.
  const owner=Object.freeze({
