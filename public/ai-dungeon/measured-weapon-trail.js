@@ -59,16 +59,22 @@ export function isCurrentMeasuredHandReceipt(previous,current){
  // Only compare when the *rendered* passage had a real world-orientation
  // witness. Older minimal rigs without getWorldQuaternion retain their
  // existing translation/yaw contract; never synthesize a missing rotation.
- if(previous.wristQuaternion!==undefined){
+ // The actual stage stores four scalar coordinates in its existing wrist
+ // point to avoid an extra per-frame object. Named nested poses are supported
+ // for test/integration adapters, but are never manufactured by this module.
+ if(previous.wristQw!==undefined||previous.wristQuaternion!==undefined){
   const a=previous.wristQuaternion,b=current.wristQuaternion;
-  if(!a||!b||!['x','y','z','w'].every(k=>
-    Number.isFinite(a[k])&&Number.isFinite(b[k])))return false;
-  const aa=a.x*a.x+a.y*a.y+a.z*a.z+a.w*a.w;
-  const bb=b.x*b.x+b.y*b.y+b.z*b.z+b.w*b.w;
+  const ax=a?.x??previous.wristQx,ay=a?.y??previous.wristQy;
+  const az=a?.z??previous.wristQz,aw=a?.w??previous.wristQw;
+  const bx=b?.x??current.wristQx,by=b?.y??current.wristQy;
+  const bz=b?.z??current.wristQz,bw=b?.w??current.wristQw;
+  if(![ax,ay,az,aw,bx,by,bz,bw].every(Number.isFinite))return false;
+  const aa=ax*ax+ay*ay+az*az+aw*aw;
+  const bb=bx*bx+by*by+bz*bz+bw*bw;
   if(!Number.isFinite(aa)||!Number.isFinite(bb)||
     aa<.96||aa>1.04||bb<.96||bb>1.04)return false;
-  // The sign of a unit quaternion is not its physical orientation.
-  const dot=Math.abs(a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w)/Math.sqrt(aa*bb);
+  // q and -q describe the same orientation; normalize their dot.
+  const dot=Math.abs(ax*bx+ay*by+az*bz+aw*bw)/Math.sqrt(aa*bb);
   const angularDrift=2*Math.acos(Math.max(0,Math.min(1,dot)));
   if(!Number.isFinite(angularDrift)||
     angularDrift>MEASURED_HAND_RECEIPT_MAX_WRIST_ROTATION_RADIANS)return false;
