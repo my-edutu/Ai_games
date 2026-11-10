@@ -7127,7 +7127,7 @@
     "originalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13778878647",
     "originalBaselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42848204499/artifacts/13779223804",
     "originalSourcePairing": "16 original baseline/candidate desktop+portrait video files across four scenarios, 8/8 calibrated native video timebases, provenance defects 0; fullMotionPaired=false",
-    "mostImportantOriginalFootageDefect": "Real candidate portrait floor8 at source tick321 guardian HP3/8 airborne hero NDC x=-1.8576 outside actual 390x844 picture, while boss remains in view. Real 14-24s guardian footage dominated by bronze/teal machinery, often smaller/fragmented action than frozen baseline; no blind A/B preference claimed.",
+    "mostImportantOriginalFootageDefect": "Real candidate portrait floor-eight tick321 during airborne guardian HP3/8: authoritative source-position projection x=-1.8576 NDC outside 390x844, BUT smoothed rendered skinned climber actually projects (-0.2072,-0.1118) NDC IN safe frame. This is source-to-drawn-pose disagreement, NOT evidence the displayed model vanishes. Full-motion 14–24s scene still has crowded machinery and inconsistent fighter readability; requires exact afterfilm.",
     "diagnosis": "Existing camera dropped a wounded positive-HP living source guardian as an airborne contact subject on ticks lacking current telegraph/shot/attack. The encounter reverted to route-led camera between source-verified attack beats.",
     "testFirstCommit": "6b118e74bf11afcf5dff0551af41dcd8b6318a9c",
     "productionCommit": "33b91f5eb9f79a67a0c689b2074ad301a4a6cd87",
@@ -7146,6 +7146,7 @@
       "plays": 0
     },
     "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
-    "nextAction": "Verify fresh full original candidate/baseline 960x600 and 390x844 danger/ascent/moving/outcome 60s+, align true source ticks 321 and defeat/gateway/f9/restart to visible frames; inspect whether this sustained actor framing helps or harms physical landing. If failure, rebuild dominant connected visual system rather than tests/cosmetics."
+    "nextAction": "Verify fresh full original candidate/baseline 960x600 and 390x844 danger/ascent/moving/outcome 60s+, align true source ticks 321 and defeat/gateway/f9/restart to visible frames; inspect whether this sustained actor framing helps or harms physical landing. If failure, rebuild dominant connected visual system rather than tests/cosmetics.",
+    "criticalProjectionCaveat": "Do not confuse observedCamera.actorNdc (current authoritative source point) with observedActor.ndc (smoothed actual skinned draw). A mismatch does not establish raster occlusion, clipping, or latency cause without aligned motion evidence."
   }
 }
