@@ -778,7 +778,12 @@ export function createTowerWorld(){
     lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
     const pylons=[
       {a:-.66,r:16.8,R:4.9,bottom:-31,top:height+16},
-      {a:.67,r:16.65,R:5.25,bottom:-35,top:height+6},
+      // Actual portrait floor-eight source rays (bdb1b83b, ticks 298-343) hit
+      // this solid LatheGeometry at x~6-9/z~15-17 behind the real guardian.
+      // Clockwork alone places the secondary load-bearing buttress outside the
+      // +/-1.1 radian cap-combat sightline; other five-biome routes are intact.
+      // There is no collider here: the source-owned cap/decks are unchanged.
+      {a:theme==='clockwork'?1.40:.67,r:16.65,R:5.25,bottom:-35,top:height+6},
       {a:-.18,r:8.6,R:5.5,bottom:-27,top:height+31}
     ];
     for(const [i,p]of pylons.entries()){
@@ -1369,7 +1374,21 @@ export function createTowerWorld(){
         const wing=new THREE.Group();
         wing.name=side<0?'GuardianSealWingLeft':'GuardianSealWingRight';
         wing.position.z=.37;doorway.add(wing);
-        block(wing,materials.copper,[side*1.56,2.13,0],[3.09,4.14,.28]);
+        // Source-locked guardian doors previously were opaque 3.09 x 4.14
+        // bronze slabs. Real 390x844 guardian footage shows the cap approach
+        // disappearing behind them. Replace each slab with one original 3D
+        // instanced structural grille: 2x2 daylight openings reveal the live
+        // guardian and walking deck, while crossbars, crest and source-driven
+        // energy lattice still read unmistakably LOCKED until earned defeat.
+        // No display-only wall or authoritative obstacle is removed.
+        const lattice=[];
+        for(const [x,width] of [[.19,.23],[1.54,.14],[2.9,.23]])
+          lattice.push({p:[side*x,2.13,0],s:[width,4.12,.28]});
+        for(const [y,thickness] of [[.17,.22],[2.13,.16],[4.09,.22]])
+          lattice.push({p:[side*1.56,y,0],s:[3.08,thickness,.28]});
+        const grille=instanced(wing,bevel(),materials.copper,lattice);
+        grille.name=side<0?'GuardianSealBronzeLatticeLeft':'GuardianSealBronzeLatticeRight';
+        grille.userData.ambientDetail=true;
         block(wing,materials.edge,[side*2.82,2.13,.19],[.13,3.6,.075]);
         wings.push({side,wing});
       }
