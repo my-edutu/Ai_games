@@ -128,6 +128,72 @@ test('a genuine living guardian owns a closed, dimensional world-space seal, not
   } finally { world.dispose(); }
 });
 
+// These are the actual source-locked moving gate leaves, not a HUD mockup.
+// Test physical daylight through the bronze and intact steel at a rib.
+// A genuine guardian still owns the lock; the screen cannot become a fake exit.
+test('source-locked bronze gate retains physical bars but lets genuine combat be seen through its window', async () => {
+  const {createTowerWorld}=await loaded;
+  const THREE=await import(threeUrl);
+  const world=createTowerWorld();
+  try {
+    world.update(frame(),.016,0,{quality:'low'});
+    const left=named(world.group,'GuardianSealWingLeft');
+    const right=named(world.group,'GuardianSealWingRight');
+    const grille=named(world.group,'GuardianSealBronzeLatticeLeft');
+    const other=named(world.group,'GuardianSealBronzeLatticeRight');
+    assert.ok(grille?.isInstancedMesh && other?.isInstancedMesh,
+      'both authoritative bronze doors have physically open windows, not an opaque animated panel');
+    assert.equal(grille.count,6);
+    assert.equal(other.count,6);
+    assert.equal(grille.userData.collider,undefined);
+    left.updateWorldMatrix(true,true);
+    function castAt(localX,localY) {
+      const a=left.localToWorld(new THREE.Vector3(localX,localY,1.5));
+      const b=left.localToWorld(new THREE.Vector3(localX,localY,-1.5));
+      return new THREE.Raycaster(a,b.clone().sub(a).normalize(),0,3)
+        .intersectObject(grille,false);
+    }
+    assert.equal(castAt(-.86,1.1).length,0,
+      'daylight crosses real open steel in the upper-cap action window');
+    assert.ok(castAt(-1.54,1.1).length>0,
+      'the source-locked gate still has a physical supporting bar');
+    assert.equal(left.position.x,0);
+    assert.equal(right.position.x,0);
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false,
+      'perforated visual doors cannot earn or simulate victory');
+  } finally {world.dispose();}
+});
+
+// The original portrait camera probes at source ticks 298-343 identified
+// a TRUE opaque rigid-batched clockwork structural pylon behind the guardian.
+// It must no longer fill the exact previously blocked cap fighting rays.
+test('authored clockwork load-bearing pylon leaves the observed upper-cap portrait corridor clear',async()=>{
+  const {createTowerWorld}=await loaded;
+  const world=createTowerWorld();
+  try {
+    world.update({...frame(),theme:'clockwork'},.016,0,{quality:'low'});
+    let pylonTriangles=0,blockedVertices=0;
+    world.group.traverse(object=>{
+      if(object.name!=='rigid-material-batch')return;
+      const pos=object.geometry.attributes.position;
+      for(const owner of object.geometry.userData.originalTriangleOwners||[]){
+        if(owner.authoringGeometry!=='LatheGeometry'||
+          !owner.authoringPath.includes('tapered-structural-pylon'))continue;
+        pylonTriangles+=owner.endFace-owner.startFace;
+        for(let face=owner.startFace;face<owner.endFace;face++)for(let vertex=0;vertex<3;vertex++){
+          const i=face*3+vertex,x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+          if(x>=5.5&&x<=10.5&&z>=12&&z<=19&&y>=33&&y<=45)blockedVertices++;
+        }
+      }
+    });
+    assert.ok(pylonTriangles>=1200,'real tower structural pylons are still part of the authored 3D world');
+    assert.equal(blockedVertices,0,
+      'no rigid-batched original structural pylon may repopulate the measured guardian view obstruction');
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false,
+      'world-art clearance must not touch source victory or gate locking');
+  } finally {world.dispose();}
+});
+
 test('an authentic guardian defeat opens BOTH world-space doors and its distinct source-bound crest', async () => {
   const { createTowerWorld } = await loaded;
   const world = createTowerWorld();
