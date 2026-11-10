@@ -1622,3 +1622,34 @@ test('original source Walking_A transfers connected hips, shoulders and ankles t
  assert.match(model,/actor\.rigFullBodyStride\s*=\s*planSourceOwnedFullBodyStride\([\s\S]{0,175}actor\.rigNativeLegOverlayScale/,
   'live Three.js source actor must use the SAME original Walking_A mixer share for hips, shoulders and legs');
 });
+
+
+test('a late ORIGINAL Walking_A arrival freezes only after real remaining root travel stops during fade',async()=>{
+ const {shouldFreezeDeferredImportedWalk:freeze}=await load();
+ assert.equal(typeof freeze,'function','the authentic imported walk fade needs a delayed plant gate');
+ const witnessed={
+  targetMode:'idle',currentMode:'idle',clipName:'Walking_A',
+  sourceWeight:.31,sourceRunning:true,sourcePaused:false,
+  groundedMoving:false,groundedTravel:0,alive:true,visible:true,
+  teleport:false,reducedMotion:false
+ };
+ assert.equal(freeze(witnessed),true,'stopped root must stop cycling its still-fading genuine Walking_A ankles');
+ assert.equal(freeze({...witnessed,targetMode:'guard',currentMode:'guard'}),true,
+  'defensive arrival has the same shoe-plant contract');
+ assert.equal(freeze({...witnessed,groundedTravel:.009}),false,
+  'a late arrival may still be visibly travelling: no premature planted pose');
+ for(const illegal of [
+  {sourceWeight:0},{sourceWeight:NaN},{sourceWeight:1.2},
+  {sourceRunning:false},{sourcePaused:true},{clipName:'Idle'},
+  {clipName:'2H_Ranged_Shoot'},{groundedMoving:true},
+  {groundedTravel:-.002},{groundedTravel:NaN},
+  {targetMode:'move'},{currentMode:'attack'},{targetMode:'guard'},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true}
+ ])assert.equal(freeze({...witnessed,...illegal}),false,
+  'invalid source, new combat, teleport, hidden motion or unproven root cannot inherit a frozen shoe');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/walkArrivalPendingAction/,
+  'the actual renderer must retain the outgoing original Walking_A action until its fade finishes');
+ assert.match(model,/shouldFreezeDeferredImportedWalk\(/,
+  'the actual Three.js mixer must consult the deferred real-root stop gate');
+});
