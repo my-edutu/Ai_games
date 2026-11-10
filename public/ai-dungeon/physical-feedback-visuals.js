@@ -68,7 +68,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
 }={}){
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
-  sampled=new THREE.Vector3();
+  sampled=new THREE.Vector3(),sampledBodyLocal=new THREE.Vector3();
  // One retained read-only quaternion scratch, never a per-frame allocation.
  // Minimal/mock actor rigs without the world-rotation API keep old behavior.
  const sampledWristRotation=typeof THREE.Quaternion==='function'?
@@ -146,6 +146,29 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
        rootX:root.x,rootY:root.y,rootZ:root.z};
       // Transient reference, retained only by this D04 trail slot. No rig edit.
       if(requireBone)point.sourceBone=bone;
+      // The genuine GLB can lean/pitch/recoil on ancestor presentation
+      // pivots while this local wrist is planted. A WORLD displacement
+      // from that body motion must not become a fake sword stroke/whoosh.
+      // Read authored local joint position against the existing assetRoot;
+      // never add a mesh, invent a socket or mutate animation authority.
+      // Keep one retained Vector3 scratch and reference the already-updated
+      // Matrix4 elements; no per-frame matrices or geometry are allocated.
+      if(hand&&requireBone&&
+       typeof actor.assetRoot?.worldToLocal==='function'){
+       point.sourceBodyRoot=actor.assetRoot;
+       try{
+        actor.assetRoot.updateWorldMatrix?.(true,false);
+        sampledBodyLocal.set(sampled.x,sampled.y,sampled.z);
+        actor.assetRoot.worldToLocal(sampledBodyLocal);
+        const m=actor.assetRoot.matrixWorld?.elements;
+        if(finite3(sampledBodyLocal)&&m?.length===16){
+         point.localX=sampledBodyLocal.x;
+         point.localY=sampledBodyLocal.y;
+         point.localZ=sampledBodyLocal.z;
+         point.poseFrameMatrix=m;
+        }
+       }catch{} // Present but unverifiable body transforms fail closed.
+      }
       if(hand&&sampledWristRotation&&typeof bone.getWorldQuaternion==='function'){
        try{
         bone.getWorldQuaternion(sampledWristRotation);
