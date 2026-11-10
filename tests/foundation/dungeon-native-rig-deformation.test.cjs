@@ -176,3 +176,23 @@ test('original GLB sole evidence samples skinned foot-weighted vertices and rigi
  assert.doesNotMatch(model,/requestAnimationFrame\([\s\S]*?applyBoneTransform\(/,
   'expensive source skinned vertex samples must be explicitly on demand only');
 });
+
+
+test('GLTFLoader-sanitized foot bone names identify real original weighted sole candidates',async()=>{
+ const {isSourceSoleBoneName}=await load();
+ assert.equal(typeof isSourceSoleBoneName,'function',
+  'the on-demand source skin witness must handle GLTFLoader stripping the dot from foot.l/toes.l');
+ for(const [name,side] of [['footl','left'],['toesl','left'],['footr','right'],['toesr','right'],
+  ['foot.l','left'],['toes.l','left'],['foot.r','right'],['toes.r','right']])
+  assert.equal(isSourceSoleBoneName(name,side),true,name+':'+side);
+ for(const name of ['control-foot-roll.l','IK-footl','IK-toel','handr','calfl','foot','footx',null]){
+  assert.equal(isSourceSoleBoneName(name,'left'),false,String(name));
+  assert.equal(isSourceSoleBoneName(name,'right'),false,String(name));
+ }
+ assert.equal(isSourceSoleBoneName('footl','right'),false);
+ assert.equal(isSourceSoleBoneName('footr','left'),false);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/isSourceSoleBoneName\(bone\?\.name,'left'\)/,
+  'the actual cloned SkeletonUtils skin audit must use the source-name normalization');
+ assert.match(renderer,/isSourceSoleBoneName\(bone\?\.name,'right'\)/);
+});
