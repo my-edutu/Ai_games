@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "requestedOn": "2026-11-10",
+  "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "1dcf1e4d26bcd6f71622a7aa2f97730dec8cc417",
-  "reason": "Original source 1c55057a exact 10-job candidate filming 42918130217 failed the real moving and danger browser tests in BOTH 960x600 and 390x844 at the first diagnostics poll: ReferenceError followComposition is not defined in scene.mjs:4457, with only 4/8 original source event pairs. Camera update-local lens must not be read by independent public diagnostics. Production a1ed799f stores an exact run/floor/tick guardian witness and 1dcf1e4d fixes its original regression matcher. This request captures actual UNALTERED source at the new immutable github.sha to verify complete guardian/crusher + moving + floor-nine + outcome footage; no image or experience pass is inferred.",
+  "repairedSourceSha": "9761a45ef398c1cbf88f16fdfe366470b27d4db7",
+  "reason": "New original-source cold-start evidence pipeline: previous real 10-job run 42920000723 recovered all 8 original source browser recordings but failed strict desktop danger origin alignment (baseline first rendered tick 138; candidate tick 75, 63>60). New CI-only late original host launch starts the untouched 20Hz server ONLY after native video page allocation in each viewport. Preserve first rendered source tick and original native WebM; do not bypass original 60-tick veto. Verify initial host source tick, cold-render lag, 8/8 clocks, real guardian/crusher/gateway/floor9 and result/restart; still NOT EVALUATED for looks/feels/plays.",
   "scenarios": [
     "ascent",
     "moving",
@@ -89,7 +89,7 @@
   "meshProvenanceIntegrationTestSha": "9c094857f80728d083eeec07dcd4e14f1729c6a3",
   "newPhysicalOwnerEvidenceRequirement": "For original candidate danger portrait floor8, at real source ticks near film 13-22s, verify non-null cameraRayMeshOwnerSamples.probes[].hits[].originalAuthoring authoringPath, authoringGeometry, authoringInstance, partFaceIndex for hit object rigid-material-batch, and compare named culprit against corresponding unchanged native source WebM. If missing/null, report blocker; no fabrication. Must verify all 8 baseline/candidate video-clock matches, real earned guardian/crusher/gateway/floor9 and true outcome/restart.",
   "latestRealPlayVideoReview": "Actual 2026-11-10 source-candidate 93c6d680 390x844 73.56s and 960x600 74.08s original WebM sampled 9-60s. Translucent high prison-grid rails still dominate climber/guardian at 14-24s; full-height X rebuild post-5fa9331f unfilmed. 8/8 native calibrated but FEELS/PLAYS and true visible event-match not evaluated.",
-  "nextHighestImpactAction": "Verify baseline moving desktop strict native-PTS calibration >=3 genuine unique anchors, then inspect portrait and desktop full-motion current source boss+crusher/earned floor9 and true outcome/restart; resolve largest remaining physically occluding original world object; do not claim independent quality.",
+  "nextHighestImpactAction": "First verify true cold-source parity with no fake ticks or bypass. Then compare real native unedited 390x844 and 960x600 full-motion guardian duel ~12-26s and original terminal/restart; reopen physical 3D obstruction/orbit if still unacceptable. Independent 0/5 reviews and intended-device p50/p95/p99/memory absent.",
   "latestCandidateSceneChangeSha": "5828dd72946330e95bc685c8f5821e2c7f1480e0",
   "requestSourcePin": "github.sha of THIS exact request-file update; candidate includes camera implementation 5828dd72 and subsequent evidence-only commit; baseline game source stays immutable at 1731b380851162741761c5569e2bc152a0869ca9",
   "lastKnownPairingStatus": "42757152698 10/10 source capture jobs succeeded; 16 native original unedited baseline/candidate WebMs, 8/8 genuine source-to-native timebases CALIBRATED; original hazard/guardian and restart source claims not individually raster matched; fullMotionPaired=false, independent reviewers 0/5 each, physical device data NOT EVALUATED.",
@@ -304,7 +304,7 @@
   "latestSourceWitnessRepairSha": "a763dcde2c21e5af24a1db4b9c5b6e8a86886c8d",
   "capturePriorKnownRun": "https://github.com/my-edutu/Ai_games/actions/runs/42868026568",
   "capturePriorActualFailure": "baseline moving desktop original-film timebase 2 of 8 unique anchor matches; only native pairing veto, both original browser WebMs and ffprobe transport integrity present",
-  "captureAfterCodeVerdict": "NOT EVALUATED: this file triggers exact immutable github.sha full normal-speed film; do not infer pass before artifact inspection",
+  "captureAfterCodeVerdict": "NOT EVALUATED — this exact request commit triggers pinned source; no claim of completed new film",
   "latestVisualWork": "Clockwork visual-only open ribbed central well and three anchored open geological shoulders — new exact SHA determined by workflow github.sha. Not a confirmed visual improvement.",
   "latestQualityVetoBeforeChange": "https://github.com/my-edutu/Ai_games/actions/runs/42874249799 — SUCCESS at 91a3bf34",
   "visualBeforeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42878341492/artifacts/13791404790",
@@ -376,5 +376,9 @@
     "looks": 0,
     "feels": 0,
     "plays": 0
-  }
+  },
+  "latestVerifiedBeforeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42920000723",
+  "latestSourceCaptureEngineeringSha": "9761a45ef398c1cbf88f16fdfe366470b27d4db7",
+  "captureStartPolicy": "Same original 20Hz source host, no game edits, no fake warmup; only CI-owned launch moved after native Playwright viewport page exists. Original first-render tick <=250 and baseline/candidate delta <=60 remain unchanged. Real image/content drift still requires film inspection.",
+  "currentPostChangeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092 — PENDING/IN PROGRESS at request authoring"
 }

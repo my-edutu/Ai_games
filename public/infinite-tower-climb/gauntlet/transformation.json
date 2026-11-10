@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-10",
+  "updated": "2026-11-11",
   "mode": "transformation-first",
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -7463,5 +7463,35 @@
     "candidateSourcePin": "00e1e00900a8382d1991d3c7c9397a387459fb77",
     "currentEvidenceLedgerParent": "00e1e00900a8382d1991d3c7c9397a387459fb77",
     "hardwareFrameTimeP50P95P99AndMemory": "NOT EVALUATED"
+  },
+  "p0FreshAuthenticHostAfterNativeContext20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPR68HeadBefore": "5110351e604de6068eeb5ac6a6d23bf528c0b063",
+    "sourcePinnedPreviousRecording": "https://github.com/my-edutu/Ai_games/actions/runs/42920000723",
+    "previousSourcePinnedSha": "00e1e00900a8382d1991d3c7c9397a387459fb77",
+    "previousRecordingFacts": "10 original source job matrix, 8 browser recordings successful, source guardian/crusher campaign passed; 8/8 source story, 7/8 native event timebase pairs; strict recording integrity FAILED because desktop danger initial first-render source baseline tick 138 vs candidate tick 75, delta 63>60 (3.15s>3s). No fabricated offset or threshold change.",
+    "observedPreviouslyFilmedExperienceDefect": "Actual candidate portrait/desktop 18–22s genuine guardian duel still loses joint climber/guardian readability in bronze near-side rail/rim and inconsistent orbit; pixel-authoritative event visibility not accepted.",
+    "verifiedCauseAndCorrection": "Playwright webServer formerly starts the original 20Hz authoritative host before Chromium and native video page construction. Host ticks advance while browser/renderer loads, leaving uneven unfilmed warmup. In explicit CI-only capture mode, identical neutral harness now creates Chromium + exact native-size original Playwright video page FIRST, then spawns the actual checked-out original source host. The child must announce it successfully bound 4176 AND return real healthy /tower/health; old host cannot authenticate the new child. Cleanup terminates owned source host even if browser fails; initial host source tick and later real rendered tick are recorded separately. NO source clock pause, artificial replay, edited WebM, false start tick, gameplay/PR58 changes.",
+    "codeCommitSha": "9761a45ef398c1cbf88f16fdfe366470b27d4db7",
+    "touchedPaths": [
+      "playwright.tower.config.cjs",
+      "tests/browser/tower-live-motion.spec.cjs",
+      ".github/workflows/tower-transformation-visual-evidence.yml",
+      "scripts/tower-capture-host-lifecycle.cjs",
+      "tests/phase3/tower-capture-host-lifecycle.test.cjs"
+    ],
+    "localFullOriginalNodeThreePlaywright": "NOT EXECUTED — linked coding terminal tunnel unavailable; GitHub source-pinned checks are required",
+    "firstPostChangeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092 — IN PROGRESS when entry recorded, not a pass",
+    "exactSourceCaptureRequest": "github.sha of subsequent same-branch capture-request.json commit; baseline remains frozen and unchanged",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedActualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "allNative60SecondSourceMatchedClips": "NOT EVALUATED — new capture request not yet run at entry",
+    "nextHighestImpact": "Verify fresh-host CI and exact immutable 10-job original capture. Inspect actual initial source ticks and first-render lag in BOTH desktop danger compared with original 138/75; retain strict <=60 tick veto. If recovered, inspect unmodified full-motion guardian 12–26s and source-locked HP0/crusher → grounded gateway → floor9 → result/restart; fix dominant 3D physical occluder rather than another camera microadjustment. No promotion until real devices and 5 genuinely independent blind critics in EACH LOOKS/FEELS/PLAYS."
   }
 }
