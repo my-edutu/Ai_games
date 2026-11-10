@@ -48,12 +48,12 @@ test('one actual public treadle presses before inward jaws and restores after re
   const diagonal=new Vector3(origin.x+CELL_SIZE,0,origin.z+CELL_SIZE);
   const contact=new Vector3(origin.x,0,origin.z);
   world.animate(1,{explorerPosition:far,reducedMotion:false});
-  assert.equal(left.position.z,0);assert.equal(right.position.z,0);
+  assert.ok(Math.abs(left.position.z)<1e-12,'the physically reset left drive bar must remain at zero travel');assert.ok(Math.abs(right.position.z)<1e-12,'the physically reset right drive bar must remain at zero travel');
   assert.equal(plate.position.y,.035);assert.ok(Math.abs(plate.rotation.x)<1e-12,'unactuated published treadle must be physically flat');
   world.animate(1.2,{explorerPosition:diagonal,reducedMotion:false});
   assert.equal(plate.position.y,.035,'public diagonal sight cannot falsely press floor');
-  assert.equal(left.position.z,0,'mere sighting must not actuate either drive rod');
-  assert.equal(right.position.z,0,'diagonal sighting cannot predict contact');
+  assert.ok(Math.abs(left.position.z)<1e-12,'mere sighting must not actuate either drive rod');
+  assert.ok(Math.abs(right.position.z)<1e-12,'diagonal sighting cannot predict contact');
   assert.ok(Math.abs(plate.rotation.x)<1e-12,'unactuated published treadle must be physically flat');
   world.animate(2,{explorerPosition:contact,reducedMotion:false});
   world.animate(3.4,{explorerPosition:contact,reducedMotion:false});
@@ -71,7 +71,7 @@ test('one actual public treadle presses before inward jaws and restores after re
   assert.ok(jaw.rotation.z>.60,'same public clock closes the REAL inward jaw');
   world.animate(4,{explorerPosition:far,reducedMotion:false});
   assert.equal(plate.position.y,.035);
-  assert.equal(left.position.z,0);assert.equal(right.position.z,0);
+  assert.ok(Math.abs(left.position.z)<1e-12,'the physically reset left drive bar must remain at zero travel');assert.ok(Math.abs(right.position.z)<1e-12,'the physically reset right drive bar must remain at zero travel');
   assert.ok(Math.abs(left.rotation.x)<1e-12 && Math.abs(right.rotation.x)<1e-12,
     'withdrawal restores BOTH connected rods to flat rest');
   // A withdrawn Three.js Euler can be -0; signed zero has the same resting
@@ -89,7 +89,7 @@ test('one actual public treadle presses before inward jaws and restores after re
   world.update({...published,visibleCells:[]});
   world.animate(6,{explorerPosition:contact,reducedMotion:false});
   assert.equal(plate.position.y,.035,'remembered-only hazard stays closed');
-  assert.equal(left.position.z,0);assert.equal(right.position.z,0);
+  assert.ok(Math.abs(left.position.z)<1e-12,'the physically reset left drive bar must remain at zero travel');assert.ok(Math.abs(right.position.z)<1e-12,'the physically reset right drive bar must remain at zero travel');
   assert.ok(Math.abs(left.rotation.x)<1e-12 && Math.abs(right.rotation.x)<1e-12,
     'remembered-only pressure cannot leave drive rods in a threatening pose');
   // Like withdrawal, invisibility can yield -0 from an absolute Three.js Euler.
@@ -98,7 +98,7 @@ test('one actual public treadle presses before inward jaws and restores after re
   assert.ok(Math.abs(plate.rotation.x)<1e-12,'hidden-only treadle has no residual tilt');
   world.animate(6.2,{explorerPosition:contact,reducedMotion:true});
   assert.equal(plate.position.y,.035,'reduced-motion remembered-only trap cannot depress');
-  assert.equal(left.position.z,0);assert.equal(right.position.z,0);
+  assert.ok(Math.abs(left.position.z)<1e-12,'the physically reset left drive bar must remain at zero travel');assert.ok(Math.abs(right.position.z)<1e-12,'the physically reset right drive bar must remain at zero travel');
   assert.ok(Math.abs(plate.rotation.x)<1e-12,'reduced-motion hidden trap cannot tilt');
   world.update({...published,runToken:'new',tick:0,cells:[],visibleCells:[],discoveredCells:[]});
   assert.equal(world.group.getObjectByName('Published tide-shear depressible treadle 24'),undefined);
