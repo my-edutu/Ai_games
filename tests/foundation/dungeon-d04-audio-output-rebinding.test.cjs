@@ -33,7 +33,11 @@ const snapshot=(tick)=>({run:1,floor:1,tick,events:[],units:[{
  action:tick===10?'idle':'attack',actionTick:tick
 }]});
 function spectator(ctx,storage=null){
- return importDirector(ctx,storage);
+ const memory=new Map();
+ return importDirector(ctx,storage??{
+  getItem(key){return memory.get(key)??null},
+  setItem(key,value){memory.set(key,String(value))}
+ });
 }
 async function importDirector(ctx,storage){
  const {createPhysicalCombatFeedback}=await load();
