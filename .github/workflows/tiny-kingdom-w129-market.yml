@@ -13,6 +13,7 @@ on:
       - 'scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs'
       - 'scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs'
+      - 'scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
       - '.github/workflows/tiny-kingdom-w129-market.yml'
@@ -51,6 +52,7 @@ jobs:
           node scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs
           node scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs
           node scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs
+          node scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs
 
   original-market-webgl:
     needs: original-market-source
