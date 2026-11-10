@@ -8213,7 +8213,7 @@ function citizenRigPose(p){
    // Each saved package drives one physically solved two-arm preparation,
    // carry and release, with both boots planted at the real receiving yard.
    const motion=courierTransferMotion(p);
-   ({elbow,wrist}=solveWorkArmIK([side*.30,1.015,0],
+   ({elbow,wrist}=solveWorkArmIK([side*.30,1.015-pelvisDrop,0],
     side===1?motion.targetRight:motion.targetLeft,side));
    }else if(hauling){
     // Both wrists physically grip the original cart's real, local-world
@@ -8253,7 +8253,7 @@ function citizenRigPose(p){
    elbow=[side*.31,.81+lift*.47,.13];
    wrist=[side*.36,.70+lift,.27];
   }
-  const shoulder=[side*.30,1.015,0];
+  const shoulder=[side*.30,1.015-pelvisDrop,0];
   if(working&&!unloading){
    // The primary hand touches actual joinery, grain, axe, scales, anvil or
    // basket surfaces; the off hand stabilizes the work rather than swinging.
@@ -20184,7 +20184,9 @@ function anchorSelectedWorkdayCamera(row){
  // changes job/activity, the town grows, the viewport changes or the player
  // explicitly turns the camera. This is a short-lived, bounded camera cache.
  liveShotPlanCache={citizen:person.name,job:person.job,
-  mode:'workday',activity:person.activity,citySize:city.length,
+  mode:'workday',deliveryId:null,stage:null,homecomingEntryBand:0,
+  activity:person.activity,citySize:city.length,
+  cityTopology:cameraArchitectureTopologyKey(),requestedYaw:shot.yaw,
   x:person.x,z:person.z,at:performance.now(),
   viewWidth:canvas.clientWidth,viewHeight:canvas.clientHeight,
   requestZoom:actionCameraZoom,requestPitch:actionCameraPitch,shot};
