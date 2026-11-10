@@ -2568,7 +2568,7 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Same-seed current-head organic film completes five stages on both viewports, but WebGL synchronous render p99 1.8s mobile / 3.5s desktop and mobile min living hero 37px; full M1 original baseline blind A/B absent.",
-    "currentWork": "Stage A authentic guardian melee lens now frames the two genuine acting actors rather than zooming out for a distant unrelated party member; current exact-head before original audio+video captured, source change awaits true after-film.",
+    "currentWork": "M1 A: true two-actor guardian/contact cinematic camera NOW reduces actual portrait optical lens radius/height and FOV, rather than merely altering offset magnitude; all game state and Warden hazard coverage unchanged. Exact-head AFTER film pending.",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Run exact-new-head full genuine desktop 1440/mobile 390 946/946 five-stage original film; measure living combat subject pixels versus pre-change, real guardian contact, boss warning/cutaways, sound continuity and render p95/p99; reject if compromised. Then Chrome Warden hot-path trace measured correction. PR72 only after exact successful film. Locked baseline and 3 blind critic gate unchanged.",
+    "executableNextTask": "Inspect new-head genuine 390px/1440px same-seed original five-stage WebM/Opus: compare physical acting-hero pixels, full combat target and sealed boss view, true warnings, p95/p99 and natural defeat/restart. Revert optic if cropped. Next isolate measured WebGL submission stalls; 3 blind critics and locked-baseline matched A/B still unverified.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7064,7 +7064,7 @@
         "frameP95Ms": 933.3,
         "heroMinPx": 37
       },
-      "sourceChange": "Film only actual close two-body contact/guardian subjects; distant autonomous ally stays represented in actual HUD and full warning overview without miniature zoom. Real-browser regalia test validates either real combat director or Warden priority with on-screen unoccluded boss.",
+      "sourceChange": "Film only actual close two-body contact/guardian subjects; distant autonomous ally stays represented in actual HUD and full warning overview without miniature zoom. Real-browser regalia test validates either real combat director or Warden priority with on-screen unoccluded boss. Actual optical portrait-only radius and height tighten by a bounded amount proportional to confirmed two-actor proximity; FOV/aim adjust within real subject-fit guard, while Warden warning/release and reduced-motion remain wide.",
       "afterMotion": "NOT_OBSERVED",
       "impactAudioSync": "UNVERIFIED",
       "independentCritics": 0,
@@ -7073,7 +7073,7 @@
       "plays": "UNVERIFIED",
       "separatePr72": "NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
-      "next": "Exact-head same-seed 1440/390 five-stage original WebM/Opus before-after and active fighter body size, warning visibility, rendering tails; revert poor crop/regression; then measured WebGL hot-path production correction; only then Stage B PR72 review."
+      "next": "Inspect both exact-head original 5/5 desktop/mobile clips for genuinely larger two actor silhouettes without boss warning cropping, draw/submit p95/p99 and genuine original hit sound; reject regressions. Stage A tail profiling and PR72 independent audit only after visual proof."
     }
   }
 }

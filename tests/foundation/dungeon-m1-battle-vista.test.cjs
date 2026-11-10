@@ -123,6 +123,10 @@ test('actual filmed guardian and contact keep human-scale actors despite a dista
   assert.deepEqual(b.offsets,a.offsets,
    'a distant living party member must not zoom out the authenticated local fight');
   assert.deepEqual(lens(b,view).offsets,lens(a,view).offsets);
+  const closer=lens(b,view),stable=lens(b,{...view,reducedMotion:true});
+  assert.ok(Math.hypot(...closer.offsets)<Math.hypot(...stable.offsets)*.92,
+   'real portrait actor pair must use an actual closer optical lens, not only source offsets');
+  assert.ok(closer.fov<stable.fov,'portrait contact preserves a tighter real subject envelope');
  }
  // An actual dangerous Warden telegraph is NOT a cosmetic duel. It remains
  // a wide tactical picture, with warning priority irrespective of companions.

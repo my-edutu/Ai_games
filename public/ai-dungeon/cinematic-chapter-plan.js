@@ -316,6 +316,15 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // Only a true compact warned-cell geometry earns a nearer 3D portrait.
  // The wide real danger field, reduced motion, and critical-subject fit stay intact.
  const stretch=portrait?(warning?1.24-.30*compactPortraitWarning:closeDuel?1.045:1.10):1;
+ // Source-verified two-person combat deserves a real optical close-up, not
+ // merely a changed numeric pre-lens offset: the director normally rebuilds
+ // camera distance from its fixed lens policy. Tighten only an ACTUAL close
+ // guardian/contact pair on a phone. Do not crop boss warnings, release lanes,
+ // manual cameras or reduced-motion views; live skeletal subject-fit in app.js
+ // still widens FOV if the two real bodies would otherwise be clipped.
+ const actionCloseness=portrait&&!reducedMotion&&
+  (shot.mode==='contact'||shot.mode==='skirmish-approach')&&
+  Number.isFinite(shot.spread)?clip((2.3-shot.spread)/2.3,0,1):0;
  // For compact REAL Warden hazards, keep the true skinned boss and defender
  // large enough to read the strike. Wide shapes and reduced-motion retain
  // their original overview; app.js independently fits every danger tile.
@@ -329,10 +338,10 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // existing subject-fit gate will widen FOV if a danger cell or body is cut.
  // Warden warnings and cast releases never enter this closer approach.
  const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):
-  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch;
+  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch*(1-.22*actionCloseness);
  const y=(policy.height-2.25*approachNear-2.2*threatCloser*threatScale+
   (terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
-  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1);
+  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1)*(1-.14*actionCloseness);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),
@@ -340,8 +349,8 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  ]);
  return Object.freeze({
   mode:shot.mode,offsets,
-  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0),
-  lookY:policy.aim+(approachNear*.18)+.15*threatCloser,
+  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0)-2.4*actionCloseness,
+  lookY:policy.aim+(approachNear*.18)+.15*threatCloser+.12*actionCloseness,
   following:reducedMotion?1:policy.follow+(approachNear*1.2),
   keyScale:policy.key,
   portrait,dangerPriority:warning,
