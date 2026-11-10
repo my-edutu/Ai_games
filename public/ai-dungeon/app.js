@@ -39,6 +39,7 @@ import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/for
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {planRealActorScreenReadability} from '/dungeon/actor-screen-readability.js';
+import {sampleNativeActorSurface} from '/dungeon/native-surface-sightline.js';
 import {createWardenRitual} from '/dungeon/warden-ritual.js';
 import {createWardenImpactScars} from '/dungeon/warden-impact-scars.js';
 import {planWardenExposurePose} from '/dungeon/warden-chapter-plan.js';
@@ -977,6 +978,26 @@ function actualHeroVisibility(s,at){
  return rayAudit;
 }
 
+// Demand-driven, bounded real skinned GLB surface sampling for camera and
+// actor-ID frame diagnostics. One cached sample per rendered frame.
+const nativeBodyCache=new WeakMap();
+function liveNativeBodyPoints(actor){
+ if(!actor?.authored||!actor.assetRoot||!actor.root?.visible)return [];
+ const frame=renderer.info.render.frame;
+ const cached=nativeBodyCache.get(actor);
+ if(cached?.frame===frame&&cached.root===actor.assetRoot)return cached.points;
+ actor.root.updateWorldMatrix(true,true);
+ const points=sampleNativeActorSurface(actor),ys=points.map(p=>p.y);
+ const extent=ys.length?Math.max(...ys)-Math.min(...ys):0;
+ const origin=actor.root.position;
+ const valid=extent>=.42&&extent<=4.5&&points.every(p=>
+  [p.x,p.y,p.z].every(Number.isFinite)&&
+  Math.hypot(p.x-origin.x,p.z-origin.z)<=4.5);
+ const output=valid?points:[];
+ nativeBodyCache.set(actor,{frame,root:actor.assetRoot,points:output});
+ return output;
+}
+
 function inspectTrueCombatActorFrames(s,shot){
  const noActor=()=>({status:'UNAVAILABLE',method:'No living spectator game state'});
  if(!s?.units||!Array.isArray(s.units))return noActor();
@@ -990,7 +1011,8 @@ function inspectTrueCombatActorFrames(s,shot){
   const a=actors.get(u.id);
   if(!a?.root?.visible)continue;
   a.root.updateWorldMatrix(true,true);
-  const points=[],nativeBones=[a.rigCranial?.bone,a.rigPelvisBone,
+  const sourcePoints=liveNativeBodyPoints(a);
+  const points=sourcePoints.map(p=>({...p})),nativeBones=sourcePoints.length?[]:[a.rigCranial?.bone,a.rigPelvisBone,
    a.rigGaitBones?.find(b=>b.part==='lower'&&b.side==='left')?.bone,
    a.rigGaitBones?.find(b=>b.part==='lower'&&b.side==='right')?.bone];
   let nativeAnchorCount=0;
@@ -1006,7 +1028,8 @@ function inspectTrueCombatActorFrames(s,shot){
     a.root.localToWorld(point.set(0,y,0));points.push({x:point.x,y:point.y,z:point.z});
    }
   }
-  measured.push({id:u.id,kind:u.kind,faction:u.faction,hp:u.hp,points,nativeAnchorCount});
+  measured.push({id:u.id,kind:u.kind,faction:u.faction,hp:u.hp,points,nativeAnchorCount,
+   sourceSurfaceCount:sourcePoints.length});
  }
  return planRealActorScreenReadability(measured,{
   project:p=>point.set(p.x,p.y,p.z).project(camera),
@@ -1308,6 +1331,8 @@ function animate(t){
     a.u.kind===subject.kind&&Math.hypot(a.root.position.x-subject.x,
      a.root.position.z-subject.z)<.008);
    if(!actor?.assetRoot)return subject;
+   const native=liveNativeBodyPoints(actor);
+   if(native.length>=3)return {...subject,bodyPoints:native.slice(0,8)};
    const bones=[
     actor.rigCranial?.bone,
     actor.rigMeleeBones?.find(m=>m.part==='spine')?.bone,
@@ -1371,7 +1396,15 @@ function animate(t){
   for(const id of cinematicShot.subjects.slice(0,3)){
    const actor=actors.get(id);
    if(!actor||actor.u.hp<=0||!actor.root.visible)continue;
-   for(const y of [.08,actor.u.kind==='warden'?2.38:1.96]){
+   const native=liveNativeBodyPoints(actor);
+   if(native.length>=3){
+    // Frame real source-skinned helmet, boots, shoulders and weapon-side
+    // silhouette. The genuine authoritative danger-cell fit remains below.
+    for(const sourcePoint of native.slice(0,6)){
+     const point=camera.worldToLocal(new THREE.Vector3(sourcePoint.x,sourcePoint.y,sourcePoint.z));
+     subjects.push({x:point.x,y:point.y,z:point.z});
+    }
+   }else for(const y of [.08,actor.u.kind==='warden'?2.38:1.96]){
     const point=camera.worldToLocal(actor.root.localToWorld(new THREE.Vector3(0,y,0)));
     subjects.push({x:point.x,y:point.y,z:point.z});
    }

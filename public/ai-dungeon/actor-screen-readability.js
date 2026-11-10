@@ -21,7 +21,7 @@ export function planRealActorScreenReadability(actors,{project,width,height,crit
   for(const p of actor.points.slice(0,10)){
    if(!finitePoint(p))continue;
    const q=project(p);
-   if(finitePoint(q)&&q.z>=-1&&q.z<=1)ndc.push(q);
+   if(finitePoint(q)&&q.z>=-1&&q.z<=1)ndc.push({x:q.x,y:q.y,z:q.z});
   }
   const xs=ndc.map(p=>(p.x+1)*width*.5),ys=ndc.map(p=>(1-p.y)*height*.5);
   const x0=xs.length?Math.min(...xs):0,x1=xs.length?Math.max(...xs):0;
@@ -32,7 +32,8 @@ export function planRealActorScreenReadability(actors,{project,width,height,crit
    critical:critical.has(actor.id),inFrame,bodyHeightPx:integer(y1-y0),
    visibleHeightPx:integer(visibleHeight),verticalClipPx:integer(Math.max(0,-y0)+Math.max(0,y1-height)),
    centerXPx:integer((x0+x1)*.5),centerYPx:integer((y0+y1)*.5),
-   nativeAnchorCount:Math.max(0,Number(actor.nativeAnchorCount)||0),projectedAnchors:ndc.length}));
+   nativeAnchorCount:Math.max(0,Number(actor.nativeAnchorCount)||0),
+   sourceSurfaceCount:Math.max(0,Number(actor.sourceSurfaceCount)||0),projectedAnchors:ndc.length}));
  }
  const active=measured.filter(a=>a.critical&&a.inFrame);
  return Object.freeze({status:'MEASURED',method,viewport:Object.freeze({width,height}),

@@ -101,6 +101,17 @@
       "looks": "UNVERIFIED",
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED"
+    },
+    "m1SourceSkinCameraContinuation": {
+      "stage": "A_INCOMPLETE",
+      "sourceParent": "941b2233221002117c3cb9f6bc8d1243eadc0402",
+      "sourceRun": 42907934031,
+      "development": "Native skinned original geometry and actual camera, immutable projection fix",
+      "localFocused": "4/4",
+      "dungeon": "403/403",
+      "authority": "24×900, zero divergence",
+      "actualAfterMotion": "NOT_OBSERVED",
+      "critics": 0
     }
   },
   "failures": [],
@@ -298,7 +309,7 @@
       "elapsedMs": 818
     }
   ],
-  "visualVerdict": "UNVERIFIED: actual new-head 74/78svh mobile battle/column cutaway, continuous audiovisual film, same-seed baseline A/B and blinded critic preference absent.",
+  "visualVerdict": "UNVERIFIED: latest source-skin physical camera and actor-ID visibility lack exact-head organic browser motion, matched locked-baseline before/after and 3 blind critics.",
   "productionReady": false,
   "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
   "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
@@ -314,8 +325,8 @@
     "plays": "UNVERIFIED",
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
-    "afterBrowser": "UNVERIFIED",
-    "nextTask": "Inspect new-head real 1440px/390px original audio organic motion and true per-seed saved draws/visibility, reject regressions, then profile and fix dominant remaining Warden rendering stall; do not advance A without real same-seed baseline comparison and independent critics."
+    "afterBrowser": "PENDING_EXACT_NEW_HEAD",
+    "nextTask": "Inspect exact-new-head original 1440px/390px Warden and engaged hero skin body height, authoritative warning fit and 5-stage motion/audio; reject regressions; then measured GPU compositor correction and original adult rig/combat implementation. Locked M1 baseline and independent critics remain mandatory."
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
   "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",

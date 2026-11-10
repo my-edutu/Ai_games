@@ -215,6 +215,17 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     'real skinned Warden must be in the original 3D camera frame').toBe(true);
    expect(proof.actorReadability.criticalActorIds.length,
     'real shot must identify its own engaged subjects by ID').toBeGreaterThan(0);
+   const bossSurface=proof.actorReadability.actors.find(a=>a.kind==='warden'&&a.inFrame);
+   expect(bossSurface?.sourceSurfaceCount,
+    'real Warden textured skin must supply source surface anchors').toBeGreaterThan(0);
+   expect(bossSurface?.visibleHeightPx,
+    'living Warden must occupy measurable 3D body height').toBeGreaterThan(16);
+   const heroSurface=proof.actorReadability.actors.find(a=>
+    a.critical&&a.faction==='party'&&a.inFrame);
+   expect(heroSurface?.sourceSurfaceCount,
+    'engaged Vanguard must carry real original skinned geometry').toBeGreaterThan(0);
+   expect(heroSurface?.visibleHeightPx,
+    'engaged hero must occupy measurable source-skinned body height').toBeGreaterThan(10);
   }
   const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
   await page.locator('#world').screenshot({path:screenshot,timeout:90000});
