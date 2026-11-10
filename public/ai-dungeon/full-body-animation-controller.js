@@ -487,7 +487,7 @@ export function shouldFreezeDeferredImportedWalk({
 export function planImportedWalkExitBrake({
  targetMode='idle',currentMode='idle',clipName='',sourceWeight=NaN,
  sourceRunning=false,sourcePaused=false,groundedTravel=NaN,
- alive=true,visible=true,teleport=false,reducedMotion=false
+ frameInterval=.016,alive=true,visible=true,teleport=false,reducedMotion=false
 }={}){
  if(!['idle','guard'].includes(targetMode)||currentMode!==targetMode||
   typeof clipName!=='string'||
@@ -495,8 +495,12 @@ export function planImportedWalkExitBrake({
   !finite(sourceWeight)||sourceWeight<=0||sourceWeight>1||
   sourceRunning!==true||sourcePaused!==false||
   !finite(groundedTravel)||groundedTravel<0||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>.35||
   alive!==true||visible!==true||teleport||reducedMotion)return null;
- return clamp(groundedTravel/.04,0,1);
+ // Preserve the earlier 40mm-per-16ms reference as 2.5 observed m/s.
+ // A fading original Walking_A must not speed up at 20Hz or slow at 60Hz
+ // for the same XZ root velocity; no root or source clip is rewritten.
+ return clamp((groundedTravel/frameInterval)/2.5,0,1);
 }
 
 /**

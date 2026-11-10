@@ -1282,8 +1282,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   clipName:outgoing.getClip?.()?.name??'',
   sourceWeight:outgoing.getEffectiveWeight?.()??NaN,
   sourceRunning:Boolean(outgoing.isRunning?.()),sourcePaused:Boolean(outgoing.paused),
-  groundedTravel:originalStep.groundedTravel,alive:actor.u.hp>0,
-  visible:sourceFrameVisible,teleport:Boolean(actor.locomotionTeleport),reducedMotion
+  groundedTravel:originalStep.groundedTravel,frameInterval:sourceFrameInterval,
+  alive:actor.u.hp>0,visible:sourceFrameVisible,
+  teleport:Boolean(actor.locomotionTeleport),reducedMotion
  }):null;
  const priorWalkSpeed=walkExitRate!==null&&
   Number.isFinite(outgoing?.getEffectiveTimeScale?.())&&
