@@ -6128,7 +6128,8 @@ function getHouseGeometryCacheAudit(){
   maxEntries:HOUSE_GEOMETRY_CACHE_MAX_ENTRIES,
   freshBuilds:houseGeometryBuilds,reuses:houseGeometryReuses,
   evictions:houseGeometryEvictions,
-  explanation:'bounded render-only original house meshes; no simulated homes'};
+  seasonInvariantGeometry:true,climateMaterialStillShaderDriven:true,
+  explanation:'bounded season-invariant render-only original house meshes; no simulated homes'};
 }
 function houseCountersSnapshot(){
  const sources={lod:villageVisualLod,facade:cottageFacadeStats,street:streetMorphologyStats};
@@ -6166,6 +6167,12 @@ function applyHouseCountersDelta(delta){
  * cottage. Every real home, material, actor and collision stays authoritative.
  * This software scheduling hypothesis needs matched Day120 filming and CPU
  * profiling; no FPS gain or experience pass is assumed. */
+// W188 Phase 1: the authoritative valley's height function and every WebGL
+// home surface are climate-independent. Materials respond to the season in
+// the shader, but an unchanged inhabited cottage must never be rebuilt or
+// re-uploaded merely because the season changed. The version token makes
+// geometry-identity invalidation explicit without touching saved world data.
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w188-world-height-homes-v1';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -6214,6 +6221,8 @@ function getHomePartitionAudit(){
   uploads:homeClusterUploads,disposals:homeClusterDisposals,
   evictions:homeClusterEvictions,
   localResidentRanges:homeLocalMeshPacked,
+  seasonInvariantGeometry:true,seasonNeutralKeys:homeClusterActive.every(entry=>
+   entry.key.startsWith(HOME_STATIC_GEOMETRY_KEY_VERSION+'|')),
   localSpatialFallbacks:homeLocalMeshFallbacks,
   unscatteredOriginalFloats:homeLocalMeshFloatsRetained,
   staleDrawn:homeClusterActive.filter(entry=>
@@ -6240,8 +6249,11 @@ function homeClusterGroups(fullHomes,climateKey){
   if(!groups.has(cell))groups.set(cell,[]);
   groups.get(cell).push({x,z,k,index:i,compact:!fullHomes.has(i)});
  }
+ // No climateKey in the actual immutable cottage geometry. The original
+ // active occupants, construction topology, type, lot coordinates and LOD
+ // are still part of the identity. A new house changes its exact cell key.
  return [...groups].map(([cell,homes])=>({
-  cell,homes,key:climateKey+'|'+cell+'|'+
+  cell,homes,key:HOME_STATIC_GEOMETRY_KEY_VERSION+'|'+cell+'|'+
    homes.map(h=>[h.index,h.x,h.z,h.k,h.compact?1:0].join(':')).join(';')
  }));
 }
@@ -6252,7 +6264,9 @@ function homeClusterGroups(fullHomes,climateKey){
 // The older topology's settlement key is invalidated by uploadGrowingSettlement;
 // stale partition recall checks are still strict.
 function takeStaleHomeClusterForGrowth(group,climateKey,requiredFloats){
- const prefix=climateKey+'|'+group.cell+'|';
+ // A completed resident home block is reusable across all authentic
+ // seasons; reclaim only an obsolete topology of this SAME physical cell.
+ const prefix=HOME_STATIC_GEOMETRY_KEY_VERSION+'|'+group.cell+'|';
  let bestKey=null,best=null,bestFit=Infinity;
  for(const [key,entry] of homeClusterCache){
   if(key===group.key||!key.startsWith(prefix))continue;
@@ -6721,7 +6735,9 @@ function grainwardTradeArcade(){
 }
 
 function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
- const key=[x,z,k,index,isCompact?1:0,climateKey].join('|');
+ // WebGL home geometry depends on the original stable lot and LOD, NOT
+ // the season. Canvas2D never uses this cache and keeps its daylight colours.
+ const key=[HOME_STATIC_GEOMETRY_KEY_VERSION,x,z,k,index,isCompact?1:0].join('|');
  const cached=gpuAvailable?houseGeometryCache.get(key):null;
  if(cached){
   houseGeometryCache.delete(key);houseGeometryCache.set(key,cached);

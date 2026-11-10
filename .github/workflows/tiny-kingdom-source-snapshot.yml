@@ -29,6 +29,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: W188 real seasonal home-cache source contract and full game syntax
+        run: node scripts/tiny-kingdom-w188-home-season-residency-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
