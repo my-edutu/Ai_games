@@ -1825,6 +1825,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: W187 exact original physical roof-ray parity in bounded index
+        run: node scripts/tiny-kingdom-w187-camera-ray-broadphase-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Truthful closed cottage witness and original mobile street geometry
         env:
