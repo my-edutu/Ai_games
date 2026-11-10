@@ -491,6 +491,16 @@ test('D04 guard and utility glyphs require a live, matching actor action at the 
   targetId:null,from:{x:2,z:2},to:null,tick:11,duration:.22});
  assert.equal(visuals.emit(guard),true,'observed guard creates one body-local cue');
  assert.equal(visuals.emit(utility),true,'observed healing cast creates one body-local cue');
+ units.vanguard.u.action='idle';
+ visuals.advance(.016,.016);
+ assert.equal(visuals.hasLiveCue(guard.id),false,
+  'the old guarding ring retires when the character leaves guard action');
+ assert.equal(visuals.hasLiveCue(utility.id),true,
+  'unrelated authentic utility ring is not collateral cleanup');
+ units.mystic.u.action='idle';
+ visuals.advance(.016,.016);
+ assert.equal(visuals.hasLiveCue(utility.id),false,
+  'the casting ring retires on changed action rather than hovering in empty air');
  visuals.reset();
  units.vanguard.u.action='idle';
  assert.equal(visuals.emit(guard),false,'stale idle actor cannot show a guard glyph');
