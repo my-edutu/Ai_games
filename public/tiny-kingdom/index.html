@@ -5157,7 +5157,24 @@ function triGradient(a,b,c,ca,cb,cc){
   b[0],b[1],b[2],normalX,normalY,normalZ,cb[0],cb[1],cb[2],material,
   c[0],c[1],c[2],normalX,normalY,normalZ,cc[0],cc[1],cc[2],material);
 }
-function quad(a,b,c,d,col){tri(a,b,c,col);tri(a,c,d,col)}
+// W194 original world geometry: keep two independent non-planar face
+// normals but issue one contiguous 60-float append for each real quad.
+function quad(a,b,c,d,col){
+ const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],
+  vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2],
+  nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,
+  length=Math.hypot(nx,ny,nz)||1,n0=nx/length,n1=ny/length,n2=nz/length,
+  wx=d[0]-a[0],wy=d[1]-a[1],wz=d[2]-a[2],
+  mx=vy*wz-vz*wy,my=vz*wx-vx*wz,mz=vx*wy-vy*wx,
+  length2=Math.hypot(mx,my,mz)||1,m0=mx/length2,m1=my/length2,m2=mz/length2,
+  r=col[0],g=col[1],blue=col[2],material=currentMaterial;
+ data.push(a[0],a[1],a[2],n0,n1,n2,r,g,blue,material,
+  b[0],b[1],b[2],n0,n1,n2,r,g,blue,material,
+  c[0],c[1],c[2],n0,n1,n2,r,g,blue,material,
+  a[0],a[1],a[2],m0,m1,m2,r,g,blue,material,
+  c[0],c[1],c[2],m0,m1,m2,r,g,blue,material,
+  d[0],d[1],d[2],m0,m1,m2,r,g,blue,material);
+}
 // G076: reuse the eight immutable corners of a rectangular prism across all
 // six faces. The previous implementation allocated 24 separate point arrays
 // for the same eight positions per box, including in frequent animated meshes.
@@ -11087,25 +11104,31 @@ function farmTreeClearanceStats(){
   renderedForestCount:farmForestRendered,renderedFarmTreeOverlap:farmForestRenderedOverlap};
 }
 let farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w55-tapered-crossed-stems-grain-ears',bundles:0,granaries:0,waterSegments:0};
+// W194 authentic terraced planted earth: paired raised physical slopes
+// and wet lower runnel beneath ORIGINAL real wheat and actual worker hands.
+// Seasonal GPU residency, navigation, seeded labor and inventory unchanged.
 function farmSoil(x0,x1,z0,z1,rowIndex){
- const soil=[rgb(0x655341),rgb(0x79604b),rgb(0x69513e)];
- const trough=rgb(0x4b4938),grassEdge=rgb(0x7d8d56);
- const step=.70,segments=Math.ceil((x1-x0)/step);
+ const soil=[rgb(0x655341),rgb(0x79604b),rgb(0x69513e)],
+  crown=[rgb(0x847058),rgb(0x78654f),rgb(0x87715b)],
+  moist=[rgb(0x504638),rgb(0x594a39),rgb(0x4a4435)],
+  grass=rgb(0x7d8d56),segments=Math.ceil((x1-x0)/.70);
  materialScope(MATERIAL.ROAD,()=>{
   for(let i=0;i<segments;i++){
-   const xa=x0+(x1-x0)*i/segments,xb=x0+(x1-x0)*(i+1)/segments;
-   const zz0=z0,zz1=z1;
-   // W64 curved, terrain-following wet furrows, no new quads or seams.
-   // Shared endpoints evaluate exactly the same row-specific organic bend.
-   const point=(x,z,offset)=>{
+   const xa=x0+(x1-x0)*i/segments,xb=x0+(x1-x0)*(i+1)/segments,
+    mid=(z0+z1)/2;
+   const point=(x,z,lift)=>{
     const bend=.065*Math.sin(x*.68+rowIndex*.91)+
      .029*Math.sin(x*1.17-rowIndex*.52);
-    return [x,terrain(x,z+bend)+.043+offset,z+bend];
+    return [x,terrain(x,z+bend)+lift,z+bend];
    };
-   // Terrain-following shoulders, central ridge and dark muddy irrigation line.
-   quad(point(xa,zz0,-.002),point(xa,zz1,.085),point(xb,zz1,.085),point(xb,zz0,-.002),soil[rowIndex%soil.length]);
-   quad(point(xa,zz1,.085),point(xa,zz1+.055,-.003),point(xb,zz1+.055,-.003),point(xb,zz1,.085),trough);
-   if(i%3===0)quad(point(xa,zz0-.06,.002),point(xa,zz0,.002),point(xb,zz0,.002),point(xb,zz0-.06,.002),grassEdge);
+   quad(point(xa,z0,.010),point(xa,mid,.070),
+    point(xb,mid,.070),point(xb,z0,.010),soil[rowIndex%3]);
+   quad(point(xa,mid,.070),point(xa,z1,.018),
+    point(xb,z1,.018),point(xb,mid,.070),crown[(i+rowIndex)%3]);
+   quad(point(xa,z1,.018),point(xa,z1+.055,.003),
+    point(xb,z1+.055,.003),point(xb,z1,.018),moist[(i+rowIndex)%3]);
+   if(i%3===0)quad(point(xa,z0-.06,.009),point(xa,z0,.009),
+    point(xb,z0,.009),point(xb,z0-.06,.009),grass);
   }
  });
  farmScene.rows++;
@@ -21115,15 +21138,21 @@ function selectVisibleCitizenDetail(){
   return row.heightFraction>=Math.max(.052,largestVisible*.48)&&
    (Boolean(actor.delivery)||isMarketUnloading(actor)||isWorkingAtSite(actor));
  });
+ // W194: on-screen REAL workers own the scarce full IK/cloth rig slots
+ // before offscreen manual selection in overview. Every remote actor stays
+ // physically rendered in its existing compact three-dimensional rig.
+ const pinned=follow||streetWalk||liveWorkday||
+  (typeof document!=='undefined'&&document.body?.dataset?.citizenInspect==='on');
+ const anchorVisible=anchorIndex>=0&&Boolean(projected[anchorIndex]?.visible);
  const selected=[];
- if(anchorIndex>=0)selected.push(anchorIndex);
- if(onScreen.length&&largestVisible>=.13&&selected.length<budget&&
-    !selected.includes(onScreen[0].i))selected.push(onScreen[0].i);
+ if(anchorIndex>=0&&(pinned||anchorVisible))selected.push(anchorIndex);
  let reservedWorkDetails=0;
  for(const row of visibleWorkContacts){
   if(selected.length>=budget||reservedWorkDetails>=2)break;
   if(!selected.includes(row.i)){selected.push(row.i);reservedWorkDetails++}
  }
+ if(onScreen.length&&largestVisible>=.13&&selected.length<budget&&
+    !selected.includes(onScreen[0].i))selected.push(onScreen[0].i);
  for(const row of onScreen){
   if(selected.length>=budget)break;
   if(!selected.includes(row.i))selected.push(row.i);
@@ -21143,6 +21172,8 @@ function selectVisibleCitizenDetail(){
   compactCount:n-indices.size,middleCount:midIndices.size,
   farCount:n-indices.size-midIndices.size,anchorIndex,
   anchorDetailed:anchorIndex<0||indices.has(anchorIndex),
+  offscreenDetailedBudgetAvoided:anchorIndex>=0&&!anchorVisible&&!pinned,
+  visibleWorkDetailsReserved:reservedWorkDetails,
   visibleCandidates:onScreen.length,
   visibleWorkContacts:visibleWorkContacts.length,
   detailedWorkContacts:visibleWorkContacts.filter(row=>indices.has(row.i)).length,
