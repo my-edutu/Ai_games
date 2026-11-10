@@ -198,6 +198,29 @@ export function createPhysicalCombatFeedback({
     if(decision==='expired-visual')expiredVisualAudioDropped++;
     retainReceipt(item.cue,item.visual,false,frameId,decision);continue;
    }
+   // A retained, drawable sword or body glyph was checked during the
+   // previous advance(), not necessarily at this actual frame receipt. An
+   // actor can die, be unloaded or change its cast between those boundaries.
+   // Real D04 visuals expose read-only live-pose witnesses; older injected
+   // test/legacy adapters without that optional interface retain their
+   // established contract. Independent HP loss and already-launched arrow
+   // flights must NOT be retroactively assigned a performer or invalidated.
+   const drawnSwing=item.visual&&item.cue.kind==='swing'&&!reducedMotion;
+   const drawnBody=item.visual&&
+    (item.cue.kind==='warden-release'||item.cue.kind==='opening'||
+     item.cue.kind==='guard'||item.cue.kind==='cast-utility');
+   if(drawnSwing&&typeof visuals?.hasAuthenticatedSwingPose==='function'&&
+     safeCall(()=>visuals.hasAuthenticatedSwingPose(item.cue))!==true){
+    staleAudioDropped++;
+    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-swing-pose');
+    continue;
+   }
+   if(drawnBody&&typeof visuals?.hasAuthenticatedBodyPose==='function'&&
+     safeCall(()=>visuals.hasAuthenticatedBodyPose(item.cue))!==true){
+    staleAudioDropped++;
+    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-body-pose');
+    continue;
+   }
    // An undrawn source was authenticated when its cue entered the frame
    // queue, not necessarily when WebGL actually submitted it. A renderer
    // stall, asset unload or actor pose change may revoke that permission.
