@@ -179,15 +179,15 @@ test('a presentation commit barrier holds contact audio until a render submissio
  const unit=(hp,action,actionTick)=>({id:'vanguard',kind:'vanguard',faction:'party',hp,maxHp:30,x:2,z:2,action,actionTick});
  const game=tick=>({tick,run:1,floor:1,units:[unit(30,'idle',10)],events:[]});
  director.acceptSnapshot(game(10));
- director.acceptSnapshot({...game(11),units:[unit(30,'attack',11)]});
+ director.acceptSnapshot({...game(11),units:[unit(23,'hurt',11)]});
  director.advance(.05);director.advance(.05);director.advance(.05);
- assert.equal(v.length,1,'authentic swing staged before render');assert.equal(a.length,0,'no sound preceding render submission');
+ assert.equal(v.length,1,'confirmed HP injury staged before render');assert.equal(a.length,0,'no sound preceding render submission');
  assert.equal(director.acknowledgePresentedFrame('frame-22'),1);
  assert.equal(a.length,1);
  assert.equal(director.acknowledgePresentedFrame('frame-22'),0);
  assert.equal(a.length,1);
  director.muteAudio();
- director.acceptSnapshot({...game(12),units:[unit(23,'hurt',12)]});
+ director.acceptSnapshot({...game(12),units:[unit(20,'hurt',12)]});
  director.acknowledgePresentedFrame('frame-23');
  assert.equal(a.length,1,'mute must silence even a pending confirmed injury');
  director.dispose();
