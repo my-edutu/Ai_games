@@ -173,6 +173,22 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     actor.u?.kind!=='warden'||actor.u?.action!=='cast'||
     actor.u?.actionTick!==cue.tick||
     Number.isFinite(actor.u?.hp)&&actor.u.hp<=0))return null;
+  // A delayed arrow or spell release is an observed ACTION, not a target
+  // coordinate that grants permission to spawn a missile. On a slow frame the
+  // actor may have gone idle, switched actions, died or been unloaded before
+  // its 210/290ms visual admission. Require the actual visible release pose
+  // at that authority tick; never launch from a remembered empty grid cell.
+  // Once admitted, a projectile is independent of later caster animation.
+  const kineticRelease=type==='projectile'||type==='spell';
+  if(kineticRelease){
+   const u=actor?.u;
+   const releasePose=type==='projectile'?
+    cue.kind==='ranged-release'&&u?.kind==='ranger'&&u?.action==='attack':
+    cue.kind==='spell-release'&&
+     (u?.kind==='mystic'||u?.kind==='cultist')&&u?.action==='cast';
+   if(!releasePose||u?.id!==id||u?.actionTick!==cue.tick||
+    (Number.isFinite(u?.hp)&&u.hp<=0))return null;
+  }
   // A witnessed recovery is a TIME-BOUNDED vulnerability, not a permanent
   // property of a lingering cast pose. Retire its body ring as soon as the
   // current public authority seals the Warden or ends that recovery window.
