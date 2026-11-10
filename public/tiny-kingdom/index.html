@@ -9872,6 +9872,102 @@ function marketStallProfile(index){
  return {structural,postHeight:structural?3.10:2.23,
   eave:structural?3.00:2.16,peak:structural?4.05:2.92};
 }
+// W196 original two-storey market houses: authentic permanent stalls remain
+// open at street level. Full continuous upper massing on BOTH tradefronts.
+function grainwardTradehouseEnvelope(stall,index,profile){
+ if(index!==0&&index!==1)throw Error('W196 expected authentic permanent stall');
+ const {x,z,face}=stall,y=terrain(x,z),first=data.length;
+ const stones=[0x8e8573,0xb0a48e,0x988c78,0xa69b88].map(rgb),
+  wattle=rgb(index===0?0xcbb99b:0xbeb8a8),
+  dark=rgb(index===0?0x604a38:0x4e4d43),
+  oak=rgb(index===0?0x866246:0x6e6758);
+ materialScope(MATERIAL.STONE,()=>{
+  // Coursed stone foundations at the sides and back; buyer aisle stays open.
+  for(const side of [-1,1])for(let course=0;course<3;course++){
+   const xx=x+side*1.235,lower=y+.045+course*.145,upper=lower+.139;
+   for(let block=0;block<5;block++){
+    const start=-.835+block*.334,end=start+.334;
+    const a=[xx,lower,z+start],b=[xx,lower,z+end],
+     c=[xx,upper,z+end],d=[xx,upper,z+start];
+    if(side<0)quad(a,b,c,d,stones[(block+course+index)%4]);
+    else quad(d,c,b,a,stones[(block+course+index)%4]);
+   }
+  }
+  for(let course=0;course<3;course++){
+   const back=z-face*.894,lo=y+.045+course*.145,hi=lo+.139;
+   for(let block=0;block<5;block++){
+    const left=x-1.17+block*.468,right=left+.468,
+     a=[left,lo,back],b=[right,lo,back],
+     c=[right,hi,back],d=[left,hi,back];
+    if(face>0)quad(a,b,c,d,stones[(course+block+2)%4]);
+    else quad(d,c,b,a,stones[(course+block+2)%4]);
+   }
+  }
+ });
+ const bottom=y+2.135,top=y+profile.eave-.108;
+ materialScope(MATERIAL.PLASTER,()=>{
+  for(const side of [-1,1]){
+   const xx=x+side*1.19,front=z+face*.78,back=z-face*.78,
+    a=[xx,bottom,back],b=[xx,bottom,front],
+    c=[xx,top,front],d=[xx,top,back];
+   if(side>0)quad(a,b,c,d,wattle);else quad(d,c,b,a,wattle);
+  }
+  const front=z+face*.88,
+   a=[x-1.17,bottom,front],b=[x+1.17,bottom,front],
+   c=[x+1.17,top,front],d=[x-1.17,top,front],
+   apex=[x,y+profile.peak-.105,front];
+  if(face>0){quad(d,c,b,a,wattle);tri(d,c,apex,wattle);}
+  else{quad(a,b,c,d,wattle);tri(c,d,apex,wattle);}
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const xx=x+side*1.215;
+   box(xx,bottom,z,.105,.13,1.88,dark);
+   box(xx,top,z,.12,.115,1.92,oak);
+   for(const end of [-1,1])
+    box(xx,y+2.13,z+end*.79,.145,profile.eave-2.13,.14,dark);
+   limbSegment([xx,bottom+.12,z+face*.50],
+    [xx,top-.09,z-face*.50],.046,oak,4);
+  }
+  const front=z+face*.935;
+  box(x,bottom,front,2.53,.13,.13,dark);
+  box(x,top,front,2.53,.15,.13,dark);
+  box(x,y+profile.peak-.12,front,.11,.15,.15,oak);
+  for(const side of [-1,1]){
+   box(x+side*1.11,(bottom+top)*.5,front,.115,top-bottom,.12,dark);
+   limbSegment([x+side*1.16,top,front],
+    [x,y+profile.peak-.13,front],.052,dark,5);
+  }
+ });
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  for(const side of [-1,1]){
+   const wx=x+side*.52,front=z+face*.953,
+    a=[wx-.21,y+2.34,front],b=[wx+.21,y+2.34,front],
+    c=[wx+.21,y+2.77,front],d=[wx-.21,y+2.77,front];
+   if(face>0)quad(d,c,b,a,rgb(0x405e65));
+   else quad(a,b,c,d,rgb(0x405e65));
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const wx=x+side*.52,front=z+face*.973;
+   box(wx,y+2.555,front,.046,.45,.046,oak);
+   box(wx,y+2.56,front,.46,.047,.046,oak);
+   box(wx,y+2.31,front,.52,.067,.09,dark);
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles<100||triangles>800)
+  throw Error('W196 tradehouse geometry budget exceeded');
+ marketQuarterStats.tradehouseShells++;
+ marketQuarterStats.tradehouseTriangles+=triangles;
+ marketQuarterStats.tradehouseWindows+=2;
+ return {source:'authentic-two-storey-merchant-houses',
+  stallIndex:index,triangles,sideWalls:2,frontUpperGables:1,
+  upperCasements:2,groundLevelBuyerWallCount:0,
+  reusesAuthenticStall:true,addedDeliveries:0,
+  navigationChanged:false,marketFrontOpen:true};
+}
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
  const profile=marketStallProfile(index);
@@ -9973,6 +10069,7 @@ function marketStall(s,index){
   }
  });
  if(profile.structural)grainwardStructuralDormer(x,z,y+profile.eave,y+profile.peak,1.53,z+face*1.17,face,index,.91,'shop');
+ if(profile.structural)grainwardTradehouseEnvelope(s,index,profile);
   // Keep each original trade name and carved glyph in its original position.
  const boardZ=z+face*1.03,signY=y+1.78;
  materialScope(MATERIAL.WOOD,()=>{
@@ -9992,7 +10089,8 @@ function marketStall(s,index){
  else marketQuarterStats.canvasRoofs++;
 }
 function marketQuarter(){
- marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
+ marketQuarterStats={tradehouseShells:0,tradehouseTriangles:0,tradehouseWindows:0,
+  stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
   carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
   entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
