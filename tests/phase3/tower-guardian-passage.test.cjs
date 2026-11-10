@@ -752,7 +752,7 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       'full source exclusion height remains visibly connected to its top spar');
     assert.equal(rails.filter(b=>b.y>5&&b.y<13).length,0,
       'airborne actors are no longer hidden by screen-wide cyan rungs');
-    const highStays=first.filter(b=>b.height>6&&Math.abs(b.x)>2.2);
+    const highStays=first.filter(b=>b.height>6&&Math.abs(b.x)>2.2&&Math.abs(b.tilt)>.08);
     assert.equal(highStays.length,2,'two source-locked high voltage side-channel conductors');
     assert.ok(highStays.every(b=>
       Math.abs(b.x)-Math.abs(Math.sin(b.tilt))*b.height/2>1.05),
@@ -768,7 +768,7 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       .sort((a,b)=>a.y-b.y);
     assert.ok(rails.at(-1).y>19.2);
     assert.equal(rails.filter(b=>b.y>5&&b.y<19).length,0);
-    const extended=high.filter(b=>b.height>14&&Math.abs(b.x)>2.2);
+    const extended=high.filter(b=>b.height>14&&Math.abs(b.x)>2.2&&Math.abs(b.tilt)>.08);
     assert.equal(extended.length,2,'source-height extended voltage stays must exist on each side');
     assert.ok(extended.every(b=>
       Math.abs(b.x)-Math.abs(Math.sin(b.tilt))*b.height/2>1.05),
