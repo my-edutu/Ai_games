@@ -1640,12 +1640,41 @@ test('a real close public encounter frames both autonomous actors and saves date
         .map(el=>el.getBoundingClientRect().toJSON()),
       map:document.querySelector('#map-panel>summary').getBoundingClientRect().toJSON(),
       details:document.querySelector('#intent-details>summary').getBoundingClientRect().toJSON(),
-      scrollWidth:document.documentElement.scrollWidth
+      scrollWidth:document.documentElement.scrollWidth,
+      scrollHeight:document.documentElement.scrollHeight
     }));
     const trapBound=stage.diagnostic.observedTrapPhysicalBounds.find(v=>v.cell===trapCase.cell);
     const filename='public-tide-shear-'+nativeWidth+'.png';
     const image=path.join(dir,filename);
-    await page.screenshot({path:image,fullPage:true});
+    // Pass234: 1280x900 genuine pressure WebGL made Playwright's fullPage
+    // screenshot wait for eight minutes after the real canvas/frames/aspect
+    // were already proved. Chromium CDP captures the SAME unaltered native
+    // browser compositor frame, without Playwright's fullPage scroll/resize
+    // choreography under CPU-bound SwiftShader. This is evidence plumbing,
+    // never a substitute for actual WebGL frames or the physical crop gates.
+    // The stage must genuinely occupy the ENTIRE viewport, or reject the
+    // compositor shot rather than silently cut off offscreen content.
+    expect(stage.scrollHeight,
+      'original full native stage may not extend beyond the captured viewport')
+      .toBeLessThanOrEqual(nativeHeight+1);
+    if (nativeWidth === 1280) {
+      const cdp = await page.context().newCDPSession(page);
+      try {
+        const result = await cdp.send('Page.captureScreenshot',{
+          format:'png',fromSurface:true,captureBeyondViewport:false
+        });
+        const png=Buffer.from(result.data,'base64');
+        expect(png.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),
+          'source compositor must provide an original PNG').toBe(true);
+        expect(png.readUInt32BE(16),'original native image width').toBe(nativeWidth);
+        expect(png.readUInt32BE(20),'original native image height').toBe(nativeHeight);
+        fs.writeFileSync(image,png);
+      } finally {
+        await cdp.detach();
+      }
+    } else {
+      await page.screenshot({path:image,fullPage:true});
+    }
     fs.writeFileSync(path.join(dir,'public-tide-shear-'+nativeWidth+'.json'),JSON.stringify({
       capturedAt:new Date().toISOString(),
       source:'Genuine seeded source-authoritative MazeRuntime public trap and actual autonomous Pip; original WebGL native full screen, no inserted hazard or event',
