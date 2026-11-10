@@ -346,3 +346,29 @@ test('original GLB heel-to-toe CONTACT PATCH must be witnessed against the actua
  assert.match(browser,/measureSourceSolePatchContinuity\(/,'the real running WebGL suite must exercise the patch contract');
  assert.match(browser,/source-GLB-floor-contact-patch/,'the unaltered source evidence must be attached');
 });
+
+
+test('runtime original sourceSolePatchWorld diagnostic must yield real two-point contact evidence',async()=>{
+ const {measureSourceSolePatchContinuity:measure}=await load();
+ // Exact original Chromium rAF probe emits sourceSolePatchWorld. The older
+ // synthetic unit fixture used solePatchWorld instead, hiding the mismatch.
+ const first={id:'vanguard',kind:'vanguard',sourceInstanceId:'licensed-native-41-joint',
+  mode:'move',rootWorld:[-7.46,0,-7],
+  sourceSolePatchWorld:{
+   left:{heel:[-7.63,-.018,-7.15],toe:[-7.63,-.015,-6.95]},
+   right:{heel:[-7.3,.17,-7.13],toe:[-7.3,.18,-6.94]}}};
+ const last={...first,rootWorld:[-7.31,0,-7],
+  sourceSolePatchWorld:{
+   left:{heel:[-7.627,-.017,-7.149],toe:[-7.624,-.016,-6.947]},
+   right:{heel:[-7.16,.20,-7.13],toe:[-7.15,.21,-6.93]}}};
+ const meta={beforeFrame:45,afterFrame:46,beforeTick:3,afterTick:3,
+  visible:true,floorTopY:-.02,floorEvidence:'authored-cube-floor-top'};
+ const evidence=measure(first,last,meta);
+ assert.equal(evidence.comparable,true,
+  'actual renderer diagnostic field must not be rejected as a missing shoe patch');
+ assert.equal(evidence.rootTravelMeters,.15);
+ assert.deepEqual(evidence.potentialContactSides,['left']);
+ assert.equal(evidence.provenFootPlant,false);
+ assert.equal(evidence.ikAccepted,false);
+ assert.equal(measure(first,{...last,sourceSolePatchWorld:null},meta).comparable,false);
+});
