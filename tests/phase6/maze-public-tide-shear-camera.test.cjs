@@ -143,3 +143,26 @@ test('Pass239 actual 390 pressure silhouette earns a physical closer shot withou
   assert.match(source,/targetHeight = publicPressureActionHalfHeight\(\s*aspect,targetHeight,pressureFirst,settings\.reducedMotion\)/,
     'the source renderer must actually use the public-only close-up, not a dead helper');
 });
+
+test('the true 320px withdrawal camera must fit complete connected-world Pip bounds, not the narrower per-mesh approximation',async()=>{
+  const {publicPhysicalPressureHorizontalReframe:reframe}=await camera();
+  // Original native 320x740 tick6 (exact source 58443146), not synthetic enemy position:
+  // WORLD-aligned Pip right +.956261 is cropped despite a full visible jaw.
+  const hero={left:.3491636823113262,right:.9562610034498623};
+  const jaw={left:-.8474080595368364,right:-.09366677480777973};
+  const halfHeight=6.7,aspect=320/740;
+  const worldShift=reframe(hero,jaw,halfHeight,aspect);
+  const ndcShift=worldShift/(halfHeight*aspect);
+  assert.ok(worldShift>0&&Number.isFinite(worldShift),
+    'source-authentic crop must earn an actual optical pan');
+  assert.ok(hero.right-ndcShift<=.9500000001&&jaw.left-ndcShift>=-.9500000001,
+    'both full physical silhouettes must fit original unchanged ±.95 NDC');
+  assert.equal(reframe({left:.35,right:.942},jaw,halfHeight,aspect),0,
+    'the smaller per-piece estimate falsely declares the cropped hero safe');
+  const source=require('node:fs').readFileSync(
+    path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(source,/pressureReframeEnvelope\.union\([\s\S]*?applyMatrix4\(mesh\.matrixWorld\)/,
+    'actual renderer must fit the SAME conservative world mesh union as browser no-crop diagnostics');
+  assert.match(source,/pressureReframeEnvelope\.makeEmpty\(\)/,
+    'reused AABB must clear before each separately disclosed actor and hazard');
+});

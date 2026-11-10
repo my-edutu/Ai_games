@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T08:55:00.000Z",
+  "updatedAt": "2026-11-10T10:10:12.182Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass239: exact predecessor 3D WebGL passed strict 6-run/reset geometry and produced 36 SHA-verified native PNGs, but original chronological 390px pressure scene proved physical Pip width 0.46979 NDC, BELOW unchanged >0.49. One actual public pressure-first portrait Follow lens candidate uses 0.94x height (real physical optical close-up); original connected jaw, autonomous AI, private-map boundaries, full HUD and ±0.95/0.70/0.49 thresholds remain unchanged. New exact-HEAD WebGL/full CI and independent Nintendo benchmark review PENDING. OPEN DRAFT; never merge/deploy."
+    "summary": "Pass240: genuine previous 320px pressure withdrawal Pip right +0.956261 NDC failed strict +0.95 while jaw fit and real six-run geometry passed; the production camera candidate now fits actual connected-world AABB, same as real screenshot diagnostic. Fixed stale hanging-garden rebuild statistic that caused whole CI Maze test failure. Original 32 PNG sidecars independently verified. Exact new-HEAD 320/390/844/1280 rendered and independent Nintendo approval PENDING; DRAFT unmerged/undeployed."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass240: correct actual pressure withdrawal source-bound Pip crop using complete world-mesh AABB camera pan; reset erroneous hanging-foliage rebuild counter; source regression uses original real 320px diagnostics, strict thresholds intact. Full current-head WebGL/CI/independent image critic pending.",
     "Pass237: physical connected-mesh pressure camera safety pan in true public Follow 320/390, with unchanged ±0.95 full silhouettes and no model shrink, AI/hidden-state or collision changes; current-head WebGL image and independent judge pending.",
     "Pass232: source-only witnessed physical jaw retreat camera partner, strict public-geometry guards and regression tests; prior 32/32 authentic image SHA pairs verified, six-run resource gate passed, current-head visual fix pending.",
     "Pass231: source/public-only one-step jaw withdrawal HUD continuity, strict actual two-danger HUD browser assertions, and earlier unchanged six-reset GPU test before expensive scene evidence. Original source-bound 320/390 pressure artwork inspected; NEW visual win and six-reset verdict still pending.",

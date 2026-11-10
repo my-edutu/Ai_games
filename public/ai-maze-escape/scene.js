@@ -54,6 +54,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // fresh GPU buffers, meshes, or source-private gameplay geometry per frame.
   const pressureReframePoint = new THREE.Vector3();
   const pressureReframeRight = new THREE.Vector3();
+  // The native no-crop gate measures the WORLD-ALIGNED union of connected
+  // physical meshes. Reuse that same conservative envelope for live framing.
+  // CPU-only scratch objects are retained across frames; no GPU allocation.
+  const pressureReframeEnvelope = new THREE.Box3();
+  const pressureReframePiece = new THREE.Box3();
   const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
   // A lower, closer ORIGINAL 3D story angle is reserved solely for a truly
   // witnessed public key collection. Reuse this offset; no per-frame objects,
@@ -1085,25 +1090,31 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         'Disclosed tide-shear pressure hazard ' + publicPressureTrap.cell);
       const physicalSpan = root => {
         if (!root?.visible) return null;
-        let left=Infinity,right=-Infinity;
+        // The previous per-mesh projection underestimated the eventual
+        // conservative WORLD bounding-box diagnostic. The true 320px tick6
+        // Pip union reached +.956261 NDC and could not be corrected by it.
+        pressureReframeEnvelope.makeEmpty();
         root.updateWorldMatrix(true,true);
         camera.updateMatrixWorld();
         root.traverseVisible(mesh => {
           if (!mesh.isMesh || !mesh.geometry) return;
           if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-          const box=mesh.geometry.boundingBox;
-          if (!box) return;
-          for (const x of [box.min.x,box.max.x])
-            for (const y of [box.min.y,box.max.y])
-              for (const z of [box.min.z,box.max.z]) {
-                const projected=pressureReframePoint.set(x,y,z)
-                  .applyMatrix4(mesh.matrixWorld).project(camera);
-                if (Number.isFinite(projected.x) && projected.z>=-1 && projected.z<=1) {
-                  left=Math.min(left,projected.x);
-                  right=Math.max(right,projected.x);
-                }
-              }
+          if (mesh.geometry.boundingBox)
+            pressureReframeEnvelope.union(
+              pressureReframePiece.copy(mesh.geometry.boundingBox)
+                .applyMatrix4(mesh.matrixWorld));
         });
+        if (pressureReframeEnvelope.isEmpty()) return null;
+        let left=Infinity,right=-Infinity;
+        for (const x of [pressureReframeEnvelope.min.x,pressureReframeEnvelope.max.x])
+          for (const y of [pressureReframeEnvelope.min.y,pressureReframeEnvelope.max.y])
+            for (const z of [pressureReframeEnvelope.min.z,pressureReframeEnvelope.max.z]) {
+              const projected=pressureReframePoint.set(x,y,z).project(camera);
+              if (Number.isFinite(projected.x)) {
+                left=Math.min(left,projected.x);
+                right=Math.max(right,projected.x);
+              }
+            }
         return left<right ? {left,right} : null;
       };
       const heroSpan=physicalSpan(explorer.group);
