@@ -1766,3 +1766,47 @@ test('original skinned legs settle into Idle/Guard with bounded stationary sourc
  assert.match(model,/rigGaitBones/,
   'only original imported thigh, calf and ankle bones may receive temporary landing ownership');
 });
+
+
+test('source Walking_A landing preserves original pelvis-to-sole chain while Idle gains ownership',async()=>{
+ const {planSourceRigLandingPelvisSupport:pelvisSupport}=await load();
+ assert.equal(typeof pelvisSupport,'function',
+  'stationary original-source landings must account for the skinned parent pelvis');
+ const valid={release:.35,sourcePelvis:true,localTravelMeters:.025,angularTravelRadians:.12};
+ assert.equal(pelvisSupport(valid),.35);
+ assert.equal(pelvisSupport({...valid,release:0}),0);
+ assert.equal(pelvisSupport({...valid,release:1}),1);
+ for(const illegal of [
+  {sourcePelvis:false},{localTravelMeters:.2},{angularTravelRadians:1.3},
+  {localTravelMeters:NaN},{angularTravelRadians:Infinity},
+  {release:-.01},{release:1.01}
+ ])assert.equal(pelvisSupport({...valid,...illegal}),null,
+  'unknown or extreme imported pelvis movement must fail closed');
+ const THREE=require('three');
+ const pelvis=new THREE.Bone();pelvis.name='hips';pelvis.position.set(0,.9,0);
+ const foot=new THREE.Bone();foot.name='footl';foot.position.set(-.2,-.8,0);
+ pelvis.add(foot);pelvis.updateWorldMatrix(true,true);
+ const originalPosition=pelvis.position.clone(),originalQuaternion=pelvis.quaternion.clone();
+ const originalSole=new THREE.Vector3();foot.getWorldPosition(originalSole);
+ const idle=new THREE.AnimationClip('Idle',.5,[
+  new THREE.VectorKeyframeTrack('.position',[0,.5],[0,.94,0,0,.94,0]),
+  new THREE.QuaternionKeyframeTrack('.quaternion',[0,.5],
+   [0,0,Math.sin(.13/2),Math.cos(.13/2),
+    0,0,Math.sin(.13/2),Math.cos(.13/2)])
+ ]);
+ const mixer=new THREE.AnimationMixer(pelvis);mixer.clipAction(idle).play();
+ mixer.update(.05);pelvis.updateWorldMatrix(true,true);
+ const unsustainedSole=new THREE.Vector3();foot.getWorldPosition(unsustainedSole);
+ const idlePosition=pelvis.position.clone(),idleQuaternion=pelvis.quaternion.clone();
+ pelvis.position.copy(originalPosition).lerp(idlePosition,pelvisSupport(valid));
+ pelvis.quaternion.copy(originalQuaternion).slerp(idleQuaternion,pelvisSupport(valid));
+ pelvis.updateWorldMatrix(true,true);
+ const supportedSole=new THREE.Vector3();foot.getWorldPosition(supportedSole);
+ assert.ok(supportedSole.distanceTo(originalSole)<unsustainedSole.distanceTo(originalSole)*.5,
+  'an original sole under the inherited pelvis should travel less during a witnessed stop');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planSourceRigLandingPelvisSupport\(/,
+  'the live Three.js presentation path must validate imported pelvis safety');
+ assert.match(model,/landing\.pelvis/,
+  'post-mixer landings must blend the original pelvis as well as six leg joints');
+});
