@@ -879,6 +879,38 @@ export function publicImmediatePressureCue(snapshot) {
  * same trap, the movement edge is reciprocally open, and only adjacent to
  * diagonal one-tick departures qualify. No remembered-only/hidden event.
  */
+/**
+ * A fair FIRST sighting, not an active hit: Pip can already see a revealed
+ * pressure device diagonally across the public court (the native tick-4
+ * encounter). Warn before stepping cardinally adjacent, while retaining the
+ * different immediate-contact/withdrawal cues. No AI intent, future move,
+ * private map, route connectivity or collision is inferred from visibility.
+ * A closed wall can still separate the two diagonal tiles: this says IN
+ * SIGHT, never that the trap is reachable or currently striking.
+ */
+export function publicVisibleDiagonalPressureCue(snapshot) {
+  const {currentCell,width,height}=snapshot??{};
+  if (snapshot?.result || !Number.isSafeInteger(currentCell)
+    || !Number.isSafeInteger(width) || !Number.isSafeInteger(height)
+    || width<2 || height<2 || currentCell<0 || currentCell>=width*height
+    || !Array.isArray(snapshot?.cells) || !Array.isArray(snapshot?.visibleCells))
+    return null;
+  const visible=new Set(snapshot.visibleCells);
+  if (!visible.has(currentCell)
+    || !snapshot.cells.some(c=>c?.cell===currentCell && c.blocked!==true)) return null;
+  const x=currentCell%width,z=Math.floor(currentCell/width);
+  let closest=null;
+  for (const cell of snapshot.cells) {
+    const id=cell?.cell;
+    if (cell?.trap!==true || cell.blocked===true
+      || !Number.isSafeInteger(id) || id<0 || id>=width*height
+      || !visible.has(id) || Math.abs(id%width-x)!==1
+      || Math.abs(Math.floor(id/width)-z)!==1) continue;
+    if (closest===null || id<closest.cell) closest={cell:id,steps:2,diagonal:true};
+  }
+  return closest;
+}
+
 export function publicPressureWithdrawalCue(before, after) {
   if (!before || !after || before.result || after.result
     || typeof before.runToken !== 'string' || !before.runToken

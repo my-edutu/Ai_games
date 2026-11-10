@@ -3,8 +3,9 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
-const cue=async()=> (await import(pathToFileURL(path.resolve(__dirname,
-  '../../public/ai-maze-escape/map-view.mjs')).href)).publicImmediatePressureCue;
+const cues=async()=>await import(pathToFileURL(path.resolve(__dirname,
+  '../../public/ai-maze-escape/map-view.mjs')).href);
+const cue=async()=> (await cues()).publicImmediatePressureCue;
 const cell=(id,trap=false,blocked=false)=>({cell:id,trap,blocked,neighbors:[]});
 const published=(overrides={})=>({
   runToken:'public-pressure',tick:6,width:9,height:9,currentCell:40,
@@ -36,11 +37,48 @@ test('diagonal, distant, remembered-only, private and blocked hazards cannot fal
   assert.equal(pressure(published({visibleCells:[39,41]})),null,
     'an undisclosed current actor tile cannot authorize extra HUD information');
 });
+test('real visible diagonal pressure approach gets an honest early sighting, not a fabricated attack',async()=>{
+  const {publicVisibleDiagonalPressureCue:approach}=await cues();
+  const state=published({currentCell:40,cells:[cell(40),cell(50,true)],
+    visibleCells:[40,50]});
+  const original=JSON.stringify(state);
+  assert.deepEqual(approach(state),{cell:50,steps:2,diagonal:true});
+  assert.equal(JSON.stringify(state),original,'presentation cannot mutate authoritative AI');
+  assert.deepEqual(approach(published({cells:[cell(30,true),cell(40),cell(50,true)],
+    visibleCells:[30,40,50]})),{cell:30,steps:2,diagonal:true},
+    'equal visible diagonal hazards have stable public ordering');
+  assert.equal(approach(published({cells:[cell(40),cell(41,true)],visibleCells:[40,41]})),
+    null,'cardinal contact is owned by the immediate danger cue');
+  assert.equal(approach(published({cells:[cell(40),cell(59,true)],visibleCells:[40,59]})),
+    null,'a two-row gap is not a diagonal sighting');
+  assert.equal(approach(published({cells:[cell(40),cell(50,true,true)],visibleCells:[40,50]})),
+    null,'blocked hazard cannot act as a device cue');
+  assert.equal(approach(published({cells:[cell(40),cell(50,true)],visibleCells:[40]})),
+    null,'remembered-only trap cannot warn');
+  assert.equal(approach(published({cells:[cell(40)],visibleCells:[40],secretTrap:{cell:50}})),
+    null,'private trap is never consulted');
+  assert.equal(approach(published({currentCell:40,cells:[cell(50,true)],visibleCells:[40,50]})),
+    null,'unpublished current cell cannot authenticate a visible encounter');
+  assert.equal(approach(published({result:{reason:'escape'},cells:[cell(40),cell(50,true)],
+    visibleCells:[40,50]})),null,'terminal scene cannot show active exploration warnings');
+  assert.equal(approach(published({currentCell:999,cells:[cell(40),cell(50,true)],
+    visibleCells:[40,50]})),null,'out-of-board hero cannot discover a trap');
+});
+
 test('live mission source uses the exact public cue before gate, pickup and goals, not a second panel',()=>{
   const fs=require('node:fs');
   const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/app.js'),'utf8');
   assert.match(source,/const pressureCue=!ended && !exposedDanger\s*\?\s*publicImmediatePressureCue\(snapshot\)\s*\|\|\s*publicPressureWithdrawalCue\(lastDistinctPressureSnapshot,snapshot\)\s*:\s*null/);
   assert.match(source,/const urgent=exposedDanger\|\|!!pressureCue/,'actual witnessed warning must outrank gate/landmark presentation');
+  assert.match(source,/publicVisibleDiagonalPressureCue\(snapshot\)/,
+    'only a genuine currently published diagonal sighting can supply early anticipation');
+  assert.match(source,/const keyedSealedGate=!ended && !urgent && !pressureApproach/);
+  assert.match(source,/const freshGate=!ended && !urgent && !pressureApproach/);
+  assert.match(source,/const freshKey=!ended && !urgent && !pressureApproach/);
+  assert.match(source,/pressureApproach\?'Watch jaws'/,'sighting cannot claim an active jaw strike');
+  assert.match(source,/pressureApproach\?'Jaws in sight'/,
+    'the physically observed relay gets truthful first-sighting copy');
+  assert.match(source,/dataset.pressureApproach=String\(!!pressureApproach\)/);
   assert.match(source,/const previousPublicSnapshot=frame\?\.snapshot/,'only the public previous frame may authorize an urgent withdrawal');
   // The public immediately previous *poll* can be the very same tick;
   // exact original WebGL showed the live withdrawal warning vanish in that case.

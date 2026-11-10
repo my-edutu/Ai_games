@@ -1,4 +1,4 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicDistinctPublicPredecessor } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicVisibleDiagonalPressureCue, publicDistinctPublicPredecessor } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
@@ -135,26 +135,34 @@ function update(value){
     ? publicImmediatePressureCue(snapshot)
       || publicPressureWithdrawalCue(lastDistinctPressureSnapshot,snapshot)
     : null;
+  // The original full-frame 390px tick-4 scene ALREADY shows the public
+  // mechanical relay and Pip's visible diagonal approach. Its old generic
+  // "Find key" card hid the fair visual warning until contact at tick 5.
+  // Distinguish sighting from actual one-cell danger: the sighting never
+  // asserts a collision, planned movement, an accessible route or an attack.
+  const pressureApproach=!ended && !exposedDanger && !pressureCue
+    ? publicVisibleDiagonalPressureCue(snapshot) : null;
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
-  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':pressureCue?'PRESSURE NEARBY':'LIVE EXPLORATION';
+  elements.broadcast.dataset.pressureApproach=String(!!pressureApproach);
+  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
-  const keyedSealedGate=!ended && !urgent && !landmark && publicHeldGateStatus(snapshot);
+  const keyedSealedGate=!ended && !urgent && !pressureApproach && !landmark && publicHeldGateStatus(snapshot);
   // Danger, termination and a currently matching CLOSED lock outrank a
   // collectible celebration; AI intent continues to report its real plan.
-  const freshGate=!ended && !urgent && !keyedSealedGate
+  const freshGate=!ended && !urgent && !pressureApproach && !keyedSealedGate
     && gateMilestone?.runToken===snapshot.runToken
     && hudVisualTime<gateMilestone.until;
   elements.broadcast.dataset.gateMoment=String(freshGate);
-  const freshKey=!ended && !urgent && !keyedSealedGate && !freshGate
+  const freshKey=!ended && !urgent && !pressureApproach && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':pressureCue?'Visible pressure hazard':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Avoid jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':pressureCue?'Keep clear of the jaws':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy

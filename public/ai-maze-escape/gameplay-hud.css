@@ -180,6 +180,12 @@ body[data-high-contrast="true"] #broadcast #hud .mission-block,body[data-high-co
   border-left:3px solid #edc76f;background:rgba(10,40,39,.89);
   box-shadow:0 7px 22px rgba(2,29,30,.20);backdrop-filter:none;
 }
+/* A disclosed diagonal mechanism is a sighting, NOT the same danger
+   presentation as a true one-cell strike. Use the existing mission surface;
+   no extra overlay, flashing light or smaller phone tap targets. */
+#broadcast[data-ux-revision="4"][data-pressure-approach="true"] #hud .mission-block{
+  border-left-color:#f4c56d;background:rgba(48,41,22,.93);
+}
 #broadcast[data-ux-revision="4"][data-urgency="true"] #hud .mission-block{
   top:calc(70px + env(safe-area-inset-top,0px));
   border-left-color:#ff815b;background:rgba(72,28,26,.91);
