@@ -1810,3 +1810,60 @@ test('source Walking_A landing preserves original pelvis-to-sole chain while Idl
  assert.match(model,/landing\.pelvis/,
   'post-mixer landings must blend the original pelvis as well as six leg joints');
 });
+
+
+test('landing-to-walk reentry releases measured original source feet rather than snapping a living skinned leg',async()=>{
+ const {planSourceRigWalkReentryRelease:release}=await load();
+ assert.equal(typeof release,'function','old original-source landing must transfer into authentic Walking_A on a legal re-entry');
+ const legal={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  witnessedLanding:true,moving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,sourceWeight:.22};
+ const at=(elapsed,rootTravelMeters)=>release({...legal,elapsed,rootTravelMeters});
+ assert.equal(at(0,0),0,'the previous rendered licensed hip-to-sole pose survives the first re-entry frame');
+ assert.ok(at(0,.0046)<.03,'measured 4.6 mm mobile root step must not cause a ~50 mm shoe snap');
+ assert.ok(at(.06,.035)>.1&&at(.06,.035)<.8,'valid travel must hand over to genuine licensed walking, not freeze an invented plant');
+ assert.equal(at(.14,.01),1,'support expires even when root travel remains slow');
+ assert.equal(at(.02,.12),1,'genuine distance immediately releases stance before legs can stretch');
+ assert.ok(at(.04,.02)<at(.09,.06),'original source walking must take over monotonically');
+ assert.equal(release({...legal,previousMode:'guard',elapsed:.03,rootTravelMeters:.012}),at(.03,.012),
+  'legally owned defensive guard re-entry must share the identical source gait gate');
+ for(const invalid of [
+  {mode:'idle'},{mode:'attack'},{previousMode:'attack'},{sourceClipName:'Idle'},
+  {witnessedLanding:false},{moving:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},{sourceWeight:NaN},
+  {sourceWeight:-.1},{sourceWeight:1.1},{elapsed:NaN},{elapsed:-.1},
+  {rootTravelMeters:-1},{rootTravelMeters:Infinity}
+ ])assert.equal(release({...legal,elapsed:.04,rootTravelMeters:.02,...invalid}),null,
+  'never bridge after unseen, non-moving, corrupted or interrupted original joint events');
+ const THREE=require('three');
+ const hips=new THREE.Bone();hips.name='hips';hips.position.set(0,.9,0);
+ const sole=new THREE.Bone();sole.name='footl';sole.position.set(-.2,-.85,0);
+ hips.add(sole);hips.updateWorldMatrix(true,true);
+ const previousHip=hips.position.clone(),previousRotation=hips.quaternion.clone();
+ const previousFoot=sole.quaternion.clone();const priorSole=new THREE.Vector3();
+ sole.getWorldPosition(priorSole);
+ const walk=new THREE.AnimationClip('Walking_A',.25,[
+  new THREE.VectorKeyframeTrack('.position',[0,.25],[0,.9,0,0,.96,0]),
+  new THREE.QuaternionKeyframeTrack('.quaternion',[0,.25],
+   [0,0,0,1,0,0,Math.sin(.2),Math.cos(.2)])
+ ]);
+ const mixer=new THREE.AnimationMixer(hips);mixer.clipAction(walk).play();
+ mixer.update(.05);
+ const fromMixerPos=hips.position.clone(),fromMixerRot=hips.quaternion.clone();
+ const unbridged=new THREE.Vector3();hips.updateWorldMatrix(true,true);sole.getWorldPosition(unbridged);
+ const blend=at(.025,.0046);
+ hips.position.copy(previousHip).lerp(fromMixerPos,blend);
+ hips.quaternion.copy(previousRotation).slerp(fromMixerRot,blend);
+ sole.quaternion.copy(previousFoot).slerp(sole.quaternion,blend);
+ hips.updateWorldMatrix(true,true);
+ const bridged=new THREE.Vector3();sole.getWorldPosition(bridged);
+ assert.ok(bridged.distanceTo(priorSole)<unbridged.distanceTo(priorSole)*.5,
+  'actual skinned source-foot hierarchy must show less early transition displacement');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planSourceRigWalkReentryRelease\(/,
+  'render path must call the same tested source-only re-entry release');
+ assert.match(model,/walkLandingReentry/,
+  'pose handover must be maintained only on the actor clone through the original mixer');
+ assert.match(model,/rigGaitBones/,
+  'bridge must use genuine imported knees and ankles, not scene-level fake foot geometry');
+});
