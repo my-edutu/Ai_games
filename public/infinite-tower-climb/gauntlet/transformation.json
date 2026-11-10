@@ -65,38 +65,37 @@
     "upperStructuralSightlineImplementationSha": "e1c54871e4baf950183ca5ec9724b67c2416f081",
     "upperStructuralSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: original bdb1 390x844 WebM at native 15–17s still dominated by steel/bronze scene; owner-ray ticks 298/304/310/343 matched genuine tapered-structural-pylon LatheGeometry (and gate inset) at world x≈6–9,z≈15–17. At e1c54871 the non-colliding clockwork buttress angle changes .67→1.40 radians and source guardian bronze gate is physically opened into 2×2 daylight grille without changing gate authority. 6d41d78b quality run 42729702639 GREEN, no post-change normal-speed WebM, pixel match, device p50/p95/p99/memory or independent LOOKS/FEELS/PLAYS; 0/5 each.",
     "openGuardianStructuralBayImplementationSha": "6a6188bd6c967a64ddc4b07c2b526e4eb46cea3e",
-    "openGuardianStructuralBayFilmStatus": "P0 OPEN / NOT EVALUATED — original code changed, new exact-source native film not yet accepted; RED prior original solid shaft test and code CI pending"
+    "openGuardianStructuralBayFilmStatus": "P0 OPEN / NOT EVALUATED — original code changed, new exact-source native film not yet accepted; RED prior original solid shaft test and code CI pending",
+    "latestEarnedGatewayDuelStagingImplementationSha": "5ad36a284052e54af6a0f83be84b10857b1b2059",
+    "latestEarnedGatewayDuelStagingEvidenceStatus": "P0 OPEN / NOT EVALUATED: source-pinned 2702311e original 73.16s portrait+73.60s desktop candidate danger video (run 42818985967) still shows live fight blocked by inner cap stone/bronze and exterior gate; actual source-linked 260-350 tick portrait camera rays hit inner WalkableSourceCapArchAndBraces 14 and RetractingBronzeLeaves 14 times. Test-first commit 3e180d9e confirmed two expected RED tests, quality run 42827479826. Actual production change 5ad36a28 hides second solid inner arch during live source HP>0, retains source locked exterior+high energy lattice; reveals rising walkable frame only after genuine zero-HP, retires it at true floor9, and honors reduced motion/restart. Candidate after-film, CI success, source-raster crossing, supported devices and blind LOOKS/FEELS/PLAYS all NOT EVALUATED."
   },
   "currentTransformation": {
     "latestEvidenceRun": {
       "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
       "leadingTransformationVerdict": "NOT EVALUATED",
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "implementationSha": "e1c54871e4baf950183ca5ec9724b67c2416f081",
-      "regressionFixSha": "6d41d78b9fd5e829243f979a45064eee4ede391a",
-      "previousCandidateSourceSha": "bdb1b83b2367580960353fb6efcedc608c6b1f86",
-      "previousSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42727101974",
-      "baselineCandidateFilms": "8 original WebMs / 16 viewport recordings, 60s+ each, 10/10 capture workflow jobs successful; event pairing 8/8 clock-calibrated, 0 story/integrity defects. Native event timing is not actual image-event visibility or independent quality.",
-      "actualInspectedCandidatePortraitDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42727101974/artifacts/13723232240",
-      "actualInspectedCandidatePortraitOutcome": "https://github.com/my-edutu/Ai_games/actions/runs/42715099747/artifacts/13717796443",
-      "actualVisualObservation": "Unmodified 390x844 25fps 72.52s candidate danger WebM native 15–17s: large metal ring and rectangular solid case mask guardian and tiny player; at 26s a visibly different floor-nine scene occurs, but this is sampled, not source-raster-certified continuous gateway.",
-      "forensicBlocker": "Resolved: original authoring ray ownership identifies 'tapered-structural-pylon' LatheGeometry at authoritative ticks 298/304/310/343, world x≈6–9,z≈15–17. Render ownership plus samples is stronger than guessed clock; actual final-pixel coverage remains to be checked post-change.",
-      "completedCodeChange": "e1c54871 physically rotates clockwork secondary pylon away from cap-combat view and reconstructs opaque bronze guardian-wing slabs as 2x2 open grille on source-controlled lock. No source sim/collider/guardian-rule change.",
-      "qualityAtImplementationSha": "https://github.com/my-edutu/Ai_games/actions/runs/42729702639 — completed success at exact test head 6d41d78b; supporting engineering check only.",
-      "latestNativeVideo": "NOT EVALUATED — physical pylon/grille has not yet been filmed at post-change source.",
-      "actualDeviceMetrics": "NOT EVALUATED — CI Chrome callback gaps are not supported device FPS/memory.",
-      "blindIndependentReviewCount": {
+      "latestReviewedCandidateSourceSha": "2702311ef49b7f88c5b71c1513316f065ff909a9",
+      "latestReviewedSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42818985967",
+      "baselineCandidateFilms": "16 genuine unmodified desktop/portrait original WebMs, 8/8 calibrated native timebases, 10/10 jobs passed; fullMotionPaired=false, not a visual preference.",
+      "filmObservation": "Decoded candidate native portrait 73.16s/desktop 73.60s frames at 9,12,14,16,18,20,22,24,26,30,40,60s. Portrait around 20s foreground bronze machinery covers hero; 16s desktop cyan/bronze dominates. Floor9 present near 26s, not yet continuous source-event-pixel accepted.",
+      "sourceRayAudit": "Portrait tick260-350 recorded 14 WalkableSourceCapArchAndBraces and 14 WalkableSourceCapRetractingBronzeLeaves triangle hits; also original exterior gate and lattice remain. Ray contacts do not prove final raster occlusion pixel ownership.",
+      "testFirstCommit": "3e180d9ec9f9e7909d5094efa5ac0aaa5c2fdec3",
+      "testFirstRun": "https://github.com/my-edutu/Ai_games/actions/runs/42827479826 — completed failure specifically in both new gateway tests before implementation",
+      "implementationSha": "5ad36a284052e54af6a0f83be84b10857b1b2059",
+      "implementationChange": "Production guardian-passage real source-based sequence: living guardian shows exterior genuine lock + full-height electrical seal WITHOUT duplicate inner stone/bronze arch; source zero-HP reveals and raises grounded inner door, source floor9 handoff removes second inner arch for original passage memory. Same instanced meshes, no colliders or authority changes.",
+      "implementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42827643211 — IN PROGRESS at evidence update (NOT accepted as green)",
+      "latestVideoAfterChange": "NOT EVALUATED — new original source-pinned capture required",
+      "independentBlindCritics": {
         "looks": 0,
         "feels": 0,
         "plays": 0
       },
-      "majorFootageDefect": "Giant solid pylon and bronze frame dominate floor-eight portrait boss scene at 15–17s; final visual clearance unverified.",
-      "preciseNextAction": "Inspect newly requested source-pinned 60+s native desktop/portrait original candidate and baseline WebMs at guardian 12–26s, event and raster link for authentic floor-nine crossing and outcome/restart; reopen physical geometry if defect persists, collect hardware and independent reviews.",
-      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-original-pylon-and-gate-source-pinned-recapture.md",
-      "safety": "Unchanged frozen baseline, PR58 and main; PR68 open draft, no merge, deployment or force push",
-      "latestReviewedSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42720286839",
-      "previousVideoIntegrity": "42727101974 8 source pairs and 16 WebMs, 8/8 native timebases, zero story/provenance defects; 9/10 jobs completed successfully, source-campaign step succeeded but authentic-ledge runner's missing imported test fixture caused one failed job, since repaired. FullMotionPaired=false.",
-      "originalPortraitLiveFrameObservation": "Actual unedited candidate danger 390x844 at native 15 seconds: huge silver clock rim and bronze frame dominate real guardian/climber scene."
+      "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "fullMotionPaired": false,
+      "biggestExperienceGap": "Source-authentic portrait guardian and crusher action remains crowded by original exterior gate and clockwork; proposed two-stage inner gate must be proven visually without making actual source barrier appear bypassable.",
+      "preciseNextAction": "Request same-seed exact immutable-head 60s+ baseline/candidate video in 960x600 and 390x844; inspect native 12-26s guardian against source HP/crusher/grounded floor9 and outcome/restart. If genuine defect persists, rebuild source-owned exterior staging rather than endlessly retune camera. Measure actual devices and recruit 5 independent blind critics each.",
+      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-source-earned-inner-threshold-live-duel-visibility.md",
+      "restrictions": "PR68 OPEN DRAFT based on PR58; no baseline movement, PR58 rewrite, merge, deployment, force push."
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — source-authored structural pylon and solid gate visually identified in previous 390x844 game; physical reconstruction is code-verified but full-motion improvement unverified",
@@ -7009,5 +7008,22 @@
     "physicalDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
     "biggestExperienceGap": "After-change actual normal-speed guardian portrait/desktop legibility and source-earned crusher defeat -> grounded threshold -> floor9 plus outcome/restart not established. Previous candidate original video shows small disconnected fighters and landmark blocking view.",
     "nextHighestImpact": "Verify exact-HEAD quality, inspect original 60+s candidate danger/ascent/moving/outcome desktop+portrait WebMs, align tick-authoritative guardian HP0 -> cap walk -> floor9 -> outcome/restart to visible uninterrupted frames. If paired actors remain visually small or obscured, reopen P0 physical arena layout/architectural sightline rather than add cosmetic overlay. Actual device memory/frame budgets and genuinely independent blind 5x3 critics remain mandatory."
+  },
+  "p0SourceEarnedDoubleThresholdCorrection20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "latestInspectedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42818985967",
+    "testFirstSha": "3e180d9ec9f9e7909d5094efa5ac0aaa5c2fdec3",
+    "implementationSha": "5ad36a284052e54af6a0f83be84b10857b1b2059",
+    "result": "One connected real source gameplay-presentation correction committed; follow-up quality and post-change full videos not yet independently evaluated",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "deviceMetrics": "NOT EVALUATED",
+    "next": "Original same-source recapture; inspect guardian/crusher combat and earned threshold crossing",
+    "review": "docs/reviews/2026-11-10-tower-pr68-source-earned-inner-threshold-live-duel-visibility.md"
   }
 }
