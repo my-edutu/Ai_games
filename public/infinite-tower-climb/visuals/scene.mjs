@@ -3,6 +3,7 @@ import { createTowerWorld, THEMES } from './world.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
+import { readRenderedGuardianCenter } from './rendered-guardian-center.mjs';
 import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
@@ -2282,6 +2283,10 @@ export function createTowerScene(canvas, settings = {}) {
   // allocation. A genuine off-frame guardian may catch the approved two-body
   // lens, but only if the real climber stays readable and the core is clear.
   const guardianRescuePoint = new THREE.Vector3();
+  // Share one read-only witness of the genuinely drawn, interpolated boss across
+  // the lens, actor protection, real landing, hazard and decorative sightlines.
+  const guardianDrawnCenter = new THREE.Vector3();
+  let guardianDrawnSourceTick = -1;
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -3138,6 +3143,14 @@ export function createTowerScene(canvas, settings = {}) {
       for (let a = 0; a < 3; a++) particlePositions[b + a] += particleVelocity[b + a] * dt;
     }
     if (particlesChanged) for (const attribute of Object.values(particleGeometry.attributes)) attribute.needsUpdate = true;
+    // The source selects WHICH living boss is in combat. The already submitted
+    // rig chooses WHERE its visibly interpolated body is now. Never substitute
+    // authoritative coordinates for drawn combatant pixels in post-camera guards.
+    guardianDrawnSourceTick = readRenderedGuardianCenter(
+      sourceGuardian, enemies, guardianDrawnCenter, SCALE)
+      ? snapshot.tick : -1;
+    const currentGuardianDrawPoint = guardianDrawnSourceTick === snapshot.tick
+      ? guardianDrawnCenter : null;
     const portrait = camera.aspect < .85;
     const overview = options.camera === 'overview';
     let targetY;
@@ -3318,7 +3331,7 @@ export function createTowerScene(canvas, settings = {}) {
       // The actor and the airborne landing remain higher-priority objectives.
       if (!options.stale && followComposition?.guardianStaged && sourceGuardian &&
           Number.isFinite(sourceGuardian.x) && Number.isFinite(sourceGuardian.y)) {
-        const enemyPoint = pointFor(sourceGuardian.x, sourceGuardian.y,
+        const enemyPoint = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
           snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
         scratch.set(enemyPoint.x, enemyPoint.y, enemyPoint.z).project(camera);
         cameraRate = towerCameraGuardianSafetyRate(cameraRate,
@@ -3377,9 +3390,9 @@ export function createTowerScene(canvas, settings = {}) {
           guardianWarning.guardianId === sourceGuardian?.id) ? .14 : .16) &&
       sourceGuardian &&
       [sourceGuardian.x, sourceGuardian.y].every(Number.isFinite)) {
-      const observed = pointFor(sourceGuardian.x, sourceGuardian.y,
+      const observed = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
-      guardianRescuePoint.set(observed.x, observed.y, observed.z);
+      guardianRescuePoint.copy(observed);
       camera.lookAt(lookAt);
       camera.updateMatrixWorld(true);
       guardianRescueEnemyProjection.copy(guardianRescuePoint).project(camera);
@@ -3440,9 +3453,9 @@ export function createTowerScene(canvas, settings = {}) {
         !!followComposition?.guardianStaged &&
         Number.isFinite(sourceGuardian.x) && Number.isFinite(sourceGuardian.y);
       if (protectGuardian) {
-        const observed = pointFor(sourceGuardian.x, sourceGuardian.y,
+        const observed = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
           snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
-        guardianRescuePoint.set(observed.x, observed.y, observed.z);
+        guardianRescuePoint.copy(observed);
       }
       const verified = refineTowerActorSafeFrame(camera, lookAt, actorFramePoint,
         dt, actorSafeProjection, actorOrbitTarget,
@@ -3476,9 +3489,9 @@ export function createTowerScene(canvas, settings = {}) {
       followComposition.guardianFramed &&
       (sourceGuardian.telegraph || sourceGuardian.health < sourceGuardian.maxHealth ||
         ['engaging-enemy', 'bracing-telegraph', 'evading-telegraph'].includes(snapshot.intent?.mode))) {
-      const site = pointFor(sourceGuardian.x, sourceGuardian.y,
+      const site = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
-      guardianRescuePoint.set(site.x, site.y, site.z);
+      guardianRescuePoint.copy(site);
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y += p.halfHeight / SCALE;
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);
@@ -3551,9 +3564,9 @@ export function createTowerScene(canvas, settings = {}) {
       const protectGuardian=!!sourceGuardian&&!!followComposition?.guardianStaged&&
         Number.isFinite(sourceGuardian.x)&&Number.isFinite(sourceGuardian.y);
       if(protectGuardian){
-        const point=pointFor(sourceGuardian.x,sourceGuardian.y,
+        const point=currentGuardianDrawPoint || pointFor(sourceGuardian.x,sourceGuardian.y,
           snapshot.chunkBaseY,snapshot.worldWidth,27.15);
-        guardianRescuePoint.set(point.x,point.y,point.z);
+        guardianRescuePoint.copy(point);
       }
       let protectLanding=false;
       if(p.state==='airborne'&&targetPlatform&&
@@ -3592,9 +3605,9 @@ export function createTowerScene(canvas, settings = {}) {
       followComposition.guardianFramed) {
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y += p.halfHeight / SCALE;
-      const position = pointFor(sourceGuardian.x, sourceGuardian.y,
+      const position = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
-      guardianRescuePoint.set(position.x, position.y, position.z);
+      guardianRescuePoint.copy(position);
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);
       measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
         camera, duelTop, duelBottom, jointActorBefore);
@@ -3675,7 +3688,7 @@ export function createTowerScene(canvas, settings = {}) {
       sourceGuardian.halfHeight > 0) {
       const liveTrap = pointFor(actionStage.x, actionStage.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.1);
-      const liveGuardian = pointFor(sourceGuardian.x, sourceGuardian.y,
+      const liveGuardian = currentGuardianDrawPoint || pointFor(sourceGuardian.x, sourceGuardian.y,
         snapshot.chunkBaseY, snapshot.worldWidth, 27.15);
       crossfireHazardPoint.set(liveTrap.x, liveTrap.y, liveTrap.z);
       crossfireGuardianPoint.set(liveGuardian.x, liveGuardian.y, liveGuardian.z);
@@ -3887,9 +3900,9 @@ export function createTowerScene(canvas, settings = {}) {
       actorFramePoint.y+=p.halfHeight/SCALE;
       if(protectLiveRoute){
       if(sourceGuardian){
-        const observed=pointFor(sourceGuardian.x,sourceGuardian.y,
+        const observed=currentGuardianDrawPoint || pointFor(sourceGuardian.x,sourceGuardian.y,
           snapshot.chunkBaseY,snapshot.worldWidth,27.15);
-        guardianRescuePoint.set(observed.x,observed.y,observed.z);
+        guardianRescuePoint.copy(observed);
       }
       // Actual gate takes precedence over a distant future landing ONLY
       // during the near-roof earned airborne crossing. Crusher warnings and
@@ -4246,6 +4259,10 @@ export function createTowerScene(canvas, settings = {}) {
       const relay = circuit?.guardianId === liveGuardian.id
         ? observedGuardianRelayStage(circuit)?.center || null : null;
       const guardianCenter = ndc(guardian);
+      // Do not confuse the published fixed-step enemy position with the
+      // interpolated original rig actually sent to Three.js this frame.
+      const drawnGuardianNdc = guardianDrawnSourceTick === snapshot.tick
+        ? ndc(guardianDrawnCenter) : null;
       const gateCenter = gate ? ndc(gate) : null;
       const relayCenter = relay ? ndc(relay) : null;
       const visible = point => !!point && point.every(Number.isFinite) &&
@@ -4254,6 +4271,13 @@ export function createTowerScene(canvas, settings = {}) {
       encounterCamera = { tick: snapshot.tick, health: liveGuardian.health,
         maxHealth: liveGuardian.maxHealth, intent: snapshot.intent?.mode ?? null,
         actorNdc: ndc(actor), guardianNdc: guardianCenter, gateNdc: gateCenter,
+        guardianDrawNdc: drawnGuardianNdc,
+        guardianDrawInFrame: visible(drawnGuardianNdc),
+        guardianDrawSourceTick: guardianDrawnSourceTick === snapshot.tick
+          ? guardianDrawnSourceTick : null,
+        guardianSourceToDrawNdcDelta: drawnGuardianNdc
+          ? [Number((drawnGuardianNdc[0] - guardianCenter[0]).toFixed(4)),
+            Number((drawnGuardianNdc[1] - guardianCenter[1]).toFixed(4))] : null,
         nearbyRelayNdc: relayCenter,
         nearbyRelayInFrame: visible(relayCenter),
         nearbyRelayCoreClear: !!relay && towerCoreSightlineClear(camera.position, relay, 23.5),
