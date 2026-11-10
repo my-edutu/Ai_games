@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "365905d9119217e290ed23029396e23c0bdf8636",
-  "reason": "P0 OPEN. The latest original 390x844 72.8-second candidate guardian video (42737729668 artifact 13727083599) still has a giant steel full spoke wheel during 15-17s. Actual source-tick 307 camera ray owns ActualCapNavigationHalo / ObservedCurrentFloorSummitCrown at camera distance9.367 ahead of guardian distance14.709; separate source ray hits ActualCapNavigationSpokes. This was NOT any of the three tracked background biome gears. At implementation 365905d9 rebuild the genuine current-cap objective from full eight-spoked near-camera disk into physically open smaller arch with four perimeter piers, move it inboard to radius22.72, preserve original source cap and all collision/guardian/crusher/gateway/physics. All eight bca7593d original baseline/candidate recordings and event pairing succeeded with 8/8 timebase calibration, BUT overall 42737729668 FAILED genuine ledge geometry growth. f58270aa corrected cross-floor repeated clockwork pylons; 42738107384 source quality green only. Request NEW immutable full original film; visual change and P0 acceptance remain NOT EVALUATED.",
+  "repairedSourceSha": "0a01ac73cbcd630714ef8bd55c0109ec851368aa",
+  "reason": "P0 OPEN: source-authentic 42744889807 original film records genuine living guardian but has a large, erroneous duplicate cleared-passage exterior bronze facade at native 14–17s. Original-world named mesh ray owners ClearedPassageBronzeLeaf/ClearedPassageCrownSeat/Pier/Lintel show it overlapping the live fight. Real fix 0a01ac73 scopes cleared facade to authentic post-floor-transition memory; source original exterior guardian gate and walkable inner threshold remain. Previous exact-source quality c846 was green but original film pair failed danger desktop first-source-tick skew >3s, retain veto. Request fresh paired original native film of exact new source and honest event clocks without moving frozen baseline. New code's video effectiveness/independent critics/hardware remain NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -99,5 +99,19 @@
   "latestExactReconstructionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42737243630 — pending/in progress at request creation",
   "latestSummitCrestTestCommit": "2f5d6dab35e9ce7154f51b957679f234e3feb9e4",
   "latestSummitCrestImplementationCommit": "365905d9119217e290ed23029396e23c0bdf8636",
-  "latestSummitCrestReview": "docs/reviews/2026-11-10-tower-pr68-source-ray-attributed-summit-crown-occlusion.md"
+  "latestSummitCrestReview": "docs/reviews/2026-11-10-tower-pr68-source-ray-attributed-summit-crown-occlusion.md",
+  "p0SourceTrueGuardianPassageMemoryRecapture20261110": {
+    "newPortalVisibilityFixSha": "0a01ac73cbcd630714ef8bd55c0109ec851368aa",
+    "testFirstRedCommit": "e26f85c0207ad3e5c0d4ab00967d18d0fb7c3282",
+    "originalFilmArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42744889807/artifacts/13730158831",
+    "latestOriginalCapturePairing": "42744889807 8 original paired WebM episodes and ledge succeeded, but pair-source-events FAILED due to danger desktop launch source tick offset >3s; 7/8 admitted timebases. Full film quality and reviewer preference NOT EVALUATED.",
+    "newCaptureRequirements": "Pin candidate EXACT github.sha of THIS request commit; preserve frozen baseline and original 50ms authority. Record unedited normal-speed 960x600+390x844 ascent/moving/danger/outcome 60+s; authentic guardian/crusher → grounded gateway → floor9 and result/intermission/restart; inspect real portrait 12–26s for removed duplicate outer cleared-passage facade. Do not relax original start-tick >60 veto or fake event visibility.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-source-filmed-duplicate-guardian-passage-physical-memory.md",
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "independentLooks": 0,
+    "independentFeels": 0,
+    "independentPlays": 0,
+    "deviceP50P95P99AndMemory": "NOT EVALUATED"
+  }
 }
