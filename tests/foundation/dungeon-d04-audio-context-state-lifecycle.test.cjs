@@ -23,9 +23,9 @@ function audioContext(){
  };
 }
 function fixture(){
- const heard=[],drawn=[],disabled=[];
+ const heard=[],drawn=[],disabled=[],flushed=[];
  return {
-  heard,drawn,disabled,
+  heard,drawn,disabled,flushed,
   visualAdapter:{
    emit(cue){drawn.push(cue);return true},
    hasLiveCue(){return true},hasDrawableCue(){return true},
@@ -33,7 +33,7 @@ function fixture(){
   },
   audioAdapter:{
    enable(){return true},emit(cue){heard.push(cue);return true},
-   disable(){disabled.push('disabled')},flush(){},cleanup(){},dispose(){}
+   disable(){disabled.push('disabled')},flush(){flushed.push('flushed')},cleanup(){},dispose(){}
   }
  };
 }
@@ -42,7 +42,7 @@ function submit(d,frameId){
  return d.acknowledgePresentedFrame(frameId,0);
 }
 
-test('suspended context revokes opt-in and pending sword sound without dropping the silent art',async()=>{
+test('suspended context revokes queued sound epoch without resetting the spectator toggle',async()=>{
  const {createPhysicalCombatFeedback}=await load(),ctx=audioContext(),f=fixture();
  const d=createPhysicalCombatFeedback({...f,ctx,requirePresentedFrame:true});
  assert.equal(ctx.listenerCount(),1);
@@ -50,20 +50,20 @@ test('suspended context revokes opt-in and pending sword sound without dropping 
  assert.equal(d.enableAudioFromGesture(),true);
  d.acceptSnapshot(state(11,'attack'));
  ctx.change('suspended');
- assert.equal(d.stats().audioOptedIn,false,'browser audio suspension must revoke permission');
- assert.equal(d.stats().preferredMuted,true);
+ assert.equal(d.stats().audioOptedIn,true,'prior user opt-in remains active');
+ assert.equal(d.stats().preferredMuted,false,'automatic suspend must not persist a fake manual mute');
  assert.equal(d.stats().audioInterruptions,1);
- assert.equal(f.disabled.length,1,'already-scheduled sound must stop');
+ assert.equal(f.flushed.length,1,'already-scheduled sound must stop');
+ assert.equal(f.disabled.length,0,'must not silently desynchronize spectator audio toggle');
  ctx.change('running');
- assert.equal(d.stats().audioOptedIn,false,'resume must not grant audio permission');
+ assert.equal(d.stats().audioOptedIn,true,'resume preserves previous user consent only');
  assert.equal(submit(d,'resume-frame'),0);
  assert.deepEqual(f.drawn.map(x=>x.kind),['swing']);
  assert.equal(f.heard.length,0);
- assert.equal(d.enableAudioFromGesture(),true);
  d.acceptSnapshot(state(12,'attack'));
  assert.equal(submit(d,'fresh-swing-frame'),1);
  assert.deepEqual(f.heard.map(x=>x.kind),['swing'],
-  'only a new attempted swing after a real re-opt-in can speak');
+  'only a newly witnessed attempt after resumption can speak');
  d.dispose();
  assert.equal(ctx.listenerCount(),0);
 });
@@ -74,12 +74,12 @@ test('interrupted and closed contexts revoke exactly once; disposal removes list
  ctx.change('interrupted');
  ctx.change('suspended');
  assert.equal(d.stats().audioInterruptions,1);
- assert.equal(f.disabled.length,1);
+ assert.equal(f.disabled.length,0);
+ assert.equal(f.flushed.length,1);
  ctx.change('running');
- assert.equal(d.enableAudioFromGesture(),true);
  ctx.change('closed');
  assert.equal(d.stats().audioInterruptions,2);
- assert.equal(d.stats().audioOptedIn,false);
+ assert.equal(d.stats().audioOptedIn,true);
  d.dispose();
  assert.equal(ctx.listenerCount(),0);
 });
@@ -91,7 +91,7 @@ test('late audio context attachment is observed once; missing event API degrades
  assert.equal(ctx.listenerCount(),1,'idempotent observer attachment');
  d.enableAudioFromGesture();
  ctx.change('suspended');
- assert.equal(d.stats().audioOptedIn,false);
+ assert.equal(d.stats().audioOptedIn,true);
  d.dispose();
  assert.equal(ctx.listenerCount(),0);
  const plain={state:'running'};
