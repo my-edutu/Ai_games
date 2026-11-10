@@ -107,7 +107,7 @@
       "filmObservation": "Original 390x844 candidate 15s giant cyan/bronze gate, 20s near-camera winch masks hero; frozen baseline clearer at sampled (not event-aligned) times.",
       "implementation": "Outboard rear noncolliding physical guardian transmission; source-shared mechanical-screen competition in two-body camera",
       "implementationSha": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
-      "implementationEvidence": "Authoritative game logic unchanged. World/camera gallery implementation a5c03e17, source syntax + eight real ESM test fixture import repairs 378253f8, two ROOT loader fixes e99b41ab. Earlier CI failed; new exact-source quality NOT YET VERIFIED. Fresh corrected-HEAD capture requested, original WebMs NOT YET VERIFIED. P0 NOT EVALUATED.",
+      "implementationEvidence": "Previous quality 42867334138 FAILED 14/1319: one real fixture gallery module missing in encounter-composition, obsolete 2-3m original cable length after physically lifting transmission, two lowercase root fixture URLs already corrected. Fixed test harness while preserving actual original Three module geometry and cable socket coupling. New exact-HEAD quality PENDING; no visual pass.",
       "independentBlindCritics": {
         "looks": 0,
         "feels": 0,
@@ -119,7 +119,8 @@
       "nextAction": "Capture matching exact-source 60s desktop/portrait after new physical change; inspect guardian, crusher, true gateway, floor9 and restart.",
       "reviewFile": "docs/reviews/2026-11-10-tower-pr68-guardian-transmission-gallery-live-duel.md",
       "exactImplementationQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42867712502 — queued at request",
-      "previousCaptureFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42866319096 — original world geometry preflight failed missing new shared layout in temp fixture; other recordings not admitted"
+      "previousCaptureFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42866319096 — original world geometry preflight failed missing new shared layout in temp fixture; other recordings not admitted",
+      "secondFailedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42867334138 — 14 original Node failures before correction"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — actual guardian transmission gallery and two-body camera composition changed in source, full-motion acceptance still unavailable",
@@ -7190,6 +7191,7 @@
     "qualityAfterFirstRun": "42865871986 FAILED 107/1319; corrected source syntax and real temporary ESM test import wiring",
     "browserAfterFirstRun": "42866319096 authentic-ledge failed original module resolution; scenario recording jobs retained independently",
     "latestQualityRun": "42867712502 pending, not pass",
-    "freshCaptureRequestSource": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267"
+    "freshCaptureRequestSource": "e99b41ab004e5836f221bbcc2ec4a37d8fbc9267",
+    "qualityIntermediateFailure": "42867334138 14/1319 fail; source gallery valid syntax, single missing original world import in composition temp-fixture and physically outdated full-health cable-span assertion"
   }
 }

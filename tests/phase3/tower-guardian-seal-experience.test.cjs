@@ -244,8 +244,8 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       return cableScale.y;
     };
     const closedCableLength = assertAttachedCables('full-health lock');
-    assert.ok(closedCableLength > 2 && closedCableLength < 3,
-      'raised exterior drive owns genuinely long taut cables at full guardian health');
+    assert.ok(closedCableLength > 4 && closedCableLength < 6,
+      'the actual elevated outboard transmission owns taut cables spanning its taller mechanical gallery');
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
