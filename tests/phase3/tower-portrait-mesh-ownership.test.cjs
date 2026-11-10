@@ -9,6 +9,8 @@ const rendererSource = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
 const captureSource = fs.readFileSync(path.join(ROOT,
   'tests/browser/tower-live-motion.spec.cjs'), 'utf8');
+const provenanceSource = fs.readFileSync(path.join(ROOT,
+  'public/infinite-tower-climb/visuals/mesh-provenance.mjs'), 'utf8');
 
 function realProbeFixture() {
   const first = rendererSource.indexOf('  // P0 source-authentic guardian film:');
@@ -17,7 +19,11 @@ function realProbeFixture() {
   let rayCalls = 0, matrixUpdates = 0;
   const physicalMesh = {
     name: 'rigid-material-batch', isMesh: true, visible: true, type: 'Mesh',
-    geometry: { type: 'BufferGeometry' },
+    geometry: { type: 'BufferGeometry', userData: { originalTriangleOwners: [
+      { startFace: 0, endFace: 12, authoringPath: ['tower-core'], authoringGeometry: 'LatheGeometry', authoringInstance: null },
+      { startFace: 12, endFace: 21, authoringPath: ['clockwork-open-rim-fragment',
+        'clockwork-upper-right-shoulder'], authoringGeometry: 'TorusGeometry', authoringInstance: null },
+    ] } },
     material: { name: 'ClockworkCaseAlloy', visible: true, opacity: 1,
       color: { getHexString: () => 'abcdef' } },
     parent: { name: 'floor:8:clockwork', visible: true, parent: null },
@@ -48,6 +54,10 @@ function realProbeFixture() {
     scene:{children:[physicalMesh],updateMatrixWorld:()=>{matrixUpdates++;}},
   };
   const context = vm.createContext(sandbox);
+  // Load the SAME pure browser module, without replacing its behavior with
+  // an invented ownership stub. The VM executes only the source module's
+  // two exported pure functions, then the actual shipped owner observer.
+  vm.runInContext(provenanceSource.replaceAll('export function ', 'function '), context);
   const observe = vm.runInContext(rendererSource.slice(first,end) +
     '\nobservedCameraMeshOwners',context);
   return { observe, snapshot, sandbox, get rays(){return rayCalls;},
@@ -64,6 +74,12 @@ test('actual scene probe identifies source-ticked post-batch physical triangles,
   assert.equal(observed[0].probes[0].hits[0].path[0],'rigid-material-batch');
   assert.equal(observed[0].probes[0].hits[0].path[1],'floor:8:clockwork');
   assert.equal(observed[0].probes[0].hits[0].faceIndex,19);
+  const owned=observed[0].probes[0].hits[0].originalAuthoring;
+  assert.equal(owned.authoringPath[0], 'clockwork-open-rim-fragment',
+    'source-ticked ray hit must now identify original authored rim');
+  assert.equal(owned.authoringGeometry,'TorusGeometry');
+  assert.equal(owned.partFaceIndex,7);
+  assert.equal(owned.triangleCount,9);
   assert.equal(observed[0].probes[0].hits[0].material,'ClockworkCaseAlloy');
   assert.equal(probe.rays,4,'four known film rays, no unbounded diagnostic scan');
   // Diagnostics is also consumed by the production app every host poll.
