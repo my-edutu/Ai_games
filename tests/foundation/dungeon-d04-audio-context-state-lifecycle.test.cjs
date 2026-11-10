@@ -99,3 +99,41 @@ test('late audio context attachment is observed once; missing event API degrades
  assert.equal(g.enableAudioFromGesture(),true);
  g.dispose();
 });
+
+test('a sword already staged for a render receipt is cancelled on context suspension',async()=>{
+ const {createPhysicalCombatFeedback}=await load(),ctx=audioContext(),f=fixture();
+ const d=createPhysicalCombatFeedback({...f,ctx,requirePresentedFrame:true});
+ d.acceptSnapshot(state(10));
+ d.enableAudioFromGesture();
+ d.acceptSnapshot(state(11,'attack'));
+ d.advance(.016,.016);
+ assert.equal(d.stats().awaitingPresentation,1);
+ ctx.change('suspended');
+ assert.equal(d.stats().awaitingPresentation,0);
+ assert.equal(d.stats().audioOptedIn,true);
+ ctx.change('running');
+ assert.equal(d.acknowledgePresentedFrame('stale-submission',0),0);
+ assert.equal(f.heard.length,0);
+ d.acceptSnapshot(state(12,'attack'));
+ d.advance(.016,.016);
+ assert.equal(d.acknowledgePresentedFrame('new-submission',0),1);
+ assert.deepEqual(f.heard.map(x=>x.tick),[12]);
+ d.dispose();
+});
+test('a deliberate persisted mute is not reauthorized by browser resume',async()=>{
+ const {createPhysicalCombatFeedback}=await load(),ctx=audioContext(),f=fixture();
+ const d=createPhysicalCombatFeedback({...f,ctx,requirePresentedFrame:true});
+ d.acceptSnapshot(state(10));
+ d.enableAudioFromGesture();
+ d.muteAudio();
+ assert.equal(d.stats().preferredMuted,true);
+ ctx.change('suspended');
+ ctx.change('running');
+ assert.equal(d.stats().audioInterruptions,0);
+ assert.equal(d.stats().audioOptedIn,false);
+ assert.equal(d.stats().preferredMuted,true);
+ d.acceptSnapshot(state(11,'attack'));
+ assert.equal(submit(d,'muted-submission'),0);
+ assert.equal(f.heard.length,0);
+ d.dispose();
+});
