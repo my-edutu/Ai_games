@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T17:34:00.000Z",
+  "updatedAt": "2026-11-10T18:36:32.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass250b: Exact 9065da source-bound CI still failed before browser capture, 112/113, because the remaining far/diagonal treadle tests used sign-sensitive strictEqual(-0,+0) at line 41. All remaining physically flat rest checks now require strict abs(angle)<1e-12, preserving exact raised height, hidden/reduced-motion privacy and unchanged visual/resource thresholds. New exact-HEAD CI/screenshots and Nintendo judgment PENDING; Draft PR open."
+    "summary": "Pass251: Previous exact-source 183e84ac WebGL succeeded and all 37 authentic image hashes verified; 320/390 pressure envelopes meet strict unchanged ±0.95 and six-run resource workflow passed. Unblinded native picture review rejects the spatially disconnected floor treadle vs ivory jaws. New paired modeled transmission rails and truly timed sliding drive bars implemented; new HEAD WebGL visual/CI/independent fixed-Nintendo review NOT YET certified. Draft PR open, no merge/deploy."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass251 candidate: 37/37 Pass250b exact-source original PNG hashes verified; native 320/390 moving jaw framing and strict six-run workflow green, but separate treadle and jaw look disconnected. Add a modeled two-rail floor-to-jaw drive train with earned public contact retract/pitch, real withdrawal/hidden/reset, reduced motion and strict inside-tile swept bounds. New-source visual/CI and Nintendo independent critique pending; no victory.",
     "Pass250b: Latest exact-HEAD WebGL 42865442141 failed at pre-browser far/diagonal signed-zero check (112/113). Corrected BOTH remaining strictly sign-sensitive zero-angle checks to physical abs(angle)<1e-12; earlier withdrawal, hidden and reduced-motion checks preserved. Strict new source/WebGL verdict PENDING, no visual win claimed.",
     "Pass250: Fix actual current-head 112/113 source CI / 746/747 whole Node blockage from hidden pressure-treadle signed-zero while enforcing strict zero-angle rest, plus reduced-motion hidden privacy regression. Prior real native frames remain unchanged evidence; new full-source WebGL and six-reset resource verification PENDING. No Nintendo bar victory.",
     "Pass248: 35/35 original exact-source full-size PNG/JSON SHA pairs verified; key collected HUD and real pressure warning sequence now shown. New production pressure treadle replaces eight inert floor clamp ornaments and physically depresses only on the real public near-contact clock before shutters/jaws; reduced/hidden/retreat/reset and resource constraints preserved. New-head rendered approval PENDING; Nintendo parity UNMET.",

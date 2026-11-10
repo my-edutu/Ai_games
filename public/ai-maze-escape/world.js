@@ -2063,7 +2063,38 @@ export function createMazeWorld(options = {}) {
       mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
       relays.push({object: relay, side});
     }
-    trapSignals.push({carriage, diaphragms, shutters, iris, relays, treadle, cell: c.cell, x: p.position.x, z: p.position.z, pressureSince: null, pressureLastTime: null});
+    // The existing treadle was visually isolated from the tall jaw hardware
+    // in authenticated 320/390px full-frame WebGL. Give this ONE disclosed
+    // mechanism a rooted physical transmission: paired bronze tracks run from
+    // the forward treadle into the mast, and broad sliding gold pushrods pull
+    // toward the jaws as the treadle actually depresses. These are modeled
+    // connected mechanical parts, NOT extra hazards, guide arrows, lighting
+    // signals, fabricated collisions or public route hints. Their complete
+    // swept envelope remains inside the original known trap tile.
+    const transmission = new THREE.Group();
+    transmission.name = 'Published tide-shear floor-to-jaw transmission ' + c.cell;
+    transmission.position.set(0, .055, .44);
+    p.add(transmission);
+    const driveBars = [];
+    for (const side of [-1, 1]) {
+      // The dark continuous runner underlines the one earned pressure action;
+      // the pale inset gives it readable depth without luminous VFX.
+      mesh(transmission, bevel, darkMetal, side * .50, .020, -.23,
+        .26, .085, 1.32);
+      mesh(transmission, bevel, seaGlass, side * .50, .070, -.23,
+        .14, .026, 1.22);
+      const drive = new THREE.Group();
+      drive.name = 'Published tide-shear sliding drive bar ' + c.cell + ' ' + side;
+      drive.position.set(side * .50, .135, 0);
+      transmission.add(drive);
+      mesh(drive, bevel, gold, 0, .005, -.18, .19, .11, .76);
+      mesh(drive, bevel, danger, 0, .083, .14, .23, .06, .24);
+      mesh(drive, cylinder, darkMetal, 0, .024, -.48, .17, .15, .17);
+      driveBars.push({object: drive, side});
+    }
+    trapSignals.push({carriage, diaphragms, shutters, iris, relays, treadle,
+      driveBars, cell: c.cell, x: p.position.x, z: p.position.z,
+      pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
     // They unfold in response to Pip's ACTUAL published presentation position
     // near this disclosed hazard; they never modify the authoritative engine.
@@ -2449,6 +2480,16 @@ export function createMazeWorld(options = {}) {
       signal.treadle.position.y = .035 - .055 * treadleStroke;
       signal.treadle.rotation.x = -.12 * (reducedContact
         ? .45 : nearContact ? shutterBeat : 0);
+      // The pushrods are mechanically slaved to the SAME witnessed treadle
+      // phase, retracting BEFORE the tall shutter and jaw finish their stroke.
+      // Absolute transforms guarantee clean withdrawal, hidden-only privacy,
+      // restart and stable reduced-motion contact with no stale virtual hit.
+      for (const bar of signal.driveBars) {
+        bar.object.position.z = -.26 * treadleStroke;
+        bar.object.position.y = .135 - .035 * treadleStroke;
+        bar.object.rotation.x = -.11 * (reducedContact
+          ? .45 : nearContact ? shutterBeat : 0);
+      }
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
         relay.object.position.y = .28 + (reducedContact ? .04 : .15 * pistonRelay);
