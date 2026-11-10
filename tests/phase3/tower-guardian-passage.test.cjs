@@ -730,25 +730,30 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       gateMesh.getMatrixAt(i,pose);
       pose.decompose(position,rotation,scale);
       bounds.push({x:position.x,y:position.y,
-        width:Math.abs(scale.x),height:Math.abs(scale.y)});
+        width:Math.abs(scale.x),height:Math.abs(scale.y),
+        tilt:new THREE.Euler().setFromQuaternion(rotation).z});
     }
     return bounds;
   }
   try {
     assert.equal(gate.lock(living,anchor),true);
     const first = bands();
-    assert.ok(first.length>=16 && first.length<=40,
-      'one bounded instanced full-height physical-looking energy grate');
+    assert.ok(first.length>=12 && first.length<=18,
+      'one bounded instanced source-locked open-air high-voltage assembly');
     assert.ok(first.every(b=>b.width*b.height<4),
       'no single 6-by-14 translucent curtain can obscure live combat');
     const uprights=first.filter(b=>b.height>13.9 && b.width<.25);
     assert.ok(uprights.length>=2, 'vertical bars cover the source-solid airborne lock');
     let rails=first.filter(b=>b.width>5.5 && b.height<.22)
       .sort((a,b)=>a.y-b.y);
-    assert.ok(rails.length>=12,'clear intervals with repeated closure cues');
-    assert.ok(rails[0].y<.8 && rails.at(-1).y>13.2);
-    assert.ok(rails.every((b,i)=>i===0 || b.y-rails[i-1].y<1.25),
-      'never imply a visually open large enough climb-through passage');
+    assert.ok(rails.filter(b=>b.y<4.7).length>=5,
+      'walkable doorway has tightly spaced blocking field bars');
+    assert.ok(rails.at(-1).y>13.2,
+      'full source exclusion height remains visibly connected to its top spar');
+    assert.equal(rails.filter(b=>b.y>5&&b.y<13).length,0,
+      'airborne actors are no longer hidden by screen-wide cyan rungs');
+    assert.ok(first.filter(b=>b.height>6&&Math.abs(b.tilt)>.2).length>=2,
+      'crossed physical energy conduits visibly forbid high bypass');
     // The host source can alter the real lock height during a living encounter.
     // A prior pose must never leave a misleading lower, visibly passable gate.
     const taller={...living,tick:101,guardianSealHeight:200000};
@@ -758,8 +763,10 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       'live source height changes must extend to the current locked envelope');
     rails=high.filter(b=>b.width>5.5 && b.height<.22)
       .sort((a,b)=>a.y-b.y);
-    assert.ok(rails.at(-1).y>19.2 && rails.every((b,i)=>
-      i===0 || b.y-rails[i-1].y<1.25));
+    assert.ok(rails.at(-1).y>19.2);
+    assert.equal(rails.filter(b=>b.y>5&&b.y<19).length,0);
+    assert.ok(high.filter(b=>b.height>14&&Math.abs(b.tilt)>.2).length>=2,
+      'live changed source height also lengthens the crossed anti-bypass conductors');
     assert.equal(JSON.stringify(living),unchanged,
       'renderer never mutates authentic fixed-step guardian state');
   } finally {gate.dispose();}
