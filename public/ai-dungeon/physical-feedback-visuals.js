@@ -608,8 +608,22 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  // changed action, died or lost its actual wrist before render submission.
  // This is only pose provenance, NEVER physical contact or attacker proof.
  function hasAuthenticatedSwingPose(cue){
-  return !disposed&&cue?.kind==='swing'&&cue?.visual==='trail'&&
-   cue?.proof==='authority-attempt-not-hit'&&anchor(cue,'trail')!==null;
+  if(disposed||cue?.kind!=='swing'||cue?.visual!=='trail'||
+   cue?.proof!=='authority-attempt-not-hit')return false;
+  const hand=anchor(cue,'trail');
+  if(!hand)return false;
+  // An old measured ribbon can remain drawable when the actual skinned rig
+  // changes between the animation update and the WebGL receipt. A replacement
+  // wrist at the same position MUST NOT certify the original swing sound.
+  // New motion may earn its own cue after two samples on one stable bone.
+  for(const slot of pools.get('trail')?.slots??[]){
+   if(slot?.cue?.id!==cue.id||!slot.measuredPath)continue;
+   return Boolean(slot.lastHand?.sourceBone&&
+    slot.lastHand.sourceBone===hand.sourceBone);
+  }
+  // Standalone source query: the independent receipt gate still requires a
+  // drawable, measured retained slot. No contact or victim is inferred.
+  return true;
  }
  function hasAuthenticatedReleasePose(cue){
   if(disposed||cue?.proof!=='authority-action')return false;
