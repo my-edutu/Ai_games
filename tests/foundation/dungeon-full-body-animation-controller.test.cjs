@@ -2016,3 +2016,60 @@ test('original source Walking_A defers a micro-root entry until witnessed travel
  assert.match(model,/if\(nativeWalkEntry\.defer\)return;/,
   'only the exact original source action is deferred, not authoritative movement');
 });
+
+test('original source Idle does not inherit an unearned parallel full-body stride during sub-24mm walk entry or slow-frame arrival',async()=>{
+ const {planNativeSourceIdleGaitFrame:handoff}=await load();
+ assert.equal(typeof handoff,'function',
+  'the original 41-joint source Idle/Walking_A boundary needs one connected native gait clock');
+ const sourceIdle={mode:'move',sourceAction:'idle',sourceClipName:'Idle',
+  pendingMeters:.005,groundedMoving:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  frameDelta:.05,frameInterval:.36};
+ const held=handoff(sourceIdle);
+ assert.equal(held.suppress,true,
+  'source Walking_A has not started: do not swing skinned thighs/soles or the pelvis twice on 5mm real travel');
+ assert.equal(held.releaseDelta,.05,'entry hold may not manufacture extra elapsed source motion');
+ assert.equal(handoff({...sourceIdle,sourceAction:'guard'}).suppress,true,
+  'a real guard-to-walk micro-entry keeps the same witnessed original source foot');
+ for(const overridden of [
+  {mode:'idle'},{mode:'attack'},{sourceAction:'move'},
+  {sourceClipName:'Walking_A'},{sourceClipName:'NoRig'},
+  {pendingMeters:0},{pendingMeters:.024},{pendingMeters:NaN},
+  {pendingMeters:-1},{groundedMoving:false},{alive:false},
+  {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true}
+ ])assert.equal(handoff({...sourceIdle,...overridden}).suppress,false,
+  'a stale or unsupported Idle source cannot conceal legitimate motion '+JSON.stringify(overridden));
+ const release=handoff({...sourceIdle,mode:'idle',pendingMeters:0,
+  groundedMoving:false,frameDelta:.05,frameInterval:.36});
+ assert.equal(release.suppress,false);
+ assert.equal(release.releaseDelta,.09,
+  'a 360ms real GLB display should not drag a stopped imported Idle gait through seven 50ms pseudo-frames');
+ assert.equal(handoff({...sourceIdle,mode:'guard',pendingMeters:0,
+  groundedMoving:false}).releaseDelta,.09,
+  'guard arrival uses the same source pelvis-to-sole visible-frame deceleration');
+ assert.equal(handoff({...sourceIdle,mode:'idle',pendingMeters:0,
+  groundedMoving:false,frameDelta:.016,frameInterval:.016}).releaseDelta,.016,
+  'normal 60Hz release must keep original native 160ms gait cadence');
+ for(const bad of [{frameInterval:NaN},{frameInterval:3},
+  {frameInterval:0},{frameDelta:NaN},{frameDelta:.35},{visible:false},
+  {teleport:true},{reducedMotion:true},{alive:false}])
+  assert.equal(handoff({...sourceIdle,mode:'idle',pendingMeters:0,
+   groundedMoving:false,...bad}).releaseDelta,0,
+   'broken or unsupported original frame clocks may not advance an invented gait '+JSON.stringify(bad));
+ const rig=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8')).toString('base64'));
+ const leaked=rig.advanceRigGait(0,0,.005,false,.016);
+ const protectedPose=rig.advanceRigGait(0,0,.005,held.suppress,held.releaseDelta);
+ assert.ok(leaked.weight>.5,'the old unguarded 5mm independent stride visibly inherits at least half-weight');
+ assert.deepEqual(protectedPose,{phase:0,weight:0},
+  'authentic Idle keeps sole, pelvis and source weapon-supporting shoulders quiet during the deferred clip');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planNativeSourceIdleGaitFrame\(/,
+  'the original Three.js imported rig must run the gait owner on every real visual frame');
+ assert.match(model,/const hardStop=[\s\S]{0,320}\|\|sourceIdleHandoff\.suppress/,
+  'no old sine-driven full-body gait may bypass the original Walking_A micro-entry hold');
+ assert.match(model,/advanceRigGait\(actor\.rigGaitPhase,actor\.rigGaitWeight,[\s\S]{0,140}sourceIdleHandoff\.releaseDelta\)/,
+  'the actual imported pelvis and ankle deceleration must consume the real bounded frame clock');
+ assert.match(model,/sourceIdleHandoffHeld:/,
+  'on-demand original skinned-rig evidence must expose the source pose handoff without runtime skin scanning');
+});
