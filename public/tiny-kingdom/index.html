@@ -18154,11 +18154,19 @@ window.addEventListener('blur',()=>{
 document.addEventListener('click',e=>{
  if(streetWalk&&e.target.closest('#focus,#camera,#workday-live,#workday-watch,#delivery-follow,[data-scenic],#atlas-map'))setStreetWalk(false);
 },true);
+// W195: real incremental pointer travel, not cumulative displacement from
+// pointerdown. This capture listener precedes the orbit listener, which exits
+// in street mode. Always update both pointer coordinates before deciding
+// whether the physical pedestrian lens may rotate. Multi-touch is neutral.
 canvas.addEventListener('pointermove',e=>{
- if(!streetWalk||!dragging)return;
- streetYaw+=(e.clientX-lastX)*.005;
+ if(!streetWalk||!dragging||!freeOrbitPointers.has(e.pointerId))return;
+ const dx=e.clientX-lastX,dy=e.clientY-lastY;
+ freeOrbitPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ lastX=e.clientX;lastY=e.clientY;
+ if(freeOrbitPointers.size!==1)return;
+ streetYaw+=dx*.005;
  streetTilt=Math.max(streetPerspective==='workday'?-1.18:-.55,
-  Math.min(.55,streetTilt-(e.clientY-lastY)*.004));
+  Math.min(.55,streetTilt-dy*.004));
 },true);
 canvas.addEventListener('wheel',e=>{if(streetWalk){e.preventDefault();e.stopImmediatePropagation();}},{capture:true,passive:false});
 

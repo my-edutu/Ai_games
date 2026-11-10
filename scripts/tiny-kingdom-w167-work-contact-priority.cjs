@@ -11,7 +11,7 @@ assert(start>0&&end>start);
 const originalFunction=html.slice(start,end);
 assert(originalFunction.includes('visibleWorkContacts'));
 assert(html.includes('limited.sort((a,b)=>a.i-b.i)'));
-function simulate(working){
+function simulate(working,pinned=false){
  const people=Array.from({length:18},(_,i)=>({
   name:'Citizen '+i,score:i===0?0:i===10?.11:i===11?.105:.2-i*.006,
   working:working&&i===10,unloading:working&&i===11
@@ -19,7 +19,7 @@ function simulate(working){
  const frame={lens:{viewportWidth:390,viewportHeight:844,
   verticalDegrees:64,horizontalDegrees:35},tanVertical:.6,tanHorizontal:.38,
   eye:[0,4,10],forward:[0,0,-1],right:[1,0,0],up:[0,1,0]};
- const deps={people,streetWalk:false,streetEncounterName:'',follow:false,zoom:12,
+ const deps={people,streetWalk:false,streetEncounterName:'',follow:pinned,liveWorkday:false,zoom:12,
   selectedCitizen:0,citizenDetailCameraFrame:()=>frame,
   projectRealCitizenDetail:p=>({visible:p.score>0,heightFraction:p.score,screenX:0,screenY:0}),
   isMarketUnloading:p=>p.unloading,isWorkingAtSite:p=>p.working,
@@ -36,7 +36,10 @@ assert(worked.indices.has(10),'real in-view farmer gets detailed contact');
 assert(worked.indices.has(11),'real in-view unloader gets detailed parcel contact');
 assert.equal(worked.audit.visibleWorkContacts,2);
 assert.equal(worked.audit.detailedWorkContacts,2);
-assert(worked.indices.has(0),'selected person never omitted');
+assert(!worked.indices.has(0),'offscreen unpinned subject leaves full-detail budget for visible labor');
+const pinned=simulate(true,true);
+assert(pinned.indices.has(0),'real following retains its selected person');
+assert(pinned.indices.has(10)&&pinned.indices.has(11),'real harvest and unload stay prioritized');
 assert(worked.indices.has(1),'largest physical on-screen body protected');
 assert(!idle.indices.has(10)&&!idle.indices.has(11),'no fabricated work priority');
 assert.equal(worked.audit.population,18);
