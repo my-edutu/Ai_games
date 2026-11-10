@@ -197,13 +197,19 @@ export function assessSourceSoleFrameWindow(before,after,meta={}){
  const measured=measureSourceSoleGripContinuity(before,after);
  if(!measured.comparable)return unavailable(measured.reason);
  const root=measured.rootTravelMeters;
- if(!finite(root)||root>.35)return unavailable('skipped-or-large-root-motion');
+ // Original 1440px/390px WebGL clips can cover a REAL ~.44m root step
+ // between consecutive observed frames of the SAME authoritative tick.
+ // Discarding every >.35m sample hides the biggest viewer-perceived gait
+ // question. Preserve these bounded observations as unresolved evidence,
+ // NEVER as a sole plant, stable floor contact or IK authorization.
+ if(!finite(root)||root>.54)return unavailable('skipped-or-large-root-motion');
+ const rapidRoot=root>.35;
  const sides=['left','right'];
- const candidates=root>=.025?sides.filter(side=>
+ const candidates=root>=.025&&!rapidRoot?sides.filter(side=>
   measured.soleWorldDeltaMeters[side]<=.025&&
   measured.soleVerticalDeltaMeters[side]<=.015):[];
  const soleMoving=sides.some(side=>measured.soleWorldDeltaMeters[side]>.035);
- const classification=root>=.025?
+ const classification=rapidRoot?'rapid-root-travel-unresolved':root>=.025?
   candidates.length?'potential-plant':'no-observed-plant':
   root<=.008&&soleMoving?'stationary-source-sole-motion':'insufficient-root-travel';
  return Object.freeze({comparable:true,classification,

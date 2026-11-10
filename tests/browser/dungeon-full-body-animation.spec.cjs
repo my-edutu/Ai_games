@@ -285,7 +285,7 @@ for(const view of [
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
  const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
- const trace=[],stanceWindows=[];
+ const trace=[],stanceWindows=[],fastWalkWindows=[];
  let previous=null;
  for(const snap of sequence.states){
   stage.set(snap);
@@ -326,6 +326,36 @@ for(const view of [
    beforeLegOwnership:actor.nativeLegOwnership,
    afterLegOwnership:sameTickActor?.nativeLegOwnership??null,
    measurement:stanceWindow});
+  // Extended genuine licensed Walking_A trajectory. During at most two
+  // additional visible WebGL frames per witnessed walking tick, record the
+  // same imported clone's weighted soles without stepping simulation.
+  // This is explicit test-time evidence, never runtime skinning work or IK.
+  if(actor.mode==='move'&&sameTickActor?.mode==='move'){
+   let priorSource=sameTickActor,priorFrame=afterFrame;
+   for(let extra=0;extra<2;extra++){
+    await expect.poll(()=>page.evaluate(()=>
+     window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null),
+    {timeout:15000,intervals:[70,130,200,350]}).toBeGreaterThan(priorFrame);
+    const laterAudit=await nativeRigProof(page);
+    const laterSource=laterAudit.actors.find(a=>a.id===sequence.actorId);
+    const laterFrame=await page.evaluate(()=>
+     window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??null);
+    const observedTick=await page.evaluate(()=>
+     window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.tick??null);
+    expect(observedTick,'no extra authority tick may be invented').toBe(snap.tick);
+    const assessment=assessSourceSoleFrameWindow(priorSource,laterSource,{
+     beforeFrame:priorFrame,afterFrame:laterFrame,
+     beforeTick:snap.tick,afterTick:observedTick,visible:true});
+    expect(assessment.ikAccepted,'a source-sole witness is not tested IK').toBe(false);
+    fastWalkWindows.push({tick:snap.tick,beforeFrame:priorFrame,afterFrame:laterFrame,
+     beforeMode:priorSource.mode,afterMode:laterSource?.mode??null,
+     beforeRootWorld:priorSource.rootWorld,afterRootWorld:laterSource?.rootWorld??null,
+     beforeSkinnedSoles:priorSource.soleVertexWorld,
+     afterSkinnedSoles:laterSource?.soleVertexWorld??null,
+     measurement:assessment});
+    priorSource=laterSource;priorFrame=laterFrame;
+   }
+  }
 
   if(soleGrip){
    expect(soleGrip.comparable,'same original GLB and skinned source soles').toBe(true);
@@ -390,9 +420,11 @@ for(const view of [
  const visibleFrameEvidence={seed:sequence.seed,actorId:sequence.actorId,
   viewport:view.name,source:'same-tick-real-mixer-sole-window',
   comparisonCount:stanceWindows.length,
-  witnessedPotentialPlants:stanceWindows.filter(w=>w.measurement.classification==='potential-plant').length,
-  caveat:'These are original skinned-vertex observations, NOT validated flat-foot contact, IK, or proven absence of skating.',
-  stanceWindows};
+  rapidUnresolved:stanceWindows.filter(w=>w.measurement.classification==='rapid-root-travel-unresolved').length,
+  extraGenuineMovingFramePairs:fastWalkWindows.length,
+  witnessedPotentialPlants:[...stanceWindows,...fastWalkWindows].filter(w=>w.measurement.classification==='potential-plant').length,
+  caveat:'Rapid original root travel remains unresolved, NOT certified skating; weighted sole vertices are NOT flat-foot ground contact, IK, or proof of a planted foot.',
+  stanceWindows,fastWalkWindows};
  fs.writeFileSync('artifacts/dungeon-full-body-native-stance-window-'+view.name+'.json',
   JSON.stringify(visibleFrameEvidence,null,2));
  await test.info().attach('same-tick-real-mixer-sole-window',{
