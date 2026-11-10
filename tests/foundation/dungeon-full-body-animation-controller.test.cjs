@@ -1515,3 +1515,40 @@ test('authentic walking source planted move-to-guard hands stride support into n
  assert.match(model,/sourceWalkFrozen:\s*Boolean\(actor\.rigGuardPlantHandoff\)/,
   'source guard handoff must not be fabricated from a generic guard label');
 });
+
+
+test('witnessed guarded stance releases through a genuine walking start without snapping the original pelvis-to-weapon support',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const rig=await import('data:text/javascript;base64,'+
+  Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8')).toString('base64'));
+ const unit=(action,hp=120)=>({id:'defender-1',kind:'vanguard',action,actionTick:91,hp,maxHp:120});
+ const next=(before,action,patch={})=>step(before,{
+  unit:unit(action),grounded:{moving:action==='move',clipAction:action==='move'?'move':'idle'},
+  actionAge:.12,frameDelta:.05,frameInterval:.05,visible:true,...patch
+ });
+ let guard=next(null,'guard');
+ for(let i=0;i<4;i++)guard=next(guard,'guard');
+ assert.ok(guard.guardBlend>.99,'original Idle source is wearing the fully supported pelvis/feet/arms guard');
+ const walking=next(guard,'move');
+ assert.equal(walking.mode,'move');assert.equal(walking.owner.locomotion,true);
+ assert.equal(walking.owner.guard,false,'guard is only fading visual pose, never a walking gameplay action');
+ assert.ok(walking.guardBlend>.4&&walking.guardBlend<1,
+  'outgoing planted knee/hip/shoulder/elbow guard cannot disappear in the first lawful Walking_A frame');
+ const component=p=>[p.hips.pitch,p.chest.pitch,p.head.pitch,
+  ...['left','right'].flatMap(side=>[p.legs[side].upper,p.legs[side].lower,p.legs[side].foot,
+   p.shoulders[side].pitch,p.shoulders[side].roll,p.elbows[side]])];
+ const prior=component(rig.planNativeGuardPose(guard.guardBlend));
+ const entered=component(rig.planNativeGuardPose(walking.guardBlend));
+ assert.ok(entered.every((n,i)=>Number.isFinite(n)&&Math.abs(n-prior[i])<.11),
+  'connected original source pelvis/ankles and weapon-supporting arms must not lose the guard pose in a single moving frame');
+ let advancing=walking;
+ for(let i=0;i<4;i++)advancing=next(advancing,'move');
+ assert.equal(advancing.guardBlend,0,'the original walking source wins after a bounded defensive release');
+ assert.equal(advancing.owner.guard,false);
+ assert.equal(next(guard,'attack').guardBlend,0,'new attack interrupts the obsolete guard immediately');
+ assert.equal(next(guard,'move',{teleport:true}).guardBlend,0);
+ assert.equal(next(guard,'move',{reducedMotion:true}).guardBlend,0);
+ assert.equal(next(guard,'move',{unit:unit('move',0)}).guardBlend,0);
+ assert.equal(next(guard,'move',{damageBeat:{id:'defender-1',kind:'vanguard',damage:5,maxHp:120,age:.08,eventTick:91}}).guardBlend,0);
+ assert.equal(next(guard,'move',{evasionBeat:{id:'defender-1',kind:'vanguard',tick:91,dx:1,dz:0,age:.1}}).guardBlend,0);
+});
