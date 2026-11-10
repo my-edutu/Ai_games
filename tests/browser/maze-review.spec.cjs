@@ -1948,12 +1948,18 @@ test('source-bound Tide-Shear pressure court and autonomous withdrawal render at
           expect(physicalBeat.progress,
             'selected PUBLIC tide-shear must complete its visible pressure beat').toBeGreaterThanOrEqual(.68);
           expect(physicalBeat.jawRadians,
-            'selected original jaw must physically open, not a different hazard').toBeGreaterThanOrEqual(.60);
+            'selected original jaw must physically articulate, not a different hazard').toBeGreaterThanOrEqual(.60);
+          expect(physicalBeat.inwardShearRadians,
+            'real original paired pressure talons must shear INWARD around the known trap, not splay like ornamental spikes').toBeGreaterThanOrEqual(.60);
         }else{
           expect(physicalBeat.progress,
             'approach/withdrawal must show the real mechanism releasing').toBeLessThanOrEqual(.20);
           expect(physicalBeat.jawRadians,
             'approach/withdrawal must return to a low real hinge angle').toBeLessThanOrEqual(.21);
+          expect(physicalBeat.inwardShearRadians,
+            'released public pressure talons must return near upright without swinging outward').toBeGreaterThan(0);
+          expect(physicalBeat.inwardShearRadians,
+            'released public pressure talons must return near upright').toBeLessThanOrEqual(.21);
         }
         expect(native.diagnostic.explorerModelFullyInFrame,
           phase+' real Pip must remain fully in native portrait').toBe(true);
