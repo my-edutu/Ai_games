@@ -30,8 +30,8 @@ test('selects the same real guardian episode in authoritative order, not a splic
  const events=[
    event('guardian-hp-decrease',9.5),event('guardian-hp-decrease',18.3),
    event('guardian-source-defeated',22),event('source-supported-gate-approach',22.1),
-   event('guardian-source-physical-threshold',22.49,{fromFloor:8,toFloor:9}),
-   event('guardian-earned-floor-nine-handoff',22.49),
+   event('guardian-source-physical-threshold',22.49,0,{fromFloor:8,toFloor:9}),
+   event('guardian-earned-floor-nine-handoff',22.49,0,{fromFloor:8,toFloor:9}),
    event('floor-transition',22.49,0,{fromFloor:8,toFloor:9}),
    event('guardian-source-defeated',61.2,1),
    event('source-supported-gate-approach',62,1)
