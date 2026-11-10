@@ -148,9 +148,9 @@
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — actual guardian transmission gallery and two-body camera composition changed in source, full-motion acceptance still unavailable",
     "promise": "One readable autonomous real 3D tower ascent across true source-selected landing, moving machinery, stage-lit live hazards/guardian, realistic collision/animation/audio feedback, progression and genuine outcome/restart with minimal HUD; no false safety claim.",
-    "nextDecision": "Inspect source-pinned full-motion post-gallery guardian, physical gateway, floor-nine, outcome/restart and exact-HEAD CI before leaving P0.",
+    "nextDecision": "Check exact-HEAD post-5f7d source CI + original 10-job film: guardian foreground body masking at 12–24s in 390x844 and 960x600, stable physical camera / landing, real crusher/HP0/gateway/floor9/restart, then supported device and independent blinded reviews. Stay P0.",
     "rejectedMicroMilestones": "Unit tests, CI green checks, commits, screenshots, model mockups and engineering self-reviews are never a Gauntlet quality win.",
-    "biggestRemainingExperienceGap": "Actual portrait action still suffers close-spaced foreground turquoise/bronze gateway obstruction; actual source-authentic guardian-hit→defeat→grounded-gate→floor-nine video-visible cause/effect and source-to-pixel delay require unbiased continuous verification.",
+    "biggestRemainingExperienceGap": "Original source 9095a5b0, 390x844 t20: real near-camera giant guardian armor/hammer obscures part of the skinned climber despite both character centres in frame; source event→native visible pixel proof and full continuous combat/gateway/restart comparison missing.",
     "unverifiedImplementationBranchHead": "3936f68c2c6b7136431be559e8950c63d8b0e4c6",
     "currentVerticalSlice": "Physically earned ascent → guardian/crusher victory → full-body cap crossing → same-X grounded floor-nine arrival → playable onward route and true outcome/restart. No experience acceptance yet.",
     "biggestGap": "Previous authentic 390x844 boss footage showed large foreground clock machinery blocking the climber and guardian near native 16–18s. Existing outer ring apertures alone still lacked verified footage. New physical negative-space gear and power-rack geometry reduces the actual solid middle in source, but current film is NOT EVALUATED.",
@@ -7290,5 +7290,34 @@
     },
     "supportedDeviceFrameTailsAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Run original exact-HEAD 10-job capture with reviewer package; actually inspect source-to-visible guardian victory, crusher, grounded threshold floor9 and result/restart in full normal-speed desktop+portrait. Measure if source-to-raster lag or oppressive bronze/cyan gate is dominant; implement meaningful real 3D/presentation fix and recapture before blind reviews. Stay P0."
+  },
+  "p0OriginalGuardianForegroundBody20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadAssessorVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedExactHead": "9095a5b0f1535e099b6c55e49ce86c7c9721d559",
+    "originalNativeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42888509021",
+    "exactHeadOriginal9or10Jobs": "10/10 success at original source SHA; original matrix 8 plus source witness and original event-pair; NOT video quality acceptance",
+    "originalGuardianReviewerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42888509021/artifacts/13796934078",
+    "originalFullMotionEvidence": "4 byte-identical full 60+s source-original WebMs in 2 viewports and A/B reviewer package, 8/8 calibrated clocks; no matched pixel confirmation",
+    "originalExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42888508912 — SUCCESS safety veto only",
+    "dominantNativeVideoDefect": "Actual original 390x844 candidate native 12–24s shows source-real duel but unstable small/split bodies; ~20s giant near-camera guardian armor/weapon partly hides live skinned climber. Foreground corporeal depth, not just distant decorative clock, is the systemic shot failure.",
+    "sourceProgression": "Original candidate guardian HP reaches 0 near source tick 443 and authentic floor8→9 at tick 451; pixel-visible causal gateway contact not independently proven.",
+    "change": "Physical whole-body depth-aware two-actor camera planning and existing source camera continuity: penalizes foreground boss body blocking climber; source-complete projected rectangles, safe prior-view release; currently submitted-frame retained body envelopes veto an unsafe orbit hold. No authority/AI/guardian HP/real hazards/deck/gateway/snapshot changes.",
+    "codeSha": "5f7d204b7035478d27fa3bdd458cdb30afcc1966",
+    "focusedTestSha": "14f6cca5973f29c3bdeca7091b6fcf8dab537987",
+    "reviewFile": "docs/reviews/2026-11-10-tower-pr68-live-guardian-full-body-camera-occlusion.md",
+    "postChangeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42898205208 — PENDING at ledger record, do not claim passed",
+    "postChangeNormalSpeedVideo": "NOT EVALUATED; exact SHA 8+2 source-pin recapture required",
+    "matchedSourceToPixel": "NOT EVALUATED",
+    "actualDevicePerformance": "NOT EVALUATED — p50/p95/p99 and memory unmeasured on actual target devices",
+    "independentBlindReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "fullMotionPaired": false,
+    "biggestGap": "Frame-coherent readable hero + living opponent in both viewports with no nearby guardian body covering actual combat and no frantic camera orbit; source grounded threshold crossing still visually unproved.",
+    "nextHighestImpactAction": "Inspect new immutable 10-job original A/B full film with event windows at 12–26s portrait and desktop. If foreground hero remains hidden or smoothness degrades, redesign physical duel staging/camera separation together rather than adding minor cosmetics. Then audit moving, ascent, real guardian/crusher, HP0 gate, floor9, terminal/restart, on actual hardware with true independent blind reviewers."
   }
 }
