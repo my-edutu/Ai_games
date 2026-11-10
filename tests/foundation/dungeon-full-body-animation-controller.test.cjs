@@ -1653,3 +1653,58 @@ test('a late ORIGINAL Walking_A arrival freezes only after real remaining root t
  assert.match(model,/shouldFreezeDeferredImportedWalk\(/,
   'the actual Three.js mixer must consult the deferred real-root stop gate');
 });
+
+
+test('the original fading Walking_A slows its skinned shoe cycle with REAL late-arrival travel, without delaying Idle fade',async()=>{
+ const {planImportedWalkExitBrake:brake}=await load();
+ assert.equal(typeof brake,'function','late arrival needs a bounded source-only moving-foot brake');
+ const input={targetMode:'idle',currentMode:'idle',clipName:'Walking_A',
+  sourceWeight:.35,sourceRunning:true,sourcePaused:false,
+  groundedTravel:.0055,alive:true,visible:true,teleport:false,reducedMotion:false};
+ const tiny=brake(input),normal=brake({...input,groundedTravel:.065});
+ assert.ok(tiny>0&&tiny<.20,'5.5 mm root settling cannot advance a full-speed original ankle cycle');
+ assert.equal(normal,1,'genuine large visual root travel must retain its original gait');
+ assert.ok(brake({...input,groundedTravel:.026})>tiny);
+ assert.equal(brake({...input,targetMode:'guard',currentMode:'guard'}),tiny,
+  'legitimate defensive arrival also decelerates one outgoing licensed source clip');
+ for(const invalid of [
+  {targetMode:'move'},{currentMode:'attack'},{targetMode:'guard'},
+  {sourceWeight:0},{sourceWeight:NaN},{sourceWeight:1.1},
+  {sourceRunning:false},{sourcePaused:true},{clipName:'Idle'},
+  {clipName:'2H_Ranged_Shoot'},{groundedTravel:-.001},
+  {groundedTravel:NaN},{groundedTravel:Infinity},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true}
+ ])assert.equal(brake({...input,...invalid}),null,
+  'invalid original source, action, visibility or interruption must never inherit walking momentum');
+ const THREE=require('three');
+ function simulatedFade(rate){
+  const foot=new THREE.Object3D();
+  const walkClip=new THREE.AnimationClip('Walking_A',1,[
+   new THREE.NumberKeyframeTrack('.rotation[x]',[0,.5,1],[0,.8,0])
+  ]),idleClip=new THREE.AnimationClip('Idle',1,[
+   new THREE.NumberKeyframeTrack('.rotation[x]',[0,.5,1],[0,0,0])
+  ]);
+  const mixer=new THREE.AnimationMixer(foot);
+  const walk=mixer.clipAction(walkClip).play();
+  mixer.update(.13);
+  const idle=mixer.clipAction(idleClip).play();
+  idle.crossFadeFrom(walk,.23,false);
+  const previous=walk.time,originalSpeed=walk.getEffectiveTimeScale();
+  walk.setEffectiveTimeScale(originalSpeed*rate);
+  mixer.update(.05);
+  walk.setEffectiveTimeScale(originalSpeed);
+  return {sourceDelta:walk.time-previous,fadeWeight:walk.getEffectiveWeight()};
+ }
+ const fast=simulatedFade(1),braked=simulatedFade(tiny);
+ assert.ok(braked.sourceDelta<fast.sourceDelta*.20,
+  'the licensed skinned foot cycle must really slow through a Three.js fade');
+ assert.ok(Math.abs(fast.fadeWeight-braked.fadeWeight)<.001,
+  'Idle crossfade must continue normally despite original Walking_A speed reduction');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planImportedWalkExitBrake\(\{/,
+  'actual renderer must calculate brake from witnessed root delta');
+ assert.match(model,/walkArrivalPendingAction\.sourceAction|arrival\.sourceAction/,
+  'only the authenticated fading Walking_A may be retimed');
+ assert.match(model,/setEffectiveTimeScale\(.*exitRate|setEffectiveTimeScale\(.*walkExitRate/,
+  'original outgoing source action must receive the temporary braking rate');
+});
