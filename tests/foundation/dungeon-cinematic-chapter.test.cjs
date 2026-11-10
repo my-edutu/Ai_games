@@ -396,3 +396,38 @@ test('the live cinematic camera keeps coherent focus and physically fits both tr
  assert.match(app,/planCriticalSubjectFit\(subjects,camera.aspect,wantedFov\)/);
  assert.match(app,/const point=camera.worldToLocal\(actor.root.localToWorld/);
 });
+
+
+test('a sealed Warden films the ACTUAL distant guardian melee rather than the invulnerable boss',async()=>{
+ const {planCinematicShot,planReadableExpeditionLens}=await planner(),s=scene();
+ // The ranger stands closest to the boss; the Vanguard is actually fighting
+ // its Revenant shield-bearer on the other side of the same lawful court.
+ s.guardianWard=true;
+ s.units.find(u=>u.id==='cultist').hp=0;
+ const vanguard=s.units.find(u=>u.id==='vanguard');
+ const ranger=s.units.find(u=>u.id==='ranger');
+ vanguard.x=8;vanguard.z=9;vanguard.action='attack';vanguard.targetId='ward-revenant';
+ ranger.x=11;ranger.z=9;
+ s.units.push({id:'ward-revenant',kind:'revenant',faction:'enemy',hp:54,x:7,z:9});
+ const original=JSON.stringify(s);
+ const shot=planCinematicShot(s,null,{width:390,height:844});
+ assert.equal(shot.mode,'skirmish-approach','sealed boss must not steal the active guardian film');
+ assert.deepEqual(shot.subjects,['vanguard','ward-revenant']);
+ assert.deepEqual([shot.x,shot.z],[7.5,9]);
+ const lens=planReadableExpeditionLens(shot,{width:390,height:844});
+ assert.ok(lens.portrait&&lens.offsets[1]<7);
+ assert.equal(JSON.stringify(s),original,'camera reads but never edits deterministic authority');
+ const realContact={mode:'contact',actorId:'vanguard',targetId:'ward-revenant',x:7.5,z:9};
+ assert.equal(planCinematicShot(s,realContact,{width:390,height:844}).mode,'contact');
+ // A hit directed at the STILL SEALED invulnerable boss cannot override a
+ // genuine live Revenant fight; danger, however, must always override it.
+ const sealedBossContact={mode:'contact',actorId:'ranger',targetId:'warden',x:11.5,z:9};
+ assert.equal(planCinematicShot(s,sealedBossContact).mode,'skirmish-approach');
+ s.bossWarning={shape:'NOVA',attackTick:s.tick+1,cells:[{x:9,z:9}]};
+ assert.equal(planCinematicShot(s,realContact).mode,'warden-warning');
+ delete s.bossWarning;
+ s.guardianWard=false;
+ assert.equal(planCinematicShot(s,null).mode,'warden-approach','unsealed Warden regains legitimate priority');
+ s.guardianWard=true;s.units.find(u=>u.id==='ward-revenant').hp=0;
+ assert.equal(planCinematicShot(s,null).mode,'warden-approach','a dead guardian is not an active subject');
+});

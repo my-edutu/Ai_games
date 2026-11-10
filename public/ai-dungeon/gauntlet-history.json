@@ -5759,7 +5759,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect new-head genuine 390px/1440px same-seed original five-stage WebM/Opus: compare physical acting-hero pixels, full combat target and sealed boss view, true warnings, p95/p99 and natural defeat/restart. Revert optic if cropped. Next isolate measured WebGL submission stalls; 3 blind critics and locked-baseline matched A/B still unverified.",
+    "executableNextTask": "Run exact new-head authentic 1440px/390px full organic WebM+Opus; inspect real source contact and cinematicShot subjects, mobile actor pixels, warnings, occlusion, p95/p99, 946/946 natural defeat. Profile actual software WebGL submit spike before a substantial measured Stage A correction. Then independently review PR72 before B and require 3 blind critics, locked-baseline A/B.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7074,6 +7074,53 @@
       "separatePr72": "NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect both exact-head original 5/5 desktop/mobile clips for genuinely larger two actor silhouettes without boss warning cropping, draw/submit p95/p99 and genuine original hit sound; reject regressions. Stage A tail profiling and PR72 independent audit only after visual proof."
+    },
+    "m1SealedGuardianCourtSubjectSelection20261110": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "originalBaselineArtifact": 13081734898,
+      "parentSha": "b0494e55d6d87a87c76273bc117da0e3d2099dcb",
+      "realSourceHeadRun": 42788222133,
+      "seed": "gauntlet-corpus-v1-0",
+      "sourceHeadAV": {
+        "desktop": {
+          "authoritySnapshots": "946/946",
+          "organicStages": 5,
+          "naturalDefeatRestart": true,
+          "wardenDrawCalls": 444,
+          "wardenTriangles": 196396,
+          "submitP50Ms": 8.5,
+          "submitP95Ms": 1083.7,
+          "submitP99Ms": 4091.3,
+          "minHeroPx": 81,
+          "artifactId": 13751700584
+        },
+        "mobile": {
+          "authoritySnapshots": "946/946",
+          "organicStages": 5,
+          "naturalDefeatRestart": true,
+          "wardenDrawCalls": 433,
+          "wardenTriangles": 194966,
+          "submitP50Ms": 10.6,
+          "submitP95Ms": 1640.7,
+          "submitP99Ms": 5222,
+          "minHeroPx": 37,
+          "artifactId": 13751236875
+        }
+      },
+      "experientialDefect": "real sealed Warden film selects invulnerable boss while true surviving guardian fights a different living hero across the Warden court; multi-second software-WebGL stalls remain the larger unsolved systemic defect",
+      "sourceChange": "bounded public-authority hero-versus-real guardian pair election within actual Warden court, with genuine target/contact preference, original warning priority, boss-unseal/dead-guardian return, truthful portrait lens",
+      "afterRealFilm": "NOT_OBSERVED",
+      "newHeadPerformance": "NOT_MEASURED",
+      "impactAudioSync": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "separatePR72": "NOT_INTEGRATED",
+      "next": "Run exact new-head authentic 1440px/390px full organic WebM+Opus; inspect real source contact and cinematicShot subjects, mobile actor pixels, warnings, occlusion, p95/p99, 946/946 natural defeat. Profile actual software WebGL submit spike before a substantial measured Stage A correction. Then independently review PR72 before B and require 3 blind critics, locked-baseline A/B."
     }
   }
 }
