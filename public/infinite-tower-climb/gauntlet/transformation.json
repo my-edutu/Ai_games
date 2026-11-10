@@ -107,7 +107,7 @@
       "filmObservation": "Original 390x844 candidate 15s giant cyan/bronze gate, 20s near-camera winch masks hero; frozen baseline clearer at sampled (not event-aligned) times.",
       "implementation": "Outboard rear noncolliding physical guardian transmission; source-shared mechanical-screen competition in two-body camera",
       "implementationSha": "a5c03e17e2459bac9d070742ad64bfd43f915d07",
-      "implementationEvidence": "CODE COMMITTED a5c03e17e2459bac9d070742ad64bfd43f915d07. Exact-implementation quality workflow 42865871986 IN PROGRESS at recording request. Source-authentic after-film NOT EVALUATED; no independent critics or device measurements.",
+      "implementationEvidence": "First implementation quality 42865871986 FAILED 107/1319: source literal newline escape + isolated original Three world fixtures lacking new module; real source-authentic geometry code committed and source grammar/fixtures now corrected pending new exact-SHA test. Run 42866319096 authentic ledge preflight failed for same missing fixture import. No motion acceptance.",
       "independentBlindCritics": {
         "looks": 0,
         "feels": 0,
@@ -117,7 +117,8 @@
       "hardware": "NOT EVALUATED",
       "biggestExperienceGap": "Portrait guardian source duel obscured by physical winch and gate; source-to-visible threshold and restart acceptance incomplete",
       "nextAction": "Capture matching exact-source 60s desktop/portrait after new physical change; inspect guardian, crusher, true gateway, floor9 and restart.",
-      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-guardian-transmission-gallery-live-duel.md"
+      "reviewFile": "docs/reviews/2026-11-10-tower-pr68-guardian-transmission-gallery-live-duel.md",
+      "exactImplementationQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/42865871986 — FAILED"
     },
     "title": "Cohesive 3D tower — current P0 same-source actor, landing, hazard, guardian and earned gateway sightline continuity",
     "state": "P0 OPEN — actual guardian transmission gallery and two-body camera composition changed in source, full-motion acceptance still unavailable",
@@ -7184,6 +7185,8 @@
       "feels": 0,
       "plays": 0
     },
-    "next": "exact-HEAD full game tests and source-pinned browser capture"
+    "next": "exact-HEAD full game tests and source-pinned browser capture",
+    "qualityAfterFirstRun": "42865871986 FAILED 107/1319; corrected source syntax and real temporary ESM test import wiring",
+    "browserAfterFirstRun": "42866319096 authentic-ledge failed original module resolution; scenario recording jobs retained independently"
   }
 }

@@ -29,6 +29,8 @@ const importURLs = {
     'public/infinite-tower-climb/visuals/scene-hierarchy.mjs')).href,
   "'./mesh-provenance.mjs'": pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href,
+  "'./guardian-transmission-layout.mjs'": pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href,
 };
 let installedWorld = source;
 for (const [browserImport, nativeURL] of Object.entries(importURLs)) {

@@ -1469,7 +1469,10 @@ export function createTowerWorld(){
       // No shadow multiplication, animation timers or fabricated door events.
       const counterweights=[];
       for(const side of [-1,1]){
-        // Original ca1b423c portrait film showed near-camera bronze winch over the living climber.\n        // Move these entirely non-colliding counterweight galleries farther outboard,\n        // rearward and higher, keeping genuine locked leaves and the source seal intact.\n        // Two mechanical bays are OUTBOARD of the 6.8-wide walk-through
+        // Original ca1b423c portrait film showed near-camera bronze winch over the living climber.
+        // Move these entirely non-colliding counterweight galleries farther outboard,
+        // rearward and higher, keeping genuine locked leaves and the source seal intact.
+        // Two mechanical bays are OUTBOARD of the 6.8-wide walk-through
         // opening and behind its face, leaving clear combat air in the middle.
         block(doorway,materials.dark,[side*GUARDIAN_TRANSMISSION_LAYOUT.counterweightX,2.22,GUARDIAN_TRANSMISSION_LAYOUT.rearDepth],[.28,4.65,.36]).name='GuardianSealCounterweightRail';
         const carriage=new THREE.Group();

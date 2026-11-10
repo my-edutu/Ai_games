@@ -25,6 +25,7 @@ const source = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visu
   .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'", JSON.stringify(coordinatesURL))
   .replace("'./world-surface.mjs'", JSON.stringify(surfaceURL))
+  .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
 const moduleFile = path.join(scratch, 'world.mjs');
 fs.writeFileSync(moduleFile, source);

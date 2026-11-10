@@ -20,6 +20,7 @@ const source = fs.readFileSync(SOURCE, 'utf8')
   .replace("'./coordinates.mjs'", JSON.stringify(coordinatesURL))
   .replace("'./world-surface.mjs'", JSON.stringify(surfaceURL))
   .replace("'./scene-hierarchy.mjs'", JSON.stringify(hierarchyURL))
+  .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(provenanceURL));
 const localModule = path.join(scratch, 'world.mjs');
 fs.writeFileSync(localModule, source);
