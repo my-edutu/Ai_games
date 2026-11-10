@@ -72,6 +72,11 @@ for(const view of [
  const stage=await loadStage(page,start),rig=await nativeRigProof(page);
  const vanguard=rig.actors.find(a=>a.kind==='vanguard'&&a.mode==='idle');
  expect(vanguard,'genuine source Vanguard Idle must be visible').toBeTruthy();
+ expect(vanguard?.sourceActionSample?.clipName,
+  'original imported Idle is inspected at genuine mixer time, not inferred from server labels').toBe('Idle');
+ expect(Number.isFinite(vanguard?.sourceActionSample?.time)).toBe(true);
+ expect(vanguard.sourceActionSample.time).toBeGreaterThanOrEqual(0);
+ expect(vanguard.sourceActionSample.time).toBeLessThanOrEqual(vanguard.sourceActionSample.duration);
  expect(vanguard?.sourceGroundAnchor?.accepted,
   'the original heel/sole should no longer hover 23cm above stone').toBe(true);
  expect(vanguard?.sourceGroundAnchor?.measuredFrom).toBe('original-skinned-sole-vertices');
@@ -358,8 +363,10 @@ for(const view of [
      sourceInstanceId:pair.before.sourceInstanceId,
      sourceClipBefore:pair.before.nativeLegOwnership?.clipName??null,
      sourceClipAfter:pair.after.nativeLegOwnership?.clipName??null,
-     sourceTimeBefore:pair.before.sourceClock?.sourceTime??null,
-     sourceTimeAfter:pair.after.sourceClock?.sourceTime??null,
+     sourceTimeBefore:pair.before.sourceActionSample?.time??null,
+     sourceTimeAfter:pair.after.sourceActionSample?.time??null,
+     sourceDurationBefore:pair.before.sourceActionSample?.duration??null,
+     sourceDurationAfter:pair.after.sourceActionSample?.duration??null,
      contact:measureSourceSolePatchContinuity(pair.before,pair.after,{
       beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
       beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
