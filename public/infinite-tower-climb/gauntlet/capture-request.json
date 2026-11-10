@@ -218,5 +218,27 @@
     "postNewProductionVideo": "NOT EVALUATED"
   },
   "p0NewSourceMechanismCommit": "fbe1758d4283008b7505a0c344db5331496929ed",
-  "latestSourceCaptureComparand": "https://github.com/my-edutu/Ai_games/actions/runs/42831418395 (source 9924ca before mechanism restage)"
+  "latestSourceCaptureComparand": "https://github.com/my-edutu/Ai_games/actions/runs/42831418395 (source 9924ca before mechanism restage)",
+  "p0SourceCoupledGuardianTransmissionAndTrueFilm20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of THIS capture request commit (not a moving branch)",
+    "realImplementationCommit": "e10a7532f5eb6271e5a2d963074c68c3c2ed7ac1",
+    "realTestCommit": "eda35d947cba88e3a0df1b00f15659a6f55d7a80",
+    "evidenceLedgerCommit": "5b6bd8176975cf24ea2c957b7e9fd32d6f9eadfb",
+    "previousSourcePin": "2e072a58363cc30a8d8eb2894ea7288e9bcb0647",
+    "previousSourceFilmRun": "https://github.com/my-edutu/Ai_games/actions/runs/42833890681",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42833890692 — FAIL 1/1318, obsolete raised drum cable expectation",
+    "review": "docs/reviews/2026-11-10-tower-pr68-source-filmed-guardian-outboard-cable-coupling-and-p0-sightline.md",
+    "strictRequiredVideos": "Unmodified original normal-speed minimum 60s 960x600 and 390x844 actual gameplay per source-pinned baseline/candidate for ascent, moving decks, floor-eight danger+guardian/crusher and authentic result/restart, original seed/tier/matching environment; native event clocks and event-image search aids. Maintain complete 10-job matrix and fail missing stories.",
+    "targetEvidence": "Validate actual cable endpoint and read real two-character encounter in motion. Compare frame windows 14-24s, verify real guardian HP0 -> grounded walkway -> floor9 -> outcome/restart, independent blind LOOKS/FEELS/PLAYS 0/5 still required.",
+    "hardwareBenchmarks": "NOT EVALUATED",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "nextHighestImpact": "If blocker persists, source-authentically trace nearest actual decorative/guardian mesh triangles and camera orbit at portrait 14-24s; reconstruct the dominant obstruction as a coherent system, not one alpha/css tweak."
+  }
 }
