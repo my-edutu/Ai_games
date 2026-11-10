@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "78fe2291b6c57115909211e447194e46e4be455c",
-  "reason": "P0 source-filmed original 87eef393 danger 390x844 WebM ~14-16,22s shows full-height cyan X lattice physically crossing airborne climber/guardian. Current measured real original source seam, not simulated HUD. Same floor8 source transition/floor9 is not sufficient for visible readable combat. Corrected actual guardian-passage source-driven geometry at 78fe2291 (tests 6ba38d76 red as expected, 78fe production, fca73d taller regression, a3e source comments): two FULL-height edge pylons, high closed lintel and dense locked lower grille remain, while two high-voltage stays are OUTBOARD and entire rotated silhouettes leave central fighting window. Actual active positive-HP telegraph ticks energize field .76; idle-but-locked field .37; same bounded instanced draw, game logic not changed. New exact-source baseline/candidate original >=60s 960x600 and 390x844 ascent/moving/danger/outcome must show two combatants, guardian tell/crusher pressure, genuine HP0, grounded cap threshold, floor9 and outcome/restart before any P0 acceptance. Inspect giant wheel/bronze foreground after change. Previous quality red 42846583507 was deliberately introduced contract; corrected candidate requires successful exact-HEAD tests. Independent 0/5 LOOKS/FEELS/PLAYS and actual hardware performance still NOT EVALUATED.",
+  "repairedSourceSha": "8d04e71a055993dd2d29612af254f58a866ec09c",
+  "reason": "New source-pinned post-8d04e71a original-video comparison is required after replacing multiple camera/cutaway source-only guardian camera points with the actual interpolated original 3D guardian rig center. Original 42852710260 390x844 candidate native danger 14–22s remains crowded by wheel/cap/struts; intact baseline has clearer contact at some samples. Existing event evidence retains floor8→9 fixed-step tick451 (~22.65s candidate portrait video search time, NOT visual match), source calibration 8/8. CI at 8d04e71a still IN PROGRESS at request; don't claim quality or visual success. Film original candidate + immutable baseline at 960x600 and 390x844 >=60s for ascent/moving/danger/outcome at identical seed/tier, inspect raw videos and source-match the guardian/crusher win, real grounded gate, floor9 and outcome/restart. Preserve independent reviewers 0/5, no real-device p50/p95/p99/memory evidence. Verdict NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -37,11 +37,11 @@
   "triggerRule": "Freeze baseline 1731b380851162741761c5569e2bc152a0869ca9. Capture actual candidate at exact immutable github.sha of THIS request-file commit; never use a branch alias as source witness. Original source if preflight/browser ledge fails: preserve recordings, fail final audit honestly.",
   "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42715099747",
   "priorLedgeFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
-  "newPresentationSourceSha": "78fe2291b6c57115909211e447194e46e4be455c",
-  "newPresentationAcceptance": "NOT EVALUATED — newly authored living-guardian clear-centre side conductors plus real telegraph response not yet proved in original native after-film or supported devices.",
+  "newPresentationSourceSha": "8d04e71a055993dd2d29612af254f58a866ec09c",
+  "newPresentationAcceptance": "NOT EVALUATED — actual drawn guardian read now connects lens/rescues and world occlusion, needs new exact-source full motion",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
-  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42837487481",
+  "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260",
   "currentCalibratedEventGate": "3ed44c original nine-job run 42658123598 completed 10/10 including pairing, 8/8 source clock matches; no individual event certified raster-visible, guardian circle 14-18s remains visually problematic. JS WebGL submission intervals p50/p95/p99=216.5/596.1/808ms candidate portrait, NOT hardware FPS. New adaptive candidate must be measured at exact future github.sha.",
   "newSourceVideoAcceptance": "NOT EVALUATED — new original WebM request queued at immutable github.sha by this file update, not a quality pass.",
   "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
@@ -295,5 +295,8 @@
     "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "nextAction": "Verify actual newly captured two-body combat and landing story in both full-motion viewports, align source events to visible frames, reopen P0 on largest remaining occlusion/feel failure; no stage promotion on CI alone",
     "criticalProjectionCaveat": "Do not confuse observedCamera.actorNdc (current authoritative source point) with observedActor.ndc (smoothed actual skinned draw). A mismatch does not establish raster occlusion, clipping, or latency cause without aligned motion evidence."
-  }
+  },
+  "lastImplementationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42856135130 (in progress at request)",
+  "readOnlyPriorNativeFloorNinePortraitSearchSeconds": 22.6462,
+  "latestSourceHeadForRecapture": "8d04e71a055993dd2d29612af254f58a866ec09c"
 }

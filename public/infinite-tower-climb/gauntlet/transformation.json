@@ -7148,5 +7148,32 @@
     "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "nextAction": "Verify fresh full original candidate/baseline 960x600 and 390x844 danger/ascent/moving/outcome 60s+, align true source ticks 321 and defeat/gateway/f9/restart to visible frames; inspect whether this sustained actor framing helps or harms physical landing. If failure, rebuild dominant connected visual system rather than tests/cosmetics.",
     "criticalProjectionCaveat": "Do not confuse observedCamera.actorNdc (current authoritative source point) with observedActor.ndc (smoothed actual skinned draw). A mismatch does not establish raster occlusion, clipping, or latency cause without aligned motion evidence."
+  },
+  "p0RenderedGuardianPhysicalFraming20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "precedingCorrectedHead": "3c17ceebf9f715225041f8af2a6c74ce596ed1f1",
+    "productionAndFocusedTestCommitSha": "8d04e71a055993dd2d29612af254f58a866ec09c",
+    "productionChange": "One source-authenticated currently living guardian now has a shared actual drawn Three.js rig-center witness, sampled AFTER current interpolation/animation and reused across prior-camera safety rate, guardian rescue, full-body portrait joint framing/dolly, hazard crossfire and world gear occlusion. Fall back to prior source position only if rendered mesh not available. New diagnostics distinguish source guardianNdc from guardianDrawNdc and NDC delta. No changes to guardian/AI/combat/collision/platform/gateway/floor9/restart/PR58, no new GPU draws or per-frame Vector3 allocation.",
+    "originalBeforeGameSourceSha": "5c36a8bd13b32a9a3c0c14fd7a5189cb37f5a935",
+    "originalBeforeNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260/artifacts/13781362722",
+    "baselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260/artifacts/13781786583",
+    "originalFilmChecked": "Four untouched original WebMs: desktop 960x600, portrait 390x844, baseline+candidate; 71.5–72.7s, 25fps native; sampled frames 10,12,14,16,18,20,22,24,26,30 seconds. Candidate portrait midair 14–22 has visible small/split fighters amid foreground wheel, copper deck, cap grille and upper cyan conductor. Frozen baseline provides much more direct actor/guardian stage during samples but native times have different trajectories; not a blind match or approved film.",
+    "sourceEventCalibration": "Original previous run 42852710260 completed 10 jobs and retained 16 baseline/candidate native WebMs. Native timebase calibrated 8/8; candidate source floor8→9 tick451 search approx 22.65s portrait and 22.07s desktop. These are search-timecodes, NOT verified actual pixel event frame or independent performance.",
+    "latestCorrectedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42853036904 — SUCCESS at previous correction SHA 7e1e529d2feb367fb1ff3212b411298dcbd46f8e; not evidence of new source quality.",
+    "newExactCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42856135130 — IN PROGRESS at evidence write, no green claim.",
+    "postChangeOriginalCapture": "NOT EVALUATED — new immutable source 60s+ desktop/portrait baseline/candidate capture requested by same-branch capture-request edit; no after-video inspected.",
+    "actualRenderedCharacterOcclusion": "NOT EVALUATED — NDC diagnostics are source-to-drawn projection witnesses, not image/raster visibility proof.",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "biggestRemainingExperienceGap": "The normal-speed candidate portrait boss fight remains spatially crowded, with big foreground bronze wheel, gate and tiny/split living fighters. The new actual-render-space safety and softening must first prove source-event-visible advantage, not just code correctness.",
+    "nextHighestImpact": "Inspect exact-source new 60+ second original portrait and desktop recordings with native ticks 151,201,231,273,304,321,345,367,441,443-451 and outcome/restart; decide whether the shared drawn-guardian lens actually reduces machinery occlusion without sacrificing real airborne landing. Then rebuild physical boss stage/camera or revert if worse. Independently test hardware p50/p95/p99, memory, accessibility, and 5 genuine blind randomized LOOKS/FEELS/PLAYS critics.",
+    "review": "docs/reviews/2026-11-10-tower-pr68-source-rendered-guardian-camera-truth.md"
   }
 }

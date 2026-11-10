@@ -1,0 +1,27 @@
+# Tower PR68 — P0 original-film obstruction and drawn-guardian camera truth (2026-11-10)
+
+**Stage:** P0 OPEN. **Leading assessor:** NOT EVALUATED. Frozen baseline: `1731b380851162741761c5569e2bc152a0869ca9`. Draft PR #68 remains the only write target; PR58/main untouched.
+
+## Actual original film and source forensics
+
+Downloaded and extracted the original candidate/baseline *danger* desktop 960×600 and portrait 390×844 WebMs from [ten-job capture 42852710260](https://github.com/my-edutu/Ai_games/actions/runs/42852710260) ([candidate](https://github.com/my-edutu/Ai_games/actions/runs/42852710260/artifacts/13781362722), [baseline](https://github.com/my-edutu/Ai_games/actions/runs/42852710260/artifacts/13781786583)). Native 25fps film durations are 71.5–72.7 seconds; inspected images at 10,12,14,16,18,20,22,24,26,30 seconds, preserving the unedited WebMs. Candidate portrait at ~14–22 seconds has conspicuous cap/bronze foreground and separated small fighters; it does **not** establish superior guardian readability. Baseline shows more direct contact in some comparable samples, but equal native seconds are **not** equal gameplay source ticks. No claimed LOOKS/FEELS/PLAYS victory.
+
+Original paired-event artifact [13782605535](https://github.com/my-edutu/Ai_games/actions/runs/42852710260/artifacts/13782605535) reports 8/8 native calibrated scenario/viewport timebases, 16 original WebMs, and source floor-eight-to-nine tick451 at native-video search 22.65s portrait / 22.07s desktop for candidate. **These are source search handles, not a verified visible walk or full-motion experience match**. Guardian defeat, crusher victory, standing gateway threshold, floor9 onward and result/restart must still be checked against normal-speed frames at one exact HEAD.
+
+Recent original host also exposed a key distinction: source guardian/actor locations and smoothed 3D actor draw locations can disagree. Projection of a source coordinate outside 390px does not prove the displayed model is outside the WebM. Evidence demands **actual interpolated model transforms** for the camera safety decisions, rather than confusing them with authority.
+
+## Real production-path reconstruction
+
+[Implementation + focused regression commit 8d04e71a](https://github.com/my-edutu/Ai_games/commit/8d04e71a055993dd2d29612af254f58a866ec09c) adds `visuals/rendered-guardian-center.mjs` and binds it to **one shared actual model-root witness** after current Three model interpolation/animation. The same read-only body anchor now steers the existing smoothed-camera guardian safety rate, visibility rescue, portrait physical two-body dolly, joint-body recovery, concurrent hazard framing and decorative clockwork sightline clearance. Current authoritative boss ID, health, presence, state and fixed-step half-height remain hard gates; nonexistent/defeated/hidden/stale entities cannot earn a visual boss target. Existing source coordinates remain a safe fallback when an actually drawn root is absent. The model isn't teleported; AI, combat HP, landing, crusher, gate collisions, progression and replay are unchanged. One preallocated vector, no additional GPU passes/materials/geometry.
+
+The existing read-only diagnostics now report **guardianDrawNdc**, **guardianNdc** (authoritative) and the difference, explicitly without claiming raster visibility. New focused Node tests check drawn-world-center superiority over source coordinate, false boss/hidden/restart rejection, invalid transforms and integration across camera/cutaway paths. Tests and exact browser quality are vetoes only.
+
+## Separate spec and quality review
+
+**Spec compliance:** One P0 defect addressed at the production camera/world boundary; original mobile/desktop filming and source-to-frame evidence still mandatory. No baseline move, PR status or branch crossing. Original guardian HP/goal and actual landing continue to govern play.
+
+**Quality risk:** A valid model root position is still an approximate body center; local skeletal animation can move the visor without moving the root. Source path remains fallback. The camera may still be dominated by actual nondecorative bronze supports which cannot legitimately be hidden; source-safe guards cannot prove a satisfying frame. Need after-change real film and full trajectory analysis. Real target-device frame-times/memory NOT EVALUATED. Independent fresh-context blind reviewers LOOKS 0/5, FEELS 0/5, PLAYS 0/5.
+
+**CI:** [Prior corrected SHA quality 42853036904](https://github.com/my-edutu/Ai_games/actions/runs/42853036904) succeeded at 7e1e529d; [new exact-code quality 42856135130](https://github.com/my-edutu/Ai_games/actions/runs/42856135130) was in progress on evidence write. Do not infer success from earlier HEAD. The next [capture request](../../public/infinite-tower-climb/gauntlet/capture-request.json) must produce immutable source-pinned original films and source-indexed frame checks; its own commit SHA will be the candidate under review.
+
+**Next highest-impact action:** Compare exact final-head 60+ second source-matched normal-speed videos, especially real 14–24s portrait duel, source guardian damaged ticks through HP0, crushed enemy/counterattack, grounded cap threshold tick451, first floor9 movement and actual result/restart. If bodies remain tiny or landmark-occluded, rebuild the physical arena/shot staging across interconnected systems, not another isolated overlay. Continue P0; no accepted milestone.
