@@ -64,7 +64,7 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
  const actors=new Map();const a=(id,x,z)=>({
-  u:{id,action:'attack',actionTick:11},authored:id==='vanguard',
+  u:{id,kind:id,action:id==='mystic'?'cast':'attack',actionTick:11},authored:id==='vanguard',
   assetRoot:id==='vanguard'?{}:null,
   rigMeleeBones:id==='vanguard'?[{part:'wrist',bone:{isBone:true,
    world:{x:x-9+.15,y:1.1,z:z-9},updateWorldMatrix(){},
@@ -92,6 +92,64 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  stage.reset();assert.equal(stage.stats().activeDrawCalls,0);
  stage.dispose();
 });
+test('D04 delayed releases require a witnessed firing or casting pose, never a stale hand or empty cell',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const actor=(id,kind,action)=>({
+  u:{id,kind,action,actionTick:11,hp:20},
+  authored:false,root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}
+ });
+ const units={ranger:actor('ranger','ranger','attack'),
+  mystic:actor('mystic','mystic','cast')};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>units[id]??null});
+ const release=(id,kind,visual)=>cue({
+  id:'1:1:11:'+kind+':'+id+':enemy',kind,visual,
+  proof:'authority-action',actorId:id,targetId:'enemy',
+  from:{x:2,z:2},to:{x:4,z:2},tick:11,duration:.26
+ });
+ const arrow=release('ranger','ranged-release','launch');
+ const spell=release('mystic','spell-release','cast');
+ assert.equal(stage.emit(arrow),true,'witnessed ranger attack may launch');
+ assert.equal(stage.emit(spell),true,'witnessed mystic cast may launch');
+ stage.reset();
+ units.ranger.u.action='idle';
+ assert.equal(stage.emit(arrow),false,'old ranger action must not emit a new arrow');
+ units.ranger.u.action='attack';units.ranger.u.actionTick=12;
+ assert.equal(stage.emit(arrow),false,'different attack tick cannot authenticate earlier shot');
+ units.ranger.u.actionTick=11;units.ranger.u.kind='vanguard';
+ assert.equal(stage.emit(arrow),false,'non-ranger cannot supply arrow provenance');
+ units.ranger.u.kind='ranger';units.mystic.u.action='idle';
+ assert.equal(stage.emit(spell),false,'expired cast must not fire a spell');
+ units.mystic.u.action='cast';units.mystic.u.actionTick=12;
+ assert.equal(stage.emit(spell),false,'different cast tick cannot authenticate earlier spell');
+ units.mystic.u.actionTick=11;units.mystic.u.hp=0;
+ assert.equal(stage.emit(spell),false,'dead caster must not emit');
+ units.mystic.u.hp=20;delete units.ranger;
+ assert.equal(stage.emit(arrow),false,'missing firing actor must not create an empty-cell projectile');
+ assert.equal(stage.stats().instancesByPool.projectile,0);
+ assert.equal(stage.stats().instancesByPool.spell,0);
+ stage.dispose();
+});
+
+test('witnessed projectile remains a bounded independent flight after its caster changes action',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const ranger={u:{id:'ranger',kind:'ranger',action:'attack',actionTick:11,hp:20},
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}},authored:false};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>id==='ranger'?ranger:null});
+ const arrow=cue({id:'shot-11',kind:'ranged-release',visual:'launch',
+  proof:'authority-action',actorId:'ranger',targetId:'enemy',
+  from:{x:2,z:2},to:{x:4,z:2},tick:11,duration:.26});
+ assert.equal(stage.emit(arrow),true);
+ ranger.u.action='idle';ranger.u.actionTick=12;
+ stage.advance(.016,.016);
+ assert.equal(stage.hasLiveCue('shot-11'),true,
+  'already launched shot is not recalled by later authority actions');
+ assert.equal(stage.stats().instancesByPool.projectile,1);
+ stage.reset();assert.equal(stage.stats().instancesByPool.projectile,0);
+ stage.dispose();
+});
+
 test('audio uses noise-dominant air sweep, neutral body thud and separate inharmonic steel partials for confirmed block',async()=>{
  const {createOriginalCombatFoley,MAX_ORIGINAL_COMBAT_VOICES}=await load('original-combat-foley.js');
  const {ctx,record}=audio(),s=createOriginalCombatFoley(ctx);
