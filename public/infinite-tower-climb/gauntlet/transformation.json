@@ -63,7 +63,9 @@
     "mergedFaceOriginalProvenanceImplementationSha": "e6a4804e66583148e6d0349401a9ef905e42d1a3",
     "mergedFaceOriginalProvenanceStatus": "NOT EVALUATED: real Three.js rigid floor batches now record authored original mesh/instance identity per half-open rendered face range. Opt-in source-ticked portrait mesh-ray sidecar resolves true hit faceIndex to original authoring group. Prior film at 9db4f6bc, real 390x844 72.64s, still shows huge steel ring and bronze casing at 15-17s after high-rotor restaging. Original exact-source Three tests and new WebM NOT YET VERIFIED. No gameplay/world-art visibility fix inferred. 0/5 blind critics each; actual device not evaluated.",
     "upperStructuralSightlineImplementationSha": "e1c54871e4baf950183ca5ec9724b67c2416f081",
-    "upperStructuralSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: original bdb1 390x844 WebM at native 15–17s still dominated by steel/bronze scene; owner-ray ticks 298/304/310/343 matched genuine tapered-structural-pylon LatheGeometry (and gate inset) at world x≈6–9,z≈15–17. At e1c54871 the non-colliding clockwork buttress angle changes .67→1.40 radians and source guardian bronze gate is physically opened into 2×2 daylight grille without changing gate authority. 6d41d78b quality run 42729702639 GREEN, no post-change normal-speed WebM, pixel match, device p50/p95/p99/memory or independent LOOKS/FEELS/PLAYS; 0/5 each."
+    "upperStructuralSightlineEvidenceStatus": "P0 OPEN / NOT EVALUATED: original bdb1 390x844 WebM at native 15–17s still dominated by steel/bronze scene; owner-ray ticks 298/304/310/343 matched genuine tapered-structural-pylon LatheGeometry (and gate inset) at world x≈6–9,z≈15–17. At e1c54871 the non-colliding clockwork buttress angle changes .67→1.40 radians and source guardian bronze gate is physically opened into 2×2 daylight grille without changing gate authority. 6d41d78b quality run 42729702639 GREEN, no post-change normal-speed WebM, pixel match, device p50/p95/p99/memory or independent LOOKS/FEELS/PLAYS; 0/5 each.",
+    "openGuardianStructuralBayImplementationSha": "6a6188bd6c967a64ddc4b07c2b526e4eb46cea3e",
+    "openGuardianStructuralBayFilmStatus": "P0 OPEN / NOT EVALUATED — original code changed, new exact-source native film not yet accepted; RED prior original solid shaft test and code CI pending"
   },
   "currentTransformation": {
     "latestEvidenceRun": {
@@ -6686,5 +6688,30 @@
     },
     "supportedDeviceFrameTimesAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect new true filmed scene then fix largest real raster-visible defect or grounded gateway source mismatch; do not advance P0."
+  },
+  "p0ActualPortraitOpenStructuralBayReconstruction20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "immutableFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorSourceSha": "a014689658d3340c35f26b9ec604b11901cde80c",
+    "authenticBaselineCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42732208794",
+    "authenticOriginalCandidate390x844DangerWebM": "https://github.com/my-edutu/Ai_games/actions/runs/42732208794/artifacts/13724648791",
+    "originalEventPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42732208794/artifacts/13725771076",
+    "originalEvidence": "Eight original 60+s scenario x viewport recordings and ledge succeeded, but native pairing honestly failed: one original outcome desktop baseline vs candidate first-source tick offset >3s. 8/8 source stories and timebases available; do not label paired verification successful. New genuine portrait guardian WebM still blocked 15-17s by original large silver/bronze ring/pylon even after e1c54871 pylon angle and gate grille correction. Physical real camera-ray provenance identified tapered-structural-pylon triangles on current 8:clockwork at source ticks around 301/313. Visual frame owner remains not pixel-perfect proven.",
+    "sourceImplementationCommit": "6a6188bd6c967a64ddc4b07c2b526e4eb46cea3e",
+    "focusedRealThreeTestFirstCommit": "5544ecda449da969d44a0e5748d82c2ca08ea8bb",
+    "realPlayableChange": "Clockwork floor8 guardian 3D tower pylon assemblies reconstructed from opaque full-height lathed stone drums and solid shoulder cladding into true 3D open load-bearing four-corner buttresses with stone footings, restrained knee braces and perimeter lintels. Original nonclockwork shafts, collision/guardian/physical threshold/rotors fixed-step snapshot remain untouched. Not yet accepted on video.",
+    "testFirstQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42737088104 — RED before implementation on original solid geometry, as required; one new physical sightline test failed",
+    "codeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42737243630 — IN PROGRESS at evidence writing, not counted passed",
+    "currentOriginalRecapture": "NOT EVALUATED: request-file commit will trigger immutable new eight baseline/candidate desktop 960x600, portrait 390x844 original WebMs and source-event pairing",
+    "trueOutcomePairingDefect": "Outcome desktop first-source sample divergence >60 ticks; retain veto; investigate readiness/start with identical source-tick and frame-visibility constraints, never alter original films or frozen host",
+    "independentBlindFreshContextReviews": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-10-tower-pr68-original-portrait-structural-open-bay-reconstruction.md",
+    "nextHighestImpact": "Inspect original new 12-26s portrait/desktop danger full-motion against frozen baseline and source-ticked occluder ray meshes. Verify actual guardian/crusher defeat, grounded gateway → floor9, outcome/restart. Fix any retained geometric occluder; diagnose but do not bypass source-pair outcome desktop initial-tick veto; P0 stays open. Physical-device and independent blind critics remain outstanding."
   }
 }
