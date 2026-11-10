@@ -358,6 +358,47 @@ export function publicPressureActionHalfHeight(aspect, halfHeight, pressureFirst
   return halfHeight * .94;
 }
 
+/**
+ * Public diagonal pressure approach: the ORIGINAL 390x844 same-run WebGL
+ * tick-4 frame at 5fcce207 showed both connected jaws entirely in shot, but
+ * their .6897967 NDC silhouette failed the unchanged >.70 readable-action
+ * bound. Compose a 4% closer real action stage ONLY on a witnessed, presently
+ * disclosed diagonally adjacent hazard before contact.
+ *
+ * 320px (already .737), one-cell pressure, the tight-margin withdrawal,
+ * guardians, gates, unseen hazards and reduced-motion cameras keep their
+ * previous safe optics. Full ±.95 no-crop remains a separate hard WebGL gate.
+ * This is a lens-only adjustment: no player/trap movement or AI authority.
+ */
+export function publicPressureDiagonalApproachHalfHeight(
+  aspect, halfHeight, snapshot, trap, cellSize,
+  pressureFirst=false, verifiedRetreat=false, reducedMotion=false) {
+  if (pressureFirst || verifiedRetreat || reducedMotion || !snapshot || snapshot.result
+    || !(Number.isFinite(aspect) && aspect>=.45 && aspect<.60)
+    || !(Number.isFinite(halfHeight) && halfHeight>0)
+    || !(Number.isFinite(cellSize) && cellSize>0)
+    || !(Number.isFinite(trap?.distance) && trap.distance>=cellSize*1.30
+      && trap.distance<=cellSize*1.55)
+    || !(Number.isFinite(trap?.weight) && trap.weight>=.35)
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width<2
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height<2
+    || !Number.isSafeInteger(snapshot.currentCell)
+    || snapshot.currentCell<0
+    || snapshot.currentCell>=snapshot.width*snapshot.height
+    || !Number.isSafeInteger(trap.cell) || trap.cell<0
+    || trap.cell>=snapshot.width*snapshot.height
+    || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.visibleCells)
+    || !snapshot.visibleCells.includes(trap.cell)
+    || !snapshot.cells.some(cell=>cell?.cell===trap.cell && cell.trap===true
+      && cell.blocked!==true)) return halfHeight;
+  const dx=Math.abs(trap.cell%snapshot.width
+    - snapshot.currentCell%snapshot.width);
+  const dz=Math.abs(Math.floor(trap.cell/snapshot.width)
+    - Math.floor(snapshot.currentCell/snapshot.width));
+  if(dx!==1 || dz!==1)return halfHeight;
+  return halfHeight*.96;
+}
+
 export function publicCameraSettleRate(pickup=false, encounter=false, pressure=false, opening=false) {
   if (pickup) return 12;
   if (encounter || pressure) return 10;

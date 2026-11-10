@@ -75,16 +75,16 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
     const hero=new THREE.Vector3(pos.x,ground,pos.z);
     const resources=world.stats();
     world.animate(0,{gateTime:0,reducedMotion:false,explorerPosition:hero});
-    assert.ok(parts[0].rotation.z>.19 && parts[0].rotation.z<.21
-      && parts[1].rotation.z<-.19 && parts[1].rotation.z>-.21,
+    assert.ok(parts[0].rotation.z<-.19 && parts[0].rotation.z>-.21
+      && parts[1].rotation.z>.19 && parts[1].rotation.z<.21,
       'first witnessed contact must warn through the hinge before the ivory floor opens');
     world.animate(.35,{gateTime:.35,reducedMotion:false,explorerPosition:hero});
     assert.ok(parts.every(jaw=>Math.abs(jaw.rotation.z)>.20
       && Math.abs(jaw.rotation.z)<.66),
       'middle beat opens both real jaws only as their floor shutters move');
     world.animate(1.25,{gateTime:1.25,reducedMotion:false,explorerPosition:hero});
-    assert.ok(parts[0].rotation.z>.60 && parts[1].rotation.z<-.60,
-      'continued witnessed contact completes the physical OUTWARD jaw opening');
+    assert.ok(parts[0].rotation.z<-.60 && parts[1].rotation.z>.60,
+      'continued witnessed contact completes the physical INWARD jaw shear');
     world.animate(0,{gateTime:0,reducedMotion:false,explorerPosition:hero});
     assert.equal(parts[0].rotation.z,-parts[1].rotation.z,
       'same public pose yields symmetrical deterministic positions');

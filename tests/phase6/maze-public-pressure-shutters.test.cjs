@@ -150,7 +150,7 @@ test('both real pressure jaws now act on one public relay/shutter/piston clock, 
     // completed its shutter stroke. Preserve the exact full .66rad bar.
     world.animate(.70,{explorerPosition:near,reducedMotion:false});
     for(const [i,side] of [-1,1].entries())
-      close(jaws[i].rotation.z,-side*.66,'paired jaws reach unchanged full physical opening');
+      close(jaws[i].rotation.z,side*.66,'paired jaws complete their inward physical shear on the unchanged shared clock');
     close(Math.abs(shutters[0].rotation.z),1.11,'the actual floor opened on the same clock');
     world.animate(.75,{explorerPosition:far,reducedMotion:false});
     close(Math.abs(jaws[0].rotation.z),.06,'retreat immediately retracts the real jaws');
