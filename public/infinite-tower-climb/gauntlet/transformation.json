@@ -7050,5 +7050,37 @@
     "deviceMetrics": "NOT EVALUATED",
     "next": "Original same-source recapture; inspect guardian/crusher combat and earned threshold crossing",
     "review": "docs/reviews/2026-11-10-tower-pr68-source-earned-inner-threshold-live-duel-visibility.md"
+  },
+  "p0SourceFilmedGuardianOutboardCableCoupling20261110": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "latestInspectedPR68Source": "2e072a58363cc30a8d8eb2894ea7288e9bcb0647",
+    "latestOriginalVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/42833890681",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42833890681/artifacts/13772174571",
+    "originalBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42833890681/artifacts/13773660558",
+    "originalEventPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42833890681/artifacts/13773097091",
+    "nativeOriginalVideos": 16,
+    "nativeTimebaseCalibrated": "8/8",
+    "fullMotionPaired": false,
+    "sampledOriginalFrames": "10,12,14,16,18,20,22,24,26,30,40,60 seconds; both 390x844 portrait and 960x600 desktop original source WebM, frozen/candidate, matched seed/tier. Not an independent full-motion vote.",
+    "largestObservedFootageDefect": "New candidate portrait ~20s: enormous bronze gear/wheel and green steel backplate conceal living climber and guardian; cyan X-gate and crossmembers interfere 14-24s. Frozen baseline has more legible visible actor at 12-18s. Mesh ray samples show guardian rail/lattice but exact wheel pixel owner not yet proven. Floor9 scenery ~26s; full causal visual handoff not graded.",
+    "latestPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42833890692 — FAILED 1/1318 Node tests at original source 2e072: obsolete tension length assertion .54 vs raised beam actual 2.38. Safety veto.",
+    "testedSourceFixedStepChain": "https://github.com/my-edutu/Ai_games/actions/runs/42831418524 — real crusher tick163, guardian zeroHP441, grounded walk443/444, floor9 tick451, onward515, result845 and restart, but no pixel proof from current film.",
+    "testCommit": "eda35d947cba88e3a0df1b00f15659a6f55d7a80",
+    "productionCommit": "e10a7532f5eb6271e5a2d963074c68c3c2ed7ac1",
+    "productionChange": "Source HP moves two real outboard counterweights and the actual original 3D winch cable endpoint now follows each weight's own named cable socket; both cables originate at the physically elevated crossbeam, retain same two instanced submissions and no physics/source changes.",
+    "testChange": "Replaced obsolete cable constant assertions with actual THREE.Matrix4 endpoint coupling across full HP, damaged live guardian, true zero-HP defeat and same-floor reversal, while preserving source and no phantom unlock.",
+    "newExactHeadQuality": "NOT EVALUATED — new source HEAD workflow must finish before any safety-gate claim",
+    "newOriginalAfterChangeFilm": "NOT EVALUATED — source-pinned post-e10a WebM recapture required",
+    "review": "docs/reviews/2026-11-10-tower-pr68-source-filmed-guardian-outboard-cable-coupling-and-p0-sightline.md",
+    "codingTunnelStatus": "UNAVAILABLE: connected workspace reports Tunnel-client has not been seen for 300 seconds; GitHub remote editing and original artifact film inspection completed through connector and isolated container.",
+    "genuineIndependentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "deviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Run new exact SHA checks and footage, perform pixel-provenance+camera target investigation of candidate portrait 14-24s gear obstruction; then coherent physical scene or camera staging correction preserving crusher, actual guardian victory, grounded walkable gate and floor9. Independent reviews and supported device measurements still mandatory."
   }
 }
