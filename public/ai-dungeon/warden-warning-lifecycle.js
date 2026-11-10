@@ -1,3 +1,4 @@
+import {canonicalPhysicalWarningFootprint} from './physical-feedback-plan.js';
 /**
  * D04 presentation-only Warden warning order/ownership policy.
  * The observed warning tick and the public attackTick are NOT interchangeable:
@@ -79,6 +80,14 @@ export function isLiveWardenWarning(cue,snapshot){
   u?.kind==='warden'&&u.faction==='enemy'&&u.hp>0);
  if(living.length!==1||living[0].id!==cue.actorId)return false;
  const markers=cue.detail?.cells,cells=w.cells;
+ // All actual public danger cells establish this tell, not only D04's
+ // eight painted samples. A revised same-shape warning may retain those
+ // eight cells yet add/remove a different threatened lane. Such a change
+ // revokes the old ring AND any frame-awaiting audio. Fail closed when the
+ // bound proof is absent; reordering and duplicate cells remain equivalent.
+ const footprintKey=cue.detail?.footprintKey;
+ if(typeof footprintKey!=='string'||footprintKey.length===0||
+  footprintKey!==canonicalPhysicalWarningFootprint(cells))return false;
  if(!Array.isArray(markers)||markers.length<1||markers.length>8||
   !Array.isArray(cells)||cells.length<1||cells.length>300)return false;
  // Never extend a suppressed/replaced hazard footprint to remembered cells.
