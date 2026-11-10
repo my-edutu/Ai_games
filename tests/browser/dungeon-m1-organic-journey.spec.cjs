@@ -199,7 +199,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
     publicChecksum:s?.checksum??null,composition:d?.composition,actorReadability:d?.actorReadability,
-    visibility:d?.visibility,frameDelivery:d?.frameDelivery,
+    visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,frameDelivery:d?.frameDelivery,
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
@@ -226,6 +226,10 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     'engaged Vanguard must carry real original skinned geometry').toBeGreaterThan(0);
    expect(heroSurface?.visibleHeightPx,
     'engaged hero must occupy measurable source-skinned body height').toBeGreaterThan(10);
+   if(expected.bossWarning?.cells?.length){
+    expect(proof.wardenWarningPhysicalClearance?.actualCells,
+     'real hazard sightlines must be taken from authentic source cells').toBe(expected.bossWarning.cells.length);
+   }
   }
   const screenshot='artifacts/dungeon-m1-organic-journey-'+VIEW+'-'+stage+'-actual-canvas.png';
   await page.locator('#world').screenshot({path:screenshot,timeout:90000});
@@ -234,7 +238,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,actorReadability:proof.actorReadability,
-   visibility:proof.visibility,frameDelivery:proof.frameDelivery,
+   visibility:proof.visibility,wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,frameDelivery:proof.frameDelivery,
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
    surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,

@@ -8,7 +8,7 @@ import {createWardenCourt} from '/dungeon/warden-court.js';
 import {createConnectedDungeonJourney} from '/dungeon/connected-journey.js';
 import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
-import {captureForegroundVolumes,planForegroundBodyClearance} from '/dungeon/foreground-sightline-plan.js';
+import {captureForegroundVolumes,planForegroundBodyClearance,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {configureSoftwareStoneSurfaces,createSoftwareDiffuseMasonry,fuseOriginalForegroundGroup,createRetainedForegroundReplicaBatches} from '/dungeon/postfx-budget.js';
 
@@ -375,7 +375,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
- function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false){
+ function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false,actualWarningCells=[]){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
@@ -453,6 +453,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   sceneMetrics.clearedWeatheredPieces=weatheringCleared;
   sceneMetrics.matrixWrites.facade=facadeMatrixWrites;
   sceneMetrics.matrixWrites.weathered=weatheredMatrixWrites;
+  let warningCleared=0;
   for(let i=0;i<foregroundGroups.length;i++){
    const group=foregroundGroups[i];
    // Clear only the physical arch wing across a real full-body sightline,
@@ -461,11 +462,14 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
     planForegroundBodyClearance(foregroundVolumes[i],eyes,camera)||
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    const portrait=planPortraitStageClearance(foregroundVolumes[i],eyes,camera,view);
-    applyForegroundRecession(group,blocked||portrait,frameDt,reducedMotion,foregroundVolumes[i]);
-    if(blocked||portrait)cleared++;
+   const warningBlocked=planForegroundWarningClearance(foregroundVolumes[i],actualWarningCells,camera);
+   applyForegroundRecession(group,blocked||portrait||warningBlocked,frameDt,reducedMotion,foregroundVolumes[i]);
+   if(blocked||portrait||warningBlocked)cleared++;
+   if(warningBlocked&&!blocked&&!portrait)warningCleared++;
     if(portrait&&!blocked)portraitCleared++;
   }
   sceneMetrics.clearedForeground=cleared;sceneMetrics.portraitStagePropsCleared=portraitCleared;
+  sceneMetrics.wardenWarningForegroundCleared=warningCleared;
   // Copy actual source foreground roots AFTER their physical recession.
   sceneMetrics.foregroundReplicaMatrixWrites=foregroundReplicas.reduce((n,b)=>n+b.sync().matrixWrites,0);
   wardenCourt.cutaway(eyes,camera,wallPad);

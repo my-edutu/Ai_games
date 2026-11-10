@@ -112,6 +112,17 @@
       "authority": "24×900, zero divergence",
       "actualAfterMotion": "NOT_OBSERVED",
       "critics": 0
+    },
+    "m1WardenWarningPhysicalCutaway20261111": {
+      "parentSourceSha": "65edae9ebb8b78e90f08cc706b6039a245d2a3bf",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "actualAFTER": "NOT_OBSERVED",
+      "sourceChanges": "True Warden authority hazard sightline physically recedes only obstructing original foreground 3D props",
+      "verification": "405/405 focused foundation; 24x900 replay no divergences; original audio/film pending new head",
+      "criticCount": 0,
+      "pillars": "LOOKS FEELS PLAYS UNVERIFIED"
     }
   },
   "failures": [],

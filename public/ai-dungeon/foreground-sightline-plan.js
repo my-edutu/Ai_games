@@ -78,3 +78,35 @@ export function captureForegroundVolumes(T,objects){
   return valid(box)?Object.freeze(box):null;
  });
 }
+
+/**
+ * Bounded original-authority Warden danger cells, projected into the same
+ * physical tile coordinates as the live THREE court. A warning has to exist
+ * in the real snapshot: stage decoration may never invent a telegraph.
+ */
+export function planWardenWarningSightlinePoints(warning,mapSize){
+ if(!warning||!Array.isArray(warning.cells)||warning.cells.length<1||warning.cells.length>32||
+  !Number.isInteger(mapSize)||mapSize<9||mapSize>63||mapSize%2!==1)return [];
+ const half=(mapSize-1)/2,points=[];
+ for(const cell of warning.cells){
+  if(!Number.isInteger(cell?.x)||!Number.isInteger(cell?.z)||
+   cell.x<0||cell.z<0||cell.x>=mapSize||cell.z>=mapSize)return [];
+  points.push(Object.freeze({x:cell.x-half,y:.085,z:cell.z-half}));
+ }
+ return Object.freeze(points);
+}
+/**
+ * Recede an actually occluding foreground arch/altar only while the real
+ * Warden warning is active. Does not erase rear masonry or any arbitrary
+ * scenery merely because the boss is alive. One 3D segment per legal cell,
+ * maximum 32. No camera or simulation mutation, texture, shader or draw pass.
+ */
+export function planForegroundWarningClearance(box,warningPoints,camera){
+ if(!valid(box)||!Array.isArray(warningPoints)||!warningPoints.length||
+  warningPoints.length>32||![camera?.x,camera?.y,camera?.z].every(finite))return false;
+ for(const point of warningPoints){
+  if(![point?.x,point?.y,point?.z].every(finite))return false;
+  if(planForegroundRayBlocked(box,camera,point))return true;
+ }
+ return false;
+}
