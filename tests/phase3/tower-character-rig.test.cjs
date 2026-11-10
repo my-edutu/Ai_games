@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -88,6 +89,7 @@ function loadFollowView() {
     const guardianIntrusion = await import(pathToFileURL(path.join(
       path.dirname(characterFile), 'guardian-gate-intrusion.mjs')).href);
     const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
+    await hydrateTowerSceneVmContext(context);
     vm.runInNewContext(fs.readFileSync(path.join(path.dirname(characterFile), 'scene.mjs'), 'utf8')
       .replace(/^import .*;\n/gm, '')
       .replace('export function createTowerScene', 'function createTowerScene'), context);

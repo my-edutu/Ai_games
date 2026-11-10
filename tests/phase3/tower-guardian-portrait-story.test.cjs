@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 // Contract for the actual source-backed guardian/actor/gate camera relationship.
 // These are safe deterministic geometry checks; only blind full-motion review
 // can judge whether the experience is substantially improved.
@@ -17,6 +18,7 @@ const loaded = (async () => {
   const gateIntrusion = await import(pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
   const context = { THREE, ...coordinates, ...guardianCircuit, ...gateIntrusion };
+  await hydrateTowerSceneVmContext(context);
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };

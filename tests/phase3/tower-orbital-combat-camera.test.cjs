@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 // Source-bound engineering regression for the real Three follow camera.
 // This does not substitute for real normal-speed desktop/portrait video.
 const test = require('node:test');
@@ -18,6 +19,7 @@ const loaded = (async () => {
   const context = { THREE, ...coordinates, ...guardianCircuit, ...gateIntrusion };
   const source = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene');
+  await hydrateTowerSceneVmContext(context);
   vm.runInNewContext(source, context);
   return { THREE, ...coordinates, context };
 })();

@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -15,6 +16,7 @@ const loaded = (async () => {
     'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
   const context = { THREE, ...coordinates, ...guardianCircuit, ...gateIntrusion };
   // Exercise the shipped camera algorithm with real Three projection math.
+  await hydrateTowerSceneVmContext(context);
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, ...coordinates, context };

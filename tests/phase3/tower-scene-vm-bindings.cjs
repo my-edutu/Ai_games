@@ -5,6 +5,7 @@
 // This keeps fixture scopes in sync as source-driven combat/camera logic grows.
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
 const SCENE_DIR = path.resolve(__dirname, '../../public/infinite-tower-climb/visuals');
 
@@ -35,4 +36,12 @@ function fillMissingBindings(context, shipped) {
   return context;
 }
 
-module.exports = { shippedSceneNamedBindings, fillMissingBindings };
+// Test frames must execute the shipped camera against the shipped ESM observers.
+// Stripping imports without rehydrating them silently stops testing the live
+// encounter and produces mass ReferenceErrors after a source-only camera change.
+async function hydrateTowerSceneVmContext(context) {
+  const sceneSource = fs.readFileSync(path.join(SCENE_DIR, 'scene.mjs'), 'utf8');
+  return fillMissingBindings(context, await shippedSceneNamedBindings(sceneSource));
+}
+
+module.exports = { shippedSceneNamedBindings, fillMissingBindings, hydrateTowerSceneVmContext };

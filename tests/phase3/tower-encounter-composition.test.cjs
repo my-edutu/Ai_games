@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -32,6 +33,7 @@ const loaded = (async () => {
   const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
   // Evaluate the shipped framing and cue functions with the real projection math.
   // No renderer, browser, alternate scene implementation or authority is started.
+  await hydrateTowerSceneVmContext(context);
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '')
     .replace('export function createTowerScene', 'function createTowerScene'), context);

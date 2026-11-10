@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 // Engineering safety for real source-observed crossfire; NOT a quality vote.
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
@@ -69,6 +70,7 @@ test('source-near physical airborne bolt keeps both combatants while landing sta
  const context={THREE,...coordinates,...circuit,...gateIntrusion};
  const source=fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8')
   .replace(/^import .*;\n/gm,'').replace('export function createTowerScene','function createTowerScene');
+ await hydrateTowerSceneVmContext(context);
  vm.runInNewContext(source,context);
  const input=frame(),p=input.player;
  const hero=coordinates.pointFor(p.x,p.y-p.halfHeight,input.chunkBaseY,input.worldWidth);

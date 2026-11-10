@@ -1,4 +1,5 @@
 'use strict';
+const { hydrateTowerSceneVmContext } = require('./tower-scene-vm-bindings.cjs');
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -25,6 +26,7 @@ const loaded = (async () => {
   const guardianIntrusion = await import(pathToFileURL(path.join(root,
     'public/infinite-tower-climb/visuals/guardian-gate-intrusion.mjs')).href);
   const context = { THREE, ...coordinates, ...guardianCircuit, ...guardianIntrusion };
+  await hydrateTowerSceneVmContext(context);
   vm.runInNewContext(fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export function createTowerScene', 'function createTowerScene'), context);
   return { THREE, createEnemy, ...coordinates, context };
