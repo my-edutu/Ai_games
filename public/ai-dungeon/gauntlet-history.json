@@ -6837,6 +6837,40 @@
       "pr72": "NOT_INTEGRATED",
       "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
       "next": "Inspect new-head 1440px and 390px real organic five-stage original audiovisual motion, Warden p50/p95/p99, wing/halo fidelity and original impact sync; revert regressions, isolate main remaining stall; baseline blind A/B and 3 critics required."
+    },
+    "m1NeutralWorldRasterCandidate": {
+      "date": "2026-11-10",
+      "stage": "A_INCOMPLETE",
+      "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceParentSha": "1f6863ffbd16de8d9e6e19b4bc7e25836771796f",
+      "genuineBeforeRun": "https://github.com/my-edutu/Ai_games/actions/runs/42734111378",
+      "actualBefore": {
+        "desktop": {
+          "snapshots": 946,
+          "draws": 421,
+          "submitP95Ms": 1499,
+          "submitP99Ms": 3396,
+          "heroPx": 81
+        },
+        "mobile": {
+          "snapshots": 946,
+          "draws": 405,
+          "submitP95Ms": 695,
+          "submitP99Ms": 2650,
+          "heroPx": 37
+        }
+      },
+      "implementation": "Software-WebGL only original broad rough nonemissive architecture/wood/cloth diffuse raster tier, original geometric/albedo/camera/lighting and hero/boss/warning/rig assets protected; retain per-floor shared material identities and existing disposal",
+      "isolatedContracts": "6/6 mock scene/material checks passed; full CI/browser pending",
+      "afterGameplay": "NOT_OBSERVED",
+      "afterAudioContact": "UNVERIFIED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "pr72": "NOT_INTEGRATED",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "next": "Inspect exact-head genuine 1440/390 five-stage original audiovisual run and material fidelity; measure p50/p95/p99 WebGL, frame delivery, warning visibility and hero size; reject regressions, then measured remaining cost and Stage B animation review."
     }
   }
 }
