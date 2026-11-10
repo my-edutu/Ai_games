@@ -158,3 +158,41 @@ test('actual guardian encounter can retain its prior safe exterior shot across d
   assert.equal(JSON.stringify(snapshot), before,
     'camera continuity may neither modify a source frame nor advance gameplay');
 });
+
+
+test('the live two-body lens ranks both real character silhouettes, not a big hero with a tiny boss', async () => {
+  const { context } = await loaded;
+  const rect = (left,right,bottom,top,depth) => [
+    [left,bottom,depth],[left,top,depth],[right,bottom,depth],[right,top,depth]
+  ];
+  const hero = rect(-.35,-.1,-.24,.24,20);
+  const fullBoss = rect(.13,.35,-.22,.22,21);
+  const miniatureBoss = rect(.13,.35,-.055,.055,21);
+  const full = context.observedGuardianDuelLegibility(hero,fullBoss);
+  const tiny = context.observedGuardianDuelLegibility(hero,miniatureBoss);
+  assert.ok(full.score > tiny.score + 10,
+    'a source-visible guardian reduced to a thumbnail cannot win the shared action shot');
+  assert.ok(full.guardianFraction > tiny.guardianFraction);
+  assert.equal(context.observedGuardianDuelLegibility(hero,[[NaN,0,3]]).score,0);
+});
+
+test('real source guardian duel respects both full-body crop and immutable landing across lenses', async () => {
+  const { pointFor, context } = await loaded;
+  const { snapshot } = realHit();
+  const initial = JSON.stringify(snapshot);
+  const hero = pointFor(snapshot.player.x,
+    snapshot.player.y-snapshot.player.halfHeight,
+    snapshot.chunkBaseY,snapshot.worldWidth);
+  for (const aspect of [390/844,960/600]) {
+    const view = context.composeFollowView(snapshot,hero,aspect);
+    assert.ok(view.guardianStaged && view.guardianFramed && view.actorFramed && view.clear,
+      'source fight must keep both full 3D bodies and the physical tower unobstructed');
+    assert.ok(view.guardianFraction > 0 && view.duelLegibility > 0);
+    assert.ok(view.lensScale >= .91 && view.lensScale <= 1);
+    const repeated = context.composeFollowView(snapshot,hero,aspect,0,1,view.lean);
+    assert.ok(repeated.actorFramed && repeated.guardianFramed && repeated.clear,
+      'a repeated authoritative tick may not make either participant disappear');
+  }
+  assert.equal(JSON.stringify(snapshot),initial,
+    'the shared exterior lens cannot mutate combat, progression or replay authority');
+});

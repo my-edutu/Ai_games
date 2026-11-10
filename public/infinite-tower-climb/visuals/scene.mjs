@@ -949,6 +949,27 @@ function retainGuardianCameraShot(best, previous, quality) {
     priorScore >= bestScore - 2.25 ? previous : best;
 }
 
+// A physically coherent two-body fight must remain legible, not merely have
+// both source-authenticated hitboxes technically inside a tiny phone picture.
+// Score the smaller REAL projected silhouette heavily, so a wide camera
+// cannot trade a thumbnail-sized guardian for a flattering bronze landmark.
+// No screen-space stand-ins, source mutations, zoom cuts or extra draw passes.
+function observedGuardianDuelLegibility(heroCorners, guardianCorners) {
+  const bodyHeight = corners => {
+    if (!Array.isArray(corners) || corners.length !== 4 ||
+        corners.some(p => !Array.isArray(p) || p.length !== 3 ||
+          !p.every(Number.isFinite) || p[2] <= 0)) return 0;
+    return Math.max(0, (Math.max(...corners.map(p => p[1])) -
+      Math.min(...corners.map(p => p[1]))) / 2);
+  };
+  const heroFraction = bodyHeight(heroCorners);
+  const guardianFraction = bodyHeight(guardianCorners);
+  const smaller = Math.min(heroFraction, guardianFraction);
+  return { heroFraction, guardianFraction,
+    score: Math.min(.26, smaller) * 105 +
+      (Math.min(.26, heroFraction) + Math.min(.26, guardianFraction)) * 18 };
+}
+
 // The live tactical pilot can deliberately land clear of real current active
 // spikes AND occupied enemy bodies. All three arrival cues (camera destination, deck ink,
 // and chevron) must honor the same SOURCE-declared lane as the existing 3D
@@ -1309,7 +1330,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
   // Prioritize a complete hero + guardian; reveal the gate when it fits.
   const subject = contactGuardian || routeLanding || threat;
   const direction = subject ? (Math.sign(body.x - subject.x) || 1) : 1;
-  function solve(lean, hardLandingFit = true) {
+  function solve(lean, hardLandingFit = true, lensScale = 1) {
     const angle = Math.atan2(center.x, center.z) + direction * .08 + orbit + lean;
     // Active traversal gets a modest overlook so the destination presents a
     // usable top. Grounded encounters keep the established near-eye framing.
@@ -1330,7 +1351,7 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         depth + Math.abs(dot(delta, right)) / (tangent * Math.max(.25, aspect) * horizontalSafe),
         depth + Math.abs(dot(delta, up)) / (tangent * .66));
     }
-    distance = Math.max(12, distance) * zoom;
+    distance = Math.max(12, distance) * zoom * lensScale;
     const position = { x: center.x + out.x * distance, y: center.y + out.y * distance, z: center.z + out.z * distance };
     const clear = sightlines.every((point, index) => {
       // Retain solid-core sightlines to both present, living actors. A huge
@@ -1375,6 +1396,12 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const heroNdcCorners = points.slice(0, 4).map(projectNdc);
     const guardianNdcCorners = guardianCorners.map(projectNdc);
     const gateNdcCorners = lockCorners ? lockCorners.map(projectNdc) : null;
+    const duelLegibility = contactGuardian
+      ? observedGuardianDuelLegibility(heroNdcCorners, guardianNdcCorners)
+      : {heroFraction:0,guardianFraction:0,score:0};
+    // A tighter source duel lens is permitted only after validating the full
+    // actual hero AND boss in the physical, unobstructed exterior shot.
+    const actorFramed = points.slice(0,4).every(point => visible(point,.82,.76));
     const gateIntrusion = gateNdcCorners
       ? guardianGateSilhouetteInterference(heroNdcCorners,
         guardianNdcCorners, gateNdcCorners) : 0;
@@ -1388,6 +1415,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     const duelEdgePressure = guardianNdcCorners.length
       ? guardianDuelEdgePressure(heroNdcCorners, guardianNdcCorners) : 0;
     return { focus: { ...center }, position, distance, landing, targetId: target?.id || null, lean, clear, gateIntrusion, gateDominance, duelEdgePressure,
+      actorFramed, guardianFraction:duelLegibility.guardianFraction,
+      duelLegibility:duelLegibility.score, lensScale,
       landingFramed: !!routeLanding && visible(routeLanding, .88, .8) &&
         towerCoreSightlineClear(position, routeLanding, 23.5),
       duelLandingSoftened: !hardLandingFit,
@@ -1463,7 +1492,8 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
     // NEVER trade the player or attacker's silhouette for an attractive
     // but unsafe wide shot of a distant mechanism. A true visible gate wins
     // only among cameras with both actors framed and a clear tower sightline.
-    const quality = view => (!view.clear || !view.guardianFramed || view.heroFraction < .15)
+    const quality = view => (!view.clear || !view.actorFramed ||
+      !view.guardianFramed || view.heroFraction < .15)
       ? -1000 + view.heroFraction
       : 150 + (view.gateFramed ? liveLockPriority.frameBonus : 0) +
         (view.relayFramed ? 6 : 0) +
@@ -1474,6 +1504,9 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         // Prioritize the actual warning lane while real contact is imminent,
         // never at the expense of a cropped actor or hidden guardian.
         (view.shotFramed ? 11 : 0) +
+        // Real projected guardian and hero height share one protected score.
+        // The smaller actor controls the result, not a decorative capstan.
+        view.duelLegibility +
         Math.min(.24, view.heroFraction) * 16 - Math.abs(view.lean) * 1.6 -
         // A gate-centered shot can be "framed" and still make the actual
         // fight unreadable. Do not pay +16 gate points for a silhouette-
@@ -1488,11 +1521,29 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
         view.gateDominance * 54 -
         view.duelEdgePressure * 14;
     let bestQuality = quality(best);
-    for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7]) {
-      const candidate = solve(direction * amount, hardLandingFit), candidateQuality = quality(candidate);
-      if (candidateQuality <= bestQuality + .01) continue;
+    const choose = candidate => {
+      const candidateQuality = quality(candidate);
+      // Do not sacrifice an actual airborne destination already in frame
+      // merely to enlarge an opponent; the pilot still owns that landing.
+      if (routeLanding && player.state === 'airborne' &&
+          best.landingFramed && !candidate.landingFramed) return;
+      if (candidateQuality <= bestQuality + .01) return;
       best = candidate;
       bestQuality = candidateQuality;
+    };
+    for (const amount of [0, .22, .45, .7, .95, 1.13, -.22, -.45, -.7,
+      -.95, -1.13]) choose(solve(direction * amount, hardLandingFit));
+    // The original 390x844 film shows both real actors reduced to small
+    // distant silhouettes around the locked gateway. Test a bounded tighter
+    // exterior lens against the SAME world/collider/landing projections. It
+    // is rejected unless all physical sightlines and body bounds still pass.
+    // A stable source-shot hysteresis below prevents every-tick orbit hunting.
+    if (aspect < .85 && (best.heroFraction < .23 ||
+        best.guardianFraction < .20)) {
+      for (const angle of [best.lean, 0, direction * .22, direction * .45,
+        -direction * .22, -direction * .45]) {
+        choose(solve(angle, hardLandingFit, .91));
+      }
     }
     // Re-evaluate only the previous SOURCE encounter lens, not every historic
     // camera pose. A marginal quality difference cannot force a phone
