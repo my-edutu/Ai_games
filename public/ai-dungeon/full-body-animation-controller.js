@@ -504,6 +504,31 @@ export function planImportedWalkExitBrake({
 }
 
 /**
+ * Preserve the FINAL witnessed original Walking_A lower-body pose while its
+ * stationary actor fades into the licensed Idle (or native defensive guard).
+ * The existing source mixer still advances the full original skeleton.
+ * Only six already-imported thigh/calf/ankle quaternions get a short,
+ * reversible presentation handoff; this is NOT world-space sole IK.
+ *
+ * Never continue this landing through genuine travel, teleports, damage,
+ * evasion, defeat, lost visibility, reduced motion or interrupted actions.
+ */
+export function planSourceRigLandingRelease({mode='idle',sourceClipName='',
+ sourceWalkFrozen=false,rootTravel=NaN,elapsed=NaN,moving=false,
+ visible=true,alive=true,teleport=false,reducedMotion=false,
+ interrupted=false}={}){
+ if(!['idle','guard'].includes(mode)||sourceClipName!=='Idle'||
+  sourceWalkFrozen!==true||!finite(rootTravel)||
+  rootTravel<0||rootTravel>.0015||!finite(elapsed)||
+  elapsed<0||elapsed>2||moving!==false||visible!==true||
+  alive!==true||teleport||reducedMotion||interrupted)return null;
+ // Let the first authentic stopped foot frame stay planted, then release
+ // smoothly to the independent, correctly clocked original Idle source.
+ const t=clamp((elapsed-.03)/.17,0,1);
+ return t*t*(3-2*t);
+}
+
+/**
  * One existing source Walking_A action has been paused at a REAL no-travel
  * move-to-guard crossfade. Do not instantly delete the reversible skinned
  * thigh/calf/ankle stride that was still supporting its planted foot.

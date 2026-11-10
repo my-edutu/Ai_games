@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -551,6 +551,7 @@ function bindRigArmGestures(actor){
   bone:cranialBone,ratio:planCranialRatio(actor.u.kind),applied:false,bearingLast:new THREE.Quaternion(),bearingInverse:new THREE.Quaternion(),bearingNext:new THREE.Quaternion(),bearingEuler:new THREE.Euler()
  }:null;
  actor.rigGaitPosition=actor.root?.position?.clone?.()??null;
+ actor.walkLandingPose=null;actor.walkLandingCaptureNeeded=false;actor.walkLandingFrames=0;
  actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;
 }
 function restoreRigCranialBeforeMixer(actor){
@@ -963,7 +964,11 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
  const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);
  if(actor.currentAction!==action)actor.rigGuardPlantHandoff=false;
  // Pending original Walking_A belongs only to this same lawful arrival.
- if(actor.currentAction!==action||newEvent)actor.walkArrivalPendingAction=null;
+ if(actor.currentAction!==action||newEvent){
+  actor.walkArrivalPendingAction=null;
+  actor.walkLandingPose=null;
+  actor.walkLandingCaptureNeeded=false;
+ }
  if(actor.currentAction!==action||newEvent)actor.motionPeak=0;
  if(!actor.mixer)return;
  if(actor.currentAction===action&&!newEvent){
@@ -1040,6 +1045,7 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
     visible:sourceFrameVisible
    })){
     previous.paused=true;
+    actor.walkLandingCaptureNeeded=true;
     actor.rigGuardPlantHandoff=action==='guard';
     actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
    }else if(actor.currentAction==='move'&&['idle','guard'].includes(action)&&
@@ -1201,6 +1207,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    teleport:Boolean(actor.locomotionTeleport),reducedMotion
   })){
    outgoing.paused=true;
+   actor.walkLandingCaptureNeeded=true;
    actor.rigGuardPlantHandoff=arrival.targetMode==='guard';
    actor.walkArrivalPendingAction=null;
    actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
@@ -1219,6 +1226,21 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  restoreRigMeleeBeforeMixer(actor);
  restoreRigCranialBeforeMixer(actor);
  restoreRigPelvisBeforeMixer(actor);
+ // Capture the REAL source Walking_A landing pose only after last frame's
+ // reversible thigh/calf/ankle overlays have been removed. This is not
+ // inferred from a server move label or an invented plant location.
+ if(actor.walkLandingCaptureNeeded){
+  actor.walkLandingCaptureNeeded=false;
+  const mounts=actor.rigGaitBones||[];
+  const complete=mounts.length===6&&['left','right'].every(side=>
+   ['upper','lower','foot'].every(part=>mounts.some(m=>
+    m.side===side&&m.part===part&&m.bone?.isBone)));
+  if(complete){
+   actor.walkLandingPose={elapsed:0,sourceWalkFrozen:true,
+    legBones:mounts.map(m=>({bone:m.bone,quat:m.bone.quaternion.clone(),
+     frame:new THREE.Quaternion()}))};
+  }
+ }
  // Align source GLB to the same witnessed action-age clock as original
  // skinned hip, torso, shoulder, wrist, ankle and reactive fabric layers.
  const sourceClip=actor.activeClip?.getClip?.();
@@ -1305,6 +1327,34 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   }
  }finally{
   if(priorWalkSpeed!==null)outgoing.setEffectiveTimeScale(priorWalkSpeed);
+ }
+ // The original Idle mixer can still rotate a paused Walking_A shoe by
+ // blending its skinned thigh, knee and ankle tracks toward Idle. Release
+ // those six authentic imported joints from the actually observed source
+ // landing pose, bounded to 200ms. Shoulder/hand/weapon clips and the
+ // incoming Idle fade remain authored and unmodified.
+ const landing=actor.walkLandingPose;
+ if(landing){
+  const root=actor.root?.position,prior=actor.rigGaitPosition;
+  const rootTravel=root&&prior?Math.hypot(root.x-prior.x,root.z-prior.z):NaN;
+  const release=planSourceRigLandingRelease({
+   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
+   sourceWalkFrozen:landing.sourceWalkFrozen,rootTravel,
+   elapsed:landing.elapsed,moving:Boolean(actor.groundedPerformance?.moving),
+   visible:sourceFrameVisible,alive:actor.u.hp>0,
+   teleport:Boolean(actor.locomotionTeleport),reducedMotion,
+   interrupted:Boolean(actor.fullBody.interrupted)
+  });
+  if(release===null){actor.walkLandingPose=null;}
+  else{
+   for(const item of landing.legBones){
+    item.frame.copy(item.bone.quaternion);
+    item.bone.quaternion.copy(item.quat).slerp(item.frame,release);
+   }
+   actor.walkLandingFrames=Math.min(1000000,(actor.walkLandingFrames||0)+1);
+   landing.elapsed=Math.min(2,landing.elapsed+Math.max(0,Math.min(.05,dt)));
+   if(release>=1)actor.walkLandingPose=null;
+  }
  }
  // Read real original clip ownership AFTER the one AnimationMixer update.
  const releaseClip=actor.activeClip?.getClip?.();
@@ -1676,7 +1726,9 @@ function inspectSourceRigDeformation(actors){
     deferredSourceWalkStops:actor.walkArrivalDeferredStops||0,
     deferredSourceWalkPending:Boolean(actor.walkArrivalPendingAction),
     walkExitRate:Number.isFinite(actor.walkArrivalExitRate)?actor.walkArrivalExitRate:null,
-    walkExitBrakedFrames:actor.walkArrivalBrakedFrames||0
+    walkExitBrakedFrames:actor.walkArrivalBrakedFrames||0,
+    sourceLandingActive:Boolean(actor.walkLandingPose),
+    sourceLandingFrames:actor.walkLandingFrames||0
    },
    sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
    soleVertexWorld:soleVertexWorld,sourceWeaponGrip:sourceWeaponGrip,
