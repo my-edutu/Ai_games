@@ -4474,24 +4474,30 @@ function getScenicDrawPlanCacheAudit(){
 // overdraw until measured evidence warrants a change.
 const SCENIC_COHERENCE_MARGIN=1.15;
 const SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES=1600;
-const scenicCoherentCache=new WeakMap();
-const scenicCoherentBoundsCache=new WeakMap();
+const SCENIC_COHERENCE_MAX_ANCHORS=4;
+const scenicCoherentCache=new WeakMap(),scenicCoherentBoundsCache=new WeakMap();
 let scenicCoherentBuilds=0,scenicCoherentReuses=0,scenicCoherentRejects=0;
-let scenicCoherentExtraAtBuild=0,scenicCoherentDraws=0;
+let scenicCoherentExtraAtBuild=0,scenicCoherentDraws=0,scenicCoherentEvictions=0,
+ scenicCoherentAlternativeReuses=0;
+// W203: use exact AABB support in mesh-local coordinates, rather than a
+// loose world-origin bound. This preserves EVERY original geometry vertex.
 function scenicCoherentBounds(ranges){
  const hit=scenicCoherentBoundsCache.get(ranges);if(hit)return hit;
- let maxX=0,maxY=0,maxZ=0,totalTriangles=0;
+ if(!ranges.length)return null;
+ let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity,
+  totalTriangles=0;
  for(const b of ranges){
   if(![b.minX,b.minY,b.minZ,b.maxX,b.maxY,b.maxZ].every(Number.isFinite)||
    b.minX>b.maxX||b.minY>b.maxY||b.minZ>b.maxZ||
    !Number.isInteger(b.count)||b.count<0||b.count%3)return null;
-  maxX=Math.max(maxX,Math.abs(b.minX),Math.abs(b.maxX));
-  maxY=Math.max(maxY,Math.abs(b.minY),Math.abs(b.maxY));
-  maxZ=Math.max(maxZ,Math.abs(b.minZ),Math.abs(b.maxZ));
+  x0=Math.min(x0,b.minX);y0=Math.min(y0,b.minY);z0=Math.min(z0,b.minZ);
+  x1=Math.max(x1,b.maxX);y1=Math.max(y1,b.maxY);z1=Math.max(z1,b.maxZ);
   totalTriangles+=b.count/3;
  }
- const result={maxX,maxY,maxZ,totalTriangles};
- scenicCoherentBoundsCache.set(ranges,result);return result;
+ const bounds={centerX:(x0+x1)/2,centerY:(y0+y1)/2,centerZ:(z0+z1)/2,
+  radiusX:(x1-x0)/2,radiusY:(y1-y0)/2,radiusZ:(z1-z0)/2,totalTriangles};
+ if(Object.values(bounds).some(v=>!Number.isFinite(v)))return null;
+ scenicCoherentBoundsCache.set(ranges,bounds);return bounds;
 }
 function scenicCoherentSafe(anchor,current,bounds,margin){
  if(!bounds||!Array.isArray(anchor)||!Array.isArray(current)||
@@ -4500,15 +4506,11 @@ function scenicCoherentSafe(anchor,current,bounds,margin){
  for(let i=0;i<6;i++){
   const p=anchor[i],q=current[i];
   if(!Array.isArray(p)||!Array.isArray(q)||p.length!==4||q.length!==4||
-    !p.every(Number.isFinite)||!q.every(Number.isFinite))return false;
-  // For every world-space point inside the immutable mesh bounds:
-  // |(q-p)·[x,y,z,1]| <= sum(|delta plane| * global |coordinate|).
-  // Therefore current visible => enlarged anchor visible. AABB margins
-  // from sceneChunkInFrustum are equal in both planners.
-  const error=Math.abs(q[0]-p[0])*bounds.maxX+
-   Math.abs(q[1]-p[1])*bounds.maxY+
-   Math.abs(q[2]-p[2])*bounds.maxZ+
-   Math.abs(q[3]-p[3]);
+   !p.every(Number.isFinite)||!q.every(Number.isFinite))return false;
+  const dx=q[0]-p[0],dy=q[1]-p[1],dz=q[2]-p[2],dd=q[3]-p[3];
+  const error=Math.abs(dx*bounds.centerX+dy*bounds.centerY+
+   dz*bounds.centerZ+dd)+Math.abs(dx)*bounds.radiusX+
+   Math.abs(dy)*bounds.radiusY+Math.abs(dz)*bounds.radiusZ;
   if(!Number.isFinite(error)||error>margin-1e-7)return false;
  }
  return true;
@@ -4516,41 +4518,46 @@ function scenicCoherentSafe(anchor,current,bounds,margin){
 function planCoherentStaticDraws(ranges,planes,bridge){
  if(!gpuAvailable||swiftGpu||ranges.length<64||
   !Array.isArray(planes)||planes.length!==6||
-  planes.some(p=>!Array.isArray(p)||p.length!==4||
-   !p.every(Number.isFinite)))
+  planes.some(p=>!Array.isArray(p)||p.length!==4||!p.every(Number.isFinite)))
   return planRetainedStaticDraws(ranges,planes,bridge);
  const bounds=scenicCoherentBounds(ranges);
  if(!bounds)return planRetainedStaticDraws(ranges,planes,bridge);
- const prior=scenicCoherentCache.get(ranges);
- if(prior&&prior.bridge===bridge&&scenicCoherentSafe(
-   prior.planes,planes,bounds,SCENIC_COHERENCE_MARGIN)){
-  scenicCoherentReuses++;scenicCoherentDraws++;
-  return prior.plan;
+ // Farm -> market -> home camera returns use four bounded certified sectors.
+ // The exact original static VBO and camera projection always remain live.
+ const entries=scenicCoherentCache.get(ranges)||[];
+ for(let i=entries.length-1;i>=0;i--){
+  const cached=entries[i];
+  if(cached.bridge!==bridge||!scenicCoherentSafe(
+   cached.planes,planes,bounds,SCENIC_COHERENCE_MARGIN))continue;
+  if(i!==entries.length-1){
+   entries.splice(i,1);entries.push(cached);scenicCoherentAlternativeReuses++;
+  }
+  scenicCoherentReuses++;scenicCoherentDraws++;return cached.plan;
  }
  const exact=planRetainedStaticDraws(ranges,planes,bridge);
  const generous=planes.map(p=>[p[0],p[1],p[2],p[3]+SCENIC_COHERENCE_MARGIN]);
  const expanded=planVisibleStaticDraws(ranges,generous,bridge);
  const added=Math.max(0,expanded.issuedTriangles-exact.issuedTriangles);
- // An expanded frustum is safe but could force unnecessary raster work.
- // Refuse caching when the first shot exceeds an explicit bounded budget.
  const allowed=Math.min(SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES,
   Math.max(48,Math.floor(bounds.totalTriangles*.025)));
- if(added>allowed){
-  scenicCoherentRejects++;scenicCoherentCache.delete(ranges);return exact;
+ if(added>allowed){scenicCoherentRejects++;return exact;}
+ entries.push({planes:planes.map(p=>p.slice()),bridge,
+  plan:{...expanded,coherentConservative:true,extraTrianglesAtAnchor:added}});
+ if(entries.length>SCENIC_COHERENCE_MAX_ANCHORS){
+  entries.shift();scenicCoherentEvictions++;
  }
- scenicCoherentCache.set(ranges,{planes:planes.map(p=>p.slice()),
-  bridge,plan:{...expanded,coherentConservative:true,
-   extraTrianglesAtAnchor:added},extraTrianglesAtAnchor:added});
+ scenicCoherentCache.set(ranges,entries);
  scenicCoherentBuilds++;scenicCoherentExtraAtBuild+=added;
- // Keep the very first view exact. Subsequent physically adjacent views
- // can reuse the certified superset without running a new BVH traversal.
- return exact;
+ return exact; // no camera delay: first changed frame always strictly exact
 }
 function getScenicCoherentAudit(){
- return {kind:'spatially-safe-moving-camera-original-geometry-residency',
+ return {kind:'multi-sector-local-bounds-original-scenery-command-residency',
   enabled:gpuAvailable&&!swiftGpu,marginMetres:SCENIC_COHERENCE_MARGIN,
-  perMeshViews:1,maxExtraTrianglesAtAnchor:SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES,
+  maxAnchorsPerImmutableMesh:SCENIC_COHERENCE_MAX_ANCHORS,
+  maxExtraTrianglesAtAnchor:SCENIC_COHERENCE_MAX_EXTRA_TRIANGLES,
   builds:scenicCoherentBuilds,reuses:scenicCoherentReuses,
+  alternativeSectorReuses:scenicCoherentAlternativeReuses,
+  sectorEvictions:scenicCoherentEvictions,
   rejectedOverdraw:scenicCoherentRejects,conservativeDraws:scenicCoherentDraws,
   totalExtraTrianglesAtBuild:scenicCoherentExtraAtBuild,
   geometryNeverDropped:true,seedAndAuthorityUnmodified:true,
@@ -4567,9 +4574,12 @@ function getScenicCoherentReferenceAudit(){
  for(const ranges of [landscapeChunkRanges,settlementChunkRanges,
   civicChunkRanges,...homeClusterActive.map(home=>home.ranges).filter(Boolean)]){
   if(!ranges?.length)continue;
-  const entry=scenicCoherentCache.get(ranges),bounds=scenicCoherentBounds(ranges);
-  if(!entry||!scenicCoherentSafe(entry.planes,planes,bounds,
-    SCENIC_COHERENCE_MARGIN))continue;
+  const bounds=scenicCoherentBounds(ranges),entries=scenicCoherentCache.get(ranges)||[];
+  let entry=null;
+  for(let i=entries.length-1;i>=0;i--)
+   if(scenicCoherentSafe(entries[i].planes,planes,bounds,
+     SCENIC_COHERENCE_MARGIN)){entry=entries[i];break;}
+  if(!entry)continue;
   activeClasses++;
   for(const b of ranges){
    const visible=sceneChunkInFrustum(b,planes);
