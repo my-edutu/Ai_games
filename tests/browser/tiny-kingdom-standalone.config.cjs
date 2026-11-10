@@ -4,7 +4,7 @@
 const {defineConfig}=require('@playwright/test');
 module.exports=defineConfig({
  testDir:'.',
- testMatch:/tiny-kingdom-w(?:126-lived-household|180-home-nourishment)\\.spec\\.cjs$/,
+ testMatch:/tiny-kingdom-w(?:126-lived-household|180-home-nourishment)\.spec\.cjs$/,
  timeout:900000,
  expect:{timeout:15000},
  workers:1,
