@@ -40,7 +40,7 @@ function stage(){
 const injury=(id,targetId='enemy-1-0')=>({
  id,sceneKey:'1:1',tick:11,kind:'damage',visual:'hit',audio:'impact',
  proof:'observed-hp-drop',verified:true,actorId:null,targetId,
- to:{x:2,z:2},from:{x:2,z:2},severity:.6,duration:.28,priority:4
+ to:{x:2,z:2},from:{x:2,z:2},severity:.2,duration:.28,priority:4
 });
 test('a >400ms submitted WebGL frame retires ONLY stale transient hit fragments, never another cue',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
