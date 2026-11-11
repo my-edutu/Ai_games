@@ -116,41 +116,6 @@ export function boundedStartupPixelRatio(width,height,ratio) {
   return Math.min(ratio,Math.max(Math.min(ratio,0.4),Math.sqrt(768000/(width*height))));
 }
 // END R53 STARTUP RASTER HELPER
-/**
- * Three complete passes are required to rebuild the original HDR/color/depth
- * landscape cache. A moving cinematic camera or a transient portal shot should
- * never pay for those passes just because a *single* pose became identical to
- * its target. Keep the full-quality direct renderer on a changing view, and
- * admit a cache rebuild after three consecutive actual presented pose keys.
- * The gate counts ONLY calls from an actual renderer submission; it cannot
- * count RAF callbacks rejected by the GPU fence. An already baked key can be
- * reused immediately after a brief camera cut, but reset on resize/disposal.
- * This is a resource-scheduling decision, not a partial-scene or FPS substitute.
- */
-export function createStaticCacheAdmission() {
-  let candidate = '', streak = 0, cachedKey = '', buildCount = 0, transientDirectDraws = 0;
-  return {
-    allow(key) {
-      if (typeof key !== 'string' || !key.length) return false;
-      if (cachedKey === key) return true;
-      if (candidate === key) streak++;
-      else { candidate = key; streak = 1; }
-      if (streak < 3) transientDirectDraws++;
-      return streak >= 3;
-    },
-    built(key) {
-      cachedKey = key;
-      candidate = key;
-      streak = 3;
-      buildCount++;
-    },
-    reset() { candidate = ''; streak = 0; cachedKey = ''; },
-    builds() { return buildCount; },
-    stats() { return { rebuildsAdmitted: buildCount, transientFullSceneDraws: transientDirectDraws,
-      stablePoseSubmissions: streak, hasRetainedCache: cachedKey.length > 0 }; },
-  };
-}
-
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -264,7 +229,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let cacheHits = 0;
   let cacheBuilds = 0;
   let cacheActive = false;
-  const staticCacheAdmission = createStaticCacheAdmission();
   // Keep HDR/MSAA color and depth for cache rebuilds. Bake display color once,
   // then copy only color/depth each frame while animated geometry stays live.
   const cacheGeometry = new THREE.BufferGeometry();
@@ -337,7 +301,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const cacheCamera = new THREE.Camera();
 
   function invalidateStaticCache() {
-    staticCacheAdmission.reset();
     staticKey = '';
     cacheActive = false;
   }
@@ -376,13 +339,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     camera.updateMatrixWorld();
     const key = [dimensions, quality, world.propRevision?.() || 0, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
       renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
-    if (!staticCacheAdmission.allow(key)) {
-      // Full unaltered scene: serpent, water, forest, ruins, shadows and cues.
-      // Avoid three-pass rebuilds when the public camera/prop key is transient.
-      renderer.setRenderTarget(null);
-      renderer.render(scene, camera);
-      return;
-    }
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
     const oldFog = scene.fog;
@@ -407,7 +363,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         cacheQuad.material = cacheMaterial;
         staticKey = key;
         cacheBuilds++;
-        staticCacheAdmission.built(key);
       } else cacheHits++;
       // BEGIN R46 ONE-PASS CACHE COMPOSITION
       // One live scene pass: original cached color and depth first, then live
@@ -677,8 +632,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
-        width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples,
-        admission: staticCacheAdmission.stats() },
+        width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS
       livingGarden: livingGarden?.stats?.(),
       // BEGIN T1 COURTYARD ECOLOGY STATS
