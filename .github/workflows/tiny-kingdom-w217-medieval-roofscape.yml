@@ -16,7 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/tiny-kingdom-post-main-gauntlet-20261031
+          # Pin the actual triggering source, never a moving branch tip.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
