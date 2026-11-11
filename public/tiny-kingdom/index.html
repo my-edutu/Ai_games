@@ -7294,7 +7294,7 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
 // This footprint is recomputed ONLY when that original house mesh is dirty.
 function inhabitedStreetFootway(x,z,variant,index){
  const start=data.length,depth=2.1+variant*.18;
- const door=[x,z-depth*.5-.17],candidates=HIGHSTREET_LANES;
+ const door=[x,z-depth*.5-.40],candidates=HIGHSTREET_LANES;
  let winner=null;
  for(const lane of candidates)for(let i=0;i<lane.length-1;i++){
   const a=lane[i],b=lane[i+1],dx=b[0]-a[0],dz=b[1]-a[1];
@@ -7303,12 +7303,12 @@ function inhabitedStreetFootway(x,z,variant,index){
   const t=Math.max(0,Math.min(1,
    ((door[0]-a[0])*dx+(door[1]-a[1])*dz)/lengthSq));
   const bx=a[0]+dx*t,bz=a[1]+dz*t;
-  // Never pave INTO the inhabited building: the original door opens toward -Z.
-  if(bz>door[1]+.24)continue;
+  // Keep only a straight, sampled route through the EXISTING walkable world;
+  // a lane behind the front door is allowed only if no real wall intervenes.
   const d=Math.hypot(bx-door[0],bz-door[1]);
-  if(d<.7||d>6.25||winner&&d>=winner.distance)continue;
+  if(d<.7||d>8.5||winner&&d>=winner.distance)continue;
   // Original nav oracle is queried only; this does NOT change road graph.
-  if([.45,.7,.93].some(f=>!walkable(door[0]+(bx-door[0])*f,
+  if([.2,.4,.6,.8,.95].some(f=>!walkable(door[0]+(bx-door[0])*f,
     door[1]+(bz-door[1])*f)))continue;
   winner={target:[bx,bz],distance:d};
  }
