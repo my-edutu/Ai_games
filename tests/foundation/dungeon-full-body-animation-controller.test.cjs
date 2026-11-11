@@ -2284,3 +2284,37 @@ test('original Walking_A airborne toe drag uses bounded observed source-foot pit
  assert.match(sourceModel,/sourceSolePatchVertexCandidates\(/,
   'only verified original inverse-bind and skinned shoe patches may drive the ankle');
 });
+
+
+test('native original swing toe may carry ONLY recently witnessed travel across honest same-tick source frames',async()=>{
+ const {advanceOriginalSourceSwingTravelWitness:advance}=await load();
+ assert.equal(typeof advance,'function','the real source gait needs bounded witness memory, not per-render fake movement');
+ const actual={mode:'move',walkingClip:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ const first=advance({...actual,travel:.0655,frameInterval:.035});
+ assert.ok(first.travel>.065&&first.travel<.066&&first.age===0,
+  'only a real legal root displacement can initialize the source-foot witness');
+ const hold=advance({...actual,travel:0,frameInterval:.07,
+  previousTravel:first.travel,previousAge:first.age});
+ assert.equal(hold.travel,first.travel,
+  'same original walking owner and licensed clip retain last real step while source poses follow');
+ assert.ok(hold.age>.069&&hold.age<.071);
+ const within=advance({...actual,travel:0,frameInterval:.07,
+  previousTravel:hold.travel,previousAge:hold.age});
+ assert.equal(within.travel,first.travel,'second actual displayed frame still has the original root witness');
+ const expired=advance({...actual,travel:0,frameInterval:.07,
+  previousTravel:within.travel,previousAge:within.age});
+ assert.equal(expired.travel,0,'no new authority step: expire after 180ms');
+ for(const invalid of [
+  {mode:'idle'},{walkingClip:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {travel:.6},{travel:NaN},{previousTravel:Infinity},
+  {previousAge:NaN},{frameInterval:NaN},{frameInterval:.8}
+ ])assert.equal(advance({...actual,travel:0,previousTravel:first.travel,
+  previousAge:0,frameInterval:.06,...invalid}).travel,0,
+  'never carry a fabricated/stale/out-of-owner step: '+JSON.stringify(invalid));
+ const render=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(render,/advanceOriginalSourceSwingTravelWitness\(/);
+ assert.match(render,/rigRecentGroundedTravel/,
+  'bounded original-source witness must be forwarded to the actual skinned ankle probe');
+});
