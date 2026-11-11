@@ -23,7 +23,7 @@ import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
-import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue } from './guardian-camera-safety.mjs';
+import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
@@ -2425,6 +2425,15 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianPlannerWitness = {
     runToken:null, floor:null, tick:-1, guardianId:null, anchor:null
   };
+  // Real portrait footage shows the drawn bronze guardian and maul filling
+  // the frame as the camera passes too close to its moving physical body.
+  // Reuse one pair of tested exterior radial corrections per rendered frame;
+  // neither a new camera nor any change to the source's actor positions.
+  const guardianStandoffPreviousCamera = new THREE.Vector3();
+  const guardianStandoffHeroNdc = [0,0,0,0];
+  const guardianStandoffBossNdc = [0,0,0,0];
+  let guardianStandoffTargetLift = 0, guardianStandoffFrameLift = 0;
+  let guardianStandoffApplications = 0;
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -3468,9 +3477,36 @@ export function createTowerScene(canvas, settings = {}) {
     // Follow source-observed guardian action a little faster than exploration:
     // a real HP change should not be over before the camera catches its actor.
     // All motion remains bounded and presentation-only; reduced motion is still.
+    // Target the exterior of the LIVING, genuinely drawn guardian's large
+    // 3D body, before the smoothed orbit can accidentally run through its
+    // armor and hammer. The source actor, source halfHeight and real current
+    // drawn guardian must all be present in this SAME snapshot. Preserve the
+    // existing hero/core checks and original source-owned movement.
+    guardianStandoffTargetLift = 0;
+    const protectLivingGuardian = !overview && portrait &&
+      !options.stale && !options.reducedMotion &&
+      snapshot.lifecycle === 'running' && p.health > 0 &&
+      sourceGuardian?.active === true && sourceGuardian.health > 0 &&
+      followComposition?.guardianStaged && currentGuardianDrawPoint &&
+      Number.isFinite(sourceGuardian.halfHeight) &&
+      sourceGuardian.halfHeight > 0 && zoom <= 1.03;
+    if (protectLivingGuardian) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      const plannedStandoff = guardianExteriorPortraitStandoff(
+        destination, currentGuardianDrawPoint, actorFramePoint,
+        sourceGuardian.halfHeight / SCALE, camera.aspect);
+      if (plannedStandoff) {
+        destination.x = plannedStandoff.x;
+        destination.z = plannedStandoff.z;
+        guardianStandoffTargetLift = plannedStandoff.step;
+      }
+    }
     let cameraRate = towerCameraRate(camera.position, destination,
       !overview && !!followComposition?.guardianStaged, overview);
     if (terminalStaged) cameraRate = Math.max(cameraRate, 6.5);
+    if (guardianStandoffTargetLift > 0)
+      cameraRate = Math.max(cameraRate, 7.2);
     // Source-near crossing deserves a responsive continuous lens, but NEVER
     // alters simulation time or overrides the actor/guardian safety checks.
     if (arrivalFraming > 0 && !options.reducedMotion)
@@ -4064,6 +4100,59 @@ export function createTowerScene(canvas, settings = {}) {
             lookAt.copy(earnedGatewayPreviousFocus);
             camera.lookAt(lookAt); camera.updateMatrixWorld(true);
           }
+        }
+      }
+    }
+    // Last submitted-camera guard: downstream combat, impact and gateway
+    // escorts could still pull the physical camera into the guardian's
+    // articulated bronze forearms. Separate radially on the tower EXTERIOR,
+    // at a bounded distance per render, with BOTH real body envelopes, the
+    // tower core and the current airborne landing revalidated. Roll back the
+    // proposed camera if ANY safety requirement fails; no jump cut, hiding,
+    // invented animation pose, extra pass or simulation authority.
+    guardianStandoffFrameLift = 0;
+    if (protectLivingGuardian) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      const frameStandoff = guardianExteriorPortraitStandoff(
+        camera.position, currentGuardianDrawPoint, actorFramePoint,
+        sourceGuardian.halfHeight / SCALE, camera.aspect,
+        Math.min(1.1, Math.max(.10, dt * 13)));
+      if (frameStandoff) {
+        guardianStandoffPreviousCamera.copy(camera.position);
+        camera.position.set(frameStandoff.x, frameStandoff.y, frameStandoff.z);
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
+        measureDuelBodyNdc(actorFramePoint, p.halfHeight / SCALE,
+          camera, duelTop, duelBottom, guardianStandoffHeroNdc);
+        measureDuelBodyNdc(currentGuardianDrawPoint,
+          sourceGuardian.halfHeight / SCALE, camera, duelTop, duelBottom,
+          guardianStandoffBossNdc);
+        const h = guardianStandoffHeroNdc, g = guardianStandoffBossNdc;
+        let safe = towerCoreSightlineClear(camera.position, actorFramePoint, 23.5) &&
+          towerCoreSightlineClear(camera.position, currentGuardianDrawPoint, 23.5) &&
+          h.every(Number.isFinite) && g.every(Number.isFinite) &&
+          h[2] >= -1 && h[2] <= 1 && g[2] >= -1 && g[2] <= 1 &&
+          Math.abs(h[0]) + h[3] * .14 < .78 &&
+          Math.abs(h[1]) + h[3] < .78 &&
+          Math.abs(g[0]) + g[3] * .14 < .84 &&
+          Math.abs(g[1]) + g[3] < .80 &&
+          h[3] >= .065;
+        if (safe && airborneDuelLanding) {
+          portraitAimLandingProjection.copy(portraitAimLanding).project(camera);
+          safe = portraitAimLandingProjection.z >= -1 &&
+            portraitAimLandingProjection.z <= 1 &&
+            Math.abs(portraitAimLandingProjection.x) < .78 &&
+            Math.abs(portraitAimLandingProjection.y) < .76;
+        }
+        if (safe) {
+          guardianStandoffFrameLift = frameStandoff.step;
+          guardianStandoffApplications = Math.min(1000000,
+            guardianStandoffApplications + 1);
+        } else {
+          camera.position.copy(guardianStandoffPreviousCamera);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
         }
       }
     }
