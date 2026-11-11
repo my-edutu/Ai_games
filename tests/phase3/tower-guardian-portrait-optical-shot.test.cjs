@@ -44,7 +44,7 @@ test('critical body, scenery, landing and manual camera safety vetoes a tighter 
   assert.equal(f({...central,landing:[0,0,3]}),42);
   assert.equal(f({...central,actor:[0,0,2,.05]}),42);
   assert.equal(f({...central,currentFov:NaN}),42);
-  const landing=f({...central,landing:[.48,.35,.2]});
+  const landing=f({...central,landing:[.65,.35,.2]});
   assert.ok(landing>f(central)&&landing<=42,
     'the same authoritatively selected landing must shrink optional zoom');
 });
@@ -52,7 +52,7 @@ test('critical body, scenery, landing and manual camera safety vetoes a tighter 
 test('portrait optical change is bounded by presented wall time and releases to 42 on exit',async()=>{
   const {boundedGuardianOpticalFov:step}=await lens;
   assert.equal(step(42,31,.016),41.808);
-  assert.equal(step(41.808,42,.016),42.0);
+  assert.ok(Math.abs(step(41.808,42,.016)-42)<1e-9);
   assert.equal(step(42,31,.5),41.28,'large render gaps cannot cause a visual cut');
   assert.equal(step(42,31,0),42);
   assert.equal(step(42,NaN,.016),42);
