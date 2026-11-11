@@ -1,0 +1,32 @@
+# Infinite Tower Climb PR68 — P0 original-browser runner DNS unblock (2026-11-11)
+
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH — OPEN. **Leading assessor verdict:** NOT EVALUATED. No gameplay or visual milestone accepted.
+
+## Inspected immutable evidence
+
+- Draft PR #68 candidate before this correction: `fa4fe5d9cc86171d2d4cc48115044c4cd0124095`; target PR58 base and immutable baseline are `1731b380851162741761c5569e2bc152a0869ca9`.
+- Exact-source 9-job original gameplay request: https://github.com/my-edutu/Ai_games/actions/runs/43036356312 .
+- The `authentic-ledge` job (job `130576092496`) completed actual candidate build, the **two original 3200-step 20Hz source replay + same-run audit step**, the one moving-platform trace test, and the 25 listed geometry/safety tests. It then **failed at** `npx playwright install --with-deps chromium` while Ubuntu's apt repository aliases repeatedly returned `Temporary failure resolving 'azure.archive.ubuntu.com'` fetching fonts and X11 packages. The source-chain veto step itself did not report a source-campaign failure. The job is still FAILED, not acceptable capture evidence.
+- The eight baseline/candidate film jobs and strict event/raster pairing were not completed when this blocker was inspected; their queue does not count as footage acceptance. Independent reviews LOOKS/FEELS/PLAYS remain 0/5, no physical-device p50/p95/p99 or memory measurements.
+- The prior original portrait guardian film still shows unresolved structural occlusion and actor separation around 16–24 seconds. Full guardian/crusher defeat, **actual grounded gateway walking**, Floor 9 onward and outcome/intermission/restart are not verified by complete event-paired moving footage.
+
+## One systemic blocker correction
+
+The new observational-only `scripts/tower-chromium-host-preflight.cjs` launches the **real version-locked Playwright Chromium** with the *same CI software-GL flags* as `playwright.tower.config.cjs`, opens a 390x844 page, and requires a real WebGL2 context. A missing browser or GPU adapter fails immediately; no fake screenshot or source event is generated.
+
+Both `.github/workflows/tower-transformation-visual-evidence.yml` browser entry points (candidate source-chain stills, and each immutable baseline/candidate dual-viewport film job), and `.github/workflows/tower-transformation-gate.yml` exact-head browser tests now use `npx playwright install chromium` followed by the real launch/WebGL2 probe. This stops installing nonessential Ubuntu font packages from the intermittently unreachable apt mirrors. The *frozen game and stream host are untouched*. For baseline checkout only, the neutral probe is copied alongside the existing observational harness. Every browser step still fails hard if the actual executable/WebGL2 cannot start.
+
+The separate ffprobe/ffmpeg installation fallback remains in place when those binaries are missing; if that step also hits a DNS issue, that is a **new measured blocker** requiring its own follow-up, not permission to accept recordings without real native timestamp audits. No source speed, seed, capture duration, viewport, rig geometry, game AI, authoritative combat or restart behavior changes.
+
+## Verification and risks
+
+- Code and workflow updates committed only to draft PR68: `f74efe89` (probe), `c448cefd` (eight original films and ledge browser bootstrap), `fba2c8f7` (quality workflow), `f4abac8d` (match source-capture software GL flags).
+- GitHub accepted the pushes and queued exact-head CI at https://github.com/my-edutu/Ai_games/actions/runs/43040294552 ; **not claimed passed**.
+- A fresh source-pinned 9-job capture must be requested *after* the edit; historic films cannot validate the fix. A new workflow might still be blocked by unavailable GitHub runner capacity, Playwright CDN, missing shared system libraries, real WebGL2 failure, native transport auditors or event/film mismatch.
+- Source/quality review: the correction is scoped to runner startup and does not alter deterministic game rules. It removes one external infrastructure dependency, but **neither gameplay experience nor full-motion visuals improve merely because a recording can run**.
+
+## Next highest-impact action
+
+Inspect new original 960x600 desktop and 390x844 portrait >=60s WebMs at their **exact** source SHAs with matching seed, graphics tier and native PTS. Determine whether the last 7bd9e8f0 camera director actually clears the source-measured upper-cap 3D occluders *without jitter*; assess guardian and crusher tells/defeat, real walkable gateway threshold and Floor 9, outcome/restart. If any phase lacks source-to-raster proof, retain P0 NOT EVALUATED and fix the most consequential live gameplay/scene defect. Recruit genuinely independent randomized fresh-context reviewers and measure real-device frame-time tails/memory before P6.
+
+**Safety:** PR68 remains open draft. No main/PR58/other-game changes, merge, deploy, force-push, or frozen baseline modification.
