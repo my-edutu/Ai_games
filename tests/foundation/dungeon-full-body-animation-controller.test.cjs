@@ -2564,7 +2564,8 @@ test('source calf trial selection must reject an unsafe high-toe pose in favour 
   {afterAnkleToeY:NaN},{afterAnkleHeelY:NaN},{floorTopY:.2},
   {trials:[{signed:.1,toe:-.065,heel:NaN}]},
   {trials:[{signed:.1,toe:-.065,heel:.0}]},
-  {trials:[{signed:.2,toe:-.061,heel:.12}]},
+  {trials:[{signed:.25,toe:-.061,heel:.12}]},
+  {trials:[{signed:.2,toe:-.061,heel:-.012}]},
   {trials:[{signed:.1,toe:-.072,heel:.12}]},
   {trials:[{signed:.1,toe:.03,heel:.12}]}
  ])assert.equal(choose({...measured,...invalid}),null,
