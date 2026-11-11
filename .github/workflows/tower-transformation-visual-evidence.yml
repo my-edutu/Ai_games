@@ -156,11 +156,13 @@ jobs:
           # ONLY observational harness code; never alter its game or host.
           cp current-harness/scripts/tower-video-timebase.cjs source/scripts/tower-video-timebase.cjs
           cp current-harness/scripts/tower-event-frame-probes.cjs source/scripts/tower-event-frame-probes.cjs
+          cp current-harness/scripts/tower-native-scene-phase.cjs source/scripts/tower-native-scene-phase.cjs
+          cp current-harness/tests/phase3/tower-native-scene-phase.test.cjs source/tests/phase3/tower-native-scene-phase.test.cjs
           cp current-harness/tests/phase3/tower-event-frame-probes.test.cjs source/tests/phase3/tower-event-frame-probes.test.cjs
           cp current-harness/scripts/tower-native-compositor-anchors.cjs source/scripts/tower-native-compositor-anchors.cjs
           cp current-harness/tests/phase3/tower-native-compositor-anchors.test.cjs source/tests/phase3/tower-native-compositor-anchors.test.cjs
           cp current-harness/scripts/tower-native-film-integrity.cjs source/scripts/tower-native-film-integrity.cjs
-          cp current-harness/tests/phase3/tower-native-film-integrity.test.cjs source/tests/phase3/tower-native-film-integrity.test.cjs
+          cp current-harness/tests/phase3/tower-native-film-integrity.test.cjs source/tests/phase3/tower-native-film-integrity.test.cjs tests/phase3/tower-native-scene-phase.test.cjs
           cp current-harness/tests/phase3/tower-video-timebase.test.cjs source/tests/phase3/tower-video-timebase.test.cjs
           cp current-harness/scripts/tower-capture-window.cjs source/scripts/tower-capture-window.cjs
           cp current-harness/scripts/tower-fixed-step-trace.cjs source/scripts/tower-fixed-step-trace.cjs
@@ -281,6 +283,9 @@ jobs:
         working-directory: source
         run: |
           node scripts/tower-event-frame-probes.cjs             "artifacts/tower-motion/${{ matrix.scenario }}"             "$TOWER_CAPTURE_SOURCE_SHA" "${{ matrix.scenario }}"
+          if [[ "${{ matrix.scenario }}" == "danger" ]]; then
+            node scripts/tower-native-scene-phase.cjs "artifacts/tower-motion/danger" "$TOWER_CAPTURE_SOURCE_SHA"
+          fi
       - name: Preserve both viewport outcomes and veto failed capture
         if: always() && steps.pin_source.outcome == 'success'
         working-directory: source

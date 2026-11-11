@@ -86,6 +86,26 @@ function planPair(rows,viewport,candidateSha){
     candidate:b.videoClock.originalVideoDurationSeconds};
   plan.shuffleAB=createHash('sha256').update(
     a.videoSha256+':'+b.videoSha256+':'+viewport).digest()[0]%2===1;
+  // The native WebM scene shift is a separate, hash-bound RASTER witness,
+  // not evidence that the exact gameplay floor event was painted. The latest
+  // genuine source film's calibrated event was 2-4s before the visual phase.
+  // Never offer a frame-aligned review cue for that timestamp. Preserve the
+  // unmodified films for honest UNSYNCHRONIZED inspection.
+  for(const [source,record] of [['baseline',a],['candidate',b]]){
+    const chroma=record.nativeScenePhase;
+    if(chroma?.sourceSha!==record.sourceSha ||
+       chroma.originalWebMSha256!==record.videoSha256 ||
+       chroma.originalWebMBytes!==record.videoBytes ||
+       chroma.viewport!==viewport || chroma.scenario!=='danger' ||
+       chroma.originalVideoUnmodified!==true ||
+       chroma.phase?.status!=='CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'){
+      plan.failures.push('native-scene-phase-not-confirmed-'+source);
+    }
+  }
+  if(plan.failures.length){
+    plan.unalignedInspectionOnly=true;
+    return plan;
+  }
   const have=new Set(plan.anchors.map(e=>e.kind));
   if(REQUIRED.some(kind=>!have.has(kind))){
     plan.failures.push('missing-common-guardian-and-onward-source-anchors');

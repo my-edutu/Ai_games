@@ -18,6 +18,10 @@ function make(source,viewport='portrait',events=null){
       native:{width:viewport==='portrait'?390:960,
         height:viewport==='portrait'?844:600,firstPtsSeconds:0,lastPtsSeconds:70}}]},
   index:{sourceSha:sha},motion:{seed:'seed-1',recordingQuality:'low',scenario:'danger'},
+  nativeScenePhase:{sourceSha:sha,viewport,scenario:'danger',
+    originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
+    originalWebMBytes:1100,originalVideoUnmodified:true,
+    phase:{status:'CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'}},
   videoClock:{sourceSha:sha,status:'CALIBRATED',originalWebMBytes:1100,
     originalVideoUnmodified:true,
     originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
@@ -76,4 +80,22 @@ test('veto a self-described calibrated film without transport-decoded native PTS
  const a=make('baseline'),b=make('candidate');
  b.nativeFilmAudit.viewports[0].native.lastPtsSeconds=14;
  assert.equal(planPair([a,b],'portrait',CANDIDATE).canReview,false);
+});
+
+test('genuine native films remain reviewable without miscuing 2.4s early source transitions',()=>{
+ const a=make('baseline'),b=make('candidate');
+ b.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+ b.nativeScenePhase.phase.sourceToVioletPhaseDeltaSeconds=2.393;
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false);
+ assert.equal(p.unalignedInspectionOnly,true);
+ assert.match(p.failures.join(','),/native-scene-phase-not-confirmed-candidate/);
+ assert.match(htmlFor([p]),/"synchronized":false/);
+ assert.equal(p.status,'NOT EVALUATED');
+});
+test('a visual phase sidecar cannot be reused from another native WebM',()=>{
+ const a=make('baseline'),b=make('candidate');
+ b.nativeScenePhase.originalWebMSha256='f'.repeat(64);
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false);assert.equal(p.unalignedInspectionOnly,true);
 });

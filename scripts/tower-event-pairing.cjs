@@ -357,10 +357,14 @@ function collect(root){
       catch {videoClock={status:'NOT EVALUATED',
         error:'Unreadable native-video-clock.json'};}
     }
+    const phasePath=path.join(dir,'native-scene-phase.json');
+    let nativeScenePhase=null;
+    if(fs.existsSync(phasePath))try{nativeScenePhase=JSON.parse(fs.readFileSync(phasePath,'utf8'));}
+      catch{nativeScenePhase={phase:{status:'NOT EVALUATED'},error:'invalid-original-scene-phase-json'};}
     rows.push({artifact:entry.name,source:match[1],scenario:match[2],
       viewport:path.basename(dir),sourceSha:motion.sourceSha,motion,index,videoClock,
       videoPath:path.relative(root,webm),videoPresent,
-      videoSha256,videoBytes,nativeFilmAudit});
+      videoSha256,videoBytes,nativeFilmAudit,nativeScenePhase});
    }
   }
   visit(path.join(root,entry.name));
