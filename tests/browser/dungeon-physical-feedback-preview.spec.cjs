@@ -774,6 +774,18 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
    staleAudioDropped:observed.physicalFeedback?.staleAudioDropped??null,
    visualAccepted:observed.physicalFeedback?.visualAccepted??null,
    recentReceipts:lateReceipts},
+  // Separate audio scheduling domain: source.start() returns WebAudio context
+  // milliseconds, NOT performance.now. Match only immutable cue identity,
+  // never subtract the unlike clock origins or infer an audible PCM onset.
+  originalSourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[],
+  sourceStartClock:'AudioContext.currentTime, unmatched to decoded audio/video PTS',
+  sourceStartMatches:(observed.physicalFeedback?.audio?.recentOriginalStarts??[])
+   .filter(start=>lateReceipts.some(r=>r.audio===true&&r.cueId===start.cueId))
+   .map(start=>({cueId:start.cueId,kind:start.kind,audio:start.audio,
+    scheduledContextMs:start.scheduledContextMs,
+    startedSources:start.startedSources,
+    verifiedCanonicalCue:start.verifiedCanonicalCue,
+    sampleSynchronized:false})),
   admittedFoleyReceipts:lateReceipts.filter(r=>r.audio===true&&
    r.frameId!==null).map(r=>({cueId:r.cueId,kind:r.kind,tick:r.tick,
     observedClockMs:r.observedClockMs,submittedClockMs:r.submittedClockMs,
@@ -782,7 +794,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   sampleSynchronized:false,classification:'FRAME_TIMELINE_ONLY_UNALIGNED',
   limitations:[
    '64 retained receipts are a bounded sample, not the full combat history',
-   'An accepted WebAudio emit is not proof of audible Opus sample onset',
+   'An accepted WebAudio emit or source.start is not proof of audible Opus sample onset',
    'Renderer acknowledgments are not decoded video presentation timestamps',
    'The actual HP loss does not identify an attacker, blade-tip or damage source'
   ]
