@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
-const {decodeSerialRealWebGLMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
+const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witnessActualDamage(){
@@ -501,7 +501,8 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  if(started?.status==='STARTED')try{
   raw=await page.evaluate(()=>window.__D04_REAL_AV_CAPTURE__);
  }catch(e){raw.clip={status:'UNAVAILABLE',reason:'Live browser retrieval: '+String(e)}}
- raw.decoder={serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo)};
+ raw.decoder={serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo),
+   readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo)};
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
  console.log('D04 verified real WebGL frames:',JSON.stringify({
   decoded:raw.decoder.serialRealVideo.frameCount??0,
