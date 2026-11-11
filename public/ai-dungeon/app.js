@@ -21,7 +21,7 @@ import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
-import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry} from '/dungeon/postfx-budget.js';
+import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createBaseWorldArchitecturalBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
 import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -416,7 +416,7 @@ function column(parent,x,z){
  make(geo.cylinder,stoneEdge,group,0,.95,0,.26,1.95,.26);
  make(geo.cylinder,gold,group,0,1.93,0,.4,.12,.4);
  make(geo.cylinder,stoneEdge,group,0,.12,0,.37,.24,.37);
- parent.add(group);parent.userData.foregroundProps?.push(group);return group;
+ parent.add(group);parent.userData.foregroundProps?.push(group);parent.userData.baseColumnRoots?.push(group);return group;
 }
 function disposeActor(a){
  a.ground?.dispose();disposeActorAsset(a);a.detail?.dispose();
@@ -428,8 +428,8 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){world.userData.softwareWorldRasterTier=null;world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
-function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];world.userData.staticDetailBatches=[];lastCutawayKey='';
+function clearWorld(){world.userData.baseWorldArchitecturalBatches?.dispose();world.userData.baseWorldArchitecturalBatchesAlt?.dispose();world.userData.baseWorldArchitecturalBatches=null;world.userData.baseWorldArchitecturalBatchesAlt=null;world.userData.softwareWorldRasterTier=null;world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];world.userData.baseColumnRoots=[];world.userData.baseArchRoots=[];world.userData.baseShrineRoots=[[],[]];world.userData.staticDetailBatches=[];lastCutawayKey='';
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
  // 128px PBR albedo gives every overhead-visible top/side real stone courses.
@@ -534,7 +534,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    rib.name='Open processional ogive';rib.castShadow=false;
    rib.userData.sharedAssetGeometry=true;arch.add(rib);
    make(geo.sphere,gold,arch,0,2.22,0,.09,.12,.09);
-   world.add(arch);world.userData.foregroundProps.push(arch);archCount++;
+   world.add(arch);world.userData.foregroundProps.push(arch);world.userData.baseArchRoots.push(arch);archCount++;
  }
 
  // Lit path markers, carved stone columns and modest dynamic lighting budget.
@@ -548,7 +548,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   const shrine=new THREE.Group();shrine.position.set(px,.02,pz);
   make(geo.cylinder,stoneEdge,shrine,0,.13,0,.24,.24,.24);
   make(geo.cylinder,gold,shrine,0,.27,0,.20,.045,.20);
-  const gem=make(geo.cone,k%2?tealGlow:dangerGlow,shrine,0,.49,0,.12,.37,.12);gem.rotation.z=.1;world.add(shrine);world.userData.foregroundProps.push(shrine);
+  const gem=make(geo.cone,k%2?tealGlow:dangerGlow,shrine,0,.49,0,.12,.37,.12);gem.rotation.z=.1;world.add(shrine);world.userData.foregroundProps.push(shrine);world.userData.baseShrineRoots[k%2].push(shrine);
  }
 
  const pos=new THREE.Vector3(s.exit.x-offset,.05,s.exit.z-offset);
@@ -633,6 +633,17 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
  });
  // Cache original geometry ONCE per floor; no per-frame geometry scans.
+ // The same genuine stone groups continue to drive camera obstruction, but
+ // their repeated source primitives render in retained batches. Recession is
+ // synchronized after the physical camera decisions every frame below.
+ world.userData.baseWorldArchitecturalBatches=createBaseWorldArchitecturalBatches(
+  THREE,world,{columns:world.userData.baseColumnRoots,
+   arches:world.userData.baseArchRoots,
+   shrines:world.userData.baseShrineRoots[0]});
+ // The alternate relic finish is a distinct material and fails closed rather
+ // than being misrendered as an apparently identical shader/material batch.
+ world.userData.baseWorldArchitecturalBatchesAlt=createBaseWorldArchitecturalBatches(
+  THREE,world,{shrines:world.userData.baseShrineRoots[1]});
  world.userData.foregroundPropVolumes=captureForegroundVolumes(THREE,world.userData.foregroundProps);
  world.userData.authoredPropVolumes=captureForegroundVolumes(THREE,world.userData.authoredProps?.group?.children||[]);
  world.userData.cameraPropVolumes=[...world.userData.foregroundPropVolumes,
@@ -1452,6 +1463,9 @@ function animate(t){
  const physicalStage=actorOcclusionStage.resolve(worldFloor,camera,partySightlines,
   world.userData.walls,world.userData.dressing?.occluders?.[0],time);
  cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls,dt);
+ world.userData.baseWorldArchitecturalBatchWrites=
+  (world.userData.baseWorldArchitecturalBatches?.sync().matrixWrites||0)+
+  (world.userData.baseWorldArchitecturalBatchesAlt?.sync().matrixWrites||0);
  world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1,
   renderedBodyView,physicalStage.facades,dt,reduced,activeWarningSightlinePoints);
   world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
@@ -1567,7 +1581,15 @@ function animate(t){
  renderPhaseProfiler.observe({sceneMs:sceneCpuMs,submitMs:submitCpuMs,overlayMs:performance.now()-overlayCpuStart});
  if(state){
   const observedState=state,observedTime=time;
-  const diagnostics=window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},hiddenForegroundProps:world.userData.hiddenForegroundProps??0,wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
+  const diagnostics=window.__DUNGEON_RENDER_DIAGNOSTICS__={renderedState:{run:state.run,tick:state.tick,floor:state.floor,checksum:state.checksum},frame:renderer.info.render.frame,cultistTellCount:cultistTell.count,revenantTellCount:breachDiamond.count,oathguardVisible:oathguardAegis.visible,oathguardPhysicalPanels:oathguardAegis.children.filter(o=>o.isMesh).length,oathguardImpactVisible:oathguardImpactRing.visible,oathguardCompletedLaneVisible:oathguardEscapeMark.visible,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:cameraModes[cameraIndex],cameraSpread:spread,cameraMargin:margin,encounterFrame:encounterFrame??null,cinematicShot:cinematicShot??null,cinematicLens:cinematicLens??null,storyStage:storyStage??null,wardenExposure:[...actors.values()].find(a=>a.u.kind==='warden'&&a.u.hp>0)?.wardenExposure??null,criticalCameraFit,cameraFrameDt:cameraDt,cinematicAim:{x:cameraAim.x,y:cameraAim.y,z:cameraAim.z},duelSightline:duelCamera?.sightline??null,cameraRig:{mode:cameraType,desiredPosition:plannedCamera.position,actualPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},turn:plannedCamera.turn,boundaryLimit:plannedCamera.boundaryLimit},focusedHeroId,autoDirector,cutawayWalls:world.userData.cutawayWalls??0,screenSpaceWallReveals:world.userData.screenSpaceWallReveals??0,wallMatrixWrites:world.userData.wallMatrixWrites??0,parapetMatrixWrites:world.userData.parapetMatrixWrites??0,cutawayNearbyWalls:world.userData.cutawayNearbyWalls??0,cutawaySubjects:world.userData.cutawaySubjectCount??0,realRigSightlineActors:partySightlines.filter(p=>p.bodyPoints?.length>=3).length,realRigSightlineSamples:partySightlines.reduce((n,p)=>n+(p.bodyPoints?.length||0),0),recessActors:world.userData.recessActors??0,recessCombatants:world.userData.recessCombatants??0,bossCutawayActive:world.userData.bossCutawayActive??false,cutawayParapets:world.userData.cutawayParapets??0,foundationBricks:world.userData.foundationBrickPositions?.length??0,clearedFoundationBricks:world.userData.clearedFoundationBricks??0,foundationMatrixWrites:world.userData.foundationMatrixWrites??0,wallProfiles:world.userData.wallProfileMetrics??null,wallSculpture:world.userData.wallSculpture??null,openWardenGate:world.userData.openWardenGate===true,chapterNaves:world.userData.chapterNaves?.metrics??null,stoneGrade:{biome:floorThemes[(state.floor-1)%floorThemes.length].biome,wallTint:stone.color.getHexString(),floorTint:floorMat.color.getHexString(),trimTint:stoneEdge.color.getHexString(),keyFill:moon.color.getHexString(),partyFill:partyGlow.color.getHexString(),partyIntensity:partyGlow.intensity,wallTextureMapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture)},wallMasonry:{size:wallMasonryTexture?.image?.width??0,mapped:Boolean(wallMasonryTexture&&stone.map===wallMasonryTexture),bump:Boolean(wallMasonryTexture&&stone.bumpMap===wallMasonryTexture),bumpScale:stone.bumpScale},hiddenForegroundProps:world.userData.hiddenForegroundProps??0,
+ baseWorldArchitecturalBatches:{sourceDrawCalls:
+  (world.userData.baseWorldArchitecturalBatches?.sourceDrawCalls||0)+
+  (world.userData.baseWorldArchitecturalBatchesAlt?.sourceDrawCalls||0),
+  drawCalls:(world.userData.baseWorldArchitecturalBatches?.drawCalls||0)+
+   (world.userData.baseWorldArchitecturalBatchesAlt?.drawCalls||0),
+  savedDrawCalls:(world.userData.baseWorldArchitecturalBatches?.savedDrawCalls||0)+
+   (world.userData.baseWorldArchitecturalBatchesAlt?.savedDrawCalls||0),
+  matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,

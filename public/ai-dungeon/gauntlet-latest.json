@@ -123,6 +123,22 @@
       "verification": "405/405 focused foundation; 24x900 replay no divergences; original audio/film pending new head",
       "criticCount": 0,
       "pillars": "LOOKS FEELS PLAYS UNVERIFIED"
+    },
+    "m1BaseWorldArchitecturalBatches20261111": {
+      "milestone": "A_INCOMPLETE",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parent": "b69504c565a6d5d746e942dd08dd7c7f48997680",
+      "productionChange": "Real original stone columns, ogive ribs and shrine render instancing with physical cutaway intact",
+      "sourceTest": "2/2 THREE PASS",
+      "foundationBeforeTestRegistration": "405/405 PASS",
+      "headless": "24×900 no replay divergence",
+      "newHeadMovingAudio": "NOT_OBSERVED",
+      "gameFps": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new head original film/metrics, reject any camera/warning/performance regression, then dominant graphics cost and adult original rig combat vertical slice"
     }
   },
   "failures": [],

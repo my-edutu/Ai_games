@@ -690,3 +690,34 @@ export function createRetainedForegroundReplicaBatches(THREE,parent,roots,{maxGr
    }};
  }catch(error){for(const mesh of meshes){parent.remove(mesh);mesh.dispose()}return noop()}
 }
+
+/**
+ * Retain the real origin/physical camera volumes for original base-world stone
+ * columns, processional ribs and small relic shrines while drawing repeated
+ * source geometry in a bounded number of shared GPU batches. The source Groups
+ * still undergo the EXISTING authority-driven foreground recession. A varied
+ * or new authored silhouette fails closed in its own family, not all families.
+ * Never visit live actors, rigged assets, boss ritual or gameplay geometry.
+ */
+export function createBaseWorldArchitecturalBatches(THREE,world,{columns=[],arches=[],shrines=[]}={}){
+ if(!world?.isGroup||!THREE?.InstancedMesh||
+    ![columns,arches,shrines].every(Array.isArray)||
+    columns.length>8||arches.length>4||shrines.length>5||
+    new Set([...columns,...arches,...shrines]).size!==columns.length+arches.length+shrines.length)
+  throw new TypeError('Invalid bounded original base-world architectural families');
+ const groups=[columns,arches,shrines].map(roots=>
+  createRetainedForegroundReplicaBatches(THREE,world,roots,{maxGroups:8}));
+ const total=key=>groups.reduce((n,g)=>n+g[key],0);
+ let disposed=false;
+ return {
+  sourceDrawCalls:total('sourceDrawCalls'),drawCalls:total('drawCalls'),
+  savedDrawCalls:total('savedDrawCalls'),instances:groups.reduce((n,g)=>n+(g.instances||0),0),
+  meshes:groups.flatMap(g=>g.meshes),
+  sync(){if(disposed)return {matrixWrites:0,hiddenInstances:0};
+   const results=groups.map(g=>g.sync());
+   return {matrixWrites:results.reduce((n,r)=>n+r.matrixWrites,0),
+    hiddenInstances:results.reduce((n,r)=>n+r.hiddenInstances,0)};
+  },
+  dispose(){if(disposed)return;disposed=true;for(const g of groups)g.dispose()}
+ };
+}

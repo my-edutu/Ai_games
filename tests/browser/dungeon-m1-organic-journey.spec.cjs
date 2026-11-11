@@ -199,7 +199,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
     publicChecksum:s?.checksum??null,composition:d?.composition,actorReadability:d?.actorReadability,
-    visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,frameDelivery:d?.frameDelivery,
+    visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:d?.baseWorldArchitecturalBatches,frameDelivery:d?.frameDelivery,
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
@@ -210,6 +210,8 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(proof.renderedState?.checksum,'rendered truth '+stage).toBe(expected.checksum);
   expect(proof.publicChecksum,'consumed truth '+stage).toBe(expected.checksum);
   expect(proof.actorReadability?.status,'real posed actor projection '+stage).toBe('MEASURED');
+  expect(proof.baseWorldArchitecturalBatches?.sourceDrawCalls,'real original floor primitive source count').toBeGreaterThanOrEqual(proof.baseWorldArchitecturalBatches?.drawCalls??0);
+  expect(proof.baseWorldArchitecturalBatches?.savedDrawCalls,'actual bounded saved base-world submits').toBeGreaterThanOrEqual(0);
   if(stage==='warden'){
    expect(proof.actorReadability.actors.some(a=>a.kind==='warden'&&a.inFrame),
     'real skinned Warden must be in the original 3D camera frame').toBe(true);
@@ -238,7 +240,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,actorReadability:proof.actorReadability,
-   visibility:proof.visibility,wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,frameDelivery:proof.frameDelivery,
+   visibility:proof.visibility,wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:proof.baseWorldArchitecturalBatches,frameDelivery:proof.frameDelivery,
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
    surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,
