@@ -41,7 +41,10 @@ export function observedGuardianCircuit(snapshot) {
       ? Math.min(guardian.telegraphTotalTicks===6?6:8,
         Math.max(1, guardian.telegraphTicksRemaining))
       : (guardian.telegraphTotalTicks===6?6:8),
-    // Preserve the guardian's ACTUAL published body height for the living\n    // circuit's overhead clearance; no synthetic location or predicted hit.\n    guardianHalfHeight: guardian.halfHeight,\n    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
+    // Preserve the guardian's ACTUAL published body height for the living
+    // circuit's overhead clearance; no synthetic location or predicted hit.
+    guardianHalfHeight: guardian.halfHeight,
+    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
     toX: anchorX, toY: cap.y + cap.height + 20000,
     width: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
   };
@@ -329,7 +332,10 @@ export function createTowerGuardianCircuit(THREE) {
     const relayCenter = relayStage.center;
     atGuardian.position.set(relayCenter.x, relayCenter.y, relayCenter.z);
     atGuardian.rotation.set(0, relayCenter.angle, 0);
-    // Original 1.66x full-ring plus 8 broad surrounding teeth filled the\n    // real body interaction on phone. Keep the authentic HP-bearing clutch,\n    // but confine its entire outer silhouette to a narrow overhead socket.\n    atGuardian.scale.setScalar(.92);
+    // Original 1.66x full-ring plus 8 broad surrounding teeth filled the
+    // real body interaction on phone. Keep the authentic HP-bearing clutch,
+    // but confine its entire outer silhouette to a narrow overhead socket.
+    atGuardian.scale.setScalar(.92);
     for (let index = 0; index < RELAY_TEETH; index++) {
       const theta = 2 * Math.PI * index / RELAY_TEETH;
       const engaged = (index + .5) / RELAY_TEETH <= relayStage.remainingFraction;
