@@ -1007,7 +1007,7 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  // choosing a direction rather than rejecting the whole pair afterward.
  const best=selectOriginalSourceSwingCalfTrial({
   afterAnkleToeY:ankleToeY,afterAnkleHeelY:ankleHeelY,
-  floorTopY:-.02,trials
+  floorTopY:-.02,trials,previousAssistRad:prior
  });
  actor.sourceSwingCalfTrialOutcome={
   ...actor.sourceSwingCalfTrialOutcome,attempted:true,accepted:Boolean(best),
@@ -1140,7 +1140,8 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
      heel:readOriginalSwingSoleY(patch.heel)});
    }
    const chosen=selectOriginalSourceSwingAnkleTrial({
-    toeWorldY:toeY,heelWorldY:heelY,floorTopY:-.02,trials:ankleTrials
+    toeWorldY:toeY,heelWorldY:heelY,floorTopY:-.02,trials:ankleTrials,
+    previousCorrectionRad:previous
    });
    if(chosen){probeToeY=chosen.toe;probeHeelY=chosen.heel;probeAngle=chosen.signed;}
   }
