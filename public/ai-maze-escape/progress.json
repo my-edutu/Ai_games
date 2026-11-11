@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T20:15:26.768Z",
+  "updatedAt": "2026-11-11T20:57:31.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass278 exact-source WebGL SUCCESS 43088652575; 37/37 original PNG sidecar hashes verified. True 390px contact still showed a thick diagonal jaw chevron across Pip's lower body despite side gear relocation. Pass279 re-stages BOTH real opening/closing shear jaw hinge groups forward and slightly down on their original physical guide rails; new exact-source rendered and CI verdict PENDING. Official Captain Toad bar NOT MET."
+    "summary": "Pass279 native WebGL run 43094832318 failed BEFORE screenshots due to a stale Pass261 .12Z jaw-origin assertion; Pass280 updates strict real mirrored jaw placement contract to ±.68,-.035,.44. Pass279 art remains UNRENDERED and NOT visually approved. New-HEAD browser/CI pending. Official Captain Toad benchmark NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass280 repaired the actual exact-HEAD Pass279 native WebGL blocker: visual run 43094832318 failed before original captures at stale Pass261 two-jaw Z=.12 assertion (125/126 focused tests passed). Strengthened strict new-source physical rail contract to exact mirrored X ±.68, lowered Y -.035 and shared forward Z .44 for both true connected jaw hinges; unchanged Box3/public privacy/geometry <100/six reset, Pip/pressure NDC and 44px requirements. New-source browser images/CI pending and Nintendo benchmark NOT MET.",
     "Pass279 original source-HEAD 4d634f29 native WebGL 43088652575 succeeded: genuine 390px pressure PNG SHA 34eed38a and 37/37 matched SHA pairs, real 390 Pip .515 NDC and full trap within ±.95. Original full-frame critic rejects visual chevron hiding Pip's legs. Move both actual connected sliding/rotating shear jaws forward and lower into existing guide rails (not a CSS or disconnected cosmetic prop); new live render and independent critic PENDING.",
     "Pass278 original 390px Pass277 WebGL pressure shot SHA 246b7f79 verified from source-bound screenshot: split ivory load arms open, but real centered wheel/cable/weight hide Pip. Physically move same clock-driven wheel/cable/weight to a joined right-side power bay by the existing pylon. Tests cover connected side axis, strict original 2.4m physical bounds, true pressure, hidden/reset/reduced and shared GPU budget; latest new-source rendered CI and independent benchmark review PENDING. No quality win.",
     "Pass277: previously exact-HEAD 375bd2a native 390 pressure WebGL now passes Pip .515 NDC, unchanged ±.95 actor/pressure and six-reset <100, with 37/37 real original PNG/SHA. Direct original image still visually REJECTED for an opaque white crossbeam obscuring Pip and the pressure act. Replace front beam with rear full structural yoke and two stage-opening, actual public-pressure-pinned load wings; installed-Three real hinge/reset/resource test added. New exact-head visual/CI/independent critic pending; Nintendo benchmark NOT MET.",

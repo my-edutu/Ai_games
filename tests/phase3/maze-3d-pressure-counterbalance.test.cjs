@@ -200,8 +200,16 @@ test('Pass261 pressure court is one rooted two-cheek machine, not loose warning 
     assert.ok(mast?.isGroup&&Math.abs(mast.scale.x-.82)<1e-12,
       'rear governor must not overprint the two front cutting silhouettes');
     assert.ok(left?.isGroup&&right?.isGroup&&plate?.isGroup);
-    assert.ok(Math.abs(left.position.z-.12)<1e-12&&Math.abs(right.position.z-.12)<1e-12,
-      'both original mechanical jaws move forward together, not the simulated hazard');
+    // Pass280 strict contract: Pass279 moved the ACTUAL left/right jaw pivot
+    // assemblies into the forward guide bay, not the autonomous hazard cell.
+    // Previous Pass261 .12Z assertion described an obsolete geometry stage.
+    // Require BOTH authored pivot origins exactly, including equal-depth,
+    // opposite-X roots and the lowered Y clearance; never weaken footprint,
+    // contact, six-reset budgets, or camera/privacy acceptance.
+    assert.ok(Math.abs(left.position.z-.44)<1e-12&&Math.abs(right.position.z-.44)<1e-12
+      &&Math.abs(left.position.y+.035)<1e-12&&Math.abs(right.position.y+.035)<1e-12
+      &&Math.abs(left.position.x+.68)<1e-12&&Math.abs(right.position.x-.68)<1e-12,
+      'both true coupled jaws share the lower front guide stage, with mirrored rooted pivots');
     const origin=trap.getWorldPosition(new Vector3());
     const outside=new Vector3(origin.x+40,0,origin.z+40);
     const contact=new Vector3(origin.x,0,origin.z);
