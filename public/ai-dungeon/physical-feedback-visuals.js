@@ -98,7 +98,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
   bodyLocalTrailFrames=0,yawFallbackTrailFrames=0,
-  unmeasuredTrailFrames=0,retiredDeadTrails=0,retiredInterruptedTrails=0,occludedFlights=0,blockedFlights=0,disposed=false;
+  unmeasuredTrailFrames=0,retiredDeadTrails=0,retiredInterruptedTrails=0,occludedFlights=0,blockedFlights=0,
+  retiredStaleFrameInstances=0,disposed=false;
  const world=(p,y)=>({x:p.x-9,y,z:p.z-9});
  function hideMatrix(){
   pose.position.set(0,-500,0);pose.rotation.set(0,0,0);
@@ -747,6 +748,36 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   return false;
  }
+
+ /**
+  * A timed-out WebGL submission may have drawn an old transient for the
+  * duration of the stall. Remove its retained GPU slots BEFORE any later
+  * frame can re-display that ghost. This is a presentation cleanup only:
+  * never mutate authority, claim an impact, or revoke a still-authoritative
+  * Warden danger-cell warning because its optional sound missed a deadline.
+  * No new geometry, draw call, audio node or unbounded history is allocated.
+  */
+ function retireStaleCue(cueId,reason){
+  if(disposed||typeof cueId!=='string'||!cueId||
+   !['stale-frame','expired-visual','unverified-frame'].includes(reason))return 0;
+  let retired=0;
+  for(const pool of pools.values()){
+   let dirty=false;
+   for(let i=0;i<pool.max;i++){
+    const slot=pool.slots[i];
+    if(slot?.cue?.id!==cueId||slot.cue.visual==='warning')continue;
+    pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+    active--;retired++;dirty=true;
+   }
+   if(dirty){
+    pool.mesh.instanceMatrix.needsUpdate=true;
+    pool.mesh.visible=pool.slots.some(slot=>slot!==null&&slot.age<slot.life&&
+     (pool.name!=='trail'||slot.measuredPath!==null));
+   }
+  }
+  retiredStaleFrameInstances+=retired;
+  return retired;
+ }
  function reset(){
   if(disposed)return;
   for(const pool of pools.values()){
@@ -769,11 +800,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
    retiredUnanchoredBodySignals,confirmedFragments,
   measuredTrailFrames,bodyLocalTrailFrames,yawFallbackTrailFrames,
-   unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,disposed,
+   unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,
+   retiredStaleFrameInstances,disposed,
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,measuredSwingSpeed,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,measuredSwingSpeed,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,retireStaleCue,reset,dispose,stats});
 }
