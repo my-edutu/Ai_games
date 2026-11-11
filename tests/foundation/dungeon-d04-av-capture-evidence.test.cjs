@@ -371,7 +371,7 @@ const comparisonReal={
 test('D04 synthetic 2D positive-control encoding isolates real WebGL track failure without claiming A/V sync',()=>{
  const comparison=classifyCanvasEncoderControl({control:comparisonControl,real:comparisonReal});
  assert.equal(comparison,'CONTROL_ENCODES_REAL_WEBGL_EMPTY');
- const assessed=assessD04Capture({...good,isolated:{
+ const assessed=assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},isolated:{
   videoOnly:comparisonReal,control2dOnly:comparisonControl}});
  assert.equal(assessed.canvasEncoderDifferential,'CONTROL_ENCODES_REAL_WEBGL_EMPTY');
  assert.equal(assessed.classification,'UNVERIFIED'); // synthetic control MUST NOT certify actual game.
