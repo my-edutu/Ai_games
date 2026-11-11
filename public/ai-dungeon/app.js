@@ -1167,6 +1167,7 @@ function animate(t){
    mode:a.fullBody?.mode,groundedMoving:Boolean(a.groundedPerformance?.moving),
    alive:a.u.hp>0,visible:!document.hidden,teleport:Boolean(locomotion.teleport),
    reducedMotion:reduced,hasCombatFacing:Boolean(a.combatFacing),
+   previousX:priorSourceX,previousZ:priorSourceZ,
    currentX:a.root.position.x,currentZ:a.root.position.z,
    targetX:a.at.x,targetZ:a.at.z,
    observedWalkYaw:finalStepYaw,rootYaw:a.root.rotation.y,
