@@ -102,3 +102,32 @@ test('the live skinned mixer decides source clip retention before idle crossfade
  assert.ok(model.includes('nativeSourceRecoveryClipFrames:authored.reduce('),'real renderer exposes provenance of any retained source clip frames');
  assert.ok(model.includes('actor.nativeSourceRecoveryClipFrames=0;'),'new or retired actors must release receipt state');
 });
+
+test('one source ankle physically plants through one real sword phrase and releases safely',async()=>{
+ const {planNativeFootPlant:plant}=await load();
+ const rootPosition={x:5,z:3},origin={x:5.2,z:2.8};
+ const first=plant(null,{mode:'attack',age:.15,actionTick:54,rootPosition,footPosition:origin});
+ assert.equal(first.locked,false);assert.equal(first.dx,0);assert.ok(Object.isFrozen(first.memory));
+ const next=plant(first.memory,{mode:'attack',age:.24,actionTick:54,rootPosition,
+  footPosition:{x:5.26,z:2.8}});
+ assert.equal(next.locked,true);assert.ok(Math.abs(next.dx+.06)<1e-8);
+ assert.equal(next.dz,0);
+ const later=plant(next.memory,{mode:'recovery',age:.55,actionTick:54,rootPosition,
+  footPosition:{x:5.4,z:2.8}});
+ assert.ok(Math.hypot(later.dx,later.dz)<.095);
+ assert.equal(plant(later.memory,{mode:'idle',age:.56,actionTick:55,rootPosition,footPosition:origin}).memory,null);
+ assert.equal(plant(later.memory,{mode:'attack',age:.12,actionTick:55,rootPosition,footPosition:origin}).locked,false);
+ assert.equal(plant(later.memory,{mode:'recovery',age:.57,actionTick:54,rootPosition:{x:8,z:3},footPosition:origin}).locked,false);
+ assert.equal(plant(later.memory,{mode:'attack',age:.2,actionTick:54,rootPosition,footPosition:{x:NaN,z:0}}).memory,null);
+ assert.equal(plant(later.memory,{mode:'attack',age:.2,actionTick:54,rootPosition,footPosition:origin,enabled:false}).memory,null);
+});
+test('true imported foot bone controls live sword root, not fake props or movement',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=model.indexOf('function updateActor(actor,dt'),end=model.indexOf('function disposeActorAsset',start);
+ const stage=model.slice(start,end);
+ assert.ok(stage.includes("b.part==='foot'")&&stage.includes('leadFoot.getWorldPosition(footWorld)'));
+ assert.ok(stage.includes('actor.visualPivot.position.add(shift)'));
+ assert.ok(stage.includes('actor.nativeFootPlantMemory=plant.memory'));
+ assert.ok(stage.includes('else actor.nativeFootPlantMemory=null'));
+ assert.ok(model.includes('nativeFootPlantFrames:authored.reduce('));
+});

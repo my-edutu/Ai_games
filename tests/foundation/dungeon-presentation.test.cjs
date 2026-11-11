@@ -53,6 +53,8 @@ function presentation({nestedFailure=false,fixture=null}={}){
  const continuity=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/native-duel-continuity.js'),'utf8')
   .replace(/^export /gm,'');
  context.planNativeDuelContinuity=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeDuelContinuity;})()',context);
+ context.shouldRetainNativeRecoveryClip=vm.runInContext('(function(){\n'+continuity+'\nreturn shouldRetainNativeRecoveryClip;})()',context);
+ context.planNativeFootPlant=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeFootPlant;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){

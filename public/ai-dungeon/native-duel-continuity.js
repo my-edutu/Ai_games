@@ -65,3 +65,33 @@ export function shouldRetainNativeRecoveryClip(continuation,{
   Number.isFinite(continuation.age)&&continuation.age>=RECOVERY_START&&
   continuation.age<MAX_AGE;
 }
+
+/**
+ * Stabilize ONE true source-skinned ankle during an adjacent sword phrase.
+ * Only a cosmetic root offset is returned: never authority, hitbox or audio.
+ * World-relative sampled bone and authoritative root movement fail closed.
+ */
+export function planNativeFootPlant(previous,{
+ mode=null,age=null,actionTick=null,rootPosition=null,footPosition=null,enabled=true
+}={}){
+ const off=Object.freeze({memory:null,dx:0,dz:0,locked:false});
+ if(!enabled||!['attack','recovery'].includes(mode)||
+  !Number.isSafeInteger(actionTick)||actionTick<0||
+  !Number.isFinite(age)||age<0||age>=.62||
+  ![rootPosition?.x,rootPosition?.z,footPosition?.x,footPosition?.z].every(Number.isFinite))
+  return off;
+ const rootX=rootPosition.x,rootZ=rootPosition.z;
+ const same=previous?.actionTick===actionTick&&
+  [previous.rootX,previous.rootZ,previous.footX,previous.footZ].every(Number.isFinite)&&
+  Math.hypot(rootX-previous.rootX,rootZ-previous.rootZ)<=.065;
+ const memory=same?previous:Object.freeze({
+  actionTick,rootX,rootZ,footX:footPosition.x,footZ:footPosition.z
+ });
+ if(!same)return Object.freeze({memory,dx:0,dz:0,locked:false});
+ const dx=memory.footX-footPosition.x,dz=memory.footZ-footPosition.z;
+ const length=Math.hypot(dx,dz),limit=.095;
+ const fade=mode==='recovery'?Math.max(0,Math.min(1,(.62-age)/.18)):1;
+ const scale=length>limit?limit/length:1;
+ return Object.freeze({memory,dx:dx*scale*fade,dz:dz*scale*fade,
+  locked:length>1e-5&&fade>0});
+}
