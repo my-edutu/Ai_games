@@ -1,3 +1,19 @@
+## W215 · ONE ACTIVE Phase 1, original farm → loaded courier → receiving market → inhabited home · 11 November 2026
+
+Pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`; only OPEN DRAFT #64. Candidate playable source `33202db54f404d0432fa738517cf38a8370a15f3`. Prior exact-head [W214 WebGL trace](https://github.com/my-edutu/Ai_games/actions/runs/42939411889/artifacts/13819603617) confirms a true resting Mira physically entered the original skinned-names list at intermediary camera zoom; test was reading passive counts from the wrong audit object. W215 corrected the test and added real camera-only frame-pose memoization, bounded to existing 13-joint original entries, not invented citizen activity. [Exact-source worker test](https://github.com/my-edutu/Ai_games/actions/runs/42943594595), [GPU suite](https://github.com/my-edutu/Ai_games/actions/runs/42943594563), [real Day121](https://github.com/my-edutu/Ai_games/actions/runs/42943594548), [real economy film](https://github.com/my-edutu/Ai_games/actions/runs/42943594415) pending final evidence. No fresh frame, GPU success, net visual improvement or hardware FPS claimed.
+
+| Rank / owner and blocker | Current actual observed value | Observable complete condition |
+|---|---|---|
+| 1. Rendering spine / original GPU pose and scenery | W214 direct captured source **failed 1024+390 test** due wrong audit property; W215 corrected ownership and caches 13-joint pose on immutable world redraw. Current-source CI **pending**; old 1.709 SwiftShader software FPS was historical, hardware unknown. | Actual original resting body GPU pose on 1024+390 and camera motion, true same-authority hit counter with no errors/duplicates; matched CPU/driver/GPU p50/p95/p99, no massive static rebuilds, physical desktop+phone >=30fps, p95<=33.3ms. |
+| 2. Whole-scene growth and true GPU budget | Predecessor W213 Day121: **28 people/37 structures/156,370 tris**, zero GL errors. **Not W215.** | Multi-seed 120+ days, unchanged building and citizen identity and save/replay, no views above 160k, bounded heap/GPU allocations, no lost original worker. |
+| 3. Authentically animated labor | Genuine archived farm shipment + market receipt + citizen purchase/meal exists, but W214 real desktop and 390 screenshot shows tiny angular bodies. | Unbroken real worker film with visible planting/harvest, loaded transport, unloading contact, forge/build motion and actual recorded authority; no fabricated actions. |
+| 4. Joined original medieval environment | W214 true evening frame still visibly boxy roofs and flat terrain; house roof in foreground occludes worker and real road. | Coherent farm-granary-market-home geometry/lighting, proper roof massing, inhabited domestic detail, believable depth on Day1+Day120 and independently observed materially different moving A/B. |
+| 5. Camera/mobile/review | W214 real 390px image remains cramped by controls and physical obstructions; independent viewers and physical mobile hardware not available. | Genuine full orbit/follow/inputs with p95 and 390px touch, uncropped same-seed Day1/workday/Day120/mobile G088 vs source, blinded 4-of-5 separate reviewers per LOOK/FEEL/PLAY. |
+
+Experience A LOOK **NOT PROVEN**, FEEL **NOT PROVEN / hardware unmeasured**, PLAY **NOT PROVEN**. Commercial B **FAIL**. No Phase-1 promotion. Protect draft #64 and avoid main/#43/#59/#62. Next work is actual exact-source CI and physically scored profiler → architecture/worker transformation with recovered budget, not micro-polish.
+
+---
+
 ## W202 · Active Phase 1 checkpoint · 10 November 2026 (latest)
 
 Original G088 source `2f6deb43feb1a1557848d44def53a6109deb1ab1`; candidate production `b240386fffbb7559851b35365bc1930f2e337561` on OPEN DRAFT PR #64. **SINGLE active workstream:** genuine farm harvest → freight road → 4 real market stalls → saved market purchase → real occupied home, together with Day-121 and 390px.
