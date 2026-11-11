@@ -81,6 +81,52 @@ async function beginD04LiveAVCapture(page){
    rendererEpochChanges:0,dataEvents:0,dataBytes:0,videoMutedAtStart:videoTrack.muted===true
   };
   let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
+  // These record the SAME actual canvas and opted-in soundstage separately.
+  // They do not inject a frame, replay a synthetic attack or claim time alignment.
+  function startIsolatedRecorder(stream,candidates,source,limit,videoOnly){
+   const mimeType=candidates.find(t=>MediaRecorder.isTypeSupported(t));
+   if(!mimeType)return Promise.resolve({source,status:'UNAVAILABLE',reason:'Independent encoder unsupported',
+    candidates,videoTracks:stream.getVideoTracks().length,audioTracks:stream.getAudioTracks().length});
+   let rec;
+   try{rec=new MediaRecorder(stream,{mimeType})}
+   catch(error){return Promise.resolve({source,status:'UNAVAILABLE',
+    reason:'Independent MediaRecorder constructor: '+String(error).slice(0,200)})}
+   return new Promise(resolve=>{
+    const beganAt=performance.now(),chunks=[];
+    let bytes=0,dataEvents=0,settled=false,overflow=false;
+    const track=videoOnly?stream.getVideoTracks()[0]:stream.getAudioTracks()[0];
+    const trackAtStart={readyState:track?.readyState,muted:track?.muted===true};
+    let stopTimer=null,watchdog=null;
+    const finish=(status,reason,data)=>{
+     if(settled)return;settled=true;clearTimeout(stopTimer);clearTimeout(watchdog);
+     resolve({source,status,reason:reason||null,mimeType,bytes:data?.length??bytes,
+      videoTracks:stream.getVideoTracks().length,audioTracks:stream.getAudioTracks().length,
+      recordingMs:performance.now()-beganAt,dataEvents,
+      trackAtStart,trackAtStop:{readyState:track?.readyState,muted:track?.muted===true},
+      framePump:videoOnly?{...framePump}:undefined,
+      base64:data?toBase64(data):null});
+    };
+    rec.ondataavailable=event=>{
+     dataEvents++;const blob=event.data;
+     bytes+=blob?.size||0;
+     if(bytes>limit){overflow=true;chunks.length=0}
+     else if(!overflow&&blob?.size)chunks.push(blob);
+    };
+    rec.onerror=event=>finish('UNAVAILABLE','Independent recorder: '+String(event.error??event).slice(0,200));
+    rec.onstop=async()=>{
+     if(overflow||bytes<=1024)return finish('UNAVAILABLE',overflow?'Independent encoded file exceeded budget':'Empty independent WebM');
+     try{
+      const data=new Uint8Array(await new Blob(chunks,{type:mimeType}).arrayBuffer());
+      finish(data.length===bytes?'RECORDED':'UNAVAILABLE',
+       data.length===bytes?null:'Independent chunks missing',data.length===bytes?data:null);
+     }catch(error){finish('UNAVAILABLE','Independent WebM read: '+String(error).slice(0,200))}
+    };
+    try{rec.start(250)}catch(error){finish('UNAVAILABLE','Independent recorder start: '+String(error).slice(0,200));return}
+    stopTimer=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch(error){finish('UNAVAILABLE',String(error))}},5500);
+    watchdog=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch{}
+     finish('UNAVAILABLE','Independent recorder exceeded 15-second budget')},15000);
+   });
+  }
   function sampleRealSubmittedFrame(){
    if(!pumpActive)return;
    const receipt=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
@@ -133,6 +179,10 @@ async function beginD04LiveAVCapture(page){
   });
   try{recorder.start(250)}
   catch(e){stopFramePump();videoTracks.forEach(t=>t.stop());return unavailable('Recorder start: '+String(e))}
+  const videoProbe=startIsolatedRecorder(new MediaStream([videoTrack]),
+   ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-video-only',20*1024*1024,true);
+  const audioProbe=startIsolatedRecorder(new MediaStream(soundTracks),
+   ['audio/webm;codecs=opus','audio/webm'],'real-opted-in-soundstage-audio-only',2*1024*1024,false);
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
@@ -145,9 +195,11 @@ async function beginD04LiveAVCapture(page){
    return meta;
   }).catch(e=>unavailable('Live PCM capture error: '+String(e)));
   setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
-  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm]).then(([clip,pcm])=>({
-   clip,pcm,frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1}
-  }));
+  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe])
+   .then(([clip,pcm,videoOnly,audioOnly])=>({clip,pcm,
+    isolated:{videoOnly,audioOnly},
+    frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1}
+   }));
   return {status:'STARTED',videoTracks:videoTracks.length,audioTracks:soundTracks.length,
    evidence:'Actual canvas + opted-in sound bus; independent live PCM; no sample-sync assertion'};
  });
@@ -162,15 +214,24 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
  const {base64,...clip}=raw.clip||{};
  const {wavBase64,...pcm}=raw.pcm||{};
+ const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
+ const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
  const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
   body:Buffer.from(base64,'base64'),contentType:'video/webm'});
  if(wavBase64)await testInfo.attach('d04-live-original-soundstage-pcm.wav',{
   body:Buffer.from(wavBase64,'base64'),contentType:'audio/wav'});
+ if(assessment.isolatedVideoRecorded&&isolatedVideoBase64)
+  await testInfo.attach('d04-real-webgl-video-only.webm',{
+   body:Buffer.from(isolatedVideoBase64,'base64'),contentType:'video/webm'});
+ if(assessment.isolatedAudioRecorded&&isolatedAudioBase64)
+  await testInfo.attach('d04-real-opted-in-audio-only.webm',{
+   body:Buffer.from(isolatedAudioBase64,'base64'),contentType:'audio/webm'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
-  body:Buffer.from(JSON.stringify({started,clip,pcm,frames:raw.frames,
+  body:Buffer.from(JSON.stringify({started,clip,pcm,
+   isolated:{videoOnly,audioOnly},frames:raw.frames,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
-   caveat:'Overlapping genuine browser streams; no measured sample-accurate A/V sync. No borrowed audio.'},null,2)),
+   caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
  return assessment;
 }
