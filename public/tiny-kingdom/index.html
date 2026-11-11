@@ -18915,6 +18915,31 @@ function realCourierCartCameraVolumes(){
 let cameraArchitectureResidentKey=null,cameraArchitectureResidentVolumes=[];
 let cameraArchitectureBuilds=0,cameraArchitectureReuses=0,
  cameraArchitectureInvalidations=0;
+// W219: retain the EXACT physical building + live-freight occlusion array.
+// The camera's conservative ray-cell index is keyed by array identity: the
+// previous .slice() on EVERY camera candidate defeated that index entirely.
+// Only actual static-town topology or real courier motion changes the plan.
+let cameraOcclusionViewKey=null,cameraOcclusionViewRoofs=null,
+ cameraOcclusionViewBuilds=0,cameraOcclusionViewReuses=0;
+function cameraOcclusionView(topology,staticRoofs){
+ const carts=realCourierCartCameraVolumes();
+ // No coordinate rounding: even a small genuine loaded-cart displacement
+ // invalidates the physical ray blockers on its next requested view.
+ const freightKey=carts.map(c=>[
+  c.x,c.z,c.rx,c.rz,c.bottom,c.top,c.visualBottom??'',
+  c.deliveryId??'',c.citizen??''
+ ].join(',')).join('|');
+ const key=topology+'#'+carts.length+'#'+freightKey;
+ if(cameraOcclusionViewRoofs&&cameraOcclusionViewKey===key){
+  cameraOcclusionViewReuses++;
+  return cameraOcclusionViewRoofs;
+ }
+ const roofs=staticRoofs.concat(carts);
+ cameraOcclusionViewKey=key;
+ cameraOcclusionViewRoofs=roofs;
+ cameraOcclusionViewBuilds++;
+ return roofs;
+}
 function cameraArchitectureTopologyKey(){
  return city.map(lot=>lot.join(',')).join(';');
 }
@@ -18925,6 +18950,9 @@ function getCameraArchitectureResidencyAudit(){
   reuses:cameraArchitectureReuses,
   invalidations:cameraArchitectureInvalidations,
   boundedEntries:1,liveCourierOverlays:realCourierCartCameraVolumes().length,
+  physicalViewAssemblies:cameraOcclusionViewBuilds,
+  physicalViewReuses:cameraOcclusionViewReuses,
+  physicalViewEntries:cameraOcclusionViewRoofs?1:0,
   originalOcclusionOrder:true,presentationOnly:true,authorityChanged:false};
 }
 function followCameraRoofs(){
@@ -18937,9 +18965,7 @@ function followCameraRoofs(){
  const topology=cameraArchitectureTopologyKey();
  if(cameraArchitectureResidentKey===topology){
   cameraArchitectureReuses++;
-  const roofs=cameraArchitectureResidentVolumes.slice();
-  roofs.push(...realCourierCartCameraVolumes());
-  return roofs;
+  return cameraOcclusionView(topology,cameraArchitectureResidentVolumes);
  }
  const detailed=detailedHomeSet();
  const roofs=city.map(([x,z,k],i)=>{
@@ -18997,8 +19023,7 @@ function followCameraRoofs(){
  cameraArchitectureResidentKey=topology;
  cameraArchitectureResidentVolumes=roofs.slice();
  cameraArchitectureBuilds++;
- roofs.push(...realCourierCartCameraVolumes());
- return roofs;
+ return cameraOcclusionView(topology,cameraArchitectureResidentVolumes);
 }
 function cameraOcclusionModel(){
  const roofs=followCameraRoofs(),count=k=>roofs.filter(r=>r.kind===k).length;
