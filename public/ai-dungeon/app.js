@@ -23,7 +23,7 @@ import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeat
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
-import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
+import {planCombatFacing,planMovementFacing,planOriginalSourceWalkNearArrivalFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
@@ -1041,6 +1041,7 @@ function animate(t){
  for(const a of actors.values()){
   // The displayed body follows genuine authority coordinates at a time-based
   // rate. A stalled/software-WebGL frame cannot imply a new gameplay move.
+  const priorSourceX=a.root.position.x,priorSourceZ=a.root.position.z;
   const locomotion=planExpeditionStep(a.root.position.x,a.root.position.z,
    a.at.x,a.at.z,frameInterval,{reducedMotion:reduced,originalSourceRig:Boolean(a.authored)});
   a.root.position.set(locomotion.x,0,locomotion.z);
@@ -1135,7 +1136,24 @@ function animate(t){
     a.rightArm.rotation.x+=anticipation.armRaise+(exposed?.shoulderPitch??0)+(a.wardenStrikePose?.shoulders?.right?.pitch??0);
    }
   }
-  const visualYaw=a.combatFacing?.yaw??(moving?planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z):null);
+  // The genuine CC0 Walking_A shoes keep moving through the final 70mm.
+  // The generic destination-facing gate returns null inside that distance,
+  // previously freezing a body sideways while its original feet travelled.
+  // Only a live, witnessed source-rig Move retains facing from true root
+  // displacement; legal combat facing always wins.
+  const walkingYaw=moving?(planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z)??
+   planOriginalSourceWalkNearArrivalFacing({
+    sourceRig:Boolean(a.authored&&a.assetRoot&&a.mixer),
+    sourceClipName:a.activeImportedClipName??'',mode:a.fullBody?.mode,
+    groundedMoving:Boolean(a.groundedPerformance?.moving),
+    alive:a.u.hp>0,visible:!document.hidden,
+    teleport:Boolean(locomotion.teleport),reducedMotion:reduced,
+    hasCombatFacing:Boolean(a.combatFacing),
+    previousX:priorSourceX,previousZ:priorSourceZ,
+    currentX:a.root.position.x,currentZ:a.root.position.z,
+    targetX:a.at.x,targetZ:a.at.z
+   })):null;
+  const visualYaw=a.combatFacing?.yaw??walkingYaw;
   if(visualYaw!==null)a.root.rotation.y=approachCharacterYaw(a.root.rotation.y,visualYaw,dt,reduced);
  }
  // One physically staged protection, derived from the real public turn.
