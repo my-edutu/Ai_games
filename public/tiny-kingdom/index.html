@@ -6015,6 +6015,39 @@ function originalClayRoofCourses(x,eave,peak,halfW,front,back,palette,courses,va
  }else villageVisualLod.detailedRoofCourses+=courses*2;
  if((data.length-start)/30!==courses*2*4)throw Error('W81 invalid clay-course mesh');
 }
+
+// W217: Original lived-in cottages can carry a connected clay hip roof.
+// Same 48/24 triangles of physical overlapping courses and drip lips as
+// their prior detailed/compact gabled roofs, so budgets remain controlled.
+function originalHipRoofCourses(x,eave,peak,halfW,front,back,inset,palette,courses,variant,compact){
+ const start=data.length,shades=palette.map(t=>Array.isArray(t)?t:rgb(t));
+ if(!(inset>0&&back-front>inset*2))throw Error('W217 invalid real hip roof');
+ materialScope(MATERIAL.ROOF,()=>{
+  for(const side of [-1,1])for(let course=0;course<courses;course++){
+   const lo=course/courses,hi=(course+1)/courses;
+   const x0=x+side*halfW*(1-lo),x1=x+side*halfW*(1-hi);
+   const lift=.026+.002*((course+variant)%3);
+   const y0=eave+(peak-eave)*lo+lift,y1=eave+(peak-eave)*hi+lift;
+   const f0=front+inset*lo,b0=back-inset*lo;
+   const f1=front+inset*hi,b1=back-inset*hi;
+   const pigment=shades[(course*3+(side+1)+variant)%shades.length];
+   const dark=shades[(course+variant+2)%shades.length].map(v=>v*.73);
+   if(side<0){
+    quad([x0,y0,b0],[x1,y1,b1],[x1,y1,f1],[x0,y0,f0],pigment);
+    quad([x0,y0+.014,b0],[x0,y0-.032,b0],[x0,y0-.032,f0],[x0,y0+.014,f0],dark);
+   }else{
+    quad([x0,y0,f0],[x1,y1,f1],[x1,y1,b1],[x0,y0,b0],pigment);
+    quad([x0,y0+.014,f0],[x0,y0-.032,f0],[x0,y0-.032,b0],[x0,y0+.014,b0],dark);
+   }
+  }
+ });
+ if(compact){
+  villageVisualLod.compactRoofCourses+=courses*2;
+  villageVisualLod.compactRoofTiles+=courses*2*4;
+ }else villageVisualLod.detailedRoofCourses+=courses*2;
+ if((data.length-start)/30!==courses*2*4)
+  throw Error('W217 unbounded or incomplete real clay hip');
+}
 function getRoofCoursingAudit(){
  const detailedHomes=villageVisualLod.detailedHomes;
  const compactHomes=villageVisualLod.compactHomes;
@@ -6184,12 +6217,21 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  }
 
  let ridge=h+houseVisualProfile(x,z,variant,false).pitch*scale,zy=z-d/2-.18*scale,zz=z+d/2+.18*scale,xx=x-w/2-.25*scale,xr=x+w/2+.25*scale;let col=variant%2?rgb(0x725046):rgb(0x976047);
+const hip=isHippedHouseRoof(x,z,variant),hipInset=Math.min((zz-zy)*.29,(xr-xx)*.35);
+const ridgeFront=zy+hipInset,ridgeBack=zz-hipInset;
 // Both slopes, proper triangular end gables, visible eaves and offset ridge trim.
 materialScope(MATERIAL.ROOF,()=>{
- quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);
- quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
+ if(hip){
+  quad([xx,y+h,zz],[x,y+ridge,ridgeBack],[x,y+ridge,ridgeFront],[xx,y+h,zy],col);
+  quad([xr,y+h,zy],[x,y+ridge,ridgeFront],[x,y+ridge,ridgeBack],[xr,y+h,zz],col);
+  tri([xr,y+h,zy],[xx,y+h,zy],[x,y+ridge,ridgeFront],col);
+  tri([xx,y+h,zz],[xr,y+h,zz],[x,y+ridge,ridgeBack],col);
+ }else{
+  quad([xx,y+h,zy],[x,y+ridge,zy],[x,y+ridge,zz],[xx,y+h,zz],col);
+  quad([x,y+ridge,zy],[xr,y+h,zy],[xr,y+h,zz],[x,y+ridge,zz],col);
+ }
 });
-materialScope(MATERIAL.PLASTER,()=>{
+if(!hip)materialScope(MATERIAL.PLASTER,()=>{
  tri([xx,y+h,zy],[xr,y+h,zy],[x,y+ridge,zy],rgb(0xd1bf9e));
  tri([xr,y+h,zz],[xx,y+h,zz],[x,y+ridge,zz],rgb(0xd1bf9e));
 });
@@ -6198,8 +6240,10 @@ materialScope(MATERIAL.PLASTER,()=>{
 // deterministic pattern depends only on building variant and tile coordinates.
 const roofTileColors=[rgb(0xa96d50),rgb(0xb27c56),rgb(0x825143),rgb(0xc18b61),rgb(0x97634b)];
 if(gpuAvailable){
- originalClayRoofCourses(x,y+h,y+ridge,(xr-xx)*.5,zy,zz,roofTileColors,6,variant,false);
-}else for(let slope=0;slope<2;slope++){
+ if(hip)originalHipRoofCourses(x,y+h,y+ridge,(xr-xx)*.5,zy,zz,hipInset,roofTileColors,6,variant,false);
+ else originalClayRoofCourses(x,y+h,y+ridge,(xr-xx)*.5,zy,zz,roofTileColors,6,variant,false);
+}else if(hip)originalHipRoofCourses(x,y+h,y+ridge,(xr-xx)*.5,zy,zz,hipInset,roofTileColors,6,variant,false);
+else for(let slope=0;slope<2;slope++){
  const edge=slope===0?xx:xr;
  const roofWidth=x-edge;
  for(let row=0;row<7;row++){
@@ -6218,7 +6262,7 @@ if(gpuAvailable){
  }
 }
 // Decorative layered roof seams catch light without pretending to be a texture pack.
-for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;quad([lx,top+.018,zy],[lx+.025,top+.018,zy],[lx+.025,top+.018,zz],[lx,top+.018,zz],rgb(0x624838));quad([rx,top+.018,zy],[rx+.025,top+.018,zy],[rx+.025,top+.018,zz],[rx,top+.018,zz],rgb(0x634b3c))}
+for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;const front=hip?zy+hipInset*q:zy,back=hip?zz-hipInset*q:zz;quad([lx,top+.018,front],[lx+.025,top+.018,front],[lx+.025,top+.018,back],[lx,top+.018,back],rgb(0x624838));quad([rx,top+.018,front],[rx+.025,top+.018,front],[rx+.025,top+.018,back],[rx,top+.018,back],rgb(0x634b3c))}
 if(detailedJetty)grainwardStructuralDormer(x,z,y+h,y+ridge,(xr-xx)*.5,zy,-1,variant,scale,'home');
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
 for(let k=-1;k<=1;k+=2){materialScope(MATERIAL.WINDOW_GLOW,()=>box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,gpuAvailable?rgb(0x4f7772):(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772))));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
@@ -6325,6 +6369,12 @@ function compactHouseArchetype(x,z,variant){
 // presentation proportions change, never pathfinding, jobs or RNG.
 const DETAILED_HOUSE_HEIGHTS=Object.freeze([1.90,2.55,2.16,2.78]);
 const DETAILED_HOUSE_PITCHES=Object.freeze([1.25,1.53,1.42,1.69]);
+// W217: a stable original hip-or-gable architectural decision.
+function isHippedHouseRoof(x,z,variant){
+ // Leave all existing physically dormered upper rooms on their gables.
+ // The lower occupied cottages get complete four-plane rural clay roofs.
+ return compactHouseArchetype(x,z,variant)%2===0&&variant%2===0;
+}
 function houseVisualProfile(x,z,variant,compact){
  const style=compactHouseArchetype(x,z,variant);
  return {style,height:(compact?COMPACT_HOUSE_HEIGHTS:DETAILED_HOUSE_HEIGHTS)[style],
@@ -6335,12 +6385,14 @@ function getInhabitedSkylineAudit(){
  const lots=city.map(([x,z,k],i)=>{
   const compact=!detailed.has(i),p=houseVisualProfile(x,z,k,compact);
   return {lot:i,x,z,compact,style:p.style,
+   roofForm:isHippedHouseRoof(x,z,k)?'hip':'gable',
    eave:p.height,ridge:p.height+p.pitch,
    physicallyProjectedUpperRoom:!compact&&p.height>2.5,
    projectedUpperWidth:!compact&&p.height>2.5?2.4+k*.42+.28:null};
  });
  return {source:'genuine-town-original-roof-massing',lots,
   foundingHomes:Math.min(city.length,12),realHomes:city.length,
+  hippedHomeCount:lots.filter(l=>l.roofForm==='hip').length,
   projectedDetailedUpperRooms:lots.filter(l=>l.physicallyProjectedUpperRoom).length,
   presentationOnly:true,authorityChanged:false};
 }
@@ -6429,7 +6481,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w188-world-height-homes-v1';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w217-hip-roof-homes-v1';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -7158,7 +7210,7 @@ function compactHouse(x,z,variant){
  // different roof pitches, not an army of interchangeable same-height boxes.
  // Structural choice is fixed by coordinates; authoritative collision,
  // navigation, jobs, RNG streams, replay and save schemas remain unchanged.
- const roofStyle=compactHouseArchetype(x,z,variant);
+ const roofStyle=compactHouseArchetype(x,z,variant),hip=isHippedHouseRoof(x,z,variant);
  const y=terrain(x,z),w=2.4+variant*.42,d=2.1+variant*.18;
  const h=COMPACT_HOUSE_HEIGHTS[roofStyle];
  const roofPitch=COMPACT_HOUSE_PITCHES[roofStyle];
@@ -7176,6 +7228,7 @@ function compactHouse(x,z,variant){
   halfW=w/2+(jettyRoom?.30:.15);
  const roofFront=z-d/2-(jettyRoom?.33:.13),
   roofBack=z+d/2+(jettyRoom?.33:.13);
+ const hipInset=Math.min((roofBack-roofFront)*.29,halfW*.70),ridgeFront=roofFront+hipInset,ridgeBack=roofBack-hipInset;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
  materialScope(MATERIAL.PLASTER,()=>{
   if(jettyRoom){
@@ -7186,15 +7239,26 @@ function compactHouse(x,z,variant){
    box(x,y+.18,z,w,jettySill-.18,d,plaster);
    box(x,y+jettySill,z,w+.28,h-jettySill,d+.36,plaster);
   }else box(x,y+.18,z,w,h-.18,d,plaster);
-  tri([x-halfW,eave,roofFront],[x+halfW,eave,roofFront],[x,peak,roofFront],plaster);
-  tri([x+halfW,eave,roofBack],[x-halfW,eave,roofBack],[x,peak,roofBack],plaster);
+  if(!hip){
+   tri([x-halfW,eave,roofFront],[x+halfW,eave,roofFront],[x,peak,roofFront],plaster);
+   tri([x+halfW,eave,roofBack],[x-halfW,eave,roofBack],[x,peak,roofBack],plaster);
+  }
  });
  materialScope(MATERIAL.ROOF,()=>{
-  quad([x-halfW,eave,roofFront],[x,peak,roofFront],[x,peak,roofBack],[x-halfW,eave,roofBack],roof);
-  quad([x,peak,roofFront],[x+halfW,eave,roofFront],[x+halfW,eave,roofBack],[x,peak,roofBack],roof);
-  if(gpuAvailable){
-   originalClayRoofCourses(x,eave,peak,halfW,roofFront,roofBack,palette,3,variant,true);
+  if(hip){
+   quad([x-halfW,eave,roofBack],[x,peak,ridgeBack],[x,peak,ridgeFront],[x-halfW,eave,roofFront],roof);
+   quad([x+halfW,eave,roofFront],[x,peak,ridgeFront],[x,peak,ridgeBack],[x+halfW,eave,roofBack],roof);
+   tri([x+halfW,eave,roofFront],[x-halfW,eave,roofFront],[x,peak,ridgeFront],roof);
+   tri([x-halfW,eave,roofBack],[x+halfW,eave,roofBack],[x,peak,ridgeBack],roof);
   }else{
+   quad([x-halfW,eave,roofFront],[x,peak,roofFront],[x,peak,roofBack],[x-halfW,eave,roofBack],roof);
+   quad([x,peak,roofFront],[x+halfW,eave,roofFront],[x+halfW,eave,roofBack],[x,peak,roofBack],roof);
+  }
+  if(gpuAvailable){
+   if(hip)originalHipRoofCourses(x,eave,peak,halfW,roofFront,roofBack,hipInset,palette,3,variant,true);
+   else originalClayRoofCourses(x,eave,peak,halfW,roofFront,roofBack,palette,3,variant,true);
+  }else if(hip)originalHipRoofCourses(x,eave,peak,halfW,roofFront,roofBack,hipInset,palette,3,variant,true);
+  else{
   // G066: actual lightweight pitched shingle surfaces, not a decorative
   // texture or a dense full-detail copy. 2 faces * 3 courses * 4 tiles.
   // G088 palette is fixed per physical cottage, not per-frame or world RNG.
@@ -7223,7 +7287,7 @@ function compactHouse(x,z,variant){
  });
  materialScope(MATERIAL.WOOD,()=>{
   // The eaves and ridge break the formerly flat low-LOD silhouette.
-  box(x,peak+.01,z,.13,.095,d+.35,rgb(0xb18b63));
+  box(x,peak+.01,z,.13,.095,hip?ridgeBack-ridgeFront+.14:d+.35,rgb(0xb18b63));
   for(const side of [-1,1]){
    box(x+side*(halfW-.02),eave-.07,z,.10,.12,d+.43,timber);
   }
