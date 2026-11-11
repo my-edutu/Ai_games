@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -739,6 +739,7 @@ function stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval=dt,so
  if(!actor.rigGaitBones?.length){actor.rigLegStride=null;actor.rigFullBodyStride=null;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;return;}
  const current=actor.root?.position,previous=actor.rigGaitPosition;
  const travel=current&&previous?Math.hypot(current.x-previous.x,current.z-previous.z):0;
+ actor.rigLastGroundedTravel=travel;
  if(current&&previous)previous.copy(current);
  const mode=actor.fullBody?.mode||'idle';
  const walking=actor.fullBody?.owner.locomotion===true;
@@ -800,6 +801,89 @@ function stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval=dt,so
  actor.rigFullBodyStridePeak=Math.max(actor.rigFullBodyStridePeak||0,
   Math.abs(actor.rigFullBodyStride.hips.yaw),Math.abs(actor.rigFullBodyStride.chest.yaw));
 }
+// Original source 41-joint swing clearance is sampled on bona fide authored
+// skinned foot vertices, not a guessed ground raycast or inverse-knee target.
+// Scratch objects are held per module or per native mount; no geometry/meshes.
+const originalSwingToePoint=new THREE.Vector3();
+const originalSwingPitchAxis=new THREE.Vector3(1,0,0);
+function readOriginalSwingSoleY(candidate){
+ const mesh=candidate?.mesh,index=candidate?.index;
+ const position=mesh?.geometry?.getAttribute?.('position');
+ if(!mesh?.isSkinnedMesh||typeof mesh.applyBoneTransform!=='function'||!position||
+  !Number.isSafeInteger(index)||index<0||index>=position.count)return NaN;
+ originalSwingToePoint.fromBufferAttribute(position,index);
+ mesh.applyBoneTransform(index,originalSwingToePoint);
+ originalSwingToePoint.applyMatrix4(mesh.matrixWorld);
+ return originalSwingToePoint.y;
+}
+function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMotion){
+ const previous=mount.soleClearanceRad||0;
+ mount.soleClearanceRad=0;
+ if(mount.part!=='foot'||reducedMotion||actor.u.hp<=0||
+  !actor.root?.visible||actor.locomotionTeleport||
+  actor.fullBody?.mode!=='move'||actor.fullBody?.owner?.locomotion!==true||
+  actor.fullBody.interrupted||!actor.groundedPerformance?.moving||
+  !/^walking[_\s-]*a$/i.test(actor.activeImportedClipName||'')||
+  !(actor.activeClip?.getEffectiveWeight?.()>=.90)||
+  !(actor.rigLastGroundedTravel>=.008&&actor.rigLastGroundedTravel<=.24))
+  return 0;
+ const patch=sourceSolePatchVertexCandidates(actor)?.[mount.side];
+ if(!patch?.anatomicalHeelToeVerified||
+  patch.sourceToeAxis?.selectedAnatomicalPatch!==true||
+  patch.heel?.mesh!==patch.toe?.mesh||
+  !/foot[._-]?[lr]$/i.test(mount.bone?.name||''))return 0;
+ // Original mixer and existing same-owner additive leg pose, BEFORE the
+ // proposed clearance delta. We always restore this exact source quaternion.
+ const original=mount.probeOriginal??(mount.probeOriginal=new THREE.Quaternion());
+ const staged=mount.probeStaged??(mount.probeStaged=new THREE.Quaternion());
+ const probe=mount.probeDelta??(mount.probeDelta=new THREE.Quaternion());
+ original.copy(mount.bone.quaternion);
+ staged.copy(original).multiply(mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ')));
+ let heelY=NaN,toeY=NaN,probeToeY=NaN,probeAngle=0;
+ try{
+  mount.bone.quaternion.copy(staged);
+  actor.assetRoot.updateMatrixWorld(true);
+  patch.heel.mesh.updateWorldMatrix(true,false);
+  heelY=readOriginalSwingSoleY(patch.heel);
+  toeY=readOriginalSwingSoleY(patch.toe);
+  if(Number.isFinite(heelY)&&Number.isFinite(toeY)&&
+   heelY>-.02+.075&&heelY<-.02+.28&&toeY<-.02-.025&&toeY>-.02-.16){
+   for(const signed of [-.1,.1]){
+    mount.bone.quaternion.copy(staged).multiply(
+     probe.setFromAxisAngle(originalSwingPitchAxis,signed));
+    mount.bone.updateWorldMatrix(true,true);
+    const lifted=readOriginalSwingSoleY(patch.toe);
+    if(Number.isFinite(lifted)&&lifted>toeY+.006&&
+     (!Number.isFinite(probeToeY)||lifted>probeToeY)){
+     probeToeY=lifted;probeAngle=signed;
+    }
+   }
+  }
+ }finally{
+  mount.bone.quaternion.copy(original);
+  mount.bone.updateWorldMatrix(true,true);
+ }
+ const delta=planOriginalSourceSwingToeClearance({
+  mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
+  sourceAnatomyVerified:true,sourceWeight:actor.activeClip.getEffectiveWeight(),
+  alive:actor.u.hp>0,visible:actor.root.visible,
+  groundedMoving:actor.groundedPerformance.moving,
+  teleport:Boolean(actor.locomotionTeleport),reducedMotion,
+  interrupted:Boolean(actor.fullBody.interrupted),
+  rootTravel:actor.rigLastGroundedTravel,floorTopY:-.02,
+  heelWorldY:heelY,toeWorldY:toeY,trialToeWorldY:probeToeY,
+  trialAngleRad:probeAngle,previousCorrectionRad:previous
+ });
+ mount.soleClearanceRad=delta;
+ if(Math.abs(delta)>.0001){
+  actor.sourceSwingToeCorrectionFrames=Math.min(1000000,
+   (actor.sourceSwingToeCorrectionFrames||0)+1);
+  actor.sourceSwingToeCorrectionPeakRad=Math.max(
+   actor.sourceSwingToeCorrectionPeakRad||0,Math.abs(delta));
+ }
+ return delta;
+}
+
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
  if(!actor.rigGaitBones?.length)return;
  const pose=actor.rigLegStride||planRigLegGesture(0,0,true);
@@ -834,7 +918,11 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   // Measure the actual imported source-rig plant as well, without stacking
   // another strike or fabricating authoritative damage.
   actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact+nativeContact));
-  mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ'));
+  // Only genuine imported swing toes may get a bounded reversible lift.
+  // This is not a planted-foot solver, authority contact or additional clip.
+  const swingToe=planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMotion);
+  const supportedAngle=Math.max(-.30,Math.min(.30,angle+swingToe));
+  mount.next.setFromEuler(mount.euler.set(supportedAngle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
   actor.rigGaitPeak=Math.max(actor.rigGaitPeak||0,Math.abs(angle));
@@ -2005,6 +2093,8 @@ function inspectSourceRigDeformation(actors){
     overlayScale:actor.rigNativeLegOverlayScale??1,
     bodyStrideWeight:actor.rigFullBodyStride?.weight??0,
     gaitWeight:actor.rigGaitWeight??0,
+    sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
+    sourceSwingToeCorrectionPeakRad:actor.sourceSwingToeCorrectionPeakRad||0,
     settling:Boolean(actor.rigGaitSettling),
     sourceIdleHandoffHeld:Boolean(actor.nativeWalkEntryPoseHeld),
     nativeWalkEntryPendingMeters:actor.nativeWalkEntryPendingMeters??0,
