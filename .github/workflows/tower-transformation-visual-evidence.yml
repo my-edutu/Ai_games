@@ -355,3 +355,15 @@ jobs:
           name: tower-ungraded-event-pairs-${{ github.run_id }}
           path: artifacts/tower-event-pairs/
           retention-days: 7
+      # This second archive contains ONLY anonymous untouched A/B WebMs and
+      # the reviewer page. Never distribute the audit/provenance JSON to
+      # blinded critics; the separate evidence archive keeps the exact SHAs.
+      # Missing shared native source events remain visibly UNSYNCHRONIZED;
+      # uploading playable originals does not override the failing P0 veto.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tower-blind-original-duel-${{ github.run_id }}
+          path: artifacts/tower-event-pairs/blind-review/
+          retention-days: 7
+          if-no-files-found: warn
