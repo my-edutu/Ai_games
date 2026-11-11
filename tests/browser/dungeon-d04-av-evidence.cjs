@@ -210,6 +210,25 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   nativeVideo.bytes<=MAX_ISOLATED_VIDEO_BYTES&&
   Number.isFinite(nativeVideo.recordingMs)&&nativeVideo.recordingMs>=1000&&
   nativeVideo.recordingMs<=15500;
+ // The follow-on REAL WebGL encoder must have exclusive MediaRecorder use.
+ // Late submitted frames certify only this serial capture window, never the
+ // original simultaneous A/V or unrelated synthetic positive-control video.
+ const serialVideo=isolated.serialRealVideo||{},serialPump=serialVideo.framePump;
+ const serialRealVideoRecorded=optedIn===true&&renderFramesAdvanced&&
+  serialVideo.source==='real-webgl-canvas-serial-video-only'&&
+  serialVideo.phase==='after-all-primary-encoders-settled'&&
+  serialVideo.primaryRecordersSettled===true&&
+  serialVideo.status==='RECORDED'&&
+  /^video\/webm(?:;|$)/i.test(serialVideo.mimeType||'')&&
+  serialVideo.videoTracks===1&&serialVideo.audioTracks===0&&
+  Number.isSafeInteger(serialVideo.bytes)&&serialVideo.bytes>1024&&
+  serialVideo.bytes<=MAX_ISOLATED_VIDEO_BYTES&&
+  Number.isFinite(serialVideo.recordingMs)&&serialVideo.recordingMs>=1000&&
+  serialVideo.recordingMs<=15500&&hasConfirmedCanvasFrames(serialPump)&&
+  serialPump?.mode==='native-capture-stream'&&
+  Number.isSafeInteger(serialPump.receiptStart)&&serialPump.receiptStart>=0&&
+  Number.isSafeInteger(serialPump.receiptEnd)&&serialPump.receiptEnd>serialPump.receiptStart&&
+  serialPump.observedFrameAdvances===serialPump.receiptEnd-serialPump.receiptStart;
  const isolatedAudioRecorded=optedIn===true&&renderFramesAdvanced&&
   audio.source==='real-opted-in-soundstage-audio-only'&&audio.status==='RECORDED'&&
   /^audio\/webm(?:;|$)/i.test(audio.mimeType||'')&&
@@ -224,7 +243,9 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   const serialCanvasEncoderDifferential=optedIn===true?
    classifySequentialCanvasEncoderProbe({concurrent:isolated.control2dOnly,serial:isolated.serial2dOnly}):
    'SERIAL_CONTROL_UNVERIFIED';
- const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
+ const encoderDiagnosis=serialRealVideoRecorded&&isolatedAudioRecorded?
+  'SERIAL_REAL_VIDEO_AND_EARLIER_AUDIO_RECORDED_UNALIGNED':
+  isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
   !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
   'NATIVE_VIDEO_RECORDED_EXPLICIT_VIDEO_UNVERIFIED':
@@ -234,7 +255,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -257,8 +278,9 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  // Neither synthetic control, concurrent or serial, may ever be saved as gameplay video.
  const {base64:syntheticControlBytes,...control2dOnly}=raw.isolated?.control2dOnly||{};
  const {base64:serialControlBytes,...serial2dOnly}=raw.isolated?.serial2dOnly||{};
+ const {base64:serialRealVideoBytes,...serialRealVideo}=raw.isolated?.serialRealVideo||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
- let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null;
+ let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null,serialRealVideoWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
   const bytes=Buffer.from(base64,'base64');
   if(bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES&&bytes.length===clip.bytes){
@@ -295,15 +317,23 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
    fs.writeFileSync(isolatedAudioWebm,bytes);
   }
  }
+ if(assessment?.serialRealVideoRecorded&&typeof serialRealVideoBytes==='string'){
+  const bytes=Buffer.from(serialRealVideoBytes,'base64');
+  if(bytes.length===serialRealVideo.bytes&&bytes.length>1024&&bytes.length<=MAX_ISOLATED_VIDEO_BYTES){
+   serialRealVideoWebm=path.join(directory,'dungeon-d04-real-webgl-serial-video-only.webm');
+   fs.writeFileSync(serialRealVideoWebm,bytes);
+  }
+ }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly},frames:raw.frames??null,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo},frames:raw.frames??null,
   trackDelivery:raw.trackDelivery??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
-   ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{})},
+   ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{}),
+   ...(raw.isolated?.serialRealVideo?{serialRealVideoWebm:!!serialRealVideoWebm}:{})},
   caveat:'Independent authentic tracks are NOT aligned or combined. Encoded bytes alone do not prove audiovisual synchronization.'
  },null,2)+'\n');
- return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
+ return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm});
 }
 module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
