@@ -103,15 +103,21 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
   reducedMotion||hasCombatFacing||!['move','idle'].includes(mode)||
   ![currentX,currentZ,targetX,targetZ,rootYaw,frameInterval].every(Number.isFinite)||
   frameInterval<=0||frameInterval>.25||
-  Math.hypot(targetX-currentX,targetZ-currentZ)>.009)return EMPTY_SOURCE_WALK_FINISH;
+  Math.hypot(targetX-currentX,targetZ-currentZ)>.07)return EMPTY_SOURCE_WALK_FINISH;
+ const remaining=Math.hypot(targetX-currentX,targetZ-currentZ);
  const walkingSource=typeof sourceClipName==='string'&&
   /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName);
  const angle=Number.isFinite(observedWalkYaw)?
   Math.atan2(Math.sin(observedWalkYaw),Math.cos(observedWalkYaw)):null;
  if(mode==='move'&&groundedMoving===true&&walkingSource&&angle!==null){
   if(Math.abs(shortestYawDelta(rootYaw,angle))<.08)return EMPTY_SOURCE_WALK_FINISH;
+  // Actual mobile original Walking_A can witness a true 45mm final step
+  // while still 35mm from the same destination. Seed the 240ms yaw release
+  // HERE, before the last <12mm micro-step loses a fresh heading. The
+  // subsequent release remains confined to <=9mm or a lawful outgoing clip.
   return {heading:angle,memory:{yaw:angle,targetX,targetZ,age:0}};
  }
+ if(remaining>.009)return EMPTY_SOURCE_WALK_FINISH;
  const memoryValid=previous&&[previous.yaw,previous.targetX,previous.targetZ,previous.age].
   every(Number.isFinite)&&previous.age>=0&&previous.age<=.24&&
   Math.hypot(previous.targetX-targetX,previous.targetZ-targetZ)<.003;
