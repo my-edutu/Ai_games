@@ -3,9 +3,9 @@
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "github.sha of THIS exact immutable capture-request commit; never branch alias",
-  "repairedSourceSha": "4c2b0a7e8ea9bb6f8c5bd165941a9f68a7f57370",
-  "reason": "Redo original full-loop same-seed paired baseline/candidate 960x600 and 390x844 evidence AFTER CI-exposed runtime fix 4c2b0a7. The earlier request 42948072081 at b13c579d genuinely FAILED candidate guardian+moving and pairing because two accidentally escaped literal newlines in guardian-circuit comments caused new guardianHalfHeight/fromX and `atGuardian` configuration to be swallowed as comments; exact quality 42947926799 failed 7 tests, and this failure is preserved as a P0 veto, NOT mislabeled passing gameplay. The source correction 4c2b0a7 restores the intended source-bound overhead 8-tooth clutch and real guardian snapshot origin. Original pre-change source film at 696655e5 native portrait 20-21s shows bronze HP machine covering live actor/guardian; new film must establish if genuine two-fighter visibility is better, then crusher, physically walkable crossing, floor9/result/restart. Frozen original baseline and all safety thresholds unchanged.",
+  "candidateSource": "github.sha of THIS exact immutable request-file commit (includes 8f22b14,d80dfef7,83d23a89,review,ledger), never a moving branch",
+  "repairedSourceSha": "d80dfef7200d42a8441bb1a144af0d1c072508e6",
+  "reason": "True source-pinned unedited 390x844 candidate danger from 42948787449 (73.04s, candidate bddbfd9) at ~21.0 native video seconds shows the actual skinned climber obscured by enormous live guardian bronze armor, forearm and hammer, not just far-back decorative machinery. Now test multi-file source-observed two-subject exterior camera correction (pure policy 8f22b14; integrated in 3D scene d80dfef; regression 83d23a89). Keep 20Hz authority, same seed/tier/viewport, original frozen baseline, strict source-start and native clock checks. Verify current full-loop ascent, moving deck, guardian/crusher, real grounded gateway+floor9, terminal and restart. A source-index event is NOT a visually authenticated event; do not award LOOKS/FEELS/PLAYS before genuine independent critics. No tiny cosmetic quality claim.",
   "scenarios": [
     "ascent",
     "moving",
@@ -37,8 +37,8 @@
   "triggerRule": "Freeze baseline 1731b380851162741761c5569e2bc152a0869ca9. Capture actual candidate at exact immutable github.sha of THIS request-file commit; never use a branch alias as source witness. Original source if preflight/browser ledge fails: preserve recordings, fail final audit honestly.",
   "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42878341492",
   "priorLedgeFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
-  "newPresentationSourceSha": "4c2b0a7e8ea9bb6f8c5bd165941a9f68a7f57370",
-  "newPresentationAcceptance": "NOT EVALUATED. Corrected exact-head CI pending, corrected original source film not yet captured/reviewed.",
+  "newPresentationSourceSha": "d80dfef7200d42a8441bb1a144af0d1c072508e6",
+  "newPresentationAcceptance": "NOT EVALUATED: after-change exact original normal-speed WebM, matched event-to-pixels, hardware and blind reviewers absent at request",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
   "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260",
@@ -404,5 +404,24 @@
   "currentP0SystemicIssue": "Keep rebuilt overhead guardian-side 8-tooth circuit and portrait camera lens, but verify real visible source video rather than scoring geometry only.",
   "requiredP0CaptureVerdict": "NOT EVALUATED",
   "failedFirstCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42948072081 — failed at b13c579d, candidate danger and moving unsuccessful, no paired valid full-motion evidence.",
-  "failedFirstCI": "https://github.com/my-edutu/Ai_games/actions/runs/42947926799 — failed 7 tests at 7c24c9ad due malformed escaped comment sequences, fixed in 4c2b0a7."
+  "failedFirstCI": "https://github.com/my-edutu/Ai_games/actions/runs/42947926799 — failed 7 tests at 7c24c9ad due malformed escaped comment sequences, fixed in 4c2b0a7.",
+  "p0GuardianExteriorPortraitStandoffRequest20261111": {
+    "priorSource": "bddbfd92814a7890dd5e29529ef4aa526c978696",
+    "previousOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/42948787449/artifacts/13824490905",
+    "previousOriginalSourcePairing": "https://github.com/my-edutu/Ai_games/actions/runs/42948787449/artifacts/13823977873",
+    "implementationSha": "d80dfef7200d42a8441bb1a144af0d1c072508e6",
+    "policySha": "8f22b14fbeab0fe213333ec25802bfd16a136d3f",
+    "regressionSha": "83d23a8938394f59fdd3514c2e8847997289e1f3",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "source": "this capture request exact github.sha",
+    "nativeTimebaseAndPixelTruth": "NOT EVALUATED",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceFrameTimesAndMemory": "NOT EVALUATED",
+    "acceptance": "NOT EVALUATED",
+    "next": "Inspect original 60+s 390x844/960x600 video 19–23s actual skinned guardian close-up and full guardian→grounded doorway→floor9→terminal/restart source pixel matches. If boss still masks hero, reopen P0 physical camera/character staging."
+  }
 }
