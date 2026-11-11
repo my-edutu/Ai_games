@@ -430,3 +430,38 @@ test('real pressure retreat HUD survives repeated tick-6 polling without invente
   assert.doesNotMatch(source,/publicPressureWithdrawalCue\(previousPublicSnapshot,snapshot\)/,
     'production must use distinct public ticks, not an arbitrary repeated poll');
 });
+
+test('Pass258 exact 320px connected pressure arch keeps real Pip and jaw within unchanged ±0.95 on withdrawal',async()=>{
+  const {publicPhysicalPressureRetreatHalfHeight:retreat,
+    publicPhysicalPressureHorizontalReframe:reframe}=await load();
+  // ORIGINAL unmodified 320x740 new-HEAD WebGL diagnostic:
+  // b2d28476 public-tide-shear-withdrawal-320.json, tick8.
+  const hero={left:.3491505262381818,right:.9562135074612816};
+  const jaw={left:-.9382301821841119,right:-.05969995446148939};
+  const height=7.151637499999999, aspect=320/740;
+  const original=JSON.stringify({hero,jaw});
+  const fitted=retreat(hero,jaw,height,aspect,true);
+  assert.ok(fitted>height && fitted<height*1.025,
+    'only the authentic 1.89444-wide physical pair earns a bounded optical correction');
+  const zoom=height/fitted;
+  const correctedHero={left:hero.left*zoom,right:hero.right*zoom};
+  const correctedJaw={left:jaw.left*zoom,right:jaw.right*zoom};
+  const translation=reframe(correctedHero,correctedJaw,fitted,aspect);
+  const ndcShift=translation/(fitted*aspect);
+  const finalLeft=Math.min(correctedHero.left,correctedJaw.left)-ndcShift;
+  const finalRight=Math.max(correctedHero.right,correctedJaw.right)-ndcShift;
+  assert.ok(finalLeft>-.95 && finalRight<.95,
+    'BOTH actual full 3D connected bodies must fit unchanged native ±.95 NDC');
+  assert.ok((correctedJaw.right-correctedJaw.left)>.70,
+    'full withdrawal mechanism retains original >=.70 NDC readable silhouette');
+  assert.equal(JSON.stringify({hero,jaw}),original,'no distortion, source position or geometry rewrite');
+  assert.equal(retreat(hero,jaw,height,aspect,false),height,'no unverified retreat');
+  assert.equal(retreat(hero,jaw,height,844/390,true),height,'no landscape optical drift');
+  assert.equal(retreat(hero,{left:-1.10,right:-.90},height,aspect,true),height,
+    'never zoom a tiny hazard below the strict minimum action scale');
+  assert.equal(retreat({left:-1.5,right:.96},jaw,height,aspect,true),height,
+    'do not disguise physically impossible pair framing');
+  const scene=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(scene,/retreatHeight=publicPhysicalPressureRetreatHalfHeight\(/);
+  assert.match(scene,/heroSpan=physicalSpan\(explorer\.group\);\s*jawSpan=physicalSpan\(hazard\);\s*}\s*const horizontalShift=/);
+});

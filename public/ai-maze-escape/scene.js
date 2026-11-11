@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -1205,6 +1205,24 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         heroSpan,jawSpan,halfHeight,aspect,publicDiagonal);
       if (physicallyStagedHeight<halfHeight) {
         halfHeight=physicallyStagedHeight;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
+        heroSpan=physicalSpan(explorer.group);
+        jawSpan=physicalSpan(hazard);
+      }
+      // Original EXACT-HEAD 320x740 retreat screenshot b2d28476 measured
+      // physical Pip + counterbalance = 1.89444 NDC across, wider than the
+      // existing 1.89 camera-pan target. The old pan therefore did nothing,
+      // leaving Pip +.9562135 outside strict +.95. Widen the REAL lens only
+      // for this already-disclosed, verified retreat, measure both connected
+      // silhouettes again, then apply the unchanged safe pan. This changes
+      // neither game geometry nor source privacy, and preserves the real
+      // pressure jaw withdrawal action-scale >=.70 NDC.
+      const retreatHeight=publicPhysicalPressureRetreatHalfHeight(
+        heroSpan,jawSpan,halfHeight,aspect,!!verifiedRetreatTrap);
+      if (retreatHeight>halfHeight) {
+        halfHeight=retreatHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();

@@ -323,6 +323,34 @@ export function publicKeyedPressureStageHalfHeight(aspect, halfHeight,
  * Returns camera-right WORLD displacement, not a new objective or zoom.
  * An impossible combined silhouette must remain a failing real visual gate.
  */
+/**
+ * Pass258 real 320px source capture: the NEW full-body tideglass pressure
+ * counterbalance expands the witnessed physical hero+mechanism envelope to
+ * 1.89444 NDC, above the existing 1.89 framing target (±.945). The old
+ * translation correctly refuses an impossible fit and Pip reaches +.9562,
+ * FAILING the unchanged ±.95 strict full-model gate.
+ *
+ * Repair the true source geometry, NOT the screenshot or acceptance gate:
+ * on the verified public one-step withdrawal only, widen the existing
+ * optical half-height by the minimum amount needed for an interior ±.935
+ * target. Refuse any expansion >2.5%, unsupported viewport, invalid model
+ * bounds or a mechanism that would shrink below the original 0.70 NDC
+ * withdrawal action-scale floor. Never alter source positions or game state.
+ */
+export function publicPhysicalPressureRetreatHalfHeight(hero, jaw, halfHeight, aspect, verifiedRetreat=false) {
+  if (!verifiedRetreat || !(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
+    || !(Number.isFinite(halfHeight) && halfHeight>0)
+    || !hero || !jaw
+    || ![hero.left,hero.right,jaw.left,jaw.right].every(Number.isFinite)
+    || hero.left>=hero.right || jaw.left>=jaw.right) return halfHeight;
+  const width=Math.max(hero.right,jaw.right)-Math.min(hero.left,jaw.left);
+  const interior=.935, safeWidth=interior*2;
+  if (width<=safeWidth) return halfHeight;
+  const factor=width/safeWidth;
+  if (factor>1.025 || (jaw.right-jaw.left)/factor < .70) return halfHeight;
+  return halfHeight*factor;
+}
+
 export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect) {
   if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
     || !(Number.isFinite(halfHeight) && halfHeight>0)
