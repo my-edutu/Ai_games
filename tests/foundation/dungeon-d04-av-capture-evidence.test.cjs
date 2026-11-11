@@ -212,3 +212,43 @@ test('D04 retains a native video-only probe separately, never as combined A/V',(
   assert.equal(doc.isolated.nativeVideoOnly.base64,undefined);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+test('D04 requires authentic captured-video consumer callbacks before diagnosing encoder-only failure',()=>{
+ const {classifyCanvasTrackDelivery}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const proof={source:'real-webgl-canvas-capture-video-monitor',mode:'request-video-frame-callback',
+  playStatus:'PLAYING',mutedAtStart:false,mutedAtStop:true,
+  events:[{kind:'mute',atMs:3000}],frames:[
+   {atMs:200,presentedFrames:1,mediaTime:0.04,submittedReceipt:12},
+   {atMs:1400,presentedFrames:2,mediaTime:1.24,submittedReceipt:13}]};
+ assert.equal(classifyCanvasTrackDelivery({delivery:proof,encodedBytes:0,submittedFrames:2}),
+  'CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY');
+ assert.equal(classifyCanvasTrackDelivery({delivery:proof,encodedBytes:32000,submittedFrames:2}),
+  'CANVAS_FRAMES_DELIVERED_AND_ENCODED_UNALIGNED');
+});
+test('D04 video monitor never mistakes a mute event or renderer receipt for decoded canvas video',()=>{
+ const {classifyCanvasTrackDelivery}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const source='real-webgl-canvas-capture-video-monitor';
+ const noFrames={source,mode:'request-video-frame-callback',playStatus:'PLAYING',
+  mutedAtStart:false,mutedAtStop:true,events:[{kind:'mute',atMs:1200}],frames:[]};
+ assert.equal(classifyCanvasTrackDelivery({delivery:noFrames,encodedBytes:0,submittedFrames:3}),
+  'TRACK_MUTED_WITHOUT_PRESENTED_FRAMES');
+ assert.equal(classifyCanvasTrackDelivery({delivery:{...noFrames,mutedAtStop:false,events:[]},
+  encodedBytes:0,submittedFrames:3}),'TRACK_DELIVERY_UNVERIFIED');
+ assert.equal(classifyCanvasTrackDelivery({delivery:{...noFrames,playStatus:'REJECTED'},
+  encodedBytes:0,submittedFrames:3}),'TRACK_DELIVERY_UNVERIFIED');
+});
+test('D04 video delivery monitor rejects fabricated, unbounded or non-monotonic frame evidence',()=>{
+ const {classifyCanvasTrackDelivery}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const ok={source:'real-webgl-canvas-capture-video-monitor',mode:'request-video-frame-callback',
+  playStatus:'PLAYING',mutedAtStart:false,mutedAtStop:false,events:[],
+  frames:[{atMs:100,presentedFrames:1,mediaTime:0.1,submittedReceipt:3},
+   {atMs:240,presentedFrames:2,mediaTime:0.2,submittedReceipt:4}]};
+ for(const bad of [
+  {...ok,source:'synthetic-test-canvas'},
+  {...ok,frames:[ok.frames[1],ok.frames[0]]},
+  {...ok,frames:[{...ok.frames[0],presentedFrames:0}]},
+  {...ok,frames:Array.from({length:33},(_,i)=>({...ok.frames[0],atMs:i*20,presentedFrames:i+1}))},
+  {...ok,frames:[{...ok.frames[0],mediaTime:NaN}]}
+ ])assert.equal(classifyCanvasTrackDelivery({delivery:bad,encodedBytes:0,submittedFrames:2}),
+  'TRACK_DELIVERY_UNVERIFIED');
+});
