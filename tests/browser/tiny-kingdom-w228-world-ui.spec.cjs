@@ -79,3 +79,67 @@ for(const width of [1024,390]){
     initial:first,after,pageErrors:errors},null,2));
  });
 }
+
+/* W231 real playable grain-storage gallery and source-linked market.
+ * Only true simulation, 3D geometry, existing actor/route and UI evidence. */
+for(const width of [1024,390]){
+ test('W231 authentic granary-side architecture and market trail '+width+'px',async({page})=>{
+  test.setTimeout(180000);
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.setViewportSize({width,height:width===390?844:768});
+  await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+    null,{timeout:115000});
+  const before=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;g.setSpeed(0);
+   return JSON.stringify(g.exportSnapshot());
+  });
+  const audit=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {granary:g.getGranaryArchitectureAudit(),
+    road:g.getFarmMarketStreetAudit(),market:g.getMarketGatewayAudit(),
+    triangles:g.renderStats().lastFrameTriangles,
+    gl:document.querySelector('#world').getContext('webgl')?.getError(),
+    unchanged:JSON.stringify(g.exportSnapshot())};
+  });
+  const wing=audit.granary.coveredDryingGallery;
+  expect(wing?.attachedToExisting).toBe(true);
+  expect(wing.roofCourses).toBe(10);
+  expect(wing.posts).toBe(3);
+  expect(wing.piers).toBe(3);
+  expect(wing.flagstones).toBe(18);
+  expect(wing.triangles).toBeGreaterThan(100);
+  expect(wing.triangles).toBeLessThanOrEqual(500);
+  expect(wing.changesAuthority).toBe(false);
+  expect(wing.extraBuffers).toBe(0);
+  expect(audit.granary.realDoorUnblocked).toBe(true);
+  expect(audit.road.connected).toBe(true);
+  expect(audit.market.receivingBays).toBe(2);
+  expect(audit.triangles).toBeGreaterThan(0);
+  expect(audit.triangles).toBeLessThan(160000);
+  expect(audit.gl).toBe(0);
+  expect(audit.unchanged).toBe(before);
+  const toggle=page.locator('#world-trace-toggle');
+  await toggle.click();
+  await expect(page.locator('#world-supply-trail')).toBeVisible();
+  const bounds=await page.evaluate(()=>{
+   const el=document.getElementById('world-supply-trail'),
+    r=el.getBoundingClientRect();
+   return {left:r.left,right:r.right,scroll:document.documentElement.scrollWidth,
+    button:document.getElementById('world-trace-follow').getBoundingClientRect().height};
+  });
+  expect(bounds.left).toBeGreaterThanOrEqual(-1);
+  expect(bounds.right).toBeLessThanOrEqual(width+1);
+  expect(bounds.scroll).toBeLessThanOrEqual(width);
+  expect(bounds.button).toBeGreaterThanOrEqual(40);
+  expect(errors).toEqual([]);
+  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot())))
+   .toBe(before);
+  fs.mkdirSync(path.resolve(__dirname,'../../test-results'),{recursive:true});
+  await page.screenshot({path:path.resolve(__dirname,'../../test-results/w231-grainward-'+width+'.png')});
+  fs.writeFileSync(path.resolve(__dirname,'../../test-results/w231-grainward-'+width+'.json'),
+   JSON.stringify({hardwarePerformanceNotMeasured:true,
+    source:'real-running-original-village-and-economy',wing,road:audit.road,
+    triangles:audit.triangles,ui:bounds,pageErrors:errors},null,2));
+ });
+}
