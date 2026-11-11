@@ -56,7 +56,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
       camera:g.getCamera()};
     });
     probes.push({citizen:citizen.name,zoom,
-     skinned:r.skin.physicallySkinnedPassiveResidents,
+     skinned:r.resident.physicallySkinnedPassiveResidents,
      visible:r.resident.visiblePeople,
      storedResting:r.resting.actualCitizens,
      residentNames:r.resident.originalNames,
@@ -64,7 +64,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      detailVisible:r.policy.visibleCandidates,
      fullSkinNames:r.skin.names,
      camera:r.camera});
-    if(r.skin.physicallySkinnedPassiveResidents>0){
+    if(r.resident.physicallySkinnedPassiveResidents>0&&
+       r.skin.names.includes(citizen.name)&&r.resident.originalNames.includes(citizen.name)){
      view={citizen:citizen.name,position:citizen.position,
       camera:{focus:citizen.position,yaw:.58,pitch:.86,zoom},
       initial:r.skin};
@@ -107,7 +108,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
       idle:g.getDailyRhythmAudit().counts.resting,
       geometry:g.getGeometryAudit().totalTriangles,
       lastFrame:g.renderStats().lastFrameTriangles,
-      passive:g.getForegroundSkinAudit().physicallySkinnedPassiveResidents,
+      passive:g.getForegroundResidentAudit().physicallySkinnedPassiveResidents,
       full:g.getForegroundResidentAudit(),
       glError:gl?.getError()??-1,
       overflow:document.documentElement.scrollWidth-innerWidth};
