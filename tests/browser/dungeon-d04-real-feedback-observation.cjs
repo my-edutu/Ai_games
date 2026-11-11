@@ -35,11 +35,22 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
  const victims=actualDamageVictimCount(before,after);
  if(victims===null)return verdict('INVALID_AUTHORITY_PAIR');
  const during=atDamage?.renderedState;
+ const expectedScene=after.run+':'+after.floor;
  if(!during||during.run!==after.run||during.floor!==after.floor||
   during.tick!==after.tick||typeof after.checksum!=='string'||
-  after.checksum.length===0||during.checksum!==after.checksum)
+  after.checksum.length===0||during.checksum!==after.checksum||
+  atDamage?.physicalFeedback?.scene!==expectedScene)
   return verdict('INVALID_RENDERED_DAMAGE_WITNESS');
- const frame=latest?.physicalFeedback;
+ // Cumulative presentation counters may survive a new run or be sampled
+ // after a floor transition. Do not borrow another encounter's successful
+ // VFX admission to certify this specific authenticated combat scene.
+ const latestState=latest?.renderedState;
+ if(!latestState||latestState.run!==after.run||
+  latestState.floor!==after.floor||
+  !validCount(latestState.tick)||latestState.tick<after.tick||
+  latest?.physicalFeedback?.scene!==expectedScene)
+  return verdict('INVALID_LATEST_RENDERED_SCENE');
+ const frame=latest.physicalFeedback;
  const counts=['queued','visualAccepted','expiredQueuedCues','framesAcknowledged','adapterFailures'];
  if(!frame||counts.some(key=>!validCount(frame[key]))||
   frame.expiredQueuedCues>frame.queued||
