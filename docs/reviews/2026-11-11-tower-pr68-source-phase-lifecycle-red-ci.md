@@ -22,3 +22,15 @@ Code review also found a real viewer-truth bug: a pending *first normal* frame c
 **After-change full CI:** NOT VERIFIED at review time; the previous 16 failures are not marked resolved by assertion. **After-change original WebM:** NOT CAPTURED. **Device p50/p95/p99 and memory:** NOT EVALUATED.
 
 LOOKS 0/5 · FEELS 0/5 · PLAYS 0/5. **Next:** obtain passing full CI, new 60s+ real A/B films with native PTS and source/render receipts, inspect all phases in full motion, and fix the real guardian/gateway and 2.7s event alignment defect before advancing P0.
+
+
+### Native original video inspection — same pre-fix source, NOT new-source acceptance
+
+I downloaded **actual original candidate danger artifact 13895277136** from [capture 43108948655](https://github.com/my-edutu/Ai_games/actions/runs/43108948655/artifacts/13895277136), verified the unedited recording inputs as a **73.2s 390×844 portrait** and **73.6s 960×600 desktop** WebM, and examined time-ordered film frames at 1s across 10–37s plus 0.25s across 22–27s in each viewport. These are genuine extracted frames but **not** substitutes for watching 1× full motion or independent review.
+
+- **Portrait 22–24s:** blue climber remains airborne among bronze counterweights, cable supports and a gallery railing. **24.75–25.5s:** climber appears planted on the upper wooden passage, but a clearly identifiable step *through* a door threshold is not established. **25.75–26s:** the film switches to violet Floor9 with the climber already on a different platform. Neither continuity nor grounded threshold passage is visually certified.
+- **Desktop 22–25.75s:** tall bronze rails / rig persist in front of or near the climber and gateway; the protagonist is repeatedly small or cropped. **~26s:** violet Floor9 environment appears, without an unambiguous visible walking-across-threshold shot in the preceding 250ms samples.
+- Genuine fixed-step portrait source ticks **443–451** show x=291896→324296, y=3238000 on `f8:cap`; real `floor-complete` at tick451 contains `exitX:304896`, `clearanceX:317896`, `crossingX:324296`, `groundedPlatformId:'f8:cap'`. This demonstrates authoritative grounded crossing **in source**, not a commercially readable crossing **in the native raster**. The temporal gap remains ~2.7s.
+- The new [request commit 3ffa8d79](https://github.com/my-edutu/Ai_games/commit/3ffa8d797ac9a4042e9408eb4fd20b348695ddb2) pins a separate after-repair capture to an exact immutable source. No new film, new-quality pass, optical victory, or physical-device proof is claimed yet.
+
+**Biggest systemic P0 stage issue after the CI/source-latch repair:** readable, unbroken guardian victory → *physically recognizable* gateway passage → Floor9 presentation, including source-to-native frame alignment. Keep P0 open. Evidence reviewed here is **prior source cfaa82f9**, not the just-committed code.
