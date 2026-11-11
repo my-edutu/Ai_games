@@ -230,6 +230,9 @@ const physicalFeedback=D04_PREVIEW?createPhysicalCombatFeedback({THREE,scene,
  actorById:id=>actors.get(id),storage:(()=>{try{return window.localStorage}catch{return null}})(),
  reducedMotion:reduced,reducedFlash:reduced,resolveContact:planVisualContact,
  deriveDamageBeats:planAuthorityDamageBeats,verifiedMeleeDelay:planVerifiedMeleeImpactDelay,
+ // D04 only: HP transitions first observed after a slow previous frame
+ // have a real monotonic arrival time; WebGL submission still gates audio.
+ clock:()=>performance.now()/1000,
  requirePresentedFrame:true}):null;
 let d04PresentedFrameSerial=0;
 const floorThemes=[
