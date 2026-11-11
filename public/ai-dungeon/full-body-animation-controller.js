@@ -84,6 +84,9 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  * source toe can intersect stone by 40–92mm while its matching heel is already
  * 120–240mm AIRBORNE. That is toe drag, not a valid stance/plant candidate.
  *
+ * Start only when the true source sole has crossed 10mm into stone,
+ * rather than waiting for deep drag after which slew-limited correction
+ * cannot catch up. The original airborne-heel and contact exclusions apply.
  * The caller probes the REAL source foot joint in the current post-mixer
  * hierarchy and provides the observed toe lift from one 0.1rad local-X trial.
  * Return a restrained reversible ankle bend only if that ORIGINAL source toe
@@ -104,7 +107,7 @@ export function selectOriginalSourceSwingAnkleTrial({
  if(![toeWorldY,heelWorldY,floorTopY].every(finite)||
   Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
   heelWorldY-floorTopY<.075||heelWorldY-floorTopY>.28||
-  toeWorldY-floorTopY>=-.025||toeWorldY-floorTopY<-.16)return null;
+  toeWorldY-floorTopY>=-.01||toeWorldY-floorTopY<-.16)return null;
  let best=null;
  for(const entry of trials){
   const {signed,toe,heel}=entry??{};
@@ -138,7 +141,7 @@ export function planOriginalSourceSwingToeClearance({
  const heelClear=heelWorldY-floorTopY,toeClear=toeWorldY-floorTopY;
  // A lifted heel and submerged toe are an original swing-foot obstacle.
  // A true planted foot MUST NOT be corrected by this swing-only contract.
- if(heelClear<.075||heelClear>.28||toeClear>=-.025||toeClear<-.16)return 0;
+ if(heelClear<.075||heelClear>.28||toeClear>=-.01||toeClear<-.16)return 0;
  const witnessedLift=trialToeWorldY-toeWorldY;
  if(witnessedLift<.006||witnessedLift>.08)return 0;
  // Correct some of the intrusion, not the whole foot in a single keyframe.
@@ -377,6 +380,8 @@ export function inferImportedSourceKneeBendAxis(clip,boneName){
 }
 
 /** Original connected-calf SWING clearance, not stance IK or game contact.
+ * Begin only if still 20mm beneath stone after an actual ankle lift,
+ * retaining positive skinned-sole trials and 0.06rad/frame knee slew.
  * Requires an actual positive skinned-toe response after licensed ankle aid. */
 export function planOriginalSourceSwingCalfAssist({
  mode='idle',sourceClipName='',sourceAnatomyVerified=false,
@@ -404,7 +409,7 @@ export function planOriginalSourceSwingCalfAssist({
  const heelClear=afterAnkleHeelY-floorTopY;
  const trialLift=trialCalfToeY-afterAnkleToeY;
  const trialHeelClear=trialCalfHeelY-floorTopY;
- if(toeClear>-.035||toeClear<-.16||heelClear<.065||heelClear>.34||
+ if(toeClear>-.02||toeClear<-.16||heelClear<.065||heelClear>.34||
   trialLift<.008||trialLift>.075||trialHeelClear<.055||
   trialHeelClear>.36||Math.abs(trialCalfHeelY-afterAnkleHeelY)>.06)return 0;
  const share=clamp((sourceWeight-.5)/.4,0,1);
@@ -440,7 +445,7 @@ export function selectOriginalSourceSwingCalfTrial({
 }={}){
  if(![afterAnkleToeY,afterAnkleHeelY,floorTopY].every(finite)||
   Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
-  afterAnkleToeY-floorTopY>-.035||afterAnkleToeY-floorTopY<-.16||
+  afterAnkleToeY-floorTopY>-.02||afterAnkleToeY-floorTopY<-.16||
   afterAnkleHeelY-floorTopY<.065||afterAnkleHeelY-floorTopY>.34)return null;
  let best=null;
  for(const trial of trials){
