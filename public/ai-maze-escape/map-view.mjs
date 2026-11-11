@@ -351,7 +351,7 @@ export function publicPhysicalPressureRetreatHalfHeight(hero, jaw, halfHeight, a
   return halfHeight*factor;
 }
 
-export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect, safe=.945) {
+export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect, contactMargin=null) {
   if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
     || !(Number.isFinite(halfHeight) && halfHeight>0)
     || !hero || !jaw || ![hero.left,hero.right,jaw.left,jaw.right].every(Number.isFinite)
@@ -365,9 +365,11 @@ export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, a
   // The existing public pressure/withdrawal camera still uses the original
   // .945 interior. The genuine one-cell CONTACT shot requests a stricter .89,
   // after its physical full-mesh zoom has been reprojected.
-  if (!(Number.isFinite(safe) && safe>=.89 && safe<=.945)
-    || right-left>safe*2) return 0;
-  const minimum=right-safe,maximum=left+safe;
+  const safe=.945;
+  const interior=contactMargin===null ? safe : contactMargin;
+  if (!(Number.isFinite(interior) && interior>=.89 && interior<=safe)
+    || right-left>interior*2) return 0;
+  const minimum=right-interior,maximum=left+interior;
   // Positive world camera-right displacement moves the objects left.
   // Choose the smallest necessary translation, preserving safe frames.
   return clamp(0,minimum,maximum)*halfHeight*aspect;
