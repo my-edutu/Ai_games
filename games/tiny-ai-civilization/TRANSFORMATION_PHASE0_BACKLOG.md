@@ -1,3 +1,19 @@
+## W231 · original granary plus truthful farm→market→home program · 11 November 2026
+
+Production [fdad38028](https://github.com/my-edutu/Ai_games/commit/fdad38028950c6c7a631949a2e19067429366e95) exclusively on OPEN/DRAFT PR #64, no merge. One original granary's newly joined open drying gallery/stone apron is part of the same real resident farm-to-market scene; no invented workers or stock. Corrected proven 1024px source-panel overflow (prior actual right=1521.828px, max1025, [failed GPU 43028658365](https://github.com/my-edutu/Ai_games/actions/runs/43028658365)). W231 [actual desktop+390px CI 43035721187](https://github.com/my-edutu/Ai_games/actions/runs/43035721187), [Day120 43035721443](https://github.com/my-edutu/Ai_games/actions/runs/43035721443), [full GPU 43035721330](https://github.com/my-edutu/Ai_games/actions/runs/43035721330) were **queued/in-progress**, not PASS when recorded.
+
+| Ranked blocking-impact workstream | Current observed value | Measurable completion |
+| --- | --- | --- |
+| 1. Real rendering spine | W230 390px software CPU p95 48.9→54.9 ms (regressed), citizen p95 23.8→27.1 ms; W231 not measured | Matched real phone+desktop >=30fps sustained, p95 <=33.3ms, stable CPU/GPU uploads/memory and no stalls |
+| 2. Gameplay readability | Authentic prior film proves harvest, loading, receipt and household; angular/small workers and weak hands remain | One uninterrupted visible real-workday with comprehensible contacts, freight inventory and occupied home at 390px |
+| 3. Safety, overflow, growth and soak | Prior full GPU 56/57 with 1024px ledger overflow; current source fix unverified; long-soak zero jobs | Exact-head green full GPU, 120-day save/replay and long-soak, zero GL/page faults, <160k triangles, UI bounds |
+| 4. Coherent original medieval architecture | Added one integrated original granary wing, not full convincing architectural district | G088 vs current matched Day1/workday/Day120 imagery materially richer across farm–granary–market–real homes |
+| 5. Separate human criticism/commercial goal | Zero independent blinded A/B judges, mismatched world checksums, physical GPU absent | 4/5 genuinely separate reviewers find LOOK/FEEL/PLAY substantial, distinct B commercial evaluation |
+
+Gate A LOOK/FEEL/PLAY NOT PROVEN. Gate B commercial reference FAIL. Remain **Phase 1**. Next inspect completed footage and regressions, profile mobile actor CPU, pursue substantial physical/occupational district build. G088 unchanged; draft PR unmerged.
+
+---
+
 ## W230 · one integrated farm→loaded courier→market→inhabited-home transformation · 11 November 2026
 
 **Current HEAD production source:** [9beb551](https://github.com/my-edutu/Ai_games/commit/9beb551e076da3cc5678adf8c5fbf60bc218ae97) on OPEN/DRAFT PR #64; pinned G088 remains 2f6deb43feb1a1557848d44def53a6109deb1ab1. Real six-face original prism writer now uses exact axis normals for valid physical boxes, retains legacy fallback on degenerate inputs and exact material/vertex ordering. **55-case isolated JS parity** plus [W230 source-pinned WebGL cold suite PASS 43027162678](https://github.com/my-edutu/Ai_games/actions/runs/43027162678), [cold artifact 13857303816](https://github.com/my-edutu/Ai_games/actions/runs/43027162678/artifacts/13857303816). **Running original workday film PASS 43027162881**: <https://github.com/my-edutu/Ai_games/actions/runs/43027162881/artifacts/13859445417>, desktop 53.76s / mobile 42.56s software video, real farmer Bram harvest 3.024 → loaded courier → unload → market receipt → Selene trade → consumed meal. Snapshots are time-lapse, not 30Hz hardware film. Zero observed GL exceptions in cold checks. Exact W230 production source and tests are in one branch commit. No merge.
