@@ -104,6 +104,13 @@ test('native game-first stage occupies the screen without concealing public cont
   expect(rects.objective.ariaHidden,'secondary objective remains semantically accessible').not.toBe('true');
   expect(rects.objective.display).not.toBe('none');
   expect(rects.objective.visibility).not.toBe('hidden');
+  if(rects.goalCopy==='Study jaws'){
+    // Actual safe diagonal inspection is an action, not a panic state.
+    // Preserve the second short explanatory line; danger gets its own
+    // one-line emergency chip only when the public contact cue is real.
+    expect(rects.urgency,'safe public survey must not be styled as active danger').toBe(false);
+    expect(rects.objectiveCopy).toBe('Choosing a safe route');
+  }
   if(rects.urgency){
     // Both real public emergencies use explicit, matching one-line actions.
     // The 2026-11-10 native screenshot has an AUTHENTIC pressure court and
@@ -2071,6 +2078,8 @@ test('actual published diagonal jaw inspection appears in unaltered mobile WebGL
     const stage=await page.evaluate(()=>({
       tick:window.__MAZE_3D__?.tick,frames:window.__MAZE_3D__?.frames,
       objective:document.getElementById('goal-title')?.textContent,
+      urgency:document.getElementById('broadcast')?.dataset.urgency,
+      objectiveDetail:document.getElementById('objective')?.textContent,
       intent:document.getElementById('intent-mode')?.textContent,
       scrollWidth:document.documentElement.scrollWidth,
       scrollHeight:document.documentElement.scrollHeight,
@@ -2091,6 +2100,8 @@ test('actual published diagonal jaw inspection appears in unaltered mobile WebGL
   };
   const study=await capture('survey',match.survey);
   expect(study.objective).toBe('Study jaws');expect(study.intent).toBe('Inspecting jaws');
+  expect(study.urgency,'true diagonal lantern survey must not present false active danger').toBe('false');
+  expect(study.objectiveDetail).toBe('Choosing a safe route');
   expect(study.publicSurveyLight,'genuine inspection must light the published jaw corridor').toBe(true);
   expect(study.publicSurveyLinks,'published diagonal uses two publicly open links').toBe(2);
   const next=await capture('departure',match.leave);

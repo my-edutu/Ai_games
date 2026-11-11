@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T06:35:00.000Z",
+  "updatedAt": "2026-11-11T07:30:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass263 candidate: after successful original Pass262 exact-HEAD native WebGL 42965049738, the true two pressure jaws now close as a single event-driven machine: their roots travel inward 12 cm only after real public treadle/shutter motion while keeping current hinge arc. A new source-bound installed-Three test covers all phases, no hidden information, reduced motion and GPU reuse. Fresh new-HEAD CI/native screenshots and detached critic NOT YET VERIFIED; Nintendo benchmark UNMET."
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass264 native-stage blocker repair, grounded in exact Pass263 84378974 WebGL 42974403807 artifact 13835480346 (37/37 original PNG SHA pairs verified): actual urgent flag could coexist with 'Study jaws', hiding route context in false emergency presentation. Production HUD now prioritizes real one-step jaw contact/withdrawal above diagonal inspection; safe public inspection remains readable with true AI/lantern. Added native 390px survey urgency/detail regression, retained existing dangerous-pressure red chip, strict six-run geometry <100, full-actor NDC ±.95, public-only authority. New commit CI/WebGL pending; fixed Captain Toad bar UNMET.",
     "Pass263 production candidate: symmetric 12cm pressure-jaw root travel coupled to the REAL public shutter beat, after relay warning; original hinges, treadle, governor, 2.4m trap-cell bounds and authoritative AI/visibility untouched. Static 6cm reduced-motion contact, immediate retreat/hidden reset; new installed-Three source-bound physical/privacy/resource test. Previous source 269842d0 original native WebGL SUCCESS; new source exact-HEAD CI/render pending. Nintendo benchmark NOT MET.",
     "Pass261 source candidate, after current exact 630e3046 SUCCESS WebGL 42949914126 (37/37 genuine image hashes): recompose the actual event-driven public Tide-Shear into a connected 2m stone machine with dark floor throat and paired 1.77m ivory guides, recede crowded mast and bring two original cutting blades forward; preserve authoritative trigger and gameplay/visibility, pooled geometries and strict NDC/resource budgets. Added installed-Three/reset physical contracts. NEW exact-HEAD tests and authentic renders pending; Nintendo benchmark NOT MET.",
     "Pass260 original pressure-court physical world reconstruction: exact predecessor b53291d9 WebGL run 42944577211 SUCCESS, 37/37 unaltered PNG/JSON hash pairs verified. Larger, joined facade on a real published solid 1.4m retaining wall, never predictive private trap, fake stair/gate or route. Installed Three/public privacy tests authored; new-HEAD original screenshots/tests pending, Nintendo bar unmet.",
@@ -767,6 +768,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass264 native pressure mission urgency truth",
+      "status": "Pass263 exact-HEAD 37/37 original PNG sidecars VERIFIED; native HUD test FAILED; Pass264 corrective source + new browser contract pending exact-HEAD CI/visual acceptance",
+      "detail": "Source 84378974 WebGL run 42974403807 produced genuine 390px 'Study jaws' but one concurrent public pressure cue styled as emergency; fixed priority for genuine immediate pressure over diagonal AI survey without changing authority, geometry, 44px or strict bounds. The previous <100 six-reset resource budget passed; new Pass264 exact-source rerun pending. Independent critic/Ultracode unavailable; Nintendo reference still rejects.",
+      "sourceCommit": "pending Pass264 atomic PR branch commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42974403807"
+    },
     {
       "name": "Pass263 true paired jaw-rail event and reset",
       "status": "SOURCE CANDIDATE; exact HEAD Node/6-run/WebGL/independent critic PENDING",

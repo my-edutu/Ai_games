@@ -151,7 +151,11 @@ function update(value){
     ? publicVisibleDiagonalPressureCue(snapshot) : null;
   // Genuine inspection at a currently disclosed diagonal vantage must
   // outrank only the advisory Watch jaws chip, never a live strike or Warden.
-  const observingPressure=!ended && (!!pressureCue || !!pressureApproach)
+  // A real one-step contact/withdrawal warning outranks an inspection
+  // intent. The deliberate lantern survey is a safe DIAGONAL observation,
+  // not an urgent strike; never show red danger with a 'Study jaws' action.
+  // AI intent still reports exactly what Pip is doing in the Details chip.
+  const observingPressure=!ended && !exposedDanger && !pressureCue && !!pressureApproach
     && snapshot.intent.mode==='inspecting-hazard';
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
