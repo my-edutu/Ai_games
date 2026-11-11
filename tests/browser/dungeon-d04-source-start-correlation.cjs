@@ -11,7 +11,12 @@ const EVENT_RECIPE=Object.freeze({
  guard:'guard',block:'block',evade:'evade',
  'ranged-release':'ranged-release','spell-release':'spell-release',
  'warden-release':'warden-release',opening:'recovery',
- counter:'counter',interrupt:'interrupt',defeat:'defeat'
+ counter:'counter',interrupt:'interrupt',defeat:'defeat',
+ 'boss-warning-final':'boss-warning-final',
+ 'boss-warning-rising':'boss-warning-rising',
+ 'boss-warning':'boss-warning','threat-warning':'threat-warning',
+ 'cast-utility':'utility','cast-unmatched':'cast-dry',
+ 'ranged-unmatched':'draw'
 });
 const validScene=s=>typeof s==='string'&&/^(?:0|[1-9]\d*):[1-9]\d*$/.test(s)&&s.length<=128;
 const validId=s=>typeof s==='string'&&s.length>0&&s.length<=256;
