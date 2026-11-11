@@ -1163,7 +1163,7 @@ function animate(t){
   const sourceTurn=advanceOriginalSourceWalkTurnRelease(a.sourceWalkFinalTurn??null,{
    sourceRig:Boolean(a.authored&&a.assetRoot&&a.mixer),
    sourceClipName:a.activeImportedClipName??'',
-   sourceWalkExit:/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(outgoingWalkName),
+   sourceWalkExit:/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(outgoingWalkName),
    mode:a.fullBody?.mode,groundedMoving:Boolean(a.groundedPerformance?.moving),
    alive:a.u.hp>0,visible:!document.hidden,teleport:Boolean(locomotion.teleport),
    reducedMotion:reduced,hasCombatFacing:Boolean(a.combatFacing),
