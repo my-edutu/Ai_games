@@ -280,6 +280,7 @@ test('D04 visible real-canvas monitor resolves the pre-mute submission window wi
  const delivery={
   source:'real-webgl-canvas-capture-video-monitor',
   presentation:'visible-2px-real-track',
+  consumerVisibleAtStart:true,
   clock:'performance-now-relative-capture-start',
   playStatus:'PLAYING',
   events:[{kind:'mute',atMs:4800}],
@@ -305,6 +306,7 @@ test('D04 submission diagnostic rejects hidden/cross-clock/fabricated or unbound
  const {classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
  const delivery={
   source:'real-webgl-canvas-capture-video-monitor',presentation:'visible-2px-real-track',
+  consumerVisibleAtStart:true,
   clock:'performance-now-relative-capture-start',playStatus:'PLAYING',
   events:[{kind:'mute',atMs:1000}],frames:[]};
  const samples=[{atMs:200,receipt:9,requestAttempted:true,requestSucceeded:true},
@@ -327,7 +329,8 @@ test('D04 submission diagnostic rejects hidden/cross-clock/fabricated or unbound
 test('D04 retains diagnostic classification without treating track delivery as sample sync',()=>{
  const {classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
  const delivery={source:'real-webgl-canvas-capture-video-monitor',
-  presentation:'visible-2px-real-track',clock:'performance-now-relative-capture-start',
+  presentation:'visible-2px-real-track',
+  consumerVisibleAtStart:true,clock:'performance-now-relative-capture-start',
   playStatus:'PLAYING',events:[{kind:'mute',atMs:4800}],frames:[]};
  const framePump={mode:'submitted-frame-request',observedFrameAdvances:1,
   requestedFrames:1,requestFailures:0,submissionSamples:[
