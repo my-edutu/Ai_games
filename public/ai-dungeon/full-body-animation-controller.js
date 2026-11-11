@@ -211,6 +211,28 @@ export function confirmOriginalSourceSwingToeLift({
  * The source rig's actual skinned heel/toe must independently pass the
  * measured trial, owner, chain, stretch and stone-clearance gates.
  */
+/**
+ * A measured original-source knee bend can have a fully aligned, authentic
+ * Walking_A quaternion hinge but still fail the separate bone-length sanity
+ * budget. Report the ACTUAL rejected constraint: a misleading "twisted
+ * hinge" diagnosis previously led to unsupported IK redesign proposals.
+ * Pure, fail-closed and presentation-only. No physical bounds are relaxed.
+ */
+export function assessImportedSourceKneeGeometry({
+ upperLength=NaN,lowerLength=NaN,bendSine=NaN,hingeAlignment=NaN
+}={}){
+ if(![upperLength,lowerLength,bendSine,hingeAlignment].every(finite))
+  return {accepted:false,reason:'invalid-original-knee-measurement'};
+ if(upperLength<.12||upperLength>1.2||
+  lowerLength<.12||lowerLength>1.2)
+  return {accepted:false,reason:'source-leg-segment-length-out-of-bounds'};
+ if(bendSine<=.085||bendSine>=.99)
+  return {accepted:false,reason:'degenerate-source-knee-bend-plane'};
+ if(hingeAlignment<.72)
+  return {accepted:false,reason:'source-hinge-not-in-actual-leg-bend-plane'};
+ return {accepted:true,reason:'verified-source-knee-plane'};
+}
+
 export function inferImportedSourceKneeBendAxis(clip,boneName){
  if(!clip||clip.name!=='Walking_A'||typeof boneName!=='string'||
   !/^[a-zA-Z0-9_.-]{3,64}$/.test(boneName)||
