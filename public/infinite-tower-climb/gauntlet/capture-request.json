@@ -3,9 +3,9 @@
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "f466d929ff0f7e33692c3b90381058a5fb6c79a9",
-  "reason": "P0 immutably recapture baseline/candidate after neutral original-host liveness correction f466d929: latest 42926271700 had valid full original WebM transport / 18 source-neighbor probes per viewport, but all 8 scoped film jobs failed preflight on 3 cancelled source lifecycle tests (unref timer). Node22 7/7 focused tests pass locally after code fix. Preserve strict 60-tick initial-source delta limit, native event-video PTS, 20Hz current source authority, original unmodified frozen source, floor8 guardian/crusher to grounded gate floor9/restart. NO acceptance until original exact source 9-job matrix + quality passes and whole film inspected; independent votes and device metrics 0/5 / NOT EVALUATED.",
+  "candidateSource": "github.sha of THIS exact immutable capture-request commit; never branch alias",
+  "repairedSourceSha": "fb3180e9d39534daab9b1587687629c26433d8ea",
+  "reason": "After source-authentic 42934062375 SUCCESS (10/10 film+source tasks, 8/8 paired stories) and green 42934062303 technical checks, real original 390x844 danger WebM still has bronze wheel/near-side stone post obscuring living climber and guardian at native ~20s. Code fb3180e9 physically opens rear-supported buttress and re-stages all three noncolliding lower mechanical drives below duel. Obtain strict new unmodified 60+s frozen-baseline/exact-head candidate 960x600 and 390x844 ORIGINAL gameplay video and event-index, not a quality score.",
   "scenarios": [
     "ascent",
     "moving",
@@ -38,7 +38,7 @@
   "priorSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42878341492",
   "priorLedgeFailureArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42606453096/artifacts/13668367198",
   "newPresentationSourceSha": "8d04e71a055993dd2d29612af254f58a866ec09c",
-  "newPresentationAcceptance": "NOT EVALUATED — actual drawn guardian read now connects lens/rescues and world occlusion, needs new exact-source full motion",
+  "newPresentationAcceptance": "NOT EVALUATED — fresh exact-source afterfilm and independent feedback pending",
   "sourceFilmCalibrationImplementationSha": "20d835b4699873e6e0264215dd6019827c8b5486",
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
   "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42852710260",
@@ -77,7 +77,7 @@
   "currentCalibration": "Prior original 42837487481 all 10 jobs success, 8/8 native timebase paired (calibration not pixel acceptance). New after-edit pairing NOT EVALUATED.",
   "freshImplementationAcceptance": "NOT EVALUATED — test/build, exact-new-source WebMs, hardware, 5 independent reviewers all still needed.",
   "previousExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42720286489 (completed success at 590f4dc6)",
-  "latestQualityRequested": "https://github.com/my-edutu/Ai_games/actions/runs/42917672196",
+  "latestQualityRequested": "https://github.com/my-edutu/Ai_games/actions/runs/42940787948 — pending at this evidence revision",
   "sourceOwnerAuditFixSha": "36ccfe589ca609d1cfbfa30717760c6360bd7105",
   "sourceOwnerAuditRegressionSha": "3800b0fcfdeb00cfc72cb62a19a05f16a14fb6aa",
   "newEvidenceSidecarExpectation": "Candidate danger 390x844: original WebM with exact source owner capture. Inspect y37-42 rigid-material-batch hits and actual 13-22s film; confirm re-staged upper right clock no longer appears over live guardian. Native source-event timebase is supporting metadata, not pixels or blind preference.",
@@ -387,5 +387,16 @@
   "pendingSyntaxCorrectionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926000486",
   "latestFailedExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42926271700",
   "latestFailedExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926271660",
-  "captureRequestRevision": "P0 original child liveness and scoped preflight recovery, 2026-11-11; candidate exactly github.sha of this request commit"
+  "captureRequestRevision": "P0 original child liveness and scoped preflight recovery, 2026-11-11; candidate exactly github.sha of this request commit",
+  "newPhysicalGuardianGalleryImplementationSha": "fb3180e9d39534daab9b1587687629c26433d8ea",
+  "previousSuccessfulOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42934062375",
+  "previousSuccessfulSourceEventPairs": "https://github.com/my-edutu/Ai_games/actions/runs/42934062375/artifacts/13817837070",
+  "priorTrueFootageDefect": "Original candidate portrait at source 7d982af1 native 20s giant bronze ring plus foreground pylon visually occlude hero/guardian; desktop 20s fight considerably more legible. Pixel snapshots are not an independent full-motion preference.",
+  "exactRequiredVideoAfterFix": "All eight unmodified original baseline/candidate WebMs at normal speed 60+s each, matched seed/tier/viewport/start source ticks within existing strict window; inspect continuous 390x844 and 960x600 12-27s for two real combatants, cinematic stability, crusher action, source guardian HP0 -> WALKABLE grounded gateway -> authentic floor9 -> outcome/intermission/restart; maintain event/video causality veto.",
+  "latestReviewerCounts": {
+    "looks": 0,
+    "feels": 0,
+    "plays": 0
+  },
+  "deviceMetrics": "NOT EVALUATED"
 }

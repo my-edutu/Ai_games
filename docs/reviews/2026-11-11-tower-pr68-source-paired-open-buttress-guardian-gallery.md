@@ -1,0 +1,24 @@
+# PR68 P0 — original-source guardian gallery, paired evidence and physical opening (2026-11-11)
+
+**Status:** P0 OPEN / NOT EVALUATED. **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9` (unchanged). **Implementation:** [`fb3180e9d39534daab9b1587687629c26433d8ea`](https://github.com/my-edutu/Ai_games/commit/fb3180e9d39534daab9b1587687629c26433d8ea). PR68 stays draft, PR58/main untouched, no merge, deploy, branch reset or force-push.
+
+## Last authentic before-film and events
+
+- [Original source film and two 3200-tick campaigns — run 42934062375](https://github.com/my-edutu/Ai_games/actions/runs/42934062375): all 10 jobs successful at immutable **7d982af1**, eight baseline/candidate original-browser 60+s native films, eight native matched episode pairs, zero missing pairs. Its source-matched event cues are **SEARCH/PROVENANCE ONLY**, not certified frame-visible causality or an independent quality vote.
+- [Candidate original portrait danger film](https://github.com/my-edutu/Ai_games/actions/runs/42934062375/artifacts/13816957693): decoded the original unmodified **390×844, 72.80-second** WebM and inspected native samples around 16, 20, 22 and 24 seconds. At **20 seconds**, a large gold circular mechanism/stone cage dominates the foreground and physically hides much of the blue climber and bronze guardian. The same exact candidate's original **960×600 desktop** frame at 20 seconds shows both actual fighters far more coherently on a platform. At 16–22 seconds phone framing splits the two combatants and masks action; a single beautiful still would not be an acceptable fix. This is an observer's frame inspection, **NOT** proof of continuous full-motion comfort or independent film preference.
+- [Immutable source-pair artifact](https://github.com/my-edutu/Ai_games/actions/runs/42934062375/artifacts/13817837070): in the authentic candidate danger event index the guardian has source HP0 at floor-8 tick **441**, source floor-9 handoff at tick **451**, floor-10 result at tick **845**, and a real run token change/restart. These are true source events; their individual visual appearance, exact image timings and complete grounded camera/story continuity remain NOT EVALUATED.
+- [Prior exact-head quality checks](https://github.com/my-edutu/Ai_games/actions/runs/42934062303) were SUCCESS, solely a safety gate.
+
+## One system-level reconstruction committed
+
+The pre-fix open buttress still contained **four full-height near/far stone posts** in the guardian's vertical action band. Candidate portrait camera/scene owner samples repeatedly identified `ClockworkOpenButtressFourCornerPosts` among actual source-attributed triangles near guardian ticks ~296–410. In [fb3180e9](https://github.com/my-edutu/Ai_games/commit/fb3180e9d39534daab9b1587687629c26433d8ea) the *three source-clockwork pylon assemblies* now preserve two full rear load-bearing columns, shorten the two near-side posts into rooted plinths below the live duel and carry the crown with original paired overhead steel tension struts. This changes **actual 3D silhouette/negative space** rather than alpha, overlay, camera teleport, false gameplay clearance or arbitrary collision deletion.
+
+The complete animated non-colliding main clockwork flywheel, lower clutch and 42-unit original rack have been relocated downward as one coherent low transmission stage; upper skyline rotor remains. The same source-authentic guardian, crusher, collision deck, door state, motion/AI and all other biomes are untouched.
+
+Added an original Three.js / post-batch provenance regression: actual geometry rays at both formerly blocked near corners for each pylon must be OPEN at y=20 while deep rays still hit the complete rear piers; all three lower mechanical assemblies must have genuine bounds below action y=-20; lower-tier mesh+shadow budget, frozen input and floor-nine retirement must hold. This is geometry and scene-integrity verification, not filmed quality. [Exact-head quality run 42940787948](https://github.com/my-edutu/Ai_games/actions/runs/42940787948) was in progress when requested; no green claim.
+
+## Unclosed acceptance gates
+
+New after-film for the exact commit/source SHA, genuine 60+s unmodified matched base/candidate portrait and desktop full-motion inspection, pixel-to-source guardian/crusher/HP0/grounded gate/floor-nine/result/restart event review, and reproducible low/high device p50/p95/p99+memory are all **NOT EVALUATED**. Independent fresh-context randomized blind **LOOKS=0/5, FEELS=0/5, PLAYS=0/5**. Merely succeeding the geometry test cannot advance P0.
+
+**Next action:** inspect new 10-job original-browser after-film strictly aligned to real events. Reopen this physical gallery/camera subsystem if the same wheel/post silhouette or fragmented fighting composition persists; do not advance to P1 because of green CI.
