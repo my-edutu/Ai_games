@@ -581,6 +581,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     camera.lookAt(cameraTarget);
     scene.fog.near = Math.max(30, cameraOffset.length() + 15);
     scene.fog.far = scene.fog.near + 65;
+    // The exact original world keeps its complete static geometry. Restrict
+    // only material-batch draw ranges by the current true camera frustum;
+    // the first render retains every caster for the original sun shadow map.
+    world.updateStaticCameraVisibility(camera);
     renderer.info.reset();
     renderPresentation();
     frameCount++;

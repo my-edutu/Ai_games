@@ -1342,73 +1342,130 @@ export function createWorld(THREE, {width, height}) {
     let list=materialBatches.get(batch.m);if(!list){list=[];materialBatches.set(batch.m,list);}list.push(batch);
     staticInstances+=batch.items.length;
   }
+  // Group the original *complete* stone, woodland and ruin transforms by
+  // spatial locality inside their existing 13 material draw objects. The
+  // assembled GPU buffers retain every authored vertex, tint, index and atlas.
+  // Segment boundaries let the live Three.js camera avoid sending entirely
+  // invisible geometry through a full-screen detail shot. No renderer pass,
+  // material, texture, or new mesh is introduced by this geometry ownership.
+  const staticVisibilityMeshes=[];
+  const mortonCode=(x,z)=>{
+    const quarter=(n,max)=>Math.max(0,Math.min(255,Math.floor((n+max)/(2*max)*256)));
+    let xBits=quarter(x,width/2+78),zBits=quarter(z,height/2+78),key=0;
+    for(let bit=0;bit<8;bit++)key|=((xBits>>bit)&1)<<(2*bit)|((zBits>>bit)&1)<<(2*bit+1);
+    return key;
+  };
   const positionTemp=new THREE.Vector3(),normalTemp=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();
+  const geometryBounds=new THREE.Box3(),transformedBounds=new THREE.Box3();
   for(const [sourceMaterial,list] of materialBatches){
+    const entries=[];
+    for(const {g,items} of list)for(const item of items)entries.push({g,item,order:entries.length,
+      locality:mortonCode(item.matrix.elements[12],item.matrix.elements[14])});
+    entries.sort((a,b)=>a.locality-b.locality||a.order-b.order);
     let vertexCount=0,indexCount=0,hasTint=false;
-    for(const {g,items} of list){vertexCount+=g.attributes.position.count*items.length;indexCount+=(g.index?.count??g.attributes.position.count)*items.length;hasTint ||= items.some(item=>item.tint);}
+    for(const {g,item} of entries){vertexCount+=g.attributes.position.count;indexCount+=g.index?.count??g.attributes.position.count;hasTint ||=!!item.tint;}
     const positions=new Float32Array(vertexCount*3),normals=new Float32Array(vertexCount*3),uvs=new Float32Array(vertexCount*2);
     const colors=hasTint?new Float32Array(vertexCount*3):null;
     const indices=vertexCount>65535?new Uint32Array(indexCount):new Uint16Array(indexCount);
-    let vertexOffset=0,indexOffset=0;
-    for(const {g,items} of list){
+    let vertexOffset=0,indexOffset=0,blockStart=0,blockSize=0;
+    let blockBounds=new THREE.Box3().makeEmpty();
+    const visibilityBlocks=[];
+    for(const {g,item} of entries){
       const p=g.attributes.position,n=g.attributes.normal,uv=g.attributes.uv;
-      for(const item of items){
-        normalMatrix.getNormalMatrix(item.matrix);
-        for(let v=0;v<p.count;v++){
-          positionTemp.fromBufferAttribute(p,v).applyMatrix4(item.matrix);
-          // BEGIN R32 ORIGINAL QUARRY CORNER SCULPT
-          // Presentation only: break the straight mortar at selected stone
-          // corners without moving the public board, food or hazard anchors.
-          // Keep every top rim inside its original cell and use no game RNG.
-          if (sourceMaterial === tileMat && item.region?.w===1 && item.region?.h===1 && p.getY(v) > .499) {
-            const cellX = Math.round(item.matrix.elements[12] + W - .5);
-            const cellZ = Math.round(item.matrix.elements[14] + H - .5);
-            const localX = p.getX(v), localZ = p.getZ(v);
-            if (Math.abs(localX) > .45 && Math.abs(localZ) > .45) {
-              const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
-              const stone=sculptForestMosaicTile(cellX,cellZ,width,height);
-              const chip=stone.chip*(.52+.48*noise(cellX * 7 + corner + 103, cellZ * 11 + 67));
-              // Preserve the original narrow quarry lip invariant even when
-              // the authored mosaic's tile transformations are more rugged.
-              // One seeded quiet corner keeps a legible natural stone joint;
-              // the other three remain visibly weathered without a false pit.
-              const coreX=item.matrix.elements[12],coreZ=item.matrix.elements[14];
-              const dirX=Math.sign(localX),dirZ=Math.sign(localZ);
-              const landmark=(cellX*7+cellZ*11)%4, originalTop=.487*.994;
-              if(corner===landmark){
-                positionTemp.x=coreX+dirX*originalTop;
-                positionTemp.z=coreZ+dirZ*originalTop;
-              } else {
-                const inwardX=Math.abs(positionTemp.x-coreX)-chip;
-                const inwardZ=Math.abs(positionTemp.z-coreZ)-chip*.76;
-                positionTemp.x=coreX+dirX*Math.max(originalTop-.076,Math.min(originalTop-.003,inwardX));
-                positionTemp.z=coreZ+dirZ*Math.max(originalTop-.056,Math.min(originalTop-.003,inwardZ));
-              }
+      normalMatrix.getNormalMatrix(item.matrix);
+      for(let v=0;v<p.count;v++){
+        positionTemp.fromBufferAttribute(p,v).applyMatrix4(item.matrix);
+        // Preserve physical, conservative historical quarry corner treatment.
+        if (sourceMaterial === tileMat && item.region?.w===1 && item.region?.h===1 && p.getY(v) > .499) {
+          const cellX = Math.round(item.matrix.elements[12] + W - .5);
+          const cellZ = Math.round(item.matrix.elements[14] + H - .5);
+          const localX = p.getX(v), localZ = p.getZ(v);
+          if (Math.abs(localX) > .45 && Math.abs(localZ) > .45) {
+            const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
+            const stone=sculptForestMosaicTile(cellX,cellZ,width,height);
+            const chip=stone.chip*(.52+.48*noise(cellX * 7 + corner + 103, cellZ * 11 + 67));
+            const coreX=item.matrix.elements[12],coreZ=item.matrix.elements[14];
+            const dirX=Math.sign(localX),dirZ=Math.sign(localZ);
+            const landmark=(cellX*7+cellZ*11)%4, originalTop=.487*.994;
+            if(corner===landmark){
+              positionTemp.x=coreX+dirX*originalTop;
+              positionTemp.z=coreZ+dirZ*originalTop;
+            } else {
+              const inwardX=Math.abs(positionTemp.x-coreX)-chip;
+              const inwardZ=Math.abs(positionTemp.z-coreZ)-chip*.76;
+              positionTemp.x=coreX+dirX*Math.max(originalTop-.076,Math.min(originalTop-.003,inwardX));
+              positionTemp.z=coreZ+dirZ*Math.max(originalTop-.056,Math.min(originalTop-.003,inwardZ));
             }
-            // Keep each slab flat and above the original safety clearance.
-            positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
           }
-          // END R32 ORIGINAL QUARRY CORNER SCULPT
-          normalTemp.fromBufferAttribute(n,v).applyMatrix3(normalMatrix).normalize();
-          const vi=vertexOffset+v,pi=vi*3,ui=vi*2;
-          positions[pi]=positionTemp.x;positions[pi+1]=positionTemp.y;positions[pi+2]=positionTemp.z;
-          normals[pi]=normalTemp.x;normals[pi+1]=normalTemp.y;normals[pi+2]=normalTemp.z;
-          if(sourceMaterial===tileMat){uvs[ui]=(positionTemp.x+W)/width;uvs[ui+1]=(positionTemp.z+H)/height;}
-          else if(uv){uvs[ui]=uv.getX(v);uvs[ui+1]=uv.getY(v);}
-          if(colors){colors[pi]=item.tint?.r??1;colors[pi+1]=item.tint?.g??1;colors[pi+2]=item.tint?.b??1;}
+          positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
         }
-        const count=g.index?.count??p.count;
-        for(let i=0;i<count;i++)indices[indexOffset++]=vertexOffset+(g.index?g.index.getX(i):i);
-        vertexOffset+=p.count;
+        normalTemp.fromBufferAttribute(n,v).applyMatrix3(normalMatrix).normalize();
+        const vi=vertexOffset+v,pi=vi*3,ui=vi*2;
+        positions[pi]=positionTemp.x;positions[pi+1]=positionTemp.y;positions[pi+2]=positionTemp.z;
+        normals[pi]=normalTemp.x;normals[pi+1]=normalTemp.y;normals[pi+2]=normalTemp.z;
+        if(sourceMaterial===tileMat){uvs[ui]=(positionTemp.x+W)/width;uvs[ui+1]=(positionTemp.z+H)/height;}
+        else if(uv){uvs[ui]=uv.getX(v);uvs[ui+1]=uv.getY(v);}
+        if(colors){colors[pi]=item.tint?.r??1;colors[pi+1]=item.tint?.g??1;colors[pi+2]=item.tint?.b??1;}
       }
+      const count=g.index?.count??p.count;
+      for(let i=0;i<count;i++)indices[indexOffset++]=vertexOffset+(g.index?g.index.getX(i):i);
+      vertexOffset+=p.count;
+      // A Box3 built from the exact transformed source geometry is enlarged
+      // conservatively for the bounded physical corner relief above.
+      if(!g.boundingBox)g.computeBoundingBox();
+      geometryBounds.copy(g.boundingBox).applyMatrix4(item.matrix);
+      if(sourceMaterial===tileMat)geometryBounds.expandByScalar(.03);
+      blockBounds.union(geometryBounds);
+      blockSize++;
+      if(blockSize>=48){visibilityBlocks.push({start:blockStart,count:indexOffset-blockStart,box:blockBounds});
+        blockStart=indexOffset;blockSize=0;blockBounds=new THREE.Box3().makeEmpty();}
     }
+    if(blockSize)visibilityBlocks.push({start:blockStart,count:indexOffset-blockStart,box:blockBounds});
     const merged=geometry(new THREE.BufferGeometry());
     merged.setAttribute('position',new THREE.BufferAttribute(positions,3));merged.setAttribute('normal',new THREE.BufferAttribute(normals,3));merged.setAttribute('uv',new THREE.BufferAttribute(uvs,2));merged.setIndex(new THREE.BufferAttribute(indices,1));
     if (sourceMaterial === tileMat) merged.computeVertexNormals();
     let mergedMaterial=sourceMaterial;
     if(colors){merged.setAttribute('color',new THREE.BufferAttribute(colors,3));mergedMaterial=sourceMaterial.clone();mergedMaterial.vertexColors=true;materials.add(mergedMaterial);}
     merged.computeBoundingBox();merged.computeBoundingSphere();
-    const mesh=new THREE.Mesh(merged,mergedMaterial);mesh.name='Ruins / '+sourceMaterial.color.getHexString();mesh.userData.staticWorld=true;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);staticMeshes++;
+    const mesh=new THREE.Mesh(merged,mergedMaterial);mesh.name='Ruins / '+sourceMaterial.color.getHexString();mesh.userData.staticWorld=true;mesh.userData.visibilityBlocks=visibilityBlocks;
+    // Three's WebGLShadowMap invokes onBeforeShadow before submitting the
+    // sun's complete authored caster geometry. Keep the FULL shadow buffer,
+    // even on the first paint and whenever the shadow atlas is refreshed.
+    // WebGLRenderer invokes onBeforeRender before the subsequent camera
+    // color pass; restore the camera's conservative visible index interval.
+    // This is presentation-only: no geometry, resource or extra pass changes.
+    mesh.userData.colorIndexRange={start:0,count:merged.index.count};
+    mesh.onBeforeShadow=()=>{mesh.geometry.setDrawRange(0,merged.index.count);};
+    mesh.onBeforeRender=()=>{const range=mesh.userData.colorIndexRange;
+      mesh.geometry.setDrawRange(range.start,range.count);};
+    mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);staticMeshes++;staticVisibilityMeshes.push(mesh);
+  }
+  // Only a contiguous visible index interval is sent to the GPU per original
+  // material batch. Every skipped section is enclosed in a conservative world
+  // AABB and therefore cannot contain a camera-visible primitive. Never cull
+  // the initial complete shadow-map build; retain all casters for sun shadows.
+  const visibleFrustum=new THREE.Frustum(),projectionView=new THREE.Matrix4();
+  function updateStaticCameraVisibility(camera,{forceAll=false}={}){
+    if(!camera?.isCamera)throw new TypeError('A real Three.js camera is required');
+    camera.updateMatrixWorld();
+    visibleFrustum.setFromProjectionMatrix(projectionView.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+    let testedBlocks=0,drawnIndices=0,fullIndices=0;
+    for(const mesh of staticVisibilityMeshes){
+      const all=mesh.geometry.index.count;fullIndices+=all;
+      let first=Infinity,last=0;
+      for(const block of mesh.userData.visibilityBlocks){
+        testedBlocks++;
+        if(forceAll||visibleFrustum.intersectsBox(block.box)){
+          first=Math.min(first,block.start);last=Math.max(last,block.start+block.count);
+        }
+      }
+      const start=Number.isFinite(first)?first:0,count=Number.isFinite(first)?last-first:0;
+      mesh.userData.colorIndexRange.start=start;
+      mesh.userData.colorIndexRange.count=count;
+      mesh.geometry.setDrawRange(start,count);
+      drawnIndices+=count;
+    }
+    return {testedBlocks,drawnIndices,fullIndices};
   }
   materialBatches.clear();
   batches.clear();
@@ -1614,6 +1671,6 @@ export function createWorld(THREE, {width, height}) {
   }
   function dispose(){if(disposed)return;disposed=true;group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();group.clear();}
   function stats(){return{staticInstances,staticMeshes,drawObjects:group.children.reduce((n,o)=>n+(o.isMesh?1:o.children.filter(c=>c.isMesh).length),0),geometries:geometries.size,materials:materials.size,textures:textures.size,obstacles:obstacles.count,hazards:hazardBed.count,portalEnds:portalBases.count,disposed};}
-  return{group,update,dispose,stats,propRevision:()=>revision,
+  return{group,update,dispose,stats,updateStaticCameraVisibility,propRevision:()=>revision,
     cameraOccluders:Object.freeze(cameraOccluders)};
 }
