@@ -773,3 +773,63 @@ test('original submitted clockwork triangles retain exact bounded source ownersh
     assert.equal(oldClockFace,false,'floor-nine rebuild must release prior floor mesh owners');
   }finally{world.dispose();}
 });
+
+// Source-pinned exact 7d982af1 portrait danger WebM at ~16-22s shows
+// enormous foreground bronze clockwork and cage posts obscuring the real
+// guardian and climber. A central straight ray alone cannot detect the TWO
+// full-height near-corner posts that cut across the fighters. Inspect the
+// actual post-batch source-owned triangle faces at the tangential edges.
+test('living floor-eight guardian gallery has no front-column curtain at actor-height while retaining rear load paths', async () => {
+  const [THREE,{createTowerWorld}]=await loaded;
+  const {sourceTriangleOwner}=await import(pathToFileURL(path.join(ROOT,
+    'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href);
+  const world=createTowerWorld();
+  try {
+    const frame=sourceFrame('clockwork',8),immutable=JSON.stringify(frame);
+    world.update(frame,.016,0,{quality:'low'});
+    world.group.updateWorldMatrix(true,true);
+    const pylons=[
+      {angle:-.66,radius:16.8,halfWidth:4.9*.70},
+      {angle:1.40,radius:16.65,halfWidth:5.25*.70},
+      {angle:-.18,radius:8.6,halfWidth:5.5*.70},
+    ];
+    const front=(hit)=>{
+      const owner=sourceTriangleOwner(hit.object.geometry,hit.faceIndex);
+      return owner?.authoringPath?.includes('ClockworkOpenButtressFourCornerPosts');
+    };
+    for(const {angle,radius,halfWidth} of pylons) {
+      const outward=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));
+      const right=new THREE.Vector3(Math.cos(angle),0,-Math.sin(angle));
+      for(const side of [-1,1]){
+        const origin=outward.clone().multiplyScalar(radius+8)
+          .addScaledVector(right,side*halfWidth);
+        origin.y=20;
+        const direction=outward.clone().negate();
+        const nearHits=new THREE.Raycaster(origin,direction,0,9)
+          .intersectObjects(world.group.children,true).filter(front);
+        assert.equal(nearHits.length,0,
+          'no front full-height buttress over genuine live duel at bearing '+angle+' side '+side);
+        // Those two complete BACK posts continue to hold the physical crown.
+        const allHits=new THREE.Raycaster(origin,direction,0,17)
+          .intersectObjects(world.group.children,true).filter(front);
+        assert.ok(allHits.length>=1,
+          'rear stone load path must survive each open-air near-side bay');
+      }
+    }
+    const groups=['clockwork-monumental-left-shoulder',
+      'clockwork-lower-left-shoulder','clockwork-far-shoulder-power-rack'];
+    for(const name of groups){
+      const object=world.group.getObjectByName(name);
+      assert.ok(object,'retain the original rotating clockwork identity: '+name);
+      const box=new THREE.Box3().setFromObject(object);
+      assert.ok(!box.isEmpty()&&box.max.y < -20,
+        'the full non-colliding bronze gear/case must be physically below the action band: '+name+': '+box.max.y);
+    }
+    assert.equal(JSON.stringify(frame),immutable,'visual gallery cannot edit source fixed-step authority');
+    assert.ok(world.diagnostics().meshes+world.diagnostics().shadowCasterMeshes<=100,
+      'original 390x844 low-tier drawing budget remains a veto');
+    world.update(sourceFrame('void',9),.016,1,{quality:'low'});
+    assert.equal(world.group.getObjectByName('clockwork-monumental-left-shoulder'),undefined,
+      'old floor-eight gallery retires on real floor-nine');
+  } finally { world.dispose(); }
+});

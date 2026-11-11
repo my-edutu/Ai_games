@@ -844,13 +844,30 @@ export function createTowerWorld(){
           [p.R*.72,openBase],[0,openBase]],materials.stone);
         plinth.name='ClockworkOpenButtressFoundation';
         plinth.userData.structural=true;
+        // The exact original portrait film at immutable 7d982af1 still
+        // has giant foreground uprights over the live climber/guardian.
+        // A four-post full-height cage is not an open buttress: the near
+        // columns occlude both source bodies even though the centre ray is
+        // clear. Keep TWO full rear load-bearing posts and TWO short near
+        // plinths. The real 18-40m duel band is genuinely open towards the
+        // exterior camera, without alpha tricks, fake actors or collision.
+        const nearPostTop=Math.min(11,crown-8);
         const uprights=[];
-        for(const sideX of [-1,1])for(const sideZ of [-1,1])
-          uprights.push({p:[sideX*corner,openBase+height/2,sideZ*corner],
-            s:[.58,height,.58]});
+        for(const sideX of [-1,1])for(const sideZ of [-1,1]){
+          const top=sideZ>0?nearPostTop:crown;
+          uprights.push({p:[sideX*corner,(openBase+top)/2,sideZ*corner],
+            s:[.58,top-openBase,.58]});
+        }
         const posts=instanced(body,bevel(),materials.stone,uprights);
         posts.name='ClockworkOpenButtressFourCornerPosts';
         posts.userData.structural=true;
+        // A cantilevered crown is carried by the two rear stone piers and
+        // two upper steel diagonal tension struts, not by hovering lintels.
+        // Both upper braces stay near the roof, above the live action.
+        for(const sideX of [-1,1]){
+          beam(body,[sideX*corner,crown-2.4,-corner],
+            [sideX*corner,crown-.2,corner],.18,materials.edge);
+        }
         // Low diagonal knee braces read as credible weight-bearing steelwork
         // yet stay below the observed guardian action height (y ~ 20-38).
         for(const sideX of [-1,1])for(const sideZ of [-1,1]){
@@ -1215,8 +1232,11 @@ export function createTowerWorld(){
     // Move the whole NON-COLLIDING mechanical drive to the structural base,
     // not another camera-fade trick. Preserve its animated original parts and
     // the separate high-right vertical landmark; do not change game rules.
-    const clock=new THREE.Group();radial(clock,-2.49,19.2,-24);
-    clock.scale.set(.42,.42,.42);
+    const clock=new THREE.Group();radial(clock,-2.49,19.2,-39);
+    // Move the whole rotating non-colliding lower transmission physically
+    // BELOW the first visible combat decks. The full bronze rim and open
+    // gear remain in the world, but cannot dominate the lived cap duel.
+    clock.scale.set(.35,.35,.35);
     clock.name='clockwork-monumental-left-shoulder';
     floorGroup.add(clock);
     openClockCase(clock,14,16);
@@ -1242,7 +1262,7 @@ export function createTowerWorld(){
     // The separate low clutch remains below the middle drive, and both
     // stay below source-owned climbing and upper-cap combat lanes. The high
     // right rotor still marks the tower's vertical scale.
-    for(const [a,y,size,speed,scale]of [[-2.20,-37,3.6,-.11,.80],[2.34,height+19,3.1,.15,.54]]){
+    for(const [a,y,size,speed,scale]of [[-2.20,-48,3.6,-.11,.74],[2.34,height+19,3.1,.15,.54]]){
       const root=new THREE.Group();radial(root,a,21.3,y);
       root.scale.setScalar(scale);floorGroup.add(root);
       root.name=y>height*.6?'clockwork-upper-right-shoulder':'clockwork-lower-left-shoulder';
@@ -1257,8 +1277,8 @@ export function createTowerWorld(){
     // approach, while preserving its full 42-unit pitched mechanical drive.
     // The full 42-unit non-colliding rack is grounded with the lower drive,
     // outside the cap's real walking and fighting lane.
-    const rack=new THREE.Group();radial(rack,-1.91,20.4,-34);
-    rack.scale.set(.70,.65,.84);
+    const rack=new THREE.Group();radial(rack,-1.91,20.4,-46);
+    rack.scale.set(.68,.55,.80);
     rack.name='clockwork-far-shoulder-power-rack';floorGroup.add(rack);
     // The actual forty-two-unit solid decorative rack was outside the gear
     // registry, so an orbiting camera could still see a complete opaque wall.
