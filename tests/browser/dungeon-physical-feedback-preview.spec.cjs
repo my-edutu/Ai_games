@@ -439,6 +439,26 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
    x.frameId!==null)).toBe(true,'no audio before acknowledged WebGL submission');
  }
  await page.locator('#world').screenshot({path:'artifacts/dungeon-d04-real-combat-world.png'});
+ // Partial mobile evidence uses the SAME real seed/run and existing camera.
+ // A still frame is never described as a matched mobile moving A/V clip.
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>
+  window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.implementation),
+  {timeout:30000}).toBe('D04-physical-authority-feedback');
+ await page.screenshot({path:'artifacts/dungeon-d04-real-mobile-390.png'});
+ const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(mobile.d04PreviewEnabled).toBe(true);
+ expect(mobile.physicalFeedback.visuals.reservedInstances).toBeLessThanOrEqual(104);
+ expect(mobile.physicalFeedback.visuals.drawCalls).toBeLessThanOrEqual(7);
+ await test.info().attach('d04-real-390px-mobile-readonly-receipt.json',{
+  body:Buffer.from(JSON.stringify({
+   source:'same authentic seeded DungeonRuntime stream, existing camera, viewport-only resize',
+   width:390,height:844,seed:real.seed,run:mobile.renderedState?.run,
+   floor:mobile.renderedState?.floor,tick:mobile.renderedState?.tick,
+   checksum:mobile.renderedState?.checksum,
+   limitation:'Mobile screenshot only; no matched three-viewpoint moving audio/video proof.'
+  },null,2)),contentType:'application/json'
+ });
  const receipt={
   source:'seeded, actual DungeonRuntime.step -> publicState -> actual Three.js WebGL renderer',
   seed:real.seed,run:real.after.run,floor:real.after.floor,
