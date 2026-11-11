@@ -352,3 +352,75 @@ test('D04 retains diagnostic classification without treating track delivery as s
   assert.equal(manifest.clip.framePump.submissionSamples.length,1);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+// Differential control probes must never be presented as genuine combat media.
+
+const {classifyCanvasEncoderControl}=require('../browser/dungeon-d04-av-evidence.cjs');
+const comparisonControl={
+ source:'synthetic-2d-canvas-encoder-control-not-gameplay',
+ status:'RECORDED',mimeType:'video/webm;codecs=vp8',
+ bytes:18000,recordingMs:5500,videoTracks:1,audioTracks:0,
+ drawnFrames:40,canvasWidth:64,canvasHeight:64
+};
+const comparisonReal={
+ source:'real-webgl-canvas-video-only',status:'UNAVAILABLE',
+ mimeType:'video/webm;codecs=vp8',bytes:0,videoTracks:1,audioTracks:0,
+ recordingMs:5500,framePump:{mode:'submitted-frame-request',
+  observedFrameAdvances:4,requestedFrames:4,requestFailures:0}
+};
+test('D04 synthetic 2D positive-control encoding isolates real WebGL track failure without claiming A/V sync',()=>{
+ const comparison=classifyCanvasEncoderControl({control:comparisonControl,real:comparisonReal});
+ assert.equal(comparison,'CONTROL_ENCODES_REAL_WEBGL_EMPTY');
+ const assessed=assessD04Capture({...good,isolated:{
+  videoOnly:comparisonReal,control2dOnly:comparisonControl}});
+ assert.equal(assessed.canvasEncoderDifferential,'CONTROL_ENCODES_REAL_WEBGL_EMPTY');
+ assert.equal(assessed.classification,'UNVERIFIED'); // synthetic control MUST NOT certify actual game.
+ assert.equal(assessed.isolatedVideoRecorded,false);
+ assert.equal(assessed.sampleSynchronized,false);
+});
+test('D04 comparison is inconclusive if BOTH video paths fail; no encoder root cause is invented',()=>{
+ const failedControl={...comparisonControl,status:'UNAVAILABLE',bytes:0};
+ assert.equal(classifyCanvasEncoderControl({control:failedControl,real:comparisonReal}),
+  'BOTH_VIDEO_PATHS_UNVERIFIED');
+ assert.equal(classifyCanvasEncoderControl({control:comparisonControl,real:{
+  ...comparisonReal,status:'RECORDED',bytes:24000}}),
+  'BOTH_VIDEO_PATHS_ENCODED_UNALIGNED');
+});
+test('D04 rejects synthetic or non-video provenance, unbounded controls and absent real frame receipts',()=>{
+ const invalidControls=[
+  {...comparisonControl,source:'real-webgl-canvas-video-only'},
+  {...comparisonControl,drawnFrames:0},
+  {...comparisonControl,drawnFrames:500},
+  {...comparisonControl,bytes:25*1024*1024},
+  {...comparisonControl,canvasWidth:2048},
+  {...comparisonControl,mimeType:'audio/webm'},
+  {...comparisonControl,videoTracks:0},
+  {...comparisonControl,recordingMs:250}
+ ];
+ for(const control of invalidControls)assert.equal(
+  classifyCanvasEncoderControl({control,real:comparisonReal}),
+  'CONTROL_COMPARISON_UNVERIFIED');
+ for(const real of [
+  {...comparisonReal,source:'playwright-screen-recording'},
+  {...comparisonReal,framePump:{...comparisonReal.framePump,observedFrameAdvances:0}},
+  {...comparisonReal,framePump:{...comparisonReal.framePump,requestFailures:1}}
+ ])assert.equal(classifyCanvasEncoderControl({control:comparisonControl,real}),
+  'CONTROL_COMPARISON_UNVERIFIED');
+});
+test('D04 diagnostic manifest records synthetic control metadata but NEVER stores synthetic video bytes',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-2d-encoder-control-'));
+ try{
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},
+   isolated:{videoOnly:comparisonReal,control2dOnly:{
+    ...comparisonControl,base64:Buffer.alloc(18000,3).toString('base64')}},
+   frames:{before:10,after:14}};
+  const assessment=assessD04Capture({...good,...raw});
+  const saved=persistD04CaptureEvidence({directory,raw,assessment});
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.assessment.canvasEncoderDifferential,'CONTROL_ENCODES_REAL_WEBGL_EMPTY');
+  assert.equal(manifest.isolated.control2dOnly.base64,undefined);
+  assert.equal(manifest.isolated.control2dOnly.source,comparisonControl.source);
+  assert.deepEqual(fs.readdirSync(directory),['dungeon-d04-live-av-evidence.json']);
+  assert.equal(manifest.assessment.sampleSynchronized,false);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
