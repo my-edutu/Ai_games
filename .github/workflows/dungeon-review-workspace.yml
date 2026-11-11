@@ -44,6 +44,8 @@ jobs:
           else
             npx playwright install chromium
           fi
+          # Installed Chrome still requires Playwright's private FFmpeg for video contexts.
+          npx playwright install ffmpeg
       - name: Exercise actual immersive interface and capture real 3D
         run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs dungeon-interface.spec.cjs
         env:

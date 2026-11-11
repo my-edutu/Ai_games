@@ -8,29 +8,50 @@ function court(){
  for(let z=6;z<=12;z++)for(let x=6;x<=12;x++)a[z][x]='.';
  a[9][5]='.';a[9][4]='.';return a.map(row=>row.join(''));
 }
-test('true walkable Warden court has exactly 49 low, real, unblocking flagstones',async()=>{
- const {planWardenBattleFloor:plan}=await load(),map=court(),before=JSON.stringify(map),exit={x:9,z:9};
- const p=plan(map,exit,1);
- assert.equal(p.status,'READY');assert.equal(p.stones.length,49);
- assert.equal(p.collisionChanges,0);assert.ok(p.maxStoneTopMeters<.055);
+function assertRealCover(map,plan,exit){
  const ids=new Set();
- for(const s of p.stones){
-  assert.equal(map[s.gridZ][s.gridX],'.');
-  assert.ok(Math.max(Math.abs(s.gridX-exit.x),Math.abs(s.gridZ-exit.z))<=3);
-  assert.ok(s.width>=.94&&s.width<=.964&&s.depth>=.94&&s.depth<=.964);
-  assert.ok(Number.isFinite(s.yaw));ids.add(s.gridX+','+s.gridZ);
+ for(const stone of plan.stones){
+  assert.ok(Number.isFinite(stone.x)&&Number.isFinite(stone.z));
+  assert.ok(stone.width===.94||stone.width===1.97);
+  assert.ok(stone.depth===.94||stone.depth===1.97);
+  assert.ok(stone.yaw===0||stone.yaw===Math.PI);
+  assert.ok(stone.cells.length>=1&&stone.cells.length<=4);
+  assert.equal(stone.cells.length,(stone.width===1.97?2:1)*(stone.depth===1.97?2:1));
+  const gx=stone.cells.map(c=>c.x),gz=stone.cells.map(c=>c.z),half=(map.length-1)/2;
+  assert.equal(stone.x,(Math.min(...gx)+Math.max(...gx))*.5-half);
+  assert.equal(stone.z,(Math.min(...gz)+Math.max(...gz))*.5-half);
+  for(const cell of stone.cells){
+   assert.equal(map[cell.z][cell.x],'.','cannot bridge a physical wall');
+   assert.ok(Math.max(Math.abs(cell.x-exit.x),Math.abs(cell.z-exit.z))<=3);
+   const id=cell.x+','+cell.z;
+   assert.equal(ids.has(id),false,'must not double-cover walkable floor');
+   ids.add(id);
+  }
  }
- assert.equal(ids.size,49);assert.equal(JSON.stringify(map),before);
- assert.deepEqual(plan(map,exit,1),p);
- assert.equal(plan(map,exit,2).stones.length,49);
+ assert.equal(ids.size,plan.coveredWalkableCells);
+ assert.equal(plan.collisionChanges,0);
+ assert.ok(plan.maxStoneTopMeters<.055,'physical warning floor must remain above neutral stone');
+ return ids;
+}
+test('real 7x7 Warden court becomes sixteen coherent stone plates without losing 49 true walkable cells',async()=>{
+ const {planWardenBattleFloor:plan}=await load(),map=court(),exit={x:9,z:9},before=JSON.stringify(map);
+ const result=plan(map,exit,1);
+ assert.equal(result.status,'READY');assert.equal(result.stones.length,16);
+ assert.equal(result.coveredWalkableCells,49);
+ assert.equal(result.stones.filter(p=>p.cells.length===4).length,9);
+ assertRealCover(map,result,exit);
+ assert.equal(JSON.stringify(map),before,'scene cannot change game map');
+ assert.deepEqual(plan(map,exit,1),result,'same seed deterministic without RNG');
+ assert.equal(plan(map,exit,2).coveredWalkableCells,49);
 });
-test('arena stage rejects invalid coordinates and never places stone on a wall',async()=>{
+test('damaged court subdivides only actual walkable cells and never places a slab over a wall',async()=>{
  const {planWardenBattleFloor:plan}=await load(),map=court();
  assert.equal(plan(map,{x:0,z:0},1).stones.length,0);
  assert.equal(plan(map,{x:9,z:9},NaN).status,'UNAVAILABLE');
  assert.equal(plan(['...'],{x:1,z:0},1).status,'UNAVAILABLE');
  const damaged=map.map((row,i)=>i===7?row.slice(0,8)+'#'+row.slice(9):row);
  const p=plan(damaged,{x:9,z:9},1);
- assert.equal(p.stones.length,48);
- assert.ok(!p.stones.some(s=>s.gridX===8&&s.gridZ===7));
+ assert.equal(p.coveredWalkableCells,48);
+ assertRealCover(damaged,p,{x:9,z:9});
+ assert.equal(p.stones.some(s=>s.cells.some(c=>c.x===8&&c.z===7)),false);
 });

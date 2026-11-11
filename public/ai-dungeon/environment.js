@@ -396,6 +396,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  ];
  const sceneMetrics={wardenBattleFloorStatus:wardenBattleFloor.status,
   wardenBattleFloorTiles:wardenBattleFloor.stones.length,
+  wardenBattleFloorCellsCovered:wardenBattleFloor.coveredWalkableCells,
   wardenBattleFloorDetailSuppressed:battleFloorDetailsSuppressed,
   wardenBattleFloorCollisionChanges:wardenBattleFloor.collisionChanges,
   stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};

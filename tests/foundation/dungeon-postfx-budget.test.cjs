@@ -430,6 +430,7 @@ test('production world owns the software-only stone plan and reports true source
  const env=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/environment.js'),'utf8');
  const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
  assert.match(env,/configureSoftwareStoneSurfaces\(\[authoredFloorSurface,authoredWallSurface\],\{software:softwareWebGL\}\)/);
- assert.match(env,/sceneMetrics=\{stoneRasterBudget,/);
+ assert.match(env,/sceneMetrics=\{wardenBattleFloorStatus:wardenBattleFloor.status,/);
+ assert.match(env,/stoneRasterBudget,foregroundFusion,/);
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units,s\.traps,\{softwareWebGL\}\)/);
 });
