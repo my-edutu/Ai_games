@@ -64,3 +64,29 @@ test('real calf trials must use the documented original clip hinge and retain fi
  assert.match(renderer,/sourceSwingCalfAssistProof/,
   'real skinned-toe post-application acceptance remains mandatory');
 });
+
+
+test('real source knee acceptance reports measured joint-length rejection separately from a verified hinge plane',async()=>{
+ const {assessImportedSourceKneeGeometry:assess}=await load();
+ assert.equal(typeof assess,'function');
+ const good=assess({upperLength:.31,lowerLength:.27,bendSine:.93,hingeAlignment:.998});
+ assert.equal(good.accepted,true);
+ assert.equal(good.reason,'verified-source-knee-plane');
+ const short=assess({upperLength:.09,lowerLength:.27,bendSine:.933,hingeAlignment:.9985});
+ assert.equal(short.accepted,false);
+ assert.equal(short.reason,'source-leg-segment-length-out-of-bounds',
+  'a real verified hinge must not be incorrectly reported as a twist-axis failure');
+ assert.equal(assess({upperLength:.31,lowerLength:.27,bendSine:.02,hingeAlignment:.998}).reason,
+  'degenerate-source-knee-bend-plane');
+ assert.equal(assess({upperLength:.31,lowerLength:.27,bendSine:.93,hingeAlignment:.31}).reason,
+  'source-hinge-not-in-actual-leg-bend-plane');
+ for(const bad of [
+  {upperLength:NaN,lowerLength:.3,bendSine:.9,hingeAlignment:.99},
+  {upperLength:.3,lowerLength:Infinity,bendSine:.9,hingeAlignment:.99}
+ ])assert.equal(assess(bad).accepted,false,'nonfinite original joints fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/assessImportedSourceKneeGeometry\(/,
+  'live original-source calf trial must use the same testable geometric safety gate');
+ assert.match(renderer,/upperLength,lowerLength/,
+  'native evidence must expose real segment lengths and stop conflating short joints with twisting');
+});
