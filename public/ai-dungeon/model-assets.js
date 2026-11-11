@@ -1756,9 +1756,12 @@ function sourceSoleVertexCandidates(actor){
 }
 /**
  * Read-on-demand, original SOURCE skinned shoe patch.
- * Two separated low bind-space strongly source-foot-weighted vertices on
- * the SAME licensed mesh. No new geometry, rig, IK or per-frame work.
- * Candidate endpoint labels do not prove the anfunction sourceSolePatchVertexCandidates(actor){
+ * Two separated LOW bind-space foot-weighted vertices on the SAME licensed
+ * skinned mesh. Insole/upper-boot samples are rejected; the candidate
+ * orientation does NOT by itself verify anatomical heel/toe or true plants.
+ * No new geometry, rig, IK or per-frame work.
+ */
+function sourceSolePatchVertexCandidates(actor){
  let cached=sourceSolePatchVertexCache.get(actor.assetRoot);
  if(cached)return cached;
  cached={left:null,right:null};
@@ -1773,9 +1776,7 @@ function sourceSoleVertexCandidates(actor){
    if(isSourceSoleBoneName(bone?.name,side))sideBones.add(index);
   });
   if(!sideBones.size)continue;
-  // This is a bounded, on-demand diagnostic. The low-bind outsole slab
-  // belongs to the original licensed foot skin; upper-boot vertices must
-  // never become "planted" contacts or justify a speculative IK correction.
+  // Strictly on-demand diagnostic, never frame-loop skinning or visual IK.
   const candidates=[];
   for(let v=0,n=Math.min(p.count,8192);v<n;v++){
    const x=p.getX(v),y=p.getY(v),z=p.getZ(v);
@@ -1791,8 +1792,6 @@ function sourceSoleVertexCandidates(actor){
   if(selected)cached[side]={heel:selected.heel,toe:selected.toe};
  }
  sourceSolePatchVertexCache.set(actor.assetRoot,cached);
- return cached;
-}ssetRoot,cached);
  return cached;
 }
 function sourceSkinnedSoleWorld(candidate){
