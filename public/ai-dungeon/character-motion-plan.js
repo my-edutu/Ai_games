@@ -5,6 +5,7 @@
  * scene-space metres/radians, never movement/collision/authority coordinates.
  * Forward is local -Z in the dungeon presentation.
  */
+import {planVisibleMeleeContactStep} from '/dungeon/impact-choreography-plan.js';
 const rest=()=>({x:0,y:0,z:0,pitch:0,roll:0});
 const clamp01=x=>Math.min(1,Math.max(0,x));
 const ease=x=>{const n=clamp01(x);return n*n*(3-2*n)};
@@ -35,7 +36,8 @@ export function planSourceRigPlaybackStep(frameDelta,action,visibleAge=0){
  const oneShot=action==='attack'||action==='cast'||action==='hurt';
  const age=Number.isFinite(visibleAge)?Math.max(0,Math.min(5,visibleAge)):0;
  const firstPoseProtected=oneShot&&age===0;
- const delta=firstPoseProtected?Math.min(.05,bounded):bounded;
+ const delta=action==='attack'?planVisibleMeleeContactStep(wall,age):
+  firstPoseProtected?Math.min(.05,bounded):bounded;
  return {delta,age:oneShot?Math.min(5,age+delta):age,firstPoseProtected};
 }
 

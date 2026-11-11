@@ -6,7 +6,9 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'../..');
 const source=path.join(root,'public/ai-dungeon/character-motion-plan.js');
 async function motion(){
- const js=fs.readFileSync(source,'utf8');
+ const impact=fs.readFileSync(path.join(root,'public/ai-dungeon/impact-choreography-plan.js'),'utf8');
+ const impactUrl='data:text/javascript;base64,'+Buffer.from(impact).toString('base64');
+ const js=fs.readFileSync(source,'utf8').replace("'/dungeon/impact-choreography-plan.js'","'"+impactUrl+"'");
  return import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
 }
 const allKinds=['vanguard','ranger','mystic','revenant','cultist','warden'];
@@ -71,8 +73,10 @@ test('native source-rig mixer catches up after first true one-shot pose under sp
  assert.ok(first.delta>0&&first.delta<=.051,'first authentic hit poses must survive a long frame');
  assert.equal(first.firstPoseProtected,true);
  const second=step(.433,'attack',first.age);
- assert.ok(second.delta>=.29&&second.delta<=.351,'repeated authority one-shot must no longer animate in 50ms slow motion');
- assert.ok(second.age>=.34&&second.age<=.41,'the actual source rig must move into recovery within the same authority tick');
+ assert.ok(second.delta>=.164&&second.delta<=.166,'second delivered frame must display original 215ms blade contact, not skip to recovery');
+ assert.ok(second.age>=.214&&second.age<=.216,'source rig must show actual physical contact even after severe software WebGL stall');
+ const third=step(.433,'attack',second.age);
+ assert.ok(third.delta>=.34&&third.delta<=.351,'third delivered frame catches up into natural source-clip recovery');
  const cruise=step(.433,'move',0);
  assert.ok(cruise.delta>=.29&&cruise.delta<=.351,'walking clip cadence must follow wall time under severe software WebGL delays');
  assert.equal(step(.016,'move',0).delta,.016,'normal real-time frames must not be accelerated');

@@ -5757,6 +5757,16 @@
         "looks": "UNVERIFIED",
         "feels": "UNVERIFIED",
         "plays": "UNVERIFIED"
+      },
+      {
+        "date": "2026-11-11",
+        "name": "shared-original-source-contact-and-audio",
+        "status": "SOURCE_INTEGRATED_UNVERIFIED",
+        "parentHead": "6c97896d584a14b663437e769b77524286bec3b9",
+        "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+        "foundation": "408/408",
+        "seedCampaign": "24×900, no divergence",
+        "newHeadRealMotion": "PENDING"
       }
     ],
     "implementationContinuation": {
@@ -5772,9 +5782,9 @@
     },
     "latestImplementation": "Candidate: separate desktop/mobile real-Chromium end-to-end natural journey recorder with original audio opt-in; source-only, execution NOT VERIFIED.",
     "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
-    "experienceVerdict": "IN PROGRESS — NOT TRANSFORMED; LOOKS/FEELS/PLAYS UNVERIFIED; 0/3 independent masked critics.",
+    "experienceVerdict": "NOT_TRANSFORMED",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect new-head exact-code authentic 1440/390 original motion/audio one-shot recovery and footfalls vs same-seed parent and immutable baseline, reject visual/authority regressions; profile real hardware/SwiftShader raster, then transform original adult GLB Vanguard/Revenant/Warden exemplar with truthful audio",
+    "nextImplementationTask": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5826,7 +5836,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Measure engaged Vanguard/guardian and Warden actor-ID-specific bounds, warning cells and occlusion in actual moving 390px film; compare hardware GPU with CI SwiftShader and isolate compositor/readback/dynamic instance uploads, then correct dominant game-side bottleneck with full genuine replay/motion/A-V verification. Review PR72 native rig and video independently before any import.",
+    "executableNextTask": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics",
     "phasePlan": [
       {
         "phase": "A",
@@ -7878,6 +7888,29 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect new-head exact-code authentic 1440/390 original motion/audio one-shot recovery and footfalls vs same-seed parent and immutable baseline, reject visual/authority regressions; profile real hardware/SwiftShader raster, then transform original adult GLB Vanguard/Revenant/Warden exemplar with truthful audio"
+    },
+    "m1VisibleMeleeContactSync20261111": {
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "6c97896d584a14b663437e769b77524286bec3b9",
+      "seed": "gauntlet-corpus-v1-0",
+      "originalParentRun": 42944801131,
+      "originalDesktopArtifact": 13823336065,
+      "originalMobileArtifact": 13822682150,
+      "observedFailure": "Exact-head shard-1 Chromium adjacent GLB melee peak returned 0 after native 350ms second-frame recovery; real moving scenes still small/occluded and software graphics stalled",
+      "productionIntegration": "Shared presentation-only 50ms opening pose → 215ms source hand/blade contact / true HP spall / injured body / opted-in original audio → bounded 350ms source recovery, regular RAF unchanged; no fabricated hit, authority, RNG, saves, reduced-motion, or world art changes",
+      "focusedTests": "RED observed; then 31/31 PASS",
+      "dungeonFoundation": "408/408 PASS",
+      "replay": "24×900 seeds/ticks, zero divergence, 199 floor changes and 5 restarts",
+      "catalogue": "INCOMPLETE: local npm test timed out",
+      "newHeadGameplay": "NOT_OBSERVED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentCritics": 0,
+      "contactSound": "UNVERIFIED",
+      "next": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics"
     }
   }
 }

@@ -141,6 +141,16 @@ test('real opt-in audio stops active voices on mute and revokes capture, not gam
  stage.advanceVisualFrame(.05);
  assert.equal(stage.stats().pendingContactCues,0);
  assert.equal(stage.stats().lastCue,'impact','true contact releases original sound on the shared 215ms beat');
+ // A second REAL adjacent HP decrease, delivered by a 433ms sparse render.
+ const idle={...next,tick:13,units:[{...next.units[0],action:'idle',actionTick:13},next.units[1]]};
+ const again={...next,tick:14,units:[{...next.units[0],action:'attack',actionTick:14},{...next.units[1],hp:10}]};
+ stage.acceptSnapshot(idle);stage.acceptSnapshot(again);
+ assert.ok(stage.stats().pendingContactCues>=1);
+ stage.advanceVisualFrame(.433);
+ assert.ok(stage.stats().pendingContactCues>=1,'impact must not sound during first visible windup');
+ stage.advanceVisualFrame(.433);
+ assert.equal(stage.stats().pendingContactCues,0,'blade and original impact meet on second sparse frame');
+ assert.equal(stage.stats().lastCue,'impact');
  assert.ok(stage.captureStream()?.getAudioTracks().length);
  assert.ok(stage.captureStream()?.getAudioTracks().length);
  assert.equal(captures,1,'reuse only one recording output');

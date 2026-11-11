@@ -1,5 +1,5 @@
 import {planSoundCues,planSoundMood} from '/dungeon/soundstage-plan.js';
-import {planAuthorityDamageBeats,planVerifiedMeleeImpactDelay} from '/dungeon/impact-choreography-plan.js';
+import {planAuthorityDamageBeats,planVerifiedMeleeImpactDelay,planVisibleMeleeContactStep} from '/dungeon/impact-choreography-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {createMaterialFoley} from '/dungeon/material-foley.js';
 
@@ -278,7 +278,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
    const delay=cue.kind==='impact'?(contactDelays.get(cue.actorId)??0):VISUAL_CONTACT_DELAYS[cue.kind];
    if(delay&&Number.isSafeInteger(cue.tick)&&cue.tick>=s.tick-3){
     if(pending.length>=MAX_PENDING_CONTACT){pending.shift();contactCuesDropped++;}
-    pending.push({cue,remaining:delay});
+    pending.push({cue,remaining:delay,visibleAge:0});
    }else if(!delay)emit(cue);
    else contactCuesDropped++;
   }
@@ -288,7 +288,12 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
   if(!enabled||disposed||!started||ctx.state!=='running')return 0;
   const step=Number.isFinite(frameSeconds)?Math.min(.05,Math.max(0,frameSeconds)):0;
   if(!step)return 0;
-  for(const item of pending)item.remaining-=step;
+  for(const item of pending){
+   // Only genuine melee sword stages share source-body contact timing.
+   const melee=item.cue.kind==='impact'||item.cue.kind==='weapon';
+   const delta=melee?planVisibleMeleeContactStep(frameSeconds,item.visibleAge):step;
+   item.visibleAge+=delta;item.remaining-=delta;
+  }
   const due=pending.filter(item=>item.remaining<=0).sort((a,b)=>
    (b.cue.priority||1)-(a.cue.priority||1)||a.cue.tick-b.cue.tick);
   let count=0;

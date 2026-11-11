@@ -47,7 +47,7 @@ test('actual imported animated GLB, bounded soundstage and server all integrate 
  const model=read('public/ai-dungeon/model-assets.js'),app=read('public/ai-dungeon/app.js');
  const audio=read('public/ai-dungeon/soundstage.js'),plan=read('public/ai-dungeon/soundstage-plan.js');
  assert.match(model,/planCombatPerformanceBeat/);assert.match(model,/actor\.performanceBeat\.root/);
- assert.match(app,/soundstage\?\.advanceVisualFrame\(dt\)/);
+ assert.match(app,/soundstage\?\.advanceVisualFrame\(frameInterval\)/);
  assert.match(audio,/VISUAL_CONTACT_DELAYS/);assert.match(audio,/MAX_PENDING_CONTACT=12/);
  assert.match(plan,/prior\.hp>u\.hp/);
  assert.ok(read('scripts/serve-dungeon-stream.cjs').includes("['/dungeon/combat-performance-plan.js','combat-performance-plan.js']"));

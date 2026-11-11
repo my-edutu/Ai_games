@@ -52,6 +52,18 @@ function matchedIncomingLane(snapshot,victim){
  * time, so the spectator does not miss contact during a long raster stall.
  */
 export const VERIFIED_MELEE_CONTACT_DELAY=.215;
+/**
+ * Protect original windup and a physically witnessed 215ms blade contact
+ * under sparse RAF; source skeleton, real HP spall, injury and original sound
+ * share this bounded presentation clock without changing authority or saves.
+ */
+export function planVisibleMeleeContactStep(frameSeconds,visibleAge=0){
+ if(!Number.isFinite(frameSeconds)||frameSeconds<=0)return 0;
+ const age=Number.isFinite(visibleAge)?Math.max(0,Math.min(5,visibleAge)):0;
+ const limit=age<.05-1e-8?.05-age:age<VERIFIED_MELEE_CONTACT_DELAY-1e-8?
+  VERIFIED_MELEE_CONTACT_DELAY-age:.35;
+ return Math.min(.35,frameSeconds,limit);
+}
 export function planVerifiedMeleeImpactDelay(beat,snapshot,{reducedMotion=false}={}){
  if(reducedMotion||beat?.fatal===true||
     !Number.isSafeInteger(snapshot?.tick)||!Array.isArray(snapshot?.units)||

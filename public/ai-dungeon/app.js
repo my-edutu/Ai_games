@@ -19,7 +19,7 @@ import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resol
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
 import {advancePresentationActionAge,planSourceRigPlaybackStep} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
-import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
+import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,planVisibleMeleeContactStep,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createBaseWorldArchitecturalBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
@@ -905,7 +905,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
  for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a,{reducedMotion:reduced});actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
   const damage=damageById.get(u.id);
-  if(damage)a.damageBeat={...damage,age:-planVerifiedMeleeImpactDelay(damage,s,{reducedMotion:reduced})};
+  if(damage)a.damageBeat={...damage,age:-planVerifiedMeleeImpactDelay(damage,s,{reducedMotion:reduced}),contactAge:0};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
   if(evadeById.has(u.id))a.evasionBeat={...evadeById.get(u.id),age:0};
   else if(sceneChanged||u.hp<=0)a.evasionBeat=null;
@@ -1238,8 +1238,10 @@ function animate(t){
    // Preserve the short pre-contact (negative) presentation age. The HUD
    // already shows real HP loss immediately; only physical body recoil waits
    // for the source-skinned sword and the opt-in impact sound.
-   a.damageBeat.age=Math.min(5,(Number.isFinite(a.damageBeat.age)?a.damageBeat.age:0)+
-    Math.min(.05,Math.max(0,dt)));
+   const contactStep=a.damageBeat.age<0?
+    planVisibleMeleeContactStep(frameInterval,a.damageBeat.contactAge??0):dt;
+   if(a.damageBeat.age<0)a.damageBeat.contactAge=(a.damageBeat.contactAge??0)+contactStep;
+   a.damageBeat.age=Math.min(5,(Number.isFinite(a.damageBeat.age)?a.damageBeat.age:0)+contactStep);
    const recoil=planDamageReaction(a.u.kind,a.damageBeat.damage,a.damageBeat.maxHp,a.damageBeat.age,a.damageBeat.fatal,reduced,
     resolveImpactSide(a.damageBeat.incoming,a.root.rotation.y));
    a.impactPivot.position.set(recoil.x,recoil.y,recoil.z);
@@ -1286,8 +1288,8 @@ function animate(t){
   oathguardImpactRing.scale.setScalar(.72+impactProgress*.63);
  }
  // Pose every live rig before sampling its skinned weapon hand for effects.
- combatDirector.animate(dt);
- soundstage?.advanceVisualFrame(dt);
+ combatDirector.animate(frameInterval);
+ soundstage?.advanceVisualFrame(frameInterval);
  if(world.userData.portal&&!reduced)world.userData.portal.rotation.y=time*.26;
  if(world.userData.court&&!reduced)world.userData.court.rotation.y=Math.sin(time*.3)*.035;
  world.userData.wardenRitual?.animate(time,dt);

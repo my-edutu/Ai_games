@@ -6,7 +6,7 @@ import {planVisualContact} from '/dungeon/facing-plan.js';
 import {planCombatStage,stagePoint} from '/dungeon/combat-staging-plan.js';
 import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
 import {createBladeRibbonGeometry,createImpactSpallGeometry,planTrueDamageCue,planContactShardFan} from '/dungeon/contact-performance.js';
-import {planVerifiedMeleeImpactDelay} from '/dungeon/impact-choreography-plan.js';
+import {planVerifiedMeleeImpactDelay,planVisibleMeleeContactStep} from '/dungeon/impact-choreography-plan.js';
 import {createRangedProjectileGeometry,rangedProjectileProfile} from '/dungeon/ranged-encounter-plan.js';
 
 /**
@@ -250,7 +250,7 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    mesh.visible=delay===0;
    const anchor=liveInjuryAnchor(beat,hit,actorById);
    mesh.position.copy(V3(anchor.x,anchor.y,anchor.z));mesh.scale.setScalar(hit.scale);
-   scene.add(mesh);impacts.push({mesh,life:-delay,duration:hit.duration,mode:'true-hit',
+   scene.add(mesh);impacts.push({mesh,life:-delay,contactAge:0,duration:hit.duration,mode:'true-hit',
     startScale:hit.scale,beat:{id:beat.id,x:beat.x,z:beat.z},hit:{x:hit.x,y:hit.y,z:hit.z}});
    if(anchor.skinned)skinnedHitAnchors=Math.min(1000000,skinnedHitAnchors+1);
    // An actual HP decrease owns this entire 3D contact fan. Single instanced
@@ -266,7 +266,7 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
     fracture.position.copy(V3(anchor.x,anchor.y,anchor.z));
     fracture.frustumCulled=false;
     fracture.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const fractureEffect={mesh:fracture,life:-delay,duration:beat.fatal?.68:.52,mode:'true-shards',shards};
+    const fractureEffect={mesh:fracture,life:-delay,contactAge:0,duration:beat.fatal?.68:.52,mode:'true-shards',shards};
     fracture.visible=delay===0;
     if(!delay)poseDamageShards(fractureEffect);
     scene.add(fracture);impacts.push(fractureEffect);
@@ -288,13 +288,16 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
   }
   ensureBound();
  }
- function animate(dt){
-  dt=Number.isFinite(dt)?Math.min(.05,Math.max(0,dt)):0;
+ function animate(frameSeconds){
+  const dt=Number.isFinite(frameSeconds)?Math.min(.05,Math.max(0,frameSeconds)):0;
   // Follow the same bounded rendered-frame clock used by authored weapon
   // wind-up; this still works with slow software WebGL without changing ticks.
   for(let i=0;i<pendingCues.length;){
    const cue=pendingCues[i];
-   cue.age=advancePresentationActionAge(cue.age,dt);
+   cue.age=cue.source.action==='attack'&&
+    ['vanguard','revenant','warden'].includes(cue.source.kind)?
+    Math.min(5,cue.age+planVisibleMeleeContactStep(frameSeconds,cue.age)):
+    advancePresentationActionAge(cue.age,dt);
    if(cue.age>=cue.delay){pendingCues.splice(i,1);releaseCue(cue);}
    else i++;
   }
@@ -316,7 +319,11 @@ export function createCombatDirector(scene,{reducedMotion=false,actorById=null}=
    }
   }
   for(let i=impacts.length-1;i>=0;i--){
-   const effect=impacts[i];effect.life+=dt;
+   const effect=impacts[i];
+   if(effect.life<0){
+    const delta=planVisibleMeleeContactStep(frameSeconds,effect.contactAge??0);
+    effect.contactAge=(effect.contactAge??0)+delta;effect.life+=delta;
+   }else effect.life+=dt;
    if(effect.life<0)continue; // Never show a pre-contact injury on a validated melee stroke.
    effect.mesh.visible=true;
    if(effect.life>=effect.duration){cleanup(effect);impacts.splice(i,1);continue;}

@@ -44,11 +44,30 @@ test('actual game shares verified onset across body recoil and physical shard/fa
  assert.match(app,/age:-planVerifiedMeleeImpactDelay\(damage,s,\{reducedMotion:reduced\}\)/);
  assert.match(app,/combatDirector\.recordDamage\(damageBeats,s\)/);
  assert.match(director,/planVerifiedMeleeImpactDelay\(beat,snapshot,\{reducedMotion\}\)/);
- assert.match(director,/impacts\.push\(\{mesh,life:-delay,duration:hit\.duration,mode:'true-hit'/);
- assert.match(director,/fractureEffect=\{mesh:fracture,life:-delay/);
+ assert.match(director,/impacts\.push\(\{mesh,life:-delay,contactAge:0,duration:hit\.duration,mode:'true-hit'/);
+ assert.match(director,/fractureEffect=\{mesh:fracture,life:-delay,contactAge:0/);
  assert.match(director,/if\(effect\.life<0\)continue/);
  assert.match(sound,/planAuthorityDamageBeats\(previous,s\)/);
  assert.match(sound,/planVerifiedMeleeImpactDelay\(beat,s,\{reducedMotion\}\)/);
  assert.match(sound,/cue\.kind==='impact'\?\(contactDelays\.get\(cue\.actorId\)\?\?0\)/);
  assert.match(app,/createDungeonSoundstage\(ambience,\{reducedMotion:reduced\}\)/);
+});
+
+
+test('sparse real RAF delivers one original windup, one blade/HP-audio contact and then recovery',async()=>{
+ const {planVisibleMeleeContactStep:step,VERIFIED_MELEE_CONTACT_DELAY:contact}=await load('impact-choreography-plan.js');
+ let sourceAge=0,audioRemaining=contact,impactLife=-contact,beatAge=-contact;
+ for(const [i,elapsed] of [.433,.433,.433].entries()){
+  const visualStep=step(elapsed,sourceAge);
+  sourceAge+=visualStep;audioRemaining-=visualStep;impactLife+=visualStep;beatAge+=visualStep;
+  if(i===0){assert.equal(sourceAge,.05);assert.ok(audioRemaining>0);assert.ok(beatAge<0)}
+  if(i===1){assert.ok(Math.abs(sourceAge-contact)<1e-6);assert.ok(audioRemaining<=1e-8);assert.ok(Math.abs(impactLife)<1e-8);assert.ok(Math.abs(beatAge)<1e-8)}
+  if(i===2){assert.ok(sourceAge>=.56&&sourceAge<=.57,'after contact, original source clip recovers');}
+ }
+ let normalAge=0;
+ for(let i=0;i<15;i++){const delta=step(.016,normalAge);normalAge+=delta;assert.ok(delta<=.01601)}
+ assert.ok(normalAge>=contact&&normalAge<=.25);
+ for(const bad of [NaN,Infinity,-.5])assert.equal(step(bad,0),0);
+ assert.equal(step(.5,NaN),.05,'bad clock starts from bounded opening pose');
+ assert.equal(step(.5,5),.35,'stale action cannot accumulate unbounded catch-up');
 });
