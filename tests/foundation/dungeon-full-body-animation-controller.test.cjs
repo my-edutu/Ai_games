@@ -2831,3 +2831,63 @@ test('original airborne near-floor toe rescue passes both candidate AND final re
  assert.match(model,/earlySourceToeRescue/,
   'the native skinned joint adapter must report exactly which accepted frames were early');
 });
+
+
+test('source foot and knee retain viable SAME-DIRECTION skinned swing probes across licensed consecutive frames',async()=>{
+ const {selectOriginalSourceSwingAnkleTrial:ankle,
+  selectOriginalSourceSwingCalfTrial:calf,
+  planOriginalSourceSwingToeClearance:anklePlan,
+  planOriginalSourceSwingCalfAssist:calfPlan}=await load();
+ // Prospective original-GLB-shaped measurements: TWO genuine-safe trial
+ // directions may lift the toe, but the larger opposite trial would cause
+ // the existing slew limiter to discard the entire frame's correction.
+ // Never claim this fixture is already witnessed in an organic WebM.
+ const foot={toeWorldY:-.083,heelWorldY:.157,floorTopY:-.02,trials:[
+  {signed:-.2,toe:-.043,heel:.128},
+  {signed:.1,toe:-.066,heel:.160}
+ ]};
+ assert.equal(ankle(foot)?.signed,-.2,'without prior support the deeper licensed positive-lift trial remains preferred');
+ assert.equal(ankle({...foot,previousCorrectionRad:.06})?.signed,.1,
+  'a viable original-joint same-direction trial must not be dropped in favour of an opposing stronger pose');
+ assert.equal(ankle({...foot,previousCorrectionRad:-.06})?.signed,-.2);
+ assert.equal(ankle({...foot,previousCorrectionRad:.06,trials:[foot.trials[0]]}),null,
+  'no source-foot reversal is invented when the only measured candidate fights current lawful joint slew');
+ assert.equal(ankle({...foot,previousCorrectionRad:Infinity}),null);
+ assert.equal(ankle({...foot,previousCorrectionRad:.3}),null);
+ const sourceFoot={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:1,alive:true,visible:true,groundedMoving:true,
+  rootTravel:.0655,floorTopY:-.02,heelWorldY:foot.heelWorldY,
+  toeWorldY:foot.toeWorldY,previousCorrectionRad:.06
+ };
+ const selectedAnkle=ankle({...foot,previousCorrectionRad:.06});
+ assert.ok(anklePlan({...sourceFoot,trialToeWorldY:selectedAnkle.toe,
+  trialAngleRad:selectedAnkle.signed})>.06,
+  'selected direction passes original same-owner toe-support slew');
+ assert.equal(anklePlan({...sourceFoot,trialToeWorldY:foot.trials[0].toe,
+  trialAngleRad:foot.trials[0].signed}),0,
+  'previous selection falsely caused this frame to lose all swing clearance');
+ const leg={afterAnkleToeY:-.1047,afterAnkleHeelY:.2016,floorTopY:-.02,
+  trials:[{signed:-.2,toe:-.078,heel:.191},
+   {signed:.1,toe:-.09,heel:.215}]};
+ assert.equal(calf(leg)?.signed,-.2);
+ assert.equal(calf({...leg,previousAssistRad:.06})?.signed,.1);
+ assert.equal(calf({...leg,previousAssistRad:-.06})?.signed,-.2);
+ assert.equal(calf({...leg,previousAssistRad:.06,trials:[leg.trials[0]]}),null);
+ assert.equal(calf({...leg,previousAssistRad:NaN}),null);
+ assert.equal(calf({...leg,previousAssistRad:-.22}),null);
+ const sourceCalf={mode:'move',sourceClipName:'Walking_A',
+  sourceAnatomyVerified:true,sourceLegChainVerified:true,
+  sourceWeight:1,ownerLocomotion:true,alive:true,visible:true,
+  rootTravel:.0872,frameAge:.04,floorTopY:-.02,
+  afterAnkleToeY:leg.afterAnkleToeY,afterAnkleHeelY:leg.afterAnkleHeelY,
+  ankleLiftMeters:.009,previousAssistRad:.06};
+ const selectedCalf=calf({...leg,previousAssistRad:.06});
+ assert.ok(calfPlan({...sourceCalf,trialCalfToeY:selectedCalf.toe,
+  trialCalfHeelY:selectedCalf.heel,trialAngleRad:selectedCalf.signed})>.05);
+ assert.equal(calfPlan({...sourceCalf,trialCalfToeY:leg.trials[0].toe,
+  trialCalfHeelY:leg.trials[0].heel,trialAngleRad:leg.trials[0].signed}),0);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/selectOriginalSourceSwingAnkleTrial\(\{[\s\S]{0,160}previousCorrectionRad:previous/);
+ assert.match(model,/selectOriginalSourceSwingCalfTrial\(\{[\s\S]{0,180}previousAssistRad:prior/);
+});
