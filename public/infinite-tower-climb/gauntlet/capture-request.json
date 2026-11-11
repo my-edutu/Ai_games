@@ -452,5 +452,31 @@
     },
     "verdict": "NOT EVALUATED",
     "policy": "No baseline move, PR58/main edits, merge, deploy, force-push, draft conversion, other games or relaxed source/video checks"
+  },
+  "p0OriginalDuelReviewRecovery20261111": {
+    "stage": "P0 OPEN — source-authentic original full-motion comparison, not experience acceptance",
+    "reason": "Prior immutable b176aebb capture 42954567807 succeeded at collecting all eight baseline/candidate normal-speed original film jobs and original guardian/crusher->restart authority campaign, but final source-pair review job failed: only portrait 1/2 calibrated native original video event relative guardian pair; baseline desktop original HP damage and floor8->9 occurred before first unique native film compositor anchor. Separately previous exact-head quality 42954567786 failed two incorrectly scoped original camera tests, now corrected without weakening actual hero/guardian and core safety. Re-record immutable current GitHub SHA with actual authority and unchanged original frozen baseline; produce separate blinded neutral full-film originals both viewports even when genuine source event anchors are missing (strict event comparison still vetoes).",
+    "expectedSource": "The exact github.sha of THIS capture-request.json update commit; no moving branch for source selection",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42954567786 — FAIL 2/1363 focused source test fixtures",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42954567807 — 8 original film jobs + ledge success, pair job FAIL 1/2 event sync",
+    "originalEventDataCaveat": "Do not extrapolate video PTS before first genuinely unique image match; source damage/floor transition does NOT prove pixels, and unaligned desktop film must NOT be described as event matched.",
+    "originalReviewArchive": "New separate tower-blind-original-duel-<runid> includes only anonymized A/B full original WebMs+HTML; provenance/full SHA mapping retained in tower-ungraded-event-pairs audit artifact",
+    "actualGameplayChange": "None in this run. Recovered a verifiable P0 evidence-presentation blocker, not transformed player experience",
+    "requiredOutcomes": [
+      "exact-head original full logic and browser guardrails",
+      "native original 1x continuous >60s desktop 960x600 and portrait 390x844 source-pinned baseline/candidate film",
+      "strict 8/8 event clocks if possible, otherwise fail honestly and preserve unaligned originals",
+      "authentic guardian/crusher hit victory, visible grounded gateway floor9 and outcome/restart native film evidence",
+      "real device p50 p95 p99 frame time and memory",
+      "five independent blinded randomized fresh-context critics for EACH LOOKS FEELS PLAYS; at least four preferences each"
+    ],
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "result": "NOT EVALUATED; do not claim a successful recording or quality verdict before job results",
+    "review": "docs/reviews/2026-11-11-tower-pr68-original-duel-ungraded-review-bundle.md"
   }
 }
