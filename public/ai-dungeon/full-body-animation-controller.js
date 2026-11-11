@@ -91,6 +91,33 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  * yaw, never alter a source clip, grid root, contact, opponent or authority.
  * Release immediately on interruption, teleport, injury, guard and death.
  */
+
+/**
+ * Original Walking_A may drive a skinned swing toe 40–90mm through stone
+ * while its matching heel is airborne. A .1rad trial can be insufficient.
+ * Select only a measured heel-safe original-foot candidate among four
+ * reversible ±.1/±.2rad source-bone probes. NOT IK or certified stance lock.
+ */
+export function selectOriginalSourceSwingAnkleTrial({
+ toeWorldY=NaN,heelWorldY=NaN,floorTopY=NaN,trials=[]
+}={}){
+ if(![toeWorldY,heelWorldY,floorTopY].every(finite)||
+  Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
+  heelWorldY-floorTopY<.075||heelWorldY-floorTopY>.28||
+  toeWorldY-floorTopY>=-.025||toeWorldY-floorTopY<-.16)return null;
+ let best=null;
+ for(const entry of trials){
+  const {signed,toe,heel}=entry??{};
+  if(![signed,toe,heel].every(finite)||
+   Math.abs(signed)<.09||Math.abs(signed)>.225||
+   toe-toeWorldY<.006||toe-toeWorldY>.09||
+   heel-floorTopY<.045||heel-floorTopY>.34||
+   Math.abs(heel-heelWorldY)>.07||toe-floorTopY>.09)continue;
+  if(best===null||toe>best.toe)best={signed,toe,heel};
+ }
+ return best;
+}
+
 export function planOriginalSourceSwingToeClearance({
  mode='idle',sourceClipName='',sourceAnatomyVerified=false,sourceWeight=NaN,
  alive=false,visible=false,groundedMoving=false,teleport=false,
@@ -106,8 +133,8 @@ export function planOriginalSourceSwingToeClearance({
   sourceWeight<.5||sourceWeight>1.001||
   rootTravel<.008||rootTravel>.24||
   Math.abs(floorTopY+.02)>.005||
-  Math.abs(trialAngleRad)<.045||Math.abs(trialAngleRad)>.125||
-  Math.abs(previousCorrectionRad)>.15)return 0;
+  Math.abs(trialAngleRad)<.045||Math.abs(trialAngleRad)>.225||
+  Math.abs(previousCorrectionRad)>.23)return 0;
  const heelClear=heelWorldY-floorTopY,toeClear=toeWorldY-floorTopY;
  // A lifted heel and submerged toe are an original swing-foot obstacle.
  // A true planted foot MUST NOT be corrected by this swing-only contract.
@@ -124,7 +151,7 @@ export function planOriginalSourceSwingToeClearance({
  const sourceShare=clamp((sourceWeight-.5)/.4,0,1);
  const sourceEase=sourceShare*sourceShare*(3-2*sourceShare);
  const signedTarget=Math.sign(trialAngleRad)*sourceEase*
-  Math.min(.15,Math.abs(trialAngleRad)*liftDemand/witnessedLift);
+  Math.min(.22,Math.abs(trialAngleRad)*liftDemand/witnessedLift);
  // Every frame restores the imported mixer pose before its ankle overlay.
  // The previous frame's rate window may lie entirely on the WRONG side of
  // the newest real skinned-toe trial. Clamping into that stale window
@@ -134,8 +161,8 @@ export function planOriginalSourceSwingToeClearance({
  if(sourceEase===0||(previousCorrectionRad!==0&&
   Math.sign(previousCorrectionRad)!==Math.sign(trialAngleRad)))return 0;
  return clamp(signedTarget,
-  Math.max(-.15,previousCorrectionRad-.08),
-  Math.min(.15,previousCorrectionRad+.08));
+  Math.max(-.22,previousCorrectionRad-.08),
+  Math.min(.22,previousCorrectionRad+.08));
 }
 
 /**
@@ -201,7 +228,7 @@ export function confirmOriginalSourceSwingToeLift({
  if(![beforeToeY,afterToeY,beforeHeelY,afterHeelY,
   floorTopY,appliedAngleRad].every(finite)||
   Math.abs(floorTopY+.02)>.005||
-  Math.abs(appliedAngleRad)<.0001||Math.abs(appliedAngleRad)>.151||
+  Math.abs(appliedAngleRad)<.0001||Math.abs(appliedAngleRad)>.221||
   beforeHeelY-floorTopY<.075||beforeHeelY-floorTopY>.28||
   afterHeelY-floorTopY<.045||afterHeelY-floorTopY>.34||
   beforeToeY-floorTopY>=-.025||

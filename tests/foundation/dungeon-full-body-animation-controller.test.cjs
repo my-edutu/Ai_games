@@ -2327,6 +2327,44 @@ test('original source foot-to-toes bind axis rejects false lateral shoe extrema 
 });
 
 
+
+test('real original ankle trials prefer heel-safe deeper swing correction only with actual source shoe proof',async()=>{
+ const {selectOriginalSourceSwingAnkleTrial:choose,planOriginalSourceSwingToeClearance:plan,
+  confirmOriginalSourceSwingToeLift:confirm}=await load();
+ assert.equal(typeof choose,'function');
+ const observed={toeWorldY:-.1033,heelWorldY:.0861,floorTopY:-.02,
+  trials:[{signed:-.1,toe:-.088,heel:.081},
+   {signed:.1,toe:-.11,heel:.09},
+   {signed:-.2,toe:-.063,heel:.071},
+   {signed:.2,toe:-.049,heel:-.019}]};
+ const selected=choose(observed);
+ assert.equal(selected?.signed,-.2,'the apparently strongest toe trial has a dangerously sunken source heel');
+ assert.equal(selected?.toe,-.063);
+ assert.equal(choose({...observed,trials:[observed.trials[3]]}),null,
+  'never accept a high toe that collapses its original skinned heel into stone');
+ assert.equal(choose({...observed,trials:[{signed:-.3,toe:-.04,heel:.08}]}),null,
+  'unsupported source knee/foot rotation is not a legal trial');
+ const body={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:1,alive:true,visible:true,groundedMoving:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.0655,floorTopY:-.02,
+  heelWorldY:.0861,toeWorldY:-.1033,previousCorrectionRad:-.14};
+ const shallow=plan({...body,trialToeWorldY:-.088,trialAngleRad:-.1});
+ const deep=plan({...body,trialToeWorldY:selected.toe,trialAngleRad:selected.signed});
+ assert.ok(deep<-.15&&deep>shallow+.015&&Math.abs(deep)<=.22,
+  'the deeper genuine toe trial achieves the source lift with less required ankle pitch, retaining a bounded 0.08rad/frame rate');
+ const measured=confirm({beforeToeY:-.1033,afterToeY:-.059,beforeHeelY:.0861,
+  afterHeelY:.071,floorTopY:-.02,appliedAngleRad:-.16});
+ assert.ok(measured>.04&&measured<.05,'real applied original joint must raise actual skinned toe');
+ assert.equal(confirm({beforeToeY:-.1033,afterToeY:-.059,beforeHeelY:.0861,
+  afterHeelY:-.019,floorTopY:-.02,appliedAngleRad:-.16}),null,
+  'original heel collision invalidates an apparent toe benefit');
+ assert.equal(plan({...body,mode:'attack',trialToeWorldY:-.063,trialAngleRad:-.2}),0);
+ assert.equal(plan({...body,reducedMotion:true,trialToeWorldY:-.063,trialAngleRad:-.2}),0);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/selectOriginalSourceSwingAnkleTrial\(/);
+ assert.match(renderer,/signed of \[-\.1,\.1,-\.2,\.2\]/);
+});
+
 test('original Walking_A airborne toe drag uses bounded observed source-foot pitch, never invented stance IK',async()=>{
  const {planOriginalSourceSwingToeClearance:plan}=await load();
  assert.equal(typeof plan,'function','native source swing-foot clearance correction must be testable');

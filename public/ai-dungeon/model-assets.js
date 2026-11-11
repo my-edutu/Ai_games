@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1112,7 +1112,8 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
  const probe=mount.probeDelta??(mount.probeDelta=new THREE.Quaternion());
  original.copy(mount.bone.quaternion);
  staged.copy(original).multiply(mount.next.setFromEuler(mount.euler.set(angle,0,0,'XYZ')));
- let heelY=NaN,toeY=NaN,probeToeY=NaN,probeAngle=0;
+ let heelY=NaN,toeY=NaN,probeToeY=NaN,probeHeelY=NaN,probeAngle=0;
+ const ankleTrials=[];
  try{
   mount.bone.quaternion.copy(staged);
   actor.assetRoot.updateMatrixWorld(true);
@@ -1123,16 +1124,17 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
    heelY>-.02+.075&&heelY<-.02+.28&&toeY<-.02-.025&&toeY>-.02-.16){
    actor.sourceSwingToeDragOpportunityFrames=Math.min(1000000,
     (actor.sourceSwingToeDragOpportunityFrames||0)+1);
-   for(const signed of [-.1,.1]){
+   for(const signed of [-.1,.1,-.2,.2]){
     mount.bone.quaternion.copy(staged).multiply(
      probe.setFromAxisAngle(originalSwingPitchAxis,signed));
     mount.bone.updateWorldMatrix(true,true);
-    const lifted=readOriginalSwingSoleY(patch.toe);
-    if(Number.isFinite(lifted)&&lifted>toeY+.006&&
-     (!Number.isFinite(probeToeY)||lifted>probeToeY)){
-     probeToeY=lifted;probeAngle=signed;
-    }
+    ankleTrials.push({signed,toe:readOriginalSwingSoleY(patch.toe),
+     heel:readOriginalSwingSoleY(patch.heel)});
    }
+   const chosen=selectOriginalSourceSwingAnkleTrial({
+    toeWorldY:toeY,heelWorldY:heelY,floorTopY:-.02,trials:ankleTrials
+   });
+   if(chosen){probeToeY=chosen.toe;probeHeelY=chosen.heel;probeAngle=chosen.signed;}
   }
  }finally{
   mount.bone.quaternion.copy(original);
@@ -1182,7 +1184,8 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   beforeHeelY:heelY,afterHeelY:calf?.afterHeelY??afterHeelY,
   floorTopY:-.02,liftMeters:lift+(calf?.liftMeters??0),
   ankleLiftMeters:lift,calfAssistMeters:calf?.liftMeters??0,
-  appliedAngleRad:finalAngle-angle,calfAssistAngleRad:calf?.appliedAngleRad??0
+  appliedAngleRad:finalAngle-angle,calfAssistAngleRad:calf?.appliedAngleRad??0,
+  candidateAngleRad:probeAngle,candidateToeY:probeToeY,candidateHeelY:probeHeelY
  };
  mount.soleClearanceRad=delta;
  actor.sourceSwingToeCorrectionFrames=Math.min(1000000,
