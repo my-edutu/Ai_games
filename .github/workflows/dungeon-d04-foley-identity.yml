@@ -63,7 +63,10 @@ jobs:
       - run: npm run build
       - name: SHA-verified CC0 GLB asset retrieval
         run: npm run dungeon:assets:strict
-      - run: npx playwright install --with-deps chromium
+      - name: Verify preinstalled Chrome (no apt mirror fetch)
+        run: |
+          command -v google-chrome
+          google-chrome --version
       - name: Ensure native ffprobe/ffmpeg for strict decoded real WebGL frame evidence
         run: |
           if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
@@ -75,6 +78,7 @@ jobs:
       - name: Real Dungeon runtime and WebGL smoke only; not sample-synchronized A/V proof
         run: npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs
         env:
+          D04_BROWSER_CHANNEL: chrome
           DUNGEON_REQUIRE_MODELS: '1'
       - name: Publish authentic screenshot and source diagnostics if generated
         if: always()
