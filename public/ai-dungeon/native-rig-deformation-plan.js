@@ -300,3 +300,84 @@ export function measureSourceSolePatchContinuity(before,after,meta={}){
   provenFootPlant:false,ikAccepted:false
  });
 }
+
+
+/**
+ * Read-only forward-facing audit for the SAME pinned, original skinned rig
+ * in adjacent VISIBLE WebGL frames of one authoritative travel tick.
+ *
+ * The measured outsole selector labels horizontal extrema "heel"/"toe",
+ * but those names do not prove anatomical identity: the end that projects
+ * forward depends on the actual moving source-root yaw. Report the factual
+ * original front/rear EXTREMA, moving-root yaw alignment and source clip,
+ * without posing joints, inventing steps, or blessing an IK solver.
+ *
+ * Call only from an explicit original-GLB evidence capture, never on the
+ * production animation path. Pure function; no mesh scan or persistent state.
+ */
+export function auditOriginalSourceFootFacing(before,after,meta={}){
+ const fail=reason=>Object.freeze({comparable:false,reason,
+  provenFootPlant:false,anatomicalToeVerified:false,ikAccepted:false});
+ if(meta.visible!==true||meta.teleport===true)return fail('hidden-or-teleported');
+ if(!Number.isSafeInteger(meta.beforeFrame)||meta.beforeFrame<0||
+  meta.afterFrame!==meta.beforeFrame+1)return fail('not-consecutive-displayed-frames');
+ if(!Number.isSafeInteger(meta.beforeTick)||meta.beforeTick<0||
+  meta.afterTick!==meta.beforeTick)return fail('different-authority-tick');
+ if(meta.floorEvidence!=='authored-cube-floor-top'||!finite(meta.floorTopY))
+  return fail('unknown-authored-floor');
+ if(!before||!after||!before.sourceInstanceId||
+  before.sourceInstanceId!==after.sourceInstanceId||
+  before.id!==after.id||before.kind!==after.kind)
+  return fail('different-source-actor');
+ if(before.mode!=='move'||after.mode!=='move')
+  return fail('not-witnessed-original-traversal');
+ const clipA=before.sourceActionSample?.clipName,
+  clipB=after.sourceActionSample?.clipName;
+ if(typeof clipA!=='string'||clipA!==clipB||
+  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(clipA))
+  return fail('different-or-nonwalking-source-clock');
+ if(!point(before.rootWorld)||!point(after.rootWorld)||
+  !finite(before.rootYaw)||!finite(after.rootYaw))
+  return fail('missing-real-root-or-yaw');
+ const dx=after.rootWorld[0]-before.rootWorld[0],
+  dz=after.rootWorld[2]-before.rootWorld[2],travel=Math.hypot(dx,dz);
+ if(travel<.025||travel>.54)return fail('unwitnessed-or-skipped-real-travel');
+ const forwardX=-Math.sin(after.rootYaw),forwardZ=-Math.cos(after.rootYaw);
+ const forwardAlignment=(dx*forwardX+dz*forwardZ)/travel;
+ const yawDelta=Math.atan2(Math.sin(after.rootYaw-before.rootYaw),
+  Math.cos(after.rootYaw-before.rootYaw));
+ const footEnds={};
+ for(const side of ['left','right']){
+  const foot=after.footJointWorld?.[side],
+   source=after.sourceSolePatchWorld?.[side];
+  if(!point(foot)||!point(source?.heel)||!point(source?.toe))
+   return fail('missing-original-source-foot-and-patch');
+  const first=source.heel,second=source.toe;
+  const span=Math.hypot(first[0]-second[0],first[2]-second[2]);
+  if(span<.06||span>.65)return fail('degenerate-source-foot-patch');
+  const firstProjection=(first[0]-foot[0])*forwardX+
+   (first[2]-foot[2])*forwardZ;
+  const secondProjection=(second[0]-foot[0])*forwardX+
+   (second[2]-foot[2])*forwardZ;
+  const projectedSpan=Math.abs(firstProjection-secondProjection);
+  if(projectedSpan<.045)return fail('source-foot-not-forward-resolved');
+  footEnds[side]=Object.freeze({
+   forwardExtreme:firstProjection>=secondProjection?'heel':'toe',
+   rearwardExtreme:firstProjection>=secondProjection?'toe':'heel',
+   projectedSpanMeters:Number(projectedSpan.toFixed(4)),
+   // A source *foot* joint may not be an anatomical ankle. The imported
+   // bind chain and real skinned surface still need independent review.
+   sourceJointNameUnverified:true
+  });
+ }
+ return Object.freeze({comparable:true,
+  source:'adjacent-original-skinned-shoes-source-root-yaw-and-real-travel',
+  sourceClip:clipA,
+  forwardAlignment:Number(forwardAlignment.toFixed(4)),
+  yawTurnRadians:Number(yawDelta.toFixed(4)),
+  rootTravelMeters:Number(travel.toFixed(4)),
+  footEnds:Object.freeze(footEnds),
+  classification:Math.abs(yawDelta)>.35?'source-rig-turning-unresolved':
+   forwardAlignment>=.75?'source-facing-aligned':'source-facing-lags-world-travel',
+  anatomicalToeVerified:false,provenFootPlant:false,ikAccepted:false});
+}
