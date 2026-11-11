@@ -32,7 +32,7 @@ function pressureCourtInstances(world, THREE, cellPosition, cellHeight) {
     quaternion=new THREE.Quaternion(),scale=new THREE.Vector3();
   const found=[];
   world.group.traverse(mesh=>{
-    if (!mesh.isInstancedMesh || mesh.material?.name!=='Disclosed mineral clay court') return;
+    if (!mesh.isInstancedMesh || mesh.material?.color?.getHexString()!=='28574f') return;
     for (let i=0;i<mesh.count;i++) {
       mesh.getMatrixAt(i,matrix);
       matrix.decompose(position,quaternion,scale);
@@ -47,14 +47,14 @@ function pressureCourtInstances(world, THREE, cellPosition, cellHeight) {
   return found;
 }
 
-test('known pressure cell has an actual broad flush clay stage below its real articulated jaws',async()=>{
+test('known pressure cell has an actual 1.94m dark-jade floor below its real articulated jaws',async()=>{
   const {THREE,createMazeWorld,cellPosition,cellHeight,cleanup}=await loadWorld();
   const world=createMazeWorld({balanced:true});
   try {
     const publicState=published(),frozen=JSON.stringify(publicState);
     world.update(publicState);
     assert.equal(pressureCourtInstances(world,THREE,cellPosition,cellHeight).length,1,
-      'installed Three instanced world has exactly one broad connected floor for the disclosed trap');
+      'installed Three world has one full 1.94m dark-jade floor under the true moving hazard');
     assert.ok(world.group.getObjectByName('Disclosed tide-shear pressure hazard 4'),
       'all original physical jaws and moving mast still exist');
     const before=world.stats();

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T09:06:00.000Z",
+  "updatedAt": "2026-11-11T10:17:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass267 candidate: parent 2fd9df81 exact-source Maze WebGL 42985004183 passed, but real mobile pressure court remains visually small/cluttered compared with official Captain Toad. Rebuild a source-bound, two-cell Tideglass sluice and actual moving pressure stage with broad glass inset and paired ivory/bronze runners; reject false visual passages unless public, reciprocal, level and unsealed. New exact-HEAD source/visual/independent verification pending; Nintendo benchmark NOT MET."
+    "summary": "Pass267b: exact-source Pass267 native WebGL passed, including six-run <100 reset, and true Tideglass broad court is visible; whole CI caught four outdated physical floor/runner contracts. Corrected installed-Three assertions now require actual 1.94m dark-jade hazard floor and two 2.18m bronze rails only across reciprocal known open passages, while preserving original strict privacy/crop/resource tests. New source verification pending, Captain Toad benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass267b: actual source 2d0ca773 WebGL 42993893989 passed with original pressure-court images; full CI 42993893977 762/766 caught old clay/1.82m inset fixtures on synthetic unconnected cells. Rebuilt tests against actual 1.94m dark-jade trap floor and dual 2.18m bronze tracks on reciprocal public open edge; do not restore fake paths. New exact-head CI/WebGL pending; no benchmark win.",
     "Pass267: real previous-HEAD 390x844 WebGL pressure scene rejects official Nintendo comparison; original broad Tideglass glass-and-stone court tied to real treadle/jaws replaces tiny floor scratches. Fix fake visible open conduits through sealed, one-way, blocked, hidden or different-height public edges using pure publicPressureCourtLink. Installed Three tests added; six-run <100 and NDC ±.95 unchanged; exact new rendered gate pending. Draft PR remains OPEN.",
     "Pass266: real 390px 42982019547 full-frame mobile comparison still rejects tiny shutter leaves under the broad moving jaws. Both connected published four-piece floor shutters expanded to a coherent full-tile twin kinetic pressure deck; no new resource class, collision, private map, AI action or false hazard. Installed-Three source-bound multi-state test added; exact-new-HEAD render/CI/independent Nintendo verdict PENDING. PR stays OPEN DRAFT.",
     "Pass265 TRUE two-jaw silhouette candidate grounded in original exact-HEAD Pass264 source be560410 WebGL 42980231559 artifact 13836739873 (37/37 native PNG SHA pairs independently checked). New broad opposed ivory cutting planes and inner coral shear edges; continuous counterbalance rear-set/lowered without removing its true action. Genuine witnessed treadle and paired closing rails, public-only privacy, deterministic AI, 2.4m physical bounds, strict NDC and <100 geometry budget unchanged. New installed-Three physical crossing/privacy/reset/resource test and exact-HEAD native render pending. Nintendo benchmark still NOT MET.",

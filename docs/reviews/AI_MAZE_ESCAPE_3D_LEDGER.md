@@ -1,3 +1,10 @@
+### Pass267b — authentic rendered pressure court, four legacy CI contracts corrected (2026-11-11 UTC)
+
+- Exact source [2d0ca773](https://github.com/my-edutu/Ai_games/commit/2d0ca773ee9361402c8b347a3bdb215fe1a808e6) [native WebGL 42993893989](https://github.com/my-edutu/Ai_games/actions/runs/42993893989) SUCCESS, strict six-run geometry/reset <100. Artifact 13843418501, archive SHA-256 41e357d3222df1ee55c3238066669e7e8d6c8e6977f0bbe35cc530e6e958a2bb; unaltered 390×844 capture inspected: connected court present, scene still cramped and far below official Captain Toad quality.
+- [Whole CI 42993893977](https://github.com/my-edutu/Ai_games/actions/runs/42993893977) FAILED **762/766** due four real obsolete installed-Three assertions: clay floor and retired 1.82m sea-glass scribbles; synthetic pressure fixtures had NO reciprocal publicly connected passages. Repair tests to require the ACTUAL 1.94m dark-jade hazard floor and both 2.18m bronze court tracks ONLY on public reciprocal, level, unsealed edges, including rotation, private-only, reset and resource gates. Do NOT fabricate passages or weaken camera, collision, privacy or resource thresholds. New-source CI/WebGL PENDING; independent visual critic and Ultracode unavailable because workspace connection NOT_FOUND. Remain OPEN DRAFT, unmerged, undeployed; Nintendo bar NOT MET.
+
+---
+
 ### Pass267 — a publicly TRUE Tideglass pressure sluice, not a false route (2026-11-11 UTC)
 
 - Exact prior [`2fd9df81b`](https://github.com/my-edutu/Ai_games/commit/2fd9df81bc107e1e9667923c3eb89e1d86cd5cb5) [WebGL run 42985004183](https://github.com/my-edutu/Ai_games/actions/runs/42985004183) **SUCCESS**, authentic 390px stage inspected: Pip and the small busy jaw mechanism still lack a coherent miniature action court against Nintendo. Benchmark remains **UNMET**.

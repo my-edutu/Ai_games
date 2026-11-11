@@ -129,14 +129,14 @@ test('real public pressure court has joined mineral deck and two actual Three co
           if(Math.abs(p.x-pos.x)>.001 || Math.abs(p.z-pos.z)>.70)continue;
           const color=node.material.color?.getHexString();
           if(color==='28574f'&&Math.abs(s.x-2.39)<.01&&Math.abs(s.z-2.39)<.01)deck++;
-          if(color==='5d968e'&&Math.abs(s.x-1.82)<.01&&Math.abs(s.z-.18)<.01)grooves++;
+          if(color==='334a46'&&Math.abs(s.x-2.18)<.01&&Math.abs(s.z-.22)<.01&&Math.abs(s.y-.023)<.01)grooves++;
         }
       });
       return {deck,grooves};
     };
     world.update(state);
     assert.ok(pieces().deck>=1,'public trap has a physically joined dark-jade deck');
-    assert.ok(pieces().grooves>=2,'two physical sea-glass insets face the actual published trap');
+    assert.equal(pieces().grooves,2,'exactly two full-size bronze pressure rails face the real reciprocal public trap');
     assert.equal(JSON.stringify(state),untouched,'public state stays immutable');
     const budget=world.stats();
     world.animate(1,{explorerPosition:new THREE.Vector3(pos.x,source.cellHeight(5,3,3),pos.z)});

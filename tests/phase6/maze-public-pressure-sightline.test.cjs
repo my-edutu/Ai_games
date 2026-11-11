@@ -26,7 +26,7 @@ function published({pressure=false,privateOnly=false}={}) {
   return {
     runToken:'public-pressure-breathing-room',tick:1,width:9,height:9,
     currentCell:39,visibleCells:[...cells],
-    cells:cells.map(cell=>({cell,neighbors:[],blocked:false,
+    cells:cells.map(cell=>({cell,neighbors:pressure&&cell===39?[40]:pressure&&cell===40?[39]:[],blocked:false,
       trap:pressure&&cell===40,checkpoint:false,clue:false})),
     keys:[],doors:[],inventory:[],threats:[],exitCell:null,result:null,
     ...(privateOnly?{privateTrapCells:[40],privateMap:{40:'secret-hazard'}}:{})
@@ -158,20 +158,22 @@ function apronArt(world,THREE,cell){
       // accidentally excluded both valid channels and caused CI failure 665.
       // Validate both cardinal orientations, dimensions, actual material and
       // physical surface height, never a mere source-code token.
+      // Count ACTUAL 2.18m bronze tracks, not retired 1.82m glass scratches.
+      // A trap may connect only through current PUBLIC reciprocal passage.
       if(node.geometry?.type==='BoxGeometry'
-        &&Math.abs(point.y-(floorY+.012))<.0001
-        &&Math.abs(scale.y-.016)<.0001
-        &&node.material.color.getHexString()==='5d968e'
+        &&Math.abs(point.y-(floorY+.021))<.0001
+        &&Math.abs(scale.y-.023)<.0001
+        &&node.material.color.getHexString()==='334a46'
         &&((
           Math.abs(point.x-centerX)<.0001
-          &&Math.abs(Math.abs(point.z-centerZ)-.48)<.0001
-          &&Math.abs(scale.x-1.82)<.0001
-          &&Math.abs(scale.z-.18)<.0001
+          &&Math.abs(Math.abs(point.z-centerZ)-.63)<.0001
+          &&Math.abs(scale.x-2.18)<.0001
+          &&Math.abs(scale.z-.22)<.0001
         )||(
           Math.abs(point.z-centerZ)<.0001
-          &&Math.abs(Math.abs(point.x-centerX)-.48)<.0001
-          &&Math.abs(scale.x-.18)<.0001
-          &&Math.abs(scale.z-1.82)<.0001
+          &&Math.abs(Math.abs(point.x-centerX)-.63)<.0001
+          &&Math.abs(scale.x-.22)<.0001
+          &&Math.abs(scale.z-2.18)<.0001
         ))) grooves.push(Math.abs(point.z-centerZ)>.1
           ? (point.z<centerZ?'z:negative':'z:positive')
           : (point.x<centerX?'x:negative':'x:positive'));
@@ -215,15 +217,15 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
     assert.deepEqual(quiet.basins,['28574f'],
       'the actual PUBLIC one-cell inner court is a broad 2.39m jade deck');
     assert.deepEqual(quiet.grooves,['z:negative','z:positive'],
-      'both real 1.82m flush conduits straddle the E/W-linked public pressure court');
+      'both physically measured 2.18m tracks straddle the E/W-linked public court');
     // Rotate the ACTUAL public trap one cardinal direction. Each source-bound
     // 1.82m conduit must rotate with the visible mechanism, without a private
     // map, per-frame model allocation, or directional guess.
     const northSouth=published();
     northSouth.runToken='public-pressure-rotated-court';
     northSouth.visibleCells=[...northSouth.visibleCells,30];
-    northSouth.cells=[...northSouth.cells,{
-      cell:30,neighbors:[],blocked:false,trap:true,checkpoint:false,clue:false
+    northSouth.cells=[...northSouth.cells.map(c=>c.cell===39?{...c,neighbors:[30]}:c),{
+      cell:30,neighbors:[39],blocked:false,trap:true,checkpoint:false,clue:false
     }];
     const northSouthFrozen=JSON.stringify(northSouth);
     world.update(northSouth);
@@ -231,7 +233,7 @@ test('published two-cell Tide-Shear court builds one calm connected apron around
     assert.deepEqual(rotated.basins,['28574f'],
       'the public N/S-linked pressure court retains its actual physical basin');
     assert.deepEqual(rotated.grooves,['x:negative','x:positive'],
-      'both full-size conduits physically rotate with the real N/S-linked trap');
+      'both full-size bronze tracks rotate with the real N/S-linked hazard');
     assert.equal(JSON.stringify(northSouth),northSouthFrozen,
       'rotation may not rewrite known public pressure or navigation state');
     world.update(known);
