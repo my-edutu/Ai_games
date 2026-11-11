@@ -2144,3 +2144,43 @@ test('original source Idle does not inherit an unearned parallel full-body strid
  assert.match(model,/sourceIdleHandoffHeld:/,
   'on-demand original skinned-rig evidence must expose the source pose handoff without runtime skin scanning');
 });
+
+test('licensed full-body Walking_A gets sustained distance-truthful root travel instead of two sampled lunges',async()=>{
+ // Real original-GLB rAF evidence from Actions #42926407221: of 42 actual
+ // 1440px callbacks only two adjacent source-move pairs qualified. At 390px,
+ // only two; the one-metre authority cell was visually traversed in too few
+ // rendered poses to evaluate a planted heel/toe or authentic walk cadence.
+ // The root goal remains solely the unmodified authoritative destination.
+ const source=fs.readFileSync(path.join(root,
+  'public/ai-dungeon/expedition-locomotion-plan.js'),'utf8');
+ const {planExpeditionStep}=await import('data:text/javascript;base64,'+
+  Buffer.from(source).toString('base64'));
+ const dt=.08, ordinary=planExpeditionStep(0,0,1,0,dt);
+ const sourceRig=planExpeditionStep(0,0,1,0,dt,{originalSourceRig:true});
+ assert.ok(sourceRig.travel>=.15&&sourceRig.travel<=.22,
+  'source-skinned root must take a shorter REAL interpolated step than the old 280mm sparse-frame lunge');
+ assert.ok(sourceRig.travel<ordinary.travel-.04,
+  'original Walking_A must receive more actual displayed travel samples than the procedural fallback');
+ assert.equal(sourceRig.x,sourceRig.travel);
+ assert.equal(sourceRig.z,0);
+ let x=0,meaningful=0;
+ for(let sample=0;sample<8;sample++){
+  const beat=planExpeditionStep(x,0,1,0,dt,{originalSourceRig:true});
+  assert.equal(beat.teleport,false);
+  assert.ok(beat.x>=x&&beat.x<=1&&beat.travel>=0,
+   'the source rig may neither invent a destination nor walk past the authoritative cell');
+  if(beat.travel>.035)meaningful++;
+  x=beat.x;
+ }
+ assert.ok(meaningful>=7,
+  'at real 80ms WebGL refresh the licensed Walking_A should show at least seven substantial moving poses');
+ assert.ok(x>.90&&x<1,'source animation must approach the real target without indefinite lag');
+ const far=planExpeditionStep(0,0,9,0,dt,{originalSourceRig:true});
+ assert.equal(far.teleport,true,'authoritative floor change remains immediate, never a walked staircase');
+ assert.equal(far.travel,0);
+ const accessible=planExpeditionStep(0,0,1,0,dt,{originalSourceRig:true,reducedMotion:true});
+ assert.equal(accessible.travel,0,'accessibility movement is not replaced with invented skeletal traversal');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planExpeditionStep\(a\.root\.position\.x,a\.root\.position\.z,[\s\S]{0,120}originalSourceRig:Boolean\(a\.authored\)/,
+  'native source-rig pacing must actually connect to the genuine visual root, not remain a dead helper');
+});
