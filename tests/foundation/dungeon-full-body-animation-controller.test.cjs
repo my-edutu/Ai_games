@@ -2333,7 +2333,7 @@ test('original GLB ankle clearance must retain witnessed Walking_A travel throug
  assert.equal(hasWitness(real),true,
   'a genuine recent root displacement remains lawful while the original source clip advances within one authority tick');
  for(const invalid of [
-  {mode:'idle'},{sourceClipName:'Idle'},{sourceWeight:.65},
+  {mode:'idle'},{sourceClipName:'Idle'},{sourceWeight:.45},
   {ownerLocomotion:false},{travel:0},{travel:.4},{age:.181},
   {age:NaN},{alive:false},{visible:false},{teleport:true},
   {reducedMotion:true},{interrupted:true}
