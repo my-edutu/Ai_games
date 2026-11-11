@@ -13,6 +13,7 @@ on:
       - 'scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs'
       - 'scripts/tiny-kingdom-w192-graded-road-contract.cjs'
       - 'scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs'
+      - 'scripts/tiny-kingdom-w242-original-workshop-contract.cjs'
       - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
@@ -54,6 +55,8 @@ jobs:
         run: |
           node scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs
           node scripts/tiny-kingdom-w240-authentic-market-camera-contract.cjs
+      - name: W242 existing high-street two-storey workshop geometry and authority guard
+        run: node scripts/tiny-kingdom-w242-original-workshop-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
