@@ -124,6 +124,36 @@ export function planOriginalSourceSwingToeClearance({
   Math.min(.15,previousCorrectionRad+.08));
 }
 
+/**
+ * Hold ONLY a real recent original-world root-travel witness across adjacent
+ * same-owner Walking_A display frames. Software WebGL can produce multiple
+ * source-keyframed poses after one authoritative movement snapshot while the
+ * actual presented root remains fixed. Requiring nonzero displacement on
+ * each of those frames silently disables swing-toe correction.
+ *
+ * The last actual displacement is NOT replayed or added: it is a short-lived
+ * provenance receipt only for a bounded real-sole/ankle probe. Leave idle,
+ * guard, strike, hurt, teleport, reduced-motion, hidden or interrupted actors
+ * unchanged. No source clip, footstep, hit, target or authority is invented.
+ */
+const EMPTY_NATIVE_SWING_TRAVEL=Object.freeze({travel:0,age:0});
+export function advanceOriginalSourceSwingTravelWitness({
+ previousTravel=0,previousAge=0,travel=0,frameInterval=0,
+ mode='idle',walkingClip=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ if(mode!=='move'||walkingClip!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![previousTravel,previousAge,travel,frameInterval].every(finite)||
+  previousTravel<0||previousTravel>.24||previousAge<0||previousAge>.5||
+  travel<0||travel>.24||frameInterval<=0||frameInterval>.25)
+  return EMPTY_NATIVE_SWING_TRAVEL;
+ if(travel>=.008)return {travel,age:0};
+ const age=previousAge+frameInterval;
+ return previousTravel>=.008&&age<=.18?
+  {travel:previousTravel,age}:EMPTY_NATIVE_SWING_TRAVEL;
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
