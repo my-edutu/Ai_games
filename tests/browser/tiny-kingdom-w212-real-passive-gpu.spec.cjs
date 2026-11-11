@@ -137,6 +137,29 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     source:'authentic-autonomous-save-restored',
     physicalGpu:false,independentCritic:false},null,2)),
     contentType:'application/json'});
+  // W215 rendering spine: an unchanged, genuinely resting citizen should
+  // retain an identical thirteen-joint pose during camera-only redraws.
+  // No simulation tick, invented movement, prop or authoring state is allowed.
+  const memoBefore=await page.evaluate(()=>window.__tinyKingdom.getWorkSkinPaletteAudit());
+  const frozenChecksum=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum);
+  for(let j=0;j<3;j++){
+   const prior=await page.evaluate(({view,j})=>{
+    const g=window.__tinyKingdom,n=g.getFrameProfile().totalFrames;
+    g.setCamera({...view.camera,yaw:view.camera.y+.014*(j+1)});
+    return n;
+   },{view,j});
+   await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile()
+    .totalFrames>n,prior,{timeout:125000});
+  }
+  const memoAfter=await page.evaluate(()=>window.__tinyKingdom.getWorkSkinPaletteAudit());
+  expect(memoAfter.sameStateFrameHits,
+   'Camera-only redrawing the SAME real resident should reuse bounded GPU rig pose')
+   .toBeGreaterThan(memoBefore.sameStateFrameHits);
+  expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum))
+   .toBe(frozenChecksum);
+  await info.attach('w215-unchanged-original-rig-cache-'+viewport.width,{
+   body:Buffer.from(JSON.stringify({memoBefore,memoAfter,frozenChecksum},null,2)),
+   contentType:'application/json'});
   expect(errors).toEqual([]);
  });
 }
