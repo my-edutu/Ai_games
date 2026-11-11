@@ -143,6 +143,37 @@ function classifyCanvasEncoderControl({control={},real={}}={}){
  return 'REAL_VIDEO_ENCODED_CONTROL_UNVERIFIED';
 }
 
+
+/**
+ * SECOND, non-gameplay encoder comparison: attempt a bounded 2D-only recording
+ * AFTER all initial live capture recorders have stopped. Five simultaneous
+ * recorders can overwhelm a headless worker, so a failed concurrent control
+ * alone cannot establish that even one canvas encoder fails in isolation.
+ * A successful serial control suggests resource contention is worth testing,
+ * but does NOT prove that contention, WebGL encoding or synchronized combat.
+ */
+function classifySequentialCanvasEncoderProbe({concurrent={},serial={}}={}){
+ const bounded=(r,source)=>r.source===source&&
+  /^video\/webm(?:;|$)/i.test(r.mimeType||'')&&
+  r.videoTracks===1&&r.audioTracks===0&&
+  Number.isInteger(r.canvasWidth)&&r.canvasWidth>=16&&r.canvasWidth<=128&&
+  Number.isInteger(r.canvasHeight)&&r.canvasHeight>=16&&r.canvasHeight<=128&&
+  Number.isSafeInteger(r.drawnFrames)&&r.drawnFrames>=3&&r.drawnFrames<=128&&
+  Number.isFinite(r.recordingMs)&&r.recordingMs>=1000&&r.recordingMs<=15500&&
+  Number.isSafeInteger(r.bytes)&&r.bytes>=0&&r.bytes<=2*1024*1024&&
+  (r.status==='RECORDED'&&r.bytes>1024||
+   r.status==='UNAVAILABLE'&&r.bytes===0);
+ if(!bounded(concurrent,'synthetic-2d-canvas-encoder-control-not-gameplay')||
+  !bounded(serial,'synthetic-2d-canvas-serial-control-not-gameplay')||
+  serial.phase!=='after-all-primary-encoders-settled'||
+  serial.primaryRecordersSettled!==true)return 'SERIAL_CONTROL_UNVERIFIED';
+ const first=concurrent.status==='RECORDED',second=serial.status==='RECORDED';
+ if(first&&second)return 'CONTROL_RECORDED_WITH_AND_WITHOUT_PARALLEL_ENCODERS';
+ if(!first&&second)return 'POST_RELEASE_ENCODER_RECOVERED';
+ if(!first&&!second)return 'POST_RELEASE_ENCODER_STILL_UNVERIFIED';
+ return 'POST_RELEASE_ENCODER_UNVERIFIED';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -190,6 +221,9 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   submittedFrames:clip.framePump?.observedFrameAdvances??0});
  const submissionDiagnosis=classifyCanvasSubmissionTiming({delivery:trackDelivery,framePump:clip.framePump});
  const canvasEncoderDifferential=optedIn===true?classifyCanvasEncoderControl({control:isolated.control2dOnly,real:isolated.videoOnly}):'CONTROL_COMPARISON_UNVERIFIED';
+  const serialCanvasEncoderDifferential=optedIn===true?
+   classifySequentialCanvasEncoderProbe({concurrent:isolated.control2dOnly,serial:isolated.serial2dOnly}):
+   'SERIAL_CONTROL_UNVERIFIED';
  const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
   !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
@@ -200,7 +234,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -220,8 +254,9 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
  const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
- // A synthetic control must NEVER be persisted as gameplay video or exported as base64.
+ // Neither synthetic control, concurrent or serial, may ever be saved as gameplay video.
  const {base64:syntheticControlBytes,...control2dOnly}=raw.isolated?.control2dOnly||{};
+ const {base64:serialControlBytes,...serial2dOnly}=raw.isolated?.serial2dOnly||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
  let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
@@ -261,7 +296,7 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
   }
  }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly},frames:raw.frames??null,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly},frames:raw.frames??null,
   trackDelivery:raw.trackDelivery??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
@@ -270,5 +305,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
 }
-module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,persistD04CaptureEvidence,
+module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
