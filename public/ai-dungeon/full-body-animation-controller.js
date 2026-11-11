@@ -57,6 +57,47 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
 }
 
 
+/**
+ * Select two separated ORIGINAL skinned outsole sample vertices, not the
+ * higher instep/boot shaft. The earlier diagnostic selected any foot-weighted
+ * vertex up to 120mm above the lowest source bind vertex, then called the
+ * horizontal extremes "heel/toe". That can contaminate world-floor contact
+ * evidence with the top of the shoe and authorise unsafe IK experiments.
+ *
+ * This is deliberately a SOURCE INSPECTION contract, not a foot-lock or an
+ * anatomical heel/toe guarantee. Return null for insufficient true outsole
+ * area, missing source skin weight, non-finite coordinates or an impossible
+ * footprint. No source skeleton, clip, material or authority is modified.
+ */
+export function selectOriginalOutsolePatchVertices(candidates,anchorBindY){
+ if(!Array.isArray(candidates)||!finite(anchorBindY)||candidates.length>8192)return null;
+ const low=[];
+ for(const sample of candidates){
+  if(!Number.isSafeInteger(sample?.index)||sample.index<0||
+   ![sample.x,sample.z,sample.bindY,sample.weight].every(finite)||
+   sample.weight<.55||sample.weight>1.001||
+   sample.bindY<anchorBindY-.001||sample.bindY>anchorBindY+.032)continue;
+  low.push(sample);
+ }
+ if(low.length<2)return null;
+ const extrema=axis=>{
+  let lowEnd=low[0],highEnd=low[0];
+  for(const point of low){
+   if(point[axis]<lowEnd[axis])lowEnd=point;
+   if(point[axis]>highEnd[axis])highEnd=point;
+  }
+  return {heel:lowEnd,toe:highEnd,spanMeters:highEnd[axis]-lowEnd[axis]};
+ };
+ const x=extrema('x'),z=extrema('z');
+ const selected=x.spanMeters>z.spanMeters?x:z;
+ if(!finite(selected.spanMeters)||selected.spanMeters<.045||
+  selected.spanMeters>.50||selected.heel.index===selected.toe.index)return null;
+ const bindThicknessMeters=Math.abs(selected.heel.bindY-selected.toe.bindY);
+ if(bindThicknessMeters>.032)return null;
+ return {...selected,bindThicknessMeters,anatomicalHeelToeVerified:false};
+}
+
+
 export function auditImportedAnimationClips(clips=[]){
  const entries=[],names=new Set(),rootMotionTracks=[];
  let invalidClips=0,invalidTracks=0;
