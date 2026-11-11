@@ -49,7 +49,14 @@ jobs:
         with: {node-version: '22', cache: 'npm'}
       - run: npm ci
       - run: npm run dungeon:assets:strict
-      - run: npx playwright install --with-deps chromium
+      - name: Use installed Chrome or fetch Chromium without apt-font dependency
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo 'DUNGEON_SYSTEM_CHROME=1' >> "$GITHUB_ENV"
+          else
+            npx playwright install chromium
+          fi
       - run: npm run dungeon:visual -- --shard=${{ matrix.shard }}/3
         env:
           DUNGEON_REQUIRE_MODELS: '1'

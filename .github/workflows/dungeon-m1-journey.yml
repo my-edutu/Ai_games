@@ -37,7 +37,14 @@ jobs:
       - run: npm run build
       - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs tests/foundation/dungeon-m1-rendered-capture.test.cjs tests/foundation/dungeon-m1-observer-policy.test.cjs
       - run: npm run dungeon:assets:strict
-      - run: npx playwright install --with-deps chromium
+      - name: Use installed Chrome or fetch Chromium without apt-font dependency
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo 'DUNGEON_SYSTEM_CHROME=1' >> "$GITHUB_ENV"
+          else
+            npx playwright install chromium
+          fi
       - name: Record actual entire journey and original opt-in sound
         run: npx playwright test -c tests/browser/dungeon-m1-journey.playwright.config.cjs
         env:

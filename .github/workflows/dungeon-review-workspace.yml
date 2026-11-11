@@ -36,7 +36,14 @@ jobs:
           path: dungeon-review-workspace.tar.gz
           retention-days: 7
           if-no-files-found: error
-      - run: npx playwright install --with-deps chromium
+      - name: Use installed Chrome or fetch Chromium without apt-font dependency
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo 'DUNGEON_SYSTEM_CHROME=1' >> "$GITHUB_ENV"
+          else
+            npx playwright install chromium
+          fi
       - name: Exercise actual immersive interface and capture real 3D
         run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs dungeon-interface.spec.cjs
         env:

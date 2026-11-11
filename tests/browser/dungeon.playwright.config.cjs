@@ -8,7 +8,7 @@ module.exports=defineConfig({
  // Shared software WebGL runners can spend 40-60s on live scene/screenshot setup;
  // leave explicit assertion and poll timeouts unchanged while bounding test runtime.
  timeout:120000,expect:{timeout:15000},
- use:{baseURL:'http://127.0.0.1:4181',headless:true,viewport:{width:1440,height:900},trace:'retain-on-failure',video:'on',launchOptions:{args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']}},
+ use:{baseURL:'http://127.0.0.1:4181',headless:true,...(process.env.DUNGEON_SYSTEM_CHROME==='1'?{channel:'chrome'}:{}),viewport:{width:1440,height:900},trace:'retain-on-failure',video:'on',launchOptions:{args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']}},
  webServer:{command:'node scripts/serve-dungeon-stream.cjs --port=4181',cwd:path.resolve(__dirname,'../..'),url:'http://127.0.0.1:4181/dungeon/health',reuseExistingServer:false,timeout:60000},
  reporter:[['list']]
 });

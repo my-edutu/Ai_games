@@ -49,6 +49,10 @@ for(const device of [
   expect(initial.dressing.wardenCourt.reliefs).toBeGreaterThan(0);
   expect(initial.dressing.wardenCourt.collisionChanged).toBe(false);
   expect(initial.dressing.wardenCourt.dynamicLights).toBe(1);
+  expect(initial.dressing.wardenBattleFloorStatus).toBe('READY');
+  expect(initial.dressing.wardenBattleFloorTiles).toBeGreaterThan(20);
+  expect(initial.dressing.wardenBattleFloorTiles).toBeLessThanOrEqual(49);
+  expect(initial.dressing.wardenBattleFloorCollisionChanges).toBe(0);
   expect(initial.webgl).toBe(true);
   // This button is the product's real user-gesture sound opt-in, not test
   // injection into WebAudio or a synthetic offline soundtrack.

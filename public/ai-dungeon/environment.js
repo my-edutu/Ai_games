@@ -8,6 +8,7 @@ import {createWardenCourt} from '/dungeon/warden-court.js';
 import {createConnectedDungeonJourney} from '/dungeon/connected-journey.js';
 import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
+import {planWardenBattleFloor} from '/dungeon/warden-battle-floor-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {configureSoftwareStoneSurfaces,createSoftwareDiffuseMasonry,fuseOriginalForegroundGroup,createRetainedForegroundReplicaBatches} from '/dungeon/postfx-budget.js';
@@ -122,6 +123,8 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const vaultedTiles=new Set(Array.isArray(vaultedSites)?vaultedSites.map(site=>site.gridZ*map.length+site.gridX):[]);
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
  const wardenCourt=createWardenCourt(world,map,exit,floor);
+ const wardenBattleFloor=planWardenBattleFloor(map,exit,floor);
+ const battleCells=new Set(wardenBattleFloor.stones.map(t=>t.gridX+','+t.gridZ));
  const connectedJourney=createConnectedDungeonJourney(world,map,floor,exit,encounterUnits);
  const alternateGallery=createAlternateDungeonGallery(world,map,floor,exit,
   connectedJourney.plan,encounterUnits,traps);
@@ -185,16 +188,22 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const originalPillarRoots=[],originalBannerRoots=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
  let bossCourtLooseClutterSuppressed=0,bossCourtTallFixturesSuppressed=0;
+ let battleFloorDetailsSuppressed=0;
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
   const px=x-O,pz=z-O,h=hash(x,z,floor),court=planWardenCourtNegativeSpace(map,exit,x,z);
+  const battleStone=battleCells.has(x+','+z);
   if(open(x,z)){
+   // Original substrate and physics remain. The court gets one coherent matte
+   // physical layer, not competition from rugs, runes and unrelated plant pots.
    floorDetails.push([px,-.005,pz,.965,.035,.965,(h%4)*Math.PI/2]);
    if(x>2&&z>2&&x<N-3&&z<N-3&&open(x-1,z)&&open(x+1,z)&&open(x,z-1)&&open(x,z+1)){
-    rugCandidates.push([px,pz,h]);
-    if(h%19===5&&rugs.length<6)rugs.push([px,pz,h]);
+    if(battleStone){if(h%19===5)battleFloorDetailsSuppressed++;}
+    else{rugCandidates.push([px,pz,h]);if(h%19===5&&rugs.length<6)rugs.push([px,pz,h]);}
    }
-   if(h%9===0)mossPatches.push([px+.2,.016,pz-.21,.42,.018,.23]);
-   if(h%13===0)runeInlays.push([px,.02,pz,.45,.017,.075,(h%4)*Math.PI/2]);
+   if(h%9===0){if(battleStone)battleFloorDetailsSuppressed++;
+    else mossPatches.push([px+.2,.016,pz-.21,.42,.018,.23]);}
+   if(h%13===0){if(battleStone)battleFloorDetailsSuppressed++;
+    else runeInlays.push([px,.02,pz,.45,.017,.075,(h%4)*Math.PI/2]);}
    if(h%23===0&&x>2&&z>2&&x<N-3&&z<N-3){
     if(court.clearInterior)bossCourtLooseClutterSuppressed++;
     else rubble.push([px-.27,.08,pz+.28,.27,.16,.19,(h%8)*Math.PI/4]);
@@ -238,6 +247,26 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   carpet.position.set(px,.027,pz);carpet.receiveShadow=true;world.add(carpet);
  }
   batched(world,box,floorSurface,floorDetails,{variation:true,floor});
+ // A genuine 7x7 stone fighting court: original low chamfered geometry
+ // below real Warden warning stones (.055m), no extra lights/texture,
+ // navigation changes or per-frame draw families.
+ const battleShape=new THREE.Shape();
+ battleShape.moveTo(-.45,-.47);battleShape.lineTo(.36,-.48);
+ battleShape.lineTo(.475,-.35);battleShape.lineTo(.46,.39);
+ battleShape.lineTo(.35,.47);battleShape.lineTo(-.40,.46);
+ battleShape.lineTo(-.475,.36);battleShape.closePath();
+ const battleGeo=new THREE.ExtrudeGeometry(battleShape,{depth:.018,steps:1,
+  bevelEnabled:true,bevelThickness:.003,bevelSize:.015,bevelSegments:1,curveSegments:1});
+ battleGeo.rotateX(-Math.PI/2);battleGeo.translate(0,.014,0);
+ const battleSource=new THREE.MeshStandardMaterial({
+  color:biome.stone,roughness:.98,metalness:0,flatShading:true});
+ const battleMaterial=createSoftwareDiffuseMasonry(THREE,battleSource,{software:softwareWebGL});
+ if(softwareWebGL)battleSource.dispose();
+ geometries.push(battleGeo);materials.push(battleMaterial);
+ const battleMesh=batched(world,battleGeo,battleMaterial,
+  wardenBattleFloor.stones.map(t=>[t.x,0,t.z,t.width,1,t.depth,t.yaw]),
+  {variation:true,floor});
+ if(battleMesh)battleMesh.name='Original Warden walkable matte bevelled combat floor';
  // Wall trims stand slightly proud to create depth; avoid overdraw covering actors.
  const facadeMesh=batched(world,box,wallSurface,wallFaces,{variation:true,floor});
  const stoneWeather=planStoneRelief(wallFaces,floor);
@@ -365,7 +394,11 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   createRetainedForegroundReplicaBatches(THREE,world,originalPillarRoots),
   createRetainedForegroundReplicaBatches(THREE,world,originalBannerRoots)
  ];
- const sceneMetrics={stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
+ const sceneMetrics={wardenBattleFloorStatus:wardenBattleFloor.status,
+  wardenBattleFloorTiles:wardenBattleFloor.stones.length,
+  wardenBattleFloorDetailSuppressed:battleFloorDetailsSuppressed,
+  wardenBattleFloorCollisionChanges:wardenBattleFloor.collisionChanges,
+  stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
  const yAxis=new THREE.Vector3(0,1,0),blockedFaces=new Uint8Array(wallFaces.length);
  // This exact physical slab plan drives BOTH what the GPU renders and the
