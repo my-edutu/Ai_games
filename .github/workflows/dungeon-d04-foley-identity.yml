@@ -63,6 +63,8 @@ jobs:
       - run: npm run build
       - name: SHA-verified CC0 GLB asset retrieval
         run: npm run dungeon:assets:strict
+      - name: Install Playwright-owned video encoder (no browser or apt dependencies)
+        run: npx playwright install ffmpeg
       - name: Verify preinstalled Chrome (no apt mirror fetch)
         run: |
           command -v google-chrome
