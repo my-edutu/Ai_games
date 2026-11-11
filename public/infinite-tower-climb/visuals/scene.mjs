@@ -29,6 +29,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
+import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
 import { towerRenderFaultDecision, towerRenderRetryReady } from './render-recovery.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2445,6 +2446,48 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianOrbitBossNdc = [0,0,0,0];
   let guardianOrbitCappedFrames = 0, guardianOrbitVetoedFrames = 0;
   let guardianOrbitLastStep = 0;
+  // Measure REAL opaque world geometry at two physical points on each actor.
+  // Only during source-authenticated portrait guardian combat, at most once
+  // per ten source ticks. Reuse ALL rays/vectors, never add a renderer pass.
+  const guardianWorldRay = new THREE.Raycaster();
+  const guardianWorldRayHits = [];
+  const guardianWorldRayTarget = new THREE.Vector3();
+  const candidateWorldPos = new THREE.Vector3();
+  const previousWorldPos = new THREE.Vector3();
+  let guardianWorldProbePosition = camera.position;
+  let worldGuardianLanding = null;
+  let guardianWorldTargetAngle = null, guardianWorldLastTick = -Infinity;
+  let guardianWorldLastEpisode = null;
+  let guardianWorldOcclusionSamples = 0, guardianWorldOcclusionImprovements = 0;
+  let guardianWorldOcclusionRejected = 0, guardianWorldLastGain = 0;
+  function raycastGuardianWorldOcclusion(x,y,z) {
+    guardianWorldRayTarget.set(x,y,z).sub(guardianWorldProbePosition);
+    const distance=guardianWorldRayTarget.length();
+    if (!Number.isFinite(distance) || distance <= .75) return false;
+    guardianWorldRay.set(guardianWorldProbePosition,
+      guardianWorldRayTarget.multiplyScalar(1/distance));
+    guardianWorldRay.near=.15;
+    guardianWorldRay.far=distance-.45;
+    guardianWorldRayHits.length=0;
+    guardianWorldRay.intersectObjects(world.group.children,true,guardianWorldRayHits);
+    for (const hit of guardianWorldRayHits) {
+      let visible=true,ancestor=hit.object;
+      while (ancestor && ancestor!==world.group) {
+        if (ancestor.visible===false) {visible=false;break;}
+        ancestor=ancestor.parent;
+      }
+      if (!visible) continue;
+      const mat=Array.isArray(hit.object.material)
+        ? hit.object.material[hit.face?.materialIndex??0]
+        : hit.object.material;
+      if (!mat || mat.visible===false ||
+          (mat.transparent && (mat.opacity??1)<.70)) continue;
+      guardianWorldRayHits.length=0;
+      return true;
+    }
+    guardianWorldRayHits.length=0;
+    return false;
+  }
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -4227,7 +4270,133 @@ export function createTowerScene(canvas, settings = {}) {
         lookAt.copy(guardianOrbitPreviousFocus);
       }
     }
+    // Original 390x844 source-pinned guardian footage around 16-24s shows
+    // genuine opaque gallery posts between the living hero and boss. Existing
+    // core-radius tests cannot detect a load-bearing rib or a bronze doorway.
+    // Measure actual scene triangles at a throttled rate, choose an exterior
+    // shoulder only if it IMPROVES the real hero and boss ray obstruction,
+    // then move through a bounded arc with the source actor/landing protected.
+    // Do not alter spectator input, reduced-motion, authority or gameplay.
+    guardianWorldLastGain = 0;
+    const worldRayActive = protectLivingGuardian &&
+      options.camera === 'follow' && Math.abs(orbit) < .025 &&
+      snapshot.lifecycle === 'running' && sourceGuardian?.active === true &&
+      sourceGuardian.health > 0 && snapshot.floor === 8;
+    const worldRayEpisode=worldRayActive ? snapshot.runToken + ':' + snapshot.floor : null;
+    if (!worldRayActive || worldRayEpisode !== guardianWorldLastEpisode) {
+      guardianWorldTargetAngle=null;
+      guardianWorldLastTick=-Infinity;
+      guardianWorldLastEpisode=worldRayEpisode;
+    }
+    if (worldRayActive) {
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      worldGuardianLanding=airborneDuelLanding ? portraitAimLanding : null;
+      const halfHero=p.halfHeight/SCALE;
+      const halfBoss=sourceGuardian.halfHeight/SCALE;
+      const radius=Math.hypot(camera.position.x,camera.position.z);
+      const currentAngle=Math.atan2(camera.position.x,camera.position.z);
+      // Ray observations require current actual world matrices. Decorative
+      // transparency is excluded; real opaque foreground architecture counts.
+      if (snapshot.tick >= guardianWorldLastTick + 10 && radius>25) {
+        guardianWorldLastTick=snapshot.tick;
+        guardianWorldOcclusionSamples=Math.min(1000000,guardianWorldOcclusionSamples+1);
+        scene.updateMatrixWorld(true);
+        const inspect=pos=>{
+          guardianWorldProbePosition=pos;
+          return weightedGuardianWorldOcclusion(raycastGuardianWorldOcclusion,
+            actorFramePoint,currentGuardianDrawPoint,halfHero,halfBoss);
+        };
+        const baseWorldRay=inspect(camera.position);
+        const safeShoulder=angle=>{
+          candidateWorldPos.set(Math.sin(angle)*radius,
+            camera.position.y,Math.cos(angle)*radius);
+          if (!towerCoreSightlineClear(candidateWorldPos,actorFramePoint,23.5) ||
+              !towerCoreSightlineClear(candidateWorldPos,currentGuardianDrawPoint,23.5) ||
+              (worldGuardianLanding &&
+                !towerCoreSightlineClear(candidateWorldPos,worldGuardianLanding,23.5)))
+            return null;
+          previousWorldPos.copy(camera.position);
+          camera.position.copy(candidateWorldPos);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(actorFramePoint,halfHero,
+            camera,duelTop,duelBottom,guardianOrbitHeroNdc);
+          measureDuelBodyNdc(currentGuardianDrawPoint,halfBoss,
+            camera,duelTop,duelBottom,guardianOrbitBossNdc);
+          const h=guardianOrbitHeroNdc,g=guardianOrbitBossNdc;
+          let safe=h.every(Number.isFinite)&&g.every(Number.isFinite)&&
+            h[2]>=-1&&h[2]<=1&&g[2]>=-1&&g[2]<=1&&
+            Math.abs(h[0])+h[3]*.14<.76&&Math.abs(h[1])+h[3]<.77&&
+            Math.abs(g[0])+g[3]*.14<.82&&Math.abs(g[1])+g[3]<.79&&
+            h[3]>=.065;
+          if (safe && worldGuardianLanding) {
+            portraitAimLandingProjection.copy(worldGuardianLanding).project(camera);
+            safe=portraitAimLandingProjection.z>=-1&&
+              portraitAimLandingProjection.z<=1&&
+              Math.abs(portraitAimLandingProjection.x)<.77&&
+              Math.abs(portraitAimLandingProjection.y)<.75;
+          }
+          camera.position.copy(previousWorldPos);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          return safe?inspect(candidateWorldPos):null;
+        };
+        const left=safeShoulder(currentAngle-.24);
+        const right=safeShoulder(currentAngle+.24);
+        const better=selectGuardianWorldShoulder(baseWorldRay,left,right);
+        if (better) {
+          guardianWorldTargetAngle=currentAngle+better.direction*.24;
+          guardianWorldLastGain=better.gain;
+        } else guardianWorldTargetAngle=null;
+      }
+      if (guardianWorldTargetAngle !== null) {
+        const nextAngle=boundedGuardianWorldAngle(currentAngle,guardianWorldTargetAngle,dt);
+        if (nextAngle!==null) {
+          candidateWorldPos.set(Math.sin(nextAngle)*radius,
+            camera.position.y,Math.cos(nextAngle)*radius);
+          previousWorldPos.copy(camera.position);
+          camera.position.copy(candidateWorldPos);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(actorFramePoint,halfHero,
+            camera,duelTop,duelBottom,guardianOrbitHeroNdc);
+          measureDuelBodyNdc(currentGuardianDrawPoint,halfBoss,
+            camera,duelTop,duelBottom,guardianOrbitBossNdc);
+          const h=guardianOrbitHeroNdc,g=guardianOrbitBossNdc;
+          let safe=h.every(Number.isFinite)&&g.every(Number.isFinite)&&
+            h[2]>=-1&&h[2]<=1&&g[2]>=-1&&g[2]<=1&&
+            Math.abs(h[0])+h[3]*.14<.78&&Math.abs(h[1])+h[3]<.78&&
+            Math.abs(g[0])+g[3]*.14<.84&&Math.abs(g[1])+g[3]<.80&&
+            h[3]>=.065&&
+            towerCoreSightlineClear(candidateWorldPos,actorFramePoint,23.5)&&
+            towerCoreSightlineClear(candidateWorldPos,currentGuardianDrawPoint,23.5);
+          if (safe && worldGuardianLanding) {
+            portraitAimLandingProjection.copy(worldGuardianLanding).project(camera);
+            safe=portraitAimLandingProjection.z>=-1&&
+              portraitAimLandingProjection.z<=1&&
+              Math.abs(portraitAimLandingProjection.x)<.78&&
+              Math.abs(portraitAimLandingProjection.y)<.76&&
+              towerCoreSightlineClear(candidateWorldPos,worldGuardianLanding,23.5);
+          }
+          if (safe) {
+            guardianWorldOcclusionImprovements=Math.min(1000000,
+              guardianWorldOcclusionImprovements+1);
+            if (Math.abs(Math.atan2(Math.sin(guardianWorldTargetAngle-nextAngle),
+              Math.cos(guardianWorldTargetAngle-nextAngle)))<.008)
+              guardianWorldTargetAngle=null;
+          } else {
+            camera.position.copy(previousWorldPos);
+            camera.lookAt(lookAt);
+            guardianWorldTargetAngle=null;
+            guardianWorldOcclusionRejected=Math.min(1000000,
+              guardianWorldOcclusionRejected+1);
+          }
+        }
+      }
+    }
     camera.lookAt(lookAt);
+    camera.updateMatrixWorld(true);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
     // camera submitted this frame, never the desired/planned lens. A viewer
@@ -4837,6 +5006,14 @@ export function createTowerScene(canvas, settings = {}) {
           lastSubmittedGuardian.floor === snapshot?.floor
           ? lastSubmittedGuardian.tick : null,
         evidence:'Current real submitted portrait live-guardian camera, source-safe fallback; not WebM motion acceptance or hardware FPS',
+      },
+      guardianWorldOcclusion: {
+        raySamples:guardianWorldOcclusionSamples,
+        boundedShoulderFrames:guardianWorldOcclusionImprovements,
+        safetyVetoes:guardianWorldOcclusionRejected,
+        lastGeometryScoreGain:guardianWorldLastGain,
+        source:'real current Three.js opaque world triangle rays / both drawn actors',
+        limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
       },
       guardianRescueEvidence: 'Approved dual-subject source projection + exterior-core guards; NOT raster visibility or quality score',
       encounterCamera, actorCamera, earnedGatewayCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
