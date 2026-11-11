@@ -7750,5 +7750,30 @@
     "nextHighestImpactAction": "Capture new immutable source-pinned 10-job baseline/candidate desktop+portrait films, resolve source-event estimated-clock vs original HUD raster discrepancy without retiming either WebM or game clock; physically restage guardian/threshold based on original full-motion visible problem; visually verify floor9 and restart; real devices plus 5 independent randomized blind critics per pillar remain open.",
     "review": "docs/reviews/2026-11-11-tower-pr68-original-WebM-drawn-hud-source-discrepancy.md",
     "safety": "Only draft PR68 advanced with safe fast-forward; no PR58/main/Tiny Kingdom/Maze/AI vs 1000 Floors edits; baseline preserved."
+  },
+  "p0BaselineNeutralHarnessRecovery20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineMoved": false,
+    "inspectedCandidateSourceSha": "d53da55c7d59489c6ee1f74797ddc82e3196b008",
+    "observedFailedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42974456261 — 4/4 candidate original-source scenario jobs and authentic ledge succeeded; 4/4 frozen-baseline scenario jobs failed during neutral capture harness install; pairing 0/8, zero baseline films available",
+    "verifiedRootCause": "Malformed baseline-neutral capture cp included a third relative operand tests/phase3/tower-native-scene-phase.test.cjs, causing cp to require a nonexistent destination directory before npm/build/browser. GitHub job log independently confirms exact error.",
+    "workflowFixSha": "75761db12d6c40cf4580c1e09cd8e312883eb1c7",
+    "reviewSha": "aa8fbbca6623528d5cecaf9492b638a999d26682",
+    "review": "docs/reviews/2026-11-11-tower-pr68-frozen-baseline-neutral-harness-bootstrap-recovery.md",
+    "concreteOutcome": "Deleted only malformed third cp argument. Retains source/game/host at immutable 1731b380 baseline, source event pair strictness, same seed/tier/native recorder, candidate production/runtime unchanged. Fix verified against exact failed shell command; corrected CI and original WebM recapture NOT YET VERIFIED.",
+    "latestVerifiedPreviousExactCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42973700027 — passed prior source-only quality; this does not validate new baseline capture or visual quality",
+    "previousRasterTimingDiscrepancy": "Real 960×600/390×844 original films showed native on-screen Floor 8→9 2.393–3.642s later than separate source-event SEARCH timecode estimate. Must not retime or declare exact event pixel match.",
+    "dominantObservedExperienceGap": "Genuine portrait guardian/hammer interaction around video seconds 14–25 still crowded by foreground clockwork; actual playable full grounded threshold/floor9/restart pixel-matched satisfaction remains open.",
+    "newNativeFullMotionCapture": "NOT EVALUATED — workflow corrected; exact immutable candidate SHA and actual run artifacts required",
+    "blindIndependentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "deviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Issue exact-source capture-request after corrected workflow commit; inspect all 10 jobs, both original desktop/portrait 60+s across ascent/moving/danger/outcome and strict 8/8 native pairs, compare real HUD source-to-raster phase, fix largest lived portrait two-body visibility defect and independently prove guardian/crusher->grounded gateway->floor9->result/restart.",
+    "safety": "Draft PR68 only; original PR58 branch and other games untouched; no baseline move/merge/deploy/force-push/draft conversion."
   }
 }
