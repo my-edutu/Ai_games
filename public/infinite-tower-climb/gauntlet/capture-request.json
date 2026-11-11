@@ -3,9 +3,9 @@
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "Exact immutable github.sha of this updated capture request. Includes production guardian counterweight rig 44710130 and real post-batch Three geometry tests 2d46ae6, frozen prior baseline unchanged.",
-  "repairedSourceSha": "2d46ae6c264b33ed8bdd878bdd3e34d5b7297ae6",
-  "reason": "Record original unedited normal-speed desktop/portrait full gameplay after fixing real source-HP 2.35m guided winch stroke and cables; previous 43024687527 paired all eight original source timelines and ledge but strict event-to-pixel guardian pairing FAILED 0/2, and original portrait source 406e4114 still shows brass foreground obstruction 16-18s. Run source/pixel alignment, physically walked HP0 gate, Floor9, result/restart and full-motion comparison at same seed, tier, and source-pinned native PTS. Never count green CI or source events as rendered acceptance.",
+  "candidateSource": "Exact immutable github.sha of THIS capture-request change including original HP-operated full-stroke 3D winches, rendered guide-geometry contracts and corrected 5.1m combat-air clearance at 3d913591. No checkout of moving PR head and never move baseline.",
+  "repairedSourceSha": "3d9135912163bb1f005119ff4e309bb186d23b76",
+  "reason": "After source-HP 2.35m upright outboard winch reconstruction and true guide clearance fix (lower guide y5.105 >5.1 live combat, lower bronze y5.11), re-capture original full normal-speed source-locked 960x600 and 390x844 baseline/candidate. Previous original 43024687527 had 8/8 >60s video+source ledge but 0/2 guardian frame-event alignment and persistent bronze obstruction near seconds16-18. CI 43026644780 flagged a genuine too-low guide, fixed at 3d913591 without modifying safety assertion. Demand real HP0 guardian/crusher and physically grounded threshold, floor9, outcome/restart, native PTS/pixel match and independent reviewers; never infer a good film from source/ticks/CI.",
   "scenarios": [
     "ascent",
     "moving",
@@ -641,5 +641,7 @@
   "newRigProductionSha": "447101308991d865b4e8dabcbeccac1bd6f16898",
   "newRigTestSha": "2d46ae6c264b33ed8bdd878bdd3e34d5b7297ae6",
   "previousAuthenticOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43024687527",
-  "afterFixEvidenceVerdict": "NOT EVALUATED; original full movie, matched source-event-to-frame cue, independent reviews and actual devices pending"
+  "afterFixEvidenceVerdict": "NOT EVALUATED; original full movie, matched source-event-to-frame cue, independent reviews and actual devices pending",
+  "latestGuideClearanceSourceSha": "3d9135912163bb1f005119ff4e309bb186d23b76",
+  "previousPostFixCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43027315446 — captures older 3186cb4 version WITHOUT final >5.1m guide clearance; do not grade this as the latest source."
 }
