@@ -22,6 +22,7 @@ for(const [name,section] of [['founding',detailed],['grown',compact]]){
 }
 assert.match(skyline,/hippedHomeCount:/,'W217 audit must count original complete hipped roofs');
 assert.match(skyline,/roofForm:/,'W217 audit must distinguish hip from gable');
-assert.match(source,/const HOME_STATIC_GEOMETRY_KEY_VERSION='w\\d+-[a-z0-9-]+';/,
+const homeCacheVersion=source.match(/const HOME_STATIC_GEOMETRY_KEY_VERSION='([^']+)'/);
+assert(homeCacheVersion&&/^w[0-9]+-[a-z0-9-]+$/.test(homeCacheVersion[1]),
  'W217 roof topology and newer original occupied-home geometries must retain explicit versioned resident cache invalidation');
 console.log('W217 source contracts PASS; experience and hardware need real WebGL evidence.');
