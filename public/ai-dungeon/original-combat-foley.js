@@ -11,6 +11,8 @@ export const MAX_ORIGINAL_COMBAT_VOICES=8;
 // One witnessed authority event authorizes at most ONE original foley onset.
 // Retained IDs are bounded, just like the controller's cue/receipt histories.
 export const MAX_ORIGINAL_CONFIRMED_CUE_IDS=128;
+// Read-only source.start() audit ring, not proof of delivered PCM samples.
+export const MAX_ORIGINAL_RECORDED_STARTS=32;
 // Independently HP-confirmed simultaneous wounds deserve distinct but sparse
 // onsets. Bound both victim memory and mix density for long-lived streams.
 export const MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS=16;
@@ -163,7 +165,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
  const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[],
-   lastVerifiedSwing=new Map(),swingOnsets=[],confirmedCueIds=new Set();
+   lastVerifiedSwing=new Map(),swingOnsets=[],confirmedCueIds=new Set(),
+    recentOriginalStarts=[];
  const now=()=>clamp(ctx?.currentTime,0,1e12,0);
  const usable=()=>ctx&&typeof ctx.createGain==='function'&&
   typeof ctx.createBuffer==='function'&&typeof ctx.createBufferSource==='function'&&
@@ -332,6 +335,26 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
     source.stop(stopAt);
    }
    active.push(voice);
+   if(requireVerifiedContact){
+    // Record only AFTER every original WebAudio source.start() succeeded.
+    // This scheduling clock is not the renderer's performance.now clock,
+    // MediaRecorder PTS or decoded audible PCM. Never invent an attacker.
+    const cueId=typeof cue?.id==='string'&&cue.id.length>0&&
+     cue.id.length<=256?cue.id:null;
+    recentOriginalStarts.push(Object.freeze({
+     cueId,kind:typeof cue?.kind==='string'?cue.kind:null,
+     audio:cue.audio,
+     sceneKey:typeof cue?.sceneKey==='string'&&cue.sceneKey.length<=128?
+      cue.sceneKey:null,
+     tick:Number.isSafeInteger(cue?.tick)?cue.tick:null,
+     scheduledContextMs:Math.round(t*1000),
+     startedSources:sources.length,
+     verifiedCanonicalCue:isCanonicalVerifiedCombatFoleyCue(cue),
+     sampleSynchronized:false
+    }));
+    if(recentOriginalStarts.length>MAX_ORIGINAL_RECORDED_STARTS)
+     recentOriginalStarts.shift();
+   }
    if(confirmedCue){
     confirmedCueIds.add(cue.id);
     if(confirmedCueIds.size>MAX_ORIGINAL_CONFIRMED_CUE_IDS)
@@ -358,7 +381,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  }
  function flush(){for(const v of active)stopVoice(v);active.length=0;
   lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0;
-   lastVerifiedSwing.clear();swingOnsets.length=0;confirmedCueIds.clear()}
+   lastVerifiedSwing.clear();swingOnsets.length=0;confirmedCueIds.clear();
+   recentOriginalStarts.length=0;}
  function disable(){enabled=false;flush()}
  function reset(){flush()}
  function dispose(){
@@ -374,6 +398,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    verifiedSwingActors:lastVerifiedSwing.size,swingOnsets:swingOnsets.length,
    confirmedCueIds:confirmedCueIds.size,maxConfirmedCueIds:MAX_ORIGINAL_CONFIRMED_CUE_IDS,
   played,dropped,stopped,deviceFailures,masterGain:ORIGINAL_COMBAT_MASTER_GAIN,
+  recentOriginalStarts:[...recentOriginalStarts],
+  maxOriginalRecordedStarts:MAX_ORIGINAL_RECORDED_STARTS,
   limiterAvailable:!!limiter,noiseSamples:noiseBuffer?.length??0,
   noiseSampleRate:noiseBuffer?.sampleRate??0,
   noisePeriodMs:Math.round((noiseBuffer?.duration??0)*1000),
