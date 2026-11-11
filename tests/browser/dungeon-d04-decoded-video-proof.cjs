@@ -1,9 +1,9 @@
 'use strict';
 // D04-only evidence decoder. A WebM byte count is not a moving combat clip:
 // Chromium produced a 14,055-byte, single-frame VP8 WebM on 11 Nov 2026.
-function decodeSerialRealWebGLMotion(video={}){
- const base={source:'ffmpeg-decoded-real-webgl-serial-video',method:'framemd5-24x16-first-64'};
- if(video.source!=='real-webgl-canvas-serial-video-only'||video.status!=='RECORDED'||
+function decodeProvenancedWebGLMotion(video={},acceptedSource,decoderSource){
+ const base={source:decoderSource,method:'framemd5-24x16-first-64'};
+ if(video.source!==acceptedSource||video.status!=='RECORDED'||
   typeof video.base64!=='string')
   return {...base,status:'UNAVAILABLE',reason:'No authenticated serial WebGL video'};
  const bytes=Buffer.from(video.base64,'base64');
@@ -35,4 +35,18 @@ function decodeSerialRealWebGLMotion(video={}){
   return {...base,status:'UNAVAILABLE',reason:'Video decoder unavailable: '+String(e).slice(0,100)};
  }
 }
-module.exports={decodeSerialRealWebGLMotion};
+function decodeSerialRealWebGLMotion(video={}){
+ return decodeProvenancedWebGLMotion(video,
+  'real-webgl-canvas-serial-video-only',
+  'ffmpeg-decoded-real-webgl-serial-video');
+}
+function decodeReceiptReadbackMotion(video={}){
+ if(video.videoTracks!==1||video.audioTracks!==0)
+  return {source:'ffmpeg-decoded-real-webgl-receipt-readback-video',
+   method:'framemd5-24x16-first-64',status:'UNAVAILABLE',
+   reason:'Not a single video-only real WebGL readback stream'};
+ return decodeProvenancedWebGLMotion(video,
+  'real-webgl-receipt-readback-serial-video-only',
+  'ffmpeg-decoded-real-webgl-receipt-readback-video');
+}
+module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion};
