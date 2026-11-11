@@ -11578,68 +11578,153 @@ function highStreetHomeYard(x,z,variant,index){
  highStreetGoods(xx-sign*.28,zz-.18,variant);
  highStreetStats.houseYards++;highStreetStats.stallYards++;
 }
+// W242: Rebuild BOTH existing public craft houses as structurally coherent
+// two-storey original workshops, instead of short single-storey box sheds.
+// The original footprints, existing cobbler/dyer counter goods, street
+// positions, simulation, delivery locations and authority remain unchanged.
+// The full geometry is retained by the same immutable civic VBO.
 function highStreetCraftShop(x,z,variant){
- const y=terrain(x,z),plaster=rgb(variant?0xbeb7a3:0xd0b899),
-  beam=rgb(variant?0x58483c:0x6e4b37),
-  roof=rgb(variant?0x6f6760:0x99705b),stone=rgb(0x898579);
- const half=1.57,front=z-1.46,back=z+1.46,eave=y+2.06,peak=eave+1.15;
+ const first=data.length,y=terrain(x,z),
+  plaster=rgb(variant?0xbeb7a3:0xd0b899),
+  upperPlaster=rgb(variant?0xc9c1ab:0xd7c8ad),
+  oak=rgb(variant?0x655446:0x73523d),
+  braced=rgb(variant?0x4c443b:0x634938),
+  roofTones=(variant?[0x77716c,0x817b72,0x666a66,0x8b8073]:
+   [0x9d765c,0xa68065,0x81624f,0xb28b6c]).map(rgb),
+  limestone=rgb(0x969080),trim=rgb(0xb69c76);
+ const front=z-1.47,back=z+1.47,
+  upperBase=y+2.06,eave=y+3.62,ridge=eave+1.16;
  materialScope(MATERIAL.STONE,()=>{
-  box(x,y-.02,z,3.36,.24,3.18,stone);
-  box(x,y+.08,front-.36,3.4,.10,.76,rgb(0xaba08b));
+  // Ground-bearing footprint is identical to the existing genuine workshop.
+  box(x,y-.02,z,3.36,.24,3.18,limestone);
+  box(x,y+.06,front-.35,3.40,.12,.76,rgb(0xb1a48c));
+  // Visible irregular ashlar courses wrap the LOWER original building only.
+  for(const side of [-1,1])for(let course=0;course<3;course++){
+   const xx=x+side*1.61,yy=y+.17+course*.23;
+   for(let n=0;n<4;n++){
+    const z0=z-1.38+n*.70;
+    box(xx,yy,z0+.31,.047,.19,.62,
+     rgb([0x9c9381,0xada28e,0x8e877b,0xb1a38b][(course+n+variant)%4]));
+   }
+  }
  });
  materialScope(MATERIAL.PLASTER,()=>{
-  box(x,y+.17,z,3.11,1.9,2.90,plaster);
-  tri([x-half,eave,front],[x+half,eave,front],[x,peak,front],plaster);
-  tri([x+half,eave,back],[x-half,eave,back],[x,peak,back],plaster);
+  // Actual full lower walls AND the projecting upper room have thickness.
+  box(x,y+.18,z,3.10,1.88,2.90,plaster);
+  box(x,upperBase,z,3.46,1.56,3.23,upperPlaster);
+  // Both real masonry end gables close the roof, not a painted rooftop flag.
+  for(const zz of [front-.13,back+.13]){
+   const a=[x-1.74,eave-.01,zz],
+    b=[x+1.74,eave-.01,zz],c=[x,ridge-.055,zz];
+   tri(a,b,c,upperPlaster);tri(c,b,a,upperPlaster);
+  }
  });
  materialScope(MATERIAL.ROOF,()=>{
-  for(const side of [-1,1])for(let panel=0;panel<5;panel++){
-   const z0=front-.17+panel*3.27/5,z1=z0+3.27/5;
-   const low=[x+side*1.78,eave-.02],high=[x,peak];
-   const tone=rgb(variant?
-    [0x79716c,0x706761,0x91857a][panel%3]:
-    [0xa37b60,0x89664e,0xb58c6a][panel%3]);
-   quad([low[0],low[1],z0],[high[0],high[1],z0],
-    [high[0],high[1],z1],[low[0],low[1],z1],tone);
+  // Continuous clay/slate courses; real roof plane normal and physical eaves.
+  for(const side of [-1,1])for(let n=0;n<8;n++){
+   const z0=front-.25+n*(back-front+.50)/8,
+    z1=front-.25+(n+1)*(back-front+.50)/8;
+   const low=[x+side*1.95,eave-.085],
+    high=[x,ridge];
+   const tone=roofTones[(n+variant+(side<0?1:0))%4];
+   const p0=[low[0],low[1],z0],p1=[high[0],high[1],z0],
+    p2=[high[0],high[1],z1],p3=[low[0],low[1],z1];
+   if(side<0)quad(p0,p1,p2,p3,tone);
+   else quad(p3,p2,p1,p0,tone);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Each visible upper storey bears on closely spaced original oak brackets.
+  box(x,upperBase-.12,z,3.61,.18,3.38,oak);
+  box(x,eave-.10,front-.17,3.51,.15,.19,braced);
+  box(x,eave-.10,back+.17,3.51,.15,.19,braced);
+  box(x,ridge-.075,z,.15,.14,3.50,oak);
+  for(const side of [-1,1]){
+   const xx=x+side*1.67;
+   // Continuous oak end posts from the actual limestone footing.
+   for(const zz of [front+.07,back-.07])
+    box(xx,y+.14,zz,.15,3.36,.17,braced);
+   // Complete wall-framing at BOTH side elevations.
+   for(let bay=0;bay<3;bay++){
+    const zz=front+.19+bay*1.28;
+    box(xx+side*.095,upperBase+.15,zz,.09,1.24,.095,oak);
+    limbSegment([xx+side*.09,upperBase+.17,zz-.42],
+     [xx+side*.09,upperBase+1.21,zz+.42],.048,braced,4);
+   }
+  }
+  for(const zz of [front-.15,back+.15]){
+   for(const side of [-1,1]){
+    const xx=x+side*1.60;
+    box(xx,upperBase+.05,zz,.13,1.45,.13,braced);
+    limbSegment([xx,upperBase+.12,zz],
+     [xx-side*.58,upperBase+1.24,zz],.060,oak,4);
+   }
+   box(x,upperBase+.13,zz,3.41,.12,.14,oak);
+  }
+  // An open timber street-facing shopfront, preserving the real ground aisle.
+  box(x,y+.18,front-.11,.87,1.57,.15,rgb(0x5e4a37));
+  box(x,y+1.84,front-.10,3.09,.13,.15,oak);
+  box(x,y+.79,front-.69,2.70,.13,.82,braced);
+  for(const side of [-1,1]){
+   box(x+side*.99,y+.14,front-.69,.14,.69,.16,oak);
+   // Proper timber struts on the original street counter canopy.
+   limbSegment([x+side*1.29,y+1.31,front-.79],
+    [x+side*1.45,y+1.95,front-.36],.06,trim,4);
+  }
+ });
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  // Paired glazed upper casements belong to the habitable SECOND floor.
+  for(const side of [-1,1]){
+   const xx=x+side*.78,zz=front-.171;
+   box(xx,upperBase+.48,zz,.59,.67,.055,rgb(0x415d61));
+   for(const mullion of [-1,1])
+    box(xx+mullion*.147,upperBase+.50,zz-.045,.042,.63,.036,trim);
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
   for(const side of [-1,1]){
-   box(x+side*1.50,y+.13,front-.06,.13,1.92,.18,beam);
-   box(x+side*1.50,y+.13,back+.06,.13,1.92,.18,beam);
+   const xx=x+side*.78,zz=front-.217;
+   box(xx,upperBase+.39,zz,.71,.065,.16,oak);
+   box(xx,upperBase+1.14,zz,.72,.07,.16,trim);
+   box(xx,upperBase+.48,zz-.037,.052,.71,.045,braced);
+   // Genuine restrained shutters, not faceless glowing window tiles.
+   for(const direction of [-1,1])
+    box(xx+direction*.39,upperBase+.51,zz-.03,.12,.68,.075,
+     rgb(variant?0x716e5c:0x825e47));
   }
-  box(x,y+1.84,front-.06,3.1,.13,.14,beam);
-  box(x,y+.22,front-.10,.85,1.54,.15,rgb(0x5e4a37));
-  for(const side of [-1,1]){
-   box(x+side*1.02,y+1.10,front-.10,.67,.54,.11,rgb(0x405a59));
-   box(x+side*1.02,y+1.34,front-.15,.07,.61,.10,rgb(0xddc8a5));
-  }
-  box(x,y+1.92,front-.29,2.38,.16,.20,rgb(0xb79d74));
-  // Open street-front counter is visibly a place to make/sell things.
-  box(x,y+.78,front-.70,2.70,.12,.80,beam);
-  box(x-.99,y+.13,front-.72,.14,.70,.16,beam);
-  box(x+.99,y+.13,front-.72,.14,.70,.16,beam);
+  // A sheltered lower-level street sign with timber support, no fake stock.
+  box(x,upperBase-.18,front-.59,1.02,.39,.10,rgb(0xa88b61));
+  box(x,upperBase-.09,front-.66,.47,.075,.05,braced);
  });
- if(variant===0){
-  // Cobblers' leather rack, pegs and stacked timber for actual-looking work.
-  materialScope(MATERIAL.WOOD,()=>{
-   for(let i=0;i<4;i++){
-    const xx=x+(i-1.5)*.55;
-    box(xx,y+.97,front-.60,.39,.15,.43,
-     rgb(i%2?0x785a43:0xa17c57));
-    box(xx,y+1.45,front-.40,.045,.48,.045,beam);
-   }
-  });
- }else{
-  // Dye house: original suspended cloth panels and upright bucket tubs.
+ // All products stay EXACTLY the existing explanatory prop class. No new
+ // trades, production jobs, food, goods or merchants are introduced.
+ if(variant===0)materialScope(MATERIAL.WOOD,()=>{
+  for(let i=0;i<4;i++){
+   const xx=x+(i-1.5)*.55;
+   box(xx,y+.98,front-.60,.39,.15,.43,
+    rgb(i%2?0x785a43:0xa17c57));
+   box(xx,y+1.46,front-.40,.045,.48,.045,oak);
+  }
+ });else{
   for(let i=0;i<3;i++){
    const xx=x+(i-1)*.82;
-   cylinder(xx,y+.88,front-.67,.24,.33,rgb(0x815b48),8);
-   box(xx,y+1.30,front-.41,.47,.53,.045,
-    rgb([0x6f8c86,0x9c745f,0xb5a17b][i]));
+   materialScope(MATERIAL.WOOD,()=>{
+    cylinder(xx,y+.87,front-.67,.24,.33,rgb(0x815b48),8);
+   });
+   materialScope(MATERIAL.GENERAL,()=>{
+    box(xx,y+1.30,front-.41,.47,.53,.045,
+     rgb([0x6f8c86,0x9c745f,0xb5a17b][i]));
+   });
   }
  }
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles<=0||triangles>1100)
+  throw Error('W242 original two-storey workshop unbounded geometry');
  highStreetStats.shopfronts++;
+ highStreetStats.upperWorkshopStoreys=(highStreetStats.upperWorkshopStoreys||0)+1;
+ highStreetStats.workshopReconstructionTriangles=
+  (highStreetStats.workshopReconstructionTriangles||0)+triangles;
+ highStreetStats.workshopFootprintsUnchanged=true;
 }
 // W87: original receiving court to a REAL resident's original accessible
 // home doorway. Only terrain-following public road material on an existing
