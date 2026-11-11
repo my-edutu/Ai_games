@@ -48,8 +48,18 @@ async function beginD04LiveAVCapture(page){
    return unavailable('Real canvas MediaRecorder or opted-in output stream unavailable');
   const soundTracks=sound.getAudioTracks();
   if(!soundTracks.length)return unavailable('No opted-in soundstage audio track');
-  const canvasStream=canvas.captureStream(24),videoTracks=canvasStream.getVideoTracks();
+  // Software-WebGL can render only a few real frames in five seconds.
+  // Capture *those submitted frames*, never a synthetic timer-driven redraw.
+  let canvasStream=canvas.captureStream(0),videoTracks=canvasStream.getVideoTracks();
+  const explicitFrames=videoTracks.length===1&&
+   typeof videoTracks[0].requestFrame==='function';
+  if(!explicitFrames){
+   videoTracks.forEach(track=>track.stop());
+   canvasStream=canvas.captureStream(24);
+   videoTracks=canvasStream.getVideoTracks();
+  }
   if(videoTracks.length!==1)return unavailable('No actual WebGL canvas video track');
+  const videoTrack=videoTracks[0];
   const all=new MediaStream([...videoTracks,...soundTracks]);
   const types=['video/webm;codecs=vp8,opus','video/webm;codecs=vp8','video/webm'];
   const type=types.find(t=>MediaRecorder.isTypeSupported(t));
@@ -65,13 +75,46 @@ async function beginD04LiveAVCapture(page){
   catch(e){videoTracks.forEach(t=>t.stop());return unavailable('MediaRecorder constructor: '+String(e))}
   const before=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1;
   const began=performance.now();
+  const framePump={
+   mode:explicitFrames?'submitted-frame-request':'native-capture-stream',
+   initialReceipt:before,observedFrameAdvances:0,requestedFrames:0,requestFailures:0,
+   rendererEpochChanges:0,dataEvents:0,dataBytes:0,videoMutedAtStart:videoTrack.muted===true
+  };
+  let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
+  function sampleRealSubmittedFrame(){
+   if(!pumpActive)return;
+   const receipt=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
+   if(Number.isSafeInteger(receipt)&&receipt>=0){
+    if(lastSubmittedFrame<0)lastSubmittedFrame=receipt;
+    else if(receipt>lastSubmittedFrame){
+     framePump.observedFrameAdvances+=receipt-lastSubmittedFrame;
+     lastSubmittedFrame=receipt;
+     if(explicitFrames)try{videoTrack.requestFrame();framePump.requestedFrames++}
+      catch(error){framePump.requestFailures++;framePump.requestError=String(error).slice(0,200)}
+    }else if(receipt<lastSubmittedFrame){
+     // WebGL recovery/reset is not a new frame in the previous receipt epoch.
+     lastSubmittedFrame=receipt;framePump.rendererEpochChanges++;
+    }
+   }
+   if(pumpActive)pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
+  }
+  function stopFramePump(){
+   pumpActive=false;
+   if(pumpHandle!==null)cancelAnimationFrame(pumpHandle);
+   framePump.videoTrackStateAtStop=videoTrack.readyState;
+   framePump.videoMutedAtStop=videoTrack.muted===true;
+  }
   let finishClip;
   const clipDone=new Promise(resolve=>{
    let settled=false;
    const finish=clip=>{if(settled)return;settled=true;clearTimeout(watchdog);
-    videoTracks.forEach(t=>t.stop());resolve(clip)};
+    stopFramePump();videoTracks.forEach(t=>t.stop());resolve(clip)};
    const chunks=[];
-   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+   recorder.ondataavailable=e=>{
+    framePump.dataEvents++;
+    framePump.dataBytes+=e.data?.size??0;
+    if(e.data?.size)chunks.push(e.data);
+   };
    recorder.onerror=e=>finish({status:'UNAVAILABLE',reason:'Real MediaRecorder error: '+String(e.error??e)});
    recorder.onstop=async()=>{
     try{
@@ -81,14 +124,16 @@ async function beginD04LiveAVCapture(page){
       reason:bounded?null:'Empty or oversized real WebM',
       mimeType:type,bytes:data.length,videoTracks:videoTracks.length,
       audioTracks:soundTracks.length,recordingMs:performance.now()-began,
-      base64:bounded?toBase64(data):null});
+      framePump:{...framePump},base64:bounded?toBase64(data):null});
     }catch(e){finish({status:'UNAVAILABLE',reason:'Failed reading real WebM: '+String(e)})}
    };
    const watchdog=setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}
-     finish({status:'UNAVAILABLE',reason:'WebM recording exceeded 9-second budget'})},9000);
+     finish({status:'UNAVAILABLE',reason:'WebM recorder did not finish inside 15-second budget',
+      framePump:{...framePump}})},15000);
   });
   try{recorder.start(250)}
-  catch(e){videoTracks.forEach(t=>t.stop());return unavailable('Recorder start: '+String(e))}
+  catch(e){stopFramePump();videoTracks.forEach(t=>t.stop());return unavailable('Recorder start: '+String(e))}
+  pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
    new Promise(resolve=>setTimeout(()=>resolve(unavailable('Live PCM processor timed out')),9000))
