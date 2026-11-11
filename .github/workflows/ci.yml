@@ -133,7 +133,7 @@ jobs:
           mkdir -p artifacts/tower-phase6
           npm run tower:phase6:validate > artifacts/tower-phase6/release-validation.json
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Browser capture and layout verification
         run: npm run test:browser
       - name: Upload Snake Phase 3 capture evidence

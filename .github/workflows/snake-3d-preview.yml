@@ -40,7 +40,7 @@ jobs:
       - name: Build the authoritative runtime
         run: npm run build
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Verify Snake rendering, lifecycle, recovery and frame pacing
         run: npx playwright test --config=playwright.snake.config.cjs
       - name: Retain actual captures, metrics and failure traces

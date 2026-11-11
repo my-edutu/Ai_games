@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-11",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; browser exact 1a5ab1e 5/17 at 751x415, new T1 topology candidate WebGL pending",
-  "detail": "Latest exact 1a5ab1e Chromium #42991356925 completed 36/95, strict original 1s 5 genuine full renderer submissions vs 17 required, 870 GPU queue skips at 751x415; native CI 679/734. Authentic 1920 + portrait whole-game self-rejected for rectangular court. New T1 source-exact native coast contour + 4 corner catchments preserves game rules/cues and all four terrain batches; candidate new-head true WebGL 1920/portrait/detail/55s, 3 strict gate passes, physical device 30FPS/p95 and blind critic remain unverified.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; parent 37f28de browser PRETEST INFRA failure; prior completed b25 strict 2/17",
+  "detail": "Parent 37f28de exact-head Chromium #43038622522 never executed a browser test: GitHub Ubuntu apt DNS failure at Playwright --with-deps; native CI #43038622656 failed 61/739; reproduction source SHA256 passed. Prior completed b25 mandatory untouched full scene drew 2/17 genuine complete WebGL frames in original 1s at 751x415. Current native candidate makes real sub-courtyard coastline an integrated four-ring 3D rocky foundation, all playable cell centres supported; two new tests RED→GREEN, 13/16 related with 3 independently inherited failures, TypeScript/900-tick host/10000 simulation PASS. Browser workflows avoid the apt system-deps preflight but candidate actual WebGL 1920/portrait/detail, 45-90sec video, strict gate, physical-device FPS and blind critic are UNVERIFIED. NEVER merge/deploy/force-push; keep T1/T4 BUILDING/HARD RED.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "235ccf6 genuine same-head overview rejected: dominant tiled rectangular court; strict 5/17 complete WebGL submissions. Candidate visual/performance acceptance PENDING.",
+  "latestCaption": "Historical b25 1920/phone real game rejected for rectangular court and 2/17 strict full scene; 37f browser did not start because apt DNS. New candidate screenshots/strict metric PENDING.",
   "reviews": [
+    {
+      "area": "Nov 11 rooted rock foundation + apt-dependent Chromium preflight blocker",
+      "sourceHead": "37f28de55decb7bd07dbd6a11037ce8daf62d0c1",
+      "browser": "Original current-head #43038622522 FAILED before Chromium due Ubuntu apt DNS; no strict result at 37f. Previous valid b25 2/17 at 751×415. New candidate yet unverified.",
+      "nativeCI": "Parent #43038622656 678/739 passed, 61 failed; original source reproduction #43038622391 verified SHA256",
+      "checks": "RED 0/2 parent→GREEN 2/2 candidate; selected native 13/16 with 3 parent-reproduced inherited failures; TypeScript build, 900-tick host authority/privacy/restart/recovery and 10,000 seeded headless ticks PASS.",
+      "verdict": "T0 UNSIGNED, T1 BUILDING / visual self-rejected, T2/T3 BUILDING, T4 HARD RED. New source-matched Chromium/physical-device/independent review PENDING, never merge/deploy."
+    },
     {
       "area": "Nov 11 dd0282 browser preflight historical-source SHA fatal repaired without weakening test or changing game",
       "sourceHead": "dd0282da575c8c99bc20800af76d400660b11ebb",

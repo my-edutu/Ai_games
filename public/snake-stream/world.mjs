@@ -381,6 +381,58 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
 }
 
 /**
+ * A connected original 3D sub-courtyard rock apron, not the former buried
+ * axis-aligned box. The upper fan supports EVERY real gameplay stone below
+ * its y=0 walking surface. Only the outboard fringe bends into the existing
+ * coast cliff/moss shelves: no fake path, new gameplay collider or dynamic
+ * frame work. Uses existing limestone/cliff material batch and is baked once.
+ */
+export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2)
+    throw new RangeError('Foundation requires positive integer game dimensions');
+  const W=width/2,H=height/2,sectors=96;
+  const positions=[0,-.045,0],uvs=[.5,.5],indices=[];
+  const layers=[{reach:0,y:-.045},{reach:.33,y:-.145},
+    {reach:.82,y:-.405},{reach:1.24,y:-.79}];
+  for(let ring=0;ring<layers.length;ring++){
+    const {reach,y}=layers[ring];
+    for(let k=0;k<sectors;k++){
+      const a=2*Math.PI*k/sectors,cx=Math.cos(a),cz=Math.sin(a);
+      // The inner uppermost coastline is just beyond every last true cell
+      // and stone coping. Height remains strictly below gameplay surface.
+      const border=Math.min((W+.095)/Math.max(1e-8,Math.abs(cx)),
+        (H+.095)/Math.max(1e-8,Math.abs(cz)));
+      const out=ring/(layers.length-1);
+      // Three natural frequencies share the four physical shores, but their
+      // tiny excursions cannot fold terraces or leave the stone floor.
+      const wave=.5*Math.sin(5*a+.37*Math.sin(2*a)+.4)
+        +.31*Math.sin(9*a-.23)+.19*Math.cos(17*a+.64);
+      const grain=.065*Math.sin(21*a+ring*.47);
+      const r=border+reach+out*(.17*wave+grain);
+      const slope=y-out*.045*(.5+.5*Math.sin(7*a-.31))
+        -.015*out*Math.sin(11*a+ring*.5);
+      const x=r*cx,z=r*cz;
+      positions.push(x,slope,z);
+      uvs.push(x/5+.5,z/5+.5);
+    }
+  }
+  for(let k=0;k<sectors;k++){
+    const next=(k+1)%sectors;
+    indices.push(0,1+next,1+k);
+    for(let ring=0;ring<layers.length-1;ring++){
+      const a=1+ring*sectors+k,b=1+ring*sectors+next;
+      const c=1+(ring+1)*sectors+next,d=1+(ring+1)*sectors+k;
+      indices.push(a,b,c,a,c,d);
+    }
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  return g;
+}
+
+/**
  * Original T1 wave-battered masonry remnant positions. Reclaim the actual
  * existing rectangular three-course apron as irregular outboard ruins with
  * broad, distinct silhouette, without placing obstacles in public cells.
@@ -1050,7 +1102,8 @@ export function createWorld(THREE, {width, height}) {
   // instead of a near-black seamless cuboid: no geometry, GPU assets, passes,
   // cells, collider or planted-site changes. This gives the raincut gullies
   // grounded low-contrast physical seams rather than a black checkerboard.
-  add(cube,cliff,0,-.27,0,width+.18,.46,height+.18);
+  const subCourtyard=geometry(buildRootedFlagstoneFoundationGeometry(THREE,width,height));
+  add(subCourtyard,cliff,0,0,0);
   // T1 continuous sculpted garden stage: the existing rooted stone atlas
   // already paints three eroded watersheds, but its uniform near-white stone
   // vertex multiplier washed those colours back to a giant pale rectangle.
