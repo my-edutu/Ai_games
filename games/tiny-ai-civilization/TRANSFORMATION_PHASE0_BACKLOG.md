@@ -1,3 +1,19 @@
+## W222 · ONE ACTIVE Phase 1, authentic farmer → loaded courier → receiving market → occupied home · 11 November 2026
+
+Frozen original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Live original game source [ad3f5fcb6dda4826065d6d7588a4d26901242e3e](https://github.com/my-edutu/Ai_games/commit/ad3f5fcb6dda4826065d6d7588a4d26901242e3e), subsequent exact-source test corrections through `e693bdc`; existing draft PR #64 only. Real 13-joint small foreground bodies now avoid arbitrary periodic rebakes while moving exact true bones; stationary residents no longer treadmill. W221 predecessor real 1024/390 passed [42971656439](https://github.com/my-edutu/Ai_games/actions/runs/42971656439). W222 actual matching browser, grown town and broad GPU gates **NOT VERIFIED**, no measured hardware FPS, no independent critic. LOOK/FEEL/PLAY **NOT PROVEN**; commercial reference **FAIL**.
+
+| Rank / workstream | Actual blocker today | Done only when |
+|---|---|---|
+| 1 Phase1 dynamic worker spine | W221 WebGL real-commuter GPU 2/2 PASS; W222 change has only source implementation plus corrected contract; wall profile / real upload improvement unmeasured | Exact W222 1024/390 real motion, idle feet and meal integrity, matched workday p50/p95/p99 CPU geometry+upload, GPU and complete identity; no invented or omitted actor |
+| 2 GPU/hardware/growth safety | Predecessor grown town PASS, global GPU FAIL due aged W98/W209/W166/W66; current-head Day120+GPU pending and physical devices unmeasured | All software WebGL gate regressions resolved, Day120/long soak triangles <160k, memory bounded, documented physical mobile+desktop ≥30 sustained fps, p95 ≤33.3ms |
+| 3 Phase2 contiguous original environment | Existing grown cottage roofs still angular/repetitive; no matched reference-quality landscape proof | Physically convincing inhabited farm/granary/receiving market/home street reconstructed as ONE readable playable block, successful blind original G088 A/B |
+| 4 Phase3 genuine workers / economy | Earlier verified harvest → delivered grain → household meal, but angular labor/tools and incomplete source-matched motion | Uninterrupted authentic harvest, haul/unload, forge, build actions with correct tools, feet, inventory and readable material contact |
+| 5 Phase4 camera/mobile/independence | 390px prior footage HUD obstructs, no real hardware/critic panel | Unobstructed accessible 390px touch camera, economy comprehension, matched uninterrupted Day1/workday/Day120/mobile footage, independent fresh-context LOOK/FEEL/PLAY reviewers |
+
+**Next integrated run:** inspect terminal W222 exact-source motion, grown town and GPU/A-B evidence, address true failures, measure cpu/driver/GPU at matched real workday; invest verified headroom into original contiguous village architecture and expressive actual citizens. Never merge.
+
+---
+
 ## W220 · ONE ACTIVE Phase 1, real farmer → genuine loaded courier → receiving market → occupied home · 11 November 2026
 
 Exact playable source [`67dedf8c368147f67d76a0c720d0346ccf1638da`](https://github.com/my-edutu/Ai_games/commit/67dedf8c368147f67d76a0c720d0346ccf1638da), frozen G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`, only DRAFT PR #64. W220 makes the real camera's static village/market roof broadphase survive continuous actual moving freight without omitting any original courier. RED [42964660040](https://github.com/my-edutu/Ai_games/actions/runs/42964660040), GREEN same-source 1024px+390px browser WebGL and real camera video [42964718479](https://github.com/my-edutu/Ai_games/actions/runs/42964718479) / [artifact](https://github.com/my-edutu/Ai_games/actions/runs/42964718479/artifacts/13831280098) personally inspected. Source-level ray test confirms moving, unloaded and grown-town physical blocker truth; it cannot establish hardware FPS. LOOK/FEEL/PLAY **NOT PROVEN**, commercial reference **FAIL**. Day120/whole GPU/soak/independent critics still outstanding.
