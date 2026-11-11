@@ -143,8 +143,20 @@ export function planMeasuredHandTrail(previous,current,frameSeconds){
    ![previous.localX,previous.localY,previous.localZ,
      current.localX,current.localY,current.localZ].every(Number.isFinite))
    return null;
+  // The authored stage captures the affine basis at the SAME instant as
+  // this local skinned joint. Matrix4.elements is a live mutable array; a
+  // later animator/pivot change must not rewrite the already sampled stroke.
+  // Use the immutable scalar witness when available. The frame receipt will
+  // separately check those same scalars against the actual submitted pose.
+  // Older injected adapters without captured coefficients retain the former
+  // validated live-matrix path for backwards compatibility.
+  const hasCapturedBasis=BODY_BASIS_KEYS.some(k=>current[k]!==undefined)||
+   BODY_TRANSLATION_KEYS.some(k=>current[k]!==undefined);
   const m=current.poseFrameMatrix;
-  if(!m||m.length!==16||
+  if(hasCapturedBasis){
+   for(const k of BODY_BASIS_KEYS)if(!Number.isFinite(current[k]))return null;
+   for(const k of BODY_TRANSLATION_KEYS)if(!Number.isFinite(current[k]))return null;
+  }else if(!m||m.length!==16||
    ![m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],
      m[8],m[9],m[10],m[11],m[15]].every(Number.isFinite)||
    Math.abs(m[3])>1e-6||Math.abs(m[7])>1e-6||
@@ -152,9 +164,15 @@ export function planMeasuredHandTrail(previous,current,frameSeconds){
   const lx=current.localX-previous.localX;
   const ly=current.localY-previous.localY;
   const lz=current.localZ-previous.localZ;
-  dx=m[0]*lx+m[4]*ly+m[8]*lz;
-  dy=m[1]*lx+m[5]*ly+m[9]*lz;
-  dz=m[2]*lx+m[6]*ly+m[10]*lz;
+  dx=(hasCapturedBasis?current.bodyM0:m[0])*lx+
+   (hasCapturedBasis?current.bodyM4:m[4])*ly+
+   (hasCapturedBasis?current.bodyM8:m[8])*lz;
+  dy=(hasCapturedBasis?current.bodyM1:m[1])*lx+
+   (hasCapturedBasis?current.bodyM5:m[5])*ly+
+   (hasCapturedBasis?current.bodyM9:m[9])*lz;
+  dz=(hasCapturedBasis?current.bodyM2:m[2])*lx+
+   (hasCapturedBasis?current.bodyM6:m[6])*ly+
+   (hasCapturedBasis?current.bodyM10:m[10])*lz;
  }else{
   // Legacy test/adapter fallback: remove rigid translation and yaw. The
   // actual authored path above is stronger because it also rejects recoil,
