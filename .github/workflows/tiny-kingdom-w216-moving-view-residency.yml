@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w216-camera-dynamic-contract.cjs'
+      - 'scripts/tiny-kingdom-w219-camera-view-contract.cjs'
       - 'tests/browser/tiny-kingdom-w216-moving-view-residency.spec.cjs'
       - '.github/workflows/tiny-kingdom-w216-moving-view-residency.yml'
   workflow_dispatch:
@@ -27,6 +28,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: W219 physical camera view reuse RED-first contract
+        run: node scripts/tiny-kingdom-w219-camera-view-contract.cjs
       - run: npm run build
       - name: Prove real tick/worker/market invalidation and embedded game syntax
         run: node scripts/tiny-kingdom-w216-camera-dynamic-contract.cjs
