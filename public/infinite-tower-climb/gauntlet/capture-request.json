@@ -3,9 +3,9 @@
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "Exact immutable github.sha of THIS capture-request + P0 ledger update commit including c104cdba production source; never a branch-name alias",
-  "repairedSourceSha": "c104cdba502066bf037354c9c5ce405790f272f4",
-  "reason": "P0 source-pinned recapture after physical 3D lower source-locked field reconstruction at c104cdba502066bf037354c9c5ce405790f272f4 and verified strict evidence failure from https://github.com/my-edutu/Ai_games/actions/runs/42993067360. Earlier original portrait has cyan/bronze clutter, drawn floor9 HUD +1.848s later than source search, baseline guardian native probe missing required beats. Preserve all original film but keep veto; request complete 10-job original normal-speed baseline/candidate after-film plus true source event-raster matching.",
+  "candidateSource": "Exact immutable github.sha of THIS updated capture-request.json commit, including d125ec35 optical/live-gate source; branch aliases forbidden",
+  "repairedSourceSha": "d125ec35fda7573efab4d607a52c8921a8c2eaa0",
+  "reason": "P0 original 14m+ live guardian lock physically coherent and readable after production optical hierarchy d125ec35. Preexisting original Three tests at c25 required >=5 low pedestrian rails, while open-air film test at c104 required exactly three dominant bright rails. Reconciled both true intents in real InstancedMesh: 5 actual grounded bars, 3 luminous, 2 recessed via stable instanceColor. This request captures candidate at exact THIS commit with original immutable baseline and strict quality/event-video veto intact. Prior 42993067360 baseline + candidate native danger WebMs exist, but source-aligned review 0/2 and raster offset ~+1.848s; all 60+s sources remain ungraded.",
   "scenarios": [
     "ascent",
     "moving",
@@ -523,5 +523,23 @@
     },
     "hardware": "NOT EVALUATED",
     "nextHighestImpact": "Inspect latest film, reconstruct physically dominant live duel obstruction and camera, compare source-event native pixels and full episode including real restart."
+  },
+  "p0OpenAirPhysicalEnergySourceAfterFilm20261111": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "actualProductionSha": "d125ec35fda7573efab4d607a52c8921a8c2eaa0",
+    "immutableBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorIntegrity": "https://github.com/my-edutu/Ai_games/actions/runs/42997018529 — FAILED one contradictory earlier open-air Three test (5 physical bars vs 3 bright). Reconciled visually distinct physical vs bright bars in production and tests at d125ec35fda7573efab4d607a52c8921a8c2eaa0",
+    "previousNativeSource": "https://github.com/my-edutu/Ai_games/actions/runs/42993067360 — all 8 original browsers uploaded genuine footage but baseline danger probes and source-paired final audit FAILED",
+    "captureConditions": "Match desktop 960×600 and portrait 390×844, seed, tier, original 1× speed >=60s each, exact candidate SHA and frozen baseline",
+    "requiredEventTruth": "Full genuine HP>0 guardian, crusher/damage, HP0 earned gate, grounded walked threshold, floor9 onward, outcome/restart event-to-screen visible, not merely HUD color/label",
+    "actualVisualGap": "Original candidate 390×844 at 14–25s: cyan field/bronze architecture crowds hero and guardian; two bars now darkened but improvement NOT proven before new WebM",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "hardware": "NOT EVALUATED",
+    "nextAction": "Verify exact head CI with original Three tests then inspect authentic full motion and source raster phase; fix dominant scene blocker, recruit independent blind reviewers and measure real device."
   }
 }

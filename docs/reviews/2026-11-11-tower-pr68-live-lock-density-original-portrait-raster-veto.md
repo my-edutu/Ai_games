@@ -14,3 +14,11 @@
 
 ## Next exact action
 Inspect new exact-commit 960x600 and 390x844 normal-speed baseline/candidate films and 3200-tick same-run campaign, along with event-phase sidecars. Restore CI integrity if any genuine failures remain; if foreground metal/lattice still masks live hero/guardian at 14-25s, redesign actual guardian scene + lens jointly rather than repeat cosmetic tweaks. Explicitly prove source guardian/crusher victory, live HP0 gateway unlock, grounded deck threshold, Floor9 and onward, outcome/restart. Blind LOOKS/FEELS/PLAYS critics = 0/5 each; independent ratings, real device frame-time p50/p95/p99 and memory = NOT EVALUATED. Draft PR68 stays unmerged/undeployed.
+
+## Subsequent exact-head integrity finding and reconciliation
+
+The first physical five-rung source fix at `c104cdba` exposed another actual original-Three test contradiction: [42997018529](https://github.com/my-edutu/Ai_games/actions/runs/42997018529) failed only the earlier open-air rule, which required precisely *three* bright lower crossbars. This is not evidence that the new physical game is good or bad. The original film did identify a large cyan prison-screen as a dominant presentation defect; blindly changing the old test from 3 to 5 would erase that quality safeguard.
+
+At production/test commit `d125ec35fda7573efab4d607a52c8921a8c2eaa0`, the single existing InstancedMesh now expresses both constraints directly: **five real low pedestrian-height conductors** with two 0.24× RGB per-instance recessed bars and **three dominant full-energy bars**; no upper full-width combat crossbars and no additional GPU draw. The original open-air test now inspects actual `getColorAt()` instance tints and requires 5 physical / 3 bright / 2 recessed. The original five-rail real-gate fixture remains intact. The existing source-only clearance authority, 14m+ high pylons and source warning cue remain intact. This is an actual shipped 3D render geometry/material intervention, not a test-only relaxation.
+
+The exact new Node/Three CI, active portrait film, true source-event-to-raster alignment and independent hardware/critics all remain **NOT EVALUATED** until the new immutable workflow completes. Stage stays P0. No frozen baseline change or PR58 modification.
