@@ -829,6 +829,31 @@ function readOriginalSwingSoleY(candidate){
  return originalSwingToePoint.y;
 }
 
+/** Read the real SkeletonUtils-cloned source GLB rest segments ONCE.
+ * Same-skin inverse-bind matrices, no new rig, pose or authority edit. */
+function readOriginalSourceKneeBindLengths(actor,upperBone,lowerBone,footBone){
+ let result=null;
+ actor.assetRoot?.traverse(mesh=>{
+  if(result||!mesh.isSkinnedMesh||!mesh.skeleton)return;
+  const skeleton=mesh.skeleton,bones=skeleton.bones,inverses=skeleton.boneInverses;
+  const indices=[upperBone,lowerBone,footBone].map(b=>bones.indexOf(b));
+  if(indices.some(i=>i<0)||!Array.isArray(inverses))return;
+  const points=[];
+  for(const i of indices){
+   const inverse=inverses[i];
+   if(!inverse?.isMatrix4||!inverse.elements.every(Number.isFinite)||
+    Math.abs(inverse.determinant())<1e-10)return;
+   const point=new THREE.Vector3().setFromMatrixPosition(inverse.clone().invert());
+   if(![point.x,point.y,point.z].every(Number.isFinite))return;
+   points.push(point);
+  }
+  result={upperLength:points[0].distanceTo(points[1]),
+   lowerLength:points[1].distanceTo(points[2]),
+   sourceMesh:mesh.name||'original-skinned-mesh'};
+ });
+ return result;
+}
+
 /** Original direct thigh->calf->foot assistance is allowed ONLY after the
  * original ankle's same-skinned-toe lift; each test pose is restored. */
 function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
@@ -898,12 +923,24 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  worldAxis.copy(sourceKneeAxis).applyQuaternion(worldQuat).normalize();
  const hingeAlignment=bendSine>.085&&bendSine<.99?
   Math.abs(plane.normalize().dot(worldAxis)):0;
- const sourceKneeGeometry=assessImportedSourceKneeGeometry({
-  upperLength,lowerLength,bendSine,hingeAlignment
- });
+ // Original lowerleg-to-foot is only ~112mm in pinned source GLB.
+ // Require same cloned skin's inverse binds and the actual joint world ratio.
+ if(!Object.hasOwn(lower,'sourceKneeBindAudit'))
+  lower.sourceKneeBindAudit=readOriginalSourceKneeBindLengths(
+   actor,upper.bone,lower.bone,mount.bone);
+ const sourceBind=lower.sourceKneeBindAudit;
+ const sourceBindUpperLength=sourceBind?.upperLength??null;
+ const sourceBindLowerLength=sourceBind?.lowerLength??null;
+ const sourceKneeGeometry=sourceBind?
+  assessImportedSourceKneeGeometry({
+   upperLength,lowerLength,bendSine,hingeAlignment,
+   sourceBindUpperLength,sourceBindLowerLength
+  }):{accepted:false,reason:'missing-original-skin-inverse-bind'};
  actor.sourceSwingCalfTrialOutcome={
   ...actor.sourceSwingCalfTrialOutcome,
   upperLength,lowerLength,bendSine,hingeAlignment,
+  sourceBindUpperLength,sourceBindLowerLength,
+  sourceBindMesh:sourceBind?.sourceMesh??null,
   reason:sourceKneeGeometry.reason
  };
  if(!sourceKneeGeometry.accepted)return null;
