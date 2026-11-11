@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,planOriginalSourceStanceAnkleRelief,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1215,10 +1215,118 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
  return delta;
 }
 
+/**
+ * Near-ground stance correction uses the ACTUAL CC0 weighted outsole
+ * endpoints in world coordinates, never an inferred flat sole or invented
+ * foot lock. The two original foot-joint probes are fully reversible.
+ * A proposed delta must pass an independent FINAL skinned-vertex check.
+ */
+function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion){
+ const previous=mount.stanceReliefRad||0;
+ mount.stanceReliefRad=0;
+ if(mount.part!=='foot'||!hasOriginalSourceSwingTravelWitness({
+  mode:actor.fullBody?.mode,sourceClipName:actor.activeImportedClipName,
+  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
+  ownerLocomotion:actor.fullBody?.owner?.locomotion===true,
+  travel:actor.rigRecentGroundedTravel??0,age:actor.rigRecentGroundedAge??0,
+  alive:actor.u.hp>0,visible:actor.root?.visible===true,
+  teleport:Boolean(actor.locomotionTeleport),reducedMotion,
+  interrupted:Boolean(actor.fullBody?.interrupted)
+ }))return 0;
+ const patch=sourceSolePatchVertexCandidates(actor)?.[mount.side];
+ if(!patch?.anatomicalHeelToeVerified||
+  patch.sourceToeAxis?.selectedAnatomicalPatch!==true||
+  patch.heel?.mesh!==patch.toe?.mesh||
+  !/foot[._-]?[lr]$/i.test(mount.bone?.name||''))return 0;
+ const original=mount.probeOriginal??(mount.probeOriginal=new THREE.Quaternion());
+ const staged=mount.probeStaged??(mount.probeStaged=new THREE.Quaternion());
+ const probe=mount.probeDelta??(mount.probeDelta=new THREE.Quaternion());
+ original.copy(mount.bone.quaternion);
+ staged.copy(original).multiply(mount.next.setFromEuler(
+  mount.euler.set(angle,0,0,'XYZ')));
+ let heelY=NaN,toeY=NaN;
+ const trials=[];
+ try{
+  mount.bone.quaternion.copy(staged);
+  actor.assetRoot.updateMatrixWorld(true);
+  patch.heel.mesh.updateWorldMatrix(true,false);
+  heelY=readOriginalSwingSoleY(patch.heel);
+  toeY=readOriginalSwingSoleY(patch.toe);
+  // Only a genuinely loaded original shoe gets two physical trials.
+  // This is separate from the established airborne-swing rescue.
+  if(Number.isFinite(heelY)&&Number.isFinite(toeY)&&
+   heelY>-.065&&heelY<.015&&toeY>-.065&&toeY<.015&&
+   Math.min(heelY,toeY)<-.028){
+   for(const signed of [-.12,.12]){
+    mount.bone.quaternion.copy(staged).multiply(
+     probe.setFromAxisAngle(originalSwingPitchAxis,signed));
+    mount.bone.updateWorldMatrix(true,true);
+    trials.push({signed,heel:readOriginalSwingSoleY(patch.heel),
+     toe:readOriginalSwingSoleY(patch.toe)});
+   }
+  }
+ }finally{
+  mount.bone.quaternion.copy(original);
+  mount.bone.updateWorldMatrix(true,true);
+ }
+ const selected=planOriginalSourceStanceAnkleRelief({
+  mode:actor.fullBody?.mode,sourceClipName:actor.activeImportedClipName,
+  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
+  ownerLocomotion:actor.fullBody?.owner?.locomotion===true,
+  rootTravel:actor.rigRecentGroundedTravel,
+  frameAge:actor.rigRecentGroundedAge,
+  alive:actor.u.hp>0,visible:actor.root?.visible===true,
+  teleport:Boolean(actor.locomotionTeleport),reducedMotion,
+  interrupted:Boolean(actor.fullBody?.interrupted),floorTopY:-.02,
+  heelY,toeY,trials,previousCorrectionRad:previous
+ });
+ if(!selected)return 0;
+ const finalAngle=Math.max(-.30,Math.min(.30,angle+selected.delta));
+ if(Math.abs(finalAngle-angle-selected.delta)>.0001)return 0;
+ let afterHeel=NaN,afterToe=NaN;
+ try{
+  mount.bone.quaternion.copy(original).multiply(
+   mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
+  mount.bone.updateWorldMatrix(true,true);
+  afterHeel=readOriginalSwingSoleY(patch.heel);
+  afterToe=readOriginalSwingSoleY(patch.toe);
+ }finally{
+  mount.bone.quaternion.copy(original);
+  mount.bone.updateWorldMatrix(true,true);
+ }
+ const beforeWorst=Math.max(Math.abs(heelY+.02),Math.abs(toeY+.02));
+ const afterWorst=Math.max(Math.abs(afterHeel+.02),Math.abs(afterToe+.02));
+ // Never trust a 0.12rad trial alone. The restricted <=0.045rad actual
+ // overlay must also improve measured real skin by >=1.5mm, keeping BOTH
+ // toe and heel near the stone with no edge driven down over 4mm.
+ if(![afterHeel,afterToe].every(Number.isFinite)||
+  afterHeel<-.055||afterHeel>.015||afterToe<-.055||afterToe>.015||
+  afterHeel<heelY-.004||afterToe<toeY-.004||
+  beforeWorst-afterWorst<.0015)return 0;
+ mount.stanceReliefRad=selected.delta;
+ actor.sourceStanceSoleCurrentFrameProofs??={left:null,right:null};
+ actor.sourceStanceSoleCurrentFrameProofs[mount.side]={
+  source:'same-original-GLB-two-point-stanced-shoe',
+  sourceInstanceId:actor.assetRoot?.uuid??null,
+  side:mount.side,sourceClip:actor.activeImportedClipName,
+  beforeHeelY:heelY,beforeToeY:toeY,
+  afterHeelY:afterHeel,afterToeY:afterToe,
+  beforeWorstMeters:beforeWorst,afterWorstMeters:afterWorst,
+  floorTopY:-.02,appliedAngleRad:selected.delta
+ };
+ actor.sourceStanceReliefFrames=Math.min(1000000,
+  (actor.sourceStanceReliefFrames||0)+1);
+ return selected.delta;
+}
+
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
  // Original-skin heel/toe receipts are owned by THIS mixer frame, not
  // the accumulated accepted-correction history.
  actor.sourceSwingToeCorrectionsThisFrame=0;
+ if(actor.sourceStanceSoleCurrentFrameProofs){
+  actor.sourceStanceSoleCurrentFrameProofs.left=null;
+  actor.sourceStanceSoleCurrentFrameProofs.right=null;
+ }
  if(actor.sourceSwingToeCurrentFrameProofs){
   actor.sourceSwingToeCurrentFrameProofs.left=null;
   actor.sourceSwingToeCurrentFrameProofs.right=null;
@@ -1259,7 +1367,12 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   // Only genuine imported swing toes may get a bounded reversible lift.
   // This is not a planted-foot solver, authority contact or additional clip.
   const swingToe=planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMotion);
-  const supportedAngle=Math.max(-.30,Math.min(.30,angle+swingToe));
+  // A source foot cannot be airborne-swing corrected and loaded stance
+  // corrected on the same mixer frame. Both use the same original joint.
+  const stanceRelief=mount.part==='foot'&&Math.abs(swingToe)<.0001?
+   planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion):0;
+  if(Math.abs(swingToe)>.0001)mount.stanceReliefRad=0;
+  const supportedAngle=Math.max(-.30,Math.min(.30,angle+swingToe+stanceRelief));
   mount.next.setFromEuler(mount.euler.set(supportedAngle,0,0,'XYZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
