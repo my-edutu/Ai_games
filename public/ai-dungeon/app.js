@@ -1167,7 +1167,6 @@ function animate(t){
    mode:a.fullBody?.mode,groundedMoving:Boolean(a.groundedPerformance?.moving),
    alive:a.u.hp>0,visible:!document.hidden,teleport:Boolean(locomotion.teleport),
    reducedMotion:reduced,hasCombatFacing:Boolean(a.combatFacing),
-   previousX:priorSourceX,previousZ:priorSourceZ,
    currentX:a.root.position.x,currentZ:a.root.position.z,
    targetX:a.at.x,targetZ:a.at.z,
    observedWalkYaw:finalStepYaw,rootYaw:a.root.rotation.y,
@@ -1183,7 +1182,7 @@ function animate(t){
    // real skinned torso by only .425rad. Use a source-only, 75ms maximum
    // observed-frame turn instead, never introducing a gameplay movement.
    const importedWalking=Boolean(a.authored&&a.assetRoot&&a.mixer&&
-    (((moving||sourceTurn.heading!==null)&&a.fullBody?.mode==='move'&&
+    ((moving&&a.fullBody?.mode==='move'&&
       /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(a.activeImportedClipName??''))||
      (sourceTurn.heading!==null&&a.fullBody?.mode==='idle'&&
       /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(outgoingWalkName))));
