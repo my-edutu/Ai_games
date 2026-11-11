@@ -83,6 +83,43 @@ test('only witnessed visual displacement animates imported-leg travel',async()=>
  assert.equal(step(move,frame(hero('move'),{grounded:{moving:false,clipAction:'idle'}})).mode,'idle');
  assert.equal(step(move,frame(hero('move'),{grounded:{moving:true,clipAction:'move'},reducedMotion:true})).mode,'idle');
 });
+test('a witnessed original cast keeps exactly one final recovery pose across a sparse next idle tick',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ // The public Dungeon authority ticks every 350ms, while a legitimate
+ // source cast needs 640ms to finish its original spine/shoulder/hand release.
+ // An actual slow WebGL frame can jump past that limit in one displayed frame.
+ const cast=step(null,frame(hero('cast',70),{actionAge:.52}));
+ const witnessed=step(cast,frame(hero('cast',70),{actionAge:.59}));
+ assert.equal(witnessed.phase,'recovery');
+ const final=step(witnessed,frame(hero('idle',71),{
+  actionAge:0,frameDelta:.05,frameInterval:.28,visible:true
+ }));
+ assert.equal(final.mode,'cast','the last genuine source cast recovery frame must be displayed');
+ assert.equal(final.phase,'recovery');
+ assert.equal(final.holding,true);
+ assert.equal(final.actionTick,70,'one source cast must never acquire a new idle tick');
+ assert.ok(final.age>=.59&&final.age<.64);
+ assert.equal(final.owner.cast,true);
+ const released=step(final,frame(hero('idle',71),{frameDelta:.016,frameInterval:.016}));
+ assert.equal(released.mode,'idle','the single extra pose must release on the following visible frame');
+ assert.equal(released.owner.cast,false);
+ assert.equal(released.holding,false);
+ for(const change of [
+  {unit:hero('guard',71)},
+  {unit:hero('move',71),grounded:{moving:true,clipAction:'move'}},
+  {unit:hero('idle',72)},
+  {teleport:true},
+  {reducedMotion:true},
+  {damageBeat:{id:'hero-1',kind:'vanguard',damage:5,maxHp:30,age:.12,fatal:false}},
+  {evasionBeat:{id:'hero-1',kind:'vanguard',tick:71,dx:1,dz:0,age:.08}}
+ ]){
+  const denied=step(witnessed,frame(hero('idle',71),{
+   actionAge:0,frameDelta:.05,frameInterval:.28,...change
+  }));
+  assert.notEqual(denied.mode,'cast','interrupted or stale cast must not resurrect');
+ }
+});
+
 test('real one-shot attack is coherent from anticipation through recovery',async()=>{
  const {advanceFullBodyController:step}=await load();
  let value=step(null,frame(hero('attack',19),{actionAge:.08}));
