@@ -844,7 +844,7 @@ function bindRigWardrobe(actor){
  * animated. No detached silhouette, draw calls or gameplay-state changes.
  */
 function fitOriginalNativeFigure(actor){
- const report={segments:0,changedVertices:0,maxShiftRaw:0};
+ const report={segments:0,headSegments:0,changedVertices:0,maxShiftRaw:0};
  actor.assetRoot?.traverse(obj=>{
   if(!obj.isSkinnedMesh||!obj.geometry?.isBufferGeometry)return;
   const shared=obj.geometry;
@@ -859,6 +859,7 @@ function fitOriginalNativeFigure(actor){
   obj.userData.sharedAssetGeometry=false;
   actor.assetGeometries.push(privateGeometry);
   report.segments++;
+  if(plan.part==='head')report.headSegments++;
   report.changedVertices+=receipt.changed;
   report.maxShiftRaw=Math.max(report.maxShiftRaw,receipt.maxShiftRaw);
  });
@@ -1245,6 +1246,7 @@ function stats(actors){
   nativeVisibleSkinnedMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.skinnedMeshes||0),0),
   nativeTexturedSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.texturedMeshes||0),0),
   nativeSculptActors:authored.filter(a=>(a.nativeFigureSculpt?.segments||0)>0).length,
+   nativeSculptHeadSegments:authored.reduce((n,a)=>n+(a.nativeFigureSculpt?.headSegments||0),0),
   nativeSculptMeshes:authored.reduce((n,a)=>n+(a.nativeFigureSculpt?.segments||0),0),
   nativeSculptVertices:authored.reduce((n,a)=>n+(a.nativeFigureSculpt?.changedVertices||0),0),
   nativeSculptMaxShiftRaw:Math.max(0,...authored.map(a=>a.nativeFigureSculpt?.maxShiftRaw||0)),
