@@ -10,9 +10,9 @@ const u=(id,hp)=>({id,hp});
 const before={run:1,floor:1,tick:3,checksum:'before',units:[u('ranger',85),u('enemy-1-0',20)]};
 const after={run:1,floor:1,tick:4,checksum:'after',units:[u('ranger',85),u('enemy-1-0',12)]};
 const atDamage={renderedState:{run:1,floor:1,tick:4,checksum:'after'},
- physicalFeedback:{queued:5,visualAccepted:0,framesAcknowledged:5,expiredQueuedCues:5,adapterFailures:0}};
+ physicalFeedback:{scene:'1:1',queued:5,visualAccepted:0,framesAcknowledged:5,expiredQueuedCues:5,adapterFailures:0}};
 const later={renderedState:{run:1,floor:1,tick:59,checksum:'f8136857'},
- physicalFeedback:{queued:129,visualAccepted:0,framesAcknowledged:59,expiredQueuedCues:129,
+ physicalFeedback:{scene:'1:1',queued:129,visualAccepted:0,framesAcknowledged:59,expiredQueuedCues:129,
   adapterFailures:0,visuals:{active:0,spawned:0},audio:{played:0}}};
 
 test('genuine consecutive HP loss + submitted real frames + all expired cues is a REAL feedback failure, not a pass',()=>{
@@ -61,6 +61,25 @@ test('missing and contradictory browser counters fail closed',()=>{
   assert.equal(verdict.visualAcceptance,false);
   assert.equal(verdict.sampleSynchronized,false);
  }
+});
+test('a different run, floor, or stale tick cannot borrow another encounter visual counter',()=>{
+ const showingVisual={...later.physicalFeedback,visualAccepted:2,expiredQueuedCues:127};
+ for(const scene of [
+  {renderedState:{...later.renderedState,run:2},physicalFeedback:{...showingVisual,scene:'2:1'}},
+  {renderedState:{...later.renderedState,floor:2},physicalFeedback:{...showingVisual,scene:'1:2'}},
+  {renderedState:{...later.renderedState,tick:2},physicalFeedback:showingVisual},
+  {renderedState:later.renderedState,physicalFeedback:{...showingVisual,scene:'2:1'}}
+ ]){
+  const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,latest:scene});
+  assert.equal(verdict.visualAcceptance,false);
+  assert.equal(verdict.status,'INVALID_LATEST_RENDERED_SCENE');
+ }
+ const noD04AtDamage=classifyAuthenticD04RenderObservation({
+  before,after,atDamage:{...atDamage,physicalFeedback:null},
+  latest:{...later,physicalFeedback:showingVisual}
+ });
+ assert.equal(noD04AtDamage.visualAcceptance,false);
+ assert.equal(noD04AtDamage.status,'INVALID_RENDERED_DAMAGE_WITNESS');
 });
 test('real preview persists original media and forensic verdict BEFORE the final non-passing acceptance assertion',()=>{
  const root=path.resolve(__dirname,'../..');
