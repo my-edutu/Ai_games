@@ -44,3 +44,15 @@ test('D04 CI uses system Chrome only when explicitly enabled',()=>{
  assert.deepEqual(withChrome.use?.viewport,defaultConfig.use?.viewport,
   'Preserve desktop capture dimensions');
 });
+
+test('D04 evidence decoder must be optional and may not hide live playback behind apt mirrors',()=>{
+ const text=workflow();
+ assert.doesNotMatch(text,/sudo\s+apt-get|\bapt-get\s+(?:install|update)/,
+  'Network-dependent apt install must not prevent authentic Dungeon browser playback');
+ assert.match(text,/command -v ffprobe/,
+  'Report whether strict decoder is available without assuming it exists');
+ assert.match(text,/command -v ffmpeg/,
+  'Report whether frame decoder is available without blocking real browser smoke');
+ assert.match(text,/Decoder unavailable.*UNVERIFIED|UNVERIFIED.*decoder unavailable/i,
+  'Missing native decoder must explicitly downgrade evidence instead of claiming a pass');
+});
