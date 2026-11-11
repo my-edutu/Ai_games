@@ -1,0 +1,32 @@
+name: Tiny Kingdom W221 Real Commuter 13-Joint Rendering
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w221-real-commuter-skin.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w221-commuter-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-gpu-commuters:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Original commuter GPU joint contract and fallback
+        run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
+      - name: Verify all original inline game JS parses
+        run: node scripts/tiny-kingdom-w168-founding-overview-contract.cjs
