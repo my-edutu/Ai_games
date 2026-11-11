@@ -38,7 +38,7 @@ assert.equal(vm.runInContext('commuterPoseStale',context)(entry,person,.3),true,
 // foreground people every arbitrary in-world 1.5 hours, or animate a
 // resting body as if walking. These are actual source-function policies.
 const rig=fragment('function citizenRigPose(', 'function citizenEmbodiedPose(');
-assert.match(rig,/const intensity=traveling\\?\\.72:0;/,
+assert(rig.includes('const intensity=traveling?.72:0;'),
  'real feet stay planted whenever no authoritative route movement exists');
 const fgSource=fragment('function realForegroundPoseKey(', 'function realForegroundPoseStale(');
 const fgContext=vm.createContext({workingSkinCapable:true,
