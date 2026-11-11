@@ -472,6 +472,63 @@ export function selectOriginalSourceSwingCalfTrial({
  return best;
 }
 
+/**
+ * Licensed source-ankle relief for a genuinely loaded, near-ground shoe.
+ * Correct BOTH measured original weighted outsole endpoints; never lift one
+ * end by burying the other. This is a bounded single-frame cosmetic joint
+ * correction, not a foot lock, raycast, fabricated step or IK target.
+ * The final applied angle is separately remeasured against real skin.
+ */
+export function planOriginalSourceStanceAnkleRelief({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ rootTravel=NaN,frameAge=NaN,alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false,floorTopY=NaN,heelY=NaN,toeY=NaN,
+ trials=[],previousCorrectionRad=0
+}={}){
+ if(mode!=='move'||!/^walking[_\\s-]*a$/i.test(sourceClipName)||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![sourceWeight,rootTravel,frameAge,floorTopY,heelY,toeY,previousCorrectionRad].every(finite)||
+  sourceWeight<.55||sourceWeight>1.001||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
+  Math.abs(floorTopY+.02)>.005||Math.abs(previousCorrectionRad)>.14||
+  !Array.isArray(trials)||trials.length>2)return null;
+ const beforeHeel=heelY-floorTopY,beforeToe=toeY-floorTopY;
+ // Real loaded original heel and toe sit near the stone together. An
+ // airborne heel belongs to the independent licensed swing-foot planner.
+ if(beforeHeel<-.045||beforeHeel>.035||beforeToe<-.045||beforeToe>.035||
+  Math.abs(beforeHeel-beforeToe)>.055||
+  Math.min(beforeHeel,beforeToe)>-.008)return null;
+ const beforeWorst=Math.max(Math.abs(beforeHeel),Math.abs(beforeToe));
+ let best=null;
+ for(const candidate of trials){
+  const {signed,toe,heel}=candidate??{};
+  if(![signed,toe,heel].every(finite)||
+   Math.abs(signed)<.11||Math.abs(signed)>.121||
+   (previousCorrectionRad!==0&&Math.sign(signed)!==Math.sign(previousCorrectionRad)))
+   continue;
+  const h=heel-floorTopY,t=toe-floorTopY;
+  // Do not solve a buried toe by creating a buried heel or a visibly
+  // floating edge. Both anatomical outsole endpoints must remain bounded.
+  if(h<-.035||h>.035||t<-.035||t>.035||
+   Math.abs(h-t)>.055||
+   h<beforeHeel-.004||t<beforeToe-.004)continue;
+  const worst=Math.max(Math.abs(h),Math.abs(t));
+  if(beforeWorst-worst<.003)continue;
+  if(!best||worst<best.worst)best={signed,toe,heel,worst};
+ }
+ if(!best)return null;
+ const share=clamp((sourceWeight-.55)/.35,0,1);
+ const ease=share*share*(3-2*share);
+ const desired=best.signed*ease*clamp((beforeWorst-best.worst)/.018,.45,1);
+ const delta=clamp(desired,
+  Math.max(-.14,previousCorrectionRad-.045),
+  Math.min(.14,previousCorrectionRad+.045));
+ if(Math.abs(delta)<.001||Math.sign(delta)!==Math.sign(best.signed))return null;
+ return Object.freeze({signed:best.signed,delta,
+  trialToeY:best.toe,trialHeelY:best.heel});
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
