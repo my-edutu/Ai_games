@@ -96,12 +96,26 @@ for(const width of [1024,390]){
   });
   const audit=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {granary:g.getGranaryArchitectureAudit(),
+   return {granary:g.getGranaryArchitectureAudit(),farm:g.getFarmsteadStats(),
     road:g.getFarmMarketStreetAudit(),market:g.getMarketGatewayAudit(),
     triangles:g.renderStats().lastFrameTriangles,
     gl:document.querySelector('#world').getContext('webgl')?.getError(),
     unchanged:JSON.stringify(g.exportSnapshot())};
   });
+  // W233: the real farm entrance now has a connected, open-air timber
+  // threshing court, not a synthetic worksite or inventory source.
+  const court=audit.farm.fieldThreshingCourt;
+  expect(court?.linkedToActualFarm).toBe(true);
+  expect(court.roofPanels).toBe(18);
+  expect(court.posts).toBe(6);
+  expect(court.flagstones).toBe(30);
+  expect(court.approachPanels).toBeGreaterThanOrEqual(8);
+  expect(court.triangles).toBeGreaterThan(200);
+  expect(court.triangles).toBeLessThanOrEqual(850);
+  expect(court.realFarmGateUnblocked).toBe(true);
+  expect(court.changesEconomy).toBe(false);
+  expect(court.changesAuthority).toBe(false);
+  expect(court.extraBuffers).toBe(0);
   const wing=audit.granary.coveredDryingGallery;
   expect(wing?.attachedToExisting).toBe(true);
   expect(wing.roofCourses).toBe(10);
@@ -139,7 +153,7 @@ for(const width of [1024,390]){
   await page.screenshot({path:path.resolve(__dirname,'../../test-results/w231-grainward-'+width+'.png')});
   fs.writeFileSync(path.resolve(__dirname,'../../test-results/w231-grainward-'+width+'.json'),
    JSON.stringify({hardwarePerformanceNotMeasured:true,
-    source:'real-running-original-village-and-economy',wing,road:audit.road,
+    source:'real-running-original-village-and-economy',court,wing,road:audit.road,
     triangles:audit.triangles,ui:bounds,pageErrors:errors},null,2));
  });
 }
