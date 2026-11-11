@@ -47,23 +47,56 @@ function assessVideoTimebase(anchors) {
     wallAtMs:a.wallAtMs,videoPtsSeconds:a.videoPtsSeconds,
     captureSpanMs:a.captureSpanMs,
   }));
-  const slopes=[];
+  const slopes=[],invalidIntervals=[],segments=[];
+  let active=[anchorTimeline[0]];
   for(let i=1;i<anchorTimeline.length;i++){
     const prev=anchorTimeline[i-1],next=anchorTimeline[i];
     const slope=(next.videoPtsSeconds-prev.videoPtsSeconds)*1000/
       (next.wallAtMs-prev.wallAtMs);
-    if(!Number.isFinite(slope)||slope<.75||slope>1.25)
-      return {status:'NOT EVALUATED',
-        reason:'Native video frame anchors disagree: abrupt, reversed or implausible wall/video timebase',
-        anchorsAccepted:separated.length,maxResidualMs,
-        invalidSegment:i-1,observedVideoToWallSlope:slope};
-    slopes.push(slope);
+    if(!Number.isFinite(slope)||slope<.75||slope>1.25){
+      // A real browser frame timing discontinuity is a HARD GAP. Never
+      // interpolate source actions through it or relax the 0.75..1.25 rule.
+      // Still preserve independently observed, contiguous, long before/after
+      // windows for forensic inspection of the original unmodified WebM.
+      invalidIntervals.push({beforeWallAtMs:prev.wallAtMs,
+        afterWallAtMs:next.wallAtMs,
+        beforeVideoPtsSeconds:prev.videoPtsSeconds,
+        afterVideoPtsSeconds:next.videoPtsSeconds,
+        observedVideoToWallSlope:slope,invalidSegment:i-1});
+      segments.push(active);
+      active=[next];
+    }else{
+      slopes.push(slope);
+      active.push(next);
+    }
   }
-  // Original WebM PTS and wall time can drift smoothly while screenshots,
-  // software WebGL and encoder submissions contend. A single median offset
-  // makes real source events miss their frames by seconds. Never paper over a
-  // sudden jump: permit only bounded monotone drift between real matched
-  // unmodified full-viewport screenshots, and never extrapolate.
+  segments.push(active);
+  if(invalidIntervals.length){
+    const trusted=segments.filter(segment=>
+      segment.length>=MIN_ANCHORS &&
+      segment.at(-1).wallAtMs-segment[0].wallAtMs>=15000 &&
+      segment.at(-1).videoPtsSeconds>segment[0].videoPtsSeconds);
+    if(!trusted.length)return {status:'NOT EVALUATED',
+      reason:'Native video frame anchors disagree: abrupt, reversed or implausible wall/video timebase',
+      anchorsAccepted:separated.length,maxResidualMs,
+      invalidSegment:invalidIntervals[0].invalidSegment,
+      observedVideoToWallSlope:invalidIntervals[0].observedVideoToWallSlope};
+    return {status:'PARTIALLY_CALIBRATED',
+      method:'segmented-original-WebM-visual-anchors-forensics-only',
+      reason:'Original WebM has unsafe compositor-clock gaps; full event/video comparison remains blocked',
+      anchorsAccepted:separated.length,
+      anchorsUsable:trusted.reduce((sum,part)=>sum+part.length,0),
+      maxResidualMs,invalidIntervals,
+      anchorSegments:trusted.map(segment=>({
+        anchorTimeline:segment,firstWallAtMs:segment[0].wallAtMs,
+        lastWallAtMs:segment.at(-1).wallAtMs,
+        firstVideoPtsSeconds:segment[0].videoPtsSeconds,
+        lastVideoPtsSeconds:segment.at(-1).videoPtsSeconds,
+      })),
+      caveat:'Only independently bounded intact sections may yield source-event timecode SEARCH handles. The gap and full-film synchronization are NOT calibrated. Event pixels, gameplay acceptance and reviewer votes remain NOT EVALUATED.'};
+  }
+  // Keep existing whole-film certification unchanged when every original
+  // browser/PTS interval is independently valid.
   return {status:'CALIBRATED',
     method:maxResidualMs>350?'bounded-piecewise-original-WebM-visual-anchors':
       'full-frame-original-WebM-to-unmodified-viewport-screenshot',
@@ -164,16 +197,25 @@ function meaningfulSourceEvents(ticks) {
 // Accept only real events emitted by the original read-only event index. Their
 // source wall clock and native recording timebase must be separately measured.
 function mapObservedEventTimecodes(events,calibration,durationSeconds) {
-  if(calibration?.status!=='CALIBRATED'||
+  const complete=calibration?.status==='CALIBRATED';
+  const partial=calibration?.status==='PARTIALLY_CALIBRATED';
+  if((!complete&&!partial)||
      !Number.isFinite(durationSeconds)||durationSeconds<0)return [];
-  const timeline=Array.isArray(calibration.anchorTimeline)&&
+  const timeline=complete&&Array.isArray(calibration.anchorTimeline)&&
     calibration.anchorTimeline.length>=MIN_ANCHORS
-      ? calibration.anchorTimeline : null;
-  if(!timeline && !Number.isFinite(calibration.offsetMs))return [];
-  // A piecewise clock is only trustworthy between its observed screenshots.
-  // Do NOT extend a screenshot-derived slope into unseen video before the
-  // opening anchor or after the last anchor; those source events have no
-  // calibrated native search position and must remain NOT EVALUATED.
+      ?calibration.anchorTimeline:null;
+  // Partial evidence MUST contain actual separate trusted spans. Never accept
+  // a single manufactured offset, or join a source event across an unsafe gap.
+  const windows=partial?
+    (Array.isArray(calibration.anchorSegments)?calibration.anchorSegments:[])
+      .filter(w=>Array.isArray(w.anchorTimeline)&&
+        w.anchorTimeline.length>=MIN_ANCHORS &&
+        w.anchorTimeline.at(-1).wallAtMs-w.anchorTimeline[0].wallAtMs>=15000)
+      .map(w=>w.anchorTimeline)
+    :timeline?[timeline]:[];
+  if(partial&&!windows.length)return [];
+  if(complete&&!timeline&&!Number.isFinite(calibration.offsetMs))return [];
+  // A native timecode remains a SEARCH handle, not a rendered event.
   const source=(Array.isArray(events)?events:[]).filter(event=>
     event&&typeof event.kind==='string'&&event.kind.length>0&&
     Number.isFinite(event.atMs)&&Number.isSafeInteger(event.floor)&&
@@ -182,11 +224,14 @@ function mapObservedEventTimecodes(events,calibration,durationSeconds) {
     (event.observedRunToken??event.runToken).length>0).slice(0,400);
   return source.flatMap(event=>{
     let nativeVideoSeconds,clockUncertaintyMs=null;
-    if(timeline){
-      const j=timeline.findIndex((anchor,i)=>i<timeline.length-1 &&
-        event.atMs>=anchor.wallAtMs&&event.atMs<=timeline[i+1].wallAtMs);
+    if(windows.length){
+      const window=windows.find(w=>event.atMs>=w[0].wallAtMs &&
+        event.atMs<=w.at(-1).wallAtMs);
+      if(!window)return [];
+      const j=window.findIndex((anchor,i)=>i<window.length-1 &&
+        event.atMs>=anchor.wallAtMs&&event.atMs<=window[i+1].wallAtMs);
       if(j<0)return [];
-      const a=timeline[j],b=timeline[j+1];
+      const a=window[j],b=window[j+1];
       if(!Number.isFinite(a.wallAtMs)||!Number.isFinite(b.wallAtMs)||
         !Number.isFinite(a.videoPtsSeconds)||!Number.isFinite(b.videoPtsSeconds)||
         b.wallAtMs<=a.wallAtMs||b.videoPtsSeconds<=a.videoPtsSeconds)
@@ -197,15 +242,16 @@ function mapObservedEventTimecodes(events,calibration,durationSeconds) {
       clockUncertaintyMs=Math.max(200,
         (Math.max(a.captureSpanMs||0,b.captureSpanMs||0)/2)+120);
     } else {
-      // Historical standalone consumers supply only a genuinely calibrated
-      // constant offset. New original captures always include anchorTimeline.
+      // Historical standalone fully calibrated constant offset only.
       nativeVideoSeconds=(event.atMs+calibration.offsetMs)/1000;
     }
     return [{...event,nativeVideoSeconds,
       inOriginalVideo:nativeVideoSeconds>=0&&nativeVideoSeconds<=durationSeconds,
       clockUncertaintyMs,
-      matchingMethod:timeline?'bounded-piecewise-source-to-native-PTS-search':
+      matchingMethod:partial?'partial-bounded-original-WebM-forensic-search':
+        windows.length?'bounded-piecewise-source-to-native-PTS-search':
         'calibrated-wall-to-native-PTS-event-search',
+      originalFullFilmTimebaseCertified:complete,
       eventVisibleInVideo:'NOT EVALUATED',
       sourceToPresentedFrameLatency:'NOT EVALUATED'}];
   });
@@ -236,7 +282,7 @@ function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
     evidence.calibration=result;
     evidence.anchorMatches=matches.map(({file,...values})=>({
       screenshot:file.split(/[\\/]/).at(-1),...values}));
-    if(result.status!=='CALIBRATED')return evidence;
+    if(!['CALIBRATED','PARTIALLY_CALIBRATED'].includes(result.status))return evidence;
     const duration=frames.pts.at(-1);
     // Prefer the SAME original-source event index used by the 8-pair audit.
     // The old generic source-event extractor remains a backward-compatible
@@ -249,6 +295,8 @@ function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
       ?'unaltered-original-source-event-index'
       :'read-only-source-tick-fallback';
     evidence.calibratedSourceEventSearchOnly=true;
+    evidence.fullFilmTimebaseCertified=result.status==='CALIBRATED';
+    evidence.partialFilmForensicsOnly=result.status==='PARTIALLY_CALIBRATED';
     evidence.originalVideoDurationSeconds=duration;
     return evidence;
   } catch(error) {

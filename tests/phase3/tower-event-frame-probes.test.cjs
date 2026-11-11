@@ -67,3 +67,20 @@ test('out of-video, undefined or uncalibrated search handles never become frame 
  assert.equal(s.events.length,0);
  assert.equal(s.visualVerdict,'NOT EVALUATED');
 });
+
+
+test('partial native clock permits only unedited forensic frame handles, not full-film event evidence',()=>{
+ const e=evidence();
+ e.clock.status='PARTIALLY_CALIBRATED';
+ e.clock.calibration={status:'PARTIALLY_CALIBRATED',anchorSegments:[{
+   firstWallAtMs:100000,lastWallAtMs:120000,
+   anchorTimeline:[
+     {wallAtMs:100000,videoPtsSeconds:5},
+     {wallAtMs:110000,videoPtsSeconds:15},
+     {wallAtMs:120000,videoPtsSeconds:25},
+   ]
+ }]};
+ assert.deepEqual(validateFilmProvenance(e),[]);
+ e.clock.calibration.anchorSegments[0].lastWallAtMs=109000;
+ assert.match(validateFilmProvenance(e).join(';'),/uncalibrated-original-film/);
+});

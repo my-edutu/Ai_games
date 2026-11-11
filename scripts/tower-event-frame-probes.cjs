@@ -19,7 +19,14 @@ function validateFilmProvenance({expectedSha,scenario,viewport,index,clock,hash,
    clock?.viewport?.width!==VIEWPORTS[viewport]?.[0]||
    clock?.viewport?.height!==VIEWPORTS[viewport]?.[1])errors.push('viewport-mismatch');
  if(index?.seed!==clock?.seed)errors.push('seed-mismatch');
- if(clock?.status!=='CALIBRATED'||!Array.isArray(clock?.sourceEventTimecodes)||
+ const partial=clock?.status==='PARTIALLY_CALIBRATED' &&
+   clock.calibration?.status==='PARTIALLY_CALIBRATED' &&
+   Array.isArray(clock.calibration.anchorSegments) &&
+   clock.calibration.anchorSegments.some(s=>Array.isArray(s.anchorTimeline) &&
+     s.anchorTimeline.length>=3 &&
+     s.lastWallAtMs-s.firstWallAtMs>=15000);
+ if((clock?.status!=='CALIBRATED'&&!partial)||
+    !Array.isArray(clock?.sourceEventTimecodes)||
     !(clock?.originalVideoDurationSeconds>=60))errors.push('uncalibrated-original-film');
  if(!/^[0-9a-f]{64}$/.test(hash||'')||
     clock?.originalWebMSha256!==hash)errors.push('original-WebM-sha256-mismatch');
@@ -97,6 +104,8 @@ function writeOriginalFilmProbes(root,expectedSha,scenario,viewport) {
    if(result.failures.length){save();return result;}
    result.originalWebMSha256=hash;
    result.originalVideoDurationSeconds=clock.originalVideoDurationSeconds;
+   result.nativeVideoTimebaseStatus=clock.status;
+   result.partialWindowsForensicOnly=clock.status==='PARTIALLY_CALIBRATED';
    const chosen=selectFilmEvents(clock.sourceEventTimecodes,scenario,
      clock.originalVideoDurationSeconds);
    const required=scenario==='danger'
@@ -130,6 +139,10 @@ function writeOriginalFilmProbes(root,expectedSha,scenario,viewport) {
        } catch(err){result.failures.push('extract-'+label+':'+String(err.message).slice(0,140));}
      }
    }
+   // Partial native timecodes can locate genuinely recorded original frames,
+   // but NEVER turn an incomplete 60s film into a comparable video.
+   if(clock.status==='PARTIALLY_CALIBRATED')
+     result.failures.push('partial-native-clock-gap-full-film-comparison-blocked');
  } catch(err){result.failures.push('missing-original-evidence: '+String(err.message).slice(0,200));}
  save();
  return result;

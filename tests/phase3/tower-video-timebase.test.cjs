@@ -203,3 +203,47 @@ test('capture and CI use the same neutral original-video calibration for both fr
     assert.match(workflow,/cp current-harness\/tests\/phase3\/tower-video-timebase\.test\.cjs source\/tests\/phase3\/tower-video-timebase\.test\.cjs/);
   }
 });
+
+
+test('an authentic unsafe compositor-clock boundary leaves two independent outcome forensic windows but NO full-video pass',()=>{
+  const originals=[
+    anchor(110000,10),anchor(120000,20),anchor(130000,30),anchor(140000,40),
+    anchor(145000,42.5),anchor(155000,52.5),anchor(165000,62.5),
+    anchor(175000,72.5),
+  ];
+  const clock=assessVideoTimebase(originals);
+  assert.equal(clock.status,'PARTIALLY_CALIBRATED');
+  assert.equal(clock.anchorSegments.length,2);
+  assert.equal(clock.invalidIntervals.length,1);
+  assert.equal(clock.invalidIntervals[0].observedVideoToWallSlope,.5);
+  assert.equal(clock.anchorsUsable,8);
+  assert.equal(clock.anchorTimeline,undefined);
+  const index=atMs=>({kind:'source-result-phase',atMs,sourceTick:405,
+    floor:0,observedRunToken:'source-run-0'});
+  const times=mapObservedEventTimecodes([
+    index(125000),index(142500),index(150000),index(160000),
+    index(179000),index(100000)
+  ],clock,80);
+  assert.deepEqual(times.map(e=>e.atMs),[125000,150000,160000]);
+  assert.deepEqual(times.map(e=>e.nativeVideoSeconds),[25,47.5,57.5]);
+  assert.ok(times.every(e=>e.originalFullFilmTimebaseCertified===false &&
+    e.eventVisibleInVideo==='NOT EVALUATED' &&
+    e.matchingMethod==='partial-bounded-original-WebM-forensic-search'));
+  assert.match(clock.reason,/full event\/video comparison remains blocked/);
+});
+
+test('a discontinuity without a sufficiently long independently observed window yields NO forensic source cue',()=>{
+ const invalid=assessVideoTimebase([
+   anchor(110000,10),anchor(120000,20),anchor(130000,33),anchor(140000,43)
+ ]);
+ assert.equal(invalid.status,'NOT EVALUATED');
+ assert.deepEqual(mapObservedEventTimecodes([
+   {kind:'source-result-phase',atMs:125000,sourceTick:8,
+    floor:0,observedRunToken:'a'}
+ ],invalid,80),[]);
+ const forged={status:'PARTIALLY_CALIBRATED',offsetMs:-100000};
+ assert.deepEqual(mapObservedEventTimecodes([
+   {kind:'source-result-phase',atMs:125000,sourceTick:8,
+    floor:0,observedRunToken:'a'}
+ ],forged,80),[]);
+});
