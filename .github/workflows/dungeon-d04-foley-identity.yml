@@ -43,6 +43,9 @@ jobs:
             tests/foundation/dungeon-d04-browser-source-parse.test.cjs \
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
+            tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
+            tests/foundation/dungeon-d04-audio-frame-deadline.test.cjs \
+            tests/foundation/dungeon-d04-first-drawable-sword-foley.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
