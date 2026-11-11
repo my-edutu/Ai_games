@@ -102,15 +102,20 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  * reversible ±.1/±.2rad source-bone probes. NOT IK or certified stance lock.
  */
 export function selectOriginalSourceSwingAnkleTrial({
- toeWorldY=NaN,heelWorldY=NaN,floorTopY=NaN,trials=[]
+ toeWorldY=NaN,heelWorldY=NaN,floorTopY=NaN,trials=[],previousCorrectionRad=0
 }={}){
- if(![toeWorldY,heelWorldY,floorTopY].every(finite)||
+ if(![toeWorldY,heelWorldY,floorTopY,previousCorrectionRad].every(finite)||
+  Math.abs(previousCorrectionRad)>.23||
   Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
   heelWorldY-floorTopY<.075||heelWorldY-floorTopY>.28||
   toeWorldY-floorTopY>=-.01||toeWorldY-floorTopY<-.16)return null;
  let best=null;
  for(const entry of trials){
   const {signed,toe,heel}=entry??{};
+  // A previously supported original foot may have a second, less dramatic
+  // SAME-SIGNED heel-safe trial. Do not pick a stronger opposing sample only
+  // for the downstream joint slew to discard the entire rendered frame.
+  if(previousCorrectionRad!==0&&Math.sign(signed)!==Math.sign(previousCorrectionRad))continue;
   if(![signed,toe,heel].every(finite)||
    Math.abs(signed)<.09||Math.abs(signed)>.225||
    toe-toeWorldY<.006||toe-toeWorldY>.09||
@@ -443,15 +448,20 @@ export function planOriginalSourceSwingCalfAssist({
  * No source skeleton/keyframe, authoritative position or attack is changed.
  */
 export function selectOriginalSourceSwingCalfTrial({
- afterAnkleToeY=NaN,afterAnkleHeelY=NaN,floorTopY=NaN,trials=[]
+ afterAnkleToeY=NaN,afterAnkleHeelY=NaN,floorTopY=NaN,trials=[],previousAssistRad=0
 }={}){
- if(![afterAnkleToeY,afterAnkleHeelY,floorTopY].every(finite)||
+ if(![afterAnkleToeY,afterAnkleHeelY,floorTopY,previousAssistRad].every(finite)||
+  Math.abs(previousAssistRad)>.18||
   Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
   afterAnkleToeY-floorTopY>-.02||afterAnkleToeY-floorTopY<-.16||
   afterAnkleHeelY-floorTopY<.065||afterAnkleHeelY-floorTopY>.34)return null;
  let best=null;
  for(const trial of trials){
   const {signed,toe,heel}=trial??{};
+  // Retain a compatible authentic calf hinge when both physical trial
+  // directions lift the same skinned toe. The existing 0.06rad/frame
+  // limiter cannot apply an opposite-signed winner without a reset.
+  if(previousAssistRad!==0&&Math.sign(signed)!==Math.sign(previousAssistRad))continue;
   if(![signed,toe,heel].every(finite)||
    Math.abs(signed)<.09||Math.abs(signed)>.21||
    toe-afterAnkleToeY<.008||toe-afterAnkleToeY>.075||
