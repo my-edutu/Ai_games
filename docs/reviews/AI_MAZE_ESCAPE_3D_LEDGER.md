@@ -1,3 +1,11 @@
+### Pass271 — three-bay physically sealed public pressure gallery candidate (2026-11-11 UTC)
+
+- [Exact predecessor Pass270 WebGL 43012279983](https://github.com/my-edutu/Ai_games/actions/runs/43012279983) **SUCCESS**; original artifact 13851522558 retrieved; **37/37 sidecar-paired original PNG hashes** independently verified. 390×844 pressure captured 2026-11-11T11:36:52.532Z SHA `6fe1a2ccdae06c7b58999ed3713b2b0a58b151b0f8e67db0c245209a487e74a1`, complete physical hazard [-.8900,+.3062], Pip [-.0426,+.5682] NDC, unchanged ±.95. Authentic 390px and 1280px full-frame images inspected: upper terrace is still a vast flat slab over a relatively small actual moving mechanism; the fixed Nintendo benchmark **REJECTS** the stage.
+- New production candidate **physically rebuilds** the published solid upper retaining gallery from one flat glass plane to three recessed sealed sea-glass mineral bays, actual opaque backing, structurally tied piers and courses. This alters the complete playable view's architectural staging, not HUD decoration; neither false gate nor new route. Existing strict installed-Three gallery fixture is strengthened to require exactly three physical transforms and the opaque wall, retaining all old hidden, gate, stair, reset and unchanged resource limits. [Dated review](./maze-3d/pass-271-authentic-pass270-pressure-gallery-three-bay-reconstruction-2026-11-11.md).
+- **New source not yet CI/WebGL/independent accepted:** must verify original full-source 320/390/844/1280 images, hash sidecars, no-crop ±.95, withdrawal >=.70 and <100 six-run resources. Whole-repo predecessor CI failed in separate Tiny Kingdom OBS. Workspace workers and Ultracode NOT_FOUND; benchmark NOT MET. PR #53 OPEN DRAFT; no merge/deploy/force.
+
+---
+
 ### Pass270 — rebuilt functional shear-portal visual composition (2026-11-11 UTC)
 
 - Authentic previous exact-source [Pass269 WebGL 43007919573](https://github.com/my-edutu/Ai_games/actions/runs/43007919573) SUCCESS, 37/37 full-size original PNG SHA sidecars independently verified; original 390px pressure at 2026-11-11T11:05:25Z is [real moving hazard x -.8900..+.2892, Pip -.0539..+.5598] NDC within unchanged ±.95. At the fixed Nintendo quality bar the physically joined machine remains visually too small and fragmentary against a dominating terrace.

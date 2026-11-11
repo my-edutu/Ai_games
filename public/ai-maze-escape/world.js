@@ -837,6 +837,16 @@ export function createMazeWorld(options = {}) {
     // fully disclosed terrace boundary into a coherent original glazed
     // Tideglass gallery. Solid stone backing remains opaque and impassable.
     // Every piece is physically joined and reused from pooled world resources.
+    // Pass271: exact-HEAD full-frame 390/1280 gameplay shows the upper
+    // pressure terrace as a nearly blank slab above Pip and the working
+    // shear-portal. Make the REAL public solid retaining face a three-bay
+    // SEALED Tideglass load gallery: a continuous opaque load wall, three
+    // recessed mineral windows, connected structural piers and deep cornices.
+    // This is a substantial authored architectural backdrop, not a gate
+    // or a hinted path. Only the already disclosed solid height boundary
+    // may own it; current public topology, stair, door, collision and camera
+    // stay authoritative. Everything uses existing instanced shape/material
+    // pools (no new per-frame objects, GPU classes or private map reads).
     const pressureRetainingGallery=(x,z,dx,dz,upperCell,drop)=>{
       const middle=-drop/2;
       const panel=(mat,across,y,out,width,height,depth)=>{
@@ -845,19 +855,28 @@ export function createMazeWorld(options = {}) {
         add(bevel,mat,px,y,pz,dz?width:depth,height,dz?depth:width,upperCell);
       };
       const glazedHeight=Math.min(.96,drop-.26);
+      // Keep the full opaque boundary; the three dark-backed recesses must
+      // never look like a traversable newly discovered doorway.
       panel(deepStone,0,middle,.005,2.15,drop-.12,.09);
-      panel(darkJade,0,middle,.058,1.94,glazedHeight+.13,.060);
-      panel(seaGlass,0,middle,.095,1.70,glazedHeight,.048);
+      panel(darkJade,0,middle,.053,2.01,glazedHeight+.16,.069);
       for(const offset of [-.57,0,.57]){
-        panel(offset===0?jade:inlay,offset,middle,.123,.41,glazedHeight-.14,.032);
-        panel(lightStone,offset,middle+glazedHeight*.38,.154,.43,.075,.039);
+        panel(deepStone,offset,middle,.101,.50,glazedHeight+.04,.085);
+        panel(seaGlass,offset,middle+.015,.154,.34,glazedHeight-.16,.060);
+        // Deep dark mineral sill and raised carved crown frame ONE solid
+        // enamel recess instead of the former nearly featureless flat pane.
+        panel(inlay,offset,middle-glazedHeight*.33,.199,.29,.22,.048);
+        panel(lightStone,offset,middle+glazedHeight*.47,.189,.53,.13,.12);
+        for(const edge of [-1,1])
+          panel(jade,offset+edge*.246,middle,.169,.072,glazedHeight+.11,.085);
+        panel(lightStone,offset,middle+.04,.218,.065,glazedHeight*.54,.046);
       }
       for(const sign of [-1,1]){
-        panel(lightStone,sign*.88,middle,.124,.14,glazedHeight+.14,.11);
-        panel(gold,sign*.82,middle-glazedHeight*.38,.166,.15,.065,.05);
+        panel(lightStone,sign*.90,middle,.124,.17,glazedHeight+.20,.12);
+        panel(gold,sign*.86,middle-glazedHeight*.38,.166,.15,.065,.05);
       }
-      panel(lightStone,0,-.095,.119,2.12,.12,.13);
-      panel(deepStone,0,-drop+.09,.121,2.05,.12,.15);
+      // Long continuous capped/load-bearing courses join all three bays.
+      panel(lightStone,0,-.095,.120,2.12,.15,.14);
+      panel(deepStone,0,-drop+.09,.121,2.05,.13,.15);
       pressureRetainingGalleries++;
     };
     for (const door of Array.isArray(s.doors) ? s.doors : []) {

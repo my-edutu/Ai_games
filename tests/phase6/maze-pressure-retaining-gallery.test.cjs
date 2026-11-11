@@ -29,17 +29,33 @@ test('a published trap reconstructs a full actual upper retaining face, never a 
     assert.equal(budget.pressureRetainingGalleries,1,'only the real known higher pressure-adjacent solid face gets art');
     const upper=source.cellPosition(4,3,3),base=source.cellHeight(4,3,3);
     const m=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();
-    let field=0;
+    let bays=0,opaqueBacking=0;
+    // Count REAL world-space instance transforms. A changed source comment,
+    // renamed wall, screenshot crop or fake portal does not pass this gate.
     world.group.traverse(obj=>{
-      if(!obj.isInstancedMesh||obj.material.color?.getHexString()!=='5d968e')return;
+      if(!obj.isInstancedMesh)return;
+      const color=obj.material.color?.getHexString();
+      if(color!=='5d968e' && color!=='28574f')return;
       for(let i=0;i<obj.count;i++){
         obj.getMatrixAt(i,m);m.decompose(p,q,s);
-        if(Math.abs(p.x-upper.x)<.001 && Math.abs(p.z-(upper.z+1.285))<.006
-          && Math.abs(p.y-(base-.70))<.001 && Math.abs(s.x-1.70)<.01
-          && Math.abs(s.y-.96)<.01)field++;
+        if(color==='5d968e'
+          &&Math.abs(p.z-(upper.z+1.344))<.006
+          &&Math.abs(p.y-(base-.685))<.001
+          &&Math.abs(s.x-.34)<.01
+          &&Math.abs(s.y-.80)<.01
+          && [-.57,0,.57].some(offset=>Math.abs(p.x-(upper.x+offset))<.002))
+          bays++;
+        if(color==='28574f'
+          &&Math.abs(p.x-upper.x)<.002
+          &&Math.abs(p.z-(upper.z+1.243))<.006
+          &&Math.abs(p.y-(base-.70))<.001
+          &&Math.abs(s.x-2.01)<.01
+          &&Math.abs(s.y-1.12)<.01)
+          opaqueBacking++;
       }
     });
-    assert.equal(field,1,'broad physical glazed facade must be in the REAL installed Three scene');
+    assert.equal(bays,3,'THREE physically recessed sea-glass bays must replace the former flat facade');
+    assert.equal(opaqueBacking,1,'gallery remains solid and opaque behind EVERY bay, never a false route');
     world.animate(0,{explorerPosition:new THREE.Vector3(upper.x,base,upper.z)});
     assert.equal(world.stats().geometryCount,budget.geometryCount,'no new render-frame geometries');
     assert.equal(world.stats().materialCount,budget.materialCount,'no new render-frame materials');
