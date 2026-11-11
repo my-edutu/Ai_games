@@ -79,6 +79,9 @@ export function planOriginalSourceWalkNearArrivalFacing({
  // gap. New target, idle, teleport, combat and unsupported motion fail closed.
  // No source joints, clip times, scene roots or authority movement are edited.
  const witnessedFinalStep=remaining<=.012&&travel>=.003&&travel<=.012&&
+  // Real dungeon source-root finishing motion is cardinal. A 10mm
+  // diagonal foot crossing is NOT a witnessed legal grid-axis finish.
+  Math.min(Math.abs(dx),Math.abs(dz))<=.001&&
   previousRemaining>=remaining+.0025;
  if((travel<.012&&!witnessedFinalStep)||travel>.24)return null;
  // The source-root must actually be closing on the same legal destination.
