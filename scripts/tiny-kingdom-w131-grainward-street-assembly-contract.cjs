@@ -98,3 +98,6 @@ for(const normal of roofFaces)assert(normal[1]>1e-7,
  'open market roof must face upward under actual WebGL backface culling');
 
 console.log('W131 original market corridor plan and full executable game parse PASS; actual WebGL/day120 evidence separate');
+
+// W238 uses the SAME real retained occupied home corridor and collision oracle.
+require('./tiny-kingdom-w238-occupied-street-join-contract.cjs');
