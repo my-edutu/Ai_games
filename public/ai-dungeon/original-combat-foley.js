@@ -80,6 +80,28 @@ export function verifiedSwingFoleyActor(cue){
   typeof cue.actorId==='string'&&cue.actorId.length>0&&cue.actorId.length<=128?
   cue.actorId:null;
 }
+/**
+ * An audio retry must not borrow a different run, tick, action or victim's
+ * authoritative cue ID. A verified flag is not a substitute for an identity
+ * matching the public snapshot planner's actual immutable event tuple.
+ * No attacker is inferred for HP-only injury; '-' is a sentinel, not a source.
+ * This guard is deliberately limited to strict production swing/injury foley.
+ */
+export function isCanonicalVerifiedCombatFoleyCue(cue){
+ if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
+  cue.id.length>256||typeof cue.sceneKey!=='string'||
+  !/^(?:0|[1-9]\\d*):[1-9]\\d*$/.test(cue.sceneKey)||
+  !Number.isSafeInteger(cue.tick)||cue.tick<0)return false;
+ const [runText,floorText]=cue.sceneKey.split(':');
+ const run=Number(runText),floor=Number(floorText);
+ if(!Number.isSafeInteger(run)||run<0||
+  !Number.isSafeInteger(floor)||floor<1)return false;
+ const actor=verifiedSwingFoleyActor(cue);
+ const victim=verifiedDamageFoleyVictim(cue);
+ if(actor===null&&victim===null)return false;
+ return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${actor??'-'}:${victim??'-'}`;
+}
+
 export function createCombatMutePreference(storage){
  // Private browsing and embedded canvases may deny localStorage. Explicit
  // user action must remain truthful for this page, even without persistence.
@@ -218,10 +240,9 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   // and only independently observed victim HP loss can make impact audio.
   // The default remains compatible with standalone sound auditions that
   // deliberately pass generic recipe names without authoritative snapshots.
-  if(requireVerifiedContact&&(
-    cue.audio==='whoosh'&&(cue.verified!==true||verifiedSwingFoleyActor(cue)===null)||
-    (cue.audio==='impact'||cue.audio==='fatal-impact')&&
-      (cue.verified!==true||verifiedDamageFoleyVictim(cue)===null))){
+  if(requireVerifiedContact&&
+    (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
+    !isCanonicalVerifiedCombatFoleyCue(cue)){
    dropped++;return false;
   }
   // Per-actor time cooldown alone permits replaying the EXACT same attack
