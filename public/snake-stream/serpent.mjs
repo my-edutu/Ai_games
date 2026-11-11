@@ -70,6 +70,38 @@ export function sampleSerpentActing(distance,localDistance,remaining,bend,time,n
   return out;
 }
 
+/**
+ * Bound the detailed serpent's scale-relief fragment work without changing
+ * its authored pigment/roughness atlases, material response or geometry.
+ * The pinned Three.js bump chunk samples the same height map THREE times;
+ * derivative gradients of one filtered height sample retain the native
+ * tangent-space perturbation and remove two redundant fragment lookups.
+ * An incompatible shader/chunk safely retains Three's native path.
+ * This is a GPU optimization CANDIDATE, never proof of displayed FPS.
+ */
+export function installSingleSampleScaleRelief(material, THREE) {
+  const chunk = THREE?.ShaderChunk?.bumpmap_pars_fragment;
+  if (!material?.isMeshStandardMaterial || !material.bumpMap || typeof chunk !== 'string' ||
+      material.userData.snakeSingleSampleRelief) return false;
+  const match = chunk.match(/vec2 dHdxy_fwd\(\) \{[\s\S]*?\n\s*\}/);
+  if (!match || (match[0].match(/texture2D\(\s*bumpMap\s*,/g) || []).length !== 3) return false;
+  const adapted = chunk.replace(match[0], 'vec2 dHdxy_fwd() {\n' +
+    '    float heightSample = bumpScale * texture2D( bumpMap, vBumpMapUv ).x;\n' +
+    '    return vec2( dFdx(heightSample), dFdy(heightSample) );\n  }');
+  const originalCompile = material.onBeforeCompile;
+  const originalKey = material.customProgramCacheKey;
+  material.onBeforeCompile = function (shader, renderer) {
+    originalCompile.call(this, shader, renderer);
+    if (shader.fragmentShader.includes('#include <bumpmap_pars_fragment>'))
+      shader.fragmentShader = shader.fragmentShader.replace('#include <bumpmap_pars_fragment>', adapted);
+  };
+  material.customProgramCacheKey = function () {
+    return 'snake-scale-relief-three-0.186.0-v1|' + originalKey.call(this);
+  };
+  material.userData.snakeSingleSampleRelief = true;
+  return true;
+}
+
 export function createSerpent(THREE) {
   const group = new THREE.Group();
   group.name = 'Jade garden serpent';
@@ -210,6 +242,11 @@ export function createSerpent(THREE) {
   const darkJade = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x20573b, roughness: 0.47 }));
   // Integrate the underside with the cheeks in both preallocated jaw LODs.
   const cream = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.47, bumpMap: skin.bump, bumpScale: 0.005 }));
+  // Detailed camera shots retain the existing full PBR shader, bump scale,
+  // roughness and all four original atlas textures. Only the redundant relief
+  // sampling inside its fragment shader changes. Overview remains untouched.
+  for (const detailed of [bodyMaterial, skullMaterial, jade, cream])
+    installSingleSampleScaleRelief(detailed, THREE);
   const mouthMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0x1d1119, roughness: 0.88 }));
   const tongueMaterial = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xe56c83, roughness: 0.38 }));
   const white = ownMaterial(new THREE.MeshStandardMaterial({ color: 0xfff7d9, roughness: 0.24 }));

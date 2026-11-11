@@ -1,9 +1,9 @@
 {
   "updatedAt": "2026-11-11",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (current original strict 2/17 at 751x415); source-exact anchored cinematic static-cache candidate pending Chromium",
-  "detail": "Live e1d0 source real Chromium #42952842186: 2/17 strict complete submissions in original 1s, 682 GPU queue skips, 751x415; real 55s footage, browser 37/95, CI 678/733. Source diagnosis: follow/detail ordinarily bypass original full-depth static cache. New anchored camera allows real static cache only when complete target and offset stationary; live game/serpent/water unchanged. Parent RED -> new GREEN 3/3, selected parent 31/33 vs candidate 34/36 same two baseline failures, TS, 900-tick authority and 10000-tick deterministic simulation pass. No new source-matched browser or GPU win yet; never merge/deploy.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (strict 5/17 at 751x415 on 235ccf6); detailed relief optimization candidate unaccepted",
+  "detail": "Exact live 235ccf6 Chromium #42972810907 original strict 5 genuine completed WebGL submissions/17 in 1014ms, 663 cumulative GPU queue skips, actual 751x415 buffer; 61 RAF callbacks do not count, browser 36/95, same-head native CI 678/733, original offline reproduction passed. Genuine overview remains rectangular-court dominated, visual self-rejected. Candidate changes only detailed serpent relief 3 filtered atlas lookups to 1 derivative-assisted lookup with original four textures/mesh/material budget; focused native 3/3, related 13/13, TS and 900-tick authority pass. Candidate real Chromium, actual GPU improvement, 45-90s motion, physical device presents and independent critic pending. No gate weakened or merge/deployment.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
+  "latestCaption": "235ccf6 genuine same-head overview rejected: dominant tiled rectangular court; strict 5/17 complete WebGL submissions. Candidate visual/performance acceptance PENDING.",
   "reviews": [
     {
       "area": "Nov 11 live e1d0 severe performance blocker and original full-scene depth-cache recovery candidate",
