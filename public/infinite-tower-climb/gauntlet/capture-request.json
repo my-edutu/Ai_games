@@ -1,4 +1,23 @@
 {
+  "p0LiveSourceTransportFreshnessAfterFilm20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateGameCodeSha": "6139cbb473e5bf39777f60136cf4ec10caaa2f82",
+    "candidateSource": "Immutable github.sha of this capture-request commit, never the floating PR68 branch head",
+    "lastObservedOriginal": "https://github.com/my-edutu/Ai_games/actions/runs/43091649344 — 8/8 original paired films available, guardian event-to-visible 0/2",
+    "newInvestigation": "Actual bounded 100ms start-to-start client HTTP polling, source-accepted floor/lifecycle and subsequent returned real Three.js render source tick transitions. Read-only clocks; source host 20Hz unchanged; baseline game never patched.",
+    "matrix": "8 original >=60s WebMs (baseline/candidate, ascent floor0, moving floor7, danger floor8, outcome floor0) across native 960x600 + 390x844 with source trace, same seed/tier, normal speed; plus independent source ledge/guardian campaign and strict film pairing",
+    "acceptance": "All original WebMs and event-to-native PTS/HUD/chroma with exact source SHA; pair source-to-raster floor transition MUST pass or remain 0/2, no tolerance relaxation, no source timestamps retimed. Verify walking grounded physical gateway, real crusher victory, Floor9 onward and outcome/restart on original full film.",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualSupportedDevicePerformance": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-11-tower-pr68-live-source-poll-freshness-and-frame-clock.md",
+    "next": "Inspect original full-motion desktop and phone; quantify real source→browser-accepted→returned WebGL→native raster interval; fix the dominant experience/clock blocker. Do not advance P0, merge, deploy, force-push, alter PR58 or baseline."
+  },
   "schemaVersion": 1,
   "p0LiveTwoBodyWideCameraOriginalAfterFilm20261111": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
