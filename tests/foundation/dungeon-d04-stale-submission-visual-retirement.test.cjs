@@ -103,3 +103,84 @@ test('authentic HP loss with a stalled submitted frame cannot retain next-frame 
   assert.equal(d.stats().visuals.drawCalls,7);
  }finally{d.dispose()}
 });
+
+
+test('active Warden footprint survives slow WebGL, but a released or changed public warning disappears',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
+ const {THREE,scene}=stage();
+ const cells=[{x:2,z:2},{x:3,z:2}];
+ const warning={id:'1:1:11:boss-warning-rising:warden-1:-',
+  sceneKey:'1:1',tick:11,kind:'boss-warning-rising',visual:'warning',
+  audio:'boss-warning-rising',proof:'authority-warning-window',verified:true,
+  actorId:'warden-1',targetId:null,from:{x:2,z:2},to:null,
+  duration:.30,priority:8,severity:.7,
+  detail:{cells,shape:'NOVA',attackTick:14,
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}
+ };
+ let snapshot={run:1,floor:1,tick:11,
+  bossWarning:{warning:true,shape:'NOVA',attackTick:14,
+   turnsUntilImpact:3,cells},
+  units:[{id:'warden-1',kind:'warden',faction:'enemy',hp:90}]};
+ const v=createPhysicalFeedbackVisuals(THREE,scene,{getCurrentSnapshot:()=>snapshot});
+ try{
+  assert.equal(v.emit(warning),true);
+  assert.equal(v.stats().instancesByPool.signal,2);
+  for(let i=0;i<12;i++){
+   // Actual Chrome stalls are much longer than the 300ms visual recipe.
+   // The public threat remains live, so its current floor cells must remain.
+   v.advance(.016,.70);
+   assert.equal(v.stats().instancesByPool.signal,2,
+    'genuinely live danger does not vanish simply because WebGL stalled');
+   assert.equal(v.hasDrawableCue(warning.id),true);
+  }
+  assert.equal(v.retireStaleCue(warning.id,'stale-frame'),0,
+   'audio expiry must not revoke live Warden hazard markers');
+  snapshot={...snapshot,tick:12,bossWarning:{...snapshot.bossWarning,
+   turnsUntilImpact:2}};
+  v.advance(.016,.70);
+  assert.equal(v.stats().instancesByPool.signal,2);
+  snapshot={...snapshot,tick:14,
+   bossWarning:{warning:false,shape:'NOVA',attackTick:14,
+    turnsUntilImpact:0,cells}};
+  v.advance(.016,.016);
+  assert.equal(v.hasLiveCue(warning.id),false,
+   'spent danger markers must disappear on the next real presentation update');
+  assert.equal(v.stats().instancesByPool.signal,0);
+  assert.ok(v.stats().retiredInvalidWarnings>=2);
+  assert.ok(v.stats().reservedInstances<=104);
+  assert.equal(v.stats().drawCalls,7);
+ }finally{v.dispose()}
+});
+
+test('missing or untrusted Warden snapshot cannot extend an expired visual cue',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
+ const {THREE,scene}=stage();
+ const cells=[{x:2,z:2}];
+ const warning={id:'1:1:11:boss-warning-rising:warden-1:-',
+  sceneKey:'1:1',tick:11,kind:'boss-warning-rising',visual:'warning',
+  audio:'boss-warning-rising',proof:'authority-warning-window',verified:true,
+  actorId:'warden-1',duration:.30,priority:8,severity:.7,
+  detail:{cells,shape:'NOVA',attackTick:14,
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}};
+ let latest={run:1,floor:1,tick:11,
+  bossWarning:{warning:true,shape:'NOVA',attackTick:14,
+   turnsUntilImpact:3,cells},
+  units:[{id:'warden-1',kind:'warden',faction:'enemy',hp:90}]};
+ const v=createPhysicalFeedbackVisuals(THREE,scene,{getCurrentSnapshot:()=>latest});
+ try{
+  assert.equal(v.emit(warning),true);
+  latest=null;v.advance(.016,.70);
+  assert.equal(v.hasLiveCue(warning.id),false,
+   'missing authority must fail closed rather than make immortal warning art');
+  assert.equal(v.stats().instancesByPool.signal,0);
+ }finally{v.dispose()}
+ const legacy=createPhysicalFeedbackVisuals(THREE,scene);
+ try{
+  assert.equal(legacy.emit(warning),true);
+  legacy.advance(.016,.70);
+  assert.equal(legacy.hasLiveCue(warning.id),false,
+   'standalone adapters without live authority keep their finite old lifetime');
+ }finally{legacy.dispose()}
+});
