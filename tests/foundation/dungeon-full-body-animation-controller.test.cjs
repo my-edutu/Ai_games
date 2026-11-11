@@ -2184,3 +2184,32 @@ test('licensed full-body Walking_A gets sustained distance-truthful root travel 
  assert.match(app,/planExpeditionStep\(a\.root\.position\.x,a\.root\.position\.z,[\s\S]{0,120}originalSourceRig:Boolean\(a\.authored\)/,
   'native source-rig pacing must actually connect to the genuine visual root, not remain a dead helper');
 });
+
+test('licensed source-sole landmarks reject high boot uppers and ungrounded patch guesses',async()=>{
+ const {selectOriginalOutsolePatchVertices:pick}=await load();
+ assert.equal(typeof pick,'function','the real GLB patch selector must use a bounded low-bind outsole');
+ const source=[
+  {index:4,x:0,z:-.105,bindY:.001,weight:.91},
+  {index:5,x:0,z:.104,bindY:.006,weight:.94},
+  {index:6,x:0,z:-.18,bindY:.102,weight:.98},
+  {index:7,x:0,z:.19,bindY:.119,weight:.99},
+  {index:8,x:.029,z:0,bindY:.012,weight:.62},
+  {index:9,x:-.028,z:0,bindY:.014,weight:.65}
+ ];
+ const selected=pick(source,0);
+ assert.ok(selected,'two genuine widely separated low weighted outsole points exist');
+ assert.deepEqual([selected.heel.index,selected.toe.index].sort((a,b)=>a-b),[4,5],
+  'the source foot patch cannot use a 10-12cm higher instep/upper boot vertex');
+ assert.ok(selected.spanMeters>.18&&selected.spanMeters<.25);
+ assert.ok(selected.bindThicknessMeters<=.032);
+ assert.equal(pick(source.map(v=>({...v,bindY:v.bindY+.20})),0),null,
+  'no observed source sole: do not invent landmarks');
+ assert.equal(pick([{index:1,x:0,z:0,bindY:0,weight:.99}],0),null);
+ assert.equal(pick(source.map(v=>({...v,x:0,z:0})),0),null,
+  'a source foot cluster without horizontal reach is not a heel/toe patch');
+ assert.equal(pick(source.map(v=>({...v,weight:.1})),0),null,
+  'unweighted props must never masquerade as original skinned shoes');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/selectOriginalOutsolePatchVertices\(candidates,anchor\.bindY\)/,
+  'the runtime on-demand real GLB inspector must use the identical tested outsole contract');
+});
