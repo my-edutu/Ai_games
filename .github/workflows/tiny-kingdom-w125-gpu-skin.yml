@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
+      - 'scripts/tiny-kingdom-w212-passive-skin-contract.cjs'
       - 'tests/browser/tiny-kingdom-w125-gpu-bone-same-world.spec.cjs'
       - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
       - 'tests/browser/tiny-kingdom-w128-detailed-workskin.spec.cjs'
@@ -37,7 +38,9 @@ jobs:
       # missing build aborted original-worker browser capture before it booted.
       - run: npm run build
       - name: Prove original worker joint tags and exact mathematical endpoints
-        run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+        run: |
+          node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+          node scripts/tiny-kingdom-w212-passive-skin-contract.cjs
       - name: Verify original full-detail worker joint-space mapping
         run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
       - name: Install supported real Chromium

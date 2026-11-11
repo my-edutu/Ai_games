@@ -2126,14 +2126,28 @@ function realForegroundFacing(p){
 // and actual authoritative feet/route; only the binding pose stays resident.
 // The live shader bone palette changes every frame from the real current rig.
 function isForegroundWalkingSkinCandidate(p,i,frame){
+ // W212: Extend the ACTUAL full-body 13-joint GPU residency to passive
+ // off-duty residents, not just commuters. The same authoritative citizen
+ // remains visible with their own full original coat, face, feet and hands.
+ // The bone palette follows the real current gait/posture every drawn frame.
+ // Only opt in when the optical body is SMALL. Genuine harvest/forge/build,
+ // parcels, receipt handoffs and verified household meals still have full
+ // live CPU work contacts, as do followed or documentary protagonists.
  if(!workingSkinCapable||!gpuAvailable||!frame||!p||p.delivery||
   isMarketUnloading(p)||isWorkingAtSite(p)||
   ((follow||liveWorkday)&&i===selectedCitizen)||
-  !/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(p.activity||''))return false;
- if(![p.x,p.z,p.phase].every(Number.isFinite))return false;
+  ![p.x,p.z,p.phase].every(Number.isFinite))return false;
+ const action=p.activity||'';
+ const moving=/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(action);
+ const passive=action==='Resting at home'||
+  action==='Waiting for a safe route'||action==='Finding a home';
+ if(!moving&&!passive)return false;
+ // Market/shopper/meal hand props are not skinned by a generic idle rig:
+ // original receipt-linked hand-held food and eating animation own contact.
+ if(passive&&((Number(p.provisions)||0)>0||
+  (typeof verifiedHouseholdMealEvidence==='function'&&
+   Boolean(verifiedHouseholdMealEvidence(p)))))return false;
  const projected=projectRealCitizenDetail(p,frame);
- // Preserve genuine CPU hand/face detail for large visible and followed people.
- // Evaluate both 1024px and 390px through the SAME actual camera.
  return !projected.visible||projected.heightFraction<.115;
 }
 function realForegroundPoseKey(p,i,walkingSkin=false){
@@ -2368,7 +2382,12 @@ function getForegroundResidentAudit(){
   realWorksiteCount:foregroundResidentVisible
    .filter(row=>isWorkingAtSite(row.p)).length,
   physicallySkinnedCommuters:foregroundResidentVisible
-   .filter(row=>row.entry.skinned&&!isWorkingAtSite(row.p)).length,
+   .filter(row=>row.entry.skinned&&!isWorkingAtSite(row.p)&&
+    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(row.p.activity||'')).length,
+  physicallySkinnedPassiveResidents:foregroundResidentVisible
+   .filter(row=>row.entry.skinned&&
+    ['Resting at home','Waiting for a safe route','Finding a home']
+     .includes(row.p.activity)).length,
   contactLimitMeters:.015,contactLimitRadians:.010,
   followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
   fullOriginalTriangles:foregroundResidentMesh.length/30,
@@ -2399,6 +2418,8 @@ function getForegroundSkinAudit(){
   exactlyOneOriginalActorPerCitizen:true,
   followedAndLargeWorkerCPUContactsPreserved:true,
   deliveryAndMarketUnloadingOriginalHandsPreserved:true,
+  passiveSkinnedWithoutReceiptMeal:true,
+  passiveSkinMaxHeightFraction:.115,
   authorityChanged:false,physicalFpsUnmeasured:true};
 }
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
