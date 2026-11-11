@@ -1042,7 +1042,7 @@ function animate(t){
   // The displayed body follows genuine authority coordinates at a time-based
   // rate. A stalled/software-WebGL frame cannot imply a new gameplay move.
   const locomotion=planExpeditionStep(a.root.position.x,a.root.position.z,
-   a.at.x,a.at.z,frameInterval,{reducedMotion:reduced});
+   a.at.x,a.at.z,frameInterval,{reducedMotion:reduced,originalSourceRig:Boolean(a.authored)});
   a.root.position.set(locomotion.x,0,locomotion.z);
   a.locomotionTilt=locomotion.leanPitch;
   a.locomotionTeleport=locomotion.teleport;

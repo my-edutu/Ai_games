@@ -12,7 +12,7 @@ const clamp = (value,min,max) => Math.max(min,Math.min(max,value));
 export const STRIDE_METRES = 0.53;
 export const MAX_VISUAL_STEP_METRES = 0.54;
 
-export function planExpeditionStep(x,z,targetX,targetZ,frameSeconds,{reducedMotion=false}={}){
+export function planExpeditionStep(x,z,targetX,targetZ,frameSeconds,{reducedMotion=false,originalSourceRig=false}={}){
  if(![x,z,targetX,targetZ].every(finite))
   return {x:finite(x)?x:0,z:finite(z)?z:0,travel:0,leanPitch:0,teleport:true,moving:false};
  const dx=targetX-x,dz=targetZ-z,distance=Math.hypot(dx,dz);
@@ -25,8 +25,19 @@ export function planExpeditionStep(x,z,targetX,targetZ,frameSeconds,{reducedMoti
  if(dt===0)return {x,z,travel:0,leanPitch:0,teleport:false,moving:false};
  // Time-constant smoothing instead of a refresh-rate-dependent magic factor.
  // A cap prevents a multi-second SwiftShader pause from becoming a skating lunge.
- const fraction=1-Math.exp(-dt/.105);
- const travel=Math.min(distance,distance*fraction,Math.max(.12,Math.min(MAX_VISUAL_STEP_METRES,dt*3.5)));
+ // Actual original-GLB source frames in the Session 03 WebGL witness showed
+ // one metre of lawful authority travel consumed in only ~2 displayed
+ // Walking_A poses. Pacing the skinned body's visual root for more real
+ // rendered frames lets the licensed feet and pelvis follow their original
+ // clip instead of a two-frame lunge. No gameplay step or footstep is added.
+ // Never accumulate a lagging native animation through a new faraway target:
+ // return to the established bounded follower above 1.25m of backlog.
+ const sourceTravel=originalSourceRig===true&&distance<=1.25;
+ const fraction=1-Math.exp(-dt/(sourceTravel?.19:.105));
+ const frameCap=sourceTravel?
+  Math.max(.09,Math.min(.44,dt*2.55)):
+  Math.max(.12,Math.min(MAX_VISUAL_STEP_METRES,dt*3.5));
+ const travel=Math.min(distance,distance*fraction,frameCap);
  const nextX=distance-travel<.003?targetX:x+dx*travel/distance;
  const nextZ=distance-travel<.003?targetZ:z+dz*travel/distance;
  const advanced=Math.hypot(nextX-x,nextZ-z);
