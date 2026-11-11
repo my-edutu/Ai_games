@@ -334,7 +334,7 @@ export function auditOriginalSourceFootFacing(before,after,meta={}){
  const clipA=before.sourceActionSample?.clipName,
   clipB=after.sourceActionSample?.clipName;
  if(typeof clipA!=='string'||clipA!==clipB||
-  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(clipA))
+  !/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(clipA))
   return fail('different-or-nonwalking-source-clock');
  if(!point(before.rootWorld)||!point(after.rootWorld)||
   !finite(before.rootYaw)||!finite(after.rootYaw))
