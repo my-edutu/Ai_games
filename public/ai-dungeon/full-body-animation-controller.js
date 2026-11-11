@@ -277,7 +277,11 @@ export function assessImportedSourceKneeGeometry({
  }else if(upperLength<.12||upperLength>1.2||
   lowerLength<.12||lowerLength>1.2)
   return {accepted:false,reason:'source-leg-segment-length-out-of-bounds'};
- if(bendSine<=.085||bendSine>=.99)
+ // At 89 degrees the cross-product is MAXIMALLY conditioned, not
+ // degenerate. Real 41-joint Walking_A right knee measured sine .999509.
+ // Reject nearly collinear original joints or physically impossible sine,
+ // then require the genuine source hinge to align with the measured plane.
+ if(bendSine<=.085||bendSine>1.000001)
   return {accepted:false,reason:'degenerate-source-knee-bend-plane'};
  if(hingeAlignment<.72)
   return {accepted:false,reason:'source-hinge-not-in-actual-leg-bend-plane'};

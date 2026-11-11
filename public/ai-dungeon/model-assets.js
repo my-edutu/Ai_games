@@ -921,7 +921,9 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  const bendSine=plane.length()/Math.max(.000001,upperLength*lowerLength);
  lower.bone.getWorldQuaternion(worldQuat);
  worldAxis.copy(sourceKneeAxis).applyQuaternion(worldQuat).normalize();
- const hingeAlignment=bendSine>.085&&bendSine<.99?
+ // A near-right-angle ORIGINAL knee has the clearest plane normal; the
+ // old <.99 gate invented zero hinge alignment on a valid source pose.
+ const hingeAlignment=bendSine>.085&&bendSine<=1.000001?
   Math.abs(plane.normalize().dot(worldAxis)):0;
  // Original lowerleg-to-foot is only ~112mm in pinned source GLB.
  // Require same cloned skin's inverse binds and the actual joint world ratio.
