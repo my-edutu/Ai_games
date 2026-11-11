@@ -125,7 +125,7 @@ function configure(mesh,kind,owned,softwareWebGL=false){
 }
 // Original scene-only regalia distinguishes the true textured boss from its
 // shared enemy swordsman GLB. No collision, navigation or combat properties.
-function addWardenRegalia(actor,softwareWebGL=false){
+function addWardenRegalia(actor){
  const plan=planWardenRegalia(actor.u.kind);
  if(!plan.length||!actor.visualPivot)return;
  const group=new THREE.Group();group.name='Original Warden regalia';
@@ -135,7 +135,11 @@ function addWardenRegalia(actor,softwareWebGL=false){
   bone:new THREE.MeshStandardMaterial({color:'#b6ae9b',metalness:.18,roughness:.63}),
   ember:new THREE.MeshStandardMaterial({color:'#c0683f',emissive:'#a73b1d',emissiveIntensity:.62,metalness:.28,roughness:.39})
  };
- for(const key of Object.keys(finishes))finishes[key]=nativeSurfaceTier(finishes[key],softwareWebGL);
+ // The source-rig isolated deformation assay extracts this original Warden
+ // function alone. Only the actual attached software renderer owns its tier;
+ // the isolated Three.js rig proof keeps untouched original PBR materials.
+ if(actor.nativeSoftwareSurfaceTier&&typeof nativeSurfaceTier==='function')
+  for(const key of Object.keys(finishes))finishes[key]=nativeSurfaceTier(finishes[key],true);
  // Original forged shapes and finishes are identical to the separately drawn
  // art. Only retained GPU submission ownership changes, not the silhouette.
  const plaqueOutline=new THREE.Shape();
@@ -322,7 +326,7 @@ function originalForgedMicrotexture(finish){
  forgedMicrotextureCache.set(finish,texture);return texture;
 }
 
-function addAnatomicalKit(actor,softwareWebGL=false){
+function addAnatomicalKit(actor){
  // The live 1.82m GLB retains its continuous skinned face, fabric and
  // original weapons. Six sculpted class-specific forged plates reinforce
  // anatomy without the previously rejected opaque costume replacement.
@@ -335,11 +339,13 @@ function addAnatomicalKit(actor,softwareWebGL=false){
  if(!materials)return;
  const finishes=Object.fromEntries(Object.entries(materials).map(([name,settings])=>{
   const micro=originalForgedMicrotexture(name);
-  return [name,nativeSurfaceTier(new THREE.MeshStandardMaterial({...settings,
+  return [name,new THREE.MeshStandardMaterial({...settings,
    ...(name==='textile'?{side:THREE.DoubleSide}:{}),
    ...(micro?{bumpMap:micro,roughnessMap:micro,bumpScale:name==='textile'?.022:name==='bone'?.027:.041}:{})
-  }),softwareWebGL)];
+  })];
  }));
+ if(actor.nativeSoftwareSurfaceTier)for(const key of Object.keys(finishes))
+  finishes[key]=nativeSurfaceTier(finishes[key],true);
  const forms=createForgedArmorForms(THREE,actor.u.kind);
  if(!forms)return;
  actor.sculptedArmorProfile=planForgedArmor(actor.u.kind)?.name??null;
@@ -940,9 +946,9 @@ function attachCharacter(actor,{softwareWebGL=false}={}){
   actor.wardenRegaliaInverse=null;actor.wardenRegaliaRiggedParts=0;
   // Original Warden ritual identity sits on the same genuine skinned rig;
   // its authored warning/phase cues and genuine combat choreography survive.
-  if(isBoss)addWardenRegalia(actor,softwareWebGL);
-  else if(actor.nativePresentation.complete)addAnatomicalKit(actor,softwareWebGL);
   actor.nativeSoftwareSurfaceTier=Boolean(softwareWebGL&&visibleSourceSkinMeshes>0);
+  if(isBoss)addWardenRegalia(actor);
+  else if(actor.nativePresentation.complete)addAnatomicalKit(actor);
   changeAction(actor,actor.u.action||'idle');
   // Source GLB decoding is asynchronous. Apply the genuine head-bone adult
   // proportion before the actor can be painted on its first loaded frame.

@@ -20,6 +20,6 @@ test('real hardware PBR and advanced physical material keep identity',async()=>{
 test('source-skinned Vanguard, Revenant and Warden original rig material route is genuinely wired to live software context',()=>{
  const model=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/model-assets.js'),'utf8');
  const app=fs.readFileSync(path.resolve(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
- for(const fragment of ['nativeSurfaceTier(copy,softwareWebGL)','addWardenRegalia(actor,softwareWebGL)','addAnatomicalKit(actor,softwareWebGL)','nativeSoftwareSurfaceActors','cloneSkeleton(gltf.scene)'])assert.ok(model.includes(fragment),fragment);
+ for(const fragment of ['nativeSurfaceTier(copy,softwareWebGL)','addWardenRegalia(actor)','addAnatomicalKit(actor)','nativeSurfaceTier(finishes[key],true)','nativeSoftwareSurfaceActors','cloneSkeleton(gltf.scene)'])assert.ok(model.includes(fragment),fragment);
  assert.ok(app.includes('attachCharacter(a,{softwareWebGL})'));
 });
