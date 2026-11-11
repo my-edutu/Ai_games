@@ -985,7 +985,10 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  const trials=[];
  try{
   mount.bone.quaternion.copy(foot);
-  for(const signed of [-.1,.1]){
+  // Four ORIGINAL lowerleg source-joint samples, not synthetic target IK.
+  // The subsequent planner keeps the 0.06rad/frame slew and a single
+  // 0.18rad ceiling; the final pose must re-certify real skinned toe + heel.
+  for(const signed of [-.1,.1,-.2,.2]){
    lower.bone.quaternion.copy(orig).multiply(
     trial.setFromAxisAngle(sourceKneeAxis,signed));
    lower.bone.updateWorldMatrix(true,true);
