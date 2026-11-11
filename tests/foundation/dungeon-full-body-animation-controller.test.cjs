@@ -2617,3 +2617,19 @@ test('original skinned ankle/calf must never apply a stale correction opposite t
   trialToeWorldY:-.052});
  assert.ok(original<0,'unchanged legally measured native minus pitch is still available');
 });
+
+
+test('original source-skin swing witness is mixer-frame owned and bounded by real 0.22rad ankle envelope',async()=>{
+ const {confirmOriginalSourceSwingToeLift:confirm}=await load();
+ const witnessed={beforeToeY:-.1033,afterToeY:-.059,beforeHeelY:.0861,afterHeelY:.071,floorTopY:-.02,appliedAngleRad:-.16};
+ assert.ok(confirm(witnessed)>.04);
+ assert.equal(confirm({...witnessed,appliedAngleRad:-.231}),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/actor\.sourceSwingToeCorrectionsThisFrame=0;/);
+ assert.match(renderer,/sourceSwingToeCurrentFrameProofs\.left=null;/);
+ assert.match(renderer,/sourceSwingToeCurrentFrameProofs\.right=null;/);
+ assert.match(renderer,/sourceSwingToeCurrentFrameProofs\[mount\.side\]=actor\.sourceSwingToeLiftProof;/);
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(browser,/original-source-swing-frame-foot-witness/);
+ assert.match(browser,/toBeLessThanOrEqual\(\.221\)/);
+});

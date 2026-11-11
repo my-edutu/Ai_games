@@ -521,8 +521,23 @@ for(const view of [
   'genuine source gait must transfer identical ownership to hips, spine, shoulders and original legs').toBe(true);
  // If actual original GLB ankle correction was applied, the SAME skinned
  // toe/heel frame must prove positive final lift and the heel stays airborne.
+ // Attach the real original-rig per-frame toe/heel witness before assertions.
+ await test.info().attach('original-source-swing-frame-foot-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    clip:t.nativeLegOwnership?.clipName,
+    sourceWeight:t.nativeLegOwnership?.originalSourceWeight,
+    cumulative:t.nativeLegOwnership?.sourceSwingToeCorrectionFrames??0,
+    correctionsThisFrame:t.nativeLegOwnership?.sourceSwingToeCorrectionsThisFrame??0,
+    currentFeet:t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs??null,
+    lastHistorical:t.nativeLegOwnership?.sourceSwingToeLiftProof??null}))},null,2))
+ });
  for(const t of trace){
-  const n=t.nativeLegOwnership,proof=n?.sourceSwingToeLiftProof;
+  const n=t.nativeLegOwnership;
+  const current=Object.values(n?.sourceSwingToeCurrentFrameProofs??{}).filter(Boolean);
+  expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(current.length);
+  expect(current.length).toBeLessThanOrEqual(2);
 
   const calfProof=n?.sourceSwingCalfAssistProof;
   if(calfProof){
@@ -533,14 +548,20 @@ for(const view of [
    expect(calfProof.afterHeelY).toBeGreaterThan(-.02+.055);
    expect(Math.abs(calfProof.appliedAngleRad)).toBeLessThanOrEqual(.121);
   }
-  if((n?.sourceSwingToeCorrectionFrames||0)>0){
+  for(const proof of current){
    expect(proof?.source).toBe('same-original-GLB-foot-skinned-vertices');
+   expect(proof?.side).toMatch(/^(left|right)$/);
    expect(proof?.sourceClip).toBe('Walking_A');
    expect(proof?.sourceInstanceId).toBe(t.sourceId);
    expect(proof?.liftMeters).toBeGreaterThan(.001);
    expect(proof?.afterToeY).toBeGreaterThan(proof?.beforeToeY);
    expect(proof?.afterHeelY).toBeGreaterThan(-.02+.045);
-   expect(Math.abs(proof?.appliedAngleRad)).toBeLessThanOrEqual(.151);
+   // Verified ±0.2 source ankle trials allow ≤0.22rad at ≤0.08rad/frame.
+   expect(Math.abs(proof?.appliedAngleRad)).toBeLessThanOrEqual(.221);
+   const beforeDepth=Math.max(0,proof.floorTopY-proof.beforeToeY);
+   const afterDepth=Math.max(0,proof.floorTopY-proof.afterToeY);
+   expect(beforeDepth).toBeGreaterThan(.025);
+   expect(afterDepth).toBeLessThan(beforeDepth-.001);
   }
  }
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
