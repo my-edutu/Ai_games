@@ -48,6 +48,11 @@ function presentation({nestedFailure=false,fixture=null}={}){
  context.planNativeOneShotSpeed=vm.runInContext('(function(){\n'+native+'\nreturn planNativeOneShotSpeed;})()',context);
  // Reuse the imported figure's actual read-only choreography, not a no-op.
  context.planNativeDuelPose=vm.runInContext('(function(){\n'+native+'\nreturn planNativeDuelPose;})()',context);
+ // Execute the production continuity contract inside the same source-only
+ // VM as real rig/native-duel logic. No fake recovery shim or renderer mock.
+ const continuity=fs.readFileSync(path.join(ROOT,'public/ai-dungeon/native-duel-continuity.js'),'utf8')
+  .replace(/^export /gm,'');
+ context.planNativeDuelContinuity=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeDuelContinuity;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
