@@ -156,7 +156,9 @@ jobs:
           # ONLY observational harness code; never alter its game or host.
           cp current-harness/scripts/tower-video-timebase.cjs source/scripts/tower-video-timebase.cjs
           cp current-harness/scripts/tower-event-frame-probes.cjs source/scripts/tower-event-frame-probes.cjs
+          cp current-harness/scripts/tower-native-hud-floor.cjs source/scripts/tower-native-hud-floor.cjs
           cp current-harness/scripts/tower-native-scene-phase.cjs source/scripts/tower-native-scene-phase.cjs
+          cp current-harness/tests/phase3/tower-native-hud-floor.test.cjs source/tests/phase3/tower-native-hud-floor.test.cjs
           cp current-harness/tests/phase3/tower-native-scene-phase.test.cjs source/tests/phase3/tower-native-scene-phase.test.cjs
           cp current-harness/tests/phase3/tower-event-frame-probes.test.cjs source/tests/phase3/tower-event-frame-probes.test.cjs
           cp current-harness/scripts/tower-native-compositor-anchors.cjs source/scripts/tower-native-compositor-anchors.cjs

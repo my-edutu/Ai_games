@@ -98,7 +98,10 @@ function planPair(rows,viewport,candidateSha){
        chroma.originalWebMBytes!==record.videoBytes ||
        chroma.viewport!==viewport || chroma.scenario!=='danger' ||
        chroma.originalVideoUnmodified!==true ||
-       chroma.phase?.status!=='CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'){
+       chroma.phase?.status!=='CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY' ||
+       chroma.hud?.status!=='DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY'){
+      // Even if a scene changes color near an event, the original film's
+      // actually DRAWN floor digit must agree before time-cued review.
       plan.failures.push('native-scene-phase-not-confirmed-'+source);
     }
   }

@@ -5,6 +5,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {createHash}=require('node:crypto');
 const {execFileSync}=require('node:child_process');
+const {sampleOriginalHud,compareHudToSource}=require('./tower-native-hud-floor.cjs');
 const WIDTH=64,HEIGHT=64,FPS=4,FRAME_BYTES=WIDTH*HEIGHT*3;
 const SOURCE_SHA=/^[0-9a-f]{40}$/,HASH=/^[0-9a-f]{64}$/;
 const MAX_DURATION=240;
@@ -82,10 +83,13 @@ function inspectOriginalPhase(directory,viewport,expectedSha){
   for(let i=0;i<rgb.length;i+=FRAME_BYTES)
     scores.push(violetSceneFraction(rgb.subarray(i,i+FRAME_BYTES)));
   const observed=findSustainedVoidPhase(scores);
+  const nativeHud=sampleOriginalHud(video);
   const result={schemaVersion:1,sourceSha:expectedSha,viewport,scenario:'danger',
     originalWebMSha256:hash,originalWebMBytes:data.length,
     originalVideoUnmodified:true,method:'sampled-native-WebM-stage-chroma',
-    phase:compareFilmPhaseToSource(clock,observed,scores.length)};
+    phase:compareFilmPhaseToSource(clock,observed,scores.length),
+    hud:{...compareHudToSource(clock,nativeHud.observed,nativeHud.frames),
+      recognitionCounts:nativeHud.counts}};
   fs.writeFileSync(path.join(dir,'native-scene-phase.json'),JSON.stringify(result,null,2)+'\n');
   return result;
 }
@@ -96,7 +100,7 @@ if(require.main===module){
     process.exitCode=2;
   }else try{
     const results=['desktop','portrait'].map(view=>inspectOriginalPhase(dir,view,sha));
-    console.log(JSON.stringify(results.map(({viewport,phase})=>({viewport,...phase})),null,2));
+    console.log(JSON.stringify(results.map(({viewport,phase,hud})=>({viewport,phase,hud})),null,2));
   }catch(e){console.error('Original film phase unverified:',e.message);process.exitCode=1;}
 }
 module.exports={violetSceneFraction,findSustainedVoidPhase,compareFilmPhaseToSource,inspectOriginalPhase,WIDTH,HEIGHT,FRAME_BYTES};

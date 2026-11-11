@@ -21,7 +21,8 @@ function make(source,viewport='portrait',events=null){
   nativeScenePhase:{sourceSha:sha,viewport,scenario:'danger',
     originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
     originalWebMBytes:1100,originalVideoUnmodified:true,
-    phase:{status:'CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'}},
+    phase:{status:'CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'},
+    hud:{status:'DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY'}},
   videoClock:{sourceSha:sha,status:'CALIBRATED',originalWebMBytes:1100,
     originalVideoUnmodified:true,
     originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
@@ -92,6 +93,15 @@ test('genuine native films remain reviewable without miscuing 2.4s early source 
  assert.match(p.failures.join(','),/native-scene-phase-not-confirmed-candidate/);
  assert.match(htmlFor([p]),/"synchronized":false/);
  assert.equal(p.status,'NOT EVALUATED');
+});
+test('a source-search timestamp cannot cue original film if the drawn floor glyph is 2.4s later',()=>{
+ const a=make('baseline'),b=make('candidate');
+ b.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+ b.nativeScenePhase.hud.sourceSearchToDrawnHudDeltaSeconds=2.393;
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false);
+ assert.equal(p.unalignedInspectionOnly,true);
+ assert.match(p.failures.join(','),/native-scene-phase-not-confirmed-candidate/);
 });
 test('a visual phase sidecar cannot be reused from another native WebM',()=>{
  const a=make('baseline'),b=make('candidate');
