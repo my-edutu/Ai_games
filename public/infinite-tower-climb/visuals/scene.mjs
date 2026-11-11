@@ -30,7 +30,7 @@ import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortRespo
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
-import { observedGuardianPortraitOpticalFov, boundedGuardianOpticalFov, GUARDIAN_OPTICAL_BASE_FOV } from './guardian-optical-shot.mjs';
+import { observedGuardianPortraitOpticalFov, observedGuardianPortraitActionFov, boundedGuardianOpticalFov, GUARDIAN_OPTICAL_BASE_FOV } from './guardian-optical-shot.mjs';
 import { towerRenderFaultDecision, towerRenderRetryReady } from './render-recovery.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -4411,11 +4411,13 @@ export function createTowerScene(canvas, settings = {}) {
     camera.lookAt(lookAt);
     camera.updateMatrixWorld(true);
     // Cohesive PORTRAIT ACTION OPTICS: the original 390x844, 1x guardian
-    // footage leaves the real climber and boss as distant figures between
-    // towering bronze machinery. Once the EXISTING geometry/camera policy
-    // has chosen a safe exterior shot, optically enlarge only BOTH currently
-    // rendered bodies together, with the actual selected airborne landing
-    // or a source-earned physical gateway protected in the same viewport.
+    // footage alternates tiny figures with separated / vertically cropped
+    // airborne climber and live boss. The previous closer-only 31-degree
+    // optic cannot show both when the physical action spreads vertically.
+    // From the SAME rendered full-body measurements, open toward a bounded
+    // 62-degree safety lens when necessary; otherwise keep the existing
+    // opt-in close two-actor shot. Source-earned gateway/landing, exterior
+    // core rays and all original camera comfort checks remain mandatory.
     // A real crusher windup, still-blocked world ray, manual spectator orbit,
     // stale source or reduced-motion request vetoes the closer lens.
     // Optical zoom never advances the 20Hz simulation, moves the actor,
@@ -4459,7 +4461,7 @@ export function createTowerScene(canvas, settings = {}) {
         opticalLandingNdc[2]=portraitAimLandingProjection.z;
         landing=opticalLandingNdc;
       }
-      guardianPortraitOpticalTarget=observedGuardianPortraitOpticalFov({
+      guardianPortraitOpticalTarget=observedGuardianPortraitActionFov({
         aspect:camera.aspect,currentFov:camera.fov,
         actor:opticalActor,partner:opticalPartner,landing,
         blocked:!coreClear || (opticalGuardian &&
@@ -4469,8 +4471,8 @@ export function createTowerScene(canvas, settings = {}) {
       guardianPortraitOpticalSourceTick=snapshot.tick;
     }
     // A rejected or finished original shot continuously returns to the
-    // 42-degree authoring lens. Never keep a dead boss, another expedition,
-    // a spectator turn or a new floor under a stale magnified field of view.
+    // 42-degree authoring lens. Never carry a wide rescue or close portrait
+    // lens into a dead boss, another expedition, spectator turn or new floor.
     const opticalNext=options.reducedMotion
       ?GUARDIAN_OPTICAL_BASE_FOV
       :boundedGuardianOpticalFov(camera.fov,
