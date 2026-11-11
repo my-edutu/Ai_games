@@ -5,11 +5,14 @@
  */
 const finite=Number.isFinite,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]),rad=Math.PI/180;
-export function orbitThreatCamera(base,angle,size){
+export function orbitThreatCamera(base,angle,size,{reach=1,lift=0}={}){
+ // Retain physical camera and real imported skeletons. Never fake actor
+ // dimensions, alter the optical lens, or hide legitimate dangerous cells.
  const limit=(size-1)/2-.65,dx=base.position.x-base.look.x,dz=base.position.z-base.look.z;
- const c=Math.cos(angle),s=Math.sin(angle);
- return Object.freeze({x:clamp(base.look.x+dx*c-dz*s,-limit,limit),
-  y:base.position.y,z:clamp(base.look.z+dx*s+dz*c,-limit,limit)});
+ const cs=Math.cos(angle),sn=Math.sin(angle),r=clamp(reach,.8,1.04);
+ return Object.freeze({x:clamp(base.look.x+(dx*cs-dz*sn)*r,-limit,limit),
+  y:clamp(base.position.y+clamp(lift,0,.8),2.1,28),
+  z:clamp(base.look.z+(dx*sn+dz*cs)*r,-limit,limit)});
 }
 function originalRisk(state,subjects){
  const s=state?.bossWarning,N=state?.map?.length;
@@ -69,7 +72,7 @@ export function assessThreatOrbit({state,base,subjects,width,height,fov},camera)
   if(sample.some(v=>!v))return {valid:false};
   heights.push(sample);
  }
- const fitFov=2*Math.atan(tanNeeded)/rad,actualFov=Math.max(fov,fitFov);
+ const fitFov=2*Math.atan(tanNeeded)/rad,actualFov=fov;
  const halfH=height/(2*Math.tan(actualFov*rad/2)),visibleHeights=heights.map(samples=>{
   const px=samples.map(p=>p.y*halfH);
   return Math.max(0,Math.max(...px)-Math.min(...px));
@@ -85,21 +88,28 @@ export function planWardenThreatOrbit(input){
   !finite(input.fov)||!finite(input.base.position?.x)||
   !finite(input.base.position?.y)||!finite(input.base.position?.z))return empty;
  const baseline=assessThreatOrbit(input,input.base.position);
- if(!baseline.valid)return empty;
+ if(!baseline.valid||baseline.minHeroPixels<5)return empty;
  const N=input.state.map.length;
+ // Bounded genuine optical approaches, rather than an abstract FOV gain:
+ // each candidate projects all dangerous tile corners and original bone
+ // silhouettes at the ACTUAL existing 390px lens.
+ const approaches=[{reach:1,lift:0},{reach:.92,lift:.35},{reach:.84,lift:.70}];
  let best=null;
- for(const angle of ANGLES.slice(1)){
-  const position=orbitThreatCamera(input.base,angle,N),v=assessThreatOrbit(input,position);
+ for(const approach of approaches)for(const angle of ANGLES){
+  if(angle===0&&approach.reach===1)continue;
+  const position=orbitThreatCamera(input.base,angle,N,approach),v=assessThreatOrbit(input,position);
   if(!v.valid||v.fitFov>Math.min(82,input.fov-.5))continue;
-  const gain=baseline.fitFov-v.fitFov;
-  if(gain<3.5||v.minHeroPixels<baseline.minHeroPixels*1.08||
-   v.minHeroPixels-baseline.minHeroPixels<3)continue;
-  const value=gain-.08*Math.abs(angle)*180/Math.PI;
-  if(!best||value>best.value)best={angle,position,framing:v,value};
+  const gainPx=v.minHeroPixels-baseline.minHeroPixels;
+  if(gainPx<Math.max(3,baseline.minHeroPixels*.08))continue;
+  const value=gainPx-.8*Math.abs(angle)-1.2*(1-approach.reach)-.2*approach.lift;
+  if(!best||value>best.value)best={angle,reach:approach.reach,lift:approach.lift,
+    position,framing:v,value};
  }
  if(!best)return {status:'UNCHANGED',baseline,threatCells:baseline.threatCells,
   criticalActors:baseline.criticalActors};
- return Object.freeze({status:'IMPROVED',angle:best.angle,position:best.position,
-  framing:best.framing,baseline,threatCells:baseline.threatCells,
-  criticalActors:baseline.criticalActors,gainDeg:Number((baseline.fitFov-best.framing.fitFov).toFixed(3))});
+ return Object.freeze({status:'IMPROVED',angle:best.angle,reach:best.reach,
+  lift:best.lift,position:best.position,framing:best.framing,baseline,
+  threatCells:baseline.threatCells,criticalActors:baseline.criticalActors,
+  gainPixels:Number((best.framing.minHeroPixels-baseline.minHeroPixels).toFixed(2)),
+  gainDeg:Number((baseline.fitFov-best.framing.fitFov).toFixed(3))});
 }

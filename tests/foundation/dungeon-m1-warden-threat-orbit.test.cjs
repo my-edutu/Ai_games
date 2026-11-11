@@ -23,7 +23,9 @@ test('real RIFT_CROSS original risk cells receive a lens-safe optical gain witho
  assert.equal(plan.status,'IMPROVED');
  assert.equal(plan.threatCells,s.bossWarning.cells.length);
  assert.equal(plan.criticalActors,2);
- assert.ok(plan.gainDeg>=3.5);
+ assert.ok(plan.gainPixels>=Math.max(3,plan.baseline.minHeroPixels*.08));
+ assert.ok(plan.reach>=.84&&plan.reach<=1);
+ assert.ok(plan.lift>=0&&plan.lift<=.70);
  assert.ok(plan.framing.minHeroPixels>=plan.baseline.minHeroPixels*1.08);
  assert.ok(plan.framing.fitFov<=52.5);
  assert.ok(Math.abs(plan.position.x)<=(s.map.length-1)/2);
@@ -72,4 +74,17 @@ test('genuine 13-cell warning earns a bounded physical orbit and preserves check
  assert.equal(director.metrics().checks,1);
  assert.equal(createPhysicalCameraDirector().resolve(state,base,{...options,reducedMotion:true}),null);
  assert.equal(createPhysicalCameraDirector().resolve(state,base,{...options,width:1440,height:832}),null);
+});
+
+test('original Warden native actor pixels use the requested real lens instead of hypothetical danger-fit FOV',async()=>{
+ const {assessThreatOrbit}=await load();
+ const state=crossWarning(),{base,subjects}=scene(state);
+ const low=assessThreatOrbit({state,base,subjects,width:390,height:844,fov:43},base.position);
+ const high=assessThreatOrbit({state,base,subjects,width:390,height:844,fov:53},base.position);
+ assert.equal(low.valid,true);assert.equal(high.valid,true);
+ assert.equal(low.fitFov,high.fitFov);
+ const ratio=Math.tan(53*Math.PI/360)/Math.tan(43*Math.PI/360);
+ assert.ok(low.minHeroPixels>high.minHeroPixels);
+ assert.ok(Math.abs(low.minHeroPixels/high.minHeroPixels-ratio)<.035,
+  'the same source rig must scale with the actual optical FOV, not fitted danger FOV');
 });

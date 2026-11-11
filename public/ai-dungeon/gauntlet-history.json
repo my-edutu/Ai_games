@@ -8009,6 +8009,30 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Review actual exact-head 1440/390 organic original A/V and selection, protect all danger cells, revert if unused or occluded; progress original adult native rigs and GPU cost, then 3 blind critics"
+    },
+    "m1ActualLensPortraitReach20261111": {
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "a46d43cf685099f1fd3a6b2ada79e57340861deb",
+      "originalBeforeRun": 42975378727,
+      "beforeMobileArtifact": 13835427499,
+      "beforeDesktopArtifact": 13835706444,
+      "observedMobileWardenCritical": {
+        "rangerPx": 37,
+        "wardenPx": 38,
+        "threatCells": 23,
+        "drawCalls": 409,
+        "swiftshaderP50Ms": 417
+      },
+      "sourceIntegration": "Current real-lens native actor projection, bounded physical risk-safe reach/elevation/angle, held-frame source-body and stone reevaluation",
+      "headTests": "NOT_YET_RUN",
+      "realAfter": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new-head genuine original 1440/390 organic A/V against parent and baseline; reject if no material visual improvement or warning/occlusion/performance regression; then adult source-rig art and GPU/SwiftShader diagnosis plus 3 blind critics."
     }
   }
 }
