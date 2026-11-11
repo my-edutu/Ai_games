@@ -45,3 +45,11 @@ Latest source-code commit prior to this handoff: `4d09ba9af9e388e1bac9baf3f8e122
 4. Collect matched three-viewpoint desktop (1440×900) and 390×844 mobile moving footage, actual miss/block/dodge/projectile/spell, Warden warning/release/recovery/earned counter and defeat/restart, audio mute/reload, reduced motion/flash, multiple simultaneous threats and a 20-minute lifecycle soak. All are **UNVERIFIED** in this increment.
 
 **Acceptance verdict: NOT TRANSFORMED / NO VERIFIED PHYSICAL-COMBAT A/V SYNCHRONIZATION.**
+
+## Follow-on credibility hardening, same isolated session
+
+The first classifier version was found to allow cumulative `visualAccepted` counts from another run/floor to describe the authenticated HP-loss pair. This is now fixed **fail closed**: both the tick-4 presented state and the latest rendered state must carry the same run/floor and the controller's exact `scene` key, with a non-regressing tick. Added a dedicated regression for cross-run, cross-floor, stale tick and absent D04 scene proof. The new classifier source is now an explicit isolated workflow push trigger; the contract enforces that path. These protections do not claim that an admitted effect corresponds to the identified damage event: the generic admitted-visual status stays `VISUAL_ADMITTED_NOT_AV_VERIFIED`.
+
+Additional commits: `49c033e` test-first cross-scene requirement; `e6ca507` classifier fix; `9c9f890` workflow-trigger contract; `6c6047e` workflow trigger change. All are still **pending new real-browser/CI verification**. No source or authoritative gameplay files changed.
+
+Reassess one unavoidable browser timing distinction: historical `observedFrameMs` was extremely large, but no individual GPU frame-time conclusion follows from that aggregate diagnostic. Measured cue expirations, actual renderer receipts and D04 visual/foley silence are the defensible findings.
