@@ -2183,7 +2183,7 @@ export function createMazeWorld(options = {}) {
         -side * .27, .65, .25, .58, .27, .32, 0, 0, -side * .23);
       forearm.name = 'Published tide-shear inward brace';
       const vane = mesh(jaw, bevel, side < 0 ? seaGlass : jade,
-        -side * .23, .93, .22, .40, .95, .25, 0, 0, side * .13);
+        -side * .23, 1.06, .22, .40, .95, .25, 0, 0, side * .13);
       vane.name = 'Published tide-shear warning vane';
       const blade = mesh(jaw, bevel, lightStone,
         -side * .30, 1.07, .43, .54, 1.12, .29, 0, 0, side * .13);

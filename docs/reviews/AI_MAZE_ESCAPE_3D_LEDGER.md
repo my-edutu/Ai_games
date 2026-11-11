@@ -1,3 +1,7 @@
+### Pass259 strict Phase6 legacy warning-vane gate correction (2026-11-11 UTC)
+
+- Whole-repo exact code [CI 42943325369](https://github.com/my-edutu/Ai_games/actions/runs/42943325369) found a REAL Maze regression: legacy `maze-public-tide-shear-hazard` source test requires colored vane above y=1.00. Original new-blade vane y=.93 failed; direct new installed-Three Pass259 test passed. Raised the SAME true hinge-attached warning vane to y=1.06, still below actual existing fang y=1.70. No test/budget relaxation, new GPU shape, invented event or AI/collision change. Corrected new HEAD needs exact-source tests and real WebGL. Nintendo benchmark not met.
+
 ## Pass259 — original connected ivory shear reconstruction, awaiting exact-HEAD WebGL (2026-11-11 UTC)
 
 - Previous exact HEAD `59e1641141` native Maze [workflow 42941865578](https://github.com/my-edutu/Ai_games/actions/runs/42941865578) SUCCESS; original [artifact 13821615594](https://github.com/my-edutu/Ai_games/actions/runs/42941865578/artifacts/13821615594) **37/37 PNG SHA-256 matched**; 320px withdrawal original full Pip [.344646,.943882] and pressure [-.926118,-.058930] both within unchanged ±.95. Independent official-quality visual review still rejects the red spike pile as a clear connected two-sided pressure hazard.
