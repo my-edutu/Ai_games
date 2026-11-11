@@ -103,11 +103,19 @@ async function poll() {
     const pendingFirstFrame = !!view && presentedPhase.pending() && !visibleFrame;
     const hudFrame = visibleFrame || data;
     const hudScene = pendingFirstFrame ? 'recovery' : hudFrame.scene;
-    hud.update(recovery || pendingFirstFrame ? { ...hudFrame, scene: 'recovery' } : hudFrame,
-      { ...diagnostics, recoveryMessage, recoveryKind,
+    // Do not leak an HTTP-accepted floor, run token or score as if the 3D
+    // renderer had submitted them. For a first pending normal frame, recovery
+    // has NO authoritative HUD snapshot until exact Three.js submission.
+    // Genuine result/upgrade/recovery and failed-WebGL source-only access
+    // remain available through the explicit immediate() path.
+    const presentationFrame = pendingFirstFrame ? { scene: 'recovery', audio: { captions: [] } }
+      : recovery ? { ...hudFrame, scene: 'recovery' } : hudFrame;
+    hud.update(presentationFrame,
+      { ...diagnostics, recoveryMessage,
+        recoveryKind: pendingFirstFrame && !recoveryKind ? 'starting' : recoveryKind,
         sourceScene: pendingFirstFrame ? 'recovery' : hudScene });
     if (faultState === 'failed') hud.status('3D rendering stopped · switch graphics quality or reload', 'error');
-    else if (recovery || graphicsPending) hud.status(renderState === 'stalled' && !graphicsFault ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
+    else if (recovery || graphicsPending || pendingFirstFrame) hud.status(renderState === 'stalled' && !graphicsFault ? '3D view delayed · expedition continues' : 'Preparing the 3D view', 'degraded');
     else hud.status('LIVE EXPEDITION', 'online');
   } catch (error) {
     if (closed || suspended || request !== pending) return;
