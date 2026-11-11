@@ -25,6 +25,13 @@ async function film(page,name){
 test('W125 desktop free orbit, keyboard, collision-aware zoom and smooth overview keep authoritative world',async({page})=>{
  const errors=await loaded(page,1280,800);
  const initial=await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()));
+ // W228 intentionally moved the full desktop camera buttons behind
+ // the same accessible native camera disclosure used on 390px screens.
+ // Test the real user interaction rather than a retired always-open ribbon.
+ const cameraDisclosure=page.locator('#camera-disclosure');
+ await expect(cameraDisclosure).toBeVisible();
+ await cameraDisclosure.click();
+ await expect(cameraDisclosure).toHaveAttribute('aria-expanded','true');
  for(const id of ['camera-home','camera-near','camera-far','camera-street']){
   await expect(page.locator('#'+id)).toBeVisible();
   await expect(page.locator('#'+id)).toHaveAttribute('type','button');
@@ -39,6 +46,8 @@ test('W125 desktop free orbit, keyboard, collision-aware zoom and smooth overvie
  await page.locator('#camera-near').click();
  const nearer=await page.evaluate(()=>window.__tinyKingdom.getCamera());
  expect(nearer.zoom).toBeLessThan(before.zoom);
+ if(await cameraDisclosure.getAttribute('aria-expanded')==='false')
+  await cameraDisclosure.click();
  await page.locator('#camera-far').click();
  const farther=await page.evaluate(()=>window.__tinyKingdom.getCamera());
  expect(farther.zoom).toBeGreaterThan(nearer.zoom);

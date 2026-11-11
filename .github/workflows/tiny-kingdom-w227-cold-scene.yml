@@ -26,6 +26,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: node scripts/tiny-kingdom-w229-shared-road-sampling-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Real complete Day1 world cold build and frame-stage CPU diagnostics

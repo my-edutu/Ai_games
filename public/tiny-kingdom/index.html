@@ -10145,20 +10145,25 @@ function marketCobblestoneSquare(){
   // Four short terrain-following bands close the SAME original walkable
   // civic square. Each sample uses the real terrain height; cached once.
   const bands=4,sectors=32;
-  const ring=(band,angle)=>{
-   const wobble=1+.012*Math.sin(angle*7)+.009*Math.cos(angle*13);
-   const f=band/bands;
-   const px=cx+Math.cos(angle)*rx*.985*f*wobble;
-   const pz=cz+Math.sin(angle)*rz*.985*f*wobble;
-   return sample(px,pz,.064);
-  };
+  // W229: the same 5 physical terrain-following rings enclose the
+  // original populated market court. Shared sector corners no longer
+  // retrace costly upland terrain on each adjoining stone/clay band.
+  const ringPoints=Array.from({length:bands+1},(_,band)=>
+   Array.from({length:sectors+1},(_,seg)=>{
+    const angle=seg*Math.PI*2/sectors,
+     wobble=1+.012*Math.sin(angle*7)+.009*Math.cos(angle*13),
+     f=band/bands,
+     px=cx+Math.cos(angle)*rx*.985*f*wobble,
+     pz=cz+Math.sin(angle)*rz*.985*f*wobble;
+    return sample(px,pz,.064);
+   }));
   for(let seg=0;seg<sectors;seg++){
-   const a=seg*Math.PI*2/sectors,b=(seg+1)*Math.PI*2/sectors;
-   tri(ring(0,a),ring(1,b),ring(1,a),earth[seg%3]);
+   const next=seg+1;
+   tri(ringPoints[0][seg],ringPoints[1][next],ringPoints[1][seg],earth[seg%3]);
    marketQuarterStats.mortarTriangles++;
    for(let band=1;band<bands;band++){
-    const c=ring(band,a),d=ring(band,b),
-     e=ring(band+1,b),f=ring(band+1,a);
+    const c=ringPoints[band][seg],d=ringPoints[band][next],
+     e=ringPoints[band+1][next],f=ringPoints[band+1][seg];
     quad(c,d,e,f,earth[(seg+band)%3]);
     marketQuarterStats.mortarTriangles+=2;
    }
@@ -11417,17 +11422,21 @@ function renderGradedRoadSection(a,b,t,u,halfWidth,seed,palette,role='granary'){
  const dx=b[0]-a[0],dz=b[1]-a[1],distance=Math.hypot(dx,dz);
  if(distance<.005)throw Error('W192 degenerate authentic roadway segment');
  const nx=-dz/distance,nz=dx/distance,{offsets,heights}=GRAINWARD_ROAD_PROFILE;
- const point=(along,index)=>{
-  const cross=offsets[index]*halfWidth,
+ // W229 civic-surface spine: the seven genuine road cross-section points
+ // at each end belong to two neighbouring bands. Build each point once,
+ // preserving EXACT elevation, world geometry, winding and material order.
+ // This directly serves the ORIGINAL granary haul and occupied-home road.
+ const sectionPoints=[t,u].map(along=>offsets.map((offset,index)=>{
+  const cross=offset*halfWidth,
    x=a[0]+dx*along+nx*cross,z=a[1]+dz*along+nz*cross;
   return [x,terrain(x,z)+heights[index],z];
- };
+ }));
  for(let band=0;band<offsets.length-1;band++){
   const tones=band===0||band===5?palette.verge:
    band===1||band===4?palette.wheel:palette.earth;
   const color=tones[(Math.abs(seed)+band)%tones.length];
-  upwardRoadQuad(point(t,band),point(u,band),
-   point(u,band+1),point(t,band+1),color);
+  upwardRoadQuad(sectionPoints[0][band],sectionPoints[1][band],
+   sectionPoints[1][band+1],sectionPoints[0][band+1],color);
  }
  gradedRoadFrameStats.sections++;
  gradedRoadFrameStats.triangles+=12;
