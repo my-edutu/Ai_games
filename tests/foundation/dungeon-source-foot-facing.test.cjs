@@ -62,3 +62,59 @@ test('never invent original orientation from sparse, clipped, unrelated or inval
  reject(a,b,{...metadata,teleport:true});
  reject(a,b,{...metadata,floorEvidence:'guessed'});
 });
+
+test('original Walking_A keeps true travel heading through the last 70mm of a licensed step',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planMovementFacing,planOriginalSourceWalkNearArrivalFacing,approachCharacterYaw,shortestYawDelta}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const north={
+  sourceRig:true,sourceClipName:'Walking_A',mode:'move',
+  groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,
+  previousX:-8,previousZ:-7.12,currentX:-8,currentZ:-7.03514902944,
+  targetX:-8,targetZ:-7
+ };
+ // Verified 390px original rig: it visibly travelled 85mm and then 28mm
+ // with its source yaw frozen at -0.85rad. The legacy distance<70mm gate
+ // drops the target BEFORE the actual imported-clip movement stops.
+ assert.equal(planMovementFacing(north.currentX,north.currentZ,north.targetX,north.targetZ),null);
+ const heading=planOriginalSourceWalkNearArrivalFacing(north);
+ assert.equal(Number.isFinite(heading),true);
+ assert.ok(Math.abs(shortestYawDelta(heading,Math.PI))<.00001);
+ const before=-.85;
+ const once=approachCharacterYaw(before,heading,.05);
+ assert.ok(Math.abs(shortestYawDelta(once,heading))<
+  Math.abs(shortestYawDelta(before,heading))-.3,
+  'real northbound shoe travel should no longer preserve a sideways/backward facing root');
+ const tail=planOriginalSourceWalkNearArrivalFacing({...north,
+  previousZ:-7.03514902944,currentZ:-7.00724744967});
+ assert.ok(Math.abs(shortestYawDelta(tail,heading))<.00001,
+  'second authentic 28mm adjacent shoe frame keeps facing its actual direction');
+ const east=planOriginalSourceWalkNearArrivalFacing({...north,
+  previousX:-8,previousZ:-7,currentX:-7.95,currentZ:-7,targetX:-7.94,targetZ:-7});
+ assert.ok(Math.abs(shortestYawDelta(east,-Math.PI/2))<.00001);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/planOriginalSourceWalkNearArrivalFacing/);
+ assert.match(app,/a\.combatFacing\?\.yaw/,'real combat facing must keep priority');
+});
+
+test('near-arrival source turn never invents direction from idle, combat, hidden, dead or teleport frames',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planOriginalSourceWalkNearArrivalFacing:heading}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const sample={sourceRig:true,sourceClipName:'Walking_A',mode:'move',
+  groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,
+  previousX:-8,previousZ:-7.12,currentX:-8,currentZ:-7.035,
+  targetX:-8,targetZ:-7};
+ assert.ok(Number.isFinite(heading(sample)));
+ for(const mutation of [
+  {sourceRig:false},{sourceClipName:'Idle'},{sourceClipName:'Attack_A'},
+  {mode:'idle'},{mode:'attack'},{groundedMoving:false},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true},
+  {hasCombatFacing:true},{previousX:Infinity},{currentZ:NaN},
+  {targetZ:-8},{previousZ:-7.035},{currentZ:-5.5},
+  {previousZ:-7.04,currentZ:-7.035}
+ ])assert.equal(heading({...sample,...mutation}),null,
+  'unwitnessed/unauthorized source heading must preserve legacy facing: '+JSON.stringify(mutation));
+});
