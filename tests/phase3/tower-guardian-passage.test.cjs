@@ -777,3 +777,47 @@ test('living guardian energy lock is a see-through full-height lattice, not a wa
       'renderer never mutates authentic fixed-step guardian state');
   } finally {gate.dispose();}
 });
+test('source-locked cyan and bronze guardian gates share the ACTUAL world radial plane behind the climber', async () => {
+  const [THREE, {createTowerGuardianPassage, GUARDIAN_PASSAGE_RADII}] = await loaded;
+  const passage=createTowerGuardianPassage(THREE);
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const gateX=cap.x+Math.floor(cap.width*.76);
+  const living={runToken:'real-gate-plane',floor:8,tick:300,lifecycle:'running',
+    guardianExitX:gateX,guardianSealHeight:140000,worldWidth:480000,
+    chunkBaseY:2880000,player:{health:4},platforms:[cap],
+    enemies:[{id:'f8:guardian',kind:'guardian',active:true,health:4,maxHealth:4}]};
+  const original=JSON.stringify(living);
+  try {
+    assert.equal(passage.lock(living,anchor),true);
+    passage.group.updateMatrixWorld(true);
+    const seal=passage.group.getObjectByName('SourceLockedGuardianVerticalEnergyLattice');
+    assert.ok(seal?.isInstancedMesh && seal.visible);
+    const world=seal.getWorldPosition(new THREE.Vector3());
+    const sealRadius=Math.hypot(world.x,world.z);
+    assert.ok(Math.abs(sealRadius-24.25)<.025,
+      'source seal occupies the real bronze GuardianGateInset world radius, NOT an invented outer face');
+    assert.ok(sealRadius<GUARDIAN_PASSAGE_RADII.deck-.5,
+      'the live cyan field stays behind the radius-25 climber, not in front of the duel');
+    assert.ok(sealRadius>23.5,
+      'do not bury the source gate in the occluding solid clockwork core');
+    const d=passage.diagnostics().physicallyWalkableThreshold;
+    assert.equal(d.authoredLiveSealWorldRadius,24.25);
+    assert.equal(d.authoredBronzeGateWorldRadius,24.25);
+    assert.equal(d.authoredGroundedActorRadius,25);
+    assert.equal(seal.count,17,'retain the bounded 14m live physical exclusion');
+    const taller={...living,tick:301,guardianSealHeight:200000};
+    assert.equal(passage.lock(taller,anchor),true);
+    passage.group.updateMatrixWorld(true);
+    assert.ok(Math.abs(Math.hypot(
+      seal.getWorldPosition(world).x,world.z)-24.25)<.025,
+      'raising the real source seal to 20m must never move the physical lock plane');
+    const defeated={...taller,tick:405,enemies:[{
+      ...living.enemies[0],active:false,health:0,x:gateX-25000,
+      y:cap.y+cap.height+18000,halfHeight:18000}]};
+    assert.equal(passage.unlock(defeated,anchor),true);
+    assert.equal(seal.visible,false,
+      'only real zero-HP guardian defeat may reveal the grounded inner crossing');
+    assert.equal(JSON.stringify(living),original,
+      'presentation-only physical reconstruction does not mutate source');
+  } finally { passage.dispose(); }
+});

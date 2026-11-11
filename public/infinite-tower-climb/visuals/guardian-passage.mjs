@@ -316,13 +316,18 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.castShadow = false;
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
-  // The original film shows two independent overlapping live gate planes:
-  // this cyan inner fence and an exterior bronze HP lock. Couple the visible
-  // live energy fence to the ACTUAL EXTERIOR lock. The source-earned inner
-  // walkable arch remains at deck radius, only after guardian defeat.
-  // This is a physical static 3D translation, not a shader/physics bypass.
+  // The actual bronze HP lock in world.mjs is installed at the SHARED
+  // visibleSealRadius 24.25. The previous 27.78-25 offset put this entire
+  // 14m cyan source seal BACK at radius 27.78, 3.53m CLOSER to the camera
+  // than the bronze lock and in FRONT of the source actors at radius ~25.
+  // Genuine 390x844/960x600 source-pinned films (42998763864) showed these
+  // as two huge competing live prison faces. Anchor both real presentations
+  // to the SAME rear physical gate plane, behind the playable actor corridor.
+  // The earned inner threshold remains on the true cap radius 25 and only
+  // appears after a genuine source zero-HP guardian. No source hitbox, clock,
+  // combat, guardian victory, or gateway authority changes.
   sealedLattice.position.set(0, 2,
-    GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck);
+    GUARDIAN_CAP_CORRIDOR.visibleSealRadius - GUARDIAN_PASSAGE_RADII.deck);
   sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   // The physical low-doorway field has five exclusion rails. Only three
   // carry the readable full glow; the two inset conductors stay deliberately
@@ -961,6 +966,12 @@ export function createTowerGuardianPassage(THREE) {
         redundantExteriorMemorySuppressed: !memoryFrame.visible,
         verticalLatticeVisible: sealedLattice.visible,
         sourceLatticeHeight: displayedSealHeight,
+        // Explicit geometry provenance: these are authored source-facing
+        // 3D positions, NOT a GPU-pixel visibility or video quality score.
+        authoredLiveSealWorldRadius: Number(
+          (GUARDIAN_PASSAGE_RADII.deck + sealedLattice.position.z).toFixed(3)),
+        authoredBronzeGateWorldRadius: GUARDIAN_CAP_CORRIDOR.visibleSealRadius,
+        authoredGroundedActorRadius: GUARDIAN_PASSAGE_RADII.deck,
         focusPosition: focusPosition.toArray(),
         proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
       } : null,
