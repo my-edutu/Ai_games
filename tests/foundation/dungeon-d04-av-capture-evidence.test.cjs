@@ -625,3 +625,54 @@ test('D04 retains only provenance-qualified readback video and excludes diagnost
   assert.equal(saved.isolated.serial2dOnly.base64,undefined);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+
+/**
+ * Pixel samples below represent DECODER measurements of real Playwright
+ * screenshots of #world after authenticated WebGL render receipts. They are
+ * a compositor visibility witness, not an invented alternate game video.
+ */
+const genuineWorldStills={
+ source:'playwright-world-element-compositor-screenshots',
+ capture:'receipt-bracketed-png',
+ view:'desktop-1440x900',viewport:{width:1440,height:900},
+ seed:'visual-room-art-18',samples:[
+  {beforeReceipt:51,afterReceipt:52,atMs:1100,run:1,floor:1,tick:211,checksum:'state-A',
+   pngBytes:190111,colors:50,signature:'abc102dc',width:800,height:500},
+  {beforeReceipt:53,afterReceipt:54,atMs:2500,run:1,floor:1,tick:212,checksum:'state-B',
+   pngBytes:185260,colors:44,signature:'8a009cad',width:800,height:500},
+  {beforeReceipt:56,afterReceipt:56,atMs:3700,run:1,floor:1,tick:213,checksum:'state-C',
+   pngBytes:181930,colors:64,signature:'88f4c91d',width:800,height:500}
+ ]
+};
+test('D04 compositor witness admits changing real world stills but never certifies audiovisual sync',()=>{
+ const {classifyCompositorWitness}=require('../browser/dungeon-d04-av-evidence.cjs');
+ assert.equal(classifyCompositorWitness(genuineWorldStills),
+  'REAL_COMPOSITOR_WORLD_STILLS_CHANGING_UNALIGNED');
+ assert.equal(classifyCompositorWitness({...genuineWorldStills,view:'mobile-390x844',
+  viewport:{width:390,height:844}}),
+  'REAL_COMPOSITOR_WORLD_STILLS_CHANGING_UNALIGNED');
+});
+test('D04 compositor witness rejects static, flat, made-up, unbracketed and out-of-budget samples',()=>{
+ const {classifyCompositorWitness}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const s=genuineWorldStills.samples;
+ const bad=[
+  {...genuineWorldStills,source:'synthetic-2d-canvas-encoder-control-not-gameplay'},
+  {...genuineWorldStills,capture:'late-framebuffer-readback'},
+  {...genuineWorldStills,view:'director-reoriented'},
+  {...genuineWorldStills,viewport:{width:320,height:240}},
+  {...genuineWorldStills,samples:s.slice(0,1)},
+  {...genuineWorldStills,samples:s.map(v=>({...v,colors:1}))},
+  {...genuineWorldStills,samples:s.map(v=>({...v,signature:'abc102dc'}))},
+  {...genuineWorldStills,samples:s.map(v=>({...v,tick:211}))},
+  {...genuineWorldStills,samples:[s[0],{...s[1],beforeReceipt:50},s[2]]},
+  {...genuineWorldStills,samples:[s[0],{...s[1],afterReceipt:50},s[2]]},
+  {...genuineWorldStills,samples:[s[0],{...s[1],atMs:500},s[2]]},
+  {...genuineWorldStills,samples:[s[0],{...s[1],run:2},s[2]]},
+  {...genuineWorldStills,samples:[s[0],{...s[1],pngBytes:25*1024*1024},s[2]]},
+  {...genuineWorldStills,samples:[s[0],{...s[1],checksum:''},s[2]]}
+ ];
+ for(const example of bad)
+  assert.notEqual(classifyCompositorWitness(example),
+   'REAL_COMPOSITOR_WORLD_STILLS_CHANGING_UNALIGNED');
+});
