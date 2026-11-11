@@ -697,11 +697,11 @@ test('D04 never upgrades real encoded WebM bytes to moving gameplay without two 
   hashes:authenticDecodedVideo.hashes.slice(0,1)};
  assert.equal(classifyDecodedSerialGameplay({video:serialGameVideo,decoder:single}),
   'SERIAL_REAL_WEBGL_ONE_OR_STATIC_FRAME_UNVERIFIED');
- assert.equal(assessD04Capture({...good,isolated:{serialRealVideo:serialGameVideo},
+ assert.equal(assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},isolated:{serialRealVideo:serialGameVideo},
   decoder:{serialRealVideo:single}}).serialRealVideoMotionQualified,false);
  assert.equal(classifyDecodedSerialGameplay({video:serialGameVideo,decoder:authenticDecodedVideo}),
   'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED');
- const verified=assessD04Capture({...good,isolated:{serialRealVideo:serialGameVideo},
+ const verified=assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},isolated:{serialRealVideo:serialGameVideo},
   decoder:{serialRealVideo:authenticDecodedVideo}});
  assert.equal(verified.serialRealVideoRecorded,true);
  assert.equal(verified.serialRealVideoMotionQualified,true);
