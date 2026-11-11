@@ -14,6 +14,7 @@ on:
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
+      - tests/browser/dungeon-d04-source-start-correlation.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
 permissions:
@@ -45,6 +46,7 @@ jobs:
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
+            tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-audio-frame-deadline.test.cjs \
             tests/foundation/dungeon-d04-first-drawable-sword-foley.test.cjs \
