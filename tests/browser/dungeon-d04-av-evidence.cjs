@@ -38,13 +38,24 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={}}={
  const renderFramesAdvanced=Number.isSafeInteger(frames.before)&&
   Number.isSafeInteger(frames.after)&&frames.before>=0&&frames.after>frames.before;
  // An isolated encoder can diagnose mux/track failure, not certify synchronized playback.
- const video=isolated.videoOnly||{},audio=isolated.audioOnly||{};
+ const video=isolated.videoOnly||{},nativeVideo=isolated.nativeVideoOnly||{},
+  audio=isolated.audioOnly||{};
  const isolatedVideoRecorded=optedIn===true&&renderFramesAdvanced&&
   video.source==='real-webgl-canvas-video-only'&&video.status==='RECORDED'&&
   /^video\/webm(?:;|$)/i.test(video.mimeType||'')&&
   video.videoTracks===1&&video.audioTracks===0&&hasConfirmedCanvasFrames(video.framePump)&&
   Number.isSafeInteger(video.bytes)&&video.bytes>1024&&video.bytes<=MAX_ISOLATED_VIDEO_BYTES&&
   Number.isFinite(video.recordingMs)&&video.recordingMs>=1000&&video.recordingMs<=15500;
+ const isolatedNativeVideoRecorded=optedIn===true&&renderFramesAdvanced&&
+  nativeVideo.source==='real-webgl-canvas-native-video-only'&&nativeVideo.status==='RECORDED'&&
+  /^video\/webm(?:;|$)/i.test(nativeVideo.mimeType||'')&&
+  nativeVideo.videoTracks===1&&nativeVideo.audioTracks===0&&
+  hasConfirmedCanvasFrames(nativeVideo.framePump)&&
+  nativeVideo.framePump.mode==='native-capture-stream'&&
+  Number.isSafeInteger(nativeVideo.bytes)&&nativeVideo.bytes>1024&&
+  nativeVideo.bytes<=MAX_ISOLATED_VIDEO_BYTES&&
+  Number.isFinite(nativeVideo.recordingMs)&&nativeVideo.recordingMs>=1000&&
+  nativeVideo.recordingMs<=15500;
  const isolatedAudioRecorded=optedIn===true&&renderFramesAdvanced&&
   audio.source==='real-opted-in-soundstage-audio-only'&&audio.status==='RECORDED'&&
   /^audio\/webm(?:;|$)/i.test(audio.mimeType||'')&&
@@ -53,13 +64,15 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={}}={
   Number.isFinite(audio.recordingMs)&&audio.recordingMs>=1000&&audio.recordingMs<=15500;
  const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
-  isolatedVideoRecorded?'AUDIO_ONLY_ENCODER_UNVERIFIED':
+  !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
+  'NATIVE_VIDEO_RECORDED_EXPLICIT_VIDEO_UNVERIFIED':
+  (isolatedVideoRecorded||isolatedNativeVideoRecorded)?'AUDIO_ONLY_ENCODER_UNVERIFIED':
   isolatedAudioRecorded?'VIDEO_ONLY_ENCODER_UNVERIFIED':'INDEPENDENT_ENCODERS_UNVERIFIED';
  return Object.freeze({
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -77,9 +90,10 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  const {base64,...clip}=raw.clip||{};
  const {wavBase64,...pcm}=raw.pcm||{};
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
+ const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
- let webm=null,wav=null,isolatedVideoWebm=null,isolatedAudioWebm=null;
+ let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
   const bytes=Buffer.from(base64,'base64');
   if(bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES&&bytes.length===clip.bytes){
@@ -102,6 +116,13 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
    fs.writeFileSync(isolatedVideoWebm,bytes);
   }
  }
+ if(assessment?.isolatedNativeVideoRecorded&&typeof isolatedNativeVideoBase64==='string'){
+  const bytes=Buffer.from(isolatedNativeVideoBase64,'base64');
+  if(bytes.length===nativeVideoOnly.bytes&&bytes.length>1024&&bytes.length<=MAX_ISOLATED_VIDEO_BYTES){
+   isolatedNativeVideoWebm=path.join(directory,'dungeon-d04-real-canvas-native-video-only.webm');
+   fs.writeFileSync(isolatedNativeVideoWebm,bytes);
+  }
+ }
  if(assessment?.isolatedAudioRecorded&&typeof isolatedAudioBase64==='string'){
   const bytes=Buffer.from(isolatedAudioBase64,'base64');
   if(bytes.length===audioOnly.bytes&&bytes.length>1024&&bytes.length<=MAX_ISOLATED_AUDIO_BYTES){
@@ -110,12 +131,13 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
   }
  }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,audioOnly},frames:raw.frames??null,assessment,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
-   isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm},
+   isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
+   ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{})},
   caveat:'Independent authentic tracks are NOT aligned or combined. Encoded bytes alone do not prove audiovisual synchronization.'
  },null,2)+'\n');
- return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedAudioWebm});
+ return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
 }
 module.exports={assessD04Capture,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
