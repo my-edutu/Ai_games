@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.js';
+import {createSoftwareSourceRigMaterial} from '/dungeon/postfx-budget.js';
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
@@ -84,7 +85,12 @@ function chooseClip(available,action){
  for(const regex of prefer){const found=available.find(clip=>regex.test(clip.name));if(found)return found}
  return available.find(c=>/idle/i.test(c.name))||available[0]||null;
 }
-function configure(mesh,kind,owned){
+function nativeSurfaceTier(source,softwareWebGL){
+ const output=createSoftwareSourceRigMaterial(THREE,source,{software:softwareWebGL});
+ if(output!==source)source.dispose();
+ return output;
+}
+function configure(mesh,kind,owned,softwareWebGL=false){
  // A unified desaturated PBR source layer stops glowing KayKit base colours
  // from fighting the role-specific forged cuirass and animated leather.
  // Clone every shared GLB material, never tint the cached master or another
@@ -110,15 +116,16 @@ function configure(mesh,kind,owned){
     copy.emissive.lerp(new THREE.Color('#a74d2e'),.14);
     copy.emissiveIntensity=Math.min(.28,Math.max(copy.emissiveIntensity||0,.10));
    }
-   owned.push(copy);
-   return copy;
+   const surface=nativeSurfaceTier(copy,softwareWebGL);
+   owned.push(surface);
+   return surface;
   });
   obj.material=Array.isArray(obj.material)?fitted:fitted[0];
  });
 }
 // Original scene-only regalia distinguishes the true textured boss from its
 // shared enemy swordsman GLB. No collision, navigation or combat properties.
-function addWardenRegalia(actor){
+function addWardenRegalia(actor,softwareWebGL=false){
  const plan=planWardenRegalia(actor.u.kind);
  if(!plan.length||!actor.visualPivot)return;
  const group=new THREE.Group();group.name='Original Warden regalia';
@@ -128,6 +135,7 @@ function addWardenRegalia(actor){
   bone:new THREE.MeshStandardMaterial({color:'#b6ae9b',metalness:.18,roughness:.63}),
   ember:new THREE.MeshStandardMaterial({color:'#c0683f',emissive:'#a73b1d',emissiveIntensity:.62,metalness:.28,roughness:.39})
  };
+ for(const key of Object.keys(finishes))finishes[key]=nativeSurfaceTier(finishes[key],softwareWebGL);
  // Original forged shapes and finishes are identical to the separately drawn
  // art. Only retained GPU submission ownership changes, not the silhouette.
  const plaqueOutline=new THREE.Shape();
@@ -314,7 +322,7 @@ function originalForgedMicrotexture(finish){
  forgedMicrotextureCache.set(finish,texture);return texture;
 }
 
-function addAnatomicalKit(actor){
+function addAnatomicalKit(actor,softwareWebGL=false){
  // The live 1.82m GLB retains its continuous skinned face, fabric and
  // original weapons. Six sculpted class-specific forged plates reinforce
  // anatomy without the previously rejected opaque costume replacement.
@@ -327,10 +335,10 @@ function addAnatomicalKit(actor){
  if(!materials)return;
  const finishes=Object.fromEntries(Object.entries(materials).map(([name,settings])=>{
   const micro=originalForgedMicrotexture(name);
-  return [name,new THREE.MeshStandardMaterial({...settings,
+  return [name,nativeSurfaceTier(new THREE.MeshStandardMaterial({...settings,
    ...(name==='textile'?{side:THREE.DoubleSide}:{}),
    ...(micro?{bumpMap:micro,roughnessMap:micro,bumpScale:name==='textile'?.022:name==='bone'?.027:.041}:{})
-  })];
+  }),softwareWebGL)];
  }));
  const forms=createForgedArmorForms(THREE,actor.u.kind);
  if(!forms)return;
@@ -865,13 +873,13 @@ function fitOriginalNativeFigure(actor){
  });
  return report;
 }
-function attachCharacter(actor){
+function attachCharacter(actor,{softwareWebGL=false}={}){
  const asset=selection[actor.u.kind];if(!asset)return Promise.resolve(false);
  const id=actor.u.id;
  const request=load(asset).then(gltf=>{
   if(!gltf||actor.detached||actor.u.id!==id)return false;
   const instance=cloneSkeleton(gltf.scene),owned=[],isBoss=actor.u.kind==='warden';
-  configure(instance,actor.u.kind,owned);
+  configure(instance,actor.u.kind,owned,softwareWebGL);
   // Fit artist source units to dungeon scale and centre the feet on the floor.
   instance.updateMatrixWorld(true);
   const bounds=new THREE.Box3().setFromObject(instance),size=new THREE.Vector3(),center=new THREE.Vector3();
@@ -932,8 +940,9 @@ function attachCharacter(actor){
   actor.wardenRegaliaInverse=null;actor.wardenRegaliaRiggedParts=0;
   // Original Warden ritual identity sits on the same genuine skinned rig;
   // its authored warning/phase cues and genuine combat choreography survive.
-  if(isBoss)addWardenRegalia(actor);
-  else if(actor.nativePresentation.complete)addAnatomicalKit(actor);
+  if(isBoss)addWardenRegalia(actor,softwareWebGL);
+  else if(actor.nativePresentation.complete)addAnatomicalKit(actor,softwareWebGL);
+  actor.nativeSoftwareSurfaceTier=Boolean(softwareWebGL&&visibleSourceSkinMeshes>0);
   changeAction(actor,actor.u.action||'idle');
   // Source GLB decoding is asynchronous. Apply the genuine head-bone adult
   // proportion before the actor can be painted on its first loaded frame.
@@ -1197,7 +1206,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
+ actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.nativeSoftwareSurfaceTier=false;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map,onAssetReady=null){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -1239,6 +1248,7 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
  return{nativeContinuousActors:authored.filter(a=>a.nativePresentation?.complete).length,
+  nativeSoftwareSurfaceActors:authored.filter(a=>a.nativeSoftwareSurfaceTier).length,
   nativeDuelActiveActors:authored.filter(a=>a.nativeDuel&&a.nativeDuel.mode!=='rest').length,
   nativeDuelPeak:Math.max(0,...authored.map(a=>a.nativeDuelPeak||0)),
   nativeDuelContactFrames:authored.reduce((n,a)=>n+(a.nativeDuelContactFrames||0),0),

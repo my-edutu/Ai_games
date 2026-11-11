@@ -469,6 +469,31 @@ export function createSoftwareWorldLightBudget(THREE,world,{software=false,maxDe
  * fog and depth. Keep PBR on real GPUs and all actors/boss/telegraph assets.
  * Caller retires the replaced, unused Standard material at floor teardown.
  */
+/**
+ * Native source rig's CPU-software raster tier. Hardware retains full licensed
+ * PBR materials. Same authored skinned vertices, bones, UVs, albedo, tint,
+ * translucency and source lights; no simulation or contact substitution.
+ * A measured software-GPU delivery stall motivated this reversible experiment.
+ */
+export function createSoftwareSourceRigMaterial(THREE,source,{software=false}={}){
+ if(!source?.isMaterial)throw new TypeError('Source character material required');
+ if(!software||!source.isMeshStandardMaterial||source.isMeshPhysicalMaterial)return source;
+ if(typeof THREE?.MeshLambertMaterial!=='function')
+  throw new TypeError('Original Three.js Lambert material is required');
+ const material=new THREE.MeshLambertMaterial({
+  color:source.color,map:source.map,
+  emissive:source.emissive,emissiveMap:source.emissiveMap,
+  emissiveIntensity:source.emissiveIntensity,alphaMap:source.alphaMap,
+  alphaTest:source.alphaTest,transparent:source.transparent,
+  opacity:source.opacity,side:source.side,
+  depthWrite:source.depthWrite,depthTest:source.depthTest,
+  vertexColors:source.vertexColors,flatShading:source.flatShading,
+  fog:source.fog,wireframe:source.wireframe,toneMapped:source.toneMapped
+ });
+ material.name=(source.name||'Original source rig')+' · software diffuse';
+ return material;
+}
+
 export function createSoftwareDiffuseMasonry(THREE,source,{software=false}={}){
  if(!source?.isMeshStandardMaterial)
   throw new TypeError('Only original MeshStandardMaterial stone may be adapted');

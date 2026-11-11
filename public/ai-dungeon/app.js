@@ -931,7 +931,7 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  crowdedStageActors=Object.values(stagePositions).filter(position=>position.crowded).length;
  const seen=new Set(s.units.map(u=>u.id));
  for(const [id,a] of actors)if(!seen.has(id)){disposeActor(a);actors.delete(id)}
- for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a,{reducedMotion:reduced});actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a)}
+ for(const u of s.units){let a=actors.get(u.id);if(!a){a=rig(u);a.ground=addContactProjection(a,{reducedMotion:reduced});actors.set(u.id,a);a.root.position.set(u.x-9,0,u.z-9);attachCharacter(a,{softwareWebGL})}
   const damage=damageById.get(u.id);
   if(damage)a.damageBeat={...damage,age:-planVerifiedMeleeImpactDelay(damage,s,{reducedMotion:reduced}),contactAge:0};
   else if(u.hp>0&&a.damageBeat?.fatal)a.damageBeat=null;
