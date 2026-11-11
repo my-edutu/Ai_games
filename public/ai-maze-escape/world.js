@@ -2068,7 +2068,13 @@ export function createMazeWorld(options = {}) {
     // collision, invented key, unobserved map, or new source of AI authority.
     const counterbalance = new THREE.Group();
     counterbalance.name = 'Published tide-shear pressure counterbalance arch ' + c.cell;
-    counterbalance.position.set(0, 0, -.59);
+    counterbalance.position.set(0, -.10, -.64);
+    // One physical two-jaw silhouette takes priority in the genuine 390px
+    // pressure encounter. Lower and set back the *real rotating* governor and
+    // suspended counterweight rather than hiding or disabling their motion.
+    // The larger forward ceramic blades and exposed dark throat remain inside
+    // the original witnessed trap tile; no new trigger or private data.
+    counterbalance.scale.set(.75, .78, .75);
     p.add(counterbalance);
     for (const side of [-1, 1]) {
       mesh(counterbalance, bevel, deepStone, side * .85, .57, 0, .24, 1.08, .30);
@@ -2252,21 +2258,26 @@ export function createMazeWorld(options = {}) {
         -side * .27, .65, .25, .62, .27, .32, 0, 0, -side * .23);
       forearm.name = 'Published tide-shear inward brace';
       const vane = mesh(jaw, bevel, side < 0 ? seaGlass : jade,
-        -side * .23, 1.06, .22, .40, .95, .25, 0, 0, side * .13);
+        -side * .23, 1.06, .16, .22, .84, .14, 0, 0, side * .13);
       vane.name = 'Published tide-shear warning vane';
+      // Enlarge each true hinge-connected cutting FACE instead of the
+      // decorative talons. Opposed inset coral edges now face one another;
+      // open jaws expose a gap, and their genuine linked stroke crosses it.
+      // This replaces the prior mobile shard pile with two large coherent
+      // parts, not extra visual effects, warnings or collision authority.
       const blade = mesh(jaw, bevel, lightStone,
-        -side * .30, 1.07, .43, .54, 1.12, .29, 0, 0, side * .13);
+        -side * .28, 1.03, .43, .72, 1.28, .32, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .30, 1.07, .595, .17, 1.01, .06, 0, 0, side * .13);
+        -side * .56, 1.03, .625, .11, 1.17, .065, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
       mesh(jaw, bevel, darkMetal,
         -side * .30, .55, .63, .42, .10, .10);
       const fang = mesh(jaw, cone, gold,
-        -side * .32, 1.70, .40, .16, .24, .16, 0, 0, -side * .20);
+        -side * .32, 1.70, .40, .13, .18, .13, 0, 0, -side * .20);
       fang.name = 'Published tide-shear warning fang';
       const hookedTip = mesh(jaw, cone, amber,
-        -side * .35, 1.64, .57, .19, .31, .19, 0, 0, -side * .28);
+        -side * .35, 1.64, .57, .12, .22, .12, 0, 0, -side * .28);
       hookedTip.name = 'Published tide-shear hooked ceramic talon';
       trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
     }
