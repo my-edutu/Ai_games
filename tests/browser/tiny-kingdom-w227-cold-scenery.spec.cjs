@@ -15,7 +15,7 @@ for(const width of [1024,390]){
   const audited=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {profile:g.getColdSceneryBuildAudit(),geometry:g.renderStats(),
-    people:g.getState().people.length,homes:g.getState().city.length,
+    people:g.metrics().citizens,homes:g.metrics().buildings,
     terrain:g.getLandscapeCacheStats(),
     scene:g.getScenicMeshStorage(),width:document.documentElement.scrollWidth,
     gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
