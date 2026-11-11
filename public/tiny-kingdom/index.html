@@ -14467,8 +14467,11 @@ function getWorksiteAlignmentAudit(){
    progress:w.progress};
  }).filter(Boolean);
 }
-function appendActiveWorksiteDressing(w,x,y,z,pulse){
- const cue=worksiteVisualCue(w);
+// W235 Phase 1: genuine fixed worksite scaffolds for six actual professions
+// belong in the existing retained single worksite fixture VBO. Exact original
+// geometry and placements are preserved; human actions, stock, clocks, seeds,
+// saves, collisions and fallback are untouched.
+function appendStationaryWorksiteDressing(w,x,y,z){
  if(w.job==='forester'){
   // A real chopper's sawbuck and carried logs. Staggered cylinders are lying
   // on the wood rack rather than sticking upright like ornamental columns.
@@ -14477,6 +14480,48 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   for(let i=0;i<3;i++)
    limbSegment([x-.43,y+.28+i*.105,z+.48],
     [x+.40,y+.28+i*.105,z+.48],.085,rgb(i%2?0x866443:0x9f7851),6);
+ }else if(w.job==='farmer'){
+  box(x+.05,y+.06,z-.46,.49,.20,.35,rgb(0x9d7d50));
+  box(x+.05,y+.24,z-.46,.48,.045,.37,rgb(0xc6aa6e));
+ }else if(w.job==='builder'){
+  const front=z+WORKSITE_BUILDER_STAGE.benchFront;
+  const benchY=y+WORKSITE_BUILDER_STAGE.benchHeight;
+  const benchX=x+WORKSITE_BUILDER_STAGE.benchSide;
+  for(const side of [-1,1]){
+   const bx=benchX+side*.30;
+   limbSegment([bx,y+.02,front],[bx,benchY-.06,front],.057,rgb(0x77553a),5);
+  }
+  box(benchX,benchY,front,.75,.095,.43,rgb(0x946b43));
+ }else if(w.job==='merchant'){
+  // G123: the town ALREADY owns a canopy; a second meter-high awning
+  // directly in front of the worker blocked human-height gameplay footage.
+  // Keep the trade physically legible at hand height without hiding faces.
+  for(const side of [-1,1]){
+   limbSegment([x+side*.43,y+.03,z+.46],
+    [x+side*.43,y+.48,z+.46],.052,rgb(0x77563f),5);
+  }
+  box(x,y+.50,z+.46,1.00,.09,.55,rgb(0x9a7652));
+  ellipsoid(x-.29,y+.18,z+.26,.15,.18,.12,rgb(0xd2b98d),6);
+  ellipsoid(x+.28,y+.18,z+.26,.15,.18,.12,rgb(0xcab38e),6);
+ }else if(w.job==='craftsperson'){
+  // Hammered metal is visibly on an anvil, distinct from the carpenter table.
+  box(x-.38,y+.06,z+.47,.48,.28,.36,rgb(0x716c62));
+  box(x-.38,y+.34,z+.47,.66,.10,.32,rgb(0x96958c));
+  limbSegment([x+.37,y+.06,z+.36],[x+.38,y+.53,z+.37],
+    .045,rgb(0x8c6948),5);
+ }else if(w.job==='gatherer'){
+  // Herb baskets and hand-picked stalks appear only during a real forage.
+  box(x+.10,y+.04,z+.46,.52,.22,.33,rgb(0x886b48));
+  for(let i=0;i<3;i++){
+   limbSegment([x-.20+i*.19,y+.25,z+.45],
+    [x-.22+i*.19,y+.56+(i%2)*.08,z+.44],.022,rgb(0x638456),4);
+   cone(x-.22+i*.19,y+.47,z+.44,.075,.21,rgb(0x6d9860),5);
+  }
+ }
+}
+function appendActiveWorksiteDressing(w,x,y,z,pulse){
+ const cue=worksiteVisualCue(w);
+ if(w.job==='forester'){
   // Bounded chips accompany only a genuinely active chopping phase.
   for(let i=0;i<3;i++){
    const fall=.10+.10*Math.max(0,pulse+i*.18);
@@ -14488,8 +14533,6 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   // Before a real crop-cutting task, stems must remain standing. During
   // the original work timer, short stubble replaces just the cut row.
   // Temporary sheaves carry no stock: work() commits the ONLY food credit.
-  box(x+.05,y+.06,z-.46,.49,.20,.35,rgb(0x9d7d50));
-  box(x+.05,y+.24,z-.46,.48,.045,.37,rgb(0xc6aa6e));
   if(harvesting){
    const cut=Math.max(0,Math.min(6,Math.floor((cue.progress-.12)/.8*7)));
    for(let i=0;i<6;i++){
@@ -14558,11 +14601,6 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
   // tenon and chips are staged at the same world-facing workstation.
   const front=z+cue.staging.benchFront,benchY=y+cue.staging.benchHeight,
    benchX=x+cue.staging.benchSide;
-  for(const side of [-1,1]){
-   const bx=benchX+side*.30;
-   limbSegment([bx,y+.02,front],[bx,benchY-.06,front],.057,rgb(0x77553a),5);
-  }
-  box(benchX,benchY,front,.75,.095,.43,rgb(0x946b43));
   box(benchX+.02,benchY+.10,front-.06,.38+.24*cue.progress,.07,.16,rgb(0xc09a62));
   box(benchX-.15,benchY+.15,front+.07,.070,.11,.17,rgb(0x65442e));
   if(cue.phase<.16)for(let i=0;i<2;i++){
@@ -14571,16 +14609,6 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
     [benchX+dx+.02,benchY+.16,front+.09],rgb(0xdcc296));
   }
  }else if(w.job==='merchant'){
-  // G123: the town ALREADY owns a canopy; a second meter-high awning
-  // directly in front of the worker blocked human-height gameplay footage.
-  // Keep the trade physically legible at hand height without hiding faces.
-  for(const side of [-1,1]){
-   limbSegment([x+side*.43,y+.03,z+.46],
-    [x+side*.43,y+.48,z+.46],.052,rgb(0x77563f),5);
-  }
-  box(x,y+.50,z+.46,1.00,.09,.55,rgb(0x9a7652));
-  ellipsoid(x-.29,y+.18,z+.26,.15,.18,.12,rgb(0xd2b98d),6);
-  ellipsoid(x+.28,y+.18,z+.26,.15,.18,.12,rgb(0xcab38e),6);
   // A working balance with moving physical pans; real job phase governs
   // the counterweight while the citizen stands facing this very tabletop.
   const balance=cue.phase-.5,fulcrum=y+.80;
@@ -14592,13 +14620,8 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
    box(px,py-.18,z+.46,.23,.035,.20,rgb(0xb28a5e));
   }
  }else if(w.job==='craftsperson'){
-  // Hammered metal is visibly on an anvil, distinct from the carpenter table.
-  box(x-.38,y+.06,z+.47,.48,.28,.36,rgb(0x716c62));
-  box(x-.38,y+.34,z+.47,.66,.10,.32,rgb(0x96958c));
   box(x-.36,y+.45,z+.47,.32,.055,.14,
     rgb(cue.impactStrength>.4?0xf1ba70:0xa78d79));
-  limbSegment([x+.37,y+.06,z+.36],[x+.38,y+.53,z+.37],
-    .045,rgb(0x8c6948),5);
   // The metal and three tiny physical embers respond to the genuine hammer.
   // Zero unbounded particles, timers, shader passes or random streams.
   if(cue.impactStrength>.08)for(let i=0;i<3;i++){
@@ -14607,13 +14630,6 @@ function appendActiveWorksiteDressing(w,x,y,z,pulse){
     [sx+.045,sy-.01,z+.49],rgb(i%2?0xffdc9d:0xf5a661));
   }
  }else if(w.job==='gatherer'){
-  // Herb baskets and hand-picked stalks appear only during a real forage.
-  box(x+.10,y+.04,z+.46,.52,.22,.33,rgb(0x886b48));
-  for(let i=0;i<3;i++){
-   limbSegment([x-.20+i*.19,y+.25,z+.45],
-    [x-.22+i*.19,y+.56+(i%2)*.08,z+.44],.022,rgb(0x638456),4);
-   cone(x-.22+i*.19,y+.47,z+.44,.075,.21,rgb(0x6d9860),5);
-  }
   // Woven bundle visibly fills as the actual collecting timer advances.
   const fill=Math.floor(cue.progress*3);
   for(let i=0;i<fill;i++)
@@ -15602,6 +15618,7 @@ function emitFixedWorkstation(w,station){
   for(let i=-1;i<=1;i++)
    cone(x+i*.12,y+.22,z,.07,.24,rgb(0x688354),5);
  }
+ appendStationaryWorksiteDressing(w,x,y,z);
 }
 function emitMovingWorkstation(w,station,pulse){
  const x=station.localX,z=station.localZ,y=station.groundHeight;
@@ -15684,6 +15701,8 @@ function getWorksiteFixtureResidencyAudit(){
   disposals:worksiteFixtureDisposals,overBudgetFallbacks:worksiteFixtureOverBudget,
   actualWorkstations:workdayRenderStats.activeWorksites,
   preservesAnimatedHumanJobs:true,authorityModified:false,
+  stationaryDressingJobs:['forester','farmer','builder','merchant','craftsperson','gatherer'],
+  noPerFrameStationaryGeometryWhenResident:true,completeFallbackWhenDisabled:true,
   performance:'resident CPU geometry / uploads only; hardware FPS not established'};
 }
 function renderWorkdayTraces(){
