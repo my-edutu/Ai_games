@@ -245,7 +245,13 @@ export function createPhysicalCombatFeedback({
     submissionSeconds:renderSubmissionSeconds,
     maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
     visualAccepted:item.visual,visualAlive,visualDrawable,
-    requiresMeasuredBlade:item.cue.kind==='swing'&&!reducedMotion
+    requiresMeasuredBlade:item.cue.kind==='swing'&&!reducedMotion,
+    // A visible authoritative HP decrease, not an attempted swing, earns
+    // independently timed impact foley even if the retained shard is hidden.
+    // The frame/scene/400ms/visual-liveness/consent gates still apply.
+    allowVerifiedSoundOnlyImpact:item.visual===true&&
+     (item.cue.kind==='damage'||item.cue.kind==='damage-fatal')&&
+     item.cue.verified===true&&item.cue.proof==='observed-hp-drop'
    });
    if(decision==='await-drawable-visual'){
     // Keep the ORIGINAL deadline and queue priority while awaiting genuine
