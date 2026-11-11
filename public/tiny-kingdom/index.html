@@ -9904,6 +9904,80 @@ function renderCompactOccupationGear(p,x,y,z,s){
  });
 }
 let citizenMidVisualIndices=new Set();
+// W243: a coherent adult face and physically owned working fingers on REAL
+// autonomous mid/far residents. No actors, jobs, routes, stock, work timing,
+// save or seeded simulation change. Face/head/fingers share the original 13-bone
+// joint contract, existing retained compact-citizen VBO and projected LOD.
+function renderCompactOriginalFace(p,index,x,y,z,s,skin,hair,rig,pose){
+ const first=data.length,mid=citizenMidVisualIndices.has(index),sides=mid?8:6;
+ // Connected original brow/jaw/scalp silhouettes instead of a generic sphere
+ // under a rectangular hair slab. Facial landmarks are reserved for actually
+ // legible middle-distance workers and their genuine occupations.
+ const rings=[
+  {h:1.245,rx:.105,rz:.102,f:.024},
+  {h:1.327,rx:.153,rz:.150,f:.017},
+  {h:1.442,rx:.191,rz:.177,f:0},
+  {h:1.556,rx:.176,rz:.159,f:-.014},
+  {h:1.653,rx:.127,rz:.119,f:-.026}
+ ];
+ const vertex=(r,k)=>{
+  const angle=k*Math.PI*2/sides;
+  return [x+Math.sin(angle)*r.rx*s,y+r.h*s,
+   z+(Math.cos(angle)*r.rz+r.f)*s];
+ };
+ materialScope(MATERIAL.GENERAL,()=>{
+  taperedMedievalLimb([x,y+1.17*s,z],[x,y+1.29*s,z],
+   .083*s,.073*s,skin,6);
+  for(let layer=0;layer<rings.length-1;layer++)
+   for(let k=0;k<sides;k++){
+    const next=(k+1)%sides;
+    quad(vertex(rings[layer],k),vertex(rings[layer],next),
+     vertex(rings[layer+1],next),vertex(rings[layer+1],k),skin);
+   }
+  for(let k=0;k<sides;k++)
+   tri(vertex(rings[rings.length-1],k),
+    vertex(rings[rings.length-1],(k+1)%sides),
+    [x,y+1.686*s,z-.026*s],skin);
+  // Organic short-hair volume stays below every original role hat.
+  ellipsoid(x,y+1.617*s,z-.034*s,.174*s,.078*s,.159*s,hair,mid?7:6);
+  for(const side of [-1,1]){
+   const ex=x+side*.185*s,ez=z+.022*s;
+   quad([ex,y+1.468*s,ez-.042*s],
+    [ex+side*.034*s,y+1.456*s,ez-.013*s],
+    [ex+side*.028*s,y+1.369*s,ez+.012*s],
+    [ex,y+1.367*s,ez-.019*s],skin);
+  }
+  taperedMedievalLimb([x,y+1.432*s,z+.166*s],
+   [x,y+1.358*s,z+.210*s],.029*s,.021*s,skin,4);
+  if(mid){
+   const ink=rgb(0x302b27),white=rgb(0xb9a996);
+   const effort=rig.working?Math.max(0,Math.min(1,rig.acting.beat||0)):0;
+   for(const side of [-1,1]){
+    const eyeX=x+side*.078*s,eyeZ=z+.183*s;
+    quad([eyeX-.035*s,y+1.482*s,eyeZ],
+     [eyeX+.035*s,y+1.482*s,eyeZ],
+     [eyeX+.034*s,y+1.501*s,eyeZ],
+     [eyeX-.034*s,y+1.501*s,eyeZ],white);
+    quad([eyeX-.012*s,y+1.481*s,eyeZ+.008*s],
+     [eyeX+.011*s,y+1.481*s,eyeZ+.008*s],
+     [eyeX+.012*s,y+1.500*s,eyeZ+.008*s],
+     [eyeX-.012*s,y+1.500*s,eyeZ+.008*s],ink);
+    const brow=y+(1.540+.018*effort)*s;
+    quad([eyeX-.044*s,brow,eyeZ-.008*s],
+     [eyeX+.043*s,brow+.006*s,eyeZ-.008*s],
+     [eyeX+.040*s,brow+.018*s,eyeZ-.008*s],
+     [eyeX-.043*s,brow+.011*s,eyeZ-.008*s],hair);
+   }
+   const lipY=y+(1.296-.011*effort)*s;
+   quad([x-.049*s,lipY,z+.159*s],[x+.049*s,lipY,z+.159*s],
+    [x+.046*s,lipY+(.012+.011*effort)*s,z+.161*s],
+    [x-.046*s,lipY+(.012+.011*effort)*s,z+.161*s],ink);
+  }
+ });
+ rescaleCitizenHead(first,data.length,x,y,z,s);
+ turnCitizenHead(first,data.length,x,y,z,s,pose);
+ tagWorkSkinRange(11,first);
+}
 function compactVillager(p){
  const vertexStart=data.length;
  const i=Math.max(0,people.indexOf(p)),s=.92+(i%5)*.045,
@@ -9936,20 +10010,20 @@ function compactVillager(p){
    from=data.length;
    limbSegment(joint(arm.elbow),joint(arm.wrist),.074*s,cloth,4);
    tagWorkSkinRange(j+4,from);
+   // The authentic work hand follows the SAME two-bone IK wrist and GPU bone.
+   // Do not spend fingers on a human too small to read at projected far LOD.
+   if(citizenMidVisualIndices.has(i)||rig.working||rig.hauling){
+    const handStart=data.length;
+    renderArticulatedHand(joint(arm.wrist),s,skin,sideIndex===0?-1:1);
+    tagWorkSkinRange(j+4,handStart);
+   }
   }
   // The actual job-specific wrist prop is emitted after the physical body,
   // so farmers carry sheaves, builders a mallet, foresters an axe, etc.
   // Do not substitute the old shared featureless block for every profession.
   // Distinct skin from oak/wool: distant human faces must not receive
   // the baked wood fiber shader used by the market's beams and tools.
-  materialScope(MATERIAL.GENERAL,()=>{
-   const headStart=data.length;
-   ellipsoid(x,y+1.35*s,z,.22*s,.25*s,.21*s,skin,6);
-   box(x,y+1.50*s,z-.02*s,.34*s,.12*s,.32*s,hair);
-   rescaleCitizenHead(headStart,data.length,x,y,z,s);
-   turnCitizenHead(headStart,data.length,x,y,z,s,embodiment);
-   tagWorkSkinRange(11,headStart);
-  });
+  renderCompactOriginalFace(p,i,x,y,z,s,skin,hair,rig,embodiment);
   box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
  });
  renderCompactOccupationGear(p,x,y,z,s);
