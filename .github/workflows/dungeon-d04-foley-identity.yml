@@ -67,7 +67,7 @@ jobs:
         with:
           name: d04-authentic-preview-smoke
           path: |
-            artifacts/dungeon-d04-real-combat-world.png
+            artifacts/dungeon-d04-*
             test-results/**
           retention-days: 7
           if-no-files-found: warn
