@@ -2646,6 +2646,19 @@ export function createMazeWorld(options = {}) {
     // hint at a private hazard. Reduced motion holds one readable static pose.
     // The published movement step controls how quickly the complete visible
     // pressure action can play; standalone callers retain the prior 1.25s.
+    // Pass274: the public pose can be one tile from a visible trap while a
+    // SEALED gate, non-reciprocal edge or different-height terrace separates
+    // them. Distance is not physical pressure contact. Only the disclosed
+    // current cell and an independently verified reciprocal, level, unsealed
+    // pressure-court connection may start the real floor/jaw action. Same-cell
+    // contact remains authoritative. Visibility alone may warn, never actuate.
+    // This reuses the exact public edge rule used to draw the physical apron,
+    // so the presentation cannot contradict its own world geometry.
+    // No private topology, path plan, collision, AI or simulation rule read.
+    const currentPublicPressureCell = Number.isSafeInteger(snapshot?.currentCell)
+      && Array.isArray(snapshot?.cells)
+      ? snapshot.cells.find(cell=>cell?.cell===snapshot.currentCell
+        && cell.blocked!==true) : null;
     const pressureSequenceSeconds = Number.isFinite(options.stepDurationMs)
       && options.stepDurationMs > 0
       ? publicPressureSequenceSeconds(options.stepDurationMs)
@@ -2677,7 +2690,13 @@ export function createMazeWorld(options = {}) {
       // bronze relays; shutters cannot open before a witnessed near approach.
       // Retreat, lost public visibility and clock rollback immediately reset
       // the stage: never imply a hazard is still open or reveal hidden state.
-      const nearContact = visible && opening >= .75;
+      const disclosedTrap = Array.isArray(snapshot?.cells)
+        ? snapshot.cells.find(cell=>cell?.cell===signal.cell
+          && cell.trap===true && cell.blocked!==true) : null;
+      const publiclyReachableContact = !!currentPublicPressureCell && !!disclosedTrap
+        && (currentPublicPressureCell.cell===signal.cell
+          || publicPressureCourtLink(currentPublicPressureCell,disclosedTrap,snapshot));
+      const nearContact = visible && publiclyReachableContact && opening >= .75;
       if (!nearContact || (signal.pressureLastTime !== null
         && presentationTime < signal.pressureLastTime)) signal.pressureSince = null;
       if (nearContact && signal.pressureSince === null)
