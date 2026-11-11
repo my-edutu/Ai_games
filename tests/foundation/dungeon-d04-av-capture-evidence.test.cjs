@@ -676,3 +676,54 @@ test('D04 compositor witness rejects static, flat, made-up, unbracketed and out-
   assert.notEqual(classifyCompositorWitness(example),
    'REAL_COMPOSITOR_WORLD_STILLS_CHANGING_UNALIGNED');
 });
+
+
+/**
+ * The genuine GitHub browser artifact at D04 commit d123738 had 14,055 bytes
+ * of VP8 WebM but ONLY ONE independently decoded frame. Container bytes are
+ * not moving footage. The decoder must fail closed on that real failure mode.
+ */
+const authenticDecodedVideo={
+ source:'ffmpeg-decoded-real-webgl-serial-video',
+ method:'framemd5-24x16-first-64',status:'DECODED',codec:'vp8',
+ frameCount:3,distinctFrames:2,
+ hashes:['6ea9125b620d27942879d5e3ab9af608',
+  '2c6c11e357058753d8b68b0718b8b30e',
+  '2c6c11e357058753d8b68b0718b8b30e']
+};
+test('D04 never upgrades real encoded WebM bytes to moving gameplay without two different decoded frames',()=>{
+ const {classifyDecodedSerialGameplay}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const single={...authenticDecodedVideo,frameCount:1,distinctFrames:1,
+  hashes:authenticDecodedVideo.hashes.slice(0,1)};
+ assert.equal(classifyDecodedSerialGameplay({video:serialGameVideo,decoder:single}),
+  'SERIAL_REAL_WEBGL_ONE_OR_STATIC_FRAME_UNVERIFIED');
+ assert.equal(assessD04Capture({...good,isolated:{serialRealVideo:serialGameVideo},
+  decoder:{serialRealVideo:single}}).serialRealVideoMotionQualified,false);
+ assert.equal(classifyDecodedSerialGameplay({video:serialGameVideo,decoder:authenticDecodedVideo}),
+  'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED');
+ const verified=assessD04Capture({...good,isolated:{serialRealVideo:serialGameVideo},
+  decoder:{serialRealVideo:authenticDecodedVideo}});
+ assert.equal(verified.serialRealVideoRecorded,true);
+ assert.equal(verified.serialRealVideoMotionQualified,true);
+ assert.equal(verified.sampleSynchronized,false);
+ assert.equal(verified.classification,'UNVERIFIED');
+});
+test('D04 frame decoder policy rejects nonexistent, synthetic, forged or unbounded motion evidence',()=>{
+ const {classifyDecodedSerialGameplay}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const invalid=[
+  {...authenticDecodedVideo,source:'synthetic-2d-canvas'},
+  {...authenticDecodedVideo,method:'claimed-screen-recorder'},
+  {...authenticDecodedVideo,codec:'h264'},
+  {...authenticDecodedVideo,frameCount:80},
+  {...authenticDecodedVideo,frameCount:2},
+  {...authenticDecodedVideo,distinctFrames:3},
+  {...authenticDecodedVideo,hashes:['fake','fake','fake']},
+  {...authenticDecodedVideo,status:'UNAVAILABLE'}
+ ];
+ for(const decoder of invalid)
+  assert.notEqual(classifyDecodedSerialGameplay({video:serialGameVideo,decoder}),
+   'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED');
+ assert.notEqual(classifyDecodedSerialGameplay({video:{
+  ...serialGameVideo,source:'synthetic-2d-canvas'},decoder:authenticDecodedVideo}),
+  'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED');
+});
