@@ -49,6 +49,11 @@ const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(p
 const spectatorUI=installSpectatorUI();
 // D04 opt-in preview only; the known legacy spectator remains default.
 const D04_PREVIEW=new URLSearchParams(location.search).get('feedback')==='d04';
+// Only the explicit D04 evidence run may retain the drawing buffer. The
+// normal spectator and standard D04 preview retain the previous GPU path.
+// This is a diagnostic of Chromium's blank delayed WebGL readback, NOT a
+// claim that MediaRecorder or original foley are now synchronized.
+const D04_CAPTURE_BUFFER=D04_PREVIEW&&new URLSearchParams(location.search).get('captureProbe')==='retain';
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
 function directCamera(s){
  const alive=s.units.filter(u=>u.faction==='party'&&u.hp>0);
@@ -70,7 +75,7 @@ function directCamera(s){
 const combatShotContinuity=createCombatShotContinuity();
 const physicalCameraDirector=createPhysicalCameraDirector();
 const actorOcclusionStage=createActorOcclusionStage(THREE);
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',alpha:false,preserveDrawingBuffer:D04_CAPTURE_BUFFER});
 renderer.info.autoReset=false;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;
 // Use the actual renderer identity, not a browser/OS guess. CPU SwiftShader
 // cannot afford eager multi-pass bloom before its first spectator frame.
