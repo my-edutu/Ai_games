@@ -68,7 +68,7 @@
     "reviewCounts": "0/5 LOOKS 0/5 FEELS 0/5 PLAYS",
     "currentCI": "43032554322 failed runner DNS during Playwright OS package install; next source exact-head CI pending"
   },
-  "requestedOn": "2026-11-11",
+  "requestedOn": "2026-11-12",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "Exact immutable github.sha of THIS capture-request change including original HP-operated full-stroke 3D winches, rendered guide-geometry contracts and corrected 5.1m combat-air clearance at 3d913591. No checkout of moving PR head and never move baseline.",
@@ -841,5 +841,38 @@
     },
     "hardware": "NOT EVALUATED",
     "nextAction": "Inspect source-pinned finished full-motion original 1x films, do not use event-search time as native pixel time. Fix dominant confirmed real crossing / guardian obstruction and 2.7s source-to-raster discrepancy. Never promote stage before evidence."
+  },
+  "p0FloorNineTruthfulFirstRenderedFrame20261112": {
+    "stage": "P0 OPEN",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "gameplayImplementationSha": "277ea3605e1ee278c0b78532ef081635d678462f",
+    "currentRequestPins": "Immutable GitHub github.sha of THIS capture-request update on PR68 branch. Frozen baseline checkout unchanged. Candidate checkout exact request commit.",
+    "reason": "Latest 9-job 43113060409 original game evidence 8/8 films with source chain and native clock calibrated but native drawn floor phase 1.706s portrait/1.948s desktop after calibrated tick451. Exact browser-accept-to-WebGL-return on first Floor9 approx .849s/.1.168s. The new 277ea360 deferred ONLY distant noninteractive scenery until first successful source-authentic Floor9 render, then soft fade, seeking a faster and less abrupt physical 8→9 handoff without altering authority. Record actual full motion to accept or reject; do not count CI tests as quality.",
+    "requestDate": "2026-11-12",
+    "unchangedOriginalCapture": "9 jobs, 8 original >=60-second baseline/candidate 960x600 and 390x844 films + authentic guardian/crusher through restart fixed-step witness, same seed/low tier, native unedited WebM/source clocks and original HUD, privacy and reviewer gates unchanged",
+    "expectedProof": [
+      "First f9 ground, climber and source hazards rendered before far citadels only on authenticated guardian clearance",
+      "No gateway crop or far-background visible pop during 1x filming",
+      "Relative HTTP source, browser-accepted, actual returned WebGL, native PTS/pixels show material improvement, never assume from code",
+      "Desktop and portrait physical gateway crossing visually legible after HP0 crusher",
+      "Result/intermission/restart and Floor9 onward genuine in original normal speed",
+      "Resource disposal and reduced-motion/lower-tier integrity, no regressions"
+    ],
+    "beforeEvidence": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/43113060409",
+      "sourceSha": "3ffa8d797ac9a4042e9408eb4fd20b348695ddb2",
+      "nativeEventAcceptedViewports": "0/2",
+      "portraitSourceFloor9Seconds": 23.793718374899456,
+      "portraitDrawnHudFloor9Seconds": 25.5,
+      "desktopSourceFloor9Seconds": 23.051924527489632,
+      "desktopDrawnHudFloor9Seconds": 25
+    },
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedHardware": "NOT EVALUATED",
+    "nextAction": "Compare matching original source SHA at 1x in real browser; confirm/debunk causal improvement from staged distance. Keep P0 open until strict 2/2 and blind/device gates."
   }
 }

@@ -43,7 +43,7 @@
     "nextAction": "Capture original 60+ second source-pinned 960x600 and 390x844 baseline/candidate films; inspect actual accepted→returned WebGL→native pixels time and complete continuous physical threshold crossing/floor9, outcome/restart; make dominant source-verified gameplay/scene repair, then independent blinded reviewers and physical devices."
   },
   "schemaVersion": 1,
-  "updated": "2026-11-11",
+  "updated": "2026-11-12",
   "mode": "transformation-first",
   "p0SourceFilmedTwoBodyWideActionCamera20261111": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
@@ -8251,5 +8251,32 @@
     "afterChangeExactOriginalCaptureRequest": "https://github.com/my-edutu/Ai_games/commit/3ffa8d797ac9a4042e9408eb4fd20b348695ddb2 — exact-source 9-job browser evidence requested; not yet verified as admitted or completed",
     "directAuthenticFilmInspection": "Downloaded GitHub original candidate danger artifact 13895277136 from completed run 43108948655, both authentic source-pinned unedited 73.2s portrait and 73.6s desktop WebMs. Inspected 1-second 10–37s timeline and 250ms native film frames 22–27s. At 22–24s portrait hero remains airborne over lower bronze machinery; ~24.75–25.5s hero is on upper wooden gallery, not clearly shown walking through a recognizable open threshold. Film cuts to visibly different purple Floor9 world 25.75–26s with hero already standing on a new platform. Desktop 22–25.75s hero/platform are partly obscured by bronze rig and rails; 26s Floor9 purple world. This is genuine image inspection, NOT completed continuous 1x video acceptance, and does not contradict source-grounded x crossing at tick451.",
     "sourceGroundedCrossingEvidence": "Original-host source-trace portrait tick 443–451: x 291896→324296 at y=3238000 on f8:cap; floor-complete tick451 with exitX 304896, clearanceX 317896, crossingX 324296 and groundedPlatformId f8:cap. Source proves physical rule branch, but the film does not establish legible grounded walking through the doorway."
+  },
+  "p0SourceEarnedFloorNineRemoteArtAfterFirstFrame20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedCandidateSha": "3ffa8d797ac9a4042e9408eb4fd20b348695ddb2",
+    "authenticPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43113060409",
+    "authenticPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43113060331 — SUCCESS exact-head technical, NOT a gameplay/quality vote",
+    "previousCaptureTruth": "All 8 original baseline/candidate films and real authoritative floor-eight-to-nine source sequence captured; 8/8 source pair integrity and native timebases. Strict event/native drawn-HUD sync FAILED 0/2 viewports, no independent critics. Latest candidate original portrait 73.2s, desktop 72.12s. In exact candidate clock source tick451 is 23.794s portrait /23.052s desktop; drawn Floor9 HUD 25.5s portrait /25.0s desktop, approximately 1.706s/1.948s late. Browser first Floor9 accepted near source transition but returned Three.js submission ~849ms portrait and ~1168ms desktop later. A returned WebGL call is not displayed GPU frame proof.",
+    "verifiedDominantExperienceDefect": "Original candidate 390x844 film at 10–25s shows bronze machinery, thin upright guardian seal and railing intersecting the everyday climber/guardian composition. Between ~23–25.5s the skinned climber approaches the opened roof on the right but the exact grounded doorway crossing is not legible before an abrupt purple Floor9 scene change. Source tick451 does prove a real grounded gate clearance; film itself does not.",
+    "codeSha": "277ea3605e1ee278c0b78532ef081635d678462f",
+    "implementation": "Source-gated two-phase original-world construction. On an actual same-run next-floor snapshot after zero-HP guardian and grounded cap, build complete new playable tower, deck/hazard/collision-aligned danger, canonical canyon/biome and hero in the FIRST actual submitted scene. Only far non-playable 7-citadel background is delayed until a matching successful Three.js renderer.render return, then faded through the original fog over about 0.55s. Only one pending owned job; canceled on rebuild/dispose/quality change/restart; no new actors/floors/colliders, no timers, no source mutations. Adds read-only world diagnostics: first rebuild vs deferred art build CPU times.",
+    "productionPaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs"
+    ],
+    "sourceContractTests": "tests/phase3/tower-earned-floor-arrival-budget.test.cjs — source-authenticated floor guard, waiting on actual committed rendering, guaranteed ground/canyon on first frame, staged low-tier distance, disabled on restart/quality switch; no visually graded scores",
+    "afterChangeTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43121814838 — IN PROGRESS when evidence was written; not yet marked successful",
+    "afterChangeOriginalCapture": "NOT CAPTURED at this code SHA at evidence-authorship time; exact-head request included with evidence commit",
+    "hardware": "NOT EVALUATED: no supported devices, p50/p95/p99 presented frame time or GPU/heap trend",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "safety": "Never alter PR58, frozen source baseline, gameplay authority, AI, collisions, replay, outcome, cadence, recording speed or original media. CI veto is not an experience score.",
+    "nextAction": "Verify strict CI and 9-job immutable-source capture. Compare Floor9 source tick451 to first browser acceptance, returned WebGL frame, original native raster floor frame; inspect post-gateway full-motion portrait and desktop for new scenery pop, fully grounded walk, legible boss/crusher, Floor9 onward and result/restart. Revert staged far art if worse. Advance P0 only after 2/2 strict event sync and genuine review/device evidence."
   }
 }
