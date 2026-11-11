@@ -8097,6 +8097,47 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect genuine exact-head 1440/390 video and render diagnostics. Count actual native head segments; compare same seed/camera against immutable baseline, reject if unseen or deformed. Address Warden size and SwiftShader delivery."
+    },
+    "m1OriginalPhysicalLowAngleWarden20261111": {
+      "at": "2026-11-11",
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "baselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/41302939553/artifacts/13081734898",
+      "inspectedParent": "b64bcaba4135aacf21cd3ed33f3ab6e5bac708fd",
+      "beforeExactHeadOrganicRun": 43010743270,
+      "beforeMobileArtifact": 13850612416,
+      "beforeDesktopArtifact": 13850788077,
+      "observedActualDefect": "390x658 real original Warden fight has tiny skinned cast and steep physical camera (~11.15m) while all authentic threat cells must be retained; preceding adult-face refit is not a visible transformation",
+      "sourceImplementation": "Original physically lowered boss warning orbit up to 2.2m with 180 bounded CPU-only candidates per new warning, all true hazard corners and source-bone grading, separate physical masonry/foreground reject and reduced-motion/authority protections",
+      "sourceCommits": [
+        "5a6eb50eed438a4ca50ba9ac8770d63822a46295",
+        "03bd6dfa8a372b67434f916118e70a36d2015f3e"
+      ],
+      "testFirst": "RED new source/director contract then focused 10/10 GREEN; complete dungeon:test 421/421 PASS, TypeScript build PASS",
+      "replay": "24 independent seeds x 900 authoritative ticks; zero checksum divergence; 199 floor advances; five natural restarts",
+      "syntheticGeometryWitness": {
+        "warningCells": 24,
+        "viewport": "390x658",
+        "baseCameraY": 11,
+        "lowerCameraY": 8.8,
+        "sourceMinimumPixelsBefore": 54.86,
+        "sourceMinimumPixelsAfter": 72.86,
+        "requiredFovAfter": 51.97,
+        "unchangedActualLensFov": 53,
+        "physicalSyntheticBlocked": 0,
+        "physicalSyntheticCropped": 0,
+        "proposals": 180
+      },
+      "newHeadRealGameVideo": "NOT_OBSERVED",
+      "newHeadOriginalImpactSoundSynchronization": "UNVERIFIED",
+      "hardwareGPU": "UNVERIFIED",
+      "originalPhotoMatchedBaselineAB": "NOT_ESTABLISHED",
+      "independentCritics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new-head real original 1440/390 five-stage source-stamped desktop/mobile A/V, verify low shot actually chosen and source bodies visibly enlarge with every authoritative Warden risk corner and no occlusion or performance regression; reject otherwise, then build original adult fullbody, contact/audio and world integrative stage with matched baseline, 3 fresh blinded critics before accepting. PR72 stays isolated; no merge/deploy."
     }
   }
 }
