@@ -251,6 +251,28 @@ jobs:
             if (!binary || !fs.existsSync(binary)) {
               throw new Error('Missing platform-native ' + name + ' executable');
             }
+            // On GitHub's Ubuntu 24.04 runner the npm binary payloads may
+            // arrive with mode 0644 under --ignore-scripts. The preceding
+            // eight-film run 43049538141 failed 8/8 with EACCES (exit 126)
+            // even though both symlink targets existed. Install ONLY the
+            // selected native tool and make its packaged executable runnable.
+            // Never chmod a checkout's game sources or bypass native audit.
+            const stat = fs.statSync(binary);
+            if (!stat.isFile() || stat.size < 4096) {
+              throw new Error('Invalid platform-native ' + name + ' payload');
+            }
+            const fd = fs.openSync(binary, 'r');
+            const magic = Buffer.alloc(4);
+            try { fs.readSync(fd, magic, 0, 4, 0); }
+            finally { fs.closeSync(fd); }
+            if (magic.toString('hex') !== '7f454c46') {
+              throw new Error('Expected ELF executable for Linux ' + name);
+            }
+            const before = stat.mode & 0o777;
+            if ((before & 0o111) === 0) fs.chmodSync(binary, before | 0o755);
+            fs.accessSync(binary, fs.constants.X_OK);
+            console.log(name + ': native ELF verified, executable mode ' +
+              (fs.statSync(binary).mode & 0o777).toString(8));
             fs.symlinkSync(binary, path.join(root, 'bin', name));
           }
           NODE
@@ -259,8 +281,9 @@ jobs:
           fi
           command -v ffprobe
           command -v ffmpeg
-          ffprobe -version | head -n 1
-          ffmpeg -version | head -n 1
+          # Execute BOTH real native binaries: an existing path is not enough.
+          ffprobe -version
+          ffmpeg -version
       - name: Pin provenance and capture full-motion authentic desktop and phone play
         id: pin_source
         working-directory: source
