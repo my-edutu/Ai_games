@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T05:12:44.000Z",
+  "updatedAt": "2026-11-11T06:35:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass262: exact Pass261 source d2ef0811 native WebGL 42959999336 SUCCESS, 37/37 original PNG hashes verified; full original pressure shot still has a cluttered secondary mechanism around the two true shears. Source candidate darkens secondary actuators and makes true ivory/coral cutting lips dominant without increasing 320px physical extent. Previous whole CI 42959999457 had 1/761 conflicting legacy physical hinge-depth assertion corrected to strict current .12. Fresh source tests and WebGL visual acceptance PENDING. Fixed Nintendo Captain Toad benchmark NOT MET."
+    "summary": "Pass263 candidate: after successful original Pass262 exact-HEAD native WebGL 42965049738, the true two pressure jaws now close as a single event-driven machine: their roots travel inward 12 cm only after real public treadle/shutter motion while keeping current hinge arc. A new source-bound installed-Three test covers all phases, no hidden information, reduced motion and GPU reuse. Fresh new-HEAD CI/native screenshots and detached critic NOT YET VERIFIED; Nintendo benchmark UNMET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass263 production candidate: symmetric 12cm pressure-jaw root travel coupled to the REAL public shutter beat, after relay warning; original hinges, treadle, governor, 2.4m trap-cell bounds and authoritative AI/visibility untouched. Static 6cm reduced-motion contact, immediate retreat/hidden reset; new installed-Three source-bound physical/privacy/resource test. Previous source 269842d0 original native WebGL SUCCESS; new source exact-HEAD CI/render pending. Nintendo benchmark NOT MET.",
     "Pass261 source candidate, after current exact 630e3046 SUCCESS WebGL 42949914126 (37/37 genuine image hashes): recompose the actual event-driven public Tide-Shear into a connected 2m stone machine with dark floor throat and paired 1.77m ivory guides, recede crowded mast and bring two original cutting blades forward; preserve authoritative trigger and gameplay/visibility, pooled geometries and strict NDC/resource budgets. Added installed-Three/reset physical contracts. NEW exact-HEAD tests and authentic renders pending; Nintendo benchmark NOT MET.",
     "Pass260 original pressure-court physical world reconstruction: exact predecessor b53291d9 WebGL run 42944577211 SUCCESS, 37/37 unaltered PNG/JSON hash pairs verified. Larger, joined facade on a real published solid 1.4m retaining wall, never predictive private trap, fake stair/gate or route. Installed Three/public privacy tests authored; new-HEAD original screenshots/tests pending, Nintendo bar unmet.",
     "Pass259 phase6 load-brace physical correction: real exact source whole CI 42943970720 passed 758/759 but rejected old physical diagonal shoulder x=.58 below original >=.60. Increased the same genuine connected bronze brace to .62 (no extra geometry), never lowered the acceptance gate. New-source full CI and WebGL render pending.",
@@ -208,6 +209,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass263 exact-SHA native 320/390/844x390/1280 WebGL: full-frame tick-by-tick VERIFY two authentic jaw roots now slide as one physical machine on real public treadle contact and reset on withdrawal, without losing original ±.95 Pip/jaw, >=.70 withdrawal, 44px controls, six-run <100 resources, hidden-info/privacy. Compare actual original screenshots to Pass262 and fixed Nintendo bar; do not accept source tests as artistic victory.",
     "Pass261 exact-new-HEAD native WebGL: evaluate 320,390,844x390,1280 real pressure approach/contact/withdrawal and independent original-shader side-by-side with source 630e3046; check 37/37+ original SHA sidecars, ±0.95 full silhouettes, 44px controls, six-reset <100 geometry/spread, no fake public knowledge. If still piles up, remove redundant inner physical ornaments rather than adding more parts; do not call source contract a visual win.",
     "Critic Pass255: verify new SHA-matched original full-stage 390px public inspection light genuinely reaches real jaws without passing through walls, clears on tick6, preserves physical ±.95 framing, mobile and strict <100 six-run budget; then reconstruct large original gameplay/world beat. Independent Nintendo critic required.",
     "Pass248: strict <100 unchanged six-run resource/reset, native 320/390/844/1280 full-size exact-HEAD captures with verified SHA and original game snapshots, visibly distinguish resting/pressed/released treadle against original WebGL, check complete Pip/jaw ±.95 and >.70 action scale, then fresh-context artistic comparison to official Captain Toad. No visual victory on source tests.",
@@ -248,6 +250,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass263 publicly witnessed paired pressure-rail mechanism — source-only candidate",
+      "reviewer": "Prior exact-source authentic PNG inspected; separate critic/tunnel unavailable",
+      "verdict": "Candidate unverified in native WebGL; Nintendo benchmark remains REJECTED",
+      "date": "2026-11-11T06:35:00.000Z",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-263-true-paired-pressure-rail-shear-2026-11-11.md"
+    },
     {
       "title": "Pass248 native key verification and physical pressure-treadle candidate",
       "reviewer": "Original unaltered source-bound images inspected; separate blind critic unavailable",
@@ -758,6 +767,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass263 true paired jaw-rail event and reset",
+      "status": "SOURCE CANDIDATE; exact HEAD Node/6-run/WebGL/independent critic PENDING",
+      "detail": "Source-only GitHub edit due disconnected coding workspace. Prior Pass262 exact 269842d0 native WebGL workflow 42965049738 SUCCESS. New test demands left/right 12cm physical closure only on public shutter phase, no private cue, symmetry, reset/reduced motion, same GPU pool and within known tile.",
+      "sourceCommit": "pending new PR-head commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "name": "Pass261 previous source and physical machine candidate",
       "status": "PREVIOUS EXACT-HEAD WEBGL SUCCESS + 37/37 authentic PNG/SHA pairs; NEW 3D source NOT YET RENDERED",

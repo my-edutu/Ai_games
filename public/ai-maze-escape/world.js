@@ -2682,6 +2682,18 @@ export function createMazeWorld(options = {}) {
       // pressure sequence, authored cell, geometry, AI and collision remain.
       // Releasing the real public pressure returns both to upright rest.
       jaw.object.rotation.z = jaw.side * angle;
+      // Pass263: a single machine shears, rather than two independent
+      // hinge sculptures. The SAME publicly witnessed ceramic-shutter
+      // stroke retracts BOTH complete blade roots along the existing
+      // paired ivory floor guides. The 12cm inward slide is deliberately
+      // delayed until AFTER the earned relay warning, so mere diagonal
+      // observation cannot close the trap. The roots return to their
+      // original ±.68m positions immediately on retreat, loss of public
+      // sight, terminal state or run reset. Reduced motion has one static
+      // 6cm contact pose. This is presentation-only and uses no extra
+      // geometry, physics authority, private map state or AI knowledge.
+      const inwardRailTravel = signal?.reducedContact ? .06 : .12 * shutterBeat;
+      jaw.object.position.x = jaw.side * (.68 - inwardRailTravel);
     }
     for (const relic of fossilSails) {
       const near=Math.max(0,1-Math.hypot(hx-relic.x,hz-relic.z)/3.2);
