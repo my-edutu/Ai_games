@@ -1122,7 +1122,7 @@ body[data-command="world"] :is(.world-tour,.bottom,#world-ribbon,.top .pill,#cam
  :not(#pause):not(#speed1):not(#focus):not(#command-toggle){
   display:none!important;
  }
- body[data-command="world"][data-workday="off"]:not([data-street="on"]) #world-ribbon{
+ body[data-command="world"][data-workday="off"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
   position:fixed;top:auto!important;bottom:10px!important;
   left:auto!important;right:12px!important;transform:none!important;
   width:max-content!important;
