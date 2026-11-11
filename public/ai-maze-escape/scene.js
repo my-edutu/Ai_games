@@ -1228,6 +1228,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           && c.trap===true && c.blocked!==true);
       const contactHeight=publicPhysicalPressureContactHalfHeight(
         heroSpan,jawSpan,halfHeight,aspect,activePressureContact);
+      // Frame a genuinely centerable Pip/jaw pair by moving the real camera
+      // after its lens change. The contact stage uses stricter +/- .89 NDC
+      // while the historical withdrawal reframe remains exactly .945.
       const genuineContactZoom=contactHeight<halfHeight;
       if (genuineContactZoom) {
         halfHeight=contactHeight;
@@ -1255,10 +1258,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         heroSpan=physicalSpan(explorer.group);
         jawSpan=physicalSpan(hazard);
       }
-      // A real centerable pair may be offset on the entering frame: after
-      // the lens change, translate the actual camera, not Pip or the jaws.
-      // Contact has MORE interior slack than our unmodified strict +/- .95
-      // source-bound browser gate; every other pressure beat retains .945.
       const horizontalShift=publicPhysicalPressureHorizontalReframe(
         heroSpan,jawSpan,halfHeight,aspect,genuineContactZoom ? .89 : .945);
       if (horizontalShift) {
