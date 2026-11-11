@@ -90,7 +90,7 @@ export function verifiedSwingFoleyActor(cue){
 export function isCanonicalVerifiedCombatFoleyCue(cue){
  if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
   cue.id.length>256||typeof cue.sceneKey!=='string'||
-  !/^(?:0|[1-9]\\d*):[1-9]\\d*$/.test(cue.sceneKey)||
+  !/^(?:0|[1-9]\d*):[1-9]\d*$/.test(cue.sceneKey)||
   !Number.isSafeInteger(cue.tick)||cue.tick<0)return false;
  const [runText,floorText]=cue.sceneKey.split(':');
  const run=Number(runText),floor=Number(floorText);
