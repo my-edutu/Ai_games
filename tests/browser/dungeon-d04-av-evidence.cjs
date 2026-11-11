@@ -24,7 +24,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={}}={}){
   /^video\/webm(?:;|$)/i.test(clip.mimeType||'')&&
   clip.videoTracks===1&&clip.audioTracks>=1&&
   Number.isSafeInteger(clip.bytes)&&clip.bytes>1024&&clip.bytes<=MAX_CLIP_BYTES&&
-  Number.isFinite(clip.recordingMs)&&clip.recordingMs>=1000&&clip.recordingMs<=10000;
+  Number.isFinite(clip.recordingMs)&&clip.recordingMs>=1000&&clip.recordingMs<=15500;
  const liveOriginalPcm=optedIn===true&&pcm.status==='RECORDED'&&
   Number.isSafeInteger(pcm.sampleRate)&&pcm.sampleRate>=8000&&pcm.sampleRate<=96000&&
   pcm.channels===1&&Number.isSafeInteger(pcm.frames)&&pcm.frames>=2048&&
