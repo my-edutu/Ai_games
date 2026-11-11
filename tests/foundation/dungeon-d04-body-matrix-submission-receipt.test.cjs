@@ -111,3 +111,26 @@ test('D04 real retained VFX and frame gate reject a sound after parent matrix ch
   assert.equal(d.stats().visuals.reservedInstances,102);
  }finally{d.dispose()}
 });
+
+test('D04 unchanged authored matrix still delivers a submitted fresh sword whoosh',async()=>{
+ const {createPhysicalCombatFeedback}=await source('physical-combat-feedback.js');
+ const f=stage(),heard=[],d=createPhysicalCombatFeedback({
+  THREE:f.THREE,scene:f.scene,actorById:()=>f.actor,requirePresentedFrame:true,
+  audioAdapter:{enable(){return true},emit(c){heard.push(c);return true},
+   flush(){},disable(){},cleanup(){},reset(){},dispose(){}}
+ });
+ const snapshot=(tick,action)=>({run:1,floor:1,tick,units:[f.unit(tick,action)],events:[]});
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,'idle'));
+  d.acceptSnapshot(snapshot(11,'attack'));
+  d.advance(.016,.016);
+  f.moveWrist(.12);d.advance(.016,.016);
+  assert.equal(d.acknowledgePresentedFrame(1,.001),1);
+  assert.equal(heard.length,1);
+  assert.equal(heard[0].audio,'whoosh');
+  assert.equal(heard[0].proof,'authority-attempt-not-hit');
+  assert.equal(d.stats().visuals.drawCalls,7);
+  assert.equal(d.stats().visuals.reservedInstances,102);
+ }finally{d.dispose()}
+});
