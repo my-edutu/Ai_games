@@ -50,6 +50,10 @@ jobs:
         run: node scripts/tiny-kingdom-w192-graded-road-contract.cjs
       - name: W193 joined real oak-and-stone original village bridge geometry
         run: node scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs
+      - name: W240 actual arcade roof camera and open receiving sightlines
+        run: |
+          node scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs
+          node scripts/tiny-kingdom-w240-authentic-market-camera-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
