@@ -2318,3 +2318,27 @@ test('native original swing toe may carry ONLY recently witnessed travel across 
  assert.match(render,/rigRecentGroundedTravel/,
   'bounded original-source witness must be forwarded to the actual skinned ankle probe');
 });
+
+
+test('original GLB ankle clearance must retain witnessed Walking_A travel through legitimate same-tick floor-motion lull',async()=>{
+ const {hasOriginalSourceSwingTravelWitness:hasWitness}=await load();
+ assert.equal(typeof hasWitness,'function',
+  'source ankle clearance needs its own validated moving-rig witness rather than an empty same-tick ground stamp');
+ const real={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,travel:.0655,age:.07,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(hasWitness(real),true,
+  'a genuine recent root displacement remains lawful while the original source clip advances within one authority tick');
+ for(const invalid of [
+  {mode:'idle'},{sourceClipName:'Idle'},{sourceWeight:.65},
+  {ownerLocomotion:false},{travel:0},{travel:.4},{age:.181},
+  {age:NaN},{alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true}
+ ])assert.equal(hasWitness({...real,...invalid}),false,
+  'source probe must fail closed on invalid or expired motion: '+JSON.stringify(invalid));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/hasOriginalSourceSwingTravelWitness\(/,
+  'the real licensed ankle stage must consume the validated bounded travel witness');
+ assert.doesNotMatch(renderer,/!actor\.groundedPerformance\?\.moving\|\|\s*!\/\^walking/,
+  'a same-tick ground-stamp lull is not a reason to reject existing lawful source Walking_A travel');
+});
