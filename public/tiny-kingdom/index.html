@@ -7542,6 +7542,30 @@ function grainwardMarketArcadePlan(){
    minClearance:minimumClearance,noNewGroundPosts:true};
  });
 }
+// W240 physical camera parity: the TWO existing merchant-to-merchant
+// arcade roofs must participate in the same real obstruction survey as
+// market stalls, freight posts and occupied homes. No mesh, navigation,
+// citizen, economic stock, scripted delivery or saved state changes.
+// Four tight bands per original sloped roof avoid turning an open arcade
+// into a fictitious opaque hall.
+function physicalMarketArcadeRoofVolumes(){
+ const roofs=[];
+ for(const [originalArcade,plan] of grainwardMarketArcadePlan().entries()){
+  for(let band=0;band<4;band++){
+   const a=band/4,b=(band+1)/4;
+   const at=f=>plan.outerX+(plan.innerX-plan.outerX)*f;
+   const lift=f=>-.08+.34*f;
+   const x0=at(a),x1=at(b);
+   const lo=Math.min(plan.y0,plan.y1)+Math.min(lift(a),lift(b));
+   const hi=Math.max(plan.y0,plan.y1)+Math.max(lift(a),lift(b));
+   roofs.push({x:(x0+x1)*.5,z:(plan.z0+plan.z1)*.5,
+    rx:Math.abs(x1-x0)*.5+.025,rz:(plan.z1-plan.z0)*.5+.025,
+    bottom:lo-.025,visualBottom:lo-.025,top:hi+.025,
+    kind:'market-arcade-roof',originalArcade,noNewGroundPosts:true});
+  }
+ }
+ return roofs;
+}
 function grainwardTradeArcade(){
  const first=data.length,plans=grainwardMarketArcadePlan(),
   clays=[rgb(0x967c64),rgb(0x866e59),rgb(0x796e62)],
@@ -10681,7 +10705,7 @@ function marketReceivingOpenFrontTruss(){
 // All new fixed pieces belong to the existing market civic VBO.
 function marketReceivingSideEnclosure(){
  const site=MARKET_RECEIVING_HALL,ground=marketReceivingRoofDatum(),
-  start=data.length,maxHeight=1.47,wallX=site.halfWidth-.19;
+  start=data.length,maxHeight=.92,wallX=site.halfWidth-.19;
  const plaster=[rgb(0xc8b99f),rgb(0xb9ae93)],
   oak=rgb(0x71543c),beam=rgb(0x8a694d),stone=rgb(0x8f8677);
  let segments=0;
@@ -10690,23 +10714,26 @@ function marketReceivingSideEnclosure(){
    z=(z0+z1)*.5,x=site.centerX+side*wallX;
   materialScope(MATERIAL.STONE,()=>{
    // Broad worn stone sill is below the physical delivery sightline.
-   box(x,ground+.19,z,.22,.33,z1-z0+.06,stone);
+   box(x,ground+.15,z,.22,.26,z1-z0+.06,stone);
   });
   materialScope(MATERIAL.PLASTER,()=>{
    // Actual two-sided plaster-and-wattle panel of physical thickness:
    // unlike a one-sided flat quad it is visible from the REAL receiving
    // worker's interior and the outside approach, with correct normals.
-   // It is always below chest height and never crosses the front opening.
-   box(x,ground+.84,z,.105,.91,z1-z0-.025,plaster[bay]);
+   // The new low, physically thick wall remains below genuine working hands.
+   box(x,ground+.40,z,.105,.44,z1-z0-.025,plaster[bay]);
   });
   materialScope(MATERIAL.WOOD,()=>{
    // Full corners, sill, continuous top beam and true diagonal braces.
    for(const zz of [z0,z1])
-    box(x,ground+.83,zz,.19,1.27,.20,oak);
-   box(x,ground+.39,z,.22,.14,z1-z0+.14,beam);
-   box(x,ground+1.39,z,.23,.16,z1-z0+.14,beam);
-   limbSegment([x,ground+.52,z0+.12],
-    [x,ground+1.26,z1-.12],.038,oak,4);
+    box(x,ground+.18,zz,.15,site.eaveAboveGround-.24,.15,oak);
+   // The opaque old shoulder-height wall hid genuine courier hand contacts.
+   // A continuous LOW limewashed sill now supports fully open oak bays up
+   // to the existing roof; their structural timber is still visible.
+   box(x,ground+.41,z,.22,.11,z1-z0+.14,beam);
+   box(x,ground+.85,z,.23,.12,z1-z0+.14,beam);
+   limbSegment([x,ground+site.eaveAboveGround-.70,z0+.12],
+    [x,ground+site.eaveAboveGround-.16,z1-.12],.038,oak,4);
   });
   segments++;
  }
@@ -17103,7 +17130,8 @@ function chooseFilmableWorker(rows,excluded=-1){
   const shot=planCitizenCamera(worker,builderStageAngle(worker),true);
   const remaining=workDuration(worker)-worker.workTimer;
   const front=shot.facingAlignment??-1;
-  const clear=shot.blockers===0&&shot.handBlockers<=1&&
+  const clear=shot.workFacingMode!=='obstructed'&&
+   shot.blockers===0&&shot.handBlockers<=1&&
    shot.foregroundCitizenBlockers===0&&
    shot.foregroundSceneCover<.20&&shot.foregroundVegetationCover<.30&&
    shot.vegetationFaceBlockers===0&&front>.12&&
@@ -19852,6 +19880,9 @@ function followCameraRoofs(){
    visualBottom:terrain(x,z)-.02,kind:'street-shop'});
  // Actual W83/W100 roofs and load-bearing posts now obstruct ONLY real rays.
  roofs.push(...physicalTradeCorridorCameraVolumes());
+ // W240: the actual two merchant arcade roofs were filmed but missing from
+ // physical follow/citizen-picking occlusion, yielding false 'clear' shots.
+ roofs.push(...physicalMarketArcadeRoofVolumes());
  // The exact original stationary market cart and both existing receiving
  // bays also occupy real portrait pixels below the awnings. The W48 film
  // exposed a large left-hand timber object the roof-only scorer missed.
@@ -19880,6 +19911,7 @@ function cameraOcclusionModel(){
   streetShops:count('street-shop'),arcades:count('arcade'),
   receivingHallRoofBands:count('receiving-hall-roof'),
   receivingHallPosts:count('receiving-hall-post'),
+  marketArcadeRoofBands:count('market-arcade-roof'),
   granaryPorchRoofBands:count('granary-porch-roof'),
   granaryPorchPosts:count('granary-porch-post'),
   villageMarketCanopies:count('village-market'),
@@ -24059,7 +24091,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
  getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
