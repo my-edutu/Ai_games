@@ -7,7 +7,12 @@ const { chromium } = require('@playwright/test');
 async function main() {
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    // Match playwright.tower.config.cjs CI's real software-GL launch flags.
+    const softwareGl = Boolean(process.env.CI) || process.env.TOWER_SOFTWARE_GL === '1';
+    browser = await chromium.launch({
+      headless: true,
+      args: softwareGl ? ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] : [],
+    });
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
       deviceScaleFactor: 1,
