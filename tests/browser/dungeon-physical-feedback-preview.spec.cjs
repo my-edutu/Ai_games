@@ -83,7 +83,7 @@ async function beginD04LiveAVCapture(page){
   let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
   // These record the SAME actual canvas and opted-in soundstage separately.
   // They do not inject a frame, replay a synthetic attack or claim time alignment.
-  function startIsolatedRecorder(stream,candidates,source,limit,videoOnly){
+  function startIsolatedRecorder(stream,candidates,source,limit,videoOnly,frameMode=null){
    const mimeType=candidates.find(t=>MediaRecorder.isTypeSupported(t));
    if(!mimeType)return Promise.resolve({source,status:'UNAVAILABLE',reason:'Independent encoder unsupported',
     candidates,videoTracks:stream.getVideoTracks().length,audioTracks:stream.getAudioTracks().length});
@@ -103,7 +103,8 @@ async function beginD04LiveAVCapture(page){
       videoTracks:stream.getVideoTracks().length,audioTracks:stream.getAudioTracks().length,
       recordingMs:performance.now()-beganAt,dataEvents,
       trackAtStart,trackAtStop:{readyState:track?.readyState,muted:track?.muted===true},
-      framePump:videoOnly?{...framePump}:undefined,
+      framePump:videoOnly?{...framePump,
+       ...(frameMode==='native-capture-stream'?{mode:'native-capture-stream',requestedFrames:0}:{})}:undefined,
       base64:data?toBase64(data):null});
     };
     rec.ondataavailable=event=>{
@@ -112,7 +113,10 @@ async function beginD04LiveAVCapture(page){
      if(bytes>limit){overflow=true;chunks.length=0}
      else if(!overflow&&blob?.size)chunks.push(blob);
     };
-    rec.onerror=event=>finish('UNAVAILABLE','Independent recorder: '+String(event.error??event).slice(0,200));
+    rec.onerror=event=>{
+     try{if(rec.state!=='inactive')rec.stop()}catch{}
+     finish('UNAVAILABLE','Independent recorder: '+String(event.error??event).slice(0,200));
+    };
     rec.onstop=async()=>{
      if(overflow||bytes<=1024)return finish('UNAVAILABLE',overflow?'Independent encoded file exceeded budget':'Empty independent WebM');
      try{
@@ -154,7 +158,9 @@ async function beginD04LiveAVCapture(page){
   const clipDone=new Promise(resolve=>{
    let settled=false;
    const finish=clip=>{if(settled)return;settled=true;clearTimeout(watchdog);
-    stopFramePump();videoTracks.forEach(t=>t.stop());resolve(clip)};
+    // The independent video encoder still owns the borrowed canvas track.
+    // Do not stop it until ALL same-source encoders have finished.
+    resolve(clip)};
    const chunks=[];
    recorder.ondataavailable=e=>{
     framePump.dataEvents++;
@@ -183,6 +189,18 @@ async function beginD04LiveAVCapture(page){
    ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-video-only',20*1024*1024,true);
   const audioProbe=startIsolatedRecorder(new MediaStream(soundTracks),
    ['audio/webm;codecs=opus','audio/webm'],'real-opted-in-soundstage-audio-only',2*1024*1024,false);
+  // Chromium software-WebGL delivered explicit requestFrame receipts but zero
+  // video bytes. Probe a truly native canvas capture track from the SAME
+  // running Dungeon canvas; never draw substitute frames or touch authority.
+  let nativeCanvasStream=null;
+  try{if(explicitFrames)nativeCanvasStream=canvas.captureStream(24)}catch{}
+  const nativeTracks=nativeCanvasStream?.getVideoTracks()||[];
+  const nativeVideoProbe=nativeTracks.length===1?
+   startIsolatedRecorder(new MediaStream(nativeTracks),
+    ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-native-video-only',
+    20*1024*1024,true,'native-capture-stream'):
+   Promise.resolve({source:'real-webgl-canvas-native-video-only',status:'UNAVAILABLE',
+    reason:'Distinct native canvas track unavailable'});
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
@@ -195,11 +213,13 @@ async function beginD04LiveAVCapture(page){
    return meta;
   }).catch(e=>unavailable('Live PCM capture error: '+String(e)));
   setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
-  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe])
-   .then(([clip,pcm,videoOnly,audioOnly])=>({clip,pcm,
-    isolated:{videoOnly,audioOnly},
+  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe])
+   .then(([clip,pcm,videoOnly,audioOnly,nativeVideoOnly])=>({clip,pcm,
+    isolated:{videoOnly,audioOnly,nativeVideoOnly},
     frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1}
-   }));
+   })).finally(()=>{stopFramePump();
+    videoTracks.forEach(t=>t.stop());nativeTracks.forEach(t=>t.stop());
+   });
   return {status:'STARTED',videoTracks:videoTracks.length,audioTracks:soundTracks.length,
    evidence:'Actual canvas + opted-in sound bus; independent live PCM; no sample-sync assertion'};
  });
@@ -215,6 +235,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const {base64,...clip}=raw.clip||{};
  const {wavBase64,...pcm}=raw.pcm||{};
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
+ const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
  const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
@@ -227,9 +248,12 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  if(assessment.isolatedAudioRecorded&&isolatedAudioBase64)
   await testInfo.attach('d04-real-opted-in-audio-only.webm',{
    body:Buffer.from(isolatedAudioBase64,'base64'),contentType:'audio/webm'});
+ if(assessment.isolatedNativeVideoRecorded&&isolatedNativeVideoBase64)
+  await testInfo.attach('d04-real-webgl-native-video-only.webm',{
+   body:Buffer.from(isolatedNativeVideoBase64,'base64'),contentType:'video/webm'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
-   isolated:{videoOnly,audioOnly},frames:raw.frames,
+   isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
@@ -310,6 +334,14 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  // Always preserve both actual media and independent PCM evidence when the
  // browser permits them. A successful smoke does not imply sample-level sync.
  const captureAssessment=await attachD04LiveAVCapture(page,captureStarted,test.info());
+ console.log('D04 authentic independent encoding:',JSON.stringify({
+  diagnosis:captureAssessment.encoderDiagnosis,
+  combined:captureAssessment.combinedVideoAudio,
+  explicitVideo:captureAssessment.isolatedVideoRecorded,
+  nativeVideo:captureAssessment.isolatedNativeVideoRecorded,
+  audio:captureAssessment.isolatedAudioRecorded,
+  synchronized:captureAssessment.sampleSynchronized
+ }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(observed.physicalFeedback.visuals.active).toBeLessThanOrEqual(104);
  expect(observed.physicalFeedback.visuals.activeDrawCalls).toBeLessThanOrEqual(7);
