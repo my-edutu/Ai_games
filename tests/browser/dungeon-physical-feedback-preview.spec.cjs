@@ -751,6 +751,47 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   submissionDiagnosis:captureAssessment.submissionDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ // Read-only forensic artifact from the ACTUAL opted-in Dungeon page. These
+ // are authority-cue observation and post-WebGL receipt clocks, not decoded
+ // VP8 PTS or PCM sample onset. Never use this to claim auditory sync.
+ const earlyReceipts=atDamage.physicalFeedback?.recentDeliveryReceipts??[];
+ const lateReceipts=observed.physicalFeedback?.recentDeliveryReceipts??[];
+ const timeline={
+  source:'real-DungeonRuntime-to-ThreeJS-D04-controller',
+  seed:real.seed,run:real.after.run,floor:real.after.floor,
+  authoritativeHpLoss:{beforeTick:real.before.tick,afterTick:real.after.tick,
+   victimIds:real.victimIds,checksum:real.after.checksum},
+  clock:'opt-in injected performance.now; receipt sampled AFTER WebGL submit',
+  playback:'real Chrome, WebGL and opted-in original soundstage',
+  atDamage:{frameReceipts:atDamage.physicalFeedback?.framesAcknowledged??null,
+   audioAccepted:atDamage.physicalFeedback?.audioAccepted??null,
+   recentReceipts:earlyReceipts},
+  afterAuthenticFollowups:{
+   frameReceipts:observed.physicalFeedback?.framesAcknowledged??null,
+   audioAccepted:observed.physicalFeedback?.audioAccepted??null,
+   queued:observed.physicalFeedback?.queued??null,
+   expiredQueuedCues:observed.physicalFeedback?.expiredQueuedCues??null,
+   staleAudioDropped:observed.physicalFeedback?.staleAudioDropped??null,
+   visualAccepted:observed.physicalFeedback?.visualAccepted??null,
+   recentReceipts:lateReceipts},
+  admittedFoleyReceipts:lateReceipts.filter(r=>r.audio===true&&
+   r.frameId!==null).map(r=>({cueId:r.cueId,kind:r.kind,tick:r.tick,
+    observedClockMs:r.observedClockMs,submittedClockMs:r.submittedClockMs,
+    observationToSubmissionMs:r.observationToSubmissionMs,
+    renderSubmissionMs:r.renderSubmissionMs,decision:r.decision})),
+  sampleSynchronized:false,classification:'FRAME_TIMELINE_ONLY_UNALIGNED',
+  limitations:[
+   '64 retained receipts are a bounded sample, not the full combat history',
+   'An accepted WebAudio emit is not proof of audible Opus sample onset',
+   'Renderer acknowledgments are not decoded video presentation timestamps',
+   'The actual HP loss does not identify an attacker, blade-tip or damage source'
+  ]
+ };
+ const timelineJson=JSON.stringify(timeline,null,2);
+ fs.writeFileSync('artifacts/dungeon-d04-real-cue-frame-foley-timeline.json',timelineJson+'\\n');
+ await test.info().attach('d04-real-cue-frame-foley-timeline.json',{
+  body:Buffer.from(timelineJson),contentType:'application/json'
+ });
  expect(observed.physicalFeedback.visuals.active).toBeLessThanOrEqual(104);
  expect(observed.physicalFeedback.visuals.activeDrawCalls).toBeLessThanOrEqual(7);
  expect(observed.physicalFeedback.adapterFailures).toBe(0);
