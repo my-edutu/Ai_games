@@ -1,3 +1,10 @@
+### Pass268 — source-bound TRUE Pip/jaw physical pressure stage (2026-11-11 UTC)
+
+- Earlier [Pass267 WebGL 42993893989](https://github.com/my-edutu/Ai_games/actions/runs/42993893989) genuine complete 390px native pressure scene exposes small Pip/jaws beneath dominant upper masonry. Pass267b [whole CI 43003150240](https://github.com/my-edutu/Ai_games/actions/runs/43003150240) passed **766/766 Node tests** after correcting physical fixtures, but whole CI still fails an unrelated Tiny Kingdom OBS step; current source WebGL capture still running at authorship.
+- One legitimate real-game close-up: actual publicly visible **one-cell pressure contact**, at most 18% physical portrait lens tightening, only if BOTH connected full-model projected bounds have strict ±.90 margin (stronger than fixed ±.95 NDC acceptance). No manual/overview, reduced motion, diagonal, hidden/withdrawal, unsupported/misleading map or fake event; no simulation or geometry edits. Added pure test-first original measured 320/390 diagnostics. This is a candidate until exact new-head WebGL visual/strict geometry/whole CI and independent critique; Nintendo quality NOT MET, PR stays OPEN DRAFT.
+
+---
+
 ### Pass267b — authentic rendered pressure court, four legacy CI contracts corrected (2026-11-11 UTC)
 
 - Exact source [2d0ca773](https://github.com/my-edutu/Ai_games/commit/2d0ca773ee9361402c8b347a3bdb215fe1a808e6) [native WebGL 42993893989](https://github.com/my-edutu/Ai_games/actions/runs/42993893989) SUCCESS, strict six-run geometry/reset <100. Artifact 13843418501, archive SHA-256 41e357d3222df1ee55c3238066669e7e8d6c8e6977f0bbe35cc530e6e958a2bb; unaltered 390×844 capture inspected: connected court present, scene still cramped and far below official Captain Toad quality.

@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -1205,6 +1205,31 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         heroSpan,jawSpan,halfHeight,aspect,publicDiagonal);
       if (physicallyStagedHeight<halfHeight) {
         halfHeight=physicallyStagedHeight;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
+        heroSpan=physicalSpan(explorer.group);
+        jawSpan=physicalSpan(hazard);
+      }
+      // Pass268: original 390px source-bound pressure frame gives Pip and
+      // BOTH animated jaws under half the real screen's width, while the
+      // blank upper retaining wall dominates. The one-step currently PUBLIC
+      // contact (not diagonal inspection, stale retreat, or reduced motion)
+      // earns a bounded REAL optical close-up of the complete meshes.
+      // A narrow screen only zooms if true 3D full-model projected bounds
+      // have .05 extra NDC safety margin beyond the immutable +/-0.95 gate.
+      const activePressureContact=!verifiedRetreatTrap && !settings.reducedMotion
+        && !publicDiagonal && Number.isFinite(publicPressureTrap.distance)
+        && publicPressureTrap.distance<=CELL_SIZE*1.10
+        && Array.isArray(s.visibleCells)
+        && s.visibleCells.includes(publicPressureTrap.cell)
+        && Array.isArray(s.cells)
+        && s.cells.some(c=>c?.cell===publicPressureTrap.cell
+          && c.trap===true && c.blocked!==true);
+      const contactHeight=publicPhysicalPressureContactHalfHeight(
+        heroSpan,jawSpan,halfHeight,aspect,activePressureContact);
+      if (contactHeight<halfHeight) {
+        halfHeight=contactHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();
