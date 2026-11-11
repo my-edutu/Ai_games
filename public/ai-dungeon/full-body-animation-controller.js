@@ -69,7 +69,42 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  * area, missing source skin weight, non-finite coordinates or an impossible
  * footprint. No source skeleton, clip, material or authority is modified.
  */
-export function selectOriginalOutsolePatchVertices(candidates,anchorBindY){
+/**
+ * Original foot->toes longitudinal direction in the SOURCE bind pose.
+ * Callers must independently verify the named deform bones share the actual
+ * imported skin, the toes are descendants of the same-side foot, and both
+ * points came from their source inverse-bind matrices in mesh geometry space.
+ * Never guess an axis from rendered movement, root yaw or visible silhouettes.
+ * This is a diagnostic only: it does NOT authorize an IK/contact correction.
+ */
+export function planOriginalSourceToeBindAxis({
+ footBind=null,toesBind=null,originalFootChain=false,source=''
+}={}){
+ const point=v=>Array.isArray(v)&&v.length===3&&v.every(finite);
+ if(source!=='original-skeleton-inverse-bind'||originalFootChain!==true||
+  !point(footBind)||!point(toesBind))return null;
+ const dx=toesBind[0]-footBind[0],dy=toesBind[1]-footBind[1],
+  dz=toesBind[2]-footBind[2];
+ const length=Math.hypot(dx,dz);
+ // Mesh-local source units are unscaled KayKit rig units. Distant controls,
+ // toe chains on other limbs and near-vertical helper bones fail closed.
+ if(!finite(length)||length<.035||length>.45||
+  Math.abs(dy)>.16)return null;
+ return Object.freeze({
+  source:'original-foot-to-toes-inverse-bind-axis',
+  footX:footBind[0],footZ:footBind[2],
+  toeX:toesBind[0],toeZ:toesBind[2],
+  forwardX:dx/length,forwardZ:dz/length,
+  sourceBoneSeparation:length
+ });
+}
+
+/**
+ * A source-foot/toes axis can disambiguate heel vs toe; the lowest weighted
+ * shoe vertices alone cannot. An invalid explicit axis MUST NOT silently
+ * revert to its sideways extrema and claim anatomical verification.
+ */
+export function selectOriginalOutsolePatchVertices(candidates,anchorBindY,sourceAxis=null){
  if(!Array.isArray(candidates)||!finite(anchorBindY)||candidates.length>8192)return null;
  const low=[];
  for(const sample of candidates){
@@ -89,12 +124,36 @@ export function selectOriginalOutsolePatchVertices(candidates,anchorBindY){
   return {heel:lowEnd,toe:highEnd,spanMeters:highEnd[axis]-lowEnd[axis]};
  };
  const x=extrema('x'),z=extrema('z');
- const selected=x.spanMeters>z.spanMeters?x:z;
+ const anatomical=sourceAxis!==null;
+ if(anatomical&&(sourceAxis?.source!=='original-foot-to-toes-inverse-bind-axis'||
+  ![sourceAxis.forwardX,sourceAxis.forwardZ,sourceAxis.footX,sourceAxis.footZ,
+    sourceAxis.toeX,sourceAxis.toeZ].every(finite)||
+  Math.abs(Math.hypot(sourceAxis.forwardX,sourceAxis.forwardZ)-1)>.002))
+  return null;
+ let selected;
+ if(anatomical){
+  let lowEnd=low[0],highEnd=low[0],lo=Infinity,hi=-Infinity;
+  for(const point of low){
+   const projection=(point.x-sourceAxis.footX)*sourceAxis.forwardX+
+    (point.z-sourceAxis.footZ)*sourceAxis.forwardZ;
+   if(projection<lo){lo=projection;lowEnd=point;}
+   if(projection>hi){hi=projection;highEnd=point;}
+  }
+  const toeProjection=(sourceAxis.toeX-sourceAxis.footX)*sourceAxis.forwardX+
+   (sourceAxis.toeZ-sourceAxis.footZ)*sourceAxis.forwardZ;
+  // The heel must really extend behind foot.l/r while a distinct outsole
+  // point extends PAST the original toes.l/r bind joint, not a boot side.
+  if(!(lo<-.015&&hi>toeProjection+.005))return null;
+  selected={heel:lowEnd,toe:highEnd,spanMeters:hi-lo};
+ }else selected=x.spanMeters>z.spanMeters?x:z;
  if(!finite(selected.spanMeters)||selected.spanMeters<.045||
   selected.spanMeters>.50||selected.heel.index===selected.toe.index)return null;
  const bindThicknessMeters=Math.abs(selected.heel.bindY-selected.toe.bindY);
  if(bindThicknessMeters>.032)return null;
- return {...selected,bindThicknessMeters,anatomicalHeelToeVerified:false};
+ return {...selected,bindThicknessMeters,
+  anatomicalHeelToeVerified:anatomical,
+  source:anatomical?'original-foot-to-toes-inverse-bind-axis':
+   'unoriented-original-low-outsole-extrema'};
 }
 
 
