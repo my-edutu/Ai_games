@@ -1283,16 +1283,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         jawSpan=physicalSpan(hazard);
       }
 
-      // Pass273: previous exact-HEAD 390px public diagonal approach actually
-      // measured whole Pip at .445227 NDC (strict >.49), even though the
-      // physical jaws were already .782 wide. The jaw-only stage must not
-      // decide that the whole actionable pair is readable. Fit the two
-      // ORIGINAL connected meshes together, only in verified public pressure
-      // or lawful same-run withdrawal. 320px and every non-pressure scene
-      // keep their original optics. Never relax strict physical NDC gates.
+      // Pass276: original 390px same-canvas pressure frame passed its 0.515
+      // diagonal approach but physically shrank Pip to 0.4451106328 NDC
+      // during the real one-cell closing stroke (unchanged gate >0.49).
+      // The dual-actor lens previously excluded activePressureContact,
+      // although the world/renderer showed BOTH genuine connected meshes.
+      // Include only the verified public pressure contact in the same
+      // full-envelope optical fit. Keep gate/guardian/key/manual/reduced
+      // priority, unseen hazards, 320px camera and strict +/-0.95 intact.
       const readablePairHeight=publicPhysicalPressureHeroReadabilityHalfHeight(
         heroSpan,jawSpan,halfHeight,aspect,
-        pressurePortraitStage && (publicDiagonal || !!verifiedRetreatTrap),
+        pressurePortraitStage && (publicDiagonal || activePressureContact || !!verifiedRetreatTrap),
         !!verifiedRetreatTrap);
       if (readablePairHeight<halfHeight) {
         halfHeight=readablePairHeight;

@@ -36,6 +36,42 @@ test('Pass273 restores real 390px Pip readable size while keeping both true publ
   assert.equal(fit(hero,jaw,halfHeight,844/390,true),halfHeight,'no landscape camera takeover');
   assert.equal(fit(hero,jaw,halfHeight,aspect,false),halfHeight,'no non-public pressure zoom');
 });
+// Pass276: extracted from SHA-verified, unaltered same-WebGL-canvas
+// public-tide-shear-pressure-390.png (2026-11-11 15:58:57Z, Pass275
+// source 479e77ce). Diagonal approach is NOW .515; the subsequent true
+// one-cell pressure stroke still makes Pip .44511063280517116 NDC.
+// This is a real gameplay camera regression, not an invented fixed pose.
+test('Pass276 original 390px ONE-CELL closing stroke preserves readable Pip AND whole jaw',async()=>{
+  const {publicPhysicalPressureHeroReadabilityHalfHeight:fit,
+    publicPhysicalPressureHorizontalReframe:pan}=await import(moduleUrl);
+  const hero={left:-.2601086316975003,right:.18500200110767082,
+    bottom:-.004211231990090847,top:.3770827243799825};
+  const jaw={left:-.5448283327262528,right:.4158467620317804,
+    bottom:-.3103992736536216,top:.2283988888971686};
+  const h=5.449999999999999,aspect=390/844;
+  const measured=hero.right-hero.left;
+  assert.ok(measured<.49,'real source contact is physically undersized before correction');
+  const staged=fit(hero,jaw,h,aspect,true,false);
+  const zoom=h/staged;
+  assert.ok(zoom>1.15&&zoom<1.20,'real pressure encounter must be visibly restaged, not decorated');
+  assert.ok(measured*zoom>.49,'preserve immutable physical 390px Pip width');
+  assert.ok((jaw.right-jaw.left)*zoom>.70,'whole authentic closing shear remains legible');
+  const pairLeft=Math.min(hero.left,jaw.left)*zoom;
+  const pairRight=Math.max(hero.right,jaw.right)*zoom;
+  const panNdc=pan({left:hero.left*zoom,right:hero.right*zoom},
+    {left:jaw.left*zoom,right:jaw.right*zoom},staged,aspect)/(staged*aspect);
+  assert.ok(pairLeft-panNdc>=-.95&&pairRight-panNdc<=.95,
+    'both original 3D envelopes must retain original no-crop horizontal limit');
+  for(const b of [hero,jaw]){
+    assert.ok(b.bottom*zoom>-.95&&b.top*zoom<.95,
+      'both original connected bodies must retain original vertical limit');
+  }
+  assert.equal(fit(hero,jaw,h,aspect,false,false),h,
+    'never activate through non-public, gated or inactive pressure');
+  assert.equal(fit(hero,jaw,h,320/740,true,false),h,
+    'preserve existing native 320px camera');
+});
+
 test('one genuine immediately verified withdrawal may preserve Pip and moving-jaw scale without cropping',async()=>{
   const {publicPhysicalPressureHeroReadabilityHalfHeight:fit}=await import(moduleUrl);
   const hero={left:.18,right:.572,bottom:-.02,top:.30};
@@ -66,7 +102,7 @@ test('production optical fix is bound to actual public diagonal or original veri
   const source=fs.readFileSync(path.resolve(__dirname,
     '../../public/ai-maze-escape/scene.js'),'utf8');
   assert.match(source,/publicPhysicalPressureHeroReadabilityHalfHeight\(/);
-  assert.match(source,/pressurePortraitStage && \(publicDiagonal \|\| !!verifiedRetreatTrap\)/);
+  assert.match(source,/pressurePortraitStage && \(publicDiagonal \|\| activePressureContact \|\| !!verifiedRetreatTrap\)/);
   assert.match(source,/heroSpan=physicalSpan\(explorer\.group\)/);
   assert.match(source,/jawSpan=physicalSpan\(hazard\)/);
   assert.match(source,/publicPhysicalPressureHorizontalReframe\(/);

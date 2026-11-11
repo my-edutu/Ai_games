@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T15:42:46.000Z",
+  "updatedAt": "2026-11-11T17:09:08.008Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass275 addresses the real CI capture blocker: source 088148b5 visual run failed at Ubuntu APT DNS while downloading optional Chromium fonts, before running the strict six-run resource or authentic WebGL screen gates. Switch to pinned headless Chromium binary and a real WebGL preflight, with no gameplay or visual success claim. New exact-HEAD evidence remains required; Nintendo bar NOT met."
+    "summary": "Pass275 exact-HEAD WebGL 43051788364 passed real Chromium pixel preflight, focused source/build and immutable six-run <100 geometry. Original 36/36 SHA-paired full-resolution PNGs independently verified, but same-canvas 390px chronological pressure failed: physical Pip .4451106328 NDC (< unchanged .49), although approach .515 and jaws .960675. Pass276 directly corrects real public one-cell closing stroke to use the existing full-Pip-plus-jaws safe lens; new HEAD WebGL/CI must verify. Nintendo bar NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass276 physical pressure contact legibility: original exact-HEAD 479e77ce native WebGL 43051788364 (artifact 13869509399) passed headless Chromium/WebGL and six-run strict <100, but 390px TRUE chronological pressure Pip=.445110632805 NDC failed immutable >.49 (while same-run approach=.515, jaws=.960675). Actual unaltered full-frame pressure PNG SHA c89b72fee41bab72ea7662a9732d84938174e736d95ed15a6b1eb72e8be100f8, 36/36 JSON/PNG SHA pairs verified. Include real public activePressureContact in the full two-body camera fit (previously diagonal/withdrawal only), preserving locked public/privacy, reduced motion, 320/844/1280 and strict NDC/resource limits. Exact-new-HEAD CI/WebGL and independent official comparison PENDING; Nintendo bar UNMET.",
     "Pass275: fix external native-WebGL CI blocker, not an art pass. Exact prior run 43043347658 failed before browser evidence because npx playwright install --with-deps chromium stalled resolving Ubuntu APT optional font packages. Use locked Playwright 1.55.0 headless Chromium install without APT, version-keyed cache and a real 390px WebGL readPixels smoke check before unchanged strict six-run geometry and full-frame source-bound screenshots. New-HEAD actual WebGL verdict PENDING; Pass273 Pip scale repair still unverified; official Nintendo benchmark UNMET.",
     "Pass274: physical Tideglass shutter/jaw contact now obeys the same public reciprocal, level, open topology as the authored pressure-court approach. No more false full shear through publicly sealed gate, nonpassage or vertical disconnect; preserved visible distant warning, AI authority, NDC/resource/accessibility rules. New installed Three.js source regression compares sealed/open/one-sided/elevated and same-cell action. New-head CI and original WebGL acceptance PENDING.",
     "Pass272: exact-source 13d0ab87 original native 390px full WebGL shows joined pressure parts still merge at old diagonal perspective; original 37/37 sidecars verified. Production re-stages only true published pressure/withdrawal gameplay with near-frontal 3D physical camera (3.5,19.5,29), >25% better geometric separation of actual twin x-axis jaws than old 15,21,18 offset, same strict full-model no-crop and unchanged optical limit. All AI/privacy/collision/camera priorities retained. New exact-SHA native visual gate PENDING; Nintendo quality NOT MET.",
