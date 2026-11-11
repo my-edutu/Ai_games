@@ -30,6 +30,7 @@ import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortRespo
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
+import { observedGuardianPortraitOpticalFov, boundedGuardianOpticalFov, GUARDIAN_OPTICAL_BASE_FOV } from './guardian-optical-shot.mjs';
 import { towerRenderFaultDecision, towerRenderRetryReady } from './render-recovery.mjs';
 import { guardedJointShotGain, observedJointBodyPressure } from './joint-shot.mjs';
 import { createObservedMovingDeckRide } from './moving-deck-ride.mjs';
@@ -2460,6 +2461,15 @@ export function createTowerScene(canvas, settings = {}) {
   let guardianWorldLastEpisode = null;
   let guardianWorldOcclusionSamples = 0, guardianWorldOcclusionImprovements = 0;
   let guardianWorldOcclusionRejected = 0, guardianWorldLastGain = 0;
+  let guardianWorldLastRayObstructed = true;
+  // Reuse current full-body screen envelopes and a single source-selected
+  // landing projection. This physical two-subject zoom has no additional
+  // renderer pass, mesh, simulated outcome or raycast per presented frame.
+  const opticalActor = [0,0,0,0], opticalPartner = [0,0,0,0];
+  const opticalLandingNdc = [0,0,0];
+  let guardianPortraitOpticalTarget = GUARDIAN_OPTICAL_BASE_FOV;
+  let guardianPortraitOpticalChanges = 0, guardianPortraitOpticalKind = 'off';
+  let guardianPortraitOpticalSourceTick = -1;
   function raycastGuardianWorldOcclusion(x,y,z) {
     guardianWorldRayTarget.set(x,y,z).sub(guardianWorldProbePosition);
     const distance=guardianWorldRayTarget.length();
@@ -4286,6 +4296,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (!worldRayActive || worldRayEpisode !== guardianWorldLastEpisode) {
       guardianWorldTargetAngle=null;
       guardianWorldLastTick=-Infinity;
+      guardianWorldLastRayObstructed=true;
       guardianWorldLastEpisode=worldRayEpisode;
     }
     if (worldRayActive) {
@@ -4308,6 +4319,8 @@ export function createTowerScene(canvas, settings = {}) {
             actorFramePoint,currentGuardianDrawPoint,halfHero,halfBoss);
         };
         const baseWorldRay=inspect(camera.position);
+        guardianWorldLastRayObstructed=baseWorldRay === null ||
+          baseWorldRay.weighted > 0;
         const safeShoulder=angle=>{
           candidateWorldPos.set(Math.sin(angle)*radius,
             camera.position.y,Math.cos(angle)*radius);
@@ -4397,6 +4410,78 @@ export function createTowerScene(canvas, settings = {}) {
     }
     camera.lookAt(lookAt);
     camera.updateMatrixWorld(true);
+    // Cohesive PORTRAIT ACTION OPTICS: the original 390x844, 1x guardian
+    // footage leaves the real climber and boss as distant figures between
+    // towering bronze machinery. Once the EXISTING geometry/camera policy
+    // has chosen a safe exterior shot, optically enlarge only BOTH currently
+    // rendered bodies together, with the actual selected airborne landing
+    // or a source-earned physical gateway protected in the same viewport.
+    // A real crusher windup, still-blocked world ray, manual spectator orbit,
+    // stale source or reduced-motion request vetoes the closer lens.
+    // Optical zoom never advances the 20Hz simulation, moves the actor,
+    // changes the ray/collision world, invents a gateway or cuts the camera.
+    guardianPortraitOpticalTarget=GUARDIAN_OPTICAL_BASE_FOV;
+    guardianPortraitOpticalKind='off';
+    guardianPortraitOpticalSourceTick=-1;
+    const opticalGuardian=protectLivingGuardian &&
+      sourceGuardian?.active===true && !!currentGuardianDrawPoint;
+    const opticalEarned=!opticalGuardian && gatewayEarned &&
+      (sourceEarnedWalk || sourceAirborneWalk) && !!liveExit;
+    const opticalAllowed=!overview && !options.stale &&
+      !options.reducedMotion && options.camera==='follow' &&
+      camera.aspect>.35 && camera.aspect<.85 &&
+      Math.abs(orbit)<.025 && zoom<=1.03 &&
+      snapshot.lifecycle==='running' && snapshot.floor===8 &&
+      p.health>0 && (opticalGuardian || opticalEarned) &&
+      actionStage?.kind!=='hazard';
+    if (opticalAllowed) {
+      const partner=opticalGuardian
+        ?currentGuardianDrawPoint:earnedGatewayFocus;
+      const partnerHalfHeight=opticalGuardian
+        ?sourceGuardian.halfHeight/SCALE:2.1;
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y+=p.halfHeight/SCALE;
+      const coreClear=towerCoreSightlineClear(camera.position,
+        actorFramePoint,23.5) &&
+        towerCoreSightlineClear(camera.position,partner,23.5);
+      measureDuelBodyNdc(actorFramePoint,p.halfHeight/SCALE,
+        camera,duelTop,duelBottom,opticalActor);
+      measureDuelBodyNdc(partner,partnerHalfHeight,
+        camera,duelTop,duelBottom,opticalPartner);
+      let landing=null;
+      if (p.state==='airborne' && targetPlatform) {
+        const x=observedSourceLandingX(snapshot,targetPlatform);
+        const landingWorld=pointFor(x,targetPlatform.y+targetPlatform.height,
+          snapshot.chunkBaseY,snapshot.worldWidth,26.7);
+        portraitAimLandingProjection.copy(landingWorld).project(camera);
+        opticalLandingNdc[0]=portraitAimLandingProjection.x;
+        opticalLandingNdc[1]=portraitAimLandingProjection.y;
+        opticalLandingNdc[2]=portraitAimLandingProjection.z;
+        landing=opticalLandingNdc;
+      }
+      guardianPortraitOpticalTarget=observedGuardianPortraitOpticalFov({
+        aspect:camera.aspect,currentFov:camera.fov,
+        actor:opticalActor,partner:opticalPartner,landing,
+        blocked:!coreClear || (opticalGuardian &&
+          guardianWorldLastRayObstructed),
+      });
+      guardianPortraitOpticalKind=opticalGuardian?'guardian':'earned-gateway';
+      guardianPortraitOpticalSourceTick=snapshot.tick;
+    }
+    // A rejected or finished original shot continuously returns to the
+    // 42-degree authoring lens. Never keep a dead boss, another expedition,
+    // a spectator turn or a new floor under a stale magnified field of view.
+    const opticalNext=options.reducedMotion
+      ?GUARDIAN_OPTICAL_BASE_FOV
+      :boundedGuardianOpticalFov(camera.fov,
+        guardianPortraitOpticalTarget,dt);
+    if (Math.abs(opticalNext-camera.fov)>.0001) {
+      camera.fov=opticalNext;
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld(true);
+      guardianPortraitOpticalChanges=Math.min(1000000,
+        guardianPortraitOpticalChanges+1);
+    }
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
     // camera submitted this frame, never the desired/planned lens. A viewer
@@ -5006,6 +5091,15 @@ export function createTowerScene(canvas, settings = {}) {
           lastSubmittedGuardian.floor === snapshot?.floor
           ? lastSubmittedGuardian.tick : null,
         evidence:'Current real submitted portrait live-guardian camera, source-safe fallback; not WebM motion acceptance or hardware FPS',
+      },
+      guardianPortraitOptical: {
+        fovDegrees:Number(camera.fov.toFixed(3)),
+        requestedDegrees:Number(guardianPortraitOpticalTarget.toFixed(3)),
+        changes:guardianPortraitOpticalChanges,
+        stage:guardianPortraitOpticalKind,
+        sourceTick:guardianPortraitOpticalSourceTick,
+        safeguard:'real post-correction body/landing NDC, opaque tower core, source-earned cap and prior world rays',
+        limitation:'Submitted-camera optics only; NOT proof of native WebM visible actors, grounded passage, performance or preference',
       },
       guardianWorldOcclusion: {
         raySamples:guardianWorldOcclusionSamples,
