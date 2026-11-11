@@ -1,6 +1,7 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
 const fs=require('node:fs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
@@ -712,19 +713,24 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  // snapshots that stall the stream. Old cues remain subject to the 400ms
  // deadline; a stalled frame must never invent a late impact.
  ceiling=stream.length-1;
+ // Genuine software-WebGL may need tens of seconds per submitted frame.
+ // Observe a bounded number of ACTUAL frame receipts, never wait 70 seconds
+ // for a positive visual counter that has already correctly expired its cues.
+ // Neither the timeout nor expired cues can be upgraded to a pass.
+ let followupWait='TWO_FRESH_REAL_FRAME_RECEIPTS';
  try{
-  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.visualAccepted??0),
-    {timeout:70000}).toBeGreaterThan(0);
- }finally{
-  const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
-  await test.info().attach('d04-real-stream-debug.json',{
-   body:Buffer.from(JSON.stringify({seed:real.seed,victims:real.victimIds,
-    beforeTick:real.before.tick,damageTick:real.after.tick,
-    delivered:cursor,allowed:ceiling,atDamage:atDamage?.physicalFeedback,
-    latest:diagnostic?.physicalFeedback,rendered:diagnostic?.renderedState,
-    lastPageErrors:errors.slice(-6)},null,2)),contentType:'application/json'
-  });
- }
+  await expect.poll(()=>page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??0),
+   {timeout:45000}).toBeGreaterThan((atDamage.physicalFeedback?.framesAcknowledged??0)+1);
+ }catch(error){followupWait='FRESH_FRAME_RECEIPT_TIMEOUT'}
+ const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ await test.info().attach('d04-real-stream-debug.json',{
+  body:Buffer.from(JSON.stringify({seed:real.seed,victims:real.victimIds,
+   beforeTick:real.before.tick,damageTick:real.after.tick,
+   delivered:cursor,allowed:ceiling,followupWait,atDamage:atDamage?.physicalFeedback,
+   latest:diagnostic?.physicalFeedback,rendered:diagnostic?.renderedState,
+   lastPageErrors:errors.slice(-6)},null,2)),contentType:'application/json'
+ });
  // Always preserve both actual media and independent PCM evidence when the
  // browser permits them. A successful smoke does not imply sample-level sync.
  const captureAssessment=await attachD04LiveAVCapture(page,captureStarted,test.info());
@@ -802,4 +808,25 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
    {timeout:20000}).toBe(false);
  }
  expect(errors).toEqual([]);
+ // Strictly classify the original, consecutive HP-loss event with REAL
+ // renderer receipts and delivery counters. Save the verdict even on a red
+ // acceptance result so an honest failure still produces inspectable media.
+ const renderVerdict=classifyAuthenticD04RenderObservation({
+  before:real.before,after:real.after,atDamage,latest:observed
+ });
+ const renderVerdictEvidence={
+  ...renderVerdict,seed:real.seed,run:real.after.run,floor:real.after.floor,
+  beforeTick:real.before.tick,afterTick:real.after.tick,
+  damagedStateChecksum:real.after.checksum,followupWait,
+  browserErrors:errors.slice(-6),
+  limitation:'Visual admission is NOT measured sword contact or audio/video synchronization'
+ };
+ const verdictJson=JSON.stringify(renderVerdictEvidence,null,2);
+ fs.writeFileSync('artifacts/dungeon-d04-real-render-feedback-verdict.json',verdictJson+'\\n');
+ await test.info().attach('d04-real-render-feedback-verdict.json',{
+  body:Buffer.from(verdictJson),contentType:'application/json'
+ });
+ expect(renderVerdict.status,
+  'Real combat feedback must be admitted on a genuine frame; expired cues and empty audio cannot pass realism acceptance. Review the saved real-media evidence and verdict.'
+ ).toBe('VISUAL_ADMITTED_NOT_AV_VERIFIED');
 });
