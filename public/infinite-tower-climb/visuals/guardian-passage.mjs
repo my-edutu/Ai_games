@@ -355,12 +355,15 @@ export function createTowerGuardianPassage(THREE) {
       [0, doorH/2, 0, .07, doorH, .1, 0],
       [1.5, doorH/2, 0, .07, doorH, .1, 0],
     ];
-    // A dense, small-cell barrier exists at physical doorway height; tall
-    // guardian/hero silhouettes remain readable ABOVE it, not through a
-    // 14-meter screen-filling grate.
-    // Three readable energized crossing rails, not a continuous six-rung
-    // prison grid eclipsing two genuine combatant silhouettes on a phone.
-    for (const y of [.24, 2.32, 4.40])
+    // The original-source doorway really is impassable while the guardian
+    // is alive. Three rungs previously left two visually passable adult-body
+    // openings in the lower 4.64m even though the authoritative gate was
+    // locked. Five evenly spaced, slender grounded rails close those gaps,
+    // while the centre of the airborne guardian duel stays entirely OPEN
+    // above doorway height (source height can be 14m or more). Do not put
+    // horizontal prison-grid bars back into the combat silhouettes.
+    // This uses 17 of 18 preallocated instances, without an extra draw.
+    for (const y of [.24, 1.16, 2.08, 3.00, 3.92])
       latticeShapes.push([0,y,0,6.22,.075,.10,0]);
     // Connected side-only couplers communicate the armed live lock while
     // preserving a genuinely clear centre and the full-height side pylon.
