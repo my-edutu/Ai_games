@@ -125,6 +125,14 @@ export function planOriginalSourceSwingToeClearance({
  const sourceEase=sourceShare*sourceShare*(3-2*sourceShare);
  const signedTarget=Math.sign(trialAngleRad)*sourceEase*
   Math.min(.15,Math.abs(trialAngleRad)*liftDemand/witnessedLift);
+ // Every frame restores the imported mixer pose before its ankle overlay.
+ // The previous frame's rate window may lie entirely on the WRONG side of
+ // the newest real skinned-toe trial. Clamping into that stale window
+ // otherwise pitches the original foot DOWN while the trial lifted it UP.
+ // A zero-share crossfade also must not leak an old correction. Reset the
+ // cosmetic delta instead of preserving a physically opposing bend.
+ if(sourceEase===0||(previousCorrectionRad!==0&&
+  Math.sign(previousCorrectionRad)!==Math.sign(trialAngleRad)))return 0;
  return clamp(signedTarget,
   Math.max(-.15,previousCorrectionRad-.08),
   Math.min(.15,previousCorrectionRad+.08));
@@ -373,7 +381,8 @@ export function planOriginalSourceSwingCalfAssist({
  // At the exact walking crossfade threshold the signed trial angle can
  // produce -0. This is a no-op: return canonical zero so a dormant calf
  // controller cannot expose a directional correction or fail its contract.
- if(eased===0)return 0;
+ if(eased===0||(previousAssistRad!==0&&
+  Math.sign(previousAssistRad)!==Math.sign(trialAngleRad)))return 0;
  const demand=Math.min(.04,-.01-toeClear);
  const target=Math.sign(trialAngleRad)*eased*
   Math.min(.12,Math.abs(trialAngleRad)*demand/trialLift);
