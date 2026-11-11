@@ -273,3 +273,76 @@ test('D04 track delivery diagnosis survives assessment and evidence persistence 
   assert.equal(manifest.assessment.trackDiagnosis,'CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY');
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+
+test('D04 visible real-canvas monitor resolves the pre-mute submission window without inventing presented frames',()=>{
+ const {classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const delivery={
+  source:'real-webgl-canvas-capture-video-monitor',
+  presentation:'visible-2px-real-track',
+  clock:'performance-now-relative-capture-start',
+  playStatus:'PLAYING',
+  events:[{kind:'mute',atMs:4800}],
+  frames:[]
+ };
+ const framePump={mode:'submitted-frame-request',submissionSamples:[
+  {atMs:700,receipt:3,requestAttempted:true,requestSucceeded:true},
+  {atMs:5200,receipt:4,requestAttempted:true,requestSucceeded:true}
+ ]};
+ assert.equal(classifyCanvasSubmissionTiming({delivery,framePump}),
+  'PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION');
+ assert.equal(classifyCanvasSubmissionTiming({delivery,
+  framePump:{...framePump,submissionSamples:[framePump.submissionSamples[1]]}}),
+  'ONLY_POST_MUTE_SUBMISSIONS_WITHOUT_PRESENTATION');
+ assert.equal(classifyCanvasSubmissionTiming({delivery:{...delivery,events:[]},framePump}),
+  'SUBMISSIONS_WITHOUT_PRESENTATION_MUTE_UNOBSERVED');
+ assert.equal(classifyCanvasSubmissionTiming({delivery:{...delivery,
+  frames:[{atMs:1200,presentedFrames:1,mediaTime:0.5,submittedReceipt:3}]},framePump}),
+  'PRESENTED_CANVAS_FRAME_RECEIPT_TIMED');
+});
+
+test('D04 submission diagnostic rejects hidden/cross-clock/fabricated or unbounded timeline receipts',()=>{
+ const {classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const delivery={
+  source:'real-webgl-canvas-capture-video-monitor',presentation:'visible-2px-real-track',
+  clock:'performance-now-relative-capture-start',playStatus:'PLAYING',
+  events:[{kind:'mute',atMs:1000}],frames:[]};
+ const samples=[{atMs:200,receipt:9,requestAttempted:true,requestSucceeded:true},
+  {atMs:300,receipt:10,requestAttempted:true,requestSucceeded:true}];
+ const framePump={mode:'submitted-frame-request',submissionSamples:samples};
+ for(const bad of [
+  {delivery:{...delivery,presentation:'hidden-transparent'},framePump},
+  {delivery:{...delivery,clock:'unrelated-clock'},framePump},
+  {delivery,framePump:{...framePump,submissionSamples:[samples[1],samples[0]]}},
+  {delivery,framePump:{...framePump,submissionSamples:[samples[0],samples[0]]}},
+  {delivery,framePump:{...framePump,submissionSamples:[{...samples[0],receipt:NaN}]}},
+  {delivery,framePump:{...framePump,submissionSamples:Array.from({length:33},(_,i)=>({
+   atMs:i*25,receipt:i+1,requestAttempted:true,requestSucceeded:true
+  }))}},
+  {delivery,framePump:{...framePump,submissionSamples:[{...samples[0],requestSucceeded:false}]}},
+  {delivery:{...delivery,events:[{kind:'mute',atMs:-1}]},framePump}
+ ])assert.equal(classifyCanvasSubmissionTiming(bad),'SUBMISSION_TIMING_UNVERIFIED');
+});
+
+test('D04 retains diagnostic classification without treating track delivery as sample sync',()=>{
+ const {classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const delivery={source:'real-webgl-canvas-capture-video-monitor',
+  presentation:'visible-2px-real-track',clock:'performance-now-relative-capture-start',
+  playStatus:'PLAYING',events:[{kind:'mute',atMs:4800}],frames:[]};
+ const framePump={mode:'submitted-frame-request',observedFrameAdvances:1,
+  requestedFrames:1,requestFailures:0,submissionSamples:[
+   {atMs:100,receipt:2,requestAttempted:true,requestSucceeded:true}]};
+ const raw={...good,clip:{...good.clip,framePump},trackDelivery:delivery};
+ const a=assessD04Capture(raw);
+ assert.equal(classifyCanvasSubmissionTiming({delivery,framePump}),
+  'PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION');
+ assert.equal(a.submissionDiagnosis,'PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION');
+ assert.equal(a.sampleSynchronized,false);
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-visible-receipt-'));
+ try{
+  const saved=persistD04CaptureEvidence({directory,raw,assessment:a});
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.assessment.submissionDiagnosis,'PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION');
+  assert.equal(manifest.clip.framePump.submissionSamples.length,1);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
