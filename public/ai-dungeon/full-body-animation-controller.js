@@ -219,18 +219,35 @@ export function confirmOriginalSourceSwingToeLift({
  * Pure, fail-closed and presentation-only. No physical bounds are relaxed.
  */
 export function assessImportedSourceKneeGeometry({
- upperLength=NaN,lowerLength=NaN,bendSine=NaN,hingeAlignment=NaN
+ upperLength=NaN,lowerLength=NaN,bendSine=NaN,hingeAlignment=NaN,
+ sourceBindUpperLength=null,sourceBindLowerLength=null
 }={}){
  if(![upperLength,lowerLength,bendSine,hingeAlignment].every(finite))
   return {accepted:false,reason:'invalid-original-knee-measurement'};
- if(upperLength<.12||upperLength>1.2||
+ // The pinned CC0 source has a true .112316m lowerleg-to-foot bind segment.
+ // No unreferenced relaxation of the original .12m world-length guard:
+ // only same-skeleton inverse binds and matching uniform scale permit it.
+ const hasBind=sourceBindUpperLength!==null||sourceBindLowerLength!==null;
+ if(hasBind){
+  if(![sourceBindUpperLength,sourceBindLowerLength].every(finite)||
+   sourceBindUpperLength<.075||sourceBindUpperLength>.75||
+   sourceBindLowerLength<.075||sourceBindLowerLength>.75)
+   return {accepted:false,reason:'invalid-original-inverse-bind-segments'};
+  const upperScale=upperLength/sourceBindUpperLength;
+  const lowerScale=lowerLength/sourceBindLowerLength;
+  if(upperLength<.04||upperLength>1.2||lowerLength<.04||lowerLength>1.2||
+   upperScale<.35||upperScale>4||lowerScale<.35||lowerScale>4||
+   Math.abs(upperScale-lowerScale)>Math.max(upperScale,lowerScale)*.075)
+   return {accepted:false,reason:'original-inverse-bind-length-mismatch'};
+ }else if(upperLength<.12||upperLength>1.2||
   lowerLength<.12||lowerLength>1.2)
   return {accepted:false,reason:'source-leg-segment-length-out-of-bounds'};
  if(bendSine<=.085||bendSine>=.99)
   return {accepted:false,reason:'degenerate-source-knee-bend-plane'};
  if(hingeAlignment<.72)
   return {accepted:false,reason:'source-hinge-not-in-actual-leg-bend-plane'};
- return {accepted:true,reason:'verified-source-knee-plane'};
+ return {accepted:true,reason:hasBind?
+  'verified-source-knee-plane-from-inverse-bind':'verified-source-knee-plane'};
 }
 
 export function inferImportedSourceKneeBendAxis(clip,boneName){
