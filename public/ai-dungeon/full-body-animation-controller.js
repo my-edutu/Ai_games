@@ -310,7 +310,12 @@ export function inferImportedSourceKneeBendAxis(clip,boneName){
    const dw=w*r+x*u+y*v+z*s;
    const length=Math.hypot(dx,dy,dz);
    const angle=2*Math.atan2(length,Math.abs(dw));
-   if(!finite(angle)||angle>.85)return null;
+   // The pinned CC0 swordsman Walking_A left lowerleg has a real 1.0504rad
+   // quaternion step between licensed keys 11->12 at 24fps. A generic
+   // .85rad reject gate falsely dropped its otherwise coherent X hinge.
+   // Permit that documented source interval with narrow headroom; retain
+   // finite/quaternion, multi-key axis-dominance and large-spike rejection.
+   if(!finite(angle)||angle>1.15)return null;
    if(angle>=.025&&length>.000001)
     steps.push({angle,axis:[dx/length,dy/length,dz/length]});
   }
