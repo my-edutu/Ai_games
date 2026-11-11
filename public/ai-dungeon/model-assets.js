@@ -1125,8 +1125,11 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   patch.heel.mesh.updateWorldMatrix(true,false);
   heelY=readOriginalSwingSoleY(patch.heel);
   toeY=readOriginalSwingSoleY(patch.toe);
+  // A genuine airborne toe can begin measured swing rescue at 10mm
+  // intrusion, before licensed ankle/calf slew caps run out of walking
+  // frames. Never mistake an original loaded heel for a swing opportunity.
   if(Number.isFinite(heelY)&&Number.isFinite(toeY)&&
-   heelY>-.02+.075&&heelY<-.02+.28&&toeY<-.02-.025&&toeY>-.02-.16){
+   heelY>-.02+.075&&heelY<-.02+.28&&toeY<-.02-.01&&toeY>-.02-.16){
    actor.sourceSwingToeDragOpportunityFrames=Math.min(1000000,
     (actor.sourceSwingToeDragOpportunityFrames||0)+1);
    for(const signed of [-.1,.1,-.2,.2]){
