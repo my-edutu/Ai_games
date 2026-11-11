@@ -1,0 +1,13 @@
+# Pass258 — authored connected tideglass counterbalance arch (2026-11-11 UTC)
+
+## Authentic previous-HEAD image gate
+
+Exact PR HEAD `6af47fd2e44d081ad8888d07d592cceddf6893c3` [native WebGL workflow 42929673562](https://github.com/my-edutu/Ai_games/actions/runs/42929673562) **SUCCESS**, including original unchanged strict six-run geometry/reset step and native 320/390/844/1280 source-bound captures. Downloaded artifact [13814599631](https://github.com/my-edutu/Ai_games/actions/runs/42929673562/artifacts/13814599631) and independently recomputed **37/37 original PNG-vs-JSON SHA-256 pairs** (two additional gate images recorded by original run manifest). The original 390 inspection and 1280 contact capture now genuinely show the spent tall treasure shrine withdrawn, but the pressure machine itself remains an orange pile with weakly perceived linkage at 320px against Nintendo's clearly connected, large-scale puzzle architecture.
+
+## One player-visible production intervention
+
+Reconstructed the pressure stage as **one original load-bearing tideglass arch** inside the genuine disclosed trap cell: paired rooted pylons, continuous back braces, a tilting broad bridge, large exposed bronze rotary governor, and hanging counterweight with length-changing cable. The existing **real published** treadle → drive rods → shutter/jaws clock operates all four moving assemblies, giving a mechanical cause and consequence rather than independent decorations. Crucially, remote diagonal sight alone does not animate the connected mechanism; true near-contact causes the staged release, public retreat/invisibility restores rest, and reduced motion presents one stable earned-contact pose. Preserves the authored maze's deterministic engine, real collision/AI/trap outcomes, partial-information privacy, full-screen HUD rev4, and 44px controls. Uses the existing shared beveled blocks/ring/cylinder and pooled materials; no new geometry/material class or per-frame resource allocation.
+
+## Non-negotiable candidate gate
+
+Installed Three regression covers complete 2.4m tile physical bounds through full motion, real source clock, 320px-danger clearance via original uncompromised native WebGL, quiet diagonal/hidden reset, reduced motion, no source mutation, no GPU class growth. **New code and new-source WebGL capture NOT YET accepted at the commit.** A fresh independent artistic critic/Ultracode still unavailable. Fixed [official Nintendo reference](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) remains REJECTED until exact-HEAD uncropped images prove a materially clearer miniature puzzle encounter. Draft PR #53 remains open; never merge, deploy, or force-push.

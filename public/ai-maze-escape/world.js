@@ -1995,6 +1995,54 @@ export function createMazeWorld(options = {}) {
     // tile footprint instead of cropping the game or weakening the gate.
     pressureMast.position.set(0, .12, -.12);
     p.add(pressureMast);
+    // Pass258: one recognisable, connected load-bearing TIDEGLASS arch
+    // replaces the impression of free-floating red spikes in real 320/390
+    // WebGL. The original floor treadle powers its visible rotary governor,
+    // tilting bridge and falling suspended weight BEFORE the existing jaws
+    // complete their genuine near-contact stroke. The whole assembly lives
+    // behind the actual jaw roots, inside this PUBLISHED trap tile. Every
+    // part uses existing pooled geometry/materials and has zero gameplay
+    // collision, invented key, unobserved map, or new source of AI authority.
+    const counterbalance = new THREE.Group();
+    counterbalance.name = 'Published tide-shear pressure counterbalance arch ' + c.cell;
+    counterbalance.position.set(0, 0, -.59);
+    p.add(counterbalance);
+    for (const side of [-1, 1]) {
+      mesh(counterbalance, bevel, deepStone, side * .85, .57, 0, .24, 1.08, .30);
+      mesh(counterbalance, bevel, lightStone, side * .85, 1.12, 0, .32, .14, .36);
+      mesh(counterbalance, bevel, darkMetal, side * .83, .09, .31, .24, .13, .74);
+      mesh(counterbalance, bevel, gold, side * .70, .82, .18, .12, .16, .18);
+    }
+    const bridge = new THREE.Group();
+    bridge.name = 'Published tide-shear spanning load bridge';
+    bridge.position.y = 1.18;
+    counterbalance.add(bridge);
+    mesh(bridge, bevel, darkMetal, 0, 0, 0, 1.91, .24, .28);
+    mesh(bridge, bevel, seaGlass, 0, .10, .035, 1.65, .045, .22);
+    const wheel = new THREE.Group();
+    wheel.name = 'Published tide-shear bronze pressure governor';
+    wheel.position.set(0, .94, .16);
+    counterbalance.add(wheel);
+    mesh(wheel, ring, gold, 0, 0, 0, .43, .43, .43);
+    mesh(wheel, ring, danger, 0, 0, .035, .29, .29, .29);
+    mesh(wheel, cylinder, darkMetal, 0, 0, -.04, .19, .20, .19, Math.PI / 2);
+    for (let spoke = 0; spoke < 4; spoke++) {
+      const angle = spoke * Math.PI / 2;
+      mesh(wheel, bevel, lightStone, Math.cos(angle) * .19, Math.sin(angle) * .19,
+        .07, .24, .065, .09, 0, 0, angle);
+    }
+    const cable = new THREE.Group();
+    cable.name = 'Published tide-shear connected descending cable';
+    cable.position.set(0, 1.08, .16);
+    counterbalance.add(cable);
+    mesh(cable, bevel, gold, 0, -.15, 0, .075, .30, .075);
+    const weight = new THREE.Group();
+    weight.name = 'Published tide-shear hanging counterweight';
+    weight.position.set(0, .60, .16);
+    counterbalance.add(weight);
+    mesh(weight, bevel, darkMetal, 0, 0, 0, .41, .29, .35);
+    mesh(weight, bevel, lightStone, 0, -.13, .02, .46, .08, .39);
+    mesh(weight, bevel, danger, 0, .02, .186, .30, .18, .04);
     mesh(pressureMast, cylinder, darkMetal, 0, .08, 0, .30, .16, .28);
     mesh(pressureMast, ring, gold, 0, .19, 0, .35, .35, .35, Math.PI / 2);
     const carriage = new THREE.Group();
@@ -2108,6 +2156,7 @@ export function createMazeWorld(options = {}) {
       driveBars.push({object: drive, side});
     }
     trapSignals.push({carriage, diaphragms, shutters, iris, relays, treadle,
+      counterbalance: { bridge, wheel, cable, weight },
       driveBars, cell: c.cell, x: p.position.x, z: p.position.z,
       pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
@@ -2505,6 +2554,16 @@ export function createMazeWorld(options = {}) {
         bar.object.rotation.x = -.11 * (reducedContact
           ? .45 : nearContact ? shutterBeat : 0);
       }
+      // One physical causality chain: the observed treadle turns the large
+      // public governor, the same released shutter phase tilts its bridge,
+      // and the visible suspended weight descends as the jaws take load.
+      // Absolute poses guarantee far/diagonal, hidden, retreat, new-run and
+      // reduced-motion reset without a fake contact or frame allocation.
+      const counterStroke = reducedContact ? .55 : nearContact ? shutterBeat : 0;
+      signal.counterbalance.wheel.rotation.z = -.72 * treadleStroke;
+      signal.counterbalance.bridge.rotation.z = .11 * counterStroke;
+      signal.counterbalance.weight.position.y = .60 - .28 * counterStroke;
+      signal.counterbalance.cable.scale.y = 1 + .92 * counterStroke;
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
         relay.object.position.y = .28 + (reducedContact ? .04 : .15 * pistonRelay);
