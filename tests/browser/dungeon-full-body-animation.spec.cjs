@@ -560,7 +560,11 @@ for(const view of [
    expect(Math.abs(proof?.appliedAngleRad)).toBeLessThanOrEqual(.221);
    const beforeDepth=Math.max(0,proof.floorTopY-proof.beforeToeY);
    const afterDepth=Math.max(0,proof.floorTopY-proof.afterToeY);
-   expect(beforeDepth).toBeGreaterThan(.025);
+   // Early original-source swing is allowed from >10mm penetration.
+   expect(beforeDepth).toBeGreaterThan(.01);
+   expect(proof.earlySourceToeRescue).toBe(beforeDepth<.025);
+   expect(proof.penetrationBeforeMeters).toBeCloseTo(beforeDepth,6);
+   expect(proof.penetrationAfterMeters).toBeCloseTo(afterDepth,6);
    expect(afterDepth).toBeLessThan(beforeDepth-.001);
   }
  }

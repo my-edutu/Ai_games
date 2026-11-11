@@ -234,7 +234,9 @@ export function confirmOriginalSourceSwingToeLift({
   Math.abs(appliedAngleRad)<.0001||Math.abs(appliedAngleRad)>.221||
   beforeHeelY-floorTopY<.075||beforeHeelY-floorTopY>.28||
   afterHeelY-floorTopY<.045||afterHeelY-floorTopY>.34||
-  beforeToeY-floorTopY>=-.025||
+  // A final skinned-foot proof must honor the same 10mm original swing gate.
+  // The old 25mm final check rejected every safe early-band candidate.
+  beforeToeY-floorTopY>=-.01||
   afterToeY-beforeToeY<=.001||afterToeY-beforeToeY>.08||
   afterToeY-floorTopY>.09)return null;
  return afterToeY-beforeToeY;

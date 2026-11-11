@@ -1191,6 +1191,9 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   beforeToeY:toeY,afterToeY:calf?.afterToeY??afterToeY,
   beforeHeelY:heelY,afterHeelY:calf?.afterHeelY??afterHeelY,
   floorTopY:-.02,liftMeters:lift+(calf?.liftMeters??0),
+  penetrationBeforeMeters:Math.max(0,-.02-toeY),
+  penetrationAfterMeters:Math.max(0,-.02-(calf?.afterToeY??afterToeY)),
+  earlySourceToeRescue:toeY>-.045&&toeY<-.03,
   ankleLiftMeters:lift,calfAssistMeters:calf?.liftMeters??0,
   appliedAngleRad:finalAngle-angle,calfAssistAngleRad:calf?.appliedAngleRad??0,
   candidateAngleRad:probeAngle,candidateToeY:probeToeY,candidateHeelY:probeHeelY

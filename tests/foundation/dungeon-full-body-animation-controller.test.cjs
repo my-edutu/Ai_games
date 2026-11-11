@@ -2789,3 +2789,45 @@ test('observed original swinging toe drag starts source-backed ankle/calf assist
  assert.match(model,/toeY<-.02-\.01/,
   'runtime must actually give early measured original-foot trials an opportunity');
 });
+
+
+test('original airborne near-floor toe rescue passes both candidate AND final real-skinned-foot guards',async()=>{
+ const {selectOriginalSourceSwingAnkleTrial:select,
+  planOriginalSourceSwingToeClearance:plan,
+  confirmOriginalSourceSwingToeLift:confirm}=await load();
+ // Prospective source-like joint/skin sample; acceptance requires new real WebGL.
+ const floor=-.02,beforeToe=-.036,beforeHeel=.12;
+ const best=select({toeWorldY:beforeToe,heelWorldY:beforeHeel,floorTopY:floor,
+  trials:[{signed:-.2,toe:-.052,heel:.085},
+   {signed:.2,toe:-.008,heel:.143}]});
+ assert.equal(best?.signed,.2);
+ const args={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:1,alive:true,visible:true,groundedMoving:true,
+  rootTravel:.0655,floorTopY:floor,heelWorldY:beforeHeel,
+  toeWorldY:beforeToe,trialToeWorldY:best.toe,
+  trialAngleRad:best.signed,previousCorrectionRad:0};
+ const delta=plan(args);
+ assert.ok(delta>.06&&delta<=.08,'same licensed joint remains rate-limited');
+ const final={beforeToeY:beforeToe,afterToeY:-.0248,
+  beforeHeelY:beforeHeel,afterHeelY:.129,
+  floorTopY:floor,appliedAngleRad:delta};
+ assert.ok(confirm(final)>.01,
+  '10-25mm genuine original-swing candidates cannot be discarded by the obsolete 25mm final gate');
+ for(const bad of [
+  {beforeToeY:-.029}, // 9mm toe intrusion
+  {beforeHeelY:-.005}, // loaded source stance
+  {afterHeelY:-.005}, // heel collision
+  {afterToeY:-.0359}, // no measured clearance
+  {afterToeY:.09}, // unreal source toe snap
+  {appliedAngleRad:.3}, // over original ankle bound
+  {floorTopY:.15}, // not the authored stone
+  {afterToeY:NaN}
+ ])assert.equal(confirm({...final,...bad}),null,
+  'only a physically safe real original sole can certify relief: '+JSON.stringify(bad));
+ for(const bad of [{mode:'attack'},{reducedMotion:true},{teleport:true},
+  {heelWorldY:-.005},{sourceClipName:'Idle'}])
+  assert.equal(plan({...args,...bad}),0);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/earlySourceToeRescue/,
+  'the native skinned joint adapter must report exactly which accepted frames were early');
+});
