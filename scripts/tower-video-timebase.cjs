@@ -127,6 +127,11 @@ function readGrayThumbnail(file) {
   return bytes;
 }
 
+function originalFrameDecodeArgs(video) {
+  return ['-v','error','-i',video,'-vf',
+    `scale=${THUMB_WIDTH}:${THUMB_HEIGHT},format=gray`,
+    '-vsync','0','-f','rawvideo','-pix_fmt','gray','pipe:1'];
+}
 function readVideoFrames(video) {
   const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-select_streams','v:0',
     '-show_frames','-show_entries','frame=best_effort_timestamp_time','-of','json',video],
@@ -134,9 +139,13 @@ function readVideoFrames(video) {
   const pts=(probe.frames||[]).map(frame=>Number(frame.best_effort_timestamp_time));
   if(!pts.length||pts.length>7200||pts.some(v=>!Number.isFinite(v)||v<0))
     throw new Error('Missing, invalid or oversized original video PTS');
-  const bytes=execFileSync('ffmpeg',['-v','error','-i',video,'-vf',
-    `scale=${THUMB_WIDTH}:${THUMB_HEIGHT},format=gray`,
-    '-fps_mode','passthrough','-f','rawvideo','-pix_fmt','gray','pipe:1'],
+  // Pinned isolated @ffmpeg-installer binary is FFmpeg 2018 (N-47683):
+  // it does not recognize '-fps_mode passthrough' (added years later).
+  // '-vsync 0' is the compatible historical passthrough: it MUST preserve
+  // one output thumbnail per decoded native PTS. The equality check below
+  // still vetoes any duplicate/drop or unexpected decoder disagreement.
+  // This changes observational decoding ONLY, not the original WebM.
+  const bytes=execFileSync('ffmpeg',originalFrameDecodeArgs(video),
   {maxBuffer:MAX_VIDEO_BYTES,timeout:120000});
   if(bytes.length!==pts.length*FRAME_BYTES)
     throw new Error('Frame/PTS mismatch; cannot align original footage');
@@ -307,4 +316,4 @@ function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
 
 module.exports={assessVideoTimebase,distance,visuallyMatchAnchor,
   meaningfulSourceEvents,mapObservedEventTimecodes,calibrateOriginalVideo,
-  FRAME_BYTES};
+  FRAME_BYTES,originalFrameDecodeArgs,readVideoFrames};
