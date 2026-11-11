@@ -6725,7 +6725,7 @@ const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,com
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts',
  'burgageMaterialTriangles'])villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
 function getBurgageMaterialAudit(){
  return {source:'original-inhabited-burgage-side-materiality',
   homes:villageVisualLod.burgageMaterialHomes,
@@ -6795,7 +6795,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w217-hip-roof-homes-v1';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w234-inhabited-rear-bays-v1';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -7135,6 +7135,84 @@ function grainwardStreetDoorCanopy(x,z,variant,index,isCompact){
   throw Error('W211 invalid inhabited door canopy');
  return triangles;
 }
+// W234: genuine inhabited Grainward loft wings extend the REAR upper walls
+// of existing original cottages. This is a real attached room and timber
+// construction, never a new housing plot, made-up workplace, stock or route.
+// The ground-level rear lane remains fully open beneath its oak corbels.
+function grainwardAttachedRearBay(x,z,variant,index,isCompact){
+ const profile=houseVisualProfile(x,z,variant,isCompact),h=profile.height;
+ if(h<=2.42||index%3===2)return 0;
+ const start=data.length,w=2.4+variant*.42,d=2.1+variant*.18;
+ const y=terrain(x,z),rear=z+d*.5,outer=rear+.83,
+  roomWidth=Math.min(w*.70,2.04),bottom=y+h-.94,
+  roomTop=y+h-.08,centerZ=(rear+outer)*.5;
+ const oak=rgb(index%2?0x624a38:0x73533d),
+  beam=rgb(0xa68a62),plaster=rgb(index%2?0xc8b7a0:0xd7c4a6),
+  glass=rgb(0x4e6b70),clay=[0x87654f,0x967359,0x755c4b,0xa58867].map(rgb);
+ materialScope(MATERIAL.PLASTER,()=>{
+  // A complete upper timber-framed storage room, not a suspended facade.
+  box(x,bottom,centerZ,roomWidth,roomTop-bottom,outer-rear,plaster);
+ });
+ materialScope(MATERIAL.STONE,()=>{
+  // Continuous limestone sill rests on the oak plate; no planted ground prop.
+  box(x,bottom-.07,outer+.025,roomWidth+.17,.11,.13,rgb(0xaaa08d));
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Old timber beams connect the projected room back to the genuine house.
+  box(x,bottom-.115,centerZ,roomWidth+.12,.13,outer-rear+.10,oak);
+  box(x,roomTop-.08,outer+.035,roomWidth+.08,.12,.11,oak);
+  for(const side of [-1,1]){
+   const xx=x+side*(roomWidth*.5-.06);
+   box(xx,bottom+.04,outer+.05,.13,roomTop-bottom-.05,.13,oak);
+   limbSegment([xx,bottom-.55,rear-.07],
+    [xx,bottom+.04,outer-.07],.071,oak,5);
+   // Visible pegs at the heavy mortise joints, not guessed citizens.
+   box(xx,bottom+.15,outer+.118,.065,.065,.036,beam);
+  }
+  box(x,bottom+.02,outer+.075,roomWidth+.10,.08,.10,beam);
+ });
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  // A pair of genuine upper casements lights the rear lane.
+  for(const side of [-1,1]){
+   const xx=x+side*roomWidth*.23;
+   box(xx,bottom+.26,outer+.073,.37,.38,.053,glass);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const xx=x+side*roomWidth*.23,zf=outer+.111;
+   box(xx,bottom+.26,zf,.052,.41,.085,beam);
+   for(const yy of [bottom+.065,bottom+.445])
+    box(xx,yy,zf,.42,.047,.086,beam);
+   for(const sign of [-1,1])
+    box(xx+sign*.19,bottom+.26,zf,.046,.39,.08,oak);
+  }
+  // The roof's exposed bracket and verge boards sit on the room's frame.
+  for(const side of [-1,1]){
+   const xx=x+side*(roomWidth*.5+.09);
+   limbSegment([xx,y+h+.075,rear-.07],
+    [xx,y+h-.18,outer+.14],.058,oak,4);
+  }
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  // Five full upward-facing irregular clay courses, with a true eave
+  // and a fall away from the original rear wall; no flat floating lid.
+  for(let course=0;course<5;course++){
+   const t=course/5,u=(course+1)/5;
+   const za=rear-.10+(outer-rear+.25)*t,
+    zb=rear-.10+(outer-rear+.25)*u,
+    ya=y+h+.08-.30*t,yb=y+h+.08-.30*u;
+   quad([x-roomWidth*.5-.12,ya,za],
+    [x-roomWidth*.5-.12,yb,zb],
+    [x+roomWidth*.5+.12,yb,zb],
+    [x+roomWidth*.5+.12,ya,za],clay[(course+index)%4]);
+  }
+ });
+ const triangles=(data.length-start)/30;
+ if(!Number.isInteger(triangles)||triangles<120||triangles>350)
+  throw Error('W234 original occupied loft wing exceeds safe geometry');
+ return triangles;
+}
 function grainwardInhabitedLot(x,z,variant,index,isCompact){
  // Exactly the original occupied burgage lots bordering the real market and
  // eastbound granary lane; do not add collision or invented housing entities.
@@ -7192,6 +7270,11 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
    villageVisualLod.grainwardGableVents++;
   }
  });
+ const rearBayTriangles=grainwardAttachedRearBay(x,z,variant,index,isCompact);
+ if(rearBayTriangles){
+  villageVisualLod.grainwardUpperRearBays++;
+  villageVisualLod.grainwardUpperRearBayTriangles+=rearBayTriangles;
+ }
  const canopyTriangles=grainwardStreetDoorCanopy(x,z,variant,index,isCompact);
  if(canopyTriangles)villageVisualLod.grainwardStreetCanopies++;
  villageVisualLod.grainwardStreetCanopyTriangles+=canopyTriangles;
@@ -7244,6 +7327,9 @@ function getGrainwardDistrictAudit(){
   grainLoftBays:granaryArchitectureAudit.grainwardRoofBays||0,
   civicHallBays:guildhallVisualStats.grainwardRoofBays||0,
   existingHomes:city.length,architecturalHomes:villageVisualLod.grainwardHomes,
+  upperRearBays:villageVisualLod.grainwardUpperRearBays,
+  upperRearBayTriangles:villageVisualLod.grainwardUpperRearBayTriangles,
+  originalLotsOnly:true,
   atticBays:villageVisualLod.grainwardAtticBays,
   frontAndRearGableVents:villageVisualLod.grainwardGableVents,
   rafterEdges:villageVisualLod.grainwardRoofEdgeBoards,
@@ -7463,7 +7549,7 @@ villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;vill
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
  villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
 streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
