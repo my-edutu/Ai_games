@@ -162,11 +162,25 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         sampledBodyLocal.set(sampled.x,sampled.y,sampled.z);
         actor.assetRoot.worldToLocal(sampledBodyLocal);
         const m=actor.assetRoot.matrixWorld?.elements;
-        if(finite3(sampledBodyLocal)&&m?.length===16){
+        let affine=m?.length===16;
+        if(affine){
+         for(let i=0;i<16;i++)if(!Number.isFinite(m[i])){affine=false;break}
+         affine=affine&&Math.abs(m[3])<=1e-6&&
+          Math.abs(m[7])<=1e-6&&Math.abs(m[11])<=1e-6&&
+          Math.abs(m[15]-1)<=1e-6;
+        }
+        if(finite3(sampledBodyLocal)&&affine){
          point.localX=sampledBodyLocal.x;
          point.localY=sampledBodyLocal.y;
          point.localZ=sampledBodyLocal.z;
+         // Keep the existing immediate-planning matrix reference but
+         // snapshot the affine coefficients in the transient pose record.
+         // No new Matrix4/Vector3, geometry, audio voice or visual pool.
          point.poseFrameMatrix=m;
+         point.bodyM0=m[0];point.bodyM1=m[1];point.bodyM2=m[2];
+         point.bodyM4=m[4];point.bodyM5=m[5];point.bodyM6=m[6];
+         point.bodyM8=m[8];point.bodyM9=m[9];point.bodyM10=m[10];
+         point.bodyM12=m[12];point.bodyM13=m[13];point.bodyM14=m[14];
         }
        }catch{} // Present but unverifiable body transforms fail closed.
       }

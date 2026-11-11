@@ -18,6 +18,12 @@ export const MEASURED_HAND_RECEIPT_MAX_ROOT_YAW_RADIANS=.10;
 // genuine skinned rotation is observable, reject a ribbon rendered against a
 // materially different joint orientation at frame acknowledgment.
 export const MEASURED_HAND_RECEIPT_MAX_WRIST_ROTATION_RADIANS=.16;
+// Authored Matrix4 elements mutate between VFX update and WebGL submit.
+export const MEASURED_HAND_RECEIPT_MAX_BODY_BASIS_DRIFT=.015;
+export const MEASURED_HAND_RECEIPT_MAX_BODY_TRANSLATION_DRIFT_METERS=.06;
+const BODY_BASIS_KEYS=Object.freeze(['bodyM0','bodyM1','bodyM2',
+ 'bodyM4','bodyM5','bodyM6','bodyM8','bodyM9','bodyM10']);
+const BODY_TRANSLATION_KEYS=Object.freeze(['bodyM12','bodyM13','bodyM14']);
 const finite=p=>p&&['x','y','z','rootX','rootY','rootZ'].every(k=>Number.isFinite(p[k]))&&
  (p.yaw===undefined||Number.isFinite(p.yaw));
 /**
@@ -56,6 +62,29 @@ export function isCurrentMeasuredHandReceipt(previous,current){
   current.rootY-previous.rootY,current.rootZ-previous.rootZ);
  const yawDrift=Math.abs(Math.atan2(Math.sin((current.yaw??0)-(previous.yaw??0)),
   Math.cos((current.yaw??0)-(previous.yaw??0))));
+ // Capture read-only authored parent transform across the submission
+ // boundary. A bone may keep its world position and quaternion while the
+ // surrounding model scales, pitches, shears or shifts its pivot. The mutable
+ // poseFrameMatrix reference cannot prove the originally rendered frame.
+ // Older adapters without this GLB-body witness retain their previous path.
+ if(previous.sourceBodyRoot!==undefined||current.sourceBodyRoot!==undefined){
+  if(!previous.sourceBodyRoot||
+   previous.sourceBodyRoot!==current.sourceBodyRoot||
+   ![previous.localX,previous.localY,previous.localZ,
+     current.localX,current.localY,current.localZ].every(Number.isFinite))
+   return false;
+  for(const name of BODY_BASIS_KEYS){
+   const a=previous[name],b=current[name];
+   if(!Number.isFinite(a)||!Number.isFinite(b)||
+    Math.abs(a-b)>MEASURED_HAND_RECEIPT_MAX_BODY_BASIS_DRIFT)return false;
+  }
+  for(const name of BODY_TRANSLATION_KEYS){
+   const a=previous[name],b=current[name];
+   if(!Number.isFinite(a)||!Number.isFinite(b)||
+    Math.abs(a-b)>MEASURED_HAND_RECEIPT_MAX_BODY_TRANSLATION_DRIFT_METERS)
+    return false;
+  }
+ }
  // Only compare when the *rendered* passage had a real world-orientation
  // witness. Older minimal rigs without getWorldQuaternion retain their
  // existing translation/yaw contract; never synthesize a missing rotation.
