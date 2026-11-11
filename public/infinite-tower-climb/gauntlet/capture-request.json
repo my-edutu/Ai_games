@@ -714,5 +714,27 @@
       "PLAYS": 0
     },
     "next": "Inspect exact-head 8-film WebMs; correct surviving portrait two-actor guardian readability, event-to-raster timebase and live physical gateway crossing. Do not advance P0 by CI status."
+  },
+  "p0OriginalFilmFFmpeg2018NativePtsRecovery20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "failedSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/43058957269",
+    "failedSourceSha": "d6ef509d823ffb2bfa7eb985a58e90d0939628c4",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43058959381 — PASSED, technical only",
+    "actualPriorArtifacts": "8/8 source-pinned original >=60s browser WebMs captured, native transport audited and original event timelines paired; exact source-video clock failed because pinned 2018 FFmpeg rejects -fps_mode passthrough, independent scores 0/5.",
+    "originalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43058957269/artifacts/13873058480 — desktop 71.88s/1797 original frames, portrait 73.76s/1844 original frames. Genuine floor8->9 source tick451 witnessed, continuous native grounded crossing not accepted; persistent bronze-scaffold occlusion in 10–24s duel.",
+    "correctedDecoderSha": "f4d52b842f45812f3a071e13e5e0e77dfcff05a9",
+    "regressionSha": "f3f33f7767c695378823b5824a549d349a84876a",
+    "newCaptureSource": "Exact immutable github.sha of THIS capture-request edit; no moving PR head. Identical four scenarios baseline/candidate, fresh desktop 960x600 and portrait 390x844 original WebMs, same seed/tier/tempo, strict source-native PTS calibration and event-to-real pixels.",
+    "decoderConstraint": "Old FFmpeg -vsync 0 is passthrough, never re-time, pad, edit or synthesize original native frames. Fail on decoded grayscale thumbnail count != real ffprobe PTS.",
+    "demandedAcceptance": "Inspect 1x original guardian/crusher, walkable grounded threshold and onward floor9, complete result/intermission/restart in exact-source films. Native success alone does not certify improvement; require supported device p50/p95/p99 and memory and five fresh blind reviewers per LOOKS/FEELS/PLAYS.",
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardwareFrameTimeMemory": "NOT EVALUATED",
+    "next": "Verify the isolated 2018 native FFmpeg now decodes source-pinned files, inspect 8 calibrated original films and event-to-video gap; reopen real 3D staging/camera for giant bronze supports if unreadable. Preserve baseline/draft and no merge/force-push/deploy."
   }
 }
