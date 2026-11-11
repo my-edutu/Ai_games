@@ -28,7 +28,7 @@ assert.equal(policy(12,23,false,false,false,NaN),false,'Invalid camera projectio
 assert.match(code,/foundingProjectedMaxHeight:n<=12\?largestVisible:null/);
 assert.match(code,/streetWalk\?1:0,follow\?1:0,liveWorkday\?1:0,zoom/);
 assert.match(code,/const projected=people\.map\(\(p,i\)=>\(\{i,\.\.\.projectRealCitizenDetail\(p,frame\)\}\)\)/);
-assert.match(code,/foundingScreenScaleDetailPolicy\(n,zoom,streetWalk,follow,liveWorkday,largestVisible\)/);
+assert.match(code,/foundingScreenScaleDetailPolicy\(\s*n,zoom,streetWalk,follow,liveWorkday,largestVisible\)/);
 assert.match(code,/if\(n<=12&&!foundingOverview\)/,'Keep close citizen detail continuity');
 assert.match(code,/visibleWorkDetailsReserved:reservedWorkDetails/,'Do not demote actual hands working');
 assert.match(code,/const compact=people\.filter\(\(p,i\)=>!detail\.indices\.has\(i\)\)/,

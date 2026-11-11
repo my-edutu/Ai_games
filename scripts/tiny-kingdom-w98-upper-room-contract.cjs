@@ -41,6 +41,15 @@ function sample(style,variant) {
    originalClayRoofCourses=(_x,_a,_b,_c,_d,_e,_colors,courses)=>{
     data.length+=courses*2*4*30;villageVisualLod.compactRoofCourses+=courses*2;
     villageVisualLod.compactRoofTiles+=courses*2*4
+   },
+   // W217 real four-plane hip roofs have the SAME bounded 24-triangle
+   // course count in this isolated upper-room fixture. Full real WebGL
+   // roof geometry is checked separately; do not omit live roof branch.
+   originalHipRoofCourses=(_x,_a,_b,_c,_d,_e,_inset,_colors,courses,_variant,compact)=>{
+    assert(compact,'W98 only inspects true original compact cottages');
+    data.length+=courses*2*4*30;
+    villageVisualLod.compactRoofCourses+=courses*2;
+    villageVisualLod.compactRoofTiles+=courses*2*4;
    };
   ${profile}
   ${roof}
