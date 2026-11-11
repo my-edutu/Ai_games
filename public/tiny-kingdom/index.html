@@ -1754,7 +1754,8 @@ function workSkinRigidMatrix(from,to,out=null,offset=0){
 // contact, root shader and authoritatively advanced frame remain unchanged.
 const WORK_SKIN_PALETTE_FLOATS=13*16;
 let workSkinPaletteAllocations=0,workSkinPaletteReuses=0,
- workSkinPaletteFills=0;
+ workSkinPaletteFills=0,workSkinSameStateFrameHits=0,
+ workSkinSameStateFrameMisses=0;
 function retainWorkerSkinPalette(entry,segments,slot){
  if(!entry||!Array.isArray(entry.bindSegments)||
     entry.bindSegments.length!==13||!Array.isArray(segments)||
@@ -1789,19 +1790,53 @@ function getWorkSkinPaletteAudit(){
   maximumBytes:(WORKING_RESIDENT_MAX+FOREGROUND_RESIDENT_MAX)*2*
    WORK_SKIN_PALETTE_FLOATS*4,
   allocations:workSkinPaletteAllocations,reuses:workSkinPaletteReuses,
-  poseUpdates:workSkinPaletteFills,extraGpuBuffers:0,
+  poseUpdates:workSkinPaletteFills,
+  sameStateFrameHits:workSkinSameStateFrameHits,
+  sameStateFrameMisses:workSkinSameStateFrameMisses,
+  extraGpuBuffers:0,
   originalBonesAndTools:true,authorityChanged:false,
   hardwareFrameRate:'NOT MEASURED'};
 }
+// W215 rendering spine: render-only camera navigation, HUD refreshes and
+// repeated draws of an unchanged fixed-step world must not re-solve all 13
+// original bones for every resident. Identity, actual simulation time,
+// physiological pose inputs and contact/target are the cache key: a genuine
+// tick, change of occupation/parcel/route, or selection creates a new pose.
+// One bounded string + one existing 208-float palette per original entry;
+// no new citizen, frame-based false animation, geometry or GPU allocation.
+function genuineSkinFrameKey(p,i){
+ const dest=p.path?.length?p.path[0]:p.target;
+ return [state.t,i,p.name,p.job,p.activity,p.phase,p.x,p.z,
+  p.energy,p.hunger,p.workTimer,p.food,p.money,
+  p.delivery?.id,p.delivery?.amount,p.target?.[0],p.target?.[1],
+  dest?.[0],dest?.[1],selectedCitizen,follow?1:0,liveWorkday?1:0
+ ].join('|');
+}
+function workSkinFramePalette(entry,p,slot,detail){
+ const i=people.indexOf(p);
+ if(i<0)throw Error('W215 missing authentic citizen for GPU rig');
+ const key=genuineSkinFrameKey(p,i);
+ const cacheKey=detail?'detailedSkinFrameKey':'compactSkinFrameKey';
+ const palette=entry[slot];
+ if(entry[cacheKey]===key&&palette instanceof Float32Array&&
+    palette.length===WORK_SKIN_PALETTE_FLOATS){
+  workSkinSameStateFrameHits++;
+  return palette;
+ }
+ workSkinSameStateFrameMisses++;
+ const rig=citizenRigPose(p);
+ const pose=citizenEmbodiedPose(p,i,rig);
+ const current=detail?workSkinSegments(rig,pose,entry,workSkinDetailedPoint):
+  workSkinSegments(rig,pose,entry);
+ const computed=retainWorkerSkinPalette(entry,current,slot);
+ entry[cacheKey]=key;
+ return computed;
+}
 function workSkinMatrices(entry,p){
- const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
- const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry);
- return retainWorkerSkinPalette(entry,current,'compactBonePalette');
+ return workSkinFramePalette(entry,p,'compactBonePalette',false);
 }
 function workSkinDetailedMatrices(entry,p){
- const i=Math.max(0,people.indexOf(p)),rig=citizenRigPose(p);
- const current=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry,workSkinDetailedPoint);
- return retainWorkerSkinPalette(entry,current,'detailedBonePalette');
+ return workSkinFramePalette(entry,p,'detailedBonePalette',true);
 }
 function workSkinTags(vertices,parts){
  const labels=new Float32Array(vertices);
