@@ -819,5 +819,27 @@
     "mandatoryVeto": "Preserve strict 0.75s source-to-native event alignment; no invented pixels or source timestamps. Requirement 4 of 5 randomized independent 5-person critics EACH looks, feels, plays remains 0/5.",
     "missingDeviceTests": "p50/p95/p99, memory, desktop/portrait actual supported hardware not measured",
     "nextAction": "Inspect candidate/baseline native originals first; if camera optics degrade combat safety, revert or rebuild; isolate 2.6–2.9s source-raster mismatch while P0 remains open."
+  },
+  "p0SourcePhaseFirstSubmissionAndRealCI20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "EXACT immutable github.sha of this request commit; does not use floating PR68 head",
+    "candidateImplementation": "45d2e562f62d7ce4f495dbfc87f590b021fdbdd2",
+    "testImplementation": "47ae57011994d1a5f77fa9ba97375d631b6ba298",
+    "newSourceRequestParentSha": "51f3b84e3b835cf87a63426388dd5cc0f9ac1930",
+    "baselineAndCandidate": "Original actual software game and 20Hz authority. Freeze baseline at 1731b380851162741761c5569e2bc152a0869ca9. Preserve real video speed, seed, launch floor, evidence runner and Chromium/FFmpeg decoding. No recording hacks.",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43108948655 — 8/8 complete original WebMs, strict event-to-native-raster 0/2 viewports; source Floor9 at ~23.3198s desktop and 23.0791s portrait versus drawn HUD 26s/25.75s",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43108948807 — FAIL 16 Tower client lifecycle VM tests because newly shipped latch helper was not imported by the fixture",
+    "thisRunRepair": "Restore actual shipped latch+cadence to the full browser-client lifecycle VM, differentiate source acceptance and render return; avoid leaking unsubmitted ordinary first-frame floor/tick/score; degraded instead of LIVE until 3D submission. Genuine terminal/recovery/upgrade remain source accessible.",
+    "requiredRecording": "9-job original-ledger run: source campaign plus 8 >=60 sec original baseline/candidate scenario films for desktop 960x600 and portrait 390x844, ascent floor0/moving floor7/danger floor8/outcome floor0, matched seed and low tier. Strict native clock, native source hash, HTTP accepted vs Three.js returned and drawn HUD validation. DO NOT assume original WebM proves any physical gateway action.",
+    "requiredChecks": "Source-specific CI clean, event pair 2/2, visual acceptance of real crusher HP0, grounded threshold traversal Floor 8→9 and continuation, authentic result/restart with action and causal timestamps. Real device p50/p95/p99/memory and five randomized independent critics per pillar later.",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "hardware": "NOT EVALUATED",
+    "nextAction": "Inspect source-pinned finished full-motion original 1x films, do not use event-search time as native pixel time. Fix dominant confirmed real crossing / guardian obstruction and 2.7s source-to-raster discrepancy. Never promote stage before evidence."
   }
 }
