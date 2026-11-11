@@ -116,3 +116,48 @@ test('pinned CC0 swordsman lowerleg to foot source bind disproves universal 120m
  assert.match(renderer,/sourceBindUpperLength,sourceBindLowerLength/,
   'live source must compute true inverse-bind evidence before using new ratio-aware gate');
 });
+
+
+test('source-space knee lengths survive anisotropic original GLB fitting; bind comparison never uses distorted world lengths',async()=>{
+ const {measureImportedKneeSegmentsInAssetCoordinates:measure,
+  assessImportedSourceKneeGeometry:assess}=await load();
+ assert.equal(typeof measure,'function');
+ // Pinned original thigh and shin distances, rendered under a deliberately
+ // anisotropic but invertible figure fit: avatar source anatomy is unchanged.
+ const shin=.1123160496,thigh=.1706700623;
+ const originalUpper=[0,0,0],originalKnee=[0,-thigh,0];
+ const originalFoot=[.08,-thigh-Math.sqrt(shin*shin-.08*.08),0];
+ const scale=[1.24,.82,1.11],offset=[.25,.9,-.75];
+ const world=p=>p.map((v,i)=>v*scale[i]+offset[i]);
+ const inverse=[1/scale[0],0,0,0,0,1/scale[1],0,0,
+  0,0,1/scale[2],0,
+  -offset[0]/scale[0],-offset[1]/scale[1],-offset[2]/scale[2],1];
+ const args={upperWorld:world(originalUpper),kneeWorld:world(originalKnee),
+  footWorld:world(originalFoot),inverseAssetWorld:inverse};
+ const measured=measure(args);
+ assert.ok(measured,'a genuine invertible source fit can be unscaled');
+ assert.ok(Math.abs(measured.upperLength-thigh)<1e-9);
+ assert.ok(Math.abs(measured.lowerLength-shin)<1e-9);
+ const bound={sourceBindUpperLength:thigh,sourceBindLowerLength:shin,
+  bendSine:.93,hingeAlignment:.998};
+ assert.equal(assess({...bound,...measured}).accepted,true,
+  'verified source lengths match licensed inverse binds');
+ const worldUpper=Math.hypot(...args.upperWorld.map((v,i)=>v-args.kneeWorld[i]));
+ const worldLower=Math.hypot(...args.kneeWorld.map((v,i)=>v-args.footWorld[i]));
+ assert.equal(assess({...bound,upperLength:worldUpper,lowerLength:worldLower}).accepted,false,
+  'comparing anisotropic rendered metres against original bind-space metres is a real false rejection');
+ for(const bad of [
+  {...args,inverseAssetWorld:null},
+  {...args,inverseAssetWorld:[...inverse.slice(0,6),NaN,...inverse.slice(7)]},
+  {...args,footWorld:[NaN,0,0]},
+  {...args,inverseAssetWorld:[...inverse.slice(0,3),.1,...inverse.slice(4)]},
+  {...args,inverseAssetWorld:[...inverse.slice(0,15),0]}
+ ]) assert.equal(measure(bad),null,'invalid/nonaffine source space fails closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/measureImportedKneeSegmentsInAssetCoordinates\(/,
+  'the LIVE rig must measure connected bones in the GLB reference frame');
+ assert.match(renderer,/assetRoot\.matrixWorld/,
+  'the source-space conversion must actually invert the source root transform');
+ assert.match(renderer,/sourceUpperLength,sourceLowerLength/,
+  'the live heel-safe gate must expose actual comparable source lengths');
+});
