@@ -521,6 +521,16 @@ for(const view of [
  // toe/heel frame must prove positive final lift and the heel stays airborne.
  for(const t of trace){
   const n=t.nativeLegOwnership,proof=n?.sourceSwingToeLiftProof;
+
+  const calfProof=n?.sourceSwingCalfAssistProof;
+  if(calfProof){
+   expect(calfProof.source).toBe('same-original-connected-GLB-calf-and-skinned-toe');
+   expect(calfProof.sourceInstanceId).toBe(t.sourceId);
+   expect(calfProof.sourceClip).toBe('Walking_A');
+   expect(calfProof.afterToeY-calfProof.beforeToeY).toBeGreaterThan(.002);
+   expect(calfProof.afterHeelY).toBeGreaterThan(-.02+.055);
+   expect(Math.abs(calfProof.appliedAngleRad)).toBeLessThanOrEqual(.121);
+  }
   if((n?.sourceSwingToeCorrectionFrames||0)>0){
    expect(proof?.source).toBe('same-original-GLB-foot-skinned-vertices');
    expect(proof?.sourceClip).toBe('Walking_A');
