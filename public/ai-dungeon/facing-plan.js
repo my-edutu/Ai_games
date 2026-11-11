@@ -70,8 +70,16 @@ export function planOriginalSourceWalkNearArrivalFacing({
  if(remaining>=.07)return null;
  const dx=currentX-previousX,dz=currentZ-previousZ;
  const travel=Math.hypot(dx,dz);
- if(travel<.012||travel>.24)return null;
  const previousRemaining=Math.hypot(targetX-previousX,targetZ-previousZ);
+ // Genuine original Walking_A 390px footage witnessed the last 5.1018mm
+ // source-root approach while the 12mm generic facing floor returned null,
+ // leaving a real skinned walker facing ~0.59rad away from its just-reached
+ // destination. Admit ONLY a witnessed 3-9mm step that actually closes the
+ // <=9mm final gap; all other walk heading and combat priority stay intact.
+ // No source joints, clip times, scene roots or authority movement are edited.
+ const witnessedFinalStep=remaining<=.009&&travel>=.003&&travel<=.009&&
+  previousRemaining>=remaining+.0025;
+ if((travel<.012&&!witnessedFinalStep)||travel>.24)return null;
  // The source-root must actually be closing on the same legal destination.
  // A newly diverted, stationary or overshooting rig cannot inherit stale yaw.
  if(previousRemaining+.001<remaining)return null;
@@ -96,7 +104,6 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
  sourceRig=false,sourceClipName='',sourceWalkExit=false,mode='idle',
  groundedMoving=false,alive=false,visible=false,teleport=false,
  reducedMotion=false,hasCombatFacing=false,
- previousX=NaN,previousZ=NaN,
  currentX=NaN,currentZ=NaN,targetX=NaN,targetZ=NaN,
  observedWalkYaw=null,rootYaw=NaN,frameInterval=NaN
 }={}){
@@ -125,21 +132,7 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
  if(!memoryValid)return EMPTY_SOURCE_WALK_FINISH;
  // Continue within a real, very small final walk frame. Never manufacture
  // locomotion on a halted or stale authoritative actor.
- // The original 390px Walking_A source still moved 5.1mm on the last legal
- // rendered frame, but the generic >=12mm moving threshold had cleared.
- // The earlier REAL source heading, not a false animation/action label, may
- // finish rotating only when a same-target 3-9mm step is independently
- // witnessed, closes the actual destination gap and agrees with that heading.
- const microDx=currentX-previousX,microDz=currentZ-previousZ;
- const microTravel=Math.hypot(microDx,microDz);
- const priorRemaining=Math.hypot(targetX-previousX,targetZ-previousZ);
- const witnessedMicrostep=mode==='move'&&groundedMoving===false&&walkingSource&&
-  [previousX,previousZ].every(Number.isFinite)&&
-  microTravel>=.003&&microTravel<=.009&&priorRemaining<=.02&&
-  priorRemaining>=remaining+.0025&&
-  Math.abs(shortestYawDelta(previous.yaw,Math.atan2(-microDx,-microDz)))<=.18;
- const tinyStep=mode==='move'&&groundedMoving===true&&walkingSource||
-  witnessedMicrostep;
+ const tinyStep=mode==='move'&&groundedMoving===true&&walkingSource;
  // Original outgoing Walking_A is explicitly retained by updateActor;
  // a generic Idle clip by itself, with no outgoing source action, cannot
  // license continued root rotation or a phantom turn.
