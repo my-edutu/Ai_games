@@ -4,8 +4,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {assessVideoTimebase,distance,visuallyMatchAnchor,
-  meaningfulSourceEvents,mapObservedEventTimecodes,FRAME_BYTES} =
+  meaningfulSourceEvents,mapObservedEventTimecodes,FRAME_BYTES,
+  originalFrameDecodeArgs,readVideoFrames} =
   require('../../scripts/tower-video-timebase.cjs');
+const os=require('node:os');
+const {execFileSync}=require('node:child_process');
 
 function anchor(wallAtMs,videoPtsSeconds,extra={}) {
   return {wallAtMs,videoPtsSeconds,captureSpanMs:50,
@@ -246,4 +249,41 @@ test('a discontinuity without a sufficiently long independently observed window 
    {kind:'source-result-phase',atMs:125000,sourceTick:8,
     floor:0,observedRunToken:'a'}
  ],forged,80),[]);
+});
+
+
+test('source-pinned 2018 FFmpeg uses native PTS-preserving legacy passthrough, never frame-rate synthesis',()=>{
+ const args=originalFrameDecodeArgs('/original/unmodified.webm');
+ assert.deepEqual(args,[
+   '-v','error','-i','/original/unmodified.webm','-vf',
+   'scale=48:30,format=gray','-vsync','0',
+   '-f','rawvideo','-pix_fmt','gray','pipe:1'
+ ]);
+ assert.equal(args.includes('-fps_mode'),false,
+   'the 2018 packaged native FFmpeg does not support -fps_mode');
+ assert.equal(args.includes('-r'),false,
+   'never resample a full-motion original film to manufacture timestamps');
+});
+
+function nativeToolReady(name) {
+ try { execFileSync(name,['-version'],{timeout:5000,stdio:'ignore'});return true; }
+ catch { return false; }
+}
+test('real original WebM decodes one thumbnail per native ffprobe timestamp',{
+ skip:!nativeToolReady('ffmpeg')||!nativeToolReady('ffprobe'),
+},()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'tower-native-pts-'));
+ const file=path.join(dir,'original.webm');
+ try{
+   execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-nostdin',
+     '-f','lavfi','-i','testsrc=duration=3:size=96x60:rate=12',
+     '-an','-c:v','libvpx','-b:v','300k','-y',file],
+     {timeout:25000,stdio:['ignore','pipe','pipe']});
+   const frames=readVideoFrames(file);
+   assert.ok(frames.pts.length>=30,'fixture must decode real frames');
+   assert.equal(frames.bytes.length,frames.pts.length*FRAME_BYTES,
+     'no synthetic, dropped or duplicated native frames');
+   assert.ok(frames.pts.every((v,i)=>i===0||v>frames.pts[i-1]),
+     'native decoder timestamps must remain strictly increasing');
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
