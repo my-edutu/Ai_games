@@ -769,13 +769,20 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   */
  function retireStaleCue(cueId,reason){
   if(disposed||typeof cueId!=='string'||!cueId||
-   !['stale-frame','expired-visual','unverified-frame'].includes(reason))return 0;
+   !['stale-frame','expired-visual','unverified-frame',
+     'revoked-drawn-swing-pose','revoked-drawn-body-pose'].includes(reason))return 0;
   let retired=0;
   for(const pool of pools.values()){
    let dirty=false;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];
     if(slot?.cue?.id!==cueId||slot.cue.visual==='warning')continue;
+    // A post-submission pose revocation may clear only its own proven gesture.
+    // Never use a stale sword/body witness to erase unrelated HP injury,
+    // projectiles, or a still-authoritative Warden warning footprint.
+    if(reason==='revoked-drawn-swing-pose'&&slot.cue.kind!=='swing')continue;
+    if(reason==='revoked-drawn-body-pose'&&
+       !['warden-release','opening','guard','cast-utility'].includes(slot.cue.kind))continue;
     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
     active--;retired++;dirty=true;
    }
