@@ -5790,9 +5790,9 @@
     },
     "latestImplementation": "Candidate: separate desktop/mobile real-Chromium end-to-end natural journey recorder with original audio opt-in; source-only, execution NOT VERIFIED.",
     "lastCandidateSha": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
-    "experienceVerdict": "NOT_TRANSFORMED",
+    "experienceVerdict": "IN_PROGRESS_NOT_TRANSFORMED; LOOKS_FEELS_PLAYS_UNVERIFIED",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect new-source-head real original desktop/mobile five-stage audiovisual journey, compare 25 genuine threat tiles/court legibility to 9d parent and locked M1 baseline, reject if carved warnings cover actors or mobile performance worsens; then adult-scale source-rig Vanguard/Revenant/Warden and measured renderer bottleneck. PR72 stays separate.",
+    "nextImplementationTask": "Review exact committed PR #49 native 1440/390 same-seed five-stage game audiovisual and actual 23-cell Warden framing vs parent8d5 and immutable baseline; reject if insignificant or adverse. Implement original adult-scale fully skinned duel exemplar and the dominant measured renderer bottleneck; verify 3 blind critics before transforming.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -8035,6 +8035,38 @@
       "next": "Inspect exact new-head genuine original 1440/390 organic A/V against parent and baseline; reject if no material visual improvement or warning/occlusion/performance regression; then adult source-rig art and GPU/SwiftShader diagnosis plus 3 blind critics.",
       "correction": "Observed GitHub source-head foundation 42983826382 failed 2 genuine RIFT_CROSS tests because danger-rescuing views were rejected by a too-strict size-only gate. Corrected: if baseline true threat footprint is cropped, restore all tiles while retaining >=90% of native actor pixels; if already safe, require >=8% and >=3px real body gain. Head moving experience still NOT_OBSERVED.",
       "originalRejectedRun": 42983826382
+    },
+    "m1AuthenticRiskCentroidAndCompleteTiles20261111": {
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+      "draftPr": 49,
+      "inspectedParent": "8d5d1338b4ea1b22b0afe34f9cdcca5bf4775dbc",
+      "parentOrganicRun": 42984490096,
+      "parentFoundationRun": 42984489905,
+      "actualPrechangeMobile": {
+        "seed": "gauntlet-corpus-v1-0",
+        "wardenBossPixels": 40,
+        "rangerPixels": 35,
+        "vanguardPixels": 20,
+        "authoritativeDangerCells": 23,
+        "drawCalls": 377,
+        "triangles": 196490,
+        "swiftShaderRecordedPacing": "severe long frame gaps"
+      },
+      "criticalSourceFinding": "40-point presentation fit discarded most of 23 true hazard-cell corners after first source-rig bones; camera target never re-centred on actual hazard/body union",
+      "codeCandidate": "Physically re-aim live warning camera toward bounded truthful hazard/rig center, evaluate <=90 fixed candidate shots under actual lens with every authoritative tile corner and original native bodies, reject worse source-body overlap or masonry; held warning resamples current native bodies. True transition fit now checks 4 corners of up to 32 live cells and up to 160 points. Source-authority/saves/audio/RNG untouched.",
+      "syntheticNativeModuleProof": "Verified JS V8 source modules with real physical cutaway planner; 24-cell fixture required FOV 60.051° -> 46.864° at actual 53° lens, source-body 54.86 -> 55.33px and physical blocked/cropped 0/0; stable on same tick. Geometry fixture only, NOT a real moving-game improvement.",
+      "exactHeadRealAfter": "NOT_OBSERVED",
+      "newHeadTests": "PENDING_CI",
+      "audioHitSync": "UNVERIFIED",
+      "hardwareGPU": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Review exact committed PR #49 native 1440/390 same-seed five-stage game audiovisual and actual 23-cell Warden framing vs parent8d5 and immutable baseline; reject if insignificant or adverse. Implement original adult-scale fully skinned duel exemplar and the dominant measured renderer bottleneck; verify 3 blind critics before transforming."
     }
   }
 }

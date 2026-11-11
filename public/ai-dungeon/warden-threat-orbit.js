@@ -77,7 +77,17 @@ export function assessThreatOrbit({state,base,subjects,width,height,fov},camera)
   const px=samples.map(p=>p.y*halfH);
   return Math.max(0,Math.max(...px)-Math.min(...px));
  });
- return Object.freeze({valid:true,fitFov:Number(fitFov.toFixed(3)),
+ // These are the two ACTUAL imported skinned source-body projections, not
+ // invented sprite extents. Prevent a tighter warning shot from hiding the
+ // attacker behind the defender even when both bodies technically fit.
+ const xSpans=heights.map(samples=>{
+  const xs=samples.map(p=>p.x*halfH);
+  return [Math.min(...xs),Math.max(...xs)];
+ });
+ const bodyGap=xSpans.length===2?
+  Math.max(xSpans[0][0]-xSpans[1][1],xSpans[1][0]-xSpans[0][1]):0;
+ return Object.freeze({valid:true,bodyGapPx:Number(bodyGap.toFixed(2)),
+  fitFov:Number(fitFov.toFixed(3)),
   minHeroPixels:Number(Math.min(...visibleHeights).toFixed(2)),
   threatCells:risk.count,criticalActors:risk.bodies.length,minDepth:Number(minDepth.toFixed(3))});
 }
@@ -122,4 +132,97 @@ export function planWardenThreatOrbit(input){
   threatCells:baseline.threatCells,criticalActors:baseline.criticalActors,
   gainPixels:Number((best.framing.minHeroPixels-baseline.minHeroPixels).toFixed(2)),
   gainDeg:Number((baseline.fitFov-best.framing.fitFov).toFixed(3))});
+}
+
+/**
+ * Single-scene, true-geometry portrait composition for a live Warden warning.
+ * The earlier orbit changed only azimuth and at most 16% radial distance
+ * around an often off-centre cinematic aim. Genuine 23-cell floor warnings
+ * then forced miniature 20-40px actors against a huge empty vault.
+ *
+ * Search one physically coherent camera *and* optical aim using the actual
+ * authoritative hazard-cell footprint, nearest live source-rig bodies, the
+ * immutable game map bounds and the existing real lens. This does not
+ * enlarge or move any entity, manufacture a warning, add a render pass,
+ * change the spectator's manual control or touch deterministic combat.
+ * The physical-camera director separately rejects opaque stone obstruction.
+ */
+export function planWardenThreatComposition(input){
+ const empty=Object.freeze({status:'UNAVAILABLE'});
+ if(!input||input.reducedMotion===true||!input.base||
+  !Number.isFinite(input.width)||!Number.isFinite(input.height)||
+  !(input.width/input.height>=.35&&input.width/input.height<.86)||
+  !Number.isFinite(input.fov)||input.fov<28||input.fov>84||
+  ![input.base.look?.x,input.base.look?.z,
+    input.base.position?.x,input.base.position?.y,input.base.position?.z].every(finite))
+  return empty;
+ const risk=originalRisk(input.state,input.subjects),
+  baseline=assessThreatOrbit(input,input.base.position);
+ if(!risk||!baseline.valid||baseline.minHeroPixels<5)return empty;
+ const N=risk.N,limit=(N-1)/2-.65;
+ const weightedMean=items=>({x:items.reduce((n,p)=>n+p.x,0)/items.length,
+  z:items.reduce((n,p)=>n+p.z,0)/items.length});
+ const hazardCenter=weightedMean(risk.corners),
+  bodyCenter=weightedMean(risk.bodies);
+ const firstLook=input.base.look,
+  centers=[
+   {x:firstLook.x,z:firstLook.z},
+   {x:(firstLook.x+hazardCenter.x)*.5,z:(firstLook.z+hazardCenter.z)*.5},
+   {x:(hazardCenter.x+bodyCenter.x)*.5,z:(hazardCenter.z+bodyCenter.z)*.5}
+  ];
+ const dangerRescue=baseline.fitFov>input.fov-.5;
+ const angles=[0,-.44,.44,-.78,.78],reaches=[.68,.79,.91],
+  lifts=[0,.48];
+ let best=null,checked=0,fitCandidates=0;
+ for(const desired of centers){
+  // A new aim can be moved only toward REAL warning and source-body anchors;
+  // limit translation, including when edge-clamped in a small legal map.
+  let deltaX=desired.x-firstLook.x,deltaZ=desired.z-firstLook.z;
+  const mag=Math.hypot(deltaX,deltaZ),radius=Math.min(2.25,mag);
+  if(mag>1e-6){deltaX*=radius/mag;deltaZ*=radius/mag;}
+  const look=Object.freeze({x:clamp(firstLook.x+deltaX,-limit,limit),
+   y:finite(firstLook.y)?firstLook.y:1.2,
+   z:clamp(firstLook.z+deltaZ,-limit,limit)});
+  const shiftX=look.x-firstLook.x,shiftZ=look.z-firstLook.z;
+  const shiftedBase={look,position:{
+   x:input.base.position.x+shiftX,y:input.base.position.y,
+   z:input.base.position.z+shiftZ}};
+  const request={...input,base:shiftedBase};
+  for(const reach of reaches)for(const lift of lifts)for(const angle of angles){
+   checked++;
+   const position=orbitThreatCamera(shiftedBase,angle,N,{reach,lift});
+   const measure=assessThreatOrbit(request,position);
+   if(!measure.valid||measure.fitFov>Math.min(82,input.fov-.5))continue;
+   fitCandidates++;
+   const gain=measure.minHeroPixels-baseline.minHeroPixels,
+    separationGain=measure.bodyGapPx-baseline.bodyGapPx;
+   // Both true source rigs remain legible: never replace overlap with deeper
+   // overlap, even when a raw pixel-height statistic becomes attractive.
+   if(separationGain< -4.0)continue;
+   if(dangerRescue){
+    if(measure.minHeroPixels<baseline.minHeroPixels*.90)continue;
+   }else if(gain<Math.max(6,baseline.minHeroPixels*.16))continue;
+   // Do not choose a high building/empty-sky shot merely to improve one
+   // statistic. The genuine warning fit is always a hard safety constraint.
+   const value=(dangerRescue?(baseline.fitFov-measure.fitFov)*4.5:0)+
+    gain*1.9+Math.min(24,separationGain)*.20-
+    Math.hypot(shiftX,shiftZ)*.85-
+    Math.abs(angle)*.70-
+    (1-reach)*.65-lift*.25;
+   if(!best||value>best.value+1e-8)
+    best={value,position,look,angle,reach,lift,framing:measure,
+     shiftMeters:Math.hypot(shiftX,shiftZ)};
+  }
+ }
+ if(!best)return Object.freeze({status:'UNCHANGED',baseline,threatCells:risk.count,
+  criticalActors:risk.bodies.length,checked,fitCandidates});
+ return Object.freeze({status:'IMPROVED',mode:'live-warning-centroid-and-native-bodies',
+  dangerRescue,position:best.position,look:best.look,angle:best.angle,
+  reach:best.reach,lift:best.lift,framing:best.framing,baseline,
+  lookShiftMeters:Number(best.shiftMeters.toFixed(3)),
+  threatCells:risk.count,criticalActors:risk.bodies.length,
+  gainPixels:Number((best.framing.minHeroPixels-baseline.minHeroPixels).toFixed(2)),
+  separationGainPx:Number((best.framing.bodyGapPx-baseline.bodyGapPx).toFixed(2)),
+  gainDeg:Number((baseline.fitFov-best.framing.fitFov).toFixed(3)),
+  checked,fitCandidates});
 }

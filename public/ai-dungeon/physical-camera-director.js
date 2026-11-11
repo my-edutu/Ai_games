@@ -13,7 +13,7 @@
  */
 import {planForegroundPointRisk,planDrawableForegroundVolumes} from '/dungeon/foreground-sightline-plan.js';
 import {planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
-import {planWardenThreatOrbit,assessThreatOrbit,orbitThreatCamera} from '/dungeon/warden-threat-orbit.js';
+import {planWardenThreatOrbit,planWardenThreatComposition,assessThreatOrbit,orbitThreatCamera} from '/dungeon/warden-threat-orbit.js';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]);
@@ -258,8 +258,8 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
 
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
- let threatKey=null,threatAngle=0,threatReach=1,threatLift=0;
- function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatAngle=0;threatReach=1;threatLift=0;}
+ let threatKey=null,threatAngle=0,threatReach=1,threatLift=0,threatLookX=0,threatLookZ=0;
+ function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatAngle=0;threatReach=1;threatLift=0;threatLookX=0;threatLookZ=0;}
  function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,propVolumes=[],reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.phase==='intermission'||typeof reveal!=='function'||
@@ -278,54 +278,102 @@ export function createPhysicalCameraDirector(){
   // Earlier Warden warning hard stop made combatants tiny. Move only if every
   // actual danger-cell corner and both native physical bodies fit the SAME
   // lens, and if the real masonry/foreground assessment finds no regression.
+
   if(state?.bossWarning){
    const sourceKey=key+':'+state.bossWarning.attackTick;
+   const viewport={width,height,fov};
+   const from=grade(base.position,look,eyes,grid,size,viewport,reveal,wallPad,
+    facades,facadeReveal,propVolumes);
+   // Preserve the real selected orbit *and* its physical aim throughout the
+   // same authority warning. Different animation frames cannot resample a
+   // new random shot or allow an unmeasured character crop.
+   const movedBase=()=>{
+    const corrected={...base,look:{...base.look,
+     x:base.look.x+threatLookX,z:base.look.z+threatLookZ},
+     position:{x:base.position.x+threatLookX,y:base.position.y,
+      z:base.position.z+threatLookZ}};
+    return corrected;
+   };
    if(threatKey===sourceKey){
-    if(!threatAngle&&threatReach===1&&threatLift===0)return null;
-    const held=orbitThreatCamera(base,threatAngle,size,{reach:threatReach,lift:threatLift});
-    const current=assessThreatOrbit({state,base:{...base,look},subjects:eyes,width,height,fov},held);
+    if(!threatAngle&&threatReach===1&&threatLift===0&&
+       !threatLookX&&!threatLookZ)return null;
+    const shifted=movedBase();
+    const held=orbitThreatCamera(shifted,threatAngle,size,
+      {reach:threatReach,lift:threatLift});
+    const shiftedLook={x:shifted.look.x,y:look.y,z:shifted.look.z};
+    const current=assessThreatOrbit({state,base:{...shifted,look:shiftedLook},
+      subjects:eyes,width,height,fov},held);
     if(!current.valid||current.fitFov>fov-.5)return null;
-    // Recheck the real moving bodies and currently rendered stone while
-    // warning remains live. A held shot must not hide an updated threat.
-    const viewport={width,height,fov};
-    const before=grade(base.position,look,eyes,grid,size,viewport,reveal,wallPad,
-     facades,facadeReveal,propVolumes);
-    const after=grade(held,look,eyes,grid,size,viewport,reveal,wallPad,
-     facades,facadeReveal,propVolumes);
-    return after.blocked<=before.blocked&&after.cropped<=before.cropped&&
-     after.fullyVisible>=before.fullyVisible&&
-     after.foregroundPenalty<=before.foregroundPenalty+.4?
-     {...base,position:held,occlusion:last}:null;
+    const after=grade(held,shiftedLook,eyes,grid,size,viewport,reveal,wallPad,
+      facades,facadeReveal,propVolumes);
+    return after.blocked<=from.blocked&&after.cropped<=from.cropped&&
+     after.fullyVisible>=from.fullyVisible&&
+     after.foregroundPenalty<=from.foregroundPenalty+.4?
+     {...base,look:shiftedLook,position:held,occlusion:last}:null;
    }
    threatKey=sourceKey;threatAngle=0;threatReach=1;threatLift=0;
-   const candidate=planWardenThreatOrbit({state,base:{...base,look},subjects:eyes,width,height,fov,reducedMotion});
+   threatLookX=0;threatLookZ=0;
+   // The original orbit is a conservative fallback. The integrated warning
+   // composition also considers a new optical aim from TRUE danger geometry,
+   // but no candidate is selected until the same rendered masonry test passes.
+   const request={state,base:{...base,look},subjects:eyes,
+    width,height,fov,reducedMotion};
+   const eligible=[planWardenThreatOrbit(request),
+    planWardenThreatComposition(request)].filter(c=>c.status==='IMPROVED');
    checks++;
-   if(candidate.status!=='IMPROVED'){
-    last={selected:0,reason:'threat-no-safe-portrait-gain',actualThreatCells:state.bossWarning.cells?.length??0};
+   let chosen=null,blockedCount=0;
+   for(const candidate of eligible){
+    const candidateLook=candidate.look??look;
+    const after=grade(candidate.position,candidateLook,eyes,grid,size,
+      viewport,reveal,wallPad,facades,facadeReveal,propVolumes);
+    if(after.blocked>from.blocked||after.cropped>from.cropped||
+       after.fullyVisible<from.fullyVisible||
+       after.foregroundPenalty>from.foregroundPenalty+.4){
+     blockedCount++;continue;
+    }
+    // Safety-first: when the original crop hides an imminent hazard, prefer
+    // how much authentic footprint has been rescued. Otherwise demand an
+    // actually larger true source rig and distinctly separated silhouettes.
+    const rank=(candidate.dangerRescue?
+       Math.max(0,candidate.gainDeg)*6:0)+
+      candidate.gainPixels*1.8+
+      Math.min(12,candidate.separationGainPx??0)*.2-
+      Math.hypot(candidateLook.x-look.x,candidateLook.z-look.z)*.6;
+    if(!chosen||rank>chosen.rank+1e-7)
+     chosen={candidate,after,rank};
+   }
+   if(!chosen){
+    last={selected:0,reason:blockedCount?'threat-physical-occlusion-reject':
+     'threat-no-safe-portrait-gain',
+     actualThreatCells:state.bossWarning.cells?.length??0};
     return null;
    }
-   const viewport={width,height,fov};
-   const before=grade(base.position,look,eyes,grid,size,viewport,reveal,wallPad,
-    facades,facadeReveal,propVolumes);
-   const after=grade(candidate.position,look,eyes,grid,size,viewport,reveal,wallPad,
-    facades,facadeReveal,propVolumes);
-   if(after.blocked>before.blocked||after.cropped>before.cropped||
-    after.fullyVisible<before.fullyVisible||after.foregroundPenalty>before.foregroundPenalty+.4){
-    last={selected:0,reason:'threat-physical-occlusion-reject',actualThreatCells:candidate.threatCells};
-    return null;
-   }
-   threatAngle=candidate.angle;threatReach=candidate.reach;threatLift=candidate.lift;switches++;improvements++;
+   const candidate=chosen.candidate,after=chosen.after;
+   threatAngle=candidate.angle;threatReach=candidate.reach;
+   threatLift=candidate.lift;
+   threatLookX=(candidate.look?.x??look.x)-look.x;
+   threatLookZ=(candidate.look?.z??look.z)-look.z;
+   switches++;improvements++;
    last={selected:'warden-risk-safe',reason:'threat-safe-optical-framing',
-    actualThreatCells:candidate.threatCells,criticalNativeBodies:candidate.criticalActors,
+    mode:candidate.mode??'original-native-orbit',
+    actualThreatCells:candidate.threatCells,
+    criticalNativeBodies:candidate.criticalActors,
     minimumCriticalPixelsBefore:candidate.baseline.minHeroPixels,
     minimumCriticalPixelsAfter:candidate.framing.minHeroPixels,
-    requiredFovBefore:candidate.baseline.fitFov,requiredFovAfter:candidate.framing.fitFov,
-    actualLensFov:fov,reach:threatReach,lift:threatLift,gainActualPixels:candidate.gainPixels,
-    blockedBefore:before.blocked,blockedAfter:after.blocked,
-    croppedBefore:before.cropped,croppedAfter:after.cropped};
-   return {...base,position:candidate.position,occlusion:last};
+    bodySeparationBefore:candidate.baseline.bodyGapPx,
+    bodySeparationAfter:candidate.framing.bodyGapPx,
+    requiredFovBefore:candidate.baseline.fitFov,
+    requiredFovAfter:candidate.framing.fitFov,
+    actualLensFov:fov,reach:threatReach,lift:threatLift,
+    lookShiftMeters:Math.hypot(threatLookX,threatLookZ),
+    gainActualPixels:candidate.gainPixels,
+    blockedBefore:from.blocked,blockedAfter:after.blocked,
+    croppedBefore:from.cropped,croppedAfter:after.cropped};
+   return {...base,look:candidate.look??base.look,
+    position:candidate.position,occlusion:last};
   }
   threatKey=null;threatAngle=0;threatReach=1;threatLift=0;
+  threatLookX=0;threatLookZ=0;
   if(Number.isSafeInteger(state.tick)&&state.tick===lastTick&&last){
    return choice===0?null:{...base,position:orbit(base,choice,size),occlusion:last};
   }

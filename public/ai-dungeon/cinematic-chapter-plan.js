@@ -487,7 +487,9 @@ export function planCriticalSubjectFit(cameraPoints,aspect,preferredFov=44){
  const maximum=ratio&&ratio<.88?82:76;
  let needed=base,unframeable=false,measured=0;
  if(!ratio||!Array.isArray(cameraPoints))return Object.freeze({fov:base,capped:false,unframeable:false,subjects:0});
- for(const point of cameraPoints.slice(0,40)){
+ // Up to 3 animated source rigs (<=18 points) plus 32 truthful danger tiles
+ // with four corners each. Bounded CPU-only projection; no new WebGL pass.
+ for(const point of cameraPoints.slice(0,160)){
   if(!point||![point.x,point.y,point.z].every(Number.isFinite))continue;
   measured++;
   const depth=-point.z;

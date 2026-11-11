@@ -1443,9 +1443,18 @@ function animate(t){
   if(state?.bossWarning&&Array.isArray(state.bossWarning.cells)){
    const half=(state.map.length-1)/2;
    for(const cell of state.bossWarning.cells.slice(0,32)){
-    if(!Number.isInteger(cell.x)||!Number.isInteger(cell.z))continue;
-    const point=camera.worldToLocal(new THREE.Vector3(cell.x-half,.08,cell.z-half));
-    subjects.push({x:point.x,y:point.y,z:point.z});
+    if(!Number.isInteger(cell.x)||!Number.isInteger(cell.z)||
+       cell.x<0||cell.z<0||cell.x>=state.map.length||
+       cell.z>=state.map.length)continue;
+    // Screen-fit ALL four corners of EVERY authentic threatened floor tile.
+    // The old centre-only path also lost most of 23 true cells because the
+    // fit planner had a 40-point limit. Never rescue one hero by cropping the
+    // next actual Warden impact cell during a smoothed camera transition.
+    for(const dx of [-.47,.47])for(const dz of [-.47,.47]){
+     const point=camera.worldToLocal(new THREE.Vector3(
+      cell.x-half+dx,.08,cell.z-half+dz));
+     subjects.push({x:point.x,y:point.y,z:point.z});
+    }
    }
   }
   criticalCameraFit=planCriticalSubjectFit(subjects,camera.aspect,wantedFov);
