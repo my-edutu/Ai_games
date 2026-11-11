@@ -57,8 +57,19 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
       'two physical exclusion rails are recessed rather than adding visual clutter');
     passage.group.updateMatrixWorld(true);
     const sealWorld=new THREE.Vector3();seal.getWorldPosition(sealWorld);
-    assert.ok(sealWorld.distanceTo(new THREE.Vector3(anchor.x,anchor.y,anchor.z))<.001,
-      'live energized source lock shares the exterior bronze gate plane, not the inner fight plane');
+    // The *actual* bronze GuardianGateInset in world.mjs is authored at
+    // GUARDIAN_CAP_CORRIDOR.visibleSealRadius=24.25. The previous test
+    // incorrectly used the old 27.78 memorial/exterior anchor and let a
+    // 3.53m cyan screen stand in front of the skinned radius-25 fighter.
+    // Check the WORLD-transformed render mesh, not its group origin.
+    const bronzeWorldRadius=24.25,actorPathRadius=25,coreRadius=23.5;
+    const realSealRadius=Math.hypot(sealWorld.x,sealWorld.z);
+    assert.ok(Math.abs(realSealRadius-bronzeWorldRadius)<.02,
+      'live energized source seal must physically coincide with the ACTUAL bronze gate plane');
+    assert.ok(realSealRadius<actorPathRadius-.5 && realSealRadius>coreRadius,
+      'the real source-locked seal must be behind the fighting bodies and outside the opaque core');
+    assert.ok(Math.abs(Math.hypot(anchor.x,anchor.z)-realSealRadius-3.53)<.02,
+      'the 27.78 memorial anchor remains distinct from the correct live 24.25 HP lock');
     const threshold=passage.group.getObjectByName('ObservedWalkableGuardianThreshold');
     const deckWorld=new THREE.Vector3();threshold.getWorldPosition(deckWorld);
     assert.ok(Math.abs(Math.hypot(deckWorld.x,deckWorld.z)-25)<.02,
