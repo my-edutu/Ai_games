@@ -105,7 +105,7 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
   frameInterval<=0||frameInterval>.25||
   Math.hypot(targetX-currentX,targetZ-currentZ)>.009)return EMPTY_SOURCE_WALK_FINISH;
  const walkingSource=typeof sourceClipName==='string'&&
-  /^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(sourceClipName);
+  /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName);
  const angle=Number.isFinite(observedWalkYaw)?
   Math.atan2(Math.sin(observedWalkYaw),Math.cos(observedWalkYaw)):null;
  if(mode==='move'&&groundedMoving===true&&walkingSource&&angle!==null){
