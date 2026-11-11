@@ -295,3 +295,39 @@ test('licensed source Walking_A finishes witnessed last 5mm turning even below g
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  assert.match(app,/previousX:priorSourceX,previousZ:priorSourceZ/);
 });
+
+test('original Walking_A final genuine 5.1mm source step still has a legal heading',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planOriginalSourceWalkNearArrivalFacing:plan,approachOriginalSourceWalkYaw:turn,
+  shortestYawDelta:delta}=await import('data:text/javascript;base64,'+
+  Buffer.from(code).toString('base64'));
+ // Actual 390px first-party Chromium imported GLB: tick 2 frames 25->26,
+ // z -7.005101818301732 -> -7; fullBody.mode='move'; Walking_A remains
+ // the licensed source. Earlier 12mm minimum rejected this true last step,
+ // leaving original root yaw -2.55 radians instead of continuing to -PI.
+ const snapshot={sourceRig:true,sourceClipName:'Walking_A',mode:'move',
+  groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,previousX:-8,
+  previousZ:-7.005101818301732,currentX:-8,currentZ:-7,
+  targetX:-8,targetZ:-7};
+ const finalYaw=plan(snapshot);
+ assert.ok(Number.isFinite(finalYaw),
+  'true final source motion below 12mm must not lose its witnessed facing');
+ assert.ok(Math.abs(delta(finalYaw,-Math.PI))<1e-8);
+ const settled=turn(-2.55,finalYaw,.05,.075,{originalWalking:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,hasCombatFacing:false});
+ assert.ok(Math.abs(delta(settled,-Math.PI))<.08,
+  'source original body must continue its legal turn without changing position');
+ for(const mutation of [
+  {previousX:NaN},{previousZ:NaN},{previousZ:-7},
+  {previousZ:-7.2},{previousZ:-6.995},{previousX:-7.99},
+  {currentX:-7.99},{targetZ:-6},{mode:'idle'},
+  {sourceClipName:'Idle'},{groundedMoving:false},
+  {hasCombatFacing:true},{teleport:true},{reducedMotion:true},
+  {alive:false},{visible:false}
+ ]){
+  assert.equal(plan({...snapshot,...mutation}),null,
+   'invalid/misaligned/unwitnessed source step must not turn: '+JSON.stringify(mutation));
+ }
+});
