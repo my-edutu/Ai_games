@@ -131,7 +131,8 @@ function htmlFor(plans){
   '<script>const plans='+data+';const $=id=>document.getElementById(id);let plan,anchor,playing=false;'+
   'const opts=(el,values)=>{el.replaceChildren();for(const [label,value] of values){const o=document.createElement("option");o.textContent=label;o.value=value;el.append(o)}};'+
   'opts($("viewport"),plans.map((p,i)=>[p.viewport,i]));function reset(){plan=plans[Number($("viewport").value)];'+
-  'const paths=[plan.files.a,plan.files.b];'+
+  'const alt=(new URLSearchParams(location.search).get("swap")==="1");'+
+  'const paths=alt?[plan.files.b,plan.files.a]:[plan.files.a,plan.files.b];'+
   '$("a").src=paths[0];$("b").src=paths[1];'+
   'const sync=plan.synchronized && plan.anchors.length>0;'+
   'opts($("event"),sync?plan.anchors.map((e,i)=>[e.kind,i]):[["No shared source-event anchor",0]]);'+
