@@ -5,6 +5,7 @@ import { createOverview } from './overview.mjs';
 import { selectCinematicShot } from './cinematic-director.mjs';
 import { resolveSpectatorShot } from './cinematic-director.mjs';
 import { selectInitialSpectatorCamera } from './cinematic-director.mjs';
+import { nextManualSpectatorCamera } from './cinematic-director.mjs';
 
 const MAX_PARTICLES = 240;
 const POLL_MS = 125;
@@ -56,7 +57,7 @@ for (const button of document.querySelectorAll('[data-control]')) {
     switch (button.dataset.control) {
       case 'reduced-motion': reducedMotion = !reducedMotion; break;
       case 'muted': muted = await audio.setMuted(!muted); break;
-      case 'camera': cameraMode = cameraMode === 'overview' ? 'follow' : cameraMode === 'follow' ? 'detail' : 'overview'; break;
+      case 'camera': cameraMode = nextManualSpectatorCamera(cameraMode); break;
       case 'cinematic': cameraMode = cameraMode === 'cinematic' ? 'overview' : 'cinematic'; break;
       case 'settings': broadcast.classList.toggle('show-controls'); break;
       case 'clean-feed':

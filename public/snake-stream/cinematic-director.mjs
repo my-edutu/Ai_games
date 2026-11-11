@@ -17,6 +17,19 @@ export function selectInitialSpectatorCamera(query = '', reducedMotion = false) 
     ? requested : 'overview';
 }
 
+/**
+ * The viewer's camera button is an explicit manual takeover, even when
+ * cinematic direction was chosen automatically. Preserve the established
+ * accessible follow -> detail -> overview cycle; never consume the first
+ * click merely to exit director mode. Unknown modes fail to wide overview.
+ * This does not alter the pure autonomous shot selection or game authority.
+ */
+export function nextManualSpectatorCamera(currentMode) {
+  if (currentMode === 'cinematic' || currentMode === 'overview') return 'follow';
+  if (currentMode === 'follow') return 'detail';
+  return 'overview';
+}
+
 /** Resolve the *same* true camera shot for the renderer and responsive overview. */
 export function resolveSpectatorShot(cameraMode, snapshot, reducedMotion = false) {
   if (cameraMode === 'cinematic') return selectCinematicShot(snapshot, { reducedMotion });
