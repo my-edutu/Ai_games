@@ -37,6 +37,7 @@ jobs:
           node --test \
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
             tests/foundation/dungeon-d04-capture-buffer-gate.test.cjs \
+            tests/foundation/dungeon-d04-readback-decoder-proof.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
