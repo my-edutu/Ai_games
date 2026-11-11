@@ -258,8 +258,8 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
 
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
- let threatKey=null,threatAngle=0,threatReach=1,threatLift=0,threatLookX=0,threatLookZ=0;
- function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatAngle=0;threatReach=1;threatLift=0;threatLookX=0;threatLookZ=0;}
+ let threatKey=null,threatReleaseTick=null,threatAngle=0,threatReach=1,threatLift=0,threatLookX=0,threatLookZ=0;
+ function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;threatLookX=0;threatLookZ=0;}
  function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,propVolumes=[],reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.phase==='intermission'||typeof reveal!=='function'||
@@ -311,7 +311,7 @@ export function createPhysicalCameraDirector(){
      after.foregroundPenalty<=from.foregroundPenalty+.4?
      {...base,look:shiftedLook,position:held,occlusion:last}:null;
    }
-   threatKey=sourceKey;threatAngle=0;threatReach=1;threatLift=0;
+   threatKey=sourceKey;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;
    threatLookX=0;threatLookZ=0;
    // The original orbit is a conservative fallback. The integrated warning
    // composition also considers a new optical aim from TRUE danger geometry,
@@ -350,7 +350,7 @@ export function createPhysicalCameraDirector(){
    }
    const candidate=chosen.candidate,after=chosen.after;
    threatAngle=candidate.angle;threatReach=candidate.reach;
-   threatLift=candidate.lift;
+   threatLift=candidate.lift;threatReleaseTick=state.bossWarning.attackTick;
    threatLookX=(candidate.look?.x??look.x)-look.x;
    threatLookZ=(candidate.look?.z??look.z)-look.z;
    switches++;improvements++;
@@ -372,7 +372,49 @@ export function createPhysicalCameraDirector(){
    return {...base,look:candidate.look??base.look,
     position:candidate.position,occlusion:last};
   }
-  threatKey=null;threatAngle=0;threatReach=1;threatLift=0;
+  // The source-skeleton warning shot must survive its ACTUAL strike and
+  // earned recovery. Previously we dropped the physical camera immediately
+  // when the warning flag cleared, cutting away at the very instant that the
+  // hit/recoil and counter window should be watched. This holds only a real
+  // preceding, source-fitted shot for at most three authority ticks, then
+  // releases it. The safety grade uses CURRENT living bodies/opaque stone:
+  // never keep a shot that crops or hides them. No gameplay or audio mutation.
+  const recoveryTicks=Number.isSafeInteger(state?.bossRecovery?.remaining)?
+   state.bossRecovery.remaining:0;
+  const bossAlive=Array.isArray(state?.units)&&state.units.some(u=>
+   u?.kind==='warden'&&u.hp>0);
+  const trueRelease=Number.isSafeInteger(threatReleaseTick)&&
+   Number.isSafeInteger(state.tick)&&state.tick>=threatReleaseTick&&
+   state.tick<=threatReleaseTick+3&&
+   (state.tick===threatReleaseTick||recoveryTicks>0);
+  if(threatKey?.startsWith(key+':')&&trueRelease&&bossAlive&&
+     (threatAngle!==0||threatReach!==1||threatLift!==0||
+      threatLookX!==0||threatLookZ!==0)){
+   const shiftedLook={x:base.look.x+threatLookX,y:look.y,
+    z:base.look.z+threatLookZ};
+   const shifted={...base,look:shiftedLook,
+    position:{x:base.position.x+threatLookX,
+     y:base.position.y,z:base.position.z+threatLookZ}};
+   const held=orbitThreatCamera(shifted,threatAngle,size,
+    {reach:threatReach,lift:threatLift});
+   const viewport={width,height,fov};
+   const before=grade(base.position,look,eyes,grid,size,viewport,
+    reveal,wallPad,facades,facadeReveal,propVolumes);
+   const after=grade(held,shiftedLook,eyes,grid,size,viewport,
+    reveal,wallPad,facades,facadeReveal,propVolumes);
+   if(after.blocked<=before.blocked&&after.cropped<=before.cropped&&
+      after.fullyVisible>=before.fullyVisible&&
+      after.foregroundPenalty<=before.foregroundPenalty+.4){
+    last={...last,selected:'warden-true-hit-continuity',
+     reason:'source-warning-to-strike-recovery',
+     phase:recoveryTicks>0?'EARNED_RECOVERY':'TRUE_RELEASE',
+     authorityReleaseTick:threatReleaseTick,
+     remainingRecoveryTicks:recoveryTicks,
+     blockedAfter:after.blocked,croppedAfter:after.cropped};
+    return {...base,look:shiftedLook,position:held,occlusion:last};
+   }
+  }
+  threatKey=null;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;
   threatLookX=0;threatLookZ=0;
   if(Number.isSafeInteger(state.tick)&&state.tick===lastTick&&last){
    return choice===0?null:{...base,position:orbit(base,choice,size),occlusion:last};

@@ -234,6 +234,49 @@
       "afterPerf": "UNVERIFIED",
       "critics": 0,
       "next": "Inspect actual original source desktop/mobile audiovisual and camera-selection effect, reject when unselected/worse, then native 3D full-body exemplar and true renderer cost"
+    },
+    "m1AuthenticWardenCameraReview20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "inspectedSha": "44324003a5aa5b8f14348d4191d218c1a94a3296",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "sameSeed": "gauntlet-corpus-v1-0",
+      "priorRun": 43010743270,
+      "afterRun": 43013765575,
+      "mobilePriorArtifact": 13850612416,
+      "mobileObservedArtifact": 13851599662,
+      "desktopObservedArtifact": 13852726763,
+      "observedWardenNativePixels": {
+        "mobile": {
+          "vanguard": [
+            23,
+            33
+          ],
+          "ranger": [
+            31,
+            34
+          ],
+          "warden": [
+            32,
+            33
+          ]
+        },
+        "desktopCurrent": {
+          "vanguard": 42,
+          "ranger": 72,
+          "warden": 78
+        }
+      },
+      "realStages": "5/5 each at source HEAD 44324003; 946 authority snapshots each",
+      "realSound": "Original opted-in Opus plus WAV exists; confirmed hit synchronization UNVERIFIED",
+      "measuredSoftwareRAF": "Mobile OFF median 383.3ms with 306 draw calls; desktop OFF median 358.4ms with 308 draw calls; CI SwiftShader, not hardware FPS",
+      "visibleVerdict": "Lower portrait shot really selected; closer Vanguard 23->33px, but actors still small and rigid stone dominates, severe RAF delays; not transformed",
+      "nextSourceCandidate": "Hold genuine warning physical lens through actual release and earned recovery; test source contracts, new-head film pending",
+      "candidateAfterFilm": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED"
     }
   },
   "failures": [],
