@@ -8502,7 +8502,10 @@ const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangle
 // Near crowns remain exact, distant trunks/cones/crown cores all remain visible.
 let forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
  reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
-function forestDetailTier(x,z){const r=Math.hypot(x,z);return r<23?'near':r<27?'mid':'far'}
+// W244: physical original near 3D forest and intact middle/far crown masses.
+// Only subpixel satellite leaves/sprays are reduced in distant woodland;
+// every existing tree, root, trunk and all actual actors remain rendered.
+function forestDetailTier(x,z){const r=Math.hypot(x,z);return r<19?'near':r<29?'mid':'far'}
 function coniferNeedleSpray(root,tip,width,dark,light){
  const dx=tip[0]-root[0],dy=tip[1]-root[1],dz=tip[2]-root[2];
  const len=Math.hypot(dx,dz)||1,perpX=-dz/len,perpZ=dx/len;
@@ -8598,7 +8601,7 @@ function tree(x,z,s=1){
   const startFloats=data.length;
   const lobeCount=style===1?5:style===2?3:4;
   // Preserve every actual far tree and 3D canopy, use 28 vs 54 triangles per main lobe.
-  if(detailTier==='far')forestLodStats.reclaimedTriangles+=(lobeCount+1)*26;
+  if(detailTier!=='near')forestLodStats.reclaimedTriangles+=(lobeCount+1)*26;
   for(let i=0;i<lobeCount;i++){
    const angle=i*2.39996+signature*.36,reach=(.75+.12*Math.sin(x*.81+i))*speciesWidth*s;
    const lift=(.42+.14*i)*speciesHeight*s;
@@ -8607,14 +8610,14 @@ function tree(x,z,s=1){
    const center=[tip[0],tip[1]+(.25+.03*Math.sin(i*1.7))*s,tip[2]];
    // Original far crown volume envelops the former tiny satellite without losing any tree.
    const radius=(style===2?.56:.70)*s*(.89+.10*Math.sin(signature+i))*
-    (detailTier==='far'?1.07:1);
+    (detailTier==='near'?1:1.10);
    materialScope(MATERIAL.FOLIAGE,()=>{
     crownLobe(center[0],center[1],center[2],radius*.89*speciesWidth,
      (.55+.058*i)*s*speciesHeight,radius*.90, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1,
-     false,true,detailTier==='far');
+     false,true,detailTier!=='near');
     // Smaller outlying crowns are attached to branch tips. The position,
     // material and orientation are derived only from persistent coordinates.
-    for(let rim=0;rim<(detailTier==='far'?0:2);rim++){
+    for(let rim=0;rim<(detailTier==='near'?2:0);rim++){
      const a=angle+(rim===0?.89:-1.06)+signature*.17,
        far=radius*(rim===0?.69:.64);
      crownLobe(center[0]+Math.cos(a)*far*speciesWidth,
@@ -8623,14 +8626,14 @@ function tree(x,z,s=1){
        radius*.35*speciesWidth,radius*.38*speciesHeight,radius*.39,
        rgb(leafPalette[(i+rim+1)%3]),x*.24-z*.18+i*1.7+rim*.83,true);
     }
-    if(detailTier==='far'){
+    if(detailTier!=='near'){
       // 6 cap + 12 belt + 6 underside triangles per overlapping micro-lobe.
       forestLodStats.skippedMicroLobes+=2;
       forestLodStats.reclaimedTriangles+=48;
     }
     leafWhorl([center[0]+.15*s,center[1]+.27*s,center[2]],radius*.83,season,style,
-      x*.17+z*.11+i,detailTier==='far'?3:5);
-    if(detailTier==='far')forestLodStats.reclaimedTriangles+=8;
+      x*.17+z*.11+i,detailTier==='near'?5:3);
+    if(detailTier!=='near')forestLodStats.reclaimedTriangles+=8;
     if(detailTier==='near'){
       leafWhorl([center[0]+Math.cos(angle)*radius*.72*speciesWidth,
          center[1]+.10*s*speciesHeight,
@@ -8648,7 +8651,7 @@ function tree(x,z,s=1){
   // The central crown binds the irregular secondary masses into one tree.
   materialScope(MATERIAL.FOLIAGE,()=>crownLobe(fork[0],fork[1]+.61*s*speciesHeight,fork[2],
     .62*s*speciesWidth,.69*s*speciesHeight,.67*s,rgb(leafPalette[(style+1)%3]),x*.71-z*.13,
-   false,true,detailTier==='far'));
+   false,true,detailTier!=='near'));
   forestVisualStats.broadleafAddedTriangles+=(data.length-startFloats)/30;
  }else{
   forestVisualStats.conifers++;
@@ -10248,7 +10251,56 @@ for(let i=vertexStart;i<data.length;i+=10){
 }}
 
 function stoneBoulder(x,z,scale=1){let y=terrain(x,z);cylinder(x,y,z,.42*scale,.36*scale,rgb(0x858c80),7);cone(x,y+.18*scale,z,.52*scale,.38*scale,rgb(0xa1a79a),7)}
-function fenceLine(x,z,len,alongZ=false){let panel=rgb(0x957752),pole=rgb(0x715b43);for(let i=0;i<=len;i++){let xx=x+(alongZ?0:i*1.5),zz=z+(alongZ?i*1.5:0),y=terrain(xx,zz);box(xx,y,zz,.11,.74,.11,pole)}for(let i=0;i<len;i++){let xx=x+(alongZ?0:(i+.5)*1.5),zz=z+(alongZ?(i+.5)*1.5:0),y=terrain(xx,zz);box(xx,y+.31,zz,alongZ?.09:1.55,.11,alongZ?1.55:.09,panel);box(xx,y+.55,zz,alongZ?.09:1.55,.09,alongZ?1.55:.09,panel)}}
+// W244: physically open original 3m farm service gate for the real autonomous
+// farmer and courier. Not a prop deletion or camera cheat: old boundary posts
+// remain on BOTH sides; no invented stock, workers, navigation or jobs.
+let farmFencePresentationAudit={source:'real-field-to-granary-gate',
+ open:false,realGate:[],openSpanMetres:0,thresholdSlabs:0,
+ addedActors:0,addedDeliveries:0,changesNavigation:false,
+ changesAuthority:false,existingCivicBuffer:true};
+function getFarmFencePresentationAudit(){
+ return {...farmFencePresentationAudit,
+  realGate:farmFencePresentationAudit.realGate.slice()};
+}
+function fenceLine(x,z,len,alongZ=false,gate=null){
+ const panel=rgb(0x957752),pole=rgb(0x715b43);
+ const genuineGate=Array.isArray(gate)&&gate.length===2&&
+  gate.every(Number.isFinite)&&!alongZ&&
+  Math.abs(gate[1]-z)<.75&&gate[0]>=x+1.5&&
+  gate[0]<=x+(len-1)*1.5&&walkable(gate[0],gate[1]);
+ const first=genuineGate?
+  Math.max(1,Math.min(len-2,Math.floor((gate[0]-x)/1.5))):-1;
+ for(let i=0;i<=len;i++){
+  if(first>=0&&i===first+1)continue;
+  const xx=x+(alongZ?0:i*1.5),zz=z+(alongZ?i*1.5:0),y=terrain(xx,zz);
+  box(xx,y,zz,.11,.74,.11,pole);
+ }
+ for(let i=0;i<len;i++){
+  if(first>=0&&i>=first&&i<first+2)continue;
+  const xx=x+(alongZ?0:(i+.5)*1.5),
+   zz=z+(alongZ?(i+.5)*1.5:0),y=terrain(xx,zz);
+  box(xx,y+.31,zz,alongZ?.09:1.55,.11,alongZ?1.55:.09,panel);
+  box(xx,y+.55,zz,alongZ?.09:1.55,.09,alongZ?1.55:.09,panel);
+ }
+ if(first>=0){
+  const begin=x+first*1.5,span=3,
+   stones=[rgb(0xa59b87),rgb(0x8d8a78),rgb(0xb2a68f)];
+  materialScope(MATERIAL.STONE,()=>{
+   for(let i=0;i<8;i++){
+    const xa=begin+span*i/8,xb=begin+span*(i+1)/8,
+     a=[xa,terrain(xa,z-.46)+.041,z-.46],
+     b=[xb,terrain(xb,z-.46)+.041,z-.46],
+     c=[xb,terrain(xb,z+.35)+.041,z+.35],
+     d=[xa,terrain(xa,z+.35)+.041,z+.35];
+    upwardRoadQuad(a,b,c,d,stones[i%stones.length]);
+   }
+  });
+  farmFencePresentationAudit={source:'real-field-to-granary-gate',
+   open:true,realGate:gate.slice(),openSpanMetres:span,thresholdSlabs:8,
+   addedActors:0,addedDeliveries:0,changesNavigation:false,
+   changesAuthority:false,existingCivicBuffer:true};
+ }
+}
 function well(x,z){let y=terrain(x,z);cylinder(x,y,z,.75,.66,rgb(0x9b9b84),12);cylinder(x,y+.67,z,.59,.07,rgb(0x514f43),12);for(let sx of [-1,1])box(x+sx*.71,y,z,.12,1.8,.12,wood);box(x,y+1.77,z,1.7,.16,.15,wood);box(x,y+1.06,z,.08,.72,.09,rgb(0x8d7862));box(x,y+.75,z,.30,.33,.3,rgb(0x806648))}
 // Small 3D lanterns signal occupied streets after dusk. Brighter than diffuse
 // materials to approximate emissive glass on WebGL1 without an extra texture pack.
@@ -23728,7 +23780,7 @@ if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
  const civicStart=data.length;
 hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
 // The worked spaces have identifiable props and readable boundaries.
-farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
+farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();farmMarketStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
  const stored=rememberCivicScenery(civicKey,data.slice(civicStart),{
