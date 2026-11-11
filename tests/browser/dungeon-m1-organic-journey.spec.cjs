@@ -13,7 +13,9 @@ fs.mkdirSync('artifacts',{recursive:true});
 // damage changes, teleports, cut scenes or forced death.
 function organicExpedition(){
  const runtime=DungeonRuntime.create(SEED),snapshots=[runtime.publicState()];
- const milestones={entry:0,combat:null,warden:null,floor:null,defeat:null,restart:null};
+ const milestones={entry:0,combat:null,warden:null,
+  'warden-warning':null,'warden-release':null,'warden-counter':null,
+  floor:null,defeat:null,restart:null};
  const first=snapshots[0];
  for(let i=0;i<2600;i++){
   const previous=snapshots.at(-1),s=runtime.step();
@@ -27,6 +29,24 @@ function organicExpedition(){
   if(milestones.defeat===null&&s.phase==='intermission'&&s.units.every(u=>u.faction!=='party'||u.hp===0))
    milestones.defeat=snapshots.length-1;
   if(s.run>first.run){milestones.restart=snapshots.length-1;break}
+ }
+ // Find one ENTIRE real authority warning → cast → earned counter sequence
+ // after first Warden contact. Do not synthesize boss casts, script a victory,
+ // substitute a screenshot camera, or cherry-pick unrelated ticks. The same
+ // original seed's 3 adjacent snapshots must establish the true sequence.
+ for(let i=(milestones.warden??0)+1;i+2<(milestones.floor??snapshots.length);i++){
+  const warning=snapshots[i],release=snapshots[i+1],counter=snapshots[i+2];
+  const boss=release.units.find(u=>u.kind==='warden'&&u.hp>0);
+  if(!boss||warning.bossWarning?.attackTick!==release.tick||
+     warning.bossWarning.cells.length<8||
+     release.bossWarning||counter.bossWarning||
+     boss.action!=='cast'||
+     !(counter.bossRecovery?.remaining>0)||
+     !counter.units.some(u=>u.kind==='warden'&&u.hp>0))continue;
+  milestones['warden-warning']=i;
+  milestones['warden-release']=i+1;
+  milestones['warden-counter']=i+2;
+  break;
  }
  return {snapshots,milestones};
 }
@@ -130,9 +150,12 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  expect(observerPolicy.playwrightVideo).toBe('off');
  expect(observerPolicy.playwrightTrace?.screenshots).toBe(false);
  const {snapshots,milestones}=organicExpedition();
- for(const key of ['combat','warden','floor','defeat','restart'])
+ for(const key of ['combat','warden','warden-warning','warden-release','warden-counter','floor','defeat','restart'])
   expect(milestones[key],'Missing organic milestone: '+key).not.toBeNull();
- for(const [a,b] of [['entry','combat'],['combat','warden'],['warden','floor'],['floor','defeat'],['defeat','restart']])
+ for(const [a,b] of [['entry','combat'],['combat','warden'],
+  ['warden','warden-warning'],['warden-warning','warden-release'],
+  ['warden-release','warden-counter'],['warden-counter','floor'],
+  ['floor','defeat'],['defeat','restart']])
   expect(milestones[a],'Natural chronology: '+a+' before '+b).toBeLessThan(milestones[b]);
  const errors=[],observations=[],milestoneFrameProof=[];page.on('pageerror',e=>errors.push(String(e)));
  // An independent 240ms host loop could overwrite unread game states.
@@ -166,7 +189,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  // track count (which cannot establish actual audible or synchronized sound).
  let pcmRequested=false,stageFailure=null,failedStage=null;
  try{
- for(const stage of ['combat','warden','floor','defeat','restart']){
+ for(const stage of ['combat','warden','warden-warning','warden-release','warden-counter','floor','defeat','restart']){
   failedStage=stage;
   const index=milestones[stage],expected=snapshots[index];
   if(stage==='warden'){
@@ -199,7 +222,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
     publicChecksum:s?.checksum??null,composition:d?.composition,actorReadability:d?.actorReadability,
-    visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:d?.baseWorldArchitecturalBatches,frameDelivery:d?.frameDelivery,
+    cameraOcclusion:d?.cameraOcclusion,visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:d?.baseWorldArchitecturalBatches,frameDelivery:d?.frameDelivery,
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
@@ -212,7 +235,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(proof.actorReadability?.status,'real posed actor projection '+stage).toBe('MEASURED');
   expect(proof.baseWorldArchitecturalBatches?.sourceDrawCalls,'real original floor primitive source count').toBeGreaterThanOrEqual(proof.baseWorldArchitecturalBatches?.drawCalls??0);
   expect(proof.baseWorldArchitecturalBatches?.savedDrawCalls,'actual bounded saved base-world submits').toBeGreaterThanOrEqual(0);
-  if(stage==='warden'){
+  if(stage==='warden'||stage==='warden-warning'||stage==='warden-release'||stage==='warden-counter'){
    expect(proof.actorReadability.actors.some(a=>a.kind==='warden'&&a.inFrame),
     'real skinned Warden must be in the original 3D camera frame').toBe(true);
    expect(proof.actorReadability.criticalActorIds.length,
@@ -240,7 +263,8 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   observations.push({stage,run:proof.renderedState.run,tick:proof.renderedState.tick,
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,actorReadability:proof.actorReadability,
-   visibility:proof.visibility,wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:proof.baseWorldArchitecturalBatches,frameDelivery:proof.frameDelivery,
+   visibility:proof.visibility,cameraOcclusion:proof.cameraOcclusion,
+   wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:proof.baseWorldArchitecturalBatches,frameDelivery:proof.frameDelivery,
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
    surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,

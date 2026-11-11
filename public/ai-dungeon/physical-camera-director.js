@@ -256,10 +256,73 @@ function grade(cam,look,eyes,grid,size,viewport,reveal,pad,facades,facadeReveal,
  return {score,blocked,cropped,fullyVisible,foregroundProps:foreground.props,foregroundPenalty:foreground.penalty};
 }
 
+/**
+ * A real Warden warning legitimately needs a wide view of *every* attack tile.
+ * After the authoritative strike, those marked cells have resolved. The old
+ * three-tick hold kept the actual source-skinned sword and earned counter tiny
+ * although the game's own authored encounter director had a closer, safe shot.
+ *
+ * Release that hold only when BOTH original rigged combatants become
+ * materially bigger without losing their genuine helmet/boot/weapon lanes to
+ * physical stone, facades, opaque props or the viewport. No fabricated actor,
+ * extra camera pass, altered danger map or modified authority can earn focus.
+ * Camera movement itself remains handled by the existing app-level lerp.
+ */
+export function planEarnedWardenCounterFocus(state,heldCamera,heldLook,baseCamera,baseLook,
+ subjects,{width=390,height=844,fov=53,gradeShot=null}={}){
+ const unavailable=Object.freeze({accept:false,reason:'no-safe-native-counter'});
+ if(!Number.isSafeInteger(state?.tick)||!Array.isArray(state.units)||
+  state.bossWarning||!(state?.bossRecovery?.remaining>0)||
+  ![width,height,fov].every(finite)||width<300||height<220||
+  ![heldCamera?.x,heldCamera?.y,heldCamera?.z,
+   baseCamera?.x,baseCamera?.y,baseCamera?.z,
+   heldLook?.x,heldLook?.z,baseLook?.x,baseLook?.z].every(finite)||
+  typeof gradeShot!=='function'||!Array.isArray(subjects))return unavailable;
+ const boss=state.units.find(u=>u.kind==='warden'&&u.hp>0);
+ if(!boss)return unavailable;
+ const idMap=new Map(subjects.filter(p=>typeof p?.unitId==='string'&&
+  Array.isArray(p.bodyPoints)&&p.bodyPoints.length>=3&&p.bodyPoints.length<=8&&
+  p.bodyPoints.every(q=>[q?.x,q?.y,q?.z].every(finite)))
+  .map(p=>[p.unitId,p]));
+ const bossBody=idMap.get(boss.id);
+ if(!bossBody)return unavailable;
+ const party=state.units.filter(u=>u.faction==='party'&&u.hp>0&&idMap.has(u.id));
+ if(!party.length)return unavailable;
+ party.sort((a,b)=>Math.abs(a.x-boss.x)+Math.abs(a.z-boss.z)-
+  Math.abs(b.x-boss.x)-Math.abs(b.z-boss.z)||a.id.localeCompare(b.id));
+ const combatants=[bossBody,idMap.get(party[0].id)];
+ const pixels=(cam,look)=>{
+  const aspect=width/height,heights=[];
+  for(const actor of combatants){
+   const y=[];
+   for(const p of actor.bodyPoints){
+    const projection=projectScreen(cam,look,p,aspect,fov);
+    if(!projection||Math.abs(projection.x)>.93||Math.abs(projection.y)>.91)return 0;
+    y.push(projection.y);
+   }
+   heights.push((Math.max(...y)-Math.min(...y))*height*.5);
+  }
+  return Math.min(...heights);
+ };
+ const before=pixels(heldCamera,heldLook),after=pixels(baseCamera,baseLook);
+ if(before<8||after<before*1.26||after-before<7)return unavailable;
+ const safety=gradeShot(baseCamera,baseLook,combatants);
+ if(safety.blocked>0||safety.cropped>0||safety.fullyVisible<2||
+    safety.foregroundPenalty>0.45)return unavailable;
+ return Object.freeze({accept:true,reason:'source-earned-counter-native-close',
+  criticalSourceCombatants:combatants.map(p=>p.unitId),
+  minimumNativePixelsBefore:Number(before.toFixed(2)),
+  minimumNativePixelsAfter:Number(after.toFixed(2)),
+  genuineWarningCellsRemaining:0,blockedAfter:0,croppedAfter:0});
+}
+
 export function createPhysicalCameraDirector(){
  let scene=null,choice=0,switches=0,checks=0,improvements=0,last=null,grid=null,wallsRef=null,heightsRef=null,lastTick=null;
  let threatKey=null,threatReleaseTick=null,threatAngle=0,threatReach=1,threatLift=0,threatLookX=0,threatLookZ=0;
- function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;threatLookX=0;threatLookZ=0;}
+ // Cache the ACTUAL adopted world pose; the cinematic base shot changes as
+ // warning becomes release/recovery and must not drag the supposedly held view.
+ let threatHeldCamera=null,threatHeldLook=null;
+ function reset(){scene=null;choice=0;last=null;grid=null;wallsRef=null;heightsRef=null;lastTick=null;threatKey=null;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;threatLookX=0;threatLookZ=0;threatHeldCamera=null;threatHeldLook=null;}
  function resolve(state,base,{subjects=[],wallPositions=[],wallHeights=[],facades=[],facadeReveal=null,propVolumes=[],reveal=null,wallPad=2.1,
     width=1440,height=832,fov=48,lookY=1.05,reducedMotion=false}={}){
   if(reducedMotion||state?.phase==='intermission'||typeof reveal!=='function'||
@@ -284,24 +347,14 @@ export function createPhysicalCameraDirector(){
    const viewport={width,height,fov};
    const from=grade(base.position,look,eyes,grid,size,viewport,reveal,wallPad,
     facades,facadeReveal,propVolumes);
-   // Preserve the real selected orbit *and* its physical aim throughout the
-   // same authority warning. Different animation frames cannot resample a
-   // new random shot or allow an unmeasured character crop.
-   const movedBase=()=>{
-    const corrected={...base,look:{...base.look,
-     x:base.look.x+threatLookX,z:base.look.z+threatLookZ},
-     position:{x:base.position.x+threatLookX,y:base.position.y,
-      z:base.position.z+threatLookZ}};
-    return corrected;
-   };
+   // Store the actual selected physical camera, not only its angle/reach.
+   // The authored encounter camera may move when action and focus switch;
+   // reapplying the old orbit to a new base silently jumped the supposedly
+   // held Warden warning/strike camera in the running game.
    if(threatKey===sourceKey){
-    if(!threatAngle&&threatReach===1&&threatLift===0&&
-       !threatLookX&&!threatLookZ)return null;
-    const shifted=movedBase();
-    const held=orbitThreatCamera(shifted,threatAngle,size,
-      {reach:threatReach,lift:threatLift});
-    const shiftedLook={x:shifted.look.x,y:look.y,z:shifted.look.z};
-    const current=assessThreatOrbit({state,base:{...shifted,look:shiftedLook},
+    if(!threatHeldCamera||!threatHeldLook)return null;
+    const held=threatHeldCamera,shiftedLook=threatHeldLook;
+    const current=assessThreatOrbit({state,base:{...base,look:shiftedLook},
       subjects:eyes,width,height,fov},held);
     if(!current.valid||current.fitFov>fov-.5)return null;
     const after=grade(held,shiftedLook,eyes,grid,size,viewport,reveal,wallPad,
@@ -312,7 +365,7 @@ export function createPhysicalCameraDirector(){
      {...base,look:shiftedLook,position:held,occlusion:last}:null;
    }
    threatKey=sourceKey;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;
-   threatLookX=0;threatLookZ=0;
+   threatLookX=0;threatLookZ=0;threatHeldCamera=null;threatHeldLook=null;
    // The original orbit is a conservative fallback. The integrated warning
    // composition also considers a new optical aim from TRUE danger geometry,
    // but no candidate is selected until the same rendered masonry test passes.
@@ -353,6 +406,8 @@ export function createPhysicalCameraDirector(){
    threatLift=candidate.lift;threatReleaseTick=state.bossWarning.attackTick;
    threatLookX=(candidate.look?.x??look.x)-look.x;
    threatLookZ=(candidate.look?.z??look.z)-look.z;
+   threatHeldCamera=Object.freeze({...candidate.position});
+   threatHeldLook=Object.freeze({...(candidate.look??look)});
    switches++;improvements++;
    last={selected:'warden-risk-safe',reason:'threat-safe-optical-framing',
     mode:candidate.mode??'original-native-orbit',
@@ -390,18 +445,32 @@ export function createPhysicalCameraDirector(){
   if(threatKey?.startsWith(key+':')&&trueRelease&&bossAlive&&
      (threatAngle!==0||threatReach!==1||threatLift!==0||
       threatLookX!==0||threatLookZ!==0)){
-   const shiftedLook={x:base.look.x+threatLookX,y:look.y,
-    z:base.look.z+threatLookZ};
-   const shifted={...base,look:shiftedLook,
-    position:{x:base.position.x+threatLookX,
-     y:base.position.y,z:base.position.z+threatLookZ}};
-   const held=orbitThreatCamera(shifted,threatAngle,size,
-    {reach:threatReach,lift:threatLift});
+   // Reuse EXACT stored camera/aim from the true warning even if the
+   // native release/counter cinematic planner changed its base composition.
+   // A genuine changed body position still goes through a fresh visibility
+   // and foreground grade before the held camera can be shown.
+   const shiftedLook=threatHeldLook,held=threatHeldCamera;
+   if(!held||!shiftedLook)return null;
    const viewport={width,height,fov};
    const before=grade(base.position,look,eyes,grid,size,viewport,
     reveal,wallPad,facades,facadeReveal,propVolumes);
    const after=grade(held,shiftedLook,eyes,grid,size,viewport,
     reveal,wallPad,facades,facadeReveal,propVolumes);
+   // During the earned, HP-authoritative counter window ONLY, the 23-cell
+   // warning has already resolved. Let the actual encounter planner's own
+   // closer camera show the source-skinned actors, but only after a fresh
+   // two-body projective/stone/foreground safety proof. Never cut during the
+   // warned attack release or borrow a shot without its true prior warning.
+   if(recoveryTicks>0&&state.tick>threatReleaseTick){
+    const nativeFocus=planEarnedWardenCounterFocus(state,held,shiftedLook,
+     base.position,look,eyes,{width,height,fov,
+      gradeShot:(camera,aim,duo)=>grade(camera,aim,duo,grid,size,viewport,
+       reveal,wallPad,facades,facadeReveal,propVolumes)});
+    if(nativeFocus.accept){
+     last={...last,...nativeFocus,selected:'warden-earned-native-counter-close'};
+     return null;
+    }
+   }
    if(after.blocked<=before.blocked&&after.cropped<=before.cropped&&
       after.fullyVisible>=before.fullyVisible&&
       after.foregroundPenalty<=before.foregroundPenalty+.4){
@@ -415,7 +484,7 @@ export function createPhysicalCameraDirector(){
    }
   }
   threatKey=null;threatReleaseTick=null;threatAngle=0;threatReach=1;threatLift=0;
-  threatLookX=0;threatLookZ=0;
+  threatLookX=0;threatLookZ=0;threatHeldCamera=null;threatHeldLook=null;
   if(Number.isSafeInteger(state.tick)&&state.tick===lastTick&&last){
    return choice===0?null:{...base,position:orbit(base,choice,size),occlusion:last};
   }

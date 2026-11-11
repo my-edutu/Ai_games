@@ -52,6 +52,35 @@ test('source-authority Warden warning holds its same physical 3D lens through tr
   'no camera hold beyond bounded genuine authority ticks');
  assert.equal(JSON.stringify(s),original,'presentation never mutates authoritative replay');
 });
+
+test('genuine earned Warden counter window releases the risk overview for a physically safe native duel closeup',async()=>{
+ const s=actualWarning(),{base,options}=lens(s),before=JSON.stringify(s);
+ const d=await director(),warning=d.resolve(s,base,options);
+ assert.ok(warning,'real warning must establish a true hazard-covering 3D camera');
+ const strike={...s,tick:s.bossWarning.attackTick,bossWarning:null};
+ assert.deepEqual(d.resolve(strike,base,options).position,warning.position,
+  'actual strike starts with the intact source threat overview');
+ const recovery={...strike,tick:strike.tick+1,bossRecovery:{remaining:2}};
+ const boss=s.units.find(u=>u.kind==='warden'),half=(s.map.length-1)/2;
+ const close={look:{...base.look},position:{x:boss.x-half+1.9,y:8.2,z:boss.z-half+5.0}};
+ const changedRelease=d.resolve(strike,close,options);
+ assert.ok(changedRelease,'physical Warden strike retains the actual risk overview');
+ assert.deepEqual(changedRelease.position,warning.position,
+  'a newly composed release cinematic base must NOT silently move the warning-shot 3D camera');
+ const oldDistance=Math.hypot(warning.position.x-base.look.x,warning.position.y-1.4,warning.position.z-base.look.z);
+ const newDistance=Math.hypot(close.position.x-close.look.x,close.position.y-1.4,close.position.z-close.look.z);
+ assert.ok(newDistance<oldDistance*.76,'live source-scale actor gains a materially closer view');
+ assert.equal(d.resolve(recovery,close,options),null,
+  'warning cells have expired: spectator should actually see original 3D acting bodies during earned counterplay');
+ const witness=d.metrics();
+ assert.equal(witness.reason,'source-earned-counter-native-close');
+ assert.deepEqual(witness.criticalSourceCombatants,[boss.id,
+  s.units.find(u=>u.faction==='party'&&u.hp>0&&u.id===witness.criticalSourceCombatants[1]).id]);
+ assert.ok(witness.minimumNativePixelsAfter>=witness.minimumNativePixelsBefore*1.26,
+  'both original full-body source surfaces grow materially, not HUD nameplates');
+ assert.equal(witness.genuineWarningCellsRemaining,0,'no marked danger may be dropped while still active');
+ assert.deepEqual(s,JSON.parse(before),'release optics may not change game state');
+});
 test('reduced motion, defeated boss and unearned exposure never inherit the warning shot',async()=>{
  const s=actualWarning(),{base,options}=lens(s);
  const d=await director(),warning=d.resolve(s,base,options);assert.ok(warning);
