@@ -155,5 +155,35 @@ for(const width of [1024,390]){
    JSON.stringify({hardwarePerformanceNotMeasured:true,
     source:'real-running-original-village-and-economy',court,wing,road:audit.road,
     triangles:audit.triangles,ui:bounds,pageErrors:errors},null,2));
+  // W233 real-game camera: inspect the ORIGINAL farm and attached stone/
+  // timber threshing court, not a detached model, fake actor or beauty render.
+  // No world step, restore, seeded randomness or inventory is triggered.
+  await page.evaluate(()=>{
+   document.querySelector('#world-trace-toggle').click();
+   document.querySelector('.tour-btn[data-scenic="farm"]').click();
+  });
+  await page.waitForTimeout(1200);
+  const farmFrame=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,frame=g.getCamera(),audit=g.getFarmsteadStats();
+   return {camera:frame,scene:g.renderStats().lastFrameTriangles,
+    court:audit.fieldThreshingCourt,gl:document.querySelector('#world').getContext('webgl')?.getError(),
+    overflow:document.documentElement.scrollWidth,
+    authority:JSON.stringify(g.exportSnapshot())};
+  });
+  expect(farmFrame.camera.focus).toEqual([25,0]);
+  expect(farmFrame.court?.roofPanels).toBe(18);
+  expect(farmFrame.scene).toBeGreaterThan(0);
+  expect(farmFrame.scene).toBeLessThan(160000);
+  expect(farmFrame.gl).toBe(0);
+  expect(farmFrame.overflow).toBeLessThanOrEqual(width);
+  expect(farmFrame.authority).toBe(before);
+  expect(errors).toEqual([]);
+  await page.screenshot({path:path.resolve(__dirname,'../../test-results/w233-real-farm-court-'+width+'.png')});
+  fs.writeFileSync(path.resolve(__dirname,'../../test-results/w233-real-farm-court-'+width+'.json'),
+   JSON.stringify({runtime:'real running game in Chromium SwiftShader; NO physical GPU FPS',
+    exactSourceCommit:'44d156b48c1be5cd7c0b938b38f38dd899a3ee85',
+    camera:farmFrame.camera,sceneTriangles:farmFrame.scene,court:farmFrame.court,
+    noAuthorityMutation:farmFrame.authority===before,pageErrors:errors,gl:farmFrame.gl,
+    viewportWidth:width,overflow:farmFrame.overflow},null,2));
  });
 }
