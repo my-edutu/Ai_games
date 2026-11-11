@@ -14,7 +14,7 @@ const body = b => Array.isArray(b) && b.length === 4 &&
 export function observedGuardianPortraitOpticalFov({
   aspect, currentFov, actor, partner, landing = null, blocked = false,
 }) {
-  if (![aspect,currentFov].every(finite) || aspect < .35 || aspect >= .85 ||
+  if (!finite(aspect) || !finite(currentFov) || aspect < .35 || aspect >= .85 ||
       currentFov < MIN_FOV - .5 || currentFov > BASE_FOV + .5 ||
       blocked || !body(actor) || !body(partner)) return BASE_FOV;
   // Existing artist-authored 42-degree reference framing, independent of
@@ -22,40 +22,38 @@ export function observedGuardianPortraitOpticalFov({
   // toward an ever-narrower FOV across duplicate render frames.
   const referenceScale = Math.tan(currentFov * RAD / 2) /
     Math.tan(BASE_FOV * RAD / 2);
-  const h = actor.map((v,i) => i < 3 && i !== 2 ? v * referenceScale :
-    i === 3 ? v * referenceScale : v);
-  const g = partner.map((v,i) => i < 3 && i !== 2 ? v * referenceScale :
-    i === 3 ? v * referenceScale : v);
+  const hx = actor[0] * referenceScale, hy = actor[1] * referenceScale;
+  const hh = actor[3] * referenceScale, gx = partner[0] * referenceScale;
+  const gy = partner[1] * referenceScale, gh = partner[3] * referenceScale;
   // A crop, near-camera boss or already-large protagonist must stay under
   // the existing physical camera-rescue policy, NOT trigger optical zoom.
-  if (h[3] < .018 || h[3] > .15 || g[3] < .017 || g[3] > .22 ||
-      Math.abs(h[0]) + h[3] * .25 >= .79 ||
-      Math.abs(h[1]) + h[3] >= .79 ||
-      Math.abs(g[0]) + g[3] * .25 >= .83 ||
-      Math.abs(g[1]) + g[3] >= .83) return BASE_FOV;
+  if (hh < .018 || hh > .15 || gh < .017 || gh > .22 ||
+      Math.abs(hx) + hh * .25 >= .79 ||
+      Math.abs(hy) + hh >= .79 ||
+      Math.abs(gx) + gh * .25 >= .83 ||
+      Math.abs(gy) + gh >= .83) return BASE_FOV;
   // When bodies physically coincide on screen, zoom would make one body
   // mask the other. Let the existing two-actor orbit/physical world win.
-  if (Math.abs(h[0] - g[0]) < .10 &&
-      Math.abs(h[1] - g[1]) < Math.max(.13, h[3] + g[3]) * .75)
+  if (Math.abs(hx - gx) < .10 &&
+      Math.abs(hy - gy) < Math.max(.13, hh + gh) * .75)
     return BASE_FOV;
-  const limits = [
-    .71 / (Math.abs(h[0]) + h[3] * .27),
-    .71 / (Math.abs(h[1]) + h[3]),
-    .76 / (Math.abs(g[0]) + g[3] * .25),
-    .75 / (Math.abs(g[1]) + g[3]),
-  ];
+  let enlargement = Math.min(1.38,
+    .71 / (Math.abs(hx) + hh * .27),
+    .71 / (Math.abs(hy) + hh),
+    .76 / (Math.abs(gx) + gh * .25),
+    .75 / (Math.abs(gy) + gh));
   if (landing !== null) {
     if (!Array.isArray(landing) || landing.length !== 3 ||
         !landing.every(finite) || landing[2] < -1 || landing[2] > 1)
       return BASE_FOV;
-    limits.push(.73 / (Math.abs(landing[0]) * referenceScale),
+    enlargement = Math.min(enlargement,
+      .73 / (Math.abs(landing[0]) * referenceScale),
       .73 / (Math.abs(landing[1]) * referenceScale));
   }
   // No change to the actual camera position, spotlight, clipping or path.
   // A bounded 1.38x optional optical enlargement gives phone-sized actors
   // readable weight only when both current bodies and the selected real
   // landing/door can fit in the same central portrait action window.
-  const enlargement = Math.min(1.38, ...limits);
   if (!finite(enlargement) || enlargement <= 1.04) return BASE_FOV;
   const targetFov = 2 * Math.atan(Math.tan(BASE_FOV * RAD / 2) /
     enlargement) / RAD;
