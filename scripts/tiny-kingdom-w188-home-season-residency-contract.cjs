@@ -75,8 +75,8 @@ const lot={
  houseCountersSnapshot:()=>({}),houseCountersDelta:()=>({}),
  applyHouseCountersDelta:()=>{},
  medievalStreetMorphology:()=>{},renderLivedBurgageSideMateriality:()=>{},
- grainwardInhabitedLot:()=>{},grainwardMasonryFacing:()=>{},
- cottageDetails:()=>{}
+ grainwardInhabitedLot:()=>{},inhabitedStreetFootway:()=>{},
+ grainwardMasonryFacing:()=>{},cottageDetails:()=>{}
 };
 lot.compactHouse=(x,z,k)=>{
  for(let i=0;i<30;i++)lot.data.push(i%10===9?7:x*.1+z*.01+k+i*.001);
