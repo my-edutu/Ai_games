@@ -363,6 +363,8 @@ for(const view of [
      sourceInstanceId:pair.before.sourceInstanceId,
      sourceClipBefore:pair.before.nativeLegOwnership?.clipName??null,
      sourceClipAfter:pair.after.nativeLegOwnership?.clipName??null,
+     beforeCalfSafety:pair.before.nativeLegOwnership?.sourceSwingCalfTrialOutcome??null,
+     afterCalfSafety:pair.after.nativeLegOwnership?.sourceSwingCalfTrialOutcome??null,
      sourceTimeBefore:pair.before.sourceActionSample?.time??null,
      sourceTimeAfter:pair.after.sourceActionSample?.time??null,
      sourceDurationBefore:pair.before.sourceActionSample?.duration??null,
