@@ -13,7 +13,7 @@ const EVENT_RECIPE=Object.freeze({
  'warden-release':'warden-release',opening:'recovery',
  counter:'counter',interrupt:'interrupt',defeat:'defeat'
 });
-const validScene=s=>typeof s==='string'&&/^(?:0|[1-9]\\d*):[1-9]\\d*$/.test(s)&&s.length<=128;
+const validScene=s=>typeof s==='string'&&/^(?:0|[1-9]\d*):[1-9]\d*$/.test(s)&&s.length<=128;
 const validId=s=>typeof s==='string'&&s.length>0&&s.length<=256;
 const validTick=t=>Number.isSafeInteger(t)&&t>=0;
 const validFrame=f=>(Number.isSafeInteger(f)&&f>=0)||
