@@ -11,7 +11,14 @@
 const MAX_CLIP_BYTES=20*1024*1024;
 const MAX_PCM_BYTES=2*1024*1024;
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={}}={}){
- const combinedVideoAudio=optedIn===true&&
+ const framePump=clip.framePump;
+ const confirmedCanvasFrames=framePump?.requestFailures===0&&
+  Number.isSafeInteger(framePump.observedFrameAdvances)&&framePump.observedFrameAdvances>0&&
+  ((framePump.mode==='submitted-frame-request'&&
+    Number.isSafeInteger(framePump.requestedFrames)&&framePump.requestedFrames>0&&
+    framePump.requestedFrames<=framePump.observedFrameAdvances)||
+   (framePump.mode==='native-capture-stream'&&framePump.requestedFrames===0));
+ const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
   clip.source==='real-canvas-plus-opted-in-soundstage'&&
   clip.status==='RECORDED'&&
   /^video\/webm(?:;|$)/i.test(clip.mimeType||'')&&
