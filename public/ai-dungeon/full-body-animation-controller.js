@@ -247,6 +247,35 @@ export function planOriginalSourceSwingCalfAssist({
   Math.min(.12,previousAssistRad+.06));
 }
 
+/**
+ * Choose from both genuine signed original-calf X-axis trials ONLY after
+ * sampling the SAME skinned toe/heel vertices. The older 'highest toe wins'
+ * path could select a larger toe lift with a COLLAPSED heel, let the later
+ * safety planner reject it, and discard the other physically viable trial.
+ *
+ * This is a candidate selector, not an IK solver or foot-plant certificate.
+ * No source skeleton/keyframe, authoritative position or attack is changed.
+ */
+export function selectOriginalSourceSwingCalfTrial({
+ afterAnkleToeY=NaN,afterAnkleHeelY=NaN,floorTopY=NaN,trials=[]
+}={}){
+ if(![afterAnkleToeY,afterAnkleHeelY,floorTopY].every(finite)||
+  Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>2||
+  afterAnkleToeY-floorTopY>-.035||afterAnkleToeY-floorTopY<-.16||
+  afterAnkleHeelY-floorTopY<.065||afterAnkleHeelY-floorTopY>.34)return null;
+ let best=null;
+ for(const trial of trials){
+  const {signed,toe,heel}=trial??{};
+  if(![signed,toe,heel].every(finite)||
+   Math.abs(signed)<.09||Math.abs(signed)>.11||
+   toe-afterAnkleToeY<.008||toe-afterAnkleToeY>.075||
+   heel-floorTopY<.055||heel-floorTopY>.36||
+   Math.abs(heel-afterAnkleHeelY)>.06)continue;
+  if(!best||toe>best.toe)best={signed,toe,heel};
+ }
+ return best;
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
