@@ -401,6 +401,43 @@ test('elapsed one-shots settle into idle and cannot restart from a stale authori
  assert.equal(second.owner.duel,false);
 });
 
+test('source melee release spends one visible recovery frame when a sparse WebGL idle handoff spans the contact window',async()=>{
+ const {advanceFullBodyController:step}=await load();
+ const attacker={...hero('attack',77),targetId:'ranger'};
+ const source=step(null,frame(attacker,{actionAge:.47,frameDelta:.05,frameInterval:.05,
+  combatFacing:{targetId:'ranger',distance:1,yaw:.3}}));
+ assert.equal(source.phase,'recovery');
+ assert.deepEqual(source.confirmedContact,{targetId:'ranger',distance:1,actionTick:77});
+ const next={...attacker,action:'idle',targetId:null,actionTick:78};
+ // Exact lawful consecutive snapshot, source contact already witnessed;
+ // software WebGL displays only one 280ms frame before the idle heartbeat.
+ const idleFrame=frame(next,{actionAge:0,frameDelta:.05,frameInterval:.28});
+ const held=step(source,idleFrame);
+ assert.equal(held.mode,'attack','the recorded source attack must have a real visible recovery handoff');
+ assert.equal(held.holding,true);
+ assert.equal(held.authorityAction,'idle','never rewrite the public idle tick');
+ assert.equal(held.actionTick,77,'never invent a replacement attack or source tick');
+ assert.ok(held.age>=source.age&&held.age<.62,'release the actual original pose at its recovery boundary');
+ assert.deepEqual(held.confirmedContact,source.confirmedContact);
+ const released=step(held,idleFrame);
+ assert.equal(released.mode,'idle','one recovery presentation frame only');
+ assert.equal(released.confirmedContact,null);
+ const noContact=step(null,frame({...attacker,targetId:null},{actionAge:.47}));
+ assert.equal(step(noContact,idleFrame).mode,'idle','unverified target never earns a late contact pose');
+ for(const interruption of [
+  {unit:{...next,actionTick:80}},
+  {unit:{...next,action:'guard'}},
+  {unit:{...next,hp:0}},
+  {unit:{...next,action:'move'},grounded:{moving:true,clipAction:'move'}},
+  {teleport:true}, {reducedMotion:true},
+  {damageBeat:{id:'hero-1',kind:'vanguard',damage:5,maxHp:30,fatal:false,age:.08}}
+ ]){
+  const interrupted=step(source,{...idleFrame,...interruption});
+  assert.notEqual(interrupted.mode,'attack','a real interrupt or missing adjacent tick must cancel the release');
+  assert.equal(interrupted.confirmedContact,null);
+ }
+});
+
 test('a witnessed adjacent melee target remains a *visual* recovery anchor, never a new hit',async()=>{
  const {advanceFullBodyController:step}=await load();
  const attacking={...hero('attack',80),targetId:'real-revenant'};
