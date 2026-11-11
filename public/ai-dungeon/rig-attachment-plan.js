@@ -295,7 +295,13 @@ export function planRigFullBodyStride(kind,phase=0,weight=0,reducedMotion=false)
  */
 export function planSourceOwnedFullBodyStride(kind,phase=0,weight=0,
  sourceLegShare=1,reducedMotion=false){
- if(!Number.isFinite(sourceLegShare)||sourceLegShare<.16||sourceLegShare>1)
+ // Original Walking_A may own >84% of the skeleton while a lawful
+ // sub-16% additive thigh/calf/ankle share still remains. Transfer that
+ // exact positive share continuously through hips, chest and both shoulders:
+ // a hard 0.16 cutoff previously snapped the whole upper body at near-full
+ // source weight and failed the genuine 390px nine-tick WebGL integration.
+ // Only invalid source ownership (or accessibility below) fails closed.
+ if(!Number.isFinite(sourceLegShare)||sourceLegShare<0||sourceLegShare>1)
   return planRigFullBodyStride(kind,phase,0,true);
  return planRigFullBodyStride(kind,phase,weight*sourceLegShare,reducedMotion);
 }
