@@ -50,5 +50,5 @@ export function planReadableNameplates(projections,{width=1440,height=832,focusI
   if(!found){suppressed++;continue;}
   labels.push(found);
  }
- return {labels,suppressed,protectedRegions:reserved.length};
+ return {labels,suppressed};
 }

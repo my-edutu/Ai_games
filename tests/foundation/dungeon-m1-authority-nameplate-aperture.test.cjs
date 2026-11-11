@@ -14,7 +14,6 @@ test('390px Warden danger excludes obstructing nameplates; accessible status sta
  const after=plan(a,{width:390,height:658,focusId:'wildshadow',protectedRects:danger});
  assert.equal(after.labels.length,0);
  assert.equal(after.suppressed,2);
- assert.equal(after.protectedRegions,1);
 });
 test('true projected body reserves space; an alternative nameplate remains if clean',async()=>{
  const {planReadableNameplates:plan}=await load();

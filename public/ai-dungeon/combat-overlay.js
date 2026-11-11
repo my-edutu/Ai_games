@@ -142,7 +142,7 @@ export function createCombatOverlay(canvas){
   }
   observedUnits=composition.labels.length;
   suppressedNameplates=composition.suppressed;
-  protectedRegions=composition.protectedRegions??0;
+  protectedRegions=reserved.rects.length;
   protectedThreatCells=reserved.threatCells;
   for(let i=floaters.length-1;i>=0;i--){const f=floaters[i];
    if(time-f.start>.98){floaters.splice(i,1);continue;}
