@@ -90,3 +90,29 @@ test('real source knee acceptance reports measured joint-length rejection separa
  assert.match(renderer,/upperLength,lowerLength/,
   'native evidence must expose real segment lengths and stop conflating short joints with twisting');
 });
+
+
+test('pinned CC0 swordsman lowerleg to foot source bind disproves universal 120mm limb minimum',async()=>{
+ const {assessImportedSourceKneeGeometry:assess}=await load();
+ // Actual pinned player_swordsman.glb bind translations in glTF skin:
+ // upperleg.l -> lowerleg.l 0.1706700623; lowerleg.l -> foot.l 0.1123160496.
+ // These are original GLB source units, NOT invented or rescaled game movement.
+ const original={upperLength:.1706700623,lowerLength:.1123160496,
+  sourceBindUpperLength:.1706700623,sourceBindLowerLength:.1123160496,
+  bendSine:.93312,hingeAlignment:.99858};
+ assert.deepEqual(assess(original),{
+  accepted:true,reason:'verified-source-knee-plane-from-inverse-bind'},
+  'an original 112mm lower leg with matching licensed inverse bind may not be discarded as an impossible limb');
+ assert.equal(assess({...original,lowerLength:.085}).accepted,false,
+  'a distorted lower leg must still fail against its own licensed source bind');
+ assert.equal(assess({...original,sourceBindLowerLength:NaN}).accepted,false,
+  'a forged or absent inverse bind cannot authorize an undersized world leg');
+ assert.equal(assess({upperLength:.09,lowerLength:.27,bendSine:.933,
+  hingeAlignment:.998,sourceBindUpperLength:.1706700623,
+  sourceBindLowerLength:.1123160496}).accepted,false,
+  'previously rejected disproportionate anatomy must remain rejected');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/boneInverses/);
+ assert.match(renderer,/sourceBindUpperLength,sourceBindLowerLength/,
+  'live source must compute true inverse-bind evidence before using new ratio-aware gate');
+});
