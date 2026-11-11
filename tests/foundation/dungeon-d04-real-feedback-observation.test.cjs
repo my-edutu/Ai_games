@@ -86,6 +86,8 @@ test('real preview persists original media and forensic verdict BEFORE the final
  const source=fs.readFileSync(path.join(root,'tests/browser/dungeon-physical-feedback-preview.spec.cjs'),'utf8');
  const workflow=fs.readFileSync(path.join(root,'.github/workflows/dungeon-d04-foley-identity.yml'),'utf8');
  assert.match(workflow,/dungeon-d04-real-feedback-observation\.test\.cjs/);
+ assert.match(workflow,/^\s*-\s*tests\/browser\/dungeon-d04-real-feedback-observation\.cjs\s*$/m,
+  'Isolated D04 CI must trigger on changes to the real-browser verdict classifier');
  assert.match(source,/classifyAuthenticD04RenderObservation/);
  const media=source.lastIndexOf('await attachD04LiveAVCapture(page,captureStarted,test.info())');
  const forensic=source.lastIndexOf("'d04-real-render-feedback-verdict.json'");
