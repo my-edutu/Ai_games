@@ -173,9 +173,9 @@ async function beginD04LiveAVCapture(page){
       videoTracks:stream.getVideoTracks().length,audioTracks:stream.getAudioTracks().length,
       recordingMs:performance.now()-beganAt,dataEvents,
       trackAtStart,trackAtStop:{readyState:track?.readyState,muted:track?.muted===true},
-      framePump:videoOnly?{...framePump,
+      framePump:videoOnly&&frameMode!=='control-canvas'?{...framePump,
        ...(frameMode==='native-capture-stream'?{mode:'native-capture-stream',requestedFrames:0}:{})}:undefined,
-      base64:data?toBase64(data):null});
+      base64:data&&frameMode!=='control-canvas'?toBase64(data):null});
     };
     rec.ondataavailable=event=>{
      dataEvents++;const blob=event.data;
@@ -200,6 +200,55 @@ async function beginD04LiveAVCapture(page){
     watchdog=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch{}
      finish('UNAVAILABLE','Independent recorder exceeded 15-second budget')},15000);
    });
+  }
+  /**
+   * Diagnostic positive control, deliberately NOT gameplay. The synthetic 2D
+   * source tests whether THIS browser can encode any small changing canvas
+   * while the same session's REAL WebGL canvas encoder is being exercised.
+   * Its frames are never used for combat footage, audio or sync claims.
+   */
+  function start2DEncoderPositiveControl(){
+   const source='synthetic-2d-canvas-encoder-control-not-gameplay';
+   const width=64,height=64;
+   const control=document.createElement('canvas');
+   control.width=width;control.height=height;
+   const ctx=control.getContext('2d',{alpha:false});
+   if(!ctx)return Promise.resolve({source,status:'UNAVAILABLE',reason:'2D drawing context missing',
+    bytes:0,drawnFrames:0,canvasWidth:width,canvasHeight:height});
+   let drawnFrames=0,timer=null,track=null;
+   const paint=()=>{
+    if(drawnFrames>=128)return;
+    const alternate=drawnFrames%2===0;
+    ctx.fillStyle=alternate?'#111':'#eee';
+    ctx.fillRect(0,0,width,height);
+    ctx.fillStyle=alternate?'#eee':'#111';
+    ctx.fillRect((drawnFrames*7)%48,12,16,32);
+    drawnFrames++;
+   };
+   try{
+    paint();
+    const stream=control.captureStream(24);
+    track=stream.getVideoTracks()[0];
+    if(!track)return Promise.resolve({source,status:'UNAVAILABLE',
+     reason:'No diagnostic 2D canvas video track',bytes:0,drawnFrames,
+     canvasWidth:width,canvasHeight:height});
+    timer=setInterval(paint,100);
+    return startIsolatedRecorder(new MediaStream([track]),
+     ['video/webm;codecs=vp8','video/webm'],source,2*1024*1024,true,'control-canvas')
+     .then(({base64,...record})=>({
+      ...record,drawnFrames,canvasWidth:width,canvasHeight:height,
+      evidence:'Synthetic encoder control ONLY, not Dungeon footage or A/V synchronization'
+     })).finally(()=>{
+      if(timer!==null)clearInterval(timer);
+      track.stop();control.width=0;control.height=0;
+     });
+   }catch(error){
+    if(timer!==null)clearInterval(timer);
+    track?.stop();control.width=0;control.height=0;
+    return Promise.resolve({source,status:'UNAVAILABLE',
+     reason:'2D control probe: '+String(error).slice(0,160),bytes:0,drawnFrames,
+     canvasWidth:width,canvasHeight:height});
+   }
   }
   function sampleRealSubmittedFrame(){
    if(!pumpActive)return;
@@ -279,6 +328,7 @@ async function beginD04LiveAVCapture(page){
     20*1024*1024,true,'native-capture-stream'):
    Promise.resolve({source:'real-webgl-canvas-native-video-only',status:'UNAVAILABLE',
     reason:'Distinct native canvas track unavailable'});
+  const control2dProbe=start2DEncoderPositiveControl();
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
@@ -291,9 +341,9 @@ async function beginD04LiveAVCapture(page){
    return meta;
   }).catch(e=>unavailable('Live PCM capture error: '+String(e)));
   setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
-  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe])
-   .then(([clip,pcm,videoOnly,audioOnly,nativeVideoOnly])=>({clip,pcm,
-    isolated:{videoOnly,audioOnly,nativeVideoOnly},
+  window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe,control2dProbe])
+   .then(([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>({clip,pcm,
+    isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly},
     frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1},
     trackDelivery:finishCanvasDeliveryMonitor()
    })).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
@@ -316,6 +366,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
  const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
+ const {base64:discardedSyntheticVideo,...control2dOnly}=raw.isolated?.control2dOnly||{};
  const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
   body:Buffer.from(base64,'base64'),contentType:'video/webm'});
@@ -332,7 +383,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    body:Buffer.from(isolatedNativeVideoBase64,'base64'),contentType:'video/webm'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
-   isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames,
+   isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly},frames:raw.frames,
    trackDelivery:raw.trackDelivery??null,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
@@ -422,6 +473,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   audio:captureAssessment.isolatedAudioRecorded,
   synchronized:captureAssessment.sampleSynchronized,
   trackDiagnosis:captureAssessment.trackDiagnosis,
+  canvasEncoderDifferential:captureAssessment.canvasEncoderDifferential,
   submissionDiagnosis:captureAssessment.submissionDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
