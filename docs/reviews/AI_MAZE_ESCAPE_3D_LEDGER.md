@@ -1,3 +1,9 @@
+### Pass282 — repair whole-repository phase6 stale jaw-rail assertion (2026-11-11 UTC)
+
+- On [exact Pass281 full CI run 43114263254](https://github.com/my-edutu/Ai_games/actions/runs/43114263254), 781/782 Node tests passed; the ONE failure at `tests/phase6/maze-public-tide-shear-hazard.test.cjs` still demanded obsolete `jaw.position.z === .12` while the source has required **.44Z and -.035Y** for BOTH complete jaws since Pass279. Focused Maze build, installed-Three tests, original Chromium/WebGL smoke and unchanged six-run strict geometry budget on Pass281 all passed. This is an actual whole-repo HEAD validation blocker.
+- Upgrade the phase6 **real installed production Three** contract to demand exact forward `.44Z` **and** lowered `-.035Y` for each of the two source-connected joints while retaining every prior shape, angular pressure sequence, public-state privacy, resource and deterministic reset assertion. No production-model regression disguised, test removal, relaxed threshold, UI-only pass or visual benchmark claim. [Full CI-derived review](./maze-3d/pass-282-strict-phase6-forward-jaw-rail-ci-correction-2026-11-11.md).
+- New exact-HEAD full CI/native WebGL pending; Pass281 separate WebGL run remains its own exact-parent evidence and must not be misrepresented as a Pass282 result. PR OPEN DRAFT, no merge/deploy/force.
+
 ### Pass281 — physically raise the source-driven Tideglass portal above Pip (2026-11-11 UTC)
 
 - Earlier exact HEAD `310198562b44543be48ca486a001bf23397d4041` [native WebGL workflow 43099465171](https://github.com/my-edutu/Ai_games/actions/runs/43099465171) **SUCCEEDED**. Retrieved genuine artifact `13891187975`; verified **37/37 PNG/JSON SHA-256 matches**. Source-original 390px pressure image `ce49aa8e631fa457e3cfbc267f94b59070b7b4c9409ef0eca02c853ae330fc6a` captured at `2026-11-11T21:12:02.741Z` still shows low arch crossing Pip's action. No official Nintendo visual win.
