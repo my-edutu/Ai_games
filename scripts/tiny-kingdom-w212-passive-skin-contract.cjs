@@ -22,7 +22,7 @@ const make=(opt={})=>new Function('workingSkinCapable','gpuAvailable',
  'selectedCitizen','projectRealCitizenDetail','verifiedHouseholdMealEvidence',
  'return ('+source+');')(
  opt.skin!==false,opt.gpu!==false,()=>!!opt.unload,()=>!!opt.working,
- !!opt.follow,!!opt.documentary,1,
+ !!opt.follow,!!opt.documentary,opt.selectedIndex??1,
  ()=>({visible:opt.visible!==false,heightFraction:opt.height??.085}),
  ()=>opt.verifiedMeal?{receipt:'real'}:null);
 const person={name:'Iris',x:3,z:1,phase:.4,activity:'Resting at home',
@@ -35,7 +35,7 @@ yes({}, {visible:false});yes({activity:'Exploring the valley'});
 no({provisions:.8});no({}, {verifiedMeal:true});
 no({delivery:{id:'Bram:32'}});no({}, {unload:true});no({}, {working:true});
 no({}, {height:.16});no({}, {skin:false});no({}, {gpu:false});
-no({}, {follow:true});no({}, {documentary:true});
+no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
 no({activity:'Unloading grain'});no({activity:'Collecting household provisions'});
 no({activity:'Forging a hinge'});no({phase:NaN});
 no({}, {height:.16,visible:true});
