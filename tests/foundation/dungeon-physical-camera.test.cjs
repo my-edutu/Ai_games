@@ -11,9 +11,12 @@ const load=()=>{
  const depUrl='data:text/javascript;base64,'+Buffer.from(dependency).toString('base64');
  const projection=fs.readFileSync(path.join(root,'public/ai-dungeon/party-visibility-plan.js'),'utf8');
  const projectionUrl='data:text/javascript;base64,'+Buffer.from(projection).toString('base64');
+ const threat=fs.readFileSync(path.join(root,'public/ai-dungeon/warden-threat-orbit.js'),'utf8');
+ const threatUrl='data:text/javascript;base64,'+Buffer.from(threat).toString('base64');
  const cameraCode=fs.readFileSync(source,'utf8').replace(
   "'/dungeon/foreground-sightline-plan.js'",JSON.stringify(depUrl)).replace(
-  "'/dungeon/party-visibility-plan.js'",JSON.stringify(projectionUrl));
+  "'/dungeon/party-visibility-plan.js'",JSON.stringify(projectionUrl)).replace(
+  "'/dungeon/warden-threat-orbit.js'",JSON.stringify(threatUrl));
  return import('data:text/javascript;base64,'+Buffer.from(cameraCode).toString('base64'));
 };
 const map=Array.from({length:19},(_,z)=>Array.from({length:19},(_,x)=>z===0||z===18||x===0||x===18?'#':'.').join(''));

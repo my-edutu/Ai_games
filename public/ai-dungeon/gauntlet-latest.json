@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (original source-rig Warden batch candidate, real new-head A/V unverified)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (original-source Warden threat-safe portrait camera candidate, real moving AFTER unverified)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -222,6 +222,18 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect exact new head original five-stage 1440/390 A/V, 24 native regalia parts and original motion, 25/25 danger incision truth, draw/pacing, reject art/perf regressions; then native adult-scale exemplar, GPU remediation and 3 blinded critics"
+    },
+    "m1_original_risk_safe_portrait_20261111": {
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "inspectedHead": "a14bf7087a4788af14c21cdafcec98c8542ccc87",
+      "change": "Only genuine original Warden threat corners and source-bone duelist accepted for portrait optical orbit; no extra render passes or authority changes",
+      "tdd": "4/4 focused RED→GREEN; 420/420 Dungeon foundation+build PASS",
+      "replay": "24 x 900 zero divergence; 199 transitions, 5 restarts",
+      "actualAfterAV": "NOT_OBSERVED",
+      "afterPerf": "UNVERIFIED",
+      "critics": 0,
+      "next": "Inspect actual original source desktop/mobile audiovisual and camera-selection effect, reject when unselected/worse, then native 3D full-body exemplar and true renderer cost"
     }
   },
   "failures": [],
