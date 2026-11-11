@@ -8,6 +8,7 @@ on:
       - public/ai-dungeon/app.js
       - tests/browser/dungeon-d04-decoded-video-proof.cjs
       - public/ai-dungeon/physical-combat-feedback.js
+      - public/ai-dungeon/physical-feedback-visuals.js
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
@@ -44,6 +45,7 @@ jobs:
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
+            tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-audio-frame-deadline.test.cjs \
             tests/foundation/dungeon-d04-first-drawable-sword-foley.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
