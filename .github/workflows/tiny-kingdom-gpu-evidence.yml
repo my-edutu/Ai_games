@@ -1,3 +1,7 @@
+# W232 runner-network recovery: installing Ubuntu apt packages via Playwright
+# fails when GitHub's Ubuntu mirrors cannot resolve (2026-11-11 W231).
+# Download the Chromium browser without rerunning apt on each parallel job.
+# This is NOT a rendering or gameplay acceptance, and requires browser proof.
 name: Tiny Kingdom GPU Evidence
 
 on:
@@ -93,7 +97,7 @@ jobs:
         run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs && node scripts/tiny-kingdom-w96-market-shutters-contract.cjs && node scripts/tiny-kingdom-w98-upper-room-contract.cjs && node scripts/tiny-kingdom-w99-freight-road-contract.cjs && node scripts/tiny-kingdom-w100-receiving-hall-contract.cjs && node scripts/tiny-kingdom-w101-cottage-residency-contract.cjs && node scripts/tiny-kingdom-w102-social-articulation-contract.cjs && node scripts/tiny-kingdom-w103-corridor-camera-contract.cjs
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W83/W84 true service street plus credible ventilated grain-loft, desktop and 390px
         env:
           CI: '1'
@@ -137,7 +141,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W81 real inhabited 3D clay roofs and original 120-day mobile WebGL town
         env:
           CI: '1'
@@ -168,7 +172,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W79/W80 actual market and uninterrupted genuine 390px delivery-to-receipt
         env:
           CI: '1'
@@ -199,7 +203,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W78 authentic 120-day original civic + housing buffers and mobile
         env:
           CI: '1'
@@ -229,7 +233,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W77 original 120-day home growth, bounded storage and mobile truth
         env:
           CI: '1'
@@ -260,7 +264,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W76 exact complete cottage clusters across desktop and 390px
         env:
           CI: '1'
@@ -290,7 +294,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W75 real completed production persists with equal 1024px/390px triangles
         env:
           CI: '1'
@@ -320,7 +324,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W74 full real courier and market sightline on desktop and portrait
         env:
           CI: '1'
@@ -350,7 +354,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W73 actual town static WebGL draw batching and 390px completeness
         env:
           CI: '1'
@@ -381,7 +385,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W72 original cottage-to-morning camera on 1024px and 390px
         env:
           CI: '1'
@@ -413,7 +417,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W71 real village market and granary, retained physical WebGL plus honest fallback
         env:
           CI: '1'
@@ -444,7 +448,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W70 truthful GPU timer availability, nonblocking query lifecycle and 390px safety
         env:
           CI: '1'
@@ -475,7 +479,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W69 real dynamic-stream reuse, workers, frame stages and 390px safety
         env:
           CI: '1'
@@ -512,7 +516,7 @@ jobs:
         run: node scripts/tiny-kingdom-w166-traveler-gpu-contract.cjs
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W68 authentic grown burgages, garden masonry, replay-safe mobile WebGL
         env:
           CI: '1'
@@ -541,7 +545,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W64 real growing field wind, worker continuity, GL and 390px
         env:
           CI: '1'
@@ -570,7 +574,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W63 genuine workwear geometry, simulation immutability, 390px WebGL
         env:
           CI: '1'
@@ -599,7 +603,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W62 actual smoke and home occupation, night to day, desktop/mobile
         env:
           CI: '1'
@@ -628,7 +632,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W60 real closed door, camera clarity, 390px, and unaltered world
         env:
           CI: '1'
@@ -658,7 +662,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W59 real door rest and daybreak on 1024px and 390px
         env:
           CI: '1'
@@ -688,7 +692,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W58 true dusk arrival, external cottage view and 390px WebGL
         env:
           CI: '1'
@@ -718,7 +722,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W57 true homecoming and hinged cottage doors on desktop/390px
         env:
           CI: '1'
@@ -745,7 +749,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W54 genuine moving workday world-first 1024px and 390px
         env:
           CI: '1'
@@ -772,7 +776,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W53 live village observer world-first 1024px and 390px
         env:
           CI: '1'
@@ -801,7 +805,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W52 real sunlight GPU buffer and fresh citizen shadows at 390px
         env:
           CI: '1'
@@ -830,7 +834,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Run real workday shadow residency and 390px WebGL replay safety
         env:
           CI: '1'
@@ -857,7 +861,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Observe genuine actor/world labels at desktop and 390px
         env:
           CI: '1'
@@ -886,7 +890,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Observe real moving freight at desktop and 390px
         env:
           CI: '1'
@@ -916,7 +920,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine active harvest and legible close-up on desktop and 390px
         env:
           CI: '1'
@@ -946,7 +950,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine heel-to-toe citizen locomotion on desktop and 390px
         env:
           CI: '1'
@@ -975,7 +979,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Muted-by-default physical smith sound and mobile integrity
         env:
           CI: '1'
@@ -1004,7 +1008,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine anvil-clear guild court and smith at desktop and 390px
         env:
           CI: '1'
@@ -1033,7 +1037,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Real smith-follow camera and physical work at desktop and 390px
         env:
           CI: '1'
@@ -1063,7 +1067,7 @@ jobs:
       - run: npm ci
       # Playwright's shared web servers import compiled replay packages.
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W43 actual smith facing and hammer contact, 390px
         env:
           CI: '1'
@@ -1092,7 +1096,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W41 real autonomous smith at original outdoor forge, desktop and 390px
         env:
           CI: '1'
@@ -1120,7 +1124,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W40 real Day-120 desktop and 390px character-budget evidence
         env:
           CI: '1'
@@ -1149,7 +1153,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W39 original settlement GPU-generation lifecycle, Day-120, 390px
         env:
           CI: '1'
@@ -1176,7 +1180,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Actual escrowed courier and market receipt stay filmable at 390px
         env:
           CI: '1'
@@ -1201,7 +1205,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine escrowed cargo movement and receipt with 390px WebGL proof
         env:
           CI: '1'
@@ -1226,7 +1230,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Real citizen head/shoulder labor, deterministic autonomy and 390px motion evidence
         env:
           CI: '1'
@@ -1253,7 +1257,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W31/W32 actual citizen selection and physical orbit on desktop and 390px
         env:
           CI: '1'
@@ -1279,7 +1283,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W30 real citizen walking contact desktop and mobile
         env:
           CI: '1'
@@ -1308,7 +1312,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Source-matched W24 vs W25 true house-build frame timing and real 390px pictures
         env:
           CI: '1'
@@ -1335,7 +1339,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W25 original physical civic quarters remain GPU resident while real builders add homes
         env:
           CI: '1'
@@ -1362,7 +1366,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Real 390px market panorama, unchanged autonomous villagers and desktop optics
         env:
           CI: '1'
@@ -1390,7 +1394,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine autonomous worksite planted boots and two-hand animated contact, desktop and 390px
         env:
           CI: '1'
@@ -1417,7 +1421,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W15 real growing homes reuse immutable albedo without synthetic buildings
         env:
           CI: '1'
@@ -1450,7 +1454,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Real worker selected equals real camera shown at desktop and 390px
         env:
           CI: '1'
@@ -1478,7 +1482,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W17 real market panorama and connected Day1/Day120 mobile workday lens
         env:
           CI: '1'
@@ -1506,7 +1510,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Actual farmer harvest, crop vertex deformation, fixed pace, replay and 390px
         env:
           CI: '1'
@@ -1585,7 +1589,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W67 actual farming hands and crop-depth clear camera in 1024px/390px
         env:
           CI: '1'
@@ -1615,7 +1619,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W66 exact W65 source match, real desktop and 390px GPU and replay truth
         env:
           CI: '1'
@@ -1645,7 +1649,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Exact original citizen shell vertex order, real desktop/390px and immutable seeded world
         env:
           CI: '1'
@@ -1670,7 +1674,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W56 grown authentic homes, structural porch geometry, replay and 390px
         env:
           CI: '1'
@@ -1693,7 +1697,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: W55 real crop field, performance budget and mobile touch legibility
         env:
           CI: '1'
@@ -1721,7 +1725,7 @@ jobs:
       # unbuilt checkout makes the W02 browser test fail before it ever runs.
       - name: Build browser webServer dependencies
         run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Capture WebGL capability and frame
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -1796,7 +1800,7 @@ jobs:
       # Playwright's shared webServer imports compiled replay from dist.
       # Without this the visual parity test never reaches a browser.
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Original 3D near-citizen geometry parity on desktop and 390px
         env:
           CI: '1'
@@ -1830,7 +1834,7 @@ jobs:
       - run: npm run build
       - name: W187 exact original physical roof-ray parity in bounded index
         run: node scripts/tiny-kingdom-w187-camera-ray-broadphase-contract.cjs
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Truthful closed cottage witness and original mobile street geometry
         env:
           CI: '1'

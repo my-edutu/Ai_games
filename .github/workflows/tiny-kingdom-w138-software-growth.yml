@@ -1,3 +1,7 @@
+# W232 runner-network recovery: installing Ubuntu apt packages via Playwright
+# fails when GitHub's Ubuntu mirrors cannot resolve (2026-11-11 W231).
+# Download the Chromium browser without rerunning apt on each parallel job.
+# This is NOT a rendering or gameplay acceptance, and requires browser proof.
 name: Tiny Kingdom W138 Grown-Town Rendering Evidence
 on:
   pull_request:
@@ -32,7 +36,7 @@ jobs:
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture
         run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Genuine 120-day old/new renderer comparison and real 390px gameplay
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
