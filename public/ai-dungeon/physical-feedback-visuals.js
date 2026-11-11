@@ -537,21 +537,31 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    let checkedWarningCue=null,checkedWarningLive=false;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];if(!slot)continue;
-    slot.age+=observedAge;dirty=true;
-    if(slot.age>=slot.life){
-     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
-    }
-    if(pool.name==='signal'&&slot.cue.visual==='warning'){
-     // Sample current public warning once per contiguous cue group, not
-     // separately for every marker cell; GPU slots and searches stay bounded.
+    // A Warden's LIVE public danger window is not a 300ms decorative spark.
+    // A slow WebGL submission must not silently erase true threatened cells
+    // while authority still reports the EXACT attack tick and footprint.
+    // Only a fresh authoritative snapshot may extend the visible lifetime:
+    // legacy injected adapters retain their old, strictly finite recipe.
+    const authoritativeWarning=pool.name==='signal'&&
+     slot.cue.visual==='warning'&&typeof getCurrentSnapshot==='function';
+    if(authoritativeWarning){
+     // Check once per retained cue group (at most 8 signal instances).
      if(slot.cue!==checkedWarningCue){
       checkedWarningCue=slot.cue;
       checkedWarningLive=warningStillLive(slot.cue);
      }
      if(!checkedWarningLive){
       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
-      active--;retiredInvalidWarnings++;continue;
+      active--;retiredInvalidWarnings++;dirty=true;continue;
      }
+     // Freeze at a restrained, readable mid-beat: resetting to zero each
+     // frame would strobe; aging beyond the recipe would hide true danger.
+     // This never extends the cue's foley deadline or fabricates an attack.
+     slot.age=Math.min(slot.age+observedAge,slot.life*.35);
+    }else slot.age+=observedAge;
+    dirty=true;
+    if(slot.age>=slot.life){
+     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
     }
     if(pool.name==='signal'&&
       (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
