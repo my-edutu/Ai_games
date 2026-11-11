@@ -1953,7 +1953,11 @@ function inspectSourceRigDeformation(actors){
     sourceWalkReentryFrames:actor.walkLandingReentryFrames||0,
     sourceWalkReentryRejectedFrames:actor.walkLandingReentryRejectedFrames||0
    },
-   sourceInstanceId:actor.assetRoot.uuid,rootWorld,footJointWorld,
+   sourceInstanceId:actor.assetRoot.uuid,rootWorld,
+   // EXACT root yaw of THIS original source-skin pose, not assumed heading.
+   // Demand-only diagnostic, never changes the root, mixer or event authority.
+   rootYaw:Number.isFinite(actor.root?.rotation?.y)?actor.root.rotation.y:null,
+   footJointWorld,
    sourceGroundAnchor:actor.sourceGroundAnchor??null,
    soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceWeaponGrip:sourceWeaponGrip,
    // Real source AnimationAction clock captured only when the explicit
