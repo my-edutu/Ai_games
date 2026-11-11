@@ -41,7 +41,7 @@ export function observedGuardianCircuit(snapshot) {
       ? Math.min(guardian.telegraphTotalTicks===6?6:8,
         Math.max(1, guardian.telegraphTicksRemaining))
       : (guardian.telegraphTotalTicks===6?6:8),
-    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
+    // Preserve the guardian's ACTUAL published body height for the living\n    // circuit's overhead clearance; no synthetic location or predicted hit.\n    guardianHalfHeight: guardian.halfHeight,\n    fromX: guardian.x, fromY: guardian.y - guardian.halfHeight + 9000,
     toX: anchorX, toY: cap.y + cap.height + 20000,
     width: snapshot.worldWidth, baseY: snapshot.chunkBaseY,
   };
@@ -80,8 +80,20 @@ export function observedGuardianLockStage(source) {
 // Both the scene director and renderer use exactly the same exterior point.
 export function guardianLinkSite(source, t, offset = 0) {
   const x = source.fromX + (source.toX - source.fromX) * t;
+  // Original 390x844 source video at 696655e5, ~20s, shows the guardian-side
+  // large bronze clutch physically overlapping the LIVE guardian/hero.
+  // The previous 8-tooth ring was centred at the guardian's face elevation;
+  // the camera had been asked to favor it as an additional shot subject.
+  // Route the same load-bearing twin rails through a compact OVERHEAD arched
+  // service hoist, then return them to their original source cap attachment.
+  // The entry (t=0), true cap (t=1), deterministic source HP and all collision
+  // remain EXACTLY as published. This is one continuous, real 3D mechanism.
+  const nearHoist = source.guardianHalfHeight > 0 && t > 0 && t < .36
+    ? Math.min(54000, Math.max(48000, source.guardianHalfHeight * 2.8)) *
+      Math.sin(Math.PI * t / .36) ** 2
+    : 0;
   const y = source.fromY + (source.toY - source.fromY) * t +
-    Math.sin(Math.PI * t) * 6200 + offset;
+    Math.sin(Math.PI * t) * 6200 + nearHoist + offset;
   const radius = 26.2 + 1.48 * Math.min(1, t / .18) - .03 * t +
     2.55 * Math.sin(Math.PI * t);
   return pointFor(x, y, source.baseY, source.width, radius);
@@ -317,18 +329,18 @@ export function createTowerGuardianCircuit(THREE) {
     const relayCenter = relayStage.center;
     atGuardian.position.set(relayCenter.x, relayCenter.y, relayCenter.z);
     atGuardian.rotation.set(0, relayCenter.angle, 0);
-    atGuardian.scale.setScalar(1.66);
+    // Original 1.66x full-ring plus 8 broad surrounding teeth filled the\n    // real body interaction on phone. Keep the authentic HP-bearing clutch,\n    // but confine its entire outer silhouette to a narrow overhead socket.\n    atGuardian.scale.setScalar(.92);
     for (let index = 0; index < RELAY_TEETH; index++) {
       const theta = 2 * Math.PI * index / RELAY_TEETH;
       const engaged = (index + .5) / RELAY_TEETH <= relayStage.remainingFraction;
-      const radius = engaged ? 1.39 : 1.61;
+      const radius = engaged ? .84 : 1.04;
       const tangent = Math.cos(theta) * radius;
       pose.position.set(
         relayCenter.x + Math.cos(relayCenter.angle) * tangent,
         relayCenter.y + Math.sin(theta) * radius,
         relayCenter.z - Math.sin(relayCenter.angle) * tangent);
       pose.rotation.set(0, relayCenter.angle, theta);
-      pose.scale.set(engaged ? 1 : .58, engaged ? 1 : .48, 1);
+      pose.scale.set(engaged ? .74 : .45, engaged ? .79 : .48, .72);
       pose.updateMatrix();
       relayTeeth.setMatrixAt(index, pose.matrix);
       relayTeeth.setColorAt(index, engaged ? relayLocked : relayReleased);
