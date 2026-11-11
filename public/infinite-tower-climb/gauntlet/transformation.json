@@ -8226,5 +8226,27 @@
     "physicalDeviceP50P95P99Memory": "NOT EVALUATED",
     "biggestRemainingExperienceGap": "Original portrait guardian and crusher action, body-scale and physical floor8 earned threshold remain uncompelling/unaccepted at 1x; source-to-raster event skew unresolved",
     "nextHighestImpactAction": "Watch the exact new SHA native desktop/portrait guardian 10-30s and crossing, correlate with source HP, crusher and floor9 events; reject the optical camera if it masks actual hazard/deck, then repair true world obstruction and source-to-raster timing, leaving P0 OPEN until full review"
+  },
+  "p0LiveSourceClientIntegrationRegression20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHead": "7f06cd483f9a846de2ee3e96914018b0445cc0fe",
+    "clientTestCommit": "47ae57011994d1a5f77fa9ba97375d631b6ba298",
+    "productionCommit": "45d2e562f62d7ce4f495dbfc87f590b021fdbdd2",
+    "actualCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43108948655 — 8/8 original 60s+ source-pinned baseline/candidate recordings completed; strict original guardian event-to-video 0/2 viewports",
+    "actualQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43108948807 — 16/1399 tests FAILED on missing shipped createPresentedPhaseLatch in legacy VM harness; hard veto",
+    "measuredDefect": "Source tick 451 Floor 9 at 23.3198s desktop and 23.0791s portrait; observed original HUD/scene phase ~26s/25.75s, +2.68/+2.67s; physical doorway crossing NOT proved.",
+    "repair": "Update existing client-lifecycle integration harness with genuine shipped presented-phase-latch and live-state-cadence modules and explicit controlled Three.js render-return. Repair actual app: normal public snapshot waiting on first scene submission cannot leak floor/tick/score through recovery overlay or falsely display LIVE status. Add direct floor8→9 and result→restart tests. Source-only terminal/recovery/upgrade remains accessible.",
+    "qualityAfterRepair": "NOT VERIFIED — new exact source CI must complete; local full repo run not available",
+    "newSourceOriginalCapture": "NOT YET CAPTURED at new commit; older source-authentic videos do not prove this correction",
+    "hardware": "NOT EVALUATED",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "biggestGap": "Original portrait guardian fight still visually busy; roughly 2.7s source-to-native floor phase discrepancy and ground-truth threshold crossing unresolved.",
+    "nextAction": "Check repaired exact-head CI; run matching 8 original baseline/candidate films 960x600/390x844 and inspect genuine 1x motion with accepted→render-return→native HUD phase; repair confirmed physical timebase/doorway obstruction rather than promote P0."
   }
 }
