@@ -8277,6 +8277,11 @@
       "plays": 0
     },
     "safety": "Never alter PR58, frozen source baseline, gameplay authority, AI, collisions, replay, outcome, cadence, recording speed or original media. CI veto is not an experience score.",
-    "nextAction": "Verify strict CI and 9-job immutable-source capture. Compare Floor9 source tick451 to first browser acceptance, returned WebGL frame, original native raster floor frame; inspect post-gateway full-motion portrait and desktop for new scenery pop, fully grounded walk, legible boss/crusher, Floor9 onward and result/restart. Revert staged far art if worse. Advance P0 only after 2/2 strict event sync and genuine review/device evidence."
+    "nextAction": "FIRST verify 43122518034, then new exact-source 9-job original capture from fixed branch request. If any failure, investigate before accepting footage; compare actual first-frame timelapse, 1.706/1.948s source-native gaps and 8→9 passage legibility.",
+    "repairCommitSha": "02ef313f6b9c0d939b654e27862c92639cbbb7b7",
+    "verifiedCIRegression": "https://github.com/my-edutu/Ai_games/actions/runs/43121814838 — FAIL 5/1404, four existing VM fixture renderer tests missing new world method (0.8 adaptive resolution, contact cue, two lighting resource assertions); one genuine low-tier 49-draw distant geometry regression (wanted one batched skyline) in new Three.js test.",
+    "verifiedRegressionsRepaired": "Patch 02ef313f: actual shipped scene invokes optional world.noteFrameSubmitted?.() for minimal VM stubs, but real world method still mandatory on production path; low-tier only deferred, seven distant citadel roots now rigid-batched into ONE original shadow-free draw before fog fade, preserving mobile draw budget. CI confirmation of fix not yet observed.",
+    "latestExactHeadTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43122518034 — PENDING at time of fix evidence; do not claim a pass",
+    "newCaptureSource": "Exact github.sha after the FIX and this capture-request commit; earlier f434 capture is RED-code superseded and cannot be candidate acceptance."
   }
 }

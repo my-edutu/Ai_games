@@ -845,8 +845,8 @@
   "p0FloorNineTruthfulFirstRenderedFrame20261112": {
     "stage": "P0 OPEN",
     "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-    "gameplayImplementationSha": "277ea3605e1ee278c0b78532ef081635d678462f",
-    "currentRequestPins": "Immutable GitHub github.sha of THIS capture-request update on PR68 branch. Frozen baseline checkout unchanged. Candidate checkout exact request commit.",
+    "gameplayImplementationSha": "02ef313f6b9c0d939b654e27862c92639cbbb7b7",
+    "currentRequestPins": "Immutable github.sha of THIS exact capture request at branch PR68, containing repaired 02ef313. Frozen baseline file untouched. Original scope, seed, graphics tier and timebase unchanged.",
     "reason": "Latest 9-job 43113060409 original game evidence 8/8 films with source chain and native clock calibrated but native drawn floor phase 1.706s portrait/1.948s desktop after calibrated tick451. Exact browser-accept-to-WebGL-return on first Floor9 approx .849s/.1.168s. The new 277ea360 deferred ONLY distant noninteractive scenery until first successful source-authentic Floor9 render, then soft fade, seeking a faster and less abrupt physical 8→9 handoff without altering authority. Record actual full motion to accept or reject; do not count CI tests as quality.",
     "requestDate": "2026-11-12",
     "unchangedOriginalCapture": "9 jobs, 8 original >=60-second baseline/candidate 960x600 and 390x844 films + authentic guardian/crusher through restart fixed-step witness, same seed/low tier, native unedited WebM/source clocks and original HUD, privacy and reviewer gates unchanged",
@@ -873,6 +873,7 @@
       "plays": 0
     },
     "supportedHardware": "NOT EVALUATED",
-    "nextAction": "Compare matching original source SHA at 1x in real browser; confirm/debunk causal improvement from staged distance. Keep P0 open until strict 2/2 and blind/device gates."
+    "nextAction": "Verify exact-head CI, 9-job native capture and authentic event/frame matching; reject far scenery pop, latency regression or device performance defect.",
+    "repairedSourceCI": "Old unbatched code 277ea360 failed five tests at 43121814838. Source 02ef313 fixes VM integration and restores single shadow-free rigid low-tier skyline draw. Fresh CI 43122518034 pending. Do not treat f434 source film as acceptance of this repaired version."
   }
 }
