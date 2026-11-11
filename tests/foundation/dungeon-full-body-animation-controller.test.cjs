@@ -2430,3 +2430,34 @@ test('original swing calf chain assists only anatomically verified airborne toe 
  assert.match(renderer,/sourceSwingCalfAssistProof/,
   'only genuine post-mixer foot movement can witness native calf assistance');
 });
+
+
+test('source calf trial selection must reject an unsafe high-toe pose in favour of a lower but anatomically supported lift',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:choose}=await load();
+ assert.equal(typeof choose,'function');
+ const measured={
+  afterAnkleToeY:-.073346,afterAnkleHeelY:.124821,floorTopY:-.02,
+  trials:[
+   {signed:-.1,toe:-.052,heel:.014}, // strongest toe but unsafe collapsing heel
+   {signed:.1,toe:-.063,heel:.118} // positive witnessed lift and retained heel clearance
+  ]
+ };
+ const best=choose(measured);
+ assert.equal(best?.signed,.1,
+  'do not discard a safe original knee bend because the opposite trial has a larger toe lift but collapses the source heel');
+ assert.ok(best.toe>measured.afterAnkleToeY+.008);
+ assert.equal(choose({...measured,trials:[measured.trials[0]]}),null,
+  'a physically unsafe original heel must never authorize calf flexion');
+ for(const invalid of [
+  {afterAnkleToeY:NaN},{afterAnkleHeelY:NaN},{floorTopY:.2},
+  {trials:[{signed:.1,toe:-.065,heel:NaN}]},
+  {trials:[{signed:.1,toe:-.065,heel:.0}]},
+  {trials:[{signed:.2,toe:-.061,heel:.12}]},
+  {trials:[{signed:.1,toe:-.072,heel:.12}]},
+  {trials:[{signed:.1,toe:.03,heel:.12}]}
+ ])assert.equal(choose({...measured,...invalid}),null,
+  'reject missing/unsafe original-skin trial: '+JSON.stringify(invalid));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/selectOriginalSourceSwingCalfTrial\(/,
+  'connected original calf stage must select the safest genuinely measured source-foot trial');
+});
