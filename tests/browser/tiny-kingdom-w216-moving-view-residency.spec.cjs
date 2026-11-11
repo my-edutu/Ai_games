@@ -37,6 +37,27 @@ for(const width of [1024,390]){
   });
   expect(before.cache.entries).toBe(1);
   expect(before.cache.cachedFloats).toBeGreaterThan(0);
+  // W219: direct REAL software-WebGL assembly/index identity check. These
+  // physical volumes are built from the current city plus genuine loaded
+  // couriers; asking several camera rays must not rebuild a giant AABB index.
+  const physical=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   const original=g.getCameraOcclusionModel().roofTotal;
+   const before=g.getCameraArchitectureResidencyAudit();
+   const indexBefore=g.getCameraRayBroadphaseAudit();
+   for(let i=0;i<4;i++){
+    if(g.getCameraOcclusionModel().roofTotal!==original)
+     throw Error('Original physical scene changed during unchanged view');
+   }
+   const after=g.getCameraArchitectureResidencyAudit();
+   const indexAfter=g.getCameraRayBroadphaseAudit();
+   return {original,before,after,indexBefore,indexAfter};
+  });
+  expect(physical.after.physicalViewEntries).toBe(1);
+  expect(physical.after.physicalViewAssemblies).toBe(physical.before.physicalViewAssemblies);
+  expect(physical.after.physicalViewReuses).toBeGreaterThanOrEqual(
+   physical.before.physicalViewReuses+4);
+  expect(physical.original).toBeGreaterThanOrEqual(before.buildings);
   await page.screenshot({path:path.join(out,'before-'+width+'.png'),fullPage:true});
   await page.evaluate(()=>window.__tinyKingdom.setCamera({
    yaw:.55,pitch:.71,zoom:75,focus:[0,0]
