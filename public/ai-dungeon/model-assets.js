@@ -1052,8 +1052,12 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
   mount.bone.quaternion.copy(originalFoot);
   lower.bone.updateWorldMatrix(true,true);
  }
+ // The original mobile 0.2rad source trial supplies only 5.696mm. At the
+ // licensed .06rad/frame calf limit, a genuine smaller (~1mm) same-skin
+ // upward step can be physically valid: require its REAL measured outcome,
+ // not an 8mm full-probe response. No blind joint motion is accepted.
  if(!Number.isFinite(toe)||!Number.isFinite(heel)||
-  toe-ankleToeY<.002||toe-ankleToeY>.075||
+  toe-ankleToeY<.001||toe-ankleToeY>.075||
   heel<-.02+.055||heel>-.02+.36||
   Math.abs(heel-ankleHeelY)>.06){
   actor.sourceSwingCalfTrialOutcome={
