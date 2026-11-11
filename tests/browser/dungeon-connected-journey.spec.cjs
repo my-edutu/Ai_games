@@ -19,6 +19,10 @@ test('connected entry, encounter and Warden masonry survives live traversal and 
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.dressing?.connectedJourney?.reachable===true),
   {timeout:90000}).toBe(true);
  const diagnostic=()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ // Scene existence precedes GLB/visible-hero readiness on real software WebGL.
+ // Require an actual rendered hero rather than reading an incidental first frame.
+ await expect.poll(async()=>((await diagnostic())?.composition?.visibleHeroes??0),
+  {timeout:55000}).toBeGreaterThan(0);
  const first=await diagnostic(),firstScene=first.dressing.connectedJourney;
  expect(firstScene.chapters.map(c=>c.role)).toEqual(['entry','ordinary','warden']);
  expect(firstScene.source).toBe('actual-authority-map-exit-and-live-enemy-placements');

@@ -46,3 +46,25 @@ export function planWardenBattleFloor(map,exit,floor){
   coveredWalkableCells,collisionChanges:0,source:'actual-walkable-warden-court-connected-plates',
   maxStoneTopMeters:.035});
 }
+
+// Renderer-only coverage mask: the instanced mesh count is NOT the floor-cell
+// count. A 2x2 slab still covers four real map cells. The previous decoration
+// mask accidentally used only each slab's origin and left most of the actual
+// boss warning court cluttered despite the new connected geometry.
+export function planWardenCourtDetailMask(plan){
+ const empty=()=>new Set();
+ if(plan?.status!=='READY'||!Array.isArray(plan.stones)||
+    plan.stones.length<1||plan.stones.length>49||
+    !valid(plan.coveredWalkableCells)||plan.coveredWalkableCells>49)return empty();
+ const covered=new Set();
+ for(const plate of plan.stones){
+  if(!Array.isArray(plate?.cells)||plate.cells.length<1||plate.cells.length>4)return empty();
+  for(const c of plate.cells){
+   if(!valid(c?.x)||!valid(c?.z)||c.x<0||c.z<0||c.x>40||c.z>40)return empty();
+   const key=c.x+','+c.z;
+   if(covered.has(key))return empty();
+   covered.add(key);
+  }
+ }
+ return covered.size===plan.coveredWalkableCells?covered:empty();
+}

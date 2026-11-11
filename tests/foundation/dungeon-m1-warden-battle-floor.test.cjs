@@ -55,3 +55,19 @@ test('damaged court subdivides only actual walkable cells and never places a sla
  assertRealCover(damaged,p,{x:9,z:9});
  assert.equal(p.stones.some(s=>s.cells.some(c=>c.x===8&&c.z===7)),false);
 });
+
+test('integrated environment suppresses unrelated floor detail on every true cell of a connected Warden plate',async()=>{
+ const {planWardenBattleFloor:plan,planWardenCourtDetailMask:mask}=await load();
+ const map=court(),p=plan(map,{x:9,z:9},1),all=mask(p);
+ assert.equal(p.stones.length,16);
+ assert.equal(all.size,49,'one slab origin cannot stand for four danger-floor cells');
+ assert.ok(all.has('10,10')&&all.has('12,12')&&all.has('6,6'));
+ const walls=map.map((row,z)=>z===7?row.slice(0,8)+'#'+row.slice(9):row);
+ const broken=plan(walls,{x:9,z:9},1),coverage=mask(broken);
+ assert.equal(coverage.size,48);
+ assert.equal(coverage.has('8,7'),false,'cannot mask a genuine blocked cell');
+ assert.equal(mask({...p,coveredWalkableCells:48}).size,0,'incoherent data fails closed');
+ assert.equal(mask({...p,stones:[...p.stones,p.stones[0]]}).size,0,'duplicate map cell fails closed');
+ const actualRender=fs.readFileSync('public/ai-dungeon/environment.js','utf8');
+ assert.match(actualRender,/const battleCells=planWardenCourtDetailMask\(wardenBattleFloor\)/);
+});

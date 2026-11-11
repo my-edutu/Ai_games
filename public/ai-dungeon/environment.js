@@ -8,7 +8,7 @@ import {createWardenCourt} from '/dungeon/warden-court.js';
 import {createConnectedDungeonJourney} from '/dungeon/connected-journey.js';
 import {createAlternateDungeonGallery} from '/dungeon/alternate-gallery.js';
 import {planWardenCourtNegativeSpace} from '/dungeon/warden-court-plan.js';
-import {planWardenBattleFloor} from '/dungeon/warden-battle-floor-plan.js';
+import {planWardenBattleFloor,planWardenCourtDetailMask} from '/dungeon/warden-battle-floor-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {configureSoftwareStoneSurfaces,createSoftwareDiffuseMasonry,fuseOriginalForegroundGroup,createRetainedForegroundReplicaBatches} from '/dungeon/postfx-budget.js';
@@ -124,7 +124,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const N=map.length,O=(N-1)/2,biome=BIOMES[(floor-1)%BIOMES.length];
  const wardenCourt=createWardenCourt(world,map,exit,floor);
  const wardenBattleFloor=planWardenBattleFloor(map,exit,floor);
- const battleCells=new Set(wardenBattleFloor.stones.map(t=>t.gridX+','+t.gridZ));
+ const battleCells=planWardenCourtDetailMask(wardenBattleFloor);
  const connectedJourney=createConnectedDungeonJourney(world,map,floor,exit,encounterUnits);
  const alternateGallery=createAlternateDungeonGallery(world,map,floor,exit,
   connectedJourney.plan,encounterUnits,traps);
@@ -397,6 +397,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const sceneMetrics={wardenBattleFloorStatus:wardenBattleFloor.status,
   wardenBattleFloorTiles:wardenBattleFloor.stones.length,
   wardenBattleFloorCellsCovered:wardenBattleFloor.coveredWalkableCells,
+   wardenBattleFloorDetailMaskCells:battleCells.size,
   wardenBattleFloorDetailSuppressed:battleFloorDetailsSuppressed,
   wardenBattleFloorCollisionChanges:wardenBattleFloor.collisionChanges,
   stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
