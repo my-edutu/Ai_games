@@ -15574,6 +15574,11 @@ let worksiteFixtureBuffer=null,worksiteFixtureMesh=null,worksiteFixtureKey='';
 let worksiteFixtureCapacity=0,worksiteFixtureActive=false,worksiteFixtureOverride=null;
 let worksiteFixtureBuilds=0,worksiteFixtureUploads=0,worksiteFixtureReuses=0;
 let worksiteFixtureDisposals=0,worksiteFixtureOverBudget=0,worksiteFixtureDrawCalls=0;
+// W236 per-citizen dirty region worksite mesh: only authentic active jobs.
+let worksiteFixturePartCache=new Map(),worksiteFixtureLayout=[];
+let worksiteFixturePartBuilds=0,worksiteFixturePartHits=0;
+let worksiteFixturePartialUploads=0,worksiteFixturePartialBytes=0;
+let worksiteFixtureFullBytes=0,worksiteFixturePartEvictions=0;
 function worksiteFixtureResidencyRequested(){
  return Boolean(gpuAvailable&&
   (worksiteFixtureOverride===null?!swiftGpu:worksiteFixtureOverride));
@@ -15584,6 +15589,7 @@ function disposeWorksiteFixtureMesh(){
  }
  worksiteFixtureBuffer=null;worksiteFixtureMesh=null;worksiteFixtureKey='';
  worksiteFixtureCapacity=0;worksiteFixtureActive=false;
+ worksiteFixturePartCache.clear();worksiteFixtureLayout=[];
 }
 // Exact unrounded worksite positions/angles are the key: a citizen walking,
 // changing occupation, leaving a shift, or changing a physical facing ALWAYS
@@ -15644,39 +15650,100 @@ function renderFixedWorkstations(sites){
   }
  });
 }
+// Original per-worker physical geometry. Exact coordinates and facing, no
+// invented agents or stock and no authoritative or replay-state mutation.
+function worksiteFixturePartKey(w,station){
+ return [w.citizen,w.job,w.x,w.z,station.angle,station.localX,
+  station.localZ,station.groundHeight].join(':');
+}
+function buildWorksiteFixturePart(w,station){
+ const previousData=data,previousMaterial=currentMaterial;
+ data=[];
+ try{
+  materialScope(MATERIAL.WOOD,()=>{
+   const first=data.length;
+   emitFixedWorkstation(w,station);
+   rotateWorksiteVertices(first,w.x,w.z,station.angle);
+  });
+  const mesh=new Float32Array(data);
+  if(mesh.length%30)throw Error('W236 worksite part not whole triangles');
+  return mesh;
+ }finally{data=previousData;currentMaterial=previousMaterial;}
+}
 function prepareWorksiteFixtureResidentMesh(sites){
  worksiteFixtureActive=false;
  if(!worksiteFixtureResidencyRequested())return false;
- if(!sites.length)return true;
+ if(!sites.length){
+  worksiteFixturePartEvictions+=worksiteFixturePartCache.size;
+  worksiteFixturePartCache.clear();worksiteFixtureLayout=[];
+  worksiteFixtureMesh=null;worksiteFixtureKey='';
+  return true;
+ }
  const key=worksiteFixtureSignature(sites);
  if(worksiteFixtureMesh&&worksiteFixtureBuffer&&worksiteFixtureKey===key){
   worksiteFixtureActive=true;worksiteFixtureReuses++;return true;
  }
- const previousData=data,previousMaterial=currentMaterial;
- let mesh;
- data=[];
- try{
-  renderFixedWorkstations(sites);
-  mesh=new Float32Array(data);
- }finally{
-  data=previousData;currentMaterial=previousMaterial;
+ const oldCache=worksiteFixturePartCache,nextCache=new Map(),parts=[];
+ let floats=0,changedParts=0;
+ for(const w of sites){
+  const station=workerLocalWorksite(w);
+  if(!station||worksInsideOriginalForgeYard(w))continue;
+  const id=w.citizen+'|'+w.job,signature=worksiteFixturePartKey(w,station);
+  if(nextCache.has(id))throw Error('W236 duplicate original worksite identity');
+  const former=oldCache.get(id),reused=Boolean(former&&former.signature===signature);
+  const mesh=reused?former.mesh:buildWorksiteFixturePart(w,station);
+  if(reused)worksiteFixturePartHits++;
+  else{worksiteFixturePartBuilds++;changedParts++;}
+  if(mesh.length%30)throw Error('W236 invalid cached workstation stride');
+  parts.push({id,signature,mesh,offset:floats,reused});
+  nextCache.set(id,{signature,mesh});floats+=mesh.length;
+  if(floats>WORKSITE_FIXTURE_FLOAT_BUDGET){
+   worksiteFixtureOverBudget++;disposeWorksiteFixtureMesh();
+   return false; // Render every original station via complete CPU fallback.
+  }
  }
- if(mesh.length%30)throw Error('W92 worksite fixed-triangle stride mismatch');
- if(mesh.length>WORKSITE_FIXTURE_FLOAT_BUDGET){
-  worksiteFixtureOverBudget++;disposeWorksiteFixtureMesh();
-  return false;
- }
+ for(const id of oldCache.keys())
+  if(!nextCache.has(id))worksiteFixturePartEvictions++;
+ const layoutUnchanged=Boolean(worksiteFixtureMesh&&worksiteFixtureBuffer&&
+  worksiteFixtureLayout.length===parts.length&&
+  worksiteFixtureLayout.every((prior,i)=>
+   prior.id===parts[i].id&&prior.offset===parts[i].offset&&
+   prior.length===parts[i].mesh.length));
  if(!worksiteFixtureBuffer)worksiteFixtureBuffer=gl.createBuffer();
- if(!worksiteFixtureBuffer)throw Error('W92 worksite resident GPU buffer allocation failed');
+ if(!worksiteFixtureBuffer)throw Error('W236 workstation GPU allocation failed');
  bindGeometry(worksiteFixtureBuffer);
- if(mesh.length>worksiteFixtureCapacity){
+ const grew=floats>worksiteFixtureCapacity;
+ if(grew){
   worksiteFixtureCapacity=Math.min(WORKSITE_FIXTURE_FLOAT_BUDGET,
-   Math.ceil(Math.max(1,mesh.length)/8192)*8192);
+   Math.ceil(Math.max(1,floats)/8192)*8192);
   gl.bufferData(gl.ARRAY_BUFFER,worksiteFixtureCapacity*4,gl.DYNAMIC_DRAW);
  }
- if(mesh.length)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
- worksiteFixtureMesh=mesh;worksiteFixtureKey=key;
- worksiteFixtureBuilds++;worksiteFixtureUploads++;worksiteFixtureActive=true;
+ if(layoutUnchanged&&!grew){
+  // Dirty partial upload: leave every unaffected physical worksite on GPU.
+  for(const part of parts)if(!part.reused&&part.mesh.length){
+   worksiteFixtureMesh.set(part.mesh,part.offset);
+   gl.bufferSubData(gl.ARRAY_BUFFER,part.offset*4,part.mesh);
+   worksiteFixtureUploads++;worksiteFixturePartialUploads++;
+   worksiteFixturePartialBytes+=part.mesh.byteLength;
+  }
+ }else{
+  // A real new/departed worker or resized part safely repacks all live sites.
+  const mesh=new Float32Array(floats);
+  for(const part of parts)mesh.set(part.mesh,part.offset);
+  if(floats){
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
+   worksiteFixtureUploads++;worksiteFixtureFullBytes+=mesh.byteLength;
+  }
+  worksiteFixtureMesh=mesh;
+ }
+ worksiteFixturePartCache=nextCache;
+ worksiteFixtureLayout=parts.map(part=>({
+  id:part.id,offset:part.offset,length:part.mesh.length
+ }));
+ worksiteFixtureKey=key;
+ if(changedParts||!layoutUnchanged||grew)worksiteFixtureBuilds++;
+ else worksiteFixtureReuses++;
+ worksiteFixtureActive=true;
  return true;
 }
 function drawWorksiteFixtureResidentMesh(){
@@ -15700,6 +15767,14 @@ function getWorksiteFixtureResidencyAudit(){
   capacityFloats:worksiteFixtureCapacity,floatBudget:WORKSITE_FIXTURE_FLOAT_BUDGET,
   uploads:worksiteFixtureUploads,builds:worksiteFixtureBuilds,
   reuses:worksiteFixtureReuses,drawCalls:worksiteFixtureDrawCalls,
+  cachedParts:worksiteFixturePartCache.size,partBuilds:worksiteFixturePartBuilds,
+  partHits:worksiteFixturePartHits,partEvictions:worksiteFixturePartEvictions,
+  partialUploads:worksiteFixturePartialUploads,
+  partialUploadBytes:worksiteFixturePartialBytes,
+  fullUploadBytes:worksiteFixtureFullBytes,
+  partMemoryFloats:[...worksiteFixturePartCache.values()]
+   .reduce((sum,part)=>sum+part.mesh.length,0),
+  dirtyRegionUploads:true,
   disposals:worksiteFixtureDisposals,overBudgetFallbacks:worksiteFixtureOverBudget,
   actualWorkstations:workdayRenderStats.activeWorksites,
   preservesAnimatedHumanJobs:true,authorityModified:false,
