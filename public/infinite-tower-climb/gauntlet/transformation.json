@@ -170,7 +170,30 @@
     "drawnGuardianCameraImplementationSha": "59f243dc9621ce506ad5836c7252ca9c348f4055",
     "drawnGuardianCameraEvidenceStatus": "P0 OPEN / NOT EVALUATED: prior authentic 10/10 original source capture 42903135945 at 8e54c4ed includes 16 native >=60s original WebMs and 8/8 calibrated source/video timebases, zero event pairing provenance/source-story defects; 390x844 living guardian exchange 18–23s alternates tiny/split fighters, giant bronze wheel/rail, and cropped hero near ~20s. Native/authoritative fixed-step and actually submitted interpolated guardian can disagree. Source 59f243dc now source-authorizes contact as before but fits existing two-body camera around current/previous-tick run/floor/ID validated drawn boss, with source landing and core vetoes preserved. New exact-SHA browser film, event-to-raster inspection and independent quality verdict NOT YET RUN; hardware and true critics remain 0/5.",
     "guardianCoplanarSourceLockImplementationSha": "c6b881ffd569e054f17b35fb6e05e04eed10955b",
-    "guardianCoplanarSourceLockEvidenceStatus": "P0 OPEN / NOT EVALUATED — source-authored real cyan gate at radius24.25 equal to bronze HP lock and behind radius25 climber; integration test source committed, new original 1x film/device/blind reviews not yet evaluated. Observed previous original run 42998763864 had 8/8 recordings and source stories but 0/2 guardian event-to-raster viewport alignment."
+    "guardianCoplanarSourceLockEvidenceStatus": "P0 OPEN / NOT EVALUATED — source-authored real cyan gate at radius24.25 equal to bronze HP lock and behind radius25 climber; integration test source committed, new original 1x film/device/blind reviews not yet evaluated. Observed previous original run 42998763864 had 8/8 recordings and source stories but 0/2 guardian event-to-raster viewport alignment.",
+    "p0PartialSourceNativeOutcomeClock20261111": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+      "verdict": "NOT EVALUATED",
+      "implementationSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "originalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43028026049",
+      "originalCaptureCandidateSha": "acf1a6b37ed23be2904ee8f14d2dbd708b3e08f2",
+      "lastOriginalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43028026077 — 1,375/1,375 Node tests and scoped browser checks passed at acf1a6b3, safety-only, not a game-quality score",
+      "originalBaselineOutcome": "https://github.com/my-edutu/Ai_games/actions/runs/43028026049/artifacts/13860505481",
+      "originalCandidateOutcome": "https://github.com/my-edutu/Ai_games/actions/runs/43028026049/artifacts/13858982100",
+      "verifiedBlocker": "Baseline portrait outcome original WebM is retained (>60s), but 13 distinct source-independent native compositor/film matches contain a 0.738094 slope across a single 50.32->52.64s WebM interval, violating the unchanged 0.75 lower bound. This yields 8 anchors/43.6s before and 5 anchors/18.4s after as two independently bounded windows. The unmodified 60s film may be inspected; it is NOT complete source-event calibrated. Outcome and restart source beats search at ~20.751, 20.806 and 25.992s inside the first window, but visible outcome card appears around 25.5s in sampled native footage. That discrepancy is NOT an established GPU latency measurement.",
+      "change": "Source-independent native screenshot/PTS calibration now preserves only independently contiguous >=3-anchor >=15s trusted sub-windows for original frame forensic search, with explicit unsafe-gap metadata. Original video SHA, native time, source event and window boundaries are retained. No interpolation across unsafe gap, no extrapolation, no relaxed clock slope/3-anchor acceptance threshold, no edited footage. Partial original frame probes retain JPEGs but still fail the full-film evidence gate.",
+      "strictGate": "Original baseline portrait outcome status stays PARTIALLY_CALIBRATED not CALIBRATED; strict event pairing and original anonymous guardian A/B remain vetoed. Source-to-pixel confirmation, physical gateway crossing, outcome/restart motion and blind experience NOT EVALUATED.",
+      "nextCapture": "Requested by exact immutable github.sha of this evidence-and-capture-request commit; original baseline stays frozen and gameplay source is not modified in this P0 blocker fix.",
+      "independentReviewCounts": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+      "biggestExperienceGap": "Even after 3D guardian counterweight/clearance reconstruction, authentic portrait duel still suffers bronze foreground obstruction and poor two-body readability; strict event-video guardian pairing is 0/2 and an apparently delayed drawn outcome/restart remains unresolved.",
+      "nextAction": "Inspect new original exact-source desktop/portrait full WebMs and partial-window outcome native frames around 20.7s and 25.5s; diagnose source-to-presented-frame stage delay vs compositor alias, verify physical grounded threshold and crusher victory, then rework largest visual blocker. Keep full-film veto and require actual supported-device performance and 5 independent blinded reviews per pillar."
+    }
   },
   "currentTransformation": {
     "latestEvidenceRun": {

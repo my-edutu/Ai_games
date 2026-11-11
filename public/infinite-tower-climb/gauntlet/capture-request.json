@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "Exact immutable github.sha of THIS capture-request change including original HP-operated full-stroke 3D winches, rendered guide-geometry contracts and corrected 5.1m combat-air clearance at 3d913591. No checkout of moving PR head and never move baseline.",
-  "repairedSourceSha": "3d9135912163bb1f005119ff4e309bb186d23b76",
-  "reason": "After source-HP 2.35m upright outboard winch reconstruction and true guide clearance fix (lower guide y5.105 >5.1 live combat, lower bronze y5.11), re-capture original full normal-speed source-locked 960x600 and 390x844 baseline/candidate. Previous original 43024687527 had 8/8 >60s video+source ledge but 0/2 guardian frame-event alignment and persistent bronze obstruction near seconds16-18. CI 43026644780 flagged a genuine too-low guide, fixed at 3d913591 without modifying safety assertion. Demand real HP0 guardian/crusher and physically grounded threshold, floor9, outcome/restart, native PTS/pixel match and independent reviewers; never infer a good film from source/ticks/CI.",
+  "repairedSourceSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
+  "reason": "P0 source-native outcome forensic clock-gap recovery after original run 43028026049: authentic baseline portrait outcome 60s+ WebM exists but 13 source-independent matched compositor anchors include one unsafe 0.738094 video/wall slope. Retain the original video and independently bounded before/after windows while explicitly VETOING complete source-to-film calibration; never lower the 0.75 bound or infer rendered action from source events. Exact source for this request is immutable github.sha with code at 0b9d91e535212d6008f7af0810a4179eb5022601. Re-capture same frozen baseline/candidate, inspect 1x guardian battle, HP0 and crusher, grounded physical gateway, Floor9 onward, visible outcome/intermission/restart.",
   "scenarios": [
     "ascent",
     "moving",
@@ -43,7 +43,7 @@
   "physicalClockworkReconstructionSha": "2149b73f074899847a503235309194c4b52acc31",
   "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/42981442257",
   "currentCalibratedEventGate": "3ed44c original nine-job run 42658123598 completed 10/10 including pairing, 8/8 source clock matches; no individual event certified raster-visible, guardian circle 14-18s remains visually problematic. JS WebGL submission intervals p50/p95/p99=216.5/596.1/808ms candidate portrait, NOT hardware FPS. New adaptive candidate must be measured at exact future github.sha.",
-  "newSourceVideoAcceptance": "NOT EVALUATED until 10-job original 1x baseline/candidate post-co-planar capture (960x600+390x844), exact native-to-event source/raster checks, genuinely source-earned HP0 guardian+crusher to grounded gateway, floor9 onward, result/restart. Independent blind critics LOOKS FEELS PLAYS 0/5, physical-device p50/p95/p99/memory NOT EVALUATED.",
+  "newSourceVideoAcceptance": "NOT EVALUATED — partial original-film forensic windows are not a completed matched capture, no independent critics, no actual device performance or accepted guardian/combat/threshold/restart full-motion evidence.",
   "anchorCoverageImplementationSha": "e580a5fb5cdea05117e67607c29f6af670100f96",
   "anchorSpacingTestRecoverySha": "306a29742a1bccb281a164761328484ad419da03",
   "originalSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/42903135945",
@@ -62,7 +62,7 @@
   "priorNewQualityRequest": "https://github.com/my-edutu/Ai_games/actions/runs/42689428953",
   "nativeFilmPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42690134996/artifacts/13707336173",
   "nativeFilmIntegrityStatus": "42695480406 all 8 baseline/candidate WebM artifacts retained; 7/8 video jobs succeeded, baseline outcome failed and source-pair job failed; native timebase calibrated 6/8. Never mark all jobs or matched comparisons green.",
-  "nextHighestImpact": "Inspect exact new source-pinned 60+s unedited 390x844+960x600 guardian fight after raised real hanging winches. Prove full-body guardian+crusher contact, earned source HP0 -> grounded physically walked threshold -> Floor9 onward -> genuine outcome/intermission/restart. If event-to-native drawn Floor9 stays 2s+ misaligned, diagnose renderer/source ingestion not fabricate timestamps. Keep P0 OPEN and require independent critics and device budgets.",
+  "nextHighestImpact": "Examine exact-head original portrait+desktop native film and safe partial timebase windows around genuine outcome and restart; never compare an unsafe clock gap. Fix genuine drawn-source timing discrepancy and actual guardian foreground occlusion, verify full grounded threshold and Floor9; run 5 fresh independent blind critics + real device budgets later.",
   "captureRequestedForExactHead": true,
   "latestCaptureRequestParentSha": "5851cde8d5b37df3a3951ff9a81e05357ad566d5",
   "latestQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42793342425",
@@ -643,5 +643,9 @@
   "previousAuthenticOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43024687527",
   "afterFixEvidenceVerdict": "NOT EVALUATED; original full movie, matched source-event-to-frame cue, independent reviews and actual devices pending",
   "latestGuideClearanceSourceSha": "3d9135912163bb1f005119ff4e309bb186d23b76",
-  "previousPostFixCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43027315446 — captures older 3186cb4 version WITHOUT final >5.1m guide clearance; do not grade this as the latest source."
+  "previousPostFixCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43027315446 — captures older 3186cb4 version WITHOUT final >5.1m guide clearance; do not grade this as the latest source.",
+  "latestObservedOriginalCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43028026049",
+  "latestObservedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43028026077",
+  "latestObservedCaptureBlocker": "Baseline portrait outcome original WebM preserved but 13 distinct compositor anchors had one unsafe 0.738094 slope; full event clock NOT EVALUATED. Original guardian 0/2 event-cued viewports; original browser source-ledger 8/8 timelines, not pixel proof.",
+  "previousImplementationSha": "0b9d91e535212d6008f7af0810a4179eb5022601"
 }
