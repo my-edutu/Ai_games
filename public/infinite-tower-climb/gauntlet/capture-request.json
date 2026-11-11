@@ -575,8 +575,8 @@
     "reason": "Recapture 8 original >=60sec matched videos after source-ray-attributed structural scene rebuild; previous job 43006201578 had all 8 film jobs success but failed outcome desktop provenance start tick >3s and continued real portrait guardian obstruction",
     "requestedOn": "2026-11-11",
     "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-    "implementationSha": "69f6839a2b146183faf3c368b85c0c85f35a2509",
-    "gameSourceBeforeEvidenceCommit": "69f6839a2b146183faf3c368b85c0c85f35a2509",
+    "implementationSha": "9f8df80e83dd4b77a4fbaccdc15cd9f0f4d2f2e1",
+    "gameSourceBeforeEvidenceCommit": "9f8df80e83dd4b77a4fbaccdc15cd9f0f4d2f2e1",
     "sourcePinnedCandidateCapture": "github.sha of this capture-request edit; no baseline reset",
     "scenarios": [
       "ascent",
@@ -597,12 +597,14 @@
     ],
     "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43006201578",
     "priorPairingBlocker": "outcome desktop baseline/candidate first source observations separated >3 seconds",
-    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43014869242 pending",
+    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43015251894 pending",
     "blindCritics": {
       "LOOKS": 0,
       "FEELS": 0,
       "PLAYS": 0
     },
-    "hardware": "NOT EVALUATED"
+    "hardware": "NOT EVALUATED",
+    "supersedesPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43015085817 — earlier build missing original collar variable, do not grade",
+    "requestRevision": 2
   }
 }
