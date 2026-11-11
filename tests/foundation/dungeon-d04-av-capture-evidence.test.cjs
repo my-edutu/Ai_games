@@ -252,3 +252,24 @@ test('D04 video delivery monitor rejects fabricated, unbounded or non-monotonic 
  ])assert.equal(classifyCanvasTrackDelivery({delivery:bad,encodedBytes:0,submittedFrames:2}),
   'TRACK_DELIVERY_UNVERIFIED');
 });
+
+test('D04 track delivery diagnosis survives assessment and evidence persistence without upgrading sync',()=>{
+ const delivery={source:'real-webgl-canvas-capture-video-monitor',
+  mode:'request-video-frame-callback',playStatus:'PLAYING',
+  mutedAtStart:false,mutedAtStop:true,
+  events:[{kind:'mute',atMs:3400}],
+  frames:[{atMs:1400,presentedFrames:1,mediaTime:0.1,submittedReceipt:18}]};
+ const raw={clip:{...good.clip,status:'UNAVAILABLE',bytes:0},
+  pcm:good.pcm,frames:good.frames,trackDelivery:delivery};
+ const assessed=assessD04Capture({...good,...raw});
+ assert.equal(assessed.trackDiagnosis,'CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY');
+ assert.equal(assessed.sampleSynchronized,false);
+ assert.equal(assessed.classification,'UNVERIFIED');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-track-receipt-'));
+ try{
+  const saved=persistD04CaptureEvidence({directory,raw,assessment:assessed});
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.deepEqual(manifest.trackDelivery,delivery);
+  assert.equal(manifest.assessment.trackDiagnosis,'CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY');
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
