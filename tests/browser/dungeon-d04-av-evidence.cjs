@@ -34,4 +34,40 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={}}={}){
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
 }
-module.exports={assessD04Capture,MAX_CLIP_BYTES,MAX_PCM_BYTES};
+
+/**
+ * Playwright can discard passing-test attachments from test-results. Persist
+ * the evidence manifest and exact captured bytes under the workflow's
+ * explicit artifact path. A missing recording is retained as a documented
+ * UNVERIFIED result, never silently converted into a successful clip.
+ */
+function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,assessment=null}={}){
+ const fs=require('node:fs'),path=require('node:path');
+ fs.mkdirSync(directory,{recursive:true});
+ const {base64,...clip}=raw.clip||{};
+ const {wavBase64,...pcm}=raw.pcm||{};
+ const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
+ let webm=null,wav=null;
+ if(clip.status==='RECORDED'&&typeof base64==='string'){
+  const bytes=Buffer.from(base64,'base64');
+  if(bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES&&bytes.length===clip.bytes){
+   webm=path.join(directory,'dungeon-d04-real-canvas-original-sound.webm');
+   fs.writeFileSync(webm,bytes);
+  }
+ }
+ if(pcm.status==='RECORDED'&&typeof wavBase64==='string'){
+  const bytes=Buffer.from(wavBase64,'base64');
+  if(bytes.length>=44&&bytes.length<=MAX_PCM_BYTES&&bytes.length===pcm.bytes){
+   wav=path.join(directory,'dungeon-d04-live-original-pcm.wav');
+   fs.writeFileSync(wav,bytes);
+  }
+ }
+ fs.writeFileSync(manifest,JSON.stringify({
+  started,clip,pcm,frames:raw.frames??null,assessment,
+  retained:{webm:!!webm,wav:!!wav},
+  caveat:'Authentic browser recording and separate live PCM tap are not sample-aligned audiovisual proof.'
+ },null,2)+'\\n');
+ return Object.freeze({manifest,webm,wav});
+}
+module.exports={assessD04Capture,persistD04CaptureEvidence,
+ MAX_CLIP_BYTES,MAX_PCM_BYTES};
