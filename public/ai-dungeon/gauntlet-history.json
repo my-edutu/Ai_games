@@ -2614,7 +2614,7 @@
       }
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
-    "biggestRemainingGap": "Severe Warden motion stalls and overlapping miniature 390px actors; minimum living mobile hero at Warden remains 37px.",
+    "biggestRemainingGap": "Actual mobile Warden original bodies tiny amid clutter, native spine/wrist current action witness failed, SwiftShader huge RAF stalls; source scene candidate not yet verified",
     "currentWork": "Warden 25-cell authentic in-world warning legibility candidate; same open M1, no experience acceptance",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
@@ -5792,7 +5792,7 @@
     "lastCandidateSha": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
     "experienceVerdict": "IN_PROGRESS_NOT_TRANSFORMED; LOOKS_FEELS_PLAYS_UNVERIFIED",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Review exact committed PR #49 native 1440/390 same-seed five-stage game audiovisual and actual 23-cell Warden framing vs parent8d5 and immutable baseline; reject if insignificant or adverse. Implement original adult-scale fully skinned duel exemplar and the dominant measured renderer bottleneck; verify 3 blind critics before transforming.",
+    "nextImplementationTask": "Review new-head organic desktop/mobile real Warden film/audio, ensure no lost hazard cells or route support and actually clearer actors. Reject regressions, then repair authentic native skinned melee visibility and contact audio sync under sparse RAF.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5844,7 +5844,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect new-source-head real original desktop/mobile five-stage audiovisual journey, compare 25 genuine threat tiles/court legibility to 9d parent and locked M1 baseline, reject if carved warnings cover actors or mobile performance worsens; then adult-scale source-rig Vanguard/Revenant/Warden and measured renderer bottleneck. PR72 stays separate.",
+    "executableNextTask": "Review new-head organic desktop/mobile real Warden film/audio, ensure no lost hazard cells or route support and actually clearer actors. Reject regressions, then repair authentic native skinned melee visibility and contact audio sync under sparse RAF.",
     "phasePlan": [
       {
         "phase": "A",
@@ -8138,6 +8138,27 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect exact new-head real original 1440/390 five-stage source-stamped desktop/mobile A/V, verify low shot actually chosen and source bodies visibly enlarge with every authoritative Warden risk corner and no occlusion or performance regression; reject otherwise, then build original adult fullbody, contact/audio and world integrative stage with matched baseline, 3 fresh blinded critics before accepting. PR72 stays isolated; no merge/deploy."
+    },
+    "m1RealWardenCourtOpening20261111": {
+      "at": "2026-11-11",
+      "stage": "A_INCOMPLETE",
+      "verdict": "SOURCE_IMPLEMENTED_REAL_AFTER_UNVERIFIED",
+      "reviewedHeadSha": "a6879ff1e98d1981628c8b62d4723b267f28582e",
+      "lockedBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "beforeBrowserRun": 43018034998,
+      "beforeMobileArtifact": 13853668387,
+      "beforeDesktopArtifact": 13854311500,
+      "observedLargestGap": "Live 390px Warden scene visually crowded by fake boss columns, small runes/shards, original adult bodies tiny, real SwiftShader RAF p50 349.9ms/p95 1183.3ms; spine/wrist witness browser fail",
+      "implementation": "Actual-map-validated 7x7 Warden fighting-floor negative space and real wall-supported Gothic entrance instead of fake freestanding boss columns; preserve true telegraphs, original gallery, actor rig and authority",
+      "localPureTests": "3/3 PASS (node --test source planner)",
+      "newHeadBrowser": "NOT_OBSERVED",
+      "newHeadOriginalAudioSync": "UNVERIFIED",
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "independentCritics": 0,
+      "blockedCriticPanel": "No independent fresh-context blinded critics",
+      "next": "Inspect actual new-head desktop/mobile organic video original-audio, 23+ hazard cells, native actors, gate placement and latency; reject if unreadable. Then fix true spine/wrist action witness and advance full-body original duel; 3 blinded critics."
     }
   }
 }

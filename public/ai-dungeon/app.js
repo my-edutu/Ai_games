@@ -49,6 +49,8 @@ import {planWorldStoryStage} from '/dungeon/world-story-stage-plan.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {createChapterNaves} from '/dungeon/chapter-nave.js';
+import {planConnectedDungeonJourney} from '/dungeon/connected-journey-plan.js';
+import {planWardenArenaStage} from '/dungeon/warden-arena-stage-plan.js';
 import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const spectatorUI=installSpectatorUI();
@@ -431,6 +433,11 @@ function disposeActor(a){
 }
 function clearWorld(){world.userData.baseWorldArchitecturalBatches?.dispose();world.userData.baseWorldArchitecturalBatchesAlt?.dispose();world.userData.baseWorldArchitecturalBatches=null;world.userData.baseWorldArchitecturalBatchesAlt=null;world.userData.softwareWorldRasterTier=null;world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];world.userData.baseColumnRoots=[];world.userData.baseArchRoots=[];world.userData.baseShrineRoots=[[],[]];world.userData.staticDetailBatches=[];lastCutawayKey='';
+ // Original authored Warden Court is one open physical combat volume; every
+ // decorative clearance is mapped to the genuine floor/entrance topology.
+ const wardenArena=planWardenArenaStage(s.map,s.exit,
+  planConnectedDungeonJourney(s.map,s.floor,s.exit,s.units));
+ let courtFloorAccentsSuppressed=0,courtShrinesSuppressed=0;
  // The main InstancedMesh wall blocks previously had a near-black flat surface
  // even while the exposed masonry facades were textured. One shared original
  // 128px PBR albedo gives every overhead-visible top/side real stone courses.
@@ -494,6 +501,12 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    if(f%11===0&&!vaultedTileKeys.has(z*size+x))topBricks.push([wx,(wallHeightAt.get(z*size+x)??2.6)-.07,wz]);
    if(f%7===0){footBricks.push([wx,.1,wz]);foundationBrickWallIndices.push(wallIndexByTile[z*size+x]);}
    if(s.map[z-1][x]==='.'&&f%13===0&&!vaultedTileKeys.has(z*size+x))caps.push([wx,(wallHeightAt.get(z*size+x)??2.6)+.03,wz-.34]);
+  }else if(wardenArena.clearCourtTile(x,z)){
+   // Generic blocky surface rubble, trim pavers and glows formerly competed
+   // directly with the true 23+ Warden warning cells and native feet.
+   // The actual solid stone floor, authored procession, danger carvings,
+   // movement space and collision all remain fully intact.
+   courtFloorAccentsSuppressed+=Number(f%4===0)+Number(f%17===0)+Number(f%11===0);
   }else{
    if(f%4===0)stonePavers.push([wx,-.005,wz]);
    if(f%17===0)runes.push([wx,.008,wz]);
@@ -539,13 +552,17 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  }
 
  // Lit path markers, carved stone columns and modest dynamic lighting budget.
- const corners=[[1,1],[17,1],[1,17],[17,17],[s.exit.x,s.exit.z]];
+ // No unsupported 2m freestanding torch-column beside the real boss.
+ // Warden light/ceremony already comes from the actual linked ritual stage.
+ const corners=[[1,1],[17,1],[1,17],[17,17]];
  corners.forEach(([x,z],i)=>{const px=x-offset,pz=z-offset;column(world,px+.43,pz+.43);const lantern=make(geo.sphere,i===4?tealGlow:dangerGlow,world,px+.43,2.15,pz+.43,.11,.19,.11);lantern.castShadow=false;if(i<3){const light=new THREE.PointLight(i===4?'#4af6e2':theme.torch,i===4?5:3,9,2);light.position.copy(lantern.position);light.userData.dungeonDecorativePractical=true;world.add(light)}});
  // Ruined altars and relic vaults are used sparingly to preserve navigational readability.
  const openCells=floors.filter(([x,,z])=>(Math.abs(x)+Math.abs(z))>3&&Math.abs(x)+Math.abs(z)<22);
  let placed=0;
  for(const [px,,pz] of openCells){if(placed>=5)break;const k=fracture(px+offset,pz+offset);
-  if(k%47!==0)continue;placed++;
+  if(k%47!==0)continue;
+  if(wardenArena.clearCourtTile(px+offset,pz+offset)){courtShrinesSuppressed++;continue;}
+  placed++;
   const shrine=new THREE.Group();shrine.position.set(px,.02,pz);
   make(geo.cylinder,stoneEdge,shrine,0,.13,0,.24,.24,.24);
   make(geo.cylinder,gold,shrine,0,.27,0,.20,.045,.20);
@@ -557,21 +574,31 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  const portal=new THREE.Group();portal.position.set(pos.x,.28,pos.z);const ring=new THREE.Mesh(new THREE.TorusGeometry(.47,.075,9,40),tealGlow);ring.rotation.x=Math.PI/2;portal.add(ring);
  const inner=new THREE.Mesh(new THREE.CircleGeometry(.43,32),new THREE.MeshBasicMaterial({color:'#27f0cc',transparent:true,opacity:.2,side:THREE.DoubleSide,depthWrite:false}));inner.rotation.x=-Math.PI/2;portal.add(inner);world.add(portal);world.userData.portal=portal;
  s.relics.forEach((r,i)=>{const gem=make(new THREE.OctahedronGeometry(.19,0),tealGlow,world,r.x-offset,.4,r.z-offset,.8,1.2,.8);gem.userData.relic=i});
- // Procedural decorative vaulted gate framing the final encounter.
- const gx=pos.x+.9,gz=pos.z;column(world,gx,gz-.8);column(world,gx,gz+.8);
- // The previous 1.9m SOLID golden lintel visually chopped the genuine boss
- // duel in half. Replace it with an original physically open pointed crown.
- // The one shared carved geometry, two existing pillars and real cutaway
- // director remain bounded; the authoritative exit and walls are untouched.
- const bossGate=new THREE.Group();bossGate.name='Open Warden court gate';
- bossGate.position.set(gx,0,gz);bossGate.rotation.y=Math.PI/2;
- const bossArch=new THREE.Mesh(archRibGeometry,stoneEdge);
- bossArch.name='Open carved Warden ogive';bossArch.scale.set(1.92,1.03,1);
- bossArch.castShadow=false;bossArch.receiveShadow=true;
- bossArch.userData.sharedAssetGeometry=true;bossGate.add(bossArch);
- make(geo.cube,gold,bossGate,0,2.30,0,.16,.16,.16);
- world.add(bossGate);world.userData.foregroundProps.push(bossGate);
- world.userData.openWardenGate=true;
+ // Relocate the original Warden Gothic crown to a TRUE route threshold.
+ // The connected-journey director already supplies the two structural piers
+ // on actual BLOCKED masonry. We do not plant two fictional gate columns in
+ // the centre of a source-backed melee/hazard arena. No real threshold means
+ // no pretended doorway: the physical Warden court and portal remain intact.
+ const supportedGate=wardenArena.gate;
+ if(supportedGate){
+  const bossGate=new THREE.Group();bossGate.name='Open Warden court gate';
+  bossGate.position.set(supportedGate.x,0,supportedGate.z);
+  bossGate.rotation.y=supportedGate.yaw;
+  const bossArch=new THREE.Mesh(archRibGeometry,stoneEdge);
+  bossArch.name='Wall-supported original Warden threshold crown';
+  bossArch.scale.set(1.92,1.03,1);bossArch.castShadow=false;
+  bossArch.receiveShadow=true;bossArch.userData.sharedAssetGeometry=true;
+  bossGate.add(bossArch);
+  make(geo.cube,gold,bossGate,0,2.30,0,.16,.16,.16);
+  world.add(bossGate);world.userData.foregroundProps.push(bossGate);
+ }
+ world.userData.openWardenGate=Boolean(supportedGate);
+ world.userData.wardenStageClarity={
+  courtFloorAccentsSuppressed,courtShrinesSuppressed,
+  removedUnsupportedBossColumns:3,realSupportedThreshold:Boolean(supportedGate),
+  gateSupportCells:supportedGate?.realBlockedSupports??0,
+  source:wardenArena.source,authorityChanges:wardenArena.authorityChanges
+ };
  // Warden court: layered ceremonial dais, spatially legible runes and shield ring.
  const court=new THREE.Group();court.position.set(pos.x,.03,pos.z);
  const courtGlow=new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide});
@@ -1616,7 +1643,7 @@ function animate(t){
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
-  source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenCourtPriority:world.userData.courtPriority?{
+  source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenStageClarity:world.userData.wardenStageClarity??null,wardenCourtPriority:world.userData.courtPriority?{
   ...world.userData.courtPriority,actualCourtRingOpacity:world.userData.courtGlow?.opacity??null,
   actualWardShieldOpacity:world.userData.courtShield?.material?.opacity??null,
   ritualDecorative:world.userData.wardenRitual?.metrics?.().decorativePriority??null}:null,
