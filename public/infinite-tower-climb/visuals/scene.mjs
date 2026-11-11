@@ -23,7 +23,7 @@ import { createTowerAtmosphere } from './atmosphere.mjs';
 import { createTowerGuardianShotStage } from './guardian-shot-stage.mjs';
 import { createObservedGuardianGuardStage } from './guardian-guard-stage.mjs';
 import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborne-pulse.mjs';
-import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff } from './guardian-camera-safety.mjs';
+import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff, boundedObservedGuardianOrbit } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
@@ -2434,6 +2434,17 @@ export function createTowerScene(canvas, settings = {}) {
   const guardianStandoffBossNdc = [0,0,0,0];
   let guardianStandoffTargetLift = 0, guardianStandoffFrameLift = 0;
   let guardianStandoffApplications = 0;
+  // Real completed WebGL submissions, not the ideal destination or a prior
+  // unrendered proposal, are the reference for a stable 2-body guardian lens.
+  const lastSubmittedGuardianCamera = new THREE.Vector3();
+  const lastSubmittedGuardianFocus = new THREE.Vector3();
+  const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
+  const guardianOrbitPreviousCamera = new THREE.Vector3();
+  const guardianOrbitPreviousFocus = new THREE.Vector3();
+  const guardianOrbitHeroNdc = [0,0,0,0];
+  const guardianOrbitBossNdc = [0,0,0,0];
+  let guardianOrbitCappedFrames = 0, guardianOrbitVetoedFrames = 0;
+  let guardianOrbitLastStep = 0;
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();
   const guardianRescueActorProjection = new THREE.Vector3();
@@ -4156,6 +4167,66 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
+    // The final real guardian camera can still abruptly flip between valid
+    // exterior shoulders after several source-first emergency rescues. An
+    // original normal-speed 390x844 guardian recording at SHA 653fa1c6
+    // showed an almost 100-degree change over ~one source second. The duel
+    // comfort budget above applies BEFORE those late corrections; protect the
+    // actual submitted-frame continuity here instead, without suppressing
+    // an urgent rescue or taking control of source movement.
+    guardianOrbitLastStep = 0;
+    const previousGuardianSubmitted = protectLivingGuardian &&
+      lastSubmittedGuardian.runToken === snapshot.runToken &&
+      lastSubmittedGuardian.floor === snapshot.floor &&
+      snapshot.tick >= lastSubmittedGuardian.tick;
+    const boundedSubmittedView = previousGuardianSubmitted
+      ? boundedObservedGuardianOrbit(lastSubmittedGuardianCamera,
+        camera.position, dt, camera.aspect) : null;
+    if (boundedSubmittedView) {
+      guardianOrbitPreviousCamera.copy(camera.position);
+      guardianOrbitPreviousFocus.copy(lookAt);
+      const boundedGaze = boundedObservedGuardianOrbit(
+        lastSubmittedGuardianFocus, lookAt, dt, camera.aspect, 1.05, 23.5);
+      camera.position.set(boundedSubmittedView.x,
+        boundedSubmittedView.y, boundedSubmittedView.z);
+      if (boundedGaze) lookAt.set(boundedGaze.x,boundedGaze.y,boundedGaze.z);
+      camera.lookAt(lookAt);
+      camera.updateMatrixWorld(true);
+      actorFramePoint.copy(climber.group.position);
+      actorFramePoint.y += p.halfHeight / SCALE;
+      measureDuelBodyNdc(actorFramePoint,p.halfHeight/SCALE,
+        camera,duelTop,duelBottom,guardianOrbitHeroNdc);
+      measureDuelBodyNdc(currentGuardianDrawPoint,
+        sourceGuardian.halfHeight/SCALE,camera,duelTop,duelBottom,
+        guardianOrbitBossNdc);
+      const h = guardianOrbitHeroNdc, g = guardianOrbitBossNdc;
+      let safe = h.every(Number.isFinite) && g.every(Number.isFinite) &&
+        h[2] >= -1 && h[2] <= 1 && g[2] >= -1 && g[2] <= 1 &&
+        Math.abs(h[0])+h[3]*.14 < .78 &&
+        Math.abs(h[1])+h[3] < .78 &&
+        Math.abs(g[0])+g[3]*.14 < .84 &&
+        Math.abs(g[1])+g[3] < .80 &&
+        h[3] >= .065 &&
+        towerCoreSightlineClear(camera.position,actorFramePoint,23.5) &&
+        towerCoreSightlineClear(camera.position,currentGuardianDrawPoint,23.5);
+      if (safe && airborneDuelLanding) {
+        portraitAimLandingProjection.copy(portraitAimLanding).project(camera);
+        safe = portraitAimLandingProjection.z >= -1 &&
+          portraitAimLandingProjection.z <= 1 &&
+          Math.abs(portraitAimLandingProjection.x) < .78 &&
+          Math.abs(portraitAimLandingProjection.y) < .76 &&
+          towerCoreSightlineClear(camera.position,portraitAimLanding,23.5);
+      }
+      if (safe) {
+        guardianOrbitLastStep = boundedSubmittedView.angularStep;
+        guardianOrbitCappedFrames = Math.min(1000000,guardianOrbitCappedFrames+1);
+      } else {
+        // The live hero, attack, actual landing and core ALWAYS take priority.
+        guardianOrbitVetoedFrames = Math.min(1000000,guardianOrbitVetoedFrames+1);
+        camera.position.copy(guardianOrbitPreviousCamera);
+        lookAt.copy(guardianOrbitPreviousFocus);
+      }
+    }
     camera.lookAt(lookAt);
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
@@ -4328,6 +4399,20 @@ export function createTowerScene(canvas, settings = {}) {
       if (resolutionDirty) { resize(); resolutionDirty = false; }
       const submissionStart = performance.now();
       update(motionDt); renderer.render(scene, camera);
+      // Only a genuinely submitted frame establishes the NEXT frame's
+      // reference. Failed WebGL, stale snapshots, floor changes or run
+      // restarts cannot reuse a previous guardian's lens.
+      if (!options.stale && snapshot?.lifecycle === 'running') {
+        lastSubmittedGuardianCamera.copy(camera.position);
+        lastSubmittedGuardianFocus.copy(lookAt);
+        lastSubmittedGuardian.runToken = snapshot.runToken;
+        lastSubmittedGuardian.floor = snapshot.floor;
+        lastSubmittedGuardian.tick = snapshot.tick;
+      } else {
+        lastSubmittedGuardian.runToken = null;
+        lastSubmittedGuardian.floor = null;
+        lastSubmittedGuardian.tick = -1;
+      }
       if (resolutionPolicy.record(performance.now() - submissionStart,
         document.visibilityState === 'visible' && !options.stale, deltaMs)) resolutionDirty = true;
       // Count a contact frame only after Three has submitted it. Delayed
@@ -4744,6 +4829,15 @@ export function createTowerScene(canvas, settings = {}) {
       } : null,
       guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
       guardianRescueApplications,
+      guardianSubmittedOrbitContinuity: {
+        cappedFrames:guardianOrbitCappedFrames,
+        vetoedFrames:guardianOrbitVetoedFrames,
+        lastAngularStep:Number(guardianOrbitLastStep.toFixed(4)),
+        lastSourceTick:lastSubmittedGuardian.runToken === snapshot?.runToken &&
+          lastSubmittedGuardian.floor === snapshot?.floor
+          ? lastSubmittedGuardian.tick : null,
+        evidence:'Current real submitted portrait live-guardian camera, source-safe fallback; not WebM motion acceptance or hardware FPS',
+      },
       guardianRescueEvidence: 'Approved dual-subject source projection + exterior-core guards; NOT raster visibility or quality score',
       encounterCamera, actorCamera, earnedGatewayCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
   }
