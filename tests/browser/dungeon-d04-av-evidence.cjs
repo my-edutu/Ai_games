@@ -222,6 +222,53 @@ function classifyReceiptReadbackVideo(video={}){
  return 'READBACK_PROVENANCE_UNVERIFIED';
 }
 
+
+/**
+ * Playwright's element screenshot is an actual browser COMPOSITOR pixel read,
+ * independent of canvas.captureStream, delayed canvas.drawImage and encoder
+ * availability. It may establish visibly changing authentic world stills,
+ * NEVER video, original foley timing, or matched camera directions.
+ *
+ * Browser producer must take each screenshot of #world while running the
+ * real seeded Dungeon stream and bracket it with renderer receipts.
+ */
+function classifyCompositorWitness(witness={}){
+ const viewport=witness.viewport||{},samples=witness.samples;
+ const desktop=witness.view==='desktop-1440x900'&&
+  viewport.width===1440&&viewport.height===900;
+ const mobile=witness.view==='mobile-390x844'&&
+  viewport.width===390&&viewport.height===844;
+ if(witness.source!=='playwright-world-element-compositor-screenshots'||
+  witness.capture!=='receipt-bracketed-png'||(!desktop&&!mobile)||
+  typeof witness.seed!=='string'||witness.seed.length<1||witness.seed.length>128||
+  !Array.isArray(samples)||samples.length<2||samples.length>5)
+  return 'COMPOSITOR_WITNESS_UNVERIFIED';
+ let prevReceipt=-1,prevMs=-1,prevTick=-1;
+ let run=null,floor=null;
+ const signatures=new Set();
+ for(const s of samples){
+  if(!Number.isSafeInteger(s.beforeReceipt)||s.beforeReceipt<=prevReceipt||
+   !Number.isSafeInteger(s.afterReceipt)||s.afterReceipt<s.beforeReceipt||
+   !Number.isFinite(s.atMs)||s.atMs<=prevMs||s.atMs>300000||
+   !Number.isSafeInteger(s.tick)||s.tick<=prevTick||
+   !(Number.isSafeInteger(s.run)||typeof s.run==='string'&&s.run.length>0)||
+   !(Number.isSafeInteger(s.floor)||typeof s.floor==='string'&&s.floor.length>0)||
+   typeof s.checksum!=='string'||s.checksum.length<1||s.checksum.length>128||
+   !Number.isSafeInteger(s.pngBytes)||s.pngBytes<=1024||s.pngBytes>2*1024*1024||
+   !Number.isSafeInteger(s.colors)||s.colors<8||s.colors>768||
+   !/^[a-f0-9]{8}$/.test(s.signature||'')||
+   !Number.isSafeInteger(s.width)||s.width<160||s.width>1440||
+   !Number.isSafeInteger(s.height)||s.height<100||s.height>900||
+   (run!==null&&(s.run!==run||s.floor!==floor)))
+    return 'COMPOSITOR_WITNESS_UNVERIFIED';
+  if(run===null){run=s.run;floor=s.floor}
+  prevReceipt=s.afterReceipt;prevMs=s.atMs;prevTick=s.tick;
+  signatures.add(s.signature);
+ }
+ return signatures.size>1?'REAL_COMPOSITOR_WORLD_STILLS_CHANGING_UNALIGNED':
+  'COMPOSITOR_WORLD_STILLS_STATIC_UNVERIFIED';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -396,5 +443,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm});
 }
-module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
+module.exports={classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
