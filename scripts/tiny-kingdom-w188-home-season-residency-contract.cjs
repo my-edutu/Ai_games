@@ -9,8 +9,11 @@ const original=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
  .find(match=>match[1].includes('function homeClusterGroups('));
 assert(original,'real game script must exist');
 new vm.Script(original[1]);
-const marker="const HOME_STATIC_GEOMETRY_KEY_VERSION='w188-world-height-homes-v1';";
-assert(html.includes(marker),'RED: season-invariant house identity is missing');
+const identity=html.match(/const HOME_STATIC_GEOMETRY_KEY_VERSION='([a-z0-9-]+)';/);
+assert(identity,'RED: season-invariant house identity is missing');
+const marker=identity[0];
+// The original G188 constant was correctly version-bumped when W217 roofs
+// changed geometry. Reject missing identity, not legitimate art revisions.
 const fragment=(a,b)=>{
  const start=html.indexOf(a),end=html.indexOf(b,start);
  assert(start>=0&&end>start,'Missing authentic production block '+a);
@@ -36,7 +39,7 @@ const keys=o=>o.map(e=>e.key).join(';');
 for(const result of originals){
  assert.equal(keys(result),keys(originals[0]),
   'the same real occupied houses must reuse the same GPU partitions through every season');
- assert(result.every(entry=>entry.key.startsWith('w188-world-height-homes-v1|')));
+ assert(result.every(entry=>entry.key.startsWith(identity[1]+'|')));
  assert.equal(result.reduce((n,e)=>n+e.homes.length,0),3,
   'never hide an authoritative house for performance');
 }
