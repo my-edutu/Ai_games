@@ -23,7 +23,7 @@ import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeat
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
-import {planCombatFacing,planMovementFacing,planOriginalSourceWalkNearArrivalFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
+import {planCombatFacing,planMovementFacing,planOriginalSourceWalkNearArrivalFacing,advanceOriginalSourceWalkTurnRelease,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
@@ -1141,7 +1141,9 @@ function animate(t){
   // previously freezing a body sideways while its original feet travelled.
   // Only a live, witnessed source-rig Move retains facing from true root
   // displacement; legal combat facing always wins.
-  const walkingYaw=moving?(planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z)??
+  const standardWalkYaw=moving?
+   planMovementFacing(a.root.position.x,a.root.position.z,a.at.x,a.at.z):null;
+  const finalStepYaw=moving&&standardWalkYaw===null?
    planOriginalSourceWalkNearArrivalFacing({
     sourceRig:Boolean(a.authored&&a.assetRoot&&a.mixer),
     sourceClipName:a.activeImportedClipName??'',mode:a.fullBody?.mode,
@@ -1152,7 +1154,27 @@ function animate(t){
     previousX:priorSourceX,previousZ:priorSourceZ,
     currentX:a.root.position.x,currentZ:a.root.position.z,
     targetX:a.at.x,targetZ:a.at.z
-   })):null;
+   }):null;
+  // A final <12mm source-foot step must not freeze the licensed torso's
+  // previously witnessed heading. Permit only the REAL outgoing Walking_A
+  // to finish a bounded visual turn while it relinquishes its skinned feet
+  // to Idle. Legal combat facing or any interruption clears this latch.
+  const outgoingWalkName=a.walkArrivalPendingAction?.sourceAction?.getClip?.()?.name??'';
+  const sourceTurn=advanceOriginalSourceWalkTurnRelease(a.sourceWalkFinalTurn??null,{
+   sourceRig:Boolean(a.authored&&a.assetRoot&&a.mixer),
+   sourceClipName:a.activeImportedClipName??'',
+   sourceWalkExit:/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(outgoingWalkName),
+   mode:a.fullBody?.mode,groundedMoving:Boolean(a.groundedPerformance?.moving),
+   alive:a.u.hp>0,visible:!document.hidden,teleport:Boolean(locomotion.teleport),
+   reducedMotion:reduced,hasCombatFacing:Boolean(a.combatFacing),
+   currentX:a.root.position.x,currentZ:a.root.position.z,
+   targetX:a.at.x,targetZ:a.at.z,
+   observedWalkYaw:finalStepYaw,rootYaw:a.root.rotation.y,
+   frameInterval
+  });
+  a.sourceWalkFinalTurn=sourceTurn.memory;
+  const walkingYaw=moving?
+   (standardWalkYaw??finalStepYaw??sourceTurn.heading):sourceTurn.heading;
   const visualYaw=a.combatFacing?.yaw??walkingYaw;
   if(visualYaw!==null)a.root.rotation.y=approachCharacterYaw(a.root.rotation.y,visualYaw,dt,reduced);
  }
