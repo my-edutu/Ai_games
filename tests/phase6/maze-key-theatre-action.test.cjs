@@ -122,7 +122,8 @@ test('true witnessed pickup unveils the physical key stage, then retracts six ta
   const frozen=[JSON.stringify(before),JSON.stringify(after)];
   try{
     world.update(before);world.animate(0,{gateTime:0,reducedMotion:false});
-    assert.equal(world.group.getObjectByName('Disclosed key tide-theatre').position.y,0);
+    assert.ok(Math.abs(world.group.getObjectByName('Disclosed key tide-theatre').position.y)<1e-9,
+      'the real theatre remains exactly at resting height until its key is collected');
     world.update(after);
     const stage=world.group.getObjectByName('Disclosed key tide-theatre');
     const reliquary=world.group.getObjectByName('Public tide-shell reliquary crown');
