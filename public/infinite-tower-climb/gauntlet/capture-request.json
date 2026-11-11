@@ -1,5 +1,25 @@
 {
   "schemaVersion": 1,
+  "p0LiveTwoBodyWideCameraOriginalAfterFilm20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceGameCodeCommit": "7ead95c4aec42978df9b42d6d6998c46176432b6",
+    "evidenceLedgerCommit": "a382a60ae32693bc6af68cbfad442746cc453ec0",
+    "exactCandidateSource": "The immutable github.sha of THIS capture-request.json commit; never moving PR68 head. Unchanged frozen source SHA for baseline.",
+    "previousFullMotion": "https://github.com/my-edutu/Ai_games/actions/runs/43084838637; prior candidate danger original https://github.com/my-edutu/Ai_games/actions/runs/43084838637/artifacts/13885698954",
+    "verifiedPriorDefect": "390x844 guardian/climber split/full-body vertical crop near 16-24s; native Floor9 source-to-pixels error desktop +2.062s and portrait +1.965s; 0/2 strict source/native raster event matches. Previous 7/8 film jobs successful; baseline ascent partial CDP clock.",
+    "requiredMatrix": "10 jobs: baseline frozen and exact-source candidate, ascent floor0, moving floor7, danger floor8, outcome floor0, each 960x600 + 390x844 >=60s original real-time Playwright WebM at same tower-transformation-capture-v1 seed, low tier, reducedMotion=false, muted=true; real guardian/crusher/cap-floor9 and distinct outcome/restart, source genuine 20Hz.",
+    "acceptance": "Full-body hero+living guardian same frame through warning/counterattack and physically grounded open threshold with actual Floor9 onset, preserve authentic camera movement/no wobble, mobile controls. Pair strict native PTS + original drawn HUD + authentic source evidence, no weakening 0.75..1.25 cadence, no simulated footage.",
+    "hardware": "p50/p95/p99 and memory real supported devices NOT EVALUATED",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "review": "docs/reviews/2026-11-11-tower-pr68-original-live-guardian-two-body-wide-action-shot.md",
+    "next": "Inspect new 60+s normal-speed original WebM end to end, ensure responsive wide→close lens does not crop source-committed landing or force extra timebase lag. Repair biggest residual gap; keep P0 open. Never merge/deploy/force or alter PR58/baseline/draft."
+  },
   "p0GuardianActualOpaqueWorldAfterFilm20261111": {
     "productionSha": "7bd9e8f0afd0c44504b2a4fa3fc6ed115219335b",
     "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
