@@ -75,3 +75,33 @@ test('actual original THREE Warden cathedral subordinates decorations while reta
  assert.ok(ritual.metrics().decorativePriority.glyphOpacity>.35,'ornamental scene comes back after true threat ends');
  ritual.dispose();assert.equal(scene.children.length,0);
 });
+
+test('the real Warden warning engraves every dangerous tile at spectator scale without adding a draw family',async()=>{
+ const code=name=>fs.readFileSync(path.join(root,name),'utf8');
+ const uri=src=>'data:text/javascript;base64,'+Buffer.from(src).toString('base64');
+ let ritualSource=code('warden-ritual.js');
+ ritualSource=ritualSource.replace("'/dungeon/vendor/three.module.js'",JSON.stringify(pathToFileURL(path.join(path.dirname(require.resolve('three')),'three.module.js')).href));
+ for(const name of ['warden-chapter-plan','warden-tell-plan'])
+  ritualSource=ritualSource.replace(`'/dungeon/${name}.js'`,JSON.stringify(uri(code(`${name}.js`))));
+ const {createWardenRitual}=await import(uri(ritualSource));
+ const scene=new THREE.Group(),snapshot=actualWardenWarning(),before=JSON.stringify(snapshot);
+ const ritual=createWardenRitual(scene,snapshot.exit,{map:snapshot.map,reducedMotion:true});
+ ritual.setDecorativePriority((await load()).planWardenCourtPriority(snapshot));
+ ritual.accept(snapshot);ritual.animate(.07,.016);
+ const stages=[];scene.traverse(node=>{if(node.name==='Warden authoritative marked floor'||node.name==='Warden physically incised authority warning stone'||node.name==='Authoritative Warden strike perimeter in stone')stages.push(node)});
+ assert.equal(stages.length,3,'retain exactly the three original draw families');
+ const floor=stages.find(node=>node.name==='Warden authoritative marked floor');
+ const incisions=stages.find(node=>node.name==='Warden physically incised authority warning stone');
+ assert.equal(floor.count,snapshot.bossWarning.cells.length,'all and only true hazard cells have a stone');
+ assert.equal(incisions.count,floor.count,'all and only true hazard cells carry a carved, non-color-only fracture');
+ const angles=new Set();const instance=new THREE.Matrix4(),rotation=new THREE.Quaternion();
+ for(let i=0;i<incisions.count;i++){
+  incisions.getMatrixAt(i,instance);instance.decompose(new THREE.Vector3(),rotation,new THREE.Vector3());
+  angles.add(Math.round(Math.abs(rotation.y)*100));
+ }
+ assert.ok(angles.size>=3,'genuine NOVA tiles have physically radial crack directions, not colour alone');
+ assert.ok(floor.material.opacity>=.48,'original danger floor must be visible during sparse mobile frames');
+ assert.ok(incisions.material.opacity>=.80,'one readable low-profile crack per cell');
+ assert.equal(JSON.stringify(snapshot),before,'the autonomous authority is unchanged');
+ ritual.dispose();assert.equal(scene.children.length,0);
+});
