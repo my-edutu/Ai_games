@@ -4681,7 +4681,7 @@ export function createTowerScene(canvas, settings = {}) {
       }
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
-      world.noteFrameSubmitted(snapshot,options);
+      world.noteFrameSubmitted?.(snapshot,options);
       renderProgress.submitted(snapshot, performance.now());
       // The callback owns UI-only phase coherence: never let an HTML failure
       // convert a genuinely submitted 3D frame into a fake renderer failure.

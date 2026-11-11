@@ -1854,7 +1854,7 @@ export function createTowerWorld(){
     sceneFocus=0;sceneFocusKind='ascent';
   }
   function rebuild(snapshot, requestedQuality='normal'){
-    const deferDistant = observedEarnedFloorArrival(lastSnapshot, snapshot);
+    const deferDistant = requestedQuality==='low' && observedEarnedFloorArrival(lastSnapshot, snapshot);
     const rebuildStartedAt = performance.now();
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
@@ -1947,12 +1947,27 @@ export function createTowerWorld(){
       // Build the same original, bounded seven remote citadels AFTER the
       // truthful floor+actor frame is submitted. Never defer ground, traps,
       // route geometry, navigation, source HP or the real gateway.
+      const startChildCount=floorGroup.children.length;
       buildDistantWorld(arrival.height);
-      floorGroup.traverse(object=>{
-        if(object.isMesh && object.material?.name==='distant-atmosphere'){
+      // The normal low-tier rebuild rigid-batches seven supported citadels
+      // into ONE real draw. Running them later must preserve that same GPU
+      // and memory contract; otherwise the first-frame saving would become
+      // a permanent 49-draw regression on real phones. Batch only the new
+      // noninteractive rigid roots, never rebatch gameplay, moving decks,
+      // guardian signals, or physics-aligned geometry.
+      const farRoot=new THREE.Group();
+      farRoot.name='deferred-authentic-distant-citadels';
+      const additions=floorGroup.children.slice(startChildCount);
+      for(const child of additions){
+        if(child.name==='distant-citadel-silhouette')farRoot.add(child);
+      }
+      floorGroup.add(farRoot);
+      farRoot.traverse(object=>{
+        if(object.isMesh){
           object.castShadow=false;object.receiveShadow=false;
         }
       });
+      batchRigid(farRoot);
       const far=quality==='low'
         ? [...floorMaterials].find(m=>m.name==='distant-atmosphere' &&
             m.type==='MeshBasicMaterial')

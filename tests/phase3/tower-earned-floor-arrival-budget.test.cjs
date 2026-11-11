@@ -112,7 +112,7 @@ test('the shipped scene releases deferred world only after returned WebGL and ne
   const scene=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/update\(motionDt\); renderer\.render\(scene, camera\)/);
   const rendered=scene.indexOf('renderer.render(scene, camera)');
-  const acknowledged=scene.indexOf('world.noteFrameSubmitted(snapshot,options)');
+  const acknowledged=scene.indexOf('world.noteFrameSubmitted?.(snapshot,options)');
   assert.ok(acknowledged>rendered);
   assert.ok(acknowledged<scene.indexOf('renderProgress.submitted(snapshot, performance.now())'));
 });
