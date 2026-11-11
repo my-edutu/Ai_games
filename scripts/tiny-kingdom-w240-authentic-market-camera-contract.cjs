@@ -36,6 +36,26 @@ for(const [i,volume] of roofs.entries()){
 assert.match(html,/roofs\.push\(\.\.\.physicalMarketArcadeRoofVolumes\(\)\)/,
  'actual follow and citizen-pick camera must receive the real volumes');
 assert.match(html,/marketArcadeRoofBands:count\('market-arcade-roof'\)/);
+
+// W241: the eight REAL inter-stall roof strips must be consistent across
+// THREE independent presentation checks: ray block, the camera's physical
+// eye clearance, and foreground image coverage. Otherwise the camera can
+// be placed inside a clay roof or call an obstructed shot readable.
+const clearance=section('const PHYSICAL_FOLLOW_EYE_KINDS=', 'function physicalCitizenForegroundBlockers(');
+const frame=section('const WORKDAY_OPAQUE_SCENE_KINDS=', 'function foregroundSceneProjection(');
+const physical={terrain:()=>0,Set};
+vm.createContext(physical);
+vm.runInContext(clearance+'\nthis.inspect=physicalFollowEyeClearance;',physical);
+const held={x:0,z:0,rx:.2,rz:2,bottom:3.9,top:4.25,kind:'market-arcade-roof'};
+assert.equal(physical.inspect([0,4.02,0],[held]).clear,false,
+ 'live spectator camera must never sit inside the ACTUAL arcade clay roof');
+assert.equal(physical.inspect([0,2,0],[held]).clear,true,
+ 'physical arcade leaves the genuine standing worker aisle clear below its eave');
+assert.match(frame,/['"]market-arcade-roof['"]/,
+ 'all original arcade roofs must count as actual projected foreground obstruction');
+assert.match(clearance,/['"]market-arcade-roof['"]/,
+ 'every actual arcade roof must enter physical camera clearance, not just a ray survey');
+
 const director=section('function chooseFilmableWorker(rows,excluded=-1){',
  'function getLiveWorkDirectorStats(){');
 assert.match(director,/shot\.workFacingMode!=='obstructed'/,
