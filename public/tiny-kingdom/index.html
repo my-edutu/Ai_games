@@ -13154,13 +13154,127 @@ function getFarmFieldResidencyAudit(){
   maxGpuBuffers:2,allOriginalPlotsPreserved:true,
   authorityModified:false,saveModified:false,originalGranaryRetained:true};
 }
+// W233: physically contiguous ORIGINAL field-side threshing court. Its
+// covered timber bays and worn stone yard join the actual harvested wheat
+// fields to the existing walkable grain-collection gate; the connected freight
+// road, people, inventory, harvest rules and market receipts are unchanged.
+// This is durable civic geometry, constructed only on a genuine scene rebuild,
+// NOT a frame-loop decoration, synthetic worker or production resource.
+function grainwardFieldThreshingCourt(){
+ const first=data.length,centerX=18.30,centerZ=-3.38;
+ const west=16.40,east=20.20,south=-4.63,north=-2.18;
+ const eave=Math.max(terrain(west,south),terrain(west,north),
+  terrain(east,south),terrain(east,north))+2.52;
+ const ridge=eave+.91;
+ const fieldStone=[rgb(0x9c9788),rgb(0x827e70),rgb(0xb0a38e),
+  rgb(0x8d8779),rgb(0xaaa08a)];
+ const oak=rgb(0x6b5039),joint=rgb(0x9b7a54),
+  roof=[rgb(0x8b6650),rgb(0x9b775d),rgb(0x725b4f),rgb(0xa78666)];
+ let flagstones=0,approachPanels=0,posts=0,braces=0,rafters=0,
+  roofPanels=0,slattedCourses=0;
+ const at=(xx,zz,rise)=>[xx,terrain(xx,zz)+rise,zz];
+ materialScope(MATERIAL.STONE,()=>{
+  // Thirty complete handmade pavers settle against the original uneven
+  // earth: no vertical sheet, fake elevated platform or new collider.
+  for(let row=0;row<5;row++)for(let col=0;col<6;col++){
+   const xa=west+(east-west)*col/6,xb=west+(east-west)*(col+1)/6;
+   const za=south+(north-south)*row/5,zb=south+(north-south)*(row+1)/5;
+   upwardRoadQuad(at(xa,za,.044),at(xb,za,.044),
+    at(xb,zb,.044),at(xa,zb,.044),fieldStone[(row*3+col)%5]);
+   flagstones++;
+  }
+  // A visible stone threshold connects the open east side to the REAL
+  // field-to-granary gate, without substituting for the navigation route.
+  const gate=FIELD_TO_GRANARY_GATE,start=[east-.02,-2.72];
+  for(let i=0;i<8;i++){
+   const point=t=>{
+    const xx=start[0]+(gate[0]-start[0])*t,
+     zz=start[1]+(gate[1]-start[1])*t;
+    return [xx,zz];
+   };
+   const a=point(i/8),b=point((i+1)/8);
+   upwardRoadQuad(at(a[0],a[1]-.27,.052),at(b[0],b[1]-.27,.052),
+    at(b[0],b[1]+.27,.052),at(a[0],a[1]+.27,.052),
+    fieldStone[(i+2)%5]);
+   approachPanels++;
+  }
+  // Each of six elevated oak uprights carries its own stone pier.
+  for(const xx of [west+.23,east-.23])
+   for(const zz of [south+.21,(south+north)*.5,north-.21]){
+    const yy=terrain(xx,zz);
+    box(xx,yy-.07,zz,.33,.19,.34,fieldStone[posts%5]);
+    posts++;
+   }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Six exposed support bents, uninterrupted centre aisle; no barrier
+  // intersects the real wheat field, handoff point or courier pathway.
+  for(const xx of [west+.23,east-.23]){
+   const direction=xx<centerX?1:-1;
+   for(const zz of [south+.21,(south+north)*.5,north-.21]){
+    const foot=terrain(xx,zz);
+    box(xx,foot+.11,zz,.175,Math.max(.30,eave-foot-.11),.175,oak);
+    limbSegment([xx,eave-.61,zz],
+     [xx+direction*.43,eave-.10,zz],.056,joint,4);
+    braces++;
+   }
+  }
+  for(const zz of [south+.21,(south+north)*.5,north-.21]){
+   limbSegment([west+.20,eave-.12,zz],[centerX,ridge-.10,zz],
+    .082,oak,4);
+   limbSegment([centerX,ridge-.10,zz],[east-.20,eave-.12,zz],
+    .082,oak,4);
+   rafters+=2;
+  }
+  for(const xx of [west+.22,east-.22]){
+   limbSegment([xx,eave-.13,south+.10],
+    [xx,eave-.13,north-.10],.072,joint,4);
+  }
+  limbSegment([centerX,ridge-.07,south-.12],
+   [centerX,ridge-.07,north+.12],.067,oak,4);
+  // Narrow breathers at the back, not an opaque wall or fictional stock.
+  for(let j=0;j<7;j++){
+   const height=eave-.80+j*.105;
+   box(centerX,height,south+.12,east-west-.60,.047,.058,
+    j%2?oak:joint);
+   slattedCourses++;
+  }
+ });
+ materialScope(MATERIAL.ROOF,()=>{
+  // A true twin-pitched overhanging clay roof, with shared cross timber,
+  // catches grazing light without creating a roof wall across the gate.
+  for(let course=0;course<9;course++){
+   const a=south-.15+(north-south+.30)*course/9,
+    b=south-.15+(north-south+.30)*(course+1)/9;
+   quad([west-.13,eave,a],[west-.13,eave,b],
+    [centerX,ridge,b],[centerX,ridge,a],roof[course%4]);
+   quad([centerX,ridge,a],[centerX,ridge,b],
+    [east+.13,eave,b],[east+.13,eave,a],roof[(course+2)%4]);
+   roofPanels+=2;
+  }
+ });
+ const triangles=(data.length-first)/30,
+  realFarmGateUnblocked=walkable(...FIELD_TO_GRANARY_GATE)&&
+   walkable(...FARM_MARKET_STREET_ORIGIN);
+ if(!Number.isInteger(triangles)||triangles<=200||triangles>850||
+    flagstones!==30||posts!==6||roofPanels!==18||
+    !realFarmGateUnblocked)
+  throw Error('W233 original field threshing court lost safe grain corridor');
+ return {source:'authentic-field-side-stone-threshing-court',
+  linkedToActualFarm:true,linkedGate:FIELD_TO_GRANARY_GATE.slice(),
+  flagstones,approachPanels,posts,braces,rafters,roofPanels,slattedCourses,
+  triangles,realFarmGateUnblocked,extraBuffers:0,addedActors:0,addedGoods:0,
+  changesNavigation:false,changesEconomy:false,changesAuthority:false};
+}
+
 function farmstead(){
  const season=climateAt(state.t).season;
  farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w111-two-complete-seasonal-crop-tiers',bundles:0,granaries:0,waterSegments:0};
  if(!prepareResidentFarmFields(season))
   for(let i=0;i<FARMSTEAD.fields.length;i++)
    ripeningField(FARMSTEAD.fields[i],i,season,false);
- granaryArchitecture();grainShocks();fieldScarecrow();farmIrrigation();fieldToGranaryFootway();
+ granaryArchitecture();farmScene.fieldThreshingCourt=grainwardFieldThreshingCourt();
+ grainShocks();fieldScarecrow();farmIrrigation();fieldToGranaryFootway();
  farmScene.transferField=grainwardTransferNode('field');
 }
 
