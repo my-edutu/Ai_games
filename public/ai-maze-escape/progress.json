@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T10:40:00.000Z",
+  "updatedAt": "2026-11-11T10:47:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass268 candidate adds physically measured safe lens tightening of actual visible one-step Pip/pressure jaw contact, up to 18% only within full connected ±.90 NDC bounds, preserving strict browser ±.95, public-only rules, resource budget, reduced motion. Pass267b 766/766 Node tests on prior HEAD; new Pass268 WebGL/CI/critic PENDING. Official Nintendo bar still unmet."
+    "summary": "Pass269 camera candidate fixes Pass268's proven 390px optical non-result: actual pressure hazard changed only 2.1% because an off-centre full Pip/jaw pair was rejected before a safe camera pan. New real full-mesh width-based 18% contact lens and stricter ±.89 horizontal reframe, no authority/HUD/resource changes. Pass268 exact-source WebGL 43004263748 passed, 37/37 original hashes verified; Pass269 new-head CI, native WebGL, independent critic PENDING. Official Nintendo bar unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass269 original full-frame Pass268 390px WebGL critic: 37/37 original SHA matches; source-measured physical hazard moved only 2.1% despite nominal 18% zoom. Correct the actual off-centre Pip+moving jaw composition by measured full-model pair width, max 18% lens, real post-lens camera pan ±.89 NDC, preserve immutable ±.95 tests, 320/390 portrait and public-only visible contact; new exact-head WebGL/render verdict PENDING, benchmark unmet.",
     "Pass268 original live-game pressure contact 3D close-up candidate: source-bound full Pip/jaw bounding-box optical staging up to 18% only for presently visible one-cell pressure hazard, <±.90 safe, preserved original ±.95 browser and withdrawal >=.70, no new resources or changes to public gameplay/AI/privacy. New exact-head rendered proof PENDING; benchmark remains unmet.",
     "Pass267b: actual source 2d0ca773 WebGL 42993893989 passed with original pressure-court images; full CI 42993893977 762/766 caught old clay/1.82m inset fixtures on synthetic unconnected cells. Rebuilt tests against actual 1.94m dark-jade trap floor and dual 2.18m bronze tracks on reciprocal public open edge; do not restore fake paths. New exact-head CI/WebGL pending; no benchmark win.",
     "Pass267: real previous-HEAD 390x844 WebGL pressure scene rejects official Nintendo comparison; original broad Tideglass glass-and-stone court tied to real treadle/jaws replaces tiny floor scratches. Fix fake visible open conduits through sealed, one-way, blocked, hidden or different-height public edges using pure publicPressureCourtLink. Installed Three tests added; six-run <100 and NDC ±.95 unchanged; exact new rendered gate pending. Draft PR remains OPEN.",

@@ -1228,7 +1228,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           && c.trap===true && c.blocked!==true);
       const contactHeight=publicPhysicalPressureContactHalfHeight(
         heroSpan,jawSpan,halfHeight,aspect,activePressureContact);
-      if (contactHeight<halfHeight) {
+      const genuineContactZoom=contactHeight<halfHeight;
+      if (genuineContactZoom) {
         halfHeight=contactHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
@@ -1254,8 +1255,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         heroSpan=physicalSpan(explorer.group);
         jawSpan=physicalSpan(hazard);
       }
+      // A real centerable pair may be offset on the entering frame: after
+      // the lens change, translate the actual camera, not Pip or the jaws.
+      // Contact has MORE interior slack than our unmodified strict +/- .95
+      // source-bound browser gate; every other pressure beat retains .945.
       const horizontalShift=publicPhysicalPressureHorizontalReframe(
-        heroSpan,jawSpan,halfHeight,aspect);
+        heroSpan,jawSpan,halfHeight,aspect,genuineContactZoom ? .89 : .945);
       if (horizontalShift) {
         pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
         cameraTarget.addScaledVector(pressureReframeRight,horizontalShift);

@@ -351,7 +351,7 @@ export function publicPhysicalPressureRetreatHalfHeight(hero, jaw, halfHeight, a
   return halfHeight*factor;
 }
 
-export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect) {
+export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, aspect, safe=.945) {
   if (!(Number.isFinite(aspect) && aspect>=.35 && aspect<.60)
     || !(Number.isFinite(halfHeight) && halfHeight>0)
     || !hero || !jaw || ![hero.left,hero.right,jaw.left,jaw.right].every(Number.isFinite)
@@ -362,8 +362,11 @@ export function publicPhysicalPressureHorizontalReframe(hero, jaw, halfHeight, a
   // reached exactly +0.9500000000000002 after correction: floating-point
   // roundoff defeated the *unchanged* inclusive ±0.95 acceptance gate.
   // This is a stricter camera TARGET, never a test or clipping-limit change.
-  const safe=.945;
-  if(right-left>safe*2) return 0;
+  // The existing public pressure/withdrawal camera still uses the original
+  // .945 interior. The genuine one-cell CONTACT shot requests a stricter .89,
+  // after its physical full-mesh zoom has been reprojected.
+  if (!(Number.isFinite(safe) && safe>=.89 && safe<=.945)
+    || right-left>safe*2) return 0;
   const minimum=right-safe,maximum=left+safe;
   // Positive world camera-right displacement moves the objects left.
   // Choose the smallest necessary translation, preserving safe frames.
@@ -395,15 +398,25 @@ export function publicPhysicalPressureContactHalfHeight(hero,jaw,halfHeight,aspe
   const valid=box=>[box.left,box.right,box.bottom,box.top].every(Number.isFinite)
     && box.left<box.right && box.bottom<box.top;
   if (!valid(hero)||!valid(jaw)) return halfHeight;
-  // Never compound a closer stage below a physically conservative 5.45m.
-  const enlargement=Math.min(1.18,halfHeight/5.45);
-  if (!(enlargement>1.06)) return halfHeight;
-  const left=Math.min(hero.left,jaw.left)*enlargement;
-  const right=Math.max(hero.right,jaw.right)*enlargement;
-  const bottom=Math.min(hero.bottom,jaw.bottom)*enlargement;
-  const top=Math.max(hero.top,jaw.top)*enlargement;
-  if (left<-.90 || right>.90 || bottom<-.90 || top>.90) return halfHeight;
-  return halfHeight/enlargement;
+  const left=Math.min(hero.left,jaw.left), right=Math.max(hero.right,jaw.right);
+  const bottom=Math.min(hero.bottom,jaw.bottom), top=Math.max(hero.top,jaw.top);
+  // Original complete Pass268 native 390px WebGL actually measured the
+  // pressure machine at x=-.776857 and Pip at +.428748. Refusing the
+  // 18% contact shot because the group was LEFT of screen centre made the
+  // previous nominal zoom only ~2%; it was NOT a physical size constraint.
+  // The immediately following public camera pass can translate its target
+  // horizontally. Calculate the achievable zoom from the whole CONNECTED
+  // two-actor width instead of falsely treating an off-centre pair as cropped.
+  // Preserve stricter +/- .89 horizontal and vertical NDC BEFORE claiming
+  // contact-stage eligibility; the renderer must reproject both meshes and
+  // execute its real horizontal safety pan after changing the lens.
+  const pairWidth=right-left;
+  const maxAbsY=Math.max(Math.abs(bottom),Math.abs(top));
+  if (!(pairWidth>0 && maxAbsY>0)) return halfHeight;
+  const zoom=Math.min(1.18, halfHeight/5.45,
+    1.76/pairWidth, .88/maxAbsY);
+  if (!(zoom>1.06)) return halfHeight;
+  return halfHeight/zoom;
 }
 
 export function publicPhysicalPressureApproachHalfHeight(hero,jaw,halfHeight,aspect,eligible=false) {
