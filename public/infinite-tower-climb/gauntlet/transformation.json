@@ -7663,5 +7663,35 @@
     "review": "docs/reviews/2026-11-11-tower-pr68-source-submitted-guardian-orbit-continuity.md",
     "nextHighestImpactAction": "Run exact HEAD full CI and new 10-job normal-speed film; inspect native portrait live guardian 19-25s and corresponding baseline, desktop, event pixels. Reject any unsafe delayed rescue or still-jittery combat. Visually verify grounded doorway+floor9 and authentic terminal/restart, then actual devices and independent randomized LOOKS/FEELS/PLAYS.",
     "safety": "Draft PR68 ONLY. PR58/main/other games untouched, no merge/deploy/force-push, baseline immutable."
+  },
+  "p0AuthenticDuelUnmatchedDesktopClocks20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineMoved": false,
+    "reviewedHeadSha": "b176aebb88f2f03b2ba0ff71b7efa03bd0e44aee",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42954567786 — FAIL 1361/1363; 2 malformed source fixture assertions, repaired on PR68",
+    "previousSourcePinnedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42954567807 — 8 original baseline/candidate desktop and phone scenario captures plus original source-campaign succeeded; final pair-source-events FAILED 1/2 source-aligned event-relative guardian viewports",
+    "ungradedOriginalPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42954567807/artifacts/13826617110",
+    "verifiedPrimaryBlocker": "Original baseline desktop guardian hurt tick239 / floor8->9 tick316 precede earliest uniquely compositor-matched native video anchor ~18.08sec. Original 960x600 WebM is available but these exact events cannot be assigned visible native frame timecodes; screenshot ambiguity is real. Do not extrapolate video clocks or claim event pixels.",
+    "observedLargestVisualDefect": "Genuine 390x844 guardian footage seconds ~19-23 still crowds real blue climber, bulky bronze guardian/hammer and foreground machinery with discontinuous 2-body action. Authentic rendered grounded gateway continuity remains not independently certified.",
+    "interventions": [
+      "Focused original guardian continuous-camera fixture corrected to test true invalid-radius input and actual source guard scope, without reducing safety checks",
+      "Both original WebM streams may be packaged for human UNSYNCHRONIZED inspection after exact-source/native-transport provenance verification; missing shared native event anchors still veto source-synchronized review and make pair job fail",
+      "Separate anonymous A/B original full-film artifact contains only neutral filenames and local HTML; exact SHAs, hashes and mapping preserved outside reviewer-only folder",
+      "New strict test coverage for missing common native events, anonymous filenames and absent invalid-film inspection"
+    ],
+    "actualGamePlayChanged": "NO — evidence and test correctness blocker, no 3D game, camera, 20Hz authority, AI, portal, or baseline changes in this run",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "freshFootageEventPixelAccepted": "NOT EVALUATED — new exact-source original 10-job baseline/candidate recordings required",
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "currentSourceQuality": "NOT EVALUATED until exact-head full Node/Three/browser workflows complete",
+    "review": "docs/reviews/2026-11-11-tower-pr68-original-duel-ungraded-review-bundle.md",
+    "nextHighestImpactAction": "Verify new exact-head 1363+ original suite and original 10-job desktop/portrait captured clips; inspect blind native full motion and any nonaligned desktop event honestly, without leaking audit metadata; physically reconstruct remaining portrait living guardian/hammer two-character staging and real walkable threshold if visual blockage persists; prove floor-nine and original outcome/restart on native frames, then hardware and 5 independent randomized critics each pillar.",
+    "safety": "Draft PR68 exclusively; PR58/main/other games untouched. Frozen baseline is immutable. No merge, deploy, force push or review claim."
   }
 }
