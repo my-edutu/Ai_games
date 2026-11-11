@@ -79,7 +79,7 @@ test('a real published pressure stroke turns one connected physical tideglass ar
   }
 });
 
-test('Pass278 side-coupled powertrain clears Pip's center while retaining a truthful physical pressure cycle',async()=>{
+test("Pass278 side-coupled powertrain clears Pip's center while retaining a truthful physical pressure cycle",async()=>{
   const {createMazeWorld}=await mod;
   const {Vector3,Box3}=await import(three);
   const world=createMazeWorld({balanced:true});
