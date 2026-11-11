@@ -292,3 +292,54 @@ test('three real HP-gated gantry clutches expose a legible physical power spine 
   } finally { circuit.dispose(); }
   assert.equal(circuit.group.children.length, 0, 'all 3D owned resources are torn down on recovery');
 });
+
+
+test('genuine guardian HP relay is hoisted clear of both armored bodies, remains mechanically connected to the source gantry, and preserves restart truth', async () => {
+  const { observedGuardianCircuit, observedGuardianRelayStage, guardianLinkSite,
+    createTowerGuardianCircuit } = await modulePromise;
+  const live = snapshot({tick:301});
+  const before = JSON.stringify(live);
+  const source = observedGuardianCircuit(live);
+  const fighter = live.enemies[0];
+  const guardianCrown = (fighter.y + fighter.halfHeight - live.chunkBaseY) / 10000;
+  const relay = observedGuardianRelayStage(source);
+  assert.ok(relay.center.y >= guardianCrown + 1.10,
+    'the visible bronze relay cannot occupy the living guardian head/maul silhouette');
+  assert.ok(Math.hypot(relay.center.x, relay.center.z) > 27.5,
+    'hoisting does not bury the true HP-bearing mechanism inside the tower');
+  const entry = guardianLinkSite(source, 0);
+  const distant = guardianLinkSite(source, .36);
+  const sourceFeetY = (source.fromY - source.baseY) / 10000;
+  assert.ok(Math.abs(entry.y - sourceFeetY) < 1e-8,
+    'the gantry must remain physically connected to the real source opponent');
+  assert.ok(distant.y < relay.center.y,
+    'a short overhead hoist returns to the physical destination, not a hovering duplicate');
+  const effect = createTowerGuardianCircuit(THREE);
+  try {
+    effect.update(live);
+    const ring = effect.group.getObjectByName('GuardianLockGuardianAnchor');
+    const teeth = effect.group.getObjectByName('GuardianSourceHPMechanicalRelay');
+    assert.ok(ring && teeth && ring.scale.x <= 1,
+      'original full-size near-camera ring cannot continue covering the combatant');
+    assert.equal(teeth.count, 8);
+    const matrix = new THREE.Matrix4(), at = new THREE.Vector3();
+    for (let i = 0; i < teeth.count; i++) {
+      teeth.getMatrixAt(i, matrix);
+      at.setFromMatrixPosition(matrix);
+      assert.ok(at.y > guardianCrown + .25,
+        'source HP tooth '+i+' cannot bisect a living guardian face or warning');
+    }
+    const struck = snapshot({tick:302,enemies:[{...fighter,health:2}]});
+    effect.update(struck);
+    assert.equal(effect.diagnostics().relaySourceHP,2,
+      'the overhead clutch still follows true source HP loss, not decorative time');
+    effect.update({...struck,tick:303,enemies:[{...fighter,active:false,health:0}]});
+    assert.equal(effect.group.visible,false,
+      'defeat retires the living HP machine; an opened gate is controlled elsewhere');
+    effect.update({...live,runToken:'fresh',tick:1});
+    assert.equal(effect.group.visible,true,
+      'a real restart rehydrates only the new guardian rather than stale victory');
+    assert.equal(JSON.stringify(live),before,
+      'hoist and source geometry must never mutate the authoritative snapshot');
+  }finally{effect.dispose();}
+});
