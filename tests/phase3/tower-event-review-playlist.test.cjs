@@ -26,6 +26,7 @@ function make(source,viewport='portrait',events=null){
       videoPhaseWitness:{nativeSeconds:23.25,precisionSeconds:.25}},
     hud:{status:'DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY',sourceTick:430,
       sourceEventIsScreenProof:false,originalFramesSampled:280,
+      recognitionCounts:{eight:132,nine:117,unrecognized:36},
       visibleHudFloorChange:{nativeVideoSeconds:23.25,precisionSeconds:.25,
         observedDigitBefore:8,observedDigitAfter:9,precedingEightFrames:12,
         followingNineFrames:4}}},
@@ -141,5 +142,31 @@ test('raster-only cue vetoes inconsistent HUD/chroma and forged video hash',()=>
  assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
  b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=26;
  b.nativeScenePhase.originalWebMSha256='d'.repeat(64);
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+});
+
+test('real original frozen portrait film has proven drawn HUD phase despite no chroma witness',()=>{
+ const a=make('baseline'),b=make('candidate');
+ a.nativeScenePhase.phase.status='NOT EVALUATED';
+ a.nativeScenePhase.phase.videoPhaseWitness=null;
+ b.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+ b.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=26;
+ b.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=26;
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false);
+ assert.equal(p.nativeRasterAnchors.length,1);
+ assert.equal(p.nativeRasterAnchors[0].baselineRasterEvidence,'confirmed-HUD-only-color-stage-inconclusive');
+ assert.equal(p.nativeRasterAnchors[0].candidateRasterEvidence,'confirmed-HUD-plus-color-scene');
+});
+test('insufficient native glyph counts or contradictory chroma veto pixel-phase cue',()=>{
+ const a=make('baseline'),b=make('candidate');
+ a.nativeScenePhase.phase.status='NOT EVALUATED';
+ a.nativeScenePhase.phase.videoPhaseWitness=null;
+ a.nativeScenePhase.hud.recognitionCounts.nine=2;
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+ a.nativeScenePhase.hud.recognitionCounts.nine=117;
+ a.nativeScenePhase.phase.status='CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY';
+ a.nativeScenePhase.phase.videoPhaseWitness={nativeSeconds:28,precisionSeconds:.25};
  assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
 });

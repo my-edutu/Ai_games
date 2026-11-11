@@ -18,23 +18,27 @@ function nativeRasterPhase(record,viewport){
  const floors=clock?.sourceEventTimecodes?.filter(e=>e.kind==='floor-transition' &&
    e.floor===9&&e.fromFloor===8&&e.toFloor===9&&e.observedEpisode===0&&
    e.inOriginalVideo===true&&Number.isFinite(e.nativeVideoSeconds));
- if(!scene||!clock||!Array.isArray(floors)||floors.length!==1||!phase||!hud||
+ if(!scene||!clock||!Array.isArray(floors)||floors.length!==1||!hud||
     scene.sourceSha!==record.sourceSha||scene.originalWebMSha256!==record.videoSha256||
     scene.originalWebMBytes!==record.videoBytes||scene.originalVideoUnmodified!==true||
     scene.viewport!==viewport||scene.scenario!=='danger'||
-    !['CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY','SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE'].includes(scene.phase.status)||
+    !['CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY','SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE','NOT EVALUATED'].includes(scene.phase.status)||
     !['DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY','SOURCE_CUE_AND_DRAWN_HUD_DISAGREE'].includes(scene.hud.status)||
     scene.phase.sourceTick!==floors[0].sourceTick||scene.hud.sourceTick!==floors[0].sourceTick||
     scene.phase.eventPixelsConfirmed!==false||scene.hud.sourceEventIsScreenProof!==false||
     !(scene.phase.nativeOriginalFramesSampled>=240)||!(scene.hud.originalFramesSampled>=240)||
+    !(scene.hud.recognitionCounts?.eight>=40&&scene.hud.recognitionCounts?.nine>=20)||
     hud.observedDigitBefore!==8||hud.observedDigitAfter!==9||
     !(hud.precedingEightFrames>=8&&hud.followingNineFrames>=4)||
-    !Number.isFinite(hud.nativeVideoSeconds)||!Number.isFinite(phase.nativeSeconds)||
+    !Number.isFinite(hud.nativeVideoSeconds)||
+    (phase && !Number.isFinite(phase.nativeSeconds))||
+    (!phase && scene.phase.status!=='NOT EVALUATED')||
     !(hud.precisionSeconds>0&&hud.precisionSeconds<=.25)||
-    !(phase.precisionSeconds>0&&phase.precisionSeconds<=.25)||
-    Math.abs(hud.nativeVideoSeconds-phase.nativeSeconds)>.75||
+    (phase && !(phase.precisionSeconds>0&&phase.precisionSeconds<=.25))||
+    (phase && Math.abs(hud.nativeVideoSeconds-phase.nativeSeconds)>.75)||
     hud.nativeVideoSeconds<3||hud.nativeVideoSeconds>=clock.originalVideoDurationSeconds-3)return null;
  return {nativeSeconds:hud.nativeVideoSeconds,
+    evidence:phase?'confirmed-HUD-plus-color-scene':'confirmed-HUD-only-color-stage-inconclusive',
    sourceToRasterSeconds:Math.round((hud.nativeVideoSeconds-floors[0].nativeVideoSeconds)*1000)/1000};
 }
 function planPair(rows,viewport,candidateSha){
@@ -138,11 +142,12 @@ function planPair(rows,viewport,candidateSha){
   const seenA=nativeRasterPhase(a,viewport),seenB=nativeRasterPhase(b,viewport);
   if(seenA&&seenB)plan.nativeRasterAnchors.push({
     kind:'DRAWN-HUD-8-to-9 (raster only)',baselineSeconds:seenA.nativeSeconds,
+    baselineRasterEvidence:seenA.evidence,candidateRasterEvidence:seenB.evidence,
     candidateSeconds:seenB.nativeSeconds,
     baselineSourceToRasterSeconds:seenA.sourceToRasterSeconds,
     candidateSourceToRasterSeconds:seenB.sourceToRasterSeconds,
     eventPixelsConfirmed:false,physicalGatewayCrossingConfirmed:false,
-    meaning:'native HUD and chroma concur; NOT a source-event synchronization'});
+    meaning:'native sustained HUD 8→9; optional chroma may corroborate; NOT source-event synchronization'});
   if(plan.failures.length){
     plan.unalignedInspectionOnly=true;
     return plan;

@@ -335,7 +335,8 @@
         "PLAYS": "0/5"
       },
       "hardware": "NOT EVALUATED",
-      "next": "Review newly generated raster-only A/B from exact original WebMs, fix actual browser GPU/host source-to-raster delay, then improve guardian spatial readability; prove Floor9 walkable passage, complete outcome/restart and actual-device budgets."
+      "next": "Review newly generated raster-only A/B from exact original WebMs, fix actual browser GPU/host source-to-raster delay, then improve guardian spatial readability; prove Floor9 walkable passage, complete outcome/restart and actual-device budgets.",
+      "realArtifactCorrection": "Original baseline native film: desktop HUD plus chroma 8→9 at 20.25s; portrait true HUD 8→9 at 19.75s but chroma phase NOT EVALUATED. New hash-verified visual phase accepts sustained HUD with 12 pre-frames, 4 post-frames and full-film glyph counts; optional chroma must agree when present. Strict source-event cue still fails 0/2; no game quality acceptance."
     }
   },
   "currentTransformation": {
