@@ -323,3 +323,44 @@ test('real original desktop Walking_A finishes its witnessed 10.17mm last step w
  ])assert.equal(plan({...observed,...change}),null,
   'never turn with missing or inconsistent real source evidence '+JSON.stringify(change));
 });
+
+
+test('source Walking_A preserves an already witnessed final turn through genuine 9mm near-zone frames, not phantom footsteps',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {advanceOriginalSourceWalkTurnRelease:advance,shortestYawDelta:delta}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ // Original-GLB evidence shows late <12mm source steps and a 70mm generic
+ // facing dead zone. A real 9mm mid-zone frame can have no FRESH facing
+ // witness; it must not erase the 240ms same-destination turn already seen.
+ const base={sourceRig:true,sourceClipName:'Walking_A',sourceWalkExit:false,
+  mode:'move',groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,targetX:-8,targetZ:-7,
+  currentX:-8,currentZ:-7.055,previousX:-8,previousZ:-7.100,
+  observedWalkYaw:Math.PI,rootYaw:-1.1,frameInterval:.032};
+ const first=advance(null,base);
+ assert.ok(first.memory&&first.heading!==null,'real source 45mm turn is witnessed');
+ const micro={...base,previousZ:-7.055,currentZ:-7.046,
+  observedWalkYaw:null,rootYaw:-1.37};
+ const carried=advance(first.memory,micro);
+ assert.ok(carried.memory&&carried.heading!==null,
+  'real 9mm cardinal approach still needs its genuine source-root yaw while source Walking_A moves');
+ assert.ok(Math.abs(delta(carried.heading,Math.PI))<1e-7);
+ const terminal=advance(carried.memory,{...micro,previousZ:-7.046,currentZ:-7.007,
+  observedWalkYaw:Math.PI,rootYaw:-1.8});
+ assert.ok(terminal.memory,'fresh legitimate source walk direction remains authorized');
+ const interrupted=advance(carried.memory,{...micro,mode:'hurt'});
+ assert.deepEqual(interrupted,{heading:null,memory:null});
+ for(const bad of [
+  {previousZ:-7.046},{previousZ:-7.070},
+  {previousX:-8.009,previousZ:-7.046},
+  {previousZ:-7.006},{currentX:-8.009},
+  {sourceClipName:'Idle'},{groundedMoving:false},
+  {hasCombatFacing:true},{teleport:true},{reducedMotion:true},
+  {targetX:-7},{frameInterval:.5},{visible:false}
+ ])assert.deepEqual(advance(first.memory,{...micro,...bad}),{heading:null,memory:null},
+  'unwitnessed or changed original footstep must fail closed: '+JSON.stringify(bad));
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/advanceOriginalSourceWalkTurnRelease\(a\.sourceWalkFinalTurn/);
+ assert.match(app,/previousX:priorSourceX,previousZ:priorSourceZ/,
+  'only actual adjacent renderer-world source frames may continue the witnessed heading');
+});
