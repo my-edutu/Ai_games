@@ -78,7 +78,8 @@ async function beginD04LiveAVCapture(page){
   const framePump={
    mode:explicitFrames?'submitted-frame-request':'native-capture-stream',
    initialReceipt:before,observedFrameAdvances:0,requestedFrames:0,requestFailures:0,
-   rendererEpochChanges:0,dataEvents:0,dataBytes:0,videoMutedAtStart:videoTrack.muted===true
+   rendererEpochChanges:0,dataEvents:0,dataBytes:0,videoMutedAtStart:videoTrack.muted===true,
+   submissionSamples:[]
   };
   let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
 
@@ -88,11 +89,16 @@ async function beginD04LiveAVCapture(page){
   function startCanvasTrackDeliveryMonitor(){
    const trace={source:'real-webgl-canvas-capture-video-monitor',
     mode:'request-video-frame-callback',playStatus:'NOT_STARTED',
+    presentation:'visible-2px-real-track',clock:'performance-now-relative-capture-start',
+    consumerVisibleAtStart:false,
     mutedAtStart:videoTrack.muted===true,events:[],frames:[],readyStateAtStart:videoTrack.readyState};
    let active=true,callbackId=null,stopped=false;
    const video=document.createElement('video');
    video.muted=true;video.playsInline=true;video.autoplay=true;
-   video.style.cssText='position:fixed;left:-5px;top:-5px;width:1px;height:1px;opacity:0;pointer-events:none';
+   // Never hide the consumer behind opacity:0 or offscreen placement:
+   // Chromium may cull its requestVideoFrameCallback presentation.
+   // A two-pixel visible monitor consumes only the ORIGINAL canvas track.
+   video.style.cssText='position:fixed;right:4px;bottom:4px;width:2px;height:2px;opacity:1;visibility:visible;pointer-events:none;z-index:2147483647';
    const recordEvent=kind=>{
     if(!active||trace.events.length>=32)return;
     trace.events.push({kind,atMs:Math.max(0,performance.now()-began)});
@@ -105,6 +111,10 @@ async function beginD04LiveAVCapture(page){
    }else{
     video.srcObject=new MediaStream([videoTrack]);
     document.body.appendChild(video);
+    const bounds=video.getBoundingClientRect(),style=getComputedStyle(video);
+    trace.consumerVisibleAtStart=video.isConnected&&bounds.width>=2&&bounds.height>=2&&
+     style.opacity==='1'&&style.visibility==='visible'&&document.visibilityState==='visible';
+    trace.visibilityStateAtStart=document.visibilityState;
     const observeFrame=(now,meta)=>{
      if(!active)return;
      if(trace.frames.length<32){
@@ -115,10 +125,11 @@ async function beginD04LiveAVCapture(page){
      if(active&&trace.frames.length<32)
       callbackId=video.requestVideoFrameCallback(observeFrame);
     };
+    // Register BEFORE play(): otherwise first real frame may be missed
+    // on slow, sparse software-WebGL renderers.
+    callbackId=video.requestVideoFrameCallback(observeFrame);
     Promise.resolve().then(()=>video.play()).then(()=>{
-     if(!active)return;
-     trace.playStatus='PLAYING';
-     callbackId=video.requestVideoFrameCallback(observeFrame);
+     if(active)trace.playStatus='PLAYING';
     }).catch(error=>{
      if(active){trace.playStatus='REJECTED';trace.playReason=String(error).slice(0,160)}
     });
@@ -130,6 +141,8 @@ async function beginD04LiveAVCapture(page){
     trace.readyStateAtStop=videoTrack.readyState;
     trace.videoReadyStateAtStop=video.readyState;
     trace.videoWidth=video.videoWidth;trace.videoHeight=video.videoHeight;
+    trace.videoCurrentTimeAtStop=video.currentTime;
+    trace.visibilityStateAtStop=document.visibilityState;
     if(callbackId!==null&&typeof video.cancelVideoFrameCallback==='function')
      video.cancelVideoFrameCallback(callbackId);
     listeners.forEach(([name,cb])=>videoTrack.removeEventListener(name,cb));
@@ -196,8 +209,15 @@ async function beginD04LiveAVCapture(page){
     else if(receipt>lastSubmittedFrame){
      framePump.observedFrameAdvances+=receipt-lastSubmittedFrame;
      lastSubmittedFrame=receipt;
-     if(explicitFrames)try{videoTrack.requestFrame();framePump.requestedFrames++}
+     let requestAttempted=false,requestSucceeded=false;
+     if(explicitFrames){
+      requestAttempted=true;
+      try{videoTrack.requestFrame();framePump.requestedFrames++;requestSucceeded=true}
       catch(error){framePump.requestFailures++;framePump.requestError=String(error).slice(0,200)}
+     }
+     if(framePump.submissionSamples.length<32)framePump.submissionSamples.push({
+      atMs:Math.max(0,performance.now()-began),receipt,requestAttempted,requestSucceeded
+     });
     }else if(receipt<lastSubmittedFrame){
      // WebGL recovery/reset is not a new frame in the previous receipt epoch.
      lastSubmittedFrame=receipt;framePump.rendererEpochChanges++;
@@ -401,7 +421,8 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   nativeVideo:captureAssessment.isolatedNativeVideoRecorded,
   audio:captureAssessment.isolatedAudioRecorded,
   synchronized:captureAssessment.sampleSynchronized,
-  trackDiagnosis:captureAssessment.trackDiagnosis
+  trackDiagnosis:captureAssessment.trackDiagnosis,
+  submissionDiagnosis:captureAssessment.submissionDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(observed.physicalFeedback.visuals.active).toBeLessThanOrEqual(104);
