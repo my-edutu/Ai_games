@@ -2735,7 +2735,10 @@ export function createTowerScene(canvas, settings = {}) {
     const revision = `${next.runToken}:${next.revision}:${next.publicChecksum}`;
     if (revision === lastRevision) return;
     lastRevision = revision;
-    renderProgress.expectFrame(performance.now());
+    // Record the current ORIGINAL browser-accepted fixed-step snapshot before
+    // scene updates. Its floor change must not be mistaken for a presented
+    // native-video frame; the renderer independently records submission.
+    renderProgress.received(next, performance.now());
     const newRun = snapshot && next.runToken !== snapshot.runToken;
     if (newRun) {
       authenticRestartSweep = snapshot.result &&
