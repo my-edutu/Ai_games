@@ -1,5 +1,6 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
 import {planExpeditionStonework} from '/dungeon/expedition-stonework-plan.js';
+import {planWardenBattleFloor,planWardenCourtDetailMask} from '/dungeon/warden-battle-floor-plan.js';
 
 /**
  * A continuous, sculpted Gothic floor across the genuine legal dungeon map.
@@ -50,7 +51,12 @@ export function makeSoftwareChiselledFlagstone(THREE){
  return geometry;
 }
 export function createExpeditionStonework(world,map,floor,exit,{softwareWebGL=false}={}){
- const plan=planExpeditionStonework(map,floor,exit),geometry=softwareWebGL?
+ // Physically one authentic matte court, original authored stone elsewhere.
+ const court=planWardenBattleFloor(map,exit,floor);
+ const reserved=planWardenCourtDetailMask(court);
+ const plan=reserved.size?planExpeditionStonework(map,floor,exit,{reservedCells:reserved}):
+  planExpeditionStonework(map,floor,exit);
+ const geometry=softwareWebGL?
   makeSoftwareChiselledFlagstone(THREE):carvedFlagstone();
  const theme=PALETTES[((floor-1)%PALETTES.length+PALETTES.length)%PALETTES.length];
  const materials=theme.map(color=>new THREE.MeshStandardMaterial({color,roughness:.92,
@@ -76,7 +82,7 @@ export function createExpeditionStonework(world,map,floor,exit,{softwareWebGL=fa
  }
  const trianglesPerSlab=geometry.index?geometry.index.count/3:geometry.getAttribute('position').count/3;
  const metrics={rasterTier:softwareWebGL?'cpu-physical-chamfer':'original-full-bevel',trianglesPerSlab,totalStoneTriangles:trianglesPerSlab*plan.stones.length,
-  slabs:plan.stones.length,coveredCells:plan.coveredCells,
+  slabs:plan.stones.length,coveredCells:plan.coveredCells,reservedCourtCells:plan.reservedCourtCells??0,
   walkableCells:plan.walkableCells,routeLength:plan.routeLength,
   chapters:plan.chapters,largestSpan:plan.largestSpan,drawCalls:meshes.length,
   maxElevation:.030,collisionEffects:0,kind:'continuous route-directed stone floor'};

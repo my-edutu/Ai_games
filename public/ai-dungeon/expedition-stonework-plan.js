@@ -35,20 +35,24 @@ function routeToExit(map,exit){
 }
 const finiteExit=(exit,n)=>Number.isInteger(exit?.x)&&Number.isInteger(exit?.z)&&
  exit.x>0&&exit.z>0&&exit.x<n-1&&exit.z<n-1;
-export function planExpeditionStonework(map,floor,exit){
+export function planExpeditionStonework(map,floor,exit,{reservedCells=null}={}){
  const empty={stones:[],routeLength:0,walkableCells:0,coveredCells:0,chapters:0,largestSpan:0};
  if(!validMap(map)||!Number.isSafeInteger(floor)||floor<1||!finiteExit(exit,map.length))return empty;
  const route=routeToExit(map,exit);if(!route.length)return empty;
  const n=map.length,center=(n-1)/2,occupied=new Uint8Array(n*n),onRoute=new Set(route.map(p=>index(p.x,p.z,n)));
+ // The real map-validated Warden Court matte plates own these source cells;
+ // never overlay a second independently tessellated relief beneath hazards.
+ const excluded=reservedCells instanceof Set&&reservedCells.size<=49?reservedCells:null;
+ const isReserved=(x,z)=>excluded?.has(x+','+z)===true;
  const walkable=[];
- for(let z=0;z<n;z++)for(let x=0;x<n;x++)if(map[z][x]==='.')walkable.push({x,z});
- const visit=route.concat(walkable.filter(p=>!onRoute.has(index(p.x,p.z,n)))
+ for(let z=0;z<n;z++)for(let x=0;x<n;x++)if(map[z][x]==='.'&&!isReserved(x,z))walkable.push({x,z});
+ const visit=route.filter(p=>!isReserved(p.x,p.z)).concat(walkable.filter(p=>!onRoute.has(index(p.x,p.z,n)))
   .sort((a,b)=>hash(a.x,a.z,floor,4)-hash(b.x,b.z,floor,4)||a.z-b.z||a.x-b.x));
  const stones=[];
  const canFit=(x,z,w,d)=>{
   if(x<0||z<0||x+w>n||z+d>n)return false;
   for(let dz=0;dz<d;dz++)for(let dx=0;dx<w;dx++){
-   if(map[z+dz][x+dx]!=='.'||occupied[index(x+dx,z+dz,n)])return false;
+   if(map[z+dz][x+dx]!=='.'||isReserved(x+dx,z+dz)||occupied[index(x+dx,z+dz,n)])return false;
   }
   return true;
  };
@@ -96,6 +100,7 @@ export function planExpeditionStonework(map,floor,exit){
  }
  const coveredCells=occupied.reduce((sum,v)=>sum+v,0);
  return {stones,routeLength:route.length,walkableCells:walkable.length,coveredCells,
+  reservedCourtCells:excluded?excluded.size:0,
   chapters:new Set(stones.map(s=>s.chapter)).size,
   largestSpan:Math.max(0,...stones.map(s=>s.width*s.depth))};
 }

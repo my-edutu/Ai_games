@@ -188,14 +188,17 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
  const originalPillarRoots=[],originalBannerRoots=[];
  const open=(x,z)=>x>=0&&z>=0&&x<N&&z<N&&map[z][x]==='.';
  let bossCourtLooseClutterSuppressed=0,bossCourtTallFixturesSuppressed=0;
- let battleFloorDetailsSuppressed=0;
+ let battleFloorDetailsSuppressed=0,battleFloorSubstrateSuppressed=0;
  for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){
   const px=x-O,pz=z-O,h=hash(x,z,floor),court=planWardenCourtNegativeSpace(map,exit,x,z);
   const battleStone=battleCells.has(x+','+z);
   if(open(x,z)){
    // Original substrate and physics remain. The court gets one coherent matte
    // physical layer, not competition from rugs, runes and unrelated plant pots.
-   floorDetails.push([px,-.005,pz,.965,.035,.965,(h%4)*Math.PI/2]);
+   // Preserve solid dungeon floor while leaving the original battle surface
+   // as its sole raised relief under the authoritative Warden warning tiles.
+   if(battleStone)battleFloorSubstrateSuppressed++;
+   else floorDetails.push([px,-.005,pz,.965,.035,.965,(h%4)*Math.PI/2]);
    if(x>2&&z>2&&x<N-3&&z<N-3&&open(x-1,z)&&open(x+1,z)&&open(x,z-1)&&open(x,z+1)){
     if(battleStone){if(h%19===5)battleFloorDetailsSuppressed++;}
     else{rugCandidates.push([px,pz,h]);if(h%19===5&&rugs.length<6)rugs.push([px,pz,h]);}
@@ -399,6 +402,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   wardenBattleFloorCellsCovered:wardenBattleFloor.coveredWalkableCells,
    wardenBattleFloorDetailMaskCells:battleCells.size,
   wardenBattleFloorDetailSuppressed:battleFloorDetailsSuppressed,
+  wardenBattleFloorSubstrateSuppressed:battleFloorSubstrateSuppressed,
   wardenBattleFloorCollisionChanges:wardenBattleFloor.collisionChanges,
   stoneRasterBudget,foregroundFusion,foregroundReplicas:{sourceDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.sourceDrawCalls,0),drawCalls:foregroundReplicas.reduce((n,b)=>n+b.drawCalls,0),savedDrawCalls:foregroundReplicas.reduce((n,b)=>n+b.savedDrawCalls,0)},clearedForeground:0,portraitStagePropsCleared:0,screenSpaceClearedFacades:0,clearedWeatheredPieces:0,clearedCapstones:0,matrixWrites:{facade:0,weathered:0,capstone:0}};
  const matrix=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),scale=new THREE.Vector3();
