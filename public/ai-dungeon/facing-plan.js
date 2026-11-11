@@ -78,6 +78,59 @@ export function planOriginalSourceWalkNearArrivalFacing({
  return Math.atan2(-dx,-dz);
 }
 
+/**
+ * Original imported Walking_A remains the owner of the shoes while its last
+ * 5-12mm of REAL rendered root travel completes. On a low-frame-rate viewport
+ * the legal last step can end before the bounded 8.5rad/s visual root yaw has
+ * reached the witnessed travel heading. The older planner then drops heading,
+ * leaving the skinned character sideways on its own newly reached tile.
+ *
+ * Carry ONLY an already witnessed near-arrival source-walk heading, for at
+ * most 240ms and only while the same original Walking_A is moving or genuinely
+ * outgoing under an Idle crossfade. No source clip, bone, gameplay step, target,
+ * collision, camera or authoritative yaw is invented. Injury, combat, lost
+ * source rig, teleport, new destination and reduced motion reset immediately.
+ */
+const EMPTY_SOURCE_WALK_FINISH=Object.freeze({heading:null,memory:null});
+export function advanceOriginalSourceWalkTurnRelease(previous=null,{
+ sourceRig=false,sourceClipName='',sourceWalkExit=false,mode='idle',
+ groundedMoving=false,alive=false,visible=false,teleport=false,
+ reducedMotion=false,hasCombatFacing=false,
+ currentX=NaN,currentZ=NaN,targetX=NaN,targetZ=NaN,
+ observedWalkYaw=null,rootYaw=NaN,frameInterval=NaN
+}={}){
+ if(sourceRig!==true||alive!==true||visible!==true||teleport||
+  reducedMotion||hasCombatFacing||!['move','idle'].includes(mode)||
+  ![currentX,currentZ,targetX,targetZ,rootYaw,frameInterval].every(Number.isFinite)||
+  frameInterval<=0||frameInterval>.25||
+  Math.hypot(targetX-currentX,targetZ-currentZ)>.009)return EMPTY_SOURCE_WALK_FINISH;
+ const walkingSource=typeof sourceClipName==='string'&&
+  /^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(sourceClipName);
+ const angle=Number.isFinite(observedWalkYaw)?
+  Math.atan2(Math.sin(observedWalkYaw),Math.cos(observedWalkYaw)):null;
+ if(mode==='move'&&groundedMoving===true&&walkingSource&&angle!==null){
+  if(Math.abs(shortestYawDelta(rootYaw,angle))<.08)return EMPTY_SOURCE_WALK_FINISH;
+  return {heading:angle,memory:{yaw:angle,targetX,targetZ,age:0}};
+ }
+ const memoryValid=previous&&[previous.yaw,previous.targetX,previous.targetZ,previous.age].
+  every(Number.isFinite)&&previous.age>=0&&previous.age<=.24&&
+  Math.hypot(previous.targetX-targetX,previous.targetZ-targetZ)<.003;
+ if(!memoryValid)return EMPTY_SOURCE_WALK_FINISH;
+ // Continue within a real, very small final walk frame. Never manufacture
+ // locomotion on a halted or stale authoritative actor.
+ const tinyStep=mode==='move'&&groundedMoving===true&&walkingSource;
+ // Original outgoing Walking_A is explicitly retained by updateActor;
+ // a generic Idle clip by itself, with no outgoing source action, cannot
+ // license continued root rotation or a phantom turn.
+ const outgoing=mode==='idle'&&groundedMoving===false&&
+  sourceWalkExit===true&&(sourceClipName==='Idle'||walkingSource);
+ if(!tinyStep&&!outgoing)return EMPTY_SOURCE_WALK_FINISH;
+ const age=previous.age+Math.min(.09,frameInterval);
+ if(age>.24||Math.abs(shortestYawDelta(rootYaw,previous.yaw))<.08)
+  return EMPTY_SOURCE_WALK_FINISH;
+ return {heading:previous.yaw,memory:{yaw:previous.yaw,targetX,targetZ,age}};
+}
+
 export function shortestYawDelta(from,to){
  if(!Number.isFinite(from)||!Number.isFinite(to))return 0;
  return Math.atan2(Math.sin(to-from),Math.cos(to-from));
