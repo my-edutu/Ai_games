@@ -59,6 +59,56 @@ function classifyCanvasTrackDelivery({delivery={},encodedBytes=0,submittedFrames
   return 'TRACK_MUTED_WITHOUT_PRESENTED_FRAMES';
  return 'TRACK_DELIVERY_UNVERIFIED';
 }
+
+/**
+ * Timeline-only diagnostic. These events share one performance.now() origin,
+ * but they are not media PTS, are never proof of audible/rendered alignment,
+ * and cannot certify real video without the consumer's frame callback.
+ */
+function classifyCanvasSubmissionTiming({delivery={},framePump={}}={}){
+ const samples=framePump.submissionSamples,events=delivery.events;
+ if(delivery.source!=='real-webgl-canvas-capture-video-monitor'||
+  delivery.presentation!=='visible-2px-real-track'||
+  delivery.clock!=='performance-now-relative-capture-start'||
+  delivery.consumerVisibleAtStart!==true||delivery.playStatus!=='PLAYING'||
+  !['submitted-frame-request','native-capture-stream'].includes(framePump.mode)||
+  !Array.isArray(samples)||samples.length<1||samples.length>32||
+  !Array.isArray(events)||events.length>32||
+  !Array.isArray(delivery.frames)||delivery.frames.length>32)
+  return 'SUBMISSION_TIMING_UNVERIFIED';
+ let lastAt=-1,lastReceipt=-1;
+ for(const sample of samples){
+  if(!Number.isFinite(sample.atMs)||sample.atMs<0||sample.atMs>20000||
+   sample.atMs<=lastAt||!Number.isSafeInteger(sample.receipt)||
+   sample.receipt<=lastReceipt||
+   typeof sample.requestAttempted!=='boolean'||
+   typeof sample.requestSucceeded!=='boolean'||
+   (framePump.mode==='submitted-frame-request'&&
+     (!sample.requestAttempted||!sample.requestSucceeded))||
+   (framePump.mode==='native-capture-stream'&&sample.requestAttempted))
+   return 'SUBMISSION_TIMING_UNVERIFIED';
+  lastAt=sample.atMs;lastReceipt=sample.receipt;
+ }
+ let lastEvent=-1;
+ for(const event of events){
+  if(!['mute','unmute','ended'].includes(event.kind)||
+   !Number.isFinite(event.atMs)||event.atMs<0||event.atMs>20000||
+   event.atMs<lastEvent)return 'SUBMISSION_TIMING_UNVERIFIED';
+  lastEvent=event.atMs;
+ }
+ if(delivery.frames.length>0){
+  const confirmed=classifyCanvasTrackDelivery({delivery,encodedBytes:0,
+   submittedFrames:samples.length});
+  return confirmed==='CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY'?
+   'PRESENTED_CANVAS_FRAME_RECEIPT_TIMED':'SUBMISSION_TIMING_UNVERIFIED';
+ }
+ const mute=events.find(event=>event.kind==='mute');
+ if(!mute)return 'SUBMISSIONS_WITHOUT_PRESENTATION_MUTE_UNOBSERVED';
+ return samples.some(s=>s.atMs<mute.atMs)?
+  'PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION':
+  'ONLY_POST_MUTE_SUBMISSIONS_WITHOUT_PRESENTATION';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -104,6 +154,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
  const trackDiagnosis=classifyCanvasTrackDelivery({delivery:trackDelivery,
   encodedBytes:isolated.videoOnly?.bytes??0,
   submittedFrames:clip.framePump?.observedFrameAdvances??0});
+ const submissionDiagnosis=classifyCanvasSubmissionTiming({delivery:trackDelivery,framePump:clip.framePump});
  const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
   !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
@@ -114,7 +165,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -182,5 +233,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
 }
-module.exports={assessD04Capture,classifyCanvasTrackDelivery,persistD04CaptureEvidence,
+module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
