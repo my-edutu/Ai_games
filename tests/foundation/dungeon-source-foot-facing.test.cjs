@@ -118,3 +118,68 @@ test('near-arrival source turn never invents direction from idle, combat, hidden
  ])assert.equal(heading({...sample,...mutation}),null,
   'unwitnessed/unauthorized source heading must preserve legacy facing: '+JSON.stringify(mutation));
 });
+
+test('licensed walking source finishes a witnessed final turn only through a live outgoing Walking_A crossfade',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {advanceOriginalSourceWalkTurnRelease:advance,shortestYawDelta,approachCharacterYaw}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ assert.equal(typeof advance,'function');
+ // Exact original 390px witnessed source: final world step ended near [-8,-7]
+ // after changing yaw from -.85 to -1.70; legitimate north heading is PI.
+ const live={
+  sourceRig:true,sourceClipName:'Walking_A',sourceWalkExit:false,
+  mode:'move',groundedMoving:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,hasCombatFacing:false,
+  currentX:-8,currentZ:-7,targetX:-8,targetZ:-7,
+  observedWalkYaw:Math.PI,rootYaw:-1.7,frameInterval:.04
+ };
+ const first=advance(null,live);
+ assert.ok(Math.abs(shortestYawDelta(first.heading,Math.PI))<1e-6);
+ assert.ok(first.memory);
+ let yaw=approachCharacterYaw(-1.7,first.heading,.04);
+ const outgoing={...live,sourceClipName:'Idle',sourceWalkExit:true,
+  mode:'idle',groundedMoving:false,observedWalkYaw:null};
+ const release=advance(first.memory,{...outgoing,rootYaw:yaw});
+ assert.ok(release.memory&&release.heading!==null,
+  'the legally outgoing source Walking_A still owns the feet during a short facing completion');
+ const next=approachCharacterYaw(yaw,release.heading,.04);
+ assert.ok(Math.abs(shortestYawDelta(next,Math.PI))<
+  Math.abs(shortestYawDelta(yaw,Math.PI))-.1);
+ let current=release,age=0;
+ for(let i=0;i<10&&current.memory;i++){
+  age+=.04;
+  current=advance(current.memory,{...outgoing,rootYaw:next});
+ }
+ assert.equal(current.heading,null,'turn memory has a strictly bounded visible lifetime');
+ assert.equal(current.memory,null);
+});
+
+test('the final source turn cannot survive new targets, combat, evasions, missing rigs, reduced motion or false outgoing clips',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {advanceOriginalSourceWalkTurnRelease:advance}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ const sample={sourceRig:true,sourceClipName:'Walking_A',
+  sourceWalkExit:false,mode:'move',groundedMoving:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  hasCombatFacing:false,currentX:-8,currentZ:-7,targetX:-8,targetZ:-7,
+  observedWalkYaw:Math.PI,rootYaw:-1.7,frameInterval:.025};
+ const witness=advance(null,sample);
+ assert.ok(witness.memory);
+ const candidate={...sample,mode:'idle',groundedMoving:false,
+  sourceClipName:'Idle',sourceWalkExit:true,observedWalkYaw:null};
+ for(const mutation of [
+  {sourceRig:false},{sourceWalkExit:false},{sourceClipName:'Attack_A'},
+  {mode:'attack'},{mode:'hurt'},{mode:'evade'},
+  {groundedMoving:true},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{hasCombatFacing:true},
+  {targetX:-7},{currentZ:-7.10},{rootYaw:NaN},
+  {frameInterval:NaN},{frameInterval:.5}
+ ]){
+  const result=advance(witness.memory,{...candidate,...mutation});
+  assert.deepEqual(result,{heading:null,memory:null},JSON.stringify(mutation));
+ }
+ assert.deepEqual(advance(null,candidate),{heading:null,memory:null});
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/advanceOriginalSourceWalkTurnRelease/);
+ assert.match(app,/walkArrivalPendingAction/);
+});
