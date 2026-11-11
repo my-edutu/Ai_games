@@ -20031,7 +20031,12 @@ function getCameraRayBroadphaseAudit(){
 // W187 CAMERA_OCCLUSION_BROADPHASE_END
 // W169: real worker cameras cannot occupy an actual roof or building.
 // Market canopies remain walkable below their physically elevated underside.
-const PHYSICAL_FOLLOW_EYE_KINDS=new Set(['home','hall','granary','craft-district','belfry','street-shop','market-stall','village-market','receiving-hall-roof','granary-porch-roof','arcade','receiving-hall-post','granary-porch-post']);
+// W241: TWO actual market arcade roofs consist of eight real pitched strips.
+// Their camera ray envelope alone is insufficient: the SAME real roof must
+// prevent physical spectator penetration and contribute to projected scene
+// obstruction, particularly for genuine 390px courier/merchant work shots.
+// Do not hide geometry, move citizens, or alter the autonomous world.
+const PHYSICAL_FOLLOW_EYE_KINDS=new Set(['home','hall','granary','craft-district','belfry','street-shop','market-stall','village-market','receiving-hall-roof','market-arcade-roof','granary-porch-roof','arcade','receiving-hall-post','granary-porch-post']);
 function physicalFollowEyeClearance(eye,roofs){
  if(!Array.isArray(eye)||eye.length!==3||eye.some(v=>!Number.isFinite(v)))return {clear:false,kind:'invalid-eye'};
  for(const volume of roofs){
@@ -20081,7 +20086,7 @@ const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','gran
 const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
  'market-stall','village-market','arcade','street-shop',
  'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
- 'receiving-hall-post','granary-porch-roof','granary-porch-post',
+ 'market-arcade-roof','receiving-hall-post','granary-porch-roof','granary-porch-post',
  ...WORKDAY_SOLID_BUILDING_KINDS
 ]);
 // G145: perspective-frame coverage of REAL foreground market objects.
