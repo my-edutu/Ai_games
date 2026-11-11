@@ -66,7 +66,7 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
   started,clip,pcm,frames:raw.frames??null,assessment,
   retained:{webm:!!webm,wav:!!wav},
   caveat:'Authentic browser recording and separate live PCM tap are not sample-aligned audiovisual proof.'
- },null,2)+'\\n');
+ },null,2)+'\n');
  return Object.freeze({manifest,webm,wav});
 }
 module.exports={assessD04Capture,persistD04CaptureEvidence,
