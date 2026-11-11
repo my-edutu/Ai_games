@@ -2184,7 +2184,7 @@ export function createMazeWorld(options = {}) {
     mesh(cable, bevel, gold, 0, -.27, 0, .072, .47, .072);
     const weight = new THREE.Group();
     weight.name = 'Published tide-shear hanging counterweight';
-    weight.position.set(0, .66, .08);
+    weight.position.set(0, .60, .08);
     counterbalance.add(weight);
     mesh(weight, bevel, darkMetal, 0, 0, 0, .40, .30, .35);
     mesh(weight, bevel, lightStone, 0, -.13, .02, .45, .08, .40);
@@ -2717,7 +2717,7 @@ export function createMazeWorld(options = {}) {
       const counterStroke = reducedContact ? .55 : nearContact ? shutterBeat : 0;
       signal.counterbalance.wheel.rotation.z = -.72 * treadleStroke;
       signal.counterbalance.bridge.rotation.z = .11 * counterStroke;
-      signal.counterbalance.weight.position.y = .66 - .28 * counterStroke;
+      signal.counterbalance.weight.position.y = .60 - .28 * counterStroke;
       signal.counterbalance.cable.scale.y = 1 + .92 * counterStroke;
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);

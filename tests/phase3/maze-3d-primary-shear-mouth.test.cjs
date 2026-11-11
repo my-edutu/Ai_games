@@ -25,12 +25,32 @@ test('full-scale paired cutting faces visibly cross the real jaw gap while the s
     const court=world.group.getObjectByName('Disclosed tide-shear pressure hazard 24');
     assert.ok(court,'only the publicly disclosed trap gets built');
     const drive=court.getObjectByName('Published tide-shear pressure counterbalance arch 24');
-    assert.ok(drive&&drive.scale.x===.75&&drive.scale.y===.78,
-      'real counterweight and governor remain but no longer overprint the two blades');
+    // Previous Pass262 exact local .75/.78 scale is no longer a useful
+    // silhouette contract: a complete, still-source-driven rear portal now
+    // frames the blades. Preserve the STRICT physical requirement: its yoke
+    // and both pylons are joined, behind the actual blade faces, and inside
+    // the original known 2.4m tile. Never accept a foreground duplicate jaw.
+    const portalYoke=drive?.getObjectByName('Published Tideglass shear-portal connected yoke');
+    const portalPylons=[-1,1].map(side=>drive?.getObjectByName(
+      'Published Tideglass shear-portal anchored pylon '+side));
+    assert.ok(drive?.isGroup&&portalYoke?.isMesh&&portalPylons.every(p=>p?.isMesh)
+      &&drive.position.z<=-.64,
+      'functional grounded rear Tideglass portal frames the two cutting faces');
     const jaws=[-1,1].map(side=>court.getObjectByName('Disclosed tide-shear hinged jaw 24 '+side));
     assert.ok(jaws.every(Boolean));
     const blades=jaws.map(jaw=>jaw.getObjectByName('Published tide-shear front blade'));
     const edges=jaws.map(jaw=>jaw.getObjectByName('Published tide-shear forward danger inlay'));
+    court.updateMatrixWorld(true);
+    const yokeBounds=new Box3().setFromObject(portalYoke);
+    const trueBladeForwardZ=Math.min(...blades.map(b=>
+      b.getWorldPosition(new Vector3()).z));
+    assert.ok(yokeBounds.max.z<trueBladeForwardZ-.50,
+      'the moving load arch remains physically BEHIND the actual paired front blades');
+    const courtOrigin=court.getWorldPosition(new Vector3());
+    const portalBounds=new Box3().setFromObject(drive);
+    assert.ok(portalBounds.min.x>courtOrigin.x-1.2&&portalBounds.max.x<courtOrigin.x+1.2
+      &&portalBounds.min.z>courtOrigin.z-1.2&&portalBounds.max.z<courtOrigin.z+1.2,
+      'the whole non-colliding rear gantry stays inside the disclosed trap cell');
     assert.ok(blades.every(b=>b?.isMesh&&b.scale.x===.72&&b.scale.y===1.28),
       'one broad uninterrupted ivory face on each real jaw');
     assert.ok(edges.every(Boolean)&&edges[0].position.x>0&&edges[1].position.x<0,

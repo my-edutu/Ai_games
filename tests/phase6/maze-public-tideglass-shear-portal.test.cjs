@@ -72,11 +72,11 @@ test('actual public pressure tile has a joined tall Tideglass working shear-port
     assert.ok(wheel.rotation.z<-.5,'true public treadle turns the attached governor');
     world.animate(.36,contact);
     near(bridge.rotation.z,.11,'the full observed shutter stroke tilts the load yoke');
-    near(weight.position.y,.38,'the actual released counterweight visibly descends');
+    near(weight.position.y,.32,'the actual released counterweight visibly descends');
     near(cable.scale.y,1.92,'the cable follows the same source-driven pressure beat');
     world.animate(.37,{...contact,explorerPosition:far});
     near(bridge.rotation.z,0,'withdrawal restores the rooted load yoke');
-    near(weight.position.y,.66,'withdrawal returns suspended counterweight');
+    near(weight.position.y,.60,'withdrawal returns suspended counterweight');
     near(cable.scale.y,1,'withdrawal restores physical cable length');
     for(const k of ['geometryCount','materialCount','textureCount'])
       assert.equal(world.stats()[k],budget[k],k+' reused across real pressure motion');
@@ -94,7 +94,7 @@ test('hidden, remembered-only, reduced-motion and new-run states cannot fake a w
     const weight=gantry.getObjectByName('Published tide-shear hanging counterweight');
     world.animate(1,{explorerPosition:hero,reducedMotion:false});
     near(bridge.rotation.z,0,'remembered-only pressure cannot actuate a moving bridge');
-    near(weight.position.y,.66,'remembered-only weight remains grounded at rest');
+    near(weight.position.y,.60,'remembered-only weight remains grounded at rest');
     world.animate(2,{explorerPosition:hero,reducedMotion:true});
     near(bridge.rotation.z,0,'even reduced motion cannot leak hidden danger');
     world.update(published({visibleCells:[4]}));
