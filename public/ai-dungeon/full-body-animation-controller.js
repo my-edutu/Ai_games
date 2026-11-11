@@ -202,6 +202,47 @@ export function confirmOriginalSourceSwingToeLift({
  return afterToeY-beforeToeY;
 }
 
+
+/** Original connected-calf SWING clearance, not stance IK or game contact.
+ * Requires an actual positive skinned-toe response after licensed ankle aid. */
+export function planOriginalSourceSwingCalfAssist({
+ mode='idle',sourceClipName='',sourceAnatomyVerified=false,
+ sourceLegChainVerified=false,sourceWeight=NaN,ownerLocomotion=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,floorTopY=NaN,
+ afterAnkleToeY=NaN,afterAnkleHeelY=NaN,ankleLiftMeters=NaN,
+ trialCalfToeY=NaN,trialCalfHeelY=NaN,trialAngleRad=NaN,
+ previousAssistRad=NaN
+}={}){
+ if(mode!=='move'||!/^walking[_\s-]*a$/i.test(sourceClipName)||
+  sourceAnatomyVerified!==true||sourceLegChainVerified!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![sourceWeight,rootTravel,frameAge,floorTopY,afterAnkleToeY,
+   afterAnkleHeelY,ankleLiftMeters,trialCalfToeY,trialCalfHeelY,
+   trialAngleRad,previousAssistRad].every(finite)||
+  sourceWeight<.5||sourceWeight>1.001||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
+  Math.abs(floorTopY+.02)>.005||
+  ankleLiftMeters<.001||ankleLiftMeters>.08||
+  Math.abs(trialAngleRad)<.09||Math.abs(trialAngleRad)>.11||
+  Math.abs(previousAssistRad)>.12)return 0;
+ const toeClear=afterAnkleToeY-floorTopY;
+ const heelClear=afterAnkleHeelY-floorTopY;
+ const trialLift=trialCalfToeY-afterAnkleToeY;
+ const trialHeelClear=trialCalfHeelY-floorTopY;
+ if(toeClear>-.035||toeClear<-.16||heelClear<.065||heelClear>.34||
+  trialLift<.008||trialLift>.075||trialHeelClear<.055||
+  trialHeelClear>.36||Math.abs(trialCalfHeelY-afterAnkleHeelY)>.06)return 0;
+ const share=clamp((sourceWeight-.5)/.4,0,1);
+ const eased=share*share*(3-2*share);
+ const demand=Math.min(.04,-.01-toeClear);
+ const target=Math.sign(trialAngleRad)*eased*
+  Math.min(.12,Math.abs(trialAngleRad)*demand/trialLift);
+ return clamp(target,Math.max(-.12,previousAssistRad-.06),
+  Math.min(.12,previousAssistRad+.06));
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
