@@ -20,6 +20,39 @@ const PALETTES = {
   clockwork:{stone:0x625e51,dark:0x25323b,metal:0xa06a35,edge:0xb8a47d,landing:0x8e8269,glow:0xffc35f},
   void:{stone:0x514963,dark:0x28233c,metal:0x6a577e,edge:0xb3a3c9,landing:0x726982,glow:0xc59bff}
 };
+// This optimization can omit *only distant decoration*, never a floor, a
+// bridge, the playable ground, a crusher, guardian damage or a real doorway.
+// The previous PUBLIC snapshot must prove the actual on-deck boss defeat,
+// and the new authoritative source must already be standing on the next
+// floor. This never predicts a source milestone or touches fixed-step state.
+export function observedEarnedFloorArrival(previous, next) {
+  if (!previous || !next || previous.lifecycle !== 'running' ||
+      next.lifecycle !== 'running' ||
+      typeof previous.runToken !== 'string' || !previous.runToken ||
+      previous.runToken !== next.runToken ||
+      !Number.isSafeInteger(previous.tick) ||
+      !Number.isSafeInteger(next.tick) || next.tick <= previous.tick ||
+      !Number.isSafeInteger(previous.floor) ||
+      next.floor !== previous.floor + 1 ||
+      !Array.isArray(previous.platforms) ||
+      !Array.isArray(previous.enemies)) return false;
+  const cap = previous.platforms.find(p =>
+    p?.id === 'f' + previous.floor + ':cap' &&
+    [p.x, p.y, p.width, p.height].every(Number.isFinite) &&
+    p.width > 0 && p.height > 0);
+  if (!cap || !Number.isSafeInteger(previous.guardianExitX) ||
+      previous.guardianExitX !== cap.x + Math.floor(cap.width * .76))
+    return false;
+  const defeated = previous.enemies.some(e => e.kind === 'guardian' &&
+    e.active === false && Number.isFinite(e.health) && e.health <= 0 &&
+    (!Number.isSafeInteger(e.floor) || e.floor === previous.floor));
+  return defeated && previous.player?.health > 0 &&
+    previous.player?.grounded === true &&
+    previous.player?.groundedPlatformId === cap.id &&
+    next.player?.health > 0 && next.player?.grounded === true &&
+    next.player?.groundedPlatformId === 'f' + next.floor + ':ground';
+}
+
 // The giant decorative rotors can sit BETWEEN two true combat/traversal
 // subjects on a narrow phone without touching either center ray. Protect the
 // *visible* physical action corridor, not merely isolated actor projections.
@@ -1808,7 +1841,12 @@ export function createTowerWorld(){
     // additional draw or a decorative collision surface.
     hazards.set(h.id,{root,live,indicator,spin,kind:h.kind,active:false,height});
   }
+  // Bounded, noninteractive far-scenery job for an AUTHENTIC earned floor
+  // transfer. A completed actual Three.js render is its only activation.
+  // Rebuild/dispose/restart cancels the one pending job. No timers or workers.
+  let deferredDistantArrival = null;
   function clearFloor(){
+    deferredDistantArrival = null;
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;decorativeOcclusionEvidence.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
@@ -1816,6 +1854,8 @@ export function createTowerWorld(){
     sceneFocus=0;sceneFocusKind='ascent';
   }
   function rebuild(snapshot, requestedQuality='normal'){
+    const deferDistant = observedEarnedFloorArrival(lastSnapshot, snapshot);
+    const rebuildStartedAt = performance.now();
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
@@ -1840,7 +1880,15 @@ export function createTowerWorld(){
     if(theme==='ruins')weather(materials.landing);
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
-    const height=snapshot.chunkHeight/SCALE;buildTower(height,theme==='clockwork');buildDistantWorld(height);buildVista(height);
+    const height=snapshot.chunkHeight/SCALE;
+    // Commit a truthful Floor 9+ body/route/guardian world immediately. Cold
+    // distant citadels (and their shader compilation) are non-playable and
+    // never belong on the critical first post-gateway renderer submission.
+    // The canyon, source decks, physics-anchored hazards and action silhouettes
+    // remain complete in the very first frame; no false gateway is inserted.
+    buildTower(height,theme==='clockwork');
+    if(!deferDistant)buildDistantWorld(height);
+    buildVista(height);
     // All 3D cap clearance machinery must share the opt-in source exit,
     // not merely the presence of some guardian on a historic floor.
     // No published, exact real exit means no fabricated bronze victory gate.
@@ -1866,12 +1914,67 @@ export function createTowerWorld(){
     finishBatches();
     bindRenderedClockFaceRayMeshes();
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
+    if (deferDistant) deferredDistantArrival = {
+      key, runToken:snapshot.runToken, floor:snapshot.floor,
+      height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
+      firstRenderSubmitted:false, material:null, fade:0,
+      initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
+      deferredBuildMs:null,
+    };
+  }
+  function noteFrameSubmitted(snapshot, options={}) {
+    // A browser fetch, a failed renderer, stale source, another episode or
+    // quality rebuild cannot unlock deferred GPU work. The caller invokes
+    // this only AFTER the real renderer.render() has returned successfully.
+    const job=deferredDistantArrival;
+    if (!job || job.state!=='awaiting-actual-first-render' ||
+        options.stale || !snapshot || snapshot.runToken!==job.runToken ||
+        snapshot.floor!==job.floor ||
+        key!==job.key || snapshot.tick<job.sourceTick) return false;
+    job.firstRenderSubmitted=true;
+    return true;
   }
   function update(snapshot,dt=0,time=0,options={}){
     if(disposed||!snapshot)return;
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
+    const arrival=deferredDistantArrival;
+    if (arrival && arrival.key===key &&
+        arrival.state==='awaiting-actual-first-render' &&
+        arrival.firstRenderSubmitted && !options.stale) {
+      const began=performance.now();
+      // Build the same original, bounded seven remote citadels AFTER the
+      // truthful floor+actor frame is submitted. Never defer ground, traps,
+      // route geometry, navigation, source HP or the real gateway.
+      buildDistantWorld(arrival.height);
+      floorGroup.traverse(object=>{
+        if(object.isMesh && object.material?.name==='distant-atmosphere'){
+          object.castShadow=false;object.receiveShadow=false;
+        }
+      });
+      const far=quality==='low'
+        ? [...floorMaterials].find(m=>m.name==='distant-atmosphere' &&
+            m.type==='MeshBasicMaterial')
+        : materials.distant;
+      if(far){
+        // Distant silhouettes appear through the existing fog rather than
+        // popping in front of a newly reached floor. One owned material,
+        // no new render passes, timers, shader swaps or blending after fade.
+        far.transparent=true;far.depthWrite=false;far.opacity=0;
+      }
+      arrival.material=far||null;
+      arrival.state='fading-remote-arrival';
+      arrival.deferredBuildMs=+(performance.now()-began).toFixed(2);
+      arrival.fade=0;
+    }
+    if (arrival && arrival.state==='fading-remote-arrival' &&
+        !options.stale) {
+      arrival.fade=options.reducedMotion?1:
+        Math.min(1,arrival.fade+Math.min(.08,Math.max(0,dt))/0.55);
+      if(arrival.material)arrival.material.opacity=arrival.fade;
+      if(arrival.fade>=1)arrival.state='complete';
+    }
     // QUIET -> CRISIS -> RELEASE across all five actual 3D tower biomes.
     // On verified guardian combat or a near dangerous shutter, decorative
     // machinery, furnace glare, motes and distant clouds yield to the
@@ -2421,7 +2524,15 @@ export function createTowerWorld(){
   }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,
     decorativeOcclusionEvidence:decorativeOcclusionEvidence.map(item=>({...item})),
-    decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
+    decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,deferredDistantArrival:deferredDistantArrival?{
+      floor:deferredDistantArrival.floor,
+      sourceTick:deferredDistantArrival.sourceTick,
+      state:deferredDistantArrival.state,
+      firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
+      fade:+deferredDistantArrival.fade.toFixed(3),
+      initialRebuildMs:deferredDistantArrival.initialRebuildMs,
+      deferredBuildMs:deferredDistantArrival.deferredBuildMs,
+    }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
+  return{group,update,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
 }
