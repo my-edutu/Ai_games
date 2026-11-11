@@ -2,6 +2,7 @@ import { createTowerScene } from './visuals/scene.mjs';
 import { createTowerAudio } from './visuals/audio.mjs';
 import { createHUD } from './visuals/hud.mjs';
 import { nextTowerStatePollDelay } from './visuals/live-state-cadence.mjs';
+import { createPresentedPhaseLatch } from './visuals/presented-phase-latch.mjs';
 
 const params = new URLSearchParams(location.search);
 const enabled = name => ['1', 'true'].includes(params.get(name));
@@ -13,6 +14,7 @@ const quality = ['low', 'high'].includes(requestedQuality) ? requestedQuality : 
 const audio = createTowerAudio();
 let view = null, current = null, closed = false, suspended = false, request = null, timer = null;
 let failures = 0, soundRequest = 0;
+const presentedPhase = createPresentedPhaseLatch();
 const hud = createHUD({
   initialQuality: quality,
   onCamera: mode => view?.setCamera(mode),
@@ -34,12 +36,21 @@ try {
     quality,
     reducedMotion: reduced,
     onStatus: (message, kind) => hud.status(message, kind),
+    onSubmittedFrame: exactSnapshot => {
+      // A returned Three.js render, NOT an HTTP response or sampled source
+      // tick, owns the ordinary visible HUD phase. Event/restart truth is
+      // retained in the source-only accessibility path below.
+      const committed = presentedPhase.submitted(exactSnapshot);
+      if (!committed || closed || suspended) return;
+      const d = window.__TOWER_RENDER_DIAGNOSTICS__?.() || {};
+      hud.update(committed, { ...d, sourceScene: committed.scene });
+    },
   });
 } catch (error) {
   console.error('Tower graphics could not start:', error);
   hud.status('3D graphics unavailable in this browser', 'error');
 }
-window.__TOWER_RENDER_DIAGNOSTICS__ = () => ({ ...(view?.diagnostics() || { frames: 0, renderer: 'unavailable' }), ...audio.diagnostics(), requestsInFlight: request ? 1 : 0 });
+window.__TOWER_RENDER_DIAGNOSTICS__ = () => ({ ...(view?.diagnostics() || { frames: 0, renderer: 'unavailable' }), ...audio.diagnostics(), requestsInFlight: request ? 1 : 0, presentedPhase: presentedPhase.diagnostics() });
 async function poll() {
   if (closed || suspended || request) return;
   timer = null;
@@ -56,6 +67,7 @@ async function poll() {
     current = data; failures = 0;
     window.__TOWER_PUBLIC_STATE__ = data.snapshot;
     view?.setStale(false);
+    presentedPhase.accept(data);
     view?.accept(data);
     audio.accept(data);
     const diagnostics = window.__TOWER_RENDER_DIAGNOSTICS__();
@@ -81,7 +93,19 @@ async function poll() {
       : renderState === 'stalled' ? 'The 3D view is delayed. The expedition continues; try Low graphics quality.'
       : graphicsPending ? 'Preparing the 3D view. The expedition continues.'
       : 'The expedition is restoring verified game state.';
-    hud.update(recovery ? { ...data, scene: 'recovery' } : data, { ...diagnostics, recoveryMessage, recoveryKind, sourceScene: data.scene });
+    // Genuine result/intermission/upgrade and graphics failure must remain
+    // accessible even if the browser cannot submit a 3D frame. For ordinary
+    // ascent/combat, keep HUD and world on the same exact submitted snapshot.
+    const sourceOnly = !view || graphicsFault || diagnostics.contextLost ||
+      ['result', 'intermission', 'upgrade', 'recovery'].includes(data.scene);
+    if (sourceOnly) presentedPhase.immediate(data);
+    const visibleFrame = presentedPhase.visible();
+    const pendingFirstFrame = !!view && presentedPhase.pending() && !visibleFrame;
+    const hudFrame = visibleFrame || data;
+    const hudScene = pendingFirstFrame ? 'recovery' : hudFrame.scene;
+    hud.update(recovery || pendingFirstFrame ? { ...hudFrame, scene: 'recovery' } : hudFrame,
+      { ...diagnostics, recoveryMessage, recoveryKind,
+        sourceScene: pendingFirstFrame ? 'recovery' : hudScene });
     if (faultState === 'failed') hud.status('3D rendering stopped · switch graphics quality or reload', 'error');
     else if (recovery || graphicsPending) hud.status(renderState === 'stalled' && !graphicsFault ? '3D view delayed · expedition continues' : 'Restoring the expedition', 'degraded');
     else hud.status('LIVE EXPEDITION', 'online');
@@ -118,7 +142,7 @@ function dispose() {
   if (closed) return;
   closed = true; stopPolling();
   removeEventListener('pagehide', pagehide); removeEventListener('pageshow', pageshow);
-  view?.dispose(); audio.dispose(); hud.dispose();
+  presentedPhase.clear(); view?.dispose(); audio.dispose(); hud.dispose();
 }
 function pagehide(event) {
   if (!event.persisted) { dispose(); return; }

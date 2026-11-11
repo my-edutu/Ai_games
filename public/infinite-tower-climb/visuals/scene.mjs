@@ -4680,6 +4680,10 @@ export function createTowerScene(canvas, settings = {}) {
         if (entry.impact.visible && entry.impactFramesRemaining > 0) entry.impactFramesRemaining--;
       }
       renderProgress.submitted(snapshot, performance.now());
+      // The callback owns UI-only phase coherence: never let an HTML failure
+      // convert a genuinely submitted 3D frame into a fake renderer failure.
+      try { options.onSubmittedFrame?.(snapshot); }
+      catch (error) { console.error('Tower visible HUD phase commit failed:', error); }
       // Only a genuinely completed source frame clears a transient failure
       // streak. A fresh source tick alone cannot certify a graphics recovery.
       if (renderErrors || renderRecoveryAttempts) {
