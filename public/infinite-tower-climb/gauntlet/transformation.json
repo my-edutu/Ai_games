@@ -2,6 +2,28 @@
   "schemaVersion": 1,
   "updated": "2026-11-11",
   "mode": "transformation-first",
+  "p0SourceFilmedTwoBodyWideActionCamera20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceImplementationSha": "7ead95c4aec42978df9b42d6d6998c46176432b6",
+    "redContractSha": "4d6dd0f9b1496ce9764883d826035ecedc862421",
+    "policySha": "48e9d9e2d15081cdbc092a22e59cbc5a6caf4384",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43090765295 — in progress at revision",
+    "observedNativeOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43084838637/artifacts/13885698954",
+    "sourceCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43084838637 — 7/8 film jobs success, baseline ascent native full clock partial; pair 0/2 strict source/raster",
+    "verifiedDefect": "Source-pinned 390x844 original ~16-24s: real airborne climber and living guardian vertically separated/cropped amid bronze structural foreground; 42°→31° close-only lens cannot frame both. Floor9 shown ~26s, grounded crossing unaccepted.",
+    "sourceToRasterGap": "Desktop floor9 source time 23.18775s vs drawn native HUD/violet 25.25s (+2.062s); portrait source time 23.5349s vs HUD/violet 25.5s (+1.965s). NOT event aligned.",
+    "implemented": "Original 3D living guardian and earned gateway safe optic can widen toward 62° only when BOTH real drawn full bodies and actual airborne selected landing fit, otherwise retain earlier safe close lens; restrained 1.2°/frame and 22°/s, manual/orbit/reduced-motion/core/hazard guards. No authoritative game, PR58, frozen baseline, collider or AI edits.",
+    "hardware": "NOT EVALUATED; software browser submitted callback intervals portrait p50 147.3ms/p95 455.1ms/p99 653.7ms; desktop p50 160.4ms/p95 488ms/p99 768.9ms; NOT target-device GPU FPS.",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "review": "docs/reviews/2026-11-11-tower-pr68-original-live-guardian-two-body-wide-action-shot.md",
+    "nextAction": "Inspect immutable exact-HEAD original 60s+ desktop/portrait 8 scenario pairs in motion and validate two-body shot without crop or wobble; fix 0/2 source-native Floor9 event/raster discrepancy, prove real grounded gateway→floor9→result/intermission/restart. Device p50/p95/p99/memory plus 5 fresh independent blinded critics each still required."
+  },
   "baseline": {
     "sha": "1731b380851162741761c5569e2bc152a0869ca9",
     "title": "Frozen playable Tower build before the transformation pivot",
