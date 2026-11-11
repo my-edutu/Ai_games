@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1758,9 +1758,7 @@ function sourceSoleVertexCandidates(actor){
  * Read-on-demand, original SOURCE skinned shoe patch.
  * Two separated low bind-space strongly source-foot-weighted vertices on
  * the SAME licensed mesh. No new geometry, rig, IK or per-frame work.
- * Candidate endpoint labels do not prove the anatomical heel/toe orientation.
- */
-function sourceSolePatchVertexCandidates(actor){
+ * Candidate endpoint labels do not prove the anfunction sourceSolePatchVertexCandidates(actor){
  let cached=sourceSolePatchVertexCache.get(actor.assetRoot);
  if(cached)return cached;
  cached={left:null,right:null};
@@ -1775,28 +1773,26 @@ function sourceSolePatchVertexCandidates(actor){
    if(isSourceSoleBoneName(bone?.name,side))sideBones.add(index);
   });
   if(!sideBones.size)continue;
-  let minX=null,maxX=null,minZ=null,maxZ=null;
+  // This is a bounded, on-demand diagnostic. The low-bind outsole slab
+  // belongs to the original licensed foot skin; upper-boot vertices must
+  // never become "planted" contacts or justify a speculative IK correction.
+  const candidates=[];
   for(let v=0,n=Math.min(p.count,8192);v<n;v++){
    const x=p.getX(v),y=p.getY(v),z=p.getZ(v);
    if(![x,y,z].every(Number.isFinite)||y<anchor.bindY-.001||
-    y>anchor.bindY+.12)continue;
+    y>anchor.bindY+.032)continue;
    const ids=[i.getX(v),i.getY(v),i.getZ(v),i.getW(v)],
     weights=[w.getX(v),w.getY(v),w.getZ(v),w.getW(v)];
    let score=0;for(let k=0;k<4;k++)if(sideBones.has(ids[k]))score+=weights[k];
    if(score<.55)continue;
-   const candidate={mesh,index:v,bindY:y,weight:score,x,z};
-   if(!minX||x<minX.x)minX=candidate;
-   if(!maxX||x>maxX.x)maxX=candidate;
-   if(!minZ||z<minZ.z)minZ=candidate;
-   if(!maxZ||z>maxZ.z)maxZ=candidate;
+   candidates.push({mesh,index:v,bindY:y,weight:score,x,z});
   }
-  const dx=minX&&maxX?Math.abs(maxX.x-minX.x):0,
-   dz=minZ&&maxZ?Math.abs(maxZ.z-minZ.z):0;
-  const endpoints=dz>=dx?[minZ,maxZ]:[minX,maxX];
-  if(Math.max(dx,dz)>.03&&endpoints.every(Boolean)&&endpoints[0].index!==endpoints[1].index)
-   cached[side]={heel:endpoints[0],toe:endpoints[1]};
+  const selected=selectOriginalOutsolePatchVertices(candidates,anchor.bindY);
+  if(selected)cached[side]={heel:selected.heel,toe:selected.toe};
  }
  sourceSolePatchVertexCache.set(actor.assetRoot,cached);
+ return cached;
+}ssetRoot,cached);
  return cached;
 }
 function sourceSkinnedSoleWorld(candidate){
