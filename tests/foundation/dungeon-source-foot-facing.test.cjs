@@ -154,6 +154,39 @@ test('licensed walking source finishes a witnessed final turn only through a liv
  assert.equal(current.memory,null);
 });
 
+test('actual original mobile Walking_A 9–70mm last approach seeds legally witnessed finishing turn',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {advanceOriginalSourceWalkTurnRelease:advance,shortestYawDelta}=
+  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+ // Real source rAF on 11 Nov, 390px, tick 2, frames 28->29:
+ // legal final ~45mm northbound approach turns -.850 -> -1.275rad,
+ // then 7mm at -1.7rad: old <=9mm witness gate dropped the
+ // first heading and left the actual Walking_A body sideways.
+ const sample={sourceRig:true,sourceClipName:'Walking_A',sourceWalkExit:false,
+  mode:'move',groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,currentX:-8,currentZ:-7.035,
+  targetX:-8,targetZ:-7,observedWalkYaw:Math.PI,
+  rootYaw:-1.275,frameInterval:.04};
+ const witnessed=advance(null,sample);
+ assert.ok(witnessed.memory,'observed source 45mm step inside 70mm heading dead zone must seed a bounded final-turn witness');
+ assert.ok(Math.abs(shortestYawDelta(witnessed.heading,Math.PI))<1e-6);
+ const micro=advance(witnessed.memory,{...sample,currentZ:-7.007,
+  rootYaw:-1.7,observedWalkYaw:null});
+ assert.ok(micro.memory&&Math.abs(shortestYawDelta(micro.heading,Math.PI))<1e-6,
+  'original 7mm final step must inherit only that genuinely observed direction');
+ const outgoing=advance(micro.memory,{...sample,mode:'idle',groundedMoving:false,
+  sourceClipName:'Idle',sourceWalkExit:true,currentZ:-7,
+  rootYaw:-2.04,observedWalkYaw:null});
+ assert.ok(outgoing.memory,'existing outgoing Walking_A may finish its bounded angular release');
+ for(const mutation of [{currentZ:-7.075},{mode:'idle',groundedMoving:false},
+  {sourceClipName:'Idle'},{sourceWalkExit:true,sourceClipName:'Idle',
+  mode:'idle',groundedMoving:false,observedWalkYaw:null},{hasCombatFacing:true},
+  {teleport:true},{reducedMotion:true}]){
+  assert.deepEqual(advance(null,{...sample,...mutation}),{heading:null,memory:null},
+   'unwitnessed, interrupted or outside-near-zone stance must never invent a turn');
+ }
+});
+
 test('the final source turn cannot survive new targets, combat, evasions, missing rigs, reduced motion or false outgoing clips',async()=>{
  const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
  const {advanceOriginalSourceWalkTurnRelease:advance}=
