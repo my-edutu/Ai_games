@@ -2269,7 +2269,7 @@ export function createMazeWorld(options = {}) {
         -side * .28, 1.03, .43, .72, 1.28, .32, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .56, 1.03, .625, .11, 1.17, .065, 0, 0, side * .13);
+        -side * .56, 1.03, .625, .18, 1.17, .065, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
       mesh(jaw, bevel, darkMetal,
         -side * .30, .55, .63, .42, .10, .10);
