@@ -216,3 +216,42 @@ test('the final source turn cannot survive new targets, combat, evasions, missin
  assert.match(app,/advanceOriginalSourceWalkTurnRelease/);
  assert.match(app,/walkArrivalPendingAction/);
 });
+
+test('real source Walking_A turn spends observed visible time rather than capped software-WebGL clock',async()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {approachOriginalSourceWalkYaw:turn,approachCharacterYaw:legacy,shortestYawDelta:delta}=
+  await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ assert.equal(typeof turn,'function');
+ const walking={originalWalking:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,hasCombatFacing:false};
+ // 11 Nov original mobile source GLB frames: one real Walking_A frame advanced
+ // about 95mm in a throttled delivery while the source root yaw advanced only
+ // the old 50ms cap (.425rad). Retain 8.5rad/s, cap sparse-frame progress to
+ // 75ms, and preserve the actual -PI target through the legitimate final step.
+ const from=-.85,target=-Math.PI;
+ const old=legacy(from,target,.05,false);
+ const actual=turn(from,target,.05,.095,walking);
+ assert.ok(Math.abs(delta(from,actual))>.425+.12,
+  'source rig should not lose its legal visual turn because WebGL delivered slowly');
+ assert.ok(Math.abs(delta(from,actual))<=8.5*.075+1e-8,
+  'no large one-frame source body spin on long frames');
+ assert.ok(Math.abs(delta(actual,target))<Math.abs(delta(old,target))-.12);
+ const ordinary=turn(from,target,.016,.016,walking);
+ assert.ok(Math.abs(delta(ordinary,legacy(from,target,.016,false)))<1e-9,
+  'normal 60Hz original clip facing is unchanged');
+ const capped=turn(from,target,.05,.5,walking);
+ assert.ok(Math.abs(delta(capped,actual))<1e-9,
+  'a 500ms frame may not spin through an entire imported-clip stride');
+ for(const change of [{originalWalking:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {hasCombatFacing:true}]){
+  const state={...walking,...change};
+  const result=turn(from,target,.05,.095,state);
+  assert.equal(result,legacy(from,target,.05,state.reducedMotion),
+   'non-source, reduced-motion or interrupted actor retains existing source-neutral yaw');
+ }
+ assert.equal(turn(from,NaN,.05,.095,walking),from,'invalid target never fabricates a turn');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/approachOriginalSourceWalkYaw/);
+ assert.match(app,/hasCombatFacing:Boolean\(a\.combatFacing\)/);
+});
