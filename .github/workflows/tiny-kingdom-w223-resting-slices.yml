@@ -1,9 +1,10 @@
-name: Tiny Kingdom W223 Real Resting Resident Dirty Mesh Evidence
+name: Tiny Kingdom W223-W224 Real Resting Body Pose Evidence
 on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w223-resting-slices-contract.cjs'
+      - 'scripts/tiny-kingdom-w224-staggered-rest-poses-contract.cjs'
       - '.github/workflows/tiny-kingdom-w223-resting-slices.yml'
       - 'tests/browser/tiny-kingdom-w118-resting-actor.spec.cjs'
   workflow_dispatch:
@@ -29,7 +30,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: W223 original resident slices, source parse, layout and no-omission safety
-        run: node scripts/tiny-kingdom-w223-resting-slices-contract.cjs
+        run: node scripts/tiny-kingdom-w223-resting-slices-contract.cjs && node scripts/tiny-kingdom-w224-staggered-rest-poses-contract.cjs
       - name: Build actual game
         run: npm run build
       - name: Install Chromium software WebGL to diagnose geometry

@@ -1273,12 +1273,21 @@ function isResidentRestingCandidate(p,i,fullDetail){
   Number.isFinite(destination[1])&&p.path?.length===0&&
   Math.hypot(p.x-destination[0],p.z-destination[1])<=.24);
 }
+// W224: same genuine resting 3D bodies; stagger their half-hour pose
+// renewals across bounded resident lanes instead of one CPU/GPU spike.
+const RESTING_ACTOR_POSE_LANES=16;
+function restingActorPoseBucket(worldHour,citizenIndex){
+ if(!Number.isFinite(worldHour)||!Number.isInteger(citizenIndex)||citizenIndex<0)
+  throw Error('W224 invalid original resident pose clock');
+ return Math.floor(worldHour*2+
+  (citizenIndex%RESTING_ACTOR_POSE_LANES)/RESTING_ACTOR_POSE_LANES);
+}
 function residentRestingKey(entries){
- return [Math.floor(state.t*2),entries.map(({p,i})=>[
-  i,p.name,p.job,p.x,p.z,p.activity,
+ return entries.map(({p,i})=>[
+  restingActorPoseBucket(state.t,i),i,p.name,p.job,p.x,p.z,p.activity,
   p.target?.[0],p.target?.[1],
   Math.floor((p.energy||0)/10),Math.floor((p.hunger||0)/10)
- ].join(':')).join('|')].join(';');
+ ].join(':')).join('|');
 }
 function restingActorCounters(){
  const numeric=(obj)=>Object.fromEntries(Object.entries(obj)
@@ -1323,15 +1332,19 @@ const RESTING_ACTOR_MAX=48;
 let restingActorCache=new Map(),restingActorLayoutKey='',
  restingActorFullUploads=0,restingActorPartialUploads=0,
  restingActorPoseBuilds=0,restingActorPoseReuses=0,
- restingActorUploadBytes=0;
+ restingActorUploadBytes=0,restingActorLastDirtyActors=0,
+ restingActorMaxDirtyActors=0,restingActorLastUploadBytes=0,
+ restingActorFramesWithDirty=0;
 function clearRestingActorIdentityCache(){
  // World reset/save restore may reuse a name and lot but change exact citizen
  // identity, appearance or trait. A previously bound mesh cannot cross worlds.
  restingActorCache.clear();restingActorLayoutKey='';restingActorKey='';
  restingActorVisible=false;restingActorCitizens=0;
+ restingActorLastDirtyActors=0;restingActorLastUploadBytes=0;
 }
 function prepareRestingActorMesh(rows){
- restingActorVisible=false;
+ restingActorVisible=false;restingActorLastDirtyActors=0;
+ restingActorLastUploadBytes=0;
  if(!gpuAvailable||!rows.length){
   restingActorKey='';restingActorCitizens=0;
   restingActorCache.clear();restingActorLayoutKey='';return false;
@@ -1415,6 +1428,10 @@ function prepareRestingActorMesh(rows){
     restingActorUploadBytes+=row.entry.mesh.byteLength;
    }
   }
+  restingActorLastDirtyActors=dirtyActors;
+  restingActorMaxDirtyActors=Math.max(restingActorMaxDirtyActors,dirtyActors);
+  if(dirtyActors)restingActorFramesWithDirty++;
+  restingActorLastUploadBytes=full?total*4:dirtyFloats*4;
   restingActorCache=next;restingActorLayoutKey=layoutKey;
   restingActorMetricDelta=restingActorDifference(before,restingActorCounters());
   restingActorKey=key;restingActorCitizens=rows.length;
@@ -1444,6 +1461,16 @@ function getRestingActorResidencyAudit(){
   uploadedBytes:restingActorUploadBytes,
   cachedIndividuals:restingActorCache.size,
   maxIndividuals:RESTING_ACTOR_MAX,
+  poseRefreshLanes:RESTING_ACTOR_POSE_LANES,
+  poseRefreshWindowHours:.5,
+  lastChangedBodies:restingActorLastDirtyActors,
+  maxChangedBodiesPerFrame:restingActorMaxDirtyActors,
+  framesWithDirtyBodies:restingActorFramesWithDirty,
+  lastUploadedBytes:restingActorLastUploadBytes,
+  retainedIndividualCpuBytes:[...restingActorCache.values()].reduce(
+   (n,entry)=>n+entry.mesh.byteLength,0),
+  retainedPackedCpuBytes:restingActorMesh.byteLength,
+  allocatedGpuStorageBytes:restingActorCapacity*4,
   perCitizenOriginalGeometry:true,
   changedPopulationRepackedWithoutRemovingCitizens:true,
   overflowFallbacks:restingActorOverflowFallbacks,
