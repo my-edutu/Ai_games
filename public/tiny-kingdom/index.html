@@ -1315,44 +1315,106 @@ function resetRestingActorMetrics(snapshot){
  Object.assign(villageClothStats,snapshot.cloth);
  villageClothStats.roles=new Set(snapshot.clothRoles);
 }
+// W223 Phase 1: keep every genuinely resting resident in one retained VBO,
+// but update individual original 3D body slices when only that person's
+// authentic state changes. A changed roster repacks the bounded vertex store.
+// No new simulations, impostors, missing actors or additional WebGL buffers.
+const RESTING_ACTOR_MAX=48;
+let restingActorCache=new Map(),restingActorLayoutKey='',
+ restingActorFullUploads=0,restingActorPartialUploads=0,
+ restingActorPoseBuilds=0,restingActorPoseReuses=0,
+ restingActorUploadBytes=0;
 function prepareRestingActorMesh(rows){
  restingActorVisible=false;
- if(!gpuAvailable||!rows.length){restingActorKey='';restingActorCitizens=0;return false}
+ if(!gpuAvailable||!rows.length){
+  restingActorKey='';restingActorCitizens=0;
+  restingActorCache.clear();restingActorLayoutKey='';return false;
+ }
+ if(rows.length>RESTING_ACTOR_MAX){
+  restingActorOverflowFallbacks++;restingActorKey='';
+  restingActorCitizens=0;return false;
+ }
  const key=residentRestingKey(rows);
  if(key===restingActorKey&&restingActorBuffer&&restingActorMesh.length){
   restingActorVisible=true;restingActorCitizens=rows.length;
-  restingActorReuses++;
-  applyRestingActorMetrics(restingActorMetricDelta);
+  restingActorReuses++;applyRestingActorMetrics(restingActorMetricDelta);
   return true;
  }
- const prior=data,before=restingActorCounters();
- data=[];
+ const prior=data,priorMaterial=currentMaterial,before=restingActorCounters();
+ const selected=[],next=new Map();
+ let total=0;
  try{
-  for(const {p} of rows)compactVillager(p);
-  const fresh=new Float32Array(data);
-  data=prior;
-  if(fresh.length>RESTING_ACTOR_FLOAT_BUDGET||fresh.length%30!==0){
-   restingActorOverflowFallbacks++;
-   resetRestingActorMetrics(before);
-   restingActorKey='';restingActorCitizens=0;
-   return false; // original full live rig is drawn below for EVERY citizen
+  for(const {p,i} of rows){
+   // Preserve the existing half-hour pose clock and exact real identity,
+   // activity, position, target, fatigue and hunger invalidation rules.
+   const poseKey=residentRestingKey([{p,i}]);
+   let entry=restingActorCache.get(i),fresh=false;
+   if(!entry||entry.key!==poseKey){
+    const eachBefore=restingActorCounters();
+    data=[];
+    compactVillager(p);
+    const mesh=new Float32Array(data);
+    const after=restingActorCounters();
+    const delta=restingActorDifference(eachBefore,after);
+    delta.roles=Object.fromEntries(Object.keys(after.roles)
+     .map(role=>[role,(after.roles[role]||0)-(eachBefore.roles[role]||0)]));
+    entry={key:poseKey,mesh,delta};
+    restingActorPoseBuilds++;fresh=true;
+   }else{
+    applyRestingActorMetrics(entry.delta);
+    restingActorPoseReuses++;
+   }
+   total+=entry.mesh.length;
+   if(!entry.mesh.length||entry.mesh.length%30!==0||
+      total>RESTING_ACTOR_FLOAT_BUDGET){
+    restingActorOverflowFallbacks++;
+    resetRestingActorMetrics(before);
+    restingActorKey='';restingActorCitizens=0;
+    return false; // all original citizens use live compact geometry
+   }
+   next.set(i,entry);selected.push({i,entry,fresh});
   }
-  restingActorMetricDelta=restingActorDifference(before,restingActorCounters());
   if(!restingActorBuffer){
    restingActorBuffer=gl.createBuffer();
-   if(!restingActorBuffer)throw Error('W118 resting citizen GPU buffer unavailable');
+   if(!restingActorBuffer)throw Error('W223 resting citizen VBO allocation failed');
   }
+  let offset=0;
+  for(const row of selected){row.offset=offset;offset+=row.entry.mesh.length}
+  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+  const dirtyActors=selected.reduce((sum,row)=>sum+(row.fresh?1:0),0);
+  const dirtyFloats=selected.reduce((sum,row)=>
+   sum+(row.fresh?row.entry.mesh.length:0),0);
+  const needsAllocation=total>restingActorCapacity;
+  const full=needsAllocation||layoutKey!==restingActorLayoutKey||
+   restingActorMesh.length!==total||
+   shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
   gl.bindBuffer(gl.ARRAY_BUFFER,restingActorBuffer);
-  if(fresh.length>restingActorCapacity){
-   restingActorCapacity=Math.ceil(fresh.length/65536)*65536;
+  if(needsAllocation){
+   restingActorCapacity=Math.ceil(total/65536)*65536;
    gl.bufferData(gl.ARRAY_BUFFER,restingActorCapacity*4,gl.DYNAMIC_DRAW);
   }
-  gl.bufferSubData(gl.ARRAY_BUFFER,0,fresh);
-  restingActorGpuUploads++;restingActorMesh=fresh;
+  if(full){
+   const packed=new Float32Array(total);
+   for(const row of selected)packed.set(row.entry.mesh,row.offset);
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed);
+   restingActorMesh=packed;
+   restingActorGpuUploads++;restingActorFullUploads++;
+   restingActorUploadBytes+=packed.byteLength;
+  }else{
+   for(const row of selected){
+    if(!row.fresh)continue;
+    gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*4,row.entry.mesh);
+    restingActorMesh.set(row.entry.mesh,row.offset);
+    restingActorGpuUploads++;restingActorPartialUploads++;
+    restingActorUploadBytes+=row.entry.mesh.byteLength;
+   }
+  }
+  restingActorCache=next;restingActorLayoutKey=layoutKey;
+  restingActorMetricDelta=restingActorDifference(before,restingActorCounters());
   restingActorKey=key;restingActorCitizens=rows.length;
   restingActorBuilds++;restingActorVisible=true;
   return true;
- }finally{data=prior}
+ }finally{data=prior;currentMaterial=priorMaterial}
 }
 function drawRestingActorMesh(){
  if(!gpuAvailable||!restingActorVisible||!restingActorBuffer)return;
@@ -1369,6 +1431,15 @@ function getRestingActorResidencyAudit(){
   bufferCount:restingActorBuffer?1:0,capacityFloats:restingActorCapacity,
   builds:restingActorBuilds,reuses:restingActorReuses,
   uploads:restingActorGpuUploads,drawCalls:restingActorDrawCalls,
+  individualPoseBuilds:restingActorPoseBuilds,
+  individualPoseReuses:restingActorPoseReuses,
+  fullUploads:restingActorFullUploads,
+  partialUploads:restingActorPartialUploads,
+  uploadedBytes:restingActorUploadBytes,
+  cachedIndividuals:restingActorCache.size,
+  maxIndividuals:RESTING_ACTOR_MAX,
+  perCitizenOriginalGeometry:true,
+  changedPopulationRepackedWithoutRemovingCitizens:true,
   overflowFallbacks:restingActorOverflowFallbacks,
   realWorkingAndMovingActorsAlwaysLive:true,
   preservesAllCitizensAndAuthority:true,hardwareFpsUnmeasured:true};
