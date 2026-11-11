@@ -6,7 +6,10 @@
 const {spawn}=require('node:child_process');
 const {setTimeout:delay}=require('node:timers/promises');
 const READY_TEXT='Source-authentic Tower capture host listening on ';
-const sleep=ms=>delay(ms,undefined,{ref:false});
+// Keep the evidence host readiness/termination deadline referenced. A detached
+// timer can let Node exit while a mocked child (or a crashed real child) leaves
+// the readiness Promise unresolved, cancelling the entire integrity suite.
+const sleep=ms=>delay(ms);
 async function startFreshOriginalCaptureHost(options={}) {
  const env=options.env||process.env;
  if(env.CI!=='true'||env.TOWER_CAPTURE_UNALTERED_SOURCE!=='1'||
@@ -32,7 +35,7 @@ async function startFreshOriginalCaptureHost(options={}) {
  let exited=false,exitReason='',listening=false,stdout='',stderr='',stopped=false;
  let exitResolve;
  const exitedPromise=new Promise(resolve=>{exitResolve=resolve;});
- const onExit=(reason)=>{exited=true;exitReason=reason;exitResolve();};
+ const onExit=(reason)=>{if(exited)return;exited=true;exitReason=reason;exitResolve();};
  child.once('error',error=>onExit('spawn: '+String(error?.message||error)));
  child.once('exit',(code,signal)=>onExit('exit='+code+', signal='+signal));
  child.stdout?.on('data',chunk=>{
@@ -57,7 +60,9 @@ async function startFreshOriginalCaptureHost(options={}) {
      if(listening) {
        try{
          const health=await check('http://127.0.0.1:'+port+'/tower/health');
-         if(health?.status==='healthy')
+         // The health endpoint could belong to an older process if our child
+         // died while the request was in flight: require live ownership NOW.
+         if(health?.status==='healthy'&&!exited)
            return {launchedAtMs,readyAtMs:now(),port,stop,
              authority:'unaltered-current-checkout-20Hz-original-host'};
        }catch{/* Not ready yet; fail closed after bounded wait. */}

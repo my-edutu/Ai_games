@@ -56,3 +56,35 @@ test('child dying during source startup is a real failure, never reused',async()
    wait:async()=>Promise.resolve(),timeoutMs:1000
  }),/stopped/);
 });
+test('health from a stale endpoint cannot certify a child that exits during health read',async()=>{
+ const child=mockHost();
+ await assert.rejects(startFreshOriginalCaptureHost({
+   env:goodEnv,spawnProcess:()=>child,
+   checkHealth:async()=>{
+     child.emit('exit',1,null);
+     return {status:'healthy'};
+   }
+ }),/stopped/);
+ assert.deepEqual(child.killedSignals,[]);
+});
+test('bound original host that never becomes healthy fails with source evidence',async()=>{
+ const child=mockHost();
+ let now=0,checks=0;
+ await assert.rejects(startFreshOriginalCaptureHost({
+   env:goodEnv,timeoutMs:270,spawnProcess:()=>child,
+   now:()=>now,wait:async()=>{now+=100;},
+   checkHealth:async()=>{checks++;return {status:'degraded'};}
+ }),/did not bind and report healthy/);
+ assert.equal(checks,2);
+ assert.deepEqual(child.killedSignals,['SIGTERM']);
+});
+test('silent SIGTERM escalates to SIGKILL on the owned capture host only',async()=>{
+ const child=mockHost();
+ child.kill=signal=>{child.killedSignals.push(signal);if(signal==='SIGKILL')queueMicrotask(()=>child.emit('exit',null,signal));return true;};
+ const host=await startFreshOriginalCaptureHost({
+   env:goodEnv,spawnProcess:()=>child,
+   checkHealth:async()=>({status:'healthy'}),wait:async()=>{}
+ });
+ await host.stop();await host.stop();
+ assert.deepEqual(child.killedSignals,['SIGTERM','SIGKILL']);
+});
