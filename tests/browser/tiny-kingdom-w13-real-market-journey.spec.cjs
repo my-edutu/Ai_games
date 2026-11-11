@@ -4,7 +4,9 @@ const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 // Record the genuine continuous observed market handoff when CI reaches it.
 // World fast-forward stays the original deterministic autonomous simulation.
-test.use({video:'on'});
+// Match the REAL 390px portrait viewport in the recorded file, never an
+// 800x450 letterboxed default Playwright screen.
+test.use({video:{mode:'on',size:{width:390,height:844}}});
 
 // W13 RED-FIRST: the player sees one REAL producer -> loaded journey ->
 // physically unloaded stock, not a stage-scripted cutscene or made-up economy.
@@ -48,10 +50,19 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
  expect(await page.evaluate(id=>window.__tinyKingdom.getActiveDeliveries().some(d=>d.id===id),entry.audit.deliveryId)).toBe(true);
  expect(['hauling','unloading']).toContain(entry.audit.stage);
  expect(entry.width).toBeLessThanOrEqual(390);
- const end=await page.evaluate(id=>{
+ const end=await page.evaluate(async id=>{
   const g=window.__tinyKingdom;let handoff=false,receipt=null;
+  const trueMotion=[];
   for(let i=0;i<120*30;i++){
    g.step(1/30);
+   // All progression comes from original authority ticks. Yield periodically
+   // so real WebGL/camera can present the MOVING worker to the recording;
+   // the old synchronous loop only recorded static pre/post screenshots.
+   if(i%180===0){
+    const actor=g.getActiveDeliveries().find(d=>d.id===id);
+    if(actor)trueMotion.push({t:g.getState().state.t,x:actor.x,z:actor.z,stage:actor.stage});
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   }
    if(i%5)continue;
    const before=JSON.stringify(g.exportSnapshot());
    g.advanceVillageDocumentary();
@@ -63,12 +74,16 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
    if(receipt)break;
   }
   g.advanceVillageDocumentary();
-  return {receipt,handoff,audit:g.getVillageDocumentaryAudit(),
+  return {receipt,handoff,trueMotion,audit:g.getVillageDocumentaryAudit(),
    camera:g.getCamera(),width:document.documentElement.scrollWidth,
    gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
  },entry.audit.deliveryId);
  expect(end.receipt,'Receipt must arise from authentic physical unloading').not.toBeNull();
  expect(end.handoff,'Real staged unloading must be visible while observed').toBe(true);
+ expect(end.trueMotion.length,'authentic camera must have sampled an advancing world').toBeGreaterThan(0);
+ fs.writeFileSync(path.resolve(__dirname,'../../test-results/w226-real-freight-motion-390.json'),
+  JSON.stringify({source:'real-authority-positions-and-stage',receipt:end.receipt,
+   samples:end.trueMotion,simulated:true,realHardwareFPS:'NOT MEASURED'},null,2));
  expect(end.receipt.citizen).toBe(entry.audit.citizen);
  expect(end.audit.citizen).toBe(entry.audit.citizen);
  expect(end.audit.stage).toBe('received');
