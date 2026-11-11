@@ -10,6 +10,45 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+test('real 390px original Walking_A calf: accept small but measurable heel-safe source lift with bounded slew',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:select,planOriginalSourceSwingCalfAssist:plan}=await load();
+ // Actual same-skinned foot and ORIGINAL right lowerleg quaternion probes from
+ // exact-head Actions #43106822043, source 390px WebGL, tick 6.
+ const toe=-.12500275207315323,heel=.10890351476641291;
+ const trials=[
+  {signed:-.1,toe:-.12483914592400795,heel:.08837949795005154},
+  {signed:.1,toe:-.12315237035111715,heel:.1291225510171269},
+  {signed:-.2,toe:-.1226631866022427,heel:.06775556975973375},
+  {signed:.2,toe:-.1193064891604116,heel:.14883458477550093}
+ ];
+ const chosen=select({afterAnkleToeY:toe,afterAnkleHeelY:heel,
+  floorTopY:-.02,trials,previousAssistRad:0});
+ assert.equal(chosen?.signed,.2,
+  'do not throw away the only real 5.70mm safe original-calf toe lift');
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:.6521738767623901,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.04,frameAge:.03,floorTopY:-.02,
+  afterAnkleToeY:toe,afterAnkleHeelY:heel,
+  ankleLiftMeters:.006226743873754131,
+  trialCalfToeY:chosen.toe,trialCalfHeelY:chosen.heel,
+  trialAngleRad:chosen.signed,previousAssistRad:0};
+ const delta=plan(owner);
+ assert.ok(delta>.01&&delta<=.0600001,
+  'clip-weighted correction must ramp from real original knee, never snap to 0.2rad');
+ assert.equal(plan({...owner,mode:'hurt'}),0);
+ assert.equal(plan({...owner,reducedMotion:true}),0);
+ assert.equal(plan({...owner,teleport:true}),0);
+ assert.equal(plan({...owner,afterAnkleHeelY:-.018}),0);
+ assert.equal(plan({...owner,trialCalfToeY:toe+.0035}),0,
+  'sub-4mm source trial is too small to support an original knee correction');
+ assert.equal(select({afterAnkleToeY:toe,afterAnkleHeelY:heel,floorTopY:-.02,
+  trials:[{signed:.2,toe:toe+.0035,heel:.14}]}),null);
+ assert.equal(select({afterAnkleToeY:toe,afterAnkleHeelY:heel,floorTopY:-.02,
+  trials:[{signed:.2,toe:toe+.006,heel:.01}]}),null,
+  'original heel-to-stone collapse still disqualifies any candidate');
+});
+
 test('live frame recomposition must retain measured source-shoe calibration, not erase it',async()=>{
  const {composeOriginalSourceGroundedPivotY:compose}=await load();
  assert.equal(typeof compose,'function','native attachment shoe anchor must survive each source animation frame');
