@@ -569,5 +569,40 @@
     },
     "supportedDevices": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-11-tower-pr68-original-film-co-planar-source-lock-reconstruction.md"
+  },
+  "p0OpenLoadBearingClockworkGallery20261111": {
+    "stage": "P0 OPEN / NOT EVALUATED",
+    "reason": "Recapture 8 original >=60sec matched videos after source-ray-attributed structural scene rebuild; previous job 43006201578 had all 8 film jobs success but failed outcome desktop provenance start tick >3s and continued real portrait guardian obstruction",
+    "requestedOn": "2026-11-11",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementationSha": "69f6839a2b146183faf3c368b85c0c85f35a2509",
+    "gameSourceBeforeEvidenceCommit": "69f6839a2b146183faf3c368b85c0c85f35a2509",
+    "sourcePinnedCandidateCapture": "github.sha of this capture-request edit; no baseline reset",
+    "scenarios": [
+      "ascent",
+      "danger",
+      "moving",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600",
+      "390x844"
+    ],
+    "requirements": [
+      "true source-only guardian+crusher+grounded crossing+floor9+result restart",
+      "fresh browser host each viewport and <=3sec actual source start discrepancy",
+      "original source-event-to-native frame calibration without invented pixels",
+      "normal-speed unmodified WebM, no cosmetic grading",
+      "5 independent blind critics per LOOKS FEELS PLAYS and actual-device metrics still NOT EVALUATED"
+    ],
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43006201578",
+    "priorPairingBlocker": "outcome desktop baseline/candidate first source observations separated >3 seconds",
+    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43014869242 pending",
+    "blindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardware": "NOT EVALUATED"
   }
 }
