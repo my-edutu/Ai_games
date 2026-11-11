@@ -30,8 +30,7 @@ export function createPhysicalCombatFeedback({
  visualAdapter=null,audioAdapter=null,requirePresentedFrame=false,
  // Monotonic seconds are used only to distinguish a freshly observed public
  // action from the raw interval of the frame that PRECEDED that action.
- clock=()=>typeof performance!=='undefined'&&typeof performance.now==='function'
-  ?performance.now()/1000:null
+ clock=null // Explicit opt-in only: legacy and deterministic unit callers keep the raw-interval gate.
 }={}){
  let previous=null;
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
