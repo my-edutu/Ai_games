@@ -95,7 +95,7 @@ function publicFrame(tick, scene = 'normal') {
   };
 }
 
-function appHarness({ width = 1440, search = '', renderProgress = { state: 'current' } } = {}) {
+function appHarness({ width = 1440, search = '', renderProgress = { state: 'current' }, autoSubmit = true } = {}) {
   const elements = new Map(), timers = new Map(), requests = [], views = [], hudUpdates = [];
   const node = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   const document = new Element(), lifecycle = new Element(), environment = audioEnvironment();
@@ -122,7 +122,14 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
     },
     createTowerScene(canvas, settings) {
       const view = { options: { ...settings }, disposed: false, accepted: [], renderProgress,
-        accept(data) { assert.equal(this.disposed, false); this.accepted.push(data); },
+        accept(data) {
+          assert.equal(this.disposed, false);
+          this.accepted.push(data);
+          // Explicit test-controlled Three.js render-return boundary. It can
+          // be withheld to prove HTTP acceptance is not a rendered frame.
+          if (autoSubmit && this.renderProgress.state === 'current')
+            this.options.onSubmittedFrame?.(data.snapshot);
+        },
         setCamera(value) { this.options.camera = value; }, setMotion(value) { this.options.reducedMotion = value; },
         setQuality(value) { this.options.quality = value; }, setStale(value) { this.stale = value; },
         dispose() { this.disposed = true; },
@@ -134,6 +141,8 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
   globals.window = globals;
   const context = vm.createContext(globals);
   globals.createTowerAudio = moduleFunction(context, 'visuals/audio.mjs', 'createTowerAudio');
+  globals.createPresentedPhaseLatch = moduleFunction(context, 'visuals/presented-phase-latch.mjs', 'createPresentedPhaseLatch');
+  globals.nextTowerStatePollDelay = moduleFunction(context, 'visuals/live-state-cadence.mjs', 'nextTowerStatePollDelay');
   const makeHUD = moduleFunction(context, 'visuals/hud.mjs', 'createHUD');
   globals.createHUD = options => {
     const hud = makeHUD(options);
@@ -147,6 +156,11 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
   return { node, document, lifecycle, timers, requests, views, hudUpdates, contexts: environment.contexts,
     diagnostics: () => globals.__TOWER_RENDER_DIAGNOSTICS__(),
     state: () => globals.__TOWER_PUBLIC_STATE__,
+    submitAccepted(index) {
+      const snapshot = views[0]?.accepted[index]?.snapshot;
+      assert.ok(snapshot, 'only an actually accepted source snapshot can be submitted');
+      views[0].options.onSubmittedFrame(snapshot);
+    },
     async respond(request, data) { request.resolve({ ok: true, status: 200, json: async () => data }); await flush(); },
     fireTimer(delay) {
       const matching = [...timers].filter(([, timer]) => timer.delay === delay);
@@ -158,6 +172,45 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
     close() { lifecycle.dispatch('pagehide', { persisted: false }); },
   };
 }
+
+
+test('Floor 9 HTTP acceptance cannot advance HUD until exact 3D return or claim LIVE without 3D', async t => {
+  const app = appHarness({ autoSubmit: false }); t.after(() => app.close());
+  const eight = publicFrame(440); eight.snapshot.floor = 8;
+  await app.respond(app.requests[0], eight);
+  assert.equal(app.node('test:floor').textContent, '', 'no source-derived floor is visible before first 3D return');
+  assert.equal(app.node('test:tick').textContent, '', 'no unsubmitted source tick leaks');
+  assert.equal(app.node('provider-state').parentElement.dataset.kind, 'degraded');
+  assert.equal(app.node('recovery-card').hidden, false);
+  app.submitAccepted(0);
+  assert.equal(app.node('test:floor').textContent, '8');
+  app.fireTimer(100);
+  const nine = publicFrame(451); nine.snapshot.floor = 9;
+  await app.respond(app.requests[1], nine);
+  assert.equal(app.node('test:floor').textContent, '8');
+  app.submitAccepted(0);
+  assert.equal(app.node('test:floor').textContent, '8', 'superseded render cannot assert new floor');
+  app.submitAccepted(1);
+  assert.equal(app.node('test:floor').textContent, '9');
+  assert.equal(app.node('test:tick').textContent, '451');
+});
+
+test('truthful terminal phase is accessible without a 3D submission; restart waits for its new world', async t => {
+  const app = appHarness({ autoSubmit: false }); t.after(() => app.close());
+  const result = publicFrame(700, 'result');
+  result.snapshot.runToken = 'first-run';
+  result.snapshot.result = { reason: 'guardian', kind: 'game' };
+  await app.respond(app.requests[0], result);
+  assert.equal(app.node('result-card').hidden, false);
+  assert.equal(app.node('test:tick').textContent, '700');
+  app.fireTimer(100);
+  const restarted = publicFrame(0); restarted.snapshot.runToken = 'new-run';
+  await app.respond(app.requests[1], restarted);
+  assert.equal(app.node('test:tick').textContent, '700', 'unsubmitted restart is not yet visible');
+  app.submitAccepted(1);
+  assert.equal(app.node('test:tick').textContent, '0');
+  assert.equal(app.node('test:run-token').textContent, 'new-run');
+});
 
 test('a later mute wins over an earlier deferred audio resume', async t => {
   const { audio, contexts } = audioHarness(); t.after(() => audio.dispose());
