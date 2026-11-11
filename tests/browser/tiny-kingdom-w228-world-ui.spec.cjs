@@ -4,8 +4,10 @@ const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 // W228 RED-before: the predecessor has no desktop dock/disclosure styling.
 test('W228 source contains original visible-world dock contract',()=>{
- expect(html).toContain('/* W228: documentary gameplay keeps a single accessible lower command row.');
- expect(html).toContain('body[data-command="world"][data-workday="off"]:not([data-street="on"]) #world-ribbon');
+ expect(html.includes('/* W228: documentary gameplay keeps a single accessible lower command row.')).toBe(true);
+ // This exact selector intentionally outranks historical important rules.
+ // A short boolean expectation avoids echoing 1.25MB of actual game source.
+ expect(html.includes('body[data-command="world"][data-workday="off"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon')).toBe(true);
 });
 for(const width of [1024,390]){
  test('W228 full running village preserves scene and opens real camera controls '+width+'px',async({page})=>{
