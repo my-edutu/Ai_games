@@ -1,0 +1,79 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs'),path=require('node:path');
+const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
+// W228 RED-before: the predecessor has no desktop dock/disclosure styling.
+test('W228 source contains original visible-world dock contract',()=>{
+ expect(html).toContain('/* W228: documentary gameplay keeps a single accessible lower command row.');
+ expect(html).toContain('body[data-command="world"][data-workday="off"]:not([data-street="on"]) #world-ribbon');
+});
+for(const width of [1024,390]){
+ test('W228 full running village preserves scene and opens real camera controls '+width+'px',async({page})=>{
+  test.setTimeout(180000);
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.setViewportSize({width,height:width===390?844:768});
+  await page.setContent(html);
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,null,{timeout:115000});
+  await page.waitForFunction(()=>document.body.dataset.command==='world'&&document.body.dataset.workday==='off');
+  const first=await page.evaluate(()=>{
+   const rect=id=>{const r=document.querySelector(id).getBoundingClientRect();
+    return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+   const css=id=>getComputedStyle(document.querySelector(id));
+   return {mode:document.body.dataset.command,workday:document.body.dataset.workday,
+    camera:rect('#camera-tools'),bottom:rect('.bottom'),ribbon:rect('#world-ribbon'),
+    cameraDisclosure:css('#camera-disclosure').display,
+    hiddenCameraAction:css('#camera-home').display,
+    blur:css('#world-ribbon').backdropFilter,
+    pop:window.__tinyKingdom.metrics().citizens,
+    buildings:window.__tinyKingdom.metrics().buildings,
+    triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
+    overflow:document.documentElement.scrollWidth,
+    gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
+  });
+  expect(first.mode).toBe('world');expect(first.workday).toBe('off');
+  expect(first.pop).toBeGreaterThanOrEqual(12);
+  expect(first.buildings).toBeGreaterThanOrEqual(12);
+  expect(first.triangles).toBeGreaterThan(0);
+  expect(first.triangles).toBeLessThan(160000);
+  expect(first.overflow).toBeLessThanOrEqual(width);
+  expect(first.cameraDisclosure).not.toBe('none');
+  expect(first.hiddenCameraAction).toBe('none');
+  expect(first.gl).toBe(0);
+  expect(first.blur).toBe('none');
+  if(width===1024){
+   // Two full-width overlay rows are replaced by a single bottom dock.
+   expect(first.bottom.right).toBeLessThanOrEqual(first.ribbon.left+3);
+   expect(Math.abs(first.bottom.bottom-first.ribbon.bottom)).toBeLessThan(14);
+   expect(first.camera.left).toBeGreaterThan(width*.70);
+  }
+  fs.mkdirSync(path.resolve(__dirname,'../../test-results'),{recursive:true});
+  await page.screenshot({path:path.resolve(__dirname,'../../test-results/w228-original-world-'+width+'.png')});
+  await page.locator('#camera-disclosure').click();
+  await expect(page.locator('#camera-disclosure')).toHaveAttribute('aria-expanded','true');
+  await expect(page.locator('#camera-home')).toBeVisible();
+  const btn=await page.locator('#camera-home').boundingBox();
+  expect(btn.height).toBeGreaterThanOrEqual(43);
+  await page.locator('#camera-disclosure').press('Escape');
+  await expect(page.locator('#camera-disclosure')).toHaveAttribute('aria-expanded','false');
+  await page.locator('#command-toggle').click();
+  await expect(page.locator('#save')).toBeVisible();
+  await page.locator('#command-toggle').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#world-ribbon')).toBeVisible();
+  const after=await page.evaluate(()=>({
+   mode:document.body.dataset.command,gl:document.querySelector('#world').getContext('webgl')?.getError()??-1,
+   triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
+   cameraExpanded:document.querySelector('#camera-disclosure').getAttribute('aria-expanded'),
+   overflow:document.documentElement.scrollWidth}));
+  expect(after.mode).toBe('world');
+  expect(after.cameraExpanded).toBe('false');
+  expect(after.triangles).toBeGreaterThan(0);
+  expect(after.triangles).toBeLessThan(160000);
+  expect(after.overflow).toBeLessThanOrEqual(width);
+  expect(after.gl).toBe(0);
+  expect(errors).toEqual([]);
+  fs.writeFileSync(path.resolve(__dirname,'../../test-results/w228-world-'+width+'.json'),
+   JSON.stringify({source:'genuine-running-game',runtime:'Chromium SwiftShader, NOT physical GPU FPS',
+    initial:first,after,pageErrors:errors},null,2));
+ });
+}
