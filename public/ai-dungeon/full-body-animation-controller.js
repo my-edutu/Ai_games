@@ -675,7 +675,20 @@ export function advanceFullBodyController(previous=null,{
  const heldStep=planFullBodyVisibleFrameStep({mode:priorOneShot??'idle',
   frameDelta,frameInterval,reducedMotion,visible});
  const inheritedAge=eligibleHold?Math.min(5,previous.age+heldStep):0;
- const holding=Boolean(eligibleHold&&inheritedAge<ONE_SHOT_RECOVERY[priorOneShot]);
+ // A genuine original-rig WebGL frame can spend 280ms just as the next
+ // 350ms public tick becomes idle. The licensed sword may already have
+ // displayed its witnessed adjacent contact and recovery, yet this single
+ // sparse frame leaps over the 620ms exit and erases all follow-through.
+ // Preserve ONE final RECOVERY POSE only after such a witnessed source beat;
+ // never invent a hit, new target, game action or original source clip.
+ const witnessedReleaseFrame=Boolean(eligibleHold&&priorOneShot==='attack'&&
+  previous?.authorityAction==='attack'&&previous?.holding!==true&&
+  previous?.phase==='recovery'&&previous?.confirmedContact?.actionTick===previous.actionTick&&
+  actionTick===previous.actionTick+1&&previous.age>=.28&&
+  previous.age<ONE_SHOT_RECOVERY.attack&&inheritedAge>=ONE_SHOT_RECOVERY.attack);
+ const heldAge=witnessedReleaseFrame?
+  Math.max(previous.age,ONE_SHOT_RECOVERY.attack-1e-6):inheritedAge;
+ const holding=Boolean(eligibleHold&&heldAge<ONE_SHOT_RECOVERY[priorOneShot]);
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
   requestedOneShot?authorityAction:holding?priorOneShot:
   authorityAction==='guard'?'guard':walking?'move':'idle';
@@ -690,7 +703,7 @@ export function advanceFullBodyController(previous=null,{
   mode==='hurt'&&damageEventTick!==null?damageEventTick:actionTick;
  const clipAction=mode==='evade'?'idle':mode;
  const beatAge=mode==='hurt'&&injury?damageBeat.age:
-  mode==='evade'?evasionBeat.age:holding?inheritedAge:requestedAge;
+  mode==='evade'?evasionBeat.age:holding?heldAge:requestedAge;
  const age=safeAge(beatAge);
  const same=previous?.mode===mode;
  const tickChanged=ONESHOTS.has(mode)&&previous?.actionTick!==visualActionTick;
