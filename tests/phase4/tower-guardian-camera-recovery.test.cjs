@@ -59,3 +59,44 @@ test('scene connects guardian rescue to observed actor, guardian and authentic l
   assert.match(scene, /towerCoreSightlineClear\(camera\.position, guardianRescuePoint, 23\.5\)/);
   assert.match(scene, /guardianRescueBlend: Number\(guardianRescueBlend\.toFixed\(4\)\)/);
 });
+
+
+test('portrait camera stays outside the actual source guardian without cutting through the tower or hiding a landing', async () => {
+  const { guardianExteriorPortraitStandoff } = await cameraPolicy;
+  const portrait = 390 / 844;
+  const view = {x:9, y:38, z:40};
+  const boss = {x:3, y:38, z:27};
+  const hero = {x:3, y:38, z:25};
+  const full = guardianExteriorPortraitStandoff(view, boss, hero, 2.1, portrait);
+  assert.ok(full, 'a near-body portrait camera must receive a genuine outside-core radial remedy');
+  assert.ok(full.fullLift >= full.step);
+  assert.ok(full.guardianDistanceAfter >= 25.5);
+  assert.equal(full.y, view.y, 'do not fake a new height or move the enemy');
+  assert.ok(Math.hypot(full.x, full.z) > Math.hypot(view.x, view.z));
+  const bounded = guardianExteriorPortraitStandoff(view, boss, hero, 2.1,
+    portrait, 1.1);
+  assert.ok(bounded && bounded.step <= 1.1);
+  assert.ok(bounded.guardianDistanceAfter > bounded.guardianDistanceBefore);
+  assert.equal(guardianExteriorPortraitStandoff(view, boss, hero, 2.1,
+    960 / 600), null, 'desktop composition must remain independent');
+  assert.equal(guardianExteriorPortraitStandoff({x:8,y:38,z:80}, boss,
+    hero, 2.1, portrait), null, 'a safely distant camera does not chase a remedy');
+  assert.equal(guardianExteriorPortraitStandoff(view, boss,
+    {x:0,y:38,z:-25}, 2.1, portrait), null,
+    'never approve a view across the opaque cylinder to a fictitious hero');
+  assert.equal(guardianExteriorPortraitStandoff(view, boss, hero,
+    NaN, portrait), null);
+});
+
+test('source guardian standoff retains actual drawn body, physical collision and airborne landing camera vetoes', () => {
+  const scene = fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
+  assert.match(scene, /sourceGuardian\?\.active === true && sourceGuardian\.health > 0/);
+  assert.match(scene, /currentGuardianDrawPoint &&/);
+  assert.match(scene, /guardianExteriorPortraitStandoff\(\s*destination,\s*currentGuardianDrawPoint/);
+  assert.match(scene, /guardianExteriorPortraitStandoff\(\s*camera\.position,\s*currentGuardianDrawPoint/);
+  assert.match(scene, /towerCoreSightlineClear\(camera\.position, currentGuardianDrawPoint, 23\.5\)/);
+  assert.match(scene, /if \(safe && airborneDuelLanding\)/);
+  assert.match(scene, /camera\.position\.copy\(guardianStandoffPreviousCamera\)/);
+  assert.match(scene, /guardianStandoffFrameLift = frameStandoff\.step/);
+});
