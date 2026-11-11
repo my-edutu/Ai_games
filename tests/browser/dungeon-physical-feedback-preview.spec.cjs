@@ -822,7 +822,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   limitation:'Visual admission is NOT measured sword contact or audio/video synchronization'
  };
  const verdictJson=JSON.stringify(renderVerdictEvidence,null,2);
- fs.writeFileSync('artifacts/dungeon-d04-real-render-feedback-verdict.json',verdictJson+'\\n');
+ fs.writeFileSync('artifacts/dungeon-d04-real-render-feedback-verdict.json',verdictJson+'\n');
  await test.info().attach('d04-real-render-feedback-verdict.json',{
   body:Buffer.from(verdictJson),contentType:'application/json'
  });
