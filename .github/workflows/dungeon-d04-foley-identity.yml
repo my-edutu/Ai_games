@@ -5,6 +5,8 @@ on:
       - feat/dungeon-d04-combat-feedback-realism-20261108
     paths:
       - public/ai-dungeon/original-combat-foley.js
+      - public/ai-dungeon/app.js
+      - tests/browser/dungeon-d04-decoded-video-proof.cjs
       - public/ai-dungeon/physical-combat-feedback.js
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
@@ -34,6 +36,7 @@ jobs:
       - run: |
           node --test \
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
+            tests/foundation/dungeon-d04-capture-buffer-gate.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
@@ -57,6 +60,14 @@ jobs:
       - name: SHA-verified CC0 GLB asset retrieval
         run: npm run dungeon:assets:strict
       - run: npx playwright install --with-deps chromium
+      - name: Ensure native ffprobe/ffmpeg for strict decoded real WebGL frame evidence
+        run: |
+          if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffprobe -version | head -1
+          ffmpeg -version | head -1
       - name: Real Dungeon runtime and WebGL smoke only; not sample-synchronized A/V proof
         run: npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs
         env:
