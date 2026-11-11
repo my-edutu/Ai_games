@@ -2120,52 +2120,75 @@ export function createMazeWorld(options = {}) {
     // behind the actual jaw roots, inside this PUBLISHED trap tile. Every
     // part uses existing pooled geometry/materials and has zero gameplay
     // collision, invented key, unobserved map, or new source of AI authority.
+    // Pass270: the exact-HEAD 320/390 WebGL shows a small, fragmentary
+    // pressure machine under an enormous retaining terrace. Reconstruct its
+    // EXISTING mechanically driven counterbalance as one readable, original
+    // Tideglass shear-portal, not another independent sculpture or warning.
+    // Two anchored stone pylons and a single spanning yoke frame the true
+    // inward-moving ivory jaws. The published treadle still moves this SAME
+    // governor, crossbeam and suspended weight before the jaw closure.
+    // The bay is set behind both blade roots, inside the original 2.4m tile:
+    // it creates no passage, collider, damage, AI rule or hidden-map cue.
+    // Only pooled bevel/ring/cylinder materials; no new GPU resource classes.
     const counterbalance = new THREE.Group();
     counterbalance.name = 'Published tide-shear pressure counterbalance arch ' + c.cell;
-    counterbalance.position.set(0, -.10, -.64);
-    // One physical two-jaw silhouette takes priority in the genuine 390px
-    // pressure encounter. Lower and set back the *real rotating* governor and
-    // suspended counterweight rather than hiding or disabling their motion.
-    // The larger forward ceramic blades and exposed dark throat remain inside
-    // the original witnessed trap tile; no new trigger or private data.
-    counterbalance.scale.set(.75, .78, .75);
+    counterbalance.position.set(0, -.10, -.72);
+    counterbalance.scale.set(.93, 1, .86);
     p.add(counterbalance);
     for (const side of [-1, 1]) {
-      mesh(counterbalance, bevel, deepStone, side * .85, .57, 0, .24, 1.08, .30);
-      mesh(counterbalance, bevel, lightStone, side * .85, 1.12, 0, .32, .14, .36);
-      mesh(counterbalance, bevel, darkMetal, side * .83, .09, .31, .24, .13, .74);
-      mesh(counterbalance, bevel, gold, side * .70, .82, .18, .12, .16, .18);
+      const pillar = mesh(counterbalance, bevel, deepStone,
+        side * .95, .83, 0, .28, 1.64, .34);
+      pillar.name = 'Published Tideglass shear-portal anchored pylon ' + side;
+      mesh(counterbalance, bevel, darkMetal,
+        side * .95, .11, .04, .45, .19, .44);
+      mesh(counterbalance, bevel, lightStone,
+        side * .95, 1.64, 0, .34, .16, .39);
+      // Continuous glass-and-mineral relief reads as a joined working frame,
+      // not a luminous route arrow or an additional interactive switch.
+      mesh(counterbalance, bevel, seaGlass,
+        side * .95, .88, .208, .095, 1.14, .07);
+      mesh(counterbalance, bevel, gold,
+        side * .95, 1.40, .25, .15, .10, .06);
     }
     const bridge = new THREE.Group();
     bridge.name = 'Published tide-shear spanning load bridge';
-    bridge.position.y = 1.18;
+    bridge.position.y = 1.68;
     counterbalance.add(bridge);
-    mesh(bridge, bevel, darkMetal, 0, 0, 0, 1.91, .24, .28);
-    mesh(bridge, bevel, seaGlass, 0, .10, .035, 1.65, .045, .22);
+    const yoke = mesh(bridge, bevel, darkMetal,
+      0, 0, 0, 2.15, .26, .39);
+    yoke.name = 'Published Tideglass shear-portal connected yoke';
+    mesh(bridge, bevel, seaGlass,
+      0, .070, .143, 1.87, .07, .09);
+    mesh(bridge, bevel, lightStone,
+      0, .142, -.006, 2.03, .070, .33);
     const wheel = new THREE.Group();
     wheel.name = 'Published tide-shear bronze pressure governor';
-    wheel.position.set(0, .94, .16);
+    wheel.position.set(0, 1.28, -.04);
     counterbalance.add(wheel);
-    mesh(wheel, ring, gold, 0, 0, 0, .36, .36, .36);
-    mesh(wheel, ring, darkMetal, 0, 0, .035, .23, .23, .23);
-    mesh(wheel, cylinder, darkMetal, 0, 0, -.04, .19, .20, .19, Math.PI / 2);
+    mesh(wheel, ring, gold, 0, 0, 0, .29, .29, .29);
+    mesh(wheel, ring, darkMetal, 0, 0, .034, .19, .19, .19);
+    mesh(wheel, cylinder, darkMetal, 0, 0, -.04, .17, .18, .17, Math.PI / 2);
     for (let spoke = 0; spoke < 2; spoke++) {
       const angle = spoke * Math.PI;
-      mesh(wheel, bevel, lightStone, Math.cos(angle) * .15, Math.sin(angle) * .15,
-        .07, .20, .075, .09, 0, 0, angle);
+      mesh(wheel, bevel, lightStone,
+        Math.cos(angle) * .12, Math.sin(angle) * .12,
+        .07, .16, .060, .08, 0, 0, angle);
     }
+    // A TRUE joined cable/weight under the moving yoke. On the published
+    // pressure clock the cable stretches as the weight drops; every transform
+    // is absolute, so withdrawal and stale/private snapshots return to rest.
     const cable = new THREE.Group();
     cable.name = 'Published tide-shear connected descending cable';
-    cable.position.set(0, 1.08, .16);
+    cable.position.set(0, 1.26, .08);
     counterbalance.add(cable);
-    mesh(cable, bevel, gold, 0, -.15, 0, .075, .30, .075);
+    mesh(cable, bevel, gold, 0, -.27, 0, .072, .47, .072);
     const weight = new THREE.Group();
     weight.name = 'Published tide-shear hanging counterweight';
-    weight.position.set(0, .60, .16);
+    weight.position.set(0, .66, .08);
     counterbalance.add(weight);
-    mesh(weight, bevel, darkMetal, 0, 0, 0, .41, .29, .35);
-    mesh(weight, bevel, lightStone, 0, -.13, .02, .46, .08, .39);
-    mesh(weight, bevel, darkJade, 0, .02, .186, .30, .18, .04);
+    mesh(weight, bevel, darkMetal, 0, 0, 0, .40, .30, .35);
+    mesh(weight, bevel, lightStone, 0, -.13, .02, .45, .08, .40);
+    mesh(weight, bevel, darkJade, 0, .025, .186, .29, .18, .04);
     mesh(pressureMast, cylinder, darkMetal, 0, .08, 0, .30, .16, .28);
     mesh(pressureMast, ring, gold, 0, .19, 0, .35, .35, .35, Math.PI / 2);
     const carriage = new THREE.Group();
@@ -2694,7 +2717,7 @@ export function createMazeWorld(options = {}) {
       const counterStroke = reducedContact ? .55 : nearContact ? shutterBeat : 0;
       signal.counterbalance.wheel.rotation.z = -.72 * treadleStroke;
       signal.counterbalance.bridge.rotation.z = .11 * counterStroke;
-      signal.counterbalance.weight.position.y = .60 - .28 * counterStroke;
+      signal.counterbalance.weight.position.y = .66 - .28 * counterStroke;
       signal.counterbalance.cable.scale.y = 1 + .92 * counterStroke;
       for (const relay of signal.relays) {
         relay.object.rotation.z = -relay.side * (reducedContact ? .40 : .05 + .65 * earlyRelay);
