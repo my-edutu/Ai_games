@@ -658,5 +658,24 @@
   "latestObservedOriginalCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/43028026049",
   "latestObservedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43028026077",
   "latestObservedCaptureBlocker": "Baseline portrait outcome original WebM preserved but 13 distinct compositor anchors had one unsafe 0.738094 slope; full event clock NOT EVALUATED. Original guardian 0/2 event-cued viewports; original browser source-ledger 8/8 timelines, not pixel proof.",
-  "previousImplementationSha": "0b9d91e535212d6008f7af0810a4179eb5022601"
+  "previousImplementationSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
+  "p0RealChromiumWebGL2AfterDNSRecovery20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "exact immutable github.sha of THIS commit, not moving PR head",
+    "observedOriginalFailure": "https://github.com/my-edutu/Ai_games/actions/runs/43036356312 — source + 25 tower geometry tests reached browser; original Ubuntu apt font package DNS failed and 8 videos remained unaccepted",
+    "codeAndWorkflowSourceHead": "29854d8b609394a32a10273b0859c16c21919c9b",
+    "preflightImplementationSha": "f4abac8dd063772bfb74c0cb74750da4ea0d611b",
+    "review": "docs/reviews/2026-11-11-tower-pr68-real-browser-runner-dns-unblock.md",
+    "request": "Restart authentic 9-job exact baseline/candidate 20Hz live-browser film at 960x600 desktop and 390x844 portrait; preserve >=60s normal-speed unaltered WebM, original source event/PTS calibration, source 3200-tick guardian/crusher through real gateway, floor9 and actual restart.",
+    "veto": "Source chain and native film event match, real WebGL2, real original gameplay and strict full-motion review required; no passing verdict from source tests alone.",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevicePerf": "NOT EVALUATED",
+    "biggestUnsolved": "Unconfirmed portrait two-character guardian camera after-film; physical crusher defeat, grounded walkable gateway, Floor9 onward, outcome/intermission/restart and source-to-raster alignment."
+  }
 }
