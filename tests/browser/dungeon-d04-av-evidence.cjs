@@ -109,6 +109,40 @@ function classifyCanvasSubmissionTiming({delivery={},framePump={}}={}){
   'ONLY_POST_MUTE_SUBMISSIONS_WITHOUT_PRESENTATION';
 }
 
+/**
+ * Synthetic 2D canvas: explicitly isolated encoder POSITIVE CONTROL only.
+ * This is not a Dungeon frame, gameplay witness or synchronized audiovisual
+ * source. A positive control merely narrows the capture failure surface.
+ * Both tracks must be observed in the SAME real browser, not compared with
+ * unrelated CI executions. Never infer a definitive GPU root cause.
+ */
+function classifyCanvasEncoderControl({control={},real={}}={}){
+ const isReal=real.source==='real-webgl-canvas-video-only'&&
+  /^video\/webm(?:;|$)/i.test(real.mimeType||'')&&
+  real.videoTracks===1&&real.audioTracks===0&&
+  Number.isFinite(real.recordingMs)&&real.recordingMs>=1000&&real.recordingMs<=15500&&
+  hasConfirmedCanvasFrames(real.framePump);
+ const isControl=control.source==='synthetic-2d-canvas-encoder-control-not-gameplay'&&
+  /^video\/webm(?:;|$)/i.test(control.mimeType||'')&&
+  control.videoTracks===1&&control.audioTracks===0&&
+  Number.isInteger(control.canvasWidth)&&control.canvasWidth>=16&&control.canvasWidth<=128&&
+  Number.isInteger(control.canvasHeight)&&control.canvasHeight>=16&&control.canvasHeight<=128&&
+  Number.isSafeInteger(control.drawnFrames)&&control.drawnFrames>=3&&control.drawnFrames<=128&&
+  Number.isFinite(control.recordingMs)&&control.recordingMs>=1000&&control.recordingMs<=15500;
+ if(!isReal||!isControl)return 'CONTROL_COMPARISON_UNVERIFIED';
+ const encoded=(record)=>record.status==='RECORDED'&&
+  Number.isSafeInteger(record.bytes)&&record.bytes>1024&&record.bytes<=MAX_CLIP_BYTES;
+ const empty=(record)=>record.status==='UNAVAILABLE'&&
+  Number.isSafeInteger(record.bytes)&&record.bytes===0;
+ const gameOK=encoded(real),controlOK=encoded(control);
+ if(!gameOK&&!empty(real)||!controlOK&&!empty(control))
+  return 'CONTROL_COMPARISON_UNVERIFIED';
+ if(controlOK&&!gameOK)return 'CONTROL_ENCODES_REAL_WEBGL_EMPTY';
+ if(!controlOK&&!gameOK)return 'BOTH_VIDEO_PATHS_UNVERIFIED';
+ if(gameOK&&controlOK)return 'BOTH_VIDEO_PATHS_ENCODED_UNALIGNED';
+ return 'REAL_VIDEO_ENCODED_CONTROL_UNVERIFIED';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -155,6 +189,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   encodedBytes:isolated.videoOnly?.bytes??0,
   submittedFrames:clip.framePump?.observedFrameAdvances??0});
  const submissionDiagnosis=classifyCanvasSubmissionTiming({delivery:trackDelivery,framePump:clip.framePump});
+ const canvasEncoderDifferential=optedIn===true?classifyCanvasEncoderControl({control:isolated.control2dOnly,real:isolated.videoOnly}):'CONTROL_COMPARISON_UNVERIFIED';
  const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
   !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
@@ -165,7 +200,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -185,6 +220,8 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
  const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
+ // A synthetic control must NEVER be persisted as gameplay video or exported as base64.
+ const {base64:syntheticControlBytes,...control2dOnly}=raw.isolated?.control2dOnly||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
  let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
@@ -224,7 +261,7 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
   }
  }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames??null,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly},frames:raw.frames??null,
   trackDelivery:raw.trackDelivery??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
@@ -233,5 +270,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
 }
-module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,persistD04CaptureEvidence,
+module.exports={assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
