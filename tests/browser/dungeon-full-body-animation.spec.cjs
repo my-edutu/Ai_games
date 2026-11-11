@@ -338,7 +338,7 @@ for(const view of [
  const stage=await loadStage(page,sequence.states[0]);
  const code=fs.readFileSync(require('node:path').join(__dirname,
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity}=await import('data:text/javascript;base64,'+
+ const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity,auditOriginalSourceFootFacing}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
  const trace=[],stanceWindows=[],fastWalkWindows=[],sourcePatchWindows=[],rafWindows=[];
  let previous=null,probedMotion=0;
@@ -371,11 +371,17 @@ for(const view of [
      // the SAME displayed frames; no authoritative root or joint alteration.
      beforeRootWorld:pair.before.rootWorld,
      afterRootWorld:pair.after.rootWorld,
+     beforeRootYaw:pair.before.rootYaw??null,
+     afterRootYaw:pair.after.rootYaw??null,
      beforeFootJointWorld:pair.before.footJointWorld??null,
      afterFootJointWorld:pair.after.footJointWorld??null,
      beforeSourceSolePatchWorld:pair.before.sourceSolePatchWorld??null,
      afterSourceSolePatchWorld:pair.after.sourceSolePatchWorld??null,
      contact:measureSourceSolePatchContinuity(pair.before,pair.after,{
+      beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
+      beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
+      floorEvidence:'authored-cube-floor-top',floorTopY:-.02}),
+     facing:auditOriginalSourceFootFacing(pair.before,pair.after,{
       beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
       beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
       floorEvidence:'authored-cube-floor-top',floorTopY:-.02})
@@ -562,6 +568,10 @@ for(const view of [
    w.pairs.filter(p=>p.contact.comparable).length,0),
   possibleSourceFootContacts:rafWindows.reduce((n,w)=>n+
    w.pairs.filter(p=>p.contact.potentialContactSides?.length).length,0),
+  comparableSourceFacingPairs:rafWindows.reduce((n,w)=>n+
+   w.pairs.filter(p=>p.facing.comparable).length,0),
+  sourceFacingLagWitnesses:rafWindows.reduce((n,w)=>n+
+   w.pairs.filter(p=>p.facing.classification==='source-facing-lags-world-travel').length,0),
   caveat:'Consecutive original skinned frames are evidence, NOT IK, a floor raycast or validated foot plants.'};
  expect(rafEvidence.consecutiveWitnessPairs,
   'an original-rig high-frequency source film must contain real adjacent displayed walking frames').toBeGreaterThan(0);
