@@ -1390,6 +1390,11 @@ let commuterResidentCache=new Map(),commuterResidentVisible=[],
  commuterResidentFallbacks=0,commuterResidentRebuilds=0,
  commuterResidentLayoutKey='',commuterResidentFullUploads=0,
  commuterResidentPartialUploads=0,commuterResidentUploadBytes=0;
+// W221: physical 13-joint GPU gait of AUTHENTIC far commuters; no crowd clones.
+let commuterResidentJointBuffer=null,commuterResidentJointCapacity=0,
+ commuterResidentJointData=new Float32Array(0),commuterSkinDrawCalls=0,
+ commuterJointUploads=0,commuterJointUploadBytes=0;
+
 function isResidentCommuterCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||nearPeople.has(i)||!p||p.delivery||
     isWorkingAtSite(p)||isMarketUnloading(p))return false;
@@ -1406,23 +1411,26 @@ function realCommuterFacing(p){
 }
 function commuterPoseStale(entry,p,angle){
  if(!entry||entry.name!==p.name||entry.job!==p.job||
-    entry.activity!==p.activity)return true;
+  entry.activity!==p.activity||
+  Boolean(entry.skinned)!==Boolean(workingSkinCapable)||
+  entry.season!==climateAt(state.t).season)return true;
+ // Real changes to physiology invalidate BOTH retained and CPU poses.
+ if(Math.floor(p.energy/15)!==Math.floor(entry.energy/15)||
+    Math.floor(p.hunger/15)!==Math.floor(entry.hunger/15))return true;
+ if(workingSkinCapable&&entry.skinned)
+  return !entry.joints||entry.joints.length!==entry.mesh.length/10||
+   !Array.isArray(entry.bindSegments)||entry.bindSegments.length!==13;
+ // Unsupported GPUs always retain original CPU-animated compact workers.
  const turn=Math.atan2(Math.sin(angle-entry.angle),Math.cos(angle-entry.angle));
- // Sub-quarter-stride updates preserve the authentic fixed-step foot phase.
- // Nothing moves visually from an invented time or path.
  return Math.abs(p.phase-entry.phase)>.72||
-  Math.hypot(p.x-entry.x,p.z-entry.z)>.55||
-  Math.abs(turn)>.17||
-  Math.floor(p.energy/15)!==Math.floor(entry.energy/15)||
-  Math.floor(p.hunger/15)!==Math.floor(entry.hunger/15);
+  Math.hypot(p.x-entry.x,p.z-entry.z)>.55||Math.abs(turn)>.17;
 }
 function prepareResidentCommuters(rows){
  commuterResidentVisible=[];
  if(!gpuAvailable||!rows.length){
-  commuterResidentCache.clear();
-  commuterResidentKey='';commuterResidentLayoutKey='';
-  commuterResidentMesh=new Float32Array(0);
-  return false;
+  commuterResidentCache.clear();commuterResidentKey='';
+  commuterResidentLayoutKey='';commuterResidentMesh=new Float32Array(0);
+  commuterResidentJointData=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
  const next=new Map(),selected=[],limited=rows.slice(0,COMMUTER_RESIDENT_MAX);
@@ -1431,65 +1439,82 @@ function prepareResidentCommuters(rows){
   const angle=realCommuterFacing(p);
   let entry=commuterResidentCache.get(i),fresh=false;
   if(commuterPoseStale(entry,p,angle)){
-   const prior=data,before=restingActorCounters();
-   data=[];
+   const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
+   const labels=[];data=[];
+   if(workingSkinCapable)workSkinCapture=labels;
    try{
-    compactVillager(p);
+    compactVillager(p); // Original articulated citizen, no fabricated work.
     const mesh=new Float32Array(data),after=restingActorCounters();
     const delta=restingActorDifference(before,after);
-    // W118's role snapshot is cumulative; store the true PER-ACTOR delta
-    // so repeated GPU frames do not duplicate real occupational counts.
     delta.roles=Object.fromEntries(Object.keys(after.roles)
      .map(role=>[role,(after.roles[role]||0)-(before.roles[role]||0)]));
     entry={name:p.name,job:p.job,activity:p.activity,
      x:p.x,z:p.z,phase:p.phase,energy:p.energy,hunger:p.hunger,
+     season:climateAt(state.t).season,skinned:Boolean(workingSkinCapable),
      ground:terrain(p.x,p.z),angle,mesh,delta,
      revision:++commuterResidentBuilds};
+    if(entry.skinned){
+     entry.scale=.92+(i%5)*.045;
+     const rig=citizenRigPose(p);
+     entry.bindSegments=workSkinSegments(rig,citizenEmbodiedPose(p,i,rig),entry);
+     entry.joints=workSkinTags(mesh.length/10,labels);
+    }
     commuterResidentRebuilds++;fresh=true;
-   }finally{data=prior;}
+   }finally{data=prior;currentMaterial=materialBefore;workSkinCapture=null;}
   }else{
-   applyRestingActorMetrics(entry.delta);
-   commuterResidentReuses++;
+   applyRestingActorMetrics(entry.delta);commuterResidentReuses++;
   }
   total+=entry.mesh.length;
   if(total>COMMUTER_RESIDENT_FLOAT_BUDGET||
      entry.mesh.length%30!==0||!entry.mesh.length){
-   // Full original live compact meshes are emitted by the caller instead.
    resetRestingActorMetrics(beforeAll);
    commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
+   commuterResidentJointData=new Float32Array(0);
    commuterResidentFallbacks++;
-   commuterResidentKey='';commuterResidentLayoutKey='';
-   return false;
+   commuterResidentKey='';commuterResidentLayoutKey='';return false;
   }
-  next.set(i,entry);
-  selected.push({p,i,entry,fresh});
+  next.set(i,entry);selected.push({p,i,entry,fresh});
  }
  let offset=0;
  for(const row of selected){
   row.offset=offset/10;row.count=row.entry.mesh.length/10;
   offset+=row.entry.mesh.length;
  }
- // Geometry layout changes require one complete repack. An original
- // commuter's gait-only pose change otherwise uploads JUST that actor's
- // original mesh into its stable VBO range; other citizens never churn.
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
  const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
- const dirtyFloats=selected.reduce((n,row)=>
-  n+(row.fresh?row.entry.mesh.length:0),0);
+ const dirtyFloats=selected.reduce((n,row)=>n+(row.fresh?row.entry.mesh.length:0),0);
  const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
+ const skinned=Boolean(workingSkinCapable);
  const wholeUpload=layoutKey!==commuterResidentLayoutKey||
-  !commuterResidentBuffer||commuterResidentMesh.length!==total||coalesce;
+  !commuterResidentBuffer||commuterResidentMesh.length!==total||coalesce||
+  (skinned&&commuterResidentJointData.length!==total/10);
  if(!commuterResidentBuffer)commuterResidentBuffer=gl.createBuffer();
- if(!commuterResidentBuffer){
+ if(skinned&&!commuterResidentJointBuffer)
+  commuterResidentJointBuffer=gl.createBuffer();
+ if(!commuterResidentBuffer||(skinned&&!commuterResidentJointBuffer)){
   resetRestingActorMetrics(beforeAll);
   commuterResidentFallbacks++;commuterResidentVisible=[];
   commuterResidentKey='';commuterResidentLayoutKey='';
-  commuterResidentMesh=new Float32Array(0);return false;
+  commuterResidentMesh=new Float32Array(0);
+  commuterResidentJointData=new Float32Array(0);return false;
  }
  bindGeometry(commuterResidentBuffer);
  if(wholeUpload){
   const packed=new Float32Array(total);
   for(const row of selected)packed.set(row.entry.mesh,row.offset*10);
+  if(skinned){
+   const joints=new Float32Array(total/10);
+   for(const row of selected)joints.set(row.entry.joints,row.offset);
+   gl.bindBuffer(gl.ARRAY_BUFFER,commuterResidentJointBuffer);
+   if(joints.length>commuterResidentJointCapacity){
+    commuterResidentJointCapacity=Math.ceil(joints.length/8192)*8192;
+    gl.bufferData(gl.ARRAY_BUFFER,commuterResidentJointCapacity*4,gl.DYNAMIC_DRAW);
+   }
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,joints);
+   commuterResidentJointData=joints;
+   commuterJointUploads++;commuterJointUploadBytes+=joints.byteLength;
+   bindGeometry(commuterResidentBuffer);
+  }else commuterResidentJointData=new Float32Array(0);
   if(total>commuterResidentCapacity){
    commuterResidentCapacity=Math.ceil(total/65536)*65536;
    gl.bufferData(gl.ARRAY_BUFFER,commuterResidentCapacity*4,gl.DYNAMIC_DRAW);
@@ -1505,20 +1530,39 @@ function prepareResidentCommuters(rows){
    commuterResidentMesh.set(row.entry.mesh,row.offset*10);
    commuterResidentUploads++;commuterResidentPartialUploads++;
    commuterResidentUploadBytes+=row.entry.mesh.length*4;
+   if(skinned){
+    gl.bindBuffer(gl.ARRAY_BUFFER,commuterResidentJointBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*4,row.entry.joints);
+    commuterResidentJointData.set(row.entry.joints,row.offset);
+    commuterJointUploads++;commuterJointUploadBytes+=row.entry.joints.byteLength;
+    bindGeometry(commuterResidentBuffer);
+   }
   }
  }
  commuterResidentCache=next;
- commuterResidentVisible=selected;
- commuterResidentLayoutKey=layoutKey;
+ commuterResidentVisible=selected;commuterResidentLayoutKey=layoutKey;
  commuterResidentKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
  return true;
 }
 function drawResidentCommuters(){
  if(!gpuAvailable||!commuterResidentBuffer||!commuterResidentVisible.length)return;
  bindGeometry(commuterResidentBuffer);
+ const skin=Boolean(workingSkinCapable&&commuterResidentJointBuffer&&
+  commuterResidentJointData.length===commuterResidentMesh.length/10&&
+  commuterResidentVisible.every(row=>row.entry.skinned));
+ if(skin){
+  gl.bindBuffer(gl.ARRAY_BUFFER,commuterResidentJointBuffer);
+  gl.enableVertexAttribArray(skinJointAttribute);
+  gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0);
+ }
  gl.uniform1f(uniforms.commuterEnabled,1);
+ if(skin)gl.uniform1f(uniforms.workSkinActive,1);
  try{
   for(const {p,entry,offset,count} of commuterResidentVisible){
+   if(skin){
+    gl.uniformMatrix4fv(uniforms.workBone,false,workSkinMatrices(entry,p));
+    commuterSkinDrawCalls++;
+   }
    const yaw=realCommuterFacing(p)-entry.angle;
    gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
    gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
@@ -1526,7 +1570,11 @@ function drawResidentCommuters(){
    gl.drawArrays(gl.TRIANGLES,offset,count);
    commuterResidentDrawCalls++;
   }
- }finally{gl.uniform1f(uniforms.commuterEnabled,0)}
+ }finally{
+  gl.uniform1f(uniforms.workSkinActive,0);
+  gl.uniform1f(uniforms.commuterEnabled,0);
+  if(skin)gl.disableVertexAttribArray(skinJointAttribute);
+ }
 }
 function getResidentCommuterAudit(){
  return {source:'original-real-route-compact-actor-retained-gpu-poses',
@@ -1540,6 +1588,13 @@ function getResidentCommuterAudit(){
   fullUploads:commuterResidentFullUploads,
   partialUploads:commuterResidentPartialUploads,
   uploadBytes:commuterResidentUploadBytes,layoutKey:commuterResidentLayoutKey,
+  // Bounded original commuter GPU joint stream and real fixed-tick palette.
+  jointBytes:commuterResidentJointData.byteLength,
+  jointCapacityBytes:commuterResidentJointCapacity*4,
+  jointBufferCount:commuterResidentJointBuffer?1:0,
+  skinnedCommuters:commuterResidentVisible.filter(row=>row.entry.skinned).length,
+  gpuSkinDraws:commuterSkinDrawCalls,jointUploads:commuterJointUploads,
+  jointUploadedBytes:commuterJointUploadBytes,allPeopleReal:true,
   overflowFallbacks:commuterResidentFallbacks,
   originalMovementAndOccupationOnly:true,nearWorkersAndCargoAlwaysLive:true,
   physicalHardwareFpsNotMeasured:true,authorityModified:false};
@@ -1548,6 +1603,7 @@ function resetResidentCommuters(){
  commuterResidentCache.clear();commuterResidentKey='';
  commuterResidentLayoutKey='';
  commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
+ commuterResidentJointData=new Float32Array(0);
  // Reuse one bounded allocation across resets; never keep old citizen data.
 }
 
@@ -2074,6 +2130,7 @@ function setWorkingSkinEnabledForTesting(enabled){
  workingSkinCapable=workingSkinSupported&&enabled;
  resetWorkingResidents();
  resetForegroundResidents();
+ resetResidentCommuters(); // 13-joint mode also affects real traveling compact people.
  cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
  presentationEpoch++;lastFrozenFrameKey=null;
  return getWorkingSkinAudit();
