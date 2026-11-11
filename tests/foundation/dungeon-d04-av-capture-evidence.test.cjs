@@ -424,3 +424,75 @@ test('D04 diagnostic manifest records synthetic control metadata but NEVER store
   assert.equal(manifest.assessment.sampleSynchronized,false);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+/**
+ * Two simultaneously failing canvas recorders cannot reveal whether competing
+ * MediaRecorder instances starve this CI environment. A serial positive control
+ * must run AFTER the live game/PCM probes settle, and may never certify Dungeon.
+ */
+test('D04 post-release 2D recorder distinguishes serial recovery from concurrent failure',()=>{
+ const {classifySequentialCanvasEncoderProbe}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const concurrent={...comparisonControl,status:'UNAVAILABLE',bytes:0};
+ const serial={...comparisonControl,
+  source:'synthetic-2d-canvas-serial-control-not-gameplay',
+  phase:'after-all-primary-encoders-settled',primaryRecordersSettled:true};
+ assert.equal(classifySequentialCanvasEncoderProbe({concurrent,serial}),
+  'POST_RELEASE_ENCODER_RECOVERED');
+ assert.equal(classifySequentialCanvasEncoderProbe({concurrent,
+  serial:{...serial,status:'UNAVAILABLE',bytes:0}}),
+  'POST_RELEASE_ENCODER_STILL_UNVERIFIED');
+ assert.equal(classifySequentialCanvasEncoderProbe({concurrent:comparisonControl,serial}),
+  'CONTROL_RECORDED_WITH_AND_WITHOUT_PARALLEL_ENCODERS');
+});
+
+test('D04 serial control fails closed on overlapping recorders or untrustworthy provenance',()=>{
+ const {classifySequentialCanvasEncoderProbe}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const serial={...comparisonControl,source:'synthetic-2d-canvas-serial-control-not-gameplay',
+  phase:'after-all-primary-encoders-settled',primaryRecordersSettled:true};
+ for(const bad of [
+  {...serial,source:'real-gameplay'},
+  {...serial,phase:'overlapping-encoders'},
+  {...serial,primaryRecordersSettled:false},
+  {...serial,primaryRecordersSettled:undefined},
+  {...serial,drawnFrames:0},
+  {...serial,mimeType:'audio/webm'},
+  {...serial,videoTracks:0},
+  {...serial,bytes:2*1024*1024+1},
+  {...serial,recordingMs:20000}
+ ])assert.equal(classifySequentialCanvasEncoderProbe({
+   concurrent:comparisonControl,serial:bad}),'SERIAL_CONTROL_UNVERIFIED');
+});
+
+test('D04 serial-only encoder success never upgrades actual game A/V acceptance',()=>{
+ const concurrent={...comparisonControl,status:'UNAVAILABLE',bytes:0};
+ const serial={...comparisonControl,source:'synthetic-2d-canvas-serial-control-not-gameplay',
+  phase:'after-all-primary-encoders-settled',primaryRecordersSettled:true};
+ const assessed=assessD04Capture({...good,
+  clip:{...good.clip,status:'UNAVAILABLE',bytes:0},
+  isolated:{videoOnly:comparisonReal,control2dOnly:concurrent,serial2dOnly:serial}});
+ assert.equal(assessed.serialCanvasEncoderDifferential,'POST_RELEASE_ENCODER_RECOVERED');
+ assert.equal(assessed.combinedVideoAudio,false);
+ assert.equal(assessed.isolatedVideoRecorded,false);
+ assert.equal(assessed.sampleSynchronized,false);
+ assert.equal(assessed.classification,'UNVERIFIED');
+});
+
+test('D04 serial synthetic control keeps only bounded metadata and never persists video',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-serial-control-'));
+ try{
+  const serial={...comparisonControl,source:'synthetic-2d-canvas-serial-control-not-gameplay',
+   phase:'after-all-primary-encoders-settled',primaryRecordersSettled:true,
+   base64:Buffer.alloc(18000,17).toString('base64')};
+  const concurrent={...comparisonControl,status:'UNAVAILABLE',bytes:0};
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},
+   isolated:{videoOnly:comparisonReal,control2dOnly:concurrent,serial2dOnly:serial},
+   frames:{before:10,after:14}};
+  const assessment=assessD04Capture({...good,...raw});
+  const saved=persistD04CaptureEvidence({directory,raw,assessment});
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.assessment.serialCanvasEncoderDifferential,'POST_RELEASE_ENCODER_RECOVERED');
+  assert.equal(manifest.isolated.serial2dOnly.base64,undefined);
+  assert.equal(manifest.isolated.serial2dOnly.source,serial.source);
+  assert.deepEqual(fs.readdirSync(directory),['dungeon-d04-live-av-evidence.json']);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
