@@ -1,3 +1,9 @@
+### Pass267 — a publicly TRUE Tideglass pressure sluice, not a false route (2026-11-11 UTC)
+
+- Exact prior [`2fd9df81b`](https://github.com/my-edutu/Ai_games/commit/2fd9df81bc107e1e9667923c3eb89e1d86cd5cb5) [WebGL run 42985004183](https://github.com/my-edutu/Ai_games/actions/runs/42985004183) **SUCCESS**, authentic 390px stage inspected: Pip and the small busy jaw mechanism still lack a coherent miniature action court against Nintendo. Benchmark remains **UNMET**.
+- New original two-cell Tideglass court ties the actual publicly known approach into the source-driven treadle/shutter/jaws through wide sea-glass basin, matched ivory/bronze runners, coral hazard sill and dark mineral pressure stage. Correct false visual open channels: only genuinely disclosed, reciprocal, same-height, unblocked, unsealed connections can carry a linked court. No secret state, authority, navigation, collision, new GPU material/geometry class or weakened strict view/resource gates. [Dated detailed critic](./maze-3d/pass-267-honest-original-pressure-court-2026-11-11.md). New production-installed Three truth/privacy/rebuild test.
+- **Fresh exact-HEAD CI/browser/SHA and independent art verdict pending**; worker tunnel NOT_FOUND. PR #53 OPEN DRAFT, NEVER merge/deploy/force.
+
 ### Pass266 — a true paired kinetic floor deck under the real Tide-Shear mouth (2026-11-11 UTC)
 
 - [Previous exact-HEAD successful original WebGL 42982019547](https://github.com/my-edutu/Ai_games/actions/runs/42982019547), artifact 13837794118: **37/37** original complete 320/390/844/1280 PNG-SHA sidecars verified, real 390 pressure and 320 mobile inspected. The Pass265 broad jaws exist, yet miniature floor shutters visually bury the actual opening beneath the mast. This genuine mobile-screen story **still FAILS** the official Nintendo reference.

@@ -17,6 +17,31 @@ export function cellHeight(cell, width, height) {
   const band = Math.min(2, Math.max(0, Math.floor(row * 3 / Math.max(1, height))));
   return (2 - band) * 1.4;
 }
+// A drawn pressure-court approach is honest only across a FULLY public,
+// reciprocal, level, unsealed connection. Proximity alone is not a doorway;
+// no render path may infer the private maze or a hidden walkable shortcut.
+export function publicPressureCourtLink(from, trap, snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.cells)
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width < 1
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height < 1
+    || !Number.isSafeInteger(from?.cell) || !Number.isSafeInteger(trap?.cell)) return false;
+  const a=snapshot.cells.find(cell=>cell.cell===from.cell);
+  const b=snapshot.cells.find(cell=>cell.cell===trap.cell);
+  if (!a || !b || a.blocked || b.blocked || a.trap || b.trap!==true
+    || !Array.isArray(a.neighbors) || !Array.isArray(b.neighbors)
+    || !a.neighbors.includes(b.cell) || !b.neighbors.includes(a.cell)) return false;
+  const ax=a.cell%snapshot.width, bx=b.cell%snapshot.width;
+  const ay=Math.floor(a.cell/snapshot.width), by=Math.floor(b.cell/snapshot.width);
+  if (Math.abs(ax-bx)+Math.abs(ay-by)!==1
+    || Math.abs(cellHeight(a.cell,snapshot.width,snapshot.height)
+      -cellHeight(b.cell,snapshot.width,snapshot.height))>1e-8) return false;
+  // A known closed portcullis remains a wall until its PUBLIC open flag changes.
+  if ((snapshot.doors||[]).some(door=>!door.open
+    && ((door.a===a.cell&&door.b===b.cell)
+      || (door.a===b.cell&&door.b===a.cell)))) return false;
+  return true;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -880,14 +905,13 @@ export function createMazeWorld(options = {}) {
       // known second ring providing the light architectural shoulder.
       // No undiscovered trap, private topology, presumed safe route or AI
       // decision influences this 100% visual, public-state-only district.
-      const pressureCourtBasin = pressureCourtApron && s.cells.some(known =>
-        known.trap === true && !known.blocked
-        && Math.abs(c.cell % s.width - known.cell % s.width)
-          + Math.abs(Math.floor(c.cell / s.width) - Math.floor(known.cell / s.width)) === 1);
-      const basinFacesEastWest = pressureCourtBasin && s.cells.some(known =>
-        known.trap === true && !known.blocked
-        && Math.floor(c.cell / s.width) === Math.floor(known.cell / s.width)
-        && Math.abs(c.cell % s.width - known.cell % s.width) === 1);
+      // Pass267: a geometrically adjacent trap is not necessarily reachable.
+      // Never draw a physical passage through a published locked/nonpassage edge.
+      const disclosedPressureLink = pressureCourtApron
+        ? s.cells.find(known=>publicPressureCourtLink(c,known,s)) : null;
+      const pressureCourtBasin = !!disclosedPressureLink;
+      const basinFacesEastWest = pressureCourtBasin
+        && Math.floor(c.cell / s.width) === Math.floor(disclosedPressureLink.cell / s.width);
       // Terrace foundations always reach the same underwater bed, never float.
       // Authored terraced-support mineral hierarchy: the original large,
       // near-black undercroft swallowed the actor in authentic 1280/390 WebGL.
@@ -925,22 +949,40 @@ export function createMazeWorld(options = {}) {
       // One unbroken physical slab per disclosed apron tile, rather than
       // random 2x2 squares. No added GPU class, floating deck or fake route.
       if (pressureCourtBasin) {
-        // Replace the checkerboard with a near edge-to-edge continuous
-        // mineral deck. Two broad, paired flush sea-glass conduits join its
-        // actual public machine-facing axis; no arrowhead, fake key, raised
-        // obstacle, passage, new material or GPU geometry class is invented.
-        // The 2.39m deck lives inside the existing 2.40m tile boundary.
+        // Pass267: one substantial Tideglass sluice COURT replaces two thin
+        // marks lost beneath Pip. A broad recessed glass basin and paired
+        // load-bearing ivory/bronze runners lead into the actual pressure
+        // machine's moving treadle and shutters. No false route, new AI action,
+        // raised obstacle, render-time allocation or added GPU resource class.
+        // All inset forms remain in this genuinely walkable 2.4m public cell.
         block(floorMaterial, x, -.035, z, 2.39, .07, 2.39, c.cell);
+        add(box, deepStone, x, .006, z,
+          basinFacesEastWest ? 2.22 : 1.24, .012,
+          basinFacesEastWest ? 1.24 : 2.22, c.cell);
+        add(box, seaGlass, x, .014, z,
+          basinFacesEastWest ? 2.18 : .91, .013,
+          basinFacesEastWest ? .91 : 2.18, c.cell);
         for (const sign of [-1, 1]) {
-          const px = x + (basinFacesEastWest ? 0 : sign * .48);
-          const pz = z + (basinFacesEastWest ? sign * .48 : 0);
-          add(box, seaGlass, px, .012, pz,
-            basinFacesEastWest ? 1.82 : .18, .016,
-            basinFacesEastWest ? .18 : 1.82, c.cell);
-          add(box, inlay, px, .024, pz,
-            basinFacesEastWest ? 1.69 : .045, .009,
-            basinFacesEastWest ? .045 : 1.69, c.cell);
+          const px=x+(basinFacesEastWest ? 0 : sign*.63);
+          const pz=z+(basinFacesEastWest ? sign*.63 : 0);
+          add(box, darkMetal, px, .021, pz,
+            basinFacesEastWest ? 2.18 : .22, .023,
+            basinFacesEastWest ? .22 : 2.18, c.cell);
+          add(box, lightStone, px, .037, pz,
+            basinFacesEastWest ? 2.10 : .125, .018,
+            basinFacesEastWest ? .125 : 2.10, c.cell);
         }
+        // One coral cross-sill on the SOURCE-DISCLOSED trap-facing edge,
+        // not an arrow or a fictitious safe route through a locked door.
+        const trapCol=disclosedPressureLink.cell%s.width;
+        const direction=basinFacesEastWest
+          ? Math.sign(trapCol-c.cell%s.width)
+          : Math.sign(Math.floor(disclosedPressureLink.cell/s.width)
+            -Math.floor(c.cell/s.width));
+        add(box, danger, x+(basinFacesEastWest ? direction*1.07 : 0),
+          .039, z+(basinFacesEastWest ? 0 : direction*1.07),
+          basinFacesEastWest ? .12 : 1.38, .024,
+          basinFacesEastWest ? 1.38 : .12, c.cell);
       } else if (pressureCourtApron || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
@@ -959,11 +1001,23 @@ export function createMazeWorld(options = {}) {
       // Flush decoration only: no new trigger, collision, route, clue, AI
       // signal, hidden-cell query, GPU class or frame-time mesh allocation.
       if (c.trap && !c.blocked) {
+        // The coherent dark Tideglass machine sits within the original
+        // public hazard footprint. Its earned large ivory doors and red
+        // cutting surfaces now contrast with the mineral court underneath.
         block(deepStone, x, -.010, z, 2.12, .030, 2.12, c.cell);
-        block(clay, x, .009, z, 1.94, .012, 1.94, c.cell);
-        // Replace the eight inert, scattered corner ornaments with ONE
-        // truly depressible linked ceramic treadle in the disclosed trapProp.
-        // The original walkable tile, trigger and collision never change.
+        block(darkJade, x, .009, z, 1.94, .012, 1.94, c.cell);
+        // ONLY actual open public approach edges receive the matching
+        // physical shear threshold. Never bridge a closed gate or stair.
+        for (const approach of s.cells) {
+          if (!publicPressureCourtLink(approach,c,s)) continue;
+          const dx=approach.cell%s.width-c.cell%s.width;
+          const dz=Math.floor(approach.cell/s.width)-Math.floor(c.cell/s.width);
+          add(box, lightStone, x+dx*.96, .031, z+dz*.96,
+            dx ? .16 : 1.38, .020, dx ? 1.38 : .16, c.cell);
+          add(box, danger, x+dx*1.07, .046, z+dz*1.07,
+            dx ? .11 : 1.24, .022, dx ? 1.24 : .11, c.cell);
+        }
+        // Truthful, flush presentation: original treadle, collision, AI unchanged.
       }
       // Low, symmetric ivory-jade edge engraving separates the sea-glass
       // lower walkable terrace from the lagoon without suggesting a corridor.
