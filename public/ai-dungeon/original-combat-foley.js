@@ -8,6 +8,9 @@
  * OPTIONAL and is never proof that damage or a strike occurred.
  */
 export const MAX_ORIGINAL_COMBAT_VOICES=8;
+// One witnessed authority event authorizes at most ONE original foley onset.
+// Retained IDs are bounded, just like the controller's cue/receipt histories.
+export const MAX_ORIGINAL_CONFIRMED_CUE_IDS=128;
 // Independently HP-confirmed simultaneous wounds deserve distinct but sparse
 // onsets. Bound both victim memory and mix density for long-lived streams.
 export const MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS=16;
@@ -138,7 +141,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
  const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[],
-   lastVerifiedSwing=new Map(),swingOnsets=[];
+   lastVerifiedSwing=new Map(),swingOnsets=[],confirmedCueIds=new Set();
  const now=()=>clamp(ctx?.currentTime,0,1e12,0);
  const usable=()=>ctx&&typeof ctx.createGain==='function'&&
   typeof ctx.createBuffer==='function'&&typeof ctx.createBufferSource==='function'&&
@@ -221,6 +224,16 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
       (cue.verified!==true||verifiedDamageFoleyVictim(cue)===null))){
    dropped++;return false;
   }
+  // Per-actor time cooldown alone permits replaying the EXACT same attack
+  // or HP-loss event once 75/85ms has passed. A received authoritative cue
+  // ID is one-shot, independently of unrelated later ticks or sound density.
+  // No receipt is consumed when the sound was muted, evicted or failed to start.
+  const confirmedCue= requireVerifiedContact&&cue?.verified===true&&
+   typeof cue.id==='string'&&cue.id.length>0&&cue.id.length<=256;
+  if(requireVerifiedContact&&
+   (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
+   !confirmedCue){dropped++;return false}
+  if(confirmedCue&&confirmedCueIds.has(cue.id)){dropped++;return false}
   cleanup();
   const t=now(),victim=verifiedDamageFoleyVictim(cue),
     swinger=verifiedSwingFoleyActor(cue);
@@ -298,6 +311,11 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
     source.stop(stopAt);
    }
    active.push(voice);
+   if(confirmedCue){
+    confirmedCueIds.add(cue.id);
+    if(confirmedCueIds.size>MAX_ORIGINAL_CONFIRMED_CUE_IDS)
+     confirmedCueIds.delete(confirmedCueIds.values().next().value);
+   }
    if(victim!==null){
     lastVerifiedDamage.delete(victim);lastVerifiedDamage.set(victim,t);
     if(lastVerifiedDamage.size>MAX_ORIGINAL_DAMAGE_TARGET_COOLDOWNS)
@@ -319,7 +337,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  }
  function flush(){for(const v of active)stopVoice(v);active.length=0;
   lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0;
-   lastVerifiedSwing.clear();swingOnsets.length=0}
+   lastVerifiedSwing.clear();swingOnsets.length=0;confirmedCueIds.clear()}
  function disable(){enabled=false;flush()}
  function reset(){flush()}
  function dispose(){
@@ -333,6 +351,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   activeVoices:active.length,peakVoices,voiceCap:MAX_ORIGINAL_COMBAT_VOICES,
   verifiedDamageTargets:lastVerifiedDamage.size,verifiedDamageOnsets:damageOnsets.length,
    verifiedSwingActors:lastVerifiedSwing.size,swingOnsets:swingOnsets.length,
+   confirmedCueIds:confirmedCueIds.size,maxConfirmedCueIds:MAX_ORIGINAL_CONFIRMED_CUE_IDS,
   played,dropped,stopped,deviceFailures,masterGain:ORIGINAL_COMBAT_MASTER_GAIN,
   limiterAvailable:!!limiter,noiseSamples:noiseBuffer?.length??0,
   noiseSampleRate:noiseBuffer?.sampleRate??0,
