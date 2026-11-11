@@ -12,7 +12,7 @@ assert.match(src,/marketReceivingSideEnclosure\(\);\s*marketReceivingRoofInterio
  'do not undo original W207 inward roof; connect the same open grain hall');
 const enclosure=between('function marketReceivingSideEnclosure(){','function marketReceivingRoofInterior(){');
 assert.doesNotMatch(enclosure,/state\.(food|wood|gold)\s*[+\-*/]?=/);
-assert.match(enclosure,/box\(x,ground\+\.84,z,\.105,\.91,z1-z0-\.025,plaster\[bay\]\)/,
+assert.match(enclosure,/box\(x,ground\+\.40,z,\.105,\.44,z1-z0-\.025,plaster\[bay\]\)/,
  'a real built hall needs two-sided thick plaster, not one-sided invisible interior quads');
 const calls=[],mesh=[],stats={};
 const site={centerX:-.075,frontZ:10.77,backZ:12.45,halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24};
@@ -25,7 +25,7 @@ const ctx={data:mesh,marketQuarterStats:stats,marketReceivingRoofDatum:()=>.22,
 vm.createContext(ctx);
 vm.runInContext(enclosure+'\nmarketReceivingSideEnclosure();',ctx);
 assert.equal(stats.arcadeWallSegments,4,'four genuine low timber-and-wattle wall bays');
-assert(stats.arcadeWallMaxHeight<=1.55,'market remains genuinely open and adult workers unobscured');
+assert(stats.arcadeWallMaxHeight<=1.0,'market remains genuinely open and adult workers unobscured');
 assert(stats.arcadeClearCenterWidth>=5.1,'no new walls across the original courier aisle');
 assert(stats.arcadeWallTriangles>40&&stats.arcadeWallTriangles<350,'bounded new original architecture');
 for(const c of calls){
