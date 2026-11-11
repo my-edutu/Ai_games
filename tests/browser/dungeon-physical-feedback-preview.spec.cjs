@@ -241,7 +241,8 @@ async function beginD04LiveAVCapture(page){
       framePump:{...framePump}})},15000);
   });
   try{recorder.start(250)}
-  catch(e){stopFramePump();videoTracks.forEach(t=>t.stop());return unavailable('Recorder start: '+String(e))}
+  catch(e){finishCanvasDeliveryMonitor();stopFramePump();videoTracks.forEach(t=>t.stop());
+   return unavailable('Recorder start: '+String(e))}
   const videoProbe=startIsolatedRecorder(new MediaStream([videoTrack]),
    ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-video-only',20*1024*1024,true);
   const audioProbe=startIsolatedRecorder(new MediaStream(soundTracks),
