@@ -34,16 +34,28 @@ test('original full movies and source-native events produce a reviewable but ung
  assert.equal(p.anchors.every(a=>!a.eventPixelsConfirmed),true);
  assert.match(htmlFor([p]),/complete original, 1× speed/);
  assert.doesNotMatch(htmlFor([p]),new RegExp(FROZEN));
+ assert.match(htmlFor([p]),/review-media\/portrait-a\.webm/);
+ assert.doesNotMatch(htmlFor([p]),/portrait-(?:baseline|candidate)\.webm/);
+ assert.match(htmlFor([p]),/synchronized:true/);
 });
 test('veto fabricated missing baseline floor transition, never align HP to an unrelated event',()=>{
  const e=make('baseline').videoClock.sourceEventTimecodes.slice(0,1);
  const p=planPair([make('baseline','portrait',e),make('candidate')],'portrait',CANDIDATE);
  assert.equal(p.canReview,false);assert.match(p.failures.join(','),/missing-common/);
+ assert.equal(p.unalignedInspectionOnly,true,
+   'missing anchors veto event synchrony, not inspection of genuine unchanged videos');
+ const html=htmlFor([p]);
+ assert.match(html,/synchronized:false/);
+ assert.match(html,/No shared source-event anchor/);
+ assert.doesNotMatch(html,/portrait-(?:baseline|candidate)\.webm/);
 });
 test('reject swapped original video bytes even if source SHA and timebase claim success',()=>{
  const a=make('baseline'),b=make('candidate');
  b.videoClock.originalWebMSha256='e'.repeat(64);
- assert.match(planPair([a,b],'portrait',CANDIDATE).failures.join(','),/unverified-original/);
+ const result=planPair([a,b],'portrait',CANDIDATE);
+ assert.match(result.failures.join(','),/unverified-original/);
+ assert.equal(result.unalignedInspectionOnly,undefined,
+   'unverified originals must NEVER be packaged as reviewable media');
 });
 test('do not accept zero-episode mismatch or fake event-visible successes',()=>{
  const a=make('baseline'),b=make('candidate');
