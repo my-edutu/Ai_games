@@ -113,3 +113,53 @@ test('remembered collection does not play a fabricated beat; reduced motion sett
     cleanup();
   }
 });
+
+
+test('true witnessed pickup unveils the physical key stage, then retracts six tall rooted pieces before the next encounter',async()=>{
+  const {module,cleanup}=await loadWorld();
+  const world=module.createMazeWorld({balanced:true});
+  const before=snapshot(),after=snapshot({tick:2,keys:[{id:'amber',cell:4,collected:true}],inventory:['amber']});
+  const frozen=[JSON.stringify(before),JSON.stringify(after)];
+  try{
+    world.update(before);world.animate(0,{gateTime:0,reducedMotion:false});
+    assert.equal(world.group.getObjectByName('Disclosed key tide-theatre').position.y,0);
+    world.update(after);
+    const stage=world.group.getObjectByName('Disclosed key tide-theatre');
+    const reliquary=world.group.getObjectByName('Public tide-shell reliquary crown');
+    const petals=Array.from({length:4},(_,i)=>world.group.getObjectByName('Physical shrine petal '+i));
+    assert.ok(stage&&reliquary&&petals.every(Boolean));
+    world.animate(1.2,{gateTime:1.2,reducedMotion:false});
+    assert.ok(Math.abs(stage.position.y)<1e-9&&Math.abs(reliquary.position.y)<1e-9,
+      'the original 1.22 second witnessed collection ceremony must not be cropped');
+    world.animate(1.77,{gateTime:1.77,reducedMotion:false});
+    assert.ok(stage.position.y<-.1&&stage.position.y>-2.5,
+      'the physical structure descends smoothly after the real pickup');
+    assert.ok(petals.every(p=>p.position.y<.38&&p.position.y>-2.22));
+    world.animate(2.4,{gateTime:2.4,reducedMotion:false});
+    assert.ok(Math.abs(stage.position.y+2.6)<1e-6&&Math.abs(reliquary.position.y+2.6)<1e-6);
+    assert.ok(petals.every(p=>Math.abs(p.position.y-(.38-2.6))<1e-6));
+    assert.ok(world.group.getObjectByName('Disclosed spent key shrine'),
+      'the truthful empty stone pedestal stays behind after the tall sculpture leaves');
+    assert.equal(world.group.getObjectByName('Disclosed golden key'),undefined);
+    assert.ok(world.stats().geometryCount<=16&&world.stats().materialCount<=26);
+    assert.deepEqual([JSON.stringify(before),JSON.stringify(after)],frozen);
+    world.update(snapshot({runToken:'new-run',tick:1,cells:[],visibleCells:[],keys:[],inventory:[]}));
+    assert.equal(world.group.getObjectByName('Disclosed key tide-theatre'),undefined);
+  }finally{world.dispose();cleanup()}
+});
+
+test('already collected key and reduced motion begin with a sunken shrine, never a fabricated fresh pickup',async()=>{
+  const {module,cleanup}=await loadWorld();
+  const world=module.createMazeWorld({balanced:true});
+  const already=snapshot({keys:[{id:'amber',cell:4,collected:true}],inventory:['amber']});
+  try{
+    world.update(already);
+    world.animate(0,{gateTime:0,reducedMotion:true});
+    const stage=world.group.getObjectByName('Disclosed key tide-theatre');
+    assert.ok(stage&&Math.abs(stage.position.y+2.6)<1e-6);
+    world.animate(21,{gateTime:21,reducedMotion:true});
+    assert.ok(Math.abs(stage.position.y+2.6)<1e-6);
+    assert.equal(world.group.getObjectByName('Disclosed golden key'),undefined);
+    assert.equal(already.keys[0].collected,true);
+  }finally{world.dispose();cleanup()}
+});

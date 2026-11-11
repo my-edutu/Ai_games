@@ -69,3 +69,16 @@ export function gateRetractionPose(elapsed, reducedMotion = false) {
     scaleY: Math.max(.005, 1 - eased),
   };
 }
+
+
+// The physical key-theatre finishes its REAL witnessed opening before its
+// superstructure sinks into the already-known floor vault. No new route,
+// treasure, threat, hidden map query or allocation is implied.
+export const PUBLIC_SPENT_KEY_THEATRE_DROP = 2.6;
+export function publicSpentKeyTheatreDrop(collected, elapsed, reducedMotion = false) {
+  if (!collected) return 0;
+  if (reducedMotion || elapsed === Infinity) return PUBLIC_SPENT_KEY_THEATRE_DROP;
+  if (!Number.isFinite(elapsed) || elapsed <= 1.36) return 0;
+  const p = Math.max(0, Math.min(1, (elapsed - 1.36) / .84));
+  return PUBLIC_SPENT_KEY_THEATRE_DROP * p * p * (3 - 2 * p);
+}

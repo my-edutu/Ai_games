@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
@@ -1643,6 +1643,15 @@ export function createMazeWorld(options = {}) {
       rib.name = 'Carved reliquary rib ' + (i + 2);
     }
     const witnessed = key.collected && typeof key.id === 'string' && keyPickupAt.has(key.id);
+    // Preserve the full physical pickup before clearing the NEXT encounter.
+    // Only the six tall source-disclosed pieces descend; the real empty
+    // pedestal/socket and all authoritative walkability remain unchanged.
+    const spentDescent = publicSpentKeyTheatreDrop(key.collected,
+      witnessed ? presentationTime - keyPickupAt.get(key.id) : Infinity);
+    reliquary.position.y = -spentDescent;
+    if (witnessed) animations.push({
+      type:'key-spent-recede', object:reliquary, keyId:key.id, baseY:0
+    });
     // A full-scale, grounded tide-theatre is the treasure's physical reveal.
     // The tall stone proscenium and joined ivory sea-glass shutters are behind
     // the actual key, entirely based on this ALREADY disclosed key cell. This
@@ -1651,8 +1660,11 @@ export function createMazeWorld(options = {}) {
     // witnessed pickup composition and physically swing away from the key.
     const theatre = new THREE.Group();
     theatre.name = 'Disclosed key tide-theatre';
-    theatre.position.set(-.12, 0, -.40);
+    theatre.position.set(-.12, -spentDescent, -.40);
     dais.add(theatre);
+    if (witnessed) animations.push({
+      type:'key-spent-recede', object:theatre, keyId:key.id, baseY:0
+    });
     for (const side of [-1, 1]) {
       mesh(theatre, bevel, deepStone, side * .81, .91, -.02, .24, 1.72, .34);
       mesh(theatre, bevel, jade, side * .81, .97, .18, .11, 1.38, .07);
@@ -1684,7 +1696,10 @@ export function createMazeWorld(options = {}) {
     for (let i = 0; i < 4; i++) {
       const angle = i * Math.PI / 2, petal = new THREE.Group();
       petal.name = 'Physical shrine petal ' + i;
-      petal.position.set(Math.cos(angle) * .26, .38, Math.sin(angle) * .26);
+      petal.position.set(Math.cos(angle) * .26, .38 - spentDescent, Math.sin(angle) * .26);
+      if (witnessed) animations.push({
+        type:'key-spent-recede', object:petal, keyId:key.id, baseY:.38
+      });
       petal.rotation.y = -angle;
       petal.rotation.z = key.collected && !witnessed ? .78 : 0;
       dais.add(petal);
@@ -2596,6 +2611,12 @@ export function createMazeWorld(options = {}) {
     waterTexture.offset.set(reduced ? 0 : t * .0012, reduced ? 0 : t * .0006);
     if (highContrast !== !!options.highContrast) { highContrast = !!options.highContrast; if (snapshot) refreshVisibility(snapshot, true); }
     for (const a of animations) {
+      if (a.type === 'key-spent-recede') {
+        const start = keyPickupAt.get(a.keyId);
+        const age = Number.isFinite(start) ? presentationTime - start : Infinity;
+        a.object.position.y = a.baseY - publicSpentKeyTheatreDrop(true, age, reduced);
+        continue;
+      }
       if (a.type === 'key-shrine' || a.type === 'key-sail' || a.type === 'key-theatre') {
         // The same REAL public pickup unfolds both rooted hinge assemblies.
         // Neither screenshot wall stalls nor polling can replay a stale key.
