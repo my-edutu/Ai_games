@@ -9,7 +9,9 @@ const good={
  optedIn:true,
  clip:{source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
   mimeType:'video/webm;codecs=vp8,opus',bytes:150000,videoTracks:1,
-  audioTracks:1,recordingMs:5000},
+  audioTracks:1,recordingMs:5000,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:5,
+   requestedFrames:5,requestFailures:0}},
  pcm:{status:'RECORDED',sampleRate:48000,channels:1,frames:240000,
   bytes:480044,peak:.04,rms:.002},
  frames:{before:11,after:220}
@@ -81,4 +83,23 @@ test('D04 always preserves UNVERIFIED capture manifest without inventing media',
   assert.equal(saved.wav,null);
   assert.equal(fs.readdirSync(directory).length,1);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
+
+test('D04 does not certify a WebM without observed submitted canvas frames',()=>{
+ for(const framePump of [
+  undefined,
+  {mode:'submitted-frame-request',observedFrameAdvances:0,requestedFrames:0,requestFailures:0},
+  {mode:'submitted-frame-request',observedFrameAdvances:0,requestedFrames:2,requestFailures:0},
+  {mode:'submitted-frame-request',observedFrameAdvances:2,requestedFrames:3,requestFailures:0},
+  {mode:'submitted-frame-request',observedFrameAdvances:2,requestedFrames:2,requestFailures:1},
+  {mode:'unknown',observedFrameAdvances:2,requestedFrames:2,requestFailures:0}
+ ]){
+  assert.equal(assessD04Capture({...good,clip:{...good.clip,framePump}}).classification,
+   'UNVERIFIED','A claimed encoded clip must have read-only real frame receipt proof');
+ }
+});
+test('D04 accepts a native stream fallback ONLY after real renderer submissions',()=>{
+ const framePump={mode:'native-capture-stream',observedFrameAdvances:4,requestedFrames:0,requestFailures:0};
+ assert.equal(assessD04Capture({...good,clip:{...good.clip,framePump}}).combinedVideoAudio,true);
+ assert.equal(assessD04Capture({...good,clip:{...good.clip,framePump:{...framePump,observedFrameAdvances:0}}}).classification,'UNVERIFIED');
 });
