@@ -2145,18 +2145,23 @@ export function createMazeWorld(options = {}) {
       shutter.name = 'Published tide-shear floor shutter ' + side;
       shutter.position.set(side * .52, .085, -.02);
       p.add(shutter);
-      mesh(shutter, bevel, darkMetal, -side * .23, .045, .20,
-        .55, .10, .83);
-      // The old clay surface disappeared against the clay pressure court in
-      // authentic 320/390px WebGL. An ivory enamel face is a real moving
-      // ceramic part, so the full opening beat is legible without a HUD cue.
-      const enamel = mesh(shutter, bevel, lightStone, -side * .23, .11, .20,
-        .48, .055, .72);
+      // Pass266: genuine 320/390 WebGL showed the earned floor opening
+      // as tiny splinters buried under the jaw mast. Rebuild EACH existing
+      // four-part moving shutter into one half of a connected, nearly
+      // full-tile kinetic pressure deck: dark load bed, broad ivory door,
+      // true moving coral shear lip, and the continuous rear iron hinge.
+      // Both leave the same 2.4m published footprint and keep the original
+      // witnessed hinge/rail animation. NO extra mesh or GPU resource class,
+      // collision, trigger, AI route, private information or false danger.
+      mesh(shutter, bevel, darkMetal, -side * .18, .045, .08,
+        .71, .10, 1.28);
+      const enamel = mesh(shutter, bevel, lightStone, -side * .18, .11, .08,
+        .62, .055, 1.14);
       enamel.name = 'Published tide-shear ivory moving face';
-      mesh(shutter, bevel, danger, -side * .23, .147, .30,
-        .43, .045, .07);
-      mesh(shutter, bevel, darkMetal, -side * .23, .185, .52,
-        .28, .075, .10);
+      mesh(shutter, bevel, danger, -side * .18, .147, .62,
+        .56, .045, .09);
+      mesh(shutter, bevel, darkMetal, -side * .18, .185, -.42,
+        .48, .075, .09);
       shutters.push({object: shutter, side});
     }
     // A connected four-quarter tideglass iris now turns the disclosed hazard
