@@ -2142,11 +2142,12 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  const passive=action==='Resting at home'||
   action==='Waiting for a safe route'||action==='Finding a home';
  if(!moving&&!passive)return false;
- // Market/shopper/meal hand props are not skinned by a generic idle rig:
- // original receipt-linked hand-held food and eating animation own contact.
- if(passive&&((Number(p.provisions)||0)>0||
-  (typeof verifiedHouseholdMealEvidence==='function'&&
-   Boolean(verifiedHouseholdMealEvidence(p)))))return false;
+ // Genuine resting people may retain purchased provisions without currently
+ // eating; inventory ownership alone is NOT a hand-contact event. Carrying
+ // shoppers already have another activity and cannot enter this passive path.
+ // Preserve full live CPU wrist IK for the original VERIFIED meal only.
+ if(passive&&typeof verifiedHouseholdMealEvidence==='function'&&
+  Boolean(verifiedHouseholdMealEvidence(p)))return false;
  const projected=projectRealCitizenDetail(p,frame);
  return !projected.visible||projected.heightFraction<.115;
 }
@@ -2186,9 +2187,21 @@ function prepareForegroundResidents(rows,frame){
   foregroundResidentMesh=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
- const next=new Map(),selected=[],limited=rows.slice(0,FOREGROUND_RESIDENT_MAX);
- // A moving camera must not permute the same physical citizens in the VBO.
- // Stable actor slots avoid needless large repacks when perspective changes.
+ // Preserve the limited full-original GPU slots for workers actually using
+ // joint residency and eligible small off-duty people. On a dense Day-121
+ // town, taking the FIRST eight original citizen indices can consume every
+ // slot with full-CPU bodies, starving exactly the immutable-pose actors
+ // whose reuse removes work. Every unselected resident is still rendered
+ // by the existing live original villager() fallback below.
+ const next=new Map(),selected=[];
+ const ranked=rows.map(row=>({row,
+  priority:isWorkingAtSite(row.p)?2:
+   isForegroundWalkingSkinCandidate(row.p,row.i,frame)?1:0}));
+ ranked.sort((a,b)=>b.priority-a.priority||a.row.i-b.row.i);
+ const limited=ranked.slice(0,FOREGROUND_RESIDENT_MAX)
+  .map(item=>item.row);
+ // VBO layout order is stable by original authoritative citizen index, not
+ // transient screen distance. This also bounds dirty buffer upload churn.
  limited.sort((a,b)=>a.i-b.i);
  let total=0;
  for(const {p,i} of limited){

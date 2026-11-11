@@ -32,7 +32,11 @@ const no=(a={},f={})=>assert.equal(make(f)({...person,...a},2,{}),false);
 yes();yes({activity:'Finding a home'});yes({activity:'Waiting for a safe route'});
 yes({activity:'Traveling to farm'});yes({activity:'Returning home at dusk'});
 yes({}, {visible:false});yes({activity:'Exploring the valley'});
-no({provisions:.8});no({}, {verifiedMeal:true});
+// A real citizen may possess food while resting without physically eating.
+ // The original meal's receipt-linked hand motion still blocks GPU skin.
+ yes({provisions:.8});yes({provisions:2.4});
+ no({}, {verifiedMeal:true});no({provisions:.8},{verifiedMeal:true});
+ no({activity:'Traveling home with provisions',provisions:.8});
 no({delivery:{id:'Bram:32'}});no({}, {unload:true});no({}, {working:true});
 no({}, {height:.16});no({}, {skin:false});no({}, {gpu:false});
 no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
@@ -42,5 +46,9 @@ no({}, {height:.16,visible:true});
 const fn=html.slice(html.indexOf('function getForegroundSkinAudit('),
  html.indexOf('let actorGpuStaging=',html.indexOf('function getForegroundSkinAudit(')));
 assert(fn.includes('passiveSkinnedWithoutReceiptMeal:true'));
+assert(html.includes('ranked.sort((a,b)=>b.priority-a.priority'),
+ 'full-detail GPU slots favor real eligible workers, not citizen list order');
+assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'),
+ 'unselected residents continue using the untouched live original mesh');
 assert(html.includes('physicallySkinnedPassiveResidents:foregroundResidentVisible'));
 console.log('W212 GPU passive body source+predicate: PASS; real 1024px/390px/WebGL/physical FPS independent evidence required.');
