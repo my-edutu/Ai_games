@@ -298,6 +298,29 @@ function classifyDecodedSerialGameplay({video={},decoder={}}={}){
   'SERIAL_REAL_WEBGL_ONE_OR_STATIC_FRAME_UNVERIFIED';
 }
 
+/**
+ * Decoded receipt-readback motion is independent authentic WebGL video ONLY:
+ * the pixels come from increasing submitted-frame receipts, never synthetic
+ * 2D control frames. A few decoded distinct frames cannot establish timing
+ * alignment with the original earlier soundstage recording.
+ */
+function classifyDecodedReceiptReadbackGameplay({video={},decoder={}}={}){
+ if(classifyReceiptReadbackVideo(video)!=='REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED'||
+  decoder.source!=='ffmpeg-decoded-real-webgl-receipt-readback-video'||
+  decoder.method!=='framemd5-24x16-first-64'||
+  decoder.status!=='DECODED'||decoder.codec!=='vp8'||
+  !Number.isSafeInteger(decoder.frameCount)||decoder.frameCount<1||decoder.frameCount>64||
+  !Number.isSafeInteger(decoder.distinctFrames)||decoder.distinctFrames<1||
+  decoder.distinctFrames>decoder.frameCount||
+  !Array.isArray(decoder.hashes)||decoder.hashes.length!==decoder.frameCount||
+  !decoder.hashes.every(h=>typeof h==='string'&&/^[0-9a-f]{32}$/.test(h))||
+  new Set(decoder.hashes).size!==decoder.distinctFrames)
+  return 'READBACK_REAL_WEBGL_MOTION_UNVERIFIED';
+ return decoder.frameCount>=2&&decoder.distinctFrames>=2?
+  'REAL_WEBGL_READBACK_MOVING_VIDEO_UNALIGNED':
+  'REAL_WEBGL_READBACK_ONE_OR_STATIC_FRAME_UNVERIFIED';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={},decoder={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -358,6 +381,9 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
    'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED';
  const receiptReadbackVideoRecorded=optedIn===true&&renderFramesAdvanced&&
   classifyReceiptReadbackVideo(isolated.receiptReadbackVideo)==='REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED';
+ const receiptReadbackVideoMotionQualified=receiptReadbackVideoRecorded&&
+  classifyDecodedReceiptReadbackGameplay({video:isolated.receiptReadbackVideo,
+   decoder:decoder.readbackVideo})==='REAL_WEBGL_READBACK_MOVING_VIDEO_UNALIGNED';
  const isolatedAudioRecorded=optedIn===true&&renderFramesAdvanced&&
   audio.source==='real-opted-in-soundstage-audio-only'&&audio.status==='RECORDED'&&
   /^audio\/webm(?:;|$)/i.test(audio.mimeType||'')&&
@@ -386,7 +412,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,serialRealVideoMotionQualified,receiptReadbackVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,serialRealVideoMotionQualified,receiptReadbackVideoRecorded,receiptReadbackVideoMotionQualified,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -475,5 +501,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm});
 }
-module.exports={classifyDecodedSerialGameplay,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
+module.exports={classifyDecodedSerialGameplay,classifyDecodedReceiptReadbackGameplay,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
