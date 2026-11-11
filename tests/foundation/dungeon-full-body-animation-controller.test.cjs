@@ -2272,7 +2272,7 @@ test('original Walking_A airborne toe drag uses bounded observed source-foot pit
   'weight-bearing stance foot must not receive swing-foot toe clearance');
  for(const invalid of [
   {mode:'attack'},{sourceClipName:'Idle'},{sourceAnatomyVerified:false},
-  {sourceWeight:.6},{rootTravel:0},{rootTravel:.6},{alive:false},
+  {sourceWeight:.45},{rootTravel:0},{rootTravel:.6},{alive:false},
   {visible:false},{groundedMoving:false},{teleport:true},{reducedMotion:true},
   {interrupted:true},{floorTopY:.12},{toeWorldY:NaN},
   {trialToeWorldY:-.10},{trialAngleRad:.4},{previousCorrectionRad:NaN}
@@ -2344,4 +2344,31 @@ test('original GLB ankle clearance must retain witnessed Walking_A travel throug
   'the real licensed ankle stage must consume the validated bounded travel witness');
  assert.doesNotMatch(renderer,/!actor\.groundedPerformance\?\.moving\|\|\s*!\/\^walking/,
   'a same-tick ground-stamp lull is not a reason to reject existing lawful source Walking_A travel');
+});
+
+
+test('crossfading Walking_A may lift only observed airborne source toes while original mixer still owns the walk',async()=>{
+ const {hasOriginalSourceSwingTravelWitness:has,planOriginalSourceSwingToeClearance:plan}=await load();
+ // Original 11-Nov-2026 same-source WebGL actor at legal root travel:
+ // desktop 0.579565, mobile 0.506957 effective Walking_A weight.
+ // Previous >.90 gate discarded every lawful swing witness at these frames.
+ const live={mode:'move',sourceClipName:'Walking_A',sourceWeight:.58,
+  ownerLocomotion:true,travel:.0193,age:.05,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(has(live),true,'a witnessed original moving crossfade is still licensed locomotion');
+ assert.equal(has({...live,sourceWeight:.45}),false,'Idle-dominated blend cannot claim an original walking toe');
+ const measured={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:.58,alive:true,visible:true,groundedMoving:true,
+  teleport:false,reducedMotion:false,interrupted:false,rootTravel:.0193,
+  floorTopY:-.02,heelWorldY:.157,toeWorldY:-.083,
+  trialToeWorldY:-.064,trialAngleRad:-.1,previousCorrectionRad:0};
+ const blended=plan(measured);
+ const full=plan({...measured,sourceWeight:1});
+ assert.ok(blended<-.001&&Math.abs(blended)<Math.abs(full),
+  'source crossfade must allow a continuous, smaller genuine-toe correction');
+ assert.equal(plan({...measured,sourceWeight:.45}),0);
+ assert.equal(plan({...measured,mode:'hurt'}),0);
+ assert.equal(plan({...measured,heelWorldY:-.013}),0,
+  'a loaded/planted heel must never be pitched by swing-only correction');
+ assert.equal(plan({...measured,reducedMotion:true}),0);
 });
