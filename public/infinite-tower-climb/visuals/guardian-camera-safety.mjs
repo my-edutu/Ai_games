@@ -100,3 +100,34 @@ export function guardianExteriorPortraitStandoff(view, guardian, actor,
     guardianDistanceAfter:Math.hypot(x-guardian.x,view.y-guardian.y,
       z-guardian.z)};
 }
+
+// Normal-speed original portrait evidence at candidate 653fa1c6 shows a
+// nearly 100-degree exterior shoulder change inside ~one source second during
+// the LIVING guardian sequence. Existing safe-center orbit pacing alone does
+// not bind the downstream, legitimately emergency-restaged camera. Use the
+// last SUCCESSFULLY SUBMITTED view, never a future or inferred source pose,
+// to propose one short exterior arc. The scene must independently prove that
+// this cap preserves BOTH real silhouettes, tower-core clearance and any
+// authoritative airborne landing. A failed proposal is never applied.
+export function boundedObservedGuardianOrbit(previous, proposed, dt, aspect,
+  radiansPerSecond = 1.05) {
+  const valid = p => p && [p.x, p.y, p.z].every(finite);
+  if (!valid(previous) || !valid(proposed) ||
+      ![dt, aspect, radiansPerSecond].every(finite) ||
+      dt <= 0 || aspect <= 0 || aspect >= .85 ||
+      radiansPerSecond < .25 || radiansPerSecond > 2.5) return null;
+  const prevRadius = Math.hypot(previous.x, previous.z);
+  const targetRadius = Math.hypot(proposed.x, proposed.z);
+  if (prevRadius < 27.35 || targetRadius < 27.35) return null;
+  const a = Math.atan2(previous.x, previous.z);
+  const b = Math.atan2(proposed.x, proposed.z);
+  const arc = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  const budget = Math.min(.13, dt) * radiansPerSecond;
+  if (Math.abs(arc) <= budget + 1e-8) return null;
+  const bounded = a + Math.sign(arc) * budget;
+  return {
+    x: Math.sin(bounded) * targetRadius, y: proposed.y,
+    z: Math.cos(bounded) * targetRadius,
+    angularDemand: Math.abs(arc), angularStep: budget,
+  };
+}
