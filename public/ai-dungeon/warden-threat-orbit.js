@@ -6,12 +6,15 @@
 const finite=Number.isFinite,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const ANGLES=Object.freeze([0,-.40,.40,-.76,.76]),rad=Math.PI/180;
 export function orbitThreatCamera(base,angle,size,{reach=1,lift=0}={}){
+ // Native portrait-angle search may lower the same actual camera by up to 2.2m;
+ // the existing floor-height clamp and authoritative all-corner projection
+ // remain mandatory, while the real director separately tests opaque masonry.
  // Retain physical camera and real imported skeletons. Never fake actor
  // dimensions, alter the optical lens, or hide legitimate dangerous cells.
  const limit=(size-1)/2-.65,dx=base.position.x-base.look.x,dz=base.position.z-base.look.z;
  const cs=Math.cos(angle),sn=Math.sin(angle),r=clamp(reach,.8,1.04);
  return Object.freeze({x:clamp(base.look.x+(dx*cs-dz*sn)*r,-limit,limit),
-  y:clamp(base.position.y+clamp(lift,0,.8),2.1,28),
+  y:clamp(base.position.y+clamp(lift,-2.2,.8),2.1,28),
   z:clamp(base.look.z+(dx*sn+dz*cs)*r,-limit,limit)});
 }
 function originalRisk(state,subjects){
@@ -171,8 +174,12 @@ export function planWardenThreatComposition(input){
    {x:(hazardCenter.x+bodyCenter.x)*.5,z:(hazardCenter.z+bodyCenter.z)*.5}
   ];
  const dangerRescue=baseline.fitFov>input.fov-.5;
+ // Deliberately sample a shallower, physical 3D sightline for the original
+ // skinned cast. Never choose it just for pitch: fit every real warning tile,
+ // improve native projected body pixels and survive independent wall/prop rays.
+ // At most 180 CPU-only proposals ONCE per new authority warning, no new draw.
  const angles=[0,-.44,.44,-.78,.78],reaches=[.68,.79,.91],
-  lifts=[0,.48];
+  lifts=[-2.2,-1.1,0,.48];
  let best=null,checked=0,fitCandidates=0;
  for(const desired of centers){
   // A new aim can be moved only toward REAL warning and source-body anchors;
