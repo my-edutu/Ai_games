@@ -2665,3 +2665,61 @@ test('pinned original 41-joint right knee at 89 degrees must not be misclassifie
  assert.doesNotMatch(adapter,/hingeAlignment=bendSine>\.085&&bendSine<\.99\?/,
   'current original bone bend plane must remain inspectable at a right angle');
 });
+
+/**
+ * Observed 11 November original mobile source WebGL at tick 8:
+ * right Walking_A heel +.2016m, after-ankle toe -.1047m, a real
+ * 0.1rad right-knee trial raised the same skinned toe ~14mm and the
+ * applied .12rad source knee lifted another 17.23mm with heel intact.
+ * Toe still penetrated authored stone by 67.48mm. This regression
+ * permits a stricter sampled .2rad original-joint candidate to build
+ * up ONLY across successive true movement frames. It is not an IK pass.
+ */
+test('licensed connected knee may safely build residual swing-toe clearance across multiple REAL source frames',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:select,
+  planOriginalSourceSwingCalfAssist:plan}=await load();
+ const pose={afterAnkleToeY:-.10470731556596471,
+  afterAnkleHeelY:.2016174752985826,floorTopY:-.02};
+ const trials=[
+  {signed:-.1,toe:-.11732151475172636,heel:.18601426226673032},
+  {signed:.1,toe:-.09050147205991996,heel:.21576533979612117},
+  {signed:-.2,toe:-.129,heel:.171},
+  {signed:.2,toe:-.076,heel:.229}
+ ];
+ const chosen=select({...pose,trials});
+ assert.equal(chosen?.signed,.2,'prefer measured deeper correction, not guessed hinge sign');
+ const base={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:1,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.0872,frameAge:.07,
+  floorTopY:-.02,afterAnkleToeY:pose.afterAnkleToeY,
+  afterAnkleHeelY:pose.afterAnkleHeelY,ankleLiftMeters:.005738790347373901,
+  trialCalfToeY:chosen.toe,trialCalfHeelY:chosen.heel,
+  trialAngleRad:chosen.signed
+ };
+ const a=plan({...base,previousAssistRad:0});
+ const b=plan({...base,previousAssistRad:a});
+ const c=plan({...base,previousAssistRad:b});
+ const close=(actual,want)=>assert.ok(Math.abs(actual-want)<1e-8,
+  'expected '+want+'rad, got '+actual);
+ close(a,.06);close(b,.12);close(c,.18);
+ close(plan({...base,previousAssistRad:c}),.18);
+ assert.equal(select({...pose,trials:[
+  {...trials[3],heel:-.005},trials[1]]})?.signed,.1,
+  'higher toe must not override safe same-source heel');
+ for(const invalid of [
+  {mode:'attack'},{alive:false},{visible:false},{teleport:true},
+  {interrupted:true},{reducedMotion:true},{ownerLocomotion:false},
+  {rootTravel:0},{sourceWeight:.49},{trialCalfHeelY:-.01},
+  {trialCalfToeY:-.102},{trialAngleRad:.25},
+  {previousAssistRad:-.06},{previousAssistRad:.25},
+  {afterAnkleToeY:-.03},{frameAge:.3}
+ ])assert.equal(plan({...base,previousAssistRad:0,...invalid}),0,
+  'no new authority or unsafe source-knee actuation: '+JSON.stringify(invalid));
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/for\s*\(const signed of \[-\.1,\.1,-\.2,\.2\]\)/,
+  'original 41-joint live source must measure four genuine bent-knee probes');
+ assert.match(model,/final-weighted-calflift-rejected/,
+  'original skinned toe/heel must recertify every physically applied candidate');
+});
