@@ -72,8 +72,13 @@ jobs:
         run: npm test
       - name: Verify Tower authority (guardrail only)
         run: npm run tower:stream:self-test
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      # The source-only contract already completed while GitHub's Ubuntu
+      # apt mirror intermittently failed to resolve Chromium font packages.
+      # Probe the actual installed browser and WebGL2 directly instead.
+      - name: Install and probe Chromium / WebGL2 without apt
+        run: |
+          npx playwright install chromium
+          node scripts/tower-chromium-host-preflight.cjs
       - name: Verify actual desktop/phone HUD outcome-to-restart continuity
         run: npx playwright test --config=playwright.tower.config.cjs tests/browser/tower-hud.spec.cjs
       - name: Verify progress page truthfulness at desktop and phone widths
