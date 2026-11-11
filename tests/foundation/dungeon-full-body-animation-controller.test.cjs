@@ -2529,7 +2529,7 @@ test('original swing calf chain assists only anatomically verified airborne toe 
   {sourceLegChainVerified:false},{ownerLocomotion:false},{alive:false},
   {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true},
   {rootTravel:0},{rootTravel:.3},{frameAge:.181},
-  {afterAnkleToeY:-.045},{afterAnkleHeelY:-.019},
+  {afterAnkleToeY:-.035},{afterAnkleHeelY:-.019},
   {ankleLiftMeters:0},{trialCalfToeY:-.106},
   {trialCalfHeelY:-.02},{trialAngleRad:.4},
   {sourceWeight:.49},{sourceWeight:NaN},
@@ -2723,4 +2723,69 @@ test('licensed connected knee may safely build residual swing-toe clearance acro
   'original 41-joint live source must measure four genuine bent-knee probes');
  assert.match(model,/final-weighted-calflift-rejected/,
   'original skinned toe/heel must recertify every physically applied candidate');
+});
+
+
+test('observed original swinging toe drag starts source-backed ankle/calf assistance before severe floor penetration',async()=>{
+ const {selectOriginalSourceSwingAnkleTrial:ankleTrial,
+  planOriginalSourceSwingToeClearance:ankle,
+  selectOriginalSourceSwingCalfTrial:calfTrial,
+  planOriginalSourceSwingCalfAssist:calf}=await load();
+ // Prospective adjacent frame of the real original Walking_A source, NOT
+ // a filmed before/after claim: toe is 16mm under stone, heel is 140mm airborne.
+ // Existing >25mm ankle and >35mm calf thresholds wait until penetration
+ // worsens, leaving too few genuine frames for the 0.08/0.06rad slews.
+ const floor=-.02,initialToe=-.036,initialHeel=.12;
+ const footTrials=[
+  {signed:-.1,toe:-.044,heel:.10},
+  {signed:.1,toe:-.020,heel:.129},
+  {signed:-.2,toe:-.052,heel:.085},
+  {signed:.2,toe:-.008,heel:.143}
+ ];
+ const chosenFoot=ankleTrial({toeWorldY:initialToe,heelWorldY:initialHeel,
+  floorTopY:floor,trials:footTrials});
+ assert.equal(chosenFoot?.signed,.2,'only a real heel-safe, upward source-foot trial may pre-empt deeper drag');
+ const shared={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:1,alive:true,visible:true,groundedMoving:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.0655,floorTopY:floor,heelWorldY:initialHeel,toeWorldY:initialToe,
+  trialToeWorldY:chosenFoot?.toe,trialAngleRad:chosenFoot?.signed,
+  previousCorrectionRad:0};
+ const ankleDelta=ankle(shared);
+ assert.ok(ankleDelta>0&&ankleDelta<=.08,
+  'one early rendered source frame starts a small measured ankle lift rather than waiting for deep penetration');
+ const afterAnkleToe=-.048,afterAnkleHeel=.135;
+ // A separate genuine skinned-sole frame can retain 28mm of drag after its
+ // ankle adjustment. An original source knee must also begin BEFORE 35mm
+ // remaining drag, without bypassing same-heel, same-mesh or event ownership.
+ const chosenCalf=calfTrial({afterAnkleToeY:afterAnkleToe,
+  afterAnkleHeelY:afterAnkleHeel,floorTopY:floor,trials:[
+   {signed:-.1,toe:-.055,heel:.122},
+   {signed:.1,toe:-.029,heel:.145}
+  ]});
+ assert.equal(chosenCalf?.signed,.1);
+ const calfDelta=calf({
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:1,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.0655,frameAge:.05,floorTopY:floor,
+  afterAnkleToeY:afterAnkleToe,afterAnkleHeelY:afterAnkleHeel,
+  ankleLiftMeters:.01,trialCalfToeY:chosenCalf?.toe,
+  trialCalfHeelY:chosenCalf?.heel,trialAngleRad:chosenCalf?.signed,
+  previousAssistRad:0
+ });
+ assert.ok(calfDelta>0&&calfDelta<=.06,
+  'one early calf frame may start only a 0.06rad measured source-knee lift');
+ for(const forbidden of [
+  {heelWorldY:-.005},{toeWorldY:-.026},{sourceClipName:'Idle'},
+  {mode:'attack'},{reducedMotion:true},{teleport:true}
+ ])assert.equal(ankle({...shared,...forbidden}),0,
+  'no stance correction, unobserved clip, accessibility or cross-action pose');
+ assert.equal(calf({mode:'idle'}),0);
+ assert.equal(calfTrial({afterAnkleToeY:-.034,afterAnkleHeelY:.135,
+  floorTopY:floor,trials:[{signed:.1,toe:-.02,heel:.14}]}),null,
+  'near-stone toes must not be pushed by a knee merely because a trial raises them');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/toeY<-.02-\.01/,
+  'runtime must actually give early measured original-foot trials an opportunity');
 });
