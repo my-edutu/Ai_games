@@ -130,7 +130,8 @@ test('missing ankle, nonfinite matrices and re-created source clones fail closed
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
  assert.match(model,/footJointWorld=\{left:worldJoint\(feet\.left\),right:worldJoint\(feet\.right\)\}/);
- assert.match(model,/sourceInstanceId:actor\.assetRoot\.uuid,rootWorld,footJointWorld/);
+ assert.match(model,/sourceInstanceId:actor\.assetRoot\.uuid,rootWorld,[\s\S]{0,360}rootYaw:[\s\S]{0,160}footJointWorld/,
+  'original source foot inspector must preserve clone/root/foot association and include actual yaw');
  assert.match(browser,/measureSourceJointTravel\(beforeActor,walkingActor\)/);
 });
 
