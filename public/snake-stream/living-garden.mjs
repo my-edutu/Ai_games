@@ -170,8 +170,33 @@ export function createLivingGarden(THREE, {width,height}) {
     const backEddy=.5+.5*Math.sin(t*.83-s.end*.13);
     const incisedEdge=shoreSide*(.27+1.21*edgeCurrent*edgeCurrent+.13*backEddy)
       *Math.pow(1-v,2.45);
-    const outer=s.near+(s.far-s.near)*v+warp+coastalBend+incisedEdge;
-    const x=s.axis==='x'?t:outer,z=s.axis==='x'?outer:t;
+    // T1 FOUR-COAST GEOMORPHIC MEANDER. Until now every physical soil
+    // cross-section lay on a perfectly straight longitudinal grid (x=t or
+    // z=t), even after all the outer-bank scallops. Redistribute the EXISTING
+    // terraces into broad S-shaped inlets and projecting headlands. The
+    // monotone tangent warp never folds the stone/fern faces over themselves;
+    // it vanishes exactly at both shore ends, at the inboard safety edge and
+    // at the original low-tide border. Thus the connected corner catchments,
+    // rooted trees, original ruins and lily banks retain their actual seats.
+    // These are the same four complete physical terrain batches, not a new
+    // rendering pass, terrain mesh, texture or gameplay-height displacement.
+    const fraction=clamp((t-s.start)/(s.end-s.start),0,1);
+    const length=s.end-s.start;
+    const profile=Math.sin(Math.PI*v);
+    const contactEnvelope=Math.pow(Math.max(0,profile),.74);
+    const maxShift=Math.min(1.70,.115*length);
+    const reprofile=(Math.sin(2*Math.PI*fraction)
+      +.16*Math.sin(4*Math.PI*fraction)*Math.sin(s.start*.13+s.near*.11));
+    const longitudinalShift=maxShift*reprofile*contactEnvelope;
+    const curvedT=t+longitudinalShift;
+    // An equally continuous asymmetric lateral fold turns the once-parallel
+    // terraces into distinct real 3D cove shoulders, always outboard of the
+    // protected centre and zero at their coastal/catchment endpoints.
+    const fold=contactEnvelope*Math.sin(Math.PI*fraction);
+    const flankFold=shoreSide*fold*(.18+.37*(.5+.5*Math.sin(
+      fraction*4*Math.PI+s.near*.19-v*2.2)));
+    const outer=s.near+(s.far-s.near)*v+warp+coastalBend+incisedEdge+flankFold;
+    const x=s.axis==='x'?curvedT:outer,z=s.axis==='x'?outer:curvedT;
     const relief=.08*Math.sin(t*.38+v*3.6)+.13*(smooth(t*.23+12,v*2+21)-.5);
     // Wide turf banks fall into darker rock shelves, rather than identical
     // sharply creased sawtooth terraces in each coastal compass direction.
@@ -206,7 +231,11 @@ export function createLivingGarden(THREE, {width,height}) {
     const terraceRhythm=.86+.14*Math.cos(t*.31+v*3.8+s.start*.09);
     const uplift=(front?.42:s.axis==='x'?2.02:1.49)*terraceWidth*swell*terraceRhythm;
     const y=-.43-.42*v-.54*v*v+.11*Math.sin(t*.24+2)*(.25+.75*v)+relief
-      +coveLift*.52+erodedShelf+tidalValley+uplift;
+      +coveLift*.52+erodedShelf+tidalValley+uplift
+      // The contour banks now carry an actual undulating crest over the same
+      // longitudinal meander, rather than a purely horizontal zigzag.
+      +contactEnvelope*Math.sin(Math.PI*fraction)*Math.sin(
+        2*Math.PI*fraction+s.near*.11)*(front?.085:.32);
     return [x,y,z];
   };
   function leaf(x,y,z,height,angle,shade,species='fern') {
@@ -495,8 +524,16 @@ export function createLivingGarden(THREE, {width,height}) {
   // Cluster along the actual branch and around its tip at three overlapping
   // heights, so all ten trees form continuous crowns rather than separated
   // identical flat paper stars. No duplicate geometry, new leaf or live work.
+  const forestRootAnchors=[];
   function canopyTree(x,z,h,phase,seat=-.56){
-    const baseY=seat,stemTop=baseY+h*.77;
+    const baseY=seat;
+    // When a root belongs to raised native relief, shorten the existing
+    // trunk rather than raising a whole canopy beyond actual camera/fog
+    // bounds. The leaf/branch topology stays intact, with no new work/pass.
+    const crownHeight=Math.min(h*.77,5.70-baseY);
+    const stemTop=baseY+crownHeight;
+    // Actual native forest root position, available for terrain-contact review.
+    forestRootAnchors.push(Object.freeze([x,baseY,z]));
     const crownX=x+.15*Math.sin(phase),crownZ=z+.12*Math.cos(phase);
     woodySegment(x,baseY,z,crownX,stemTop,crownZ,.34,.15,phase);
     for(let branch=0;branch<7;branch++){
@@ -552,11 +589,18 @@ export function createLivingGarden(THREE, {width,height}) {
   // root seat keeps the proven original maximum canopy envelope and avoids
   // concealing navigable stones even on small public board sizes.
   for(const [x,z,h,p] of forest){
-    const coast=x<-W-3?shorelines[2]:x>W+3?shorelines[3]:shorelines[1];
+    // Near-corner trees belong on the FRONT mantle, not an extrapolated
+    // side strip that physically ends more than two metres behind them.
+    const coast=z>H+3.1?shorelines[0]
+      :x<-W-3?shorelines[2]:x>W+3?shorelines[3]:shorelines[1];
     const along=coast.axis==='x'?x:z,outer=coast.axis==='x'?z:x;
-    const v=Math.max(0,Math.min(1,(outer-coast.near)/(coast.far-coast.near)));
-    const elevation=bankPoint(coast,along,v)[1];
-    canopyTree(x,z,h,p,Math.max(-.56,Math.min(.25,elevation-.12)));
+    const v=clamp((outer-coast.near)/(coast.far-coast.near),0,1);
+    const nativeAlong=clamp(along,coast.start+.75,coast.end-.75);
+    const seatPoint=bankPoint(coast,nativeAlong,v);
+    // Root the trunk's ACTUAL x/z as well as height on the curved terrain.
+    // Previously only its Y followed the shoreline; the tree could float
+    // beside the meander after the nearby stone/soil moved away.
+    canopyTree(seatPoint[0],seatPoint[2],h,p,seatPoint[1]);
   }
   // A fractured, vine-rooted four-bay arched aqueduct gives the rear shore
   // a single recognizable architectural silhouette and a believable history.
@@ -927,7 +971,13 @@ export function createLivingGarden(THREE, {width,height}) {
     [-W-5.45,H+5.35,7.05,8.1],
     [W+5.55,H+5.40,7.30,9.2]
   ]){
-    canopyTree(x,z,h,phase);
+    const coast=x<0?shorelines[2]:shorelines[3];
+    const v=clamp((x-coast.near)/(coast.far-coast.near),0,1);
+    // The visual wing tree was outside both original shoreline meshes;
+    // re-seat it inside the adjoining actual side-bank mantle instead of
+    // leaving a suspended trunk at the empty off-island corner.
+    const seatPoint=bankPoint(coast,H+2.05,v);
+    canopyTree(seatPoint[0],seatPoint[2],h,phase,seatPoint[1]);
     features.foregroundCanopies++;
   }
   // Cooler undergrowth and warm weathered stone tie the added 3D topography
@@ -937,6 +987,9 @@ export function createLivingGarden(THREE, {width,height}) {
   bands.get('ruin').color=0xc9c4ad;
   bands.get('foliage').color=0xb7d2b1;
   features.amphitheatreTriangles=stageTriangles()-stageBefore;
+  // Public presentation geometry annotations for reviewing actual native
+  // timber-ground contact; no gameplay state, asset fetch or runtime work.
+  group.userData.forestRootAnchors=Object.freeze(forestRootAnchors);
   // END T1 ESCARPMENT AMPHITHEATRE
   // A shared-vertex terrain should read as rolling soil, not a topographic
   // collection of separate flat triangles. Smooth only organic bands; ruins
