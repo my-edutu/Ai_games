@@ -23,6 +23,8 @@ jobs:
       - run: npm run build
       - name: Verify production original-rig ES modules parse before browser capture
         run: |
+          node --check public/ai-dungeon/app.js
+          node --check public/ai-dungeon/facing-plan.js
           node --check public/ai-dungeon/model-assets.js
           node --check public/ai-dungeon/full-body-animation-controller.js
           node --check public/ai-dungeon/native-rig-deformation-plan.js
