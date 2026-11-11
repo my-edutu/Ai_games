@@ -2327,6 +2327,9 @@ test('original GLB ankle clearance must retain witnessed Walking_A travel throug
  const real={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
   ownerLocomotion:true,travel:.0655,age:.07,alive:true,visible:true,
   teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(hasWitness({...real,sourceClipName:'Walking A'}),true,
+  'licensed clip separators preserve the original source walking owner');
+ assert.equal(hasWitness({...real,sourceClipName:'Walking-A'}),true);
  assert.equal(hasWitness(real),true,
   'a genuine recent root displacement remains lawful while the original source clip advances within one authority tick');
  for(const invalid of [

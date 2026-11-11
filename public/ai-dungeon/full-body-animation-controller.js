@@ -167,7 +167,7 @@ export function hasOriginalSourceSwingTravelWitness({
  alive=false,visible=false,teleport=false,
  reducedMotion=false,interrupted=false
 }={}){
- return mode==='move'&&/^walking[_\\s-]*a$/i.test(sourceClipName)&&
+ return mode==='move'&&/^walking[_\s-]*a$/i.test(sourceClipName)&&
   ownerLocomotion===true&&alive===true&&visible===true&&
   teleport===false&&reducedMotion===false&&interrupted===false&&
   [sourceWeight,travel,age].every(finite)&&
