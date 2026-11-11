@@ -9,6 +9,7 @@ on:
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
+      - tests/browser/dungeon-d04-av-evidence.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
 permissions:
@@ -32,6 +33,7 @@ jobs:
       - run: node --check public/ai-dungeon/original-combat-foley.js
       - run: |
           node --test \
+            tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
