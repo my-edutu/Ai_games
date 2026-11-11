@@ -6,9 +6,9 @@ const {pathToFileURL}=require('node:url');
 const load=()=>import(pathToFileURL(path.resolve(__dirname,'../../public/ai-dungeon/physical-combat-feedback.js')).href);
 const unit=(hp,action='hurt',actionTick=11)=>({id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,hp,maxHp:30,action,actionTick});
 const snap=(tick,hp,action='hurt')=>({run:1,floor:1,tick,units:[unit(hp,action,tick)],events:[]});
-function fakeFeedback(createPhysicalCombatFeedback){
+function fakeFeedback(createPhysicalCombatFeedback,clock=()=>0){
  const played=[],rendered=[];
- const controller=createPhysicalCombatFeedback({requirePresentedFrame:true,
+ const controller=createPhysicalCombatFeedback({requirePresentedFrame:true,clock,
   visualAdapter:{emit(cue){rendered.push(cue);return true},advance(){},reset(){},dispose(){}},
   audioAdapter:{enable(){return true},emit(cue){played.push(cue);return true},flush(){},disable(){},cleanup(){},dispose(){}}});
  assert.equal(controller.enableAudioFromGesture(),true);
@@ -16,11 +16,13 @@ function fakeFeedback(createPhysicalCombatFeedback){
 }
 test('D04: a 720ms real frame stalls audio even when simulation dt is capped to 50ms',async()=>{
  const {createPhysicalCombatFeedback}=await load();
- const {controller,played}=fakeFeedback(createPhysicalCombatFeedback);
+ let clock=0;
+ const {controller,played}=fakeFeedback(createPhysicalCombatFeedback,()=>clock);
  controller.acceptSnapshot(snap(10,30));controller.acceptSnapshot(snap(11,21));
  assert.equal(controller.stats().pending,1,
   'D04 stages even an immediate HP injury in the first measured frame');
  assert.equal(controller.stats().awaitingPresentation,0);
+ clock+=.72; // This stall happens AFTER observation, not before it.
  controller.advance(.05,.72);
  assert.equal(controller.acknowledgePresentedFrame('true-webgl-1'),0);
  assert.equal(played.length,0);
@@ -39,10 +41,12 @@ test('D04: a slow actual WebGL render blocks even a fresh damage cue from audibl
 });
 test('D04: pending sword whooshes do not survive a real frame gap and play after the arm finishes',async()=>{
  const {createPhysicalCombatFeedback}=await load();
- const {controller,played,rendered}=fakeFeedback(createPhysicalCombatFeedback);
+ let clock=0;
+ const {controller,played,rendered}=fakeFeedback(createPhysicalCombatFeedback,()=>clock);
  controller.acceptSnapshot(snap(10,30,'idle'));
  controller.acceptSnapshot(snap(11,30,'attack'));
  assert.equal(controller.stats().pending,1);
+ clock+=.75; // A gesture queued BEFORE the gap cannot replay later.
  controller.advance(.05,.75);
  controller.advance(.05,.016);
  controller.advance(.05,.016);
