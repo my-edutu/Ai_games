@@ -1,10 +1,23 @@
 {
   "updatedAt": "2026-11-11",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (last genuine original strict 1/17); new static spatial index/shadow correctness native candidate PENDING Chromium",
-  "detail": "Nov 11 current-source parent ec45719: authentic original strict 1s browser 1/17 complete full-scene draws at 751x415, 932 GPU queue skips, diagnostic complete-frame GPU p95 391ms. New native verified Morton static culling keeps 13 full scene batches and restores all shadow casters while conserving offscreen color indices even on first draw. RED source-parent 0/2; new shadow contract RED staged 0/1; corrected 3/3 GREEN, native 12/15 with 3 parent-matched failures, TS, authoritative 900 ticks PASS. Current-source Chromium/film/FPS/independent whole game NOT yet verified. Never merge/deploy.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (current original strict 2/17 at 751x415); source-exact anchored cinematic static-cache candidate pending Chromium",
+  "detail": "Live e1d0 source real Chromium #42952842186: 2/17 strict complete submissions in original 1s, 682 GPU queue skips, 751x415; real 55s footage, browser 37/95, CI 678/733. Source diagnosis: follow/detail ordinarily bypass original full-depth static cache. New anchored camera allows real static cache only when complete target and offset stationary; live game/serpent/water unchanged. Parent RED -> new GREEN 3/3, selected parent 31/33 vs candidate 34/36 same two baseline failures, TS, 900-tick authority and 10000-tick deterministic simulation pass. No new source-matched browser or GPU win yet; never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
   "reviews": [
+    {
+      "area": "Nov 11 live e1d0 severe performance blocker and original full-scene depth-cache recovery candidate",
+      "sourceHead": "e1d0f303e162ee6a733ba4303b685cecc52f4bc3",
+      "browser": "Chromium #42952842186: 37/95, original strict 2/17 at 751x415, GPU queue skip 682, full/live diagnostic p95 401ms; this is not physical displayed FPS",
+      "nativeCI": "Actions #42952842154 678/733; reproduction #42952842132 success",
+      "testedBlobs": {
+        "camera": "d7da83e77c10439d6e301b1ef02591e09ba3cb7e",
+        "renderer": "958329b5f177dc1fcf8f32e90b1fbd7d40ae750a",
+        "test": "ba4b348c3e18285fc19ada63ddb369dd5eaae8c1"
+      },
+      "checks": "new RED -> GREEN 3/3, affected candidate 34/36 vs parent 31/33 same two inherited failures; build, 900-tick selftest, 10000-tick simulation PASS",
+      "verdict": "No accepted quality or GPU performance win. T0 unsigned; T1 visibly REJECTED; T2/T3 building; T4 hard RED; candidate Chromium and independent review pending"
+    },
     {
       "area": "November 11 source-exact full shadow/color first-frame spatial material culling",
       "sourceHead": "ec45719d7f865aff66a764349489f555c15ec196",

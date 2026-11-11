@@ -161,3 +161,47 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
   }
   return { target, offset: { x: outward.x * distance, y: outward.y * distance, z: outward.z * distance } };
 }
+
+
+/**
+ * A truthful, bounded cinematic composition dead-zone.
+ *
+ * In follow/detail shots the public head is allowed to move inside a small,
+ * aspect-aware window before the spectator camera repositions. This avoids
+ * rebuilding expensive *unchanged* static scenery every animation callback,
+ * while the actual serpent, water and danger cues keep moving independently.
+ * A portal jump, restart, shot switch, resize or reduced-motion preference
+ * immediately resets the anchor. This never reads or mutates authority.
+ */
+export function createPresentationCameraAnchor() {
+  let held = null;
+  let previousHead = null;
+  const clone = point => ({ x: point.x, y: point.y, z: point.z });
+  const reset = () => { held = null; previousHead = null; };
+  function resolve({ mode, runToken, head, target, offset, reducedMotion = false, aspect = 1.5, discontinuity = false }) {
+    if (!target || !offset || !head || ![target.x,target.y,target.z,offset.x,offset.y,offset.z,head.x,head.z].every(Number.isFinite))
+      throw new TypeError('Camera anchor requires finite public composition coordinates');
+    const actualMode = mode === 'follow' || mode === 'detail' ? mode : 'overview';
+    const safeAspect = Number.isFinite(aspect) && aspect > 0 ? aspect : 1.5;
+    const landmark = { x: head.x, z: head.z };
+    const headJump = previousHead
+      ? Math.hypot(head.x - previousHead.x, head.z - previousHead.z) > 3.25
+      : false;
+    previousHead = landmark;
+    const limit = (actualMode === 'detail' ? 0.72 : 2.4)
+      * Math.max(0.5, Math.min(1, safeAspect / 1.5));
+    const needsReset = !held || held.mode !== actualMode ||
+      held.runToken !== runToken || held.discontinuity !== discontinuity || Math.abs(held.aspect - safeAspect) > 0.03 ||
+      headJump || reducedMotion || held?.reducedMotion !== reducedMotion || actualMode === 'overview' ||
+      Math.abs(head.x - held.head.x) > limit || Math.abs(head.z - held.head.z) > limit;
+    const snap = !held || held.mode !== actualMode || held.runToken !== runToken ||
+      Math.abs(held.aspect - safeAspect) > 0.03 || held?.discontinuity !== discontinuity || headJump || reducedMotion || held?.reducedMotion !== reducedMotion ||
+      actualMode === 'overview';
+    if (needsReset) held = {
+      mode: actualMode, runToken, head: landmark, aspect: safeAspect, reducedMotion, discontinuity,
+      target: clone(target), offset: clone(offset),
+    };
+    return { target: clone(held.target), offset: clone(held.offset), reset: needsReset, snap };
+  }
+  return { resolve, reset };
+}

@@ -8,7 +8,7 @@ import { createCourtyardEcology } from './courtyard-ecology.mjs';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
-import { cameraComposition } from './camera.mjs';
+import { cameraComposition, createPresentationCameraAnchor } from './camera.mjs';
 
 // BEGIN R38 CONTACT HELPER
 /**
@@ -210,6 +210,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
 // END R51 RESCUE STATE
   const frameTimes = [];
   const cameraTarget = new THREE.Vector3(0, 0, 0);
+  const cinematicAnchor = createPresentationCameraAnchor();
   const desiredTarget = new THREE.Vector3();
   const desiredPosition = new THREE.Vector3();
   const cameraOffset = new THREE.Vector3();
@@ -307,7 +308,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   function renderPresentation() {
     cacheActive = false;
     // Follow/detail and the easing back to overview retain the ordinary 3D path.
-    if (!cacheSupported || !staticMeshCount || cameraMode !== 'overview' || cameraOffset.distanceToSquared(desiredPosition) > 0) {
+    if (!cacheSupported || !staticMeshCount || cameraTarget.distanceToSquared(desiredTarget) > 0 ||
+        cameraOffset.distanceToSquared(desiredPosition) > 0) {
       renderer.render(scene, camera);
       return;
     }
@@ -534,6 +536,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       invalidateStaticCache();
       scene.add(world.group);
       dimensions = key;
+      cinematicAnchor.reset();
       lastFoodCell = -1;
       foodPoint = null;
       renderer.shadowMap.needsUpdate = true;
@@ -568,15 +571,27 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     const head = motion.paths[0]?.[0] || { x: 0, z: 0 };
     const food = cameraMode === 'detail' ? foodPoint : null;
     const composition = cameraComposition({ width: snapshot.width, height: snapshot.height, aspect: camera.aspect, mode: cameraMode, head, direction: motion.direction, food, occluders: world.cameraOccluders });
-    desiredTarget.set(composition.target.x, composition.target.y, composition.target.z);
-    desiredPosition.set(composition.offset.x, composition.offset.y, composition.offset.z);
-    const mix = settings.reducedMotion || frameCount === 0 ? 1 : 1 - Math.exp(-Math.min(measuredDelta, 0.5) * 5);
-    // Track the current interpolated head exactly; only the view offset eases.
-    // Easing both world position and target made a fast head drift off screen.
-    cameraTarget.copy(desiredTarget);
+    // Keep the static 3D world at a real stable perspective while the public
+    // serpent/water and other live cues move inside the cinematic safe window.
+    // This holds the true view, never the gameplay or hero geometry. A portal,
+    // restart, shot switch, narrow phone layout or reduced-motion preference
+    // resets the anchor before any camera interpolation.
+    const anchor = cinematicAnchor.resolve({
+      mode: cameraMode, runToken: snapshot.runToken, head,
+      target: composition.target, offset: composition.offset,
+      aspect: camera.aspect, reducedMotion: !!settings.reducedMotion, discontinuity: motion.paths.length > 1,
+    });
+    desiredTarget.set(anchor.target.x, anchor.target.y, anchor.target.z);
+    desiredPosition.set(anchor.offset.x, anchor.offset.y, anchor.offset.z);
+    const mix = settings.reducedMotion || frameCount === 0 || anchor.snap
+      ? 1 : 1 - Math.exp(-Math.min(measuredDelta, .5) * 12);
+    if (cameraMode === 'overview' || anchor.snap) cameraTarget.copy(desiredTarget);
+    else cameraTarget.lerp(desiredTarget, mix);
     cameraOffset.lerp(desiredPosition, mix);
-    // End only subpixel residual easing so an unchanged overview has an exact pose.
-    if (cameraMode === 'overview' && cameraOffset.distanceToSquared(desiredPosition) < 1e-10) cameraOffset.copy(desiredPosition);
+    // Snap only sub-pixel camera residuals to their exact poses so the
+    // original HDR/depth static cache can be reused without stale parallax.
+    if (cameraTarget.distanceToSquared(desiredTarget) < 1e-4) cameraTarget.copy(desiredTarget);
+    if (cameraOffset.distanceToSquared(desiredPosition) < 1e-4) cameraOffset.copy(desiredPosition);
     camera.position.copy(cameraTarget).add(cameraOffset);
     camera.lookAt(cameraTarget);
     scene.fog.near = Math.max(30, cameraOffset.length() + 15);
