@@ -289,7 +289,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  // bodies, no lights per tile, no particle RNG, no invisible collision.
  const incisionMaterial=new THREE.MeshStandardMaterial({color:'#a95a32',emissive:'#f09b50',
   emissiveIntensity:.24,roughness:.57,metalness:.14,transparent:true,opacity:.80});
- const warningIncisions=new THREE.InstancedMesh(new THREE.BoxGeometry(.53,.034,.042),
+ const warningIncisions=new THREE.InstancedMesh(new THREE.BoxGeometry(.59,.034,.075),
   incisionMaterial,MAX_WARNING_TILES);
  warningIncisions.name='Warden physically incised authority warning stone';
  warningIncisions.count=0;warningIncisions.visible=false;
@@ -369,12 +369,22 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
     }
     if(isFrontier)frontier.push(p);
    }
+   // One original shallow in-stone fissure for EVERY legitimately dangerous
+   // authority cell. The old sparse frontier sample left most of a real
+   // 25-cell NOVA indistinguishable from safe masonry on a 390px recording.
+   // Keep the same ONE existing GPU instance batch, no new meshes/lights and
+   // no mark outside the authoritative footprint. Physical stroke direction
+   // distinguishes radial NOVA, axis-aligned RIFT and swept ECLIPSE even
+   // without colour, with all geometry below a standing source GLB's boots.
    warningIncisionCount=0;
-   const step=Math.max(1,Math.ceil(frontier.length/10));
-   for(let i=0;i<frontier.length;i+=step){
-    const p=frontier[i];
-    marker.position.set(p.x-boss.x,.107+warningStage.emboss,p.z-boss.z);
-    marker.rotation.set(0,(i%3-1)*.25,0);
+   for(let i=0;i<warningCount;i++){
+    const p=warning.cells[i],ox=p.x-boss.x,oz=p.z-boss.z;
+    const radial=Math.atan2(oz,ox)+Math.PI/2;
+    const direction=warning.shape==='NOVA'?radial:
+     warning.shape==='RIFT_CROSS'?(Math.abs(ox)>Math.abs(oz)?Math.PI/2:0):
+     (i%2===0?Math.PI/3:-Math.PI/3);
+    marker.position.set(ox,.107+warningStage.emboss,oz);
+    marker.rotation.set(0,direction,0);
     marker.scale.set(warningStage.ornamentScale,1,1);
     marker.updateMatrix();warningIncisions.setMatrixAt(warningIncisionCount++,marker.matrix);
    }
@@ -471,14 +481,18 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   }
   warningMaterial.emissiveIntensity=stoneBeat.ember;
   warningTiles.visible=warningIncisions.visible=warningPerimeter.visible=warningCount>0&&(impactAge>0||warningTiles.count>0);
-  warningMaterial.opacity=impactAge>0?Math.min(.48,.24+impactAge*.52):
-   reducedMotion?.25:.19+.07*(1+Math.sin(time*6.2))*.5;
+  // The warning may only be drawn once every ~400ms on software WebGL.
+  // A nearly transparent pulse becomes invisible between frames. Keep the
+  // TRUE low carved floor visibly distinct at every delivery (including
+  // reduced motion), with a restrained real-countdown progression.
+  warningMaterial.opacity=impactAge>0?.58:
+   reducedMotion?.58:Math.min(.71,.50+.18*warningStage.progress+.025*(1+Math.sin(time*2.4))*.5);
   perimeterMaterial.opacity=impactAge>0?.82:warningStage.warning?.47+.30*warningStage.progress:0;
   perimeterMaterial.emissiveIntensity=impactAge>0?.72:warningStage.warning?.18+.42*warningStage.progress:.1;
   // Material glow progresses with the real impact countdown. Even with
   // prefers-reduced-motion, the marks remain continuously visible and stable.
   incisionMaterial.emissiveIntensity=impactAge>0?.52:warningStage.glow;
-  incisionMaterial.opacity=impactAge>0?.85:warningStage.warning?.69+.24*warningStage.progress:.0;
+  incisionMaterial.opacity=impactAge>0?.90:warningStage.warning?.84+.11*warningStage.progress:.0;
   // Quiet ONLY ornamental source glyphs, conduits and engraved relief as the
   // authoritative 23-cell hazard takes visual priority. The actual warning
   // stones, incisions, perimeter and combat actors remain entirely untouched.
