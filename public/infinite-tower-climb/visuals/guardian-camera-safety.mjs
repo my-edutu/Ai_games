@@ -110,15 +110,17 @@ export function guardianExteriorPortraitStandoff(view, guardian, actor,
 // this cap preserves BOTH real silhouettes, tower-core clearance and any
 // authoritative airborne landing. A failed proposal is never applied.
 export function boundedObservedGuardianOrbit(previous, proposed, dt, aspect,
-  radiansPerSecond = 1.05) {
+  radiansPerSecond = 1.05, minimumExteriorRadius = 27.35) {
   const valid = p => p && [p.x, p.y, p.z].every(finite);
   if (!valid(previous) || !valid(proposed) ||
-      ![dt, aspect, radiansPerSecond].every(finite) ||
+      ![dt, aspect, radiansPerSecond, minimumExteriorRadius].every(finite) ||
       dt <= 0 || aspect <= 0 || aspect >= .85 ||
-      radiansPerSecond < .25 || radiansPerSecond > 2.5) return null;
+      radiansPerSecond < .25 || radiansPerSecond > 2.5 ||
+      minimumExteriorRadius < 23.5) return null;
   const prevRadius = Math.hypot(previous.x, previous.z);
   const targetRadius = Math.hypot(proposed.x, proposed.z);
-  if (prevRadius < 27.35 || targetRadius < 27.35) return null;
+  if (prevRadius < minimumExteriorRadius ||
+      targetRadius < minimumExteriorRadius) return null;
   const a = Math.atan2(previous.x, previous.z);
   const b = Math.atan2(proposed.x, proposed.z);
   const arc = Math.atan2(Math.sin(b - a), Math.cos(b - a));
