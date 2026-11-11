@@ -78,11 +78,12 @@ async function trial({swap=false,refresh=false,drift=0,yaw=0}={}){
  const finalDrawable=visuals.hasDrawableCue(CUE_ID);
  const finalWitness=visuals.hasAuthenticatedSwingPose(cue);
  const sent=feedback.acknowledgePresentedFrame(1,.003);
+ const drawableAfterReceipt=visuals.hasDrawableCue(CUE_ID);
  const receipts=feedback.stats().recentDeliveryReceipts;
  const visualStats=visuals.stats();
  feedback.dispose();
  return {sent,heard,beforeSwap,afterSwap,staleDrawable,finalDrawable,
-  finalWitness,receipts,visualStats};
+  finalWitness,drawableAfterReceipt,receipts,visualStats};
 }
 
 test('a swapped animated wrist cannot certify an old retained ribbon at frame receipt',async()=>{
@@ -93,6 +94,8 @@ test('a swapped animated wrist cannot certify an old retained ribbon at frame re
  assert.equal(r.sent,0);
  assert.deepEqual(r.heard,[]);
  assert.equal(r.receipts.at(-1).decision,'revoked-drawn-swing-pose');
+ assert.equal(r.drawableAfterReceipt,false,
+  'real retained sword slot must retire after a pose-revoked frame receipt');
  assert.equal(r.visualStats.reservedInstances,102);
  assert.equal(r.visualStats.drawCalls,7);
 });
@@ -102,6 +105,8 @@ test('a stable, genuinely measured original wrist still releases exactly one sub
  assert.equal(r.sent,1);
  assert.deepEqual(r.heard,['whoosh']);
  assert.equal(r.receipts.at(-1).decision,'delivered');
+ assert.equal(r.drawableAfterReceipt,true,
+  'a still-authenticated submitted sword segment must not be retired');
 });
 test('new wrist can earn a fresh physical motion after two authentic samples',async()=>{
  const r=await trial({swap:true,refresh:true});
