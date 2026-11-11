@@ -250,6 +250,34 @@ export function assessImportedSourceKneeGeometry({
   'verified-source-knee-plane-from-inverse-bind':'verified-source-knee-plane'};
 }
 
+/** Compare licensed joint lengths in ONE coordinate frame. The rendered
+ * avatar may be fitted non-uniformly in X/Y/Z. Source inverse-bind lengths
+ * cannot be compared with that deformed world-space distance: undo ONLY the
+ * asset-root world transform first. Joint topology and the original skin stay
+ * untouched. Reject non-affine, absent, or nonfinite witnesses. */
+export function measureImportedKneeSegmentsInAssetCoordinates({
+ upperWorld,kneeWorld,footWorld,inverseAssetWorld
+}={}){
+ const joints=[upperWorld,kneeWorld,footWorld],m=inverseAssetWorld;
+ if(joints.some(p=>!Array.isArray(p)||p.length!==3||!p.every(finite))||
+  !m||m.length!==16)return null;
+ for(let i=0;i<16;i++)if(!finite(m[i]))return null;
+ if(Math.abs(m[3])>1e-8||Math.abs(m[7])>1e-8||
+  Math.abs(m[11])>1e-8||Math.abs(m[15]-1)>1e-8)return null;
+ const local=p=>[
+  m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],
+  m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],
+  m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]
+ ];
+ const [upper,knee,foot]=joints.map(local);
+ if([...upper,...knee,...foot].some(x=>!finite(x)))return null;
+ const upperLength=Math.hypot(...upper.map((v,i)=>v-knee[i]));
+ const lowerLength=Math.hypot(...knee.map((v,i)=>v-foot[i]));
+ if(![upperLength,lowerLength].every(finite)||upperLength<=.00001||
+  lowerLength<=.00001)return null;
+ return {upperLength,lowerLength};
+}
+
 export function inferImportedSourceKneeBendAxis(clip,boneName){
  if(!clip||clip.name!=='Walking_A'||typeof boneName!=='string'||
   !/^[a-zA-Z0-9_.-]{3,64}$/.test(boneName)||

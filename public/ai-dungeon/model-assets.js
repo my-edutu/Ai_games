@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -931,14 +931,42 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  const sourceBind=lower.sourceKneeBindAudit;
  const sourceBindUpperLength=sourceBind?.upperLength??null;
  const sourceBindLowerLength=sourceBind?.lowerLength??null;
- const sourceKneeGeometry=sourceBind?
+ // World joint-centre lengths change under the original asset's separate
+ // width/depth/height fit even when the original skin remains anatomically
+ // intact. Undo ONLY that fitted source root before comparing with GLB
+ // inverse binds. Keep the real world knee plane and source hinge alignment.
+ let sourceLengths=null;
+ const assetWorld=actor.assetRoot?.matrixWorld;
+ if(assetWorld?.isMatrix4&&assetWorld.elements.every(Number.isFinite)&&
+  Math.abs(assetWorld.determinant())>1e-10){
+  const inverse=lower.sourceKneeInverseAssetWorld??(
+   lower.sourceKneeInverseAssetWorld=new THREE.Matrix4());
+  inverse.copy(assetWorld).invert();
+  const upperTriplet=lower.sourceKneeUpperTriplet??(
+   lower.sourceKneeUpperTriplet=[0,0,0]);
+  const kneeTriplet=lower.sourceKneeKneeTriplet??(
+   lower.sourceKneeKneeTriplet=[0,0,0]);
+  const footTriplet=lower.sourceKneeFootTriplet??(
+   lower.sourceKneeFootTriplet=[0,0,0]);
+  sourceLengths=measureImportedKneeSegmentsInAssetCoordinates({
+   upperWorld:upperPoint.toArray(upperTriplet),
+   kneeWorld:kneePoint.toArray(kneeTriplet),
+   footWorld:footPoint.toArray(footTriplet),
+   inverseAssetWorld:inverse.elements
+  });
+ }
+ const sourceUpperLength=sourceLengths?.upperLength??null;
+ const sourceLowerLength=sourceLengths?.lowerLength??null;
+ const sourceKneeGeometry=sourceBind&&sourceLengths?
   assessImportedSourceKneeGeometry({
-   upperLength,lowerLength,bendSine,hingeAlignment,
-   sourceBindUpperLength,sourceBindLowerLength
-  }):{accepted:false,reason:'missing-original-skin-inverse-bind'};
+   upperLength:sourceUpperLength,lowerLength:sourceLowerLength,
+   bendSine,hingeAlignment,sourceBindUpperLength,sourceBindLowerLength
+  }):{accepted:false,reason:sourceBind?
+   'invalid-original-asset-reference-space':'missing-original-skin-inverse-bind'};
  actor.sourceSwingCalfTrialOutcome={
   ...actor.sourceSwingCalfTrialOutcome,
-  upperLength,lowerLength,bendSine,hingeAlignment,
+  upperLength,lowerLength,sourceUpperLength,sourceLowerLength,
+  bendSine,hingeAlignment,
   sourceBindUpperLength,sourceBindLowerLength,
   sourceBindMesh:sourceBind?.sourceMesh??null,
   reason:sourceKneeGeometry.reason
