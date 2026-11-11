@@ -40,6 +40,44 @@ export function planMovementFacing(x,z,targetX,targetZ){
  // Existing authored models and procedural rigs use negative Z as forward.
  return Math.atan2(-dx,-dz);
 }
+/**
+ * Real licensed Walking_A feet may still travel 28–85mm AFTER the generic
+ * 70mm destination-heading dead zone has returned null. Original WebGL
+ * consecutive-frame film observed northbound shoes moving while their entire
+ * source rig kept the previous east-facing yaw (desktop -0.992rad, 390px
+ * -0.850rad). Continue only the lawful visual walk turn from the actual
+ * displayed root displacement, not from an invented step or target.
+ *
+ * The caller retains combat-facing priority and the standard bounded yaw
+ * interpolation. This never changes the authoritative coordinate, source
+ * keyframe, clip, pelvis, foot joint or camera. Invalid/idle/hidden/teleport/
+ * death/reduced-motion frames must not pick a heading here.
+ */
+export function planOriginalSourceWalkNearArrivalFacing({
+ sourceRig=false,sourceClipName='',mode='idle',groundedMoving=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ hasCombatFacing=false,previousX=NaN,previousZ=NaN,
+ currentX=NaN,currentZ=NaN,targetX=NaN,targetZ=NaN
+}={}){
+ if(sourceRig!==true||mode!=='move'||groundedMoving!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||hasCombatFacing||
+  typeof sourceClipName!=='string'||
+  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(sourceClipName))return null;
+ if(![previousX,previousZ,currentX,currentZ,targetX,targetZ].every(Number.isFinite))return null;
+ const remaining=Math.hypot(targetX-currentX,targetZ-currentZ);
+ // Outside the small dead zone the existing destination-facing planner owns
+ // heading. At or inside it, require a real, finite, nonteleporting source step.
+ if(remaining>=.07)return null;
+ const dx=currentX-previousX,dz=currentZ-previousZ;
+ const travel=Math.hypot(dx,dz);
+ if(travel<.012||travel>.24)return null;
+ const previousRemaining=Math.hypot(targetX-previousX,targetZ-previousZ);
+ // The source-root must actually be closing on the same legal destination.
+ // A newly diverted, stationary or overshooting rig cannot inherit stale yaw.
+ if(previousRemaining+.001<remaining)return null;
+ return Math.atan2(-dx,-dz);
+}
+
 export function shortestYawDelta(from,to){
  if(!Number.isFinite(from)||!Number.isFinite(to))return 0;
  return Math.atan2(Math.sin(to-from),Math.cos(to-from));
