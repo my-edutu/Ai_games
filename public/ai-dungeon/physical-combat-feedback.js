@@ -255,6 +255,14 @@ export function createPhysicalCombatFeedback({
    if(decision!=='deliver'){
     staleAudioDropped++;
     if(decision==='expired-visual')expiredVisualAudioDropped++;
+    // When a REAL WebGL submission blocked long enough to make an effect
+    // stale, its old retained GPU instances must not persist into the NEXT
+    // frame. Audio remains refused by the same original 400ms deadline.
+    // Live Warden warning cells are excluded by the visual stage: the audio
+    // timeout does not revoke authoritative danger.
+    if(item.visual&&(decision==='stale-frame'||decision==='expired-visual'||
+     decision==='unverified-frame'))
+     safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,decision));
     retainReceipt(item.cue,item.visual,false,frameId,decision);continue;
    }
    // A retained, drawable sword or body glyph was checked during the
