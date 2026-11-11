@@ -53,16 +53,21 @@ export function createPhysicalCombatFeedback({
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
-   highestNumericPresentedFrame=-1,replayedFrameAcks=0;
+   highestNumericPresentedFrame=-1,replayedFrameAcks=0,
+   receiptRenderSubmissionSeconds=null,latestTrustedClock=null;
  const recentStringFrameIds=new Set();
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
+ // One bounded timestamp per recent cue ID; old scenes release these entries.
+ const observedAtByCueId=new Map();
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
  function observedWallClock(){
   // No guess if the browser clock is missing, nonmonotonic or invalid.
   // The uncorrected raw frame age then keeps the existing fail-closed gate.
   try{
    const seconds=clock();
-   return Number.isFinite(seconds)&&seconds>=0?seconds:null;
+   if(!Number.isFinite(seconds)||seconds<0||
+    latestTrustedClock!==null&&seconds<latestTrustedClock)return null;
+   latestTrustedClock=seconds;return seconds;
   }catch{return null}
  }
  // Preserve the requested envelope in receipts even when the D04
@@ -77,15 +82,32 @@ export function createPhysicalCombatFeedback({
   ?0:clamp(cue?.delay,0,.5);
  function flush(){
   pending.length=0;awaitingPresentation.length=0;seen.clear();
+  observedAtByCueId.clear();
   lastPresentedFrame=null;highestNumericPresentedFrame=-1;
   recentStringFrameIds.clear();
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
  function retainReceipt(cue,visual,audio=false,frameId=null,decision=null){
+  // These are only observation and post-WebGL receipt times. They do NOT
+  // certify encoded video PTS, audible sample onset or physical blade contact.
+  // renderedMs is a simulation/presentation accumulation, NOT a wall clock.
+  const observedAt=observedAtByCueId.get(cue.id);
+  const validObserved=Number.isFinite(observedAt)&&observedAt>=0;
+  const receiptClock=frameId!==null?observedWallClock():null;
+  const validSubmit=validObserved&&receiptClock!==null&&receiptClock>=observedAt;
+  const observedClockMs=validObserved?Math.round(observedAt*1000):null;
+  const submittedClockMs=validSubmit?Math.round(receiptClock*1000):null;
   const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
    intendedDelayMs:Math.round(cue.delay*1000),
-   scheduledDelayMs:Math.round(presentationDelay(cue)*1000),visual,audio,frameId,decision});
+   scheduledDelayMs:Math.round(presentationDelay(cue)*1000),visual,audio,frameId,decision,
+   observedClockMs,submittedClockMs,
+   observationToSubmissionMs:validSubmit?
+    Math.max(0,submittedClockMs-observedClockMs):null,
+   renderSubmissionMs:frameId!==null&&
+    Number.isFinite(receiptRenderSubmissionSeconds)&&receiptRenderSubmissionSeconds>=0?
+    Math.round(receiptRenderSubmissionSeconds*1000):null,
+   sampleSynchronized:false});
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
@@ -193,6 +215,7 @@ export function createPhysicalCombatFeedback({
     recentStringFrameIds.delete(recentStringFrameIds.values().next().value);
   }
   lastPresentedFrame=frameId;framesAcknowledged++;
+  receiptRenderSubmissionSeconds=renderSubmissionSeconds;
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
    // A revoked/impacted Warden footprint cannot release a ghost warning sound
@@ -347,6 +370,7 @@ export function createPhysicalCombatFeedback({
    seen.add(cue.id);
    if(seen.size>MAX_PHYSICAL_SEEN_IDS){
     const oldest=seen.values().next().value;seen.delete(oldest);
+    observedAtByCueId.delete(oldest);
    }
    if(pending.length>=MAX_PHYSICAL_PENDING){
     let weakest=0;
@@ -359,11 +383,13 @@ export function createPhysicalCombatFeedback({
     // belated whoosh after the strike. Stage only swings immediately, hidden
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
+    const queuedWallAt=requirePresentedFrame?observedWallClock():null;
+    if(queuedWallAt!==null)observedAtByCueId.set(cue.id,queuedWallAt);
     pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
     // A 19-second renderer interval may PRECEDE a just-observed HP transition.
     // Keep the actual observation clock until the next advance, not the old
     // frame's beginning. Never use this as a substitute for WebGL receipts.
-    queuedWallAt:requirePresentedFrame?observedWallClock():null,
+    queuedWallAt,
     freshlyObserved:requirePresentedFrame,
     audioEpoch:optedIn&&audioReady()?audioEpoch:null});queued++;
   }
