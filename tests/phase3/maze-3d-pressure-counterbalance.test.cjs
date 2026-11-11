@@ -119,3 +119,59 @@ test('Pass259 pairs two broad connected ivory shears instead of a heap of red tr
       assert.equal(world.stats()[key],initial[key],key+' must stay in the pooled strict budget');
   }finally {world.dispose();}
 });
+
+test('Pass261 pressure court is one rooted two-cheek machine, not loose warning fragments',async()=>{
+  const {createMazeWorld}=await mod;
+  const {Vector3,Box3}=await import(three);
+  const world=createMazeWorld({balanced:true});
+  const baseline=world.stats(),original=JSON.stringify(published);
+  try {
+    world.update(published);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 24');
+    const plinth=trap?.getObjectByName('Published tide-shear continuous stone machine plinth');
+    const cheeks=trap?.children.filter(child=>child.name==='Published tide-shear rooted ivory guide cheek')||[];
+    const mast=trap?.getObjectByName('Published tide-shear pressure mast 24');
+    const left=trap?.getObjectByName('Disclosed tide-shear hinged jaw 24 -1');
+    const right=trap?.getObjectByName('Disclosed tide-shear hinged jaw 24 1');
+    const plate=trap?.getObjectByName('Published tide-shear depressible treadle 24');
+    assert.ok(plinth?.isMesh && plinth.scale.x>=2.0 && plinth.scale.z>=2.0,
+      'a real machine-scale connected stone base must ground the moving parts');
+    assert.equal(cheeks.length,2,'one opposed pair of guides replaces disconnected hazard markers');
+    assert.ok(cheeks.every(cheek=>cheek.isMesh && cheek.parent===trap
+      && cheek.scale.z>=1.70 && cheek.position.y<.30),
+      'both continuous low cheek guides frame the mechanism without a fake wall');
+    assert.ok(mast?.isGroup&&Math.abs(mast.scale.x-.82)<1e-12,
+      'rear governor must not overprint the two front cutting silhouettes');
+    assert.ok(left?.isGroup&&right?.isGroup&&plate?.isGroup);
+    assert.ok(Math.abs(left.position.z-.12)<1e-12&&Math.abs(right.position.z-.12)<1e-12,
+      'both original mechanical jaws move forward together, not the simulated hazard');
+    const origin=trap.getWorldPosition(new Vector3());
+    const outside=new Vector3(origin.x+40,0,origin.z+40);
+    const contact=new Vector3(origin.x,0,origin.z);
+    const initialCounts=world.stats();
+    for(const [time,position,motion] of [
+      [1,outside,false],[2,contact,false],[3.4,contact,false],[4,outside,false],[5,contact,true]
+    ]){
+      world.animate(time,{explorerPosition:position,reducedMotion:motion});
+      world.group.updateMatrixWorld(true);
+      for(const part of [plinth,...cheeks]){
+        const box=new Box3().setFromObject(part);
+        assert.ok(box.min.x>origin.x-1.2 && box.max.x<origin.x+1.2
+          && box.min.z>origin.z-1.2 && box.max.z<origin.z+1.2,
+          'machine foundation never leaks out of the publicly disclosed tile');
+      }
+      for(const key of ['geometryCount','materialCount','textureCount'])
+        assert.equal(world.stats()[key],initialCounts[key],
+          'repose/replay must not create GPU resource classes: '+key);
+    }
+    assert.ok(Math.abs(left.rotation.z+.24)<1e-9 && Math.abs(right.rotation.z-.24)<1e-9,
+      'reduced-motion contact retains true source driven symmetrical shears');
+    assert.equal(JSON.stringify(published),original,'presentation must not mutate public/AI authority');
+    world.update({...published,runToken:'unseen-next-run',tick:0,cells:[],
+      visibleCells:[],discoveredCells:[]});
+    assert.equal(world.group.getObjectByName('Published tide-shear continuous stone machine plinth'),undefined,
+      'no private or old-run pressure court survives a reset');
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],baseline[key],'reset returns original shared resource budget');
+  }finally{world.dispose();}
+});

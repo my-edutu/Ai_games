@@ -2000,13 +2000,25 @@ export function createMazeWorld(options = {}) {
     // the playable centre open for Pip and never revealing a hidden neighbor.
     const p = propGroup(c.cell, s);
     p.name = 'Disclosed tide-shear pressure hazard ' + c.cell;
-    mesh(p, cylinder, deepStone, 0, .012, 0, .72, .024, .72);
-    mesh(p, ring, danger, 0, .035, 0, .66, .66, .66, Math.PI / 2);
-    mesh(p, bevel, darkMetal, 0, .07, 0, .45, .08, .45);
-    for (let j = 0; j < 6; j++) {
-      const a = j * TAU / 6;
-      mesh(p, bevel, danger, Math.cos(a) * .73, .032,
-        Math.sin(a) * .73, .15, .05, .11, 0, -a);
+    // Pass261: unaltered full-frame 390/1280 WebGL still reads the real
+    // pressure mechanism as a loose pile of ivory/red fragments. Make the
+    // entire existing 2.4m trigger ONE rooted stone machine: a deep continuous
+    // plinth, inset dark throat and TWO parallel ceramic guide cheeks, not six
+    // disconnected coral floor markers or an ambiguous collectible-like ring.
+    // The treadle, four moving iris leaves, linked drivetrain, mast, paired
+    // actual jaw hinges and existing public contact clock remain authoritative
+    // and unobstructed. All forms use existing shared geometry/materials.
+    const machinePlinth = mesh(p, bevel, deepStone, 0, -.058, 0,
+      2.10, .10, 2.06);
+    machinePlinth.name = 'Published tide-shear continuous stone machine plinth';
+    mesh(p, bevel, darkJade, 0, -.004, 0, 1.95, .026, 1.91);
+    mesh(p, bevel, darkMetal, 0, .019, -.10, 1.52, .034, 1.45);
+    for (const side of [-1, 1]) {
+      const cheek = mesh(p, bevel, lightStone, side * 1.00, .128,
+        0, .13, .19, 1.77);
+      cheek.name = 'Published tide-shear rooted ivory guide cheek';
+      mesh(p, bevel, danger, side * 1.00, .233, .33,
+        .065, .025, .43);
     }
     // This single broad ceramic floor treadle is the legible first action
     // in the PUBLIC pressure encounter: it sinks before the tall jaws shear.
@@ -2035,6 +2047,9 @@ export function createMazeWorld(options = {}) {
     // silhouette. Re-seat the REAL mast within the existing paired jaws'
     // tile footprint instead of cropping the game or weakening the gate.
     pressureMast.position.set(0, .12, -.12);
+    // Retire the visual tangle at the jaws' central negative space without
+    // removing any moving components or altering their event-driven clock.
+    pressureMast.scale.setScalar(.82);
     p.add(pressureMast);
     // Pass258: one recognisable, connected load-bearing TIDEGLASS arch
     // replaces the impression of free-floating red spikes in real 320/390
@@ -2145,7 +2160,10 @@ export function createMazeWorld(options = {}) {
       mesh(quarter, bevel, darkMetal, 0, .015, 0, .61, .055, .57);
       const face = mesh(quarter, bevel, seaGlass, 0, .059, 0, .54, .045, .49);
       face.name = 'Published tide-shear moving sea-glass quadrant';
-      mesh(quarter, bevel, lightStone, -sx * .115, .092, -sz * .09,
+      // The former four bright ivory slivers competed with the actual two
+      // moving shears in real phone footage. Dark joined edge hardware
+      // preserves all four physical opening leaves and their original poses.
+      mesh(quarter, bevel, darkMetal, -sx * .115, .092, -sz * .09,
         .14, .025, .37);
       iris.push({object: quarter, sx, sz});
     }
@@ -2206,7 +2224,10 @@ export function createMazeWorld(options = {}) {
     for (const side of [-1, 1]) {
       const jaw = new THREE.Group();
       jaw.name = 'Disclosed tide-shear hinged jaw ' + c.cell + ' ' + side;
-      jaw.position.set(side * .68, .12, 0);
+      // Give each genuine inward cutting face a clear front stage, rather
+      // than letting the governor/diaphragm overprint its action silhouette.
+      // The entire swept jaw remains in the same published 2.4m cell.
+      jaw.position.set(side * .68, .12, .12);
       p.add(jaw);
       // Pass259 original full-frame 320/390px criticism: the prior THIRTEEN
       // tiny overlapping red shards read as a ruin pile, not a paired

@@ -1,3 +1,9 @@
+### Pass261 — rooted physical pressure mechanism, awaiting new-source native rendering (2026-11-11 UTC)
+
+- Verified prior exact `630e3046e9ae3ed9fc3b51ae1b4afc79d7ebe778` [Maze WebGL 42949914126](https://github.com/my-edutu/Ai_games/actions/runs/42949914126) SUCCESS, retrieved original artifact 13825405424, checked **37/37 unaltered PNG/SHA sidecars**. Inspected actual complete 390px pressure and 1280px frames: Pass260 gallery is present, but piled shard-like machinery remains unconvincing next to full-sized Pip; fixed Nintendo benchmark rejected.
+- Rebuild ONE complete existing public pressure-machine visual hierarchy: single 2m rooted floor plinth and dark machine throat, paired long ivory cheeks instead of six red ornament flecks, clearer forward real cutting faces, receded central carriage and quieted bright floor iris trim. Keep full actual treadle→drive→governor→jaw event-driven actuation, AI/privacy/collision, pooled GPU classes and strict frame/budget/44px requirements.
+- Added installed-Three physical envelope/public state/reset/resource tests. [Dated source/evidence critic](./maze-3d/pass-261-physical-pressure-machine-silhouette-2026-11-11.md). **NEW EXACT HEAD CI, original WebGL side-by-side, independent Nintendo art/gameplay verdict PENDING; no quality win claimed.** PR #53 stays OPEN DRAFT; never merge/deploy/force.
+
 ### Pass260 authored full Tideglass retaining gallery (2026-11-11 UTC)
 
 - On preceding exact HEAD `b53291d990a083d37711f06bd3c0dcb61ce9d8e9` [native WebGL run 42944577211](https://github.com/my-edutu/Ai_games/actions/runs/42944577211) SUCCESS, downloaded original artifact 13822512495 and independently recomputed 37/37 PNG SHA-256 sidecars. Original 390px pressure/survey and 1280px capture show the newly connected ivory jaws, but a giant blank retaining wall still dominates Pip/hazard against fixed Nintendo gameplay.

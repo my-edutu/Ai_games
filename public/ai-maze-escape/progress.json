@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T02:52:00.000Z",
+  "updatedAt": "2026-11-11T04:23:15.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass260: verified preceding native WebGL 42944577211 and 37/37 original PNG hashes, inspected full real 390px/1280px pressure scenes. A large blank elevated retaining face still dwarfed Pip and actual moving jaws. Reconstructed that one genuinely published solid wall into a large Tideglass gallery; new-source 3D screenshots, strict tests and independent comparison remain pending. Official Captain Toad benchmark NOT MET."
+    "summary": "Pass261: current source 630e3046 native WebGL 42949914126 SUCCESS and 37/37 original PNG SHA pairs verified. Full unaltered 390px/1280px pressure scenes show new retaining gallery but still a fragmented, hard-to-read pressure machine. Rebuild one whole public 3D machine stage with rooted stone plinth, paired ivory guides and exposed inward cutters; new-head original screenshot verdict and independent reference comparison PENDING. Official Captain Toad benchmark NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass261 source candidate, after current exact 630e3046 SUCCESS WebGL 42949914126 (37/37 genuine image hashes): recompose the actual event-driven public Tide-Shear into a connected 2m stone machine with dark floor throat and paired 1.77m ivory guides, recede crowded mast and bring two original cutting blades forward; preserve authoritative trigger and gameplay/visibility, pooled geometries and strict NDC/resource budgets. Added installed-Three/reset physical contracts. NEW exact-HEAD tests and authentic renders pending; Nintendo benchmark NOT MET.",
     "Pass260 original pressure-court physical world reconstruction: exact predecessor b53291d9 WebGL run 42944577211 SUCCESS, 37/37 unaltered PNG/JSON hash pairs verified. Larger, joined facade on a real published solid 1.4m retaining wall, never predictive private trap, fake stair/gate or route. Installed Three/public privacy tests authored; new-HEAD original screenshots/tests pending, Nintendo bar unmet.",
     "Pass259 phase6 load-brace physical correction: real exact source whole CI 42943970720 passed 758/759 but rejected old physical diagonal shoulder x=.58 below original >=.60. Increased the same genuine connected bronze brace to .62 (no extra geometry), never lowered the acceptance gate. New-source full CI and WebGL render pending.",
     "Pass259 legacy Phase6 test correction: exact source CI 42943325369 caught actual warning vane y=.93 below strict >1.00 legibility contract. Restored its connected physical height to 1.06, still below fang 1.70; unchanged strict Phase6 acceptance and all WebGL gates. Corrected new-head tests and render pending.",
@@ -207,6 +208,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass261 exact-new-HEAD native WebGL: evaluate 320,390,844x390,1280 real pressure approach/contact/withdrawal and independent original-shader side-by-side with source 630e3046; check 37/37+ original SHA sidecars, ±0.95 full silhouettes, 44px controls, six-reset <100 geometry/spread, no fake public knowledge. If still piles up, remove redundant inner physical ornaments rather than adding more parts; do not call source contract a visual win.",
     "Critic Pass255: verify new SHA-matched original full-stage 390px public inspection light genuinely reaches real jaws without passing through walls, clears on tick6, preserves physical ±.95 framing, mobile and strict <100 six-run budget; then reconstruct large original gameplay/world beat. Independent Nintendo critic required.",
     "Pass248: strict <100 unchanged six-run resource/reset, native 320/390/844/1280 full-size exact-HEAD captures with verified SHA and original game snapshots, visibly distinguish resting/pressed/released treadle against original WebGL, check complete Pip/jaw ±.95 and >.70 action scale, then fresh-context artistic comparison to official Captain Toad. No visual victory on source tests.",
     "Pass246 new-code source-bound gate: on unchanged 320/390 full native WebGL tick4→5→6 verify 'Watch jaws' before contact, 'Avoid jaws' for real contact/withdrawal, exact-source SHA hashes, full ±.95 Pip/jaws and >.70 withdrawal, 44px controls, and <100 six-run geometry/reset; compare official Nintendo game artistry and advance meaningful authored puzzle beats only after honest image critic.",
@@ -756,6 +758,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass261 previous source and physical machine candidate",
+      "status": "PREVIOUS EXACT-HEAD WEBGL SUCCESS + 37/37 authentic PNG/SHA pairs; NEW 3D source NOT YET RENDERED",
+      "detail": "630e3046, successful workflow 42949914126 original artifact 13825405424. Full 390px/1280px genuine pressure capture manually inspected; gallery improved but machine silhouette rejects Captain Toad bar. New plinth/front-stage production changes require fresh CI+render. Independent critic unavailable.",
+      "sourceCommit": "630e3046e9ae3ed9fc3b51ae1b4afc79d7ebe778",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/42949914126"
+    },
     {
       "name": "Pass255 source-bound original review / public lantern survey candidate",
       "status": "Previous 42903961407 SUCCESS, 39/39 original PNG hashes; new HEAD tests/browser pending",
