@@ -67,14 +67,15 @@ jobs:
         run: |
           command -v google-chrome
           google-chrome --version
-      - name: Ensure native ffprobe/ffmpeg for strict decoded real WebGL frame evidence
+      - name: Identify optional real-media decoders without apt network dependency
         run: |
-          if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
+          if command -v ffprobe >/dev/null && command -v ffmpeg >/dev/null; then
+            ffprobe -version | head -1
+            ffmpeg -version | head -1
+            echo "D04 decoder: local ffprobe/ffmpeg present"
+          else
+            echo "::warning::D04 Decoder unavailable: raw browser gameplay/audio can still be captured; decoded frame and Opus evidence remain UNVERIFIED"
           fi
-          ffprobe -version | head -1
-          ffmpeg -version | head -1
       - name: Real Dungeon runtime and WebGL smoke only; not sample-synchronized A/V proof
         run: npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs
         env:
