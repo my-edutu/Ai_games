@@ -34,7 +34,7 @@ export function createPhysicalCombatFeedback({
   {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map,
    getCurrentSnapshot:()=>previous}):null);
  const injectedFoley=audioAdapter!==null;
- let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx):null);
+ let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx,{requireVerifiedContact:true}):null);
  // An original WebAudio engine is permanently bound to its creation context
  // and FX output. Device recovery must not keep scheduling on the old bus.
  let ownedFoleyContext=injectedFoley?null:ctx,ownedFoleyOutput=null,
@@ -451,7 +451,7 @@ export function createPhysicalCombatFeedback({
    foley=null;
   }
   if(!foley){
-   foley=createOriginalCombatFoley(context,{output});
+   foley=createOriginalCombatFoley(context,{output,requireVerifiedContact:true});
    ownedFoleyContext=context;ownedFoleyOutput=output;
   }
   observeAudioState(context);
