@@ -1632,6 +1632,18 @@ export function createTowerWorld(){
       tension.castShadow=false;tension.receiveShadow=false;tension.frustumCulled=false;
       doorway.add(tension);
       const tensionPose=new THREE.Object3D();
+      // Two actual overhead bronze drive spools turn only as genuine
+      // guardian HP moves the counterweights. One batched original 3D draw,
+      // not two decorative fake timers or a HUD overlay.
+      const spools=new THREE.InstancedMesh(
+        geometry('guardian-source-counterweight-spool',
+          ()=>new THREE.TorusGeometry(.34,.07,6,20)),materials.copper,2);
+      spools.name='GuardianCounterweightSpoolPulleys';
+      spools.castShadow=false;spools.receiveShadow=false;
+      spools.frustumCulled=false;
+      spools.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      overhead.add(spools);
+      const spoolPose=new THREE.Object3D();
       // The rigid gate piers, lintel and rails do not need one GPU draw
       // each. Batch ONLY this immovable architecture into shared-material
       // meshes; the source-driven doors, weights, crest and conduit stay
@@ -1648,7 +1660,7 @@ export function createTowerWorld(){
         object.userData.ambientDetail=true;object.castShadow=false;object.receiveShadow=false;
       }});
       guardianGate={frame,wings,crest,counterweights,conduit,capstan,
-        overhead,tension,tensionPose,progress:null,unlocked:false};
+        overhead,tension,tensionPose,spools,spoolPose,progress:null,unlocked:false};
     }
     let capMaterials = [];
     if(p.id.endsWith(':cap')){
@@ -2018,8 +2030,12 @@ export function createTowerWorld(){
           gate.unlocked=unlocked;
           for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
           for(const {side,carriage} of gate.counterweights){
+            // Slide each mass within its actual vertical steel guide. The old
+            // side-dependent rotation revolved it around the distant gate
+            // origin, lifting its bounding box by ~0.75m and visibly
+            // detaching its cable from the bronze socket.
             carriage.position.y=-gate.progress*2.35;
-            carriage.rotation.z=side*gate.progress*.07;
+            carriage.rotation.z=0;
           }
           // No invented impulse: the wheel turns and the cables spool only
           // as the true source-driven weights descend. Reduced motion retains
@@ -2034,7 +2050,7 @@ export function createTowerWorld(){
           // translation -> exact cable endpoint. No future source tick,
           // physics authority or decorative clock supplies displacement.
           const anchorY=gate.overhead.position.y;
-          for(const [index,{carriage,socket}] of gate.counterweights.entries()){
+          for(const [index,{side,carriage,socket}] of gate.counterweights.entries()){
             const socketY=carriage.position.y+socket.position.y;
             const cableLength=anchorY-socketY;
             gate.tensionPose.position.set(socket.position.x,
@@ -2044,8 +2060,19 @@ export function createTowerWorld(){
             gate.tensionPose.scale.set(.047,cableLength,.047);
             gate.tensionPose.updateMatrix();
             gate.tension.setMatrixAt(index,gate.tensionPose.matrix);
+            // Real bearing at the same overhead cable anchor, rotating
+            // with the identical HP-driven source progress. Reduced motion
+            // keeps the downward mechanical state but suppresses rotation.
+            gate.spoolPose.position.set(
+              side*GUARDIAN_TRANSMISSION_LAYOUT.counterweightX,0,.04);
+            gate.spoolPose.rotation.set(0,0,
+              options.reducedMotion?0:-side*gate.progress*Math.PI*1.1);
+            gate.spoolPose.scale.set(1,1,1);
+            gate.spoolPose.updateMatrix();
+            gate.spools.setMatrixAt(index,gate.spoolPose.matrix);
           }
           gate.tension.instanceMatrix.needsUpdate=true;
+          gate.spools.instanceMatrix.needsUpdate=true;
           gate.crest.scale.x=1+gate.progress*.2;
           // The path advances with the HP-driven lock, never invented clearance.
           // It ends inside the real deck's outer rim and has no collider.

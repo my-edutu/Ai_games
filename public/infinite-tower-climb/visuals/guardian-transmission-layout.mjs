@@ -14,7 +14,10 @@ export const GUARDIAN_TRANSMISSION_LAYOUT = Object.freeze({
  // source-HP transmission gallery above the 0..4.8m pedestrian opening;
  // retain the same outboard bearing, visible source damage and door mechanics.
  // At maximum authentic opening the hanging weights still stop above y=5.
- railCenterY:7.85,railHeight:4.25,weightCenterY:8.15,socketY:8.85,
+ // The 1.40m bronze weight slides down 2.35m on genuine source HP0.
+  // Full guide ends at 5.065m (above the combat/threshold airspace),
+  // contains its 5.10m lower edge and reaches the overhead bearing.
+  railCenterY:7.74,railHeight:5.35,weightCenterY:8.15,socketY:8.85,
  cameraLowerY:5.0,cameraTopY:11.40,sourceGateCenterY:2
 });
 export function observedGuardianTransmissionCorners(lockCenter) {

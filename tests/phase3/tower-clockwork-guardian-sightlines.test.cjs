@@ -879,7 +879,15 @@ test('physical floor-eight gate keeps both HP-driven counterweights ABOVE the li
       enemies:[{...guardian,health:0,active:false}]};
     w.update(defeated,.016,1,{quality:'low',reducedMotion:true});
     const after=getWeightBounds();
+    const guides=[];
+    gate.traverse(item=>{
+      if(item.name==='GuardianSealCounterweightRail')guides.push(item);
+    });
+    assert.equal(guides.length,2,'two fixed full-height outboard guides remain');
+    const guideBounds=guides.map(item=>new THREE.Box3().setFromObject(item));
     for(let i=0;i<2;i++){
+      assert.ok(after[i].lower>=guideBounds[i].min.y-gateOrigin.y-.02,
+        'authentic full-stroke counterweight must remain inside its steel track');
       assert.ok(before[i].lower-after[i].lower>2.2&&
         before[i].lower-after[i].lower<2.5,
         'actual HP0 mechanically lowers each original 3D winch by 2.35m');

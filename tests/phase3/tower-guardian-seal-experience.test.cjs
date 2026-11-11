@@ -244,8 +244,15 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       return cableScale.y;
     };
     const closedCableLength = assertAttachedCables('full-health lock');
-    assert.ok(closedCableLength > 4 && closedCableLength < 6,
-      'the actual elevated outboard transmission owns taut cables spanning its taller mechanical gallery');
+    // Authentic elevated geometry: socket y=8.85 and overhead y=10.35.
+    // The 1.50m hanging line is not the retired floor-level 4-6m cable.
+    assert.ok(closedCableLength > 1.45 && closedCableLength < 1.55,
+      'source-raised outboard winch starts with a real 1.50m taut cable');
+    const spools = named(world.group,'GuardianCounterweightSpoolPulleys');
+    assert.equal(spools?.count,2,
+      'two physically attached overhead drive pulleys use one instanced draw');
+    const originalSpool = new THREE.Matrix4();
+    spools.getMatrixAt(0,originalSpool);
     assert.ok(Math.abs(leftWeight.position.y)<1e-12, 'left counterweight starts physically closed');
     assert.ok(Math.abs(rightWeight.position.y)<1e-12, 'right counterweight starts physically closed');
     // The real authority commonly transfers floors on the decisive hit.
@@ -263,6 +270,10 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     assert.ok(capstan.rotation.z > 1.8,
       'observed real guardian damage visibly turns the winch');
     const damagedCableLength = assertAttachedCables('living guardian damage');
+    const turningSpool = new THREE.Matrix4();
+    spools.getMatrixAt(0,turningSpool);
+    assert.ok(!turningSpool.equals(originalSpool),
+      'only observed guardian HP loss turns the real drive spool');
     assert.ok(damagedCableLength > closedCableLength + 1,
       'real health loss extends both physical cable spans along the descending sockets');
     assert.equal(leftWeight.position.y,rightWeight.position.y,
