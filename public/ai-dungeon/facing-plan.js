@@ -71,13 +71,14 @@ export function planOriginalSourceWalkNearArrivalFacing({
  const dx=currentX-previousX,dz=currentZ-previousZ;
  const travel=Math.hypot(dx,dz);
  const previousRemaining=Math.hypot(targetX-previousX,targetZ-previousZ);
- // Genuine original Walking_A 390px footage witnessed the last 5.1018mm
- // source-root approach while the 12mm generic facing floor returned null,
- // leaving a real skinned walker facing ~0.59rad away from its just-reached
- // destination. Admit ONLY a witnessed 3-9mm step that actually closes the
- // <=9mm final gap; all other walk heading and combat priority stay intact.
+ // Genuine original Walking_A source-rig footage witnessed a 5.10mm final
+ // mobile step AND a 10.17mm final desktop step: the last 9-12mm window
+ // fell between the existing 12mm ordinary-walk floor and 9mm microstep
+ // exception, leaving real skinned legs facing sideways on arrival.
+ // Admit ONLY actual 3-12mm source travel closing the same <=12mm final
+ // gap. New target, idle, teleport, combat and unsupported motion fail closed.
  // No source joints, clip times, scene roots or authority movement are edited.
- const witnessedFinalStep=remaining<=.009&&travel>=.003&&travel<=.009&&
+ const witnessedFinalStep=remaining<=.012&&travel>=.003&&travel<=.012&&
   previousRemaining>=remaining+.0025;
  if((travel<.012&&!witnessedFinalStep)||travel>.24)return null;
  // The source-root must actually be closing on the same legal destination.
