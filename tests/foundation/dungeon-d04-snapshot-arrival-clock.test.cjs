@@ -90,3 +90,54 @@ test('legacy non-submission mode still admits immediate HP event without requiri
  assert.equal(h.audio.length,1);
  h.director.dispose();
 });
+
+test('real D04 HP cue records one bounded observation-to-render timeline, not proof of decoded sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const h=harness(createPhysicalCombatFeedback,()=>now);
+ h.director.acceptSnapshot(snapshot(10,30));
+ h.director.acceptSnapshot(snapshot(11,20));
+ now=100.018;
+ h.director.advance(.018,.018);
+ now=100.025;
+ assert.equal(h.director.acknowledgePresentedFrame(1,.005),1);
+ const receipt=h.director.stats().recentDeliveryReceipts.at(-1);
+ assert.equal(receipt.kind,'damage');
+ assert.equal(receipt.audio,true);
+ assert.equal(receipt.visual,true);
+ assert.equal(receipt.frameId,1);
+ assert.equal(receipt.observedClockMs,100000,
+  'authentic observation needs its own clock reading, never the preceding frame start');
+ assert.equal(receipt.submittedClockMs,100025,
+  'submission stamp is taken only after the actual render acknowledgment');
+ assert.equal(receipt.observationToSubmissionMs,25);
+ assert.equal(receipt.renderSubmissionMs,5);
+ assert.equal(receipt.sampleSynchronized,false,
+  'a real WebAudio emit cannot certify decoded PCM or perceptual alignment');
+ assert.equal(h.director.acknowledgePresentedFrame(1,.005),0);
+ assert.equal(h.director.stats().recentDeliveryReceipts.length,1,
+  'replayed frame may not fabricate a second audio onset or timestamp');
+ h.director.dispose();
+});
+
+test('missing or backwards clocks do not fabricate A/V timing while scene and sound safety remain intact',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=50;
+ const h=harness(createPhysicalCombatFeedback,()=>now);
+ h.director.acceptSnapshot(snapshot(10,30));
+ h.director.acceptSnapshot(snapshot(11,20));
+ now=49; // Browser clock regression cannot become a negative measured latency.
+ h.director.advance(.016,.016);
+ assert.equal(h.director.acknowledgePresentedFrame(1,.003),1);
+ const r=h.director.stats().recentDeliveryReceipts.at(-1);
+ assert.equal(r.audio,true,'the established frame-based safety gate remains independent');
+ assert.equal(r.observedClockMs,50000);
+ assert.equal(r.submittedClockMs,null,
+  'invalid/backwards wall stamps must never imply a synchronous impact');
+ assert.equal(r.observationToSubmissionMs,null);
+ assert.equal(r.sampleSynchronized,false);
+ h.director.muteAudio();
+ assert.equal(h.director.acknowledgePresentedFrame(2,.002),0);
+ assert.equal(h.director.stats().recentDeliveryReceipts.length,1);
+ h.director.dispose();
+});
