@@ -2366,7 +2366,16 @@ export function createMazeWorld(options = {}) {
       // Give each genuine inward cutting face a clear front stage, rather
       // than letting the governor/diaphragm overprint its action silhouette.
       // The entire swept jaw remains in the same published 2.4m cell.
-      jaw.position.set(side * .68, .12, .12);
+      // Pass279: true SHA-bound 320/390 WebGL pressure captures show the
+    // crossed ivory shears projecting as a solid foreground chevron across
+    // Pip's lower body. Stage BOTH existing source-driven blade hinges on the
+    // FRONT half of their rooted ivory guides, with their pivots planted
+    // just below the pressure deck. The horizontal inward closure and whole
+    // two-blade silhouette remain; the forward camera sees the protagonist
+    // above, and the cutting action lower, instead of stacked on the torso.
+    // No new danger footprint, actor relocation, collision/AI rule, source
+    // knowledge, material/geometry class, camera crop or timing alteration.
+    jaw.position.set(side * .68, -.035, .44);
       p.add(jaw);
       // Pass259 original full-frame 320/390px criticism: the prior THIRTEEN
       // tiny overlapping red shards read as a ruin pile, not a paired

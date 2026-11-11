@@ -27,6 +27,17 @@ test('both real pressure blades close their guide rails only after witnessed flo
     const guides=hazard.children.filter(child=>child.name==='Published tide-shear rooted ivory guide cheek');
     assert.equal(jaws.length,2);assert.ok(jaws.every(jaw=>jaw?.isGroup));
     assert.equal(guides.length,2,'two anchored guides still support the sliding jaw roots');
+    // Pass279: verify a genuine physical re-staging of the existing paired
+    // full-body cutters, not a color swap or HTML mask. Lower, forward-rooted
+    // blades need real clearance while preserving their side guide rails.
+    for (const jaw of jaws) {
+      assert.ok(jaw.position.z>=.42 && jaw.position.z<=.46
+        &&jaw.position.y<0,
+        'both true mobile-foreground shears are rooted below the front deck, leaving Pip the central stage');
+      assert.ok(jaw.getObjectByName('Published tide-shear front blade')?.isMesh
+        &&jaw.getObjectByName('Published tide-shear forward danger inlay')?.isMesh,
+        'the original moving ivory cutting faces and coral contact edges remain attached');
+    }
     const origin=hazard.getWorldPosition(new Vector3());
     const far=new Vector3(origin.x+30,0,origin.z+30);
     const near=new Vector3(origin.x,0,origin.z);
