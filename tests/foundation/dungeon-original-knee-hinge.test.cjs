@@ -1,0 +1,66 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const controllerPath=path.join(root,'public/ai-dungeon/full-body-animation-controller.js');
+const load=()=>import('data:text/javascript;base64,'+
+ Buffer.from(fs.readFileSync(controllerPath,'utf8')).toString('base64'));
+function rotation(angle,axis=[0,0,1]){
+ const s=Math.sin(angle/2),c=Math.cos(angle/2);
+ return [axis[0]*s,axis[1]*s,axis[2]*s,c];
+}
+function clip(angles=[0,.16,.31,.55,.37,.12],axis=[0,0,1]){
+ return {name:'Walking_A',duration:1.0416666,tracks:[
+  {name:'Armature|lowerlegl.quaternion',times:angles.map((_,i)=>i*.19),
+   values:angles.flatMap(a=>rotation(a,axis))},
+  {name:'Armature|footl.quaternion',times:[0,1],
+   values:[...rotation(0),...rotation(.12)]}
+ ]};
+}
+test('original licensed Walking_A knee hinge follows source quaternion tracks, not guessed local-X bending',async()=>{
+ const {inferImportedSourceKneeBendAxis:infer}=await load();
+ assert.equal(typeof infer,'function');
+ const receipt=infer(clip(),'lowerlegl');
+ assert.equal(receipt?.source,'verified-original-Walking_A-knee-quaternion-axis');
+ assert.ok(receipt?.axis&&receipt.axis.length===3);
+ assert.ok(Math.abs(receipt.axis[2])>.98&&Math.abs(receipt.axis[0])<.15,
+  'source-evidenced Z hinge must not be silently applied as local-X');
+ assert.equal(receipt.trackName,'Armature|lowerlegl.quaternion');
+ assert.ok(receipt.sampleCount>=3);
+ const x=infer(clip(undefined,[1,0,0]),'lowerlegl');
+ assert.ok(x&&Math.abs(x.axis[0])>.98,'other licensed original hinge orientations remain available');
+});
+test('original-source knee axis fails closed for fake clip, unstable joint rotation, or unrelated skeleton',async()=>{
+ const {inferImportedSourceKneeBendAxis:infer}=await load();
+ const clean=clip();
+ const mixed=clip();
+ mixed.tracks[0].values=[
+  ...rotation(0,[1,0,0]),...rotation(.24,[1,0,0]),
+  ...rotation(.36,[0,1,0]),...rotation(.31,[0,0,1]),
+  ...rotation(.2,[0,1,0]),...rotation(.05,[0,0,1])
+ ];
+ for(const [candidate,bone] of [
+  [null,'lowerlegl'],[{},'lowerlegl'],[{...clean,name:'Idle'},'lowerlegl'],
+  [clean,'lowerlegr'],[clean,''],[mixed,'lowerlegl'],
+  [clip([0,.001,.002,.001,0]),'lowerlegl'],
+  [{...clean,tracks:[...clean.tracks,clean.tracks[0]]},'lowerlegl'],
+  [{...clean,tracks:[{...clean.tracks[0],values:[NaN,...clean.tracks[0].values.slice(1)]}]},'lowerlegl'],
+  [{...clean,tracks:[{...clean.tracks[0],values:[1,2]}]},'lowerlegl']
+ ]) assert.equal(infer(candidate,bone),null,
+  'unsupported or ambiguous source knee tracks must never authorize calf rotation');
+});
+test('real calf trials must use the documented original clip hinge and retain final measured sole proof',async()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/inferImportedSourceKneeBendAxis\(/,
+  'renderer must audit the exact imported lower-leg clip, not improvise knee axis');
+ assert.match(renderer,/trial\.setFromAxisAngle\(sourceKneeAxis,/,
+  'actual skinned-shoe signed calf trials must run on source-derived hinge');
+ assert.match(renderer,/sourceKneeAxisAudit/,
+  'safety receipts must expose missing or accepted original track evidence');
+ assert.match(renderer,/planOriginalSourceSwingCalfAssist\(/,
+  'existing real-owner/heel/ankle safety planner must remain');
+ assert.match(renderer,/sourceSwingCalfAssistProof/,
+  'real skinned-toe post-application acceptance remains mandatory');
+});
