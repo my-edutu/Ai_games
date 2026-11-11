@@ -28,7 +28,7 @@ function witnessActualDamage(){
 }
 
 
-const {assessD04Capture,MAX_CLIP_BYTES,MAX_PCM_BYTES}=
+const {assessD04Capture,persistD04CaptureEvidence,MAX_CLIP_BYTES,MAX_PCM_BYTES}=
  require('./dungeon-d04-av-evidence.cjs');
 
 /**
@@ -117,13 +117,14 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
  const {base64,...clip}=raw.clip||{};
  const {wavBase64,...pcm}=raw.pcm||{};
+ const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
   body:Buffer.from(base64,'base64'),contentType:'video/webm'});
  if(wavBase64)await testInfo.attach('d04-live-original-soundstage-pcm.wav',{
   body:Buffer.from(wavBase64,'base64'),contentType:'audio/wav'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,frames:raw.frames,
-   assessment,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
+   assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Overlapping genuine browser streams; no measured sample-accurate A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
  return assessment;
