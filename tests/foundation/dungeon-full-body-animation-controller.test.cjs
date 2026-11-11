@@ -2930,3 +2930,42 @@ test('source foot and knee retain viable SAME-DIRECTION skinned swing probes acr
  assert.match(model,/selectOriginalSourceSwingAnkleTrial\(\{[\s\S]{0,160}previousCorrectionRad:previous/);
  assert.match(model,/selectOriginalSourceSwingCalfTrial\(\{[\s\S]{0,180}previousAssistRad:prior/);
 });
+
+test('source-native stance-sole relief uses measured two-point original shoe, not a fake foot lock',async()=>{
+ const {planOriginalSourceStanceAnkleRelief:plan}=await load();
+ const source={mode:'move',sourceClipName:'Walking_A',
+  sourceWeight:.88,ownerLocomotion:true,rootTravel:.107,frameAge:.03,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  floorTopY:-.02,heelY:-.022635230550926283,toeY:-.0415121281595155,
+  // Actual desktop source-foot frame: stance heel 2.6mm and toe 21.5mm
+  // inside floor. Trial endpoints below are prospective and must NOT
+  // masquerade as the original rig's newly recorded performance.
+  trials:[{signed:-.12,heel:-.018,toe:-.055},
+   {signed:.12,heel:-.026,toe:-.026}],
+  previousCorrectionRad:0};
+ const selected=plan(source);
+ assert.ok(selected&&selected.delta>0&&selected.delta<=.045,
+  'select a limited original ankle plane correction that improves BOTH source sole contacts');
+ assert.equal(selected.signed,.12);
+ assert.equal(plan({...source,trials:[source.trials[0]]}),null,
+  'do not raise the heel by digging the source toe deeper into stone');
+ assert.equal(plan({...source,sourceClipName:'Idle'}),null);
+ assert.equal(plan({...source,sourceWeight:.4}),null);
+ assert.equal(plan({...source,mode:'attack'}),null);
+ assert.equal(plan({...source,ownerLocomotion:false}),null);
+ assert.equal(plan({...source,rootTravel:0}),null);
+ assert.equal(plan({...source,reducedMotion:true}),null);
+ assert.equal(plan({...source,teleport:true}),null);
+ assert.equal(plan({...source,alive:false}),null);
+ assert.equal(plan({...source,heelY:.11,toeY:-.11}),null,
+  'this support is for a near-ground stance shoe, not an airborne swing');
+ assert.equal(plan({...source,previousCorrectionRad:-.04}),null,
+  'opposing current-frame original sole trial cannot snap the stance ankle');
+ assert.equal(plan({...source,trials:[{signed:.12,heel:-.09,toe:-.01}]}),null,
+  'a cosmetically higher toe does not justify pushing the real heel into stone');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planOriginalSourceStanceAnkleRelief\(/,
+  'real original Three.js skinned ankle must consume the grounded source-foot plan');
+ assert.match(model,/sourceStanceSoleCurrentFrameProofs/,
+  'recomputed physical heel-toe proof is required, not claimed virtual foot contact');
+});
