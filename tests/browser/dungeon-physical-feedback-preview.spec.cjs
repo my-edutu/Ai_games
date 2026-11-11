@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
+const {correlateD04OriginalSourceStarts}=require('./dungeon-d04-source-start-correlation.cjs');
 const fs=require('node:fs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
@@ -756,6 +757,9 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  // VP8 PTS or PCM sample onset. Never use this to claim auditory sync.
  const earlyReceipts=atDamage.physicalFeedback?.recentDeliveryReceipts??[];
  const lateReceipts=observed.physicalFeedback?.recentDeliveryReceipts??[];
+ const originalStartCorrelation=correlateD04OriginalSourceStarts({
+  receipts:lateReceipts,sourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[]
+ });
  const timeline={
   source:'real-DungeonRuntime-to-ThreeJS-D04-controller',
   seed:real.seed,run:real.after.run,floor:real.after.floor,
@@ -779,13 +783,11 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   // never subtract the unlike clock origins or infer an audible PCM onset.
   originalSourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[],
   sourceStartClock:'AudioContext.currentTime, unmatched to decoded audio/video PTS',
-  sourceStartMatches:(observed.physicalFeedback?.audio?.recentOriginalStarts??[])
-   .filter(start=>lateReceipts.some(r=>r.audio===true&&r.cueId===start.cueId))
-   .map(start=>({cueId:start.cueId,kind:start.kind,audio:start.audio,
-    scheduledContextMs:start.scheduledContextMs,
-    startedSources:start.startedSources,
-    verifiedCanonicalCue:start.verifiedCanonicalCue,
-    sampleSynchronized:false})),
+  // A cueId-only join is NOT source-start provenance. Require the same
+  // scene/tick/semantic recipe, one genuine submission receipt and one
+  // successful original source.start audit. Neither clock establishes PCM PTS.
+  sourceStartMatches:originalStartCorrelation.matches,
+  sourceStartCorrelation:originalStartCorrelation,
   admittedFoleyReceipts:lateReceipts.filter(r=>r.audio===true&&
    r.frameId!==null).map(r=>({cueId:r.cueId,kind:r.kind,tick:r.tick,
     observedClockMs:r.observedClockMs,submittedClockMs:r.submittedClockMs,
