@@ -324,6 +324,11 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.position.set(0, 2,
     GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck);
   sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  // The physical low-doorway field has five exclusion rails. Only three
+  // carry the readable full glow; the two inset conductors stay deliberately
+  // low-energy so a phone screen does not rebuild the bright prison grate.
+  // Per-instance tint is retained on the SAME instanced draw and source lock.
+  const sourceSealTint = new THREE.Color();
   let displayedSealHeight = 0, displayedSealExcitation = null;
   function poseSourceSealHeight(sourceHeight, excited=false) {
     const nextHeight = Number.isSafeInteger(sourceHeight) && sourceHeight >= 140000
@@ -386,8 +391,16 @@ export function createTowerGuardianPassage(THREE) {
       thresholdPose.scale.set(sx,sy,sz);
       thresholdPose.updateMatrix();
       sealedLattice.setMatrixAt(index,thresholdPose.matrix);
+      // Indices 5..9 are the five low cross rails. Keep the three widely
+      // spaced strokes as readable signal; bars 6 and 8 are real narrow
+      // grounded conductors but visually recessed, even during a telegraph.
+      const recessed = index === 6 || index === 8;
+      sourceSealTint.setRGB(recessed ? .24 : 1,
+        recessed ? .24 : 1, recessed ? .24 : 1);
+      sealedLattice.setColorAt(index,sourceSealTint);
     });
     sealedLattice.instanceMatrix.needsUpdate = true;
+    sealedLattice.instanceColor.needsUpdate = true;
   }
   poseSourceSealHeight(140000);
   // The original portrait+desktop film has TWO separate stone/bronze doors

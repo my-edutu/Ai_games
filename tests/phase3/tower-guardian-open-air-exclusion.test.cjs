@@ -40,8 +40,21 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
     let bars = entries(seal);
     const overhead = bars.filter(b=>b.width>5.5 && b.y>5 && b.y<13.5 && Math.abs(b.z)<.01);
     assert.equal(overhead.length,0,'open-air space above a physically barred doorway must not be a solid-screen grate');
-    assert.equal(bars.filter(b=>b.width>5.5 && b.y<=4.75).length,3,
-      'one readable source-locked exterior gate should not reconstruct a six-rung prison screen');
+    const lowerBars = bars.map((b,i)=>({...b,index:i}))
+      .filter(b=>b.width>5.5 && b.y<=4.75);
+    assert.equal(lowerBars.length,5,
+      'the physical doorway retains five lower exclusion conductors rather than a visually passable adult-height opening');
+    assert.ok(seal.instanceColor,
+      'quiet lower conductors must have genuine per-instance visual hierarchy on the existing draw');
+    const instanceTint = new THREE.Color();
+    const energyLevels = lowerBars.map(b=>{
+      seal.getColorAt(b.index,instanceTint);
+      return instanceTint.r;
+    });
+    assert.equal(energyLevels.filter(level=>level>.9).length,3,
+      'only three lower rails remain bright enough to read as the active gate, not a five-rung neon screen');
+    assert.equal(energyLevels.filter(level=>level>.15 && level<.35).length,2,
+      'two physical exclusion rails are recessed rather than adding visual clutter');
     passage.group.updateMatrixWorld(true);
     const sealWorld=new THREE.Vector3();seal.getWorldPosition(sealWorld);
     assert.ok(sealWorld.distanceTo(new THREE.Vector3(anchor.x,anchor.y,anchor.z))<.001,
