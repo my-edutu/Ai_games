@@ -9,9 +9,37 @@ const VIEWPORTS=['desktop','portrait'];
 const REQUIRED=['guardian-hp-decrease','floor-transition'];
 const OPTIONAL=['guardian-source-defeated','guardian-source-physical-threshold','guardian-earned-floor-nine-handoff'];
 
+// Original raster-phase search is NOT source-event synchronization. Keep this
+// check independent of the strict source cue veto and require two agreeing
+// native samplers from the exact SAME immutable original WebM.
+function nativeRasterPhase(record,viewport){
+ const scene=record?.nativeScenePhase, clock=record?.videoClock;
+ const phase=scene?.phase?.videoPhaseWitness,hud=scene?.hud?.visibleHudFloorChange;
+ const floors=clock?.sourceEventTimecodes?.filter(e=>e.kind==='floor-transition' &&
+   e.floor===9&&e.fromFloor===8&&e.toFloor===9&&e.observedEpisode===0&&
+   e.inOriginalVideo===true&&Number.isFinite(e.nativeVideoSeconds));
+ if(!scene||!clock||!Array.isArray(floors)||floors.length!==1||!phase||!hud||
+    scene.sourceSha!==record.sourceSha||scene.originalWebMSha256!==record.videoSha256||
+    scene.originalWebMBytes!==record.videoBytes||scene.originalVideoUnmodified!==true||
+    scene.viewport!==viewport||scene.scenario!=='danger'||
+    !['CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY','SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE'].includes(scene.phase.status)||
+    !['DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY','SOURCE_CUE_AND_DRAWN_HUD_DISAGREE'].includes(scene.hud.status)||
+    scene.phase.sourceTick!==floors[0].sourceTick||scene.hud.sourceTick!==floors[0].sourceTick||
+    scene.phase.eventPixelsConfirmed!==false||scene.hud.sourceEventIsScreenProof!==false||
+    !(scene.phase.nativeOriginalFramesSampled>=240)||!(scene.hud.originalFramesSampled>=240)||
+    hud.observedDigitBefore!==8||hud.observedDigitAfter!==9||
+    !(hud.precedingEightFrames>=8&&hud.followingNineFrames>=4)||
+    !Number.isFinite(hud.nativeVideoSeconds)||!Number.isFinite(phase.nativeSeconds)||
+    !(hud.precisionSeconds>0&&hud.precisionSeconds<=.25)||
+    !(phase.precisionSeconds>0&&phase.precisionSeconds<=.25)||
+    Math.abs(hud.nativeVideoSeconds-phase.nativeSeconds)>.75||
+    hud.nativeVideoSeconds<3||hud.nativeVideoSeconds>=clock.originalVideoDurationSeconds-3)return null;
+ return {nativeSeconds:hud.nativeVideoSeconds,
+   sourceToRasterSeconds:Math.round((hud.nativeVideoSeconds-floors[0].nativeVideoSeconds)*1000)/1000};
+}
 function planPair(rows,viewport,candidateSha){
   const plan={viewport,status:'NOT EVALUATED',canReview:false,
-    anchors:[],unmatchedSourceBeats:[],failures:[],originalVideoUnmodified:true};
+    anchors:[],nativeRasterAnchors:[],unmatchedSourceBeats:[],failures:[],originalVideoUnmodified:true};
   const get=source=>rows.filter(r=>r.source===source&&r.scenario==='danger'&&r.viewport===viewport);
   const baseline=get('baseline'),candidate=get('candidate');
   if(baseline.length!==1||candidate.length!==1){
@@ -105,6 +133,16 @@ function planPair(rows,viewport,candidateSha){
       plan.failures.push('native-scene-phase-not-confirmed-'+source);
     }
   }
+  // Genuine original HUD pixels can be cued for *visual inspection* even
+  // though source/GPU latency differs. Do not turn this into source sync.
+  const seenA=nativeRasterPhase(a,viewport),seenB=nativeRasterPhase(b,viewport);
+  if(seenA&&seenB)plan.nativeRasterAnchors.push({
+    kind:'DRAWN-HUD-8-to-9 (raster only)',baselineSeconds:seenA.nativeSeconds,
+    candidateSeconds:seenB.nativeSeconds,
+    baselineSourceToRasterSeconds:seenA.sourceToRasterSeconds,
+    candidateSourceToRasterSeconds:seenB.sourceToRasterSeconds,
+    eventPixelsConfirmed:false,physicalGatewayCrossingConfirmed:false,
+    meaning:'native HUD and chroma concur; NOT a source-event synchronization'});
   if(plan.failures.length){
     plan.unalignedInspectionOnly=true;
     return plan;
@@ -128,6 +166,7 @@ function htmlFor(plans){
   const publicPlans=plans.filter(p=>p.canReview||p.unalignedInspectionOnly).map(p=>({
     viewport:p.viewport, swap:p.shuffleAB, synchronized:p.canReview,
     anchors:p.anchors.map(a=>({kind:a.kind,a:a.baselineSeconds,b:a.candidateSeconds})),
+    rasterAnchors:p.nativeRasterAnchors.map(a=>({kind:a.kind,a:a.baselineSeconds,b:a.candidateSeconds})),
     // In the reviewer-only bundle the file paths never reveal source order.
     files:{a:'review-media/'+p.viewport+'-a.webm',
       b:'review-media/'+p.viewport+'-b.webm'}
@@ -144,10 +183,10 @@ function htmlFor(plans){
   '.message{margin-top:18px;font-size:.92rem;color:#c3d4db}h2{margin:6px 0}'+
   '@media(max-width:600px){body{padding:10px}.players{gap:5px}video{height:55vh}}'+
   '</style><header><h1>Unedited Tower duel — anonymous A/B</h1>'+
-  '<p>These are TWO complete original, 1× speed source-pinned recordings. Choose an actual shared source event to cue each original movie at its own native film time. This is an inspection aid, <strong>not proof of rendered causality or a quality verdict</strong>. Both clips remain unmodified. Different gameplay may occur between events.</p></header>'+
+  '<p>These are TWO complete original, 1× speed source-pinned recordings. Choose a shared source event only when raster-aligned; otherwise cue separately observed drawn HUD 8→9 pixels, not an authoritative gateway event. This is an inspection aid, <strong>not proof of rendered causality or a quality verdict</strong>. Both clips remain unmodified. Different gameplay may occur between events.</p></header>'+
   '<div class="controls"><label>Viewport <select id="viewport"></select></label>'+
   '<label>Source event <select id="event"></select></label>'+
-  '<button id="cue">Cue both 3s before event</button><button id="play">Play both at 1×</button><button id="pause">Pause both</button></div>'+
+  '<button id="cue">Cue both 3s before observed phase</button><button id="play">Play both at 1×</button><button id="pause">Pause both</button></div>'+
   '<div class="players"><section><h2>A</h2><video id="a" controls playsinline preload="metadata"></video></section>'+
   '<section><h2>B</h2><video id="b" controls playsinline preload="metadata"></video></section></div>'+
   '<p class="message" id="status" role="status">No review has been submitted or counted. For LOOKS, FEELS and PLAYS judgments, inspect the full original movies and all ascent, movement, outcome and restart recordings independently.</p>'+
@@ -157,15 +196,15 @@ function htmlFor(plans){
   'const alt=(new URLSearchParams(location.search).get("swap")==="1");'+
   'const paths=alt?[plan.files.b,plan.files.a]:[plan.files.a,plan.files.b];'+
   '$("a").src=paths[0];$("b").src=paths[1];'+
-  'const sync=plan.synchronized && plan.anchors.length>0;'+
-  'opts($("event"),sync?plan.anchors.map((e,i)=>[e.kind,i]):[["No shared source-event anchor",0]]);'+
-  '$("event").disabled=!sync;$("cue").disabled=!sync;'+
-  'if(sync)cue();else{anchor=null;$("a").currentTime=0;$("b").currentTime=0;'+
+  'const sync=plan.synchronized && plan.anchors.length>0;const rasterOnly=!sync&&plan.rasterAnchors.length>0;'+
+  'opts($("event"),sync?plan.anchors.map((e,i)=>[e.kind,i]):rasterOnly?plan.rasterAnchors.map((e,i)=>[e.kind,i]):[["No shared source-event anchor",0]]);'+
+  '$("event").disabled=!(sync||rasterOnly);$("cue").disabled=!(sync||rasterOnly);'+
+  'if(sync||rasterOnly)cue();else{anchor=null;$("a").currentTime=0;$("b").currentTime=0;'+
   '$("status").textContent="Original unmodified footage only. Common guardian/onward source-event anchors missing: these films are NOT synchronized or comparable and remain NOT EVALUATED."}}'+
-  'function cue(){if(!plan?.synchronized||!plan.anchors.length)return;anchor=plan.anchors[Number($("event").value)];const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
+  'function cue(){if(!plan)return;const choices=plan.synchronized?plan.anchors:plan.rasterAnchors;if(!choices.length)return;anchor=choices[Number($("event").value)];const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
   'const t=swap?[anchor.b,anchor.a]:[anchor.a,anchor.b];$("a").pause();$("b").pause();playing=false;'+
   'for(let i=0;i<2;i++){const v=$(i?"b":"a");v.currentTime=Math.max(0,t[i]-3);v.playbackRate=1;}'+
-  '$("status").textContent="Cue: "+anchor.kind+". These original WebMs are NOT visually accepted or independently graded."}'+
+  '$("status").textContent=plan.synchronized?"Source search cue: "+anchor.kind+". Exact event pixels are NOT evaluated.":"Raster-only cue: authentic drawn floor 8→9; source-event synchronization, guardian victory and grounded crossing are NOT VERIFIED. Complete original films are unchanged; quality NOT EVALUATED."}'+
   'async function play(){playing=true;for(const id of ["a","b"]){$(id).playbackRate=1;}await Promise.allSettled([$("a").play(),$("b").play()])}'+
   'function pause(){playing=false;$("a").pause();$("b").pause()}'+
   '$("viewport").onchange=reset;$("event").onchange=cue;$("cue").onclick=cue;$("play").onclick=play;$("pause").onclick=pause;'+
@@ -186,7 +225,8 @@ function writeReview(root,out,candidateSha){
     independentlyReviewed:{looks:0,feels:0,plays:0},
     hardware:'NOT EVALUATED',mediaOriginalBytesUnmodified:true,
     caveat:'Matching source-event names and native PTS do NOT prove identical decisions, visible cause/effect, viewer preference or supported-device performance.',
-    plans,missingScenarios:['ascent','moving','outcome']};
+    plans,nativeRasterOnlyViewports:plans.filter(p=>p.unalignedInspectionOnly&&p.nativeRasterAnchors.length).map(p=>p.viewport),
+    missingScenarios:['ascent','moving','outcome']};
   fs.mkdirSync(out,{recursive:true});
   for(const plan of plans){
     if(!plan.canReview&&!plan.unalignedInspectionOnly)continue;

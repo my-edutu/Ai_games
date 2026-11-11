@@ -21,8 +21,14 @@ function make(source,viewport='portrait',events=null){
   nativeScenePhase:{sourceSha:sha,viewport,scenario:'danger',
     originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
     originalWebMBytes:1100,originalVideoUnmodified:true,
-    phase:{status:'CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY'},
-    hud:{status:'DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY'}},
+    phase:{status:'CHROMATIC_PHASE_NEAR_SOURCE_CUE_ONLY',sourceTick:430,
+      eventPixelsConfirmed:false,nativeOriginalFramesSampled:280,
+      videoPhaseWitness:{nativeSeconds:23.25,precisionSeconds:.25}},
+    hud:{status:'DRAWN_HUD_NEAR_SOURCE_SEARCH_ONLY',sourceTick:430,
+      sourceEventIsScreenProof:false,originalFramesSampled:280,
+      visibleHudFloorChange:{nativeVideoSeconds:23.25,precisionSeconds:.25,
+        observedDigitBefore:8,observedDigitAfter:9,precedingEightFrames:12,
+        followingNineFrames:4}}},
   videoClock:{sourceSha:sha,status:'CALIBRATED',originalWebMBytes:1100,
     originalVideoUnmodified:true,
     originalWebMSha256:(source==='baseline'?'b':'c').repeat(64),
@@ -108,4 +114,32 @@ test('a visual phase sidecar cannot be reused from another native WebM',()=>{
  b.nativeScenePhase.originalWebMSha256='f'.repeat(64);
  const p=planPair([a,b],'portrait',CANDIDATE);
  assert.equal(p.canReview,false);assert.equal(p.unalignedInspectionOnly,true);
+});
+
+test('original drawn floor pixels can be cued while source event A/B stays vetoed',()=>{
+ const a=make('baseline'),b=make('candidate');
+ for(const r of [a,b]){
+  r.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+  r.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+  r.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=26;
+  r.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=26;
+ }
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false);
+ assert.equal(p.unalignedInspectionOnly,true);
+ assert.equal(p.nativeRasterAnchors.length,1);
+ assert.equal(p.nativeRasterAnchors[0].physicalGatewayCrossingConfirmed,false);
+ assert.match(htmlFor([p]),/Raster-only cue/);
+ assert.match(htmlFor([p]),/"synchronized":false/);
+ assert.doesNotMatch(htmlFor([p]),new RegExp(FROZEN));
+});
+test('raster-only cue vetoes inconsistent HUD/chroma and forged video hash',()=>{
+ const a=make('baseline'),b=make('candidate');
+ b.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+ b.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+ b.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=26;
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=26;
+ b.nativeScenePhase.originalWebMSha256='d'.repeat(64);
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
 });
