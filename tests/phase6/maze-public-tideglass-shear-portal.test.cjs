@@ -107,3 +107,67 @@ test('hidden, remembered-only, reduced-motion and new-run states cannot fake a w
     assert.equal(world.stats().responsiveTrapSignals,0);
   }finally{world.dispose();cleanup()}
 });
+
+
+test('Pass277 split load wings physically expose the Pip encounter on genuine public pressure and safely reset',async()=>{
+  const {THREE,source,world,cleanup}=await build();
+  const s=published(),pristine=JSON.stringify(s);
+  try{
+    world.update(s);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 4');
+    const bridge=trap.getObjectByName('Published tide-shear spanning load bridge');
+    const yoke=bridge.getObjectByName('Published Tideglass shear-portal connected yoke');
+    const sides=[-1,1];
+    const wings=sides.map(side=>bridge.getObjectByName('Published Tideglass split load-wing '+side));
+    const leafs=wings.map(wing=>wing?.getObjectByName('Published tide-shear lifting ivory wing'));
+    assert.ok(wings.every(x=>x?.isGroup&&x.parent===bridge)&&leafs.every(x=>x?.isMesh),
+      'two connected load-bearing ivory wings must physically replace the opaque foreground slab');
+    assert.ok(yoke?.isMesh&&yoke.scale.x>=2.10&&yoke.scale.y>=.20,
+      'keep the original full-width structural brace: never remove the arch for a photograph');
+    assert.ok(yoke.position.z<-.15&&yoke.scale.z<.20,
+      'recess the opaque front crossbar without faking a route through the actual court');
+    const center=source.cellPosition(4,3,3);
+    const nearPoint=new THREE.Vector3(center.x,0,center.z);
+    const far=new THREE.Vector3(center.x+40,0,center.z+40);
+    const tip=(wing,side)=>{
+      wing.updateWorldMatrix(true,true);
+      return wing.localToWorld(new THREE.Vector3(-side*.68,0,0)).y;
+    };
+    const budget=world.stats();
+    world.animate(1,{explorerPosition:far,reducedMotion:false});
+    const restTips=wings.map((wing,i)=>tip(wing,sides[i]));
+    assert.ok(wings.every(wing=>wing.rotation.z===0),'no private, distant or early animation');
+    world.animate(2,{explorerPosition:nearPoint,reducedMotion:false,stepDurationMs:360});
+    assert.ok(wings.every(wing=>wing.rotation.z===0),'true public warning precedes the physical load release');
+    world.animate(2.36,{explorerPosition:nearPoint,reducedMotion:false,stepDurationMs:360});
+    assert.ok(wings[0].rotation.z>.70&&wings[1].rotation.z<-.70,
+      'each genuinely pinned mechanical arm lifts in an opposite direction');
+    const openTips=wings.map((wing,i)=>tip(wing,sides[i]));
+    assert.ok(openTips.every((y,i)=>y-restTips[i]>.23),
+      'both real ivory wing tips lift out of the shared center stage, not CSS opacity');
+    assert.ok(trap.getObjectByName('Disclosed tide-shear hinged jaw 4 1').rotation.z>.60,
+      'the same pressure release drives the actual original paired cutting jaws');
+    const bounds=new THREE.Box3().setFromObject(bridge);
+    assert.ok(bounds.min.x>center.x-1.20&&bounds.max.x<center.x+1.20
+      &&bounds.min.z>center.z-1.20&&bounds.max.z<center.z+1.20,
+      'the connected load mechanism stays within the known 2.4m trap cell');
+    world.animate(2.37,{explorerPosition:far,reducedMotion:false});
+    assert.ok(wings.every(wing=>wing.rotation.z===0),
+      'genuine withdrawal completely resets both wing hinges');
+    world.animate(2.40,{explorerPosition:nearPoint,reducedMotion:true});
+    assert.ok(Math.abs(wings[0].rotation.z-.396)<1e-8
+      &&Math.abs(wings[1].rotation.z+.396)<1e-8,
+      'reduced motion holds one stable, actual publicly earned pressure pose');
+    world.update({...s,visibleCells:[]});
+    world.animate(2.50,{explorerPosition:nearPoint,reducedMotion:false});
+    assert.ok(wings.every(wing=>wing.rotation.z===0),
+      'remembered-only or undisclosed pressure cannot animate the load wings');
+    for(const k of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[k],budget[k],
+        'reused shared geometry and material pools: '+k);
+    assert.equal(JSON.stringify(s),pristine,'the scene never writes AI, navigation or collision authority');
+    world.update(published({runToken:'next-run',cells:[],visibleCells:[],privateTrapCells:[4]}));
+    assert.equal(world.group.getObjectByName('Published Tideglass split load-wing -1'),undefined,
+      'new runs release the previous known hazard and all moving wings');
+  }finally{world.dispose();cleanup()}
+});

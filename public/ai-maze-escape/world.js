@@ -2173,13 +2173,30 @@ export function createMazeWorld(options = {}) {
     bridge.name = 'Published tide-shear spanning load bridge';
     bridge.position.y = 1.68;
     counterbalance.add(bridge);
+    // Pass277: true 390px WebGL showed the opaque front yoke crossing
+    // Pip's body while the real pressure jaws closed. Retain the FULL
+    // rear spanning brace but replace its foreground solid parapet with
+    // two structurally pinned split load wings. Their tips lift on the
+    // SAME public treadle/shutter stroke, opening a physical central
+    // sightline rather than hiding, cropping or fading the entire trap.
     const yoke = mesh(bridge, bevel, darkMetal,
-      0, 0, 0, 2.15, .26, .39);
+      0, 0, -.20, 2.15, .26, .18);
     yoke.name = 'Published Tideglass shear-portal connected yoke';
     mesh(bridge, bevel, seaGlass,
-      0, .070, .143, 1.87, .07, .09);
-    mesh(bridge, bevel, lightStone,
-      0, .142, -.006, 2.03, .070, .33);
+      0, .070, -.14, 1.87, .07, .055);
+    const loadArms = [];
+    for (const side of [-1, 1]) {
+      const arm = new THREE.Group();
+      arm.name = 'Published Tideglass split load-wing ' + side;
+      arm.position.set(side * .90, .075, .06);
+      bridge.add(arm);
+      const leaf = mesh(arm, bevel, lightStone,
+        -side * .31, .01, 0, .76, .12, .19);
+      leaf.name = 'Published tide-shear lifting ivory wing';
+      mesh(arm, bevel, gold,
+        -side * .31, .092, .065, .62, .035, .05);
+      loadArms.push({object: arm, side});
+    }
     const wheel = new THREE.Group();
     wheel.name = 'Published tide-shear bronze pressure governor';
     wheel.position.set(0, 1.28, -.04);
@@ -2329,7 +2346,7 @@ export function createMazeWorld(options = {}) {
       driveBars.push({object: drive, side});
     }
     trapSignals.push({carriage, diaphragms, shutters, iris, relays, treadle,
-      counterbalance: { bridge, wheel, cable, weight },
+      counterbalance: { bridge, wheel, cable, weight, loadArms },
       driveBars, cell: c.cell, x: p.position.x, z: p.position.z,
       pressureSince: null, pressureLastTime: null});
     // Connected pivots and broad ceramic silhouettes, not emissive billboards.
@@ -2755,6 +2772,11 @@ export function createMazeWorld(options = {}) {
       const counterStroke = reducedContact ? .55 : nearContact ? shutterBeat : 0;
       signal.counterbalance.wheel.rotation.z = -.72 * treadleStroke;
       signal.counterbalance.bridge.rotation.z = .11 * counterStroke;
+      // Two real pinned load wings lift apart under the same published
+      // pressure beat, then return on withdrawal, reduced visibility or
+      // reset. No private route, new collision or independent animation.
+      for (const arm of signal.counterbalance.loadArms)
+        arm.object.rotation.z = -arm.side * .72 * counterStroke;
       signal.counterbalance.weight.position.y = .60 - .28 * counterStroke;
       signal.counterbalance.cable.scale.y = 1 + .92 * counterStroke;
       for (const relay of signal.relays) {

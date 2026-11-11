@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T17:09:08.008Z",
+  "updatedAt": "2026-11-11T18:19:09.750Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass275 exact-HEAD WebGL 43051788364 passed real Chromium pixel preflight, focused source/build and immutable six-run <100 geometry. Original 36/36 SHA-paired full-resolution PNGs independently verified, but same-canvas 390px chronological pressure failed: physical Pip .4451106328 NDC (< unchanged .49), although approach .515 and jaws .960675. Pass276 directly corrects real public one-cell closing stroke to use the existing full-Pip-plus-jaws safe lens; new HEAD WebGL/CI must verify. Nintendo bar NOT MET."
+    "summary": "Pass276 exact-HEAD WebGL 43065373943 SUCCESS and 37/37 original full-resolution PNG SHA verified: true 390px closing Pip width .515 NDC now exceeds unchanged .49, full pressure machine within strict ±.95; 320/390 original withdrawal jaw widths .782/.869 meet unchanged .70. Original 390 frame nonetheless REJECTS fixed Nintendo benchmark because thick foreground yoke conceals Pip/mechanical stroke. Pass277 rebuilds it as rear structural yoke and true public-pressure driven split lifting wings; new source screenshots, strict CI and independent visual acceptance PENDING. Nintendo bar NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass277: previously exact-HEAD 375bd2a native 390 pressure WebGL now passes Pip .515 NDC, unchanged ±.95 actor/pressure and six-reset <100, with 37/37 real original PNG/SHA. Direct original image still visually REJECTED for an opaque white crossbeam obscuring Pip and the pressure act. Replace front beam with rear full structural yoke and two stage-opening, actual public-pressure-pinned load wings; installed-Three real hinge/reset/resource test added. New exact-head visual/CI/independent critic pending; Nintendo benchmark NOT MET.",
     "Pass276 physical pressure contact legibility: original exact-HEAD 479e77ce native WebGL 43051788364 (artifact 13869509399) passed headless Chromium/WebGL and six-run strict <100, but 390px TRUE chronological pressure Pip=.445110632805 NDC failed immutable >.49 (while same-run approach=.515, jaws=.960675). Actual unaltered full-frame pressure PNG SHA c89b72fee41bab72ea7662a9732d84938174e736d95ed15a6b1eb72e8be100f8, 36/36 JSON/PNG SHA pairs verified. Include real public activePressureContact in the full two-body camera fit (previously diagonal/withdrawal only), preserving locked public/privacy, reduced motion, 320/844/1280 and strict NDC/resource limits. Exact-new-HEAD CI/WebGL and independent official comparison PENDING; Nintendo bar UNMET.",
     "Pass275: fix external native-WebGL CI blocker, not an art pass. Exact prior run 43043347658 failed before browser evidence because npx playwright install --with-deps chromium stalled resolving Ubuntu APT optional font packages. Use locked Playwright 1.55.0 headless Chromium install without APT, version-keyed cache and a real 390px WebGL readPixels smoke check before unchanged strict six-run geometry and full-frame source-bound screenshots. New-HEAD actual WebGL verdict PENDING; Pass273 Pip scale repair still unverified; official Nintendo benchmark UNMET.",
     "Pass274: physical Tideglass shutter/jaw contact now obeys the same public reciprocal, level, open topology as the authored pressure-court approach. No more false full shear through publicly sealed gate, nonpassage or vertical disconnect; preserved visible distant warning, AI authority, NDC/resource/accessibility rules. New installed Three.js source regression compares sealed/open/one-sided/elevated and same-cell action. New-head CI and original WebGL acceptance PENDING.",
@@ -221,6 +222,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass277 candidate: test exact-new-HEAD real 320/390/844/1280 WebGL side-by-side with original 375bd2a 390 pressure PNG 3eee37b5. The mechanical wing tips must actually CLEAR Pip’s body in the live closed-jaw beat; reject further visual clutter or any ±.95, Pip >.49, withdrawal ≥.70, original <100 six-run geometry, hidden privacy or 44px control regression.",
     "Pass272 exact-new-SHA original full-frame 320/390/844x390/1280 WebGL screenshot check: is the new pressure front-angle noticeably clearer, and are full moving jaw + Pip strict ±.95, withdrawal jaw width >=.70, public privacy, 44px controls, scene-reset <100 all maintained? Revert/revise source rather than accepting incidental changes. Compare to true Pass271 43023267163 and fixed official Nintendo source. Detached visual critic/Ultracode unavailable.",
     "Pass265 NEW EXACT SHA: authentic unmodified 320/390/844x390/1280 WebGL full-frame A/B versus successful Pass264 42980231559, validate clear paired-closing silhouette, original ±.95 Pip/jaws and >=.70 withdrawal, strict six-run <100, on-screen 44px and public pressure authenticity. Reject if still a shard pile; fresh independent Nintendo critic unavailable.",
     "Pass263 exact-SHA native 320/390/844x390/1280 WebGL: full-frame tick-by-tick VERIFY two authentic jaw roots now slide as one physical machine on real public treadle contact and reset on withdrawal, without losing original ±.95 Pip/jaw, >=.70 withdrawal, 44px controls, six-run <100 resources, hidden-info/privacy. Compare actual original screenshots to Pass262 and fixed Nintendo bar; do not accept source tests as artistic victory.",
@@ -264,6 +266,7 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {"title":"Pass277 exact original 390px pressure image critic; kinetic split-wing production candidate","reviewer":"Lead original WebGL image inspection; fresh-context independent critic unavailable","verdict":"Source screenshot validates Pass276 Pip scale but REJECTS visual composition; Pass277 unrendered and Nintendo bar unmet","date":"2026-11-11","url":"https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-277-authentic-276-open-kinetic-pressure-sightline-2026-11-11.md"},
     {
       "title": "Pass272 real WebGL pressure-jaw frontal stage: independent visual approval pending",
       "reviewer": "Builder; preceding exact-HEAD image reviewed; separate fresh-context critic unavailable",
@@ -795,6 +798,7 @@
     }
   ],
   "verification": [
+    {"name":"Pass277 physical split-wing pressure sightline","status":"Pass276 exact-HEAD WebGL SUCCESS with 37/37 original SHA; Pass277 new-source WebGL/CI PENDING","detail":"Prior real 390 pressure Pip .515, pressure envelope 1.138, both strict ±.95; genuine 320/390 withdrawal .782/.869 >=.70. New real source hinged wings need original full-frame captured acceptance and independent direct fixed Nintendo comparison; source model tests alone insufficient.","sourceCommit":"375bd2a11566c35cb0f27c7225aeeeca6dcd80e5","sourceUrl":"https://github.com/my-edutu/Ai_games/actions/runs/43065373943"},
     {
       "name": "Pass272 real publicly disclosed pressure-jaw 3D stage",
       "status": "Pass271 exact-HEAD WebGL SUCCESS / 37 of 37 original PNG SHA sidecars VERIFIED; Pass272 new-source CI/WebGL PENDING",
@@ -1347,6 +1351,7 @@
     }
   ],
   "references": [
+    {"title":"Pass276 exact-HEAD 37 original WebGL frames, UTC and SHA-256, before Pass277 split load arms","url":"https://github.com/my-edutu/Ai_games/actions/runs/43065373943/artifacts/13875593108"},
     {
       "title": "Pass245 exact-HEAD complete original WebGL 320/390 pressure three-beat + 844/1280 artifact (35 SHA sidecars)",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/42825686372/artifacts/13769852463"
