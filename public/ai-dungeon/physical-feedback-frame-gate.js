@@ -6,7 +6,8 @@
 export function classifySubmittedCombatAudio({
  sceneMatches=false,observedFrameVerified=false,elapsedSeconds,
  submissionSeconds,maxStalenessSeconds=.40,visualAccepted=false,visualAlive=null,
- visualDrawable=null,requiresMeasuredBlade=false
+ visualDrawable=null,requiresMeasuredBlade=false,
+ allowVerifiedSoundOnlyImpact=false
 }={}){
  if(!sceneMatches)return 'scene-changed';
  if(!observedFrameVerified||!Number.isFinite(elapsedSeconds)||elapsedSeconds<0||
@@ -23,7 +24,12 @@ export function classifySubmittedCombatAudio({
  // proof must never authorize physical sword passage audio.
  if(requiresMeasuredBlade&&visualAlive!==true)return 'unverified-blade-visual';
  // A live but hidden sword ribbon is not a submitted moving blade.
- if(visualAccepted&&visualDrawable===false)return 'await-drawable-visual';
+ // A consecutive, authority-confirmed HP loss is independently visible in
+ // the real unit/health state. Its original impact may sound on a timely
+ // submitted frame even when its retained shard is occluded/non-drawable.
+ // Never extend this exemption to sword attempts, guards, warnings or shots.
+ if(visualAccepted&&visualDrawable===false&&!allowVerifiedSoundOnlyImpact)
+  return 'await-drawable-visual';
  if(requiresMeasuredBlade&&visualDrawable!==true)return 'unverified-blade-visual';
  return 'deliver';
 }
