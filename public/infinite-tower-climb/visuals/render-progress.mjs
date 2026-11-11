@@ -5,14 +5,45 @@ export function createRenderProgress() {
   let expected = false, visible = true, submittedSinceReset = false;
   let idleSince = 0, lastSubmitted = null, submittedFrames = 0, sampleAnchor = null;
   const intervals = [];
+  // This ring joins real browser HTTP acceptance to returned Three.js render
+  // calls by original source token/tick/floor/phase. No pixels are inferred:
+  // renderer-return is NOT Chromium compositor presentation or WebM evidence.
+  const sourceTransitions = [];
+  let lastAcceptedSourcePhase = null, lastSubmittedSourcePhase = null;
+  function observeSourcePhase(phase, snapshot, atWallMs) {
+    if (!snapshot || !Number.isSafeInteger(snapshot.tick) ||
+        !Number.isSafeInteger(snapshot.floor) ||
+        typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
+        typeof snapshot.lifecycle !== 'string' || !Number.isFinite(atWallMs))
+      return;
+    const key = snapshot.runToken + ':' + snapshot.floor + ':' + snapshot.lifecycle;
+    if (phase === 'browser-accepted') {
+      if (key === lastAcceptedSourcePhase) return;
+      lastAcceptedSourcePhase = key;
+    } else {
+      if (key === lastSubmittedSourcePhase) return;
+      lastSubmittedSourcePhase = key;
+    }
+    sourceTransitions.push({
+      phase, runToken: snapshot.runToken, tick: snapshot.tick,
+      floor: snapshot.floor, lifecycle: snapshot.lifecycle,
+      atWallMs,
+    });
+    if (sourceTransitions.length > 64) sourceTransitions.shift();
+  }
+  function received(snapshot, now, atWallMs = Date.now()) {
+    expectFrame(now);
+    observeSourcePhase('browser-accepted', snapshot, atWallMs);
+  }
 
   function expectFrame(now) {
     if (expected) return;
     expected = true; idleSince = now;
   }
-  function submitted(snapshot, now) {
+  function submitted(snapshot, now, atWallMs = Date.now()) {
     expectFrame(now);
     submittedFrames++;
+    observeSourcePhase('renderer-submitted', snapshot, atWallMs);
     const interval = sampleAnchor === null ? null : now - sampleAnchor;
     // Warmup is explicit; real visible stalls stay in the bounded distribution.
     if (visible && submittedFrames > 8 && Number.isFinite(interval) && interval > 0) {
@@ -31,6 +62,7 @@ export function createRenderProgress() {
   }
   function reset(now) {
     idleSince = now; submittedSinceReset = false; sampleAnchor = null;
+    lastAcceptedSourcePhase = null; lastSubmittedSourcePhase = null;
   }
   function diagnostics(now) {
     const visibleIdleMs = expected && visible ? Math.max(0, now - idleSince) : 0;
@@ -40,7 +72,9 @@ export function createRenderProgress() {
     const percentile = fraction => sorted.length ? +sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))].toFixed(1) : null;
     return { state, visibleIdleMs: Math.round(visibleIdleMs), staleAfterMs, submittedFrames,
       frameMs: { p50: percentile(.5), p95: percentile(.95), p99: percentile(.99), max: percentile(1), samples: sorted.length },
-      lastSubmitted: lastSubmitted ? { ...lastSubmitted } : null };
+      lastSubmitted: lastSubmitted ? { ...lastSubmitted } : null,
+      sourceTransitions: sourceTransitions.map(entry => ({ ...entry })),
+      sourceTransitionProof: 'browser-acceptance-and-renderer-return-only-NOT-native-video' };
   }
-  return { expectFrame, submitted, setVisible, reset, diagnostics };
+  return { expectFrame, received, submitted, setVisible, reset, diagnostics };
 }
