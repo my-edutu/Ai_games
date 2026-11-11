@@ -46,3 +46,24 @@ test('malformed and over-budget evidence cannot hide duplicate records by clippi
  assert.equal(x.matches.length,0);assert.equal(x.sampleSynchronized,false);
  assert.equal(x.classification,'SOURCE_STARTS_UNVERIFIED');
 });
+
+test('genuine warning sound starts can correlate without pretending a warning is an HP impact',()=>{
+ const r={...damage,cueId:'1:1:11:boss-warning-rising:warden-1:-',
+  kind:'boss-warning-rising',tick:11};
+ const s={...started,cueId:r.cueId,kind:r.kind,tick:11,
+  audio:'boss-warning-rising',verifiedCanonicalCue:false};
+ const x=correlateD04OriginalSourceStarts({receipts:[r],sourceStarts:[s]});
+ assert.equal(x.matches.length,1);
+ assert.equal(x.matches[0].audio,'boss-warning-rising');
+ assert.equal(x.sampleSynchronized,false);
+});
+test('no cross-source evidence promotion from a stale, mismatched or duplicated warning',()=>{
+ const r={...damage,cueId:'1:1:11:boss-warning-rising:warden-1:-',
+  kind:'boss-warning-rising',tick:11};
+ const s={...started,cueId:r.cueId,kind:r.kind,tick:11,
+  audio:'boss-warning-rising',verifiedCanonicalCue:false};
+ for(const variant of [{...s,audio:'fatal-impact'},{...s,tick:10},{...s,sceneKey:'2:1'}]){
+  const x=correlateD04OriginalSourceStarts({receipts:[r],sourceStarts:[variant]});
+  assert.equal(x.matches.length,0);
+ }
+});
