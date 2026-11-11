@@ -22,6 +22,12 @@ for(const token of [
  'return false; // all original citizens use live compact geometry',
  'finally{data=prior;currentMaterial=priorMaterial}',
 ])assert(code.includes(token),'missing original real-actor residency contract: '+token);
+assert(html.includes('cloth:diff(a.cloth,b.cloth),roles:diff(a.roles,b.roles),'),
+ 'unchanged original citizen reuse cannot double-count profession metrics');
+assert(html.includes("function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';clearRestingActorIdentityCache();"),
+ 'save restore invalidates all previous resident identity bind caches');
+assert(html.includes("function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();"),
+ 'new world invalidates all previous original people body slices');
 assert(!code.includes('for(const {p} of rows)compactVillager(p);'),
  'all resting residents must not rebuild on single neighbor change');
 assert(/restingActorVisible=true;restingActorCitizens=rows.length/.test(code),
