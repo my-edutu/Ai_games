@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T13:33:48.000Z",
+  "updatedAt": "2026-11-11T14:09:40.689Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass270 exact-source native WebGL 43012279983 passed and its 37 original screenshot sidecars verified. Genuine mobile/desktop images still lose to fixed Nintendo benchmark. Pass271 physically rebuilds the disclosed pressure retaining wall into a three-bay sealed Tideglass gallery; new-source CI/WebGL/independent visual approval PENDING."
+    "summary": "Pass272 exact-HEAD native WebGL 43032158434 found REAL 390px public pressure Pip scale regression (.445227 NDC vs unchanged >.49). Pass273 candidate replaces jaw-only framing decision with full physical Pip+hazard safe optical stage for public diagonal/verified retreat. Strict new-HEAD browser/CI and visual judgement PENDING; fixed Nintendo benchmark NOT passed."
   },
   "captures": [
     {

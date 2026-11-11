@@ -1,0 +1,14 @@
+# Pass273 — repair real 390px Pip scale regression in original pressure-court action (2026-11-11 UTC)
+
+## Original source-grounded blocker
+The exact-HEAD Pass272 [native WebGL workflow 43032158434](https://github.com/my-edutu/Ai_games/actions/runs/43032158434) reached genuine graphics (6/7 browser cases passed) but **FAILED the unchanged physical 390px Pip width requirement >0.49 NDC**: actual 390×844 same-run public approach physical Pip width **0.44522706098346887**, with full linked hazard width **0.7821835166440505**. This is a real camera/physical framing regression, not SwiftShader timing, a coverage statistic, or a test to soften. The original 390 approach PNG was captured **2026-11-11T13:52:09.266Z** with SHA-256 **f0ff30e75f858d12e33d896b96d438fa5fd8a8b421f200eadc544a9700763685**. Image/full source artifact 13862905171 was retrieved; 35/35 paired PNG SHA manifests verified, plus two separate gate-transition images not counted as pairs.
+
+**Unaltered original visible verdict:** the near-frontal camera clarifies the two jaw sides but Pip looks too small in the still-roomy image and the tall retaining masonry remains too dominant. This fails the fixed official Nintendo art bar.
+
+## Single valuable correction
+A new **whole-physical-Pip + whole-hazard** optical stage sits after the existing conservative jaw-only approach/contact and withdrawal computations. It measures the same **actual** connected world-AABB meshes that the unchanged browser gate uses and boosts 390 portrait scale only for a publicly disclosed original diagonal pressure approach or lawfully witnessed same-run retreat. Previous code refused to zoom because the **jaw** was already .782 wide; this is wrong if Pip shrinks to .445. Reframe is allowed only when BOTH actor and linked mechanism can fit within stricter ±.88 vertical / 1.76 combined horizontal NDC budgets. Keep strict browser ±.95, >=.70 withdrawal jaw, same 44px controls, 320px/landscape/manual/reduced-motion, key/guardian/gate priorities, hidden map, deterministic AI, collision and resource pooling unchanged.
+
+The captured 390 diagonal width .445227 projects to .515 at 1.157x (without cosmetic material/model changes), jaw projects from .782 to .905, while combined x span 1.26×1.157=1.459, leaving space for real stage alignment. Production-source math is NOT rendered proof; the resulting screenshot and full chronological native gate must confirm the prediction.
+
+## Acceptance still pending
+Required exact-new-HEAD Node/build, strict six-run <100 geometry, real 390 approach/contact/withdrawal and 320/844/1280 native capture plus checksum manifest and independent visual critique. Red Tiny Kingdom OBS CI is separate. No false independent critic or Ultracode: disconnected. No merge/deploy/force-push. Fixed Captain Toad / Luigi's Mansion 3 / ASTRO BOT benchmark **NOT PASSED**. Leave Draft PR #53 and its existing hourly Gauntlet active.

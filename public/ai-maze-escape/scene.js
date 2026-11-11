@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -1276,6 +1276,26 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         heroSpan,jawSpan,halfHeight,aspect,!!verifiedRetreatTrap);
       if (retreatHeight>halfHeight) {
         halfHeight=retreatHeight;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
+        heroSpan=physicalSpan(explorer.group);
+        jawSpan=physicalSpan(hazard);
+      }
+
+      // Pass273: previous exact-HEAD 390px public diagonal approach actually
+      // measured whole Pip at .445227 NDC (strict >.49), even though the
+      // physical jaws were already .782 wide. The jaw-only stage must not
+      // decide that the whole actionable pair is readable. Fit the two
+      // ORIGINAL connected meshes together, only in verified public pressure
+      // or lawful same-run withdrawal. 320px and every non-pressure scene
+      // keep their original optics. Never relax strict physical NDC gates.
+      const readablePairHeight=publicPhysicalPressureHeroReadabilityHalfHeight(
+        heroSpan,jawSpan,halfHeight,aspect,
+        pressurePortraitStage && (publicDiagonal || !!verifiedRetreatTrap),
+        !!verifiedRetreatTrap);
+      if (readablePairHeight<halfHeight) {
+        halfHeight=readablePairHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();

@@ -450,6 +450,41 @@ export function publicPhysicalPressureApproachHalfHeight(hero,jaw,halfHeight,asp
  * the original mesh/AI/collision remain unchanged, while the renderer still
  * has to pass real full-model ±0.95 native portrait framing.
  */
+
+/**
+ * Pass273: Source-authentic 390px pressure images at exact HEAD 887554c show
+ * the *whole* published Tide-Shear jaws already readable (.782 NDC) but the
+ * actual connected Pip shrunk to .445227 NDC during the diagonal approach.
+ * The older jaw-only optical stage correctly did nothing: it cannot judge
+ * the companion actor. Measure BOTH real complete mesh bounds; move the
+ * existing orthographic lens only when the actual public encounter would
+ * otherwise lose Pip. The caller strictly gates public diagonal or verified
+ * same-run withdrawal; never use hidden cells, an AI plan or synthetic HUD.
+ * Width fit uses the combined actors so the already-existing camera-right
+ * translation can keep BOTH inside the unchanged +/- .95 native test.
+ */
+export function publicPhysicalPressureHeroReadabilityHalfHeight(
+  hero, jaw, halfHeight, aspect, eligible=false, withdrawal=false) {
+  if (!eligible || !(Number.isFinite(aspect) && aspect>=.45 && aspect<.60)
+    || !(Number.isFinite(halfHeight) && halfHeight>0)
+    || !hero || !jaw) return halfHeight;
+  const valid=box=>[box.left,box.right,box.bottom,box.top].every(Number.isFinite)
+    && box.left<box.right && box.bottom<box.top;
+  if (!valid(hero) || !valid(jaw)) return halfHeight;
+  const heroWidth=hero.right-hero.left;
+  if (!(heroWidth>=.36 && heroWidth<.515)) return halfHeight;
+  const zoom=.515/heroWidth;
+  // Genuine diagonal action normally needs ~15.7%. Retreat may need more
+  // after Pip physically travels away, but never sacrifice jaw legibility.
+  if (zoom> (withdrawal ? 1.38 : 1.20)) return halfHeight;
+  const jawWidth=(jaw.right-jaw.left)*zoom;
+  const pairWidth=(Math.max(hero.right,jaw.right)-Math.min(hero.left,jaw.left))*zoom;
+  const vertical=Math.max(Math.abs(hero.bottom),Math.abs(hero.top),
+    Math.abs(jaw.bottom),Math.abs(jaw.top))*zoom;
+  if (jawWidth<.70 || pairWidth>1.76 || vertical>.88) return halfHeight;
+  return halfHeight/zoom;
+}
+
 export function publicPressureActionHalfHeight(aspect, halfHeight, pressureFirst, reducedMotion=false) {
   if (!pressureFirst || reducedMotion
     || !(Number.isFinite(aspect) && aspect >= .35 && aspect < .60)
