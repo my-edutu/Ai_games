@@ -104,3 +104,63 @@ test('D04 accepts a native stream fallback ONLY after real renderer submissions'
  assert.equal(assessD04Capture({...good,clip:{...good.clip,framePump}}).combinedVideoAudio,true);
  assert.equal(assessD04Capture({...good,clip:{...good.clip,framePump:{...framePump,observedFrameAdvances:0}}}).classification,'UNVERIFIED');
 });
+
+
+const isolatedValid={
+ videoOnly:{source:'real-webgl-canvas-video-only',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8',bytes:32000,videoTracks:1,audioTracks:0,recordingMs:5500,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:5,requestedFrames:5,requestFailures:0}},
+ audioOnly:{source:'real-opted-in-soundstage-audio-only',status:'RECORDED',
+  mimeType:'audio/webm;codecs=opus',bytes:8000,videoTracks:0,audioTracks:1,recordingMs:5500}
+};
+
+test('D04 independent real source encoders diagnose broken combined mux WITHOUT asserting sample synchronization',()=>{
+ const assessment=assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},
+  isolated:isolatedValid});
+ assert.equal(assessment.combinedVideoAudio,false);
+ assert.equal(assessment.isolatedVideoRecorded,true);
+ assert.equal(assessment.isolatedAudioRecorded,true);
+ assert.equal(assessment.encoderDiagnosis,'SEPARATE_TRACKS_RECORDED_UNALIGNED');
+ assert.equal(assessment.classification,'UNVERIFIED');
+ assert.equal(assessment.sampleSynchronized,false);
+});
+
+test('D04 rejects fabricated video frames and audio-only tracks without consent',()=>{
+ const noFrames={...isolatedValid.videoOnly,framePump:{...isolatedValid.videoOnly.framePump,
+  observedFrameAdvances:0,requestedFrames:0}};
+ const videoFailure=assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE'},
+  isolated:{...isolatedValid,videoOnly:noFrames}});
+ assert.equal(videoFailure.encoderDiagnosis,'VIDEO_ONLY_ENCODER_UNVERIFIED');
+ assert.equal(videoFailure.isolatedVideoRecorded,false);
+ const noAudioConsent=assessD04Capture({...good,optedIn:false,isolated:isolatedValid});
+ assert.equal(noAudioConsent.isolatedAudioRecorded,false);
+ assert.equal(noAudioConsent.encoderDiagnosis,'INDEPENDENT_ENCODERS_UNVERIFIED');
+ for(const badAudio of [
+  {...isolatedValid.audioOnly,source:'standalone-procedural-audition'},
+  {...isolatedValid.audioOnly,mimeType:'video/mp4'},
+  {...isolatedValid.audioOnly,bytes:0},
+  {...isolatedValid.audioOnly,audioTracks:0}
+ ])assert.equal(assessD04Capture({...good,isolated:{...isolatedValid,audioOnly:badAudio}})
+  .isolatedAudioRecorded,false);
+});
+
+test('D04 persists independent encoded tracks with explicit UNALIGNED provenance and bounded bytes',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-isolated-encoder-'));
+ try{
+  const raw={clip:{status:'UNAVAILABLE',reason:'Combined WebM returned zero bytes'},
+   pcm:{status:'UNAVAILABLE'},isolated:{
+    videoOnly:{...isolatedValid.videoOnly,base64:Buffer.alloc(32000,21).toString('base64')},
+    audioOnly:{...isolatedValid.audioOnly,base64:Buffer.alloc(8000,42).toString('base64')}},
+   frames:{before:1,after:6}};
+  const assessment=assessD04Capture({...good,...raw});
+  const saved=persistD04CaptureEvidence({directory,raw,assessment,started:{status:'STARTED'}});
+  assert.equal(fs.statSync(saved.isolatedVideoWebm).size,32000);
+  assert.equal(fs.statSync(saved.isolatedAudioWebm).size,8000);
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.assessment.encoderDiagnosis,'SEPARATE_TRACKS_RECORDED_UNALIGNED');
+  assert.equal(manifest.assessment.sampleSynchronized,false);
+  assert.equal(manifest.isolated.videoOnly.base64,undefined);
+  assert.equal(manifest.isolated.audioOnly.base64,undefined);
+  assert.deepEqual(manifest.retained,{webm:false,wav:false,isolatedVideoWebm:true,isolatedAudioWebm:true});
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
