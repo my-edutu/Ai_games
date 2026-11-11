@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T02:14:00.000Z",
+  "updatedAt": "2026-11-11T02:52:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass259: prior exact-HEAD WebGL 42941865578 SUCCESS and 37/37 original PNG hashes verified. Full model 320px source-bound pressure withdrawal fits strict ±.95, but the dual jaw still reads as disconnected small clutter versus official Nintendo gameplay. Reconstructed both actual anchored 3D jaws into coherent ivory blade + coral cutting-edge + bronze strut assemblies; new-source visual test pending. Official benchmark NOT MET."
+    "summary": "Pass260: verified preceding native WebGL 42944577211 and 37/37 original PNG hashes, inspected full real 390px/1280px pressure scenes. A large blank elevated retaining face still dwarfed Pip and actual moving jaws. Reconstructed that one genuinely published solid wall into a large Tideglass gallery; new-source 3D screenshots, strict tests and independent comparison remain pending. Official Captain Toad benchmark NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass260 original pressure-court physical world reconstruction: exact predecessor b53291d9 WebGL run 42944577211 SUCCESS, 37/37 unaltered PNG/JSON hash pairs verified. Larger, joined facade on a real published solid 1.4m retaining wall, never predictive private trap, fake stair/gate or route. Installed Three/public privacy tests authored; new-HEAD original screenshots/tests pending, Nintendo bar unmet.",
     "Pass259 phase6 load-brace physical correction: real exact source whole CI 42943970720 passed 758/759 but rejected old physical diagonal shoulder x=.58 below original >=.60. Increased the same genuine connected bronze brace to .62 (no extra geometry), never lowered the acceptance gate. New-source full CI and WebGL render pending.",
     "Pass259 legacy Phase6 test correction: exact source CI 42943325369 caught actual warning vane y=.93 below strict >1.00 legibility contract. Restored its connected physical height to 1.06, still below fang 1.70; unchanged strict Phase6 acceptance and all WebGL gates. Corrected new-head tests and render pending.",
     "Pass259 2026-11-11 UTC: native current-source 320/390/844/1280 Maze workflow 42941865578 passed; 37/37 screenshot SHA-256 sidecars matched, actual 320px withdrawal full actor and hazard pass unchanged ±.95. Rebuilt both pressure jaws into large connected ivory shears with a single danger edge and bronze strut, reducing overlapping geometry without new GPU shape classes or game authority. New-HEAD installed Three and genuine screenshots still pending; Nintendo bar unmet.",

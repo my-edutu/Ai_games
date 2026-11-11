@@ -1,3 +1,9 @@
+### Pass260 authored full Tideglass retaining gallery (2026-11-11 UTC)
+
+- On preceding exact HEAD `b53291d990a083d37711f06bd3c0dcb61ce9d8e9` [native WebGL run 42944577211](https://github.com/my-edutu/Ai_games/actions/runs/42944577211) SUCCESS, downloaded original artifact 13822512495 and independently recomputed 37/37 PNG SHA-256 sidecars. Original 390px pressure/survey and 1280px capture show the newly connected ivory jaws, but a giant blank retaining wall still dominates Pip/hazard against fixed Nintendo gameplay.
+- Rebuilt one true **public solid** elevated pressure-court boundary into a continuous original mineral/Tideglass wall gallery (not a false door), with installed Three/public-only privacy/stair/gate/reset tests. Reuses existing GPU geometry/material classes, no real AI/collision or NDC/budget thresholds altered. [Dated source/evidence review](./maze-3d/pass-260-pressure-retaining-gallery-2026-11-11.md).
+- **New-HEAD CI and original no-crop WebGL renders pending; no official Captain Toad win.** PR #53 OPEN DRAFT, never merge/deploy/force.
+
 ### Pass259 second original Phase6 physical-brace correction (2026-11-11 UTC)
 
 - [Whole CI 42943970720](https://github.com/my-edutu/Ai_games/actions/runs/42943970720) 758/759 source tests passed, one remaining **real Maze Phase6 mechanical brace** width regression (the new diagonal strut at .58 vs unchanged >=.60 joined shoulder contract). Rebuilt the actual visual strut to .62 rather than weakening the old acceptance test. No extra mesh, GPU resource class, movement/AI, visibility or collision change. Fresh exact-HEAD native images and whole suite pending, Nintendo bar unmet.
