@@ -20,7 +20,46 @@ function hasConfirmedCanvasFrames(framePump){
     framePump.requestedFrames<=framePump.observedFrameAdvances)||
    (framePump.mode==='native-capture-stream'&&framePump.requestedFrames===0));
 }
-function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={}}={}){
+/**
+ * A read-only HTMLVideoElement receives the original canvas.captureStream()
+ * track during authentic playback. requestVideoFrameCallback on that consumer
+ * establishes track delivery, not encoder success or A/V sample alignment.
+ * A mute event alone does not identify a WebGL, compositor or codec root cause.
+ */
+function classifyCanvasTrackDelivery({delivery={},encodedBytes=0,submittedFrames=0}={}){
+ const observations=delivery.frames,events=delivery.events;
+ if(delivery.source!=='real-webgl-canvas-capture-video-monitor'||
+  delivery.mode!=='request-video-frame-callback'||
+  delivery.playStatus!=='PLAYING'||
+  !Array.isArray(observations)||observations.length>32||
+  !Array.isArray(events)||events.length>32||
+  !Number.isSafeInteger(submittedFrames)||submittedFrames<0||
+  !Number.isSafeInteger(encodedBytes)||encodedBytes<0||encodedBytes>MAX_CLIP_BYTES||
+  !events.every(e=>['mute','unmute','ended'].includes(e.kind)&&
+   Number.isFinite(e.atMs)&&e.atMs>=0&&e.atMs<=20000))
+  return 'TRACK_DELIVERY_UNVERIFIED';
+ let lastTime=-1,lastPresented=0,lastMedia=-1;
+ for(const observation of observations){
+  if(!Number.isFinite(observation.atMs)||observation.atMs<0||
+   observation.atMs>20000||observation.atMs<=lastTime||
+   !Number.isSafeInteger(observation.presentedFrames)||
+   observation.presentedFrames<=lastPresented||
+   !Number.isFinite(observation.mediaTime)||observation.mediaTime<lastMedia||
+   !Number.isSafeInteger(observation.submittedReceipt)||observation.submittedReceipt<0)
+   return 'TRACK_DELIVERY_UNVERIFIED';
+  lastTime=observation.atMs;
+  lastPresented=observation.presentedFrames;
+  lastMedia=observation.mediaTime;
+ }
+ if(observations.length>0&&submittedFrames>0)
+  return encodedBytes>1024?'CANVAS_FRAMES_DELIVERED_AND_ENCODED_UNALIGNED':
+   'CANVAS_FRAMES_DELIVERED_ENCODER_EMPTY';
+ if(observations.length===0&&delivery.mutedAtStop===true&&
+  events.some(e=>e.kind==='mute')&&submittedFrames>0)
+  return 'TRACK_MUTED_WITHOUT_PRESENTED_FRAMES';
+ return 'TRACK_DELIVERY_UNVERIFIED';
+}
+function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
   clip.source==='real-canvas-plus-opted-in-soundstage'&&
@@ -139,5 +178,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm});
 }
-module.exports={assessD04Capture,persistD04CaptureEvidence,
+module.exports={assessD04Capture,classifyCanvasTrackDelivery,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
