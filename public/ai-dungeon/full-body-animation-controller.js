@@ -398,8 +398,8 @@ export function planOriginalSourceSwingCalfAssist({
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
   Math.abs(floorTopY+.02)>.005||
   ankleLiftMeters<.001||ankleLiftMeters>.08||
-  Math.abs(trialAngleRad)<.09||Math.abs(trialAngleRad)>.11||
-  Math.abs(previousAssistRad)>.12)return 0;
+  Math.abs(trialAngleRad)<.09||Math.abs(trialAngleRad)>.21||
+  Math.abs(previousAssistRad)>.18)return 0;
  const toeClear=afterAnkleToeY-floorTopY;
  const heelClear=afterAnkleHeelY-floorTopY;
  const trialLift=trialCalfToeY-afterAnkleToeY;
@@ -414,11 +414,16 @@ export function planOriginalSourceSwingCalfAssist({
  // controller cannot expose a directional correction or fail its contract.
  if(eased===0||(previousAssistRad!==0&&
   Math.sign(previousAssistRad)!==Math.sign(trialAngleRad)))return 0;
+ // A licensed 0.2rad knee probe is evidence only, never an instant knee
+ // snap. Preserve the existing 0.06rad/frame slew and require up to three
+ // consecutive same-owner source frames to reach the new 0.18rad ceiling.
+ // The Three.js adapter must still remeasure the SAME skinned heel and toe
+ // after the actual clamped rotation before this cosmetic pose can apply.
  const demand=Math.min(.04,-.01-toeClear);
  const target=Math.sign(trialAngleRad)*eased*
-  Math.min(.12,Math.abs(trialAngleRad)*demand/trialLift);
- return clamp(target,Math.max(-.12,previousAssistRad-.06),
-  Math.min(.12,previousAssistRad+.06));
+  Math.min(.18,Math.abs(trialAngleRad)*demand/trialLift);
+ return clamp(target,Math.max(-.18,previousAssistRad-.06),
+  Math.min(.18,previousAssistRad+.06));
 }
 
 /**
@@ -434,14 +439,14 @@ export function selectOriginalSourceSwingCalfTrial({
  afterAnkleToeY=NaN,afterAnkleHeelY=NaN,floorTopY=NaN,trials=[]
 }={}){
  if(![afterAnkleToeY,afterAnkleHeelY,floorTopY].every(finite)||
-  Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>2||
+  Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
   afterAnkleToeY-floorTopY>-.035||afterAnkleToeY-floorTopY<-.16||
   afterAnkleHeelY-floorTopY<.065||afterAnkleHeelY-floorTopY>.34)return null;
  let best=null;
  for(const trial of trials){
   const {signed,toe,heel}=trial??{};
   if(![signed,toe,heel].every(finite)||
-   Math.abs(signed)<.09||Math.abs(signed)>.11||
+   Math.abs(signed)<.09||Math.abs(signed)>.21||
    toe-afterAnkleToeY<.008||toe-afterAnkleToeY>.075||
    heel-floorTopY<.055||heel-floorTopY>.36||
    Math.abs(heel-afterAnkleHeelY)>.06)continue;
