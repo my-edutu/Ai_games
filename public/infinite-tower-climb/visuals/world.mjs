@@ -436,6 +436,36 @@ export function createRuinsSanctuaryArchGeometry(THREE) {
 }
 
 /** A bounded, floor-owned Three.js environment. The host owns lights, fog and camera. */
+// Original clockwork load-bearing open gallery: pure deterministic geometry
+// inputs, no modification to authority, hitboxes, route or other four biomes.
+export function clockworkOpenPressureRibs(height) {
+  if(!Number.isFinite(height)||height<=30)return [];
+  const bottom=9,top=height+10,ribs=[];
+  for(let index=0;index<8;index++){
+    const angle=(index+.5)*Math.PI/4;
+    const near=Math.cos(angle-.30)>Math.cos(1.07);
+    const end=near?Math.min(12.2,top):top;
+    ribs.push({p:[Math.sin(angle)*10.7,(bottom+end)/2,
+      Math.cos(angle)*10.7],s:[near?.42:.38,end-bottom,near?.42:.38],
+      near,upperEnd:end});
+  }
+  return ribs;
+}
+export function clockworkOpenGeologicalTies(height,width,depth,localY) {
+  if(![height,width,depth,localY].every(Number.isFinite)||
+     height<=30||width<=0||depth<=0)return [];
+  const lower=-17,frontTop=10.7,rearTop=height+15,stays=[];
+  for(const side of [-1,1]){
+    // Rear structure reaches BOTH stone masses; near structure stops below
+    // the actual guardian altitude instead of bisecting the hero in portrait.
+    stays.push({p:[side*width*.34,(lower+rearTop)/2-localY,-depth*.31],
+      s:[.43,rearTop-lower,.43],near:false,upperEnd:rearTop});
+    stays.push({p:[side*width*.34,(lower+frontTop)/2-localY,depth*.24],
+      s:[.48,frontTop-lower,.48],near:true,upperEnd:frontTop});
+  }
+  return stays;
+}
+
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
   const stoneSurface=createStoneSurfaceAsset(THREE);
@@ -772,36 +802,6 @@ export function createTowerWorld(){
     instanced(root,sphere(),materials.gateTrim,studs);
     return root;
   }
-// Original clockwork load-bearing open gallery: pure deterministic geometry
-// inputs, no modification to authority, hitboxes, route or other four biomes.
-export function clockworkOpenPressureRibs(height) {
-  if(!Number.isFinite(height)||height<=30)return [];
-  const bottom=9,top=height+10,ribs=[];
-  for(let index=0;index<8;index++){
-    const angle=(index+.5)*Math.PI/4;
-    const near=Math.cos(angle-.30)>Math.cos(1.07);
-    const end=near?Math.min(12.2,top):top;
-    ribs.push({p:[Math.sin(angle)*10.7,(bottom+end)/2,
-      Math.cos(angle)*10.7],s:[near?.42:.38,end-bottom,near?.42:.38],
-      near,upperEnd:end});
-  }
-  return ribs;
-}
-export function clockworkOpenGeologicalTies(height,width,depth,localY) {
-  if(![height,width,depth,localY].every(Number.isFinite)||
-     height<=30||width<=0||depth<=0)return [];
-  const lower=-17,frontTop=10.7,rearTop=height+15,stays=[];
-  for(const side of [-1,1]){
-    // Rear structure reaches BOTH stone masses; near structure stops below
-    // the actual guardian altitude instead of bisecting the hero in portrait.
-    stays.push({p:[side*width*.34,(lower+rearTop)/2-localY,-depth*.31],
-      s:[.43,rearTop-lower,.43],near:false,upperEnd:rearTop});
-    stays.push({p:[side*width*.34,(lower+frontTop)/2-localY,depth*.24],
-      s:[.48,frontTop-lower,.48],near:true,upperEnd:frontTop});
-  }
-  return stays;
-}
-
   function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
