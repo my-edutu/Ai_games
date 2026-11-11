@@ -53,6 +53,18 @@ const REGALIA=Object.freeze([
 const EMPTY=Object.freeze([]);
 export function planWardenRegalia(kind){return kind==='warden'?REGALIA:EMPTY;}
 
+// Bounded GPU submission plan for the same 24 original Warden fittings.
+// Keep the two curved horns as separately sculpted mesh surfaces; every
+// other authored shape retains its exact geometry, finish and bone target.
+const REGALIA_DRAWS=Object.freeze([...REGALIA.filter(p=>p.shape!=='horn').reduce((map,part)=>{
+ const key=part.shape+'|'+part.finish;
+ if(!map.has(key))map.set(key,{shape:part.shape,finish:part.finish,parts:[]});
+ map.get(key).parts.push(part);
+ return map;
+},new Map()).values()].map(group=>Object.freeze({shape:group.shape,finish:group.finish,
+ parts:Object.freeze(group.parts)})));
+export function planWardenRegaliaDrawGroups(kind){return kind==='warden'?REGALIA_DRAWS:EMPTY;}
+
 
 /** The vetted Warden sculpture follows its true animated native skeleton. */
 const REGALIA_BONE_TARGETS=Object.freeze(Object.fromEntries(REGALIA.map(p=>{

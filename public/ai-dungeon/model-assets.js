@@ -9,6 +9,7 @@ import {planEvasionPerformance} from '/dungeon/evasion-performance-plan.js';
 import {planCombatPerformanceBeat} from '/dungeon/combat-performance-plan.js';
 import {planNativeDuelPose,planNativeOneShotSpeed} from '/dungeon/native-duel-performance.js';
 import {planWardenRegalia,planWardenRegaliaBone} from '/dungeon/warden-regalia-plan.js';
+import {planWardenRegaliaDrawGroups} from '/dungeon/warden-regalia-plan.js';
 import {WARDEN_STAGE_PROFILE} from '/dungeon/warden-regalia-plan.js';
 import {planWardenRegaliaMotion} from '/dungeon/warden-chapter-plan.js';
 import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
@@ -127,9 +128,8 @@ function addWardenRegalia(actor){
   bone:new THREE.MeshStandardMaterial({color:'#b6ae9b',metalness:.18,roughness:.63}),
   ember:new THREE.MeshStandardMaterial({color:'#c0683f',emissive:'#a73b1d',emissiveIntensity:.62,metalness:.28,roughness:.39})
  };
- // Chamfered forged plaques remove the toy-like box silhouette without
- // adding draws or textures. All forms are shared, disposable and remain
- // strictly cosmetic attachments to the real animated boss skeleton.
+ // Original forged shapes and finishes are identical to the separately drawn
+ // art. Only retained GPU submission ownership changes, not the silhouette.
  const plaqueOutline=new THREE.Shape();
  plaqueOutline.moveTo(-.44,-.50);
  plaqueOutline.lineTo(.44,-.50);
@@ -145,36 +145,25 @@ function addWardenRegalia(actor){
   bevelSize:.038,bevelSegments:2,curveSegments:3
  });
  plaque.center();
- const base={
+ const forms={
   plate:new THREE.SphereGeometry(.5,20,13),
   spike:new THREE.ConeGeometry(.5,1,11),
   gem:new THREE.OctahedronGeometry(.5,1),
   lamella:plaque
  };
- const ownedGeometries=Object.values(base),animatedRegalia=[];
- for(const item of plan){
-  let geometry=base[item.shape];
-  if(item.shape==='horn'){
-   const points=item.points.map(p=>new THREE.Vector3(...p));
-   geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),14,.047,7,false);
-   ownedGeometries.push(geometry);
-  }
+ const ownedGeometries=Object.values(forms),animatedRegalia=[];
+ // The unique hand-curved horns keep their own meshes and real head-bone
+ // mounting. All other originals use the same actual forms and materials in
+ // a retained instance batch, with independent native bone matrices.
+ for(const item of plan.filter(p=>p.shape==='horn')){
+  const points=item.points.map(p=>new THREE.Vector3(...p));
+  const geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),14,.047,7,false);
+  ownedGeometries.push(geometry);
   const mesh=new THREE.Mesh(geometry,finishes[item.finish]);
   mesh.name=item.id;mesh.castShadow=true;mesh.receiveShadow=true;
-  if(item.shape!=='horn'){
-   mesh.position.set(item.x,item.y,item.z);
-   mesh.scale.set(item.sx,item.sy,item.sz);
-   mesh.rotation.z=item.rz;
-  }
   group.add(mesh);
-  if(item.shape!=='horn')animatedRegalia.push({id:item.id,mesh,x:mesh.position.x,y:mesh.position.y,
-   rz:mesh.rotation.z,sx:mesh.scale.x,sy:mesh.scale.y,sz:mesh.scale.z});
  }
  actor.visualPivot.add(group);
- // Keep every original boss sculpture in its EXACT bind-pose coordinates.
- // Four real animated body areas now drive the crown, pauldron, chest and
- // tassets. Matrix bone deltas avoid Object3D.attach's non-uniform-scale
- // limitation on the fitted CC0 skinned GLB. Zero extra mesh draw calls.
  actor.visualPivot.updateWorldMatrix(true,true);
  actor.assetRoot?.updateWorldMatrix(true,true);
  const targets={
@@ -184,18 +173,16 @@ function addWardenRegalia(actor){
   leftUpperArm:actor.rigUpperArms?.find(m=>m.side==='left')?.bone,
   rightUpperArm:actor.rigUpperArms?.find(m=>m.side==='right')?.bone
  };
- const mounts=[];
- const bindGroupWorld=group.matrixWorld.clone();
+ const mounts=[],bindGroupWorld=group.matrixWorld.clone();
  let riggedPieces=0;
  for(const [jointName,bone] of Object.entries(targets)){
-  if(!bone?.isBone)continue; // Incomplete rigs retain original visible art.
+  if(!bone?.isBone)continue;
   bone.updateWorldMatrix(true,false);
   if(!bone.matrixWorld.elements.every(Number.isFinite))continue;
-  const assigned=plan.filter(p=>planWardenRegaliaBone(p.id)===jointName);
+  const assigned=plan.filter(p=>p.shape==='horn'&&planWardenRegaliaBone(p.id)===jointName);
   if(!assigned.length)continue;
-  const stage=new THREE.Group();stage.name='Native Warden '+jointName+' regalia';
-  stage.matrixAutoUpdate=false;
-  group.add(stage);
+  const stage=new THREE.Group();stage.name='Native Warden '+jointName+' horn';
+  stage.matrixAutoUpdate=false;group.add(stage);
   for(const part of assigned){
    const mesh=group.getObjectByName(part.id);
    if(mesh?.isMesh){stage.add(mesh);riggedPieces++;}
@@ -203,9 +190,41 @@ function addWardenRegalia(actor){
   mounts.push({bone,stage,bindBoneInverse:bone.matrixWorld.clone().invert(),
    bindGroupWorld:bindGroupWorld.clone(),targetWorld:new THREE.Matrix4()});
  }
+ const instances=[];
+ for(const batch of planWardenRegaliaDrawGroups(actor.u.kind)){
+  const mesh=new THREE.InstancedMesh(forms[batch.shape],finishes[batch.finish],batch.parts.length);
+  mesh.name='Original Warden '+batch.shape+' '+batch.finish;
+  mesh.castShadow=true;mesh.receiveShadow=true;
+  // Bone-pose matrices change while the authoritative battle continues.
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  mesh.frustumCulled=false; // Mixed bone targets must not be culled by rest-pose bounds.
+  group.add(mesh);
+  const parts=[];
+  for(const [index,item] of batch.parts.entries()){
+   const pose=new THREE.Object3D();
+   pose.position.set(item.x,item.y,item.z);
+   pose.rotation.z=item.rz;
+   pose.scale.set(item.sx,item.sy,item.sz);
+   pose.updateMatrix();
+   const bone=targets[planWardenRegaliaBone(item.id)];
+   if(bone?.isBone){bone.updateWorldMatrix(true,false);riggedPieces++;}
+   const part={index,id:item.id,pose,bone:bone?.isBone?bone:null,
+    bindBoneInverse:bone?.isBone?bone.matrixWorld.clone().invert():null,
+    restGroupWorld:bindGroupWorld};
+   parts.push(part);
+   mesh.setMatrixAt(part.index,pose.matrix);
+   animatedRegalia.push({id:item.id,mesh:pose,x:item.x,y:item.y,
+    rz:item.rz,sx:item.sx,sy:item.sy,sz:item.sz});
+  }
+  mesh.instanceMatrix.needsUpdate=true;
+  instances.push({mesh,parts});
+ }
  actor.wardenRegaliaRoot=group;
  actor.wardenRegaliaMounts=mounts;
+ actor.wardenRegaliaInstances=instances;
  actor.wardenRegaliaInverse=new THREE.Matrix4();
+ actor.wardenRegaliaInstanceDelta=new THREE.Matrix4();
+ actor.wardenRegaliaInstanceLocal=new THREE.Matrix4();
  actor.wardenRegaliaRiggedParts=riggedPieces;
  actor.wardenRegaliaArt=animatedRegalia;
  actor.regaliaParts=plan.length;
@@ -908,7 +927,7 @@ function attachCharacter(actor){
    complete:visibleSourceSkinMeshes>=5&&visibleSourceMaterials>=1};
   actor.rigHandBone=joints.rightHand??null;
   actor.rigHandBoneName=joints.rightHand?.name??null;
-  actor.wardenRegaliaRoot=null;actor.wardenRegaliaMounts=[];
+  actor.wardenRegaliaRoot=null;actor.wardenRegaliaMounts=[];actor.wardenRegaliaInstances=[];actor.wardenRegaliaInstanceDelta=null;actor.wardenRegaliaInstanceLocal=null;
   actor.wardenRegaliaInverse=null;actor.wardenRegaliaRiggedParts=0;
   // Original Warden ritual identity sits on the same genuine skinned rig;
   // its authored warning/phase cues and genuine combat choreography survive.
@@ -974,15 +993,33 @@ function syncNativeArmour(actor){
 }
 function syncWardenNativeRegalia(actor){
  const group=actor.wardenRegaliaRoot,mounts=actor.wardenRegaliaMounts;
- if(!group||!mounts?.length||!actor.wardenRegaliaInverse)return;
+ if(!group||!actor.wardenRegaliaInverse)return;
  group.updateWorldMatrix(true,false);
  const inverse=actor.wardenRegaliaInverse.copy(group.matrixWorld).invert();
- for(const mount of mounts){
+ // Curved horns retain their exact original head-bone delta contract.
+ for(const mount of mounts||[]){
   mount.bone.updateWorldMatrix(true,false);
   mount.targetWorld.multiplyMatrices(mount.bone.matrixWorld,mount.bindBoneInverse)
    .multiply(mount.bindGroupWorld);
   mount.stage.matrix.multiplyMatrices(inverse,mount.targetWorld);
   mount.stage.matrixWorldNeedsUpdate=true;
+ }
+ // One original shape/finish GPU draw now contains parts on multiple actual
+ // animated bones. Keep individual bind-world transforms and source poses.
+ // Matrices are retained: no allocations in the per-frame Warden hot path.
+ const delta=actor.wardenRegaliaInstanceDelta,local=actor.wardenRegaliaInstanceLocal;
+ for(const batch of actor.wardenRegaliaInstances||[]){
+  for(const part of batch.parts){
+   part.pose.updateMatrix();
+   if(part.bone?.isBone){
+    part.bone.updateWorldMatrix(true,false);
+    delta.multiplyMatrices(part.bone.matrixWorld,part.bindBoneInverse)
+     .multiply(part.restGroupWorld);
+    local.multiplyMatrices(inverse,delta).multiply(part.pose.matrix);
+   }else local.copy(part.pose.matrix);
+   batch.mesh.setMatrixAt(part.index,local);
+  }
+  batch.mesh.instanceMatrix.needsUpdate=true;
  }
 }
 function stageWardenChapterRegalia(actor,reducedMotion){
@@ -1149,7 +1186,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
 function disposeActorAsset(actor){
  actor.detached=true;
  actor.cinematicFigure?.dispose?.();
- actor.wardenRegaliaRoot=null;actor.wardenRegaliaMounts=[];
+ actor.wardenRegaliaRoot=null;actor.wardenRegaliaMounts=[];actor.wardenRegaliaInstances=[];actor.wardenRegaliaInstanceDelta=null;actor.wardenRegaliaInstanceLocal=null;
  actor.wardenRegaliaInverse=null;actor.wardenRegaliaRiggedParts=0;
  // If the authored rig is retired, keep the complete coloured procedural
  // character visible as an offline/missing-asset fallback.
@@ -1232,7 +1269,7 @@ function stats(actors){
   cinematicSourceHidden:authored.filter(a=>a.cinematicFigure?.sourceMeshesHidden).length,cinematicNativeBodyUnderlays:authored.reduce((n,a)=>n+(a.cinematicFigure?.nativeBodyUnderlays||0),0),cinematicNativeBodyActors:authored.filter(a=>(a.cinematicFigure?.nativeBodyUnderlays||0)>=5).length,cinematicProfiles:[...new Set(authored.map(a=>a.cinematicFigure?.kind).filter(Boolean))].sort(),groundedTravelActors:authored.filter(a=>a.groundedPerformance?.moving).length,
  groundedClipSpeeds:authored.filter(a=>a.groundedPerformance?.moving).map(a=>Number(a.groundedPerformance.clipSpeed.toFixed(3))).slice(0,12),
  groundedStationaryActors:authored.filter(a=>!a.groundedPerformance?.moving).length,
- evasionPosePeak:Math.max(0,...authored.map(a=>a.evasionPosePeak||0)),evasionPoseActors:authored.filter(a=>(a.evasionPosePeak||0)>.03).length,contactBodyPeakMeters:Math.max(0,...authored.map(a=>a.contactBodyPeakMeters||0)),authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossNativeRiggedParts:all.reduce((n,a)=>n+(a.wardenRegaliaRiggedParts||0),0),bossNativeRigMounts:all.reduce((n,a)=>n+(a.wardenRegaliaMounts?.length||0),0),bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),anatomicalDetailActors:authored.filter(a=>(a.anatomicalParts||0)>0).length,sculptedArmorActors:authored.filter(a=>a.sculptedArmorProfile).length,sculptedArmorVertices:authored.reduce((sum,a)=>sum+(a.sculptedArmorVertices||0),0),sculptedArmorProfiles:[...new Set(authored.map(a=>a.sculptedArmorProfile).filter(Boolean))].sort(),anatomicalDetailParts:all.reduce((n,a)=>n+(a.anatomicalParts||0),0),anatomicalJointFittings:all.reduce((n,a)=>n+(a.anatomicalJointParts||0),0),anatomicalDetailMeshes:all.reduce((n,a)=>n+(a.anatomicalDetailMeshes||0),0),anatomicalStaticMergedParts:all.reduce((n,a)=>n+(a.anatomicalStaticMergedParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyFramesSkipped:all.reduce((n,a)=>n+(a.draperyFramesSkipped||0),0),draperyNormalRebuilds:all.reduce((n,a)=>n+(a.draperyNormalRebuilds||0),0),draperyVertexUploads:all.reduce((n,a)=>n+(a.draperyVertexUploads||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigCranialActors:authored.filter(a=>a.rigCranial?.applied).length,rigCranialRatios:authored.filter(a=>a.rigCranial?.applied).map(a=>({kind:a.u.kind,ratio:a.rigCranial.ratio})).slice(0,18),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),wardenChargeShoulderPeakRad:Math.max(0,...authored.filter(a=>a.u.kind==='warden').map(a=>a.wardenChargeShoulderPeak||0)),rigForearmBones:authored.reduce((n,a)=>n+(a.rigForearms?.length||0),0),rigForearmPeakRad:Math.max(0,...authored.map(a=>a.rigForearmPeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigFullBodyStridePeakRad:Math.max(0,...authored.map(a=>a.rigFullBodyStridePeak||0)),rigContactBraceActors:authored.filter(a=>(a.rigContactBracePeak||0)>.09).length,rigContactBracePeakRad:Math.max(0,...authored.map(a=>a.rigContactBracePeak||0)),rigMeleeBones:authored.reduce((n,a)=>n+(a.rigMeleeBones?.length||0),0),rigMeleePeakRad:Math.max(0,...authored.map(a=>a.rigMeleePeak||0)),rigMeleeCurrentPeakRad:Math.max(0,...authored.map(a=>a.rigMeleeCurrentPeak||0)),rigMeleeActiveActors:authored.filter(a=>a.rigMeleeActive).length,rigRangedActiveActors:authored.filter(a=>a.rigRangedActive).length,rigRangedPeak:Math.max(0,...authored.map(a=>a.rigRangedPeak||0)),rigMeleeBoneNames:authored.flatMap(a=>(a.rigMeleeBones||[]).map(m=>m.part+':'+m.bone.name)).slice(0,12),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigWardrobeActors:authored.filter(a=>(a.rigWardrobeParts||0)>0).length,rigWardrobeParts:all.reduce((n,a)=>n+(a.rigWardrobeParts||0),0),anatomicalStaticMountedBatches:all.reduce((n,a)=>n+(a.anatomicalStaticMountedCount||0),0),
+ evasionPosePeak:Math.max(0,...authored.map(a=>a.evasionPosePeak||0)),evasionPoseActors:authored.filter(a=>(a.evasionPosePeak||0)>.03).length,contactBodyPeakMeters:Math.max(0,...authored.map(a=>a.contactBodyPeakMeters||0)),authoredBosses:authored.filter(a=>a.u.kind==='warden').length,bossNativeRiggedParts:all.reduce((n,a)=>n+(a.wardenRegaliaRiggedParts||0),0),bossNativeRigMounts:all.reduce((n,a)=>n+(a.wardenRegaliaMounts?.length||0),0),bossRegaliaParts:all.reduce((n,a)=>n+(a.regaliaParts||0),0),bossRegaliaBatches:all.reduce((n,a)=>n+(a.wardenRegaliaInstances?.length||0),0),roleSilhouetteActors:authored.filter(a=>(a.roleSilhouetteParts||0)>0).length,roleSilhouetteParts:all.reduce((n,a)=>n+(a.roleSilhouetteParts||0),0),anatomicalDetailActors:authored.filter(a=>(a.anatomicalParts||0)>0).length,sculptedArmorActors:authored.filter(a=>a.sculptedArmorProfile).length,sculptedArmorVertices:authored.reduce((sum,a)=>sum+(a.sculptedArmorVertices||0),0),sculptedArmorProfiles:[...new Set(authored.map(a=>a.sculptedArmorProfile).filter(Boolean))].sort(),anatomicalDetailParts:all.reduce((n,a)=>n+(a.anatomicalParts||0),0),anatomicalJointFittings:all.reduce((n,a)=>n+(a.anatomicalJointParts||0),0),anatomicalDetailMeshes:all.reduce((n,a)=>n+(a.anatomicalDetailMeshes||0),0),anatomicalStaticMergedParts:all.reduce((n,a)=>n+(a.anatomicalStaticMergedParts||0),0),draperyActors:authored.filter(a=>(a.draperyPanels?.length||0)>0).length,draperyPanels:all.reduce((n,a)=>n+(a.draperyPanels?.length||0),0),draperyTriangles:all.reduce((n,a)=>n+(a.draperyTriangles||0),0),draperyFramesSkipped:all.reduce((n,a)=>n+(a.draperyFramesSkipped||0),0),draperyNormalRebuilds:all.reduce((n,a)=>n+(a.draperyNormalRebuilds||0),0),draperyVertexUploads:all.reduce((n,a)=>n+(a.draperyVertexUploads||0),0),draperyPeakDeformationMeters:Math.max(0,...all.map(a=>a.draperyPeakDeformationMeters||0)),rigCranialActors:authored.filter(a=>a.rigCranial?.applied).length,rigCranialRatios:authored.filter(a=>a.rigCranial?.applied).map(a=>({kind:a.u.kind,ratio:a.rigCranial.ratio})).slice(0,18),rigGestureBones:authored.reduce((n,a)=>n+(a.rigUpperArms?.length||0),0),rigGesturePeakRad:Math.max(0,...authored.map(a=>a.rigGesturePeak||0)),wardenChargeShoulderPeakRad:Math.max(0,...authored.filter(a=>a.u.kind==='warden').map(a=>a.wardenChargeShoulderPeak||0)),rigForearmBones:authored.reduce((n,a)=>n+(a.rigForearms?.length||0),0),rigForearmPeakRad:Math.max(0,...authored.map(a=>a.rigForearmPeak||0)),rigGaitBones:authored.reduce((n,a)=>n+(a.rigGaitBones?.length||0),0),rigGaitPeakRad:Math.max(0,...authored.map(a=>a.rigGaitPeak||0)),rigFullBodyStridePeakRad:Math.max(0,...authored.map(a=>a.rigFullBodyStridePeak||0)),rigContactBraceActors:authored.filter(a=>(a.rigContactBracePeak||0)>.09).length,rigContactBracePeakRad:Math.max(0,...authored.map(a=>a.rigContactBracePeak||0)),rigMeleeBones:authored.reduce((n,a)=>n+(a.rigMeleeBones?.length||0),0),rigMeleePeakRad:Math.max(0,...authored.map(a=>a.rigMeleePeak||0)),rigMeleeCurrentPeakRad:Math.max(0,...authored.map(a=>a.rigMeleeCurrentPeak||0)),rigMeleeActiveActors:authored.filter(a=>a.rigMeleeActive).length,rigRangedActiveActors:authored.filter(a=>a.rigRangedActive).length,rigRangedPeak:Math.max(0,...authored.map(a=>a.rigRangedPeak||0)),rigMeleeBoneNames:authored.flatMap(a=>(a.rigMeleeBones||[]).map(m=>m.part+':'+m.bone.name)).slice(0,12),rigBoundAccessoryActors:authored.filter(a=>(a.rigBoundAccessoryParts||0)>0).length,rigBoundAccessoryParts:all.reduce((n,a)=>n+(a.rigBoundAccessoryParts||0),0),rigWardrobeActors:authored.filter(a=>(a.rigWardrobeParts||0)>0).length,rigWardrobeParts:all.reduce((n,a)=>n+(a.rigWardrobeParts||0),0),anatomicalStaticMountedBatches:all.reduce((n,a)=>n+(a.anatomicalStaticMountedCount||0),0),
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),skinnedHitActors:authored.filter(a=>(a.skinnedHitWeight||0)>.02).length,skinnedHitPeak:Math.max(0,...authored.map(a=>a.skinnedHitPeak||0)),skinnedDefeatActors:authored.filter(a=>a.skinnedDefeatWeight>.02).length,forgedMicrotextures:forgedMicrotextureCache.size,authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }

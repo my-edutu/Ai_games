@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (real danger-surface candidate awaiting genuine new-head motion and blind acceptance)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (original source-rig Warden batch candidate, real new-head A/V unverified)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -202,6 +202,26 @@
       "plays": "UNVERIFIED",
       "hpAudioSync": "UNVERIFIED",
       "next": "Inspect real exact new-head desktop/mobile audiovisual five-stage journey and Warden warning per-cell visibility vs parent9d and locked baseline; reject regressions, then original adult-scale rigged Vanguard/Revenant/Warden art and GPU bottleneck remediation; PR72 remains independent"
+    },
+    "m1WardenSourceRigBatch20261111": {
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "c1d64a08f546f659de811d7faed10cfd9226c29e",
+      "organicBeforeRun": 42964249454,
+      "productionIntegration": "Original 22 nonhorn bone-driven Warden regalia details rendered in 8 original shape/finish retained Three.js InstancedMesh GPU batches plus 2 original sculpted head-bone horns; same native skeleton, per-part phase pose and bind-world transforms",
+      "scope": "presentation-only; no authority/audio/AI/saves/RNG change",
+      "localTdd": "RED first then 3/3 actual THREE matrix equivalence and bounded draw contracts PASS",
+      "localDungeon": "416/416 PASS incl TypeScript build",
+      "localBrowser": "BLOCKED_BY_ADMINISTRATOR",
+      "headless": "attempted; timed out; NOT VALIDATED",
+      "exactHeadAfterAudioVideo": "NOT_OBSERVED",
+      "actualPerformanceGain": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new head original five-stage 1440/390 A/V, 24 native regalia parts and original motion, 25/25 danger incision truth, draw/pacing, reject art/perf regressions; then native adult-scale exemplar, GPU remediation and 3 blinded critics"
     }
   },
   "failures": [],

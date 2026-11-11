@@ -30,11 +30,12 @@ test('real three-beat NOVA carves one truthful 3D threat and autonomous heroes p
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual?.warningTellProgress),{timeout:25000}).toBeCloseTo((4-remaining)/3,2);
   const data=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.wardenRitual);
   expect(data?.warningTiles).toBeGreaterThan(14);
-  // True hazard coverage must remain full; the NEW relief has deliberately
-  // sparse stone fissures, not one bright octagonal halo per threatened tile.
+  // Every genuinely threatened cell now carries one direction-coded,
+  // shallow incision; no safe tile may receive a false warning.
   expect(data?.warningTiles).toBe(snapshot.bossWarning.cells.length);
   expect(data?.warningIncisions).toBeGreaterThan(0);
-  expect(data?.warningIncisions).toBeLessThanOrEqual(10);
+  expect(data?.warningIncisions).toBe(data.warningTiles);
+  expect(data.warningIncisions).toBeLessThanOrEqual(48);
   expect(data?.warningStoneGeometry).toBe('bevelled-original-basalt');
   expect(data?.warningStoneLift).toBeGreaterThan(0);
    expect(data?.warningBoundaryEdges).toBeGreaterThan(14);
