@@ -496,3 +496,55 @@ test('D04 serial synthetic control keeps only bounded metadata and never persist
   assert.deepEqual(fs.readdirSync(directory),['dungeon-d04-live-av-evidence.json']);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+const serialGameVideo={
+ source:'real-webgl-canvas-serial-video-only',phase:'after-all-primary-encoders-settled',
+ primaryRecordersSettled:true,status:'RECORDED',mimeType:'video/webm;codecs=vp8',
+ videoTracks:1,audioTracks:0,bytes:4096,recordingMs:5500,
+ framePump:{mode:'native-capture-stream',observedFrameAdvances:3,requestedFrames:0,
+  requestFailures:0,receiptStart:13,receiptEnd:16}
+};
+test('D04 strictly gates the real serial video-only experiment on independent actual frame receipts',()=>{
+ const raw={...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},
+  isolated:{videoOnly:comparisonReal,audioOnly:isolatedValid.audioOnly,
+   serialRealVideo:serialGameVideo}};
+ const a=assessD04Capture(raw);
+ assert.equal(a.serialRealVideoRecorded,true);
+ assert.equal(a.combinedVideoAudio,false);
+ assert.equal(a.classification,'UNVERIFIED');
+ assert.equal(a.sampleSynchronized,false);
+});
+test('D04 serial real-video bytes cannot be certified by unrelated late frames or synthetic control',()=>{
+ for(const bad of [
+  {...serialGameVideo,source:'synthetic-2d-canvas-serial-control-not-gameplay'},
+  {...serialGameVideo,phase:'overlapping-primary-encoders'},
+  {...serialGameVideo,primaryRecordersSettled:false},
+  {...serialGameVideo,bytes:0},
+  {...serialGameVideo,videoTracks:0},
+  {...serialGameVideo,audioTracks:1},
+  {...serialGameVideo,framePump:{...serialGameVideo.framePump,receiptStart:16}},
+  {...serialGameVideo,framePump:{...serialGameVideo.framePump,observedFrameAdvances:0}},
+  {...serialGameVideo,framePump:{...serialGameVideo.framePump,requestFailures:1}},
+  {...serialGameVideo,framePump:{...serialGameVideo.framePump,mode:'submitted-frame-request'}},
+  {...serialGameVideo,framePump:{...serialGameVideo.framePump,receiptEnd:50}},
+ ]){
+  assert.equal(assessD04Capture({...good,isolated:{serialRealVideo:bad}})
+   .serialRealVideoRecorded,false);
+ }
+});
+test('D04 persists only independently qualified serial real WebGL bytes and never upgrades sync',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-serial-real-video-'));
+ try{
+  const media=Buffer.alloc(4096,19);
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},frames:good.frames,
+   isolated:{serialRealVideo:{...serialGameVideo,base64:media.toString('base64')}}};
+  const assessment=assessD04Capture({...good,...raw});
+  const saved=persistD04CaptureEvidence({directory,raw,assessment});
+  assert.equal(fs.readFileSync(saved.serialRealVideoWebm).compare(media),0);
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.isolated.serialRealVideo.base64,undefined);
+  assert.equal(manifest.retained.serialRealVideoWebm,true);
+  assert.equal(manifest.assessment.classification,'UNVERIFIED');
+  assert.equal(manifest.assessment.sampleSynchronized,false);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
