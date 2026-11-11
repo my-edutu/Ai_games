@@ -1,5 +1,16 @@
 {
   "schemaVersion": 1,
+  "p0GuardianActualOpaqueWorldAfterFilm20261111": {
+    "productionSha": "7bd9e8f0afd0c44504b2a4fa3fc6ed115219335b",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "requestedSource": "Exact github.sha of THIS capture-request edit, not moving PR head; 8 baseline/candidate original browser scenarios plus source ledge and event pairing, at 960x600 and 390x844 >=60s each",
+    "latestObservedIssue": "Original real 390x844 candidate film 43028026049 acf1a6 shows obstructing original gallery and split hero/boss action in 16-24s; original event/raster full clock 0/2; baseline outcome gap unsafe.",
+    "requiredNext": "New full-motion original review of guardian+crusher, earned ground crossing and onward floor9, source-native PTS restart, supported-device frame times and genuine blind reviewers",
+    "reviewCounts": "0/5 LOOKS 0/5 FEELS 0/5 PLAYS",
+    "currentCI": "43032554322 failed runner DNS during Playwright OS package install; next source exact-head CI pending"
+  },
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
