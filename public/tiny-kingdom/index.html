@@ -6718,7 +6718,8 @@ let streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
 const VILLAGE_LOD_LIMIT=8;
 const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,compactRoofCourses:0,detailedCitizens:0,compactCitizens:0,compactRoofTiles:0,compactFramedWindows:0,compactGableBraces:0,compactSideWindows:0,compactSideTimberQuads:0,compactStaggeredCourses:0,compactFacingCount:0,compactTurnedCitizens:0,compactFacingVertexError:0,compactDormers:0,compactDormerTriangles:0,compactGuildLofts:0,compactPorchFrames:0,compactWeatheredFootings:0,compactRainCasks:0,compactFrontageTriangles:0,compactRoofPaletteCounts:[0,0,0,0],
  inhabitedFootwayLots:0,inhabitedFootwaySlabs:0,
- inhabitedFootwayTriangles:0,inhabitedFootwayRejected:0};
+ inhabitedFootwayTriangles:0,inhabitedFootwayRejected:0,
+ inhabitedFootwayBends:0};
 // G153: reuse each ORIGINAL per-home roof, walls, windows and street facade
 // when a growing inhabited settlement or a new season rebuilds static scenery.
 // This bounded presentation cache preserves the exact authored triangle order
@@ -6799,7 +6800,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w237-real-occupied-footways-v1';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w238-collision-checked-street-access-v1';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -7292,59 +7293,74 @@ function grainwardInhabitedLot(x,z,variant,index,isCompact){
 // Stones are flush with terrain in the home's existing resident geometry; no
 // implied new home, scripted citizen, economic consignment, collision or route.
 // This footprint is recomputed ONLY when that original house mesh is dirty.
+// W238: real front-door-to-high-street paving, sourced from the EXISTING
+// collision-tested village routing oracle, not an imagined pedestrian path.
+// Part of the SAME original home VBO; cannot change nav/jobs/stock.
 function inhabitedStreetFootway(x,z,variant,index){
- const start=data.length,depth=2.1+variant*.18;
- const door=[x,z-depth*.5-.40],candidates=HIGHSTREET_LANES;
- let winner=null;
- for(const lane of candidates)for(let i=0;i<lane.length-1;i++){
-  const a=lane[i],b=lane[i+1],dx=b[0]-a[0],dz=b[1]-a[1];
-  const lengthSq=dx*dx+dz*dz;
-  if(lengthSq<.0001)continue;
-  const t=Math.max(0,Math.min(1,
-   ((door[0]-a[0])*dx+(door[1]-a[1])*dz)/lengthSq));
-  const bx=a[0]+dx*t,bz=a[1]+dz*t;
-  // Keep only a straight, sampled route through the EXISTING walkable world;
-  // a lane behind the front door is allowed only if no real wall intervenes.
-  const d=Math.hypot(bx-door[0],bz-door[1]);
-  if(d<.7||d>8.5||winner&&d>=winner.distance)continue;
-  // Original nav oracle is queried only; this does NOT change road graph.
-  if([.2,.4,.6,.8,.95].some(f=>!walkable(door[0]+(bx-door[0])*f,
-    door[1]+(bz-door[1])*f)))continue;
-  winner={target:[bx,bz],distance:d};
+ const first=data.length;
+ const access=planInhabitedStreetAccess([x,z,variant],
+  HIGHSTREET_LANES,walkable,clearSegment);
+ if(!access||access.distance>10){
+  villageVisualLod.inhabitedFootwayRejected++;return 0;
  }
- if(!winner){villageVisualLod.inhabitedFootwayRejected++;return 0;}
- const dx=winner.target[0]-door[0],dz=winner.target[1]-door[1],
-  span=winner.distance,nx=-dz/span,nz=dx/span;
- const sample=(t,offset,raise)=>{
-  const xx=door[0]+dx*t+nx*offset,zz=door[1]+dz*t+nz*offset;
-  return [xx,terrain(xx,zz)+raise,zz];
+ const sections=[];
+ for(let i=2;i<access.path.length;i++){
+  const a=access.path[i-1],b=access.path[i],
+   dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+  if(length<.15)continue;
+  sections.push({a,dx,dz,length,nx:-dz/length,nz:dx/length});
+ }
+ const total=sections.reduce((sum,section)=>sum+section.length,0);
+ if(!sections.length||total<.5){
+  villageVisualLod.inhabitedFootwayRejected++;return 0;
+ }
+ const courses=Math.max(4,Math.min(12,Math.ceil(total/.62))),
+  clay=[rgb(0x796d5c),rgb(0x766958),rgb(0x827765)],
+  limestone=[rgb(0xb9ad94),rgb(0x978e7b),rgb(0xafa38b),
+   rgb(0x8f8878),rgb(0xc0b29a)],edgeStone=rgb(0x817969);
+ let slabs=0;
+ const at=(s,t,offset,raise)=>{
+  const px=s.a[0]+s.dx*t+s.nx*offset,
+   pz=s.a[1]+s.dz*t+s.nz*offset;
+  return [px,terrain(px,pz)+raise,pz];
  };
- const courses=Math.max(3,Math.min(12,Math.ceil(span/.57)));
- const flagstone=[rgb(0xb9ad94),rgb(0x978e7b),rgb(0xafa38b),
-  rgb(0x8f8878),rgb(0xc0b29a)],edges=rgb(0x817969);
+ // Connected earth underlay does not gap at an actual right-angle turn.
+ // Every quad faces UPWARD, unlike the previous backface-culled stone path.
+ materialScope(MATERIAL.ROAD,()=>{
+  for(let i=0;i<sections.length;i++){
+   const s=sections[i];
+   quad(at(s,0,.355,.046),at(s,1,.355,.046),
+    at(s,1,-.355,.046),at(s,0,-.355,.046),
+    clay[(index+i)%clay.length]);
+  }
+ });
  materialScope(MATERIAL.STONE,()=>{
-  for(let n=0;n<courses;n++){
-   // Staggered, individually exposed stones rather than a flat fake road.
-   const a=(n+.045)/courses,b=(n+.96)/courses,
-    offset=(n%3-1)*.044;
-   quad(sample(a,-.31+offset,.068),sample(b,-.31+offset,.068),
-    sample(b,.31+offset,.068),sample(a,.31+offset,.068),
-    flagstone[(index*3+n*7)%flagstone.length]);
-   villageVisualLod.inhabitedFootwaySlabs++;
-   // Small inset border stones bind the walk to the original lane without
-   // placing posts where real citizens can move; never obscure a doorway.
-   if(n%3===1)for(const side of [-1,1]){
-    const inside=side*.36,outside=side*.46;
-    quad(sample(a,inside,.062),sample(b,inside,.062),
-     sample(b,outside,.062),sample(a,outside,.062),edges);
+  for(let sectionIndex=0;sectionIndex<sections.length;sectionIndex++){
+   const s=sections[sectionIndex],
+    count=Math.max(2,Math.round(courses*s.length/total));
+   for(let i=0;i<count;i++){
+    const offset=.034*Math.sin(index*3.7+sectionIndex*11+i*7.1),
+     a=(i+.06)/count,b=(i+.93)/count;
+    quad(at(s,a,.31+offset,.067),at(s,b,.31+offset,.067),
+     at(s,b,-.31+offset,.067),at(s,a,-.31+offset,.067),
+     limestone[(index*3+i*7+sectionIndex*2)%limestone.length]);
+    slabs++;
+    if(i%4===1)for(const side of [-1,1]){
+     const left=Math.max(side*.36,side*.46),
+      right=Math.min(side*.36,side*.46);
+     quad(at(s,a,left,.061),at(s,b,left,.061),
+      at(s,b,right,.061),at(s,a,right,.061),edgeStone);
+    }
    }
   }
  });
- const triangles=(data.length-start)/30;
- if(!Number.isInteger(triangles)||triangles>60||triangles<6||
-  triangles%2!==0)throw Error('W237 inhabited path resource contract');
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles<6||triangles>60||
+  triangles%2!==0)throw Error('W238 bounded original street access');
  villageVisualLod.inhabitedFootwayLots++;
+ villageVisualLod.inhabitedFootwaySlabs+=slabs;
  villageVisualLod.inhabitedFootwayTriangles+=triangles;
+ villageVisualLod.inhabitedFootwayBends+=access.bends;
  return triangles;
 }
 function getInhabitedFootwayAudit(){
@@ -7352,6 +7368,7 @@ function getInhabitedFootwayAudit(){
   reachedRealLane:villageVisualLod.inhabitedFootwayLots,
   stoneCourseSlabs:villageVisualLod.inhabitedFootwaySlabs,
   stoneCourseTriangles:villageVisualLod.inhabitedFootwayTriangles,
+ realCollisionAvoidanceBends:villageVisualLod.inhabitedFootwayBends,
   rejectedOrDistantOriginalLots:villageVisualLod.inhabitedFootwayRejected,
   maxHomes:city.length,originalHousesOnly:true,navigationChanged:false,
   savedWorldChanged:false,createdCitizens:0,inventedGoods:0,
@@ -7618,6 +7635,10 @@ function stationarySceneKey(climate,light){
  (homeClustersEnabled()?'founders:'+stationaryFounders():city.length);
 }
 function resetHomeVisualStats(){
+ // Counters belong to rebuilt retained geometry, not the simulation clock.
+ for(const key of ['inhabitedFootwayLots','inhabitedFootwaySlabs',
+  'inhabitedFootwayTriangles','inhabitedFootwayRejected',
+  'inhabitedFootwayBends'])villageVisualLod[key]=0;
  cottageFacadeStats={homes:0,styles:[0,0,0,0],plasterPanels:0,sideWindows:0,diagonalBraces:0,meshTriangles:0};
  villageVisualLod.detailedHomes=0;villageVisualLod.compactHomes=0;
 villageVisualLod.detailedRoofCourses=0;villageVisualLod.compactRoofCourses=0;
