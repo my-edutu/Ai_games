@@ -22621,8 +22621,14 @@ dynamicPhaseTimes.citizenDetailSelection=performance.now()-citizenDetailStarted;
 // On slow SwiftShader every frame generally advances state and stays fresh.
 // Focus is part of the key because visible physical worksites are selected
 // from the camera's current focus, while near-human LOD follows the viewpoint.
+// W216: A camera-only presentationEpoch bump changes projection/uniforms,
+// but MUST NOT rebuild the entire authoritative-time world/actor vertex mesh.
+// All actual geometry dependencies remain explicit (tick, topology, visible
+// original detail actors, occupation/worksite membership, receipt events).
+// Render-mode overrides and reset separately invalidate cameraDynamicKey.
+// The camera's eye/view matrix is always submitted afresh below, even on reuse.
 const candidateCameraDynamicKey=gpuAvailable?[
- presentationEpoch,state.t,city.length,scenicMeshKey,detailPlan.mode,
+ state.t,city.length,scenicMeshKey,detailPlan.mode,
  [...nearPeople].sort((a,b)=>a-b).join(','),
  [...citizenMidVisualIndices].sort((a,b)=>a-b).join(','),selectedCitizen,
  follow?1:0,visibleActualWorksites().map(w=>w.citizen).join(','),
