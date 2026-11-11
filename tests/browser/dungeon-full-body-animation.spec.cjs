@@ -377,6 +377,8 @@ for(const view of [
      afterFootJointWorld:pair.after.footJointWorld??null,
      beforeSourceSolePatchWorld:pair.before.sourceSolePatchWorld??null,
      afterSourceSolePatchWorld:pair.after.sourceSolePatchWorld??null,
+     beforeOriginalToeAxis:pair.before.sourceSolePatchAnatomy??null,
+     afterOriginalToeAxis:pair.after.sourceSolePatchAnatomy??null,
      contact:measureSourceSolePatchContinuity(pair.before,pair.after,{
       beforeFrame:pair.beforeFrame,afterFrame:pair.afterFrame,
       beforeTick:pair.beforeTick,afterTick:pair.afterTick,visible:true,
@@ -394,6 +396,22 @@ for(const view of [
   const audit=await nativeRigProof(page);
   const actor=audit.actors.find(a=>a.id===sequence.actorId);
   expect(actor?.sourceInstanceId,'the same original GLB clone remains bound').toBeTruthy();
+  // Native 41-joint source contact auditing must use the actual foot->toes
+  // deform-bone hierarchy and immutable inverse binds, not whichever costume
+  // vertex happens to lie farthest to the side. Source anatomy alone does not
+  // establish an actual planted foot or authorize world-space ankle IK.
+  for(const side of ['left','right']){
+   const provenance=actor.sourceSolePatchAnatomy?.[side];
+   expect(provenance?.originalToeAxis?.source,
+    'original source inverse-bind toe-chain must be inspectable for '+side)
+    .toBe('original-foot-to-toes-inverse-bind-axis');
+   expect(provenance.originalToeAxis.sourceBoneSeparation).toBeGreaterThan(.035);
+   expect(provenance.originalToeAxis.sourceBoneSeparation).toBeLessThan(.45);
+   if(provenance.anatomicalHeelToeVerified){
+    expect(provenance.source).toBe('original-foot-to-toes-inverse-bind-axis');
+    expect(provenance.originalToeAxis.selectedAnatomicalPatch).toBe(true);
+   }
+  }
   // On original Idle->Walking_A micro-entry, an authentic 5mm visual root
   // step must NOT drive a second fake native 0.58-weight pelvis/leg stride.
   // The on-demand source rig measures real GLB, never invented authority.
@@ -483,6 +501,7 @@ for(const view of [
   trace.push({tick:snap.tick,floor:snap.floor,sourceId:actor.sourceInstanceId,
    rootWorld:actor.rootWorld,footJointWorld:actor.footJointWorld,
    soleVertexWorld:actor.soleVertexWorld,sourceSolePatchWorld:actor.sourceSolePatchWorld,
+   sourceSolePatchAnatomy:actor.sourceSolePatchAnatomy,
    sourceWeaponGrip:actor.sourceWeaponGrip,
    sourceClip:actor.sourceClock,footPhase:actor.groundedFootPhase,
    nativeLegOwnership:actor.nativeLegOwnership,
