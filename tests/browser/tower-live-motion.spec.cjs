@@ -524,6 +524,20 @@ for (const viewport of viewports) {
   // current browser state once more before closing the capture window;
   // never infer wall time from the video file or synthesize a source tick.
   await sample(lastSampleIndex + 1);
+  // Read the genuine current browser's accepted-source and completed
+  // WebGL submission phase edges BEFORE stopping the original native film.
+  // Frozen baseline has no such module; keep missing evidence NOT EVALUATED.
+  // These are passive application timestamps, NOT pixels or GPU completion.
+  const sourceToPresentationTrace = await page.evaluate(() => {
+    const evidence = window.__TOWER_RENDER_DIAGNOSTICS__?.().renderProgress;
+    return {
+      status: Array.isArray(evidence?.sourceTransitions) ?
+        'BROWSER_AND_RENDERER_RETURN_ONLY' : 'NOT EVALUATED',
+      observed: Array.isArray(evidence?.sourceTransitions) ?
+        evidence.sourceTransitions : [],
+      interpretation: 'Browser-accepted authentic source phase and returned Three.js render call. Never equate renderer return with original WebM frame, gateway contact or GPU presentation.',
+    };
+  });
   const passiveSourceTicks = await page.evaluate(() => {
     clearInterval(window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__);
     return {ticks:[...(window.__TOWER_CAPTURE_PUBLIC_TICKS__||[])],
@@ -774,6 +788,7 @@ for (const viewport of viewports) {
       atMs:observations[0]?.atMs??null,
       timing: 'first browser-observed live source frame, NOT calibrated native WebM zero' },
     capturedAt: new Date().toISOString(), observations, assessment,
+    sourceToPresentationTrace,
     sourcePhaseSummary, sourceMovingSummary, outcomeWitness,
     eventIndexSummary: {sourceTicksObserved:eventIndex.sourceTicksObserved,
       sourceUnobservedTicks:eventIndex.unobservedFixedStepTicks,
