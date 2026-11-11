@@ -101,6 +101,9 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   audio.videoTracks===0&&audio.audioTracks===1&&
   Number.isSafeInteger(audio.bytes)&&audio.bytes>1024&&audio.bytes<=MAX_ISOLATED_AUDIO_BYTES&&
   Number.isFinite(audio.recordingMs)&&audio.recordingMs>=1000&&audio.recordingMs<=15500;
+ const trackDiagnosis=classifyCanvasTrackDelivery({delivery:trackDelivery,
+  encodedBytes:isolated.videoOnly?.bytes??0,
+  submittedFrames:clip.framePump?.observedFrameAdvances??0});
  const encoderDiagnosis=isolatedVideoRecorded&&isolatedAudioRecorded?
   'SEPARATE_TRACKS_RECORDED_UNALIGNED':
   !isolatedVideoRecorded&&isolatedNativeVideoRecorded&&isolatedAudioRecorded?
@@ -111,7 +114,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -170,7 +173,8 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
   }
  }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames??null,assessment,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames??null,
+  trackDelivery:raw.trackDelivery??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
    ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{})},
