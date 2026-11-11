@@ -25,7 +25,7 @@ const sword=(id='vanguard',overrides={})=>({
  verified:true,actorId:id,targetId:null,priority:4,severity:.5,...overrides
 });
 const injury=(id='revenant',fatal=false,overrides={})=>({
- id:'1:1:7:damage:-:'+id,sceneKey:'1:1',tick:7,
+ id:'1:1:7:'+(fatal?'damage-fatal':'damage')+':-:'+id,sceneKey:'1:1',tick:7,
  kind:fatal?'damage-fatal':'damage',
  visual:'hit',audio:fatal?'fatal-impact':'impact',
  proof:'observed-hp-drop',verified:true,actorId:null,targetId:id,
