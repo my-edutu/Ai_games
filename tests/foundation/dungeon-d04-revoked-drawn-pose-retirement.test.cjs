@@ -31,7 +31,7 @@ async function attempt(kind){
  try{
   assert.equal(feedback.enableAudioFromGesture(),true);
   feedback.acceptSnapshot(snapshot(10,'idle',30,kind==='hurt'?'revenant':null));
-  feedback.acceptSnapshot(snapshot(11,kind));
+  feedback.acceptSnapshot(snapshot(11,kind,kind==='hurt'?20:30));
   feedback.advance(.016,.016);
   assert.ok(retained.size>0,'genuine public transition must stage a visual');
   const previous=[...retained];
