@@ -2167,44 +2167,37 @@ export function createMazeWorld(options = {}) {
       jaw.name = 'Disclosed tide-shear hinged jaw ' + c.cell + ' ' + side;
       jaw.position.set(side * .68, .12, 0);
       p.add(jaw);
+      // Pass259 original full-frame 320/390px criticism: the prior THIRTEEN
+      // tiny overlapping red shards read as a ruin pile, not a paired
+      // mechanical shear. Reconstruct EACH existing rooted jaw into one
+      // coherent broad IVORY cutting face, a continuous dark bronze load
+      // spine, a single narrow coral contact edge and a hooked mineral tip.
+      // Both faces remain children of their REAL pressure hinge and rotate
+      // only on its already-published contact clock. No extra trigger, hint,
+      // route, damage, AI, collision or material/geometry class is created.
+      // The reduced count is deliberate: silhouette and causality over clutter.
       mesh(jaw, cylinder, darkMetal, 0, .03, 0, .14, .24, .14);
-      mesh(jaw, bevel, side < 0 ? seaGlass : jade,
-        -side * .12, .34, 0, .47, .62, .67);
-      mesh(jaw, bevel, lightStone, -side * .12, .68, 0, .52, .12, .76);
-      mesh(jaw, bevel, danger, -side * .14, .36, .344, .23, .39, .075);
-      mesh(jaw, cone, gold, -side * .12, .83, 0, .12, .23, .12);
-      // Pass220 actual 320/390/1280 WebGL critique: thin red posts and
-      // scattered metal bars still resemble ruin trim, not an unmistakable
-      // paired shear. Rebuild the TWO existing moving jaws as coherent
-      // bronze-rooted, ivory-faced hooked talons with broad warm danger
-      // inlays. The original public pressure hinge remains the ONLY driver.
-      // Every tip turns with its actual jaw, folds outward, and stays inward
-      // of its original cell-margin pivot; there is no extra threat, damage,
-      // collision, AI instruction or newly disclosed path. Shared pooled
-      // geometry/materials keep the six-reset resource gate unchanged.
-      const vane = mesh(jaw, bevel, danger,
-        -side * .21, 1.12, .26, .37, .76, .24, 0, 0, side * .13);
-      vane.name = 'Published tide-shear warning vane';
-      mesh(jaw, bevel, lightStone,
-        -side * .27, 1.46, .36, .35, .12, .27);
-      const fang = mesh(jaw, cone, amber,
-        -side * .25, 1.76, .30, .18, .39, .18, 0, 0, side * .15);
-      fang.name = 'Published tide-shear warning fang';
-      // Continuous diagonal bronze shoulder: a real supporting arm joins
-      // the ground hinge to its broad ivory blade rather than leaving a
-      // floating spike. It remains fixed to the same joint at every phase.
+      mesh(jaw, bevel, deepStone,
+        -side * .10, .34, 0, .54, .58, .60);
       const forearm = mesh(jaw, bevel, darkMetal,
-        -side * .36, .64, .45, .66, .23, .25, 0, 0, -side * .31);
+        -side * .27, .65, .25, .58, .27, .32, 0, 0, -side * .23);
       forearm.name = 'Published tide-shear inward brace';
+      const vane = mesh(jaw, bevel, side < 0 ? seaGlass : jade,
+        -side * .23, .93, .22, .40, .95, .25, 0, 0, side * .13);
+      vane.name = 'Published tide-shear warning vane';
       const blade = mesh(jaw, bevel, lightStone,
-        -side * .47, 1.06, .48, .36, .87, .23, 0, 0, side * .20);
+        -side * .30, 1.07, .43, .54, 1.12, .29, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .47, 1.09, .61, .19, .67, .07, 0, 0, side * .20);
+        -side * .30, 1.07, .605, .13, .91, .06, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
-      mesh(jaw, bevel, gold, -side * .47, 1.50, .50, .28, .09, .23);
+      mesh(jaw, bevel, gold,
+        -side * .30, .55, .63, .42, .10, .10);
+      const fang = mesh(jaw, cone, gold,
+        -side * .32, 1.70, .40, .16, .24, .16, 0, 0, -side * .20);
+      fang.name = 'Published tide-shear warning fang';
       const hookedTip = mesh(jaw, cone, amber,
-        -side * .50, 1.66, .55, .17, .34, .18, 0, 0, -side * .32);
+        -side * .35, 1.64, .57, .19, .31, .19, 0, 0, -side * .28);
       hookedTip.name = 'Published tide-shear hooked ceramic talon';
       trapJaws.push({object: jaw, side, cell: c.cell, x: p.position.x, z: p.position.z});
     }

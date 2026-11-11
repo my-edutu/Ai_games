@@ -78,3 +78,44 @@ test('a real published pressure stroke turns one connected physical tideglass ar
       assert.equal(world.stats()[k],0,'fully release: '+k);
   }
 });
+
+test('Pass259 pairs two broad connected ivory shears instead of a heap of red trim',async()=>{
+  const {createMazeWorld}=await mod;
+  const {Box3,Vector3}=await import(three);
+  const world=createMazeWorld({balanced:true}),initial=world.stats(),source=JSON.stringify(published);
+  try {
+    world.update(published);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 24');
+    const origin=trap.getWorldPosition(new Vector3());
+    const jaws=[-1,1].map(side=>trap.getObjectByName('Disclosed tide-shear hinged jaw 24 '+side));
+    assert.equal(jaws.length,2);
+    for(const jaw of jaws){
+      assert.ok(jaw?.isGroup,'the source-visible two-sided pressure mechanism exists');
+      const blade=jaw.getObjectByName('Published tide-shear front blade');
+      const inlay=jaw.getObjectByName('Published tide-shear forward danger inlay');
+      const spine=jaw.getObjectByName('Published tide-shear inward brace');
+      assert.ok(blade?.isMesh&&inlay?.isMesh&&spine?.isMesh);
+      assert.equal(blade.parent,jaw,'no detached floating teeth');
+      assert.ok(blade.scale.y>=1.10&&inlay.scale.y>=.90,
+        'both cutting faces must be broad, readable physical actor-scale forms');
+      assert.ok(jaw.children.filter(child=>child.isMesh).length<=9,
+        'old decorative clutter must be replaced, not layered under more models');
+    }
+    const far=new Vector3(origin.x+25,0,origin.z+25),contact=new Vector3(origin.x,0,origin.z);
+    for(const [time,position] of [[1,far],[2,contact],[3.4,contact],[4,far]]){
+      world.animate(time,{explorerPosition:position,reducedMotion:false});
+      trap.updateMatrixWorld(true);
+      for(const jaw of jaws){
+        const bounds=new Box3().setFromObject(jaw);
+        assert.ok(bounds.min.x>origin.x-1.2&&bounds.max.x<origin.x+1.2
+          &&bounds.min.z>origin.z-1.2&&bounds.max.z<origin.z+1.2,
+          'complete live cutting face stays within the public tile at t='+time);
+      }
+      if(time===3.4) assert.ok(jaws[1].rotation.z>.60&&jaws[0].rotation.z<-.60,
+        'both real jaw hinges shear inward on the existing source pressure stroke');
+    }
+    assert.equal(JSON.stringify(published),source,'no private world-state changes');
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],initial[key],key+' must stay in the pooled strict budget');
+  }finally {world.dispose();}
+});

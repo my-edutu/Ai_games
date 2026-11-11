@@ -1,0 +1,15 @@
+# Pass259 — paired pressure-shear silhouette rebuilt from actual 320px source-bound gameplay (2026-11-11 UTC)
+
+## Accepted predecessor; REJECTED official reference parity
+
+Exact PR HEAD `59e1641141765e2a3d09326966d6fbc0b66a3856` completed [native Maze WebGL workflow 42941865578](https://github.com/my-edutu/Ai_games/actions/runs/42941865578) **SUCCESS**, including unchanged strict six-run geometry/reset and browser framing. Retrieved original [artifact 13821615594](https://github.com/my-edutu/Ai_games/actions/runs/42941865578/artifacts/13821615594), independently recalculated **37/37 full PNG/JSON SHA-256 matches**, with two additional gate images in the original manifest. Original unaltered 320×740 withdrawal image captured **2026-11-11T01:56:29.738Z**, PNG SHA-256 `3e5f8c73ea8769d37dfc03fefc571c8b2c52c2431a362deb08f95b87ce6d4f61`. Its actual complete pressure machinery measured NDC [-.926118,-.058930] and Pip [.344646,.943882], both inside the unchanged ±.95 physical-model gate; the original >.70 pressure jaw action span also remains. 390px frame and guardian/key/gate sequences captured.
+
+The *visual* critic still REJECTS [official Nintendo Captain Toad gameplay](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/): despite the rooted counterbalance and correct framing, the true moving pressure jaw reads as a pile of many red/ivory spikes, not two coherent opposing cutting faces. The pronounced adjacent masonry further competes with the miniature's focal action. Test success is not artistic approval.
+
+## One substantial original production intervention
+
+Reconstruct BOTH actual pressure hinges from 13 overlapping small fragments per side into **nine connected, intentional physical meshes per side**: a large continuous cream ceramic shear face (1.12 world-height), matching tall coral cutting edge, dark bronze load-bearing strut, sea-glass/jade rear vane and paired mineral hooked tip. No new GPU shape/material class or per-frame allocations; the same published pressure-clock drives both true hinge rotations. Cell footprint and meaningful inward contact/retraction are required to pass actual installed-Three source tests. This is a character-scale 3D mechanical reconstruction, not an extra icon, HUD paragraph, fake trigger, private-cell map or cosmetic isolated spike.
+
+## New-source acceptance (OPEN)
+
+The new code, existing strict <100 six-run resource budget, unaltered ±.95 NDC mobile silhouette / >=.70 pressure-action gate, all 320/390/844/1280 WebGL captures, full-time movement and independently evaluated official Nintendo comparison MUST be judged against a new exact code HEAD. **No visual pass or overall benchmark win is claimed for the unrendered candidate.** Fresh-context worker/Ultracode tunnel still returns `NOT_FOUND`; no independent blind critic. The standing full-repository CI has an unrelated Tiny Kingdom script blocker. Keep Draft PR #53 open; NEVER merge/deploy/force-push.
