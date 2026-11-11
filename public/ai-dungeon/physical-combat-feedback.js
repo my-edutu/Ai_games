@@ -27,7 +27,11 @@ export function createPhysicalCombatFeedback({
  THREE=null,scene=null,ctx=null,actorById=()=>null,
  storage=null,reducedMotion=false,reducedFlash=false,
  resolveContact=()=>null,deriveDamageBeats=null,verifiedMeleeDelay=null,
- visualAdapter=null,audioAdapter=null,requirePresentedFrame=false
+ visualAdapter=null,audioAdapter=null,requirePresentedFrame=false,
+ // Monotonic seconds are used only to distinguish a freshly observed public
+ // action from the raw interval of the frame that PRECEDED that action.
+ clock=()=>typeof performance!=='undefined'&&typeof performance.now==='function'
+  ?performance.now()/1000:null
 }={}){
  let previous=null;
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
@@ -54,6 +58,14 @@ export function createPhysicalCombatFeedback({
  const recentStringFrameIds=new Set();
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  function safeCall(fn){try{return fn()}catch{adapterFailures++;return null}}
+ function observedWallClock(){
+  // No guess if the browser clock is missing, nonmonotonic or invalid.
+  // The uncorrected raw frame age then keeps the existing fail-closed gate.
+  try{
+   const seconds=clock();
+   return Number.isFinite(seconds)&&seconds>=0?seconds:null;
+  }catch{return null}
+ }
  // Preserve the requested envelope in receipts even when the D04
  // submitted-frame clock must stage the action at its first drawable frame.
  // A real Warden cast emits its opening on the SAME authority tick: deferring
@@ -349,6 +361,11 @@ export function createPhysicalCombatFeedback({
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
     pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
+    // A 19-second renderer interval may PRECEDE a just-observed HP transition.
+    // Keep the actual observation clock until the next advance, not the old
+    // frame's beginning. Never use this as a substitute for WebGL receipts.
+    queuedWallAt:requirePresentedFrame?observedWallClock():null,
+    freshlyObserved:requirePresentedFrame,
     audioEpoch:optedIn&&audioReady()?audioEpoch:null});queued++;
   }
   // In the submission-gated D04 preview, a zero-delay HP injury may arrive
@@ -370,6 +387,19 @@ export function createPhysicalCombatFeedback({
   if(unverifiedFrameInterval)invalidFrameIntervals++;
   observedSeconds+=unverifiedFrameInterval?
    MAX_AUDIO_VISUAL_STALENESS_SECONDS+.01:Math.min(actualFrameSeconds,3600);
+  if(requirePresentedFrame){
+   const wallNow=observedWallClock();
+   for(const item of pending){
+    if(!item.freshlyObserved)continue;
+    item.freshlyObserved=false;
+    if(wallNow!==null&&item.queuedWallAt!==null&&wallNow>=item.queuedWallAt)
+     // The frame interval is measured from the previous rAF, not the
+     // arrival of THIS snapshot. Preserve actual elapsed wall age, while
+     // older cues still expire normally. A slow render AFTER this point
+     // is independently rejected by acknowledgePresentedFrame().
+     item.queuedAt=observedSeconds-(wallNow-item.queuedWallAt);
+   }
+  }
   const before=pending.length;
   // First expire retained art against the actual browser interval. A cue
   // that becomes due THIS frame has not survived that interval yet; it must
