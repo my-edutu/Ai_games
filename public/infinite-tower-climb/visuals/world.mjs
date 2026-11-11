@@ -772,6 +772,36 @@ export function createTowerWorld(){
     instanced(root,sphere(),materials.gateTrim,studs);
     return root;
   }
+// Original clockwork load-bearing open gallery: pure deterministic geometry
+// inputs, no modification to authority, hitboxes, route or other four biomes.
+export function clockworkOpenPressureRibs(height) {
+  if(!Number.isFinite(height)||height<=30)return [];
+  const bottom=9,top=height+10,ribs=[];
+  for(let index=0;index<8;index++){
+    const angle=(index+.5)*Math.PI/4;
+    const near=Math.cos(angle-.30)>Math.cos(1.07);
+    const end=near?Math.min(12.2,top):top;
+    ribs.push({p:[Math.sin(angle)*10.7,(bottom+end)/2,
+      Math.cos(angle)*10.7],s:[near?.42:.38,end-bottom,near?.42:.38],
+      near,upperEnd:end});
+  }
+  return ribs;
+}
+export function clockworkOpenGeologicalTies(height,width,depth,localY) {
+  if(![height,width,depth,localY].every(Number.isFinite)||
+     height<=30||width<=0||depth<=0)return [];
+  const lower=-17,frontTop=10.7,rearTop=height+15,stays=[];
+  for(const side of [-1,1]){
+    // Rear structure reaches BOTH stone masses; near structure stops below
+    // the actual guardian altitude instead of bisecting the hero in portrait.
+    stays.push({p:[side*width*.34,(lower+rearTop)/2-localY,-depth*.31],
+      s:[.43,rearTop-lower,.43],near:false,upperEnd:rearTop});
+    stays.push({p:[side*width*.34,(lower+frontTop)/2-localY,depth*.24],
+      s:[.48,frontTop-lower,.48],near:true,upperEnd:frontTop});
+  }
+  return stays;
+}
+
   function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
@@ -794,15 +824,12 @@ export function createTowerWorld(){
       const well=new THREE.Group();
       well.name='ClockworkOpenCentralPressureWell';
       well.position.z=-3;root.add(well);
-      const openingBottom=9,openingTop=height+10,opening=openingTop-openingBottom;
-      const ribs=[];
-      for(let i=0;i<8;i++){
-        // Half-sector phase leaves real two-metre-class apertures on the
-        // north/south and east/west actor sightlines; ribbing is not a shader.
-        const a=(i+.5)*TAU/8;
-        ribs.push({p:[Math.sin(a)*10.7,(openingBottom+openingTop)/2,
-          Math.cos(a)*10.7],s:[.42,opening,.42]});
-      }
+      
+      // Native source ray-witnesses identify this wall of eight high ribs as an
+      // actual screen-space obstruction during the floor-eight guardian.
+      // Keep five tall rear stays connected to the crown; replace the three
+      // near-side complete columns with short grounded service stanchions.
+      const ribs=clockworkOpenPressureRibs(height);
       const uprights=instanced(well,bevel(),materials.metal,ribs);
       uprights.name='ClockworkPressureWellEightLoadRibs';
       uprights.userData.structural=true;
@@ -855,10 +882,13 @@ export function createTowerWorld(){
         const uprights=[];
         for(const sideX of [-1,1])for(const sideZ of [-1,1]){
           const top=sideZ>0?nearPostTop:crown;
+          // Full rear load-bearing piers survive, but their narrow metal
+          // upper profile no longer forms large repetitive foreground slabs.
+          const section=sideZ>0?.52:.34;
           uprights.push({p:[sideX*corner,(openBase+top)/2,sideZ*corner],
-            s:[.58,top-openBase,.58]});
+            s:[section,top-openBase,section]});
         }
-        const posts=instanced(body,bevel(),materials.stone,uprights);
+      const posts=instanced(body,bevel(),materials.stone,uprights);
         posts.name='ClockworkOpenButtressFourCornerPosts';
         posts.userData.structural=true;
         // A cantilevered crown is carried by the two rear stone piers and
@@ -940,11 +970,13 @@ export function createTowerWorld(){
           [0,height+15-y,0],[w*.8,6,d*.78]);
         headMass.name='ClockworkOpenGeologyRoofMass';
         headMass.userData.structural=true;
-        const shoulderTies=instanced(rock,bevel(),materials.metal,[
-          {p:[-w*.34,(height-2)/2-y,d*.24],s:[.54,height+32,.54]},
-          {p:[ w*.34,(height-2)/2-y,d*.24],s:[.54,height+32,.54]},
-        ]);
-        shoulderTies.name='ClockworkOpenGeologicalSupportTies';
+        // Replace two tall near-camera geological rails with two real rear
+        // crown-bearing stays plus two short foreground base stanchions.
+        // All four retain foundations; the center combat-height gap is
+        // physically open without transparency or artificial victory.
+        const shoulderTies=instanced(rock,bevel(),materials.metal,
+          clockworkOpenGeologicalTies(height,w,d,y));
+      shoulderTies.name='ClockworkOpenGeologicalSupportTies';
         shoulderTies.userData.structural=true;
       } else {
         mesh(rock,fracturedMass(v),materials.stone,[0,0,0],[w,h,d])

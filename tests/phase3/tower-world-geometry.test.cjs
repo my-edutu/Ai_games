@@ -364,3 +364,40 @@ test('disposing a pending stone request aborts it before decoding', async () => 
   assert.equal(decoded, false);
   assert.equal(asset.texture.version, 0);
 });
+
+test('source-attributed clockwork guardian gallery opens real upper-air gaps while keeping crown supports', async () => {
+  const [THREE, { createTowerWorld, clockworkOpenPressureRibs,
+    clockworkOpenGeologicalTies }] = await loaded;
+  const height=49,pressure=clockworkOpenPressureRibs(height);
+  assert.equal(pressure.length,8);
+  const front=pressure.filter(rib=>rib.near),rear=pressure.filter(rib=>!rib.near);
+  assert.equal(front.length,3,'three near-sector pillars should end before live guardian height');
+  assert.equal(rear.length,5,'five full-height rear load paths must remain');
+  assert.ok(front.every(rib=>rib.upperEnd<=12.2&&rib.s[1]>2.5));
+  assert.ok(rear.every(rib=>rib.upperEnd===height+10&&rib.s[1]>40));
+  for(const width of [5.8,6.4,13]){
+    const ties=clockworkOpenGeologicalTies(height,width,6.4,-7);
+    assert.equal(ties.length,4,'each bay has two roof stays and two base plinths');
+    assert.equal(ties.filter(v=>v.near).length,2);
+    assert.ok(ties.filter(v=>v.near).every(v=>v.upperEnd<11));
+    assert.ok(ties.filter(v=>!v.near).every(v=>v.upperEnd===height+15));
+    for(const support of ties){
+      assert.ok(support.p.every(Number.isFinite)&&support.s.every(Number.isFinite));
+      assert.ok(support.s[1]>25,'no unsupported free-floating half-beam');
+    }
+  }
+  const world=createTowerWorld();
+  try{
+    const input=fixture('clockwork',8,false);
+    const before=JSON.stringify(input);
+    world.update(input,.016,0,{quality:'low'});
+    const cost=world.diagnostics();
+    assert.ok(cost.meshes+cost.shadowCasterMeshes<=100,
+      'clockwork reconstruction must fit the existing real scene budget');
+    assert.equal(JSON.stringify(input),before,'no source state mutation');
+    world.update(fixture('void',9,false),.016,1,{quality:'low'});
+    const after=world.diagnostics();
+    assert.ok(after.meshes+after.shadowCasterMeshes<=100,
+      'clockwork gallery must retire on floor nine');
+  } finally{world.dispose();}
+});
