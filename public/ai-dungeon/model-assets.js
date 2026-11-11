@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1761,6 +1761,50 @@ function sourceSoleVertexCandidates(actor){
  * orientation does NOT by itself verify anatomical heel/toe or true plants.
  * No new geometry, rig, IK or per-frame work.
  */
+/**
+ * Anatomical source-toe heading from immutable ORIGINAL GLB bind matrices,
+ * never root yaw, costume extrema, stale action labels or synthetic IK.
+ * The skin's footl/footr must be the actual parent of toesl/toesr. Convert
+ * both native inverse-bind origins to SAME source skinned mesh geometry space
+ * before asking for heel/toe; invalid binding silently retains untrusted
+ * original extrema without certifying anatomy.
+ * Computed only on explicit inspection, once per original source clone.
+ */
+function sourceOriginalToeBindAxis(mesh,side){
+ const skeleton=mesh?.skeleton;
+ if(!skeleton||!['left','right'].includes(side)||!mesh.bindMatrix?.isMatrix4)return null;
+ const names=side==='left'?['footl','toesl']:['footr','toesr'];
+ const matches=(bone,name)=>bone?.isBone&&
+  bone.name.toLowerCase().replace(/[._-]/g,'')===name;
+ const footIndex=skeleton.bones.findIndex(b=>matches(b,names[0]));
+ const toeIndex=skeleton.bones.findIndex(b=>matches(b,names[1]));
+ if(footIndex<0||toeIndex<0||footIndex===toeIndex)return null;
+ const foot=skeleton.bones[footIndex],toe=skeleton.bones[toeIndex];
+ let attached=false,parent=toe.parent;
+ for(let depth=0;parent&&depth<12;depth++,parent=parent.parent){
+  if(parent===foot){attached=true;break;}
+ }
+ if(!attached)return null;
+ const inverseMesh=mesh.bindMatrix.clone();
+ if(!inverseMesh.elements.every(Number.isFinite)||
+  !Number.isFinite(inverseMesh.determinant())||
+  Math.abs(inverseMesh.determinant())<1e-10)return null;
+ inverseMesh.invert();
+ const bindPoint=index=>{
+  const inverse=skeleton.boneInverses?.[index];
+  if(!inverse?.isMatrix4||!inverse.elements.every(Number.isFinite)||
+   !Number.isFinite(inverse.determinant())||
+   Math.abs(inverse.determinant())<1e-10)return null;
+  const location=new THREE.Vector3().setFromMatrixPosition(inverse.clone().invert())
+   .applyMatrix4(inverseMesh);
+  return [location.x,location.y,location.z].every(Number.isFinite)?
+   location.toArray():null;
+ };
+ return planOriginalSourceToeBindAxis({
+  footBind:bindPoint(footIndex),toesBind:bindPoint(toeIndex),
+  originalFootChain:true,source:'original-skeleton-inverse-bind'
+ });
+}
 function sourceSolePatchVertexCandidates(actor){
  let cached=sourceSolePatchVertexCache.get(actor.assetRoot);
  if(cached)return cached;
@@ -1788,8 +1832,24 @@ function sourceSolePatchVertexCandidates(actor){
    if(score<.55)continue;
    candidates.push({mesh,index:v,bindY:y,weight:score,x,z});
   }
-  const selected=selectOriginalOutsolePatchVertices(candidates,anchor.bindY);
-  if(selected)cached[side]={heel:selected.heel,toe:selected.toe};
+  const sourceAxis=sourceOriginalToeBindAxis(mesh,side);
+  const anatomical=sourceAxis?
+   selectOriginalOutsolePatchVertices(candidates,anchor.bindY,sourceAxis):null;
+  const selected=anatomical||
+   selectOriginalOutsolePatchVertices(candidates,anchor.bindY);
+  if(selected)cached[side]={
+   heel:selected.heel,toe:selected.toe,
+   source:selected.source,
+   anatomicalHeelToeVerified:Boolean(anatomical),
+   sourceToeAxis:sourceAxis?{
+    source:sourceAxis.source,
+    forward:[sourceAxis.forwardX,sourceAxis.forwardZ],
+    footBind:[sourceAxis.footX,sourceAxis.footZ],
+    toesBind:[sourceAxis.toeX,sourceAxis.toeZ],
+    sourceBoneSeparation:sourceAxis.sourceBoneSeparation,
+    selectedAnatomicalPatch:Boolean(anatomical)
+   }:null
+  };
  }
  sourceSolePatchVertexCache.set(actor.assetRoot,cached);
  return cached;
@@ -1922,6 +1982,13 @@ function inspectSourceRigDeformation(actors){
    return [side,pair?{heel:sourceSkinnedSoleWorld(pair.heel),
     toe:sourceSkinnedSoleWorld(pair.toe)}:null];
   }));
+  const sourceSolePatchAnatomy=Object.fromEntries(['left','right'].map(side=>{
+   const pair=patchCandidates[side];
+   return [side,pair?{
+    source:pair.source,anatomicalHeelToeVerified:pair.anatomicalHeelToeVerified,
+    originalToeAxis:pair.sourceToeAxis
+   }:null];
+  }));
   const sourceWeaponGrip=sourceWeaponHandGrip(actor,hands.right);
   const rootWorld=worldJoint(actor.root);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
@@ -1959,7 +2026,7 @@ function inspectSourceRigDeformation(actors){
    rootYaw:Number.isFinite(actor.root?.rotation?.y)?actor.root.rotation.y:null,
    footJointWorld,
    sourceGroundAnchor:actor.sourceGroundAnchor??null,
-   soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceWeaponGrip:sourceWeaponGrip,
+   soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceSolePatchAnatomy,sourceWeaponGrip:sourceWeaponGrip,
    // Real source AnimationAction clock captured only when the explicit
    // original-rig inspector is called. Live rendering never skin-scans.
    // This is required to match imported clips/phase across real sole frames.
