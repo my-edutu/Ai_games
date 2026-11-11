@@ -1633,11 +1633,15 @@ function composeFollowView(snapshot, hero, aspect, orbit = 0, zoom = 1, previous
       !view.guardianFramed || view.heroFraction < .15)
       ? -1000 + view.heroFraction
       : 150 + (view.gateFramed ? liveLockPriority.frameBonus : 0) +
-        (view.relayFramed ? 6 : 0) +
+        // The source-hoisted guardian clutch must not steal portrait framing.
+        // True hero/boss crop, warning lane, exterior core, and authentic
+        // touchdown stay mandatory; bronze HP hardware is only context.
+        (view.relayFramed ? (aspect < .85 ? 1.5 : 3) : 0) +
         // Damage must read as a connected battle-to-gate mechanism on a
         // phone; prefer the first true power-spine clutch only among shots
         // with both real actors, exterior clearance and readable hero scale.
-        (guardianCircuitSource?.openedFraction > 0 && view.powerSpineFramed ? 5 : 0) +
+        (guardianCircuitSource?.openedFraction > 0 && view.powerSpineFramed
+          ? (aspect < .85 ? 1.5 : 3) : 0) +
         // Prioritize the actual warning lane while real contact is imminent,
         // never at the expense of a cropped actor or hidden guardian.
         (view.shotFramed ? 11 : 0) +
