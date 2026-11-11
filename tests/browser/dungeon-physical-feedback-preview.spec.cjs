@@ -335,8 +335,8 @@ async function beginD04LiveAVCapture(page){
    const samples=[];
    const beganAt=performance.now();
    try{
-    const stream=mirror.captureStream(0);
-    track=stream.getVideoTracks()[0];
+    const readbackStream=mirror.captureStream(0);
+    track=readbackStream.getVideoTracks()[0];
     if(!track||typeof track.requestFrame!=='function')
      return {source,phase,primaryRecordersSettled,status:'UNAVAILABLE',
       reason:'2D readback track does not support authenticated requestFrame'};
