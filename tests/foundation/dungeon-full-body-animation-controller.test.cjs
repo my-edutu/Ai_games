@@ -2391,3 +2391,42 @@ test('actual applied licensed swing ankle must prove upward weighted toe without
  assert.match(renderer,/confirmOriginalSourceSwingToeLift\(/);
  assert.match(renderer,/sourceSwingToeLiftProof/);
 });
+
+
+test('original swing calf chain assists only anatomically verified airborne toe drag beyond proven ankle clearance',async()=>{
+ const {planOriginalSourceSwingCalfAssist:plan}=await load();
+ assert.equal(typeof plan,'function','source-legged knee bend must have a fail-closed real-sole contract');
+ const measured={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:.75,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.046,frameAge:.055,floorTopY:-.02,
+  afterAnkleToeY:-.1033,afterAnkleHeelY:.0861,ankleLiftMeters:.0099,
+  trialCalfToeY:-.0813,trialCalfHeelY:.078,trialAngleRad:-.1,
+  previousAssistRad:0
+ };
+ const candidate=plan(measured);
+ assert.ok(candidate<-.006&&candidate>=-.061,
+  'native calf helps truly airborne original foot without snapping more than .06rad');
+ assert.equal(plan({...measured,sourceWeight:.5}),0,
+  'barely entered source crossfade cannot drive a knee bend');
+ assert.ok(Math.abs(plan({...measured,sourceWeight:1}))>=Math.abs(candidate),
+  'the action owner must scale the skinned calf rather than stealing idle bones');
+ for(const change of [
+  {mode:'idle'},{sourceClipName:'Idle'},{sourceAnatomyVerified:false},
+  {sourceLegChainVerified:false},{ownerLocomotion:false},{alive:false},
+  {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0},{rootTravel:.3},{frameAge:.181},
+  {afterAnkleToeY:-.045},{afterAnkleHeelY:-.019},
+  {ankleLiftMeters:0},{trialCalfToeY:-.106},
+  {trialCalfHeelY:-.02},{trialAngleRad:.4},
+  {sourceWeight:.49},{sourceWeight:NaN},
+  {previousAssistRad:.4},{trialCalfToeY:Infinity}
+ ])assert.equal(plan({...measured,...change}),0,
+  'original source calf cannot invent body support: '+JSON.stringify(change));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceSwingCalfAssist\(/,
+  'renderer must consume the validated calf support plan on original source joints');
+ assert.match(renderer,/sourceSwingCalfAssistProof/,
+  'only genuine post-mixer foot movement can witness native calf assistance');
+});
