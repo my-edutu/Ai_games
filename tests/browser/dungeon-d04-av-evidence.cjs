@@ -269,7 +269,36 @@ function classifyCompositorWitness(witness={}){
   'COMPOSITOR_WORLD_STILLS_STATIC_UNVERIFIED';
 }
 
-function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={}}={}){
+
+/**
+ * The real serial WebGL recorder can emit valid VP8 WebM bytes with only
+ * ONE decodable frame. ffmpeg's bounded, decoded first-64-frame thumbnail
+ * hashes provide a strictly stronger motion gate than MediaRecorder bytes.
+ * Even two distinct decoded frames remain UNALIGNED with earlier audio.
+ */
+function classifyDecodedSerialGameplay({video={},decoder={}}={}){
+ const authentic=video.source==='real-webgl-canvas-serial-video-only'&&
+  video.phase==='after-all-primary-encoders-settled'&&
+  video.primaryRecordersSettled===true&&video.status==='RECORDED'&&
+  video.videoTracks===1&&video.audioTracks===0&&
+  /^video\/webm(?:;|$)/i.test(video.mimeType||'')&&
+  Number.isSafeInteger(video.bytes)&&video.bytes>1024&&video.bytes<=MAX_CLIP_BYTES;
+ const valid=decoder.source==='ffmpeg-decoded-real-webgl-serial-video'&&
+  decoder.method==='framemd5-24x16-first-64'&&
+  decoder.status==='DECODED'&&decoder.codec==='vp8'&&
+  Number.isSafeInteger(decoder.frameCount)&&decoder.frameCount>=1&&decoder.frameCount<=64&&
+  Number.isSafeInteger(decoder.distinctFrames)&&decoder.distinctFrames>=1&&
+  decoder.distinctFrames<=decoder.frameCount&&
+  Array.isArray(decoder.hashes)&&decoder.hashes.length===decoder.frameCount&&
+  decoder.hashes.every(h=>typeof h==='string'&&/^[0-9a-f]{32}$/.test(h))&&
+  new Set(decoder.hashes).size===decoder.distinctFrames;
+ if(!authentic||!valid)return 'SERIAL_REAL_WEBGL_MOTION_UNVERIFIED';
+ return decoder.frameCount>=2&&decoder.distinctFrames>=2?
+  'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED':
+  'SERIAL_REAL_WEBGL_ONE_OR_STATIC_FRAME_UNVERIFIED';
+}
+
+function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={},decoder={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
   clip.source==='real-canvas-plus-opted-in-soundstage'&&
@@ -324,6 +353,9 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   Number.isSafeInteger(serialPump.receiptStart)&&serialPump.receiptStart>=0&&
   Number.isSafeInteger(serialPump.receiptEnd)&&serialPump.receiptEnd>serialPump.receiptStart&&
   serialPump.observedFrameAdvances===serialPump.receiptEnd-serialPump.receiptStart;
+ const serialRealVideoMotionQualified=serialRealVideoRecorded&&
+  classifyDecodedSerialGameplay({video:serialVideo,decoder:decoder.serialRealVideo})===
+   'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED';
  const receiptReadbackVideoRecorded=optedIn===true&&renderFramesAdvanced&&
   classifyReceiptReadbackVideo(isolated.receiptReadbackVideo)==='REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED';
  const isolatedAudioRecorded=optedIn===true&&renderFramesAdvanced&&
@@ -354,7 +386,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,receiptReadbackVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,serialRealVideoMotionQualified,receiptReadbackVideoRecorded,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -433,7 +465,7 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  }
  fs.writeFileSync(manifest,JSON.stringify({
   started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo},frames:raw.frames??null,
-  trackDelivery:raw.trackDelivery??null,assessment,
+  trackDelivery:raw.trackDelivery??null,decoder:raw.decoder??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
    ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{}),
@@ -443,5 +475,5 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  },null,2)+'\n');
  return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm});
 }
-module.exports={classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
+module.exports={classifyDecodedSerialGameplay,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
