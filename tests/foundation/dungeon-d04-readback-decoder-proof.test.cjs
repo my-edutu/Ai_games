@@ -38,3 +38,28 @@ test('strict decode distinguishes two real-source frame hashes from a single/sta
  const invalid=withDecoderFrames(hashes,()=>decodeReceiptReadbackMotion(authentic()),{codec:'h264'});
  assert.equal(invalid.status,'UNAVAILABLE','no codec substitution');
 });
+
+test('moving receipt-readback evidence remains source-verified and explicitly unaligned with original audio',()=>{
+ const {classifyDecodedReceiptReadbackGameplay,assessD04Capture}=
+  require('../browser/dungeon-d04-av-evidence.cjs');
+ const v={...authentic(),phase:'after-all-primary-encoders-settled',
+  primaryRecordersSettled:true,mimeType:'video/webm;codecs=vp8',
+  canvasWidth:640,canvasHeight:400,recordingMs:5500,
+  framePump:{mode:'real-webgl-render-receipt-readback',receiptStart:2,receiptEnd:5,
+   observedFrameAdvances:3,requestFailures:0,requestedFrames:2,
+   samples:[{receipt:3,atMs:1000,colors:110,signature:'12345678'},
+            {receipt:4,atMs:1500,colors:130,signature:'87654321'}]}};
+ const decoded=withDecoderFrames(hashes,()=>decodeReceiptReadbackMotion(v));
+ assert.equal(classifyDecodedReceiptReadbackGameplay({video:v,decoder:decoded}),
+  'REAL_WEBGL_READBACK_MOVING_VIDEO_UNALIGNED');
+ const a=assessD04Capture({optedIn:true,frames:{before:1,after:2},
+  isolated:{receiptReadbackVideo:v},decoder:{readbackVideo:decoded}});
+ assert.equal(a.receiptReadbackVideoMotionQualified,true);
+ assert.equal(a.sampleSynchronized,false);
+ assert.notEqual(a.classification,'REAL_BROWSER_A_V_SYNCHRONIZED');
+ const staticDecoded={...decoded,hashes:[hashes[0],hashes[0]],distinctFrames:1};
+ assert.equal(classifyDecodedReceiptReadbackGameplay({video:v,decoder:staticDecoded}),
+  'REAL_WEBGL_READBACK_ONE_OR_STATIC_FRAME_UNVERIFIED');
+ assert.equal(classifyDecodedReceiptReadbackGameplay({video:{...v,source:'synthetic-2d-canvas'},decoder:decoded}),
+  'READBACK_REAL_WEBGL_MOTION_UNVERIFIED');
+});
