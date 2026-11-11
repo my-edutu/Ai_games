@@ -77,15 +77,25 @@ for (const viewport of viewports) {
   if (scenario === 'danger' && viewport.width === 390)
     expect(await page.evaluate(() => window.__TOWER_MESH_OWNER_AUDIT__ === true),
       'the genuine portrait mesh-owner witness must be armed before filming').toBe(true);
-  await page.waitForFunction(() => {
-    const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
-    return d?.frames >= 8 && d.renderProgress?.state === 'current' && d.lighting?.environmentState !== 'pending';
-  }, null, { timeout: 90000 });
+  // A genuine cold-load browser may first paint the living Floor-8 guardian
+  // BEFORE WebGL reports eight completed frames and an environment map.
+  // Start passive original CDP sampling at DOM-ready, not after renderer
+  // warm-up: late unique compositor anchors previously excluded real
+  // baseline desktop HP and floor-8-to-9 events from the WebM clock window.
+  // The untouched 20Hz source, Playwright native recorder, FPS, gameplay
+  // and frame-matching acceptance thresholds remain exactly unchanged.
+  const earlyCompositorCaptureAtMs=Date.now();
   // Real full-viewport screenshots cost 2–5s in software WebGL, so their
   // start/end intervals cannot safely anchor a native WebM frame to wall time.
   // Collect bounded Chrome-composited frame witnesses with browser-issued
   // timestamps instead; match their ORIGINAL pixels to the unedited WebM.
   const compositorAnchors=await beginTowerNativeCompositorAnchors({page,dir,viewport});
+  await page.waitForFunction(() => {
+    const d = window.__TOWER_RENDER_DIAGNOSTICS__?.();
+    return d?.frames >= 8 && d.renderProgress?.state === 'current' && d.lighting?.environmentState !== 'pending';
+  }, null, { timeout: 90000 });
+  const rendererReadyAtMs=Date.now();
+
   const observations = [];
   async function sample(index) {
     const observation = await page.evaluate(() => {
@@ -809,6 +819,16 @@ for (const viewport of viewports) {
     JSON.stringify({sourceSha,scenario,viewport,seed:process.env.TOWER_SEED ||
       'tower-stream-reference',graphicsTier:'low',
       originalWebMSha256,originalWebMBytes:originalWebMByteCount,
+      prewarmOriginalCompositorEvidence:{
+        observerStartedBeforeRendererReady:earlyCompositorCaptureAtMs<=rendererReadyAtMs,
+        firstCompositorStartAtMs:earlyCompositorCaptureAtMs,
+        rendererReadyAtMs,
+        realWarmupSpanMs:rendererReadyAtMs-earlyCompositorCaptureAtMs,
+        nativeFrameWitnessesBeforeRendererReady:compositorAnchors.anchors.filter(
+          anchor=>anchor.startAtMs<rendererReadyAtMs).length,
+        sourceClockRetimed:false,videoModified:false,
+        status:'PREWARM ORIGINAL CHROMIUM FRAMES — NOT GAMEPLAY ACCEPTANCE'
+      },
       passiveCompositorAnchors:{started:compositorAnchors.started,
         recorded:compositorAnchors.anchors.length,
         errors:compositorAnchors.errors.slice(0,8),

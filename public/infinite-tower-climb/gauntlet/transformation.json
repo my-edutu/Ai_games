@@ -7776,5 +7776,38 @@
     "deviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpactAction": "Issue exact-source capture-request after corrected workflow commit; inspect all 10 jobs, both original desktop/portrait 60+s across ascent/moving/danger/outcome and strict 8/8 native pairs, compare real HUD source-to-raster phase, fix largest lived portrait two-body visibility defect and independently prove guardian/crusher->grounded gateway->floor9->result/restart.",
     "safety": "Draft PR68 only; original PR58 branch and other games untouched; no baseline move/merge/deploy/force-push/draft conversion."
+  },
+  "p0OriginalPrewarmNativeGuardianEventWindow20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "baselineFrozenSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedImmutableCandidateSha": "9a0d18425e29c39e55193caa4a520cf8fb747899",
+    "currentProductionSourceHeadBeforeHarness": "5851cde8d5b37df3a3951ff9a81e05357ad566d5",
+    "precedingSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42981442239 — integrity-not-quality SUCCESS, source 9a0d",
+    "actualNativeFootageRun": "https://github.com/my-edutu/Ai_games/actions/runs/42981442257",
+    "evidence": {
+      "jobs": "9/10 succeeded (authentic ledge and all eight baseline/candidate browser jobs); pair-source-events failed strict aligned A/B",
+      "originalSourcePairs": "8/8 source timeline pairs, no source-story/integrity defects",
+      "nativeGuardianAB": "0/2 desktop/portrait viewports event-to-drawn-frame aligned; strict veto",
+      "candidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/42981442257/artifacts/13838041915",
+      "originalUnmodifiedReviewArchive": "https://github.com/my-edutu/Ai_games/actions/runs/42981442257/artifacts/13837881977",
+      "baselineAndCandidate": "Both genuine 60+ second desktop 960x600 and portrait 390x844 WebMs recovered; no independent full-motion review",
+      "observedMostImportantDefect": "In real candidate 390x844 guardian fight at 14–25 native seconds, bulky bronze/cyan lock and hoist structures crowd/occlude the living skinned blue climber and guardian; some frames shrink or separate them. Sampled native original stills 6/10/14/17/19/21/23/25/27/31/40/56s; not continuous blind assessment.",
+      "nativeHudPhase": "Candidate original portrait source event SEARCH 24.121s vs visibly drawn Floor9 HUD 25.25s (+1.129s); desktop search 23.469s vs drawn 25.0s (+1.531s), not measured physical rendering latency",
+      "sourceStory": "Original candidate filmed Floor9 by ~27s, onward Floor10 near ~40s and new Floor8 episode ~56s; sampled frames don't independently prove physical gateway crossing or visually connected restart"
+    },
+    "actualSystemicIntervention": "Start unchanged read-only Chrome native-compositor frame sampler immediately after DOM-ready, BEFORE 8-frame WebGL readiness. Preserve early real guardian/HUD frames otherwise outside native timestamp mapping. Add explicit warmup source-vs-compositor scope telemetry to native-video-clock sidecar. Cannot manufacture earlier source events or synchronized pixels; all pairing gates stay strict.",
+    "rendererSceneLatestRebuild": "5851cde8d5b37df3a3951ff9a81e05357ad566d5",
+    "latestArtAfterFilm": "NOT EVALUATED — same HEAD's merged live guardian lock/gallery not yet filmed; exact immutable after-film requested",
+    "blindIndependentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "latestExactHeadQuality": "NOT EVALUATED until new workflow completes",
+    "nextHighestImpactAction": "Inspect new 60+ second source-pinned baseline/candidate recordings and prewarm compositor anchors, assess real two-body hero/guardian/crusher at 14–25s, source-to-native HUD pixel timing and earned grounded gateway/floor9/outcome/restart. If blockage remains, reopen real P0 guardian camera/physical scene, not arbitrary tests. Independent randomized critics and hardware remain mandatory.",
+    "review": "docs/reviews/2026-11-11-tower-pr68-prewarm-original-guardian-film-timing.md",
+    "safety": "Draft PR68 only; no PR58/main/other games, baseline move, merge, deploy, force-push or draft conversion."
   }
 }
