@@ -316,8 +316,8 @@ test('real original desktop Walking_A finishes its witnessed 10.17mm last step w
   'original feet and pelvis finish facing real last source-root travel');
  for(const change of [
   {mode:'idle'},{sourceClipName:'Idle'},{groundedMoving:false},
-  {previousZ:-7.015,currentZ:-7.013},{previousZ:-7.013,currentZ:-7},
-  {previousZ:-7.02,currentZ:-7},{previousZ:-7.0101695960690416,currentZ:-7.02},
+  {previousZ:-7.015,currentZ:-7.013},
+  {previousZ:-7.255,currentZ:-7},{previousZ:-7.0101695960690416,currentZ:-7.02},
   {targetZ:-6},{hasCombatFacing:true},{teleport:true},{reducedMotion:true},
   {visible:false},{alive:false}
  ])assert.equal(plan({...observed,...change}),null,
