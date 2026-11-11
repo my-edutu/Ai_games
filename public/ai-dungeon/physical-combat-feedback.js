@@ -279,12 +279,19 @@ export function createPhysicalCombatFeedback({
    if(drawnSwing&&typeof visuals?.hasAuthenticatedSwingPose==='function'&&
      safeCall(()=>visuals.hasAuthenticatedSwingPose(item.cue))!==true){
     staleAudioDropped++;
+    // A rejected pose cannot certify a later render of the old retained
+    // blade. The just-submitted frame cannot be undone; retire its GPU slot
+    // before any subsequent WebGL submission, without inventing impact.
+    safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,'revoked-drawn-swing-pose'));
     retainReceipt(item.cue,true,false,frameId,'revoked-drawn-swing-pose');
     continue;
    }
    if(drawnBody&&typeof visuals?.hasAuthenticatedBodyPose==='function'&&
      safeCall(()=>visuals.hasAuthenticatedBodyPose(item.cue))!==true){
     staleAudioDropped++;
+    // A released/cancelled guard or Warden body gesture must not leave a
+    // ghost ring after its original pose was revoked at frame receipt.
+    safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,'revoked-drawn-body-pose'));
     retainReceipt(item.cue,true,false,frameId,'revoked-drawn-body-pose');
     continue;
    }
