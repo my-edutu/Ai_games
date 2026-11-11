@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,inferImportedSourceKneeBendAxis,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -851,6 +851,60 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  };
  if(!directChain||!lower.last?.isQuaternion||
   !patch?.anatomicalHeelToeVerified)return null;
+ // One-time per native clone: the current original Walking_A clip itself
+ // defines which knee hinge orientation is permissible. An absent/unstable
+ // licensed quaternion track must leave source joints untouched.
+ if(!Object.hasOwn(lower,'sourceKneeAxisAudit')){
+  const sourceWalk=actor.availableClips?.find(clip=>clip?.name==='Walking_A');
+  lower.sourceKneeAxisAudit=inferImportedSourceKneeBendAxis(
+   sourceWalk,lower.bone.name);
+ }
+ const audit=lower.sourceKneeAxisAudit;
+ actor.sourceSwingCalfTrialOutcome={
+  ...actor.sourceSwingCalfTrialOutcome,
+  sourceKneeAxisAudit:audit??null,
+  reason:audit?'source-knee-axis-awaiting-leg-plane':'no-original-knee-hinge-track'
+ };
+ if(!audit)return null;
+ // A real source hinge must agree with the CURRENT original three-joint leg
+ // bend plane; a straight/degenerate chain or twist-axis mismatch rejects.
+ const sourceKneeAxis=lower.sourceKneeAxis??(
+  lower.sourceKneeAxis=new THREE.Vector3(...audit.axis));
+ const upperPoint=upper.sourceKneeWorldPoint??(
+  upper.sourceKneeWorldPoint=new THREE.Vector3());
+ const kneePoint=lower.sourceKneeWorldPoint??(
+  lower.sourceKneeWorldPoint=new THREE.Vector3());
+ const footPoint=mount.sourceKneeWorldPoint??(
+  mount.sourceKneeWorldPoint=new THREE.Vector3());
+ const thigh=lower.sourceThighDirection??(
+  lower.sourceThighDirection=new THREE.Vector3());
+ const calf=lower.sourceCalfDirection??(
+  lower.sourceCalfDirection=new THREE.Vector3());
+ const plane=lower.sourceKneePlane??(
+  lower.sourceKneePlane=new THREE.Vector3());
+ const worldAxis=lower.sourceKneeWorldAxis??(
+  lower.sourceKneeWorldAxis=new THREE.Vector3());
+ const worldQuat=lower.sourceKneeWorldQuat??(
+  lower.sourceKneeWorldQuat=new THREE.Quaternion());
+ upper.bone.getWorldPosition(upperPoint);
+ lower.bone.getWorldPosition(kneePoint);
+ mount.bone.getWorldPosition(footPoint);
+ thigh.subVectors(kneePoint,upperPoint);
+ calf.subVectors(footPoint,kneePoint);
+ const upperLength=thigh.length(),lowerLength=calf.length();
+ plane.crossVectors(thigh,calf);
+ const bendSine=plane.length()/Math.max(.000001,upperLength*lowerLength);
+ lower.bone.getWorldQuaternion(worldQuat);
+ worldAxis.copy(sourceKneeAxis).applyQuaternion(worldQuat).normalize();
+ const hingeAlignment=bendSine>.085&&bendSine<.99?
+  Math.abs(plane.normalize().dot(worldAxis)):0;
+ actor.sourceSwingCalfTrialOutcome={
+  ...actor.sourceSwingCalfTrialOutcome,bendSine,hingeAlignment,
+  reason:'source-hinge-not-in-actual-leg-bend-plane'
+ };
+ if(![upperLength,lowerLength,bendSine,hingeAlignment].every(Number.isFinite)||
+  upperLength<.12||upperLength>1.2||lowerLength<.12||lowerLength>1.2||
+  hingeAlignment<.72)return null;
  const prior=lower.swingCalfAssistRad||0;
  lower.swingCalfAssistRad=0;
  const orig=lower.probeOriginal??(lower.probeOriginal=new THREE.Quaternion());
@@ -864,7 +918,7 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
   mount.bone.quaternion.copy(foot);
   for(const signed of [-.1,.1]){
    lower.bone.quaternion.copy(orig).multiply(
-    trial.setFromAxisAngle(originalSwingPitchAxis,signed));
+    trial.setFromAxisAngle(sourceKneeAxis,signed));
    lower.bone.updateWorldMatrix(true,true);
    const toe=readOriginalSwingSoleY(patch.toe);
    const heel=readOriginalSwingSoleY(patch.heel);
@@ -917,7 +971,7 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  try{
   mount.bone.quaternion.copy(foot);
   lower.bone.quaternion.copy(orig).multiply(
-   trial.setFromAxisAngle(originalSwingPitchAxis,delta));
+   trial.setFromAxisAngle(sourceKneeAxis,delta));
   lower.bone.updateWorldMatrix(true,true);
   toe=readOriginalSwingSoleY(patch.toe);
   heel=readOriginalSwingSoleY(patch.heel);
@@ -937,7 +991,7 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
   return null;
  }
  // Apply only to the actual original imported joint, reversible next frame.
- lower.bone.quaternion.multiply(trial.setFromAxisAngle(originalSwingPitchAxis,delta));
+ lower.bone.quaternion.multiply(trial.setFromAxisAngle(sourceKneeAxis,delta));
  lower.last.multiply(trial);
  lower.swingCalfAssistRad=delta;
  actor.sourceSwingCalfTrialOutcome={

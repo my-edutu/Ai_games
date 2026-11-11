@@ -203,6 +203,68 @@ export function confirmOriginalSourceSwingToeLift({
 }
 
 
+/**
+ * Derive a permissible native lower-leg hinge from the EXISTING licensed
+ * Walking_A quaternion track. Joint names, original source duration and
+ * genuinely rotating, consistently collinear keyframes are all required.
+ * This is not an invented IK target, new clip, mesh, or contact event.
+ * The source rig's actual skinned heel/toe must independently pass the
+ * measured trial, owner, chain, stretch and stone-clearance gates.
+ */
+export function inferImportedSourceKneeBendAxis(clip,boneName){
+ if(!clip||clip.name!=='Walking_A'||typeof boneName!=='string'||
+  !/^[a-zA-Z0-9_.-]{3,64}$/.test(boneName)||
+  !Array.isArray(clip.tracks)||clip.tracks.length>1500||
+  !finite(clip.duration)||clip.duration<.3||clip.duration>5)return null;
+ const expected=boneName.toLowerCase();
+ const matches=clip.tracks.filter(track=>
+  typeof track?.name==='string'&&
+  track.name.toLowerCase().endsWith(expected+'.quaternion')&&
+  (track.name.length===expected.length+11||
+   /[|/.]/.test(track.name[track.name.length-(expected.length+12)])));
+ if(matches.length!==1)return null;
+ const track=matches[0],times=track.times,values=track.values;
+ if(!times||!values||times.length<4||times.length>320||
+  values.length!==times.length*4)return null;
+ const steps=[];
+ let previous=null;
+ for(let i=0;i<times.length;i++){
+  const time=times[i],q=[
+   values[i*4],values[i*4+1],values[i*4+2],values[i*4+3]];
+  if(!finite(time)||(i>0&&time<=times[i-1])||
+   q.some(v=>!finite(v))||Math.abs(Math.hypot(...q)-1)>.035)return null;
+  if(previous){
+   if(q.reduce((sum,v,j)=>sum+v*previous[j],0)<0)
+    for(let j=0;j<4;j++)q[j]=-q[j];
+   const [x,y,z,w]=previous,[u,v,s,r]=q;
+   const dx=w*u-x*r-y*s+z*v;
+   const dy=w*v-y*r-z*u+x*s;
+   const dz=w*s-z*r-x*v+y*u;
+   const dw=w*r+x*u+y*v+z*s;
+   const length=Math.hypot(dx,dy,dz);
+   const angle=2*Math.atan2(length,Math.abs(dw));
+   if(!finite(angle)||angle>.85)return null;
+   if(angle>=.025&&length>.000001)
+    steps.push({angle,axis:[dx/length,dy/length,dz/length]});
+  }
+  previous=q;
+ }
+ if(steps.length<2)return null;
+ const peak=steps.reduce((a,b)=>b.angle>a.angle?b:a);
+ if(peak.angle<.06)return null;
+ const strong=steps.filter(sample=>sample.angle>=.42*peak.angle);
+ if(strong.length<2)return null;
+ const alignment=Math.min(...strong.map(sample=>Math.abs(
+  sample.axis.reduce((sum,v,i)=>sum+v*peak.axis[i],0))));
+ if(alignment<.92)return null;
+ return Object.freeze({
+  source:'verified-original-Walking_A-knee-quaternion-axis',
+  axis:Object.freeze(peak.axis),trackName:track.name,
+  sampleCount:strong.length,dominance:alignment,
+  peakStepRadians:peak.angle
+ });
+}
+
 /** Original connected-calf SWING clearance, not stance IK or game contact.
  * Requires an actual positive skinned-toe response after licensed ankle aid. */
 export function planOriginalSourceSwingCalfAssist({
