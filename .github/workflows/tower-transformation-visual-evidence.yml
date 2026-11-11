@@ -164,7 +164,7 @@ jobs:
           cp current-harness/scripts/tower-native-compositor-anchors.cjs source/scripts/tower-native-compositor-anchors.cjs
           cp current-harness/tests/phase3/tower-native-compositor-anchors.test.cjs source/tests/phase3/tower-native-compositor-anchors.test.cjs
           cp current-harness/scripts/tower-native-film-integrity.cjs source/scripts/tower-native-film-integrity.cjs
-          cp current-harness/tests/phase3/tower-native-film-integrity.test.cjs source/tests/phase3/tower-native-film-integrity.test.cjs tests/phase3/tower-native-scene-phase.test.cjs
+          cp current-harness/tests/phase3/tower-native-film-integrity.test.cjs source/tests/phase3/tower-native-film-integrity.test.cjs
           cp current-harness/tests/phase3/tower-video-timebase.test.cjs source/tests/phase3/tower-video-timebase.test.cjs
           cp current-harness/scripts/tower-capture-window.cjs source/scripts/tower-capture-window.cjs
           cp current-harness/scripts/tower-fixed-step-trace.cjs source/scripts/tower-fixed-step-trace.cjs
