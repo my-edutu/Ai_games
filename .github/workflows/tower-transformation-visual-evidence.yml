@@ -213,18 +213,49 @@ jobs:
         run: |
           npx playwright install chromium
           node scripts/tower-chromium-host-preflight.cjs
-      # GitHub ubuntu-24.04 runners do not guarantee ffprobe/ffmpeg in PATH.
-      # An actual 60+s WebM was already captured on both viewports while the
-      # native PTS/sha256 audit failed with 'spawnSync ffprobe ENOENT'.
-      # Install and verify transport tools without changing original game code.
-      - name: Install and verify native WebM transport auditors
+      # Hosted ubuntu-24.04 can omit BOTH native transport binaries, and
+      # azure.archive.ubuntu.com DNS failures caused ALL EIGHT source-pinned
+      # browser recordings to be cancelled after 20+ minutes of apt retries
+      # (original capture 43040799182). Never depend on apt here. npm ci
+      # has already passed: use version-pinned, platform-selected static
+      # FFmpeg/FFprobe packages in an isolated runner temp dir ONLY when
+      # missing. Do not install packages or change lockfiles in either
+      # frozen baseline or candidate checkout. Missing tools still VETO film.
+      - name: Install and verify native WebM transport auditors without apt
         working-directory: source
         shell: bash
         run: |
           set -euo pipefail
           if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y --no-install-recommends ffmpeg
+            tool_root="$RUNNER_TEMP/tower-native-webm-tools"
+            mkdir -p "$tool_root/bin"
+            # Bound registry/network failures; never stall all eight capture
+            # workers on a runner's unreachable Ubuntu apt mirror.
+            timeout 180s npm --prefix "$tool_root" \
+              --fetch-retries=1 --fetch-timeout=30000 \
+              --fetch-retry-mintimeout=1000 --fetch-retry-maxtimeout=2500 \
+              install --no-save --no-package-lock --ignore-scripts \
+              --no-audit --no-fund \
+              @ffmpeg-installer/ffmpeg@1.1.0 \
+              @ffprobe-installer/ffprobe@2.1.2
+            TOOL_ROOT="$tool_root" node <<'NODE'
+          'use strict';
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = process.env.TOOL_ROOT;
+          for (const [name, packageName] of [
+            ['ffmpeg', '@ffmpeg-installer/ffmpeg'],
+            ['ffprobe', '@ffprobe-installer/ffprobe'],
+          ]) {
+            const binary = require(path.join(root, 'node_modules', packageName)).path;
+            if (!binary || !fs.existsSync(binary)) {
+              throw new Error('Missing platform-native ' + name + ' executable');
+            }
+            fs.symlinkSync(binary, path.join(root, 'bin', name));
+          }
+          NODE
+            echo "$tool_root/bin" >> "$GITHUB_PATH"
+            export PATH="$tool_root/bin:$PATH"
           fi
           command -v ffprobe
           command -v ffmpeg
