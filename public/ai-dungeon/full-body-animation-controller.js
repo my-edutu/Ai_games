@@ -389,7 +389,7 @@ export function inferImportedSourceKneeBendAxis(clip,boneName){
 /** Original connected-calf SWING clearance, not stance IK or game contact.
  * Begin only if still 20mm beneath stone after an actual ankle lift,
  * retaining positive skinned-sole trials and 0.06rad/frame knee slew.
- * Requires an actual positive skinned-toe response after licensed ankle aid. */
+ * Requires an actual positive skinned-toe response after licensed ankle aid.\n * Original mobile source probe #43106822043 measured a safe 5.696mm knee\n * lift at 0.2rad. Keep 4mm minimum for source candidate evaluation; the\n * rate-limited live joint must independently pass its own skinned-foot proof. */
 export function planOriginalSourceSwingCalfAssist({
  mode='idle',sourceClipName='',sourceAnatomyVerified=false,
  sourceLegChainVerified=false,sourceWeight=NaN,ownerLocomotion=false,
@@ -417,7 +417,7 @@ export function planOriginalSourceSwingCalfAssist({
  const trialLift=trialCalfToeY-afterAnkleToeY;
  const trialHeelClear=trialCalfHeelY-floorTopY;
  if(toeClear>-.02||toeClear<-.16||heelClear<.065||heelClear>.34||
-  trialLift<.008||trialLift>.075||trialHeelClear<.055||
+  trialLift<.004||trialLift>.075||trialHeelClear<.055||
   trialHeelClear>.36||Math.abs(trialCalfHeelY-afterAnkleHeelY)>.06)return 0;
  const share=clamp((sourceWeight-.5)/.4,0,1);
  const eased=share*share*(3-2*share);
@@ -464,7 +464,7 @@ export function selectOriginalSourceSwingCalfTrial({
   if(previousAssistRad!==0&&Math.sign(signed)!==Math.sign(previousAssistRad))continue;
   if(![signed,toe,heel].every(finite)||
    Math.abs(signed)<.09||Math.abs(signed)>.21||
-   toe-afterAnkleToeY<.008||toe-afterAnkleToeY>.075||
+   toe-afterAnkleToeY<.004||toe-afterAnkleToeY>.075||
    heel-floorTopY<.055||heel-floorTopY>.36||
    Math.abs(heel-afterAnkleHeelY)>.06)continue;
   if(!best||toe>best.toe)best={signed,toe,heel};
