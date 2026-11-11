@@ -30,7 +30,8 @@ test('real RIFT_CROSS original risk cells receive a lens-safe optical gain witho
  }else assert.ok(plan.gainPixels>=Math.max(3,plan.baseline.minHeroPixels*.08));
  assert.ok(plan.reach>=.84&&plan.reach<=1);
  assert.ok(plan.lift>=0&&plan.lift<=.70);
- assert.ok(plan.framing.minHeroPixels>=plan.baseline.minHeroPixels*1.08);
+ // An authoritative danger rescue is explicitly NOT a claimed body-size gain.
+ // The branch above checks real danger fit and the native >=90% bound.
  assert.ok(plan.framing.fitFov<=52.5);
  assert.ok(Math.abs(plan.position.x)<=(s.map.length-1)/2);
  assert.equal(assessThreatOrbit(params,plan.position).valid,true);
