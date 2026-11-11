@@ -12,7 +12,14 @@ function witnessActualDamage(){
    const after=game.step();
    if(after.run===before.run&&after.floor===before.floor&&after.tick===before.tick+1){
     const victims=after.units.filter(u=>before.units.some(old=>old.id===u.id&&old.hp>u.hp));
-    if(victims.length)return{seed,before,after,victimIds:victims.map(x=>x.id)};
+    if(victims.length){
+     // Continue only real DungeonRuntime.step() outcomes. Holding a single
+     // HP-delta pair for 70s triggers the genuine stream-stall watchdog
+     // and cannot test subsequent attack / original foley presentation.
+     const followups=[];
+     for(let i=0;i<180;i++)followups.push(game.step());
+     return{seed,before,after,victimIds:victims.map(x=>x.id),followups};
+    }
    }
    before=after;
   }
@@ -32,9 +39,17 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   '/dungeon/physical-combat-feedback.js'
  ])expect((await request.get(endpoint)).status(),endpoint).toBe(200);
  const real=witnessActualDamage();
- const errors=[];let served=real.before;
+ const errors=[],stream=[real.before,real.after,...real.followups];
+ let cursor=0,ceiling=0;
  page.on('pageerror',e=>errors.push(String(e)));
- await page.route('**/dungeon/state',route=>route.fulfill({json:served}));
+ // Every response is one consecutive authentic authority snapshot. A gate
+ // keeps the verified HP transition readable before releasing the followups.
+ await page.route('**/dungeon/state',route=>{
+  const index=Math.min(cursor,ceiling);
+  const snapshot=stream[index];
+  if(cursor<ceiling)cursor++;
+  return route.fulfill({json:snapshot});
+ });
  await page.goto('/dungeon?feedback=d04');
  await expect.poll(()=>page.evaluate(()=>
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.implementation),
@@ -57,18 +72,35 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  }
  // This state pair comes ONLY from real seeded DungeonRuntime.step().
  // No hand-edited HP, staged cinematic hit, or synthetic combat action.
- served=real.after;
+ ceiling=1;
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.tick),
    {timeout:70000}).toBe(real.after.tick);
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.visualAccepted??0),
-   {timeout:70000}).toBeGreaterThan(0);
+ const atDamage=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(atDamage.renderedState.checksum).toBe(real.after.checksum);
+ // Release authentic subsequent activity instead of synthesizing repeated
+ // snapshots that stall the stream. Old cues remain subject to the 400ms
+ // deadline; a stalled frame must never invent a late impact.
+ ceiling=stream.length-1;
+ try{
+  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.visualAccepted??0),
+    {timeout:70000}).toBeGreaterThan(0);
+ }finally{
+  const diagnostic=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  await test.info().attach('d04-real-stream-debug.json',{
+   body:Buffer.from(JSON.stringify({seed:real.seed,victims:real.victimIds,
+    beforeTick:real.before.tick,damageTick:real.after.tick,
+    delivered:cursor,allowed:ceiling,atDamage:atDamage?.physicalFeedback,
+    latest:diagnostic?.physicalFeedback,rendered:diagnostic?.renderedState,
+    lastPageErrors:errors.slice(-6)},null,2)),contentType:'application/json'
+  });
+ }
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
- expect(observed.renderedState.checksum).toBe(real.after.checksum);
  expect(observed.physicalFeedback.visuals.active).toBeLessThanOrEqual(104);
  expect(observed.physicalFeedback.visuals.activeDrawCalls).toBeLessThanOrEqual(7);
  expect(observed.physicalFeedback.adapterFailures).toBe(0);
- expect(observed.physicalFeedback.recentDeliveryReceipts.some(x=>
-  x.proof==='observed-hp-drop'||x.kind==='damage'||x.kind==='damage-fatal')).toBe(true);
+ expect([...atDamage.physicalFeedback.recentDeliveryReceipts,
+  ...observed.physicalFeedback.recentDeliveryReceipts].some(x=>
+  x.kind==='damage'||x.kind==='damage-fatal')).toBe(true);
  if(optedIn){
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??0),
    {timeout:40000}).toBeGreaterThan(0);
@@ -81,7 +113,8 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   source:'seeded, actual DungeonRuntime.step -> publicState -> actual Three.js WebGL renderer',
   seed:real.seed,run:real.after.run,floor:real.after.floor,
   beforeTick:real.before.tick,afterTick:real.after.tick,victims:real.victimIds,
-  checksum:real.after.checksum,optedIn,
+  checksum:real.after.checksum,optedIn,authenticFollowupSteps:real.followups.length,
+  originalDamageFrame:atDamage?.renderedState,continuouslyDelivered:cursor,
   visual:observed.physicalFeedback.visuals,
   cues:observed.physicalFeedback.recentDeliveryReceipts,
   audio:observed.physicalFeedback.audio,
