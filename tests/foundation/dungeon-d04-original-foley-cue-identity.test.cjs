@@ -98,3 +98,56 @@ test('D04 canonical ID guard is production-only; standalone original foley audit
  assert.equal(engine.emit({audio:'whoosh',id:'standalone-audition'}),true);
  engine.dispose();
 });
+
+test('strict original WebAudio start receipts preserve verified event identity without claiming decoded Opus',async()=>{
+ const {createOriginalCombatFoley,MAX_ORIGINAL_RECORDED_STARTS}=await load();
+ const {ctx,starts}=fixture(),engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ assert.equal(MAX_ORIGINAL_RECORDED_STARTS,32);
+ assert.equal(engine.enable(),true);
+ assert.deepEqual(engine.stats().recentOriginalStarts,[]);
+ assert.equal(engine.emit(injury(8,'revenant')),true);
+ assert.ok(starts.length>=1,'actual mocked WebAudio source.start() must occur');
+ const [first]=engine.stats().recentOriginalStarts;
+ assert.equal(first.cueId,'1:1:8:damage:-:revenant');
+ assert.equal(first.kind,'damage');
+ assert.equal(first.audio,'impact');
+ assert.equal(first.sceneKey,'1:1');
+ assert.equal(first.tick,8);
+ assert.equal(first.scheduledContextMs,0);
+ assert.ok(first.startedSources>=1);
+ assert.equal(first.sampleSynchronized,false);
+ assert.equal(engine.emit(injury(8,'revenant')),false,'duplicate has no second source start');
+ assert.equal(engine.stats().recentOriginalStarts.length,1);
+ ctx.currentTime=.15;
+ assert.equal(engine.emit(swing(9,'vanguard')),true);
+ const latest=engine.stats().recentOriginalStarts.at(-1);
+ assert.equal(latest.cueId,'1:1:9:swing:vanguard:-');
+ assert.equal(latest.audio,'whoosh');
+ assert.equal(latest.scheduledContextMs,150);
+ assert.equal(latest.sampleSynchronized,false);
+ engine.disable();
+ assert.deepEqual(engine.stats().recentOriginalStarts,[],
+  'mute and same-scene cleanup must not retain stale source receipts');
+ engine.dispose();
+});
+
+test('original source start telemetry is capped and rejected actions never become sound evidence',async()=>{
+ const {createOriginalCombatFoley,MAX_ORIGINAL_RECORDED_STARTS}=await load();
+ const {ctx}=fixture(),engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ assert.equal(engine.enable(),true);
+ assert.equal(engine.emit({...swing(1),verified:false}),false);
+ assert.equal(engine.stats().recentOriginalStarts.length,0);
+ for(let i=0;i<MAX_ORIGINAL_RECORDED_STARTS+5;i++){
+  ctx.currentTime=i*.4;
+  assert.equal(engine.emit(injury(i+10,'victim'+i)),true);
+ }
+ const receipts=engine.stats().recentOriginalStarts;
+ assert.equal(receipts.length,MAX_ORIGINAL_RECORDED_STARTS);
+ assert.equal(receipts[0].cueId,'1:1:15:damage:-:victim5');
+ assert.equal(receipts.at(-1).cueId,'1:1:46:damage:-:victim36');
+ assert.equal(receipts.some(x=>x.sampleSynchronized!==false),false);
+ assert.equal(engine.stats().activeVoices<=8,true);
+ engine.flush();
+ assert.equal(engine.stats().recentOriginalStarts.length,0);
+ engine.dispose();
+});
