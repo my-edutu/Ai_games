@@ -49,4 +49,31 @@ function decodeReceiptReadbackMotion(video={}){
   'real-webgl-receipt-readback-serial-video-only',
   'ffmpeg-decoded-real-webgl-receipt-readback-video');
 }
-module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion};
+/**
+ * A same-recorder soundstage track is NOT sample-accurate contact evidence.
+ * Only decode it when its source is the authenticated receipt-gated real
+ * WebGL transport and the actual encoded audio stream is Opus.
+ */
+function decodeSameWindowReadbackMotion(video={}){
+ const source='ffmpeg-decoded-real-webgl-receipt-readback-original-audio';
+ const method='framemd5-24x16-first-64';
+ if(video.videoTracks!==1||video.audioTracks!==1||
+  video.optedInAtStart!==true||video.originalSoundstageTrackLive!==true)
+  return {source,method,status:'UNAVAILABLE',reason:'Missing opted-in original soundstage track'};
+ const parsed=decodeProvenancedWebGLMotion(video,
+  'real-webgl-receipt-readback-serial-original-audio',source);
+ if(parsed.status!=='DECODED')return parsed;
+ try{
+  const {spawnSync}=require('node:child_process');
+  const bytes=Buffer.from(video.base64,'base64');
+  const probe=spawnSync('ffprobe',['-v','error','-select_streams','a:0',
+   '-show_entries','stream=codec_name','-of','default=nw=1:nk=1','pipe:0'],
+   {input:bytes,encoding:'utf8',timeout:12000,maxBuffer:256*1024});
+  if(probe.status!==0||typeof probe.stdout!=='string'||probe.stdout.trim()!=='opus')
+   return {source,method,status:'UNAVAILABLE',reason:'Original Opus encoded stream missing'};
+  return {...parsed,audioCodec:'opus'};
+ }catch{
+  return {source,method,status:'UNAVAILABLE',reason:'Audio decoder unavailable'};
+ }
+}
+module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion};
