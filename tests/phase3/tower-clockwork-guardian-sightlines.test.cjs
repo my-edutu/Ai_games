@@ -879,14 +879,27 @@ test('physical floor-eight gate keeps both HP-driven counterweights ABOVE the li
       enemies:[{...guardian,health:0,active:false}]};
     w.update(defeated,.016,1,{quality:'low',reducedMotion:true});
     const after=getWeightBounds();
-    const guides=[];
-    gate.traverse(item=>{
-      if(item.name==='GuardianSealCounterweightRail')guides.push(item);
+    // This project rigid-batches all STATIC doorway rails into the actual
+    // GPU buffer, retaining the source-owned face ranges, rather than leaving
+    // individually named authoring meshes in the submitted scene. Inspect
+    // the REAL submitted triangles for both complete sliding guides.
+    const guideBottoms=[];
+    gate.parent.traverse(item=>{
+      const position=item.geometry?.attributes?.position;
+      for(const part of item.geometry?.userData?.originalTriangleOwners||[]){
+        if(!part.authoringPath?.includes('GuardianSealCounterweightRail'))continue;
+        let bottom=Infinity;
+        for(let vertex=part.startFace*3;vertex<part.endFace*3;vertex++)
+          bottom=Math.min(bottom,position.getY(vertex));
+        guideBottoms.push(bottom);
+      }
     });
-    assert.equal(guides.length,2,'two fixed full-height outboard guides remain');
-    const guideBounds=guides.map(item=>new THREE.Box3().setFromObject(item));
+    assert.equal(guideBottoms.length,2,
+      'both physically rendered full-height outboard guide rails remain');
     for(let i=0;i<2;i++){
-      assert.ok(after[i].lower>=guideBounds[i].min.y-gateOrigin.y-.02,
+      // Frame and inset doorway share a local Y origin; batched guide
+      // vertices are expressed in the frame's real submitted coordinates.
+      assert.ok(after[i].lower>=guideBottoms[i]-.02,
         'authentic full-stroke counterweight must remain inside its steel track');
       assert.ok(before[i].lower-after[i].lower>2.2&&
         before[i].lower-after[i].lower<2.5,
