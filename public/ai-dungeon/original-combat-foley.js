@@ -134,7 +134,7 @@ export function chooseOriginalNoisePhaseOffset(duration,nowSeconds,voices=[]){
  return selected;
 }
 
-export function createOriginalCombatFoley(ctx,{output=null}={}){
+export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContact=false}={}){
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
  const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[],
@@ -210,6 +210,17 @@ export function createOriginalCombatFoley(ctx,{output=null}={}){
   if(disposed||!enabled||ctx?.state!=='running')return false;
   const profile=RECIPES[cue?.audio];
   if(!profile||!bus)return false;
+  // Preview production must not launder a failed cue contract into material
+  // foley. In particular an AIR attempt cannot become a synthetic sword,
+  // and only independently observed victim HP loss can make impact audio.
+  // The default remains compatible with standalone sound auditions that
+  // deliberately pass generic recipe names without authoritative snapshots.
+  if(requireVerifiedContact&&(
+    cue.audio==='whoosh'&&(cue.verified!==true||verifiedSwingFoleyActor(cue)===null)||
+    (cue.audio==='impact'||cue.audio==='fatal-impact')&&
+      (cue.verified!==true||verifiedDamageFoleyVictim(cue)===null))){
+   dropped++;return false;
+  }
   cleanup();
   const t=now(),victim=verifiedDamageFoleyVictim(cue),
     swinger=verifiedSwingFoleyActor(cue);
