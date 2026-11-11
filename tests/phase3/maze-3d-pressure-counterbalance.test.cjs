@@ -31,6 +31,23 @@ test('a real published pressure stroke turns one connected physical tideglass ar
       &&treadle?.isGroup&&jaw?.isGroup,'entire original mechanism and new load-bearing theatre must be present');
     assert.equal(arch.parent,trap);
     assert.ok(arch.children.length>=9,'the stage must use two rooted pylons, floor braces, bridge, governor and weight');
+    // Pass281 exact-SHA mobile screenshot regression: the earlier low beam
+    // crossed Pip's body. The physical bridge must now rest ABOVE the actor
+    // and be supported by two truly anchored, extended stone pylons, not
+    // simply fade at the camera or float above the trap.
+    const pylons=arch.children.filter(part=>part.name?.startsWith(
+      'Published Tideglass shear-portal anchored pylon'));
+    const upperDrive=arch.getObjectByName('Published Tideglass elevated yoke side drive shaft');
+    assert.equal(pylons.length,2,'both physical load-bearing portal pillars remain');
+    assert.ok(bridge.position.y>=2.30,'connected moving yoke has real upper-stage clearance');
+    for(const pillar of pylons){
+      assert.ok(pillar.scale.y>=2.25,'portal must have full-height solid load-bearing pillars');
+      assert.ok(pillar.position.y-pillar.scale.y/2<.03,'pillar actually bears on floor plinth');
+      assert.ok(Math.abs(pillar.position.y+pillar.scale.y/2-bridge.position.y)<.14,
+        'portal pillars terminate at the moving overhead bridge');
+    }
+    assert.ok(upperDrive?.isMesh && upperDrive.position.x>.65
+      &&upperDrive.scale.y>=.95,'a real side-connected drive transmits the low governor stroke upward');
     const origin=trap.getWorldPosition(new Vector3());
     const far=new Vector3(origin.x+30,0,origin.z+30);
     const diagonal=new Vector3(origin.x+CELL_SIZE,0,origin.z+CELL_SIZE);

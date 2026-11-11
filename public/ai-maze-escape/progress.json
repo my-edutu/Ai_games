@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T20:57:31.000Z",
+  "updatedAt": "2026-11-11T22:35:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass279 native WebGL run 43094832318 failed BEFORE screenshots due to a stale Pass261 .12Z jaw-origin assertion; Pass280 updates strict real mirrored jaw placement contract to ±.68,-.035,.44. Pass279 art remains UNRENDERED and NOT visually approved. New-HEAD browser/CI pending. Official Captain Toad benchmark NOT MET."
+    "summary": "Pass280 exact-source native WebGL workflow 43099465171 passed and 37/37 original artifact image hashes match. Source-captured 390px pressure still has a low load-bearing yoke crossing Pip. Pass281 raises the genuine driven gateway on two anchored high pylons, with a side shaft and connected moving upper bridge. New exact-HEAD WebGL and CI pending; independent critic workspace disconnected. Official Nintendo comparison remains NOT MET."
   },
   "captures": [
     {

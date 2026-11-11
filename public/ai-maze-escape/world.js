@@ -2149,6 +2149,14 @@ export function createMazeWorld(options = {}) {
     // The bay is set behind both blade roots, inside the original 2.4m tile:
     // it creates no passage, collider, damage, AI rule or hidden-map cue.
     // Only pooled bevel/ring/cylinder materials; no new GPU resource classes.
+    // Pass281: the exact-SHA 320/390 mobile WebGL pressure contact still put
+    // the LOW foreground yoke across Pip's helmet/torso, despite splitting
+    // its wings and side-docking the governor. Rebuild the SAME mechanical
+    // portal as a physically TALL joined lintel carried by taller rooted
+    // pylons, with the side-axle transmitting the witnessed stroke upward.
+    // The moving wings now open OVER the authentic actor and inward jaws,
+    // not across their action. Preserve the same treadle clock, jaw/collision
+    // footprint, source privacy, materials, reduced motion and reset.
     const counterbalance = new THREE.Group();
     counterbalance.name = 'Published tide-shear pressure counterbalance arch ' + c.cell;
     counterbalance.position.set(0, -.10, -.72);
@@ -2156,22 +2164,22 @@ export function createMazeWorld(options = {}) {
     p.add(counterbalance);
     for (const side of [-1, 1]) {
       const pillar = mesh(counterbalance, bevel, deepStone,
-        side * .95, .83, 0, .28, 1.64, .34);
+        side * .95, 1.16, 0, .28, 2.30, .34);
       pillar.name = 'Published Tideglass shear-portal anchored pylon ' + side;
       mesh(counterbalance, bevel, darkMetal,
         side * .95, .11, .04, .45, .19, .44);
       mesh(counterbalance, bevel, lightStone,
-        side * .95, 1.64, 0, .34, .16, .39);
+        side * .95, 2.31, 0, .34, .16, .39);
       // Continuous glass-and-mineral relief reads as a joined working frame,
       // not a luminous route arrow or an additional interactive switch.
       mesh(counterbalance, bevel, seaGlass,
-        side * .95, .88, .208, .095, 1.14, .07);
+        side * .95, 1.19, .208, .095, 1.76, .07);
       mesh(counterbalance, bevel, gold,
-        side * .95, 1.40, .25, .15, .10, .06);
+        side * .95, 2.12, .25, .15, .10, .06);
     }
     const bridge = new THREE.Group();
     bridge.name = 'Published tide-shear spanning load bridge';
-    bridge.position.y = 1.68;
+    bridge.position.y = 2.34;
     counterbalance.add(bridge);
     // Pass277: true 390px WebGL showed the opaque front yoke crossing
     // Pip's body while the real pressure jaws closed. Retain the FULL
@@ -2209,6 +2217,11 @@ export function createMazeWorld(options = {}) {
     wheel.name = 'Published tide-shear bronze pressure governor';
     wheel.position.set(.76, 1.28, -.04);
     counterbalance.add(wheel);
+    // Visible rigid side transmission couples the low wheel to the elevated
+    // load-bearing bridge without putting a new strut over the protagonist.
+    const riseShaft = mesh(counterbalance, bevel, darkMetal,
+      .76, 1.84, -.04, .105, 1.02, .105);
+    riseShaft.name = 'Published Tideglass elevated yoke side drive shaft';
     mesh(wheel, ring, gold, 0, 0, 0, .29, .29, .29);
     mesh(wheel, ring, darkMetal, 0, 0, .034, .19, .19, .19);
     mesh(wheel, cylinder, darkMetal, 0, 0, -.04, .17, .18, .17, Math.PI / 2);

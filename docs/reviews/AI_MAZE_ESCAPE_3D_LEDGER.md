@@ -1,3 +1,9 @@
+### Pass281 — physically raise the source-driven Tideglass portal above Pip (2026-11-11 UTC)
+
+- Earlier exact HEAD `310198562b44543be48ca486a001bf23397d4041` [native WebGL workflow 43099465171](https://github.com/my-edutu/Ai_games/actions/runs/43099465171) **SUCCEEDED**. Retrieved genuine artifact `13891187975`; verified **37/37 PNG/JSON SHA-256 matches**. Source-original 390px pressure image `ce49aa8e631fa457e3cfbc267f94b59070b7b4c9409ef0eca02c853ae330fc6a` captured at `2026-11-11T21:12:02.741Z` still shows low arch crossing Pip's action. No official Nintendo visual win.
+- Rebuild the same whole load-bearing pressure gateway into elevated rooted pylons, hinged raised central bridge and mechanically connected side drive, preserving unchanged physical trap footprint, privacy, gameplay, timing, AI, resource and framing requirements. Dedicated strengthened installed-Three contract added. [Original critique and source gate](./maze-3d/pass-281-raise-portal-above-pip-full-body-2026-11-11.md).
+- **NEW EXACT-HEAD RENDER, CI AND independent visual acceptance pending.** No merge/deploy/force. Worker tunnel disconnected.
+
 ### Pass280 — unblock exact-source native WebGL after stale old-stage jaw-origin assertion (2026-11-11 UTC)
 
 - The exact-parent [Pass279 visual workflow 43094832318](https://github.com/my-edutu/Ai_games/actions/runs/43094832318) **FAILED before captures**: 125/126 focused Node/Three tests passed, but the older Pass261 pressure-counterbalance regression still required both jaw roots at Z=.12 even though Pass279 intentionally re-seated BOTH complete coupled 3D jaws at X=±.68, Y=-.035, Z=.44. This is a legitimate historical contract mismatch, not evidence of native renderer failure.
