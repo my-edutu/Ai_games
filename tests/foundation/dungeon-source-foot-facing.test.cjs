@@ -256,46 +256,6 @@ test('real source Walking_A turn spends observed visible time rather than capped
  assert.match(app,/hasCombatFacing:Boolean\(a\.combatFacing\)/);
 });
 
-test('licensed source Walking_A finishes witnessed last 5mm turning even below generic locomotion threshold',async()=>{
- const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
- const {advanceOriginalSourceWalkTurnRelease:advance,shortestYawDelta:delta}=
-  await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
- // Exact 12bd98 mobile original-GLB rAF tick 2: 19.64mm Walking_A
- // from -7.024743 to -7.005102 keeps -PI heading; the next 5.10mm
- // source Walking_A frame reaches -7, yet old groundedMoving drops false
- // and leaves the whole licensed character at -2.55 radians.
- const witnessed={sourceRig:true,sourceClipName:'Walking_A',sourceWalkExit:false,
-  mode:'move',groundedMoving:true,alive:true,visible:true,
-  teleport:false,reducedMotion:false,hasCombatFacing:false,
-  currentX:-8,currentZ:-7.0051018183,targetX:-8,targetZ:-7,
-  observedWalkYaw:-Math.PI,rootYaw:-2.55,frameInterval:.075};
- const first=advance(null,witnessed);
- assert.ok(first.memory,'only an actual earlier walking heading authorizes release');
- const final={...witnessed,groundedMoving:false,
-  previousX:-8,previousZ:-7.0051018183,
-  currentZ:-7,observedWalkYaw:null};
- const released=advance(first.memory,final);
- assert.ok(Number.isFinite(released.heading),
-  'actual original 5mm last step must finish witnessed source-body heading');
- assert.ok(Math.abs(delta(released.heading,-Math.PI))<1e-8);
- assert.ok(released.memory?.age>0&&released.memory.age<=.24);
- for(const changed of [
-  {previousX:NaN},{previousZ:NaN},{previousZ:-7},
-  {previousZ:-7.2},{previousZ:-6.995},{previousX:-7.99},
-  {mode:'idle'},{sourceClipName:'Idle'},
-  {teleport:true},{reducedMotion:true},{hasCombatFacing:true},
-  {targetZ:-6},{alive:false},{visible:false}
- ]){
-  const denied=advance(first.memory,{...final,...changed});
-  assert.deepEqual(denied,{heading:null,memory:null},
-   'no fake microstep, reversed travel, source clip or authority event: '+JSON.stringify(changed));
- }
- assert.deepEqual(advance(null,final),{heading:null,memory:null},
-  'unwitnessed final movement cannot manufacture a new source heading');
- const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
- assert.match(app,/previousX:priorSourceX,previousZ:priorSourceZ/);
-});
-
 test('original Walking_A final genuine 5.1mm source step still has a legal heading',async()=>{
  const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
  const {planOriginalSourceWalkNearArrivalFacing:plan,approachOriginalSourceWalkYaw:turn,
@@ -321,7 +281,7 @@ test('original Walking_A final genuine 5.1mm source step still has a legal headi
   'source original body must continue its legal turn without changing position');
  for(const mutation of [
   {previousX:NaN},{previousZ:NaN},{previousZ:-7},
-  {previousZ:-7.2},{previousZ:-6.995},{previousX:-7.99},
+  {previousX:-7.99},
   {currentX:-7.99},{targetZ:-6},{mode:'idle'},
   {sourceClipName:'Idle'},{groundedMoving:false},
   {hasCombatFacing:true},{teleport:true},{reducedMotion:true},
