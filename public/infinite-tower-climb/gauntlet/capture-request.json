@@ -5,7 +5,7 @@
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha of THIS exact immutable evidence request commit, including 88ba6ba1 camera and 616497aa tests; never moving branch",
   "repairedSourceSha": "88ba6ba1df48936dcddff11909bdc2a23e8ad394",
-  "reason": "After SUCCESS exact-source 10-job original capture 42950958038 at 653fa1c6 and prior full quality PASS 42950958039, inspect the new actual original 390x844 guardian film: 73s at native seconds 19–25 has repeated exterior shoulder jumps/crowded boss, and original camera observation bearing changes approximately -49.3deg to +50.5deg in ~1 source-second. Verify the new late last-successfully-submitted camera+gaze normal-speed continuity budget, preserving true skinned full-body sightlines, opaque tower core and authentic airborne landing via source-guarded veto. Run 10-job same-seed/tier 960x600 and 390x844 baseline/candidate at exact new request SHA; require strict 8/8 provenance, inspect guardian and crusher 19–25s, physically GROUNDED door crossing/floor9, result/intermission/restart in genuine images. Do NOT claim a subjective quality victory, device FPS, or independent critics from CI.",
+  "reason": "Request same-seed/low-tier 10-job original baseline/candidate 60+s recapture at exact immutable github.sha after new native original HUD raster witness 858c78b5. Four authentic prior original WebMs show actual drawn 8->9 HUD floor-change 2.393–3.642 sec AFTER independently calibrated source-event search times. Capture true original films, phase sidecars SHA-bound to unmodified video. Reject all event cue where native screen pixel phase does not match; preserve full original unsynchronized films. Do not infer browser/GPU lag, walker crossing, victory or quality from this isolated raster heuristic. Continue guardian/door/floor9/restart visually and independently.",
   "scenarios": [
     "ascent",
     "moving",
@@ -62,7 +62,7 @@
   "priorNewQualityRequest": "https://github.com/my-edutu/Ai_games/actions/runs/42689428953",
   "nativeFilmPairManifest": "https://github.com/my-edutu/Ai_games/actions/runs/42690134996/artifacts/13707336173",
   "nativeFilmIntegrityStatus": "42695480406 all 8 baseline/candidate WebM artifacts retained; 7/8 video jobs succeeded, baseline outcome failed and source-pair job failed; native timebase calibrated 6/8. Never mark all jobs or matched comparisons green.",
-  "nextHighestImpact": "Inspect immutable new 16-WebM source original A/B footage at 960x600/390x844 including full 13–26s portrait guardian battle and hero/boss source-to-drawn NDC delta, exact camera and physical gateway/cap crossing, floor9 and outcome/restart. Correct dominant actual visual obstruction; no independent critic or device score can be inferred from CI.",
+  "nextHighestImpact": "Verify new exact-source all-case capture. Investigate native original source-event time estimation vs drawn HUD before synchronized review; improve live two-body guardian framing and physically show gateway, floor9, restart. Independent critics each 0/5, actual hardware unmeasured.",
   "captureRequestedForExactHead": true,
   "latestCaptureRequestParentSha": "06ee10b5db00ea7f6aa5a25e11d7492375819e88",
   "latestQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/42793342425",
@@ -478,5 +478,12 @@
     },
     "result": "NOT EVALUATED; do not claim a successful recording or quality verdict before job results",
     "review": "docs/reviews/2026-11-11-tower-pr68-original-duel-ungraded-review-bundle.md"
-  }
+  },
+  "lastOriginal10JobRun": "https://github.com/my-edutu/Ai_games/actions/runs/42960858841",
+  "lastOriginalCandidateSha": "bdabf39e49cf7ecd62c0ec7c8721991c5b816266",
+  "newNativeHudObserverSha": "858c78b5a0f2fbdc95056c6803aca5162cadce87",
+  "sourceSearchToRasterDeltaSecondsRange": [
+    2.393,
+    3.642
+  ]
 }

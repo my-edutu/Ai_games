@@ -7693,5 +7693,62 @@
     "review": "docs/reviews/2026-11-11-tower-pr68-original-duel-ungraded-review-bundle.md",
     "nextHighestImpactAction": "Verify new exact-head 1363+ original suite and original 10-job desktop/portrait captured clips; inspect blind native full motion and any nonaligned desktop event honestly, without leaking audit metadata; physically reconstruct remaining portrait living guardian/hammer two-character staging and real walkable threshold if visual blockage persists; prove floor-nine and original outcome/restart on native frames, then hardware and 5 independent randomized critics each pillar.",
     "safety": "Draft PR68 exclusively; PR58/main/other games untouched. Frozen baseline is immutable. No merge, deploy, force push or review claim."
+  },
+  "p0OriginalHudRasterSourceSearchDisagreement20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineFrozenSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceImplementationSha": "858c78b5a0f2fbdc95056c6803aca5162cadce87",
+    "priorFilmedCandidateSha": "bdabf39e49cf7ecd62c0ec7c8721991c5b816266",
+    "originalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42960858841",
+    "originalBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42960858841/artifacts/13829121969",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/42960858841/artifacts/13829042165",
+    "previousExactCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42968273793 — success at 2ea4bbd76; not gameplay certification",
+    "newCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42973700027 — queued when first inspected",
+    "verifiedOriginalVideoObservation": "Four unmodified real >=70sec native original baseline/candidate WebMs at 390x844 and 960x600 decoded at 4fps. Actual white Floor HUD digit 8 vs 9 connected-counter-shape phase observed; 2.393–3.642s later than separate native-source event SEARCH estimate in all 4 films. Discrepancy does not independently measure GPU latency, physical gate crossing, boss-defeat images or game-quality advantage.",
+    "originalFilmComparisons": [
+      {
+        "source": "baseline",
+        "viewport": "portrait",
+        "sourceSearchSeconds": 16.334,
+        "drawnHudSeconds": 19,
+        "deltaSeconds": 2.666
+      },
+      {
+        "source": "baseline",
+        "viewport": "desktop",
+        "sourceSearchSeconds": 16.358,
+        "drawnHudSeconds": 20,
+        "deltaSeconds": 3.642
+      },
+      {
+        "source": "candidate",
+        "viewport": "portrait",
+        "sourceSearchSeconds": 23.107,
+        "drawnHudSeconds": 25.5,
+        "deltaSeconds": 2.393
+      },
+      {
+        "source": "candidate",
+        "viewport": "desktop",
+        "sourceSearchSeconds": 23.095,
+        "drawnHudSeconds": 26,
+        "deltaSeconds": 2.905
+      }
+    ],
+    "implementation": "New original HUD raster detector and source comparison added to hash-bound native scene phase; source-cued blinded review veto when drawn pixel phase contradicts estimated source event clock; unchanged original WebM retains unaligned inspection. No gameplay/camera/renderer/hazard/seed/authority/baseline changes.",
+    "validation": "3 focused Node 22 helper tests passed locally; four authentic original videos decoded and 8->9 phases checked (4fps samples 284/282/291/290). Exact-head CI and post-implementation source-pinned new films NOT YET VERIFIED.",
+    "biggestExperienceGap": "Native portrait candidate battle still shows small separated blue climber/bronze guardian amid huge scaffold and hoists; visual cause-effect of guardian/crusher, actual grounded gateway and floor-nine onward not accepted. Source event search timecode cannot substitute for frame-matched action.",
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0,
+      "requiredPerPillar": 5,
+      "minimumCandidatePreferences": 4
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Capture new immutable source-pinned 10-job baseline/candidate desktop+portrait films, resolve source-event estimated-clock vs original HUD raster discrepancy without retiming either WebM or game clock; physically restage guardian/threshold based on original full-motion visible problem; visually verify floor9 and restart; real devices plus 5 independent randomized blind critics per pillar remain open.",
+    "review": "docs/reviews/2026-11-11-tower-pr68-original-WebM-drawn-hud-source-discrepancy.md",
+    "safety": "Only draft PR68 advanced with safe fast-forward; no PR58/main/Tiny Kingdom/Maze/AI vs 1000 Floors edits; baseline preserved."
   }
 }
