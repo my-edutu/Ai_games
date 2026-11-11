@@ -20,7 +20,7 @@ This is a contract-observed defect, **not** a claim that the archived clips spec
 New `tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs` runs in the D04-only workflow. Six native scenarios cover true adjacent HP loss with an alive-but-hidden shard and one actual frame, duplicated frame receipt, hidden guard, no HP delta, 440ms stale render, expired shard and explicit mute.
 
 - Red: [run 43118034496](https://github.com/my-edutu/Ai_games/actions/runs/43118034496), 134/135 native assertions passed, **one expected failure** at the hidden HP case (`expected: 1, actual: 0`). Real-preview correctly skipped on failing contracts.
-- Green native/build candidate: [run 43118216710](https://github.com/my-edutu/Ai_games/actions/runs/43118216710), **135/135 native tests passed and production build passed**; browser/real-media conclusion must be separately checked before any claim of full success.
+- Green candidate: [run 43118216710](https://github.com/my-edutu/Ai_games/actions/runs/43118216710), **135/135 native tests passed, production build passed, SHA-verified assets passed and genuine Chrome/Three.js smoke passed (one Playwright test)**. Its recorder reported `RECEIPT_READBACK_VIDEO_AND_EARLIER_AUDIO_RECORDED_UNALIGNED`, with `sameWindowMovingAV:false`, `synchronized:false`; ffprobe/ffmpeg were unavailable on that runner and decoded video motion remained `UNAVAILABLE`. This is NOT accepted audiovisual timing evidence.
 - Test and implementation were committed separately for review; CI remains scoped to the isolated branch.
 
 ## Authentic evidence and limitations
