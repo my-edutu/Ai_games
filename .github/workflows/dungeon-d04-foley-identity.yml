@@ -6,6 +6,7 @@ on:
     paths:
       - public/ai-dungeon/original-combat-foley.js
       - public/ai-dungeon/physical-combat-feedback.js
+      - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
