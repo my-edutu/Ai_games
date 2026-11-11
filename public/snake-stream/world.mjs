@@ -189,16 +189,31 @@ export function planCohesiveRuinsPaving(width,height){
  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2)
    throw new RangeError('Bounded positive physical masonry dimensions required');
  const hash=(x,z,s)=>{const n=Math.sin((x+s)*127.1+(z+s)*311.7)*43758.5453;return n-Math.floor(n);};
- const used=new Uint8Array(width*height),plan=[];
- for(let z=0;z<height;z++)for(let x=0;x<width;x++){
-   if(used[z*width+x])continue;
-   let w=Math.min(width-x,2+Math.floor(hash(x,z,29)*2));
-   while(w>1&&Array.from({length:w},(_,i)=>used[z*width+x+i]).some(Boolean))w--;
-   let h=height-z>1&&hash(x,z,73)>.24?2:1;
-   if(h===2)for(let xx=x;xx<x+w;xx++)if(used[(z+1)*width+xx])h=1;
-   for(let zz=z;zz<z+h;zz++)for(let xx=x;xx<x+w;xx++)used[zz*width+xx]=1;
-   plan.push({x,z,w,h});
- }
+ const plan=[];
+ // A variable-height, recursive ancient quarry: no uniform cell-sized chess
+ // board and no continuous rows of joints from one shoreline to the other.
+ // Every original integer gameplay cell is still covered by ONE physical
+ // stone; this partition is never consulted by the autonomous simulation.
+ const split=(x,z,w,h,depth)=>{
+   if(w<=6&&h<=4&&w*h<=18){
+     // Small 8×8 arenas still need a few genuinely fractured minor stones,
+     // not six identical monoliths; keep even their full cell coverage.
+     if(width<=8&&height<=8&&plan.length===0&&w>=3&&h>=2){
+       split(x,z,2,h,depth+1);split(x+2,z,w-2,h,depth+1);return;
+     }
+     plan.push({x,z,w,h});return;
+   }
+   const alongX=w>6 || (h<=4&&w>3) || (w>=h*1.48);
+   const alongZ=h>4 || (w<=6&&h>2) || (h>=w*1.48);
+   const vertical=alongX&&!alongZ?true:alongZ&&!alongX?false:hash(x+depth,z,13)>.50;
+   const length=vertical?w:h;
+   if(length<=1){plan.push({x,z,w,h});return;}
+   const jitter=.34+.32*hash(x+depth*7,z+depth*11,29);
+   const cut=Math.min(length-1,Math.max(1,Math.round(length*jitter)));
+   if(vertical){split(x,z,cut,h,depth+1);split(x+cut,z,w-cut,h,depth+1);}
+   else{split(x,z,w,cut,depth+1);split(x,z+cut,w,h-cut,depth+1);}
+ };
+ split(0,0,width,height,0);
  return plan;
 }
 
