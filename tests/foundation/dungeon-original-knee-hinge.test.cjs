@@ -161,3 +161,42 @@ test('source-space knee lengths survive anisotropic original GLB fitting; bind c
  assert.match(renderer,/sourceUpperLength,sourceLowerLength/,
   'the live heel-safe gate must expose actual comparable source lengths');
 });
+
+
+test('licensed left-knee 1.05-radian source-key interval is not mistaken for invalid knee twist',async()=>{
+ const {inferImportedSourceKneeBendAxis:infer}=await load();
+ // Verified from pinned CC0 player_swordsman.glb Git blob
+ // 24492f0e0609708495284bdb8759b98f2bd66f49, Walking_A 26-key
+ // lowerleg.l rotation track. X/W are rounded 7-decimal source FLOAT32;
+ // source Y/Z are ~1e-7, immaterial to the actual source hinge direction.
+ // The legitimate frame 11 -> 12 rapid knee bend is ~1.0504 radians.
+ const sourceXW=[
+  [.3766118,.9263712],[.4760455,.8794207],[.5894082,.8078354],
+  [.632012,.7749587],[.5896971,.8076246],[.4633231,.8861895],
+  [.3257498,.945456],[.2148799,.9766405],[.0019684,.9999981],
+  [.0019798,.999998],[.0019858,.999998],[.0019712,.9999981],
+  [.5030899,.8642341],[.7277589,.685833],[.8412695,.5406159],
+  [.8969137,.4422056],[.9199988,.3919213],[.9352044,.3541085],
+  [.9376636,.3475442],[.9104039,.4137207],[.8649767,.501812],
+  [.8305001,.5570185],[.8332656,.5528729],[.8296178,.5583317],
+  [.7070389,.7071747],[.4756045,.8796592]
+ ];
+ const sourced={name:'Walking_A',duration:1.0416666269302368,tracks:[{
+  name:'lowerlegl.quaternion',
+  times:sourceXW.map((_,i)=>i/24),
+  values:sourceXW.flatMap(([x,w])=>[x,0,0,w])
+ }]};
+ const receipt=infer(sourced,'lowerlegl');
+ assert.equal(receipt?.source,'verified-original-Walking_A-knee-quaternion-axis',
+  'genuine licensed left-calf must not falsely fail at its rapid authored key interval');
+ assert.ok(receipt.peakStepRadians>1.04&&receipt.peakStepRadians<1.07,
+  'the 1.05-rad interval must come from real keyed source motion');
+ assert.ok(Math.abs(receipt.axis[0])>.999&&receipt.dominance>.99);
+ assert.ok(receipt.sampleCount>=3);
+ // A larger, physically unverified discontinuity still has to fail closed.
+ const malformed={...sourced,tracks:[{...sourced.tracks[0],
+  values:sourceXW.map(([x,w],i)=>i===12?
+   rotation(2.7,[0,1,0]):[x,0,0,w]).flat()}]};
+ assert.equal(infer(malformed,'lowerlegl'),null,
+  'large axis-breaking discontinuity cannot become an original-rig correction');
+});
