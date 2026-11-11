@@ -16,23 +16,39 @@ const PROFILES=Object.freeze({
  cultist:Object.freeze({chest:.16,waist:.16,limb:.09,depth:.11}),
  warden:Object.freeze({chest:.44,waist:.29,limb:.28,depth:.26,head:.42,jaw:.29})
 });
-const PART=/(?:^|_)(Body|ArmLeft|ArmRight|LegLeft|LegRight|Head)$/i;
+const PART=/(?:^|_)(Body|ArmLeft|ArmRight|LegLeft|LegRight|Head|Skull|Jaw|Eyes)$/i;
+const isNativeSkull=name=>/(?:^|_)(?:Head|Skull)$/i.test(name);
+const isNativeFace=name=>/(?:^|_)(?:Jaw|Eyes)$/i.test(name);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const bump=(t,c,w)=>Math.exp(-Math.pow((t-c)/w,2));
 
-export function planNativeFigureSculpt(kind,name,bounds){
+export function planNativeFigureSculpt(kind,name,bounds,sourceHeadBounds=null){
  const p=typeof kind==='string'&&Object.hasOwn(PROFILES,kind)?PROFILES[kind]:null;
  const m=typeof name==='string'&&name.length<=128?PART.exec(name):null;
  const min=bounds?.min,max=bounds?.max;
  if(!p||!m||![min?.x,min?.y,min?.z,max?.x,max?.y,max?.z].every(Number.isFinite))return null;
  const width=max.x-min.x,depth=max.z-min.z,height=max.y-min.y;
  if(width<.012||depth<.012||height<.045||Math.max(width,depth,height)>100)return null;
- // Only three genuine source-rig exemplar heads receive the original facial refit.
- if(/^head$/i.test(m[1])&&!Number.isFinite(p.head))return null;
- return Object.freeze({kind,part:/^body$/i.test(m[1])?'body':/^head$/i.test(m[1])?'head':/^arm/i.test(m[1])?'arm':'leg',
-  centerX:(min.x+max.x)/2,centerZ:(min.z+max.z)/2,minY:min.y,
-  invHeight:1/height,maxXShift:Math.min(width*(/^head$/i.test(m[1])?.18:/^body$/i.test(m[1])?.16:.18),height*.16),
-  maxZShift:Math.min(depth*(/^head$/i.test(m[1])?.16:/^body$/i.test(m[1])?.16:.17),height*.16),
+ const skull=isNativeSkull(m[1]),face=isNativeFace(m[1]);
+ // A real skinned jaw/eyes mesh shares the SKULL's bind space. Never scale
+ // these tiny independently bounded pieces as if each were a separate head.
+ if((skull||face)&&!Number.isFinite(p.head))return null;
+ const space=face?sourceHeadBounds:bounds;
+ const lo=space?.min,hi=space?.max;
+ if(![lo?.x,lo?.y,lo?.z,hi?.x,hi?.y,hi?.z].every(Number.isFinite))return null;
+ const sw=hi.x-lo.x,sd=hi.z-lo.z,sh=hi.y-lo.y;
+ if(sw<.012||sd<.012||sh<.045||Math.max(sw,sd,sh)>100)return null;
+ // The companion facial surfaces must actually lie near the source skull;
+ // do not reshape unrelated objects or fragments that happen to share names.
+ if(face&&(max.y<lo.y-.25*sh||min.y>hi.y+.25*sh||
+   min.x>hi.x+.25*sw||max.x<lo.x-.25*sw||
+   min.z>hi.z+.25*sd||max.z<lo.z-.25*sd))return null;
+ const part=/^body$/i.test(m[1])?'body':skull?'head':face?m[1].toLowerCase():/^arm/i.test(m[1])?'arm':'leg';
+ const cranial=skull||face;
+ return Object.freeze({kind,part,
+  centerX:(lo.x+hi.x)/2,centerZ:(lo.z+hi.z)/2,minY:lo.y,
+  invHeight:1/sh,maxXShift:Math.min(sw*(cranial?.18:.125),sh*.16),
+  maxZShift:Math.min(sd*(cranial?.16:.125),sh*.16),
   side:/Left$/i.test(m[1])?'left':/Right$/i.test(m[1])?'right':null,...p});
 }
 
@@ -43,7 +59,7 @@ export function planNativeFigureVertex(plan,x,y,z){
  const crown=bump(t,.76,.23),brow=bump(t,.56,.17),jaw=bump(t,.28,.18);
  const shoulder=bump(t,.84,.16),rib=bump(t,.70,.20),waist=bump(t,.37,.17);
  let width=0,depth=0;
- if(plan.part==='head'){
+ if(plan.part==='head'||plan.part==='jaw'||plan.part==='eyes'){
   // Originate the brow, temple and tapering jaw IN the authentic textured
   // source-skinned face. Keep its crown/neck vertices, joints and UVs fixed.
   // No detachable skull, helmet, faceplate or false animation is introduced.

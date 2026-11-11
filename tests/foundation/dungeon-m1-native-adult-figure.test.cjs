@@ -89,3 +89,30 @@ test('original adult skinned silhouette follows continuous anatomical loads, rol
  for(const bad of [null,{x:0,y:0,z:0},'strange'])assert.equal(
   planNativeFigureVertex(bad,NaN,0,0),null);
 });
+
+test('original Revenant/Warden source skull, jaw and eyes keep one connected bind-space face',async()=>{
+ const {planNativeFigureSculpt,planNativeFigureVertex}=await load();
+ // The real licensed enemy_swordsman.glb has separate skinned Head, Jaw and Eyes.
+ // Their vertices share ONE imported skeleton/bind space, not independent local
+ // facial origins; reshaping only the skull strands the teeth and pupils.
+ const skull={min:{x:-.2595,y:.8039,z:-.2826},max:{x:.2595,y:1.3353,z:.2798}};
+ const jaw={min:{x:-.14075,y:.7252,z:-.0583},max:{x:.14076,y:.9255,z:.2452}};
+ const eyes={min:{x:-.14165,y:.9726,z:.1371},max:{x:.14165,y:1.0505,z:.1837}};
+ for(const kind of ['revenant','warden']){
+  const head=planNativeFigureSculpt(kind,'Skeleton_Warrior_Head',skull);
+  const chin=planNativeFigureSculpt(kind,'Skeleton_Warrior_Jaw',jaw,skull);
+  const gaze=planNativeFigureSculpt(kind,'Skeleton_Warrior_Eyes',eyes,skull);
+  assert.ok(head&&chin&&gaze,kind+' retains every actual native facial surface');
+  assert.equal(chin.part,'jaw');assert.equal(gaze.part,'eyes');
+  for(const [x,y,z] of [[.12,.885,.19],[.11,1.02,.17]]){
+   const skullPoint=planNativeFigureVertex(head,x,y,z);
+   const jawPoint=planNativeFigureVertex(chin,x,y,z);
+   const eyePoint=planNativeFigureVertex(gaze,x,y,z);
+   assert.ok(Math.abs(skullPoint.x-jawPoint.x)<1e-9&&Math.abs(skullPoint.z-jawPoint.z)<1e-9);
+   assert.ok(Math.abs(skullPoint.x-eyePoint.x)<1e-9&&Math.abs(skullPoint.z-eyePoint.z)<1e-9);
+  }
+  assert.equal(planNativeFigureSculpt(kind,'Skeleton_Warrior_Jaw',jaw),null,'jaw requires original head coordinates');
+  assert.equal(planNativeFigureSculpt(kind,'Skeleton_Warrior_Eyes',eyes,null),null,'eyes fail closed without head');
+ }
+ assert.equal(planNativeFigureSculpt('ranger','Skeleton_Warrior_Jaw',jaw,skull),null,'no invented Ranger facial pieces');
+});

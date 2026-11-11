@@ -859,12 +859,22 @@ function bindRigWardrobe(actor){
  * animated. No detached silhouette, draw calls or gameplay-state changes.
  */
 function fitOriginalNativeFigure(actor){
- const report={segments:0,headSegments:0,changedVertices:0,maxShiftRaw:0};
+ const report={segments:0,headSegments:0,faceSegments:0,changedVertices:0,maxShiftRaw:0};
+ // Read the ORIGINAL source skull before any geometry is cloned/sculpted.
+ // Separately skinned jaw and eyes share the same native bind-space frame.
+ let originalHeadBounds=null;
+ actor.assetRoot?.traverse(obj=>{
+  if(!obj.isSkinnedMesh||!/(?:^|_)(?:Head|Skull)$/i.test(obj.name)||
+   !obj.geometry?.isBufferGeometry||originalHeadBounds)return;
+  if(!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
+  if(planNativeFigureSculpt(actor.u.kind,obj.name,obj.geometry.boundingBox))
+   originalHeadBounds=obj.geometry.boundingBox.clone();
+ });
  actor.assetRoot?.traverse(obj=>{
   if(!obj.isSkinnedMesh||!obj.geometry?.isBufferGeometry)return;
   const shared=obj.geometry;
   if(!shared.boundingBox)shared.computeBoundingBox();
-  const plan=planNativeFigureSculpt(actor.u.kind,obj.name,shared.boundingBox);
+  const plan=planNativeFigureSculpt(actor.u.kind,obj.name,shared.boundingBox,originalHeadBounds);
   if(!plan)return;
   const privateGeometry=shared.clone();
   const receipt=sculptNativeFigureGeometry(privateGeometry,plan);
@@ -875,6 +885,7 @@ function fitOriginalNativeFigure(actor){
   actor.assetGeometries.push(privateGeometry);
   report.segments++;
   if(plan.part==='head')report.headSegments++;
+  if(plan.part==='jaw'||plan.part==='eyes')report.faceSegments++;
   report.changedVertices+=receipt.changed;
   report.maxShiftRaw=Math.max(report.maxShiftRaw,receipt.maxShiftRaw);
  });
