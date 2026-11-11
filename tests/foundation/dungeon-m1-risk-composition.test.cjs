@@ -35,7 +35,7 @@ test('23+ true Warden danger tiles and both native bodies fit one physical 390px
  assert.ok(chosen.framing.minHeroPixels>=baseline.minHeroPixels*.90);
  assert.ok(chosen.separationGainPx>=-4);
  assert.ok(chosen.lookShiftMeters>0&&chosen.lookShiftMeters<=2.25);
- assert.ok(chosen.checked<=90,'no continuous full-scene/per-frame WebGL search');
+ assert.ok(chosen.checked<=180,'one bounded physical shot search per real Warden warning, never per frame');
  const sceneBase={look:chosen.look,position:{
   x:input.base.position.x+(chosen.look.x-input.base.look.x),
   y:input.base.position.y,z:input.base.position.z+(chosen.look.z-input.base.look.z)}};
@@ -85,9 +85,28 @@ test('physical director integrates warning centroid with truth-preserving 3D sou
  assert.equal(shot.occlusion.reason,'threat-safe-optical-framing');
  assert.ok(shot.occlusion.requiredFovAfter<=52.5);
  assert.ok(shot.occlusion.minimumCriticalPixelsAfter>=shot.occlusion.minimumCriticalPixelsBefore*.9);
+ assert.ok(shot.position.y<=input.base.position.y-.8,
+  'the real physical director must adopt the accepted lowered source-rig shot');
+ assert.ok(shot.occlusion.minimumCriticalPixelsAfter>=shot.occlusion.minimumCriticalPixelsBefore+4,
+  'must increase original bodies without weakening the actual danger, stone or occlusion checks');
  assert.deepEqual(d.resolve(input.state,input.base,options),shot,'one stable warning exposure');
  assert.equal(d.metrics().checks,1);
  assert.equal(JSON.stringify(input),original);
  assert.equal(createPhysicalCameraDirector().resolve(input.state,input.base,
   {...options,reducedMotion:true}),null);
+});
+
+test('portrait Warden camera earns a real lower-angle source-body gain with every dangerous tile still visible',async()=>{
+ const {planWardenThreatComposition,assessThreatOrbit}=await load('warden-threat-orbit.js');
+ const input=createScene(),original=JSON.stringify(input);
+ const baseline=assessThreatOrbit(input,input.base.position);
+ const chosen=planWardenThreatComposition(input);
+ assert.equal(chosen.status,'IMPROVED');
+ assert.ok(chosen.lift<=-.8,'must explore a genuinely lower physical 3D camera, not only spin a high overhead shot');
+ assert.ok(chosen.framing.minHeroPixels>=baseline.minHeroPixels+4,
+  'native original skinned source silhouettes must gain actual on-screen pixels');
+ assert.ok(chosen.framing.fitFov<=input.fov-.5,'fit all four corners of every real warning cell');
+ assert.ok(chosen.framing.bodyGapPx>=baseline.bodyGapPx-4,'avoid hiding one original fighting rig behind another');
+ assert.ok(chosen.checked<=180,'bounded search once per true warning, not per frame');
+ assert.equal(JSON.stringify(input),original,'optical composition cannot change authoritative state');
 });
