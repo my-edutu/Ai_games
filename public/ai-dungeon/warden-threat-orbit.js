@@ -90,6 +90,11 @@ export function planWardenThreatOrbit(input){
  const baseline=assessThreatOrbit(input,input.base.position);
  if(!baseline.valid||baseline.minHeroPixels<5)return empty;
  const N=input.state.map.length;
+ // If the original portrait view crops a genuine hazard, restore ALL the
+ // imminent danger first, provided the native actor silhouette does not
+ // materially shrink. Only an already-safe baseline can demand a >=8% and
+ // >=3px body-size improvement. Authority safety outranks decoration.
+ const dangerRescue=baseline.fitFov>input.fov-.5;
  // Bounded genuine optical approaches, rather than an abstract FOV gain:
  // each candidate projects all dangerous tile corners and original bone
  // silhouettes at the ACTUAL existing 390px lens.
@@ -100,14 +105,19 @@ export function planWardenThreatOrbit(input){
   const position=orbitThreatCamera(input.base,angle,N,approach),v=assessThreatOrbit(input,position);
   if(!v.valid||v.fitFov>Math.min(82,input.fov-.5))continue;
   const gainPx=v.minHeroPixels-baseline.minHeroPixels;
-  if(gainPx<Math.max(3,baseline.minHeroPixels*.08))continue;
-  const value=gainPx-.8*Math.abs(angle)-1.2*(1-approach.reach)-.2*approach.lift;
+  if(dangerRescue){
+   // This is not a character-size win: keep >=90% of the original true
+   // body pixel height while un-cropping every genuine attack cell.
+   if(v.minHeroPixels<baseline.minHeroPixels*.90)continue;
+  }else if(gainPx<Math.max(3,baseline.minHeroPixels*.08))continue;
+  const value=(dangerRescue?(baseline.fitFov-v.fitFov)*12+gainPx:gainPx)
+   -.8*Math.abs(angle)-1.2*(1-approach.reach)-.2*approach.lift;
   if(!best||value>best.value)best={angle,reach:approach.reach,lift:approach.lift,
     position,framing:v,value};
  }
  if(!best)return {status:'UNCHANGED',baseline,threatCells:baseline.threatCells,
   criticalActors:baseline.criticalActors};
- return Object.freeze({status:'IMPROVED',angle:best.angle,reach:best.reach,
+ return Object.freeze({status:'IMPROVED',dangerRescue,angle:best.angle,reach:best.reach,
   lift:best.lift,position:best.position,framing:best.framing,baseline,
   threatCells:baseline.threatCells,criticalActors:baseline.criticalActors,
   gainPixels:Number((best.framing.minHeroPixels-baseline.minHeroPixels).toFixed(2)),

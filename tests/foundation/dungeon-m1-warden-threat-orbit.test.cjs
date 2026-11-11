@@ -23,7 +23,11 @@ test('real RIFT_CROSS original risk cells receive a lens-safe optical gain witho
  assert.equal(plan.status,'IMPROVED');
  assert.equal(plan.threatCells,s.bossWarning.cells.length);
  assert.equal(plan.criticalActors,2);
- assert.ok(plan.gainPixels>=Math.max(3,plan.baseline.minHeroPixels*.08));
+ if(plan.dangerRescue){
+  assert.ok(plan.baseline.fitFov>52.5,'unfitted baseline must be verified');
+  assert.ok(plan.framing.minHeroPixels>=plan.baseline.minHeroPixels*.90,
+   'rescuing authentic danger must not greatly diminish imported actor bodies');
+ }else assert.ok(plan.gainPixels>=Math.max(3,plan.baseline.minHeroPixels*.08));
  assert.ok(plan.reach>=.84&&plan.reach<=1);
  assert.ok(plan.lift>=0&&plan.lift<=.70);
  assert.ok(plan.framing.minHeroPixels>=plan.baseline.minHeroPixels*1.08);
@@ -66,7 +70,9 @@ test('genuine 13-cell warning earns a bounded physical orbit and preserves check
  assert.ok(chosen,'actual 13-cell geometry fits without physical blocking');
  assert.equal(chosen.occlusion.reason,'threat-safe-optical-framing');
  assert.equal(chosen.occlusion.actualThreatCells,state.bossWarning.cells.length);
- assert.ok(chosen.occlusion.minimumCriticalPixelsAfter>chosen.occlusion.minimumCriticalPixelsBefore+3);
+ if(chosen.occlusion.requiredFovBefore>52.5)
+  assert.ok(chosen.occlusion.minimumCriticalPixelsAfter>=chosen.occlusion.minimumCriticalPixelsBefore*.90);
+ else assert.ok(chosen.occlusion.minimumCriticalPixelsAfter>chosen.occlusion.minimumCriticalPixelsBefore+3);
  assert.ok(chosen.occlusion.requiredFovAfter<=52.5);
  assert.equal(JSON.stringify(state),snapshot);
  assert.equal(director.metrics().checks,1);
