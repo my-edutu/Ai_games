@@ -15,9 +15,10 @@ export const GUARDIAN_TRANSMISSION_LAYOUT = Object.freeze({
  // retain the same outboard bearing, visible source damage and door mechanics.
  // At maximum authentic opening the hanging weights still stop above y=5.
  // The 1.40m bronze weight slides down 2.35m on genuine source HP0.
-  // Full guide ends at 5.065m (above the combat/threshold airspace),
-  // contains its 5.10m lower edge and reaches the overhead bearing.
-  railCenterY:7.74,railHeight:5.35,weightCenterY:8.15,socketY:8.85,
+  // The original steel guide ends at y=5.105m (>5.1m combat clearance),
+  // contains the full source-open bronze load's lower edge at 5.11m,
+  // and reaches the real overhead bearing without shortening the stroke.
+  railCenterY:7.77,railHeight:5.33,weightCenterY:8.16,socketY:8.85,
  cameraLowerY:5.0,cameraTopY:11.40,sourceGateCenterY:2
 });
 export function observedGuardianTransmissionCorners(lockCenter) {
