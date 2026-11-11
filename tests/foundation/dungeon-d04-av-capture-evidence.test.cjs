@@ -164,3 +164,51 @@ test('D04 persists independent encoded tracks with explicit UNALIGNED provenance
   assert.deepEqual(manifest.retained,{webm:false,wav:false,isolatedVideoWebm:true,isolatedAudioWebm:true});
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+
+const nativeVideoGood={...isolatedValid.videoOnly,
+ source:'real-webgl-canvas-native-video-only',
+ framePump:{mode:'native-capture-stream',observedFrameAdvances:3,requestedFrames:0,requestFailures:0}};
+
+test('D04 differentiates genuine native canvas capture from failing explicit-frame encoder',()=>{
+ const assessed=assessD04Capture({...good,clip:{...good.clip,bytes:0,status:'UNAVAILABLE'},
+  isolated:{videoOnly:{...isolatedValid.videoOnly,status:'UNAVAILABLE',bytes:0},
+   nativeVideoOnly:nativeVideoGood,audioOnly:isolatedValid.audioOnly}});
+ assert.equal(assessed.isolatedVideoRecorded,false);
+ assert.equal(assessed.isolatedNativeVideoRecorded,true);
+ assert.equal(assessed.isolatedAudioRecorded,true);
+ assert.equal(assessed.encoderDiagnosis,'NATIVE_VIDEO_RECORDED_EXPLICIT_VIDEO_UNVERIFIED');
+ assert.equal(assessed.classification,'UNVERIFIED');
+ assert.equal(assessed.sampleSynchronized,false);
+});
+
+test('D04 native canvas encoder cannot pass from frame requests or generic screen capture alone',()=>{
+ for(const invalid of [
+  {...nativeVideoGood,source:'playwright-page-video'},
+  {...nativeVideoGood,framePump:{...nativeVideoGood.framePump,observedFrameAdvances:0}},
+  {...nativeVideoGood,framePump:{mode:'submitted-frame-request',observedFrameAdvances:3,requestedFrames:3,requestFailures:0}},
+  {...nativeVideoGood,audioTracks:1},
+  {...nativeVideoGood,bytes:0}
+ ]){
+  assert.equal(assessD04Capture({...good,isolated:{nativeVideoOnly:invalid}})
+   .isolatedNativeVideoRecorded,false);
+ }
+});
+
+test('D04 retains a native video-only probe separately, never as combined A/V',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-native-canvas-'));
+ try{
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},
+   isolated:{nativeVideoOnly:{...nativeVideoGood,base64:Buffer.alloc(32000,7).toString('base64')}},
+   frames:good.frames};
+  const assessment=assessD04Capture({...good,...raw});
+  const files=persistD04CaptureEvidence({directory,raw,assessment});
+  assert.equal(fs.statSync(files.isolatedNativeVideoWebm).size,32000);
+  assert.equal(files.webm,null);
+  const doc=JSON.parse(fs.readFileSync(files.manifest,'utf8'));
+  assert.equal(doc.assessment.combinedVideoAudio,false);
+  assert.equal(doc.assessment.sampleSynchronized,false);
+  assert.equal(doc.retained.isolatedNativeVideoWebm,true);
+  assert.equal(doc.isolated.nativeVideoOnly.base64,undefined);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
