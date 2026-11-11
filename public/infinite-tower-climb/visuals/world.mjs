@@ -825,6 +825,7 @@ export function createTowerWorld(){
       well.name='ClockworkOpenCentralPressureWell';
       well.position.z=-3;root.add(well);
       
+      const openingBottom=9,openingTop=height+10;
       // Native source ray-witnesses identify this wall of eight high ribs as an
       // actual screen-space obstruction during the floor-eight guardian.
       // Keep five tall rear stays connected to the crown; replace the three
