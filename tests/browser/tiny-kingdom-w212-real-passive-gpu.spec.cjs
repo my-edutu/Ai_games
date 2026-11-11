@@ -29,28 +29,55 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     metrics:g.metrics()};
   });
   expect(residents.resting.length,'Only real citizens returned home').toBeGreaterThan(0);
+  // The viewer must physically encounter one true, SMALL idle body on its
+  // own original camera route. Record every failed camera/LOD attempt rather
+  // than silently interpreting a missing near-screen actor as a broken GPU.
+  // Desktop and phone use different optics: try wide enough to meet the
+  // 11.5% apparent-height limit but not so wide that all citizens are offscreen.
   let view=null;
-  const realTargets=residents.resting.slice(0,9);
+  const probes=[],realTargets=residents.resting.slice(0,9);
+  await page.evaluate(()=>window.__tinyKingdom
+   .setWorkingSkinEnabledForTesting(true));
   for(const citizen of realTargets){
-   for(const zoom of [18,23,28]){
-    const n=await page.evaluate(({citizen,zoom})=>{
+   for(const zoom of [18,23,28,32,38,44,52]){
+    const frame=await page.evaluate(({citizen,zoom})=>{
      const g=window.__tinyKingdom;
-     g.setWorkingSkinEnabledForTesting(true);
      g.setCamera({focus:citizen.position,yaw:.58,pitch:.86,zoom});
      return g.getFrameProfile().totalFrames;
     },{citizen,zoom});
     await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile()
-     .totalFrames>n,n,{timeout:125000});
-    const r=await page.evaluate(()=>window.__tinyKingdom.getForegroundSkinAudit());
-    if(r.physicallySkinnedPassiveResidents>0){
+     .totalFrames>n,frame,{timeout:125000});
+    const r=await page.evaluate(()=>{
+     const g=window.__tinyKingdom;
+     return {skin:g.getForegroundSkinAudit(),
+      resident:g.getForegroundResidentAudit(),
+      resting:g.getRestingActorResidencyAudit(),
+      policy:g.getCitizenDetailProjectionAudit(),
+      camera:g.getCamera()};
+    });
+    probes.push({citizen:citizen.name,zoom,
+     skinned:r.skin.physicallySkinnedPassiveResidents,
+     visible:r.resident.visiblePeople,
+     storedResting:r.resting.actualCitizens,
+     residentNames:r.resident.originalNames,
+     detail:r.policy.fullDetailCount,
+     detailVisible:r.policy.visibleCandidates,
+     fullSkinNames:r.skin.names,
+     camera:r.camera});
+    if(r.skin.physicallySkinnedPassiveResidents>0){
      view={citizen:citizen.name,position:citizen.position,
-      camera:{focus:citizen.position,yaw:.58,pitch:.86,zoom},initial:r};
+      camera:{focus:citizen.position,yaw:.58,pitch:.86,zoom},
+      initial:r.skin};
      break;
     }
    }
    if(view)break;
   }
-  expect(view,'A genuine small resting person must use original GPU joint residency')
+  await info.attach('w212-real-citizen-camera-eligibility-'+viewport.width,{
+   body:Buffer.from(JSON.stringify({realCitizenCount:residents.resting.length,
+    actualSubjects:realTargets,probes,selected:view},null,2)),
+   contentType:'application/json'});
+  expect(view,'An actual small idle citizen should enter the bounded GPU pose')
    .not.toBeNull();
   const source=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
   const run=async enabled=>{
