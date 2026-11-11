@@ -28,7 +28,7 @@ function witnessActualDamage(){
 }
 
 
-const {assessD04Capture,persistD04CaptureEvidence,MAX_CLIP_BYTES,MAX_PCM_BYTES}=
+const {assessD04Capture,persistD04CaptureEvidence,classifyCompositorWitness,MAX_CLIP_BYTES,MAX_PCM_BYTES}=
  require('./dungeon-d04-av-evidence.cjs');
 
 /**
@@ -540,6 +540,76 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  return assessment;
 }
 
+
+/**
+ * Real, non-synthetic compositor pixel witness. The real #world screenshot
+ * is captured between live WebGL frame receipts; a 24x16 decoded-PNG probe
+ * checks whether the screenshot actually contains varied, changing pixels.
+ * It never upgrades these stills to original audio/video synchronization.
+ */
+async function captureRealCompositorWorldStills(page,{view,seed},testInfo){
+ const witness={source:'playwright-world-element-compositor-screenshots',
+  capture:'receipt-bracketed-png',view,viewport:page.viewportSize(),seed,samples:[]};
+ const label=view==='mobile-390x844'?'mobile':'desktop';
+ let lastReceipt=-1,lastTick=-1;
+ for(let i=0;i<2;i++){
+  try{
+   // Distinct genuine renderer submissions, not synthetic substitute frames.
+   await expect.poll(()=>page.evaluate(()=>
+    window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1),
+    {timeout:16000}).toBeGreaterThan(lastReceipt);
+   await expect.poll(()=>page.evaluate(()=>
+    window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.tick??-1),
+    {timeout:16000}).toBeGreaterThan(lastTick);
+   const before=await page.evaluate(()=>{
+    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+    return {receipt:d?.physicalFeedback?.framesAcknowledged??-1,
+     atMs:performance.now(),state:d?.renderedState??null};
+   });
+   const png=await page.locator('#world').screenshot({type:'png',timeout:25000});
+   const decoded=await page.evaluate(async b64=>{
+    const binary=atob(b64),data=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)data[i]=binary.charCodeAt(i);
+    const image=await createImageBitmap(new Blob([data],{type:'image/png'}));
+    const thumb=document.createElement('canvas');thumb.width=24;thumb.height=16;
+    const ctx=thumb.getContext('2d',{willReadFrequently:true});
+    if(!ctx){image.close?.();throw Error('No screenshot decoder context')}
+    ctx.drawImage(image,0,0,24,16);
+    const pixels=ctx.getImageData(0,0,24,16).data;
+    const colors=new Set();let hash=2166136261;
+    for(let i=0;i<pixels.length;i+=4){
+     colors.add(((pixels[i]>>3)<<10)|((pixels[i+1]>>3)<<5)|(pixels[i+2]>>3));
+     for(let c=0;c<3;c++){hash^=pixels[i+c];hash=Math.imul(hash,16777619)>>>0}
+    }
+    const result={width:image.width,height:image.height,colors:colors.size,
+     signature:hash.toString(16).padStart(8,'0')};
+    image.close?.();thumb.width=0;thumb.height=0;
+    return result;
+   },png.toString('base64'));
+   const after=await page.evaluate(()=>
+    window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1);
+   if(!before.state)throw Error('Missing real rendered Dungeon state');
+   const state=before.state;
+   witness.samples.push({beforeReceipt:before.receipt,afterReceipt:after,
+    atMs:before.atMs,run:state.run,floor:state.floor,tick:state.tick,
+    checksum:state.checksum,pngBytes:png.length,...decoded});
+   lastReceipt=after;lastTick=state.tick;
+   fs.writeFileSync('artifacts/dungeon-d04-compositor-'+label+'-'+String(i+1).padStart(2,'0')+'.png',png);
+  }catch(error){
+   witness.captureError=String(error).slice(0,240);
+   break;
+  }
+ }
+ witness.classification=classifyCompositorWitness(witness);
+ witness.sampleSynchronized=false;witness.movingVideo=false;
+ witness.caveat='Authenticated real-world compositor stills only, not moving video, a second camera angle or synchronized original sound';
+ const out='artifacts/dungeon-d04-real-compositor-'+label+'-witness.json';
+ fs.writeFileSync(out,JSON.stringify(witness,null,2)+'\n');
+ await testInfo.attach('d04-'+label+'-compositor-world-witness.json',{
+  body:Buffer.from(JSON.stringify(witness,null,2)),contentType:'application/json'});
+ return witness;
+}
+
 test('D04 gated preview observes genuine public damage, safe effect bounds and render-submitted sound',async({page,request})=>{
  test.setTimeout(240000);
  for(const endpoint of [
@@ -642,6 +712,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   expect(fresh.physicalFeedback.recentDeliveryReceipts.filter(x=>x.audio).every(x=>
    x.frameId!==null)).toBe(true,'no audio before acknowledged WebGL submission');
  }
+ await captureRealCompositorWorldStills(page,{view:'desktop-1440x900',seed:real.seed},test.info());
  await page.locator('#world').screenshot({path:'artifacts/dungeon-d04-real-combat-world.png'});
  // Partial mobile evidence uses the SAME real seed/run and existing camera.
  // A still frame is never described as a matched mobile moving A/V clip.
@@ -649,6 +720,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  await expect.poll(()=>page.evaluate(()=>
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.implementation),
   {timeout:30000}).toBe('D04-physical-authority-feedback');
+ await captureRealCompositorWorldStills(page,{view:'mobile-390x844',seed:real.seed},test.info());
  await page.screenshot({path:'artifacts/dungeon-d04-real-mobile-390.png'});
  const mobile=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(mobile.d04PreviewEnabled).toBe(true);
