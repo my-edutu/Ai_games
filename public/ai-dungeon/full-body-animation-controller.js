@@ -77,6 +77,53 @@ export function chooseImportedSourceClip(available=[],action='idle',kind=''){
  * Never guess an axis from rendered movement, root yaw or visible silhouettes.
  * This is a diagnostic only: it does NOT authorize an IK/contact correction.
  */
+/**
+ * Bounded original-skeleton SWING toe clearance, not stance IK or a foot plant.
+ *
+ * In original GLB 1440px/390px measured Walking_A frames, the true skinned
+ * source toe can intersect stone by 40–92mm while its matching heel is already
+ * 120–240mm AIRBORNE. That is toe drag, not a valid stance/plant candidate.
+ *
+ * The caller probes the REAL source foot joint in the current post-mixer
+ * hierarchy and provides the observed toe lift from one 0.1rad local-X trial.
+ * Return a restrained reversible ankle bend only if that ORIGINAL source toe
+ * actually clears upward under the probe. Never infer a joint axis from world
+ * yaw, never alter a source clip, grid root, contact, opponent or authority.
+ * Release immediately on interruption, teleport, injury, guard and death.
+ */
+export function planOriginalSourceSwingToeClearance({
+ mode='idle',sourceClipName='',sourceAnatomyVerified=false,sourceWeight=NaN,
+ alive=false,visible=false,groundedMoving=false,teleport=false,
+ reducedMotion=false,interrupted=false,rootTravel=NaN,
+ floorTopY=NaN,heelWorldY=NaN,toeWorldY=NaN,
+ trialToeWorldY=NaN,trialAngleRad=NaN,previousCorrectionRad=NaN
+}={}){
+ if(mode!=='move'||!/^walking[_\s-]*a$/i.test(sourceClipName)||
+  sourceAnatomyVerified!==true||alive!==true||visible!==true||
+  groundedMoving!==true||teleport||reducedMotion||interrupted||
+  ![sourceWeight,rootTravel,floorTopY,heelWorldY,toeWorldY,
+    trialToeWorldY,trialAngleRad,previousCorrectionRad].every(finite)||
+  sourceWeight<.90||sourceWeight>1.001||
+  rootTravel<.008||rootTravel>.24||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(trialAngleRad)<.045||Math.abs(trialAngleRad)>.125||
+  Math.abs(previousCorrectionRad)>.15)return 0;
+ const heelClear=heelWorldY-floorTopY,toeClear=toeWorldY-floorTopY;
+ // A lifted heel and submerged toe are an original swing-foot obstacle.
+ // A true planted foot MUST NOT be corrected by this swing-only contract.
+ if(heelClear<.075||heelClear>.28||toeClear>=-.025||toeClear<-.16)return 0;
+ const witnessedLift=trialToeWorldY-toeWorldY;
+ if(witnessedLift<.006||witnessedLift>.08)return 0;
+ // Correct some of the intrusion, not the whole foot in a single keyframe.
+ // Keep at least two visible source poses before the full .15rad envelope.
+ const liftDemand=Math.min(.04,-.005-toeClear);
+ const signedTarget=Math.sign(trialAngleRad)*
+  Math.min(.15,Math.abs(trialAngleRad)*liftDemand/witnessedLift);
+ return clamp(signedTarget,
+  Math.max(-.15,previousCorrectionRad-.08),
+  Math.min(.15,previousCorrectionRad+.08));
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
