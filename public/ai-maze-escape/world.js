@@ -2181,6 +2181,21 @@ export function createMazeWorld(options = {}) {
     bridge.name = 'Published tide-shear spanning load bridge';
     bridge.position.y = 2.34;
     counterbalance.add(bridge);
+    // Pass283: the ORIGINAL 390px contact frame still placed the dark
+    // fixed-span lintel over Pip's head, even after the ivory wings lifted.
+    // The same publicly witnessed floor stroke now raises the COMPLETE load
+    // bridge through two solid telescoping yoke sleeves. Their lower ends
+    // remain captive inside the two real rooted pylons at the highest stroke;
+    // no floating support, opacity trick, artificial route or extra trigger.
+    // Reuse the existing bevel/material pools and retain every strict frame
+    // and geometry budget. The entire movement is a reversible physical act.
+    for (const side of [-1, 1]) {
+      const sleeve = mesh(bridge, bevel, darkMetal,
+        side * .95, -.27, -.005, .16, .75, .18);
+      sleeve.name = 'Published Tideglass telescopic yoke sleeve ' + side;
+      mesh(bridge, bevel, seaGlass, side * .95, -.28, .102,
+        .067, .63, .042);
+    }
     // Pass277: true 390px WebGL showed the opaque front yoke crossing
     // Pip's body while the real pressure jaws closed. Retain the FULL
     // rear spanning brace but replace its foreground solid parapet with
@@ -2802,6 +2817,14 @@ export function createMazeWorld(options = {}) {
       const counterStroke = reducedContact ? .55 : nearContact ? shutterBeat : 0;
       signal.counterbalance.wheel.rotation.z = -.72 * treadleStroke;
       signal.counterbalance.bridge.rotation.z = .11 * counterStroke;
+      // A complete structural pressure release, not a cosmetic glow or a
+      // camera crop: the already-connected yoke slides UP its captive side
+      // sleeves while its pinned ivory wings part. The roof clears Pip's
+      // actual head/body as the two REAL cutting jaws close below. This
+      // shares the same public staged shutter beat and returns exactly to
+      // 2.34 on retreat, hidden state, terminal result and replay; reduced
+      // motion holds one still earned contact silhouette.
+      signal.counterbalance.bridge.position.y = 2.34 + .48 * counterStroke;
       // Two real pinned load wings lift apart under the same published
       // pressure beat, then return on withdrawal, reduced visibility or
       // reset. No private route, new collision or independent animation.

@@ -171,3 +171,62 @@ test('Pass277 split load wings physically expose the Pip encounter on genuine pu
       'new runs release the previous known hazard and all moving wings');
   }finally{world.dispose();cleanup()}
 });
+
+
+test('Pass283 captive load bridge rises out of the authentic pressure head sightline and returns on withdrawal',async()=>{
+  const {THREE,source,world,cleanup}=await build();
+  const observed=published(),original=JSON.stringify(observed);
+  try{
+    world.update(observed);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 4');
+    const arch=trap.getObjectByName('Published tide-shear pressure counterbalance arch 4');
+    const bridge=arch.getObjectByName('Published tide-shear spanning load bridge');
+    const pylons=[-1,1].map(side=>arch.getObjectByName(
+      'Published Tideglass shear-portal anchored pylon '+side));
+    const sleeves=[-1,1].map(side=>bridge.getObjectByName(
+      'Published Tideglass telescopic yoke sleeve '+side));
+    assert.ok(sleeves.every(s=>s?.isMesh&&s.parent===bridge),
+      'the source-authentic yoke must stay connected to two solid sliding sleeves');
+    const home=source.cellPosition(4,3,3);
+    const pip=new THREE.Vector3(home.x,0,home.z);
+    const away=new THREE.Vector3(home.x+30,0,home.z+30);
+    const budget=world.stats();
+    world.animate(1,{explorerPosition:away,reducedMotion:false});
+    near(bridge.position.y,2.34,'mechanism rests with both captive supports');
+    world.animate(2,{explorerPosition:pip,reducedMotion:false,stepDurationMs:360});
+    near(bridge.position.y,2.34,'the first observed warning does not jump the bridge');
+    world.animate(2.36,{explorerPosition:pip,reducedMotion:false,stepDurationMs:360});
+    assert.ok(bridge.position.y>2.78,
+      'the true public closing jaws lift the WHOLE overhead bridge visibly clear of Pip');
+    assert.ok(bridge.rotation.z>.10,
+      'the same shaft still tilts the real load instead of disconnecting its action');
+    world.group.updateMatrixWorld(true);
+    for(let i=0;i<2;i++){
+      const sleeve=new THREE.Box3().setFromObject(sleeves[i]);
+      const pillar=new THREE.Box3().setFromObject(pylons[i]);
+      assert.ok(sleeve.min.y<pillar.max.y-.05 && sleeve.max.y>pillar.max.y,
+        'the extended moving sleeve must visibly overlap its rooted load-bearing pylon');
+      assert.ok(sleeve.min.x>=pillar.min.x-.005&&sleeve.max.x<=pillar.max.x+.005,
+        'sliding supports cannot float laterally away from their matching column');
+    }
+    const extent=new THREE.Box3().setFromObject(arch);
+    const center=trap.getWorldPosition(new THREE.Vector3());
+    assert.ok(extent.min.x>center.x-1.2&&extent.max.x<center.x+1.2
+      &&extent.min.z>center.z-1.2&&extent.max.z<center.z+1.2,
+      'the entire elevated pressure machine remains inside the original disclosed tile');
+    world.animate(2.37,{explorerPosition:away,reducedMotion:false});
+    near(bridge.position.y,2.34,'real public retreat restores the original joined portal');
+    world.animate(2.40,{explorerPosition:pip,reducedMotion:true});
+    near(bridge.position.y,2.604,'reduced motion holds the one truly earned STATIC yoke release');
+    world.update({...observed,visibleCells:[]});
+    world.animate(2.41,{explorerPosition:pip,reducedMotion:false});
+    near(bridge.position.y,2.34,'hidden and remembered-only pressure cannot leave lifted scenery');
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],budget[key],'no per-frame GPU object allocation: '+key);
+    assert.equal(JSON.stringify(observed),original,
+      'the new physical pressure choreography never modifies AI or the public snapshot');
+    world.update(published({runToken:'next',cells:[],visibleCells:[],privateTrapCells:[4]}));
+    assert.equal(world.group.getObjectByName('Published Tideglass telescopic yoke sleeve -1'),undefined,
+      'run reset removes the previously discovered mechanical sleeves');
+  }finally{world.dispose();cleanup()}
+});
