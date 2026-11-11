@@ -313,6 +313,11 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  let warningOffsets=[],warningStoneLift=0,impactReliefFrames=0;
  let ward=false,previousWard=null,tick=-1,breakAge=SHATTER_TIME,exposed=false;
  let visible=false,defenders=0,linkCount=0,phase='SENTINEL';
+ let decorativePriority={mode:'inactive',ritualGlyphOpacity:.70,ritualConduitOpacity:.56,ritualReliefOpacity:.46};
+ function setDecorativePriority(next){
+  if(next&&['inactive','vanquished','warning','release','counter','sealed','approach'].includes(next.mode)&&
+   [next.ritualGlyphOpacity,next.ritualConduitOpacity,next.ritualReliefOpacity].every(n=>Number.isFinite(n)&&n>=0&&n<=1))decorativePriority=next;
+ }
  let chapterTarget=planWardenCourtChapter({guardianWard:true}),chapterOpenness=0,chapterRendered=-1,chapterTransitions=0;
  const from=new THREE.Vector3(),to=new THREE.Vector3(),delta=new THREE.Vector3();
  function accept(s){
@@ -474,9 +479,13 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   // prefers-reduced-motion, the marks remain continuously visible and stable.
   incisionMaterial.emissiveIntensity=impactAge>0?.52:warningStage.glow;
   incisionMaterial.opacity=impactAge>0?.85:warningStage.warning?.69+.24*warningStage.progress:.0;
-  glyph.opacity=ward&&!reducedMotion?.63+.10*Math.sin(time*2):.70;
+  // Quiet ONLY ornamental source glyphs, conduits and engraved relief as the
+  // authoritative 23-cell hazard takes visual priority. The actual warning
+  // stones, incisions, perimeter and combat actors remain entirely untouched.
+  glyph.opacity=decorativePriority.ritualGlyphOpacity;
+  conduit.opacity=decorativePriority.ritualConduitOpacity;
   reliefVein.emissiveIntensity=exposed?.55:warningCount>0?.42:ward?.25:.12;
-  reliefVein.opacity=exposed?.77:warningCount>0?.72:.46;
+  reliefVein.opacity=decorativePriority.ritualReliefOpacity;
   rings.forEach((ring,i)=>{ring.rotation.z=ward&&!reducedMotion?Math.sin(time*.45+i)*.07:0;});
   if(breakAge<SHATTER_TIME){
    breakAge=Math.min(SHATTER_TIME,breakAge+Math.max(0,Math.min(.05,dt)));
@@ -506,8 +515,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   for(const geometry of allGeometry)geometry.dispose();
   for(const material of allMaterials)material.dispose();
  }
- return {accept,animate,setSightlines,dispose,metrics:()=>({ceremonialDrawBatches:ceremonialBatches.length,
+ return {accept,animate,setDecorativePriority,setSightlines,dispose,metrics:()=>({ceremonialDrawBatches:ceremonialBatches.length,
   concentricDrawBatches:concentricBatches.length,sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,cathedralWallBatches:buttressBatches.length,
   cathedralSourceDraws:wallProps.length*4,shatterDrawBatches:shatterShards.count>0?1:0,
+  decorativePriority:{mode:decorativePriority.mode,glyphOpacity:glyph.opacity,
+   conduitOpacity:conduit.opacity,reliefOpacity:reliefVein.opacity},
   shatterSourcePieces:SHATTER_SHARD_COUNT,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};
 }

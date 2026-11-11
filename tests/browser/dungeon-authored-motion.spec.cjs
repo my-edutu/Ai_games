@@ -161,8 +161,18 @@ test('actual Chromium melee animates the true cloned spine and weapon wrist on a
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
  state=frames.after;
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigMeleeCurrentPeakRad??0),{intervals:[50,80,110],timeout:20000}).toBeGreaterThan(.12);
- const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ // The genuine current-pose peak AND active-owner must belong to the SAME
+ // delivered WebGL frame. CI software GPU can take hundreds of milliseconds
+ // between this poll and a second evaluation, legitimately advancing into
+ // recovery. Retain the actual witnessed frame, never fabricate a strike.
+ let witnessed=null;
+ await expect.poll(async()=>{
+  const actual=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  if(actual?.authored3D?.rigMeleeCurrentPeakRad>.12&&
+     actual.authored3D.rigMeleeActiveActors>=1)witnessed=actual;
+  return witnessed?.authored3D?.rigMeleeCurrentPeakRad??0;
+ },{intervals:[50,80,110],timeout:20000}).toBeGreaterThan(.12);
+ const d=witnessed;
  expect(d.authored3D.rigMeleeBones).toBeGreaterThanOrEqual(2);
  expect(d.authored3D.rigMeleeActiveActors).toBeGreaterThanOrEqual(1);
  expect(d.authored3D.rigMeleeCurrentPeakRad).toBeLessThanOrEqual(.36);

@@ -35,6 +35,7 @@ import {createPhysicalCameraDirector} from '/dungeon/physical-camera-director.js
 import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
 import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
+import {planWardenCourtPriority} from '/dungeon/warden-court-priority-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planWardenWarningSightlinePoints,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
@@ -592,7 +593,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   make(geo.sphere,i%2?dangerGlow:tealGlow,court,x,.90,z,.14,.14,.14);
  }
  const shield=new THREE.Mesh(new THREE.TorusGeometry(1.32,.04,8,72),new THREE.MeshBasicMaterial({color:theme.accent,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide}));shield.rotation.x=-Math.PI/2;shield.position.y=.12;court.add(shield);
- world.add(court);world.userData.court=court;world.userData.courtShield=shield;
+ world.add(court);world.userData.court=court;world.userData.courtGlow=courtGlow;world.userData.courtShield=shield;
  world.userData.wardenRitual=createWardenRitual(world,s.exit,{reducedMotion:reduced,map:s.map});
  world.userData.wardenImpactScars=createWardenImpactScars(world,s.map,{reducedMotion:reduced});
  // Interactive hazard meshes directly reflect authoritative trap state.
@@ -919,6 +920,9 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  combatDirector.accept(s,camera.position);
  combatDirector.recordDamage(damageBeats,s);
  combatDirector.recordEvasions(evasionBeats);
+ const courtPriority=planWardenCourtPriority(s);
+ world.userData.courtPriority=courtPriority;
+ world.userData.wardenRitual?.setDecorativePriority(courtPriority);
  world.userData.wardenRitual?.accept(s);
  world.userData.dressing?.accept?.(s);
  world.userData.livingWorld?.accept?.(s);
@@ -926,7 +930,11 @@ function update(s){const previousState=state,damageBeats=planAuthorityDamageBeat
  world.userData.chapterNaves?.accept(s);
  soundstage?.acceptSnapshot(s);
  if(world.userData.courtShield){
+  // Actual hazard cells outrank ornamental cyan rings. The sealed ward stays
+  // physically visible, while the camera, rig and every threat cell are intact.
+  world.userData.courtGlow.opacity=courtPriority.courtRingOpacity;
   world.userData.courtShield.visible=Boolean(s.guardianWard);
+  world.userData.courtShield.material.opacity=courtPriority.shieldOpacity;
   world.userData.courtShield.material.color.set('#9aaeff');
  }
  const warden=s.units.find(u=>u.kind==='warden'&&u.hp>0);
@@ -1599,7 +1607,11 @@ function animate(t){
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
-  source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
+  source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenCourtPriority:world.userData.courtPriority?{
+  ...world.userData.courtPriority,actualCourtRingOpacity:world.userData.courtGlow?.opacity??null,
+  actualWardShieldOpacity:world.userData.courtShield?.material?.opacity??null,
+  ritualDecorative:world.userData.wardenRitual?.metrics?.().decorativePriority??null}:null,
+ wardBarrierVisible:Boolean(world.userData.courtShield?.visible),defendersRemaining:state.defendersRemaining??0,bossFramed:Boolean(bossDistance),cameraLook:{x:look.x,z:look.z},activeUnits:[...actors.values()].filter(x=>x.root.visible).length,
  lastStandBodies:[...actors.values()].filter(x=>x.root.visible&&x.u.faction==='party'&&x.u.hp===0&&state.phase==='intermission').length,characterDetails:[...actors.values()].reduce((sum,x)=>sum+(x.detail?.parts||0),0),combatFacingActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible).length,alignedCombatActors:[...actors.values()].filter(x=>x.combatFacing&&x.root.visible&&Math.abs(shortestYawDelta(x.root.rotation.y,x.combatFacing.yaw))<.18).length,webgl:true,theme:state.theme,damageChoreography:{observedDamageBeats,observedFatalBeats,activeReactions:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat&&!a.damageBeat.fatal&&a.damageBeat.age<DAMAGE_BEAT_DURATION).length,visibleFallen:[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal&&a.damageBeat.age<DEATH_BEAT_DURATION).length,maxFallenPitch:Math.max(0,...[...actors.values()].filter(a=>a.root.visible&&a.damageBeat?.fatal).map(a=>Math.abs(a.impactPivot.rotation.x))),impactCameraHold:heldImpact?.mode??null},locomotion:{movingActors:[...actors.values()].filter(a=>(a.locomotionTilt||0)>.001).length,plantedFootfalls:[...actors.values()].reduce((count,a)=>count+(a.footstepIndex||0),0),timeBased:true},groundedActors:[...actors.values()].filter(x=>Boolean(x.ground)).length,authoredMotionPivots:[...actors.values()].filter(x=>x.authored&&x.visualPivot).length,authoredCombatPoseActors:[...actors.values()].filter(x=>x.authored&&['attack','cast','hurt'].includes(x.u.action)).length,authoredMotionMaxOffset:[...actors.values()].reduce((m,x)=>Math.max(m,x.visualPivot?.position.length()||0),0),authoredMotionPeak:[...actors.values()].reduce((m,x)=>Math.max(m,x.motionPeak||0),0),};  deferRenderDiagnostics(diagnostics,{
    renderPipeline:()=>renderPhaseProfiler.summary(),
    softwareWorldRasterTier:()=>world.userData.softwareWorldRasterTier??null,
