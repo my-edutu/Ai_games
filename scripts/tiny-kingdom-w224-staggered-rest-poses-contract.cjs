@@ -6,7 +6,8 @@ assert(start>=0&&end>start);new Function(html.slice(start+8,end));
 const needle='function restingActorPoseBucket(worldHour,citizenIndex){';
 const a=html.indexOf(needle),b=html.indexOf('\n}',a);
 assert(a>=0&&b>a,'real original render path');
-const bucket=new Function('return ('+html.slice(a,b+2)+')')();
+assert(html.includes('const RESTING_ACTOR_POSE_LANES=16;'),'original game owns a 16-lane actor budget');
+const bucket=new Function('const RESTING_ACTOR_POSE_LANES=16; return ('+html.slice(a,b+2)+')')();
 const indices=Array.from({length:48},(_,i)=>i);
 let previous=indices.map(i=>bucket(0,i)),changedTotal=0,maximum=0;
 for(let j=1;j<=32;j++){
