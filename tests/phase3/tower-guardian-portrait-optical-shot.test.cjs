@@ -63,6 +63,56 @@ test('portrait optical change is bounded by presented wall time and releases to 
   assert.ok(Math.abs(shot-42)<1e-7);
 });
 
+
+test('P0 native portrait split-screen fight uses a WIDE full-body lens, not a boss-only zoom',async()=>{
+  const {observedGuardianPortraitActionFov:shot,GUARDIAN_OPTICAL_BASE_FOV:base}=await lens;
+  assert.equal(typeof shot,'function');
+  const frame={aspect:portrait,currentFov:42,
+    actor:[-.22,.87,.6,.085],partner:[.34,-.84,.5,.12],
+    landing:[.35,-.26,.5]};
+  const target=shot(frame);
+  assert.ok(target>49&&target<=62,'portrait action must open the field of view for both bodies');
+  const scale=Math.tan(base*Math.PI/360)/Math.tan(target*Math.PI/360);
+  for(const subject of [frame.actor,frame.partner]){
+    assert.ok((Math.abs(subject[1])+subject[3])*scale<.79,
+      'the real full-body envelope must remain in the vertical safe window');
+    assert.ok((Math.abs(subject[0])+subject[3]*.28)*scale<.79);
+  }
+  // Using CURRENT already-widened NDC coordinates must reproduce the same
+  // source-geometry target, not oscillate against the narrow zoom.
+  const ref={...frame,currentFov:target,
+    actor:[frame.actor[0]*scale,frame.actor[1]*scale,.6,frame.actor[3]*scale],
+    partner:[frame.partner[0]*scale,frame.partner[1]*scale,.5,frame.partner[3]*scale],
+    landing:[frame.landing[0]*scale,frame.landing[1]*scale,.5]};
+  assert.ok(Math.abs(target-shot(ref))<.001,'lens may not ratchet across frames');
+  assert.ok(shot({ ...central})<42,'the ordinary jointly-safe duel retains earlier close optic');
+});
+
+test('wide guardian optic respects real destination, safety and non-portrait vetoes',async()=>{
+  const {observedGuardianPortraitActionFov:shot}=await lens;
+  const split={aspect:portrait,currentFov:42,actor:[-.22,.87,.5,.085],
+    partner:[.34,-.84,.5,.12],landing:[.25,-.35,.5]};
+  assert.equal(shot({...split,blocked:true}),42);
+  assert.equal(shot({...split,aspect:960/600}),42);
+  assert.equal(shot({...split,landing:[3,0,.5]}),42);
+  assert.equal(shot({...split,actor:[0,3,.5,.1]}),42);
+  assert.equal(shot({...split,partner:[0,0,2,.1]}),42);
+  assert.equal(shot({...split,currentFov:NaN}),42);
+  assert.equal(shot({...split,landing:[0,-3,.5]}),42);
+});
+
+test('portrait wide rescue and safe release use restrained per-submission lens pacing',async()=>{
+  const {boundedGuardianOpticalFov:step}=await lens;
+  const first=step(42,55,.016);
+  assert.ok(first>42&&first<42.5);
+  assert.ok(step(42,55,.5)<=43.3,'a delayed software-GL callback cannot cut the lens');
+  let fov=42;
+  for(let i=0;i<150;i++)fov=step(fov,55,1/60);
+  assert.ok(Math.abs(fov-55)<.001);
+  for(let i=0;i<150;i++)fov=step(fov,42,1/60);
+  assert.ok(Math.abs(fov-42)<.001);
+});
+
 test('actual renderer keeps authoritative source gates and independent camera safety',()=>{
   const scene=fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/observedGuardianPortraitOpticalFov/);
