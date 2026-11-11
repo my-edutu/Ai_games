@@ -8246,7 +8246,10 @@
       "feels": 0,
       "plays": 0
     },
-    "biggestGap": "Original portrait guardian fight still visually busy; roughly 2.7s source-to-native floor phase discrepancy and ground-truth threshold crossing unresolved.",
-    "nextAction": "Check repaired exact-head CI; run matching 8 original baseline/candidate films 960x600/390x844 and inspect genuine 1x motion with accepted→render-return→native HUD phase; repair confirmed physical timebase/doorway obstruction rather than promote P0."
+    "biggestGap": "Original native video shows visually abrupt Floor8 wooden gallery → Floor9 purple platform at about 25.75–26s, without an unambiguously legible earned doorway walk; portrait/desktop guardian action remains visually crowded and source event-to-native HUD ~2.7s mismatched. New source HUD repair is still unfilmed and CI unverified.",
+    "nextAction": "Inspect the after-correction exact-source 8 original films and CI first; then prioritize physical 8→9 gateway visualization/camera continuity and native source-video alignment with real 1x footage, before P1. Never infer stage win from source event or timed stills.",
+    "afterChangeExactOriginalCaptureRequest": "https://github.com/my-edutu/Ai_games/commit/3ffa8d797ac9a4042e9408eb4fd20b348695ddb2 — exact-source 9-job browser evidence requested; not yet verified as admitted or completed",
+    "directAuthenticFilmInspection": "Downloaded GitHub original candidate danger artifact 13895277136 from completed run 43108948655, both authentic source-pinned unedited 73.2s portrait and 73.6s desktop WebMs. Inspected 1-second 10–37s timeline and 250ms native film frames 22–27s. At 22–24s portrait hero remains airborne over lower bronze machinery; ~24.75–25.5s hero is on upper wooden gallery, not clearly shown walking through a recognizable open threshold. Film cuts to visibly different purple Floor9 world 25.75–26s with hero already standing on a new platform. Desktop 22–25.75s hero/platform are partly obscured by bronze rig and rails; 26s Floor9 purple world. This is genuine image inspection, NOT completed continuous 1x video acceptance, and does not contradict source-grounded x crossing at tick451.",
+    "sourceGroundedCrossingEvidence": "Original-host source-trace portrait tick 443–451: x 291896→324296 at y=3238000 on f8:cap; floor-complete tick451 with exitX 304896, clearanceX 317896, crossingX 324296 and groundedPlatformId f8:cap. Source proves physical rule branch, but the film does not establish legible grounded walking through the doorway."
   }
 }
