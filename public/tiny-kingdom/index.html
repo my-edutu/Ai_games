@@ -1168,7 +1168,9 @@ body[data-command="world"] :is(.world-tour,.bottom,#world-ribbon,.top .pill,#cam
    W228's one-row max-content dock. Fix a verified 1024px 1521px overflow;
    preserve full receipts, touch targets, visual world and command access. */
 @media(min-width:791px){
- body[data-command="world"][data-workday="off"][data-supply="open"]:not([data-street="on"]) #world-ribbon{
+ /* W235: expanded economic evidence works before asynchronous workday mode
+   settles to "off", not only when data-workday="off" is already present. */
+body[data-command="world"][data-supply="open"]:not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
   width:min(720px,calc(100vw - 24px))!important;
   max-width:calc(100vw - 24px)!important;
   height:auto!important;max-height:min(46vh,340px)!important;
