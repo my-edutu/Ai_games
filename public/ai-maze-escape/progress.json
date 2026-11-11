@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T04:23:15.000Z",
+  "updatedAt": "2026-11-11T05:12:44.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass261: current source 630e3046 native WebGL 42949914126 SUCCESS and 37/37 original PNG SHA pairs verified. Full unaltered 390px/1280px pressure scenes show new retaining gallery but still a fragmented, hard-to-read pressure machine. Rebuild one whole public 3D machine stage with rooted stone plinth, paired ivory guides and exposed inward cutters; new-head original screenshot verdict and independent reference comparison PENDING. Official Captain Toad benchmark NOT MET."
+    "summary": "Pass262: exact Pass261 source d2ef0811 native WebGL 42959999336 SUCCESS, 37/37 original PNG hashes verified; full original pressure shot still has a cluttered secondary mechanism around the two true shears. Source candidate darkens secondary actuators and makes true ivory/coral cutting lips dominant without increasing 320px physical extent. Previous whole CI 42959999457 had 1/761 conflicting legacy physical hinge-depth assertion corrected to strict current .12. Fresh source tests and WebGL visual acceptance PENDING. Fixed Nintendo Captain Toad benchmark NOT MET."
   },
   "captures": [
     {

@@ -46,7 +46,8 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
         'each visible jaw has an authored carved plate, contrasting inner face, rim and tooth');
       assert.ok(Math.abs(jaw.position.x)> .6 && Math.abs(jaw.position.x)< .8,
         'hinges stay on actual cell margins, not across the central playable route');
-      assert.equal(jaw.position.z,0);
+      assert.equal(jaw.position.z,.12,
+        'the true published pressure hinges are seated forward inside the trap tile, as required by the newer exact Three.js machine-envelope contract');
       const vane=jaw.getObjectByName('Published tide-shear warning vane');
       const fang=jaw.getObjectByName('Published tide-shear warning fang');
       assert.ok(vane?.isMesh && fang?.isMesh,

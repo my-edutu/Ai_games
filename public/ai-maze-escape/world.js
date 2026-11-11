@@ -2051,6 +2051,13 @@ export function createMazeWorld(options = {}) {
     // removing any moving components or altering their event-driven clock.
     pressureMast.scale.setScalar(.82);
     p.add(pressureMast);
+    // Pass262: genuine full-frame 320/390/1280 WebGL shows an ivory/coral
+    // shard pile instead of a two-blade cutter. Retire competing miniature
+    // red, amber and ivory marks on SECONDARY moving machinery while keeping
+    // its full real treadle -> relay -> shutters -> governor -> jaw choreography.
+    // The largest remaining ivory/coral faces belong to the two TRUE pressure
+    // hinges; one quiet bronze wheel + two cream spokes still show rotation.
+    // This is original scene staging, not a HUD change or a new trigger.
     // Pass258: one recognisable, connected load-bearing TIDEGLASS arch
     // replaces the impression of free-floating red spikes in real 320/390
     // WebGL. The original floor treadle powers its visible rotary governor,
@@ -2079,13 +2086,13 @@ export function createMazeWorld(options = {}) {
     wheel.name = 'Published tide-shear bronze pressure governor';
     wheel.position.set(0, .94, .16);
     counterbalance.add(wheel);
-    mesh(wheel, ring, gold, 0, 0, 0, .43, .43, .43);
-    mesh(wheel, ring, danger, 0, 0, .035, .29, .29, .29);
+    mesh(wheel, ring, gold, 0, 0, 0, .36, .36, .36);
+    mesh(wheel, ring, darkMetal, 0, 0, .035, .23, .23, .23);
     mesh(wheel, cylinder, darkMetal, 0, 0, -.04, .19, .20, .19, Math.PI / 2);
-    for (let spoke = 0; spoke < 4; spoke++) {
-      const angle = spoke * Math.PI / 2;
-      mesh(wheel, bevel, lightStone, Math.cos(angle) * .19, Math.sin(angle) * .19,
-        .07, .24, .065, .09, 0, 0, angle);
+    for (let spoke = 0; spoke < 2; spoke++) {
+      const angle = spoke * Math.PI;
+      mesh(wheel, bevel, lightStone, Math.cos(angle) * .15, Math.sin(angle) * .15,
+        .07, .20, .075, .09, 0, 0, angle);
     }
     const cable = new THREE.Group();
     cable.name = 'Published tide-shear connected descending cable';
@@ -2098,7 +2105,7 @@ export function createMazeWorld(options = {}) {
     counterbalance.add(weight);
     mesh(weight, bevel, darkMetal, 0, 0, 0, .41, .29, .35);
     mesh(weight, bevel, lightStone, 0, -.13, .02, .46, .08, .39);
-    mesh(weight, bevel, danger, 0, .02, .186, .30, .18, .04);
+    mesh(weight, bevel, darkJade, 0, .02, .186, .30, .18, .04);
     mesh(pressureMast, cylinder, darkMetal, 0, .08, 0, .30, .16, .28);
     mesh(pressureMast, ring, gold, 0, .19, 0, .35, .35, .35, Math.PI / 2);
     const carriage = new THREE.Group();
@@ -2107,17 +2114,17 @@ export function createMazeWorld(options = {}) {
     pressureMast.add(carriage);
     mesh(carriage, cylinder, darkMetal, 0, .20, 0, .11, .40, .11);
     mesh(carriage, bevel, seaGlass, 0, .48, 0, .50, .50, .28);
-    mesh(carriage, bevel, danger, 0, .50, .175, .46, .36, .07);
-    mesh(carriage, bevel, amber, 0, .82, .19, .37, .10, .11);
+    mesh(carriage, bevel, darkMetal, 0, .50, .175, .46, .36, .07);
+    mesh(carriage, bevel, seaGlass, 0, .82, .19, .37, .10, .11);
     const diaphragms = [];
     for (const side of [-1, 1]) {
       const leaf = new THREE.Group();
       leaf.name = 'Published tide-shear diaphragm ' + side;
       leaf.position.set(side * .20, .55, .13);
       carriage.add(leaf);
-      mesh(leaf, bevel, lightStone, side * .13, .25, 0, .32, .56, .13, 0, 0, side * .12);
-      mesh(leaf, bevel, danger, side * .15, .25, .09, .15, .44, .06);
-      mesh(leaf, cone, gold, side * .13, .55, 0, .11, .22, .10);
+      mesh(leaf, bevel, darkMetal, side * .13, .25, 0, .32, .56, .13, 0, 0, side * .12);
+      mesh(leaf, bevel, seaGlass, side * .15, .25, .09, .15, .44, .06);
+      mesh(leaf, cone, darkMetal, side * .13, .55, 0, .11, .22, .10);
       diaphragms.push({object: leaf, side});
     }
     // Two broad, hinged mineral shutters belong to the SAME published
@@ -2141,8 +2148,8 @@ export function createMazeWorld(options = {}) {
         .48, .055, .72);
       enamel.name = 'Published tide-shear ivory moving face';
       mesh(shutter, bevel, danger, -side * .23, .147, .30,
-        .43, .045, .13);
-      mesh(shutter, bevel, gold, -side * .23, .185, .52,
+        .43, .045, .07);
+      mesh(shutter, bevel, darkMetal, -side * .23, .185, .52,
         .28, .075, .10);
       shutters.push({object: shutter, side});
     }
@@ -2182,7 +2189,7 @@ export function createMazeWorld(options = {}) {
       pressureMast.add(relay);
       mesh(relay, cylinder, darkMetal, 0, .02, 0, .18, .16, .18);
       mesh(relay, bevel, gold, -side * .19, .14, .02, .39, .13, .16, 0, 0, side * .13);
-      mesh(relay, bevel, danger, -side * .37, .21, .10, .20, .12, .12);
+      mesh(relay, bevel, darkMetal, -side * .37, .21, .10, .20, .12, .12);
       relays.push({object: relay, side});
     }
     // The existing treadle was visually isolated from the tall jaw hardware
@@ -2210,7 +2217,7 @@ export function createMazeWorld(options = {}) {
       drive.position.set(side * .50, .135, 0);
       transmission.add(drive);
       mesh(drive, bevel, gold, 0, .005, -.18, .19, .11, .76);
-      mesh(drive, bevel, danger, 0, .083, .14, .23, .06, .24);
+      mesh(drive, bevel, darkJade, 0, .083, .14, .23, .06, .24);
       mesh(drive, cylinder, darkMetal, 0, .024, -.48, .17, .15, .17);
       driveBars.push({object: drive, side});
     }
@@ -2251,9 +2258,9 @@ export function createMazeWorld(options = {}) {
         -side * .30, 1.07, .43, .54, 1.12, .29, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .30, 1.07, .605, .13, .91, .06, 0, 0, side * .13);
+        -side * .30, 1.07, .595, .17, 1.01, .06, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
-      mesh(jaw, bevel, gold,
+      mesh(jaw, bevel, darkMetal,
         -side * .30, .55, .63, .42, .10, .10);
       const fang = mesh(jaw, cone, gold,
         -side * .32, 1.70, .40, .16, .24, .16, 0, 0, -side * .20);

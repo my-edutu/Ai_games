@@ -175,3 +175,52 @@ test('Pass261 pressure court is one rooted two-cheek machine, not loose warning 
       assert.equal(world.stats()[key],baseline[key],'reset returns original shared resource budget');
   }finally{world.dispose();}
 });
+
+
+test('Pass262 makes the two real foreground cutters dominant while quieting moving secondary apparatus',async()=>{
+  const {createMazeWorld}=await mod;
+  const {Vector3,Box3}=await import(three);
+  const world=createMazeWorld({balanced:true}),before=world.stats();
+  const serialized=JSON.stringify(published);
+  try {
+    world.update(published);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 24');
+    const wheel=trap.getObjectByName('Published tide-shear bronze pressure governor');
+    const carriage=trap.getObjectByName('Published tide-shear rising carriage');
+    const shutters=[-1,1].map(side=>trap.getObjectByName('Published tide-shear floor shutter '+side));
+    const jaws=[-1,1].map(side=>trap.getObjectByName('Disclosed tide-shear hinged jaw 24 '+side));
+    assert.ok(wheel?.isGroup&&carriage?.isGroup&&shutters.every(Boolean)&&jaws.every(Boolean));
+    assert.equal(wheel.children.filter(child=>child.isMesh).length,5,
+      'governor has one joined rim, one dark center and just two purposeful readable spokes');
+    assert.equal(wheel.children.filter(child=>child.material.color.getHexString()==='bf6449').length,0,
+      'a rotating governor must not compete with the TRUE red contact edges');
+    assert.ok(carriage.children.filter(child=>child.isMesh).every(child=>child.material.color.getHexString()!=='bf6449'),
+      'the rear piston does not masquerade as a second dangerous blade');
+    for(const jaw of jaws){
+      const blade=jaw.getObjectByName('Published tide-shear front blade');
+      const lip=jaw.getObjectByName('Published tide-shear forward danger inlay');
+      assert.ok(blade?.isMesh&&lip?.isMesh&&lip.parent===jaw&&blade.parent===jaw);
+      assert.ok(blade.scale.y>=1.12&&lip.scale.y>=1.0&&lip.scale.x>=.17,
+        'the only broad coral contact stripe follows a true, actor-scale ivory shear');
+      assert.notEqual(blade.material,lip.material);
+    }
+    const origin=trap.getWorldPosition(new Vector3());
+    const contact=new Vector3(origin.x,0,origin.z),away=new Vector3(origin.x+30,0,origin.z+30);
+    const resource=world.stats();
+    for(const [t,hero] of [[1,away],[2,contact],[3.4,contact],[4,away]]){
+      world.animate(t,{explorerPosition:hero,reducedMotion:false});
+      world.group.updateMatrixWorld(true);
+      for(const jaw of jaws){
+        const bound=new Box3().setFromObject(jaw);
+        assert.ok(bound.min.x>origin.x-1.2&&bound.max.x<origin.x+1.2&&bound.min.z>origin.z-1.2&&bound.max.z<origin.z+1.2,
+          'full physical silhouette remains inside disclosed tile, no camera crop trick');
+      }
+      for(const key of ['geometryCount','materialCount','textureCount'])assert.equal(world.stats()[key],resource[key]);
+    }
+    assert.equal(JSON.stringify(published),serialized,'scene cannot rewrite public authority');
+    world.update({...published,runToken:'new-run',cells:[],visibleCells:[],discoveredCells:[]});
+    assert.equal(world.group.getObjectByName('Published tide-shear bronze pressure governor'),undefined,
+      'reset cannot leak a previously visible cutter');
+    for(const key of ['geometryCount','materialCount','textureCount'])assert.equal(world.stats()[key],before[key]);
+  }finally{world.dispose();}
+});
