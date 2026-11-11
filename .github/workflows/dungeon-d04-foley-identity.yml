@@ -12,6 +12,7 @@ on:
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
+      - tests/browser/dungeon-d04-real-feedback-observation.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
 permissions:
