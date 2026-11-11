@@ -2615,7 +2615,7 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Severe Warden motion stalls and overlapping miniature 390px actors; minimum living mobile hero at Warden remains 37px.",
-    "currentWork": "A-stage actual living guardian fighting-body camera candidate; needs new-head desktop/mobile genuine proof",
+    "currentWork": "Warden 25-cell authentic in-world warning legibility candidate; same open M1, no experience acceptance",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5767,6 +5767,14 @@
         "foundation": "408/408",
         "seedCampaign": "24×900, no divergence",
         "newHeadRealMotion": "PENDING"
+      },
+      {
+        "at": "2026-11-11",
+        "commit": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
+        "stage": "A_INCOMPLETE",
+        "title": "Original low-profile Warden 3D warning visibility across every real threatened cell",
+        "evidence": "Local RED→5/5 GREEN; Dungeon 413/413; 24×900 replay stable; new moving A/V pending",
+        "accepted": false
       }
     ],
     "implementationContinuation": {
@@ -5781,10 +5789,10 @@
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
     "latestImplementation": "Candidate: separate desktop/mobile real-Chromium end-to-end natural journey recorder with original audio opt-in; source-only, execution NOT VERIFIED.",
-    "lastCandidateSha": "0fb23004fe7e7b91f327392b1da5ce4b82682fb7",
+    "lastCandidateSha": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
     "experienceVerdict": "NOT_TRANSFORMED",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
-    "nextImplementationTask": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics",
+    "nextImplementationTask": "Inspect new-source-head real original desktop/mobile five-stage audiovisual journey, compare 25 genuine threat tiles/court legibility to 9d parent and locked M1 baseline, reject if carved warnings cover actors or mobile performance worsens; then adult-scale source-rig Vanguard/Revenant/Warden and measured renderer bottleneck. PR72 stays separate.",
     "integrationReview": {
       "at": "2026-11-05",
       "sourceHead": "fe61765a43fda660f75ab5004688113517fcbd78",
@@ -5836,7 +5844,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics",
+    "executableNextTask": "Inspect new-source-head real original desktop/mobile five-stage audiovisual journey, compare 25 genuine threat tiles/court legibility to 9d parent and locked M1 baseline, reject if carved warnings cover actors or mobile performance worsens; then adult-scale source-rig Vanguard/Revenant/Warden and measured renderer bottleneck. PR72 stays separate.",
     "phasePlan": [
       {
         "phase": "A",
@@ -7935,6 +7943,30 @@
       "critics": 0,
       "audioSync": "UNVERIFIED",
       "next": "Inspect new-head actual 1440px and 390px original 5-stage movies and in-game alpha/readability/warning cells vs identical seed parent and locked baseline; fix any regression, then native adult-scale casts plus measured renderer and 3 blinded judges"
+    },
+    "m1WardenEveryThreatCell20261111": {
+      "date": "2026-11-11",
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceParent": "9d474cbdde9c5e254d8a86bfdd1b7349c3fc183f",
+      "sourceImplementation": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
+      "beforeRun": 42961471342,
+      "beforeMobileArtifact": 13829887236,
+      "beforeDesktopArtifact": 13829936863,
+      "observedDefect": "Genuine mobile Warden warning spans 25 authoritative NOVA cells, but old 3D incision geometry marked just 6; remaining actual danger floors appeared too similar to safe stone in 390px sparse RAF gameplay",
+      "productionChange": "Original authority-backed physical warning now marks each real cell with a direction-coded shallow incision (radial NOVA, axial RIFT_CROSS, alternating ECLIPSE), maintains visible low-surface floor opacity through delayed frames and reduced-motion, same 3 existing GPU draw families and exact dangerous union, no new mesh, actor pose, simulation or audio events",
+      "testFirst": "1 real authority+THREE test RED, then 5/5 focused GREEN, complete Dungeon foundation 413/413 PASS",
+      "replay": "24×900 zero determinism divergence, 199 floor advances, 5 organic restarts",
+      "catalogue": "Attempted npm test, local timeout; preceding shared CI RED",
+      "newHeadDesktopMobileAV": "NOT_OBSERVED",
+      "gameFrameImprovement": "UNVERIFIED",
+      "hitSoundSync": "UNVERIFIED",
+      "criticCount": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect new-source-head real original desktop/mobile five-stage audiovisual journey, compare 25 genuine threat tiles/court legibility to 9d parent and locked M1 baseline, reject if carved warnings cover actors or mobile performance worsens; then adult-scale source-rig Vanguard/Revenant/Warden and measured renderer bottleneck. PR72 stays separate."
     }
   }
 }
