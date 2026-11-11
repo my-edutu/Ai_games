@@ -3,9 +3,9 @@
   "requestedOn": "2026-11-11",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "github.sha of THIS exact immutable evidence request commit, including 88ba6ba1 camera and 616497aa tests; never moving branch",
+  "candidateSource": "github.sha of THIS corrected-baseline-harness capture request; includes 75761db1 workflow fix and existing live tower scene; exact immutable workflow commit, never branch alias",
   "repairedSourceSha": "88ba6ba1df48936dcddff11909bdc2a23e8ad394",
-  "reason": "Request same-seed/low-tier 10-job original baseline/candidate 60+s recapture at exact immutable github.sha after new native original HUD raster witness 858c78b5. Four authentic prior original WebMs show actual drawn 8->9 HUD floor-change 2.393–3.642 sec AFTER independently calibrated source-event search times. Capture true original films, phase sidecars SHA-bound to unmodified video. Reject all event cue where native screen pixel phase does not match; preserve full original unsynchronized films. Do not infer browser/GPU lag, walker crossing, victory or quality from this isolated raster heuristic. Continue guardian/door/floor9/restart visually and independently.",
+  "reason": "Recover frozen-baseline normal-speed film: prior 42974456261 failed all four baseline jobs because a malformed three-argument neutral-harness cp tried to use nonexistent tests/phase3/tower-native-scene-phase.test.cjs as a directory; fixed by 75761db1 without changing original baseline game files. Re-record identical 60+s original baseline/candidate desktop/portrait, source events and immutable film HUD 8->9 phase, verify grounded gateway, floor9, restart, then compare actual guardian footage. No blind/hardware quality claim.",
   "scenarios": [
     "ascent",
     "moving",
@@ -485,5 +485,24 @@
   "sourceSearchToRasterDeltaSecondsRange": [
     2.393,
     3.642
-  ]
+  ],
+  "p0CorrectedFrozenHarnessCapture20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "repairedWorkflowCommit": "75761db12d6c40cf4580c1e09cd8e312883eb1c7",
+    "evidenceReviewCommit": "aa8fbbca6623528d5cecaf9492b638a999d26682",
+    "ledgerCommit": "2d2374cbd62a7413fa8cf74ac3e4009774133f5a",
+    "failedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42974456261",
+    "observedFailure": "All four frozen baseline source film jobs failed in neutral harness copy; cp malformed 3rd argument; candidates all four succeeded but source pairs 0/8. This trigger requests a genuine corrected full set.",
+    "sourcePin": "THIS capture-request.json commit exact github.sha; frozen baseline stays 1731b380851162741761c5569e2bc152a0869ca9; never branch-name candidate",
+    "nativeFilmExpected": "Eight authentic scenarios × desktop 960x600 + portrait 390x844, >=60s original, real 20Hz source, same seed/tier, strict 8/8 source/native pairs and real drawn floor9 image-phase checks",
+    "observableKnownGap": "Native drawn Floor8->9 occurred 2.393-3.642s after source-search timestamps in earlier original film, 390x844 guardian 14-25s still busy and physically cramped",
+    "nextHighestImpact": "Verify 10/10 workflow job results and 8/8 strict pairs at exact candidate SHA; inspect full-motion guardian/crusher victory and grounded gate/floor9/restart in both views, build physical scene/camera changes if needed; independent reviews 0/5 LOOKS FEELS PLAYS and actual-device metrics NOT EVALUATED",
+    "blindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "hardware": "NOT EVALUATED"
+  }
 }
