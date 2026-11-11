@@ -2,6 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
+const {decodeSerialRealWebGLMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witnessActualDamage(){
@@ -500,7 +501,14 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  if(started?.status==='STARTED')try{
   raw=await page.evaluate(()=>window.__D04_REAL_AV_CAPTURE__);
  }catch(e){raw.clip={status:'UNAVAILABLE',reason:'Live browser retrieval: '+String(e)}}
+ raw.decoder={serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo)};
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
+ console.log('D04 verified real WebGL frames:',JSON.stringify({
+  decoded:raw.decoder.serialRealVideo.frameCount??0,
+  distinct:raw.decoder.serialRealVideo.distinctFrames??0,
+  motionQualified:assessment.serialRealVideoMotionQualified,
+  status:raw.decoder.serialRealVideo.status
+ }));
  const {base64,...clip}=raw.clip||{};
  const {wavBase64,...pcm}=raw.pcm||{};
  const {base64:isolatedVideoBase64,...videoOnly}=raw.isolated?.videoOnly||{};
@@ -533,7 +541,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
    isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo},frames:raw.frames,
-   trackDelivery:raw.trackDelivery??null,
+   trackDelivery:raw.trackDelivery??null,decoder:raw.decoder??null,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
