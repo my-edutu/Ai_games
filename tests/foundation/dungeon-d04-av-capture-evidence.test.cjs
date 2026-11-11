@@ -1,7 +1,10 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {assessD04Capture}=require('../browser/dungeon-d04-av-evidence.cjs');
+const {assessD04Capture,persistD04CaptureEvidence}=require('../browser/dungeon-d04-av-evidence.cjs');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
 const good={
  optedIn:true,
  clip:{source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
@@ -45,4 +48,37 @@ test('D04 requires actual frame progress, bounded duration and bounded files',()
   {clip:{...good.clip,bytes:25000000}},
   {pcm:{...good.pcm,sampleRate:192000}}
  ])assert.equal(assessD04Capture({...good,...variation}).classification,'UNVERIFIED');
+});
+
+test('D04 retains a manifest and exact browser bytes on a passing CI run',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-av-evidence-'));
+ try{
+  const clipBytes=Buffer.alloc(150000,31),pcmBytes=Buffer.alloc(480044,0);
+  const raw={
+   clip:{...good.clip,base64:clipBytes.toString('base64')},
+   pcm:{...good.pcm,wavBase64:pcmBytes.toString('base64')},
+   frames:good.frames
+  };
+  const saved=persistD04CaptureEvidence({directory,raw,started:{status:'STARTED'},
+   assessment:assessD04Capture({...good})});
+  assert.equal(fs.readFileSync(saved.webm).compare(clipBytes),0);
+  assert.equal(fs.readFileSync(saved.wav).compare(pcmBytes),0);
+  const manifest=JSON.parse(fs.readFileSync(saved.manifest,'utf8'));
+  assert.equal(manifest.assessment.sampleSynchronized,false);
+  assert.equal(manifest.clip.base64,undefined);
+  assert.equal(manifest.pcm.wavBase64,undefined);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
+test('D04 always preserves UNVERIFIED capture manifest without inventing media',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-av-unverified-'));
+ try{
+  const raw={clip:{status:'UNAVAILABLE',reason:'MediaRecorder unsupported'},
+   pcm:{status:'SILENT'},frames:{before:1,after:2}};
+  const saved=persistD04CaptureEvidence({directory,raw,started:{status:'UNAVAILABLE'},
+   assessment:assessD04Capture({optedIn:false,...raw})});
+  assert.equal(fs.existsSync(saved.manifest),true);
+  assert.equal(saved.webm,null);
+  assert.equal(saved.wav,null);
+  assert.equal(fs.readdirSync(directory).length,1);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
