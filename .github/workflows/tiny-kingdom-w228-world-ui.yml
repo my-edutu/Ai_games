@@ -32,6 +32,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: W235 original six-profession stationary-residency RED/GREEN contract
         run: node scripts/tiny-kingdom-w235-worksite-residency-contract.cjs
+      - name: W236 per-worker dirty-region GPU residency production contract
+        run: node scripts/tiny-kingdom-w236-dirty-workstations-contract.cjs
       - run: npm run build
       - run: npx playwright install chromium
       - name: Genuine playable world, preserved controls and uncut screenshots
