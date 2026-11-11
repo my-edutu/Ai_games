@@ -291,3 +291,35 @@ test('original Walking_A final genuine 5.1mm source step still has a legal headi
    'invalid/misaligned/unwitnessed source step must not turn: '+JSON.stringify(mutation));
  }
 });
+
+
+test('real original desktop Walking_A finishes its witnessed 10.17mm last step without turning from an idle label',async()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/facing-plan.js'),'utf8');
+ const {planOriginalSourceWalkNearArrivalFacing:plan,shortestYawDelta:delta,
+  approachOriginalSourceWalkYaw:turn}=await import('data:text/javascript;base64,'+
+  Buffer.from(code).toString('base64'));
+ // Exact 11 Nov original 1440px GLB WebGL rAF, tick 2 frames 25->26:
+ // root -7.010169596069 -> -7.0 while original Walking_A stayed in Move;
+ // yaw remained -2.83305 instead of completing the actual northbound heading.
+ const observed={sourceRig:true,sourceClipName:'Walking_A',mode:'move',
+  groundedMoving:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,hasCombatFacing:false,previousX:-8,
+  previousZ:-7.0101695960690416,currentX:-8,currentZ:-7,
+  targetX:-8,targetZ:-7};
+ const heading=plan(observed);
+ assert.ok(Number.isFinite(heading),'genuine 10.17mm last source step must retain the actual direction');
+ assert.ok(Math.abs(delta(heading,-Math.PI))<1e-8);
+ const after=turn(-2.83305,heading,.05,.075,{originalWalking:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,hasCombatFacing:false});
+ assert.ok(Math.abs(delta(after,-Math.PI))<.08,
+  'original feet and pelvis finish facing real last source-root travel');
+ for(const change of [
+  {mode:'idle'},{sourceClipName:'Idle'},{groundedMoving:false},
+  {previousZ:-7.015,currentZ:-7.013},{previousZ:-7.013,currentZ:-7},
+  {previousZ:-7.02,currentZ:-7},{previousZ:-7.0101695960690416,currentZ:-7.02},
+  {targetZ:-6},{hasCombatFacing:true},{teleport:true},{reducedMotion:true},
+  {visible:false},{alive:false}
+ ])assert.equal(plan({...observed,...change}),null,
+  'never turn with missing or inconsistent real source evidence '+JSON.stringify(change));
+});
