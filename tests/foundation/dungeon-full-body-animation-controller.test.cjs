@@ -2461,3 +2461,47 @@ test('source calf trial selection must reject an unsafe high-toe pose in favour 
  assert.match(renderer,/selectOriginalSourceSwingCalfTrial\(/,
   'connected original calf stage must select the safest genuinely measured source-foot trial');
 });
+
+
+test('original skinned ankle/calf must never apply a stale correction opposite to the measured source toe-lift direction',async()=>{
+ const {planOriginalSourceSwingToeClearance:ankle,
+  planOriginalSourceSwingCalfAssist:calf}=await load();
+ // Genuine CC0 1440px source swing at tick 6: toe -0.06817,
+ // airborne heel +0.16178, original 0.1rad ankle trial raised the toe.
+ const sourceAnkle={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:.75,alive:true,visible:true,groundedMoving:true,
+  teleport:false,reducedMotion:false,interrupted:false,rootTravel:.046,
+  floorTopY:-.02,heelWorldY:.1617753,toeWorldY:-.06817486,
+  trialToeWorldY:-.052,trialAngleRad:.1,previousCorrectionRad:-.14
+ };
+ assert.equal(ankle(sourceAnkle),0,
+  'the old negative correction cannot lower a shoe when the latest signed original trial lifted it positively');
+ assert.equal(ankle({...sourceAnkle,sourceWeight:.5}),0,
+  'a zero-share Walking_A crossfade must not leak an old wrong-signed ankle bend');
+ const negativeTrial={...sourceAnkle,trialAngleRad:-.1,previousCorrectionRad:.14};
+ assert.equal(ankle(negativeTrial),0,
+  'the inverse source-foot direction change must also drop stale opposite signed pitch');
+ assert.ok(ankle({...sourceAnkle,previousCorrectionRad:0})>0,
+  'genuine positive trial remains available on a clean original source pose');
+ const sourceCalf={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:.75,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.046,frameAge:.05,floorTopY:-.02,afterAnkleToeY:-.1033,
+  afterAnkleHeelY:.0861,ankleLiftMeters:.0099,
+  trialCalfToeY:-.0813,trialCalfHeelY:.078,trialAngleRad:.1,
+  previousAssistRad:-.12
+ };
+ assert.equal(calf(sourceCalf),0,
+  'the next original knee trial cannot reuse the old physically opposing knee bend');
+ assert.equal(calf({...sourceCalf,sourceWeight:.5}),0,
+  'zero inherited clip share suppresses stale knee support as well');
+ assert.equal(calf({...sourceCalf,trialAngleRad:-.1,previousAssistRad:.12}),0,
+  'inverse knee trial must not apply an opposite remembered assist');
+ assert.ok(calf({...sourceCalf,previousAssistRad:0})>0,
+  'unchanged valid source-knee trial still returns a bounded helpful bend');
+ const original=ankle({...sourceAnkle,previousCorrectionRad:0,trialAngleRad:-.1,
+  trialToeWorldY:-.052});
+ assert.ok(original<0,'unchanged legally measured native minus pitch is still available');
+});
