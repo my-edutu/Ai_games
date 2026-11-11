@@ -62,7 +62,7 @@ export function planOriginalSourceWalkNearArrivalFacing({
  if(sourceRig!==true||mode!=='move'||groundedMoving!==true||
   alive!==true||visible!==true||teleport||reducedMotion||hasCombatFacing||
   typeof sourceClipName!=='string'||
-  !/^(?:walking[_\\s-]*a|walk|run)(?:$|[_\\s-])/i.test(sourceClipName))return null;
+  !/^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(sourceClipName))return null;
  if(![previousX,previousZ,currentX,currentZ,targetX,targetZ].every(Number.isFinite))return null;
  const remaining=Math.hypot(targetX-currentX,targetZ-currentZ);
  // Outside the small dead zone the existing destination-facing planner owns
