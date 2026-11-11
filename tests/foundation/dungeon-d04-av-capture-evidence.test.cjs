@@ -47,6 +47,7 @@ test('D04 requires actual frame progress, bounded duration and bounded files',()
   {frames:{before:20,after:20}},
   {frames:{before:20,after:19}},
   {clip:{...good.clip,recordingMs:150}},
+  {clip:{...good.clip,recordingMs:16000}},
   {clip:{...good.clip,bytes:25000000}},
   {pcm:{...good.pcm,sampleRate:192000}}
  ])assert.equal(assessD04Capture({...good,...variation}).classification,'UNVERIFIED');
