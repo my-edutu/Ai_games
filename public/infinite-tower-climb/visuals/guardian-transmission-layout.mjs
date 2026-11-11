@@ -8,7 +8,14 @@
 export const GUARDIAN_TRANSMISSION_LAYOUT = Object.freeze({
  counterweightX:10.7,rearDepth:-3.25,overheadY:10.35,
  capstanY:10.70,beamWidth:22.2,cameraHalfWidth:11.4,
- cameraTopY:11.40,sourceGateCenterY:2
+ // Original 43015360203 portrait WebM and original Three.js triangle owners
+ // show the old y=0..4.7 counterweight rail repeatedly covering the live
+ // guardian, gate approach and real combat platform. Hoist the entire twin
+ // source-HP transmission gallery above the 0..4.8m pedestrian opening;
+ // retain the same outboard bearing, visible source damage and door mechanics.
+ // At maximum authentic opening the hanging weights still stop above y=5.
+ railCenterY:7.85,railHeight:4.25,weightCenterY:8.15,socketY:8.85,
+ cameraLowerY:5.0,cameraTopY:11.40,sourceGateCenterY:2
 });
 export function observedGuardianTransmissionCorners(lockCenter) {
  if(!lockCenter||![lockCenter.x,lockCenter.y,lockCenter.z].every(Number.isFinite))return null;
@@ -19,7 +26,7 @@ export function observedGuardianTransmissionCorners(lockCenter) {
  const corners=[];
  for(const side of [-1,1])for(const top of [false,true]){
    const t=side*d.cameraHalfWidth;
-   corners.push({x:x+Math.cos(angle)*t,y:y+(top?d.cameraTopY:0),z:z-Math.sin(angle)*t});
+   corners.push({x:x+Math.cos(angle)*t,y:y+(top?d.cameraTopY:d.cameraLowerY),z:z-Math.sin(angle)*t});
  }
  return corners;
 }
