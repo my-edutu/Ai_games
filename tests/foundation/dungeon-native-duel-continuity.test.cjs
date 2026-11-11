@@ -58,3 +58,47 @@ test('three authentic imported melee roles have deterministic bounded continuity
  assert.ok(server.includes("['/dungeon/native-duel-continuity.js','native-duel-continuity.js']"));
  assert.doesNotMatch(src,/Math\.random|Date\.now|performance\.now|DungeonRuntime|fetch\(/);
 });
+
+test('original source attack clip continues through true idle recovery, without holding an invented strike',async()=>{
+ const {planNativeDuelContinuity:plan,shouldRetainNativeRecoveryClip:retain}=await load();
+ const attackFrame=plan(null,attack,.23,.016,threat);
+ const idle={...attack,action:'idle',actionTick:55};
+ const recovery=plan(attackFrame.memory,idle,0,.016);
+ const valid={authoritativeAction:'idle',currentAction:'attack',
+  currentActionTick:54,activeClipRunning:true,attached:true,reducedMotion:false};
+ assert.equal(recovery.mode,'recovery');
+ assert.equal(recovery.contactAllowed,false);
+ assert.equal(retain(recovery,valid),true,'keep the real imported one-shot through its authored tail');
+ for(const variant of [
+  {activeClipRunning:false},{currentAction:'idle'},{currentActionTick:55},
+  {authoritativeAction:'move'},{authoritativeAction:'attack'},
+  {authoritativeAction:'cast'},{reducedMotion:true},{attached:false},
+  {currentActionTick:NaN}
+ ])assert.equal(retain(recovery,{...valid,...variant}),false,JSON.stringify(variant));
+ const interrupted=plan(recovery.memory,{...idle,action:'hurt'},0,.016);
+ assert.equal(retain(interrupted,valid),false,'a true interruption must never keep an old source clip');
+ const dead=plan(recovery.memory,{...idle,hp:0},0,.016);
+ assert.equal(retain(dead,valid),false,'dead rig must not keep a living sword animation');
+ const teleported=plan(recovery.memory,idle,0,.016,{teleport:true});
+ assert.equal(retain(teleported,valid),false,'teleport must drop source clip memory');
+ const stalled=plan(plan(null,attack,.34,.34,threat).memory,idle,0,.35);
+ assert.equal(retain(stalled,valid),true,'one witnessed recovery stance may be visible on a stalled real frame');
+ const expired=plan(stalled.memory,idle,0,.35);
+ assert.equal(retain(expired,valid),false,'never loop a completed original attack');
+});
+
+test('the live skinned mixer decides source clip retention before idle crossfade and exposes a bounded receipt',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=model.indexOf('function updateActor(actor,dt');
+ const end=model.indexOf('function disposeActorAsset',start);
+ assert.ok(start>0&&end>start,'read actual live updateActor');
+ const body=model.slice(start,end);
+ const gate=body.indexOf('shouldRetainNativeRecoveryClip(continuation');
+ const switchClip=body.indexOf('changeAction(actor,actor.groundedPerformance');
+ const mix=body.indexOf('actor.mixer.update(');
+ assert.ok(gate>0&&gate<switchClip&&switchClip<mix,'original source attack must be retained BEFORE the mixer switches to idle');
+ assert.ok(body.includes('if(!retainOriginalAttack)'),'no blind clip retention');
+ assert.ok(body.includes('activeClipRunning:actor.activeClip?.isRunning?.()===true'),'never retain an already finished imported clip');
+ assert.ok(model.includes('nativeSourceRecoveryClipFrames:authored.reduce('),'real renderer exposes provenance of any retained source clip frames');
+ assert.ok(model.includes('actor.nativeSourceRecoveryClipFrames=0;'),'new or retired actors must release receipt state');
+});

@@ -42,3 +42,26 @@ export function planNativeDuelContinuity(previous,unit,visualAge,frameSeconds,{
  return Object.freeze({memory,mode:'recovery',age:advanced,
   targetId:previous.sourceTargetId,distance:1,contactAllowed:false});
 }
+
+/**
+ * Hold the ORIGINAL imported source attack clip only for a witnessed,
+ * adjacent 350ms-authority -> idle RECOVERY. Without this gate, the renderer
+ * cross-fades the 620ms sword clip to idle before its authored wrists,
+ * torso and boots finish, even while a cosmetic recovery pose continues.
+ *
+ * This is presentation-only: it never schedules contact, damage or sound,
+ * never holds a new simulation tick, and never keeps a dead/stale clip alive.
+ */
+export function shouldRetainNativeRecoveryClip(continuation,{
+ authoritativeAction=null,currentAction=null,currentActionTick=null,
+ activeClipRunning=false,reducedMotion=false,attached=true
+}={}){
+ const memory=continuation?.memory;
+ return continuation?.mode==='recovery'&&continuation.contactAllowed===false&&
+  authoritativeAction==='idle'&&currentAction==='attack'&&
+  activeClipRunning===true&&attached===true&&!reducedMotion&&
+  Number.isSafeInteger(memory?.actionTick)&&currentActionTick===memory.actionTick&&
+  typeof memory.sourceTargetId==='string'&&memory.sourceTargetId.length>0&&
+  Number.isFinite(continuation.age)&&continuation.age>=RECOVERY_START&&
+  continuation.age<MAX_AGE;
+}
