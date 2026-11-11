@@ -8,7 +8,7 @@ import { createCourtyardEcology } from './courtyard-ecology.mjs';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
-import { cameraComposition, createPresentationCameraAnchor } from './camera.mjs';
+import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose } from './camera.mjs';
 
 // BEGIN R38 CONTACT HELPER
 /**
@@ -583,15 +583,13 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     });
     desiredTarget.set(anchor.target.x, anchor.target.y, anchor.target.z);
     desiredPosition.set(anchor.offset.x, anchor.offset.y, anchor.offset.z);
-    const mix = settings.reducedMotion || frameCount === 0 || anchor.snap
-      ? 1 : 1 - Math.exp(-Math.min(measuredDelta, .5) * 12);
-    if (cameraMode === 'overview' || anchor.snap) cameraTarget.copy(desiredTarget);
-    else cameraTarget.lerp(desiredTarget, mix);
-    cameraOffset.lerp(desiredPosition, mix);
-    // Snap only sub-pixel camera residuals to their exact poses so the
-    // original HDR/depth static cache can be reused without stale parallax.
-    if (cameraTarget.distanceToSquared(desiredTarget) < 1e-4) cameraTarget.copy(desiredTarget);
-    if (cameraOffset.distanceToSquared(desiredPosition) < 1e-4) cameraOffset.copy(desiredPosition);
+    // True portal/restart/shot transitions are indivisible cuts of both
+    // viewpoint and gaze. Ordinary recentering stays smooth; settled, exact
+    // poses permit the unchanged HDR/depth static world to be reused.
+    advancePresentationCameraPose(cameraTarget, cameraOffset, desiredTarget, desiredPosition, {
+      hardCut: settings.reducedMotion || frameCount === 0 || anchor.snap,
+      overview: cameraMode === 'overview', delta: measuredDelta,
+    });
     camera.position.copy(cameraTarget).add(cameraOffset);
     camera.lookAt(cameraTarget);
     scene.fog.near = Math.max(30, cameraOffset.length() + 15);

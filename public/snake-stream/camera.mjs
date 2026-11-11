@@ -205,3 +205,35 @@ export function createPresentationCameraAnchor() {
   }
   return { resolve, reset };
 }
+
+
+/**
+ * Single, authoritative viewer-camera pose transition. The immutable public
+ * snapshot determines the desired shot; this function only moves real Three.js
+ * camera vectors and cannot affect the snake's path, movement, portals or AI.
+ * Hard discontinuities are true photographic cuts: both position-offset and
+ * look-at target must snap together. Interpolating the offset after a portal or
+ * shot change creates a false journey across the board, risks hiding danger,
+ * and forces a full static-world GPU redraw on every intermediate frame.
+ * Normal continuous head recentering still eases, then settles exactly so the
+ * existing high-quality HDR/depth world cache can be reused losslessly.
+ */
+export function advancePresentationCameraPose(currentTarget, currentOffset, desiredTarget, desiredOffset,
+  { hardCut = false, overview = false, delta = 1 / 60 } = {}) {
+  for (const point of [currentTarget, currentOffset, desiredTarget, desiredOffset]) {
+    if (!point || ![point.x,point.y,point.z].every(Number.isFinite) ||
+        typeof point.distanceToSquared !== 'function')
+      throw new TypeError('Viewer camera requires finite Three.js vectors');
+  }
+  const safeDelta = Number.isFinite(delta) ? Math.min(Math.max(delta,0),.5) : 1/60;
+  const mix = hardCut ? 1 : 1 - Math.exp(-safeDelta * 12);
+  if (hardCut || overview) currentTarget.copy(desiredTarget);
+  else currentTarget.lerp(desiredTarget, mix);
+  if (hardCut) currentOffset.copy(desiredOffset);
+  else currentOffset.lerp(desiredOffset, mix);
+  // Exact source-owned pose reuse: never round the viewpoint across a visible
+  // parallax gap, and never add a further camera movement to a true hard cut.
+  if (currentTarget.distanceToSquared(desiredTarget) < 1e-4) currentTarget.copy(desiredTarget);
+  if (currentOffset.distanceToSquared(desiredOffset) < 1e-4) currentOffset.copy(desiredOffset);
+  return { cut: !!hardCut, settled: currentTarget.equals(desiredTarget) && currentOffset.equals(desiredOffset) };
+}
