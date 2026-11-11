@@ -1,4 +1,25 @@
 {
+  "p0LiveSourceFreshnessAndPresentationClock20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorCandidateSha": "8693c29705275504f8230e7a24c16406af75add0",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43091649344 — 8/8 original baseline/candidate WebMs and real source chain completed, 0/2 strict guardian event-to-native-raster matches; latest footage not available for continuous visual acceptance",
+    "priorExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43091649631 — passed technical veto only",
+    "actualCodeSha": "6139cbb473e5bf39777f60136cf4ec10caaa2f82",
+    "meaningfulPlayChange": "Actual browser source poll now targets 100ms request-start cadence, yielding >=16ms after slow fetch, retaining one in flight and existing abort/backoff/recovery. Reduces preventable source-to-HUD/Three scene lag; does not accelerate 20Hz authority. Browser-accepted floor/lifecycle vs returned WebGL submissions are separately captured by real source tick, 64 max, no fake native frame assertion.",
+    "review": "docs/reviews/2026-11-11-tower-pr68-live-source-poll-freshness-and-frame-clock.md",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/43097979632 — QUEUED at authoring; not a pass",
+    "originalNativeFilm": "NOT YET RECAPTURED at new source; previous 0/2 strict event/native HUD phase disagreement unresolved",
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedDeviceFrameTimesAndMemory": "NOT EVALUATED",
+    "biggestGap": "Guardian and climber still split/occluded during authentic narrow portrait fight; real 8→9 threshold and floor-to-visible-raster clock +~2s mismatch not accepted. New cadence effectiveness must be measured in original 1x gameplay.",
+    "nextAction": "Capture original 60+ second source-pinned 960x600 and 390x844 baseline/candidate films; inspect actual accepted→returned WebGL→native pixels time and complete continuous physical threshold crossing/floor9, outcome/restart; make dominant source-verified gameplay/scene repair, then independent blinded reviewers and physical devices."
+  },
   "schemaVersion": 1,
   "updated": "2026-11-11",
   "mode": "transformation-first",
