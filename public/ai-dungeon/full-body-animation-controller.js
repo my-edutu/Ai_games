@@ -154,6 +154,27 @@ export function advanceOriginalSourceSwingTravelWitness({
   {travel:previousTravel,age}:EMPTY_NATIVE_SWING_TRAVEL;
 }
 
+/**
+ * Source-clip pose may continue across multiple rendered frames within one
+ * authoritative tick. A cached 180ms *real* walk receipt may authorize a
+ * bounded original-ankle swing probe even when the separate ground-stamp
+ * observer reports no new same-frame root step. It never authorizes movement,
+ * contact, a foot plant, or an animation owner of its own.
+ */
+export function hasOriginalSourceSwingTravelWitness({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ ownerLocomotion=false,travel=NaN,age=NaN,
+ alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false
+}={}){
+ return mode==='move'&&/^walking[_\\s-]*a$/i.test(sourceClipName)&&
+  ownerLocomotion===true&&alive===true&&visible===true&&
+  teleport===false&&reducedMotion===false&&interrupted===false&&
+  [sourceWeight,travel,age].every(finite)&&
+  sourceWeight>=.90&&sourceWeight<=1.001&&
+  travel>=.008&&travel<=.24&&age>=0&&age<=.18;
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){
