@@ -34,6 +34,37 @@ assert.equal(vm.runInContext('commuterPoseStale',context)(entry,{...person,activ
 context.state.t=23;context.climateAt=()=>({season:2});
 assert.equal(vm.runInContext('commuterPoseStale',context)(entry,person,.3),true,
  'true season change must invalidate visual clothing');
+// W222 Phase 1: the same true original GPU skin must not re-sculpt complete
+// foreground people every arbitrary in-world 1.5 hours, or animate a
+// resting body as if walking. These are actual source-function policies.
+const rig=fragment('function citizenRigPose(', 'function citizenEmbodiedPose(');
+assert.match(rig,/const intensity=traveling\\?\\.72:0;/,
+ 'real feet stay planted whenever no authoritative route movement exists');
+const fgSource=fragment('function realForegroundPoseKey(', 'function realForegroundPoseStale(');
+const fgContext=vm.createContext({workingSkinCapable:true,
+ isWorkingAtSite:()=>false,citizenRigPose:()=>({acting:{action:'idle'}}),
+ climateAt:()=>({season:'summer'}),state:{t:15}});
+vm.runInContext(fgSource,fgContext,{timeout:2000});
+const foregroundKey=vm.runInContext('realForegroundPoseKey',fgContext);
+const originalResident={name:'Mira',job:'builder',activity:'Resting at home',
+ trait:'careful',friend:'Bram',target:[1,2],phase:.2,
+ energy:90,hunger:16,workTimer:0};
+const skinned=foregroundKey(originalResident,1,true);
+const cpu=foregroundKey(originalResident,1,false);
+originalResident.phase+=2.3;fgContext.state.t+=13;
+assert.equal(foregroundKey(originalResident,1,true),skinned,
+ 'authentic unchanged GPU-bound adult retains full mesh across time and breathing');
+assert.notEqual(foregroundKey(originalResident,1,false),cpu,
+ 'non-GPU detailed adult still gets current CPU gait');
+assert.notEqual(foregroundKey({...originalResident,job:'farmer'},1,true),skinned,
+ 'actual changed profession rebuilds its original clothing and tool binding');
+assert.notEqual(foregroundKey({...originalResident,activity:'Traveling to market'},1,true),skinned,
+ 'actual route status must invalidate physical binding');
+assert.notEqual(foregroundKey({...originalResident,energy:60},1,true),skinned,
+ 'changed physiological appearance remains a genuine invalidation');
+fgContext.climateAt=()=>({season:'winter'});
+assert.notEqual(foregroundKey(originalResident,1,true),skinned,
+ 'winter materials invalidate the original GPU clothing');
 const assembly=fragment('function prepareResidentCommuters(','function drawResidentCommuters(');
 const draw=fragment('function drawResidentCommuters(','function getResidentCommuterAudit(');
 for(const expression of [

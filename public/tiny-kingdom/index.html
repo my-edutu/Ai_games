@@ -2253,7 +2253,12 @@ function realForegroundPoseKey(p,i,walkingSkin=false){
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
   skinned?'real-joint-palette-v2':'cpu-fine-pose',
   p.target?.[0],p.target?.[1],
-  skinned?Math.floor((state.t+i*.23)/1.5):
+  // Stable original full-body GPU bind geometry is not time-limited: its
+  // 13 current joints are uploaded from the REAL citizen on every drawn tick.
+  // Rebuild only for changed occupation, season, route target, identity or
+  // explicit material/labor state below. Non-skinned detailed CPU workers
+  // still refresh their precise poses whenever authoritative gait changes.
+  skinned?'retained-real-joint-bind':
    Math.floor(p.phase/(active?.07:.12)),
   active?(skinned?citizenRigPose(p).acting.action:
    Math.floor(p.workTimer/.08)):-1,
@@ -8541,7 +8546,10 @@ function citizenRigPose(p){
   Math.min(.16,Math.max(0,Number.isFinite(acting.crouch)?acting.crouch:0)*.78):0;
  // Workers plant their feet before harvesting/chopping; travelling remains
  // a genuine alternating stride, not a running-in-place animation.
- const intensity=traveling?.72:working||hauling?0:.11;
+ // W222: resting/homebound/blocked residents do not treadmill. Real walking
+ // alone advances route-locked boots; profession work remains planted while
+ // hands, torso and natural breathing carry the authoritative occupation.
+ const intensity=traveling?.72:0;
  const phase=p.phase*2.7;
  // The two bones have fixed lengths; each foot follows the actual terrain
  // under its forward-facing boot rather than floating at the pelvis height.

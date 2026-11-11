@@ -35,7 +35,11 @@ const p={name:'Original Citizen',job:'builder',activity:'Traveling to a worksite
 const before=JSON.stringify(p),t=make(deps);
 assert(t.candidate(p,1,{lens:'real-390px-or-desktop'}),'small genuine commuter retains 13-bone WebGL rig');
 assert(!t.candidate({...p,delivery:{id:'real-consignment'}},1,{}),'real escrowed freight is always live');
-assert(!t.candidate({...p,activity:'Resting at home'},1,{}),'no invented walking while resting');
+assert(t.candidate({...p,activity:'Resting at home'},1,{}),
+ 'a genuine non-eating resting resident can retain its actual stationary GPU body');
+assert(!make({...deps,verifiedHouseholdMealEvidence:()=>true})
+ .candidate({...p,activity:'Resting at home'},1,{}),
+ 'a verified real meal must keep live CPU hands and food contact');
 assert(!t.candidate({...p,phase:Infinity},1,{}),'no invalid vertex/pose input');
 assert(!make({...deps,follow:true,selectedCitizen:1}).candidate(p,1,{}),'selected followed human must keep live hands');
 assert(!make({...deps,liveWorkday:true,selectedCitizen:1}).candidate(p,1,{}),'filmed citizen stays full CPU contact');
@@ -48,6 +52,9 @@ assert.notEqual(bind,cpu,'travel skin and CPU keys must never alias');
 const fresh={key:bind,skinned:true,x:1,z:2,angle:0};
 p.phase+=.45;p.x+=.32;p.z+=.13;
 assert.equal(t.key(p,1,true),bind,'real feet/wrists update via GPU palette, no full mesh re-bake per stride');
+state.t+=4;
+assert.equal(t.key(p,1,true),bind,
+ 'an unchanged skinned adult must not rebuild complete geometry on a clock bucket');
 assert.equal(t.stale(fresh,p,bind,0),false,'unchanged original skin binding retained with true root motion');
 assert.notEqual(t.key(p,1,false),cpu,'ungrouped detailed CPU actor stays fresh');
 assert.equal(t.stale({...fresh,skinned:false},p,bind,0),true,'non-skinned actor cannot masquerade as GPU gait');
