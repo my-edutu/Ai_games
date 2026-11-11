@@ -56,3 +56,13 @@ test('D04 evidence decoder must be optional and may not hide live playback behin
  assert.match(text,/Decoder unavailable.*UNVERIFIED|UNVERIFIED.*decoder unavailable/i,
   'Missing native decoder must explicitly downgrade evidence instead of claiming a pass');
 });
+
+test('D04 host Chrome CI installs the Playwright video encoder without apt or a browser download',()=>{
+ const text=workflow();
+ const encoderStep=text.indexOf('npx playwright install ffmpeg');
+ const browserStep=text.indexOf('npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs');
+ assert.ok(encoderStep>=0,'Playwright video recording requires its own ffmpeg-1011 binary even when system Chrome exists');
+ assert.ok(browserStep>encoderStep,'Install Playwright media encoder before newPage and actual WebGL capture');
+ assert.doesNotMatch(text,/npx playwright install (?:chromium|--with-deps)/,
+  'D04 should not reinstall browser/system fonts from an unreliable mirror');
+});
