@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-11",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (strict 5/17 at 751x415 on 235ccf6); detailed relief optimization candidate unaccepted",
-  "detail": "Exact live 235ccf6 Chromium #42972810907 original strict 5 genuine completed WebGL submissions/17 in 1014ms, 663 cumulative GPU queue skips, actual 751x415 buffer; 61 RAF callbacks do not count, browser 36/95, same-head native CI 678/733, original offline reproduction passed. Genuine overview remains rectangular-court dominated, visual self-rejected. Candidate changes only detailed serpent relief 3 filtered atlas lookups to 1 derivative-assisted lookup with original four textures/mesh/material budget; focused native 3/3, related 13/13, TS and 900-tick authority pass. Candidate real Chromium, actual GPU improvement, 45-90s motion, physical device presents and independent critic pending. No gate weakened or merge/deployment.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; dd0282 WebGL UNMEASURED (browser preflight source mismatch), last valid older head 5/17",
+  "detail": "Live dd0282 Chromium Actions #42982550531 failed BEFORE all WebGL tests, historical fixed-parent fixture did not reverse newly added T4 single-lookup relief function and calls; no dd0282 valid WebGL screenshots, videos, strict renderer submissions or measured FPS. Original strict last valid prior head 235ccf6 5/17 genuine completed renders at 751x415. Exact-source regression RED->GREEN, related native 20/20, TS build and genuine 900 authority pass, Playwright test discovery 107 without bootstrap crash. Native CI failed 676/733; no full-green acceptance, independent critic or physical device. Draft PR only.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "235ccf6 genuine same-head overview rejected: dominant tiled rectangular court; strict 5/17 complete WebGL submissions. Candidate visual/performance acceptance PENDING.",
   "reviews": [
+    {
+      "area": "Nov 11 dd0282 browser preflight historical-source SHA fatal repaired without weakening test or changing game",
+      "sourceHead": "dd0282da575c8c99bc20800af76d400660b11ebb",
+      "browser": "Actions #42982550531 failed BEFORE Chromium tests at tests/fixtures/snake-t2-restore-bend-parent.cjs original SHA mismatch; new-head GPU gate UNMEASURED",
+      "nativeCI": "Actions #42982550524 676/733 failed; source reproduction #42982550633 success",
+      "checks": "original untouched source RED 0/1; repaired pinned ancestor SHA exact GREEN 1/1; related native 20/20; TypeScript & 900-tick authority PASS; Playwright discovery 107/67 files, no browser visuals yet",
+      "verdict": "T0 UNSIGNED/T1 SELF-REJECTED BUILDING/T2/T3 BUILDING/T4 HARD RED; original strict last valid 5/17 on older head; no milestone accepted, no merge/deploy"
+    },
     {
       "area": "Nov 11 live e1d0 severe performance blocker and original full-scene depth-cache recovery candidate",
       "sourceHead": "e1d0f303e162ee6a733ba4303b685cecc52f4bc3",

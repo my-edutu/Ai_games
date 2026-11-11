@@ -47,6 +47,25 @@ function restoreBendParent(source) {
   if (old.split(lifted).length !== 2)
     throw new Error('T2 exact-source head grounding reversal drift');
   old = old.replace(lifted, oldPosition);
+  // Restore the exact immutably pinned df113 ancestor after the additive T4
+  // *shader* optimization. No source-hash allowance or expected digest changes:
+  // the historical baseline must still match its original Git blob bytewise.
+  const newShaderStart = '/**\n * Bound the detailed serpent\'s scale-relief fragment work';
+  const newShaderEnd = 'export function createSerpent(THREE) {';
+  const shaderStart = old.indexOf(newShaderStart), shaderEnd = old.indexOf(newShaderEnd);
+  if (shaderStart < 0 || shaderEnd <= shaderStart ||
+      old.indexOf(newShaderStart, shaderStart + 1) >= 0)
+    throw new Error('T4 exact-source relief-shader bracket missing or ambiguous');
+  old = old.slice(0, shaderStart) + old.slice(shaderEnd);
+  const addedRelief = `  // Detailed camera shots retain the existing full PBR shader, bump scale,
+  // roughness and all four original atlas textures. Only the redundant relief
+  // sampling inside its fragment shader changes. Overview remains untouched.
+  for (const detailed of [bodyMaterial, skullMaterial, jade, cream])
+    installSingleSampleScaleRelief(detailed, THREE);
+`;
+  if (old.split(addedRelief).length !== 2)
+    throw new Error('T4 exact-source relief-material installation drift');
+  old = old.replace(addedRelief, '');
   const p='// BEGIN T2 BOTANICAL DORSAL PIGMENT\n',q='// END T2 BOTANICAL DORSAL PIGMENT\n';
   const s=old.indexOf(p),e=old.indexOf(q);
   if(s<0||e<s||old.indexOf(p,s+1)>=0||old.indexOf(q,e+1)>=0)
