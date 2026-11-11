@@ -2251,3 +2251,36 @@ test('original source foot-to-toes bind axis rejects false lateral shoe extrema 
  assert.match(model,/planOriginalSourceToeBindAxis\(/,
   'only the real SkeletonUtils-cloned source GLB should provide anatomical foot/toe bind evidence');
 });
+
+
+test('original Walking_A airborne toe drag uses bounded observed source-foot pitch, never invented stance IK',async()=>{
+ const {planOriginalSourceSwingToeClearance:plan}=await load();
+ assert.equal(typeof plan,'function','native source swing-foot clearance correction must be testable');
+ // Exact original GLB mobile moving rAF: heel 177mm above stone, true toe
+ // 63mm below stone, source inverse-bind foot->toes anatomy independently verified.
+ const witness={mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceWeight:1,alive:true,visible:true,groundedMoving:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.0655,
+  floorTopY:-.02,heelWorldY:.157,toeWorldY:-.083,
+  trialToeWorldY:-.064,trialAngleRad:-.10,previousCorrectionRad:0};
+ const lift=plan(witness);
+ assert.ok(lift<-.005&&lift>=-.08-1e-9,
+  'real original-foot rotation must lift submerged toe smoothly, without a large joint snap');
+ assert.ok(lift>=-.16,'finite bounded ankle correction, not a full arbitrary IK solution');
+ assert.equal(plan({...witness,toeWorldY:.011}),0,'already clear original source toe is untouched');
+ assert.equal(plan({...witness,heelWorldY:-.008}),0,
+  'weight-bearing stance foot must not receive swing-foot toe clearance');
+ for(const invalid of [
+  {mode:'attack'},{sourceClipName:'Idle'},{sourceAnatomyVerified:false},
+  {sourceWeight:.6},{rootTravel:0},{rootTravel:.6},{alive:false},
+  {visible:false},{groundedMoving:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{floorTopY:.12},{toeWorldY:NaN},
+  {trialToeWorldY:-.10},{trialAngleRad:.4},{previousCorrectionRad:NaN}
+ ])assert.equal(plan({...witness,...invalid}),0,
+  'unverified source pose may not rotate an imported ankle: '+JSON.stringify(invalid));
+ const sourceModel=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(sourceModel,/planOriginalSourceSwingToeClearance\(/,
+  'the actual live imported 41-joint original-rig animator must invoke the tested correction');
+ assert.match(sourceModel,/sourceSolePatchVertexCandidates\(/,
+  'only verified original inverse-bind and skinned shoe patches may drive the ankle');
+});
