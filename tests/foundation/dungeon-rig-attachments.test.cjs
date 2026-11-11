@@ -309,3 +309,37 @@ test('real GLB shins receive contact braces only from validated public grid faci
  assert.match(model,/rigContactBracePeakRad:/);
  assert.match(app,/a\.combatFacing=planCombatFacing\(u,s\.units,s\.map\)/);
 });
+
+
+test('source Walking_A clips hand full-body ownership continuously to actual six-joint leg share, including nearly saturated original-mixer weights',async()=>{
+ const {planSourceOwnedFullBodyStride:owned,planRigFullBodyStride:base}=await load();
+ const viewerPhase=Math.PI/2,groundedGaitWeight=.8;
+ // Genuine original-GLB mixer weight may reach .85-.99 while the same six
+ // native thighs, calves and ankles still own a small legal additive share.
+ // A hard cutoff at .16 drops pelvis/chest/both shoulders to ZERO while
+ // legs continue to swing; mobile Chromium previously exposed this break.
+ const shares=[0,.005,.05,.12,.159,.16,.161,.24,.5,.84,1];
+ for(const kind of ['vanguard','revenant','warden','ranger','mystic','cultist']){
+  let prior=null;
+  for(const sourceLegShare of shares){
+   const actual=owned(kind,viewerPhase,groundedGaitWeight,sourceLegShare,false);
+   const expected=base(kind,viewerPhase,groundedGaitWeight*sourceLegShare,false);
+   assert.deepEqual(actual,expected,
+    kind+' source clip handoff must continuously own pelvis, chest and arms at leg share '+sourceLegShare);
+   assert.ok(Number.isFinite(actual.weight));
+   if(prior!==null)assert.ok(actual.weight>=prior-.000001,
+    'original loaded source clip must not reset the body stride at its 16% boundary');
+   prior=actual.weight;
+  }
+  for(const bad of [NaN,Infinity,-Infinity,-.1,1.01])
+   assert.deepEqual(owned(kind,viewerPhase,groundedGaitWeight,bad,false),
+    base(kind,viewerPhase,0,true),'invalid original mixer share must remain at neutral pose');
+  assert.deepEqual(owned(kind,viewerPhase,groundedGaitWeight,.12,true),
+   base(kind,viewerPhase,0,true),'reduced motion always releases native movement');
+ }
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/actor\.rigFullBodyStride=planSourceOwnedFullBodyStride\(actor\.u\.kind,phase,gait\.weight,\s*actor\.rigNativeLegOverlayScale,hardStop\)/,
+  'original source clip share must reach the real full-body pelvis/spine/shoulder stage');
+ assert.match(model,/\(pose\[mount\.side\]\[mount\.part\]\+footSupport\[mount\.side\]\[mount\.part\]\)\*nativeLegShare/,
+  'original source foot/leg delta must share the exact same clip ownership value');
+});
