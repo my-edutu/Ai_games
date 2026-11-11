@@ -141,6 +141,30 @@ export function shortestYawDelta(from,to){
  if(!Number.isFinite(from)||!Number.isFinite(to))return 0;
  return Math.atan2(Math.sin(to-from),Math.cos(to-from));
 }
+/**
+ * Spend the measured *visible* interval on an already witnessed original
+ * Walking_A facing correction. The generic animation frame delta is capped at
+ * 50ms for all other presentation layers, but a real source GLB walk can
+ * traverse most of its last tile in a slower frame. Keep its root rotation
+ * attached to the same 8.5rad/s turn budget, allowing at most 75ms per frame,
+ * never altering a skeleton, path, animation keyframe or authoritative move.
+ * Combat target priority and interruptions revert to unchanged generic facing.
+ */
+export function approachOriginalSourceWalkYaw(current,desired,frameDelta,frameInterval,{
+ originalWalking=false,alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false,hasCombatFacing=false
+}={}){
+ const ordinary=approachCharacterYaw(current,desired,frameDelta,reducedMotion);
+ if(!originalWalking||!alive||!visible||teleport||reducedMotion||
+  interrupted||hasCombatFacing||!Number.isFinite(frameInterval)||
+  frameInterval<=0||!Number.isFinite(desired)||!Number.isFinite(current))return ordinary;
+ const ordinaryDelta=Number.isFinite(frameDelta)?Math.max(0,Math.min(frameDelta,.05)):0;
+ const elapsed=Math.max(ordinaryDelta,Math.min(.075,frameInterval));
+ const difference=shortestYawDelta(current,desired);
+ const yaw=current+Math.sign(difference)*Math.min(Math.abs(difference),8.5*elapsed);
+ return Math.atan2(Math.sin(yaw),Math.cos(yaw));
+}
+
 export function approachCharacterYaw(current,desired,dt,reducedMotion=false){
  const from=Number.isFinite(current)?current:0;
  if(!Number.isFinite(desired))return Math.atan2(Math.sin(from),Math.cos(from));
