@@ -79,6 +79,63 @@ test('a real published pressure stroke turns one connected physical tideglass ar
   }
 });
 
+test('Pass278 side-coupled powertrain clears Pip's center while retaining a truthful physical pressure cycle',async()=>{
+  const {createMazeWorld}=await mod;
+  const {Vector3,Box3}=await import(three);
+  const world=createMazeWorld({balanced:true});
+  const unchanged=JSON.stringify(published), initial=world.stats();
+  try{
+    world.update(published);
+    const trap=world.group.getObjectByName('Disclosed tide-shear pressure hazard 24');
+    const arch=trap?.getObjectByName('Published tide-shear pressure counterbalance arch 24');
+    const wheel=arch?.getObjectByName('Published tide-shear bronze pressure governor');
+    const cable=arch?.getObjectByName('Published tide-shear connected descending cable');
+    const weight=arch?.getObjectByName('Published tide-shear hanging counterweight');
+    const yoke=arch?.getObjectByName('Published Tideglass shear-portal connected yoke');
+    assert.ok(wheel?.isGroup && cable?.isGroup && weight?.isGroup && yoke?.isMesh,
+      'the complete same physical source-driven counterbalance still exists');
+    assert.ok(wheel.position.x>=.70 && wheel.position.x<=.80,
+      'move the real governor out of Pip’s central camera sightline, not just its highlight');
+    assert.equal(cable.position.x,wheel.position.x,'wheel and cable share the mounted power axle');
+    assert.equal(weight.position.x,wheel.position.x,'the physical descending load stays under the same shaft');
+    const center=trap.getWorldPosition(new Vector3());
+    const far=new Vector3(center.x+25,0,center.z+25);
+    const contact=new Vector3(center.x,0,center.z);
+    const originalPositions=[wheel.position.x,cable.position.x,weight.position.x];
+    const budget=world.stats();
+    for(const [t,p,reduced] of [[1,far,false],[2,contact,false],[3.4,contact,false],
+       [4,far,false],[5,contact,true],[6,far,false]]){
+      world.animate(t,{explorerPosition:p,reducedMotion:reduced});
+      world.group.updateMatrixWorld(true);
+      assert.deepEqual([wheel.position.x,cable.position.x,weight.position.x],originalPositions,
+        'the side transmission never drifts or teleports across event stages');
+      const extent=new Box3().setFromObject(arch);
+      assert.ok(extent.min.x>center.x-1.2 && extent.max.x<center.x+1.2
+        &&extent.min.z>center.z-1.2 && extent.max.z<center.z+1.2,
+        'the ENTIRE side-mounted transmission stays inside the strict published trap footprint');
+      assert.ok(wheel.getWorldPosition(new Vector3()).x>center.x+.55,
+        'the active governor remains physically beside rather than across the hero');
+      for(const key of ['geometryCount','materialCount','textureCount'])
+        assert.equal(world.stats()[key],budget[key],'no GPU resources allocated during action: '+key);
+      if(t===3.4)assert.ok(wheel.rotation.z<-.65 && weight.position.y<.33,
+        'real publicly witnessed contact still rotates the side gear and drops its load');
+      if(t===4||t===6)assert.equal(weight.position.y,.60,
+        'withdrawal restores the same physical hanging load');
+    }
+    assert.equal(JSON.stringify(published),unchanged,'no AI/private/collision rule changed');
+    world.update({...published,runToken:'replayed-run',tick:0,cells:[],
+      visibleCells:[],discoveredCells:[]});
+    assert.equal(world.group.getObjectByName('Published tide-shear bronze pressure governor'),undefined,
+      'hidden or reset world cannot retain the old power bay');
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],initial[key],'reset preserves original GPU class budget');
+  }finally{
+    world.dispose();
+    for(const key of ['geometryCount','materialCount','textureCount'])
+      assert.equal(world.stats()[key],0,'full release: '+key);
+  }
+});
+
 test('Pass259 pairs two broad connected ivory shears instead of a heap of red trim',async()=>{
   const {createMazeWorld}=await mod;
   const {Box3,Vector3}=await import(three);

@@ -2197,9 +2197,17 @@ export function createMazeWorld(options = {}) {
         -side * .31, .092, .065, .62, .035, .05);
       loadArms.push({object: arm, side});
     }
+    // Pass278: original full 390px Pass277 screenshot has the central bronze
+    // wheel and counterweight directly over Pip's chest, even after the split
+    // yoke opens. This is a mechanically coherent RIGHT-SIDE power bay, not
+    // another translucent or hidden prop: the governor, drive cable and
+    // descending load share a vertical axle by the rooted right pylon.
+    // The middle stays clear for the REAL opposed moving ivory blades and Pip.
+    // All existing public-pressure timing, geometry/material pools, full
+    // 2.4m trap footprint, visibility/reset and collision authority remain.
     const wheel = new THREE.Group();
     wheel.name = 'Published tide-shear bronze pressure governor';
-    wheel.position.set(0, 1.28, -.04);
+    wheel.position.set(.76, 1.28, -.04);
     counterbalance.add(wheel);
     mesh(wheel, ring, gold, 0, 0, 0, .29, .29, .29);
     mesh(wheel, ring, darkMetal, 0, 0, .034, .19, .19, .19);
@@ -2215,12 +2223,12 @@ export function createMazeWorld(options = {}) {
     // is absolute, so withdrawal and stale/private snapshots return to rest.
     const cable = new THREE.Group();
     cable.name = 'Published tide-shear connected descending cable';
-    cable.position.set(0, 1.26, .08);
+    cable.position.set(.76, 1.26, .08);
     counterbalance.add(cable);
     mesh(cable, bevel, gold, 0, -.27, 0, .072, .47, .072);
     const weight = new THREE.Group();
     weight.name = 'Published tide-shear hanging counterweight';
-    weight.position.set(0, .60, .08);
+    weight.position.set(.76, .60, .08);
     counterbalance.add(weight);
     mesh(weight, bevel, darkMetal, 0, 0, 0, .40, .30, .35);
     mesh(weight, bevel, lightStone, 0, -.13, .02, .45, .08, .40);
