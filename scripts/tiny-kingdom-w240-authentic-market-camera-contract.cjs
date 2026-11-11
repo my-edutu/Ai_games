@@ -4,9 +4,9 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const html=fs.readFileSync(path.resolve(__dirname,'../public/tiny-kingdom/index.html'),'utf8');
-const js=html.match(/<script>([\\s\\S]*?)<\\/script>/);
-assert(js,'real playable Tiny Kingdom script');
-new vm.Script(js[1],{filename:'tiny-kingdom-original-game.js'});
+const start=html.indexOf('<script>'),end=html.indexOf('</script>',start);
+assert(start>=0&&end>start,'real playable Tiny Kingdom script');
+new vm.Script(html.slice(start+8,end),{filename:'tiny-kingdom-original-game.js'});
 function section(first,last){
  const a=html.indexOf(first),b=html.indexOf(last,a);
  assert(a>=0&&b>a,'missing original camera geometry '+first);
@@ -40,6 +40,6 @@ const director=section('function chooseFilmableWorker(rows,excluded=-1){',
  'function getLiveWorkDirectorStats(){');
 assert.match(director,/shot\.workFacingMode!=='obstructed'/,
  'the documentary director must never describe an obstructed work shot as a clear front');
-assert.doesNotMatch(fn,/state\.(food|wood|gold|t)\s*[+\\-*/]?=/,
+assert(!/state\.(food|wood|gold|t)\s*=/.test(fn),
  'physical arcade survey cannot mutate the authoritative economy or clock');
 console.log('W240 source contract PASS: 8 camera bands on original 2 arcades, truthful director visibility; runtime WebGL and exact-frame visual review still required');
