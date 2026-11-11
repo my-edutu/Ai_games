@@ -31,33 +31,60 @@ export function planNativeFigureSculpt(kind,name,bounds){
  if(/^head$/i.test(m[1])&&!Number.isFinite(p.head))return null;
  return Object.freeze({kind,part:/^body$/i.test(m[1])?'body':/^head$/i.test(m[1])?'head':/^arm/i.test(m[1])?'arm':'leg',
   centerX:(min.x+max.x)/2,centerZ:(min.z+max.z)/2,minY:min.y,
-  invHeight:1/height,maxXShift:Math.min(width*(/^head$/i.test(m[1])?.18:.125),height*.16),
-  maxZShift:Math.min(depth*(/^head$/i.test(m[1])?.16:.125),height*.16),...p});
+  invHeight:1/height,maxXShift:Math.min(width*(/^head$/i.test(m[1])?.18:/^body$/i.test(m[1])?.16:.18),height*.16),
+  maxZShift:Math.min(depth*(/^head$/i.test(m[1])?.16:/^body$/i.test(m[1])?.16:.17),height*.16),
+  side:/Left$/i.test(m[1])?'left':/Right$/i.test(m[1])?'right':null,...p});
 }
 
 export function planNativeFigureVertex(plan,x,y,z){
  if(!plan||![x,y,z].every(Number.isFinite))return null;
  const t=clamp((y-plan.minY)*plan.invHeight,0,1);
  const seam=Math.sin(Math.PI*t)**2;
+ const crown=bump(t,.76,.23),brow=bump(t,.56,.17),jaw=bump(t,.28,.18);
+ const shoulder=bump(t,.84,.16),rib=bump(t,.70,.20),waist=bump(t,.37,.17);
  let width=0,depth=0;
  if(plan.part==='head'){
-  // Taper original SKINNED forehead/temple/jaw planes; unlike the retired
-  // costume this retains the licensed texture, live weights and bind chain.
-  // Mesh-space neck and crown seams do not move, even through animation.
-  const crown=bump(t,.75,.28),jaw=bump(t,.31,.19);
-  width=-seam*(plan.head*crown+plan.jaw*.48*jaw);
-  depth=-seam*(plan.head*.66*crown+plan.jaw*.36*jaw);
+  // Originate the brow, temple and tapering jaw IN the authentic textured
+  // source-skinned face. Keep its crown/neck vertices, joints and UVs fixed.
+  // No detachable skull, helmet, faceplate or false animation is introduced.
+  width=-seam*(plan.head*(.97*crown+.18*brow)+plan.jaw*.60*jaw);
+  depth=-seam*(plan.head*(.70*crown+.15*brow)+plan.jaw*.42*jaw);
  }else if(plan.part==='body'){
-  const upper=bump(t,.75,.20),waist=bump(t,.37,.19);
-  width=seam*(plan.chest*upper-plan.waist*waist+.16*plan.chest*bump(t,.54,.14));
-  depth=seam*(plan.depth*upper-plan.waist*.54*waist);
+  // One connected SOURCE-PAINTED ribcage: shoulder mass, pectoral vault,
+  // genuine waist taper and load-bearing lower back. These surfaces deform
+  // with the original spine/pelvis; no floating primitive armor.
+  const hip=bump(t,.18,.13),sternum=bump(t,.58,.13);
+  const warden=plan.kind==='warden'?1.16:plan.kind==='revenant'?.94:1;
+  width=seam*(plan.chest*(.94*rib+.58*shoulder+.17*sternum)*warden-
+    plan.waist*(.98*waist)+plan.chest*.13*hip);
+  depth=seam*(plan.depth*(.98*rib+.34*shoulder+.12*sternum)-
+    plan.waist*.58*waist+plan.depth*.10*hip);
  }else if(plan.part==='arm'){
-  width=seam*plan.limb*(1.05*bump(t,.75,.22)-.47*bump(t,.29,.18));
-  depth=width*.72;
+  // The real weighted arm geometry transitions continuously from deltoid
+  // to biceps, elbow, forearm and narrow wrist. Original sword-hand joint
+  // remains untouched. Distinct handed mass gives the three source figures
+  // recognisable guards and reach without adding rig objects.
+  const bicep=bump(t,.66,.16),elbow=bump(t,.44,.11),
+   forearm=bump(t,.26,.15),wrist=bump(t,.10,.10);
+  const guard=plan.kind==='warden'?(plan.side==='right'?1.19:1.10):
+    plan.kind==='revenant'?(plan.side==='left'?1.14:.93):
+    plan.side==='right'?1.10:1;
+  width=seam*plan.limb*guard*(.96*shoulder+.62*bicep-
+    .34*elbow+.52*forearm-.22*wrist);
+  depth=width*(plan.kind==='warden'?.84:.75);
  }else{
-  width=seam*plan.limb*(bump(t,.77,.22)-.46*bump(t,.45,.16)+.64*bump(t,.20,.13));
+  // True skinned thigh / kneecap / calf continuum, weighted to its original
+  // imported hip/knee/ankle. Physical stance can now read as a grown fighter,
+  // instead of five independently inflated cylindrical costume segments.
+  const thigh=bump(t,.72,.20),knee=bump(t,.45,.12),
+   calf=bump(t,.25,.14),ankle=bump(t,.08,.10),hip=bump(t,.90,.13);
+  width=seam*plan.limb*(.29*hip+1.04*thigh-
+   .53*knee+.70*calf-.22*ankle);
   depth=width*.80;
  }
+ // Bounded displacements are proportional to the ACTUAL source segment,
+ // never a supposed generic body height. End seams have exactly zero shift.
+ // Original skin weights, index, UV, texture, rig and animation are retained.
  const dx=clamp((x-plan.centerX)*width,-plan.maxXShift,plan.maxXShift);
  const dz=clamp((z-plan.centerZ)*depth,-plan.maxZShift,plan.maxZShift);
  return {x:x+dx,y,z:z+dz,shift:Math.hypot(dx,dz)};

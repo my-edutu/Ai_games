@@ -56,6 +56,36 @@ test('native adult body retains actual articulated source and distinct original 
   const chest=planNativeFigureVertex(plan,.34,1.6*.75,.19);
   const waist=planNativeFigureVertex(plan,.34,1.6*.38,.19);
   assert.ok(chest.x>.34&&waist.x<.34,'physically widened rib cage and tapered waist on source skin');
-  assert.ok(Math.abs(chest.x-.34)<=.8*.125+1e-7,'bounded skin displacement');
+  assert.ok(Math.abs(chest.x-.34)<=.8*.16+1e-7,'bounded skin displacement');
  }
+});
+
+test('original adult skinned silhouette follows continuous anatomical loads, role-specific shoulders and precise seams',async()=>{
+ const {planNativeFigureSculpt,planNativeFigureVertex}=await load();
+ const bounds={min:{x:-.32,y:0,z:-.26},max:{x:.32,y:1.4,z:.26}};
+ const sample=(kind,name,t,x=.25,z=.19)=>{
+  const p=planNativeFigureSculpt(kind,name,bounds);
+  assert.ok(p,kind+' '+name);
+  return planNativeFigureVertex(p,x,t*1.4,z);
+ };
+ for(const kind of ['vanguard','revenant','warden']){
+  const chest=sample(kind,'Original_Body',.72),middle=sample(kind,'Original_Body',.37);
+  assert.ok(chest.x>.25&&middle.x<.25,'ribcage-to-waist on ONE true body skin');
+  const upper=sample(kind,'Original_ArmRight',.82),elbow=sample(kind,'Original_ArmRight',.44);
+  assert.ok(upper.x>elbow.x,'source deltoid must outweigh original elbow');
+  const thigh=sample(kind,'Original_LegLeft',.72),knee=sample(kind,'Original_LegLeft',.45);
+  assert.ok(thigh.x>knee.x,'real articulated thigh must taper at knee');
+  for(const part of ['Body','ArmLeft','ArmRight','LegLeft','LegRight','Head']){
+   const p=planNativeFigureSculpt(kind,'Original_'+part,bounds);
+   for(const y of [0,1.4]){
+    const v=planNativeFigureVertex(p,.25,y,.19);
+    assert.equal(v.x,.25);assert.equal(v.z,.19);
+   }
+  }
+ }
+ const right=sample('warden','Original_ArmRight',.82),
+  left=sample('warden','Original_ArmLeft',.82);
+ assert.ok(right.x>left.x,'real source sword arm receives original asymmetrical guard mass');
+ for(const bad of [null,{x:0,y:0,z:0},'strange'])assert.equal(
+  planNativeFigureVertex(bad,NaN,0,0),null);
 });
