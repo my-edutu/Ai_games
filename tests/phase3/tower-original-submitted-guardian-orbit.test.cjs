@@ -52,7 +52,7 @@ test('safe normal view, desktop, stale geometry and invalid time never manufactu
   assert.equal(bound(previous,view(1.6,52),1/60,960/600),null);
   assert.equal(bound(previous,view(1.6,52),0,390/844),null);
   assert.equal(bound(previous,view(1.6,52),NaN,390/844),null);
-  assert.equal(bound(previous,view(1.6,52,22),1/60,390/844),null);
+  assert.equal(bound(previous,view(1.6,22),1/60,390/844),null);
   assert.equal(bound(previous,view(1.6,52),1/60,390/844,1.05,23),null);
   assert.equal(bound({...previous,x:Infinity},view(1.6,52),1/60,390/844),null);
 });
@@ -60,12 +60,13 @@ test('safe normal view, desktop, stale geometry and invalid time never manufactu
 test('production path vets both live bodies/real landing and remembers camera ONLY after successful WebGL submission',()=>{
   const src=fs.readFileSync(path.join(ROOT,
     'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const sessionGuard=src.indexOf('const previousGuardianSubmitted = protectLivingGuardian');
   const applied=src.indexOf('const boundedSubmittedView = previousGuardianSubmitted');
   const render=src.indexOf('update(motionDt); renderer.render(scene, camera);');
   const remember=src.indexOf('lastSubmittedGuardianCamera.copy(camera.position);',render);
-  assert.ok(applied>0 && render>applied && remember>render,
+  assert.ok(sessionGuard>0 && applied>sessionGuard && render>applied && remember>render,
     'unsubmitted ideal camera destinations must not advance continuity history');
-  const safe=src.slice(applied,render);
+  const safe=src.slice(sessionGuard,render);
   for(const guard of [
     'lastSubmittedGuardian.runToken === snapshot.runToken',
     'lastSubmittedGuardian.floor === snapshot.floor',
