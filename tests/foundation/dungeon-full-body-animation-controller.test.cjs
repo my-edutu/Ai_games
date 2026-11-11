@@ -2633,3 +2633,35 @@ test('original source-skin swing witness is mixer-frame owned and bounded by rea
  assert.match(browser,/original-source-swing-frame-foot-witness/);
  assert.match(browser,/toBeLessThanOrEqual\(\.221\)/);
 });
+
+
+test('pinned original 41-joint right knee at 89 degrees must not be misclassified as a degenerate bend',async()=>{
+ const {assessImportedSourceKneeGeometry:assess}=await load();
+ // Real desktop 11-Nov-2026 original Walking_A right chain:
+ // measured world bend sine 0.99950878465, exact same-skin asset-space
+ // lengths .17067010418/.11231610542m and inverse-bind lengths matched.
+ // A 90-degree leg bend has MAXIMAL plane normal; only a nearly straight
+ // or collapsed leg has an ill-conditioned cross-product.
+ const physical={
+  upperLength:.1706701041811571,lowerLength:.11231610541851929,
+  bendSine:.9995087846520136,hingeAlignment:.99968,
+  sourceBindUpperLength:.17067002536856543,
+  sourceBindLowerLength:.11231605296387505
+ };
+ assert.deepEqual(assess(physical),{
+  accepted:true,reason:'verified-source-knee-plane-from-inverse-bind'
+ },'real well-conditioned original heel-safe knee trial must reach the same-skinned-foot selector');
+ for(const invalid of [
+  {bendSine:.035},{bendSine:0},{bendSine:1.0001},
+  {bendSine:NaN},{hingeAlignment:.69},
+  {sourceBindUpperLength:.3},{sourceBindLowerLength:.21},
+  {lowerLength:.02}
+ ])assert.equal(assess({...physical,...invalid}).accepted,false,
+  'never bypass invalid original knee-chain evidence: '+JSON.stringify(invalid));
+ // The live adapter must calculate actual hinge alignment in this stable
+ // perpendicular frame, not manufacture a zero simply because sine>.99.
+ const adapter=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(adapter,/sourceKneeGeometry=sourceBind&&sourceLengths/);
+ assert.doesNotMatch(adapter,/hingeAlignment=bendSine>\.085&&bendSine<\.99\?/,
+  'current original bone bend plane must remain inspectable at a right angle');
+});
