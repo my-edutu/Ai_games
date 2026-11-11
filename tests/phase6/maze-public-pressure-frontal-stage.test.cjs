@@ -7,36 +7,36 @@ const scene=fs.readFileSync(path.resolve(__dirname,
   '../../public/ai-maze-escape/scene.js'),'utf8');
 
 test('authentic pressure jaw pair gets an actual distinct near-frontal 3D stage, not just a color or overlay',()=>{
-  const match=scene.match(/const pressurePortraitCameraOffset = new THREE\\.Vector3\\(([-.\\d]+),\\s*([-.\\d]+),\\s*([-.\\d]+)\\)/);
+  const match=scene.match(/const pressurePortraitCameraOffset = new THREE\.Vector3\(([-.\d]+),\s*([-.\d]+),\s*([-.\d]+)\)/);
   assert.ok(match,'render camera must own a real reusable 3D stage vector');
   const front=match.slice(1).map(Number), follow=[15,21,18];
   const xSeparation=([x,,z])=>Math.abs(z/Math.hypot(x,z));
   assert.ok(front[1]>16 && front[2]>20,'real 3D perspective, not a UI pan or flat overhead view');
   assert.ok(xSeparation(front)>xSeparation(follow)*1.25,
     'the opposed physical x-axis jaw faces must separate at least 25% more than the old oblique camera');
-  assert.match(scene,/pressurePortraitStage \\? pressurePortraitCameraOffset/,
+  assert.match(scene,/pressurePortraitStage \? pressurePortraitCameraOffset/,
     'rendering must actually select the new stage instead of leaving a dead constant');
-  assert.match(scene,/cameraOffset\\.lerp\\(openingStageView/,
+  assert.match(scene,/cameraOffset\.lerp\(openingStageView/,
     'the shared original smooth camera transition must remain in use');
-  assert.match(scene,/pressureReframeEnvelope\\.union\\(/,
+  assert.match(scene,/pressureReframeEnvelope\.union\(/,
     'the existing strict real-mesh safety pass must remain active');
 });
 
 test('pressure frontal shot requires disclosed public action and never steals other encounters',()=>{
   assert.match(scene,/const pressurePortraitStage = pressureCameraBeat/,
     'public camera-beat authority is mandatory');
-  assert.match(scene,/cameraMode === 'follow' && !settings\\.reducedMotion/,
+  assert.match(scene,/cameraMode === 'follow' && !settings\.reducedMotion/,
     'manual cameras and reduced-motion mode retain their prior framing');
-  assert.match(scene,/!result && aspect >= \\.35 && aspect < \\.60/,
+  assert.match(scene,/!result && aspect >= \.35 && aspect < \.60/,
     'only portrait gameplay, never terminal or desktop, can rotate');
-  assert.match(scene,/!cameraGate && !closestThreat\\?\\.strength && !showPickup/,
+  assert.match(scene,/!cameraGate && !closestThreat\?\.strength && !showPickup/,
     'real gate, guardian and pickup stages outrank pressure');
-  assert.match(scene,/s\\.cells\\.some\\(c =>\\s*c\\.cell === publicPressureTrap\\.cell && c\\.trap === true && !c\\.blocked\\)/,
+  assert.match(scene,/s\.cells\.some\(c =>\s*c\.cell === publicPressureTrap\.cell && c\.trap === true && !c\.blocked\)/,
     'published nonblocked trap cell must be validated');
-  assert.match(scene,/s\\.visibleCells\\.includes\\(publicPressureTrap\\.cell\\)/,
+  assert.match(scene,/s\.visibleCells\.includes\(publicPressureTrap\.cell\)/,
     'unseen private hazards cannot select camera');
-  assert.match(scene,/\\|\\| !!verifiedRetreatTrap/,
+  assert.match(scene,/\|\| !!verifiedRetreatTrap/,
     'only strict previously witnessed retreat may retain the stage');
-  assert.match(scene,/publicPhysicalPressureHorizontalReframe\\(/,
+  assert.match(scene,/publicPhysicalPressureHorizontalReframe\(/,
     'unchanged strict connected-silhouette optical pan still protects 320/390');
 });
