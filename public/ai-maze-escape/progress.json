@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T12:45:59.923Z",
+  "updatedAt": "2026-11-11T13:33:48.000Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass270 exact-source native WebGL 43012279983 passed and its 37 original screenshot sidecars verified. Genuine mobile/desktop images still lose to fixed Nintendo benchmark. Pass271 physically rebuilds the disclosed pressure retaining wall into a three-bay sealed Tideglass gallery; new-source CI/WebGL/independent visual approval PENDING."
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass272: exact-source 13d0ab87 original native 390px full WebGL shows joined pressure parts still merge at old diagonal perspective; original 37/37 sidecars verified. Production re-stages only true published pressure/withdrawal gameplay with near-frontal 3D physical camera (3.5,19.5,29), >25% better geometric separation of actual twin x-axis jaws than old 15,21,18 offset, same strict full-model no-crop and unchanged optical limit. All AI/privacy/collision/camera priorities retained. New exact-SHA native visual gate PENDING; Nintendo quality NOT MET.",
     "Pass270: original Pass269 390px pressure WebGL 43007919573 still rejects tiny/jagged shear machine under massive upper terrace (37/37 original image sidecar hashes validated). Substantially reconstruct the source-owned functional Tideglass pressure counterbalance as two full-height pylons with an integrated mineral yoke, real governor and physically connected hanging load. Public treadle drives same existing motion; no AI/collision/privacy/geometry-class changes. Added installed-Three contract for actual full 3D structure, 360ms real physical motion, resource, visibility and reset. Exact-new-HEAD CI/WebGL/render verdict PENDING. Nintendo bar UNMET; OPEN DRAFT.",
     "Pass269 original full-frame Pass268 390px WebGL critic: 37/37 original SHA matches; source-measured physical hazard moved only 2.1% despite nominal 18% zoom. Correct the actual off-centre Pip+moving jaw composition by measured full-model pair width, max 18% lens, real post-lens camera pan ±.89 NDC, preserve immutable ±.95 tests, 320/390 portrait and public-only visible contact; new exact-head WebGL/render verdict PENDING, benchmark unmet.",
     "Pass268 original live-game pressure contact 3D close-up candidate: source-bound full Pip/jaw bounding-box optical staging up to 18% only for presently visible one-cell pressure hazard, <±.90 safe, preserved original ±.95 browser and withdrawal >=.70, no new resources or changes to public gameplay/AI/privacy. New exact-head rendered proof PENDING; benchmark remains unmet.",
@@ -217,6 +218,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass272 exact-new-SHA original full-frame 320/390/844x390/1280 WebGL screenshot check: is the new pressure front-angle noticeably clearer, and are full moving jaw + Pip strict ±.95, withdrawal jaw width >=.70, public privacy, 44px controls, scene-reset <100 all maintained? Revert/revise source rather than accepting incidental changes. Compare to true Pass271 43023267163 and fixed official Nintendo source. Detached visual critic/Ultracode unavailable.",
     "Pass265 NEW EXACT SHA: authentic unmodified 320/390/844x390/1280 WebGL full-frame A/B versus successful Pass264 42980231559, validate clear paired-closing silhouette, original ±.95 Pip/jaws and >=.70 withdrawal, strict six-run <100, on-screen 44px and public pressure authenticity. Reject if still a shard pile; fresh independent Nintendo critic unavailable.",
     "Pass263 exact-SHA native 320/390/844x390/1280 WebGL: full-frame tick-by-tick VERIFY two authentic jaw roots now slide as one physical machine on real public treadle contact and reset on withdrawal, without losing original ±.95 Pip/jaw, >=.70 withdrawal, 44px controls, six-run <100 resources, hidden-info/privacy. Compare actual original screenshots to Pass262 and fixed Nintendo bar; do not accept source tests as artistic victory.",
     "Pass261 exact-new-HEAD native WebGL: evaluate 320,390,844x390,1280 real pressure approach/contact/withdrawal and independent original-shader side-by-side with source 630e3046; check 37/37+ original SHA sidecars, ±0.95 full silhouettes, 44px controls, six-reset <100 geometry/spread, no fake public knowledge. If still piles up, remove redundant inner physical ornaments rather than adding more parts; do not call source contract a visual win.",
@@ -259,6 +261,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass272 real WebGL pressure-jaw frontal stage: independent visual approval pending",
+      "reviewer": "Builder; preceding exact-HEAD image reviewed; separate fresh-context critic unavailable",
+      "verdict": "Previous 390 WebGL REJECTED; new 3D shot is source-only candidate, no Nintendo victory",
+      "date": "2026-11-11T13:33:48.000Z",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-272-front-on-public-pressure-mechanical-shot-2026-11-11.md"
+    },
     {
       "title": "Pass265 original 390px critic: two-jaw pressure-machine silhouette candidate",
       "reviewer": "Lead verified real previous exact-source WebGL; detached separate critic unavailable",
@@ -783,6 +792,13 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass272 real publicly disclosed pressure-jaw 3D stage",
+      "status": "Pass271 exact-HEAD WebGL SUCCESS / 37 of 37 original PNG SHA sidecars VERIFIED; Pass272 new-source CI/WebGL PENDING",
+      "detail": "Original 390 screenshot shows physical pressure frame jaw [-.89,+.306] and Pip [-.043,+.568] NDC; now near-frontal reusable camera shot must be rendered and judged for actual two-jaw readability, all strict bounds, 44px control, six-run <100 resource and privacy. Independent separate worker/Ultracode unavailable. No Nintendo win.",
+      "sourceCommit": "pending Pass272 atomic source commit",
+      "sourceUrl": "https://github.com/my-edutu/Ai_games/actions/runs/43023267163"
+    },
     {
       "name": "Pass265 physical two-jaw mouth: original previous WebGL; new-source candidate",
       "status": "Pass264 exact-HEAD focused Maze WebGL SUCCESS / 37 of 37 PNG SHA VERIFIED; Pass265 actual new SHA/CI/render PENDING",

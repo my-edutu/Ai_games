@@ -45,6 +45,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const cameraTarget = new THREE.Vector3();
   const desiredTarget = new THREE.Vector3();
   const followCameraOffset = new THREE.Vector3(15, 21, 18);
+  // Pass272: genuine 320/390 full-frame native pressure footage presents the
+  // two opposed cutting faces as a diagonal fragment stack. During an
+  // already-PUBLIC pressure encounter only, an original near-front view
+  // makes the actual left/right jaw closure readable as ONE linked machine.
+  // Reuse this offset; the existing real-mesh optical reframe still enforces
+  // strict +/-0.95 and the same physical pressure/withdrawal gates.
+  const pressurePortraitCameraOffset = new THREE.Vector3(3.5, 19.5, 29);
   // A near closed gate can cover Pip from the normal +Z-heavy isometric view.
   // A mild +X-side view keeps the same raised diorama and visible front seal.
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
@@ -1136,10 +1143,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     camera.updateProjectionMatrix();
     // Rotate only the visual camera toward the side of a disclosed obstruction.
     // Smooth it back after leaving; never alter the simulation or private map.
+    // Source-bound pressure stage: camera choreography serves a REAL
+    // visible, published trap, not a hidden hazard or AI decision.
+    // Hold the same shot through a legitimate immediately witnessed public
+    // withdrawal; the existing eased camera then returns to exploration.
+    // Never steal a gate, guardian, key, reduced-motion or manual shot.
+    const pressurePortraitStage = pressureCameraBeat
+      && cameraMode === 'follow' && !settings.reducedMotion
+      && !result && aspect >= .35 && aspect < .60
+      && !cameraGate && !closestThreat?.strength && !showPickup
+      && !openingGateBeat && !!publicPressureTrap
+      && Array.isArray(s.cells) && s.cells.some(c =>
+        c.cell === publicPressureTrap.cell && c.trap === true && !c.blocked)
+      && ((Array.isArray(s.visibleCells)
+        && s.visibleCells.includes(publicPressureTrap.cell))
+        || !!verifiedRetreatTrap);
     cameraOffset.lerp(openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
       : portraitEncounterOrbit ? portraitCameraOffset
-      : pickupCameraBeat ? pickupCameraOffset : followCameraOffset, blend);
+      : pickupCameraBeat ? pickupCameraOffset
+      : pressurePortraitStage ? pressurePortraitCameraOffset
+      : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     // Real native 320px pressure withdrawal: the complete jaw was cropped
     // even though the actor-plus-hazard horizontal stage FIT inside ±.95.
