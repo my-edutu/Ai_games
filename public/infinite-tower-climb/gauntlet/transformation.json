@@ -7625,5 +7625,43 @@
     "biggestRemainingExperienceGap": "Ensure the new exterior standoff is physically comfortable and still preserves 2-character portrait guardian/hammer interaction; afterfilm may expose further near-body obstruction and camera jitter.",
     "nextHighestImpactAction": "Verify exact-head full suite; inspect fresh event-aligned 960x600 and 390x844 native 60+s normal-speed live guardian at 19-23s against authentic before-video; prove guardian/crusher victory, grounded walkable gateway/floor9, original terminal/restart on pictures. If oversized boss or camera whip persists, reopen same P0 world-camera staging. Real hardware and genuine random fresh-context critics still required.",
     "safety": "Draft PR68 branch only, no merge/deploy/force-push, PR58/main/other games untouched; frozen baseline immutable."
+  },
+  "p0OriginalSubmittedGuardianCameraContinuity20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineMoved": false,
+    "beforeCandidateSourceSha": "653fa1c64d6b8c37f975f8e30b763e98aaeb7190",
+    "sourceReviewed": "https://github.com/my-edutu/Ai_games/actions/runs/42950958038 — SUCCESS 10/10 at previous exact source, includes eight original 60+s baseline/candidate viewport scenarios",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42950958039 — SUCCESS at PREVIOUS source only",
+    "observedNativePortrait": "https://github.com/my-edutu/Ai_games/actions/runs/42950958038/artifacts/13825147332 — original normal-speed 390x844 candidate danger movie, approximately 73s; sampled sequential combat ~19–25 seconds, floor9 visible ~25.5 seconds, no blinded full-film acceptance",
+    "observedPairTimeline": "https://github.com/my-edutu/Ai_games/actions/runs/42950958038/artifacts/13825375449 — 8/8 strict original source timeline pairs, NOT proof of pixel-matched full causal story or quality",
+    "largestSystemicDefect": "In genuine portrait guardian combat the last camera can swing between individually valid exterior shoulders because downstream rescue/standoff bypasses upstream yaw comfort policy; sparse original submitted camera observations change from approximately -49.3deg to +50.5deg across ~1s near living boss. This is not frame-by-frame measured angular velocity.",
+    "intervention": {
+      "helperSha": "bae3ddcd3498bddde690c88ea258a1c7e5ab2e0b",
+      "sceneSha": "88ba6ba1df48936dcddff11909bdc2a23e8ad394",
+      "focusedTestsSha": "616497aa71e80e592924c373cc0a4491bfd452ea",
+      "sourceOnly": "Caps actual successfully submitted same-run live portrait guardian camera+annular gaze angular change; current skinned protagonist/guardian full-body NDC, opaque core rays, real airborne landing all veto unsafe orbit. Preserves source positions, 20Hz tick, death, gateway, floor9 and restart; no new renderer draw or runtime time dilation.",
+      "cpuBudget": "Small per-submission numeric checks and reused Three vectors; browser/device frame time and memory NOT MEASURED."
+    },
+    "implementationChecks": "NOT EVALUATED at new source commit until exact-head Node/Three and original browser captures complete; passing prior CI is only a prior-source guardrail",
+    "afterImplementationOriginal60sFilm": "NOT EVALUATED — request new 10-job source-pinned paired baseline/candidate 960x600 and 390x844 capture",
+    "realGuardianCrusherGatewayFloor9TerminalRestartPixelCausality": "NOT EVALUATED, source trace not independent image-based event proof",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0,
+      "minPreferredPerPillar": 4,
+      "requiredIndependentPerPillar": 5
+    },
+    "actualDevices": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "review": "docs/reviews/2026-11-11-tower-pr68-source-submitted-guardian-orbit-continuity.md",
+    "nextHighestImpactAction": "Run exact HEAD full CI and new 10-job normal-speed film; inspect native portrait live guardian 19-25s and corresponding baseline, desktop, event pixels. Reject any unsafe delayed rescue or still-jittery combat. Visually verify grounded doorway+floor9 and authentic terminal/restart, then actual devices and independent randomized LOOKS/FEELS/PLAYS.",
+    "safety": "Draft PR68 ONLY. PR58/main/other games untouched, no merge/deploy/force-push, baseline immutable."
   }
 }
