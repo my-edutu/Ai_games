@@ -96,7 +96,7 @@ for(const width of [1024,390]){
   });
   const audit=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {granary:g.getGranaryArchitectureAudit(),farm:g.getFarmsteadStats(),
+   return {district:g.getGrainwardDistrictAudit(),granary:g.getGranaryArchitectureAudit(),farm:g.getFarmsteadStats(),
     road:g.getFarmMarketStreetAudit(),market:g.getMarketGatewayAudit(),
     triangles:g.renderStats().lastFrameTriangles,
     gl:document.querySelector('#world').getContext('webgl')?.getError(),
@@ -104,6 +104,13 @@ for(const width of [1024,390]){
   });
   // W233: the real farm entrance now has a connected, open-air timber
   // threshing court, not a synthetic worksite or inventory source.
+  // W234: genuine inhabited cottage silhouettes, never simulated houses.
+  // The source test is intentionally RED before the playable build adds these.
+  expect(audit.district.connected).toBe(true);
+  expect(audit.district.upperRearBays).toBeGreaterThan(0);
+  expect(audit.district.upperRearBayTriangles).toBeGreaterThan(80);
+  expect(audit.district.upperRearBayTriangles).toBeLessThan(3500);
+  expect(audit.district.originalLotsOnly).toBe(true);
   const court=audit.farm.fieldThreshingCourt;
   expect(court?.linkedToActualFarm).toBe(true);
   expect(court.roofPanels).toBe(18);
