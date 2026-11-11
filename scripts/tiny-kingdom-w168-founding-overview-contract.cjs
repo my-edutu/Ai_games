@@ -5,7 +5,9 @@ const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 const a=html.indexOf('<script>'),b=html.indexOf('</script>',a);
 assert(a>=0&&b>a,'actual complete playable Javascript');
 new vm.Script(html.slice(a+8,b),{filename:'original-playable-tiny-kingdom.js'});
-const first=html.indexOf('function selectVisibleCitizenDetail(');
+// Extract the REAL preceding founding optics policy together with its
+// caller; earlier isolated tests omitted this required production function.
+const first=html.indexOf('function foundingScreenScaleDetailPolicy(');
 const last=html.indexOf('// W24 Living Valley camera:',first);
 assert(first>0&&last>first);
 const original=html.slice(first,last);
