@@ -641,7 +641,16 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   if(cursor<ceiling)cursor++;
   return route.fulfill({json:snapshot});
  });
- await page.goto('/dungeon?feedback=d04');
+ // Explicit forensic-only capture buffer: browser recorder can inspect the
+ // actual retained WebGL output without changing the normal D04/legacy path.
+ await page.goto('/dungeon?feedback=d04&captureProbe=retain');
+ const probe=await page.evaluate(()=>document.querySelector('#world')?.getContext('webgl2')?.getContextAttributes?.()??
+  document.querySelector('#world')?.getContext('webgl')?.getContextAttributes?.()??null);
+ expect(probe?.preserveDrawingBuffer).toBe(true,'D04 forensic canvas must retain its actual rendered pixels');
+ await test.info().attach('d04-retained-webgl-probe-contract.json',{
+  body:Buffer.from(JSON.stringify({source:'actual Three.js WebGL context',
+   explicitD04CaptureProbe:true,preserveDrawingBuffer:probe.preserveDrawingBuffer,
+   caveat:'Retained drawing buffer is a capture diagnostic, not proof of encoded moving video or synchronized original foley'},null,2)),contentType:'application/json'});
  await expect.poll(()=>page.evaluate(()=>
   window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.implementation),
   {timeout:90000}).toBe('D04-physical-authority-feedback');
