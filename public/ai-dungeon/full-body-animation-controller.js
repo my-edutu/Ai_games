@@ -181,6 +181,27 @@ export function hasOriginalSourceSwingTravelWitness({
   travel>=.008&&travel<=.24&&age>=0&&age<=.18;
 }
 
+/**
+ * Verify the ACTUAL post-mixer skinned toe rose after the final clamped
+ * original foot rotation, with the original heel still airborne.
+ * This is swing-only, never world-space plant IK or simulation contact.
+ */
+export function confirmOriginalSourceSwingToeLift({
+ beforeToeY=NaN,afterToeY=NaN,beforeHeelY=NaN,afterHeelY=NaN,
+ floorTopY=NaN,appliedAngleRad=NaN
+}={}){
+ if(![beforeToeY,afterToeY,beforeHeelY,afterHeelY,
+  floorTopY,appliedAngleRad].every(finite)||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(appliedAngleRad)<.0001||Math.abs(appliedAngleRad)>.151||
+  beforeHeelY-floorTopY<.075||beforeHeelY-floorTopY>.28||
+  afterHeelY-floorTopY<.045||afterHeelY-floorTopY>.34||
+  beforeToeY-floorTopY>=-.025||
+  afterToeY-beforeToeY<=.001||afterToeY-beforeToeY>.08||
+  afterToeY-floorTopY>.09)return null;
+ return afterToeY-beforeToeY;
+}
+
 export function planOriginalSourceToeBindAxis({
  footBind=null,toesBind=null,originalFootChain=false,source=''
 }={}){

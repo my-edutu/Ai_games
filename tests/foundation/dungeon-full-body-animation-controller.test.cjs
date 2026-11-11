@@ -2372,3 +2372,22 @@ test('crossfading Walking_A may lift only observed airborne source toes while or
   'a loaded/planted heel must never be pitched by swing-only correction');
  assert.equal(plan({...measured,reducedMotion:true}),0);
 });
+
+
+test('actual applied licensed swing ankle must prove upward weighted toe without losing airborne heel',async()=>{
+ const {confirmOriginalSourceSwingToeLift:prove}=await load();
+ assert.equal(typeof prove,'function');
+ const original={beforeToeY:-.083,afterToeY:-.072,beforeHeelY:.157,
+  afterHeelY:.149,floorTopY:-.02,appliedAngleRad:-.074};
+ assert.ok(prove(original)>.01&&prove(original)<.012);
+ for(const invalid of [
+  {afterToeY:-.087},{afterToeY:-.0825},{afterToeY:.015},
+  {beforeHeelY:-.015},{afterHeelY:-.001},
+  {afterHeelY:NaN},{floorTopY:.2},{appliedAngleRad:.3},
+  {appliedAngleRad:0},{beforeToeY:.02},{afterToeY:Infinity}
+ ])assert.equal(prove({...original,...invalid}),null,
+  'source-skinned actual foot cannot certify an ungrounded/unsafe lift: '+JSON.stringify(invalid));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/confirmOriginalSourceSwingToeLift\(/);
+ assert.match(renderer,/sourceSwingToeLiftProof/);
+});

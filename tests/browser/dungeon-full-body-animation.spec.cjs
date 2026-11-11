@@ -517,6 +517,20 @@ for(const view of [
   Math.abs(t.nativeLegOwnership.bodyStrideWeight-
    t.nativeLegOwnership.gaitWeight*t.nativeLegOwnership.overlayScale)<1e-8),
   'genuine source gait must transfer identical ownership to hips, spine, shoulders and original legs').toBe(true);
+ // If actual original GLB ankle correction was applied, the SAME skinned
+ // toe/heel frame must prove positive final lift and the heel stays airborne.
+ for(const t of trace){
+  const n=t.nativeLegOwnership,proof=n?.sourceSwingToeLiftProof;
+  if((n?.sourceSwingToeCorrectionFrames||0)>0){
+   expect(proof?.source).toBe('same-original-GLB-foot-skinned-vertices');
+   expect(proof?.sourceClip).toBe('Walking_A');
+   expect(proof?.sourceInstanceId).toBe(t.sourceId);
+   expect(proof?.liftMeters).toBeGreaterThan(.001);
+   expect(proof?.afterToeY).toBeGreaterThan(proof?.beforeToeY);
+   expect(proof?.afterHeelY).toBeGreaterThan(-.02+.045);
+   expect(Math.abs(proof?.appliedAngleRad)).toBeLessThanOrEqual(.151);
+  }
+ }
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
  // The observed licensed Walking_A crossfade commonly carries ~.51-.58
