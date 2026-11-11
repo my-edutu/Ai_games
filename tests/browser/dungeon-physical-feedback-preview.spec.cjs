@@ -291,6 +291,95 @@ async function beginD04LiveAVCapture(page){
      reason:'Serial real WebGL encoder: '+String(error).slice(0,160)};
    }finally{track?.stop()}
   }
+
+  /**
+   * Last-resort, serial REAL-Dungeon pixels experiment. The canvas here is a
+   * transport for readback from the existing rendered WebGL world, NOT a
+   * generated animation. Only new acknowledged renderer receipts may paint
+   * pixels or request encoded frames. Blank or static readback is rejected.
+   * This track is intentionally NOT synchronized with previously captured PCM.
+   */
+  async function startSerialReceiptReadbackVideoProbe(){
+   const source='real-webgl-receipt-readback-serial-video-only';
+   const phase='after-all-primary-encoders-settled';
+   const primaryRecordersSettled=recorder.state==='inactive'&&activeRecorders.size===0;
+   if(!primaryRecordersSettled)return {source,phase,primaryRecordersSettled:false,
+    status:'UNAVAILABLE',reason:'Earlier MediaRecorder still active'};
+   const receiptStart=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
+   if(!Number.isSafeInteger(receiptStart)||receiptStart<0)
+    return {source,phase,primaryRecordersSettled,
+     status:'UNAVAILABLE',reason:'No authentic starting WebGL frame receipt'};
+   const width=640,height=400;
+   const mirror=document.createElement('canvas');
+   mirror.width=width;mirror.height=height;
+   const ctx=mirror.getContext('2d',{alpha:false,willReadFrequently:false});
+   const thumbnail=document.createElement('canvas');
+   thumbnail.width=24;thumbnail.height=16;
+   const small=thumbnail.getContext('2d',{alpha:false,willReadFrequently:true});
+   if(!ctx||!small)return {source,phase,primaryRecordersSettled,
+    status:'UNAVAILABLE',reason:'Readback 2D contexts unavailable'};
+   let track=null,timer=null,lastReceipt=receiptStart,requestFailures=0;
+   let requestedFrames=0,error=null;
+   const samples=[];
+   const beganAt=performance.now();
+   try{
+    const stream=mirror.captureStream(0);
+    track=stream.getVideoTracks()[0];
+    if(!track||typeof track.requestFrame!=='function')
+     return {source,phase,primaryRecordersSettled,status:'UNAVAILABLE',
+      reason:'2D readback track does not support authenticated requestFrame'};
+    // Record the live 2D readback canvas, not new synthetic paint activity.
+    const record=startIsolatedRecorder(new MediaStream([track]),
+     ['video/webm;codecs=vp8','video/webm'],source,20*1024*1024,true,'real-webgl-receipt-readback');
+    const capture=()=>{
+     if(samples.length>=32)return;
+     const receipt=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
+     if(!Number.isSafeInteger(receipt)||receipt<=lastReceipt)return;
+     lastReceipt=receipt;
+     try{
+      // No draw may occur without the above fresh authentic renderer receipt.
+      ctx.drawImage(canvas,0,0,width,height);
+      small.drawImage(mirror,0,0,thumbnail.width,thumbnail.height);
+      const pixels=small.getImageData(0,0,thumbnail.width,thumbnail.height).data;
+      const colors=new Set();
+      let hash=2166136261;
+      for(let i=0;i<pixels.length;i+=4){
+       colors.add(((pixels[i]>>3)<<10)|((pixels[i+1]>>3)<<5)|(pixels[i+2]>>3));
+       for(let c=0;c<3;c++){
+        hash^=pixels[i+c];hash=Math.imul(hash,16777619)>>>0;
+       }
+      }
+      // requestFrame acts only on the genuine, receipt-gated pixel copy.
+      track.requestFrame();requestedFrames++;
+      samples.push({receipt,atMs:Math.max(0,performance.now()-beganAt),
+       colors:colors.size,signature:hash.toString(16).padStart(8,'0')});
+     }catch(e){
+      requestFailures++;error=String(e).slice(0,160);
+      // A readback/security failure cannot be repaired with placeholder art.
+      if(timer!==null){clearInterval(timer);timer=null}
+     }
+    };
+    timer=setInterval(capture,60);
+    const media=await record;
+    const receiptEnd=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
+    const observedFrameAdvances=Number.isSafeInteger(receiptEnd)&&receiptEnd>=receiptStart?
+     receiptEnd-receiptStart:0;
+    return {...media,source,phase,primaryRecordersSettled,
+     canvasWidth:width,canvasHeight:height,
+     framePump:{mode:'real-webgl-render-receipt-readback',
+      receiptStart,receiptEnd,observedFrameAdvances,requestedFrames,requestFailures,
+      samples,...(error?{readbackError:error}:{})},
+     evidence:'Readback copies only actual new WebGL frames; separate unaligned video, not synthetic gameplay'};
+   }catch(e){
+    return {source,phase,primaryRecordersSettled,status:'UNAVAILABLE',
+     reason:'Receipt-gated WebGL readback: '+String(e).slice(0,180)};
+   }finally{
+    if(timer!==null)clearInterval(timer);
+    track?.stop();mirror.width=0;mirror.height=0;
+    thumbnail.width=0;thumbnail.height=0;
+   }
+  }
+
   function sampleRealSubmittedFrame(){
    if(!pumpActive)return;
    const receipt=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged;
@@ -393,8 +482,9 @@ async function beginD04LiveAVCapture(page){
      after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1};
     const serial2dOnly=await start2DEncoderPositiveControl({serial:true});
     const serialRealVideo=await startSerialRealVideoProbe();
+    const receiptReadbackVideo=await startSerialReceiptReadbackVideoProbe();
     return {clip,pcm,
-     isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly,serial2dOnly,serialRealVideo},
+     isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo},
      frames,trackDelivery};
    }).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
     videoTracks.forEach(t=>t.stop());nativeTracks.forEach(t=>t.stop());
@@ -419,6 +509,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const {base64:discardedSyntheticVideo,...control2dOnly}=raw.isolated?.control2dOnly||{};
  const {base64:discardedSerialSyntheticVideo,...serial2dOnly}=raw.isolated?.serial2dOnly||{};
  const {base64:serialRealVideoBase64,...serialRealVideo}=raw.isolated?.serialRealVideo||{};
+ const {base64:receiptReadbackBase64,...receiptReadbackVideo}=raw.isolated?.receiptReadbackVideo||{};
  const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
   body:Buffer.from(base64,'base64'),contentType:'video/webm'});
@@ -430,6 +521,9 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  if(assessment.serialRealVideoRecorded&&serialRealVideoBase64)
   await testInfo.attach('d04-real-webgl-serial-video-only.webm',{
    body:Buffer.from(serialRealVideoBase64,'base64'),contentType:'video/webm'});
+ if(assessment.receiptReadbackVideoRecorded&&receiptReadbackBase64)
+  await testInfo.attach('d04-authentic-webgl-receipt-readback-video-only.webm',{
+   body:Buffer.from(receiptReadbackBase64,'base64'),contentType:'video/webm'});
  if(assessment.isolatedAudioRecorded&&isolatedAudioBase64)
   await testInfo.attach('d04-real-opted-in-audio-only.webm',{
    body:Buffer.from(isolatedAudioBase64,'base64'),contentType:'audio/webm'});
@@ -438,7 +532,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    body:Buffer.from(isolatedNativeVideoBase64,'base64'),contentType:'video/webm'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
-   isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo},frames:raw.frames,
+   isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo},frames:raw.frames,
    trackDelivery:raw.trackDelivery??null,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
@@ -531,6 +625,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   canvasEncoderDifferential:captureAssessment.canvasEncoderDifferential,
   serialCanvasEncoderDifferential:captureAssessment.serialCanvasEncoderDifferential,
   serialRealVideoRecorded:captureAssessment.serialRealVideoRecorded,
+  receiptReadbackVideoRecorded:captureAssessment.receiptReadbackVideoRecorded,
   submissionDiagnosis:captureAssessment.submissionDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
