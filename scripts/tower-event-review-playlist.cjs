@@ -77,19 +77,24 @@ function planPair(rows,viewport,candidateSha){
       baselineEpisode:before.observedEpisode,candidateEpisode:after.observedEpisode,
       eventPixelsConfirmed:false,meaning:'native film inspection location only'});
   }
-  const have=new Set(plan.anchors.map(e=>e.kind));
-  if(REQUIRED.some(kind=>!have.has(kind))){
-    plan.failures.push('missing-common-guardian-and-onward-source-anchors');return plan;
-  }
-  plan.canReview=true;
-  // Stable recorded shuffle; optional ?swap=1 lets the reviewer use an
-  // alternate concealed order. No source identity appears in rendered HTML.
-  plan.shuffleAB=createHash('sha256').update(
-    a.videoSha256+':'+b.videoSha256+':'+viewport).digest()[0]%2===1;
+  // Genuine original movies remain inspectable even when identical native
+  // source beats cannot be anchored in BOTH recordings. Never manufacture an
+  // event sync; preserve the A/B comparison veto for missing shared beats.
   plan.files={baseline:a.videoPath,candidate:b.videoPath};
   plan.hashes={baseline:a.videoSha256,candidate:b.videoSha256};
   plan.fullVideoSeconds={baseline:a.videoClock.originalVideoDurationSeconds,
     candidate:b.videoClock.originalVideoDurationSeconds};
+  plan.shuffleAB=createHash('sha256').update(
+    a.videoSha256+':'+b.videoSha256+':'+viewport).digest()[0]%2===1;
+  const have=new Set(plan.anchors.map(e=>e.kind));
+  if(REQUIRED.some(kind=>!have.has(kind))){
+    plan.failures.push('missing-common-guardian-and-onward-source-anchors');
+    plan.unalignedInspectionOnly=true;
+    return plan;
+  }
+  plan.canReview=true;
+  // Actual common beats permit the event-cued review. An alternate concealed
+  // order remains available, without changing either original 1x video.
   return plan;
 }
 
@@ -97,11 +102,12 @@ function htmlFor(plans){
   // All generated references are under the trusted local archive. The viewer
   // never contacts a server, stores a vote, displays source SHAs, or retimes
   // the original 1x videos. The private JSON retains the identity/provenance.
-  const publicPlans=plans.filter(p=>p.canReview).map(p=>({
-    viewport:p.viewport, swap:p.shuffleAB,
+  const publicPlans=plans.filter(p=>p.canReview||p.unalignedInspectionOnly).map(p=>({
+    viewport:p.viewport, swap:p.shuffleAB, synchronized:p.canReview,
     anchors:p.anchors.map(a=>({kind:a.kind,a:a.baselineSeconds,b:a.candidateSeconds})),
-    files:{a:'review-media/'+p.viewport+'-baseline.webm',
-      b:'review-media/'+p.viewport+'-candidate.webm'}
+    // In the reviewer-only bundle the file paths never reveal source order.
+    files:{a:'review-media/'+p.viewport+'-a.webm',
+      b:'review-media/'+p.viewport+'-b.webm'}
   }));
   const data=JSON.stringify(publicPlans).replace(/</g,'\\u003c');
   return '<!doctype html>\n'+
@@ -125,10 +131,14 @@ function htmlFor(plans){
   '<script>const plans='+data+';const $=id=>document.getElementById(id);let plan,anchor,playing=false;'+
   'const opts=(el,values)=>{el.replaceChildren();for(const [label,value] of values){const o=document.createElement("option");o.textContent=label;o.value=value;el.append(o)}};'+
   'opts($("viewport"),plans.map((p,i)=>[p.viewport,i]));function reset(){plan=plans[Number($("viewport").value)];'+
-  'const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
-  'const paths=swap?[plan.files.b,plan.files.a]:[plan.files.a,plan.files.b];'+
-  '$("a").src=paths[0];$("b").src=paths[1];opts($("event"),plan.anchors.map((e,i)=>[e.kind,i]));cue()}'+
-  'function cue(){anchor=plan.anchors[Number($("event").value)];const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
+  'const paths=[plan.files.a,plan.files.b];'+
+  '$("a").src=paths[0];$("b").src=paths[1];'+
+  'const sync=plan.synchronized && plan.anchors.length>0;'+
+  'opts($("event"),sync?plan.anchors.map((e,i)=>[e.kind,i]):[["No shared source-event anchor",0]]);'+
+  '$("event").disabled=!sync;$("cue").disabled=!sync;'+
+  'if(sync)cue();else{anchor=null;$("a").currentTime=0;$("b").currentTime=0;'+
+  '$("status").textContent="Original unmodified footage only. Common guardian/onward source-event anchors missing: these films are NOT synchronized or comparable and remain NOT EVALUATED."}}'+
+  'function cue(){if(!plan?.synchronized||!plan.anchors.length)return;anchor=plan.anchors[Number($("event").value)];const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
   'const t=swap?[anchor.b,anchor.a]:[anchor.a,anchor.b];$("a").pause();$("b").pause();playing=false;'+
   'for(let i=0;i<2;i++){const v=$(i?"b":"a");v.currentTime=Math.max(0,t[i]-3);v.playbackRate=1;}'+
   '$("status").textContent="Cue: "+anchor.kind+". These original WebMs are NOT visually accepted or independently graded."}'+
@@ -136,7 +146,7 @@ function htmlFor(plans){
   'function pause(){playing=false;$("a").pause();$("b").pause()}'+
   '$("viewport").onchange=reset;$("event").onchange=cue;$("cue").onclick=cue;$("play").onclick=play;$("pause").onclick=pause;'+
   // Re-anchor only if >350ms drift; preserved native source speed, no time stretch.
-  'setInterval(()=>{if(!playing||!anchor||$("a").paused||$("b").paused)return;'+
+  'setInterval(()=>{if(!plan?.synchronized||!playing||!anchor||$("a").paused||$("b").paused)return;'+
   'const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
   'const delta=(swap?anchor.a-anchor.b:anchor.b-anchor.a);'+
   'if(Math.abs(($("b").currentTime-$("a").currentTime)-delta)>.35){$("b").currentTime=$("a").currentTime+delta;}},500);'+
@@ -155,16 +165,24 @@ function writeReview(root,out,candidateSha){
     plans,missingScenarios:['ascent','moving','outcome']};
   fs.mkdirSync(out,{recursive:true});
   for(const plan of plans){
-    if(!plan.canReview)continue;
+    if(!plan.canReview&&!plan.unalignedInspectionOnly)continue;
     for(const source of ['baseline','candidate']){
       const record=rows.find(r=>r.source===source&&r.scenario==='danger'&&r.viewport===plan.viewport);
-      const from=path.join(root,record.videoPath),to=path.join(out,'review-media',plan.viewport+'-'+source+'.webm');
+      const position=source===(plan.shuffleAB?'candidate':'baseline')?'a':'b';
+      const from=path.join(root,record.videoPath),to=path.join(out,'blind-review','review-media',plan.viewport+'-'+position+'.webm');
       fs.mkdirSync(path.dirname(to),{recursive:true});fs.copyFileSync(from,to);
       const hash=createHash('sha256').update(fs.readFileSync(to)).digest('hex');
       if(hash!==plan.hashes[source])throw Error('copy-sha256-mismatch');
     }
   }
-  fs.writeFileSync(path.join(out,'review.html'),htmlFor(plans));
+  // Only the separate blind-review/ directory is to be sent to reviewers.
+  // Its video names, HTML and on-screen copy contain NO source identities.
+  // Keep the provenance mapping and source SHAs outside that bundle for audit.
+  fs.mkdirSync(path.join(out,'blind-review'),{recursive:true});
+  fs.writeFileSync(path.join(out,'blind-review','index.html'),htmlFor(plans));
+  report.reviewerOnlyDirectory='blind-review/';
+  report.shareOnlyThisDirectoryWithIndependentCritics=true;
+  report.unalignedOriginalViewports=plans.filter(p=>p.unalignedInspectionOnly).map(p=>p.viewport);
   fs.writeFileSync(path.join(out,'review-manifest.json'),JSON.stringify(report,null,2)+'\n');
   return report;
 }
