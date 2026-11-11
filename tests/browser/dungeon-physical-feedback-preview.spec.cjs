@@ -81,6 +81,63 @@ async function beginD04LiveAVCapture(page){
    rendererEpochChanges:0,dataEvents:0,dataBytes:0,videoMutedAtStart:videoTrack.muted===true
   };
   let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
+
+  // Diagnose whether this ACTUAL canvas capture track delivers frames at all.
+  // A muted HTMLVideoElement consumes the borrowed track; it never draws to
+  // the game canvas, generates video frames or authors a combat outcome.
+  function startCanvasTrackDeliveryMonitor(){
+   const trace={source:'real-webgl-canvas-capture-video-monitor',
+    mode:'request-video-frame-callback',playStatus:'NOT_STARTED',
+    mutedAtStart:videoTrack.muted===true,events:[],frames:[],readyStateAtStart:videoTrack.readyState};
+   let active=true,callbackId=null,stopped=false;
+   const video=document.createElement('video');
+   video.muted=true;video.playsInline=true;video.autoplay=true;
+   video.style.cssText='position:fixed;left:-5px;top:-5px;width:1px;height:1px;opacity:0;pointer-events:none';
+   const recordEvent=kind=>{
+    if(!active||trace.events.length>=32)return;
+    trace.events.push({kind,atMs:Math.max(0,performance.now()-began)});
+   };
+   const listeners=[['mute',()=>recordEvent('mute')],
+    ['unmute',()=>recordEvent('unmute')],['ended',()=>recordEvent('ended')]];
+   listeners.forEach(([name,cb])=>videoTrack.addEventListener(name,cb));
+   if(typeof video.requestVideoFrameCallback!=='function'){
+    trace.mode='unavailable';trace.playStatus='UNSUPPORTED';
+   }else{
+    video.srcObject=new MediaStream([videoTrack]);
+    document.body.appendChild(video);
+    const observeFrame=(now,meta)=>{
+     if(!active)return;
+     if(trace.frames.length<32){
+      trace.frames.push({atMs:Math.max(0,performance.now()-began),
+       presentedFrames:meta.presentedFrames,mediaTime:meta.mediaTime,
+       submittedReceipt:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1});
+     }
+     if(active&&trace.frames.length<32)
+      callbackId=video.requestVideoFrameCallback(observeFrame);
+    };
+    Promise.resolve().then(()=>video.play()).then(()=>{
+     if(!active)return;
+     trace.playStatus='PLAYING';
+     callbackId=video.requestVideoFrameCallback(observeFrame);
+    }).catch(error=>{
+     if(active){trace.playStatus='REJECTED';trace.playReason=String(error).slice(0,160)}
+    });
+   }
+   return ()=>{
+    if(stopped)return trace;
+    stopped=true;active=false;
+    trace.mutedAtStop=videoTrack.muted===true;
+    trace.readyStateAtStop=videoTrack.readyState;
+    trace.videoReadyStateAtStop=video.readyState;
+    trace.videoWidth=video.videoWidth;trace.videoHeight=video.videoHeight;
+    if(callbackId!==null&&typeof video.cancelVideoFrameCallback==='function')
+     video.cancelVideoFrameCallback(callbackId);
+    listeners.forEach(([name,cb])=>videoTrack.removeEventListener(name,cb));
+    video.pause();video.srcObject=null;video.remove();
+    return trace;
+   };
+  }
+  const finishCanvasDeliveryMonitor=startCanvasTrackDeliveryMonitor();
   // These record the SAME actual canvas and opted-in soundstage separately.
   // They do not inject a frame, replay a synthetic attack or claim time alignment.
   function startIsolatedRecorder(stream,candidates,source,limit,videoOnly,frameMode=null){
@@ -216,8 +273,9 @@ async function beginD04LiveAVCapture(page){
   window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe])
    .then(([clip,pcm,videoOnly,audioOnly,nativeVideoOnly])=>({clip,pcm,
     isolated:{videoOnly,audioOnly,nativeVideoOnly},
-    frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1}
-   })).finally(()=>{stopFramePump();
+    frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1},
+    trackDelivery:finishCanvasDeliveryMonitor()
+   })).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
     videoTracks.forEach(t=>t.stop());nativeTracks.forEach(t=>t.stop());
    });
   return {status:'STARTED',videoTracks:videoTracks.length,audioTracks:soundTracks.length,
@@ -227,7 +285,7 @@ async function beginD04LiveAVCapture(page){
 
 async function attachD04LiveAVCapture(page,started,testInfo){
  let raw={clip:{status:'UNAVAILABLE',reason:started?.reason??'No capture attempted'},
-  pcm:{status:'UNAVAILABLE'},frames:{before:-1,after:-1}};
+  pcm:{status:'UNAVAILABLE'},frames:{before:-1,after:-1},trackDelivery:null};
  if(started?.status==='STARTED')try{
   raw=await page.evaluate(()=>window.__D04_REAL_AV_CAPTURE__);
  }catch(e){raw.clip={status:'UNAVAILABLE',reason:'Live browser retrieval: '+String(e)}}
@@ -254,6 +312,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
    isolated:{videoOnly,nativeVideoOnly,audioOnly},frames:raw.frames,
+   trackDelivery:raw.trackDelivery??null,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
@@ -340,7 +399,8 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   explicitVideo:captureAssessment.isolatedVideoRecorded,
   nativeVideo:captureAssessment.isolatedNativeVideoRecorded,
   audio:captureAssessment.isolatedAudioRecorded,
-  synchronized:captureAssessment.sampleSynchronized
+  synchronized:captureAssessment.sampleSynchronized,
+  trackDiagnosis:captureAssessment.trackDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(observed.physicalFeedback.visuals.active).toBeLessThanOrEqual(104);
