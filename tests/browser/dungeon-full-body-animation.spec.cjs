@@ -519,6 +519,19 @@ for(const view of [
   'genuine source gait must transfer identical ownership to hips, spine, shoulders and original legs').toBe(true);
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
+ // The observed licensed Walking_A crossfade commonly carries ~.51-.58
+ // mixer weight at genuine moving roots. Those frames must now reach the
+ // narrowly scoped anatomical swing-toe probe; a zero witness means the
+ // production correction is still unreachable despite the pure planner.
+ const realCrossfades=trace.filter(t=>
+  t.nativeLegOwnership?.clipName==='Walking_A'&&
+  t.nativeLegOwnership?.originalSourceWeight>=.5&&
+  t.nativeLegOwnership.originalSourceWeight<.9&&
+  t.nativeLegOwnership.originalSwingTravelWitnessMeters>=.008);
+ expect(realCrossfades.length,
+  'the exact original source crossfade scenario must exist before making a viewer claim').toBeGreaterThan(0);
+ expect(realCrossfades.some(t=>t.nativeLegOwnership.sourceSwingToeWitnessFrames>0),
+  'original Walking_A toe probe must actually execute on a witnessed legal crossfade').toBe(true);
  const soleObservations=trace.slice(1).map(t=>t.soleGrip);
  expect(soleObservations.every(s=>s?.comparable),
   'each source GLB action must expose original weighted sole samples');

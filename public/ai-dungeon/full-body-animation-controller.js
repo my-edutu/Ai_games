@@ -103,7 +103,7 @@ export function planOriginalSourceSwingToeClearance({
   groundedMoving!==true||teleport||reducedMotion||interrupted||
   ![sourceWeight,rootTravel,floorTopY,heelWorldY,toeWorldY,
     trialToeWorldY,trialAngleRad,previousCorrectionRad].every(finite)||
-  sourceWeight<.90||sourceWeight>1.001||
+  sourceWeight<.5||sourceWeight>1.001||
   rootTravel<.008||rootTravel>.24||
   Math.abs(floorTopY+.02)>.005||
   Math.abs(trialAngleRad)<.045||Math.abs(trialAngleRad)>.125||
@@ -117,7 +117,13 @@ export function planOriginalSourceSwingToeClearance({
  // Correct some of the intrusion, not the whole foot in a single keyframe.
  // Keep at least two visible source poses before the full .15rad envelope.
  const liftDemand=Math.min(.04,-.005-toeClear);
- const signedTarget=Math.sign(trialAngleRad)*
+ // A legal crossfade still has the original Walking_A skeleton, but the
+ // outgoing Idle clip partially owns the ankle. Ease its toe correction
+ // continuously from zero at 50% original source weight to full at 90%.
+ // Never pitch an Idle-dominated source rig to fix a walking-only obstacle.
+ const sourceShare=clamp((sourceWeight-.5)/.4,0,1);
+ const sourceEase=sourceShare*sourceShare*(3-2*sourceShare);
+ const signedTarget=Math.sign(trialAngleRad)*sourceEase*
   Math.min(.15,Math.abs(trialAngleRad)*liftDemand/witnessedLift);
  return clamp(signedTarget,
   Math.max(-.15,previousCorrectionRad-.08),
@@ -171,7 +177,7 @@ export function hasOriginalSourceSwingTravelWitness({
   ownerLocomotion===true&&alive===true&&visible===true&&
   teleport===false&&reducedMotion===false&&interrupted===false&&
   [sourceWeight,travel,age].every(finite)&&
-  sourceWeight>=.90&&sourceWeight<=1.001&&
+  sourceWeight>=.5&&sourceWeight<=1.001&&
   travel>=.008&&travel<=.24&&age>=0&&age<=.18;
 }
 
