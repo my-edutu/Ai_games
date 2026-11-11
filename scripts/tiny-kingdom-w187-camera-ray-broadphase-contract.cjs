@@ -7,7 +7,11 @@ const end='// W187 CAMERA_OCCLUSION_BROADPHASE_END';
 const a=html.indexOf(begin),b=html.indexOf(end);
 assert(a>=0&&b>a,'RED: production camera-ray broadphase is missing');
 const terrain=(x,z)=>Math.sin(x*.16)*.27+Math.cos(z*.23)*.18;
-const context=vm.createContext({terrain,Map,WeakMap,Set,Math,Number,Array});
+// The original production broadphase now reads the read-only per-shot
+// stationary-roof association, declared immediately before the extracted
+// contract. Its test world has no moving freight and uses a fresh WeakMap.
+const context=vm.createContext({terrain,Map,WeakMap,Set,Math,Number,Array,
+ cameraOcclusionStaticRows:new WeakMap()});
 vm.runInContext(html.slice(a,b+end.length),context,{timeout:5000});
 const ray=vm.runInContext('followRayBlockers',context);
 const audit=vm.runInContext('getCameraRayBroadphaseAudit',context);

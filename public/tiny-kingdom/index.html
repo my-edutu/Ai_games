@@ -15803,13 +15803,51 @@ function getActiveDeliveries(){
  }));
 }
 function getDeliveryReceipts(){return deliveryReceipts.slice()}
+// W226 COURIER_REAL_RECEIVING_ROUTE_BEGIN
+// One physical freight route to the ORIGINAL receiving dock. The prior A*
+// snap could end on a nearby nav-cell OUTSIDE the 1.35m market handoff
+// radius; a loaded producer then retried the same unreachable final leg.
+// Select only actually walkable, route-connected approaches inside the
+// unchanged market receipt radius. Neither cargo nor stock moves remotely.
+const COURIER_MARKET_RECEIPT_RADIUS=1.35;
+const COURIER_APPROACH_OFFSETS=Object.freeze([
+ [0,0],[0,-.42],[-.42,0],[.42,0],[0,.42],
+ [-.74,-.26],[.74,-.26],[-.26,-.74],[.26,-.74],
+ [-.74,.26],[.74,.26],[-.26,.74],[.26,.74]
+]);
+function realCourierReceivingRoute(p){
+ if(!p?.delivery)return null;
+ const dock=p.delivery.destination;
+ if(Math.hypot(p.x-dock[0],p.z-dock[1])<=COURIER_MARKET_RECEIPT_RADIUS)
+  return [[p.x,p.z]]; // Already physically at market: unload next tick.
+ for(const [offsetX,offsetZ] of COURIER_APPROACH_OFFSETS){
+  const candidate=[dock[0]+offsetX,dock[1]+offsetZ];
+  if(Math.hypot(offsetX,offsetZ)>COURIER_MARKET_RECEIPT_RADIUS||
+     !walkable(...candidate))continue;
+  const route=routeBetween(p.x,p.z,...candidate);
+  if(!route?.length)continue;
+  const finish=route[route.length-1];
+  // The route solver can return a distant snapped node when an exact
+  // requested endpoint is obstructed. A cart must NOT unload there.
+  if(Math.hypot(finish[0]-dock[0],finish[1]-dock[1])>
+     COURIER_MARKET_RECEIPT_RADIUS)continue;
+  return route;
+ }
+ return null; // Keep real cargo escrowed; never fake a receipt or teleport.
+}
+// W226 COURIER_REAL_RECEIVING_ROUTE_END
 function routeLoadedWorker(p){
- const dest=p.delivery.destination;
+ const route=realCourierReceivingRoute(p);
  p.delivery.stage='travel';
- p.target=dest.slice();p.activity='Traveling with '+p.delivery.resource+' to market';
- routeCitizen(p);
- if(!p.delivery.routeLength&&p.path?.length)
-  p.delivery.routeLength=Math.max(1,routeRemainingDistance(p));
+ if(route){
+  p.path=route;p.target=route[route.length-1].slice();
+  p.activity='Traveling with '+p.delivery.resource+' to market';
+  if(!p.delivery.routeLength)
+   p.delivery.routeLength=Math.max(1,routeRemainingDistance(p));
+ }else{
+  p.path=[];p.target=[p.x,p.z];
+  p.activity='Waiting for a safe route';
+ }
 }
 function startActualDelivery(p){
  // The work event was recorded by work() AFTER stock was actually awarded.
@@ -17331,7 +17369,11 @@ p.workTimer+=dt;p.hunger=Math.min(100,p.hunger+dt*.14);
 const wp=p.path&&p.path.length?p.path[0]:p.target,wx=wp[0]-p.x,wz=wp[1]-p.z,remaining=Math.hypot(wx,wz);
 if(remaining>.24){const homeward=p.activity==='Traveling home with provisions'||p.activity==='Traveling home for a meal'||(!onShift&&p.activity==='Returning home at dusk');
 const workbound=onShift&&p.activity.startsWith('Traveling to ');
-const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;if(onRoad)p.phase+=move*2.60;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
+// A cart with actual escrowed goods moves slower than an unladen worker,
+// not at the original near-idle pace. Speed is measured along valid route
+// segments; the authentic gait and handcart remain distance-driven.
+const loadedFreight=Boolean(p.delivery&&p.delivery.stage==='travel');
+const move=Math.min(remaining,dt*((homeward?2.25:workbound?2.35:loadedFreight?1.45:.75)+i%4*.09));const nx=p.x+wx/remaining*move,nz=p.z+wz/remaining*move;if(move<=.04?walkable(nx,nz):clearSegment([p.x,p.z],[nx,nz])){p.x=nx;p.z=nz;if(onRoad)p.phase+=move*2.60;p.energy=Math.max(0,p.energy-dt*.10)}else if(p.workTimer>1){routeCitizen(p);p.workTimer=0}}
 else if(p.path&&p.path.length){p.path.shift()}
 else if(p.activity==='Waiting for a safe route'){
  // A blocked villager cannot deliver goods from a destination never reached.
