@@ -100,3 +100,14 @@ test('D04 explicit mute, reset and fresh opt-in retire old cue-event memory',asy
  assert.equal(engine.stats().confirmedCueIds,0);
  engine.dispose();
 });
+
+test('strict sword and injury foley reject sound without a stable event ID',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const f=fixture(),engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+ engine.enable();
+ assert.equal(engine.emit({...swing(),id:null}),false);
+ assert.equal(engine.emit({...injury(),id:undefined}),false);
+ assert.equal(f.started.length,0,'no ambiguous event creates source nodes');
+ assert.equal(engine.stats().confirmedCueIds,0);
+ engine.dispose();
+});
