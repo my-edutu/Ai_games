@@ -7499,5 +7499,31 @@
     "postSyntaxCorrectionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926000486 — QUEUED when recorded, no quality claim",
     "staleOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42925712777 — executed from pre-fix exact source a16392ce; its late-host imports contain above syntax defect; cannot be accepted as current post-fix film",
     "freshExactSourceRequested": "github.sha of this evidence/capture-request commit — a new original 10-job 960x600 and 390x844 baseline/candidate recording; status NOT EVALUATED until complete"
+  },
+  "p0SourceCaptureHostLivenessRecovery20261111": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedCandidateHeadBefore": "95827b65ed0629de305260b10c2ba3b98a8f1fdf",
+    "sourceCommitSha": "f466d929ff0f7e33692c3b90381058a5fb6c79a9",
+    "sourceDiffScope": [
+      "scripts/tower-capture-host-lifecycle.cjs",
+      "tests/phase3/tower-capture-host-lifecycle.test.cjs"
+    ],
+    "exactPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926271660 — FAILED. 1349 passed, 3 cancelled, zero asserted failures; all three cancellations originate in source-host lifecycle test after unreferenced 90ms timer left readiness Promise unresolved.",
+    "exactPreviousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42926271700 — 8 baseline/candidate original desktop and portrait WebMs + native PTS event-frame probes completed, but all corresponding capture jobs vetoed because the same scoped preflight lifecycle tests had 3 cancelled; source ledger job succeeded. Failed jobs are NOT accepted clips.",
+    "verifiedCause": "CI-only neutral child readiness loop used node:timers/promises delay(ms,undefined,{ref:false}); with child mock and no other referenced event source the Node event loop exited before host-handshake Promise resolved. It also potentially accepted stale healthy HTTP after the exact spawned child died during an in-flight health call.",
+    "implemented": "Keep bounded readiness and SIGTERM escalation deadlines referenced; require spawned source child remain alive after health check; only record first terminal child exit reason. No altered source tick, original host, world art, camera, gameplay, fixed baseline, film gate or stale-host exception.",
+    "localRedGreen": "Node v22.16.0 verified original 4-suite file before implementation: 1 passed, 3 cancelled. Added 3 targeted safety cases, then corrected lifecycle. Node22 after implementation: 7/7 passed, 0 failed, 0 cancelled; tests include exit-during-health, unhealthy bound source, owned SIGKILL escalation.",
+    "exactHeadCI": "PENDING GitHub Actions at latest request SHA; this local neutral Node test is not a full repo, Chromium or WebM pass",
+    "recapture": "Requested by a new capture-request.json change at immutable github.sha; no result at record time",
+    "observedGuardianExperienceGap": "Previously inspected genuine source portrait 390x844 danger around native 18–22s remains visually poor: near-side bronze wheel/cage partially hides actor and guardian, disjoint/small two-character encounter. This harness repair makes no visual change. Gateway floor9 and terminal/restart pixel causality remain unaccepted.",
+    "actualDevices": "NOT EVALUATED: p50/p95/p99 frame time and memory",
+    "blindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "nextHighestImpactAction": "First verify exact-head 10-job original source capture and strict 8/8 source clock/provenance audit; inspect continuous baseline/candidate 60+s portrait/desktop guardian and floor9 gateway/restart. Then physical guardian-stage occluder/camera two-body correction, test actual devices and commission independent blinded LOOKS/FEELS/PLAYS 5 each. No threshold relaxation."
   }
 }

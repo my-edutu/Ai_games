@@ -4,8 +4,8 @@
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "github.sha — immutable workflow commit; never branch alias",
-  "repairedSourceSha": "9b09f56e910803427c7e9ccd86386d7a20a949fc",
-  "reason": "P0 real source host cold-start parity correction and parser recovery. Last baseline/candidate original run 42920000723 failed genuine desktop danger start tick 138 vs 75 (delta63>60). New source-only host starts after native video context creation; original film a16392ce contained a syntax defect in new optional CI source lifecycle helper. Fixed at 9b09f56e910803427c7e9ccd86386d7a20a949fc. This new request captures EXACT immutable github.sha source with parsed helper, original frozen baseline, strict original provenance and normal-speed 60s+ WebMs. No claim of quality, full-motion event match, device FPS or votes.",
+  "repairedSourceSha": "f466d929ff0f7e33692c3b90381058a5fb6c79a9",
+  "reason": "P0 immutably recapture baseline/candidate after neutral original-host liveness correction f466d929: latest 42926271700 had valid full original WebM transport / 18 source-neighbor probes per viewport, but all 8 scoped film jobs failed preflight on 3 cancelled source lifecycle tests (unref timer). Node22 7/7 focused tests pass locally after code fix. Preserve strict 60-tick initial-source delta limit, native event-video PTS, 20Hz current source authority, original unmodified frozen source, floor8 guardian/crusher to grounded gate floor9/restart. NO acceptance until original exact source 9-job matrix + quality passes and whole film inspected; independent votes and device metrics 0/5 / NOT EVALUATED.",
   "scenarios": [
     "ascent",
     "moving",
@@ -384,5 +384,8 @@
   "syntaxParserRepairCommitSha": "9b09f56e910803427c7e9ccd86386d7a20a949fc",
   "previousBrokenFreshHostCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42925712777",
   "previousParserFailureQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42925426092",
-  "pendingSyntaxCorrectionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926000486"
+  "pendingSyntaxCorrectionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926000486",
+  "latestFailedExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/42926271700",
+  "latestFailedExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/42926271660",
+  "captureRequestRevision": "P0 original child liveness and scoped preflight recovery, 2026-11-11; candidate exactly github.sha of this request commit"
 }
