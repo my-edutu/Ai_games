@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const a=html.indexOf('<script>'),b=html.lastIndexOf('</script>');
+assert(a>=0&&b>a);new vm.Script(html.slice(a+8,b),{filename:'tiny-kingdom.js'});
+const forest=html.slice(html.indexOf('function tree('),html.indexOf('function leaf',html.indexOf('function tree(')+15)>0?html.indexOf('function leaf',html.indexOf('function tree(')+15):html.indexOf('function getForest',html.indexOf('function tree(')+15));
+assert(forest.includes("detailTier==='far'?0:2"),'every real far tree keeps 3D primary canopy');
+assert(forest.includes("detailTier==='far'?3:5"),'real 3D blade leaf whorl remains');
+const canopy=html.slice(html.indexOf('function grainwardStreetDoorCanopy('),html.indexOf('function grainwardInhabitedLot('));
+assert(canopy.includes('materialScope(MATERIAL.ROOF')&&canopy.includes('materialScope(MATERIAL.STONE'));
+assert(canopy.includes('limbSegment'),'wall-mounted braces physically modelled');
+assert(!canopy.includes('city.push(')&&!canopy.includes('people.push('));
+assert(html.includes('villageVisualLod.grainwardStreetCanopies++'));
+assert(html.includes('rainCanopyTriangles:villageVisualLod.grainwardStreetCanopyTriangles'));
+console.log('W211 3D forest and occupied-house architecture source safety PASS; running-game, Day121 and hardware still separately required.');

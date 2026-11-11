@@ -8,7 +8,9 @@ new vm.Script(html.slice(a+8,b),{filename:'tiny-kingdom.js'});
 const start=html.indexOf('function selectVisibleCitizenDetail(');
 const end=html.indexOf('// W24 Living Valley camera:',start);
 assert(start>0&&end>start);
-const originalFunction=html.slice(start,end);
+const policyStart=html.indexOf('function foundingScreenScaleDetailPolicy(');
+assert(policyStart>0&&policyStart<start,'real W209 founding LOD must be captured');
+const originalFunction=html.slice(policyStart,end);
 assert(originalFunction.includes('visibleWorkContacts'));
 assert(html.includes('limited.sort((a,b)=>a.i-b.i)'));
 function simulate(working,pinned=false){

@@ -6,6 +6,7 @@ on:
       - 'scripts/tiny-kingdom-w126-grainward-contract.cjs'
       - 'scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs'
       - 'scripts/tiny-kingdom-w182-farm-season-spine-contract.cjs'
+      - 'scripts/tiny-kingdom-w211-scene-spine-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-grainward.spec.cjs'
       - '.github/workflows/tiny-kingdom-w126-grainward.yml'
   workflow_dispatch:
@@ -33,6 +34,7 @@ jobs:
           node scripts/tiny-kingdom-w126-grainward-contract.cjs
           node scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs
           node scripts/tiny-kingdom-w182-farm-season-spine-contract.cjs
+          node scripts/tiny-kingdom-w211-scene-spine-contract.cjs
   grainward-real-webgl:
     needs: grainward-source-safety
     runs-on: ubuntu-24.04

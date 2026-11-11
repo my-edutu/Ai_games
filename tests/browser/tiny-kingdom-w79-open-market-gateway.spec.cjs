@@ -41,8 +41,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     glError:document.querySelector('#world').getContext('webgl')?.getError()};
   });
   expect(actual.gateway.source).toBe('physical-open-trade-gateway-and-sett-street');
-  expect(actual.gateway.pavingStones).toBeGreaterThan(200);
-  expect(actual.gateway.pavingStones).toBeLessThanOrEqual(260);
+  // W208 true worn-earth receiving court has 131 actual scattered setts.
+  expect(actual.gateway.pavingStones).toBeGreaterThanOrEqual(100);
+  expect(actual.gateway.pavingStones).toBeLessThanOrEqual(160);
   expect(actual.gateway.postOffset).toBeGreaterThanOrEqual(2.7);
   expect(actual.gateway.postWidth).toBeLessThanOrEqual(.20);
   expect(actual.gateway.postHeight).toBeGreaterThanOrEqual(3.5);
@@ -90,7 +91,8 @@ test('W79 grown original village remains complete and inside safety budget',asyn
  // frame. The exact original burgage material audit counts actual city lots.
  await page.waitForFunction(()=>{
   const g=window.__tinyKingdom;
-  return g.getMarketGatewayAudit().pavingStones>200 &&
+  return g.getMarketGatewayAudit().pavingStones>=100 &&
+   g.getMarketGatewayAudit().pavingStones<=160 &&
    g.getBurgageMaterialAudit().homes===g.metrics().buildings-2;
  },null,{timeout:115000});
  const rendered=await page.evaluate(()=>{
@@ -106,7 +108,7 @@ test('W79 grown original village remains complete and inside safety budget',asyn
  expect(rendered.metrics.citizens).toBeGreaterThanOrEqual(result.before.citizens);
  expect(rendered.metrics.buildings).toBeGreaterThan(result.before.buildings);
  expect(rendered.snapshot).toBe(result.snapshot);
- expect(rendered.gateway.pavingStones).toBeLessThanOrEqual(260);
+ expect(rendered.gateway.pavingStones).toBeLessThanOrEqual(160);
  expect(rendered.triangleCount).toBeLessThan(160000);
  expect(rendered.invalid.static.invalidComponents).toBe(0);
  expect(rendered.invalid.dynamic.invalidComponents).toBe(0);
