@@ -242,6 +242,53 @@ test('software delivery governor retains full resolution on fast or isolated slo
  for(const gap of [1600,1700,1800])
   assert.equal(gate.observe({intervalMs:gap,renderMs:10,pixelCap:650000}).maxPixels,650000);
 });
+test('genuine 390px software battle delivery trials real mobile framebuffer pixels, not an ineffective 650k cap change',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor,planDirectRenderBudget}=await load();
+ const gate=createSoftwareDeliveryBudgetGovernor(),width=390,height=658;
+ let cap=650000,decision;
+ const full=planDirectRenderBudget(width,height,3,true,cap);
+ assert.equal(full.renderPixels,256620,'mobile source canvas really renders 256620 pixels at 1× DPR');
+ for(let i=0;i<7;i++){
+  decision=gate.observe({intervalMs:333,renderMs:8,pixelCap:cap,viewportPixels:width*height});
+  assert.equal(decision.change,false,'isolated or seven persistent gaps cannot degrade mobile detail');
+ }
+ decision=gate.observe({intervalMs:333,renderMs:8,pixelCap:cap,viewportPixels:width*height});
+ cap=decision.maxPixels;
+ assert.equal(decision.status,'testing');assert.equal(cap,205000);
+ const trial=planDirectRenderBudget(width,height,3,true,cap);
+ assert.ok(trial.renderPixels<full.renderPixels*.85,'mobile trial must actually shed 15%+ physical pixels');
+ assert.ok(trial.renderPixels>=200000,'tiny legitimate warning bodies retain a bounded 200k+ sample surface');
+ for(let i=0;i<6;i++){
+  decision=gate.observe({intervalMs:333,renderMs:8,pixelCap:cap,viewportPixels:width*height});
+  cap=decision.maxPixels;
+ }
+ assert.equal(decision.status,'restored','no measured motion gain means no permanent degraded character detail');
+ assert.equal(cap,650000);assert.equal(gate.stats().rejectedTrials,1);
+ for(let i=0;i<12;i++)assert.equal(gate.observe({intervalMs:333,renderMs:8,pixelCap:cap,viewportPixels:width*height}).change,false);
+});
+test('sustained original mobile motion gain validates once and never silently cascades to low-resolution danger',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000,decision;
+ for(let i=0;i<8;i++){
+  decision=gate.observe({intervalMs:340,renderMs:8,pixelCap:cap,viewportPixels:256620});
+  cap=decision.maxPixels;
+ }
+ assert.equal(cap,205000);
+ for(let i=0;i<6;i++){
+  decision=gate.observe({intervalMs:180,renderMs:8,pixelCap:cap,viewportPixels:256620});
+  cap=decision.maxPixels;
+ }
+ assert.equal(decision.status,'validated');assert.equal(gate.stats().accepted,true);
+ for(let i=0;i<24;i++)assert.equal(gate.observe({intervalMs:600,renderMs:8,pixelCap:cap,viewportPixels:256620}).maxPixels,205000,'one accepted trial per live viewport');
+ assert.equal(gate.reset(),null,'validated trial does not create an unverified rollback');
+ for(let i=0;i<8;i++)decision=gate.observe({intervalMs:340,renderMs:8,pixelCap:650000,viewportPixels:256620});
+ assert.equal(decision.maxPixels,205000,'new viewport epoch permits new measured trial');
+});
+test('real rendering path passes current mobile CSS pixel count to reversible trial',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../../public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/pixelCap:directRenderPixelCap,viewportPixels:w\*h,visible:!document\.hidden/);
+});
+
 test('four continuous real foreground stalls trial lower software pixels, six improved frames retain it',async()=>{
  const {createSoftwareDeliveryBudgetGovernor}=await load(),gate=createSoftwareDeliveryBudgetGovernor();
  let cap=650000,d;

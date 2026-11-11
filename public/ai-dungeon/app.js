@@ -1615,7 +1615,7 @@ function animate(t){
    // reduce framebuffer and capture pressure without skipping any AI tick.
    const delivery=directDeliveryGovernor.observe({
     intervalMs:frameInterval*1000,renderMs:directRenderMs,
-    pixelCap:directRenderPixelCap,visible:!document.hidden
+    pixelCap:directRenderPixelCap,viewportPixels:w*h,visible:!document.hidden
    });
    directDeliveryStatus=delivery.status;
    if(delivery.change){
