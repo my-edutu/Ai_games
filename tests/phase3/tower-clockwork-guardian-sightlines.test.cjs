@@ -833,3 +833,66 @@ test('living floor-eight guardian gallery has no front-column curtain at actor-h
       'old floor-eight gallery retires on real floor-nine');
   } finally { world.dispose(); }
 });
+
+
+// Source-locked full guardian exit, not an invented static gallery fixture.
+// Inspect the actual assembled THREE geometry and the full real HP-dependent
+// travel of BOTH weights. The source before/after must remain immutable and
+// no full-height foreground winch is allowed to re-occlude the skinned duel.
+test('physical floor-eight gate keeps both HP-driven counterweights ABOVE the live fight through earned opening and Floor 9 cleanup',async()=>{
+  const [THREE,{createTowerWorld}]=await loaded;
+  const w=createTowerWorld();
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const guardian={id:'f8:guardian',kind:'guardian',active:true,
+    x:180000,y:3240000,halfHeight:18000,health:8,maxHealth:8};
+  const initial={...sourceFrame('clockwork',8),
+    guardianExitX:cap.x+Math.floor(cap.width*.76),
+    guardianSealHeight:140000,platforms:[cap],enemies:[guardian],
+    player:{x:180000,y:3240000,halfWidth:9000,halfHeight:18000,
+      state:'standing',health:4}};
+  const unchanged=JSON.stringify(initial);
+  try{
+    w.update(initial,.016,0,{quality:'low',reducedMotion:true});
+    w.group.updateWorldMatrix(true,true);
+    const gate=w.group.getObjectByName('GuardianGateInset');
+    assert.ok(gate,'real source-authorized guardian gate is physically constructed');
+    const gateOrigin=new THREE.Vector3();
+    gate.getWorldPosition(gateOrigin);
+    const drums=['GuardianCounterweightLeft','GuardianCounterweightRight'];
+    const getWeightBounds=()=>{
+      w.group.updateWorldMatrix(true,true);
+      return drums.map(name=>{
+        const carriage=gate.getObjectByName(name);
+        assert.ok(carriage,'real HP-operated winch is present: '+name);
+        const weight=carriage.getObjectByName('GuardianSealCounterweight');
+        assert.ok(weight?.isMesh,'winch is an actual submitted bronze mass');
+        const box=new THREE.Box3().setFromObject(weight);
+        assert.ok(!box.isEmpty(),'real geometry must have finite triangles');
+        return {lower:box.min.y-gateOrigin.y,upper:box.max.y-gateOrigin.y,
+          world:box};
+      });
+    };
+    const before=getWeightBounds();
+    assert.ok(before.every(item=>item.lower>5.0),
+      'locked door bronze weights must live above both source actors');
+    const defeated={...initial,tick:310,
+      enemies:[{...guardian,health:0,active:false}]};
+    w.update(defeated,.016,1,{quality:'low',reducedMotion:true});
+    const after=getWeightBounds();
+    for(let i=0;i<2;i++){
+      assert.ok(before[i].lower-after[i].lower>2.2&&
+        before[i].lower-after[i].lower<2.5,
+        'actual HP0 mechanically lowers each original 3D winch by 2.35m');
+      assert.ok(after[i].lower>5,
+        'even full source-earned gate opening may not place winch in duel');
+    }
+    const tension=gate.getObjectByName('GuardianCounterweightTension');
+    assert.ok(tension?.isInstancedMesh&&tension.count===2,
+      'full-rise counterweight keeps the connected physical cable pairs');
+    assert.equal(JSON.stringify(initial),unchanged,
+      'physical gallery cannot edit source guardian HP or gateway authority');
+    w.update(sourceFrame('void',9),.016,2,{quality:'low'});
+    assert.equal(w.group.getObjectByName('GuardianGateInset'),undefined,
+      'Floor 9 must retire the previous floor guardian winches');
+  }finally{w.dispose();}
+});
