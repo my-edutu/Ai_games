@@ -316,6 +316,13 @@ export function createTowerGuardianPassage(THREE) {
   sealedLattice.castShadow = false;
   sealedLattice.receiveShadow = false;
   sealedLattice.frustumCulled = false;
+  // The original film shows two independent overlapping live gate planes:
+  // this cyan inner fence and an exterior bronze HP lock. Couple the visible
+  // live energy fence to the ACTUAL EXTERIOR lock. The source-earned inner
+  // walkable arch remains at deck radius, only after guardian defeat.
+  // This is a physical static 3D translation, not a shader/physics bypass.
+  sealedLattice.position.set(0, 2,
+    GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck);
   sealedLattice.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   let displayedSealHeight = 0, displayedSealExcitation = null;
   function poseSourceSealHeight(sourceHeight, excited=false) {
@@ -351,8 +358,14 @@ export function createTowerGuardianPassage(THREE) {
     // A dense, small-cell barrier exists at physical doorway height; tall
     // guardian/hero silhouettes remain readable ABOVE it, not through a
     // 14-meter screen-filling grate.
-    for (const y of [.14, .94, 1.74, 2.54, 3.34, 4.54])
+    // Three readable energized crossing rails, not a continuous six-rung
+    // prison grid eclipsing two genuine combatant silhouettes on a phone.
+    for (const y of [.24, 2.32, 4.40])
       latticeShapes.push([0,y,0,6.22,.075,.10,0]);
+    // Connected side-only couplers communicate the armed live lock while
+    // preserving a genuinely clear centre and the full-height side pylon.
+    for (const side of [-1,1]) for (const y of [1.05,3.52])
+      latticeShapes.push([side*2.92,y,0,.25,.24,.16,0]);
     // These two full-height energized structural stays terminate on the
     // source-height SIDE pylons rather than crossing the guardian's body.
     // The continuous upper rails, capped high lintel and physically barred

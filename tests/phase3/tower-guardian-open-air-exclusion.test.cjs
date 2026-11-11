@@ -40,8 +40,18 @@ test('source-locked upper-cap exclusion retains real lock while clearing airborn
     let bars = entries(seal);
     const overhead = bars.filter(b=>b.width>5.5 && b.y>5 && b.y<13.5 && Math.abs(b.z)<.01);
     assert.equal(overhead.length,0,'open-air space above a physically barred doorway must not be a solid-screen grate');
-    assert.ok(bars.filter(b=>b.width>5.5 && b.y<=4.75).length>=5,
-      'live locked threshold has a short dense crossing barrier at hero height');
+    assert.equal(bars.filter(b=>b.width>5.5 && b.y<=4.75).length,3,
+      'one readable source-locked exterior gate should not reconstruct a six-rung prison screen');
+    passage.group.updateMatrixWorld(true);
+    const sealWorld=new THREE.Vector3();seal.getWorldPosition(sealWorld);
+    assert.ok(sealWorld.distanceTo(new THREE.Vector3(anchor.x,anchor.y,anchor.z))<.001,
+      'live energized source lock shares the exterior bronze gate plane, not the inner fight plane');
+    const threshold=passage.group.getObjectByName('ObservedWalkableGuardianThreshold');
+    const deckWorld=new THREE.Vector3();threshold.getWorldPosition(deckWorld);
+    assert.ok(Math.abs(Math.hypot(deckWorld.x,deckWorld.z)-25)<.02,
+      'the earned inner walkable arch remains at genuine cap-deck radius');
+    assert.ok(bars.filter(b=>b.width>.20&&b.width<.30&&Math.abs(b.x)>2.8).length>=4,
+      'side-channel electrical couplers retain the actual locked appearance without crossing the combat centre');
     assert.ok(bars.filter(b=>b.height>=13.9 && Math.abs(b.x)>2.8).length>=2,
       'actual 14m high source exclusion is still represented by connected edge pylons');
     const highBraces = bars.filter(b=>b.height>6 && Math.abs(b.z)>.2);

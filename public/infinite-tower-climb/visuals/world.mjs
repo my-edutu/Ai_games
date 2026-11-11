@@ -1505,10 +1505,10 @@ export function createTowerWorld(){
       // authority. These lightweight piers support a high transmission bridge,
       // rather than a foreground mechanical wall across the fighting lane.
       for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*3.38,2.37,-.24],[.36,4.78,.54]);
-        block(doorway,materials.edge,[side*3.38,4.82,-.20],[.54,.18,.64]);
+        block(doorway,materials.dark,[side*3.38,2.37,-.24],[.28,4.78,.46]);
+        block(doorway,materials.edge,[side*3.38,4.82,-.20],[.40,.16,.54]);
       }
-      block(doorway,materials.dark,[0,4.86,-.26],[7.05,.26,.54]);
+      block(doorway,materials.dark,[0,4.86,-.26],[7.05,.20,.46]);
       const wings=[];
       for(const side of [-1,1]){
         const wing=new THREE.Group();
@@ -1525,9 +1525,9 @@ export function createTowerWorld(){
         // energy lattice still read unmistakably LOCKED until earned defeat.
         // No display-only wall or authoritative obstacle is removed.
         const lattice=[];
-        for(const [x,width] of [[.19,.23],[1.54,.14],[2.9,.23]])
+        for(const [x,width] of [[.19,.16],[1.54,.105],[2.9,.16]])
           lattice.push({p:[side*x,2.13,0],s:[width,4.12,.28]});
-        for(const [y,thickness] of [[.17,.22],[2.13,.16],[4.09,.22]])
+        for(const [y,thickness] of [[.17,.14],[2.13,.11],[4.09,.14]])
           lattice.push({p:[side*1.56,y,0],s:[3.08,thickness,.28]});
         const grille=instanced(wing,bevel(),materials.copper,lattice);
         grille.name=side<0?'GuardianSealBronzeLatticeLeft':'GuardianSealBronzeLatticeRight';
