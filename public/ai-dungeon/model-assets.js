@@ -2547,6 +2547,10 @@ function inspectSourceRigDeformation(actors){
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
     sourceSwingToeCorrectionsThisFrame:actor.sourceSwingToeCorrectionsThisFrame||0,
     sourceSwingToeCurrentFrameProofs:actor.sourceSwingToeCurrentFrameProofs??null,
+    // Read-only same-frame measurements of the original stance heel + toe.
+    // A relief witness is not proof of a world-space foot plant or IK.
+    sourceStanceSoleCurrentFrameProofs:actor.sourceStanceSoleCurrentFrameProofs??null,
+    sourceStanceReliefFrames:actor.sourceStanceReliefFrames||0,
     sourceSwingToeWitnessFrames:actor.sourceSwingToeWitnessFrames||0,
     sourceSwingToeDragOpportunityFrames:actor.sourceSwingToeDragOpportunityFrames||0,
     sourceSwingToeCorrectionPeakRad:actor.sourceSwingToeCorrectionPeakRad||0,
