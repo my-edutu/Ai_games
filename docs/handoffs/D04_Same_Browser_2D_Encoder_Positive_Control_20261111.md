@@ -38,6 +38,14 @@ Regardless of result, `assessD04Capture(...).classification` remains tied exclus
 4. The live Chromium browser harness in `tests/browser/dungeon-physical-feedback-preview.spec.cjs` now records the bounded, clearly synthetic positive-control metadata alongside the authentic 3D session. It does not feed this canvas into the real gameplay renderer, screenshots or audio.
 5. The final code candidate is `c75f5abb22fdab1fb273d46c3931f9a8dabcbc7b`. [CI workflow](https://github.com/my-edutu/Ai_games/actions/runs/42992885498) executes the native regression contracts, build, SHA-verified CC0 model retrieval and real Dungeon Playwright smoke.
 
+## Completed native and authentic browser evidence
+
+- [Successful code-candidate GitHub Actions run](https://github.com/my-edutu/Ai_games/actions/runs/42992885498) at `c75f5abb22fdab1fb273d46c3931f9a8dabcbc7b`: **53/53 native contracts passed**, production build passed, 20 SHA-verified CC0 GLBs retrieved, and **1/1 genuine Chromium/Three.js Dungeon preview test passed**. This documentation-only handoff update was not separately rerun, and no native coding tunnel was available.
+- Browser log reports `canvasEncoderDifferential: BOTH_VIDEO_PATHS_UNVERIFIED`: **both** the 64×64 synthetic 2D positive-control recorder **and** the real WebGL canvas recorders failed to yield qualifying encoded video in the same runner. This is new **differential diagnostic evidence**; it weakens any claim that WebGL is uniquely to blame but does not prove a common codec, graphics driver or compositor root cause. Exact per-track byte and frame metadata is retained in the artifact manifest.
+- Original opted-in soundstage audio-only encoder **passed** (`audio:true`); combined real canvas A/V, real explicit-frame video and native-capture video all remained **unverified** (`combined:false`, `explicitVideo:false`, `nativeVideo:false`), and `sampleSynchronized:false`.
+- Existing real canvas track remained `TRACK_MUTED_WITHOUT_PRESENTED_FRAMES` despite authenticated `PRE_MUTE_SUBMISSION_WITHOUT_PRESENTATION` renderer timing. The real-browser test passed its **smoke and truthfulness** contracts, **not** audiovisual realism.
+- [Genuine CI evidence artifact](https://github.com/my-edutu/Ai_games/actions/runs/42992885498/artifacts/13841778974) contains real game video (Playwright capture), screenshots, opted-in original soundstage/PCM, and the new synthetic-control **metadata only**. No synthetic control video is presented as Dungeon content.
+
 ## Evaluation boundary and remaining work
 
 These checks distinguish encoder *capability* in a shared browser from actual WebGL track delivery; they do not prove a browser/GPU root cause, measure in-game sword-tip contact, recover missing encoded video, or align authored sound onset to game frame/PCR or PCM timestamps.
