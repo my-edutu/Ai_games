@@ -1,0 +1,70 @@
+name: D04 Isolated Foley Authenticity Checks
+on:
+  push:
+    branches:
+      - feat/dungeon-d04-combat-feedback-realism-20261108
+    paths:
+      - public/ai-dungeon/original-combat-foley.js
+      - public/ai-dungeon/physical-combat-feedback.js
+      - tests/foundation/dungeon-d04-*.test.cjs
+      - tests/browser/dungeon-physical-feedback-preview.spec.cjs
+      - .github/workflows/dungeon-d04-foley-identity.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dungeon-d04-foley-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --check public/ai-dungeon/original-combat-foley.js
+      - run: |
+          node --test \
+            tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
+            tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
+            tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
+            tests/foundation/dungeon-d04-simultaneous-verified-impact-foley.test.cjs \
+            tests/foundation/dungeon-d04-simultaneous-verified-swing-foley.test.cjs
+      - run: npm run build
+  real-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    needs: contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: SHA-verified CC0 GLB asset retrieval
+        run: npm run dungeon:assets:strict
+      - run: npx playwright install --with-deps chromium
+      - name: Real Dungeon runtime and WebGL smoke only; not sample-synchronized A/V proof
+        run: npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+      - name: Publish authentic screenshot and source diagnostics if generated
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d04-authentic-preview-smoke
+          path: |
+            artifacts/dungeon-d04-real-combat-world.png
+            test-results/**
+          retention-days: 7
+          if-no-files-found: warn
