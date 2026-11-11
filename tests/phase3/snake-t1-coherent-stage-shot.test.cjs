@@ -31,10 +31,11 @@ test('T1 reauthored full-board stage shot is more spatial and still safely fits 
 });
 
 test('T1 integrated foliage shapes nearer living frame with no playable-cell intrusion or resource loss', async () => {
-  for(const [width,height,triangles] of [[8,8,18665],[28,16,21785],[40,24,21949]]) {
+  for(const [width,height,triangles] of [[8,8,18713],[28,16,21833],[40,24,21997]]) {
     const {garden}=await stage(width,height);
     try {
-      assert.equal(garden.stats().triangles, triangles);
+      assert.equal(garden.stats().triangles, triangles, 'preserve original terrain + 48 connecting native corner triangles');
+      assert.equal(garden.stats().cornerCatchments,4);
       assert.equal(garden.stats().meshCount,4);
       assert.equal(garden.stats().textures,1);
       assert.equal(garden.stats().canopyTrees,10);

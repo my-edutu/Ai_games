@@ -56,7 +56,8 @@ test('T1 matched true Chromium/WebGL: exact b127 parent to coherent four-bank na
     }else{
      expect(s.livingGarden.littoralGroveClumps).toBe(72);
      expect(s.livingGarden.littoralGroveBoulders).toBe(12);
-     expect(s.livingGarden.triangles-baseline.stats.livingGarden.triangles).toBe(1860);
+     expect(s.livingGarden.triangles-baseline.stats.livingGarden.triangles).toBe(1860+48);
+     expect(s.livingGarden.cornerCatchments).toBe(4);
      expect(s.drawCalls).toBe(baseline.stats.drawCalls);
      expect(s.world).toEqual(baseline.stats.world);
      expect(png.equals(baseline.png)).toBe(false);

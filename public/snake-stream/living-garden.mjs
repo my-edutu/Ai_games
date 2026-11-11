@@ -159,7 +159,18 @@ export function createLivingGarden(THREE, {width,height}) {
     const winding=Math.sin(t*.18+s.start*.11+v*.73)*.74
       +Math.sin(t*.47-s.end*.07-v*.31)*.34;
     const coastalBend=shoreSide*winding*Math.pow(Math.sin(Math.PI*v),1.25);
-    const outer=s.near+(s.far-s.near)*v+warp+coastalBend;
+    // T1 WHOLE-COAST INCISED FOREST EDGE. The original near-bank strip was
+    // perfectly straight in all four directions, outlining a rectangular
+    // court even after the outboard forest and estuary were reconstructed.
+    // Carve one broad and two narrower linked scallops into the *existing*
+    // inner contour. Every displacement points outboard, disappears toward
+    // the low-tide border and is shared by stone, rooted plants and ruins.
+    // No surface enters the authoritative grid or changes a collision/path.
+    const edgeCurrent=.5+.5*Math.sin(t*.41+s.start*.17+s.near*.09);
+    const backEddy=.5+.5*Math.sin(t*.83-s.end*.13);
+    const incisedEdge=shoreSide*(.27+1.21*edgeCurrent*edgeCurrent+.13*backEddy)
+      *Math.pow(1-v,2.45);
+    const outer=s.near+(s.far-s.near)*v+warp+coastalBend+incisedEdge;
     const x=s.axis==='x'?t:outer,z=s.axis==='x'?outer:t;
     const relief=.08*Math.sin(t*.38+v*3.6)+.13*(smooth(t*.23+12,v*2+21)-.5);
     // Wide turf banks fall into darker rock shelves, rather than identical
@@ -321,6 +332,41 @@ export function createLivingGarden(THREE, {width,height}) {
           angle,i+shore.id.length);
       }
     }
+  }
+  // T1 PHYSICAL FOUR-CORNER CATCHMENTS. Each pair of already-sculpted
+  // perpendicular coastlines ended independently, leaving long diagonal
+  // open-water gaps: the whole island still read as four rectangular strips.
+  // Stitch the EXACT existing shore-edge vertices into one soil/cliff mantle
+  // at every compass corner. The centre crest is a geological fold, not a
+  // flat triangular overlay or a traversable gameplay bridge. The world
+  // retains four original material batches/one texture and adds precisely
+  // 48 native terrain triangles (40x24 remains <=22k), never a per-frame pass.
+  // This only spans original outboard coasts; all endpoints remain beyond
+  // a 2.65-world-unit clearance from every authoritative board cell.
+  for(const [xShore,zShore,xEnd,zEnd,xOut,zOut] of [
+    [shorelines[0],shorelines[2],'start','end',-1,1],
+    [shorelines[0],shorelines[3],'end','end',1,1],
+    [shorelines[1],shorelines[2],'start','start',-1,-1],
+    [shorelines[1],shorelines[3],'end','start',1,-1],
+  ]){
+    const rim=v=>{
+      const a=bankPoint(xShore,xShore[xEnd],v);
+      const b=bankPoint(zShore,zShore[zEnd],v);
+      const fold=Math.sin(Math.PI*v);
+      // Wind-rounded diagonal ridge between root-bearing existing banks,
+      // zero displacement at shared endpoints, true surface continuity.
+      const mid=[(a[0]+b[0])*.5+xOut*.23*fold,
+        (a[1]+b[1])*.5+(.31+.46*fold)*fold,
+        (a[2]+b[2])*.5+zOut*.19*fold];
+      return [a,mid,b];
+    };
+    for(let j=0;j<3;j++){
+      const inner=rim(j/3),outer=rim((j+1)/3);
+      const layer=j<2?'moss':'cliff';
+      for(let lane=0;lane<2;lane++)
+        quad(layer,inner[lane],outer[lane],outer[lane+1],inner[lane+1],j+lane);
+    }
+    features.cornerCatchments=(features.cornerCatchments||0)+1;
   }
   // T1 COMPLETE-COAST OLD-GROWTH COMPOSITION. Eight substantial natural
   // buttress arcs link the *actual four eroded shores* to their plants and
@@ -937,6 +983,7 @@ export function createLivingGarden(THREE, {width,height}) {
       plantBlades:features.plantBlades,fernFronds:features.fernFronds,
       ruinBlocks:features.ruinBlocks,roundedBoulders:features.roundedBoulders,
       rootRibbons:features.rootRibbons,waterlineSegments:features.waterlineSegments,
+      cornerCatchments:features.cornerCatchments||0,
       canopyTrees:features.canopyTrees,canopyLeaflets:features.canopyLeaflets,
       arcadeArches:features.arcadeArches,arcadeStones:features.arcadeStones,
       hangingVines:features.hangingVines,
