@@ -236,6 +236,10 @@ export function planOriginalSourceSwingCalfAssist({
   trialHeelClear>.36||Math.abs(trialCalfHeelY-afterAnkleHeelY)>.06)return 0;
  const share=clamp((sourceWeight-.5)/.4,0,1);
  const eased=share*share*(3-2*share);
+ // At the exact walking crossfade threshold the signed trial angle can
+ // produce -0. This is a no-op: return canonical zero so a dormant calf
+ // controller cannot expose a directional correction or fail its contract.
+ if(eased===0)return 0;
  const demand=Math.min(.04,-.01-toeClear);
  const target=Math.sign(trialAngleRad)*eased*
   Math.min(.12,Math.abs(trialAngleRad)*demand/trialLift);
