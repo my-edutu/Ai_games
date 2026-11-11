@@ -23,7 +23,7 @@ import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeat
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
 import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
-import {planCombatFacing,planMovementFacing,planOriginalSourceWalkNearArrivalFacing,advanceOriginalSourceWalkTurnRelease,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
+import {planCombatFacing,planMovementFacing,planOriginalSourceWalkNearArrivalFacing,advanceOriginalSourceWalkTurnRelease,approachCharacterYaw,approachOriginalSourceWalkYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
 import {enrichCharacter} from '/dungeon/characters.js';
 import {createBiomeAtmosphere} from '/dungeon/biome-atmosphere.js';
 import {createCombatOverlay} from '/dungeon/combat-overlay.js';
@@ -1176,7 +1176,24 @@ function animate(t){
   const walkingYaw=moving?
    (standardWalkYaw??finalStepYaw??sourceTurn.heading):sourceTurn.heading;
   const visualYaw=a.combatFacing?.yaw??walkingYaw;
-  if(visualYaw!==null)a.root.rotation.y=approachCharacterYaw(a.root.rotation.y,visualYaw,dt,reduced);
+  if(visualYaw!==null){
+   // The original 41-joint Walking_A can travel ~95mm across one sparse
+   // software-WebGL frame while the generic 50ms animation cap rotates the
+   // real skinned torso by only .425rad. Use a source-only, 75ms maximum
+   // observed-frame turn instead, never introducing a gameplay movement.
+   const importedWalking=Boolean(a.authored&&a.assetRoot&&a.mixer&&
+    ((moving&&a.fullBody?.mode==='move'&&
+      /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(a.activeImportedClipName??''))||
+     (sourceTurn.heading!==null&&a.fullBody?.mode==='idle'&&
+      /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(outgoingWalkName))));
+   a.root.rotation.y=approachOriginalSourceWalkYaw(
+    a.root.rotation.y,visualYaw,dt,frameInterval,{
+     originalWalking:importedWalking,alive:a.u.hp>0,visible:!document.hidden,
+     teleport:Boolean(locomotion.teleport),reducedMotion:reduced,
+     interrupted:Boolean(a.fullBody?.interrupted),
+     hasCombatFacing:Boolean(a.combatFacing)
+    });
+  }
  }
  // One physically staged protection, derived from the real public turn.
  const oathguardPlan=planOathguardPose(state);
