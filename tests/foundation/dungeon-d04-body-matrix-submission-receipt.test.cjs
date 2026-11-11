@@ -8,7 +8,8 @@ const source=name=>import(pathToFileURL(path.resolve(__dirname,
 const basis=(xx=1,yy=1,zz=1)=>({
  bodyM0:xx,bodyM1:0,bodyM2:0,
  bodyM4:0,bodyM5:yy,bodyM6:0,
- bodyM8:0,bodyM9:0,bodyM10:zz
+ bodyM8:0,bodyM9:0,bodyM10:zz,
+ bodyM12:0,bodyM13:0,bodyM14:0
 });
 const point=(bone={},body={})=>({
  x:-6.8,y:1.17,z:-6.8,rootX:-7,rootY:0,rootZ:-7,yaw:0,
@@ -28,6 +29,8 @@ test('D04 receipt catches authored parent roll and shear without false wrist mov
  const before=point();
  assert.equal(isCurrentMeasuredHandReceipt(before,{...before,bodyM1:.45}),false);
  assert.equal(isCurrentMeasuredHandReceipt(before,{...before,bodyM8:-.27}),false);
+ assert.equal(isCurrentMeasuredHandReceipt(before,{...before,bodyM12:.16}),false,
+  'a shifted asset pivot may be hidden by a compensating local wrist movement');
 });
 
 test('D04 body matrix receipt allows bounded jitter and unchanged authored geometry',async()=>{
@@ -45,7 +48,8 @@ test('D04 body matrix receipt fails closed for broken, missing or replaced witne
   {...before,sourceBodyRoot:{}},
   {...before,bodyM0:NaN},
   {...before,bodyM5:Infinity},
-  {...before,bodyM10:undefined}
+  {...before,bodyM10:undefined},
+  {...before,bodyM14:NaN}
  ])assert.equal(isCurrentMeasuredHandReceipt(before,after),false);
  const minimal={x:-6.8,y:1.17,z:-6.8,rootX:-7,rootY:0,rootZ:-7,
   yaw:0,sourceBone:{}};
