@@ -2213,3 +2213,41 @@ test('licensed source-sole landmarks reject high boot uppers and ungrounded patc
  assert.match(model,/selectOriginalOutsolePatchVertices\(candidates,anchor\.bindY\)/,
   'the runtime on-demand real GLB inspector must use the identical tested outsole contract');
 });
+
+
+test('original source foot-to-toes bind axis rejects false lateral shoe extrema before any IK',async()=>{
+ const {planOriginalSourceToeBindAxis:axis,selectOriginalOutsolePatchVertices:pick}=await load();
+ assert.equal(typeof axis,'function');
+ const sourceAxis=axis({footBind:[0,.12,-.04],toesBind:[.03,.09,.14],
+  originalFootChain:true,source:'original-skeleton-inverse-bind'});
+ assert.ok(sourceAxis,'original foot and toes deform joints establish a real longitudinal reference');
+ assert.ok(sourceAxis.forwardZ>.9&&sourceAxis.forwardX>0&&sourceAxis.forwardX<.25);
+ const samples=[
+  {index:1,x:-.02,z:-.15,bindY:.003,weight:.92},
+  {index:2,x:.03,z:.16,bindY:.004,weight:.90},
+  {index:3,x:-.20,z:0,bindY:.01,weight:.91},
+  {index:4,x:.21,z:.01,bindY:.011,weight:.93}
+ ];
+ const untrusted=pick(samples,0);
+ assert.equal(untrusted.anatomicalHeelToeVerified,false,
+  'lateral extremes alone cannot certify actual source heel and toe');
+ const anatomical=pick(samples,0,sourceAxis);
+ assert.deepEqual([anatomical.heel.index,anatomical.toe.index],[1,2],
+  'foot-to-toes inverse-bind axis must beat wider sideways costume geometry');
+ assert.equal(anatomical.anatomicalHeelToeVerified,true);
+ assert.equal(anatomical.source,'original-foot-to-toes-inverse-bind-axis');
+ assert.ok(anatomical.spanMeters>.25&&anatomical.spanMeters<.4);
+ for(const wrong of [
+  {footBind:[0,0,0],toesBind:[0,0,0],originalFootChain:true,source:'original-skeleton-inverse-bind'},
+  {footBind:[0,0,0],toesBind:[0,.3,0],originalFootChain:true,source:'original-skeleton-inverse-bind'},
+  {footBind:[0,0,0],toesBind:[2,0,0],originalFootChain:true,source:'original-skeleton-inverse-bind'},
+  {footBind:[0,0,0],toesBind:[0,0,.14],originalFootChain:false,source:'original-skeleton-inverse-bind'},
+  {footBind:[0,0,0],toesBind:[0,0,.14],originalFootChain:true,source:'guessed'},
+  {footBind:[NaN,0,0],toesBind:[0,0,.14],originalFootChain:true,source:'original-skeleton-inverse-bind'}
+ ])assert.equal(axis(wrong),null,'never infer anatomical direction from invalid or disconnected rigs');
+ assert.equal(pick(samples,0,{source:'guessed',forwardX:0,forwardZ:1}),null,
+  'a fabricated axis must not certify contact');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planOriginalSourceToeBindAxis\(/,
+  'only the real SkeletonUtils-cloned source GLB should provide anatomical foot/toe bind evidence');
+});
