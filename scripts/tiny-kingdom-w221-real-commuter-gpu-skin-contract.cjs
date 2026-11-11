@@ -19,7 +19,7 @@ const context=vm.createContext({workingSkinCapable:true,state:{t:20},
 vm.runInContext(source,context,{timeout:2000});
 const entry={name:'Bram',job:'farmer',activity:'Traveling to market',phase:0,
  x:0,z:0,angle:0,energy:80,hunger:22,season:1,skinned:true,
- joints:new Float32Array(300),
+ mesh:new Float32Array(3000),joints:new Float32Array(300),
  bindSegments:Array.from({length:13},()=>[[0,0,0],[0,1,0]])};
 const person={name:'Bram',job:'farmer',activity:'Traveling to market',phase:3,
  x:2,z:1,energy:80,hunger:22};
