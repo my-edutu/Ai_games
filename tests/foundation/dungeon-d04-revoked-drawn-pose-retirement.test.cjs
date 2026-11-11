@@ -6,8 +6,8 @@ const {pathToFileURL}=require('node:url');
 const load=()=>import(pathToFileURL(path.resolve(__dirname,
  '../../public/ai-dungeon/physical-combat-feedback.js')).href);
 
-function snapshot(tick,action='idle',hp=30){
- const kind=action==='hurt'?'revenant':'vanguard';
+function snapshot(tick,action='idle',hp=30,forceKind=null){
+ const kind=forceKind??(action==='hurt'?'revenant':'vanguard');
  return {run:1,floor:1,tick,phase:'exploring',events:[],map:[],
   units:[{id:'source',kind,faction:kind==='revenant'?'enemy':'party',
    x:2,z:2,hp,maxHp:30,action,actionTick:tick}]};
@@ -30,7 +30,7 @@ async function attempt(kind){
  });
  try{
   assert.equal(feedback.enableAudioFromGesture(),true);
-  feedback.acceptSnapshot(snapshot(10));
+  feedback.acceptSnapshot(snapshot(10,'idle',30,kind==='hurt'?'revenant':null));
   feedback.acceptSnapshot(snapshot(11,kind));
   feedback.advance(.016,.016);
   assert.ok(retained.size>0,'genuine public transition must stage a visual');
