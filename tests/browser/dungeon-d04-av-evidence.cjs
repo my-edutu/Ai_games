@@ -184,13 +184,16 @@ function classifySequentialCanvasEncoderProbe({concurrent={},serial={}}={}){
  * The browser producer owns the pixel read; this pure boundary checks its
  * bounded source/phase/timeline/contrast records and fails closed.
  */
-function classifyReceiptReadbackVideo(video={}){
+function classifyReceiptReadbackVideo(video={},options={}){
+ const combined=options.combined===true;
  const pump=video.framePump||{},samples=pump.samples;
- const valid=video.source==='real-webgl-receipt-readback-serial-video-only'&&
+ const valid=video.source===(combined?'real-webgl-receipt-readback-serial-original-audio':
+  'real-webgl-receipt-readback-serial-video-only')&&
+  (!combined||(video.optedInAtStart===true&&video.originalSoundstageTrackLive===true))&&
   video.phase==='after-all-primary-encoders-settled'&&
   video.primaryRecordersSettled===true&&
   /^video\/webm(?:;|$)/i.test(video.mimeType||'')&&
-  video.videoTracks===1&&video.audioTracks===0&&
+  video.videoTracks===1&&video.audioTracks===(combined?1:0)&&
   video.canvasWidth>=160&&video.canvasWidth<=960&&Number.isInteger(video.canvasWidth)&&
   video.canvasHeight>=100&&video.canvasHeight<=600&&Number.isInteger(video.canvasHeight)&&
   Number.isFinite(video.recordingMs)&&video.recordingMs>=1000&&video.recordingMs<=15500&&
@@ -218,7 +221,8 @@ function classifyReceiptReadbackVideo(video={}){
  if(video.status==='UNAVAILABLE'&&video.bytes===0)
   return 'REAL_WEBGL_READBACK_VIDEO_UNVERIFIED';
  if(video.status==='RECORDED'&&video.bytes>1024)
-  return 'REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED';
+  return combined?'REAL_WEBGL_READBACK_AV_RECORDED_UNALIGNED':
+   'REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED';
  return 'READBACK_PROVENANCE_UNVERIFIED';
 }
 
@@ -321,6 +325,28 @@ function classifyDecodedReceiptReadbackGameplay({video={},decoder={}}={}){
   'REAL_WEBGL_READBACK_ONE_OR_STATIC_FRAME_UNVERIFIED';
 }
 
+/**
+ * A single WebM may contain both genuinely sourced tracks yet still omit
+ * precise audiovisual sample presentation timestamps. Require decoded moving
+ * WebGL frames AND the actual Opus stream, never merely recorded bytes.
+ */
+function classifyDecodedSameWindowReadbackAV({video={},decoder={}}={}){
+ if(classifyReceiptReadbackVideo(video,{combined:true})!=='REAL_WEBGL_READBACK_AV_RECORDED_UNALIGNED'||
+  decoder.source!=='ffmpeg-decoded-real-webgl-receipt-readback-original-audio'||
+  decoder.method!=='framemd5-24x16-first-64'||
+  decoder.status!=='DECODED'||decoder.codec!=='vp8'||decoder.audioCodec!=='opus'||
+  !Number.isSafeInteger(decoder.frameCount)||decoder.frameCount<1||decoder.frameCount>64||
+  !Number.isSafeInteger(decoder.distinctFrames)||decoder.distinctFrames<1||
+  decoder.distinctFrames>decoder.frameCount||
+  !Array.isArray(decoder.hashes)||decoder.hashes.length!==decoder.frameCount||
+  !decoder.hashes.every(h=>typeof h==='string'&&/^[0-9a-f]{32}$/.test(h))||
+  new Set(decoder.hashes).size!==decoder.distinctFrames)
+  return 'SAME_WINDOW_READBACK_AV_UNVERIFIED';
+ return decoder.frameCount>=2&&decoder.distinctFrames>=2?
+  'REAL_WEBGL_SAME_WINDOW_MOVING_AV_UNALIGNED':
+  'REAL_WEBGL_SAME_WINDOW_ONE_OR_STATIC_FRAME_UNVERIFIED';
+}
+
 function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},trackDelivery={},decoder={}}={}){
  const confirmedCanvasFrames=hasConfirmedCanvasFrames(clip.framePump);
  const combinedVideoAudio=confirmedCanvasFrames&&optedIn===true&&
@@ -384,6 +410,11 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
  const receiptReadbackVideoMotionQualified=receiptReadbackVideoRecorded&&
   classifyDecodedReceiptReadbackGameplay({video:isolated.receiptReadbackVideo,
    decoder:decoder.readbackVideo})==='REAL_WEBGL_READBACK_MOVING_VIDEO_UNALIGNED';
+ const sameWindowAVClassification=optedIn===true?
+  classifyDecodedSameWindowReadbackAV({video:isolated.sameWindowReadbackAV,
+   decoder:decoder.sameWindowReadbackAV}):'SAME_WINDOW_READBACK_AV_UNVERIFIED';
+ const sameWindowMovingAV=sameWindowAVClassification===
+  'REAL_WEBGL_SAME_WINDOW_MOVING_AV_UNALIGNED';
  const isolatedAudioRecorded=optedIn===true&&renderFramesAdvanced&&
   audio.source==='real-opted-in-soundstage-audio-only'&&audio.status==='RECORDED'&&
   /^audio\/webm(?:;|$)/i.test(audio.mimeType||'')&&
@@ -412,7 +443,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   classification:combinedVideoAudio&&liveOriginalPcm&&renderFramesAdvanced?
    'REAL_BROWSER_A_V_CAPTURED_UNALIGNED':'UNVERIFIED',
   combinedVideoAudio,liveOriginalPcm,renderFramesAdvanced,
-  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,serialRealVideoMotionQualified,receiptReadbackVideoRecorded,receiptReadbackVideoMotionQualified,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
+  isolatedVideoRecorded,isolatedNativeVideoRecorded,serialRealVideoRecorded,serialRealVideoMotionQualified,receiptReadbackVideoRecorded,receiptReadbackVideoMotionQualified,sameWindowMovingAV,sameWindowAVClassification,isolatedAudioRecorded,encoderDiagnosis,trackDiagnosis,submissionDiagnosis,canvasEncoderDifferential,serialCanvasEncoderDifferential,
   sampleSynchronized:false, // Never infer precise timing from RMS or MediaRecorder bytes.
   limits:Object.freeze({clipBytes:MAX_CLIP_BYTES,pcmBytes:MAX_PCM_BYTES})
  });
@@ -437,8 +468,9 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  const {base64:serialControlBytes,...serial2dOnly}=raw.isolated?.serial2dOnly||{};
  const {base64:serialRealVideoBytes,...serialRealVideo}=raw.isolated?.serialRealVideo||{};
  const {base64:receiptReadbackBytes,...receiptReadbackVideo}=raw.isolated?.receiptReadbackVideo||{};
+ const {base64:sameWindowAVBytes,...sameWindowReadbackAV}=raw.isolated?.sameWindowReadbackAV||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
- let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null,serialRealVideoWebm=null,receiptReadbackVideoWebm=null;
+ let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null,serialRealVideoWebm=null,receiptReadbackVideoWebm=null,sameWindowAVWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
   const bytes=Buffer.from(base64,'base64');
   if(bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES&&bytes.length===clip.bytes){
@@ -489,17 +521,28 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
    fs.writeFileSync(receiptReadbackVideoWebm,bytes);
   }
  }
+ // This is a genuine simultaneous recorder only after both native decoded
+ // moving WebGL frames and original Opus pass. It remains UNALIGNED without
+ // measured event-to-sample timing, despite sharing one WebM container.
+ if(assessment?.sameWindowMovingAV&&typeof sameWindowAVBytes==='string'){
+  const bytes=Buffer.from(sameWindowAVBytes,'base64');
+  if(bytes.length===sameWindowReadbackAV.bytes&&bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES){
+   sameWindowAVWebm=path.join(directory,'dungeon-d04-real-webgl-readback-original-sound-same-window.webm');
+   fs.writeFileSync(sameWindowAVWebm,bytes);
+  }
+ }
  fs.writeFileSync(manifest,JSON.stringify({
-  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo},frames:raw.frames??null,
+  started,clip,pcm,isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo,sameWindowReadbackAV},frames:raw.frames??null,
   trackDelivery:raw.trackDelivery??null,decoder:raw.decoder??null,assessment,
   retained:{webm:!!webm,wav:!!wav,
    isolatedVideoWebm:!!isolatedVideoWebm,isolatedAudioWebm:!!isolatedAudioWebm,
    ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{}),
    ...(raw.isolated?.serialRealVideo?{serialRealVideoWebm:!!serialRealVideoWebm}:{}),
-   ...(raw.isolated?.receiptReadbackVideo?{receiptReadbackVideoWebm:!!receiptReadbackVideoWebm}:{})},
-  caveat:'Independent authentic tracks are NOT aligned or combined. Encoded bytes alone do not prove audiovisual synchronization.'
+   ...(raw.isolated?.receiptReadbackVideo?{receiptReadbackVideoWebm:!!receiptReadbackVideoWebm}:{}),
+   ...(raw.isolated?.sameWindowReadbackAV?{sameWindowAVWebm:!!sameWindowAVWebm}:{})},
+  caveat:'Source-verified same-window moving WebGL video and original Opus may coexist, but event-to-sample contact synchronization is UNVERIFIED.'
  },null,2)+'\n');
- return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm});
+ return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm,sameWindowAVWebm});
 }
-module.exports={classifyDecodedSerialGameplay,classifyDecodedReceiptReadbackGameplay,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
+module.exports={classifyDecodedSerialGameplay,classifyDecodedReceiptReadbackGameplay,classifyDecodedSameWindowReadbackAV,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
  MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
