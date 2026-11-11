@@ -96,9 +96,37 @@ test('real WebGL movement animates distance-paced imported thigh and ankle bones
  await page.goto('/dungeon');
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.texturedCharacters??0),{timeout:60000}).toBeGreaterThanOrEqual(3);
  await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigGaitBones??0),{timeout:30000}).toBeGreaterThanOrEqual(4);
+ // Source Walking_A itself now owns most original thigh/calf/ankle motion.
+ // The retired >.07rad duplicate post-mixer sine peak is NOT a measure of
+ // full-body movement: exact original WebGL measured .068974rad despite
+ // 123 licensed Walking_A tracks moving the same skinned leg chains.
+ // Require actual original-clone FOOT JOINT world-space travel instead,
+ // and preserve the strict maximum on any secondary added rotation.
+ const source=fs.readFileSync(require('node:path').join(__dirname,
+  '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
+ const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
+  Buffer.from(source).toString('base64'));
+ const beforeRig=await page.evaluate(()=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+ const beforeActor=beforeRig?.actors?.find(a=>a.id===frames.walker);
+ expect(beforeActor?.sourceInstanceId,'original CC0 walker clone required').toBeTruthy();
  current=frames.after;
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.authored3D?.rigGaitPeakRad??0),{timeout:20000}).toBeGreaterThan(.07);
+ const inspectTravel=async()=>{
+  const after=await page.evaluate(()=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+  const actor=after?.actors?.find(a=>a.id===frames.walker);
+  return measureSourceJointTravel(beforeActor,actor);
+ };
+ await expect.poll(async()=> {
+  const motion=await inspectTravel();
+  return motion.comparable?motion.rootTravelMeters:0;
+ },{timeout:20000,intervals:[70,110,180,260]}).toBeGreaterThan(.025);
+ const jointMotion=await inspectTravel();
+ expect(jointMotion.comparable,'same licensed source skeleton and actual ankle world matrices').toBe(true);
+ expect(Math.max(...Object.values(jointMotion.footWorldDeltaMeters)),
+  'native skinned feet must move with genuine authoritative root travel').toBeGreaterThan(.025);
+ expect(Object.values(jointMotion.footVerticalDeltaMeters).every(Number.isFinite)).toBe(true);
  const diag=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+ expect(diag.authored3D.sourceClipAudits.some(a=>a.clips.some(c=>
+  c.name==='Walking_A'&&c.tracks===123)),'actual keyed original source gait is loaded').toBe(true);
  expect(diag.authored3D.rigGaitPeakRad).toBeLessThanOrEqual(.30);
  expect(diag.authored3D.rigGaitBones).toBeLessThanOrEqual(diag.authored3D.authoredCharacters*6);
  expect(diag.authored3D.missingAssets).toBe(0);
