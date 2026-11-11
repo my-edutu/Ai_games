@@ -788,7 +788,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   ]
  };
  const timelineJson=JSON.stringify(timeline,null,2);
- fs.writeFileSync('artifacts/dungeon-d04-real-cue-frame-foley-timeline.json',timelineJson+'\\n');
+ fs.writeFileSync('artifacts/dungeon-d04-real-cue-frame-foley-timeline.json',timelineJson+'\n');
  await test.info().attach('d04-real-cue-frame-foley-timeline.json',{
   body:Buffer.from(timelineJson),contentType:'application/json'
  });
