@@ -18921,6 +18921,10 @@ let cameraArchitectureBuilds=0,cameraArchitectureReuses=0,
 // Only actual static-town topology or real courier motion changes the plan.
 let cameraOcclusionViewKey=null,cameraOcclusionViewRoofs=null,
  cameraOcclusionViewBuilds=0,cameraOcclusionViewReuses=0;
+// An immutable town index survives every REAL parcel movement. This WeakMap
+// associates the combined physical view with the original stationary rows;
+// it never mutates a shot, hides a cart or stores old positions indefinitely.
+const cameraOcclusionStaticRows=new WeakMap();
 function cameraOcclusionView(topology,staticRoofs){
  const carts=realCourierCartCameraVolumes();
  // No coordinate rounding: even a small genuine loaded-cart displacement
@@ -18935,6 +18939,7 @@ function cameraOcclusionView(topology,staticRoofs){
   return cameraOcclusionViewRoofs;
  }
  const roofs=staticRoofs.concat(carts);
+ cameraOcclusionStaticRows.set(roofs,staticRoofs);
  cameraOcclusionViewKey=key;
  cameraOcclusionViewRoofs=roofs;
  cameraOcclusionViewBuilds++;
@@ -19088,7 +19093,12 @@ function cameraRayIndexFor(roofs){
  return next;
 }
 function followRayBlockers(eye,target,roofs){
- const index=cameraRayIndexFor(roofs);
+ // Static buildings and market structures are immutable until genuine town
+ // growth, but loaded couriers travel every authoritative step. Reuse the
+ // retained village's cell index and EXACTLY ray-test every live freight AABB
+ // as the trailing dynamic entries. Filtered/legacy views index all volumes.
+ const staticRows=cameraOcclusionStaticRows.get(roofs);
+ const index=cameraRayIndexFor(staticRows||roofs);
  cameraRayCounters.queries++;
  cameraRayCounters.possibleSlabTests+=roofs.length;
  let candidates=null;
@@ -19104,6 +19114,10 @@ function followRayBlockers(eye,target,roofs){
     if(bucket)for(const i of bucket)unique.add(i);
    }
    candidates=[...unique].sort((a,b)=>a-b);
+   // A moving courier has no stationary cell membership. Always test its
+   // current actual physical bounds, even when it is outside camera cells.
+   // The exact slab test (below) rejects non-intersecting carts safely.
+   if(staticRows)for(let i=staticRows.length;i<roofs.length;i++)candidates.push(i);
    cameraRayCounters.indexedQueries++;
   }
  }
