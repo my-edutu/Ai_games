@@ -50,7 +50,12 @@ jobs:
         run: node --test tests/phase3/tower-moving-fixed-step-source-trace.test.cjs
       - name: Visual resources and geometry safety (not a quality score)
         run: node --test tests/phase3/tower-transformation-sanctuary.test.cjs tests/phase3/tower-vista-environment.test.cjs tests/phase3/tower-world-geometry.test.cjs tests/phase3/tower-earned-gateway-frame.test.cjs
-      - run: npx playwright install --with-deps chromium
+      # GitHub-hosted Ubuntu occasionally fails DNS resolution for apt-only fonts.
+      # A mirror outage must not prevent original browser footage.
+      - name: Install and probe actual Playwright Chromium / WebGL2 without apt
+        run: |
+          npx playwright install chromium
+          node scripts/tower-chromium-host-preflight.cjs
       - name: Record real source-matched desktop and phone climb stills
         run: |
           mkdir -p artifacts/tower-ledge-contact
@@ -172,6 +177,7 @@ jobs:
           # Independent original-host observation must exist inside the frozen
           # checkout's neutral harness; frozen game/host bytes remain untouched.
           cp current-harness/scripts/tower-public-state-witness.cjs source/scripts/tower-public-state-witness.cjs
+          cp current-harness/scripts/tower-chromium-host-preflight.cjs source/scripts/tower-chromium-host-preflight.cjs
           cp current-harness/tests/phase3/tower-public-state-witness.test.cjs source/tests/phase3/tower-public-state-witness.test.cjs
           cp current-harness/tests/phase3/tower-source-trace-poller.test.cjs source/tests/phase3/tower-source-trace-poller.test.cjs
           cp current-harness/tests/phase3/tower-fixed-step-trace.test.cjs source/tests/phase3/tower-fixed-step-trace.test.cjs
@@ -200,9 +206,13 @@ jobs:
         continue-on-error: true
         working-directory: source
         run: node --test tests/phase3/tower-motion-evidence.test.cjs tests/phase3/tower-event-alignment.test.cjs tests/phase3/tower-capture-window.test.cjs tests/phase3/tower-capture-host-lifecycle.test.cjs tests/phase3/tower-fixed-step-trace.test.cjs tests/phase3/tower-source-trace-poller.test.cjs tests/phase3/tower-public-state-witness.test.cjs tests/phase3/tower-video-timebase.test.cjs tests/phase3/tower-event-frame-probes.test.cjs tests/phase3/tower-native-compositor-anchors.test.cjs tests/phase3/tower-native-film-integrity.test.cjs
-      - name: Install Chromium
+      # Match the frozen source's original Playwright binary without fetching
+      # Ubuntu font packages. Abort if the actual browser lacks WebGL2.
+      - name: Install and probe original-source Chromium / WebGL2 without apt
         working-directory: source
-        run: npx playwright install --with-deps chromium
+        run: |
+          npx playwright install chromium
+          node scripts/tower-chromium-host-preflight.cjs
       # GitHub ubuntu-24.04 runners do not guarantee ffprobe/ffmpeg in PATH.
       # An actual 60+s WebM was already captured on both viewports while the
       # native PTS/sha256 audit failed with 'spawnSync ffprobe ENOENT'.
