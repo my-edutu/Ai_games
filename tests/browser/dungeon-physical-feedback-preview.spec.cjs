@@ -25,6 +25,9 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  for(const endpoint of [
   '/dungeon/physical-feedback-plan.js',
   '/dungeon/physical-feedback-visuals.js',
+  // Missing from the static serving allowlist until the D04 real-browser
+  // trace caught a 404; an absent ESM dependency prevents renderer startup.
+  '/dungeon/warden-warning-lifecycle.js',
   '/dungeon/original-combat-foley.js',
   '/dungeon/physical-combat-feedback.js'
  ])expect((await request.get(endpoint)).status(),endpoint).toBe(200);
