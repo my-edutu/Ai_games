@@ -1,6 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
 const load=()=>import('../../public/ai-maze-escape/map-view.mjs');
 const CELL=2.4,ASPECT=320/740;
 const snap=(cell,extras={})=>({runToken:'public-camera-test',width:7,height:7,
