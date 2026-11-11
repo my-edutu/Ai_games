@@ -49,6 +49,7 @@ jobs:
             tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-revoked-drawn-pose-retirement.test.cjs \
+            tests/foundation/dungeon-d04-swing-rig-receipt-continuity.test.cjs \
             tests/foundation/dungeon-d04-audio-frame-deadline.test.cjs \
             tests/foundation/dungeon-d04-first-drawable-sword-foley.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
