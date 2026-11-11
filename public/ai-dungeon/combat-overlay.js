@@ -11,7 +11,7 @@ const colors={vanguard:'#69c9ff',ranger:'#79ffc4',mystic:'#bd95ff',revenant:'#ff
 const PI2=Math.PI*2;
 export function createCombatOverlay(canvas){
  const ctx=canvas.getContext('2d',{alpha:true}),hpBefore=new Map(),floaters=[];
- let lastScene='',width=0,height=0,ratio=1,observedUnits=0,suppressedNameplates=0;
+ let lastScene='',width=0,height=0,ratio=1,observedUnits=0,suppressedNameplates=0,protectedRegions=0,protectedThreatCells=0;
  function setSize(){
   const w=canvas.clientWidth,h=canvas.clientHeight;
   const d=Math.min(devicePixelRatio||1,1.7);
@@ -37,6 +37,50 @@ export function createCombatOverlay(canvas){
   const x=(position.x*.5+.5)*width,sy=(-position.y*.5+.5)*height;
   if(x< -100||x>width+100||sy< -100||sy>height+100)return null;
   return {x,y:sy};
+ }
+
+ // Reserve the actual source-skinned actors and TRUE live authority danger.
+ // Mobile already exposes each party member in accessible health cards and
+ // the Warden in a separate permanent HP strip. Duplicate floating names
+ // cannot conceal a legal warning tile or actor body.
+ function protectedWorldRegions(state,actors,camera){
+  if(width>=620||!Array.isArray(state?.units))return {rects:[],threatCells:0};
+  const rects=[];
+  for(const u of state.units.slice(0,48)){
+   if(!(u?.hp>0)||!['party','enemy'].includes(u.faction))continue;
+   const actor=actors.get(u.id);
+   if(!actor?.root?.visible)continue;
+   const head=point(camera,actor,u.kind==='warden'?2.35:1.90);
+   const sole=point(camera,actor,.10);
+   if(!head||!sole)continue;
+   const cx=(head.x+sole.x)/2;
+   rects.push({l:cx-(u.kind==='warden'?46:28),
+    r:cx+(u.kind==='warden'?46:28),
+    t:Math.min(head.y,sole.y)-26,b:Math.max(head.y,sole.y)+10});
+   if(rects.length>=14)break;
+  }
+  const warning=state.bossWarning,side=Array.isArray(state.map)?state.map.length:0;
+  let threatCells=0;
+  if(warning?.warning===true&&Number.isSafeInteger(warning.attackTick)&&
+    warning.attackTick>state.tick&&Array.isArray(warning.cells)&&
+    warning.cells.length<=49&&side>=3&&side<=64){
+   const origin=(side-1)/2,sample=new THREE.Vector3();
+   for(const tile of warning.cells){
+    if(!Number.isInteger(tile?.x)||!Number.isInteger(tile?.z)||
+       tile.x<0||tile.x>=side||tile.z<0||tile.z>=side)continue;
+    let l=Infinity,r=-Infinity,t=Infinity,b=-Infinity,valid=true;
+    for(const dx of [-.47,.47])for(const dz of [-.47,.47]){
+     sample.set(tile.x-origin+dx,.16,tile.z-origin+dz).project(camera);
+     if(![sample.x,sample.y,sample.z].every(Number.isFinite)||
+       sample.z< -1||sample.z>1){valid=false;break}
+     const px=(sample.x*.5+.5)*width,py=(-sample.y*.5+.5)*height;
+     l=Math.min(l,px);r=Math.max(r,px);t=Math.min(t,py);b=Math.max(b,py);
+    }
+    if(!valid||r<=l||b<=t)continue;
+    rects.push({l:l-6,r:r+6,t:t-8,b:b+8});threatCells++;
+   }
+  }
+  return {rects,threatCells};
  }
  function rounded(x,y,w,h,r){
   ctx.beginPath();ctx.roundRect(x,y,w,h,r);
@@ -91,16 +135,19 @@ export function createCombatOverlay(canvas){
     width:u.faction==='party'?110:76,focused:u.id===focusId,danger:range<=3});
    byId.set(u.id,u);
   }
-  const composition=planReadableNameplates(visible,{width,height,focusId});
+  const reserved=protectedWorldRegions(s,actors,camera);
+  const composition=planReadableNameplates(visible,{width,height,focusId,protectedRects:reserved.rects});
   for(const p of composition.labels){
    const u=byId.get(p.id);if(u)label(u,p,time,p.id===focusId||p.faction==='enemy');
   }
   observedUnits=composition.labels.length;
   suppressedNameplates=composition.suppressed;
+  protectedRegions=composition.protectedRegions??0;
+  protectedThreatCells=reserved.threatCells;
   for(let i=floaters.length-1;i>=0;i--){const f=floaters[i];
    if(time-f.start>.98){floaters.splice(i,1);continue;}
    const a=actors.get(f.id);if(a)flyup(f,a,camera,time);
   }
  }
- return {record,render,metrics:()=>({labels:observedUnits,suppressedNameplates,activeFlyups:floaters.length}),dispose(){hpBefore.clear();floaters.length=0;ctx.clearRect(0,0,canvas.width,canvas.height)}};
+ return {record,render,metrics:()=>({labels:observedUnits,suppressedNameplates,protectedRegions,protectedThreatCells,activeFlyups:floaters.length}),dispose(){hpBefore.clear();floaters.length=0;ctx.clearRect(0,0,canvas.width,canvas.height)}};
 }
