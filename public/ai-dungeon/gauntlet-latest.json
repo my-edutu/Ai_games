@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-05",
-  "status": "IN PROGRESS — NOT TRANSFORMED (same-seed exact-head motion audited, acceptance UNVERIFIED)",
+  "status": "IN PROGRESS — NOT TRANSFORMED (real danger-surface candidate awaiting genuine new-head motion and blind acceptance)",
   "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
   "metrics": {
     "sample_seeds": 24,
@@ -176,6 +176,32 @@
       "soundHitSync": "UNVERIFIED",
       "blindedCritics": 0,
       "next": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics"
+    },
+    "m1WardenEveryThreatCell20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "9d474cbdde9c5e254d8a86bfdd1b7349c3fc183f",
+      "sourceCommit": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
+      "beforeOrganicWorkflow": 42961471342,
+      "beforeMobileArtifact": 13829887236,
+      "beforeDesktopArtifact": 13829936863,
+      "trueMobileWardenWarningCells": 25,
+      "preChangeIncisedCells": 6,
+      "postChangeIncisedCells": 25,
+      "postChangeAdditionalDrawCalls": 0,
+      "change": "Source-native low profile spatially oriented physical scar per real dangerous cell; retained three original mesh draw families and stronger danger surface contrast with reduced-motion protection",
+      "localTdd": "1 RED→5/5 GREEN",
+      "foundation": "413/413 PASS",
+      "headless": "24 seeds x 900 ticks zero replay divergence; 199 floor transitions and five restarts",
+      "catalogue": "Attempted npm test; local timeout, preceding catalogue CI FAILED",
+      "afterOriginalMotionAudio": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "hpAudioSync": "UNVERIFIED",
+      "next": "Inspect real exact new-head desktop/mobile audiovisual five-stage journey and Warden warning per-cell visibility vs parent9d and locked baseline; reject regressions, then original adult-scale rigged Vanguard/Revenant/Warden art and GPU bottleneck remediation; PR72 remains independent"
     }
   },
   "failures": [],
