@@ -108,6 +108,7 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
  sourceRig=false,sourceClipName='',sourceWalkExit=false,mode='idle',
  groundedMoving=false,alive=false,visible=false,teleport=false,
  reducedMotion=false,hasCombatFacing=false,
+ previousX=NaN,previousZ=NaN,
  currentX=NaN,currentZ=NaN,targetX=NaN,targetZ=NaN,
  observedWalkYaw=null,rootYaw=NaN,frameInterval=NaN
 }={}){
@@ -129,11 +130,27 @@ export function advanceOriginalSourceWalkTurnRelease(previous=null,{
   // subsequent release remains confined to <=9mm or a lawful outgoing clip.
   return {heading:angle,memory:{yaw:angle,targetX,targetZ,age:0}};
  }
- if(remaining>.009)return EMPTY_SOURCE_WALK_FINISH;
  const memoryValid=previous&&[previous.yaw,previous.targetX,previous.targetZ,previous.age].
   every(Number.isFinite)&&previous.age>=0&&previous.age<=.24&&
   Math.hypot(previous.targetX-targetX,previous.targetZ-targetZ)<.003;
  if(!memoryValid)return EMPTY_SOURCE_WALK_FINISH;
+ // A truly moving original Walking_A can cross the 9–70mm heading dead zone
+ // in sub-12mm rendered steps. The fresh heading planner rightly rejects an
+ // isolated tiny step, but must not erase a previously witnessed SAME-target
+ // heading that this real cardinal step is still following. Never extend a
+ // turn from a motion label alone: require adjacent rendered-world evidence,
+ // observed closing distance and alignment with the preserved source heading.
+ if(remaining>.009){
+  if(remaining>.07||mode!=='move'||groundedMoving!==true||!walkingSource||
+   ![previousX,previousZ].every(Number.isFinite))return EMPTY_SOURCE_WALK_FINISH;
+  const dx=currentX-previousX,dz=currentZ-previousZ;
+  const travel=Math.hypot(dx,dz);
+  const beforeDistance=Math.hypot(targetX-previousX,targetZ-previousZ);
+  if(travel<.003||travel>.012||Math.min(Math.abs(dx),Math.abs(dz))>.001||
+   beforeDistance<remaining+.0025||
+   Math.abs(shortestYawDelta(Math.atan2(-dx,-dz),previous.yaw))>.15)
+   return EMPTY_SOURCE_WALK_FINISH;
+ }
  // Continue within a real, very small final walk frame. Never manufacture
  // locomotion on a halted or stale authoritative actor.
  const tinyStep=mode==='move'&&groundedMoving===true&&walkingSource;
