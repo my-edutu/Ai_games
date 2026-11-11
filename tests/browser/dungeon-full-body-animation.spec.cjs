@@ -533,8 +533,33 @@ for(const view of [
     currentFeet:t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs??null,
     lastHistorical:t.nativeLegOwnership?.sourceSwingToeLiftProof??null}))},null,2))
  });
+ // Stance-shoe proof is a DISTINCT original skinned heel/toe measurement
+ // from airborne toe correction. Its absence is reported, not converted into
+ // a fake plant or a passing motion-quality claim.
+ await test.info().attach('original-source-stance-shoe-frame-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'same-original-GLB-weighted-heel-toe',
+   claimedFootLock:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    cumulative:t.nativeLegOwnership?.sourceStanceReliefFrames??0,
+    proofs:t.nativeLegOwnership?.sourceStanceSoleCurrentFrameProofs??null}))},null,2))
+ });
  for(const t of trace){
   const n=t.nativeLegOwnership;
+  const stance=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
+  expect(stance.length).toBeLessThanOrEqual(2);
+  for(const proof of stance){
+   expect(proof.source).toBe('same-original-GLB-two-point-stanced-shoe');
+   expect(proof.sourceInstanceId).toBe(t.sourceId);
+   expect(proof.sourceClip).toBe('Walking_A');
+   expect(proof.afterWorstMeters).toBeLessThan(proof.beforeWorstMeters-.00149);
+   expect(Math.abs(proof.appliedAngleRad)).toBeLessThanOrEqual(.04501);
+   expect(proof.afterToeY).toBeGreaterThanOrEqual(-.055);
+   expect(proof.afterHeelY).toBeGreaterThanOrEqual(-.055);
+   expect(proof.afterToeY).toBeGreaterThanOrEqual(proof.beforeToeY-.00401);
+   expect(proof.afterHeelY).toBeGreaterThanOrEqual(proof.beforeHeelY-.00401);
+  }
   const current=Object.values(n?.sourceSwingToeCurrentFrameProofs??{}).filter(Boolean);
   expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(current.length);
   expect(current.length).toBeLessThanOrEqual(2);
