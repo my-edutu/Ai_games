@@ -681,13 +681,20 @@ export function advanceFullBodyController(previous=null,{
  // sparse frame leaps over the 620ms exit and erases all follow-through.
  // Preserve ONE final RECOVERY POSE only after such a witnessed source beat;
  // never invent a hit, new target, game action or original source clip.
- const witnessedReleaseFrame=Boolean(eligibleHold&&priorOneShot==='attack'&&
-  previous?.authorityAction==='attack'&&previous?.holding!==true&&
-  previous?.phase==='recovery'&&previous?.confirmedContact?.actionTick===previous.actionTick&&
-  actionTick===previous.actionTick+1&&previous.age>=.28&&
-  previous.age<ONE_SHOT_RECOVERY.attack&&inheritedAge>=ONE_SHOT_RECOVERY.attack);
+ // A lawful source cast can similarly finish its licensed 640ms shoulder
+ // and wrist release after a sparse next idle heartbeat. It is NOT a spell,
+ // a target, an impact, or a new source event. This one terminal pose requires
+ // a real cast already seen in recovery on the immediately prior event tick.
+ const witnessedReleaseFrame=Boolean(eligibleHold&&previous?.holding!==true&&
+  previous?.phase==='recovery'&&previous?.authorityAction===priorOneShot&&
+  actionTick===previous.actionTick+1&&
+  previous.age>=(priorOneShot==='cast'?.48:.28)&&
+  previous.age<ONE_SHOT_RECOVERY[priorOneShot]&&
+  inheritedAge>=ONE_SHOT_RECOVERY[priorOneShot]&&
+  (priorOneShot==='cast'||(priorOneShot==='attack'&&
+   previous?.confirmedContact?.actionTick===previous.actionTick)));
  const heldAge=witnessedReleaseFrame?
-  Math.max(previous.age,ONE_SHOT_RECOVERY.attack-1e-6):inheritedAge;
+  Math.max(previous.age,ONE_SHOT_RECOVERY[priorOneShot]-1e-6):inheritedAge;
  const holding=Boolean(eligibleHold&&heldAge<ONE_SHOT_RECOVERY[priorOneShot]);
  const mode=!alive?'defeat':injury?'hurt':evasion?'evade':
   requestedOneShot?authorityAction:holding?priorOneShot:
