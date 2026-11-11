@@ -36,7 +36,7 @@ test('original full movies and source-native events produce a reviewable but ung
  assert.doesNotMatch(htmlFor([p]),new RegExp(FROZEN));
  assert.match(htmlFor([p]),/review-media\/portrait-a\.webm/);
  assert.doesNotMatch(htmlFor([p]),/portrait-(?:baseline|candidate)\.webm/);
- assert.match(htmlFor([p]),/synchronized:true/);
+ assert.match(htmlFor([p]),/"synchronized":true/);
 });
 test('veto fabricated missing baseline floor transition, never align HP to an unrelated event',()=>{
  const e=make('baseline').videoClock.sourceEventTimecodes.slice(0,1);
@@ -45,7 +45,7 @@ test('veto fabricated missing baseline floor transition, never align HP to an un
  assert.equal(p.unalignedInspectionOnly,true,
    'missing anchors veto event synchrony, not inspection of genuine unchanged videos');
  const html=htmlFor([p]);
- assert.match(html,/synchronized:false/);
+ assert.match(html,/"synchronized":false/);
  assert.match(html,/No shared source-event anchor/);
  assert.doesNotMatch(html,/portrait-(?:baseline|candidate)\.webm/);
 });
