@@ -15,7 +15,7 @@ test('W25 real civic quarter stays GPU resident during authentic new home growth
  const before=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {civic:g.getCivicSceneryCacheStats(),visibility:g.getScenicVisibilityStats(),
-   geometry:g.getGeometryAudit(),triangles:g.renderStats().lastFrameTriangles,
+   geometry:g.getGeometryAudit(),reconciliation:g.getSceneTriangleReconciliation(),triangles:g.renderStats().lastFrameTriangles,
    buildings:g.metrics().buildings,snapshot:JSON.stringify(g.exportSnapshot())};
  });
  // The dedicated civic VBO helps actual hardware builders without forcing
@@ -34,7 +34,8 @@ test('W25 real civic quarter stays GPU resident during authentic new home growth
   expect(before.visibility.civic.visibleTriangles).toBe(0);
   expect(before.visibility.settlement.visibleTriangles).toBeGreaterThan(10000);
  }
- expect(before.geometry.totalTriangles).toBe(before.triangles);
+ expect(before.reconciliation.unaccountedTriangles).toBe(0);
+ expect(before.reconciliation.auditedTriangles + before.reconciliation.weatherTrianglesEstimated).toBe(before.triangles);
  const oldFrames=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
  const grown=await page.evaluate(buildings=>{
   const g=window.__tinyKingdom;let ticks=0;
@@ -48,7 +49,7 @@ test('W25 real civic quarter stays GPU resident during authentic new home growth
  const after=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {civic:g.getCivicSceneryCacheStats(),visibility:g.getScenicVisibilityStats(),
-   geometry:g.getGeometryAudit(),triangles:g.renderStats().lastFrameTriangles,
+   geometry:g.getGeometryAudit(),reconciliation:g.getSceneTriangleReconciliation(),triangles:g.renderStats().lastFrameTriangles,
    snapshot:JSON.stringify(g.exportSnapshot()),
    gl:document.querySelector('#world').getContext('webgl')?.getError()??-1};
  });
@@ -60,7 +61,8 @@ test('W25 real civic quarter stays GPU resident during authentic new home growth
  expect(after.civic.reuses).toBeGreaterThanOrEqual(before.civic.reuses+1);
  if(hardware)expect(after.visibility.civic.visibleTriangles).toBeGreaterThan(0);
  else expect(after.visibility.settlement.visibleTriangles).toBeGreaterThan(10000);
- expect(after.geometry.totalTriangles).toBe(after.triangles);
+ expect(after.reconciliation.unaccountedTriangles).toBe(0);
+ expect(after.reconciliation.auditedTriangles + after.reconciliation.weatherTrianglesEstimated).toBe(after.triangles);
  expect(after.geometry.static.invalidComponents).toBe(0);
  expect(after.gl).toBe(0);
  await page.setViewportSize({width:390,height:844});
