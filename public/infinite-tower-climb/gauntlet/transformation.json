@@ -285,6 +285,41 @@
       "hardwareFrameTimesMemory": "NOT EVALUATED — no actual supported device readings",
       "next": "Run fresh 9-job pinned browser capture and strict native PTS-event audit, inspect continuous portrait and desktop real guardian film; if occlusion/camera jitter remains, fix actual 3D/camera rather than evidence cosmetics. Then perform genuine separate blind reviews and device profiling.",
       "safety": "Existing open draft PR68 only; no PR58/main edits, no force-push/merge/deploy, frozen baseline unchanged."
+    },
+    "p0VerifiedOriginalFilm2018DecodeCompatibility20261111": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "leadingAssessorVerdict": "NOT EVALUATED",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "inspectedExactSourceSha": "d6ef509d823ffb2bfa7eb985a58e90d0939628c4",
+      "inspectedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43058957269 — eight actual desktop/portrait baseline/candidate original 60s+ WebMs and eight native transport audits exist; all eight film jobs FAIL after recording because exact 2018 FFmpeg decoder rejects -fps_mode passthrough and thus event timecodes remain uncalibrated. 8/8 source timelines paired; 0/2 original danger full event-to-native-video viewports.",
+      "inspectedExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43058959381 — success at immutable inspected candidate source; technical CI veto only",
+      "evidenceProvenance": "Original candidate danger artifact https://github.com/my-edutu/Ai_games/actions/runs/43058957269/artifacts/13873058480; downloaded and inspected native 6–60s frames both viewports, independent authoritative source tick 441 guardian defeat, 443 approach, 451 floor-nine physical threshold. Native timing proof NOT EVALUATED; sampled image sequence cannot certify continuous earned physical gateway walk.",
+      "nativeMovieFacts": {
+        "desktop": {
+          "durationSeconds": 71.88,
+          "decodedNativeFrames": 1797,
+          "nativePtsEndSeconds": 71.84
+        },
+        "portrait": {
+          "durationSeconds": 73.76,
+          "decodedNativeFrames": 1844,
+          "nativePtsEndSeconds": 73.72
+        },
+        "sourceNativeDecoderProof": "Local FFmpeg 7.1.5 -vsync 0 yields exactly 1797/1844 frames matching ffprobe original PTS; legacy 2018 GitHub runner remains unverified"
+      },
+      "verifiedBlocker": "Pinned @ffmpeg-installer/ffmpeg 1.1.0 supplies 2018 FFmpeg N-47683; it returns Unrecognized option 'fps_mode' in scripts/tower-video-timebase.cjs. Original WebMs retained, but calibration and event-frame extraction cannot proceed.",
+      "meaningfulFix": "f4d52b842f45812f3a071e13e5e0e77dfcff05a9 — historical-compatible -vsync 0 native thumbnail passthrough; explicit unchanged decoded-frame == ffprobe native PTS strict audit, no edits to game/source/baseline/movie",
+      "regressionTests": "f3f33f7767c695378823b5824a549d349a84876a — native argument and real WebM decoding parity regression; local 36/36 frames increasing; new exact GitHub runner quality NOT YET VERIFIED",
+      "currentDominantVisualDefect": "Actual original portrait/desktop floor-eight guardian duel 10–24s still has tall bronze supports, background scaffold and separated climber/guardian silhouettes. Floor-nine HUD near 26s; actual walk-through and crusher fight visual continuity are not yet independently accepted.",
+      "captureRequest": "PENDING: immutable capture-request commit to be issued for exact github.sha; 8 frozen/candidate original films and strictly event-paired 1x video must rerun",
+      "independentlyRandomizedFreshReviewCounts": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "supportedPhysicalDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "nextHighestImpact": "Confirm corrected native 2018 FFmpeg accepts -vsync 0 in fresh CI, complete original event-to-film timebase for both viewports and outcome/restart, watch complete guardian/crusher to real grounded portal crossing; physically restage dominant remaining occluding structure/camera if still unreadable. No stage advancement by test totals.",
+      "reviewPath": "docs/reviews/2026-11-11-tower-pr68-real-browser-runner-dns-unblock.md"
     }
   },
   "currentTransformation": {
