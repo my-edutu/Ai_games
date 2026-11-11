@@ -73,6 +73,9 @@ async function beginD04LiveAVCapture(page){
   let recorder;
   try{recorder=new MediaRecorder(all,{mimeType:type})}
   catch(e){videoTracks.forEach(t=>t.stop());return unavailable('MediaRecorder constructor: '+String(e))}
+  // A post-release positive control must never overlap an unfinished primary
+  // media encoder, including an encoder that errored before its stop event.
+  const activeRecorders=new Set();
   const before=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1;
   const began=performance.now();
   const framePump={
@@ -188,6 +191,7 @@ async function beginD04LiveAVCapture(page){
      finish('UNAVAILABLE','Independent recorder: '+String(event.error??event).slice(0,200));
     };
     rec.onstop=async()=>{
+     activeRecorders.delete(rec);
      if(overflow||bytes<=1024)return finish('UNAVAILABLE',overflow?'Independent encoded file exceeded budget':'Empty independent WebM');
      try{
       const data=new Uint8Array(await new Blob(chunks,{type:mimeType}).arrayBuffer());
@@ -195,7 +199,7 @@ async function beginD04LiveAVCapture(page){
        data.length===bytes?null:'Independent chunks missing',data.length===bytes?data:null);
      }catch(error){finish('UNAVAILABLE','Independent WebM read: '+String(error).slice(0,200))}
     };
-    try{rec.start(250)}catch(error){finish('UNAVAILABLE','Independent recorder start: '+String(error).slice(0,200));return}
+    try{rec.start(250);activeRecorders.add(rec)}catch(error){finish('UNAVAILABLE','Independent recorder start: '+String(error).slice(0,200));return}
     stopTimer=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch(error){finish('UNAVAILABLE',String(error))}},5500);
     watchdog=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch{}
      finish('UNAVAILABLE','Independent recorder exceeded 15-second budget')},15000);
@@ -207,8 +211,14 @@ async function beginD04LiveAVCapture(page){
    * while the same session's REAL WebGL canvas encoder is being exercised.
    * Its frames are never used for combat footage, audio or sync claims.
    */
-  function start2DEncoderPositiveControl(){
-   const source='synthetic-2d-canvas-encoder-control-not-gameplay';
+  function start2DEncoderPositiveControl({serial=false}={}){
+   const source=serial?'synthetic-2d-canvas-serial-control-not-gameplay':
+    'synthetic-2d-canvas-encoder-control-not-gameplay';
+   const phase=serial?'after-all-primary-encoders-settled':'overlapping-primary-encoders';
+   const primaryRecordersSettled=serial&&recorder.state==='inactive'&&activeRecorders.size===0;
+   if(serial&&!primaryRecordersSettled)return Promise.resolve({source,status:'UNAVAILABLE',
+    reason:'An earlier media recorder remains active; serial comparison skipped',
+    phase,primaryRecordersSettled:false});
    const width=64,height=64;
    const control=document.createElement('canvas');
    control.width=width;control.height=height;
@@ -237,6 +247,7 @@ async function beginD04LiveAVCapture(page){
      ['video/webm;codecs=vp8','video/webm'],source,2*1024*1024,true,'control-canvas')
      .then(({base64,...record})=>({
       ...record,drawnFrames,canvasWidth:width,canvasHeight:height,
+      phase,primaryRecordersSettled,
       evidence:'Synthetic encoder control ONLY, not Dungeon footage or A/V synchronization'
      })).finally(()=>{
       if(timer!==null)clearInterval(timer);
@@ -295,6 +306,7 @@ async function beginD04LiveAVCapture(page){
    };
    recorder.onerror=e=>finish({status:'UNAVAILABLE',reason:'Real MediaRecorder error: '+String(e.error??e)});
    recorder.onstop=async()=>{
+    activeRecorders.delete(recorder);
     try{
      const data=new Uint8Array(await new Blob(chunks,{type}).arrayBuffer());
      const bounded=data.length>1024&&data.length<=20*1024*1024;
@@ -309,7 +321,7 @@ async function beginD04LiveAVCapture(page){
      finish({status:'UNAVAILABLE',reason:'WebM recorder did not finish inside 15-second budget',
       framePump:{...framePump}})},15000);
   });
-  try{recorder.start(250)}
+  try{recorder.start(250);activeRecorders.add(recorder)}
   catch(e){finishCanvasDeliveryMonitor();stopFramePump();videoTracks.forEach(t=>t.stop());
    return unavailable('Recorder start: '+String(e))}
   const videoProbe=startIsolatedRecorder(new MediaStream([videoTrack]),
@@ -342,11 +354,18 @@ async function beginD04LiveAVCapture(page){
   }).catch(e=>unavailable('Live PCM capture error: '+String(e)));
   setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
   window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe,control2dProbe])
-   .then(([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>({clip,pcm,
-    isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly},
-    frames:{before,after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1},
-    trackDelivery:finishCanvasDeliveryMonitor()
-   })).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
+   .then(async ([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>{
+    // Freeze authentic game receipt timing BEFORE beginning any serial
+    // synthetic recording. Later game frames must not certify earlier media.
+    const trackDelivery=finishCanvasDeliveryMonitor();
+    stopFramePump();
+    const frames={before,
+     after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1};
+    const serial2dOnly=await start2DEncoderPositiveControl({serial:true});
+    return {clip,pcm,
+     isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly,serial2dOnly},
+     frames,trackDelivery};
+   }).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
     videoTracks.forEach(t=>t.stop());nativeTracks.forEach(t=>t.stop());
    });
   return {status:'STARTED',videoTracks:videoTracks.length,audioTracks:soundTracks.length,
@@ -367,6 +386,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const {base64:isolatedNativeVideoBase64,...nativeVideoOnly}=raw.isolated?.nativeVideoOnly||{};
  const {base64:isolatedAudioBase64,...audioOnly}=raw.isolated?.audioOnly||{};
  const {base64:discardedSyntheticVideo,...control2dOnly}=raw.isolated?.control2dOnly||{};
+ const {base64:discardedSerialSyntheticVideo,...serial2dOnly}=raw.isolated?.serial2dOnly||{};
  const retained=persistD04CaptureEvidence({directory:'artifacts',raw,started,assessment});
  if(base64)await testInfo.attach('d04-real-canvas-and-opted-in-original-audio.webm',{
   body:Buffer.from(base64,'base64'),contentType:'video/webm'});
@@ -383,7 +403,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    body:Buffer.from(isolatedNativeVideoBase64,'base64'),contentType:'video/webm'});
  await testInfo.attach('d04-live-browser-av-evidence.json',{
   body:Buffer.from(JSON.stringify({started,clip,pcm,
-   isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly},frames:raw.frames,
+   isolated:{videoOnly,nativeVideoOnly,audioOnly,control2dOnly,serial2dOnly},frames:raw.frames,
    trackDelivery:raw.trackDelivery??null,
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
@@ -474,6 +494,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   synchronized:captureAssessment.sampleSynchronized,
   trackDiagnosis:captureAssessment.trackDiagnosis,
   canvasEncoderDifferential:captureAssessment.canvasEncoderDifferential,
+  serialCanvasEncoderDifferential:captureAssessment.serialCanvasEncoderDifferential,
   submissionDiagnosis:captureAssessment.submissionDiagnosis
  }));
  const observed=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
