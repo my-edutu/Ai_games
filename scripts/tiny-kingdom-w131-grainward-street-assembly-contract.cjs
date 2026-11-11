@@ -6,8 +6,15 @@ assert(begin>0&&end>begin,'real game script exists');
 new Function(game.slice(begin+8,end));
 for(const symbol of ['grainwardMasonryFacing','grainwardMarketArcadePlan','grainwardTradeArcade'])
  assert(game.includes('function '+symbol+'('),'W131 missing connected original architecture: '+symbol);
-assert(/grainwardInhabitedLot\(x,z,k,index,isCompact\);\s*grainwardMasonryFacing\(x,z,k,index,isCompact\);/.test(game),
- 'masonry must be part of each actual cached inhabited house, not a foreground prop');
+// The genuine W237 route now lies between the original house's masonry and
+// lot calls. Assert the full contiguous real-home renderer, never an obsolete
+// adjacent pair that would prohibit a physically joined doorstep.
+const homeStart=game.indexOf('function renderCachedHomeLot('),
+ homeEnd=game.indexOf('// W78:',homeStart);
+assert(homeStart>=0&&homeEnd>homeStart,'real retained house rendering exists');
+const homeBuild=game.slice(homeStart,homeEnd);
+assert(/grainwardInhabitedLot\(x,z,k,index,isCompact\);\s*inhabitedStreetFootway\(x,z,k,index\);\s*grainwardMasonryFacing\(x,z,k,index,isCompact\);/.test(homeBuild),
+ 'original occupied masonry and walkable connected threshold must be in the SAME cached house, in source order');
 assert(/grainwardMarketRoofEdges\(\);\s*grainwardTradeArcade\(\);/.test(game),
  'arcade must connect true market stalls in the retained civic geometry');
 assert(game.includes("source:'W131-two-actual-market-stall-arcades'"),
