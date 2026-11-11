@@ -51,8 +51,44 @@ jobs:
         run: npm run maze:stream:self-test
       - name: Parse-check browser evidence before costly graphics setup
         run: node --check tests/browser/maze-review.spec.cjs
-      - name: Install Chromium once
-        run: npx playwright install --with-deps chromium
+      # GitHub-hosted Ubuntu 24.04 already contains Chromium's launch libraries.
+      # Playwright --with-deps invokes APT for optional language fonts; on
+      # 2026-11-11 it stalled and failed DNS before ANY real geometry/screenshot
+      # test could run. Install the SAME locked 1.55.0 headless browser instead.
+      # Do not substitute a mock renderer or change the strict visual gates.
+      - name: Cache locked Playwright headless browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: maze-chromium-headless-1.55.0-${{ runner.os }}
+      - name: Install pinned headless Chromium without Ubuntu APT downloads
+        run: npx playwright install chromium --only-shell
+      - name: Verify native headless Chromium and real WebGL before geometry gate
+        run: |
+          node <<'NODE'
+          const { chromium } = require('@playwright/test');
+          (async () => {
+            const browser = await chromium.launch({ headless: true, args: ['--enable-unsafe-swiftshader'] });
+            try {
+              const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+              const result = await page.evaluate(() => {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (!gl) return { webgl: false };
+                gl.clearColor(0.1, 0.2, 0.3, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                const pixel = new Uint8Array(4);
+                gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+                return { webgl: true, pixel: [...pixel], error: gl.getError() };
+              });
+              if (!result.webgl || result.error !== 0 || result.pixel[3] === 0)
+                throw new Error('Real Chromium WebGL failed: ' + JSON.stringify(result));
+              console.log('Native Chromium WebGL smoke pass:', JSON.stringify(result));
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE
       # Phase 0 must not be starved by an eight-minute full-scene evidence
       # sequence: run the UNCHANGED six-reset budget before costly screenshots.
       # Keep its failure fatal, but still gather unaltered images for diagnosis.

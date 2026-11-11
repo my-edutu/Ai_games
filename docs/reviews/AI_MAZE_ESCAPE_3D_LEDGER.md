@@ -1,3 +1,9 @@
+### Pass275 — remove an external APT DNS blocker from the actual WebGL quality gate (2026-11-11 UTC)
+
+- Newest source `088148b5` [Maze visual run 43043347658](https://github.com/my-edutu/Ai_games/actions/runs/43043347658) **FAILED before running the unchanged browser resource or visual gates**: Chromium `--with-deps` stalled repeatedly on Ubuntu APT optional font downloads because `azure.archive.ubuntu.com` DNS could not resolve. This is an infrastructure failure, **not** a screenshot/gameplay assessment; previous Pass273 390px Pip width .445227 remains unverified after its source camera repair.
+- Replace only the workflow's optional APT installation with pinned Playwright 1.55.0 headless Chromium binary, cache by lock version and real Chromium/WebGL 390px pixel smoke validation before the same six-reset resource and original screenshots. No fake rendering, no threshold relaxation, no production art micro-fix without original evidence. [Dated source review](./maze-3d/pass-275-native-webgl-ci-apt-dns-blocker-2026-11-11.md).
+- **New commit and exact-SHA native CI pending.** Fixed Nintendo Captain Toad quality benchmark NOT MET; original complete 320/390/844/1280 WebGL frames, SHA sidecars, independent critic, strict ±.95, 390px hero >.49, withdrawal >=.70, six-run <100, access/privacy all still required. PR #53 OPEN DRAFT, no merge/deploy/force.
+
 ### Pass274 — pressure machinery cannot actuate across a published closed gate, nonpassage or raised court (2026-11-11 UTC)
 
 - At previous source HEAD `0e30d154`, actual shutter/jaw contact was derived from two-dimensional distance to a visible trap. That could manufacture the same full physical shear across an already-published **sealed gate**, one-way/non-reciprocal public edge or disconnected elevation. The finished visual pressure-court apron already rejected those crossings; the moving machine must obey the same public boundary.

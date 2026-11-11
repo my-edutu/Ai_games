@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T14:56:13.106Z",
+  "updatedAt": "2026-11-11T15:42:46.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass274 fixes a real public-geometry contradiction: visible pressure jaws previously could close across a sealed gate, one-sided known edge or a different-height terrace. Full contact now requires public same-cell or reciprocal level unsealed approach. Original Pass273 browser 390px scale gate and new Pass274 exact-HEAD WebGL are pending; official Nintendo bar NOT met."
+    "summary": "Pass275 addresses the real CI capture blocker: source 088148b5 visual run failed at Ubuntu APT DNS while downloading optional Chromium fonts, before running the strict six-run resource or authentic WebGL screen gates. Switch to pinned headless Chromium binary and a real WebGL preflight, with no gameplay or visual success claim. New exact-HEAD evidence remains required; Nintendo bar NOT met."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass275: fix external native-WebGL CI blocker, not an art pass. Exact prior run 43043347658 failed before browser evidence because npx playwright install --with-deps chromium stalled resolving Ubuntu APT optional font packages. Use locked Playwright 1.55.0 headless Chromium install without APT, version-keyed cache and a real 390px WebGL readPixels smoke check before unchanged strict six-run geometry and full-frame source-bound screenshots. New-HEAD actual WebGL verdict PENDING; Pass273 Pip scale repair still unverified; official Nintendo benchmark UNMET.",
     "Pass274: physical Tideglass shutter/jaw contact now obeys the same public reciprocal, level, open topology as the authored pressure-court approach. No more false full shear through publicly sealed gate, nonpassage or vertical disconnect; preserved visible distant warning, AI authority, NDC/resource/accessibility rules. New installed Three.js source regression compares sealed/open/one-sided/elevated and same-cell action. New-head CI and original WebGL acceptance PENDING.",
     "Pass272: exact-source 13d0ab87 original native 390px full WebGL shows joined pressure parts still merge at old diagonal perspective; original 37/37 sidecars verified. Production re-stages only true published pressure/withdrawal gameplay with near-frontal 3D physical camera (3.5,19.5,29), >25% better geometric separation of actual twin x-axis jaws than old 15,21,18 offset, same strict full-model no-crop and unchanged optical limit. All AI/privacy/collision/camera priorities retained. New exact-SHA native visual gate PENDING; Nintendo quality NOT MET.",
     "Pass270: original Pass269 390px pressure WebGL 43007919573 still rejects tiny/jagged shear machine under massive upper terrace (37/37 original image sidecar hashes validated). Substantially reconstruct the source-owned functional Tideglass pressure counterbalance as two full-height pylons with an integrated mineral yoke, real governor and physically connected hanging load. Public treadle drives same existing motion; no AI/collision/privacy/geometry-class changes. Added installed-Three contract for actual full 3D structure, 360ms real physical motion, resource, visibility and reset. Exact-new-HEAD CI/WebGL/render verdict PENDING. Nintendo bar UNMET; OPEN DRAFT.",
