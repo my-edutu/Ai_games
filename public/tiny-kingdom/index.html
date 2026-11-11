@@ -4948,6 +4948,14 @@ const MATERIAL=Object.freeze({GENERAL:0,GRASS:1,WATER:2,ROAD:3,FOLIAGE:4,STONE:5
 const RIVER_SEGMENTS=105,RIVER_SPAN=84,RIVER_BANDS=6,RIVER_BANK_BANDS=2;
 let currentMaterial=MATERIAL.GENERAL;
 function materialScope(id,make){const old=currentMaterial;currentMaterial=id;try{return make()}finally{currentMaterial=old}}
+let coldSceneBuilds=0,coldSceneLast=null;
+let avoidedTerrainSourceCopies=0,avoidedTerrainFloats=0;
+function getColdSceneryBuildAudit(){
+ return {source:'real-cold-static-stage-profile',builds:coldSceneBuilds,
+  last:coldSceneLast?{...coldSceneLast}:null,
+  avoidedTerrainSourceCopies,avoidedTerrainFloats,
+  neverSkipsWorldGeometry:true,hardwarePerformanceNotMeasured:true};
+}
 let data=[];let scenicMeshCache=null,scenicMeshKey='',scenicMeshRebuilds=0,scenicMeshTriangles=0;
 // G077: cache the immutable climate-scoped terrain/river/forest prefix, separately
 // from the construction-dependent houses. One bounded copy avoids recreating
@@ -22739,12 +22747,15 @@ const landscapeReady=Boolean(landscapeMeshCache&&landscapeMeshKey===nextTerrainK
  (!gpuAvailable||landscapeBuffer))||recallLandscapeSeason(nextTerrainKey);
 const newTerrainClimate=lastTerrainBaseClimateKey!==nextTerrainKey;
 lastTerrainBaseClimateKey=nextTerrainKey;
+const terrainStageStart=performance.now();
+let coldTerrainSource=null;
 if(shouldBuildUncachedTerrainBase(nextTerrainKey,landscapeReady)){
   data=[];
   buildValleySurface();
   const valleyCenterTriangles=data.length/30;
   generateHorizonTerrain();
   terrainCache=data.slice();
+  coldTerrainSource=data;
   terrainCacheKey=nextTerrainKey;
   terrainCacheTriangles=valleyCenterTriangles;
   terrainRebuilds++;
@@ -22752,6 +22763,7 @@ if(shouldBuildUncachedTerrainBase(nextTerrainKey,landscapeReady)){
   // Count actual climate returns only. All original world meshes remain live.
   terrainBaseResidentSkips++;
 }
+const terrainBaseMs=performance.now()-terrainStageStart;
 // Gauntlet 024: cache unchanging architecture, riverbank, roads and forest once
 // per climate, sky stage and construction revision. Moving citizens and banners
 // remain uncached and are rebuilt with the live world state every frame.
@@ -22766,6 +22778,7 @@ const staticKey=stationarySceneKey(nextTerrainKey,daylightStage);
 if((!scenicMeshCache||scenicMeshKey!==staticKey)&&
    !(landscapeReady&&recallSettlementSeason(staticKey))){
 resetHomeVisualStats();
+const landscapePhaseStart=performance.now();
 // Preserve vertex/normal/material order exactly: the town can grow without
 // forcing rivers, conifers, wildflowers and hills to regenerate every time.
 // Their geometry depends on climate, not city.length, citizens or camera.
@@ -22773,7 +22786,12 @@ if(landscapeMeshKey!==nextTerrainKey)recallLandscapeSeason(nextTerrainKey);
 if(landscapeMeshCache&&landscapeMeshKey===nextTerrainKey){
  data=gpuAvailable?[]:landscapeMeshCache.slice();landscapeMeshReuses++;
 }else{
- data=terrainCache.slice();currentMaterial=MATERIAL.WATER;
+ data=coldTerrainSource||terrainCache.slice();
+ if(coldTerrainSource){
+  avoidedTerrainSourceCopies++;
+  avoidedTerrainFloats+=terrainCache.length;
+ }
+ currentMaterial=MATERIAL.WATER;
 // A winding stream through the southern side.
 // Sample each cross-section at its own river centre to eliminate jagged joins.
 for(let segment=0;segment<RIVER_SEGMENTS;segment++){
@@ -22855,6 +22873,8 @@ currentMaterial=MATERIAL.FOLIAGE;
   data=[];
  }
 }
+const landscapeMs=performance.now()-landscapePhaseStart;
+const homePhaseStart=performance.now();
 currentMaterial=MATERIAL.STONE;
  const fullHomes=detailedHomeSet();
 if(homeClustersEnabled()){
@@ -22866,6 +22886,8 @@ if(homeClustersEnabled()){
   renderCachedHomeLot(x,z,k,i,!fullHomes.has(i),nextTerrainKey);
  }
 }
+const homeMs=performance.now()-homePhaseStart;
+const civicPhaseStart=performance.now();
 const civicKey=nextTerrainKey+':'+(gpuAvailable?'shader-light':daylightStage)+
  ':lots:'+city.slice(0,12).map(lot=>lot.join(',')).join(';');
 civicActiveKey=civicKey;
@@ -22901,6 +22923,8 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
  // Season-only decoration belongs in the scenery VBO. Preserve the foliage
  // material assigned by the original dynamic festival call.
  materialScope(MATERIAL.FOLIAGE,appendSeasonalFestivalToScenery);
+ const civicMs=performance.now()-civicPhaseStart;
+ const packPhaseStart=performance.now();
 
  // G074: the WebGL static buffer requires float32. Construct it once and
  // keep that exact upload-ready cache, rather than retaining a second ~4M
@@ -22911,6 +22935,14 @@ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,
  const uploaded=uploadGrowingSettlement(packed,staticKey);
  settlementBuffer=uploaded.buffer;
  retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats);}
+coldSceneBuilds++;
+coldSceneLast={sceneKey:staticKey,day:Math.floor(state.t/24)+1,
+ terrainBaseMs,landscapeMs,homeMs,civicMs,
+ packUploadMs:performance.now()-packPhaseStart,
+ totalMs:performance.now()-frameStaticStart,
+ triangles:scenicMeshTriangles,
+ source:'original-world-CPU-subphases-including-WebGL-driver-calls',
+ softwareRenderer:swiftGpu,hardwarePerformanceNotMeasured:true};
 
 }
 // Real new homes refresh their changed original 16m block, NOT the
@@ -23430,7 +23462,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
