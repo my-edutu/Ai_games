@@ -1,3 +1,7 @@
+### Pass259 second original Phase6 physical-brace correction (2026-11-11 UTC)
+
+- [Whole CI 42943970720](https://github.com/my-edutu/Ai_games/actions/runs/42943970720) 758/759 source tests passed, one remaining **real Maze Phase6 mechanical brace** width regression (the new diagonal strut at .58 vs unchanged >=.60 joined shoulder contract). Rebuilt the actual visual strut to .62 rather than weakening the old acceptance test. No extra mesh, GPU resource class, movement/AI, visibility or collision change. Fresh exact-HEAD native images and whole suite pending, Nintendo bar unmet.
+
 ### Pass259 strict Phase6 legacy warning-vane gate correction (2026-11-11 UTC)
 
 - Whole-repo exact code [CI 42943325369](https://github.com/my-edutu/Ai_games/actions/runs/42943325369) found a REAL Maze regression: legacy `maze-public-tide-shear-hazard` source test requires colored vane above y=1.00. Original new-blade vane y=.93 failed; direct new installed-Three Pass259 test passed. Raised the SAME true hinge-attached warning vane to y=1.06, still below actual existing fang y=1.70. No test/budget relaxation, new GPU shape, invented event or AI/collision change. Corrected new HEAD needs exact-source tests and real WebGL. Nintendo benchmark not met.
