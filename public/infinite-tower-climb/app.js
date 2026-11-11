@@ -1,6 +1,7 @@
 import { createTowerScene } from './visuals/scene.mjs';
 import { createTowerAudio } from './visuals/audio.mjs';
 import { createHUD } from './visuals/hud.mjs';
+import { nextTowerStatePollDelay } from './visuals/live-state-cadence.mjs';
 
 const params = new URLSearchParams(location.search);
 const enabled = name => ['1', 'true'].includes(params.get(name));
@@ -42,7 +43,7 @@ window.__TOWER_RENDER_DIAGNOSTICS__ = () => ({ ...(view?.diagnostics() || { fram
 async function poll() {
   if (closed || suspended || request) return;
   timer = null;
-  const pending = { controller: new AbortController(), timeout: null };
+  const pending = { controller: new AbortController(), timeout: null, startedAtMs: performance.now() };
   request = pending;
   pending.timeout = setTimeout(() => pending.controller.abort(), 2500);
   try {
@@ -99,7 +100,11 @@ async function poll() {
     clearTimeout(pending.timeout);
     if (request === pending) {
       request = null;
-      if (!closed && !suspended) timer = setTimeout(poll, failures ? Math.min(3000, 400 * failures) : 100);
+      if (!closed && !suspended) timer = setTimeout(poll, nextTowerStatePollDelay({
+        startedAtMs: pending.startedAtMs,
+        completedAtMs: performance.now(),
+        failures,
+      }));
     }
   }
 }
