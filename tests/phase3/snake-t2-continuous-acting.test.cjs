@@ -44,7 +44,8 @@ test('Actor uses reusable body ring and real director stays optional, fully acce
   assert.match(actorSource,/radius\*Math\.hypot\(\.88,acting\[3\]\)/);
   assert.match(html,/data-control="cinematic" aria-pressed="false"/);
   assert.match(app,/case 'cinematic': cameraMode = cameraMode === 'cinematic'/);
-  assert.ok(app.includes("['follow', 'detail', 'cinematic'].includes(params.get('camera')) ? params.get('camera') : 'overview'"), 'accept only approved 3D camera modes; reject untrusted query modes');
+  assert.match(app,/cameraMode = selectInitialSpectatorCamera\(params, reducedMotion\)/, 'real startup must use the validated camera selector');
+  assert.match(read('public/snake-stream/cinematic-director.mjs'), /\['overview', 'follow', 'detail', 'cinematic'\]\.includes\(requested\)/, 'selector must allowlist only approved camera views');
   assert.match(read('tests/browser/snake-stream.spec.cjs'),/expect\(animation\.actualDraws\)\.toBeGreaterThanOrEqual\(17\)/);
 });
 

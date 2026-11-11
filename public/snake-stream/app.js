@@ -3,6 +3,8 @@ import { createGardenAudio } from './audio.mjs';
 import { spectatorCopy, goalProgress } from './view-copy.mjs';
 import { createOverview } from './overview.mjs';
 import { selectCinematicShot } from './cinematic-director.mjs';
+import { resolveSpectatorShot } from './cinematic-director.mjs';
+import { selectInitialSpectatorCamera } from './cinematic-director.mjs';
 
 const MAX_PARTICLES = 240;
 const POLL_MS = 125;
@@ -18,7 +20,7 @@ let polling = true;
 let reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let muted = true;
 let cleanFeed = false;
-let cameraMode = ['follow', 'detail', 'cinematic'].includes(params.get('camera')) ? params.get('camera') : 'overview';
+let cameraMode = selectInitialSpectatorCamera(params, reducedMotion);
 let loading = true;
 let reconnecting = false;
 let animationId = 0;
@@ -43,10 +45,10 @@ function syncControls() {
   }
   if ($('view-label')) setText('view-label', cameraMode === 'overview' ? 'Follow snake'
     : cameraMode === 'follow' ? 'Meet the snake'
-      : cameraMode === 'detail' ? 'Garden view' : 'Director view');
+      : cameraMode === 'detail' ? 'Garden view' : 'Garden overview');
   if ($('audio-label')) setText('audio-label', muted ? 'Sound off' : 'Sound on');
   broadcast.dataset.camera = cameraMode;
-  if (frame?.snapshot) overview.update(frame.snapshot, cameraMode !== 'overview');
+  if (frame?.snapshot) overview.update(frame.snapshot, resolveSpectatorShot(cameraMode, frame.snapshot, reducedMotion) !== 'overview');
 }
 
 for (const button of document.querySelectorAll('[data-control]')) {
@@ -194,7 +196,7 @@ async function poll() {
       } else frame = next;
       reconnecting = false;
       updateText(next);
-      if (next.snapshot) overview.update(next.snapshot, cameraMode !== 'overview');
+      if (next.snapshot) overview.update(next.snapshot, resolveSpectatorShot(cameraMode, next.snapshot, reducedMotion) !== 'overview');
     } catch {
       reconnecting = true;
       setScene('recovery');
@@ -212,8 +214,7 @@ function draw(timestamp) {
     const alpha = Math.min(1, Math.max(0, (timestamp - receivedAt) / interval));
     // A live cinematic composition only selects between EXISTING true WebGL
     // cameras using the real public simulation step. It cannot modify the game.
-    const activeShot = cameraMode === 'cinematic'
-      ? selectCinematicShot(frame.snapshot, { reducedMotion }) : cameraMode;
+    const activeShot = resolveSpectatorShot(cameraMode, frame.snapshot, reducedMotion);
     try { renderer.draw(frame, previousFrame, alpha, timestamp, { reducedMotion, cameraMode: activeShot }); }
     catch (error) { useFallback(error); }
   }

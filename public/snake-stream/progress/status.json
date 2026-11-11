@@ -1,10 +1,18 @@
 {
-  "updatedAt": "2026-11-07",
-  "status": "T0 UNSIGNED / T1 BUILDING / T2 NATIVE UNACCEPTED / T3 UNACCEPTED / T4 HARD RED: original 8/17, current-head browser blocked by Playwright Ubuntu 26.04 incompatibility; open DRAFT, never merge/deploy",
-  "detail": "November 7 2026 verified exact live 8f26fffb: original Chromium #42319515332 failed BEFORE Playwright browser on ubuntu26.04-x64, unsupported by locked Playwright 1.55; no actual current-head WebGL captures or strict performance numbers. Same-head native CI #42319515111 683/730 passed, 47 failed; reproduction #42319515156 passed. Both browser-relevant Actions jobs pinned to supported ubuntu-24.04 with source-exact runner contract RED->GREEN, actual repaired Actions verdict pending. T2 real interpolated turn-head and travelling swallow remain native-only off-branch; 7/7 focused Three.js, 900 host ticks, TS green but no authentic candidate 45-90s visual acceptance. Strict most recent older-head 8 genuine complete renderer submissions vs >=17 at 751x415; 3 independent useful-raster runs, >=30 device displayed FPS/p95, full regression and independent critique missing. No scene/authority/strict benchmark relaxation.",
+  "updatedAt": "2026-11-11",
+  "status": "T0 UNSIGNED / T1 BUILDING / T2 UNACCEPTED / T3 BUILDING source-exact cinematic-first native candidate PENDING true WebGL review / T4 HARD RED original 12/17; OPEN DRAFT never merge/deploy",
+  "detail": "Nov 11 T3 integration candidate: public-state-driven cinematic starts by default; explicit overview, invalid-query safe fallback, reduced motion and synchronized overview/minimap remain. Source-exact RED->GREEN focused; selected 33/34 with baseline-inherited physical-occlusion failure; TS + genuine 900-tick authority/privacy/restart/recovery pass. Whole native CI stopped by local runtime. Need exact-head browser captures/45-90s real film/strict gate; last unchanged parent was 12 genuine completed renderer submissions/17 required at 751x415. No approved visual milestone, FPS or independent acceptance. November 7 2026 verified exact live 8f26fffb: original Chromium #42319515332 failed BEFORE Playwright browser on ubuntu26.04-x64, unsupported by locked Playwright 1.55; no actual current-head WebGL captures or strict performance numbers. Same-head native CI #42319515111 683/730 passed, 47 failed; reproduction #42319515156 passed. Both browser-relevant Actions jobs pinned to supported ubuntu-24.04 with source-exact runner contract RED->GREEN, actual repaired Actions verdict pending. T2 real interpolated turn-head and travelling swallow remain native-only off-branch; 7/7 focused Three.js, 900 host ticks, TS green but no authentic candidate 45-90s visual acceptance. Strict most recent older-head 8 genuine complete renderer submissions vs >=17 at 751x415; 3 independent useful-raster runs, >=30 device displayed FPS/p95, full regression and independent critique missing. No scene/authority/strict benchmark relaxation.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "Last completed genuine 118d overview was SELF-REJECTED; current 0ae gateway/camera candidate native checks pass but whole-game Chromium visual verdict and strict >=17 gate PENDING.",
   "reviews": [
+    {
+      "area": "2026-11-11 truthful cinematic-first and synchronized 3D/2D spectator presentation",
+      "sourceParent": "daecbc44dc8a6205c5ab51fb4926848c7017f490",
+      "source": "draft PR #52 only; source-matched integration native evidence, Chromium/real device PENDING",
+      "focused": "RED parent -> GREEN candidate; selected 33/34 pass (1 inherited), TypeScript and 900 authoritative ticks PASS",
+      "performance": "No candidate strict gate; original parent 12 genuine full-desktop submissions / 17 required, 751x415; no physical presents",
+      "verdict": "T0 unsigned; T1 BUILDING; T2 unaccepted; T3 BUILDING and visual review pending; T4 HARD RED; no merge/deploy"
+    },
     {
       "area": "November 7 exact current-head Actions unblock, T2 offbranch native candidate (not visually accepted)",
       "sourceHead": "8f26fffb35ecf82fce9dad2cfcf50a6d6c2f59b6",

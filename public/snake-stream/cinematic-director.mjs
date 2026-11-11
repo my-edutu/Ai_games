@@ -1,4 +1,29 @@
 /**
+ * Cinematic-first broadcast, without sacrificing the faithful full-board
+ * spectator view or accessibility. An ordinary, unconfigured livestream
+ * should actually introduce the living hero rather than continuously show
+ * the most distant engineering overview. No stored preference, inferred AI
+ * intent, scene mutation or extra renderer pass. Query overrides retain the
+ * true wide overview for recording, audit, players and automation evidence.
+ * Reduced motion must start in a stable wide view even with a cinematic URL.
+ */
+export function selectInitialSpectatorCamera(query = '', reducedMotion = false) {
+  if (reducedMotion) return 'overview';
+  const params = query instanceof URLSearchParams
+    ? query : new URLSearchParams(typeof query === 'string' ? query.replace(/^\?/, '') : '');
+  const requested = params.get('camera');
+  if (requested === null) return 'cinematic';
+  return ['overview', 'follow', 'detail', 'cinematic'].includes(requested)
+    ? requested : 'overview';
+}
+
+/** Resolve the *same* true camera shot for the renderer and responsive overview. */
+export function resolveSpectatorShot(cameraMode, snapshot, reducedMotion = false) {
+  if (cameraMode === 'cinematic') return selectCinematicShot(snapshot, { reducedMotion });
+  return ['overview', 'follow', 'detail'].includes(cameraMode) ? cameraMode : 'overview';
+}
+
+/**
  * T1/T3 full-experience camera director. This is a PURE, optional spectator
  * composition of the already-public authoritative snake. It cannot make a
  * gameplay decision, anticipate a private AI path, synthesize an eat/danger
