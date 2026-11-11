@@ -5698,14 +5698,42 @@ function packedRing(sides){
  if(packedRingCache.size>16)packedRingCache.delete(packedRingCache.keys().next().value);
  return ring;
 }
+// W230 Phase 1: original houses, work props, forge and civic court use
+// an axis-aligned prism writer with exact normals and zero triangle loss.
+// Remove six repeated cross products/square roots per genuine cube.
+let axisBoxEmissions=0,axisBoxFallbackEmissions=0;
+function packedAxisQuad(ax,ay,az,bx,by,bz,cx,cy,cz,dx,dy,dz,n0,n1,n2,col){
+ const r=col[0],g=col[1],b=col[2],m=currentMaterial;
+ data.push(ax,ay,az,n0,n1,n2,r,g,b,m,
+  bx,by,bz,n0,n1,n2,r,g,b,m,
+  cx,cy,cz,n0,n1,n2,r,g,b,m,
+  ax,ay,az,n0,n1,n2,r,g,b,m,
+  cx,cy,cz,n0,n1,n2,r,g,b,m,
+  dx,dy,dz,n0,n1,n2,r,g,b,m);
+}
 function box(x,y,z,w,h,d,col){
  const xa=x-w/2,xb=x+w/2,za=z-d/2,zb=z+d/2,ya=y,yb=y+h;
- packedFlatQuad(xa,ya,za,xa,yb,za,xb,yb,za,xb,ya,za,col);
- packedFlatQuad(xb,ya,zb,xb,yb,zb,xa,yb,zb,xa,ya,zb,col);
- packedFlatQuad(xa,ya,zb,xa,yb,zb,xa,yb,za,xa,ya,za,col);
- packedFlatQuad(xb,ya,za,xb,yb,za,xb,yb,zb,xb,ya,zb,col);
- packedFlatQuad(xa,yb,za,xa,yb,zb,xb,yb,zb,xb,yb,za,col);
- packedFlatQuad(xa,ya,zb,xa,ya,za,xb,ya,za,xb,ya,zb,col);
+ // Degenerate, signed and nonfinite inputs preserve the old normal behavior.
+ if(!(w>0&&h>0&&d>0&&xb!==xa&&yb!==ya&&zb!==za&&
+  Number.isFinite(x)&&Number.isFinite(y)&&Number.isFinite(z)&&
+  Number.isFinite(w*h)&&Number.isFinite(w*d)&&Number.isFinite(h*d)&&
+  w*h!==0&&w*d!==0&&h*d!==0)){
+  axisBoxFallbackEmissions++;
+  packedFlatQuad(xa,ya,za,xa,yb,za,xb,yb,za,xb,ya,za,col);
+  packedFlatQuad(xb,ya,zb,xb,yb,zb,xa,yb,zb,xa,ya,zb,col);
+  packedFlatQuad(xa,ya,zb,xa,yb,zb,xa,yb,za,xa,ya,za,col);
+  packedFlatQuad(xb,ya,za,xb,yb,za,xb,yb,zb,xb,ya,zb,col);
+  packedFlatQuad(xa,yb,za,xa,yb,zb,xb,yb,zb,xb,yb,za,col);
+  packedFlatQuad(xa,ya,zb,xa,ya,za,xb,ya,za,xb,ya,zb,col);
+  return;
+ }
+ axisBoxEmissions++;
+ packedAxisQuad(xa,ya,za,xa,yb,za,xb,yb,za,xb,ya,za,0,0,-1,col);
+ packedAxisQuad(xb,ya,zb,xb,yb,zb,xa,yb,zb,xa,ya,zb,0,-0,1,col);
+ packedAxisQuad(xa,ya,zb,xa,yb,zb,xa,yb,za,xa,ya,za,-1,0,0,col);
+ packedAxisQuad(xb,ya,za,xb,yb,za,xb,yb,zb,xb,ya,zb,1,0,0,col);
+ packedAxisQuad(xa,yb,za,xa,yb,zb,xb,yb,zb,xb,yb,za,0,1,0,col);
+ packedAxisQuad(xa,ya,zb,xa,ya,za,xb,ya,za,xb,ya,zb,0,-1,0,col);
 }
 function cylinder(x,y,z,r,h,col,sides=8){
  const ring=packedRing(sides);
