@@ -2,6 +2,9 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
+// Record the genuine continuous observed market handoff when CI reaches it.
+// World fast-forward stays the original deterministic autonomous simulation.
+test.use({video:'on'});
 
 // W13 RED-FIRST: the player sees one REAL producer -> loaded journey ->
 // physically unloaded stock, not a stage-scripted cutscene or made-up economy.

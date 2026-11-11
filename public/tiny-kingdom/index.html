@@ -5486,11 +5486,11 @@ function getSceneTriangleReconciliation(){
   countsFullSceneNotJustFrustum:true,authorityModified:false,
   noHardwareFpsClaim:true};
 }
-// G054b: exact read-only triangle audit of live vertex material IDs, not
+// W226: track the EXISTING index-2 ochre linen dye (0xc29c60), not the\n// long-removed 0xcaa768 canvas color. This changes only read-only auditing.\n// G054b: exact read-only triangle audit of live vertex material IDs, not
 // unverified labels. This is intentionally not evaluated in the render loop.
 function materialSwatchAudit(){
  const targets={guildCloth:0x9d3f43,guildGoldTrim:0xf0c77d,
-  marketCanvas:0xcaa768,festivalGoldSilk:0xffc56a,
+  marketCanvas:0xc29c60,festivalGoldSilk:0xffc56a,
   housePlasterCream:0xd1bc97,housePlasterWarm:0xe1c7a0,
   houseGablePlaster:0xd1bf9e,houseFoundation:0x908978,
   sidePlasterOak:0xd9c4a1,sidePlasterAsh:0xcbbda5,
