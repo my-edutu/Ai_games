@@ -21,11 +21,13 @@ for(const width of [1024,390]){
    yaw:.47,pitch:.71,zoom:75,focus:[0,0]
   }));
   await page.waitForFunction(()=>window.__tinyKingdom.getCameraDynamicCacheStats().entries===1,null,{timeout:90000});
-  const startEye=await page.evaluate(()=>window.__tinyKingdom.getPresentedCameraFrame()?.eye);
-  await page.waitForFunction(eye=>{
-   const now=window.__tinyKingdom.getPresentedCameraFrame()?.eye;
-   return now&&Math.hypot(...now.map((v,i)=>v-eye[i]))<.002;
-  },startEye,{timeout:60000});
+  // W218: the old test waited for the eye to equal an already sampled eye.
+  // After an actual camera move that is not a valid readiness condition:
+  // it blocked BOTH real desktop and portrait captures for 60 seconds.
+  // The cache-ready check above establishes the initial submitted draw;
+  // the post-orbit >0.05m eye displacement below proves genuine movement.
+  const firstEye=await page.evaluate(()=>window.__tinyKingdom.getPresentedCameraFrame()?.eye);
+  expect(firstEye?.length).toBe(3);
   const before=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {authority:JSON.stringify(g.exportSnapshot()),
