@@ -22,6 +22,23 @@ export function advancePresentationActionAge(elapsed,frameDelta){
  return Math.min(5,current+step);
 }
 
+/**
+ * Source-rig playback obeys delivered wall time after the FIRST genuine
+ * one-shot pose is displayed. The existing capped 50ms overlay/VFX clock
+ * stays independent: this fixes 6–12x slow imported GLB locomotion under
+ * software-WebGL stalls without skipping every new sword anticipation.
+ * Read-only presentation; no HP, AI, authority tick, sound or RNG effect.
+ */
+export function planSourceRigPlaybackStep(frameDelta,action,visibleAge=0){
+ const wall=Number.isFinite(frameDelta)?Math.max(0,frameDelta):0;
+ const bounded=Math.min(.35,wall);
+ const oneShot=action==='attack'||action==='cast'||action==='hurt';
+ const age=Number.isFinite(visibleAge)?Math.max(0,Math.min(5,visibleAge)):0;
+ const firstPoseProtected=oneShot&&age===0;
+ const delta=firstPoseProtected?Math.min(.05,bounded):bounded;
+ return {delta,age:oneShot?Math.min(5,age+delta):age,firstPoseProtected};
+}
+
 export function planAuthoredMotion(kind,action,elapsed=0,reducedMotion=false){
  if(reducedMotion)return rest();
  const t=Number.isFinite(elapsed)?Math.max(0,Math.min(60,elapsed)):0;

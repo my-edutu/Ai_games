@@ -17,7 +17,7 @@ import {planEncounterFrame} from '/dungeon/encounter-frame-plan.js';
 import {planCinematicShot,planCinematicVisibleHero,planReadableExpeditionLens,planCriticalSubjectFit,planWardenCharge,planWardenTrueStrikeRelease,planOathguardPose,planBossDuelSightline,planPartyVistaSightline} from '/dungeon/cinematic-chapter-plan.js';
 import {planPartyWallReveal,createCutawayBandCache,shouldUploadCutawayBand,resolveRenderedSilhouetteSubjects,planProjectedBodyAperture,planPortraitStageClearance} from '/dungeon/party-visibility-plan.js';
 import {planBoundaryCamera} from '/dungeon/camera-boundary-plan.js';
-import {advancePresentationActionAge} from '/dungeon/character-motion-plan.js';
+import {advancePresentationActionAge,planSourceRigPlaybackStep} from '/dungeon/character-motion-plan.js';
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
@@ -1192,11 +1192,15 @@ function animate(t){
   a.rightLeg.rotation.x=-a.leftLeg.rotation.x;
   a.leftArm.rotation.x=moving?Math.sin(stride)*.22:0;
   a.rightArm.rotation.x=-a.leftArm.rotation.x;
-  // One-shots age by actual rendered frames; a stalled software WebGL frame must
-  // not skip the attack, spell or impact before the spectator sees its first pose.
+  // Keep the first authentic one-shot pose in sight; thereafter allow the
+  // original imported rig to catch up with measured elapsed time, unlike
+  // the independent 50ms VFX clock. Sparse RAF must not turn a 350ms
+  // authority event into several seconds of slow-motion source animation.
   const oneShot=['attack','cast','hurt'].includes(a.u.action);
-  const since=oneShot?(a.visualActionAge??0):time-(a.actionStarted??time);
-  if(oneShot)a.visualActionAge=advancePresentationActionAge(since,dt);
+  const ageBefore=oneShot?(a.visualActionAge??0):time-(a.actionStarted??time);
+  const rigPlayback=planSourceRigPlaybackStep(frameInterval,a.u.action,ageBefore);
+  const since=oneShot?rigPlayback.age:ageBefore;
+  if(oneShot)a.visualActionAge=rigPlayback.age;
   if(a.evasionBeat){a.evasionBeat.age=advancePresentationActionAge(a.evasionBeat.age,dt);
    if(a.evasionBeat.age>=EVASION_BEAT_DURATION)a.evasionBeat=null;}
   const phase=Math.max(0,Math.min(1,since/.32));
@@ -1221,7 +1225,7 @@ function animate(t){
     planWardenTrueStrikeRelease(a.wardenPriorThreat,a.u,since,reduced):null;
   a.wardenExposure=a.u.kind==='warden'&&a.u.hp>0?
    planWardenExposurePose(state?.bossRecovery,state?.guardianWard,Boolean(state?.bossWarning)):null;
-  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,dt,since,reduced);
+  if(!a.authored)a.detail?.update(time,a.u.action||'idle');a.ground?.update(time,a.u.action||'idle',a.u.hp>0);a.defeatIntermission=Boolean(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0);updateActor(a,rigPlayback.delta,since,reduced);
   // One shared read-only pivot brings the complete skinned rig, armour,
   // accessories and the procedural fallback through the SAME real hit beat.
   if(state?.phase==='intermission'&&a.u.faction==='party'&&a.u.hp===0){

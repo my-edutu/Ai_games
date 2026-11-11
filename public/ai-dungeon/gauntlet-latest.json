@@ -139,6 +139,29 @@
       "feels": "UNVERIFIED",
       "plays": "UNVERIFIED",
       "next": "Inspect exact new head original film/metrics, reject any camera/warning/performance regression, then dominant graphics cost and adult original rig combat vertical slice"
+    },
+    "m1NativeGlbStallClockCorrection20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "42edd32cc8228acdd13542222e1328a26d3c10e3",
+      "prechangeOriginalRun": 42939170054,
+      "mobileEvidenceArtifact": 13819869095,
+      "seed": "gauntlet-corpus-v1-0",
+      "rootCause": "The original source skinned GLB AnimationMixer received at most 50ms per delivered RAF although actual Warden mobile RAF median was ~433ms; source full-body clips and one-shot visual ages consequently progressed in slow-motion during genuine CI graphics stalls",
+      "integration": "Time-bounded 350ms wall-time playback for original skinned GLB mixer and source pose age, 50ms first-pose gate for each new authentic attack/cast/hurt, native original assets retained; independent 50ms VFX/flash clock unchanged",
+      "newTest": "RED missing helper 1/9 then GREEN 9/9",
+      "foundation": "408/408 PASS",
+      "typescriptBuild": "PASS",
+      "headless": "ATTEMPTED_TIMEOUT; no new replay validation claimed",
+      "newHeadRealDesktopMobileAV": "NOT_OBSERVED",
+      "gpuFpsGain": "UNVERIFIED",
+      "hitSoundSync": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect new-head exact-code authentic 1440/390 original motion/audio one-shot recovery and footfalls vs same-seed parent and immutable baseline, reject visual/authority regressions; profile real hardware/SwiftShader raster, then transform original adult GLB Vanguard/Revenant/Warden exemplar with truthful audio"
     }
   },
   "failures": [],
@@ -352,8 +375,8 @@
     "plays": "UNVERIFIED",
     "critics": 0,
     "originalAudioMotion": "UNVERIFIED",
-    "afterBrowser": "PENDING_EXACT_NEW_HEAD",
-    "nextTask": "Inspect exact-new-head original 1440px/390px Warden and engaged hero skin body height, authoritative warning fit and 5-stage motion/audio; reject regressions; then measured GPU compositor correction and original adult rig/combat implementation. Locked M1 baseline and independent critics remain mandatory."
+    "afterBrowser": "PENDING_NEW_EXACT_HEAD",
+    "nextTask": "Inspect new-head exact-code authentic 1440/390 original motion/audio one-shot recovery and footfalls vs same-seed parent and immutable baseline, reject visual/authority regressions; profile real hardware/SwiftShader raster, then transform original adult GLB Vanguard/Revenant/Warden exemplar with truthful audio"
   },
   "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
   "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",

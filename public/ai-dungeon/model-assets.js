@@ -1058,7 +1058,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  restoreRigMeleeBeforeMixer(actor);
  restoreRigCranialBeforeMixer(actor);
  restoreRigPelvisBeforeMixer(actor);
- actor.mixer.update(Math.min(.05,Math.max(0,dt)));
+ actor.mixer.update(Math.min(.35,Math.max(0,dt)));
  // A witnessed local sword action now carries an original, single coherent
  // pose across the genuine skinned head, hips, torso, arms, wrist and feet.
  actor.nativeDuel=planNativeDuelPose(actor.u.kind,actor.u.action||'idle',since,{

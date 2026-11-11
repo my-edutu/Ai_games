@@ -65,12 +65,29 @@ test('a delayed WebGL frame cannot silently skip the first authored attack poses
  assert.equal(advancePresentationActionAge(Infinity,.05),.05);
  assert.equal(advancePresentationActionAge(5,.05),5);
 });
+test('native source-rig mixer catches up after first true one-shot pose under sparse RAF',async()=>{
+ const {planSourceRigPlaybackStep:step}=await motion();
+ const first=step(.433,'attack',0);
+ assert.ok(first.delta>0&&first.delta<=.051,'first authentic hit poses must survive a long frame');
+ assert.equal(first.firstPoseProtected,true);
+ const second=step(.433,'attack',first.age);
+ assert.ok(second.delta>=.29&&second.delta<=.351,'repeated authority one-shot must no longer animate in 50ms slow motion');
+ assert.ok(second.age>=.34&&second.age<=.41,'the actual source rig must move into recovery within the same authority tick');
+ const cruise=step(.433,'move',0);
+ assert.ok(cruise.delta>=.29&&cruise.delta<=.351,'walking clip cadence must follow wall time under severe software WebGL delays');
+ assert.equal(step(.016,'move',0).delta,.016,'normal real-time frames must not be accelerated');
+ assert.equal(step(.433,'idle',0).delta,.35,'ambient mixer must remain bounded');
+ for(const invalid of [NaN,-1,Infinity])assert.equal(step(invalid,'attack',0).delta,0,'reject invalid elapsed time');
+ const reopened=step(.433,'attack',0);
+ assert.equal(reopened.firstPoseProtected,true,'new authoritative attack resets the pose gate');
+});
 test('actual render loop uses bounded visual action age for one-shot authored strikes',()=>{
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
- assert.match(app,/advancePresentationActionAge\(since,dt\)/);
+ assert.match(app,/planSourceRigPlaybackStep\(frameInterval,a\.u\.action,ageBefore\)/);
  assert.match(app,/a\.visualActionAge=0/);
  assert.match(app,/a\.visualActionAge\?\?0/);
- assert.match(app,/updateActor\(a,dt,since,reduced\)/);
+ assert.match(app,/const since=oneShot\?rigPlayback\.age:ageBefore/);
+ assert.match(app,/updateActor\(a,rigPlayback\.delta,since,reduced\)/);
 });
 test('the real authored GLB renderer stages the rig through an isolated pivot, not authoritative coordinates',()=>{
  const assets=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
@@ -79,7 +96,7 @@ test('the real authored GLB renderer stages the rig through an isolated pivot, n
  assert.match(assets,/import \{planAuthoredMotion,planContactBodyLanguage\} from '\/dungeon\/character-motion-plan\.js'/);
  assert.match(assets,/actor\.visualPivot/);
  assert.match(assets,/planAuthoredMotion\(actor\.u\.kind,actor\.u\.action/);
- assert.match(app,/updateActor\(a,dt,since,reduced\)/);
+ assert.match(app,/updateActor\(a,rigPlayback\.delta,since,reduced\)/);
  assert.ok(server.includes("['/dungeon/character-motion-plan.js','character-motion-plan.js']"));
 });
 
