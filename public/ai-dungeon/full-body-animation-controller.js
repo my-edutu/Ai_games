@@ -485,7 +485,7 @@ export function planOriginalSourceStanceAnkleRelief({
  reducedMotion=false,interrupted=false,floorTopY=NaN,heelY=NaN,toeY=NaN,
  trials=[],previousCorrectionRad=0
 }={}){
- if(mode!=='move'||!/^walking[_\\s-]*a$/i.test(sourceClipName)||
+ if(mode!=='move'||!/^walking[_\s-]*a$/i.test(sourceClipName)||
   ownerLocomotion!==true||alive!==true||visible!==true||
   teleport||reducedMotion||interrupted||
   ![sourceWeight,rootTravel,frameAge,floorTopY,heelY,toeY,previousCorrectionRad].every(finite)||
