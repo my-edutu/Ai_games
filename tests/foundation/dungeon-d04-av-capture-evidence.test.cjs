@@ -548,3 +548,80 @@ test('D04 persists only independently qualified serial real WebGL bytes and neve
   assert.equal(manifest.assessment.sampleSynchronized,false);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+
+/**
+ * D04 real WebGL readback-to-2D capture is NOT the synthetic canvas control.
+ * It must copy pixels only when a new authenticated renderer receipt arrives,
+ * prove multiple distinguishable non-flat game images and preserve phase bounds.
+ */
+const authenticReadback={
+ source:'real-webgl-receipt-readback-serial-video-only',
+ phase:'after-all-primary-encoders-settled',primaryRecordersSettled:true,
+ status:'RECORDED',mimeType:'video/webm;codecs=vp8',videoTracks:1,audioTracks:0,
+ bytes:8400,recordingMs:5500,canvasWidth:640,canvasHeight:400,
+ framePump:{mode:'real-webgl-render-receipt-readback',receiptStart:21,receiptEnd:25,
+  observedFrameAdvances:4,requestedFrames:3,requestFailures:0,
+  samples:[{receipt:22,atMs:180,colors:48,signature:'a8d0c1f2'},
+   {receipt:23,atMs:990,colors:52,signature:'d9b6c201'},
+   {receipt:25,atMs:4100,colors:51,signature:'f813caa9'}]}
+};
+test('D04 qualifies exclusively real receipt-driven WebGL pixel readback as separate UNALIGNED video',()=>{
+ const {classifyReceiptReadbackVideo}=require('../browser/dungeon-d04-av-evidence.cjs');
+ assert.equal(classifyReceiptReadbackVideo(authenticReadback),'REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED');
+ const assessed=assessD04Capture({...good,clip:{...good.clip,status:'UNAVAILABLE',bytes:0},
+  isolated:{receiptReadbackVideo:authenticReadback}});
+ assert.equal(assessed.receiptReadbackVideoRecorded,true);
+ assert.equal(assessed.combinedVideoAudio,false);
+ assert.equal(assessed.sampleSynchronized,false);
+ assert.equal(assessed.classification,'UNVERIFIED');
+});
+test('D04 never certifies flat, identical, unsupported or synthetic pixels as genuine changing game footage',()=>{
+ const {classifyReceiptReadbackVideo}=require('../browser/dungeon-d04-av-evidence.cjs');
+ for(const invalid of [
+  {...authenticReadback,source:'synthetic-2d-canvas-serial-control-not-gameplay'},
+  {...authenticReadback,phase:'overlapping-primary-encoders'},
+  {...authenticReadback,primaryRecordersSettled:false},
+  {...authenticReadback,videoTracks:0},
+  {...authenticReadback,audioTracks:1},
+  {...authenticReadback,canvasWidth:1920},
+  {...authenticReadback,recordingMs:20000},
+  {...authenticReadback,bytes:0},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,observedFrameAdvances:1}},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,requestedFrames:2}},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,requestFailures:1}},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,samples:
+   authenticReadback.framePump.samples.map(s=>({...s,colors:1}))}},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,samples:
+   authenticReadback.framePump.samples.map(s=>({...s,signature:'ffffffff'}))}},
+  {...authenticReadback,framePump:{...authenticReadback.framePump,samples:
+   [...authenticReadback.framePump.samples].reverse()}}
+ ])assert.notEqual(classifyReceiptReadbackVideo(invalid),
+  'REAL_WEBGL_READBACK_VIDEO_RECORDED_UNALIGNED');
+});
+test('D04 readback failures are explicitly UNVERIFIED rather than confused with missing video encoders',()=>{
+ const {classifyReceiptReadbackVideo}=require('../browser/dungeon-d04-av-evidence.cjs');
+ assert.equal(classifyReceiptReadbackVideo({...authenticReadback,status:'UNAVAILABLE',bytes:0}),
+  'REAL_WEBGL_READBACK_VIDEO_UNVERIFIED');
+ assert.equal(classifyReceiptReadbackVideo({source:'fake-game',status:'RECORDED'}),
+  'READBACK_PROVENANCE_UNVERIFIED');
+});
+test('D04 retains only provenance-qualified readback video and excludes diagnostic synthetic bytes',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-real-webgl-readback-'));
+ try{
+  const content=Buffer.alloc(8400,29);
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},frames:good.frames,
+   isolated:{receiptReadbackVideo:{...authenticReadback,base64:content.toString('base64')},
+    serial2dOnly:{source:'synthetic-2d-canvas-serial-control-not-gameplay',
+     base64:Buffer.alloc(3000,17).toString('base64')}}};
+  const assessment=assessD04Capture({...good,...raw});
+  const files=persistD04CaptureEvidence({directory,raw,assessment});
+  assert.equal(fs.readFileSync(files.receiptReadbackVideoWebm).compare(content),0);
+  const saved=JSON.parse(fs.readFileSync(files.manifest,'utf8'));
+  assert.equal(saved.assessment.receiptReadbackVideoRecorded,true);
+  assert.equal(saved.assessment.sampleSynchronized,false);
+  assert.equal(saved.retained.receiptReadbackVideoWebm,true);
+  assert.equal(saved.isolated.receiptReadbackVideo.base64,undefined);
+  assert.equal(saved.isolated.serial2dOnly.base64,undefined);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
