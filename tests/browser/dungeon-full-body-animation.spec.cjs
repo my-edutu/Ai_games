@@ -574,11 +574,33 @@ for(const view of [
     expect(Number.isFinite(rollback[k]),
      'actual original skinned heel/toe after all six imported joints return to source pose: '+k).toBe(true);
    expect(n?.sourceLoadedPelvisLiftMeters??0).toBe(0);
-   expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
-   expect(n?.sourceSwingCalfCurrentFrameMask??0).toBe(0);
-   expect(n?.sourceSwingToeLiftProof??null).toBeNull();
-   expect(n?.sourceSwingCalfAssistProof??null).toBeNull();
    expect(n?.sourceLoadedPelvisFrameProof??null).toBeNull();
+   expect(typeof rollback.retryAttempted).toBe('boolean');
+   expect(rollback.retryVerifiedStanceFeet??0).toBeLessThanOrEqual(2);
+   if(rollback.retryAttempted){
+    // The rejected raised source pelvis was restored first. The original
+    // source legs may be independently re-staged at the legitimate root ONCE.
+    for(const k of ['retryFinalHeelY','retryFinalToeY'])
+     expect(Number.isFinite(rollback[k]),
+      'actual same-original-GLB restored-root skinned shoe: '+k).toBe(true);
+    expect(typeof rollback.retrySourceSolesSafe).toBe('boolean');
+    if(rollback.retrySourceSolesSafe){
+     const proved=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
+     expect(rollback.retryVerifiedStanceFeet).toBe(proved.length);
+     for(const proof of proved){
+      expect(proof.sourceInstanceId).toBe(t.sourceId);
+      expect(proof.afterWorstMeters).toBeLessThan(proof.beforeWorstMeters-.00149);
+     }
+    }else{
+     expect(rollback.retryVerifiedStanceFeet).toBe(0);
+     expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
+    }
+   }else{
+    expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
+    expect(n?.sourceSwingCalfCurrentFrameMask??0).toBe(0);
+    expect(n?.sourceSwingToeLiftProof??null).toBeNull();
+    expect(n?.sourceSwingCalfAssistProof??null).toBeNull();
+   }
   }
   if(sourceLoaded){
    expect(sourceLoaded.source).toBe('original-weighted-heel-toe-and-rendered-pelvis');
