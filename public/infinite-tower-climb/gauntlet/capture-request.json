@@ -26,29 +26,29 @@
     "supportedDeviceMetrics": "NOT EVALUATED",
     "next": "Inspect exact-source CI + all original normal-speed WebMs and phase sidecars; if cap is still abruptly replaced by violet world, move to coherent shared old/new spatial camera and lighting system P0. Do not advance on test counts."
   },
-"p0SourceRecordedCrossingNormalSpeedOriginalFilm20261112": {
-  "stage": "P0 OPEN; NOT EVALUATED",
-  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "EXACT immutable github.sha of THIS capture-request commit; never floating branch HEAD",
-  "testFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43219700182",
-  "oldExactCandidateSha": "06cc9ae1d71a02774de350c8a6f692c1c66ae626",
-  "oldOriginalNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463 — eight original clips 7/8 passed, baseline moving7 source launch floor mismatch; 0/2 strict verified experience viewports",
-  "oldVisualDefect": "Original 1x desktop/portrait bronze Floor8 scene hard-cuts into violet Floor9 without body traversing same physical threshold. Source tick451 crossing lost by browser old435->new452 observation gap.",
-  "codeChange": "An opt-in source event now records true earned guardian HP0, old grounded cap position, exact physical x/y before and after crossing, active run and 20Hz event tick. On the successor floor source publishes this witness for max12 ticks. Three.js validates and restores old body/door and new floor ground without guessed intermediate state. Do NOT credit quality without filmed proof.",
-  "originalCaptureMatrix": "New full nine-job exact immutable-source real 20Hz source + 8 matched baseline/candidate 1x unedited >=60-second videos at desktop 960x600 and portrait 390x844, identical seed/low-tier: Floor0 ascent, Floor7 moving platform, Floor8 authentic guardian/crusher to Floor9 grounded crossing, Floor0 terminal outcome and restart. Preserve source trace, browser reception ticks, Three submit timings and native WebM PTS.",
-  "strictEvidence": "Require 2/2 source/native event pairing with original native scene and body visible through actual open arch; full looping restart. Baseline moving7 first filmed source observation must still be on requested floor, diagnose poller startup race rather than ignore failure.",
-  "criticalRegressionVeto": "No false old door/guardian recovery after run restart, stale snapshot, unrelated floor, wrong tick or source ID, airborne/unsupported player, HP>0 guardian, off-cap or teleport, impossible prior offset, reduced motion/portrait camera crop, WebGL loss, incomplete native film, clock invalidity or frame-time regression.",
-  "quality": "EXACT source quality not yet verified at request authoring; test-first red observed, do not score CI green as experience success.",
-  "blindCritics": {
-    "LOOKS": "0/5",
-    "FEELS": "0/5",
-    "PLAYS": "0/5"
+  "p0SourceRecordedCrossingNormalSpeedOriginalFilm20261112": {
+    "stage": "P0 OPEN; NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of THIS capture-request commit; never floating branch HEAD",
+    "testFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43219700182",
+    "oldExactCandidateSha": "06cc9ae1d71a02774de350c8a6f692c1c66ae626",
+    "oldOriginalNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463 — eight original clips 7/8 passed, baseline moving7 source launch floor mismatch; 0/2 strict verified experience viewports",
+    "oldVisualDefect": "Original 1x desktop/portrait bronze Floor8 scene hard-cuts into violet Floor9 without body traversing same physical threshold. Source tick451 crossing lost by browser old435->new452 observation gap.",
+    "codeChange": "An opt-in source event now records true earned guardian HP0, old grounded cap position, exact physical x/y before and after crossing, active run and 20Hz event tick. On the successor floor source publishes this witness for max12 ticks. Three.js validates and restores old body/door and new floor ground without guessed intermediate state. Do NOT credit quality without filmed proof.",
+    "originalCaptureMatrix": "New full nine-job exact immutable-source real 20Hz source + 8 matched baseline/candidate 1x unedited >=60-second videos at desktop 960x600 and portrait 390x844, identical seed/low-tier: Floor0 ascent, Floor7 moving platform, Floor8 authentic guardian/crusher to Floor9 grounded crossing, Floor0 terminal outcome and restart. Preserve source trace, browser reception ticks, Three submit timings and native WebM PTS.",
+    "strictEvidence": "Require 2/2 source/native event pairing with original native scene and body visible through actual open arch; full looping restart. Baseline moving7 first filmed source observation must still be on requested floor, diagnose poller startup race rather than ignore failure.",
+    "criticalRegressionVeto": "No false old door/guardian recovery after run restart, stale snapshot, unrelated floor, wrong tick or source ID, airborne/unsupported player, HP>0 guardian, off-cap or teleport, impossible prior offset, reduced motion/portrait camera crop, WebGL loss, incomplete native film, clock invalidity or frame-time regression.",
+    "quality": "EXACT source quality not yet verified at request authoring; test-first red observed, do not score CI green as experience success.",
+    "blindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevicePerformanceMemory": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-12-tower-pr68-source-owned-sparse-frame-gateway.md",
+    "next": "Inspect genuine paired native footage in 1x at Floor8->9 and source tick451/browser/Three/native event records; fix the largest spatial/camera cut or startup-clock blocker in P0. Never merge/deploy/force-push/change draft/baseline."
   },
-  "supportedDevicePerformanceMemory": "NOT EVALUATED",
-  "review": "docs/reviews/2026-11-12-tower-pr68-source-owned-sparse-frame-gateway.md",
-  "next": "Inspect genuine paired native footage in 1x at Floor8->9 and source tick451/browser/Three/native event records; fix the largest spatial/camera cut or startup-clock blocker in P0. Never merge/deploy/force-push/change draft/baseline."
-},
-"p0Observed11TickBrowserGapAfterFilm20261112": {
+  "p0Observed11TickBrowserGapAfterFilm20261112": {
     "stage": "P0 OPEN — assessor NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
     "candidateSource": "EXACT immutable github.sha of THIS capture-request commit (not live branch head)",
@@ -1269,5 +1269,27 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "visualNext": "Manually inspect the full one-time uncut 1x videos, then repair dominant observed renderer/compositor timebase and continuous real grounded gateway/guardian visual mismatch. This forensic code does NOT make play better or meet quality gate."
+  },
+  "p0RetainedRealGpuCapNativeProof20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "codeUnderTestSha": "78f7aaf9d884d364f15e4b08e5c9ee77e16228d4",
+    "candidateSource": "EXACT IMMUTABLE github.sha of THIS capture-request COMMIT, never floating branch head; captures must clearly record exact checkout source SHA",
+    "qualityAtCodeSha": "https://github.com/my-edutu/Ai_games/actions/runs/43230785551 — integrity-not-quality SUCCESS; experience ungraded",
+    "previousOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43225466288 — 8/8 original motion jobs PASS, strict original event-native match 0/2",
+    "previousOriginalSourceSha": "1fa6dbf4781d82fd7cd5485f7916fdd5ea5e1188",
+    "verifiedPriorFilmDefect": "Decoded source-pinned original unedited candidate 73.88s desktop and 73.24s portrait: 960x600 at 25.5s shows warm bronze old cap, at 26.0s shows purple Floor9; phone 25.0s climber suspended above bronze and at 25.5s presents still heroic model on violet deck. No continuous body through same physical doorway. Actual native PTS > source crossing by 2.359s desktop / 2.201s portrait, 0/2 strict pairs.",
+    "currentImplementationUnderTest": "At successful source-earned Floor8->9 handoff, hold ORIGINAL GPU-resident old Floor8 cap Mesh subtree with its actual buffers and geometries through >=2 submitted new-floor frames (max bounded source ticks), beside real new floor ground; release on elapsed/submitted evidence, invalid source/restart, or stale. Older synthetic bronze inlay and horizon systems remain, do not count them as proof.",
+    "requiredMatrix": "FULL original 9-job workflow: exact frozen baseline vs this exact new candidate, same seed/tier unmodified 20Hz source, each 60+ seconds normal-speed 1x unedited WebM for ascent floor0, moving deck floor7, guardian/crusher Floor8->9, terminal outcome/restart floor0, both 960x600 and 390x844, native source/browser/Three submission/HUD/native PTS sidecars and exact video hashes.",
+    "mandatoryFrameInspection": "Inspect actual native full-motion 22-29 seconds and event-relative frames, source HP0 guardian tick441 grounded threshold tick451, full-body through same open bronze arch, original cap retained with real Floor9 ground, sky/color/camera continuity and true onward progression. Ensure transparent old cap does not float, duplicate, z-fight, obscure threats or break portrait, reduced motion or restart. Recompute delays (do not reuse old candidate).",
+    "safetyVeto": "2/2 strict source/video event pairing, all 8 complete 60s+ native WebM valid film clocks, no shortened or fake event. Frozen baseline floor7 earlier desktop clock failure MUST recapture with valid native anchors without weakening thresholds. No synthetic source changes, duplicated playable platforms, false guardian defeat, teleport, ungrounded transition, stale/wrong run reentry or GPU resource leakage. CI alone NEVER verdict.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "next": "Inspect exact-SHA fresh original videos and source-to-native cues. If still hard cut, prioritize coherent real camera/architectural and lighting handoff. Repair film clock failure at frozen baseline without changing baseline. Keep P0 open."
   }
 }
