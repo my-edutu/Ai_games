@@ -76,7 +76,8 @@ test('D04 verified melee HP loss is staged on the first 240ms real frame, not fi
  const rendered=[],played=[];
  const controller=createPhysicalCombatFeedback({
   requirePresentedFrame:true,clock:()=>clock,
-  deriveDamageBeats:()=>[{id:'vanguard',incoming:true}],
+  deriveDamageBeats:()=>[{id:'vanguard',kind:'vanguard',faction:'party',
+   x:2,z:2,damage:9,maxHp:30,fatal:false,incoming:true}],
   verifiedMeleeDelay:()=>.215,
   visualAdapter:{emit(cue){rendered.push(cue);return true},
    advance(){},hasLiveCue(){return true},hasDrawableCue(){return true},
@@ -111,7 +112,8 @@ test('D04 gated verified melee waits through a real 190ms interval and stages at
  const visual=[],audio=[];
  const timed=createPhysicalCombatFeedback({
   requirePresentedFrame:true,clock:()=>clock,
-  deriveDamageBeats:()=>[{id:'vanguard',incoming:true}],
+  deriveDamageBeats:()=>[{id:'vanguard',kind:'vanguard',faction:'party',
+   x:2,z:2,damage:9,maxHp:30,fatal:false,incoming:true}],
   verifiedMeleeDelay:()=>.215,
   visualAdapter:{emit(cue){visual.push(cue);return true},advance(){},
    hasLiveCue(){return true},hasDrawableCue(){return true},
