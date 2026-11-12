@@ -629,3 +629,43 @@ test('original physical foreground recedes below stone and returns without one-f
  assert.match(env,/applyForegroundRecession\(group,blocked\|\|portrait\|\|warningBlocked,frameDt,reducedMotion/);
  assert.ok(server.includes("['/dungeon/foreground-recession.js','foreground-recession.js']"));
 });
+
+
+test('M1 portrait protects live source-skinned actors against a genuine lens-near Gothic column missed by distant-actor filters',async()=>{
+ const {planPortraitStageClearance}=await load();
+ const cam=Object.freeze({x:0,y:1.5,z:2.8});
+ const phone=Object.freeze({look:{x:0,y:1,z:0},fov:50,aspect:390/844});
+ const fighter=Object.freeze({x:0,z:-6,kind:'vanguard',visibleActor:true,combatRecess:false});
+ // A tall, original WORLD-SPACE pillar 30cm in front of the actual lens.
+ // The actor stands >7.1m beyond its origin: old actor-radius checks miss
+ // this obstruction, leaving a real camera-centre Gothic monolith on screen.
+ const lensPillar=Object.freeze([-.42,0,2.1,.42,2.8,2.5]);
+ const farPillar=Object.freeze([-.42,0,1.0,.42,2.8,1.4]);
+ const sidePillar=Object.freeze([3.2,0,2.1,4,2.8,2.5]);
+ const lowRubble=Object.freeze([-.42,0,2.1,.42,.46,2.5]);
+ const behindActor=Object.freeze([-.42,0,-8.2,.42,2.8,-7.8]);
+ const before=JSON.stringify({cam,phone,fighter,lensPillar});
+ assert.equal(planPortraitStageClearance(lensPillar,[fighter],cam,phone),true,
+  'the true camera-to-body rays must clear a giant lens-near column during ordinary play');
+ assert.equal(planPortraitStageClearance(farPillar,[fighter],cam,phone),false,
+  'the lens rescue never removes ordinary stone outside its short clearance');
+ assert.equal(planPortraitStageClearance(sidePillar,[fighter],cam,phone),false,
+  'wide side architecture cannot borrow a living actor cutaway');
+ assert.equal(planPortraitStageClearance(lowRubble,[fighter],cam,phone),false,
+  'low original ruin relief stays rendered and physically readable');
+ assert.equal(planPortraitStageClearance(behindActor,[fighter],cam,phone),false,
+  'authentic background architecture behind the fighter must be preserved');
+ assert.equal(planPortraitStageClearance(lensPillar,[{...fighter,visibleActor:false}],cam,phone),false,
+  'an invented scenic marker may not destroy original architecture');
+ assert.equal(planPortraitStageClearance(lensPillar,[fighter],cam,{...phone,aspect:1440/832}),false,
+  'wide desktop framing retains its architectural depth');
+ assert.equal(planPortraitStageClearance(lensPillar,Array(6).fill(fighter),cam,phone),false,
+  'more than five actor claims fail closed rather than scaling workload');
+ assert.equal(planPortraitStageClearance(lensPillar,[fighter],{...cam,x:NaN},phone),false);
+ assert.equal(JSON.stringify({cam,phone,fighter,lensPillar}),before,'planner is immutable');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
+ assert.match(app,/planPortraitStageClearance\(world\.userData\.authoredPropVolumes/);
+ assert.match(app,/planPortraitStageClearance\(world\.userData\.foregroundPropVolumes/);
+ assert.match(env,/planPortraitStageClearance\(foregroundVolumes\[i\]/);
+});

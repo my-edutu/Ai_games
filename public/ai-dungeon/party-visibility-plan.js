@@ -430,6 +430,45 @@ export function planProjectedBodyAperture(box,subjects,camera,view){
 
 
 /**
+ * Lens-near obstruction of a GENUINE rooted fighter, not a scenic marker.
+ *
+ * In 390px browser captures a source Gothic column immediately beside the
+ * physical camera fills the portrait before any projected box corners become
+ * useful. The existing 7.1m actor-to-prop filter then rejects that column
+ * even when it lies directly between the camera and a living fighter. Test
+ * the real near-lens 3D stone volume against shoulder, chest and sword-lane
+ * rays. This is intentionally a *last* safety path: no distant architecture,
+ * flat scenic point, fake hit or non-portrait view may use it.
+ */
+function planLensNearBodyObstruction(box,subjects,camera,basis){
+ const tall=box[4]-box[1],wide=box[3]-box[0],deep=box[5]-box[2];
+ if(tall<1.25||Math.max(wide,deep)<.22)return false;
+ // Euclidean clearance from actual lens to the existing WORLD-SPACE AABB.
+ const qx=Math.max(box[0]-camera.x,0,camera.x-box[3]);
+ const qy=Math.max(box[1]-camera.y,0,camera.y-box[4]);
+ const qz=Math.max(box[2]-camera.z,0,camera.z-box[5]);
+ if(Math.hypot(qx,qy,qz)>1.35)return false;
+ const face=[(box[0]+box[3])*.5,(box[1]+box[4])*.5,
+  (box[2]+box[5])*.5,wide,tall,deep];
+ for(const actor of subjects){
+  if(actor?.visibleActor!==true||![actor.x,actor.z].every(Number.isFinite))continue;
+  const dx=actor.x-camera.x,dz=actor.z-camera.z,d=Math.hypot(dx,dz);
+  if(d<2.4||d>12.5)continue;
+  const scale=actor.kind==='warden'?1.32:1;
+  const focus=projectionPoint(camera,basis,actor.x,1.05*scale,actor.z);
+  if(!focus||Math.abs(focus.x)>.91||Math.abs(focus.y)>.93)continue;
+  const rightX=-dz/d,rightZ=dx/d;
+  // Every eligible segment runs from the REAL camera to the REAL fighter's
+  // acting envelope. We cannot erase stone merely because it fills a frame.
+  for(const side of [-.32,0,.32])for(const h of [.43,1.02,1.58]){
+   if(facadeRayBox(camera,actor.x+rightX*side,h*scale,
+      actor.z+rightZ*side,face,tall,face[1]))return true;
+  }
+ }
+ return false;
+}
+
+/**
  * Portrait combat stage, for *freestanding foreground props only*.
  *
  * A large column can leave every helmet ray clear yet consume the entire
@@ -451,6 +490,7 @@ export function planPortraitStageClearance(box,subjects,camera,view){
     !Array.isArray(subjects)||subjects.length>5||view?.aspect>=.86)return false;
  const basis=projectionBasis(camera,view);
  if(!basis)return false;
+ if(planLensNearBodyObstruction(box,subjects,camera,basis))return true;
  const cx=(box[0]+box[3])*.5,cz=(box[2]+box[5])*.5;
  let prop=null;
  for(const actor of subjects){
