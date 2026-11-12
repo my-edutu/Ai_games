@@ -4,7 +4,8 @@ const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
 const {correlateD04OriginalSourceStarts}=require('./dungeon-d04-source-start-correlation.cjs');
 const fs=require('node:fs');
-const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion}=require('./dungeon-d04-decoded-video-proof.cjs');
+const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
+ sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM}=require('./dungeon-d04-decoded-video-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witnessActualDamage(){
@@ -524,9 +525,33 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  if(started?.status==='STARTED')try{
   raw=await page.evaluate(()=>window.__D04_REAL_AV_CAPTURE__);
  }catch(e){raw.clip={status:'UNAVAILABLE',reason:'Live browser retrieval: '+String(e)}}
+ // Independent FALLBACK: Chromium decodes the unchanged real WebM itself
+ // when GitHub runners have no ffprobe. A few pixel seeks cannot certify
+ // encoded frame counts, event contact, original Opus onset or sample sync.
+ let chromiumPixels={status:'UNAVAILABLE',reason:'No genuine same-window WebM'};
+ if(started?.status==='STARTED'&&raw.isolated?.sameWindowReadbackAV?.status==='RECORDED'){
+  try{
+   chromiumPixels=await page.evaluate(sampleChromiumDecodedD04WebM,
+    raw.isolated.sameWindowReadbackAV);
+  }catch(error){
+   chromiumPixels={status:'UNAVAILABLE',
+    reason:'Read-only Chromium decoder: '+String(error).slice(0,120)};
+  }
+ }
  raw.decoder={serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo),
    readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo),
-   sameWindowReadbackAV:decodeSameWindowReadbackMotion(raw.isolated?.sameWindowReadbackAV)};
+   sameWindowReadbackAV:decodeSameWindowReadbackMotion(raw.isolated?.sameWindowReadbackAV),
+   chromiumSameWindow:classifyChromiumDecodedRealWebM(
+    raw.isolated?.sameWindowReadbackAV,chromiumPixels)};
+ console.log('D04 native Chromium WebM decode (unaligned only):',JSON.stringify(
+  raw.decoder.chromiumSameWindow));
+ await testInfo.attach('d04-chromium-decoded-real-webgl-pixels.json',{
+  body:Buffer.from(JSON.stringify({
+   inputSource:raw.isolated?.sameWindowReadbackAV?.source??null,
+   inspected:chromiumPixels,classification:raw.decoder.chromiumSameWindow,
+   sampleSynchronized:false,
+   caveat:'Real browser decoding of actual WebM; separate samples do not count VP8 frames or prove audible combat foley'},null,2)),
+  contentType:'application/json'});
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
  console.log('D04 verified real WebGL frames:',JSON.stringify({
   decoded:raw.decoder.serialRealVideo.frameCount??0,
