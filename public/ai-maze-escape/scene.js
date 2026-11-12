@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
-import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
+import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
 const TAU = Math.PI * 2;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -52,6 +52,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // Reuse this offset; the existing real-mesh optical reframe still enforces
   // strict +/-0.95 and the same physical pressure/withdrawal gates.
   const pressurePortraitCameraOffset = new THREE.Vector3(3.5, 19.5, 29);
+  // Real pressure contact is the SECOND shot: a modest physical right-quarter
+  // arc reveals Pip's bracing legs beside the now open-web paired cutters.
+  // Same distance, same orthographic whole-model bounds; no camera crop or
+  // simulation motion. All scratch vectors are allocated only once.
+  const pressureContactCameraOffset = new THREE.Vector3(10.5, 19.5, 27.4);
+  const pressureStageCameraOffset = pressurePortraitCameraOffset.clone();
   // A near closed gate can cover Pip from the normal +Z-heavy isometric view.
   // A mild +X-side view keeps the same raised diorama and visible front seal.
   const sealedGateCameraOffset = new THREE.Vector3(20, 21, 14);
@@ -1158,11 +1164,20 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       && ((Array.isArray(s.visibleCells)
         && s.visibleCells.includes(publicPressureTrap.cell))
         || !!verifiedRetreatTrap);
+    // Disclosed treadle warning -> front-on jaw read -> real closing contact
+    // -> open retreat. The camera's offset tracks the same published physical
+    // progress that already drives the jaw and Pip's anticipation. Do NOT
+    // infer a trap from undiscovered geometry or animate the manual camera.
+    const pressureContactWeight = publicPressureContactOrbitWeight(
+      pressureProgress, pressurePortraitStage, settings.reducedMotion,
+      cameraMode, !!verifiedRetreatTrap);
+    pressureStageCameraOffset.copy(pressurePortraitCameraOffset)
+      .lerp(pressureContactCameraOffset, pressureContactWeight);
     cameraOffset.lerp(openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
       : portraitEncounterOrbit ? portraitCameraOffset
       : pickupCameraBeat ? pickupCameraOffset
-      : pressurePortraitStage ? pressurePortraitCameraOffset
+      : pressurePortraitStage ? pressureStageCameraOffset
       : followCameraOffset, blend);
     camera.position.copy(cameraTarget).add(cameraOffset); camera.lookAt(cameraTarget);
     // Real native 320px pressure withdrawal: the complete jaw was cropped

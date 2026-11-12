@@ -463,6 +463,26 @@ export function publicPhysicalPressureApproachHalfHeight(hero,jaw,halfHeight,asp
  * Width fit uses the combined actors so the already-existing camera-right
  * translation can keep BOTH inside the unchanged +/- .95 native test.
  */
+/**
+ * An observed pressure contact earns ONE slow, cinematic side-orbit.
+ * The caller gates this with a visibly disclosed real hazard, a live Follow
+ * shot and the actual public visual-pressure clock. No hidden cell, future
+ * prediction or fabricated dodge may move the lens. Withdrawal, manual
+ * camera and reduced-motion settings always return zero.
+ *
+ * A camera that stays frontal at the full closing stroke lets the foreground
+ * jaws eclipse Pip's lower-body response. A quarter view separates their
+ * physical silhouettes without moving, hiding or altering either model.
+ */
+export function publicPressureContactOrbitWeight(
+  progress, publicStage=false, reducedMotion=false, cameraMode='follow',
+  withdrawal=false) {
+  if (!publicStage || reducedMotion || cameraMode !== 'follow' || withdrawal
+    || !Number.isFinite(progress)) return 0;
+  const t=Math.max(0,Math.min(1,(progress-.28)/.60));
+  return t*t*(3-2*t);
+}
+
 export function publicPhysicalPressureHeroReadabilityHalfHeight(
   hero, jaw, halfHeight, aspect, eligible=false, withdrawal=false) {
   if (!eligible || !(Number.isFinite(aspect) && aspect>=.45 && aspect<.60)
