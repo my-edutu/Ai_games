@@ -3644,6 +3644,8 @@ test('verified combat-start stops outgoing original Walking_A only after the act
   frameInterval:.2,alive:true,visible:true,teleport:false,reducedMotion:false};
  assert.equal(stop(stopped),true,'an actually halted sword attacker holds the outgoing licensed source stride');
  assert.equal(stop({...stopped,nextMode:'cast'}),true,'a lawful caster must also avoid source walking feet under a stationary cast');
+ assert.equal(stop({...stopped,groundedTravel:0,frameInterval:.36}),true,
+  'a genuinely motionless root must stop Walking_A even on recorded sparse 360ms WebGL delivery');
  assert.equal(stop({...stopped,groundedTravel:.03}),false,'moving root must NOT be frozen in midstride');
  for(const bad of [
   {previousMode:'idle'},{nextMode:'hurt'},{nextMode:'evade'},{nextMode:'idle'},
