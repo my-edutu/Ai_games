@@ -3321,3 +3321,48 @@ test('a rejected elevated pelvis can safely re-stage authentic source legs at th
   assert.match(section,/retryAttempted/,
     'the real browser must expose the late pelvis rejection and any safe restored-root retry separately');
 });
+
+
+test('restored-root ankle retry verifies BOTH source-skinned shoes, never a fabricated planted foot',async()=>{
+ const {verifyRestoredRootOriginalSourceSoleSafety:verify}=await load();
+ const right={heelY:-.026071961,toeY:-.046394044};
+ // Right shoe baseline is taken from a real original-source WebGL desktop
+ // Walking_A readback; proposed AFTER frames and other shoe are synthetic
+ // safety counterexamples, NOT observed source animation or visual success.
+ const before={right,left:{heelY:-.018,toeY:-.015}};
+ const args={source:'same-original-GLB-restored-root',floorTopY:-.02,before};
+ const safe=verify({...args,after:{
+  right:{heelY:-.025,toeY:-.042},left:{heelY:-.018,toeY:-.015}
+ }});
+ assert.ok(safe,'both original skinned shoe endpoints must be finite and checked');
+ assert.equal(safe.feetVerified,2);
+ assert.equal(safe.contactLocked,false,'bounded skin readbacks do NOT certify planted world soles');
+ // A valid right-foot correction must never mask a deeper *left* heel.
+ assert.equal(verify({...args,after:{
+  right:{heelY:-.025,toeY:-.042},left:{heelY:-.026,toeY:-.015}
+ }}),null);
+ // Nor may a better toe on the SAME original shoe conceal a buried heel.
+ assert.equal(verify({...args,after:{
+  right:{heelY:-.032,toeY:-.038},left:before.left
+ }}),null);
+ // An uncorrected source foot may not gain a new 4+ cm visible hover.
+ assert.equal(verify({...args,after:{
+  right:{heelY:-.025,toeY:-.042},left:{heelY:.020,toeY:.024}
+ }}),null);
+ const airborne={left:{heelY:.09,toeY:.07},right:before.right};
+ assert.ok(verify({...args,before:airborne,after:{
+  left:{heelY:.09,toeY:.07},right:{heelY:-.025,toeY:-.042}
+ }}),'a legitimately airborne OTHER source shoe must not be treated as a false stance contact');
+ for(const invalid of [
+  {...args,after:{right:{heelY:-.025,toeY:-.042}}},
+  {...args,after:{right:{heelY:NaN,toeY:-.042},left:before.left}},
+  {...args,after:{right:before.right,left:before.left},floorTopY:0},
+  {...args,after:{right:before.right,left:before.left},source:'untrusted'}
+ ])assert.equal(verify(invalid),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const section=renderer.slice(renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('),
+  renderer.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments'));
+ assert.match(section,/verifyRestoredRootOriginalSourceSoleSafety\(/);
+ assert.match(section,/retryWholeSoleSafety/);
+ assert.match(section,/if\(!sourceSolesSafe\)[\s\S]*?restoreOriginalSourceLegsAfterRejectedPelvis/);
+});
