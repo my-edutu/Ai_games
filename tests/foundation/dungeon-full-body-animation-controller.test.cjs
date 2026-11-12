@@ -4264,6 +4264,14 @@ test('real mobile 87-to-88 source-shoe edge permits bounded near-stone skid reli
  for(const bad of [
   {current:{...current,right:{...current.right,toe:[
    current.right.toe[0],.016,current.right.toe[2]]}}},
+  // A genuine 19mm projected-span excursion is allowed ONLY on the
+  // opposite airborne source shoe; deformation >25mm still fails closed.
+  {current:{...current,left:{...current.left,toe:[
+   current.left.toe[0]-.055,current.left.toe[1],current.left.toe[2]]}}},
+  // The near-stone supporting original shoe retains its strict 18mm
+  // world-XZ heel/toe-span integrity gate.
+  {current:{...current,right:{...current.right,toe:[
+   current.right.toe[0]+.035,current.right.toe[1],current.right.toe[2]]}}},
   {previous:{...previous,right:{...previous.right,heel:[
    previous.right.heel[0],.020,previous.right.heel[2]]}}},
   {sourceInstanceSame:false},{sourceClipName:'Idle'},
