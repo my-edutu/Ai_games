@@ -38,6 +38,7 @@ import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
 import {planWardenCourtPriority} from '/dungeon/warden-court-priority-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planWardenWarningSightlinePoints,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
+import {planPerimeterWallLanterns} from '/dungeon/perimeter-wall-lantern-plan.js';
 import {createDungeonSoundstage} from '/dungeon/soundstage.js';
 import {planRealActorScreenReadability} from '/dungeon/actor-screen-readability.js';
 import {sampleNativeActorSurface} from '/dungeon/native-surface-sightline.js';
@@ -414,12 +415,28 @@ const dangerGlow=new THREE.MeshStandardMaterial({color:'#e67f50',emissive:'#bd4f
 const wallVertical=new THREE.Vector3(0,1,0);
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
-function column(parent,x,z){
- const group=new THREE.Group();group.name='Original Gothic border column';group.position.set(x,0,z);
- make(geo.cylinder,stoneEdge,group,0,.95,0,.26,1.95,.26);
- make(geo.cylinder,gold,group,0,1.93,0,.4,.12,.4);
- make(geo.cylinder,stoneEdge,group,0,.12,0,.37,.24,.37);
- parent.add(group);parent.userData.foregroundProps?.push(group);parent.userData.baseColumnRoots?.push(group);return group;
+function perimeterWallSconce(parent,site,index){
+ // A physical lamp on an ACTUAL solid exterior wall. The former four
+ // unsupported 2m cylinders projected as giant opaque mobile foreground
+ // columns. Keep the original masonry material and warm keyed light without
+ // introducing fictional collision, opaque combat-stage geometry, or props.
+ const root=new THREE.Group();
+ root.name='Wall-supported original perimeter lantern — '+site.side;
+ root.position.set(site.x,0,site.z);root.rotation.y=site.yaw;
+ make(geo.cube,stoneEdge,root,0,.60,-.16,.32,.42,.19);
+ make(geo.cube,gold,root,0,.74,.015,.17,.12,.18);
+ const lamp=make(geo.sphere,dangerGlow,root,0,.86,.075,.13,.15,.13);
+ lamp.castShadow=false;
+ if(index<3){
+  const light=new THREE.PointLight(floorThemes[(state?.floor??1)-1>=0?((state?.floor??1)-1)%floorThemes.length:0].torch,3,9,2);
+  light.position.set(0,.86,.075);
+  light.userData.dungeonDecorativePractical=true;
+  root.add(light);
+ }
+ parent.add(root);
+ parent.userData.foregroundProps?.push(root);
+ parent.userData.baseColumnRoots?.push(root);
+ return root;
 }
 function disposeActor(a){
  a.ground?.dispose();disposeActorAsset(a);a.detail?.dispose();
@@ -554,8 +571,13 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  // Lit path markers, carved stone columns and modest dynamic lighting budget.
  // No unsupported 2m freestanding torch-column beside the real boss.
  // Warden light/ceremony already comes from the actual linked ritual stage.
- const corners=[[1,1],[17,1],[1,17],[17,17]];
- corners.forEach(([x,z],i)=>{const px=x-offset,pz=z-offset;column(world,px+.43,pz+.43);const lantern=make(geo.sphere,i===4?tealGlow:dangerGlow,world,px+.43,2.15,pz+.43,.11,.19,.11);lantern.castShadow=false;if(i<3){const light=new THREE.PointLight(i===4?'#4af6e2':theme.torch,i===4?5:3,9,2);light.position.copy(lantern.position);light.userData.dungeonDecorativePractical=true;world.add(light)}});
+ // Four old corner columns were freestanding even without a real opening.
+ // Place at most four much smaller original lamps on actual perimeter wall
+ // supports, only where a genuine traversable cell faces each wall.
+ const perimeterSconces=planPerimeterWallLanterns(s.map,s.units);
+ perimeterSconces.forEach((site,i)=>perimeterWallSconce(world,site,i));
+ world.userData.perimeterWallLanterns={wallSupported:perimeterSconces.length,
+  unsupportedFreestandingColumns:0,authorityChanges:0};
  // Ruined altars and relic vaults are used sparingly to preserve navigational readability.
  const openCells=floors.filter(([x,,z])=>(Math.abs(x)+Math.abs(z))>3&&Math.abs(x)+Math.abs(z)<22);
  let placed=0;
