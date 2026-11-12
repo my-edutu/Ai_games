@@ -594,6 +594,8 @@ for(const view of [
     }else{
      expect(rollback.retryVerifiedStanceFeet).toBe(0);
      expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
+     expect(n?.sourceSwingCalfTrialOutcome?.accepted??false).toBe(false);
+     expect(n?.sourceSwingCalfAssistProof??null).toBeNull();
     }
    }else{
     expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
