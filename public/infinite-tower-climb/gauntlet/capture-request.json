@@ -36,6 +36,19 @@
     "review": "docs/reviews/2026-11-11-tower-pr68-live-source-poll-freshness-and-frame-clock.md",
     "next": "Inspect original full-motion desktop and phone; quantify real source→browser-accepted→returned WebGL→native raster interval; fix the dominant experience/clock blocker. Do not advance P0, merge, deploy, force-push, alter PR58 or baseline."
   },
+  "p0NativeFilmHandoffEscortRecapture20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "gameplayCodeSha": "685b779ca7b7a5405065bdec676bb9bceb10c7fe",
+    "beforeOriginalEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/43129188636 — eight genuine films, 0/2 guardian native source-event match; baseline guardian kill/physical passage unmatched",
+    "afterNativeOriginal": "NOT YET CAPTURED. This file change requests exact immutable github.sha candidate vs frozen baseline; 960x600+390x844, same seed/tier and normal speed.",
+    "criticalCaptureFocus": "Watch the complete authentic 8→9 scene in motion. The same hero should pass the same correctly grounded arch, in one bounded outside-core camera, with safe new-floor hazards/landing still shown. Match source tick451 → browser accepted → WebGL returned → decoded native video pixels; reject any abrupt cut, unsafe foreground, unsupported airborne claim or unviewable crossing.",
+    "priorRedCI": "https://github.com/my-edutu/Ai_games/actions/runs/43129026580 — 3 failures diagnosed, code/test repair at 685b779; new exact SHA quality not yet verified",
+    "review": "docs/reviews/2026-11-12-tower-pr68-grounded-floor9-escort-native-red-ci.md",
+    "deviceAndBlind": "NOT EVALUATED; LOOKS 0/5 FEELS 0/5 PLAYS 0/5",
+    "next": "Resolve strict 0/2 source→video phase and scene/gateway ambiguity with original footage; do not advance stage merely because video jobs complete."
+  },
   "schemaVersion": 1,
   "p0LiveTwoBodyWideCameraOriginalAfterFilm20261111": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
@@ -71,7 +84,7 @@
   "requestedOn": "2026-11-12",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "Exact immutable GitHub SHA of this capture-request modification (includes Tower grounded Floor9 continuation camera code 73ff3daae05d8c8e2285f24afea66903db39fae7); baseline still 1731b380851162741761c5569e2bc152a0869ca9.",
+  "candidateSource": "Exactly immutable github.sha of THIS source-pinned capture request at 685b779ca7b7a5405065bdec676bb9bceb10c7fe code on PR68. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; no deployment, merge or PR58 edits.",
   "repairedSourceSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
   "reason": "P0 source-native outcome forensic clock-gap recovery after original run 43028026049: authentic baseline portrait outcome 60s+ WebM exists but 13 source-independent matched compositor anchors include one unsafe 0.738094 video/wall slope. Retain the original video and independently bounded before/after windows while explicitly VETOING complete source-to-film calibration; never lower the 0.75 bound or infer rendered action from source events. Exact source for this request is immutable github.sha with code at 0b9d91e535212d6008f7af0810a4179eb5022601. Re-capture same frozen baseline/candidate, inspect 1x guardian battle, HP0 and crusher, grounded physical gateway, Floor9 onward, visible outcome/intermission/restart.",
   "scenarios": [
