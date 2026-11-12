@@ -106,8 +106,9 @@ test('production camera and source-authenticated gateway rescue both continue ac
  assert.match(scene,/const groundedHandoffEscort =/);
  assert.match(scene,/sourceGroundedHandoffShot\.sourceTick === snapshot\.tick/);
  assert.match(scene,/groundedHandoffEscort > \.04 && !options\.reducedMotion/);
- assert.match(scene,/\(sourceAirborneWalk\?\.approach \?\? 0\) > \.16 \|\|\s*groundedHandoffEscort > \.04/);
- assert.match(scene,/earnedStage\.stage === 'handoff' && !!sourceGroundedHandoffShot/);
+ assert.match(scene,/\(sourceAirborneWalk\?\.approach \?\? 0\) > \.16 \|\|\s*groundedHandoffEscort > \.04 \|\| airborneHandoffEscort > \.04/);
+ assert.match(scene,/earnedStage\.stage === 'handoff' &&/);
+ assert.match(scene,/!!sourceGroundedHandoffShot \|\| !!sourceAirborneHandoffShot/);
  assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
  assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
 });
