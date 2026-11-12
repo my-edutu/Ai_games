@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1451,17 +1451,16 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
  });
  if(!selected)return 0;
  const beforeWorst=Math.max(Math.abs(heelY+.02),Math.abs(toeY+.02));
- // The real source mixer and original 45mrad ankle remain the sole pose
- // authority. When source-weight easing makes the FIRST proposed angle too
- // weak to pass real skinned endpoints, try once more at an already sampled
- // and safe original 45mrad source-joint position in the SAME direction.
- // Both attempts must independently pass the identical final heel/toe gate.
- // A rejected trial never persists on the imported quaternion.
+ // Compare at most TWO completely reversible, already source-approved
+ // original ankle candidates against REAL world-space weighted heel/toe.
+ // A first positive correction can still leave a source shoe buried:
+ // the actual -45mrad mobile trial is demonstrably nearer the stone.
+ // The source mixer and existing 45mrad/joint limits remain authoritative.
  probeOutcome.status='final-skinned-measurement-rejected';
- let accepted=null;
  const candidates=[selected.delta];
  if(Number.isFinite(selected.fineFallbackDelta))
   candidates.push(selected.fineFallbackDelta);
+ const measuredCandidates=[];
  for(const delta of candidates){
   const finalAngle=Math.max(-.30,Math.min(.30,angle+delta));
   if(Math.abs(finalAngle-angle-delta)>.0001)continue;
@@ -1476,22 +1475,20 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
    mount.bone.quaternion.copy(original);
    mount.bone.updateWorldMatrix(true,true);
   }
-  const afterWorst=Math.max(Math.abs(afterHeel+.02),Math.abs(afterToe+.02));
-  // Neither endpoint may sink >4mm or float >35mm. The actual applied
-  // source skinned shoe, not the large trial, must improve by >=1.5mm.
-  if(![afterHeel,afterToe].every(Number.isFinite)||
-   afterHeel<-.055||afterHeel>.015||afterToe<-.055||afterToe>.015||
-   afterHeel<heelY-.004||afterToe<toeY-.004||
-   beforeWorst-afterWorst<.0015)continue;
-  accepted={delta,afterHeel,afterToe,afterWorst};
-  break;
+  measuredCandidates.push({delta,heelY:afterHeel,toeY:afterToe});
  }
+ probeOutcome.appliedCandidates=measuredCandidates;
+ const accepted=chooseOriginalSourceStanceAppliedWitness({
+  floorTopY:-.02,beforeHeelY:heelY,beforeToeY:toeY,
+  candidates:measuredCandidates
+ });
  if(!accepted)return 0;
  const fineFallbackUsed=accepted.delta!==selected.delta;
  probeOutcome.status='accepted';
  probeOutcome.finalWorstMeters=accepted.afterWorst;
  probeOutcome.finalAngleRad=accepted.delta;
  probeOutcome.fineFallbackUsed=fineFallbackUsed;
+ probeOutcome.selectedMeasuredIndex=accepted.candidateIndex;
  mount.stanceReliefRad=accepted.delta;
  actor.sourceStanceSoleCurrentFrameProofs??={left:null,right:null};
  actor.sourceStanceSoleCurrentFrameProofs[mount.side]={
