@@ -8353,5 +8353,33 @@
     "nextHighestImpactAction": "Review new 60s+ matched baseline/candidate desktop960x600 and portrait390x844 originals at exact immutable SHA, compare the grounded arch through Floor9 and outcome/restart with native video clock. Reject if worse. Resolve 0/2 source-to-raster, then independent 5/5 randomized blind reviews per LOOKS/FEELS/PLAYS and real device budgets.",
     "review": "docs/reviews/2026-11-12-tower-pr68-source-grounded-inner-threshold-continuity.md",
     "prohibitedActions": "Do not merge, deploy, force-push, alter PR58 or frozen baseline, change draft status, fabricate media/review/metrics."
+  },
+  "p0OriginalFloorNineGroundedRunway20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorCandidateSha": "3bf53f2dc58ed965f323637e30614d788caa1fba",
+    "priorOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43136473900 — authentic ledge and 8/8 60s+ original WebMs, event-to-native guardian/floor-nine alignment FAILED 0/2",
+    "priorExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43136473901 — passed technical veto only, not a transformation score",
+    "dominantOriginalFilmDefect": "In the normal-speed 960x600 and 390x844 candidate guardian films, the defeated cap leads to a visually abrupt new Floor9 purple scene despite grounded source passage tick451; no continuous successor-floor walking route is evident. Desktop tick451 ~23s versus drawn Floor9 ~25s; strict native event pairing 0/2.",
+    "actualPlayableChanges": [
+      "3f4b0d3f817c921e985a9b22e7df09235314fe71 — source-verified Floor9 supported runway reconstructed from the real successor ground using existing 12 noncolliding instanced cap inlays; no old floor deck matrices",
+      "cce841aeeb9ecdf7cb3f84d46b0329e6cd39e580 — live scene follows true next-floor grounded footsteps, retires lane on unsupported, stale, other-run or terminal source, without changing fixed-step physics or floor progression"
+    ],
+    "sourceContracts": [
+      "1f90bd27c02a086020ee9cb273b35fc40eea9be4",
+      "1fdc4642d5c416bc221833e0dd1320f3bc1225aa"
+    ],
+    "review": "docs/reviews/2026-11-12-tower-pr68-source-grounded-floor9-runway-continuity.md",
+    "afterSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43142899220 — IN PROGRESS at ledger authoring; NOT a verified pass",
+    "afterNativeRealGame": "NOT YET CAPTURED for this change; exact immutable github.sha will be requested through existing nine-job evidence workflow",
+    "sameSourceBlindReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevicesP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "Unaccepted source-to-native-video gate/victory clock 0/2 and potential ~2s scene mismatch, portrait guardian bronze occlusion. The new floor-nine runway must prove visible authentic continuity, not merely source-matrix correctness.",
+    "nextHighestImpactAction": "Fix any failed exact-source CI. At immutable capture request SHA, inspect real full-motion 960x600 and 390x844 matched ascent, moving, guardian/crusher, witnessed grounded passage into Floor9, outcome/restart. Align browser accepted→Three submitted→native raster; reject new runway if it floats/occludes. Continue P0; then real target devices and 5 independent randomized critics per LOOKS/FEELS/PLAYS."
   }
 }
