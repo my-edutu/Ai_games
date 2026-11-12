@@ -131,12 +131,25 @@ async function film(browser,profile){
       result.stages.realDockStock={receiptId:r.id};
       const dock=await page.evaluate(id=>{
        const g=window.__tinyKingdom;
-       g.setCamera({focus:[-.075,10.92],yaw:.65,pitch:.48,zoom:9});
+       const lens=g.getRealMarketReceiptLensForEvidence(id);
+       // Inspect the unchanged original world from a genuine credited
+       // receipt's physically surveyed trading-court angle. The free-orbit
+       // camera may have a different vertical aim from the follow lens;
+       // record the survey rather than asserting unmeasured visibility.
+       if(lens)g.setCamera({focus:lens.anchor,
+        yaw:lens.yaw,pitch:lens.pitch,zoom:lens.zoom});
        const stock=g.getMarketReceiptDisplayAudit();
        const remaining=g.getReceiptHouseholdAudit().outstandingLots
         .find(lot=>lot.id===id)?.remaining??0;
        return {stock,receiptRemaining:remaining,
-        checksum:g.exportSnapshot().checksum};
+        checksum:g.exportSnapshot().checksum,
+        physicalLensUnavailable:!lens,
+        physicalLens:lens?{source:lens.source,receiptId:lens.receiptId,
+         yaw:lens.yaw,pitch:lens.pitch,zoom:lens.zoom,
+         visibleShelves:lens.visibleShelves,postCover:lens.postCover,
+         minHeightFraction:lens.minHeightFraction,
+         clearShots:lens.clearShots,checkedShots:lens.checkedShots,
+         surveyedEye:lens.eye.slice()}:null};
       },r.id);
       result.stages.realDockStock={receiptId:r.id,...dock};
       await page.waitForTimeout(550);
@@ -156,12 +169,25 @@ async function film(browser,profile){
       result.stages.realMarketPurchase={receiptId:t.receiptId};
       const dock=await page.evaluate(id=>{
        const g=window.__tinyKingdom;
-       g.setCamera({focus:[-.075,10.92],yaw:.65,pitch:.48,zoom:9});
+       const lens=g.getRealMarketReceiptLensForEvidence(id);
+       // Inspect the unchanged original world from a genuine credited
+       // receipt's physically surveyed trading-court angle. The free-orbit
+       // camera may have a different vertical aim from the follow lens;
+       // record the survey rather than asserting unmeasured visibility.
+       if(lens)g.setCamera({focus:lens.anchor,
+        yaw:lens.yaw,pitch:lens.pitch,zoom:lens.zoom});
        const stock=g.getMarketReceiptDisplayAudit();
        const remaining=g.getReceiptHouseholdAudit().outstandingLots
         .find(lot=>lot.id===id)?.remaining??0;
        return {stock,receiptRemaining:remaining,
-        checksum:g.exportSnapshot().checksum};
+        checksum:g.exportSnapshot().checksum,
+        physicalLensUnavailable:!lens,
+        physicalLens:lens?{source:lens.source,receiptId:lens.receiptId,
+         yaw:lens.yaw,pitch:lens.pitch,zoom:lens.zoom,
+         visibleShelves:lens.visibleShelves,postCover:lens.postCover,
+         minHeightFraction:lens.minHeightFraction,
+         clearShots:lens.clearShots,checkedShots:lens.checkedShots,
+         surveyedEye:lens.eye.slice()}:null};
       },t.receiptId);
       result.stages.realMarketPurchase={receiptId:t.receiptId,
        buyer:t.citizen,purchased:t.amount,...dock};
