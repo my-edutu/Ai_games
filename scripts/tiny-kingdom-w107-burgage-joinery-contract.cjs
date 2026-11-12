@@ -34,11 +34,11 @@ for(let style=0;style<4;style++){
  assert.equal(stats.burgageMaterialWallPairs,2);
  assert.equal(stats.burgageMaterialGardenBoxes,4,'original four planted casement boxes');
  assert.equal(stats.burgageMaterialDownspouts,2,'original two rain spouts');
- assert.equal(stats.burgageMaterialTriangles,148,'whole original sidewall contract');
- assert.equal(verts.length/30,148);
- assert.equal(176-verts.length/30,28,'28 triangles saved, not whole Day120 proof');
+ assert.equal(stats.burgageMaterialTriangles,68,'W261 actual visible open-trough sidewall contract');
+ assert.equal(verts.length/30,68);
+ assert.equal(176-verts.length/30,108,'108 physically hidden triangles saved, not a visual milestone');
  assert.equal(faces.filter(f=>f.material===MAT.PLASTER).length,4);
- assert.equal(faces.filter(f=>f.material===MAT.WOOD).length,10);
+ assert.equal(faces.filter(f=>f.material===MAT.WOOD).length,26);
  for(const f of faces)assert.ok(f.side!==0&&f.nx*f.side>1e-8,
   'all original limewash and genuine oak panels outward and nondegenerate');
 }

@@ -36,7 +36,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(result.hall.unobstructedCourierAisle).toBeGreaterThan(4);
   expect(result.hall.lowerRoofClearance).toBeGreaterThan(2.2);
   expect(result.hall.openWorkerApproachMeters).toBeGreaterThan(.5);
-  expect(result.hall.originalShelfUnderRoof).toBe(true);
+  // The W254 physical aisle opened the actual two receipt shelves to the sky.\n  // Never require the old obstructing roof over true human hands.\n  expect(result.hall.originalShelfUnderRoof).toBe(false);\n  expect(result.hall.realReceiptShelvesUnderSky).toBe(true);\n  expect(result.hall.openSkyReceivingAisleMetres).toBeGreaterThan(2);
   expect(result.hall.realFreightOnly).toBe(true);
   expect(result.hall.changesNavigation).toBe(false);
   expect(result.hall.fabricatedShipments).toBe(0);

@@ -1,0 +1,47 @@
+'use strict';
+// W267 RED first: the visible grain at the genuine receiving shelf must
+// come from credited, still-owned receipt portions, not generic village food.
+// The test models the original simulation ledger; it never changes authority.
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm');
+const src=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const begin=src.indexOf('const MARKET_RECEIPT_DISPLAY_UNIT=');
+const end=src.indexOf('function renderMarketReceiptInventory(){',begin);
+assert(begin>=0&&end>begin,'W267 genuine grain-receipt visual plan is missing');
+const context={};
+vm.runInNewContext(src.slice(begin,end)+';this.planMarketReceiptDisplay=planMarketReceiptDisplay;',context,{timeout:500});
+const plan=context.planMarketReceiptDisplay;
+const empty=plan([],90);
+assert.equal(empty.reservedFood,0);
+assert.equal(empty.portions.length,0,'no market receipt means no reception-shelf bags');
+assert.equal(empty.displayedFood,0);
+const delivered=plan([{id:'Bram:real',remaining:3.024}],90);
+assert.equal(delivered.reservedFood,3.024);
+assert.equal(delivered.portions.length,4);
+assert.deepEqual(Array.from(delivered.portions,p=>p.amount),[.8,.8,.8,.624]);
+assert.equal(delivered.displayedFood,3.024);
+assert.equal(delivered.overflowFood,0);
+const traded=plan([{id:'Bram:real',remaining:2.224}],89.2);
+assert.equal(traded.reservedFood,2.224);
+assert.deepEqual(Array.from(traded.portions,p=>p.amount),[.8,.8,.624]);
+assert.equal(traded.displayedFood,2.224);
+assert.equal(traded.portions.length,3,'real household purchase removes one physical receipt bag');
+const partial=plan([{id:'Bram:real',remaining:.124}],90);
+assert.equal(partial.portions.length,1);
+assert.equal(partial.portions[0].amount,.124);
+const grown=plan([{id:'many',remaining:8}],120);
+assert.equal(grown.portions.length,6,'bounded physical shelf capacity');
+assert.equal(grown.displayedFood,4.8);
+assert.equal(grown.overflowFood,3.2);
+assert.equal(grown.exceedsDisplayCapacity,true);
+const inconsistent=plan([{id:'bad-ledger',remaining:3}],2);
+assert.equal(inconsistent.ledgerExceedsFood,true);
+assert.ok(inconsistent.displayedFood<=2,'never visibly claim goods not backed by real food');
+assert.match(src,/renderMarketReceiptInventory\(\);/);
+assert.match(src,/receiptGrainLots\|\|\[\]/);
+assert.match(src,/economyResidencySignature\(\)[\s\S]*?planMarketReceiptDisplay/);
+assert.match(src,/getMarketReceiptDisplayAudit:.*getMarketReceiptDisplayAudit/);
+const left=src.indexOf('function renderMarketStock(){');
+const right=src.indexOf('/* G096',left);
+assert(left>0&&right>left&&src.slice(left,right).includes('renderMarketReceiptInventory();'));
+console.log('W267 genuine real-receipt display: 0->3.024->2.224 units, bounded same-world inventory PASS');
