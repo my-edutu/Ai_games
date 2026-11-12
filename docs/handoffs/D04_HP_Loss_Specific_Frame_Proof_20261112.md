@@ -35,3 +35,17 @@ Native contracts and source parsing are one layer; an isolated Chrome smoke run 
 ### Rollback and ownership
 
 Revert only the read-only evidence classifier, its focused regression tests and this D04 handoff if necessary. No production source or default spectator behavior changed, no gameplay/replay contracts changed, and the 7 pools/104 instances, 8 foley voices, opt-in/mute, reduced-motion/flash, cleanup and submission gates remain unchanged.
+
+
+## Verified implementation outcome — genuine Chrome run 43189136184
+
+[The corrected run](https://github.com/my-edutu/Ai_games/actions/runs/43189136184), head `62e4496b`, completed with **successful native contracts and production build** and a **failed real-preview acceptance**. The failure is intentional and load-bearing: the new event-specific classifier rejected the original injury, which the old cumulative-counter gate had incorrectly accepted. Browser media and diagnostics were preserved under artifact `d04-authentic-preview-smoke` despite red acceptance.
+
+Fresh original-clip facts, inspected independently:
+- One primary active MediaRecorder; 11 real frame requests, 6 encoded VP8 packets at 688×397 and 108 Opus packets. This is more encoded video than a previous independent capture, **not** a controlled causal performance claim or sufficient moving footage for contact synchronization.
+- Cumulative totals were 62 queued, 30 expired, 16 admitted visuals, 11 admitted sounds and 62 WebGL frame acknowledgements; such totals are explicitly **not** evidence that the originally witnessed HP loss was accepted.
+- Exact original tick-4 victim receipt: `1:1:4:damage:-:enemy-1-0`, `visual:true`, `decision:stale-frame`, frame 13, `audio:false`, observation-to-submission **1,370ms**, direct renderer call **1,005ms**. It was drawn/attempted too late for the 400ms physical-impact deadline and must **not** count as timely admission; a `visual:true` alone cannot prove a valid hit.
+- Correct verdict: `AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED`, `damageVisualAdmitted:0`, `damageCueReceiptObserved:true`. Read this status precisely as **not a timely accepted visual receipt**, not a claim that no stale geometry was ever submitted.
+- The genuine real-preview check stayed red instead of silently certifying the later unrelated 16 visual admissions. Audible onset, impact-to-Opus alignment, moving three-viewpoint comparisons and 20-minute soak remain **UNVERIFIED**.
+
+**Next action:** determine why the authentic original injury spent 1,005ms in the WebGL renderer. Match the same dynamic authority tick, view and viewport with single primary capture enabled/disabled, compare per-frame effect density and actual direct renderer durations, and retain outliers. D04 must not stretch its 400ms deadline or invent a late impact to obtain a green acceptance.
