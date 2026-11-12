@@ -90,7 +90,7 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
      consentedSoundstage:(feedbackMode!=='d04'||p?.audioOptedIn===true)&&
       document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true',
      recordingAtSample:capture==='on'&&recording,
-     recentDeliveryReceipts:(p.recentDeliveryReceipts||[]).slice(-16)});
+     recentDeliveryReceipts:(p?.recentDeliveryReceipts||[]).slice(-16)});
    };
    const sampler=setInterval(sample,80);
    let settled=null;
