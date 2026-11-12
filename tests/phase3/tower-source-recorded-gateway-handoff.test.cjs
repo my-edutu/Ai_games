@@ -116,3 +116,34 @@ test('recorded crossing retains the real old cap deck and an unbroken supported 
     assert.equal(fx.diagnostics().retainedOldCapPieces,0);
   }finally{fx.dispose();}
 });
+
+test('first authentic Floor9 packet at source crossing tick retains the only original physical gate',async()=>{
+  const {observedRecordedGuardianHandoff,observedGroundedGuardianHandoff,
+    observedGuardianPassage}=await source;
+  const [w,next]=witnessed();
+  // The first browser-accepted Floor9 frame can be the *exact* recorded
+  // crossing tick. Delaying gate recovery to tick452 is too late: the scene
+  // has already disposed its original Floor8 cap and separately owned gate.
+  const atCrossing={...next,tick:w.sourceTick,
+    player:{...next.player,x:w.crossingX}};
+  const before=JSON.stringify(atCrossing);
+  const stored=observedRecordedGuardianHandoff(atCrossing);
+  assert.ok(stored,'source event is already authoritative on crossing tick451');
+  assert.equal(stored.tick,450);
+  assert.equal(observedGroundedGuardianHandoff(stored,atCrossing),true);
+  // A real old browser frame may predate the earned threshold by 16+ source
+  // ticks. It proves the guardian encounter, NOT exact cap contact.
+  const staleOld={...stored,tick:435,
+    player:{...stored.player,x:w.exitX-40000}};
+  assert.equal(observedGuardianPassage(staleOld,atCrossing),true);
+  assert.equal(observedGroundedGuardianHandoff(staleOld,atCrossing),false);
+  assert.equal(JSON.stringify(atCrossing),before,
+    'this presentation rescue never changes any authoritative snapshot');
+  assert.equal(observedRecordedGuardianHandoff(
+    {...atCrossing,tick:w.sourceTick-1}),null,
+    'future crossing records cannot be borrowed before the actual source event');
+  const scene=fs.readFileSync(require.resolve(
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(scene,/recordedGatewayPrevious\s*\|\|\s*\(clearedGuardian\s*\?\s*previous\s*:\s*null\)/,
+    'first authenticated Floor9 crossing takes source-owned exact contact before a lagged browser observation');
+});
