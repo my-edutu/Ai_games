@@ -875,5 +875,25 @@
     "supportedHardware": "NOT EVALUATED",
     "nextAction": "Verify exact-head CI, 9-job native capture and authentic event/frame matching; reject far scenery pop, latency regression or device performance defect.",
     "repairedSourceCI": "Old unbatched code 277ea360 failed five tests at 43121814838. Source 02ef313 fixes VM integration and restores single shadow-free rigid low-tier skyline draw. Fresh CI 43122518034 pending. Do not treat f434 source film as acceptance of this repaired version."
+  },
+  "p0PreserveActualGroundedCapDoorwayAcrossFloorNine20261112": {
+    "stage": "P0 OPEN; NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidatePin": "the immutable github.sha of THIS capture-request change, never moving branch ref",
+    "sourceImplementationSha": "95bb7f25e852322b0cde97c679be71f6e19b5c22",
+    "greenExactImplementationCI": "https://github.com/my-edutu/Ai_games/actions/runs/43124618874 — success 1406 pass,1 skipped,0 fail. Veto only.",
+    "precedingCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43122677273 — source success, 8/8 genuine 60s+ original WebMs, guardian event-to-native pair failed 0/2",
+    "technicalObservation": "Actual baseline/candidate desktop and portrait same-seed native 1x 73s films: guardian fight 12–24s, authentic Floor8→9 at ~25s but visual doorway jumps. Original source-to-native-Floor9 portrait discrepancy about +1.04s. No post-fix film yet.",
+    "requestedAuthenticVideo": "Original 9-job 960x600 and 390x844 baseline/candidate normal-speed identical seed/low tier for ascent, moving, danger/guardian and outcome/restart; source-campaign and native integrity strict. NEVER disable 0/2 event-raster veto.",
+    "acceptanceProbes": "At defeated guardian then ticks 451/452, inspect exact old open inner source-anchored stone arch radius 25 continuing through first actual Floor9 render; no reintroduced radius27.78 external fake memory, no door slam, no obstruction, no stale inlay. Analyze real source HTTP accepted/Three returned/native first HUD and player movement, 60+sec. Verify floor9 onward and genuine result/intermission/restart. Veto if worse.",
+    "independentReviewCounts": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "latestHeadQuality": "Pass for code SHA only; this request commit triggers its own exact-head workflow and should not be called green until completed.",
+    "nextAction": "Inspect exact immutable new source 9-job film and CI, compare portal near 24–27 seconds at normal speed both viewports and event-bound clocks. Fix largest physical continuity or source latency defect; remain P0 until full 2/2 footage and genuine blind/device gates.",
+    "safety": "No merge, deploy, force push, baseline change, PR58 rewrite or PR draft conversion."
   }
 }
