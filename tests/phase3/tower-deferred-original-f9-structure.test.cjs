@@ -19,7 +19,9 @@ test('cold source-earned Floor9 starts with authentic grounded roof, then stages
   // The real shell must complete a subsequent renderer submission before the canyon uploads;
   // its source-owned upload may be delayed by an authentic held gateway shot.
   assert.match(world,/arrival\.state==='awaiting-structural-submission'[\s\S]*?Number\.isSafeInteger\(arrival\.structureBuiltAtSubmitted\)[\s\S]*?arrival\.submittedFrames>arrival\.structureBuiltAtSubmitted[\s\S]*?!options\.stale\)[\s\S]*?appendDeferredVista\(arrival\)/);
-  assert.match(world,/arrival\.submittedFrames>=\(arrival\.structureDeferred\?3:2\)/);
+  // A true returned frame containing the canyon must precede the far citadels.
+  // The source gate can delay uploads, so fixed absolute frame counts are unsound.
+  assert.match(world,/arrival\.state==='awaiting-vista-submission'[\s\S]*?Number\.isSafeInteger\(arrival\.vistaBuiltAtSubmitted\)[\s\S]*?arrival\.submittedFrames>arrival\.vistaBuiltAtSubmitted[\s\S]*?!options\.stale\)/);
   assert.match(world,/for\(const p of snapshot\.platforms\|\|\[\]\)\{/);
   assert.match(world,/for\(const h of snapshot\.hazards\|\|\[\]\)buildHazard\(/);
   assert.match(world,/noteFrameSubmitted\(snapshot, options=\{\}\)/);
