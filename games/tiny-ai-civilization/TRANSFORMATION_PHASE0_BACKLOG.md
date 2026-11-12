@@ -1,3 +1,19 @@
+## W252 · ACTIVE Phase 1 one-workstream backlog · 12 November 2026
+
+**Authorization:** Only [OPEN DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64), original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`, playable W252 source [22759960c2a817f534a6cd971666f44740217f8c](https://github.com/my-edutu/Ai_games/commit/22759960c2a817f534a6cd971666f44740217f8c). NO merge, divergent branches, fake actors, fake economy or false hardware pass. ONE farmer → loaded courier → actual market inventory → lived-in occupied home vertical slice, including grown Day120 and mobile.
+
+| Impact / owner | Evidence and integrated current work | Measurable release gate |
+| --- | --- | --- |
+| 1 · Real labor visibility | Inspected genuine W251 desktop/390px uncut workday: actual face, hands and shins still small/partly blocked by field rails. W252 physically scores low woven field obstacles; restores crop-clear legal interior shot eligibility while preserving actual posts/gate and original 24 triangles per fence panel | W252 genuine moving worker and harvest, carried load, actual receiving and house at 1024/390 readable without fence/roof occlusion; no fake citizen or camera cutaway |
+| 2 · Original coherent architecture | The W251 open workcourt improves sky but full district remains toy-like and scattered. W252 lowers only actual field hurdles; do NOT score this as an art milestone | Substantially rebuilt coherent contiguous medieval farm→granary→market→house, original authentic materials, silhouettes, realistic terrain, moving workers; unprompted blind A/B judges LOOK FEEL PLAY all materially stronger than G088 |
+| 3 · GPU/CPU/replay and growth | W251 source archive CI, economic film and Day121 grown WebGL jobs PASS on earlier exact SHA ca43e67, not W252. W252 focused test RED/GREEN and full inline JS syntax PASS locally. SwiftShader is not hardware; full latest GPU and long soak not accepted | W252 exact commit Day120+ below 160k, deterministic 120-day replay/save/restore, stable long soak, bounded CPU rebuild/VBO memory, no WebGL/page errors and real source-specified uploads/draw timing |
+| 4 · Mobile camera/UI and actual GPU | W251 390px genuine gameplay still visually obstructed and portrait readability weak; W252 camera change is not yet screened. No physical GPU data | Native representative mobile and desktop 30+ sustained FPS, p95 frame ≤33.3ms, no egregious stalls or dropped input, 390px genuinely usable controls/orbit/follow |
+| 5 · Honest A/B and harsh critics | [W251 authentic workday video](https://github.com/my-edutu/Ai_games/actions/runs/43160927617/artifacts/13918216350), [grown footage](https://github.com/my-edutu/Ai_games/actions/runs/43160927467/artifacts/13918740218). W252 matched candidate movie, same seed/staged controls/Day120/mobile and fresh-context critics unavailable at publication | Complete exact-source true running game G088 vs W252, 3 viewpoints with uncut real workday/camera/UI and real mobile, independent blinded 4/5 LOOK/FEEL/PLAY approval with biggest failure, commercial scorecard separately |
+
+**A LOOK NOT PROVEN · A FEEL NOT PROVEN · A PLAY NOT PROVEN · B COMMERCIAL FAIL.** Technical source test is only a correctness floor, not an experience milestone. Phase 1 remains active. Next: inspect exact new W252 film, then implement substantially higher-impact contiguous architecture and authentic citizen work.
+
+---
+
 ## W251 · durable one-milestone Phase 1 backlog · 12 November 2026
 
 **Scope:** Only [open draft PR #64](https://github.com/my-edutu/Ai_games/pull/64), original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`, current gameplay [W251 production 825ee4e1](https://github.com/my-edutu/Ai_games/commit/825ee4e108cd910a18137d98fc4e5201fa006d01). No merges or divergent branch copy. One real farmer → cart → market → household scenario.
