@@ -20763,6 +20763,30 @@ function isReadableHomecomingShot(shot,portrait=false,doorway=false){
   shot.foregroundSceneCover<sceneLimit&&
   shot.projectedWorkerHeightFraction>=bodyMinimum;
 }
+// W246 physical-first workday and market camera director. The coarse survey
+// tests true eye positions and roof rays before projecting expensive scenery.
+// Retain the cheapest LEGAL sightline from every real yaw bearing, then rank
+// all other viable views. No render body, property, cart or actor is hidden.
+function planBoundedCameraScenicSurvey(possibilities,limit){
+ if(!Array.isArray(possibilities)||!Number.isInteger(limit)||limit<1)
+  throw Error('W246 invalid camera survey');
+ const ranked=possibilities.slice().sort((a,b)=>
+  a.coarse-b.coarse||a.ordinal-b.ordinal);
+ const retained=[],seen=new Set(),bearing=new Set();
+ for(const option of ranked){
+  if(retained.length>=limit)break;
+  if(!option.shot.eyeCollision.clear||option.shot.blockers!==0||
+   bearing.has(option.angleIndex))continue;
+  bearing.add(option.angleIndex);
+  seen.add(option.ordinal);retained.push(option);
+ }
+ for(const option of ranked){
+  if(retained.length>=limit)break;
+  if(seen.has(option.ordinal))continue;
+  seen.add(option.ordinal);retained.push(option);
+ }
+ return retained;
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -20819,9 +20843,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const eye=[citizen.x+Math.sin(angle)*radius,
    terrain(citizen.x,citizen.z)+1.02+elevation,
    citizen.z+Math.cos(angle)*radius];
-  const scenic=(working||journeyCamera)?foregroundSceneProjection(eye,target,roofs):
-   {cover:0,largest:0,volumes:0};
-  const marketPostSightline=unloading?marketCourierPostSightline(eye,target):null;
+  // Full-projection is deliberately deferred until a bounded authentic
+  // physical shortlist is selected. Only these initial zero observations
+  // are discarded; the physical world and all final visual checks remain.
+  const scenic={cover:0,largest:0,volumes:0};
+  const marketPostSightline=null;
   return {yaw:angle,pitch,zoom,eye,target,
    projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,
@@ -20861,8 +20887,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
   Math.min(13,normalZoom+2.3)]):[12.8];
  const hands=realWork?documentaryWorkHandTargets(citizen):[];
- const possibilities=[];
- for(const p of pitches)for(const z of zooms)for(const angle of angles){
+ let possibilities=[];
+ for(const p of pitches)for(const z of zooms)for(const [angleIndex,angle] of angles.entries()){
   const shot=candidate(angle,p,z);
   const alignment=realWork||journeyCamera?Math.cos(angle-facing):0;
   const delta=Math.atan2(Math.sin(angle-preferredYaw),
@@ -20891,12 +20917,30 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const coarse=shot.blockers*1000+
    (shot.eyeCollision.clear?0:9000)+oppositeYard+rearPenalty+crowd*325+
    (cropEye?650:0)+
-   (shot.marketPostSightline?.centerCover||0)*6400+sizePenalty+routeSizePenalty+
-   shot.foregroundSceneCover*(portraitLens?2400:working?1500:0)+
-   shot.foregroundCargoCover*(portraitLens?1900:1100)+
+   sizePenalty+routeSizePenalty+
+   // Real building, cart, canopy and receiving-post cover are added exactly
+   // AFTER the physical-first camera admission, not approximated as clear.
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
-  possibilities.push({shot,coarse,alignment});
+  possibilities.push({shot,coarse,alignment,angleIndex,
+   ordinal:possibilities.length});
+ }
+ const originalSurveyCandidates=possibilities.length;
+ possibilities=planBoundedCameraScenicSurvey(possibilities,
+  portraitLens?162:126);
+ for(const option of possibilities){
+  const scenic=(working||journeyCamera)?foregroundSceneProjection(
+   option.shot.eye,target,roofs):{cover:0,largest:0,volumes:0};
+  option.shot.foregroundSceneCover=scenic.cover;
+  option.shot.foregroundBuildingCover=scenic.buildingCover||0;
+  option.shot.foregroundCargoCover=scenic.cargoCover||0;
+  option.shot.foregroundSceneLargest=scenic.largest;
+  option.shot.foregroundSceneVolumes=scenic.volumes;
+  const realPost=unloading?marketCourierPostSightline(option.shot.eye,target):null;
+  option.shot.marketPostSightline=realPost;
+  option.coarse+=(realPost?.centerCover||0)*6400+
+   scenic.cover*(portraitLens?2400:working?1500:0)+
+   (scenic.cargoCover||0)*(portraitLens?1900:1100);
  }
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
@@ -21035,7 +21079,10 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
   clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
   viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
-  originalBlockers:original.blockers};
+  originalBlockers:original.blockers,
+  physicalSurveyCandidates:originalSurveyCandidates,
+  scenicSurveyCandidates:possibilities.length,
+  renderedWorldStillComplete:true};
 }
 
 /* W58 — genuine threshold witness. W57 physically animates the oak leaf,
