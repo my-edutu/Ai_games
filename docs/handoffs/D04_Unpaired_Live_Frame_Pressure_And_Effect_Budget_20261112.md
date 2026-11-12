@@ -19,7 +19,7 @@ The test-first commit `fa808cdd725121f4c661a6bf5d872acde86ad30d` adds three cont
 2. a browser sampler jumping from tick 1 to tick 5 must record the genuine tick-4 HP loss as **unobserved by that sampler**, without claiming missed WebGL contact or assigning an attacker;
 3. the first two submitted samples, subsequent render samples, zero-active-VFX samples, and active-VFX samples must receive separately labelled noncausal distributions.
 
-The isolated coding tunnel was unavailable: the tests were committed before their implementation, but a genuine Node red test run on that intermediate commit was **not verified**. The corrected module and all **11** focused existing/new contracts were executed within a V8 CommonJS-compatible assertion harness; this is **not equivalent** to the native Node suite or browser acceptance. Fresh GitHub Actions must be checked separately.
+The isolated coding tunnel was unavailable. The tests were committed **before** their implementation and a genuine [GitHub Actions red run 43218966064](https://github.com/my-edutu/Ai_games/actions/runs/43218966064) verified **exactly three new focused failures** (203/206 passed, 3/206 failed) on the test-only commit. After implementation, the corrected candidate's [GitHub Actions run 43219160754](https://github.com/my-edutu/Ai_games/actions/runs/43219160754) verified **206/206 native contracts and the production build passed**. At the time of this handoff amendment its real Chrome job was **still running**, so this change does not yet claim genuine browser acceptance. Independently all 11 focused contracts passed a V8 CommonJS-compatible assertion harness; that harness is **not equivalent** to Node or real Chrome.
 
 ## Actual edits
 
@@ -62,3 +62,7 @@ Rollback: revert this increment's **test fixture**, **continuous classifier**, *
 3. Obtain matched moving desktop plus 390px mobile from three distinct viewpoints, genuine Warden warning/release/recovery/counter and real miss/block/dodge/projectile/spell/HP loss, decoded synchronized original foley, effect cleanup and 20-minute soak.
 
 **Never infer Diablo-IV parity or claim the complete 3D transformation.** Default spectator stays legacy; D04 requires `?feedback=d04` until final integration acceptance.
+
+## Independently inspected earlier encoded gameplay footage (NOT this candidate)
+
+The two *previously supplied* genuine capture-on WebMs from run `43198249099` were inspected with local `ffprobe`, not treated as new D04 candidate evidence. Desktop VP8 video contained **8 decoded frames**, with a **5.707-second** gap between video timestamps 3.348s and 9.055s; its Opus stream contained **207 packets**. The 390px capture contained **9 decoded frames**, including a **4.658-second** gap from 3.918s to 8.576s, and **225 Opus packets**. The displayed mobile picture was 390px CSS viewport, but encoded canvas track pixel dimensions need separate examination before claiming pixel-perfect resolution. These clips do **not** establish contact-audio sample synchronization or full-moving three-viewpoint acceptance. No new Chrome playback is claimed from prior artifacts.
