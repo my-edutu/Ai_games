@@ -13357,6 +13357,42 @@ function farmFieldLodChoice(distance,previous='far'){
  // The 4 metre hysteresis avoids a full mesh-size flip while orbiting.
  return distance<(previous==='near'?31:27)?'near':'far';
 }
+// W245: strict ORIGINAL scene-budget admission for full 3D crop quality.
+// Both camera-selected tiers retain EVERY root, furrow and seed-head source;
+// no field is culled for budget reasons, and a deficit remains a visible FAIL.
+// Prioritise the real working farmer's plot, not the easiest distant screenshot.
+function chooseBudgetedFarmPlotModes(plots,triangleBudget){
+ if(!Number.isFinite(triangleBudget)||triangleBudget<0)
+  throw Error('W245 invalid original field budget');
+ if(!Array.isArray(plots))throw Error('W245 invalid original plot list');
+ for(const plot of plots){
+  if(!Number.isInteger(plot.plot)||plot.plot<0||
+    !Number.isFinite(plot.nearTriangles)||!Number.isFinite(plot.farTriangles)||
+    plot.nearTriangles<=0||plot.farTriangles<=0||
+    plot.nearTriangles<plot.farTriangles||
+    !Number.isFinite(plot.distance)||plot.distance<0)
+   throw Error('W245 invalid original plot geometry');
+ }
+ const modes=plots.map(()=>'far');
+ const minimumTriangles=plots.reduce((total,plot)=>total+plot.farTriangles,0);
+ let totalTriangles=minimumTriangles;
+ const ranked=plots.map((plot,i)=>({...plot,i})).filter(row=>row.wantsNear)
+  .sort((a,b)=>Number(Boolean(b.realWork))-Number(Boolean(a.realWork))||
+   a.distance-b.distance||a.plot-b.plot);
+ let protectedNear=0;
+ for(const plot of ranked){
+  const premium=plot.nearTriangles-plot.farTriangles;
+  if(totalTriangles+premium>triangleBudget+1e-7)continue;
+  totalTriangles+=premium;modes[plot.i]='near';
+  if(plot.realWork)protectedNear++;
+ }
+ return {modes,totalTriangles,minimumTriangles,
+  requestedNear:ranked.length,retainedNear:modes.filter(m=>m==='near').length,
+  protectedNear,unbudgetedPremiums:ranked.length-modes.filter(m=>m==='near').length,
+  shortfall:Math.max(0,minimumTriangles-triangleBudget),
+  overBudget:totalTriangles>triangleBudget+1e-7,
+  completeVisiblePlots:plots.length,droppedPlots:0};
+}
 function disposeResidentFarmFields(){
  if(gpuAvailable)for(const entry of [farmFieldNear,farmFieldFar]){
   if(entry?.buffer){releaseGeometryBuffer(entry.buffer);farmFieldDisposals++}
@@ -13500,50 +13536,77 @@ function prepareResidentFarmFields(season){
   farmFieldResidentDisabled=true;farmFieldFailures++;return false;
  }
 }
-function drawResidentFarmFields(eye,planes=null){
+// Every planted plot remains visible; the W245 scene budget changes only
+// HOW MUCH of the same real cereal detailing is affordable on this frame.
+let farmFieldSceneBudgetAudit={source:'real-complete-planted-farm-scene-budget',
+ availableFieldTriangles:0,visiblePlots:0,requestedNear:0,retainedNear:0,
+ protectedNear:0,minimumTriangles:0,usedTriangles:0,sceneBudgetBreached:false,
+ originalPlotsPreserved:true,droppedPlotsForBudget:0};
+function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
  if(!gpuAvailable||!farmFieldNear||!farmFieldFar)
   return {drawCalls:0,triangles:0,mode:'complete-civic-fallback',
    visiblePlots:0,culledPlots:0};
  let drawCalls=0,triangles=0,culledPlots=0,closest=Infinity;
  let atLeastOneNear=false;
- const drawn=[];
+ const requests=[];
  for(let i=0;i<FARMSTEAD.fields.length;i++){
   const nearRange=farmFieldNear.ranges[i],farRange=farmFieldFar.ranges[i];
-  // Every plot has independent LOD; a courier close to the second field
-  // must not inherit a distant first-field quality decision.
+  // Conservative union: no far/near geometry is dropped when a field's
+  // true animated AABB touches the view in either legitimate tier.
+  if(planes&&!sceneChunkInFrustum(nearRange,planes)&&
+    !sceneChunkInFrustum(farRange,planes)){
+   culledPlots++;continue;
+  }
   const centerX=(nearRange.minX+nearRange.maxX)*.5,
    centerY=(nearRange.minY+nearRange.maxY)*.5,
    centerZ=(nearRange.minZ+nearRange.maxZ)*.5;
   const distance=Math.hypot(eye[0]-centerX,eye[2]-centerZ,
    (eye[1]-centerY)*.75);
   closest=Math.min(closest,distance);
-  const mode=farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far');
+  const originalField=FARMSTEAD.fields[i];
+  const realWork=people.some(p=>p.job==='farmer'&&isWorkingAtSite(p)&&
+   p.x>=originalField[0]-.7&&p.x<=originalField[1]+.7&&
+   p.z>=originalField[2]-.7&&p.z<=originalField[3]+.7);
+  requests.push({plot:i,distance,realWork,
+   wantsNear:farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far')==='near',
+   nearTriangles:nearRange.count/3,farTriangles:farRange.count/3});
+ }
+ const choice=chooseBudgetedFarmPlotModes(requests,
+  Number.isFinite(triangleBudget)?Math.max(0,triangleBudget):Number.MAX_SAFE_INTEGER);
+ const drawn=[];
+ for(let j=0;j<requests.length;j++){
+  const request=requests[j],i=request.plot,mode=choice.modes[j];
   farmFieldPlotLods[i]=mode;
   if(mode==='near')atLeastOneNear=true;
   const mesh=mode==='near'?farmFieldNear:farmFieldFar;
-  const range=mode==='near'?nearRange:farRange;
-  // Conservative whole-plot AABB: no partial harvest or missing row.
-  // Offscreen plots remain allocated and are immediately visible on orbit.
-  if(planes&&!sceneChunkInFrustum(range,planes)){
-   culledPlots++;continue;
-  }
+  const range=mesh.ranges[i];
   bindGeometry(mesh.buffer);
   gl.drawArrays(gl.TRIANGLES,range.first,range.count);
   farmFieldDrawCalls++;drawCalls++;triangles+=range.count/3;
   drawn.push({plot:i,mode,triangles:range.count/3,stems:range.stems,
-   distance});
+   distance:request.distance,realWork:request.realWork});
  }
  farmFieldLod=atLeastOneNear?'near':'far';
  farmFieldLastDistance=closest;
  farmFieldLastTriangles=triangles;
  farmFieldLastDrawnPlots=drawn;farmFieldCulledPlots=culledPlots;
+ farmFieldSceneBudgetAudit={source:'real-complete-planted-farm-scene-budget',
+  availableFieldTriangles:triangleBudget,visiblePlots:drawn.length,
+  requestedNear:choice.requestedNear,retainedNear:choice.retainedNear,
+  protectedNear:choice.protectedNear,minimumTriangles:choice.minimumTriangles,
+  usedTriangles:triangles,sceneBudgetBreached:choice.overBudget,
+  minimumShortfall:choice.shortfall,originalPlotsPreserved:true,
+  droppedPlotsForBudget:choice.droppedPlots,
+  outsideFrustum:culledPlots,realWorkersInView:requests.filter(r=>r.realWork).length};
  return {drawCalls,triangles,mode:farmFieldLod,distance:closest,
-  visiblePlots:drawn.length,culledPlots,drawnPlots:drawn};
+  visiblePlots:drawn.length,culledPlots,drawnPlots:drawn,
+  budget: {...farmFieldSceneBudgetAudit}};
 }
 function getFarmFieldResidencyAudit(){
  const plantedStems=FARMSTEAD.fields.reduce((n,field)=>n+2*field[4]*field[5],0);
  return {source:'original-668-roots-per-plot-frustum-and-seasonal-residency',
   enabled:gpuAvailable&&!farmFieldResidentDisabled,
+  sceneBudget:{...farmFieldSceneBudgetAudit},
   active:Boolean(farmFieldNear&&farmFieldFar),
   season:farmFieldResidentSeason,mode:farmFieldLod,
   eyeDistance:farmFieldLastDistance,drawnTriangles:farmFieldLastTriangles,
@@ -24065,13 +24128,14 @@ if(gpuAvailable){
 // Count the actual currently chosen crop LOD in THIS frame's 160k gate,
 // not the previously presented camera's field mesh.
 const planes=gpuAvailable?sceneFrustumPlanes(m):null;
-const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes):
- {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
-lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
- activeCivicMesh().length+homeClusterFloats()+farmFieldLastTriangles*30+data.length+
-  (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
+// W245: calculate the exact existing non-field scene BEFORE admitting near
+// crop detail. All original buildings, residents, freight and dynamic jobs
+// retain their real geometry; never make those disappear to pass a limit.
+const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
+ activeCivicMesh().length+homeClusterFloats()+data.length+
+ (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
-  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
+ (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
  (courierTrailResidentActive?courierTrailResidentMesh?.length||0:0)+
@@ -24086,6 +24150,9 @@ lastFrameTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.lengt
  (foregroundResidentVisible.length?foregroundResidentMesh.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
+const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes,Math.max(0,160000-nonFieldTriangles)):
+ {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
+lastFrameTriangles=nonFieldTriangles+(gpuAvailable?farmFieldLastTriangles:0);
 if(gpuAvailable){
  scenicVisibilityStats.farmFields=fieldLodDraw;
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);

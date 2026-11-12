@@ -2,8 +2,9 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
-// W55 test written before rebuilding the original, truth-linked field art.
-// These tests do not count as an experience gate without matched gameplay.
+// W245: preserve W55's planted-field and 390px evidence against the actual
+// W111 two complete resident tiers and the strict current-frame scene budget.
+// Source or WebGL success is NOT a commercial experience milestone.
 for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
  test('W55 inhabited farm has lightweight, individually bent grain ears and legible controls at '+viewport.width+'px',async({page})=>{
   test.setTimeout(160000);
@@ -14,20 +15,29 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const g=window.__tinyKingdom;g.setSpeed(0);
    const before=JSON.stringify(g.exportSnapshot());
    const farmer=g.getFarmsteadStats();
+   const planted=g.getFarmFieldResidencyAudit();
    const ui=['pause','command-toggle'].map(id=>{
     const b=document.getElementById(id),r=b.getBoundingClientRect();
     return {id,fontSize:parseFloat(getComputedStyle(b).fontSize),height:r.height};
    });
-   return {farmer,ui,scene:g.renderStats().lastFrameTriangles,
+   return {farmer,planted,ui,scene:g.renderStats().lastFrameTriangles,
     glError:document.getElementById('world').getContext('webgl')?.getError(),
     unchanged:before===JSON.stringify(g.exportSnapshot()),
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
-  expect(audit.farmer.stalkVisualModel).toBe('w55-tapered-crossed-stems-grain-ears');
+  expect(audit.farmer.stalkVisualModel).toBe('w111-two-complete-seasonal-crop-tiers');
   expect(audit.farmer.stalks).toBe(668);
   expect(audit.farmer.seedHeads).toBeGreaterThan(500);
-  expect(audit.farmer.stalkTriangles).toBeGreaterThan(5000);
-  expect(audit.farmer.stalkTriangles).toBeLessThan(16000);
+  expect(audit.planted.originalPlotCount).toBe(2);
+  expect(audit.planted.plantedStems).toBe(668);
+  expect(audit.planted.plottedStems).toBe(audit.planted.plantedStems);
+  expect(audit.planted.allOriginalRoots).toBe(true);
+  expect(audit.planted.active).toBe(true);
+  expect(audit.planted.buffers).toBe(2);
+  expect(audit.planted.nearTriangles).toBeGreaterThan(audit.planted.farTriangles);
+  expect(audit.planted.sceneBudget.originalPlotsPreserved).toBe(true);
+  expect(audit.planted.sceneBudget.droppedPlotsForBudget).toBe(0);
+  expect(audit.planted.sceneBudget.sceneBudgetBreached).toBe(false);
   expect(audit.scene).toBeLessThan(160000);
   expect(audit.unchanged).toBe(true);
   expect(audit.glError).toBe(0);

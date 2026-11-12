@@ -16,6 +16,7 @@ on:
       - 'scripts/tiny-kingdom-w242-original-workshop-contract.cjs'
       - 'scripts/tiny-kingdom-w243-original-compact-human-contract.cjs'
       - 'scripts/tiny-kingdom-w244-real-farm-gate-and-forest-contract.cjs'
+      - 'scripts/tiny-kingdom-w245-authentic-farm-scene-budget-contract.cjs'
       - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
       - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
       - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
@@ -63,6 +64,8 @@ jobs:
         run: node scripts/tiny-kingdom-w243-original-compact-human-contract.cjs
       - name: W244 real field gate aperture and original near/mid forest resource contract
         run: node scripts/tiny-kingdom-w244-real-farm-gate-and-forest-contract.cjs
+      - name: W245 real-field complete plot residency and farmer-priority scene budget
+        run: node scripts/tiny-kingdom-w245-authentic-farm-scene-budget-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
