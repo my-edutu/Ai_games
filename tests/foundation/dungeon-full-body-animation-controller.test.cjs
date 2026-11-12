@@ -3715,7 +3715,7 @@ test('RED: genuine source swing thigh supports a buried airborne toe without mov
   make(.045,-.074,.201,[.06,.24]), // lateral toe skate
   make(.045,-.093,.20), // deeper real toe
   make(.045,-.074,.13), // collapse airborne heel
-  make(.09,-.058,.201), // beyond allowable single-frame slew
+  make(.15,-.058,.201), // beyond even severe-burial upperleg slew
   make(.045,-.074,.201,[.012,.228],{...before.right,toeY:-.036}), // moves supporting foot
   make(.045,.04,.201), // floor overshoot
   make(.045,-.079,.201) // <4mm improvement
@@ -3782,4 +3782,51 @@ test('RED: the authentic post-ankle source thigh may improve a still buried toe 
   'a verified same-side original ankle rescue must not blanket-block further safe source thigh movement');
  assert.doesNotMatch(stage,/actor\.sourceSwingCalfCurrentFrameMask\s*\|\|/,
   'a real source calf rescue is not a blanket rejection of a separately remeasured upperleg');
+});
+
+
+test('RED: only witnessed severe source-swing toe burial may select a wider but bounded authentic upperleg trial',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ // Original-GLB 390px frame: source heel 249mm up, toe 57.4mm below
+ // world zero against stone top -20mm. The trial poses here are hypothetical
+ // inputs until remeasured on original skinned vertices in WebGL.
+ const before={left:{heelY:.24918,toeY:-.05742,heelXZ:[0,0],toeXZ:[0,.20]},
+  right:{heelY:-.023,toeY:-.030,heelXZ:[.25,0],toeXZ:[.25,.20]}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.91,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.038,frameAge:.032,
+  side:'left',floorTopY:-.02,previousCorrectionRad:0,before};
+ const trial=(delta,toe,heel,toeXZ=[.018,.209],other=before.right)=>({
+  delta,after:{left:{heelY:heel,toeY:toe,heelXZ:[.012,.003],toeXZ},
+   right:other}
+ });
+ const selected=choose({...owner,trials:[
+  trial(.045,-.05149,.25499,[.008,.205]),
+  trial(.09,-.0456,.2604,[.018,.209]),
+  trial(-.045,-.064,.244)
+ ]});
+ assert.equal(selected?.angleRad,.09,
+  'real two-point skinned trial can improve residual swing burial without arbitrary foot lock');
+ assert.ok(selected.improvementMeters>.011&&selected.improvementMeters<.012);
+ assert.equal(selected.contactLocked,false);
+ for(const bad of [
+  {trials:[trial(.15,-.037,.2604)]},
+  {trials:[trial(.09,-.0456,.2604,[.038,.209])]},
+  {trials:[trial(.09,-.0456,.200)]},
+  {trials:[trial(.09,-.0456,.2604,[.018,.209],{...before.right,toeY:-.038})]},
+  {before:{...before,left:{...before.left,toeY:-.025}},
+   trials:[trial(.09,-.013,.2604)]},
+  {previousCorrectionRad:-.045,trials:[trial(.09,-.0456,.2604)]},
+  {sourceWeight:.3,trials:[trial(.09,-.0456,.2604)]}
+ ])assert.equal(choose({...owner,...bad}),null,
+  'severe-penetration assist cannot bypass bounded joints, both shoes, or owner evidence');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const stage=renderer.slice(start,end);
+ assert.match(stage,/sourceSwingThighAxisAudit/);
+ assert.match(stage,/sourceSkinnedSoleWorld/);
+ assert.match(stage,/chooseOriginalSourceSwingThighSupport/);
+ assert.match(stage,/\.09/,'severe-burial larger trial must be independently skinned and measured in live imported GLB');
 });
