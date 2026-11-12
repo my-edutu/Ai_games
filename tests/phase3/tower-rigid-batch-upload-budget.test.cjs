@@ -54,6 +54,24 @@ test('real assembled floor 9 selectively uploads fewer GPU vertex bytes with exa
       const uvs=g.attributes.uv;
       assert.equal(normals.count,positions.count);
       assert.equal(uvs.count,positions.count);
+      // One interleaved static VBO replaces three separate position, normal
+      // and UV uploads without changing any source triangle or authored face.
+      assert.equal(positions.isInterleavedBufferAttribute,true,
+        'first source-floor renderer should submit a single packed vertex buffer');
+      assert.equal(normals.isInterleavedBufferAttribute,true);
+      assert.equal(uvs.isInterleavedBufferAttribute,true);
+      assert.equal(positions.data,normals.data,'normal and position share one real GPU vertex stream');
+      assert.equal(positions.data,uvs.data,'UV and position share one real GPU vertex stream');
+      assert.equal(positions.data.stride,8,'position xyz / normal xyz / uv xy');
+      assert.equal(positions.offset,0);
+      assert.equal(normals.offset,3);
+      assert.equal(uvs.offset,6);
+      assert.equal(positions.data.array.byteLength,positions.count*8*4);
+      for(const sample of [0,Math.floor(positions.count/2),positions.count-1]) {
+        assert.equal(positions.getX(sample),positions.data.array[sample*8]);
+        assert.equal(normals.getY(sample),positions.data.array[sample*8+4]);
+        assert.equal(uvs.getY(sample),positions.data.array[sample*8+7]);
+      }
       const oldBytes=count*8*4;
       const realBytes=positions.count*8*4+(index?.array?.byteLength||0);
       previousBytes+=oldBytes;currentBytes+=realBytes;
@@ -74,6 +92,10 @@ test('real assembled floor 9 selectively uploads fewer GPU vertex bytes with exa
     assert.equal(reported.previousExpandedAttributeBytes,previousBytes);
     assert.equal(reported.indexedBatches,indexed);
     assert.equal(reported.batches,batches.length);
+    assert.equal(reported.interleavedVertexBuffers,batches.length,
+      'one actual THREE.InterleavedBuffer per rigid batch');
+    assert.equal(reported.formerSeparateVertexAttributeBuffers,batches.length*3,
+      'same geometry formerly had three separate CPU upload buffers');
     assert.match(reported.caveat,/not GPU allocated memory or measured FPS/);
     assert.equal(JSON.stringify(source),frozen,'render optimization never edits authoritative snapshots');
     // Updating the same source cannot allocate another floor or abandon owner metadata.
