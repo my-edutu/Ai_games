@@ -9291,5 +9291,39 @@
     "stage": "A_INCOMPLETE_B_REJECTED",
     "pr72": "ISOLATED_UNADOPTED",
     "next": "Inspect real new HEAD warning/release/counter video and verify screen-space actual actors not hidden by HUD; reject or correct map if overlapping. Then major source-rig adult cast with native full-body contact/HP/audio and independent critics."
+  },
+  "m1SafeZoneAuthenticFilmAndBaselineAudit20261112": {
+    "at": "2026-11-12",
+    "pr": 49,
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "lockedBaseline": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedHead": "ef1d8aa7523d6c518207d838baa6bdeaa0bede49",
+    "organicRun": 43306880952,
+    "desktopArtifact": 13983449870,
+    "mobileArtifact": 13984487460,
+    "precedingRun": 43297552015,
+    "realFrames": true,
+    "originalAudio": true,
+    "naturalContinuousPacing": "UNVERIFIED_HELD_STAGE_FILM",
+    "baselineSameSeedFiveStage": "UNAVAILABLE_IN_LOCKED_ARTIFACT",
+    "mobileWarningPx": {
+      "warden": 31,
+      "ranger": 29,
+      "vanguard": 22
+    },
+    "desktopWarningWardenPx": 84,
+    "warningCells": 23,
+    "insetVerdict": "SAMPLED_WARNING_LOWER_RIGHT_CLEAR_NOT_WHOLE_MOTION_ACCEPTED",
+    "productionCodeChanges": "NONE_WORKSPACE_UNAVAILABLE",
+    "workspaceError": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
+    "foundationBrowser": "AUTHORITY_PASS_BROWSER_2_OF_3_SHARDS_PASS",
+    "organic": "PASS_EVIDENCE_NOT_ART_ACCEPTANCE",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "stage": "A_INCOMPLETE_B_NOT_ARTISTICALLY_ACCEPTED",
+    "pr72": "631749e0c4833bec4a8f56a61b49ed253579ee38_ISOLATED_UNADOPTED",
+    "next": "Rebuild one cohesive adult original source-rig Vanguard-vs-Revenant/Cultist-and-Warden exemplar with grounded full-body sword/HP/audio; validate natural motion 390/1440, matched locked baseline and three blinded critics."
   }
 }
