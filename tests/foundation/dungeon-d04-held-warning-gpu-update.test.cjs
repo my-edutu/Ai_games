@@ -101,3 +101,57 @@ test('a frozen still-authoritative Warden warning keeps its GPU matrix until aut
  assert.equal(visual.hasLiveCue(cue.id),false);
  visual.dispose();
 });
+
+
+test('D04 reports actual JS instance writes separately from estimated buffer upload pressure',async()=>{
+ const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ let latest=snapshot(11);
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{
+  getCurrentSnapshot:()=>latest
+ });
+ const signal=meshes[4];
+ assert.equal(visual.stats().lastAdvanceMatrixWrites,0);
+ assert.equal(visual.stats().lastAdvanceDirtyPools,0);
+ assert.equal(visual.emit(cue),true);
+ const before=signal.matrixWrites;
+ visual.advance(.05,.05);
+ const moving=visual.stats();
+ assert.equal(moving.lastAdvanceMatrixWrites,signal.matrixWrites-before,
+  'count only matrices actually written during advance, not emitter admission');
+ assert.equal(moving.lastAdvanceMatrixWrites,1);
+ assert.equal(moving.lastAdvanceDirtyPools,1);
+ assert.equal(moving.lastAdvancePotentialBufferBytes,
+  PHYSICAL_FEEDBACK_POOL_LIMITS.signal*64,
+  'upper bound is the reserved signal instance buffer, NOT measured GPU bytes');
+ assert.equal(moving.lastAdvanceWritesByPool.signal,1);
+ assert.equal(Object.keys(moving.lastAdvanceWritesByPool).length,7);
+ assert.ok(moving.lastAdvanceMatrixWrites<=moving.reservedInstances);
+ assert.ok(moving.lastAdvanceDirtyPools<=moving.drawCalls);
+ for(let i=0;i<3;i++)visual.advance(.05,.05);
+ latest=snapshot(12);
+ visual.advance(.016,.016);
+ const held=visual.stats();
+ assert.equal(held.lastAdvanceMatrixWrites,0);
+ assert.equal(held.lastAdvanceDirtyPools,0);
+ assert.equal(held.lastAdvancePotentialBufferBytes,0);
+ assert.ok(held.advanceFrames>=5);
+ assert.equal(held.lastAdvanceWritesByPool.signal,0);
+ latest=snapshot(12,false);
+ const retiredBefore=signal.matrixWrites;
+ visual.advance(.016,.016);
+ const retired=visual.stats();
+ assert.equal(retired.lastAdvanceMatrixWrites,signal.matrixWrites-retiredBefore);
+ assert.equal(retired.lastAdvanceMatrixWrites,1);
+ assert.equal(retired.lastAdvanceDirtyPools,1);
+ assert.equal(retired.lastAdvancePotentialBufferBytes,
+  PHYSICAL_FEEDBACK_POOL_LIMITS.signal*64);
+ assert.equal(retired.active,0);
+ visual.reset();
+ visual.advance(.016,.016);
+ const cleared=visual.stats();
+ assert.equal(cleared.lastAdvanceMatrixWrites,0);
+ assert.equal(cleared.lastAdvanceDirtyPools,0);
+ assert.equal(cleared.lastAdvancePotentialBufferBytes,0);
+ visual.dispose();
+});
