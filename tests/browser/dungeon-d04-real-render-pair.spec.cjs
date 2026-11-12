@@ -29,6 +29,18 @@ async function observeRealRender(browser,{mode,viewport,seed,before,after}){
  try{
   await page.goto(mode==='d04'?'/dungeon?feedback=d04':'/dungeon');
   await expect.poll(()=>page.evaluate(()=>
+   Boolean(window.__DUNGEON_RENDER_DIAGNOSTICS__?.d04PreviewEnabled)),
+   {timeout:65000}).toBe(mode==='d04');
+  if(mode==='d04'){
+   const baseline=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback);
+   expect(baseline?.audioOptedIn).toBe(false,'No audio without a real gesture');
+   expect(baseline?.visuals?.reservedInstances).toBeLessThanOrEqual(104);
+   expect(baseline?.visuals?.drawCalls).toBeLessThanOrEqual(7);
+  }else{
+   expect(await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback??null))
+    .toBeNull();
+  }
+  await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum),
    {timeout:65000}).toBe(before.checksum);
   // Both use the public spectator's existing tactical viewpoint; no camera
