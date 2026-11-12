@@ -57,15 +57,59 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
   frame.visualAccepted>frame.queued||
   frame.visualAccepted+frame.expiredQueuedCues>frame.queued)
   return verdict('INVALID_BROWSER_COUNTERS');
+ // The previous classifier counted ANY admitted cue after HP loss as a
+ // successful impact. In genuine Chrome evidence the original tick-4 damage
+ // expired, while an unrelated later visual was admitted. Only the exact
+ // anonymous injury cue for each actual HP-loss target can satisfy this gate.
+ // Do not attribute an attacker, infer blade contact, or equate frame
+ // admission with decoded moving video/audio sample synchronization.
+ const priorHp=new Map(before.units.map(unit=>[unit.id,unit.hp]));
+ const targetIds=after.units.filter(unit=>priorHp.has(unit.id)&&
+  priorHp.get(unit.id)>unit.hp).map(unit=>unit.id);
+ const receipts=[
+  ...(Array.isArray(atDamage.physicalFeedback?.recentDeliveryReceipts)?
+   atDamage.physicalFeedback.recentDeliveryReceipts:[]),
+  ...(Array.isArray(frame.recentDeliveryReceipts)?
+   frame.recentDeliveryReceipts:[])
+ ];
+ const admitted=new Set();
+ let originalDamageReceiptObserved=false;
+ for(const receipt of receipts){
+  if(!receipt||receipt.scene!==expectedScene||receipt.tick!==after.tick||
+   !['damage','damage-fatal'].includes(receipt.kind))continue;
+  // The frozen D04 planner encodes observed HP loss with actorId=null:
+  // scene:tick:kind:-:victimId. Never accept invented attacker attribution.
+  const target=targetIds.find(id=>receipt.cueId===
+   `${expectedScene}:${after.tick}:${receipt.kind}:-:${id}`);
+  if(!target)continue;
+  originalDamageReceiptObserved=true;
+  if(receipt.visual!==true||receipt.decision!=='delivered'||
+   !validCount(receipt.frameId)||
+   !Number.isFinite(receipt.observedClockMs)||
+   !Number.isFinite(receipt.submittedClockMs)||
+   receipt.submittedClockMs<receipt.observedClockMs||
+   !Number.isFinite(receipt.observationToSubmissionMs)||
+   receipt.observationToSubmissionMs<0||
+   receipt.observationToSubmissionMs>400||
+   Math.abs(receipt.submittedClockMs-receipt.observedClockMs-
+    receipt.observationToSubmissionMs)>3)continue;
+  admitted.add(target);
+ }
  const base={authoritativeDamage:true,damageVictims:victims,
+  damageVisualAdmitted:admitted.size,
+  damageCueReceiptObserved:originalDamageReceiptObserved,
   queued:frame.queued,expiredQueuedCues:frame.expiredQueuedCues,
   framesAcknowledged:frame.framesAcknowledged,visualAccepted:frame.visualAccepted};
  if(frame.adapterFailures>0)
   return verdict('BROWSER_ADAPTER_FAILURE',base);
  if(frame.framesAcknowledged===0)
   return verdict('NO_REAL_FRAME_RECEIPTS',base);
- if(frame.visualAccepted>0)
+ if(admitted.size===targetIds.length&&frame.visualAccepted>=admitted.size)
   return verdict('VISUAL_ADMITTED_NOT_AV_VERIFIED',{...base,visualAcceptance:true});
+ if(originalDamageReceiptObserved)
+  return verdict('AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED',base);
+ if(frame.visualAccepted>0)
+  return verdict('DAMAGE_VISUAL_RECEIPT_UNVERIFIED',base);
  if(frame.queued>0&&frame.expiredQueuedCues===frame.queued)
   return verdict('ALL_CUES_EXPIRED_WITH_REAL_FRAMES',base);
  return verdict('NO_ADMITTED_VISUAL_EVIDENCE',base);
