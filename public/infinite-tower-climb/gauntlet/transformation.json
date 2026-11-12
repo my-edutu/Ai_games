@@ -9,9 +9,9 @@
     "actualEvidence": "8/8 original 60+ seconds films completed, strict desktop/portrait event-native 0/2; bronze Floor8 to violet Floor9 visible hard cut around 25-26 seconds",
     "actualRootEvidence": "Source-verified visual passage still handoff with two returned Three frames and 1.13-1.47 seconds display, while old original GPU cap/gateway retention is null; two independent visual lifetime guards disagree",
     "implementation": "Source-verified same-run passage governs early airborne old physical cap plus original HP-opened gateway GPU subtrees; hard bounds of 48 source ticks, 90m horizontal, 160m vertical and two submissions; no authority, colliders, movement, seed or victory changes",
-    "newCodeSourceSha": "THIS-COMMIT",
+    "newCodeSourceSha": "e51da4dc131cfc77cae53af29c12ae067329aaaf",
     "priorExactCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43306844790 failed 1/1453 unrelated Eko p99 4.242ms >4ms; other game must not be edited",
-    "newExactCodeCI": "NOT VERIFIED",
+    "newExactCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43313182151 — IN PROGRESS at ledger writing; source e51da4dc131cfc77cae53af29c12ae067329aaaf",
     "newOriginalFilm": "NOT CAPTURED YET",
     "freshIndependentCritics": {
       "LOOKS": "0/5",
@@ -21,7 +21,10 @@
     "deviceFrameTimingMemory": "NOT EVALUATED",
     "remainingGap": "New native source-pinned 960x600 and 390x844 films must prove continuous full-body bronze gate and camera/physical world, event-to-native 2/2; only then proceed beyond P0",
     "nextHighestImpactAction": "Run exact-head technical checks and new nine-job original source-pinned campaign; inspect source events against first Floor9 native frames. If hard cut remains inspect old depth/occlusion and camera discontinuity instead of iterating proof gates.",
-    "safety": "PR68 draft; preserve PR58, immutable baseline and all other games; no force/merge/deploy"
+    "safety": "PR68 draft; preserve PR58, immutable baseline and all other games; no force/merge/deploy",
+    "newSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43313395796 — IN PROGRESS at ledger writing; source 3ff8abb646f29f7fb1c523546399e1b56391003e",
+    "captureRequestCommit": "3ff8abb646f29f7fb1c523546399e1b56391003e",
+    "focusedReview": "docs/reviews/2026-11-12-tower-pr68-source-owned-gateway-world-lifetime.md"
   },
   "p0ThreeTrancheSourceFrameContractUnblock20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
