@@ -1,3 +1,19 @@
+## W263 · Phase 1 ACTIVE — all-original connected woodland and real economic workday · 12 November 2026
+
+ONLY [OPEN DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64); playable woodland [fdeb701c0924b3f0c61016de94f8e56655d8086c](https://github.com/my-edutu/Ai_games/commit/fdeb701c0924b3f0c61016de94f8e56655d8086c); legacy W211 contract repaired [1bc591c0ea1b6bcf8a985482f353932938466d75](https://github.com/my-edutu/Ai_games/commit/1bc591c0ea1b6bcf8a985482f353932938466d75); frozen G088 2f6deb43feb1a1557848d44def53a6109deb1ab1. No merge/main/#43/#59/#62 imports.
+
+| Blocking impact / owner | Latest grounded value or absence | Measurable experience done condition |
+| --- | --- | --- |
+| 1. Actually convincing connected medieval place / art+environment | Existing W262 real imagery still stylized, original repeated forest crowns. W263 replaces ALL actual evergreen 7-triangle canopy tiers with irregular authored silhouettes and all real deciduous spherical tiers with deterministic overhanging crowns. This is source-verified only; W263 true desktop/390 running images pending. | Matched same-source 1024/390 actual Day1–workday–Day120 motion clearly looks materially less prototype-like to genuine blinded critics, including architecture |
+| 2. Whole CPU/driver/GPU rendering and growth / Phase1 renderer | Previous W261 real Day120 had 156,341 triangles; W263 adds zero per existing conifer tier, no VBO/texture. New W263 dedicated WebGL [43225002439](https://github.com/my-edutu/Ai_games/actions/runs/43225002439) in progress at check; no true native desktop/mobile fps/p95, long soak failed without diagnosis. | Same-scene timing CPU p95/driver/GPU, native sustained 30+ hardware FPS and p95<=33.3 ms, every Day120 view <160k; stable actual long soak |
+| 3. Readable real human work and market economy / animation+camera | Original genuine crop→escrowed courier→market receipt→household exists; W262 portrait handoff remains too small/occluded to assert readable. W263 no fake activities. | Full untouched same-seed original 1024/390 video follows actual worker, actual hand/cargo unloading, market receipt and home; all figures, buildings and jobs visible |
+| 4. Honest game control and 390px usability / camera+UI | Old W262 390px WebGL inventory passes; W263 full forest camera/physical input test pending. Old software SwiftShader not physical FPS. | Responsive orbit/follow and all touch controls under true measured native device load without dropped input/occlusion/GL errors, readable screens |
+| 5. Independent evidence and unchanged authority / verification+critics | [Frozen G088 exact original footage](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738); dedicated [new W263 source and original scene recording](https://github.com/my-edutu/Ai_games/actions/runs/43225002439) pending; no separate critics or physical GPUs available. | Uncut blinded same seeds/views/interactions Day1/real workday/Day120/mobile, independent LOOK/FEEL/PLAY positive, full 120d/save/restore and long-growth reliable |
+
+**A LOOK NOT PROVEN / FEEL NOT PROVEN / PLAY NOT PROVEN; B commercial reference FAIL.** W263 source implementation is not a transformation milestone. Keep one integrated Phase1 slice and next real graphical evidence before further artistic expansion. PR #64 remains open, draft, unmerged.
+
+---
+
 ## W262 · Phase 1 ACTIVE — actual economy CPU resident mesh and physically surveyed portrait receiving · 12 November 2026
 OPEN DRAFT PR #64 ONLY, source [eb8d1db](https://github.com/my-edutu/Ai_games/commit/eb8d1db70faf3785222aa17b5446a5fb63a1203b), W262 test [f387bf7](https://github.com/my-edutu/Ai_games/commit/f387bf7082f1d251670484aee92da8ec9a9ba300), CI [43221916120](https://github.com/my-edutu/Ai_games/actions/runs/43221916120). Baseline G088 remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No merge, main/#43/#59/#62 import or force push.
 
