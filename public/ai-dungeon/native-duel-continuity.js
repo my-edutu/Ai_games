@@ -7,12 +7,42 @@
 const ROLES=new Set(['vanguard','revenant','warden']);
 const MAX_AGE=.62,RECOVERY_START=.355,MAX_STEP=.35;
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+/**
+ * Source-skeleton priority for real positive HP loss / legal one-cell evade.
+ * A queued 215ms wound does not preempt the actual imported sword windup.
+ * No attacker, damage, grid step, contact or audio is inferred.
+ */
+export function planNativeTrueBodyPriority(unit,injury=null,evasion=null){
+ const ordinary=Object.freeze({mode:'ordinary',interruptSword:false});
+ if(!unit||typeof unit.id!=='string'||unit.id.length<1||unit.id.length>128||
+  typeof unit.kind!=='string'||!Number.isFinite(unit.hp))return ordinary;
+ if(unit.hp<=0)return Object.freeze({mode:'defeat',interruptSword:true});
+ const hurt=injury?.id===unit.id&&injury.kind===unit.kind&&
+  injury.faction===unit.faction&&injury.fatal!==true&&
+  Number.isInteger(injury.damage)&&injury.damage>0&&
+  Number.isInteger(injury.maxHp)&&injury.maxHp>0&&
+  Number.isFinite(injury.age)&&injury.age>=0&&injury.age<.55;
+ if(hurt)return Object.freeze({mode:'injury',interruptSword:true});
+ const evade=evasion?.id===unit.id&&evasion.kind===unit.kind&&
+  unit.faction==='party'&&
+  Number.isSafeInteger(evasion.tick)&&evasion.tick>=0&&
+  Number.isFinite(evasion.age)&&evasion.age>=0&&evasion.age<.58&&
+  Number.isInteger(evasion.dx)&&Number.isInteger(evasion.dz)&&
+  Math.abs(evasion.dx)+Math.abs(evasion.dz)===1&&
+  Number.isInteger(evasion.from?.x)&&Number.isInteger(evasion.from?.z)&&
+  Number.isInteger(evasion.to?.x)&&Number.isInteger(evasion.to?.z)&&
+  evasion.from.x+evasion.dx===evasion.to.x&&
+  evasion.from.z+evasion.dz===evasion.to.z&&
+  Number.isInteger(unit.x)&&Number.isInteger(unit.z)&&
+  unit.x===evasion.to.x&&unit.z===evasion.to.z;
+ return evade?Object.freeze({mode:'evasion',interruptSword:true}):ordinary;
+}
 export function planNativeDuelContinuity(previous,unit,visualAge,frameSeconds,{
- reducedMotion=false,teleport=false,attached=true,targetId=null,distance=null
+ reducedMotion=false,teleport=false,attached=true,targetId=null,distance=null,interruptSword=false
 }={}){
  const off=Object.freeze({memory:null,mode:'rest',age:0,targetId:null,distance:null,contactAllowed:false});
  const kind=unit?.kind,action=unit?.action,tick=unit?.actionTick;
- if(!attached||reducedMotion||teleport||unit?.hp<=0||!ROLES.has(kind)||
+ if(!attached||reducedMotion||teleport||interruptSword===true||unit?.hp<=0||!ROLES.has(kind)||
   !Number.isSafeInteger(tick)||tick<0)return off;
  const live=action==='attack'&&typeof targetId==='string'&&targetId.trim()&&
   targetId.length<=96&&distance===1&&Number.isFinite(visualAge)&&visualAge>=0&&visualAge<MAX_AGE;

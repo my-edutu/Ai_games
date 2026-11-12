@@ -8870,5 +8870,31 @@
     "plays": "UNVERIFIED",
     "pr72": "ISOLATED_UNADOPTED_HEAD_d7bf5b65429a63d12daa81f9daeb44faba3402a9",
     "next": "Verify true original A/V enemy rig by kind, knee boots and source animation without 23-cell warning regression or SwiftShader stalls. Reject failed geometry; integrate truthful confirmed hit/audio; 3 independent critics required."
+  },
+  "m1NativeTrueBodyPriority20261112": {
+    "at": "2026-11-12",
+    "stage": "A_INCOMPLETE_B_C_CANDIDATE",
+    "status": "SOURCE_INTEGRATED_NEW_HEAD_AV_UNVERIFIED",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "parentSha": "684a3161929739645cb24717ed553a36469d49e2",
+    "authenticParentOrganicRun": 43193627579,
+    "foundationRun": 43193627381,
+    "visualRun": 43193627348,
+    "catalogueCI": "FAILED_43193627490",
+    "mobileArtifact": 13932696039,
+    "desktopArtifact": 13931753132,
+    "observedBefore": "Real 1440/390 original opted-in audio/video natural five-stage 946 authority snapshots; 23 Warden danger cells, ~30px stylized mobile actors, SwiftShader warning 316.6ms median / 1066.6ms p95, original native adult leg actor count 5, 302 frames and maximum 0.07446m correction.",
+    "sourceIntegration": "Native body owns true visible HP injury or verified legal one-cell evasion ahead of old source sword recovery, foot plant, legacy arm/leg/root poses, while preserving true damage/injury/defeat. New by-owner source execution counters; no new gameplay, audio, source asset or authoritativeness. Isolated PR72 unadopted.",
+    "realNewHead": "NOT_OBSERVED",
+    "ciNewHead": "PENDING",
+    "hpAudioSync": "UNVERIFIED",
+    "hardware": "UNVERIFIED",
+    "matchedLockedBaseline": "UNVERIFIED",
+    "blindedCritics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "pr72": "ISOLATED_HEAD_405e61d7bd89cbcebe8a9ad507e63f8e6f29120a",
+    "next": "Inspect real new-head organic original full-motion A/V and owner counters, retain only if no animation/contact/23-cell/foot/replay regression. Then original adult cast, confirmed blade/audio and fresh blinded A/B."
   }
 }

@@ -168,3 +168,45 @@ test('the running original skinned dual-foot root records only genuinely planted
  assert.ok(source.includes('if(plant.supportEngaged)'));
  assert.ok(model.includes('nativeSupportFootFrames:authored.reduce('));
 });
+
+test('true post-contact injury and genuine one-cell evasion own physical sword performance',async()=>{
+ const {planNativeTrueBodyPriority:owner,planNativeDuelContinuity:continuity}=await load();
+ const fighter={...attack,id:'vanguard',faction:'party',x:5,z:6};
+ const harm={id:'vanguard',kind:'vanguard',faction:'party',damage:9,maxHp:90,fatal:false,age:.23};
+ assert.equal(owner(fighter,{...harm,age:-.01}).mode,'ordinary','queued hit is not visible damage yet');
+ const injured=owner(fighter,harm);
+ assert.equal(injured.mode,'injury');assert.equal(injured.interruptSword,true);
+ assert.equal(continuity(null,attack,.215,.016,{...threat,interruptSword:true}).mode,'rest');
+ const aliveSword=continuity(null,attack,.23,.016,threat);
+ assert.equal(continuity(aliveSword.memory,{...attack,action:'idle',actionTick:55},0,.016,{interruptSword:true}).memory,null);
+ for(const bad of [
+  {...harm,id:'another'}, {...harm,kind:'revenant'}, {...harm,faction:'enemy'},
+  {...harm,damage:0}, {...harm,age:.55}, {...harm,fatal:true}
+ ])assert.equal(owner(fighter,bad).mode,'ordinary','no unknown/old/foreign HP-loss cue');
+ const evade={id:fighter.id,kind:fighter.kind,tick:54,age:.19,dx:1,dz:0,
+  from:{x:4,z:6},to:{x:5,z:6}};
+ assert.equal(owner(fighter,null,evade).mode,'evasion');
+ assert.equal(owner(fighter,harm,evade).mode,'injury','HP injury outranks evasion');
+ for(const bad of [
+  {...evade,id:'unknown'}, {...evade,kind:'warden'}, {...evade,age:.60},
+  {...evade,dx:2}, {...evade,to:{x:9,z:6}}, {...evade,from:{x:3,z:6}}
+ ])assert.equal(owner(fighter,null,bad).mode,'ordinary','invalid escape cannot own a rig');
+ assert.equal(owner({...fighter,hp:0},harm,evade).mode,'defeat');
+ assert.ok(Object.isFrozen(owner(fighter,harm,evade)));
+});
+test('running original skinned animation interrupts old sword layers but keeps true HP injury/defeat',()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=model.indexOf('function updateActor(actor,dt');
+ const end=model.indexOf('function disposeActorAsset',start);
+ const body=model.slice(start,end);
+ assert.ok(body.includes('planNativeTrueBodyPriority(actor.u,actor.damageBeat,actor.evasionBeat)'));
+ assert.ok(body.includes('interruptSword:interrupted'));
+ assert.ok(body.includes('const poseSuppressed=reducedMotion||interrupted'));
+ for(const stage of ['stageRigArmsAfterMixer','stageRigForearmsAfterMixer','stageRigLegsAfterMixer',
+  'stageRigMeleeAfterMixer','stageRigRangedAfterMixer'])
+  assert.ok(body.includes(stage+'(actor,since,poseSuppressed)'),stage+' should release old sword layers');
+ assert.ok(body.includes('stageSkinnedHitAfterMixer(actor,reducedMotion)'), 'true HP recoil remains');
+ assert.ok(body.includes('stageSkinnedDefeatAfterMixer(actor,reducedMotion)'), 'natural death remains');
+ assert.ok(model.includes('nativeTrueInjuryFrames:authored.reduce('));
+ assert.ok(model.includes('nativeTrueEvasionFrames:authored.reduce('));
+});
