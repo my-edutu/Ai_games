@@ -1956,7 +1956,10 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
    ...owner,priorSourceProofVerified:true,trials
   });
   if(selected)continuity='hold';
-  else if(!earlierToeProof){
+  else{
+   // The same-frame licensed ankle/calf receipt can coexist with a
+   // measured <=45mrad upperleg return only after FINAL original skinned
+   // heel/toe reconciliation. Never reset a verified hip by default.
    selected=planOriginalSourceSwingThighEaseOut({
     ...owner,priorSourceProofVerified:true,trials
    });
@@ -1976,11 +1979,13 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
     trials:[{delta:selected.angleRad,after:final}]}):
    chooseOriginalSourceSwingThighSupport({...owner,
     trials:[{delta:selected.angleRad,after:final}]});
- const reconciled=earlierToeProof&&(continuity==='rescue'||continuity==='hold')?reconcileOriginalSourceSwingToeProofWithThigh({
+ const reconciled=earlierToeProof&&(continuity==='rescue'||continuity==='hold'||continuity==='release')?reconcileOriginalSourceSwingToeProofWithThigh({
   proof:earlierToeProof,side,sourceInstanceId:actor.assetRoot.uuid,
   sourceClipName:actor.activeImportedClipName,floorTopY:-.02,
   before:swing,after:final?.[side],
-  thighImprovementMeters:verified?.improvementMeters??NaN,
+  thighImprovementMeters:continuity==='release'?
+   (final?.[side]?.toeY??NaN)-swing.toeY:
+   (verified?.improvementMeters??NaN),
   continuityKind:continuity
  }):null;
  if(!verified||(earlierToeProof&&!reconciled)){
