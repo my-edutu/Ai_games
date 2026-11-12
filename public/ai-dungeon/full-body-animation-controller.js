@@ -562,6 +562,70 @@ export function chooseOriginalSourceStanceAppliedWitness({
  * original bone poses. The opposite original foot is read simultaneously.
  * No target/IK step, artificial contact or authoritative translation exists.
  */
+/** Original loaded-vs-airborne source leg chain: a nonlocking thigh trial.
+ * Unlike blind ankle pitch, any original upper-leg bend affects the WHOLE
+ * weighted foot and must be checked against the opposing planted shoe.
+ * The adapter probes +/-45mrad on the verified source Walking_A upper-leg
+ * quaternion track and returns to the identical original pose on rejection.
+ * This is a single-frame safety gate, never IK, contact, or a fake step.
+ */
+export function chooseOriginalSourceSwingThighSupport({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ sourceThighAxisVerified=false,sourceChainVerified=false,
+ sourceInstanceSame=false,alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false,rootTravel=NaN,frameAge=NaN,
+ side='',floorTopY=NaN,previousCorrectionRad=0,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||ownerLocomotion!==true||
+  sourceThighAxisVerified!==true||sourceChainVerified!==true||
+  sourceInstanceSame!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||!['left','right'].includes(side)||
+  ![sourceWeight,rootTravel,frameAge,floorTopY,previousCorrectionRad].every(finite)||
+  sourceWeight<.65||sourceWeight>1.001||rootTravel<.008||
+  rootTravel>.24||frameAge<0||frameAge>.18||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(previousCorrectionRad)>.04500001||
+  !before||!Array.isArray(trials)||trials.length<1||trials.length>2)return null;
+ const opposite=side==='left'?'right':'left';
+ const goodPoint=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
+ const goodFoot=f=>f&&[f.heelY,f.toeY].every(finite)&&
+  goodPoint(f.heelXZ)&&goodPoint(f.toeXZ);
+ const source=before[side],loaded=before[opposite];
+ if(!goodFoot(source)||!goodFoot(loaded))return null;
+ // One shoe must be truly swinging while the other is near the exact stone.
+ if(source.heelY<floorTopY+.075||source.heelY>floorTopY+.36||
+  source.toeY>=floorTopY-.008||source.toeY<floorTopY-.16||
+  source.heelY-source.toeY<.08||
+  ![loaded.heelY,loaded.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ let best=null;
+ for(const trial of trials){
+  const delta=trial?.delta,after=trial?.after;
+  if(!finite(delta)||Math.abs(Math.abs(delta)-.045)>.00001||
+   Math.abs(delta-previousCorrectionRad)>.04500001||
+   (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||
+   !goodFoot(after?.[side])||!goodFoot(after?.[opposite]))continue;
+  const moved=after[side],other=after[opposite];
+  const shift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  if(shift(moved.heelXZ,source.heelXZ)>.025||
+   shift(moved.toeXZ,source.toeXZ)>.025||
+   moved.heelY<source.heelY-.04||moved.heelY>source.heelY+.04||
+   moved.toeY>floorTopY+.035||moved.toeY<floorTopY-.16||
+   loaded.heelY-other.heelY>.003||other.heelY-loaded.heelY>.003||
+   loaded.toeY-other.toeY>.003||other.toeY-loaded.toeY>.003||
+   shift(other.heelXZ,loaded.heelXZ)>.003||
+   shift(other.toeXZ,loaded.toeXZ)>.003)continue;
+  const improvement=moved.toeY-source.toeY;
+  if(improvement<.004||improvement>.06)continue;
+  if(!best||improvement>best.improvementMeters)
+   best=Object.freeze({angleRad:delta,side,improvementMeters:improvement,
+    beforeToeY:source.toeY,afterToeY:moved.toeY,
+    beforeHeelY:source.heelY,afterHeelY:moved.heelY,
+    oppositeFootVerified:true,contactLocked:false});
+ }
+ return best;
+}
+
 export function chooseOriginalSourceLoadedKneeWitness({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceHingeVerified=false,sourceInstanceSame=false,
