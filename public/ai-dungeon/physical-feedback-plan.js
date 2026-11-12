@@ -380,16 +380,35 @@ export function planPhysicalFeedback(previous,next,{
   // a late impact VFX or foley at a unit's final cell.
   // The authoritative HP delta is the only damage authorization; matched
   // incoming geometry may delay the cue but DOES NOT establish causation.
-  let beats=null;
-  try{beats=(typeof deriveDamageBeats==='function'?
-   deriveDamageBeats(previous,next):fallbackDamageBeats(previous,next));}
-  catch{beats=[]}
-  if(Array.isArray(beats))for(const beat of beats.slice(0,18)){
-   const u=currentUnits.get(beat?.id),before=oldUnits.get(beat?.id);
-   if(!positiveHealthDrop(before,u)||!point(u))continue;
+  // Adjacent PUBLIC HP transitions are the sole source of injury truth.
+  // Optional legacy choreography can annotate an incoming lane, but its
+  // failure, 64-unit cap, incomplete results or stale metadata must NEVER
+  // erase an injury witnessed in the D04 96-unit observation window.
+  const beats=fallbackDamageBeats(previous,next);
+  let annotations=null;
+  if(typeof deriveDamageBeats==='function'){
+   try{
+    const derived=deriveDamageBeats(previous,next);
+    if(Array.isArray(derived)){
+     annotations=new Map();
+     for(const candidate of derived.slice(0,18)){
+      const u=currentUnits.get(candidate?.id),before=oldUnits.get(candidate?.id);
+      if(!positiveHealthDrop(before,u)||!point(u)||
+       candidate.kind!==u.kind||candidate.faction!==u.faction||
+       candidate.damage!==before.hp-u.hp||candidate.maxHp!==u.maxHp||
+       candidate.fatal!==(u.hp===0)||candidate.x!==u.x||candidate.z!==u.z)
+       continue;
+      if(!annotations.has(u.id))annotations.set(u.id,candidate);
+     }
+    }
+   }catch{} // An unavailable optional pose annotator cannot revoke real HP loss.
+  }
+  for(const beat of beats){
+   const u=currentUnits.get(beat.id),before=oldUnits.get(beat.id);
+   const matched=annotations?.get(beat.id);
    let delay=0;
-   if(!reducedMotion && beat?.incoming && typeof verifiedMeleeDelay==='function'){
-    try{const requested=verifiedMeleeDelay(beat,next,{reducedMotion:false});
+   if(!reducedMotion&&matched?.incoming&&typeof verifiedMeleeDelay==='function'){
+    try{const requested=verifiedMeleeDelay(matched,next,{reducedMotion:false});
      if(requested===PHYSICAL_FEEDBACK_DELAYS.verifiedMeleeImpact)delay=requested;}catch{}
    }
    push(u.hp===0?'damage-fatal':'damage',next.tick,{
