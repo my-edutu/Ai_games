@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -2174,6 +2174,33 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
     actor.walkLandingCaptureNeeded=true;
     actor.rigGuardPlantHandoff=action==='guard';
     actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
+   }else if(planImportedCombatWalkStop({
+    previousMode:actor.currentAction,nextMode:action,
+    sourceClipName:priorClipName,actionTick:tick,
+    ownerAuthorized:action==='attack'?actor.fullBody?.owner?.duel===true:
+     actor.fullBody?.owner?.cast===true,
+    groundedMoving:Boolean(actor.groundedPerformance?.moving),
+    groundedTravel:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
+    frameInterval:sourceFrameInterval,alive:actor.u.hp>0,
+    visible:sourceFrameVisible,teleport:Boolean(actor.locomotionTeleport),
+    reducedMotion:Boolean(actor.fullBody?.reducedMotion)
+   })){
+    previous.paused=true;
+    actor.combatWalkStoppedFrames=Math.min(1000000,
+     (actor.combatWalkStoppedFrames||0)+1);
+   }else if(actor.currentAction==='move'&&['attack','cast'].includes(action)&&
+    priorClipName==='Walking_A'&&Number.isSafeInteger(tick)&&
+    (action==='attack'?actor.fullBody?.owner?.duel===true:
+     actor.fullBody?.owner?.cast===true)&&
+    previous.isRunning?.()&&!previous.paused&&
+    actor.u.hp>0&&!actor.locomotionTeleport&&!actor.fullBody?.reducedMotion&&
+    sourceFrameVisible){
+    // A newly witnessed combat event must not freeze a still-moving root.
+    // Keep only the fading ORIGINAL Walking_A until a later actual root
+    // halt on this SAME combat action tick, never a fabricated foot plant.
+    actor.walkArrivalPendingAction={
+     sourceAction:previous,targetMode:action,targetTick:tick,combat:true
+    };
    }else if(actor.currentAction==='move'&&['idle','guard'].includes(action)&&
     /^(?:walking[_\s-]*a|walk|run)(?:$|[_\s-])/i.test(priorClipName)&&
     previous.isRunning?.()&&!previous.paused&&
@@ -2323,7 +2350,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  if(arrival){
   const outgoing=arrival.sourceAction,now=actor.root?.position,then=actor.rigGaitPosition;
   const remaining=now&&then?Math.hypot(now.x-then.x,now.z-then.z):NaN;
-  if(shouldFreezeDeferredImportedWalk({
+  const sourceStopEvidence={
    targetMode:arrival.targetMode,currentMode:actor.fullBody.mode,
    clipName:outgoing.getClip?.()?.name??'',
    sourceWeight:outgoing.getEffectiveWeight?.()??NaN,
@@ -2332,15 +2359,28 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    groundedTravel:remaining,frameInterval:sourceFrameInterval,
    alive:actor.u.hp>0,visible:sourceFrameVisible,
    teleport:Boolean(actor.locomotionTeleport),reducedMotion
-  })){
+  };
+  const confirmedSourceStop=arrival.combat===true?
+   shouldFreezeDeferredImportedCombatWalk({
+    ...sourceStopEvidence,targetTick:arrival.targetTick,
+    currentTick:actor.fullBody?.actionTick,
+    ownerAuthorized:arrival.targetMode==='attack'?
+     actor.fullBody?.owner?.duel===true:actor.fullBody?.owner?.cast===true
+   }):shouldFreezeDeferredImportedWalk(sourceStopEvidence);
+  if(confirmedSourceStop){
    outgoing.paused=true;
-   actor.walkLandingCaptureNeeded=true;
+   // Combat owns its own licensed full-body attack/cast leg poses; do not
+   // create the separate idle/guard landing bridge under that source action.
+   actor.walkLandingCaptureNeeded=arrival.combat!==true;
+   if(arrival.combat===true)actor.combatWalkStoppedFrames=Math.min(1000000,
+    (actor.combatWalkStoppedFrames||0)+1);
    actor.rigGuardPlantHandoff=arrival.targetMode==='guard';
    actor.walkArrivalPendingAction=null;
    actor.walkArrivalFrozenActions=Math.min(1000000,(actor.walkArrivalFrozenActions||0)+1);
    actor.walkArrivalDeferredStops=Math.min(1000000,(actor.walkArrivalDeferredStops||0)+1);
-  }else if(actor.fullBody.mode!==arrival.targetMode||actor.u.hp<=0||
-   actor.locomotionTeleport||reducedMotion||!sourceFrameVisible||
+  }else if(actor.fullBody.mode!==arrival.targetMode||
+   (arrival.combat===true&&actor.fullBody?.actionTick!==arrival.targetTick)||
+   actor.u.hp<=0||actor.locomotionTeleport||reducedMotion||!sourceFrameVisible||
    !outgoing.isRunning?.()||outgoing.paused||
    !(outgoing.getEffectiveWeight?.()>0)){
    // Retire stale source references at actual fade completion/interruptions.
