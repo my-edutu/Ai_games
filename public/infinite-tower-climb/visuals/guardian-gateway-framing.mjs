@@ -300,7 +300,10 @@ export function observedAirborneHandoffShot(snapshot, passage, aspect, zoom = 1)
   const gate=passage.focusPosition;
   const planar=Math.hypot(sole.x-gate[0],sole.z-gate[2]);
   const height=sole.y-gate[1];
-  if(planar>=9||height<-.85||height>5.5)return null;
+  // The authored focus is 2.6m above the true cap soles, not the roof;
+  // an authentic 0.8m first jump therefore registers height -1.8m.
+  // Exclude detached lower/upper levels while preserving this real arc.
+  if(planar>=9||height< -3.5||height>5.5)return null;
   const remaining=Math.max(0,Math.min(1,
     (passage.durationSeconds-passage.ageSeconds)/
     Math.max(.1,passage.durationSeconds-1.05)));
