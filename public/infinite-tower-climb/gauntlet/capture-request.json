@@ -1,4 +1,33 @@
 {
+  "p0OriginalSubmittedCanyonAndSkyline20261112": {
+    "stage": "P0 OPEN — leading NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "The EXACT immutable github.sha of THIS capture-request commit; never float with PR68 HEAD",
+    "productionChangeSha": "2350f4166f88523bb27093b6593a77e073e9938c",
+    "priorOriginalVideo": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345 — eight 73s genuine films succeeded; ninth event/native pair failed 0/2",
+    "lastOriginalCandidateSource": "e67af64d3dc4224024646752d89fea6b383321f7",
+    "priorObservedFloor9NativeDelaySeconds": {
+      "desktop": 2.52,
+      "portrait": 2.529
+    },
+    "priorBrowserAcceptedToThreeReturnMs": {
+      "desktop": 1722,
+      "portrait": 1275
+    },
+    "actualSceneChange": "Source-earned low-tier 8->9 first returned Three.js render uses full original hero, walkable ground, live hazards, tower and physically opened gateway but stages original 8640-triangle three-layer canyon upload only after FIRST submitted frame, and seven original far citadels only after SECOND separately submitted frame, with bounded fades; unrelated floors/high tier untouched.",
+    "exactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43183745012 — NOT VERIFIED at request authoring",
+    "matrix": "Require original entire 9-job matrix: frozen immutable baseline versus exact current candidate, same seed/low tier/20Hz server, 1x unedited 60s+ ascent floor0, moving deck floor7, guardian/crusher earned gate floor8->9, natural outcome/restart floor0, separate 960x600 desktop and 390x844 portrait original Chromium/WebGL/native WebM + source traces and strict pairing",
+    "measurableHypothesis": "First cold Floor9 world build and WebGL return should avoid full canyon and skyline simultaneous shader+buffer upload. Compare native 1x timestamp, actual first/second/third frame duration and canyon fade. It may not improve phase latency; do not equate returned THREE render with GPU-present or actual-device FPS.",
+    "visualNoRegression": "Reject if any blank canyon, obvious pop, foreground obstruction, gateway disappearing, missing 3D character, inconsistent hue, missing floor nine route, misleading victory, non-playable restart, or worsened native event timing. Preserve whole-body authentic grounded walk-through and real guardian/counterplay.",
+    "blindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardware": "NOT EVALUATED — p50/p95/p99, GPU presentation and memory",
+    "review": "docs/reviews/2026-11-12-tower-pr68-submitted-canyon-upload-pipeline.md",
+    "next": "Inspect the full original motion and strict native event pairing; continue fixing largest P0 source/scene handoff weakness, do not graduate stages or merge/deploy."
+  },
   "p0ClockworkGuardianStructuralDaylightAfterFilm20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "assessorVerdict": "NOT EVALUATED",
