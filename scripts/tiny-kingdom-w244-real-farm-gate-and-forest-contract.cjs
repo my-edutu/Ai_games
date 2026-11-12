@@ -25,11 +25,12 @@ assert.match(trees,/forestVisualStats\.conifers\+\+/);
 const gateStart=src.indexOf('let farmFencePresentationAudit=');
 const gateEnd=src.indexOf('function well(',gateStart);
 assert(gateStart>0&&gateEnd>gateStart,'real field-gate geometry must belong to the existing static civic buffer');
-const boxes=[],slabs=[],context={
- MATERIAL:{STONE:2},rgb:()=>[.5,.4,.3],
+const boxes=[],slabs=[],woven=[],context={
+ MATERIAL:{STONE:2,WOOD:3},rgb:()=>[.5,.4,.3],
  terrain:(x,z)=>.12*Math.sin(x*.1+z*.15),walkable:()=>true,
  materialScope:(_type,fn)=>fn(),
  box:(x,y,z,w,h,d)=>{assert([x,y,z,w,h,d].every(Number.isFinite));boxes.push({x,y,z,w,h,d})},
+ quad:(a,b,c,d)=>{assert([a,b,c,d].every(v=>v.every(Number.isFinite)));woven.push([a,b,c,d])},
  upwardRoadQuad:(a,b,c,d)=>{assert([a,b,c,d].every(p=>p.every(Number.isFinite)));slabs.push([a,b,c,d])}
 };
 vm.createContext(context);
@@ -39,14 +40,16 @@ const audit=context.inspectGate();
 assert.equal(audit.open,true,'genuine field-to-granary gate must be optically open');
 assert.equal(audit.openSpanMetres,3,'unobstructed opening must fit a loaded real courier');
 assert.equal(audit.addedActors,0);assert.equal(audit.changesNavigation,false);
+assert.equal(woven.length,48,'four surviving genuine sections have 24 triangles each');
 assert(slabs.length>=5&&slabs.length<=12,'flush genuine road threshold should be bounded');
 assert(!boxes.some(b=>b.w>1.4&&b.x>20.5&&b.x<23.5&&b.z===-2),
  'old full opaque fence bars cannot bisect a filmed genuine worker');
 assert(!boxes.some(b=>b.w<.2&&b.x>20.5&&b.x<23.5&&b.z===-2),
  'no floating center post in the actual open 3-metre cart gate');
-boxes.length=0;slabs.length=0;
+boxes.length=0;slabs.length=0;woven.length=0;
 context.emitFence(16,4,6);
-assert.equal(boxes.length,7+6*2,'all other original fence posts/rails remain intact');
+assert.equal(boxes.length,7,'all seven original fence posts remain intact');
+assert.equal(woven.length,72,'all six original sections remain; three double-sided woven courses have exactly 24 triangles/section');
 assert.equal(slabs.length,0,'no invented gate at any unlinked boundary');
 assert.match(src,/fenceLine\(16,-2,6,false,FIELD_TO_GRANARY_GATE\)/,
  'original actual field gate must connect to the existing farm plot fence');
