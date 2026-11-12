@@ -25,6 +25,7 @@ const threeURL = pathToFileURL(path.join(ROOT, 'node_modules/three/build/three.m
 const source = fs.readFileSync(srcPath, 'utf8')
  .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeURL))
  .replace("'./coordinates.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/coordinates.mjs')).href))
+ .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
  .replace("'./world-surface.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/world-surface.mjs')).href))
  .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));

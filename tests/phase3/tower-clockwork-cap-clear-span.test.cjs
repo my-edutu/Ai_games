@@ -72,7 +72,7 @@ test('the actual batched Three.js cap leaves the body-height forward arc open', 
     "'/tower/vendor/three.module.js'": threeURL,
   };
   for (const local of ['coordinates','world-surface','scene-hierarchy',
-    'mesh-provenance','guardian-transmission-layout']) {
+    'mesh-provenance','guardian-passage','guardian-transmission-layout']) {
     imports["'./" + local + ".mjs'"] =
       pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/visuals',local+'.mjs')).href;
   }

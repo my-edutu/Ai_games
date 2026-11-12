@@ -2083,6 +2083,10 @@ export function createTowerWorld(){
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+55000;
     const onNewRoof=p?.grounded===true &&
       p.groundedPlatformId==='f9:ground';
+    // A missing successful Three.js submission cannot authorize indefinite
+    // airborne persistence. The real 20Hz source permits at most 24 launch
+    // ticks from the earned gate; a farther/newer body retires the old world
+    // even if the browser never presented a full frame.
     const justLaunched=p?.grounded===false &&
       p.state==='airborne' && Number.isFinite(p.vy) &&
       snapshot.tick-held.sourceTick<=24 && nearDoor;
@@ -2091,7 +2095,7 @@ export function createTowerWorld(){
         !Number.isSafeInteger(snapshot.tick) ||
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
         !(p?.health>0) || !nearDoor ||
-        (held.submittedFrames>0 && !onNewRoof && !justLaunched)) {
+        (!onNewRoof && !justLaunched)) {
       retireEarnedCap();
       return;
     }

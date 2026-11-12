@@ -41,6 +41,7 @@ const loaded = (async () => {
   const worldSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/world.mjs'), 'utf8')
     .replace("'/tower/vendor/three.module.js'", JSON.stringify(localURL('node_modules/three/build/three.module.js')))
     .replace("'./coordinates.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/coordinates.mjs')))
+    .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
     .replace("'./world-surface.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/world-surface.mjs')))
     .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
     .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));

@@ -23,6 +23,7 @@ const importURLs = {
   "'/tower/vendor/three.module.js'": threeURL,
   "'./coordinates.mjs'": pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/coordinates.mjs')).href,
+  "'./guardian-passage.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href,
   "'./world-surface.mjs'": pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/world-surface.mjs')).href,
   "'./scene-hierarchy.mjs'": pathToFileURL(path.join(ROOT,

@@ -163,7 +163,10 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
     world.update(after,.05,.05,{quality:'low'});
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),actualOldGate);
     assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true);
-    const outside={...after,tick:470};
+    // No newly submitted frame may extend an airborne doorway beyond the
+    // authoritative 24-tick launch allowance; do not conflate source ticks
+    // with a GPU submission or introduce a ghost entrance.
+    const outside={...after,tick:478};
     world.update(outside,.05,.1,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap,null,
       'the source-earned old cap cannot persist past the bounded first airborne continuation');

@@ -17,6 +17,7 @@ const hierarchyURL=pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/vis
 const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'",JSON.stringify(coordinateURL))
+  .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceURL))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
