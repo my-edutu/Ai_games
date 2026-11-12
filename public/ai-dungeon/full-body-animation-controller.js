@@ -488,6 +488,48 @@ export function selectOriginalSourceSwingCalfTrial({
  * correction, not a foot lock, raycast, fabricated step or IK target.
  * The final applied angle is separately remeasured against real skin.
  */
+/**
+ * Select from at most TWO already evaluated original-rig ankle poses using
+ * the REAL final weighted heel AND toe. The first accepted source-weighted
+ * correction may remain visibly buried even when a separately witnessed
+ * 45mrad original bone pose is demonstrably closer to stone.
+ *
+ * The adapter owns pose restoration, legal owner and joint slew; this
+ * stateless verifier refuses all unmeasured, unsafe or unbounded candidates.
+ * A true moving planted foot additionally requires multiple world-foot
+ * observations; this is NEVER evidence of stationary contact by itself.
+ */
+export function chooseOriginalSourceStanceAppliedWitness({
+ floorTopY=NaN,beforeHeelY=NaN,beforeToeY=NaN,candidates=[]
+}={}){
+ if(![floorTopY,beforeHeelY,beforeToeY].every(finite)||
+  Math.abs(floorTopY+.02)>.005||
+  !Array.isArray(candidates)||candidates.length<1||
+  candidates.length>2)return null;
+ const beforeWorst=Math.max(Math.abs(beforeHeelY-floorTopY),
+  Math.abs(beforeToeY-floorTopY));
+ if(!finite(beforeWorst)||beforeWorst>.055)return null;
+ let best=null;
+ for(let index=0;index<candidates.length;index++){
+  const {delta,heelY,toeY}=candidates[index]??{};
+  if(![delta,heelY,toeY].every(finite)||
+   Math.abs(delta)<.001||Math.abs(delta)>.04500001||
+   heelY<floorTopY-.035||heelY>floorTopY+.035||
+   toeY<floorTopY-.035||toeY>floorTopY+.035||
+   heelY<beforeHeelY-.004||toeY<beforeToeY-.004)
+   continue;
+  const afterWorst=Math.max(Math.abs(heelY-floorTopY),
+   Math.abs(toeY-floorTopY));
+  if(beforeWorst-afterWorst<.0015)continue;
+  // A new physical pose must buy >=1mm ADDITIONAL original-shoe
+  // improvement to justify a larger angle / visible pose change.
+  if(!best||best.afterWorst-afterWorst>.001)
+   best=Object.freeze({delta,afterHeel:heelY,afterToe:toeY,
+    afterWorst,candidateIndex:index});
+ }
+ return best;
+}
+
 export function planOriginalSourceStanceAnkleRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  rootTravel=NaN,frameAge=NaN,alive=false,visible=false,teleport=false,
