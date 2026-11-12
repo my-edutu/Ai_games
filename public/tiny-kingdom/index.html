@@ -24396,6 +24396,39 @@ function foundingScreenScaleDetailPolicy(n,zoom,streetWalk,follow,liveWorkday,la
   Number.isFinite(largestHeight)&&largestHeight>=0&&
   (zoom>=32||(zoom>=18&&largestHeight<.095));
 }
+// W271 Phase 1: a paused camera orbit may change the projected edge actor by
+// millimetres while absolutely no world, house, job or cargo has changed.
+// Preserve the existing full/compact rig choice only for a SMALL overview
+// orbit around the same authentic people. All citizens still draw every frame,
+// with their original compact mesh when not assigned a costly detailed rig.
+// New prominent labor, real time, world growth, manual inspection and larger
+// moves always force physical re-evaluation; this never freezes work actions.
+let citizenOrbitDetailHold=null,citizenOrbitDetailHolds=0,
+ citizenOrbitDetailReplans=0,citizenOrbitDetailLastWasHeld=false;
+function canKeepOrbitDetail(previous,current){
+ if(!previous||!current||!current.paused||current.inspection||
+    current.mode!==previous.mode||
+    !['overview','founding-overview'].includes(current.mode))return false;
+ if(previous.people!==current.people||previous.time!==current.time||
+    previous.cityCount!==current.cityCount||
+    previous.selectedCitizen!==current.selectedCitizen||
+    previous.width!==current.width||previous.height!==current.height)return false;
+ if(Math.abs(current.zoom-previous.zoom)>Math.max(.3,previous.zoom*.018)||
+    Math.hypot(current.focus[0]-previous.focus[0],
+     current.focus[1]-previous.focus[1])>.18)return false;
+ const yawTravel=Math.abs(Math.atan2(Math.sin(current.yaw-previous.yaw),
+  Math.cos(current.yaw-previous.yaw)));
+ if(yawTravel>.12||Math.abs(current.pitch-previous.pitch)>.055)return false;
+ return current.prominentWorkers.every(i=>previous.plan.indices.has(i));
+}
+function getCitizenOrbitDetailAudit(){
+ return {source:'paused-original-workday-rig-visibility-hysteresis',
+  heldPlans:citizenOrbitDetailHolds,replans:citizenOrbitDetailReplans,
+  lastHeld:citizenOrbitDetailLastWasHeld,
+  boundedEntries:citizenOrbitDetailHold?1:0,
+  detailedPeople:citizenOrbitDetailHold?.plan.indices.size||0,
+  noCitizensHidden:true,authorityChanged:false,hardwareFps:'NOT MEASURED'};
+}
 function selectVisibleCitizenDetail(){
  const n=people.length;
  const activeIndex=streetWalk&&streetEncounterName?
@@ -24460,10 +24493,35 @@ function selectVisibleCitizenDetail(){
  // figures, matching the established Day-1 authored visual baseline.
  if(n<=12&&!foundingOverview)
   for(let i=0;i<n;i++)if(!selected.includes(i))selected.push(i);
- const indices=new Set(selected);
- const midIndices=new Set(onScreen.filter(row=>!indices.has(row.i)&&
-   row.heightFraction>=.036).slice(0,Math.min(8,n-indices.size)).map(row=>row.i));
- const offscreenFullDetail=selected.filter(i=>!projected[i]?.visible).length;
+ const rawIndices=new Set(selected);
+ const rawMidIndices=new Set(onScreen.filter(row=>!rawIndices.has(row.i)&&
+   row.heightFraction>=.036).slice(0,Math.min(8,n-rawIndices.size)).map(row=>row.i));
+ // Keep the SAME actual worker geometry across a few degrees of paused
+ // overview orbit instead of rebuilding/uploading the whole 390px world.
+ // An unselected original actor always retains the original compact rig.
+ const orbitCandidate={
+  paused:frozen,inspection:pinned,people,time:state.t,
+  cityCount:city.length,selectedCitizen,
+  mode,width:frame.lens.viewportWidth,height:frame.lens.viewportHeight,
+  zoom,focus:focusPoint.slice(),yaw,pitch,
+  prominentWorkers:visibleWorkContacts
+   .filter(row=>row.heightFraction>=.095).map(row=>row.i),
+  plan:{indices:rawIndices,midIndices:rawMidIndices}
+ };
+ const keptPlan=canKeepOrbitDetail(citizenOrbitDetailHold,orbitCandidate);
+ const indices=keptPlan?
+  new Set(citizenOrbitDetailHold.plan.indices):rawIndices;
+ const midIndices=keptPlan?
+  new Set(citizenOrbitDetailHold.plan.midIndices):rawMidIndices;
+ citizenOrbitDetailLastWasHeld=keptPlan;
+ if(keptPlan)citizenOrbitDetailHolds++;
+ else{
+  citizenOrbitDetailReplans++;
+  citizenOrbitDetailHold=frozen&&!pinned&&
+   ['overview','founding-overview'].includes(mode)?orbitCandidate:null;
+ }
+ const offscreenFullDetail=[...indices]
+  .filter(i=>!projected[i]?.visible).length;
  const audit={
   source:'real-viewport-actor-detail',mode,
   foundingOverviewLod:foundingOverview,
@@ -24475,10 +24533,11 @@ function selectVisibleCitizenDetail(){
   anchorDetailed:anchorIndex<0||indices.has(anchorIndex),
   offscreenDetailedBudgetAvoided:anchorIndex>=0&&!anchorVisible&&!pinned,
   visibleWorkDetailsReserved:reservedWorkDetails,
+  cameraStableDetailHeld:keptPlan,
   visibleCandidates:onScreen.length,
   visibleWorkContacts:visibleWorkContacts.length,
   detailedWorkContacts:visibleWorkContacts.filter(row=>indices.has(row.i)).length,
-  detailedNames:selected.map(i=>people[i].name),
+  detailedNames:[...indices].map(i=>people[i].name),
   offscreenFullDetail,
   viewport:[frame.lens.viewportWidth,frame.lens.viewportHeight],
   optics:{verticalDegrees:frame.lens.verticalDegrees,
@@ -25645,7 +25704,7 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
- setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+ setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
  freeCameraReturn=null;
  if(streetWalk)setStreetWalk(false);
 if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
