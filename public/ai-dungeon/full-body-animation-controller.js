@@ -1363,11 +1363,18 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  // and its witnessed footfall travelled up to 0.54m. Share the real distance
  // clock with original source locomotion; never create an authority move.
  if(mode==='move'){
-  if(reducedMotion||visible!==true||teleport||groundedMoving!==true||
-   walkingClip!==true||
+  if(reducedMotion||visible!==true||teleport||walkingClip!==true||
    ![sourceDuration,effectiveSpeed,sourceTime,frameInterval,groundedTravel].every(finite)||
    sourceDuration<=.002||effectiveSpeed<=.001||sourceTime<0||
-   frameInterval<=0||groundedTravel>.54)return ordinary;
+   frameInterval<=0||groundedTravel<0||groundedTravel>.54)return ordinary;
+  // The original imported walking action may still own the visual move
+  // during a valid zero-travel presentation frame, including fade-out.
+  // Its source soles must not treadmill while the authoritative root is
+  // independently witnessed to be stationary. Other invalid/noisy
+  // locomotion receipts retain the previous elapsed-time fallback.
+  if(groundedMoving!==true)
+   return groundedMoving===false&&groundedTravel<=.0015&&
+    frameInterval<=.5?0:ordinary;
   // Base source gait time on the SAME real root travel at 60Hz and slow capture.
   // Fixed-frame playback at ordinary rates previously lagged a fast-moving
   // root and oversped a creeping actor relative to its real footfall phase.
@@ -1645,12 +1652,19 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
  teleport=false,reducedMotion=false,visible=true}={}){
  const visibleStep=finite(frameDelta)?clamp(frameDelta,0,.05):0;
- if(mode!=='move'||!walkingClip||!groundedMoving||teleport||reducedMotion||
+ if(mode!=='move'||!walkingClip||teleport||reducedMotion||
   visible!==true||visibleStep<=0||
   ![sourceStep,frameInterval,sourceDuration,sourceTime,effectiveSpeed,groundedTravel].every(finite)||
   sourceStep<0||sourceStep>.28||frameInterval<=0||
   sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
   groundedTravel<0||groundedTravel>.54)return null;
+ // Still give the THREE.AnimationMixer one real visible-time update to
+ // complete the lawful original crossfade, but temporarily time-scale
+ // ONLY the verified stationary native walking action to zero. Its
+ // original knees/ankles remain stopped, never inventing root travel.
+ if(groundedMoving!==true)
+  return groundedMoving===false&&groundedTravel<=.0015&&
+   frameInterval<=.5&&sourceStep===0?0:null;
  return sourceStep/visibleStep;
 }
 
