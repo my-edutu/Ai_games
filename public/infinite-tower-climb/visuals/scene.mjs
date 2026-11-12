@@ -1,6 +1,7 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { createTowerColdFloorResolution } from './cold-floor-resolution.mjs';
 import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
+import { auditOriginalGuardianCrossing } from './gateway-source-audit.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
@@ -2396,6 +2397,7 @@ export function createTowerScene(canvas, settings = {}) {
   }
 
   let snapshot = null, previous = null, initialized = false, frameHandle = 0;
+  let gatewaySourceAudit = null;
   // The chosen combat lens belongs to one real guardian on one source floor.
   // Reset across encounter exits, floor changes, restarts and stale transport.
   let guardianShotKey = null, guardianShotLean = null;
@@ -2772,6 +2774,7 @@ export function createTowerScene(canvas, settings = {}) {
         ['game', 'technical', 'operator'].includes(snapshot.result.kind) &&
         next.lifecycle === 'running'
         ? { runToken: next.runToken, began: elapsed } : null;
+      gatewaySourceAudit = null;
       clearActors(); passage.clear(); initialized = false; previous = null; landingMoment=-Infinity; landingRun=null; landingHalo.visible=false; footingShadow.visible=false; observedFooting=null; actorRescueFraction = 0;
     }
     if (snapshot && baseY !== next.chunkBaseY) {
@@ -2850,6 +2853,19 @@ export function createTowerScene(canvas, settings = {}) {
       ? observedRecordedGuardianHandoff(next) : null;
     const gatewayPrevious = recordedGatewayPrevious ||
       (clearedGuardian ? previous : null);
+    // Immutable-source P0 forensic. The actual original 1x film at tick453
+    // still selected the generic history despite source tick451 HP0 contact.
+    // Record a bounded, public-only veto classification for the next real
+    // 960x600 and 390x844 capture; it never changes passage eligibility.
+    if (next.floor===9 && previous?.floor===8 &&
+        previous.runToken===next.runToken) {
+      gatewaySourceAudit = {
+        ...auditOriginalGuardianCrossing(next,previous),
+        selectedSource:recordedGatewayPrevious ? 'exact-immutable-crossing' :
+          clearedGuardian ? 'old-browser-guardian-only' : 'neither',
+        renderedGatewayNotYetProven:true,
+      };
+    } else if (next.floor!==9) gatewaySourceAudit=null;
     if (previous && previous.floor !== next.floor && !gatewayPrevious)
       passage.clear();
     // The old source-driven lock existed at the PREVIOUS floor's fixed
@@ -5207,6 +5223,7 @@ export function createTowerScene(canvas, settings = {}) {
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
     groundedBiomeThreshold: snapshot
       ? observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options) : null,
+    groundedGatewaySourceAudit:gatewaySourceAudit,
       authenticRestartSweep: authenticRestartSweep ? {
         sourceBound: true, runToken: authenticRestartSweep.runToken,
         ageSeconds: Math.max(0, Number((elapsed - authenticRestartSweep.began).toFixed(3))),
