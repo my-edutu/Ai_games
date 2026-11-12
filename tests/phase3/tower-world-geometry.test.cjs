@@ -18,6 +18,7 @@ const provenanceURL = pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb
 const source = fs.readFileSync(SOURCE, 'utf8')
   .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeURL))
   .replace("'./coordinates.mjs'", JSON.stringify(coordinatesURL))
+  .replace("'./crossfloor-arrival.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href))
   .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'", JSON.stringify(surfaceURL))
   .replace("'./scene-hierarchy.mjs'", JSON.stringify(hierarchyURL))
