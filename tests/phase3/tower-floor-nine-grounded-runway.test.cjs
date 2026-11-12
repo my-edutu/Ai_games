@@ -51,5 +51,5 @@ test('renderer consumes the source continuation without introducing a fake level
   assert.match(passage,/if\(carryRealThreshold\) placeSuccessorRunway\(previous,source,anchor\)/);
   assert.match(passage,/const route = observedFloorNineRunway\(previous, next\)/);
   assert.match(passage,/pointFor\(x,route\.top\+500,next\.chunkBaseY,next\.worldWidth,26\.35\)/);
-  assert.doesNotMatch(passage,/next\.floor\s*=|source\.player\.x\s*=/);
+  assert.doesNotMatch(passage,/(?:next\.floor|source\.player\.x)\s*(?:=(?!=)|\+=|-=|\*=|\/=)/);
 });
