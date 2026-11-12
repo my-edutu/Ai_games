@@ -653,7 +653,11 @@ export function chooseOriginalSourceSwingThighSupport({
    Math.abs(previousCorrectionRad)<=.13500001&&
    Math.sign(delta)===Math.sign(previousCorrectionRad)&&
    Math.abs(delta-previousCorrectionRad)<=.04500001;
-  const allowableStep=severeBurial?.09000001:.04500001;
+  // A physically witnessed source leg cannot jump from 0 to 90 mrad in
+  // one displayed frame merely because the weighted toe is deeply buried.
+  // Build through separately remeasured 45 mrad stages (0→45→90→135),
+  // rather than correcting a geometric collision with an abrupt hip snap.
+  const allowableStep=.04500001;
   if(!finite(delta)||(!isNormalTrial&&!isSevereTrial&&!isContinuedTrial)||
    Math.abs(delta-previousCorrectionRad)>allowableStep||
    (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||

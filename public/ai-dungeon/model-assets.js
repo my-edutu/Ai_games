@@ -1900,7 +1900,13 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  // At most FIVE original weighted two-shoe readbacks; never guess an IK foot.
  // A 135mrad follow-up is eligible only after a previous, same-signed
  // successful 90mrad source correction on this original upperleg.
- const angles=severeBurial?[-.045,.045,-.09,.09]:[-.045,.045];
+ const angles=[-.045,.045];
+ // Do not read the expensive original skinned shoe at +/-90 mrad until
+ // its previous ORIGINAL upperleg had a verified, same-signed 45+ mrad
+ // correction. The pure selector independently imposes the 45mrad slew.
+ if(severeBurial&&Number.isFinite(previous)&&
+  Math.abs(previous)>=.044999&&Math.abs(previous)<=.13500001)
+  angles.push(Math.sign(previous)*.09);
  if(severeBurial&&Number.isFinite(previous)&&
   Math.abs(previous)>=.089&&Math.abs(previous)<=.13500001)
   angles.push(Math.sign(previous)*.135);
