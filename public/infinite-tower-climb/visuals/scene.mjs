@@ -4703,7 +4703,7 @@ export function createTowerScene(canvas, settings = {}) {
       // the expensive first post-doorway render, not after an HTTP receipt.
       // Change the low-tier canvas ONLY, never the authoritative snapshot.
       const nextColdScale = coldFloorPolicy.observe(snapshot,passage.diagnostics(),
-        {stale:options.stale,camera:options.camera,reducedMotion:options.reducedMotion});
+        {stale:options.stale,camera:options.camera,quality:options.quality,reducedMotion:options.reducedMotion});
       if (nextColdScale !== coldFloorScale) {
         coldFloorScale = nextColdScale;
         resize();
