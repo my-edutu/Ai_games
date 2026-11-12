@@ -5,8 +5,8 @@ const a=html.indexOf('<script>'),b=html.lastIndexOf('</script>');
 assert(a>=0&&b>a);new vm.Script(html.slice(a+8,b),{filename:'tiny-kingdom.js'});
 const forest=html.slice(html.indexOf('function tree('),html.indexOf('function leaf',html.indexOf('function tree(')+15)>0?html.indexOf('function leaf',html.indexOf('function tree(')+15):html.indexOf('function getForest',html.indexOf('function tree(')+15));
 assert(forest.includes('crownLobe(center[0]')&&forest.includes('crownLobe(fork[0]')&&
- forest.includes('cone(centerX,baseY')&&forest.includes("detailTier==='far'?4"),
- 'every far tree keeps real 3D branch crowns / evergreen tiers (W244 changed the detail policy)');
+ forest.includes('coniferTierCanopy(centerX,baseY')&&forest.includes("detailTier==='far'?4"),
+ 'every original far tree keeps 3D branch crowns and actual irregular evergreen tiers; no erased geometry');
 assert(forest.includes("detailTier==='near'?5:3")&&
  forest.includes('leafWhorl('),'real distant three-blade leaf whorls remain');
 // W247: prove the ORIGINAL fence presents an unblocked physically valid gate,
