@@ -545,13 +545,18 @@ async function attachD04LiveAVCapture(page,started,testInfo){
     raw.isolated?.sameWindowReadbackAV,chromiumPixels)};
  console.log('D04 native Chromium WebM decode (unaligned only):',JSON.stringify(
   raw.decoder.chromiumSameWindow));
+ const chromiumReport=JSON.stringify({
+  inputSource:raw.isolated?.sameWindowReadbackAV?.source??null,
+  inspected:chromiumPixels,classification:raw.decoder.chromiumSameWindow,
+  sampleSynchronized:false,
+  caveat:'Real browser decoding of actual WebM; seek snapshots do not count VP8 frames or prove audible combat foley'
+ },null,2);
+ // Preserve the failure REASON in the uploaded GitHub artifact, not only the
+ // transient Playwright test attachment. Never include encoded media bytes.
+ fs.writeFileSync('artifacts/dungeon-d04-chromium-decoded-real-webgl-pixels.json',
+  chromiumReport+'\n');
  await testInfo.attach('d04-chromium-decoded-real-webgl-pixels.json',{
-  body:Buffer.from(JSON.stringify({
-   inputSource:raw.isolated?.sameWindowReadbackAV?.source??null,
-   inspected:chromiumPixels,classification:raw.decoder.chromiumSameWindow,
-   sampleSynchronized:false,
-   caveat:'Real browser decoding of actual WebM; separate samples do not count VP8 frames or prove audible combat foley'},null,2)),
-  contentType:'application/json'});
+  body:Buffer.from(chromiumReport),contentType:'application/json'});
  const assessment=assessD04Capture({optedIn:started?.status==='STARTED',...raw});
  console.log('D04 verified real WebGL frames:',JSON.stringify({
   decoded:raw.decoder.serialRealVideo.frameCount??0,
