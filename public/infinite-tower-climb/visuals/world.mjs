@@ -5,6 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
+import { observedClockworkRoofContinuity, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 // Display-submission-timed copy of the ACTUAL source cap landing surface:
@@ -2168,6 +2169,14 @@ export function createTowerWorld(){
       passageWitness.handoffDisplaySeconds<passageWitness.handoffVisibleWindowSeconds;
     const sourceFlight=p?.grounded===false &&
       p.state==='airborne' && Number.isFinite(p.vy);
+    // In genuine 1x films, native pixels were >1s behind an already-returned
+    // Three.js render: the old door vanished before a single shared old/new
+    // physical world became visible. Hold the ORIGINAL uncollidable cap and
+    // gate for a handful of real submissions while the player is still on
+    // an authentic nearby Floor9 deck or real airborne route. No fake pose.
+    const retainedBackdrop = observedClockworkRoofContinuity(
+      snapshot,passageWitness,held) && held.submittedFrames < 5 &&
+      held.visibleSeconds < .55;
     const justLaunched=sourceFlight &&
       snapshot.tick-held.sourceTick<=24 && nearDoor;
     // Historical architecture only: no collider, contact or extra event.
@@ -2184,8 +2193,9 @@ export function createTowerWorld(){
         !Number.isSafeInteger(snapshot.tick) ||
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
         !(p?.health>0) ||
-        (!nearDoor && !onCameraHandoffFlight) ||
-        (!onNewRoof && !justLaunched && !onCameraHandoffFlight)) {
+        (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop) ||
+        (!onNewRoof && !justLaunched && !onCameraHandoffFlight &&
+          !retainedBackdrop)) {
       retireEarnedCap();
       return;
     }
@@ -2194,7 +2204,7 @@ export function createTowerWorld(){
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
         held.submittedFrames, held.visibleSeconds);
-    if (held.submittedFrames >= 2 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
+    if (held.submittedFrames >= 5 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
       retireEarnedCap();
   }
 
@@ -2310,6 +2320,7 @@ export function createTowerWorld(){
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
       structureDeferred:deferStructuralShell, structureBuildMs:null,
+      structureBuiltAtSubmitted:null, vistaBuiltAtSubmitted:null,
       firstRenderSubmitted:false, submittedFrames:0,
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
@@ -2325,7 +2336,7 @@ export function createTowerWorld(){
         snapshot.runToken === retainedEarnedCap.runToken &&
         snapshot.floor === retainedEarnedCap.floor &&
         snapshot.tick >= retainedEarnedCap.sourceTick)
-      retainedEarnedCap.submittedFrames = Math.min(3,retainedEarnedCap.submittedFrames+1);
+      retainedEarnedCap.submittedFrames = Math.min(10,retainedEarnedCap.submittedFrames+1);
     const job=deferredDistantArrival;
     if (!job || !['awaiting-actual-first-render','awaiting-structural-submission','awaiting-vista-submission'].includes(job.state) ||
         options.stale || !snapshot || snapshot.runToken!==job.runToken ||
@@ -2334,7 +2345,7 @@ export function createTowerWorld(){
     // Exactly one GPU upload tranche per returned Three.js frame. HTTP
     // acceptance and JS animation never advance this queue. On context loss
     // or source/run switch, clearFloor() cancels the entire pending tranche.
-    job.submittedFrames=Math.min(job.structureDeferred?3:2,job.submittedFrames+1);
+    job.submittedFrames=Math.min(12,job.submittedFrames+1);
     job.firstRenderSubmitted=true;
     return true;
   }
@@ -2359,11 +2370,14 @@ export function createTowerWorld(){
         arrival.vistaMaterial=vista.material;
       }
       arrival.vistaBuildMs=+(performance.now()-began).toFixed(2);
+      arrival.vistaBuiltAtSubmitted=arrival.submittedFrames;
       arrival.state='awaiting-vista-submission';
     }
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-actual-first-render' &&
-        arrival.submittedFrames>=1 && !options.stale) {
+        arrival.submittedFrames>=1 && !options.stale &&
+        !holdIncomingStructuralShell(snapshot,passageWitness,
+          retainedEarnedCap,arrival)) {
       if (arrival.structureDeferred) {
         // Genuine 1x immutable source film 43300014722: the old bronze cap
         // survives as a real GPU mesh, yet a cold, fully rebuilt violet
@@ -2404,16 +2418,21 @@ export function createTowerWorld(){
           geometry.dispose();floorGeometries.delete(geometry);
         }
         arrival.structureBuildMs=+(performance.now()-began).toFixed(2);
+        arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
         arrival.state='awaiting-structural-submission';
       } else appendDeferredVista(arrival);
     }
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-structural-submission' &&
-        arrival.submittedFrames>=2 && !options.stale)
+        Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
+        arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
+        !options.stale)
       appendDeferredVista(arrival);
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-vista-submission' &&
-        arrival.submittedFrames>=(arrival.structureDeferred?3:2) && !options.stale) {
+        Number.isSafeInteger(arrival.vistaBuiltAtSubmitted) &&
+        arrival.submittedFrames>arrival.vistaBuiltAtSubmitted &&
+        !options.stale) {
       const began=performance.now();
       // The seven authentic distant citadels form the SECOND deferred upload,
       // only after the real canyon has itself been submitted by Three.js.
