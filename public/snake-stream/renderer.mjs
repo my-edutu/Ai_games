@@ -596,7 +596,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // A completed-fence pressure reading selects a genuine photographic cut
     // only at a real follow/detail reframe. Smooth camera movement stays unchanged on
     // normal hardware; no static/serpent/water draw or cue is skipped.
-    const pressureFollowCut = shouldCutUnderGpuPressure({ mode: cameraMode, anchor, queue: frameGate.stats() });
+    const pressureFollowCut = shouldCutUnderGpuPressure({
+      mode: cameraMode, anchor, queue: gpuQueue,
+      // A fence can finish while the real camera is easing. Finish that
+      // already-started expensive transition as one real photographic cut.
+      inTransit: cameraTarget.distanceToSquared(desiredTarget) > 0 || cameraOffset.distanceToSquared(desiredPosition) > 0,
+    });
     advancePresentationCameraPose(cameraTarget, cameraOffset, desiredTarget, desiredPosition, {
       hardCut: settings.reducedMotion || frameCount === 0 || anchor.snap || pressureFollowCut,
       overview: cameraMode === 'overview', delta: measuredDelta,

@@ -230,9 +230,16 @@ export function observedCameraGpuPressure(queue) {
     Number.isFinite(queue.skipped) && queue.skipped >= 16;
 }
 
-export function shouldCutUnderGpuPressure({ mode, anchor, queue } = {}) {
-  return (mode === 'follow' || mode === 'detail') && anchor?.reset === true &&
-    anchor.snap === false && observedCameraGpuPressure(queue);
+export function shouldCutUnderGpuPressure({ mode, anchor, queue, inTransit = false } = {}) {
+  // GPU fences may finish after a follow/detail reframe has already started.
+  // That first slow frame is not enough evidence to decide on a cut; however,
+  // continuing its easing AFTER real queue pressure becomes measurable keeps
+  // rebuilding the entire static garden at successive transient viewpoints.
+  // Complete the exact requested 3D shot once instead. The genuine serpent,
+  // water, cues and gameplay continue, and healthy GPUs retain smooth motion.
+  const pendingShot = anchor?.reset === true || inTransit === true;
+  return (mode === 'follow' || mode === 'detail') && pendingShot &&
+    anchor?.snap === false && observedCameraGpuPressure(queue);
 }
 
 /**
