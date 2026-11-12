@@ -11235,8 +11235,11 @@ function marketStallProfile(index){
  const structural=index<2;
  // W258: four ORIGINAL occupied trading pitches now form a coherent
  // medieval skyline. No new market, merchants, products or A* obstacles.
- const eave=structural?3.00:index===2?3.25:3.04;
- const peak=structural?4.05:index===2?4.39:4.16;
+ // The two ORIGINAL permanent merchant tradehouses anchor the four-bay
+ // marketplace, while the actual textile/herb workshops stay subordinate.
+ // Every unchanged counter, merchant, stock and route remains authoritative.
+ const eave=index===0?4.20:index===1?3.98:index===2?3.25:3.04;
+ const peak=index===0?5.58:index===1?5.25:index===2?4.39:4.16;
  return {structural,postHeight:eave+.10,eave,peak};
 }
 // W196 original two-storey market houses: authentic permanent stalls remain
@@ -11323,6 +11326,33 @@ function grainwardTradehouseEnvelope(stall,index,profile){
    box(wx,y+2.31,front,.52,.067,.09,dark);
   }
  });
+ // W259: honest 3D upper casements inside the two actual multi-storey
+ // tradehouses. Reuses static civic GPU geometry; never inserts a shop,
+ // inventory, merchant, street obstacle or delivery for the camera.
+ if(profile.eave>3.60){
+  const upperWindowBayHeight=Math.min(profile.eave-.46,3.72);
+  const upperSill=Math.max(3.07,upperWindowBayHeight-.50);
+  const front=z+face*.959,glass=rgb(0x485c62);
+  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+   for(const side of [-1,1]){
+    const cx=x+side*.55;
+    const a=[cx-.22,y+upperSill,front],b=[cx+.22,y+upperSill,front],
+     c=[cx+.22,y+upperWindowBayHeight,front],
+     d=[cx-.22,y+upperWindowBayHeight,front];
+    if(face>0)quad(d,c,b,a,glass);else quad(a,b,c,d,glass);
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const side of [-1,1]){
+    const cx=x+side*.55,frameZ=front+face*.023,
+     middle=y+(upperSill+upperWindowBayHeight)*.50;
+    box(cx,middle,frameZ,.045,upperWindowBayHeight-upperSill+.04,.055,oak);
+    box(cx,middle,frameZ,.49,.050,.065,oak);
+    box(cx,y+upperSill-.055,frameZ,.54,.11,.16,dark);
+    box(cx,y+upperWindowBayHeight+.045,frameZ,.51,.085,.10,oak);
+   }
+  });
+ }
  const triangles=(data.length-first)/30;
  if(!Number.isInteger(triangles)||triangles<100||triangles>800)
   throw Error('W196 tradehouse geometry budget exceeded');
@@ -21346,6 +21376,19 @@ function isReadableMarketHandoffShot(shot,framing,active,portrait){
   framing.handBlockers===0&&framing.foregroundCitizenBlockers===0&&
   framing.blockedBodyRays<=2&&framing.cameraProximityWarnings===0;
 }
+// W259: same authoritative REAL courier, truly unobstructed human-size
+// observation. Refuse any camera penetrating inhabited architecture, crowds,
+// cargo or woodland. The presentation never changes the actual economy.
+function physicallyReadableCourierRouteShot(shot,framing,portrait){
+ if(!shot||!framing||shot.eyeCollision?.clear!==true||shot.blockers!==0)return false;
+ return shot.projectedWorkerHeightFraction>=(portrait?.125:.15)&&
+  shot.foregroundSceneCover<(portrait?.28:.24)&&
+  shot.foregroundCargoCover<.18&&
+  shot.foregroundVegetationCover<.28&&
+  shot.vegetationFaceBlockers===0&&
+  framing.blockedBodyRays<=2&&framing.foregroundCitizenBlockers===0&&
+  framing.handBlockers===0&&framing.cameraProximityWarnings===0;
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -21452,7 +21495,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.45,3.8,4.2,4.8,5.6]:[3.8,4.4,5.0,5.9]):
   unloading?[3.8,4.4,5.1,5.7,6.8]:
-  filmedLoadedCourier?(portraitLens?[4.2,5.0,5.8,6.5]:[4.6,5.4,6.2,7.1]):
+  filmedLoadedCourier?(portraitLens?[3.25,3.70,4.20,4.75,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
   [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
@@ -21520,6 +21563,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  }
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
+ let routeBest=null,routeFraming=null,routeScore=Infinity,routeReadableCandidates=0;
  let receivingBest=null,receivingFraming=null,receivingScore=Infinity,
   readableReceivingCandidates=0;
  let frontBest=null,frontScore=Infinity,frontFraming=null;
@@ -21572,6 +21616,14 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.foregroundSceneCover*(portraitLens?1100:working?700:0)+
    shot.foregroundCargoCover*(portraitLens?1200:650)+
    canopy.cover*(portraitLens?1650:850)+canopy.faceBlockers*550;
+  // A real loaded cart gets a clear physically surveyed documentary camera,
+  // never an invented courier or a forcibly hidden roof/post/market stand.
+  if(filmedLoadedCourier&&
+     physicallyReadableCourierRouteShot(shot,framing,portraitLens)){
+   routeReadableCandidates++;
+   const routeCost=score-shot.projectedWorkerHeightFraction*230;
+   if(routeCost<routeScore){routeBest=shot;routeFraming=framing;routeScore=routeCost;}
+  }
   if(isReadableMarketHandoffShot(shot,framing,Boolean(realMarketAim),portraitLens)){
    readableReceivingCandidates++;
    // All eligible candidates show the original wrist and escrowed parcel.
@@ -21655,19 +21707,19 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=receivingBest||clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
-  framing=receivingBest?receivingFraming:clearHomewardBest?clearHomewardFraming:
+ const chosen=receivingBest||routeBest||clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
+  framing=receivingBest?receivingFraming:routeBest?routeFraming:clearHomewardBest?clearHomewardFraming:
    frontBest?frontFraming:readableBest?readableFraming:
    usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
   courierRouteCamera:filmedLoadedCourier,
   routeHeading:filmedLoadedCourier?walkingFace:null,
-  compositionScore:receivingBest?receivingScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
+  compositionScore:receivingBest?receivingScore:routeBest?routeScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
    readableBest?readableScore:usableFrontBest?usableFrontScore:bestScore,
   workFacingMode:receivingBest?'verified-worker-hand-and-parcel':
-   clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
+   routeBest?'clear-physical-loaded-courier':clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
    usableFrontBest?'visible-front':'obstructed',
-  readableFrontCandidates,readableReceivingCandidates,
+  readableFrontCandidates,readableReceivingCandidates,routeReadableCandidates,
   witnessedCargoContact:receivingBest?realMarketAim.contact:null,
   witnessedParcelIndex:receivingBest?realMarketAim.parcelIndex:null,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
