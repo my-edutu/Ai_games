@@ -588,6 +588,17 @@ for(const view of [
    expect(proof.before?.[side]?.toeY).toBeLessThan(-.055);
    expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
     proof.before?.[side]?.toeY+.000999);
+   // If this frame ALSO carried an independently measured ankle/calf
+   // correction, final same-source weighted toe/heel must reconcile
+   // both joints instead of preserving a stale pre-thigh proof.
+   const ankleAndThigh=t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs?.[side];
+   if(ankleAndThigh?.combinedSourceThighVerified){
+    expect(ankleAndThigh.combinedSourceThighKind).toBe('hold');
+    expect(ankleAndThigh.sourceInstanceId).toBe(t.sourceId);
+    expect(ankleAndThigh.contactLocked).toBe(false);
+    expect(Math.abs(ankleAndThigh.afterToeY-proof.after?.[side]?.toeY)).toBeLessThan(.0015);
+    expect(Math.abs(ankleAndThigh.afterHeelY-proof.after?.[side]?.heelY)).toBeLessThan(.0015);
+   }
   }else if(proof.continuityRelease===true){
    // This is a proven same-source hip RELEASE, not a new >=4mm rescue.
    // Never certify foot contact or require fresh stone penetration here.
