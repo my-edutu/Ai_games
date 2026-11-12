@@ -1,4 +1,49 @@
 {
+  "p0OriginalFloorNineRenderCriticalPathAttribution20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedImmutableCandidateSha": "26510d44638967285964601d83d2d8a9f17fff18",
+    "observedNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43147128896 — 8/8 original 60s+ baseline/candidate video jobs, authentic ledge successful, strict paired original guardian event-to-visible video 0/2 FAILED",
+    "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43147128757 — SUCCESS (engineering veto only)",
+    "actualFootageDefect": "Authentic desktop 960x600 and portrait 390x844 candidate danger original films show wooden/bronze Floor8 abruptly replaced by violet Floor9 at ~25.25/25.5 original native seconds, no legible whole-body continuous grounded arch crossing. Bronze foreground obscures live boss action. Genuine source episode tick441 guardian defeat, tick451 Floor9, tick612 Floor10, tick845 result, intermission/restart is not a visual pass.",
+    "newFourClockSourceTiming": {
+      "desktop": {
+        "sourceToBrowserMs": 44,
+        "browserToRenderReturnMs": 1138,
+        "renderReturnToDrawnHudApproxMs": 968,
+        "sourceToDrawnHudApproxMs": 2166
+      },
+      "portrait": {
+        "sourceToBrowserMs": 176,
+        "browserToRenderReturnMs": 903,
+        "renderReturnToDrawnHudApproxMs": 771,
+        "sourceToDrawnHudApproxMs": 1876
+      },
+      "limitations": "Original source, browser, returned Three.js and sampled WebM HUD only. Compositor anchors sampled; NO GPU-present, no frame displayed on actual device, no safe source-to-film pass."
+    },
+    "action": "Test-first primary P0 unblocker instrumenting genuine exact-source world rebuild CPU, whole scene update CPU and renderer.render return durations on bounded phase-transition ring, to isolate major 0.9–1.14s first new-floor rendering cost instead of repeatedly guessing a camera or HTTP fix. NO gameplay art/physics/visible improvement claimed yet.",
+    "sourceCodeCommits": [
+      "be16eb58effc6c6bd85a138da1d3262380da3772",
+      "ee519fecb6b24711c9df6b9efc542a5d284f5483",
+      "cc2d9cab600d39caba8d85a734839fd1f019699c"
+    ],
+    "testCommits": [
+      "4c7463ab2812d8f4cfead52f1ff2b32e34b1c12e",
+      "d245884ab34f3ef97b49a0cf9c652d200806f696"
+    ],
+    "review": "docs/reviews/2026-11-12-tower-pr68-original-film-render-critical-path-attribution.md",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43150229314 — pending at ledger authorship; no pass claimed",
+    "newExactSourceOriginalCapture": "NOT YET VERIFIED — request-file update will trigger pinned 9/10-job after-film; do not claim films",
+    "independentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "supportedDevicesFrameTimesMemory": "NOT EVALUATED",
+    "largestSystemicGap": "Observed 0/2 strict original film event alignment, ~1.9–2.2s source-to-drawn-floor phase and abrupt whole-world crossing; portrait guardian foreground obstruction. Need first-frame CPU versus renderer attribution before a coherent system redesign.",
+    "nextAction": "Inspect new source-pinned CPU scene/world versus WebGL-return partitions at original Floor9 and Floor10, exact head technical CI and original >=60s two-viewport 1x films. Then overhaul confirmed bottleneck and prove visual grounded threshold + authentic result/restart. Stay P0; no merge/deploy/force/draft/baseline/PR58 changes."
+  },
   "p0SubmittedVisualPhaseCohesion20261111": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
