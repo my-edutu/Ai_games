@@ -2906,8 +2906,13 @@ function sourceSolePatchVertexCandidates(actor){
 // caller receives an independent finite [x,y,z] array, never this object.
 const originalSkinnedSolePoint=new THREE.Vector3();
 function sourceSkinnedSoleWorld(candidate){
- if(!candidate?.mesh?.applyBoneTransform)return null;
- const position=candidate.mesh.geometry.getAttribute('position');
+ // The prior dedicated Y reader rejected non-indexed or non-skinned source
+ // geometry. Preserve the same fail-closed bone/vertex contract now that
+ // this ONE XYZ read owns the final height and lateral safety witness.
+ if(!candidate?.mesh?.isSkinnedMesh||
+  typeof candidate.mesh.applyBoneTransform!=='function'||
+  !Number.isSafeInteger(candidate.index)||candidate.index<0)return null;
+ const position=candidate.mesh.geometry?.getAttribute?.('position');
  if(!position||candidate.index>=position.count)return null;
  const point=originalSkinnedSolePoint.fromBufferAttribute(position,candidate.index);
  candidate.mesh.updateWorldMatrix(true,false);
