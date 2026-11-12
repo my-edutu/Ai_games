@@ -82,7 +82,10 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   assert.equal(effect.diagnostics().stage,'handoff');
   assert.equal(inlay.visible,true,'new-floor real grounded lane continues the physical bronze story');
   assert.equal(effect.diagnostics().inlayMode,'successor-ground');
-  assert.equal(effect.diagnostics().inlayFromX,gate);
+  assert.equal(effect.diagnostics().inlayFromX,Math.max(cap.x,gate-32000),
+    'four physical old-cap marks now survive before the real Floor9 runway');
+   assert.equal(effect.diagnostics().inlayInheritedOldCapPieces,4);
+   assert.equal(effect.diagnostics().retainedOldCapPieces,12);
   assert.ok(effect.diagnostics().inlayToX>x+35000);
   const newInlay=new THREE_IMPL.Matrix4();
   inlay.getMatrixAt(0,newInlay);
