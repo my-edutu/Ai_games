@@ -209,3 +209,40 @@ test('a never-measured melee ribbon does not rewrite an invisible GPU slot every
  assert.equal(visual.stats().lastAdvancePotentialBufferBytes,0);
  visual.dispose();
 });
+
+
+test('repeated D04 scene reset uploads only occupied instance matrices, never untouched pools',async()=>{
+  const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load();
+  const {THREE,meshes,scene}=fakeThree();
+  let latest=snapshot(11);
+  const visual=createPhysicalFeedbackVisuals(THREE,scene,{getCurrentSnapshot:()=>latest});
+  const baseline=meshes.map(m=>m.matrixWrites);
+  for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=false;
+  visual.reset();
+  assert.deepEqual(meshes.map(m=>m.matrixWrites),baseline,
+    'reset of an empty scene must not rewrite 102 already hidden matrices');
+  assert.ok(meshes.every(m=>!m.instanceMatrix.needsUpdate),
+    'no formerly idle GPU instance buffer should become dirty on reset');
+  assert.equal(visual.emit(cue),true);
+  assert.equal(visual.stats().active,1);
+  const before=meshes.map(m=>m.matrixWrites);
+  for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=false;
+  visual.reset();
+  const writes=meshes.map((m,i)=>m.matrixWrites-before[i]);
+  assert.deepEqual(writes,[0,0,0,0,1,0,0],
+    'one admitted warning retires just its own occupied matrix, not every pool');
+  assert.deepEqual(meshes.map(m=>m.instanceMatrix.needsUpdate),
+    [false,false,false,false,true,false,false]);
+  assert.equal(visual.stats().active,0);
+  assert.equal(visual.stats().activeDrawCalls,0);
+  assert.ok(meshes.every(m=>m.visible===false));
+  assert.ok(visual.stats().reservedInstances<=104);
+  assert.equal(Object.keys(PHYSICAL_FEEDBACK_POOL_LIMITS).length,7);
+  for(const mesh of meshes)mesh.instanceMatrix.needsUpdate=false;
+  const after=meshes.map(m=>m.matrixWrites);
+  visual.reset();
+  assert.deepEqual(meshes.map(m=>m.matrixWrites),after,
+    'a second empty reset is GPU-buffer idempotent');
+  assert.ok(meshes.every(m=>!m.instanceMatrix.needsUpdate));
+  visual.dispose();
+});
