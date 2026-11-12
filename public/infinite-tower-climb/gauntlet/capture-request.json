@@ -71,7 +71,7 @@
   "requestedOn": "2026-11-12",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "Exact immutable github.sha of THIS capture-request change including original HP-operated full-stroke 3D winches, rendered guide-geometry contracts and corrected 5.1m combat-air clearance at 3d913591. No checkout of moving PR head and never move baseline.",
+  "candidateSource": "Exact immutable GitHub SHA of this capture-request modification (includes Tower grounded Floor9 continuation camera code 73ff3daae05d8c8e2285f24afea66903db39fae7); baseline still 1731b380851162741761c5569e2bc152a0869ca9.",
   "repairedSourceSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
   "reason": "P0 source-native outcome forensic clock-gap recovery after original run 43028026049: authentic baseline portrait outcome 60s+ WebM exists but 13 source-independent matched compositor anchors include one unsafe 0.738094 video/wall slope. Retain the original video and independently bounded before/after windows while explicitly VETOING complete source-to-film calibration; never lower the 0.75 bound or infer rendered action from source events. Exact source for this request is immutable github.sha with code at 0b9d91e535212d6008f7af0810a4179eb5022601. Re-capture same frozen baseline/candidate, inspect 1x guardian battle, HP0 and crusher, grounded physical gateway, Floor9 onward, visible outcome/intermission/restart.",
   "scenarios": [
@@ -895,5 +895,24 @@
     "latestHeadQuality": "Pass for code SHA only; this request commit triggers its own exact-head workflow and should not be called green until completed.",
     "nextAction": "Inspect exact immutable new source 9-job film and CI, compare portal near 24–27 seconds at normal speed both viewports and event-bound clocks. Fix largest physical continuity or source latency defect; remain P0 until full 2/2 footage and genuine blind/device gates.",
     "safety": "No merge, deploy, force push, baseline change, PR58 rewrite or PR draft conversion."
+  },
+  "p0GroundedPostHandoffCameraOriginalFilms20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "gameplayCodeCommitSha": "73ff3daae05d8c8e2285f24afea66903db39fae7",
+    "candidateSource": "Pin to immutable github.sha of THIS capture-request commit, no moving PR head or baseline.",
+    "precedingOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43125505703 — 8/8 original WebMs, honest 0/2 strict source/native pair",
+    "precedingQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43125505597 — passed technical veto",
+    "change": "Live Three.js hero-gateway lens and source-pinned screen rescue now persist for bounded, same-episode, nearby grounded Floor9 successor frames only if retained open real inner arch exists; no physics/server/gateway unlock change.",
+    "evidenceWindow": "Original 960x600 and 390x844 >=60sec baseline/candidate ascent floor0, moving floor7, danger floor8, outcome floor0; same seed, low tier, real 20Hz normal speed; original WebM, native PTS, browser accepted/Three returned, source ticks. Inspect danger source ticks 441 defeat,451 real ground crossing, new floor and restart.",
+    "acceptance": "After-film MUST clearly show the SAME physically walkable arch with hero passing into new floor and no new camera snap, shadowing, or bronze foreground; strict native source→drawn-frame matching not retimed or relaxed. P0 remains open even with all films if 0/2 guardian event pair.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevices": "NOT EVALUATED",
+    "nextAction": "Inspect immutable full-motion before/after clips for true Floor9 threshold, guardian cause and crusher victory, normal-speed outcome and restart, exact-source/native time. Fix biggest remaining defect, then independent critics and physical devices."
   }
 }
