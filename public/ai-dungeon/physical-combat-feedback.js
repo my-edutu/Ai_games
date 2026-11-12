@@ -191,9 +191,17 @@ export function createPhysicalCombatFeedback({
     for(let i=1;i<awaitingPresentation.length;i++)
      if(awaitingPresentation[i].cue.priority<awaitingPresentation[weakest].cue.priority)weakest=i;
     if(awaitingPresentation[weakest].cue.priority>=cue.priority){
-     staleAudioDropped++;retainReceipt(cue,visual,false);played++;return;
+     staleAudioDropped++;
+     // VFX admission is not an actual WebGL submission or audible onset.
+     // An overloaded original-foley queue must retain its rejected receipt.
+     retainReceipt(cue,visual,false,null,'awaiting-frame-cap-rejected');
+     played++;return;
     }
-    awaitingPresentation.splice(weakest,1);staleAudioDropped++;
+    const evicted=awaitingPresentation.splice(weakest,1)[0];
+    staleAudioDropped++;
+    // The displaced cue may have drawn an unsubmitted retained effect, but
+    // MUST NOT be counted as having delivered its original impact sound.
+    retainReceipt(evicted.cue,evicted.visual,false,null,'awaiting-frame-cap-preempted');
    }
    // Preserve the timestamp when the authority action was first observed.
    // Resetting this clock at delayed VFX admission could make a 290ms spell
@@ -466,19 +474,27 @@ export function createPhysicalCombatFeedback({
     const oldest=seen.values().next().value;seen.delete(oldest);
     observedAtByCueId.delete(oldest);
    }
+   // Observe the entire authoritative tick at its single arrival clock,
+   // including authentic cues refused under bounded resource pressure.
+   // A rejection must not masquerade as a late submitted visual or sound.
+   const queuedWallAt=snapshotWallAt;
+   if(queuedWallAt!==null)observedAtByCueId.set(cue.id,queuedWallAt);
    if(pending.length>=MAX_PHYSICAL_PENDING){
     let weakest=0;
     for(let i=1;i<pending.length;i++)if(pending[i].cue.priority<pending[weakest].cue.priority)weakest=i;
-    if(pending[weakest].cue.priority>=cue.priority){overflow++;continue}
-    pending.splice(weakest,1);overflow++;
+    if(pending[weakest].cue.priority>=cue.priority){
+     overflow++;
+     retainReceipt(cue,false,false,null,'pending-cap-rejected');
+     continue;
+    }
+    const evicted=pending.splice(weakest,1)[0];overflow++;
+    retainReceipt(evicted.cue,false,false,null,'pending-cap-preempted');
    }
    // The opt-in submitted-frame path observes the REAL animated sword hand.
     // A 120ms pre-staging delay can miss early blade passage and play a
     // belated whoosh after the strike. Stage only swings immediately, hidden
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
-    const queuedWallAt=snapshotWallAt;
-    if(queuedWallAt!==null)observedAtByCueId.set(cue.id,queuedWallAt);
     pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
     // A 19-second renderer interval may PRECEDE a just-observed HP transition.
     // Keep the actual observation clock until the next advance, not the old
