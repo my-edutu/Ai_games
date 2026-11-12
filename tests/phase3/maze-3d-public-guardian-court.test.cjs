@@ -252,8 +252,9 @@ test('Pass302 real public duel becomes a full-width joined Tideglass stage, neve
     const stage=publishedAprons();
     assert.equal(stage.length,3,'three real open public tiles form one full-width colored physical court');
     const expected=[6,7,8].map(id=>cellPosition(id,s.width,s.height).x).sort((a,b)=>a-b);
-    assert.deepEqual(stage.map(p=>p.x).sort((a,b)=>a-b),expected,
-      'full-size dark mineral stage stays precisely over public causeway cells');
+    const actual=stage.map(p=>p.x).sort((a,b)=>a-b);
+    assert.ok(actual.every((x,i)=>Math.abs(x-expected[i])<1e-6),
+      'full-size dark mineral stage stays on the exact public cells within installed Three Float32 instance precision');
     assert.equal(w.stats().geometryCount,baseline.geometryCount);
     assert.equal(w.stats().materialCount,baseline.materialCount);
     w.update({...s,doors:[{a:7,b:8,open:false}]});
