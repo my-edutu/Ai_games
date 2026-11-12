@@ -993,6 +993,10 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
      sourceSolesSafe=false;break;
     }
    }
+   const retryFinalHeelY=readOriginalSwingSoleY(candidate.foot.heel);
+   const retryFinalToeY=readOriginalSwingSoleY(candidate.foot.toe);
+   if(!Number.isFinite(retryFinalHeelY)||!Number.isFinite(retryFinalToeY))
+    sourceSolesSafe=false;
    if(!sourceSolesSafe){
     // If even this second measured pose is invalid, preserve the ORIGINAL
     // Mixer plus action-owned base; remove speculative retry proofs as well.
@@ -1004,6 +1008,9 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
     actor.sourceSwingCalfCurrentFrameMask=0;
     actor.sourceSwingToeLiftProof=null;
     actor.sourceSwingCalfAssistProof=null;
+    if(actor.sourceSwingCalfTrialOutcome?.accepted)
+     actor.sourceSwingCalfTrialOutcome={...actor.sourceSwingCalfTrialOutcome,
+      accepted:false,reason:'restored-root-final-source-skin-rejected'};
     actor.sourceSwingToeCurrentFrameProofs={left:null,right:null};
     actor.sourceStanceSoleCurrentFrameProofs={left:null,right:null};
     for(const probe of Object.values(actor.sourceStanceProbeOutcomes??{}))
