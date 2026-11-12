@@ -57,3 +57,21 @@ Expected diagnostics: `artifacts/dungeon-d04-live-authority-capture-pair-evidenc
 ## Still not accepted
 
 Timely original damage receipt under genuine live workload; sample-aligned original sound; fully moving decoded three-viewpoint footage at desktop and 390px; Warden warning/release/recovery/counter; miss/block/dodge/projectile/spell contact truth; blade-tip geometry and 20-minute pooled-effect soak. The next dominant weakness is whichever mechanism the continuous capture-on/off trial actually exposes, not an assumed encoder or D04 fault. Never weaken the 400ms gate to make stale sound appear successful.
+
+
+## Completed GitHub Chrome verification — genuine 12 November 2026 evidence
+
+**[GitHub Actions run 43207630697](https://github.com/my-edutu/Ai_games/actions/runs/43207630697)** finished with **native contracts/build passed (195/195 tests)** and **4/5 real Chrome cases passed**. The **new continuous authority on/off browser experiment passed as a diagnostic**, not as physical/audio acceptance. The existing strict real-Dungeon injury test **failed correctly** with \`AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED\` instead of the required \`VISUAL_ADMITTED_NOT_AV_VERIFIED\`. CI retained real recorded WebMs and diagnostics in [artifact 13940211706](https://github.com/my-edutu/Ai_games/actions/runs/43207630697/artifacts/13940211706). The CI runner did not have FFprobe/FFmpeg; encoded sound/video sample synchronization remains UNVERIFIED.
+
+| Real continuously advancing seeded Dungeon authority | Capture OFF: all observed direct WebGL render p50 / worst | One genuine original AV recorder ON: all observed p50 / worst | Strictly matched ticks (HP-loss ticks) |
+| --- | --- | --- | --- |
+| Desktop 1440×900 | 10.1 / **1,505.3ms** | 11.7 / **3,603.6ms** | **4 matched (2 HP loss)** |
+| Mobile 390×844 | 8.3 / **1,696.7ms** | 7.3 / **2,055.5ms** | **2 matched (0 HP loss)** |
+
+Desktop recorded 15 genuine submitted-frame requests and 358,395 bytes with one combined WebM (one real video track and one actual opted-in audio track). Mobile recorded 18 requests and 477,270 bytes, likewise one original combined WebM. No requestFrame failures. **These are recorder existence/source facts, NOT decoded audible contact alignment or a viable full-motion three-angle video.**
+
+Within just the four **matched** desktop combat ticks, the OFF worst was 1,505.3ms and ON worst 275.4ms. This differs from the broader *all observed* OFF worst 1,505.3ms vs ON worst 3,603.6ms: **never infer a recording performance benefit or penalty from this selective matched subset**. The exceptionally slow ON frames did not match the same ticks in OFF. Mobile had no matched HP-loss tick, so its comparator correctly returned \`INSUFFICIENT_MATCHED_LIVE_DAMAGE\`; raw mobile worst spikes remain real and are retained. Small sample, serial run order, renderer/encoder/browser warmup, and capture scheduling remain uncontrolled confounders.
+
+The earlier *stage-by-stage*, staged capture on/off case also passed but only measured much shorter render calls (desktop 17.5ms OFF worst / 19.4ms ON worst; mobile 13.2ms OFF / 14.3ms ON). The live experiment now independently confirms **multi-second frame-delivery stalls exist even in the uncaptured real-authority arm**; recording is therefore not necessary for a large stall to occur. It does *not* establish what creates or exacerbates stalls in either mode.
+
+**Next dominant defect:** the continuous real spectator renderer misses or severely delays legitimate authoritative combat frames, so the preserved 400ms HP-loss deadline correctly retires some impacts. The next D04-owned increment should separately correlate the already logged per-frame direct WebGL call cost, snapshot skipped-tick gaps, active retained effect density, and Chrome/renderer warmup for the same real scene, before adjusting any D04-owned effect GPU work. Preserve exact original victim receipts and do not count an unrelated late effect or original source.start as an audible hit. The legacy director, authoritative game, rig, camera and global lighting remain untouched; all production and moving A/V gates stay red.
