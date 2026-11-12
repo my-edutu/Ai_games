@@ -1845,8 +1845,12 @@ export function createTowerWorld(){
   // transfer. A completed actual Three.js render is its only activation.
   // Rebuild/dispose/restart cancels the one pending job. No timers or workers.
   let deferredDistantArrival = null;
+  // Exact original source-frame CPU-only world construction witness. A cheap
+  // getter avoids the expensive complete scene traverse in the hot render path.
+  let lastRebuildWitness = null;
   function clearFloor(){
     deferredDistantArrival = null;
+    lastRebuildWitness = null;
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;decorativeOcclusionEvidence.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
@@ -1914,6 +1918,10 @@ export function createTowerWorld(){
     finishBatches();
     bindRenderedClockFaceRayMeshes();
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
+    lastRebuildWitness = { runToken: snapshot.runToken, floor: snapshot.floor,
+      sourceTick: snapshot.tick, key,
+      cpuBuildMs: +(performance.now() - rebuildStartedAt).toFixed(2),
+      measurement: 'CPU synchronous real-world rebuild, not WebGL return, GPU or native video' };
     if (deferDistant) deferredDistantArrival = {
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
@@ -2537,6 +2545,7 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
+  function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,
     decorativeOcclusionEvidence:decorativeOcclusionEvidence.map(item=>({...item})),
     decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,deferredDistantArrival:deferredDistantArrival?{
@@ -2549,5 +2558,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics};
+  return{group,update,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
