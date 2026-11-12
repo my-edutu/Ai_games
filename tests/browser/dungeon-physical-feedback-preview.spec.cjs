@@ -6,6 +6,7 @@ const {correlateD04OriginalSourceStarts}=require('./dungeon-d04-source-start-cor
 const fs=require('node:fs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
  sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM}=require('./dungeon-d04-decoded-video-proof.cjs');
+const {inspectRealWebMVideoPTS,classifyEncodedFrameYield}=require('./dungeon-d04-webm-pts-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
 function witnessActualDamage(){
@@ -538,7 +539,12 @@ async function attachD04LiveAVCapture(page,started,testInfo){
     reason:'Read-only Chromium decoder: '+String(error).slice(0,120)};
   }
  }
- raw.decoder={serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo),
+ // Read actual encoded WebM PTS without mistaking receipt requests for frames.
+ // This runs with or without FFprobe and never asserts pixel motion/audio sync.
+ const webmPts=inspectRealWebMVideoPTS(raw.isolated?.sameWindowReadbackAV);
+ const encodedYield=classifyEncodedFrameYield(raw.isolated?.sameWindowReadbackAV,webmPts);
+ raw.decoder={webmPts,encodedYield,
+  serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo),
    readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo),
    sameWindowReadbackAV:decodeSameWindowReadbackMotion(raw.isolated?.sameWindowReadbackAV),
    chromiumSameWindow:classifyChromiumDecodedRealWebM(
@@ -547,6 +553,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
   raw.decoder.chromiumSameWindow));
  const chromiumReport=JSON.stringify({
   inputSource:raw.isolated?.sameWindowReadbackAV?.source??null,
+  webmPacketTiming:webmPts,encodedFrameYield:encodedYield,
   inspected:chromiumPixels,classification:raw.decoder.chromiumSameWindow,
   sampleSynchronized:false,
   caveat:'Real browser decoding of actual WebM; seek snapshots do not count VP8 frames or prove audible combat foley'
