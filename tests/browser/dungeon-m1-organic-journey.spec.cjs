@@ -226,6 +226,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
+    nativeActorVisibility:d?.nativeActorVisibility,
     webglRendererName:d?.webglRendererName,postFX:d?.postFX,drawCalls:d?.drawCalls,
     triangles:d?.triangles,soundstage:d?.soundstage};
   });
@@ -235,6 +236,14 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   expect(proof.actorReadability?.status,'real posed actor projection '+stage).toBe('MEASURED');
   expect(proof.baseWorldArchitecturalBatches?.sourceDrawCalls,'real original floor primitive source count').toBeGreaterThanOrEqual(proof.baseWorldArchitecturalBatches?.drawCalls??0);
   expect(proof.baseWorldArchitecturalBatches?.savedDrawCalls,'actual bounded saved base-world submits').toBeGreaterThanOrEqual(0);
+  if(proof.softwareWebGL){
+   expect(['active','partial-fail-open'].includes(proof.nativeActorVisibility?.status),
+    'real software WebGL must report genuine per-frame rig frustum decisions').toBe(true);
+   expect(proof.nativeActorVisibility?.retained,
+    'at least one original hero or enemy GLB remains drawn').toBeGreaterThan(0);
+   expect(proof.nativeActorVisibility?.sourceMeshesSkipped,
+    'only a bounded number of imported skinned source meshes can be omitted').toBeGreaterThanOrEqual(0);
+  }
   if(stage==='warden'||stage==='warden-warning'||stage==='warden-release'||stage==='warden-counter'){
    expect(proof.actorReadability.actors.some(a=>a.kind==='warden'&&a.inFrame),
     'real skinned Warden must be in the original 3D camera frame').toBe(true);
@@ -268,6 +277,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
    surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,
+   nativeActorVisibility:proof.nativeActorVisibility,
    webglRendererName:proof.webglRendererName,postFX:proof.postFX,drawCalls:proof.drawCalls,
    triangles:proof.triangles,soundstage:proof.soundstage});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
