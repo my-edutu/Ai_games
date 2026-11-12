@@ -50,12 +50,26 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     world.update(first,.05,0,{quality:'low'});
     const genuine=world.group.getObjectByName('platform:f8:cap');
     assert.ok(genuine && genuine.isGroup,'original rendered source cap is present');
+    const originalGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    const originalDoor=world.group.getObjectByName('GuardianGateInset');
+    assert.ok(originalGate?.isGroup && originalDoor?.isGroup,
+      'genuine clockwork guardian gate is its own separate rendered world subtree');
+    assert.equal(originalDoor.parent,originalGate,
+      'walkable cap alone does NOT include the old physical guardian gateway');
     assert.equal(world.stageGroundedCapContinuation(first,second),true);
     world.update(second,.05,.05,{quality:'low'});
     assert.equal(world.group.getObjectByName('platform:f8:cap'),genuine,
       'the already-rendered original meshes must survive, not synthetic replacement');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
+      'the ORIGINAL opened guardian doorway must survive the Floor9 rebuild alongside the old deck');
+    assert.equal(world.group.getObjectByName('GuardianGateInset'),originalDoor,
+      'must retain the real HP-driven bronze grille and not substitute decorative inlays');
+    assert.equal(originalGate.parent?.name,'ObservedGroundedCapGatewayContinuity',
+      'old rendered cap and gate share one bounded historical transform');
     const retention=world.diagnostics().retainedSourceCap;
     assert.equal(retention.floor,9);
+    assert.equal(retention.guardianGateRetained,true,
+      'diagnostics expose actual old guardian doorway retention, not just a cosmetic deck');
     assert.equal(retention.submittedFrames,0);
     assert.ok(retention.geometryCount>0&&retention.materialCount>0);
     assert.ok(world.group.getObjectByName('platform:f9:ground'),
@@ -71,6 +85,8 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     for(let i=0;i<17;i++)world.update(second,.1,3+i*.1,{quality:'low'});
     assert.equal(world.group.getObjectByName('platform:f8:cap'),undefined,
       'the bounded old floor must retire on submitted-frame display time');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
+      'old unlocked gate and its GPU resources must retire with old cap');
     assert.equal(world.diagnostics().retainedSourceCap,null);
     assert.equal(JSON.stringify([first,second]),original,
       'the old/new authoritative source must be immutable');
@@ -92,6 +108,8 @@ test('unearned, stale, wrong-run or geometry-mismatched cap never attaches old w
       assert.equal(world.stageGroundedCapContinuation(proof,after),false);
       world.update(after,.05,.05,{quality:'low'});
       assert.equal(world.diagnostics().retainedSourceCap,null);
+      assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
+        'no fake unlocked old door may attach on wrong-run or unearned transitions');
     }finally{world.dispose();}
   }
 });
