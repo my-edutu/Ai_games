@@ -14,6 +14,8 @@ on:
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-d04-dynamic-render-pair.cjs
       - tests/browser/dungeon-d04-capture-cost-pair.cjs
+      - tests/browser/dungeon-d04-live-authority-pair.cjs
+      - tests/browser/dungeon-d04-real-live-authority-capture-pair.spec.cjs
       - tests/browser/dungeon-d04-real-capture-cost-pair.spec.cjs
       - tests/browser/dungeon-d04-real-dynamic-render-pair.spec.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
@@ -47,6 +49,8 @@ jobs:
       - run: npm ci
       - run: node --check public/ai-dungeon/original-combat-foley.js
       - run: node --check tests/browser/dungeon-d04-capture-profile.cjs
+      - run: node --check tests/browser/dungeon-d04-live-authority-pair.cjs
+      - run: node --check tests/browser/dungeon-d04-real-live-authority-capture-pair.spec.cjs
       - run: node --check tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - run: |
           node --test \
@@ -64,6 +68,7 @@ jobs:
             tests/foundation/dungeon-d04-render-cost-pair.test.cjs \
             tests/foundation/dungeon-d04-dynamic-render-pair.test.cjs \
             tests/foundation/dungeon-d04-capture-cost-pair.test.cjs \
+            tests/foundation/dungeon-d04-live-authority-pair.test.cjs \
             tests/foundation/dungeon-d04-live-queued-warning-stall.test.cjs \
             tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
