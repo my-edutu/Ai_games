@@ -68,6 +68,13 @@ test('real assembled floor 9 selectively uploads fewer GPU vertex bytes with exa
     }
     assert.ok(indexed>0 && saved>0, 'large static floor batches must make a measurable upload reduction');
     assert.ok(currentBytes<previousBytes, 'whole floor reduces total static upload payload');
+    const reported=world.diagnostics().rigidBatchUploadBudget;
+    assert.equal(reported.actualAttributeAndIndexBytes,currentBytes,
+      'source-scoped diagnostics must report real payload, not estimated FPS');
+    assert.equal(reported.previousExpandedAttributeBytes,previousBytes);
+    assert.equal(reported.indexedBatches,indexed);
+    assert.equal(reported.batches,batches.length);
+    assert.match(reported.caveat,/not GPU allocated memory or measured FPS/);
     assert.equal(JSON.stringify(source),frozen,'render optimization never edits authoritative snapshots');
     // Updating the same source cannot allocate another floor or abandon owner metadata.
     const first=batches[0].geometry;
