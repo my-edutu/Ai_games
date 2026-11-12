@@ -66,7 +66,13 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   }else expect(visible.values[1]).toBe('No loaded courier');
   if(initial.flow.latestReceipt)
    expect(visible.values[2]).toContain('Day ');
-  else expect(visible.values[2]).toBe('No receipt yet');
+  else {
+   // W267 adds truthful stock context; do not reject a legitimate empty
+   // receipt just because it also explains why no grain is in the dock.
+   expect(visible.values[2]).toContain('No receipt yet');
+   expect(visible.values[2]).toContain('no unspent verified grain at dock');
+   expect(visible.values[2]).not.toContain('Day ');
+  }
 
   await page.locator('#world-trace-follow').click();
   const afterFollow=await page.evaluate(()=>{
