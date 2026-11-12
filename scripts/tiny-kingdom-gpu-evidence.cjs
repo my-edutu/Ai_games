@@ -278,8 +278,15 @@ const path = require('node:path');
        evidence.materialSwatches.swatches.houseFoundation.general!==0||
         evidence.materialSwatches.swatches.houseFoundation.plaster!==0)
       throw Error('G054c foundation is not real stone: '+JSON.stringify(evidence.materialSwatches.swatches.houseFoundation));
+    // The real extended receiving-market canvas now exposes ten faces rather
+    // than two. Keep a bounded REAL material/triangle contract instead of
+    // erasing legitimate geometry to satisfy the older two-face fixture.
     if(evidence.materialSwatches.swatches.guildCloth.total!==48||
-       evidence.materialSwatches.swatches.marketCanvas.total!==2||
+       evidence.materialSwatches.swatches.marketCanvas.total<10||
+       evidence.materialSwatches.swatches.marketCanvas.total>40||
+       evidence.materialSwatches.swatches.marketCanvas.motion!==0||
+       evidence.materialSwatches.swatches.marketCanvas.general!==
+        evidence.materialSwatches.swatches.marketCanvas.total||
        !evidence.materialSwatches.authorityUnchanged)
       throw Error('G054b actual GPU colored cloth triangle audit/replay failed: '+JSON.stringify(evidence.materialSwatches));
 
