@@ -12,7 +12,7 @@ on:
       - public/ai-dungeon/physical-feedback-visuals.js
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
-      - tests/foundation/dungeon-physical-feedback-d04.test.cjs
+      - tests/foundation/dungeon-d04-queue-pressure-audit.test.cjs
       - tests/browser/dungeon-d04-dynamic-render-pair.cjs
       - tests/browser/dungeon-d04-capture-cost-pair.cjs
       - tests/browser/dungeon-d04-live-authority-pair.cjs
@@ -57,7 +57,7 @@ jobs:
       - run: node --check tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - run: |
           node --test \
-            tests/foundation/dungeon-physical-feedback-d04.test.cjs \
+            tests/foundation/dungeon-d04-queue-pressure-audit.test.cjs \
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
             tests/foundation/dungeon-d04-capture-buffer-gate.test.cjs \
             tests/foundation/dungeon-d04-readback-decoder-proof.test.cjs \
