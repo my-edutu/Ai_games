@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,planOriginalSourceLoadedPelvisSupport,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -874,17 +874,14 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.visualPivot.position.y=baseY+candidate.liftMeters;
  actor.visualPivot.updateWorldMatrix(true,true);
  const lifted=read(candidate.side),before=candidate.side==='left'?left:right;
- const beforeWorst=Math.max(Math.abs(before.heelY+.02),Math.abs(before.toeY+.02));
- const afterWorst=Math.max(Math.abs(lifted.heelY+.02),Math.abs(lifted.toeY+.02));
  const otherSide=candidate.side==='left'?'right':'left';
  const otherBefore=otherSide==='left'?left:right,otherAfter=read(otherSide);
- const otherNearLoaded=otherBefore.heelY>=-.065&&otherBefore.heelY<=.005&&
-  otherBefore.toeY>=-.065&&otherBefore.toeY<=.005;
- if(![lifted.heelY,lifted.toeY,otherAfter.heelY,otherAfter.toeY].every(Number.isFinite)||
-  afterWorst>beforeWorst-.0015||
-  lifted.heelY<before.heelY-.0001||lifted.toeY<before.toeY-.0001||
-  lifted.heelY>.008||lifted.toeY>.008||
-  (otherNearLoaded&&Math.max(otherAfter.heelY,otherAfter.toeY)>.005)){
+ // Validate BOTH actual original skinned shoe endpoints after the visual
+ // pivot moves; reducing maximum error cannot conceal a newly buried heel.
+ const physical=verifyOriginalSourceLoadedPelvisFootWitness({
+  before,after:lifted,otherBefore,otherAfter,floorTopY:-.02
+ });
+ if(!physical){
   actor.visualPivot.position.y=baseY;
   actor.visualPivot.updateWorldMatrix(true,true);
   return;
@@ -892,7 +889,7 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.sourceLoadedPelvisLiftMeters=candidate.liftMeters;
  actor.sourceLoadedPelvisCandidate={
   ...candidate,baseY,foot:patches[candidate.side],other:patches[otherSide],
-  before,otherNearLoaded
+  before,otherBefore,beforeWorstMeters:physical.beforeWorstMeters
  };
 }
 function auditSourceLoadedPelvisAfterLegs(actor){
@@ -901,15 +898,18 @@ function auditSourceLoadedPelvisAfterLegs(actor){
  if(!candidate)return;
  const finalHeelY=readOriginalSwingSoleY(candidate.foot.heel);
  const finalToeY=readOriginalSwingSoleY(candidate.foot.toe);
- const finalWorst=Math.max(Math.abs(finalHeelY+.02),Math.abs(finalToeY+.02));
  const otherFinalHeelY=readOriginalSwingSoleY(candidate.other.heel);
  const otherFinalToeY=readOriginalSwingSoleY(candidate.other.toe);
- const accepted=[finalHeelY,finalToeY,otherFinalHeelY,otherFinalToeY].every(Number.isFinite)&&
-  finalWorst<candidate.beforeWorstMeters-.0015&&
-  finalHeelY>-.075&&finalToeY>-.075&&
-  finalHeelY<=.008&&finalToeY<=.008&&
-  (!candidate.otherNearLoaded||
-   Math.max(otherFinalHeelY,otherFinalToeY)<=.005);
+ // Source ankle and knee overlays may change heel/toe independently after
+ // the initial pelvis trial. Never let a newly deeper heel be hidden by
+ // a better toe measurement when accepting the final rendered source pose.
+ const finalPhysical=verifyOriginalSourceLoadedPelvisFootWitness({
+  before:candidate.before,after:{heelY:finalHeelY,toeY:finalToeY},
+  otherBefore:candidate.otherBefore,
+  otherAfter:{heelY:otherFinalHeelY,toeY:otherFinalToeY},
+  floorTopY:-.02
+ });
+ const accepted=Boolean(finalPhysical);
  if(!accepted){
   // A late source joint correction can invalidate the initial shoe lift.
   // Restore the exact prior visual body pose, and invalidate old world-space
@@ -934,7 +934,7 @@ function auditSourceLoadedPelvisAfterLegs(actor){
   beforeToeY:candidate.before.toeY,
   finalHeelY,finalToeY,
   beforeWorstMeters:candidate.beforeWorstMeters,
-  afterWorstMeters:finalWorst,
+  afterWorstMeters:finalPhysical.afterWorstMeters,
   originalSourceContactLocked:false
  };
  actor.sourceLoadedPelvisAcceptedFrames=Math.min(1000000,
