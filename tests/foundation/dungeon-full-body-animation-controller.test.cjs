@@ -3728,3 +3728,58 @@ test('RED: genuine source swing thigh supports a buried airborne toe without mov
  assert.match(renderer,/sourceSwingThighCurrentFrameProofs/);
  assert.match(renderer,/readOriginalSwingSoleY\(/);
 });
+
+
+test('RED: the authentic post-ankle source thigh may improve a still buried toe only with reverified same-frame dual-shoe continuity',async()=>{
+ const {reconcileOriginalSourceSwingToeProofWithThigh:reconcile}=await load();
+ assert.equal(typeof reconcile,'function');
+ // Genuine 390px original Walking_A toe after ankle+calf: -63.9156mm
+ // world Y against the exact -20mm stone. Candidate below is only a
+ // SYNTHETIC verified-thigh trial, never falsely labelled filmed output.
+ const source={source:'same-original-GLB-foot-skinned-vertices',side:'right',
+  sourceClip:'Walking_A',sourceInstanceId:'original-clone-1',
+  beforeToeY:-.0877794,afterToeY:-.0639156,
+  beforeHeelY:.2142043,afterHeelY:.2416427,
+  floorTopY:-.02,liftMeters:.0238638,
+  penetrationAfterMeters:.0439156};
+ const current={heelY:.2416427,toeY:-.0639156,
+  heelXZ:[.10,.25],toeXZ:[.13,.26]};
+ const improved={heelY:.2376427,toeY:-.0569156,
+  heelXZ:[.11,.255],toeXZ:[.136,.267]};
+ const owner={proof:source,side:'right',sourceInstanceId:'original-clone-1',
+  sourceClipName:'Walking_A',floorTopY:-.02,
+  before:current,after:improved,thighImprovementMeters:.007};
+ const final=reconcile(owner);
+ assert.ok(final,'a real post-mixer thigh trial may complement a measured ankle/calf rescue');
+ assert.equal(final.afterToeY,improved.toeY);
+ assert.equal(final.afterHeelY,improved.heelY);
+ assert.ok(Math.abs(final.liftMeters-(source.liftMeters+.007))<1e-7);
+ assert.ok(Math.abs(final.penetrationAfterMeters-.0369156)<1e-7);
+ assert.equal(final.combinedSourceThighMeters,.007);
+ assert.equal(final.contactLocked,false,'neither trial proves a planted foot');
+ for(const bad of [
+  {sourceInstanceId:'different-clone'}, {sourceClipName:'Idle'},
+  {side:'left'}, {floorTopY:.5},
+  {before:{...current,toeY:current.toeY-.006}},
+  {after:{...improved,toeY:current.toeY-.01}},
+  {after:{...improved,toeY:current.toeY+.09}},
+  {after:{...improved,heelY:current.heelY-.06}},
+  {proof:{...source,sourceInstanceId:'other-clone'}},
+  {proof:{...source,afterHeelY:NaN}},
+  {thighImprovementMeters:.0001}
+ ])assert.equal(reconcile({...owner,...bad}),null,
+  'stale, foreign, unsafe, or unmeasured source-foot revisions fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',begin);
+ assert.ok(begin>0&&end>begin,'same real imported rig stage is still present');
+ const stage=renderer.slice(begin,end);
+ assert.match(stage,/reconcileOriginalSourceSwingToeProofWithThigh\(/,
+  'the actual final weighted skin sample must update any earlier toe rescue');
+ assert.match(stage,/sourceSwingToeCurrentFrameProofs\[side\]/,
+  'same-frame original shoe evidence must remain attributable after a thigh trial');
+ assert.doesNotMatch(stage,/actor\.sourceSwingToeCurrentFrameProofs\?\.\[side\]\s*\|\|/,
+  'a verified same-side original ankle rescue must not blanket-block further safe source thigh movement');
+ assert.doesNotMatch(stage,/actor\.sourceSwingCalfCurrentFrameMask\s*\|\|/,
+  'a real source calf rescue is not a blanket rejection of a separately remeasured upperleg');
+});
