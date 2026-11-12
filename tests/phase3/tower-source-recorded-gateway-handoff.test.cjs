@@ -46,7 +46,7 @@ test('stored exact source crossing recovers a true grounded arch after dropped b
     {...next,player:{...next.player,y:y+1000}},
     {...next,platforms:[{...next.platforms[0],y:cap.y+1000}]},
     {...next,lastGuardianCrossing:{...w,guardian:{...w.guardian,active:true,health:1}}},
-    {...next,lastGuardianCrossing:{...w,sourceTick:440}},
+    {...next,lastGuardianCrossing:{...w,sourceTick:439}},
     {...next,lastGuardianCrossing:{...w,runToken:'other-run'}},
     {...next,lastGuardianCrossing:{...w,crossingX:gate-50000}},
     {...next,lastGuardianCrossing:{...w,fromFloor:7}},
