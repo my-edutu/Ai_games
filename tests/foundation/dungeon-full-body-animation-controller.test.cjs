@@ -3492,4 +3492,9 @@ test('live original stance skinned-foot safety reads each weighted source vertex
   'the bounded per-frame skinned witness should reuse a local module scratch vector');
  assert.match(sampler,/applyBoneTransform/);
  assert.match(sampler,/applyMatrix4/);
+ // The prior dedicated Y reader rejected malformed indices. The consolidated
+ // XYZ reader must not silently index vertex zero for undefined/stale rigs.
+ assert.match(sampler,/Number\.isSafeInteger\(candidate\.index\)/);
+ assert.match(sampler,/candidate\.index<0/);
+ assert.match(sampler,/candidate\.mesh\?\.isSkinnedMesh/);
 });
