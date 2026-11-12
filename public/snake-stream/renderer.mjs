@@ -8,7 +8,7 @@ import { createCourtyardEcology } from './courtyard-ecology.mjs';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
-import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose } from './camera.mjs';
+import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure } from './camera.mjs';
 
 // BEGIN R38 CONTACT HELPER
 /**
@@ -586,8 +586,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // True portal/restart/shot transitions are indivisible cuts of both
     // viewpoint and gaze. Ordinary recentering stays smooth; settled, exact
     // poses permit the unchanged HDR/depth static world to be reused.
+    // A completed-fence pressure reading selects a genuine photographic cut
+    // only at a real follow reframe. Smooth camera movement stays unchanged on
+    // normal hardware; no static/serpent/water draw or cue is skipped.
+    const pressureFollowCut = shouldCutUnderGpuPressure({ mode: cameraMode, anchor, queue: frameGate.stats() });
     advancePresentationCameraPose(cameraTarget, cameraOffset, desiredTarget, desiredPosition, {
-      hardCut: settings.reducedMotion || frameCount === 0 || anchor.snap,
+      hardCut: settings.reducedMotion || frameCount === 0 || anchor.snap || pressureFollowCut,
       overview: cameraMode === 'overview', delta: measuredDelta,
     });
     camera.position.copy(cameraTarget).add(cameraOffset);
@@ -697,7 +701,7 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new RangeError('timeoutMs must be positive and finite');
   const supported = ['fenceSync', 'clientWaitSync', 'deleteSync', 'flush', 'isContextLost'].every(name => typeof gl[name] === 'function');
   const pending = [];
-  let disposed = false, failed = false, submittedCount = 0, completed = 0, skipped = 0, maxObservedLatencyMs = 0;
+  let disposed = false, failed = false, submittedCount = 0, completed = 0, skipped = 0, maxObservedLatencyMs = 0, lastObservedLatencyMs = 0;
   function clear() {
     const lost = gl.isContextLost?.();
     for (const item of pending) if (!lost) gl.deleteSync(item.sync);
@@ -716,7 +720,8 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
       const item = pending[0];
       const status = gl.clientWaitSync(item.sync, 0, 0);
       if (status === gl.ALREADY_SIGNALED || status === gl.CONDITION_SATISFIED) {
-        maxObservedLatencyMs = Math.max(maxObservedLatencyMs, now() - item.at);
+        lastObservedLatencyMs = now() - item.at;
+        maxObservedLatencyMs = Math.max(maxObservedLatencyMs, lastObservedLatencyMs);
         gl.deleteSync(item.sync); pending.shift(); completed++;
       } else if (status === gl.TIMEOUT_EXPIRED) {
         if (now() - item.at >= timeoutMs) fail('GPU presentation fence timed out');
@@ -737,6 +742,6 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
     gl.flush();
   }
   function dispose() { if (disposed) return; disposed = true; clear(); }
-  function stats() { return { supported, maxFrames, pending: pending.length, submitted: submittedCount, completed, skipped, maxObservedLatencyMs, failed, disposed }; }
+  function stats() { return { supported, maxFrames, pending: pending.length, submitted: submittedCount, completed, skipped, maxObservedLatencyMs, lastObservedLatencyMs, failed, disposed }; }
   return { canDraw, submitted, dispose, stats };
 }

@@ -208,6 +208,23 @@ export function createPresentationCameraAnchor() {
 
 
 /**
+ * Camera editorial response to *observed* GPU backpressure, not to nominal
+ * requestAnimationFrame cadence. A normal device retains eased cinematic
+ * tracking. On a genuinely starved GPU a follow dead-zone reframe becomes a
+ * single truthful, full-3D camera edit instead of ~20 uncached full-world
+ * renders at successive intermediate viewpoints. Original gameplay positions,
+ * head silhouette, lighting, water, full overview, and accessible controls
+ * stay untouched. The latest *completed* fence latency is essential here:
+ * a historical max would permanently impose cuts after one isolated stall.
+ */
+export function shouldCutUnderGpuPressure({ mode, anchor, queue } = {}) {
+  return mode === 'follow' && anchor?.reset === true && anchor.snap === false &&
+    queue?.supported === true && queue.failed === false &&
+    Number.isFinite(queue.lastObservedLatencyMs) && queue.lastObservedLatencyMs >= 120 &&
+    Number.isFinite(queue.skipped) && queue.skipped >= 16;
+}
+
+/**
  * Single, authoritative viewer-camera pose transition. The immutable public
  * snapshot determines the desired shot; this function only moves real Three.js
  * camera vectors and cannot affect the snake's path, movement, portals or AI.

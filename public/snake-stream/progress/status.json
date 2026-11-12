@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-12",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED-PENDING / T2 BUILDING / T3 BUILDING / T4 HARD RED; cf6d original strict 9/17",
-  "detail": "cf6d completed original Chromium #43116314135 drew 9 genuine complete full-scene desktop WebGL renderer submissions versus mandatory 17 in untouched 1s test at 751x415; native CI failed. New T1 shared 7-grove physical bank shoulders, eroded masonry and coping candidate on exact parent: native RED -> GREEN 2/2, code syntax pass. Candidate source-matched browser screenshots, original strict benchmark, long footage, physical-device displays, full CI and independent critique pending; no art/performance win claimed. No merge/deploy/force push.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; 2c2c original strict 3/17",
+  "detail": "2c2c Chromium #43138308007 measured 3 genuine complete renderer submissions/17 at 751x415 in original 1s test; severe 340 GPU skips, moving-camera full scene GPU p95 264.85ms vs frozen/cache p95 24.00ms diagnostic. T4 pressure-aware real follow reframe candidate native RED->GREEN 3/3, TS/900 tick/10k ticks pass; real candidate GPU, footage and full browser CI NOT YET verified. Real T1 whole game remains an overly rectangular courtyard. No merge/deploy/force push.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Last accepted source evidence remains cf6d: 9/17 genuine one-second complete WebGL submissions, overly rectangular wide view. New woodland bank is unaccepted without new-head imagery.",
+  "latestCaption": "2c2c genuine original 1-second desktop WebGL is 3/17 (HARD RED); authentic real whole game still rectangular; cinematic pressure-cut candidate must be remeasured and reviewed.",
   "reviews": [
+    {
+        "area": "Nov 12 2c2c source T4 real full-scene moving-follow GPU bottleneck: guarded camera reframe (BUILDING/UNACCEPTED)",
+        "sourceHead": "2c2c3b401dde09c1d82069874ddfaa99ac70ba10",
+        "browser": "Original Chromium #43138308007 strict 3/17 genuine full-frame at 751x415; 340 queue skips, moving-follow full-app GPU diagnostic p95 264.85ms vs settled cache p95 24ms, browser 36/95; candidate unmeasured",
+        "nativeCI": "Original #43138308001 failed, reproduction #43138308065 success; candidate source-exact RED->GREEN 3/3, TS+900 tick+10000 seeded pass, sightline historical occlusion fail reproduced on exact parent",
+        "checks": "camera pressure snaps real full-scene pose only when follow anchor.reset & not snap, latest completed fence >=120ms and skips>=16; untouched GPU gate/frame queue, authority, assets and water",
+        "verdict": "T0 unsigned / T1 building visually self-rejected / T2-T3 building / T4 HARD RED; no authentic candidate visual/performance win or independent acceptance."
+    },
     {
       "area": "Nov 12 cf6d parent T1 physically continuous seven woodland banks and eroded masonry (BUILDING, source-matched Chromium pending)",
       "sourceHead": "cf6d7b20c51cf6da672bf46e4ba016073aa24d84",
