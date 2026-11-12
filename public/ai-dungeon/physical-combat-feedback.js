@@ -453,7 +453,16 @@ export function createPhysicalCombatFeedback({
     }
     continue;
    }
-   item.remaining-=dt;
+   // The opt-in D04 clock must age a planned cue against observed REAL
+   // time, not the 50ms animation cap. A 215ms verified-melee delay can
+   // become eligible in a single genuine 240ms frame; advancing it by only
+   // 50ms would defer its first draw until AFTER the fixed 400ms deadline.
+   // The preceding stale-age gate still forbids all late/unverified impacts,
+   // and non-submission callers preserve their original capped-step timing.
+   if(requirePresentedFrame)
+    item.remaining=Math.max(0,presentationDelay(item.cue)-
+     Math.max(0,observedSeconds-item.queuedAt));
+   else item.remaining-=dt;
   }
   const due=pending.filter(x=>x.remaining<=0).sort((a,b)=>
    b.cue.priority-a.cue.priority||a.cue.tick-b.cue.tick||
