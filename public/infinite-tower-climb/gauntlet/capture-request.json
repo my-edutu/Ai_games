@@ -1,4 +1,28 @@
 {
+  "p0ActualCapSightlineMaterialFixedExactFilm20261112": {
+    "stage": "P0 OPEN; no cinema/experience gate passed",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactCandidate": "The immutable github.sha of THIS capture-request commit ONLY; do not use floating branch HEAD, do not change baseline",
+    "productionOwnerFixSha": "3a20c483d52e4b910c4f9af40e0ad968cf91839d",
+    "newTestSha": "e4398dfecd993382d58b0176a74940f2b04baf29",
+    "sourceForensics": "Verified exact source guardian HP0 and grounded cap threshold at tick451, old gate+cap visually retained in Three but absent as credible continuous portal in 960x600 and 390x844 original unmodified native 1x film at old 87802d81. Candidate original video still 0/2 accepted at old SHA.",
+    "originalVideoLink": "https://github.com/my-edutu/Ai_games/actions/runs/43282785504/artifacts/13973327319",
+    "actualKnownImplementationDefect": "CI 43293980730 proved initial cloned-material owner lookup wrong; original guardian-cap landing uses a separate sightline cloned material. Fixed at 3a20c483, NOT yet a native video quality pass.",
+    "newSourceChange": "Retains original GPU cap and actual already-open guardian gate after source crossing; binds the actually rendered guardian-cap landing material and fades its same-roof bronze mesh over real purple f9 ground with depth-test. No additional floor/bridge geometry or gameplay mutations.",
+    "requiredEvidence": "Run original normal-speed source-accurate ≥60s 1x unmodified baseline/candidate gameplay videos for ascent, moving-platform obstacles, guardian/crusher earned victory and grounded 8->9 gateway, and outcome/restart, on 960x600 & 390x844 same source seed tower-transformation-capture-v1 graphics low, original 20Hz fixed step. Use one true 9-job campaign with 8 native original WebMs + authoritative original source and strict pair-source-events. Compare exact immutable baseline commit unchanged.",
+    "acceptance": "Gate only on truly witnessed continuous body-through-real-arch and real next-floor onward with event aligned source/browser/Three/video 2/2, plus separate actual supported-device metrics and independent blind LOOKS/FEELS/PLAYS >=4/5 each; otherwise P0 still OPEN.",
+    "captureStatus": "REQUESTED; not evaluated, do not claim completed before actual job artifacts inspected",
+    "reviewerVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDevice": "NOT EVALUATED",
+    "nextAction": "Inspect exact quality and native source-pinned films from this immutable source; if old deck still buried or camera cuts, redesign crossfloor world/camera and render throughput, rather than repeatedly editing source handoff witnesses.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-roof-contact-original-gateway-continuity.md",
+    "safety": "Never touch PR58, the frozen SHA, other games or draft status; no merge, deploy or force push."
+  },
   "p0ActualClockworkDeckSubmissionFadeNativeCapture20261112": {
     "stage": "P0 OPEN — authentic visual crossing and native pair not accepted",
     "verdict": "NOT EVALUATED",
