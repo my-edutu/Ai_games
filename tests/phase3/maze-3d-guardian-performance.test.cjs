@@ -66,23 +66,35 @@ test('real Thornback rig stages recognition, grounded brace, shell reveal, and c
     const guardian=createWarden({balanced});
     const wing=guardian.group.getObjectByName('flared elytron 1');
     const fronds=guardian.group.getObjectByName('unfurled sea-glass wing fronds 1');
+    const sail=guardian.group.getObjectByName('articulated tidal sail 1');
     const tailVane=guardian.group.getObjectByName('articulated guardian tail vane 1');
     const jaw=guardian.group.getObjectByName('hinged guardian lower mandible');
     const body=guardian.group.getObjectByName('armored body');
     const leg=guardian.group.getObjectByName('hip 0'); // inspect separately if a model revision renames it
-    assert.ok(wing&&jaw&&body&&fronds&&tailVane);
+    assert.ok(wing&&jaw&&body&&fronds&&tailVane&&sail);
+    assert.equal(sail.parent,fronds,
+      'the authentic articulated sail must remain joined to its elytron');
     const cue={heading:0,attentionHeading:.5,attentionStrength:.8,danger:1,
       moving:false,time:1,delta:.016,reducedMotion};
     guardian.update({...cue,encounterBeat:0});
     const firstAngle=Math.abs(wing.rotation.z), firstHeight=body.position.y;
     const firstJaw=jaw.rotation.x;
     const firstSail=fronds.scale.y, firstTail=Math.abs(tailVane.rotation.z);
+    const firstFold=sail.rotation.x;
     guardian.update({...cue,encounterBeat:.5});
     const middleHeight=body.position.y, middleTail=Math.abs(tailVane.rotation.z);
+    const middleFold=sail.rotation.x;
     guardian.update({...cue,encounterBeat:1});
     const lastAngle=Math.abs(wing.rotation.z), lastJaw=jaw.rotation.x;
     const lastSail=fronds.scale.y, lastTail=Math.abs(tailVane.rotation.z);
+    const lastFold=sail.rotation.x;
     assert.ok(firstAngle>.20,'visible attention keeps original armoured shape');
+    assert.ok(firstFold<-.85 && middleFold<-.85,
+      'true recognition and grounded brace must fold the connected tall sails back');
+    assert.equal(lastFold,0,
+      'source-authentic final shell release restores the entire original full-height sail');
+    assert.ok(lastFold-firstFold>.85,
+      'a 390px true release must have a major physical sail-hinge change');
     assert.ok(firstSail<.60 && lastSail>1.20 && lastSail>firstSail+.6,
       'connected physical sails must UNFURL visibly across true public encounter phases');
     assert.ok(middleTail>firstTail+.18 && lastTail>firstTail+.25,
@@ -103,11 +115,13 @@ test('real Thornback rig stages recognition, grounded brace, shell reveal, and c
     assert.equal(wing.rotation.z,0,'lost public witness closes real shell');
     assert.equal(jaw.rotation.x,0,'lost public witness retracts jaw');
     assert.equal(fronds.scale.y,1,'no visible public threat restores neutral sail proportions');
+    assert.equal(sail.rotation.x,0,'retreat cannot leave an old sail folded');
     assert.equal(fronds.rotation.z,0,'disclosed shell bloom cannot persist after visibility clears');
     assert.equal(tailVane.rotation.z,0,'no stale fan after losing public testimony');
     guardian.update({...cue,result:'capture',encounterBeat:1});
     assert.equal(wing.rotation.z,0,'terminal result overrides remembered presentation');
     assert.equal(fronds.scale.y,1,'terminal state cancels staged botanical warning');
+    assert.equal(sail.rotation.x,0,'terminal state restores real sail hinge neutrality');
     assert.equal(tailVane.rotation.z,0,'terminal state cancels staged leg and tail signals');
     guardian.dispose();
     assert.equal(guardian.group.children.length,0);

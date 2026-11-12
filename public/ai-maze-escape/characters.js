@@ -883,6 +883,17 @@ export function createWarden(options = {}) {
       // exact +0, never leaving a ghost danger cue in the hidden maze.
       shellHalf.tideSail.rotation.z=alert>0
         ?shellHalf.side*(.16+alert*.25+(s.reduced?0:Math.sin(s.time*1.2)*.035*alert))*shellOpen:0;
+      // Pass292: the ORIGINAL native 390px chronological encounter showed
+      // Thornback's tall glass sails already extended at first recognition,
+      // making its genuinely observed release hard to distinguish. Fold the
+      // EXISTING rigid, rooted sail hinges BACK against each real elytron
+      // during the public warning and foreclaw brace. Their final movement
+      // opens on the SAME witnessed shell-release clock and is identical
+      // to the previous proven full-open pose. No scaled/fake particles,
+      // speculative attack, unseen guardian state, allocations or AI edits.
+      // Clear both hinges on withdrawal, reset, terminal and no-clock use.
+      shellHalf.tideSail.rotation.x=encounter>0 && hasWitnessBeat
+        ? -.92*(1-display) : 0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.13+display*.025;
