@@ -1950,9 +1950,12 @@ export function createTowerWorld(){
 
   // The actual Floor 8 cap scene used to disappear when Floor 9 rebuilt its
   // world, even though the authentic climber was still at the SAME threshold.
-  // Retain ONLY the original, previously drawn cap-platform subtree, not the
-  // entire old floor or its physics. Preserve its original GPU buffers while
-  // the new genuine Floor 9 is rendered. This cannot award a win or a landing.
+  // Previous original 1x film at c2ce9fcb still hard-cuts the 8->9 crossing.
+  // Its real guardian portal is a SIBLING of platform:f8:cap, therefore
+  // retaining only the deck deleted the actual open bronze doorway at rebuild.
+  // Preserve the TWO original already-rendered subtrees as one historical
+  // transform, not the entire old floor or any old physics. No source wins,
+  // support, collision, replay or synthetic portal may be created here.
   let pendingEarnedCap = null, retainedEarnedCap = null;
   const RETAINED_CAP_SECONDS = 1.65;
   function retireEarnedCap() {
@@ -1971,11 +1974,18 @@ export function createTowerWorld(){
   // platform must match the independent, source-issued previous cap exactly.
   function stageGroundedCapContinuation(previous, next) {
     pendingEarnedCap = null;
-    const old = lastSnapshot, root = platforms.get('f8:cap')?.root;
+    const old = lastSnapshot, sourceEntry = platforms.get('f8:cap');
+    const root = sourceEntry?.root, realGate = sourceEntry?.guardianGate?.frame;
+    // Real old-door geometry exists independently from its platform and must
+    // belong to the SAME authenticated source-earned crossing.
+    const defeatedProof = previous?.enemies?.some(enemy =>
+      enemy?.kind === 'guardian' && enemy.active === false &&
+      Number.isFinite(enemy.health) && enemy.health <= 0);
     const authored = previous?.platforms?.find(p => p?.id === 'f8:cap');
     const cached = old?.platforms?.find(p => p?.id === 'f8:cap');
     const ground = next?.platforms?.find(p => p?.id === 'f9:ground');
-    if (!root || !authored || !cached || !ground ||
+    if (!root || !realGate?.isGroup || !defeatedProof ||
+        !authored || !cached || !ground ||
         old?.floor !== 8 || next?.floor !== 9 ||
         old.runToken !== next.runToken || previous.runToken !== next.runToken ||
         next.lifecycle !== 'running' || next.tick <= old.tick ||
@@ -2005,10 +2015,32 @@ export function createTowerWorld(){
     pendingEarnedCap = null;
     if (!requested || requested.runToken !== next.runToken ||
         requested.floor !== next.floor || requested.tick !== next.tick) return;
-    const root = platforms.get('f8:cap')?.root;
-    if (!root) return;
+    const sourceEntry = platforms.get('f8:cap');
+    const root = sourceEntry?.root;
+    const realGate = sourceEntry?.guardianGate?.frame;
+    if (!root || !realGate?.isGroup) return;
+    // The browser may have observed the living locked guardian immediately
+    // before a cold GPU frame skipped all later old-floor source snapshots.
+    // The separately validated *previous* source proves zero-HP defeat, so
+    // rehydrate the existing ORIGINAL grille/counterweights already opened.
+    // These are real visual parts, not a forged action or an authoritative
+    // collision change. Missing source proof never stages this work.
+    const gate = sourceEntry.guardianGate;
+    gate.progress = 1;
+    gate.unlocked = true;
+    for (const {side,wing} of gate.wings) wing.position.x = side * 2.8;
+    for (const {carriage} of gate.counterweights) carriage.position.y = -2.35;
+    gate.capstan.rotation.z = 0;
+    // Both subtrees had the same old floor parent (the gate is not a child
+    // of its collision-aligned source deck). One shared transform keeps them
+    // aligned across the old and new chunk origins without duplicating
+    // gameplay platforms or introducing new geometry/material allocations.
+    const continuity = new THREE.Group();
+    continuity.name = 'ObservedGroundedCapGatewayContinuity';
+    continuity.add(root,realGate);
+    continuity.position.y = (requested.previousBaseY - requested.nextBaseY) / SCALE;
     const allGeometries = new Set(), allMaterials = new Set();
-    root.traverse(object => {
+    continuity.traverse(object => {
       if (!object.isMesh) return;
       if (object.geometry) allGeometries.add(object.geometry);
       const mats = Array.isArray(object.material) ? object.material : [object.material];
@@ -2022,10 +2054,9 @@ export function createTowerWorld(){
     // belong to the world owner and MUST NOT be prematurely disposed.
     const ownedGeometries = new Set([...floorGeometries].filter(g=>allGeometries.has(g)));
     const ownedMaterials = new Set([...floorMaterials].filter(m=>allMaterials.has(m)));
-    root.removeFromParent();
-    group.add(root);
-    root.position.y += (requested.previousBaseY - requested.nextBaseY) / SCALE;
-    retainedEarnedCap = {root,ownedGeometries,ownedMaterials,
+    group.add(continuity);
+    retainedEarnedCap = {root:continuity,guardianGateRetained:true,
+      ownedGeometries,ownedMaterials,
       runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
       submittedFrames:0,visibleSeconds:0};
   }
@@ -2803,13 +2834,14 @@ export function createTowerWorld(){
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     retainedSourceCap:retainedEarnedCap?{
       visible:retainedEarnedCap.root.visible,
+      guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
       submittedFrames:retainedEarnedCap.submittedFrames,
       visibleSeconds:Number(retainedEarnedCap.visibleSeconds.toFixed(3)),
       geometryCount:retainedEarnedCap.ownedGeometries.size,
       materialCount:retainedEarnedCap.ownedMaterials.size,
-      purpose:'Original cap drawable retained during source-earned grounded transfer; no physics, GPU-pixel or blind review claim'
+      purpose:'Original GPU-resident cap AND HP-opened separate real guardian doorway retained under one source-grounded transform; no new physics, GPU-pixel or blind-review claim'
     }:null,
     rigidBatchUploadBudget:{actualAttributeAndIndexBytes:rigidUploadBytes,
       previousExpandedAttributeBytes:rigidExpandedBytes,
