@@ -4326,3 +4326,46 @@ test('genuine source Walking_A skid can use only a fresh witnessed root step acr
  assert.match(renderer,/recentTravelAge:\s*actor\.rigRecentGroundedAge/,
   'expired displayed-frame evidence must not authorize a pivot');
 });
+
+
+test('real original-GLB mobile frame 62 to 63: stable yaw allows a proven lifted swing-shoe projection',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ // Captured from actual 390px source skinned WebGL artifact 13983054549,
+ // run #43304924320, SHA 3ff57f7; never generated animation.
+ const previous={
+  left:{heel:[-5.919720117561202,.17425874589647128,-7.089383328122347],
+   toe:[-6.029049666028605,-.1008353179085734,-7.035474600598778]},
+  right:{heel:[-6.000527314104341,.0081271109337408,-7.24060013768488],
+   toe:[-6.2711670248072515,-.01573159146291147,-7.244760295182367]}};
+ const current={
+  left:{heel:[-5.9023531074834406,.22653613796164337,-7.09787340614834],
+   toe:[-5.987046434318297,-.062323983389053005,-7.067182008603082]},
+  right:{heel:[-5.922435926586021,.00005558909789165831,-7.2542551654560326],
+   toe:[-6.193502412946521,-.01014223770586357,-7.243866771223421]}};
+ const actual={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,rootTravel:.05066888433054339,
+  frameInterval:.05,previousRootYaw:-1.4383329545967325,
+  currentRootYaw:-1.438332954596734,floorTopY:-.02,previous,current};
+ const accepted=plan(actual);
+ assert.equal(accepted?.side,'right','the actual right heel/toe is loaded and slides 78mm');
+ assert.ok(accepted.reductionMeters>=.004&&accepted.reductionMeters<=.0180001);
+ assert.ok(accepted.otherShoeProjectedSpanDeltaMeters>.025&&
+  accepted.otherShoeProjectedSpanDeltaMeters<=.036);
+ assert.ok(accepted.sourceYawChangeRadians<.001);
+ assert.equal(accepted.contactLocked,false);
+ for(const bad of [
+  {currentRootYaw:-.8},{previousRootYaw:NaN},{currentRootYaw:NaN},
+  {current:{...current,left:{...current.left,heel:[
+   current.left.heel[0],.03,current.left.heel[2]]}}},
+  {current:{...current,left:{...current.left,toe:[
+   current.left.toe[0]+.08,current.left.toe[1],current.left.toe[2]]}}},
+  {current:{...current,right:{...current.right,toe:[
+   current.right.toe[0]+.06,current.right.toe[1],current.right.toe[2]]}}},
+  {sourceInstanceSame:false},{reducedMotion:true},{teleport:true},
+  {interrupted:true},{alive:false},{sourceClipName:'Idle'}
+ ])assert.equal(plan({...actual,...bad}),null,
+  'unverified yaw, stretched source skin, or changed owner rejects motion');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/previousRootYaw:\s*previous\.rootYaw/);
+ assert.match(renderer,/currentRootYaw:\s*actor\.root\.rotation\.y/);
+});
