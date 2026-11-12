@@ -2979,18 +2979,19 @@ test('the actual imported-GLB foot-skin probe uses FINAL same-frame root transla
  const pivotY=method.indexOf('actor.visualPivot.position.set(');
  const pivotRotation=method.indexOf('actor.visualPivot.rotation.set(');
  const originalSkinnedFeet=method.indexOf('stageRigLegsAfterMixer(actor,poseAge,reducedMotion);');
+ const rootWorld=method.indexOf('actor.visualPivot.updateWorldMatrix(true,false);');
  assert.ok(stride>=0&&pivotY>=0&&pivotRotation>=0&&originalSkinnedFeet>=0,
   'the real original source-mixer update must contain a grounded stride, root pose and imported-sole staging');
- assert.ok(stride<pivotY&&pivotY<pivotRotation&&pivotRotation<originalSkinnedFeet,
+ assert.ok(stride<pivotY&&pivotY<pivotRotation&&pivotRotation<rootWorld&&rootWorld<originalSkinnedFeet,
   'same-frame original skinned heel/toe clearance cannot be measured before the final visual root pose');
- assert.equal(method.match(/actor\\.visualPivot\\.position\\.set\\(/g)?.length,1,
+ assert.equal(method.match(/actor\.visualPivot\.position\.set\(/g)?.length,1,
   'no later visual-root translation may invalidate original toe/heel world-space acceptance');
- assert.equal(method.match(/actor\\.visualPivot\\.rotation\\.set\\(/g)?.length,1,
+ assert.equal(method.match(/actor\.visualPivot\.rotation\.set\(/g)?.length,1,
   'do not rotate the true original skinned heel/toe away after physical measurement');
  const live=renderer.slice(renderer.indexOf('function planOriginalSourceStanceForMountedAnkle('),
   renderer.indexOf('function stageRigLegsAfterMixer('));
- assert.match(live,/readOriginalSwingSoleY\\(patch\\.toe\\)/);
- assert.match(live,/beforeWorst-afterWorst<\\.0015/);
- assert.match(live,/mount\\.bone\\.quaternion\\.copy\\(original\\)/,
+ assert.match(live,/readOriginalSwingSoleY\(patch\.toe\)/);
+ assert.match(live,/beforeWorst-afterWorst<\.0015/);
+ assert.match(live,/mount\.bone\.quaternion\.copy\(original\)/,
   'both signed trial and final proof must restore the original source quaternion');
 });
