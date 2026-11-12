@@ -141,3 +141,67 @@ test('missing or backwards clocks do not fabricate A/V timing while scene and so
  assert.equal(h.director.stats().recentDeliveryReceipts.length,1);
  h.director.dispose();
 });
+
+
+test('D04 planning-time wall age cannot reclassify a stale real HP injury as a fresh submitted impact',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100,planned=0;
+ const visuals=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  deriveDamageBeats(){planned++;now+=.650;return [{id:'hero',damage:10,maxHp:30}]},
+  visualAdapter:{emit(cue){visuals.push(cue);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  assert.equal(planned,1,'the real HP-loss planner must execute once');
+  d.advance(.016,.016);
+  assert.equal(visuals.length,0,
+   '650ms of synchronous planning after observation must not draw an expired injury');
+  assert.equal(d.stats().expiredQueuedCues,1);
+  assert.equal(d.acknowledgePresentedFrame(1,.015),0);
+  assert.deepEqual(sounds,[],'a real WebGL ack must never rescue stale contact foley');
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'expired-pending-before-frame');
+  assert.equal(receipt.observedClockMs,100000,
+   'actual arrival precedes slow synchronous planner work');
+  assert.equal(receipt.frameId,null);
+  assert.equal(receipt.sampleSynchronized,false);
+ }finally{d.dispose()}
+});
+
+test('D04 timely planning is charged to the same real HP-loss observation clock without false rejection',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const visuals=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  deriveDamageBeats(){now+=.125;return [{id:'hero',damage:10,maxHp:30}]},
+  visualAdapter:{emit(cue){visuals.push(cue);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  d.enableAudioFromGesture();
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  d.advance(.016,.016);
+  assert.equal(visuals.length,1);
+  now+=.020;
+  assert.equal(d.acknowledgePresentedFrame(1,.014),1);
+  assert.equal(sounds.length,1);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.observedClockMs,100000);
+  assert.equal(receipt.submittedClockMs,100145);
+  assert.equal(receipt.observationToSubmissionMs,145);
+  assert.equal(receipt.decision,'delivered');
+  assert.equal(receipt.sampleSynchronized,false);
+ }finally{d.dispose()}
+});
