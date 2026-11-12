@@ -3105,7 +3105,11 @@ export function createMazeWorld(options = {}) {
     const rise=reduced ? (witnessedLane&&guardianBeat>0?1:0)
       : Math.max(0,Math.min(1,(guardianBeat-.08)/.34));
     const recover=reduced?0:Math.max(0,Math.min(1,(guardianBeat-.74)/.26));
-    const signalStrength=rise*(1-.75*recover);
+    // The native three-beat guardian test caught a too-late release: the
+    // raised stage hardware remained almost half-deployed at a true 90%
+    // shell-release frame. Retract the existing truthful public warning
+    // faster (not merely loosen the physical-action contract).
+    const signalStrength=rise*(1-.90*recover);
     for(const signal of guardianTideSignals) {
       const col=signal.cell%snapshot.width,row=Math.floor(signal.cell/snapshot.width);
       const onLane=witnessedLane && ((alongX && signal.axis==='x'
