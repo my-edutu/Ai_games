@@ -1450,46 +1450,63 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   heelY,toeY,trials,previousCorrectionRad:previous
  });
  if(!selected)return 0;
- const finalAngle=Math.max(-.30,Math.min(.30,angle+selected.delta));
- if(Math.abs(finalAngle-angle-selected.delta)>.0001)return 0;
- let afterHeel=NaN,afterToe=NaN;
- try{
-  mount.bone.quaternion.copy(original).multiply(
-   mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
-  mount.bone.updateWorldMatrix(true,true);
-  afterHeel=readOriginalSwingSoleY(patch.heel);
-  afterToe=readOriginalSwingSoleY(patch.toe);
- }finally{
-  mount.bone.quaternion.copy(original);
-  mount.bone.updateWorldMatrix(true,true);
- }
  const beforeWorst=Math.max(Math.abs(heelY+.02),Math.abs(toeY+.02));
- const afterWorst=Math.max(Math.abs(afterHeel+.02),Math.abs(afterToe+.02));
- // Never trust a 0.12rad trial alone. The restricted <=0.045rad actual
- // overlay must also improve measured real skin by >=1.5mm, keeping BOTH
- // toe and heel near the stone with no edge driven down over 4mm.
+ // The real source mixer and original 45mrad ankle remain the sole pose
+ // authority. When source-weight easing makes the FIRST proposed angle too
+ // weak to pass real skinned endpoints, try once more at an already sampled
+ // and safe original 45mrad source-joint position in the SAME direction.
+ // Both attempts must independently pass the identical final heel/toe gate.
+ // A rejected trial never persists on the imported quaternion.
  probeOutcome.status='final-skinned-measurement-rejected';
- if(![afterHeel,afterToe].every(Number.isFinite)||
-  afterHeel<-.055||afterHeel>.015||afterToe<-.055||afterToe>.015||
-  afterHeel<heelY-.004||afterToe<toeY-.004||
-  beforeWorst-afterWorst<.0015)return 0;
+ let accepted=null;
+ const candidates=[selected.delta];
+ if(Number.isFinite(selected.fineFallbackDelta))
+  candidates.push(selected.fineFallbackDelta);
+ for(const delta of candidates){
+  const finalAngle=Math.max(-.30,Math.min(.30,angle+delta));
+  if(Math.abs(finalAngle-angle-delta)>.0001)continue;
+  let afterHeel=NaN,afterToe=NaN;
+  try{
+   mount.bone.quaternion.copy(original).multiply(
+    mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
+   mount.bone.updateWorldMatrix(true,true);
+   afterHeel=readOriginalSwingSoleY(patch.heel);
+   afterToe=readOriginalSwingSoleY(patch.toe);
+  }finally{
+   mount.bone.quaternion.copy(original);
+   mount.bone.updateWorldMatrix(true,true);
+  }
+  const afterWorst=Math.max(Math.abs(afterHeel+.02),Math.abs(afterToe+.02));
+  // Neither endpoint may sink >4mm or float >35mm. The actual applied
+  // source skinned shoe, not the large trial, must improve by >=1.5mm.
+  if(![afterHeel,afterToe].every(Number.isFinite)||
+   afterHeel<-.055||afterHeel>.015||afterToe<-.055||afterToe>.015||
+   afterHeel<heelY-.004||afterToe<toeY-.004||
+   beforeWorst-afterWorst<.0015)continue;
+  accepted={delta,afterHeel,afterToe,afterWorst};
+  break;
+ }
+ if(!accepted)return 0;
+ const fineFallbackUsed=accepted.delta!==selected.delta;
  probeOutcome.status='accepted';
- probeOutcome.finalWorstMeters=afterWorst;
- probeOutcome.finalAngleRad=selected.delta;
- mount.stanceReliefRad=selected.delta;
+ probeOutcome.finalWorstMeters=accepted.afterWorst;
+ probeOutcome.finalAngleRad=accepted.delta;
+ probeOutcome.fineFallbackUsed=fineFallbackUsed;
+ mount.stanceReliefRad=accepted.delta;
  actor.sourceStanceSoleCurrentFrameProofs??={left:null,right:null};
  actor.sourceStanceSoleCurrentFrameProofs[mount.side]={
   source:'same-original-GLB-two-point-stanced-shoe',
   sourceInstanceId:actor.assetRoot?.uuid??null,
   side:mount.side,sourceClip:actor.activeImportedClipName,
   beforeHeelY:heelY,beforeToeY:toeY,
-  afterHeelY:afterHeel,afterToeY:afterToe,
-  beforeWorstMeters:beforeWorst,afterWorstMeters:afterWorst,
-  floorTopY:-.02,appliedAngleRad:selected.delta
+  afterHeelY:accepted.afterHeel,afterToeY:accepted.afterToe,
+  beforeWorstMeters:beforeWorst,afterWorstMeters:accepted.afterWorst,
+  floorTopY:-.02,appliedAngleRad:accepted.delta,
+  fineFallbackUsed
  };
  actor.sourceStanceReliefFrames=Math.min(1000000,
   (actor.sourceStanceReliefFrames||0)+1);
- return selected.delta;
+ return accepted.delta;
 }
 
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
