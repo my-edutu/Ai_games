@@ -626,6 +626,57 @@ export function chooseOriginalSourceSwingThighSupport({
  return best;
 }
 
+/**
+ * An original 41-joint Walking_A ankle/calf rescue can leave its authentic
+ * weighted toe buried. A later independently sampled original upperleg
+ * trial is allowed to improve that SAME source shoe, but its result must
+ * replace—not silently invalidate—the earlier frame's final-sole receipt.
+ *
+ * This is source-skin evidence reconciliation, NOT IK, a foot lock, a source
+ * clip edit, a new target or a fabricated authority step. Every input comes
+ * from the actual post-mixer GLB clone. Fail closed if the intervening pose
+ * was not identical or if the second adjustment changes the shoe unsafely.
+ */
+export function reconcileOriginalSourceSwingToeProofWithThigh({
+ proof=null,side='',sourceInstanceId='',sourceClipName='',
+ floorTopY=NaN,before=null,after=null,thighImprovementMeters=NaN
+}={}){
+ const point=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
+ const foot=f=>f&&[f.heelY,f.toeY].every(finite)&&
+  point(f.heelXZ)&&point(f.toeXZ);
+ if(!proof||!['left','right'].includes(side)||
+  proof.source!=='same-original-GLB-foot-skinned-vertices'||
+  proof.side!==side||proof.sourceClip!=='Walking_A'||
+  sourceClipName!=='Walking_A'||typeof sourceInstanceId!=='string'||
+  !sourceInstanceId||proof.sourceInstanceId!==sourceInstanceId||
+  !foot(before)||!foot(after)||![floorTopY,thighImprovementMeters,
+   proof.floorTopY,proof.beforeToeY,proof.afterToeY,
+   proof.beforeHeelY,proof.afterHeelY,proof.liftMeters].every(finite)||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(proof.floorTopY-floorTopY)>.0001||
+  thighImprovementMeters<.004||thighImprovementMeters>.06||
+  Math.abs(before.toeY-proof.afterToeY)>.0015||
+  Math.abs(before.heelY-proof.afterHeelY)>.0015||
+  Math.abs((proof.afterToeY-proof.beforeToeY)-proof.liftMeters)>.0015)
+  return null;
+ const toeLift=after.toeY-before.toeY;
+ const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ if(Math.abs(toeLift-thighImprovementMeters)>.001||
+  after.toeY>floorTopY+.035||after.toeY<floorTopY-.16||
+  after.heelY<before.heelY-.04||after.heelY>before.heelY+.04||
+  xz(after.heelXZ,before.heelXZ)>.025||
+  xz(after.toeXZ,before.toeXZ)>.025)return null;
+ const totalLift=after.toeY-proof.beforeToeY;
+ if(totalLift<.004||totalLift>.12)return null;
+ return Object.freeze({...proof,
+  afterToeY:after.toeY,afterHeelY:after.heelY,
+  liftMeters:totalLift,
+  penetrationAfterMeters:Math.max(0,floorTopY-after.toeY),
+  combinedSourceThighMeters:toeLift,
+  combinedSourceThighVerified:true,
+  contactLocked:false});
+}
+
 export function chooseOriginalSourceLoadedKneeWitness({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceHingeVerified=false,sourceInstanceSame=false,
