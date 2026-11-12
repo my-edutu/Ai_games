@@ -19,7 +19,7 @@ import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-ki
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planNativeFigureSculpt,sculptNativeFigureGeometry} from '/dungeon/native-figure-sculpt.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planSourceOwnedFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planSourceOwnedFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose,restoreOriginalSourceLegsAfterRejectedPelvis} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -838,6 +838,7 @@ function readOriginalSwingSoleY(candidate){
  */
 function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.sourceLoadedPelvisFrameProof=null;
+ actor.sourceLoadedPelvisRollbackFootProof=null;
  actor.sourceLoadedPelvisCandidate=null;
  const previous=actor.sourceLoadedPelvisLiftMeters||0;
  actor.sourceLoadedPelvisLiftMeters=0;
@@ -889,7 +890,12 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.sourceLoadedPelvisLiftMeters=candidate.liftMeters;
  actor.sourceLoadedPelvisCandidate={
   ...candidate,baseY,foot:patches[candidate.side],other:patches[otherSide],
-  before,otherBefore,beforeWorstMeters:physical.beforeWorstMeters
+  before,otherBefore,beforeWorstMeters:physical.beforeWorstMeters,
+  sourceCountsBeforeLegs:{
+   toe:actor.sourceSwingToeCorrectionFrames||0,
+   calf:actor.sourceSwingCalfAssistFrames||0,
+   stance:actor.sourceStanceReliefFrames||0
+  }
  };
 }
 function auditSourceLoadedPelvisAfterLegs(actor){
@@ -916,11 +922,32 @@ function auditSourceLoadedPelvisAfterLegs(actor){
   // receipts rather than report a final skin measurement that was never seen.
   actor.visualPivot.position.y=candidate.baseY;
   actor.visualPivot.updateWorldMatrix(true,true);
+  const originalLegsRestored=restoreOriginalSourceLegsAfterRejectedPelvis(actor.rigGaitBones);
+  actor.assetRoot?.updateMatrixWorld(true);
+  actor.sourceLoadedPelvisRollbackFrames=Math.min(1000000,
+   (actor.sourceLoadedPelvisRollbackFrames||0)+1);
+  actor.sourceLoadedPelvisRollbackFootProof={
+   source:'same-original-GLB-post-leg-pelvis-rollback',
+   sourceInstanceId:actor.assetRoot?.uuid??null,
+   sourceClip:actor.activeImportedClipName,side:candidate.side,
+   rejectedHeelY:finalHeelY,rejectedToeY:finalToeY,
+   restoredHeelY:readOriginalSwingSoleY(candidate.foot.heel),
+   restoredToeY:readOriginalSwingSoleY(candidate.foot.toe),
+   originalLegsRestored
+  };
+  if(originalLegsRestored){
+   actor.sourceSwingToeCorrectionFrames=candidate.sourceCountsBeforeLegs.toe;
+   actor.sourceSwingCalfAssistFrames=candidate.sourceCountsBeforeLegs.calf;
+   actor.sourceStanceReliefFrames=candidate.sourceCountsBeforeLegs.stance;
+  }
   actor.sourceLoadedPelvisLiftMeters=0;
   actor.sourceSwingToeCorrectionsThisFrame=0;
   actor.sourceSwingCalfCurrentFrameMask=0;
   actor.sourceSwingToeLiftProof=null;
   actor.sourceSwingCalfAssistProof=null;
+  if(actor.sourceSwingCalfTrialOutcome?.accepted)
+   actor.sourceSwingCalfTrialOutcome={...actor.sourceSwingCalfTrialOutcome,
+    accepted:false,reason:'source-pelvis-rejected-post-leg-rollback'};
   actor.sourceSwingToeCurrentFrameProofs={left:null,right:null};
   actor.sourceStanceSoleCurrentFrameProofs={left:null,right:null};
   return;
@@ -1478,6 +1505,10 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   // Measure the actual imported source-rig plant as well, without stacking
   // another strike or fabricating authoritative damage.
   actor.rigContactBracePeak=Math.max(actor.rigContactBracePeak||0,Math.abs(contact+nativeContact));
+  // Capture the legal same-owner original base before any ankle/calf probe:
+  // a rejected elevated-pelvis trial must NOT leave those source probes on
+  // the original mixer at the later restored visual-root position.
+  mount.sourceFrameBaseAngleRad=angle;
   // Only genuine imported swing toes may get a bounded reversible lift.
   // This is not a planted-foot solver, authority contact or additional clip.
   const swingToe=planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMotion);
@@ -1586,7 +1617,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceLoadedPelvisLiftMeters=0;actor.sourceLoadedPelvisAcceptedFrames=0;actor.sourceLoadedPelvisFrameProof=null;actor.sourceLoadedPelvisCandidate=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceLoadedPelvisLiftMeters=0;actor.sourceLoadedPelvisAcceptedFrames=0;actor.sourceLoadedPelvisRollbackFrames=0;actor.sourceLoadedPelvisRollbackFootProof=null;actor.sourceLoadedPelvisFrameProof=null;actor.sourceLoadedPelvisCandidate=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;actor.activeImportedClipName=null;
@@ -2687,6 +2718,8 @@ function inspectSourceRigDeformation(actors){
     sourceStanceReliefFrames:actor.sourceStanceReliefFrames||0,
     sourceLoadedPelvisLiftMeters:actor.sourceLoadedPelvisLiftMeters||0,
     sourceLoadedPelvisAcceptedFrames:actor.sourceLoadedPelvisAcceptedFrames||0,
+     sourceLoadedPelvisRollbackFrames:actor.sourceLoadedPelvisRollbackFrames||0,
+     sourceLoadedPelvisRollbackFootProof:actor.sourceLoadedPelvisRollbackFootProof??null,
     sourceLoadedPelvisFrameProof:actor.sourceLoadedPelvisFrameProof??null,
     sourceSwingToeWitnessFrames:actor.sourceSwingToeWitnessFrames||0,
     sourceSwingToeDragOpportunityFrames:actor.sourceSwingToeDragOpportunityFrames||0,
