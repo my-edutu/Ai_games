@@ -2995,3 +2995,48 @@ test('the actual imported-GLB foot-skin probe uses FINAL same-frame root transla
  assert.match(live,/mount\.bone\.quaternion\.copy\(original\)/,
   'both signed trial and final proof must restore the original source quaternion');
 });
+
+test('source-loaded pelvis bridge uses authentic two-point walking shoe contact, not a synthetic IK lock',async()=>{
+ const {planOriginalSourceLoadedPelvisSupport:plan}=await load();
+ assert.equal(typeof plan,'function','original imported Walking_A needs a source-skinned two-point load response');
+ // Actual original desktop source GLB frame from Actions #43137309946:
+ // right heel -34.031mm / toe -51.127mm, left foot high and swinging.
+ // This is real captured geometry, not a hypothetical floor or foot lock.
+ const desktop={mode:'move',sourceClipName:'Walking_A',sourceWeight:.76,
+  ownerLocomotion:true,rootTravel:.0385,frameAge:.04,
+  floorTopY:-.02,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,previousLiftMeters:0,
+  left:{heelY:.1449076,toeY:-.1177656},
+  right:{heelY:-.0340313,toeY:-.0511265}};
+ const a=plan(desktop);
+ assert.equal(a?.side,'right','only genuinely near-loaded source shoe qualifies');
+ assert.equal(a?.liftMeters,.008,'one visible frame cannot lift skinned pelvis by more than 8mm');
+ assert.ok(a?.beforeWorstMeters>.03&&a?.afterWorstMeters<a?.beforeWorstMeters-.007,
+  'measured planted-weight shoe must become closer to the real authored floor at BOTH endpoints');
+ const b=plan({...desktop,previousLiftMeters:a.liftMeters});
+ assert.equal(b?.liftMeters,.016,'supported rise finishes within the 16mm source body budget');
+ assert.equal(plan({...desktop,previousLiftMeters:b.liftMeters})?.liftMeters,.016);
+ // Independent real mobile source GLB frame: weighted left shoe enters stone.
+ const mobile=plan({...desktop,left:{heelY:-.0362039,toeY:-.0401336},
+  right:{heelY:.09969715,toeY:-.04080034},rootTravel:.2042,sourceWeight:.61});
+ assert.equal(mobile?.side,'left');
+ assert.equal(mobile?.liftMeters,.008);
+ for(const bad of [{mode:'attack'},{mode:'guard'},{mode:'defeat'},
+  {sourceClipName:'Idle'},{sourceClipName:'Run'},{sourceWeight:.4},
+  {sourceWeight:NaN},{ownerLocomotion:false},{rootTravel:0},
+  {rootTravel:.6},{frameAge:.25},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {floorTopY:-1},{floorTopY:NaN},{left:{heelY:NaN,toeY:-.03}},
+  {left:{heelY:-.10,toeY:-.10},right:{heelY:.4,toeY:-.2}}
+ ])assert.equal(plan({...desktop,...bad}),null,
+  'never create support on unsupported or unverifiable source '+JSON.stringify(bad));
+ // An opposite planted original shoe must not hover when this one is raised.
+ assert.equal(plan({...desktop,left:{heelY:-.006,toeY:-.002},
+  right:{heelY:-.0340313,toeY:-.0511265}}),null,
+ 'never cure one original sole by lifting a second already near-ground sole too far');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/planOriginalSourceLoadedPelvisSupport\(/,
+  'actual Three.js must use the genuine original-skinned measurements');
+ assert.match(model,/stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);[\s\S]{0,100}stageRigLegsAfterMixer\(/,
+  'grounded support belongs after current-frame source pose and before original ankle/calf proof');
+});
