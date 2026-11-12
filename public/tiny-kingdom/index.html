@@ -21176,7 +21176,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    farmFenceLandmarkOcclusion(shot.eye,citizen,hands):null;
   const coarse=shot.blockers*1000+
    (shot.eyeCollision.clear?0:9000)+oppositeYard+rearPenalty+crowd*325+
-   (cropEye?20:0)+(shot.farmFenceSightline?.penalty||0)+
+   (cropEye?80:0)+(shot.farmFenceSightline?.penalty||0)+
    sizePenalty+routeSizePenalty+
    // Real building, cart, canopy and receiving-post cover are added exactly
    // AFTER the physical-first camera admission, not approximated as clear.
