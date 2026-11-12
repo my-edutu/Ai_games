@@ -614,8 +614,20 @@ for(const view of [
    expect(probe.trials.every(p=>Number.isFinite(p.signed)&&
     Number.isFinite(p.heel)&&Number.isFinite(p.toe))).toBe(true);
    if(probe.status==='accepted'){
-    expect(stance.some(p=>p.side===side)).toBe(true);
+    const sourceProof=stance.find(p=>p.side===side);
+    expect(sourceProof).toBeTruthy();
     expect(probe.finalWorstMeters).toBeLessThan(probe.beforeWorstMeters-.00149);
+    expect(probe.fineFallbackUsed).toBe(sourceProof.fineFallbackUsed);
+    if(probe.fineFallbackUsed){
+     expect(Math.abs(sourceProof.appliedAngleRad)).toBeCloseTo(.045,3);
+     expect(probe.trials.some(trial=>
+      Math.abs(trial.signed-sourceProof.appliedAngleRad)<.001)).toBe(true);
+     expect(sourceProof.afterHeelY).toBeGreaterThanOrEqual(
+      sourceProof.beforeHeelY-.00401);
+     expect(sourceProof.afterToeY).toBeGreaterThanOrEqual(
+      sourceProof.beforeToeY-.00401);
+     // This is source-shoe *clearance*, NOT a stationary plant certificate.
+    }
    }
   }
   for(const proof of stance){
