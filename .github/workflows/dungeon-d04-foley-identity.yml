@@ -9,6 +9,7 @@ on:
       - tests/browser/dungeon-d04-decoded-video-proof.cjs
       - tests/browser/dungeon-d04-webm-pts-proof.cjs
       - public/ai-dungeon/physical-combat-feedback.js
+      - public/ai-dungeon/physical-feedback-plan.js
       - public/ai-dungeon/physical-feedback-visuals.js
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
