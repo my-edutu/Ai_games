@@ -155,3 +155,57 @@ test('D04 reports actual JS instance writes separately from estimated buffer upl
  assert.equal(cleared.lastAdvancePotentialBufferBytes,0);
  visual.dispose();
 });
+
+test('a never-measured melee ribbon does not rewrite an invisible GPU slot every frame',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ let wristX=0;
+ const wrist={isBone:true,getWorldPosition(v){return v.set(wristX,1.2,0)}};
+ const actor={
+  u:{id:'vanguard-1',kind:'vanguard',action:'attack',actionTick:9,hp:30},
+  root:{visible:true,position:{x:0,y:0,z:0},rotation:{y:0}},
+  authored:true,assetRoot:{},
+  rigMeleeBones:[{part:'wrist',bone:wrist}]
+ };
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{
+  actorById:id=>id===actor.u.id?actor:null
+ });
+ const trail=meshes[0];
+ const swing={
+  id:'1:1:9:swing:vanguard-1:-',sceneKey:'1:1',
+  actorId:'vanguard-1',tick:9,kind:'swing',visual:'trail',
+  proof:'authority-attempt-not-hit',verified:true,priority:4,
+  duration:.35,from:{x:9,z:9}
+ };
+ assert.equal(visual.emit(swing),true);
+ const initialWrites=trail.matrixWrites;
+ trail.instanceMatrix.needsUpdate=false;
+ for(let i=0;i<4;i++)visual.advance(.016,.016);
+ assert.equal(trail.matrixWrites,initialWrites,
+  'a still wrist is NOT a measured blade and requires zero redundant hidden-matrix writes');
+ assert.equal(trail.instanceMatrix.needsUpdate,false,
+  'no GPU instance-buffer upload from an invisible unmeasured ribbon');
+ assert.equal(visual.stats().lastAdvanceWritesByPool.trail,0);
+ assert.equal(trail.visible,false);
+ assert.equal(visual.hasDrawableCue(swing.id),false);
+ // A real newly observed wrist displacement must immediately restore the
+ // existing ribbon on the next genuine draw opportunity, without a fake hit.
+ wristX=.12;
+ visual.advance(.016,.016);
+ assert.ok(trail.matrixWrites>initialWrites);
+ assert.equal(trail.visible,true);
+ assert.equal(visual.hasDrawableCue(swing.id),true);
+ // Once the measured sample ages out, clear its LAST visible matrix once.
+ wristX=.12;
+ for(let i=0;i<5;i++)visual.advance(.016,.016);
+ assert.equal(trail.visible,false);
+ assert.equal(visual.hasDrawableCue(swing.id),false);
+ const hiddenWrites=trail.matrixWrites;
+ trail.instanceMatrix.needsUpdate=false;
+ for(let i=0;i<3;i++)visual.advance(.016,.016);
+ assert.equal(trail.matrixWrites,hiddenWrites,
+  'a previously visible trail is hidden once, not re-uploaded every stalled frame');
+ assert.equal(trail.instanceMatrix.needsUpdate,false);
+ assert.equal(visual.stats().lastAdvancePotentialBufferBytes,0);
+ visual.dispose();
+});
