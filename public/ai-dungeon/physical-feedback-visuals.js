@@ -94,6 +94,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(warningHistory.size>MAX_WARNING_HISTORY_OWNERS)
    warningHistory.delete(warningHistory.keys().next().value);
  }
+ // Bounded D04-only JS matrix-update pressure, not a GPU timer or proof
+ // that the WebGL driver uploaded every dirty reserved instance.
+ let advanceFrames=0,lastAdvanceMatrixWrites=0,lastAdvanceDirtyPools=0,
+  lastAdvancePotentialBufferBytes=0;
+ const lastAdvanceWritesByPool=Object.fromEntries(
+  Object.keys(PHYSICAL_FEEDBACK_POOL_LIMITS).map(name=>[name,0]));
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
@@ -525,6 +531,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return;
   const dt=clamp(frameSeconds,0,.05);
+  let frameMatrixWrites=0,dirtyPoolCount=0,potentialBufferBytes=0;
   // Authoritative pose dt is deliberately clamped, but VFX lifetime must
   // follow the ACTUAL browser interval. Otherwise a 720ms blocked WebGL
   // submit leaves ancient arrows/debris drifting through the next scene.
@@ -533,7 +540,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const observedAge=Number.isFinite(actualFrameSeconds)&&actualFrameSeconds>0?
    Math.max(dt,Math.min(actualFrameSeconds,.70)):.70;
   for(const pool of pools.values()){
-   let dirty=false,visibleSlots=0;
+   let dirty=false,visibleSlots=0,poolWrites=0;
    let checkedWarningCue=null,checkedWarningLive=false;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];if(!slot)continue;
@@ -551,7 +558,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       checkedWarningLive=warningStillLive(slot.cue);
      }
      if(!checkedWarningLive){
-      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
       active--;retiredInvalidWarnings++;dirty=true;continue;
      }
      // Freeze at a restrained, readable mid-beat: resetting to zero each
@@ -572,7 +579,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     }else slot.age+=observedAge;
     dirty=true;
     if(slot.age>=slot.life){
-     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;continue;
+     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;active--;continue;
     }
     if(pool.name==='signal'&&
       (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
@@ -584,7 +591,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      // warnings and HP-loss effects retain their existing separate policy.
      const observed=anchor(slot.cue,'signal');
      if(!observed){
-      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
       active--;retiredUnanchoredBodySignals++;continue;
      }
      slot.origin=observed;
@@ -603,7 +610,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         Number.isFinite(actor.u.hp)&&actor.u.hp<=0;
       }catch{}
       if(deadAttacker){
-       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
        active--;retiredDeadTrails++;continue;
       }
       // A confirmed living replacement action (or newer attack tick)
@@ -617,7 +624,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         (u.action!=='attack'||u.actionTick!==slot.cue.tick);
       }catch{}
       if(interrupted){
-       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
        active--;retiredInterruptedTrails++;continue;
       }
       slot.lastHand=null;slot.measuredPath=null;
@@ -653,12 +660,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       }
      }
     }
-    pool.mesh.setMatrixAt(i,transform(pool,slot));
+    pool.mesh.setMatrixAt(i,transform(pool,slot));frameMatrixWrites++;poolWrites++;
     if(pool.name!=='trail'||slot.measuredPath)visibleSlots++;
    }
-   if(dirty)pool.mesh.instanceMatrix.needsUpdate=true;
+   if(dirty){
+    pool.mesh.instanceMatrix.needsUpdate=true;
+    dirtyPoolCount++;potentialBufferBytes+=pool.max*64;
+   }
    if(dirty)pool.mesh.visible=visibleSlots>0;
+   lastAdvanceWritesByPool[pool.name]=poolWrites;
   }
+  // One completed JS visual pass. These numbers capture setMatrixAt calls
+  // and potential full reserved-buffer upload sizes only; they do NOT assert
+  // WebGL bufferSubData, GPU completion, pixels on screen or audio playback.
+  lastAdvanceMatrixWrites=frameMatrixWrites;
+  lastAdvanceDirtyPools=dirtyPoolCount;
+  lastAdvancePotentialBufferBytes=potentialBufferBytes;
+  advanceFrames=Math.min(Number.MAX_SAFE_INTEGER,advanceFrames+1);
  }
  // Reduced-motion intentionally removes the animated sword ribbon. A
  // real public attack attempt may still make an accessible, sound-only whoosh,
@@ -830,6 +848,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   measuredTrailFrames,bodyLocalTrailFrames,yawFallbackTrailFrames,
    unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,
    retiredStaleFrameInstances,disposed,
+  // CPU submission intent, not a hardware upload or frame-time benchmark.
+  advanceFrames,lastAdvanceMatrixWrites,lastAdvanceDirtyPools,
+  lastAdvancePotentialBufferBytes,
+  lastAdvanceWritesByPool:Object.freeze({...lastAdvanceWritesByPool}),
   reservedInstances:TOTAL,drawCalls:pools.size,
   activeDrawCalls:[...pools.values()].filter(p=>p.mesh.visible).length,
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
