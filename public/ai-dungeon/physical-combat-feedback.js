@@ -54,7 +54,8 @@ export function createPhysicalCombatFeedback({
   retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
-   receiptRenderSubmissionSeconds=null,latestTrustedClock=null;
+   receiptRenderSubmissionSeconds=null,latestTrustedClock=null,
+   lastVisualAdvanceStartClock=null,lastVisualAdvanceEndClock=null;
  const recentStringFrameIds=new Set();
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  // One bounded timestamp per recent cue ID; old scenes release these entries.
@@ -84,6 +85,7 @@ export function createPhysicalCombatFeedback({
   pending.length=0;awaitingPresentation.length=0;seen.clear();
   observedAtByCueId.clear();
   lastPresentedFrame=null;highestNumericPresentedFrame=-1;
+  lastVisualAdvanceStartClock=null;lastVisualAdvanceEndClock=null;
   recentStringFrameIds.clear();
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
@@ -100,11 +102,29 @@ export function createPhysicalCombatFeedback({
   const validSubmit=validObserved&&receiptClock!==null&&receiptClock>=observedAt;
   const observedClockMs=validObserved?Math.round(observedAt*1000):null;
   const submittedClockMs=validSubmit?Math.round(receiptClock*1000):null;
+  // A delayed genuine WebGL receipt does not explain WHICH phase blocked
+  // physical impact presentation. Reuse only clocks already sampled in the
+  // current D04 frame: this is diagnosis, not permission to deliver late audio.
+  // Never mix a prior frame's phase with a freshly observed snapshot.
+  const validAdvanceStart=validSubmit&&
+   Number.isFinite(lastVisualAdvanceStartClock)&&
+   lastVisualAdvanceStartClock>=observedAt&&lastVisualAdvanceStartClock<=receiptClock;
+  const validAdvanceEnd=validAdvanceStart&&
+   Number.isFinite(lastVisualAdvanceEndClock)&&
+   lastVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
+   lastVisualAdvanceEndClock<=receiptClock;
+  const beforeVisualAdvanceMs=validAdvanceStart?
+   Math.round((lastVisualAdvanceStartClock-observedAt)*1000):null;
+  const visualAdvanceMs=validAdvanceEnd?
+   Math.round((lastVisualAdvanceEndClock-lastVisualAdvanceStartClock)*1000):null;
+  const afterVisualAdvanceToSubmissionMs=validAdvanceEnd?
+   Math.round((receiptClock-lastVisualAdvanceEndClock)*1000):null;
   const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
    intendedDelayMs:Math.round(cue.delay*1000),
    scheduledDelayMs:Math.round(presentationDelay(cue)*1000),visual,audio,frameId,decision,
    observedClockMs,submittedClockMs,
+   beforeVisualAdvanceMs,visualAdvanceMs,afterVisualAdvanceToSubmissionMs,
    observationToSubmissionMs:validSubmit?
     Math.max(0,submittedClockMs-observedClockMs):null,
    renderSubmissionMs:frameId!==null&&
@@ -488,6 +508,8 @@ export function createPhysicalCombatFeedback({
    MAX_AUDIO_VISUAL_STALENESS_SECONDS+.01:Math.min(actualFrameSeconds,3600);
   if(requirePresentedFrame){
    const wallNow=observedWallClock();
+   lastVisualAdvanceStartClock=wallNow;
+   lastVisualAdvanceEndClock=null;
    for(const item of pending){
     if(!item.freshlyObserved)continue;
     item.freshlyObserved=false;
@@ -504,6 +526,11 @@ export function createPhysicalCombatFeedback({
   // that becomes due THIS frame has not survived that interval yet; it must
   // get a first genuine render opportunity rather than instantly aging out.
   safeCall(()=>visuals?.advance?.(dt,actualFrameSeconds));
+  // One extra bounded, monotonic clock read measures the D04 visual pass
+  // itself. The remaining observation-to-submission wall time includes all
+  // other main-thread work and renderer submission. Neither measurement
+  // changes the original 400ms safety gate or asserts decoded A/V alignment.
+  if(requirePresentedFrame)lastVisualAdvanceEndClock=observedWallClock();
   popDue(dt);safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
