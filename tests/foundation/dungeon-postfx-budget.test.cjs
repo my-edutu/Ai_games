@@ -448,10 +448,13 @@ test('actual mixed-lag SwiftShader cadence can begin ONE reversible measurable m
  assert.equal(cap,205000,'the trial actually reduces the 390px framebuffer');
  assert.ok(planDirectRenderBudget(w,h,3,true,cap).renderPixels<
            planDirectRenderBudget(w,h,3,true,650000).renderPixels*.85);
+ let observedValidation=false;
  for(let i=0;i<6;i++){
   d=gate.observe({intervalMs:185,renderMs:9,pixelCap:cap,viewportPixels:w*h});cap=d.maxPixels;
+  observedValidation ||= d.status==='validated';
  }
- assert.equal(d.status,'validated','only six independently delivered improved frames retain lower pixels');
+ assert.equal(observedValidation,true,'six improved deliveries must validate at least once; later stable frames are legitimate');
+ assert.equal(cap,205000,'validated lower cap is retained for actual mobile pixels');
  assert.equal(gate.stats().successfulTrials,1);
  for(let i=0;i<12;i++)assert.equal(gate.observe({intervalMs:320,renderMs:9,pixelCap:cap,viewportPixels:w*h}).change,false);
 });
