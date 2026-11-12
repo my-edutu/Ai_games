@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -72,6 +73,8 @@ jobs:
         run: |
           node scripts/tiny-kingdom-w246-camera-survey-admission-contract.cjs
           node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs
+      - name: W248 genuine lot-grounding atlas source contract
+        run: node scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt

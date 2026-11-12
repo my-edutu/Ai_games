@@ -3986,6 +3986,45 @@ function getGroundAtlasDirtyAudit(){
   restoresEveryChangedPixel:true,changesNavigation:false,changesAuthority:false,
   notHardwareFps:true};
 }
+// W248: real occupied masonry needs permanent compacted-earth contact.
+// Build only in the existing retained 512px atlas when genuine lot topology
+// changes. This is NOT a fake moving sun shadow or an added building.
+function planLivedHouseGroundContact(lot){
+ if(!Array.isArray(lot)||lot.length<3||
+    !lot.slice(0,3).every(Number.isFinite))
+  throw Error('W248 invalid genuine occupied lot');
+ const [x,z,variant]=lot;
+ if(variant<0||variant>4)throw Error('W248 invalid home variant');
+ const rx=2.02+variant*.25,rz=1.84+variant*.18;
+ return {x,z,variant,rx,rz,haloRx:rx+1.04,haloRz:rz+.91,
+  apronZ:z-(2.1+variant*.18)*.5-.52,
+  groundOnly:true,authorityModified:false};
+}
+function paintLivedHouseGroundContact(ctx,lot,world,size,extent){
+ const f=planLivedHouseGroundContact(lot),u=size/extent;
+ const px=world(f.x),pz=world(f.z);
+ const outer=ctx.createRadialGradient(px,pz,.24*u,px,pz,f.haloRx*u);
+ outer.addColorStop(0,'rgba(35,38,31,.42)');
+ outer.addColorStop(.60,'rgba(52,46,36,.28)');
+ outer.addColorStop(1,'rgba(52,46,36,0)');
+ ctx.save();
+ ctx.beginPath();ctx.ellipse(px,pz,f.haloRx*u,f.haloRz*u,0,0,Math.PI*2);
+ ctx.fillStyle=outer;ctx.fill();
+ // Weathered wall margins and actual occupied doorway entry soften the
+ // toy-like floating walls. Original public streets/access overlay this.
+ ctx.beginPath();ctx.ellipse(px,pz,f.rx*u,f.rz*u,0,0,Math.PI*2);
+ ctx.strokeStyle='rgba(51,45,36,.35)';ctx.lineWidth=.37*u;ctx.stroke();
+ const doorstep=world(f.apronZ);
+ const apron=ctx.createLinearGradient(px,doorstep,px,doorstep+1.3*u);
+ apron.addColorStop(0,'rgba(110,87,62,.66)');
+ apron.addColorStop(1,'rgba(110,87,62,0)');
+ ctx.fillStyle=apron;
+ ctx.fillRect(px-.63*u,doorstep-.08*u,1.26*u,1.38*u);
+ ctx.restore();
+ return {lot:[f.x,f.z,f.variant],pixels:[px,pz],
+  haloMetres:[f.haloRx,f.haloRz],authorityModified:false,
+  addedTriangles:0,textureAllocations:0};
+}
 function rebuildGroundAtlas(){
  if(!gpuAvailable)return;
  const size=GROUND_ATLAS_SIZE;
@@ -4088,7 +4127,8 @@ function rebuildGroundAtlas(){
   groundAtlasHouseKeys=[];groundAtlasHouseStamps=0;
  }
  for(let i=groundAtlasHouseKeys.length;i<city.length;i++){
-  const [x,z,variant]=city[i],r=2.0+variant*.25;
+  const lot=city[i],[x,z,variant]=lot,r=2.0+variant*.25;
+  paintLivedHouseGroundContact(homeCtx,lot,world,size,GROUND_ATLAS_EXTENT);
   homeCtx.beginPath();
   homeCtx.ellipse(world(x),world(z),r*size/GROUND_ATLAS_EXTENT,
    r*.82*size/GROUND_ATLAS_EXTENT,0,0,Math.PI*2);
