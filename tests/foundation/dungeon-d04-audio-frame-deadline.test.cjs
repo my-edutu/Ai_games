@@ -68,3 +68,66 @@ test('D04: valid timely rendered damage still emits once, while muted/restarted 
  assert.equal(played.length,1);
  controller.dispose();
 });
+
+
+test('D04 verified melee HP loss is staged on the first 240ms real frame, not five capped animation frames',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let clock=0;
+ const rendered=[],played=[];
+ const controller=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>clock,
+  deriveDamageBeats:()=>[{id:'vanguard',incoming:true}],
+  verifiedMeleeDelay:()=>.215,
+  visualAdapter:{emit(cue){rendered.push(cue);return true},
+   advance(){},hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){played.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}
+ });
+ assert.equal(controller.enableAudioFromGesture(),true);
+ controller.acceptSnapshot(snap(10,30));
+ controller.acceptSnapshot(snap(11,21));
+ assert.equal(controller.stats().pending,1);
+ assert.equal(rendered.length,0,'no injury effect before an actual render opportunity');
+ clock=.24;
+ controller.advance(.05,.24);
+ assert.deepEqual(rendered.map(c=>c.kind),['damage'],
+  'the observed 240ms frame has passed the real 215ms presentation delay');
+ assert.equal(played.length,0,'sound remains gated on actual WebGL submission');
+ clock=.26;
+ assert.equal(controller.acknowledgePresentedFrame(1,.02),1);
+ assert.equal(played.length,1);
+ const receipt=controller.stats().recentDeliveryReceipts.at(-1);
+ assert.equal(receipt.scheduledDelayMs,215);
+ assert.equal(receipt.decision,'delivered');
+ assert.equal(receipt.observationToSubmissionMs,260);
+ controller.dispose();
+});
+
+test('D04 gated verified melee waits through a real 190ms interval and stages at 230ms without breaking 400ms deadline',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let clock=0;
+ // An actual HP decrease and verified incoming evidence authorize this delay.
+ const visual=[],audio=[];
+ const timed=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>clock,
+  deriveDamageBeats:()=>[{id:'vanguard',incoming:true}],
+  verifiedMeleeDelay:()=>.215,
+  visualAdapter:{emit(cue){visual.push(cue);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){audio.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}
+ });
+ timed.enableAudioFromGesture();
+ timed.acceptSnapshot(snap(10,30));timed.acceptSnapshot(snap(11,21));
+ clock=.19;timed.advance(.05,.19);
+ assert.equal(visual.length,0);
+ clock=.23;timed.advance(.04,.04);
+ assert.equal(visual.length,1);
+ assert.equal(audio.length,0);
+ clock=.25;
+ assert.equal(timed.acknowledgePresentedFrame(2,.02),1);
+ assert.equal(audio.length,1);
+ timed.dispose();
+});
