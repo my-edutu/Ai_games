@@ -778,6 +778,14 @@ export function createTowerGuardianPassage(THREE) {
   let runToken = null, floor = null, sourceTick = -1;
   let age = 0, defeatAge = 0, disposed = false, stage = 'none', approachOpen = 0;
   let continuousGroundedHandoff = false;
+  // A received Floor 9 snapshot is not a visible arch. Cold WebGL can consume
+  // multiple seconds before the FIRST successful scene submission. Only an
+  // exact run/floor/tick renderer return may begin the bounded handoff beat.
+  let handoffSubmittedFrames = 0, handoffDisplaySeconds = 0;
+  let handoffUnsubmittedSeconds = 0, handoffStartAge = 0;
+  const handoffVisibleWindowSeconds = 1.65;
+  // Fail-safe for permanent WebGL failure without a false indefinite gate.
+  const handoffNeverSubmittedTimeoutSeconds = 6;
   const duration = 2.9;
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
@@ -803,6 +811,8 @@ export function createTowerGuardianPassage(THREE) {
     defeatAge = 0;
     approachOpen = 0;
     continuousGroundedHandoff = false;
+    handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
+    handoffUnsubmittedSeconds = 0; handoffStartAge = 0;
     sealedLattice.visible = false;
     displayedSealHeight = 0;
     displayedSealExcitation = null;
@@ -916,6 +926,8 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'earned-open';
     continuousGroundedHandoff = false;
+    handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
+    handoffUnsubmittedSeconds = 0; handoffStartAge = 0;
     // The real, freshly unlocked deck is already shown by the INNER cap
     // doorway plus the original exterior guardian gate. A second outer
     // memorial facade would bury the climber during the short grounded walk.
@@ -980,6 +992,9 @@ export function createTowerGuardianPassage(THREE) {
     // not visibly slam it shut and re-open upon the authoritative floor
     // switch. Historical immediate clearances still use the old cue.
     age = carryOpen ? Math.max(1.05, Math.min(1.65, carriedAge)) : 0;
+    handoffStartAge = age;
+    handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
+    handoffUnsubmittedSeconds = 0;
     // The real guardian's armor keeps falling continuously across the
     // old/new-floor boundary; replay/slow passage staging cannot rewind it.
     defeatAge = carryOpen ? carriedDefeatAge : 0;
@@ -989,10 +1004,27 @@ export function createTowerGuardianPassage(THREE) {
     if (disposed || !group.visible) return;
     if (!options.stale) {
       const advance = Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
-      age += advance;
+      if (stage === 'handoff' && continuousGroundedHandoff) {
+        if (handoffSubmittedFrames === 0) {
+          // A camera/geometry frame which never leaves renderer.render()
+          // cannot spend the viewer's physical doorway-crossing interval.
+          handoffUnsubmittedSeconds += advance;
+          if (handoffUnsubmittedSeconds >= handoffNeverSubmittedTimeoutSeconds) {
+            clear(); return;
+          }
+        } else {
+          handoffDisplaySeconds += advance;
+          age = handoffStartAge + (duration - handoffStartAge) *
+            Math.min(1, handoffDisplaySeconds / handoffVisibleWindowSeconds);
+        }
+      } else age += advance;
       defeatAge += advance;
     }
-    if (stage === 'handoff' && age >= duration) { clear(); return; }
+    if (stage === 'handoff' && (
+      (continuousGroundedHandoff &&
+        handoffDisplaySeconds >= handoffVisibleWindowSeconds) ||
+      (!continuousGroundedHandoff && age >= duration)
+    )) { clear(); return; }
     const still = options.reducedMotion === true;
     poseFragments(age, still);
     poseFallenArmor(defeatAge, still);
@@ -1043,9 +1075,24 @@ export function createTowerGuardianPassage(THREE) {
     glow.opacity = .65 * fade;
   }
   function cameraWeight() {
-    return !group.visible || stage === 'guardian-locked' ? 0 : stage === 'earned-open'
-      ? Math.max(.55 * clamp(1 - age / 2.4), .32 * approachOpen)
-      : clamp(1 - age / 1.35);
+    if (!group.visible || stage === 'guardian-locked') return 0;
+    if (stage === 'earned-open')
+      return Math.max(.55 * clamp(1 - age / 2.4), .32 * approachOpen);
+    if (stage === 'handoff' && continuousGroundedHandoff)
+      return .58 * clamp(1 - handoffDisplaySeconds / handoffVisibleWindowSeconds);
+    return clamp(1 - age / 1.35);
+  }
+  function noteFrameSubmitted(source, options = {}) {
+    // Called ONLY after successful real Three.js submission, never when the
+    // HTTP payload is accepted. This is not a display, GPU-present or video
+    // proof. Stale/restarted/wrong-floor frames never authorize a handoff.
+    if (disposed || !group.visible || stage !== 'handoff' ||
+        !continuousGroundedHandoff || options.stale || !source ||
+        source.lifecycle !== 'running' || source.runToken !== runToken ||
+        source.floor !== floor || !Number.isSafeInteger(source.tick) ||
+        source.tick < sourceTick || !(source.player?.health > 0)) return false;
+    handoffSubmittedFrames = Math.min(2, handoffSubmittedFrames + 1);
+    return true;
   }
   // The first authentic post-defeat camera beat acknowledges the actual
   // fallen enemy BEFORE turning fully toward the unlocked summit door. The
@@ -1064,6 +1111,10 @@ export function createTowerGuardianPassage(THREE) {
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
+      handoffSubmittedFrames,
+      handoffDisplaySeconds: Number(handoffDisplaySeconds.toFixed(4)),
+      handoffUnsubmittedSeconds: Number(handoffUnsubmittedSeconds.toFixed(4)),
+      handoffVisibleWindowSeconds,
       exteriorMemoryFrameVisible: group.visible && memoryFrame.visible,
       continuousGroundedHandoff: group.visible && stage === 'handoff' &&
         continuousGroundedHandoff,
@@ -1136,5 +1187,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, lock, unlock, begin, trackSuccessor, update, clear, cameraWeight, focusPoint, diagnostics, dispose };
+  return { group, lock, unlock, begin, trackSuccessor, update, noteFrameSubmitted, clear, cameraWeight, focusPoint, diagnostics, dispose };
 }
