@@ -1,0 +1,23 @@
+name: Tiny Kingdom W265 Growth Civic Spine
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
+      - .github/workflows/tiny-kingdom-w265-growth-civic.yml
+  workflow_dispatch:
+jobs:
+  growth-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Genuine grown-town civic residency and original route contracts
+        run: |
+          node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
+          node scripts/tiny-kingdom-w264-grainward-stone-corridor-contract.cjs

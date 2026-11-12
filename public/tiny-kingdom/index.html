@@ -5149,6 +5149,8 @@ function restoreCivicStats(stats){
  marketQuarterStats={...stats.market};
  highStreetStats={...stats.highStreet};
  if(stats.farmMarketStreet)farmMarketStreetStats={...stats.farmMarketStreet};
+ if(stats.freightBoundary)farmStreetWeaveStats={...stats.freightBoundary};
+ if(stats.roadside)roadsideMicroterrainStats={...stats.roadside};
  currentMaterial=stats.finalMaterial;
 }
 function rememberCivicScenery(key,vertices,stats){
@@ -24409,6 +24411,48 @@ function getLiveHudCadenceAudit(){
    Number.isFinite(liveHudLastWall)?liveHudLastWall:null,
   immutableAuthority:true,rendererFPSUnchangedClaim:false};
 }
+// W265 Phase 1: town-growth-aware independently GPU-resident civic district.
+// Only genuine lot-topology changes can rebuild streets and market frontage.
+function liveCivicTopologyKey(climate,light){
+ return climate+':'+(gpuAvailable?'shader-light':light)+
+  ':lots:'+city.map(lot=>lot.join(',')).join(';');
+}
+let civicGrowthRefreshes=0;
+function updateResidentCivicDistrict(nextTerrainKey,daylightStage){
+const civicKey=liveCivicTopologyKey(nextTerrainKey,daylightStage);
+civicActiveKey=civicKey;
+const residentCivic=civicSceneryCache.get(civicKey);
+if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
+ // The static civic cache may be recalled after a genuine seasonal transition.
+ // Rebuild the exact-season field VBO before drawing the cached town. On GPU
+ // allocation failure we invalidate the cached civic and let the complete
+ // original CPU field fallback be rebuilt on the next scene frame.
+ if(gpuAvailable&&farmFieldResidentSeason!==climateAt(state.t).season&&
+   !farmFieldResidentDisabled)prepareResidentFarmFields(climateAt(state.t).season);
+ if(civicGpuResidencyEnabled){
+  civicBuffer=residentCivic.buffer;civicChunkRanges=residentCivic.ranges;
+ }else appendCivicCachedVertices(residentCivic.vertices);
+ restoreCivicStats(residentCivic.stats);civicCacheReuses++;
+ civicSceneryCache.delete(civicKey);civicSceneryCache.set(civicKey,residentCivic);
+}else{
+ civicCacheBuilds++;
+ const civicStart=data.length;
+hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
+// The worked spaces have identifiable props and readable boundaries.
+farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
+riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();farmMarketStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
+ const stored=rememberCivicScenery(civicKey,data.slice(civicStart),{
+  guildhall:{...guildhallVisualStats},farm:{...farmScene},
+  craft:{...craftCounters},market:{...marketQuarterStats},
+  highStreet:{...highStreetStats},farmMarketStreet:{...farmMarketStreetStats},
+  freightBoundary:{...farmStreetWeaveStats},roadside:{...roadsideMicroterrainStats},
+  finalMaterial:currentMaterial});
+ // Remove civic triangles from the housing upload ONLY AFTER its own real
+ // GPU buffer exists. Canvas2D and a failed residency keep original geometry.
+ if(civicGpuResidencyEnabled&&stored)data.length=civicStart;
+}
+}
 function render(now){requestAnimationFrame(render);
  // The 159k-triangle scene was rebuilt/redrawn up to 12 times per second even
  // after Pause in Canvas2D and SwiftShader, starving camera-button input in CI.
@@ -24723,38 +24767,7 @@ if(homeClustersEnabled()){
 }
 const homeMs=performance.now()-homePhaseStart;
 const civicPhaseStart=performance.now();
-const civicKey=nextTerrainKey+':'+(gpuAvailable?'shader-light':daylightStage)+
- ':lots:'+city.slice(0,12).map(lot=>lot.join(',')).join(';');
-civicActiveKey=civicKey;
-const residentCivic=civicSceneryCache.get(civicKey);
-if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
- // The static civic cache may be recalled after a genuine seasonal transition.
- // Rebuild the exact-season field VBO before drawing the cached town. On GPU
- // allocation failure we invalidate the cached civic and let the complete
- // original CPU field fallback be rebuilt on the next scene frame.
- if(gpuAvailable&&farmFieldResidentSeason!==groundClimate.season&&
-   !farmFieldResidentDisabled)prepareResidentFarmFields(groundClimate.season);
- if(civicGpuResidencyEnabled){
-  civicBuffer=residentCivic.buffer;civicChunkRanges=residentCivic.ranges;
- }else appendCivicCachedVertices(residentCivic.vertices);
- restoreCivicStats(residentCivic.stats);civicCacheReuses++;
- civicSceneryCache.delete(civicKey);civicSceneryCache.set(civicKey,residentCivic);
-}else{
- civicCacheBuilds++;
- const civicStart=data.length;
-hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
-// The worked spaces have identifiable props and readable boundaries.
-farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
-riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();farmMarketStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
-for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
- const stored=rememberCivicScenery(civicKey,data.slice(civicStart),{
-  guildhall:{...guildhallVisualStats},farm:{...farmScene},
-  craft:{...craftCounters},market:{...marketQuarterStats},
-  highStreet:{...highStreetStats},finalMaterial:currentMaterial});
- // Remove civic triangles from the housing upload ONLY AFTER its own real
- // GPU buffer exists. Canvas2D and a failed residency keep original geometry.
- if(civicGpuResidencyEnabled&&stored)data.length=civicStart;
-}
+updateResidentCivicDistrict(nextTerrainKey,daylightStage);
  // Season-only decoration belongs in the scenery VBO. Preserve the foliage
  // material assigned by the original dynamic festival call.
  materialScope(MATERIAL.FOLIAGE,appendSeasonalFestivalToScenery);
@@ -24782,7 +24795,19 @@ coldSceneLast={sceneKey:staticKey,day:Math.floor(state.t/24)+1,
 }
 // Real new homes refresh their changed original 16m block, NOT the
 // unchanged civic/farm/market settlement VBO.
-if(homeClustersEnabled())refreshIndependentHousing(nextTerrainKey,staticKey);
+if(homeClustersEnabled()){
+ refreshIndependentHousing(nextTerrainKey,staticKey);
+ const liveTopology=liveCivicTopologyKey(nextTerrainKey,daylightStage);
+ if(civicActiveKey!==liveTopology){
+  // Completed authentic house growth changes obstacle-safe streets only.
+  // Keep all current terrain, home VBOs, actors and deterministic world.
+  const originalFrame=data,originalMaterial=currentMaterial;
+  data=[];
+  try{updateResidentCivicDistrict(nextTerrainKey,daylightStage);}
+  finally{data=originalFrame;currentMaterial=originalMaterial;}
+  civicGrowthRefreshes++;
+ }
+}
 staticTerrainMemoActive=false;const frameDynamicStart=performance.now();
 const dynamicPhaseTimes={
  worksiteGeometry:0,residentWorkGeometry:0,householdGeometry:0,economyGeometry:0,
