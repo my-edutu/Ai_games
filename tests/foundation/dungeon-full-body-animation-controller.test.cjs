@@ -3678,3 +3678,53 @@ test('verified combat-start stops outgoing original Walking_A only after the act
  assert.match(renderer,/outgoing\.paused=true/,
   'only the original departing source action should be paused, never its incoming combat clip');
 });
+
+
+test('RED: genuine source swing thigh supports a buried airborne toe without moving the opposite loaded shoe',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ assert.equal(typeof choose,'function');
+ // Exact predecessor 390px source-Walking_A has an airborne heel ~223mm
+ // above the -20mm stone, but the same original weighted toe is 61mm BELOW.
+ // These are TEST trial inputs; not alleged postchange WebGL measurements.
+ const before={left:{heelY:.202,toeY:-.081,heelXZ:[0,0],toeXZ:[0,.22]},
+  right:{heelY:-.023,toeY:-.028,heelXZ:[.2,0],toeXZ:[.2,.22]}};
+ const make=(delta,toeY,heelY,toeXZ=[.012,.228],other=before.right)=>({
+  delta,after:{left:{heelY,toeY,heelXZ:[.01,.005],toeXZ},right:other}
+ });
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.85,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.036,frameAge:.032,
+  side:'left',floorTopY:-.02,previousCorrectionRad:0,before};
+ const good=choose({...owner,trials:[
+  make(.045,-.074,.201),make(-.045,-.087,.203)
+ ]});
+ assert.equal(good?.angleRad,.045);
+ assert.ok(good.improvementMeters>=.0069&&good.improvementMeters<.0071);
+ assert.equal(good.contactLocked,false,'cannot claim foot lock from one original-GLB joint trial');
+ const rejected=[
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.49},
+  {sourceThighAxisVerified:false},{sourceChainVerified:false},
+  {sourceInstanceSame:false},{ownerLocomotion:false},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{rootTravel:0},{frameAge:.32},{side:'right'}
+ ];
+ for(const bad of rejected)assert.equal(choose({...owner,...bad,trials:[make(.045,-.074,.201)]}),null,
+  'a swing hip may only use the matching licensed source evidence');
+ for(const unsafe of [
+  make(.045,-.074,.201,[.06,.24]), // lateral toe skate
+  make(.045,-.093,.20), // deeper real toe
+  make(.045,-.074,.13), // collapse airborne heel
+  make(.09,-.058,.201), // beyond allowable single-frame slew
+  make(.045,-.074,.201,[.012,.228],{...before.right,toeY:-.036}), // moves supporting foot
+  make(.045,.04,.201), // floor overshoot
+  make(.045,-.079,.201) // <4mm improvement
+ ])assert.equal(choose({...owner,trials:[unsafe]}),null,
+  'reject a synthetic better-looking shoe unsupported by both actual feet');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/stageOriginalSourceSwingThighAfterMixer\(/,
+  'actual source upperleg must be measured and posed, not just a pure helper');
+ assert.match(renderer,/chooseOriginalSourceSwingThighSupport\(/);
+ assert.match(renderer,/sourceSwingThighCurrentFrameProofs/);
+ assert.match(renderer,/readOriginalSwingSoleY\(/);
+});
