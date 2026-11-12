@@ -2210,7 +2210,7 @@ export function createTowerWorld(){
     // roof, every moving platform, hazard, hero and earned bronze doorway
     // stay in the first render. Mere adjacent browser floor change cannot
     // hide its shaft or borrow another run's winning passage.
-    const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && theme==='void';
+    const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && snapshot.theme==='void';
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
