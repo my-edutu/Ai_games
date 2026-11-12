@@ -2969,3 +2969,28 @@ test('source-native stance-sole relief uses measured two-point original shoe, no
  assert.match(model,/sourceStanceSoleCurrentFrameProofs/,
   'recomputed physical heel-toe proof is required, not claimed virtual foot contact');
 });
+
+
+test('the actual imported-GLB foot-skin probe uses FINAL same-frame root translation and rotation',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const method=renderer.slice(renderer.indexOf('function updateActor('),
+  renderer.indexOf('function updateActor(')+50000);
+ const stride=method.indexOf('stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval,sourceFrameVisible);');
+ const pivotY=method.indexOf('actor.visualPivot.position.set(');
+ const pivotRotation=method.indexOf('actor.visualPivot.rotation.set(');
+ const originalSkinnedFeet=method.indexOf('stageRigLegsAfterMixer(actor,poseAge,reducedMotion);');
+ assert.ok(stride>=0&&pivotY>=0&&pivotRotation>=0&&originalSkinnedFeet>=0,
+  'the real original source-mixer update must contain a grounded stride, root pose and imported-sole staging');
+ assert.ok(stride<pivotY&&pivotY<pivotRotation&&pivotRotation<originalSkinnedFeet,
+  'same-frame original skinned heel/toe clearance cannot be measured before the final visual root pose');
+ assert.equal(method.match(/actor\\.visualPivot\\.position\\.set\\(/g)?.length,1,
+  'no later visual-root translation may invalidate original toe/heel world-space acceptance');
+ assert.equal(method.match(/actor\\.visualPivot\\.rotation\\.set\\(/g)?.length,1,
+  'do not rotate the true original skinned heel/toe away after physical measurement');
+ const live=renderer.slice(renderer.indexOf('function planOriginalSourceStanceForMountedAnkle('),
+  renderer.indexOf('function stageRigLegsAfterMixer('));
+ assert.match(live,/readOriginalSwingSoleY\\(patch\\.toe\\)/);
+ assert.match(live,/beforeWorst-afterWorst<\\.0015/);
+ assert.match(live,/mount\\.bone\\.quaternion\\.copy\\(original\\)/,
+  'both signed trial and final proof must restore the original source quaternion');
+});
