@@ -24,7 +24,7 @@ function source(){
 }
 function successor(){
  return {runToken:'earned-real-run',floor:9,tick:451,lifecycle:'running',
-   worldWidth:480000,platforms:[{id:'f9:ground',kind:'solid',x:0,
+   chunkBaseY:2880000,worldWidth:480000,platforms:[{id:'f9:ground',kind:'solid',x:0,
      y:cap.y,width:480000,height:cap.height}],enemies:[],
    player:{health:5,grounded:true,groundedPlatformId:'f9:ground',
      x,y,halfWidth,halfHeight}};
