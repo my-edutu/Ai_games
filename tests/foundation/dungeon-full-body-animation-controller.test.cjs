@@ -1184,7 +1184,7 @@ test('sparse original WebGL walking handoff completes its mixer crossfade withou
 });
 
 test('licensed Walking_A crossfades run on visible seconds while native feet follow real metres',async()=>{
- const {planImportedLivingSourceStep,planImportedWalkingBlendRate}=await load();
+ const {planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingMixerFrameDelta}=await load();
  const base={mode:'move',age:0,sourceTime:.18,sourceDuration:1.0416666666666667,
   effectiveSpeed:.91,frameDelta:.016,frameInterval:.016,visible:true,
   groundedTravel:.05,groundedMoving:true,walkingClip:true,teleport:false};
@@ -1216,8 +1216,11 @@ test('licensed Walking_A crossfades run on visible seconds while native feet fol
  const catchup={...base,frameDelta:.05,frameInterval:.5,groundedTravel:.53};
  const catchupSource=planImportedLivingSourceStep(catchup);
  assert.equal(catchupSource,.28,'large legitimate source travel remains capped');
- assert.ok(planImportedWalkingBlendRate({...catchup,sourceStep:catchupSource})>5,
-  'source feet may catch up without instantly consuming a 230ms fade');
+ const catchupMixerDelta=planImportedWalkingMixerFrameDelta({...catchup,sourceStep:catchupSource});
+ const catchupRate=planImportedWalkingBlendRate({...catchup,sourceStep:catchupSource});
+ assert.ok(catchupRate>3&&catchupMixerDelta<=.09&&
+  Math.abs(catchupRate*catchupMixerDelta-catchupSource)<1e-9,
+  'source feet catch up exactly once while even a slow delivered frame consumes <=90ms mixer fade');
  for(const [label,patch] of [
   ['idle',{mode:'idle'}],['attack',{mode:'attack'}],['death',{mode:'defeat'}],
   ['missing licensed walk',{walkingClip:false}],
@@ -1379,7 +1382,7 @@ test('real large walking steps cannot leave original source ankles permanently b
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planImportedWalkingContinuity\(\{\.\.\.originalStep,sourceStep/);
  assert.match(model,/actor\.activeClip\.time=continuousWalk/);
- assert.match(model,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/,
+ assert.match(model,/actor\.mixer\.update\(walkMixerDelta\)/,
   'the original Three.js mixer must still evaluate exactly once per visible frame');
 });
 
@@ -3580,5 +3583,5 @@ test('witnessed zero-travel native Walking_A holds feet without freezing the mix
  const code=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(code,/planImportedWalkingBlendRate\(\{\.\.\.originalStep,sourceStep\}\)/);
  assert.match(code,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*walkingBlendRate\)/);
- assert.match(code,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/);
+ assert.match(code,/actor\.mixer\.update\(walkMixerDelta\)/);
 });
