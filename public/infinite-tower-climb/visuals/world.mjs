@@ -7,6 +7,17 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
+// Display-submission-timed copy of the ACTUAL source cap landing surface:
+// static before the first completed Three.js frame, then ease the original
+// bronze landing into the already-real Floor9 crystal material. Keeping the
+// old/source mesh in its exact roof plane is essential; a new decorative
+// bridge or a HUD tint would not fix the occluded physical ground contact.
+export function observedRetainedOriginalBronzeCover(submittedFrames, visibleSeconds) {
+  if (!Number.isSafeInteger(submittedFrames) || submittedFrames < 0 ||
+      !Number.isFinite(visibleSeconds) || visibleSeconds < 0) return 0;
+  const t = Math.max(0, Math.min(1, (visibleSeconds - .15) / 1.15));
+  return .94 * (1 - t * t * (3 - 2 * t));
+}
 export const THEMES = Object.freeze({
   foundry: { name:'Foundry', sky:0x45333f, fog:0x99796d, accent:0xff9d42, ambient:0xe8e0d3, sun:0xffdfbc },
   ruins: { name:'Sunken Ruins', sky:0x8cb8bd, fog:0xa9c9bd, accent:0x72e0b3, ambient:0xd9f0d3, sun:0xffe5ae },
@@ -1949,6 +1960,15 @@ export function createTowerWorld(){
   // transfer. A completed actual Three.js render is its only activation.
   // Rebuild/dispose/restart cancels the one pending job. No timers or workers.
 
+  // The authored old cap surface and new Floor9 ground occupy the EXACT SAME
+  // authoritative roof. A successful source gate/mesh retention can still
+  // look like a violet scene cut when the newly rebuilt opaque platform
+  // depth-writes over the physically coincident bronze slab. Use only the
+  // original old landing mesh, never a stand-in platform, with a restrained
+  // copied material and display-submission-timed chromatic handoff.
+  // No additional floor, collider, vertex, source tick or shadow pass.
+  // Invalid timestamps/failed renderer submissions cannot fake a completed
+  // on-screen transfer.
   // The actual Floor 8 cap scene used to disappear when Floor 9 rebuilt its
   // world, even though the authentic climber was still at the SAME threshold.
   // Previous original 1x film at c2ce9fcb still hard-cuts the 8->9 crossing.
@@ -2040,6 +2060,36 @@ export function createTowerWorld(){
     // of its collision-aligned source deck). One shared transform keeps them
     // aligned across the old and new chunk origins without duplicating
     // gameplay platforms or introducing new geometry/material allocations.
+    // The real clockwork cap top and the new void ground share a roof
+    // footprint. Without independent material depth ownership, old solid
+    // geometry can survive yet be hidden by the new floor's purple top
+    // surface (as observed in both exact native 1x WebMs).
+    // Copy only the existing bronze deck's material; leave the original
+    // rendered polygons, platform transforms and authoritative ground alone.
+    const oldLanding = materials.landing;
+    const originalDeckMeshes = [];
+    root.traverse(object => {
+      if (object.isMesh && object.material === oldLanding)
+        originalDeckMeshes.push(object);
+    });
+    const bronzeSurface = originalDeckMeshes.length ? oldLanding.clone() : null;
+    if (bronzeSurface) {
+      bronzeSurface.name = 'SourceEarnedOriginalClockworkDeck';
+      bronzeSurface.transparent = true;
+      bronzeSurface.opacity = observedRetainedOriginalBronzeCover(0, 0);
+      bronzeSurface.depthTest = true;
+      bronzeSurface.depthWrite = false;
+      bronzeSurface.polygonOffset = true;
+      bronzeSurface.polygonOffsetFactor = -2;
+      bronzeSurface.polygonOffsetUnits = -2;
+      for (const existingMesh of originalDeckMeshes) {
+        existingMesh.material = bronzeSurface;
+        // The old bronze slab is *coplanar* with actual Floor9 ground.
+        // Render its actual surface in the transparent pass above that
+        // depth, never above the skinned hero or real intervening objects.
+        existingMesh.renderOrder = 2;
+      }
+    }
     const continuity = new THREE.Group();
     continuity.name = 'ObservedGroundedCapGatewayContinuity';
     continuity.add(root,realGate);
@@ -2059,8 +2109,11 @@ export function createTowerWorld(){
     // belong to the world owner and MUST NOT be prematurely disposed.
     const ownedGeometries = new Set([...floorGeometries].filter(g=>allGeometries.has(g)));
     const ownedMaterials = new Set([...floorMaterials].filter(m=>allMaterials.has(m)));
+    if (bronzeSurface) ownedMaterials.add(bronzeSurface);
     group.add(continuity);
     retainedEarnedCap = {root:continuity,guardianGateRetained:true,
+      originalDeckSurface:bronzeSurface,
+      originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
       runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
@@ -2103,6 +2156,9 @@ export function createTowerWorld(){
     }
     if (held.submittedFrames > 0 && Number.isFinite(dt))
       held.visibleSeconds += Math.min(.1,Math.max(0,dt));
+    if (held.originalDeckSurface)
+      held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
+        held.submittedFrames, held.visibleSeconds);
     if (held.submittedFrames >= 2 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
       retireEarnedCap();
   }
@@ -2864,6 +2920,10 @@ export function createTowerWorld(){
     retainedSourceCap:retainedEarnedCap?{
       visible:retainedEarnedCap.root.visible,
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
+      originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
+      originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
+        ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
+      originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
       submittedFrames:retainedEarnedCap.submittedFrames,
