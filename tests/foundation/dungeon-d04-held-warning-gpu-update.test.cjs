@@ -246,3 +246,47 @@ test('repeated D04 scene reset uploads only occupied instance matrices, never un
   assert.ok(meshes.every(m=>!m.instanceMatrix.needsUpdate));
   visual.dispose();
 });
+
+
+test('a newly admitted but still unmeasured sword must not dirty its hidden GPU pool',async()=>{
+ const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ const wrist={isBone:true,getWorldPosition(v){return v.set(0,1.2,0)}};
+ const actor={
+  u:{id:'swordsman',kind:'vanguard',action:'attack',actionTick:11,hp:30},
+  root:{visible:true,position:{x:0,y:0,z:0},rotation:{y:0}},
+  authored:true,assetRoot:{},rigMeleeBones:[{part:'wrist',bone:wrist}]
+ };
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{
+  actorById:id=>id===actor.u.id?actor:null
+ });
+ const trail=meshes[0];
+ const cue=(i,priority=4)=>({
+  id:'1:1:11:swing:swordsman:'+i,sceneKey:'1:1',
+  actorId:'swordsman',tick:11,kind:'swing',visual:'trail',
+  proof:'authority-attempt-not-hit',verified:true,priority,
+  duration:.35,from:{x:9,z:9}
+ });
+ try{
+  const baseline=trail.matrixWrites;
+  trail.instanceMatrix.needsUpdate=false;
+  assert.equal(visual.emit(cue(1)),true);
+  assert.equal(trail.matrixWrites,baseline,
+   'new free instance was hidden at construction: do not rewrite it on a silent sword attempt');
+  assert.equal(trail.instanceMatrix.needsUpdate,false,
+   'a still wrist creates neither drawable sword nor fresh WebGL upload pressure');
+  assert.equal(visual.hasDrawableCue(cue(1).id),false);
+  assert.equal(trail.visible,false);
+  for(let i=2;i<=PHYSICAL_FEEDBACK_POOL_LIMITS.trail;i++)
+   assert.equal(visual.emit(cue(i)),true);
+  assert.equal(trail.matrixWrites,baseline,
+   'all eight hidden attempts should use already-hidden pool slots');
+  assert.equal(visual.stats().instancesByPool.trail,PHYSICAL_FEEDBACK_POOL_LIMITS.trail);
+  assert.equal(visual.emit(cue('preempt',9)),true);
+  assert.equal(trail.matrixWrites,baseline+1,
+   'preempting any OCCUPIED slot still resets its potentially visible matrix');
+  assert.equal(trail.instanceMatrix.needsUpdate,true);
+  assert.equal(visual.stats().reservedInstances,102);
+  assert.equal(visual.stats().drawCalls,7);
+ }finally{visual.dispose()}
+});
