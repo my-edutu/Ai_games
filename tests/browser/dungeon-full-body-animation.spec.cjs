@@ -568,6 +568,7 @@ for(const view of [
     cumulative:t.nativeLegOwnership?.sourceSwingThighAcceptedFrames??0,
     proofs:t.nativeLegOwnership?.sourceSwingThighCurrentFrameProofs??null,
     quietReleaseFrames:t.nativeLegOwnership?.sourceSwingThighEaseOutFrames??0,
+    continuityHoldFrames:t.nativeLegOwnership?.sourceSwingThighHoldFrames??0,
     physicalAfterFrame:t.sourceSolePatchWorld??null}))},null,2))
  });
  for(const t of trace)for(const side of ['left','right']){
@@ -577,7 +578,17 @@ for(const view of [
   expect(proof.sourceInstanceId).toBe(t.sourceId);
   expect(proof.clipName).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
-  if(proof.continuityRelease===true){
+  if(proof.continuityHold===true){
+   // A previously witnessed joint must still improve the real buried toe
+   // while independent original-source measurements preserve BOTH shoes.
+   expect(proof.priorSupportedAngleRad).toBe(proof.angleRad);
+   expect(proof.oppositeFootVerified).toBe(true);
+   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.001);
+   expect(proof.improvementMeters).toBeLessThan(.040001);
+   expect(proof.before?.[side]?.toeY).toBeLessThan(-.055);
+   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
+    proof.before?.[side]?.toeY+.000999);
+  }else if(proof.continuityRelease===true){
    // This is a proven same-source hip RELEASE, not a new >=4mm rescue.
    // Never certify foot contact or require fresh stone penetration here.
    expect(Math.abs(proof.priorSupportedAngleRad)).toBeGreaterThanOrEqual(.0449);
@@ -599,7 +610,11 @@ for(const view of [
   // A larger source thigh candidate is lawful ONLY for a severely buried
   // original weighted toe and must have a still-safe real opposite shoe.
   if(Math.abs(proof.angleRad)>.045001){
-   if(proof.continuityRelease!==true){
+   if(proof.continuityHold===true){
+    expect(proof.before?.[side]?.toeY).toBeLessThan(-.055);
+    expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
+     proof.before?.[side]?.toeY+.000999);
+   }else if(proof.continuityRelease!==true){
     expect(proof.before?.[side]?.toeY).toBeLessThan(-.045);
     expect(proof.after?.[side]?.toeY).toBeGreaterThan(proof.before?.[side]?.toeY+.004);
    }else{
