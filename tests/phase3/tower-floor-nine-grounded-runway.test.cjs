@@ -34,7 +34,7 @@ test('only exact witnessed grounded Floor8→9 source can place 12 successor gro
     [old,{...next,tick:450}],
     [old,{...next,chunkBaseY:null}],
     [old,{...next,worldWidth:0}],
-    [old,{...next,player:{...next.player,x:x+10000}}],
+    [old,{...next,player:{...next.player,x:x+19000}}], // Impossible >18k per fixed step; source must never teleport
     [old,{...next,player:{...next.player,grounded:false}}],
     [old,{...next,player:{...next.player,groundedPlatformId:'f9:p2'}}],
     [{...old,enemies:[]},next],
