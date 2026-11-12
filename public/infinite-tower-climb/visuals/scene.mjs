@@ -2848,6 +2848,12 @@ export function createTowerScene(canvas, settings = {}) {
             next.chunkBaseY, next.worldWidth, 27.65));
       }
     }
+    // Maintain one honest visual path beyond the defeated guardian: the same
+    // 12 non-colliding bronze inlays are rebuilt from the real new-floor
+    // ground at the transition and lit only as the authoritative climber
+    // continues grounded traversal. A restart, airborne step or stale source
+    // retires the visual; it cannot cause floor progression.
+    passage.trackSuccessor(next, options.stale);
     // A landing is observable only across consecutive source snapshots in the
     // same real run/floor. Skipped long intervals and decorative ledge poses
     // cannot invent a contact or shake the camera.
