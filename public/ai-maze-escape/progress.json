@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T00:17:43Z",
+  "updatedAt": "2026-11-12T01:40:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass283 exact-source WebGL 43119043139 SUCCESS: 37/37 native full-resolution screenshot/SHA sidecars verified, including 390px public pressure Pip .515 NDC and complete hazard within strict ±.95. Original A/B shows the connected load bridge lifted above Pip's eyes, but the frontal jaw and repetitive terrace still obscure the full-body story. Pass283 full repo CI 43119043286 FAILED 1/783 real installed-Three checks: rotated captive sleeve corner overhangs its rooted pylon. Pass284 re-seats BOTH full-width moving guide collars 25mm along the swept axis WITHOUT test/geometry budget relaxation; new exact-HEAD source CI/WebGL and independent critic PENDING. Official Nintendo benchmark NOT MET."
+    "summary": "Pass284 exact-source WebGL 43126473211 SUCCEEDED with original 39/39 full-size PNG SHA pairs, but native 390px public pressure remains dominated by paired jaws/tan terrace; Nintendo parity NOT MET. Exact Pass284 full CI 43126473301 FAILED one of 783 installed Three checks: tilted, elevated telescoping sleeve not deeply overlapped with real rooted pylon. Pass285 production slides both same metal/glass supports 60mm lower into true columns without weakening the test or budget; new exact-HEAD full CI/native WebGL visual gate PENDING."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass285: source-bound original Pass284 native WebGL 43126473211 SUCCESS; 39/39 authentic dated SHA PNG pairs matched including before/after gate, full 390 pressure PNG SHA 95d0a26f. Exact Pass284 whole repo CI 43126473301 FAILED 1/783: real raised load-bearing yoke sleeve lacks required 50mm vertical pylon overlap (horizontal containment now fixed). Production move seats both ORIGINAL 0.75m sliding metal-and-glass sleeves 60mm deeper inside rooted pylons, no new meshes/AI/collision changes or weaker world-space Three check. New-source CI/visual acceptance PENDING; official Nintendo visual bar UNMET.",
     "Pass284: original Pass283 GitHub WebGL 43119043139 SUCCESS, 37/37 untouched PNG hashes verified against dated full source sidecars (390px pressure 2026-11-11T23:29:32.686Z SHA c5952a66, Pip .515 NDC, hazard within ±.95; six-run <100). Direct authentic Pass282/283 native image A/B confirms pressure yoke lifts off Pip's helmet, but large near jaw/blank terrace still weaken full-body action. Whole CI 43119043286 782/783 found REAL captive sleeve lateral clearance failure at 0.11rad tilt. Production Pass284 pre-biases both original full-width sleeve/gold relief positions 25mm into rooted pylons while retaining connected counterbalance and unchanged strong installed-Three test, AI/privacy/44px/HUD and resource/crop gates. New exact-source CI/native rendering PENDING; Nintendo benchmark NOT MET.",
     "Pass280 repaired the actual exact-HEAD Pass279 native WebGL blocker: visual run 43094832318 failed before original captures at stale Pass261 two-jaw Z=.12 assertion (125/126 focused tests passed). Strengthened strict new-source physical rail contract to exact mirrored X ±.68, lowered Y -.035 and shared forward Z .44 for both true connected jaw hinges; unchanged Box3/public privacy/geometry <100/six reset, Pip/pressure NDC and 44px requirements. New-source browser images/CI pending and Nintendo benchmark NOT MET.",
     "Pass279 original source-HEAD 4d634f29 native WebGL 43088652575 succeeded: genuine 390px pressure PNG SHA 34eed38a and 37/37 matched SHA pairs, real 390 Pip .515 NDC and full trap within ±.95. Original full-frame critic rejects visual chevron hiding Pip's legs. Move both actual connected sliding/rotating shear jaws forward and lower into existing guide rails (not a CSS or disconnected cosmetic prop); new live render and independent critic PENDING.",
