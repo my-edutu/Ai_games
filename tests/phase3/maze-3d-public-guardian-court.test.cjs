@@ -200,3 +200,44 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
   assert.equal(world.stats().geometryCount,0);
   assert.equal(world.stats().materialCount,0);
 });
+
+
+test('authentic guardian lane lowers ONLY disclosed impassable flanks; hidden, gated and private walls stay sealed',async()=>{
+  const {createMazeWorld}=await load();
+  const s=original();
+  s.visibleCells.push(5,9);
+  s.cells.push(...[5,9].map(cell=>({cell,blocked:true,neighbors:[]})));
+  const truth=JSON.stringify(s),world=createMazeWorld({balanced:true}),baseline=world.stats();
+  world.update(s);
+  assert.equal(world.stats().guardianCausewayTiles,3);
+  assert.equal(world.stats().guardianSightlineParapets,2,
+    'two real publicly blocked side walls gain low SOLID caps, not tall camera obstructions');
+  assert.equal(world.stats().pressureStageParapets,0);
+  assert.equal(world.stats().geometryCount,baseline.geometryCount);
+  assert.equal(world.stats().materialCount,baseline.materialCount);
+  world.update({...s,visibleCells:s.visibleCells.filter(id=>id!==9)});
+  assert.equal(world.stats().guardianSightlineParapets,1,
+    'an undisclosed neighboring wall must retain the normal full solid silhouette');
+  world.update({...s,doors:[{a:7,b:8,open:false}]});
+  assert.equal(world.stats().guardianSightlineParapets,0,
+    'no connected duel or false open flank exists beyond a closed gate');
+  world.update({...s,visibleCells:[6,7,11,5,9]});
+  assert.equal(world.stats().guardianSightlineParapets,0,
+    'hidden guardian cannot preserve an old sightline');
+  world.update({...s,result:{reason:'capture'}});
+  assert.equal(world.stats().guardianSightlineParapets,0);
+  world.update({...s,privateMaze:{cells:[{cell:10,blocked:true}]},secretPath:[6,7,8]});
+  assert.equal(world.stats().guardianSightlineParapets,2,
+    'private truth never adds a decorative opening');
+  for(let i=0;i<6;i++){
+    world.update({...s,runToken:'guardian-opaque-cutaway-'+i});
+    assert.equal(world.stats().guardianSightlineParapets,2);
+    assert.ok(world.stats().geometryCount<100,
+      'six-run installed-Three geometry budget stays strict');
+  }
+  assert.equal(JSON.stringify(s),truth);
+  world.dispose();
+  assert.equal(world.stats().guardianSightlineParapets,0);
+  assert.equal(world.stats().geometryCount,0);
+  assert.equal(world.stats().materialCount,0);
+});
