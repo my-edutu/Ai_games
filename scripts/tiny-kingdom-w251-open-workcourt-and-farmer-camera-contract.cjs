@@ -56,7 +56,7 @@ const camera={Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
 vm.createContext(camera);
 vm.runInContext(js.slice(sightStart,sightEnd)+
  '\nthis.sight=realFarmWorkSightline;',camera);
-const hands=[[20.27,.55,.54],[20.76,.60,.5]];
+const hands=[[20.27,.55,.30],[20.66,.60,.27]]; // real blade-contact bent wheat pocket
 const insideClear=camera.sight([20.4,5,.2],farmer,hands);
 assert.equal(insideClear.cameraInsideField,true);
 assert.equal(insideClear.cropFaceBlockers,0);
