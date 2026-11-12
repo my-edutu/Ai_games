@@ -104,8 +104,15 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   assert.equal(threshold.visible,true);
   effect.update(.3,{stale:true});
   assert.equal(threshold.visible,true);
+  // The original test assumed every attempted CPU frame was painted. Cold
+  // Floor9 WebGL can block for several seconds. A source receipt MUST NOT
+  // expire an arch that has not yet survived an actual renderer.render return.
+  assert.equal(effect.diagnostics().handoffSubmittedFrames,0);
+  assert.equal(effect.noteFrameSubmitted(next,{stale:true}),false);
+  assert.equal(effect.noteFrameSubmitted(next),true);
   for(let n=0;n<15;n++)effect.update(.25);
-  assert.equal(effect.group.visible,false,'bounded memory must retire');
+  assert.equal(effect.group.visible,false,
+    'after a genuine submitted source frame, the bounded visible memory must retire');
  }finally{effect.dispose();}
 });
 test('historic immediate floor change keeps the original short exterior memory instead of inventing a physical gateway',async()=>{
