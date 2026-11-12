@@ -10,6 +10,12 @@ const sample=(mode,i,ms=12)=>({source:SOURCE,feedbackMode:mode,seed,viewport:vie
  raster:{pixelRatio:.75,shadows:false},d04PreviewEnabled:mode==='d04',
  vfxDrawCalls:mode==='d04'?7:0,vfxReservedInstances:mode==='d04'?102:0,
  activeVfxInstances:mode==='d04'?3:0,activeVfxDrawCalls:mode==='d04'?2:0,
+ // Sampled AFTER a real visual advance. These are CPU setMatrixAt calls
+ // and a possible dirty-buffer size, not measured GPU uploads.
+ vfxAdvanceFrames:mode==='d04'?i+1:0,
+ vfxMatrixWrites:mode==='d04'?2:0,vfxDirtyPools:mode==='d04'?1:0,
+ vfxPotentialBufferBytes:mode==='d04'?8*64:0,
+ vfxWritesByPool:mode==='d04'?{trail:0,hit:0,block:0,dust:0,signal:2,projectile:0,spell:0}:{},
  consentedSoundstage:true,previewAudioOptedIn:mode==='d04',recentDeliveryReceipts:[]});
 const arm=(mode)=>({feedbackMode:mode,viewport:view,seed,recorder:{status:'NOT_STARTED',peakConcurrentRecorders:0,videoTracks:0,audioTracks:0},errors:[],samples:[0,1,2,3,4,5].map(i=>sample(mode,i))});
 const verdict=(legacy=arm('legacy'),preview=arm('d04'))=>classifyD04ContinuousModePair({manifest,legacy,preview});
@@ -85,5 +91,41 @@ test('warmup and effect density report separate noncausal renderer distributions
  assert.equal(v.framePressure.preview.noActiveVfxRenderMs.count,2);
  assert.equal(v.framePressure.preview.activeVfxRenderMs.count,4);
  assert.equal(v.framePressure.preview.worstFrame.directRenderMs,1400);
+ assert.equal(v.causedByD04,null);
+});
+
+test('live render stalls without a D04 instance write remain visible, not blamed on effects',()=>{
+ const b=arm('d04');
+ b.samples[5].directRenderMs=2100;
+ b.samples[5].vfxMatrixWrites=0;
+ b.samples[5].vfxDirtyPools=0;
+ b.samples[5].vfxPotentialBufferBytes=0;
+ b.samples[5].vfxWritesByPool.signal=0;
+ const v=verdict(arm('legacy'),b);
+ assert.equal(v.framePressure.preview.worstFrame.directRenderMs,2100);
+ assert.equal(v.framePressure.preview.worstFrame.vfxMatrixWrites,0);
+ assert.equal(v.framePressure.preview.vfxInstancePressure.renderCallsOver400MsWithNoMatrixWrites,1);
+ assert.equal(v.framePressure.preview.vfxInstancePressure.maxPotentialBufferBytes,512);
+ assert.equal(v.causedByD04,null);
+ assert.equal(v.sampleSynchronized,false);
+});
+
+test('unmatched live D04 frame cannot hide excess instance-matrix update pressure',()=>{
+ const b=arm('d04');
+ const rogue=sample('d04',6,1600);
+ rogue.vfxMatrixWrites=103;
+ rogue.vfxDirtyPools=8;
+ rogue.vfxPotentialBufferBytes=6656;
+ rogue.vfxWritesByPool.hit=103;
+ b.samples.push(rogue);
+ const v=verdict(arm('legacy'),b);
+ assert.equal(v.matchedTicks,6);
+ assert.equal(v.status,'LIVE_EFFECT_BUDGET_VIOLATION');
+ assert.ok(v.budgetViolations.some(x=>x.stageIndex===6&&
+  x.kind==='VFX_FRAME_MATRIX_WRITE_CAP'));
+ assert.ok(v.budgetViolations.some(x=>x.stageIndex===6&&
+  x.kind==='VFX_DIRTY_POOL_CAP'));
+ assert.ok(v.budgetViolations.some(x=>x.stageIndex===6&&
+  x.kind==='VFX_DIRTY_BUFFER_BYTES_CAP'));
  assert.equal(v.causedByD04,null);
 });
