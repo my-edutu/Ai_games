@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -2433,6 +2433,14 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  // root-distance-paced licensed shoe action. Both clocks use one frame.
  const walkMixerDelta=planImportedWalkingMixerFrameDelta({...originalStep,sourceStep});
  const walkingBlendRate=planImportedWalkingBlendRate({...originalStep,sourceStep});
+ // Positive HP-loss grants the same exclusive native source-fade treatment:
+ // only Hit_A's crossfade weights advance on bounded visible time; original
+ // injury bones still obey their independently witnessed action age.
+ const injuryFrame=walkingBlendRate===null?planImportedWitnessedHurtMixerFrame({
+  ...originalStep,sourceStep,
+  sourceClipName:actor.activeImportedClipName,
+  verifiedInjury:actor.fullBody?.owner?.injury===true
+ }):null;
  // Decelerate the exiting LICENSED Walking_A as genuine root motion ends,
  // without slowing the one Three.js mixer clock or the incoming Idle/Guard.
  const exit=actor.walkArrivalPendingAction;
@@ -2456,7 +2464,14 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  }
  try{
   if(walkingBlendRate===null){
-   actor.mixer.update(sourceStep);
+   if(injuryFrame&&actor.activeClip){
+    const normalScale=actor.activeClip.getEffectiveTimeScale();
+    actor.activeClip.setEffectiveTimeScale(normalScale*injuryFrame.actionScale);
+    try{actor.mixer.update(injuryFrame.mixerDelta);}
+    finally{actor.activeClip.setEffectiveTimeScale(normalScale);}
+   }else{
+    actor.mixer.update(sourceStep);
+   }
   }else{
    const normalScale=actor.activeClip.getEffectiveTimeScale();
    actor.activeClip.setEffectiveTimeScale(normalScale*walkingBlendRate);
