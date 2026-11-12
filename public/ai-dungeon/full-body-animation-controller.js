@@ -534,6 +534,72 @@ export function chooseOriginalSourceStanceAppliedWitness({
  return best;
 }
 
+/**
+ * One authentic original Walking_A loaded shoe can bury BOTH weighted
+ * outsole ends when its ankle pitch only trades toe penetration for heel
+ * penetration. A source-derived LOWERLEG hinge may be tried, but only after
+ * the exact licensed joint, inverse binds, source knee axis and world bend
+ * plane have been independently verified by the Three.js adapter.
+ *
+ * This chooses between at most two genuinely sampled, reversible ±45mrad
+ * original bone poses. The opposite original foot is read simultaneously.
+ * No target/IK step, artificial contact or authoritative translation exists.
+ */
+export function chooseOriginalSourceLoadedKneeWitness({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ sourceHingeVerified=false,sourceInstanceSame=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,
+ floorTopY=NaN,side='',previousCorrectionRad=0,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||ownerLocomotion!==true||
+  sourceHingeVerified!==true||sourceInstanceSame!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![sourceWeight,rootTravel,frameAge,floorTopY,previousCorrectionRad].every(finite)||
+  sourceWeight<.65||sourceWeight>1.001||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
+  Math.abs(floorTopY+.02)>.005||Math.abs(previousCorrectionRad)>.04501||
+  !['left','right'].includes(side)||!Array.isArray(trials)||
+  trials.length<1||trials.length>2||!before)return null;
+ const first=before[side],other=before[side==='left'?'right':'left'];
+ if(!first||!other||![first.heelY,first.toeY,other.heelY,other.toeY].every(finite))return null;
+ const heel=first.heelY-floorTopY,toe=first.toeY-floorTopY;
+ // An airborne or already well-grounded shoe must retain the source pose.
+ if(heel<-.045||heel>.035||toe<-.045||toe>.035||
+  Math.abs(heel-toe)>.055||Math.min(heel,toe)>-.008)return null;
+ const beforeWorst=Math.max(Math.abs(heel),Math.abs(toe));
+ let best=null;
+ for(const trial of trials){
+  const signed=trial?.signed,after=trial?.after,loaded=after?.[side],
+   opposite=after?.[side==='left'?'right':'left'];
+  if(!finite(signed)||Math.abs(Math.abs(signed)-.045)>.00001||
+   (previousCorrectionRad!==0&&Math.sign(signed)!==Math.sign(previousCorrectionRad))||
+   !loaded||!opposite||
+   ![loaded.heelY,loaded.toeY,opposite.heelY,opposite.toeY].every(finite))continue;
+  // The other shoe cannot silently teleport when only one source knee turns.
+  if(Math.abs(opposite.heelY-other.heelY)>.0025||
+   Math.abs(opposite.toeY-other.toeY)>.0025)continue;
+  const verified=verifyRestoredRootOriginalSourceSoleSafety({
+   source:'same-original-GLB-restored-root',floorTopY,before,after
+  });
+  if(!verified||loaded.heelY<floorTopY-.055||
+   loaded.toeY<floorTopY-.055||
+   loaded.heelY>floorTopY+.035||loaded.toeY>floorTopY+.035)continue;
+  const afterWorst=Math.max(Math.abs(loaded.heelY-floorTopY),
+   Math.abs(loaded.toeY-floorTopY));
+  const improvement=beforeWorst-afterWorst;
+  if(improvement<.0015||
+   loaded.heelY<first.heelY-.004||loaded.toeY<first.toeY-.004)continue;
+  if(!best||afterWorst<best.afterWorst)
+   best=Object.freeze({delta:signed,side,
+    beforeHeelY:first.heelY,beforeToeY:first.toeY,
+    afterHeelY:loaded.heelY,afterToeY:loaded.toeY,
+    beforeWorst,afterWorst,improvementMeters:improvement,
+    feetVerified:verified.feetVerified,contactLocked:false});
+ }
+ return best;
+}
+
 export function planOriginalSourceStanceAnkleRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  rootTravel=NaN,frameAge=NaN,alive=false,visible=false,teleport=false,
