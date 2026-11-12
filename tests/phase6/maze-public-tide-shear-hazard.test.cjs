@@ -73,6 +73,20 @@ test('published trap owns TWO connected sculpted 3D jaws that respond to actual 
         'the primary danger face is substantial enough to be meaningful in real portrait output');
       assert.ok(brace.scale.x>=.60 && talon.position.y>blade.position.y,
         'connected diagonal shoulder ends in a distinct swept tooth');
+      const rib=jaw.getObjectByName('Published tide-shear open-web structural rib');
+      assert.ok(rib?.isMesh && rib.parent===jaw,
+        'each source-driven pressure hinge owns a truly connected rear structural rib');
+      assert.ok(rib.scale.x<=.15 && rib.scale.y>=1.0
+        && rib.position.z<blade.position.z-.30,
+        'the full-height open-web support is slender and behind the actual front cutter');
+      assert.ok(blade.scale.x>=.34 && blade.scale.x<=.42
+        && blade.scale.y>=1.20 && blade.scale.z<=.27,
+        'real moving ivory cutter remains tall but is no longer a broad opaque V');
+      assert.ok(blade.position.x*(i===0?-1:1)<0
+        && Math.abs(blade.position.x)+blade.scale.x/2<.70,
+        'both opposing cutters remain inward-facing within the true published trap tile');
+      assert.ok(inlay.scale.y>=1.1 && inlay.position.z>blade.position.z,
+        'the real coral danger edge stays exposed ahead of the connected blade');
       assert.notEqual(blade.material,inlay.material,
         'the claw has an ivory silhouette and a separate contrasting real danger face');
       assert.ok(Math.abs(blade.position.x)+blade.scale.x/2<.80,

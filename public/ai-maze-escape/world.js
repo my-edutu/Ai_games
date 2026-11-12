@@ -2426,10 +2426,19 @@ export function createMazeWorld(options = {}) {
       // route, damage, AI, collision or material/geometry class is created.
       // The reduced count is deliberate: silhouette and causality over clutter.
       mesh(jaw, cylinder, darkMetal, 0, .03, 0, .14, .24, .14);
+      // Pass286: the authentic source-bound 390px public pressure image
+      // exposed a giant opaque ivory V across Pip and the moving deck.
+      // Keep BOTH true hinged shear mechanisms and their inward cutting
+      // edges, but rebuild their heavy front plates as connected open-web
+      // forged jaws. The freed center is REAL 3D negative space, not CSS
+      // transparency, missing hazard, invented safe passage or camera crop.
       mesh(jaw, bevel, deepStone,
-        -side * .10, .34, 0, .54, .58, .60);
+        -side * .10, .31, -.12, .38, .46, .42);
+      const loadRib = mesh(jaw, bevel, darkMetal,
+        -side * .085, .84, -.085, .13, 1.08, .15, 0, 0, side * .13);
+      loadRib.name = 'Published tide-shear open-web structural rib';
       const forearm = mesh(jaw, bevel, darkMetal,
-        -side * .27, .65, .25, .62, .27, .32, 0, 0, -side * .23);
+        -side * .27, .65, .25, .62, .18, .25, 0, 0, -side * .23);
       forearm.name = 'Published tide-shear inward brace';
       const vane = mesh(jaw, bevel, side < 0 ? seaGlass : jade,
         -side * .23, 1.06, .16, .22, .84, .14, 0, 0, side * .13);
@@ -2440,13 +2449,13 @@ export function createMazeWorld(options = {}) {
       // This replaces the prior mobile shard pile with two large coherent
       // parts, not extra visual effects, warnings or collision authority.
       const blade = mesh(jaw, bevel, lightStone,
-        -side * .28, 1.03, .43, .72, 1.28, .32, 0, 0, side * .13);
+        -side * .39, 1.04, .36, .40, 1.24, .26, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .56, 1.03, .625, .18, 1.17, .065, 0, 0, side * .13);
+        -side * .52, 1.04, .545, .135, 1.16, .060, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
       mesh(jaw, bevel, darkMetal,
-        -side * .30, .55, .63, .42, .10, .10);
+        -side * .30, .55, .56, .28, .08, .10);
       const fang = mesh(jaw, cone, gold,
         -side * .32, 1.70, .40, .13, .18, .13, 0, 0, -side * .20);
       fang.name = 'Published tide-shear warning fang';
