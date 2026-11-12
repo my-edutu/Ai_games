@@ -71,10 +71,18 @@ export function shouldRetainNativeRecoveryClip(continuation,{
  * Only a cosmetic root offset is returned: never authority, hitbox or audio.
  * World-relative sampled bone and authoritative root movement fail closed.
  */
+/**
+ * Plant the genuine sword-side ankle while sharing the visual root load with
+ * the other ORIGINAL imported ankle when that bone is demonstrably grounded.
+ * A raised, missing, stale or widely displaced support foot gets NO vote.
+ * Both source feet retain their artist-authored independent skeletal motion;
+ * the common pivot correction never exceeds 9.5 cm and cannot move collision.
+ */
 export function planNativeFootPlant(previous,{
- mode=null,age=null,actionTick=null,rootPosition=null,footPosition=null,enabled=true
+ mode=null,age=null,actionTick=null,rootPosition=null,
+ footPosition=null,supportFootPosition=null,enabled=true
 }={}){
- const off=Object.freeze({memory:null,dx:0,dz:0,locked:false});
+ const off=Object.freeze({memory:null,dx:0,dz:0,locked:false,supportEngaged:false});
  if(!enabled||!['attack','recovery'].includes(mode)||
   !Number.isSafeInteger(actionTick)||actionTick<0||
   !Number.isFinite(age)||age<0||age>=.62||
@@ -84,14 +92,33 @@ export function planNativeFootPlant(previous,{
  const same=previous?.actionTick===actionTick&&
   [previous.rootX,previous.rootZ,previous.footX,previous.footZ].every(Number.isFinite)&&
   Math.hypot(rootX-previous.rootX,rootZ-previous.rootZ)<=.065;
+ const supportPresent=[supportFootPosition?.x,supportFootPosition?.y,supportFootPosition?.z,
+  footPosition?.y].every(Number.isFinite);
+ const groundedTogether=supportPresent&&
+  Math.abs(supportFootPosition.y-footPosition.y)<=.12;
  const memory=same?previous:Object.freeze({
-  actionTick,rootX,rootZ,footX:footPosition.x,footZ:footPosition.z
+  actionTick,rootX,rootZ,footX:footPosition.x,footZ:footPosition.z,
+  ...(groundedTogether?{
+   supportX:supportFootPosition.x,supportY:supportFootPosition.y,
+   supportZ:supportFootPosition.z
+  }:{})
  });
- if(!same)return Object.freeze({memory,dx:0,dz:0,locked:false});
- const dx=memory.footX-footPosition.x,dz=memory.footZ-footPosition.z;
+ if(!same)return Object.freeze({memory,dx:0,dz:0,locked:false,supportEngaged:false});
+ let dx=memory.footX-footPosition.x,dz=memory.footZ-footPosition.z;
+ const supportEligible=groundedTogether&&
+  [memory.supportX,memory.supportY,memory.supportZ].every(Number.isFinite)&&
+  Math.abs(supportFootPosition.y-memory.supportY)<=.09&&
+  Math.hypot(memory.supportX-supportFootPosition.x,memory.supportZ-supportFootPosition.z)<=.15;
+ if(supportEligible){
+  // Support contributes less on the attack release and settles into recovery.
+  // Never average ungrounded feet or synthesize IK, stride or contact.
+  const supportWeight=mode==='recovery'?.30:.35;
+  dx=dx*(1-supportWeight)+(memory.supportX-supportFootPosition.x)*supportWeight;
+  dz=dz*(1-supportWeight)+(memory.supportZ-supportFootPosition.z)*supportWeight;
+ }
  const length=Math.hypot(dx,dz),limit=.095;
  const fade=mode==='recovery'?Math.max(0,Math.min(1,(.62-age)/.18)):1;
  const scale=length>limit?limit/length:1;
  return Object.freeze({memory,dx:dx*scale*fade,dz:dz*scale*fade,
-  locked:length>1e-5&&fade>0});
+  locked:length>1e-5&&fade>0,supportEngaged:supportEligible});
 }
