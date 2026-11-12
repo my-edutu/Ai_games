@@ -4040,3 +4040,14 @@ test('RED: real original Walking_A swing upperleg releases its witnessed angle g
  assert.match(live,/sourceSwingThighEaseOutFrames/,
   'witnessed continuity releases need their own bounded readable evidence');
 });
+
+test('quiet-return reaches live original source thigh even once the skinned toe is near stone',async()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',begin);
+ const stage=renderer.slice(begin,end);
+ assert.ok(begin>0&&end>begin,'inspect the actual native Three.js source thigh stage');
+ assert.match(stage,/\(swing\.toeY>=-\.028&&\(!priorProof\|\|swing\.toeY>\.015\)\)/,
+  'true prior source proof may ease a recovered original toe without an unbounded new hip rescue');
+ assert.match(stage,/planOriginalSourceSwingThighEaseOut\(/);
+});

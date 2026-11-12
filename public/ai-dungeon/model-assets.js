@@ -1870,9 +1870,13 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  // vertices really represents an airborne heel + stone-level opposite shoe.
  if(!swing||!loaded||![swing.heelY,swing.toeY,loaded.heelY,loaded.toeY]
   .every(Number.isFinite)||swing.heelY<.055||swing.heelY>.34||
-  swing.toeY>=-.028||swing.toeY<-.18||
+  (swing.toeY>=-.028&&(!priorProof||swing.toeY>.015))||swing.toeY<-.18||
   swing.heelY-swing.toeY<.08||
   ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015))return;
+ // A previously proven native upperleg can RETURN to source rest after
+ // its original swing toe clears stone. That is a verified quiet release,
+ // not a new clearance rescue. Still reject any unproven near-floor foot,
+ // and cap this only to existing source instance/clip correction memory.
  // The loaded shoe may already have an independently VERIFIED original
  // stance-ankle correction in this displayed Mixer frame. Re-read its
  // authentic skinned sole now, and insist that current clone, clip, heel
