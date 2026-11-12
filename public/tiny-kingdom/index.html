@@ -11273,6 +11273,125 @@ function grainwardTradehouseEnvelope(stall,index,profile){
   reusesAuthenticStall:true,addedDeliveries:0,
   navigationChanged:false,marketFrontOpen:true};
 }
+// W257: COMPLETE vernacular backs and sheltered artisan work bays for the
+// TWO already-existing textile/herb sellers. Same original stall footprints,
+// counter, pitched linen roof and public market circulation. Genuine open
+// lower buyer frontage stays unblocked; there are NO new collision objects,
+// simulated merchants, goods, jobs, orders, RNG streams or GPU allocations.
+// This geometry is built once in the existing seasonal civic WebGL VBO.
+function grainwardArtisanShopEnvelope(stall,index,profile){
+ if((index!==2&&index!==3)||profile.structural)
+  throw Error('W257 requires a real original open-front artisan stall');
+ const {x,z,face}=stall,y=terrain(x,z),before=data.length,
+  stone=[rgb(0x9e9584),rgb(0xada18e),rgb(0x8a8379)],
+  plaster=rgb(index===2?0xbfb49f:0xc1b69a),
+  oak=rgb(index===2?0x645446:0x71533f),
+  oakLight=rgb(index===2?0x988576:0xac9070),
+  rear=z-face*.844,roof=y+profile.eave;
+ let wallPanels=0,joinery=0;
+ // Three real short stone plinth courses under the EXISTING back half-wall.
+ // Natural exposed joints read from the original ROAD/STONE atlas, instead
+ // of one flat dark cube or an invented storeroom beyond the nav footprint.
+ materialScope(MATERIAL.STONE,()=>{
+  for(let course=0;course<3;course++){
+   const lo=y+.09+course*.145,hi=lo+.136;
+   for(let cell=0;cell<5;cell++){
+    const a=x-1.16+cell*.464,b=a+.462,zz=rear-face*.018;
+    const p=[a,lo,zz],q=[b,lo,zz],r=[b,hi,zz],t=[a,hi,zz];
+    if(face<0)quad(t,r,q,p,stone[(course+cell+index)%3]);
+    else quad(p,q,r,t,stone[(course+cell+index)%3]);
+    wallPanels++;
+   }
+  }
+  // Low lateral footings only at the BACK of each current selling stall.
+  // No new stone crosses the open buyer counter or the human-scale aisle.
+  for(const side of [-1,1])for(let course=0;course<2;course++){
+   const xx=x+side*1.20,lo=y+.08+course*.18,hi=lo+.174;
+   const back=rear+face*.09,front=z-face*.05;
+   const p=[xx,lo,back],q=[xx,lo,front],
+    r=[xx,hi,front],t=[xx,hi,back];
+   if(side<0)quad(p,q,r,t,stone[(course+index)%3]);
+   else quad(t,r,q,p,stone[(course+index)%3]);
+   wallPanels++;
+  }
+ });
+ materialScope(MATERIAL.PLASTER,()=>{
+  // Wattle returns INWARD from the real rear gable, with two short side
+  // elevations above the public counter height. All lower approach remains
+  // open and passable; this is the existing stall, not a phantom house.
+  for(const side of [-1,1]){
+   const xx=x+side*1.185,back=rear+face*.085,
+    front=z-face*.055,lo=y+1.12,hi=roof-.16;
+   const a=[xx,lo,back],b=[xx,lo,front],
+    c=[xx,hi,front],d=[xx,hi,back];
+   if(side<0)quad(a,b,c,d,plaster);else quad(d,c,b,a,plaster);
+   wallPanels++;
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Continuous actual two-sided timber ring plates, four back-corner
+  // verticals and bracing; no new post is placed at the shopper's front.
+  for(const side of [-1,1]){
+   const xx=x+side*1.195,z0=rear+face*.07,
+    z1=z-face*.045;
+   box(xx,y+1.10,(z0+z1)*.5,.095,.12,Math.abs(z1-z0)+.08,oak);
+   box(xx,roof-.18,(z0+z1)*.5,.105,.14,Math.abs(z1-z0)+.08,oakLight);
+   for(const zz of [z0,z1]){
+    box(xx,y+1.12+(roof-1.22-y)*.5,zz,.12,roof-y-1.22,.13,oak);
+    joinery++;
+   }
+   limbSegment([xx,y+1.19,z0],[xx,roof-.22,z1],.050,oakLight,4);
+   limbSegment([xx,y+1.19,z1],[xx,roof-.22,z0],.044,oak,4);
+   joinery+=2;
+  }
+  // Two characteristic but structurally honest rear louvred vents; neither
+  // is a glowing inhabited home window or unearned working-stock display.
+  for(const side of [-1,1]){
+   const xx=x+side*.56,zz=rear-face*.042;
+   box(xx,y+1.46,zz,.44,.38,.055,rgb(0x55544b));
+   for(let course=0;course<2;course++)
+    box(xx,y+1.36+course*.13,zz-face*.034,.49,.043,.075,oakLight);
+  }
+  // Timber fascia over the PREEXISTING open frontage: real merchants,
+  // counter goods, buyer eye line and farmer freight remain unobstructed.
+  const front=z+face*.96;
+  box(x,roof-.21,front,2.49,.14,.14,oak);
+  for(const side of [-1,1]){
+   limbSegment([x+side*1.18,roof-.61,front-face*.05],
+    [x+side*.82,roof-.19,front-face*.05],.051,oakLight,4);
+   joinery++;
+  }
+ });
+ // The formerly see-through tent has a real timber-purlin SOFFIT beneath
+ // its original linen slopes: low-cost physical depth from walking views,
+ // with both pitch halves visible under ordinary back-face culling.
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1])for(let course=0;course<3;course++){
+   const a=course/3,b=(course+1)/3,
+    xa=x+side*1.47*(1-a),xb=x+side*1.47*(1-b),
+    ya=roof+(profile.peak-profile.eave)*a-.045,
+    yb=roof+(profile.peak-profile.eave)*b-.045,
+    v0=[xa,ya,z-1.08],v1=[xb,yb,z-1.08],
+    v2=[xb,yb,z+1.08],v3=[xa,ya,z+1.08];
+   if(side<0)quad(v0,v1,v2,v3,oakLight);
+   else quad(v3,v2,v1,v0,oakLight);
+   wallPanels++;
+  }
+ });
+ const triangles=(data.length-before)/30;
+ if(!Number.isInteger(triangles)||triangles<100||triangles>420)
+  throw Error('W257 artisan shell exceeds retained static scene budget');
+ marketQuarterStats.artisanShells++;
+ marketQuarterStats.artisanShellTriangles+=triangles;
+ marketQuarterStats.artisanShellWallPanels+=wallPanels;
+ marketQuarterStats.artisanShellJoinery+=joinery;
+ return {source:'two-original-sheltered-wattle-and-oak-artisan-stalls',
+  originalMarketStallIndex:index,triangles,wallPanels,joinery,
+  onlyOriginalShop:true,openGroundBuyerFace:true,
+  addedWorkers:0,addedInventory:0,changesAuthority:false,
+  navigationChanged:false,newCollidablePosts:0,
+  addedDrawCalls:0,noNewGpuBuffers:true};
+}
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
  const profile=marketStallProfile(index);
@@ -11375,6 +11494,7 @@ function marketStall(s,index){
  });
  if(profile.structural)grainwardStructuralDormer(x,z,y+profile.eave,y+profile.peak,1.53,z+face*1.17,face,index,.91,'shop');
  if(profile.structural)grainwardTradehouseEnvelope(s,index,profile);
+ if(!profile.structural)grainwardArtisanShopEnvelope(s,index,profile);
   // Keep each original trade name and carved glyph in its original position.
  const boardZ=z+face*1.03,signY=y+1.78;
  materialScope(MATERIAL.WOOD,()=>{
@@ -11394,7 +11514,9 @@ function marketStall(s,index){
  else marketQuarterStats.canvasRoofs++;
 }
 function marketQuarter(){
- marketQuarterStats={tradehouseShells:0,tradehouseTriangles:0,tradehouseWindows:0,
+ marketQuarterStats={artisanShells:0,artisanShellTriangles:0,
+  artisanShellWallPanels:0,artisanShellJoinery:0,
+  tradehouseShells:0,tradehouseTriangles:0,tradehouseWindows:0,
   stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
   carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
