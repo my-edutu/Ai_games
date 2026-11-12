@@ -1897,8 +1897,15 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  // must independently pass BOTH source shoes' XZ/heel/toe safety checks.
  const severeBurial=swing.toeY<-.045;
  const trials=[];
+ // At most FIVE original weighted two-shoe readbacks; never guess an IK foot.
+ // A 135mrad follow-up is eligible only after a previous, same-signed
+ // successful 90mrad source correction on this original upperleg.
+ const angles=severeBurial?[-.045,.045,-.09,.09]:[-.045,.045];
+ if(severeBurial&&Number.isFinite(previous)&&
+  Math.abs(previous)>=.089&&Math.abs(previous)<=.13500001)
+  angles.push(Math.sign(previous)*.135);
  try{
-  for(const delta of severeBurial?[-.045,.045,-.09,.09]:[-.045,.045]){
+  for(const delta of angles){
    upper.bone.quaternion.copy(original).multiply(
     trialQuat.setFromAxisAngle(sourceAxis,delta));
    upper.bone.updateWorldMatrix(true,true);
@@ -1944,7 +1951,8 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
   actor.sourceSwingToeLiftProof=reconciled;
  }
  actor.sourceSwingThighCurrentFrameProofs[side]={
-  ...verified,source:'licensed-Walking_A-original-upperleg-dual-shoe',
+  ...verified,priorSupportedAngleRad:previous,
+  source:'licensed-Walking_A-original-upperleg-dual-shoe',
   sourceInstanceId:actor.assetRoot.uuid,clipName:actor.activeImportedClipName,
   sourceUpperlegName:upper.bone.name,sourceTrack:axisAudit.trackName,
   sourceAxis:axisAudit.axis,bindLengths:bind,

@@ -625,8 +625,8 @@ export function chooseOriginalSourceSwingThighSupport({
   sourceWeight<.65||sourceWeight>1.001||rootTravel<.008||
   rootTravel>.24||frameAge<0||frameAge>.18||
   Math.abs(floorTopY+.02)>.005||
-  Math.abs(previousCorrectionRad)>.09000001||
-  !before||!Array.isArray(trials)||trials.length<1||trials.length>4)return null;
+  Math.abs(previousCorrectionRad)>.13500001||
+  !before||!Array.isArray(trials)||trials.length<1||trials.length>5)return null;
  const opposite=side==='left'?'right':'left';
  const goodPoint=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
  const goodFoot=f=>f&&[f.heelY,f.toeY].every(finite)&&
@@ -645,8 +645,16 @@ export function chooseOriginalSourceSwingThighSupport({
   const severeBurial=source.toeY<floorTopY-.025;
   const isNormalTrial=Math.abs(Math.abs(delta)-.045)<=.00001;
   const isSevereTrial=severeBurial&&Math.abs(Math.abs(delta)-.09)<=.00001;
+  // Only a PREVIOUSLY ACCEPTED, same-signed 90mrad original source thigh
+  // may probe 135mrad one frame later, with max 45mrad extra travel.
+  const isContinuedTrial=severeBurial&&
+   Math.abs(Math.abs(delta)-.135)<=.00001&&
+   Math.abs(previousCorrectionRad)>=.089&&
+   Math.abs(previousCorrectionRad)<=.13500001&&
+   Math.sign(delta)===Math.sign(previousCorrectionRad)&&
+   Math.abs(delta-previousCorrectionRad)<=.04500001;
   const allowableStep=severeBurial?.09000001:.04500001;
-  if(!finite(delta)||(!isNormalTrial&&!isSevereTrial)||
+  if(!finite(delta)||(!isNormalTrial&&!isSevereTrial&&!isContinuedTrial)||
    Math.abs(delta-previousCorrectionRad)>allowableStep||
    (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||
    !goodFoot(after?.[side])||!goodFoot(after?.[opposite]))continue;

@@ -577,7 +577,12 @@ for(const view of [
   expect(proof.clipName).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
-  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.090001);
+  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.135001);
+  if(Math.abs(proof.angleRad)>.090001){
+   expect(Math.abs(proof.priorSupportedAngleRad)).toBeGreaterThanOrEqual(.089);
+   expect(Math.sign(proof.angleRad)).toBe(Math.sign(proof.priorSupportedAngleRad));
+   expect(Math.abs(proof.angleRad-proof.priorSupportedAngleRad)).toBeLessThanOrEqual(.045001);
+  }
   // A larger source thigh candidate is lawful ONLY for a severely buried
   // original weighted toe and must have a still-safe real opposite shoe.
   if(Math.abs(proof.angleRad)>.045001){
