@@ -1,4 +1,41 @@
 {
+  "p0SubmittedFrameGroundedPassageVisibleBudget20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeCode": "4e8623b2481e56fb23dc146ab20d4f19c1dec755",
+    "existingDraftPr": "https://github.com/my-edutu/Ai_games/pull/68",
+    "authenticPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43156973707 — all 8 original 60+s films finished, strict event-to-native guardian pairing FAILED 0/2",
+    "originalVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43156973707/artifacts/13915549546 — actual 960x600 and 390x844 candidate guardian videos inspected near 21–30s",
+    "observedFilmDefect": "Bronze guardian machinery obstructs hero and the depicted 8→9 transition cuts from cap to purple Floor9 without persuasive unbroken grounded passage.",
+    "sourceTick451ToOriginalDrawnFloor9Seconds": {
+      "desktop": 3.071,
+      "portrait": 2.253,
+      "limitation": "Calibrated source timestamp versus sampled native video floor appearance; no GPU-present or device-FPS assertion"
+    },
+    "originalColdBrowserAcceptedToThreeReturnMs": {
+      "desktop": 1323,
+      "portrait": 1535,
+      "limitation": "Original browser/Three.js work; not GPU presentation or real device frame rate"
+    },
+    "primarySourceBug": "A source-qualified grounded Floor9 handoff inherited 1.05–1.65 seconds of its 2.9s lifetime and time-based camera weight; slow initial rendering could consume its doorway/camera beat before first successful floor9 scene submission.",
+    "testFirst": "b6d19e57a4b967286e5f8e64bb87d7ae137de0c6 — https://github.com/my-edutu/Ai_games/actions/runs/43163242694 — FAILED 3 targeted new contracts as expected before code",
+    "playableCodeCommits": [
+      "d281103820ab0110b15a24f372c8f04c9e75539f",
+      "eb100fc9b8bb78423a7106cb9a69b0b6b659750b"
+    ],
+    "actualChange": "Existing authentic grounded cleared arch and camera weight now reserve a bounded 1.65s presentation interval until exact source-matched successful Three renderer submission; 6s never-submitted timeout; wrong run/floor/tick, stale, legacy and recovery never claim presented frames. All authoritative physics/guardian/crusher/floor progression untouched.",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43163578785 — PENDING at evidence authorship, do not claim green",
+    "review": "docs/reviews/2026-11-12-tower-pr68-source-submitted-grounded-handoff-lifetime.md",
+    "candidateAfterOriginalMovies": "NOT YET VERIFIED — request fresh immutable 9-job original film on capture-request update; strict native comparison remains OPEN",
+    "independentFreshBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect next exact-SHA full-motion 960x600/390x844 original 60s+ 8→9 source->Three->native floor event plus guardians, moving, outcome and restart; correct remaining 0/2 timing and clutter before stage P1. Never claim render-return equals visible video."
+  },
   "p0OriginalPackedRigidVertexStream20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
