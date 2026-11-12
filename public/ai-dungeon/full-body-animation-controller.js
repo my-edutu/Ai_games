@@ -1493,6 +1493,50 @@ export function planImportedWalkArrivalFreeze({previousMode='idle',nextMode='idl
    frameInterval,teleport,reducedMotion,visible});
 }
 
+
+/**
+ * A legitimate source attack/cast can interrupt Walking_A while the previous
+ * 41-joint walking action is still crossfading into the new source clip.
+ * When original renderer evidence proves the root has actually halted,
+ * freeze ONLY that outgoing original walk phase, never the incoming native
+ * sword, bow or spell clip. Do not assert a planted sole or alter authority.
+ * Missing current action tick/owner, non-moving source evidence, teleport or
+ * uncertain imported clip fails closed.
+ */
+export function planImportedCombatWalkStop({
+ previousMode='idle',nextMode='idle',sourceClipName='',
+ actionTick=null,ownerAuthorized=false,groundedMoving=false,
+ groundedTravel=NaN,frameInterval=NaN,alive=true,visible=true,
+ teleport=false,reducedMotion=false
+}={}){
+ return previousMode==='move'&&['attack','cast'].includes(nextMode)&&
+  sourceClipName==='Walking_A'&&Number.isSafeInteger(actionTick)&&actionTick>=0&&
+  ownerAuthorized===true&&alive===true&&
+  finite(frameInterval)&&frameInterval>0&&frameInterval<=.35&&
+  planSourceWalkMicroArrival({groundedMoving,groundedTravel,
+   frameInterval,visible,teleport,reducedMotion});
+}
+
+/** Same original source action, but a frame later: first finish genuinely
+ * witnessed root movement, then stop the outgoing clip iff its starting
+ * combat action tick still owns the pose and its source weight is positive. */
+export function shouldFreezeDeferredImportedCombatWalk({
+ targetMode='idle',currentMode='idle',clipName='',targetTick=null,
+ currentTick=null,ownerAuthorized=false,sourceWeight=NaN,
+ sourceRunning=false,sourcePaused=false,groundedMoving=false,
+ groundedTravel=NaN,frameInterval=NaN,alive=true,visible=true,
+ teleport=false,reducedMotion=false
+}={}){
+ return currentMode===targetMode&&
+  Number.isSafeInteger(targetTick)&&targetTick>=0&&targetTick===currentTick&&
+  finite(sourceWeight)&&sourceWeight>0&&sourceWeight<=1&&
+  sourceRunning===true&&sourcePaused===false&&
+  planImportedCombatWalkStop({previousMode:'move',nextMode:targetMode,
+   sourceClipName:clipName,actionTick:currentTick,ownerAuthorized,
+   groundedMoving,groundedTravel,frameInterval,alive,visible,
+   teleport,reducedMotion});
+}
+
 /**
  * Real source walk fades can begin while the visual root still travels a few
  * centimetres. Freeze ONLY the outgoing licensed Walking_A clip after the
