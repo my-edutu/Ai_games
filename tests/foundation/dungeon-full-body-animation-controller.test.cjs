@@ -3004,7 +3004,7 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  // This is real captured geometry, not a hypothetical floor or foot lock.
  const desktop={mode:'move',sourceClipName:'Walking_A',sourceWeight:.76,
   ownerLocomotion:true,rootTravel:.0385,frameAge:.04,
-  floorTopY:-.02,alive:true,visible:true,teleport:false,
+  floorTopY:-.02,floorEvidence:'authored-cube-floor-top',alive:true,visible:true,teleport:false,
   reducedMotion:false,interrupted:false,previousLiftMeters:0,
   left:{heelY:.1449076,toeY:-.1177656},
   right:{heelY:-.0340313,toeY:-.0511265}};
