@@ -9182,16 +9182,32 @@ function citizenRigPose(p){
 }
 // W47 real citizen footwear: rotate the ALREADY EXISTING boot mesh
 // around its sole heel/toe contact, with coherent normals and no extra faces.
+// W250: one connected tapered shoe last, not a box glued to each actual
+// animated foot. Its same 14 triangles replace the old cuboid+toe patch.
+// The original real ankle roll rotates every vertex and normal in-place.
 function renderRollingBoot(cx,cy,cz,width,height,depth,col,leg){
  const first=data.length;
  materialScope(MATERIAL.GENERAL,()=>{
-  box(cx,cy,cz,width,height,depth,col);
-  // Soft, narrow medieval toe cap above the existing planted sole.
-  const shade=col.map(v=>v*.83);
-  quad([cx-width*.46,cy-height*.13,cz+depth*.29],
-   [cx+width*.46,cy-height*.13,cz+depth*.29],
-   [cx+width*.36,cy-height*.27,cz+depth*.52],
-   [cx-width*.36,cy-height*.27,cz+depth*.52],shade);
+  const upper=col.map(v=>Math.min(1,v*1.16)),
+   outsole=col.map(v=>v*.70),side=col.map(v=>v*.87);
+  const heel=cz-depth*.46,instep=cz+depth*.04,toe=cz+depth*.54;
+  const floor=cy-height*.50;
+  const vertex=(x,y,z)=>[cx+x,y,z];
+  const a0=vertex(-width*.43,floor,heel),a1=vertex(width*.43,floor,heel);
+  const a2=vertex(-width*.43,cy+height*.50,heel),
+   a3=vertex(width*.43,cy+height*.50,heel);
+  const b0=vertex(-width*.47,floor,instep),b1=vertex(width*.47,floor,instep);
+  const b2=vertex(-width*.42,cy+height*.19,instep),
+   b3=vertex(width*.42,cy+height*.19,instep);
+  const c0=vertex(-width*.35,floor+.013*height,toe),
+   c1=vertex(width*.35,floor+.013*height,toe);
+  const c2=vertex(-width*.34,cy+height*.025,toe),
+   c3=vertex(width*.34,cy+height*.025,toe);
+  // Instep rises to the ankle while a narrowed toe clears the ground.
+  quad(a3,a2,b2,b3,upper);quad(b3,b2,c2,c3,upper);
+  quad(a0,b0,b2,a2,side);quad(b0,c0,c2,b2,side);
+  quad(a3,b3,b1,a1,side);quad(b3,c3,c1,b1,side);
+  quad(a2,a3,a1,a0,outsole);
  });
  const roll=leg.rollRadians||0;
  if(!roll)return;
@@ -9365,21 +9381,31 @@ function medievalCitizenIdentity(p,index){
   leather:rgb(role.leather),trim:rgb(role.trim),
   shoulder:role.shoulder,hem:role.hem,waist:role.waist};
 }
+// W250: ONE original adult body and cloth cut shared by genuine detailed and
+// compact workers. The same real fixed-step gait and labor lean move the hem;
+// visual variations are deterministic, with zero new citizens or resources.
+function livedAdultGarmentProfile(p,idx,rig){
+ const identity=medievalCitizenIdentity(p,idx);
+ const stride=rig.traveling?Math.sin(p.phase*2.7):0;
+ const labor=rig.working?Math.max(-.6,Math.min(.6,rig.acting.lean||0)):0;
+ const shoulder=.256+(idx%3)*.011+identity.shoulder*.78;
+ const waist=.188+(idx%4)*.006+identity.waist*.72;
+ const hem=.282+(idx%3)*.011+identity.hem*.72;
+ const drape=Math.max(-.042,Math.min(.042,.026*stride+.016*labor));
+ return {shoulder,waist,hem,drape,role:p.job,
+  fromRealGait:rig.traveling,fromRealLabor:rig.working};
+}
 function garmentProfile(p,idx,rig){
  const identity=medievalCitizenIdentity(p,idx);
- const shoulder=.277+(idx%3)*.012+identity.shoulder;
- const waist=.216+(idx%4)*.008+identity.waist;
- const hem=.318+(idx%3)*.013+identity.hem;
- const sway=Math.max(-.035,Math.min(.035,
-  rig.stride*.027+(rig.working?rig.acting.lean*.014:0)));
+ const fit=livedAdultGarmentProfile(p,idx,rig),sway=fit.drape;
  return {style:identity.name,
   panelCount:8,surfaceTriangles:104,hemSway:sway,
   rings:[
-   {y:p.job==='merchant'?.36:.42,rx:hem,rz:.255+(idx%3)*.008,z:sway},
-   {y:.62,rx:waist+.022,rz:.201,z:sway*.55},
-   {y:.79,rx:waist,rz:.188,z:sway*.25},
-   {y:1.02,rx:shoulder,rz:.205,z:0},
-   {y:1.145,rx:.168,rz:.148,z:0}
+   {y:p.job==='merchant'?.36:.42,rx:fit.hem,rz:.242+(idx%3)*.006,z:sway},
+   {y:.62,rx:fit.waist+.019,rz:.188,z:sway*.52},
+   {y:.79,rx:fit.waist,rz:.180,z:sway*.25},
+   {y:1.02,rx:fit.shoulder,rz:.204,z:0},
+   {y:1.145,rx:.150,rz:.131,z:0}
   ]};
 }
 function tailoredGarment(x,y,z,size,cloth,trim,profile){
@@ -9567,17 +9593,17 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
   (rig.working?(rig.acting.lean||0)*.065:0)));
  const shade=(color,factor)=>color.map(v=>Math.max(0,Math.min(1,v*factor)));
  if(compact){
-  const style=medievalCitizenIdentity(p,index);
+  const fit=livedAdultGarmentProfile(p,index,rig);
   // The original real citizen/occupation drives a belted medieval silhouette.
   // Four retained cross-section rings / eight panels: ZERO extra triangles.
   // Moving cloth uses only the existing deterministic gait and work beat.
   const gait=rig.traveling?Math.sin(p.phase*2.7):0;
   const labor=rig.working?Math.sin((rig.acting.beat||0)*Math.PI*2):0;
   const rings=[
-   {y:.365,rx:.305+(index%3)*.009+style.hem,rz:.263,d:sway+.021*gait,pleat:.023},
-   {y:.600,rx:.217+style.waist,rz:.190,d:sway*.58,pleat:.011},
-   {y:.975,rx:.269+style.shoulder,rz:.224,d:sway*.17,pleat:.008},
-   {y:1.170,rx:.154,rz:.145,d:0,pleat:0}
+   {y:.365,rx:fit.hem,rz:.241,d:fit.drape+.010*gait,pleat:.027},
+   {y:.600,rx:fit.waist+.018,rz:.180,d:fit.drape*.58,pleat:.013},
+   {y:.975,rx:fit.shoulder,rz:.204,d:fit.drape*.17,pleat:.008},
+   {y:1.170,rx:.150,rz:.131,d:0,pleat:0}
   ];
   // A front drape, narrower belt and mobile lower hem replace the cylindrical
   // prototype tunic. The closed shell remains the original GPU torso joint.
@@ -9848,7 +9874,7 @@ function getCitizenEmbodiment(index=selectedCitizen){
 // The SAME original 3D head, hair and hat pivot over the physical neck.
 // World vertices and normals rotate together, without any extra triangles.
 function turnCitizenHead(first,last,x,y,z,size,pose){
- const pivotY=y+1.18*size,cy=Math.cos(pose.headYaw),
+ const pivotY=y+CITIZEN_HEAD_ANATOMY.neckPivot*size,cy=Math.cos(pose.headYaw),
   sy=Math.sin(pose.headYaw),cp=Math.cos(pose.headPitch),
   sp=Math.sin(pose.headPitch);
  for(let v=first;v<last;v+=10){
@@ -9865,7 +9891,7 @@ function turnCitizenHead(first,last,x,y,z,size,pose){
 // W33 physical weight is applied during the existing citizen rotation pass.
 // Never walk the already-large dynamic mesh a second time per frame.
 const CITIZEN_HEAD_ANATOMY=Object.freeze({
- headVerticalScale:.70,headHorizontalScale:.84,neckPivot:1.18,
+ headVerticalScale:.50,headHorizontalScale:.76,neckPivot:1.37,
  unscaledCrown:1.735,unscaledJaw:1.185,totalBodyHeight:1.735,
  compactAndDetailed:true
 });
@@ -9873,7 +9899,8 @@ function getCitizenAnatomy(){
  const a=CITIZEN_HEAD_ANATOMY;
  return {headVerticalScale:a.headVerticalScale,
   headHorizontalScale:a.headHorizontalScale,
-  headHeightRatio:(a.unscaledCrown-a.unscaledJaw)*a.headVerticalScale/a.totalBodyHeight,
+  headHeightRatio:(a.unscaledCrown-a.unscaledJaw)*a.headVerticalScale/
+   (a.neckPivot+(a.unscaledCrown-a.neckPivot)*a.headVerticalScale),
   neckPivot:a.neckPivot,compactAndDetailed:a.compactAndDetailed};
 }
 function rescaleCitizenHead(first,last,x,y,z,size){
@@ -9932,27 +9959,27 @@ function renderCompactOccupationGear(p,x,y,z,s){
  const linen=rgb(0xc4b9a0),leather=rgb(0x75543b),straw=rgb(0xbaa175);
  materialScope(MATERIAL.GENERAL,()=>{
   if(p.job==='farmer'){
-   cylinder(x,y+1.48*s,z,.275*s,.038*s,straw,7);
-   cone(x,y+1.505*s,z,.167*s,.135*s,rgb(0xd1b577),7);
+   cylinder(x,y+1.58*s,z,.275*s,.038*s,straw,7);
+   cone(x,y+1.595*s,z,.167*s,.135*s,rgb(0xd1b577),7);
    box(x,y+.43*s,z+.20*s,.33*s,.38*s,.050*s,linen);
   }else if(p.job==='gatherer'){
-   cone(x,y+1.50*s,z,.224*s,.15*s,rgb(0x798b60),7);
+   cone(x,y+1.59*s,z,.224*s,.15*s,rgb(0x798b60),7);
    box(x-.26*s,y+.30*s,z+.03*s,.26*s,.28*s,.24*s,straw);
    box(x-.26*s,y+.56*s,z+.03*s,.31*s,.055*s,.27*s,leather);
   }else if(p.job==='forester'){
-   cone(x,y+1.49*s,z,.233*s,.19*s,rgb(0x54694d),7);
+   cone(x,y+1.59*s,z,.233*s,.19*s,rgb(0x54694d),7);
    box(x,y+.43*s,z-.21*s,.31*s,.39*s,.15*s,leather);
    box(x,y+.83*s,z-.19*s,.34*s,.047*s,.16*s,straw);
   }else if(p.job==='builder'){
-   box(x,y+1.48*s,z,.42*s,.083*s,.39*s,straw);
+   box(x,y+1.58*s,z,.42*s,.083*s,.39*s,straw);
    box(x,y+.46*s,z+.19*s,.35*s,.38*s,.058*s,rgb(0xb7a17f));
    box(x+.22*s,y+.40*s,z+.04*s,.15*s,.23*s,.15*s,leather);
   }else if(p.job==='craftsperson'){
-   box(x,y+1.48*s,z,.38*s,.075*s,.34*s,rgb(0x5e6060));
+   box(x,y+1.58*s,z,.38*s,.075*s,.34*s,rgb(0x5e6060));
    box(x,y+.42*s,z+.22*s,.37*s,.43*s,.066*s,leather);
    box(x,y+.82*s,z+.245*s,.34*s,.065*s,.085*s,linen);
   }else if(p.job==='merchant'){
-   box(x,y+1.46*s,z,.38*s,.087*s,.38*s,rgb(0x947851));
+   box(x,y+1.56*s,z,.38*s,.087*s,.38*s,rgb(0x947851));
    box(x,y+.53*s,z-.19*s,.51*s,.55*s,.091*s,rgb(0x665d48));
    box(x-.28*s,y+.39*s,z+.04*s,.19*s,.25*s,.15*s,leather);
   }
