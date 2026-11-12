@@ -242,3 +242,52 @@ test('real guardian physically lowers its attached mask and torso before rising 
     assert.equal(guardian.group.children.length,0);
   }
 });
+
+test('Pass310 actual paired ivory tideblades fold with the witnessed physical brace and unfold at release', async () => {
+  const {createWarden}=await charactersPromise;
+  for (const balanced of [false,true]) for (const reducedMotion of [false,true]) {
+    const guardian=createWarden({balanced});
+    const blades=[-1,1].map(side=>{
+      const blade=guardian.group.getObjectByName(`fixed sculpted warden tideblade ${side}`);
+      const wing=guardian.group.getObjectByName(`flared elytron ${side}`);
+      assert.ok(blade && wing && blade.parent===wing,
+        'both original modeled ivory crests must be joined to the real hinged armor');
+      assert.ok(blade.children.filter(child=>child.isMesh).length>=2,
+        'a permanent connected multi-part tideblade, not a screen-facing warning decal');
+      return blade;
+    });
+    const resources=()=>{
+      const set=new Set();
+      guardian.group.traverse(node=>{
+        if(node.geometry)set.add(node.geometry);
+        if(node.material)set.add(node.material);
+      });
+      return set;
+    };
+    const original=resources();
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,danger:1,
+      moving:false,time:1,delta:0,reducedMotion};
+    const pose=()=>blades.map(blade=>blade.rotation.x);
+    guardian.update({...cue,encounterBeat:0});
+    const notice=pose();
+    guardian.update({...cue,encounterBeat:.5});
+    const brace=pose();
+    guardian.update({...cue,encounterBeat:1});
+    const release=pose();
+    assert.ok(notice.every(x=>x<-.60),
+      'the first genuine warning folds the large fixed-height crests away from the shell');
+    assert.ok(brace.every((x,i)=>x<notice[i]-.40),
+      'the real foreclaw brace further lowers both permanently connected crests');
+    assert.deepEqual(release,[0,0],
+      'the earned public shell release restores both complete original crests');
+    guardian.update({...cue,encounterBeat:1});
+    assert.deepEqual(pose(),release,'the same public age yields an identical physical pose');
+    guardian.update({...cue,attentionStrength:0,attentionHeading:undefined,encounterBeat:.5});
+    assert.deepEqual(pose(),[0,0],'hidden or withdrawn guardian cannot keep a silhouette cue');
+    guardian.update({...cue,result:'capture',encounterBeat:.5});
+    assert.deepEqual(pose(),[0,0],'terminal gameplay must clear both original hinges');
+    assert.deepEqual(resources(),original,'no new geometry or materials in the rendering loop');
+    guardian.dispose();
+    assert.equal(guardian.group.children.length,0,'the real asset hierarchy disposes');
+  }
+});

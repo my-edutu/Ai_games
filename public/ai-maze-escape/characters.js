@@ -597,7 +597,9 @@ export function createWarden(options = {}) {
     inset.rotation.z=blade.rotation.z;
     const base=rounded(tideblade,bronze,[side*.03,-.01,.03],[.36,.12,.40],.045);
     base.rotation.z=-side*.10;
-    elytra.push({wing,side});
+    // The tall ivory crest remains permanently connected to its real shell,
+    // but its hinge can now fold with the witnessed defensive performance.
+    elytra.push({wing,side,tideblade});
   }
   rounded(body,bronze,[0,.435,-.06],[.055,.045,.78],.022);
   for (let i=0;i<4;i++) {
@@ -855,6 +857,16 @@ export function createWarden(options = {}) {
     // the same deterministic silhouette; terminal/withdrawn truth returns
     // every hinge to its neutral physical pose with exact positive zero.
     const encounter=alert>.24?alert:0;
+    // Authentic 390px Pass309 notice/brace/release frames showed the two
+    // broad ivory dorsal blades staying fully upright during all three beats,
+    // visually concealing the actual carapace release. Fold only these
+    // permanently attached ORIGINAL hinges during the real witnessed warning
+    // and foreclaw brace; unfold them on that SAME public shell clock.
+    // No new geometry, simulated strike, source-private knowledge or movement.
+    const tidebladeFold=encounter>0 && hasWitnessBeat
+      ? Math.max(0,Math.min(1,(encounter-.24)/.22))
+        *(.67+.46*Math.max(0,Math.min(1,(beat-.12)/.38)))
+        *(1-display) : 0;
     for (const {vane,side} of tailVanes) {
       // First sight keeps the armored tail close. The PUBLIC brace fans the
       // rooted vanes out before the shell unseals; no invented enemy action.
@@ -879,6 +891,11 @@ export function createWarden(options = {}) {
     // Two readable shell wings open independently in true close encounters.
     // Reduced-motion retains a static disclosed-warning silhouette.
     for (const shellHalf of elytra) {
+      // Both genuine ivory tideblade roots pivot with the CURRENT observed
+      // brace, then stand proud only during the earned physical shell reveal.
+      // Explicit positive zero clears the pose after withdrawal, terminal or
+      // reused runs, including for reduced-motion callers.
+      shellHalf.tideblade.rotation.x=tidebladeFold>0?-tidebladeFold:0;
       // A neutral/terminal pose must reset to +0 on both sides. Negative
       // zero can survive a signed-angle multiplication and break strict
       // replay/teardown invariants even when the rendered pose looks flat.

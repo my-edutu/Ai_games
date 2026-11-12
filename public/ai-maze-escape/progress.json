@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T19:13:00.000Z",
+  "updatedAt": "2026-11-12T19:48:24.722Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass308 exact-SHA original WebGL 43285097100 SUCCESS (39 full-frame original PNG, 37/37 direct SHA sidecars, strict six-run <100). Real 390px notice/brace/release remained small against busy paving despite lower camera elevation; Nintendo visual benchmark REJECTED. Pass309 implements candidate camera fit from the two genuine fully connected public 3D mesh silhouettes, with stricter phone HUD/actor bounds than unchanged ±.95. New exact-SHA native render and independent critic pending. Official benchmark NOT MET."
+    "summary": "Pass309 exact-source native WebGL 43290055080 SUCCESS: 39 original full-resolution PNGs, 37/37 direct PNG SHA-256 sidecars verified; 7/7 source-bound native screenshot tests and six-real-run geometry <100 passed. Genuine 390px body silhouettes grew in the source-bound closeup (guardian notice width .726 to .957 NDC; brace .945 to 1.135), yet the broad static upright ivory crests and busy masonry still flatten Thornback's three-beat acting against the fixed Nintendo reference. Pass309 visually REJECTED as final quality win. Pass310 production candidate folds both physically rooted dorsal ivory tideblades on real public recognition/brace and restores their original full silhouette at witnessed release. New exact-HEAD WebGL/CI and fresh independent critic pending; benchmark NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass310: incoming exact source 0c70b210 native WebGL 43290055080 SUCCESS, 39 full PNG/37 matching original SHA-sidecars, six-run geometry <100; authentic 390 actors larger but static dorsal ivory tideblades still weaken warning, brace and earned release; official Nintendo bar REJECTED. New original attached hinge-fold/release candidate and real installed-Three regression, same public beat/no AI/private-state/allocations. New exact-HEAD rendered/CI/independent critic PENDING; coding tunnel disconnected.",
     "Pass309: independently verified native Pass308 original 39 full-frame PNG / 37 SHA metadata pairs, Maze/stream CI and strict six-run <100. Rejected negligible actual guardian scale gain. New original production source fits BOTH connected Pip/Thornback bodies only during publicly disclosed reciprocal guardian Follow at 390px with strict x ±.88/top +.70/bottom -.84, no AI/privacy/HUD/resources change. New exact-HEAD source-bound WebGL and fresh external critic PENDING.",
     "Pass307: original Pass306 full-size WebGL 37 PNG/35 matching SHA sidecars verify actual mask-forward Thornback visual gain but Nintendo bar UNMET; 6-run <100 real geometry passed. Repaired last genuine source fossil evidence replay by reloading SAME document for earlier original tick; unaltered public/physical acceptance, CPU SwiftShader evidence-only wall-clock 480→600 seconds. New exact-HEAD full evidence/tests/critic pending; detached workspace unavailable.",
     "Pass305 same-pass real CI regression: first source 91489e4 failed original phase6 public lantern exact import-wiring check (800/801 node tests passed); fixed production import grouping while preserving original test thresholds, two-link lamp logic, one-link projected-beam ban and scene authority. New exact-HEAD CI/render pending.",
