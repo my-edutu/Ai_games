@@ -1,0 +1,30 @@
+# D04 — Real elapsed time for first drawable delayed contacts (12 November 2026)
+
+**Status:** isolated functional timing correction; authentic moving-combat A/V **NOT ACCEPTED**. Branch `feat/dungeon-d04-combat-feedback-realism-20261108`; current implementation commit `6b4c28cc235aac68731e2a9996a5dd97aa21a8ec`. Frozen comparison-before stays `281735d0910c6b2443648af976003d50412ee324` (historical commit inspected, not modified). Legacy /dungeon default is unchanged; D04 remains opt-in with `?feedback=d04`. No main, PR #49, authority, rig, lighting, camera or other-session edits.
+
+## Dominant defect and narrow correction
+
+The authentic Chrome capture previously saw a genuine HP-loss cue `1:1:4:damage:-:enemy-1-0` expire `expired-pending-before-frame` with no eligible visual frame. That single observation does **not** prove this correction fixes the original multi-second stall. However source inspection found a separate concrete first-frame starvation defect: for presentation-gated D04, pending effects reduced their delay by the **capped animation** `dt <= 0.05s`, while their 400ms expiration gate used **actual elapsed frame time**. A 215ms verified-melee contact arriving on the first legitimate 240ms frame was therefore treated as having completed only 50ms of its planned delay and remained unseen until later frames. In a slow browser it could expire without any initial render opportunity despite one timely frame already having existed.
+
+The D04-only correction now determines the remaining presentation delay from already-observed real elapsed seconds **since first authoritative snapshot arrival**. It still expires an effect whose observed age exceeds 400ms before staging, and the separate post-WebGL receipt gate rejects stale, absent or unverifiable submissions. It cannot create an attacker, infer contact from a swing, replay an old cue, stretch audio to the next frame, or claim a visually delivered effect was encoded/sampled. In legacy/non-submission paths, `remaining -= dt` is unchanged. No authority, animation clock, WebGL renderer, scene pools, audio implementation or effect count changes.
+
+## Test-first proof and regression controls
+
+1. [First test commit](https://github.com/my-edutu/Ai_games/commit/1eec66f782f9be85a1ffae73c092fbbe03313a10) adds two observed-HP-loss contracts with an authenticated 215ms presentation delay: one 240ms frame should stage its original impact visual and release sound **only after** a 260ms genuine-by-fixture frame acknowledgement; a 190ms frame must not stage early, but the following 230ms frame may stage and the 250ms acknowledgement permits one sound.
+2. [Red Actions 43316351639](https://github.com/my-edutu/Ai_games/actions/runs/43316351639): **225/227 native tests passed; the two new contracts failed as expected**. This is deterministic adapter evidence, not real WebGL or audible sample evidence.
+3. [Production correction](https://github.com/my-edutu/Ai_games/commit/6b4c28cc235aac68731e2a9996a5dd97aa21a8ec) only changes D04 pending-delay evaluation after the existing stale-expiry check.
+4. [Corrected Actions 43316558772](https://github.com/my-edutu/Ai_games/actions/runs/43316558772): **227/227 native tests and production build passed**. Real Chrome job was executing during this handoff's initial verification; **no fresh A/V acceptance is claimed here**.
+
+Existing tests also cover long 720–800ms stalls (expired, never audible), immediate legitimate damage, 120ms early sword staging only when body motion is subsequently witnessed, retained 210/290ms projectile/spell delays, mute, scene restart, replayed frames and pending queue bounds. Native fake adapters simulate a submission and do **not** demonstrate real GPU frame delivery.
+
+## Original browser-media inspection and missing acceptance evidence
+
+The previously captured original desktop and 390px WebMs were independently decoded again using local FFprobe: desktop VP8 **13 frames**, largest PTS gap **3.015s**, frame size **853×493**; mobile VP8 **11 frames**, largest gap **1.512s**, frame size **390×523**. Both carry original Opus 48kHz stereo. They **precede this fix**; sparse frames and nonzero audio cannot prove synchronized impact onset, improved physical movement, or three matched viewpoints. Desktop source width is not itself an encoded 1440px output.
+
+The original `expired-pending-before-frame` HP injury and multi-second stalls remain the dominant real-game rejection to remeasure, not a resolved performance defect. Run a **matched fixed authority** `run/floor/tick/checksum` sequence at three viewpoints, desktop 1440×900 + 390×844, actual original opt-in sound, and include missed swing, genuine HP loss, block, dodge, projectile, spell, Warden warning/release/recovery/earned counter. Decode both tracks, inspect impact PTS/sample onset, compare BEFORE baseline, and complete a 20-minute resource/cleanup soak. Do not infer Diablo IV parity or award a synthetic realism score.
+
+## Bounds, safety, independent review, rollback
+
+The seven retained pools, **102 reserved instances**, max **7 new draw calls**, 32 pending effects, 32 awaiting WebGL-frame sounds, 64 receipts, max 8 WebAudio voices, opt-in/mute persistence, reduced motion/flash, event deduplication, teardown and no-synthetic-attacker rules are untouched. No new allocations or clock reads were added to hot paths; one existing pending-item calculation replaces a decrement. Visuals are still admitted only after the existing authoritative evidence and wall-age gates. The real browser may still stall during any renderer call; this is **not** a renderer optimization or measured FPS improvement.
+
+Specification review: D04-only under gated branch, legacy preserved, no audio before frame, original 400ms expiration intact, no authority writes. Quality risk: raw observed frame age and sampled action/rig pose may diverge under software WebGL stalls; verify moving blade/contact footage, not just fixture delivery. If that regression appears, revert only production commit `6b4c28c` and retain/redesign the tests with explicit causal evidence. Do not merge before final dedicated integration review.
