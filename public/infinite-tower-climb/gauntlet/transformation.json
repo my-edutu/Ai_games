@@ -1,4 +1,48 @@
 {
+  "p0ExactSource451FirstFloorNineOriginalGate20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeWork": "80ef98d8f216a800418972c2f6cd06b9ad888009",
+    "previousExactHeadTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43241255134 — SUCCESS at 80ef98d8; CI only",
+    "inspectedOriginalNineJobFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43241254936 — FAILED strict source/native pairing; all eight 1x original WebMs completed",
+    "inspectedOriginalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43241254936/artifacts/13955995691",
+    "originalDesktopPortraitDurationSeconds": {
+      "desktop": 72.28,
+      "portrait": 73.04
+    },
+    "actualGuardianExitSourceTick": 451,
+    "actualSourceToVisibleFloor9Seconds": {
+      "desktop": 2.707,
+      "portrait": 1.972,
+      "scope": "original browser/source/Three/native WebM phase; NOT measured GPU-present or hardware FPS"
+    },
+    "actualNativeVideoDefect": "Authentic source-immutable both 960x600 and 390x844 original 1x films still abruptly replace bronze Floor8 cap/guardian door with violet Floor9 at ~25s. Same full-body physical doorway crossing is not accepted. Source/native event pair 0/2.",
+    "firstFloorNineRootCause": "Source recorded exact grounded crossing at tick451, but observer `observedRecordedGuardianHandoff` rejected tick equal to sourceTick. On first new-floor browser receipt, an earlier old-floor browser observation could already qualify as a generic guardian passage yet lack exact grounded cap clearance; `scene.accept()` incorrectly chose that loose observation and never attempted the immutable recorded foot-contact endpoint. The original GPU-owned real gateway+deck may be torn down at first cold rebuild. Existing source-authentic original film does NOT prove this repair until recaptured.",
+    "testFirstCommit": "a29ea01320d73f3500a46f6f280dfe52cda897a2",
+    "sourceGateTickFixCommit": "4cc5807a3226cd57283e1cb655d347835827c44d",
+    "originalSceneHandoffPrecedenceCommit": "5384853541353634f79d13fd15db82c97c59a290",
+    "originalVideoSourceDiagnosticCommit": "ef8429c59407912faabd6d5a51925b6082f98575",
+    "substantiveSystemChange": "First original Floor9 WebGL scene rebuild can select exact authoritative HP0/grounded 450->451 crossing even if old browser snapshot is stale or the first new accepted tick equals crossing tick. Recovers true original independently owned bronze gate and source-supported cap under the already bounded old/new world retention, not an invented collider, victory, teleport, simulated frame or floor.",
+    "sourceFilesChanged": [
+      "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-source-recorded-gateway-handoff.test.cjs",
+      "tests/browser/tower-live-motion.spec.cjs"
+    ],
+    "exactHeadCi": "NOT VERIFIED at this ledger update; recheck final request SHA technical workflow",
+    "exactNewOriginalFootage": "NOT CAPTURED at new production SHA; a new immutable nine-job request is required",
+    "strictEventMatchedAcceptedViewports": "0/2 previous; new source NOT EVALUATED",
+    "independentRandomizedFreshCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "engineeringReview": "docs/reviews/2026-11-12-tower-pr68-authentic-old-cap-to-floor9-render-continuity.md",
+    "largestRemainingGap": "No native 1x verified full-body real continuous true gateway and floor-nine onward; 0/2 source-to-video pairing and baseline moving-floor film clock integrity still veto. Potential cold floor/world camera pop and original gateway 3D occlusion persist.",
+    "nextHighestImpactAction": "Inspect newest exact-source normal-speed original desktop/portrait danger, including tick451 50ms guardian release sidecar originalGpuGateAndCap, continuousGroundedHandoff, inner door and warm-to-violet blend and native 23-29s. If real cap/gate retention remains absent, fix resource/display lifetime from evidence; if present but sky/world still cuts, rebuild unified old/new camera/environment handoff. Preserve baseline; repair baseline moving 1x clock by recapture, then actual hardware measurements and five genuinely independent blind reviewers per pillar."
+  },
   "p0OriginalGuardianDoorGpuRetention20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
