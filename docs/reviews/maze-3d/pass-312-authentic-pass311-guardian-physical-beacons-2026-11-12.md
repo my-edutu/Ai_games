@@ -1,0 +1,17 @@
+# Pass312 · authentic Pass311 rendered critic and original warning standards
+
+2026-11-12 UTC. Existing open DRAFT PR #53 on `feat/maze-3d-gauntlet`. Do not merge, deploy, overwrite concurrent code or force-push. Official Nintendo *Captain Toad* visual/gameplay bar **NOT MET**.
+
+## Original exact-source evidence and verdict
+
+Incoming source [8f2cbe7c352762d01ff6d31965c408adb758e165](https://github.com/my-edutu/Ai_games/commit/8f2cbe7c352762d01ff6d31965c408adb758e165), [successful native WebGL run 43303623986](https://github.com/my-edutu/Ai_games/actions/runs/43303623986), [unedited original artifact 13984445214](https://github.com/my-edutu/Ai_games/actions/runs/43303623986/artifacts/13984445214). All **39 complete full-resolution PNGs** present; every **37/37 individual PNG SHA-256 sidecars** recomputed and matched. Real 390×844 guardian tick32, seed `maze-visual-reference-3`: notice 2026-11-12T20:50:28.742Z SHA `ef421f302b5351123faa21d8c1eb4f204b44a81000b9166edd33daaa88c6e9ba`; brace 20:50:35.799Z SHA `e5c8f14fe33123f78e6a3a48530360c435a93652fe36864abe3ac677e2d62164`, then original release. Also inspected full-size 320, 844, 1280, keys, gates, fossil, pressure. These were authentic complete WebGL frames, not cropped, synthesized or source-unbound.
+
+Pass311's lower opaque foreground and bigger physical Pip/Thornback improve the real portrait pair, but the environment still reacts mainly with flush green/ivory floor leaves. There is no clearly readable full-height mechanical warning linking Pip and Thornback at 390px. Static repeated stone/terrace vs actual Nintendo authored stage and purposeful hazards remains insufficient. **Reject Pass311 as a Nintendo-quality win** despite passing integrity and exact-HEAD WebGL. Whole-repository CI 43303624111 failed; never call it green. The shared coding tunnel still returns NOT_FOUND, so no detached fresh-context critic or Ultracode. This is source-bound self-criticism, not an independent blind A/B approval.
+
+## Single coherent player-visible candidate
+
+On the *same actually disclosed*, level, reciprocal, unlocked 3D guardian corridor, precisely TWO true actor endpoints (Pip and witnessed Thornback) acquire four rooted original Tideglass signal standards. Permanent stone foundations support telescoping connected ivory shafts and broad glazed heads. Their EXISTING shared sea-glass/amber materials and meshes lift/illuminate as the real public guardian clock reaches brace, then settle on earned shell release. One intermediate tile, unseen/remembered wardens, sealed gates and terminal events do not own a false beacon. Reduced motion has no telescoping, preserving the true signal color. Nothing affects collision, route, authoritative AI, event facts, map secrets or HUD; no new geometry/material class and no frame allocations.
+
+Installed Three.js test requires four real endpoint structures, outside the central walkway, full physical motion, true release/reset, invalid threat/gate/visibility shutdown, reduced motion, unchanged strict six-run geometry <100. Existing 320/390/844/1280 ±0.95 entire actors and >0.70 withdrawal, 44px, privacy, whole-REPO CI, and source-bound WebGL capture gates are NOT relaxed.
+
+**NOT RENDER ACCEPTED.** New exact committed SHA screenshots/full-size comparison, NDC and 6-reset verification, fresh independent critic and whole CI pending. Reject if extra structures occlude actors or do not materially improve real scene. Keep Gauntlet active; no merge/deploy.

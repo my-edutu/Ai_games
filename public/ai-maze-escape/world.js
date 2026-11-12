@@ -1237,7 +1237,31 @@ export function createMazeWorld(options = {}) {
             plate.name='Published guardian warning floor leaf '+c.cell+' '+side;
             faces.push({object:plate,hinge,side});
           }
-          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces});
+          // Pass312: FOUR original stone/sea-glass signal standards sit at
+          // the two REAL guardian-aisle actor endpoints. Their crowns actuate
+          // with the same public warning as the rooted floor leaves. None
+          // draws a speculative route, barrier, attacker or hidden map detail.
+          const sentinels=[];
+          if(c.cell===s.currentCell || s.threats.some(t=>t?.cell===c.cell)) {
+            for(const side of [-1,1]) {
+              const foot=new THREE.Group();
+              foot.name='Published guardian Tideglass sentinel footing '+c.cell+' '+side;
+              foot.position.set(alongX?0:side*1.04,0,alongX?side*1.04:0);
+              signal.add(foot);
+              const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
+              plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
+              const lift=new THREE.Group();lift.position.y=.04;foot.add(lift);
+              const pillar=mesh(lift,bevel,lightStone,0,.35,0,.20,.60,.20);
+              pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
+              const crown=mesh(lift,bevel,seaGlass,0,.72,0,.39,.18,.37);
+              crown.name='Published guardian Tideglass sentinel crown '+c.cell+' '+side;
+              const lens=mesh(lift,box,inlay,0,.71,alongX?0:side*.195,
+                alongX?.26:.035,.12,alongX?.035:.26);
+              lens.name='Published guardian Tideglass sentinel lens '+c.cell+' '+side;
+              sentinels.push({lift,crown,lens});
+            }
+          }
+          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
         }
       }
       // A genuinely PUBLIC trap has its own broad physical pressure court.
@@ -3068,6 +3092,14 @@ export function createMazeWorld(options = {}) {
         && row>=Math.min(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))
         && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))));
       const action=onLane?signalStrength:0;
+      // The FULL linked 3D standard rises with the real published brace,
+      // drops on release and instantly neutralizes on hidden/invalid/terminal.
+      // Reduced motion preserves color but freezes all physical translation.
+      for(const beacon of signal.sentinels){
+        beacon.lift.position.y=reduced ? .04 : .04+action*.42;
+        beacon.crown.material=action>.28?amber:seaGlass;
+        beacon.lens.material=action>.28?amber:inlay;
+      }
       for(const face of signal.faces){
         face.object.material=action>.28?amber:seaGlass;
         // Pivot the WHOLE attached leaf around its real outer-lane hinge,

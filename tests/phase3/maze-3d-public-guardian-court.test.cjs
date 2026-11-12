@@ -416,3 +416,51 @@ test('Pass311 native guardian full-frame known closed neighbor becomes a LOW sti
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass312 original Tideglass endpoint standards follow the REAL witnessed guardian, never hidden or gated state',async()=>{
+  const {createMazeWorld}=await load();
+  const s=original(),truth=JSON.stringify(s),w=createMazeWorld({balanced:true}),initial=w.stats();
+  const crown=(cell,side)=>w.group.getObjectByName('Published guardian Tideglass sentinel crown '+cell+' '+side);
+  const lens=(cell,side)=>w.group.getObjectByName('Published guardian Tideglass sentinel lens '+cell+' '+side);
+  try {
+    w.update(s);
+    const actual=[6,8].flatMap(cell=>[-1,1].map(side=>crown(cell,side)));
+    assert.ok(actual.every(Boolean),'FOUR original 3D standards stand on the TWO real actor endpoints');
+    assert.equal(crown(7,-1),undefined,'intermediate tile is not an invented actor or gate');
+    assert.ok([6,8].flatMap(cell=>[-1,1].map(side=>lens(cell,side))).every(Boolean),
+      'each real stone standard includes a distinct physical sea-glass lens');
+    assert.ok(actual.every(o=>o.parent?.parent?.isGroup
+      &&Math.max(Math.abs(o.parent.parent.position.x),Math.abs(o.parent.parent.position.z))>=1.03),
+      'every standard is rooted OUTSIDE Pip’s open centre lane');
+    const before=actual.map(o=>({y:o.parent.position.y,mat:o.material}));
+    assert.ok(actual.every(o=>o.scale.y>=.17),'each 3D crown has nontrivial native-mobile height');
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    assert.ok(actual.every((o,i)=>o.parent.position.y>before[i].y+.35&&o.material!==before[i].mat),
+      'the original published brace physically RAISES and illuminates all four standards');
+    w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(actual.every(o=>o.parent.position.y<.43),'true shell release retracts all FOUR signal shafts');
+    w.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+    assert.ok(actual.every((o,i)=>o.parent.position.y===before[i].y&&o.material===before[i].mat),
+      'unpublished guardian immediately revokes physical light and motion');
+    w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.ok(actual.every(o=>o.parent.position.y===.04),'reduced motion keeps the true light stationary');
+    assert.equal(w.stats().geometryCount,initial.geometryCount,'reuses existing GPU shape pool');
+    assert.equal(w.stats().materialCount,initial.materialCount,'reuses existing GPU materials');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(crown(6,1),undefined,'sealed public gate must NOT stage a guardian signal');
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.equal(crown(6,1),undefined,'hidden warden must NOT leave behind a beacon');
+    w.update({...s,result:{reason:'capture'}});
+    assert.equal(crown(6,1),undefined,'terminal scene cleans every sentinel');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'tideglass-endpoint-reset-'+i});
+      assert.ok(crown(6,-1)&&crown(8,1));
+      assert.ok(w.stats().geometryCount<100,'strict SIX reset geometry budget untouched');
+    }
+    assert.equal(JSON.stringify(s),truth,'no authoritative AI, collision or public truth was changed');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
