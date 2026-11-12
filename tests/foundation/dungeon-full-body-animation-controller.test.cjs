@@ -3178,3 +3178,33 @@ test('actual source-weighted walking shoe needs finite near-range ankle trials r
  assert.match(model,/for\(const signed of \[-\.12,-\.045,\.045,\.12\]\)/,
   'native browser must actually measure fine and coarse original ankle candidates, not fake the trials in pure tests');
 });
+
+
+test('same original-GLB near-ground stance prefers independently witnessed fine fallback when blended coarse pose is too weak',async()=>{
+ const {planOriginalSourceStanceAnkleRelief:plan}=await load();
+ // Real desktop Walking_A loaded-source heel/toe start from Actions
+ // #43115696847. Synthetic joint outcomes below form a regression fixture,
+ // NOT a claim that the actual GLB has passed a moving two-point plant.
+ const baseline={mode:'move',sourceClipName:'Walking_A',
+  sourceWeight:.68,ownerLocomotion:true,rootTravel:.042,frameAge:.04,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,heelY:-.022635,toeY:-.041512,
+  previousCorrectionRad:0};
+ const fine={signed:.045,heel:-.025,toe:-.034};
+ const coarse={signed:.12,heel:-.026,toe:-.029};
+ const v=plan({...baseline,trials:[fine,coarse]});
+ assert.equal(v?.signed,.12,'the coarse source trial remains the best measured far probe');
+ assert.ok(v.delta>0&&v.delta<.035,'source-weight ease makes the first fine-pose check smaller than the true original 45mrad trial');
+ assert.equal(v.fineFallbackDelta,.045,
+  'a SAFE same-direction original 45mrad skin probe should permit one separately verified applied pose');
+ assert.equal(plan({...baseline,trials:[coarse]})?.fineFallbackDelta,null,
+  'never invent a fine fallback when the actual fine source bone was not sampled');
+ assert.equal(plan({...baseline,trials:[{...fine,heel:-.044},coarse]})?.fineFallbackDelta,null,
+  'a trial that buries the source heel is forbidden even when the toe rises');
+ assert.equal(plan({...baseline,sourceWeight:.59,trials:[fine,coarse]})?.fineFallbackDelta,null,
+  'do not force full 45mrad corrections while the original clip is barely present');
+ assert.equal(plan({...baseline,previousCorrectionRad:.11,trials:[fine,coarse]})?.fineFallbackDelta,null,
+  'never bypass the previous original ankle 45mrad-per-frame rate limit');
+ assert.equal(plan({...baseline,mode:'hurt',trials:[fine,coarse]}),null,
+  'a verified injury must retain animation ownership');
+});
