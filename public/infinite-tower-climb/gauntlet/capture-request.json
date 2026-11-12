@@ -1,4 +1,30 @@
 {
+  "p0ActualClockworkDeckSubmissionFadeNativeCapture20261112": {
+    "stage": "P0 OPEN — authentic visual crossing and native pair not accepted",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSha": "152857374d41a2412623745f26a09e26b7707626",
+    "testedRegressionSha": "e4398dfecd993382d58b0176a74940f2b04baf29",
+    "requestedCandidate": "Pin to THIS EXACT immutable github.sha for branch feat/tower-transformation-gauntlet-20261101; NEVER float to a future branch HEAD",
+    "previousNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43282785504",
+    "originalVideoObservation": "Genuine 1x desktop and portrait 22-29s are still hard bronze->purple cut despite real old cap+guardian door existing in scene with valid source handoff at first Floor9 tick451/452. This is visual failure, not a source witness absence.",
+    "meaningfulSourceChange": "Existing old Bronze Floor8 cap deck physically coplanar with new violet Floor9 roof now uses its original polygons and a single copied depth-tested material with bounded polygon depth bias and display-submission-timed chromatic fade. No new bridge, no new ground or fake player event, no modifications to simulation/guardian/collision/seed.",
+    "runMatrix": "One original source-ledger job plus 8 unmodified >=60s 1x original desktop 960x600 and portrait 390x844 baseline vs candidate ascent floor0, moving floor7, guardian/crusher danger floor8->9, outcome/restart, original source20Hz and same low graphics tier/seed tower-transformation-capture-v1. Require strict unchanged event clock pairing; CI passing is veto only.",
+    "strictPriorResult": "0/2 accepted event-to-native viewports from last campaign, normal-speed body-door-world continuity still absent.",
+    "checkOriginalGroundVisibility": "Native near crossing 22-30s: Does old source Clockwork cap top remain visibly under feet while being replaced by the real new-floor violet roof? Is the real HP-open gate still visible and body passes through uninterrupted, no pop, occluding cover, hovering, clipping, false intermediate ground or wall?",
+    "checkPostSource": "Review true moving platform / obstacle and guardian victory and one complete source-authentic floor9 onward -> outcome -> restart. Capture exact frozen baseline matched scenes and compare anonymous full original videos, not selected screenshots.",
+    "postChangeCI": "REQUESTED; don't claim pass until exact immutable candidate checks complete.",
+    "postChangeVideo": "REQUESTED; don't claim any acceptance until original native files returned and watched.",
+    "reviewFile": "docs/reviews/2026-11-12-tower-pr68-roof-contact-original-gateway-continuity.md",
+    "independentFreshCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardware": "NOT EVALUATED",
+    "nextAction": "Examine exact-head quality and 9-job source-pinned capture. If material blend fails to reveal a real continuous threshold, rebuild spatial camera/world presentation rather than duplicate authority checks. Keep P0 open.",
+    "safety": "Frozen baseline immutable; PR68 remains open draft; PR58 unchanged; no deploy, merge, force-push, or synthetic evidence."
+  },
   "p0SourceGroundedRoofSeamOriginalDoor20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessor": "NOT EVALUATED",
