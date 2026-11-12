@@ -1104,7 +1104,7 @@ export function createMazeWorld(options = {}) {
       // while adjacent courts retain a clear ivory/stone separation.
       const floorMaterial = pressureCourtBasin ? darkJade : pressureCourtApron
         ? (tier === 2 ? lightStone : tier === 1 ? stone : seaGlass)
-        : guardianCourtCell ? lightStone
+        : guardianCourtCell ? seaGlass
         : tier === 2
           ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
           : tier === 1 ? (patina > .64 ? clay : lightStone)
@@ -1159,10 +1159,18 @@ export function createMazeWorld(options = {}) {
       // not a carpet of repeated fossil sculptures. This flush physical
       // inlay is deliberately neutral: neither a fake trap nor a route hint.
       if (guardianCourtCell) {
+        // Pass303: actual native 390/1280 Pass302 footage still shows a
+        // sea of pale ceremonial paving swallowing the encounter. The WHOLE
+        // witnessed, reciprocal, publicly disclosed guardian court is one
+        // sea-glass mineral amphitheatre, not four ivory islands around a
+        // narrow warning strip. Use only existing batched physical materials
+        // and exactly the same 2.05m/1.81m flush geometry and clearance.
+        // This dark basin is NOT an asserted safe path or extra trap and
+        // disappears when the guardian is no longer publicly staged.
         add(box, deepStone, x, .006, z, 2.05, .012, 2.05, c.cell);
-        add(box, lightStone, x, .014, z, 1.81, .012, 1.81, c.cell);
+        add(box, darkJade, x, .014, z, 1.81, .012, 1.81, c.cell);
         for (const sign of [-1,1])
-          add(box, clay, x + sign*.89, .025, z,
+          add(box, inlay, x + sign*.89, .025, z,
             .075, .018, 1.79, c.cell);
         if (guardianCausewayAxis) {
           // A joined, stage-wide basalt Tideglass duel causeway:

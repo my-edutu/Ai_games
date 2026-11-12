@@ -315,3 +315,49 @@ test('authentic guardian lane lowers ONLY disclosed impassable flanks; hidden, g
   assert.equal(world.stats().geometryCount,0);
   assert.equal(world.stats().materialCount,0);
 });
+
+test('Pass303 actual guardian arena uses a dark mineral field over ALL published court cells without leaking hidden rooms',async()=>{
+  const {createMazeWorld,cellPosition}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const s=original(),truth=JSON.stringify(s),w=createMazeWorld({balanced:true});
+  const baseline=w.stats(),arena=()=>{
+    const seen=[],matrix=new Matrix4(),p=new Vector3(),q=new Quaternion(),scale=new Vector3();
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh||mesh.material?.color?.getHexString()!=='28574f')return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,matrix);matrix.decompose(p,q,scale);
+        if(Math.abs(scale.x-1.81)<.001&&Math.abs(scale.y-.012)<.001
+          &&Math.abs(scale.z-1.81)<.001)seen.push({x:p.x,z:p.z});
+      }
+    });
+    return seen;
+  };
+  try {
+    w.update(s);
+    const actual=arena();
+    const expected=[6,7,8,11].map(id=>cellPosition(id,s.width,s.height));
+    assert.equal(actual.length,4,'all four truly disclosed physical court cells form the same dark arena');
+    for(const p of expected)
+      assert.ok(actual.some(a=>Math.abs(a.x-p.x)<.0001&&Math.abs(a.z-p.z)<.0001),
+        'dark court geometry belongs to a published playable cell, never an invisible extra tile');
+    assert.equal(w.stats().guardianCausewayTiles,3,'real contiguous Pip/Thornback threshold is preserved');
+    assert.equal(w.stats().geometryCount,baseline.geometryCount);
+    assert.equal(w.stats().materialCount,baseline.materialCount);
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.equal(arena().length,0,'an invisible guardian must not light or rebuild a fictional arena');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(arena().length,0,'a genuinely sealed edge cannot open a visual performance stage');
+    w.update({...s,result:{reason:'capture'}});
+    assert.equal(arena().length,0,'the court closes on an actual terminal result');
+    for(let n=0;n<6;n++){
+      w.update({...s,runToken:'basin-reset-'+n});
+      assert.equal(arena().length,4);
+      assert.ok(w.stats().geometryCount<100,'keep the original strict six-run budget');
+    }
+    assert.equal(JSON.stringify(s),truth,'only native Three rendering changed; not movement, private data or AI');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
