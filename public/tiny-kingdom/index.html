@@ -5644,12 +5644,13 @@ function materialSwatchAudit(){
   sidePlasterOak:0xd9c4a1,sidePlasterAsh:0xcbbda5,
   sidePlasterLime:0xb3b5a6,sidePlasterSand:0xe0c39b};
  const rows=Object.fromEntries(Object.keys(targets).map(k=>[k,
-  {general:0,stone:0,roof:0,plaster:0,total:0}]));
+  {general:0,stone:0,roof:0,plaster:0,motion:0,total:0}]));
  // Canvas2D fallback holds the static mesh inside data, whereas WebGL keeps
  // static and dynamic buffers separate; never count static triangles twice.
  const meshes=gpuAvailable?[landscapeMeshCache||[],activeCivicMesh(),scenicMeshCache||[],
  data,...(actorStreamSplitEnabled?[actorFrameData]:[]),
- ...(economyResidentActive&&economyResidentMesh?[economyResidentMesh]:[])]:[data];
+ ...(economyResidentActive&&economyResidentMesh?[economyResidentMesh]:[]),
+ ...(livingVillageActive&&livingVillageMesh?[livingVillageMesh]:[])]:[data];
  for(const mesh of meshes)for(let i=0;i<mesh.length;i+=30){
   const rgbHex=(Math.round(mesh[i+6]*255)<<16)|
    (Math.round(mesh[i+7]*255)<<8)|Math.round(mesh[i+8]*255);
@@ -5659,6 +5660,9 @@ function materialSwatchAudit(){
    if(mesh[i+9]===MATERIAL.STONE)row.stone++;
    if(mesh[i+9]===MATERIAL.ROOF)row.roof++;
    if(mesh[i+9]===MATERIAL.PLASTER)row.plaster++;
+   // Authentically fluttering civic silk is GPU material 18.x, not
+   // immobile GENERAL. Include the real resident VBO in this audit.
+   if(mesh[i+9]>=18&&mesh[i+9]<19)row.motion++;
   }
  }
  return rows;
@@ -24413,9 +24417,77 @@ function getLiveHudCadenceAudit(){
 }
 // W265 Phase 1: town-growth-aware independently GPU-resident civic district.
 // Only genuine lot-topology changes can rebuild streets and market frontage.
+// W266: dirty-region dependency of the single authentic farm -> market ->
+// inhabited-home road, not every distant new house. Full existing geometry
+// remains in the civic cache; no proxy citizens, altered A* or invented roads.
+const civicRoadMemo={topology:null,signature:null,checks:0,
+ recomputations:0,unchangedGrowths:0,changedDependencies:0,
+ freightPoints:0,householdPoints:0,adjacentNewHomes:0};
+function civicStreetNearLot(lot,paths){
+ const x=lot[0],z=lot[1],limit=6.5*6.5;
+ for(const points of paths){
+  for(let j=0;j<points.length;j++){
+   const a=points[j],b=points[Math.min(j+1,points.length-1)];
+   const dx=b[0]-a[0],dz=b[1]-a[1];
+   const t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/
+    Math.max(1e-6,dx*dx+dz*dz)));
+   const px=a[0]+dx*t,pz=a[1]+dz*t;
+   if((x-px)**2+(z-pz)**2<=limit)return true;
+  }
+ }
+ return false;
+}
+function civicStreetDependencySignature(){
+ const founderHomes=people.slice(0,12).map(p=>
+  p.name+':'+citizenHomeIndex(p)).join(';');
+ const topology=city.map(lot=>lot.join(',')).join(';')+'|'+founderHomes;
+ civicRoadMemo.checks++;
+ if(civicRoadMemo.topology!==topology){
+  const freight=routeBetween(...FARM_MARKET_STREET_ORIGIN,
+   ...FARM_MARKET_STREET_DESTINATION)||[];
+  let household=[],resident=null;
+  // Exact real resident/household choice from marketToRealHomeStreet().
+  for(const p of people.slice(0,12)){
+   const goal=citizenHomeDestination(p);
+   const route=routeBetween(...MARKET_HOME_STREET_ORIGIN,...goal);
+   if(!route?.length)continue;
+   const end=route[route.length-1];
+   if(Math.hypot(end[0]-goal[0],end[1]-goal[1])>.7)continue;
+   const dist=Math.hypot(goal[0]-MARKET_HOME_STREET_ORIGIN[0],
+    goal[1]-MARKET_HOME_STREET_ORIGIN[1]);
+   if(dist<4||dist>95)continue;
+   household=route;resident=p.name;break;
+  }
+  const paths=[
+   [FARM_MARKET_STREET_ORIGIN,...freight],
+   [MARKET_HOME_STREET_ORIGIN,...household],...HIGHSTREET_LANES];
+  // A new roof or wall adjacent to the genuine way can change verge
+  // clearance without changing A* nodes. Retain nearby obstacles as exact
+  // topology, including the real receiving courtyard.
+  const adjacent=city.slice(12).filter(lot=>
+   civicStreetNearLot(lot,paths)||Math.hypot(lot[0]+1,lot[1]-5)<10)
+   .map(lot=>lot.join(','));
+  const signature=JSON.stringify([city.slice(0,12),freight,
+   resident,household,adjacent]);
+  if(civicRoadMemo.signature===signature)civicRoadMemo.unchangedGrowths++;
+  else civicRoadMemo.changedDependencies++;
+  civicRoadMemo.topology=topology;civicRoadMemo.signature=signature;
+  civicRoadMemo.recomputations++;
+  civicRoadMemo.freightPoints=freight.length;
+  civicRoadMemo.householdPoints=household.length;
+  civicRoadMemo.adjacentNewHomes=adjacent.length;
+ }
+ return civicRoadMemo.signature;
+}
+function getCivicRoadDirtyAudit(){
+ const {topology,signature,...stats}=civicRoadMemo;
+ return {...stats,source:'true-freight-home-road-dirty-region',
+  cityLots:city.length,fullTownRendered:true,extraGpuBuffers:0,
+  authorityChanged:false,hardwarePerformance:'NOT MEASURED'};
+}
 function liveCivicTopologyKey(climate,light){
  return climate+':'+(gpuAvailable?'shader-light':light)+
-  ':lots:'+city.map(lot=>lot.join(',')).join(';');
+  ':actual-civic-roads:'+civicStreetDependencySignature();
 }
 let civicGrowthRefreshes=0;
 function updateResidentCivicDistrict(nextTerrainKey,daylightStage){
@@ -25329,7 +25401,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicRoadDirtyAudit,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,

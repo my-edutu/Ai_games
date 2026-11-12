@@ -47,6 +47,17 @@ const path = require('node:path');
     // G105: record actual scenery triangle submissions, not just total generated meshes.
     // This is a camera/workload-specific software-WebGL observation, not hardware FPS.
     evidence.scenicVisibility=await page.evaluate(()=>window.__tinyKingdom.getScenicVisibilityStats());
+    // W266: on actual WebGL the civic dirty key must reference the authentic
+    // freight route without dropping any original house, citizen or buffer.
+    evidence.civicRoadDirty=await page.evaluate(()=>
+      window.__tinyKingdom.getCivicRoadDirtyAudit());
+    if(evidence.civicRoadDirty.authorityChanged||
+       !evidence.civicRoadDirty.fullTownRendered||
+       evidence.civicRoadDirty.extraGpuBuffers!==0||
+       evidence.civicRoadDirty.recomputations<1||
+       evidence.civicRoadDirty.freightPoints<1)
+      throw Error('W266 true civic route dependency not present: '+
+       JSON.stringify(evidence.civicRoadDirty));
     evidence.materials=await page.evaluate(()=>window.__tinyKingdom.getMaterialSystem());
     evidence.materialVertexAttribute=await page.evaluate(()=>{
       const gl=document.getElementById('world').getContext('webgl');
@@ -243,11 +254,17 @@ const path = require('node:path');
       return {swatches:game.getMaterialSwatchAudit(),
         authorityUnchanged:before===JSON.stringify(game.exportSnapshot())};
     });
-    for(const [name,expected] of [['guildCloth',48],['guildGoldTrim',1],
-                                   ['marketCanvas',2],['festivalGoldSilk',1]]){
+    for(const [name,expected,material] of [['guildCloth',48,'general'],
+      ['guildGoldTrim',1,'general'],['marketCanvas',2,'general'],
+      ['festivalGoldSilk',1,'motion']]){
       const row=evidence.materialSwatches.swatches[name];
-      if(!row||row.general<expected||row.stone!==0||row.roof!==0||row.plaster!==0)
-        throw Error('G054b real GPU cloth material inherited masonry: '+name+' '+JSON.stringify(row));
+      // The original silk pennants are genuinely GPU-resident motion
+      // material 18.x, not an absent static GENERAL material. Missing cloth
+      // or any stone/roof/plaster material leakage must still FAIL.
+      if(!row||row[material]<expected||row.stone!==0||
+         row.roof!==0||row.plaster!==0||
+         (name==='festivalGoldSilk'&&row.general!==0))
+        throw Error('G054b GPU cloth wrong real material: '+name+' '+JSON.stringify(row));
     }
     // G054c: timbered houses are lime plaster and exposed timber rather than
     // dark, regularly coursed stone. Foundations remain actual dressed stone.

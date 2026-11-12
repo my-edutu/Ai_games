@@ -31,9 +31,9 @@ const between=(from,to)=>source.slice(source.indexOf(from),source.indexOf(to,sou
 const journey=between('function planCitizenCamera(','function planHomecomingThresholdCamera(');
 assert.match(journey,/const scenic=\(working\|\|journeyCamera\)\?/,
  'real homeward walking camera must score existing timber and roofs');
-assert.match(journey,/const canopy=\(\(working&&realWork\)\|\|journeyCamera\)\?/,
+assert.match(journey,/const canopy=\(\(working&&realWork\)\|\|journeyCamera\|\|unloading\)\?foregroundVegetationProjection/,
  'real homeward walking camera must score existing trees');
-assert.match(journey,/const chosen=clearHomewardBest\|\|frontBest/,
+assert.match(journey,/const chosen=receivingBest\|\|routeBest\|\|clearHomewardBest\|\|frontBest/,
  'choose a physically readable real resident when one exists');
 const doorstep=between('function planHomecomingThresholdCamera(','function continuousHomecomingWitness(');
 assert.match(doorstep,/if\(!isReadableHomecomingShot\(sightline,portrait,true\)\)continue;/,
