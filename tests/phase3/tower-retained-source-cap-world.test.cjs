@@ -252,3 +252,42 @@ test('no proven passage cannot postpone the successor world on an unrelated old 
       'regular unrelated floor changes retain their existing immediate original art');
   } finally {world.dispose();}
 });
+
+test('source-owned visual gateway and original real cap survive first authentic airborne frames, never wrong-run or aged source',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const before=old(),after=next();
+  const witness={sourceBound:true,active:true,stage:'handoff',
+    continuousGroundedHandoff:true,innerDoorAssemblyVisible:true,
+    exteriorMemoryFrameVisible:false,runToken:after.runToken,
+    floor:9,sourceTick:451,handoffSubmittedFrames:1,
+    handoffDisplaySeconds:.4,handoffVisibleWindowSeconds:1.65};
+  const flying={...after,tick:471,
+    player:{...after.player,x:gate+30000,y:after.player.y+80000,
+      grounded:false,groundedPlatformId:null,state:'airborne',vy:12000}};
+  const world=createTowerWorld();
+  try{
+    world.update(before,.05,0,{quality:'low'});
+    assert.equal(world.stageGroundedCapContinuation(before,after),true);
+    world.update(after,.05,.05,{quality:'low'},witness);
+    const original=world.group.getObjectByName('AuthoritativeGuardianGate');
+    assert.ok(original?.isGroup);
+    world.noteFrameSubmitted(after);
+    world.update(flying,.1,.15,{quality:'low'},witness);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),original,
+      'source earned old gateway cannot vanish while same physical doorway remains in first submitted airborne view');
+    assert.equal(world.diagnostics().retainedSourceCap?.sourceAlignedPassage,true);
+    world.update({...flying,tick:500},.1,.25,{quality:'low'},witness);
+    assert.equal(world.diagnostics().retainedSourceCap,null,
+      'a stale source tick cannot perpetuate old architecture');
+  }finally{world.dispose();}
+  const other=createTowerWorld();
+  try{
+    other.update(before,.05,0,{quality:'low'});
+    assert.equal(other.stageGroundedCapContinuation(before,after),true);
+    other.update(after,.05,.05,{quality:'low'},witness);
+    other.noteFrameSubmitted(after);
+    other.update(flying,.1,.15,{quality:'low'}, {...witness,runToken:'foreign'});
+    assert.equal(other.diagnostics().retainedSourceCap,null,
+      'a wrong-run visual passage cannot borrow authenticated old world geometry');
+  }finally{other.dispose();}
+});

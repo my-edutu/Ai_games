@@ -2998,7 +2998,9 @@ export function createTowerScene(canvas, settings = {}) {
         reflectionFirstFrame = false;
       }
     }
-    world.update(snapshot, dt, elapsed, options);
+    // The real old cap/door, environmental horizon and camera share the
+    // existing source-verified submitted-frame passage clock.
+    world.update(snapshot, dt, elapsed, options, passage.diagnostics());
     // Only the actually selected/occupied source moving deck gets an extra
     // non-colliding mechanical undercarriage; duplicate render frames do not
     // advance it, and live guardians retain visual priority.

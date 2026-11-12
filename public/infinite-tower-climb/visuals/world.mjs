@@ -2126,7 +2126,7 @@ export function createTowerWorld(){
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
       submittedFrames:0,visibleSeconds:0};
   }
-  function updateRetainedCap(snapshot,dt,options) {
+  function updateRetainedCap(snapshot,dt,options,passageWitness) {
     const held = retainedEarnedCap;
     if (!held) return;
     // The actual next-floor route may take the hero airborne before two
@@ -2145,19 +2145,47 @@ export function createTowerWorld(){
     const onNewRoof=(p?.grounded===true &&
       p.groundedPlatformId==='f9:ground') ||
       !!observedRecordedGuardianDoorstepHandoff(snapshot);
-    // A missing successful Three.js submission cannot authorize indefinite
-    // airborne persistence. The real 20Hz source permits at most 24 launch
-    // ticks from the earned gate; a farther/newer body retires the old world
-    // even if the browser never presented a full frame.
-    const justLaunched=p?.grounded===false &&
-      p.state==='airborne' && Number.isFinite(p.vy) &&
+    // After the real source-earned crossing, the old GPU cap/arch physically
+    // remains behind a jumping hero. Under slow WebGL it must survive the same
+    // actual passage window as the camera and horizon, rather than retire on
+    // an independent support rule while the source arch is still visible.
+    const samePassage=passageWitness?.sourceBound===true &&
+      passageWitness.active===true &&
+      passageWitness.stage==='handoff' &&
+      passageWitness.continuousGroundedHandoff===true &&
+      passageWitness.innerDoorAssemblyVisible===true &&
+      passageWitness.exteriorMemoryFrameVisible===false &&
+      passageWitness.runToken===held.runToken &&
+      passageWitness.floor===held.floor &&
+      passageWitness.sourceTick===held.sourceTick &&
+      Number.isSafeInteger(passageWitness.handoffSubmittedFrames) &&
+      passageWitness.handoffSubmittedFrames>=0 &&
+      Number.isFinite(passageWitness.handoffDisplaySeconds) &&
+      Number.isFinite(passageWitness.handoffVisibleWindowSeconds) &&
+      passageWitness.handoffVisibleWindowSeconds>0 &&
+      passageWitness.handoffVisibleWindowSeconds<=3 &&
+      passageWitness.handoffDisplaySeconds>=0 &&
+      passageWitness.handoffDisplaySeconds<passageWitness.handoffVisibleWindowSeconds;
+    const sourceFlight=p?.grounded===false &&
+      p.state==='airborne' && Number.isFinite(p.vy);
+    const justLaunched=sourceFlight &&
       snapshot.tick-held.sourceTick<=24 && nearDoor;
+    // Historical architecture only: no collider, contact or extra event.
+    // Limit to 48 source ticks, 90m horizontally, 160m above the original
+    // source roof and no more than the first two real renderer submissions.
+    const onCameraHandoffFlight=samePassage && sourceFlight &&
+      held.submittedFrames<=2 && snapshot.tick-held.sourceTick<=48 &&
+      Number.isSafeInteger(p.x) && Number.isSafeInteger(sole) &&
+      Math.abs(p.x-held.thresholdX)<=90000 &&
+      sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+160000;
+    held.sourceAlignedPassage=samePassage;
     if (options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
-        !(p?.health>0) || !nearDoor ||
-        (!onNewRoof && !justLaunched)) {
+        !(p?.health>0) ||
+        (!nearDoor && !onCameraHandoffFlight) ||
+        (!onNewRoof && !justLaunched && !onCameraHandoffFlight)) {
       retireEarnedCap();
       return;
     }
@@ -2310,9 +2338,9 @@ export function createTowerWorld(){
     job.firstRenderSubmitted=true;
     return true;
   }
-  function update(snapshot,dt=0,time=0,options={}){
+  function update(snapshot,dt=0,time=0,options={},passageWitness=null){
     if(disposed||!snapshot)return;
-    updateRetainedCap(snapshot,dt,options);
+    updateRetainedCap(snapshot,dt,options,passageWitness);
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
@@ -3000,6 +3028,7 @@ export function createTowerWorld(){
     retainedSourceCap:retainedEarnedCap?{
       visible:retainedEarnedCap.root.visible,
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
+      sourceAlignedPassage:retainedEarnedCap.sourceAlignedPassage===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
         ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
