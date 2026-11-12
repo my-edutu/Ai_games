@@ -68,3 +68,36 @@ test('rendered multi-ray source proof clears only nearer physical stone, not sce
  assert.equal(planRenderedForegroundStageHitOwners([[hit(1,20)],[hit(1,20)]],living,cam).verifiedOwners,0,'rear architecture retains depth');
  batch.dispose();
 });
+
+test('the genuine camera-to-stage depth, not the nearest unrelated hero, decides whether foreground can recede',async()=>{
+ const {planRenderedForegroundStageHitOwners}=await load();
+ const parent=new THREE.Group(),root=original(parent,new THREE.MeshStandardMaterial(),new THREE.MeshStandardMaterial(),0,2);
+ const direct=root.children[0];
+ direct.userData.dungeonForegroundSourceRoot=root;
+ const heroes=[{visibleActor:true,x:-.5,z:5},{visibleActor:true,x:.5,z:0}];
+ const camera={x:0,y:7,z:7};
+ const hit=(distance)=>({object:direct,distance});
+ const between=planRenderedForegroundStageHitOwners([[hit(8.6)],[hit(8.7)]],heroes,camera,[11,11]);
+ assert.equal(between.verifiedOwners,1,'real stage geometry between the camera and farther hero must be eligible');
+ assert(between.roots.has(root));
+ const rear=planRenderedForegroundStageHitOwners([[hit(10.6)],[hit(10.7)]],heroes,camera,[12,12]);
+ assert.equal(rear.verifiedOwners,0,'stone behind both living heroes stays intact');
+ const shortRay=planRenderedForegroundStageHitOwners([[hit(8.6)],[hit(8.7)]],heroes,camera,[7,7]);
+ assert.equal(shortRay.verifiedOwners,0,'the ray has already reached the real stage before hitting stone');
+ assert.equal(planRenderedForegroundStageHitOwners([[hit(8.6)]],heroes,camera,[11]).verifiedOwners,0);
+ assert.equal(planRenderedForegroundStageHitOwners([[hit(8.6)],[hit(8.7)]],
+  [{visibleActor:false,x:-.5,z:5},heroes[1]],camera,[11,11]).verifiedOwners,0);
+ assert.equal(root.position.y,0,'proof cannot mutate the original wall/authority state');
+});
+test('direct original rendered geometry has a legal reversible source owner, unlike an unowned visual overlay',async()=>{
+ const {planRenderedForegroundStageHitOwners}=await load();
+ const parent=new THREE.Group(),root=original(parent,new THREE.MeshStandardMaterial(),new THREE.MeshStandardMaterial(),0,2);
+ const body=root.children[0];body.userData.dungeonForegroundSourceRoot=root;
+ const camera={x:0,y:6,z:6},actors=[{visibleActor:true,x:-1,z:0},{visibleActor:true,x:1,z:0}];
+ const physical=[{object:body,distance:4},{object:body,distance:4.2}];
+ assert.equal(planRenderedForegroundStageHitOwners(physical.map(h=>[h]),actors,camera,[12,12]).verifiedOwners,1);
+ body.userData.dungeonForegroundSourceRoot=null;
+ assert.equal(planRenderedForegroundStageHitOwners(physical.map(h=>[h]),actors,camera,[12,12]).verifiedOwners,0,
+  'unowned meshes cannot trigger a cutaway');
+ assert.equal(planRenderedForegroundStageHitOwners([[],[]],actors,camera,[12,12]).verifiedOwners,0);
+});
