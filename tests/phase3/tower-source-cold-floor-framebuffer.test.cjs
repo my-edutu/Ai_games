@@ -11,7 +11,7 @@ const source={runToken:'true-tower-run',floor:9,tick:452,lifecycle:'running',
   player:{health:4,grounded:true,groundedPlatformId:'f9:ground'}};
 const earned={stage:'handoff',continuousGroundedHandoff:true,
   runToken:source.runToken,floor:9,sourceTick:451};
-const follow={stale:false,camera:'follow',reducedMotion:false};
+const follow={stale:false,camera:'follow',quality:'low',reducedMotion:false};
 
 test('source-earned Floor8 to Floor9 cold GPU scene has bounded low-tier clarity, then resolves only on submitted frames',async()=>{
   const {createTowerColdFloorResolution}=await policyPromise;
