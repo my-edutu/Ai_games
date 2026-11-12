@@ -1195,11 +1195,23 @@ export function createMazeWorld(options = {}) {
           terrain.add(signal);
           const faces=[];
           for(const side of [-1,1]) {
-            const plate=mesh(signal,box,seaGlass,
-              alongX?0:side*.66,0,alongX?side*.66:0,
-              alongX?2.30:.40,.025,alongX?.40:2.30);
+            // Real rooted margin hinge, not another decal laid on the path.
+            // A .61m-wide leaf rests flush on the OUTSIDE of the published
+            // lane (inward boundary .69); it cannot cover the walkable centre.
+            // Its long axis remains joined over the original 2.30m tile.
+            const hinge=new THREE.Group();
+            hinge.name='Published guardian Tideglass margin hinge '+c.cell+' '+side;
+            hinge.position.set(alongX?0:side*.69,0,alongX?side*.69:0);
+            signal.add(hinge);
+            const rod=mesh(signal,box,darkMetal,
+              alongX?0:side*.69,-.012,alongX?side*.69:0,
+              alongX?2.30:.080,.080,alongX?.080:2.30);
+            rod.name='Published guardian Tideglass hinge root '+c.cell+' '+side;
+            const plate=mesh(hinge,box,seaGlass,
+              alongX?0:side*.305,.015,alongX?side*.305:0,
+              alongX?2.30:.61,.055,alongX?.61:2.30);
             plate.name='Published guardian warning floor leaf '+c.cell+' '+side;
-            faces.push({object:plate,side});
+            faces.push({object:plate,hinge,side});
           }
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces});
         }
@@ -2994,8 +3006,15 @@ export function createMazeWorld(options = {}) {
       const action=onLane?signalStrength:0;
       for(const face of signal.faces){
         face.object.material=action>.28?amber:seaGlass;
-        face.object.position.y=reduced?0:.045*action;
-        face.object.rotation[signal.axis==='x'?'x':'z']=reduced?0:face.side*.24*action;
+        // Pivot the WHOLE attached leaf around its real outer-lane hinge,
+        // rather than tilting a tiny plate about its own centre. At the
+        // witnessed brace the sea-glass edge rises ~.55 world units, clearly
+        // readable beside both actors. The entire physical lane remains open;
+        // neither this pose nor the associated public signal is a collider.
+        // At retreat/hidden/terminal and under reduced motion every hinge
+        // returns to a precisely settled, stationary pose.
+        face.hinge.rotation[signal.axis==='x'?'x':'z']=reduced?0
+          :(signal.axis==='x'?-face.side:face.side)*1.12*action;
       }
     }
     // True PUBLIC pressure-hazard contact is readable as a physical scene

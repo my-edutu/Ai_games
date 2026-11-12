@@ -168,31 +168,44 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
   // not altered acceptance bounds or a new collision/safe-route promise.
   assert.ok(real.every(mesh=>Math.max(mesh.scale.x,mesh.scale.z)>=2.29),
     'each physical warning leaf spans a whole genuine published tile');
-  assert.ok(real.every(mesh=>Math.min(mesh.scale.x,mesh.scale.z)>=.39),
-    'broad side surfaces must read at native mobile scale');
-  assert.ok(real.every(mesh=>Math.abs(mesh.position.z)>=.65 && Math.abs(mesh.position.x)<1e-8),
-    'two outer warning leaves flank the actual horizontal causeway without crossing Pip');
+  assert.ok(real.every(mesh=>Math.min(mesh.scale.x,mesh.scale.z)>=.60),
+    'wide genuine attached leaf is substantial enough to rise at native mobile scale');
+  const hinges=real.map(mesh=>mesh.parent);
+  assert.ok(hinges.every((hinge,i)=>hinge?.isGroup
+    &&Math.abs(hinge.position.z)>=.68 && Math.abs(hinge.position.x)<1e-8
+    &&Math.abs(real[i].position.z)>=.30),
+    'each real margin root lies outside Pip’s clear central lane, joined to its full-size leaf');
+  const roots=[6,7,8].flatMap(cell=>[-1,1].map(side=>
+    world.group.getObjectByName('Published guardian Tideglass hinge root '+cell+' '+side)));
+  assert.ok(roots.every(Boolean),'six tangible dark rooted hinge rails anchor the leaves to real disclosed terrain');
 
   const sourceMaterials=new Set(real.map(mesh=>mesh.material));
   assert.equal(sourceMaterials.size,1,'neutral floor has one pooled sea-glass material');
   assert.equal(world.stats().geometryCount,budget.geometryCount);
   assert.equal(world.stats().materialCount,budget.materialCount);
   world.animate(0,{guardianCell:8,guardianBeat:0,reducedMotion:false});
-  const before=real.map(mesh=>({m:mesh.material,y:mesh.position.y,r:mesh.rotation.x}));
+  const {Vector3}=await import(three);
+  const before=real.map((mesh,i)=>({m:mesh.material,r:hinges[i].rotation.x}));
   world.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+  world.group.updateMatrixWorld(true);
+  const raised=real.map(mesh=>mesh.getWorldPosition(new Vector3()).y);
   for(let i=0;i<real.length;i++){
-    assert.notEqual(real[i].material,before[i].m,'actual witnessed brace lights the broad physical threshold');
-    assert.ok(real[i].position.y>before[i].y+.035,'substantial real-world response, without changing path authority');
-    assert.ok(Math.abs(real[i].rotation.x)>.20,'wide connected leaves visibly counter-hinge away from the central walking lane');
+    assert.notEqual(real[i].material,before[i].m,'actual witnessed brace lights the full connected threshold');
+    assert.ok(Math.abs(hinges[i].rotation.x)>1.0,
+      'real outer-margin hinge opens over one radian, not a microscopic floor tilt');
+    assert.ok(raised[i]>real[i].parent.parent.position.y+.20,
+      'actual attached plate centre rises substantially above its world floor');
   }
-  const braceHeight=real[0].position.y;
+  const braceAngle=Math.abs(hinges[0].rotation.x);
   world.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
-  assert.ok(real[0].position.y<braceHeight,'genuine release makes the threshold settle rather than inventing a strike');
+  assert.ok(Math.abs(hinges[0].rotation.x)<braceAngle,
+    'genuine release folds the real rooted leaf down rather than inventing a strike');
   world.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
-  assert.ok(real.every((mesh,i)=>mesh.material===before[i].m&&mesh.position.y===0&&mesh.rotation.x===0),
-    'unpublished enemy ID instantly revokes all signal, including the physical hinges');
+  assert.ok(real.every((mesh,i)=>mesh.material===before[i].m&&hinges[i].rotation.x===0),
+    'unpublished enemy ID instantly revokes all signal, including root hinge transforms');
   world.animate(1,{guardianCell:8,guardianBeat:1,reducedMotion:true});
-  assert.ok(real.every(mesh=>mesh.rotation.x===0&&mesh.position.y===0),'reduced motion holds a static witnessed state');
+  assert.ok(hinges.every(hinge=>hinge.rotation.x===0),
+    'reduced motion holds a static witnessed warning without turning hardware');
   world.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
   assert.equal(world.stats().geometryCount,budget.geometryCount,'animated warning never creates new GPU shapes');
   assert.equal(world.stats().materialCount,budget.materialCount,'animated warning reuses the installed material pool');
