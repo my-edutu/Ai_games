@@ -975,6 +975,75 @@ export function planOriginalSourceSoleGrounding({
   note:'asset-pivot-only-once; not world-space foot lock or native IK'});
 }
 
+
+/**
+ * Original Walking_A can lower a genuinely loaded, skinned heel AND toe
+ * beneath the authored -20mm stone plane while an airborne ankle correction
+ * has no authority over the stance foot. Offer a restrained upward VISUAL
+ * pelvis offset based on both genuine weighted original outsole vertices.
+ *
+ * The root/grid position, source mixer, weapon, keyframes, and source skeleton
+ * remain untouched. No inferred IK target or foot plant is produced.
+ * Because rendered-world Y can include fitted transforms, the live adapter
+ * MUST independently remeasure the exact applied offset and reject it if the
+ * real loaded foot is not improved or the other loaded foot floats.
+ */
+export function planOriginalSourceLoadedPelvisSupport({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ rootTravel=NaN,frameAge=NaN,alive=true,visible=true,
+ teleport=false,reducedMotion=false,interrupted=false,
+ floorTopY=NaN,floorEvidence='',
+ left=null,right=null,previousLiftMeters=0
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.5||sourceWeight>1||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,floorTopY,previousLiftMeters].every(finite)||
+  rootTravel<=.003||rootTravel>.54||frameAge<0||frameAge>.18||
+  floorEvidence!=='authored-cube-floor-top'||
+  Math.abs(floorTopY+.02)>.003||
+  previousLiftMeters<0||previousLiftMeters>.01601)return null;
+ if(!left||!right||![left.heelY,left.toeY,right.heelY,right.toeY].every(finite))
+  return null;
+ const feet={left,right};
+ const qualified=Object.entries(feet).filter(([,f])=>{
+  const heel=f.heelY-floorTopY,toe=f.toeY-floorTopY;
+  return heel>=-.055&&heel<=.025&&toe>=-.055&&toe<=.025&&
+   Math.abs(heel-toe)<=.045&&Math.min(heel,toe)<-.008;
+ });
+ if(!qualified.length)return null;
+ let best=null;
+ for(const [side,foot] of qualified){
+  const beforeWorst=Math.max(Math.abs(foot.heelY-floorTopY),
+   Math.abs(foot.toeY-floorTopY));
+  const ideal=Math.max(0,Math.min(.016,floorTopY-(foot.heelY+foot.toeY)/2));
+  // A real 8mm-per-displayed-frame ceiling avoids a sudden 16mm whole-body
+  // jump when the native 41-joint source foot enters its loaded stroke.
+  const lift=clamp(ideal,Math.max(0,previousLiftMeters-.008),
+   Math.min(.016,previousLiftMeters+.008));
+  if(lift<=.00001)continue;
+  const afterHeel=foot.heelY+lift,afterToe=foot.toeY+lift;
+  const afterWorst=Math.max(Math.abs(afterHeel-floorTopY),
+   Math.abs(afterToe-floorTopY));
+  if(beforeWorst-afterWorst<.0015||
+   afterHeel>floorTopY+.028||afterToe>floorTopY+.028)continue;
+  // Do not rescue one buried shoe by elevating an independently loaded,
+  // already clear original shoe into a visible hover above the stone.
+  const opposite=feet[side==='left'?'right':'left'];
+  const oHeel=opposite.heelY-floorTopY,oToe=opposite.toeY-floorTopY;
+  const otherNearLoaded=oHeel>=-.045&&oHeel<=.025&&
+   oToe>=-.045&&oToe<=.025&&Math.abs(oHeel-oToe)<=.045;
+  if(otherNearLoaded&&Math.max(oHeel,oToe)+lift>.025)continue;
+  if(!best||beforeWorst-afterWorst>best.improvementMeters)
+   best={side,liftMeters:lift,beforeWorstMeters:beforeWorst,
+    afterWorstMeters:afterWorst,improvementMeters:beforeWorst-afterWorst,
+    source:'measured-original-GLB-loaded-heel-and-toe',
+    floorTopY,previousLiftMeters};
+ }
+ return best;
+}
+
 /**
  * Once an original licensed Idle skinned-shoe pose is calibrated to the
  * measured stone-top Y, the regular full-body presentation frame must retain
