@@ -19,7 +19,7 @@ import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-ki
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planNativeFigureSculpt,sculptNativeFigureGeometry} from '/dungeon/native-figure-sculpt.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
-import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planSourceOwnedFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose,restoreOriginalSourceLegsAfterRejectedPelvis} from '/dungeon/rig-attachment-plan.js';
+import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,alignRigFootfallPhase,planRigLegGesture,planRigFullBodyStride,planSourceOwnedFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing,planNativeGuardPose,restoreOriginalSourceLegsAfterRejectedPelvis,prepareOriginalSourceLegsForPelvisRetry} from '/dungeon/rig-attachment-plan.js';
 
 // Optional locally vendored CC0 characters. Offline / missing-asset fallback is the
 // fully autonomous procedural 3D rig, not a blank screen. No third-party runtime calls.
@@ -905,7 +905,7 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   }
  };
 }
-function auditSourceLoadedPelvisAfterLegs(actor){
+function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
  const candidate=actor.sourceLoadedPelvisCandidate;
  actor.sourceLoadedPelvisCandidate=null;
  if(!candidate)return;
@@ -960,6 +960,67 @@ function auditSourceLoadedPelvisAfterLegs(actor){
   // Mark any original ankle proof undone by the rejected visual pivot.
   for(const probe of Object.values(actor.sourceStanceProbeOutcomes??{}))
    if(probe?.status==='accepted')probe.status='rolled-back-with-pelvis';
+  // A rejected elevated pelvis must not discard an otherwise legal and
+  // physically witnessed original ankle adjustment. After the atomic six-joint
+  // rollback, the imported source Mixer joints can be safely restaged ONCE at
+  // the original, final visual root. No fabricated foot lock or extra step.
+  const retryEligible=originalLegsRestored&&!reducedMotion&&
+   actor.fullBody?.mode==='move'&&actor.fullBody?.owner?.locomotion===true&&
+   !actor.fullBody?.interrupted&&!actor.locomotionTeleport&&
+   actor.activeImportedClipName==='Walking_A'&&actor.u.hp>0&&
+   actor.root?.visible===true&&Number.isFinite(since)&&since>=0;
+  const retryPrepared=retryEligible&&
+   prepareOriginalSourceLegsForPelvisRetry(actor.rigGaitBones);
+  if(retryPrepared){
+   // The pelvis candidate is consumed, so this is a nonrecursive foot pass.
+   stageRigLegsAfterMixer(actor,since,reducedMotion);
+   actor.assetRoot?.updateMatrixWorld(true);
+   const stanceProofs=Object.values(actor.sourceStanceSoleCurrentFrameProofs??{})
+    .filter(Boolean);
+   let sourceSolesSafe=true;
+   for(const proof of stanceProofs){
+    const foot=sourceSolePatchVertexCandidates(actor)?.[proof.side];
+    const finalHeel=readOriginalSwingSoleY(foot?.heel);
+    const finalToe=readOriginalSwingSoleY(foot?.toe);
+    // The actual final restored-root skin must match its claimed original
+    // GLB heel/toe. Discard a receipt changed by later connected bones.
+    if(proof.sourceInstanceId!==actor.assetRoot?.uuid||
+     !Number.isFinite(finalHeel)||!Number.isFinite(finalToe)||
+     Math.abs(finalHeel-proof.afterHeelY)>.003||
+     Math.abs(finalToe-proof.afterToeY)>.003||
+     finalHeel<proof.beforeHeelY-.004||
+     finalToe<proof.beforeToeY-.004){
+     sourceSolesSafe=false;break;
+    }
+   }
+   if(!sourceSolesSafe){
+    // If even this second measured pose is invalid, preserve the ORIGINAL
+    // Mixer plus action-owned base; remove speculative retry proofs as well.
+    restoreOriginalSourceLegsAfterRejectedPelvis(actor.rigGaitBones);
+    actor.sourceSwingToeCorrectionFrames=candidate.sourceCountsBeforeLegs.toe;
+    actor.sourceSwingCalfAssistFrames=candidate.sourceCountsBeforeLegs.calf;
+    actor.sourceStanceReliefFrames=candidate.sourceCountsBeforeLegs.stance;
+    actor.sourceSwingToeCorrectionsThisFrame=0;
+    actor.sourceSwingCalfCurrentFrameMask=0;
+    actor.sourceSwingToeLiftProof=null;
+    actor.sourceSwingCalfAssistProof=null;
+    actor.sourceSwingToeCurrentFrameProofs={left:null,right:null};
+    actor.sourceStanceSoleCurrentFrameProofs={left:null,right:null};
+    for(const probe of Object.values(actor.sourceStanceProbeOutcomes??{}))
+     if(probe?.status==='accepted')probe.status='retry-final-skin-rejected';
+   }
+   actor.sourceLoadedPelvisRollbackFootProof.retryAttempted=true;
+   actor.sourceLoadedPelvisRollbackFootProof.retrySourceSolesSafe=sourceSolesSafe;
+   actor.sourceLoadedPelvisRollbackFootProof.retryVerifiedStanceFeet=
+    sourceSolesSafe?stanceProofs.length:0;
+   actor.sourceLoadedPelvisRollbackFootProof.retryFinalHeelY=
+    readOriginalSwingSoleY(candidate.foot.heel);
+   actor.sourceLoadedPelvisRollbackFootProof.retryFinalToeY=
+    readOriginalSwingSoleY(candidate.foot.toe);
+  }else{
+   actor.sourceLoadedPelvisRollbackFootProof.retryAttempted=false;
+   actor.sourceLoadedPelvisRollbackFootProof.retryVerifiedStanceFeet=0;
+  }
   return;
  }
  actor.sourceLoadedPelvisFrameProof={
@@ -2365,7 +2426,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageRigForearmsAfterMixer(actor,poseAge,reducedMotion);
  stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
  stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
- auditSourceLoadedPelvisAfterLegs(actor);
+ auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
  stageRigMeleeAfterMixer(actor,poseAge,reducedMotion);
  stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
  stageSkinnedHitAfterMixer(actor,reducedMotion);
