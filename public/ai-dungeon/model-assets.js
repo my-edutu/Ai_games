@@ -19,6 +19,7 @@ import {planFittedRoleDetail} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
 import {planNativeFigureSculpt,sculptNativeFigureGeometry,planNativeAdultLegLink} from '/dungeon/native-figure-sculpt.js';
+import {planNativeCastFinish} from '/dungeon/native-cast-finish-plan.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
 import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
 
@@ -99,20 +100,24 @@ function configure(mesh,kind,owned,softwareWebGL=false){
  const role=planForgedFinishes(kind);
  const textile=new THREE.Color(role?.textile?.color||'#68717a');
  const boss=kind==='warden';
+ let nativeFinishMeshes=0;
  mesh.traverse(obj=>{
   if(!obj.isMesh)return;
   obj.castShadow=true;obj.receiveShadow=true;obj.userData.sharedAssetGeometry=true;
+  const finish=planNativeCastFinish(kind,obj.name);
+  if(finish?.tint&&finish.mix>0)nativeFinishMeshes++;
   const source=Array.isArray(obj.material)?obj.material:[obj.material];
   const fitted=source.map(mat=>{
    if(!mat)return mat;
    const copy=mat.clone();
    if(copy.color){
     // Material.color multiplies the original texture: do not replace maps.
-    copy.color.lerp(textile,boss?.13:.09);
-    if(boss)copy.color.lerp(new THREE.Color('#e4b18b'),.15);
+    if(finish?.tint&&finish.mix>0)copy.color.lerp(new THREE.Color(finish.tint),finish.mix);
+    else{copy.color.lerp(textile,boss?.13:.09);
+     if(boss)copy.color.lerp(new THREE.Color('#e4b18b'),.15);}
    }
-   if('roughness' in copy)copy.roughness=Math.min(1,Math.max(.58,copy.roughness??.8));
-   if('metalness' in copy)copy.metalness=Math.min(.47,Math.max(0,copy.metalness??0));
+   if('roughness' in copy)copy.roughness=finish?.roughness??Math.min(1,Math.max(.58,copy.roughness??.8));
+   if('metalness' in copy)copy.metalness=finish?.metalness??Math.min(.47,Math.max(0,copy.metalness??0));
    if(boss&&copy.emissive){
     copy.emissive.lerp(new THREE.Color('#a74d2e'),.14);
     copy.emissiveIntensity=Math.min(.28,Math.max(copy.emissiveIntensity||0,.10));
@@ -123,6 +128,7 @@ function configure(mesh,kind,owned,softwareWebGL=false){
   });
   obj.material=Array.isArray(obj.material)?fitted:fitted[0];
  });
+ return nativeFinishMeshes;
 }
 // Original scene-only regalia distinguishes the true textured boss from its
 // shared enemy swordsman GLB. No collision, navigation or combat properties.
@@ -949,7 +955,7 @@ function attachCharacter(actor,{softwareWebGL=false}={}){
  const request=load(asset).then(gltf=>{
   if(!gltf||actor.detached||actor.u.id!==id)return false;
   const instance=cloneSkeleton(gltf.scene),owned=[],isBoss=actor.u.kind==='warden';
-  configure(instance,actor.u.kind,owned,softwareWebGL);
+  const nativeFinishMeshes=configure(instance,actor.u.kind,owned,softwareWebGL);
   // Fit artist source units to dungeon scale and centre the feet on the floor.
   instance.updateMatrixWorld(true);
   const bounds=new THREE.Box3().setFromObject(instance),size=new THREE.Vector3(),center=new THREE.Vector3();
@@ -964,7 +970,7 @@ function attachCharacter(actor,{softwareWebGL=false}={}){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelMemory=null;actor.nativeFootPlantMemory=null;actor.nativeFootPlantFrames=0;actor.nativeSupportFootFrames=0;actor.nativeDuelRecoveryFrames=0;actor.nativeSourceRecoveryClipFrames=0;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelMemory=null;actor.nativeFootPlantMemory=null;actor.nativeFootPlantFrames=0;actor.nativeSupportFootFrames=0;actor.nativeDuelRecoveryFrames=0;actor.nativeSourceRecoveryClipFrames=0;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.nativeCastFinishMeshes=nativeFinishMeshes;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;
@@ -1398,6 +1404,7 @@ function stats(actors){
   nativeVisibleSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.sourceMeshes||0),0),
   nativeVisibleSkinnedMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.skinnedMeshes||0),0),
   nativeTexturedSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.texturedMeshes||0),0),
+  nativeCastFinishMeshes:authored.reduce((n,a)=>n+(a.nativeCastFinishMeshes||0),0),
   nativeSculptActors:authored.filter(a=>(a.nativeFigureSculpt?.segments||0)>0).length,
    nativeSculptHeadSegments:authored.reduce((n,a)=>n+(a.nativeFigureSculpt?.headSegments||0),0),
   nativeSculptMeshes:authored.reduce((n,a)=>n+(a.nativeFigureSculpt?.segments||0),0),

@@ -8820,5 +8820,29 @@
     "originalAudioSync": "UNVERIFIED",
     "lockedBaselineAB": "UNVERIFIED",
     "next": "Inspect exact new-head 390/1440 original video, nativeAdultLegRig actors/frames/groundMax, stable feet and weapon seam, hazard cells and p95; reject if zero effect/skin breaks; prioritize coherent adult trio combat and true HP/audio and independent critics."
+  },
+  "m1NativeSourceCastMaterialExemplar20261112": {
+    "at": "2026-11-12",
+    "stage": "A_INCOMPLETE_B_ORIGINAL_CAST_CANDIDATE",
+    "status": "SOURCE_MATERIAL_INTEGRATION_NEW_HEAD_ORIGINAL_AV_UNVERIFIED",
+    "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedParentSha": "f15800b02ddd5e0738e56c5160a63e13ebf957fa",
+    "priorOrganicRun": 43185969919,
+    "priorFoundationRun": 43185970097,
+    "priorVisualRun": 43185969823,
+    "priorCI": 43185970012,
+    "observedParent": "True Vanguard native leg rig 1 actor, 75 mobile Warden frames, ~.077m grounded offset; before/after mobile warning mean RGB delta 1.81, stylistic realism not demonstrated. Full organic desktop/mobile 5-stage original A/V SUCCESS, foundation/browser SUCCESS; catalogue FAIL 6 source/expectation assertions.",
+    "change": "Original source-skinned textured GLB Vanguard/Revenant/Warden actor-owned material PBR finish for native plate/steel/face/eyes/leather; authored desaturated divergent forged palettes, genuine embedded textures preserved. No extra geometry/draw calls, gameplay/audio/save/replay untouched. Runtime nativeCastFinishMeshes diagnostics, same-origin server route and focused tests.",
+    "afterLiveAv": "NOT_YET_OBSERVED",
+    "testStatus": "QUEUED_AT_COMMIT",
+    "matchedLockedBaseline": "UNVERIFIED",
+    "originalHpBladeAudio": "UNVERIFIED",
+    "hardwareGpu": "UNVERIFIED",
+    "independentCritics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "pr72": "SEPARATE_UNADOPTED",
+    "next": "Download exact-head original desktop/mobile browser A/V; same-seed f158 parent comparison for silhouette, color identity, face/eye readability and source finish count; reject if harm; focused tests and 24x900 replay; original HP/blade/audio and 3 fresh blinded critics; never merge/deploy."
   }
 }
