@@ -1480,7 +1480,7 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
  probeOutcome.appliedCandidates=measuredCandidates;
  const accepted=chooseOriginalSourceStanceAppliedWitness({
   floorTopY:-.02,beforeHeelY:heelY,beforeToeY:toeY,
-  candidates:measuredCandidates
+  previousCorrectionRad:previous,candidates:measuredCandidates
  });
  if(!accepted)return 0;
  const fineFallbackUsed=accepted.delta!==selected.delta;
@@ -1499,7 +1499,7 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   afterHeelY:accepted.afterHeel,afterToeY:accepted.afterToe,
   beforeWorstMeters:beforeWorst,afterWorstMeters:accepted.afterWorst,
   floorTopY:-.02,appliedAngleRad:accepted.delta,
-  fineFallbackUsed
+  previousCorrectionRad:previous,fineFallbackUsed
  };
  actor.sourceStanceReliefFrames=Math.min(1000000,
   (actor.sourceStanceReliefFrames||0)+1);
