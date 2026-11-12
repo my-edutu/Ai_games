@@ -68,7 +68,7 @@ export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMoti
 export const WARDEN_WALL_BUTTRESS_PROFILE=Object.freeze({
  shaftTop:.15,shaftBase:.19,shaftHeight:.86,shaftY:.45,
  capTop:.24,capBase:.20,capHeight:.13,capY:.91,
- archRadius:.23,archTube:.043,archY:1.04,
+ archRadius:.23,archTube:.043,archY:.92,
  finialRadius:.085,finialY:1.08,
  maxTopMeters:1.20,oldShaftHeight:2.30,oldArchHeight:2.48
 });
