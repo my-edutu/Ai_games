@@ -20,7 +20,7 @@ function realShapedWebM({frames=[0,80],includeAudio=true}={}){
  if(includeAudio)tracks.push(el('ae',[el('d7',uint(2)),el('83',uint(2))]));
  const cluster=[el('e7',uint(1000)),...frames.map((ms,i)=>block(1,ms,0x12+i))];
  if(includeAudio)cluster.push(block(2,50,0x55));
- return el('18538067',[el('1654ae6b',tracks),el('1f43b675',cluster)]);
+ return el('18538067',[el('1654ae6b',tracks),el('ec',Buffer.alloc(1300,0)),el('1f43b675',cluster)]);
 }
 function capture(bytes,{requested=3,consent=true}={}){
  return {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',
