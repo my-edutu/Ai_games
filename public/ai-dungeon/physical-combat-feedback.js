@@ -81,8 +81,15 @@ export function createPhysicalCombatFeedback({
  const presentationDelay=cue=>requirePresentedFrame&&
   (cue?.kind==='swing'||cue?.kind==='warden-release')
   ?0:clamp(cue?.delay,0,.5);
- function flush(){
-  pending.length=0;awaitingPresentation.length=0;seen.clear();
+ // Floor/run transitions and explicit teardown cancel pending REAL injuries.
+ // Keep one bounded terminal decision per cue before clearing its observation
+ // clock; otherwise an unsubmitted wound disappears from A/V forensic evidence.
+ // A visual admitted into a retained pool is still NOT a submitted frame.
+ function flush(reason='explicit-reset'){
+  for(const item of pending)
+   retainReceipt(item.cue,false,false,null,reason+'-pending');
+  revokeAwaitingAudio(reason+'-awaiting-frame');
+  pending.length=0;seen.clear();
   observedAtByCueId.clear();
   lastPresentedFrame=null;highestNumericPresentedFrame=-1;
   lastVisualAdvanceStartClock=null;lastVisualAdvanceEndClock=null;
@@ -463,7 +470,7 @@ export function createPhysicalCombatFeedback({
   onAudioStateChange();
   const nextKey=key(snapshot);
   if(!previous||sceneId!==nextKey){
-   if(previous){flush();sceneResets++}
+   if(previous){flush('scene-transition');sceneResets++}
    sceneId=nextKey;previous=snapshot;
    return 0; // No historical first-load, floor, run or restore replay.
   }
@@ -655,10 +662,10 @@ export function createPhysicalCombatFeedback({
  // 'unmuted' preference does not mean automatic playback after a page reload;
  // only a NEW real gesture enables oscillator synthesis on this page.
  function preferredMuted(){return preference.read()}
- function reset(){flush();previous=null;sceneId=null;}
+ function reset(){flush('explicit-reset');previous=null;sceneId=null;}
  function dispose(){
   if(disposed)return;
-  flush();disposed=true;previous=null;
+  flush('dispose');disposed=true;previous=null;
   detachAudioState();audioStateContext=null;
   optedIn=false;safeCall(()=>foley?.dispose?.());safeCall(()=>visuals?.dispose?.());
  }
