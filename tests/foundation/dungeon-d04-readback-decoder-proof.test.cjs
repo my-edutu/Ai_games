@@ -63,3 +63,53 @@ test('moving receipt-readback evidence remains source-verified and explicitly un
  assert.equal(classifyDecodedReceiptReadbackGameplay({video:{...v,source:'synthetic-2d-canvas'},decoder:decoded}),
   'READBACK_REAL_WEBGL_MOTION_UNVERIFIED');
 });
+
+test('Chromium decoded WebM witness never upgrades a fabricated or non-opted source',()=>{
+ const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ const media={source:'real-webgl-receipt-readback-serial-original-audio',
+  status:'RECORDED',videoTracks:1,audioTracks:1,optedInAtStart:true,
+  originalSoundstageTrackLive:true,bytes:2400};
+ const proof={source:'chromium-decoded-real-webgl-original-webm',status:'SAMPLED',
+  width:688,height:397,durationSeconds:5.5,
+  samples:[{requestedSeconds:.3,hash:'11111111',lumaRange:75},
+   {requestedSeconds:2.4,hash:'22222222',lumaRange:80}]};
+ const valid=classifyChromiumDecodedRealWebM(media,proof);
+ assert.equal(valid.classification,'BROWSER_DECODED_MOVING_PIXELS_UNALIGNED');
+ assert.equal(valid.sampleSynchronized,false);
+ assert.equal(valid.sampledFrames,2);
+ assert.equal(valid.distinctFrames,2);
+ for(const variant of [
+  {...media,source:'synthetic-2d-canvas-encoder-control-not-gameplay'},
+  {...media,originalSoundstageTrackLive:false},
+  {...media,videoTracks:0},
+  {...media,status:'UNAVAILABLE'}
+ ]){
+  assert.equal(classifyChromiumDecodedRealWebM(variant,proof).classification,
+   'BROWSER_DECODE_UNVERIFIED');
+ }
+});
+test('Chromium pixel samples do not count as motion when static, blank, corrupted, reversed or over budget',()=>{
+ const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ const media={source:'real-webgl-receipt-readback-serial-original-audio',
+  status:'RECORDED',videoTracks:1,audioTracks:1,optedInAtStart:true,
+  originalSoundstageTrackLive:true,bytes:2400};
+ const witness={source:'chromium-decoded-real-webgl-original-webm',status:'SAMPLED',
+  width:688,height:397,durationSeconds:5.5,
+  samples:[{requestedSeconds:.3,hash:'11111111',lumaRange:75},
+   {requestedSeconds:2.4,hash:'11111111',lumaRange:75}]};
+ const staticProof=classifyChromiumDecodedRealWebM(media,witness);
+ assert.equal(staticProof.classification,'BROWSER_DECODED_STATIC_OR_SPARSE_UNALIGNED');
+ assert.equal(staticProof.sampleSynchronized,false);
+ const bad=[
+  {...witness,samples:[witness.samples[0]]},
+  {...witness,samples:[{...witness.samples[0],lumaRange:0},
+   {...witness.samples[1],hash:'22222222',lumaRange:0}]},
+  {...witness,samples:[witness.samples[1],witness.samples[0]]},
+  {...witness,samples:[{...witness.samples[0],hash:'not-a-hash'},witness.samples[1]]},
+  {...witness,samples:Array(9).fill(witness.samples[0])},
+  {...witness,source:'synthetic-2d-canvas-encoder-control-not-gameplay'}
+ ];
+ for(const result of bad)
+  assert.equal(classifyChromiumDecodedRealWebM(media,result).classification,
+   'BROWSER_DECODE_UNVERIFIED');
+});
