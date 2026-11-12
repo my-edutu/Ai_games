@@ -23400,18 +23400,65 @@ function realGrainHomeFrontage(home){
 // not invent goods, buyers, transactions, world actors or a scene proxy.
 // Validity is receipt-scoped, resource-bounded and checked against the SAME
 // built market, foliage and real worksite roofs as the live renderer.
+// W268: use genuine two-bay market shelf positions for the physical camera,
+// not the seller's nearby navigation destination. Full roof clearance alone
+// hid the ACTUAL credited bags behind a vertical arcade post in the W267 movie.
+// This deterministic projection inspects both receipt shelves without moving
+// citizens, hiding buildings, fabricating purchases or authoring a film.
+function projectMarketReceiptShelves(eye,aim,sites,tanHorizontal,tanVertical){
+ const delta=aim.map((v,i)=>v-eye[i]),distance=Math.hypot(...delta);
+ if(!Number.isFinite(distance)||distance<.01||
+    !Number.isFinite(tanHorizontal)||tanHorizontal<=0||
+    !Number.isFinite(tanVertical)||tanVertical<=0)
+  return {visibleShelves:0,minHeightFraction:0,maxAbsX:Infinity,maxAbsY:Infinity};
+ const forward=delta.map(v=>v/distance),
+  flat=Math.hypot(forward[0],forward[2]);
+ if(flat<.01)return {visibleShelves:0,minHeightFraction:0,
+  maxAbsX:Infinity,maxAbsY:Infinity};
+ const right=[-forward[2]/flat,0,forward[0]/flat],
+  up=[-forward[0]*forward[1]/flat,flat,-forward[2]*forward[1]/flat];
+ let visibleShelves=0,minHeightFraction=Infinity,maxAbsX=0,maxAbsY=0;
+ for(const point of sites){
+  const rel=point.map((v,i)=>v-eye[i]),
+   depth=rel.reduce((sum,v,i)=>sum+v*forward[i],0);
+  if(depth<=.2)continue;
+  const x=rel.reduce((sum,v,i)=>sum+v*right[i],0)/
+   (depth*tanHorizontal);
+  const y=rel.reduce((sum,v,i)=>sum+v*up[i],0)/
+   (depth*tanVertical);
+  if(!Number.isFinite(x)||!Number.isFinite(y))continue;
+  const heightFraction=.32/(2*depth*tanVertical);
+  if(Math.abs(x)<.84&&Math.abs(y)<.75){
+   visibleShelves++;
+   minHeightFraction=Math.min(minHeightFraction,heightFraction);
+  }
+  maxAbsX=Math.max(maxAbsX,Math.abs(x));
+  maxAbsY=Math.max(maxAbsY,Math.abs(y));
+ }
+ return {visibleShelves,minHeightFraction:Number.isFinite(minHeightFraction)?
+  minHeightFraction:0,maxAbsX,maxAbsY};
+}
 function chooseRealMarketReceiptLens(receiptId){
  const receipt=deliveryReceipts.find(row=>row.id===receiptId&&
   row.resource==='food'&&row.job==='farmer'&&
   row.creditedAtUnloading===true&&Number.isFinite(row.amount)&&row.amount>0);
  if(!receipt)return null;
- const [x,z]=FARM_MARKET_STREET_DESTINATION;
- const aim=[x,terrain(x,z)+1.04,z],roofs=followCameraRoofs(),
-  ground=terrain(x,z),w=canvas.clientWidth,h=canvas.clientHeight;
+ // These are precisely the two ALREADY INSTALLED original physical shelves
+ // in renderMarketReceiptInventory(), not arbitrary storybook targets.
+ const actualShelfPoints=[[-1,terrain(-1,10.2)+.43,11.03],
+  [.85,terrain(.85,10.2)+.43,11.03]];
+ const x=(actualShelfPoints[0][0]+actualShelfPoints[1][0])*.5,
+  z=11.03,ground=terrain(x,z);
+ const aim=[x,(actualShelfPoints[0][1]+actualShelfPoints[1][1])*.5,z],
+  roofs=followCameraRoofs(),w=canvas.clientWidth,h=canvas.clientHeight;
  if(w<=0||h<=0)return null;
- const angles=[Math.PI,.82,-.82,1.46,-1.46,2.30,-2.30,0,
-  Math.PI+.40,Math.PI-.40,Math.PI+.86,Math.PI-.86];
- const pitches=[.23,.36,.47],distances=[6.3,7.9,9.5];
+ const {tanHorizontal,tanVertical}=physicalCameraProjection();
+ // Prefer original frontal trading-court access, but search physically
+ // different oblique approaches when the actual roof/post blocks it.
+ const angles=[Math.PI,Math.PI-.18,Math.PI+.18,
+  Math.PI-.42,Math.PI+.42,Math.PI-.67,Math.PI+.67,
+  1.46,-1.46,0];
+ const pitches=[.18,.29,.40],distances=[4.8,5.9,7.2];
  let checked=0,clear=0,best=null,bestCost=Infinity;
  for(const pitch of pitches)for(const zoom of distances)for(const yaw of angles){
   const radius=Math.cos(pitch)*zoom;
@@ -23421,23 +23468,32 @@ function chooseRealMarketReceiptLens(receiptId){
   checked++;
   if(!physicalFollowEyeClearance(eye,roofs).clear||
      followRayBlockers(eye,aim,roofs)!==0)continue;
+  const frame=projectMarketReceiptShelves(eye,aim,
+   actualShelfPoints,tanHorizontal,tanVertical);
+  if(frame.visibleShelves!==2||frame.minHeightFraction<.018)continue;
+  const post=marketCourierPostSightline(eye,aim);
+  if(post.centerCover>.25)continue;
   const tree=foregroundVegetationProjection(eye,aim);
   if(tree.faceBlockers||tree.cover>=.27)continue;
   const architecture=foregroundSceneProjection(eye,aim,roofs);
   if(architecture.cover>=.34||architecture.cargoCover>=.22)continue;
   clear++;
-  const cost=tree.cover*1300+architecture.cover*1100+
-   architecture.cargoCover*1200+Math.abs(pitch-.36)*30+
-   Math.abs(zoom-7.9)*5+
+  const cost=post.centerCover*2200+tree.cover*900+
+   architecture.cover*1000+architecture.cargoCover*1100+
+   frame.maxAbsX*80+frame.maxAbsY*40+
+   Math.abs(pitch-.29)*18+(zoom-5.3)**2*3+
    Math.abs(Math.atan2(Math.sin(yaw-Math.PI),
-    Math.cos(yaw-Math.PI)))*7;
+    Math.cos(yaw-Math.PI)))*12;
   if(cost<bestCost){
    bestCost=cost;
-   best={source:'actual-receipt-original-market-physical-camera',
+   best={source:'actual-receipt-original-market-two-shelf-physical-camera',
     receiptId,anchor:[x,z],aim:aim.slice(),eye:eye.slice(),
     yaw,pitch,zoom,citySize:city.length,
     viewportWidth:w,viewportHeight:h,
     sceneCover:architecture.cover,canopyCover:tree.cover,
+    visibleShelves:frame.visibleShelves,
+    minHeightFraction:frame.minHeightFraction,
+    shelfMaxScreenX:frame.maxAbsX,postCover:post.centerCover,
     cameraInsideBuilding:false,occludingRoofRays:0,
     checkedShots:checked,clearShots:clear,authorityChanged:false};
   }
@@ -23536,6 +23592,9 @@ function getRealGrainJourneyAudit(){
     aim:grainJourney.marketLens.aim.slice(),
     sceneCover:grainJourney.marketLens.sceneCover,
     canopyCover:grainJourney.marketLens.canopyCover,
+    visibleShelves:grainJourney.marketLens.visibleShelves,
+    postCover:grainJourney.marketLens.postCover,
+    minHeightFraction:grainJourney.marketLens.minHeightFraction,
     candidateEyesChecked:grainJourney.marketLens.checkedShots,
     verifiedClearEyes:grainJourney.marketLens.clearShots,
     historicalReceiptNotReenacted:true}:null,
