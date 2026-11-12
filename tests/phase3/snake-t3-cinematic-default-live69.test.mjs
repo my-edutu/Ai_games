@@ -10,7 +10,10 @@ test('ordinary running broadcast enters a real hero sequence, explicit overview 
   assert.equal(selectInitialSpectatorCamera(new URLSearchParams()), 'cinematic');
   for (const value of ['overview','follow','detail','cinematic']) assert.equal(selectInitialSpectatorCamera(new URLSearchParams('camera='+value)),value);
   for (const invalid of ['auto','private','not-a-camera']) assert.equal(selectInitialSpectatorCamera(new URLSearchParams('camera='+invalid)), 'overview');
-  for (const value of ['overview','follow','detail','cinematic']) assert.equal(selectInitialSpectatorCamera(new URLSearchParams('camera='+value),true),'overview');
+  assert.equal(selectInitialSpectatorCamera(new URLSearchParams(),true),'overview');
+  assert.equal(selectInitialSpectatorCamera(new URLSearchParams('camera=cinematic'),true),'overview');
+  for (const value of ['overview','follow','detail']) assert.equal(selectInitialSpectatorCamera(new URLSearchParams('camera='+value),true),value,
+    'reduced motion must keep an explicit stable camera choice without automatic cinematic cuts');
   assert.match(app, /cameraMode = selectInitialSpectatorCamera\(params, reducedMotion\)/);
 });
 

@@ -21,7 +21,8 @@ test('severe completed GPU pressure cuts only a meaningful follow reframe, not e
  assert.equal(shouldCutUnderGpuPressure({mode:'follow',anchor:reframe,queue:queue()}),true);
  assert.equal(shouldCutUnderGpuPressure({mode:'follow',anchor:small,queue:queue()}),false);
  assert.equal(shouldCutUnderGpuPressure({mode:'overview',anchor:reframe,queue:queue()}),false);
- assert.equal(shouldCutUnderGpuPressure({mode:'detail',anchor:reframe,queue:queue()}),false);
+ assert.equal(shouldCutUnderGpuPressure({mode:'detail',anchor:reframe,queue:queue()}),true,
+  'the more frequent real detail dead-zone must not saturate a measured starved GPU');
 });
 
 test('normal hardware, startup, unsupported GPU fences, historical peak and insufficient skips do not cut',async()=>{

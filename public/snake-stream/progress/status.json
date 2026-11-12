@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-12",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; 2c2c original strict 3/17",
-  "detail": "2c2c Chromium #43138308007 measured 3 genuine complete renderer submissions/17 at 751x415 in original 1s test; severe 340 GPU skips, moving-camera full scene GPU p95 264.85ms vs frozen/cache p95 24.00ms diagnostic. T4 pressure-aware real follow reframe candidate native RED->GREEN 3/3, TS/900 tick/10k ticks pass; real candidate GPU, footage and full browser CI NOT YET verified. Real T1 whole game remains an overly rectangular courtyard. No merge/deploy/force push.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING explicit stable reduced-motion close shot repaired natively / T4 HARD RED, aa4e original strict 12/17",
+  "detail": "aa4e browser #43152516883 strict original 12/17 WebGL frames at 751x415 with 646 skips, 36/95 checks. Native #43152516943 684/747 passed. Explicit reduced-motion close camera was overridden to overview; source-exact production candidate now respects manual stable camera and guards both follow/detail reframes under measured severe GPU pressure. Native RED→GREEN 8/8, related 20/20, TypeScript, 900-tick host authority passed. New-head Chromium and device measurements pending; whole-scene rectangular court visually self-rejected.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "2c2c genuine original 1-second desktop WebGL is 3/17 (HARD RED); authentic real whole game still rectangular; cinematic pressure-cut candidate must be remeasured and reviewed.",
+  "latestCaption": "aa4e strict original 1-second WebGL 12/17 HARD RED; current real game still rectangular; native camera correctness/performance candidate awaiting original Chromium gate.",
   "reviews": [
+    {
+      "area": "November 12 aa4e browser: explicit reduced-motion detail became overview; repaired native camera and detail GPU cuts, acceptance pending",
+      "sourceHead": "aa4e54bc4d6dce79f4f2e45645f548cc11302d95",
+      "browser": "Completed #43152516883 strict 12 genuine complete renderer submissions/17 at 751x415, 646 GPU skips and 36/95 browser pass. Candidate Chromium unmeasured.",
+      "nativeCI": "#43152516943 684/747 pass; reproduction #43152516882 PASS; new native RED->GREEN 8/8, related 20/20, TypeScript and 900-tick authority pass, optional Three unavailable locally",
+      "checks": "Explicit reduced-motion follow/detail remain stable real 3D, cinematic remains disabled; observed severe fence/queue pressure triggers full-scene cut on detail or follow anchor, original 17 gate unchanged",
+      "verdict": "T0 UNSIGNED/T1 BUILDING visual self-rejected/T2 BUILDING/T3 BUILDING native/T4 HARD RED. Matched new Chromium, film, device FPS/p95 and independent critique pending. No merge or deploy."
+    },
     {
         "area": "Nov 12 2c2c source T4 real full-scene moving-follow GPU bottleneck: guarded camera reframe (BUILDING/UNACCEPTED)",
         "sourceHead": "2c2c3b401dde09c1d82069874ddfaa99ac70ba10",

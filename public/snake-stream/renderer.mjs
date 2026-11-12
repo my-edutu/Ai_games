@@ -587,7 +587,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // viewpoint and gaze. Ordinary recentering stays smooth; settled, exact
     // poses permit the unchanged HDR/depth static world to be reused.
     // A completed-fence pressure reading selects a genuine photographic cut
-    // only at a real follow reframe. Smooth camera movement stays unchanged on
+    // only at a real follow/detail reframe. Smooth camera movement stays unchanged on
     // normal hardware; no static/serpent/water draw or cue is skipped.
     const pressureFollowCut = shouldCutUnderGpuPressure({ mode: cameraMode, anchor, queue: frameGate.stats() });
     advancePresentationCameraPose(cameraTarget, cameraOffset, desiredTarget, desiredPosition, {

@@ -8,13 +8,15 @@
  * Reduced motion must start in a stable wide view even with a cinematic URL.
  */
 export function selectInitialSpectatorCamera(query = '', reducedMotion = false) {
-  if (reducedMotion) return 'overview';
   const params = query instanceof URLSearchParams
     ? query : new URLSearchParams(typeof query === 'string' ? query.replace(/^\?/, '') : '');
   const requested = params.get('camera');
-  if (requested === null) return 'cinematic';
-  return ['overview', 'follow', 'detail', 'cinematic'].includes(requested)
-    ? requested : 'overview';
+  // Reduced motion disables *automatic cinematic editing*, not an explicitly
+  // requested stable follow/detail shot. The actual renderer cuts directly to
+  // that real public camera pose without interpolating or moving authority.
+  // Preserve the stable full-board opening unless the spectator opted in.
+  if (requested === null || requested === 'cinematic') return reducedMotion ? 'overview' : 'cinematic';
+  return ['overview', 'follow', 'detail'].includes(requested) ? requested : 'overview';
 }
 
 /**
