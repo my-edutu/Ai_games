@@ -218,6 +218,7 @@ for (const viewport of viewports) {
           focusPosition: d.passage.focusPosition } : null,
         observedOriginalGpuGatewayRetention: d.world?.retainedSourceCap ?? null,
         observedGroundedBiomeThreshold: d.groundedBiomeThreshold ?? null,
+        observedGroundedGatewaySourceAudit: d.groundedGatewaySourceAudit ?? null,
         telegraphedEnemies: (s?.enemies || []).filter(e => e.active && e.telegraph).length,
         attacking: !!s?.player?.attacking, enemyKinds: (s?.enemies || []).filter(e => e.active).map(e => e.kind),
         frames: d.frames, frameMs: d.frameMs, renderResolution: d.resolution || null,
@@ -333,6 +334,7 @@ for (const viewport of viewports) {
             handoffDisplaySeconds: passage.handoffDisplaySeconds,
             originalGpuGateAndCap: d?.world?.retainedSourceCap ?? null,
             sourceGroundedBiomeLight: d?.groundedBiomeThreshold ?? null,
+            exactSourceGateAudit: d?.groundedGatewaySourceAudit ?? null,
           } : null,
           note:'Unaltered 50ms source event and sampled render diagnostics, NOT proof that a WebM frame visually shows it'
         });
