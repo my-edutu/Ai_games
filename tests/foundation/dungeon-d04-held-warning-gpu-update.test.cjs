@@ -1,0 +1,103 @@
+'use strict';
+// D04-owned GPU update contract. This exercises the actual retained VFX module,
+// not a mock visual implementation, while never changing game authority.
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+const load=()=>import(pathToFileURL(path.resolve(__dirname,
+ '../../public/ai-dungeon/physical-feedback-visuals.js')).href);
+
+function fakeThree(){
+ const meshes=[];
+ class V{
+  constructor(x=0,y=0,z=0){this.set(x,y,z)}
+  set(x,y,z){this.x=x;this.y=y;this.z=z;return this}
+  normalize(){const d=Math.hypot(this.x,this.y,this.z)||1;
+   this.x/=d;this.y/=d;this.z/=d;return this}
+ }
+ class G{
+  setAttribute(){return this}setIndex(){return this}
+  computeVertexNormals(){}dispose(){}
+ }
+ class Obj{
+  constructor(){
+   this.position=new V();
+   this.rotation={set(){}};
+   this.quaternion={identity(){},setFromUnitVectors(){}};
+   this.scale={setScalar(){},set(){}};
+   this.matrix={};
+  }
+  updateMatrix(){}
+ }
+ class Material{constructor(props){Object.assign(this,props)}dispose(){}}
+ class Mesh{
+  constructor(){
+   this.instanceMatrix={needsUpdate:false,setUsage(){}};
+   this.visible=false;this.matrixWrites=0;meshes.push(this);
+  }
+  setMatrixAt(){this.matrixWrites++}
+ }
+ const THREE={
+  Object3D:Obj,Vector3:V,BufferGeometry:G,
+  Float32BufferAttribute:class{},
+  MeshBasicMaterial:Material,MeshStandardMaterial:Material,
+  InstancedMesh:Mesh,TetrahedronGeometry:G,TorusGeometry:G,
+  RingGeometry:G,CylinderGeometry:G,IcosahedronGeometry:G,
+  DoubleSide:2,DynamicDrawUsage:35048
+ };
+ return {THREE,meshes,scene:{add(){},remove(){}}};
+}
+const cells=[{x:3,z:3}];
+const boss={id:'warden',kind:'warden',faction:'enemy',hp:50,maxHp:50,
+ x:6,z:6,action:'idle',actionTick:10};
+const snapshot=(tick,warning=true)=>({
+ run:1,floor:1,tick,events:[],units:[{...boss}],
+ bossWarning:warning?{warning:true,shape:'NOVA',attackTick:14,
+  turnsUntilImpact:14-tick,cells}:null
+});
+const cue={
+ id:'1:1:11:boss-warning-rising:warden:-',sceneKey:'1:1',
+ actorId:'warden',tick:11,kind:'boss-warning-rising',visual:'warning',
+ audio:'boss-warning-rising',proof:'authority-warning-window',
+ verified:true,priority:7,duration:.30,from:{x:6,z:6},
+ detail:{attackTick:14,shape:'NOVA',cells,footprintKey:'771'}
+};
+
+test('a frozen still-authoritative Warden warning keeps its GPU matrix until authority changes',async()=>{
+ const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ let latest=snapshot(11);
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{
+  getCurrentSnapshot:()=>latest,reducedFlash:true
+ });
+ assert.equal(meshes.length,7,'exact seven retained pools');
+ const signal=meshes[4];
+ assert.equal(visual.emit(cue),true);
+ for(let i=0;i<3;i++)visual.advance(.05,.05);
+ assert.equal(visual.stats().instancesByPool.signal,1);
+ assert.equal(signal.visible,true);
+ // Simulate Three.js clearing update flag after the last actual renderer upload.
+ signal.instanceMatrix.needsUpdate=false;
+ const frozenWrites=signal.matrixWrites;
+ latest=snapshot(12);
+ for(let i=0;i<16;i++)visual.advance(.016,.016);
+ latest=snapshot(13);
+ for(let i=0;i<16;i++)visual.advance(.016,.016);
+ assert.equal(signal.matrixWrites,frozenWrites,
+  'static validated danger-cell ring must not upload the same instance matrix each frame');
+ assert.equal(signal.instanceMatrix.needsUpdate,false);
+ assert.equal(visual.hasLiveCue(cue.id),true);
+ assert.equal(visual.stats().activeDrawCalls,1,
+  'optimization must never hide a still-authoritative warning');
+ assert.ok(visual.stats().reservedInstances<=104);
+ assert.equal(PHYSICAL_FEEDBACK_POOL_LIMITS.signal,8);
+ latest=snapshot(13,false);
+ visual.advance(.016,.016);
+ assert.ok(signal.matrixWrites>frozenWrites,
+  'revoked warning still clears its retained matrix before the next frame');
+ assert.equal(signal.visible,false);
+ assert.equal(visual.stats().activeDrawCalls,0);
+ assert.equal(visual.hasLiveCue(cue.id),false);
+ visual.dispose();
+});
