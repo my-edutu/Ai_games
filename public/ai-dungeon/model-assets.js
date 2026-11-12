@@ -1490,7 +1490,7 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
  original.copy(mount.bone.quaternion);
  staged.copy(original).multiply(mount.next.setFromEuler(
   mount.euler.set(angle,0,0,'XYZ')));
- let heelY=NaN,toeY=NaN;
+ let heelY=NaN,toeY=NaN,beforeHeelXZ=null,beforeToeXZ=null;
  const trials=[];
  try{
   mount.bone.quaternion.copy(staged);
@@ -1498,6 +1498,12 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   patch.heel.mesh.updateWorldMatrix(true,false);
   heelY=readOriginalSwingSoleY(patch.heel);
   toeY=readOriginalSwingSoleY(patch.toe);
+  const originalHeel=sourceSkinnedSoleWorld(patch.heel);
+  const originalToe=sourceSkinnedSoleWorld(patch.toe);
+  if(originalHeel&&originalToe){
+   beforeHeelXZ=[originalHeel[0],originalHeel[2]];
+   beforeToeXZ=[originalToe[0],originalToe[2]];
+  }
   // Only a genuinely loaded original shoe gets two physical trials.
   // This is separate from the established airborne-swing rescue.
   if(Number.isFinite(heelY)&&Number.isFinite(toeY)&&
@@ -1560,23 +1566,31 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
  for(const delta of candidates){
   const finalAngle=Math.max(-.30,Math.min(.30,angle+delta));
   if(Math.abs(finalAngle-angle-delta)>.0001)continue;
-  let afterHeel=NaN,afterToe=NaN;
+  let afterHeel=NaN,afterToe=NaN,afterHeelXZ=null,afterToeXZ=null;
   try{
    mount.bone.quaternion.copy(original).multiply(
     mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
    mount.bone.updateWorldMatrix(true,true);
    afterHeel=readOriginalSwingSoleY(patch.heel);
    afterToe=readOriginalSwingSoleY(patch.toe);
+   const witnessHeel=sourceSkinnedSoleWorld(patch.heel);
+   const witnessToe=sourceSkinnedSoleWorld(patch.toe);
+   if(witnessHeel&&witnessToe){
+    afterHeelXZ=[witnessHeel[0],witnessHeel[2]];
+    afterToeXZ=[witnessToe[0],witnessToe[2]];
+   }
   }finally{
    mount.bone.quaternion.copy(original);
    mount.bone.updateWorldMatrix(true,true);
   }
-  measuredCandidates.push({delta,heelY:afterHeel,toeY:afterToe});
+  measuredCandidates.push({delta,heelY:afterHeel,toeY:afterToe,
+   heelXZ:afterHeelXZ,toeXZ:afterToeXZ});
  }
  probeOutcome.appliedCandidates=measuredCandidates;
  const accepted=chooseOriginalSourceStanceAppliedWitness({
   floorTopY:-.02,beforeHeelY:heelY,beforeToeY:toeY,
-  previousCorrectionRad:previous,candidates:measuredCandidates
+  previousCorrectionRad:previous,candidates:measuredCandidates,
+  spatialWitnessRequired:true,beforeHeelXZ,beforeToeXZ
  });
  if(!accepted)return 0;
  const fineFallbackUsed=accepted.delta!==selected.delta;
@@ -1594,6 +1608,10 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   beforeHeelY:heelY,beforeToeY:toeY,
   afterHeelY:accepted.afterHeel,afterToeY:accepted.afterToe,
   beforeWorstMeters:beforeWorst,afterWorstMeters:accepted.afterWorst,
+  // Same-frame original weighted skinned-sole XZ, measured before/after
+  // the candidate's reversible original joint, not a fabricated foot plant.
+  heelShiftXZMeters:accepted.heelShiftXZMeters,
+  toeShiftXZMeters:accepted.toeShiftXZMeters,
   floorTopY:-.02,appliedAngleRad:accepted.delta,
   previousCorrectionRad:previous,fineFallbackUsed
  };

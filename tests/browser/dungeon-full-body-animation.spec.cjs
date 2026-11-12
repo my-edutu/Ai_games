@@ -649,6 +649,8 @@ for(const view of [
   const stance=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
   expect(stance.length).toBeLessThanOrEqual(2);
   // Authentic optional probes are NOT planted-sole certification.
+  const actualChosenSoleXZ=pair=>Array.isArray(pair)&&pair.length===2&&
+   pair.every(Number.isFinite);
   for(const [side,probe] of Object.entries(n?.sourceStanceProbeOutcomes??{})){
    if(!probe)continue;
    expect(['left','right']).toContain(side);
@@ -670,6 +672,12 @@ for(const view of [
     expect(actuallyChosen.delta).toBeCloseTo(sourceProof.appliedAngleRad,6);
     expect(actuallyChosen.heelY).toBeCloseTo(sourceProof.afterHeelY,6);
     expect(actuallyChosen.toeY).toBeCloseTo(sourceProof.afterToeY,6);
+    expect(sourceProof.heelShiftXZMeters).toBeLessThanOrEqual(.01801);
+    expect(sourceProof.toeShiftXZMeters).toBeLessThanOrEqual(.01801);
+    expect(sourceProof.heelShiftXZMeters).toBeGreaterThanOrEqual(0);
+    expect(sourceProof.toeShiftXZMeters).toBeGreaterThanOrEqual(0);
+    expect(actualChosenSoleXZ(actuallyChosen.heelXZ)).toBe(true);
+    expect(actualChosenSoleXZ(actuallyChosen.toeXZ)).toBe(true);
     if(probe.fineFallbackUsed){
      expect(Math.abs(sourceProof.appliedAngleRad)).toBeCloseTo(.045,3);
      expect(probe.trials.some(trial=>

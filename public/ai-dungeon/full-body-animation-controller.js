@@ -501,19 +501,25 @@ export function selectOriginalSourceSwingCalfTrial({
  */
 export function chooseOriginalSourceStanceAppliedWitness({
  floorTopY=NaN,beforeHeelY=NaN,beforeToeY=NaN,
- previousCorrectionRad=0,candidates=[]
+ previousCorrectionRad=0,candidates=[],
+ spatialWitnessRequired=false,beforeHeelXZ=null,beforeToeXZ=null
 }={}){
  if(![floorTopY,beforeHeelY,beforeToeY,previousCorrectionRad].every(finite)||
   Math.abs(previousCorrectionRad)>.14||
   Math.abs(floorTopY+.02)>.005||
   !Array.isArray(candidates)||candidates.length<1||
   candidates.length>2)return null;
+ // Source-ankle XZ displacement is evaluated in the same world frame and
+ // original skinned vertex as the two-point height proof. It is a bounded
+ // anti-skating constraint, NOT an invented ground anchor or inverse-IK step.
+ const xy=v=>Array.isArray(v)&&v.length===2&&v.every(finite);
+ if(spatialWitnessRequired&&(!xy(beforeHeelXZ)||!xy(beforeToeXZ)))return null;
  const beforeWorst=Math.max(Math.abs(beforeHeelY-floorTopY),
   Math.abs(beforeToeY-floorTopY));
  if(!finite(beforeWorst)||beforeWorst>.055)return null;
  let best=null;
  for(let index=0;index<candidates.length;index++){
-  const {delta,heelY,toeY}=candidates[index]??{};
+  const {delta,heelY,toeY,heelXZ,toeXZ}=candidates[index]??{};
   if(![delta,heelY,toeY].every(finite)||
    Math.abs(delta)<.001||Math.abs(delta)>.14000001||
    Math.abs(delta-previousCorrectionRad)>.04500001||
@@ -522,6 +528,15 @@ export function chooseOriginalSourceStanceAppliedWitness({
    toeY<floorTopY-.035||toeY>floorTopY+.035||
    heelY<beforeHeelY-.004||toeY<beforeToeY-.004)
    continue;
+  const heelShiftXZMeters=spatialWitnessRequired&&xy(heelXZ)?
+   Math.hypot(heelXZ[0]-beforeHeelXZ[0],heelXZ[1]-beforeHeelXZ[1]):NaN;
+  const toeShiftXZMeters=spatialWitnessRequired&&xy(toeXZ)?
+   Math.hypot(toeXZ[0]-beforeToeXZ[0],toeXZ[1]-beforeToeXZ[1]):NaN;
+  // A source weight-bearing sole must not gain a few mm vertically by
+  // skating >18mm across stone during an otherwise unchanged root frame.
+  if(spatialWitnessRequired&&(!finite(heelShiftXZMeters)||
+   !finite(toeShiftXZMeters)||heelShiftXZMeters>.01800001||
+   toeShiftXZMeters>.01800001))continue;
   const afterWorst=Math.max(Math.abs(heelY-floorTopY),
    Math.abs(toeY-floorTopY));
   if(beforeWorst-afterWorst<.0015)continue;
@@ -529,7 +544,9 @@ export function chooseOriginalSourceStanceAppliedWitness({
   // improvement to justify a larger angle / visible pose change.
   if(!best||best.afterWorst-afterWorst>.001)
    best=Object.freeze({delta,afterHeel:heelY,afterToe:toeY,
-    afterWorst,candidateIndex:index});
+    afterWorst,candidateIndex:index,
+    heelShiftXZMeters:spatialWitnessRequired?heelShiftXZMeters:null,
+    toeShiftXZMeters:spatialWitnessRequired?toeShiftXZMeters:null});
  }
  return best;
 }

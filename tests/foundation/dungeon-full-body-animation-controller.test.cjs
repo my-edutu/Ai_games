@@ -3424,3 +3424,44 @@ test('source GLB loaded-stance knee must improve BOTH weighted outsole edges wit
  assert.match(renderer,/sourceStanceKneeCurrentFrameProofs/,
   'the genuine browser should expose exact original-instance pre/post skinned heels and toes');
 });
+
+test('original GLB loaded ankle relief rejects an XY-only apparent plant that slides the weighted outsole in XZ',async()=>{
+ const {chooseOriginalSourceStanceAppliedWitness:choose}=await load();
+ // Heel/toe Y are sampled on original Walking_A skinned shoe; XZ trial
+ // offsets deliberately represent unacceptable versus safe joint proposals.
+ const before={floorTopY:-.02,beforeHeelY:-.024,beforeToeY:-.034,
+  previousCorrectionRad:0,spatialWitnessRequired:true,
+  beforeHeelXZ:[0,0],beforeToeXZ:[.24,0]};
+ const trials=[
+  {delta:-.045,heelY:-.023,toeY:-.029,
+   heelXZ:[.021,0],toeXZ:[.261,0]}, // clearer toe, skating heel
+  {delta:-.035,heelY:-.022,toeY:-.030,
+   heelXZ:[.011,0],toeXZ:[.253,0]} // less Y gain, but legitimate pivot
+ ];
+ const r=choose({...before,candidates:trials});
+ assert.ok(r,'a source-skinned two-point candidate must still be actionable');
+ assert.equal(r.candidateIndex,1,'reject 21mm shoe skate even if Y improves');
+ assert.equal(r.delta,-.035);
+ assert.ok(r.heelShiftXZMeters<=.018&&r.toeShiftXZMeters<=.018);
+ assert.equal(choose({...before,candidates:[trials[0]]}),null,
+  'do not exchange stone penetration for >18mm apparent loaded-foot skating');
+ assert.equal(choose({...before,candidates:[{...trials[1],toeXZ:[Infinity,0]}]}),null);
+ assert.equal(choose({...before,beforeHeelXZ:null,candidates:[trials[1]]}),null,
+  'missing real-original-space heel origin is not proof of a planted outsole');
+ assert.equal(choose({...before,candidates:[{...trials[1],heelXZ:undefined}]}),null);
+ assert.equal(choose({...before,candidates:[{...trials[1],heelXZ:[0,.019]}]}),null);
+ assert.equal(choose({...before,candidates:[{...trials[1],heelXZ:[0,.018],toeXZ:[.24,.018]}]})?.delta,-.035,
+  'boundary permits a valid small native-joint pivot');
+ assert.equal(choose({...before,candidates:[trials[1]],previousCorrectionRad:.08}),null,
+  'the original 45mrad-per-frame slew still applies');
+ // A pure existing no-spatial caller is backward compatible, but the LIVE
+ // original source-rig adapter must independently set spatialWitnessRequired.
+ const legacy=choose({floorTopY:-.02,beforeHeelY:-.024,beforeToeY:-.034,
+  candidates:[{delta:-.035,heelY:-.022,toeY:-.030}]});
+ assert.ok(legacy&&legacy.candidateIndex===0);
+ const actual=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(actual,/spatialWitnessRequired:true/);
+ assert.match(actual,/sourceSkinnedSoleWorld\(patch\.heel\)/);
+ assert.match(actual,/sourceSkinnedSoleWorld\(patch\.toe\)/);
+ assert.match(actual,/heelShiftXZMeters:accepted\.heelShiftXZMeters/);
+});
