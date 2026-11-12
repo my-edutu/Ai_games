@@ -2037,7 +2037,7 @@ export function createTowerScene(canvas, settings = {}) {
   // Original colors are allocated once, never per rendered frame.
   const thresholdColors = (() => {
     const colors = key => {
-      const light=LIGHTING[key], biome=THEMES[key];
+      const light=LIGHTING[key], biome=THEMES[key] || THEMES.foundry;
       return {
         fog:new THREE.Color(biome.fog).lerp(new THREE.Color(light.horizon),.3),
         top:new THREE.Color(light.top),horizon:new THREE.Color(light.horizon),
