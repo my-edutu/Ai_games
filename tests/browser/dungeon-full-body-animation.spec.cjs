@@ -613,11 +613,17 @@ for(const view of [
    expect(probe.trials.length).toBeLessThanOrEqual(4);
    expect(probe.trials.every(p=>Number.isFinite(p.signed)&&
     Number.isFinite(p.heel)&&Number.isFinite(p.toe))).toBe(true);
+   expect((probe.appliedCandidates??[]).length).toBeLessThanOrEqual(2);
    if(probe.status==='accepted'){
     const sourceProof=stance.find(p=>p.side===side);
     expect(sourceProof).toBeTruthy();
     expect(probe.finalWorstMeters).toBeLessThan(probe.beforeWorstMeters-.00149);
     expect(probe.fineFallbackUsed).toBe(sourceProof.fineFallbackUsed);
+    const actuallyChosen=probe.appliedCandidates?.[probe.selectedMeasuredIndex];
+    expect(actuallyChosen).toBeTruthy();
+    expect(actuallyChosen.delta).toBeCloseTo(sourceProof.appliedAngleRad,6);
+    expect(actuallyChosen.heelY).toBeCloseTo(sourceProof.afterHeelY,6);
+    expect(actuallyChosen.toeY).toBeCloseTo(sourceProof.afterToeY,6);
     if(probe.fineFallbackUsed){
      expect(Math.abs(sourceProof.appliedAngleRad)).toBeCloseTo(.045,3);
      expect(probe.trials.some(trial=>
