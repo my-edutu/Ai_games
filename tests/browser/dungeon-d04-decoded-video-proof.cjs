@@ -214,4 +214,5 @@ function classifyChromiumDecodedRealWebM(media={},proof={}){
   limitation:'Decoded pixel snapshots never certify actual contact, encoded frame count, video PTS or audible impact PCM'};
 }
 
-module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,\n sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM};
+module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
+ sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM};
