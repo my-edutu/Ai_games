@@ -135,3 +135,36 @@ test('original cap is bounded to source run, grounded continuation and real rest
       'the old GPU world retires when the actor truly leaves the gate vicinity');
   }finally{world.dispose();}
 });
+
+test('an unseen grounded crossing followed immediately by a real first-floor-nine jump retains the ORIGINAL gateway GPU meshes',async()=>{
+  const [{createTowerWorld},{observedRecordedGuardianAirborneHandoff,
+    observedSourceEarnedAirborneHandoff}]=await loaded;
+  const prior=old(),newFloor=next();
+  const witness={runToken:prior.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+    worldWidth:prior.worldWidth,cap,exitX:gate,
+    guardian:prior.enemies[0],previousX:prior.player.x,
+    previousY:prior.player.y,previousHealth:prior.player.health,
+    crossingX:prior.player.x,crossingY:prior.player.y,
+    halfWidth:prior.player.halfWidth,halfHeight:prior.player.halfHeight};
+  const after={...newFloor,tick:453,lastGuardianCrossing:witness,
+    player:{...newFloor.player,x:prior.player.x+7200,y:prior.player.y+8000,
+      grounded:false,groundedPlatformId:null,state:'airborne',vy:12000}};
+  const proof=observedRecordedGuardianAirborneHandoff(after);
+  assert.ok(proof);
+  assert.equal(observedSourceEarnedAirborneHandoff(proof,after),true);
+  const world=createTowerWorld();
+  try{
+    world.update(prior,.05,0,{quality:'low'});
+    const actualOldGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    assert.ok(actualOldGate?.isGroup);
+    assert.equal(world.stageGroundedCapContinuation(proof,after),true,
+      'the real first airborne step after the grounded source crossing keeps the original door');
+    world.update(after,.05,.05,{quality:'low'});
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),actualOldGate);
+    assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true);
+    const outside={...after,tick:470};
+    world.update(outside,.05,.1,{quality:'low'});
+    assert.equal(world.diagnostics().retainedSourceCap,null,
+      'the source-earned old cap cannot persist past the bounded first airborne continuation');
+  }finally{world.dispose();}
+});

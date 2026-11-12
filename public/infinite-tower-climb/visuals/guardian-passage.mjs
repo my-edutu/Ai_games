@@ -196,6 +196,68 @@ export function observedRecordedGuardianHandoff(next) {
   return observedGroundedGuardianHandoff(old,next) ? old : null;
 }
 
+// A real source-earned grounded Floor8→9 crossing may be followed by the
+// climber's FIRST jump before the browser has ever accepted a Floor9 packet.
+// The authority's immutable lastGuardianCrossing holds both true 50ms
+// grounded endpoints. Revalidate THAT record, then constrain the CURRENT
+// airborne source body to a nearby, short-lived continuation. Never invent
+// a grounded browser frame, a platform, physics, a win or motion ticks.
+export function observedRecordedGuardianAirborneHandoff(next) {
+  const w=next?.lastGuardianCrossing,p=next?.player;
+  if (!w || !p || next?.floor!==9 || next.lifecycle!=='running' ||
+      !Number.isSafeInteger(next.tick) || !Number.isSafeInteger(w.sourceTick) ||
+      next.tick <= w.sourceTick || next.tick-w.sourceTick>12 ||
+      p.grounded!==false || p.state!=='airborne' ||
+      p.groundedPlatformId != null || !(p.health>0) ||
+      !Number.isFinite(p.vy) ||
+      ![p.x,p.y,p.halfWidth,p.halfHeight].every(Number.isSafeInteger) ||
+      p.halfWidth<=0 || p.halfHeight<=0) return null;
+  // This is ONLY a local validator view of the *recorded* grounded event,
+  // not a published snapshot and never a simulated frame or a render sample.
+  const crossing={
+    ...next,tick:w.sourceTick,
+    player:{...p,x:w.crossingX,y:w.crossingY,
+      halfWidth:w.halfWidth,halfHeight:w.halfHeight,
+      health:w.previousHealth,grounded:true,
+      groundedPlatformId:'f9:ground',state:'standing',vy:0},
+  };
+  const previous=observedRecordedGuardianHandoff(crossing);
+  if (!previous) return null;
+  const ground=next.platforms.find(x=>x.id==='f9:ground');
+  const roof=ground.y+ground.height,feet=p.y-p.halfHeight;
+  if (p.halfWidth!==w.halfWidth || p.halfHeight!==w.halfHeight ||
+      p.x<w.crossingX ||
+      p.x-w.crossingX>(next.tick-w.sourceTick)*18000 ||
+      p.x>w.exitX+90000 ||
+      p.x-p.halfWidth<ground.x ||
+      p.x+p.halfWidth>ground.x+ground.width ||
+      !Number.isSafeInteger(feet) ||
+      feet<roof-2500 || feet>roof+55000) return null;
+  return previous;
+}
+
+// Require the SAME complete old source endpoint when presenting the original
+// door, not a convenient old-browser corpse from the wrong physical position.
+export function observedSourceEarnedAirborneHandoff(previous,next) {
+  const exact=observedRecordedGuardianAirborneHandoff(next);
+  if (!exact || !previous || previous.runToken!==exact.runToken ||
+      previous.floor!==exact.floor || previous.tick!==exact.tick ||
+      previous.guardianExitX!==exact.guardianExitX ||
+      previous.worldWidth!==exact.worldWidth ||
+      previous.player?.x!==exact.player.x ||
+      previous.player?.y!==exact.player.y ||
+      previous.player?.halfWidth!==exact.player.halfWidth ||
+      previous.player?.halfHeight!==exact.player.halfHeight ||
+      previous.player?.grounded!==true ||
+      previous.player?.groundedPlatformId!=='f8:cap') return false;
+  const a=previous.platforms?.find(x=>x?.id==='f8:cap');
+  const b=exact.platforms[0];
+  const e=previous.enemies?.find(x=>x?.id===exact.enemies[0].id);
+  return !!a && ['x','y','width','height'].every(key=>a[key]===b[key]) &&
+    !!e && e.kind==='guardian' && e.active===false && e.health<=0 &&
+    e.x===exact.enemies[0].x && e.y===exact.enemies[0].y;
+}
+
 // The real Floor8 cap must lead into the equally grounded Floor9 runway,
 // rather than disappearing into a wholly unrelated biome at the precise
 // authored source threshold. This authorizes ONLY a short, non-colliding
@@ -843,7 +905,8 @@ export function createTowerGuardianPassage(THREE) {
   // deck's obsolete matrices or draw a bridge over empty space. Source-tick
   // walking progressively illuminates these treads after the handoff.
   function placeRetainedOldCap(previous,next,anchor) {
-    if(!observedGroundedGuardianHandoff(previous,next))return false;
+    if(!observedGroundedGuardianHandoff(previous,next) &&
+       !observedSourceEarnedAirborneHandoff(previous,next))return false;
     const cap=previous.platforms.find(p=>p.id==='f8:cap');
     if(!cap)return false;
     const fromX=Math.max(cap.x,previous.guardianExitX-48000);
@@ -1130,7 +1193,8 @@ export function createTowerGuardianPassage(THREE) {
     // whole-body crossing. The source itself authorizes the continuous door,
     // while carryOpen only determines which already-seen animation age survives.
     const carryRealThreshold =
-      observedGroundedGuardianHandoff(previous, source);
+      observedGroundedGuardianHandoff(previous, source) ||
+      observedSourceEarnedAirborneHandoff(previous, source);
     const carriedAge = age;
     const carriedDefeatAge = defeatAge;
     group.position.set(anchor.x, anchor.y, anchor.z);

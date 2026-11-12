@@ -1,5 +1,6 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
+import { observedSourceEarnedAirborneHandoff } from './guardian-passage.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
@@ -2000,9 +2001,10 @@ export function createTowerWorld(){
         authored.width <= 0 || authored.height <= 0 ||
         [ 'x','y','width','height' ].some(key => authored[key] !== cached[key]) ||
         authored.y + authored.height !== ground.y + ground.height ||
-        !(next.player?.grounded === true) ||
-        next.player.groundedPlatformId !== 'f9:ground' ||
-        !(next.player.health > 0)) return false;
+        !(next.player?.health > 0) ||
+        !((next.player.grounded === true &&
+           next.player.groundedPlatformId === 'f9:ground') ||
+          observedSourceEarnedAirborneHandoff(previous,next))) return false;
     pendingEarnedCap = {
       runToken:next.runToken, floor:next.floor, tick:next.tick,
       previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,

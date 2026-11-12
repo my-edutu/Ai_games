@@ -147,3 +147,49 @@ test('first authentic Floor9 packet at source crossing tick retains the only ori
   assert.match(scene,/recordedGatewayPrevious\s*\|\|\s*\(clearedGuardian\s*\?\s*previous\s*:\s*null\)/,
     'first authenticated Floor9 crossing takes source-owned exact contact before a lagged browser observation');
 });
+
+test('first browser Floor9 packet may be a real early airborne jump after an unobserved but source-recorded grounded crossing',async()=>{
+  const {observedRecordedGuardianAirborneHandoff,
+    observedSourceEarnedAirborneHandoff,observedGroundedGuardianHandoff,
+    createTowerGuardianPassage}=await source;
+  const THREE=await import('../../node_modules/three/build/three.module.js');
+  const {pointFor}=await import('../../public/infinite-tower-climb/visuals/coordinates.mjs');
+  const [w,next]=witnessed();
+  const airborne={...next,tick:454,player:{...next.player,
+    x:w.crossingX+14400,y:y+8000,grounded:false,groundedPlatformId:null,
+    state:'airborne',vy:12000}};
+  const saved=JSON.stringify(airborne);
+  const old=observedRecordedGuardianAirborneHandoff(airborne);
+  assert.ok(old,'the immutable source event, not browser sampling, earns the old doorway');
+  assert.equal(observedSourceEarnedAirborneHandoff(old,airborne),true);
+  assert.equal(observedGroundedGuardianHandoff(old,airborne),false,
+    'the CURRENT player is still airborne, not a forged grounded landing');
+  const passage=createTowerGuardianPassage(THREE);
+  try{
+    assert.equal(passage.begin(old,airborne,
+      pointFor(w.exitX,top+20000,airborne.chunkBaseY,airborne.worldWidth,27.78)),true);
+    assert.equal(passage.diagnostics().continuousGroundedHandoff,true,
+      'a true grounded SOURCE crossing continues visually into an airborne first browser frame');
+    assert.equal(passage.diagnostics().innerDoorAssemblyVisible,true);
+    assert.equal(passage.diagnostics().retainedOldCapPieces,12);
+    assert.equal(passage.diagnostics().inlayInheritedOldCapPieces,0,
+      'no fake grounded Floor9 footsteps may appear during an airborne observation');
+  }finally{passage.dispose();}
+  assert.equal(JSON.stringify(airborne),saved);
+  for(const candidate of [
+    {...airborne,runToken:'different'},
+    {...airborne,tick:451},
+    {...airborne,tick:464},
+    {...airborne,player:{...airborne.player,x:w.exitX+120000}},
+    {...airborne,player:{...airborne.player,x:w.crossingX-5000}},
+    {...airborne,player:{...airborne.player,y:y+100000}},
+    {...airborne,player:{...airborne.player,grounded:true}},
+    {...airborne,player:{...airborne.player,state:'standing'}},
+    {...airborne,player:{...airborne.player,groundedPlatformId:'f9:ground'}},
+    {...airborne,player:{...airborne.player,vy:NaN}},
+    {...airborne,lastGuardianCrossing:{...w,guardian:{...w.guardian,active:true}}},
+    {...airborne,platforms:[{...airborne.platforms[0],y:airborne.platforms[0].y+1000}]}
+  ])assert.equal(observedRecordedGuardianAirborneHandoff(candidate),null);
+  assert.equal(observedSourceEarnedAirborneHandoff(
+    {...old,player:{...old.player,x:old.player.x-20000}},airborne),false);
+});

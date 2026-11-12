@@ -12,7 +12,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, observedRecordedGuardianHandoff, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedRecordedGuardianHandoff, observedRecordedGuardianAirborneHandoff, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2848,9 +2848,15 @@ export function createTowerScene(canvas, settings = {}) {
     // including tick451 itself. Fall back to earlier observed transitions
     // only when the authoritative record is absent or not safely matched.
     // This cannot authorize a floor, collider, HP loss or extra movement.
-    const recordedGatewayPrevious = !options.stale &&
+    const recordedGroundedGatewayPrevious = !options.stale &&
       passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianHandoff(next) : null;
+    const recordedAirborneGatewayPrevious = !options.stale &&
+      !recordedGroundedGatewayPrevious &&
+      passage.diagnostics().stage !== 'handoff'
+      ? observedRecordedGuardianAirborneHandoff(next) : null;
+    const recordedGatewayPrevious = recordedGroundedGatewayPrevious ||
+      recordedAirborneGatewayPrevious;
     const gatewayPrevious = recordedGatewayPrevious ||
       (clearedGuardian ? previous : null);
     // Immutable-source P0 forensic. The actual original 1x film at tick453
@@ -2861,7 +2867,9 @@ export function createTowerScene(canvas, settings = {}) {
         previous.runToken===next.runToken) {
       gatewaySourceAudit = {
         ...auditOriginalGuardianCrossing(next,previous),
-        selectedSource:recordedGatewayPrevious ? 'exact-immutable-crossing' :
+        selectedSource:recordedGroundedGatewayPrevious
+          ? 'exact-immutable-crossing' :
+          recordedAirborneGatewayPrevious ? 'exact-immutable-airborne-continuation' :
           clearedGuardian ? 'old-browser-guardian-only' : 'neither',
         renderedGatewayNotYetProven:true,
       };
