@@ -769,27 +769,45 @@ export function createBaseWorldArchitecturalBatches(THREE,world,{columns=[],arch
  * stage, and be physically closer than the nearest actor. No fabricated
  * screen rectangle, fake damage, authority edits or arbitrary global fade.
  */
-export function planRenderedForegroundStageHitOwners(rayHits,subjects,camera){
+export function planRenderedForegroundStageHitOwners(rayHits,subjects,camera,stageRayDepths=null){
  const empty=()=>({roots:new Set(),rayHits:0,verifiedOwners:0});
  if(!Array.isArray(rayHits)||rayHits.length<2||rayHits.length>12||
     !Array.isArray(subjects)||subjects.length>5||
-    ![camera?.x,camera?.y,camera?.z].every(Number.isFinite))return empty();
+    ![camera?.x,camera?.y,camera?.z].every(Number.isFinite)||
+    (stageRayDepths!==null&&(!Array.isArray(stageRayDepths)||
+     stageRayDepths.length!==rayHits.length||
+     stageRayDepths.some(d=>!(Number.isFinite(d)||d===Infinity)||d<=.1))))return empty();
  const living=subjects.filter(p=>p?.visibleActor===true&&[p.x,p.z].every(Number.isFinite));
  if(living.length<2)return empty();
- const nearest=Math.min(...living.map(p=>Math.hypot(camera.x-p.x,camera.y-.13,camera.z-p.z)));
+ const depths=living.map(p=>Math.hypot(camera.x-p.x,camera.y-.13,camera.z-p.z));
+ const nearest=Math.min(...depths),farthest=Math.max(...depths);
  const counts=new Map();let genuineRays=0;
- for(const hits of rayHits){
+ for(let i=0;i<rayHits.length;i++){
+  const hits=rayHits[i];
   if(!Array.isArray(hits)||hits.length>256)continue;
+  // In the original code the nearest unrelated hero made a real column
+  // in front of a farther fighter ineligible. Use the actual ray's true
+  // physical floor depth AND the farthest genuine stage actor instead.
+  // The nearest-only fallback remains for callers without geometric rays.
+  const limit=stageRayDepths===null?nearest:
+   Math.min(stageRayDepths[i],farthest+.4);
   const h=hits.find(hit=>{
-   const roots=hit?.object?.userData?.dungeonForegroundSourceRoots;
-   return hit?.object?.isInstancedMesh===true&&Array.isArray(roots)&&
-    Number.isSafeInteger(hit.instanceId)&&hit.instanceId>=0&&
-    hit.instanceId<roots.length&&roots[hit.instanceId]?.isGroup===true&&
-    Number.isFinite(hit.distance)&&hit.distance>.1&&hit.distance<nearest-.35;
+   const mesh=hit?.object;
+   const originals=mesh?.userData?.dungeonForegroundSourceRoots;
+   const batched=mesh?.isInstancedMesh===true&&Array.isArray(originals)&&
+    Number.isSafeInteger(hit.instanceId)&&hit.instanceId>=0&&hit.instanceId<originals.length;
+   const root=batched?originals[hit.instanceId]:
+    mesh?.isMesh===true&&!mesh.isSkinnedMesh&&!mesh.isInstancedMesh?
+     mesh.userData?.dungeonForegroundSourceRoot:null;
+   return root?.isGroup===true&&root.visible===true&&mesh.visible===true&&
+    Number.isFinite(hit.distance)&&hit.distance>.1&&hit.distance<limit-.35;
   });
   if(!h)continue;
   genuineRays++;
-  const root=h.object.userData.dungeonForegroundSourceRoots[h.instanceId];
+  const mesh=h.object;
+  const root=mesh.isInstancedMesh?
+   mesh.userData.dungeonForegroundSourceRoots[h.instanceId]:
+   mesh.userData.dungeonForegroundSourceRoot;
   counts.set(root,(counts.get(root)||0)+1);
  }
  const roots=new Set();
