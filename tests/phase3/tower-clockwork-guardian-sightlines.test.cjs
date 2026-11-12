@@ -735,7 +735,17 @@ test('original submitted clockwork triangles retain exact bounded source ownersh
       assert.ok(Array.isArray(owners)&&owners.length>0,
         'all submitted static batches must carry bounded per-piece original provenance');
       const attribute=geometry.attributes.position;
-      assert.equal(attribute.count%3,0,'submitted triangles must be complete');
+      const submittedVertices=geometry.index?.count ?? attribute.count;
+      assert.equal(submittedVertices%3,0,'submitted triangles must be complete');
+      if(geometry.index){
+        // Indexed rigid GPU buffers reuse source vertices. Face ownership
+        // remains keyed to the emitted triangle ordinal, not vertex count.
+        for(let k=0;k<geometry.index.count;k++){
+          const vertex=geometry.index.getX(k);
+          assert.ok(Number.isSafeInteger(vertex) && vertex>=0 && vertex<attribute.count,
+            'every actual submitted GPU triangle corner must reference a real vertex');
+        }
+      }
       let cursor=0;
       for(const owner of owners){
         assert.equal(owner.startFace,cursor,'no gaps, overlaps or guessed face offsets');
@@ -756,7 +766,7 @@ test('original submitted clockwork triangles retain exact bounded source ownersh
           clockCaseFaces+=owner.endFace-owner.startFace;
         cursor=owner.endFace;
       }
-      assert.equal(cursor,attribute.count/3,'cover the whole actual submitted triangle buffer');
+      assert.equal(cursor,submittedVertices/3,'cover the whole actual submitted triangle buffer');
       assert.equal(sourceTriangleOwner(geometry,cursor),null,'out-of-range face must not invent ownership');
       inspected++;
     });
