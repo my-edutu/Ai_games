@@ -1673,8 +1673,18 @@ export function planOriginalSourceStanceSlideRelief({
  const toeDx=sample.b.toe[0]-sample.a.toe[0],
   toeDz=sample.b.toe[2]-sample.a.toe[2];
  const heelTravel=Math.hypot(dx,dz),toeTravel=Math.hypot(toeDx,toeDz);
+ // An original 270mm loaded source shoe can turn subtly during Walking_A
+ // even at stable actor yaw. Genuine mobile GLB frame 62->63 measures
+ // 14.55mm difference between heel/toe XZ travel vectors, yet the
+ // original skinned sole span changes just 0.59mm. Preserve the stricter
+ // 12mm default; allow <=18mm ONLY for stable-yaw, stable-span, uniquely
+ // loaded original shoes. No planted-foot or skinning claim follows.
+ const loadedEdgeDelta=Math.hypot(dx-toeDx,dz-toeDz);
+ const witnessedRigidSupportTurn=finite(yawChange)&&yawChange<=.08&&
+  sample.span>=.20&&sample.nextSpan>=.20&&
+  sample.projectedSpanDelta<=.004&&loadedEdgeDelta<=.018;
  if(heelTravel<.025||heelTravel>.14||toeTravel<.025||toeTravel>.14||
-  Math.hypot(dx-toeDx,dz-toeDz)>.012)return null;
+  (loadedEdgeDelta>.012&&!witnessedRigidSupportTurn))return null;
  const meanX=(dx+toeDx)/2,meanZ=(dz+toeDz)/2;
  const drift=Math.hypot(meanX,meanZ);
  if(drift<.025||drift>.14)return null;

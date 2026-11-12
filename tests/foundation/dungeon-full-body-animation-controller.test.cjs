@@ -4346,6 +4346,22 @@ test('real original-GLB mobile frame 62 to 63: stable yaw allows a proven lifted
   sourceInstanceSame:true,ownerLocomotion:true,rootTravel:.05066888433054339,
   frameInterval:.05,previousRootYaw:-1.4383329545967325,
   currentRootYaw:-1.438332954596734,floorTopY:-.02,previous,current};
+ const heelTravel=[current.right.heel[0]-previous.right.heel[0],
+  current.right.heel[2]-previous.right.heel[2]];
+ const toeTravel=[current.right.toe[0]-previous.right.toe[0],
+  current.right.toe[2]-previous.right.toe[2]];
+ const originalEdgeDelta=Math.hypot(heelTravel[0]-toeTravel[0],
+  heelTravel[1]-toeTravel[1]);
+ const originalSpanBefore=Math.hypot(
+  previous.right.heel[0]-previous.right.toe[0],
+  previous.right.heel[2]-previous.right.toe[2]);
+ const originalSpanAfter=Math.hypot(
+  current.right.heel[0]-current.right.toe[0],
+  current.right.heel[2]-current.right.toe[2]);
+ assert.ok(originalEdgeDelta>.014&&originalEdgeDelta<.018,
+  'real loaded source heel/toe motion differs 14.55mm but preserves the skinned sole');
+ assert.ok(Math.abs(originalSpanAfter-originalSpanBefore)<.001,
+  'source loaded shoe preserves its 270mm span to within 1mm');
  const accepted=plan(actual);
  assert.equal(accepted?.side,'right','the actual right heel/toe is loaded and slides 78mm');
  assert.ok(accepted.reductionMeters>=.004&&accepted.reductionMeters<=.0180001);
@@ -4361,6 +4377,10 @@ test('real original-GLB mobile frame 62 to 63: stable yaw allows a proven lifted
    current.left.toe[0]+.08,current.left.toe[1],current.left.toe[2]]}}},
   {current:{...current,right:{...current.right,toe:[
    current.right.toe[0]+.06,current.right.toe[1],current.right.toe[2]]}}},
+  // Large heel/toe vector divergence still rejects an apparently plausible
+  // but no longer source-rigid shoe, despite near-constant projected length.
+  {current:{...current,right:{...current.right,toe:[
+   current.right.toe[0],current.right.toe[1],current.right.toe[2]+.04]}}},
   {sourceInstanceSame:false},{reducedMotion:true},{teleport:true},
   {interrupted:true},{alive:false},{sourceClipName:'Idle'}
  ])assert.equal(plan({...actual,...bad}),null,
