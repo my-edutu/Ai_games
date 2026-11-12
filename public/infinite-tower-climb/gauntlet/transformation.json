@@ -1,4 +1,44 @@
 {
+  "p0ClockworkCapRealFilmAndCiVetoUnblock20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedOriginalCandidateSourceSha": "e67af64d3dc4224024646752d89fea6b383321f7",
+    "authenticFullMotionCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345 — eight 60+s 1x baseline/candidate films succeeded; ninth strict event pairing FAILED",
+    "originalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345/artifacts/13921229961",
+    "originalFrozenBaselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345/artifacts/13922775120",
+    "nativeCandidateFilmSeconds": {
+      "desktop960x600": 72.92,
+      "portrait390x844": 73.24
+    },
+    "strictEventMatchedGuardianViewportCount": "0/2 — failed, not experience-accepted",
+    "observedOriginalFilmDefect": "Floor8 bronze gallery and hero/guardian still compete in portrait; near 25.5-25.75s the candidate visibly cuts to violet Floor9 instead of an uninterrupted full-body grounded passage. Original source event and drawn HUD phase are not synchronized.",
+    "originalSourceTick451ToNativeFloor9Seconds": {
+      "desktop": 2.52,
+      "portrait": 2.529,
+      "method": "Source timebase/native WebM HUD witness; NOT GPU-present frame timing or target-device FPS"
+    },
+    "actualBrowserAcceptedToThreeReturnMs": {
+      "desktop": 1722,
+      "portrait": 1275,
+      "method": "Browser CPU/Three returned timing only; NOT target-device GPU latency"
+    },
+    "verifiedExistingCIBlocker": "https://github.com/my-edutu/Ai_games/actions/runs/43170429395 — 1 failing living-floor-eight sightline test, stale historic rear-pier angular rays after approved real 3D pylon relocation",
+    "testOnlyUnblockCommit": "fb4cc21fa694990849e580a7b4c131772ee8786b",
+    "testUnblockDetails": "Uses actual production clockworkCapActionClearSpan for each of three authored pylon bearings, asserts full-shaft frontal corridor clearance, retains all six real geometry ray tests for front absence and rear structural load path; no weakened gameplay gates",
+    "exactTestFixTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43177183897 — SUCCESS at exact fb4cc21f test code SHA; guardrail only",
+    "reviewFile": "docs/reviews/2026-11-12-tower-pr68-clockwork-cap-physical-daylight.md",
+    "reviewAddendumCommit": "5ed86d5450fa468eda09f2c795877cb5b2299a80",
+    "newProductionGameplayChange": "NONE this run: verifiable pre-existing CI blocker fixed; 3D game source and PR58 unchanged",
+    "postTestFixSourcePinnedMovie": "NOT CAPTURED — no new 3D production change and no false video quality claim",
+    "independentRandomizedBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realTargetDeviceFrameP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Rebuild the source->3D-submitted->native presented Floor8->9 physical handoff as one genuinely continuous, grounded camera/world motion shot, addressing observed ~2.5s latency, not another cosmetic HUD patch. Capture 60+s original 960x600+390x844 baseline/candidate matching seed/tier across ascent, moving, guardian/crusher and outcome/restart. Demand strict event pairing >0/2, then actual-device budgets and 5 fresh blinded reviewers per pillar. Remain P0 until acceptance."
+  },
   "p0OriginalClockworkPhysicalCapDaylight20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
