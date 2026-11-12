@@ -1593,6 +1593,30 @@ export function planOriginalSourceLoadedPelvisSupport({
  * small, reversible presentation-only displacement of the ENTIRE rig.
  * Never move the authoritative root, invent an attack/step, or drive a joint.
  */
+/**
+ * A legal fixed-tick transition can be the FIRST visible Walking_A frame.
+ * The original source pose is already drawn, but there cannot be an earlier
+ * same-clip source shoe with which to justify a skid correction. Prime only
+ * this real post-mixer sample; the NEXT displayed same-instance clip may
+ * compare two measured weighted heels and toes under the existing strict
+ * source-sole planner. No inferred foot contact or authority is introduced.
+ */
+export function planOriginalSourceStanceSampleHandoff({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ rootTravel=NaN,frameInterval=NaN,changed=true,
+ alive=true,visible=true,teleport=false,reducedMotion=false,
+ interrupted=false,sourceAnatomyVerified=false
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.65||sourceWeight>1.001||
+  ownerLocomotion!==true||sourceAnatomyVerified!==true||
+  !finite(rootTravel)||rootTravel<0||rootTravel>.18||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>.35||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  typeof changed!=='boolean')return null;
+ return {recordSample:true,allowRelief:changed===false};
+}
+
 export function planOriginalSourceStanceSlideRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
  ownerLocomotion=false,rootTravel=NaN,recentRootTravel=NaN,
