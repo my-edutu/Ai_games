@@ -7,6 +7,7 @@ on:
       - public/ai-dungeon/original-combat-foley.js
       - public/ai-dungeon/app.js
       - tests/browser/dungeon-d04-decoded-video-proof.cjs
+      - tests/browser/dungeon-d04-webm-pts-proof.cjs
       - public/ai-dungeon/physical-combat-feedback.js
       - public/ai-dungeon/physical-feedback-visuals.js
       - scripts/serve-dungeon-stream.cjs
@@ -41,6 +42,7 @@ jobs:
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
             tests/foundation/dungeon-d04-capture-buffer-gate.test.cjs \
             tests/foundation/dungeon-d04-readback-decoder-proof.test.cjs \
+            tests/foundation/dungeon-d04-webm-pts-proof.test.cjs \
             tests/foundation/dungeon-d04-same-window-av.test.cjs \
             tests/foundation/dungeon-d04-browser-source-parse.test.cjs \
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
