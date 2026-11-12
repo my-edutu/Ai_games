@@ -16,7 +16,7 @@ async function inspect(page){
  return page.evaluate(()=>{
   const g=window.__tinyKingdom,before=JSON.stringify(g.exportSnapshot());
   const a={source:'running-real-merchant-and-courier-settlement',
-   renderer:g.renderer(),market:g.getMarketQuarterStats(),
+   renderer:g.renderer(),market:g.getMarketQuarterStats(),district:g.getGrainwardDistrictAudit(),
    raisedReceivingHall:g.getMarketReceivingHallAudit(),
    physicalTradeCamera:g.getTradeCorridorCameraAudit(),
    masonry:g.getCompactStoneCoursingAudit(),
@@ -65,7 +65,15 @@ function assertWorld(a){
  expect(a.masonry.fullCottagesStillRendered).toBe(true);
  expect(a.masonry.stoneAtlasResident).toBe(true);
  expect(a.masonry.changesAuthority).toBe(false);
- expect(a.market.tallestRoof).toBe(4.05);
+ // W259 reconstructs the original two permanent merchant houses as the
+ // dominant ridge. Do not lock the running district to an obsolete 4.05m
+ // prototype roof or remove legal real stalls to satisfy a stale literal.
+ expect(a.market.tallestRoof).toBeGreaterThan(5.50);
+ expect(a.market.tallestRoof).toBeLessThan(5.85);
+ expect(a.district.marketStalls).toBe(4);
+ expect(a.district.genuineMarketEaves).toHaveLength(4);
+ expect(a.district.genuineMarketEaves[0]).toBeGreaterThan(a.district.genuineMarketEaves[2]+.80);
+ expect(a.district.genuineMarketEaves[1]).toBeGreaterThan(a.district.genuineMarketEaves[3]+.80);
  expect(a.market.rearShopGables).toBe(4);
  expect(a.market.marketWheelPassages).toBe(22);
  expect(a.market.marketDrainSegments).toBe(22);
