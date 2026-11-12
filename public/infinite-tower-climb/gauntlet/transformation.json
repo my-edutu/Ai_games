@@ -1,4 +1,38 @@
 {
+"p0SourceRecordedBrowserGapGuardianGateway20261112": {
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedPreviousHead": "06cc9ae1d71a02774de350c8a6f692c1c66ae626",
+  "previousOriginalNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463 — 7/8 original film jobs complete; baseline moving launch floor clock failed; strict event/source integrity verdict FAILED; candidate danger source had authentic guardian victory but hard 8->9 scene cut",
+  "previousExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43212531462 — 1431 passed, 1 failed and 1 skipped; false negative regex matched `next.floor === 9` as mutation",
+  "nativeSourceToFloor9PhaseSecondsBefore": {
+    "desktop": 2.424,
+    "portrait": 2.289,
+    "qualification": "Source/browser/returned-Three/native phase not GPU present or actual device FPS"
+  },
+  "largestNativeFootageDefect": "Original 1x 960×600 & 390×844 candidate WebM shows warm bronze Floor8 at ~25.4s then abruptly violet Floor9 at ~25.6s. Actor does not visibly cross one physical open arch. Browser skipped old-floor tick ~435 to new tick452, longer than existing 8-12 tick local screen observation bound.",
+  "verifiedSourceUnblocker": "Record the REAL source-verified Floor8 guardian HP0, grounded cap and full-body exit crossing as immutable source-owned state proof. Publish only next 12 source ticks in opt-in Floor9. Source-qualified Three.js reconstruction of actual old cap/guardian and doorway/runway when no old browser frame survived. No new floor, source teleport, collider or artificial event.",
+  "testFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43219700182 — 3 tests RED, including missing `observedRecordedGuardianHandoff` and earlier equality regex",
+  "productionCommits": [
+    "24f9a63376fc4ce99742a4eb3f110dd93b879c3c",
+    "03fc1bc0d095a0b4a69f1bbae6749cace4e08523",
+    "d9668fef93eda6747eb7c1aef1d3a8562ba9c0e6",
+    "6652c9cfd94a4cfa8893be3b611282381154fd6a"
+  ],
+  "testRepairCommit": "b860f76fc932bf1773061172c279a860c9f784ec",
+  "review": "docs/reviews/2026-11-12-tower-pr68-source-owned-sparse-frame-gateway.md",
+  "newCandidateExactHeadCI": "NOT VERIFIED — inspect CI after capture request commit",
+  "newCandidateAuthenticNativeVideo": "NOT CAPTURED/NOT INSPECTED at this evidence writing",
+  "strictEventMatchedViewports": "0/2 accepted in last old-source strict film; new version NOT EVALUATED",
+  "independentFreshBlindCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualSupportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "Verify current exact-head tests and original nine-job 1x matched frozen baseline/candidate videos. Inspect full 60s authentic source floor0, moving7, guardian/crusher8->9 and outcome/restart both 960x600 and 390x844. Pair source/browser/Three/native events, diagnose baseline moving launch-floor startup race, verify real arch continuity. If visual cut remains, fix camera/world geometry P0. Do not advance on CI alone."
+},
 "p0NativeSparseBrowserGuardianDoor20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
