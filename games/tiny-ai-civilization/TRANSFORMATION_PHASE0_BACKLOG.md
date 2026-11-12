@@ -1,3 +1,19 @@
+## W256 · Phase 1 ACTIVE, same original farmer→loaded courier→market receipt→occupied home slice · 12 November 2026
+
+[Draft PR #64](https://github.com/my-edutu/Ai_games/pull/64) at production `85f320fd8f0aa72c35e640ce9f9e6d5e44051d23`, fixed G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Do not merge or import #43/#59/#62/main. Only actual running game counts toward transformation.
+
+| Blocking priority / owner | Actual known status | Measurable playable done condition |
+| --- | --- | --- |
+| 1 · Human-scale genuine unloading / market, camera and actual actor | Real W255 1024px/390px film shows true freight partly occluded by stalls and posts. W256 new exact wrist and escrowed parcel physical lens implemented, CI/uncut video pending. | Same authoritative real hands and sacks visibly unloading into market from legal 1024px/390px continuous filmed camera, no architecture removed or fake transaction; uninstructed viewer can follow handoff |
+| 2 · Rendering spine and hardware performance / GPU, CPU, driver | Static season residents and bounded dynamic actor VBO exist; historical SwiftShader ~1.7–3.1 software FPS; W256 no actual GPU result, CPU p95 mixed with driver stalls; broad GPU workflow pending. | Representative Day1/Day120 and mobile matched work, separate CPU/driver/GPU timing, 30+ sustained real desktop/mobile hardware FPS, p95 <=33.3ms, bounded buffer/texture resources |
+| 3 · Connected original district reconstruction / environment and architecture | W254 open-sky 2.32m genuine receiving hall, farm street and grown roofs already real; W255 recordings still read stylized and cluttered. | Credible original farm/granary/street/market/homes with distinct building proportions, physical entrances, believable vegetation/materials, compelling same-seed overview/workday/Day120/mobile before-after |
+| 4 · Professional human body and true contacts / animators and autonomy | Existing 3D skin/IK, planted joints, real cutting, hauling, forge and build. W256 escorts actual wrist/parcel to camera; no proof movement/body feels natural. | Four actual jobs harvest/haul+unload/forge/build, real hands/tool/contact, natural gait readable in uncut non-staged workday, original deterministic events preserved |
+| 5 · Reliability and genuinely independent A/B / verification | W255 checked 6,825 deterministic ticks real trade/meal and preceding grown Day121. W256 source and movie, GPU, long-soak and fresh critic results pending. | True exact-head 120-day/long-soak save-replay, all scenes <=160k triangles, no GL/page errors, 390px accessible, same-seed uncut Day1/workday/Day120 and independently blinded A LOOK/FEEL/PLAY PASS |
+
+A LOOK **NOT PROVEN**, FEEL **NOT PROVEN** on hardware, PLAY **NOT PROVEN**; B original commercial Manor Lords reference **FAIL**. Next: inspect actual exact W256 dock screenshot and true full-chain video (not just source numbers), then reconstruct the contiguous built market or visibility failure. Phase 1 remains active.
+
+---
+
 ## W255 · PHASE 1 ACTIVE / ONE durable farm→loaded courier→real market receipt→inhabited home workstream · 12 November 2026
 
 Open [Draft PR #64](https://github.com/my-edutu/Ai_games/pull/64) ONLY. Exact production [0e437f45505c889d3970153cdf87f809b772318b](https://github.com/my-edutu/Ai_games/commit/0e437f45505c889d3970153cdf87f809b772318b), original G088 pinned `2f6deb43feb1a1557848d44def53a6109deb1ab1`. This is still Phase 1. The W255 helper and physical-camera changes do not pass an experience milestone without complete running matched motion.
