@@ -1,4 +1,28 @@
 {
+  "p0ColdOldFrameGuardianDoor20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreWorkBranchHead": "601e599af3ed6b64fb3fd4e7e85f3a74f2a98da5",
+    "originalBeforeNativeSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43194296451 — 8/8 original native films complete, strict guardian source/native pairing FAILED 0/2",
+    "rootCause": "The previous physical source tick 450->451 traverses 317096 to 324296. A green swept source helper still required an earlier earned-open local presentation stage to carry its real Floor9 arch, even if the old frame never submitted due cold WebGL stall.",
+    "testFirstCommit": "d38009696a40025f45e74db86f6b21281f8c2269",
+    "testFirstQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43201193234 — outcome NOT VERIFIED at evidence writing",
+    "productionCommit": "14cad50731f85f89265985653e079e7106ada621",
+    "actualSourceChange": "The real grounded source crossing now owns the continuous opened inner arch and successor floor-nine inlaid runway whether or not the previous old-floor visual stage was drawn. Old visual history only preserves animation age; when absent, enter already-open rather than replay a closed gate. Same strict bounded source transition, no physics/collider/AI/floor progression change.",
+    "technicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43201326093 — outcome NOT VERIFIED at evidence writing; CI veto only",
+    "afterFixCandidateOriginalFilm": "NOT YET VERIFIED — new immutable-source 9-job capture required",
+    "actualSourceToNativeAcceptedViewports": "0/2 in last measured previous film; current SHA NOT EVALUATED",
+    "independentRandomizedBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimesP50P95P99AndMemory": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-12-tower-pr68-cold-old-frame-grounded-door-proof.md",
+    "biggestResidualGap": "Need source-native proof of actual full-body continuous portal crossing, Floor9 onward/outcome/restart and ~1-2 second source->native latency reduction. No observed acceptance footage at the new code SHA.",
+    "nextHighestImpactAction": "Verify exact-head CI, trigger and inspect full nine-job original immutable-source baseline vs candidate normal-speed 960x600 and 390x844 campaign, strict tick450->451 browser->Three->native pairing and doorway/render discontinuity; remain P0 until earned victory, connected floor-nine route, terminal restart, device gates and genuine blinded acceptance verified."
+  },
   "p0OriginalSubmittedHorizonCrossfade20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
