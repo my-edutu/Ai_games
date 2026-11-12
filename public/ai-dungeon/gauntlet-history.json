@@ -2176,6 +2176,48 @@
   ],
   "transformation": {
     "schemaVersion": 1,
+    "m1Exact6199BrowserAcceptanceAudit20261112": {
+      "date": "2026-11-12",
+      "sourceHead": "6199aa34bc4ce009c5174f607f266c22e83f8e70",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "sourceWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/43262484491",
+      "desktopArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43262484491/artifacts/13964952799",
+      "mobileArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43262484491/artifacts/13965082871",
+      "comparatorHead": "5c3518dbd9a15d611661fe7c3abc80a05b502f92",
+      "comparatorKind": "RECENT_PREDECESSOR_SAME_SEED_NOT_IMMUTABLE_M1_BASELINE",
+      "seed": "gauntlet-corpus-v1-0",
+      "authoritySnapshotsPerViewport": 946,
+      "wardenDangerCells": 23,
+      "mobileWardenWarningHeightPx": {
+        "before": 35,
+        "after": 36
+      },
+      "mobileWardenCounterHeightPx": {
+        "before": 131,
+        "after": 111
+      },
+      "mobileMinimumCounterPx": {
+        "before": 93,
+        "after": 73
+      },
+      "newMobileSoftwareWebGLWarningRafMs": {
+        "p50": 233,
+        "p95": 983
+      },
+      "actualHardwareGpu": "UNVERIFIED",
+      "firstPartySound": "WebM original opted-in Opus and non-silent WAV recorded desktop/mobile; visible blade-to-HP-to-PCM timing UNVERIFIED",
+      "sourceCodeThisExecution": "NONE; genuine in-motion evaluation only",
+      "stage": "A_INCOMPLETE_B_NOT_ACCEPTED",
+      "look": "UNVERIFIED",
+      "feel": "UNVERIFIED",
+      "play": "UNVERIFIED",
+      "blindCritics": 0,
+      "verdict": "NOT_TRANSFORMED: no clear adult-sculpt leap from original X-arm source-mesh refit",
+      "foundation": "447/447 foundation,21/21 UI,24x900 replay zero divergence; browser 2/3 shards success (obsolete cranial-ratio assertion fails one shard)",
+      "catalogueCI": "FAILED five tests: four source/scene contracts, one physical portrait pillar behavioral check",
+      "workerBlocker": "NOT_FOUND Tunnel-client has not been seen for 300 seconds; GitHub CI browser and video artifacts available",
+      "nextTask": "Implement meaningful original connected rigged adult-scale Vanguard vs Revenant/Warden silhouette, anatomy and armor in actual game; verify hand/boots/23 hazards/damage/audio/motion on 1440px and 390px same-seed exact-head A/V, then locked M1 baseline and 3 independent blinded critics."
+    },
     "milestoneId": "DUNGEON-TRANSFORMATION-01",
     "title": "From Prototype to Believable 3D Adventure",
     "adoptedOn": "2026-11-01",
