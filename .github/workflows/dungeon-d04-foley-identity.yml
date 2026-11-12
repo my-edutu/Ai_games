@@ -13,6 +13,9 @@ on:
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
       - tests/browser/dungeon-physical-feedback-preview.spec.cjs
+      - tests/browser/dungeon-d04-real-render-pair.spec.cjs
+      - tests/browser/dungeon-d04-render-cost-pair.cjs
+      - tests/browser/dungeon-d04.playwright.config.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
