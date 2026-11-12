@@ -13016,7 +13016,7 @@ function farmStalk(x,z,index,season,compact=false){
     const bladeMid=[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04];
     const bladeTip=[attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085];
     tri(attach,bladeMid,bladeTip,leaf);
-    tri(bladeTip,bladeMid,attach,leaf.map(c=>c*.76));
+    tri(bladeTip,bladeMid,attach,Array.isArray(leaf)?leaf.map(c=>c*.76):leaf);
    }
    for(let g=0;g<3;g++){
     const p=at(.76+g*.078),kernel=(.074-g*.013)*(.86+sig3*.25);
@@ -13035,7 +13035,7 @@ function farmStalk(x,z,index,season,compact=false){
    // readable when the genuine follow camera crosses to its reverse side.
    // Four added triangles per detailed stalk, below the existing 26 cap.
    tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
-   const reverseLeaf=leaf.map(c=>c*.77);
+   const reverseLeaf=Array.isArray(leaf)?leaf.map(c=>c*.77):leaf;
    tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
   }
   // Eight alternating grains with four cross-facing kernels: 3D ears that
