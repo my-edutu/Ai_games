@@ -1,4 +1,4 @@
-import { observedRecordedGuardianHandoff } from './guardian-passage.mjs';
+import { observedRecordedGuardianHandoff, observedRecordedGuardianAirborneHandoff } from './guardian-passage.mjs';
 
 // P0 original 1× native-film forensic: source tick 451 really crossed the HP0
 // Floor8 cap, but both desktop/portrait first browser-received Floor9 packets
@@ -10,6 +10,7 @@ export function auditOriginalGuardianCrossing(next, previous=null) {
   const w=next?.lastGuardianCrossing;
   const p=next?.player;
   const recorded=!!observedRecordedGuardianHandoff(next);
+  const recordedAirborne=!!observedRecordedGuardianAirborneHandoff(next);
   const sourceTick=Number.isSafeInteger(w?.sourceTick)?w.sourceTick:null;
   const observedTick=Number.isSafeInteger(next?.tick)?next.tick:null;
   const ageTicks=sourceTick!==null&&observedTick!==null
@@ -41,9 +42,9 @@ export function auditOriginalGuardianCrossing(next, previous=null) {
   else if (!(w.guardian?.active===false &&
     Number.isFinite(w.guardian?.health)&&w.guardian.health<=0))
     veto='guardian-not-defeated';
-  else if (!currentGrounded) veto='current-actor-not-grounded';
-  else if (!currentSupport) veto='current-support-mismatch';
-  else if (!recorded) veto='source-contract-rejected';
+  else if (!currentGrounded && !recordedAirborne) veto='current-actor-not-grounded';
+  else if (!currentSupport && !recordedAirborne) veto='current-support-mismatch';
+  else if (!recorded && !recordedAirborne) veto='source-contract-rejected';
   return {
     evidenceOnly:true,acceptance:'NOT EVALUATED',
     present:!!w,sourceTick,observedTick,ageTicks,browserGapTicks,
@@ -55,7 +56,8 @@ export function auditOriginalGuardianCrossing(next, previous=null) {
     sourceGuardianDefeated:w?.guardian?.active===false &&
       Number.isFinite(w.guardian?.health)&&w.guardian.health<=0,
     currentSourceGrounded:currentGrounded&&currentSupport,
-    recordedHandoffAccepted:recorded,veto,
+    recordedHandoffAccepted:recorded || recordedAirborne,
+    recordedAirborneContinuationAccepted:recordedAirborne,veto,
     // Numeric source-only geometry is enough to diagnose a rejected legal
     // witness. No identity, browser frame, synthetic event or personal data.
     exitX:Number.isSafeInteger(w?.exitX)?w.exitX:null,

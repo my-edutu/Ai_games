@@ -12,6 +12,7 @@ const uri=file=>pathToFileURL(path.join(ROOT,'public/infinite-tower-climb/visual
 const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(pathToFileURL(path.join(ROOT,'node_modules/three/build/three.module.js')).href))
   .replace("'./coordinates.mjs'",JSON.stringify(uri('coordinates.mjs')))
+  .replace("'./guardian-passage.mjs'",JSON.stringify(uri('guardian-passage.mjs')))
   .replace("'./world-surface.mjs'",JSON.stringify(uri('world-surface.mjs')))
   .replace("'./scene-hierarchy.mjs'",JSON.stringify(uri('scene-hierarchy.mjs')))
   .replace("'./guardian-transmission-layout.mjs'",JSON.stringify(uri('guardian-transmission-layout.mjs')))

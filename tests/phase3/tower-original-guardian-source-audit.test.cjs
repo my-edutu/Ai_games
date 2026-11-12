@@ -62,3 +62,21 @@ test('source audit is explicitly observational, bounded, privacy-minimized and n
   assert.ok(!JSON.stringify(evidence).includes('original-film-run'),'never expose full run token');
   assert.equal(evidence.sourceTick,451);
 });
+
+test('genuine first Floor9 jump after immutable grounded crossing is classified as continuation, not fictional grounded contact',async()=>{
+  const {auditOriginalGuardianCrossing}=await inspect;
+  const grounded=nextTick(453),w=grounded.lastGuardianCrossing;
+  const airborne={...grounded,player:{...grounded.player,x:w.crossingX+7200,
+    y:grounded.player.y+8000,grounded:false,
+    groundedPlatformId:null,state:'airborne',vy:12000}};
+  const before=JSON.stringify(airborne);
+  const report=auditOriginalGuardianCrossing(airborne,{...grounded,floor:8,tick:435});
+  assert.equal(report.recordedAirborneContinuationAccepted,true);
+  assert.equal(report.recordedHandoffAccepted,true);
+  assert.equal(report.currentSourceGrounded,false,
+    'the current browser body is legitimately airborne, not a claimed landing');
+  assert.equal(report.veto,'none');
+  assert.equal(JSON.stringify(airborne),before);
+  assert.equal(auditOriginalGuardianCrossing({...airborne,
+    player:{...airborne.player,x:w.exitX+120000}}).recordedAirborneContinuationAccepted,false);
+});

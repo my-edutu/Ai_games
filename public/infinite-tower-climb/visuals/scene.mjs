@@ -2888,7 +2888,8 @@ export function createTowerScene(canvas, settings = {}) {
     // complete exposed HP-lock geometry, including its elevated source cap
     // center. Simply using the deck top would bury the opening two world
     // units below the actual bronze lock, even with the correct radius.
-    const previousLock = clearedGuardian ? observedGuardianCircuit(previous) : null;
+    const previousLock = recordedGatewayPrevious ? null :
+      clearedGuardian ? observedGuardianCircuit(previous) : null;
     // The earned passage persists for several real movement ticks after the
     // guardian's death. An inactive zero-HP source body is still authoritative
     // proof of defeat, whereas observedGuardianCircuit intentionally stops
