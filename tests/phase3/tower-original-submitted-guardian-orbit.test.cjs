@@ -62,7 +62,10 @@ test('production path vets both live bodies/real landing and remembers camera ON
     'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   const sessionGuard=src.indexOf('const previousGuardianSubmitted = protectLivingGuardian');
   const applied=src.indexOf('const boundedSubmittedView = previousGuardianSubmitted');
-  const render=src.indexOf('update(motionDt); renderer.render(scene, camera);');
+  const updated=src.indexOf('update(motionDt);');
+  const render=src.indexOf('renderer.render(scene, camera);',updated);
+  assert.ok(updated>applied && render>updated,
+    'actual scene preparation must precede a real render return');
   const remember=src.indexOf('lastSubmittedGuardianCamera.copy(camera.position);',render);
   assert.ok(sessionGuard>0 && applied>sessionGuard && render>applied && remember>render,
     'unsubmitted ideal camera destinations must not advance continuity history');
