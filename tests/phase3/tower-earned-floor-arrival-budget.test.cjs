@@ -76,6 +76,16 @@ test('authentic next floor draws the real deck and canyon before the cold distan
     assert.equal(deferred?.firstRenderSubmitted,false);
     assert.equal(diag.vistaLayers,3,'the full original canyon remains on first frame');
     assert.equal(diag.platforms,1,'source-authored new-floor ground is never deferred');
+    const buildWitness = world.lastRebuild();
+    assert.equal(buildWitness.runToken,to.runToken);
+    assert.equal(buildWitness.floor,9);
+    assert.equal(buildWitness.sourceTick,to.tick);
+    assert.ok(Number.isFinite(buildWitness.cpuBuildMs) && buildWitness.cpuBuildMs >= 0);
+    assert.match(buildWitness.measurement,/not WebGL return, GPU or native video/);
+    const originalBuildMs = buildWitness.cpuBuildMs;
+    world.update(to,.016,.032,{quality:'low'});
+    assert.equal(world.lastRebuild().cpuBuildMs,originalBuildMs,
+      'repeat source frames must not fabricate another expensive rebuild');
     assert.ok(world.group.getObjectByName('platform:f9:ground'));
     assert.equal(distant(world).filter(o=>o.material.type==='MeshBasicMaterial').length,0);
     world.update(to,.016,.032,{quality:'low'});
@@ -114,5 +124,8 @@ test('the shipped scene releases deferred world only after returned WebGL and ne
   const rendered=scene.indexOf('renderer.render(scene, camera)');
   const acknowledged=scene.indexOf('world.noteFrameSubmitted?.(snapshot,options)');
   assert.ok(acknowledged>rendered);
-  assert.ok(acknowledged<scene.indexOf('renderProgress.submitted(snapshot, performance.now())'));
+  assert.ok(acknowledged<scene.indexOf('renderProgress.submitted(snapshot, rendererReturnedAt, Date.now()'));
+  assert.match(scene,/const sceneReadyAt = performance\.now\(\)/);
+  assert.match(scene,/const rendererReturnedAt = performance\.now\(\)/);
+  assert.match(scene,/coldWorld\?\.sourceTick === snapshot\.tick/);
 });
