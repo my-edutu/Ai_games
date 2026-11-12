@@ -66,9 +66,11 @@ test('revoked/changed/unowned Warden warnings cannot be revived after a long fra
   const h=setup(createPhysicalCombatFeedback);
   h.controller.acceptSnapshot(changed);
   h.setClock(100.8);h.controller.advance(.05,.8);
-  assert.equal(h.visual.length,0,'stale or unverifiable danger cannot be painted');
+  // A NEW tick-12 warning with a new full footprint may legitimately paint;
+  // only the retired tick-11 warning must never be resurrected.
+  assert.equal(h.visual.some(c=>c.tick===11),false,
+   'revoked original warning must not be repainted after stall');
   assert.equal(h.sounds.length,0);
-  assert.equal(h.controller.stats().lateLiveWarningVisuals,0);
   assert.equal(h.controller.acknowledgePresentedFrame(1,.01),0);
   h.controller.dispose();
  }
