@@ -8297,7 +8297,7 @@
     "redCI": "https://github.com/my-edutu/Ai_games/actions/runs/43124464534 — 3 new test cases failed before implementation as designed",
     "productionCodeCommitSha": "95bb7f25e852322b0cde97c679be71f6e19b5c22",
     "change": "Original source-only same-run 8→9 helper checks inactive 0-HP guardian, exact opt-in cap exit, whole-body grounded clearance, preserved player x/y and both real supporting surfaces. If previously unlocked inner arch actually existed, keep same radius25 inner stone-and-retracting-leaf arch visible (max 2 existing draws), suppress redundant outboard memorial, remove obsolete source cap inlay; naturally retire after 2.9s. Legacy/immediate transitions preserved. No physics/AI/PR58/baseline/draw allocations modified.",
-    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43124618874 — IN PROGRESS at authoring, not a pass",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43124618874 — COMPLETED SUCCESS at code commit 95bb7f25; 1406/1407 pass, 1 skipped, 0 failures; technical safety veto only, NOT visual/source-native match",
     "newSourcePinnedFilm": "NOT YET RECAPTURED after the physical continuity repair; capture request will pin final immutable PR68 SHA",
     "independentBlindCritics": {
       "looks": 0,
