@@ -500,9 +500,11 @@ export function selectOriginalSourceSwingCalfTrial({
  * observations; this is NEVER evidence of stationary contact by itself.
  */
 export function chooseOriginalSourceStanceAppliedWitness({
- floorTopY=NaN,beforeHeelY=NaN,beforeToeY=NaN,candidates=[]
+ floorTopY=NaN,beforeHeelY=NaN,beforeToeY=NaN,
+ previousCorrectionRad=0,candidates=[]
 }={}){
- if(![floorTopY,beforeHeelY,beforeToeY].every(finite)||
+ if(![floorTopY,beforeHeelY,beforeToeY,previousCorrectionRad].every(finite)||
+  Math.abs(previousCorrectionRad)>.14||
   Math.abs(floorTopY+.02)>.005||
   !Array.isArray(candidates)||candidates.length<1||
   candidates.length>2)return null;
@@ -513,7 +515,9 @@ export function chooseOriginalSourceStanceAppliedWitness({
  for(let index=0;index<candidates.length;index++){
   const {delta,heelY,toeY}=candidates[index]??{};
   if(![delta,heelY,toeY].every(finite)||
-   Math.abs(delta)<.001||Math.abs(delta)>.04500001||
+   Math.abs(delta)<.001||Math.abs(delta)>.14000001||
+   Math.abs(delta-previousCorrectionRad)>.04500001||
+   (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||
    heelY<floorTopY-.035||heelY>floorTopY+.035||
    toeY<floorTopY-.035||toeY>floorTopY+.035||
    heelY<beforeHeelY-.004||toeY<beforeToeY-.004)
