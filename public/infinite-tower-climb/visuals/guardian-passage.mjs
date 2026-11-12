@@ -655,6 +655,26 @@ export function createTowerGuardianPassage(THREE) {
   capInlay.frustumCulled = false;
   capInlay.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   group.add(capInlay);
+  // Retain a narrow, authentic piece of the old guardian cap during the
+  // source-earned Floor8→9 handoff. The ordinary world rebuild discards
+  // every old-platform draw in its first cold Floor9 frame. An open gateway
+  // suspended over a wholly replaced environment cannot read as a crossing.
+  // These 12 shallow stone/bronze slabs reuse the already-owned box geometry;
+  // they represent ONLY the old, source-confirmed cap extent and contact
+  // height. One instanced draw, no collider, no extra render pass.
+  const capEchoMaterial = new THREE.MeshStandardMaterial({
+    color: 0x776e63,metalness:.32,roughness:.75,transparent:true,
+    opacity:.76,depthTest:true,depthWrite:false,
+  });
+  ownedMaterials.push(capEchoMaterial);
+  const capDeckEcho = new THREE.InstancedMesh(box,capEchoMaterial,12);
+  capDeckEcho.name='SourceEarnedRetainedOldCapDeck';
+  capDeckEcho.visible=false; capDeckEcho.count=0;
+  capDeckEcho.castShadow=false; capDeckEcho.receiveShadow=false;
+  capDeckEcho.frustumCulled=false;
+  capDeckEcho.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(capDeckEcho);
+  const capEchoPose = new THREE.Object3D();
   const inlayPose = new THREE.Object3D();
   const inlayUnlit = new THREE.Color(0x8e694b);
   const inlayLit = new THREE.Color(0xb9f2d1);
@@ -818,18 +838,59 @@ export function createTowerGuardianPassage(THREE) {
   // supported ground from its own source geometry. Never carry the old cap
   // deck's obsolete matrices or draw a bridge over empty space. Source-tick
   // walking progressively illuminates these treads after the handoff.
+  function placeRetainedOldCap(previous,next,anchor) {
+    if(!observedGroundedGuardianHandoff(previous,next))return false;
+    const cap=previous.platforms.find(p=>p.id==='f8:cap');
+    if(!cap)return false;
+    const fromX=Math.max(cap.x,previous.guardianExitX-48000);
+    const toX=Math.min(cap.x+cap.width,previous.guardianExitX+40000);
+    if(!Number.isSafeInteger(fromX)||!Number.isSafeInteger(toX)||
+       toX-fromX<16000)return false;
+    const cs=Math.cos(anchor.angle),sn=Math.sin(anchor.angle);
+    // The upper face stays just BELOW the real former contact plane, not a
+    // walkable new bridge floating forward of the source cap. A real successor
+    // ground already carries the climber and is rendered by the current world.
+    const tileLength=(toX-fromX)/12/next.worldWidth*2.2*
+      GUARDIAN_PASSAGE_RADII.deck*.95;
+    capDeckEcho.count=12;capDeckEcho.visible=true;
+    for(let i=0;i<capDeckEcho.count;i++){
+      const x=fromX+(toX-fromX)*(i+.5)/capDeckEcho.count;
+      const p=pointFor(x,cap.y+cap.height-1600,next.chunkBaseY,
+        next.worldWidth,GUARDIAN_PASSAGE_RADII.deck);
+      const dx=p.x-anchor.x,dz=p.z-anchor.z;
+      capEchoPose.position.set(cs*dx-sn*dz,p.y-anchor.y,sn*dx+cs*dz);
+      capEchoPose.rotation.set(0,p.angle-anchor.angle,0);
+      capEchoPose.scale.set(tileLength,.28,4.3);
+      capEchoPose.updateMatrix();
+      capDeckEcho.setMatrixAt(i,capEchoPose.matrix);
+    }
+    capDeckEcho.instanceMatrix.needsUpdate=true;
+    return true;
+  }
   function placeSuccessorRunway(previous, next, anchor) {
     const route = observedFloorNineRunway(previous, next);
     if (!route) return false;
+    const oldCap=previous.platforms.find(p=>p.id==='f8:cap');
+    if(!oldCap)return false;
+    const oldMarkStart=Math.max(oldCap.x,route.fromX-32000);
+    if(route.fromX-oldMarkStart<12000)return false;
     const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
     capInlay.count = 12;
     capInlay.visible = true;
-    inlayFromX=route.fromX; inlayToX=route.toX;
+    inlayFromX=oldMarkStart; inlayToX=route.toX;
     inlayMode='successor-ground';
     inlayProgress=0; inlaySourceTick=-1;
-    for (let i=0; i<capInlay.count; i++) {
-      const x=route.fromX+(route.toX-route.fromX)*(i+.5)/capInlay.count;
-      const p=pointFor(x,route.top+500,next.chunkBaseY,next.worldWidth,26.35);
+    // Four inherited cap marks lead directly into eight genuine Floor9
+    // ground marks. Nothing is placed beyond either real source platform.
+    // The old separate 12-new-floor-only guide made the door appear detached
+    // from the cap that the climber had just physically crossed.
+    for(let i=0;i<capInlay.count;i++){
+      const onOldCap=i<4;
+      const x=onOldCap
+        ? oldMarkStart+(route.fromX-oldMarkStart)*(i+.5)/4
+        : route.fromX+(route.toX-route.fromX)*(i-4+.5)/8;
+      const top=onOldCap?oldCap.y+oldCap.height:route.top;
+      const p=pointFor(x,top+500,next.chunkBaseY,next.worldWidth,26.35);
       const dx=p.x-anchor.x,dz=p.z-anchor.z;
       inlayPose.position.set(cs*dx-sn*dz,p.y-anchor.y,sn*dx+cs*dz);
       inlayPose.rotation.set(0,p.angle-anchor.angle,0);
@@ -901,6 +962,8 @@ export function createTowerGuardianPassage(THREE) {
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
     capInlay.visible = false; capInlay.count = 0;
+    capDeckEcho.visible = false; capDeckEcho.count = 0;
+    capEchoMaterial.opacity = .76;
     inlayProgress = 0; inlaySourceTick = -1;
     inlayFromX=0; inlayToX=0; inlayMode='none';
     defeatWake.visible = false; defeatWake.scale.setScalar(.55);
@@ -1083,7 +1146,10 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'handoff';
     continuousGroundedHandoff = carryRealThreshold;
-    if(carryRealThreshold) placeSuccessorRunway(previous,source,anchor);
+    if(carryRealThreshold) {
+      placeSuccessorRunway(previous,source,anchor);
+      placeRetainedOldCap(previous,source,anchor);
+    }
     // A genuinely defeated, grounded, whole-body cap crossing keeps the
     // physical same-lane inner arch visible across the scene rebuild. Do NOT
     // replace that arch with the outboard raised memorial in the exact frame
@@ -1139,6 +1205,13 @@ export function createTowerGuardianPassage(THREE) {
       (!continuousGroundedHandoff && age >= duration)
     )) { clear(); return; }
     const still = options.reducedMotion === true;
+    // Retire the observed former cap after actual successful renderer returns.
+    // A stalled scene cannot consume a doorway the viewer never saw.
+    if(capDeckEcho.visible) {
+      const fraction=handoffSubmittedFrames>0
+        ? clamp(1-handoffDisplaySeconds/handoffVisibleWindowSeconds):1;
+      capEchoMaterial.opacity=.76*fraction;
+    }
     poseFragments(age, still);
     poseFallenArmor(defeatAge, still);
     poseDefeatWake(defeatAge, still);
@@ -1272,6 +1345,9 @@ export function createTowerGuardianPassage(THREE) {
         proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
       } : null,
       inlayPieces: capInlay.count,
+      inlayInheritedOldCapPieces: group.visible && stage==='handoff' &&
+        continuousGroundedHandoff && inlayMode==='successor-ground' ? 4:0,
+      retainedOldCapPieces: group.visible && capDeckEcho.visible ? capDeckEcho.count:0,
       inlayMode, inlayFromX, inlayToX,
       inlayProgress: Number(inlayProgress.toFixed(4)),
       inlaySourceTick,
