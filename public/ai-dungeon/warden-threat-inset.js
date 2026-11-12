@@ -58,3 +58,42 @@ export function drawWardenThreatInset(ctx,plan,{width=152,height=152}={}){
  ctx.strokeRect(x-step*.4,z-step*.4,step*.8,step*.8);
  return true;
 }
+
+/** Choose the least-occluded mobile HUD quadrant using REAL projected actors.
+ * No authority state changes, invented positions, camera mutation, frame timer,
+ * rerender, WebGL draw, or hidden warning-cell reduction.
+ */
+export function planThreatInsetSafeZone({width,height,panelWidth,panelHeight,subjects=[],previous=null}={}){
+ if(![width,height,panelWidth,panelHeight].every(Number.isFinite)||
+  width<260||height<320||panelWidth<64||panelHeight<64||
+  panelWidth>width-20||panelHeight>height-50)return null;
+ const left=10,right=Math.max(10,width-panelWidth-10),
+  upper=Math.min(Math.max(185,height*.27),height-panelHeight-12),
+  lower=Math.max(upper,height-panelHeight-14);
+ const options=[
+  {zone:'lower-right',x:right,y:lower},
+  {zone:'lower-left',x:left,y:lower},
+  {zone:'upper-right',x:right,y:upper},
+  {zone:'upper-left',x:left,y:upper}
+ ];
+ const score=option=>{
+  let penalty=0;
+  for(const subject of subjects.slice(0,16)){
+   if(!Number.isFinite(subject?.x)||!Number.isFinite(subject?.y))continue;
+   const radius=Math.min(65,Math.max(10,Number(subject.radius)||18));
+   const dx=Math.max(option.x-subject.x,0,subject.x-(option.x+panelWidth));
+   const dy=Math.max(option.y-subject.y,0,subject.y-(option.y+panelHeight));
+   if(dx*dx+dy*dy<radius*radius)penalty+=Number.isFinite(subject.weight)?Math.max(0,subject.weight):1;
+  }
+  return penalty;
+ };
+ let best=options[0],bestScore=score(best);
+ for(const option of options.slice(1)){
+  const value=score(option);
+  if(value<bestScore){best=option;bestScore=value;}
+ }
+ // Hysteresis stops the map shaking around a similarly safe actor.
+ const retained=options.find(option=>option.zone===previous);
+ if(retained&&score(retained)<=bestScore+.4)best=retained;
+ return Object.freeze({...best,occludedActors:score(best),fullyClear:score(best)===0});
+}

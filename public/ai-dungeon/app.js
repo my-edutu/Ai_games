@@ -36,7 +36,7 @@ import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
 import {createNativeActorVisibilityStage} from '/dungeon/native-actor-visibility.js';
 import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
-import {planWardenThreatInset,drawWardenThreatInset} from '/dungeon/warden-threat-inset.js';
+import {planWardenThreatInset,drawWardenThreatInset,planThreatInsetSafeZone} from '/dungeon/warden-threat-inset.js';
 import {planWardenCourtPriority} from '/dungeon/warden-court-priority-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planWardenWarningSightlinePoints,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
@@ -790,6 +790,41 @@ function renderWardenThreatInset(s){
  threatCanvas.setAttribute('aria-label',plan.description+' Triangles are living heroes; outlined square is the living Warden.');
  drawWardenThreatInset(threatCtx,plan,{width:threatCanvas.width,height:threatCanvas.height});
 }
+// Mobile source-truth tactical map must not hide the heroes or Warden
+// it is explaining. Projection uses the actual presented skinned scene.
+const threatHeadProjection=new THREE.Vector3(),threatFootProjection=new THREE.Vector3();
+let lastThreatSafeZone=null;
+function placeWardenThreatInset(){
+ if(threatInset.hidden){lastThreatSafeZone=null;return;}
+ const width=canvas.clientWidth,height=canvas.clientHeight;
+ if(width>759)return; // Preserve established desktop layout and HUD safe zones.
+ camera.updateMatrixWorld();
+ const subjects=[];
+ for(const unit of state?.units||[]){
+  if(unit.hp<=0||(unit.faction!=='party'&&unit.kind!=='warden'))continue;
+  const actor=actors.get(unit.id);
+  if(!actor?.root?.visible)continue;
+  const root=actor.root.position;
+  const foot=threatFootProjection.set(root.x,0,root.z).project(camera);
+  const head=threatHeadProjection.set(root.x,1.85*actor.root.scale.y,root.z).project(camera);
+  if(![foot.x,foot.y,foot.z,head.x,head.y,head.z].every(Number.isFinite)||
+   foot.z< -1||foot.z>1||head.z< -1||head.z>1)continue;
+  const x=(foot.x+head.x+2)*width/4;
+  const y=(2-foot.y-head.y)*height/4;
+  const apparentHeight=Math.abs(head.y-foot.y)*height/2;
+  subjects.push({x,y,radius:Math.max(17,Math.min(65,apparentHeight*.45+12)),
+   weight:unit.kind==='warden'?6:4});
+ }
+ const zone=planThreatInsetSafeZone({width,height,panelWidth:threatInset.offsetWidth,
+  panelHeight:threatInset.offsetHeight,subjects,previous:lastThreatSafeZone});
+ if(!zone)return;
+ threatInset.style.right='auto';
+ threatInset.style.left=zone.x+'px';
+ threatInset.style.top=zone.y+'px';
+ threatInset.dataset.safeZone=zone.zone;
+ lastThreatSafeZone=zone.zone;
+}
+
 function notifyDungeon(event){
  if(event.kind!=='floor'&&!isSceneAlert(event))return;
  if(event.kind==='floor'){const splash=$('floor-splash');clearTimeout(splashTimer);splash.hidden=false;const match=event.text.match(/^FLOOR (\d+) · (.+)$/);$('splash-floor').textContent=match?match[1].padStart(2,'0'):String(state?.floor??'02').padStart(2,'0');$('splash-name').textContent=match?match[2]:state?.theme??'THE NEXT CHAPTER';splashTimer=setTimeout(()=>{splash.hidden=true},reduced?800:2400)}
@@ -1772,6 +1807,7 @@ function animate(t){
  catch(error){console.warn('[DUNGEON] post effect fault, restoring WebGL:',String(error));try{composer?.dispose()}catch{}composer=null;bloomPass=null;postFXStatus='fallback';postFXEnabled=false;fxButton.title='Glow unavailable: direct rendering remains active';fxButton.setAttribute('aria-pressed','false');fxButton.querySelector('span').textContent='DIRECT 3D';renderer.info.reset();renderer.render(scene,camera)}
  const submitCpuMs=performance.now()-submitCpuStart;
  const overlayCpuStart=performance.now();
+ placeWardenThreatInset();
  combatOverlay.render(state,actors,camera,time,focusedHeroId);
  renderPhaseProfiler.observe({sceneMs:sceneCpuMs,submitMs:submitCpuMs,overlayMs:performance.now()-overlayCpuStart});
  if(state){

@@ -9268,5 +9268,28 @@
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "next": "Inspect real new-head same-seed desktop/mobile Warden warnings, all danger cells, overlay placement, contact/HP/opted-in original sound, perf; reject if obstructs native characters. Then one coherent adult source-rig Vanguard-vs-Revenant/Warden reconstruction; multi-seed replay, locked M1 A/B, 3 fresh critics."
+  },
+  "m1MobileSafeZone20261112": {
+    "at": "2026-11-12",
+    "pr": 49,
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedParent": "e83b53876793fa2735c1d0c12dc9eba40deee588",
+    "actualDesktopMobileRun": 43297552015,
+    "mobileArtifact": 13981495352,
+    "desktopArtifact": 13981345882,
+    "actualObservedDefect": "Real mobile 390px Warden WARNING has genuine 23-cell overlay over live original character/court at x~227-379,y~184-352; miniature cast still not transformed",
+    "integrated": "Bounded live-camera native actor projected head/foot mobile 4-quadrant safe-zone selection and hysteresis; original hazard, AI, 3D scene, audio and desktop layout unchanged",
+    "focusedLocalPureTests": "4/4 passed Node on 390x660 representative geometry; two in-repo tests authored",
+    "afterNewHeadBrowser": "NOT_OBSERVED",
+    "trueNaturalWallClockVideo": "UNVERIFIED",
+    "matchedFixedM1BeforeAfter": "UNVERIFIED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "stage": "A_INCOMPLETE_B_REJECTED",
+    "pr72": "ISOLATED_UNADOPTED",
+    "next": "Inspect real new HEAD warning/release/counter video and verify screen-space actual actors not hidden by HUD; reject or correct map if overlapping. Then major source-rig adult cast with native full-body contact/HP/audio and independent critics."
   }
 }

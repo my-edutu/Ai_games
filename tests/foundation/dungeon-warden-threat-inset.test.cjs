@@ -37,3 +37,27 @@ test('live page wiring and official route are present without adding a WebGL pas
  assert.match(html,/id="threat-inset"/);assert.match(html,/id="threat-canvas"/);
  assert.doesNotMatch(source,/Math\.random|setTimeout|requestAnimationFrame|fetch\(/);
 });
+
+test('mobile real-character safe zone moves full authentic threat map off the Warden confrontation',async()=>{
+ const {planThreatInsetSafeZone:choose}=await load();
+ const dims={width:390,height:660,panelWidth:134,panelHeight:168};
+ const original=choose({...dims,subjects:[{x:268,y:262,radius:34,weight:4},
+  {x:150,y:331,radius:28,weight:6},{x:85,y:320,radius:29,weight:4}]});
+ assert.equal(original.zone,'lower-right');assert.equal(original.x,246);
+ assert.equal(original.y,478);assert.equal(original.fullyClear,true);
+ const shifted=choose({...dims,subjects:[{x:285,y:530,radius:40,weight:4},
+  {x:275,y:260,radius:35,weight:4}]});
+ assert.equal(shifted.zone,'lower-left');assert.equal(shifted.fullyClear,true);
+});
+test('safe-zone placement is finite, bounded and hysteretic for live motion',async()=>{
+ const {planThreatInsetSafeZone:choose}=await load();
+ const dims={width:390,height:660,panelWidth:134,panelHeight:168};
+ assert.equal(choose({...dims,panelWidth:390}),null);
+ assert.equal(choose({...dims,height:100}),null);
+ assert.equal(choose({...dims,subjects:[{x:NaN,y:0}]}).zone,'lower-right');
+ assert.equal(choose({...dims,previous:'lower-left',subjects:[]}).zone,'lower-left');
+ assert.equal(choose({...dims,previous:'lower-left',subjects:[{x:80,y:550,radius:34,weight:4}]}).zone,'lower-right');
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ assert.match(app,/placeWardenThreatInset\(\)/);
+ assert.match(app,/planThreatInsetSafeZone\(/);
+});
