@@ -3628,3 +3628,51 @@ test('verified original Hit_A blends on visible time without outrunning witnesse
  assert.match(renderer,/actor\.mixer\.update\(injuryFrame\.mixerDelta\)/);
  assert.match(renderer,/finally\{actor\.activeClip\.setEffectiveTimeScale\(normalScale\);\}/);
 });
+
+
+test('verified combat-start stops outgoing original Walking_A only after the actual root settles',async()=>{
+ const {planImportedCombatWalkStop:stop,
+  shouldFreezeDeferredImportedCombatWalk:deferred}=await load();
+ assert.equal(typeof stop,'function','a licensed moving source foot must not treadmill underneath incoming sword/cast clips');
+ assert.equal(typeof deferred,'function','genuine root travel may finish after the source one-shot has started');
+ // Current desktop source nine-tick record: tick 7 still blended an incoming
+ // 1H_Melee_Attack_Slice_Horizontal (weight ~.417) with outgoing Walking_A.
+ // Numbers below are deliberately synthetic contract edge cases, NOT a
+ // claim of actual same-frame sole contact or a verified world foot lock.
+ const stopped={previousMode:'move',nextMode:'attack',sourceClipName:'Walking_A',
+  actionTick:24,ownerAuthorized:true,groundedMoving:false,groundedTravel:.004,
+  frameInterval:.2,alive:true,visible:true,teleport:false,reducedMotion:false};
+ assert.equal(stop(stopped),true,'an actually halted sword attacker holds the outgoing licensed source stride');
+ assert.equal(stop({...stopped,nextMode:'cast'}),true,'a lawful caster must also avoid source walking feet under a stationary cast');
+ assert.equal(stop({...stopped,groundedTravel:.03}),false,'moving root must NOT be frozen in midstride');
+ for(const bad of [
+  {previousMode:'idle'},{nextMode:'hurt'},{nextMode:'evade'},{nextMode:'idle'},
+  {sourceClipName:'Idle'},{sourceClipName:'Fake_Walking_A'},
+  {actionTick:null},{actionTick:-1},{ownerAuthorized:false},
+  {groundedMoving:true},{groundedTravel:NaN},{groundedTravel:.05},
+  {frameInterval:0},{frameInterval:NaN},{frameInterval:.6},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true}
+ ])assert.equal(stop({...stopped,...bad}),false,
+  'unsupported actor/clip/owner/movement cannot get a frozen original knee');
+ const ongoing={targetMode:'attack',currentMode:'attack',clipName:'Walking_A',
+  targetTick:24,currentTick:24,ownerAuthorized:true,sourceWeight:.4,
+  sourceRunning:true,sourcePaused:false,groundedMoving:false,
+  groundedTravel:0,frameInterval:.2,alive:true,visible:true,
+  teleport:false,reducedMotion:false};
+ assert.equal(deferred(ongoing),true,
+  'an outgoing licensed mixer action may stop only on the later genuine stationary frame');
+ for(const bad of [
+  {currentTick:25},{currentMode:'hurt'},{targetMode:'guard'},
+  {ownerAuthorized:false},{sourceWeight:0},{sourceRunning:false},
+  {sourcePaused:true},{groundedMoving:true},{groundedTravel:.05},
+  {visible:false},{alive:false},{teleport:true},{reducedMotion:true}
+ ])assert.equal(deferred({...ongoing,...bad}),false,
+  'late unrelated/interrupted or moving actor must retire its stale Walking_A');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planImportedCombatWalkStop\(\{/,
+  'the live original 41-joint imported adapter must use the guarded immediate stop');
+ assert.match(renderer,/shouldFreezeDeferredImportedCombatWalk\(\{/,
+  'deferred genuine root halt must apply to the actual original mixer action');
+ assert.match(renderer,/outgoing\.paused=true/,
+  'only the original departing source action should be paused, never its incoming combat clip');
+});
