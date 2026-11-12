@@ -12,6 +12,7 @@ on:
       - 'scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs'
       - 'scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w252-field-visibility-contract.cjs'
+      - 'scripts/tiny-kingdom-w253-original-growing-field-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -87,6 +88,8 @@ jobs:
         run: node scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs
       - name: W252 honest fence ray obstruction and crop-clear live workday lens
         run: node scripts/tiny-kingdom-w252-field-visibility-contract.cjs
+      - name: W253 original farm crop canopy and original persistent field ground atlas
+        run: node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
