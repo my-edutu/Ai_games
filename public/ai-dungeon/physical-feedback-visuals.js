@@ -838,10 +838,20 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function reset(){
   if(disposed)return;
+  // All retained instances start hidden, and every normal retirement hides
+  // its own matrix. Clear only occupied slots on a floor/run transition:
+  // rewriting all 102 already-hidden matrices needlessly dirties idle pools.
+  // Repeated reset/dispose remains idempotent without missing live effects.
   for(const pool of pools.values()){
-   pool.slots.fill(null);
-   for(let i=0;i<pool.max;i++)pool.mesh.setMatrixAt(i,hideMatrix());
-   pool.mesh.instanceMatrix.needsUpdate=true;pool.mesh.visible=false;
+   let dirty=false;
+   for(let i=0;i<pool.max;i++){
+    if(pool.slots[i]===null)continue;
+    pool.slots[i]=null;
+    pool.mesh.setMatrixAt(i,hideMatrix());
+    dirty=true;
+   }
+   if(dirty)pool.mesh.instanceMatrix.needsUpdate=true;
+   pool.mesh.visible=false;
   }
   active=0;warningHistory.clear();
  }
