@@ -11,7 +11,8 @@ module.exports=defineConfig({
  testMatch:['dungeon-physical-feedback-preview.spec.cjs',
   'dungeon-d04-real-render-pair.spec.cjs',
   'dungeon-d04-real-dynamic-render-pair.spec.cjs',
-  'dungeon-d04-real-capture-cost-pair.spec.cjs'],
+  'dungeon-d04-real-capture-cost-pair.spec.cjs',
+  'dungeon-d04-real-live-authority-capture-pair.spec.cjs'],
  // Keep the ordinary game browser suite unchanged; this is a separate,
  // explicit opt-in verification command for the isolated D04 branch.
  timeout:240000,fullyParallel:false,workers:1
