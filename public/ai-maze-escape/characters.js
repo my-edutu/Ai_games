@@ -892,7 +892,10 @@ export function createWarden(options = {}) {
       // to the previous proven full-open pose. No scaled/fake particles,
       // speculative attack, unseen guardian state, allocations or AI edits.
       // Clear both hinges on withdrawal, reset, terminal and no-clock use.
-      shellHalf.tideSail.rotation.x=encounter>0 && hasWitnessBeat
+      // A completed full reveal must settle to canonical +0, never -0.
+      // Signed negative zero from a closed numeric interpolation is not a
+      // physically distinct pose and breaks deterministic strict resets.
+      shellHalf.tideSail.rotation.x=encounter>0 && hasWitnessBeat && display<1
         ? -.92*(1-display) : 0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
