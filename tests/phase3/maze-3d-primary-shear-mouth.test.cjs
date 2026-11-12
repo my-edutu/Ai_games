@@ -51,8 +51,15 @@ test('full-scale paired cutting faces visibly cross the real jaw gap while the s
     assert.ok(portalBounds.min.x>courtOrigin.x-1.2&&portalBounds.max.x<courtOrigin.x+1.2
       &&portalBounds.min.z>courtOrigin.z-1.2&&portalBounds.max.z<courtOrigin.z+1.2,
       'the whole non-colliding rear gantry stays inside the disclosed trap cell');
-    assert.ok(blades.every(b=>b?.isMesh&&b.scale.x===.72&&b.scale.y===1.28),
-      'one broad uninterrupted ivory face on each real jaw');
+    assert.ok(blades.every(b=>b?.isMesh&&b.scale.x>=.34&&b.scale.x<=.42
+      &&b.scale.y>=1.20&&b.scale.z<=.27),
+      'one full-height narrow ivory cutter per jaw, leaving genuine negative space around Pip');
+    assert.ok(jaws.every(jaw=>{
+      const rib=jaw.getObjectByName('Published tide-shear open-web structural rib');
+      const bearing=jaw.getObjectByName('Published tide-shear rooted bearing');
+      return rib?.isMesh&&bearing?.isMesh&&rib.parent===jaw&&bearing.parent===jaw
+        &&rib.scale.x<=.15&&rib.position.z<jaw.getObjectByName('Published tide-shear front blade').position.z-.30;
+    }),'both cutters keep rooted rear structural ribs behind their authentic striking faces');
     assert.ok(edges.every(Boolean)&&edges[0].position.x>0&&edges[1].position.x<0,
       'coral contact edges face the physical throat rather than reading as separate props');
     assert.ok(jaws.every(jaw=>jaw.getObjectByName('Published tide-shear warning vane')

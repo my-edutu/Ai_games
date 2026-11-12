@@ -2432,13 +2432,17 @@ export function createMazeWorld(options = {}) {
       // edges, but rebuild their heavy front plates as connected open-web
       // forged jaws. The freed center is REAL 3D negative space, not CSS
       // transparency, missing hazard, invented safe passage or camera crop.
-      mesh(jaw, bevel, deepStone,
-        -side * .10, .31, -.12, .38, .46, .42);
+      // The bearing, long rib and front load arm form one actual connected
+      // load path. It must be visible at rest/contact/withdrawal, rather than
+      // three floating decorative parts around Pip.
+      const bearing = mesh(jaw, bevel, deepStone,
+        -side * .10, .34, -.12, .38, .52, .42);
+      bearing.name = 'Published tide-shear rooted bearing';
       const loadRib = mesh(jaw, bevel, darkMetal,
         -side * .085, .84, -.085, .13, 1.08, .15, 0, 0, side * .13);
       loadRib.name = 'Published tide-shear open-web structural rib';
       const forearm = mesh(jaw, bevel, darkMetal,
-        -side * .27, .65, .25, .62, .18, .25, 0, 0, -side * .23);
+        -side * .27, .65, .20, .62, .18, .25, 0, 0, -side * .23);
       forearm.name = 'Published tide-shear inward brace';
       const vane = mesh(jaw, bevel, side < 0 ? seaGlass : jade,
         -side * .23, 1.06, .16, .22, .84, .14, 0, 0, side * .13);
@@ -2454,8 +2458,9 @@ export function createMazeWorld(options = {}) {
       const bladeInlay = mesh(jaw, bevel, danger,
         -side * .52, 1.04, .545, .135, 1.16, .060, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
-      mesh(jaw, bevel, darkMetal,
-        -side * .30, .55, .56, .28, .08, .10);
+      // Do not keep the disconnected legacy decorative lip underneath
+      // the new open-web shear. Its presence would recreate foreground
+      // clutter and exceed the nine-piece/jaw physical complexity cap.
       const fang = mesh(jaw, cone, gold,
         -side * .32, 1.70, .40, .13, .18, .13, 0, 0, -side * .20);
       fang.name = 'Published tide-shear warning fang';

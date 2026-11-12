@@ -153,7 +153,7 @@ test("Pass278 side-coupled powertrain clears Pip's center while retaining a trut
   }
 });
 
-test('Pass259 pairs two broad connected ivory shears instead of a heap of red trim',async()=>{
+test('two open-web source-driven shear jaws have a joined bearing-to-blade load path without extra clutter',async()=>{
   const {createMazeWorld}=await mod;
   const {Box3,Vector3}=await import(three);
   const world=createMazeWorld({balanced:true}),initial=world.stats(),source=JSON.stringify(published);
@@ -168,10 +168,21 @@ test('Pass259 pairs two broad connected ivory shears instead of a heap of red tr
       const blade=jaw.getObjectByName('Published tide-shear front blade');
       const inlay=jaw.getObjectByName('Published tide-shear forward danger inlay');
       const spine=jaw.getObjectByName('Published tide-shear inward brace');
-      assert.ok(blade?.isMesh&&inlay?.isMesh&&spine?.isMesh);
-      assert.equal(blade.parent,jaw,'no detached floating teeth');
-      assert.ok(blade.scale.y>=1.10&&inlay.scale.y>=.90,
-        'both cutting faces must be broad, readable physical actor-scale forms');
+      const bearing=jaw.getObjectByName('Published tide-shear rooted bearing');
+      const rib=jaw.getObjectByName('Published tide-shear open-web structural rib');
+      assert.ok(blade?.isMesh&&inlay?.isMesh&&spine?.isMesh
+        &&bearing?.isMesh&&rib?.isMesh,'each real hinge owns all five physical load path parts');
+      assert.ok([blade,inlay,spine,bearing,rib].every(part=>part.parent===jaw),
+        'no detached floating cutters or decorative teeth');
+      assert.ok(blade.scale.x>=.34&&blade.scale.x<=.42&&blade.scale.y>=1.20
+        &&inlay.scale.y>=1.10&&rib.scale.x<=.15&&rib.scale.y>=1,
+        'full-height actor-scale cutters retain narrow true open-web silhouettes');
+      assert.ok(rib.position.z+rib.scale.z/2>=bearing.position.z-bearing.scale.z/2
+        &&rib.position.y-rib.scale.y/2<=bearing.position.y+bearing.scale.y/2
+        &&spine.position.z-spine.scale.z/2<bearing.position.z+bearing.scale.z/2
+        &&spine.position.y-spine.scale.y/2<bearing.position.y+bearing.scale.y/2
+        &&spine.position.z+spine.scale.z/2>blade.position.z-blade.scale.z/2,
+        'the rear rib roots into its bearing, whose arm actually joins the front cutter');
       assert.ok(jaw.children.filter(child=>child.isMesh).length<=9,
         'old decorative clutter must be replaced, not layered under more models');
     }
@@ -282,8 +293,10 @@ test('Pass262 makes the two real foreground cutters dominant while quieting movi
       const blade=jaw.getObjectByName('Published tide-shear front blade');
       const lip=jaw.getObjectByName('Published tide-shear forward danger inlay');
       assert.ok(blade?.isMesh&&lip?.isMesh&&lip.parent===jaw&&blade.parent===jaw);
-      assert.ok(blade.scale.y>=1.12&&lip.scale.y>=1.0&&lip.scale.x>=.17,
-        'the only broad coral contact stripe follows a true, actor-scale ivory shear');
+      assert.ok(blade.scale.y>=1.20&&lip.scale.y>=1.10
+        &&lip.scale.x>=.12&&lip.scale.x<=.15
+        &&lip.position.z>blade.position.z+.15,
+        'one tall, physically forward, narrow coral contact lip follows each true ivory shear');
       assert.notEqual(blade.material,lip.material);
     }
     const origin=trap.getWorldPosition(new Vector3());
