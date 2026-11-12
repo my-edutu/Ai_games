@@ -23,3 +23,11 @@ Previous source-pinned authentic 960×600 and 390×844 73s source-matched danger
 
 ## Next highest-impact P0 action
 Finish exact-head technical veto, then inspect all matched native ≥60s 1x authentic baseline/candidate 960×600 and 390×844 ascent, moving, guardian/crusher, Floor8 opened physical arch, grounded Floor9 onward and outcome/restart. Compare original source tick451, browser acceptance, Three CPU world build and renderer return, original native WebM phase, post-arrival canyon fade and guardian visibility. If strict event-native pairing stays **0/2** or the doorway still appears to cut, reopen the real physical handoff/scene continuity, not a cosmetic HUD patch. P1/P6 remain unaccepted until independent reviews, actual supported hardware and no major regressions verify.
+
+
+## Verified follow-up: real red contract and new immutable capture
+[RED technical workflow 43183619874](https://github.com/my-edutu/Ai_games/actions/runs/43183619874) **failed as expected** at test-first `e313c6c18fb77bed814c6a94cacc7c82fd8a4925`. Its original logs identify **test #558**, the genuine new-floor staged upload contract: `3 !== 0` original canyon layers before the first authored Floor9 submission. The test failure is specifically the intended absent implementation, not evidence of a graphical improvement.
+
+After production change `2350f4166f88523bb27093b6593a77e073e9938c`, [exact implementation technical quality 43183745012](https://github.com/my-edutu/Ai_games/actions/runs/43183745012) was still **IN PROGRESS** on last inspection; green not claimed.
+
+[New authentic 9-job source-pinned capture 43184271921](https://github.com/my-edutu/Ai_games/actions/runs/43184271921) was admitted and **IN PROGRESS** at immutable candidate SHA `ae2468035fc228550b8674bb09327ef53296c9f9`, comparing frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`. All ledge and eight baseline/candidate original film jobs were listed in progress. The native event-pairing result, complete authentic recordings, independent critics and target-device budgets remain **NOT EVALUATED**.
