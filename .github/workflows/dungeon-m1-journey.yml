@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'tests/browser/dungeon-m1-organic-journey.spec.cjs'
+      - 'tests/browser/dungeon-m1-unheld-journey.spec.cjs'
+      - 'tests/browser/dungeon-m1-unheld-feed.cjs'
+      - 'tests/browser/dungeon-m1-unheld.playwright.config.cjs'
+      - 'tests/foundation/dungeon-m1-unheld-feed.test.cjs'
       - 'tests/browser/dungeon-m1-renderer-assay.spec.cjs'
       - 'tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs'
       - 'tests/browser/dungeon-m1-journey.playwright.config.cjs'
@@ -25,7 +29,7 @@ jobs:
         viewport: [desktop, mobile]
     # Playwright 1.55 requires a supported runner OS; ubuntu-latest resolved to unsupported 26.04.
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,7 +39,7 @@ jobs:
         with: {node-version: '22', cache: 'npm'}
       - run: npm ci
       - run: npm run build
-      - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs tests/foundation/dungeon-m1-rendered-capture.test.cjs tests/foundation/dungeon-m1-observer-policy.test.cjs
+      - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs tests/foundation/dungeon-m1-rendered-capture.test.cjs tests/foundation/dungeon-m1-observer-policy.test.cjs tests/foundation/dungeon-m1-unheld-feed.test.cjs
       - run: npm run dungeon:assets:strict
       - name: Use installed Chrome or fetch Chromium without apt-font dependency
         run: |
@@ -47,6 +51,12 @@ jobs:
           fi
       - name: Record actual entire journey and original opt-in sound
         run: npx playwright test -c tests/browser/dungeon-m1-journey.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Record unheld organic motion and original opt-in sound without milestone pauses
+        if: always()
+        run: npx playwright test -c tests/browser/dungeon-m1-unheld.playwright.config.cjs
         env:
           DUNGEON_REQUIRE_MODELS: '1'
           DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
@@ -63,6 +73,7 @@ jobs:
           name: dungeon-m1-organic-${{ matrix.viewport }}
           path: |
             artifacts/dungeon-m1-organic-journey-${{ matrix.viewport }}*
+            artifacts/dungeon-m1-unheld-${{ matrix.viewport }}*
             artifacts/dungeon-m1-renderer-assay-${{ matrix.viewport }}*
             test-results/**
           if-no-files-found: warn

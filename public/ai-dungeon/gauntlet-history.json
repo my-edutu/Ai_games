@@ -9325,5 +9325,37 @@
     "stage": "A_INCOMPLETE_B_NOT_ARTISTICALLY_ACCEPTED",
     "pr72": "631749e0c4833bec4a8f56a61b49ed253579ee38_ISOLATED_UNADOPTED",
     "next": "Rebuild one cohesive adult original source-rig Vanguard-vs-Revenant/Cultist-and-Warden exemplar with grounded full-body sword/HP/audio; validate natural motion 390/1440, matched locked baseline and three blinded critics."
+  },
+  "m1UnheldMotionObserver20261112": {
+    "at": "2026-11-12",
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "pr": 49,
+    "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedHead": "00ebf82d3ebea3792da2485bb94295764ad402d3",
+    "existingRealDesktopMobileAvRun": 43316806721,
+    "existingEvidenceHeldMilestones": true,
+    "actualBeforeObservation": "Miniature original character cast and severe software-WebGL frame delivery; mobile Warden approximately 36px warning; 23 real danger cells, truthful relocated lower-right inset in sampled frame",
+    "added": "Separate original-WebGL plus opt-in WebAudio capture with continuous unheld consecutive authentic simulation snapshots at browser polling cadence, timestamped rendered-checksum coverage, no staged kills or checkpoint pauses; keeps previous diagnostic held reel unchanged",
+    "files": [
+      "tests/browser/dungeon-m1-unheld-feed.cjs",
+      "tests/foundation/dungeon-m1-unheld-feed.test.cjs",
+      "tests/browser/dungeon-m1-unheld-journey.spec.cjs",
+      "tests/browser/dungeon-m1-unheld.playwright.config.cjs",
+      ".github/workflows/dungeon-m1-journey.yml"
+    ],
+    "changesToActualGame": "NONE_EXPERIENCE_IS_STILL_NOT_TRANSFORMED",
+    "redGreen": "UNVERIFIED_NO_SHARED_WORKSPACE_TEST_RUN",
+    "afterRealDesktopMobile": "NOT_OBSERVED_NEW_WORKFLOW_PENDING",
+    "audioVisualContactSync": "UNVERIFIED",
+    "browserTiming": "UNHELD_SOURCE_REPLAY_NOT_LIVE_WALLCLOCK",
+    "blocker": "NOT_FOUND: Tunnel-client has not been seen for 300 seconds",
+    "stage": "A_INCOMPLETE_B_NOT_ARTISTICALLY_ACCEPTED",
+    "pr72": "ISOLATED_UNADOPTED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "verdict": "IN_PROGRESS_NOT_TRANSFORMED_VERIFIED",
+    "next": "Inspect exact-head unheld WebM sound and actual rendered milestones (no fabricated contact), then major original cohesive adult source-rig Vanguard-Revenant-Warden rebuild with true movement/contact/HP/original audio, new natural 1440/390 evidence, M1 locked baseline, 3 fresh blind critics."
   }
 }
