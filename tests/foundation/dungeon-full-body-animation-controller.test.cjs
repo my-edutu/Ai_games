@@ -3496,5 +3496,5 @@ test('live original stance skinned-foot safety reads each weighted source vertex
  // XYZ reader must not silently index vertex zero for undefined/stale rigs.
  assert.match(sampler,/Number\.isSafeInteger\(candidate\.index\)/);
  assert.match(sampler,/candidate\.index<0/);
- assert.match(sampler,/candidate\.mesh\?\.isSkinnedMesh/);
+ assert.match(sampler,/candidate\?\.mesh\?\.isSkinnedMesh/);
 });
