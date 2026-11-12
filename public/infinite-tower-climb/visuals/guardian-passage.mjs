@@ -120,6 +120,78 @@ export function observedGroundedGuardianHandoff(previous, next) {
     after.y - after.halfHeight === ground.y + ground.height;
 }
 
+// Browser snapshots are *observations*, not the 20Hz authoritative source.
+// Native 1x run 43212531463 first observed Floor9 at tick452 after an old
+// floor tick435; no <=12-tick browser-only gate can reconstruct the actual
+// crossing at tick451. The authoritative game therefore publishes a bounded
+// record ONLY when its fixed-step rules really earn the grounded threshold.
+// Rebuild the two actual source endpoints from that immutable event; never
+// interpolate missing video frames, teleport a model or award an extra floor.
+export function observedRecordedGuardianHandoff(next) {
+  const w=next?.lastGuardianCrossing,p=next?.player;
+  if (!w || !p || next.lifecycle !== 'running' || next.floor !== 9 ||
+      w.fromFloor !== 8 || w.toFloor !== 9 ||
+      typeof w.runToken !== 'string' || !w.runToken ||
+      next.runToken !== w.runToken ||
+      !Number.isSafeInteger(next.tick) ||
+      !Number.isSafeInteger(w.sourceTick) ||
+      next.tick <= w.sourceTick || next.tick-w.sourceTick > 12 ||
+      !Number.isSafeInteger(next.worldWidth) ||
+      next.worldWidth <= 0 || w.worldWidth !== next.worldWidth ||
+      !Number.isSafeInteger(next.chunkBaseY) ||
+      !Array.isArray(next.platforms)) return null;
+  const cap=w.cap,guardian=w.guardian,ground=next.platforms.find(
+    entry=>entry?.id==='f9:ground');
+  if (!cap || !ground || cap.id !== 'f8:cap' ||
+      !guardian || guardian.kind!=='guardian' ||
+      typeof guardian.id!=='string' || !guardian.id ||
+      guardian.floor!==8 || guardian.active!==false || guardian.health>0 ||
+      ![guardian.health,guardian.x,guardian.y,guardian.halfHeight,
+        cap.x,cap.y,cap.width,cap.height,ground.x,ground.y,ground.width,ground.height,
+        w.exitX,w.previousX,w.previousY,w.previousHealth,
+        w.crossingX,w.crossingY,w.halfWidth,w.halfHeight,
+        p.x,p.y,p.halfWidth,p.halfHeight,p.health]
+        .every(Number.isSafeInteger) ||
+      guardian.halfHeight<=0 || cap.width<=0 || cap.height<=0 ||
+      ground.width<=0 || ground.height<=0 ||
+      w.halfWidth<=0 || w.halfHeight<=0 || w.previousHealth<=0 ||
+      w.exitX!==cap.x+Math.floor(cap.width*.76) ||
+      p.health<=0 || p.grounded!==true ||
+      p.groundedPlatformId!==ground.id ||
+      p.halfWidth!==w.halfWidth || p.halfHeight!==w.halfHeight ||
+      w.previousY!==w.crossingY || w.crossingY!==p.y ||
+      w.previousY-w.halfHeight!==cap.y+cap.height ||
+      p.y-p.halfHeight!==ground.y+ground.height ||
+      cap.y+cap.height!==ground.y+ground.height ||
+      w.previousX<w.exitX-18000 ||
+      w.previousX> w.exitX+w.halfWidth+4000 ||
+      w.crossingX<w.exitX+w.halfWidth+4000 ||
+      w.crossingX-w.previousX<0 ||
+      w.crossingX-w.previousX>18000 ||
+      w.crossingX+w.halfWidth>cap.x+cap.width ||
+      w.previousX-w.halfWidth<cap.x ||
+      w.crossingX-w.halfWidth<ground.x ||
+      p.x<w.crossingX ||
+      p.x-w.crossingX>(next.tick-w.sourceTick)*18000 ||
+      p.x+p.halfWidth>ground.x+ground.width) return null;
+
+  const old={
+    runToken:w.runToken,tick:w.sourceTick-1,floor:w.fromFloor,
+    lifecycle:'running',worldWidth:w.worldWidth,
+    chunkBaseY:next.chunkBaseY,guardianExitX:w.exitX,
+    platforms:[{id:cap.id,x:cap.x,y:cap.y,width:cap.width,height:cap.height}],
+    enemies:[{id:guardian.id,kind:'guardian',floor:8,active:false,
+      health:guardian.health,x:guardian.x,y:guardian.y,
+      halfHeight:guardian.halfHeight}],
+    player:{x:w.previousX,y:w.previousY,health:w.previousHealth,
+      halfWidth:w.halfWidth,halfHeight:w.halfHeight,
+      grounded:true,groundedPlatformId:cap.id}
+  };
+  // Reuse the existing hard physical handoff/grounding gate; every returned
+  // field originates from an authentic prior source event, not a guessed pose.
+  return observedGroundedGuardianHandoff(old,next) ? old : null;
+}
+
 // The real Floor8 cap must lead into the equally grounded Floor9 runway,
 // rather than disappearing into a wholly unrelated biome at the precise
 // authored source threshold. This authorizes ONLY a short, non-colliding
