@@ -1512,7 +1512,12 @@ export function planImportedCombatWalkStop({
  return previousMode==='move'&&['attack','cast'].includes(nextMode)&&
   sourceClipName==='Walking_A'&&Number.isSafeInteger(actionTick)&&actionTick>=0&&
   ownerAuthorized===true&&alive===true&&
-  finite(frameInterval)&&frameInterval>0&&frameInterval<=.35&&
+  finite(frameInterval)&&frameInterval>0&&frameInterval<=.5&&
+  // A genuine zero-distance stop remains valid at the measured 360ms
+  // original WebGL cadence; a drifting foot (>1.5mm) retains the much
+  // stricter <=350ms micro-arrival velocity witness.
+  finite(groundedTravel)&&groundedTravel>=0&&
+  (groundedTravel<=.0015||frameInterval<=.35)&&
   planSourceWalkMicroArrival({groundedMoving,groundedTravel,
    frameInterval,visible,teleport,reducedMotion});
 }
