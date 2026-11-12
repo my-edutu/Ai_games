@@ -8,9 +8,9 @@ const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 const open=html.indexOf('<script>'),close=html.indexOf('</script>',open);
 assert(open>=0&&close>open,'actual game inline script is present');
 new vm.Script(html.slice(open+8,close));
-const start=html.indexOf('function chooseRealMarketReceiptLens(receiptId){');
+const start=html.indexOf('function projectMarketReceiptShelves(');
 const end=html.indexOf('function chooseRealGrainHomeLens(home){',start);
-assert(start>=0&&end>start,'the production market witness and key invalidation are present');
+assert(start>=0&&end>start,'the real physical two-shelf projector, witness and key invalidation are present');
 const section=html.slice(start,end);
 assert(section.includes('creditedAtUnloading===true')&&
  section.includes('row.resource===\'food\'')&&
@@ -24,6 +24,8 @@ assert(section.includes('physicalFollowEyeClearance')&&
 const valid={id:'grain:14',resource:'food',job:'farmer',
  citizen:'Bram',amount:3.024,creditedAtUnloading:true,time:204};
 const ctx={
+ physicalCameraProjection:()=>({tanHorizontal:.75,tanVertical:.59}),
+ marketCourierPostSightline:()=>({centerCover:.02}),
  deliveryReceipts:[valid],FARM_MARKET_STREET_DESTINATION:[-1,10.2],
  terrain:()=>0,city:[[0,1,0],[1,2,1]],
  canvas:{clientWidth:390,clientHeight:844},
@@ -43,11 +45,15 @@ assert.equal(w.chooseRealMarketReceiptLens('no-such-receipt'),null,'no unrelated
 const shot=w.chooseRealMarketReceiptLens('grain:14');
 assert(shot,'one actual credited receipt has a physically clear candidate');
 assert.equal(shot.receiptId,'grain:14');
-assert.deepEqual([...shot.anchor],[-1,10.2]);
-assert.equal(shot.source,'actual-receipt-original-market-physical-camera');
+assert(Math.abs(shot.anchor[0]+.075)<1e-9&&Math.abs(shot.anchor[1]-11.03)<1e-9,
+ 'the actual two receipt shelves, not the old courier navigation stop, are centered');
+assert.equal(shot.source,'actual-receipt-original-market-two-shelf-physical-camera');
 assert.equal(shot.authorityChanged,false);
 assert(shot.clearShots>0&&shot.checkedShots<=108,'bounded physical survey');
 assert.equal(shot.occludingRoofRays,0);
+assert.equal(shot.visibleShelves,2,'the original physical storage shelves must BOTH be framed');
+assert(shot.minHeightFraction>=.018,'both real shelves must be visually legible');
+assert(shot.postCover<.25,'do not conceal the genuine stock behind market posts');
 assert(shot.sceneCover<.34&&shot.canopyCover<.27,'original court is readable');
 ctx.grainJourney.marketLens=null;
 const plan={stage:'received',receiptId:'grain:14',
@@ -74,4 +80,12 @@ assert(html.includes('else if(market){')&&
  html.includes('grainJourney.marketLens?.receiptId===grainJourney.deliveryId'),
  'the actual renderer and camera target share the receipt-locked world lens');
 assert(html.includes('marketReceiptSightline:plan?.stage===\'received\''));
-console.log('W204 original receipt-gated market holding camera PASS; hardware FPS and independent visual transformation NOT PROVEN.');
+ctx.followRayBlockers=()=>0;
+ctx.marketCourierPostSightline=()=>({centerCover:.40});
+assert.equal(w.chooseRealMarketReceiptLens('grain:14'),null,
+ 'all physical lens candidates obscured by real market posts must be rejected');
+ctx.marketCourierPostSightline=()=>({centerCover:.02});
+ctx.physicalCameraProjection=()=>({tanHorizontal:0,tanVertical:0});
+assert.equal(w.chooseRealMarketReceiptLens('grain:14'),null,
+ 'zero or degenerate physical projection cannot fake visible receiving shelves');
+console.log('W204 original receipt-gated two-shelf physical market camera PASS; no invented stock or occluded shots; hardware FPS and visual transformation NOT PROVEN.');
