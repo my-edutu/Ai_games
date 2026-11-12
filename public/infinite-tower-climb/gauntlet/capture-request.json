@@ -1,4 +1,31 @@
 {
+  "p0RetainedActualCapFloorNineOriginalFilm20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "PIN EXACT immutable github.sha OF THIS capture-request COMMIT; never use floating branch head",
+    "productionSourceSha": "308c7c181c9d4bb2be4e15681066b0ba2c625fca",
+    "testRecoverySha": "76bc305225c90aa202bb91da6cab56752edf2727",
+    "currentSourceReview": "docs/reviews/2026-11-12-tower-pr68-authentic-old-cap-to-floor9-render-continuity.md",
+    "previousAuthenticOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463",
+    "previousCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463/artifacts/13941613111",
+    "previousSourceNativeGuardianPair": "0/2 viewports accepted",
+    "capture": "FULL ORIGINAL nine-job recording: authentic source host + eight independent unedited 1× WebMs, frozen baseline SHA vs exact new candidate, same seed/tier/settings, 60s+ each ascent floor0, moving floor7, danger earned guardian/crusher floor8 physical cap into grounded floor9, outcome and natural restart; desktop 960x600 and portrait 390x844. Preserve source/browser/Three/native PTS and original film hashes.",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "sourceClock": "genuine 20Hz unmodified original",
+    "inspect": "Inspect native full-motion 21–29s around guardian HP0 tick441 and real cap exit tick451. Verify old cap and bronze inlays remain grounded and visibly contiguous through SAME open inner arch into true violet Floor9 while climber's whole body actually passes. Check cold draw-frame latency, camera crop, portrait, shadows, z-fighting, frames/headroom, level nine onward and outcome/restart. Source scene first reported native 23.076s desktop and 23.211s portrait in old original film; candidate latency must be independently recalibrated, NEVER retime/relax.",
+    "additionalBlocker": "Frozen baseline moving floor7 original desktop previously had PARTIALLY_CALIBRATED native film with real 3.46s wall to 2.24s video discontinuity; recapture original unchanged baseline with valid full-film 3+ matching native anchors and no gap. Do not mark PASS with an invalid pair.",
+    "rejectionCriteria": "Missing original 60s films, 0/2 strict source-native pairing, a full body jump cut, fabricated old cap collider/bridge/teleport, duplicated or floating platform, masked hazards/hero, worse first cold Floor9 frame, incomplete restart, lost/reduced-motion/portrait regressions, stale/wrong-run recurrence, missing device metrics.",
+    "technicalQuality": "NOT VERIFIED at request authoring; V8 source syntax PASS only, exact-head CI must run and pass before accepting",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceMetrics": "NOT EVALUATED",
+    "next": "Inspect exact-source CI + all original normal-speed WebMs and phase sidecars; if cap is still abruptly replaced by violet world, move to coherent shared old/new spatial camera and lighting system P0. Do not advance on test counts."
+  },
 "p0SourceRecordedCrossingNormalSpeedOriginalFilm20261112": {
   "stage": "P0 OPEN; NOT EVALUATED",
   "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
