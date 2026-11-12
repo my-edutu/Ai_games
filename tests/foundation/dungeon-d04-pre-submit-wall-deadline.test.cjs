@@ -121,3 +121,69 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   assert.equal(director.acknowledgePresentedFrame(1,.012),0,'replay must not create a second receipt');
  }finally{director.dispose()}
 });
+
+
+test('D04 receipt separates pre-advance, visual-work and post-visual frame stall without relaxing stale audio',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const original=[],retired=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   emit(){return true},
+   advance(){now+=.011}, // Measured, controlled retained-visual work.
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   retireStaleCue(id,reason){retired.push(reason);return true},
+   reset(){},dispose(){}
+  },
+  audioAdapter:{
+   enable(){return true},emit(cue){original.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}
+  }
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));
+  d.acceptSnapshot(snapshot(11,20)); // Real HP loss observed at t=100.
+  now+=.032; // Legitimate waiting before the D04 advance begins.
+  d.advance(.016,.016); // D04 visual work advances injected clock by 11ms.
+  now+=2.740; // Heavy non-visual wait and WebGL work before submission.
+  assert.equal(d.acknowledgePresentedFrame(1,.013),0);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.decision,'stale-frame');
+  assert.equal(receipt.observationToSubmissionMs,2783);
+  assert.equal(receipt.beforeVisualAdvanceMs,32);
+  assert.equal(receipt.visualAdvanceMs,11);
+  assert.equal(receipt.afterVisualAdvanceToSubmissionMs,2740);
+  assert.equal(receipt.renderSubmissionMs,13);
+  assert.equal(original.length,0,'late authoritative HP loss must not trigger old impact foley');
+  assert.deepEqual(retired,['stale-frame']);
+  assert.equal(receipt.sampleSynchronized,false);
+ }finally{d.dispose()}
+});
+
+test('a missing or nonmonotonic D04 visual-work sample cannot fabricate phase attribution',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const values=[100,100.05,99.9,100.2];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>values.shift()??100.2,
+  visualAdapter:{emit(){return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(){return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  d.enableAudioFromGesture();
+  d.acceptSnapshot(snapshot(10,30));
+  d.acceptSnapshot(snapshot(11,20));
+  d.advance(.016,.016);
+  d.acknowledgePresentedFrame(1,.015);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.observationToSubmissionMs,200);
+  assert.equal(receipt.beforeVisualAdvanceMs,50);
+  assert.equal(receipt.visualAdvanceMs,null);
+  assert.equal(receipt.afterVisualAdvanceToSubmissionMs,null);
+  assert.equal(receipt.sampleSynchronized,false);
+ }finally{d.dispose()}
+});
