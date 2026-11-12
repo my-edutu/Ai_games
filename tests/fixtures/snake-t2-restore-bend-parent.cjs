@@ -15,6 +15,24 @@ function restoreBendParent(source) {
   if(i<0||j<i||source.indexOf(begin,i+1)>=0||source.indexOf(end,j+1)>=0)
     throw new Error('T2 exact-source curvature bracket missing or ambiguous');
   let old=source.slice(0,i)+source.slice(j+end.length);
+  // The live portal-fragment pose adapter changed only the presentation
+  // heading of isolated body rings. Reverse those exact bytes before the
+  // immutable df113 bend baseline check; NEVER substitute a new baseline SHA.
+  const earlierPortalDirection = '        const dx = options.direction?.x || 0, dz = options.direction?.z || 1;\n';
+  const independentPortalDirection =
+    '        const ownDirection = options.fragmentDirections?.[p] || options.direction;\n'+
+    '        // Per-fragment heading is drawn only from an adjacent public body\n'+
+    '        // tangent. A single portal segment never borrows the head\'s direction\n'+
+    '        // when its own earlier, authoritative orientation is available.\n'+
+    '        const dx = Number.isFinite(ownDirection?.x) ? ownDirection.x : 0;\n'+
+    '        const dz = Number.isFinite(ownDirection?.z) ? ownDirection.z : 1;\n';
+  if (old.includes(independentPortalDirection)) {
+    if (old.split(independentPortalDirection).length !== 2)
+      throw new Error('T2 portal-fragment source reversal ambiguous');
+    old = old.replace(independentPortalDirection, earlierPortalDirection);
+  } else if (old.split(earlierPortalDirection).length !== 2) {
+    throw new Error('T2 portal-fragment source reversal drift');
+  }
   const removed='      // Curvature budgets are fragment-local. Portal breaks cannot be used\n'+
     '      // as invented neighbors to round across a discontinuity.\n'+
     '      const overviewRings = lowDetail ? distributeSerpentBendRings(path) : null;\n';
