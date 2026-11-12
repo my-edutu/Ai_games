@@ -577,7 +577,16 @@ for(const view of [
   expect(proof.clipName).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
-  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.045001);
+  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.090001);
+  // A larger source thigh candidate is lawful ONLY for a severely buried
+  // original weighted toe and must have a still-safe real opposite shoe.
+  if(Math.abs(proof.angleRad)>.045001){
+   expect(proof.before?.[side]?.toeY).toBeLessThan(-.045);
+   expect(proof.after?.[side]?.toeY).toBeGreaterThan(proof.before?.[side]?.toeY+.004);
+   const other=side==='left'?'right':'left';
+   expect(Math.abs(proof.after?.[other]?.heelY-proof.before?.[other]?.heelY)).toBeLessThanOrEqual(.003001);
+   expect(Math.abs(proof.after?.[other]?.toeY-proof.before?.[other]?.toeY)).toBeLessThanOrEqual(.003001);
+  }
   expect(proof.sourceTrack).toMatch(/\.quaternion$/);
   // The actual final inspected skinned heel and toe must agree with the
   // saved on-frame candidate on the very same loaded original GLB instance.
