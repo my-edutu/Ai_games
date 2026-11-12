@@ -533,6 +533,18 @@ for(const view of [
     currentFeet:t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs??null,
     lastHistorical:t.nativeLegOwnership?.sourceSwingToeLiftProof??null}))},null,2))
  });
+ // The optional original loaded-pelvis proof is captured only after actual
+ // source leg overlays. This is never a manufactured foot plant or IK pass.
+ await test.info().attach('original-source-loaded-pelvis-foot-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'same-original-skinned-source-rig',
+   claimedFootLock:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    liftMeters:t.nativeLegOwnership?.sourceLoadedPelvisLiftMeters??0,
+    cumulative:t.nativeLegOwnership?.sourceLoadedPelvisAcceptedFrames??0,
+    finalSourceFootProof:t.nativeLegOwnership?.sourceLoadedPelvisFrameProof??null}))},null,2))
+ });
  // Stance-shoe proof is a DISTINCT original skinned heel/toe measurement
  // from airborne toe correction. Its absence is reported, not converted into
  // a fake plant or a passing motion-quality claim.
@@ -547,6 +559,22 @@ for(const view of [
  });
  for(const t of trace){
   const n=t.nativeLegOwnership;
+  const sourceLoaded=n?.sourceLoadedPelvisFrameProof;
+  expect(n?.sourceLoadedPelvisLiftMeters??0).toBeLessThanOrEqual(.01601);
+  if(sourceLoaded){
+   expect(sourceLoaded.source).toBe('original-weighted-heel-toe-and-rendered-pelvis');
+   expect(sourceLoaded.sourceInstanceId).toBe(t.sourceId);
+   expect(sourceLoaded.sourceClip).toBe('Walking_A');
+   expect(sourceLoaded.originalSourceContactLocked).toBe(false);
+   expect(sourceLoaded.appliedLiftMeters).toBeGreaterThan(0);
+   expect(sourceLoaded.appliedLiftMeters).toBeLessThanOrEqual(.01601);
+   expect(sourceLoaded.finalHeelY).toBeGreaterThan(-.075);
+   expect(sourceLoaded.finalToeY).toBeGreaterThan(-.075);
+   expect(sourceLoaded.afterWorstMeters).toBeLessThan(sourceLoaded.beforeWorstMeters-.00149);
+   expect(Math.max(Math.abs(sourceLoaded.finalHeelY-sourceLoaded.floorTopY),
+    Math.abs(sourceLoaded.finalToeY-sourceLoaded.floorTopY)))
+    .toBeCloseTo(sourceLoaded.afterWorstMeters,6);
+  }
   const stance=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
   expect(stance.length).toBeLessThanOrEqual(2);
   for(const proof of stance){
