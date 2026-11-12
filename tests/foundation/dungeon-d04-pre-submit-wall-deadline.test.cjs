@@ -115,7 +115,10 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   assert.equal(receipts.length,2);
   assert.equal(new Set(receipts.map(r=>r.observedClockMs)).size,1);
   assert.equal(new Set(receipts.map(r=>r.submittedClockMs)).size,1);
-  assert.ok(receipts.every(r=>r.observationToSubmissionMs===20));
+  // One extra post-visual-work clock read now separates real-frame phases.
+  assert.ok(receipts.every(r=>r.observationToSubmissionMs===30));
+  assert.ok(receipts.every(r=>r.beforeVisualAdvanceMs===10&&
+   r.visualAdvanceMs===10&&r.afterVisualAdvanceToSubmissionMs===10));
   assert.ok(receipts.every(r=>r.sampleSynchronized===false));
   assert.deepEqual(new Set(audio.map(c=>c.targetId)),new Set(['hero','ally']));
   assert.equal(director.acknowledgePresentedFrame(1,.012),0,'replay must not create a second receipt');
