@@ -727,3 +727,53 @@ test('D04 frame decoder policy rejects nonexistent, synthetic, forged or unbound
   ...serialGameVideo,source:'synthetic-2d-canvas'},decoder:authenticDecodedVideo}),
   'SERIAL_REAL_WEBGL_MOVING_VIDEO_UNALIGNED');
 });
+
+
+test('D04 retains original same-window WebGL+Opus for independent forensic decoding even when motion cannot be accepted',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'d04-real-unaligned-original-'));
+ try{
+  const original=Buffer.alloc(4096,67);
+  const actual={source:'real-webgl-receipt-readback-serial-original-audio',
+   status:'RECORDED',mimeType:'video/webm;codecs=vp8,opus',
+   videoTracks:1,audioTracks:1,optedInAtStart:true,
+   originalSoundstageTrackLive:true,phase:'after-all-primary-encoders-settled',
+   primaryRecordersSettled:true,bytes:original.length,recordingMs:5500,
+   base64:original.toString('base64')};
+  const raw={clip:{status:'UNAVAILABLE'},pcm:{status:'UNAVAILABLE'},
+   isolated:{sameWindowReadbackAV:actual},frames:good.frames};
+  const assessment={...assessD04Capture({...good,...raw}),
+   sameWindowMovingAV:false,sampleSynchronized:false};
+  const result=persistD04CaptureEvidence({directory,raw,assessment});
+  assert.equal(fs.readFileSync(result.sameWindowAVWebm).compare(original),0,
+   'retain genuine recording bytes to diagnose sparse/undecodable WebGL');
+  assert.match(result.sameWindowAVWebm,/UNVERIFIED\\.webm$/);
+  const manifest=JSON.parse(fs.readFileSync(result.manifest,'utf8'));
+  assert.equal(manifest.retained.sameWindowAVWebm,true);
+  assert.equal(manifest.assessment.sameWindowMovingAV,false);
+  assert.equal(manifest.assessment.sampleSynchronized,false);
+  assert.equal(manifest.isolated.sameWindowReadbackAV.base64,undefined);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
+test('D04 never archives synthetic, silent, nonconsented or mismatched original-readback bytes as gameplay evidence',()=>{
+ const invalid=[
+  {source:'synthetic-2d-canvas',status:'RECORDED'},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'UNAVAILABLE'},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',optedInAtStart:false},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',originalSoundstageTrackLive:false},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',videoTracks:0},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',audioTracks:0},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',bytes:25000000},
+  {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',phase:'overlapping-primary-encoders'}
+ ];
+ const {shouldArchiveUnalignedOriginalReadback}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const correct={source:'real-webgl-receipt-readback-serial-original-audio',
+  status:'RECORDED',mimeType:'video/webm;codecs=vp8,opus',
+  videoTracks:1,audioTracks:1,optedInAtStart:true,
+  originalSoundstageTrackLive:true,phase:'after-all-primary-encoders-settled',
+  primaryRecordersSettled:true,bytes:4096,recordingMs:5500};
+ assert.equal(shouldArchiveUnalignedOriginalReadback(correct),true);
+ for(const variant of invalid){
+  assert.equal(shouldArchiveUnalignedOriginalReadback({...correct,...variant}),false,
+   JSON.stringify(variant));
+ }
+});
