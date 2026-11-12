@@ -562,7 +562,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // END R38 CONTACT SUBRANGE
     const shared = { time, delta, reducedMotion: !!settings.reducedMotion };
     serpent.update(motion.paths, {
-      ...shared, direction: motion.direction, danger: snapshot.dangerLevel,
+      ...shared, direction: motion.direction, fragmentDirections: motion.fragmentDirections, danger: snapshot.dangerLevel,
       eating: Math.max(0, (eatingUntil - time) / 0.55),
       food: foodPoint, runToken: snapshot.runToken,
       detail: cameraMode === 'detail' ? 'high' : 'low',

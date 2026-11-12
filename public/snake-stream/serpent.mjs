@@ -654,7 +654,12 @@ export function createSerpent(THREE) {
       const isTail = path === finalPath;
       if (path.length === 1) {
         // Isolated portal fragments are capped, never connected to another path.
-        const dx = options.direction?.x || 0, dz = options.direction?.z || 1;
+        const ownDirection = options.fragmentDirections?.[p] || options.direction;
+        // Per-fragment heading is drawn only from an adjacent public body
+        // tangent. A single portal segment never borrows the head's direction
+        // when its own earlier, authoritative orientation is available.
+        const dx = Number.isFinite(ownDirection?.x) ? ownDirection.x : 0;
+        const dz = Number.isFinite(ownDirection?.z) ? ownDirection.z : 1;
         const fragmentHeight = radius => p === 0
           ? fullBodyHeight + 0.02 + eaten * 0.08 : radius * 0.88 + bellyClearance;
         const middleRadius = p === 0 ? 0.012 : isTail ? 0.20 : 0.30;
