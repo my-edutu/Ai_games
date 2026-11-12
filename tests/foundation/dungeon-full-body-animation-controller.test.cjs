@@ -1143,6 +1143,46 @@ test('original Walking_A source cadence follows actual 60Hz and sparse-frame dis
 });
 
 
+test('sparse original WebGL walking handoff completes its mixer crossfade without speeding real source feet',async()=>{
+ const {planImportedWalkingMixerFrameDelta:mixerDelta,
+  planImportedLivingSourceStep:step,
+  planImportedWalkingBlendRate:rate}=await load();
+ assert.equal(typeof mixerDelta,'function','single native walk fade clock must be explicit');
+ const source={mode:'move',sourceTime:.22,sourceDuration:1.0416666666666667,
+  effectiveSpeed:.91,frameDelta:.05,frameInterval:.36,
+  walkingClip:true,groundedMoving:true,groundedTravel:.004,
+  reducedMotion:false,teleport:false,visible:true};
+ const nativeStep=step(source);
+ const visibleStep=mixerDelta({...source,sourceStep:nativeStep});
+ assert.equal(visibleStep,.09,
+  'real 360ms software-WebGL delivery may show only 90ms per lawful fade frame');
+ const speed=rate({...source,sourceStep:nativeStep});
+ assert.ok(Math.abs(speed*visibleStep-nativeStep)<1e-9,
+  'the authentic 41-joint Walking_A keyframes must STILL follow only observed root metres');
+ assert.ok(Math.abs(2*visibleStep-.18)<1e-9,
+  'two genuinely presented slow frames may finish the 180ms native crossfade');
+ assert.ok(2*nativeStep<.02,
+  'the same slow travel must not manufacture a 180ms walking sole sweep');
+ const stopped={...source,groundedTravel:0,groundedMoving:false};
+ const still=step(stopped);
+ assert.equal(still,0,'a stationary walking owner cannot treadmill');
+ assert.equal(rate({...stopped,sourceStep:still}),0,
+  'the zero-distance licensed shoes stay frozen while actual crossfade weight advances');
+ assert.equal(mixerDelta({...stopped,sourceStep:still}),.09);
+ assert.equal(mixerDelta({...source,frameDelta:.016,frameInterval:.016}),.016);
+ for(const unsafe of [
+  {...source,mode:'hurt'}, {...source,walkingClip:false},
+  {...source,visible:false}, {...source,reducedMotion:true},
+  {...source,teleport:true}, {...source,frameInterval:2.1},
+  {...source,frameInterval:NaN}
+ ])assert.equal(mixerDelta(unsafe),Math.min(.05,unsafe.frameDelta),
+  'non-walk, hidden or invalid evidence cannot accelerate native mixer fades');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/const walkMixerDelta=planImportedWalkingMixerFrameDelta\(\{\.\.\.originalStep,sourceStep\}\)/);
+ assert.match(model,/actor\.mixer\.update\(walkMixerDelta\)/,
+  'the real imported mixer must actually consume the bounded fade clock');
+});
+
 test('licensed Walking_A crossfades run on visible seconds while native feet follow real metres',async()=>{
  const {planImportedLivingSourceStep,planImportedWalkingBlendRate}=await load();
  const base={mode:'move',age:0,sourceTime:.18,sourceDuration:1.0416666666666667,
