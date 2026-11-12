@@ -3830,3 +3830,44 @@ test('RED: only witnessed severe source-swing toe burial may select a wider but 
  assert.match(stage,/chooseOriginalSourceSwingThighSupport/);
  assert.match(stage,/\.09/,'severe-burial larger trial must be independently skinned and measured in live imported GLB');
 });
+
+
+test('verified opposite original stance shoe may coexist with a same-frame swing thigh',async()=>{
+ const {verifyOriginalSourceOppositeStanceForSwingThigh:verify}=await load();
+ assert.equal(typeof verify,'function');
+ const measured={heelY:-.025825839362513623,toeY:-.02152517495108694,
+  heelXZ:[-.12,-.2],toeXZ:[-.10,.01]};
+ const proof={
+  source:'same-original-GLB-two-point-stanced-shoe',side:'left',
+  sourceInstanceId:'same-original-clone',sourceClip:'Walking_A',
+  beforeHeelY:-.0233099626013819,beforeToeY:-.03162484019010477,
+  afterHeelY:measured.heelY,afterToeY:measured.toeY,
+  beforeWorstMeters:.011624840190104766,afterWorstMeters:.005825839362513623,
+  floorTopY:-.02,appliedAngleRad:-.045
+ };
+ const args={proof,measured,oppositeSide:'left',sourceInstanceId:'same-original-clone',
+  sourceClipName:'Walking_A',floorTopY:-.02};
+ assert.equal(verify(args)?.sameFrameLoadedStance,true,
+  'real left shoe correction should not veto a separately verified right swing trial');
+ for(const bad of [
+  {sourceInstanceId:'different-clone'},{sourceClipName:'Idle'},
+  {oppositeSide:'right'},{floorTopY:0},
+  {measured:{...measured,toeY:measured.toeY+.006}},
+  {measured:{...measured,heelY:measured.heelY-.005}},
+  {proof:{...proof,sourceClip:'Idle'}},
+  {proof:{...proof,sourceInstanceId:'stale-clone'}},
+  {proof:{...proof,afterWorstMeters:.018}},
+  {proof:{...proof,afterToeY:.02}},
+  {proof:{...proof,appliedAngleRad:NaN}},
+  {proof:null}
+ ])assert.equal(verify({...args,...bad}),null,
+  'unmatched clip, actor, floor or unmeasured loaded shoe must never release swing trial');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const stage=renderer.slice(start,end);
+ assert.match(stage,/verifyOriginalSourceOppositeStanceForSwingThigh\(/,
+  'live original skinned opposite loaded shoe needs explicit same-frame evidence');
+ assert.doesNotMatch(stage,/actor\.sourceStanceSoleCurrentFrameProofs\?\.\[opposite\]\s*\|\|/,
+  'an already proven opposite stance shoe must not blanket-veto an independently measured swing thigh');
+});
