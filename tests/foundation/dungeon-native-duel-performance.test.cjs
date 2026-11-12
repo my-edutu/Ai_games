@@ -125,3 +125,21 @@ test('one living adjacent target earns a substantial planted forward drive, true
   }
  }
 });
+
+test('original connected skinned rigs express three different guarded sword silhouettes at real combat beats',async()=>{
+ const {planNativeDuelPose:pose,NATIVE_CONTACT_TIME}=await load();
+ const setup=Object.fromEntries(['vanguard','revenant','warden'].map(kind=>
+  [kind,pose(kind,'attack',.10,opponent)]));
+ const impact=Object.fromEntries(['vanguard','revenant','warden'].map(kind=>
+  [kind,pose(kind,'attack',NATIVE_CONTACT_TIME,opponent)]));
+ assert.ok(setup.vanguard.arms.left.roll>setup.revenant.arms.left.roll+.11);
+ assert.ok(setup.warden.arms.right.pitch>setup.vanguard.arms.right.pitch+.08);
+ assert.ok(impact.revenant.forearms.right<impact.vanguard.forearms.right-.075);
+ for(const kind of Object.keys(setup)){
+  const late=pose(kind,'attack',.619,opponent);
+  assert.ok(Math.abs(late.arms.right.pitch)<.01);
+  assert.ok(Math.abs(late.root.z)<.04);
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,distance:2}).mode,'rest');
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,reducedMotion:true}).mode,'rest');
+ }
+});

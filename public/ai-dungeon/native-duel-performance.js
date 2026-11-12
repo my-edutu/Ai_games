@@ -16,6 +16,13 @@ const role=Object.freeze({
  revenant:Object.freeze({power:.86,side:-1,plant:1.16,wind:.105,style:'reaching-hook'}),
  warden:Object.freeze({power:1.19,side:1,plant:.84,wind:.165,style:'warden-overhead'})
 });
+// Role-distinct sword dialects are additional ORIGINAL skinned-joint motion,
+ // not new meshes, fabricated strikes or authoritative effects.
+ const DIALECT=Object.freeze({
+  vanguard:Object.freeze({shield:.100,hook:0,crown:0,drive:.010}),
+  revenant:Object.freeze({shield:-.030,hook:.120,crown:0,drive:.012}),
+  warden:Object.freeze({shield:.035,hook:0,crown:.105,drive:.018})
+ });
 const zero=Object.freeze({pitch:0,yaw:0,roll:0});
 const legZero=Object.freeze({upper:0,lower:0,foot:0});
 const armsZero=Object.freeze({pitch:0,roll:0});
@@ -55,7 +62,7 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  if(!p||action!=='attack'||!alive||reducedMotion||
   typeof targetId!=='string'||!targetId.trim()||targetId.length>96||
   distance!==1||!Number.isFinite(age)||age<0||age>=NATIVE_DUEL_DURATION)return rest;
- const w=p.power,s=p.side,foot=p.plant,t=age;
+ const w=p.power,s=p.side,foot=p.plant,t=age,character=DIALECT[kind];
  const wind=t<p.wind?ease(t/p.wind):t<NATIVE_CONTACT_TIME?
   1-ease((t-p.wind)/(NATIVE_CONTACT_TIME-p.wind)):0;
  const release=t<.105?0:t<NATIVE_CONTACT_TIME?
@@ -79,6 +86,13 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  // No root displacement exists for stale, distant, dead or reduced-motion duels.
  const drive=release*(1-.85*settle);
  const heelRecovery=.04*settle;
+ // Vanguards guard with their left shoulder, Revenants hook with their
+ // source right forearm, and Wardens lead a native overhead anticipation.
+ // All additional motion returns to the imported 620ms source-clip rest.
+ const shield=character.shield*wind;
+ const hook=character.hook*release*(1-settle*.7);
+ const crown=character.crown*wind;
+ const planted=character.drive*release*(1-settle);
  const leadUpper=foot*(-.088*wind+.172*release);
  const rearUpper=foot*(.129*wind-.126*release);
  const lead={upper:round(leadUpper),lower:round(foot*(.093*wind+.177*release)),foot:round(foot*(-.078*wind-.121*release))};
@@ -90,16 +104,16 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
   strength:round(clamp(.55*wind+.8*release)),
   head:{pitch:round(w*(-.047*wind+.030*release)),yaw:round(s*w*(.060*wind-.07*release)),roll:round(-s*w*.022*settle)},
   hips:{pitch:round(w*(.069*wind-.082*release)),yaw:round(s*w*(-.091*wind+.117*release)),roll:round(s*w*(.032*wind-.038*release))},
-  spine:{pitch:round(w*(.067*wind-.117*release)),yaw:round(s*w*(-.107*wind+.155*release)),roll:round(s*w*(.056*wind-.060*release))},
-  wrist:{pitch:round(w*(-.082*wind+.153*release)),yaw:round(s*w*(.061*wind-.08*release)),roll:round(s*w*(-.068*wind+.102*release))},
+  spine:{pitch:round(w*(.067*wind-.117*release)-.16*crown),yaw:round(s*w*(-.107*wind+.155*release)-.19*hook),roll:round(s*w*(.056*wind-.060*release)+.18*shield)},
+  wrist:{pitch:round(w*(-.082*wind+.153*release)+.40*crown),yaw:round(s*w*(.061*wind-.08*release)-.25*hook),roll:round(s*w*(-.068*wind+.102*release)-.24*hook)},
   arms:{
-   left:{pitch:round(w*(-.074*wind+.068*release)),roll:round(s*w*(.057*wind-.029*release))},
-   right:{pitch:round(w*(.131*wind-.148*release)),roll:round(s*w*(-.070*wind+.092*release))}
+   left:{pitch:round(w*(-.074*wind+.068*release)+.32*shield+.42*crown),roll:round(s*w*(.057*wind-.029*release)+shield)},
+   right:{pitch:round(w*(.131*wind-.148*release)+crown-.22*hook),roll:round(s*w*(-.070*wind+.092*release)-.18*crown+.30*hook)}
   },
-  forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.113*release))},
+  forearms:{left:round(w*(.046*wind-.035*release)+.12*shield),right:round(w*(.096*wind-.113*release)-hook+.20*crown)},
   legs,
-  root:{x:round(s*(.018*wind+.014*drive)),
-   y:round(-.042*foot*wind-.026*release+.012*settle),
-   z:round(.023*wind-.20*foot*drive+heelRecovery)}
+  root:{x:round(s*(.018*wind+.014*drive)+.16*hook),
+   y:round(-.042*foot*wind-.026*release+.012*settle-.15*crown),
+   z:round(.023*wind-.20*foot*drive+heelRecovery-planted)}
  };
 }
