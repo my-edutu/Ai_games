@@ -631,31 +631,95 @@ export function createTowerWorld(){
     }
     collect(root);
     for(const b of batches.values()){
-      let total=0;for(const p of b.parts)total+=p.g.index?p.g.index.count:p.g.attributes.position.count;
-      const positions=new Float32Array(total*3),normals=new Float32Array(total*3),uvs=new Float32Array(total*2);
-      const v=new THREE.Vector3(),n=new THREE.Vector3(),normalMatrix=new THREE.Matrix3();let at=0;
+      // Each original rigid part may be indexed (boxes, lathed supports,
+      // sectors) or already expanded (extrusions). Preserve part triangle
+      // order, so Three.Raycaster.faceIndex still resolves the ORIGINAL
+      // source authoring range, regardless of the GPU buffer representation.
+      let expandedCount=0,uniqueCount=0;
+      for(const p of b.parts){
+        expandedCount+=p.g.index?p.g.index.count:p.g.attributes.position.count;
+        uniqueCount+=p.g.attributes.position.count;
+      }
+      // Profiling of original Floor9 WebGL returns found ~459-712ms inside
+      // renderer.render, versus ~124-142ms world CPU rebuild. A rigid batch
+      // must not upload 3 copies of every shared vertex just to remove draw
+      // calls. The original payload is 8 float32s per expanded vertex.
+      // Choose indexed geometry ONLY when actual attribute+index bytes shrink;
+      // unindexed sculptural parts avoid the extra index GPU overhead.
+      const indexBytes=uniqueCount<=65535?2:4;
+      const useIndexed=uniqueCount*32+expandedCount*indexBytes<expandedCount*32;
+      const vertexCount=useIndexed?uniqueCount:expandedCount;
+      const positions=new Float32Array(vertexCount*3),
+        normals=new Float32Array(vertexCount*3),
+        uvs=new Float32Array(vertexCount*2);
+      const indices=useIndexed
+        ? (indexBytes===2?new Uint16Array(expandedCount):new Uint32Array(expandedCount))
+        : null;
+      const v=new THREE.Vector3(),n=new THREE.Vector3(),
+        normalMatrix=new THREE.Matrix3();
+      let vertexAt=0,faceAt=0;
       const originalTriangleOwners=[];
       for(const p of b.parts){
-        const a=p.g.attributes,index=p.g.index,count=index?index.count:a.position.count;normalMatrix.getNormalMatrix(p.m);
-        // The new geometry is nonindexed and every three expanded vertices
-        // form one raycast face. Use half-open ranges for exact ownership.
+        const a=p.g.attributes,index=p.g.index,
+          sourceVertexCount=a.position.count,
+          triangleIndices=index?index.count:sourceVertexCount;
+        normalMatrix.getNormalMatrix(p.m);
         originalTriangleOwners.push({
-          startFace:at/3,endFace:(at+count)/3,
+          startFace:faceAt/3,endFace:(faceAt+triangleIndices)/3,
           authoringPath:p.authoringPath,
           authoringGeometry:p.authoringGeometry,
           authoringInstance:p.authoringInstance,
         });
-        for(let i=0;i<count;i++){
-          const j=index?index.getX(i):i;
-          v.fromBufferAttribute(a.position,j).applyMatrix4(p.m);positions.set([v.x,v.y,v.z],at*3);
-          if(a.normal)n.fromBufferAttribute(a.normal,j).applyNormalMatrix(normalMatrix);else n.set(0,1,0);normals.set([n.x,n.y,n.z],at*3);
-          if(a.uv){uvs[at*2]=a.uv.getX(j);uvs[at*2+1]=a.uv.getY(j);}at++;
+        if(useIndexed){
+          // Transform each SOURCE vertex once. The contiguous local index
+          // segment still emits precisely the same triangle ordering.
+          for(let i=0;i<sourceVertexCount;i++){
+            v.fromBufferAttribute(a.position,i).applyMatrix4(p.m);
+            positions.set([v.x,v.y,v.z],(vertexAt+i)*3);
+            if(a.normal)n.fromBufferAttribute(a.normal,i)
+              .applyNormalMatrix(normalMatrix);
+            else n.set(0,1,0);
+            normals.set([n.x,n.y,n.z],(vertexAt+i)*3);
+            if(a.uv){
+              uvs[(vertexAt+i)*2]=a.uv.getX(i);
+              uvs[(vertexAt+i)*2+1]=a.uv.getY(i);
+            }
+          }
+          for(let i=0;i<triangleIndices;i++)
+            indices[faceAt+i]=vertexAt+(index?index.getX(i):i);
+          vertexAt+=sourceVertexCount;
+        }else{
+          // Non-indexed fallback for parts where an index buffer would cost
+          // MORE real upload memory. Preserve the previous exact face order.
+          for(let i=0;i<triangleIndices;i++){
+            const j=index?index.getX(i):i;
+            v.fromBufferAttribute(a.position,j).applyMatrix4(p.m);
+            positions.set([v.x,v.y,v.z],(vertexAt+i)*3);
+            if(a.normal)n.fromBufferAttribute(a.normal,j)
+              .applyNormalMatrix(normalMatrix);
+            else n.set(0,1,0);
+            normals.set([n.x,n.y,n.z],(vertexAt+i)*3);
+            if(a.uv){
+              uvs[(vertexAt+i)*2]=a.uv.getX(j);
+              uvs[(vertexAt+i)*2+1]=a.uv.getY(j);
+            }
+          }
+          vertexAt+=triangleIndices;
         }
+        faceAt+=triangleIndices;
       }
-      const g=own(new THREE.BufferGeometry());g.setAttribute('position',new THREE.BufferAttribute(positions,3));g.setAttribute('normal',new THREE.BufferAttribute(normals,3));g.setAttribute('uv',new THREE.BufferAttribute(uvs,2));
+      const g=own(new THREE.BufferGeometry());
+      g.setAttribute('position',new THREE.BufferAttribute(positions,3));
+      g.setAttribute('normal',new THREE.BufferAttribute(normals,3));
+      g.setAttribute('uv',new THREE.BufferAttribute(uvs,2));
+      if(indices)g.setIndex(new THREE.BufferAttribute(indices,1));
+      // The source triangle owner is NOT a vertex index: faceIndex is the
+      // ordinal of the indexed or non-indexed triangle in both representations.
       g.userData.originalTriangleOwners=originalTriangleOwners;
       g.computeBoundingSphere();
-      const o=mesh(root,g,b.material);o.name='rigid-material-batch';o.castShadow=b.cast;o.receiveShadow=b.receive;
+      const o=mesh(root,g,b.material);
+      o.name='rigid-material-batch';
+      o.castShadow=b.cast;o.receiveShadow=b.receive;
     }
     for(const o of retired){o.removeFromParent();if(o.isInstancedMesh)o.dispose();}
   }
