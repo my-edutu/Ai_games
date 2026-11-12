@@ -510,6 +510,7 @@ export function planOriginalSourceStanceAnkleRelief({
   Math.min(beforeHeel,beforeToe)>-.008)return null;
  const beforeWorst=Math.max(Math.abs(beforeHeel),Math.abs(beforeToe));
  let best=null;
+ let fineCandidates=[];
  for(const candidate of trials){
   const {signed,toe,heel}=candidate??{};
   if(![signed,toe,heel].every(finite)||
@@ -530,6 +531,7 @@ export function planOriginalSourceStanceAnkleRelief({
   // quaternions must independently pass final skinned heel/toe safety.
   const fine=Math.abs(signed)<=.046;
   if(beforeWorst-worst<(fine?.0015:.003))continue;
+  if(fine)fineCandidates.push({signed,toe,heel,worst});
   if(!best||worst<best.worst)best={signed,toe,heel,worst};
  }
  if(!best)return null;
@@ -540,7 +542,25 @@ export function planOriginalSourceStanceAnkleRelief({
   Math.max(-.14,previousCorrectionRad-.045),
   Math.min(.14,previousCorrectionRad+.045));
  if(Math.abs(delta)<.001||Math.sign(delta)!==Math.sign(best.signed))return null;
- return Object.freeze({signed:best.signed,delta,
+ // A coarse 120mrad ORIGINAL-joint skin trial may legitimately establish
+ // direction but the source-weighted 45mrad frame then lifts the REAL shoe
+ // too little to pass final clearance. Allow at most ONE second attempt
+ // using an ALREADY witnessed, safe, same-direction native 45mrad source
+ // trial. Its applied skin must independently pass the same two-point
+ // final gate. No new target, guessed IK or relaxation of the 45mrad slew.
+ let fineFallbackDelta=null;
+ if(sourceWeight>=.65){
+  const matching=fineCandidates.filter(v=>
+   Math.sign(v.signed)===Math.sign(best.signed)&&
+   Math.abs(Math.abs(v.signed)-.045)<.001);
+  const fineBest=matching.sort((a,b)=>a.worst-b.worst)[0];
+  const candidate=fineBest?.signed??0;
+  if(fineBest&&Math.abs(candidate)>Math.abs(delta)+.008&&
+   Math.abs(candidate)<=.14&&
+   Math.abs(candidate-previousCorrectionRad)<=.04500001)
+   fineFallbackDelta=candidate;
+ }
+ return Object.freeze({signed:best.signed,delta,fineFallbackDelta,
   trialToeY:best.toe,trialHeelY:best.heel});
 }
 
