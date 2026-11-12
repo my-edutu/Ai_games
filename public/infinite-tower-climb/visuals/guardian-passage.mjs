@@ -41,6 +41,53 @@ export function observedGuardianPassage(previous, next) {
         (enemy.active === false && Number.isFinite(enemy.health) && enemy.health <= 0)));
 }
 
+// An authentic Floor8 cap crossing must keep its same *walkable* visual arch
+// after the renderer loads Floor9. The historic exterior memorial is 2.78m
+// farther out than the skinned boots and is NOT a substitute for the threshold.
+// Both bodies must stay on their authoritative, fully supporting platforms,
+// with precisely preserved source coordinates and earned whole-body clearance.
+// This only chooses non-colliding 3D geometry; it never changes a floor,
+// moves a climber, guesses an unobserved crossing or claims a video PASS.
+export function observedGroundedGuardianHandoff(previous, next) {
+  if (!observedGuardianPassage(previous, next) ||
+      !Array.isArray(previous.platforms) || !Array.isArray(next.platforms) ||
+      !Array.isArray(previous.enemies) ||
+      !previous.player || !next.player ||
+      ![previous.player.x, previous.player.y, previous.player.halfWidth,
+        previous.player.halfHeight, next.player.x, next.player.y,
+        next.player.halfWidth, next.player.halfHeight].every(Number.isSafeInteger))
+    return false;
+  const cap = previous.platforms.find(p => p?.id === 'f' + previous.floor + ':cap');
+  const ground = next.platforms.find(p => p?.id === 'f' + next.floor + ':ground');
+  if (!cap || !ground || ![cap.x, cap.y, cap.width, cap.height,
+      ground.x, ground.y, ground.width, ground.height].every(Number.isSafeInteger) ||
+      cap.width <= 0 || cap.height <= 0 ||
+      ground.width <= 0 || ground.height <= 0 ||
+      previous.player.halfWidth <= 0 || previous.player.halfHeight <= 0 ||
+      previous.player.health <= 0 || next.player.health <= 0 ||
+      previous.player.grounded !== true || next.player.grounded !== true ||
+      previous.player.groundedPlatformId !== cap.id ||
+      next.player.groundedPlatformId !== ground.id ||
+      previous.guardianExitX !== cap.x + Math.floor(cap.width * .76) ||
+      !Number.isSafeInteger(previous.guardianExitX) ||
+      !previous.enemies.some(e => e?.kind === 'guardian' &&
+        (!Number.isSafeInteger(e.floor) || e.floor === previous.floor) &&
+        e.active === false && Number.isFinite(e.health) && e.health <= 0) ||
+      previous.player.x !== next.player.x ||
+      previous.player.y !== next.player.y ||
+      previous.player.halfWidth !== next.player.halfWidth ||
+      previous.player.halfHeight !== next.player.halfHeight)
+    return false;
+  const p = previous.player, after = next.player;
+  return p.x >= previous.guardianExitX + p.halfWidth + 4000 &&
+    p.x - p.halfWidth >= cap.x &&
+    p.x + p.halfWidth <= cap.x + cap.width &&
+    p.y - p.halfHeight === cap.y + cap.height &&
+    after.x - after.halfWidth >= ground.x &&
+    after.x + after.halfWidth <= ground.x + ground.width &&
+    after.y - after.halfHeight === ground.y + ground.height;
+}
+
 // The defeated guardian and the current source cap authorize the unlocked
 // doorway BEFORE floor advance. An inactive zero-HP enemy is not evidence
 // of a completed run, only of an earned physical exit still to traverse.
@@ -661,6 +708,7 @@ export function createTowerGuardianPassage(THREE) {
 
   let runToken = null, floor = null, sourceTick = -1;
   let age = 0, defeatAge = 0, disposed = false, stage = 'none', approachOpen = 0;
+  let continuousGroundedHandoff = false;
   const duration = 2.9;
   const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
@@ -684,6 +732,7 @@ export function createTowerGuardianPassage(THREE) {
     age = 0;
     defeatAge = 0;
     approachOpen = 0;
+    continuousGroundedHandoff = false;
     sealedLattice.visible = false;
     displayedSealHeight = 0;
     displayedSealExcitation = null;
@@ -796,6 +845,7 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'earned-open';
+    continuousGroundedHandoff = false;
     // The real, freshly unlocked deck is already shown by the INNER cap
     // doorway plus the original exterior guardian gate. A second outer
     // memorial facade would bury the climber during the short grounded walk.
@@ -821,6 +871,8 @@ export function createTowerGuardianPassage(THREE) {
     if (!thresholdFocus) return false;
     const carryOpen = stage === 'earned-open' && group.visible &&
       runToken === previous.runToken && floor === previous.floor;
+    const carryRealThreshold = carryOpen &&
+      observedGroundedGuardianHandoff(previous, source);
     const carriedAge = age;
     const carriedDefeatAge = defeatAge;
     group.position.set(anchor.x, anchor.y, anchor.z);
@@ -838,11 +890,15 @@ export function createTowerGuardianPassage(THREE) {
     floor = source.floor;
     sourceTick = source.tick;
     stage = 'handoff';
-    // Only the genuine adjacent-floor source transition earns this old-floor
-    // bronze memorial. It remains non-colliding and auto-retires after 2.9s.
-    memoryFrame.visible = true;
+    continuousGroundedHandoff = carryRealThreshold;
+    // A genuinely defeated, grounded, whole-body cap crossing keeps the
+    // physical same-lane inner arch visible across the scene rebuild. Do NOT
+    // replace that arch with the outboard raised memorial in the exact frame
+    // when the actor enters Floor9. Legacy/incomplete source observations
+    // retain their original exterior memorial, never inventing a clearance.
+    memoryFrame.visible = !carryRealThreshold;
     sealedLattice.visible = false;
-    innerDoorAssembly.visible = false;
+    innerDoorAssembly.visible = carryRealThreshold;
     innerDoorAssembly.position.y = 0;
     arc.visible = true;
     ring.visible = true;
@@ -883,7 +939,8 @@ export function createTowerGuardianPassage(THREE) {
       const arrive = t * t * (3 - 2 * t);
       innerDoorAssembly.position.y = arrive >= 1 ? 0 : -1.4 * (1 - arrive);
     } else {
-      innerDoorAssembly.visible = false;
+      innerDoorAssembly.visible = stage === 'handoff' &&
+        continuousGroundedHandoff;
       innerDoorAssembly.position.y = 0;
     }
     const fade = stage === 'earned-open' || locked ? 1 :
@@ -936,6 +993,8 @@ export function createTowerGuardianPassage(THREE) {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
       exteriorMemoryFrameVisible: group.visible && memoryFrame.visible,
+      continuousGroundedHandoff: group.visible && stage === 'handoff' &&
+        continuousGroundedHandoff,
       innerDoorAssemblyVisible: group.visible && innerDoorAssembly.visible,
       innerDoorAssemblyLift: Number(innerDoorAssembly.position.y.toFixed(4)),
       durationSeconds: duration,
@@ -961,7 +1020,8 @@ export function createTowerGuardianPassage(THREE) {
         // In the live fight only the actual source-height electrical lock
         // is drawn here, not two additional solid threshold submissions.
         extraDraws: stage === 'guardian-locked' ? 1 :
-          stage === 'earned-open' ? 2 : 0,
+          stage === 'earned-open' ||
+          (stage === 'handoff' && continuousGroundedHandoff) ? 2 : 0,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
         redundantExteriorMemorySuppressed: !memoryFrame.visible,
         verticalLatticeVisible: sealedLattice.visible,
