@@ -682,7 +682,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
    ...(world.userData.dressing?.occlusionPropVolumes||[]),
    ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
   indexRenderedForegroundStageSources();
- });
+  },s.units);
  // Cache original geometry ONCE per floor; no per-frame geometry scans.
  // The same genuine stone groups continue to drive camera obstruction, but
  // their repeated source primitives render in retained batches. Recession is
@@ -1758,6 +1758,9 @@ function animate(t){
    (world.userData.baseWorldArchitecturalBatchesAlt?.savedDrawCalls||0),
   matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},renderedForegroundStage:{actualRayHits:world.userData.renderedForegroundStageHits??0,verifiedSourceOwners:world.userData.renderedForegroundStageOwners??0,retainedPhysicalOwners:world.userData.renderedForegroundStageRetained??0,sourceNames:world.userData.renderedForegroundStageNames??[],directSourceMeshes:world.userData.renderedStageDirectMeshes?.length??0,physicalSceneOnly:true},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
+  wallSeatedPlanned:world.userData.authoredProps?.wallSeatedPlanned??0,
+  wallSeatedLoaded:world.userData.authoredProps?.group?.children.filter(p=>p.userData?.dungeonAuthoredWallMasonry).length??0,
+  maxActualWallHeight:Math.max(0,...(world.userData.authoredProps?.group?.children||[]).map(p=>p.userData?.dungeonAuthoredWallMasonry?.actualHeight||0)),
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
   source:'true-loaded-ThreeJS-world-bounds',renderOnly:true},postFX:composer&&postFXEnabled?'bloom':'direct',postFXStatus,postFXBudget,bloomRenderMs,bloomDownshifts,postFXAutoDisabled:bloomAutoDisabled,frameDelivery:frameDeliveryReport,softwareWebGL,contextPreflight:renderContextPlan,actualContextAntialias,directRenderBudget:directBudget,directRenderMs,directDownshifts,directDeliveryBudget:{status:directDeliveryStatus,capChanges:directDeliveryCapChanges,...directDeliveryGovernor.stats()},surfaceResizes:{renderer:surfaceRendererResizes,dpr:surfaceDprChanges,composer:surfaceComposerResizes,camera:surfaceCameraUpdates,cssWidth:appliedSurfaceWidth,cssHeight:appliedSurfaceHeight,renderDpr:appliedSurfaceDpr,backingWidth:canvas.width,backingHeight:canvas.height},heroKeyIntensity:heroKey.intensity,guardianWard:Boolean(state.guardianWard),bossWarning:state.bossWarning?{shape:state.bossWarning.shape,axis:state.bossWarning.axis,attackTick:state.bossWarning.attackTick,cells:state.bossWarning.cells.length}:null,wardenStageClarity:world.userData.wardenStageClarity??null,wardenCourtPriority:world.userData.courtPriority?{

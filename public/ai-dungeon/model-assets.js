@@ -1,4 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
+import {planWallSeatedAuthoredMasonry,planWallSeatedAssetScale} from '/dungeon/wall-profile-plan.js';
 import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.js';
 import {createSoftwareSourceRigMaterial} from '/dungeon/postfx-budget.js';
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
@@ -1290,16 +1291,14 @@ function disposeActorAsset(actor){
  for(const g of actor.assetGeometries||[])g.dispose();
  actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.nativeDuelMemory=null;actor.nativeFootPlantMemory=null;actor.nativeFootPlantFrames=0;actor.nativeSupportFootFrames=0;actor.nativeDuelRecoveryFrames=0;actor.nativeSourceRecoveryClipFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.nativeSoftwareSurfaceTier=false;actor.authored=false;actor.textureReadiness=null;
 }
-function putEnvironment(world,sceneKey,map,onAssetReady=null){
+function putEnvironment(world,sceneKey,map,onAssetReady=null,units=[]){
  // Authored GLB masonry and prop dressing complements the instanced procedural
  // layout; collision remains fully controlled by the deterministic grid simulation.
- const placements=[],N=map.length,O=(N-1)/2,wall=(x,z)=>map[z]?.[x]==='#';
- architecture:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
-  if(!wall(x,z)||!(map[z-1][x]==='.'||map[z+1][x]==='.'||map[z][x-1]==='.'||map[z][x+1]==='.'))continue;
-  const n=(x*71+z*31+N*17)&255;
-  if(n%32===0)placements.push({x:x-O,z:z-O,asset:placements.length%3===0?'environment/dungeon_pillar.glb':'environment/dungeon_wall.glb',size:1.1,kind:'architecture'});
-  if(placements.length>=5)break architecture;
- }
+ const N=map.length,O=(N-1)/2,wall=(x,z)=>map[z]?.[x]==='#';
+ // Source GLB masonry now seats on blocked one-face wall piers away from
+ // living heroes, not an arbitrary near-camera 2.4m tower over a legal route.
+ const wallSites=planWallSeatedAuthoredMasonry(map,units);
+ const placements=[...wallSites];
  // A limited number of genuine wooden 3D crates perch beside walls, offset
  // away from tile centres so they don't visually collide with exploring heroes.
  props:for(let z=2;z<N-2;z++)for(let x=2;x<N-2;x++){
@@ -1316,16 +1315,25 @@ function putEnvironment(world,sceneKey,map,onAssetReady=null){
   const bounds=new THREE.Box3().setFromObject(source),extent=new THREE.Vector3();
   bounds.getSize(extent);
   const largest=Math.max(extent.x,extent.y/2.2,extent.z,.01);
-  const fit=Math.min(3,Math.max(.08,p.size/largest));
+  const fit=p.kind==='architecture'?
+   planWallSeatedAssetScale(extent):Math.min(3,Math.max(.08,p.size/largest));
+  if(!(fit>0))return;
   source.scale.setScalar(fit);
   source.position.set(p.x,-.03-bounds.min.y*fit,p.z);
+  if(p.kind==='architecture'){
+   source.name='Wall-seated authored '+p.asset;
+   source.userData.dungeonAuthoredWallMasonry={asset:p.asset,
+    wallX:p.wallX,wallZ:p.wallZ,approachX:p.approachX,approachZ:p.approachZ,
+    mountedOnSolidWall:true,actualHeight:extent.y*fit,
+    actualWidth:extent.x*fit,actualDepth:extent.z*fit};
+  }
   group.add(source);
   // Actual Gothic GLB geometry becomes visible after the first floor build.
   // Publish a physical sightline refresh only when this asset is parented.
   // The owning scene bounds the callback; no per-frame scans or authority work.
   if(typeof onAssetReady==='function')onAssetReady();
  })}
- return{group,count:placements.length};
+ return{group,count:placements.length,wallSeatedPlanned:wallSites.length,originalWallHeightLimit:1.38};
 }
 function stats(actors){
  const all=[...actors.values()],authored=all.filter(a=>a.authored);
