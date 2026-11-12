@@ -557,6 +557,37 @@ for(const view of [
     probes:t.nativeLegOwnership?.sourceStanceKneeProbeOutcomes??null,
     proofs:t.nativeLegOwnership?.sourceStanceKneeCurrentFrameProofs??null}))},null,2))
  });
+ // Original upper-leg correction is a measured source-rig trial; never
+ // promote a one-frame positive toe delta into a moving planted-foot claim.
+ await test.info().attach('original-source-thigh-airborne-shoe-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'same-original-GLB-upperleg-weighted-both-shoes',
+   claimedFootLock:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    cumulative:t.nativeLegOwnership?.sourceSwingThighAcceptedFrames??0,
+    proofs:t.nativeLegOwnership?.sourceSwingThighCurrentFrameProofs??null,
+    physicalAfterFrame:t.sourceSolePatchWorld??null}))},null,2))
+ });
+ for(const t of trace)for(const side of ['left','right']){
+  const proof=t.nativeLegOwnership?.sourceSwingThighCurrentFrameProofs?.[side];
+  if(!proof)continue;
+  expect(proof.source).toBe('licensed-Walking_A-original-upperleg-dual-shoe');
+  expect(proof.sourceInstanceId).toBe(t.sourceId);
+  expect(proof.clipName).toBe('Walking_A');
+  expect(proof.contactLocked).toBe(false);
+  expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
+  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.045001);
+  expect(proof.sourceTrack).toMatch(/\\.quaternion$/);
+  // The actual final inspected skinned heel and toe must agree with the
+  // saved on-frame candidate on the very same loaded original GLB instance.
+  for(const foot of ['left','right'])for(const tip of ['heel','toe']){
+   const final=t.sourceSolePatchWorld?.[foot]?.[tip];
+   const predicted=proof.after?.[foot];
+   expect(Array.isArray(final)&&final.length===3).toBe(true);
+   expect(Math.abs(final[1]-predicted[tip==='heel'?'heelY':'toeY'])).toBeLessThan(.003);
+  }
+ }
  // Stance-shoe proof is a DISTINCT original skinned heel/toe measurement
  // from airborne toe correction. Its absence is reported, not converted into
  // a fake plant or a passing motion-quality claim.
