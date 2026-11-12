@@ -2187,7 +2187,24 @@ export function createTowerWorld(){
     sceneFocus=0;sceneFocusKind='ascent';
   }
   function rebuild(snapshot, requestedQuality='normal'){
-    const deferDistant = requestedQuality==='low' && observedEarnedFloorArrival(lastSnapshot, snapshot);
+    // The live browser can still be showing an OLD living-guardian packet when
+    // immutable 20Hz source has already defeated that guardian and crossed
+    // the actual threshold. In the 1x guardian films, Floor9 first reached
+    // Three.js nine ticks after the real grounded crossing. Looking only at
+    // lastSnapshot therefore silently disabled the existing first-frame
+    // vista/citadel deferral and forced the entire distant world to upload
+    // during the same cold GPU frame as the genuine new ground/hero/door.
+    // stageGroundedCapContinuation already validated source guardian HP0,
+    // old platform, same run, original GPU gate, exact roof and live support.
+    // Match that proof to THIS immutable rebuild; never borrow a stale gate.
+    const earnedSourceUploadWitness = pendingEarnedCap &&
+      pendingEarnedCap.runToken===snapshot.runToken &&
+      pendingEarnedCap.floor===snapshot.floor &&
+      pendingEarnedCap.tick===snapshot.tick &&
+      snapshot.lifecycle==='running';
+    const adjacentBrowserProof = observedEarnedFloorArrival(lastSnapshot,snapshot);
+    const deferDistant = requestedQuality==='low' &&
+      (adjacentBrowserProof || earnedSourceUploadWitness);
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
@@ -2259,6 +2276,7 @@ export function createTowerWorld(){
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
       firstRenderSubmitted:false, submittedFrames:0,
+      proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       vistaBuildMs:null, deferredBuildMs:null,
@@ -2953,6 +2971,7 @@ export function createTowerWorld(){
       state:deferredDistantArrival.state,
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
       submittedFrames:deferredDistantArrival.submittedFrames,
+      proof:deferredDistantArrival.proof,
       fade:+deferredDistantArrival.fade.toFixed(3),
       vistaFade:+deferredDistantArrival.vistaFade.toFixed(3),
       initialRebuildMs:deferredDistantArrival.initialRebuildMs,
