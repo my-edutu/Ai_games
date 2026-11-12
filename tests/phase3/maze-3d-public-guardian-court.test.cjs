@@ -109,3 +109,44 @@ test('a publicly witnessed guardian clears tall ornamental tops on sealed adjace
  assert.equal(w.stats().geometryCount,0);
  assert.equal(w.stats().materialCount,0);
 });
+
+
+test('one real guardian duel earns a continuous public, level, open physical causeway—not a secret route',async()=>{
+ const {publicGuardianCausewayCells:causeway,createMazeWorld}=await load();
+ const s=original(),truth=JSON.stringify(s);
+ assert.deepEqual([...causeway(s)],[[6,'x'],[7,'x'],[8,'x']],
+   'a two-edge horizontal actor encounter becomes exactly three real published stage tiles');
+ assert.deepEqual([...causeway({...s,visibleCells:[6,7,11]})],[],
+   'hidden threat cannot draw a public stage');
+ assert.deepEqual([...causeway({...s,doors:[{a:7,b:8,open:false}]})],[],
+   'gated and authoritative impassable paths cannot gain a false floor connection');
+ assert.deepEqual([...causeway({...s,cells:s.cells.map(c=>c.cell===7?{...c,neighbors:[6]}:c)})],[],
+   'one-way or forged public neighbor data is never enough');
+ assert.deepEqual([...causeway({...s,threats:[{id:'thornback',cell:11}]})],[],
+   'real traversable stairs retain their vertical geometry, never a fake flat causeway');
+ assert.deepEqual([...causeway({...s,keys:[{id:'actual-key',cell:7,collected:false}]})],[],
+   'a public collectible is not covered by a new floor shape');
+ assert.deepEqual([...causeway({...s,result:{reason:'captured'}})],[]);
+ assert.deepEqual([...causeway({...s,lifecycle:'ended'})],[]);
+ assert.deepEqual([...causeway({...s,privateMaze:{cells:[{cell:9,blocked:false,neighbors:[8]}]},
+   secretPath:[6,7,8]})],[[6,'x'],[7,'x'],[8,'x']]);
+ assert.equal(JSON.stringify(s),truth,'scene causeway never edits authoritative truth');
+ const world=createMazeWorld({balanced:true}),initial=world.stats();
+ world.update(s);
+ assert.equal(world.stats().guardianCausewayTiles,3,'all three physical course tiles are source bound');
+ assert.equal(world.stats().guardianCourtTiles,4,'authentic side-step court remains intact');
+ assert.equal(world.stats().geometryCount,initial.geometryCount,'reuses original installed Three shape pools');
+ assert.equal(world.stats().materialCount,initial.materialCount);
+ world.update({...s,doors:[{a:7,b:8,open:false}]});
+ assert.equal(world.stats().guardianCausewayTiles,0,'a closed public gate revokes the duel stage');
+ world.update({...s,visibleCells:[6,7,11]});
+ assert.equal(world.stats().guardianCausewayTiles,0,'hidden guardian revokes it immediately');
+ for(let i=0;i<6;i++) {
+   world.update({...s,runToken:'guardian-causeway-reset-'+i});
+   assert.equal(world.stats().guardianCausewayTiles,3);
+   assert.ok(world.stats().geometryCount<100,'do not relax unchanged 6-run geometry budget');
+ }
+ world.dispose();
+ assert.equal(world.stats().geometryCount,0);
+ assert.equal(world.stats().materialCount,0);
+});
