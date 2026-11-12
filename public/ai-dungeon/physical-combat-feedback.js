@@ -134,6 +134,17 @@ export function createPhysicalCombatFeedback({
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
+ // Explicit audio revocation is not a WebGL submission or an audible cue.
+ // Preserve one bounded per-injury decision before dropping staged foley so
+ // genuine HP losses cannot disappear from the evidence trail after mute,
+ // browser suspension, or soundstage replacement.
+ function revokeAwaitingAudio(decision){
+  for(const item of awaitingPresentation){
+   staleAudioDropped++;
+   retainReceipt(item.cue,item.visual,false,null,decision);
+  }
+  awaitingPresentation.length=0;
+ }
  function emit(cue,plannedAudioEpoch=null,observedActionAt=observedSeconds){
   if(disposed)return;
   // A gesture authorizes only cues planned during that enabled session.
@@ -572,7 +583,7 @@ export function createPhysicalCombatFeedback({
   // only OLD D04 audio: advancing the consent epoch makes queued old cues
   // silent after resume, while the existing explicit opt-in remains valid
   // for genuinely NEW observed actions. Stop all currently scheduled voices.
-  audioEpoch++;awaitingPresentation.length=0;
+  audioEpoch++;revokeAwaitingAudio('audio-context-interrupted');
   safeCall(()=>foley?.flush?.());
  }
  function detachAudioState(){
@@ -605,7 +616,7 @@ export function createPhysicalCombatFeedback({
    const contextMismatch=!!(audioStateContext&&audioStateContext!==context);
    const outputMismatch=injectedOutputObserved&&injectedFoleyOutput!==output;
    if(contextMismatch||outputMismatch){
-    audioEpoch++;awaitingPresentation.length=0;optedIn=false;
+    audioEpoch++;revokeAwaitingAudio('audio-adapter-rebind-refused');optedIn=false;
     injectedContextMismatch=contextMismatch;
     injectedOutputMismatch=outputMismatch;
     safeCall(()=>foley?.disable?.());
@@ -620,7 +631,7 @@ export function createPhysicalCombatFeedback({
    // Old scheduled voices and staged receipts cannot follow a new output.
    // Original visual cues still render, but a fresh gesture is required to
    // authorize the newly created original synth. Do not persist a fake mute.
-   audioEpoch++;awaitingPresentation.length=0;optedIn=false;
+   audioEpoch++;revokeAwaitingAudio('audio-output-rebound');optedIn=false;
    safeCall(()=>foley.dispose());
    foley=null;
   }
@@ -638,7 +649,7 @@ export function createPhysicalCombatFeedback({
   optedIn=true;preference.write(false);return true;
  }
  function muteAudio(){
-  optedIn=false;awaitingPresentation.length=0;preference.write(true);
+  optedIn=false;revokeAwaitingAudio('muted-before-submission');preference.write(true);
   safeCall(()=>foley?.disable?.());
  }
  // 'unmuted' preference does not mean automatic playback after a page reload;
