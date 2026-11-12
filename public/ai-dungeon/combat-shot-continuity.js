@@ -30,7 +30,13 @@ const round=n=>Number(n.toFixed(3));
 export function createCombatShotContinuity(){
  let key=null,previous=null,holds=0,emergencies=0,resets=0,wardenBeatBlends=0,wardenBeatTransfers=0;
  let earnedExposureBridges=0,wardenAimBridges=0,maxWardenAimLag=0;
- function reset(){previous=null;key=null;resets++;}
+ // The physical lens is applied downstream of the shot-orbit planner.
+ // Retain its own accepted optical pose: the lens factory otherwise throws
+ // away an eased shot's *radius and height* each frame on mode changes.
+ let previousLens=null,lensKey=null,physicalLensBridges=0,physicalLensWarnings=0;
+ let physicalLensMaxStep=0;
+ function resetLens(){previousLens=null;lensKey=null;}
+ function reset(){previous=null;key=null;resetLens();resets++;}
  function resolve(s,shot,dt=0,{reducedMotion=false}={}){
   const currentKey=snapshotKey(s);
   if(!validShot(shot)||!currentKey){reset();return shot??null;}
@@ -99,5 +105,59 @@ export function createCombatShotContinuity(){
   previous=current;
   return current;
  }
- return Object.freeze({resolve,reset,metrics:()=>Object.freeze({holds,emergencies,resets,wardenBeatBlends,wardenBeatTransfers,earnedExposureBridges,wardenAimBridges,maxWardenAimLag:Number(maxWardenAimLag.toFixed(3)),mode:previous?.mode??'none'})});
+ /**
+  * Preserve the actual camera's optical distance/height/FOV across a verified
+  * living Warden warning -> release -> earned exposure. Shot-offset easing
+  * alone cannot do this: the live lens factory replaces offset magnitude
+  * with a hard-coded per-mode physical radius on every change.
+  *
+  * A new warning remains instantly wide. A dead/replaced boss, new floor,
+  * explicit reduced motion, stale recovery, manual/non-Warden framing or
+  * malformed lens inherits nothing. The real current shot still owns subject
+  * IDs, aim, danger, AI and all authoritative gameplay.
+  */
+ function resolveLens(s,shot,lens,dt=0,{reducedMotion=false}={}){
+  const currentKey=snapshotKey(s);
+  const validLens=Array.isArray(lens?.offsets)&&lens.offsets.length===3&&
+   lens.offsets.every(Number.isFinite)&&Number.isFinite(lens.fov)&&
+   Number.isFinite(lens.lookY);
+  if(!currentKey||!validShot(shot)||!validLens){
+   resetLens();return lens??null;
+  }
+  const livingBoss=(Array.isArray(s.units)?s.units:[]).find(u=>
+   u?.kind==='warden'&&u.hp>0&&shot.subjects.includes(u.id));
+  const warning=Boolean(s.bossWarning)||shot.mode==='warden-warning'||
+   shot.warning===true||IMMEDIATE.has(shot.mode);
+  const current=Object.freeze({key:currentKey,bossId:livingBoss?.id??null,
+   mode:shot.mode,offsets:lens.offsets,fov:lens.fov,lookY:lens.lookY});
+  if(lensKey!==currentKey||reducedMotion||!livingBoss||warning){
+   if(warning&&livingBoss)physicalLensWarnings++;
+   lensKey=currentKey;previousLens=current;
+   return lens;
+  }
+  const prev=previousLens;
+  const earned=shot.mode!=='warden-exposed'&&shot.mode!=='warden-counter'||
+   (Number.isSafeInteger(s.bossRecovery?.remaining)&&s.bossRecovery.remaining>0);
+  const bridge=Boolean(prev&&prev.key===currentKey&&
+   prev.bossId===livingBoss.id&&WARDEN_BEAT.has(prev.mode)&&
+   WARDEN_FOLLOW.has(shot.mode)&&earned&&
+   shot.subjects.every(id=>(s.units||[]).some(u=>u.id===id&&u.hp>0)));
+  if(!bridge){
+   previousLens=current;return lens;
+  }
+  const step=CLIP(Number.isFinite(dt)?dt:0,0,.24);
+  const alpha=1-Math.exp(-3.7*step);
+  const offsets=Object.freeze(easeWardenOrbit(prev.offsets,lens.offsets,alpha));
+  const fov=round(prev.fov+(lens.fov-prev.fov)*alpha);
+  const lookY=round(prev.lookY+(lens.lookY-prev.lookY)*alpha);
+  // Bound changes in actual 3D orbital radius; never manufacture a target.
+  const oldRadius=Math.hypot(prev.offsets[0],prev.offsets[2]);
+  const newRadius=Math.hypot(offsets[0],offsets[2]);
+  physicalLensMaxStep=Math.max(physicalLensMaxStep,Math.abs(oldRadius-newRadius));
+  if(offsets.some((v,i)=>Math.abs(v-lens.offsets[i])>.01))
+   physicalLensBridges++;
+  previousLens=Object.freeze({...current,offsets,fov,lookY});
+  return Object.freeze({...lens,offsets,fov,lookY});
+ }
+ return Object.freeze({resolve,resolveLens,reset,metrics:()=>Object.freeze({holds,emergencies,resets,wardenBeatBlends,wardenBeatTransfers,earnedExposureBridges,wardenAimBridges,maxWardenAimLag:Number(maxWardenAimLag.toFixed(3)),physicalLensBridges,physicalLensWarnings,physicalLensMaxStep:Number(physicalLensMaxStep.toFixed(3)),mode:previous?.mode??'none'})});
 }

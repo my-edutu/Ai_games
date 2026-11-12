@@ -1461,7 +1461,17 @@ function animate(t){
  // Focus stays locked on the chosen AI protagonist and widens only if party
  // members truly diverge. These are 3D metre offsets, not CSS zoom tricks.
  const cameraType=cameraModes[cameraIndex]||'cinematic';
- const cinematicLens=cameraType==='cinematic'&&cinematicShot?planReadableExpeditionLens(cinematicShot,{width:w,height:h,reducedMotion:reduced}):null;
+ const rawCinematicLens=cameraType==='cinematic'&&cinematicShot?
+  planReadableExpeditionLens(cinematicShot,{width:w,height:h,reducedMotion:reduced}):null;
+ // The real original Warden counter swaps the actual physical lens from
+ // a 31px 23-cell warning to a 133px close-up. Ease the *rendered* camera
+ // height/radius as well as its already-blended world orbit; the unmodified
+ // optical factory overwrites raw shot-offset magnitudes each new beat.
+ // The real warning remains immediately wide; critical subject fitting and
+ // stone/actor clearance continue to veto unsafe camera compositions.
+ const cinematicLens=cameraType==='cinematic'&&autoDirector?
+  combatShotContinuity.resolveLens(state,cinematicShot,rawCinematicLens,frameInterval,
+   {reducedMotion:reduced}):(combatShotContinuity.reset(),rawCinematicLens);
  const spread=state?.units.filter(u=>u.faction==='party'&&u.hp>0)
   .reduce((highest,u)=>Math.max(highest,Math.hypot((u.x-9)-target.x,(u.z-9)-target.z)),0)??0;
  const mobileShot=canvas.clientWidth<590;

@@ -83,3 +83,56 @@ test('Warden camera does not preserve a stale orbit after death, new floor, new 
  const newDanger=shot('warden-warning',[9,12,9]);
  assert.equal(director.resolve({...scene(),bossWarning:{attackTick:70}},newDanger,.03),newDanger);
 });
+
+test('the REAL physical Warden lens, not merely its ignored shot offsets, eases wide warning to source strike and earned exposed counter',async()=>{
+ const {createCombatShotContinuity}=await load(),c=createCombatShotContinuity();
+ const warning=shot('warden-warning',[9,11,9]);
+ const state={...scene(),bossWarning:{attackTick:54,cells:Array.from({length:23},(_,i)=>({x:i%7,z:Math.floor(i/7)}))}};
+ const original=JSON.stringify(state);
+ const wide=Object.freeze({mode:'warden-warning',offsets:[8,11,9],fov:57,lookY:.35,following:10});
+ c.resolve(state,warning,.20);
+ assert.equal(c.resolveLens(state,warning,wide,.20),wide,'23 real danger cells demand the complete immediate overview');
+ assert.equal(JSON.stringify(state),original);
+ const strike=shot('warden-release',[-5,8,4]);
+ const medium={mode:'warden-release',offsets:[5,8,5],fov:50,lookY:.71,following:8};
+ const prior=c.resolveLens(scene(),strike,medium,.20);
+ assert.equal(prior.mode,'warden-release');
+ assert.ok(prior.offsets[1]>medium.offsets[1]&&prior.offsets[1]<wide.offsets[1]);
+ assert.ok(prior.fov>medium.fov&&prior.fov<wide.fov);
+ const counter=shot('warden-exposed',[3,5,4]);
+ const close={mode:'warden-exposed',offsets:[3,5.4,3.8],fov:45,lookY:1.1};
+ const actual=c.resolveLens({...scene(),bossRecovery:{remaining:1}},counter,close,.20);
+ assert.equal(actual.mode,'warden-exposed');
+ assert.ok(actual.offsets[1]>close.offsets[1]&&actual.offsets[1]<prior.offsets[1]);
+ assert.ok(actual.fov>close.fov&&actual.fov<prior.fov);
+ assert.equal(actual.following,undefined,'do not invent a lens field');
+ assert.equal(c.metrics().physicalLensBridges,2);
+ assert.equal(c.metrics().physicalLensWarnings,1);
+ assert.ok(c.metrics().physicalLensMaxStep>0);
+});
+
+test('the physical optical bridge never delays a new warning, new run, dead Warden, reduced motion or an unearned exposure',async()=>{
+ const {createCombatShotContinuity}=await load();
+ const wideShot=shot('warden-warning',[9,11,9]);
+ const wide={mode:'warden-warning',offsets:[9,11,9],fov:57,lookY:.3};
+ const releasedShot=shot('warden-release',[5,8,5]);
+ const released={mode:'warden-release',offsets:[5,8,5],fov:50,lookY:.7};
+ const exposedShot=shot('warden-exposed',[3,5,3]);
+ const exposed={mode:'warden-exposed',offsets:[3,5,3],fov:45,lookY:1};
+ for(const choice of ['new-floor','dead','reduced','unearned','new-warning','new-subject']){
+  const c=createCombatShotContinuity();
+  c.resolveLens({...scene(),bossWarning:{attackTick:54}},wideShot,wide,.1);
+  c.resolveLens(scene(),releasedShot,released,.1);
+  let state=scene(),shotNow=exposedShot,lensNow=exposed,opts={};
+  if(choice==='new-floor')state=scene(1,2);
+  if(choice==='dead')state=scene(1,1,false);
+  if(choice==='reduced')opts={reducedMotion:true};
+  if(choice==='new-warning'){
+   state={...scene(),bossWarning:{attackTick:57}};
+   shotNow=wideShot;lensNow=wide;
+  }
+  if(choice==='new-subject')shotNow=shot('warden-exposed',[3,5,3],['vanguard','another-warden']);
+  const actual=c.resolveLens(state,shotNow,lensNow,.1,opts);
+  assert.equal(actual,lensNow,choice);
+ }
+});
