@@ -794,7 +794,21 @@ export function createWarden(options = {}) {
     update(options={}) {
     if (r.isDisposed()) return;
     const s=motionState(options), amount=s.reduced?0:1;
-    face(group,options.heading,s.delta,s.reduced);
+    // Source-authentic 320/390px guardian frames exposed the armored BACK
+    // throughout the disclosed duel: the head alone could swivel only .58rad
+    // while the stationary full-body root remained at its old travel heading.
+    // In a REAL, already witnessed three-beat encounter, a planted Thornback
+    // must physically FACE the publicly positioned Pip before its brace and
+    // shell release. Moving wardens always keep their autonomous travel
+    // heading. An unseen, sealed, distant, clockless or ended guardian has no
+    // performance target. This rotates the existing rig only: zero new GPU
+    // resources, no cell/AI movement, collision or private state consultation.
+    const witnessedStand = !s.win && !s.lose && !s.moving
+      && Number.isFinite(options.encounterBeat)
+      && Number.isFinite(options.attentionHeading)
+      && finite(options.attentionStrength) > .35;
+    face(group,witnessedStand ? options.attentionHeading : options.heading,
+      s.delta,s.reduced||s.win||s.lose);
     const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
