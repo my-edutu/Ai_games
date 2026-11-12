@@ -4,7 +4,7 @@ const h=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 new vm.Script(h.slice(h.indexOf('<script>')+8,h.indexOf('</script>',h.indexOf('<script>'))));
 const a=h.indexOf('// W108 Phase 1: one bounded'),b=h.indexOf('// W24 Living Valley camera',a);
 assert(a>0&&b>a);
-const code=`let presentationEpoch=0,state={t:1},selectedCitizen=0,people=Array.from({length:14},(_,i)=>({i,name:'real'+i})),streetWalk=false,streetEncounterName='',follow=false,liveWorkday=false,zoom=25,eyeX=0,viewport=1024,calls=0;
+const code=`let presentationEpoch=0,state={t:1},selectedCitizen=0,people=Array.from({length:14},(_,i)=>({i,name:'real'+i})),streetWalk=false,streetEncounterName='',follow=false,liveWorkday=false,zoom=25,eyeX=0,viewport=1024,calls=0,\n frozen=false,city=[],focusPoint=[0,0],yaw=0,pitch=.8;
 function citizenDetailCameraFrame(){return {eye:[eyeX,1,4],forward:[0,0,-1],right:[1,0,0],up:[0,1,0],tanVertical:.5,tanHorizontal:.7,lens:{viewportWidth:viewport,viewportHeight:800,verticalDegrees:60,horizontalDegrees:75}}}
 function projectRealCitizenDetail(p){calls++;return {visible:true,heightFraction:1/(p.i+1),screenX:p.i*.02,screenY:0}}
 // The projection-only synthetic roster contains no jobs or cargo;

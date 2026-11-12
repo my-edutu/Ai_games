@@ -42,7 +42,9 @@ assert(rig.includes('const intensity=traveling?.72:0;'),
  'real feet stay planted whenever no authoritative route movement exists');
 const fgSource=fragment('function realForegroundPoseKey(', 'function realForegroundPoseStale(');
 const fgContext=vm.createContext({workingSkinCapable:true,
- isWorkingAtSite:()=>false,citizenRigPose:()=>({acting:{action:'idle'}}),
+ isWorkingAtSite:()=>false,carryingCommuterLantern:p=>
+  p.activity==='Returning home at dusk'&&fgContext.state.t>=19,
+ citizenRigPose:()=>({acting:{action:'idle'}}),
  climateAt:()=>({season:'summer'}),state:{t:15}});
 vm.runInContext(fgSource,fgContext,{timeout:2000});
 const foregroundKey=vm.runInContext('realForegroundPoseKey',fgContext);
@@ -62,6 +64,12 @@ assert.notEqual(foregroundKey({...originalResident,activity:'Traveling to market
  'actual route status must invalidate physical binding');
 assert.notEqual(foregroundKey({...originalResident,energy:60},1,true),skinned,
  'changed physiological appearance remains a genuine invalidation');
+const returning={...originalResident,activity:'Returning home at dusk'};
+fgContext.state.t=17;
+const beforeLantern=foregroundKey(returning,1,true);
+fgContext.state.t=23;
+assert.notEqual(foregroundKey(returning,1,true),beforeLantern,
+ 'same original commuter changes actual lantern mesh only when dusk arrives');
 fgContext.climateAt=()=>({season:'winter'});
 assert.notEqual(foregroundKey(originalResident,1,true),skinned,
  'winter materials invalidate the original GPU clothing');

@@ -26,6 +26,7 @@ const deps={workingSkinCapable:true,gpuAvailable:true,follow:false,
  liveWorkday:false,selectedCitizen:0,FOREGROUND_ROOT_METERS:.045,
  FOREGROUND_ROOT_RADIANS:.035,projectRealCitizenDetail:()=>({visible:true,heightFraction:.08}),
  isMarketUnloading:()=>false,isWorkingAtSite:()=>false,
+ carryingCommuterLantern:p=>p.activity==='Returning home at dusk'&&state.t>=19,
  citizenRigPose:()=>({acting:{action:'walking'}}),climateAt:()=>({season:0}),state};
 const make=d=>new Function(...Object.keys(d),walk+'\n'+key+'\n'+stale+
  '\nreturn {candidate:isForegroundWalkingSkinCandidate,key:realForegroundPoseKey,stale:realForegroundPoseStale};'
@@ -59,5 +60,11 @@ assert.equal(t.stale(fresh,p,bind,0),false,'unchanged original skin binding reta
 assert.notEqual(t.key(p,1,false),cpu,'ungrouped detailed CPU actor stays fresh');
 assert.equal(t.stale({...fresh,skinned:false},p,bind,0),true,'non-skinned actor cannot masquerade as GPU gait');
 assert.notEqual(t.key({...p,activity:'Returning home at dusk'},1,true),bind,'real life stage invalidates bind');
+const lanternCommuter={...p,activity:'Returning home at dusk'};
+state.t=17;
+const commuterBeforeDusk=t.key(lanternCommuter,1,true);
+state.t=23;
+assert.notEqual(t.key(lanternCommuter,1,true),commuterBeforeDusk,
+ 'true dusk equips physical commuter lantern and invalidates GPU bind once');
 assert.equal(before,JSON.stringify({...p,phase:.21,x:1,z:2}),'presentation-only tests alter no authoritative seed data');
 console.log('W166 PASS: original citizen body, authentic route-driven GPU gait; real freight, large/selected actors stay CPU-live. Source/pose contract only, hardware and visual quality NOT PROVEN.');
