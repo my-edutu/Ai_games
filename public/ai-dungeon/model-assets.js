@@ -3099,8 +3099,15 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
       x:target.x,z:target.z,sourceInstanceId,
       clip:'Walking_A',rootYaw:actor.root.rotation.y
      };
+     // The already-carried offset can limit this new candidate. Report the
+     // actual world XZ movement, not the requested movement that was capped.
+     const appliedWorld=new THREE.Vector3(deltaX,0,deltaZ)
+      .applyQuaternion(rotate.clone().invert());
      actor.sourceStanceSlideReliefProof={
       ...proposal,sourceInstanceId,sourceClip:'Walking_A',
+      worldDeltaX:appliedWorld.x,worldDeltaZ:appliedWorld.z,
+      reductionMeters:Math.hypot(appliedWorld.x,appliedWorld.z),
+      requestedReliefMeters:proposal.reductionMeters,
       beforeHeelTravelMeters:oldHeel,afterHeelTravelMeters:newHeel,
       beforeToeTravelMeters:oldToe,afterToeTravelMeters:newToe,
       verifiedBy:'final-original-weighted-skinned-two-shoe-readback',
