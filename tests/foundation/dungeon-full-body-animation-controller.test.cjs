@@ -3871,3 +3871,66 @@ test('verified opposite original stance shoe may coexist with a same-frame swing
  assert.doesNotMatch(stage,/actor\.sourceStanceSoleCurrentFrameProofs\?\.\[opposite\]\s*\|\|/,
   'an already proven opposite stance shoe must not blanket-veto an independently measured swing thigh');
 });
+
+
+// PRECHANGE evidence: native 390px original Walking_A tick 8 at head 3927623
+// measured the licensed right upperleg -90mrad improving the original weighted
+// toe from -55.014868mm to -44.068186mm, still 24.068mm inside -20mm stone.
+// The following -135mrad examples are SYNTHETIC follow-up probes until actual
+// source-skin readback and moving footage confirm or reject them.
+test('RED: original swing thigh can grow from genuine prior 90mrad support by only 45mrad after a new two-shoe probe',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ const before={
+  right:{heelY:.2504383278648371,toeY:-.0550148681545242,
+   heelXZ:[-2.67808146,-7.10639257],toeXZ:[-2.69538227,-7.13284927]},
+  left:{heelY:.006432512387845958,toeY:-.0059309252918811435,
+   heelXZ:[-2.70737881,-6.95440746],toeXZ:[-2.97744464,-6.92935275]}
+ };
+ const trial=(delta,toeY=-.039,heelY=.267,opposite=before.left)=>({
+  delta,after:{right:{heelY,toeY,
+   heelXZ:[-2.6775,-7.1063],toeXZ:[-2.679,-7.1328]},
+   left:opposite}
+ });
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.042,frameAge:.034,
+  side:'right',floorTopY:-.02,previousCorrectionRad:-.09,before};
+ const chosen=choose({...owner,trials:[trial(-.045,-.048),trial(-.09,-.0440681861),
+  trial(-.135)]});
+ assert.equal(chosen?.angleRad,-.135,
+  'only a prior genuine 90mrad supported pose can qualify for a fresh +45mrad trial');
+ assert.ok(chosen?.improvementMeters>.015&&chosen?.improvementMeters<.017);
+ assert.equal(chosen?.oppositeFootVerified,true);
+ assert.equal(chosen?.contactLocked,false);
+ assert.equal(choose({...owner,previousCorrectionRad:-.135,trials:[trial(-.135)]})?.angleRad,-.135,
+  'same signed, newly measured source skin may retain the pose without further rotation');
+ for(const bad of [
+  {previousCorrectionRad:0},
+  {previousCorrectionRad:-.045},
+  {previousCorrectionRad:.09},
+  {previousCorrectionRad:NaN},
+  {previousCorrectionRad:-.18},
+  {sourceWeight:.3},
+  {sourceClipName:'Idle'},
+  {rootTravel:0},
+  {frameAge:.3},
+  {reducedMotion:true},
+  {teleport:true},
+  {interrupted:true},
+  {before:{...before,right:{...before.right,toeY:-.037}}},
+  {trials:[trial(-.18)]},
+  {trials:[trial(-.135,-.062)]},
+  {trials:[trial(-.135,-.039,.19)]},
+  {trials:[trial(-.135,-.039,.267,{...before.left,toeY:-.019})]}
+ ])assert.equal(choose({...owner,trials:[trial(-.135)],...bad}),null,
+  'unwitnessed 135mrad, inactive actor, changed source, worse shoe or unsupported live foot must be rejected');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',begin);
+ const stage=renderer.slice(begin,end);
+ assert.match(stage,/previous[\s\S]*?\.135/,
+  'real imported-rig trials must be conditionally exposed only after prior verified 90mrad');
+ assert.match(stage,/sourceSkinnedSoleWorld/,
+  'new trial must measure the real source skinned sole, not a guessed final angle');
+});
