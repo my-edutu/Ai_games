@@ -47,3 +47,7 @@ The reduced encoder profile is deliberately evidence-only; it does **not** relax
 Rollback only the new capture-profile file, its focused contracts, the browser harness single-encoder wiring, skipped-probe classification and isolated workflow paths on this branch. No production rollback is required.
 
 The next dominant investigation is **whether authentic single-primary capture produces more timely confirmed HP-loss presentation and more genuine moving VP8 frames**, including separate submitted-frame and PCM sample timing. Then collect three-viewpoint matched desktop/390px active combat, misses, blocks, dodges, projectiles, spells, full Warden warning/release/recovery/counter and the 20-minute soak. No Diablo-IV parity, production status or sample-synchronized foley claim.
+
+## Measured browser encoder-concurrency evidence (follow-up contract)
+
+The browser harness now records `captureStarted.primaryMediaRecordersAtStart` from the actual active `MediaRecorder` Set, and `frames.peakPrimaryConcurrentMediaRecorders` from all real recorder registrations up to the end of the primary original audio+video window. The set covers both the combined original recorder and every optional auxiliary recorder, not just a planned count. These fields are factual only **after** fresh Chrome execution; current values are **not yet verified**. Test-first source contracts prohibit silently replacing observed counts with a policy constant. The primary maximum must be checked in the next genuine CI artifact before claiming the experiment actually isolated encoder contention.
