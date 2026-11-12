@@ -1595,7 +1595,8 @@ export function planOriginalSourceLoadedPelvisSupport({
  */
 export function planOriginalSourceStanceSlideRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
- ownerLocomotion=false,rootTravel=NaN,frameInterval=NaN,
+ ownerLocomotion=false,rootTravel=NaN,recentRootTravel=NaN,
+ recentTravelAge=NaN,frameInterval=NaN,
  alive=true,visible=true,teleport=false,reducedMotion=false,
  interrupted=false,floorTopY=NaN,previous=null,current=null
 }={}){
@@ -1603,10 +1604,19 @@ export function planOriginalSourceStanceSlideRelief({
   !finite(sourceWeight)||sourceWeight<.65||sourceWeight>1.001||
   sourceInstanceSame!==true||ownerLocomotion!==true||
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
-  !finite(rootTravel)||rootTravel<.015||rootTravel>.18||
+  !finite(rootTravel)||rootTravel<0||rootTravel>.18||
   !finite(frameInterval)||frameInterval<=0||frameInterval>.35||
   !finite(floorTopY)||Math.abs(floorTopY+.02)>.003||
   !previous||!current)return null;
+ // The simulation root moves at fixed ticks while Walking_A advances on
+ // displayed rAF frames. Reuse ONLY a fresh, independent, true root-travel
+ // witness; never infer or apply an authoritative step from clip motion.
+ const currentStep=rootTravel>=.015;
+ const recentStep=!currentStep&&finite(recentRootTravel)&&
+  recentRootTravel>=.015&&recentRootTravel<=.18&&
+  finite(recentTravelAge)&&recentTravelAge>=0&&recentTravelAge<=.18;
+ if(!currentStep&&!recentStep)return null;
+ const witnessedTravel=currentStep?rootTravel:recentRootTravel;
  const points=side=>{
   const a=previous[side],b=current[side];
   if(!a||!b||![a.heel,a.toe,b.heel,b.toe].every(p=>
@@ -1635,13 +1645,15 @@ export function planOriginalSourceStanceSlideRelief({
  // At most 18 mm of original source-rig presentation shift or 55% of
  // genuine root displacement. Keep >=8 mm of visible witnessed shoe travel:
  // even qualifying relief is explicitly NOT a world-space foot lock.
- const reduction=Math.min(.018,.55*rootTravel,drift-.008);
+ const reduction=Math.min(.018,.55*witnessedTravel,drift-.008);
  if(reduction<.004)return null;
  return Object.freeze({
   source:'same-original-GLB-weighted-two-point-stance',
   side,worldDeltaX:-meanX/drift*reduction,
   worldDeltaZ:-meanZ/drift*reduction,
   driftBeforeMeters:drift,reductionMeters:reduction,
+  witnessedRootTravelMeters:witnessedTravel,
+  witnessedRootTravelAgeSeconds:currentStep?0:recentTravelAge,
   footSpanMeters:Math.hypot(sample.b.heel[0]-sample.b.toe[0],
    sample.b.heel[2]-sample.b.toe[2]),
   contactLocked:false
