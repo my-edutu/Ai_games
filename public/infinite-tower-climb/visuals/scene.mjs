@@ -4687,8 +4687,15 @@ export function createTowerScene(canvas, settings = {}) {
       }
       elapsed += motionDt;
       if (resolutionDirty) { resize(); resolutionDirty = false; }
+      // The source-to-native-film gate has measured 0.9–1.14s from browser
+      // acceptance to returned Three.js submission on real Floor 9 arrivals.
+      // Split the actual first frame at the CPU scene-build / WebGL-return
+      // boundary, instead of guessing that HTTP, camera or GPU is responsible.
       const submissionStart = performance.now();
-      update(motionDt); renderer.render(scene, camera);
+      update(motionDt);
+      const sceneReadyAt = performance.now();
+      renderer.render(scene, camera);
+      const rendererReturnedAt = performance.now();
       // Only a genuinely submitted frame establishes the NEXT frame's
       // reference. Failed WebGL, stale snapshots, floor changes or run
       // restarts cannot reuse a previous guardian's lens.
@@ -4713,7 +4720,20 @@ export function createTowerScene(canvas, settings = {}) {
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
       world.noteFrameSubmitted?.(snapshot,options);
-      renderProgress.submitted(snapshot, performance.now());
+      const coldWorld = world.lastRebuild?.();
+      // Only an EXACT current-source rebuild may attribute its own cost;
+      // older floor, run, quality or later animation cannot borrow a witness.
+      const coldWorldMs = coldWorld?.runToken === snapshot.runToken &&
+        coldWorld?.floor === snapshot.floor &&
+        coldWorld?.sourceTick === snapshot.tick &&
+        coldWorld?.key === `${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${options.quality}`
+        ? coldWorld.cpuBuildMs : null;
+      renderProgress.submitted(snapshot, rendererReturnedAt, Date.now(), {
+        sceneUpdateMs: sceneReadyAt - submissionStart,
+        rendererReturnMs: rendererReturnedAt - sceneReadyAt,
+        worldRebuildMs: coldWorldMs,
+        totalSubmissionMs: rendererReturnedAt - submissionStart,
+      });
       // The callback owns UI-only phase coherence: never let an HTML failure
       // convert a genuinely submitted 3D frame into a fake renderer failure.
       try { options.onSubmittedFrame?.(snapshot); }
