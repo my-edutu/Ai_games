@@ -2835,15 +2835,21 @@ export function createTowerScene(canvas, settings = {}) {
       }
     }
     const clearedGuardian = observedGuardianPassage(previous, next);
-    // A first browser-accepted Floor9 packet may arrive 17+ source ticks
-    // after the last Floor8 packet during a real WebGL cold frame. Do not
-    // depend on an earlier *rendered* snapshot to reconstruct a 20Hz event
-    // that the authoritative source actually recorded at its true tick.
-    // This is intentionally a fallback, not a new simulation or animation.
-    const recordedGatewayPrevious = !clearedGuardian && !options.stale &&
+    // The browser can lag an authoritative 20Hz source by 16+ ticks while
+    // WebGL submits a cold frame. A preceding *browser-observed* Floor8
+    // packet proves a guardian was present but is NOT proof that the feet
+    // occupied the cap clearance at the exact source crossing. Previously
+    // that loose guardian check outranked the immutable exact crossing and
+    // discarded the original real cap+gate at the FIRST Floor9 rebuild.
+    // Prefer the independently validated recorded previous source endpoint,
+    // including tick451 itself. Fall back to earlier observed transitions
+    // only when the authoritative record is absent or not safely matched.
+    // This cannot authorize a floor, collider, HP loss or extra movement.
+    const recordedGatewayPrevious = !options.stale &&
       passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianHandoff(next) : null;
-    const gatewayPrevious = clearedGuardian ? previous : recordedGatewayPrevious;
+    const gatewayPrevious = recordedGatewayPrevious ||
+      (clearedGuardian ? previous : null);
     if (previous && previous.floor !== next.floor && !gatewayPrevious)
       passage.clear();
     // The old source-driven lock existed at the PREVIOUS floor's fixed
