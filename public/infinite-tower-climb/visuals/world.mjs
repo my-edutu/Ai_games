@@ -1995,8 +1995,11 @@ export function createTowerWorld(){
     // The canyon, source decks, physics-anchored hazards and action silhouettes
     // remain complete in the very first frame; no false gateway is inserted.
     buildTower(height,theme==='clockwork');
-    if(!deferDistant)buildDistantWorld(height);
-    buildVista(height);
+    // Critical scene geometry is authoritative: ground, platforms, hazards,
+    // canyon shaft and gateway all remain on the first submitted new-floor
+    // frame. Only the noninteractive 8,640-triangle distance panorama and
+    // seven far citadels can be staggered after genuine renderer submissions.
+    if(!deferDistant){buildDistantWorld(height);buildVista(height);}
     // All 3D cap clearance machinery must share the opt-in source exit,
     // not merely the presence of some guardian on a historic floor.
     // No published, exact real exit means no fabricated bronze victory gate.
@@ -2029,9 +2032,10 @@ export function createTowerWorld(){
     if (deferDistant) deferredDistantArrival = {
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
-      firstRenderSubmitted:false, material:null, fade:0,
+      firstRenderSubmitted:false, submittedFrames:0,
+      material:null, fade:0, vistaMaterial:null, vistaFade:0,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
-      deferredBuildMs:null,
+      vistaBuildMs:null, deferredBuildMs:null,
     };
   }
   function noteFrameSubmitted(snapshot, options={}) {
@@ -2039,10 +2043,14 @@ export function createTowerWorld(){
     // quality rebuild cannot unlock deferred GPU work. The caller invokes
     // this only AFTER the real renderer.render() has returned successfully.
     const job=deferredDistantArrival;
-    if (!job || job.state!=='awaiting-actual-first-render' ||
+    if (!job || !['awaiting-actual-first-render','awaiting-vista-submission'].includes(job.state) ||
         options.stale || !snapshot || snapshot.runToken!==job.runToken ||
         snapshot.floor!==job.floor ||
         key!==job.key || snapshot.tick<job.sourceTick) return false;
+    // Exactly one GPU upload tranche per returned Three.js frame. HTTP
+    // acceptance and JS animation never advance this queue. On context loss
+    // or source/run switch, clearFloor() cancels the entire pending tranche.
+    job.submittedFrames=Math.min(2,job.submittedFrames+1);
     job.firstRenderSubmitted=true;
     return true;
   }
@@ -2054,11 +2062,29 @@ export function createTowerWorld(){
     const arrival=deferredDistantArrival;
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-actual-first-render' &&
-        arrival.firstRenderSubmitted && !options.stale) {
+        arrival.submittedFrames>=1 && !options.stale) {
       const began=performance.now();
-      // Build the same original, bounded seven remote citadels AFTER the
-      // truthful floor+actor frame is submitted. Never defer ground, traps,
-      // route geometry, navigation, source HP or the real gateway.
+      // The original three-layer, 8,640-triangle geological panorama gets its
+      // own upload/shader frame, AFTER the actual floor and live actor return.
+      // It is never a collision, safe platform or source route boundary.
+      buildVista(arrival.height);
+      const vista=vistaGroup?.getObjectByName('tower-vista-cliffs');
+      if(vista?.material){
+        vista.material.transparent=true;
+        vista.material.opacity=0;
+        vista.material.depthWrite=false;
+        arrival.vistaMaterial=vista.material;
+      }
+      arrival.vistaBuildMs=+(performance.now()-began).toFixed(2);
+      arrival.state='awaiting-vista-submission';
+    }
+    if (arrival && arrival.key===key &&
+        arrival.state==='awaiting-vista-submission' &&
+        arrival.submittedFrames>=2 && !options.stale) {
+      const began=performance.now();
+      // The seven authentic distant citadels form the SECOND deferred upload,
+      // only after the real canyon has itself been submitted by Three.js.
+      // Never defer ground, traps, navigation, source HP or the real gateway.
       const startChildCount=floorGroup.children.length;
       buildDistantWorld(arrival.height);
       // The normal low-tier rebuild rigid-batches seven supported citadels
@@ -2095,12 +2121,27 @@ export function createTowerWorld(){
       arrival.deferredBuildMs=+(performance.now()-began).toFixed(2);
       arrival.fade=0;
     }
+    if(arrival?.vistaMaterial && !options.stale &&
+        ['awaiting-vista-submission','fading-remote-arrival'].includes(arrival.state)){
+      arrival.vistaFade=options.reducedMotion?1:
+        Math.min(1,arrival.vistaFade+Math.min(.08,Math.max(0,dt))/0.55);
+      arrival.vistaMaterial.opacity=arrival.vistaFade;
+    }
     if (arrival && arrival.state==='fading-remote-arrival' &&
         !options.stale) {
       arrival.fade=options.reducedMotion?1:
         Math.min(1,arrival.fade+Math.min(.08,Math.max(0,dt))/0.55);
       if(arrival.material)arrival.material.opacity=arrival.fade;
-      if(arrival.fade>=1)arrival.state='complete';
+      if(arrival.fade>=1 && arrival.vistaFade>=1){
+        arrival.state='complete';
+        // Retire transient transparency so the full original geological
+        // panorama does not incur permanent alpha sorting or overdraw cost.
+        if(arrival.vistaMaterial){
+          arrival.vistaMaterial.transparent=false;
+          arrival.vistaMaterial.depthWrite=true;
+          arrival.vistaMaterial.needsUpdate=true;
+        }
+      }
     }
     // QUIET -> CRISIS -> RELEASE across all five actual 3D tower biomes.
     // On verified guardian combat or a near dangerous shutter, decorative
@@ -2664,8 +2705,11 @@ export function createTowerWorld(){
       sourceTick:deferredDistantArrival.sourceTick,
       state:deferredDistantArrival.state,
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
+      submittedFrames:deferredDistantArrival.submittedFrames,
       fade:+deferredDistantArrival.fade.toFixed(3),
+      vistaFade:+deferredDistantArrival.vistaFade.toFixed(3),
       initialRebuildMs:deferredDistantArrival.initialRebuildMs,
+      vistaBuildMs:deferredDistantArrival.vistaBuildMs,
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
