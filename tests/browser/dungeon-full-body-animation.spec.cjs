@@ -641,7 +641,12 @@ for(const view of [
    expect(proof.sourceInstanceId).toBe(t.sourceId);
    expect(proof.sourceClip).toBe('Walking_A');
    expect(proof.afterWorstMeters).toBeLessThan(proof.beforeWorstMeters-.00149);
-   expect(Math.abs(proof.appliedAngleRad)).toBeLessThanOrEqual(.04501);
+   expect(Math.abs(proof.appliedAngleRad)).toBeLessThanOrEqual(.14001);
+   expect(Number.isFinite(proof.previousCorrectionRad)).toBe(true);
+   expect(Math.abs(proof.appliedAngleRad-proof.previousCorrectionRad))
+    .toBeLessThanOrEqual(.04501);
+   if(Math.abs(proof.previousCorrectionRad)>.001)
+    expect(Math.sign(proof.appliedAngleRad)).toBe(Math.sign(proof.previousCorrectionRad));
    expect(proof.afterToeY).toBeGreaterThanOrEqual(-.055);
    expect(proof.afterHeelY).toBeGreaterThanOrEqual(-.055);
    expect(proof.afterToeY).toBeGreaterThanOrEqual(proof.beforeToeY-.00401);
