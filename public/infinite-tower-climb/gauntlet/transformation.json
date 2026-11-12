@@ -1,4 +1,33 @@
 {
+  "p0OriginalNativeFilmAndSourceImportTruth20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourcePinnedCandidateReviewedSha": "935e8954ea2646155d75616682360605bec9f355",
+    "originalRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43323491483",
+    "candidateDesktopOriginalVideo": "tower-motion-candidate-danger-43323491483 artifact 13990648960 / danger/desktop/live.webm; 960x600",
+    "candidatePortraitOriginalVideo": "tower-motion-candidate-danger-43323491483 artifact 13990648960 / danger/portrait/live.webm; 390x844",
+    "baselineOutcomeFilmArtifact": "tower-motion-baseline-outcome-43323491483 artifact 13990739276",
+    "originalNativeFilmDefect": "Original source guardian/crossing tick451 visible as source, but no original full-body same-arch walk; clockwork/bronze to purple/void whole-scene cut.",
+    "desktopNativeCrossingTrace": "source searched at 22.823s, first browser f9 tick452, first renderer tick458; browser->renderer 872ms; native HUD f9 around 24.25s±.25s, 1.427s event->HUD; purple ~24.75s",
+    "portraitNativeCrossingTrace": "source search 23.704s, first browser f9 tick451, first renderer tick455; browser->renderer 706ms; native HUD f9 ~25s±.25, 1.296s event->HUD",
+    "baselineOutcomeClockVeto": "Original baseline desktop 71.12s shows Ascent ended 210m at ~25s but 39.84->43.68s original WebM across 3.031s compositor wall, slope 1.2667; partially-calibrated full-film acceptance blocked; portrait calibrated; do not bypass",
+    "fixedBlockedRealWorldFixtureSha": "03c356db2c597bd01ee1426dcbad32766e8c9584",
+    "lastCompletedCI": "https://github.com/my-edutu/Ai_games/actions/runs/43329980945 — FAILED only one outdated deferred-shell source assertion, after resolving 13 real Three integration failures",
+    "deferredFrameAssertionRepairCommits": [
+      "d7c07ed87eb062b4fd6801521f66b77dc20b82b1",
+      "f2d54921aaf0c3f0310a4b992878f7ce068a86b7"
+    ],
+    "newExactQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/43331219833 — IN PROGRESS when written; not asserted green",
+    "freshIndependentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realSupportedDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextStageAction": "Use authentic source/browser/Three/native timeline to redesign unified threshold camera/world sightline; fix actual baseline desktop outcome clock glitch without loosening calibration; recapture immutable matched full loop before leaving P0",
+    "review": "docs/reviews/2026-11-13-tower-pr68-esm-fixture-and-baseline-native-clock-review.md"
+  },
   "p0SourceFixtureAndAuthenticOutcomeClockVeto20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
