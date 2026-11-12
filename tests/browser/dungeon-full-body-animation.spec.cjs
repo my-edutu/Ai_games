@@ -1076,3 +1076,77 @@ for(const view of [
   },null,2))
  });
 });
+
+
+/**
+ * Real, unmodified DungeonRuntime snapshots are the ONLY HP-loss witness.
+ * Capture the actual incoming source Hit_A on desktop and 390px mobile;
+ * these clips are original CC0 GLB and video is saved by Playwright CI.
+ * This is NOT an animation-quality pass or a substitute for Warden/restart.
+ */
+function witnessedPartyHpLoss(){
+ for(const seed of ['visual-room-art-18','gauntlet-corpus-v1-0','gauntlet-corpus-v1-1']){
+  const game=DungeonRuntime.create(seed);
+  let before=game.publicState();
+  for(let i=0;i<1500;i++){
+   const after=game.step();
+   const actor=after.units.find(u=>{
+    const prior=before.units.find(p=>p.id===u.id);
+    return u.faction==='party'&&u.hp>0&&u.maxHp>0&&
+     prior?.hp>0&&prior.hp>u.hp&&
+     u.kind===prior.kind&&u.id===prior.id;
+   });
+   if(actor){
+    const prior=before.units.find(p=>p.id===actor.id);
+    return {seed,before,after,actor,loss:prior.hp-actor.hp};
+   }
+   before=after;
+  }
+ }
+ throw Error('No genuine nonfatal party HP-loss event in declared seed corpus');
+}
+for(const view of [
+ {name:'desktop',width:1440,height:900},
+ {name:'mobile',width:390,height:844}
+])test('genuine witnessed HP-loss Hit_A enters original source mixer: '+view.name,async({page})=>{
+ test.setTimeout(130000);
+ await page.setViewportSize({width:view.width,height:view.height});
+ const event=witnessedPartyHpLoss();
+ const stage=await loadStage(page,event.before);
+ const before=await nativeRigProof(page);
+ const previous=before.actors.find(a=>a.id===event.actor.id);
+ expect(previous?.skinnedMeshes??0).toBeGreaterThan(0);
+ stage.set(event.after);
+ let matched=null;
+ await expect.poll(async()=>{
+  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
+  const binding=d?.authored3D?.sourceClipBindings?.find(a=>a.id===event.actor.id);
+  if(binding?.clipName==='Hit_A'&&
+   (d?.authored3D?.fullBodyModes?.hurt??0)>0){
+   matched={frame:d.frame,binding,owner:d.authored3D.fullBodyModes};
+   return true;
+  }
+  return false;
+ },{timeout:30000,intervals:[80,110,160]}).toBe(true);
+ const injuryRig=await nativeRigProof(page);
+ const afterActor=injuryRig.actors.find(a=>a.id===event.actor.id);
+ expect(afterActor?.skinnedMeshes??0).toBeGreaterThan(0);
+ expect(afterActor?.maxStretchFraction??Infinity).toBeLessThanOrEqual(.20);
+ expect(afterActor?.sourceWeaponGrip?.attachedToGripSocket).toBe(true);
+ expect(stage.errors).toEqual([]);
+ await page.locator('.arena').evaluate(node=>node.classList.add('world-only-audit'));
+ await page.locator('#world').screenshot({
+  path:'artifacts/dungeon-full-body-true-hp-loss-'+view.name+'.png',timeout:60000});
+ await test.info().attach('genuine-positive-hp-loss-Hit_A-'+view.name,{
+  contentType:'application/json',body:Buffer.from(JSON.stringify({
+   seed:event.seed,viewport:view.name,source:'two consecutive unmodified DungeonRuntime.step snapshots',
+   actorId:event.actor.id,kind:event.actor.kind,
+   authoritativeTicks:[event.before.tick,event.after.tick],
+   actualPositiveHpLoss:event.loss,
+   originalSourceClipWitness:matched,
+   priorOriginalRig:previous,postOriginalRig:afterActor,
+   deformation:injuryRig.summary,
+   warning:'Single legal HP-loss entry / video is not whole-game motion acceptance, sustained foot plant, or proof of exact per-frame blend rate.'
+  },null,2))
+ });
+});
