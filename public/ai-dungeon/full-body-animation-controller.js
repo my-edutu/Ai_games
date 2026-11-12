@@ -1585,6 +1585,69 @@ export function planOriginalSourceLoadedPelvisSupport({
  * Compose from the independent current-frame performance Y (never prior
  * pivot.position.y): this is non-accumulating and does not move simulation.
  */
+/**
+ * Viewer-perceived source shoe skating relief, NOT a planted-foot IK lock.
+ * The previous and present displayed frames must expose two anatomically
+ * selected WEIGHTED outsole endpoints from the SAME licensed GLB clone.
+ * Only one clearly loaded source shoe and real XZ root travel authorize a
+ * small, reversible presentation-only displacement of the ENTIRE rig.
+ * Never move the authoritative root, invent an attack/step, or drive a joint.
+ */
+export function planOriginalSourceStanceSlideRelief({
+ mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
+ ownerLocomotion=false,rootTravel=NaN,frameInterval=NaN,
+ alive=true,visible=true,teleport=false,reducedMotion=false,
+ interrupted=false,floorTopY=NaN,previous=null,current=null
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.65||sourceWeight>1.001||
+  sourceInstanceSame!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  !finite(rootTravel)||rootTravel<.015||rootTravel>.18||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>.35||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.003||
+  !previous||!current)return null;
+ const points=side=>{
+  const a=previous[side],b=current[side];
+  if(!a||!b||![a.heel,a.toe,b.heel,b.toe].every(p=>
+   Array.isArray(p)&&p.length===3&&p.every(finite)))return null;
+  const span=Math.hypot(a.heel[0]-a.toe[0],a.heel[2]-a.toe[2]);
+  const nextSpan=Math.hypot(b.heel[0]-b.toe[0],b.heel[2]-b.toe[2]);
+  if(span<.11||span>.38||nextSpan<.11||nextSpan>.38||
+   Math.abs(nextSpan-span)>.018)return null;
+  return {a,b,
+   loaded:[a.heel,a.toe,b.heel,b.toe].every(p=>
+    p[1]>=floorTopY-.026&&p[1]<=floorTopY+.029)};
+ };
+ const left=points('left'),right=points('right');
+ if(!left||!right||Number(left.loaded)+Number(right.loaded)!==1)return null;
+ const side=left.loaded?'left':'right',sample=left.loaded?left:right;
+ const dx=sample.b.heel[0]-sample.a.heel[0],
+  dz=sample.b.heel[2]-sample.a.heel[2];
+ const toeDx=sample.b.toe[0]-sample.a.toe[0],
+  toeDz=sample.b.toe[2]-sample.a.toe[2];
+ const heelTravel=Math.hypot(dx,dz),toeTravel=Math.hypot(toeDx,toeDz);
+ if(heelTravel<.025||heelTravel>.14||toeTravel<.025||toeTravel>.14||
+  Math.hypot(dx-toeDx,dz-toeDz)>.012)return null;
+ const meanX=(dx+toeDx)/2,meanZ=(dz+toeDz)/2;
+ const drift=Math.hypot(meanX,meanZ);
+ if(drift<.025||drift>.14)return null;
+ // At most 18 mm of original source-rig presentation shift or 55% of
+ // genuine root displacement. Keep >=8 mm of visible witnessed shoe travel:
+ // even qualifying relief is explicitly NOT a world-space foot lock.
+ const reduction=Math.min(.018,.55*rootTravel,drift-.008);
+ if(reduction<.004)return null;
+ return Object.freeze({
+  source:'same-original-GLB-weighted-two-point-stance',
+  side,worldDeltaX:-meanX/drift*reduction,
+  worldDeltaZ:-meanZ/drift*reduction,
+  driftBeforeMeters:drift,reductionMeters:reduction,
+  footSpanMeters:Math.hypot(sample.b.heel[0]-sample.b.toe[0],
+   sample.b.heel[2]-sample.b.toe[2]),
+  contactLocked:false
+ });
+}
+
 export function composeOriginalSourceGroundedPivotY(presentationY=0,anchor=null){
  if(!finite(presentationY))return 0;
  const offset=anchor?.accepted===true&&finite(anchor.offsetY)&&
