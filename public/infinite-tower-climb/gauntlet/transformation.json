@@ -1,4 +1,37 @@
 {
+  "p0FirstObservedFloorNineAirborneOriginalDoor20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBranchHeadBeforeWork": "a86503d4588b31677aa17994b68b56da40de3844",
+    "exactProductionImplementationSha": "a95f88a2f1cc686bed7873722e96b0b433be9288",
+    "auditAndLoaderTestSha": "37e175df129f6690d007d5426c1df7096344f258",
+    "verifiedPriorFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43251493790",
+    "precedingOriginalDefect": "Both original desktop and portrait guardian films visually hard-cut warm bronze Floor8 cap/gate to violet Floor9, with no persuasive uninterrupted whole-body doorway transit. Previous strict original event-to-native pairing 0/2.",
+    "systemicCodeChange": "When the FIRST browser-accepted Floor9 packet is an actual nearby airborne jump, recover the original grounded 450->451 crossing only from immutable lastGuardianCrossing. Revalidate both authentic 20Hz grounded source endpoints; constrain the CURRENT airborne body to same run, <=12 subsequent ticks, x speed <=18k per tick, real F9 ground footprint, foot height and <=90k door distance. Preserve original GPU old cap+HP-opened guardian doorway, inner walkable arch, bounded exterior camera and source-backed biome blend without changing player grounding, authority, physics or seed. Explicit source-only forensic classification. No fabricated browser frame or collision.",
+    "affectedFiles": [
+      "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/gateway-source-audit.mjs",
+      "tests/phase3/tower-source-recorded-gateway-handoff.test.cjs",
+      "tests/phase3/tower-retained-source-cap-world.test.cjs",
+      "tests/phase3/tower-original-guardian-source-audit.test.cjs"
+    ],
+    "technicalQuality": "NOT VERIFIED at this code SHA; inspect exact-head GitHub Actions technical workflow; CI is a veto not experience grade",
+    "sourcePinnedCapture": "REQUESTED by this capture-request commit: immutable github.sha after journal-only additions; inspect latest nine-job film and strict event pairing before accepting",
+    "matchedCaptureMatrix": "Actual 20Hz original game and normal-speed 60+s native WebMs: frozen baseline vs candidate exact github.sha, seed tower-transformation-capture-v1, low tier, ascent floor0, moving platform floor7, genuine guardian/crusher Floor8→9 with first grounded/airborne body and original arch, outcome/restart floor0; desktop 960x600 and portrait 390x844; nine job source + eight real films",
+    "realWorldEffect": "NOT EVALUATED. Source and geometry corrections are code only pending authentic normal-speed WebM, native timestamps and full source-to-browser-to-Three-to-video alignment.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedPhysicalDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestGap": "Original full-body old bronze doorway through Floor9 still lacks accepted continuous native video. 0/2 strict source-to-native pairing previously, browser-to-Three phase delay, occluded boss and hardware/independent reviewers outstanding.",
+    "nextHighestImpactAction": "First resolve exact-head CI and test failures. Inspect original normal-speed 23-29s matched desktop and portrait candidate 1x clips with witness, actual original GPU gate+cap, first airborne draw, camera and native phase alignment; if 0/2 or scene still hard-cuts, rebuild physical common old/new silhouette/horizon rather than test-count theater. Then inspect moving-floor clock, real floor9 onward and outcome/restart.",
+    "safety": "Baseline SHA immutable; PR68 draft open, base PR58 unchanged. No merge, deployment, force-push, other games or fabricated evidence."
+  },
   "p0SourceEarnedFloorNineAirborneDoorContinuity20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "assessor": "NOT EVALUATED",
