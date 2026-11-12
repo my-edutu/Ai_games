@@ -123,7 +123,6 @@ test('the shipped scene releases deferred world only after returned WebGL and ne
   const updated=scene.indexOf('update(motionDt);');
   const rendered=scene.indexOf('renderer.render(scene, camera)');
   assert.ok(updated>=0 && rendered>updated,'world must prepare before the real 3D render');
-  const rendered=scene.indexOf('renderer.render(scene, camera)');
   const acknowledged=scene.indexOf('world.noteFrameSubmitted?.(snapshot,options)');
   assert.ok(acknowledged>rendered);
   assert.ok(acknowledged<scene.indexOf('renderProgress.submitted(snapshot, rendererReturnedAt, Date.now()'));
