@@ -19,6 +19,8 @@ on:
       - tests/browser/dungeon-d04-render-cost-pair.cjs
       - tests/browser/dungeon-d04.playwright.config.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
+      - tests/browser/dungeon-d04-capture-profile.cjs
+      - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
@@ -42,6 +44,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --check public/ai-dungeon/original-combat-foley.js
+      - run: node --check tests/browser/dungeon-d04-capture-profile.cjs
+      - run: node --check tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - run: |
           node --test \
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
@@ -50,6 +54,7 @@ jobs:
             tests/foundation/dungeon-d04-webm-pts-proof.test.cjs \
             tests/foundation/dungeon-d04-same-window-av.test.cjs \
             tests/foundation/dungeon-d04-browser-source-parse.test.cjs \
+            tests/foundation/dungeon-d04-single-primary-encoder.test.cjs \
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
