@@ -1623,9 +1623,15 @@ export function planOriginalSourceStanceSlideRelief({
    Array.isArray(p)&&p.length===3&&p.every(finite)))return null;
   const span=Math.hypot(a.heel[0]-a.toe[0],a.heel[2]-a.toe[2]);
   const nextSpan=Math.hypot(b.heel[0]-b.toe[0],b.heel[2]-b.toe[2]);
+  const projectedSpanDelta=Math.abs(nextSpan-span);
+  // The opposite AIRBORNE shoe can change its world-XZ projected heel/toe
+  // span by 18.99mm in authentic mobile Walking_A frame 87->88. The old
+  // universal 18mm veto rejected even a stable right loaded shoe. Bound
+  // the non-loaded shoe to 25mm; enforce the original 18mm limit on the
+  // actual near-stone shoe below. Both shoes still require real source skin.
   if(span<.11||span>.38||nextSpan<.11||nextSpan>.38||
-   Math.abs(nextSpan-span)>.018)return null;
-  return {a,b,
+   projectedSpanDelta>.025)return null;
+  return {a,b,projectedSpanDelta,
    // Actual original 390px Walking_A source-skinned frames 87->88
   // (2026-11-12 evidence #13980180305) show a unique right heel/toe
   // 30-31mm ABOVE the stone while visibly skating 75-77mm. The former
@@ -1640,6 +1646,9 @@ export function planOriginalSourceStanceSlideRelief({
  const left=points('left'),right=points('right');
  if(!left||!right||Number(left.loaded)+Number(right.loaded)!==1)return null;
  const side=left.loaded?'left':'right',sample=left.loaded?left:right;
+ // Protect the measured supporting shoe: only the demonstrably AIRBORNE
+ // opposite leg receives the small projected-span tolerance above.
+ if(sample.projectedSpanDelta>.018)return null;
  const dx=sample.b.heel[0]-sample.a.heel[0],
   dz=sample.b.heel[2]-sample.a.heel[2];
  const toeDx=sample.b.toe[0]-sample.a.toe[0],
