@@ -14,6 +14,7 @@ test('W262 real economy software mesh cache is finite and authority-neutral',asy
  const initial=await page.evaluate(()=>{
   const g=window.__tinyKingdom;g.setSpeed(0);
   const before=JSON.stringify(g.exportSnapshot());
+  g.setEconomyResidencyForTesting(false);
   g.setEconomyCpuCacheForTesting(true);
   return {before,after:JSON.stringify(g.exportSnapshot())};
  });
