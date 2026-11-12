@@ -63,7 +63,7 @@ test('only genuine source-earned grounded 8→9 next-floor snapshots may budget 
     {...b,player:{...b.player,groundedPlatformId:'f9:p2'}},
   ])assert.equal(observedEarnedFloorArrival(a,n),false);
 });
-test('authentic next floor draws the real deck and canyon before the cold distant skyline; only a successful render allows its bounded return',async()=>{
+test('authentic floor 9 submits the source deck first, the original canyon second, and the skyline third across separately committed frames',async()=>{
   const {createTowerWorld}=await loaded;
   const world=createTowerWorld(),from=prior(),to=arrival();
   try{
@@ -74,7 +74,7 @@ test('authentic next floor draws the real deck and canyon before the cold distan
     assert.equal(diag.floor,9);
     assert.equal(deferred?.state,'awaiting-actual-first-render');
     assert.equal(deferred?.firstRenderSubmitted,false);
-    assert.equal(diag.vistaLayers,3,'the full original canyon remains on first frame');
+    assert.equal(diag.vistaLayers,0,'8,640 canyon triangles and their color shader must not delay the first grounded Floor9 frame');
     assert.equal(diag.platforms,1,'source-authored new-floor ground is never deferred');
     const buildWitness = world.lastRebuild();
     assert.equal(buildWitness.runToken,to.runToken);
@@ -88,6 +88,7 @@ test('authentic next floor draws the real deck and canyon before the cold distan
       'repeat source frames must not fabricate another expensive rebuild');
     assert.ok(world.group.getObjectByName('platform:f9:ground'));
     assert.equal(distant(world).filter(o=>o.material.type==='MeshBasicMaterial').length,0);
+    assert.equal(world.diagnostics().vistaLayers,0);
     world.update(to,.016,.032,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
       'awaiting-actual-first-render','more HTTP snapshots cannot authorize geometry');
@@ -98,13 +99,29 @@ test('authentic next floor draws the real deck and canyon before the cold distan
     assert.equal(world.noteFrameSubmitted(to),true);
     world.update(to,.016,.048,{quality:'low'});
     diag=world.diagnostics();
+    assert.equal(diag.deferredDistantArrival.state,'awaiting-vista-submission');
+    assert.equal(diag.deferredDistantArrival.submittedFrames,1);
+    assert.ok(diag.deferredDistantArrival.vistaBuildMs>=0);
+    assert.equal(diag.vistaLayers,3,'unchanged original canyon arrives after one genuine Three.js return');
+    assert.equal(distant(world).filter(o=>o.material.type==='MeshBasicMaterial').length,0,
+      'the second geometry build must not share the same slow frame with canyon upload');
+    for(let i=0;i<4;i++)world.update(to,.016,.055+i/60,{quality:'low'});
+    assert.equal(distant(world).length,0,'browser updates and animation alone cannot submit a canyon frame');
+    assert.equal(world.noteFrameSubmitted(to,{stale:true}),false);
+    assert.equal(world.noteFrameSubmitted({...to,runToken:'another-run'}),false);
+    assert.equal(world.noteFrameSubmitted(to),true,'exact second returned scene authorizes the distant skyline');
+    world.update(to,.016,.12,{quality:'low'});
+    diag=world.diagnostics();
     assert.equal(diag.deferredDistantArrival.state,'fading-remote-arrival');
+    assert.equal(diag.deferredDistantArrival.submittedFrames,2);
     assert.ok(diag.deferredDistantArrival.deferredBuildMs>=0);
     assert.equal(distant(world).filter(o=>o.material.type==='MeshBasicMaterial').length,1);
     for(let i=0;i<40;i++)world.update(to,.016,i/60,{quality:'low'});
     diag=world.diagnostics();
     assert.equal(diag.deferredDistantArrival.state,'complete');
     assert.equal(diag.deferredDistantArrival.fade,1);
+    assert.equal(diag.deferredDistantArrival.vistaFade,1);
+    assert.equal(diag.deferredDistantArrival.submittedFrames,2);
     assert.equal(diag.deferredDistantArrival.firstRenderSubmitted,true);
     const remote=distant(world).find(o=>o.material.type==='MeshBasicMaterial');
     assert.equal(remote.material.opacity,1);
