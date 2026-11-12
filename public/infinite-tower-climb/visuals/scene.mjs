@@ -12,7 +12,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, observedRecordedGuardianHandoff, observedRecordedGuardianAirborneHandoff, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedRecordedGuardianHandoff, observedRecordedGuardianAirborneHandoff, observedRecordedGuardianDoorstepHandoff, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2855,8 +2855,12 @@ export function createTowerScene(canvas, settings = {}) {
       !recordedGroundedGatewayPrevious &&
       passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianAirborneHandoff(next) : null;
+    const recordedDoorstepGatewayPrevious = !options.stale &&
+      !recordedGroundedGatewayPrevious && !recordedAirborneGatewayPrevious &&
+      passage.diagnostics().stage !== 'handoff'
+      ? observedRecordedGuardianDoorstepHandoff(next) : null;
     const recordedGatewayPrevious = recordedGroundedGatewayPrevious ||
-      recordedAirborneGatewayPrevious;
+      recordedAirborneGatewayPrevious || recordedDoorstepGatewayPrevious;
     const gatewayPrevious = recordedGatewayPrevious ||
       (clearedGuardian ? previous : null);
     // Immutable-source P0 forensic. The actual original 1x film at tick453
@@ -2870,6 +2874,7 @@ export function createTowerScene(canvas, settings = {}) {
         selectedSource:recordedGroundedGatewayPrevious
           ? 'exact-immutable-crossing' :
           recordedAirborneGatewayPrevious ? 'exact-immutable-airborne-continuation' :
+          recordedDoorstepGatewayPrevious ? 'exact-immutable-roof-contact-seam' :
           clearedGuardian ? 'old-browser-guardian-only' : 'neither',
         renderedGatewayNotYetProven:true,
       };

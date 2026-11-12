@@ -1,4 +1,5 @@
 import { pointFor } from './coordinates.mjs';
+import { observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
 // Only a real unlocked cap threshold may request this optional camera escort.
 // Pure, source-independent framing veto: never touches authority or input.
 export function gatewayScreenError(ndc) {
@@ -231,7 +232,8 @@ export function observedGroundedHandoffShot(snapshot, passage, aspect, zoom = 1)
       !Number.isSafeInteger(snapshot?.floor) ||
       !(p?.health > 0) || p?.grounded !== true ||
       (p?.state !== 'standing' && p?.state !== 'hurt') ||
-      p?.groundedPlatformId !== 'f' + snapshot.floor + ':ground' ||
+      (p?.groundedPlatformId !== 'f' + snapshot.floor + ':ground' &&
+         !observedRecordedGuardianDoorstepHandoff(snapshot)) ||
       ![aspect, zoom, snapshot.worldWidth, snapshot.chunkBaseY,
         p?.x, p?.y, p?.halfHeight,
         passage?.ageSeconds, passage?.durationSeconds].every(Number.isFinite) ||

@@ -238,24 +238,79 @@ export function observedRecordedGuardianAirborneHandoff(next) {
 
 // Require the SAME complete old source endpoint when presenting the original
 // door, not a convenient old-browser corpse from the wrong physical position.
+
+/*
+ * First F9 browser samples can follow the authentic tick451 grounded crossing
+ * while retaining an independently grounded same-height deck support rather
+ * than literal "f9:ground". A source event, not that support label, already
+ * proves the former cap and opened door. Revalidate the immutable endpoints,
+ * exact roof and current whole-body location. Never edit real source state.
+ */
+export function observedRecordedGuardianDoorstepHandoff(next) {
+  const w=next?.lastGuardianCrossing,p=next?.player;
+  if(!w||!p||next.floor!==9||next.lifecycle!=='running'||
+      !Number.isSafeInteger(next.tick)||!Number.isSafeInteger(w.sourceTick)||
+      next.tick<=w.sourceTick||next.tick-w.sourceTick>12||
+      p.grounded!==true||p.state!=='standing'||p.vy!==0||
+      !(p.health>0)||!Number.isSafeInteger(p.x)||!Number.isSafeInteger(p.y)||
+      !Number.isSafeInteger(p.halfWidth)||!Number.isSafeInteger(p.halfHeight)||
+      p.halfWidth<=0||p.halfHeight<=0||!Array.isArray(next.platforms)||
+      typeof p.groundedPlatformId!=='string')return null;
+  const ground=next.platforms.find(s=>s?.id==='f9:ground');
+  if(!ground||![ground.x,ground.y,ground.width,ground.height,
+      w.crossingX,w.crossingY,w.exitX,w.halfWidth,w.halfHeight]
+      .every(Number.isSafeInteger))return null;
+  const roof=ground.y+ground.height,foot=p.y-p.halfHeight;
+  const supportedSamePlane=next.platforms.some(s=>
+    s?.id===p.groundedPlatformId&&
+    [s.x,s.y,s.width,s.height].every(Number.isSafeInteger)&&
+    s.width>0&&s.height>0&&s.y+s.height===roof&&
+    p.x-p.halfWidth>=s.x&&p.x+p.halfWidth<=s.x+s.width);
+  // Only an authentic recorded previous cap can authorize this old ID.
+  const supportedOldCap=p.groundedPlatformId==='f8:cap' &&
+    w.cap?.id==='f8:cap'&&
+    [w.cap.x,w.cap.width].every(Number.isSafeInteger)&&
+    p.x-p.halfWidth>=w.cap.x&&p.x+p.halfWidth<=w.cap.x+w.cap.width;
+  if(!(supportedSamePlane||supportedOldCap)||
+      p.halfWidth!==w.halfWidth||p.halfHeight!==w.halfHeight||
+      foot!==roof||p.y!==w.crossingY||
+      p.x<w.crossingX||p.x-w.crossingX>(next.tick-w.sourceTick)*18000||
+      p.x>w.exitX+90000||
+      p.x-p.halfWidth<ground.x||p.x+p.halfWidth>ground.x+ground.width)
+    return null;
+  // Local validation-only reconstruction: use the actual recorded 50ms
+  // grounded crossing; never publish or render this synthetic validator view.
+  const contact={...next,tick:w.sourceTick,
+    player:{...p,x:w.crossingX,y:w.crossingY,
+      halfWidth:w.halfWidth,halfHeight:w.halfHeight,
+      health:w.previousHealth,grounded:true,
+      groundedPlatformId:'f9:ground',state:'standing',vy:0}};
+  return observedRecordedGuardianHandoff(contact);
+}
+function matchesRecordedOldEndpoint(previous,exact) {
+  if(!exact||!previous||previous.runToken!==exact.runToken||
+      previous.floor!==exact.floor||previous.tick!==exact.tick||
+      previous.guardianExitX!==exact.guardianExitX||
+      previous.worldWidth!==exact.worldWidth||
+      previous.player?.x!==exact.player.x||
+      previous.player?.y!==exact.player.y||
+      previous.player?.halfWidth!==exact.player.halfWidth||
+      previous.player?.halfHeight!==exact.player.halfHeight||
+      previous.player?.grounded!==true||
+      previous.player?.groundedPlatformId!=='f8:cap')return false;
+  const cap=previous.platforms?.find(s=>s?.id==='f8:cap');
+  const expected=exact.platforms[0];
+  const enemy=previous.enemies?.find(s=>s?.id===exact.enemies[0].id);
+  return !!cap&&['x','y','width','height'].every(k=>cap[k]===expected[k])&&
+    !!enemy&&enemy.kind==='guardian'&&enemy.active===false&&enemy.health<=0&&
+    enemy.x===exact.enemies[0].x&&enemy.y===exact.enemies[0].y;
+}
+export function observedSourceEarnedDoorstepHandoff(previous,next) {
+  return matchesRecordedOldEndpoint(previous,observedRecordedGuardianDoorstepHandoff(next));
+}
+
 export function observedSourceEarnedAirborneHandoff(previous,next) {
-  const exact=observedRecordedGuardianAirborneHandoff(next);
-  if (!exact || !previous || previous.runToken!==exact.runToken ||
-      previous.floor!==exact.floor || previous.tick!==exact.tick ||
-      previous.guardianExitX!==exact.guardianExitX ||
-      previous.worldWidth!==exact.worldWidth ||
-      previous.player?.x!==exact.player.x ||
-      previous.player?.y!==exact.player.y ||
-      previous.player?.halfWidth!==exact.player.halfWidth ||
-      previous.player?.halfHeight!==exact.player.halfHeight ||
-      previous.player?.grounded!==true ||
-      previous.player?.groundedPlatformId!=='f8:cap') return false;
-  const a=previous.platforms?.find(x=>x?.id==='f8:cap');
-  const b=exact.platforms[0];
-  const e=previous.enemies?.find(x=>x?.id===exact.enemies[0].id);
-  return !!a && ['x','y','width','height'].every(key=>a[key]===b[key]) &&
-    !!e && e.kind==='guardian' && e.active===false && e.health<=0 &&
-    e.x===exact.enemies[0].x && e.y===exact.enemies[0].y;
+  return matchesRecordedOldEndpoint(previous,observedRecordedGuardianAirborneHandoff(next));
 }
 
 // The real Floor8 cap must lead into the equally grounded Floor9 runway,
@@ -265,7 +320,8 @@ export function observedSourceEarnedAirborneHandoff(previous,next) {
 // ground. It is not predicted traversal, a bridge collider or a floor unlock.
 export function observedFloorNineRunway(previous, next) {
   if (previous?.floor !== 8 || next?.floor !== 9 ||
-      !observedGroundedGuardianHandoff(previous, next) ||
+      !(observedGroundedGuardianHandoff(previous, next) ||
+        observedSourceEarnedDoorstepHandoff(previous,next)) ||
       !Number.isSafeInteger(next.chunkBaseY) ||
       !Number.isSafeInteger(next.worldWidth) || next.worldWidth <= 0)
     return null;
@@ -906,7 +962,8 @@ export function createTowerGuardianPassage(THREE) {
   // walking progressively illuminates these treads after the handoff.
   function placeRetainedOldCap(previous,next,anchor) {
     if(!observedGroundedGuardianHandoff(previous,next) &&
-       !observedSourceEarnedAirborneHandoff(previous,next))return false;
+       !observedSourceEarnedAirborneHandoff(previous,next) &&
+        !observedSourceEarnedDoorstepHandoff(previous,next))return false;
     const cap=previous.platforms.find(p=>p.id==='f8:cap');
     if(!cap)return false;
     const fromX=Math.max(cap.x,previous.guardianExitX-48000);
@@ -981,7 +1038,8 @@ export function createTowerGuardianPassage(THREE) {
     const p=source?.player;
     if(source.runToken!==runToken || source.floor!==floor ||
       source.lifecycle!=='running' || !(p?.health>0) ||
-      p.grounded!==true || p.groundedPlatformId!==`f${floor}:ground`) {
+      p.grounded!==true || (p.groundedPlatformId!==`f${floor}:ground` &&
+        !observedRecordedGuardianDoorstepHandoff(source))) {
       capInlay.visible=false; capInlay.count=0; inlayMode='retired';
       return false;
     }
@@ -1194,7 +1252,8 @@ export function createTowerGuardianPassage(THREE) {
     // while carryOpen only determines which already-seen animation age survives.
     const carryRealThreshold =
       observedGroundedGuardianHandoff(previous, source) ||
-      observedSourceEarnedAirborneHandoff(previous, source);
+      observedSourceEarnedAirborneHandoff(previous, source) ||
+      observedSourceEarnedDoorstepHandoff(previous, source);
     const carriedAge = age;
     const carriedDefeatAge = defeatAge;
     group.position.set(anchor.x, anchor.y, anchor.z);

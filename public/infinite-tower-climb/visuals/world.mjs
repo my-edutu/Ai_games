@@ -1,6 +1,6 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
-import { observedSourceEarnedAirborneHandoff } from './guardian-passage.mjs';
+import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
@@ -2004,7 +2004,8 @@ export function createTowerWorld(){
         !(next.player?.health > 0) ||
         !((next.player.grounded === true &&
            next.player.groundedPlatformId === 'f9:ground') ||
-          observedSourceEarnedAirborneHandoff(previous,next))) return false;
+          observedSourceEarnedAirborneHandoff(previous,next) ||
+          observedSourceEarnedDoorstepHandoff(previous,next))) return false;
     pendingEarnedCap = {
       runToken:next.runToken, floor:next.floor, tick:next.tick,
       previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,
@@ -2081,8 +2082,9 @@ export function createTowerWorld(){
       Math.abs(p.x-held.thresholdX)<=90000 &&
       Number.isSafeInteger(sole) &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+55000;
-    const onNewRoof=p?.grounded===true &&
-      p.groundedPlatformId==='f9:ground';
+    const onNewRoof=(p?.grounded===true &&
+      p.groundedPlatformId==='f9:ground') ||
+      !!observedRecordedGuardianDoorstepHandoff(snapshot);
     // A missing successful Three.js submission cannot authorize indefinite
     // airborne persistence. The real 20Hz source permits at most 24 launch
     // ticks from the earned gate; a farther/newer body retires the old world

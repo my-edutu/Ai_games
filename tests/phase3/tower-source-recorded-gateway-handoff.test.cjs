@@ -193,3 +193,55 @@ test('first browser Floor9 packet may be a real early airborne jump after an uno
   assert.equal(observedSourceEarnedAirborneHandoff(
     {...old,player:{...old.player,x:old.player.x-20000}},airborne),false);
 });
+
+test('source-earned first Floor9 standing packet on original roof support retains same gateway and old cap',async()=>{
+  const {observedRecordedGuardianDoorstepHandoff,observedSourceEarnedDoorstepHandoff,
+    observedGroundedGuardianHandoff,observedFloorNineRunway,createTowerGuardianPassage}=await source;
+  const THREE=await import('../../node_modules/three/build/three.module.js');
+  const {pointFor}=await import('../../public/infinite-tower-climb/visuals/coordinates.mjs');
+  const [w,next]=witnessed(),first={...next,player:{...next.player,
+    groundedPlatformId:'f8:cap',state:'standing',vy:0}};
+  const unmodified=JSON.stringify(first);
+  const prior=observedRecordedGuardianDoorstepHandoff(first);
+  assert.ok(prior,'real grounded tick451 cannot be discarded by a later standing support label');
+  assert.equal(observedGroundedGuardianHandoff(prior,first),false);
+  assert.equal(observedSourceEarnedDoorstepHandoff(prior,first),true);
+  assert.ok(observedFloorNineRunway(prior,first));
+  const v=createTowerGuardianPassage(THREE);
+  try{
+    assert.equal(v.begin(prior,first,pointFor(w.exitX,top+20000,
+      first.chunkBaseY,first.worldWidth,27.78)),true);
+    assert.equal(v.diagnostics().continuousGroundedHandoff,true);
+    assert.equal(v.diagnostics().innerDoorAssemblyVisible,true);
+    assert.equal(v.diagnostics().retainedOldCapPieces,12);
+    assert.equal(v.diagnostics().inlayInheritedOldCapPieces,4);
+  }finally{v.dispose();}
+  assert.equal(JSON.stringify(first),unmodified,'never mutate real support, actor or source');
+  const later={...first,tick:454,player:{...first.player,x:w.crossingX+13800}};
+  assert.ok(observedRecordedGuardianDoorstepHandoff(later));
+  for(const invalid of [
+    {...first,runToken:'another'},
+    {...first,tick:450},{...first,tick:464},
+    {...first,player:{...first.player,x:w.crossingX-100}},
+    {...first,player:{...first.player,y:y+2000}},
+    {...first,player:{...first.player,vy:1}},
+    {...first,player:{...first.player,grounded:false}},
+    {...first,player:{...first.player,state:'airborne'}},
+    {...first,player:{...first.player,groundedPlatformId:'invented'}},
+    {...first,lastGuardianCrossing:{...w,guardian:{...w.guardian,health:2}}},
+    {...first,platforms:[{...first.platforms[0],y:cap.y+2000}]}
+  ])assert.equal(observedRecordedGuardianDoorstepHandoff(invalid),null);
+});
+test('original source gateway, scene, world, framing and audit integrate the real roof seam',()=>{
+  const p=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/guardian-passage.mjs'),'utf8');
+  const w=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const s=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const c=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/guardian-gateway-framing.mjs'),'utf8');
+  const a=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/gateway-source-audit.mjs'),'utf8');
+  assert.match(p,/observedSourceEarnedDoorstepHandoff\(previous, source\)/);
+  assert.match(w,/observedSourceEarnedDoorstepHandoff\(previous,next\)/);
+  assert.match(w,/observedRecordedGuardianDoorstepHandoff\(snapshot\)/);
+  assert.match(s,/recordedDoorstepGatewayPrevious/);
+  assert.match(c,/observedRecordedGuardianDoorstepHandoff\(snapshot\)/);
+  assert.match(a,/recordedDoorstepContinuityAccepted/);
+});
