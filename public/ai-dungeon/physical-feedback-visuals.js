@@ -453,7 +453,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
     flightFraction:limitedFlight?.fraction??1,
     lastHand:type==='trail'?{...start}:null,
-    measuredPath:null,lastMeasuredAge:-Infinity,lastMeasuredSpeed:0};
+    measuredPath:null,lastMeasuredAge:-Infinity,lastMeasuredSpeed:0,
+    // The emission matrix is already hidden. Do not dirty its GPU pool
+    // again until a REAL measured wrist passage needs a visible matrix.
+    matrixHidden:type==='trail'};
    // A new visible instance needs a posed GPU matrix before the first actual
    // render. Otherwise the audio receipt might refer to a hidden setup slot.
    // A trail still uses hideMatrix() until genuine new wrist travel is sampled.
@@ -577,9 +580,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       continue;
      }
     }else slot.age+=observedAge;
-    dirty=true;
+    // Most animated pools update every active frame. An unmeasured blade
+    // already has a hidden emission matrix; its silence must not consume a
+    // GPU buffer update merely because its bounded lifetime advances.
+    if(pool.name!=='trail')dirty=true;
     if(slot.age>=slot.life){
-     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;active--;continue;
+     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;active--;dirty=true;continue;
     }
     if(pool.name==='signal'&&
       (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
@@ -611,7 +617,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       }catch{}
       if(deadAttacker){
        pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
-       active--;retiredDeadTrails++;continue;
+       active--;retiredDeadTrails++;dirty=true;continue;
       }
       // A confirmed living replacement action (or newer attack tick)
       // permanently revokes a historical sword attempt. A missing rig,
@@ -625,7 +631,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       }catch{}
       if(interrupted){
        pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
-       active--;retiredInterruptedTrails++;continue;
+       active--;retiredInterruptedTrails++;dirty=true;continue;
       }
       slot.lastHand=null;slot.measuredPath=null;
      }else{
@@ -660,7 +666,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       }
      }
     }
-    pool.mesh.setMatrixAt(i,transform(pool,slot));frameMatrixWrites++;poolWrites++;
+    // A no-motion hand is not an animated sword arc. Once its retained
+    // instance matrix is hidden, no repeated hideMatrix/setMatrixAt/upload
+    // is necessary. A newly measured passage still draws immediately; a
+    // previous passage is cleared exactly once when its witness expires.
+    if(pool.name==='trail'&&!slot.measuredPath&&slot.matrixHidden)continue;
+    pool.mesh.setMatrixAt(i,transform(pool,slot));frameMatrixWrites++;poolWrites++;dirty=true;
+    if(pool.name==='trail')slot.matrixHidden=!slot.measuredPath;
     if(pool.name!=='trail'||slot.measuredPath)visibleSlots++;
    }
    if(dirty){
