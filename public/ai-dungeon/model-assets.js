@@ -1404,7 +1404,13 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   if(Number.isFinite(heelY)&&Number.isFinite(toeY)&&
    heelY>-.065&&heelY<.015&&toeY>-.065&&toeY<.015&&
    Math.min(heelY,toeY)<-.028){
-   for(const signed of [-.12,.12]){
+   // The 120mrad source trial sometimes buries the opposite outsole
+    // even when a genuine 45mrad per-frame source joint trial is safe.
+    // Sample both original skinned heel/toe endpoints at two scales.
+    // Final applied correction STILL requires independent physical
+    // readback, same-source owner, and the original slew/heel budget.
+    // At most four probes, only on a verified loaded Walking_A foot.
+    for(const signed of [-.12,-.045,.045,.12]){
     mount.bone.quaternion.copy(staged).multiply(
      probe.setFromAxisAngle(originalSwingPitchAxis,signed));
     mount.bone.updateWorldMatrix(true,true);
