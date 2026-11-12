@@ -557,6 +557,7 @@ for(const view of [
    claimedFootLock:false,
    frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
     cumulative:t.nativeLegOwnership?.sourceStanceReliefFrames??0,
+    probes:t.nativeLegOwnership?.sourceStanceProbeOutcomes??null,
     proofs:t.nativeLegOwnership?.sourceStanceSoleCurrentFrameProofs??null}))},null,2))
  });
  for(const t of trace){
@@ -601,6 +602,22 @@ for(const view of [
   }
   const stance=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
   expect(stance.length).toBeLessThanOrEqual(2);
+  // Authentic optional probes are NOT planted-sole certification.
+  for(const [side,probe] of Object.entries(n?.sourceStanceProbeOutcomes??{})){
+   if(!probe)continue;
+   expect(['left','right']).toContain(side);
+   expect(probe.source).toBe('same-original-GLB-multiscale-ankle-probe');
+   expect(probe.sourceInstanceId).toBe(t.sourceId);
+   expect(probe.sourceClip).toBe('Walking_A');
+   expect(probe.side).toBe(side);
+   expect(probe.trials.length).toBeLessThanOrEqual(4);
+   expect(probe.trials.every(p=>Number.isFinite(p.signed)&&
+    Number.isFinite(p.heel)&&Number.isFinite(p.toe))).toBe(true);
+   if(probe.status==='accepted'){
+    expect(stance.some(p=>p.side===side)).toBe(true);
+    expect(probe.finalWorstMeters).toBeLessThan(probe.beforeWorstMeters-.00149);
+   }
+  }
   for(const proof of stance){
    expect(proof.source).toBe('same-original-GLB-two-point-stanced-shoe');
    expect(proof.sourceInstanceId).toBe(t.sourceId);
