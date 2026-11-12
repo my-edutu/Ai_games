@@ -124,7 +124,9 @@ test('source observer rejects a previous-floor corpse for a newly earned portal'
 test('real physically earned door escort is not restricted to first floor-eight guardian',()=>{
  const fs=require('node:fs');
  const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
- assert.match(scene,/const earnedStage = !overview && !options\.stale && !!liveExit\s*\? passage\.diagnostics\(\) : null;/);
+ assert.match(scene,/const earnedStage = !overview && !options\.stale &&\s*\(!!liveExit \|\| !!sourceGroundedHandoffShot\)\s*\? passage\.diagnostics\(\) : null;/);
+ assert.match(scene,/earnedStage\.stage === 'earned-open' && !!liveExit/);
+ assert.match(scene,/earnedStage\.stage === 'handoff' && !!sourceGroundedHandoffShot/);
 });
 
 test('crusher pressure after guardian death is not a living-guardian encounter',()=>{

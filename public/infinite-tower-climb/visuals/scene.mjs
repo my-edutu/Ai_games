@@ -3460,6 +3460,14 @@ export function createTowerScene(canvas, settings = {}) {
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
       ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot
         ? passage.diagnostics() : null;
+    // The source-qualified next-floor camera request must also reach the
+    // real visual rescue below. Before this, the follow lens tracked the
+    // doorway but the safety-gated escort could never run: it depended only
+    // on OLD-floor exit progress, already reset to zero on Floor9.
+    const groundedHandoffEscort =
+      sourceGroundedHandoffShot?.groundedHandoff === true &&
+      sourceGroundedHandoffShot.sourceTick === snapshot.tick
+        ? sourceGroundedHandoffShot.focusWeight : 0;
     // Keep the SAME real camera, with a source-first cap position and radius:
     // no extra scene, invented time window, generated floor or camera cut.
     if (realCapLens && Array.isArray(realCapStage?.focusPosition) &&
@@ -3590,6 +3598,10 @@ export function createTowerScene(canvas, settings = {}) {
       cameraRate = Math.max(cameraRate, 3.8 + arrivalFraming * 2.4);
     if (sourceEarnedWalk)
       cameraRate = Math.max(cameraRate, 4.3 + 2.1 * sourceEarnedWalk.approach);
+    // Keep the same bounded follow camera responsive during the actual
+    // supported successor-floor steps; no hard cut or timeline hold.
+    if (groundedHandoffEscort > .04 && !options.reducedMotion)
+      cameraRate = Math.max(cameraRate, 3.9 + 4 * groundedHandoffEscort);
     if (!overview && !options.reducedMotion && initialized) {
       // Project the real current climber into the camera image from the
       // previous submitted pose. This catches a fast dash, launch or new-floor
@@ -4121,7 +4133,8 @@ export function createTowerScene(canvas, settings = {}) {
         camera.aspect > 0 && camera.aspect < 2.5 &&
         Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
         (arrivalFraming > .16 || sourceWalkProgress > .24 ||
-          (sourceAirborneWalk?.approach ?? 0) > .16)) {
+          (sourceAirborneWalk?.approach ?? 0) > .16 ||
+          groundedHandoffEscort > .04)) {
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y += p.halfHeight / SCALE;
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);

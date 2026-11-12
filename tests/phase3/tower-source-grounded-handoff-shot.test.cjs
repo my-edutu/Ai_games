@@ -45,6 +45,7 @@ test('absent guardian proof, other run, other floor, stale source, unsupported b
   [{...s,tick:450},g],[{...s,tick:600},g],
   [{...s,player:{...s.player,health:0}},g],
   [{...s,player:{...s.player,grounded:false}},g],
+  [{...s,player:{...s.player,state:'airborne'}},g],
   [{...s,player:{...s.player,groundedPlatformId:'f9:p2'}},g],
   [{...s,player:{...s.player,x:80000}},g],
   [{...s,player:{...s.player,y:s.player.y+95000}},g],
@@ -71,6 +72,10 @@ test('production camera and source-authenticated gateway rescue both continue ac
  const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
  assert.match(scene,/observedGroundedHandoffShot\(snapshot, passage\.diagnostics\(\),/);
  assert.match(scene,/sourceEarnedWalk \|\| sourceAirborneWalk \|\| sourceLastStand \|\|/);
+ assert.match(scene,/const groundedHandoffEscort =/);
+ assert.match(scene,/sourceGroundedHandoffShot\.sourceTick === snapshot\.tick/);
+ assert.match(scene,/groundedHandoffEscort > \.04 && !options\.reducedMotion/);
+ assert.match(scene,/\(sourceAirborneWalk\?\.approach \?\? 0\) > \.16 \|\|\s*groundedHandoffEscort > \.04/);
  assert.match(scene,/earnedStage\.stage === 'handoff' && !!sourceGroundedHandoffShot/);
  assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
  assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);

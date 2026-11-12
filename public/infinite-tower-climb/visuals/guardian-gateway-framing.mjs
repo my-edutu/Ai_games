@@ -230,6 +230,7 @@ export function observedGroundedHandoffShot(snapshot, passage, aspect, zoom = 1)
       snapshot.tick - passage.sourceTick > 60 ||
       !Number.isSafeInteger(snapshot?.floor) ||
       !(p?.health > 0) || p?.grounded !== true ||
+      (p?.state !== 'standing' && p?.state !== 'hurt') ||
       p?.groundedPlatformId !== 'f' + snapshot.floor + ':ground' ||
       ![aspect, zoom, snapshot.worldWidth, snapshot.chunkBaseY,
         p?.x, p?.y, p?.halfHeight,
@@ -248,7 +249,11 @@ export function observedGroundedHandoffShot(snapshot, passage, aspect, zoom = 1)
     snapshot.chunkBaseY, snapshot.worldWidth, 25);
   const gate = passage.focusPosition;
   const planar = Math.hypot(actor.x - gate[0], actor.z - gate[2]);
-  if (planar >= 12 || Math.abs(actor.y - gate[1]) > 8) return null;
+  // The inner arch is a WALKABLE threshold, not a hovering cinematic
+  // target. A source body more than 4.5m above/below its sole reference
+  // cannot borrow the prior floor's gate shot. The former 8m allowance
+  // admitted a 9.5m fabricated vertical displacement in real contracts.
+  if (planar >= 12 || Math.abs(actor.y - gate[1]) > 4.5) return null;
   const remaining = Math.max(0, Math.min(1,
     (passage.durationSeconds - passage.ageSeconds) /
       Math.max(.1, passage.durationSeconds - 1.05)));

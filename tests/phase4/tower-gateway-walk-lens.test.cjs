@@ -145,8 +145,8 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
   const lensSource=scene.match(/\bconst realCapLens\s*=\s*([^;]+);/);
   const stageSource=scene.match(/\bconst realCapStage\s*=\s*([\s\S]*?);/);
   assert.ok(lensSource&&stageSource,'the real scene must select both shot and stage');
-  const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand)=>{
-    const context={sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,
+  const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,sourceGroundedHandoffShot=null)=>{
+    const context={sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,sourceGroundedHandoffShot,
       earnedPassageStage:{id:'true-cap'},passage:{diagnostics:()=>({id:'locked-cap'})}};
     return {
       lens:vm.runInNewContext('('+lensSource[1]+')',context,{timeout:50}),
@@ -162,6 +162,10 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
   assert.equal(select('earned-grounded','earned-airborne','live-guardian').lens,'earned-grounded',
     'physical grounded crossing remains first priority');
   assert.equal(select('earned-grounded',null,null).stage.id,'true-cap');
+  assert.equal(select(null,null,null,'grounded-handoff').lens,'grounded-handoff',
+    'real next-floor support must not erase the retained gateway lens');
+  assert.equal(select(null,null,null,'grounded-handoff').stage.id,'locked-cap',
+    'the source-owned passage, never an invented floor-8 exit, owns the handoff');
   assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
   assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
 });
