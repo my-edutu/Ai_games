@@ -1,3 +1,17 @@
+## W266 · durable FIVE blocker workstreams · Phase 1 ACTIVE · 12 November 2026
+
+Candidate production source [5ba63b770d3db57164db347537bbda8526a37712](https://github.com/my-edutu/Ai_games/commit/5ba63b770d3db57164db347537bbda8526a37712), [OPEN DRAFT #64](https://github.com/my-edutu/Ai_games/pull/64). Frozen G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
+
+| Blocking impact / owner | Verified last measurement / current uncertainty | Acceptance to change phase |
+| --- | --- | --- |
+| 1. Coherent human-scale inhabited medieval district / environment | W265 existing original farm, granary, 4-stall market, 28-person Day121; W266 changed dependency caching ONLY, no demonstrated visual improvement. Toy-shaped people/angles remain | Blinded, aligned actual Day1/workday/Day120 desktop+390px moving gameplay visibly and materially richer than baseline |
+| 2. Render spine + stable grown-town graphics / GPU+CPU | W265 software Day1 1024 CPU/driver p95 total 109.6ms; static geometry 94.3ms; 390 total 105.7ms. W266 avoids whole civic rebuild on physically unrelated new lots, but no new measured reduction, full GPU CI pending | Verify unchanged-city vs true route-blocking-home cache invalidations in actual Day120, finite GPU allocations, 120-day soak, 30+ sustained real GPU desktop/mobile FPS, p95≤33.3ms |
+| 3. Worker embodiment/visible real contacts / animator + physical camera | W265 genuine Bram 3.024 food delivered, Selene .8 purchased+consumed; moving workers still look tiny and foreground-obstructed; no W266 new worker geometry | Single full uncut actual harvest→loaded walk→market handoff→home meal with readable IK wrists/tools and no invented cargo |
+| 4. User control and readable 390px economy / camera+UI | Prior responsive browser test passed but no hardware p95/interaction responsiveness; severe workload can delay input and worker focus | Mobile touch orbit/follow/pause/save/resume and real receipts visible, no lost input or obstruction at measured representative hardware workload |
+| 5. Independent exact-source acceptance / critic+evidence | G088 same-checksum equivalent comparison unproven, W265 prior video cannot validate W266, no independent harsh critics or physical hardware | Same SHA, seed, staged camera, complete uncropped desktop+mobile Day1/workday/Day120; separated author/critic review; B quality scored separately |
+
+**Current integrated milestone:** Phase1 real farmer→loaded courier→original receiving market→inhabited home. No standalone decorative wins, premature FPS claims, fabricated reviewers, commercial readiness, merge or main writes.
+
 ## W264 · persistent FIVE blocking-impact gates · Phase 1 ACTIVE · 12 November 2026
 
 Candidate playable SHA [9ad1b44c](https://github.com/my-edutu/Ai_games/commit/9ad1b44cbb8c066a8c5ed24938cc59a240577e09) on [DRAFT #64](https://github.com/my-edutu/Ai_games/pull/64); source test-first RED [43234782444](https://github.com/my-edutu/Ai_games/actions/runs/43234782444), exact-source GREEN not yet verified [43235436696](https://github.com/my-edutu/Ai_games/actions/runs/43235436696). Frozen G088 remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
