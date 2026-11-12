@@ -48,8 +48,11 @@ test('renderer consumes the source continuation without introducing a fake level
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   const passage=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/guardian-passage.mjs'),'utf8');
   assert.match(scene,/passage\.trackSuccessor\(next, options\.stale\)/);
-  assert.match(passage,/if\(carryRealThreshold\) placeSuccessorRunway\(previous,source,anchor\)/);
+  assert.match(passage,/if\(carryRealThreshold\) \{\s*placeSuccessorRunway\(previous,source,anchor\);\s*placeRetainedOldCap\(previous,source,anchor\);/,
+    'the source-authorized crossing must keep old cap and actual new ground in one bounded render system');
   assert.match(passage,/const route = observedFloorNineRunway\(previous, next\)/);
-  assert.match(passage,/pointFor\(x,route\.top\+500,next\.chunkBaseY,next\.worldWidth,26\.35\)/);
+  assert.match(passage,/const top=onOldCap\?oldCap\.y\+oldCap\.height:route\.top/);
+  assert.match(passage,/pointFor\(x,top\+500,next\.chunkBaseY,next\.worldWidth,26\.35\)/,
+    'only genuine old cap or successor ground may locate a bronze lane instance');
   assert.doesNotMatch(passage,/(?:next\.floor|source\.player\.x)\s*(?:=(?!=)|\+=|-=|\*=|\/=)/);
 });
