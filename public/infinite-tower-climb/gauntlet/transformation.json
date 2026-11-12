@@ -1,4 +1,28 @@
 {
+  "p0SourceFixtureAndAuthenticOutcomeClockVeto20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedHeadBeforeFix": "935e8954ea2646155d75616682360605bec9f355",
+    "productionRulesUnchanged": true,
+    "completedFixtureCommit": "03c356db2c597bd01ee1426dcbad32766e8c9584",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "lastKnownExactSourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/43323491496 — FAILED 74 tests, real temporary world module missing crossfloor-arrival.mjs",
+    "newSourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/43329980945 — QUEUED at writing; do not infer pass",
+    "lastOriginalNineJob": "https://github.com/my-edutu/Ai_games/actions/runs/43323491483 — FAILED baseline outcome original desktop native film partial clock gap; 7/8 scenario jobs successful, strict pairing job FAIL",
+    "completedAction": "Resolved 13 isolated actual-world Three.js ESM import copies to original shipped crossfloor-arrival.mjs. This is a verified source-defect fix, not a claim of material gameplay improvement.",
+    "sourceToNativeAcceptedViewports": "0/2 previous film; current SHA NOT YET EVALUATED",
+    "biggestExperienceGap": "Authentic Floor8 HP0 grounded gateway tick451 is real but original 1x film makes a hard bronze-violet scene cut rather than visible uninterrupted same-arch climber crossing",
+    "review": "docs/reviews/2026-11-13-tower-pr68-esm-fixture-and-baseline-native-clock-review.md",
+    "newFullMotionCapture": "NOT YET CAPTURED at new source",
+    "independentFreshCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect exact-head CI; diagnose frozen baseline outcome desktop native clock gap, without relaxing veto or altering baseline; rerun 9-job matched original clips and fix unified camera/physical threshold if still abrupt.",
+    "safety": "PR68 open draft base PR58; baseline unchanged; no merge, deployment, force-push or other-game edits"
+  },
   "p0SourceBoundMultiFrameOldClockworkVoidShellContinuity20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
