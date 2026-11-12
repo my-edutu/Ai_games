@@ -504,6 +504,7 @@ export function restoreOriginalSourceLegsAfterRejectedPelvis(mounts){
   mount.last.copy(mount.next);
   mount.soleClearanceRad=0;
   mount.stanceReliefRad=0;
+  mount.stanceKneeReliefRad=0;
   mount.swingCalfAssistRad=0;
  }
  return true;
@@ -542,6 +543,7 @@ export function prepareOriginalSourceLegsForPelvisRetry(mounts){
   mount.last.identity();
   mount.soleClearanceRad=0;
   mount.stanceReliefRad=0;
+  mount.stanceKneeReliefRad=0;
   mount.swingCalfAssistRad=0;
  }
  return true;

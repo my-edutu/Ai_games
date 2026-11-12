@@ -547,6 +547,16 @@ for(const view of [
     rollbackFootProof:t.nativeLegOwnership?.sourceLoadedPelvisRollbackFootProof??null,
     finalSourceFootProof:t.nativeLegOwnership?.sourceLoadedPelvisFrameProof??null}))},null,2))
  });
+ await test.info().attach('original-source-loaded-knee-two-shoe-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'licensed-Walking_A-original-lowerleg',
+   claimedFootLock:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    cumulative:t.nativeLegOwnership?.sourceStanceKneeSupportFrames??0,
+    probes:t.nativeLegOwnership?.sourceStanceKneeProbeOutcomes??null,
+    proofs:t.nativeLegOwnership?.sourceStanceKneeCurrentFrameProofs??null}))},null,2))
+ });
  // Stance-shoe proof is a DISTINCT original skinned heel/toe measurement
  // from airborne toe correction. Its absence is reported, not converted into
  // a fake plant or a passing motion-quality claim.
@@ -687,6 +697,40 @@ for(const view of [
    expect(proof.afterHeelY).toBeGreaterThanOrEqual(-.055);
    expect(proof.afterToeY).toBeGreaterThanOrEqual(proof.beforeToeY-.00401);
    expect(proof.afterHeelY).toBeGreaterThanOrEqual(proof.beforeHeelY-.00401);
+  }
+  // Original source-knee loaded-shoe assistance is separate from both the
+  // airborne calf and the loaded ankle. Only a SAME-INSTANCE skinned receipt
+  // with independently improved heel and toe can count as an accepted pose.
+  // One frame is not a world-space planted foot or a completed gait review.
+  const knee=Object.values(n?.sourceStanceKneeCurrentFrameProofs??{}).filter(Boolean);
+  expect(knee.length).toBeLessThanOrEqual(2);
+  for(const proof of knee){
+   expect(proof.source).toBe('same-original-GLB-loaded-knee-two-shoe');
+   expect(proof.sourceInstanceId).toBe(t.sourceId);
+   expect(proof.sourceClip).toBe('Walking_A');
+   expect(['left','right']).toContain(proof.side);
+   expect(proof.feetVerified).toBe(2);
+   expect(proof.contactLocked).toBe(false);
+   expect(Math.abs(proof.delta)).toBeCloseTo(.045,3);
+   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.00149);
+   expect(proof.afterWorst).toBeLessThan(proof.beforeWorst-.00149);
+   expect(proof.afterToeY).toBeGreaterThanOrEqual(proof.beforeToeY-.00401);
+   expect(proof.afterHeelY).toBeGreaterThanOrEqual(proof.beforeHeelY-.00401);
+   const trial=n?.sourceStanceKneeProbeOutcomes?.[proof.side];
+   expect(trial?.accepted).toBe(true);
+   expect(trial?.sourceInstanceId).toBe(t.sourceId);
+   expect(trial?.trials?.length).toBe(2);
+   expect(trial?.sourceKneeBone).toBe(proof.sourceKneeBone);
+   expect(trial?.hingeAlignment).toBeGreaterThan(0);
+   expect(trial?.bindLengths?.upperLength).toBeGreaterThan(0);
+   expect(trial?.bindLengths?.lowerLength).toBeGreaterThan(0);
+  }
+  for(const probe of Object.values(n?.sourceStanceKneeProbeOutcomes??{}).filter(Boolean)){
+   expect(probe.source).toBe('licensed-Walking_A-lowerleg-two-shoe-trials');
+   expect(probe.sourceInstanceId).toBe(t.sourceId);
+   expect(probe.sourceClip).toBe('Walking_A');
+   expect(probe.contactLocked).toBe(false);
+   expect(probe.trials.length).toBeLessThanOrEqual(2);
   }
   const current=Object.values(n?.sourceSwingToeCurrentFrameProofs??{}).filter(Boolean);
   expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(current.length);
