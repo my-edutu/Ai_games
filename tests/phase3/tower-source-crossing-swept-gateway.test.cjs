@@ -59,3 +59,26 @@ test('real crossing permission rejects unsupported teleport, stale and non-groun
     [{...old,enemies:[{id:'f8:guardian',kind:'guardian',active:true,health:1}]},next],
   ]) assert.equal(observedGroundedGuardianHandoff(before,after),false);
 });
+
+test('a fully source-witnessed crossing survives an unsubmitted old-world frame',async()=>{
+  const {createTowerGuardianPassage}=await awaitModule();
+  const [old,next]=genuine();
+  const THREE=await import('three');
+  const passage=createTowerGuardianPassage(THREE);
+  const angle=.24,anchor={x:Math.sin(angle)*27.78,y:17.5,z:Math.cos(angle)*27.78,angle};
+  try {
+    // An old defeated-guardian snapshot may be accepted without a Three
+    // submission in software WebGL. Source truth, not successful old-floor
+    // rendering, must determine whether the real successor arch survives.
+    assert.equal(passage.diagnostics().stage,'none');
+    assert.equal(passage.begin(old,next,anchor),true);
+    const display=passage.diagnostics();
+    assert.equal(display.stage,'handoff');
+    assert.equal(display.continuousGroundedHandoff,true);
+    assert.equal(display.innerDoorAssemblyVisible,true);
+    assert.equal(display.exteriorMemoryFrameVisible,false);
+    assert.equal(display.inlayMode,'successor-ground');
+    assert.equal(display.handoffSubmittedFrames,0);
+    assert.ok(display.ageSeconds>=1.05,'earned door does not replay a closed pose');
+  } finally { passage.dispose(); }
+});
