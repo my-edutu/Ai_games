@@ -12,6 +12,8 @@
 
 **Experience A:** LOOK NOT PROVEN / FEEL NOT PROVEN / PLAY NOT PROVEN. **Commercial B:** FAIL. **Active Phase:** Phase 1, do not mark Phase2 advance just because source improved. **Next concrete work:** inspect exact W250 running-worker moving frames after CI, repair observed geometry/camera/triangle regressions, then build substantial lived-in district/citizen quality. Maintain PR open DRAFT and no merge.
 
+**W250 verified original runtime evidence (not a milestone):** [native-source test and JS parsing](https://github.com/my-edutu/Ai_games/actions/runs/43153112377), [uncut real workday desktop/mobile artifact](https://github.com/my-edutu/Ai_games/actions/runs/43153112492/artifacts/13914469762), [1024px/390px WebGL video/screenshots](https://github.com/my-edutu/Ai_games/actions/runs/43153112755/artifacts/13913814454), [actual Day121 grown city](https://github.com/my-edutu/Ai_games/actions/runs/43153112742/artifacts/13915585477) all PASS for their declared workloads at playable source b5accfcf. Day10 actual scene 128,190 desktop/125,010 390px triangles, seed 3428317353, matching checksum ad50ce90, no page/GL errors reported. Original Day121 28 residents in real replay smoke. W249 versus W250 matched-staging worker screenshot: narrower face and changed boot mesh exist, but front fence still covers real shins and 390px person/cargo remain visually small; independent observer experience lift **NOT PROVEN**. GPU hardware 30fps/p95, full W250 grown 160k view, reliable long soak and separate blind critic absent; do not move phase or claim commercial-quality progress.
+
 ---
 
 ## W249 · durable Phase 1 connected true-economy vertical-slice backlog · 12 November 2026
