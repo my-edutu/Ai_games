@@ -26,6 +26,9 @@ export interface TowerRenderSnapshot{
   guardianExitX?:number;
   // Live-only source geometry: a legal double jump cannot clear the living seal.
   guardianSealHeight?:number;
+  // Source-owned witnessed physical 8→9 event survives dropped client frames;
+  // absent on frozen/default and on unrelated game scenarios.
+  lastGuardianCrossing?:TowerState['lastGuardianCrossing'];
   platforms:Array<{id:string;kind:string;x:number;y:number;width:number;height:number}>;
   hazards:Array<{id:string;kind:string;x:number;y:number;width:number;height:number;active:boolean;chargeTicksRemaining?:number}>;
   enemies:Array<{id:string;kind:string;x:number;y:number;halfWidth:number;halfHeight:number;health:number;maxHealth:number;active:boolean;telegraph:boolean;telegraphTicksRemaining?:number;telegraphTotalTicks?:number;staggerTicksRemaining?:number;facing:-1|1;attackCooldown:number}>;
@@ -96,6 +99,13 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     result:state.result?{reason:state.result.reason,kind:state.result.kind}:undefined,
     ...(guardianExitX!==undefined?{
       guardianExitX,guardianSealHeight:guardianArenaSealHeight(state.config)}:{}),
+    ...(state.config.guardianArenaHazards===true &&
+      state.config.guardianSecondWind===true &&
+      state.lastGuardianCrossing &&
+      state.floor===state.lastGuardianCrossing.toFloor &&
+      state.tick>state.lastGuardianCrossing.sourceTick &&
+      state.tick-state.lastGuardianCrossing.sourceTick<=12
+      ?{lastGuardianCrossing:state.lastGuardianCrossing}:{}),
     authorityChecksum:checksum({tick:state.tick,floor:state.floor,player:state.player,enemies:state.enemies,projectiles:state.projectiles,pickups:state.pickups,build:state.build,result:state.result})
   };
   const snapshot={...base,publicChecksum:checksum(base)};
