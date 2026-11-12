@@ -8905,6 +8905,15 @@
       "correction": "Updated exact expectations to the actual poseSuppressed owner and asserted priority from reducedMotion||interrupted; preserved hit and defeat overlay ordering, no renderer behavior rollback.",
       "correctedCI": "PENDING",
       "afterVideo": "NOT_OBSERVED"
+    },
+    "secondHeadFoundation": {
+      "runId": 43198347391,
+      "step": "Run node --test tests/foundation/dungeon-presentation.test.cjs tests/foundation/dungeon-interface.test.cjs tests/foundation/dungeon-progress.test.cjs",
+      "failedTests": 4,
+      "cause": "VM strips source ESM imports and did not bind the new pure planNativeTrueBodyPriority into engine-less renderer test sandbox; separate main foundation suite completed.",
+      "fix": "Bind the actual native-duel-continuity.js export in the VM via same real-source approach used for other native performance plan, no production logic reverted.",
+      "nextCi": "PENDING",
+      "originalNewHeadAV": "NOT_OBSERVED"
     }
   }
 }

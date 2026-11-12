@@ -55,6 +55,9 @@ function presentation({nestedFailure=false,fixture=null}={}){
  context.planNativeDuelContinuity=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeDuelContinuity;})()',context);
  context.shouldRetainNativeRecoveryClip=vm.runInContext('(function(){\n'+continuity+'\nreturn shouldRetainNativeRecoveryClip;})()',context);
  context.planNativeFootPlant=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeFootPlant;})()',context);
+ // Run the actual source-priority policy inside the engine-less VM, rather
+ // than shadowing the new skinned owner with a fake no-op.
+ context.planNativeTrueBodyPriority=vm.runInContext('(function(){\n'+continuity+'\nreturn planNativeTrueBodyPriority;})()',context);
  vm.runInContext(text,context);return context;
 }
 function actor(action='attack',tick=11){
