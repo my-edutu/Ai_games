@@ -4389,3 +4389,46 @@ test('real original-GLB mobile frame 62 to 63: stable yaw allows a proven lifted
  assert.match(renderer,/previousRootYaw:\s*previous\.rootYaw/);
  assert.match(renderer,/currentRootYaw:\s*actor\.root\.rotation\.y/);
 });
+
+
+test('genuine source stance offset exits smoothly instead of restarting the weighted skinned shoe every rAF',async()=>{
+ const {planOriginalSourceStanceReliefCarry:carry}=await load();
+ // A corrected original loaded shoe receives <=18mm of reversible visual
+ // translation. model-assets.js rebuilds its pivot from scratch each rAF:
+ // discarding all 18mm immediately creates a distinct reverse shoe skid.
+ // Fade the *already witnessed* local offset while the same original
+ // GLB/Walking_A/real root step still owns the pose; never manufacture IK.
+ const previous={x:-.018,z:0,sourceInstanceId:'source-vanguard',
+  clip:'Walking_A',rootYaw:0};
+ const valid={previous,sourceInstanceId:'source-vanguard',
+  sourceClipName:'Walking_A',sourceWeight:1,mode:'move',
+  ownerLocomotion:true,recentRootTravel:.05,recentTravelAge:.04,
+  rootYaw:0,frameInterval:.05,alive:true,visible:true,
+  reducedMotion:false,teleport:false,interrupted:false};
+ const first=carry(valid);
+ assert.equal(first?.sourceInstanceId,'source-vanguard');
+ assert.ok(Math.abs(first.x+.012)<.000001,
+  '18mm of independently witnessed presentation relief tapers to 12mm, not a 18mm reverse step');
+ assert.equal(first.z,0);
+ const second=carry({...valid,previous:first,recentTravelAge:.09});
+ assert.ok(Math.abs(second.x+.006)<.000001);
+ const final=carry({...valid,previous:second,recentTravelAge:.14});
+ assert.equal(final,null,'clear the original witness naturally within 150ms');
+ for(const change of [
+  {sourceInstanceId:'other-clone'},{sourceClipName:'Idle'},
+  {sourceWeight:.5},{mode:'attack'},{ownerLocomotion:false},
+  {recentRootTravel:0},{recentTravelAge:.181},{recentTravelAge:-.01},
+  {rootYaw:.2},{visible:false},{alive:false},{teleport:true},
+  {interrupted:true},{reducedMotion:true},{frameInterval:.5},
+  {previous:{...previous,x:.023}},{previous:{...previous,z:NaN}},
+  {previous:{...previous,clip:'Idle'}}
+ ])assert.equal(carry({...valid,...change}),null,
+  'stale/mismatched/unsafe source witness cannot move a visible rig: '+Object.keys(change));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceStanceReliefCarry\(/,
+  'real imported-rig pivot must consume the bounded carry');
+ assert.match(renderer,/sourceStanceVisualOffset\s*=\s*\{/,
+  'only a successful original weighted-shoe readback may renew the carried offset');
+ assert.match(renderer,/Math\.hypot\(.*\.x,.*\.z\)/,
+  'accepted corrections must retain a strict combined 18mm presentation budget');
+});
