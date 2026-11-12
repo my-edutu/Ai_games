@@ -87,13 +87,16 @@ export function createPhysicalCombatFeedback({
   recentStringFrameIds.clear();
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
- function retainReceipt(cue,visual,audio=false,frameId=null,decision=null){
+ function retainReceipt(cue,visual,audio=false,frameId=null,decision=null,submittedWallAt=null){
   // These are only observation and post-WebGL receipt times. They do NOT
   // certify encoded video PTS, audible sample onset or physical blade contact.
   // renderedMs is a simulation/presentation accumulation, NOT a wall clock.
   const observedAt=observedAtByCueId.get(cue.id);
   const validObserved=Number.isFinite(observedAt)&&observedAt>=0;
-  const receiptClock=frameId!==null?observedWallClock():null;
+  // All cue receipts in one rendered frame inherit the SAME measured post-WebGL
+  // boundary. A new clock read per cue shifts otherwise simultaneous hits,
+  // overstates observation-to-submit latency and adds clock work on the hot path.
+  const receiptClock=frameId!==null?submittedWallAt:null;
   const validSubmit=validObserved&&receiptClock!==null&&receiptClock>=observedAt;
   const observedClockMs=validObserved?Math.round(observedAt*1000):null;
   const submittedClockMs=validSubmit?Math.round(receiptClock*1000):null;
@@ -232,7 +235,7 @@ export function createPhysicalCombatFeedback({
     item.cue.proof==='authority-warning-window'&&
     !isLiveWardenWarning(item.cue,previous)){
     staleAudioDropped++;
-    retainReceipt(item.cue,item.visual,false,frameId,'retired-warning');
+    retainReceipt(item.cue,item.visual,false,frameId,'retired-warning',submittedWallClock);
     continue;
    }
    // Actual raw-frame aging may expire 230ms injury art in a 300ms frame,
@@ -290,7 +293,7 @@ export function createPhysicalCombatFeedback({
     if(item.visual&&(decision==='stale-frame'||decision==='expired-visual'||
      decision==='unverified-frame'))
      safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,decision));
-    retainReceipt(item.cue,item.visual,false,frameId,decision);continue;
+    retainReceipt(item.cue,item.visual,false,frameId,decision,submittedWallClock);continue;
    }
    // A retained, drawable sword or body glyph was checked during the
    // previous advance(), not necessarily at this actual frame receipt. An
@@ -310,7 +313,7 @@ export function createPhysicalCombatFeedback({
     // blade. The just-submitted frame cannot be undone; retire its GPU slot
     // before any subsequent WebGL submission, without inventing impact.
     safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,'revoked-drawn-swing-pose'));
-    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-swing-pose');
+    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-swing-pose',submittedWallClock);
     continue;
    }
    if(drawnBody&&typeof visuals?.hasAuthenticatedBodyPose==='function'&&
@@ -319,7 +322,7 @@ export function createPhysicalCombatFeedback({
     // A released/cancelled guard or Warden body gesture must not leave a
     // ghost ring after its original pose was revoked at frame receipt.
     safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,'revoked-drawn-body-pose'));
-    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-body-pose');
+    retainReceipt(item.cue,true,false,frameId,'revoked-drawn-body-pose',submittedWallClock);
     continue;
    }
    // An undrawn source was authenticated when its cue entered the frame
@@ -335,7 +338,7 @@ export function createPhysicalCombatFeedback({
        typeof visuals?.hasAuthenticatedSwingAction==='function'&&
        safeCall(()=>visuals.hasAuthenticatedSwingAction(item.cue))!==true){
      staleAudioDropped++;
-     retainReceipt(item.cue,false,false,frameId,'revoked-reduced-swing-action');
+     retainReceipt(item.cue,false,false,frameId,'revoked-reduced-swing-action',submittedWallClock);
      continue;
     }
     const release=item.cue.kind==='ranged-release'||item.cue.kind==='spell-release';
@@ -348,7 +351,7 @@ export function createPhysicalCombatFeedback({
      if(!authenticated){
       staleAudioDropped++;
       retainReceipt(item.cue,false,false,frameId,
-       release?'revoked-release-pose':'revoked-body-pose');
+       release?'revoked-release-pose':'revoked-body-pose',submittedWallClock);
       continue;
      }
     }
@@ -368,7 +371,7 @@ export function createPhysicalCombatFeedback({
    const audible=!!safeCall(()=>foley?.emit?.(soundCue));
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
-    audible?'delivered':'foley-rejected');
+    audible?'delivered':'foley-rejected',submittedWallClock);
   }
   return released;
  }
@@ -431,6 +434,11 @@ export function createPhysicalCombatFeedback({
    resolveContact,deriveDamageBeats,verifiedMeleeDelay,reducedMotion});}
   catch{adapterFailures++}
   previous=snapshot;
+  // One immutable public snapshot is observed at ONE boundary. Clocking once
+  // per cue assigned different onset ages to simultaneous verified HP losses
+  // and could overrun 400ms during dense snapshot planning.
+  const snapshotWallAt=requirePresentedFrame&&cues.length?
+   observedWallClock():null;
   for(const cue of cues){
    if(seen.has(cue.id)){duplicates++;continue}
    seen.add(cue.id);
@@ -449,7 +457,7 @@ export function createPhysicalCombatFeedback({
     // belated whoosh after the strike. Stage only swings immediately, hidden
     // until the measured wrist travels; frame acknowledgment still gates
     // foley. Keep all non-melee timing and non-gated callers unchanged.
-    const queuedWallAt=requirePresentedFrame?observedWallClock():null;
+    const queuedWallAt=snapshotWallAt;
     if(queuedWallAt!==null)observedAtByCueId.set(cue.id,queuedWallAt);
     pending.push({cue,remaining:presentationDelay(cue),queuedAt:observedSeconds,
     // A 19-second renderer interval may PRECEDE a just-observed HP transition.
