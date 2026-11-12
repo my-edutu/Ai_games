@@ -53,3 +53,21 @@ Expected artifact name: `artifacts/dungeon-d04-capture-cost-pair-evidence.json`.
 **Rollback:** revert the D04-only comparator, its native tests, the isolated Chrome test, the isolated workflow/config registrations and this handoff. No gameplay migration or default-route release flag is involved.
 
 **Unaccepted gates:** timely original injury frame, genuine movement/audio sample alignment, Warden warning-release-recovery-counter, real miss/block/dodge/projectile/spell presentation, three distinct moving viewpoints, matched 390px mobile, and 20-minute pooled-effect cleanup. The next implementation must follow evidence: if the same original HP-loss frames still stall without recording, investigate renderer/frame presentation in D04 ownership; if captured runs are consistently worse, isolate recorder/track overhead before modifying effects. Never stretch 400ms to disguise a stale impact.
+
+
+## Completed independent verification — 12 November 2026
+
+[Actual GitHub Actions run 43198249099](https://github.com/my-edutu/Ai_games/actions/runs/43198249099) completed: **contracts/build green (188/188 native tests)**, **three of four real Chrome tests passed**, **one strict authentic-original-injury acceptance failed**. No overall browser pass is claimed. The fresh capture-on/off dynamic trial itself passed and recorded both genuine combined A/V WebMs.
+
+| Actual Chrome trial | Matched stages | Real HP-loss stages | Uncaptured direct WebGL p50 / worst | With one original A/V encoder p50 / worst |
+|---|---:|---:|---|---|
+| 1440×900 | 10 | 3 | 15.4 / 32.7ms | 15.1 / 28.6ms |
+| 390×844 | 10 | 3 | 16.8 / 26.1ms | 13.1 / 23.5ms |
+
+These few **serial staged-state** runs did not reproduce the multi-second direct render stall, with or without the owned MediaRecorder. This does **not** prove the encoder improves performance, nor exclude encoder interference under fully continuous live play. The captured arms used one actual source stream and original soundstage track (one video + one audio), no requestFrame failures, and generated 252,230 desktop and 315,930 mobile WebM bytes.
+
+Independent local FFprobe inspection of the original artifact found **8 VP8 packets and 207 Opus packets** in desktop captured WebM, **9 VP8 and 225 Opus packets** in mobile, with long frame gaps (desktop approximately 3.35 to 9.06 seconds). These are original real browser frames and sound packets, not a verified contact-aligned soundtrack or smooth full-motion recording. The evidence files also contain real viewport screenshots and all paired stage records.
+
+The separate **continuous real-Dungeon A/V acceptance is still red**. Its exact original tick-4 victim `enemy-1-0` was flagged `stale-frame`, observation-to-submission **1,994ms**, of which direct WebGL rendering consumed **1,680ms**; original impact audio remained correctly rejected. Genuine preview recording had just **2 VP8 packets and 107 Opus packets** despite 7 submitted-frame requests. Verdict: `AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED`, damage receipts admitted **0**; aggregate visuals **7**, queued effects **39**, expired **29**, acknowledged frames **33**. One later fatal impact had a valid original WebAudio scheduling receipt, but that does **not** repair the original injury or prove sample-level timing.
+
+**Resulting priority:** the discrepancy between staged, polled sequential snapshots and fully active continuous gameplay/capture is the dominant observable defect. Next session should instrument a controlled **continuously advancing real authority** run with capture on/off under the same public seed, viewpoint and audio consent, retaining software-WebGL stalls and the exact HP-loss clock. Do not extend the 400ms deadline, count unrelated later effects, infer an attacker, or relax audiovisual acceptance. Three-angle moving footage, complete Warden and miss/block/dodge/projectile/spell cases, 390px moving combat and 20-minute cleanup remain open.
