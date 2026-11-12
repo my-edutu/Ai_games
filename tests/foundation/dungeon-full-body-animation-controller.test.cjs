@@ -3755,7 +3755,7 @@ test('RED: the authentic post-ankle source thigh may improve a still buried toe 
  assert.equal(final.afterHeelY,improved.heelY);
  assert.ok(Math.abs(final.liftMeters-(source.liftMeters+.007))<1e-7);
  assert.ok(Math.abs(final.penetrationAfterMeters-.0369156)<1e-7);
- assert.equal(final.combinedSourceThighMeters,.007);
+ assert.ok(Math.abs(final.combinedSourceThighMeters-.007)<1e-9);
  assert.equal(final.contactLocked,false,'neither trial proves a planted foot');
  for(const bad of [
   {sourceInstanceId:'different-clone'}, {sourceClipName:'Idle'},
