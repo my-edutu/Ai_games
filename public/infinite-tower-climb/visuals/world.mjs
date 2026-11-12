@@ -1810,7 +1810,7 @@ export function createTowerWorld(){
       guardianGate={frame,wings,crest,counterweights,conduit,capstan,
         overhead,tension,tensionPose,spools,spoolPose,progress:null,unlocked:false};
     }
-    let capMaterials = [];
+    let capMaterials = [], capLandingMaterial = null;
     if(p.id.endsWith(':cap')){
       // The last route gap is shorter than the guardian's body. A thick
       // decorative box beam buries its face inside a one-way platform. Keep
@@ -1836,6 +1836,11 @@ export function createTowerWorld(){
         object.material=owned.get(original);
       });
       capMaterials=[...owned.values()];
+      // The cap's sightline shader owns a CLONE of the original landing
+      // material. Retain that actual mesh/shader identity for the Floor8->9
+      // old-deck transition; matching the generic materials.landing later
+      // is wrong, and silently finds zero original cap roof polygons.
+      capLandingMaterial=owned.get(materials.landing) || null;
     }
     root.traverse(o=>{
       if(!o.isMesh)return;
@@ -1894,7 +1899,7 @@ export function createTowerWorld(){
       root.add(traveler,countergear,actuator,gearVisual);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,guardianGate,traveler,countergear,actuator,gearVisual,
+      capMaterials,capLandingMaterial,guardianGate,traveler,countergear,actuator,gearVisual,
       motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
@@ -2066,7 +2071,9 @@ export function createTowerWorld(){
     // surface (as observed in both exact native 1x WebMs).
     // Copy only the existing bronze deck's material; leave the original
     // rendered polygons, platform transforms and authoritative ground alone.
-    const oldLanding = materials.landing;
+    // The cap keeps its own per-mesh sightline material clone. The generic
+    // landing pointer never matches these ACTUALLY drawn cap polygons.
+    const oldLanding = sourceEntry.capLandingMaterial;
     const originalDeckMeshes = [];
     root.traverse(object => {
       if (object.isMesh && object.material === oldLanding)
