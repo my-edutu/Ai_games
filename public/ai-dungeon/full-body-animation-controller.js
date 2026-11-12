@@ -569,6 +569,47 @@ export function chooseOriginalSourceStanceAppliedWitness({
  * quaternion track and returns to the identical original pose on rejection.
  * This is a single-frame safety gate, never IK, contact, or a fake step.
  */
+/**
+ * The other original shoe may have JUST been corrected by a valid stance
+ * ankle stage in this SAME Mixer frame. Do not prohibit safe independent
+ * swing-thigh trials simply because that shoe was physically corrected.
+ *
+ * A current, matching original-GLB source receipt AND a new live skinned
+ * readback must agree before the opposite stance can be treated as stable.
+ * The swing trial still has to preserve BOTH real heels/toes and XZ positions.
+ * No new foot target, contact lock, authority or synthetic gait is introduced.
+ */
+export function verifyOriginalSourceOppositeStanceForSwingThigh({
+ proof=null,measured=null,oppositeSide='',sourceInstanceId='',
+ sourceClipName='',floorTopY=NaN
+}={}){
+ const vec2=v=>Array.isArray(v)&&v.length===2&&v.every(finite);
+ if(!proof||!measured||!['left','right'].includes(oppositeSide)||
+  typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  sourceClipName!=='Walking_A'||!finite(floorTopY)||
+  Math.abs(floorTopY+.02)>.005||
+  proof.source!=='same-original-GLB-two-point-stanced-shoe'||
+  proof.side!==oppositeSide||proof.sourceInstanceId!==sourceInstanceId||
+  proof.sourceClip!==sourceClipName||
+  ![proof.beforeHeelY,proof.beforeToeY,proof.afterHeelY,
+   proof.afterToeY,proof.beforeWorstMeters,proof.afterWorstMeters,
+   proof.floorTopY,proof.appliedAngleRad,
+   measured.heelY,measured.toeY].every(finite)||
+  !vec2(measured.heelXZ)||!vec2(measured.toeXZ)||
+  Math.abs(proof.floorTopY-floorTopY)>.0001||
+  Math.abs(proof.appliedAngleRad)>.12000001||
+  proof.beforeWorstMeters-proof.afterWorstMeters<.0015||
+  Math.abs(proof.afterHeelY-measured.heelY)>.0015||
+  Math.abs(proof.afterToeY-measured.toeY)>.0015||
+  Math.abs(proof.afterWorstMeters-Math.max(
+   Math.abs(proof.afterHeelY-floorTopY),
+   Math.abs(proof.afterToeY-floorTopY)))>.0015||
+  ![measured.heelY,measured.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ return Object.freeze({sameFrameLoadedStance:true,oppositeSide,
+  sourceInstanceId,sourceClipName,contactLocked:false});
+}
+
 export function chooseOriginalSourceSwingThighSupport({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceThighAxisVerified=false,sourceChainVerified=false,
