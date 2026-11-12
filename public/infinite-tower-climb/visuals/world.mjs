@@ -1947,6 +1947,106 @@ export function createTowerWorld(){
   // Bounded, noninteractive far-scenery job for an AUTHENTIC earned floor
   // transfer. A completed actual Three.js render is its only activation.
   // Rebuild/dispose/restart cancels the one pending job. No timers or workers.
+
+  // The actual Floor 8 cap scene used to disappear when Floor 9 rebuilt its
+  // world, even though the authentic climber was still at the SAME threshold.
+  // Retain ONLY the original, previously drawn cap-platform subtree, not the
+  // entire old floor or its physics. Preserve its original GPU buffers while
+  // the new genuine Floor 9 is rendered. This cannot award a win or a landing.
+  let pendingEarnedCap = null, retainedEarnedCap = null;
+  const RETAINED_CAP_SECONDS = 1.65;
+  function retireEarnedCap() {
+    if (!retainedEarnedCap) return;
+    const held = retainedEarnedCap;
+    held.root.removeFromParent();
+    held.root.traverse(object => {
+      if (object.isInstancedMesh) object.dispose();
+    });
+    for (const geometry of held.ownedGeometries) geometry.dispose();
+    for (const material of held.ownedMaterials) material.dispose();
+    retainedEarnedCap = null;
+  }
+  // Called by scene.mjs ONLY after its existing grounded guardian source
+  // validator and opened-arch begin() have succeeded. The cached real
+  // platform must match the independent, source-issued previous cap exactly.
+  function stageGroundedCapContinuation(previous, next) {
+    pendingEarnedCap = null;
+    const old = lastSnapshot, root = platforms.get('f8:cap')?.root;
+    const authored = previous?.platforms?.find(p => p?.id === 'f8:cap');
+    const cached = old?.platforms?.find(p => p?.id === 'f8:cap');
+    const ground = next?.platforms?.find(p => p?.id === 'f9:ground');
+    if (!root || !authored || !cached || !ground ||
+        old?.floor !== 8 || next?.floor !== 9 ||
+        old.runToken !== next.runToken || previous.runToken !== next.runToken ||
+        next.lifecycle !== 'running' || next.tick <= old.tick ||
+        !Number.isSafeInteger(next.tick) ||
+        !Number.isSafeInteger(old.chunkBaseY) ||
+        !Number.isSafeInteger(next.chunkBaseY) ||
+        !Number.isSafeInteger(next.worldWidth) ||
+        next.worldWidth !== old.worldWidth ||
+        ![authored.x,authored.y,authored.width,authored.height,
+          cached.x,cached.y,cached.width,cached.height,
+          ground.y,ground.height].every(Number.isSafeInteger) ||
+        authored.width <= 0 || authored.height <= 0 ||
+        [ 'x','y','width','height' ].some(key => authored[key] !== cached[key]) ||
+        authored.y + authored.height !== ground.y + ground.height ||
+        !(next.player?.grounded === true) ||
+        next.player.groundedPlatformId !== 'f9:ground' ||
+        !(next.player.health > 0)) return false;
+    pendingEarnedCap = {
+      runToken:next.runToken, floor:next.floor, tick:next.tick,
+      previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY
+    };
+    return true;
+  }
+  function beginRetainedCapRebuild(next) {
+    retireEarnedCap();
+    const requested = pendingEarnedCap;
+    pendingEarnedCap = null;
+    if (!requested || requested.runToken !== next.runToken ||
+        requested.floor !== next.floor || requested.tick !== next.tick) return;
+    const root = platforms.get('f8:cap')?.root;
+    if (!root) return;
+    const allGeometries = new Set(), allMaterials = new Set();
+    root.traverse(object => {
+      if (!object.isMesh) return;
+      if (object.geometry) allGeometries.add(object.geometry);
+      const mats = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of mats) if (material) allMaterials.add(material);
+      // The old deck is historical presentation, never a new shadow-casting
+      // collision structure or a source-controlled active guardian hazard.
+      object.castShadow = false;
+      object.receiveShadow = false;
+    });
+    // Only resources owned by this floor may be retired. Shared primitives
+    // belong to the world owner and MUST NOT be prematurely disposed.
+    const ownedGeometries = new Set([...floorGeometries].filter(g=>allGeometries.has(g)));
+    const ownedMaterials = new Set([...floorMaterials].filter(m=>allMaterials.has(m)));
+    root.removeFromParent();
+    group.add(root);
+    root.position.y += (requested.previousBaseY - requested.nextBaseY) / SCALE;
+    retainedEarnedCap = {root,ownedGeometries,ownedMaterials,
+      runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
+      submittedFrames:0,visibleSeconds:0};
+  }
+  function updateRetainedCap(snapshot,dt,options) {
+    const held = retainedEarnedCap;
+    if (!held) return;
+    if (options.stale || snapshot.runToken !== held.runToken ||
+        snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
+        !Number.isSafeInteger(snapshot.tick) ||
+        snapshot.tick < held.sourceTick || snapshot.tick - held.sourceTick > 60 ||
+        !(snapshot.player?.health > 0) ||
+        (held.submittedFrames > 0 && snapshot.player.grounded !== true)) {
+      retireEarnedCap();
+      return;
+    }
+    if (held.submittedFrames > 0 && Number.isFinite(dt))
+      held.visibleSeconds += Math.min(.1,Math.max(0,dt));
+    if (held.submittedFrames >= 2 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
+      retireEarnedCap();
+  }
+
   let deferredDistantArrival = null;
   // Exact original source-frame CPU-only world construction witness. A cheap
   // getter avoids the expensive complete scene traverse in the hot render path.
@@ -1956,7 +2056,9 @@ export function createTowerWorld(){
     lastRebuildWitness = null;
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
-    for(const g of floorGeometries)g.dispose();for(const m of floorMaterials)m.dispose();
+    // The one source-earned former cap keeps its already-rendered resources.
+    for(const g of floorGeometries)if(!retainedEarnedCap?.ownedGeometries.has(g))g.dispose();
+    for(const m of floorMaterials)if(!retainedEarnedCap?.ownedMaterials.has(m))m.dispose();
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;decorativeOcclusionEvidence.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
     sceneFocus=0;sceneFocusKind='ascent';
@@ -1964,6 +2066,7 @@ export function createTowerWorld(){
   function rebuild(snapshot, requestedQuality='normal'){
     const deferDistant = requestedQuality==='low' && observedEarnedFloorArrival(lastSnapshot, snapshot);
     const rebuildStartedAt = performance.now();
+    beginRetainedCapRebuild(snapshot);
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
@@ -2042,6 +2145,11 @@ export function createTowerWorld(){
     // A browser fetch, a failed renderer, stale source, another episode or
     // quality rebuild cannot unlock deferred GPU work. The caller invokes
     // this only AFTER the real renderer.render() has returned successfully.
+    if(retainedEarnedCap && !options.stale && snapshot &&
+        snapshot.runToken === retainedEarnedCap.runToken &&
+        snapshot.floor === retainedEarnedCap.floor &&
+        snapshot.tick >= retainedEarnedCap.sourceTick)
+      retainedEarnedCap.submittedFrames = Math.min(3,retainedEarnedCap.submittedFrames+1);
     const job=deferredDistantArrival;
     if (!job || !['awaiting-actual-first-render','awaiting-vista-submission'].includes(job.state) ||
         options.stale || !snapshot || snapshot.runToken!==job.runToken ||
@@ -2056,6 +2164,7 @@ export function createTowerWorld(){
   }
   function update(snapshot,dt=0,time=0,options={}){
     if(disposed||!snapshot)return;
+    updateRetainedCap(snapshot,dt,options);
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
@@ -2692,6 +2801,16 @@ export function createTowerWorld(){
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
+    retainedSourceCap:retainedEarnedCap?{
+      visible:retainedEarnedCap.root.visible,
+      runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
+      sourceTick:retainedEarnedCap.sourceTick,
+      submittedFrames:retainedEarnedCap.submittedFrames,
+      visibleSeconds:Number(retainedEarnedCap.visibleSeconds.toFixed(3)),
+      geometryCount:retainedEarnedCap.ownedGeometries.size,
+      materialCount:retainedEarnedCap.ownedMaterials.size,
+      purpose:'Original cap drawable retained during source-earned grounded transfer; no physics, GPU-pixel or blind review claim'
+    }:null,
     rigidBatchUploadBudget:{actualAttributeAndIndexBytes:rigidUploadBytes,
       previousExpandedAttributeBytes:rigidExpandedBytes,
       indexedBatches:rigidIndexedBatches,batches:rigidBatchCount,
@@ -2712,6 +2831,6 @@ export function createTowerWorld(){
       vistaBuildMs:deferredDistantArrival.vistaBuildMs,
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
-  function dispose(){if(disposed)return;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
+  return{group,update,stageGroundedCapContinuation,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

@@ -2877,10 +2877,16 @@ export function createTowerScene(canvas, settings = {}) {
         const guardianX = previousLock?.fromX ?? defeated.x;
         const guardianY = previousLock?.fromY ??
           defeated.y - defeated.halfHeight + 9000;
-        passage.begin(gatewayPrevious, next, pointFor(gateAnchorX,
+        const started = passage.begin(gatewayPrevious, next, pointFor(gateAnchorX,
           gateY, next.chunkBaseY, next.worldWidth, 27.78),
           pointFor(guardianX, guardianY,
             next.chunkBaseY, next.worldWidth, 27.65));
+        // Keep the ORIGINAL GPU-resident old cap deck through the same
+        // authenticated grounded doorway crossing instead of cutting straight
+        // to an unrelated violet scene. Never retain a whole old floor or
+        // allow this presentation request to grant floor progression.
+        if (started && passage.diagnostics().continuousGroundedHandoff)
+          world.stageGroundedCapContinuation(gatewayPrevious, next);
       }
     }
     // Maintain one honest visual path beyond the defeated guardian: the same
