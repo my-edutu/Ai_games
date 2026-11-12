@@ -8,7 +8,7 @@ import { createCourtyardEcology } from './courtyard-ecology.mjs';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
-import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure } from './camera.mjs';
+import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure, observedCameraGpuPressure } from './camera.mjs';
 
 // BEGIN R38 CONTACT HELPER
 /**
@@ -574,12 +574,19 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Keep the static 3D world at a real stable perspective while the public
     // serpent/water and other live cues move inside the cinematic safe window.
     // This holds the true view, never the gameplay or hero geometry. A portal,
-    // restart, shot switch, narrow phone layout or reduced-motion preference
-    // resets the anchor before any camera interpolation.
+    // restart, shot switch, narrow phone layout or changed reduced-motion
+    // preference resets the anchor. A stable reduced-motion close shot reuses
+    // real scenery instead of rebuilding its camera at every animation tick.
+    // Read a single completed-fence sample for both safe framing and the
+    // photographic-cut decision. This is measured GPU backpressure, never RAF,
+    // nominal video FPS or a simulated gameplay signal.
+    const gpuQueue = frameGate.stats();
+    const severeCameraPressure = observedCameraGpuPressure(gpuQueue);
     const anchor = cinematicAnchor.resolve({
       mode: cameraMode, runToken: snapshot.runToken, head,
       target: composition.target, offset: composition.offset,
       aspect: camera.aspect, reducedMotion: !!settings.reducedMotion, discontinuity: motion.paths.length > 1,
+      gpuPressure: severeCameraPressure,
     });
     desiredTarget.set(anchor.target.x, anchor.target.y, anchor.target.z);
     desiredPosition.set(anchor.offset.x, anchor.offset.y, anchor.offset.z);

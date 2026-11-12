@@ -171,14 +171,16 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
  * rebuilding expensive *unchanged* static scenery every animation callback,
  * while the actual serpent, water and danger cues keep moving independently.
  * A portal jump, restart, shot switch, resize or reduced-motion preference
- * immediately resets the anchor. This never reads or mutates authority.
+ * changes reset the anchor once. Reduced motion then holds the same actual
+ * photographic pose until the real head leaves its safe window. This never
+ * reads or mutates authority.
  */
 export function createPresentationCameraAnchor() {
   let held = null;
   let previousHead = null;
   const clone = point => ({ x: point.x, y: point.y, z: point.z });
   const reset = () => { held = null; previousHead = null; };
-  function resolve({ mode, runToken, head, target, offset, reducedMotion = false, aspect = 1.5, discontinuity = false }) {
+  function resolve({ mode, runToken, head, target, offset, reducedMotion = false, aspect = 1.5, discontinuity = false, gpuPressure = false }) {
     if (!target || !offset || !head || ![target.x,target.y,target.z,offset.x,offset.y,offset.z,head.x,head.z].every(Number.isFinite))
       throw new TypeError('Camera anchor requires finite public composition coordinates');
     const actualMode = mode === 'follow' || mode === 'detail' ? mode : 'overview';
@@ -188,11 +190,16 @@ export function createPresentationCameraAnchor() {
       ? Math.hypot(head.x - previousHead.x, head.z - previousHead.z) > 3.25
       : false;
     previousHead = landmark;
+    // A completed, genuinely slow GPU fence may justify a slightly wider
+    // spectator safe window; avoid repeated expensive intermediate full-world
+    // perspectives, but still reframe when the actual public serpent leaves
+    // the bounded 3D composition. Normal and unsupported devices are unchanged.
     const limit = (actualMode === 'detail' ? 0.72 : 2.4)
-      * Math.max(0.5, Math.min(1, safeAspect / 1.5));
+      * Math.max(0.5, Math.min(1, safeAspect / 1.5))
+      * (gpuPressure ? 1.25 : 1);
     const needsReset = !held || held.mode !== actualMode ||
       held.runToken !== runToken || held.discontinuity !== discontinuity || Math.abs(held.aspect - safeAspect) > 0.03 ||
-      headJump || reducedMotion || held?.reducedMotion !== reducedMotion || actualMode === 'overview' ||
+      headJump || held?.reducedMotion !== reducedMotion || actualMode === 'overview' ||
       Math.abs(head.x - held.head.x) > limit || Math.abs(head.z - held.head.z) > limit;
     const snap = !held || held.mode !== actualMode || held.runToken !== runToken ||
       Math.abs(held.aspect - safeAspect) > 0.03 || held?.discontinuity !== discontinuity || headJump || reducedMotion || held?.reducedMotion !== reducedMotion ||
@@ -217,11 +224,15 @@ export function createPresentationCameraAnchor() {
  * stay untouched. The latest *completed* fence latency is essential here:
  * a historical max would permanently impose cuts after one isolated stall.
  */
-export function shouldCutUnderGpuPressure({ mode, anchor, queue } = {}) {
-  return (mode === 'follow' || mode === 'detail') && anchor?.reset === true && anchor.snap === false &&
-    queue?.supported === true && queue.failed === false &&
+export function observedCameraGpuPressure(queue) {
+  return queue?.supported === true && queue.failed === false &&
     Number.isFinite(queue.lastObservedLatencyMs) && queue.lastObservedLatencyMs >= 120 &&
     Number.isFinite(queue.skipped) && queue.skipped >= 16;
+}
+
+export function shouldCutUnderGpuPressure({ mode, anchor, queue } = {}) {
+  return (mode === 'follow' || mode === 'detail') && anchor?.reset === true &&
+    anchor.snap === false && observedCameraGpuPressure(queue);
 }
 
 /**
