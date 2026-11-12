@@ -1496,10 +1496,12 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   mount.bone.quaternion.copy(staged);
   actor.assetRoot.updateMatrixWorld(true);
   patch.heel.mesh.updateWorldMatrix(true,false);
-  heelY=readOriginalSwingSoleY(patch.heel);
-  toeY=readOriginalSwingSoleY(patch.toe);
+  // One original weighted-vertex skin readback owns BOTH measured height
+  // and lateral footprint. Do not skin identical heels/toes twice.
   const originalHeel=sourceSkinnedSoleWorld(patch.heel);
   const originalToe=sourceSkinnedSoleWorld(patch.toe);
+  heelY=originalHeel?.[1]??NaN;
+  toeY=originalToe?.[1]??NaN;
   if(originalHeel&&originalToe){
    beforeHeelXZ=[originalHeel[0],originalHeel[2]];
    beforeToeXZ=[originalToe[0],originalToe[2]];
@@ -1571,10 +1573,11 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
    mount.bone.quaternion.copy(original).multiply(
     mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
    mount.bone.updateWorldMatrix(true,true);
-   afterHeel=readOriginalSwingSoleY(patch.heel);
-   afterToe=readOriginalSwingSoleY(patch.toe);
+   // The same skinned vertex supplies XZ and Y for this exact trial pose.
    const witnessHeel=sourceSkinnedSoleWorld(patch.heel);
    const witnessToe=sourceSkinnedSoleWorld(patch.toe);
+   afterHeel=witnessHeel?.[1]??NaN;
+   afterToe=witnessToe?.[1]??NaN;
    if(witnessHeel&&witnessToe){
     afterHeelXZ=[witnessHeel[0],witnessHeel[2]];
     afterToeXZ=[witnessToe[0],witnessToe[2]];
@@ -2899,11 +2902,14 @@ function sourceSolePatchVertexCandidates(actor){
  sourceSolePatchVertexCache.set(actor.assetRoot,cached);
  return cached;
 }
+// Reused scratch, not a new Vector3 for every loaded-ankle proof. Each
+// caller receives an independent finite [x,y,z] array, never this object.
+const originalSkinnedSolePoint=new THREE.Vector3();
 function sourceSkinnedSoleWorld(candidate){
  if(!candidate?.mesh?.applyBoneTransform)return null;
  const position=candidate.mesh.geometry.getAttribute('position');
  if(!position||candidate.index>=position.count)return null;
- const point=new THREE.Vector3().fromBufferAttribute(position,candidate.index);
+ const point=originalSkinnedSolePoint.fromBufferAttribute(position,candidate.index);
  candidate.mesh.updateWorldMatrix(true,false);
  candidate.mesh.applyBoneTransform(candidate.index,point);
  point.applyMatrix4(candidate.mesh.matrixWorld);
