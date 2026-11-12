@@ -81,7 +81,22 @@ test('W274 real grain stage actions use current physical farmer, cart and market
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(240);
  await page.evaluate(()=>window.__tinyKingdom.inspectRealGrainStage('market'));
- await page.locator('#grain-chain-market').click();
+ // W275: a real 390px touch target must remain visible and actionable even
+ // after the original linked delivery changes the real documentary mode.
+ // Do not force-click a hidden element or call its onclick from JavaScript.
+ const mobileAccess=await page.evaluate(()=>({
+  command:document.body.dataset.command,
+  supply:document.body.dataset.supply,
+  workday:document.body.dataset.workday,
+  ribbon:getComputedStyle(document.getElementById('world-ribbon')).display,
+  stage:getComputedStyle(document.getElementById('grain-chain-market')).display
+ }));
+ expect(mobileAccess.command).toBe('world');
+ expect(mobileAccess.supply).toBe('open');
+ await expect(page.locator('#grain-chain-market'),
+  'Real market button must remain visible at 390px: '+JSON.stringify(mobileAccess))
+  .toBeVisible({timeout:10000});
+ await page.locator('#grain-chain-market').click({timeout:10000});
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {camera:g.getRealGrainJourneyAudit(),triangle:g.renderStats().lastFrameTriangles,

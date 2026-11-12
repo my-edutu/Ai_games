@@ -27,7 +27,14 @@ function simulate(working,pinned=false){
   isMarketUnloading:p=>p.unloading,isWorkingAtSite:p=>p.working,
   citizenProjectionCache:null,citizenProjectionHits:0,
   citizenProjectionBuilds:0,citizenProjectionActorsLast:0,
-  presentationEpoch:0,state:{t:123}};
+  presentationEpoch:0,state:{t:123},
+  // W271 genuine paused-orbit policy dependencies; isolated harness must
+  // provide the real renderer's default state, not silently skip this code.
+  frozen:false,city:Array.from({length:17},()=>[0,0]),
+  focusPoint:[0,0],yaw:0,pitch:.5,
+  citizenOrbitDetailHold:null,citizenOrbitDetailHolds:0,
+  citizenOrbitDetailReplans:0,citizenOrbitDetailLastWasHeld:false,
+  canKeepOrbitDetail:()=>false};
  return new Function(...Object.keys(deps),originalFunction+';return selectVisibleCitizenDetail();')
   (...Object.values(deps));
 }
