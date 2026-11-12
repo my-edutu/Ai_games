@@ -557,7 +557,18 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      // Freeze at a restrained, readable mid-beat: resetting to zero each
      // frame would strobe; aging beyond the recipe would hide true danger.
      // This never extends the cue's foley deadline or fabricates an attack.
+     const priorWarningAge=slot.age;
      slot.age=Math.min(slot.age+observedAge,slot.life*.35);
+     if(slot.age===priorWarningAge){
+      // The still-authoritative danger cell has reached its stationary
+      // mid-beat. Its origin, scale and rotation are already in the retained
+      // instance buffer. Do not rewrite/reupload the same matrix on every
+      // live browser frame: visibility and full authority proof are still
+      // checked above. A new/revoked warning and all other combat VFX retain
+      // their original dirty-update behavior.
+      visibleSlots++;
+      continue;
+     }
     }else slot.age+=observedAge;
     dirty=true;
     if(slot.age>=slot.life){
