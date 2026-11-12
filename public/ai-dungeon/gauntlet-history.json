@@ -8915,5 +8915,27 @@
       "nextCi": "PENDING",
       "originalNewHeadAV": "NOT_OBSERVED"
     }
+  },
+  "m1WardenCameraContinuity20261112": {
+    "at": "2026-11-12",
+    "category": "m1-original-warden-shot-continuity",
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "sourceBefore": "2b7792e14b703a376e896675dbde2e075608b934",
+    "sourceAfter": "COMMIT_CONTAINING_THIS_HISTORY",
+    "baseline": "281735d0910c6b2443648af976003d50412ee324",
+    "status": "IN_PROGRESS_NOT_TRANSFORMED",
+    "phase": "A_INCOMPLETE_BCD_CANDIDATE",
+    "implemented": [
+      "Actual original Warden warning→strike→earned-counter 3D shortest-angle orbit continuity",
+      "Immediate true danger overview and current authoritative targets; invalid pair/floor/reduced motion fail closed",
+      "Original Chromium 1440/390px evidence now captures source Warden camera blend metrics"
+    ],
+    "observedBefore": "https://github.com/my-edutu/Ai_games/actions/runs/43198697724",
+    "observedAfter": "NOT_OBSERVED",
+    "independentCritics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "next": "Inspect exact-head authentic warning/strike/counter motion and original audio; verify camera metrics, preserve 23 danger cells and native body focus; reject worse framing then build substantial adult source-skinned physical combat and confirmed HP/blade/audio"
   }
 }

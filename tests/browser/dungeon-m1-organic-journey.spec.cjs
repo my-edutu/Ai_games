@@ -222,7 +222,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
     publicChecksum:s?.checksum??null,composition:d?.composition,actorReadability:d?.actorReadability,
-    cameraOcclusion:d?.cameraOcclusion,visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:d?.baseWorldArchitecturalBatches,frameDelivery:d?.frameDelivery,
+    cameraOcclusion:d?.cameraOcclusion,cinematicContinuity:d?.cinematicContinuity,visibility:d?.visibility,wardenWarningPhysicalClearance:d?.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:d?.baseWorldArchitecturalBatches,frameDelivery:d?.frameDelivery,
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
@@ -273,6 +273,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    floor:proof.renderedState.floor,phase:expected.phase,
    checksum:proof.publicChecksum,frame:proof.frame,composition:proof.composition,actorReadability:proof.actorReadability,
    visibility:proof.visibility,cameraOcclusion:proof.cameraOcclusion,
+   cinematicContinuity:proof.cinematicContinuity,
    wardenWarningPhysicalClearance:proof.wardenWarningPhysicalClearance,baseWorldArchitecturalBatches:proof.baseWorldArchitecturalBatches,frameDelivery:proof.frameDelivery,
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,

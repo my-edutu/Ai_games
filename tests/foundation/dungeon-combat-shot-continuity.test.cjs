@@ -44,3 +44,42 @@ test('camera continuity never modifies any authoritative snapshot or public comb
  director.resolve(s,shot(),.05);director.resolve(s,shot('warden-approach',[-6,8,-4]),.1);
  assert.equal(JSON.stringify(s),frozen);
 });
+
+test('real Warden 23-cell warning cuts immediately; genuine strike and earned counter keep a continuous source-boss camera orbit',async()=>{
+ const {createCombatShotContinuity}=await load(),director=createCombatShotContinuity();
+ const warning=shot('warden-warning',[7,11.2,8]);
+ const danger={...scene(),tick:53,bossWarning:{attackTick:54,cells:Array.from({length:23},(_,i)=>({x:i%7,z:Math.floor(i/7)}))}};
+ assert.equal(director.resolve(danger,warning,.016),warning);
+ const strike=shot('warden-release',[-6,8.8,6]);
+ const release=director.resolve({...scene(),tick:54},strike,.05);
+ assert.equal(release.mode,'warden-release');assert.equal(release.x,strike.x);
+ assert.notDeepEqual(release.offsets,strike.offsets);
+ assert.ok(release.offsets[1]>strike.offsets[1]&&release.offsets[1]<warning.offsets[1]);
+ assert.ok(Math.hypot(release.offsets[0],release.offsets[2])>3,'cannot cut through boss');
+ const counter=shot('warden-counter',[-3.5,5,4.2]);
+ const earned=director.resolve({...scene(),tick:55,bossRecovery:{remaining:1}},counter,.05);
+ assert.equal(earned.mode,'warden-counter');
+ assert.notDeepEqual(earned.offsets,counter.offsets);
+ assert.equal(director.metrics().wardenBeatTransfers,2);
+ assert.ok(director.metrics().wardenBeatBlends>=2);
+ const settled=director.resolve({...scene(),tick:55,bossRecovery:{remaining:1}},counter,.24);
+ assert.ok(settled.offsets[1]<earned.offsets[1]);
+});
+test('Warden camera does not preserve a stale orbit after death, new floor, new boss, warning or reduced motion',async()=>{
+ const {createCombatShotContinuity}=await load();
+ const warning=shot('warden-warning',[7,11,8]),release=shot('warden-release',[-5,8,5]);
+ for(const changed of [
+  {s:scene(1,2),opt:{}},{s:scene(1,1,false),opt:{}},
+  {s:scene(),opt:{reducedMotion:true}},
+  {s:{...scene(),units:[{id:'vanguard',hp:120,x:2,z:3},{id:'warden-2',kind:'warden',hp:100,x:3,z:3}]},opt:{}}
+ ]){
+  const director=createCombatShotContinuity();
+  director.resolve({...scene(),bossWarning:{attackTick:54}},warning,.03);
+  assert.equal(director.resolve(changed.s,release,.04,changed.opt),release);
+ }
+ const director=createCombatShotContinuity();
+ director.resolve({...scene(),bossWarning:{attackTick:54}},warning,.03);
+ director.resolve(scene(),release,.04);
+ const newDanger=shot('warden-warning',[9,12,9]);
+ assert.equal(director.resolve({...scene(),bossWarning:{attackTick:70}},newDanger,.03),newDanger);
+});
