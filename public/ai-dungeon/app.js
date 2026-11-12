@@ -36,6 +36,7 @@ import {createActorOcclusionStage} from '/dungeon/actor-occlusion-stage.js';
 import {createNativeActorVisibilityStage} from '/dungeon/native-actor-visibility.js';
 import {planEncounterViewport} from '/dungeon/encounter-viewport-plan.js';
 import {planWardenTacticalCue} from '/dungeon/warden-tactical-ux-plan.js';
+import {planWardenThreatInset,drawWardenThreatInset} from '/dungeon/warden-threat-inset.js';
 import {planWardenCourtPriority} from '/dungeon/warden-court-priority-plan.js';
 import {captureForegroundVolumes,planForegroundBodyClearance,planWardenWarningSightlinePoints,planForegroundWarningClearance} from '/dungeon/foreground-sightline-plan.js';
 import {applyForegroundRecession} from '/dungeon/foreground-recession.js';
@@ -753,6 +754,7 @@ function rig(u){const colors=palette[u.kind],main=mat(colors[0],.5,.4),light=mat
 }
 const timeNow=()=>performance.now()/1000;
 // Read-only spectator projections never mutate simulation state.
+const threatInset=$('threat-inset'),threatCanvas=$('threat-canvas'),threatCtx=threatCanvas.getContext('2d',{alpha:false});
 const minimap=$('minimap'),mini=minimap.getContext('2d',{alpha:false}),mapPalette={wall:'#273653',floor:'#15233e',traced:'#477091',hero:'#5bf9e2',enemy:'#ff6f9c',exit:'#65baff',loot:'#ffd277'};
 let previousEventKey='',alertTimer=null,ambience=null,soundstage=null,splashTimer=null,lastBiome='';
 // Test/review recording exposes only the spectator's already opt-in audio bus.
@@ -778,6 +780,15 @@ function drawMinimap(s){
  for(const trap of s.traps||[]){if(trap.disarmed)continue;mini.fillStyle=trap.active?'#ff9a73':'#b48270';const x=cx(trap.x),z=cz(trap.z);mini.fillRect(x-2.5,z-2.5,5,5);mini.fillStyle='#2b1a36';mini.fillRect(x-1,z-1,2,2)}
  for(const u of s.units){if(u.hp<=0)continue;mini.beginPath();mini.fillStyle=u.faction==='party'?mapPalette.hero:mapPalette.enemy;mini.strokeStyle=u.faction==='party'?'#d9fffd':'#ffd2d9';mini.lineWidth=1.2;mini.arc(cx(u.x)+(u.id==='ranger'?2:u.id==='mystic'?-2:0),cz(u.z),u.kind==='warden'?cell*.46:cell*.29,0,Math.PI*2);mini.fill();mini.stroke()}
  mini.strokeStyle='#72d5e860';mini.lineWidth=1;mini.strokeRect(.5,.5,W-1,H-1);
+}
+function renderWardenThreatInset(s){
+ const plan=planWardenThreatInset(s);
+ threatInset.hidden=!plan||!threatCtx;
+ if(!plan||!threatCtx)return;
+ $('threat-count').textContent=plan.cells.length+' REAL CELLS';
+ $('threat-ticks').textContent=plan.ticks+' TICK'+(plan.ticks===1?'':'S');
+ threatCanvas.setAttribute('aria-label',plan.description+' Triangles are living heroes; outlined square is the living Warden.');
+ drawWardenThreatInset(threatCtx,plan,{width:threatCanvas.width,height:threatCanvas.height});
 }
 function notifyDungeon(event){
  if(event.kind!=='floor'&&!isSceneAlert(event))return;
@@ -893,6 +904,7 @@ function renderDashboard(s){
  $('hazard-count').textContent=(s.traps||[]).filter(t=>!t.disarmed).length+' ACTIVE';
  const models=assetStats(actors);$('visual-fidelity').textContent=models.authoredCharacters>0?'RIGGED 3D ART: '+models.authoredCharacters:'PROCEDURAL MODEL FALLBACK';
  drawMinimap(s);
+ renderWardenThreatInset(s);
 }
 
 function update(s){const previousState=state,damageBeats=planAuthorityDamageBeats(previousState,s),evasionBeats=planAuthorityEvasions(previousState,s),firstSnapshot=!received,sceneChanged=worldFloor!==s.run+'-'+s.floor;combatOverlay.record(s,timeNow());state=s;received=true;errorAt=0;

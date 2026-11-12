@@ -78,3 +78,27 @@ body[data-epilogue=true] .run-result h2{font-size:21px;margin:5px 0 10px}
    during repeated stage changes. Keep the same readable 78svh battlefield
    through entry, contact, Warden, floor, defeat and restart. The explicit
    user-selected clean view above retains its own larger viewport. */
+
+
+/* M1 genuine 23-cell telegraph: a low-cost, source-truth map of the FULL
+   authoritative footprint, in addition to the unchanged world telegraph.
+   Keeps hazard meaning visible when source actors are tiny on narrow screens.
+   Never consumes a WebGL draw, forces a zoom, or changes manual camera input. */
+.threat-inset{position:absolute;z-index:6;right:24px;top:224px;
+ width:168px;box-sizing:border-box;padding:8px;
+ background:#0c1419ec;border:1px solid #d8a76a;border-radius:5px;
+ box-shadow:0 5px 16px #0009;pointer-events:none;color:#f4d6ae;
+ font:10px/1.4 system-ui,sans-serif}
+.threat-inset[hidden]{display:none!important}
+.threat-inset .threat-header{display:flex;justify-content:space-between;gap:5px;
+ font-weight:700;letter-spacing:.6px;margin-bottom:4px}
+.threat-inset canvas{display:block;width:100%;height:auto;aspect-ratio:1}
+.threat-inset .threat-legend{display:flex;justify-content:space-between;
+ font-size:9px;color:#f2e8d5;margin-top:4px}
+.threat-inset .threat-legend b{color:#e69a62}
+@media(max-width:759px){
+ .threat-inset{top:185px;right:10px;width:134px;padding:6px}
+ .threat-inset .threat-header{font-size:9px;letter-spacing:0}
+ .threat-inset .threat-legend{font-size:8px}
+}
+body[data-hud=clean] .threat-inset{display:none}
