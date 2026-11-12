@@ -1439,5 +1439,36 @@
     },
     "actualDevicePerfMemory": "NOT EVALUATED",
     "next": "Inspect actual new complete original 8 WebMs and ninth strict event-pair. If visually still cuts because of scene/environment/camera, prioritize physical camera/environment handoff and renderer correctness P0, do not advance on CI."
+  },
+  "p0OriginalNativeFlightGateResourceTruthAndCIRecovery20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreRunSHA": "aa2aeb4855eba8b47072976ebe5c7f2c3f5297a6",
+    "productionAndFixtureRecoveryCommit": "eb7f225b255ce08d25c31de54f26ffa747a46409",
+    "sourceScope": "Infinite Tower Climb only; no source authority, platform collider, other game, PR58 or baseline edit",
+    "previousExactCandidateFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43265401288",
+    "previousOriginalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43265401288/artifacts/13965782651",
+    "lastAuthenticDesktop": "960x600 original unmodified 71.92s normal-speed WebM at old aa2aeb... SHA",
+    "lastAuthenticPortrait": "390x844 original unmodified 73.56s normal-speed WebM at old aa2aeb... SHA",
+    "inspectedOriginalVisualDefect": "Inspected unmodified 22-29s native desktop and portrait sequence. At 25.0s desktop/25.5s portrait Floor8 bronze scaffolding cuts to violet Floor9. Original old cap and inner HP-opened gate do NOT visibly persist as same full-body passage. Floor9 locomotion is real but discontinuous. Guardian sightline crowded.",
+    "eventClock": "Both original danger sidecars source tick451. Desktop source→drawn-F9 HUD 1.738s; portrait 1.727s. Browser accepted→Three renderer returned 940ms desktop/1078ms portrait. This is not GPU-present timing or device FPS. 0/2 strict native-visible event acceptance.",
+    "witnessVeto": "Desktop first F9 browser tick451 has lastGuardianCrossing missing, exactSourceGateAudit veto missing-source-witness, sourceSelected old-browser-guardian-only. Portrait first F9 browser tick452 has valid sourceTick451 crossing but veto current-support-mismatch, selected old-browser-guardian-only. Both 3D source witness sidecars show continuousGroundedHandoff false, innerDoorAssemblyVisible false, originalGpuGateAndCap null at first F9 handoff.",
+    "priorQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/43265401281: 68 test failures, mostly (66) tmp copied world.mjs missing new guardian-passage module URL; one obsolete scene regex and one unsupported expectation on airborne cap cleanup. No gameplay performance conclusion.",
+    "completedChange": "Repaired 12 actual-world Node fixture imports to use original shipped guardian-passage.mjs, modernized source-precedence test, corrected airborne source-tick expiry regression, and changed real world updateRetainedCap to retire the old GPU cap when airborne body no longer source-valid even if no WebGL frame has ever submitted. This prevents indefinite phantom old-door geometry during stalled frames; does not forge crossing.",
+    "recoveredExactCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43270542204 — completed SUCCESS at eb7f225b; safety veto only, NOT experience PASS",
+    "strictAcceptedOriginalPairViewports": "0/2 at previous aa2aeb video; current code NOT EVALUATED",
+    "currentMatchedSourceCapture": "REQUESTED by the exact immutable github.sha after this journal and capture-request commit; verify completed real jobs and inspect full WebMs, source events and native frames before making any claims",
+    "independentFreshRandomizedCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedRealDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "Cold source→browser→Three→native Floor8→9 boundary lacks physically visible whole-body doorway and old/new world horizon continuity; first F9 source witness absent desktop or current-support rejected portrait. No full-loop source/native 2/2. Genuine independent reviewers and actual-device budgets outstanding.",
+    "nextHighestImpactAction": "Inspect source-pinned candidate original film specifically first F9 tick451/452; cure source lastGuardianCrossing publish/first-frame selectedSource current-support veto and preserve exact real old cap/gate in new scene, then rebuild real camera/world transition if still visually hard cuts. Validate genuine outcome/restart and moving platform. No stage promotion.",
+    "safety": "PR68 open DRAFT, base PR58 unchanged, frozen baseline preserved; no merge, deploy, force-push, fabricated videos/votes/metrics",
+    "requestPurpose": "Trigger existing nine-job original baseline/candidate 1x recording for this exact immutable request commit; same 20Hz source/seed/tier and strict film/event pairing; tests and prior film never substitute for after-video.",
+    "captureMatrix": "Same seed tower-transformation-capture-v1, low tier, 60+seconds 1x unaltered WebM, desktop 960x600 and portrait 390x844, frozen baseline SHA vs immutable github.sha candidate, scenarios ascent floor0, moving floor7, real Floor8 guardian/crusher grounded→Floor9, outcome/restart floor0; keep original native timecodes and strict validator unchanged."
   }
 }
