@@ -2991,7 +2991,13 @@ test('the actual imported-GLB foot-skin probe uses FINAL same-frame root transla
  const live=renderer.slice(renderer.indexOf('function planOriginalSourceStanceForMountedAnkle('),
   renderer.indexOf('function stageRigLegsAfterMixer('));
  assert.match(live,/readOriginalSwingSoleY\(patch\.toe\)/);
- assert.match(live,/beforeWorst-afterWorst<\.0015/);
+ assert.match(live,/chooseOriginalSourceStanceAppliedWitness\(/,
+  'every final original shoe candidate must pass the two-point actual-skin witness');
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
+ const physical=source.slice(source.indexOf('export function chooseOriginalSourceStanceAppliedWitness('),
+  source.indexOf('export function planOriginalSourceStanceAnkleRelief('));
+ assert.match(physical,/beforeWorst-afterWorst<\.0015/,
+  'the original applied heel and toe require at least 1.5mm measured improvement');
  assert.match(live,/mount\.bone\.quaternion\.copy\(original\)/,
   'both signed trial and final proof must restore the original source quaternion');
 });
