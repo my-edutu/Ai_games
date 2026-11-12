@@ -10362,16 +10362,16 @@ function fenceLine(x,z,len,alongZ=false,gate=null){
  materialScope(MATERIAL.WOOD,()=>{
   for(let i=0;i<len;i++){
    if(first>=0&&i>=first&&i<first+2)continue;
-   for(let course=0;course<3;course++){
+   for(let course=0;course<2;course++){
     const tone=course===1?rgb(0x927351):panel;
-    for(let segment=0;segment<2;segment++){
-     const t0=segment*.5,t1=(segment+1)*.5;
+    for(let segment=0;segment<3;segment++){
+     const t0=segment/3,t1=(segment+1)/3;
      const sample=(t,up,face)=>{
       const xx=x+(alongZ?0:(i+t)*1.5),
        zz=z+(alongZ?(i+t)*1.5:0);
       const wave=.030*Math.sin((t*2+course*.74+i*.16)*Math.PI);
       const side=wave+face*.014;
-      const rise=.220+course*.113+(up?.027:-.027);
+      const rise=.160+course*.145+(up?.026:-.026);
       return [xx+(alongZ?side:0),terrain(xx,zz)+rise,
        zz+(alongZ?0:side)];
      };
@@ -20908,6 +20908,64 @@ function realFarmWorkSightline(eye,citizen,hands=[]){
   physicalInteriorEyeClear:insideClear,
   cropSeason:season,observedCropHeight:cropHeight};
 }
+// W252 Phase 1: score REAL low woven oak hurdles in the farmer documentary
+// lens. The fence remains in the 3D world. We reject or down-rank a camera
+// ray that actually crosses its wood; never hide a rail or move a worker.
+// Four fence lines are exactly the originals in fenceLine() below; their
+// three-metre south gate follows the original genuine collection entrance.
+function farmFenceLandmarkOcclusion(eye,citizen,hands=[]){
+ if(!Array.isArray(eye)||eye.length!==3||!eye.every(Number.isFinite)||
+    !citizen||![citizen.x,citizen.z].every(Number.isFinite))
+  throw Error('W252 invalid physical farm camera or original citizen');
+ const field=FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
+  citizen.x>=x0-.7&&citizen.x<=x1+.7&&citizen.z>=z0-.7&&citizen.z<=z1+.7);
+ if(!field||citizen.job!=='farmer')return {active:false,blockedFace:0,
+  blockedHands:0,blockedLowerBody:0,penalty:0,gatePassed:false};
+ const base=terrain(citizen.x,citizen.z);
+ const targets=[
+  [citizen.x,base+1.38,citizen.z],
+  ...hands.filter(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)),
+  [citizen.x,base+.44,citizen.z],
+  [citizen.x,base+.25,citizen.z]
+ ];
+ // Actual fenceLine(16,-2,6), (16,4,6), (16,-2,4,true),
+ // (25,-2,4,true). Each 1.5m original panel has two low woven courses.
+ const fences=[{axis:2,value:-2,min:16,max:25,gate:true},
+  {axis:2,value:4,min:16,max:25,gate:false},
+  {axis:0,value:16,min:-2,max:4,gate:false},
+  {axis:0,value:25,min:-2,max:4,gate:false}];
+ const firstGate=16+Math.floor((FIELD_TO_GRANARY_GATE[0]-16)/1.5)*1.5,
+  gateEnd=firstGate+3;
+ let gatePassed=false;
+ const rayBlocked=target=>{
+  for(const line of fences){
+   const travel=target[line.axis]-eye[line.axis];
+   if(Math.abs(travel)<1e-8)continue;
+   const t=(line.value-eye[line.axis])/travel;
+   if(t<=.015||t>=.985)continue;
+   const other=line.axis===2?0:2;
+   const crossing=eye[other]+t*(target[other]-eye[other]);
+   if(crossing<line.min-.01||crossing>line.max+.01)continue;
+   if(line.gate&&crossing>firstGate+.055&&crossing<gateEnd-.055){
+    gatePassed=true;continue;
+   }
+   const y=eye[1]+t*(target[1]-eye[1]);
+   const h=y-terrain(line.axis===0?line.value:crossing,
+    line.axis===2?line.value:crossing);
+   if(h>=.117&&h<=.373)return true;
+   const postIndex=(crossing-line.min)/1.5;
+   if(Math.abs(postIndex-Math.round(postIndex))<.052&&
+      h>=-.03&&h<=.66)return true;
+  }
+  return false;
+ };
+ const blockedFace=Number(rayBlocked(targets[0]));
+ const blockedHands=targets.slice(1,-2).reduce((n,p)=>n+Number(rayBlocked(p)),0);
+ const blockedLowerBody=targets.slice(-2).reduce((n,p)=>n+Number(rayBlocked(p)),0);
+ return {active:true,blockedFace,blockedHands,blockedLowerBody,gatePassed,
+  penalty:blockedFace*1600+blockedHands*500+blockedLowerBody*260,
+  originalFencePresent:true,changedNavigation:false,changedAuthority:false};
+}
 function getFarmWorkCameraAudit(){
  const citizen=people[selectedCitizen],shot=lastFollowShot;
  const active=Boolean(follow&&liveWorkday&&citizen?.job==='farmer'&&
@@ -21114,9 +21172,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // genuinely clear exterior camera can see the same working hands.
   const cropEye=realFarmWork&&FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
    shot.eye[0]>=x0&&shot.eye[0]<=x1&&shot.eye[2]>=z0&&shot.eye[2]<=z1);
+  shot.farmFenceSightline=realFarmWork?
+   farmFenceLandmarkOcclusion(shot.eye,citizen,hands):null;
   const coarse=shot.blockers*1000+
    (shot.eyeCollision.clear?0:9000)+oppositeYard+rearPenalty+crowd*325+
-   (cropEye?80:0)+
+   (cropEye?20:0)+(shot.farmFenceSightline?.penalty||0)+
    sizePenalty+routeSizePenalty+
    // Real building, cart, canopy and receiving-post cover are added exactly
    // AFTER the physical-first camera admission, not approximated as clear.
@@ -21208,7 +21268,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   }
   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&
-   (!crop||(!crop.cameraInsideField&&!crop.cropFaceBlockers))&&alignment>.12&&
+   (!crop||(!crop.cropFaceBlockers&&!crop.cropWristBlockers&&
+    (!crop.cameraInsideField||crop.physicalInteriorEyeClear)))&&alignment>.12&&
    shot.blockers===0&&framing.handBlockers<=1&&
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
    framing.foregroundCitizenBlockers===0&&
@@ -21228,7 +21289,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // working hands is more legible than a mathematically cleaner rear view.
   // Require measured physical clearances; never hide a tree, house or citizen.
   const usableFront=working&&realWork&&
-   (!crop||(!crop.cameraInsideField&&!crop.cropFaceBlockers))&&
+   (!crop||(!crop.cropFaceBlockers&&!crop.cropWristBlockers&&
+    (!crop.cameraInsideField||crop.physicalInteriorEyeClear)))&&
    alignment>(portraitLens?.24:.12)&&shot.blockers===0&&
    framing.handBlockers<=(portraitLens?0:1)&&
    framing.foregroundCitizenBlockers===0&&
@@ -21247,7 +21309,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const faceClear=portraitLens&&realWork&&followRayBlockers(shot.eye,
    [citizen.x,terrain(citizen.x,citizen.z)+1.34,citizen.z],roofs)===0;
   const readableFront=portraitLens&&working&&realWork&&
-   (!crop||(!crop.cameraInsideField&&!crop.cropFaceBlockers))&&alignment>.24&&
+   (!crop||(!crop.cropFaceBlockers&&!crop.cropWristBlockers&&
+    (!crop.cameraInsideField||crop.physicalInteriorEyeClear)))&&alignment>.24&&
    shot.blockers===0&&faceClear&&framing.handBlockers===0&&
    framing.foregroundCitizenBlockers===0&&
    framing.foregroundSceneCover<.18&&
@@ -21280,6 +21343,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
   viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   originalBlockers:original.blockers,
+  farmFenceSightline:realFarmWork?chosen.farmFenceSightline:null,
   physicalSurveyCandidates:originalSurveyCandidates,
   scenicSurveyCandidates:possibilities.length,
   renderedWorldStillComplete:true};
