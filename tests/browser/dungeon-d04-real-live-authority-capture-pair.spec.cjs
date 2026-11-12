@@ -88,6 +88,14 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
      vfxDrawCalls:p?.visuals?.drawCalls??0,vfxReservedInstances:p?.visuals?.reservedInstances??0,
      activeVfxInstances:p?.visuals?.active??0,
      activeVfxDrawCalls:p?.visuals?.activeDrawCalls??0,
+     // Read-only D04-owned visual pressure, sampled beside actual WebGL
+     // submission timing. setMatrixAt counts are JS work, not measured GPU
+     // buffer uploads, decoded pixels, physical contact or audio onset.
+     vfxAdvanceFrames:p?.visuals?.advanceFrames??0,
+     vfxMatrixWrites:p?.visuals?.lastAdvanceMatrixWrites??0,
+     vfxDirtyPools:p?.visuals?.lastAdvanceDirtyPools??0,
+     vfxPotentialBufferBytes:p?.visuals?.lastAdvancePotentialBufferBytes??0,
+     vfxWritesByPool:p?.visuals?.lastAdvanceWritesByPool??{},
      previewAudioOptedIn:feedbackMode==='d04'&&p?.audioOptedIn===true,
      consentedSoundstage:(feedbackMode!=='d04'||p?.audioOptedIn===true)&&
       document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true',
