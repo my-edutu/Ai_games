@@ -499,6 +499,35 @@ export function clockworkOpenGeologicalTies(height,width,depth,localY) {
   return stays;
 }
 
+// Real 390x844 source guardian film/rays identified non-colliding bronze
+// pylons behind both actors (ticks 305-317) as dominant screen clutter.
+// Move the COMPLETE clockwork load paths, not just their centers, behind
+// the genuine cap battle arc. The exterior platform/colliders are untouched.
+// Every relocated pillar remains grounded and connected to the crown.
+export function clockworkCapActionClearSpan(theme,height) {
+  const opened=theme==='clockwork' && Number.isFinite(height) && height>30;
+  const pylons=[
+    {a:opened?-2.10:-.66,r:16.8,R:4.9,bottom:-31,top:height+16},
+    {a:opened?2.10:.67,r:16.65,R:5.25,bottom:-35,top:height+6},
+    {a:opened?Math.PI:-.18,r:8.6,R:5.5,bottom:-27,top:height+31},
+  ];
+  const geology=opened
+    ? [[-2.20,-7,5.8,height+28,6.4,1],
+       [2.22,-11,6.4,height+25,6.1,2],
+       [Math.PI,2,13,height+43,10,0]]
+    : [[-1.12,-7,5.8,height+28,6.4,1],
+       [1.18,-11,6.4,height+25,6.1,2],
+       [2.5,2,13,height+43,10,0]];
+  // These raised load ties terminate in the existing physical crown, well
+  // above the source-owned hero/guardian/arch/route action elevation.
+  const overheadLinks=opened?pylons.map(p=>({
+    from:[Math.sin(p.a)*p.r,Math.min(height+11,p.top-1.1),Math.cos(p.a)*p.r],
+    to:[Math.sin(p.a)*9.2,height+18,Math.cos(p.a)*9.2],
+    radius:.23,
+  })):[];
+  return {pylons,geology,overheadLinks};
+}
+
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
   const stoneSurface=createStoneSurfaceAsset(THREE);
@@ -953,16 +982,8 @@ export function createTowerWorld(){
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
     }
-    const pylons=[
-      {a:-.66,r:16.8,R:4.9,bottom:-31,top:height+16},
-      // Actual portrait floor-eight source rays (bdb1b83b, ticks 298-343) hit
-      // this solid LatheGeometry at x~6-9/z~15-17 behind the real guardian.
-      // Clockwork alone places the secondary load-bearing buttress outside the
-      // +/-1.1 radian cap-combat sightline; other five-biome routes are intact.
-      // There is no collider here: the source-owned cap/decks are unchanged.
-      {a:theme==='clockwork'?1.40:.67,r:16.65,R:5.25,bottom:-35,top:height+6},
-      {a:-.18,r:8.6,R:5.5,bottom:-27,top:height+31}
-    ];
+    const capStructure=clockworkCapActionClearSpan(theme,height);
+    const pylons=capStructure.pylons;
     for(const [i,p]of pylons.entries()){
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
       const shoulder=p.top-8;
@@ -1062,9 +1083,15 @@ export function createTowerWorld(){
       }
       }
     }
+    // Far-shoulder crowns share three original above-action load ties.
+    for(const link of capStructure.overheadLinks){
+      const tie=beam(root,link.from,link.to,link.radius,materials.metal);
+      tie.name='ClockworkCapFarShoulderOverheadTie';
+      tie.userData.structural=true;
+    }
     // Unequal mineral footings retain the expedition setting, but stay behind
     // the fabricated shells instead of competing with them as giant flat slabs.
-    for(const [a,y,w,h,d,v]of [[-1.12,-7,5.8,height+28,6.4,1],[1.18,-11,6.4,height+25,6.1,2],[2.5,2,13,height+43,10,0]]){
+    for(const [a,y,w,h,d,v]of capStructure.geology){
       const rock=new THREE.Group();radial(rock,a,16.1,y);root.add(rock);
       if(openClockworkPylons && height>30){
         // Three old floor-eight full-height geological slabs also filled
