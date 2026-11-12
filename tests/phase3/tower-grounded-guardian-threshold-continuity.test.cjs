@@ -62,8 +62,11 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   effect.update(.15);
   const threshold=effect.group.getObjectByName('ObservedWalkableGuardianThreshold');
   const memory=effect.group.getObjectByName('EarnedGuardianPassageMemory');
-  const inlay=effect.group.getObjectByName('SourceEarnedCapInlay');
-  assert.ok(threshold&&memory);
+  const inlay=effect.group.getObjectByName('WitnessedGuardianCapWalkwayInlay');
+  assert.ok(threshold&&memory&&inlay);
+  assert.equal(inlay.visible,true,'earned cap path is visible before crossing');
+  const oldInlay=new THREE_IMPL.Matrix4();
+  inlay.getMatrixAt(0,oldInlay);
   assert.equal(threshold.visible,true);
   assert.equal(memory.visible,false);
   const before=threshold.getWorldPosition(new THREE_IMPL.Vector3());
@@ -77,7 +80,26 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   assert.equal(effect.diagnostics().physicallyWalkableThreshold.extraDraws,2);
   assert.equal(effect.diagnostics().physicallyWalkableThreshold.innerRadius,25);
   assert.equal(effect.diagnostics().stage,'handoff');
-  if(inlay)assert.equal(inlay.visible,false,'do not carry an obsolete Floor8 deck into Floor9');
+  assert.equal(inlay.visible,true,'new-floor real grounded lane continues the physical bronze story');
+  assert.equal(effect.diagnostics().inlayMode,'successor-ground');
+  assert.equal(effect.diagnostics().inlayFromX,gate);
+  assert.ok(effect.diagnostics().inlayToX>x+35000);
+  const newInlay=new THREE_IMPL.Matrix4();
+  inlay.getMatrixAt(0,newInlay);
+  assert.notDeepEqual(newInlay.elements,oldInlay.elements,
+    'Floor9 builds a NEW grounded path, never reuses obsolete cap matrices');
+  const initial=effect.diagnostics().inlayProgress;
+  assert.equal(effect.trackSuccessor({...next,tick:452,
+    player:{...next.player,x:x+10000}}),true);
+  assert.ok(effect.diagnostics().inlayProgress>initial,
+    'only authentic next-floor walking advances the visible treads');
+  const now=effect.diagnostics().inlayProgress;
+  assert.equal(effect.trackSuccessor({...next,tick:453,
+    player:{...next.player,x:x+30000}},true),false);
+  assert.equal(effect.diagnostics().inlayProgress,now,'stale source cannot make a new step');
+  assert.equal(effect.trackSuccessor({...next,tick:454,
+    player:{...next.player,grounded:false}}),false);
+  assert.equal(inlay.visible,false,'the trail retires when source feet leave the supported ground');
   effect.update(.3,{reducedMotion:true});
   assert.equal(threshold.visible,true);
   effect.update(.3,{stale:true});
