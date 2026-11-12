@@ -43,6 +43,15 @@ assert(lens.includes('[-1,')&&lens.includes('[.85,'),
 const audit=extract('getRealGrainJourneyAudit');
 for(const key of ['visibleShelves','postCover','minHeightFraction'])
  assert(audit.includes(key),'record actual market sightline evidence: '+key);
+const economicFilm=fs.readFileSync('scripts/tiny-kingdom-w125-unbroken-economic-film.cjs','utf8');
+assert(js.includes('getRealMarketReceiptLensForEvidence:'),
+ 'the read-only original market camera must be accessible to exact-game footage');
+assert(economicFilm.includes('g.getRealMarketReceiptLensForEvidence(id)'),
+ 'evidence must film the original game\'s physically selected market shot');
+assert(economicFilm.includes('g.setCamera({focus:lens.anchor'),
+ 'actual film must use surveyed original-eye camera controls, never a hardcoded post-blocked view');
+assert(economicFilm.includes('physicalLensUnavailable'),
+ 'a missing real camera must be recorded as a failed evidence gate, not silently staged');
 const actor=extract('applyPlayerCamera');
 assert(actor.includes('grainJourney.marketLens={...lens,yaw,pitch,zoom}'),
  'never block player manual orbit once original market follow is active');
