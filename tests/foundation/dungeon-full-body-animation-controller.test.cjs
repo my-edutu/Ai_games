@@ -3251,3 +3251,24 @@ test('genuine original mobile Walking_A ankle probes select the strongest indepe
   'at most two reversible original source angles may be read this frame');
  assert.equal(select({...base,floorTopY:NaN,candidates:[first,fine]}),null);
 });
+
+
+test('source-stance applied witness honors cumulative original ankle and 45mrad incremental slew',async()=>{
+ const {chooseOriginalSourceStanceAppliedWitness:select}=await load();
+ const fixture={floorTopY:-.02,beforeHeelY:-.022635,beforeToeY:-.041512,
+  candidates:[{delta:.105,heelY:-.025,toeY:-.033}]};
+ const positive=select({...fixture,previousCorrectionRad:.08});
+ assert.equal(positive?.delta,.105,
+  'a legal accumulated 105mrad original ankle must not be mistaken for a 105mrad single-frame snap');
+ assert.equal(select({...fixture,previousCorrectionRad:0}),null,
+  'the same original ankle candidate is illegal from neutral in one frame');
+ assert.equal(select({...fixture,previousCorrectionRad:.02}),null,
+  '85mrad from the last accepted source ankle exceeds the 45mrad slew');
+ assert.equal(select({...fixture,previousCorrectionRad:-.08}),null,
+  'opposite signed old joint evidence may not authorize new-direction source ankle');
+ assert.equal(select({...fixture,previousCorrectionRad:.17}),null,
+  'historically invalid source joint state must fail closed');
+ assert.equal(select({...fixture,candidates:[{...fixture.candidates[0],delta:.151}],
+  previousCorrectionRad:.12}),null,
+  'the native accumulated 140mrad source ankle limit is never waived');
+});
