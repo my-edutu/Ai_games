@@ -3465,3 +3465,31 @@ test('original GLB loaded ankle relief rejects an XY-only apparent plant that sl
  assert.match(actual,/sourceSkinnedSoleWorld\(patch\.toe\)/);
  assert.match(actual,/heelShiftXZMeters:accepted\.heelShiftXZMeters/);
 });
+
+
+test('live original stance skinned-foot safety reads each weighted source vertex once per physical pose',async()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function planOriginalSourceStanceForMountedAnkle(');
+ const end=renderer.indexOf('/**\n * Native-source loaded-sole correction',start);
+ assert.ok(start>=0&&end>start,'actual source-rig stance adapter exists');
+ const stage=renderer.slice(start,end);
+ // Original Y clearance and XZ skating must use the SAME licensed weighted
+ // vertex readback. Extra world/skin passes starve software WebGL frames and
+ // can produce divergent measurement contracts on the same original pose.
+ assert.equal((stage.match(/sourceSkinnedSoleWorld\\(patch\\.(?:heel|toe)\\)/g)||[]).length,4,
+  'one xyz sample for heel and toe at baseline and each candidate');
+ assert.doesNotMatch(stage,/readOriginalSwingSoleY\\(patch\\.(?:heel|toe)\\)/,
+  'avoid re-skinning the identical heel/toe for an independent Y read');
+ assert.match(stage,/heelY=originalHeel\\?\\.\\[1\\]\\?\\?NaN/);
+ assert.match(stage,/toeY=originalToe\\?\\.\\[1\\]\\?\\?NaN/);
+ assert.match(stage,/afterHeel=witnessHeel\\?\\.\\[1\\]\\?\\?NaN/);
+ assert.match(stage,/afterToe=witnessToe\\?\\.\\[1\\]\\?\\?NaN/);
+ const sourceStart=renderer.indexOf('function sourceSkinnedSoleWorld(');
+ const sourceEnd=renderer.indexOf('function sourceWeaponHandGrip(',sourceStart);
+ assert.ok(sourceStart>=0&&sourceEnd>sourceStart);
+ const sampler=renderer.slice(sourceStart,sourceEnd);
+ assert.doesNotMatch(sampler,/new THREE\\.Vector3\\(\\)/,
+  'the bounded per-frame skinned witness should reuse a local module scratch vector');
+ assert.match(sampler,/applyBoneTransform/);
+ assert.match(sampler,/applyMatrix4/);
+});
