@@ -1,4 +1,33 @@
 {
+  "p0SourceProofRestoresColdArrivalUploadStaging20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedActualPreviousCandidateSha": "ce6835a4205d38bce8a43704f31207bb27268d17",
+    "sourcePinnedPriorNineJobEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/43295465123",
+    "sourcePinnedPreviousCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43295465123/artifacts/13978943095",
+    "originalNativeObservation": "Inspected true 1x full-motion unmodified 960x600 and 390x844 desktop/portrait candidate original clips; 22-29s shows bronze Floor8 abruptly replaced by violet Floor9. Real old cap+gate and original bronze deck still exist in Three on first F9, but no credible full-body door passage in native film. Strict source-to-native event match FAIL 0/2; all 8 videos completed.",
+    "sourceClock": "Same-run real guardian defeated before grounded F8->F9 at fixed tick451. Old accepted browser packet can predate source defeat; first desktop browser F9 tick460. New first desktop F9 build ~177ms and renderer return ~619ms (797ms total), native Floor9 HUD 2.913s after source crossing; portrait HUD 2.469s after source. Software renderer/browser/native only, NOT physical device GPU-present metrics.",
+    "systemicRootCause": "Existing 3-stage far-art WebGL upload only activated via lastSnapshot browser-observed guardian already defeated. A dropped-frame browser last saw living F8 guardian, so entire original 8640-triangle canyon and seven distant citadels were uploaded on first cold F9 frame despite separately validated immutable source-earned gateway.",
+    "testFirstCommit": "c03252dcb6261fa7685b0501d66d448304fb5f88",
+    "productionCommit": "d64ed46d7de4ba43ef71845c0e471a1fecd9873c",
+    "meaningfulActualProductionChange": "Use strictly source-verified pendingEarnedCap same-run floor/tick proof to activate original low-tier deferred 2-tranche canyon/citadel uploads despite stale last browser F8 packet. First real scene still contains authoritative F9 ground, platforms, hazards, player and ORIGINAL opened Floor8 gate/cap; distant decorations build only on successful Three.js submission. Provenance disclosed to read-only diagnostics, no physics, seed, floor, win, geometry fraud, or other games changes.",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43295465138 — PASS previous source only, not new code",
+    "testFirstQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43299201636 — IN PROGRESS when inspected; red before green NOT YET VERIFIED",
+    "productionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43299343300 — PENDING when inspected; do not claim pass",
+    "newSourcePinnedNativeOriginalFilm": "NOT YET CAPTURED; source-pinned nine-job request in this same branch to follow",
+    "strictAcceptedEventToNativePairViewports": "0/2 on previous ce6835; new code NOT EVALUATED",
+    "freshBlindReviewVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedHardwareFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "biggestRemainingExperienceGap": "Source-authentic full-body walk through same real doorway with unified camera/clockwork-to-astral geometry transition still unproven; exact source browser Three native event pairing 0/2 on previous code. Full ascent/moving/crusher/guardian/outcome restart film and real hardware reviewers must independently pass.",
+    "nextHighestImpactAction": "Inspect strict red/green CI then new exact source-pinned normal-speed 8 films and source ledger; measure first-floor-nine actual rendered wall-time and inspect 22-29s desktop/phone body/arch; if still hard cuts, rebuild coherent source-true world/camera spatial transition and render performance rather than source-witness/test theater.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-roof-contact-original-gateway-continuity.md",
+    "safety": "PR68 draft stays open, base PR58 and frozen baseline immutable; no merge, deployment, force-push or other games touched."
+  },
   "p0RealClockworkCapSightlineMaterialOwnerFix20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
