@@ -89,5 +89,25 @@ state.player.position={x:gatewayArrivalX,y:gatewayArrivalY};
 state.player.velocity={x:gatewayForwardVelocity,y:0};
 state.player.grounded=groundedGatewayArrival;
 state.player.groundedPlatformId=groundedGatewayArrival?entryGround!.id:undefined;
-state.player.checkpoint={...state.player.position};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id),...(guardianPassage?{guardianPassage,gatewayArrivalX}:{})}})}}}
+// Preserve the EXACT real fixed-step 8→9 crossing beyond browser frame loss.
+ // The opt-in source has already proved zero-HP guardian, cap contact,
+ // whole-body clearance, aligned successor ground and safe actual arrival.
+ // No visual clock or client guess can create this record.
+ if(guardianPassage&&groundedGatewayArrival&&state.floor===9){
+   state.lastGuardianCrossing={
+     runToken:checksum({runId:state.runId}),sourceTick:state.tick,
+     fromFloor:guardianPassage.fromFloor,toFloor:nextFloor,
+     cap:{id:cap!.id,x:cap!.x,y:cap!.y,width:cap!.width,height:cap!.height},
+     guardian:{id:defeatedGuardian!.id,kind:'guardian',
+       floor:guardianPassage.fromFloor,active:false,health:defeatedGuardian!.health,
+       x:defeatedGuardian!.position.x,y:defeatedGuardian!.position.y,
+       halfHeight:defeatedGuardian!.halfHeight},
+     exitX:guardianPassage.exitX,previousX:input.player.position.x,
+     previousY:input.player.position.y,previousHealth:input.player.health,
+     crossingX:gatewayArrivalX,crossingY:gatewayArrivalY,
+     halfWidth:state.player.halfWidth,halfHeight:state.player.halfHeight,
+     worldWidth:state.config.worldWidth
+   };
+ }else state.lastGuardianCrossing=undefined;
+ state.player.checkpoint={...state.player.position};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id),...(guardianPassage?{guardianPassage,gatewayArrivalX}:{})}})}}}
   return{state,events,accepted:true}}
