@@ -1,4 +1,30 @@
 {
+  "p0RealClockworkCapSightlineMaterialOwnerFix20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceNativeVideoBefore": "https://github.com/my-edutu/Ai_games/actions/runs/43282785504 — original eight 1x films but strict 0/2 physical source-native pairing",
+    "defect": "Actual old cap GPU gate and old source geometry exist after Floor8->9, yet normal-speed native desktop+portrait films abruptly cut warm bronze to violet without visually credible body-through-doorway. Source witness NOT missing.",
+    "testFirstSHA": "e4398dfecd993382d58b0176a74940f2b04baf29",
+    "testFirstCI": "https://github.com/my-edutu/Ai_games/actions/runs/43293782085 — failed newly introduced original roof mesh contract; red-before-green verifiable",
+    "firstAttemptSHA": "152857374d41a2412623745f26a09e26b7707626",
+    "firstAttemptCI": "https://github.com/my-edutu/Ai_games/actions/runs/43293980730 — failed 1/1449: zero old bronze deck mesh material matches",
+    "exactRootCause": "Actual f8 guardian cap top has original landing material cloned into cap-specific guardian-sightline-cap material BEFORE rigid batching. Searching cap's drawn meshes for generic materials.landing returns zero, so new visual bridge silently did nothing.",
+    "actualCorrectiveProductionSHA": "3a20c483d52e4b910c4f9af40e0ad968cf91839d",
+    "correctiveCode": "Save exact clone of original landing material created by existing cap sightline owner on source platform entry. Across recorded same-roof floor transition rebind that cap-specific source material's actual original deck mesh to one separately-owned, depth-tested polygon-biased bronze cover with bounded fade based only on successful Three returns. No extra floor geometry, no new physics, no fake character/platform/guardian win, material disposed with old cap.",
+    "authoritativeGameplayModified": false,
+    "exactNewCI": "https://github.com/my-edutu/Ai_games/actions/runs/43295123459 — pending, do not claim pass",
+    "currentTruePostFixNativeCapture": "NOT EVALUATED — new exact immutable source campaign requested separately",
+    "reviewerVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Verify actual Node/Three quality at the correction SHA then inspect source-pinned 8 original full-speed paired films with strict event pairing; if real bronze deck/passage remains invisible, prioritize crossfloor camera+world continuity and WebGL frame throughput not test counts. Complete true floor9 onward and terminal/restart and blind reviews before stage promotion.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-roof-contact-original-gateway-continuity.md",
+    "safety": "Frozen baseline unchanged, PR68 remains draft, no PR58 edits, merge, deployment or force push"
+  },
   "p0SourceAuthenticCoplanarBronzeDeckHandoff20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
