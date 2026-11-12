@@ -4184,3 +4184,43 @@ test('RED: a measured same-frame source ankle proof survives a bounded original 
  assert.match(stage,/continuityKind:continuity/,
   'live Three.js source mixer must reconcile a measured release before retaining the source joint');
 });
+
+
+test('real 390px source Walking_A loaded shoe gets bounded lateral-slide relief, not an invented planted foot',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ // Original CC0 skinned 390px frame 85 -> 86 (true WebGL run #43275816923,
+ // source-sole patch artifact 13971662542), NOT a synthetic shoe animation.
+ const previous={
+  left:{heel:[-3.7622763645869743,.19619061649808212,-6.964968636370414],
+   toe:[-3.936331449985617,-.022848690971393016,-6.936989276434345]},
+  right:{heel:[-3.673845306509682,-.015892989888730707,-7.117537969611167],
+   toe:[-3.9433384106340967,-.022593029997116175,-7.1402535772176385]}
+ };
+ const current={
+  left:{heel:[-3.7521558152800223,.1624096473608331,-6.958929690108859],
+   toe:[-3.93614977336351,-.03730755226041721,-6.939063081035758]},
+  right:{heel:[-3.6117278594795095,-.03542813690635666,-7.119786377236892],
+   toe:[-3.880277883348968,-.03294688530907301,-7.142783473794835]}
+ };
+ const evidence={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,rootTravel:.0445,frameInterval:.05,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  floorTopY:-.02,previous,current};
+ const result=plan(evidence);
+ assert.equal(result?.side,'right','only source-loaded right shoe qualifies');
+ assert.ok(result.reductionMeters>.014&&result.reductionMeters<=.01800001);
+ assert.ok(result.worldDeltaX<-.014&&Math.abs(result.worldDeltaZ)<.004);
+ assert.equal(result.contactLocked,false,'never convert visual skid reduction into a fictitious IK lock');
+ assert.ok(result.reductionMeters<=.55*evidence.rootTravel);
+ for(const alteration of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.45},
+  {sourceInstanceSame:false},{ownerLocomotion:false},{rootTravel:0},
+  {rootTravel:.6},{frameInterval:.9},{visible:false},{alive:false},
+  {teleport:true},{interrupted:true},{reducedMotion:true},
+  {current:{...current,right:{...current.right,heel:[NaN,0,0]}}},
+  {current:{...current,right:{...current.right,toe:[-4.7,-.033,-7.14]}}},
+  {previous:{...previous,left:{heel:[-3.76,-.018,-6.96],toe:[-3.93,-.019,-6.94]}},
+   current:{...current,left:{heel:[-3.75,-.02,-6.95],toe:[-3.93,-.02,-6.94]}}}
+ ])assert.equal(plan({...evidence,...alteration}),null,
+  'reject unlicensed or ambiguous movement: '+Object.keys(alteration).join(','));
+});
