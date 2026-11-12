@@ -44,6 +44,9 @@ test('live authority-confirmed Warden cells first observed before a slow frame r
  assert.equal(h.visual.length,1,'the still-live warning must be admitted as visual-only after the stall');
  assert.equal(h.visual[0].visual,'warning');
  assert.equal(h.controller.stats().lateLiveWarningVisuals,1);
+ const totals=h.controller.stats();
+ assert.ok(totals.visualAccepted+totals.expiredQueuedCues<=totals.queued,
+  'a live warning visually recovered after stalling must not ALSO count as expired');
  assert.equal(h.controller.stats().awaitingPresentation,0);
  assert.equal(h.sounds.length,0);
  assert.equal(h.controller.acknowledgePresentedFrame(1,.008),0);
