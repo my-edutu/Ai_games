@@ -216,6 +216,13 @@ export function createPhysicalCombatFeedback({
   }
   lastPresentedFrame=frameId;framesAcknowledged++;
   receiptRenderSubmissionSeconds=renderSubmissionSeconds;
+  // A completed WebGL submission may be preceded by substantial scene/pose
+  // work AFTER advance() (but BEFORE renderer.render()). The raw rAF interval
+  // and measured render call do not include that intermediate CPU time. Read
+  // the same monotonic observation clock at the real submission boundary.
+  // This only tightens the existing 400ms sound deadline; it never grants a
+  // stale cue a later frame, manufactures contact or changes visual authority.
+  const submittedWallClock=observedWallClock();
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
    // A revoked/impacted Warden footprint cannot release a ghost warning sound
@@ -238,10 +245,24 @@ export function createPhysicalCombatFeedback({
     if(typeof visuals?.hasDrawableCue==='function')
      visualDrawable=safeCall(()=>visuals.hasDrawableCue(item.cue.id))===true;
    }
+   const observedWallAt=observedAtByCueId.get(item.cue.id);
+   const verifiedWallAge=submittedWallClock!==null&&
+    Number.isFinite(observedWallAt)&&observedWallAt>=0&&
+    submittedWallClock>=observedWallAt?
+    submittedWallClock-observedWallAt:null;
+   // classifySubmittedCombatAudio adds submissionSeconds. Subtract the
+   // already-included render interval from wall age BEFORE comparing with
+   // the old raw-frame estimate. Otherwise we would double-charge GPU work.
+   // A missing/nonmonotonic clock preserves the original fail-closed raw
+   // frame gate, with no invented cross-clock alignment claim.
+   const elapsedBeforeSubmission=verifiedWallAge===null?
+    observedSeconds-item.at:
+    Math.max(observedSeconds-item.at,
+     Math.max(0,verifiedWallAge-renderSubmissionSeconds));
    const decision=classifySubmittedCombatAudio({
     sceneMatches:item.sceneId===sceneId,
     observedFrameVerified:!unverifiedFrameInterval,
-    elapsedSeconds:observedSeconds-item.at,
+    elapsedSeconds:elapsedBeforeSubmission,
     submissionSeconds:renderSubmissionSeconds,
     maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
     visualAccepted:item.visual,visualAlive,visualDrawable,
