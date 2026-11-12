@@ -578,7 +578,7 @@ for(const view of [
   expect(proof.contactLocked).toBe(false);
   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.045001);
-  expect(proof.sourceTrack).toMatch(/\\.quaternion$/);
+  expect(proof.sourceTrack).toMatch(/\.quaternion$/);
   // The actual final inspected skinned heel and toe must agree with the
   // saved on-frame candidate on the very same loaded original GLB instance.
   for(const foot of ['left','right'])for(const tip of ['heel','toe']){
