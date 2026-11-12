@@ -13564,7 +13564,11 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    (eye[1]-centerY)*.75);
   closest=Math.min(closest,distance);
   const originalField=FARMSTEAD.fields[i];
-  const realWork=people.some(p=>p.job==='farmer'&&isWorkingAtSite(p)&&
+  // The browser has the authoritative people list; the isolated original
+  // resident-VBO contract intentionally has no simulation actor fixture.
+  // In that harness retain every original plot as idle, never pretend work.
+  const actualWorkers=typeof people==='undefined'?[]:people;
+  const realWork=actualWorkers.some(p=>p.job==='farmer'&&isWorkingAtSite(p)&&
    p.x>=originalField[0]-.7&&p.x<=originalField[1]+.7&&
    p.z>=originalField[2]-.7&&p.z<=originalField[3]+.7);
   requests.push({plot:i,distance,realWork,
