@@ -501,7 +501,7 @@ export function planOriginalSourceStanceAnkleRelief({
   sourceWeight<.55||sourceWeight>1.001||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
   Math.abs(floorTopY+.02)>.005||Math.abs(previousCorrectionRad)>.14||
-  !Array.isArray(trials)||trials.length>2)return null;
+  !Array.isArray(trials)||trials.length>4)return null;
  const beforeHeel=heelY-floorTopY,beforeToe=toeY-floorTopY;
  // Real loaded original heel and toe sit near the stone together. An
  // airborne heel belongs to the independent licensed swing-foot planner.
@@ -513,7 +513,8 @@ export function planOriginalSourceStanceAnkleRelief({
  for(const candidate of trials){
   const {signed,toe,heel}=candidate??{};
   if(![signed,toe,heel].every(finite)||
-   Math.abs(signed)<.11||Math.abs(signed)>.121||
+   !((Math.abs(signed)>=.044&&Math.abs(signed)<=.046)||
+    (Math.abs(signed)>=.11&&Math.abs(signed)<=.121))||
    (previousCorrectionRad!==0&&Math.sign(signed)!==Math.sign(previousCorrectionRad)))
    continue;
   const h=heel-floorTopY,t=toe-floorTopY;
@@ -523,7 +524,12 @@ export function planOriginalSourceStanceAnkleRelief({
    Math.abs(h-t)>.055||
    h<beforeHeel-.004||t<beforeToe-.004)continue;
   const worst=Math.max(Math.abs(h),Math.abs(t));
-  if(beforeWorst-worst<.003)continue;
+  // Native source-rig trials include the REAL 45mrad per-frame limit.
+  // A fine-scale 1.5mm improvement is actionable even when a coarse
+  // 120mrad trial buries the other original outsole edge; actual applied
+  // quaternions must independently pass final skinned heel/toe safety.
+  const fine=Math.abs(signed)<=.046;
+  if(beforeWorst-worst<(fine?.0015:.003))continue;
   if(!best||worst<best.worst)best={signed,toe,heel,worst};
  }
  if(!best)return null;
