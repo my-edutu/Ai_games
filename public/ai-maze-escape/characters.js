@@ -321,6 +321,16 @@ export function createExplorer(options = {}) {
     const defensiveFlinch=guardianPlant*(1-.9*guardianAnswer);
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
+    // Original 390px guardian footage: Pip keeps facing the route even while
+    // its arms defend against the publicly witnessed warden. Lead with the
+    // helmet on recognition, then rotate the CONNECTED upper body/lantern
+    // toward that same observed bearing while the boots keep their real route.
+    // The whole-body turn yields slightly on shell release; it does not turn
+    // the authoritative root, predict pursuit, affect collision or invent
+    // an attack. Missing witness/terminal/reset stays ordinary navigation.
+    const guardianBodyPivot=witnessedBeat===null?0
+      :Math.max(-1.05,Math.min(1.05,relativeLook))
+        *(.18*alert+.82*guardianPlant)*(1-.18*guardianAnswer);
     // The key gesture has lower priority than a genuine nearby warden. Its
     // heading and strength are sourced only from a public carried-key/closed-
     // gate pair; a static readable pose remains in reduced-motion mode.
@@ -460,10 +470,10 @@ export function createExplorer(options = {}) {
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08-pressureBrace*.12-pressureClimax*.035;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055-pressureBrace*.08-pressureClimax*.045;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.21-pressureClimax*.07,
-      lookYaw*.14+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
+      (witnessedBeat===null?lookYaw*.14:guardianBodyPivot)+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14-Math.sign(pressureYaw)*pressureWarning*.08);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07+pressureInspection*.12,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw-guardianBodyPivot*.72+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10-Math.sign(pressureYaw)*pressureClimax*.08);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
