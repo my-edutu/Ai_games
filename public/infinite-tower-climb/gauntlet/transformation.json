@@ -1,4 +1,37 @@
 {
+  "p0OriginalPackedRigidVertexStream20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBranchHeadBeforeCode": "ea4c114e5f74b32e215ade4fb3d219bfe9f27dcd",
+    "testFirstCommit": "396bd287073b59a7fdbf7bffece9789ee6ad6873",
+    "originalTestFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43156447046 — FAILURE before renderer implementation",
+    "productionCommit": "0b8c65df0a531a28f04e6d8538a4b39cbfe2aca4",
+    "engineeringReview": "docs/reviews/2026-11-12-tower-pr68-original-floor9-interleaved-vertex-stream.md",
+    "previousOriginalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43153180129 — SUCCESS at pre-change ba3b878d",
+    "originalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43152895528 — 8/8 real original 60+s baseline/candidate videos, strict guardian pairing FAIL 0/2",
+    "inspectedActualVideo": "https://github.com/my-edutu/Ai_games/actions/runs/43152895528/artifacts/13914374216 — downloaded 1x original desktop and phone WebMs, inspected timed frames 13–32s",
+    "sourceFloorNineVsOriginalDrawnHudSeconds": {
+      "desktop": 2.359,
+      "portrait": 2.205
+    },
+    "measuredBrowserAcceptedToRenderReturnMs": {
+      "desktop": 1248,
+      "portrait": 1440
+    },
+    "centralFootageDefect": "Original guardian cap remains visually congested by bronze machinery, and Floor8→9 cuts to violet scene without convincing unbroken grounded doorway traversal. Real 20Hz source Floor9 event precedes native HUD/scene by >2s in both viewports.",
+    "implementedChange": "True THREE.InterleavedBuffer static rigid-world vertex stream: position XYZ, normal XYZ, UV XY share one buffer; keep prior indexed/nonindexed selection, exact authored face ranges, shape, normals, UV, material and authority. Whole-floor byte count same as prior indexed version; VBO object count lower, real renderer performance unverified.",
+    "scopedEffect": "Presentation static geometry only; no AI/gameplay or camera/physics/audio/UI changes; same PR68.",
+    "afterCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43156644167 — IN PROGRESS at review; not technical acceptance",
+    "afterImmutableFilms": "NOT YET VERIFIED — trigger new capture-request commit at immutable source after evidence write",
+    "genuineIndependentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimesAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Verify final-head technical quality; inspect newly pinned desktop and portrait 60s+ authentic source films and real same-tick world/render/native phase. Revert packing if regressing. Fix dominant remaining source-to-raster >2s latency and physical guardian/gateway continuity; stay P0."
+  },
   "p0OriginalFloorNineIndexedUploadBudget20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
