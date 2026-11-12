@@ -12,7 +12,7 @@ const world=fs.readFileSync(path,'utf8');
 // This test requires a REAL deferred structural GPU submission, not another
 // source-witness fix, and forbids deferring the actual traversable platforms.
 test('cold source-earned Floor9 starts with authentic grounded roof, then stages original noninteractive tower shell after an actual render return',()=>{
-  assert.match(world,/const deferStructuralShell\s*=\s*deferDistant\s*&&\s*earnedSourceUploadWitness\s*&&\s*snapshot\.floor===9\s*&&\s*theme==='void'/);
+  assert.match(world,/const deferStructuralShell\s*=\s*deferDistant\s*&&\s*earnedSourceUploadWitness\s*&&\s*snapshot\.floor===9\s*&&\s*snapshot\.theme==='void'/);
   assert.match(world,/if\s*\(!deferStructuralShell\)\s*buildTower\(height,theme==='clockwork'\)/);
   assert.match(world,/if\s*\(deferStructuralShell\)\s*\{[\s\S]*?buildTower\(arrival\.height,false\)[\s\S]*?batchRigid\(structuralRoot,/);
   assert.match(world,/arrival\.state='awaiting-structural-submission'/);
