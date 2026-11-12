@@ -1,4 +1,48 @@
 {
+  "p0ColdFloorGroundedFramebufferBudget20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeCode": "5cf8d8e10f163b0e10b66d3ae5c6df6a4acab75b",
+    "previousSourcePinnedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43163972738 — eight native baseline/candidate original 60+s films, authentic source-chain, strict event-to-video guardian pairing FAIL 0/2",
+    "inspectedOriginalCandidateArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43163972738/artifacts/13918694852 — actually downloaded original WebM and 960x600/390x844 19–31s normal-speed frames",
+    "mostImportantNativeFilmDefect": "The bronze guardian cap remains crowded; original grounded source Floor8->9 handoff is experienced as a warm-to-purple scene change without convincing continuous full-body gateway crossing.",
+    "originalSource451ToDrawnHUDDeltaSeconds": {
+      "desktop": 2.63,
+      "portrait": 2.264
+    },
+    "originalBrowserAcceptedToThreeReturnMs": {
+      "desktop": 1713,
+      "portrait": 1243
+    },
+    "originalThreeReturnToNativeHUDApproxMs": {
+      "desktop": 824,
+      "portrait": 961
+    },
+    "timingCaveat": "These are source/browser/returned Three/native WebM clock approximations, not GPU-present, original boss impact proof, device FPS or experiential acceptance.",
+    "testFirstRedCommit": "257f0c7f6d0c3b8a75e7915f249f0b7646dd888b",
+    "observedTestFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43166583377 — 3 new source-bound cold Floor9 contracts failed before implementation",
+    "playableProductionCommits": [
+      "8c580f69ff8b5b72812eb9dd8383685fd7105366",
+      "7749cfb59781a841c23d7509fb367b9f8e6c205d",
+      "c6ea8167d493199126621e495870fb231b5184bb",
+      "76e75852fd01a714d9a1901f1382fb84b216cbcb",
+      "ef62bf88ad4825069f9e4f559f53dc5378c62410"
+    ],
+    "finalTestAndReviewSourceSha": "8c629aba1a4e233b3dee1eddbe6a1557a75fb285",
+    "implementation": "Actual Three low-tier WebGL canvas temporarily 0.78x for only an authentic current living grounded Floor8 guardian -> Floor9 handoff, 0.86/0.93/1 after successful renderer returns; no HTTP-only budget use; manual/reduced-motion/high-tier/stale/other run veto; original 3D actors/route/guardian/physics/HUD unchanged.",
+    "scopeAndCost": "Only original Tower files and tests; no new geometry, network, simulation mutations or audio; at most four tier-limited canvas reallocations per source-qualified initial handoff, with context/restart cleanup.",
+    "latestTechnicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/43167176843 — pending last inspection at exact 8c629aba source; must check green or red before technical validation",
+    "newFullMotionAfterSource": "NOT YET VERIFIED — capture-request will pin exact subsequent source commit; 9 original campaign jobs, must inspect native films",
+    "review": "docs/reviews/2026-11-12-tower-pr68-first-grounded-floor9-framebuffer-budget.md",
+    "independentFreshBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "realSupportedDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new desktop 960x600 and portrait 390x844 original 60s+ matched films, source tick451 vs browser/Three return/native HUD and whole-body threshold motion; revert low-tier downscale if latency or visual clarity worsens; remain P0 until guardian/crusher, doorway, Floor9 onward, outcome/restart satisfy strict event pairing."
+  },
   "p0SubmittedFrameGroundedPassageVisibleBudget20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
@@ -111,7 +155,7 @@
     "largestGap": "Source-to-visible Floor9 phase 1.76-2.07 seconds, first renderer.return 459-712ms and no clear physically continuous portal or unobstructed full-body guardian. Strict 0/2 event/raster.",
     "nextHighestImpactAction": "Inspect exact-head CI, original 60s+ source-pinned two-viewport films and new renderWorkMs/rigid upload accounting; confirm the optimization is real (or revert), then fix remaining physical threshold continuity, guardian view and full restart. Stay P0."
   },
-"p0OriginalFloorNineRenderCriticalPathAttribution20261112": {
+  "p0OriginalFloorNineRenderCriticalPathAttribution20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
