@@ -73,13 +73,28 @@ export function observedGroundedGuardianHandoff(previous, next) {
       !previous.enemies.some(e => e?.kind === 'guardian' &&
         (!Number.isSafeInteger(e.floor) || e.floor === previous.floor) &&
         e.active === false && Number.isFinite(e.health) && e.health <= 0) ||
-      previous.player.x !== next.player.x ||
       previous.player.y !== next.player.y ||
       previous.player.halfWidth !== next.player.halfWidth ||
-      previous.player.halfHeight !== next.player.halfHeight)
+      previous.player.halfHeight !== next.player.halfHeight ||
+      !Number.isSafeInteger(previous.worldWidth) ||
+      previous.worldWidth !== next.worldWidth ||
+      cap.y + cap.height !== ground.y + ground.height)
     return false;
   const p = previous.player, after = next.player;
-  return p.x >= previous.guardianExitX + p.halfWidth + 4000 &&
+  // The authoritative climber can CROSS the whole-body clearance plane
+  // during the VERY SAME 50ms fixed-step tick that advances the floor.
+  // The previous equality test demanded p.x===after.x AND old p.x beyond
+  // clearance. Native event tick 450->451 actually walked 317096->324296:
+  // it therefore suppressed the real arch/runway/camera/biome continuity
+  // despite the source's earned guardianPassage. Permit only bounded,
+  // forward, already-observed horizontal motion across the physical plane.
+  // This is a PRESENTATION witness, never an additional floor unlock.
+  const elapsedTicks = next.tick - previous.tick;
+  const sourceStepX = after.x - p.x;
+  const wholeBodyClearance = previous.guardianExitX + p.halfWidth + 4000;
+  return elapsedTicks >= 1 && elapsedTicks <= 8 &&
+    sourceStepX >= 0 && sourceStepX <= elapsedTicks * 18000 &&
+    after.x >= wholeBodyClearance &&
     p.x - p.halfWidth >= cap.x &&
     p.x + p.halfWidth <= cap.x + cap.width &&
     p.y - p.halfHeight === cap.y + cap.height &&
