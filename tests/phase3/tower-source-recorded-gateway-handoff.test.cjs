@@ -17,7 +17,7 @@ function witnessed(){
   const witness={runToken:'real-run',sourceTick:451,fromFloor:8,toFloor:9,
     cap,guardian:{id:'f8:guardian',kind:'guardian',floor:8,
       active:false,health:0,x:gate-30000,y,halfHeight:height},
-    exitX:gate,previousX:oldX,previousY:y,crossingX:newX,crossingY:y,
+    exitX:gate,previousX:oldX,previousY:y,previousHealth:4,crossingX:newX,crossingY:y,
     halfWidth:width,halfHeight:height,worldWidth:480000};
   const next={runToken:'real-run',floor:9,tick:452,lifecycle:'running',
     chunkBaseY:2880000,worldWidth:480000,lastGuardianCrossing:witness,
