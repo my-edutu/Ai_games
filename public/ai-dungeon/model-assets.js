@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -2198,7 +2198,7 @@ function attachCharacter(actor){
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;actor.activeImportedClipName=null;
    actor.importedClipAudit=auditImportedAnimationClips(actor.availableClips);
-   actor.fullBody=null;actor.animationFacing=null;actor.rigGuardPose=null;actor.nativeGuardPeak=0;actor.fullBodyFrozenFrames=0;actor.fullBodyHeldFrames=0;actor.fullBodyContactRecoveryFrames=0;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.sourceClockCorrectedFrames=0;actor.sourceClockDriftPeakSeconds=0;actor.sourceClockRemainingSeconds=0;actor.sourceClockMode=null;
+   actor.sourceStanceSlideSample=null;actor.sourceStanceSlideReliefProof=null;actor.sourceStanceSlideReliefFrames=0;actor.fullBody=null;actor.animationFacing=null;actor.rigGuardPose=null;actor.nativeGuardPeak=0;actor.fullBodyFrozenFrames=0;actor.fullBodyHeldFrames=0;actor.fullBodyContactRecoveryFrames=0;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.sourceClockCorrectedFrames=0;actor.sourceClockDriftPeakSeconds=0;actor.sourceClockRemainingSeconds=0;actor.sourceClockMode=null;
   actor.textureReadiness=textureReadiness.get(gltf);
   bindRigArmGestures(actor);
   // Original adult-scale skinned figures replace the visible low-poly source
@@ -2955,6 +2955,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageSkinnedHitAfterMixer(actor,reducedMotion);
  stageSkinnedDefeatAfterMixer(actor,reducedMotion);
  stageWardenChapterRegalia(actor,reducedMotion);
+ stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
    const clothAge=actor.fullBody?.holding||actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?poseAge:since;
@@ -2990,6 +2991,97 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  syncNativeArmour(actor);
  syncWardenNativeRegalia(actor);
 }
+/**
+ * Same-clone, same licensed Walking_A original weighted stance comparison.
+ * Unlike foot-lock IK, this can only reduce an OBSERVED displayed-frame skid
+ * by <=18mm, and then remeasures the rendered source shoe. The preceding
+ * frame is a real previously displayed original source pose, never an
+ * inferred future landing target. No root authority or original bone edits.
+ */
+function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInterval,visible){
+ const previous=actor.sourceStanceSlideSample;
+ actor.sourceStanceSlideSample=null;
+ actor.sourceStanceSlideReliefProof=null;
+ const valid=actor.fullBody?.mode==='move'&&actor.fullBody?.owner?.locomotion===true&&
+  actor.activeImportedClipName==='Walking_A'&&actor.u.hp>0&&
+  actor.root?.visible===true&&visible===true&&!reducedMotion&&
+  !actor.locomotionTeleport&&!actor.fullBody?.interrupted&&
+  !actor.fullBody?.changed&&actor.assetRoot&&actor.visualPivot&&
+  Number.isFinite(actor.rigLastGroundedTravel)&&
+  actor.rigLastGroundedTravel>=0&&actor.rigLastGroundedTravel<=.18;
+ if(!valid)return;
+ const patches=sourceSolePatchVertexCandidates(actor);
+ if(!['left','right'].every(side=>patches?.[side]?.anatomicalHeelToeVerified&&
+  patches[side].sourceToeAxis?.selectedAnatomicalPatch===true&&
+  patches[side].heel?.mesh===patches[side].toe?.mesh))return;
+ const read=()=>Object.fromEntries(['left','right'].map(side=>[
+  side,{heel:sourceSkinnedSoleWorld(patches[side].heel),
+   toe:sourceSkinnedSoleWorld(patches[side].toe)}
+ ]));
+ actor.assetRoot.updateWorldMatrix(true,true);
+ let current=read();
+ const sourceInstanceId=actor.assetRoot.uuid;
+ const ownerValid=previous?.sourceInstanceId===sourceInstanceId&&
+  previous?.clip==='Walking_A';
+ const proposal=ownerValid?planOriginalSourceStanceSlideRelief({
+  mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
+  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
+  sourceInstanceSame:true,ownerLocomotion:true,
+  rootTravel:actor.rigLastGroundedTravel,frameInterval,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,previous:previous?.feet,current
+ }):null;
+ if(proposal){
+  const pivot=actor.visualPivot,baseX=pivot.position.x,baseZ=pivot.position.z;
+  const parent=pivot.parent,rotate=parent?.getWorldQuaternion?.(new THREE.Quaternion());
+  if(rotate?.isQuaternion){
+   const local=new THREE.Vector3(proposal.worldDeltaX,0,
+    proposal.worldDeltaZ).applyQuaternion(rotate.invert());
+   // Preserve visual root height and never change physics/root coordinates.
+   if([local.x,local.y,local.z].every(Number.isFinite)&&
+    Math.hypot(local.x,local.z)<=.025){
+    pivot.position.x=baseX+local.x;pivot.position.z=baseZ+local.z;
+    pivot.updateWorldMatrix(true,true);
+    const adjusted=read(),side=proposal.side;
+    const displacement=(a,b)=>a&&b?Math.hypot(
+     a[0]-b[0],a[2]-b[2]):NaN;
+    const oldHeel=displacement(current[side]?.heel,previous.feet[side]?.heel);
+    const oldToe=displacement(current[side]?.toe,previous.feet[side]?.toe);
+    const newHeel=displacement(adjusted[side]?.heel,previous.feet[side]?.heel);
+    const newToe=displacement(adjusted[side]?.toe,previous.feet[side]?.toe);
+    const shifted=displacement(current[side]?.heel,adjusted[side]?.heel);
+    const safe=[oldHeel,oldToe,newHeel,newToe,shifted].every(Number.isFinite)&&
+     shifted<=.020&&oldHeel-newHeel>=.004&&oldToe-newToe>=.004&&
+     ['left','right'].every(s=>['heel','toe'].every(edge=>
+      current[s]?.[edge]&&adjusted[s]?.[edge]&&
+      Number.isFinite(adjusted[s][edge][1])&&
+      Math.abs(adjusted[s][edge][1]-current[s][edge][1])<=.003));
+    if(safe){
+     current=adjusted;
+     actor.sourceStanceSlideReliefProof={
+      ...proposal,sourceInstanceId,sourceClip:'Walking_A',
+      beforeHeelTravelMeters:oldHeel,afterHeelTravelMeters:newHeel,
+      beforeToeTravelMeters:oldToe,afterToeTravelMeters:newToe,
+      verifiedBy:'final-original-weighted-skinned-two-shoe-readback',
+      contactLocked:false
+     };
+     actor.sourceStanceSlideReliefFrames=Math.min(1000000,
+      (actor.sourceStanceSlideReliefFrames||0)+1);
+    }else{
+     pivot.position.x=baseX;pivot.position.z=baseZ;
+     pivot.updateWorldMatrix(true,true);
+    }
+   }
+  }
+ }
+ // Store ONLY the resulting source bones actually rendered at this
+ // displayed-frame XZ root. A later action, teleport or GLB clone resets it.
+ if(['left','right'].every(s=>current[s]?.heel?.every(Number.isFinite)&&
+  current[s]?.toe?.every(Number.isFinite)))
+  actor.sourceStanceSlideSample={sourceInstanceId,clip:'Walking_A',
+   feet:current};
+}
+
 function disposeActorAsset(actor){
  actor.detached=true;
  actor.cinematicFigure?.dispose?.();
@@ -3472,6 +3564,7 @@ function stats(actors){
    fullBodySourceClockCorrectedFrames:authored.reduce((n,a)=>n+(a.sourceClockCorrectedFrames||0),0),
    fullBodySourceClockPeakDriftSeconds:Math.max(0,...authored.map(a=>a.sourceClockDriftPeakSeconds||0)),
    fullBodySourceClockMaxRemainingSeconds:Math.max(0,...authored.map(a=>a.sourceClockRemainingSeconds||0)),
+   fullBodySourceStanceSlideReliefFrames:authored.reduce((n,a)=>n+(a.sourceStanceSlideReliefFrames||0),0),
    fullBodyFootSupportPeakRad:Math.max(0,...authored.map(a=>a.footSupportPeak||0)),
    fullBodySourceWalkArrivalPlants:authored.reduce((n,a)=>n+(a.walkArrivalFrozenActions||0),0),
    fullBodyNativeGuardActors:authored.filter(a=>(a.fullBody?.guardBlend||0)>.001).length,
