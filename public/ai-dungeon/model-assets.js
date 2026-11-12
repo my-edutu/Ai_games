@@ -2116,16 +2116,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  actor.nativeGuardPeak=Math.max(actor.nativeGuardPeak||0,
   actor.rigGuardPose.elbows.right,Math.abs(actor.rigGuardPose.legs.left.lower));
  stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval,sourceFrameVisible);
- stageRigCranialAfterMixer(actor);
- stageRigPelvisAfterMixer(actor);
- stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
- stageRigForearmsAfterMixer(actor,poseAge,reducedMotion);
- stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
- stageRigMeleeAfterMixer(actor,poseAge,reducedMotion);
- stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
- stageSkinnedHitAfterMixer(actor,reducedMotion);
- stageSkinnedDefeatAfterMixer(actor,reducedMotion);
- stageWardenChapterRegalia(actor,reducedMotion);
+ // Compose this frame's read-only full-body root BEFORE measuring original
+ // licensed GLB skinned feet, knee/ankle clearances, stance or swing contacts.
+ // Previously the source test used the last frame's pivot while the rendered
+ // pose moved later, producing physically stale world-space evidence.
  if(actor.visualPivot){
   // A single unified physical sword phrase owns root translation when live.
   // Legacy pivot lunge + contact recoil + secondary lunge must NOT accumulate
@@ -2153,7 +2147,22 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   actor.performanceBeatPeak=Math.max(actor.performanceBeatPeak||0,actor.performanceBeat.strength);
   actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x+contact.x),
    Math.abs(pose.y+contact.y),Math.abs(pose.z+contact.z));
+  // World-space original heel/toe trials below must sample THIS frame's
+  // fully composed physical root, not the previous rAF's world matrix.
+  // updateMatrixWorld on a child alone does not refresh dirty ancestors.
+  actor.visualPivot.updateWorldMatrix(true,false);
  }
+
+ stageRigCranialAfterMixer(actor);
+ stageRigPelvisAfterMixer(actor);
+ stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigForearmsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
+ stageRigMeleeAfterMixer(actor,poseAge,reducedMotion);
+ stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
+ stageSkinnedHitAfterMixer(actor,reducedMotion);
+ stageSkinnedDefeatAfterMixer(actor,reducedMotion);
+ stageWardenChapterRegalia(actor,reducedMotion);
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
    const clothAge=actor.fullBody?.holding||actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?poseAge:since;
