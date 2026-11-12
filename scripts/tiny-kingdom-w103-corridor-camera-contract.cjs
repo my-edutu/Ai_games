@@ -8,7 +8,7 @@ const begin=html.indexOf('let tradeCorridorCameraEnvelopes=null'),
 assert.ok(begin>0&&end>begin,'the real W83/W100 camera contract must exist');
 const ctx={terrain:(x,z)=>.07*x-.025*z,FARMSTEAD:{granary:[29,-5]},
  MARKET_RECEIVING_HALL:{centerX:-.075,frontZ:10.77,backZ:12.45,
-  halfWidth:2.22,eaveAboveGround:2.27,ridgeAboveGround:3.25}};
+  halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24,openSkyHalfWidth:1.16}};
 const expose=new Function('terrain','FARMSTEAD','MARKET_RECEIVING_HALL',
  html.slice(begin,end)+'\nreturn {physicalTradeCorridorCameraVolumes,physicalReceivingHallPosts,getTradeCorridorCameraAudit,marketReceivingRoofDatum};');
 const kit=expose(ctx.terrain,ctx.FARMSTEAD,ctx.MARKET_RECEIVING_HALL);
@@ -23,10 +23,10 @@ assert.ok(a.originalWorkerFrontGap>.5&&a.originalWorkerFrontGap<.6);
 assert.deepEqual(a.originalMarketReceiptCoordinates,[[-1,10.2],[.85,10.2]]);
 assert.equal(a.authorityModified,false);
 assert.equal(posts.length,4);
-assert.ok(posts.every(p=>Math.abs(Math.abs(p.x+.075)-2.09)<.001));
+assert.ok(posts.every(p=>Math.abs(Math.abs(p.x+.075)-2.89)<.001));
 // The underlying terrain can be below zero; heights must be physical RELATIVE to local ground.
 assert.ok(first.every(v=>v.top>v.bottom&&v.rx>0&&v.rz>0));
-assert.ok(first.filter(v=>v.kind.includes('roof')).every(v=>v.top-v.bottom<.58));
+assert.ok(first.filter(v=>v.kind.includes('roof')).every(v=>v.top-v.bottom<.62));
 assert.ok(first.filter(v=>v.kind.includes('roof')).every(v=>v.bottom>0));
 assert.match(html,/roofs\.push\(\.\.\.physicalTradeCorridorCameraVolumes\(\)\)/);
 assert.match(html,/const surveyedPosts=physicalMarketUprights\(\)\.concat\(physicalReceivingHallPosts\(\)\)/);

@@ -48,4 +48,8 @@ assert.ok(hallGeometry.audit.originalBays===2);
 assert.ok(hallGeometry.audit.loadBearingPosts===4);
 assert.ok(hallGeometry.audit.roofPanels===18);
 assert.ok(hallGeometry.audit.openWorkerApproachMeters>.5);
-assert.ok(hallGeometry.audit.originalShelfUnderRoof);
+assert.equal(hallGeometry.audit.originalShelfUnderRoof,false,
+ 'both real receipt shelves now sit beneath actual open sky, not a fabricated roof');
+assert.equal(hallGeometry.audit.realReceiptShelvesUnderSky,true);
+assert(hallGeometry.audit.openSkyReceivingAisleMetres>=2.16);
+assert.equal(hallGeometry.audit.coveredReceivingWings,2);

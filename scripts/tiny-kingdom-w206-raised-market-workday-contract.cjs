@@ -41,8 +41,9 @@ assert(dock.includes('for(const [index,x] of bayX.entries())')&&
  dock.includes('marketQuarterStats.receivingHallPosts++')&&
  dock.includes('marketQuarterStats.receivingHallRoofPanels++')&&
  dock.includes('const z=site.backZ-.03')&&
- dock.includes('tri(left,right,peak,lime)'),
- 'raise the same two authentic receipts; do not remove the roof or rear infill');
+ dock.includes('tri(outer,foot,inner,lime)')&&
+ dock.includes('site.openSkyHalfWidth'),
+ 'the two original shelves remain between two covered wing roofs and rear weather gables');
 assert(audit.includes('roofAboveGrainReceiptMeters:')&&
  audit.includes('roofMatchesCameraVolumes:roofBands.length===4')&&
  audit.includes('originalShelfUnderRoof:')&&

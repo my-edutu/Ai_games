@@ -28,11 +28,12 @@ vm.runInContext([
  pick('function marketReceivingRoofDatum(', '\nfunction physicalReceivingHallPosts('),
  pick('function physicalReceivingHallPosts(', '\nfunction physicalTradeCorridorCameraVolumes('),
  pick('function physicalTradeCorridorCameraVolumes(', '\nfunction '),
+ pick('function getMarketReceivingHallAudit(', '\nfunction marketReceivingOpenFrontTruss('),
  pick('function marketReceivingOpenFrontTruss(', '\nfunction '),
  pick('function marketReceivingSideEnclosure(', '\nfunction '),
  pick('function marketReceivingRoofInterior(', '\nfunction '),
  pick('function marketReceivingDock(', '\nfunction '),
- 'this.profile=MARKET_RECEIVING_HALL;this.drawDock=marketReceivingDock;this.cameraVolumes=physicalTradeCorridorCameraVolumes;'
+ 'this.profile=MARKET_RECEIVING_HALL;this.drawDock=marketReceivingDock;this.cameraVolumes=physicalTradeCorridorCameraVolumes;this.marketAudit=getMarketReceivingHallAudit;'
  ].join('\n'),scene);
 const hall=scene.profile;
 assert(Number.isFinite(hall.openSkyHalfWidth)&&hall.openSkyHalfWidth>=1.08&&
@@ -61,6 +62,10 @@ assert(volumes.some(v=>v.kind==='granary-porch-roof')&&
  volumes.some(v=>v.kind==='receiving-hall-post'),
  'farm-to-market physical sightlines must retain genuine posts and granary shelter');
 assert(scene.data.every(Number.isFinite),'market geometry must remain finite');
+const audit=scene.marketAudit();
+assert.equal(audit.originalShelfUnderRoof,false,'the genuine receiving handoff is now beneath sky');
+assert.equal(audit.realReceiptShelvesUnderSky,true,'both original shelves stay in opening');
+assert(audit.openSkyReceivingAisleMetres>=2.16&&audit.roofMatchesCameraVolumes);
 assert.doesNotMatch(js.slice(js.indexOf('function marketReceivingOpenFrontTruss('),
  js.indexOf('function marketReceivingCourt(')),/Math\.random\s*\(|people\.push\s*\(|state\.food\s*[+\-=]/);
 console.log('W254 source/geometry floor PASS: authentic real two-wing market roof, 2.16+m open-sky receiving aisle, preserved shelves, posts and courier camera collision. Visual/physical performance NOT PROVEN.');

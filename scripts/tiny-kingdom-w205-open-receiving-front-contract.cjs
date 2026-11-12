@@ -17,8 +17,9 @@ assert(dock.includes('marketReceivingOpenFrontTruss();'),
  'production receiving hall must render actual structural open front');
 assert(!dock.includes('for(const z of [site.frontZ+.03,site.backZ-.03])'),
  'do not retain the opaque front triangle over original receipts');
-assert(dock.includes('const z=site.backZ-.03')&&dock.includes('tri(left,right,peak,lime)'),
- 'retain rear weather infill, actual roof and original trade bays');
+assert(dock.includes('const z=site.backZ-.03')&&dock.includes('tri(outer,foot,inner,lime)')&&
+ dock.includes('site.openSkyHalfWidth'),
+ 'retain both real rear wing gables, open sky and original trade bays');
 assert(dock.includes('for(const [index,x] of bayX.entries())')&&
  dock.includes('marketQuarterStats.receivingBays++')&&
  dock.includes('marketQuarterStats.receivingHallPosts++')&&

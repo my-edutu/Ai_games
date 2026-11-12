@@ -10844,7 +10844,7 @@ function getMarketReceivingHallAudit(){
   v.kind==='receiving-hall-roof');
  const cameraEave=Math.min(...roofBands.map(v=>v.bottom+.025));
  const actualFreightElevation=Math.max(terrain(-1,10.2),terrain(.85,10.2));
- return {source:'two-real-trade-bays-one-open-medieval-receiving-hall',
+ return {source:'authentic-two-covered-wings-with-open-sky-receiving-aisle',
   originalBays:marketQuarterStats.receivingBays,
   roofPanels:marketQuarterStats.receivingHallRoofPanels||0,
   loadBearingPosts:marketQuarterStats.receivingHallPosts||0,
@@ -10857,7 +10857,11 @@ function getMarketReceivingHallAudit(){
    arcadeWallTriangles:marketQuarterStats.arcadeWallTriangles||0,
    arcadeWallMaxHeight:marketQuarterStats.arcadeWallMaxHeight||0,
    arcadeClearCenterWidth:marketQuarterStats.arcadeClearCenterWidth||0,
-  frontGablePlasterPanels:0,rearGablePlasterPanels:2,
+  frontGablePlasterPanels:0,rearGablePlasterPanels:4,
+  openSkyReceivingAisleMetres:site.openSkyHalfWidth*2,
+  coveredReceivingWings:marketQuarterStats.receivingHallCoveredWingCount||0,
+  realReceiptShelvesUnderSky:[-1,.85].every(x=>
+   Math.abs(x-site.centerX)<site.openSkyHalfWidth),
   rearShopGables:marketQuarterStats.rearShopGables||0,
   unobstructedCourierAisle:MARKET_RECEIVING_HALL.halfWidth*2-.20,
   lowerRoofClearance:site.eaveAboveGround,
@@ -10867,8 +10871,11 @@ function getMarketReceivingHallAudit(){
   roofMatchesCameraVolumes:roofBands.length===4&&
    Math.abs(cameraEave-(datum+site.eaveAboveGround))<.0001,
   openWorkerApproachMeters:MARKET_RECEIVING_HALL.frontZ-10.2,
-  originalShelfUnderRoof:10.2+.72>MARKET_RECEIVING_HALL.frontZ&&
-    10.2+.72<MARKET_RECEIVING_HALL.backZ,
+  // Both genuine oak receipt shelves sit beneath the new daylight slot,
+  // not the clay slopes. Do not claim the worker is still beneath the roof.
+  originalShelfUnderRoof:false,
+  originalShelfOnReceivingCourt:10.2+.72>MARKET_RECEIVING_HALL.frontZ&&
+   10.2+.72<MARKET_RECEIVING_HALL.backZ,
   realFreightOnly:true,fabricatedShipments:0,
   authorityModified:false,changesNavigation:false,
   receivingPoints:[[-1.0,10.2],[.85,10.2]]};

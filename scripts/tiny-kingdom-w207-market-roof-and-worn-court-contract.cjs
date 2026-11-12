@@ -20,7 +20,7 @@ assert.match(ground,/const\s+drift=\(biomeHash\(key\+151\)-\.5\)\*\.29/);
 assert.match(ground,/const\s+wander=\(biomeHash\(key\+191\)-\.5\)\*\.26/);
 assert.match(ground,/marketQuarterStats\.surfaceModel='w208-natural-clay-market-and-freight-wagonway'/);
 const interior=section('function marketReceivingRoofInterior(){','function marketReceivingDock(){');
-assert.match(source,/marketReceivingRoofInterior\(\);\s*\/\/ W205/);
+assert.match(source,/marketReceivingRoofInterior\(\);\s*\/\/ W254/);
 assert.match(source,/receivingSoffitPanels:marketQuarterStats\.receivingSoffitPanels/);
 assert.match(source,/receivingSoffitRafters:marketQuarterStats\.receivingSoffitRafters/);
 assert.match(source,/receivingSoffitTriangles:marketQuarterStats\.receivingSoffitTriangles/);
@@ -28,7 +28,7 @@ assert.doesNotMatch(interior,/state\.(food|wood|gold)\s*[+\-*/]?=/,
  'roof must not change authority');
 const panels=[],timbers=[],data=[],stats={},terrain=(x,z)=>.10*Math.sin(x*.3)*Math.cos(z*.4);
 const ctx={data,MATERIAL:{WOOD:6},marketQuarterStats:stats,
- MARKET_RECEIVING_HALL:Object.freeze({centerX:-.075,frontZ:10.77,backZ:12.45,halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24}),
+ MARKET_RECEIVING_HALL:Object.freeze({centerX:-.075,frontZ:10.77,backZ:12.45,halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24,openSkyHalfWidth:1.16}),
  marketReceivingRoofDatum:()=>.23,
  rgb:n=>[n,n,n],materialScope:(_m,fn)=>fn(),
  quad:(a,b,c,d)=>{panels.push([a,b,c,d]);for(let i=0;i<60;i++)data.push(0);},
