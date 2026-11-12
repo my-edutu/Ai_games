@@ -4224,3 +4224,49 @@ test('real 390px source Walking_A loaded shoe gets bounded lateral-slide relief,
  ])assert.equal(plan({...evidence,...alteration}),null,
   'reject unlicensed or ambiguous movement: '+Object.keys(alteration).join(','));
 });
+
+
+test('genuine source Walking_A skid can use only a fresh witnessed root step across displayed same-tick frames',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ // Actual licensed player_swordsman 390px WebGL displayed frames 85 -> 86,
+ // source-sole artifact 13971662542. Root moved 44.5mm on its last legal
+ // source tick, then remains stationary during source-mixer rAF playback.
+ const previous={
+  left:{heel:[-3.7622763645869743,.19619061649808212,-6.964968636370414],
+   toe:[-3.936331449985617,-.022848690971393016,-6.936989276434345]},
+  right:{heel:[-3.673845306509682,-.015892989888730707,-7.117537969611167],
+   toe:[-3.9433384106340967,-.022593029997116175,-7.1402535772176385]}
+ };
+ const current={
+  left:{heel:[-3.7521558152800223,.1624096473608331,-6.958929690108859],
+   toe:[-3.93614977336351,-.03730755226041721,-6.939063081035758]},
+  right:{heel:[-3.6117278594795095,-.03542813690635666,-7.119786377236892],
+   toe:[-3.880277883348968,-.03294688530907301,-7.142783473794835]}
+ };
+ const truth={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,rootTravel:0,
+  recentRootTravel:.0445,recentTravelAge:.05,frameInterval:.05,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,previous,current};
+ const accepted=plan(truth);
+ assert.equal(accepted?.side,'right',
+  'a genuine 50ms old 44.5mm root displacement can witness an observed original 62mm skinned shoe drift');
+ assert.ok(accepted.reductionMeters>=.004&&accepted.reductionMeters<=.018000001);
+ assert.equal(accepted.contactLocked,false);
+ for(const override of [
+  {recentRootTravel:0},{recentRootTravel:.007},{recentRootTravel:.30},
+  {recentTravelAge:.181},{recentTravelAge:-.001},{recentTravelAge:NaN},
+  {recentRootTravel:NaN},{rootTravel:NaN},{rootTravel:.24},
+  {frameInterval:.4},{sourceInstanceSame:false},{sourceClipName:'Idle'},
+  {ownerLocomotion:false},{reducedMotion:true},{interrupted:true},
+  {teleport:true},{mode:'attack'}
+ ])assert.equal(plan({...truth,...override}),null,
+  'expired, invalid or nonmoving source must never borrow the old root step: '+JSON.stringify(override));
+ // No real earlier step = zero borrowed authority.
+ assert.equal(plan({...truth,recentRootTravel:0,recentTravelAge:0}),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/recentRootTravel:\s*actor\.rigRecentGroundedTravel/,
+  'the real original GLB adapter must pass its existing, bounded, genuine root-witness receipt');
+ assert.match(renderer,/recentTravelAge:\s*actor\.rigRecentGroundedAge/,
+  'expired displayed-frame evidence must not authorize a pivot');
+});
