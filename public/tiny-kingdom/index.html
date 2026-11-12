@@ -9562,7 +9562,7 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
       shell[band+1][panel+1],shell[band+1][panel],
       shade(cloth,1+((panel%3)-1)*.075-(band===0?.06:0)));
    const hem={...rings[0],y:.435,rx:rings[0].rx*.98,rz:rings[0].rz*.98};
-   const hemShell=verticesFor(hem);
+   const hemShell=verticesFor(hem,0);
    for(let panel=0;panel<8;panel++)
     quad(shell[0][panel],shell[0][panel+1],
      hemShell[panel+1],hemShell[panel],shade(cloth,.75));

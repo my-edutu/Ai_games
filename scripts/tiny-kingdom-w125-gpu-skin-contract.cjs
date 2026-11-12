@@ -54,8 +54,9 @@ const cloth=extract('renderRealVillageWorkwear');
 assert(cloth.includes('const shell=rings.map(verticesFor)')&&
  cloth.includes('const gait=rig.traveling')&&
  cloth.includes('const labor=rig.working')&&
- cloth.includes('r.pleat')&&cloth.includes('layer===0'),
- 'actual occupational 4-ring wool follows deterministic gait with no new geometry band');
+ cloth.includes('r.pleat')&&cloth.includes('layer===0')&&
+ cloth.includes('const hemShell=verticesFor(hem,0)'),
+ 'original wool ring and hem vertices MUST have finite explicit deformation index');
 const math=new Function([
  extract('workSkinRigidMatrix'),extract('workSkinPoint'),
  extract('workSkinSegments'),extract('workSkinTags')
