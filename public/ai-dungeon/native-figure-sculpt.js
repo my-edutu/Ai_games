@@ -47,7 +47,8 @@ export function planNativeFigureSculpt(kind,name,bounds,sourceHeadBounds=null){
  const cranial=skull||face;
  return Object.freeze({kind,part,
   centerX:(lo.x+hi.x)/2,centerZ:(lo.z+hi.z)/2,minY:lo.y,
-  invHeight:1/sh,maxXShift:Math.min(sw*(cranial?.18:.125),sh*.16),
+  invHeight:1/sh,sourceHalfWidth:sw*.5,sourceHalfDepth:sd*.5,
+  maxXShift:Math.min(sw*(cranial?.18:.125),sh*.16),
   maxZShift:Math.min(sd*(cranial?.16:.125),sh*.16),
   side:/Left$/i.test(m[1])?'left':/Right$/i.test(m[1])?'right':null,...p});
 }
@@ -102,7 +103,37 @@ export function planNativeFigureVertex(plan,x,y,z){
  // never a supposed generic body height. End seams have exactly zero shift.
  // Original skin weights, index, UV, texture, rig and animation are retained.
  const dx=clamp((x-plan.centerX)*width,-plan.maxXShift,plan.maxXShift);
- const dz=clamp((z-plan.centerZ)*depth,-plan.maxZShift,plan.maxZShift);
+ // Real adult rib, scapula, elbow, kneecap and calf volumes are sculpted
+ // directly into ORIGINAL weight-painted GLB surfaces. Unlike the existing
+ // radially symmetric widening, front and back now carry DIFFERENT physical
+ // contours. Source UVs, original jaw/eyes alignment and bone binds survive.
+ // A seam-safe, <=12.5%-of-source-depth bound avoids separating native mesh
+ // pieces even under their authored animation and reversible impact poses.
+ const halfX=plan.sourceHalfWidth,halfZ=plan.sourceHalfDepth;
+ let relief=0;
+ if((plan.kind==='vanguard'||plan.kind==='revenant'||plan.kind==='warden')&&
+  (plan.part==='body'||plan.part==='arm'||plan.part==='leg')&&
+  Number.isFinite(halfX)&&halfX>.006&&Number.isFinite(halfZ)&&halfZ>.006){
+  const lateral=clamp(Math.abs(x-plan.centerX)/halfX,0,1);
+  const front=clamp((plan.centerZ-z)/halfZ,0,1);
+  const back=clamp((z-plan.centerZ)/halfZ,0,1);
+  const role=plan.kind==='warden'?1.20:plan.kind==='vanguard'?1.08:.94;
+  if(plan.part==='body'){
+   const sternum=.32*bump(t,.69,.19)*(1-.28*lateral)+.12*bump(t,.41,.17);
+   const scapula=.20*bump(t,.78,.18)*(.60+.40*lateral)+.09*bump(t,.24,.17);
+   relief=role*seam*halfZ*(-front*sternum+back*scapula);
+  }else if(plan.part==='arm'){
+   const swordSide=plan.side==='right'?1.16:.94;
+   const flexor=.28*bump(t,.72,.16)+.23*bump(t,.26,.16);
+   const tricep=.19*bump(t,.59,.15)+.12*bump(t,.36,.12);
+   relief=role*seam*halfZ*(-front*flexor*swordSide+back*tricep);
+  }else{
+   const patella=.25*bump(t,.45,.10)+.17*bump(t,.73,.18);
+   const calf=.25*bump(t,.26,.15)+.10*bump(t,.74,.19);
+   relief=role*seam*halfZ*(-front*patella+back*calf);
+  }
+ }
+ const dz=clamp((z-plan.centerZ)*depth+relief,-plan.maxZShift,plan.maxZShift);
  return {x:x+dx,y,z:z+dz,shift:Math.hypot(dx,dz)};
 }
 
