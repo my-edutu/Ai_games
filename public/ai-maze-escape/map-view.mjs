@@ -695,7 +695,7 @@ export function publicFullBleedFollowHalfHeight(aspect, selectedHalfHeight) {
  * A disclosed, nearby hero/guardian pair may be staged from a slightly
  * different physical azimuth on a motion-enabled portrait. Look along the
  * *already public* actor separation, never hidden topology or a future route.
- * Limit rotation to 0.55 rad, preserve the usual shot for reduced motion,
+ * Stage a physically legible paired silhouette up to 0.78 rad on a witnessed\n * two-cell sideways duel, preserving the usual shot for reduced motion,
  * unknown threats, all landscapes, Detail/Overview and terminal results.
  * Pure and allocation-free: each public snapshot yields the same angle.
  */
@@ -713,7 +713,12 @@ export function publicPortraitGuardianOrbitAngle(aspect, attention, hero, guardi
   // use the nearest orientation, never a sudden half-turn.
   if (turn>Math.PI/2) turn-=Math.PI;
   if (turn< -Math.PI/2) turn+=Math.PI;
-  return clamp(turn*clamp((attention-.30)/.26,0,1),-.55,.55);
+  // Exact-HEAD 390px Pass303 imagery kept Pip and the armored guardian near
+  // opposite ±.92 NDC edges. Rotate the SAME real public actor axis toward
+  // the lens instead of shrinking models, cropping pixels or enlarging HUD.
+  // The existing easing-endpoint conservative body envelopes remain enforced
+  // by publicPortraitGuardianHalfHeight and the strict browser ±.95 gate.
+  return clamp(turn*clamp((attention-.30)/.26,0,1),-.78,.78);
 }
 
 export function publicPortraitGuardianBalance(aspect, attention, hero, guardian, focus, view={x:15,z:18}) {
