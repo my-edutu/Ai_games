@@ -4141,3 +4141,46 @@ test('RED: a genuine same-frame ankle/calf proof may coexist with a previously s
  assert.match(stage,/earlierToeProof&&.*continuity===.hold./,
   'a hold and its existing same-frame ankle proof must pass final original heel/toe reconciliation');
 });
+
+
+test('RED: a measured same-frame source ankle proof survives a bounded original thigh release',async()=>{
+ const {reconcileOriginalSourceSwingToeProofWithThigh:reconcile}=await load();
+ // The original heel/toe coordinates below are contract fixtures, not a claim
+ // of a new WebGL foot plant. This guards a continuity transition that the
+ // preceding adapter vetoed whenever an original ankle/calf proof coexisted.
+ const proof={source:'same-original-GLB-foot-skinned-vertices',
+  side:'left',sourceClip:'Walking_A',sourceInstanceId:'same-licensed-clone',
+  floorTopY:-.02,beforeToeY:-.033256,afterToeY:-.027,
+  beforeHeelY:.147,afterHeelY:.152,liftMeters:.006256};
+ const before={heelY:.152,toeY:-.027,
+  heelXZ:[.11,.03],toeXZ:[.14,.21]};
+ const after={heelY:.1524,toeY:-.0282,
+  heelXZ:[.111,.031],toeXZ:[.141,.211]};
+ const owner={proof,side:'left',sourceInstanceId:'same-licensed-clone',
+  sourceClipName:'Walking_A',floorTopY:-.02,before,after,
+  thighImprovementMeters:-.0012,continuityKind:'release'};
+ const accepted=reconcile(owner);
+ assert.ok(accepted,'same-frame proven original foot + <=1.5mm measured thigh release must be reconcilable');
+ assert.equal(accepted.combinedSourceThighKind,'release');
+ assert.equal(accepted.contactLocked,false);
+ assert.ok(Math.abs(accepted.liftMeters-.005056)<1e-6,
+  'signed true source toe motion replaces the earlier same-frame receipt');
+ for(const bad of [
+  {continuityKind:'invented'},
+  {sourceInstanceId:'stale-original'},
+  {sourceClipName:'Idle'},
+  {thighImprovementMeters:-.003},
+  {after:{...after,toeY:-.0305}},
+  {after:{...after,toeXZ:[.23,.21]}},
+  {proof:{...proof,liftMeters:.0041,beforeToeY:-.0311}}
+ ])assert.equal(reconcile({...owner,...bad}),null,
+  'unwitnessed same-frame foot, too much burial or insufficient final lift must fail closed');
+ const native=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=native.slice(native.indexOf('function stageOriginalSourceSwingThighAfterMixer('),
+  native.indexOf('function stageRigLegsAfterMixer('));
+ assert.match(stage,/continuity==='release'/);
+ assert.doesNotMatch(stage,/else if\(!earlierToeProof\)\s*\{\s*selected=planOriginalSourceSwingThighEaseOut/,
+  'existing same-frame source-ankle proof must not arbitrarily force a one-frame upperleg reset');
+ assert.match(stage,/continuityKind:continuity/,
+  'live Three.js source mixer must reconcile a measured release before retaining the source joint');
+});
