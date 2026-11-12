@@ -191,3 +191,49 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
       'the source-earned old cap cannot persist past the bounded first airborne continuation');
   }finally{world.dispose();}
 });
+
+test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real frame even if browser last saw a LIVING guardian',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const observed=old();observed.tick=443;
+  observed.enemies=observed.enemies.map(enemy=>({...enemy,health:1,active:true}));
+  const sourceDefeat=old(); // Immutable 20Hz trace still proves the real defeated cap.
+  const newFloor=next();newFloor.tick=460; // WebGL can skip tick451's actual crossing.
+  const world=createTowerWorld();
+  try{
+    world.update(observed,.05,0,{quality:'low'});
+    assert.equal(world.stageGroundedCapContinuation(sourceDefeat,newFloor),true,
+      'exact source defeat and same-roof crossing may be proven despite an older browser packet');
+    world.update(newFloor,.05,.05,{quality:'low'});
+    assert.ok(world.group.getObjectByName('AuthoritativeGuardianGate'),
+      'retain actual previously drawn opened bronze doorway');
+    assert.ok(world.group.getObjectByName('platform:f9:ground'),
+      'the genuine successor roof must never be deferred');
+    assert.equal(world.diagnostics().vistaLayers,0,
+      'cold noninteractive canyon must not upload before first real floor render');
+    const pending=world.diagnostics().deferredDistantArrival;
+    assert.equal(pending?.state,'awaiting-actual-first-render',
+      'the trusted source proof must authorize deferred distant scenery, not old browser guardian state');
+    world.noteFrameSubmitted(newFloor,{});
+    world.update(newFloor,.05,.1,{quality:'low'});
+    assert.equal(world.diagnostics().vistaLayers,3,
+      'original panorama returns only after successful Three.js source frame submission');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-vista-submission');
+  }finally{world.dispose();}
+});
+
+test('no proven passage cannot postpone the successor world on an unrelated old source frame',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const observed=old();observed.tick=443;
+  observed.enemies=observed.enemies.map(enemy=>({...enemy,health:1,active:true}));
+  const unrelated=next();unrelated.tick=460;
+  const world=createTowerWorld();
+  try {
+    world.update(observed,.05,0,{quality:'low'});
+    assert.equal(world.stageGroundedCapContinuation(observed,unrelated),false);
+    world.update(unrelated,.05,.05,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival,null,
+      'no forged earned crossing may receive a source-authorized cold upload schedule');
+    assert.equal(world.diagnostics().vistaLayers,3,
+      'regular unrelated floor changes retain their existing immediate original art');
+  } finally {world.dispose();}
+});
