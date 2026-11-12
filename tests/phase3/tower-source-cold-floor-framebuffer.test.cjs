@@ -41,7 +41,8 @@ test('only matching supported live gateway may alter the genuine renderer pixel 
     [source,{...earned,runToken:'other'},follow],
     [source,earned,{...follow,stale:true}],
     [source,earned,{...follow,camera:'overview'}],
-    [source,earned,{...follow,reducedMotion:true}]
+    [source,earned,{...follow,reducedMotion:true}],
+    [source,earned,{...follow,quality:'high'}]
   ]) {
     const policy=createTowerColdFloorResolution();
     assert.equal(policy.observe(s,p,o),1,'unverified source/view remains full resolution');
