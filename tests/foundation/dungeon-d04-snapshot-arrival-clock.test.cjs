@@ -276,3 +276,23 @@ test('explicit mute records suppressed staged HP sound without claiming delivery
   assert.equal(h.audio.length,1);
  }finally{h.d.dispose()}
 });
+
+
+test('audio adapter context rebind refusal audits the unsubmitted real-HP cue rather than erasing it',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const h=contextBoundHarness(createPhysicalCombatFeedback);
+ try{
+  assert.equal(h.d.attachAudioContext({state:'running'}),false,
+   'a previously constructed injected sound adapter must not switch contexts');
+  assert.equal(h.d.stats().awaitingPresentation,0);
+  const receipt=h.d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'audio-adapter-rebind-refused');
+  assert.equal(receipt.audio,false);
+  assert.equal(receipt.frameId,null);
+  assert.equal(h.d.stats().audioOptedIn,false);
+  assert.equal(h.d.enableAudioFromGesture(),false);
+  assert.equal(h.d.acknowledgePresentedFrame(1,.010),0);
+  assert.deepEqual(h.audio,[]);
+ }finally{h.d.dispose()}
+});
