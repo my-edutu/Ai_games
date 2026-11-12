@@ -1,3 +1,19 @@
+## W251 · durable one-milestone Phase 1 backlog · 12 November 2026
+
+**Scope:** Only [open draft PR #64](https://github.com/my-edutu/Ai_games/pull/64), original G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`, current gameplay [W251 production 825ee4e1](https://github.com/my-edutu/Ai_games/commit/825ee4e108cd910a18137d98fc4e5201fa006d01). No merges or divergent branch copy. One real farmer → cart → market → household scenario.
+
+| Rank/owner | Real blocker and W251 work | Strict done condition |
+| --- | --- | --- |
+| 1 · Human-scale actual labour | W250 real 1024px/390px shows fence and court roof blocking real hand/feet; W251 changes actual six-post court from continuous roof to two original rain wings with 1.98m open stone aisle and scouts crop/face/wrist unobstructed field camera. New actual footage pending | One uncut real harvest → loaded courier → receipt → occupied-home film, readable human adult hands/crop/loaded goods, clear 390px worksite, never invented actors or inventory |
+| 2 · Contiguous architecture | Existing original road and cottages look toy-like in W250. W251 reconstructs a single physically supported workcourt as part of real farm–granary route, no standalone fake prop | Physically joined credible medieval rural court → granary and market → occupied-home district at overview, workday and grown Day120, larger strong visual delta than G088 and independent blind visual approval |
+| 3 · Render/soak reliability | Older real Day121 source 28 residents/37 buildings and 144529 triangles, not a W251 value. W250 exact passive GPU desktop has unmatched 8 triangles; long-soak infrastructure failure and growing Day120 source not yet retested on W251 | Strict <160k across relevant original 120+ day views, deterministic saves/replay, no uncaught page/GL errors, no missing actors/homes, bounded GPU buffers/CPU memory, matched frame traces and successful true long soak |
+| 4 · Physical hardware and touch feel | Only SwiftShader source videos; W251 cost/visibility unmeasured on actual hardware | Native representative desktop/mobile >=30 sustained FPS, p95 <=33.3ms, no spikes or forgotten input at 390px, meaningful orbit/follow/commands |
+| 5 · Comparisons and independent critics | W251 new [source](https://github.com/my-edutu/Ai_games/actions/runs/43160478861), [uncut original film](https://github.com/my-edutu/Ai_games/actions/runs/43160479031), [Day121](https://github.com/my-edutu/Ai_games/actions/runs/43160478667), [G088 A/B](https://github.com/my-edutu/Ai_games/actions/runs/43160478732) pending. Separate critic/coding workspace unavailable | Same seed, exact SHA, real overview + uninterrupted worker/receipt + grown day120 + 390px video, actual UI interactions and truly separate fresh-context blind critics judging LOOK/FEEL/PLAY plus biggest failure |
+
+**A LOOK NOT PROVEN · A FEEL NOT PROVEN · A PLAY NOT PROVEN · B COMMERCIAL FAIL.** The next task is inspection of exact-source W251 motion and geometry failures, then a substantially richer original connected district and labor/architecture scene, not more micro-pigment edits. Phase1 active, PR open DRAFT and UNMERGED.
+
+---
+
 ## W250 · persistent one-milestone Phase 1 integrated original-autonomy backlog · 12 November 2026
 
 **Branch/authorization:** Draft [PR #64](https://github.com/my-edutu/Ai_games/pull/64), `feat/tiny-kingdom-post-main-gauntlet-20261031`, unmerged; immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Only one uninterrupted farmer harvest → loaded food cart → market inventory receipt → inhabited-home real purchase and meal, including Day120 and 390px. W250 source [b5accfc](https://github.com/my-edutu/Ai_games/commit/b5accfcfdea2a71ad85dadd9493bd1c7f98d7f55). No parallel PR integration or main merge.
