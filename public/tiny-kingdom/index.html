@@ -12458,16 +12458,27 @@ function getFarmMarketStreetAudit(){return {...farmMarketStreetStats,
  realDestination:farmMarketStreetStats.realDestination.slice()}}
 // W210: low original hazel/oak service-road edging follows true courier
 // navigation; no new colliders, homes, citizens, inventory or RNG.
+// W264: reconstruct ONE physically continuous original freight avenue from
+// the real granary to real market. Actual W263 gameplay shows tall roadside
+// palisade rails cutting across people and carts. Replace ONLY those decorative
+// street rails with bounded, terrain-following two-course stone, a low chamfer,
+// and real roadside drainage. The ORIGINAL farm enclosure, true gate, existing
+// navigation, citizens, camera collision, houses and economic state survive.
+// Every panel remains 20 triangles; never another GPU buffer or bogus trade.
 const FARM_STREET_WEAVE_MAX_PANELS=38,FARM_STREET_WEAVE_MAX_TRIANGLES=760;
 let farmStreetWeaveStats={panels:0,posts:0,wovenBands:0,triangles:0,
- skipped:0,maxHeight:0,liveRouteOnly:true,authorityChanged:false};
+ skipped:0,maxHeight:0,stoneCourses:0,drainageGutters:0,pedestrianGaps:0,
+ lowStoneBoundaries:true,liveRouteOnly:true,authorityChanged:false};
 function renderFarmServiceStreetBoundary(points){
  const begin=data.length,stats=farmStreetWeaveStats={
   panels:0,posts:0,wovenBands:0,triangles:0,skipped:0,maxHeight:0,
-  liveRouteOnly:true,authorityChanged:false};
+  stoneCourses:0,drainageGutters:0,pedestrianGaps:0,
+  lowStoneBoundaries:true,liveRouteOnly:true,authorityChanged:false};
  if(!Array.isArray(points)||points.length<2)return;
- const timber=[rgb(0x67513b),rgb(0x796048),rgb(0x87694d)],
-  hazel=[rgb(0x8b7352),rgb(0x6e6148),rgb(0x98805e)];
+ const rock=[rgb(0x898575),rgb(0xa49783),rgb(0x797a6d)],
+  course=[rgb(0x746b5c),rgb(0x8b806f),rgb(0x948674)],
+  lime=[rgb(0xb9a990),rgb(0xa69a84),rgb(0x9f8f7b)],
+  mud=[rgb(0x655b50),rgb(0x676456),rgb(0x77715f)];
  for(let section=0;section<points.length-1&&stats.panels<FARM_STREET_WEAVE_MAX_PANELS;section++){
   const a=points[section],b=points[section+1],
    dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);
@@ -12476,47 +12487,71 @@ function renderFarmServiceStreetBoundary(points){
   for(let n=0;n<count&&stats.panels<FARM_STREET_WEAVE_MAX_PANELS;n++){
    for(const side of [-1,1]){
     if(stats.panels>=FARM_STREET_WEAVE_MAX_PANELS)break;
+    // Deliberate short breaks enable real household access; no new collider.
+    if((n+section*3)%5===4){stats.pedestrianGaps++;continue;}
     const place=v=>{
-     const x=a[0]+dx*v+nx*side*1.72,
-      z=a[1]+dz*v+nz*side*1.72;
+     const x=a[0]+dx*v+nx*side*1.72,z=a[1]+dz*v+nz*side*1.72;
      return {x,z,y:terrain(x,z)};
     };
     const p0=place(n/count),p1=place((n+1)/count),pm=place((n+.5)/count);
-    // Keep working crops, real homes and receiving/loading points open.
     if(![p0,p1,pm].every(p=>roadsideEcotoneClear(p.x,p.z))||
       [p0,p1].some(p=>Math.hypot(p.x-29,p.z+7.6)<4.2||
-       Math.hypot(p.x+1,p.z-10.2)<6.5)){
-     stats.skipped++;continue;
-    }
-    const shade=(section+n+side+8)%3;
-    materialScope(MATERIAL.WOOD,()=>{
-     for(const p of [p0,p1]){
-      const lo=[p.x-tx*.065,p.y+.014,p.z-tz*.065],
-       hi=[lo[0],p.y+.69,lo[2]],
-       lo2=[p.x+tx*.065,p.y+.014,p.z+tz*.065],
-       hi2=[lo2[0],p.y+.69,lo2[2]];
-      quad(lo,hi,hi2,lo2,timber[shade]);
-      quad(lo2,hi2,hi,lo,timber[shade]);stats.posts++;
-     }
-     for(let band=0;band<3;band++){
-      const height=.20+band*.14,offset=(band%2?.035:-.035)*side;
-      const a0=[p0.x+nx*offset,p0.y+height-.039,p0.z+nz*offset],
-       a1=[p0.x+nx*offset,p0.y+height+.039,p0.z+nz*offset],
-       b0=[p1.x+nx*offset,p1.y+height-.039,p1.z+nz*offset],
-       b1=[p1.x+nx*offset,p1.y+height+.039,p1.z+nz*offset];
-      quad(a0,a1,b1,b0,hazel[(shade+band)%3]);
-      quad(b0,b1,a1,a0,hazel[(shade+band)%3]);stats.wovenBands++;
-     }
+       Math.hypot(p.x+1,p.z-10.2)<6.5)){stats.skipped++;continue;}
+    const shade=(section+n+(side+1)/2)%3;
+    // Every vertex samples its own ground: a long road bends/grades over
+    // real terrain instead of presenting the floating toy fence of W263.
+    const at=(p,across,rise)=>{
+     const x=p.x+nx*side*across,z=p.z+nz*side*across;
+     return [x,terrain(x,z)+rise,z];
+    };
+    const s=(offset,rise)=>at(p0,offset,rise),
+     e=(offset,rise)=>at(p1,offset,rise);
+    materialScope(MATERIAL.STONE,()=>{
+     const inside=(lo,hi,c)=>{
+      const p=[s(-.13,lo),e(-.13,lo),e(-.13,hi),s(-.13,hi)];
+      if(side<0)quad(...p,c);else quad(p[3],p[2],p[1],p[0],c);
+     };
+     const outside=(lo,hi,c)=>{
+      const p=[s(.13,lo),e(.13,lo),e(.13,hi),s(.13,hi)];
+      if(side>0)quad(...p,c);else quad(p[3],p[2],p[1],p[0],c);
+     };
+     inside(.018,.11,course[shade]);                       // stone course 1
+     inside(.11,.188,rock[(shade+1)%3]);                   // stone course 2
+     outside(.018,.11,course[(shade+2)%3]);                // reverse course 1
+     outside(.11,.188,rock[shade]);                        // reverse course 2
+     const crown=[s(-.070,.242),e(-.070,.242),
+      e(.070,.242),s(.070,.242)];
+     if(side>0)quad(crown[3],crown[2],crown[1],crown[0],lime[shade]);
+     else quad(...crown,lime[shade]);                      // flat coping
+     const innerSlope=[s(-.13,.188),e(-.13,.188),
+      e(-.070,.242),s(-.070,.242)];
+     const outerSlope=[s(.070,.242),e(.070,.242),
+      e(.13,.188),s(.13,.188)];
+     if(side>0){
+      quad(innerSlope[3],innerSlope[2],innerSlope[1],innerSlope[0],lime[(shade+1)%3]);
+      quad(...outerSlope,lime[(shade+2)%3]);
+     }else{
+      quad(...innerSlope,lime[(shade+1)%3]);
+      quad(outerSlope[3],outerSlope[2],outerSlope[1],outerSlope[0],lime[(shade+2)%3]);
+     }                                                       // shaped coping
+     quad(s(-.13,.018),s(.13,.018),s(.13,.188),s(-.13,.188),rock[shade]);
+     quad(e(.13,.018),e(-.13,.018),e(-.13,.188),e(.13,.188),rock[(shade+1)%3]);
+     const drain=[s(-.155,.023),e(-.155,.023),
+      e(-.13,.051),s(-.13,.051)];
+     if(side>0)quad(drain[3],drain[2],drain[1],drain[0],mud[shade]);
+     else quad(...drain,mud[shade]);                        // worn drainage joint
     });
-    stats.panels++;stats.maxHeight=Math.max(stats.maxHeight,.69);
+    stats.panels++;stats.stoneCourses+=2;stats.drainageGutters++;
+    stats.maxHeight=Math.max(stats.maxHeight,.242);
    }
   }
  }
  stats.triangles=(data.length-begin)/30;
  if(!Number.isInteger(stats.triangles)||stats.triangles!==stats.panels*20||
-    stats.triangles>FARM_STREET_WEAVE_MAX_TRIANGLES)
-  throw Error('W210 unbounded original service-street physical edging');
+  stats.triangles>FARM_STREET_WEAVE_MAX_TRIANGLES)
+  throw Error('W264 unbounded authentic low stone freight corridor');
 }
+
 // W128: one bounded, low-height ROAD VERGE reconstruction following the
 // SAME actual, traversable farm-to-market routing already audited by W83.
 // It's shallow soil/drainage cut and real-world scrub. No invented navigation,

@@ -47,5 +47,5 @@ assert.equal(result.authorityChanged,false);
 assert.equal(result.liveRouteOnly,true);
 assert(!/\b(?:people\.push|city\.push|state\.[\w$]+\s*=|Math\.random\s*\()/.test(impl),
  'Original generated road geometry must never fabricate simulation state');
-assert(source.includes('renderRealRoadsideMicroterrain(points);\n  renderFarmServiceStreetBoundary(points);'));
+assert.match(source,/renderRealRoadsideMicroterrain\(points\);\s*renderFarmServiceStreetBoundary\(points\);/);
 console.log('W264 PASS exact true-road low masonry / visibility / geometry budget; actual WebGL visual verdict not implied');
