@@ -213,11 +213,26 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
     const pending=world.diagnostics().deferredDistantArrival;
     assert.equal(pending?.state,'awaiting-actual-first-render',
       'the trusted source proof must authorize deferred distant scenery, not old browser guardian state');
+    assert.equal(pending?.structureDeferred,true,
+      'only the source-proven Floor 8 guardian exit defers the noninteractive structural shell');
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined,
+      'the first playable frame must not upload the heavyweight new tower shaft');
     world.noteFrameSubmitted(newFloor,{});
     world.update(newFloor,.05,.1,{quality:'low'});
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
+      'the original new-floor architecture returns only after the first genuine render');
+    assert.equal(world.diagnostics().vistaLayers,0,
+      'canyon upload must not share the structural shaft submission');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission');
+    world.noteFrameSubmitted(newFloor,{});
+    world.update(newFloor,.05,.15,{quality:'low'});
     assert.equal(world.diagnostics().vistaLayers,3,
-      'original panorama returns only after successful Three.js source frame submission');
+      'the original panorama returns only after a SECOND successful Three.js source frame submission');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-vista-submission');
+    world.noteFrameSubmitted(newFloor,{});
+    world.update(newFloor,.05,.2,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'fading-remote-arrival',
+      'authentic distant citadels reappear in their own third submitted-frame stage');
   }finally{world.dispose();}
 });
 
