@@ -3445,6 +3445,8 @@ function inspectSourceRigDeformation(actors){
     overlayScale:actor.rigNativeLegOverlayScale??1,
     bodyStrideWeight:actor.rigFullBodyStride?.weight??0,
     gaitWeight:actor.rigGaitWeight??0,
+    sourceStanceSlideReliefFrames:actor.sourceStanceSlideReliefFrames||0,
+    sourceStanceSlideReliefProof:actor.sourceStanceSlideReliefProof??null,
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
     sourceSwingToeCorrectionsThisFrame:actor.sourceSwingToeCorrectionsThisFrame||0,
     sourceSwingToeCurrentFrameProofs:actor.sourceSwingToeCurrentFrameProofs??null,
