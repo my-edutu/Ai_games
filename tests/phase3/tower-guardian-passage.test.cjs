@@ -210,8 +210,8 @@ test('the actual scene consumes source transitions and owns passage lifecycle on
   assert.match(source, /observedGuardianPassage\(previous, next\)/);
   assert.match(source, /observedRecordedGuardianHandoff\(next\)/,
     'browser frame loss may recover only a real source-earned crossing');
-  assert.match(source, /const gatewayPrevious = clearedGuardian \? previous : recordedGatewayPrevious/,
-    'the ordinary witnessed old source takes precedence over the event fallback');
+  assert.match(source, /const gatewayPrevious = recordedGatewayPrevious \|\|\s*\(clearedGuardian \? previous : null\)/,
+    'the exact authoritative grounded contact takes precedence over a possibly lagged prior browser observation; legacy ordinary transition remains fallback');
   assert.match(source, /const guardianCap = gatewayPrevious && gatewayPrevious\.platforms\?\.find/);
   assert.match(source, /platform\.id === `f\$\{gatewayPrevious\.floor\}:cap`/);
   assert.match(source, /const gateAnchorX = guardianGateAnchorX\(gatewayPrevious, guardianCap\)/);
