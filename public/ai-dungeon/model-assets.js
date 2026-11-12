@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,planOriginalSourceLoadedPelvisSupport,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -972,12 +972,26 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   const retryPrepared=retryEligible&&
    prepareOriginalSourceLegsForPelvisRetry(actor.rigGaitBones);
   if(retryPrepared){
-   // The pelvis candidate is consumed, so this is a nonrecursive foot pass.
+   // The pelvis candidate was consumed. The restored original Mixer-root
+   // shoes must be sampled BEFORE the single source-joint retry. Include
+   // the OPPOSITE source-skinned heel/toe, not only the candidate shoe.
+   actor.assetRoot?.updateMatrixWorld(true);
+   const retryPatches=sourceSolePatchVertexCandidates(actor);
+   const readRetrySoles=()=>Object.fromEntries(['left','right'].map(side=>[
+    side,{heelY:readOriginalSwingSoleY(retryPatches?.[side]?.heel),
+     toeY:readOriginalSwingSoleY(retryPatches?.[side]?.toe)}
+   ]));
+   const retryBeforeSoles=readRetrySoles();
    stageRigLegsAfterMixer(actor,since,reducedMotion);
    actor.assetRoot?.updateMatrixWorld(true);
+   const retryAfterSoles=readRetrySoles();
+   const retryWholeSoleProof=verifyRestoredRootOriginalSourceSoleSafety({
+    source:'same-original-GLB-restored-root',floorTopY:-.02,
+    before:retryBeforeSoles,after:retryAfterSoles
+   });
    const stanceProofs=Object.values(actor.sourceStanceSoleCurrentFrameProofs??{})
     .filter(Boolean);
-   let sourceSolesSafe=true;
+   let sourceSolesSafe=Boolean(retryWholeSoleProof);
    for(const proof of stanceProofs){
     const foot=sourceSolePatchVertexCandidates(actor)?.[proof.side];
     const finalHeel=readOriginalSwingSoleY(foot?.heel);
@@ -1017,6 +1031,11 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
      if(probe?.status==='accepted')probe.status='retry-final-skin-rejected';
    }
    actor.sourceLoadedPelvisRollbackFootProof.retryAttempted=true;
+   actor.sourceLoadedPelvisRollbackFootProof.retryWholeSoleSafety={
+    source:'same-original-GLB-restored-root',
+    verified:Boolean(retryWholeSoleProof),contactLocked:false,
+    before:retryBeforeSoles,after:retryAfterSoles
+   };
    actor.sourceLoadedPelvisRollbackFootProof.retrySourceSolesSafe=sourceSolesSafe;
    actor.sourceLoadedPelvisRollbackFootProof.retryVerifiedStanceFeet=
     sourceSolesSafe?stanceProofs.length:0;

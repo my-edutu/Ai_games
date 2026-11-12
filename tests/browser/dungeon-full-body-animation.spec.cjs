@@ -584,6 +584,18 @@ for(const view of [
      expect(Number.isFinite(rollback[k]),
       'actual same-original-GLB restored-root skinned shoe: '+k).toBe(true);
     expect(typeof rollback.retrySourceSolesSafe).toBe('boolean');
+    const both=rollback.retryWholeSoleSafety;
+    expect(both?.source).toBe('same-original-GLB-restored-root');
+    expect(both?.contactLocked).toBe(false);
+    if(rollback.retrySourceSolesSafe){
+     expect(both?.verified).toBe(true);
+     for(const side of ['left','right'])for(const edge of ['heelY','toeY']){
+      expect(Number.isFinite(both?.before?.[side]?.[edge])).toBe(true);
+      expect(Number.isFinite(both?.after?.[side]?.[edge])).toBe(true);
+      const a=both.before[side][edge],z=both.after[side][edge];
+      expect(z<-.024&&z<a-.004).toBe(false);
+     }
+    }
     if(rollback.retrySourceSolesSafe){
      const proved=Object.values(n?.sourceStanceSoleCurrentFrameProofs??{}).filter(Boolean);
      expect(rollback.retryVerifiedStanceFeet).toBe(proved.length);

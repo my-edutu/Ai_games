@@ -1056,6 +1056,35 @@ export function planOriginalSourceSoleGrounding({
  * The opposite near-loaded source shoe must not be raised into visible hover.
  * No IK target or synthetic contact is created. Stateless, bounded, read-only.
  */
+/**
+ * A restored-root ankle retry must independently check BOTH source-skinned
+ * shoes on the same original GLB. Neither an ankle trial nor a weighted sole
+ * readback is evidence of a planted-foot IK or authoritative ground lock.
+ */
+export function verifyRestoredRootOriginalSourceSoleSafety({
+ source='',floorTopY=NaN,before=null,after=null
+}={}){
+ if(source!=='same-original-GLB-restored-root'||!finite(floorTopY)||
+  Math.abs(floorTopY+.02)>.005||!before||!after)return null;
+ for(const side of ['left','right']){
+  const first=before[side],last=after[side];
+  if(!first||!last||
+   ![first.heelY,first.toeY,last.heelY,last.toeY].every(finite))return null;
+  // A source ankle retry must not drive any outsole endpoint >4 mm deeper
+  // into stone, even if the opposite/other toe improves.
+  for(const edge of ['heelY','toeY'])
+   if(last[edge]<floorTopY-.004&&last[edge]<first[edge]-.004)
+    return null;
+  const nearLoaded=['heelY','toeY'].every(edge=>
+   first[edge]>=floorTopY-.055&&first[edge]<=floorTopY+.035);
+  // Respect the genuine opposite source shoe; do not force an already
+  // airborne shoe down or introduce an obviously hovering loaded outsole.
+  if(nearLoaded&&(last.heelY>floorTopY+.035||
+   last.toeY>floorTopY+.035))return null;
+ }
+ return Object.freeze({source,floorTopY,feetVerified:2,contactLocked:false});
+}
+
 export function verifyOriginalSourceLoadedPelvisFootWitness({
  before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN
 }={}){
