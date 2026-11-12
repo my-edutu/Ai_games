@@ -201,7 +201,11 @@ test('a real close public encounter frames both autonomous actors and saves date
   // The real wide-screen camera must settle through rendered frames after
   // the authentic accessibility motion toggle; extra SwiftShader wall time
   // is not a graphics/art or gameplay acceptance concession.
-  test.setTimeout(480000);
+  // The authentic 37-image CPU SwiftShader sequence consumed the original
+  // 480 seconds before the required final fossil scene restart. 600 seconds
+  // grants ONLY wall-clock time; all screenshot, NDC, privacy, resource,
+  // source-evidence and controller-size thresholds remain unchanged.
+  test.setTimeout(600000);
   const fs = require('node:fs');
   const path = require('node:path');
   const { createHash } = require('node:crypto');
@@ -1488,17 +1492,22 @@ test('a real close public encounter frames both autonomous actors and saves date
   expect(fossilSample,
     'A genuine public run must disclose a safe sculpted fossil alcove before screenshot').toBeTruthy();
   const fossilSnapshot=fossilSample.frame.snapshot;
-  const previousFossilFrames=await page.evaluate(()=>window.__MAZE_3D__?.frames??0);
+  // A source-authentic fossil sample can predate key/gate public ticks
+  // already shown on this page. Never run a historical public event backward
+  // through the current scene clock. Re-enter that SAME genuine production
+  // snapshot by reloading the SAME /maze document and public route handler;
+  // no mock, private map, cropped screenshot or relaxed physical image gate.
   activeFrame=fossilSample.frame;
   await page.setViewportSize({width:1280,height:900});
-  await page.waitForFunction(({token,tick,oldFrames})=>
+  await page.reload({waitUntil:'domcontentloaded'});
+  await waitForRealMazeStage(page,{minFrames:3,timeout:45000});
+  await page.waitForFunction(({token,tick})=>
     window.__MAZE_3D__?.renderer==='webgl'
     &&window.__MAZE_3D__.runToken===token
     &&window.__MAZE_3D__.tick===tick
-    &&window.__MAZE_3D__.frames>oldFrames+1
+    &&window.__MAZE_3D__.frames>=4
     &&Math.abs(window.__MAZE_3D__.cameraAspect-1280/900)<.01,
-    {token:fossilSnapshot.runToken,tick:fossilSnapshot.tick,
-      oldFrames:previousFossilFrames},{timeout:30000});
+    {token:fossilSnapshot.runToken,tick:fossilSnapshot.tick},{timeout:45000});
   const fossilDiagnostic=await page.evaluate(()=>window.__MAZE_3D__);
   const fossilImage=path.join(dir,'public-fossil-alcove-1280.png');
   await page.screenshot({path:fossilImage,fullPage:true});
