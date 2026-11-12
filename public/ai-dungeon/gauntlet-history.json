@@ -8606,7 +8606,7 @@
     "observed": "390px browser screenshot still has massive opaque freestanding-looking center column; mobile organic 5-stage real motion and original audio exist; software RAF delivery remains slow",
     "integration": "Replace four unconditional >2m authored corner pillars with <=4 original low wall-anchored lamp niches only on true solid perimeter wall and adjacent legal passage, guarded from living units. Single physical root holds the light, and existing foreground recession and retained source batches still apply. No authority/collision/audio change.",
     "plannerLocalTests": "3/3 PASS pure planner in Node before GitHub commit",
-    "newHeadExactBrowser": "NOT_OBSERVED",
+    "newHeadExactBrowser": "PENDING_AFTER_ROUTE_FIX",
     "actualObstructionRemoved": "UNVERIFIED_ORIGIN_NOT_PROVEN",
     "mobilePerf": "UNVERIFIED_NEW_HEAD",
     "matchedBaselineAB": "UNVERIFIED",
@@ -8616,6 +8616,8 @@
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "pr72": "SEPARATE_UNADOPTED",
-    "next": "Inspect exact new-head 390px dungeon-ui-round17 and organic 1440/390 live original AV. If pillar persists identify named actual source/draw and reject assumption. Verify replay and visual depth. Then adult rig/contact/audio and 3 blind critics."
+    "next": "Inspect exact new-head 390px dungeon-ui-round17 and organic 1440/390 live original AV. If pillar persists identify named actual source/draw and reject assumption. Verify replay and visual depth. Then adult rig/contact/audio and 3 blind critics.",
+    "firstCandidateCriticalFailure": "Exact source 3d4ac99efc0d7cf6e7049463ddd043e8c08e9da3 failed the foundation browser import allowlist 436/437: new live ESM route was missing; live game boot would fail",
+    "routeCorrection": "Explicit HTTP serve allowlist updated in subsequent lease-safe commit; new exact-head browser evidence PENDING"
   }
 }
