@@ -21,7 +21,8 @@ function eligible(snapshot, passage, options) {
     passage.floor === snapshot.floor &&
     Number.isSafeInteger(passage.sourceTick) &&
     snapshot.tick >= passage.sourceTick &&
-    !options?.stale && options?.camera === 'follow' &&
+    !options?.stale && options?.quality === 'low' &&
+    options?.camera === 'follow' &&
     options?.reducedMotion !== true;
 }
 
