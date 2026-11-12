@@ -1,4 +1,4 @@
-import {planSoundCues,planSoundMood} from '/dungeon/soundstage-plan.js';
+import {planSoundCues,planSoundMood,planConfirmedImpactMaterial} from '/dungeon/soundstage-plan.js';
 import {planAuthorityDamageBeats,planVerifiedMeleeImpactDelay,planVisibleMeleeContactStep} from '/dungeon/impact-choreography-plan.js';
 import {planVisualContact} from '/dungeon/facing-plan.js';
 import {createMaterialFoley} from '/dungeon/material-foley.js';
@@ -13,6 +13,11 @@ const MAX_VOICES=10;
 const MASTER_GAIN=.15;
 const MAX_PENDING_CONTACT=12;
 const VISUAL_CONTACT_DELAYS=Object.freeze({weapon:.185,ranged:.14,magic:.19,kill:.235});
+const TRUE_IMPACT_VOICES=Object.freeze({
+ iron:{hz:146,end:53,length:.265,peak:.145,type:'triangle'},
+ bone:{hz:208,end:74,length:.172,peak:.134,type:'triangle'},
+ cloth:{hz:119,end:55,length:.14,peak:.111,type:'triangle'}
+});
 const CUES=Object.freeze({
  defeat:    {hz:185,end:46,length:1.08,peak:.12,type:'triangle'},
  renewal:   {hz:262,end:440,length:.70,peak:.08,type:'sine'},
@@ -67,6 +72,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
  const active=[],cooldown=new Map(),beds=[],nodes=[],pending=[];
  let contactCuesPlayed=0,contactCuesDropped=0;
+ let confirmedMaterialImpacts=0,lastMaterialImpact=null;
  let master=null,bedBus=null,fxBus=null,capture=null,foley=null,pcmSession=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
@@ -120,8 +126,12 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
  }
  function emit(cue){
   if(!enabled||disposed||ctx.state!=='running')return false;
-  const profile=CUES[cue?.kind];
+  const hasTrueMaterial=cue?.kind==='impact'&&
+   typeof cue.impactMaterial==='string'&&
+   Object.hasOwn(TRUE_IMPACT_VOICES,cue.impactMaterial);
+  const profile=hasTrueMaterial?TRUE_IMPACT_VOICES[cue.impactMaterial]:CUES[cue?.kind];
   if(!profile||!started)return false;
+  const gainScale=hasTrueMaterial?safe(cue.impactStrength,.44,1,1):1;
   const t=now();
   cleanup();
   const key=cue.kind,previousTime=cooldown.get(key)??-Infinity;
@@ -139,15 +149,21 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
    osc.frequency.setValueAtTime(profile.hz,t);
    osc.frequency.exponentialRampToValueAtTime(profile.end,t+profile.length);
    gain.gain.setValueAtTime(.0001,t);
-   gain.gain.exponentialRampToValueAtTime(profile.peak,t+.012);
+   gain.gain.exponentialRampToValueAtTime(profile.peak*gainScale,t+.012);
    gain.gain.exponentialRampToValueAtTime(.0001,t+profile.length);
    osc.connect(gain);gain.connect(fxBus);
-   const voice={osc,gain,foley:foley?.emit(cue.kind,t,fxBus,cue.tick)||null,
+   const voice={osc,gain,foley:foley?.emit(cue.kind,t,fxBus,cue.tick,
+     hasTrueMaterial?cue.impactMaterial:null,gainScale)||null,
     stopAt:t+profile.length+.04,priority:cue.priority||1,done:false};
    osc.onended=()=>{stopAndDisconnect(voice)};
    osc.start(t);osc.stop(voice.stopAt);
    active.push(voice);cooldown.set(key,t);
    peakVoices=Math.max(peakVoices,active.length);played++;lastCue=key;
+   if(hasTrueMaterial){
+    confirmedMaterialImpacts++;
+    lastMaterialImpact={tick:cue.tick,victimId:cue.actorId,
+      material:cue.impactMaterial,emittedAtAudioSeconds:t};
+   }
    // High-priority danger and defeat stand apart from background atmosphere.
    if((cue.priority||1)>=4&&bedBus){
     const back=sceneMood?.mood==='intermission'?.24:sceneMood?.mood==='defeat'?.12:.68;
@@ -257,6 +273,10 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
   if(previous&&(previous.run!==s.run||previous.floor!==s.floor))pending.length=0;
   const mood=planSoundMood(s);setMood(mood);
   const cues=planSoundCues(previous,s,(u,current)=>planVisualContact(u,current));
+  // Resolve material from the SAME immutable pair before replacing the cached
+  // comparison snapshot. Every material impact still requires authentic HP loss.
+  const trueImpactMaterials=new Map(cues.filter(c=>c.kind==='impact')
+   .map(c=>[c.actorId,planConfirmedImpactMaterial(previous,s,c.actorId)]));
   // Share the exact true-HP-loss / legal-sword-contact proof used by the skinned
   // hit reaction and physical debris. Melee contact waits for the blade; all
   // fatal, ranged, ambiguous and reduced-motion damage is audible immediately.
@@ -275,11 +295,15 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
     attackTick:s.bossWarning.attackTick,turnsUntilImpact:s.bossWarning.turnsUntilImpact}:null
   };
   if(enabled)for(const cue of cues){
+   const material=cue.kind==='impact'?trueImpactMaterials.get(cue.actorId):null;
+   if(cue.kind==='impact'&&!material){contactCuesDropped++;continue;}
+   const voiced=material?{...cue,impactMaterial:material.material,
+    impactStrength:material.strength}:cue;
    const delay=cue.kind==='impact'?(contactDelays.get(cue.actorId)??0):VISUAL_CONTACT_DELAYS[cue.kind];
    if(delay&&Number.isSafeInteger(cue.tick)&&cue.tick>=s.tick-3){
     if(pending.length>=MAX_PENDING_CONTACT){pending.shift();contactCuesDropped++;}
-    pending.push({cue,remaining:delay,visibleAge:0});
-   }else if(!delay)emit(cue);
+    pending.push({cue:voiced,remaining:delay,visibleAge:0});
+   }else if(!delay)emit(voiced);
    else contactCuesDropped++;
   }
  }
@@ -328,6 +352,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false}={}){
    cuesPlayed:played,cuesSuppressed:suppressed,sceneChanges,
    mood:sceneMood?.mood??'unavailable',biome:sceneMood?.biome??null,
    lastCue,masterGain:MASTER_GAIN,pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
+   confirmedMaterialImpacts,lastMaterialImpact,
    foley:foley?.stats()??null,engine:'original-synth-web-audio'
   };
  }

@@ -23,6 +23,35 @@ const validSnapshot=s=>s&&Number.isSafeInteger(s.tick)&&s.tick>=0&&
 const near=(a,b,range)=>Number.isFinite(a?.x)&&Number.isFinite(a?.z)&&
  Number.isFinite(b?.x)&&Number.isFinite(b?.z)&&Math.abs(a.x-b.x)+Math.abs(a.z-b.z)<=range;
 
+/**
+ * Sound material for a witnessed authoritative HP decrement only. An actor's
+ * source-skinned armor determines the transient; the offender is NEVER
+ * inferred from proximity, a hurt animation, a projectile, or a guessed hit.
+ * This is a read-only tactile cue, not another damage or contact decision.
+ */
+export function planConfirmedImpactMaterial(previous,snapshot,actorId){
+ if(!validSnapshot(previous)||!validSnapshot(snapshot)||
+  previous.run!==snapshot.run||previous.floor!==snapshot.floor||
+  snapshot.tick<=previous.tick||snapshot.tick-previous.tick>5||
+  typeof actorId!=='string'||!actorId||actorId.length>128||
+  !Array.isArray(previous.units)||!Array.isArray(snapshot.units))return null;
+ const before=previous.units.find(u=>u?.id===actorId);
+ const after=snapshot.units.find(u=>u?.id===actorId);
+ if(!before||!after||before.kind!==after.kind||
+  before.faction!==after.faction||!validUnit(before)||!validUnit(after)||
+  ![before.hp,before.maxHp,after.hp,after.maxHp].every(Number.isInteger)||
+  before.maxHp<=0||after.maxHp<=0||before.maxHp!==after.maxHp||
+  before.hp<=after.hp||before.hp>before.maxHp||after.hp<0||
+  after.hp>after.maxHp)return null;
+ const damage=before.hp-after.hp;
+ const material=['vanguard','warden'].includes(after.kind)?'iron':
+  after.kind==='revenant'?'bone':'cloth';
+ const strength=Math.round(Math.min(1,Math.max(.44,.47+
+  damage/after.maxHp*1.65))*1000)/1000;
+ return Object.freeze({tick:snapshot.tick,victimId:actorId,material,
+  strength,damage,kind:after.kind});
+}
+
 /** Music state uses only public phase, survival and actual enemy positions. */
 export function planSoundMood(snapshot){
  const floor=Number.isSafeInteger(snapshot?.floor)&&snapshot.floor>=1?snapshot.floor:1;
