@@ -11,8 +11,8 @@ const CONTACT=new Set(['contact','warden-contact','warden-counter','warden-expos
 // A true Warden warning ALWAYS takes the safe immediate wide overview.
 // On actual strike and earned counter, blend only a continuous physical orbit.
 // The current shot still owns every real subject, target, mode and danger tile.
-const WARDEN_BEAT=new Set(['warden-warning','warden-release','warden-counter']);
-const WARDEN_FOLLOW=new Set(['warden-release','warden-counter']);
+const WARDEN_BEAT=new Set(['warden-warning','warden-release','warden-counter','warden-exposed']);
+const WARDEN_FOLLOW=new Set(['warden-release','warden-counter','warden-exposed']);
 const easeWardenOrbit=(a,b,t)=>{
  const oldRadius=Math.hypot(a[0],a[2]),newRadius=Math.hypot(b[0],b[2]);
  if(oldRadius<.01||newRadius<.01)return a.map((n,i)=>round(n+(b[i]-n)*t));
@@ -29,6 +29,7 @@ const snapshotKey=s=>Number.isSafeInteger(s?.run)&&Number.isSafeInteger(s?.floor
 const round=n=>Number(n.toFixed(3));
 export function createCombatShotContinuity(){
  let key=null,previous=null,holds=0,emergencies=0,resets=0,wardenBeatBlends=0,wardenBeatTransfers=0;
+ let earnedExposureBridges=0,wardenAimBridges=0,maxWardenAimLag=0;
  function reset(){previous=null;key=null;resets++;}
  function resolve(s,shot,dt=0,{reducedMotion=false}={}){
   const currentKey=snapshotKey(s);
@@ -55,8 +56,16 @@ export function createCombatShotContinuity(){
   // A new boss, dead combatant, floor, reduced motion or urgent warning cuts.
   const commonLivingBoss=prev&&prev.subjects.find(id=>
    shot.subjects.includes(id)&&live.get(id)?.kind==='warden'&&live.get(id)?.hp>0);
+  // The real organic Warden counter is authored as "warden-exposed", not
+  // "warden-counter". The old bridge stopped at that exact beat: authentic
+  // 390px film jumped from a ~64px frontline on release to a different camera
+  // and ~71px on exposure. Continue only while the SAME living Warden has a
+  // genuinely active authoritative recovery. No invented counter or hit.
+  const earnedExposure=shot.mode==='warden-exposed'&&
+   Number.isSafeInteger(s?.bossRecovery?.remaining)&&s.bossRecovery.remaining>0;
   const sameWardenBeat=Boolean(commonLivingBoss&&!s?.bossWarning&&
    WARDEN_BEAT.has(prev.mode)&&WARDEN_FOLLOW.has(shot.mode)&&
+   (shot.mode!=='warden-exposed'||earnedExposure)&&
    shot.subjects.every(id=>live.has(id)));
   if(!sameDuel&&!sameWardenBeat){previous=shot;return shot;}
   const step=CLIP(Number.isFinite(dt)?dt:0,0,.24);
@@ -69,9 +78,26 @@ export function createCombatShotContinuity(){
    if(prev.mode!==shot.mode)wardenBeatTransfers++;
   }
   if(offsets.some((n,i)=>Math.abs(n-shot.offsets[i])>.01))holds++;
-  const current=Object.freeze({...shot,offsets:Object.freeze(offsets)});
+  // An orbit alone cannot hold a coherent shot if the selected live frontline
+  // changes from Ranger to Vanguard at the actual earned counter. Bridge the
+  // original authored aim as well, but within 0.9m of the CURRENT real scene
+  // target. This lets the existing physical body/stone director veto unsafe
+  // views and never drags the camera onto a departed or invented fighter.
+  let x=shot.x,z=shot.z;
+  if(sameWardenBeat){
+   const dx=prev.x-shot.x,dz=prev.z-shot.z,dist=Math.hypot(dx,dz);
+   if(dist>.01&&dist<=3.2){
+    const remaining=Math.exp(-5.8*step),cap=Math.min(1,.9/(dist*remaining));
+    x=round(shot.x+dx*remaining*cap);
+    z=round(shot.z+dz*remaining*cap);
+    const lag=Math.hypot(x-shot.x,z-shot.z);
+    if(lag>.01){wardenAimBridges++;maxWardenAimLag=Math.max(maxWardenAimLag,lag);}
+   }
+   if(earnedExposure&&prev.mode!==shot.mode)earnedExposureBridges++;
+  }
+  const current=Object.freeze({...shot,x,z,offsets:Object.freeze(offsets)});
   previous=current;
   return current;
  }
- return Object.freeze({resolve,reset,metrics:()=>Object.freeze({holds,emergencies,resets,wardenBeatBlends,wardenBeatTransfers,mode:previous?.mode??'none'})});
+ return Object.freeze({resolve,reset,metrics:()=>Object.freeze({holds,emergencies,resets,wardenBeatBlends,wardenBeatTransfers,earnedExposureBridges,wardenAimBridges,maxWardenAimLag:Number(maxWardenAimLag.toFixed(3)),mode:previous?.mode??'none'})});
 }
