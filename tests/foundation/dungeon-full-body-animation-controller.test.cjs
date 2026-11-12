@@ -3623,7 +3623,7 @@ test('verified original Hit_A blends on visible time without outrunning witnesse
  ])assert.equal(plan({...sample,sourceStep:step,...changes}),null,
   'unwitnessed/noninjury/hidden/invalid clock cannot move the original fade independently');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(renderer,/planImportedWitnessedHurtMixerFrame\(\{\.\.\.originalStep,sourceStep/);
+ assert.match(renderer,/planImportedWitnessedHurtMixerFrame\(\{\s*\.\.\.originalStep,sourceStep/);
  assert.match(renderer,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*injuryFrame\.actionScale\)/);
  assert.match(renderer,/actor\.mixer\.update\(injuryFrame\.mixerDelta\)/);
  assert.match(renderer,/finally\{actor\.activeClip\.setEffectiveTimeScale\(normalScale\);\}/);
