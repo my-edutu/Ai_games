@@ -3272,3 +3272,52 @@ test('source-stance applied witness honors cumulative original ankle and 45mrad 
   previousCorrectionRad:.12}),null,
   'the native accumulated 140mrad source ankle limit is never waived');
 });
+
+
+test('a rejected elevated pelvis can safely re-stage authentic source legs at the RESTORED root exactly once',async()=>{
+  const rig=fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8');
+  const {restoreOriginalSourceLegsAfterRejectedPelvis:rollback,
+    prepareOriginalSourceLegsForPelvisRetry:prepare}=await import(
+    'data:text/javascript;base64,'+Buffer.from(rig).toString('base64'));
+  assert.equal(typeof prepare,'function',
+    'a failed elevated-root witness must not permanently discard an independently safe original ankle correction');
+  const THREE=require('three'),pitch=new THREE.Vector3(1,0,0),yaw=new THREE.Vector3(0,1,0);
+  const mounts=[],sourceByBone=new Map();
+  for(const side of ['left','right'])for(const part of ['upper','lower','foot']){
+    const i=mounts.length,bone=new THREE.Bone(),base=.015+i*.004;
+    bone.name=part+'.'+side;
+    const source=new THREE.Quaternion().setFromAxisAngle(yaw,.21+i*.016);
+    const overlay=new THREE.Quaternion().setFromAxisAngle(pitch,base+(part==='foot'?.045:part==='lower'?.06:0));
+    bone.quaternion.copy(source).multiply(overlay);
+    sourceByBone.set(bone,source);
+    mounts.push({side,part,bone,sourceFrameBaseAngleRad:base,
+      last:overlay.clone(),next:new THREE.Quaternion(),inverse:new THREE.Quaternion(),
+      euler:new THREE.Euler(),soleClearanceRad:part==='foot'?.045:0,
+      stanceReliefRad:part==='foot'?.045:0,
+      swingCalfAssistRad:part==='lower'?.06:0});
+  }
+  assert.equal(rollback(mounts),true);
+  assert.equal(prepare(mounts),true,'only six complete original joint mounts may return to the Mixer for re-staging');
+  for(const mount of mounts){
+    assert.ok(1-Math.abs(mount.bone.quaternion.dot(sourceByBone.get(mount.bone)))<1e-12,
+      'rejected pelvis retry must start from genuine imported mixer bone, never double the prior native base pose');
+    assert.ok(1-Math.abs(mount.last.dot(new THREE.Quaternion()))<1e-12,
+      'next source mixer update must not undo stale speculative leg poses');
+    assert.equal(mount.soleClearanceRad,0);
+    assert.equal(mount.stanceReliefRad,0);
+    assert.equal(mount.swingCalfAssistRad,0);
+  }
+  const invalid=mounts.map((m,i)=>({...m,side:i===1?'left':m.side}));
+  const before=mounts.map(m=>m.bone.quaternion.clone());
+  assert.equal(prepare(invalid),false,'incomplete/duplicate bone contract must fail atomically');
+  assert.ok(mounts.every((m,i)=>1-Math.abs(m.bone.quaternion.dot(before[i]))<1e-12));
+  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+  const section=renderer.slice(renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('),
+    renderer.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments'));
+  assert.match(section,/restoreOriginalSourceLegsAfterRejectedPelvis\(actor\.rigGaitBones\)/);
+  assert.match(section,/prepareOriginalSourceLegsForPelvisRetry\(actor\.rigGaitBones\)/);
+  assert.match(section,/stageRigLegsAfterMixer\(actor,[^\n]*reducedMotion\)/,
+    'after restoring the root and Mixer base, retry original foot support exactly once');
+  assert.match(section,/retryAttempted/,
+    'the real browser must expose the late pelvis rejection and any safe restored-root retry separately');
+});
