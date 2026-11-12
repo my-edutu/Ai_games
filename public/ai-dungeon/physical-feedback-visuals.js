@@ -445,7 +445,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(let i=0;i<n;i++){
    const index=allocate(pool,clamp(cue.priority,0,10));
    if(index<0){suppressed++;break}
-   if(!pool.slots[index])active++;
+   // A vacant trail slot was already hidden at construction or retirement.
+   // An actual wrist passage will set its matrix during advance(). Do not
+   // upload a full reserved trail buffer just to re-hide an unmeasured swing.
+   // Occupied/preempted slots MUST still be hidden now: the prior ribbon may
+   // have been visible when a higher-priority attempt replaced it.
+   const displacedOccupied=pool.slots[index]!==null;
+   if(!displacedOccupied)active++;
    const speed=type==='hit'||type==='dust'?spray(cue.id,i):null;
    pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
     origin:warningMarkers?world(warningMarkers[i],.075):{...start},
@@ -460,9 +466,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    // A new visible instance needs a posed GPU matrix before the first actual
    // render. Otherwise the audio receipt might refer to a hidden setup slot.
    // A trail still uses hideMatrix() until genuine new wrist travel is sampled.
-   pool.mesh.setMatrixAt(index,transform(pool,pool.slots[index]));
-   pool.mesh.instanceMatrix.needsUpdate=true;
-   // No fabricated arc is drawn at emission; first sample has no motion.
+   if(type!=='trail'||displacedOccupied){
+    pool.mesh.setMatrixAt(index,transform(pool,pool.slots[index]));
+    pool.mesh.instanceMatrix.needsUpdate=true;
+   }
+   // A new trail remains hidden until a real skinned wrist passage; other
+   // cue families still write their immediately visible initial matrices.
    if(type!=='trail')pool.mesh.visible=true;
    created++;spawned++;
   }
