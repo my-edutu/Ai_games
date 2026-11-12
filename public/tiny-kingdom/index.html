@@ -10746,7 +10746,11 @@ function marketTimberCart(x,z){
 // This isolated Canvas2D projection does NOT substitute for exact-head GPU CI.
 const MARKET_RECEIVING_HALL=Object.freeze({
  centerX:-.075,frontZ:10.77,backZ:12.45,
- halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24
+ halfWidth:3.02,eaveAboveGround:3.18,ridgeAboveGround:4.24,
+ // W254: an actual unobstructed daylight receiving aisle through the
+ // ORIGINAL four-post grain hall, wider than both authentic freight shelves.
+ // Both permanent pitched roof wings remain physical, not transparent FX.
+ openSkyHalfWidth:1.16
 });
 // W103: W83 granary porch and W100 receiving hall were real rendered roofs
 // but missing from the citizen camera's physical occlusion geometry. These
@@ -10777,12 +10781,13 @@ function physicalTradeCorridorCameraVolumes(){
  if(tradeCorridorCameraEnvelopes)return tradeCorridorCameraEnvelopes;
  const h=MARKET_RECEIVING_HALL,ground=marketReceivingRoofDatum();
  const volumes=[],zMid=(h.frontZ+h.backZ)*.5,span=h.halfWidth+.17;
- // Four small strips bound the TWO real clay roof slopes, not an opaque
- // room; the actual courier stands 0.57m in front of the eastern eave.
+ // W254: the actual roof forms two permanently open side wings. The camera
+ // collision must contain their clay, but MUST NOT imagine a central roof
+ // over the real market-delivery hands. It shares the *same* pitch formula.
  for(const side of [-1,1])for(let band=0;band<2;band++){
   const t0=band/2,t1=(band+1)/2,
-   x0=h.centerX+side*span*(1-t0),
-   x1=h.centerX+side*span*(1-t1),
+   x0=h.centerX+side*(span+(h.openSkyHalfWidth-span)*t0),
+   x1=h.centerX+side*(span+(h.openSkyHalfWidth-span)*t1),
    y0=ground+h.eaveAboveGround+(h.ridgeAboveGround-h.eaveAboveGround)*t0,
    y1=ground+h.eaveAboveGround+(h.ridgeAboveGround-h.eaveAboveGround)*t1;
   volumes.push({x:(x0+x1)*.5,z:zMid,rx:Math.abs(x0-x1)*.5+.025,
@@ -10880,40 +10885,33 @@ function marketReceivingOpenFrontTruss(){
   oak=rgb(0x654a37),aged=rgb(0x957653),soot=rgb(0x4e4136),
   first=data.length;
  materialScope(MATERIAL.WOOD,()=>{
-  // W206: original human-height public grain arcade, no longer a low roof
-  // covering the genuine courier and inventory shelves. Keep exactly
-  // the eight prior oak members and their existing GPU triangle budget.
+  // W254: this is TWO genuine load-bearing, cantilevered covered wings,
+  // not a formerly opaque triangular gable that crosses the unloading.
+  // Pitched rafters meet permanent parallel ridge beams at the OUTER edges
+  // of the actual sky-open receiving aisle. Both sides still own bracing.
   for(const side of [-1,1]){
-   limbSegment([cx+side*site.halfWidth,eave-.03,z],
-    [cx,ridge-.05,z],.090,oak,5);
-   limbSegment([cx+side*site.halfWidth*.73,eave-.045,z],
-    [cx+side*site.halfWidth*.56,eave+rise*.38,z],.064,aged,4);
-   limbSegment([cx+side*site.halfWidth*.31,eave-.045,z],
-    [cx+side*.13,ridge-.13,z],.054,soot,4);
+   const outer=cx+side*site.halfWidth,
+    inner=cx+side*site.openSkyHalfWidth;
+   limbSegment([outer,eave-.03,z],[inner,ridge-.05,z],.090,oak,5);
+   limbSegment([outer-side*.52,eave+.12,z],
+    [outer-side*.81,eave+rise*.45,z],.064,aged,4);
+   limbSegment([inner+side*.18,ridge-.23,z],
+    [inner+side*.67,eave+rise*.42,z],.054,soot,4);
   }
-  // A true king-post reaches the raised central roof, unlike the W205
-  // short timber stranded below its own ridge. The courier aisle remains
-  // free of opaque boards at worker eye-height.
+  // A narrow high front tie carries the wing loads across the same two
+  // original outer columns; it remains ABOVE human heads and hand contacts.
   box(cx,eave-.07,z,site.halfWidth*2,.092,.115,aged);
-  box(cx,eave-.045,z,.12,rise-.08,.14,oak);
+  box(cx,eave+.025,z,site.openSkyHalfWidth*2,.065,.095,oak);
  });
  const triangles=(data.length-first)/30;
  if(!Number.isInteger(triangles)||triangles>220||triangles<40)
-  throw Error('W206 original raised market truss resource budget');
+  throw Error('W254 paired real open grain arcade trusses exceed resource budget');
  marketQuarterStats.receivingHallFrontTrussMembers=8;
  marketQuarterStats.receivingHallFrontTrussTriangles=triangles;
  return triangles;
 }
 
-// W207: complete the OPEN W206 oak grain arcade without faking activity.
-// Its clay roof was one-sided: a real standing courier saw SKY through the
-// supposed shelter. These inward-facing oak planks and six actual rafters
-// share the permanent market VBO; no new roof, physics, inventory or actors.
-// W208: an ORIGINAL low stone-and-wattle flank for the SAME authentic
-// grain reception bay. The formerly skeletal W206/W207 timber arcade gains
-// real walls and joinery alongside, NEVER in front of, real freight workers.
-// Both genuine receiving counters stay on the same unblocked central aisle.
-// All new fixed pieces belong to the existing market civic VBO.
+
 function marketReceivingSideEnclosure(){
  const site=MARKET_RECEIVING_HALL,ground=marketReceivingRoofDatum(),
   start=data.length,maxHeight=.92,wallX=site.halfWidth-.19;
@@ -10972,8 +10970,9 @@ function marketReceivingRoofInterior(){
   // underside in genuine mobile and desktop playable first-person views.
   for(const side of [-1,1])for(let course=0;course<9;course++){
    const a=course/9,b=(course+1)/9,
-    ax=cx+side*(site.halfWidth+.17)*(1-a),
-    bx=cx+side*(site.halfWidth+.17)*(1-b),
+    outer=site.halfWidth+.17,inner=site.openSkyHalfWidth,
+    ax=cx+side*(outer+(inner-outer)*a),
+    bx=cx+side*(outer+(inner-outer)*b),
     ay=eave+rise*a-.018,by=eave+rise*b-.018,
     p0=[ax,ay,site.frontZ],p1=[bx,by,site.frontZ],
     p2=[bx,by,site.backZ],p3=[ax,ay,site.backZ];
@@ -10989,7 +10988,7 @@ function marketReceivingRoofInterior(){
      (site.backZ-site.frontZ-.34)*(bay/2);
    for(const side of [-1,1]){
     limbSegment([cx+side*(site.halfWidth+.13),eave-.045,z],
-     [cx+side*.10,eave+rise-.048,z],
+     [cx+side*site.openSkyHalfWidth,eave+rise-.048,z],
      .043,shades[(bay+1)%shades.length],4);
     rafters++;
    }
@@ -11056,15 +11055,16 @@ function marketReceivingDock(){
    const z=end<0?site.frontZ+.12:site.backZ-.12;
    box(cx,roofEave-.13,z,site.halfWidth*2-.15,.15,.15,tie);
   }
-  // Keeping the four load-bearing posts, both transverse eave beams and
-  // central ridge is enough; omit redundant side timbers for Day-120 budget.
-  // Real ridge, exposed eave and one timber tie at the back. No hard
-  // horizontal beam crosses the worker's face or the courier camera below.
-  box(cx,roofRidge-.08,(site.frontZ+site.backZ)/2,
-   .13,.13,site.backZ-site.frontZ+.15,dark);
+  // Two genuine longitudinal inner ridge beams replace the opaque full
+  // centre ridge. Each is supported by the existing outer post-and-truss
+  // structure: no new post or wall in the real 2.32m unloading aisle.
   for(const side of [-1,1]){
+   box(cx+side*site.openSkyHalfWidth,roofRidge-.08,
+    (site.frontZ+site.backZ)/2,.13,.13,
+    site.backZ-site.frontZ+.15,dark);
    limbSegment([cx+side*(site.halfWidth-.18),roofEave-.07,site.backZ-.09],
-    [cx,roofRidge-.05,site.backZ-.09],.052,tie,5);
+    [cx+side*site.openSkyHalfWidth,roofRidge-.05,site.backZ-.09],
+    .052,tie,5);
   }
  });
  // Continuous two-sided clay-tile covering over BOTH actual freight shelves.
@@ -11074,8 +11074,9 @@ function marketReceivingDock(){
   const tile=[0x8a6650,0x99715b,0x795a49,0xa88060].map(rgb);
   for(const side of [-1,1])for(let course=0;course<9;course++){
    const a=course/9,b=(course+1)/9,
-    ax=cx+side*(site.halfWidth+.17)*(1-a),
-    bx=cx+side*(site.halfWidth+.17)*(1-b),
+    outer=site.halfWidth+.17,inner=site.openSkyHalfWidth,
+    ax=cx+side*(outer+(inner-outer)*a),
+    bx=cx+side*(outer+(inner-outer)*b),
     ay=ground+site.eaveAboveGround+
       (site.ridgeAboveGround-site.eaveAboveGround)*a,
     by=ground+site.eaveAboveGround+
@@ -11098,15 +11099,21 @@ function marketReceivingDock(){
  marketReceivingOpenFrontTruss();
   marketReceivingSideEnclosure();
   marketReceivingRoofInterior();
-  // W205: genuine weather-facing rear plaster only, no opaque freight front.
+  // W254: weatherproof both REAL rear side gables only. No central opaque
+  // triangle caps the sky slot or blocks the authoritative receiving worker.
   materialScope(MATERIAL.PLASTER,()=>{
-  const z=site.backZ-.03;
-  const left=[cx-site.halfWidth,roofEave-.02,z],
-   right=[cx+site.halfWidth,roofEave-.02,z],
-   peak=[cx,roofRidge-.04,z];
-  tri(left,right,peak,lime);
-  tri(peak,right,left,lime);
- });
+   const z=site.backZ-.03;
+   for(const side of [-1,1]){
+    const outer=[cx+side*site.halfWidth,roofEave-.02,z],
+     inner=[cx+side*site.openSkyHalfWidth,roofRidge-.04,z],
+     foot=[cx+side*site.openSkyHalfWidth,roofEave-.02,z];
+    tri(outer,foot,inner,lime);
+    tri(inner,foot,outer,lime);
+   }
+  });
+  marketQuarterStats.receivingOpenSkyWidth=site.openSkyHalfWidth*2;
+  marketQuarterStats.receivingHallCoveredWingCount=2;
+  marketQuarterStats.receivingHallFullOpenUnloadingAisle=true;
 }
 // The transfer platform sits on a real connected open court, not under the
 // obstructive timber gateway. Bounded terrain-following stonework is cached
