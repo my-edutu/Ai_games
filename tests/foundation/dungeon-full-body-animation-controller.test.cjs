@@ -3985,3 +3985,58 @@ test('RED: native source swing thigh must build through genuine 45mrad steps, ne
  assert.match(renderer,/swingThighAssistRad/);
  assert.match(renderer,/sourceSwingThighCurrentFrameProofs/);
 });
+
+
+test('RED: real original Walking_A swing upperleg releases its witnessed angle gradually when only a two-shoe-safe smaller pose remains',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose,
+  planOriginalSourceSwingThighEaseOut:ease}=await load();
+ assert.equal(typeof ease,'function','source-native thigh needs a measured 45mrad/frame release path');
+ const baseFoot={heelY:-.023,toeY:-.025,heelXZ:[.25,0],toeXZ:[.25,.20]};
+ const before={left:{heelY:.215,toeY:-.049,heelXZ:[0,0],toeXZ:[0,.20]},
+  right:baseFoot};
+ const candidate=(angle,afterToeY=-.047,heelY=.216,loaded=baseFoot,
+  toeXZ=[.008,.204])=>({delta:angle,after:{
+   left:{heelY,toeY:afterToeY,heelXZ:[.006,.002],toeXZ},
+   right:loaded}});
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.92,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.034,frameAge:.03,
+  side:'left',floorTopY:-.02,previousCorrectionRad:.135,before,
+  priorSourceProofVerified:true};
+ const safe=candidate(.09);
+ assert.equal(choose({...owner,trials:[safe]}),null,
+  'a 2mm non-rescue cannot pass the existing 4mm toe-lift rule');
+ const release=ease({...owner,trials:[safe]});
+ assert.equal(release?.angleRad,.09,'do not snap a genuinely supported 135mrad leg to source rest');
+ assert.equal(release?.continuityRelease,true);
+ assert.equal(release?.contactLocked,false);
+ assert.equal(release?.oppositeFootVerified,true);
+ const second=ease({...owner,previousCorrectionRad:.09,
+  before:{...before,left:{...before.left,toeY:-.031}},
+  trials:[candidate(.045,-.029)]});
+ assert.equal(second?.angleRad,.045,'90→45mrad requires a new original dual-foot read');
+ const neutral=ease({...owner,previousCorrectionRad:.045,
+  before:{...before,left:{...before.left,toeY:-.022}},
+  trials:[candidate(0,-.022,.215,baseFoot,[0,.20])]});
+ assert.equal(neutral?.angleRad,0,'45→0 can legally return to licensed source pose');
+ for(const bad of [
+  {priorSourceProofVerified:false},{sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {teleport:true},{interrupted:true},{reducedMotion:true},{alive:false},
+  {sourceWeight:.4},{rootTravel:.4},{frameAge:.3},
+  {previousCorrectionRad:-.135},{previousCorrectionRad:0},
+  {trials:[candidate(.045)]}, // 135→45 skips the 90mrad verified stage
+  {trials:[candidate(.09,-.055)]}, // newly buried toe
+  {trials:[candidate(.09,-.047,.216,{...baseFoot,toeY:-.037})]},
+  {trials:[candidate(.09,-.047,.216,baseFoot,[.08,.20])]}
+ ])assert.equal(ease({...owner,trials:[safe],...bad}),null,
+  'unverified source, lost travel, original-shoe drag or a >45mrad jump must fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const live=renderer.slice(start,end);
+ assert.match(live,/planOriginalSourceSwingThighEaseOut\(/,
+  'real Three.js must re-read and pose the original licensed upperleg, not merely advertise a helper');
+ assert.match(live,/sourceSwingThighEaseOutFrames/,
+  'witnessed continuity releases need their own bounded readable evidence');
+});
