@@ -6,7 +6,10 @@ on:
   workflow_dispatch:
 concurrency:
   group: dungeon-fullbody-animation-${{ github.ref }}
-  cancel-in-progress: true
+  # Protect expensive genuine source-rig desktop/mobile WebM capture from
+  # rapid branch-scoped test/doc pushes. One running and at most one queued
+  # run remain bounded by GitHub concurrency; never claim queued validation.
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
