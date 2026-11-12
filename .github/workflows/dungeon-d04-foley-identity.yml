@@ -49,6 +49,7 @@ jobs:
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
             tests/foundation/dungeon-d04-pre-submit-wall-deadline.test.cjs \
+            tests/foundation/dungeon-d04-render-cost-pair.test.cjs \
             tests/foundation/dungeon-d04-live-queued-warning-stall.test.cjs \
             tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
