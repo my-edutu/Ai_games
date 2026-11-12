@@ -84,9 +84,9 @@
   "requestedOn": "2026-11-12",
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "candidateSource": "Exactly immutable github.sha of THIS source-pinned capture request at 685b779ca7b7a5405065bdec676bb9bceb10c7fe code on PR68. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 unchanged; no deployment, merge or PR58 edits.",
+  "candidateSource": "Immutable github.sha OF THIS capture-request commit, contains runnable successor-floor source change 3f4b0d3f817c921e985a9b22e7df09235314fe71 and scene integration cce841aeeb9ecdf7cb3f84d46b0329e6cd39e580; never moving branch. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 remains unchanged.",
   "repairedSourceSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
-  "reason": "P0 source-native outcome forensic clock-gap recovery after original run 43028026049: authentic baseline portrait outcome 60s+ WebM exists but 13 source-independent matched compositor anchors include one unsafe 0.738094 video/wall slope. Retain the original video and independently bounded before/after windows while explicitly VETOING complete source-to-film calibration; never lower the 0.75 bound or infer rendered action from source events. Exact source for this request is immutable github.sha with code at 0b9d91e535212d6008f7af0810a4179eb5022601. Re-capture same frozen baseline/candidate, inspect 1x guardian battle, HP0 and crusher, grounded physical gateway, Floor9 onward, visible outcome/intermission/restart.",
+  "reason": "P0 exact-source normal-speed native before/after for one coherent physical continuity repair. Original source-pinned run 43136473900 has all 8 real WebMs and authentic source ledge but 0/2 guardian source/native event matches. Source tick451 grounded Floor8→9 passage still visually cuts from cap to disconnected purple floor; candidate now reuses the same 12 owned bronze inlay instances to build a NEW witnessed floor-nine supported-ground runway with actual source-walk progress (never copied old cap matrices, fabricated collision, source time or victory). Require 960x600 and 390x844 60s+ normal-speed genuine ascent/moving/guardian/outcome+restart, inspect pixel composition and event-to-native time; DO NOT count green CI as experience improvement.",
   "scenarios": [
     "ascent",
     "moving",
@@ -927,5 +927,21 @@
     },
     "supportedDevices": "NOT EVALUATED",
     "nextAction": "Inspect immutable full-motion before/after clips for true Floor9 threshold, guardian cause and crusher victory, normal-speed outcome and restart, exact-source/native time. Fix biggest remaining defect, then independent critics and physical devices."
+  },
+  "p0SourceGroundedFloor9AfterFilm20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "playableSourceSha": "cce841aeeb9ecdf7cb3f84d46b0329e6cd39e580",
+    "passageSourceSha": "3f4b0d3f817c921e985a9b22e7df09235314fe71",
+    "exactCandidate": "This request edit's immutable github.sha, never floating PR68 head",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43136473900 — eight genuine 60+s films plus source ledge; strict 0/2 event-raster alignment",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43136473901 — passed technical only",
+    "requestedAcceptance": "Watch complete true source guardian defeat/crusher→grounded gateway→same-footing continued bronzed Floor9 runway→outcome/intermission/restart on real desktop and portrait, compare actual pixel floor HUD and source tick; no 2s clock concealment, no fake video.",
+    "newCapture": "REQUESTED by this source-pinned immutable SHA; not yet returned or reviewed",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43142899220 — implementation test SHA in progress at request; no green claim",
+    "deviceAndIndependent": "NOT EVALUATED, LOOKS 0/5 FEELS 0/5 PLAYS 0/5",
+    "biggestGap": "Guardian source-to-native raster 0/2, scene appearance can still jump despite real source transition; no full-motion accepted grounded Floor9 runway or outcome/restart, mobile guardian still bronze-cluttered.",
+    "next": "Inspect actual video and source event/frame clocks, fix dominant measured visual obstruction or delay, stay P0 and do not deploy/merge/alter PR58."
   }
 }
