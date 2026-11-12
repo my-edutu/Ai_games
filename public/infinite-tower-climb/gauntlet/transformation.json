@@ -1,4 +1,49 @@
 {
+  "p0RetainedActualCapFloorNineContinuousLane20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBeforeHead": "49f0b6cf8ce63a7b136218c4ab8fbd12d022a17b",
+    "priorOriginalGameplayRun": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463",
+    "originalDangerCandidateSourceSha": "06cc9ae1d71a02774de350c8a6f692c1c66ae626",
+    "originalDangerDesktopPortraitArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43212531463/artifacts/13941613111",
+    "actualFilmLengthsSeconds": {
+      "desktop": 72.48,
+      "portrait": 72.88
+    },
+    "recordedSourceTrueGuardianDefeatTick": 441,
+    "recordedTrueGroundedHandoffTick": 451,
+    "recordedSourceFloorNineNativePtsSeconds": {
+      "desktop": 23.076,
+      "portrait": 23.211
+    },
+    "previousAuthenticVisualDefect": "Original desktop and portrait 1x frame inspection: brown Floor8 cap scaffolding at ~25.15s replaced by violet Floor9 ground at ~25.5s without a continuous supporting old cap and body through same open doorway. Baseline moving7 desktop original film has a real partial native clock gap; cannot pair original full film. Strict guardian event-native-video pairing 0/2 accepted.",
+    "baselineMovingEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/43201804634/artifacts/13935313922",
+    "baselineMovingDesktopClock": "PARTIALLY_CALIBRATED: real 3.46s browser to 2.24s native WebM anchor gap, slope ~0.647<0.75. Portrait CALIBRATED. Veto must remain; recapture, do not weaken.",
+    "testFirstContractSha": "fc150ca440ebd73ca27eda0e8ce5152956f8a9fb",
+    "productionCodeSha": "308c7c181c9d4bb2be4e15681066b0ba2c625fca",
+    "existingContractFixSha": "76bc305225c90aa202bb91da6cab56752edf2727",
+    "realPresentationChange": "After one authentic source-recorded grounded HP0 Floor8→9 crossing, preserve 12 bounded source-anchored old-cap slabs during actual renderer-submitted handoff and connect four old-cap plus eight actual successor-ground inlays. Existing resources reused; one additional instanced draw and material, zero physics/collider/run progression changes. Clear on run/stale/invalid source/outcome.",
+    "sourceFilesChanged": [
+      "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+      "tests/phase3/tower-source-recorded-gateway-handoff.test.cjs",
+      "tests/phase3/tower-guardian-passage.test.cjs"
+    ],
+    "staticSyntaxCheck": "PASS V8 parser for edited ES module and two CommonJS tests; NOT full Node test execution",
+    "focusedTests": "NOT VERIFIED — no GitHub checkout or executable GitHub workflow dispatch in this execution",
+    "exactHeadTechnicalQuality": "NOT VERIFIED — combined status had no checks at 76bc305225c90aa202bb91da6cab56752edf2727",
+    "newCandidateOriginalNativeFootage": "NOT CAPTURED/NOT INSPECTED at this implementation SHA",
+    "strictSourceNativeAcceptedViewports": "0/2 earlier actual original; new code NOT EVALUATED",
+    "independentRandomizedFreshContextCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "engineeringReview": "docs/reviews/2026-11-12-tower-pr68-authentic-old-cap-to-floor9-render-continuity.md",
+    "biggestRemainingGap": "Before-film authentic complete body/arch/world handoff still unverified in new source. Broad bronze-to-violet environmental replacement and native source-visible phase mismatch may survive; baseline moving floor7 full-film clock remains invalid.",
+    "nextHighestImpactAction": "Record exact immutable frozen baseline/current candidate 9-job real WebM 60s+ matrix 960×600/390×844; inspect full-motion 22–28s, strict 2/2 event pairing, Floor9 onward/restart, performance impact; if still visually cuts, rebuild the clockwork/astral shared cap atmosphere/camera instead of additional microscopic cosmetics. Repair real baseline moving desktop native timestamp gap without relaxing evidence safety."
+  },
 "p0SourceRecordedBrowserGapGuardianGateway20261112": {
   "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
   "leadingAssessorVerdict": "NOT EVALUATED",
