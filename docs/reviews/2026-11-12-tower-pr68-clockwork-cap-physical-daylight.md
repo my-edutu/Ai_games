@@ -1,0 +1,22 @@
+# Infinite Tower Climb PR68 — original guardian cap physical daylight (2026-11-12)
+
+## Stage / verdict
+**P0 EVIDENCE + GAME-LOOP TRUTH OPEN. Leading assessor: NOT EVALUATED.** The current user-approved baseline remains immutable: `1731b380851162741761c5569e2bc152a0869ca9`. Draft PR #68 stays atop PR #58; never merge, deploy, force-push, rewrite base, or edit other games.
+
+## Source-authentic observed weakness
+The completed original immutable-source campaign [43167540412](https://github.com/my-edutu/Ai_games/actions/runs/43167540412) at `83d1d9b03473babd073d474872a8c5aa7a0b631b` produced all eight baseline/candidate original normal-speed videos at 960×600 and 390×844 plus a source ledge witness. **Pair-source-events FAILED**, so 0/2 strict guardian source↔native viewport acceptance. Examined candidate 74.28-second portrait original WebM and desktop 14–30s frame sequence from [candidate danger artifact 13920634196](https://github.com/my-edutu/Ai_games/actions/runs/43167540412/artifacts/13920634196). The genuine hero and boss share a crowded bronze cap with monumental opaque decorative posts and gears. Floor 8→9 visually replaces the environment with violet Floor 9 rather than showing a persuasive continuous body-and-door crossing. The footage is a negative finding, not an independent quality win. Previous 73-second source/return/native data show approximately 2.630s desktop and 2.264s portrait source-to-drawn-Floor9 discrepancy. Neither measuring WebGL return nor rendering stills proves GPU presentation or physical passage.
+
+The original camera mesh-owner forensic samples from the same source family identify `tapered-structural-pylon` and `ClockworkOpenGeologicalSupportTies` at source Floor8 guardian ticks (not a gameplay collider). Physical non-colliding shaft mass previously occupied the forward ±1.1rad camera/action arc. Shrinking pixel alpha or nudging the camera would not solve the whole silhouette problem.
+
+## One coherent implementation
+**Test-first contract commit** [309792971](https://github.com/my-edutu/Ai_games/commit/30979297188bb1f390a58352cda7dfb256b0b033) adds `tests/phase3/tower-clockwork-cap-clear-span.test.cjs`. It verifies original full-shaft angular footprints, unchanged other-biome layouts and actual authored mesh-triangle provenance in the real batched 3D world. The test was committed before the production change; an independently observed RED run is **not claimed**.
+
+**Production commit** [253a97ee](https://github.com/my-edutu/Ai_games/commit/253a97ee80af2a22333b87ddc497384837a5a617) changes only `public/infinite-tower-climb/visuals/world.mjs`: 3 clockwork cap non-colliding buttresses reposition to far ±2.10rad and π structural shoulders, 3 genuine geological masses relocate to ±2.2rad and π, and 3 elevated crown-connected load ties supply an explicit material support path. Structural foundation/crown models, clockwork mechanism, all five biome themes, true physical platforms/guardian/crusher/exit, authoritative snapshots and 20Hz simulation remain intact. No HUD text, extra collision, fake guardian, gameplay teleport or collision changes. Small additional frame-owned structural triangles require perf validation.
+
+## Validation / no invented gates
+Prior-source exact-head quality [43167540542](https://github.com/my-edutu/Ai_games/actions/runs/43167540542): **SUCCESS**, at previous `83d1d9...` only. Current code at `253a97ee...` technical CI **NOT YET VERIFIED**; must inspect corresponding push-triggered workflow and run focused new tests. New candidate source-pinned original 9-job capture **NOT YET VERIFIED**; request will be published only after this review/evidence ledger. No post-change video or real-device frame time/memory pass claimed.
+
+Independent fresh randomized 5-critic preferences: **LOOKS 0/5; FEELS 0/5; PLAYS 0/5**. Supported-device frame p50/p95/p99, GPU present, memory **NOT EVALUATED**.
+
+## Exact next highest-impact action
+Record exact immutable source after these commits against unchanged baseline: 60+s real 1x footage for everyday ascent/moving, guardian/crusher, true grounded arch, Floor9 onward, outcome/restart in both viewports. Inspect full motion and source/browser/Three/native event pairs. Retain structural moves only if the live guardian and passage are clearer without a new framing regression. If event pairing remains 0/2 or camera still cuts across the gateway, reopen P0's dominant visible/latency defect; do NOT advance P1 or claim transformed game.
