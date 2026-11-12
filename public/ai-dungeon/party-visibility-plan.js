@@ -534,8 +534,16 @@ export function planPortraitStageClearance(box,subjects,camera,view){
    const left=Math.max(-.84,focus.x-.70),right=Math.min(.84,focus.x+.70);
    const actingWidth=Math.max(0,Math.min(prop.maxX,right)-Math.max(prop.minX,left));
    const actingHeight=Math.max(0,Math.min(prop.maxY,.88)-Math.max(prop.minY,-.80));
-   if(Math.hypot(actor.x-cx,actor.z-cz)<=5.5&&width>=.44&&
-      height>=.74&&actingWidth>=.24&&actingHeight>=.50)return true;
+   const nearLivingStage=Math.hypot(actor.x-cx,actor.z-cz)<=5.5;
+   // The real 390px HIGH-OBLIQUE shot views a 2.75m standing Gothic
+   // column from ~8m above. It spans >half the screen but foreshortening
+   // limits its projected height to about .63 NDC, below the old .74 gate.
+   // Require BOTH substantial screen coverage and an actual live-body stage,
+   // without touching smaller landmarks, rear masonry or wide desktop shots.
+   const dominantHighOblique=camera.y>=5.5&&width>=.54&&height>=.57&&
+      actingWidth>=.29&&actingHeight>=.46;
+   if(nearLivingStage&&((width>=.44&&height>=.74&&actingWidth>=.24&&actingHeight>=.50)||
+      dominantHighOblique))return true;
    continue;
   }
   const sideX=-dz/distance,sideZ=dx/distance;

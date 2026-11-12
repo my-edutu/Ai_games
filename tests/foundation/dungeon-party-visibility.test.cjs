@@ -669,3 +669,28 @@ test('M1 portrait protects live source-skinned actors against a genuine lens-nea
  assert.match(app,/planPortraitStageClearance\(world\.userData\.foregroundPropVolumes/);
  assert.match(env,/planPortraitStageClearance\(foregroundVolumes\[i\]/);
 });
+
+
+test('M1 genuine high-oblique portrait shot clears a dominant foreground column even when its 3D box is far beneath the camera lens',async()=>{
+ const {planPortraitStageClearance}=await load();
+ const camera=Object.freeze({x:0,y:8,z:9});
+ const portrait=Object.freeze({look:{x:0,y:1,z:0},fov:48,aspect:390/844});
+ const actor=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:false});
+ // Real 3D original stone at the near half of the stage, taller than the
+ // fighter but physically well below an 8m-high cinematic camera lens.
+ const giant=Object.freeze([-.45,0,2.6,.45,2.75,3.4]);
+ const low=Object.freeze([-.45,0,2.6,.45,.58,3.4]);
+ const modest=Object.freeze([-.18,0,2.6,.18,2.35,3.4]);
+ const back=Object.freeze([-.45,0,-3.4,.45,2.75,-2.6]);
+ const far=Object.freeze([-.45,0,8.2,.45,2.75,8.8]);
+ assert.equal(planPortraitStageClearance(giant,[actor],camera,portrait),true,
+  'a >half-width and >half-height near-stage screen blocker must not dominate the live phone camera');
+ assert.equal(planPortraitStageClearance(low,[actor],camera,portrait),false,'low world detail is preserved');
+ assert.equal(planPortraitStageClearance(modest,[actor],camera,portrait),false,'small decorative silhouette is retained');
+ assert.equal(planPortraitStageClearance(back,[actor],camera,portrait),false,'real rear 3D stone stays intact');
+ assert.equal(planPortraitStageClearance(far,[actor],camera,portrait),false,'near-plane unrelated scenery stays intact');
+ assert.equal(planPortraitStageClearance(giant,[{...actor,visibleActor:false}],camera,portrait),false,
+  'only real visible skinned source bodies can earn a foreground clear');
+ assert.equal(planPortraitStageClearance(giant,[actor],camera,{...portrait,aspect:1440/900}),false,
+  'real 1440px desktop keeps its full original nave depth');
+});
