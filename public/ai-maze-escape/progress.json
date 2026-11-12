@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T14:06:08.000Z",
+  "updatedAt": "2026-11-12T14:55:33.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass300 native WebGL 43227390208 SUCCESS; 37/37 source-authentic PNG/JSON SHA256 pair matches and 39 original full-size frames inspected. Original 390 guardian warning/brace/release compare shows a longer dark floor, but not a visually coherent, stage-scale action. Nintendo reference still wins; Pass300 rejected as quality win. Pass301 candidate adds genuinely hinged public-event-controlled guardian margin fins with ~0.55 world-unit lift. New exact-HEAD tests/screenshots and independent critic are PENDING; disconnected workspace NOT_FOUND."
+    "summary": "Pass301 exact-HEAD native WebGL 43235658524 SUCCESS; 37/37 original full-resolution PNG/JSON SHA-256 pair matches. Original 390 warning/brace/release still visually dominated by generic pale stone and an under-scaled dark brown strip: anchored hinge not a Nintendo-quality victory. Pass302 candidate makes only the genuinely disclosed, open Pip–Thornback corridor a near-full-width dark-jade Tideglass physical court; strict tests and new exact-HEAD native visual/independent judgment PENDING. Coding/critic/Ultracode tunnel NOT_FOUND."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass302: original Pass301 exact-HEAD WebGL 43235658524 succeeded; 37/37 unretouched full-resolution PNG/JSON SHA-256 pairs independently match. Original 390 mobile guardian story remains visually weak and repeats beige foundation, NOT a Nintendo-quality win. New production candidate replaces only the genuine reciprocal visible open three-cell Pip–Thornback brown-strip causeway with an authored almost full-width deep-jade Tideglass court, center sea-glass and mineral borders; retains physical hinge action. No new collider, hidden AI/map truth, GPU shape/material class, HUD/camera or relaxed geometry budget. Full strict exact-source CI and rendered reviewer still pending.",
     "Pass301: source-authentic Pass300 WebGL 43227390208 verified 37/37 SHA pairs and 39 untouched complete PNGs; 390 guardian action still flat and visually rejected against official Nintendo benchmark. New candidate reworks six known, open, reciprocal Pip–Thornback Tideglass margin leaves into anchored real-world ~0.55m vertical hinged fins, driven only by witnessed original three-beat warning/brace/release. No AI, collision, hidden knowledge, HUD, camera, FPS claims or new resource classes; unchanged strict test gates and exact native render pending.",
     "Pass300: reject Pass299 as rendered guardian win despite its exact-HEAD successful WebGL 43218173898 and 37/37 authentic native PNG/JSON SHA256. Real same-tick 320 follow is byte-identical to Pass298; 390 notice differs only .00035/255 mean RGB. Source candidate upgrades ONLY actually published reciprocal unlocked straight guardian causeway to a connected dark Tideglass stage and broad outward 2.30m hinged warning leaves rising .045m and .24rad with actual witnessed brace/release. No AI/private/authoritative movement, fake strike, collision, new resource, camera, HUD or unchanged <100 budget relaxation. New exact-source rendered verdict PENDING; Nintendo benchmark NOT MET.",
     "Pass299: independently re-verified Pass298 43205299785 artifact 13936379617: 38 unaltered full-frame PNGs, 36/36 original SHA256 matched available JSON sidecars, last fossil-portrait capture TIMED OUT on screenshot and workflow FAILED. Exact full 390 guardian 3-phase Pass297→298 differences 1.34/2.16/2.62 mean RGB/255; blocking vertical masonry remains. Candidate source adds only publicly witnessed, blocked, no-gate low opaque Tideglass parapets along the genuine Pip–Thornback causeway; tests protect privacy, geometry <100, gate, reset, and no AI/collision change. Source-bound new capture and independent verdict pending; benchmark NOT MET.",
@@ -288,6 +289,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass302 original 390 guardian three-beat WebGL critique and source-bound Tideglass arena candidate",
+      "reviewer": "Lead original full-frame SHA image inspection; disconnected independent critic unavailable",
+      "verdict": "Pass301 rendered quality rejected; Pass302 major physical court unrendered pending native verification",
+      "date": "2026-11-12",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-302-authentic-guardian-court-contrast-2026-11-12.md"
+    },
     {
       "title": "Pass301 original 390 Guardian Court WebGL critique and attached hinge candidate",
       "reviewer": "Lead original full-frame source/hashes inspection; fresh-context critic unavailable (tunnel NOT_FOUND)",
@@ -847,6 +855,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass302 source-bound physical full-width Guardian Tideglass court",
+      "status": "Pass301 exact-head focused WebGL SUCCESS and 37/37 original SHA images verified; Pass302 new source CI, full native image gate and independent review pending.",
+      "detail": "Existing genuine three connected public maze tiles gain near-full 2.22m dark jade arena, a central glass inlay and warm mineral borders; installed-Three exact instance positions and hidden/gated/terminal/6-reset budget tests added. No authoritative gameplay or hidden map alterations."
+    },
     {
       "name": "Pass301 public guardian hinged Tideglass margin physical stage",
       "status": "Previous Pass300 WebGL 43227390208 succeeded and 37/37 native PNG SHA sidecars matched. Pass301 exact-head tests/CI/native WebGL PENDING.",
@@ -1425,6 +1438,10 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass301 original unaltered 37 source-hashed full-resolution WebGL gameplay captures",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43235658524/artifacts/13952722526"
+    },
     {
       "title": "Pass300 original 39 complete full-resolution WebGL captures and 37 hash sidecars used to reject earlier guardian floor",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43227390208/artifacts/13948189427"

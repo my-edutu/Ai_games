@@ -1173,14 +1173,30 @@ export function createMazeWorld(options = {}) {
           // from EXISTING shapes/materials and never affect path/collision.
           guardianCausewayTiles++;
           const alongX=guardianCausewayAxis==='x';
-          add(box,deepStone,x,.022,z,alongX?2.39:1.24,.014,
-            alongX?1.24:2.39,c.cell);
-          add(box,deepStone,x,.030,z,alongX?2.36:1.09,.010,
-            alongX?1.09:2.36,c.cell);
-          for(const side of [-1,1])
-            add(box,seaGlass,x+(alongX?0:side*.57),.035,
-              z+(alongX?side*.57:0),alongX?2.34:.055,.008,
-              alongX?.055:2.34,c.cell);
+          // Pass302: the real 390px brace was STILL a narrow brown strip
+          // with both living actors on repeated beige slabs. Build one
+          // full-width, distinctive dark Tideglass stage under the *actual*
+          // reciprocal unsealed Pip-Thornback corridor. This is a connected
+          // physical mineral apron across three existing walkable cells, not
+          // a novel passage, hazard, collider, map hint or fake AI action.
+          // Reuse existing instance geometry and material classes only.
+          add(box,deepStone,x,.022,z,alongX?2.39:2.32,.014,
+            alongX?2.32:2.39,c.cell);
+          add(box,darkJade,x,.032,z,alongX?2.34:2.22,.013,
+            alongX?2.22:2.34,c.cell);
+          add(box,inlay,x,.041,z,alongX?2.27:.42,.008,
+            alongX?.42:2.27,c.cell);
+          // Fixed mineral edge bands do not promise any particular AI route.
+          // The already-public Tideglass leaves remain outside the clear
+          // central walking lane, and now lift against a readable dark floor.
+          for(const side of [-1,1]) {
+            add(box,seaGlass,x+(alongX?0:side*1.04),.042,
+              z+(alongX?side*1.04:0),alongX?2.31:.095,.009,
+              alongX?.095:2.31,c.cell);
+            add(box,clay,x+(alongX?side*.94:0),.048,
+              z+(alongX?0:side*.94),alongX?.085:2.22,.012,
+              alongX?2.22:.085,c.cell);
+          }
           // A broad, paired SEA-GLASS warning threshold belongs only to
           // this ACTUAL disclosed, reciprocal and unsealed guardian causeway.
           // The connected floor leaves use the SAME original geometry and

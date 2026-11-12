@@ -227,6 +227,54 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
 });
 
 
+test('Pass302 real public duel becomes a full-width joined Tideglass stage, never a private or gated bridge',async()=>{
+  const {createMazeWorld,cellPosition}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const w=createMazeWorld({balanced:true}),s=original();
+  const originalTruth=JSON.stringify(s),baseline=w.stats();
+  const publishedAprons=()=>{
+    const found=[],matrix=new Matrix4(),position=new Vector3(),
+      quaternion=new Quaternion(),scale=new Vector3();
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh || mesh.material?.color?.getHexString()!=='28574f')return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,matrix);
+        matrix.decompose(position,quaternion,scale);
+        if(Math.abs(scale.y-.013)<.0001 && Math.abs(scale.x-2.34)<.001
+          && Math.abs(scale.z-2.22)<.001)
+          found.push({x:position.x,z:position.z});
+      }
+    });
+    return found;
+  };
+  try {
+    w.update(s);
+    const stage=publishedAprons();
+    assert.equal(stage.length,3,'three real open public tiles form one full-width colored physical court');
+    const expected=[6,7,8].map(id=>cellPosition(id,s.width,s.height).x).sort((a,b)=>a-b);
+    assert.deepEqual(stage.map(p=>p.x).sort((a,b)=>a-b),expected,
+      'full-size dark mineral stage stays precisely over public causeway cells');
+    assert.equal(w.stats().geometryCount,baseline.geometryCount);
+    assert.equal(w.stats().materialCount,baseline.materialCount);
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(publishedAprons().length,0,'closed original gate revokes full-width court');
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.equal(publishedAprons().length,0,'undisclosed guardian revokes stage');
+    w.update({...s,result:{reason:'capture'}});
+    assert.equal(publishedAprons().length,0,'terminal outcomes clear public encounter');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'full-tideglass-reset-'+i});
+      assert.equal(publishedAprons().length,3);
+      assert.ok(w.stats().geometryCount<100,'six-reset GPU geometry strict bound remains');
+    }
+    assert.equal(JSON.stringify(s),originalTruth,'no authoritative AI/public knowledge mutation');
+  }finally {
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
+
 test('authentic guardian lane lowers ONLY disclosed impassable flanks; hidden, gated and private walls stay sealed',async()=>{
   const {createMazeWorld}=await load();
   const s=original();
