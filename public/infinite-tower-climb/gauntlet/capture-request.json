@@ -1,4 +1,33 @@
 {
+  "p0ClockworkGuardianStructuralDaylightAfterFilm20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of THIS capture-request edit, NOT floating PR68 HEAD",
+    "sourceProductionCommit": "253a97ee80af2a22333b87ddc497384837a5a617",
+    "sourceTestFirstCommit": "30979297188bb1f390a58352cda7dfb256b0b033",
+    "lastInspectedOriginalSource": "83d1d9b03473babd073d474872a8c5aa7a0b631b",
+    "originalFullFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43167540412 — source ledge and all eight original matched clips complete; pair-source-events failed; 0/2 strict source-to-native",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43167540412/artifacts/13920634196",
+    "realOriginalFilmObservation": "960x600 and 390x844 original 74.28s portrait video inspected at 14/16/18/20/22/24/26/28/30 native seconds: true hero/boss play obscured by bronze post/clockwork, Floor8 warm cap jumps to violet Floor9 without unbroken grounded doorway crossing.",
+    "actualChange": "Reconstruct real THREE Clockwork structural layout as far-shoulder masonry: three supported full-height pylons, three complete geological masses, three physical crown ties moved beyond ±1.12rad guardian/arch corridor. No simulation/collision/source gameplay moves, no other biome change.",
+    "captureMatrix": "Require entire nine-job original workflow: source 3200-tick authentic ledge plus EXACT SHA candidate and frozen baseline each original >=60s normal-speed 1x ascent floor0, moving floor7, guardian/crusher floor8 to9, outcome and restart floor0; same seed, low graphics, 960×600 desktop and 390×844 portrait, actual WebGL; preserve native and event sidecars.",
+    "acceptance": "Inspect full-motion not only frames, source tick guardian defeat and grounded crossing, browser acceptance, Three.js render return vs native video, true guardian visibility and floor9 onward outcome/restart. Compare old/new without invented latency improvements. CI is veto only, blind LOOKS FEELS PLAYS each independently 4/5 required, real device p50/p95/p99 memory.",
+    "sourceTimingBefore": {
+      "desktopSourceToNativeDrawnFloor9Seconds": 2.63,
+      "portraitSourceToNativeDrawnFloor9Seconds": 2.264,
+      "note": "Measured in previous original film; not actual GPU-present or candidate post-change performance"
+    },
+    "sourceTechnicalQuality": "Current cap change has NOT been observed passing exact source head CI. Previous old-head quality https://github.com/my-edutu/Ai_games/actions/runs/43167540542 passed. No new result is implied.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-clockwork-cap-physical-daylight.md",
+    "independentFreshBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "supportedHardwareFrameTimesAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect true new 2 viewport 1x original films; if guardian still partly hidden, review exact mesh-owner ray evidence and source visibility. If Floor9 is still a visual cut, address state-to-video gap instead. Stay P0."
+  },
   "p0LowTierGroundedColdFloorAfterFilm20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
