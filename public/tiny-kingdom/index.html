@@ -8665,14 +8665,52 @@ function coniferNeedleSpray(root,tip,width,dark,light){
    articulated leaf blades. All shape variation is derived only from position. */
 // G050: small offset leaf clusters give each crown a tiered, broken silhouette.
 // Real 3D geometry is bounded and derived from tree positions, not simulation RNG.
+// W263: original woodland silhouette reconstruction. Every canopy is still
+// the actual deterministic 3D tree in its original terrain position. Broken
+// leaf outlines and asymmetrical fir tiers replace smooth toy ellipsoids and
+// identical perfect cones without adding a single canopy triangle or buffer.
+// Static season mesh only: this is NEVER called in moving worker frames.
+function woodlandCrownContour(seed,latitude,azimuth){
+ if(![seed,latitude,azimuth].every(Number.isFinite))
+  throw Error('W263 invalid original woodland contour');
+ const rim=Math.sin(latitude);
+ const ridge=.17*Math.sin(azimuth*5+seed*1.2)+
+  .09*Math.cos(azimuth*7-seed*.74);
+ return {radius:Math.max(.69,Math.min(1.32,
+   1+ridge*rim+.055*Math.cos(latitude*2.2-seed*.61))),
+  sweep:.105*Math.sin(seed*.31+azimuth*1.7)*rim,
+  hang:(.075*Math.sin(azimuth*3+seed*.81)-.04)*rim};
+}
+// Seven 3D triangular bough faces, the SAME budget as the old seven-sided
+// geometric cone. A real fork and drooping articulated needles remain in
+// their existing locations around each original tree.
+function coniferTierCanopy(x,y,z,r,h,col,seed){
+ if(![x,y,z,r,h,seed].every(Number.isFinite)||r<=0||h<=0)
+  throw Error('W263 invalid original conifer crown');
+ const sides=7,tip=[x+Math.sin(seed*.8)*r*.13,y+h,
+  z+Math.cos(seed*.71)*r*.10],
+  shadow=col.map(v=>v*.86),sunlit=col.map(v=>Math.min(1,v*1.07));
+ const point=i=>{
+  const angle=i*Math.PI*2/sides;
+  const radius=r*Math.max(.62,Math.min(1.18,
+   .86+.16*Math.sin(angle*3+seed)+.12*Math.cos(angle*5-seed*.9)));
+  return [x+Math.cos(angle)*radius,
+   y+r*.12*Math.sin(angle*2+seed*.6),
+   z+Math.sin(angle)*radius];
+ };
+ for(let i=0;i<sides;i++)
+  tri(point(i),point((i+1)%sides),tip,i%3===0?shadow:
+   i%3===1?col:sunlit);
+}
 function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true,coarse=false){
  const segments=fine?6:coarse?7:9,
   latitudes=(fine?[.32,.74]:coarse?[.29,.76]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
-  const az=i*Math.PI*2/segments,ripple=1+.13*Math.sin(3*az+seed)+.07*Math.cos(5*az-seed*.7);
-  return [cx+Math.sin(lat)*Math.cos(az)*rx*ripple,
-   cy+Math.cos(lat)*ry+.035*Math.sin(az*2+seed)*Math.sin(lat)*ry,
-   cz+Math.sin(lat)*Math.sin(az)*rz*ripple];
+  const az=i*Math.PI*2/segments,contour=woodlandCrownContour(seed,lat,az);
+  return [cx+Math.sin(lat)*Math.cos(az)*rx*contour.radius+contour.sweep*rx,
+   cy+Math.cos(lat)*ry+contour.hang*ry,
+   cz+Math.sin(lat)*Math.sin(az)*rz*contour.radius+
+    .065*Math.cos(seed*.47-az*1.3)*Math.sin(lat)*rz];
  };
  for(const lat of latitudes){const ring=[];for(let i=0;i<segments;i++)ring.push(pt(lat,i));rings.push(ring)}
  const colors=[col,col.map(v=>Math.min(1,v*1.07)),col.map(v=>Math.max(0,v*.88))];
@@ -8809,7 +8847,8 @@ function tree(x,z,s=1){
    forestVisualStats.crownPalette.add(lightHex);
    const centerX=x+leanX*(.25+tier*.22),centerZ=z+leanZ*(.25+tier*.22);
    // Narrow central leaf mass permits gaps between projected, drooping sprays.
-   cone(centerX,baseY-.20*s,centerZ,(.43-tier*.076)*s,1.04*s,dark,7);
+   coniferTierCanopy(centerX,baseY-.20*s,centerZ,
+    (.43-tier*.076)*s,1.04*s,dark,signature+tier*2.73);
    // 4/6/8 radial boughs in far/mid/near trees; the original four-tier
    // evergreen volume and all forest members remain present.
    const spokes=detailTier==='far'?4:detailTier==='mid'?6:8;
@@ -25206,6 +25245,8 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+ silhouette:'w263-original-broken-crown-and-fir-tier',
+ allTreesPreserved:true,additionalCanopyTriangles:0,
  sourceTrees:trees.length,
  renderedTrees:forestVisualStats.deciduous+forestVisualStats.conifers,
  conifers:forestVisualStats.conifers,deciduous:forestVisualStats.deciduous,
