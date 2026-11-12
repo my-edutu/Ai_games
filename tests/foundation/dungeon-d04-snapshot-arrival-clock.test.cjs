@@ -205,3 +205,74 @@ test('D04 timely planning is charged to the same real HP-loss observation clock 
   assert.equal(receipt.sampleSynchronized,false);
  }finally{d.dispose()}
 });
+
+
+function contextBoundHarness(createPhysicalCombatFeedback){
+ let now=300,listener=null;
+ const context={state:'running',
+  addEventListener(name,callback){if(name==='statechange')listener=callback},
+  removeEventListener(name,callback){if(name==='statechange'&&listener===callback)listener=null}
+ };
+ const audio=[];
+ const d=createPhysicalCombatFeedback({
+  ctx:context,requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{emit(){return true},advance(){},hasLiveCue(){return true},
+   hasDrawableCue(){return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){audio.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ assert.equal(d.enableAudioFromGesture(),true);
+ d.acceptSnapshot(snapshot(10,30,'idle'));
+ d.acceptSnapshot(snapshot(11,20));
+ d.advance(.016,.016);
+ assert.equal(d.stats().awaitingPresentation,1,'real injury must await WebGL');
+ return {d,audio,context,setNow(value){now=value},signal(){listener?.()}};
+}
+
+test('suspended WebAudio retains a specific bounded revocation receipt for an unsubmitted authentic injury',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const h=contextBoundHarness(createPhysicalCombatFeedback);
+ try{
+  h.context.state='suspended';h.signal();
+  assert.equal(h.d.stats().awaitingPresentation,0);
+  const receipts=h.d.stats().recentDeliveryReceipts;
+  assert.equal(receipts.length,1);
+  assert.equal(receipts[0].kind,'damage');
+  assert.equal(receipts[0].decision,'audio-context-interrupted');
+  assert.equal(receipts[0].visual,true);
+  assert.equal(receipts[0].audio,false);
+  assert.equal(receipts[0].frameId,null,'suspension cannot invent renderer submission');
+  h.context.state='running';h.signal();
+  assert.equal(h.d.acknowledgePresentedFrame(1,.010),0);
+  assert.deepEqual(h.audio,[],'pre-suspension foley must never resurrect');
+  h.d.acceptSnapshot(snapshot(12,10));
+  h.d.advance(.016,.016);h.setNow(300.04);
+  assert.equal(h.d.acknowledgePresentedFrame(2,.010),1,
+   'a genuinely new injury after resume may use existing explicit consent');
+  assert.equal(h.audio.length,1);
+ }finally{h.d.dispose()}
+});
+
+test('explicit mute records suppressed staged HP sound without claiming delivery or a submitted frame',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const h=contextBoundHarness(createPhysicalCombatFeedback);
+ try{
+  h.d.muteAudio();
+  assert.equal(h.d.stats().awaitingPresentation,0);
+  const receipts=h.d.stats().recentDeliveryReceipts;
+  assert.equal(receipts.length,1);
+  assert.equal(receipts[0].kind,'damage');
+  assert.equal(receipts[0].decision,'muted-before-submission');
+  assert.equal(receipts[0].audio,false);
+  assert.equal(receipts[0].frameId,null);
+  assert.equal(h.d.acknowledgePresentedFrame(1,.010),0);
+  assert.deepEqual(h.audio,[]);
+  assert.equal(h.d.preferredMuted(),true);
+  assert.equal(h.d.enableAudioFromGesture(),true);
+  h.d.acceptSnapshot(snapshot(12,10));
+  h.d.advance(.016,.016);h.setNow(300.03);
+  assert.equal(h.d.acknowledgePresentedFrame(2,.010),1,
+   'only an explicitly re-enabled NEW injury may reach original sound');
+  assert.equal(h.audio.length,1);
+ }finally{h.d.dispose()}
+});
