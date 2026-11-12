@@ -18,7 +18,7 @@ import {planRoleSilhouette} from '/dungeon/role-silhouette-plan.js';
 import {planFittedRoleDetail} from '/dungeon/role-silhouette-plan.js';
 import {planAnatomicalKit,planAnatomicalDrawGroups} from '/dungeon/anatomical-kit-plan.js';
 import {createForgedArmorForms,planForgedArmor,planForgedFinishes,planAuthoredBodyShape} from '/dungeon/forged-armor.js';
-import {planNativeFigureSculpt,sculptNativeFigureGeometry} from '/dungeon/native-figure-sculpt.js';
+import {planNativeFigureSculpt,sculptNativeFigureGeometry,planNativeAdultLegLink} from '/dungeon/native-figure-sculpt.js';
 import {planDrapePanels,planDrapeSwing,planDrapeVertexBend,drapePoseKey,DRAPE_ROWS,DRAPE_COLUMNS} from '/dungeon/fabric-drape-plan.js';
 import {rigWeaponParts,selectHandBone,rigGripAnchor,boundedGripOffset,selectUpperArmBone,planRigArmGesture,selectForearmBone,planRigForearmGesture,selectLegBone,advanceRigGait,planRigLegGesture,planRigFullBodyStride,planRigContactBrace,selectCranialBone,planCranialRatio,restoreCranialProportion,stageCranialProportion,selectCombatTorsoBone,planRigMeleeFollowThrough,selectPelvisBone,planRigBearing} from '/dungeon/rig-attachment-plan.js';
 
@@ -573,6 +573,26 @@ function bindRigArmGestures(actor){
    next:new THREE.Quaternion(),euler:new THREE.Euler()
   });
  }
+ // Validate BOTH complete, original source-knee and ankle bone chains.
+ // Missing or oblique source anatomy preserves the untouched artist model.
+ actor.nativeAdultLegMounts=[];
+ if(actor.u.kind==='vanguard'){
+  const proposed=[];
+  for(const side of ['left','right']){
+   const upper=actor.rigGaitBones.find(m=>m.side===side&&m.part==='upper')?.bone;
+   const lower=actor.rigGaitBones.find(m=>m.side===side&&m.part==='lower')?.bone;
+   const ankle=actor.rigGaitBones.find(m=>m.side===side&&m.part==='foot')?.bone;
+   if(!upper||!lower||!ankle||lower.parent!==upper||ankle.parent!==lower){
+    proposed.length=0;break;
+   }
+   const a=planNativeAdultLegLink(actor.u.kind,'upper',lower.position);
+   const b=planNativeAdultLegLink(actor.u.kind,'lower',ankle.position);
+   if(!a||!b){proposed.length=0;break;}
+   proposed.push({bone:upper,axis:a.axis,factor:a.factor,applied:false});
+   proposed.push({bone:lower,axis:b.axis,factor:b.factor,applied:false});
+  }
+  if(proposed.length===4)actor.nativeAdultLegMounts=proposed;
+ }
  // Every original character now articulates a real chest for casts and
  // nonfatal recoil. Genuine hand-driven follow-through remains melee-only.
  actor.rigMeleeBones=[];
@@ -767,6 +787,38 @@ function stageRigForearmsAfterMixer(actor,since,reducedMotion){
 
 // One actual rendered displacement sample feeds every native skeletal layer
 // before posing, avoiding one-frame-late hips and invented footfalls.
+function restoreNativeAdultLegsBeforeMixer(actor){
+ for(const m of actor.nativeAdultLegMounts||[]){
+  if(m.applied){m.bone.scale[m.axis]/=m.factor;m.applied=false;}
+ }
+}
+/** Lengthen original skinned thigh/calf joints together; ground both original
+ * feet by their actual sampled before/after world heights, never moving HP/AI.
+ * Original animation mixer always starts from unmodified imported bones. */
+function stageNativeAdultLegsAfterMixer(actor){
+ const mounts=actor.nativeAdultLegMounts,pivot=actor.visualPivot;
+ if(mounts?.length!==4||!pivot||actor.detached||actor.u.hp<=0)return;
+ const left=actor.rigGaitBones?.find(m=>m.side==='left'&&m.part==='foot')?.bone;
+ const right=actor.rigGaitBones?.find(m=>m.side==='right'&&m.part==='foot')?.bone;
+ if(!left||!right)return;
+ const tmp=actor.nativeAdultLegScratch??(actor.nativeAdultLegScratch=new THREE.Vector3());
+ const before=Math.min(left.getWorldPosition(tmp).y,right.getWorldPosition(tmp).y);
+ for(const m of mounts){
+  const base=m.bone.scale[m.axis];
+  if(!Number.isFinite(base)||base<=0||base*m.factor>100){
+   restoreNativeAdultLegsBeforeMixer(actor);return;
+  }
+  m.bone.scale[m.axis]*=m.factor;m.applied=true;
+ }
+ const after=Math.min(left.getWorldPosition(tmp).y,right.getWorldPosition(tmp).y);
+ const delta=before-after;
+ if(!Number.isFinite(delta)||Math.abs(delta)>.19){
+  restoreNativeAdultLegsBeforeMixer(actor);return;
+ }
+ pivot.position.y+=delta;
+ actor.nativeAdultLegFrames=Math.min(1000000,(actor.nativeAdultLegFrames||0)+1);
+ actor.nativeAdultLegGroundMax=Math.max(actor.nativeAdultLegGroundMax||0,Math.abs(delta));
+}
 function stageRigGroundedStride(actor,reducedMotion){
  // Real skinned gait requires real imported leg bones. Unauthored or partial
  // GLB rigs cannot acquire imagined feet or run a presentation-only clock.
@@ -1135,6 +1187,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
  if(!retainOriginalAttack)
   changeAction(actor,actor.groundedPerformance?.clipAction??actor.u.action??'idle');
  else actor.nativeSourceRecoveryClipFrames=Math.min(1000000,(actor.nativeSourceRecoveryClipFrames||0)+1);
+ restoreNativeAdultLegsBeforeMixer(actor);
  restoreRigArmsBeforeMixer(actor);
  restoreRigForearmsBeforeMixer(actor);
  restoreRigLegsBeforeMixer(actor);
@@ -1205,6 +1258,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false){
   actor.motionPeak=Math.max(actor.motionPeak||0,Math.abs(pose.x+contact.x),
    Math.abs(pose.y+contact.y),Math.abs(pose.z+contact.z));
  }
+ stageNativeAdultLegsAfterMixer(actor);
  // The LIVE original imported lead ankle owns the planted sword phrase.
  // When the other original ankle is also grounded, it shares a bounded
  // visual-root correction; a lifted or stale supporting foot never invents IK.
@@ -1336,7 +1390,10 @@ function stats(actors){
   nativeDuelContactFrames:authored.reduce((n,a)=>n+(a.nativeDuelContactFrames||0),0),
    nativeDuelRecoveryFrames:authored.reduce((n,a)=>n+(a.nativeDuelRecoveryFrames||0),0),
    nativeSourceRecoveryClipFrames:authored.reduce((n,a)=>n+(a.nativeSourceRecoveryClipFrames||0),0),
-   nativeFootPlantFrames:authored.reduce((n,a)=>n+(a.nativeFootPlantFrames||0),0),
+   nativeAdultLegActors:authored.filter(a=>(a.nativeAdultLegFrames||0)>0).length,
+  nativeAdultLegFrames:authored.reduce((n,a)=>n+(a.nativeAdultLegFrames||0),0),
+  nativeAdultLegGroundMax:Math.max(0,...authored.map(a=>a.nativeAdultLegGroundMax||0)),
+  nativeFootPlantFrames:authored.reduce((n,a)=>n+(a.nativeFootPlantFrames||0),0),
     nativeSupportFootFrames:authored.reduce((n,a)=>n+(a.nativeSupportFootFrames||0),0),
   nativeVisibleSourceMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.sourceMeshes||0),0),
   nativeVisibleSkinnedMeshes:authored.reduce((n,a)=>n+(a.nativePresentation?.skinnedMeshes||0),0),

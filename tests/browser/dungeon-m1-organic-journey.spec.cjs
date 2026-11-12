@@ -226,7 +226,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     renderPipeline:d?.renderPipeline,directRenderMs:d?.directRenderMs,
     directRenderBudget:d?.directRenderBudget,directDeliveryBudget:d?.directDeliveryBudget,
     surfaceResizes:d?.surfaceResizes,softwareWebGL:d?.softwareWebGL,
-    nativeActorVisibility:d?.nativeActorVisibility,
+    nativeActorVisibility:d?.nativeActorVisibility,nativeAdultLegRig:d?.authored3D?{actors:d.authored3D.nativeAdultLegActors??0,frames:d.authored3D.nativeAdultLegFrames??0,groundMax:d.authored3D.nativeAdultLegGroundMax??0}:null,
     webglRendererName:d?.webglRendererName,postFX:d?.postFX,drawCalls:d?.drawCalls,
     triangles:d?.triangles,soundstage:d?.soundstage};
   });
@@ -277,7 +277,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    renderPipeline:proof.renderPipeline,directRenderMs:proof.directRenderMs,
    directRenderBudget:proof.directRenderBudget,directDeliveryBudget:proof.directDeliveryBudget,
    surfaceResizes:proof.surfaceResizes,softwareWebGL:proof.softwareWebGL,
-   nativeActorVisibility:proof.nativeActorVisibility,
+   nativeActorVisibility:proof.nativeActorVisibility,nativeAdultLegRig:proof.nativeAdultLegRig,
    webglRendererName:proof.webglRendererName,postFX:proof.postFX,drawCalls:proof.drawCalls,
    triangles:proof.triangles,soundstage:proof.soundstage});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
