@@ -465,7 +465,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
 function shouldArchiveUnalignedOriginalReadback(media={}){
  return media.source==='real-webgl-receipt-readback-serial-original-audio'&&
   media.status==='RECORDED'&&
-  /^video\\/webm(?:;|$)/i.test(media.mimeType||'')&&
+  /^video\/webm(?:;|$)/i.test(media.mimeType||'')&&
   media.videoTracks===1&&media.audioTracks===1&&
   media.optedInAtStart===true&&media.originalSoundstageTrackLive===true&&
   media.phase==='after-all-primary-encoders-settled'&&
