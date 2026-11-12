@@ -21,7 +21,7 @@ const role=Object.freeze({
  const DIALECT=Object.freeze({
   vanguard:Object.freeze({shield:.100,hook:0,crown:0,drive:.010}),
   revenant:Object.freeze({shield:-.030,hook:.120,crown:0,drive:.012}),
-  warden:Object.freeze({shield:.035,hook:0,crown:.105,drive:.018})
+  warden:Object.freeze({shield:.035,hook:0,crown:.15,drive:.018})
  });
 const zero=Object.freeze({pitch:0,yaw:0,roll:0});
 const legZero=Object.freeze({upper:0,lower:0,foot:0});
