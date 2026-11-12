@@ -5,6 +5,8 @@ const fs=require('node:fs');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {SOURCE,classifyD04LiveAuthorityPair}=
  require('./dungeon-d04-live-authority-pair.cjs');
+const {SOURCE:MODE_SOURCE,classifyD04ContinuousModePair}=
+ require('./dungeon-d04-continuous-mode-pair.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 const scene=s=>({run:s.run,floor:s.floor,tick:s.tick,checksum:s.checksum});
 const STEP_MS=250,ACTIVE_MS=15000;
@@ -25,7 +27,7 @@ function realAuthoritySeries(){
   throw Error('Real DungeonRuntime seed yielded no genuine HP-loss witness');
  return {seed,states,manifest};
 }
-async function observeLiveAuthority(browser,real,viewport,capture){
+async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='d04',source=SOURCE){
  const page=await browser.newPage({viewport,deviceScaleFactor:1});
  let beganAt=null,live=false,stopIndex=0;const requestLog=[],errors=[];
  page.on('pageerror',e=>errors.push(String(e)));
@@ -39,10 +41,13 @@ async function observeLiveAuthority(browser,real,viewport,capture){
   return route.fulfill({json:state});
  });
  try{
-  await page.goto('/dungeon?feedback=d04');
-  await expect.poll(()=>page.evaluate(()=>
+  await page.goto(feedbackMode==='d04'?'/dungeon?feedback=d04':'/dungeon');
+  if(feedbackMode==='d04')await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.implementation),
    {timeout:90000}).toBe('D04-physical-authority-feedback');
+  else await expect.poll(()=>page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.d04PreviewEnabled),
+   {timeout:90000}).toBe(false);
   await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum),
    {timeout:65000}).toBe(real.manifest[0].scene.checksum);
@@ -50,10 +55,11 @@ async function observeLiveAuthority(browser,real,viewport,capture){
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.camera),
    {timeout:30000}).toBe('tactical');
   await page.locator('#audio-toggle').click();
-  await expect.poll(()=>page.evaluate(()=>
+  if(feedbackMode==='d04')await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.audioOptedIn),
    {timeout:30000}).toBe(true);
-  const started=await page.evaluate(({capture,source,seed,viewport})=>{
+  await expect(page.locator('#audio-toggle')).toHaveAttribute('aria-pressed','true');
+  const started=await page.evaluate(({capture,source,seed,viewport,feedbackMode})=>{
    const canvas=document.querySelector('#world'),sound=window.__DUNGEON_CAPTURE_SOUND__?.();
    let stopped=false,lastFrame=-1,lastReceipt=-1,track=null,recorder=null,recording=false;
    let samples=[],recordedBytes=0,overflow=false,chunks=[],requestedFrames=0;
@@ -61,8 +67,8 @@ async function observeLiveAuthority(browser,real,viewport,capture){
    const start=performance.now();
    const sample=()=>{
     const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,p=d?.physicalFeedback;
-    if(!d||!p||!Number.isSafeInteger(d.frame))return;
-    const receipt=p.framesAcknowledged;
+    if(!d||(feedbackMode==='d04'&&!p)||!Number.isSafeInteger(d.frame))return;
+    const receipt=feedbackMode==='d04'?p?.framesAcknowledged:d.frame;
     if(capture==='on'&&recording&&track&&typeof track.requestFrame==='function'&&
        Number.isSafeInteger(receipt)&&receipt>lastReceipt&&requestedFrames<128){
      try{track.requestFrame();requestedFrames++}catch{requestFailures++}
@@ -70,14 +76,18 @@ async function observeLiveAuthority(browser,real,viewport,capture){
     if(Number.isSafeInteger(receipt)&&receipt>lastReceipt)lastReceipt=receipt;
     if(d.frame<=lastFrame||samples.length>=120)return;
     lastFrame=d.frame;
-    samples.push({source,capture,seed,viewport,frameId:d.frame,
+    samples.push({source,capture,feedbackMode,seed,viewport,frameId:d.frame,
      elapsedMs:Math.max(0,performance.now()-start),scene:{...d.renderedState},
      camera:d.camera,focusedHeroId:d.focusedHeroId,
      cameraPosition:{...d.cameraRig?.actualPosition},
      cameraAim:{...d.cinematicAim},softwareWebGL:d.softwareWebGL,
      postFX:d.postFX,directRenderMs:d.directRenderMs,
-     vfxDrawCalls:p.visuals?.drawCalls,vfxReservedInstances:p.visuals?.reservedInstances,
-     consentedSoundstage:p.audioOptedIn===true&&
+     drawCalls:d.drawCalls,triangles:d.triangles,
+     raster:{pixelRatio:d.directRenderBudget?.pixelRatio,shadows:d.directRenderBudget?.shadows},
+     d04PreviewEnabled:d.d04PreviewEnabled===true,
+     vfxDrawCalls:p?.visuals?.drawCalls??0,vfxReservedInstances:p?.visuals?.reservedInstances??0,
+     previewAudioOptedIn:feedbackMode==='d04'&&p?.audioOptedIn===true,
+     consentedSoundstage:(feedbackMode!=='d04'||p?.audioOptedIn===true)&&
       document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true',
      recordingAtSample:capture==='on'&&recording,
      recentDeliveryReceipts:(p.recentDeliveryReceipts||[]).slice(-16)});
@@ -141,7 +151,7 @@ async function observeLiveAuthority(browser,real,viewport,capture){
    }};
    return {status:capture==='on'?(recording?'STARTED':'UNAVAILABLE'):'NOT_STARTED',
     reason:error,originalAudioTracks:sound?.getAudioTracks?.().length||0};
-  },{capture,source:SOURCE,seed:real.seed,viewport});
+  },{capture,source,seed:real.seed,viewport,feedbackMode});
   beganAt=performance.now();live=true;
   await page.waitForTimeout(ACTIVE_MS);
   stopIndex=Math.min(real.states.length-1,Math.floor((performance.now()-beganAt)/STEP_MS));
@@ -150,11 +160,12 @@ async function observeLiveAuthority(browser,real,viewport,capture){
   try{stopped=await page.evaluate(()=>window.__D04_LIVE_AUTHORITY_CAPTURE__.stop())}
   catch(e){stopped={samples:[],recorder:{status:'UNAVAILABLE',reason:String(e).slice(0,180)}}}
   const {base64,...recorder}=stopped.recorder||{};
-  const suffix=viewport.width===390?'mobile390':'desktop1440';
+  const suffix=(viewport.width===390?'mobile390':'desktop1440')+
+   (source===SOURCE?'':'-'+feedbackMode);
   if(base64&&recorder.status==='RECORDED')
    fs.writeFileSync('artifacts/dungeon-d04-live-authority-'+capture+'-'+suffix+'-unaligned.webm',
     Buffer.from(base64,'base64'));
-  const result={capture,viewport,samples:stopped.samples||[],recorder,errors,requestLog,
+  const result={capture,feedbackMode,seed:real.seed,viewport,samples:stopped.samples||[],recorder,errors,requestLog,
    start:started,continuousAuthorityMs:Math.round(performance.now()-beganAt),
    authorityTickAtStop:real.manifest[stopIndex].scene.tick,
    highestDeliveredStage:Math.max(-1,...requestLog.map(e=>e.index)),
@@ -197,4 +208,43 @@ test('D04 compares continuous genuine authority with capture off/on using origin
   matchedHpLoss:r.verdict.matchedHpLossTicks,off:r.verdict.off,on:r.verdict.on,
   all:r.verdict.allObserved,recorder:r.on.recorder,
   requests:{off:r.off.requestLog.length,on:r.on.requestLog.length}}))));
+});
+
+test('D04 compares continuous legacy default against opt-in preview without any recorders',async({browser})=>{
+ test.setTimeout(650000);
+ const real=realAuthoritySeries(),runs=[];
+ for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
+  // Real gameplay advances on independent Node time regardless of renderer stall.
+  const legacy=await observeLiveAuthority(browser,real,viewport,'off','legacy',MODE_SOURCE);
+  const preview=await observeLiveAuthority(browser,real,viewport,'off','d04',MODE_SOURCE);
+  const verdict=classifyD04ContinuousModePair({manifest:real.manifest,legacy,preview});
+  runs.push({viewport,legacy,preview,verdict});
+  expect(legacy.errors).toEqual([]);expect(preview.errors).toEqual([]);
+  expect(legacy.samples.length).toBeGreaterThan(0);
+  expect(preview.samples.length).toBeGreaterThan(0);
+  expect(verdict.status).not.toBe('INVALID_REAL_AUTHORITY');
+  expect(verdict.status).not.toBe('INVALID_MODE_PROVENANCE');
+  expect(verdict.budgetViolations).toEqual([]);
+  expect(['MATCHED_CONTINUOUS_MODE_DIAGNOSTIC_ONLY',
+   'INSUFFICIENT_MATCHED_LIVE_DAMAGE']).toContain(verdict.status);
+  expect(verdict.impactAVAccepted).toBe(false);
+  expect(verdict.causedByD04).toBe(null);
+ }
+ const evidence={source:MODE_SOURCE,
+  frozenBefore:'281735d0910c6b2443648af976003d50412ee324',
+  seed:real.seed,realAuthorityStates:real.manifest,authorityCadenceMs:STEP_MS,
+  activeWindowMs:ACTIVE_MS,legacyRoute:'/dungeon',previewRoute:'/dungeon?feedback=d04',
+  audio:'Real opt-in click in both browser arms; no MediaRecorder started',
+  impactAVAccepted:false,causedByD04:null,sampleSynchronized:false,
+  limitation:'Serial real-WebGL observations, not frame-locked A/B, decoded moving clips or synchronized original audio.',
+  runs};
+ fs.writeFileSync('artifacts/dungeon-d04-continuous-legacy-preview-evidence.json',
+  JSON.stringify(evidence,null,2)+'\n');
+ await test.info().attach('d04-continuous-legacy-preview.json',{
+  body:Buffer.from(JSON.stringify(evidence,null,2)),contentType:'application/json'});
+ console.log('D04 real continuous legacy vs preview:',JSON.stringify(runs.map(r=>({
+  viewport:r.viewport,status:r.verdict.status,matched:r.verdict.matchedTicks,
+  matchedHpLoss:r.verdict.matchedHpLossTicks,legacy:r.verdict.legacy,
+  preview:r.verdict.preview,all:r.verdict.allObserved,
+  excluded:r.verdict.excludedStages.length}))));
 });
