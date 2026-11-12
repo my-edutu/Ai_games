@@ -67,3 +67,22 @@ test('a thrown, inconsistent or fabricated external damage beat grants no false 
    'invalid annotation cannot fabricate a synchronized melee impact');
  }
 });
+
+
+test('bounded 18-injury fallback preserves a decisive fatal loss beyond the first 18 snapshot units',async()=>{
+ const {planPhysicalFeedback}=await load();
+ const before=[],after=[];
+ for(let i=0;i<19;i++){
+  const id='injured-'+String(i).padStart(2,'0');
+  before.push(unit(id,{kind:'revenant',faction:'enemy',x:i+2,z:3,hp:30,maxHp:30}));
+  after.push(unit(id,{kind:'revenant',faction:'enemy',x:i+2,z:3,
+   hp:i===18?0:29,maxHp:30,action:'hurt',actionTick:11}));
+ }
+ const actual=wounds(planPhysicalFeedback(state(10,before),state(11,after),{
+  deriveDamageBeats:()=>[]
+ }));
+ assert.equal(actual.length,18,'existing cue budget remains bounded');
+ assert.ok(actual.some(c=>c.targetId==='injured-18'&&c.kind==='damage-fatal'),
+  'a genuine terminal HP loss must not be lost due to array order');
+ assert.ok(actual.every(c=>c.actorId===null&&c.proof==='observed-hp-drop'));
+});
