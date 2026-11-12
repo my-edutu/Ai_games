@@ -570,6 +570,12 @@ for(const view of [
    expect(sourceLoaded.appliedLiftMeters).toBeLessThanOrEqual(.01601);
    expect(sourceLoaded.finalHeelY).toBeGreaterThan(-.075);
    expect(sourceLoaded.finalToeY).toBeGreaterThan(-.075);
+   // Both endpoints belong to the SAME final imported skinned source foot.
+   // A clearing toe with a deeper loaded heel is a physical visual failure.
+   expect(sourceLoaded.finalHeelY).toBeGreaterThanOrEqual(
+    sourceLoaded.beforeHeelY-.00101);
+   expect(sourceLoaded.finalToeY).toBeGreaterThanOrEqual(
+    sourceLoaded.beforeToeY-.00101);
    expect(sourceLoaded.afterWorstMeters).toBeLessThan(sourceLoaded.beforeWorstMeters-.00149);
    expect(Math.max(Math.abs(sourceLoaded.finalHeelY-sourceLoaded.floorTopY),
     Math.abs(sourceLoaded.finalToeY-sourceLoaded.floorTopY)))
