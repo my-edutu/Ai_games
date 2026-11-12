@@ -543,6 +543,8 @@ for(const view of [
    frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
     liftMeters:t.nativeLegOwnership?.sourceLoadedPelvisLiftMeters??0,
     cumulative:t.nativeLegOwnership?.sourceLoadedPelvisAcceptedFrames??0,
+    rollbackFrames:t.nativeLegOwnership?.sourceLoadedPelvisRollbackFrames??0,
+    rollbackFootProof:t.nativeLegOwnership?.sourceLoadedPelvisRollbackFootProof??null,
     finalSourceFootProof:t.nativeLegOwnership?.sourceLoadedPelvisFrameProof??null}))},null,2))
  });
  // Stance-shoe proof is a DISTINCT original skinned heel/toe measurement
@@ -561,6 +563,22 @@ for(const view of [
   const n=t.nativeLegOwnership;
   const sourceLoaded=n?.sourceLoadedPelvisFrameProof;
   expect(n?.sourceLoadedPelvisLiftMeters??0).toBeLessThanOrEqual(.01601);
+  const rollback=n?.sourceLoadedPelvisRollbackFootProof;
+  if(rollback){
+   expect(rollback.source).toBe('same-original-GLB-post-leg-pelvis-rollback');
+   expect(rollback.sourceInstanceId).toBe(t.sourceId);
+   expect(rollback.sourceClip).toBe('Walking_A');
+   expect(rollback.originalLegsRestored).toBe(true);
+   for(const k of ['rejectedHeelY','rejectedToeY','restoredHeelY','restoredToeY'])
+    expect(Number.isFinite(rollback[k]),
+     'actual original skinned heel/toe after all six imported joints return to source pose: '+k).toBe(true);
+   expect(n?.sourceLoadedPelvisLiftMeters??0).toBe(0);
+   expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(0);
+   expect(n?.sourceSwingCalfCurrentFrameMask??0).toBe(0);
+   expect(n?.sourceSwingToeLiftProof??null).toBeNull();
+   expect(n?.sourceSwingCalfAssistProof??null).toBeNull();
+   expect(n?.sourceLoadedPelvisFrameProof??null).toBeNull();
+  }
   if(sourceLoaded){
    expect(sourceLoaded.source).toBe('original-weighted-heel-toe-and-rendered-pelvis');
    expect(sourceLoaded.sourceInstanceId).toBe(t.sourceId);
