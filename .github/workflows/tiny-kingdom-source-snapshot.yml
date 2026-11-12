@@ -14,6 +14,7 @@ on:
       - 'scripts/tiny-kingdom-w252-field-visibility-contract.cjs'
       - 'scripts/tiny-kingdom-w253-original-growing-field-contract.cjs'
       - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -93,6 +94,8 @@ jobs:
         run: node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
       - name: W254 true open-sky market-receiving wing geometry and physical collision
         run: node scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs
+      - name: W255 original source real contact sacks and physically earned market camera
+        run: node scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
