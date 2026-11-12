@@ -200,3 +200,32 @@ test('licensed left-knee 1.05-radian source-key interval is not mistaken for inv
  assert.equal(infer(malformed,'lowerlegl'),null,
   'large axis-breaking discontinuity cannot become an original-rig correction');
 });
+
+test('source calf preserves a same-foot slew only across consecutive genuinely measured mixer frames',async()=>{
+ const {retireOriginalSourceCalfMemory:retire,
+  selectOriginalSourceSwingCalfTrial:select}=await load();
+ assert.equal(typeof retire,'function');
+ assert.equal(retire(-.177114442880969,'left',1),-.177114442880969,
+  'a real left-foot accepted frame keeps the lawful 0.18rad accumulated support');
+ assert.equal(retire(.13,'right',2),.13);
+ assert.equal(retire(-.12,'left',2),0,
+  'one missed left-foot frame must retire its stale sign even when right foot was corrected');
+ assert.equal(retire(.13,'right',1),0);
+ assert.equal(retire(-.12,'left',0),0,'a missed same-foot frame retires the prior correction');
+ assert.equal(retire(.19,'left',1),0,'excessive knee memory never survives');
+ assert.equal(retire(NaN,'left',1),0);
+ assert.equal(retire(.10,'unknown',1),0);
+ assert.equal(retire(.10,'left',4),0);
+ const trial={afterAnkleToeY:-.065,afterAnkleHeelY:.13,floorTopY:-.02,
+  trials:[{signed:.2,toe:-.045,heel:.11}]};
+ assert.equal(select({...trial,previousAssistRad:-.12}),null,
+  'an uninterrupted opposite-signed knee must still be rejected');
+ assert.equal(select({...trial,previousAssistRad:retire(-.12,'left',0)})?.signed,.2,
+  'after a genuinely uncorrected frame, a new safe positive source hinge is eligible');
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(code,/actor\.sourceSwingCalfCurrentFrameMask=0;/);
+ assert.match(code,/actor\.sourceSwingCalfCurrentFrameMask\s*\|=/);
+ assert.match(code,/mount\.swingCalfAssistRad=retireOriginalSourceCalfMemory\(/);
+ assert.match(code,/sourceSwingCalfCurrentFrameMask:actor\.sourceSwingCalfCurrentFrameMask/,
+  'demand-only source-rig witness must not report historical calf proof as current');
+});
