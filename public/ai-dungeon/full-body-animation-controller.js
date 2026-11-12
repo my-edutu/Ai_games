@@ -584,8 +584,8 @@ export function chooseOriginalSourceSwingThighSupport({
   sourceWeight<.65||sourceWeight>1.001||rootTravel<.008||
   rootTravel>.24||frameAge<0||frameAge>.18||
   Math.abs(floorTopY+.02)>.005||
-  Math.abs(previousCorrectionRad)>.04500001||
-  !before||!Array.isArray(trials)||trials.length<1||trials.length>2)return null;
+  Math.abs(previousCorrectionRad)>.09000001||
+  !before||!Array.isArray(trials)||trials.length<1||trials.length>4)return null;
  const opposite=side==='left'?'right':'left';
  const goodPoint=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
  const goodFoot=f=>f&&[f.heelY,f.toeY].every(finite)&&
@@ -601,8 +601,12 @@ export function chooseOriginalSourceSwingThighSupport({
  let best=null;
  for(const trial of trials){
   const delta=trial?.delta,after=trial?.after;
-  if(!finite(delta)||Math.abs(Math.abs(delta)-.045)>.00001||
-   Math.abs(delta-previousCorrectionRad)>.04500001||
+  const severeBurial=source.toeY<floorTopY-.025;
+  const isNormalTrial=Math.abs(Math.abs(delta)-.045)<=.00001;
+  const isSevereTrial=severeBurial&&Math.abs(Math.abs(delta)-.09)<=.00001;
+  const allowableStep=severeBurial?.09000001:.04500001;
+  if(!finite(delta)||(!isNormalTrial&&!isSevereTrial)||
+   Math.abs(delta-previousCorrectionRad)>allowableStep||
    (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||
    !goodFoot(after?.[side])||!goodFoot(after?.[opposite]))continue;
   const moved=after[side],other=after[opposite];
