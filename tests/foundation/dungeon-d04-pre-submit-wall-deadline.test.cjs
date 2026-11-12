@@ -77,3 +77,47 @@ test('mute still prevents delayed audio independent of genuine HP evidence',asyn
  assert.equal(r.delivered,0);
  assert.deepEqual(r.played,[]);
 });
+
+test('one public snapshot and one submitted frame use one clock sample per boundary for simultaneous injuries',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ const before=()=>({run:1,floor:1,tick:10,events:[],units:[
+  {id:'hero',kind:'vanguard',faction:'party',x:2,z:2,hp:30,maxHp:30,action:'idle',actionTick:10},
+  {id:'ally',kind:'mystic',faction:'party',x:3,z:2,hp:30,maxHp:30,action:'idle',actionTick:10}
+ ]});
+ const after=()=>({...before(),tick:11,units:before().units.map(u=>({
+  ...u,hp:20,action:'hurt',actionTick:11
+ }))});
+ let calls=0;
+ const audio=[],visual=[];
+ const director=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>100+(++calls)*.01,
+  visualAdapter:{emit(cue){visual.push(cue);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){audio.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  assert.equal(director.enableAudioFromGesture(),true);
+  director.acceptSnapshot(before());
+  const beforeSnapshotCalls=calls;
+  director.acceptSnapshot(after());
+  assert.equal(visual.length,0,'no effects before a real render opportunity');
+  assert.equal(calls-beforeSnapshotCalls,1,
+   'all HP losses in one immutable public snapshot share their observation boundary');
+  director.advance(.016,.016);
+  assert.equal(visual.filter(c=>c.proof==='observed-hp-drop').length,2);
+  const beforeReceiptCalls=calls;
+  assert.equal(director.acknowledgePresentedFrame(1,.012),2);
+  assert.equal(calls-beforeReceiptCalls,1,
+   'one real renderer acknowledgement supplies exactly one trusted timestamp');
+  const receipts=director.stats().recentDeliveryReceipts.filter(r=>r.audio);
+  assert.equal(receipts.length,2);
+  assert.equal(new Set(receipts.map(r=>r.observedClockMs)).size,1);
+  assert.equal(new Set(receipts.map(r=>r.submittedClockMs)).size,1);
+  assert.ok(receipts.every(r=>r.observationToSubmissionMs===20));
+  assert.ok(receipts.every(r=>r.sampleSynchronized===false));
+  assert.deepEqual(new Set(audio.map(c=>c.targetId)),new Set(['hero','ally']));
+  assert.equal(director.acknowledgePresentedFrame(1,.012),0,'replay must not create a second receipt');
+ }finally{director.dispose()}
+});
