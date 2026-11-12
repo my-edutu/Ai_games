@@ -414,7 +414,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   return coarse==='sightline'||planLiveFacadeBodyReveal(face,eyes,camera,coarse)?
    'sightline':coarse;
  };
- function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false,actualWarningCells=[]){
+ function cutaway(subjects,camera,wallPad=2.1,view=null,forceFacades=null,frameDt=0,reducedMotion=false,actualWarningCells=[],verifiedRenderedStageRoots=null){
   if(!facadeMesh)return;
   // World cladding, banners, stained-glass windows and statuary share the
   // multi-hero camera clearance, instead of tracking only the focus actor.
@@ -502,7 +502,7 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
     planProjectedBodyAperture(foregroundVolumes[i],eyes,camera,view);
    const portrait=planPortraitStageClearance(foregroundVolumes[i],eyes,camera,view);
    const warningBlocked=planForegroundWarningClearance(foregroundVolumes[i],actualWarningCells,camera);
-   applyForegroundRecession(group,blocked||portrait||warningBlocked,frameDt,reducedMotion,foregroundVolumes[i]);
+   applyForegroundRecession(group,blocked||portrait||warningBlocked||verifiedRenderedStageRoots?.has(group),frameDt,reducedMotion,foregroundVolumes[i]);
    if(blocked||portrait||warningBlocked)cleared++;
    if(warningBlocked&&!blocked&&!portrait)warningCleared++;
     if(portrait&&!blocked)portraitCleared++;
@@ -533,6 +533,6 @@ export function enrichEnvironment(world,map,floor,vaultedSites=[],exit=null,enco
   p.fire.scale.y=scale;p.inner.scale.setScalar(.91+Math.sin(t+1.3)*.14);
   if(p.light)p.light.intensity=2.1*(1+encounterLight)*(1+.035*Math.sin(time*2.5+p.phase));
  }};
- return {animate,accept,cutaway,facadeReveal,occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const batch of foregroundReplicas)batch.dispose();alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
+ return {animate,accept,cutaway,facadeReveal,foregroundRenderedMeshes:foregroundReplicas.flatMap(b=>b.meshes),occlusionFaces:wallFaces,occlusionPropVolumes:[...foregroundVolumes.filter(Boolean),...connectedJourney.occluderVolumes,...alternateGallery.occluderVolumes],occluders:[facadeMesh,...foregroundGroups].filter(Boolean),metrics:Object.assign(sceneMetrics,{wardenCourt:wardenCourt.metrics,connectedJourney:connectedJourney.metrics,alternateGallery:alternateGallery.metrics,biome:floor,vaultedFacadeOpenings:wallFaces.filter(f=>f[4]<1.2).length,decorInstances:totalDecor+archWindows,archWindows,torches:flames.length,banners:bannersCount,landmarks:ruins,bossCourtLooseClutterSuppressed,bossCourtTallFixturesSuppressed,wovenRugs:rugs.length,cutawayFloorBackings:backing.length,columnCapstones:columnCap.length,texturedSurfaces:floorDetails.length+wallFaces.length,weatheredSpalls:stoneWeather.spalls.length,brokenCopingStones:stoneWeather.coping.length,weatheredBatches:Number(Boolean(spallMesh))+Number(Boolean(copingMesh))}),dispose:()=>{for(const batch of foregroundReplicas)batch.dispose();alternateGallery.dispose();connectedJourney.dispose();wardenCourt.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();for(const f of flames){f.inner.material.dispose()}}};
 }
 

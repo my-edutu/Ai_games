@@ -697,6 +697,8 @@ export function createRetainedForegroundReplicaBatches(THREE,parent,roots,{maxGr
    mesh.layers.mask=source.layers.mask;
    // The source Group still owns this exact geometry/material at floor cleanup.
    mesh.userData.sharedAssetGeometry=true;
+   // Exact rendered GPU instance -> independently movable source Group.
+   mesh.userData.dungeonForegroundSourceRoots=roots;
    parent.add(mesh);meshes.push(mesh);
   }
   function sync(){
@@ -759,4 +761,38 @@ export function createBaseWorldArchitecturalBatches(THREE,world,{columns=[],arch
   },
   dispose(){if(disposed)return;disposed=true;for(const g of groups)g.dispose()}
  };
+}
+
+/**
+ * A real GPU-drawn original foreground instance must occupy at least TWO
+ * independent camera rays through a legitimate living multi-actor portrait
+ * stage, and be physically closer than the nearest actor. No fabricated
+ * screen rectangle, fake damage, authority edits or arbitrary global fade.
+ */
+export function planRenderedForegroundStageHitOwners(rayHits,subjects,camera){
+ const empty=()=>({roots:new Set(),rayHits:0,verifiedOwners:0});
+ if(!Array.isArray(rayHits)||rayHits.length<2||rayHits.length>12||
+    !Array.isArray(subjects)||subjects.length>5||
+    ![camera?.x,camera?.y,camera?.z].every(Number.isFinite))return empty();
+ const living=subjects.filter(p=>p?.visibleActor===true&&[p.x,p.z].every(Number.isFinite));
+ if(living.length<2)return empty();
+ const nearest=Math.min(...living.map(p=>Math.hypot(camera.x-p.x,camera.y-.13,camera.z-p.z)));
+ const counts=new Map();let genuineRays=0;
+ for(const hits of rayHits){
+  if(!Array.isArray(hits)||hits.length>256)continue;
+  const h=hits.find(hit=>{
+   const roots=hit?.object?.userData?.dungeonForegroundSourceRoots;
+   return hit?.object?.isInstancedMesh===true&&Array.isArray(roots)&&
+    Number.isSafeInteger(hit.instanceId)&&hit.instanceId>=0&&
+    hit.instanceId<roots.length&&roots[hit.instanceId]?.isGroup===true&&
+    Number.isFinite(hit.distance)&&hit.distance>.1&&hit.distance<nearest-.35;
+  });
+  if(!h)continue;
+  genuineRays++;
+  const root=h.object.userData.dungeonForegroundSourceRoots[h.instanceId];
+  counts.set(root,(counts.get(root)||0)+1);
+ }
+ const roots=new Set();
+ for(const [root,hits] of counts)if(hits>=2)roots.add(root);
+ return {roots,rayHits:genuineRays,verifiedOwners:roots.size};
 }

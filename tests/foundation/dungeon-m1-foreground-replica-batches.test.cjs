@@ -48,3 +48,23 @@ test('different author geometry or materials must fail closed with every source 
  rejected.dispose();
  assert.equal(createRetainedForegroundReplicaBatches(THREE,parent,[a]).drawCalls,2);
 });
+
+test('rendered multi-ray source proof clears only nearer physical stone, not scenic rear props',async()=>{
+ const {createRetainedForegroundReplicaBatches,planRenderedForegroundStageHitOwners}=await load();
+ const parent=new THREE.Group(),a=new THREE.MeshStandardMaterial(),b=new THREE.MeshStandardMaterial();
+ const roots=[original(parent,a,b,-1,2),original(parent,a,b,1,2)];
+ const batch=createRetainedForegroundReplicaBatches(THREE,parent,roots);
+ assert.equal(batch.meshes[0].userData.dungeonForegroundSourceRoots,roots);
+ const living=[{visibleActor:true,x:-1,z:0},{visibleActor:true,x:1,z:0}];
+ const cam={x:0,y:6,z:6};
+ const hit=(i,d)=>({object:batch.meshes[0],instanceId:i,distance:d});
+ const out=planRenderedForegroundStageHitOwners([[hit(1,3.5)],[hit(1,3.7)],[hit(0,20)]],living,cam);
+ assert.equal(out.verifiedOwners,1);assert(out.roots.has(roots[1]));
+ assert(!out.roots.has(roots[0]));
+ assert.equal(roots[1].position.y,0,'selector cannot mutate source geometry or authority');
+ assert.equal(planRenderedForegroundStageHitOwners([[hit(1,3)]],living,cam).verifiedOwners,0,'one pixel never hides Gothic stone');
+ assert.equal(planRenderedForegroundStageHitOwners([[hit(1,3)],[hit(1,4)]],
+  [{visibleActor:false,x:-1,z:0},{visibleActor:true,x:1,z:0}],cam).verifiedOwners,0,'absent actors may not clear scenery');
+ assert.equal(planRenderedForegroundStageHitOwners([[hit(1,20)],[hit(1,20)]],living,cam).verifiedOwners,0,'rear architecture retains depth');
+ batch.dispose();
+});

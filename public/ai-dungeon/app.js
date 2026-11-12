@@ -21,7 +21,7 @@ import {advancePresentationActionAge,planSourceRigPlaybackStep} from '/dungeon/c
 import {planExpeditionStep,advanceExpeditionFootfall,planGroundedAnimation} from '/dungeon/expedition-locomotion-plan.js';
 import {planAuthorityDamageBeats,planDamageReaction,resolveImpactSide,planDefeatTableauPose,planImpactCameraHold,planVerifiedMeleeImpactDelay,planVisibleMeleeContactStep,DAMAGE_BEAT_DURATION,DEATH_BEAT_DURATION} from '/dungeon/impact-choreography-plan.js';
 import {planAuthorityEvasions,EVASION_BEAT_DURATION} from '/dungeon/evasion-performance-plan.js';
-import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createBaseWorldArchitecturalBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry} from '/dungeon/postfx-budget.js';
+import {planPostFXBudget,adaptPostFXPixelCap,postFXStallAction,isSoftwareWebGLRenderer,createFrameIntervalProbe,planDirectRenderBudget,adaptDirectRenderPixelCap,planRenderSurfaceUpdate,createSoftwareDeliveryBudgetGovernor,deferRenderDiagnostics,createRenderPhaseProfiler,createAuthorityCueBatch,createRetainedStaticDetailBatches,createBaseWorldArchitecturalBatches,createSoftwareWorldLightBudget,createSoftwareDiffuseMasonry,planRenderedForegroundStageHitOwners} from '/dungeon/postfx-budget.js';
 import {planRendererAntialias} from '/dungeon/render-context-plan.js';
 import {planEventVisualPriority} from '/dungeon/event-visual-priority-plan.js';
 import {planCombatFacing,planMovementFacing,approachCharacterYaw,shortestYawDelta} from '/dungeon/facing-plan.js';
@@ -255,7 +255,7 @@ function sightlineClearance(x,z,subjects,cameraPosition,pad=2.1){
  return planPartyWallReveal(x,z,subjects,cameraPosition,pad)!=='none';
 }
 let cachedWarningSnapshot=null,activeWarningSightlinePoints=[];
-function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,frameDt=0){
+function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,frameDt=0,verifiedRenderedStageRoots=null){
  const positions=world.userData.wallPositions,mesh=world.userData.walls;
  if(!mesh||!positions)return;
  // Every frame is intentional: a rounded key previously skipped critical
@@ -346,7 +346,7 @@ function cutawayWalls(target,subjects,wallPad=2.1,view=null,forceWalls=null,fram
   // Only actual authority warning tiles can clear a prop that hides the live
   // Warden strike. Whole props physically retreat; no fake hazard overlay.
   const danger=planForegroundWarningClearance(world.userData.foregroundPropVolumes?.[i],activeWarningSightlinePoints,camera.position);
-  applyForegroundRecession(group,hidden||portrait||danger,frameDt,reduced,world.userData.foregroundPropVolumes?.[i]);
+  applyForegroundRecession(group,hidden||portrait||danger||verifiedRenderedStageRoots?.has(group),frameDt,reduced,world.userData.foregroundPropVolumes?.[i]);
   if(hidden||portrait||danger)removed++;
   if(danger&&!hidden&&!portrait)warningCleared++;
   if(portrait&&!hidden)portraitCleared++;
@@ -985,6 +985,43 @@ document.addEventListener('visibilitychange',()=>frameDeliveryProbe.resetClock()
 const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
 const bodyPointSample=new THREE.Vector3();
 const rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3();
+const stageSourceRaycaster=new THREE.Raycaster(),stageSourceRayPoint=new THREE.Vector2();
+const stageSourceFoot=new THREE.Vector3();
+// Six bounded real geometry intersections across the actual multi-actor floor
+// corridor; source roots retain physical environment and reversible recession.
+function inspectRenderedForegroundStage(subjects){
+ const none=()=>({roots:new Set(),rayHits:0,verifiedOwners:0});
+ if(camera.aspect>=.86||!Array.isArray(subjects)||subjects.length>5)return none();
+ camera.updateMatrixWorld(true);
+ const projected=[];
+ for(const s of subjects){
+  if(s?.visibleActor!==true||![s.x,s.z].every(Number.isFinite))continue;
+  const foot=stageSourceFoot.set(s.x,.13,s.z).project(camera);
+  if(![foot.x,foot.y,foot.z].every(Number.isFinite)||
+     Math.abs(foot.x)>1||Math.abs(foot.y)>1||foot.z< -1||foot.z>1)continue;
+  projected.push({x:foot.x,y:foot.y});
+ }
+ if(projected.length<2)return none();
+ const left=Math.min(...projected.map(p=>p.x)),right=Math.max(...projected.map(p=>p.x));
+ if(right-left<.20)return none();
+ const meshes=[
+  ...(world.userData.baseWorldArchitecturalBatches?.meshes||[]),
+  ...(world.userData.baseWorldArchitecturalBatchesAlt?.meshes||[]),
+  ...(world.userData.dressing?.foregroundRenderedMeshes||[])
+ ].filter(m=>m?.isInstancedMesh&&m.visible&&
+   Array.isArray(m.userData?.dungeonForegroundSourceRoots));
+ if(!meshes.length||meshes.length>40)return none();
+ const x=(left+right)*.5,footY=Math.min(...projected.map(p=>p.y));
+ const ys=[Math.max(-.91,Math.min(-.05,footY-.12)),
+  Math.max(-.94,Math.min(-.18,footY-.34))];
+ const results=[];
+ for(const y of ys)for(const dx of [-.1,0,.1]){
+  stageSourceRayPoint.set(Math.max(-.96,Math.min(.96,x+dx)),y);
+  stageSourceRaycaster.setFromCamera(stageSourceRayPoint,camera);
+  results.push(stageSourceRaycaster.intersectObjects(meshes,false));
+ }
+ return planRenderedForegroundStageHitOwners(results,subjects,camera.position);
+}
 let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,testedBosses:0,unoccludedBosses:0,occludedBosses:0,samples:0};
 function actualHeroVisibility(s,at){
  if(at-lastRayAuditAt<1.25)return rayAudit;
@@ -1507,17 +1544,20 @@ function animate(t){
   cachedWarningSnapshot=state?.bossWarning??null;
   activeWarningSightlinePoints=planWardenWarningSightlinePoints(cachedWarningSnapshot,state?.map?.length);
  }
- // The physically rendered source bodies now identify exact blocking stone
- // INSTANCE IDs; the same cutaways affect base walls, their relief/foundations,
- // Gothic facades and weathered dressing without any x-ray hero rendering.
+ // Intersect ACTUAL original InstancedMesh geometry in the CURRENT
+ // camera. The giant 390px central column persisted despite multiple 2D
+ // box tests; accept only independent ray hits on physically nearer stone.
+ const renderedForegroundStage=inspectRenderedForegroundStage(partySightlines);
+ world.userData.renderedForegroundStageHits=renderedForegroundStage.rayHits;
+ world.userData.renderedForegroundStageOwners=renderedForegroundStage.verifiedOwners;
  const physicalStage=actorOcclusionStage.resolve(worldFloor,camera,partySightlines,
   world.userData.walls,world.userData.dressing?.occluders?.[0],time);
- cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls,dt);
+ cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls,dt,renderedForegroundStage.roots);
  world.userData.baseWorldArchitecturalBatchWrites=
   (world.userData.baseWorldArchitecturalBatches?.sync().matrixWrites||0)+
   (world.userData.baseWorldArchitecturalBatchesAlt?.sync().matrixWrites||0);
  world.userData.dressing?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1,
-  renderedBodyView,physicalStage.facades,dt,reduced,activeWarningSightlinePoints);
+  renderedBodyView,physicalStage.facades,dt,reduced,activeWarningSightlinePoints,renderedForegroundStage.roots);
   world.userData.chapterNaves?.cutaway(partySightlines,camera.position,storyStage?.wallPad??2.1);
   world.userData.wardenRitual?.setSightlines(partySightlines,camera.position);
  let portraitAuthoredCleared=0,warningAuthoredCleared=0;
@@ -1639,7 +1679,7 @@ function animate(t){
    (world.userData.baseWorldArchitecturalBatchesAlt?.drawCalls||0),
   savedDrawCalls:(world.userData.baseWorldArchitecturalBatches?.savedDrawCalls||0)+
    (world.userData.baseWorldArchitecturalBatchesAlt?.savedDrawCalls||0),
-  matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},
+  matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},renderedForegroundStage:{actualRayHits:world.userData.renderedForegroundStageHits??0,verifiedSourceOwners:world.userData.renderedForegroundStageOwners??0,physicalSceneOnly:true},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
