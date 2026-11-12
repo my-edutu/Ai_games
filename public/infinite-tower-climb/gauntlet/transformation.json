@@ -1,5 +1,47 @@
 {
-  "p0OriginalFloorNineRenderCriticalPathAttribution20261112": {
+  "p0OriginalFloorNineIndexedUploadBudget20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedSourceSha": "c323700d87d90378dc29b17d6cc5f60e6e5d59a2",
+    "originalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43150616902 — 8/8 real baseline/candidate normal-speed videos; pairing FAILED 0/2",
+    "originalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43150616902/artifacts/13914301409 — actual desktop and portrait original WebMs and source diagnostics inspected",
+    "observedSourceFloorNine": "desktop source tick451 23.1828s => drawn HUD 25.25s (+2.067s), portrait source tick451 23.7417s => drawn HUD 25.5s (+1.758s). Neither proves an unbroken grounded arch crossing. Bronze structures obstruct live duel.",
+    "actualFirstFloorNineRenderWorkMs": {
+      "desktop": {
+        "worldRebuild": 123.9,
+        "sceneUpdate": 126.4,
+        "rendererReturn": 711.5,
+        "total": 837.9
+      },
+      "portrait": {
+        "worldRebuild": 142.2,
+        "sceneUpdate": 143.7,
+        "rendererReturn": 459.2,
+        "total": 602.9
+      },
+      "caveat": "Original browser measured Three.js renderer return; NOT GPU present, device FPS or playback quality."
+    },
+    "sourceCommits": [
+      "bce0a8cb12d05503a9b26601df01cbfd77ea8cf0",
+      "64f49d42d92aa3ea9c55b88ced6f459a5ae623f4",
+      "b034c9802323c5847b8393e922fe61208763bdb1",
+      "211c81f5c2b3c4687a3864ea7b5fe7717a0403d7"
+    ],
+    "productionChange": "Measured renderer-heavy new-floor upload path now selectively encodes reused static source vertices as true indexed triangle buffers, preserving per-face authoring attribution and falling back if combined upload payload would grow. Actual floor budget added to world diagnostics. Not a video-quality pass.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-original-floor9-indexed-static-upload.md",
+    "exactQuality": "NEW source-head CI not verified at ledger authoring; no pass claimed",
+    "afterOriginalCapture": "NOT YET VERIFIED — requires immutable capture-request source after evidence commit",
+    "blindIndependentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "supportedHardware": "NOT EVALUATED: frame p50/p95/p99, GPU present and memory",
+    "largestGap": "Source-to-visible Floor9 phase 1.76-2.07 seconds, first renderer.return 459-712ms and no clear physically continuous portal or unobstructed full-body guardian. Strict 0/2 event/raster.",
+    "nextHighestImpactAction": "Inspect exact-head CI, original 60s+ source-pinned two-viewport films and new renderWorkMs/rigid upload accounting; confirm the optimization is real (or revert), then fix remaining physical threshold continuity, guardian view and full restart. Stay P0."
+  },
+"p0OriginalFloorNineRenderCriticalPathAttribution20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "verdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
