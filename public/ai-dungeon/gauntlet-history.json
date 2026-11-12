@@ -2644,7 +2644,7 @@
     },
     "acceptance": "Integrated real game BEFORE vs AFTER across traversal, combat, boss, floor transition, defeat/restart and mobile, with motion/audio; >=3 fresh blind critics, clear majority preferring AFTER in LOOKS, FEELS and PLAYS; safety CI/replay/accessibility/performance retained. Passing CI alone cannot pass.",
     "biggestRemainingGap": "Actual mobile Warden original bodies tiny amid clutter, native spine/wrist current action witness failed, SwiftShader huge RAF stalls; source scene candidate not yet verified",
-    "currentWork": "Warden 25-cell authentic in-world warning legibility candidate; same open M1, no experience acceptance",
+    "currentWork": "Original physical mobile camera-stage occlusion: authoritative-looking full 3D source owner proof, AFTER film unverified",
     "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
     "candidateArtifactUrl": null,
     "acceptedAt": null,
@@ -5818,7 +5818,7 @@
       "nextTask": "Inspect exact new-head 1440px and 390px real WebGL moving gameplay + opt-in actual sound; measure natural team handoffs, reject scene/body occlusion and camera instability; capture 5-stage journey and independent blind A/B."
     },
     "latestImplementation": "Candidate: separate desktop/mobile real-Chromium end-to-end natural journey recorder with original audio opt-in; source-only, execution NOT VERIFIED.",
-    "lastCandidateSha": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
+    "lastCandidateSha": "4ca206f24ccd549c597e1aeb2f0422301da88e41",
     "experienceVerdict": "IN_PROGRESS_NOT_TRANSFORMED; LOOKS_FEELS_PLAYS_UNVERIFIED",
     "criticReadiness": "0/3; original fully matched desktop/mobile moving audiovisual journey not captured; source-only candidate.",
     "nextImplementationTask": "Review new-head organic desktop/mobile real Warden film/audio, ensure no lost hazard cells or route support and actually clearer actors. Reject regressions, then repair authentic native skinned melee visibility and contact audio sync under sparse RAF.",
@@ -5873,7 +5873,7 @@
       "next": "Exact-new-head real 1440px/390px seeded Chromium audiovisual battle + compare pinned baseline; verify no new occlusion/camera jitter, then original adult-scale native rig/Warden melee integration and five-stage organic reel."
     },
     "currentStage": "A_INCOMPLETE",
-    "executableNextTask": "Inspect new-head genuine full-stage desktop/mobile videos for non-contact skinned Warden/Vanguard recovery, watch actual contact frames and reject foot slide; then adult-scale mesh reconstruction, HP/audio alignment, matched locked baseline and 3 blinded critics.",
+    "executableNextTask": "Inspect exact new 390px immersive entry and 1440/390 five-stage original A/V and renderedForegroundStage owner names/hits; compare real same-seed c5 source and locked baseline only when matched; reject if giant column persists, artifact/p95 worse or depth flattened. Trace its exact original mesh if so. Continue major original adult source-skinned duel, confirmed HP/audio, hardware perf, multi-seed replay and >=3 independent blind critics. No merge/deploy.",
     "phasePlan": [
       {
         "phase": "A",
@@ -8565,5 +8565,34 @@
     "plays": "UNVERIFIED",
     "pr72": "SEPARATE_UNADOPTED_1997cc9931199246f9f0669e53682236cac51fcd",
     "next": "Inspect new source-stamped mobile entry and Warden moving footage and real renderedForegroundStage owners. If column persists, locate actual mesh/owner and reject synthetic threshold. Preserve replay/audio, hardware perf, adult source rig and three independent critics. No merge/deploy."
+  },
+  "m1PhysicalStageSourceOwnerContinuation20261112": {
+    "at": "2026-11-12",
+    "stage": "A_INCOMPLETE",
+    "status": "SOURCE_INTEGRATED_REAL_AFTER_UNVERIFIED",
+    "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "initialObservedHead": "c5a47ec22973bc19726479fc69a9d6fa56af1dfa",
+    "realBeforeMobileVisualRun": 43140317696,
+    "realBeforeOrganicRun": 43140317649,
+    "observedRealBefore": "Actual source c5 390px immersive screenshot STILL has huge black shaft and bronze polygon crown over lower center of genuine live 3D entry; 1440/390 organic film SUCCESS, original opt-in VP8/Opus audio and 946 source states; mobile Warden warning 23 genuine danger cells with miniaturized rigs. Preceding source, NOT immutable matched baseline.",
+    "sourceCodeCommit": "4ca206f24ccd549c597e1aeb2f0422301da88e41",
+    "implementation": "Nine actual THREE camera rays through real multi-actor weapon/foot/chest corridor; depth proof uses physical ray floor hit plus farthest real actor instead of invalid nearest-hero early reject. Retained InstanceId original groups and once-indexed direct render source meshes both eligible after 2 genuine nearer geometry hits. Source volume holds only previously proven physical owners through legitimate ongoing stage occlusion, preserving real scene and avoiding flicker; all bounded on rebuild, no authoritative gameplay/audio edits.",
+    "testFirstCommit": "da5d6da80bb7933ea4f2a3477c5d290fe545da35",
+    "tests": "Two novel source-owner/stage-depth tests authored before implementation; updated obsolete physical recession source string expectations. New head GitHub Actions pending. NO source-test pass claimed.",
+    "beforeFoundation": "43140317572: browser three shards SUCCESS, authority 436/437 due to obsolete regex, CI 43140317598 FAIL 6/1224 and artifacts",
+    "newHeadDungeonRun": 43144048563,
+    "newHeadOrganicRun": 43144048677,
+    "newHeadVisualRun": 43144048594,
+    "newHeadCatalogueCI": 43144048796,
+    "exactAfterAVisual": "NOT_OBSERVED",
+    "performance": "UNVERIFIED_HARDWARE_GPU_AND_RAF_TAILS",
+    "originalHPBladedAudio": "UNVERIFIED",
+    "baselineMatchedA_B": "UNVERIFIED",
+    "independentCritics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "pr72": "ISOLATED_UNADOPTED_1997cc9931199246f9f0669e53682236cac51fcd",
+    "next": "Inspect exact new 390px immersive entry and 1440/390 five-stage original A/V and renderedForegroundStage owner names/hits; compare real same-seed c5 source and locked baseline only when matched; reject if giant column persists, artifact/p95 worse or depth flattened. Trace its exact original mesh if so. Continue major original adult source-skinned duel, confirmed HP/audio, hardware perf, multi-seed replay and >=3 independent blind critics. No merge/deploy."
   }
 }
