@@ -9,12 +9,12 @@
  * mesh's Y end seam. This is an IMPLEMENTATION CANDIDATE, not an A/B win.
  */
 const PROFILES=Object.freeze({
- vanguard:Object.freeze({chest:.41,waist:.32,limb:.25,depth:.25,head:.40,jaw:.27}),
+ vanguard:Object.freeze({chest:.41,waist:.32,limb:.17,depth:.25,head:.40,jaw:.27}),
  ranger:Object.freeze({chest:.17,waist:.18,limb:.09,depth:.11}),
  mystic:Object.freeze({chest:.15,waist:.16,limb:.07,depth:.10}),
- revenant:Object.freeze({chest:.39,waist:.30,limb:.24,depth:.23,head:.36,jaw:.24}),
+ revenant:Object.freeze({chest:.39,waist:.30,limb:.14,depth:.23,head:.36,jaw:.24}),
  cultist:Object.freeze({chest:.16,waist:.16,limb:.09,depth:.11}),
- warden:Object.freeze({chest:.44,waist:.29,limb:.28,depth:.26,head:.42,jaw:.29})
+ warden:Object.freeze({chest:.44,waist:.29,limb:.19,depth:.26,head:.42,jaw:.29})
 });
 const PART=/(?:^|_)(Body|ArmLeft|ArmRight|LegLeft|LegRight|Head|Skull|Jaw|Eyes)$/i;
 const isNativeSkull=name=>/(?:^|_)(?:Head|Skull)$/i.test(name);
@@ -78,9 +78,10 @@ export function planNativeFigureVertex(plan,x,y,z){
     plan.waist*.58*waist+plan.depth*.10*hip);
  }else if(plan.part==='arm'){
   // The real weighted arm geometry transitions continuously from deltoid
-  // to biceps, elbow, forearm and narrow wrist. Original sword-hand joint
-  // remains untouched. Distinct handed mass gives the three source figures
-  // recognisable guards and reach without adding rig objects.
+  // to biceps, elbow, forearm and narrow wrist. A smaller source-limb
+  // profile refits the giant toy gauntlets into slimmer original skinned
+  // forearms while the head and shoulder proportions change together.
+  // Original hand joints and painted surfaces remain connected.
   const bicep=bump(t,.66,.16),elbow=bump(t,.44,.11),
    forearm=bump(t,.26,.15),wrist=bump(t,.10,.10);
   const guard=plan.kind==='warden'?(plan.side==='right'?1.19:1.10):

@@ -9041,6 +9041,35 @@
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "next": "Verify exact-head genuine 1440/390 gameplay with multiple delivered source-rig poses, boot contact/HP audio, danger visibility; reject regressions then original adult cast/combat rebuild"
+  },
+  "m1NativeAdultOriginalCastRefit20261112": {
+    "at": "2026-11-12",
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "sourceParentSha": "2f4653ba645020270aaa77833fb4897ab6625ee5",
+    "sourceAfter": "COMMIT_CONTAINING_THIS_HISTORY",
+    "phase": "A_INCOMPLETE_B_CANDIDATE",
+    "evidenceBefore": {
+      "organicRun": 43245670067,
+      "mobileArtifact": 13958480373,
+      "desktopArtifact": 13958800064,
+      "seed": "gauntlet-corpus-v1-0",
+      "screenshots": "authentic previous-head mobile Warden warning/release/counter",
+      "warningCells": 23,
+      "originalOptInAudio": true
+    },
+    "observedBefore": "Genuine source-rendered 390px Warden encounter has miniature stylized source GLB fighters (~29-37px at 23-tile warning), with major scale variation by counter. No matched immutable-baseline five-stage movie available.",
+    "integrated": "Original Vanguard/Revenant/Warden SOURCE-SKINNED connected head/face/helmet ratios .49/.48/.52 plus same-actor original source-painted forearm/deltoid refit .17/.14/.19; reversible bone scaling and actor-private geometry; no new draw calls, source rig and weapon-hand unchanged. No authority/damage/replay/save/audio changes.",
+    "localFocusedTests": "24/24 PASS including source anatomical and bounded 6 delivered recovery-pose timing; full repository CI remains unverified/red from earlier.",
+    "exactAfterRealAV": "NOT_OBSERVED; local Chromium denied all navigation with ERR_BLOCKED_BY_ADMINISTRATOR, detached development browser tunnel also unavailable. Await exact HEAD GitHub CI evidence.",
+    "accept": {
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "matchedBaseline": false,
+      "critics": 0,
+      "transformed": false
+    },
+    "next": "Analyze exact-new-head genuine 1440/390 Warden warning/release/counter mobile+desktop video: source face/helm continuity, hand grip, planted boots and screen px; reject/regress where necessary, then finish original coherent full-body combat exemplar."
   }
-
 }

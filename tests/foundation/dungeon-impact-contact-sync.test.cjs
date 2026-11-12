@@ -57,12 +57,14 @@ test('actual game shares verified onset across body recoil and physical shard/fa
 test('sparse real RAF delivers one original windup, one blade/HP-audio contact and then recovery',async()=>{
  const {planVisibleMeleeContactStep:step,VERIFIED_MELEE_CONTACT_DELAY:contact}=await load('impact-choreography-plan.js');
  let sourceAge=0,audioRemaining=contact,impactLife=-contact,beatAge=-contact;
- for(const [i,elapsed] of [.433,.433,.433].entries()){
+ for(const [i,elapsed] of [.433,.433,.433,.433,.433,.433].entries()){
   const visualStep=step(elapsed,sourceAge);
   sourceAge+=visualStep;audioRemaining-=visualStep;impactLife+=visualStep;beatAge+=visualStep;
   if(i===0){assert.equal(sourceAge,.05);assert.ok(audioRemaining>0);assert.ok(beatAge<0)}
   if(i===1){assert.ok(Math.abs(sourceAge-contact)<1e-6);assert.ok(audioRemaining<=1e-8);assert.ok(Math.abs(impactLife)<1e-8);assert.ok(Math.abs(beatAge)<1e-8)}
-  if(i===2){assert.ok(sourceAge>=.56&&sourceAge<=.57,'after contact, original source clip recovers');}
+  if(i===2){assert.ok(sourceAge>=.319&&sourceAge<=.321,'first post-contact frame is real body recovery, not skipped');}
+  if(i===3){assert.ok(sourceAge>=.424&&sourceAge<=.426,'original wrist, pelvis and boots keep a second observable recovery frame');}
+  if(i===5){assert.ok(sourceAge>=.619&&sourceAge<=.621,'original 620ms envelope completes with audio fired exactly once');}
  }
  let normalAge=0;
  for(let i=0;i<15;i++){const delta=step(.016,normalAge);normalAge+=delta;assert.ok(delta<=.01601)}

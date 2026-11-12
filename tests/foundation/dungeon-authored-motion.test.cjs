@@ -76,7 +76,9 @@ test('native source-rig mixer catches up after first true one-shot pose under sp
  assert.ok(second.delta>=.164&&second.delta<=.166,'second delivered frame must display original 215ms blade contact, not skip to recovery');
  assert.ok(second.age>=.214&&second.age<=.216,'source rig must show actual physical contact even after severe software WebGL stall');
  const third=step(.433,'attack',second.age);
- assert.ok(third.delta>=.34&&third.delta<=.351,'third delivered frame catches up into natural source-clip recovery');
+ assert.ok(third.delta>=.104&&third.delta<=.106,'third delivered frame exposes the first real native recovery posture');
+ let follow=third;for(let i=0;i<3;i++)follow=step(.433,'attack',follow.age);
+ assert.ok(follow.age>=.619&&follow.age<=.621,'subsequent delivered frames finish the bounded original 620ms clip');
  const cruise=step(.433,'move',0);
  assert.ok(cruise.delta>=.29&&cruise.delta<=.351,'walking clip cadence must follow wall time under severe software WebGL delays');
  assert.equal(step(.016,'move',0).delta,.016,'normal real-time frames must not be accelerated');

@@ -27,7 +27,7 @@ test('each real role has a conservative original adult-head proportion profile w
  const roles=['vanguard','ranger','mystic','revenant','cultist','warden'];
  for(const kind of roles){
   const ratio=planCranialRatio(kind);
-  assert.ok(ratio>=.60&&ratio<=.67,`${kind} head adjustment is bounded`);
+  assert.ok(ratio>=.45&&ratio<=.67,`${kind} head adjustment is bounded`);
   assert.ok(ratio<1,`${kind} eliminates part of oversized low-poly head`);
  }
  for(const bad of [null,undefined,'unknown','',42])assert.equal(planCranialRatio(bad),1);
@@ -72,6 +72,25 @@ test('adult-profile refit meaningfully corrects toy-sized crania, rather than on
  const {planCranialRatio}=await load();
  for(const kind of ['vanguard','ranger','mystic','revenant','cultist','warden']){
   const ratio=planCranialRatio(kind);
-  assert.ok(ratio>=.60&&ratio<=.67,kind+' must have a coherent adult-hero head-to-height target');
+  assert.ok(ratio>=.45&&ratio<=.67,kind+' must have a coherent adult-hero head-to-height target');
+ }
+});
+
+test('adult Vanguard/Revenant/Warden source heads remain smaller than original caster roles while preserving head bones',async()=>{
+ const {planCranialRatio,stageCranialProportion,restoreCranialProportion}=await load();
+ const {Vector3}=require('three');
+ for(const kind of ['vanguard','revenant','warden']){
+  const ratio=planCranialRatio(kind);
+  assert.ok(ratio>=.46&&ratio<=.53);
+  assert.ok(ratio<planCranialRatio('ranger')-.07);
+  const bone={scale:new Vector3(1.03,.98,1.01)};
+  const mount={bone,ratio,applied:false};
+  const original=bone.scale.clone();
+  for(let i=0;i<300;i++){
+   assert.equal(stageCranialProportion(mount),true);
+   assert.ok(bone.scale.y>0.40,'no inverted or vanishing head anatomy');
+   assert.equal(restoreCranialProportion(mount),true);
+   assert.ok(bone.scale.distanceTo(original)<1e-10,'restore source skull without accumulated deformation');
+  }
  }
 });
