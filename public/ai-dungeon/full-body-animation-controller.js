@@ -834,12 +834,13 @@ export function reconcileOriginalSourceSwingToeProofWithThigh({
  floorTopY=NaN,before=null,after=null,thighImprovementMeters=NaN,
  continuityKind='rescue'
 }={}){
- // A measured continuation of the preceding ORIGINAL upperleg is not a
- // new 4mm clearance rescue. It still needs a fresh, two-shoe physical
+ // A measured continuation OR a 45mrad bounded return of the preceding
+ // ORIGINAL upperleg is not a new 4mm clearance rescue. It still needs a fresh, two-shoe physical
  // trial, an exact same-frame licensed ankle/calf proof, and >=1mm lift.
  // Never relax ordinary rescues or accept unsupported release/foot-locks.
  const hold=continuityKind==='hold';
- if(!hold&&continuityKind!=='rescue')return null;
+ const release=continuityKind==='release';
+ if(!hold&&!release&&continuityKind!=='rescue')return null;
  const point=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
  const foot=f=>f&&[f.heelY,f.toeY].every(finite)&&
   point(f.heelXZ)&&point(f.toeXZ);
@@ -853,8 +854,9 @@ export function reconcileOriginalSourceSwingToeProofWithThigh({
    proof.beforeHeelY,proof.afterHeelY,proof.liftMeters].every(finite)||
   Math.abs(floorTopY+.02)>.005||
   Math.abs(proof.floorTopY-floorTopY)>.0001||
-  (hold?(thighImprovementMeters<.001||thighImprovementMeters>.04):
-    (thighImprovementMeters<.004||thighImprovementMeters>.06))||
+  (release?(thighImprovementMeters<-.0015||thighImprovementMeters>.04):
+   hold?(thighImprovementMeters<.001||thighImprovementMeters>.04):
+   (thighImprovementMeters<.004||thighImprovementMeters>.06))||
   Math.abs(before.toeY-proof.afterToeY)>.0015||
   Math.abs(before.heelY-proof.afterHeelY)>.0015||
   Math.abs((proof.afterToeY-proof.beforeToeY)-proof.liftMeters)>.0015)
