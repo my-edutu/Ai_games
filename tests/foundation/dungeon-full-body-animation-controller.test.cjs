@@ -3796,7 +3796,7 @@ test('RED: only witnessed severe source-swing toe burial may select a wider but 
   ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
   sourceInstanceSame:true,alive:true,visible:true,teleport:false,
   reducedMotion:false,interrupted:false,rootTravel:.038,frameAge:.032,
-  side:'left',floorTopY:-.02,previousCorrectionRad:0,before};
+  side:'left',floorTopY:-.02,previousCorrectionRad:.045,before};
  const trial=(delta,toe,heel,toeXZ=[.018,.209],other=before.right)=>({
   delta,after:{left:{heelY:heel,toeY:toe,heelXZ:[.012,.003],toeXZ},
    right:other}
@@ -3933,4 +3933,55 @@ test('RED: original swing thigh can grow from genuine prior 90mrad support by on
   'real imported-rig trials must be conditionally exposed only after prior verified 90mrad');
  assert.match(stage,/sourceSkinnedSoleWorld/,
   'new trial must measure the real source skinned sole, not a guessed final angle');
+});
+
+
+// Exact current original-GLB mobile tick 8 (source artifact #13956471938):
+// the original left swing shoe was -92.577819mm at the weighted toe, while
+// the right shoe sat -22.697/-22.645mm at the actual -20mm stone top.
+// -90mrad then improved the left toe to -81.172176mm but arrived immediately
+// after a prior 0mrad supported original upperleg. Those are filmed source
+// facts; the intermediate -45 and following -135 samples below are SYNTHETIC
+// bounded joint trajectories, not claimed rendered improvements.
+test('RED: native source swing thigh must build through genuine 45mrad steps, never jump 0 to 90mrad in one visible frame',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ const before={
+  left:{heelY:.2142452297000233,toeY:-.09257781947355347,
+   heelXZ:[-2.66997658,-6.94763936],toeXZ:[-2.68279195,-6.93426121]},
+  right:{heelY:-.022697219086271973,toeY:-.022645155972921854,
+   heelXZ:[-2.70615892,-7.10992178],toeXZ:[-2.97637629,-7.13529380]}
+ };
+ const trial=(delta,toeY,heelY,toeX)=>{
+  return {delta,after:{
+   left:{heelY,toeY,heelXZ:[-2.6697,-6.9474],
+    toeXZ:[toeX,-6.93385]},right:{...before.right}
+  }};
+ };
+ const fortyFive=trial(-.045,-.0863,.2200,-2.6702);
+ const ninety=trial(-.09,-.08117217582850386,.22556160534,-2.65840335);
+ const oneThirtyFive=trial(-.135,-.0755,.231,-2.6582);
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.042,frameAge:.034,
+  side:'left',floorTopY:-.02,before};
+ const choices=[fortyFive,ninety,oneThirtyFive];
+ const first=choose({...owner,previousCorrectionRad:0,trials:choices});
+ assert.equal(first?.angleRad,-.045,
+  'the true first visible correction must not snap imported upperleg 90mrad');
+ const second=choose({...owner,previousCorrectionRad:-.045,trials:choices});
+ assert.equal(second?.angleRad,-.09,
+  'lawful second visible frame may grow 45→90mrad using two real shoe reads');
+ const third=choose({...owner,previousCorrectionRad:-.09,trials:choices});
+ assert.equal(third?.angleRad,-.135,
+  'only the witnessed 90mrad predecessor may test the third 135mrad pose');
+ assert.equal(choose({...owner,previousCorrectionRad:0,trials:[ninety]}),null,
+  'missing physical intermediate original-joint measurement must fail closed');
+ for(const unsafe of [
+  {teleport:true},{reducedMotion:true},{interrupted:true},{visible:false},
+  {sourceClipName:'Idle'},{rootTravel:0},{sourceInstanceSame:false}
+ ])assert.equal(choose({...owner,...unsafe,previousCorrectionRad:0,trials:choices}),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/swingThighAssistRad/);
+ assert.match(renderer,/sourceSwingThighCurrentFrameProofs/);
 });
