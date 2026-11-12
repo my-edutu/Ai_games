@@ -1,0 +1,27 @@
+# PR68 P0 — native-film browser gap versus physical guardian doorway (2026-11-12)
+
+**Only** Infinite Tower Climb; open draft PR68 on PR58's immutable baseline `1731b380851162741761c5569e2bc152a0869ca9`. P0 **OPEN**; transformation assessor **NOT EVALUATED**.
+
+## Actual original normal-speed finding, not source speculation
+
+Inspected exact-candidate `5dca3a72e9ee96c423c9bc1e30851d7a8937a018` from [nine-job film run 43201804634](https://github.com/my-edutu/Ai_games/actions/runs/43201804634), including the real [candidate danger WebMs, source trace and native-phase sidecars](https://github.com/my-edutu/Ai_games/actions/runs/43201804634/artifacts/13935263714). Source is 20Hz; native films are separate original 960×600 desktop and 390×844 portrait, not staged proxy frames.
+
+**Largest visible defect:** at ~25.5s desktop, warm Clockwork cap/climber meets bronze guardian lattice; next visible frame is a different violet Floor9 scene, with climber disjoint from the doorway. The same abrupt visual replacement occurs in portrait. Neither native film proves the skinned actor's whole body crossing one real supported physical threshold. The camera/window is not yet accepted as smooth or spatially continuous.
+
+**Critical new source truth:** authoritative Floor8 defeated-guardian cap x=115200,y=3212000,width=249600,height=12000, HP0 and grounded old player at **tick443 x=291896,y=3238000**; actual floor advance tick451 x=324296; Floor9 grounded new player at **tick454 x=338096,y=3238000**. Source tick451 and all intervening 50ms steps are present in the source trace, but the cold WebGL browser did not accept an intermediate tick451: its first accepted Floor9 snapshot was **tick454**. Scene therefore sees an authentic old→new observation pair across **11 ticks (550ms)**. The existing `observedGroundedGuardianHandoff()` presentation proof required <=8 ticks, incorrectly vetoing the source-earned inner arch and Floor9 runway. That falsely left the unrelated exterior memory and creates exactly the disconnected spatial cut seen on film. No simulation floor or guardian physics deficiency is inferred.
+
+**Measured original source tick451→native Floor9 phase:** desktop **2.756s**, portrait **1.865s**. Desktop browser receipt→Three return ~1.449s, portrait ~1.060s. These are source/browser/returned-Three/native WebM phase diagnostics, **NOT physical GPU presentation, device FPS or frame-time**. Last strict event/native pairing **0/2 accepted**; original baseline floor7 moving job also failed, while seven other video jobs succeeded.
+
+## Corrective source-owned implementation, guarded
+
+1. Test-first [7977f142](https://github.com/my-edutu/Ai_games/commit/7977f1424e09c8974a137afcb6ec2e36e5a04669) uses the measured old and new browser-observed source snapshots, positive evidence for same open 3D arch, successor ground inlays and exact returned render authorization, and negatives for fake run, living guardian, missing cap exit, airborne, wrong support, wrong height, impossible x/tick.
+2. Production [4c57238f](https://github.com/my-edutu/Ai_games/commit/4c57238ff5c8634202a96e09fdcb5704b0f34728) permits a tightly bounded 9–12-tick skipped-browser interval ONLY at authentic Floor8→9 physical crossing: defeated source HP0; previous grounded body within 18,000 source units left of earned gate; post body still within original cap footprint, supported by matching real Floor9 ground, same run, valid tick/lifecycle/geometry and displacement <=18,000 units per source tick. All former <=8-tick behavior remains. **No intermediate frame, floor level, collision, camera teleport, guardian damage or new simulated victory is invented.**
+3. [bb5cfff5](https://github.com/my-edutu/Ai_games/commit/bb5cfff5d3314e30f841234edc5b37250856df71) repairs a stale test that incorrectly required an earlier *drawn* old arch before permitting source-earned physical continuation; it retains negative legacy living-guardian and restarted/stale render checks. The last [quality run 43201804747](https://github.com/my-edutu/Ai_games/actions/runs/43201804747) had **1430 passing / 1 failing / 1 skipped**, with exactly that contradictory old test failing at old head `5dca3a72`. Passing final-code quality has **not been verified**.
+
+## Acceptance and honest blockers
+
+This fixes a **measured underlying observation-gap gate**. It does NOT establish an uninterrupted filmed body-through-threshold or actual UX improvement without another exact-source original normal-speed 60+s desktop/portrait campaign, source browser Three/native event pairing (target **2/2**), Floor9 onward and natural terminal/restart. The visual continuity may still need world/camera geometry changes. Historic failure on baseline moving film also needs diagnosis.
+
+No genuinely independent anonymous randomized critics: **LOOKS 0/5, FEELS 0/5, PLAYS 0/5**. No actual supported device p50/p95/p99 or memory measurement. Remain P0 and **NOT EVALUATED**. Preserve PR68 draft, frozen baseline, PR58 edits; no merge/deploy/force push.
+
+**Next highest-impact action:** Capture and inspect original new-code WebMs and corresponding authoritative source, accepted browser ticks, actual returned Three.js frames and native frames. If a physical doorway cut persists despite a carried arch, rebuild the world+camera+actor composition as one coherent crossing; do not hide it using a fake fade or count passing CI as experience acceptance.
