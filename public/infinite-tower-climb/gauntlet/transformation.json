@@ -12,11 +12,11 @@
     "dominantOriginalDefect": "Floor8 grounded bronze arch visually cuts to Floor9 violet scene at 25.5-25.75s, no uninterrupted whole-body source-earned crossing; guardian scene still crowded in portrait",
     "primaryMeasuredBottleneck": "Browser accepted to Three returned 1722ms desktop / 1275ms portrait at old source SHA, not GPU present or real-device FPS; 8640-triangle colored canyon previously constructed on cold Floor9 frame plus eventual citadels",
     "testFirstCommit": "e313c6c18fb77bed814c6a94cacc7c82fd8a4925",
-    "testFirstCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183619874 — pending/in-progress at ledger time; RED not independently confirmed",
+    "testFirstCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183619874 — completed FAILURE; observed expected RED test #558: first source-grounded Floor9 canyon layers were 3 vs staged expectation 0",
     "productionCommit": "2350f4166f88523bb27093b6593a77e073e9938c",
     "actualChange": "Exact source-earned low-tier 8->9: first submitted frame contains authentic ground/platforms/hazards/tower/arch but not optional 8640-triangle colored panorama and distant citadels. After first successful returned Three frame, build original vista with bounded fade. After second separately returned same-source frame, build original seven-citadel backdrop with independent fade. Bounded source-identity cancellation and geometry/material disposal; normal floors and high tier unchanged. No physics or source progression changed.",
-    "exactImplementationCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183745012 — PENDING at ledger time; no green claim",
-    "newSourcePinnedFilms": "NOT EVALUATED — separate nine-job capture to be triggered by capture-request commit, immutable github.sha",
+    "exactImplementationCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183745012 — COMPLETED conclusion success",
+    "newSourcePinnedFilms": "https://github.com/my-edutu/Ai_games/actions/runs/43184271921 — COMPLETED at exact immutable candidate ae2468035fc228550b8674bb09327ef53296c9f9, original 9-job normal-speed film and native source pairing completed with conclusion failure; outputs not yet independently inspected",
     "realNativeTimingImprovement": "NOT EVALUATED — staged CPU/GPU work is an engineering hypothesis, not 1x video acceptance",
     "review": "docs/reviews/2026-11-12-tower-pr68-submitted-canyon-upload-pipeline.md",
     "independentRandomizedBlindCritics": {
@@ -25,9 +25,10 @@
       "PLAYS": "0/5"
     },
     "supportedActualDeviceP50P95P99Memory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect new original source-pinned 60+s matched low-tier desktop 960x600 and portrait 390x844 videos including full ascent, moving, earned guardian/crusher and opened real arch, floor9 onward, outcome/restart. Measure old/new source->browser->Three->native timing; reject if staged scenery appears blank, pops or timing worsens; strict source/native guardian pairing must exceed previous 0/2 and genuine physical crossing be visible. Remain P0; no blind pass without independent critics or device budgets."
+    "nextHighestImpactAction": "Inspect new original source-pinned 60+s matched low-tier desktop 960x600 and portrait 390x844 videos including full ascent, moving, earned guardian/crusher and opened real arch, floor9 onward, outcome/restart. Measure old/new source->browser->Three->native timing; reject if staged scenery appears blank, pops or timing worsens; strict source/native guardian pairing must exceed previous 0/2 and genuine physical crossing be visible. Remain P0; no blind pass without independent critics or device budgets.",
+    "finalCandidateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43184270938 — IN_PROGRESS; no passing claim"
   },
-  "p0ClockworkCapRealFilmAndCiVetoUnblock20261112": {
+"p0ClockworkCapRealFilmAndCiVetoUnblock20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
