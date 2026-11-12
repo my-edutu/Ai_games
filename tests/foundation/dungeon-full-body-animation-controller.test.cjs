@@ -4051,3 +4051,44 @@ test('quiet-return reaches live original source thigh even once the skinned toe 
   'true prior source proof may ease a recovered original toe without an unbounded new hip rescue');
  assert.match(stage,/planOriginalSourceSwingThighEaseOut\(/);
 });
+
+
+test('severely buried original Walking_A swing holds its already-witnessed upperleg instead of snapping before safe release',async()=>{
+ const {planOriginalSourceSwingThighHold:hold}=await load();
+ assert.equal(typeof hold,'function','a verified source-clip leg must have a bounded continuity hold');
+ const loaded={heelY:-.024,toeY:-.026,heelXZ:[.24,0],toeXZ:[.24,.18]};
+ const before={left:{heelY:.218,toeY:-.091,heelXZ:[0,0],toeXZ:[0,.20]},right:loaded};
+ const safe={delta:-.09,after:{
+  left:{heelY:.223,toeY:-.089,heelXZ:[.005,0],toeXZ:[.006,.201]},
+  right:{...loaded,heelY:-.0245,toeY:-.0264}
+ }};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.93,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,priorSourceProofVerified:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,rootTravel:.045,
+  frameAge:.045,side:'left',floorTopY:-.02,previousCorrectionRad:-.09,before};
+ const result=hold({...owner,trials:[safe]});
+ assert.equal(result?.angleRad,-.09,'preserve the exact preceding proved original joint angle');
+ assert.equal(result?.continuityHold,true,'hold is neither a NEW rescue nor a quiet release');
+ assert.equal(result?.contactLocked,false,'no fabricated IK or planted-foot claim');
+ assert.ok(result?.improvementMeters>=.001,'source weighted toe still improves in this frame');
+ for(const bad of [
+  {priorSourceProofVerified:false},{sourceInstanceSame:false},
+  {sourceClipName:'Idle'},{sourceWeight:.4},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{alive:false},{visible:false},
+  {rootTravel:0},{frameAge:.2},{previousCorrectionRad:.135},
+  {before:{...before,left:{...before.left,toeY:-.036}}},
+  {trials:[{delta:-.09,after:{left:{...safe.after.left,toeY:-.096},right:loaded}}]},
+  {trials:[{delta:-.09,after:{left:{...safe.after.left,toeXZ:[.1,.2]},right:loaded}}]},
+  {trials:[{delta:-.09,after:{left:safe.after.left,right:{...loaded,heelY:-.04}}}]}
+ ])assert.equal(hold({...owner,trials:[safe],...bad}),null,
+  'invalid owner, no severe burial, unsafe opposite shoe or unmeasured joint must fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const native=renderer.slice(start,end);
+ assert.match(native,/planOriginalSourceSwingThighHold\(/,
+  'original skinned source joint must actually consume the verified hold');
+ assert.match(native,/sourceSwingThighHoldFrames/,
+  'hold and release must retain distinct read-only evidence');
+});
