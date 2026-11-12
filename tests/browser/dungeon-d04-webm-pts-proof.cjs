@@ -24,7 +24,7 @@ function readUint(buf,start,end){
 function parseVideoBlocks(buf){
  let scale=1000000,elements=0;
  const tracks=new Map(),blocks=[];
- const containerIds=new Set([0x1A45DFA3,0x18538067,0x1654AE6B,0xAE,0x1F43B675,0xA0]);
+ const containerIds=new Set([0x1A45DFA3,0x18538067,0x1549A966,0x1654AE6B,0xAE,0x1F43B675,0xA0]);
  function walk(start,end,depth,ctx){
   if(depth>12)throw Error('EBML nesting exceeds budget');
   let at=start,clusterTime=ctx.clusterTime,entry=ctx.entry;
