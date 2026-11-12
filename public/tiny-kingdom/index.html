@@ -13749,12 +13749,35 @@ function getFarmFieldResidencyAudit(){
 // road, people, inventory, harvest rules and market receipts are unchanged.
 // This is durable civic geometry, constructed only on a genuine scene rebuild,
 // NOT a frame-loop decoration, synthetic worker or production resource.
+// W251 genuine open-air farm court, two real side-shelter roofs, same
+// original six structural posts, thirty stone pavers and gate/path authority.
+function fieldThreshingOpenAisleProfile(west,east){
+ const reach=.91,edge=.13;
+ const westBay=[west-edge,west+reach],eastBay=[east-reach,east+edge];
+ const openAisleMetres=eastBay[0]-westBay[1];
+ if(openAisleMetres<1.8)throw Error('W251 no physical work aisle');
+ return {westBay,eastBay,openAisleMetres,openToSky:true,
+  hidesCitizens:false,changesNavigation:false};
+}
+function physicalFieldWorkcourtRoofVolumes(){
+ const west=16.40,east=20.20,south=-4.63,north=-2.18;
+ const {westBay,eastBay}=fieldThreshingOpenAisleProfile(west,east);
+ const eave=Math.max(terrain(west,south),terrain(west,north),
+  terrain(east,south),terrain(east,north))+2.52;
+ return [westBay,eastBay].map(([lo,hi])=>({
+  x:(lo+hi)*.5,z:(south+north)*.5,rx:(hi-lo)*.5+.04,
+  rz:(north-south)*.5+.16,bottom:eave-.13,visualBottom:eave-.13,
+  top:eave+.60,kind:'authentic-threshing-shelter-roof',noCenterRoof:true
+ }));
+}
 function grainwardFieldThreshingCourt(){
  const first=data.length,centerX=18.30,centerZ=-3.38;
  const west=16.40,east=20.20,south=-4.63,north=-2.18;
  const eave=Math.max(terrain(west,south),terrain(west,north),
   terrain(east,south),terrain(east,north))+2.52;
- const ridge=eave+.91;
+ const wingPeak=eave+.48;
+ const {westBay,eastBay,openAisleMetres}=
+  fieldThreshingOpenAisleProfile(west,east);
  const fieldStone=[rgb(0x9c9788),rgb(0x827e70),rgb(0xb0a38e),
   rgb(0x8d8779),rgb(0xaaa08a)];
  const oak=rgb(0x6b5039),joint=rgb(0x9b7a54),
@@ -13808,37 +13831,34 @@ function grainwardFieldThreshingCourt(){
     braces++;
    }
   }
+  // Two real pitched covered sides, with no beam hiding the crop-facing aisle.
   for(const zz of [south+.21,(south+north)*.5,north-.21]){
-   limbSegment([west+.20,eave-.12,zz],[centerX,ridge-.10,zz],
-    .082,oak,4);
-   limbSegment([centerX,ridge-.10,zz],[east-.20,eave-.12,zz],
-    .082,oak,4);
+   limbSegment([west+.20,eave-.12,zz],[westBay[1],wingPeak-.10,zz],.082,oak,4);
+   limbSegment([eastBay[0],wingPeak-.10,zz],[east-.20,eave-.12,zz],.082,oak,4);
    rafters+=2;
   }
-  for(const xx of [west+.22,east-.22]){
-   limbSegment([xx,eave-.13,south+.10],
-    [xx,eave-.13,north-.10],.072,joint,4);
+  for(const xx of [west+.22,east-.22,westBay[1],eastBay[0]]){
+   const top=xx===westBay[1]||xx===eastBay[0]?wingPeak:eave;
+   limbSegment([xx,top-.13,south+.10],[xx,top-.13,north-.10],.072,joint,4);
   }
-  limbSegment([centerX,ridge-.07,south-.12],
-   [centerX,ridge-.07,north+.12],.067,oak,4);
-  // Narrow breathers at the back, not an opaque wall or fictional stock.
-  for(let j=0;j<7;j++){
-   const height=eave-.80+j*.105;
-   box(centerX,height,south+.12,east-west-.60,.047,.058,
-    j%2?oak:joint);
+  // Sheltered side panels retain wall joinery; open centre stays breathable.
+  for(const side of [-1,1])for(let j=0;j<7;j++){
+   const height=eave-.80+j*.105,
+    xx=side<0?(west+westBay[1])*.5:(east+eastBay[0])*.5;
+   box(xx,height,south+.12,.79,.047,.058,j%2?oak:joint);
    slattedCourses++;
   }
  });
  materialScope(MATERIAL.ROOF,()=>{
-  // A true twin-pitched overhanging clay roof, with shared cross timber,
-  // catches grazing light without creating a roof wall across the gate.
+  // Eighteen upper-facing panels over both OUTER wings only.
+  // Exposed centre = actual workday contact, not a transparent cutaway.
   for(let course=0;course<9;course++){
    const a=south-.15+(north-south+.30)*course/9,
     b=south-.15+(north-south+.30)*(course+1)/9;
-   quad([west-.13,eave,a],[west-.13,eave,b],
-    [centerX,ridge,b],[centerX,ridge,a],roof[course%4]);
-   quad([centerX,ridge,a],[centerX,ridge,b],
-    [east+.13,eave,b],[east+.13,eave,a],roof[(course+2)%4]);
+   quad([westBay[0],eave,a],[westBay[0],eave,b],
+    [westBay[1],wingPeak,b],[westBay[1],wingPeak,a],roof[course%4]);
+   quad([eastBay[0],wingPeak,a],[eastBay[0],wingPeak,b],
+    [eastBay[1],eave,b],[eastBay[1],eave,a],roof[(course+2)%4]);
    roofPanels+=2;
   }
  });
@@ -13848,11 +13868,11 @@ function grainwardFieldThreshingCourt(){
  if(!Number.isInteger(triangles)||triangles<=200||triangles>850||
     flagstones!==30||posts!==6||roofPanels!==18||
     !realFarmGateUnblocked)
-  throw Error('W233 original field threshing court lost safe grain corridor');
- return {source:'authentic-field-side-stone-threshing-court',
+  throw Error('W251 real farm threshing court lost physical grain corridor');
+ return {source:'authentic-open-field-threshing-court-with-real-side-shelters',
   linkedToActualFarm:true,linkedGate:FIELD_TO_GRANARY_GATE.slice(),
   flagstones,approachPanels,posts,braces,rafters,roofPanels,slattedCourses,
-  triangles,realFarmGateUnblocked,extraBuffers:0,addedActors:0,addedGoods:0,
+  openAisleMetres,openToSky:true,triangles,realFarmGateUnblocked,extraBuffers:0,addedActors:0,addedGoods:0,
   changesNavigation:false,changesEconomy:false,changesAuthority:false};
 }
 
@@ -20320,6 +20340,8 @@ function followCameraRoofs(){
  // W240: the actual two merchant arcade roofs were filmed but missing from
  // physical follow/citizen-picking occlusion, yielding false 'clear' shots.
  roofs.push(...physicalMarketArcadeRoofVolumes());
+ // Real shelter wings block physical camera rays; uncovered centre does not.
+ roofs.push(...physicalFieldWorkcourtRoofVolumes());
  // The exact original stationary market cart and both existing receiving
  // bays also occupy real portrait pixels below the awnings. The W48 film
  // exposed a large left-hand timber object the roof-only scorer missed.
@@ -20877,9 +20899,13 @@ function realFarmWorkSightline(eye,citizen,hands=[]){
  };
  const faceBlocked=intercept(face)?1:0,
   wristBlocked=wristTargets.reduce((n,target)=>n+Number(intercept(target)),0);
- const penalty=faceBlocked*1750+wristBlocked*170+(standInside?650:0);
+ // Inside-field eyes are legal ONLY if the real crop/face/wrist rays are clear.
+ const insideClear=standInside&&!faceBlocked&&!wristBlocked;
+ const penalty=faceBlocked*1750+wristBlocked*170+
+  (standInside&&!insideClear?650:0);
  return {active:true,cropFaceBlockers:faceBlocked,cropWristBlockers:wristBlocked,
   cropForegroundPenalty:penalty,cameraInsideField:standInside,
+  physicalInteriorEyeClear:insideClear,
   cropSeason:season,observedCropHeight:cropHeight};
 }
 function getFarmWorkCameraAudit(){
@@ -21090,7 +21116,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    shot.eye[0]>=x0&&shot.eye[0]<=x1&&shot.eye[2]>=z0&&shot.eye[2]<=z1);
   const coarse=shot.blockers*1000+
    (shot.eyeCollision.clear?0:9000)+oppositeYard+rearPenalty+crowd*325+
-   (cropEye?650:0)+
+   (cropEye?80:0)+
    sizePenalty+routeSizePenalty+
    // Real building, cart, canopy and receiving-post cover are added exactly
    // AFTER the physical-first camera admission, not approximated as clear.
