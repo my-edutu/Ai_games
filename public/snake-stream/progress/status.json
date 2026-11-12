@@ -1,10 +1,18 @@
 {
-  "updatedAt": "2026-11-11",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; c14 strict 1/17, corrected renderer candidate awaits new-head Chromium",
-  "detail": "At c14 current source, completed Chromium #43104646142 strictly drew 1/17 genuine complete full desktop WebGL submissions in original 1s at 751x415 (61 RAF is not draws); 679 GPU skips, 16 transient direct draws, 5086.5ms max fence latency. Previous ff7 exact source drew 7/17 at same raster. Revert experimental 3-submission static cache admission to verified previous renderer source c80e6f1 and replace invalidated admission assumptions with new regression tests (c14 parent RED 2/3, candidate GREEN 3/3); no new-head GPU gain presumed. Full native/browser, artwork acceptance, true device FPS/p95, independent critic pending. Never merge/deploy/force push.",
+  "updatedAt": "2026-11-12",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED-PENDING / T2 BUILDING / T3 BUILDING / T4 HARD RED; cf6d original strict 9/17",
+  "detail": "cf6d completed original Chromium #43116314135 drew 9 genuine complete full-scene desktop WebGL renderer submissions versus mandatory 17 in untouched 1s test at 751x415; native CI failed. New T1 shared 7-grove physical bank shoulders, eroded masonry and coping candidate on exact parent: native RED -> GREEN 2/2, code syntax pass. Candidate source-matched browser screenshots, original strict benchmark, long footage, physical-device displays, full CI and independent critique pending; no art/performance win claimed. No merge/deploy/force push.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest real c14 strict one-second 1/17 confirms severe GPU starvation, candidate restores previous cache routing but browser acceptance PENDING; visually rectangular full-scene still unaccepted.",
+  "latestCaption": "Last accepted source evidence remains cf6d: 9/17 genuine one-second complete WebGL submissions, overly rectangular wide view. New woodland bank is unaccepted without new-head imagery.",
   "reviews": [
+    {
+      "area": "Nov 12 cf6d parent T1 physically continuous seven woodland banks and eroded masonry (BUILDING, source-matched Chromium pending)",
+      "sourceHead": "cf6d7b20c51cf6da672bf46e4ba016073aa24d84",
+      "browser": "Completed original-head #43116314135 9 genuine complete renderer submissions/17 at 751x415; 37/95 browser; new candidate Chromium/45-90s footage pending",
+      "nativeCI": "Parent #43116313957 failure, reproduction #43116313952 success; new native RED -> GREEN 2/2; node syntax valid; broader suites historical failures and missing Three locally",
+      "checks": "Real physical foundation bank, coping, coastal ruins share bounded seven-headland envelope; unchanged game authority and original 672 triangles; candidate blobs 6d63de0b / db9cf2fe",
+      "verdict": "T0 unsigned / T1 building visually unaccepted / T2-T3 building / T4 hard red; no performance/art win or independent acceptance."
+    },
     {
       "area": "Nov 11 c14 strict browser regression and source-exact cache path correction",
       "sourceHead": "c14f1a71a0e6d1884c7bd0ae62aba0c774b05447",

@@ -233,6 +233,28 @@ export function stageHeadlandAnchors(width, height) {
 }
 
 /**
+ * Reconnect the seven original groves to the ancient court as broken, raised
+ * landward shoulders in the SAME original foundation, cliff and coping meshes.
+ * Returns a smooth 0..1 physical ridge envelope for the current polar bank.
+ * Calculated only while assembling the world, never during animation or AI.
+ */
+export function sampleWoodlandBankCrown(width, height, angle) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2 || !Number.isFinite(angle))
+    throw new RangeError('Woodland bank requires actual board dimensions and an angle');
+  let crown = 0;
+  for (const { x, z, rise } of stageHeadlandAnchors(width, height)) {
+    const heading = Math.atan2(z, x);
+    const separation = Math.atan2(Math.sin(angle - heading), Math.cos(angle - heading));
+    const shoulder = Math.exp(-Math.pow(separation / (.20 + .035 * Math.min(1, rise / 7)), 2));
+    crown = Math.max(crown, shoulder);
+  }
+  // Inlets separate the woodland shoulders; a shallow second component
+  // prevents artificial equal-height spokes around a rectangular arena.
+  const erosion = .13 * (.5 + .5 * Math.sin(angle * 7.3 + .6 * Math.sin(angle * 3.1)));
+  return Math.max(0, Math.min(1, crown * (.87 + erosion)));
+}
+
+/**
  * T1 full-world stone landmark: one responsive ruined gateway gives all real
  * garden sizes a coherent background focal point, rather than the same narrow
  * six-unit arch floating beside a 40-cell board. Exact original TWO piers,
@@ -408,8 +430,14 @@ export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
       const wave=.5*Math.sin(5*a+.37*Math.sin(2*a)+.4)
         +.31*Math.sin(9*a-.23)+.19*Math.cos(17*a+.64);
       const grain=.065*Math.sin(21*a+ring*.47);
-      const r=border+reach+out*(.17*wave+grain);
-      const slope=y-out*.045*(.5+.5*Math.sin(7*a-.31))
+      const wooded = sampleWoodlandBankCrown(width,height,a);
+      // The original four-ring, 672-triangle apron becomes a continuous,
+      // nonrectangular eroded forest shoulder. The playable fan (ring 0) and
+      // outer underwater foot (ring 3) retain their exact heights.
+      const ridge=[0,.19,.66,0][ring]*wooded;
+      const r=border+reach+out*(.17*wave+grain)
+        +out*out*.40*wooded;
+      const slope=y+ridge-out*.045*(.5+.5*Math.sin(7*a-.31))
         -.015*out*Math.sin(11*a+ring*.5);
       const x=r*cx,z=r*cz;
       positions.push(x,slope,z);
@@ -463,10 +491,12 @@ export function sculptCoastCourse(width, height, edge, tier, along) {
   const cross = along - len / 2 + .8 + stagger;
   const x = horizontal ? cross : (edge === 2 ? -W - rim : W + rim);
   const z = horizontal ? (edge === 0 ? -H - rim : H + rim) : cross;
+  const bankCrown = sampleWoodlandBankCrown(width,height,Math.atan2(z,x));
   const broad = 1.28 + .25 * (.5 + .5 * Math.sin(along * .79 + tier * 1.7));
   const narrow = .85 + .14 * (.5 + .5 * Math.cos(along * 1.13 + edge));
   return {
-    x, y: -.65 - tier * .87 + .11 * Math.sin(along * .79 + edge * 2.01), z,
+    x, y: -.65 - tier * .87 + .11 * Math.sin(along * .79 + edge * 2.01)
+      + bankCrown*.30*(1-tier/3), z,
     sx: horizontal ? broad : narrow,
     sy: .62 + .16 * (.5 + .5 * Math.cos(along * .93 + tier * 1.31)),
     sz: horizontal ? narrow : broad,
@@ -530,11 +560,14 @@ export function sculptCopeStone(width, height, edge, along) {
   const finer = .5 + .5 * Math.cos(along * 1.43 - edge * 1.2);
   // Retain the intact one-stone-per-cell boundary while carving broader
   // material bays: the minimum outward clearance remains safely exterior.
+  const x0 = horizontal ? along - W : (edge === 2 ? -W - 1 : W + 1);
+  const z0 = horizontal ? (edge === 0 ? -H - 1 : H + 1) : along - H;
+  const bankCrown = sampleWoodlandBankCrown(width,height,Math.atan2(z0,x0));
   const outward = .36 + .22 * wave + .06 * finer
-    + .37 * sculptTidalRill(edge, along);
+    + .37 * sculptTidalRill(edge, along) + .24*bankCrown;
   return {
     x: horizontal ? along - W : (edge === 2 ? -W - outward : W + outward),
-    y: -.11 + .033 * Math.sin(along * .83 + edge * 1.72),
+    y: -.11 + .033 * Math.sin(along * .83 + edge * 1.72) + .09*bankCrown,
     z: horizontal ? (edge === 0 ? -H - outward : H + outward) : along - H,
     sx: horizontal ? .91 + .06 * finer : .39 + .07 * wave,
     sy: .28 + .045 * finer,
