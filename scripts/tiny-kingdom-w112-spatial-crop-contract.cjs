@@ -80,6 +80,15 @@ p.disposeResidentFarmFields();
 assert.equal(p.getFarmFieldResidencyAudit().buffers,0);
 assert.equal(env.gl.deletes,2,'Every resident GPU buffer released');
 assert.match(html,/fields:\[\[16\.45,24\.65,-1\.62,3\.64,12,17\],\[26\.0,32\.0,-1\.38,3\.78,10,13\]\]/);
-assert.match(html,/drawResidentFarmFields\(eye,planes\)/);
-assert.match(html,/sceneChunkInFrustum\(range,planes\)/);
+// W245/W246: the real renderer now audits the complete non-field scene
+// before admitting near crop detail; frustum rejection is conservative across
+// both resident LOD envelopes so no planted plot disappears on a tier change.
+assert.match(html,/drawResidentFarmFields\\(eye,planes,Math\\.max\\(0,160000-nonFieldTriangles\\)\\)/);
+assert.match(html,/!sceneChunkInFrustum\\(nearRange,planes\\)&&\\s*!sceneChunkInFrustum\\(farRange,planes\\)/);
+const scarce=p.drawResidentFarmFields([24,2,1],null,3);
+assert.equal(scarce.visiblePlots,2,'Low budget never deletes genuine plots');
+assert.equal(scarce.triangles,4,'Both far plots still contribute true triangles');
+assert.equal(scarce.budget.sceneBudgetBreached,true,'Insufficient real budget remains an explicit failure');
+assert.equal(scarce.budget.droppedPlotsForBudget,0);
+assert.equal(env.gl.uploads,initialUploads,'No new VBOs/uploads for scene-budget changes');
 console.log('W112 source/V8: two bounded plot VBOs, near/far, conservative culling, all roots, no camera upload, disposal PASS. Live WebGL and hardware performance untested.');
