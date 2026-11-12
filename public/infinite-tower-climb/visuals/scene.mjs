@@ -11,7 +11,7 @@ import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mj
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
-import { observedGuardianPassage, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
+import { observedGuardianPassage, observedRecordedGuardianHandoff, observedLockedGuardianCap, observedUnlockedGuardianCap, observedPassageApproach, createTowerGuardianPassage } from './guardian-passage.mjs';
 import { createTowerRouteIntent, witnessedHealthPickup } from './route-intent.mjs';
 import { createTowerLandingApproach } from './landing-approach.mjs';
 import { createTowerMovingDeckSuspension } from './moving-deck-suspension.mjs';
@@ -2835,14 +2835,23 @@ export function createTowerScene(canvas, settings = {}) {
       }
     }
     const clearedGuardian = observedGuardianPassage(previous, next);
-    if (previous && previous.floor !== next.floor && !clearedGuardian)
+    // A first browser-accepted Floor9 packet may arrive 17+ source ticks
+    // after the last Floor8 packet during a real WebGL cold frame. Do not
+    // depend on an earlier *rendered* snapshot to reconstruct a 20Hz event
+    // that the authoritative source actually recorded at its true tick.
+    // This is intentionally a fallback, not a new simulation or animation.
+    const recordedGatewayPrevious = !clearedGuardian && !options.stale &&
+      passage.diagnostics().stage !== 'handoff'
+      ? observedRecordedGuardianHandoff(next) : null;
+    const gatewayPrevious = clearedGuardian ? previous : recordedGatewayPrevious;
+    if (previous && previous.floor !== next.floor && !gatewayPrevious)
       passage.clear();
     // The old source-driven lock existed at the PREVIOUS floor's fixed
     // guardian-approach anchor on its actual cap, not the new climber or
     // an arbitrary center. Preserve that exact world location through the
     // floor switch so the cleared gate remains physically continuous.
-    const guardianCap = clearedGuardian && previous.platforms?.find(platform =>
-      platform.id === `f${previous.floor}:cap` && Number.isFinite(platform.x) &&
+    const guardianCap = gatewayPrevious && gatewayPrevious.platforms?.find(platform =>
+      platform.id === `f${gatewayPrevious.floor}:cap` && Number.isFinite(platform.x) &&
       Number.isFinite(platform.width) && platform.width > 0 &&
       Number.isFinite(platform.y) && Number.isFinite(platform.height));
     // A genuine adjacent-floor event must preserve the PREVIOUS guardian's
@@ -2855,20 +2864,20 @@ export function createTowerScene(canvas, settings = {}) {
     // proof of defeat, whereas observedGuardianCircuit intentionally stops
     // rendering its live health conduit. Reconstruct ONLY the original cap
     // anchor and defeated body position from that previous source snapshot.
-    const defeated = clearedGuardian ? previous.enemies?.find(enemy =>
+    const defeated = gatewayPrevious ? gatewayPrevious.enemies?.find(enemy =>
       enemy.kind === 'guardian' && enemy.active === false &&
       Number.isFinite(enemy.health) && enemy.health <= 0 &&
       [enemy.x, enemy.y, enemy.halfHeight].every(Number.isFinite)) : null;
     if (guardianCap && (previousLock || defeated) &&
         Number.isFinite(next.worldWidth) && next.worldWidth > 0) {
-      const gateAnchorX = guardianGateAnchorX(previous, guardianCap);
+      const gateAnchorX = guardianGateAnchorX(gatewayPrevious, guardianCap);
       if (!previousLock || gateAnchorX === previousLock.toX) {
         const gateY = previousLock?.toY ??
           guardianCap.y + guardianCap.height + 20000;
         const guardianX = previousLock?.fromX ?? defeated.x;
         const guardianY = previousLock?.fromY ??
           defeated.y - defeated.halfHeight + 9000;
-        passage.begin(previous, next, pointFor(gateAnchorX,
+        passage.begin(gatewayPrevious, next, pointFor(gateAnchorX,
           gateY, next.chunkBaseY, next.worldWidth, 27.78),
           pointFor(guardianX, guardianY,
             next.chunkBaseY, next.worldWidth, 27.65));
