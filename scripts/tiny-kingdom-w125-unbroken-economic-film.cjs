@@ -34,7 +34,8 @@ const manifest={
   'No actor insertion, manual inventory changes, time travel, seed edits or forced purchases',
   'Camera observes active citizens; camera attention does not alter economics',
   'This is not uninterrupted 30Hz video of every simulated frame',
-  'A PASS requires one matching real positive farmer harvest, loaded road journey, unload, receipt, staffed market transfer and home meal'
+  'A PASS requires one matching real positive farmer harvest, loaded road journey, unload, receipt, staffed market transfer and home meal',
+  'W267 added real market shelf snapshots log true stored receipt remainder; not a blinded hardware evaluation'
  ]
 };
 function write(){fs.writeFileSync(path.join(out,'evidence.json'),JSON.stringify(manifest,null,2)+'\n')}
@@ -120,12 +121,56 @@ async function film(browser,profile){
      recordEvent(byId,handoff.id,'unload',{citizen:handoff.citizen,
       time:observed.time,position:[handoff.x,handoff.z]});
    for(const r of observed.receipts)
-    if(r.job==='farmer'&&r.resource==='food'&&r.creditedAtUnloading)
+    if(r.job==='farmer'&&r.resource==='food'&&r.creditedAtUnloading){
      recordEvent(byId,r.id,'receipt',{
       citizen:r.citizen,amount:r.amount,time:r.time,
       at:r.destination});
-   for(const t of observed.trades)recordEvent(byId,t.receiptId,'trade',{
-    citizen:t.citizen,amount:t.amount,time:t.time,id:t.id});
+     if(r.id===followed&&!result.stages.realDockStock){
+      // W267: original playable game, actual receipt AFTER credited unloading.
+      // Keep spectator optics physical and take a real WebGL screenshot.
+      result.stages.realDockStock={receiptId:r.id};
+      const dock=await page.evaluate(id=>{
+       const g=window.__tinyKingdom;
+       g.setCamera({focus:[-.075,10.92],yaw:.65,pitch:.48,zoom:9});
+       const stock=g.getMarketReceiptDisplayAudit();
+       const remaining=g.getReceiptHouseholdAudit().outstandingLots
+        .find(lot=>lot.id===id)?.remaining??0;
+       return {stock,receiptRemaining:remaining,
+        checksum:g.exportSnapshot().checksum};
+      },r.id);
+      result.stages.realDockStock={receiptId:r.id,...dock};
+      await page.waitForTimeout(550);
+      const photo=name+'-real-credited-market-shelves.png';
+      await page.screenshot({path:path.join(out,photo)});
+      result.screenshots.push(photo);
+     }
+    }
+   for(const t of observed.trades){
+    recordEvent(byId,t.receiptId,'trade',{
+     citizen:t.citizen,amount:t.amount,time:t.time,id:t.id});
+    if(result.stages.realDockStock?.receiptId===t.receiptId&&
+       !result.stages.realMarketPurchase){
+      // Same ACTUAL farmer receipt, purchased by a real named citizen.
+      // The rendered stock may include other real receipts, so record the
+      // exact tracked lot in addition to bounded whole-shelf bags.
+      result.stages.realMarketPurchase={receiptId:t.receiptId};
+      const dock=await page.evaluate(id=>{
+       const g=window.__tinyKingdom;
+       g.setCamera({focus:[-.075,10.92],yaw:.65,pitch:.48,zoom:9});
+       const stock=g.getMarketReceiptDisplayAudit();
+       const remaining=g.getReceiptHouseholdAudit().outstandingLots
+        .find(lot=>lot.id===id)?.remaining??0;
+       return {stock,receiptRemaining:remaining,
+        checksum:g.exportSnapshot().checksum};
+      },t.receiptId);
+      result.stages.realMarketPurchase={receiptId:t.receiptId,
+       buyer:t.citizen,purchased:t.amount,...dock};
+      await page.waitForTimeout(550);
+      const photo=name+'-real-purchased-market-shelves.png';
+      await page.screenshot({path:path.join(out,photo)});
+      result.screenshots.push(photo);
+     }
+   }
    for(const m of observed.meals)recordEvent(byId,m.receiptId,'meal',{
     citizen:m.citizen,amount:m.amount,time:m.time,
     homeIndex:m.homeIndex,id:m.id});

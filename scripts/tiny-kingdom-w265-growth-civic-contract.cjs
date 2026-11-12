@@ -4,25 +4,42 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const src=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const begin=src.indexOf('function liveCivicTopologyKey(climate,light){');
+// W266 changed the actual renderer contract: only houses influencing a TRUE
+// route or existing founder dependencies invalidate the civic scene. The old
+// W265 isolated VM did not supply that new route dependency and crashed.
+const begin=src.indexOf('function civicStreetDependencySignature(){');
 const end=src.indexOf('let civicGrowthRefreshes=0;',begin);
-assert(begin>=0&&end>begin,'W265 retained civic topology helper missing');
+assert(begin>=0&&end>begin,'W266 genuine routed civic dependency source missing');
 const expression=src.slice(begin,end);
 const city=Array.from({length:12},(_,i)=>[i*2-11,8,i%3]);
-const context={city,gpuAvailable:true};
+const people=Array.from({length:12},(_,i)=>({name:'founder'+i}));
+const context={city,people,gpuAvailable:true,
+ FARM_MARKET_STREET_ORIGIN:[18,1],FARM_MARKET_STREET_DESTINATION:[0,5],
+ MARKET_HOME_STREET_ORIGIN:[0,5],HIGHSTREET_LANES:[[[0,5],[6,5]]],
+ civicRoadMemo:{checks:0,topology:null,signature:null,recomputations:0,
+   unchangedGrowths:0,changedDependencies:0,freightPoints:0,
+   householdPoints:0,adjacentNewHomes:0},
+ citizenHomeIndex:p=>people.indexOf(p)%city.length,
+ citizenHomeDestination:p=>[6,5],
+ routeBetween:(ax,az,bx,bz)=>[[ax,az],[4,5],[bx,bz]],
+ civicStreetNearLot:(lot,paths)=>Math.hypot(lot[0]-4,lot[1]-5)<6};
 vm.runInNewContext(expression,context,{timeout:500});
 const key=(climate='spring',light='day')=>
  vm.runInNewContext('liveCivicTopologyKey('+JSON.stringify(climate)+','+
   JSON.stringify(light)+')',context,{timeout:500});
 const founding=key();
 assert.equal(key(),founding);
-city.push([29,-7.5,2]);
+city.push([70,70,2]);
+assert.equal(key(),founding,'distant real home must NOT rebuild the farm/market civic mesh');
+const oldBuilds=context.civicRoadMemo.recomputations;
+assert.ok(oldBuilds>=2,'actual lot topology was inspected');
+city[12]=[4,5,1];
 const grown=key();
-assert.notEqual(grown,founding,'13th real house must invalidate freight-road VBO');
-city[12]=[22,6,1];
-assert.notEqual(key(),grown,'same-count changed obstacle must invalidate the road');
-city[12]=[29,-7.5,2];
-assert.equal(key(),grown,'same world topology must retain civic VBO');
+assert.notEqual(grown,founding,'new real home NEAR the actual route must invalidate civic VBO');
+city[12]=[2,5,1];
+assert.notEqual(key(),grown,'same-count relocated in-route home must invalidate');
+city[12]=[4,5,1];
+assert.equal(key(),grown,'identical route dependency permits cached civic buffer');
 assert.notEqual(key('winter'),grown,'seasonal civic variants must be distinct');
 context.gpuAvailable=false;
 assert.notEqual(key(),grown,'software and GPU content cannot share wrong geometry');

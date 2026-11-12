@@ -23189,6 +23189,14 @@ function updateSupplyTrail(force=false){
  const received=r?'Day '+(Math.floor(r.time/24)+1)+': '+
   r.amount.toFixed(1)+' '+r.resource+
   (r.creditedAtUnloading?' credited':' receipt, credit prior'):'No receipt yet';
+ // This line belongs to the SAME optional supply panel, not an obstructing
+ // second HUD. It reflects the identical genuine grain now visible as canvas
+ // sacks on both original receiving shelves. Never merge unrelated receipt IDs.
+ const shelf=planMarketReceiptDisplay(state.receiptGrainLots||[],state.food);
+ const shelfLabel=shelf.reservedFood>0?
+  ' · '+shelf.reservedFood.toFixed(3)+' food still on dock ('+
+   shelf.portions.length+' physical bags'+(shelf.exceedsDisplayCapacity?', more in store':'')+')':
+  ' · no unspent verified grain at dock';
  const shelter=flow.homeTime?
   flow.residentsResting+' resting in '+flow.occupiedHomes+' homes · '+
     flow.provisions.homesSupplied+' homes holding grain':
@@ -23204,18 +23212,22 @@ function updateSupplyTrail(force=false){
  const chainPlan=grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
   state.householdTrades||[],state.householdMeals||[]):null;
  let labels=[['supply-field',field],['supply-cargo',carried],
-  ['supply-receipt',received],['supply-trade',traded],
+  ['supply-receipt',received+shelfLabel],['supply-trade',traded],
   ['supply-meal',eaten],['supply-home',shelter]];
  // Do not mix the newest unrelated farmer, buyer or meal into this lot.
  if(grainJourney){
   const t=chainPlan;
   const parcel=t?.deliveryId||'pending';
+  const tracedLot=(state.receiptGrainLots||[]).find(lot=>lot.id===parcel);
+  const tracedStock=t?.hasActualReceipt?
+   ' · '+(tracedLot?tracedLot.remaining.toFixed(3)+' food from this parcel left':
+    'parcel no longer in reserved stock'):'';
   labels=[
    ['supply-field',grainJourney.producer+' · original observed farmer'],
    ['supply-cargo',t?.hasActualLoad?
     'Real '+t.stage+' · parcel '+parcel:'No current load · parcel '+parcel],
    ['supply-receipt',t?.hasActualReceipt?
-    'Verified farmer receipt · parcel '+parcel:'Matching farmer receipt not yet verified'],
+    'Verified farmer receipt · parcel '+parcel+tracedStock:'Matching farmer receipt not yet verified'],
    ['supply-trade',t?.hasVerifiedTrade?
     t.consumer+' · bought '+t.purchasedAmount.toFixed(2)+' grain · '+t.tradeId:
     'No verified household purchase of this parcel'],
