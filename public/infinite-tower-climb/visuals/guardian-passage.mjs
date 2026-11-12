@@ -120,6 +120,10 @@ export function observedGroundedGuardianHandoff(previous, next) {
     after.y - after.halfHeight === ground.y + ground.height;
 }
 
+// The very first accepted Floor9 snapshot MAY be the exact true crossing
+// tick451, before any successor tick. Its immutable source record is already
+// earned; refusing equality waits until after a cold Floor9 rebuild disposed
+// the original source gate. No snapshot may borrow the witness in advance.
 // Browser snapshots are *observations*, not the 20Hz authoritative source.
 // Native 1x run 43212531463 first observed Floor9 at tick452 after an old
 // floor tick435; no <=12-tick browser-only gate can reconstruct the actual
@@ -135,7 +139,7 @@ export function observedRecordedGuardianHandoff(next) {
       next.runToken !== w.runToken ||
       !Number.isSafeInteger(next.tick) ||
       !Number.isSafeInteger(w.sourceTick) ||
-      next.tick <= w.sourceTick || next.tick-w.sourceTick > 12 ||
+      next.tick < w.sourceTick || next.tick-w.sourceTick > 12 ||
       !Number.isSafeInteger(next.worldWidth) ||
       next.worldWidth <= 0 || w.worldWidth !== next.worldWidth ||
       !Number.isSafeInteger(next.chunkBaseY) ||
