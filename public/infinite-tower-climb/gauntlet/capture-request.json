@@ -1,4 +1,21 @@
 {
+  "p0CorrectedBiomeHandoffOriginalFilm20261112": {
+    "stage": "P0 OPEN, NOT EVALUATED",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "thisSource": "EXACT immutable commit SHA of THIS new capture-request edit; not floating PR branch",
+    "qualityHarnessCorrectionCommit": "98c743341a2ee65ca16566844a3d7e9b72dc0e54",
+    "reason": "The first new-source candidate was captured at old immutable adee2cc795db7b9e5fc7e0983e88dc751f020e9d while CI lifecycle uncovered a partial THEMES map from original VM test harnesses. Corrected code adds only a harmless fallback to supported foundry biome on absent optional entries, never changes actual supported full biome map. Re-capture exact corrected code to avoid unrelated candidate SHAs.",
+    "redCIFinding": "https://github.com/my-edutu/Ai_games/actions/runs/43193521961 FAILED 3 legacy original-scene VM tests from missing test-only clockwork/void THEMES, now fixed by scene fallback with no production theme change",
+    "afterQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43194090280 — NOT YET VERIFIED, CI veto only",
+    "afterOriginalRequirements": "Nine-job original frozen baseline/candidate 60s+ matched authentic ascent/moving7/guardian crusher8→grounded arch9/outcome/restart, real 960x600 and 390x844 WebGL 1x WebMs with event sidecars/strict alignment. Compare native video and exact source-clock phases; do not infer pass from CI.",
+    "realHardware": "NOT EVALUATED",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "next": "Inspect new actual original 9-job films and exact-head CI; repair visually abrupt spatial crossing and event-to-native timing if 0/2 remains."
+  },
   "p0OriginalSubmittedClockworkToVoidCapture20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN; assessor NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
