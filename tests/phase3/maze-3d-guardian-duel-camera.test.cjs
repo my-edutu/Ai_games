@@ -39,3 +39,12 @@ test('the live lens consumes only the source authenticated Follow guardian encou
  assert.match(scene,/portraitEncounterOrbit \? portraitCameraOffset/);
  assert.doesNotMatch(scene,/privateMaze.*publicGuardianDuelCameraElevation|secretRoute.*duetElevation/);
 });
+
+test('explicit public stream asset allowlist serves the real 3D guardian cinematic module',()=>{
+ const server=fs.readFileSync(path.join(root,'scripts/serve-maze-stream.cjs'),'utf8');
+ assert.match(server,/PUBLIC_ASSETS = \[[^\]]*'guardian-duel-camera\.mjs'/,
+   'WebGL live server must serve every imported module, not silently fall back to 2D');
+ assert.match(server,/const routes=new Map\(PUBLIC_ASSETS\.map\(/,
+   'explicit route security boundary must remain intact');
+ assert.doesNotMatch(server,/\.\.\/\.\.\//,'no broad path traversal fallback for module repair');
+});
