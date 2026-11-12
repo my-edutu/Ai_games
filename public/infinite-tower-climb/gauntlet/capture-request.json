@@ -1,4 +1,24 @@
 {
+  "p0ThreeStageSourcePinnedF9NativeFullMotion20261112": {
+    "stage": "P0 — EVIDENCE + GAME LOOP OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable GitHub SHA of THIS capture-request commit; do not float to later PR head",
+    "structuralSourceSha": "432b2bf0ef904681ce0fdd205530e5376ba3d31a",
+    "exactCodeTestRepairSha": "bdae73e932661869ff3b311d033e921169e301c7",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43305783080 — PENDING; not a native gameplay quality score",
+    "previousNineJob": "https://github.com/my-edutu/Ai_games/actions/runs/43300014722 — failed strict source/native 0/2 and baseline moving clock-integrity veto",
+    "immutableComparison": "8 true untouched 60+ second 1x original WebMs baseline/candidate: ascent floor0, moving platforms floor7, real Floor8 guardian/crusher and grounded same-arch crossing to Floor9, actual outcome/restart; desktop 960x600 and portrait 390x844, same low tier seed tower-transformation-capture-v1, original 20Hz source, normalized frame PTS + authentic source/browser/Three/native telemetry",
+    "acceptanceQuestion": "Did staged original 3D new Floor9 structure, panorama, and distant citadels after genuine completed render submissions materially improve physical full-body walk through the same actual old bronze guardian gateway, while retaining original moving platforms, danger and visible cause/effect? Is strict event/native matching 2/2 and baseline moving-film clock intact? If not, FAIL; no fabricated matching or colored-screenshot pass.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-roof-contact-original-gateway-continuity.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "safety": "No baseline change/PR58 edit/merge/deploy/force-push; PR68 remains draft"
+  },
   "p0DeferredActualSourceColdFloorNineCapture20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "assessor": "NOT EVALUATED",
