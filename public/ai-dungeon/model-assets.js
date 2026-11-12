@@ -3027,7 +3027,9 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
   sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
   sourceInstanceSame:true,ownerLocomotion:true,
-  rootTravel:actor.rigLastGroundedTravel,frameInterval,
+  rootTravel:actor.rigLastGroundedTravel,
+  recentRootTravel:actor.rigRecentGroundedTravel,
+  recentTravelAge:actor.rigRecentGroundedAge,frameInterval,
   alive:true,visible:true,teleport:false,reducedMotion:false,
   interrupted:false,floorTopY:-.02,previous:previous?.feet,current
  }):null;
