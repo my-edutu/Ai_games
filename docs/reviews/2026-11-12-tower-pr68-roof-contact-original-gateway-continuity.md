@@ -1,0 +1,19 @@
+# Infinite Tower Climb — grounded roof-contact continuity after guardian victory (12 November 2026)
+
+**Stage P0 OPEN · Assessor NOT EVALUATED · PR #68 DRAFT.** Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` remains unchanged; PR #58 untouched.
+
+## Native original footage, not fixture-only results
+
+Inspected genuine [nine-job original gameplay campaign](https://github.com/my-edutu/Ai_games/actions/runs/43272044993), immutable candidate `dc41f813d5fbf2b413d5d2fc556c7d1f9bb2c415`, [unedited danger artifact](https://github.com/my-edutu/Ai_games/actions/runs/43272044993/artifacts/13968343021). Actual desktop 960×600 is **72.52 seconds**; actual portrait 390×844 is **74.12 seconds**. Both 1x original films jump from Floor8 bronze cap/gate to Floor9 violet without an evident continuous full-body walk through the SAME source-earned gateway. A still is only supporting evidence, not a motion-quality pass.
+
+Original fixed-step guardian defeated before tick451; **real grounded Floor8→9 transition at tick451**. First Floor9 browser acceptance: **desktop tick452**, **portrait tick454**. Both carry exact immutable `lastGuardianCrossing`, valid same-height cap/ground footing and defeated HP0 guardian, but the original visual validator rejected the first standing successor with `current-support-mismatch`: `selectedSource=old-browser-guardian-only`, `innerDoorAssemblyVisible=false`, `continuousGroundedHandoff=false`, `originalGpuGateAndCap=null`. The source-to-violet-floor phase was approximately **2.272s desktop / 2.378s portrait**, NOT actual GPU present times. Ninth exact-source/native pairing FAILED, **0/2 viewports**; eight authentic original films succeeded.
+
+## One systemic six-file production integration
+
+Implementation at [`50d52d057ec62ff23ac4b5f9a397d526c4ebd045`](https://github.com/my-edutu/Ai_games/commit/50d52d057ec62ff23ac4b5f9a397d526c4ebd045) retains the ACTUAL opened old GPU gate/cap across the first grounded Floor9 roof-contact seam using the immutable tick451 authoritative source witness, even if source reports an alternate **real same-height supported platform** or the exact historic f8 cap ID. Validator rechecks live same-run/whole-body x/roof foot contact, old-source HP0 defeat and bounded ≤12 ticks. It never changes collision, the player position, ground support ID, physics, target floor, seed or outcome. The same source proof now gates world retention, inner arch, inlays, follow camera and read-only forensic fields; new negative and real-mesh tests veto incorrect or expired grants.
+
+**Unverified at new SHA:** The new first native frame must actually show the old original door and world together, and the 60+s whole-body transition must be visually legible on *both* viewport films. Current [exact-head quality CI](https://github.com/my-edutu/Ai_games/actions/runs/43282234329) was still in progress at review authorship. Green CI would not satisfy a video comparison.
+
+## Next acceptance action
+
+Run original source-pinned 9-job baseline/candidate recordings from the exact request SHA on the existing branch, inspect desktop and portrait full-motion plus four-clock native alignment and outcome/restart, prioritize world-camera continuity if any hard scene cut remains. Source→native pairing 0/2 from older candidate; blind independent LOOKS/FEELS/PLAYS counts **0/5 each**, actual-device frame p50/p95/p99 and memory **NOT EVALUATED**. Preserve draft PR68, PR58 and baseline, no merge/deploy/force-push.

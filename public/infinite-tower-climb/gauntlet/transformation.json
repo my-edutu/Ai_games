@@ -1,4 +1,55 @@
 {
+  "p0SourceGroundedRoofSeamOriginalDoor20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "examinedPriorCandidateSha": "dc41f813d5fbf2b413d5d2fc556c7d1f9bb2c415",
+    "sourcePinnedPriorFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43272044993",
+    "originalDangerClip": "https://github.com/my-edutu/Ai_games/actions/runs/43272044993/artifacts/13968343021",
+    "actualOriginalFootage": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 72.52,
+        "firstFloorNineTick": 452
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 74.12,
+        "firstFloorNineTick": 454
+      },
+      "sourceGroundedCrossingTick": 451,
+      "actualDefect": "Both 1x unedited films hard-cut from the bronze defeated Floor8 cap to the violet Floor9 panorama without legible full-body traversal through the same real open gateway. Camera architecture competes with guardian action. Original first F9 exact source audit veto=current-support-mismatch; selectedSource=old-browser-guardian-only, continuousGroundedHandoff=false, innerDoorAssemblyVisible=false and originalGpuGateAndCap=null.",
+      "sourceToNativeVisibleFloorNinePhaseSeconds": {
+        "desktop": 2.272,
+        "portrait": 2.378
+      },
+      "strictNativeEventAlignment": "FAILED, 0/2 accepted viewports. All eight 60+s baseline/candidate source-pinned films exist. Source timeline matching does not certify native video pairing.",
+      "timingCaveat": "Browser/Three/native WebM phase only, NOT GPU-present FPS/device memory or perceptual transformation score"
+    },
+    "meaningfulProductionCommit": "50d52d057ec62ff23ac4b5f9a397d526c4ebd045",
+    "sourceChange": "Source-grounded crossing recorded at tick451 can retain ACTUAL original GPU cap+opened gate when first Floor9 browser sample still reports standing on a separate same-height roof platform or authentic old cap support ID. Strict recorded 20Hz contact proof, current same-plane foot contact, run/floor/tick bounds and whole-body x limits required. Integrates source passage, actual retained GPU world, continuous camera escort and read-only audit; never changes authoritative source, collision, simulation, gameplay outcomes or fake support state.",
+    "affectedSource": [
+      "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/guardian-gateway-framing.mjs",
+      "public/infinite-tower-climb/visuals/gateway-source-audit.mjs",
+      "tests/phase3/tower-source-recorded-gateway-handoff.test.cjs"
+    ],
+    "quality": "Source exact-head GitHub Actions https://github.com/my-edutu/Ai_games/actions/runs/43282234329 IN PROGRESS at evidence authoring; no PASS claimed. CI remains safety veto, not quality score.",
+    "nextSourcePinnedEvidence": "REQUEST original nine-job real gameplay capture at THIS immutable request commit, frozen baseline vs same SHA candidate; first native frames and four-clock alignment remain NOT EVALUATED until completed.",
+    "captureConditions": "same seed tower-transformation-capture-v1, low graphics, desktop 960x600 and portrait 390x844, 60+s untouched 1x real source play ascent floor0, moving floor7, real guardian/crusher f8→f9, outcome/restart, baseline frozen SHA vs exact request commit, strict source/browser/Three/native pixel/PTS event comparison. No relaxing clocks or synthetic events.",
+    "criticCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestGap": "Actual normal-speed native 1x video STILL unaccepted for full-body same physical gate walk-through and strict 2/2 viewport source/native event pairing; P0 remains unpassed. First new code is not yet visually verified.",
+    "nextHighestImpactAction": "Inspect exact-head quality and new original normal-speed nine-job baseline/candidate capture at new immutable SHA; compare native full-motion Floor8 HP0→actual doorway→floor9 and restart with per-frame source clock. If still hard-cut, correct physical world/sky and camera continuum rather than tune more isolated tests. Evaluate moving floor clock integrity and actual device p50/p95/p99/memory. Do not advance stages.",
+    "safety": "PR68 open DRAFT based on active PR58. Preserve frozen baseline SHA; never merge, deploy, force-push or touch PR58, Tiny Kingdom/Maze/AI vs 1000 Floors.",
+    "requestPurpose": "Persist exact head production P0 and old evidence without claiming result."
+  },
   "p0FirstObservedFloorNineAirborneOriginalDoor20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessor": "NOT EVALUATED",
