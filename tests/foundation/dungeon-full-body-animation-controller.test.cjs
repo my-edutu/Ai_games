@@ -3585,3 +3585,46 @@ test('witnessed zero-travel native Walking_A holds feet without freezing the mix
  assert.match(code,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*walkingBlendRate\)/);
  assert.match(code,/actor\.mixer\.update\(walkMixerDelta\)/);
 });
+
+
+test('verified original Hit_A blends on visible time without outrunning witnessed HP-loss age',async()=>{
+ const {planImportedWitnessedHurtMixerFrame:plan,
+  planImportedLivingSourceStep:sourceStep}=await load();
+ assert.equal(typeof plan,'function','original imported HP-loss source needs an independent fade clock');
+ // Genuine licensed Hit_A is used only after a matching positive HP loss.
+ // 360ms is from current original mobile/desktop sparse-frame WebGL films;
+ // these age and angle numbers are synthetic safety cases, not a claimed
+ // visual HP-loss pass or invented damage/target.
+ const sample={mode:'hurt',sourceClipName:'Hit_A',verifiedInjury:true,
+  age:.28,sourceTime:.05*1.2127,sourceDuration:.667,
+  effectiveSpeed:1.2127,frameDelta:.05,frameInterval:.36,
+  visible:true,reducedMotion:false,teleport:false};
+ const step=sourceStep(sample);
+ assert.equal(step,.05,'existing HP evidence still gates source time to <=50ms');
+ const planned=plan({...sample,sourceStep:step});
+ assert.equal(planned?.mixerDelta,.09,'sparse original frames may consume 90ms of lawful fade');
+ assert.ok(Math.abs(planned.actionScale*planned.mixerDelta-step)<1e-10,
+  'the true source Hit_A can consume NO additional bone motion');
+ assert.ok(planned.actionScale<1,'slow-frame fades must not accelerate injury keyframes');
+ const fresh={...sample,age:0,sourceTime:0,sourceStep:0};
+ const opening=plan(fresh);
+ assert.equal(opening?.mixerDelta,.09,'source keyframe zero may fade into visibility');
+ assert.equal(opening?.actionScale,0,'no fatal or unearned shoulder flinch before HP-loss age');
+ assert.equal(plan({...sample,frameDelta:.016,frameInterval:.016,sourceStep:.016})?.mixerDelta,.016,
+  'ordinary 60Hz playback is unchanged');
+ for(const changes of [
+  {mode:'attack'},{sourceClipName:'Walking_A'},{verifiedInjury:false},
+  {visible:false},{reducedMotion:true},{teleport:true},
+  {frameInterval:.8},{frameInterval:NaN},{frameInterval:-1},
+  {frameDelta:0},{frameDelta:.08},{sourceDuration:0},
+  {sourceStep:-.001},{sourceStep:.08},{effectiveSpeed:0},
+  {sourceTime:NaN},{age:NaN},{age:.6},
+  {sourceTime:.5,age:.1}
+ ])assert.equal(plan({...sample,sourceStep:step,...changes}),null,
+  'unwitnessed/noninjury/hidden/invalid clock cannot move the original fade independently');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planImportedWitnessedHurtMixerFrame\(\{\.\.\.originalStep,sourceStep/);
+ assert.match(renderer,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*injuryFrame\.actionScale\)/);
+ assert.match(renderer,/actor\.mixer\.update\(injuryFrame\.mixerDelta\)/);
+ assert.match(renderer,/finally\{actor\.activeClip\.setEffectiveTimeScale\(normalScale\);\}/);
+});
