@@ -42,7 +42,22 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(actual.audit.wallPairs).toBe(actual.audit.homes*2);
   expect(actual.audit.windowGardenBoxes).toBe(actual.audit.homes*4);
   expect(actual.audit.rainSpouts).toBe(actual.audit.homes*2);
-  expect(actual.audit.addedTriangles).toBeGreaterThan(actual.audit.homes*75);
+  const butt=await page.evaluate(()=>window.__tinyKingdom.getCompactRainCaskAudit());
+  expect(butt.actualButts).toBe(actual.lod.compactHomes);
+  expect(butt.newPerButtTriangles).toBe(18);
+  expect(butt.oldPerButtTriangles).toBe(45);
+  expect(butt.reclaimedTriangles).toBe(butt.actualButts*27);
+  expect(butt.noInventedWaterStock).toBe(true);
+  // W261 proves the real per-home mesh actually lost hidden box faces,
+  // while preserving all four outward troughs and both drainpipe silhouettes.
+  expect(actual.audit.oldTrianglesPerRealHome).toBe(148);
+  expect(actual.audit.currentTrianglesPerRealHome).toBe(68);
+  expect(actual.audit.addedTriangles).toBe(actual.audit.homes*68);
+  expect(actual.audit.reclaimedTriangles).toBe(actual.audit.homes*80);
+  expect(actual.audit.meshBudgetHonest).toBe(true);
+  expect(actual.audit.fourVisibleTroughFacesPerExistingWindow).toBe(true);
+  expect(actual.audit.foldedCopperDownpipeFaces).toBe(2);
+  expect(actual.audit.addedTriangles).toBeGreaterThan(actual.audit.homes*60);
   expect(actual.audit.addedTriangles).toBeLessThan(actual.audit.homes*235);
   expect(actual.audit.noArtificialProduction).toBe(true);
   expect(actual.triangles).toBeLessThan(160000);

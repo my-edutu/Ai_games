@@ -6762,6 +6762,13 @@ function getBurgageMaterialAudit(){
   windowGardenBoxes:villageVisualLod.burgageMaterialGardenBoxes,
   rainSpouts:villageVisualLod.burgageMaterialDownspouts,
   addedTriangles:villageVisualLod.burgageMaterialTriangles,
+  oldTrianglesPerRealHome:148,currentTrianglesPerRealHome:68,
+  reclaimedTriangles:80*villageVisualLod.burgageMaterialHomes,
+  fourVisibleTroughFacesPerExistingWindow:true,
+  foldedCopperDownpipeFaces:2,
+  meshBudgetHonest:villageVisualLod.burgageMaterialTriangles===
+   68*villageVisualLod.burgageMaterialHomes,
+  existingHomeVbo:true,
   noArtificialProduction:true,authoritativeStateChanged:false};
 }
 const HOUSE_GEOMETRY_CACHE_MAX_ENTRIES=120;
@@ -6824,7 +6831,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w258-authentic-tall-market-burgage-v1';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w261-original-living-burgage-v2';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -8067,6 +8074,29 @@ function getCompactStoneCoursingAudit(){
   fullCottagesStillRendered:city.length===homes+villageVisualLod.detailedHomes,
   changesAuthority:false,changesNavigation:false};
 }
+// W261 original rain butt has six visible oak stave faces, recessed lid.
+// Eighteen triangles, versus old 7-sided cylinder + two box hoops = 45.
+function renderCompactRainButt(x,y,z,variant){
+ const faces=6,r=.19,top=y+.49,lid=top-.032;
+ materialScope(MATERIAL.WOOD,()=>{
+  for(let i=0;i<faces;i++){
+   const a=i*Math.PI*2/faces,b=(i+1)*Math.PI*2/faces,
+    ax=x+Math.cos(a)*r,az=z+Math.sin(a)*r,
+    bx=x+Math.cos(b)*r,bz=z+Math.sin(b)*r,
+    shade=rgb((i+variant)%3===0?0x66503e:
+      i%2===0?0x785b41:0x846447);
+   quad([bx,y,bz],[ax,y,az],[ax,top,az],[bx,top,bz],shade);
+   tri([x,lid,z],[bx,lid,bz],[ax,lid,az],rgb(0x41352d));
+  }
+ });
+}
+function getCompactRainCaskAudit(){
+ const n=villageVisualLod.compactRainCasks;
+ return {source:'w261-original-six-stave-rain-butt',
+  actualButts:n,oldPerButtTriangles:45,newPerButtTriangles:18,
+  reclaimedTriangles:n*27,completeStavesPerButt:6,
+  residentInExistingHouseVbo:true,noInventedWaterStock:true};
+}
 function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
  const first=data.length,front=z-d*.5-.35,wall=z-d*.5-.10;
  const timber=rgb([0x654936,0x594739,0x69513f,0x57483a][roofStyle]);
@@ -8109,11 +8139,9 @@ function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
  // occupied lot. It reads as everyday domestic equipment, never as grain
  // inventory or an extra trading actor.
  const cx=x+w*.37,cz=z+d*.31,ground=terrain(cx,cz);
- materialScope(MATERIAL.WOOD,()=>{
-  cylinder(cx,ground,cz,.18,.49,rgb(0x78563b),7);
-  for(const band of [.16,.39])
-   box(cx,ground+band,cz,.405,.045,.405,rgb(0x514f49));
- });
+ // W261: same original compact-home rain butt, now six continuous
+ // oak staves and a recessed dark top instead of two overlapping cubes.
+ renderCompactRainButt(cx,ground,cz,variant);
  villageVisualLod.compactRainCasks++;
  // W57: lived-in, worn terrain-following cobbles lead from the real
  // compact cottage porch toward the street. The actor navigation, road
@@ -8153,20 +8181,47 @@ function renderLivedBurgageSideMateriality(x,z,variant,index,isCompact){
     if(side>0)quad(d0,c,b,a,pale);else quad(a,b,c,d0,pale);
    }
   });
+  // W261: replace two hidden six-face cubes per window with an actual
+  // projecting open timber trough: outer board, two end cheeks and front lip.
+  // All four TRUE windows/troughs retain their 3D silhouette in the same
+  // immutable original home VBO; no inventory, home, draw call or RNG change.
   materialScope(MATERIAL.WOOD,()=>{
+   const board=(a,b,c,d,col)=>{
+    if(side>0)quad(a,b,c,d,col);else quad(d,c,b,a,col);
+   };
    for(const slot of [-1,1]){
-    const zz=z+slot*d*.26;
-    // Real solid timber flower boxes align with both of the original side
-    // casements. Low profiles preserve the near-ground approach and visibility.
-    box(face+side*.126,y+.695,zz,.25,.14,.49,timber);
-    box(face+side*.160,y+.765,zz,.29,.042,.54,rgb(0xaa906c));
+    const zz=z+slot*d*.26,za=zz-.255,zb=zz+.255,
+      back=face+side*.05,front=face+side*.28,
+      inside=front-side*.042,bottom=y+.665,top=y+.786;
+    board([front,bottom,za],[front,top,za],
+      [front,top,zb],[front,bottom,zb],timber);
+    board([back,bottom,za],[back,top,za],
+      [front,top,za],[front,bottom,za],timber);
+    board([front,bottom,zb],[front,top,zb],
+      [back,top,zb],[back,bottom,zb],timber);
+    board([front,top,za],[inside,top,za],
+      [inside,top,zb],[front,top,zb],rgb(0xaa906c));
    }
   });
   materialScope(MATERIAL.STONE,()=>{
-   // Cast downpipes stay fixed to the wall, not crossing roads or walkable
-   // thresholds, and are cached with their actual owner house.
-   const drainX=face+side*.052,drainZ=z+d*.435;
-   box(drainX,y+.27,drainZ,.085,1.32,.085,copper);
+   // Folded copper remains visibly full-height and two-sided. Six unseen
+   // tube faces formerly duplicated every real house in the grown town.
+   const drainX=face+side*.052,drainZ=z+d*.435,
+    bottom=y+.27,top=y+1.59,half=.043,
+    low=[drainX,bottom,drainZ-half],
+    high=[drainX,top,drainZ-half],
+    lowEnd=[drainX,bottom,drainZ+half],
+    highEnd=[drainX,top,drainZ+half],
+    edgeX=drainX+side*.047;
+   if(side>0){
+    quad(low,high,highEnd,lowEnd,copper);
+    quad(lowEnd,highEnd,[edgeX,top,drainZ+half],
+      [edgeX,bottom,drainZ+half],rgb(0x9d9482));
+   }else{
+    quad(lowEnd,highEnd,high,low,copper);
+    quad([edgeX,bottom,drainZ+half],[edgeX,top,drainZ+half],
+      highEnd,lowEnd,rgb(0x9d9482));
+   }
   });
   // W107: Convert the original inhabited side walls to genuine oak
   // half-timbered bays, not miniature-style decorative leaf scatter.
@@ -25118,7 +25173,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
