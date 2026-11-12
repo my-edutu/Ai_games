@@ -463,3 +463,48 @@ export function planRigMeleeFollowThrough(kind,action,elapsed=0,contactDistance=
   }
  };
 }
+
+
+/**
+ * An original Walking_A loaded-pelvis trial can pass its initial shoe test
+ * but fail AFTER the genuine ankle/knee overlays. Its elevated-root joint
+ * probes are then physically invalid at the restored world position.
+ * Restore the six imported bones to THIS FRAME'S mixer-owned pose plus the
+ * same legitimate full-body base gesture; remove only the provisional
+ * original-source toe/stance/calf amendments. No new animation, IK target,
+ * authority coordinate or additional source-clip evaluation.
+ *
+ * Every mount is validated before any mutation: reject incomplete Session 02
+ * adapters atomically rather than leaving half a rig in a different pose.
+ * The existing mount quaternion scratch objects keep this allocation-free.
+ */
+export function restoreOriginalSourceLegsAfterRejectedPelvis(mounts){
+ if(!Array.isArray(mounts)||mounts.length!==6)return false;
+ const identities=new Set(),bones=new Set();
+ for(const mount of mounts){
+  const identity=mount?.side+':'+mount?.part;
+  if(!['left','right'].includes(mount?.side)||
+   !['upper','lower','foot'].includes(mount?.part)||
+   identities.has(identity)||!mount.bone?.isBone||
+   bones.has(mount.bone)||
+   !Number.isFinite(mount.sourceFrameBaseAngleRad)||
+   Math.abs(mount.sourceFrameBaseAngleRad)>.30001||
+   !mount.last?.isQuaternion||!mount.inverse?.isQuaternion||
+   !mount.next?.isQuaternion||!mount.euler?.isEuler)return false;
+  identities.add(identity);bones.add(mount.bone);
+ }
+ for(const mount of mounts){
+  // Undo complete post-mixer additive delta, including any original-source
+  // hinge overlay written into mount.last by the calf physical witness.
+  mount.bone.quaternion.multiply(mount.inverse.copy(mount.last).invert());
+  // Reapply only the action-owned native base, exactly as the accepted
+  // stageRigLegsAfterMixer computed BEFORE the rejected sole trials.
+  mount.next.setFromEuler(mount.euler.set(mount.sourceFrameBaseAngleRad,0,0,'XYZ'));
+  mount.bone.quaternion.multiply(mount.next);
+  mount.last.copy(mount.next);
+  mount.soleClearanceRad=0;
+  mount.stanceReliefRad=0;
+  mount.swingCalfAssistRad=0;
+ }
+ return true;
+}
