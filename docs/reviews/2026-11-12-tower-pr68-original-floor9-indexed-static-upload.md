@@ -27,3 +27,12 @@
 ## Next P0 gate
 
 Run CI on exact final source SHA; capture immutable baseline/candidate original 60s+ videos for four gameplay situations in 960x600 and 390x844, identical seed and low tier, plus source-ledger and strict native event pair. Compare same run/tick Floor9 first `renderWorkMs`, original drawn HUD phase, genuine door crossing, guardian/crusher hit and uninterrupted Floor9/10/result/restart. Remain P0 until strict event/native acceptance and video UX pass; blind critics 0/5 each, supported device performance NOT EVALUATED.
+
+
+## Exact-head CI finding and source-triangle contract recovery
+
+[Quality run 43152480067](https://github.com/my-edutu/Ai_games/actions/runs/43152480067) failed **1 real contract** after implementation (1,415 passed; one skipped): the existing original-source guardian-sightline test asserted that `geometry.attributes.position.count % 3 === 0` and that owner face ranges ended at `position.count/3`. That assumption was valid only when every emitted triangle expanded to three distinct GPU vertices. With adaptive indexing it rejected valid actual indexed geometry, even though the new source-to-face attribution indexes submitted *triangles*, not distinct vertices. This is not a permission to bypass that critical provenance guard.
+
+The exact correction at `ba3b878dad60b81fa0ebedecc297fd7b718899a0` requires `(geometry.index?.count ?? geometry.attributes.position.count) % 3 === 0`, checks EVERY submitted index is a real in-bounds vertex, and still requires all original authored triangle ranges to cover the entire submitted index/triangle stream contiguously, without overlaps, gaps or invented ownership. Existing first/last source owner assertions remain. This repairs the nonindexed-only test fixture without weakening the mesh-integrity gate. New exact-head CI **NOT YET VERIFIED** at review update. The earlier red CI remains recorded, not erased.
+
+The real-playable implementation on the PR branch is unchanged by this test correction. The earlier 10-job original after-film request at `d94dd7ba341bdc508552913505dc7fc9acdf5cd0` was still running when this review was amended. A fresh immutable request after the correction is required for candidate SHA identity if the older source is not sufficient. Stage P0 OPEN, LOOKS/FEELS/PLAYS 0/5, device FPS and memory NOT EVALUATED.
