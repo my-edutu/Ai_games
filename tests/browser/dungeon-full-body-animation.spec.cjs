@@ -567,6 +567,7 @@ for(const view of [
    frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
     cumulative:t.nativeLegOwnership?.sourceSwingThighAcceptedFrames??0,
     proofs:t.nativeLegOwnership?.sourceSwingThighCurrentFrameProofs??null,
+    quietReleaseFrames:t.nativeLegOwnership?.sourceSwingThighEaseOutFrames??0,
     physicalAfterFrame:t.sourceSolePatchWorld??null}))},null,2))
  });
  for(const t of trace)for(const side of ['left','right']){
@@ -576,7 +577,19 @@ for(const view of [
   expect(proof.sourceInstanceId).toBe(t.sourceId);
   expect(proof.clipName).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
-  expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
+  if(proof.continuityRelease===true){
+   // This is a proven same-source hip RELEASE, not a new >=4mm rescue.
+   // Never certify foot contact or require fresh stone penetration here.
+   expect(Math.abs(proof.priorSupportedAngleRad)).toBeGreaterThanOrEqual(.0449);
+   expect(Math.abs(proof.angleRad-proof.priorSupportedAngleRad)).toBeLessThanOrEqual(.045001);
+   expect(proof.oppositeFootVerified).toBe(true);
+   expect(proof.improvementMeters).toBeGreaterThanOrEqual(0);
+   expect(proof.improvementMeters).toBeLessThan(.004001);
+   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
+    proof.before?.[side]?.toeY-.001501);
+  }else{
+   expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
+  }
   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.135001);
   if(Math.abs(proof.angleRad)>.090001){
    expect(Math.abs(proof.priorSupportedAngleRad)).toBeGreaterThanOrEqual(.089);
@@ -586,8 +599,13 @@ for(const view of [
   // A larger source thigh candidate is lawful ONLY for a severely buried
   // original weighted toe and must have a still-safe real opposite shoe.
   if(Math.abs(proof.angleRad)>.045001){
-   expect(proof.before?.[side]?.toeY).toBeLessThan(-.045);
-   expect(proof.after?.[side]?.toeY).toBeGreaterThan(proof.before?.[side]?.toeY+.004);
+   if(proof.continuityRelease!==true){
+    expect(proof.before?.[side]?.toeY).toBeLessThan(-.045);
+    expect(proof.after?.[side]?.toeY).toBeGreaterThan(proof.before?.[side]?.toeY+.004);
+   }else{
+    expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
+     proof.before?.[side]?.toeY-.001501);
+   }
    const other=side==='left'?'right':'left';
    expect(Math.abs(proof.after?.[other]?.heelY-proof.before?.[other]?.heelY)).toBeLessThanOrEqual(.003001);
    expect(Math.abs(proof.after?.[other]?.toeY-proof.before?.[other]?.toeY)).toBeLessThanOrEqual(.003001);
