@@ -86,6 +86,8 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
      raster:{pixelRatio:d.directRenderBudget?.pixelRatio,shadows:d.directRenderBudget?.shadows},
      d04PreviewEnabled:d.d04PreviewEnabled===true,
      vfxDrawCalls:p?.visuals?.drawCalls??0,vfxReservedInstances:p?.visuals?.reservedInstances??0,
+     activeVfxInstances:p?.visuals?.active??0,
+     activeVfxDrawCalls:p?.visuals?.activeDrawCalls??0,
      previewAudioOptedIn:feedbackMode==='d04'&&p?.audioOptedIn===true,
      consentedSoundstage:(feedbackMode!=='d04'||p?.audioOptedIn===true)&&
       document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true',
