@@ -187,3 +187,58 @@ test('Pip physically answers the same public guardian beat, then fully withdraws
     assert.equal(pip.group.children.length,0,'all original physical resources dispose');
   }
 });
+
+test('real guardian physically lowers its attached mask and torso before rising into the witnessed shell reveal', async () => {
+  const {createWarden}=await charactersPromise;
+  for(const balanced of [false,true]) for(const reducedMotion of [false,true]){
+    const guardian=createWarden({balanced});
+    const body=guardian.group.getObjectByName('armored body');
+    const mask=guardian.group.getObjectByName('warden mask');
+    const frontHip=guardian.group.getObjectByName('leg 1 0');
+    const frontKnee=frontHip?.getObjectByName('claw knee');
+    assert.ok(body&&mask&&frontHip&&frontKnee,
+      'the public defensive performance uses the original fully connected articulated guardian');
+    assert.equal(mask.parent,body,'mask recoil is attached to the moving armored body');
+    const resources=new Set();
+    guardian.group.traverse(node=>{if(node.geometry)resources.add(node.geometry);if(node.material)resources.add(node.material)});
+    const pose=()=>({
+      height:body.position.y,bodyPitch:body.rotation.x,maskDepth:mask.position.z,
+      maskPitch:mask.rotation.x,hipPitch:frontHip.rotation.x,kneePitch:frontKnee.rotation.x
+    });
+    const cue={heading:0,attentionHeading:.5,attentionStrength:.8,danger:1,
+      moving:false,time:1,delta:0,reducedMotion};
+    guardian.update({...cue,encounterBeat:0});const notice=pose();
+    guardian.update({...cue,encounterBeat:.5});const brace=pose();
+    guardian.update({...cue,encounterBeat:1});const release=pose();
+    assert.ok(brace.height<notice.height-.12,
+      'whole original carapace plants low during a true published guardian warning');
+    assert.ok(brace.bodyPitch<notice.bodyPitch-.20,
+      'the actual connected armor leans into the foreclaw brace, not a fabricated attack');
+    assert.ok(brace.maskDepth>notice.maskDepth+.11 && brace.maskPitch<notice.maskPitch-.18,
+      'the bronze mask thrusts forward and down as part of the genuine contact preparation');
+    assert.ok(brace.hipPitch<notice.hipPitch-.50
+      && brace.kneePitch>notice.kneePitch+.38,
+      'both original knee and hip visibly bear the planted carapace');
+    assert.ok(release.height>brace.height+.16
+      && release.bodyPitch>brace.bodyPitch+.25,
+      'witnessed shell release visibly rises back out of the guarded crouch');
+    assert.ok(release.maskDepth<brace.maskDepth-.12
+      && release.maskPitch>brace.maskPitch+.22,
+      'the full bronze face withdraws and lifts as the existing shell opens');
+    guardian.update({...cue,encounterBeat:1});
+    assert.deepEqual(pose(),release,'identical public event age reproduces the connected pose');
+    guardian.update({...cue,attentionHeading:undefined,attentionStrength:0,encounterBeat:1});
+    const neutral=pose();
+    guardian.update({...cue,attentionHeading:undefined,attentionStrength:0});
+    assert.deepEqual(pose(),neutral,'hidden guardian clears every special beat transform');
+    guardian.update({...cue,result:'capture',encounterBeat:1});
+    const terminal=pose();
+    guardian.update({...cue,result:'capture'});
+    assert.deepEqual(pose(),terminal,'terminal truth outranks old guardian warnings');
+    const after=new Set();
+    guardian.group.traverse(node=>{if(node.geometry)after.add(node.geometry);if(node.material)after.add(node.material)});
+    assert.deepEqual(after,resources,'no GPU geometry or material is allocated by a beat');
+    guardian.dispose();
+    assert.equal(guardian.group.children.length,0);
+  }
+});

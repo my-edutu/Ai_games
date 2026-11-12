@@ -909,8 +909,11 @@ export function createWarden(options = {}) {
         ? -.92*(1-display) : 0;
     }
     stride=approach(stride,s.moving?1:0,12,s.delta); gait+=s.delta*(10+s.danger*3)*stride;
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.13+display*.025;
-    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.16;
+    // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
+    // then recoils taller on the same shell-release beat. It is a connected,
+    // source-public defensive performance, not a strike or authoritative move.
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert;
+    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert;
     body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
@@ -923,8 +926,8 @@ export function createWarden(options = {}) {
       // Both sides explicitly reset to +0 when the event disappears.
       leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
       leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
-      leg.hip.rotation.x=leg.index===0 && alert>0?-alert*.32-plantedClaws*.60:leg.index===2?alert*.08:0;
-      leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.45:0;
+      leg.hip.rotation.x=leg.index===0 && alert>0?-alert*.32-plantedClaws*.86:leg.index===2?alert*.08:0;
+      leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.66:0;
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
@@ -935,8 +938,10 @@ export function createWarden(options = {}) {
     // mandibles flare. Neutral, result and reduced-motion poses stay stable.
     // No new mesh, material, random draw, network fact or game command runs
     // in this render loop.
-    head.position.z=.62+alert*.07+plantedClaws*.08;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.22+display*.07;
+    // The original attached bronze mask leans into its real planted foreclaws
+    // during brace, then withdraws behind the reopening armor at release.
+    head.position.z=.62+alert*.07+plantedClaws*.18-display*.065*alert;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
