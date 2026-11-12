@@ -457,16 +457,18 @@ export function createPhysicalCombatFeedback({
    return 0; // No historical first-load, floor, run or restore replay.
   }
   if(snapshot.tick<=previous.tick)return 0;
+  // Timestamp the authoritative snapshot BEFORE calling potentially costly
+  // external read-only contact/damage planners. Taking this time afterward
+  // silently makes a 650ms-old real HP loss look freshly observed and may
+  // release impact sound after the fixed 400ms deadline. This single sample
+  // also gives simultaneous injuries exactly one source-observation boundary.
+  // Non-submission/legacy mode never samples this optional wall clock.
+  const snapshotWallAt=requirePresentedFrame?observedWallClock():null;
   let cues=[];
   try{cues=planPhysicalFeedback(previous,snapshot,{
    resolveContact,deriveDamageBeats,verifiedMeleeDelay,reducedMotion});}
   catch{adapterFailures++}
   previous=snapshot;
-  // One immutable public snapshot is observed at ONE boundary. Clocking once
-  // per cue assigned different onset ages to simultaneous verified HP losses
-  // and could overrun 400ms during dense snapshot planning.
-  const snapshotWallAt=requirePresentedFrame&&cues.length?
-   observedWallClock():null;
   for(const cue of cues){
    if(seen.has(cue.id)){duplicates++;continue}
    seen.add(cue.id);
