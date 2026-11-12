@@ -40,6 +40,12 @@ test('Pass304 performance orbit cannot reveal a private guardian or override red
   const hero={x:2.4,z:0},guardian={x:-2.4,z:0};
   const before=JSON.stringify({hero,guardian});
   const live=orbit(390/844,.82,hero,guardian);
+  const previousBound=orbit(390/844,.56,hero,guardian,false);
+  assert.ok(Math.abs(previousBound)<=.55+1e-12,
+    'original low-attention camera max 0.55rad is NOT relaxed');
+  const increasing=orbit(390/844,.77,hero,guardian,false);
+  assert.ok(Math.abs(increasing)>.55 && Math.abs(increasing)<.78,
+    'only genuinely strong observed attention earns continuous extra actor-axis view');
   assert.equal(orbit(390/844,.82,hero,guardian),live,'same public snapshot is deterministic');
   for(const aspect of [320/740,390/844]){
     assert.equal(orbit(aspect,.82,hero,guardian,true),0,
