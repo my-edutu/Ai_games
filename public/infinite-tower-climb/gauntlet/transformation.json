@@ -1,4 +1,42 @@
 {
+  "p0SourceEarnedFloorNineAirborneDoorContinuity20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "verifiedPreviousCandidateSha": "8b9c8de55c037cb8182093e4bd82281f02dc6b2c",
+    "completedAuthenticCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43251493790",
+    "originalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43251493790/artifacts/13960240503",
+    "originalVideoObservation": "Inspected 960x600 and 390x844 original 1x native video at 23–27s: guardian action obstructed by bronze scaffolding; the bronze cap/gate visually disappears and purple Floor9 arrives abruptly, without a visible continuous whole-body passage. New Floor9 player then runs/jumps. Video still 0/2 strict event pairing despite eight authentic motion jobs passing.",
+    "sourceEventToOriginalVioletPhaseSeconds": {
+      "desktop": 1.833,
+      "portrait": 1.938
+    },
+    "phaseLimit": "Source→original palette phase difference, NOT proved GPU present, camera quality, or native HUD glyph equivalence; original source tick451 documented.",
+    "prodCommits": [
+      "cfbf4755fcc38ee67852cc52a28461328c11ec6d",
+      "f0ddbc13a5cf28f62b01564fcbf1cafd60bf66d8",
+      "6e436eabcefb9fec582ad3b9bc59f81adfc271cd"
+    ],
+    "meaningfulChange": "Keep already-earned original old cap and HP-opened guardian gateway GPU geometry for the FIRST valid near-door Floor9 airborne step, not merely grounded frames. Source-only matched run/floor/ticks, actual foot height/proximity and 1.65s/2 successfully submitted-frame cleanup. Extend SAME exterior camera and source-gated safe gateway rescue for that nearby takeoff, without forging support or movement; strict isolated grounded shot unchanged.",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/guardian-gateway-framing.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-retained-source-cap-world.test.cjs",
+      "tests/phase3/tower-source-grounded-handoff-shot.test.cjs"
+    ],
+    "qualityNew": "NOT VERIFIED at exact request SHA; current source CI must be checked, technical veto only",
+    "newVideo": "REQUESTED by immutable github.sha of capture-request commit, not reviewed or admitted at authorship time",
+    "genuineBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevices": "NOT EVALUATED: no physical desktop/mobile p50/p95/p99/memory",
+    "biggestGap": "Full-body old bronze doorway to Floor9 purple world remains a hard scene change; source video event pairing 0/2. First airborne continuation is code only until authenticated footage confirms it. Crowded guardian frame and source/browser/Three/native phase discrepancy remain.",
+    "nextAction": "Verify exact-head technical CI and strict nine-job original capture; inspect unedited full 1x desktop and portrait gateway/first jump and outcome/restart with source/native clocks. If scene still hard cuts, rebuild coherent old/new environment/material/camera transition rather than adding decorative elements. No stage promotion.",
+    "safety": "Never merge/deploy/force-push, change frozen SHA, PR58 or PR68 draft. Preserve source authority, seed, fps, WebM and independent evidence thresholds."
+  },
   "p0OriginalNativeSourceGateClassifier20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
