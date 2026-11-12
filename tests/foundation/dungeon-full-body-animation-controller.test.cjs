@@ -3307,7 +3307,7 @@ test('a rejected elevated pelvis can safely re-stage authentic source legs at th
     assert.equal(mount.stanceReliefRad,0);
     assert.equal(mount.swingCalfAssistRad,0);
   }
-  const invalid=mounts.map((m,i)=>({...m,side:i===1?'left':m.side}));
+  const invalid=mounts.map((m,i)=>({...m,side:i===1?'right':m.side}));
   const before=mounts.map(m=>m.bone.quaternion.clone());
   assert.equal(prepare(invalid),false,'incomplete/duplicate bone contract must fail atomically');
   assert.ok(mounts.every((m,i)=>1-Math.abs(m.bone.quaternion.dot(before[i]))<1e-12));
