@@ -167,16 +167,25 @@ export function sculptNativeFigureGeometry(geometry,plan){
  return Object.freeze({applied:changed>0,changed,maxShiftRaw});
 }
 
-/** One original adult Vanguard leg-chain source-rig candidate. No new mesh,
- * authority move, sound, collision, or replacement skeleton. Fail closed. */
+/** Native adult legs for one genuine source-skinned Vanguard/Revenant/Warden
+ * duel. Each role still requires both complete imported joint chains. A bad
+ * source rig fails closed: never generate disconnected geometry or collision.
+ */
+const NATIVE_ADULT_LEG_FACTORS=Object.freeze({
+ vanguard:Object.freeze({upper:1.22,lower:1.17}),
+ revenant:Object.freeze({upper:1.18,lower:1.12}),
+ warden:Object.freeze({upper:1.14,lower:1.09})
+});
 export function planNativeAdultLegLink(kind,part,offset){
- if(kind!=='vanguard'||!['upper','lower'].includes(part)||
+ const factors=typeof kind==='string'&&Object.hasOwn(NATIVE_ADULT_LEG_FACTORS,kind)?
+  NATIVE_ADULT_LEG_FACTORS[kind]:null;
+ if(!factors||!['upper','lower'].includes(part)||
   ![offset?.x,offset?.y,offset?.z].every(Number.isFinite))return null;
  const axes=[Math.abs(offset.x),Math.abs(offset.y),Math.abs(offset.z)];
  const length=Math.hypot(offset.x,offset.y,offset.z);
  if(length<.075||length>1.75)return null;
  const major=axes.indexOf(Math.max(...axes));
  if(axes[major]/length<.88)return null;
- return Object.freeze({axis:['x','y','z'][major],factor:part==='upper'?1.22:1.17,
-  extraLocal:length*(part==='upper'?.22:.17)});
+ const factor=factors[part];
+ return Object.freeze({axis:['x','y','z'][major],factor,extraLocal:length*(factor-1)});
 }

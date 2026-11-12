@@ -582,7 +582,7 @@ function bindRigArmGestures(actor){
  // Validate BOTH complete, original source-knee and ankle bone chains.
  // Missing or oblique source anatomy preserves the untouched artist model.
  actor.nativeAdultLegMounts=[];
- if(actor.u.kind==='vanguard'){
+ if(['vanguard','revenant','warden'].includes(actor.u.kind)){
   const proposed=[];
   for(const side of ['left','right']){
    const upper=actor.rigGaitBones.find(m=>m.side===side&&m.part==='upper')?.bone;
@@ -1397,7 +1397,10 @@ function stats(actors){
    nativeDuelRecoveryFrames:authored.reduce((n,a)=>n+(a.nativeDuelRecoveryFrames||0),0),
    nativeSourceRecoveryClipFrames:authored.reduce((n,a)=>n+(a.nativeSourceRecoveryClipFrames||0),0),
    nativeAdultLegActors:authored.filter(a=>(a.nativeAdultLegFrames||0)>0).length,
-  nativeAdultLegFrames:authored.reduce((n,a)=>n+(a.nativeAdultLegFrames||0),0),
+  nativeAdultLegActorsByKind:Object.fromEntries(
+    ['vanguard','revenant','warden'].map(kind=>[kind,authored.filter(a=>
+     a.u.kind===kind&&(a.nativeAdultLegFrames||0)>0).length])),
+   nativeAdultLegFrames:authored.reduce((n,a)=>n+(a.nativeAdultLegFrames||0),0),
   nativeAdultLegGroundMax:Math.max(0,...authored.map(a=>a.nativeAdultLegGroundMax||0)),
   nativeFootPlantFrames:authored.reduce((n,a)=>n+(a.nativeFootPlantFrames||0),0),
     nativeSupportFootFrames:authored.reduce((n,a)=>n+(a.nativeSupportFootFrames||0),0),
