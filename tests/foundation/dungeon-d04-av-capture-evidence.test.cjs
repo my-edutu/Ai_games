@@ -744,11 +744,13 @@ test('D04 retains original same-window WebGL+Opus for independent forensic decod
   const assessment={...assessD04Capture({...good,...raw}),
    sameWindowMovingAV:false,sampleSynchronized:false};
   const result=persistD04CaptureEvidence({directory,raw,assessment});
-  assert.equal(fs.readFileSync(result.sameWindowAVWebm).compare(original),0,
+  assert.equal(fs.readFileSync(result.unverifiedSameWindowAVWebm).compare(original),0,
    'retain genuine recording bytes to diagnose sparse/undecodable WebGL');
-  assert.match(result.sameWindowAVWebm,/UNVERIFIED\\.webm$/);
+  assert.match(result.unverifiedSameWindowAVWebm,/UNVERIFIED\\.webm$/);
   const manifest=JSON.parse(fs.readFileSync(result.manifest,'utf8'));
-  assert.equal(manifest.retained.sameWindowAVWebm,true);
+  assert.equal(manifest.retained.sameWindowAVWebm,false);
+  assert.equal(manifest.retained.unverifiedSameWindowAVWebm,true);
+  assert.equal(result.sameWindowAVWebm,null,'unverified video must never be promoted to moving A/V');
   assert.equal(manifest.assessment.sameWindowMovingAV,false);
   assert.equal(manifest.assessment.sampleSynchronized,false);
   assert.equal(manifest.isolated.sameWindowReadbackAV.base64,undefined);
