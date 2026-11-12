@@ -22,5 +22,12 @@ const old=m.data.length;m.houseVisualProfile=()=>({height:2.05});
 assert.equal(m.make(8,2,1,3,false),0);assert.equal(m.data.length,old);
 assert.match(src,/grainwardOriginalTallStorey\(x,z,k,index,isCompact\)/);
 assert.match(src,/bottom:base\+profile\.eave-\.46,top:base\+profile\.peak\+\.10/);
-assert.match(src,/HOME_STATIC_GEOMETRY_KEY_VERSION='w258-authentic-tall-market-burgage-v1'/);
+// The original W258 skyline is preserved; W261 legitimately replaces the
+// immutable home geometry and MUST advance the VBO cache key, otherwise the
+// old twelve-face planters/45-triangle rain butts survive on existing GPUs.
+const cacheKey=src.match(/const HOME_STATIC_GEOMETRY_KEY_VERSION='([^']+)'/);
+assert(cacheKey,'real occupied-home cache must have a topology version');
+assert.equal(cacheKey[1],'w261-original-living-burgage-v2',
+ 'actual new geometry must invalidate its older GPU-resident cache');
+assert.notEqual(cacheKey[1],'w258-authentic-tall-market-burgage-v1');
 console.log('W258 source contract PASS — genuine 3D original people-free occupied lot geometry and all four authentic market trades, video/hardware pending');
