@@ -3030,6 +3030,7 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
   rootTravel:actor.rigLastGroundedTravel,
   recentRootTravel:actor.rigRecentGroundedTravel,
   recentTravelAge:actor.rigRecentGroundedAge,frameInterval,
+  previousRootYaw:previous.rootYaw,currentRootYaw:actor.root.rotation.y,
   alive:true,visible:true,teleport:false,reducedMotion:false,
   interrupted:false,floorTopY:-.02,previous:previous?.feet,current
  }):null;
@@ -3081,7 +3082,7 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
  if(['left','right'].every(s=>current[s]?.heel?.every(Number.isFinite)&&
   current[s]?.toe?.every(Number.isFinite)))
   actor.sourceStanceSlideSample={sourceInstanceId,clip:'Walking_A',
-   feet:current};
+   rootYaw:actor.root.rotation.y,feet:current};
 }
 
 function disposeActorAsset(actor){

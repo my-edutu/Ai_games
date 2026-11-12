@@ -1597,6 +1597,7 @@ export function planOriginalSourceStanceSlideRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
  ownerLocomotion=false,rootTravel=NaN,recentRootTravel=NaN,
  recentTravelAge=NaN,frameInterval=NaN,
+ previousRootYaw=NaN,currentRootYaw=NaN,
  alive=true,visible=true,teleport=false,reducedMotion=false,
  interrupted=false,floorTopY=NaN,previous=null,current=null
 }={}){
@@ -1629,9 +1630,13 @@ export function planOriginalSourceStanceSlideRelief({
   // universal 18mm veto rejected even a stable right loaded shoe. Bound
   // the non-loaded shoe to 25mm; enforce the original 18mm limit on the
   // actual near-stone shoe below. Both shoes still require real source skin.
-  if(span<.11||span>.38||nextSpan<.11||nextSpan>.38||
-   projectedSpanDelta>.025)return null;
-  return {a,b,projectedSpanDelta,
+  // Original swinging heels can rise well above stone, making the XZ
+  // heel-to-toe projection temporarily 90mm on an INTACT original skin.
+  // Only the separately verified airborne opposite shoe may use that
+  // wider bound below. The uniquely loaded original shoe stays strict.
+  if(span<.080||span>.38||nextSpan<.080||nextSpan>.38||
+   projectedSpanDelta>.036)return null;
+  return {a,b,span,nextSpan,projectedSpanDelta,
    // Actual original 390px Walking_A source-skinned frames 87->88
   // (2026-11-12 evidence #13980180305) show a unique right heel/toe
   // 30-31mm ABOVE the stone while visibly skating 75-77mm. The former
@@ -1646,9 +1651,23 @@ export function planOriginalSourceStanceSlideRelief({
  const left=points('left'),right=points('right');
  if(!left||!right||Number(left.loaded)+Number(right.loaded)!==1)return null;
  const side=left.loaded?'left':'right',sample=left.loaded?left:right;
- // Protect the measured supporting shoe: only the demonstrably AIRBORNE
- // opposite leg receives the small projected-span tolerance above.
- if(sample.projectedSpanDelta>.018)return null;
+ const opposite=left.loaded?right:left;
+ // The genuine 390px source GLB frames 62->63 show a stable yaw, a
+ // right loaded shoe whose 270mm sole projection remains unchanged, and a
+ // left swinging heel 174->227mm above the stone. Its articulated original
+ // shoe shortens from ~122mm to ~90mm in XZ projection; this is NOT a
+ // shortened rigged bone or source skin deformation. The same observed
+ // foot must never gain a wider tolerance while actually supporting.
+ const yawDifference=currentRootYaw-previousRootYaw;
+ const yawChange=finite(previousRootYaw)&&finite(currentRootYaw)?
+  Math.abs(Math.atan2(Math.sin(yawDifference),Math.cos(yawDifference))):NaN;
+ const verifiedSwingHeel=finite(yawChange)&&yawChange<=.08&&
+  opposite.a.heel[1]>=floorTopY+.08&&
+  opposite.b.heel[1]>=floorTopY+.08;
+ if(sample.span<.11||sample.nextSpan<.11||
+  sample.projectedSpanDelta>.018)return null;
+ if((opposite.span<.11||opposite.nextSpan<.11||
+  opposite.projectedSpanDelta>.025)&&!verifiedSwingHeel)return null;
  const dx=sample.b.heel[0]-sample.a.heel[0],
   dz=sample.b.heel[2]-sample.a.heel[2];
  const toeDx=sample.b.toe[0]-sample.a.toe[0],
@@ -1673,6 +1692,10 @@ export function planOriginalSourceStanceSlideRelief({
   witnessedRootTravelAgeSeconds:currentStep?0:recentTravelAge,
   footSpanMeters:Math.hypot(sample.b.heel[0]-sample.b.toe[0],
    sample.b.heel[2]-sample.b.toe[2]),
+  otherShoeProjectedSpanDeltaMeters:opposite.projectedSpanDelta,
+  otherShoeMinimumProjectedSpanMeters:Math.min(opposite.span,opposite.nextSpan),
+  sourceYawChangeRadians:finite(yawChange)?yawChange:null,
+  oppositeOriginalSwingHeelVerified:verifiedSwingHeel,
   contactLocked:false
  });
 }

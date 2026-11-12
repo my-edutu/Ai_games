@@ -433,6 +433,12 @@ for(const view of [
    expect(skid.sourceClip).toBe('Walking_A');
    expect(skid.verifiedBy).toBe('final-original-weighted-skinned-two-shoe-readback');
    expect(skid.contactLocked).toBe(false);
+   expect(skid.otherShoeProjectedSpanDeltaMeters).toBeLessThanOrEqual(.0360001);
+   if(skid.otherShoeProjectedSpanDeltaMeters>.025||
+    skid.otherShoeMinimumProjectedSpanMeters<.11){
+    expect(skid.oppositeOriginalSwingHeelVerified).toBe(true);
+    expect(skid.sourceYawChangeRadians).toBeLessThanOrEqual(.080001);
+   }
    expect(skid.reductionMeters).toBeGreaterThanOrEqual(.004);
    expect(skid.reductionMeters).toBeLessThanOrEqual(.0180001);
    expect(skid.witnessedRootTravelMeters).toBeGreaterThanOrEqual(.015);
