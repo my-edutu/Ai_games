@@ -1237,7 +1237,7 @@ test('licensed Walking_A crossfades run on visible seconds while native feet fol
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planImportedWalkingBlendRate\(\{\.\.\.originalStep,sourceStep\}\)/);
  assert.match(model,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*walkingBlendRate\)/);
- assert.match(model,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/);
+ assert.match(model,/actor\.mixer\.update\(walkMixerDelta\)/);
  assert.match(model,/finally\{actor\.activeClip\.setEffectiveTimeScale\(normalScale\);\}/);
 });
 
