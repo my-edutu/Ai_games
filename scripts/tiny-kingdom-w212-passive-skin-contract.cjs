@@ -51,4 +51,35 @@ assert(html.includes('ranked.sort((a,b)=>b.priority-a.priority'),
 assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'),
  'unselected residents continue using the untouched live original mesh');
 assert(html.includes('physicallySkinnedPassiveResidents:foregroundResidentVisible'));
+// W273: actual day/night topology change on the SAME real citizen must
+// invalidate GPU-cached mesh, without refreshing an unrelated resting body.
+const keyStart=html.indexOf('function realForegroundPoseKey(');
+const keyEnd=html.indexOf('function realForegroundPoseStale(',keyStart);
+assert(keyStart>=0&&keyEnd>keyStart,'actual full-detail GPU key exists');
+const clock={t:12};
+const keyFunction=new Function('state','workingSkinCapable',
+ 'isWorkingAtSite','citizenRigPose','climateAt','carryingCommuterLantern',
+ html.slice(keyStart,keyEnd)+';return realForegroundPoseKey;')(
+ clock,true,()=>false,()=>({acting:{action:'rest'}}),
+ ()=>({season:'SPRING'}),p=>clock.t>=16&&p.activity==='Returning home at dusk');
+const originalWalker={name:'Iris',job:'gatherer',activity:'Returning home at dusk',
+ trait:'patient',friend:0,target:[2,9],phase:.35,workTimer:0,
+ energy:85,hunger:20};
+const beforeDusk=keyFunction(originalWalker,0,true);
+clock.t=17;
+assert.notEqual(keyFunction(originalWalker,0,true),beforeDusk,
+ 'same original GPU commuter must gain their real physical dusk lantern');
+const resting={...originalWalker,activity:'Resting at home'};
+const restAfter=keyFunction(resting,0,true);clock.t=12;
+assert.equal(keyFunction(resting,0,true),restAfter,
+ 'non-carrying sleeping resident must retain stable GPU binding');
+const lanternStart=html.indexOf('function renderCommuterLantern(');
+const lanternEnd=html.indexOf('function ',lanternStart+12);
+assert(lanternStart>0&&lanternEnd>lanternStart);
+assert(html.slice(lanternStart,lanternEnd).includes('tagWorkSkinRange(5,first)'),
+ 'genuine 3D lantern cannot float away from original forearm during GPU motion');
+const compactStart=html.indexOf('function realWorkerPoseKey(');
+const compactEnd=html.indexOf('function ',compactStart+12);
+assert(html.slice(compactStart,compactEnd).includes('carryingCommuterLantern(p)'),
+ 'compact original GPU topology also invalidates at actual night shift');
 console.log('W212 GPU passive body source+predicate: PASS; real 1024px/390px/WebGL/physical FPS independent evidence required.');

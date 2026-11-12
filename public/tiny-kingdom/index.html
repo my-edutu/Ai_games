@@ -1893,6 +1893,7 @@ function realWorkerPoseKey(p,i){
     Math.floor(Math.min(2,p.workTimer/workDuration(p)*3)):0):
    Math.floor(p.workTimer/.55),
   Math.floor(p.energy/12),Math.floor(p.hunger/12),
+  carryingCommuterLantern(p)?'real-dusk-lantern':'no-dusk-lantern',
   climateAt(state.t).season].join(':');
 }
 function realWorkerPoseStale(entry,p,key,angle){
@@ -2471,6 +2472,9 @@ function realForegroundPoseKey(p,i,walkingSkin=false){
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
   skinned?'real-joint-palette-v2':'cpu-fine-pose',
   p.target?.[0],p.target?.[1],
+  // A real night lantern changes mesh topology, even during an unchanged
+  // evening commute with identical phase, activity and route target.
+  carryingCommuterLantern(p)?'real-dusk-lantern':'no-dusk-lantern',
   // Stable original full-body GPU bind geometry is not time-limited: its
   // 13 current joints are uploaded from the REAL citizen on every drawn tick.
   // Rebuild only for changed occupation, season, route target, identity or
@@ -10624,6 +10628,9 @@ function renderCommuterLantern(p,x,y,z,size,rig){
  materialScope(MATERIAL.LANTERN_GLOW,()=>{
   box(px,py-.02*size,pz,.125*size,.19*size,.125*size,rgb(0xf2bd6c));
  });
+ // The REAL wrist-carried lantern must follow the forearm (joint 5) in
+ // the 13-bone GPU rig; CPU vertex emission remains unchanged.
+ tagWorkSkinRange(5,first);
  homecomingLanternRenderStats.carriers++;
  homecomingLanternRenderStats.triangles+=(data.length-first)/30;
 }
