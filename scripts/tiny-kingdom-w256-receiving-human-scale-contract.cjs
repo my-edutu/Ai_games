@@ -41,6 +41,10 @@ assert.equal(cx.isReadableMarketHandoffShot({...shot,marketPostSightline:{center
 assert.equal(cx.isReadableMarketHandoffShot(shot,framing,false,false),false);
 assert.match(src,/realMarketAim\?\[realMarketAim\.wristPosition,realMarketAim\.parcelPosition\]:\[\]/,
  'True receiving hands and sack must participate in real body/obstruction camera survey');
-assert.match(src,/receivingBest\|\|clearHomewardBest/,
- 'Real human-scale receiving camera must be considered in final selected physical view');
+// W259 adds a physically screened loaded-courier witness AFTER the real
+// receiving contact. Preserve its higher-priority true escrowed parcel lens.
+assert.match(src,/const chosen=receivingBest\|\|routeBest\|\|clearHomewardBest/,
+ 'Actual escrowed handoff must outrank real loaded-travel route witness');
+assert.match(src,/framing=receivingBest\?receivingFraming:routeBest\?routeFraming:clearHomewardBest\?clearHomewardFraming/,
+ 'Selected physical camera must use the matching genuine contact ray survey');
 console.log('W256 PASS authentic worker-and-escrowed-parcel body rays, physically clear camera selection, no invented delivery');
