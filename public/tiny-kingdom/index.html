@@ -11603,6 +11603,32 @@ function getMarketShutterResidencyAudit(){
 // Traders in professions without simulated wares have a shop sign and open
 // shelves, not counterfeit textile/herb production. Scene/UI/saves remain
 // tied to the SAME resource source of truth, including escorted W09 loads.
+// W255 original physical cloth parcel for honest credited and escrowed grain.
+// All uses reuse original resident work/economy VBOs; zero invented resources.
+function emitLivedCanvasSack(x,y,z,rx,ry,rz,variation=0){
+ if(![x,y,z,rx,ry,rz,variation].every(Number.isFinite)||
+    !(rx>0&&ry>0&&rz>0))throw Error('W255 nonfinite grain cloth geometry');
+ const begin=data.length;
+ const palette=[0xc6b08b,0xd9c29e,0xbca580,0xe0c7a0];
+ const tone=rgb(palette[((variation%palette.length)+palette.length)%palette.length]);
+ const fold=rgb(0x9d8768),neck=rgb(0xb8a07d),twine=rgb(0x816744);
+ materialScope(MATERIAL.GENERAL,()=>{
+  // Weighted cloth volume and an actual gathered, bound upper mouth.
+  ellipsoid(x,y,z,rx,ry,rz,tone,7);
+  cylinder(x,y+ry*.86,z,rx*.32,ry*.34,neck,6);
+  for(const side of [-.64,-.22,.22,.64]){
+   const xx=x+side*rx,zz=z+rz*(.77-.15*Math.abs(side));
+   limbSegment([xx,y-ry*.63,zz],
+    [x+side*rx*.65,y+ry*.57,z+rz*.68],.0105,fold,4);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  limbSegment([x-rx*.30,y+ry*.93,z],
+   [x+rx*.30,y+ry*.93,z],.017,twine,4);
+ });
+ return {source:'original-credited-or-escrowed-grain-canvas',
+  triangles:(data.length-begin)/30,authoritativeInventoryUnchanged:true};
+}
 let marketStallStockRenderStats={sacks:0,logs:0,coffers:0,triangles:0};
 function marketStallStockAudit(){
  const supply=marketSupplyView();
@@ -11633,8 +11659,7 @@ function renderMarketStock(){
    const x=grain.x+(n%3-1)*.68,z=grain.z+grain.face*.40+
     Math.floor(n/3)*.46;
    const y=terrain(grain.x,grain.z)+1.00;
-   const canvas=rgb(n%2?0xc7b48d:0xe3c9a3);
-   ellipsoid(x,y+.205,z,.285,.22,.27,canvas,7);
+   emitLivedCanvasSack(x,y+.205,z,.285,.22,.27,n);
    box(x,y+.385,z,.27,.044,.28,rgb(0x9b8059));
    box(x,y+.08,z,.35,.055,.30,rgb(0xa69471));
   }
@@ -13257,8 +13282,8 @@ function renderGranaryStores(){
    const z=cz-2.61-Math.floor(i/2)*.62;
    const y=terrain(x,z);
    // Original 3D canvas bags, stable and truthful across seeded replays.
-   ellipsoid(x,y+.28,z,.24+(i%3)*.019,.28+(i%2)*.03,.29,
-    rgb((i+n)%3===0?0xd6c6a2:(i+n)%3===1?0xc5b28c:0xbbaa86),6);
+   emitLivedCanvasSack(x,y+.28,z,.24+(i%3)*.019,
+    .28+(i%2)*.03,.29,n);
    box(x,y+.43,z,.42,.025,.45,rgb(0x90734e));
    box(x,y+.08,z,.38,.035,.44,rgb(0xbca781));
   }
@@ -15271,8 +15296,8 @@ function renderDeliveryReceipts(){
       rgb(i%2?0x806044:0x9f7953),5);
    }else{
     for(let i=0;i<units;i++)
-     ellipsoid(x+(i-(units-1)/2)*.31,y+.18,z+.16,.15,.17,.16,
-      rgb(i%2?0xdac498:0xbfa579),5);
+     emitLivedCanvasSack(x+(i-(units-1)/2)*.31,
+      y+.18,z+.16,.15,.17,.16,i);
    }
    // An unfaked arrival is visible without floating economy-number text.
    box(x,y+.02,z-.18,.51,.045,.42,rgb(0x896c4c));
@@ -15515,8 +15540,7 @@ function renderMarketHandoffs(){
       .068,rgb(j%2?0x99734c:0x6c4b32),5);
      box(px,py+.065,pz,.045,.032,.16,rgb(0xbca47a));
     }else{
-     ellipsoid(px,py,pz,.19,.26,.19,rgb(j%2?0xd4bf93:0xc0ab85),5);
-     box(px,py+.22,pz,.13,.055,.15,rgb(0xb38f5e));
+     emitLivedCanvasSack(px,py,pz,.19,.26,.19,j);
     }
    });
    marketHandoffRenderStats.parcels++;
@@ -21090,6 +21114,31 @@ function planBoundedCameraScenicSurvey(possibilities,limit){
  }
  return retained;
 }
+// W255 original real-worker documentary: physically aim between the true
+// escrowed courier and their actual animated hand-to-shelf package.
+// No camera target exists for a merely travelling or already credited load.
+function realReceiptCameraFocus(citizen){
+ if(!citizen?.delivery||citizen.delivery.escrowed!==true||
+    !isMarketUnloading(citizen))return null;
+ const plan=getMarketParcelDeliveryPose(citizen.delivery.id);
+ if(!plan||!plan.escrowed||plan.citizen!==citizen.name||
+    !plan.parcels.length)return null;
+ const parcel=plan.parcels.find(p=>p.contact==='wrist-to-dock')||
+  plan.parcels.find(p=>p.contact==='cart-to-hand')||
+  plan.parcels.find(p=>p.contact==='receiving-shelf');
+ if(!parcel||!Array.isArray(parcel.position)||
+    parcel.position.length!==3||
+    !parcel.position.every(Number.isFinite))return null;
+ const ground=terrain(citizen.x,citizen.z);
+ const dx=parcel.position[0]-citizen.x,dz=parcel.position[2]-citizen.z;
+ const d=Math.hypot(dx,dz),safe=d>2.5?2.5/d:1;
+ const target=[citizen.x+dx*.55*safe,
+  ground+Math.max(.61,Math.min(1.02,.48+(parcel.position[1]-ground)*.55)),
+  citizen.z+dz*.55*safe];
+ return {source:'genuine-cart-to-hand-to-receiving-shelf',
+  deliveryId:citizen.delivery.id,contact:parcel.contact,
+  parcelIndex:parcel.index,target,authorityModified:false};
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -21134,7 +21183,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const observedBlade=realFarmWork?realHarvestBladeContact(citizen):null;
  const visibleCropAim=observedBlade?.stage==='cutting'&&
   observedBlade.insideField?observedBlade.tip:null;
- const target=[citizen.x+(unloading?centre[0]:
+ const realMarketAim=unloading?realReceiptCameraFocus(citizen):null;
+ const target=realMarketAim?realMarketAim.target:[citizen.x+(unloading?centre[0]:
    working&&realWork?(visibleCropAim?
     (visibleCropAim[0]-citizen.x)*.46:Math.sin(facing)*.19):0),
   terrain(citizen.x,citizen.z)+(unloading?.77:
@@ -21193,7 +21243,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.45,3.8,4.2,4.8,5.6]:[3.8,4.4,5.0,5.9]):
-  unloading?[5.1,5.7,6.8]:
+  unloading?[3.8,4.4,5.1,5.7,6.8]:
   filmedLoadedCourier?(portraitLens?[4.2,5.0,5.8,6.5]:[4.6,5.4,6.2,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
@@ -21218,7 +21268,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // G147: a front-facing worker occupying 10% of the screen still cannot
   // communicate their visible labor. Prefer actual human-scale coverage
   // across the full orbit (without accepting roof or hand occlusion).
-  const sizePenalty=working&&realWork?
+  const sizePenalty=(working&&realWork)||unloading?
    Math.max(0,(portraitLens?.31:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   // Do not choose a physically clear EMPTY road over the genuine
    // escrowed courier. Favor the actual projected actor and real cargo.
