@@ -957,6 +957,9 @@ function auditSourceLoadedPelvisAfterLegs(actor){
     accepted:false,reason:'source-pelvis-rejected-post-leg-rollback'};
   actor.sourceSwingToeCurrentFrameProofs={left:null,right:null};
   actor.sourceStanceSoleCurrentFrameProofs={left:null,right:null};
+  // Mark any original ankle proof undone by the rejected visual pivot.
+  for(const probe of Object.values(actor.sourceStanceProbeOutcomes??{}))
+   if(probe?.status==='accepted')probe.status='rolled-back-with-pelvis';
   return;
  }
  actor.sourceLoadedPelvisFrameProof={
@@ -1422,6 +1425,19 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
   mount.bone.quaternion.copy(original);
   mount.bone.updateWorldMatrix(true,true);
  }
+ // Bounded on-demand receipt for original-source-only physical trials.
+ // Real weighted heel/toe are remeasured again after the applied angle.
+ actor.sourceStanceProbeOutcomes??={left:null,right:null};
+ const probeOutcome={
+  source:'same-original-GLB-multiscale-ankle-probe',
+  sourceInstanceId:actor.assetRoot?.uuid??null,
+  side:mount.side,sourceClip:actor.activeImportedClipName,
+  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??null,
+  beforeHeelY:heelY,beforeToeY:toeY,
+  beforeWorstMeters:Math.max(Math.abs(heelY+.02),Math.abs(toeY+.02)),
+  trials,status:'no-safe-two-point-trial'
+ };
+ actor.sourceStanceProbeOutcomes[mount.side]=probeOutcome;
  const selected=planOriginalSourceStanceAnkleRelief({
   mode:actor.fullBody?.mode,sourceClipName:actor.activeImportedClipName,
   sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
@@ -1452,10 +1468,14 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
  // Never trust a 0.12rad trial alone. The restricted <=0.045rad actual
  // overlay must also improve measured real skin by >=1.5mm, keeping BOTH
  // toe and heel near the stone with no edge driven down over 4mm.
+ probeOutcome.status='final-skinned-measurement-rejected';
  if(![afterHeel,afterToe].every(Number.isFinite)||
   afterHeel<-.055||afterHeel>.015||afterToe<-.055||afterToe>.015||
   afterHeel<heelY-.004||afterToe<toeY-.004||
   beforeWorst-afterWorst<.0015)return 0;
+ probeOutcome.status='accepted';
+ probeOutcome.finalWorstMeters=afterWorst;
+ probeOutcome.finalAngleRad=selected.delta;
  mount.stanceReliefRad=selected.delta;
  actor.sourceStanceSoleCurrentFrameProofs??={left:null,right:null};
  actor.sourceStanceSoleCurrentFrameProofs[mount.side]={
@@ -1473,6 +1493,11 @@ function planOriginalSourceStanceForMountedAnkle(actor,mount,angle,reducedMotion
 }
 
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
+ // Source-original weighted ankle trial receipts belong to this frame only.
+ if(actor.sourceStanceProbeOutcomes){
+  actor.sourceStanceProbeOutcomes.left=null;
+  actor.sourceStanceProbeOutcomes.right=null;
+ }
  // Original-skin heel/toe receipts are owned by THIS mixer frame, not
  // the accumulated accepted-correction history.
  actor.sourceSwingToeCorrectionsThisFrame=0;
@@ -2728,6 +2753,7 @@ function inspectSourceRigDeformation(actors){
     // Read-only same-frame measurements of the original stance heel + toe.
     // A relief witness is not proof of a world-space foot plant or IK.
     sourceStanceSoleCurrentFrameProofs:actor.sourceStanceSoleCurrentFrameProofs??null,
+    sourceStanceProbeOutcomes:actor.sourceStanceProbeOutcomes??null,
     sourceStanceReliefFrames:actor.sourceStanceReliefFrames||0,
     sourceLoadedPelvisLiftMeters:actor.sourceLoadedPelvisLiftMeters||0,
     sourceLoadedPelvisAcceptedFrames:actor.sourceLoadedPelvisAcceptedFrames||0,
