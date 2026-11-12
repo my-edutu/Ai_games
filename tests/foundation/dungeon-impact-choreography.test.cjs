@@ -12,6 +12,25 @@ const map=Array(19).fill('.'.repeat(19));
 const hero={id:'vanguard',kind:'vanguard',faction:'party',x:8,z:9,hp:100,maxHp:100,action:'attack',actionTick:17,targetId:'warden'};
 const enemy={id:'warden',kind:'warden',faction:'enemy',x:9,z:9,hp:90,maxHp:90,action:'hurt',actionTick:17};
 const snapshot=(tick,units,run=1,floor=1)=>({tick,run,floor,map,units});
+test('slow delivered frames still show a complete original sword impact and source-rig recovery',async()=>{
+ const {planVisibleMeleeContactStep,VERIFIED_MELEE_CONTACT_DELAY}=await plan();
+ let age=0;const delivered=[];
+ for(let frame=0;frame<8;frame++){
+  const step=planVisibleMeleeContactStep(.35,age);
+  assert.ok(step>0&&step<=.35,'clock must stay bounded');
+  age+=step;delivered.push(age);
+ }
+ assert.ok(Math.abs(delivered[0]-.05)<1e-9);
+ assert.ok(Math.abs(delivered[1]-VERIFIED_MELEE_CONTACT_DELAY)<1e-9,
+  'the true original blade and opt-in contact cue keep their shared 215ms beat');
+ assert.ok(delivered.filter(t=>t>=VERIFIED_MELEE_CONTACT_DELAY-1e-9&&t<.62-1e-9).length>=4,
+  'actual contact, planted follow-through and recovery should each reach the renderer under stalls');
+ assert.ok(delivered[5]>=.62-1e-9,'the original attack must finish without looping a fake strike');
+ assert.ok(Math.abs(planVisibleMeleeContactStep(.016,.30)-.016)<1e-9);
+ for(const invalid of [-1,0,NaN,Infinity])
+  assert.equal(planVisibleMeleeContactStep(invalid,.4),0);
+});
+
 test('only actual consecutive public health decreases create a damage or lethal beat',async()=>{
  const {planAuthorityDamageBeats}=await plan();
  const before=snapshot(16,[{...hero},{...enemy}]);

@@ -9025,5 +9025,22 @@
     "plays": "UNVERIFIED",
     "pr72": "ISOLATED_UNADOPTED_NOT_INTEGRATION_READY",
     "next": "Inspect exact-head 1440px/390px organic actual source GLB motion/audio vs same-seed parent, preserve native bone/weapon/foot/23 hazards and p95; reject if no visible value; continue substantial adult cast and confirmed blade-HP-original audio, fixed M1 A/B + three fresh critics."
+  },
+  "m1NativeDeliveredSwordFrames20261112": {
+    "at": "2026-11-12",
+    "phase": "A_INCOMPLETE_BC_CANDIDATES",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "previousHead": "87131b55c5fcc60cb4dd874094d6648a378bcfc9",
+    "originalOrganicRun": 43239697736,
+    "browserRun": 43239697550,
+    "observedBefore": "Legitimate Vanguard adjacent tick7 source native sword reached .155rad history, first subsequent sampled frame .0124rad then zero, 29/30 real browser checks passed",
+    "implemented": "Post-contact source GLB wrist/hip/boot recovery delivered in <=.105s render-age steps after truthful .215s audio/contact beat; bounded genuine source-skin pose-frame counters",
+    "afterDesktopMobileAV": "NOT_OBSERVED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "next": "Verify exact-head genuine 1440/390 gameplay with multiple delivered source-rig poses, boot contact/HP audio, danger visibility; reject regressions then original adult cast/combat rebuild"
   }
+
 }

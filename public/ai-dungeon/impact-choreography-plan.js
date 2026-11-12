@@ -60,8 +60,15 @@ export const VERIFIED_MELEE_CONTACT_DELAY=.215;
 export function planVisibleMeleeContactStep(frameSeconds,visibleAge=0){
  if(!Number.isFinite(frameSeconds)||frameSeconds<=0)return 0;
  const age=Number.isFinite(visibleAge)?Math.max(0,Math.min(5,visibleAge)):0;
+ // Authentic browser trace 87131b55: native wrist/spine reaches .155rad,
+ // but sparse deliveries skip the rest of the source-skinned follow-through.
+ // Keep the genuine .215s sword/audio landmark; deliver connected recoil and
+ // planting across more than one slow render without extending the original
+ // .62s animation envelope. Normal 60Hz cadence is unchanged.
+ const remaining=.62-age;
  const limit=age<.05-1e-8?.05-age:age<VERIFIED_MELEE_CONTACT_DELAY-1e-8?
-  VERIFIED_MELEE_CONTACT_DELAY-age:.35;
+  VERIFIED_MELEE_CONTACT_DELAY-age:remaining>1e-8?
+  Math.min(.105,remaining):.35;
  return Math.min(.35,frameSeconds,limit);
 }
 export function planVerifiedMeleeImpactDelay(beat,snapshot,{reducedMotion=false}={}){
