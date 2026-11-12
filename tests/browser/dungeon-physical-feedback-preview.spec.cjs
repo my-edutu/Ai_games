@@ -95,6 +95,12 @@ async function beginD04LiveAVCapture(page,captureProfile){
   // A post-release positive control must never overlap an unfinished primary
   // media encoder, including an encoder that errored before its stop event.
   const activeRecorders=new Set();
+  // Measure actual browser recorder starts, never just planned policy.
+  let peakActiveMediaRecorders=0;
+  const registerRecorder=rec=>{
+   activeRecorders.add(rec);
+   peakActiveMediaRecorders=Math.max(peakActiveMediaRecorders,activeRecorders.size);
+  };
   const before=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1;
   const began=performance.now();
   const framePump={
@@ -218,7 +224,7 @@ async function beginD04LiveAVCapture(page,captureProfile){
        data.length===bytes?null:'Independent chunks missing',data.length===bytes?data:null);
      }catch(error){finish('UNAVAILABLE','Independent WebM read: '+String(error).slice(0,200))}
     };
-    try{rec.start(250);activeRecorders.add(rec)}catch(error){finish('UNAVAILABLE','Independent recorder start: '+String(error).slice(0,200));return}
+    try{rec.start(250);registerRecorder(rec)}catch(error){finish('UNAVAILABLE','Independent recorder start: '+String(error).slice(0,200));return}
     stopTimer=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch(error){finish('UNAVAILABLE',String(error))}},5500);
     watchdog=setTimeout(()=>{try{if(rec.state!=='inactive')rec.stop()}catch{}
      finish('UNAVAILABLE','Independent recorder exceeded 15-second budget')},15000);
@@ -476,7 +482,7 @@ async function beginD04LiveAVCapture(page,captureProfile){
      finish({status:'UNAVAILABLE',reason:'WebM recorder did not finish inside 15-second budget',
       framePump:{...framePump}})},15000);
   });
-  try{recorder.start(250);activeRecorders.add(recorder)}
+  try{recorder.start(250);registerRecorder(recorder)}
   catch(e){finishCanvasDeliveryMonitor();stopFramePump();videoTracks.forEach(t=>t.stop());
    return unavailable('Recorder start: '+String(e))}
   // Software-WebGL was competing with five concurrent MediaRecorders.
@@ -506,7 +512,8 @@ async function beginD04LiveAVCapture(page,captureProfile){
     const trackDelivery=finishCanvasDeliveryMonitor();
     stopFramePump();
     const frames={before,
-     after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1};
+     after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1,
+     peakPrimaryConcurrentMediaRecorders:peakActiveMediaRecorders};
     const serial2dOnly=await start2DEncoderPositiveControl({serial:true});
     const serialRealVideo=await startSerialRealVideoProbe();
     const receiptReadbackVideo=await startSerialReceiptReadbackVideoProbe();
@@ -522,6 +529,7 @@ async function beginD04LiveAVCapture(page,captureProfile){
    });
   return {status:'STARTED',captureProfile:profile.id,
    primaryEncoderCount:profile.concurrentRecorders.length,
+   primaryMediaRecordersAtStart:activeRecorders.size,
    concurrentAuxiliaryEncoders:0,
    videoTracks:videoTracks.length,audioTracks:soundTracks.length,
    evidence:'Actual canvas + opted-in sound bus; independent live PCM; no sample-sync assertion'};
