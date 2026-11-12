@@ -1570,18 +1570,41 @@ export function createMazeWorld(options = {}) {
           && ((!c.blocked && !knownByCell.get(n).blocked)
             || (pressureSightlines.has(c.cell) && pressureSightlines.has(n)
               && !!c.blocked !== !!knownByCell.get(n).blocked));
-        // Exact-HEAD native 390px Pip–Thornback warning frames still show a
-        // tall NONPASSAGE wall crown obscuring their actual reciprocal court.
-        // Cut down only truly DISCLOSED blocked flank edges: no gate, unseen
-        // neighbor, unresolved one-way link or undisclosed map may earn it.
-        // The stone remains solid, impassable and fully opaque.
+        // Authentic full-frame Pass310 (390x844, tick32) shows Pip and
+        // Thornback framed, but the foreground full-height ivory NONPASSAGE
+        // wall still takes up the centre of their disclosed encounter.
+        // A confirmed SOLID boundary between two *currently visible*,
+        // walkable but mutually disconnected same-tier public cells may
+        // receive the existing low, opaque stone parapet. Both published
+        // neighbor lists must reject travel: never mistake a partial,
+        // one-way disclosure for a known impenetrable wall. This is a
+        // physical sightline, NOT a navigable path or a map reveal.
+        const adjacentKnown= n>=0 ? knownByCell.get(n) : null;
+        const guardianSealedReefScreen=!!adjacentKnown
+          && !c.blocked && adjacentKnown.blocked===false
+          && !c.trap && !adjacentKnown.trap
+          && !c.checkpoint && !adjacentKnown.checkpoint
+          && !c.clue && !adjacentKnown.clue
+          && c.cell!==s.exitCell && n!==s.exitCell
+          && !s.keys.some(k=>k.cell===c.cell||k.cell===n)
+          && s.visibleCells.includes(c.cell) && s.visibleCells.includes(n)
+          && Array.isArray(c.neighbors) && Array.isArray(adjacentKnown.neighbors)
+          && !c.neighbors.includes(n) && !adjacentKnown.neighbors.includes(c.cell)
+          && Math.abs(cellHeight(c.cell,s.width,s.height)
+            -cellHeight(n,s.width,s.height))<1e-8
+          && ((guardianSightlines.has(c.cell) && guardianCauseway.has(c.cell))
+            || (guardianSightlines.has(n) && guardianCauseway.has(n)));
+        // The older blocked-cell flank rule is retained unchanged. A
+        // closed gate, unseen wall, actual passage, stair or any uncertain
+        // neighbor still has its full source-authentic silhouette.
         const guardianParapet = !publicParapet && !pressureParapet
           && n>=0 && knownByCell.has(n) && !gateEdges.has(key)
           && (guardianCauseway.has(c.cell) || guardianCauseway.has(n))
-          && ((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
-            || (guardianSightlines.has(n) && guardianBlockedRelief.has(c.cell)))
-          && (!!c.blocked !== !!knownByCell.get(n).blocked)
-          && !knownByCell.get(n).neighbors?.includes(c.cell);
+          && (guardianSealedReefScreen ||
+            (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
+              || (guardianSightlines.has(n) && guardianBlockedRelief.has(c.cell)))
+              && (!!c.blocked !== !!knownByCell.get(n).blocked)
+              && !knownByCell.get(n).neighbors?.includes(c.cell)));
         const fossilStageEdge = fossilSide && fossilSide.n === n;
         if (publicParapet || pressureParapet || guardianParapet)
           gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell,

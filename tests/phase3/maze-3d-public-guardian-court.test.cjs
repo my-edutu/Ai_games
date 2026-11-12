@@ -361,3 +361,58 @@ test('Pass303 actual guardian arena uses a dark mineral field over ALL published
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass311 native guardian full-frame known closed neighbor becomes a LOW still-solid reef, never a passage',async()=>{
+  const {createMazeWorld}=await load();
+  const sourceState=original();
+  sourceState.visibleCells.push(5,9);
+  sourceState.cells.push(
+    {cell:5,blocked:false,neighbors:[]},
+    {cell:9,blocked:false,neighbors:[]});
+  const untouched=JSON.stringify(sourceState);
+  const w=createMazeWorld({balanced:true}),baseline=w.stats();
+  try {
+    w.update(sourceState);
+    assert.equal(w.stats().guardianSightlineParapets,2,
+      'two same-tier mutually nonadjacent public neighbor graphs earn low opaque physical screens');
+    assert.equal(w.stats().guardianCausewayTiles,3,
+      'the real reciprocal Pip-to-Thornback stage stays fully joined and otherwise unchanged');
+    assert.equal(w.stats().geometryCount,baseline.geometryCount,'reuse real installed geometry pool');
+    assert.equal(w.stats().materialCount,baseline.materialCount,'no fresh GPU material class');
+    const missing={...sourceState,visibleCells:sourceState.visibleCells.filter(c=>c!==9)};
+    w.update(missing);
+    assert.equal(w.stats().guardianSightlineParapets,1,
+      'a remembered, no-longer-visible candidate wall must retain full silhouette');
+    const uncertain={...sourceState,cells:sourceState.cells.map(c=>c.cell===6
+      ?{...c,neighbors:[...c.neighbors,5]}:c)};
+    w.update(uncertain);
+    assert.equal(w.stats().guardianSightlineParapets,1,
+      'one-way or partial public adjacency is uncertain; never make a visual shortcut');
+    const realPassage={...sourceState,cells:sourceState.cells.map(c=>c.cell===6
+      ?{...c,neighbors:[...c.neighbors,5]}
+      :c.cell===5?{...c,neighbors:[6]}:c)};
+    w.update(realPassage);
+    assert.equal(w.stats().guardianSightlineParapets,1,
+      'actually connected walkable public cells are NOT a blocked or lowered wall');
+    w.update({...sourceState,doors:[{a:6,b:5,open:false}]});
+    assert.equal(w.stats().guardianSightlineParapets,1,
+      'a real sealed gate must preserve its full gate geometry');
+    w.update({...sourceState,doors:[{a:7,b:8,open:false}]});
+    assert.equal(w.stats().guardianSightlineParapets,0,
+      'no disconnected actor corridor may stage a guardian cutaway');
+    w.update({...sourceState,visibleCells:[6,7,11,5,9]});
+    assert.equal(w.stats().guardianSightlineParapets,0,'hidden guardian cannot retain an old cutaway');
+    w.update({...sourceState,result:{reason:'capture'}});
+    assert.equal(w.stats().guardianSightlineParapets,0,'terminal scene resets the court');
+    for(let i=0;i<6;i++){
+      w.update({...sourceState,runToken:'pass311-opaque-reef-'+i});
+      assert.equal(w.stats().guardianSightlineParapets,2);
+      assert.ok(w.stats().geometryCount<100,'unchanged strict six-reset GPU geometry ceiling');
+    }
+    assert.equal(JSON.stringify(sourceState),untouched,'no AI, collisions or public truth edited');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
