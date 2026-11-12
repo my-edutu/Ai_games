@@ -694,3 +694,29 @@ test('M1 genuine high-oblique portrait shot clears a dominant foreground column 
  assert.equal(planPortraitStageClearance(giant,[actor],camera,{...portrait,aspect:1440/900}),false,
   'real 1440px desktop keeps its full original nave depth');
 });
+
+
+test('M1 real high-oblique camera protects the lower foreground acting lane from a giant source stone even when no sword ray touches the hero',async()=>{
+ const {planPortraitStageClearance}=await load();
+ const camera=Object.freeze({x:0,y:8,z:9});
+ const portrait=Object.freeze({look:{x:0,y:1,z:0},fov:48,aspect:390/844});
+ const actor=Object.freeze({x:0,z:0,kind:'vanguard',visibleActor:true,combatRecess:false});
+ // The original stone projects to >48% of the real portrait's width and
+ // occupies its near-floor foreground; the upper helmet ray stays open.
+ // A single 2D height gate must not let it consume the live encounter stage.
+ const foreground=Object.freeze([-.60,0,4.6,.60,2.75,5.4]);
+ const low=Object.freeze([-.60,0,4.6,.60,.55,5.4]);
+ const side=Object.freeze([2,0,4.6,3.2,2.75,5.4]);
+ const rear=Object.freeze([-.60,0,-3.4,.60,2.75,-2.6]);
+ const far=Object.freeze([-.60,0,7.6,.60,2.75,8.4]);
+ assert.equal(planPortraitStageClearance(foreground,[actor],camera,portrait),true,
+  'clear giant physically nearer stone that occupies the live lower-stage foreground');
+ assert.equal(planPortraitStageClearance(foreground,[{...actor,combatRecess:true}],camera,portrait),true,
+  'the same physical aperture must protect genuine melee sword/evade stage');
+ assert.equal(planPortraitStageClearance(low,[actor],camera,portrait),false,'low natural ruin detail remains');
+ assert.equal(planPortraitStageClearance(side,[actor],camera,portrait),false,'side-world context remains');
+ assert.equal(planPortraitStageClearance(rear,[actor],camera,portrait),false,'stone behind the actor remains');
+ assert.equal(planPortraitStageClearance(far,[actor],camera,portrait),false,'offscreen near-camera rubble remains');
+ assert.equal(planPortraitStageClearance(foreground,[{...actor,visibleActor:false}],camera,portrait),false,'no phantom actor');
+ assert.equal(planPortraitStageClearance(foreground,[actor],camera,{...portrait,aspect:1440/900}),false,'desktop retains environment');
+});

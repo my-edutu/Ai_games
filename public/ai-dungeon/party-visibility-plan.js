@@ -522,6 +522,25 @@ export function planPortraitStageClearance(box,subjects,camera,view){
    if((maxX-minX)<.065||(maxY-minY)<.075)return false;
   }
   if(prop.near>=focus.depth-.1)continue;
+  // The 390px REAL browser entry has a towering foreground stone occupying
+  // the lower acting floor even when it does not touch a hero's helmet ray.
+  // Measure its physical projected footprint against the *live* actor's
+  // perspective floor corridor. This prevents the old height-only threshold
+  // from ignoring a stone near the lens in an 8m-high oblique shot.
+  // Only significant, truly front-of-actor stone may recede. Preserve every
+  // side/rear prop, low ruin, wide-view stage and authoritative collision.
+  if(camera.y>=5.5&&box[4]-box[1]>=1.35&&
+     Math.hypot(cx-camera.x,cz-camera.z)<distance*.78){
+   const foot=projectionPoint(camera,basis,actor.x,.16,actor.z);
+   if(foot&&Math.abs(foot.x)<.82&&Math.abs(foot.y)<.85){
+    const stageTop=Math.min(-.25,foot.y-.10);
+    const stageLeft=Math.max(-.86,foot.x-.72);
+    const stageRight=Math.min(.86,foot.x+.72);
+    const laneWidth=Math.max(0,Math.min(prop.maxX,stageRight)-Math.max(prop.minX,stageLeft));
+    const laneHeight=Math.max(0,Math.min(prop.maxY,stageTop)-Math.max(prop.minY,-1));
+    if(laneWidth>=.48&&laneHeight>=.34)return true;
+   }
+  }
   // Actual phone Chromium shows that an opaque near-camera Gothic column can
   // swallow a quarter of the fighting frame BEFORE an attack flag exists.
   // Keep modest stones during travel, but clear only a truly large, physically
