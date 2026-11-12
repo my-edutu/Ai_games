@@ -70,22 +70,40 @@ test('real grounded continuation survives slow unpublished WebGL frames and appe
   } finally {effect.dispose();}
 });
 
-test('the cold-floor presentation budget is not a substitute for a legacy win, context recovery or browser receipt', async()=>{
-  const [THREE,{createTowerGuardianPassage}]=await loaded;
+test('cold-floor lifetime requires real source-grounded victory, not a legacy win or stale render receipt', async()=>{
+  const [THREE,{createTowerGuardianPassage,observedGroundedGuardianHandoff}]=await loaded;
   const {previous,next}=actualGroundedCrossing();
   const effect=createTowerGuardianPassage(THREE);
   try{
+    assert.equal(observedGroundedGuardianHandoff(previous,next),true);
     assert.equal(effect.begin(previous,next,anchor),true);
-    assert.equal(effect.diagnostics().continuousGroundedHandoff,false,
-      'without a prior genuinely visible earned arch, no carry-forward privilege');
-    assert.equal(effect.noteFrameSubmitted(next),false,
-      'legacy instant-victory visual cannot claim the grounded carried-door budget');
-    for(let i=0;i<7;i++)effect.update(.5);
-    assert.equal(effect.diagnostics().stage,'none',
-      'legacy non-carried visual still retires on its old bounded clock');
+    assert.equal(effect.diagnostics().continuousGroundedHandoff,true,
+      'an authoritative defeated-guardian grounded crossing must survive no prior rendered arch');
+    effect.update(.02);
+    assert.equal(effect.diagnostics().innerDoorAssemblyVisible,true);
+    assert.equal(effect.noteFrameSubmitted({...next,runToken:'other-run'}),false,
+      'another run cannot claim a returned WebGL frame');
+    assert.equal(effect.noteFrameSubmitted(next,{stale:true}),false,
+      'stale presentation cannot spend the grounded gateway window');
+    assert.equal(effect.diagnostics().handoffSubmittedFrames,0);
+    assert.equal(effect.noteFrameSubmitted(next),true,
+      'only real source-bound successful renderer return starts the visible budget');
     effect.clear();
     assert.equal(effect.noteFrameSubmitted(next),false,
-      'cleared/restarted graphics cannot reuse the old source receipt');
+      'cleared or restarted graphics cannot reuse a previous source receipt');
+    const legacy={...previous,enemies:[{
+      ...previous.enemies[0],active:true,health:1,
+    }]};
+    assert.equal(observedGroundedGuardianHandoff(legacy,next),false,
+      'a guardian still alive is not proof of an earned physical threshold');
+    assert.equal(effect.begin(legacy,next,anchor),true,
+      'historic non-grounded-cap visual transition may keep its exterior memory');
+    assert.equal(effect.diagnostics().continuousGroundedHandoff,false);
+    assert.equal(effect.noteFrameSubmitted(next),false,
+      'historic visual victory cannot claim grounded carry-forward or new-floor render credits');
+    for(let i=0;i<7;i++)effect.update(.5);
+    assert.equal(effect.diagnostics().stage,'none',
+      'historic exterior memory must still retire on its bounded clock');
   }finally{effect.dispose();}
 });
 
