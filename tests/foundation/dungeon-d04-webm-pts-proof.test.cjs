@@ -15,12 +15,14 @@ function block(track,relative,byte){
  const payload=Buffer.from([0x80|track,(relative>>8)&255,relative&255,0x80,byte]);
  return el('a3',payload);
 }
-function realShapedWebM({frames=[0,80],includeAudio=true}={}){
+function realShapedWebM({frames=[0,80],includeAudio=true,timecodeScale=null}={}){
  const tracks=[el('ae',[el('d7',uint(1)),el('83',uint(1))])];
  if(includeAudio)tracks.push(el('ae',[el('d7',uint(2)),el('83',uint(2))]));
  const cluster=[el('e7',uint(1000)),...frames.map((ms,i)=>block(1,ms,0x12+i))];
  if(includeAudio)cluster.push(block(2,50,0x55));
- return el('18538067',[el('1654ae6b',tracks),el('ec',Buffer.alloc(1300,0)),el('1f43b675',cluster)]);
+ return el('18538067',[
+  ...(timecodeScale?[el('1549a966',[el('2ad7b1',timecodeScale)])]:[]),
+  el('1654ae6b',tracks),el('ec',Buffer.alloc(1300,0)),el('1f43b675',cluster)]);
 }
 function capture(bytes,{requested=3,consent=true}={}){
  return {source:'real-webgl-receipt-readback-serial-original-audio',status:'RECORDED',
@@ -75,4 +77,12 @@ test('corrupt cluster, missing valid video receipts, duplicate timing fail close
  const duplicate=capture(realShapedWebM({frames:[0,0]}));
  assert.equal(classifyEncodedFrameYield(duplicate,inspectRealWebMVideoPTS(duplicate)),
   'ENCODED_FRAME_TIMING_UNVERIFIED');
+});
+
+test('D04 honors declared Matroska TimestampScale rather than inventing millisecond defaults',()=>{
+ const bytes=realShapedWebM({timecodeScale:Buffer.from([0x1e,0x84,0x80])}); // 2,000,000 ns/tick
+ const proof=inspectRealWebMVideoPTS(capture(bytes));
+ assert.equal(proof.status,'PARSED');
+ assert.deepEqual(proof.ptsMs,[2000,2160]);
+ assert.equal(proof.sampleSynchronized,false);
 });
