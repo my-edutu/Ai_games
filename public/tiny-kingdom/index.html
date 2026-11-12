@@ -11777,8 +11777,11 @@ function marketSupplyView(){
  return {
   resources:{food:state.food,wood:state.wood,gold:state.gold},
   inTransit,escrowed,creditedInTransit,
-  ...marketStallStockPlan(state.food,state.wood,state.gold,
-   creditedInTransit.food,creditedInTransit.wood)
+  // Real newly delivered grain is already in state.food. Its conserved
+  // receipt portion belongs to the separately visible physical dock sacks,
+  // not the broad generic stall sacks as a second stock representation.
+  ...marketStallStockPlan(Math.max(0,state.food-receiptReservedFood()),
+   state.wood,state.gold,creditedInTransit.food,creditedInTransit.wood)
  };
 }
 
@@ -11961,7 +11964,73 @@ function marketStallStockAudit(){
   lastRenderedLogs:marketStallStockRenderStats.logs,
   lastRenderedCoffers:marketStallStockRenderStats.coffers,
   lastRenderedTriangles:marketStallStockRenderStats.triangles,
+  physicallyDisplayedReceiptFood:getMarketReceiptDisplayAudit().displayedFood,
+  unshownVerifiedReceiptFood:getMarketReceiptDisplayAudit().overflowFood,
+  conservedOriginalDock:true,
   staticInventedFood:0,staticInventedUnsimulatedGoods:0};
+}
+// W267 — actual conserved receipt-to-household provisioning lives on the
+// ORIGINAL stone-and-oak receiving shelves. The generic market food stock is
+// separate: no visually duplicated inventory or invented grain shipment.
+// One small physical bag means up to .8 real units from credited receipt lots.
+// Six bags fit the two existing 1.31m bays; remaining stock is audited, not
+// falsely drawn, and no ledger/save/citizen/pathfinding field is modified.
+const MARKET_RECEIPT_DISPLAY_UNIT=.8,MARKET_RECEIPT_DISPLAY_MAX=6;
+let marketReceiptDisplayStats={physicalBags:0,displayedFood:0,overflowFood:0,
+ triangles:0,source:'true-receipt-food-on-original-shelves'};
+function planMarketReceiptDisplay(lots,availableFood){
+ const receiptLots=Array.isArray(lots)?lots:[];
+ const reservedFood=Math.round(receiptLots.reduce((sum,lot)=>
+  sum+(lot&&Number.isFinite(lot.remaining)?Math.max(0,lot.remaining):0),0)*1000)/1000;
+ const food=Number.isFinite(availableFood)?Math.max(0,availableFood):0;
+ const ledgerExceedsFood=reservedFood>food+.0001;
+ const backedFood=Math.round(Math.min(reservedFood,food)*1000)/1000;
+ let remaining=backedFood;
+ const portions=[];
+ for(let i=0;i<MARKET_RECEIPT_DISPLAY_MAX&&remaining>.0005;i++){
+  const amount=Math.round(Math.min(MARKET_RECEIPT_DISPLAY_UNIT,remaining)*1000)/1000;
+  portions.push({amount,bay:i<3?0:1,slot:i%3,
+   fill:amount/MARKET_RECEIPT_DISPLAY_UNIT});
+  remaining=Math.round((remaining-amount)*1000)/1000;
+ }
+ const displayedFood=Math.round(portions.reduce((sum,p)=>sum+p.amount,0)*1000)/1000;
+ const overflowFood=Math.round((reservedFood-displayedFood)*1000)/1000;
+ return {source:'credited-food-less-real-household-purchases',
+  reservedFood,backedFood,displayedFood,overflowFood,portions,
+  exceedsDisplayCapacity:backedFood-displayedFood>.0001,
+  ledgerExceedsFood,physicalBayCount:2,maxPhysicalBags:MARKET_RECEIPT_DISPLAY_MAX,
+  noAdditionalFoodCreated:true,authorityUnchanged:true};
+}
+function renderMarketReceiptInventory(){
+ const plan=planMarketReceiptDisplay(state.receiptGrainLots||[],state.food);
+ const first=data.length;
+ // The real unload is at z=10.2. Every earned bag rests BEHIND the
+ // already-authored work hands at z=11.03, on two physical original shelves
+ // of 1.31m width. A true .8-unit purchase removes one entire small sack.
+ // No third fake kiosk, floating label, collision or AI path change.
+ for(let i=0;i<plan.portions.length;i++){
+  const portion=plan.portions[i],center=portion.bay===0?-1.0:.85;
+  const x=center+(portion.slot-1)*.36,z=11.03;
+  const shelfHeight=terrain(center,10.2)+.235;
+  const height=.115+.098*portion.fill;
+  const radius=.130+.046*Math.sqrt(portion.fill);
+  const y=shelfHeight+height;
+  emitLivedCanvasSack(x,y,z,radius,height,.165,
+   (portion.bay*3+portion.slot)%4);
+ }
+ marketReceiptDisplayStats={source:plan.source,
+  physicalBags:plan.portions.length,
+  displayedFood:plan.displayedFood,overflowFood:plan.overflowFood,
+  reservedFood:plan.reservedFood,ledgerExceedsFood:plan.ledgerExceedsFood,
+  triangles:(data.length-first)/30,authorityChanged:false,
+  shelfPoints:[[-1,10.2],[.85,10.2]],additionalGpuBuffers:0};
+ return marketReceiptDisplayStats;
+}
+function getMarketReceiptDisplayAudit(){
+ const plan=planMarketReceiptDisplay(state.receiptGrainLots||[],state.food);
+ return {...plan,lastRendered:{...marketReceiptDisplayStats},
+  openSkyRealShelves:true,unloadingContactPreserved:true,
+  displayIsSubsetOfTrueOwnedFood:true,noFictitiousInventory:true};
 }
 function renderMarketStock(){
  const first=data.length,stock=marketSupplyView(),
@@ -11999,6 +12068,9 @@ function renderMarketStock(){
    box(x,y+.20,z+.18,.065,.16,.07,rgb(0xc3a36a));
   }
  });
+ // True credited farmer deliveries must persist visibly while their exact
+ // remainder is available for a real citizen to purchase at this court.
+ renderMarketReceiptInventory();
  marketStallStockRenderStats={sacks:stock.sacks,logs:stock.logs,
   coffers:stock.lockedCoffers,triangles:(data.length-first)/30};
  marketStockTriangles=marketStallStockRenderStats.triangles;
@@ -13685,7 +13757,12 @@ function disposeEconomyResidentMesh(){
 }
 function economyResidencySignature(){
  const stock=marketSupplyView(),granary=granarySupplyAudit().stockPlan;
- return [stock.sacks,stock.logs,stock.lockedCoffers,granary.sacks].join(':');
+ const receipt=planMarketReceiptDisplay(state.receiptGrainLots||[],state.food);
+ // Preserve GPU and software scene residency when the true visible 0.8-unit
+ // parcels do not change. The signed remainder drives invalidation on sale.
+ return [stock.sacks,stock.logs,stock.lockedCoffers,granary.sacks,
+  receipt.portions.map(p=>p.amount.toFixed(3)).join(','),
+  receipt.ledgerExceedsFood?1:0].join(':');
 }
 function prepareEconomyResidentMesh(){
  economyResidentActive=false;
@@ -15720,7 +15797,9 @@ function renderDeliveryReceipts(){
      limbSegment([x-.29,y+.11+i*.085,z+i*.13],
       [x+.29,y+.11+i*.085,z+i*.13],.065,
       rgb(i%2?0x806044:0x9f7953),5);
-   }else{
+   }else if(!(state.receiptGrainLots||[]).some(lot=>lot.id===receipt.id)){
+    // Before the credited lot exists, these are the real handoff parcels.
+    // Once issued to the conserved market dock, do not show a second copy.
     for(let i=0;i<units;i++)
      emitLivedCanvasSack(x+(i-(units-1)/2)*.31,
       y+.18,z+.16,.15,.17,.16,i);
@@ -25372,7 +25451,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
