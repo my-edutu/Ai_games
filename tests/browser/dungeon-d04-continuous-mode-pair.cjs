@@ -12,6 +12,10 @@ const key=s=>s.run+':'+s.floor+':'+s.tick+':'+s.checksum;
 const sceneKey=s=>s.run+':'+s.floor;
 const sameVector=(a,b)=>['x','y','z'].every(k=>Math.abs(a[k]-b[k])<=.35);
 const round=n=>Math.round(n*1000)/1000;
+const POOL_LIMITS=Object.freeze({trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8});
+const validPoolWriteCount=p=>p&&typeof p==='object'&&
+ Object.keys(p).length===Object.keys(POOL_LIMITS).length&&
+ Object.entries(POOL_LIMITS).every(([name])=>safe(p[name]));
 function stats(values){
  if(!values.length)return null;
  const xs=[...values].sort((a,b)=>a-b);
@@ -52,7 +56,10 @@ function validSample(s,mode,arm){
   safe(s.vfxDrawCalls)&&safe(s.vfxReservedInstances)&&
   safe(s.activeVfxInstances)&&safe(s.activeVfxDrawCalls)&&
   s.d04PreviewEnabled===(mode==='d04')&&s.consentedSoundstage===true&&
-  s.previewAudioOptedIn===(mode==='d04')&&Array.isArray(s.recentDeliveryReceipts);
+  s.previewAudioOptedIn===(mode==='d04')&&Array.isArray(s.recentDeliveryReceipts)&&
+  (mode!=='d04'||safe(s.vfxAdvanceFrames)&&
+   safe(s.vfxMatrixWrites)&&safe(s.vfxDirtyPools)&&
+   safe(s.vfxPotentialBufferBytes)&&validPoolWriteCount(s.vfxWritesByPool));
 }
 function scan(arm,mode,manifest){
  const known=new Map(manifest.map(m=>[key(m.scene),m]));
@@ -100,11 +107,22 @@ function summarizeFramePressure(scanResult,manifest){
   if(previous===null||s.stageIndex>previous)previous=s.stageIndex;
  }
  const worst=sampled.reduce((a,s)=>!a||s.directRenderMs>a.directRenderMs?s:a,null);
+ const d04Frames=sampled.filter(s=>s.feedbackMode==='d04');
+ const vfxInstancePressure=d04Frames.length?{
+  sampledFrames:d04Frames.length,
+  maxAdvanceMatrixWrites:Math.max(...d04Frames.map(s=>s.vfxMatrixWrites)),
+  maxDirtyPools:Math.max(...d04Frames.map(s=>s.vfxDirtyPools)),
+  maxPotentialBufferBytes:Math.max(...d04Frames.map(s=>s.vfxPotentialBufferBytes)),
+  renderCallsOver400MsWithNoMatrixWrites:d04Frames.filter(s=>
+   s.directRenderMs>400&&s.vfxMatrixWrites===0).length,
+  interpretation:'CPU instance-matrix setMatrixAt counts and possible full-buffer upload envelope. Not actual GPU bufferSubData bytes, GPU execution time or an impact-audio witness.'
+ }:null;
  return {
   observedSubmittedFrames:sampled.length,
   skippedAuthorityStagesBetweenSamples:skipped,
   diagnosticUnobservedHpLossStageIndices:missingDamage,
   renderCallsOver400Ms:sampled.filter(s=>s.directRenderMs>400).length,
+  vfxInstancePressure,
   warmupRenderMs:stats(sampled.slice(0,2).map(s=>s.directRenderMs)),
   postWarmupRenderMs:stats(sampled.slice(2).map(s=>s.directRenderMs)),
   noActiveVfxRenderMs:stats(sampled.filter(s=>s.activeVfxInstances===0).map(s=>s.directRenderMs)),
@@ -113,7 +131,10 @@ function summarizeFramePressure(scanResult,manifest){
    stageIndex:worst.stageIndex,frameId:worst.frameId,
    directRenderMs:round(worst.directRenderMs),
    activeVfxInstances:worst.activeVfxInstances,
-   activeVfxDrawCalls:worst.activeVfxDrawCalls
+   activeVfxDrawCalls:worst.activeVfxDrawCalls,
+   vfxMatrixWrites:worst.vfxMatrixWrites??null,
+   vfxDirtyPools:worst.vfxDirtyPools??null,
+   vfxPotentialBufferBytes:worst.vfxPotentialBufferBytes??null
   }:null,
   causalAttribution:null,
   audibleImpactVerified:false,
@@ -165,9 +186,22 @@ function classifyD04ContinuousModePair({manifest,legacy,preview}={}){
    [s.vfxDrawCalls,7,'VFX_DRAW_CALL_CAP'],
    [s.vfxReservedInstances,104,'VFX_INSTANCE_CAP'],
    [s.activeVfxDrawCalls,7,'ACTIVE_VFX_DRAW_CALL_CAP'],
-   [s.activeVfxInstances,s.vfxReservedInstances,'ACTIVE_VFX_POOL_INCONSISTENT']]){
+   [s.activeVfxInstances,s.vfxReservedInstances,'ACTIVE_VFX_POOL_INCONSISTENT'],
+   [s.vfxMatrixWrites,s.vfxReservedInstances,'VFX_FRAME_MATRIX_WRITE_CAP'],
+   [s.vfxDirtyPools,s.vfxDrawCalls,'VFX_DIRTY_POOL_CAP'],
+   [s.vfxPotentialBufferBytes,s.vfxReservedInstances*64,'VFX_DIRTY_BUFFER_BYTES_CAP']]){
    if(value>limit)r.budgetViolations.push({stageIndex,kind,count:value,limit});
   }
+  // A static, bounded seven-pool provenance check; never infer a render-time
+  // cause or a physical hit from JavaScript matrix submissions.
+  for(const [name,limit] of Object.entries(POOL_LIMITS))
+   if(s.vfxWritesByPool[name]>limit)
+    r.budgetViolations.push({stageIndex,kind:'VFX_POOL_WRITES_CAP',
+     pool:name,count:s.vfxWritesByPool[name],limit});
+  const observedSum=Object.values(s.vfxWritesByPool).reduce((a,b)=>a+b,0);
+  if(observedSum!==s.vfxMatrixWrites)
+   r.budgetViolations.push({stageIndex,kind:'VFX_MATRIX_WRITE_ACCOUNTING_MISMATCH',
+    count:observedSum,limit:s.vfxMatrixWrites});
  }
  const matched=[],max=Math.min(l.latestIndex,p.latestIndex);
  for(const m of manifest){
