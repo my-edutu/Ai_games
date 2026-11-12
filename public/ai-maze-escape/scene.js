@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
+import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianLanternReach, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
@@ -711,6 +711,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Defensive fallback if a future character LOD removes its lamp rig.
       lanternLight.position.set(pose.x, ground + 1.1, pose.z);
     }
+    // Native 390px dual-actor evidence (public cells 99–98–97) showed the
+    // physically connected guardian court but the hand-held warm lamp did
+    // not reach Thornback: the original PointLight stopped at 4m. Extend
+    // ONLY this existing physical lamp along TWO currently witnessed open,
+    // reciprocal, unlocked public links. A hidden/sealed/one-way or ended
+    // encounter falls straight back to the original 4m radius. The strict
+    // one-link-only projected lantern cone is NOT changed or faked.
+    // One retained light; no geometry/material/renderer allocation per frame.
+    lanternLight.distance = !result && explorerLantern
+      && closestThreat?.strength>.35
+      ? publicGuardianLanternReach(s,closestThreat.cell,CELL_SIZE,4) : 4;
     // The self-contained lantern glow signals a truly PUBLIC nearby threat.
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
@@ -1527,6 +1538,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           && (pressureSurveySightline.links===1||lanternSurveyTurn.visible),
         witnessedPressureSurveyLinks: pressureSurveySightline?.links??0,
         witnessedLanternWarningVisible: lanternWarning.visible,
+        publicLanternRadiusWorld: lanternLight.distance,
         // Read the real Three.js light and articulated cage after the actual
         // WebGL render. Diagnostics cannot substitute for native image review.
         lanternPhysicalLightDistanceWorld: explorerLantern

@@ -74,6 +74,19 @@ export function publicGuardianOpenSightline(snapshot, guardianCell) {
   return distance;
 }
 
+// A documented, TWO-LINK open Pip–Thornback court should be lit by Pip's
+// ACTUAL hand-held point lantern, not only by a HUD danger chip. One-link
+// encounters retain their original nearby light and one-link-only visible cone.
+// This adjusts no route, knowledge or collision: two confirmed reciprocal
+// cardinal PUBLIC edges, both unlocked, are mandatory. There is deliberately
+// NO projected beam across two cells (a separate strict contract).
+export function publicGuardianLanternReach(snapshot, guardianCell, cellSize, baseReach=4) {
+  const safeBase=Number.isFinite(baseReach)&&baseReach>0?baseReach:4;
+  if(!(Number.isFinite(cellSize)&&cellSize>0))return safeBase;
+  return publicGuardianOpenSightline(snapshot,guardianCell)===2
+    ?Math.max(safeBase,cellSize*2.9):safeBase;
+}
+
 // Three linked, authored PERFORMANCE beats, not new authoritative AI behavior.
 // 0-.24: notice; .24-.60: physically brace; .60-1: unfold shell.
 // Input is elapsed VISUAL time since the FIRST nearby PUBLIC witness; hidden
