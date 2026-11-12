@@ -7,7 +7,7 @@ assert(begin>0&&end>begin,'actual game has an inline executable script');
 new Function(html.slice(begin+8,end));
 for(const name of ['grainwardGabledBay','grainwardInhabitedLot','grainwardCivicHallRoof','grainwardGranaryRoof','grainwardMarketRoofEdges','getGrainwardDistrictAudit'])
  assert.ok(new RegExp('function '+name+'\\(').test(html),'missing real Grainward geometry: '+name);
-assert.ok(/renderLivedBurgageSideMateriality\(x,z,k,index,isCompact\);\s*grainwardInhabitedLot\(x,z,k,index,isCompact\);/.test(html),
+assert.ok(/renderLivedBurgageSideMateriality\(x,z,k,index,isCompact\);\s*grainwardOriginalTallStorey\(x,z,k,index,isCompact\);\s*grainwardInhabitedLot\(x,z,k,index,isCompact\);/.test(html),
  'new structures belong to original cached genuine homes');
 assert.ok(/grainwardGranaryRoof\(x,z,eave,peak,w\*\.55\)/.test(html),
  'granary roof anchored to original eave and peak');

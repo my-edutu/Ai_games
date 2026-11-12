@@ -75,6 +75,8 @@ const lot={
  houseCountersSnapshot:()=>({}),houseCountersDelta:()=>({}),
  applyHouseCountersDelta:()=>{},
  medievalStreetMorphology:()=>{},renderLivedBurgageSideMateriality:()=>{},
+ // W188 models cache preservation, not W258 art: separately source-executed.
+ grainwardOriginalTallStorey:()=>{},
  grainwardInhabitedLot:()=>{},inhabitedStreetFootway:()=>{},
  grainwardMasonryFacing:()=>{},cottageDetails:()=>{}
 };
