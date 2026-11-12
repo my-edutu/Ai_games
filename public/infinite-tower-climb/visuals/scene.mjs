@@ -1,4 +1,5 @@
 import * as THREE from '/tower/vendor/three.module.js';
+import { createTowerColdFloorResolution } from './cold-floor-resolution.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
@@ -2025,6 +2026,10 @@ export function createTowerScene(canvas, settings = {}) {
   renderer.shadowMap.type = THREE.PCFShadowMap;
   canvas.dataset.renderer = 'three-webgl';
   const resolutionPolicy = createTowerResolutionPolicy();
+  // A source-qualified, first-frame-only lower WebGL framebuffer budget.
+  // The HTML/HUD remains full CSS resolution, and ordinary source floors do not change.
+  const coldFloorPolicy = createTowerColdFloorResolution();
+  let coldFloorScale = 1;
   let renderPixelRatio = 1, basePixelRatio = 1, resolutionDirty = false;
 
   const hemi = new THREE.HemisphereLight(0xe8e0d3, 0x442a32, .72);
@@ -2572,7 +2577,7 @@ export function createTowerScene(canvas, settings = {}) {
     basePixelRatio = options.quality === 'low' || compact ? 1 : Math.min(devicePixelRatio || 1, 1.5);
     // High-density HUD is still CSS/DOM; only the 3D framebuffer adapts when
     // repeated real submissions stall. Keep an explicit 78% phone clarity floor.
-    renderPixelRatio = Math.round(basePixelRatio * resolutionPolicy.scale * 1000) / 1000;
+    renderPixelRatio = Math.round(basePixelRatio * Math.min(resolutionPolicy.scale, coldFloorScale) * 1000) / 1000;
     renderer.setPixelRatio(renderPixelRatio);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
@@ -4693,6 +4698,16 @@ export function createTowerScene(canvas, settings = {}) {
       // boundary, instead of guessing that HTTP, camera or GPU is responsible.
       const submissionStart = performance.now();
       update(motionDt);
+      // The genuine Floor8->9 guardian exit is already verified by the live
+      // passage owner. A cold THREE framebuffer can now be bounded *before*
+      // the expensive first post-doorway render, not after an HTTP receipt.
+      // Change the low-tier canvas ONLY, never the authoritative snapshot.
+      const nextColdScale = coldFloorPolicy.observe(snapshot,passage.diagnostics(),
+        {stale:options.stale,camera:options.camera,reducedMotion:options.reducedMotion});
+      if (nextColdScale !== coldFloorScale) {
+        coldFloorScale = nextColdScale;
+        resize();
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -4717,6 +4732,9 @@ export function createTowerScene(canvas, settings = {}) {
       for (const entry of enemies.values()) {
         if (entry.impact.visible && entry.impactFramesRemaining > 0) entry.impactFramesRemaining--;
       }
+      // First-frame budget advances only on returned real Three.js work.
+      // A stalled, failed or unsubmitted scene cannot consume presentation.
+      if (coldFloorPolicy.submitted(snapshot)) resolutionDirty = true;
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
       world.noteFrameSubmitted?.(snapshot,options);
@@ -4752,6 +4770,7 @@ export function createTowerScene(canvas, settings = {}) {
       renderFaultRetryAt = 0;
       renderFaultState = 'live';
     } catch (error) {
+      coldFloorPolicy.reset();coldFloorScale = 1;resolutionDirty = true;
       renderErrors++;
       renderFaultCount++;
       if (renderErrors === 1) console.error('Tower renderer:', error);
@@ -4767,6 +4786,7 @@ export function createTowerScene(canvas, settings = {}) {
   }
   const lost = event => {
     event.preventDefault(); contextLost = true;
+    coldFloorPolicy.reset(); coldFloorScale = 1;
     resolutionPolicy.clearPacing();
     clearTowerRenderFault();
     options.onStatus?.('Graphics interrupted · ascent continues', 'recovering');
@@ -4774,6 +4794,7 @@ export function createTowerScene(canvas, settings = {}) {
   };
   const restored = () => {
     contextLost = false;
+    coldFloorPolicy.reset(); coldFloorScale = 1;
     clearTowerRenderFault();
     renderProgress.reset(performance.now());
     resolutionPolicy.reset(); resolutionDirty = false;
@@ -4804,6 +4825,7 @@ export function createTowerScene(canvas, settings = {}) {
       clearTowerRenderFault();
       renderProgress.reset(performance.now());
       resolutionPolicy.reset(); resolutionDirty = false;
+      coldFloorPolicy.reset(); coldFloorScale = 1;
       reflectionDirty = true;
       reflectionFirstFrame = true;
     }
