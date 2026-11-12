@@ -1165,7 +1165,7 @@ export function createMazeWorld(options = {}) {
           add(box, clay, x + sign*.89, .025, z,
             .075, .018, 1.79, c.cell);
         if (guardianCausewayAxis) {
-          // A joined, stage-wide dark-mineral and warm-clay duel causeway:
+          // A joined, stage-wide basalt Tideglass duel causeway:
           // the actual public Pip-to-Thornback 1-2 edge path now reads as
           // ONE authored place instead of isolated beige squares. Its full
           // long axis follows the real open neighbor edges, with a continuous
@@ -1175,7 +1175,7 @@ export function createMazeWorld(options = {}) {
           const alongX=guardianCausewayAxis==='x';
           add(box,deepStone,x,.022,z,alongX?2.39:1.24,.014,
             alongX?1.24:2.39,c.cell);
-          add(box,clay,x,.030,z,alongX?2.36:1.09,.010,
+          add(box,deepStone,x,.030,z,alongX?2.36:1.09,.010,
             alongX?1.09:2.36,c.cell);
           for(const side of [-1,1])
             add(box,seaGlass,x+(alongX?0:side*.57),.035,
@@ -1185,7 +1185,8 @@ export function createMazeWorld(options = {}) {
           // this ACTUAL disclosed, reciprocal and unsealed guardian causeway.
           // The connected floor leaves use the SAME original geometry and
           // shared materials as the stage; none are built in render frames.
-          // Their subtle hinge is physical, below Pip's footpath, not a wall
+          // Their continuous outward flanking hinges are physical, leave a clear
+          // central walking lane, and never become a wall
           // or a promised safe route. A published warning lights them only
           // while the real scene witnesses the corresponding Thornback beat.
           const signal=new THREE.Group();
@@ -1195,8 +1196,8 @@ export function createMazeWorld(options = {}) {
           const faces=[];
           for(const side of [-1,1]) {
             const plate=mesh(signal,box,seaGlass,
-              alongX?0:side*.31,0,alongX?side*.31:0,
-              alongX?1.42:.50,.025,alongX?.50:1.42);
+              alongX?0:side*.66,0,alongX?side*.66:0,
+              alongX?2.30:.40,.025,alongX?.40:2.30);
             plate.name='Published guardian warning floor leaf '+c.cell+' '+side;
             faces.push({object:plate,side});
           }
@@ -2973,6 +2974,10 @@ export function createMazeWorld(options = {}) {
     // A threat FIRST earns a warm warning, the whole court responds during
     // its grounded brace, and the mineral tones recover after shell release.
     // Reduced motion holds a single nonmoving legitimate-alert state.
+    // A real 320/390 full-frame critic rejected the earlier three disconnected
+    // narrow strips: these continuous, wider side leaves now counter-hinge
+    // OUTSIDE the central lane, while the dark Tideglass spine makes both
+    // characters and the witnessed warning read as one coherent encounter.
     const rise=reduced ? (witnessedLane&&guardianBeat>0?1:0)
       : Math.max(0,Math.min(1,(guardianBeat-.08)/.34));
     const recover=reduced?0:Math.max(0,Math.min(1,(guardianBeat-.74)/.26));
@@ -2989,8 +2994,8 @@ export function createMazeWorld(options = {}) {
       const action=onLane?signalStrength:0;
       for(const face of signal.faces){
         face.object.material=action>.28?amber:seaGlass;
-        face.object.position.y=.017*action;
-        face.object.rotation[signal.axis==='x'?'x':'z']=reduced?0:face.side*.12*action;
+        face.object.position.y=reduced?0:.045*action;
+        face.object.rotation[signal.axis==='x'?'x':'z']=reduced?0:face.side*.24*action;
       }
     }
     // True PUBLIC pressure-hazard contact is readable as a physical scene

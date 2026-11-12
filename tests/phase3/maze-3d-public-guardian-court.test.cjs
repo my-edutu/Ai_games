@@ -161,6 +161,18 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
   assert.equal(world.stats().guardianTideSignalTiles,3,'three joined real public causeway cells earn physical floor leaves');
   const real=[6,7,8].flatMap(cell=>[-1,1].map(side=>leaf(cell,side)));
   assert.ok(real.every(Boolean),'six actual attached original Three meshes, not an overlay or counted fiction');
+  // True 390px full-frame Pass299 still showed separated small tiles and no
+  // legible guardian-wide moving floor. The three public stage cells now join
+  // as one continuous dark spine with long paired side leaves, while leaving
+  // the real central walking space open. These are actual connected meshes,
+  // not altered acceptance bounds or a new collision/safe-route promise.
+  assert.ok(real.every(mesh=>Math.max(mesh.scale.x,mesh.scale.z)>=2.29),
+    'each physical warning leaf spans a whole genuine published tile');
+  assert.ok(real.every(mesh=>Math.min(mesh.scale.x,mesh.scale.z)>=.39),
+    'broad side surfaces must read at native mobile scale');
+  assert.ok(real.every(mesh=>Math.abs(mesh.position.z)>=.65 && Math.abs(mesh.position.x)<1e-8),
+    'two outer warning leaves flank the actual horizontal causeway without crossing Pip');
+
   const sourceMaterials=new Set(real.map(mesh=>mesh.material));
   assert.equal(sourceMaterials.size,1,'neutral floor has one pooled sea-glass material');
   assert.equal(world.stats().geometryCount,budget.geometryCount);
@@ -170,8 +182,8 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
   world.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
   for(let i=0;i<real.length;i++){
     assert.notEqual(real[i].material,before[i].m,'actual witnessed brace lights the broad physical threshold');
-    assert.ok(real[i].position.y>before[i].y+.01,'published floor physically responds, without changing path authority');
-    assert.ok(Math.abs(real[i].rotation.x)>.09,'connected leaves visibly counter-hinge across the court');
+    assert.ok(real[i].position.y>before[i].y+.035,'substantial real-world response, without changing path authority');
+    assert.ok(Math.abs(real[i].rotation.x)>.20,'wide connected leaves visibly counter-hinge away from the central walking lane');
   }
   const braceHeight=real[0].position.y;
   world.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
@@ -180,7 +192,7 @@ test('witnessed guardian visibly actuates only the true public Tideglass causewa
   assert.ok(real.every((mesh,i)=>mesh.material===before[i].m&&mesh.position.y===0&&mesh.rotation.x===0),
     'unpublished enemy ID instantly revokes all signal, including the physical hinges');
   world.animate(1,{guardianCell:8,guardianBeat:1,reducedMotion:true});
-  assert.ok(real.every(mesh=>mesh.rotation.x===0),'reduced motion holds a static witnessed state');
+  assert.ok(real.every(mesh=>mesh.rotation.x===0&&mesh.position.y===0),'reduced motion holds a static witnessed state');
   world.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
   assert.equal(world.stats().geometryCount,budget.geometryCount,'animated warning never creates new GPU shapes');
   assert.equal(world.stats().materialCount,budget.materialCount,'animated warning reuses the installed material pool');
