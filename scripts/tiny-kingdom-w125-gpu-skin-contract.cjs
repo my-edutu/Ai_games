@@ -43,10 +43,19 @@ const compact=extract('compactVillager');
 for(const marker of [
  'tagWorkSkinRange(j,from)','tagWorkSkinRange(j+1,from)',
  'tagWorkSkinRange(j+2,from)','tagWorkSkinRange(j+3,from)',
- 'tagWorkSkinRange(j+4,from)','tagWorkSkinRange(11,headStart)',
+ 'tagWorkSkinRange(j+4,from)',
  'tagWorkSkinRange(12,toolStart)'
 ])assert(compact.includes(marker),
  'all original limbs, boots, head and worktools retain joint labels: '+marker);
+const face=extract('renderCompactOriginalFace');
+assert(face.includes('tagWorkSkinRange(11,first)'),
+ 'real connected compact head retains GPU joint 11 at actual face emitter');
+const cloth=extract('renderRealVillageWorkwear');
+assert(cloth.includes('const shell=rings.map(verticesFor)')&&
+ cloth.includes('const gait=rig.traveling')&&
+ cloth.includes('const labor=rig.working')&&
+ cloth.includes('r.pleat')&&cloth.includes('layer===0'),
+ 'actual occupational 4-ring wool follows deterministic gait with no new geometry band');
 const math=new Function([
  extract('workSkinRigidMatrix'),extract('workSkinPoint'),
  extract('workSkinSegments'),extract('workSkinTags')

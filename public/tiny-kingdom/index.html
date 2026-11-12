@@ -9528,20 +9528,32 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
  const shade=(color,factor)=>color.map(v=>Math.max(0,Math.min(1,v*factor)));
  if(compact){
   const style=medievalCitizenIdentity(p,index);
+  // The original real citizen/occupation drives a belted medieval silhouette.
+  // Four retained cross-section rings / eight panels: ZERO extra triangles.
+  // Moving cloth uses only the existing deterministic gait and work beat.
+  const gait=rig.traveling?Math.sin(p.phase*2.7):0;
+  const labor=rig.working?Math.sin((rig.acting.beat||0)*Math.PI*2):0;
   const rings=[
-   {y:.39,rx:.303+(index%3)*.009+style.hem,rz:.240,d:sway},
-   {y:.61,rx:.226+style.waist,rz:.211,d:sway*.53},
-   {y:.98,rx:.273+style.shoulder,rz:.208,d:sway*.12},
-   {y:1.17,rx:.157,rz:.146,d:0}
+   {y:.365,rx:.305+(index%3)*.009+style.hem,rz:.263,d:sway+.021*gait,pleat:.023},
+   {y:.600,rx:.217+style.waist,rz:.190,d:sway*.58,pleat:.011},
+   {y:.975,rx:.269+style.shoulder,rz:.224,d:sway*.17,pleat:.008},
+   {y:1.170,rx:.154,rz:.145,d:0,pleat:0}
   ];
-  // W66: resolve authentic compact wool rings once for the entire shift.
-  // Original panel normals, hem and visible 3D citizen count remain intact.
+  // A front drape, narrower belt and mobile lower hem replace the cylindrical
+  // prototype tunic. The closed shell remains the original GPU torso joint.
   const circle=renderRealVillageWorkwear._circle8||(
    renderRealVillageWorkwear._circle8=Array.from({length:9},(_,j)=>{
     const a=j*Math.PI/4;return [Math.sin(a),Math.cos(a)];
    }));
-  const verticesFor=r=>circle.map(([sa,ca])=>[
-   x+sa*r.rx*size,y+r.y*size,z+(ca*r.rz+r.d)*size]);
+  const verticesFor=(r,layer)=>circle.map(([sa,ca],panel)=>{
+   const gathering=Math.sin(panel*2.36+index*.77)*r.pleat;
+   const loose=(1-layer/3)*(.024*gait+.014*labor);
+   const front=Math.max(0,ca),back=Math.max(0,-ca);
+   const lateral=sa*(r.rx+gathering)+loose*(ca>.15?1:-1);
+   return [x+lateral*size,
+    y+(r.y+(layer===0?.011*Math.sin(panel*1.9+index):0))*size,
+    z+(ca*(r.rz+.013*front-.009*back)+r.d+loose*.56)*size];
+  });
   const shell=rings.map(verticesFor);
   materialScope(MATERIAL.GENERAL,()=>{
    for(let band=0;band<3;band++)
@@ -10270,18 +10282,40 @@ function fenceLine(x,z,len,alongZ=false,gate=null){
   gate[0]<=x+(len-1)*1.5&&walkable(gate[0],gate[1]);
  const first=genuineGate?
   Math.max(1,Math.min(len-2,Math.floor((gate[0]-x)/1.5))):-1;
+ // Historically plausible low, open-woven field boundary: three narrow
+ // interlaced oak courses, not two opaque box rails across a worker's hands.
+ // Keep every physical fence segment and the existing exact 3m courier gate.
+ // Each 1.5m panel is 24 triangles, identical to the previous two box rails.
  for(let i=0;i<=len;i++){
   if(first>=0&&i===first+1)continue;
   const xx=x+(alongZ?0:i*1.5),zz=z+(alongZ?i*1.5:0),y=terrain(xx,zz);
-  box(xx,y,zz,.11,.74,.11,pole);
+  materialScope(MATERIAL.WOOD,()=>
+   box(xx,y,zz,.12,.66,.12,pole));
  }
- for(let i=0;i<len;i++){
-  if(first>=0&&i>=first&&i<first+2)continue;
-  const xx=x+(alongZ?0:(i+.5)*1.5),
-   zz=z+(alongZ?(i+.5)*1.5:0),y=terrain(xx,zz);
-  box(xx,y+.31,zz,alongZ?.09:1.55,.11,alongZ?1.55:.09,panel);
-  box(xx,y+.55,zz,alongZ?.09:1.55,.09,alongZ?1.55:.09,panel);
- }
+ materialScope(MATERIAL.WOOD,()=>{
+  for(let i=0;i<len;i++){
+   if(first>=0&&i>=first&&i<first+2)continue;
+   for(let course=0;course<3;course++){
+    const tone=course===1?rgb(0x927351):panel;
+    for(let segment=0;segment<2;segment++){
+     const t0=segment*.5,t1=(segment+1)*.5;
+     const sample=(t,up,face)=>{
+      const xx=x+(alongZ?0:(i+t)*1.5),
+       zz=z+(alongZ?(i+t)*1.5:0);
+      const wave=.030*Math.sin((t*2+course*.74+i*.16)*Math.PI);
+      const side=wave+face*.014;
+      const rise=.220+course*.113+(up?.027:-.027);
+      return [xx+(alongZ?side:0),terrain(xx,zz)+rise,
+       zz+(alongZ?0:side)];
+     };
+     quad(sample(t0,false,-1),sample(t1,false,-1),
+      sample(t1,true,-1),sample(t0,true,-1),tone);
+     quad(sample(t0,true,1),sample(t1,true,1),
+      sample(t1,false,1),sample(t0,false,1),tone);
+    }
+   }
+  }
+ });
  if(first>=0){
   const begin=x+first*1.5,span=3,
    stones=[rgb(0xa59b87),rgb(0x8d8a78),rgb(0xb2a68f)];
