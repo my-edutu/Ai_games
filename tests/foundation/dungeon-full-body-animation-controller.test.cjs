@@ -3137,3 +3137,44 @@ test('rejected original loaded pelvis trial restores all six licensed source leg
  assert.match(adapter,/actor\.visualPivot\.position\.y=candidate\.baseY;[\s\S]{0,220}restoreOriginalSourceLegsAfterRejectedPelvis/,
   'the rejected body root must be restored BEFORE the exact imported leg-pose rollback');
 });
+
+
+test('actual source-weighted walking shoe needs finite near-range ankle trials rather than only unsafe 120mrad extremes',async()=>{
+ const {planOriginalSourceStanceAnkleRelief:plan}=await load();
+ // GENUINE original source GLB frame: Actions #43145381250, desktop
+ // Walking_A right foot, skinned heel=-26.072mm, toe=-46.394mm, stone=-20mm.
+ // Probe coordinates below are DELIBERATELY SYNTHETIC safety cases.
+ // They must be replaced by real skinned reads before live acceptance.
+ const real={mode:'move',sourceClipName:'Walking_A',
+  sourceWeight:.9,ownerLocomotion:true,rootTravel:.042,frameAge:.04,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,
+  heelY:-.026071961,toeY:-.046394044,previousCorrectionRad:0};
+ const safeFine={signed:.045,heel:-.0271,toe:-.0409};
+ const unsafeLarge={signed:.12,heel:-.037,toe:-.031};
+ const unsafeOpposite={signed:-.045,heel:-.023,toe:-.054};
+ const unsafeOther={signed:-.12,heel:-.013,toe:-.069};
+ const result=plan({...real,trials:[
+  unsafeOther,unsafeOpposite,safeFine,unsafeLarge
+ ]});
+ assert.ok(result&&result.signed===.045&&
+  result.delta>0&&result.delta<=.045,
+  'accept a physically safer finer original-ankle probe even if both coarse trials bury an endpoint');
+ assert.equal(plan({...real,trials:[unsafeOther,unsafeLarge]}),null,
+  'coarse probes alone cannot manufacture a heel-and-toe correction');
+ assert.equal(plan({...real,previousCorrectionRad:-.02,trials:[safeFine]}),null,
+  'an incompatible prior source-foot rotation cannot force a sudden direction reversal');
+ assert.equal(plan({...real,trials:[...Array(5)].map((_,i)=>({
+  signed:.045,heel:-.027,toe:-.040+i*.0001
+ }))}),null,'unbounded skinned-vertex trial arrays fail closed');
+ assert.equal(plan({...real,trials:[{signed:.025,heel:-.024,toe:-.039}]}),null,
+  'a rotation not measured by the licensed source-rig trial envelope is forbidden');
+ for(const invalid of [
+  {sourceClipName:'Idle'},{mode:'hurt'},{alive:false},
+  {reducedMotion:true},{teleport:true},{rootTravel:0},
+  {ownerLocomotion:false}
+ ])assert.equal(plan({...real,trials:[safeFine],...invalid}),null);
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/for\(const signed of \[-\.12,-\.045,\.045,\.12\]\)/,
+  'native browser must actually measure fine and coarse original ankle candidates, not fake the trials in pure tests');
+});
