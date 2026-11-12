@@ -14,8 +14,17 @@ test('authentic pressure jaw pair gets an actual distinct near-frontal 3D stage,
   assert.ok(front[1]>16 && front[2]>20,'real 3D perspective, not a UI pan or flat overhead view');
   assert.ok(xSeparation(front)>xSeparation(follow)*1.25,
     'the opposed physical x-axis jaw faces must separate at least 25% more than the old oblique camera');
-  assert.match(scene,/pressurePortraitStage \? pressurePortraitCameraOffset/,
-    'rendering must actually select the new stage instead of leaving a dead constant');
+  // Pass290: the original near-frontal REAL 3D camera remains the authentic
+  // published warning stage, but the observed close-contact frame now selects
+  // its own eased, stage-driven quarter angle for a better Pip/jaw silhouette.
+  // Require BOTH real camera stages to be live and bound to one public event;
+  // this is stronger than matching a retired constant-only selection.
+  assert.match(scene,/pressurePortraitStage \? pressureStageCameraOffset/,
+    'rendering must select the actual live multi-beat pressure stage');
+  assert.match(scene,/pressureStageCameraOffset\.copy\(pressurePortraitCameraOffset\)\s*\.lerp\(pressureContactCameraOffset, pressureContactWeight\)/,
+    'published warning still starts at the original distinct near-frontal 3D camera');
+  assert.match(scene,/publicPressureContactOrbitWeight\(\s*pressureProgress, pressurePortraitStage/,
+    'only authentic published pressure progress may advance the second camera angle');
   assert.match(scene,/cameraOffset\.lerp\(openingStageView/,
     'the shared original smooth camera transition must remain in use');
   assert.match(scene,/pressureReframeEnvelope\.union\(/,

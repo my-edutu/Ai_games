@@ -1,3 +1,7 @@
+### Pass290 — stale single-angle source test replaced with stronger public two-stage guard (2026-11-12 UTC)
+
+- [Pass289 full CI 43155031869](https://github.com/my-edutu/Ai_games/actions/runs/43155031869) failed **1 of 784** Node tests: an old regex demanded direct fixed frontal camera selection, while production deliberately routes through retained, genuine public-pressure-clock interpolated camera. Keep original frontal 25% separation criterion and all strict physical/privacy/no-crop/geometry limits; strengthen source test to require the original physically authored camera feeds the real public contact interpolator and is used by the renderer. [Dated CI review](./maze-3d/pass-290-source-bound-pressure-two-stage-guard-2026-11-12.md). New current-head CI, verified full Chromium PNGs and independent critic PENDING, Nintendo bar UNMET, PR open draft.
+
 ### Pass289 — public pressure clock earns an actual contact camera shot (2026-11-12 UTC)
 
 - Exact previous [native WebGL 43147440430](https://github.com/my-edutu/Ai_games/actions/runs/43147440430) SUCCESS with 37/37 separately SHA-verified original PNGs. Genuine 390x844 public closing shot b902f6c3 still masks Pip's legs with the opaque front jaw, even with strict original ±.95 framing; withdrawal makes the distinction obvious. [Whole repo CI 43147440446](https://github.com/my-edutu/Ai_games/actions/runs/43147440446): 783/783 tests passed, then unrelated missing Tiny stream script/optional artifact folders caused red status.
