@@ -4226,6 +4226,54 @@ test('real 390px source Walking_A loaded shoe gets bounded lateral-slide relief,
 });
 
 
+test('real mobile 87-to-88 source-shoe edge permits bounded near-stone skid relief without pretending to plant',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ // Genuine 12-Nov exact 507b2384 source-GLB 390px consecutive WebGL
+ // displayed frames 87 -> 88, source-contact-patch artifact #13980180305.
+ // Right weighted heel/toe remain just 30-31mm above stone (-.020m),
+ // while left heel is visibly airborne. The old <=29mm stance ceiling
+ // rejected this 75-77mm right-shoe skid even though 53mm root travel was
+ // independently recorded. Not a claim of genuine contact or foot-lock IK.
+ const previous={
+  left:{heel:[-3.77696997284812,.21774047687102596,-6.956310767028135],
+   toe:[-3.9455424221000004,-.005926448895619574,-6.9348156815946425]},
+  right:{heel:[-3.681952925413135,.011020193262167806,-7.1148199717448595],
+   toe:[-3.9513126825531684,.005419964807038423,-7.137881480700061]}
+ };
+ const current={
+  left:{heel:[-3.7644770134980448,.20225492367019898,-6.967943101932226],
+   toe:[-3.9520706015118874,.00869395468389629,-6.945516938516327]},
+  right:{heel:[-3.6076568055217795,.0027496361572047386,-7.126670814236185],
+   toe:[-3.8749458346541568,.010175487883357724,-7.149489176799761]}
+ };
+ const observed={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,rootTravel:.053,
+  frameInterval:.05,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,floorTopY:-.02,previous,current};
+ const supported=plan(observed);
+ assert.equal(supported?.side,'right',
+  'accept only the uniquely near-stone right source shoe, not a fictitious plant');
+ assert.ok(supported?.reductionMeters>=.004&&supported.reductionMeters<=.018000001);
+ assert.equal(supported?.contactLocked,false);
+ assert.ok(supported.reductionMeters<=.55*observed.rootTravel);
+ const borrowed=plan({...observed,rootTravel:0,
+  recentRootTravel:.02395046528205215,recentTravelAge:.0333});
+ assert.equal(borrowed?.side,'right',
+  'the measured fixed-tick lull also has an independently witnessed 33ms-old real root step');
+ assert.ok(borrowed.reductionMeters<=.55*.02395046528205215);
+ for(const bad of [
+  {current:{...current,right:{...current.right,toe:[
+   current.right.toe[0],.016,current.right.toe[2]]}}},
+  {previous:{...previous,right:{...previous.right,heel:[
+   previous.right.heel[0],.020,previous.right.heel[2]]}}},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'},
+  {sourceWeight:.40},{ownerLocomotion:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{visible:false},
+  {recentRootTravel:0,rootTravel:0}
+ ])assert.equal(plan({...observed,...bad}),null,
+  'reject floating, stale or unauthorized source stance: '+Object.keys(bad).join(','));
+});
+
 test('genuine source Walking_A skid can use only a fresh witnessed root step across displayed same-tick frames',async()=>{
  const {planOriginalSourceStanceSlideRelief:plan}=await load();
  // Actual licensed player_swordsman 390px WebGL displayed frames 85 -> 86,
