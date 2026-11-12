@@ -968,7 +968,12 @@ export function createTowerGuardianPassage(THREE) {
     if (!thresholdFocus) return false;
     const carryOpen = stage === 'earned-open' && group.visible &&
       runToken === previous.runToken && floor === previous.floor;
-    const carryRealThreshold = carryOpen &&
+    // Browser/Three may accept the defeated old-floor source snapshot yet
+    // submit ZERO old-floor frames during a long software-WebGL stall.
+    // Render history cannot veto a physically grounded, source-authenticated
+    // whole-body crossing. The source itself authorizes the continuous door,
+    // while carryOpen only determines which already-seen animation age survives.
+    const carryRealThreshold =
       observedGroundedGuardianHandoff(previous, source);
     const carriedAge = age;
     const carriedDefeatAge = defeatAge;
@@ -1002,11 +1007,15 @@ export function createTowerGuardianPassage(THREE) {
     arc.visible = true;
     ring.visible = true;
     lastWalkableOpening = -1;
-    approachOpen = carryOpen ? 1 : 0;
+    approachOpen = carryRealThreshold || carryOpen ? 1 : 0;
     // The real door already opened during the hero's grounded walk. Do
     // not visibly slam it shut and re-open upon the authoritative floor
     // switch. Historical immediate clearances still use the old cue.
-    age = carryOpen ? Math.max(1.05, Math.min(1.65, carriedAge)) : 0;
+    // When there was no returned old-floor frame, enter at the already-open
+    // state instead of suddenly drawing closed bronze leaves over the player.
+    age = carryRealThreshold
+      ? Math.max(1.05, Math.min(1.65, carryOpen ? carriedAge : 1.05))
+      : carryOpen ? Math.max(1.05, Math.min(1.65, carriedAge)) : 0;
     handoffStartAge = age;
     handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
     handoffUnsubmittedSeconds = 0;
