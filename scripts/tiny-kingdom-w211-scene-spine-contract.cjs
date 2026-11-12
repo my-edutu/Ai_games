@@ -10,10 +10,10 @@ assert(forest.includes('crownLobe(center[0]')&&forest.includes('crownLobe(fork[0
 assert(forest.includes("detailTier==='near'?5:3")&&
  forest.includes('leafWhorl('),'real distant three-blade leaf whorls remain');
 // W247: prove the ORIGINAL fence presents an unblocked physically valid gate,
- // two-sided woven bands and no additional triangle load from rail redesign.
+ // two-sided 2-course/3-segment woven bands (same 24 triangles/panel).
 const fenceSource=html.slice(html.indexOf('function fenceLine('),html.indexOf('function well('));
-assert(fenceSource.includes('for(let course=0;course<3;course++)')&&
- fenceSource.includes('for(let segment=0;segment<2;segment++)')&&
+assert(fenceSource.includes('for(let course=0;course<2;course++)')&&
+ fenceSource.includes('for(let segment=0;segment<3;segment++)')&&
  fenceSource.includes('if(first>=0&&i>=first&&i<first+2)continue'),
  'three interlaced real fence bands must preserve the genuine open courier gate');
 const fenceCounters={posts:0,quads:0,slabs:0,coordinates:[]};
