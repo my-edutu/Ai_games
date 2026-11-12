@@ -106,7 +106,30 @@ function chooseEvasion(
   const threatDistance = (cell: number) => Math.min(
     ...threats.map(threat => gridDistance(cell, threat.cell, state.config.width)),
   );
-  const target = [...candidates].sort((a, b) =>
+  // The actual two-cell Pip–Thornback standoff is a CONSEQUENCE of an
+  // observed, reciprocal open passage, not permission to step into the
+  // guardian's adjacent contact range. The previous distance ranking would
+  // choose the ONLY available neighbor even when it CLOSED the gap. Let the
+  // real published patrol change before taking that suicidal "evasion".
+  // No private patrol routes, future cells, RNG or speculative attacks.
+  const currentDistance = threatDistance(observation.currentCell);
+  const nonClosing = candidates.filter(cell => threatDistance(cell) >= currentDistance);
+  if (!nonClosing.length) {
+    return {
+      action: { kind: 'wait' },
+      intent: {
+        mode: 'evading-threat',
+        confidence: 0.72,
+        explanation: 'A visible guardian blocks every observed retreat; holding position instead of moving closer.',
+        nodeExpansions: legal.length,
+        fallbackUsed: true,
+      },
+      plannedPath: [observation.currentCell],
+      targetCell: null,
+    };
+  }
+
+  const target = [...nonClosing].sort((a, b) =>
     threatDistance(b) - threatDistance(a)
     || (belief.cells[String(a)]?.visits ?? 0) - (belief.cells[String(b)]?.visits ?? 0)
     || a - b,

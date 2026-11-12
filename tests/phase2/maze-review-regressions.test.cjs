@@ -140,3 +140,44 @@ test('an inactive threat cannot capture the explorer or create danger telemetry'
   assert.equal(result.state.stats.threatEncounters, beforeEncounters);
   assert.equal(result.events.some(event => event.type === 'threat-near'), false);
 });
+
+test('public two-cell guardian standoff waits instead of advancing into contact, then takes a real side escape',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:2},'public-standoff-no-suicide');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=0;
+  state.ai.recentCells=[0];
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1]),'1':beliefCell(1,[0,2]),'2':beliefCell(2,[1])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:2,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,1,2],rememberedCells:[],
+    cells:Object.values(belief.cells).map(cell=>({...cell,visible:true})),
+    doors:[],keys:[],threats:[{id:'guardian',cell:2,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[0]};
+  const standoff=chooseMazeAction(state,observation,belief);
+  assert.equal(standoff.intent.mode,'evading-threat');
+  assert.deepEqual(standoff.action,{kind:'wait'},
+    'Pip must not enter adjacent guardian range from a genuine two-cell stand-off');
+  assert.deepEqual(standoff.plannedPath,[0]);
+  assert.equal(standoff.targetCell,null);
+  assert.equal(standoff.intent.fallbackUsed,true);
+
+  // A truly observed reciprocal SIDE passage changes the real autonomous
+  // decision, rather than making Pip wait indefinitely despite a safe exit.
+  belief.cells['0'].neighbors.push(5);
+  belief.cells['5']=beliefCell(5,[0]);
+  observation.visibleCells.push(5);
+  observation.cells=Object.values(belief.cells).map(cell=>({...cell,visible:true}));
+  const escaped=chooseMazeAction(state,observation,belief);
+  assert.equal(escaped.action.kind,'move');
+  assert.equal(escaped.action.targetCell,5);
+  assert.equal(escaped.intent.fallbackUsed,false);
+
+  // Removing live knowledge cannot produce a ghost guardian reaction.
+  const unseen={...observation,threats:[]};
+  assert.notEqual(chooseMazeAction(state,unseen,belief).intent.mode,'evading-threat');
+  // A presently closed passage does not qualify as a visible duel corridor.
+  const sealed={...observation,doors:[{id:'closed',a:1,b:2,open:false,requiredKeyId:'unknown'}]};
+  assert.notEqual(chooseMazeAction(state,sealed,belief).intent.mode,'evading-threat');
+});

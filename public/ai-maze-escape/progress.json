@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T21:40:31.000Z",
+  "updatedAt": "2026-11-12T22:55:34.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass312 native original WebGL 43307030306 SUCCESS, 39 complete full-frame PNG/37 of 37 SHA-256 JSON sidecars verified across actual native viewports. Guardian short Tideglass signal posts and floor stage remain visually static despite genuine Pip/Thornback brace; fixed Nintendo bar REJECTED. Pass313 candidate builds four substantial joined original Tideglass shell-fans outside real witnessed public court, driven by actual guardian beat and reduced-motion rules; new exact-HEAD render, CI and independent critic PENDING. Previous whole CI separately failed Tiny Kingdom OBS/artifact uploads; unchanged strict six-run <100, 44px, privacy and full-body NDC."
+    "summary": "Pass313 source dca5f33 native WebGL 43313744303 SUCCESS: 39 original full-frame PNGs and 37/37 SHA-256 sidecars verified; real 390 guardian notice/brace/release, 320/1280. Fans move but the authored gameplay/visual Nintendo benchmark is NOT met. Pass314 introduces a consequential public-only tactical AI standoff (wait instead of advancing toward a known nearby guardian when no safe retreat exists), with a deterministic regression; fresh exact-HEAD gameplay CI/WebGL/multi-seed and independent critic PENDING. Strict 6-run <100, framing, 44px and privacy gates unchanged. Whole CI 43313744593 failed separately Tiny Kingdom OBS/artifact uploads."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass314 2026-11-12: independently inspected Pass313 exact-source genuine 390 three-beat/320/1280 unaltered WebGL, verified 37/37 original SHA pairs, judged Nintendo quality still unmet. Implemented authoritative observed-only evasion: at a real two-cell guardian standoff with no observed non-closing step Pip waits for patrol change instead of advancing into one-cell contact. New deterministic side-escape, sealed/hidden regression; new CI/visual evidence pending; no gameplay victory claimed.",
     "Pass313 2026-11-12: retrieved authentic successful Pass312 43307030306 WebGL artifact, original 39 full-frame PNG/37 matching SHA-256 sidecars. Fixed Nintendo visual benchmark remains unmet; the four short beacons lack strong stage-scale action. New real published four physical root-hinged shell fans with sea-glass/ivory/amber brace/release and reduced-motion, true public-only, pooled geometry; exact new-HEAD CI/render/critic pending.",
     "Pass312 2026-11-12: source-bound Pass311 native WebGL 43303623986 success, 39 full PNGs and 37/37 verified SHA sidecars; exact public guardian chronology inspected, Nintendo benchmark unmet. Added 4 original physical source-guarded Tideglass endpoint signal standards. New exact-HEAD test/render pending, no AI or collision changes.",
     "Pass311 — 2026-11-12 UTC: inspected original Pass310 artifact 13978338069, 39 true unaltered PNGs/37 verified sidecar SHA matches. Live mobile guardian still blocked by near opaque foreground wall despite improved body blades; Nintendo bar REJECTED. New source-bound solid reef sightline unit handles ONLY genuine publicly visible mutually disconnected flat stone on the live guardian stage; preserves blocked old rule, gate, one-way, unknown/private, AI, collision and geometry pool. Strict installed Three regression and dated review added. New exact-HEAD render/CI and separate critic PENDING.",
@@ -252,6 +253,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass314 gameplay acceptance: run focused Maze AI tests plus multi-seed deterministic live traces for safe standoff wait and genuinely open side escape, ensure no excessive stagnation; verify exact-HEAD native 320/390/844/1280 full-frame and original SHA sidecars, previous strict six-reset <100 and HUD/privacy. Compare authentic prior Pass313 real court to new enacted outcome before visual acceptance.",
     "Pass311 exact-HEAD source-bound native 320/390/844x390/1280 WebGL: verify source SHA and 37+ original unaltered PNG sidecars, compare ACTUAL full 390 guardian notice/brace/release foreground stone with Pass310 originals 67c3fd/8d6431/69e2e4; must lower a proven visible obstacle without implying a traversal through a true wall. Run same strict ±.95, 44px, six-reset <100, privacy/AI, responsive and reduced-motion checks. Independent fresh critic required before a benchmark win.",
     "Pass279 exact-new-HEAD: fetch full original Playwright 320/390/844/1280 pressure approach/close/withdrawal images and inspect body/ivory jaw overlap versus 43088652575 original SHA 34eed38a. Preserve strict ±.95 and Pip >.49, withdrawal >=.70, six-reset <100, 44px HUD, visible public knowledge and deterministic AI. Reject if the connected front blade stage remains a red-white shard pile or hides Pip.",
     "Pass278 exact-new-commit full unaltered 320/390/844/1280 WebGL vs Pass277 original 390 SHA 246b7f79: does the side power bay leave entire physical Pip and both real jaw faces unoccluded during the actual closing beat? Verify no new source crop outside ±.95, 390 Pip >.49, true withdrawal >=.70, six-run <100 reset, hidden/AI privacy, 44px touch and screen-first HUD; independent image critic must reject if still cluttered.",
@@ -299,6 +301,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass314 original Pass313 3D evidence critic and observed guardian standoff AI",
+      "reviewer": "Lead original unaltered WebGL critic; independent fresh-context worker unavailable",
+      "verdict": "Pass313 fixed Nintendo-quality rejected; Pass314 AI standoff candidate untested and awaiting exact-head gameplay",
+      "date": "2026-11-12",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-314-authentic-pass313-standoff-evasion-2026-11-12.md"
+    },
     {
       "title": "Pass311 source-bound authentic Pass310 foreground reef sightline critic",
       "reviewer": "Lead unaltered source-HEAD WebGL visual critic; disconnected independent worker unavailable",
@@ -872,6 +881,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass314 observed-only guardian two-cell standoff autonomous no-suicidal-step",
+      "status": "Pass313 exact-HEAD browser/geometry passed and original 37/37 SHA-sidecars verified; new Pass314 focused AI/whole CI and native playthrough pending",
+      "detail": "Two-cell publicly reciprocal corridor 0→1→2: wait instead of move into adjacent guardian 2. Public side 0↔5: take observed safe retreat. Hidden/sealed guardian: no ghost reaction. No hidden map or patrol route inspected."
+    },
     {
       "name": "Pass311 publicly confirmed blocked-neighbor reef sightline production regression",
       "status": "Incoming Pass310 native WebGL SUCCESS and 37/37 PNG hashes verified; Pass311 installed Three, exact-HEAD WebGL, complete CI and external critic pending.",
@@ -1460,6 +1474,10 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass313 exact-source native original 39 PNG, 37/37 SHA-sidecar live evidence",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43313744303/artifacts/13988205608"
+    },
     {
       "title": "Pass310 exact-source native original 39 PNG and 37 verified SHA-sidecar gameplay captures",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43294012851/artifacts/13978338069"
