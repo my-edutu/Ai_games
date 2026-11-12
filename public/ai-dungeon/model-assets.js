@@ -1879,9 +1879,16 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
   side,floorTopY:-.02,previousCorrectionRad:previous,before
  };
  original.copy(upper.bone.quaternion);
+ // Severe original-source buried toes need a second, still bounded, true
+ // skinned upperleg trial. Restrict the additional +/-90 mrad candidates
+ // to an actual >25mm below-stone original weighted toe; never speculate
+ // from a rig label, camera frame, target or synthetic gait phase.
+ // All four candidates are restored after measurement, and the final pose
+ // must independently pass BOTH source shoes' XZ/heel/toe safety checks.
+ const severeBurial=swing.toeY<-.045;
  const trials=[];
  try{
-  for(const delta of [-.045,.045]){
+  for(const delta of severeBurial?[-.045,.045,-.09,.09]:[-.045,.045]){
    upper.bone.quaternion.copy(original).multiply(
     trialQuat.setFromAxisAngle(sourceAxis,delta));
    upper.bone.updateWorldMatrix(true,true);
