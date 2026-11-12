@@ -17,6 +17,7 @@ on:
       - 'scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs'
       - 'scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs'
       - 'scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs'
+      - 'scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -102,6 +103,8 @@ jobs:
         run: node scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs
       - name: W257 real artisanal market-bay structural mass and authentic market-open contract
         run: node scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs
+      - name: W258 original market-and-occupied-burgage source contract
+        run: node scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt

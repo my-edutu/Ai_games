@@ -6698,8 +6698,8 @@ const COMPACT_ROOF_PALETTES=[
  [0x704c40,0x91634c,0x80574a,0xa77d62]  // burnt kiln-fired clay
 ];
 // G108 shared architecture grammar for geometry, camera collision and smoke.
-const COMPACT_HOUSE_HEIGHTS=[2.08,2.94,2.47,3.16];
-const COMPACT_HOUSE_PITCHES=[1.18,1.70,1.47,1.82];
+const COMPACT_HOUSE_HEIGHTS=[2.15,3.38,2.43,3.82];
+const COMPACT_HOUSE_PITCHES=[1.26,1.93,1.52,2.18];
 function compactHouseArchetype(x,z,variant){
  return Math.min(3,Math.floor(biomeHash(Math.round(x*29+z*47+variant*71))*4));
 }
@@ -6707,8 +6707,8 @@ function compactHouseArchetype(x,z,variant){
 // Day-1 detailed homes and grown compact homes share this roof with their
 // actual chimneys, active hearth smoke and physical camera blockers. Only
 // presentation proportions change, never pathfinding, jobs or RNG.
-const DETAILED_HOUSE_HEIGHTS=Object.freeze([1.90,2.55,2.16,2.78]);
-const DETAILED_HOUSE_PITCHES=Object.freeze([1.25,1.53,1.42,1.69]);
+const DETAILED_HOUSE_HEIGHTS=Object.freeze([2.05,3.27,2.36,3.73]);
+const DETAILED_HOUSE_PITCHES=Object.freeze([1.30,1.82,1.54,2.08]);
 // W217: a stable original hip-or-gable architectural decision.
 function isHippedHouseRoof(x,z,variant){
  // Leave all existing physically dormered upper rooms on their gables.
@@ -6754,7 +6754,7 @@ const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,com
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts',
  'burgageMaterialTriangles'])villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles','grainwardTallHomeStories','grainwardTallHomeTriangles'])villageVisualLod[key]=0;
 function getBurgageMaterialAudit(){
  return {source:'original-inhabited-burgage-side-materiality',
   homes:villageVisualLod.burgageMaterialHomes,
@@ -6824,7 +6824,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w238-collision-checked-street-access-v1';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w258-authentic-tall-market-burgage-v1';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -7434,7 +7434,10 @@ function grainwardMarketRoofEdges(){
  marketQuarterStats.grainwardRoofTriangles=(data.length-start)/30;
 }
 function getGrainwardDistrictAudit(){
- return {source:'W126-one-existing-farm-market-inhabited-district',
+ return {source:'W258-genuine-farm-four-trade-market-and-inhabited-burgage',
+   inhabitedTallUpperStoreys:villageVisualLod.grainwardTallHomeStories,
+   inhabitedTallStoreyTriangles:villageVisualLod.grainwardTallHomeTriangles,
+   genuineMarketEaves:MARKET_STALLS.map((_,i)=>marketStallProfile(i).eave),
   connected:farmMarketStreetStats.connected,
   sourceStreetOrigin:farmMarketStreetStats.realOrigin.slice(),
   trueMarketDestination:farmMarketStreetStats.realDestination.slice(),
@@ -7631,6 +7634,61 @@ function grainwardTradeArcade(){
  return triangles;
 }
 
+// W258 ONE authentic medieval district: prominent true occupied upper
+// storeys on the original house lots, below the original pitched roof.
+// Geometry is resident in the existing dirty-lot VBO. Never create a new
+// citizen, house, collision footprint, market transaction or GPU buffer.
+function grainwardOriginalTallStorey(x,z,variant,index,isCompact){
+ const h=houseVisualProfile(x,z,variant,isCompact).height;
+ if(h<3.15)return 0;
+ const before=data.length,y=terrain(x,z),
+  w=2.4+variant*.42,d=2.1+variant*.18,
+  oak=rgb(index%3===0?0x604936:0x70533c),
+  pale=rgb(0xa69175),glass=rgb(0x4a6169);
+ const foot=y+2.30,cap=y+h-.18;
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const face of [-1,1]){
+   const zz=z+face*(d*.5+.225);
+   box(x,(foot+cap)*.5,zz,w*.89,.105,.09,oak);
+   for(const side of [-1,1])
+    box(x+side*w*.44,(foot+cap)*.5,zz,.095,cap-foot,.095,oak);
+   box(x,cap,zz,w*.95,.12,.095,pale);
+  }
+ });
+ const back=z+d*.5+.238,low=y+h-.94,high=y+h-.43;
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  for(const side of [-1,1]){
+   const cx=x+side*w*.23;
+   quad([cx-.20,low,back],[cx+.20,low,back],
+    [cx+.20,high,back],[cx-.20,high,back],glass);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const cx=x+side*w*.23,zf=back+.015;
+   quad([cx-.022,low-.025,zf],[cx+.022,low-.025,zf],
+    [cx+.022,high+.025,zf],[cx-.022,high+.025,zf],oak);
+   for(const yy of [low-.035,high+.035])
+    quad([cx-.235,yy-.026,zf],[cx+.235,yy-.026,zf],
+     [cx+.235,yy+.026,zf],[cx-.235,yy+.026,zf],pale);
+  }
+ });
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  for(const side of [-1,1]){
+   const xx=x+side*(w*.5+.18),
+    a=[xx,low,z-.18],b=[xx,low,z+.18],
+    c=[xx,high,z+.18],d0=[xx,high,z-.18];
+   if(side<0)quad(a,b,c,d0,glass);
+   else quad(d0,c,b,a,glass);
+  }
+ });
+ const triangles=(data.length-before)/30;
+ if(!Number.isInteger(triangles)||triangles<85||triangles>128)
+  throw Error('W258 actual inhabited upper storey budget exceeded');
+ villageVisualLod.grainwardTallHomeStories++;
+ villageVisualLod.grainwardTallHomeTriangles+=triangles;
+ return triangles;
+}
 function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
  // WebGL home geometry depends on the original stable lot and LOD, NOT
  // the season. Canvas2D never uses this cache and keeps its daylight colours.
@@ -7653,6 +7711,7 @@ function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
  }
  medievalStreetMorphology(x,z,k,index,isCompact);
  renderLivedBurgageSideMateriality(x,z,k,index,isCompact);
+ grainwardOriginalTallStorey(x,z,k,index,isCompact);
  grainwardInhabitedLot(x,z,k,index,isCompact);
  inhabitedStreetFootway(x,z,k,index);
  grainwardMasonryFacing(x,z,k,index,isCompact);
@@ -7694,7 +7753,7 @@ villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;vill
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
  villageVisualLod[key]=0;
-for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles'])villageVisualLod[key]=0;
+for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles','grainwardTallHomeStories','grainwardTallHomeTriangles'])villageVisualLod[key]=0;
 streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
@@ -8182,7 +8241,7 @@ function medievalStreetMorphology(x,z,variant,index,isCompact){
    box(x,y+h-.16,front-.10,w*.94,.13,.32,timber);
   });
   // Upper casements meet the actual jetty wall, not the old shallow prop.
-  const windowY=y+Math.min(h-.43,2.25),zz=z-d*.5-.205;
+  const windowY=y+Math.min(h-.43,Math.max(2.08,h-.69)),zz=z-d*.5-.205;
   materialScope(MATERIAL.WINDOW_GLOW,()=>{
    for(const side of [-1,1]){
     const wx=x+side*w*.22;
@@ -11174,8 +11233,11 @@ function marketStallProfile(index){
  if(!Number.isInteger(index)||index<0||index>=MARKET_STALLS.length)
   throw Error('W129 missing actual market stall');
  const structural=index<2;
- return {structural,postHeight:structural?3.10:2.23,
-  eave:structural?3.00:2.16,peak:structural?4.05:2.92};
+ // W258: four ORIGINAL occupied trading pitches now form a coherent
+ // medieval skyline. No new market, merchants, products or A* obstacles.
+ const eave=structural?3.00:index===2?3.25:3.04;
+ const peak=structural?4.05:index===2?4.39:4.16;
+ return {structural,postHeight:eave+.10,eave,peak};
 }
 // W196 original two-storey market houses: authentic permanent stalls remain
 // open at street level. Full continuous upper massing on BOTH tradefronts.
@@ -11321,7 +11383,7 @@ function grainwardArtisanShopEnvelope(stall,index,profile){
   // open and passable; this is the existing stall, not a phantom house.
   for(const side of [-1,1]){
    const xx=x+side*1.185,back=rear+face*.085,
-    front=z-face*.055,lo=y+1.12,hi=roof-.16;
+    front=z-face*.055,lo=Math.max(y+1.12,roof-1.12),hi=roof-.16;
    const a=[xx,lo,back],b=[xx,lo,front],
     c=[xx,hi,front],d=[xx,hi,back];
    if(side<0)quad(a,b,c,d,plaster);else quad(d,c,b,a,plaster);
@@ -20520,12 +20582,14 @@ function followCameraRoofs(){
   top:terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.4,kind:'craft-district'});
  const [gx,gz]=FARMSTEAD.granary;
  roofs.push({x:gx,z:gz,rx:2.5,rz:2.1,top:terrain(gx,gz)+5.2,kind:'granary'});
- for(const stall of MARKET_STALLS){
-  const base=terrain(stall.x,stall.z);
-  roofs.push({x:stall.x,z:stall.z,rx:1.56,rz:1.18,
-   bottom:base+1.68,top:base+2.78,visualBottom:base+.12,
-   kind:'market-stall'});
- }
+ for(const [index,stall] of MARKET_STALLS.entries()){
+   const base=terrain(stall.x,stall.z),profile=marketStallProfile(index);
+   // Real taller roofs must block physical camera rays, unlike open,
+   // genuine ground-floor courier/buyer movement under those same eaves.
+   roofs.push({x:stall.x,z:stall.z,rx:1.56,rz:1.18,
+    bottom:base+profile.eave-.46,top:base+profile.peak+.10,
+    visualBottom:base+profile.eave-.46,kind:'market-stall'});
+  }
  const my=terrain(0,5);
  roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
   visualBottom:my+.12,kind:'village-market'});
