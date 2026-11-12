@@ -71,9 +71,14 @@ test('full-scale paired cutting faces visibly cross the real jaw gap while the s
     const near=new Vector3(origin.x,0,origin.z);
     const centers=()=>{world.group.updateMatrixWorld(true);
       return blades.map(b=>b.getWorldPosition(new Vector3()).x-origin.x);};
+    const contactCenters=()=>{world.group.updateMatrixWorld(true);
+      return edges.map(e=>e.getWorldPosition(new Vector3()).x-origin.x);};
     world.animate(1,{explorerPosition:far,reducedMotion:false});
-    const open=centers();
-    assert.ok(open[0]<-.25&&open[1]>.25,'open real jaws leave a readable central gap');
+    const open=centers(),openContacts=contactCenters();
+    assert.ok(open[0]<-.28&&open[1]>.28,
+      'the authentic wide-open physical cutters preserve an unobstructed center, stricter than the old .25 threshold');
+    assert.ok(openContacts[0]<-.18&&openContacts[1]>.18,
+      'both original coral contact edges also leave the central open throat unobstructed');
     world.animate(2,{explorerPosition:near,reducedMotion:false});
     world.animate(3.4,{explorerPosition:near,reducedMotion:false});
     const closed=centers();
@@ -87,8 +92,10 @@ test('full-scale paired cutting faces visibly cross the real jaw gap while the s
     }
     world.animate(4,{explorerPosition:far,reducedMotion:false});
     const released=centers();
-    assert.ok(released[0]<-.25&&released[1]>.25,
-      'genuine withdrawal restores the visible open throat');
+    assert.ok(released[0]<-.28&&released[1]>.28,
+      'genuine withdrawal restores the same complete open physical throat');
+    assert.ok(contactCenters()[0]<-.18&&contactCenters()[1]>.18,
+      'withdrawal visibly restores the coral cutting-edge clearance too');
     world.update({...published,visibleCells:[]});
     world.animate(5,{explorerPosition:near,reducedMotion:false});
     assert.ok(centers()[0]<-.25,'remembered-only trap does not reveal an earned closing stroke');

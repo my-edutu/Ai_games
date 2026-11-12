@@ -2452,11 +2452,15 @@ export function createMazeWorld(options = {}) {
       // open jaws expose a gap, and their genuine linked stroke crosses it.
       // This replaces the prior mobile shard pile with two large coherent
       // parts, not extra visual effects, warnings or collision authority.
+      // Pass288 true open-throat clearance: keep the restored tall narrow
+      // physical blade, but root it closer to its outer hinge. A wide
+      // transparent center when disengaged must come from actual world
+      // geometry, not from a camera trick or a test-threshold reduction.
       const blade = mesh(jaw, bevel, lightStone,
-        -side * .39, 1.04, .36, .40, 1.24, .26, 0, 0, side * .13);
+        -side * .30, 1.04, .36, .40, 1.24, .26, 0, 0, side * .13);
       blade.name = 'Published tide-shear front blade';
       const bladeInlay = mesh(jaw, bevel, danger,
-        -side * .52, 1.04, .545, .135, 1.16, .060, 0, 0, side * .13);
+        -side * .40, 1.04, .545, .135, 1.16, .060, 0, 0, side * .13);
       bladeInlay.name = 'Published tide-shear forward danger inlay';
       // Do not keep the disconnected legacy decorative lip underneath
       // the new open-web shear. Its presence would recreate foreground
