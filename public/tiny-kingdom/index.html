@@ -1071,6 +1071,7 @@ body[data-workday="household"][data-command="world"] .bottom >
 #grain-chain-steps button[data-evidence="active"]{background:#68522b;border-color:#e9c47b}
 #grain-chain-steps button[data-evidence="live-unlinked"]{border-style:dashed}
 #grain-chain-steps button:focus-visible{outline:3px solid #ffe1a4;outline-offset:1px}
+#grain-chain-steps button[data-inspecting="true"]{box-shadow:inset 0 0 0 2px #ffe1a4}
 @media(max-width:520px){#grain-chain-caption{font-size:9px}
  #grain-chain-steps button{min-height:44px;font-size:9px}
  #grain-chain-steps button small{font-size:8px}}
@@ -23984,9 +23985,104 @@ function getVillageDocumentaryAudit(){
   else watchVillageLife();
   updateSupplyTrail(true);
  });
+ // W274: the five existing grain-ledger stages are camera actions, not
+ // decorative text jumps. A historical receipt is NOT reenacted by a second
+ // courier; every physical subject and view must still exist right now.
+function inspectRealGrainStage(name){
+ const allowed=['field','road','market','purchase','meal'];
+ if(!allowed.includes(name))return {observed:false,reason:'invalid-stage'};
+ const plan=grainJourney?planRealGrainJourney(grainJourney,people,
+  deliveryReceipts,state.householdTrades||[],state.householdMeals||[]):null;
+ const evidence=realGrainChainStages(grainJourney,plan,getSupplyTrailSnapshot());
+ const stateLabel=evidence.stages[name];
+ const farmer=grainJourney?people.find(p=>p.name===grainJourney.producer&&
+  p.job==='farmer'):null;
+ const recipient=plan?.hasVerifiedTrade?people.find(p=>p.name===plan.consumer):null;
+ let observed=false,mode='ledger',note='No genuine action to inspect yet';
+ const followRealPerson=p=>{
+  if(!p||!people.includes(p))return false;
+  if(streetWalk)setStreetWalk(false);
+  selectedCitizen=people.indexOf(p);
+  if(!follow)setCitizenFollow(true);
+  if(!follow)return false;
+  grainJourney.marketWitness=false;grainJourney.marketLens=null;
+  grainJourney.homeWitness=false;grainJourney.homeLens=null;
+  lastFollowShot=null;liveShotPlanCache=null;
+  updateFollowCamera();
+  return true;
+ };
+ if(!grainJourney||!plan){
+  note='Start tracking a real farmer to inspect one linked grain parcel';
+ }else if(name==='field'){
+  if(plan.stage==='harvesting'&&farmer?.activity==='Harvesting grain'&&
+     isWorkingAtSite(farmer)){
+   observed=followRealPerson(farmer);mode='real-harvest';
+   note='Watching the real farmer harvest the current field';
+  }else note='Recorded field work is not happening now; see the original parcel ledger';
+ }else if(name==='road'){
+  if(plan.stage==='hauling'&&farmer?.delivery?.id===plan.deliveryId&&
+     isLoadedCourierOnRoad(farmer)){
+   observed=followRealPerson(farmer);mode='real-loaded-road';
+   note='Following the actual escrowed grain consignment to market';
+  }else note='No matching loaded cart on the road now; past travel is not replayed';
+ }else if(name==='market'){
+  if(plan.stage==='unloading'&&farmer?.delivery?.id===plan.deliveryId&&
+     isMarketUnloading(farmer)){
+   observed=followRealPerson(farmer);mode='real-unloading';
+   note='Watching genuine market unloading before inventory is credited';
+  }else if(plan.stage==='received'&&plan.hasActualReceipt&&plan.receiptId){
+   const lens=chooseRealMarketReceiptLens(plan.receiptId);
+   if(lens){
+    if(streetWalk)setStreetWalk(false);
+    if(!follow)setCitizenFollow(true);
+    if(follow){
+     grainJourney.homeWitness=false;grainJourney.homeLens=null;
+     grainJourney.marketWitness=true;grainJourney.marketLens=lens;
+     lastFollowShot=null;liveShotPlanCache=null;
+     observed=true;mode='real-receiving-shelves';
+    }
+   }
+   note=observed?'Inspecting the actual credited market shelves':
+    'The real market shelves have no unobstructed camera angle';
+  }else note='The matching receipt is historical; do not reenact its delivery';
+ }else if(name==='purchase'){
+  if(plan.hasVerifiedTrade&&recipient){
+   observed=followRealPerson(recipient);mode='current-verified-buyer';
+   note='Following the actual buyer now; the documented purchase was earlier';
+  }else note='No verified household buyer exists for this exact parcel';
+ }else if(name==='meal'){
+  const home=planRealGrainHomeWitness(plan,people,city);
+  const lens=home?chooseRealGrainHomeLens(home):null;
+  if(lens){
+   if(streetWalk)setStreetWalk(false);
+   if(recipient)selectedCitizen=people.indexOf(recipient);
+   if(!follow)setCitizenFollow(true);
+   if(follow){
+    grainJourney.marketWitness=false;grainJourney.marketLens=null;
+    grainJourney.homeWitness=true;grainJourney.homeLens=lens;
+    lastFollowShot=null;liveShotPlanCache=null;
+    observed=true;mode='real-recorded-meal-home';
+   }
+  }
+  note=observed?'Inspecting the real cottage, not reenacting the recorded meal':
+   'A verified recorded meal and safe view of its existing cottage are required';
+ }
+ if(observed){
+  presentationEpoch++;
+  for(const stage of allowed)
+   document.getElementById('grain-chain-'+stage).dataset.inspecting=
+    String(stage===name);
+  updateSupplyTrail(true);
+ }
+ showToast(note);
+ return {source:'live-original-grain-stage-camera',stage:name,
+  evidence:stateLabel,observed,mode,parcel:plan?.deliveryId||null,
+  noReenactment:true,authorityChanged:false};
+}
  for(const name of ['field','road','market','purchase','meal']){
  const chip=document.getElementById('grain-chain-'+name);
  chip.addEventListener('click',()=>{
+  inspectRealGrainStage(name);
   const row=document.getElementById(chip.dataset.target)?.closest('.supply-stage');
   if(!row)return;
   row.setAttribute('tabindex','-1');
