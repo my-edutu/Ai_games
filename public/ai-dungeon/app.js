@@ -415,7 +415,7 @@ const wallVertical=new THREE.Vector3(0,1,0);
 const geo={cube:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,10),cone:new THREE.ConeGeometry(1,1,10)};
 const make=(geometry,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=!reduced;o.receiveShadow=true;parent.add(o);return o};
 function column(parent,x,z){
- const group=new THREE.Group();group.position.set(x,0,z);
+ const group=new THREE.Group();group.name='Original Gothic border column';group.position.set(x,0,z);
  make(geo.cylinder,stoneEdge,group,0,.95,0,.26,1.95,.26);
  make(geo.cylinder,gold,group,0,1.93,0,.4,.12,.4);
  make(geo.cylinder,stoneEdge,group,0,.12,0,.37,.24,.37);
@@ -431,7 +431,7 @@ function disposeActor(a){
  });
  scene.remove(a.root);
 }
-function clearWorld(){world.userData.baseWorldArchitecturalBatches?.dispose();world.userData.baseWorldArchitecturalBatchesAlt?.dispose();world.userData.baseWorldArchitecturalBatches=null;world.userData.baseWorldArchitecturalBatchesAlt=null;world.userData.softwareWorldRasterTier=null;world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
+function clearWorld(){world.userData.baseWorldArchitecturalBatches?.dispose();world.userData.baseWorldArchitecturalBatchesAlt?.dispose();world.userData.baseWorldArchitecturalBatches=null;world.userData.baseWorldArchitecturalBatchesAlt=null;stageVerifiedSourceRoots.clear();stageOriginalSourceBounds.clear();world.userData.renderedStageDirectMeshes=[];world.userData.softwareWorldRasterTier=null;world.userData.softwareWorldLights?.dispose();world.userData.softwareWorldLights=null;for(const batch of world.userData.staticDetailBatches||[])batch.dispose();world.userData.staticDetailBatches=[];actorOcclusionStage.reset();world.userData.wardenImpactScars?.dispose();world.userData.wardenImpactScars=null;combatDirector.reset();world.userData.archRibGeometry?.dispose();world.userData.archRibGeometry=null;world.userData.expeditionStonework?.dispose();world.userData.expeditionStonework=null;world.userData.floorRuins?.dispose();world.userData.floorRuins=null;world.userData.vaultedGallery?.dispose();world.userData.vaultedGallery=null;world.userData.chapterNaves?.dispose();world.userData.chapterNaves=null;world.userData.livingWorld?.dispose();world.userData.livingWorld=null;world.userData.atmosphere?.dispose();world.userData.atmosphere=null;world.userData.dressing?.dispose();world.userData.dressing=null;while(world.children.length){const obj=world.children[0];world.remove(obj);obj.traverse(o=>{if(o.geometry&&!o.userData.sharedAssetGeometry&&!Object.values(geo).includes(o.geometry))o.geometry.dispose();if(o.material&&!o.userData.sharedAssetGeometry&&!Object.values({stone,stoneEdge,floorMat,gold,black,tealGlow,dangerGlow}).includes(o.material)){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats)m.dispose()}})}for(const a of actors.values())disposeActor(a);actors.clear()}
 function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.sceneKey=worldFloor;world.userData.foregroundProps=[];world.userData.baseColumnRoots=[];world.userData.baseArchRoots=[];world.userData.baseShrineRoots=[[],[]];world.userData.staticDetailBatches=[];lastCutawayKey='';
  // Original authored Warden Court is one open physical combat volume; every
  // decorative clearance is mapped to the genuine floor/entrance topology.
@@ -659,6 +659,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
   world.userData.cameraPropVolumes=[...world.userData.foregroundPropVolumes,
    ...(world.userData.dressing?.occlusionPropVolumes||[]),
    ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
+  indexRenderedForegroundStageSources();
  });
  // Cache original geometry ONCE per floor; no per-frame geometry scans.
  // The same genuine stone groups continue to drive camera obstruction, but
@@ -677,6 +678,7 @@ function buildWorld(s){clearWorld();worldFloor=s.run+'-'+s.floor;world.userData.
  world.userData.cameraPropVolumes=[...world.userData.foregroundPropVolumes,
   ...(world.userData.dressing?.occlusionPropVolumes||[]),
   ...world.userData.authoredPropVolumes].filter(Boolean).slice(0,160);
+ indexRenderedForegroundStageSources();
  // On known CPU WebGL only, keep the two nearest original decorative warm
  // practicals instead of evaluating every torch per PBR fragment. Original
  // hero, Warden, chapter combat and warning lights are never candidates.
@@ -986,11 +988,34 @@ const compositionHead=new THREE.Vector3(),compositionFoot=new THREE.Vector3();
 const bodyPointSample=new THREE.Vector3();
 const rayStart=new THREE.Vector3(),rayEnd=new THREE.Vector3();
 const stageSourceRaycaster=new THREE.Raycaster(),stageSourceRayPoint=new THREE.Vector2();
-const stageSourceFoot=new THREE.Vector3();
-// Six bounded real geometry intersections across the actual multi-actor floor
-// corridor; source roots retain physical environment and reversible recession.
+const stageSourceFoot=new THREE.Vector3(),stageSourceBoxHit=new THREE.Vector3();
+const stageVerifiedSourceRoots=new Set(),stageOriginalSourceBounds=new Map();
+// Index the ACTUAL drawable meshes behind original physical foreground
+// roots once per floor, plus once when asynchronous licensed scenery loads.
+function indexRenderedForegroundStageSources(){
+ const sources=[...(world.userData.foregroundProps||[]),
+  ...(world.userData.dressing?.occluders||[]).filter(o=>o?.isGroup),
+  ...(world.userData.authoredProps?.group?.children||[]).filter(o=>o?.isGroup)];
+ const meshes=[],seen=new Set();
+ for(const root of sources.slice(0,160)){
+  if(!root?.isGroup||seen.has(root))continue;
+  seen.add(root);
+  if(!stageOriginalSourceBounds.has(root)){
+   root.updateWorldMatrix(true,true);
+   const box=new THREE.Box3().setFromObject(root);
+   if(!box.isEmpty())stageOriginalSourceBounds.set(root,box);
+  }
+  root.traverse(m=>{
+   if(meshes.length>=96||!m?.isMesh||m.isInstancedMesh||m.isSkinnedMesh||!m.visible)return;
+   m.userData.dungeonForegroundSourceRoot=root;meshes.push(m);
+  });
+ }
+ world.userData.renderedStageDirectMeshes=meshes;
+}
+// Bound to nine true camera rays through the live floor, weapon and chest
+// stage, proving the actual rendered instance or direct original source root.
 function inspectRenderedForegroundStage(subjects){
- const none=()=>({roots:new Set(),rayHits:0,verifiedOwners:0});
+ const none=()=>({roots:new Set(),rayHits:0,verifiedOwners:0,retainedOwners:0,sourceNames:[]});
  if(camera.aspect>=.86||!Array.isArray(subjects)||subjects.length>5)return none();
  camera.updateMatrixWorld(true);
  const projected=[];
@@ -998,29 +1023,57 @@ function inspectRenderedForegroundStage(subjects){
   if(s?.visibleActor!==true||![s.x,s.z].every(Number.isFinite))continue;
   const foot=stageSourceFoot.set(s.x,.13,s.z).project(camera);
   if(![foot.x,foot.y,foot.z].every(Number.isFinite)||
-     Math.abs(foot.x)>1||Math.abs(foot.y)>1||foot.z< -1||foot.z>1)continue;
+   Math.abs(foot.x)>1||Math.abs(foot.y)>1||foot.z< -1||foot.z>1)continue;
   projected.push({x:foot.x,y:foot.y});
  }
  if(projected.length<2)return none();
- const left=Math.min(...projected.map(p=>p.x)),right=Math.max(...projected.map(p=>p.x));
- if(right-left<.20)return none();
- const meshes=[
-  ...(world.userData.baseWorldArchitecturalBatches?.meshes||[]),
+ const meshes=[...(world.userData.baseWorldArchitecturalBatches?.meshes||[]),
   ...(world.userData.baseWorldArchitecturalBatchesAlt?.meshes||[]),
-  ...(world.userData.dressing?.foregroundRenderedMeshes||[])
- ].filter(m=>m?.isInstancedMesh&&m.visible&&
-   Array.isArray(m.userData?.dungeonForegroundSourceRoots));
- if(!meshes.length||meshes.length>40)return none();
- const x=(left+right)*.5,footY=Math.min(...projected.map(p=>p.y));
- const ys=[Math.max(-.91,Math.min(-.05,footY-.12)),
-  Math.max(-.94,Math.min(-.18,footY-.34))];
- const results=[];
- for(const y of ys)for(const dx of [-.1,0,.1]){
-  stageSourceRayPoint.set(Math.max(-.96,Math.min(.96,x+dx)),y);
+  ...(world.userData.dressing?.foregroundRenderedMeshes||[]),
+  ...(world.userData.renderedStageDirectMeshes||[])].filter(m=>m?.isMesh&&m.visible&&
+    (Array.isArray(m.userData?.dungeonForegroundSourceRoots)||
+     m.userData?.dungeonForegroundSourceRoot?.isGroup===true));
+ if(!meshes.length||meshes.length>136)return none();
+ const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+ const x=(Math.min(...projected.map(p=>p.x))+Math.max(...projected.map(p=>p.x)))*.5;
+ const footY=Math.min(...projected.map(p=>p.y));
+ const ys=[clamp(footY+.31,-.73,.75),clamp(footY-.07,-.90,.25),
+  clamp(footY-.29,-.94,.06)];
+ const results=[],rays=[],stageRayDepths=[];
+ for(const y of ys)for(const dx of [-.12,0,.12]){
+  stageSourceRayPoint.set(clamp(x+dx,-.96,.96),y);
   stageSourceRaycaster.setFromCamera(stageSourceRayPoint,camera);
+  const ray=stageSourceRaycaster.ray;
+  rays.push(ray.clone());
+  const depth=ray.direction.y<-.015?
+   (.13-camera.position.y)/ray.direction.y:Infinity;
+  stageRayDepths.push(depth>.1?depth:Infinity);
   results.push(stageSourceRaycaster.intersectObjects(meshes,false));
  }
- return planRenderedForegroundStageHitOwners(results,subjects,camera.position);
+ const proof=planRenderedForegroundStageHitOwners(results,subjects,camera.position,stageRayDepths);
+ const farthest=Math.max(...subjects.filter(p=>p?.visibleActor===true&&
+  [p.x,p.z].every(Number.isFinite)).map(p=>
+   Math.hypot(camera.position.x-p.x,camera.position.y-.13,camera.position.z-p.z)));
+ // Once an actual original mesh is proved, inspect its FROZEN source-space
+ // stone AABB until the camera physically clears it. The source mesh sinks
+ // below the floor and would otherwise trigger a visible 2-frame strobe.
+ for(const root of [...stageVerifiedSourceRoots]){
+  const box=stageOriginalSourceBounds.get(root);
+  if(!root.parent||!box){stageVerifiedSourceRoots.delete(root);continue}
+  let realStageRays=0;
+  for(let i=0;i<rays.length;i++){
+   if(!rays[i].intersectBox(box,stageSourceBoxHit))continue;
+   const d=camera.position.distanceTo(stageSourceBoxHit);
+   if(d>.1&&d<Math.min(stageRayDepths[i],farthest+.4)-.35)realStageRays++;
+  }
+  if(realStageRays>=2)proof.roots.add(root);
+  else stageVerifiedSourceRoots.delete(root);
+ }
+ for(const root of proof.roots)if(stageVerifiedSourceRoots.size<8)
+  stageVerifiedSourceRoots.add(root);
+ return {...proof,verifiedOwners:proof.roots.size,
+  retainedOwners:Math.max(0,proof.roots.size-proof.verifiedOwners),
+  sourceNames:[...proof.roots].slice(0,4).map(r=>r.name||'Original foreground group')};
 }
 let lastRayAuditAt=-Infinity,rayAudit={testedHeroes:0,unoccludedHeroes:0,occludedHeroes:0,testedBosses:0,unoccludedBosses:0,occludedBosses:0,samples:0};
 function actualHeroVisibility(s,at){
@@ -1550,6 +1603,8 @@ function animate(t){
  const renderedForegroundStage=inspectRenderedForegroundStage(partySightlines);
  world.userData.renderedForegroundStageHits=renderedForegroundStage.rayHits;
  world.userData.renderedForegroundStageOwners=renderedForegroundStage.verifiedOwners;
+ world.userData.renderedForegroundStageRetained=renderedForegroundStage.retainedOwners;
+ world.userData.renderedForegroundStageNames=renderedForegroundStage.sourceNames;
  const physicalStage=actorOcclusionStage.resolve(worldFloor,camera,partySightlines,
   world.userData.walls,world.userData.dressing?.occluders?.[0],time);
  cutawayWalls(target,partySightlines,storyStage?.wallPad??2.1,renderedBodyView,physicalStage.walls,dt,renderedForegroundStage.roots);
@@ -1679,7 +1734,7 @@ function animate(t){
    (world.userData.baseWorldArchitecturalBatchesAlt?.drawCalls||0),
   savedDrawCalls:(world.userData.baseWorldArchitecturalBatches?.savedDrawCalls||0)+
    (world.userData.baseWorldArchitecturalBatchesAlt?.savedDrawCalls||0),
-  matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},renderedForegroundStage:{actualRayHits:world.userData.renderedForegroundStageHits??0,verifiedSourceOwners:world.userData.renderedForegroundStageOwners??0,physicalSceneOnly:true},
+  matrixWrites:world.userData.baseWorldArchitecturalBatchWrites||0},wardenWarningPhysicalClearance:{actualCells:activeWarningSightlinePoints.length,sourceProps:world.userData.wardenWarningForegroundCleared??0,dressing:world.userData.dressing?.metrics?.wardenWarningForegroundCleared??0,authored:world.userData.wardenWarningAuthoredCleared??0},portraitStageClearance:{props:world.userData.portraitStagePropsCleared??0,dressing:world.userData.dressing?.metrics?.portraitStagePropsCleared??0,authored:world.userData.portraitStageAuthoredCleared??0},renderedForegroundStage:{actualRayHits:world.userData.renderedForegroundStageHits??0,verifiedSourceOwners:world.userData.renderedForegroundStageOwners??0,retainedPhysicalOwners:world.userData.renderedForegroundStageRetained??0,sourceNames:world.userData.renderedForegroundStageNames??[],directSourceMeshes:world.userData.renderedStageDirectMeshes?.length??0,physicalSceneOnly:true},
  authoredProps:{loaded:world.userData.authoredProps?.group?.children.length??0,
   indexed:world.userData.authoredPropVolumes?.filter(Boolean).length??0,
   cameraVolumes:world.userData.cameraPropVolumes?.length??0,
