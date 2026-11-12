@@ -455,6 +455,27 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
  * explicit artifact path. A missing recording is retained as a documented
  * UNVERIFIED result, never silently converted into a successful clip.
  */
+
+/**
+ * Forensic RETENTION ONLY, never an acceptance result. Real same-window
+ * browser recordings are valuable to inspect exactly because their video
+ * can contain only one frame; discarding their bytes hides the failure.
+ * The caller's separate decoder still owns motion and sync classification.
+ */
+function shouldArchiveUnalignedOriginalReadback(media={}){
+ return media.source==='real-webgl-receipt-readback-serial-original-audio'&&
+  media.status==='RECORDED'&&
+  /^video\\/webm(?:;|$)/i.test(media.mimeType||'')&&
+  media.videoTracks===1&&media.audioTracks===1&&
+  media.optedInAtStart===true&&media.originalSoundstageTrackLive===true&&
+  media.phase==='after-all-primary-encoders-settled'&&
+  media.primaryRecordersSettled===true&&
+  Number.isSafeInteger(media.bytes)&&media.bytes>1024&&
+  media.bytes<=MAX_CLIP_BYTES&&
+  Number.isFinite(media.recordingMs)&&media.recordingMs>=1000&&
+  media.recordingMs<=15500;
+}
+
 function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,assessment=null}={}){
  const fs=require('node:fs'),path=require('node:path');
  fs.mkdirSync(directory,{recursive:true});
@@ -470,7 +491,7 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
  const {base64:receiptReadbackBytes,...receiptReadbackVideo}=raw.isolated?.receiptReadbackVideo||{};
  const {base64:sameWindowAVBytes,...sameWindowReadbackAV}=raw.isolated?.sameWindowReadbackAV||{};
  const manifest=path.join(directory,'dungeon-d04-live-av-evidence.json');
- let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null,serialRealVideoWebm=null,receiptReadbackVideoWebm=null,sameWindowAVWebm=null;
+ let webm=null,wav=null,isolatedVideoWebm=null,isolatedNativeVideoWebm=null,isolatedAudioWebm=null,serialRealVideoWebm=null,receiptReadbackVideoWebm=null,sameWindowAVWebm=null,unverifiedSameWindowAVWebm=null;
  if(clip.status==='RECORDED'&&typeof base64==='string'){
   const bytes=Buffer.from(base64,'base64');
   if(bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES&&bytes.length===clip.bytes){
@@ -521,14 +542,23 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
    fs.writeFileSync(receiptReadbackVideoWebm,bytes);
   }
  }
- // This is a genuine simultaneous recorder only after both native decoded
- // moving WebGL frames and original Opus pass. It remains UNALIGNED without
- // measured event-to-sample timing, despite sharing one WebM container.
- if(assessment?.sameWindowMovingAV&&typeof sameWindowAVBytes==='string'){
+ // Preserve the exact same-window REAL browser recording for independent
+ // diagnosis even when it is one-frame/static/undecodable. Never label that
+ // file accepted moving audiovisual evidence: only the original strict
+ // assessment may populate sameWindowAVWebm. The separate forensic filename
+ // includes UNVERIFIED so an encoded WebM cannot imply physical contact.
+ if(shouldArchiveUnalignedOriginalReadback(sameWindowReadbackAV)&&
+    typeof sameWindowAVBytes==='string'){
   const bytes=Buffer.from(sameWindowAVBytes,'base64');
   if(bytes.length===sameWindowReadbackAV.bytes&&bytes.length>1024&&bytes.length<=MAX_CLIP_BYTES){
-   sameWindowAVWebm=path.join(directory,'dungeon-d04-real-webgl-readback-original-sound-same-window.webm');
-   fs.writeFileSync(sameWindowAVWebm,bytes);
+   if(assessment?.sameWindowMovingAV){
+    sameWindowAVWebm=path.join(directory,'dungeon-d04-real-webgl-readback-original-sound-same-window.webm');
+    fs.writeFileSync(sameWindowAVWebm,bytes);
+   }else{
+    unverifiedSameWindowAVWebm=path.join(directory,
+     'dungeon-d04-real-webgl-readback-original-sound-UNVERIFIED.webm');
+    fs.writeFileSync(unverifiedSameWindowAVWebm,bytes);
+   }
   }
  }
  fs.writeFileSync(manifest,JSON.stringify({
@@ -539,10 +569,12 @@ function persistD04CaptureEvidence({directory='artifacts',raw={},started=null,as
    ...(raw.isolated?.nativeVideoOnly?{isolatedNativeVideoWebm:!!isolatedNativeVideoWebm}:{}),
    ...(raw.isolated?.serialRealVideo?{serialRealVideoWebm:!!serialRealVideoWebm}:{}),
    ...(raw.isolated?.receiptReadbackVideo?{receiptReadbackVideoWebm:!!receiptReadbackVideoWebm}:{}),
-   ...(raw.isolated?.sameWindowReadbackAV?{sameWindowAVWebm:!!sameWindowAVWebm}:{})},
+   ...(raw.isolated?.sameWindowReadbackAV?{sameWindowAVWebm:!!sameWindowAVWebm,
+    unverifiedSameWindowAVWebm:!!unverifiedSameWindowAVWebm}:{})},
   caveat:'Source-verified same-window moving WebGL video and original Opus may coexist, but event-to-sample contact synchronization is UNVERIFIED.'
  },null,2)+'\n');
- return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm,sameWindowAVWebm});
+ return Object.freeze({manifest,webm,wav,isolatedVideoWebm,isolatedNativeVideoWebm,isolatedAudioWebm,serialRealVideoWebm,receiptReadbackVideoWebm,sameWindowAVWebm,unverifiedSameWindowAVWebm});
 }
 module.exports={classifyDecodedSerialGameplay,classifyDecodedReceiptReadbackGameplay,classifyDecodedSameWindowReadbackAV,classifyCompositorWitness,assessD04Capture,classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming,classifyCanvasEncoderControl,classifySequentialCanvasEncoderProbe,classifyReceiptReadbackVideo,persistD04CaptureEvidence,
- MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES};
+ MAX_CLIP_BYTES,MAX_PCM_BYTES,MAX_ISOLATED_VIDEO_BYTES,MAX_ISOLATED_AUDIO_BYTES,
+ shouldArchiveUnalignedOriginalReadback};
