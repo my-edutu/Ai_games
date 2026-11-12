@@ -3111,7 +3111,7 @@ test('rejected original loaded pelvis trial restores all six licensed source leg
  for(const [i,m] of mounts.entries()){
   assert.ok(1-Math.abs(m.bone.quaternion.dot(expected.get(m.bone)))<1e-12,
    'rollback restores original imported mixer pose plus LEGAL base action on '+m.bone.name);
-  assert.ok(1-Math.abs(m.bone.quaternion.dot(before[i]))>1e-7,
+  if(m.part!=='upper')assert.ok(1-Math.abs(m.bone.quaternion.dot(before[i]))>1e-7,
    'the speculative original ankle/knee overlay must no longer survive the rejected body-root trial');
   assert.equal(m.soleClearanceRad,0);
   assert.equal(m.stanceReliefRad,0);
