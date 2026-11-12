@@ -69,3 +69,12 @@ test('strict single-encoder capture credits only genuine combined video bytes in
  assert.equal(assessed.canvasEncoderDifferential,'CONTROL_COMPARISON_UNVERIFIED');
  assert.equal(assessed.sampleSynchronized,false);
 });
+
+test('browser capture must retain observed recorder-count evidence, not just the requested plan',()=>{
+ const s=fs.readFileSync(path.resolve(__dirname,
+  '../browser/dungeon-physical-feedback-preview.spec.cjs'),'utf8');
+ assert.match(s,/const registerRecorder=rec=>/);
+ assert.match(s,/peakActiveMediaRecorders=Math\.max\(/);
+ assert.match(s,/primaryMediaRecordersAtStart:activeRecorders\.size/);
+ assert.match(s,/peakPrimaryConcurrentMediaRecorders:peakActiveMediaRecorders/);
+});
