@@ -13670,6 +13670,60 @@ function getEconomyResidencyAudit(){
   drawCalls:economyResidentDrawCalls,authoritativeStateChanged:false,
   fallback:'all original real goods in combined dynamic world mesh'};
 }
+// W262 phase-1 rendering spine: keep the SAME original granular inventory
+// mesh across actual simulation ticks in SwiftShader WebGL. The hardware tier
+// already has a resident GPU buffer; this separate bounded CPU path avoids
+// regenerating dozens of cloth sacks, logs, timber and granary supports every
+// moving worker frame. No invented stock, fake events or persistent save data.
+// A change to any true visible stock bin invalidates it deterministically.
+const ECONOMY_CPU_CACHE_MAX_FLOATS=ECONOMY_RESIDENT_FLOAT_BUDGET;
+let economyCpuMesh=null,economyCpuKey='',economyCpuBuilds=0,
+ economyCpuReuses=0,economyCpuFallbacks=0,economyCpuCacheOverride=null;
+function setEconomyCpuCacheForTesting(value){
+ if(value!==null&&typeof value!=='boolean')
+  throw Error('W262 invalid authentic software inventory cache override');
+ economyCpuCacheOverride=value;
+ economyCpuMesh=null;economyCpuKey='';
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function appendEconomySoftwareCache(){
+ // This is never a second render pass: original goods remain within the
+ // existing dynamic stream, preserving old draw order and WebGL materials.
+ if(!gpuAvailable||economyCpuCacheOverride===false||
+   (!swiftGpu&&economyCpuCacheOverride!==true))return false;
+ const key=economyResidencySignature();
+ if(economyCpuMesh&&economyCpuKey===key){
+  for(let i=0;i<economyCpuMesh.length;i++)data.push(economyCpuMesh[i]);
+  economyCpuReuses++;return true;
+ }
+ const first=data.length;
+ renderMarketStock();renderGranaryStores();
+ const floats=data.length-first;
+ if(floats%30)throw Error('W262 original market+granary geometry invalid stride');
+ if(floats>ECONOMY_CPU_CACHE_MAX_FLOATS){
+  // Original complete live market is ALREADY appended; do not duplicate it.
+  economyCpuFallbacks++;economyCpuMesh=null;economyCpuKey='';
+  return true;
+ }
+ const mesh=new Float32Array(floats);
+ for(let i=0;i<floats;i++)mesh[i]=data[first+i];
+ economyCpuMesh=mesh;economyCpuKey=key;economyCpuBuilds++;
+ return true;
+}
+function getEconomyCpuCacheAudit(){
+ return {source:'original-authentic-economy-software-mesh-cache',
+  enabled:gpuAvailable&&economyCpuCacheOverride!==false&&
+   (swiftGpu||economyCpuCacheOverride===true),
+  key:economyCpuKey,builds:economyCpuBuilds,reuses:economyCpuReuses,
+  overBudgetFallbacks:economyCpuFallbacks,
+  floats:economyCpuMesh?.length||0,
+  budgetFloats:ECONOMY_CPU_CACHE_MAX_FLOATS,
+  residentCpuBytes:economyCpuMesh?.byteLength||0,
+  extraGpuBuffers:0,actualMarketAndGranaryOnly:true,
+  authorityChanged:false,transactionsInvented:0,
+  hardwareFps:'NOT MEASURED'};
+}
 function grainShocks(){
  const straw=rgb(0xc3a25d),twine=rgb(0x6e5435);
  const groups=[[26.2,5.1],[27.6,5.3],[29.1,5.1],[31,5.3]];
@@ -21524,7 +21578,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const roofs=followCameraRoofs();
  // The portrait lens is a genuine different field of view, not a CSS crop
  // of the desktop worksite camera. Frame both worker and real surroundings.
- const portraitLens=Boolean(((working&&realWork)||journeyCamera)&&canvas.clientWidth>0&&
+ const portraitLens=Boolean(((working&&realWork)||journeyCamera||unloading)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
  const normalPitch=unloading?(actionCameraPitch??.29):filmedLoadedCourier?.24:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
@@ -21572,8 +21626,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.45,3.8,4.2,4.8,5.6]:[3.8,4.4,5.0,5.9]):
-  unloading?[3.8,4.4,5.1,5.7,6.8]:
-  filmedLoadedCourier?(portraitLens?[3.25,3.70,4.20,4.75,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
+  unloading?(portraitLens?[2.45,2.85,3.35,4.4,5.7]:[3.8,4.4,5.1,5.7,6.8]):
+  filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
   [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
@@ -24717,7 +24771,8 @@ const economyGeometryStart=performance.now();
 const residentEconomyStart=performance.now();
 const residentInventoryReady=prepareEconomyResidentMesh();
 dynamicPhaseTimes.residentEconomyGeometry=performance.now()-residentEconomyStart;
-if(!residentInventoryReady){renderMarketStock();renderGranaryStores();}
+if(!residentInventoryReady&&!appendEconomySoftwareCache()){
+  renderMarketStock();renderGranaryStores();}
 if(!prepareResidentMarketShutters())renderMarketOperatingShutters();
 else{
  // The original inventory and market-opening signal remain authoritative.
@@ -25174,6 +25229,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
 renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+  getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
