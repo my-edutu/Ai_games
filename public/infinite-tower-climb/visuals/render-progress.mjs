@@ -10,7 +10,7 @@ export function createRenderProgress() {
   // renderer-return is NOT Chromium compositor presentation or WebM evidence.
   const sourceTransitions = [];
   let lastAcceptedSourcePhase = null, lastSubmittedSourcePhase = null;
-  function observeSourcePhase(phase, snapshot, atWallMs) {
+  function observeSourcePhase(phase, snapshot, atWallMs, renderWork = null) {
     if (!snapshot || !Number.isSafeInteger(snapshot.tick) ||
         !Number.isSafeInteger(snapshot.floor) ||
         typeof snapshot.runToken !== 'string' || !snapshot.runToken ||
@@ -24,10 +24,20 @@ export function createRenderProgress() {
       if (key === lastSubmittedSourcePhase) return;
       lastSubmittedSourcePhase = key;
     }
+    // Actual CPU scene + world rebuild versus renderer.render() return.
+    // These clocks partition a successful submitted browser frame only; they
+    // do not measure compositor paint, physical GPU completion or native WebM.
+    const cost = value => Number.isFinite(value) && value >= 0 && value <= 120000
+      ? Math.round(value * 10) / 10 : null;
+    const renderWorkMs = phase === 'renderer-submitted' && renderWork
+      ? { sceneUpdate: cost(renderWork.sceneUpdateMs),
+          rendererReturn: cost(renderWork.rendererReturnMs),
+          worldRebuild: cost(renderWork.worldRebuildMs),
+          total: cost(renderWork.totalSubmissionMs) } : null;
     sourceTransitions.push({
       phase, runToken: snapshot.runToken, tick: snapshot.tick,
       floor: snapshot.floor, lifecycle: snapshot.lifecycle,
-      atWallMs,
+      atWallMs, ...(renderWorkMs ? { renderWorkMs } : {}),
     });
     if (sourceTransitions.length > 64) sourceTransitions.shift();
   }
@@ -40,10 +50,10 @@ export function createRenderProgress() {
     if (expected) return;
     expected = true; idleSince = now;
   }
-  function submitted(snapshot, now, atWallMs = Date.now()) {
+  function submitted(snapshot, now, atWallMs = Date.now(), renderWork = null) {
     expectFrame(now);
     submittedFrames++;
-    observeSourcePhase('renderer-submitted', snapshot, atWallMs);
+    observeSourcePhase('renderer-submitted', snapshot, atWallMs, renderWork);
     const interval = sampleAnchor === null ? null : now - sampleAnchor;
     // Warmup is explicit; real visible stalls stay in the bounded distribution.
     if (visible && submittedFrames > 8 && Number.isFinite(interval) && interval > 0) {
