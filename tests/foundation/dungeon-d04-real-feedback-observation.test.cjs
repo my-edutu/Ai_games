@@ -43,7 +43,7 @@ test('no actual HP loss, cross-floor pair, or mismatched rendered checksum canno
 test('admitted D04 visuals are not mislabeled as measured contact or A/V synchronization',()=>{
  const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
   latest:{...later,physicalFeedback:{...later.physicalFeedback,visualAccepted:2,expiredQueuedCues:127,
-   visuals:{active:1,spawned:2}}}});
+   visuals:{active:1,spawned:2},recentDeliveryReceipts:[delivered(4,'enemy-1-0')]}}});
  assert.equal(verdict.status,'VISUAL_ADMITTED_NOT_AV_VERIFIED');
  assert.equal(verdict.visualAcceptance,true);
  assert.equal(verdict.sampleSynchronized,false);
