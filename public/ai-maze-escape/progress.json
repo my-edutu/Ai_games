@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T04:34:14.423Z",
+  "updatedAt": "2026-11-12T05:13:01.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass289 source-bound actual 320/390 contact orbit candidate remained visually UNVERIFIED when whole CI 43155031869 exposed one stale fixed-camera source test (783/784 Node passed); production still compiled and its focused Maze browser gates ran. Pass290 strengthens the original frontal-stage test to require the real source-driven interpolation from the original public frontal camera to a quarter contact stage, without relaxing any original lens/crop/privacy/geometry constraints. Exact-HEAD CI and original full-frame Chromium captures awaited, Nintendo benchmark NOT MET."
+    "summary": "Pass290's exact-head WebGL and Pass288 both succeeded with 37/37 original PNG/sidecar SHA pairs verified. Side-by-side at authentic 390px revealed the new fixed +X contact quarter-camera makes Pip less readable behind the right gantry post despite strict framing success; it is REJECTED aesthetically. Pass291 introduces a public-position-only actor counter-flank candidate for the actual closing pressure stage. New exact-head render and CI not yet verified; fixed Captain Toad quality bar unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass291: verified exact Pass288 and Pass290 WebGL artifacts 37/37 original PNG SHA pairs each, and rejected +X contact quarter shot as a real regression to Pip visibility beside the portal upright. Production now selects a bounded counter-flank for witnessed contact from Pip and the same already-public trap X position; frontal warning/withdrawal and manual/reduced/hidden guards stay, with new pure/scene-wiring regression tests. New source render/CI and independent critic pending. Never claim benchmark success.",
     "Pass290: whole-repo CI 43155031869 exposed a genuine outdated static test assertion 1/784, expecting the old direct pressure camera constant even though the new actual 3D public-contact stage interpolates from it. Retain original front-stage >25% physical separation check and add source-driven interpolation / public stage / production selection guards, not weakened assertions. Parent new WebGL capture was pending when this test repair was committed. No production gameplay, camera, HUD, AI or collision change; exact new-head screenshot and CI pending.",
     "Pass289: source-bound Pass288 390x844 public contact PNG SHA b902f6c3504cf06da14c609999bc1c2a7b6740e2b88b9296a42e89f448a73add still puts a true opaque jaw directly across Pip's bracing legs; 37/37 direct PNG/JSON hashes verified from successful exact-commit WebGL run 43147440430, strict physical frame intact. Implement an actual event-driven two-angle camera director: real public warning frontal, real closing stroke eased into a modest side-quarter shot for separate physical silhouettes, observed withdrawal and manual/reduced-motion return to neutral. Pure deterministic helper and production-wire regression added. No new HUD text, geometry, invisible-wall cutaway, privacy leak, route/AI changes or changed thresholds. Fresh exact-source WebGL and independent critique pending; Nintendo bar unmet.",
     "Pass288: exact Pass287 new native visual workflow FAILED 1/126 focused installed Three checks, true nominally open center was obscured by the new blades; whole CI also red. Both source-authentic tall narrow cutter and real coral lip physically move toward their original rooted hinges to create an actual visible open/withdrawn throat without touching collision or AI. Strict old center gap strengthened to ±.28 and added live coral edge ±.18 closure/retreat checks; keep pressure close-cross, strict ±.95 full-body, <100 six-run resource, replay/visibility all unchanged. Fresh new-source WebGL and independent screenshot critique PENDING, benchmark UNMET.",

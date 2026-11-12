@@ -474,6 +474,25 @@ export function publicPhysicalPressureApproachHalfHeight(hero,jaw,halfHeight,asp
  * jaws eclipse Pip's lower-body response. A quarter view separates their
  * physical silhouettes without moving, hiding or altering either model.
  */
+// A real full-frame public pressure A/B caught the +X camera looking THROUGH
+// the load-bearing post at Pip. Stage actual jaw contact from the opposite
+// lateral flank of the visibly moving explorer, not from a permanent right
+// shoulder. The only inputs are current public 3D positions, the world's
+// existing cell size, and the existing already-authorized contact gate.
+// Return the original frontal angle on missing evidence, manual/reduced
+// motion, a shared X center or a legitimate retreat. Bounded, deterministic,
+// presentation-only, allocation-free; it cannot move the AI, stage objects,
+// pressure clock or collision authority.
+export function publicPressureActorCounterflankX(heroX, jawX, cellSize, witnessedContact, reducedMotion=false) {
+  const frontalX = 3.5;
+  if (!witnessedContact || reducedMotion || !Number.isFinite(heroX)
+    || !Number.isFinite(jawX) || !Number.isFinite(cellSize) || cellSize <= 0)
+    return frontalX;
+  const lateral = Math.max(-1, Math.min(1, (heroX - jawX) / (cellSize * .70)));
+  const oppositeFlank = -10.5 * lateral;
+  return frontalX + (oppositeFlank - frontalX) * Math.abs(lateral);
+}
+
 export function publicPressureContactOrbitWeight(
   progress, publicStage=false, reducedMotion=false, cameraMode='follow',
   withdrawal=false) {
