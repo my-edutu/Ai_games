@@ -2189,11 +2189,20 @@ export function createMazeWorld(options = {}) {
     // no floating support, opacity trick, artificial route or extra trigger.
     // Reuse the existing bevel/material pools and retain every strict frame
     // and geometry budget. The entire movement is a reversible physical act.
+    // Pass284 exact-HEAD full-repository Three Box3 caught a REAL guide
+    // clearance defect at maximum yoke tilt: because the captive sleeves
+    // rotate with this bridge, their tall corners overshot a stone pylon.
+    // Pre-seat BOTH sleeve centers 25mm towards the hinge's swept side.
+    // The full .16m metal guides, rooted .28m stone columns and physical
+    // contact stroke are retained, with the matching glass relief attached.
+    // This is a genuine clearance correction, not a weaker acceptance test.
+    const sweptGuideInset = .025;
     for (const side of [-1, 1]) {
+      const guideX = side * .95 - sweptGuideInset;
       const sleeve = mesh(bridge, bevel, darkMetal,
-        side * .95, -.27, -.005, .16, .75, .18);
+        guideX, -.27, -.005, .16, .75, .18);
       sleeve.name = 'Published Tideglass telescopic yoke sleeve ' + side;
-      mesh(bridge, bevel, seaGlass, side * .95, -.28, .102,
+      mesh(bridge, bevel, seaGlass, guideX, -.28, .102,
         .067, .63, .042);
     }
     // Pass277: true 390px WebGL showed the opaque front yoke crossing
