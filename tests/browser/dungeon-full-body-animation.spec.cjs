@@ -425,6 +425,21 @@ for(const view of [
   }
   expect(actor.validSegments).toBeGreaterThanOrEqual(4);
   expect(actor.maxStretchFraction).toBeLessThanOrEqual(.20);
+  // Optional REAL original source skin after the bounded visual correction.
+  // Never claim a foot plant or IK from a reduced shoe displacement.
+  const skid=actor.nativeLegOwnership?.sourceStanceSlideReliefProof;
+  if(skid){
+   expect(skid.sourceInstanceId).toBe(actor.sourceInstanceId);
+   expect(skid.sourceClip).toBe('Walking_A');
+   expect(skid.verifiedBy).toBe('final-original-weighted-skinned-two-shoe-readback');
+   expect(skid.contactLocked).toBe(false);
+   expect(skid.reductionMeters).toBeGreaterThanOrEqual(.004);
+   expect(skid.reductionMeters).toBeLessThanOrEqual(.0180001);
+   expect(skid.beforeHeelTravelMeters-skid.afterHeelTravelMeters).toBeGreaterThan(.00399);
+   expect(skid.beforeToeTravelMeters-skid.afterToeTravelMeters).toBeGreaterThan(.00399);
+   expect(Math.hypot(skid.worldDeltaX,skid.worldDeltaZ)).toBeLessThanOrEqual(.0180001);
+  }
+
   const travel=previous?measureSourceJointTravel(previous,actor):null;
   if(travel)expect(travel.comparable,'never compare different source clones').toBe(true);
   const soleGrip=previous?measureSourceSoleGripContinuity(previous,actor):null;
@@ -532,6 +547,16 @@ for(const view of [
     correctionsThisFrame:t.nativeLegOwnership?.sourceSwingToeCorrectionsThisFrame??0,
     currentFeet:t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs??null,
     lastHistorical:t.nativeLegOwnership?.sourceSwingToeLiftProof??null}))},null,2))
+ });
+ await test.info().attach('original-source-measured-stance-slide-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'same-original-GLB-weighted-two-point-stance',
+   claimedFootLock:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    cumulative:t.nativeLegOwnership?.sourceStanceSlideReliefFrames??0,
+    finalReadback:t.nativeLegOwnership?.sourceStanceSlideReliefProof??null,
+    currentOriginalSoles:t.sourceSolePatchWorld??null}))},null,2))
  });
  // The optional original loaded-pelvis proof is captured only after actual
  // source leg overlays. This is never a manufactured foot plant or IK pass.
