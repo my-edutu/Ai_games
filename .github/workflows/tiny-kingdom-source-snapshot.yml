@@ -19,6 +19,7 @@ on:
       - 'scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs'
       - 'scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs'
       - 'scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs'
+      - 'scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -108,6 +109,8 @@ jobs:
         run: node scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs
       - name: W259 original merchant skyline and physically legible real courier contract
         run: node scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs
+      - name: W260 original two-sided planted field and physically occlusion-reviewed freight lens
+        run: node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
