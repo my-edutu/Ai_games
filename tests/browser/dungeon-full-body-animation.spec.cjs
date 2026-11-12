@@ -427,7 +427,17 @@ for(const view of [
   expect(actor.maxStretchFraction).toBeLessThanOrEqual(.20);
   // Optional REAL original source skin after the bounded visual correction.
   // Never claim a foot plant or IK from a reduced shoe displacement.
-  const skid=actor.nativeLegOwnership?.sourceStanceSlideReliefProof;
+  const nativeLeg=actor.nativeLegOwnership;
+  // Read the *rendered* source-rig carry, not merely a unit planner result.
+  // A previous witnessed 18mm pivot shift must retire over the next three
+  // <=50ms frames, not silently accumulate or pop beyond the 18mm budget.
+  const carried=nativeLeg?.sourceStanceSlideCarryMeters??0;
+  expect(carried).toBeGreaterThanOrEqual(0);
+  expect(carried).toBeLessThanOrEqual(.0180001);
+  expect(nativeLeg?.sourceStanceSlideCarryPeakMeters??0).toBeLessThanOrEqual(.0180001);
+  if((nativeLeg?.sourceStanceSlideCarryFrames??0)>0)
+   expect(nativeLeg.sourceStanceSlideCarryPeakMeters).toBeGreaterThan(0);
+  const skid=nativeLeg?.sourceStanceSlideReliefProof;
   if(skid){
    expect(skid.sourceInstanceId).toBe(actor.sourceInstanceId);
    expect(skid.sourceClip).toBe('Walking_A');
