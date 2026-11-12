@@ -92,7 +92,24 @@ export function observedGroundedGuardianHandoff(previous, next) {
   const elapsedTicks = next.tick - previous.tick;
   const sourceStepX = after.x - p.x;
   const wholeBodyClearance = previous.guardianExitX + p.halfWidth + 4000;
-  return elapsedTicks >= 1 && elapsedTicks <= 8 &&
+  // The original 20Hz authority emits EVERY 50ms tick, but a cold WebGL
+  // submission can prevent the browser from accepting intermediate snapshots.
+  // Genuine source film at 5dca3a72 showed a grounded HP-zero cap at tick443,
+  // x=291896, and a supported Floor9 arrival at tick454, x=338096. The old
+  // <=8-tick presentation bound threw away the ACTUAL opening/landing because
+  // the browser observed an 11-tick interval (not an 11-tick physics jump).
+  // Admit one tightly scoped <=600ms visual observation gap ONLY for the
+  // authored Floor8->9 exit, with the old body still physically next to its
+  // clearance, both bodies on real aligned platforms and the new body within
+  // the former cap footprint. All defeated-guardian, run, tick, health,
+  // grounded-contact and horizontal-speed provenance checks still apply.
+  // We neither synthesize intermediate snapshots nor change floor authority.
+  const sparseBrowserHandoff = elapsedTicks > 8 && elapsedTicks <= 12 &&
+    previous.floor === 8 && next.floor === 9 &&
+    p.x >= previous.guardianExitX - 18000 &&
+    p.x <= wholeBodyClearance &&
+    after.x + after.halfWidth <= cap.x + cap.width;
+  return elapsedTicks >= 1 && (elapsedTicks <= 8 || sparseBrowserHandoff) &&
     sourceStepX >= 0 && sourceStepX <= elapsedTicks * 18000 &&
     after.x >= wholeBodyClearance &&
     p.x - p.halfWidth >= cap.x &&
