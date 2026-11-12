@@ -702,6 +702,70 @@ export function chooseOriginalSourceSwingThighSupport({
  * source pose and independently check the ORIGINAL weighted heels and toes
  * on BOTH feet. This is continuity, never IK, a contact lock or new travel.
  */
+/**
+ * Preserve a previously VERIFIED original Walking_A upperleg correction while
+ * its source-skinned swing toe is still severely below the stone. Source phase
+ * can reduce this frame's incremental clearance below the new-rescue 4mm gate,
+ * but immediately resetting 45/90/135mrad to zero visibly pops the native hip.
+ *
+ * Not IK or a new plant: this reuses only the same joint angle witnessed on
+ * the same original clip and clone, and checks real heel/toe XYZ for BOTH shoes.
+ * Never continue through restored contact, clip exit, teleport or injury.
+ */
+export function planOriginalSourceSwingThighHold({
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ sourceThighAxisVerified=false,sourceChainVerified=false,
+ sourceInstanceSame=false,priorSourceProofVerified=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,side='',
+ floorTopY=NaN,previousCorrectionRad=0,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||ownerLocomotion!==true||
+  sourceThighAxisVerified!==true||sourceChainVerified!==true||
+  sourceInstanceSame!==true||priorSourceProofVerified!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  !['left','right'].includes(side)||
+  ![sourceWeight,rootTravel,frameAge,floorTopY,previousCorrectionRad].every(finite)||
+  sourceWeight<.65||sourceWeight>1.001||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
+  Math.abs(floorTopY+.02)>.005||
+  ![.045,.09,.135].some(v=>Math.abs(Math.abs(previousCorrectionRad)-v)<.0001)||
+  !before||!Array.isArray(trials)||!trials.length||trials.length>5)return null;
+ const foot=f=>f&&[f.heelY,f.toeY].every(finite)&&
+  [f.heelXZ,f.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite));
+ const swing=before[side],loaded=before[side==='left'?'right':'left'];
+ if(!foot(swing)||!foot(loaded)||
+  swing.heelY<floorTopY+.04||swing.heelY>floorTopY+.36||
+  swing.toeY>=floorTopY-.035||swing.toeY<floorTopY-.16||
+  ![loaded.heelY,loaded.toeY].every(y=>y>=floorTopY-.055&&y<=floorTopY+.035))
+  return null;
+ const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ for(const trial of trials){
+  const after=trial?.after,delta=trial?.delta;
+  if(!finite(delta)||Math.abs(delta-previousCorrectionRad)>.0001||
+   !foot(after?.[side])||!foot(after?.[side==='left'?'right':'left']))continue;
+  const moved=after[side],other=after[side==='left'?'right':'left'];
+  const lift=moved.toeY-swing.toeY;
+  if(lift<.001||lift>.04||
+   moved.toeY<floorTopY-.16||moved.toeY>floorTopY+.035||
+   Math.abs(moved.heelY-swing.heelY)>.04||
+   xz(moved.heelXZ,swing.heelXZ)>.025||
+   xz(moved.toeXZ,swing.toeXZ)>.025||
+   Math.abs(other.heelY-loaded.heelY)>.003||
+   Math.abs(other.toeY-loaded.toeY)>.003||
+   xz(other.heelXZ,loaded.heelXZ)>.003||
+   xz(other.toeXZ,loaded.toeXZ)>.003)continue;
+  return Object.freeze({angleRad:delta,side,continuityHold:true,
+   priorSupportedAngleRad:previousCorrectionRad,
+   oppositeFootVerified:true,contactLocked:false,
+   beforeToeY:swing.toeY,afterToeY:moved.toeY,
+   beforeHeelY:swing.heelY,afterHeelY:moved.heelY,
+   improvementMeters:lift,
+   penetrationAfterMeters:Math.max(0,floorTopY-moved.toeY)});
+ }
+ return null;
+}
+
 export function planOriginalSourceSwingThighEaseOut({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceThighAxisVerified=false,sourceChainVerified=false,
