@@ -49,7 +49,7 @@ export function createPhysicalCombatFeedback({
   visualAccepted=0,audioAccepted=0,renderedSeconds=0,observedSeconds=0,
   audioInterruptions=0,observedAudioContext=null,audioStateContext=ctx,
   audioStateUnavailable=false,
-  unverifiedFrameInterval=false,expiredQueuedCues=0,invalidFrameIntervals=0,
+  unverifiedFrameInterval=false,expiredQueuedCues=0,lateLiveWarningVisuals=0,invalidFrameIntervals=0,
   framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
@@ -357,7 +357,23 @@ export function createPhysicalCombatFeedback({
    // Never render or play a queued swing after a long real browser/GPU stall.
    if(observedSeconds-item.queuedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
     pending.splice(pending.indexOf(item),1);expiredQueuedCues++;
-    retainReceipt(item.cue,false,false);continue;
+    // A warning with matching, STILL-LIVE public danger cells is not a stale
+    // authored attack. The first actual frame may have stalled before its
+    // warning could be painted. Restore ONLY the retained floor markers if
+    // the latest authority still proves their full footprint and sole owner.
+    // Never recover its old audio: the original 400ms deadline has elapsed.
+    // Unverified frame intervals and revoked/replaced warnings fail closed.
+    if(requirePresentedFrame&&!unverifiedFrameInterval&&
+       item.cue.visual==='warning'&&
+       item.cue.proof==='authority-warning-window'&&
+       isLiveWardenWarning(item.cue,previous)){
+     const visual=!!safeCall(()=>visuals?.emit?.(item.cue));
+     if(visual){visualAccepted++;lateLiveWarningVisuals++}
+     retainReceipt(item.cue,visual,false,null,visual?
+      'live-warning-visual-only-after-stall':'live-warning-undrawable-after-stall');
+     played++;
+    }else retainReceipt(item.cue,false,false,null,'expired-pending-before-frame');
+    continue;
    }
    item.remaining-=dt;
   }
@@ -560,7 +576,7 @@ export function createPhysicalCombatFeedback({
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
-  expiredQueuedCues,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
+  expiredQueuedCues,lateLiveWarningVisuals,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
   staleAudioDropped,expiredVisualAudioDropped,retroactiveAudioSuppressed,
   unverifiedVisualLiveness,
    requirePresentedFrame,
