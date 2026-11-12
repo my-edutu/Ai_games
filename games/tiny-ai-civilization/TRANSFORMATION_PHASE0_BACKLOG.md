@@ -1,3 +1,16 @@
+## W261 · Phase 1 ACTIVE — original real-home mesh recovered below Day120 budget · 12 November 2026
+Only OPEN DRAFT PR #64, source [30ad570](https://github.com/my-edutu/Ai_games/commit/30ad570eb8f7cc02067a4efef78587739d35b382) and contract follow-up [dc7dd72](https://github.com/my-edutu/Ai_games/commit/dc7dd72d79628c9255b547c5e7e2d02411180154). Baseline G088 remains fixed. Do not merge.
+| Blocking impact / owner | Real value at candidate | Meaningful done condition |
+| --- | --- | --- |
+| 1. Real CPU/driver/GPU rendering capacity / rendering spine | Older [W129](https://github.com/my-edutu/Ai_games/actions/runs/43208715529) Day120 **161,577 TRI FAIL**. New actual [W129](https://github.com/my-edutu/Ai_games/actions/runs/43216946439) 156,341 TRI PASS in same test family, via 80 fewer hidden facade triangles per true home + 27 per true compact barrel. Exact hardware GPU FPS still unmeasured. | Stable all Day120 views <160k, stable memory and true desktop/mobile representative 30+ FPS, p95 ≤33.3ms, CPU/driver/GPU separated and no input stall |
+| 2. Larger convincing medieval district / environment | Real Day121 screenshot inspected: complete, growing but clearly stylized; this optimization alone did not meaningfully alter overview. | Matched G088/new uncut Day1/Day120 and workday demonstrably more credible farm→granary→market→occupied home |
+| 3. Visible meaningful real hands and trades / character+society | W259 courier mobile 0.12738 projected worker height; genuine commerce films earlier passed, W261 exact uncut economic film not yet visually inspected. | Uninterrupted actual harvest/cargo/market/household work readable on desktop + 390px; authoritative job and physical hand contacts |
+| 4. Responsive physical camera and touch / UI | Real W129 390px market passes with no page/GL errors, but 390px input smoothness under load and handoff legibility NOT PROVEN. | Unobstructed real orbit/follow in motion; correct touch commands after slow frames |
+| 5. Grounded independent user acceptance / evidence | W261 real city artifact exists, no blind independent critic, physical GPUs, full same-seed G088 A/B, or verified soak. | Separate blind A/B favorable LOOK/FEEL/PLAY, labeled real device FPS, deterministic 120d + long growth and no resource leaks |
+**A LOOK NOT PROVEN / A FEEL NOT PROVEN / A PLAY NOT PROVEN; B commercial quality FAIL.** Technical geometry recovery is not a transformation pass. Keep one integrated Phase1 slice, original people and shops fully visible, no PR merge.
+
+---
+
 ## W259 · Phase 1 ACTIVE — original live courier/merchant district, top-five persistent blockers · 12 November 2026
 
 Branch ONLY [OPEN DRAFT PR #64](https://github.com/my-edutu/Ai_games/pull/64). Exact W259 playable source [746b1a6dca18bb26485954a1738c63bff41709c4](https://github.com/my-edutu/Ai_games/commit/746b1a6dca18bb26485954a1738c63bff41709c4), immutable baseline G088 [2f6deb43feb1a1557848d44def53a6109deb1ab1](https://github.com/my-edutu/Ai_games/commit/2f6deb43feb1a1557848d44def53a6109deb1ab1). Test expectations were reconciled only after actual W259 production changes; no main/#43/#59/#62 import, merge or parallel branch overwrite.
