@@ -1658,6 +1658,41 @@ export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
  * distance-paced by planImportedLivingSourceStep and the per-action scale.
  * No new source clip, foot lock, gameplay displacement or authority tick.
  */
+/**
+ * The imported source Hit_A remains strictly pinned to the age of a genuine
+ * same-actor positive-HP-loss event. Sparse, genuinely presented WebGL frames
+ * must nevertheless let the source mixer CROSSFADE to the incoming injury:
+ * advancing its weights by only the <=50ms source clock can hide most of the
+ * original 41-joint flinch on a throttled desktop/mobile spectator.
+ *
+ * Spend at most 90ms on ONE visible mixer update, temporarily adjusting only
+ * the active Hit_A action speed so its actual keyed bones consume exactly the
+ * precomputed, HP-age-gated sourceStep. No new injury, authority tick, target,
+ * foot plant, visual geometry, source bind mutation, or second mixer update.
+ * Fails closed when original clip / event / timing evidence is incomplete.
+ */
+export function planImportedWitnessedHurtMixerFrame({
+ mode='idle',sourceClipName='',verifiedInjury=false,age=NaN,
+ sourceTime=NaN,sourceDuration=NaN,effectiveSpeed=NaN,
+ sourceStep=NaN,frameDelta=NaN,frameInterval=frameDelta,
+ visible=true,reducedMotion=false,teleport=false
+}={}){
+ if(mode!=='hurt'||sourceClipName!=='Hit_A'||verifiedInjury!==true||
+  visible!==true||reducedMotion||teleport||
+  ![age,sourceTime,sourceDuration,effectiveSpeed,sourceStep,
+    frameDelta,frameInterval].every(finite)||
+  age<0||age>=.55||sourceDuration<=.002||effectiveSpeed<=.001||
+  sourceTime<0||sourceTime>age*effectiveSpeed+.002||
+  sourceTime>=sourceDuration-.002||
+  frameDelta<=0||frameDelta>.05||frameInterval<=0||frameInterval>.5||
+  sourceStep<0||sourceStep>.0500001)return null;
+ const mixerDelta=Math.min(.09,Math.max(frameDelta,frameInterval));
+ return Object.freeze({
+  source:'witnessed-original-Hit_A-clip-crossfade',
+  mixerDelta,actionScale:sourceStep/mixerDelta,contactLocked:false
+ });
+}
+
 export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,
  frameDelta=0,frameInterval=frameDelta,sourceStep=NaN,sourceDuration=NaN,
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
