@@ -45,7 +45,19 @@ export function planNativeFigureSculpt(kind,name,bounds,sourceHeadBounds=null){
    min.z>hi.z+.25*sd||max.z<lo.z-.25*sd))return null;
  const part=/^body$/i.test(m[1])?'body':skull?'head':face?m[1].toLowerCase():/^arm/i.test(m[1])?'arm':'leg';
  const cranial=skull||face;
- return Object.freeze({kind,part,
+ // The licensed swordsman GLBs bind each entire sword arm horizontally (X).
+ // Genuine shoulders are near the torso; hands lie at the outer X end.
+ // The former Y-based limb profile deformed along the arm's THICKNESS and
+ // moved wrist/shoulder geometry lengthwise instead of creating a human
+ // deltoid/elbow/forearm silhouette. Keep a safe fallback for other rigs.
+ const armInner=Math.min(Math.abs(lo.x),Math.abs(hi.x));
+ const armOuter=Math.max(Math.abs(lo.x),Math.abs(hi.x));
+ const originalSwordArm=part==='arm'&&
+  (kind==='vanguard'||kind==='revenant'||kind==='warden')&&
+  lo.x*hi.x>0&&armInner>.005&&armOuter-armInner>.20&&
+  (armOuter-armInner)>sh*1.4&&sh>.06;
+ return Object.freeze({kind,part,axis:originalSwordArm?'x':'y',
+  centerY:(lo.y+hi.y)/2,sourceHalfHeight:sh*.5,armInner,armOuter,
   centerX:(lo.x+hi.x)/2,centerZ:(lo.z+hi.z)/2,minY:lo.y,
   invHeight:1/sh,sourceHalfWidth:sw*.5,sourceHalfDepth:sd*.5,
   maxXShift:Math.min(sw*(cranial?.18:.125),sh*.16),
@@ -55,6 +67,37 @@ export function planNativeFigureSculpt(kind,name,bounds,sourceHeadBounds=null){
 
 export function planNativeFigureVertex(plan,x,y,z){
  if(!plan||![x,y,z].every(Number.isFinite))return null;
+ if(plan.part==='arm'&&plan.axis==='x'){
+  // The actual imported CC0 swordsman geometry has the shoulder at the INNER
+  // end of X and the skinned gauntlet/wrist at its OUTER end. Morph only the
+  // cross-section (Y,Z), preserving the longitudinal X placement of every
+  // original weight-painted vertex, bone attachment and sword grip.
+  const span=plan.armOuter-plan.armInner;
+  if(!Number.isFinite(span)||span<=.20||
+   !Number.isFinite(plan.centerY)||!Number.isFinite(plan.sourceHalfHeight)||
+   plan.sourceHalfHeight<=.03)return {x,y,z,shift:0};
+  const t=clamp((plan.armOuter-Math.abs(x))/span,0,1);
+  const seam=Math.sin(Math.PI*t)**2;
+  const upper=bump(t,.78,.17),bicep=bump(t,.63,.17),
+   elbow=bump(t,.42,.11),forearm=bump(t,.26,.15),cuff=bump(t,.12,.11);
+  const role=plan.kind==='warden'?1.18:plan.kind==='revenant'?.91:1;
+  const weapon=plan.side==='right'?1.09:.96;
+  // Larger human shoulder and elbow articulation; narrower imported toy
+  // gauntlets, with slightly different anatomical rhythms for each role.
+  const shape=seam*plan.limb*role*weapon*(.77*upper+.36*bicep-
+   .40*elbow-.55*forearm-.78*cuff);
+  const anterior=clamp((z-plan.centerZ)/Math.max(.006,plan.sourceHalfDepth),-1,1);
+  const flexor=seam*plan.limb*role*(.24*forearm-.15*elbow+.16*bicep)*
+   Math.max(0,anterior);
+  const dy=clamp((y-plan.centerY)*shape,
+   -Math.min(.045,plan.sourceHalfHeight*.22),
+   Math.min(.045,plan.sourceHalfHeight*.22));
+  const dz=clamp((z-plan.centerZ)*(shape*.83)+
+   flexor*plan.sourceHalfDepth*.20,
+   -Math.min(.040,plan.sourceHalfDepth*.22),
+   Math.min(.040,plan.sourceHalfDepth*.22));
+  return {x,y:y+dy,z:z+dz,shift:Math.hypot(dy,dz)};
+ }
  const t=clamp((y-plan.minY)*plan.invHeight,0,1);
  const seam=Math.sin(Math.PI*t)**2;
  const crown=bump(t,.76,.23),brow=bump(t,.56,.17),jaw=bump(t,.28,.18);

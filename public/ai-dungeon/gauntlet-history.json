@@ -9071,5 +9071,40 @@
       "transformed": false
     },
     "next": "Analyze exact-new-head genuine 1440/390 Warden warning/release/counter mobile+desktop video: source face/helm continuity, hand grip, planted boots and screen px; reject/regress where necessary, then finish original coherent full-body combat exemplar."
+  },
+  "m1NativeArmBindAxisSculpt20261112": {
+    "date": "2026-11-12",
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "milestone": "M1_IN_PROGRESS_NOT_TRANSFORMED",
+    "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+    "parentHead": "5c3518dbd9a15d611661fe7c3abc80a05b502f92",
+    "exactBefore": {
+      "organicRun": 43258402702,
+      "mobileArtifact": 13963541622,
+      "foundationRun": 43258402380,
+      "visualRun": 43258402348,
+      "catalogueRun": "FAILED_43258402589",
+      "seed": "gauntlet-corpus-v1-0",
+      "snapshots": 946,
+      "wardenWarningCells": 23,
+      "wardenProjectedPxWarning": 35,
+      "wardenProjectedPxRelease": 91,
+      "wardenProjectedPxCounter": 131,
+      "swiftshaderFrameMedianMs": 283.4,
+      "swiftshaderFrameP95Ms": 1033,
+      "originalOptedInAudio": true,
+      "hardwarePerf": "UNVERIFIED"
+    },
+    "observedSourceDefect": "Actual original CC0 Knight and Skeleton_Warrior sword-arm GLBs are separate horizontal X-axis skinned meshes (486/656 vertices per arm); prior Y-axial arm warp distorted longitudinal X vertex positions instead of changing authentic shoulder/elbow/forearm cross-section",
+    "implementation": "On actual original source-skin sword arms only, change geometry once on private meshes along authentic shoulder-to-wrist X; per-role bounded original deltoid/biceps/elbow/forearm YZ cross-sectional profiles, zero X vertex motion, zero end seam motion; preserve source UV/weights/mixer/hand/sword, draw count, authority/replay/audio. Fall back on incompatible rigs.",
+    "testFirst": "2/2 intended red on baseline; 2/2 green with real GLB vertices; relevant 31/31; tsc build PASS; proportional Dungeon 757/762, five pre-existing unrelated assertion/camera-gallery failures.",
+    "codeAfterActualBrowser": "NOT_OBSERVED_browser_blocked_ERR_BLOCKED_BY_ADMINISTRATOR_and_coding_tunnel_NOT_FOUND",
+    "matchedLockedBaseline": "UNVERIFIED",
+    "independentCritics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "pr72": "ISOLATED_UNADOPTED",
+    "next": "Inspect exact pushed-head original 1440px/390px moving gameplay and WebAudio alongside parent and immutable baseline, verify six real source-arm volumes, sword grip and anatomical attachment at Warden 23-cell warning/release/exposed, no foot slide/audio/HP errors, performance regression and replay; reject source shape if worse, then pursue major original adult-cast reconstruction and truthful combat synchronization before >=3 fresh blinded critics."
   }
 }

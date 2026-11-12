@@ -67,7 +67,7 @@ test('actual Three.js skinned body geometry remains skin-weighted and textured, 
 test('the actual rig renderer remodels actor-private skinned meshes once, cleans them on retirement and serves the same-origin module',()=>{
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(model,/import \{planNativeFigureSculpt,sculptNativeFigureGeometry\} from '\/dungeon\/native-figure-sculpt\.js'/);
+ assert.match(model,/import \{[^}]*planNativeFigureSculpt[^}]*sculptNativeFigureGeometry[^}]*\} from '\/dungeon\/native-figure-sculpt\.js'/);
  assert.match(model,/function fitOriginalNativeFigure\(actor\)/);
  assert.match(model,/const privateGeometry=shared\.clone\(\)/);
  assert.match(model,/const receipt=sculptNativeFigureGeometry\(privateGeometry,plan\)/);
