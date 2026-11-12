@@ -1,0 +1,30 @@
+# Infinite Tower Climb — P0 first-visible grounded gateway continuity
+
+**2026-11-12 — P0 OPEN. Leading assessor NOT EVALUATED.** Scope: original Infinite Tower Climb only; existing Draft PR68 on PR58. Immutable baseline `1731b380851162741761c5569e2bc152a0869ca9` unchanged. No merge, deploy, force-push, or changed PR status.
+
+## Exact-head investigation and primary footage defect
+
+Inspected candidate source at `4e8623b2481e56fb23dc146ab20d4f19c1dec755`; [original nine-job campaign 43156973707](https://github.com/my-edutu/Ai_games/actions/runs/43156973707) yielded **eight original normal-speed 60+s videos** and authentic source chain, but the paired guardian source-to-video review **FAILED 0/2**. Technical source integrity passing and video files existing do **not** imply cinematic acceptance. [Technical quality 43156973787](https://github.com/my-edutu/Ai_games/actions/runs/43156973787) passed at that prior SHA, as a veto only.
+
+Downloaded **actual original candidate Floor8 guardian** [artifact 13915549546](https://github.com/my-edutu/Ai_games/actions/runs/43156973707/artifacts/13915549546) and viewed timed native desktop 960×600 and portrait 390×844 frames 21–30s. The upper bronze machinery obstructs the real duel; the body appears by a bronze cap and suddenly switches to a purple Floor9, with no persuasively continuous whole-body walk-through. Actual source tick451 Floor9 at ~22.929s desktop / ~23.247s portrait, versus sampled painted Floor9 at ~26.0s / ~25.5s respectively (**+3.071s / +2.253s**). These are sampled native-phase witnesses, **not** GPU-present timestamps or frame rates. The previous original WebGL Floor9 browser→Three render return recorded ~1.323s desktop / ~1.535s portrait: cold presentation is significant and retiming original footage is forbidden.
+
+The real source-authorized `guardian-passage.mjs` handoff previously inherited 1.05–1.65s of its original 2.9s visual age, advanced it on attempted scene frames, and used camera `1-age/1.35` even before any successful first Floor9 3D submission. A slow cold renderer could therefore consume the supposedly visible doorway before spectators saw its next-floor body.
+
+## Actual implemented P0 system change, no gameplay authority modification
+
+- **Test-first RED** `b6d19e57a4b967286e5f8e64bb87d7ae137de0c6`: [quality run 43163242694](https://github.com/my-edutu/Ai_games/actions/runs/43163242694) FAILED the three new source/scene contracts before implementation: gateway vanished before rendering, no actual submission API, and scene never called it. Test fixture uses exact same-run physically supported Floor8 cap → Floor9 ground coordinates and defeated guardian.
+- **Gateway source/playable presentation** `d281103820ab0110b15a24f372c8f04c9e75539f`: original opened grounded doorway now keeps its *unspent* visual window until a matching run/floor/tick, nonstale, successful Three submission; after that, a bounded 1.65s visible continuation is spent. An interrupted or never submitted handoff is retired after a bounded 6s budget; wrong source or legacy synthetic/no-grounded cases never receive that extension. The original 3D leaves, physical inlays, guardian collision and player coordinates are unchanged. Camera follow remains bounded to the authentic floor9 doorway, protecting existing safety and manual controls.
+- **Actual live renderer integration** `eb100fc9b8bb78423a7106cb9a69b0b6b659750b`: only after `renderer.render(scene,camera)` returns normally does the original scene acknowledge the precise handoff source to the passage. Browser receipt, stale packets, failed WebGL and phantom Floor9 do not start the presentation timer.
+- **Integrity contracts** new `tests/phase3/tower-guardian-submitted-gateway-lifetime.test.cjs` check original physically grounded handoff, >2s cold unsubmitted frames, first accepted rendering, source/tick/episode vetoes, bounded expiry and API wiring. Existing legacy passage expiry remains unchanged. Tests/CI measure implementation contract, **not** visible human success.
+
+## Performance, quality, failure, accessibility and review
+
+The new presentation state consists of four bounded numeric counters, one idempotent per-frame constant-time source guard and no timers, extra geometry, WebGL draw, new simulation ticks, input, network calls, audio or public telemetry. Existing context-loss rebuild clears the passage; stale/muted/reduced-motion rendering keeps existing protections. Six seconds never-submitted and 1.65 seconds post-submission are explicit resource limits. The render-return witness is not a presented native video frame, and software video presentation can still be late.
+
+**After-code exact SHA CI:** [run 43163578785](https://github.com/my-edutu/Ai_games/actions/runs/43163578785) was **pending** at initial engineering review; final acceptance requires its actual result and 8 authentic after-films. Do not call this green in advance. Need inspect original video motion and synchronization at the new immutable source SHA and reject/regress this change if it misframes actors, over-stays the arch or hides crusher.
+
+**Independent blind critics:** LOOKS 0/5, FEELS 0/5, PLAYS 0/5. **Supported physical-device p50/p95/p99, GPU present and memory:** NOT EVALUATED. **Leading transformation verdict: NOT EVALUATED.**
+
+## Next actual P0 action
+
+Pin another 9-job source-authentic original 60s+ baseline/candidate capture at this PR68 implementation lineage. At 960×600 and 390×844 check real Floor8 guardian/pressure defeat, source tick451, 3D returned submission, painted Floor9 arch and the actual following rooted footsteps without cuts; also moving deck, ascent, 9→10, outcome and restart. If exact event-to-native alignment stays 0/2, prioritize the remaining measured WebGL/compositor stall and bronze foreground obstruction, not another cosmetic camera offset. Retain P0 until actual video proves the full loop.
