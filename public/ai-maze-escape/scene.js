@@ -3,6 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
+import { publicGuardianDuelCameraElevation } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1067,7 +1068,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           portraitEncounterOrbit=publicPortraitGuardianOrbitAngle(
             aspect,closestThreat.strength,pose,closestThreat,settings.reducedMotion);
           const sine=Math.sin(portraitEncounterOrbit), cosine=Math.cos(portraitEncounterOrbit);
-          portraitCameraOffset.set(15*cosine-18*sine,21,15*sine+18*cosine);
+          // Pass307 original 390px WebGL: the grounded guardian brace and
+          // connected shell release are nearly indistinguishable from above.
+          // Direct the ACTUAL camera toward a side-on, publicly witnessed
+          // performance; no changed actor root, scale, private map or AI.
+          // Reduced motion, manual cameras and non-portrait views keep their
+          // proven composition and full-model physical-fit requirements.
+          const duetElevation=publicGuardianDuelCameraElevation(
+            aspect,closestThreat.strength,closestThreat.encounterBeat,
+            settings.reducedMotion);
+          portraitCameraOffset.set(15*cosine-18*sine,duetElevation,15*sine+18*cosine);
           const balance=publicPortraitGuardianBalance(
             aspect,closestThreat.strength,pose,closestThreat,desiredTarget,portraitCameraOffset);
           desiredTarget.x+=balance.x;
