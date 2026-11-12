@@ -28,16 +28,16 @@ for(const season of [0,1,2,3])for(const compact of [false,true]){
  assert.equal(v.farmScene.stalks,1);
  assert.equal(v.farmScene.seedHeads,season===3?0:1);
 }
-let roots=[];
-v.crop=(x,z,id,season,compact)=>{roots.push({x,z,id});v.farmScene.stalks++};
+let roots=[];v.capturedRoots=roots;
+vm.runInContext('farmStalk=function(x,z,id){capturedRoots.push({x,z,id});farmScene.stalks++};',v);
 v.data=[];v.farmScene={stalks:0,seedHeads:0,stalkTriangles:0};
 for(let i=0;i<2;i++)v.plant(v.FARMSTEAD.fields[i],i,1,true);
 assert.equal(roots.length,668,'preserve all original planted crowns');
-const copy=JSON.stringify(roots);roots=[];
+const copy=JSON.stringify(roots);roots=[];v.capturedRoots=roots;
 for(let i=0;i<2;i++)v.plant(v.FARMSTEAD.fields[i],i,1,true);
 assert.equal(JSON.stringify(roots),copy,'seed-stable planted geometry');
 for(const {x,z,id} of roots){
- const field=id>=20000?v.FARMSTEAD.fields[1]:v.FARMSTEAD.fields[0];
+ const field=id>=10000?v.FARMSTEAD.fields[1]:v.FARMSTEAD.fields[0];
  assert(x>=field[0]&&x<=field[1]&&z>=field[2]&&z<=field[3],
   'real rooted crop stays in its original production parcel');
 }
