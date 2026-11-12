@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -512,7 +512,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     explorer.group.position.set(pose.x, ground, pose.z);
     if (pose.moving) heading = pose.heading;
     const result = frame.scene === 'result' || frame.scene === 'intermission' ? s.result?.reason ?? 'failure' : null;
-    let closestThreat = null, closestWarning = null;
+    let closestThreat = null, closestWarning = null, closestThreatModel = null;
     for (const entry of wardens.values()) {
       if (settings.reducedMotion || result) { entry.cells = [entry.cell]; entry.progress = 0; }
       else if (entry.cells.length > 1) {
@@ -542,8 +542,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         closestWarning={cell:entry.cell,strength:warningStrength};
       const attentionStrength=witnessedLocally
         && publicGuardianOpenSightline(s,entry.cell) ? warningStrength : 0;
-      if (attentionStrength>(closestThreat?.strength??0))
+      if (attentionStrength>(closestThreat?.strength??0)) {
         closestThreat={x:threatPose.x,y:threatGround,z:threatPose.z,cell:entry.cell,strength:attentionStrength};
+        // Only this CURRENT public reciprocal and unlocked guardian may
+        // contribute a complete physical body to the portrait lens.
+        closestThreatModel=entry.model.group;
+      }
       // Per-guardian source-authentic encounter: first PUBLIC attention starts
       // a bounded visual timeline. Clearing/ending public attention resets it.
       // This never sets AI intent or creates movement and cannot track a hidden
@@ -1358,6 +1362,56 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         cameraTarget.addScaledVector(pressureReframeRight,horizontalShift);
         camera.position.copy(cameraTarget).add(cameraOffset);
         camera.lookAt(cameraTarget);
+      }
+    }
+
+    // Native Pass308 original 390px three-beat WebGL shows real full Pip
+    // and Thornback bodies, but the lower-angle lens barely enlarges either.
+    // Reuse the exact original CPU-only world Box3 projection scratch for a
+    // truthful camera closeup of BOTH real connected models, not center icons.
+    // This exclusive shot cannot reveal a sealed/unknown enemy, alter AI,
+    // scale physical actors, or crop the output; immutable native +/- .95
+    // silhouettes, 44px controls and manual camera take priority.
+    if (cameraMode==='follow' && !settings.reducedMotion && !result
+      && !cameraGate && !pressureCameraBeat && !pickupCameraBeat
+      && aspect>=.35 && aspect<.60 && closestThreat?.strength>.70
+      && closestThreatModel?.parent) {
+      camera.updateMatrixWorld();
+      const realBodies=[];
+      for (const root of [explorer.group,closestThreatModel]) {
+        pressureReframeEnvelope.makeEmpty();
+        root.updateWorldMatrix(true,true);
+        root.traverseVisible(mesh=>{
+          if(!mesh.isMesh || !mesh.geometry)return;
+          if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+          if(mesh.geometry.boundingBox)pressureReframeEnvelope.union(
+            pressureReframePiece.copy(mesh.geometry.boundingBox)
+              .applyMatrix4(mesh.matrixWorld));
+        });
+        if(pressureReframeEnvelope.isEmpty())break;
+        let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity,valid=true;
+        for(const x of [pressureReframeEnvelope.min.x,pressureReframeEnvelope.max.x])
+          for(const y of [pressureReframeEnvelope.min.y,pressureReframeEnvelope.max.y])
+            for(const z of [pressureReframeEnvelope.min.z,pressureReframeEnvelope.max.z]){
+              const p=pressureReframePoint.set(x,y,z).project(camera);
+              if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||!Number.isFinite(p.z)
+                ||p.z<=-1||p.z>=1)valid=false;
+              else{
+                left=Math.min(left,p.x);right=Math.max(right,p.x);
+                bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);
+              }
+            }
+        if(!valid||left>=right||bottom>=top)break;
+        realBodies.push({left,right,bottom,top});
+      }
+      const physicalPairHeight=publicGuardianPhysicalCloseupHalfHeight(
+        aspect,closestThreat.strength,targetHeight,halfHeight,realBodies,
+        settings.reducedMotion);
+      if(physicalPairHeight<halfHeight-.02){
+        halfHeight=physicalPairHeight;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';

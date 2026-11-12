@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T18:55:00.000Z",
+  "updatedAt": "2026-11-12T19:13:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass307 exact-HEAD WebGL 43279301835 SUCCESS (39 original full PNG, 37/37 hash sidecars verified, six-run strict <100). Initial Pass308 WebGL 43283899786 FAILED BEFORE 3D rendering: newly imported guardian-duel-camera.mjs was not listed in the explicit Maze stream PUBLIC_ASSETS allowlist, browser 404 triggered fallback, so geometry/screenshot failures are 3D startup blocker, NOT a genuine resource count. The same-pass corrective source commit adds only that exact public module to whitelist with regression; no broad server route/privacy/threshold changes. Pass308 camera beat remains a visual candidate, new exact-HEAD WebGL/geometry/independent critic PENDING. Official Nintendo bar UNMET."
+    "summary": "Pass308 exact-SHA original WebGL 43285097100 SUCCESS (39 full-frame original PNG, 37/37 direct SHA sidecars, strict six-run <100). Real 390px notice/brace/release remained small against busy paving despite lower camera elevation; Nintendo visual benchmark REJECTED. Pass309 implements candidate camera fit from the two genuine fully connected public 3D mesh silhouettes, with stricter phone HUD/actor bounds than unchanged ±.95. New exact-SHA native render and independent critic pending. Official benchmark NOT MET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass309: independently verified native Pass308 original 39 full-frame PNG / 37 SHA metadata pairs, Maze/stream CI and strict six-run <100. Rejected negligible actual guardian scale gain. New original production source fits BOTH connected Pip/Thornback bodies only during publicly disclosed reciprocal guardian Follow at 390px with strict x ±.88/top +.70/bottom -.84, no AI/privacy/HUD/resources change. New exact-HEAD source-bound WebGL and fresh external critic PENDING.",
     "Pass307: original Pass306 full-size WebGL 37 PNG/35 matching SHA sidecars verify actual mask-forward Thornback visual gain but Nintendo bar UNMET; 6-run <100 real geometry passed. Repaired last genuine source fossil evidence replay by reloading SAME document for earlier original tick; unaltered public/physical acceptance, CPU SwiftShader evidence-only wall-clock 480→600 seconds. New exact-HEAD full evidence/tests/critic pending; detached workspace unavailable.",
     "Pass305 same-pass real CI regression: first source 91489e4 failed original phase6 public lantern exact import-wiring check (800/801 node tests passed); fixed production import grouping while preserving original test thresholds, two-link lamp logic, one-link projected-beam ban and scene authority. New exact-HEAD CI/render pending.",
     "Pass305: verified 37/37 actual Pass304 WebGL screenshot SHA sidecars from 43264685130; full 320/390/844/1280 native image critic finds genuine higher-attention paired actor framing but Nintendo benchmark NOT MET. Implemented one direct scene/gameplay-linked lighting unit: original real Pip PointLight extends from 4m only while actual observed guardian is two reciprocally linked open published cells away, with zero new geometry and no invented 2-link cone; hidden/closed/one-way/terminal guard and exact fade-to-default. New source-bound WebGL/artistic approval and independent critic PENDING.",

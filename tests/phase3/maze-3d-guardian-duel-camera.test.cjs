@@ -48,3 +48,53 @@ test('explicit public stream asset allowlist serves the real 3D guardian cinemat
    'explicit route security boundary must remain intact');
  assert.doesNotMatch(server,/\.\.\/\.\.\//,'no broad path traversal fallback for module repair');
 });
+
+test('Pass309 real native full-body Pip–Thornback boxes drive a meaningful bounded portrait closeup',async()=>{
+ const {publicGuardianPhysicalCloseupHalfHeight:fit}=await camera();
+ const aspect=390/844, strength=.818181818, height=8.162680093240091;
+ const beats=[
+  [{left:-.41031,right:.31589,bottom:.08085,top:.53998},
+   {left:-.04837,right:.37898,bottom:-.30816,top:.07254}],
+  [{left:-.47607,right:.46927,bottom:.04699,top:.58528},
+   {left:-.13770,right:.37272,bottom:-.32340,top:.12378}],
+  [{left:-.45167,right:.45068,bottom:.06089,top:.56574},
+   {left:-.11414,right:.39715,bottom:-.30000,top:.14514}]
+ ];
+ for(const pair of beats){
+   const projected=fit(aspect,strength,height,height,pair);
+   assert.ok(projected<height*.86&&projected>=height*.79,
+     'the complete original actors become visibly larger rather than changing their models');
+   const factor=height/projected;
+   for(const box of pair){
+     assert.ok(Math.max(Math.abs(box.left),Math.abs(box.right))*factor<=.88+1e-9);
+     assert.ok(box.top*factor<=.70+1e-9,'urgent 390px mission chip still has safe room');
+     assert.ok(-box.bottom*factor<=.84+1e-9,'actual 44px Map and intent controls stay clear');
+   }
+   assert.equal(fit(aspect,strength,height,height,pair),projected,'no frame-clock dependent target');
+ }
+});
+
+test('unseen, clipped, malformed, manual/landscape/reduced-motion guardian cannot earn camera zoom',async()=>{
+ const {publicGuardianPhysicalCloseupHalfHeight:fit}=await camera();
+ const a=390/844,h=8.16,body={left:-.4,right:.36,bottom:-.35,top:.53};
+ const valid=[body,{left:-.48,right:.41,bottom:-.12,top:.59}];
+ for(const pair of [undefined,null,[],[body],[body,null],
+   [{...body,left:-1},body],[{...body,right:1},body],
+   [{...body,top:Infinity},body],[{...body,left:NaN},body]])
+   assert.equal(fit(a,.82,h,h,pair),h,'no geometry or cropped body means no zoom');
+ for(const strength of [0,.35,.70,NaN,Infinity])
+   assert.equal(fit(a,strength,h,h,valid),h,'no confirmed guardian means no framing request');
+ for(const aspect of [844/390,1280/900,.61,.2,NaN])
+   assert.equal(fit(aspect,.82,h,h,valid),h,'other camera classes unchanged');
+ assert.equal(fit(a,.82,h,h,valid,true),h,'reduced motion keeps previous source framing');
+ assert.equal(fit(a,.82,h,h,[{...body,top:.90},valid[1]]),h,
+   'any near-HUD collision must prevent further magnification');
+});
+test('Pass309 production source reads only actual public 3D actors, preserves existing WebGL evidence gates',()=>{
+ assert.match(scene,/closestThreatModel=entry\.model\.group/);
+ assert.match(scene,/attentionStrength=witnessedLocally\s*&& publicGuardianOpenSightline\(s,entry\.cell\)/);
+ assert.match(scene,/cameraMode==='follow'[\s\S]*?closestThreat\?\.strength>\.70[\s\S]*?closestThreatModel\?\.parent/);
+ assert.match(scene,/root\.traverseVisible\(mesh=>/);
+ assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(\s*aspect,closestThreat\.strength,targetHeight,halfHeight,realBodies/);
+ assert.doesNotMatch(scene,/privateMaze.*closestThreatModel|secretRoute.*closestThreatModel/);
+});
