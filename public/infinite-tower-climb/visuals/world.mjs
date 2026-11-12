@@ -2205,6 +2205,12 @@ export function createTowerWorld(){
     const adjacentBrowserProof = observedEarnedFloorArrival(lastSnapshot,snapshot);
     const deferDistant = requestedQuality==='low' &&
       (adjacentBrowserProof || earnedSourceUploadWitness);
+    // Only a VERIFIED old-cap physical crossing can temporarily postpone
+    // new-floor NON-COLLIDING monumental architecture. The original Floor9
+    // roof, every moving platform, hazard, hero and earned bronze doorway
+    // stay in the first render. Mere adjacent browser floor change cannot
+    // hide its shaft or borrow another run's winning passage.
+    const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && theme==='void';
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
     clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
@@ -2237,7 +2243,7 @@ export function createTowerWorld(){
     // never belong on the critical first post-gateway renderer submission.
     // The canyon, source decks, physics-anchored hazards and action silhouettes
     // remain complete in the very first frame; no false gateway is inserted.
-    buildTower(height,theme==='clockwork');
+    if (!deferStructuralShell) buildTower(height,theme==='clockwork');
     // Critical scene geometry is authoritative: ground, platforms, hazards,
     // canyon shaft and gateway all remain on the first submitted new-floor
     // frame. Only the noninteractive 8,640-triangle distance panorama and
@@ -2275,6 +2281,7 @@ export function createTowerWorld(){
     if (deferDistant) deferredDistantArrival = {
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
+      structureDeferred:deferStructuralShell, structureBuildMs:null,
       firstRenderSubmitted:false, submittedFrames:0,
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
@@ -2292,14 +2299,14 @@ export function createTowerWorld(){
         snapshot.tick >= retainedEarnedCap.sourceTick)
       retainedEarnedCap.submittedFrames = Math.min(3,retainedEarnedCap.submittedFrames+1);
     const job=deferredDistantArrival;
-    if (!job || !['awaiting-actual-first-render','awaiting-vista-submission'].includes(job.state) ||
+    if (!job || !['awaiting-actual-first-render','awaiting-structural-submission','awaiting-vista-submission'].includes(job.state) ||
         options.stale || !snapshot || snapshot.runToken!==job.runToken ||
         snapshot.floor!==job.floor ||
         key!==job.key || snapshot.tick<job.sourceTick) return false;
     // Exactly one GPU upload tranche per returned Three.js frame. HTTP
     // acceptance and JS animation never advance this queue. On context loss
     // or source/run switch, clearFloor() cancels the entire pending tranche.
-    job.submittedFrames=Math.min(2,job.submittedFrames+1);
+    job.submittedFrames=Math.min(job.structureDeferred?3:2,job.submittedFrames+1);
     job.firstRenderSubmitted=true;
     return true;
   }
@@ -2310,13 +2317,11 @@ export function createTowerWorld(){
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
     const arrival=deferredDistantArrival;
-    if (arrival && arrival.key===key &&
-        arrival.state==='awaiting-actual-first-render' &&
-        arrival.submittedFrames>=1 && !options.stale) {
+    function appendDeferredVista(arrival) {
       const began=performance.now();
-      // The original three-layer, 8,640-triangle geological panorama gets its
-      // own upload/shader frame, AFTER the actual floor and live actor return.
-      // It is never a collision, safe platform or source route boundary.
+      // The original three-layer, 8,640-triangle panorama uploads only
+      // after a real scene frame has returned. Its actual source ground and
+      // lethal geometry are never deferred or touched.
       buildVista(arrival.height);
       const vista=vistaGroup?.getObjectByName('tower-vista-cliffs');
       if(vista?.material){
@@ -2329,8 +2334,58 @@ export function createTowerWorld(){
       arrival.state='awaiting-vista-submission';
     }
     if (arrival && arrival.key===key &&
+        arrival.state==='awaiting-actual-first-render' &&
+        arrival.submittedFrames>=1 && !options.stale) {
+      if (arrival.structureDeferred) {
+        // Genuine 1x immutable source film 43300014722: the old bronze cap
+        // survives as a real GPU mesh, yet a cold, fully rebuilt violet
+        // monumental shaft appears over it while Three still takes ~1s to
+        // submit the first F9 frame. Keep the ACTUAL F9 platforms and danger
+        // in that first frame; upload its NON-INTERACTIVE shaft/citadel stage
+        // only after it really returned. Reuse all ORIGINAL geometry, never
+        // a proxy sky, collider, new floor, actor, fake threshold or cut.
+        const began=performance.now(), before=floorGroup.children.length;
+        const rotorCount=rotors.length, floaterCount=floaters.length;
+        buildTower(arrival.height,false);
+        const structuralRoot=new THREE.Group();
+        structuralRoot.name='deferred-original-floor-nine-architecture';
+        const added=floorGroup.children.slice(before);
+        for(const child of added)structuralRoot.add(child);
+        floorGroup.add(structuralRoot);
+        // The authentic Void crystal halo and orbiting crystals must keep
+        // moving at source tick, not become static rigid batches. The new
+        // structure follows the SAME batching policy as the original floor:
+        // animated roots are independent, everything else stays bounded.
+        const deferredShellRotors=rotors.slice(rotorCount);
+        const deferredShellFloaters=floaters.slice(floaterCount);
+        const animatedStructuralRoots=new Set([
+          ...deferredShellRotors.map(rotor=>rotor.o),
+          ...deferredShellFloaters.map(floater=>floater.o)]);
+        for(const rotor of deferredShellRotors) batchRigid(rotor.o);
+        structuralRoot.traverse(object=>{
+          if(!object.isMesh)return;
+          object.castShadow=!object.userData.ambientDetail &&
+            (!!object.userData.structural || object.material===materials.stone ||
+              object.material===materials.dark);
+          object.receiveShadow=!object.userData.ambientDetail;
+        });
+        batchRigid(structuralRoot,animatedStructuralRoots);
+        const used=new Set();
+        floorGroup.traverse(object=>{if(object.geometry)used.add(object.geometry);});
+        for(const geometry of floorGeometries)if(!used.has(geometry)){
+          geometry.dispose();floorGeometries.delete(geometry);
+        }
+        arrival.structureBuildMs=+(performance.now()-began).toFixed(2);
+        arrival.state='awaiting-structural-submission';
+      } else appendDeferredVista(arrival);
+    }
+    if (arrival && arrival.key===key &&
+        arrival.state==='awaiting-structural-submission' &&
+        arrival.submittedFrames>=2 && !options.stale)
+      appendDeferredVista(arrival);
+    if (arrival && arrival.key===key &&
         arrival.state==='awaiting-vista-submission' &&
-        arrival.submittedFrames>=2 && !options.stale) {
+        arrival.submittedFrames>=(arrival.structureDeferred?3:2) && !options.stale) {
       const began=performance.now();
       // The seven authentic distant citadels form the SECOND deferred upload,
       // only after the real canyon has itself been submitted by Three.js.
@@ -2972,6 +3027,8 @@ export function createTowerWorld(){
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
       submittedFrames:deferredDistantArrival.submittedFrames,
       proof:deferredDistantArrival.proof,
+      structureDeferred:deferredDistantArrival.structureDeferred === true,
+      structureBuildMs:deferredDistantArrival.structureBuildMs,
       fade:+deferredDistantArrival.fade.toFixed(3),
       vistaFade:+deferredDistantArrival.vistaFade.toFixed(3),
       initialRebuildMs:deferredDistantArrival.initialRebuildMs,
