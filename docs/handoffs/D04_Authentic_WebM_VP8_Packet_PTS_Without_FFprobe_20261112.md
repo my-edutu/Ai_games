@@ -40,3 +40,13 @@ Trace why actual readback requests 4–10 are not followed by encoded video pack
 Three matched moving views, 1440x900/390x844 mobile A/V, genuine miss/block/dodge/projectile/spell and actual HP loss, complete Warden warning/release/recovery/counter, decoded original impact onset, twenty-minute soak and frozen BEFORE independent critique remain unaccepted.
 
 Rollback: revert only the new forensic parser, its contracts, spec report additions, workflow registration and this handoff on the isolated D04 branch. Never merge to main or Draft PR #49.
+
+## Completed integration verification — later same-day evidence
+
+The final integrated candidate [43133366803](https://github.com/my-edutu/Ai_games/actions/runs/43133366803) finished **SUCCESS**: **144/144 native tests**, production build, SHA-verified CC0 models and the real Chrome/Three.js Dungeon Playwright smoke all passed.
+
+The **new** authentic artifact [13906770498](https://github.com/my-edutu/Ai_games/actions/runs/43133366803/artifacts/13906770498) contains the original genuine readback WebGL + live opted-in Opus WebM (not a generated animation). The added pure-Node EBML PTS probe ran inside GitHub CI and reported **9 encoded video blocks** at **0.836, 1.269, 1.720, 2.159, 2.619, 3.053, 3.492, 3.950, 4.392 seconds**, from **15** genuine receipt-gated frame requests, with sampleSynchronized:false, pixelMotionVerified:false and audibleImpactVerified:false.
+
+I independently downloaded that artifact and verified **9 VP8 frames + 99 Opus audio packets** using a separate local FFprobe. Local FFmpeg decoded all nine genuine 640x400 frames. Consecutive pictures show real changed pixels (8/255 threshold), pairwise **16.39%, 13.58%, 13.86%, 15.22%, 8.99%, 12.50%, 11.74%, 10.76%** of the frame. These percentages describe *pixel differences in the actual recording only*, NOT a realism rating, verified blade contact, a full continuous frame rate, or combat cue sample synchrony.
+
+The separate original real-WebGL receipt-readback video-only path encoded only **3 frames** in the same run. The Chromium HTMLVideoElement seek fallback still reported BROWSER_DECODE_UNVERIFIED; the Node packet probe and independent FFprobe agree on the nine captured blocks despite this fallback failure. Playback remains too sparse and original foley onset cannot be proven from the Opus packet count alone. The specific next bottleneck is the **6 receipt requests without corresponding encoded packets** in the 15-request combined readback run and calibrating delivery/media timebases before contact-onset claims. No more work on unrelated sessions is authorized by this result.
