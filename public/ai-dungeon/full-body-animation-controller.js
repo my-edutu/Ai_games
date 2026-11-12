@@ -1626,8 +1626,16 @@ export function planOriginalSourceStanceSlideRelief({
   if(span<.11||span>.38||nextSpan<.11||nextSpan>.38||
    Math.abs(nextSpan-span)>.018)return null;
   return {a,b,
-   loaded:[a.heel,a.toe,b.heel,b.toe].every(p=>
-    p[1]>=floorTopY-.026&&p[1]<=floorTopY+.029)};
+   // Actual original 390px Walking_A source-skinned frames 87->88
+  // (2026-11-12 evidence #13980180305) show a unique right heel/toe
+  // 30-31mm ABOVE the stone while visibly skating 75-77mm. The former
+  // 29mm upper edge silently vetoed the verified same-clone correction
+  // on a 1-2mm tolerance mismatch. Accept <=35mm as NEAR-STONE only:
+  // this is NOT a physical contact, stance lock or fictitious footfall.
+  // Keep the strict lower burial bound, two-point/same-shoe load,
+  // unique opposite-foot, source-instance, root travel and rollback gates.
+  loaded:[a.heel,a.toe,b.heel,b.toe].every(p=>
+    p[1]>=floorTopY-.026&&p[1]<=floorTopY+.035)};
  };
  const left=points('left'),right=points('right');
  if(!left||!right||Number(left.loaded)+Number(right.loaded)!==1)return null;
