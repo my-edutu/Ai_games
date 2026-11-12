@@ -8283,5 +8283,31 @@
     "verifiedRegressionsRepaired": "Patch 02ef313f: actual shipped scene invokes optional world.noteFrameSubmitted?.() for minimal VM stubs, but real world method still mandatory on production path; low-tier only deferred, seven distant citadel roots now rigid-batched into ONE original shadow-free draw before fog fade, preserving mobile draw budget. CI confirmation of fix not yet observed.",
     "latestExactHeadTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43122518034 — PENDING at time of fix evidence; do not claim a pass",
     "newCaptureSource": "Exact github.sha after the FIX and this capture-request commit; earlier f434 capture is RED-code superseded and cannot be candidate acceptance."
+  },
+  "p0PhysicalGroundedDoorwayPersistsAcrossSceneRebuild20261112": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedSourceSha": "936c9c069d89fb9989b8a668c252fcee65b56f3e",
+    "preFixAuthenticCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43122677273 — genuine 8/8 matched normal-speed WebMs and original source successful; original guardian event-pairing FAILED 0/2",
+    "preFixQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43122677211 — success, technical veto only",
+    "actualInspectedFullMotion": "Downloaded original 73.08s candidate portrait and desktop source-pinned danger WebMs. Sampled 12–32s real frames: busy bronze guardian, skinned airborne actor at ~24–25s, abrupt purple Floor9 at ~25.5s. Body does NOT visually traverse a continuous grounded portal. Previous 2s source/native defect reduced in this film to ~1.04s portrait but remains unaccepted.",
+    "discoveredRootCause": "Actual guardian-passage begin() hid the already-shown radius-25 ground-level walkable inner arch and presented an elevated, outboard radius-27.78 decorative memorial exactly at the authentic adjacent-floor threshold, compounding old/new-world swap. It was a 3D hierarchy break, not an authority teleport.",
+    "redTestCommitSha": "8c7d8336a696f72178360e4337fd07091d70486c",
+    "redCI": "https://github.com/my-edutu/Ai_games/actions/runs/43124464534 — 3 new test cases failed before implementation as designed",
+    "productionCodeCommitSha": "95bb7f25e852322b0cde97c679be71f6e19b5c22",
+    "change": "Original source-only same-run 8→9 helper checks inactive 0-HP guardian, exact opt-in cap exit, whole-body grounded clearance, preserved player x/y and both real supporting surfaces. If previously unlocked inner arch actually existed, keep same radius25 inner stone-and-retracting-leaf arch visible (max 2 existing draws), suppress redundant outboard memorial, remove obsolete source cap inlay; naturally retire after 2.9s. Legacy/immediate transitions preserved. No physics/AI/PR58/baseline/draw allocations modified.",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43124618874 — IN PROGRESS at authoring, not a pass",
+    "newSourcePinnedFilm": "NOT YET RECAPTURED after the physical continuity repair; capture request will pin final immutable PR68 SHA",
+    "independentBlindCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "biggestGap": "Full 1× physical boot/arch crossing and native source→WebGL→raster match still NOT ACCEPTED 0/2; portrait guardian still crowded by bronze machinery. Need prove actual film improvement, not merely code/test truth.",
+    "nextHighestImpactAction": "Review new 60s+ matched baseline/candidate desktop960x600 and portrait390x844 originals at exact immutable SHA, compare the grounded arch through Floor9 and outcome/restart with native video clock. Reject if worse. Resolve 0/2 source-to-raster, then independent 5/5 randomized blind reviews per LOOKS/FEELS/PLAYS and real device budgets.",
+    "review": "docs/reviews/2026-11-12-tower-pr68-source-grounded-inner-threshold-continuity.md",
+    "prohibitedActions": "Do not merge, deploy, force-push, alter PR58 or frozen baseline, change draft status, fabricate media/review/metrics."
   }
 }
