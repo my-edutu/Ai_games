@@ -624,9 +624,9 @@ test('original physical foreground recedes below stone and returns without one-f
  const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
  const env=fs.readFileSync(path.join(root,'public/ai-dungeon/environment.js'),'utf8');
  const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
- assert.match(app,/applyForegroundRecession\(group,hidden\|\|portrait\|\|danger,frameDt,reduced/);
+ assert.match(app,/applyForegroundRecession\(group,hidden\|\|portrait\|\|danger\|\|verifiedRenderedStageRoots\?\.has\(group\),frameDt,reduced/);
  assert.match(app,/applyForegroundRecession\(prop,blocked\|\|warningBlocked,dt,reduced/);
- assert.match(env,/applyForegroundRecession\(group,blocked\|\|portrait\|\|warningBlocked,frameDt,reducedMotion/);
+ assert.match(env,/applyForegroundRecession\(group,blocked\|\|portrait\|\|warningBlocked\|\|verifiedRenderedStageRoots\?\.has\(group\),frameDt,reducedMotion/);
  assert.ok(server.includes("['/dungeon/foreground-recession.js','foreground-recession.js']"));
 });
 
