@@ -14,7 +14,7 @@ function genuine(){
   const old={runToken:'native-tick-450-451',floor:8,tick:450,
     lifecycle:'running',theme:'clockwork',guardianExitX:gate,
     worldWidth:480000,chunkBaseY:2880000,platforms:[oldCap],
-    enemies:[{id:'f8:guardian',kind:'guardian',floor:8,active:false,health:0}],
+    enemies:[{id:'f8:guardian',kind:'guardian',floor:8,active:false,health:0,x:235000,y:3239000,halfHeight:18000,halfWidth:14000}],
     player:{x:317096,y:playerY,halfWidth:9000,halfHeight:14000,
       grounded:true,groundedPlatformId:'f8:cap',health:3}};
   const next={runToken:old.runToken,floor:9,tick:451,
