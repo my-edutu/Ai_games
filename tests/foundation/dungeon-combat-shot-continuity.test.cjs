@@ -4,7 +4,7 @@ const fs=require('node:fs'),path=require('node:path');
 const source=path.join(__dirname,'../../public/ai-dungeon/combat-shot-continuity.js');
 const load=()=>import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(source,'utf8')).toString('base64'));
 const scene=(run=1,floor=1,alive=true)=>({run,floor,units:[
- {id:'vanguard',hp:120,x:2,z:3},{id:'warden',hp:alive?100:0,x:3,z:3}
+ {id:'vanguard',hp:120,x:2,z:3},{id:'warden',kind:'warden',hp:alive?100:0,x:3,z:3}
 ]});
 const shot=(mode='contact',offsets=[6,7,5],subjects=['vanguard','warden'])=>({mode,x:2.5,z:3,offsets,subjects,lookY:.65});
 test('physical camera holds the genuine two-body screen side without falsifying current duel mode or position',async()=>{
