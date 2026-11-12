@@ -72,3 +72,40 @@ test('actual installed Three.js world stages quiet real floor without replacing 
  assert.equal(w.stats().geometryCount,0);
  assert.equal(w.stats().materialCount,0);
 });
+
+test('a publicly witnessed guardian clears tall ornamental tops on sealed adjacent stone, never hidden stone',async()=>{
+ const {createMazeWorld,publicGuardianStageCells,publicGuardianBlockedReliefCells:relief}=await load();
+ const s=original();
+ s.visibleCells.push(5,9,12);
+ s.cells.push(...[5,9,12].map(cell=>({cell,blocked:true,neighbors:[]})));
+ const truth=JSON.stringify(s);
+ assert.deepEqual([...publicGuardianStageCells(s)].sort((a,b)=>a-b),[6,7,8,11]);
+ assert.deepEqual([...relief(s)].sort((a,b)=>a-b),[5,9,12]);
+ const unseen={...s,visibleCells:s.visibleCells.filter(id=>id!==12)};
+ assert.deepEqual([...relief(unseen)].sort((a,b)=>a-b),[5,9]);
+ const closed={...s,doors:[{a:7,b:8,open:false}]};
+ assert.deepEqual([...relief(closed)],[],'a sealed guardian route earns no new sightline');
+ assert.deepEqual([...relief({...s,result:{reason:'capture'}})],[]);
+ assert.deepEqual([...relief({...s,privateMaze:{cells:[{cell:4,blocked:true}]},
+   secretPath:[6,7,8]})].sort((a,b)=>a-b),[5,9,12],
+   'private state cannot inform decorative cutaway');
+ const w=createMazeWorld({balanced:true}),before=w.stats();
+ w.update(s);
+ const now=w.stats();
+ assert.equal(now.guardianBlockedReliefTiles,3,'actual new low relief occupies three genuine blocked cells');
+ assert.equal(now.guardianCourtTiles,4,'main public encounter court is unchanged');
+ assert.equal(now.renderedCells.length,7,'never materialise an unrevealed cell');
+ assert.equal(now.geometryCount,before.geometryCount,'no additional GPU class');
+ assert.equal(now.materialCount,before.materialCount);
+ assert.equal(JSON.stringify(s),truth,'no authoritative state changes');
+ w.update(unseen);
+ assert.equal(w.stats().guardianBlockedReliefTiles,2);
+ for(let i=0;i<6;i++){
+   w.update({...s,runToken:'guardian-stone-reset-'+i});
+   assert.equal(w.stats().guardianBlockedReliefTiles,3);
+   assert.ok(w.stats().geometryCount<100,'strict six-scene reset budget remains <100');
+ }
+ w.dispose();
+ assert.equal(w.stats().geometryCount,0);
+ assert.equal(w.stats().materialCount,0);
+});

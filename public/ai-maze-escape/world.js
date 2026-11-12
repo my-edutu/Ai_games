@@ -98,6 +98,31 @@ export function publicGuardianStageCells(snapshot) {
   return stage;
 }
 
+// A second, much LOWER backdrop is permitted only on currently published
+// BLOCKED stone right beside a real open, reciprocal guardian performance court.
+// It cannot remove a wall, infer a hidden room, change a collider or mark a path.
+export function publicGuardianBlockedReliefCells(s,court=publicGuardianStageCells(s)) {
+  const relief=new Set();
+  if(!court.size||!Array.isArray(s?.visibleCells)||!Array.isArray(s?.cells)
+    ||!Number.isSafeInteger(s.width)||s.width<2
+    ||!Number.isSafeInteger(s.height)||s.height<2)return relief;
+  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&s.visibleCells.includes(c.cell)).map(c=>[c.cell,c]));
+  for(const id of court) {
+    if(!known.has(id))continue;
+    for(const next of [id-1,id+1,id-s.width,id+s.width]) {
+      const distance=Math.abs(id%s.width-next%s.width)
+        +Math.abs(Math.floor(id/s.width)-Math.floor(next/s.width));
+      if(distance!==1)continue;
+      const tile=known.get(next);
+      if(tile?.blocked!==true||tile.trap||tile.checkpoint||tile.clue
+        ||tile.cell===s.exitCell||(s.keys||[]).some(k=>k.cell===tile.cell))continue;
+      relief.add(tile.cell);
+    }
+  }
+  return relief;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -248,7 +273,7 @@ export function createMazeWorld(options = {}) {
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, pressureStageParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
-  let pressureRetainingGalleries = 0, guardianCourtTiles = 0;
+  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
   let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], publicHeroX = 0, publicHeroZ = 0;
@@ -856,10 +881,11 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0;
     clear(terrain); fossilSails = []; fossilOrgans = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const guardianSightlines=publicGuardianStageCells(s);
+    const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
     // A door is usable here only when BOTH endpoints are currently disclosed
@@ -1500,6 +1526,20 @@ export function createMazeWorld(options = {}) {
         }
       }
       if (c.blocked) {
+        // A genuinely observed, impassable neighboring cell preserves its
+        // original opaque foundation, walls and collision, but no longer
+        // towers over the physical Pip–Thornback performance. Replace ONLY
+        // decorative blocked-cell ornament with a sealed mineral reef.
+        if (guardianBlockedRelief.has(c.cell) && !pressureSightline) {
+          guardianBlockedReliefTiles++;
+          block(deepStone,x,.18,z,2.12,.36,2.12,c.cell);
+          block(lightStone,x,.397,z,1.91,.074,1.91,c.cell);
+          block(jade,x,.457,z,1.66,.044,.50,c.cell);
+          for(const side of [-1,1]) {
+            block(deepStone,x+side*.79,.514,z,.29,.16,1.68,c.cell);
+            block(seaGlass,x+side*.79,.604,z,.24,.052,1.52,c.cell);
+          }
+        } else {
         // Original pressure-court cutaway: the old 2.7-unit pavilions and
         // towers hid Pip's real relay/shutters/piston in source-bound phone
         // views. Only an ALREADY DISCLOSED blocked tile within the visible
@@ -1587,6 +1627,7 @@ export function createMazeWorld(options = {}) {
               x + side * .40, 2.28, z, .73, .17, 1.20,
               c.cell, 0, 0, -side * .47);
           add(cone, darkJade, x, 2.66, z, .28, .70, .28, c.cell);
+        }
         }
         }
       }
@@ -2746,7 +2787,8 @@ export function createMazeWorld(options = {}) {
     const terrainKey = s.cells.map(c =>
       `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|')
       + '#' + gateKey + '#relic:' + knownKeyRelicCells + ':' + disclosedExitRelicCell
-      + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.');
+      + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.')
+      + '#guardian-blocked-relief:' + [...publicGuardianBlockedReliefCells(s)].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s, previouslyVisibleCells); objectSignature = objectKey; }
@@ -3084,7 +3126,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0;
     clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
@@ -3153,7 +3195,7 @@ export function createMazeWorld(options = {}) {
           inwardShearRadians: hinges.length
             ? Math.min(...hinges.map(jaw => jaw.side * jaw.object.rotation.z)) : 0};
       });
-    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress };
 }
