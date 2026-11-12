@@ -421,8 +421,15 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   audio.videoTracks===0&&audio.audioTracks===1&&
   Number.isSafeInteger(audio.bytes)&&audio.bytes>1024&&audio.bytes<=MAX_ISOLATED_AUDIO_BYTES&&
   Number.isFinite(audio.recordingMs)&&audio.recordingMs>=1000&&audio.recordingMs<=15500;
+ // In the low-contention browser trial, the only concurrent encoder is
+ // the genuine combined canvas+consented-soundstage recorder. An explicitly
+ // SKIPPED auxiliary video-only probe is not an empty or failed encoder.
+ const diagnosticVideoSkipped=isolated.videoOnly?.status==='SKIPPED'&&
+  isolated.videoOnly?.source==='real-webgl-canvas-video-only';
+ const actualEncodedVideoBytes=diagnosticVideoSkipped?
+  (combinedVideoAudio?clip.bytes:0):(isolated.videoOnly?.bytes??0);
  const trackDiagnosis=classifyCanvasTrackDelivery({delivery:trackDelivery,
-  encodedBytes:isolated.videoOnly?.bytes??0,
+  encodedBytes:actualEncodedVideoBytes,
   submittedFrames:clip.framePump?.observedFrameAdvances??0});
  const submissionDiagnosis=classifyCanvasSubmissionTiming({delivery:trackDelivery,framePump:clip.framePump});
  const canvasEncoderDifferential=optedIn===true?classifyCanvasEncoderControl({control:isolated.control2dOnly,real:isolated.videoOnly}):'CONTROL_COMPARISON_UNVERIFIED';
