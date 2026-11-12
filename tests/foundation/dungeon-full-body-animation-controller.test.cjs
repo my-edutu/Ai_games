@@ -3040,3 +3040,42 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  assert.match(model,/stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);[\s\S]{0,100}stageRigLegsAfterMixer\(/,
   'grounded support belongs after current-frame source pose and before original ankle/calf proof');
 });
+
+
+test('original Walking_A loaded pelvis final skinned foot must not exchange heel penetration for toe clearance',async()=>{
+ const {verifyOriginalSourceLoadedPelvisFootWitness:verify}=await load();
+ // SAME original source-shoe starting sample + confirmed final footprint from
+ // genuine 1440px source GLB WebGL, Actions #43145381250, tick 6.
+ const before={heelY:-.026071961125037277,toeY:-.046394043555076196};
+ const witnessed={heelY:-.02059877498760407,toeY:-.04182943467495813};
+ const otherBefore={heelY:.1449076,toeY:-.1177656};
+ const otherAfter={heelY:.151,toeY:-.110};
+ const real=verify({before,after:witnessed,otherBefore,otherAfter,floorTopY:-.02});
+ assert.ok(real,'accept actual independently measured original source heel+toe improvement');
+ assert.ok(real.improvementMeters>.0044&&real.improvementMeters<.0047);
+ // Critical counterexample: the old worst-distance-only check accepted this
+ // even though the heel was pushed 11mm further INTO stone.
+ const unsafe={heelY:-.037,toeY:-.024};
+ assert.equal(verify({before,after:unsafe,otherBefore,otherAfter,floorTopY:-.02}),null,
+  'toe rescue must not sacrifice authentic loaded-heel collision');
+ for(const invalid of [
+  {after:{heelY:-.021,toeY:-.0461}},
+  {after:{heelY:NaN,toeY:-.024}},
+  {after:{heelY:.02,toeY:-.024}},
+  {floorTopY:NaN},
+  {otherBefore:{heelY:-.021,toeY:-.022},otherAfter:{heelY:.016,toeY:.018}}
+ ])assert.equal(verify({before,after:witnessed,otherBefore,otherAfter,
+  floorTopY:-.02,...invalid}),null,
+  'reject invalid source-foot readback, insufficient improvement, hovering or another loaded shoe lift');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/function stageSourceLoadedPelvisBeforeLegs\(/);
+ assert.match(renderer,/function auditSourceLoadedPelvisAfterLegs\(/);
+ const early=renderer.slice(renderer.indexOf('function stageSourceLoadedPelvisBeforeLegs('),
+  renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('));
+ const late=renderer.slice(renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('),
+  renderer.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments'));
+ assert.match(early,/verifyOriginalSourceLoadedPelvisFootWitness\(/,
+  'initial actual skinned-foot check must require both endpoints improving');
+ assert.match(late,/verifyOriginalSourceLoadedPelvisFootWitness\(/,
+  'post-ankle/knee source-skinned readback must enforce same non-sinking physical contract');
+});
