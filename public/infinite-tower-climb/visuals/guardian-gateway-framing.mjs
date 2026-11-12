@@ -1,3 +1,4 @@
+import { pointFor } from './coordinates.mjs';
 // Only a real unlocked cap threshold may request this optional camera escort.
 // Pure, source-independent framing veto: never touches authority or input.
 export function gatewayScreenError(ndc) {
@@ -207,4 +208,56 @@ export function observedLiveGuardianLastStandShot(snapshot, lock, aspect, zoom =
     Math.min(1.25, Math.max(.85, zoom)));
   return { sourceTick:snapshot.tick, radius,
     focusWeight:Math.min(.24, .1 + approach * .14), approach, exitX };
+}
+
+// The SOURCE-verified grounded Floor8→9 passage outlives the old floor's
+// geometry. The 3D arch is retained by the passage owner; this requests that
+// the *same exterior follow camera* continues to frame it during the first
+// real next-floor walking steps. It cannot cause a transition, create ground,
+// forge a victory, freeze the world or claim that a WebM has been accepted.
+export function observedGroundedHandoffShot(snapshot, passage, aspect, zoom = 1) {
+  const p = snapshot?.player;
+  if (snapshot?.lifecycle !== 'running' || snapshot?.stale ||
+      passage?.sourceBound !== true || passage?.active !== true ||
+      passage?.stage !== 'handoff' ||
+      passage?.continuousGroundedHandoff !== true ||
+      passage?.innerDoorAssemblyVisible !== true ||
+      passage?.runToken !== snapshot?.runToken ||
+      passage?.floor !== snapshot?.floor ||
+      !Number.isSafeInteger(snapshot?.tick) ||
+      !Number.isSafeInteger(passage?.sourceTick) ||
+      passage.sourceTick > snapshot.tick ||
+      snapshot.tick - passage.sourceTick > 60 ||
+      !Number.isSafeInteger(snapshot?.floor) ||
+      !(p?.health > 0) || p?.grounded !== true ||
+      p?.groundedPlatformId !== 'f' + snapshot.floor + ':ground' ||
+      ![aspect, zoom, snapshot.worldWidth, snapshot.chunkBaseY,
+        p?.x, p?.y, p?.halfHeight,
+        passage?.ageSeconds, passage?.durationSeconds].every(Number.isFinite) ||
+      aspect <= 0 || aspect >= 2.5 || zoom <= 0 || zoom > 1.1 ||
+      snapshot.worldWidth <= 0 || p.halfHeight <= 0 ||
+      passage.ageSeconds < 0 || passage.durationSeconds <= 0 ||
+      passage.ageSeconds >= passage.durationSeconds ||
+      !Array.isArray(passage.focusPosition) ||
+      passage.focusPosition.length !== 3 ||
+      !passage.focusPosition.every(Number.isFinite)) return null;
+  // The camera can escort only a physically nearby hero on the new floor,
+  // not an old doorway left behind or a detached rendered memory. Observe
+  // the actual ground-contact sole against the true source-anchored arch.
+  const actor = pointFor(p.x, p.y - p.halfHeight,
+    snapshot.chunkBaseY, snapshot.worldWidth, 25);
+  const gate = passage.focusPosition;
+  const planar = Math.hypot(actor.x - gate[0], actor.z - gate[2]);
+  if (planar >= 12 || Math.abs(actor.y - gate[1]) > 8) return null;
+  const remaining = Math.max(0, Math.min(1,
+    (passage.durationSeconds - passage.ageSeconds) /
+      Math.max(.1, passage.durationSeconds - 1.05)));
+  const proximity = Math.max(0, Math.min(1, (12 - planar) / 10));
+  const weight = remaining * proximity;
+  if (weight < .04) return null;
+  const radius = (aspect < .85 ? 53 : 45) *
+    Math.min(1.25, Math.max(.85, zoom));
+  return {sourceTick:snapshot.tick, radius,
+    focusWeight:Math.min(.36, .36 * weight),
+    groundedHandoff:true, proximity, remaining};
 }

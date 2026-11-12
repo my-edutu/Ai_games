@@ -402,6 +402,25 @@
       "hardware": "NOT EVALUATED",
       "next": "Review newly generated raster-only A/B from exact original WebMs, fix actual browser GPU/host source-to-raster delay, then improve guardian spatial readability; prove Floor9 walkable passage, complete outcome/restart and actual-device budgets.",
       "realArtifactCorrection": "Original baseline native film: desktop HUD plus chroma 8→9 at 20.25s; portrait true HUD 8→9 at 19.75s but chroma phase NOT EVALUATED. New hash-verified visual phase accepts sustained HUD with 12 pre-frames, 4 post-frames and full-film glyph counts; optional chroma must agree when present. Strict source-event cue still fails 0/2; no game quality acceptance."
+    },
+    "p0SourceGroundedPostHandoffLens20261112": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+      "verdict": "NOT EVALUATED",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "originalSourceSha": "eedf6c323d3539071efbf11e0477ec56ffd0324c",
+      "precedingCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43125505703 — 8/8 original baseline/candidate films and actual guardian ledge success; strict native guardian event/raster 0/2",
+      "precedingExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43125505597 — passed technical guardrail only",
+      "observedDefect": "Previous actual 960x600 native source tick451 at 23.226s versus visually drawn Floor9 ~24.75s (+1.524s); 390x844 tick451 at 23.667s vs visually drawn ~25.0s (+1.333s). Actual 3D actor still appears to jump-cut through the world at the gate despite retaining the open floor-local doorway. No native alignment accepted.",
+      "systemLevelChange": "Continue real grounded Floor8→9 source-verified 3D camera/dolly and physical gateway screen-rescue through the new Floor9 world for bounded same-run new-ground frames, with source age/position/identity vetoes; never mint a floor, teleport a player or grant guardian victory. Production 3D lens and bounded no-new-mesh effect. Does NOT claim to solve the remaining source-to-native timing lag.",
+      "review": "docs/reviews/2026-11-12-tower-pr68-grounded-handoff-camera-continuity.md",
+      "independentBlindCritics": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "biggestRemainingGap": "Whole continuous original 3D guardian victory→real physically walkable gate→floor-nine onward still visually abrupt and strict event/native 0/2. Camera improvement remains unfilmed; recording must verify it without worsening legibility.",
+      "nextAction": "Record immutable SHA 960x600 and 390x844 60+s matched baseline/candidate videos, audit authoritative tick→browser accepted→WebGL returned→native PTS and continuously inspect post-floor camera, guardian/crusher/readable restart; repair dominant remaining gap, then device budgets and genuinely independent blinded reviewers."
     }
   },
   "currentTransformation": {

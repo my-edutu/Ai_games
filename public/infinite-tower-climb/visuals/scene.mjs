@@ -26,7 +26,7 @@ import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborn
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff, boundedObservedGuardianOrbit } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
@@ -3447,9 +3447,19 @@ export function createTowerScene(canvas, settings = {}) {
       passage.diagnostics().stage === 'guardian-locked'
       ? observedLiveGuardianLastStandShot(snapshot, liveLastStand, camera.aspect, zoom)
       : null;
-    const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand;
+    // The grounded source 8→9 handoff retains the same real threshold, but
+    // the previous camera abandoned it when the new floor removed liveExit.
+    // Continue this single safe exterior follow shot only while the player is
+    // genuinely supported on Floor9 and physically close to the old doorway.
+    const sourceGroundedHandoffShot = !overview && !options.stale &&
+      !options.reducedMotion && snapshot.lifecycle === 'running'
+      ? observedGroundedHandoffShot(snapshot, passage.diagnostics(),
+          camera.aspect, zoom) : null;
+    const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
+      sourceGroundedHandoffShot;
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
-      ? earnedPassageStage : sourceLastStand ? passage.diagnostics() : null;
+      ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot
+        ? passage.diagnostics() : null;
     // Keep the SAME real camera, with a source-first cap position and radius:
     // no extra scene, invented time window, generated floor or camera cut.
     if (realCapLens && Array.isArray(realCapStage?.focusPosition) &&
@@ -4093,10 +4103,12 @@ export function createTowerScene(canvas, settings = {}) {
     // climber and both real tower-core sightlines retain an absolute veto.
     // No invented victory, camera cut, authoritative motion or new draw call.
     earnedGatewayEscortLastGain = 0;
-    const earnedStage = !overview && !options.stale && !!liveExit
+    const earnedStage = !overview && !options.stale &&
+      (!!liveExit || !!sourceGroundedHandoffShot)
       ? passage.diagnostics() : null;
     const gatewayEarned = !!earnedStage?.active &&
-      earnedStage.stage === 'earned-open' &&
+      ((earnedStage.stage === 'earned-open' && !!liveExit) ||
+       (earnedStage.stage === 'handoff' && !!sourceGroundedHandoffShot)) &&
       earnedStage.runToken === snapshot.runToken &&
       earnedStage.floor === snapshot.floor &&
       Array.isArray(earnedStage.focusPosition) &&
