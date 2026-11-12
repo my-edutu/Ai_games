@@ -115,7 +115,7 @@ test('animated skinned defeat affects real cloned joints and restores their rota
  assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
  assert.match(model,/mount\.bone\.quaternion\.multiply\(mount\.next\)/);
  assert.match(model,/mount\.last\.multiply\(mount\.next\)/);
- assert.match(model,/stageRigMeleeAfterMixer\(actor,since,reducedMotion\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,since,poseSuppressed\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
  assert.match(model,/restoreRigLegsBeforeMixer\(actor\)/);
  assert.match(model,/skinnedDefeatActors:/);
  assert.match(app,/a\.defeatIntermission=Boolean\(state\?\.phase==='intermission'/);
@@ -149,7 +149,8 @@ test('true damage attaches to bone overlay without stacking on imported mixer',(
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planSkinnedHitResponse/);
  assert.match(model,/stageSkinnedHitAfterMixer\(actor,reducedMotion\)/);
- assert.match(model,/stageRigMeleeAfterMixer\(actor,since,reducedMotion\);[\s\S]*?stageSkinnedHitAfterMixer\(actor,reducedMotion\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
+ assert.match(model,/const poseSuppressed=reducedMotion\|\|interrupted/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,since,poseSuppressed\);[\s\S]*?stageSkinnedHitAfterMixer\(actor,reducedMotion\);[\s\S]*?stageSkinnedDefeatAfterMixer/);
  assert.match(model,/beat\?\.damage/);
  assert.match(model,/mount\.last\.multiply\(mount\.next\)/);
  assert.match(model,/const chest=selectCombatTorsoBone\(bones\)/);

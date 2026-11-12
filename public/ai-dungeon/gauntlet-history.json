@@ -8895,6 +8895,16 @@
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "pr72": "ISOLATED_HEAD_405e61d7bd89cbcebe8a9ad507e63f8e6f29120a",
-    "next": "Inspect real new-head organic original full-motion A/V and owner counters, retain only if no animation/contact/23-cell/foot/replay regression. Then original adult cast, confirmed blade/audio and fresh blinded A/B."
+    "next": "Inspect real new-head organic original full-motion A/V and owner counters, retain only if no animation/contact/23-cell/foot/replay regression. Then original adult cast, confirmed blade/audio and fresh blinded A/B.",
+    "firstHeadFoundation": {
+      "runId": 43197826930,
+      "total": 441,
+      "passed": 438,
+      "failed": 3,
+      "failures": "Two stale source regexes stageRigMeleeAfterMixer(actor,since,reducedMotion), one stale regex stageRigGroundedStride(actor,reducedMotion).",
+      "correction": "Updated exact expectations to the actual poseSuppressed owner and asserted priority from reducedMotion||interrupted; preserved hit and defeat overlay ordering, no renderer behavior rollback.",
+      "correctedCI": "PENDING",
+      "afterVideo": "NOT_OBSERVED"
+    }
   }
 }
