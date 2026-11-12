@@ -16,7 +16,9 @@ test('cold source-earned Floor9 starts with authentic grounded roof, then stages
   assert.match(world,/if\s*\(!deferStructuralShell\)\s*buildTower\(height,theme==='clockwork'\)/);
   assert.match(world,/if\s*\(arrival\.structureDeferred\)\s*\{[\s\S]*?buildTower\(arrival\.height,false\)[\s\S]*?batchRigid\(structuralRoot,/);
   assert.match(world,/arrival\.state='awaiting-structural-submission'/);
-  assert.match(world,/arrival\.state==='awaiting-structural-submission'[\s\S]*?arrival\.submittedFrames>=2[\s\S]*?appendDeferredVista\(arrival\)/);
+  // The real shell must complete a subsequent renderer submission before the canyon uploads;
+  // its source-owned upload may be delayed by an authentic held gateway shot.
+  assert.match(world,/arrival\.state==='awaiting-structural-submission'[\s\S]*?Number\.isSafeInteger\(arrival\.structureBuiltAtSubmitted\)[\s\S]*?arrival\.submittedFrames>arrival\.structureBuiltAtSubmitted[\s\S]*?!options\.stale\)[\s\S]*?appendDeferredVista\(arrival\)/);
   assert.match(world,/arrival\.submittedFrames>=\(arrival\.structureDeferred\?3:2\)/);
   assert.match(world,/for\(const p of snapshot\.platforms\|\|\[\]\)\{/);
   assert.match(world,/for\(const h of snapshot\.hazards\|\|\[\]\)buildHazard\(/);
