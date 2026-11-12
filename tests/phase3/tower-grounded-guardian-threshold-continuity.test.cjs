@@ -43,7 +43,7 @@ test('only a physically grounded defeated-guardian crossing on the same supporte
   [{...old,player:{...old.player,groundedPlatformId:'f8:p4'}},next],
   [old,{...next,runToken:'other'}],
   [old,{...next,floor:10}],
-  [old,{...next,player:{...next.player,x:x+12000}}],
+  [old,{...next,player:{...next.player,x:x+19000}}], // Impossible >18k per fixed step; source must never teleport
   [old,{...next,player:{...next.player,y:y+3000}}],
   [old,{...next,player:{...next.player,grounded:false}}],
   [old,{...next,player:{...next.player,groundedPlatformId:'f9:p1'}}],
