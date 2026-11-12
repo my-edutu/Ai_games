@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,planOriginalSourceStanceAnkleRelief,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingBlendRate,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1070,6 +1070,7 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
  lower.bone.quaternion.multiply(trial.setFromAxisAngle(sourceKneeAxis,delta));
  lower.last.multiply(trial);
  lower.swingCalfAssistRad=delta;
+ actor.sourceSwingCalfCurrentFrameMask|=mount.side==='left'?1:2;
  actor.sourceSwingCalfTrialOutcome={
   ...actor.sourceSwingCalfTrialOutcome,accepted:true,
   reason:'final-source-skin-lift-confirmed',
@@ -1323,6 +1324,7 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  // Original-skin heel/toe receipts are owned by THIS mixer frame, not
  // the accumulated accepted-correction history.
  actor.sourceSwingToeCorrectionsThisFrame=0;
+ actor.sourceSwingCalfCurrentFrameMask=0;
  if(actor.sourceStanceSoleCurrentFrameProofs){
   actor.sourceStanceSoleCurrentFrameProofs.left=null;
   actor.sourceStanceSoleCurrentFrameProofs.right=null;
@@ -1378,6 +1380,15 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
   mount.last.copy(mount.next);
   actor.rigGaitPeak=Math.max(actor.rigGaitPeak||0,Math.abs(angle));
    actor.footSupportPeak=Math.max(actor.footSupportPeak||0,Math.abs(footSupport[mount.side][mount.part]*nativeLegShare));
+ }
+ // End-of-frame: original knee history survives only on a SAME-SIDE
+ // independently verified skinned-toe/heel correction this frame. A missed
+ // foot observation cannot impose a stale sign on the next valid source
+ // gait. This affects memory, not the current source bone or grid authority.
+ for(const mount of actor.rigGaitBones){
+  if(mount.part==='lower')
+   mount.swingCalfAssistRad=retireOriginalSourceCalfMemory(
+    mount.swingCalfAssistRad??0,mount.side,actor.sourceSwingCalfCurrentFrameMask);
  }
 }
 
@@ -2565,6 +2576,7 @@ function inspectSourceRigDeformation(actors){
     sourceSwingToeCorrectionPeakRad:actor.sourceSwingToeCorrectionPeakRad||0,
     sourceSwingToeLiftProof:actor.sourceSwingToeLiftProof??null,
     sourceSwingCalfAssistFrames:actor.sourceSwingCalfAssistFrames||0,
+    sourceSwingCalfCurrentFrameMask:actor.sourceSwingCalfCurrentFrameMask||0,
     sourceSwingCalfAssistProof:actor.sourceSwingCalfAssistProof??null,
     sourceSwingCalfTrialOutcome:actor.sourceSwingCalfTrialOutcome??null,
     originalSwingTravelWitnessMeters:actor.rigRecentGroundedTravel??0,

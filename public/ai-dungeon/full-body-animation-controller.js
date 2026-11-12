@@ -447,6 +447,15 @@ export function planOriginalSourceSwingCalfAssist({
  * This is a candidate selector, not an IK solver or foot-plant certificate.
  * No source skeleton/keyframe, authoritative position or attack is changed.
  */
+/** A missed original measured knee frame retires its old signed correction.
+ * Same-side accepted frame preserves the existing 0.18rad cap. No joint edits. */
+export function retireOriginalSourceCalfMemory(priorAngleRad,side,currentFrameMask){
+ if(!Number.isFinite(priorAngleRad)||Math.abs(priorAngleRad)>.180001||
+  !['left','right'].includes(side)||!Number.isInteger(currentFrameMask)||
+  currentFrameMask<0||currentFrameMask>3)return 0;
+ return currentFrameMask&(side==='left'?1:2)?priorAngleRad:0;
+}
+
 export function selectOriginalSourceSwingCalfTrial({
  afterAnkleToeY=NaN,afterAnkleHeelY=NaN,floorTopY=NaN,trials=[],previousAssistRad=0
 }={}){
