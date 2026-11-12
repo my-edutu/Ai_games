@@ -840,9 +840,16 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.sourceLoadedPelvisFrameProof=null;
  actor.sourceLoadedPelvisRollbackFootProof=null;
  actor.sourceLoadedPelvisCandidate=null;
+ // Physically reversible root/leg trials demand the complete unmodified
+ // source SkeletonUtils two-sided thigh/calf/ankle chain. Missing Session 02
+ // joints fail closed BEFORE any apparent floor lift is staged.
+ const bones=actor.rigGaitBones;
+ const fullSourceLegs=Array.isArray(bones)&&bones.length===6&&
+  ['left','right'].every(side=>['upper','lower','foot'].every(part=>
+   bones.some(m=>m.side===side&&m.part===part&&m.bone?.isBone)));
  const previous=actor.sourceLoadedPelvisLiftMeters||0;
  actor.sourceLoadedPelvisLiftMeters=0;
- if(actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
+ if(!fullSourceLegs||actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
   actor.fullBody?.owner?.locomotion!==true||
   actor.u.hp<=0||actor.root?.visible!==true||reducedMotion||
   actor.locomotionTeleport||actor.fullBody?.interrupted||
