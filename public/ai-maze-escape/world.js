@@ -2948,12 +2948,29 @@ export function createMazeWorld(options = {}) {
       .filter(key=>knownCellsForGate.has(key.cell))
       .map(key=>key.cell).sort((a,b)=>a-b).join('.');
     const disclosedExitRelicCell=knownCellsForGate.has(s.exitCell)?s.exitCell:'';
+    // Pass311 real source-native regression: a formerly visible, mutually
+    // disconnected neighbor can fall out of CURRENT public sight without
+    // leaving the previously lowered guardian wall on screen. Cache only
+    // visibility of published known cells touching the legitimate real
+    // guardian causeway, not the entire moving FOV or any private topology.
+    // An unchanged sightline incurs no extra terrain rebuild on each tick.
+    const keyedGuardianCauseway=publicGuardianCausewayCells(s);
+    const reefVisibility=new Set();
+    for(const cell of keyedGuardianCauseway.keys()){
+      for(const n of [cell-1,cell+1,cell-s.width,cell+s.width]){
+        if(n<0||!knownCellsForGate.has(n)||!s.visibleCells.includes(n))continue;
+        const cardinal=Math.abs(cell%s.width-n%s.width)
+          +Math.abs(Math.floor(cell/s.width)-Math.floor(n/s.width));
+        if(cardinal===1)reefVisibility.add(n);
+      }
+    }
     const terrainKey = s.cells.map(c =>
       `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|')
       + '#' + gateKey + '#relic:' + knownKeyRelicCells + ':' + disclosedExitRelicCell
       + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-blocked-relief:' + [...publicGuardianBlockedReliefCells(s)].sort((a,b)=>a-b).join('.')
-      + '#guardian-causeway:' + [...publicGuardianCausewayCells(s)].map(([id,axis])=>id+':'+axis).sort().join('.');
+      + '#guardian-causeway:' + [...keyedGuardianCauseway].map(([id,axis])=>id+':'+axis).sort().join('.')
+      + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
     const objectKey = JSON.stringify([s.keys, s.doors, s.inventory, s.exitCell, s.cells.map(c => [c.cell, c.trap, c.checkpoint, c.clue])]);
     if (objectKey !== objectSignature) { rebuildObjects(s, previouslyVisibleCells); objectSignature = objectKey; }
