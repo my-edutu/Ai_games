@@ -1647,11 +1647,42 @@ export function planNativeWalkToGuardGait({mode='idle',sourceWalkFrozen=false,
   alive===true&&!teleport&&!reducedMotion;
 }
 
+/**
+ * Advance original walking crossfade WEIGHTS on actually displayed time,
+ * without advancing the original Walking_A foot cycle by that same time.
+ * Authentic 1440px/390px Chromium film shows sparse 360ms visible-frame
+ * delivery: the old 50ms mixer step made an 180ms Idle -> Walking_A fade
+ * span four rendered frames (up to ~1.4s on screen). We permit at most
+ * 90ms of real mixer blending per witnessed frame, so two visible frames
+ * can transfer ownership. The sole animation itself remains exclusively
+ * distance-paced by planImportedLivingSourceStep and the per-action scale.
+ * No new source clip, foot lock, gameplay displacement or authority tick.
+ */
+export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,
+ frameDelta=0,frameInterval=frameDelta,sourceStep=NaN,sourceDuration=NaN,
+ sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
+ visible=true,reducedMotion=false,teleport=false}={}){
+ const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ if(mode!=='move'||walkingClip!==true||visible!==true||reducedMotion||teleport||
+  ![frameDelta,frameInterval,sourceStep,sourceDuration,sourceTime,effectiveSpeed,
+    groundedTravel].every(finite)||frameDelta<=0||frameDelta>.05||
+  frameInterval<=0||frameInterval>2||sourceStep<0||sourceStep>.28||
+  sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
+  groundedTravel<0||groundedTravel>.54||
+  (groundedMoving!==true&&!(groundedMoving===false&&
+    sourceStep===0&&groundedTravel<=.0015&&frameInterval<=.5)))return ordinary;
+ return Math.min(.09,Math.max(ordinary,frameInterval));
+}
+
 export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  frameDelta=0,frameInterval=frameDelta,sourceDuration=0,sourceTime=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
  teleport=false,reducedMotion=false,visible=true}={}){
- const visibleStep=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ const visibleStep=planImportedWalkingMixerFrameDelta({
+  mode,walkingClip,frameDelta,frameInterval,sourceStep,sourceDuration,
+  sourceTime,effectiveSpeed,groundedTravel,groundedMoving,
+  visible,reducedMotion,teleport
+ });
  if(mode!=='move'||!walkingClip||teleport||reducedMotion||
   visible!==true||visibleStep<=0||
   ![sourceStep,frameInterval,sourceDuration,sourceTime,effectiveSpeed,groundedTravel].every(finite)||
