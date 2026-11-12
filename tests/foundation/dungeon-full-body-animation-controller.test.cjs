@@ -3208,3 +3208,40 @@ test('same original-GLB near-ground stance prefers independently witnessed fine 
  assert.equal(plan({...baseline,mode:'hurt',trials:[fine,coarse]}),null,
   'a verified injury must retain animation ownership');
 });
+
+
+test('genuine original mobile Walking_A ankle probes select the strongest independently safe applied sole, not the first merely positive angle',async()=>{
+ const {chooseOriginalSourceStanceAppliedWitness:select}=await load();
+ // From the REAL 390px same-original-skinned-shoe WebGL receipt in
+ // Actions #43158026658, tick 8. The fine -45mrad entry is the REAL source
+ // joint *trial*, not yet an accepted/filmed final application in this test.
+ const beforeHeelY=-.024033586808142094;
+ const beforeToeY=-.03673829035871511;
+ const first={delta:-.025161558312328126,
+  heelY:-.025472670656604378,toeY:-.031127201419131674};
+ const fine={delta:-.045,
+  heelY:-.026580466355912713,toeY:-.026673667033783863};
+ const base={floorTopY:-.02,beforeHeelY,beforeToeY};
+ const initial=select({...base,candidates:[first]});
+ assert.ok(initial&&initial.candidateIndex===0);
+ assert.ok(Math.abs(initial.afterWorst-.011127201419131674)<.00001);
+ const best=select({...base,candidates:[first,fine]});
+ assert.equal(best?.delta,-.045,
+  'the actual source fine joint probe offers lower max heel/toe floor discrepancy by ~4.45mm');
+ assert.equal(best?.candidateIndex,1);
+ assert.ok(best.afterWorst<initial.afterWorst-.004);
+ assert.equal(select({...base,candidates:[first,
+  {...fine,heelY:-.033}]}).candidateIndex,0,
+  'never improve a toe by sinking the original weighted heel more than the physical 4mm budget');
+ assert.equal(select({...base,candidates:[first,
+  {...fine,toeY:.03}]}).candidateIndex,0,
+  'an airborne skinned toe cannot count as a nearer-ground loaded shoe');
+ assert.equal(select({...base,candidates:[first,
+  {...fine,heelY:-.026,toeY:-.0307}]}).candidateIndex,0,
+  'do not replace a good original ankle with a <1mm physically negligible change');
+ assert.equal(select({...base,candidates:[{...first,delta:.08}]}),null,
+  'a fabricated over-rate joint cannot be certified, even with better vertices');
+ assert.equal(select({...base,candidates:[first,fine,fine]}),null,
+  'at most two reversible original source angles may be read this frame');
+ assert.equal(select({...base,floorTopY:NaN,candidates:[first,fine]}),null);
+});
