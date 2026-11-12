@@ -86,7 +86,7 @@
   "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateSource": "Immutable github.sha OF THIS capture-request commit, contains runnable successor-floor source change 3f4b0d3f817c921e985a9b22e7df09235314fe71 and scene integration cce841aeeb9ecdf7cb3f84d46b0329e6cd39e580; never moving branch. Frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 remains unchanged.",
   "repairedSourceSha": "0b9d91e535212d6008f7af0810a4179eb5022601",
-  "reason": "P0 exact-source normal-speed native before/after for one coherent physical continuity repair. Original source-pinned run 43136473900 has all 8 real WebMs and authentic source ledge but 0/2 guardian source/native event matches. Source tick451 grounded Floor8→9 passage still visually cuts from cap to disconnected purple floor; candidate now reuses the same 12 owned bronze inlay instances to build a NEW witnessed floor-nine supported-ground runway with actual source-walk progress (never copied old cap matrices, fabricated collision, source time or victory). Require 960x600 and 390x844 60s+ normal-speed genuine ascent/moving/guardian/outcome+restart, inspect pixel composition and event-to-native time; DO NOT count green CI as experience improvement.",
+  "reason": "P0 authentic full 8-film source-render-native diagnostic recapture. Preserve frozen baseline. New four-clock provenance prevents treating source floor transition as painted native WebM frame: witness browser acceptance, actual Three return and decoded original HUD glyph, compare per-viewport latency; reject partial native calibrations. Real gameplay 8→9 gateway and crusher/camera still unaccepted; no blind reviewers or actual-device measurements.",
   "scenarios": [
     "ascent",
     "moving",
@@ -943,5 +943,22 @@
     "deviceAndIndependent": "NOT EVALUATED, LOOKS 0/5 FEELS 0/5 PLAYS 0/5",
     "biggestGap": "Guardian source-to-native raster 0/2, scene appearance can still jump despite real source transition; no full-motion accepted grounded Floor9 runway or outcome/restart, mobile guardian still bronze-cluttered.",
     "next": "Inspect actual video and source event/frame clocks, fix dominant measured visual obstruction or delay, stay P0 and do not deploy/merge/alter PR58."
+  },
+  "p0OriginalNativePhaseChainRecapture20261112": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43143515284",
+    "previousCandidateSourceSha": "ff5bfb99acaaa79351a97a11542cef0801545a04",
+    "diagnostics": "Source tick451 Floor9 appeared ~1.436s desktop and ~1.444s portrait late in original native film; first browser-accepted Floor9 to Three returned 694ms/816ms. Baseline moving portrait native film PARTIALLY_CALIBRATED; last 0/2 strict event-to-video; actual 8 WebMs preserved.",
+    "codeImplementationSha": "ef9421c479d636f8945a0b4aab4b201c4fa9bc26",
+    "capture": "This edit requests new immutable github.sha exact candidate vs original frozen SHA under same fixed seed/tier, 960x600 + 390x844 >=60s normal-speed original ascent, moving, danger, outcome/restart. All original video unchanged. Native danger sidecars must include four-clock diagnostic with strict same run/sha/tick and legitimate HUD glyph. If original baseline moving clock remains partial, emit NOT EVALUATED; do not invent synced native events or relax bounds.",
+    "reviewers": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "visualNext": "Manually inspect the full one-time uncut 1x videos, then repair dominant observed renderer/compositor timebase and continuous real grounded gateway/guardian visual mismatch. This forensic code does NOT make play better or meet quality gate."
   }
 }
