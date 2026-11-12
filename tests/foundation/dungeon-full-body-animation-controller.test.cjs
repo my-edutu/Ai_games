@@ -3079,3 +3079,61 @@ test('original Walking_A loaded pelvis final skinned foot must not exchange heel
  assert.match(late,/verifyOriginalSourceLoadedPelvisFootWitness\(/,
   'post-ankle/knee source-skinned readback must enforce same non-sinking physical contract');
 });
+
+
+test('rejected original loaded pelvis trial restores all six licensed source leg overlays atomically',async()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const rig=fs.readFileSync(path.join(root,'public/ai-dungeon/rig-attachment-plan.js'),'utf8');
+ const {restoreOriginalSourceLegsAfterRejectedPelvis:rollback}=await import(
+  'data:text/javascript;base64,'+Buffer.from(rig).toString('base64'));
+ assert.equal(typeof rollback,'function',
+  'the source rig adapter must undo any ankle/calf angles tested against a rejected elevated root');
+ const THREE=require('three'),axis=new THREE.Vector3(0,1,0),pitch=new THREE.Vector3(1,0,0);
+ const mounts=[],expected=new Map();
+ for(const side of ['left','right'])for(const part of ['upper','lower','foot']){
+  const bone=new THREE.Bone(),index=mounts.length,baseAngle=.022+index*.007;
+  bone.name=part+'.'+(side==='left'?'l':'r');
+  bone.quaternion.setFromAxisAngle(axis,.17+index*.024);
+  const authored=bone.quaternion.clone(),base=new THREE.Quaternion().setFromAxisAngle(pitch,baseAngle);
+  const trial=new THREE.Quaternion().setFromAxisAngle(
+   part==='lower'?axis:pitch,part==='lower'?.058:part==='foot'?.042:0);
+  const last=base.clone().multiply(trial);
+  bone.quaternion.multiply(last);
+  mounts.push({side,part,bone,sourceFrameBaseAngleRad:baseAngle,
+   last,lastSourceRad:part==='lower'?.058:part==='foot'?.042:0,
+   inverse:new THREE.Quaternion(),next:new THREE.Quaternion(),euler:new THREE.Euler(),
+   soleClearanceRad:part==='foot'?.042:0,stanceReliefRad:0,
+   swingCalfAssistRad:part==='lower'?.058:0});
+  expected.set(bone,authored.multiply(base));
+ }
+ const before=mounts.map(m=>m.bone.quaternion.clone());
+ assert.equal(rollback(mounts),true,'the complete source left/right bone contract is reversible');
+ for(const [i,m] of mounts.entries()){
+  assert.ok(1-Math.abs(m.bone.quaternion.dot(expected.get(m.bone)))<1e-12,
+   'rollback restores original imported mixer pose plus LEGAL base action on '+m.bone.name);
+  assert.ok(1-Math.abs(m.bone.quaternion.dot(before[i]))>1e-7,
+   'the speculative original ankle/knee overlay must no longer survive the rejected body-root trial');
+  assert.equal(m.soleClearanceRad,0);
+  assert.equal(m.stanceReliefRad,0);
+  assert.equal(m.swingCalfAssistRad,0);
+  // Next frame's restore-before-Mixer must not remove the imported source base.
+  m.bone.quaternion.multiply(m.last.clone().invert());
+  const authored=expected.get(m.bone).clone().multiply(
+   new THREE.Quaternion().setFromAxisAngle(pitch,-m.sourceFrameBaseAngleRad));
+  assert.ok(1-Math.abs(m.bone.quaternion.dot(authored))<1e-12);
+ }
+ // An incomplete/invalid Session 02 bone adapter must fail WITHOUT any partial mutation.
+ const rejected=mounts.slice(0,5),prior=rejected.map(m=>m.bone.quaternion.clone());
+ assert.equal(rollback(rejected),false);
+ rejected.forEach((m,i)=>assert.ok(1-Math.abs(m.bone.quaternion.dot(prior[i]))<1e-12));
+ const invalid=mounts.map(m=>({...m}));
+ invalid[4].sourceFrameBaseAngleRad=NaN;
+ assert.equal(rollback(invalid),false,'invalid source-angle evidence cannot half-restore the cast');
+ const adapter=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(adapter,/sourceFrameBaseAngleRad=angle/,
+  'each original joint must remember its source-owned base angle before testing sole rescue');
+ assert.match(adapter,/restoreOriginalSourceLegsAfterRejectedPelvis\(actor\.rigGaitBones\)/,
+  'final original-heel/toe rejection must actively remove unsupported source ankle and calf overlays');
+ assert.match(adapter,/actor\.visualPivot\.position\.y=candidate\.baseY;[\s\S]{0,220}restoreOriginalSourceLegsAfterRejectedPelvis/,
+  'the rejected body root must be restored BEFORE the exact imported leg-pose rollback');
+});
