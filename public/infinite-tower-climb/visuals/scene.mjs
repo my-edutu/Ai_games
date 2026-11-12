@@ -1,5 +1,6 @@
 import * as THREE from '/tower/vendor/three.module.js';
 import { createTowerColdFloorResolution } from './cold-floor-resolution.mjs';
+import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
@@ -2030,6 +2031,26 @@ export function createTowerScene(canvas, settings = {}) {
   // The HTML/HUD remains full CSS resolution, and ordinary source floors do not change.
   const coldFloorPolicy = createTowerColdFloorResolution();
   let coldFloorScale = 1;
+  // Lighting and the sky are one continuous physical threshold, not a
+  // purple cut at the instant the authoritative floor counter increments.
+  // The only permit is the already-owned source-grounded, open inner arch.
+  // Original colors are allocated once, never per rendered frame.
+  const thresholdColors = (() => {
+    const colors = key => {
+      const light=LIGHTING[key], biome=THEMES[key];
+      return {
+        fog:new THREE.Color(biome.fog).lerp(new THREE.Color(light.horizon),.3),
+        top:new THREE.Color(light.top),horizon:new THREE.Color(light.horizon),
+        bottom:new THREE.Color(light.bottom),
+        hemi:new THREE.Color(biome.ambient).lerp(new THREE.Color(light.fill),.25),
+        hemiGround:new THREE.Color(light.bounce).multiplyScalar(.3),
+        sun:new THREE.Color(biome.sun),rim:new THREE.Color(light.fill),
+        bounce:new THREE.Color(light.bounce),
+      };
+    };
+    return {from:colors('clockwork'),to:colors('void')};
+  })();
+  let lastBiomeHandoffOldWeight=0;
   let renderPixelRatio = 1, basePixelRatio = 1, resolutionDirty = false;
 
   const hemi = new THREE.HemisphereLight(0xe8e0d3, 0x442a32, .72);
@@ -4660,6 +4681,38 @@ export function createTowerScene(canvas, settings = {}) {
     bounce.position.set(actionLightTarget.x + Math.sin(lightAzimuth) * 34,
       actionLightTarget.y + 16,
       actionLightTarget.z + Math.cos(lightAzimuth) * 34);
+    // Source and actual submitted-gateway time jointly own the cold
+    // Clockwork->Astral arrival. The geometry and simulation have already
+    // reached Floor9; only the environmental horizon/lighting acclimatizes.
+    // Before the first renderer return, keep the prior warm horizon; then
+    // transition ALL environmental channels together with the grounded arch.
+    // Do not overwrite physical dangers, hero/boss lighting, or user camera.
+    const thresholdLight=observedGroundedBiomeThreshold(
+      snapshot,passage.diagnostics(),options);
+    const oldWeight=thresholdLight?.oldWeight ?? 0;
+    if(thresholdLight || lastBiomeHandoffOldWeight>0){
+      const from=thresholdColors.from,to=thresholdColors.to;
+      scene.fog.color.copy(to.fog).lerp(from.fog,oldWeight);
+      skyMaterial.uniforms.top.value.copy(to.top).lerp(from.top,oldWeight);
+      skyMaterial.uniforms.horizon.value.copy(to.horizon).lerp(from.horizon,oldWeight);
+      skyMaterial.uniforms.bottom.value.copy(to.bottom).lerp(from.bottom,oldWeight);
+      hemi.color.copy(to.hemi).lerp(from.hemi,oldWeight);
+      hemi.groundColor.copy(to.hemiGround).lerp(from.hemiGround,oldWeight);
+      sun.color.copy(to.sun).lerp(from.sun,oldWeight);
+      sun.intensity *= 1+(LIGHTING.clockwork.key/LIGHTING.void.key-1)*oldWeight;
+      hemi.intensity *= 1+(LIGHTING.clockwork.ambient/LIGHTING.void.ambient-1)*oldWeight;
+      rim.intensity *= 1+(LIGHTING.clockwork.rim/LIGHTING.void.rim-1)*oldWeight;
+      // The rim and lower fill keep their genuine strike/hazard tint, while
+      // their shared biome base moves from warm to violet without a flash.
+      rim.color.lerp(from.rim,oldWeight);
+      bounce.color.lerp(from.bounce,oldWeight);
+      bounce.intensity *= 1+(LIGHTING.clockwork.ground/LIGHTING.void.ground-1)*oldWeight;
+      renderer.toneMappingExposure=LIGHTING.void.exposure+
+        (LIGHTING.clockwork.exposure-LIGHTING.void.exposure)*oldWeight;
+      scene.environmentIntensity=LIGHTING.void.reflection+
+        (LIGHTING.clockwork.reflection-LIGHTING.void.reflection)*oldWeight;
+    }
+    lastBiomeHandoffOldWeight=oldWeight;
   }
 
   function clearTowerRenderFault() {
@@ -5132,6 +5185,8 @@ export function createTowerScene(canvas, settings = {}) {
         evidenceOnly: true,
       },
       world: world.diagnostics(), finale: finale.diagnostics(), passage: passage.diagnostics(),
+    groundedBiomeThreshold: snapshot
+      ? observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options) : null,
       authenticRestartSweep: authenticRestartSweep ? {
         sourceBound: true, runToken: authenticRestartSweep.runToken,
         ageSeconds: Math.max(0, Number((elapsed - authenticRestartSweep.began).toFixed(3))),
