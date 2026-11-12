@@ -4734,7 +4734,9 @@ export function createTowerScene(canvas, settings = {}) {
       }
       // First-frame budget advances only on returned real Three.js work.
       // A stalled, failed or unsubmitted scene cannot consume presentation.
-      if (coldFloorPolicy.submitted(snapshot)) resolutionDirty = true;
+      // The following frame's observe() changes scale and calls resize once.
+      // Do not eagerly resize again before that observation (two GPU reallocations).
+      coldFloorPolicy.submitted(snapshot);
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
       world.noteFrameSubmitted?.(snapshot,options);
