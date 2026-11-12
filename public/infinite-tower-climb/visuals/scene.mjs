@@ -3525,7 +3525,8 @@ export function createTowerScene(canvas, settings = {}) {
       ? observedGroundedHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
     const sourceAirborneHandoffShot = !overview && !options.stale &&
-      !options.reducedMotion && snapshot.lifecycle === 'running'
+      !options.reducedMotion && snapshot.lifecycle === 'running' &&
+      typeof observedAirborneHandoffShot === 'function'
       ? observedAirborneHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
     const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
