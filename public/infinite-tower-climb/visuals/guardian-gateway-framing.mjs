@@ -266,3 +266,50 @@ export function observedGroundedHandoffShot(snapshot, passage, aspect, zoom = 1)
     focusWeight:Math.min(.36, .36 * weight),
     groundedHandoff:true, proximity, remaining};
 }
+
+// A legitimate first Floor9 jump should keep the same already-earned
+// doorway in the exterior camera, not turn it into an instant scene cut.
+// Read-only presentation. Ground contact remains strictly owned by the
+// separate observedGroundedHandoffShot and authoritative source.
+export function observedAirborneHandoffShot(snapshot, passage, aspect, zoom = 1) {
+  const p=snapshot?.player;
+  if(snapshot?.lifecycle!=='running'||snapshot?.stale||
+      passage?.sourceBound!==true||passage?.active!==true||
+      passage?.stage!=='handoff'||passage?.continuousGroundedHandoff!==true||
+      passage?.innerDoorAssemblyVisible!==true||
+      passage?.runToken!==snapshot?.runToken||
+      passage?.floor!==snapshot?.floor||
+      !Number.isSafeInteger(snapshot?.tick)||
+      !Number.isSafeInteger(passage?.sourceTick)||
+      snapshot.tick<passage.sourceTick||
+      snapshot.tick-passage.sourceTick>24||
+      !(p?.health>0)||p?.grounded!==false||
+      p?.state!=='airborne'||!Number.isFinite(p?.vy)||
+      ![aspect,zoom,snapshot.worldWidth,snapshot.chunkBaseY,p?.x,p?.y,
+        p?.halfHeight,passage?.ageSeconds,passage?.durationSeconds]
+        .every(Number.isFinite)||
+      aspect<=0||aspect>=2.5||zoom<=0||zoom>1.1||
+      snapshot.worldWidth<=0||p.halfHeight<=0||
+      passage.ageSeconds<0||passage.durationSeconds<=0||
+      passage.ageSeconds>=passage.durationSeconds||
+      !Array.isArray(passage.focusPosition)||
+      passage.focusPosition.length!==3||
+      !passage.focusPosition.every(Number.isFinite))return null;
+  const sole=pointFor(p.x,p.y-p.halfHeight,
+    snapshot.chunkBaseY,snapshot.worldWidth,25);
+  const gate=passage.focusPosition;
+  const planar=Math.hypot(sole.x-gate[0],sole.z-gate[2]);
+  const height=sole.y-gate[1];
+  if(planar>=9||height<-.85||height>5.5)return null;
+  const remaining=Math.max(0,Math.min(1,
+    (passage.durationSeconds-passage.ageSeconds)/
+    Math.max(.1,passage.durationSeconds-1.05)));
+  const proximity=Math.max(0,Math.min(1,(9-planar)/7));
+  const heightWeight=Math.max(0,Math.min(1,(5.5-height)/5.5));
+  const weight=remaining*proximity*heightWeight;
+  if(weight<.055)return null;
+  return {sourceTick:snapshot.tick,
+    radius:(aspect<.85?53:45)*Math.min(1.25,Math.max(.85,zoom)),
+    focusWeight:Math.min(.24,.24*weight),
+    airborneHandoff:true,proximity,remaining};
+}

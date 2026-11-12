@@ -29,7 +29,7 @@ import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborn
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff, boundedObservedGuardianOrbit } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
@@ -3524,11 +3524,15 @@ export function createTowerScene(canvas, settings = {}) {
       !options.reducedMotion && snapshot.lifecycle === 'running'
       ? observedGroundedHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
+    const sourceAirborneHandoffShot = !overview && !options.stale &&
+      !options.reducedMotion && snapshot.lifecycle === 'running'
+      ? observedAirborneHandoffShot(snapshot, passage.diagnostics(),
+          camera.aspect, zoom) : null;
     const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
-      sourceGroundedHandoffShot;
+      sourceGroundedHandoffShot || sourceAirborneHandoffShot;
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
-      ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot
-        ? passage.diagnostics() : null;
+      ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot ||
+        sourceAirborneHandoffShot ? passage.diagnostics() : null;
     // The source-qualified next-floor camera request must also reach the
     // real visual rescue below. Before this, the follow lens tracked the
     // doorway but the safety-gated escort could never run: it depended only
@@ -3537,6 +3541,10 @@ export function createTowerScene(canvas, settings = {}) {
       sourceGroundedHandoffShot?.groundedHandoff === true &&
       sourceGroundedHandoffShot.sourceTick === snapshot.tick
         ? sourceGroundedHandoffShot.focusWeight : 0;
+    const airborneHandoffEscort =
+      sourceAirborneHandoffShot?.airborneHandoff === true &&
+      sourceAirborneHandoffShot.sourceTick === snapshot.tick
+        ? sourceAirborneHandoffShot.focusWeight : 0;
     // Keep the SAME real camera, with a source-first cap position and radius:
     // no extra scene, invented time window, generated floor or camera cut.
     if (realCapLens && Array.isArray(realCapStage?.focusPosition) &&
@@ -4185,11 +4193,12 @@ export function createTowerScene(canvas, settings = {}) {
     // No invented victory, camera cut, authoritative motion or new draw call.
     earnedGatewayEscortLastGain = 0;
     const earnedStage = !overview && !options.stale &&
-      (!!liveExit || !!sourceGroundedHandoffShot)
+      (!!liveExit || !!sourceGroundedHandoffShot || !!sourceAirborneHandoffShot)
       ? passage.diagnostics() : null;
     const gatewayEarned = !!earnedStage?.active &&
       ((earnedStage.stage === 'earned-open' && !!liveExit) ||
-       (earnedStage.stage === 'handoff' && !!sourceGroundedHandoffShot)) &&
+       (earnedStage.stage === 'handoff' &&
+         (!!sourceGroundedHandoffShot || !!sourceAirborneHandoffShot))) &&
       earnedStage.runToken === snapshot.runToken &&
       earnedStage.floor === snapshot.floor &&
       Array.isArray(earnedStage.focusPosition) &&
@@ -4198,12 +4207,13 @@ export function createTowerScene(canvas, settings = {}) {
     if (gatewayEarned) earnedGatewayFocus.set(...earnedStage.focusPosition);
     if (gatewayEarned && !options.reducedMotion &&
         options.camera === 'follow' &&
-        (p.state === 'standing' || !!sourceAirborneWalk?.realAirborneCap) &&
+        (p.state === 'standing' || !!sourceAirborneWalk?.realAirborneCap ||
+          !!sourceAirborneHandoffShot?.airborneHandoff) &&
         camera.aspect > 0 && camera.aspect < 2.5 &&
         Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
         (arrivalFraming > .16 || sourceWalkProgress > .24 ||
           (sourceAirborneWalk?.approach ?? 0) > .16 ||
-          groundedHandoffEscort > .04)) {
+          groundedHandoffEscort > .04 || airborneHandoffEscort > .04)) {
       actorFramePoint.copy(climber.group.position);
       actorFramePoint.y += p.halfHeight / SCALE;
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);

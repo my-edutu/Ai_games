@@ -2005,7 +2005,9 @@ export function createTowerWorld(){
         !(next.player.health > 0)) return false;
     pendingEarnedCap = {
       runToken:next.runToken, floor:next.floor, tick:next.tick,
-      previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY
+      previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,
+      thresholdX:guardianGateAnchorX(previous,authored),
+      oldRoofY:ground.y+ground.height
     };
     return true;
   }
@@ -2058,17 +2060,36 @@ export function createTowerWorld(){
     retainedEarnedCap = {root:continuity,guardianGateRetained:true,
       ownedGeometries,ownedMaterials,
       runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
+      thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
       submittedFrames:0,visibleSeconds:0};
   }
   function updateRetainedCap(snapshot,dt,options) {
     const held = retainedEarnedCap;
     if (!held) return;
+    // The actual next-floor route may take the hero airborne before two
+    // cold WebGL frames have submitted. Do not erase the *original* earned
+    // doorway merely on first takeoff. Bound its retention to the physical
+    // source threshold, same run, genuine next-floor flight and display age.
+    const p=snapshot.player;
+    const sole=p?.y-p?.halfHeight;
+    const nearDoor=Number.isSafeInteger(p?.x) &&
+      Number.isSafeInteger(p?.y) && Number.isSafeInteger(p?.halfHeight) &&
+      p.halfHeight>0 && Number.isSafeInteger(held.thresholdX) &&
+      Number.isSafeInteger(held.oldRoofY) &&
+      Math.abs(p.x-held.thresholdX)<=90000 &&
+      Number.isSafeInteger(sole) &&
+      sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+55000;
+    const onNewRoof=p?.grounded===true &&
+      p.groundedPlatformId==='f9:ground';
+    const justLaunched=p?.grounded===false &&
+      p.state==='airborne' && Number.isFinite(p.vy) &&
+      snapshot.tick-held.sourceTick<=24 && nearDoor;
     if (options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
-        snapshot.tick < held.sourceTick || snapshot.tick - held.sourceTick > 60 ||
-        !(snapshot.player?.health > 0) ||
-        (held.submittedFrames > 0 && snapshot.player.grounded !== true)) {
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
+        !(p?.health>0) || !nearDoor ||
+        (held.submittedFrames>0 && !onNewRoof && !justLaunched)) {
       retireEarnedCap();
       return;
     }

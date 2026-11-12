@@ -122,10 +122,16 @@ test('original cap is bounded to source run, grounded continuation and real rest
     world.update(next(),.05,0,{quality:'low'});
     assert.ok(world.diagnostics().retainedSourceCap);
     const airborne={...next(),tick:452,
-      player:{...next().player,grounded:false}};
+      player:{...next().player,x:gate+20000,y:body.y+8000,
+        grounded:false,groundedPlatformId:null,state:'airborne',vy:12000}};
     world.noteFrameSubmitted(next());
     world.update(airborne,.05,.05,{quality:'low'});
+    assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true,
+      'the first legitimate nearby Floor9 jump retains the real open gateway');
+    const far={...airborne,tick:460,
+      player:{...airborne.player,x:gate+150000}};
+    world.update(far,.05,.1,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap,null,
-      'airborne new-floor source retires the old-platform impression');
+      'the old GPU world retires when the actor truly leaves the gate vicinity');
   }finally{world.dispose();}
 });

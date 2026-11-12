@@ -68,9 +68,40 @@ test('source-age and new-floor walking distance fade the existing shot rather th
  assert.ok(later===null || later.focusWeight<first.focusWeight);
  assert.equal(observedGroundedHandoffShot({...s,tick:474}, {...g,ageSeconds:2.9},390/844),null);
 });
+
+test('authentic early Floor9 jump keeps the real doorway shot without inventing ground',async()=>{
+ const {observedAirborneHandoffShot,observedGroundedHandoffShot}=await helper;
+ const {source:s,stage:g}=await fixtures();
+ const jump={...s,tick:452,player:{...s.player,x:s.player.x+7200,
+   y:s.player.y+8000,grounded:false,groundedPlatformId:null,
+   state:'airborne',vy:12000}};
+ const before=JSON.stringify([jump,g]);
+ const phone=observedAirborneHandoffShot(jump,g,390/844);
+ const desktop=observedAirborneHandoffShot(jump,g,960/600);
+ assert.ok(phone?.airborneHandoff && desktop?.airborneHandoff);
+ assert.ok(phone.radius>desktop.radius);
+ assert.ok(phone.focusWeight>0 && phone.focusWeight<=.24);
+ assert.equal(observedGroundedHandoffShot(jump,g,390/844),null);
+ assert.equal(JSON.stringify([jump,g]),before);
+ for(const [source,stage] of [
+  [{...jump,stale:true},g],[{...jump,runToken:'other'},g],
+  [{...jump,floor:10},g],[{...jump,tick:477},g],
+  [{...jump,player:{...jump.player,x:jump.player.x+160000}},g],
+  [{...jump,player:{...jump.player,y:jump.player.y+95000}},g],
+  [{...jump,player:{...jump.player,state:'standing'}},g],
+  [{...jump,player:{...jump.player,health:0}},g],
+  [{...jump,player:{...jump.player,vy:NaN}},g],
+  [jump,{...g,innerDoorAssemblyVisible:false}],
+  [jump,{...g,continuousGroundedHandoff:false}],
+  [jump,{...g,runToken:'other'}],
+  [jump,{...g,stage:'earned-open'}],[jump,{...g,ageSeconds:3}]
+ ])assert.equal(observedAirborneHandoffShot(source,stage,390/844),null);
+});
 test('production camera and source-authenticated gateway rescue both continue across a legitimate new-floor handoff',()=>{
  const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
  assert.match(scene,/observedGroundedHandoffShot\(snapshot, passage\.diagnostics\(\),/);
+ assert.match(scene,/observedAirborneHandoffShot\(snapshot, passage\.diagnostics\(\),/);
+ assert.match(scene,/airborneHandoffEscort > \.04/);
  assert.match(scene,/sourceEarnedWalk \|\| sourceAirborneWalk \|\| sourceLastStand \|\|/);
  assert.match(scene,/const groundedHandoffEscort =/);
  assert.match(scene,/sourceGroundedHandoffShot\.sourceTick === snapshot\.tick/);
