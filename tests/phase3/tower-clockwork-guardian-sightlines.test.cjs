@@ -790,7 +790,7 @@ test('original submitted clockwork triangles retain exact bounded source ownersh
 // full-height near-corner posts that cut across the fighters. Inspect the
 // actual post-batch source-owned triangle faces at the tangential edges.
 test('living floor-eight guardian gallery has no front-column curtain at actor-height while retaining rear load paths', async () => {
-  const [THREE,{createTowerWorld}]=await loaded;
+  const [THREE,{createTowerWorld,clockworkCapActionClearSpan}]=await loaded;
   const {sourceTriangleOwner}=await import(pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href);
   const world=createTowerWorld();
@@ -798,11 +798,20 @@ test('living floor-eight guardian gallery has no front-column curtain at actor-h
     const frame=sourceFrame('clockwork',8),immutable=JSON.stringify(frame);
     world.update(frame,.016,0,{quality:'low'});
     world.group.updateWorldMatrix(true,true);
-    const pylons=[
-      {angle:-.66,radius:16.8,halfWidth:4.9*.70},
-      {angle:1.40,radius:16.65,halfWidth:5.25*.70},
-      {angle:-.18,radius:8.6,halfWidth:5.5*.70},
-    ];
+    // This must follow the ACTUAL authored cap layout. The original
+    // -.66/1.40/-.18 rays were pinned to old bays and falsely reported that
+    // relocated, fully physical rear load-bearing posts had disappeared.
+    // The test still raycasts their REAL batched triangles for all six
+    // near-side/front and far-side/rear windows, without accepting empty art.
+    const cap=clockworkCapActionClearSpan(frame.theme,45);
+    assert.equal(cap.pylons.length,3,'three real clockwork load-bearing frames remain');
+    const pylons=cap.pylons.map(p=>{
+      const halfArc=Math.asin(Math.min(.999,p.R/p.r));
+      const bearing=Math.abs(Math.atan2(Math.sin(p.a),Math.cos(p.a)));
+      assert.ok(bearing-halfArc>1.12,
+        'the entire pylon footprint must physically clear the real frontal duel');
+      return {angle:p.a,radius:p.r,halfWidth:p.R*.70};
+    });
     const front=(hit)=>{
       const owner=sourceTriangleOwner(hit.object.geometry,hit.faceIndex);
       return owner?.authoringPath?.includes('ClockworkOpenButtressFourCornerPosts');
