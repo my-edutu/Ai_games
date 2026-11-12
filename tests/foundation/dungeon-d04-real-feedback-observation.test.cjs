@@ -95,3 +95,48 @@ test('real preview persists original media and forensic verdict BEFORE the final
  assert.ok(media>0&&forensic>media&&acceptance>forensic,
   'On sparse WebGL, never abort before preserving authenticated audio/video and stale-cue evidence');
 });
+
+
+const delivered=(tick,target,kind='damage')=>({
+ cueId:`1:1:${tick}:${kind}:-:${target}`,scene:'1:1',tick,kind,
+ visual:true,audio:false,frameId:12,decision:'delivered',
+ observedClockMs:1000,submittedClockMs:1120,observationToSubmissionMs:120
+});
+test('unrelated admitted visual at a later tick cannot certify the original authentic HP-loss victim',()=>{
+ const result=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:{...later.physicalFeedback,
+   visualAccepted:4,expiredQueuedCues:125,recentDeliveryReceipts:[
+    {cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,kind:'damage',
+     visual:false,audio:false,frameId:null,decision:'expired-pending-before-frame'},
+    delivered(9,'enemy-1-0')
+   ]}}});
+ assert.equal(result.authoritativeDamage,true);
+ assert.equal(result.damageVictims,1);
+ assert.equal(result.visualAcceptance,false);
+ assert.equal(result.status,'AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED');
+ assert.equal(result.sampleSynchronized,false);
+});
+test('same-tick unrelated injury, wrong actor identity, and stale frames never prove target-specific damage visuals',()=>{
+ for(const receipt of [
+  delivered(4,'ranger'),
+  {...delivered(4,'enemy-1-0'),cueId:'1:1:4:damage:invented-attacker:enemy-1-0'},
+  {...delivered(4,'enemy-1-0'),decision:'stale-frame'},
+  {...delivered(4,'enemy-1-0'),visual:false},
+  {...delivered(4,'enemy-1-0'),submittedClockMs:1600,observationToSubmissionMs:600}
+ ]){
+  const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
+   latest:{...later,physicalFeedback:{...later.physicalFeedback,
+    visualAccepted:1,expiredQueuedCues:128,recentDeliveryReceipts:[receipt]}}});
+  assert.equal(verdict.visualAcceptance,false,JSON.stringify(receipt));
+ }
+});
+test('authentic delivered HP-loss receipt proves ONLY frame-level visual admission, not audio alignment',()=>{
+ const receipt=delivered(4,'enemy-1-0');
+ const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:{...later.physicalFeedback,
+   visualAccepted:1,expiredQueuedCues:128,recentDeliveryReceipts:[receipt]}}});
+ assert.equal(verdict.status,'VISUAL_ADMITTED_NOT_AV_VERIFIED');
+ assert.equal(verdict.visualAcceptance,true);
+ assert.equal(verdict.damageVisualAdmitted,1);
+ assert.equal(verdict.sampleSynchronized,false);
+});
