@@ -110,6 +110,16 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
       lastFrame:g.renderStats().lastFrameTriangles,
       passive:g.getForegroundResidentAudit().physicallySkinnedPassiveResidents,
       full:g.getForegroundResidentAudit(),
+      // W272: retain scene-component evidence BEFORE the strict equal-mesh
+      // assertion: a 42-triangle deficit is an actual GPU/CPU parity blocker.
+      // Do not hide it behind a tolerance, or mistake it for hardware FPS.
+      scene:g.getSceneTriangleReconciliation(),
+      working:g.getWorkingResidentAudit(),
+      commuter:g.getResidentCommuterAudit(),
+      resting:g.getRestingActorResidencyAudit(),
+      actor:g.getActorResidencyAudit(),
+      detail:g.getCitizenDetailProjectionAudit(),
+      cloth:g.getVillageClothAudit(),
       glError:gl?.getError()??-1,
       overflow:document.documentElement.scrollWidth-innerWidth};
     }));
@@ -120,6 +130,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     series};
   };
   const cpu=await run(false),gpu=await run(true);
+  // Preserve the complete authentic component-by-component A/B even on
+  // failure; subsequent work may only claim a correction with real parity.
+  await info.attach('w272-strict-unchanged-worker-gpu-cpu-parity-'+viewport.width,{
+   body:Buffer.from(JSON.stringify({viewport,view,
+    source:'same-true-world-no-fake-actors',cpu:cpu.series,gpu:gpu.series},null,2)),
+   contentType:'application/json'});
   expect(gpu.snapshot).toEqual(cpu.snapshot);
   expect(gpu.series.map(r=>r.checksum)).toEqual(cpu.series.map(r=>r.checksum));
   expect(gpu.series.map(r=>r.originalNames)).toEqual(cpu.series.map(r=>r.originalNames));
