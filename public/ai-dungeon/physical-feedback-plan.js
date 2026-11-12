@@ -166,6 +166,11 @@ function fallbackDamageBeats(previous,next){
   beats.push({id:u.id,kind:u.kind,faction:u.faction,damage:prior.hp-u.hp,
    maxHp:u.maxHp,fatal:u.hp===0,x:u.x,z:u.z});
  }
+ // The fallback now supplies the D04 truth base even with an annotator;
+ // retain the previous choreography's fatal/severity ordering before the
+ // unchanged 18-injury ceiling. Never pick snapshot array order as priority.
+ beats.sort((a,b)=>Number(b.fatal)-Number(a.fatal)||
+  b.damage/b.maxHp-a.damage/a.maxHp||a.id.localeCompare(b.id,'en'));
  return beats.slice(0,18);
 }
 /**
