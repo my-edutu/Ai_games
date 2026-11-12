@@ -1710,6 +1710,50 @@ export function planOriginalSourceStanceSlideRelief({
  });
 }
 
+/**
+ * Continuity for an ALREADY verified original-skinned shoe-slide correction.
+ * The visual pivot is recomposed from zero on every requestAnimationFrame;
+ * throwing away up to 18mm in one frame would produce the reverse slide that
+ * the source-sole readback just prevented. Retire this witnessed, local-only
+ * presentation displacement over <=150ms, without claiming planted IK.
+ * No source clip / bone / gameplay root is changed, and invalidation is hard.
+ */
+export function planOriginalSourceStanceReliefCarry({
+ previous=null,sourceInstanceId='',sourceClipName='',sourceWeight=NaN,
+ mode='idle',ownerLocomotion=false,recentRootTravel=NaN,
+ recentTravelAge=NaN,rootYaw=NaN,frameInterval=NaN,
+ alive=true,visible=true,teleport=false,reducedMotion=false,
+ interrupted=false
+}={}){
+ if(!previous||!finite(previous.x)||!finite(previous.z)||
+  !finite(previous.rootYaw)||!finite(rootYaw)||
+  previous.sourceInstanceId!==sourceInstanceId||
+  previous.clip!=='Walking_A'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.65||sourceWeight>1.001||
+  mode!=='move'||ownerLocomotion!==true||
+  !finite(recentRootTravel)||recentRootTravel<.015||
+  recentRootTravel>.18||!finite(recentTravelAge)||
+  recentTravelAge<0||recentTravelAge>.18||
+  !finite(frameInterval)||frameInterval<=0||frameInterval>.05||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted)return null;
+ const yawChange= Math.abs(Math.atan2(
+  Math.sin(rootYaw-previous.rootYaw),
+  Math.cos(rootYaw-previous.rootYaw)));
+ if(yawChange>.08)return null;
+ const distance=Math.hypot(previous.x,previous.z);
+ if(distance<=.0005||distance>.01800001)return null;
+ // At 60Hz the return moves ~2mm/frame; at the allowed slowest 50ms
+ // frame no more than 6mm. A full 18mm exit therefore takes <=150ms.
+ // Repeated callbacks cannot grow the displacement or reset its age.
+ const remaining=Math.max(0,distance-.12*frameInterval);
+ if(remaining<=.0005)return null;
+ return Object.freeze({
+  source:'witnessed-original-source-stance-relief-return',
+  x:previous.x*remaining/distance,z:previous.z*remaining/distance,
+  sourceInstanceId,clip:'Walking_A',rootYaw
+ });
+}
+
 export function composeOriginalSourceGroundedPivotY(presentationY=0,anchor=null){
  if(!finite(presentationY))return 0;
  const offset=anchor?.accepted===true&&finite(anchor.offsetY)&&
