@@ -1258,7 +1258,31 @@ export function createMazeWorld(options = {}) {
               const lens=mesh(lift,box,inlay,0,.71,alongX?0:side*.195,
                 alongX?.26:.035,.12,alongX?.035:.26);
               lens.name='Published guardian Tideglass sentinel lens '+c.cell+' '+side;
-              sentinels.push({lift,crown,lens});
+              // The original 390px full-frame brace revealed that an amber
+              // sliver on a short post reads as static scenery, not a
+              // guardian-wide event. A large, joined, DOUBLE-HINGED shell fan
+              // grows from the existing real endpoint structure. Its open
+              // side points OUT of the actual passable central lane; unlike a
+              // gate it never blocks the route or implies a new crossing.
+              // Reuse existing geometry/material classes, build only when the
+              // source-published endpoint court is physically constructed.
+              const sailPivot=new THREE.Group();
+              sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
+              sailPivot.position.y=.72;
+              lift.add(sailPivot);
+              const sail=mesh(sailPivot,bevel,seaGlass,
+                alongX?0:side*.16,.30,alongX?side*.16:0,
+                alongX?.17:.40,.68,alongX?.40:.17);
+              sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
+              const spar=mesh(sailPivot,box,darkMetal,
+                alongX?0:side*.045,.29,alongX?side*.045:0,
+                alongX?.07:.09,.52,alongX?.09:.07);
+              spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
+              const crest=mesh(sailPivot,bevel,lightStone,
+                alongX?0:side*.18,.65,alongX?side*.18:0,
+                alongX?.22:.38,.13,alongX?.38:.22);
+              crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
+              sentinels.push({lift,crown,lens,sailPivot,sail,side});
             }
           }
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
@@ -3099,6 +3123,13 @@ export function createMazeWorld(options = {}) {
         beacon.lift.position.y=reduced ? .04 : .04+action*.42;
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
+        // The entire linked shell fan opens laterally into the non-walkable
+        // outside margin in the witnessed brace and folds on real release.
+        // No fabricated guardian strike or collision is implied. In reduced
+        // motion it remains rigid but retains the truthful amber warning.
+        beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
+          :(signal.axis==='x'?beacon.side:-beacon.side)*.88*action;
+        beacon.sail.material=action>.28?amber:seaGlass;
       }
       for(const face of signal.faces){
         face.object.material=action>.28?amber:seaGlass;

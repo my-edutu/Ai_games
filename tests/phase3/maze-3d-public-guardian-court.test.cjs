@@ -464,3 +464,58 @@ test('Pass312 original Tideglass endpoint standards follow the REAL witnessed gu
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass313 authentic endpoint shell fans open as one rooted THREE warning system without claiming a physical gate',async()=>{
+  const {createMazeWorld}=await load();
+  const {Vector3}=await import(three);
+  const state=original(),untouched=JSON.stringify(state);
+  const world=createMazeWorld({balanced:true}),initial=world.stats();
+  const get=(cell,side)=>world.group.getObjectByName(
+    'Published guardian Tideglass full shell-fan '+cell+' '+side);
+  try{
+    world.update(state);
+    const panels=[6,8].flatMap(cell=>[-1,1].map(side=>get(cell,side)));
+    assert.ok(panels.every(Boolean),'four substantial rooted ORIGINAL physical fans on actual actor endpoints');
+    assert.equal(get(7,1),undefined,'the intermediate public lane must stay open, without a fake barrier');
+    assert.ok(panels.every(p=>p.scale.y>=.67 && Math.max(p.scale.x,p.scale.z)>=.39),
+      'shell fans must be sizeable physical THREE geometry, not tiny decorative LEDs');
+    const hinges=panels.map(p=>p.parent),neutral=panels.map(p=>p.material);
+    assert.ok(hinges.every(h=>h?.isGroup&&h.position.y>=.7),
+      'the entire connected shell-fan hangs from its actual stone/ivory sentinel');
+    world.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    world.group.updateMatrixWorld(true);
+    assert.ok(hinges.every(h=>Math.abs(h.rotation.x)>.78),
+      'four whole body-height fans physically swing on witnessed brace, not micro-rotate');
+    assert.ok(panels.every((p,i)=>p.material!==neutral[i]),
+      'the large physical surfaces display one authentic event-driven amber beat');
+    assert.ok(panels.every(p=>Number.isFinite(p.getWorldPosition(new Vector3()).y)),
+      'real installed THREE world transforms remain finite');
+    world.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(hinges.every(h=>Math.abs(h.rotation.x)<.45),
+      'release visibly folds actual hinged sails back');
+    world.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+    assert.ok(hinges.every(h=>h.rotation.x===0)&&panels.every((p,i)=>p.material===neutral[i]),
+      'invalid enemy cue instantly folds and darkens every fan');
+    world.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.ok(hinges.every(h=>h.rotation.x===0)&&panels.every((p,i)=>p.material!==neutral[i]),
+      'reduced motion preserves real warning color without sweeping the screen');
+    assert.equal(world.stats().geometryCount,initial.geometryCount,'no new GPU geometry classes');
+    assert.equal(world.stats().materialCount,initial.materialCount,'no new GPU material classes');
+    world.update({...state,visibleCells:[6,7,11]});
+    assert.equal(get(6,1),undefined,'hidden guardian cannot retain animated endpoint sculpture');
+    world.update({...state,doors:[{a:7,b:8,open:false}]});
+    assert.equal(get(8,1),undefined,'closed gate prevents a fictional open guardian court');
+    world.update({...state,result:{reason:'capture'}});
+    assert.equal(get(6,-1),undefined,'terminal cleanup removes connected physical fans');
+    for(let i=0;i<6;i++){
+      world.update({...state,runToken:'authored-shell-fan-reset-'+i});
+      assert.ok(get(6,1)&&get(8,-1));
+      assert.ok(world.stats().geometryCount<100,'original strict six-run geometry ceiling remains <100');
+    }
+    assert.equal(JSON.stringify(state),untouched,'no AI, collision, private map or authoritative state edits');
+  }finally{
+    world.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+  }
+});
