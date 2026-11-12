@@ -50,6 +50,7 @@ function validSample(s,mode,arm){
   safe(s.drawCalls)&&safe(s.triangles)&&s.raster&&finite(s.raster.pixelRatio)&&
   s.raster.pixelRatio>0&&typeof s.raster.shadows==='boolean'&&
   safe(s.vfxDrawCalls)&&safe(s.vfxReservedInstances)&&
+  safe(s.activeVfxInstances)&&safe(s.activeVfxDrawCalls)&&
   s.d04PreviewEnabled===(mode==='d04')&&s.consentedSoundstage===true&&
   s.previewAudioOptedIn===(mode==='d04')&&Array.isArray(s.recentDeliveryReceipts);
 }
@@ -75,6 +76,51 @@ function scan(arm,mode,manifest){
  }
  return {byKey,frames,latestIndex,duplicates};
 }
+
+/**
+ * Read-only diagnostic across EVERY valid observed submission, including
+ * frames that cannot be matched to the other serial browser arm. The page
+ * observer runs every 80ms, so a missing state proves only that THIS sampler
+ * did not witness a frame; it cannot prove that WebGL never rendered it.
+ * Treat warmup and effect-density groups as correlations, never causality.
+ */
+function summarizeFramePressure(scanResult,manifest){
+ const indexByKey=new Map(manifest.map(m=>[key(m.scene),m.stageIndex]));
+ const sampled=scanResult.frames.map(s=>({...s,stageIndex:indexByKey.get(key(s.scene))}));
+ const missingDamage=[],seenGaps=new Set();
+ let previous=null,skipped=0;
+ for(const s of sampled){
+  if(previous!==null&&s.stageIndex>previous+1){
+   for(let i=previous+1;i<s.stageIndex;i++){
+    if(seenGaps.has(i))continue;
+    seenGaps.add(i);skipped++;
+    if(manifest[i].victimIds.length)missingDamage.push(i);
+   }
+  }
+  if(previous===null||s.stageIndex>previous)previous=s.stageIndex;
+ }
+ const worst=sampled.reduce((a,s)=>!a||s.directRenderMs>a.directRenderMs?s:a,null);
+ return {
+  observedSubmittedFrames:sampled.length,
+  skippedAuthorityStagesBetweenSamples:skipped,
+  diagnosticUnobservedHpLossStageIndices:missingDamage,
+  renderCallsOver400Ms:sampled.filter(s=>s.directRenderMs>400).length,
+  warmupRenderMs:stats(sampled.slice(0,2).map(s=>s.directRenderMs)),
+  postWarmupRenderMs:stats(sampled.slice(2).map(s=>s.directRenderMs)),
+  noActiveVfxRenderMs:stats(sampled.filter(s=>s.activeVfxInstances===0).map(s=>s.directRenderMs)),
+  activeVfxRenderMs:stats(sampled.filter(s=>s.activeVfxInstances>0).map(s=>s.directRenderMs)),
+  worstFrame:worst?{
+   stageIndex:worst.stageIndex,frameId:worst.frameId,
+   directRenderMs:round(worst.directRenderMs),
+   activeVfxInstances:worst.activeVfxInstances,
+   activeVfxDrawCalls:worst.activeVfxDrawCalls
+  }:null,
+  causalAttribution:null,
+  audibleImpactVerified:false,
+  samplingCaveat:'An 80ms browser sampler may miss submitted frames. Unobserved HP ticks are NOT proof of lost WebGL frames, audible contact or lack of gameplay damage.'
+ };
+}
+
 function comparable(a,b){
  return a.seed===b.seed&&a.viewport.width===b.viewport.width&&
   a.viewport.height===b.viewport.height&&a.camera===b.camera&&
@@ -97,7 +143,8 @@ function hasStrictInjuryReceipt(s,m){
 function classifyD04ContinuousModePair({manifest,legacy,preview}={}){
  const r={source:SOURCE,status:'INVALID_REAL_AUTHORITY',matchedTicks:0,
   matchedHpLossTicks:0,excludedStages:[],budgetViolations:[],repeatedTickSamples:{legacy:0,preview:0},
-  allObserved:{legacy:null,preview:null},legacy:null,preview:null,paired:null,
+  allObserved:{legacy:null,preview:null},framePressure:{legacy:null,preview:null},
+  legacy:null,preview:null,paired:null,
   previewDamageReceipts:{timely:0},causedByD04:null,sampleSynchronized:false,impactAVAccepted:false,
   caveat:'Serial continuous authentic WebGL gameplay. Equal authority snapshots do not share frame clocks or guarantee identical raster work. No A/V timing or performance causality is established.'};
  if(!validManifest(manifest))return r;
@@ -109,14 +156,25 @@ function classifyD04ContinuousModePair({manifest,legacy,preview}={}){
  r.repeatedTickSamples={legacy:l.duplicates,preview:p.duplicates};
  r.allObserved={legacy:stats(l.frames.map(x=>x.directRenderMs)),
   preview:stats(p.frames.map(x=>x.directRenderMs))};
+ r.framePressure={legacy:summarizeFramePressure(l,manifest),
+  preview:summarizeFramePressure(p,manifest)};
+ // Unpaired true browser frames MUST NOT hide D04 GPU budget overruns.
+ for(const s of p.frames){
+  const stageIndex=manifest.find(m=>key(m.scene)===key(s.scene))?.stageIndex;
+  for(const [value,limit,kind] of [
+   [s.vfxDrawCalls,7,'VFX_DRAW_CALL_CAP'],
+   [s.vfxReservedInstances,104,'VFX_INSTANCE_CAP'],
+   [s.activeVfxDrawCalls,7,'ACTIVE_VFX_DRAW_CALL_CAP'],
+   [s.activeVfxInstances,s.vfxReservedInstances,'ACTIVE_VFX_POOL_INCONSISTENT']]){
+   if(value>limit)r.budgetViolations.push({stageIndex,kind,count:value,limit});
+  }
+ }
  const matched=[],max=Math.min(l.latestIndex,p.latestIndex);
  for(const m of manifest){
   if(m.stageIndex>max)break;
   const a=l.byKey.get(key(m.scene)),b=p.byKey.get(key(m.scene));
   if(!a||!b||!comparable(a,b)){r.excludedStages.push(m.stageIndex);continue}
   matched.push({a,b,m});
-  if(b.vfxDrawCalls>7)r.budgetViolations.push({stageIndex:m.stageIndex,kind:'VFX_DRAW_CALL_CAP',count:b.vfxDrawCalls,limit:7});
-  if(b.vfxReservedInstances>104)r.budgetViolations.push({stageIndex:m.stageIndex,kind:'VFX_INSTANCE_CAP',count:b.vfxReservedInstances,limit:104});
   if(m.victimIds.length&&hasStrictInjuryReceipt(b,m))r.previewDamageReceipts.timely++;
  }
  r.matchedTicks=matched.length;
