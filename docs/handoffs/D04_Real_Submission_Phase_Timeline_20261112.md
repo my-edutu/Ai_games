@@ -55,3 +55,29 @@ Inspect a new authentic Chrome artifact's \`dungeon-d04-real-cue-frame-foley-tim
 Revert \`f1f3b4c\`, \`0203ff6\`, and focused tests on this branch alone; do not revert an unrelated session or merge PR. No change to replay determinism or authoritative state is intended.
 
 Still required: genuine matched three-viewpoint, 1440x900 and 390x844 moving clips; full Warden warning/release/recovery/earned counter/defeat/restart; misses, block, dodge, ranged projectile, spell and confirmed HP impacts; source-verified physical sword-tip rather than wrist-only motion; decoded PCM onset against genuine video frames; FFmpeg-backed continuous moving capture; genuine event coverage and 20-minute resource soak. The next implementation must follow the **measured dominant phase** without weakening contact truth or the existing 400ms cap.
+
+
+## Completed authentic Chrome phase measurement (implementation candidate \`f1f3b4c\`)
+
+The full [Actions 43159247428](https://github.com/my-edutu/Ai_games/actions/runs/43159247428) completed **successfully**: 157/157 D04 native contracts, production build, SHA-verified CC0 model retrieval and genuine Playwright/Chrome Three.js Dungeon smoke. The [actual Actions artifact](https://github.com/my-edutu/Ai_games/actions/runs/43159247428#artifacts) was downloaded and inspected, including the live Dungeon cue timeline and local FFprobe on the original WebM.
+
+**The same genuine tick-4 witnessed HP decrease still failed to make a timely impact.** Its receipt now directly measures:
+
+| Real tick-4 HP-impact receipt | Monotonic reading |
+| --- | ---: |
+| Authority HP-loss observed to post-WebGL frame receipt | **1,765ms** |
+| Observed to latest D04 visual advance start | 106ms |
+| D04 visual-advance wall time | 0ms rounded (not proof of zero CPU work) |
+| D04 visual-advance end to post-WebGL receipt | **1,659ms** |
+| Existing separately measured renderer submission | **1,596ms** (already inside the 1,659ms) |
+| Audio classification | \`stale-frame\`, **no late impact sound** |
+
+The three phase readings sum to the 1,765ms observation-to-submission wall duration. In this specific frame, software-WebGL **renderer submission**, not D04's retained visual update, dominated the waiting time (1,596ms of 1,765ms). This does not prove that all other stalls are renderer-bound or that a different machine would behave similarly. It directly falsifies any inference that the newly measured D04 visual pool was the sole bottleneck.
+
+Across this separate new recording: 82 queued cues, 51 expired before visual emission, 22 visual admissions, 14 original audio admissions and 58 renderer acknowledgements. These counts depend on capture duration and simulation progression and are **not an A/B performance gain** relative to the previous 43-cue run. An independently real tick-24 HP loss produced a timely delivered receipt (51ms; renderer 8ms) and a matching original sound-source scheduling audit. That proves **cue-to-WebAudio scheduling provenance only**, not decoded audible contact.
+
+The combined WebM's bounded EBML inspector found seven VP8 packet timestamps; independent FFprobe decoded five VP8 frames at 688x397. Original Opus/PCM was present but **neither moving three-viewpoint evidence nor decoded PCM onset aligned to the genuine impact frame was established**. The Chromium/readback decoders remain unverified where reported. The desktop and 390px mobile compositor stills are genuine, but they are not accepted moving audiovisual comparisons.
+
+### Updated next dominant weakness and owner boundary
+
+**The single observed primary blocker is very slow renderer submission under the hosted software WebGL workload**, with a genuine 1,596ms render call at the tick-4 impact. The D04 implementation must not artificially preserve stale contact sound or retry old impacts. Next measure matched D04-opt-in versus legacy spectator WebGL render cost, with identical world/seed/camera and controlled capture overhead; only then consider D04-controlled effect-density reduction or its own GPU geometry optimization. Camera, renderer configuration, world lighting, authoritative rules and character assets belong to other sessions and must not be modified here. Three-angle clips, Warden story, touch-size moving A/V, blade-tip witness, and 20-minute soak remain open.
