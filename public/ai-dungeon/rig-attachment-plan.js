@@ -508,3 +508,41 @@ export function restoreOriginalSourceLegsAfterRejectedPelvis(mounts){
  }
  return true;
 }
+
+
+/**
+ * Prepare exactly six ORIGINAL imported leg joints for one bounded second
+ * render-stage attempt after an elevated visual pelvis was physically rejected.
+ * The caller FIRST restores the six joints with
+ * restoreOriginalSourceLegsAfterRejectedPelvis. That leaves the *legal native*
+ * base pose on each bone. Here we remove that known base quaternion so the
+ * next stageRigLegsAfterMixer starts from the actual AnimationMixer source
+ * joints, not a doubled gait overlay. No new rig, target, step or foot lock.
+ *
+ * Reject every incomplete/ambiguous rig before writing any joint. Scratch
+ * quaternions and mount records already exist; no new allocation per call.
+ */
+export function prepareOriginalSourceLegsForPelvisRetry(mounts){
+ if(!Array.isArray(mounts)||mounts.length!==6)return false;
+ const identities=new Set(),bones=new Set();
+ for(const mount of mounts){
+  const identity=mount?.side+':'+mount?.part;
+  if(!['left','right'].includes(mount?.side)||
+   !['upper','lower','foot'].includes(mount?.part)||
+   identities.has(identity)||!mount.bone?.isBone||
+   !mount.bone.quaternion?.isQuaternion||bones.has(mount.bone)||
+   !mount.last?.isQuaternion||!mount.inverse?.isQuaternion||
+   !mount.next?.isQuaternion||!mount.euler?.isEuler||
+   !Number.isFinite(mount.sourceFrameBaseAngleRad)||
+   Math.abs(mount.sourceFrameBaseAngleRad)>.30001)return false;
+  identities.add(identity);bones.add(mount.bone);
+ }
+ for(const mount of mounts){
+  mount.bone.quaternion.multiply(mount.inverse.copy(mount.last).invert());
+  mount.last.identity();
+  mount.soleClearanceRad=0;
+  mount.stanceReliefRad=0;
+  mount.swingCalfAssistRad=0;
+ }
+ return true;
+}
