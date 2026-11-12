@@ -4432,3 +4432,43 @@ test('genuine source stance offset exits smoothly instead of restarting the weig
  assert.match(renderer,/Math\.hypot\(.*\.x,.*\.z\)/,
   'accepted corrections must retain a strict combined 18mm presentation budget');
 });
+
+
+test('RED: genuine Walking_A tick transition primes original skinned shoes without authorizing a blind slide',async()=>{
+ const {planOriginalSourceStanceSampleHandoff:handoff,
+  planOriginalSourceStanceSlideRelief:slide}=await load();
+ // Actual mobile source-rig frame 62 -> 63 traveled 50.67mm at stable
+ // -1.438333rad yaw. A changed authoritative tick must permit a current
+ // source-GLB heel/toe sample, not a correction using stale pre-tick shoes.
+ const witnessed={mode:'move',sourceClipName:'Walking_A',sourceWeight:.90,
+  ownerLocomotion:true,rootTravel:.05066888433054339,frameInterval:.05,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,sourceAnatomyVerified:true};
+ assert.deepEqual(handoff({...witnessed,changed:true}),
+  {recordSample:true,allowRelief:false},
+  'new legal tick must record only genuine post-mixer skinned source shoes');
+ assert.deepEqual(handoff({...witnessed,changed:false}),
+  {recordSample:true,allowRelief:true},
+  'the next same-clip original displayed frame may attempt witnessed relief');
+ for(const patch of [
+  {mode:'attack'},{sourceClipName:'Idle'},{sourceWeight:.64},
+  {ownerLocomotion:false},{sourceAnatomyVerified:false},
+  {rootTravel:.44},{rootTravel:-.1},{frameInterval:.4},
+  {alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true}
+ ])assert.equal(handoff({...witnessed,changed:true,...patch}),null,
+  'never prime stale, unauthenticated, unrendered or unsafe source skin');
+ // The real 62->63 shoe pair was already proven with original source
+ // weighted heel/toe and unique loaded side; warm-up must not change
+ // the independent strict planar outsole validation.
+ assert.equal(typeof slide,'function');
+ const native=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=native.slice(native.indexOf('function stageOriginalSourceStanceSlideAfterMixer('),
+  native.indexOf('function disposeActorAsset('));
+ assert.match(stage,/planOriginalSourceStanceSampleHandoff\(/,
+  'actual Three.js adapter must gate both sample priming and corrected frames');
+ assert.match(stage,/handoff\.allowRelief/,
+  'transition frame must never apply a correction without a prior source sample');
+ assert.match(stage,/sourceStanceSlideSample=\{sourceInstanceId/,
+  'only actual measured original-world skinned shoes may enter the next frame');
+});
