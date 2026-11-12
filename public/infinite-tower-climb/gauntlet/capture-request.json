@@ -1,4 +1,24 @@
 {
+  "p0OriginalSourceOwnedGatewaySameWorldFilm20261112": {
+    "stage": "P0 ORIGINAL SAME-WORLD GATEWAY EVIDENCE — NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "e51da4dc131cfc77cae53af29c12ae067329aaaf",
+    "candidateSource": "EXACT immutable github.sha of THIS request commit; no floating PR head",
+    "baseline": "EXACT frozen baseline source checkout without edits to any original game/host",
+    "requiredCapture": "NINE real jobs: ascent floor0, moving floor7, danger guardian+crusher floor8, complete authentic outcome/restart floor0 for both baseline/candidate; original unmodified 1x WebM 60+s in desktop 960x600 and portrait 390x844 with seed tower-transformation-capture-v1, low graphics, fixed-step 20Hz host, source/browser/Three/native event-timed pixels",
+    "criticalFirstFloor9Acceptance": "Show source-earned defeated guardian, complete visible boots/body crossing SAME original opened bronze guardian doorway from original real f8 cap into real f9 roof, while original GPU cap and gateway physically remain rendered long enough for native pixels. Reject scene hard-cut, mere event success, or synthetic transition proof.",
+    "priorOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43306306861; 8/8 videos succeeded, strict source-to-native 0/2, hard bronze-to-violet cut",
+    "nativeDefectAndRoot": "Original actual world owner retired the GPU cap/gate while same source-earned passage still active, and source climbed airborne before first two returned Three frames. New source unifies via bounded original passage owner.",
+    "qualityRequired": "Check exact source CI separately; previous 43306844790 failed unrelated Eko p99 runner budget, do not fix by editing other games",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceFrameAndMemory": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-12-tower-pr68-source-owned-gateway-world-lifetime.md",
+    "safety": "PR68 remains open draft on PR58; no merge/deploy/force-push/frozen baseline changes"
+  },
   "p0ThreeStageSourcePinnedF9NativeFullMotion20261112": {
     "stage": "P0 — EVIDENCE + GAME LOOP OPEN",
     "verdict": "NOT EVALUATED",
