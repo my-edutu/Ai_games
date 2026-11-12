@@ -16516,19 +16516,41 @@ function emitWorkdayHandTool(p,rig,worldJoint,size){
     box(end[0],end[1],end[2],.26*size,.10*size,.14*size,rgb(0x7c8582));
    }
   }else if(p.job==='farmer'){
-   // Real workTimer, grounded IK wrists and no imaginary completed-grain cargo.
-   // The sickle is a curved iron working edge fastened to the actual wrist.
-   const grip=[hand[0]+.04*size,hand[1]-.06*size,hand[2]+.14*size];
-   limbSegment(hand,grip,.026*size,rgb(0x755439),5);
-   const blade=[grip,
-    [grip[0]+.12*size,grip[1]-.07*size,grip[2]+.065*size],
-    [grip[0]+.25*size,grip[1]-.08*size,grip[2]+.15*size],
-    [grip[0]+.33*size,grip[1]-.03*size,grip[2]+.26*size],
-    [grip[0]+.31*size,grip[1]+.045*size,grip[2]+.34*size]];
-   materialScope(MATERIAL.GENERAL,()=>{
-    for(let i=0;i<blade.length-1;i++)
-     limbSegment(blade[i],blade[i+1],.018*size,rgb(0x858a83),4);
-   });
+   // An actual authoritative farm work phase owns each visible gesture.
+   // No cutting visual or sickle strike during gathering/tying; no new food
+   // appears before the existing completed-work event credits the economy.
+   const stage=getAuthenticWorkGesture(p).stage;
+   if(stage==='cutting'){
+    // Original curved iron cutting edge attached to genuine IK wrist.
+    const grip=[hand[0]+.04*size,hand[1]-.06*size,hand[2]+.14*size];
+    limbSegment(hand,grip,.026*size,rgb(0x755439),5);
+    const blade=[grip,
+     [grip[0]+.12*size,grip[1]-.07*size,grip[2]+.065*size],
+     [grip[0]+.25*size,grip[1]-.08*size,grip[2]+.15*size],
+     [grip[0]+.33*size,grip[1]-.03*size,grip[2]+.26*size],
+     [grip[0]+.31*size,grip[1]+.045*size,grip[2]+.34*size]];
+    materialScope(MATERIAL.GENERAL,()=>{
+     for(let i=0;i<blade.length-1;i++)
+      limbSegment(blade[i],blade[i+1],.018*size,rgb(0x858a83),4);
+    });
+   }else if(stage==='gathering'||stage==='tying'){
+    // In-progress straw, not a credited parcel, sack, market delivery
+    // or harvested resource. Follow the original hand under IK and facing.
+    const straw=rgb(0xc5ab69),twine=rgb(0x7c6549);
+    materialScope(MATERIAL.FOLIAGE,()=>{
+     for(let strand=0;strand<3;strand++){
+      const xx=hand[0]+(strand-1)*.044*size;
+      limbSegment([xx,hand[1]-.05*size,hand[2]+.13*size],
+       [xx+(strand-1)*.045*size,hand[1]+.32*size,
+        hand[2]+.12*size],.011*size,straw,4);
+     }
+    });
+    if(stage==='tying'){
+     limbSegment([hand[0]-.087*size,hand[1]+.08*size,hand[2]+.13*size],
+      [hand[0]+.092*size,hand[1]+.08*size,hand[2]+.13*size],
+      .015*size,twine,4);
+    }
+   }
   }else if(p.job==='gatherer'){
    const held=[hand[0]+.08*size,hand[1]+.07*size,hand[2]+.12*size];
    box(held[0],held[1],held[2],.26*size,.16*size,.21*size,rgb(0xa47d49));
@@ -17277,6 +17299,33 @@ function getWorkdayView(){
 // G148: the farm canopy only moves under a genuine autonomous farmer
 // working inside the established physical field footprint. Observer choice
 // changes the camera, never the schedule, crop yield or seeded simulation.
+// W249: the existing actual sickle's tip is derived from the living
+// two-bone farmer wrist and the identical job-facing rotation used to
+// render the hand tool, NOT an unrelated crop halo centred on their feet.
+// This is a read-only visual contact. It cannot credit grain or alter jobs.
+function realHarvestBladeContact(p){
+ if(!p||p.job!=='farmer'||p.activity!=='Harvesting grain'||
+    !isWorkingAtSite(p))return null;
+ const index=people.indexOf(p);
+ if(index<0)return null;
+ const field=FARMSTEAD.fields.find(([x0,x1,z0,z1])=>
+  p.x>=x0-.7&&p.x<=x1+.7&&p.z>=z0-.7&&p.z<=z1+.7);
+ if(!field)return null;
+ const rig=citizenRigPose(p),gesture=getAuthenticWorkGesture(p);
+ const size=.92+(index%5)*.045;
+ const focus=rig.acting.focus,angle=Math.atan2(focus[0]-p.x,focus[1]-p.z);
+ const co=Math.cos(angle),si=Math.sin(angle),wrist=rig.arms[1].wrist;
+ // Actual emitWorkdayHandTool farmer blade terminates at wrist plus
+ // (.04+.31,-.06+.045,.14+.34) local body units.
+ const localX=wrist[0]+.35,localZ=wrist[2]+.48;
+ const x=p.x+size*(co*localX+si*localZ),
+  z=p.z+size*(-si*localX+co*localZ);
+ const insideField=x>=field[0]&&x<=field[1]&&
+  z>=field[2]&&z<=field[3];
+ return {source:'genuine-farmer-IK-wrist-and-sickle-tip',
+  citizen:p.name,stage:gesture.stage,tip:[x,z],insideField,
+  authorityModified:false,createdGoods:0,createdActors:0};
+}
 function getHarvestInteractionAudit(){
  const candidates=people.filter(p=>p.job==='farmer'&&
   p.activity==='Harvesting grain'&&isWorkingAtSite(p)&&
@@ -17286,26 +17335,35 @@ function getHarvestInteractionAudit(){
  const p=candidates.includes(selected)?selected:candidates[0];
  if(!p)return {source:'real-autonomous-farmer-contact',active:false,
   citizen:null,contact:[0,0,0,0],progress:0};
- const action=occupationalPerformance(p);
+ const action=occupationalPerformance(p),blade=realHarvestBladeContact(p);
  const progress=Math.min(1,p.workTimer/workDuration(p));
- const strength=Math.min(1,.38+.57*action.beat);
+ const cutting=blade?.stage==='cutting'&&blade.insideField;
+ // Preparing, gathering and tying still have true work poses, but MUST NOT
+ // bend/cut standing grain with an imaginary ongoing sickle strike.
+ const strength=cutting?Math.min(1,.38+.57*action.beat):0;
+ const tip=blade?.tip||[p.x,p.z];
  return {source:'real-autonomous-farmer-contact',active:true,
-  citizen:p.name,contact:[p.x,p.z,strength,action.beat],progress,
-  activity:p.activity,job:p.job,workTimer:p.workTimer};
+  citizen:p.name,contact:[tip[0],tip[1],strength,action.beat],
+  bladeTip:tip.slice(),stage:blade?.stage||'off',
+  insideField:blade?.insideField===true,root:[p.x,p.z],
+  progress,activity:p.activity,job:p.job,workTimer:p.workTimer,
+  authorityModified:false};
 }
-// W48 read-only inspection of the real still-working farmer and crop pocket.
-// Standing stems bend in response to a shift; no harvest exists until credited.
+// W48 + W249 read-only observation of physical IK-driven blade and the
+// genuine still-standing grain; no credited harvest until a workday event.
 function getHarvestVisibilityAudit(){
  const a=getHarvestInteractionAudit();
  if(!a.active)return {source:'real-authoritative-farmer-grain-parting',
   active:false,citizen:null,job:null,hasSickle:false,authorityMutated:false};
+ const cutting=a.stage==='cutting'&&a.contact[2]>0;
  const work=Math.max(0,Math.min(1,.68+.22*a.progress+.18*a.contact[2]));
  return {source:'real-authoritative-farmer-grain-parting',
-  active:true,citizen:a.citizen,job:'farmer',hasSickle:true,
+  active:true,citizen:a.citizen,job:'farmer',
+  hasSickle:cutting,workStage:a.stage,bladeTip:a.bladeTip.slice(),
   contact:a.contact.slice(),progress:a.progress,
   cropFloor:terrain(a.contact[0],a.contact[1])+.077,
-  radiusMetres:1.35,centerHeightRatio:1-work*.86,
-  temporaryBentCrop:true,earnedFoodFromVisual:0,authorityMutated:false};
+  radiusMetres:1.35,centerHeightRatio:cutting?1-work*.86:1,
+  temporaryBentCrop:cutting,earnedFoodFromVisual:0,authorityMutated:false};
 }
 // W04: visible crop aftermath follows ONLY bounded, positive authoritative
 // farmer work events. Presentation must not grant or spend food, change routes,
