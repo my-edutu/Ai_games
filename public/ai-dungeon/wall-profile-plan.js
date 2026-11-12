@@ -55,38 +55,3 @@ export function planLegibleWallMass(map,floor,vaultedSites=[]){
    [1.05,1.10,1.16,1.22][value%4];
  });
 }
-
-/** Original licensed GLBs stay on single-exposed-face solid wall piers rather
- * than free-standing in the camera-to-combat lane. Presentation only. */
-export function planWallSeatedAuthoredMasonry(map,units=[],limit=5){
- const n=Array.isArray(map)?map.length:0;
- if(n<9||n>81||map.some(row=>typeof row!=='string'||row.length!==n)||
-  !Array.isArray(units)||units.length>256||!Number.isSafeInteger(limit)||limit<0||limit>5)return [];
- const offset=(n-1)/2,dirs=[[0,-1],[1,0],[0,1],[-1,0]],candidates=[];
- for(let z=2;z<n-2;z++)for(let x=2;x<n-2;x++){
-  if(map[z][x]!=='#')continue;
-  const exposed=dirs.filter(([dx,dz])=>map[z+dz]?.[x+dx]==='.');
-  if(exposed.length!==1)continue;
-  const [dx,dz]=exposed[0];
-  if(units.some(u=>u&&u.hp>0&&Number.isFinite(u.x)&&Number.isFinite(u.z)&&
-   Math.hypot(u.x-(x+dx),u.z-(z+dz))<2.7))continue;
-  candidates.push({wallX:x,wallZ:z,approachX:x+dx,approachZ:z+dz,
-   x:x-offset,z:z-offset,normalX:dx,normalZ:dz,score:(x*71+z*31+n*17)&255});
- }
- candidates.sort((a,b)=>a.score-b.score||a.wallZ-b.wallZ||a.wallX-b.wallX);
- const sites=[];
- for(const site of candidates){
-  if(sites.length>=limit)break;
-  if(sites.some(s=>Math.hypot(site.x-s.x,site.z-s.z)<3))continue;
-  const {score,...placement}=site;
-  sites.push(Object.freeze({...placement,asset:sites.length%3===0?
-   'environment/dungeon_pillar.glb':'environment/dungeon_wall.glb',kind:'architecture'}));
- }
- return sites;
-}
-/** Uniform source-mesh scale, bounded to a real .72m wall footprint and
- * 1.38m height. Broken/empty original assets are not rendered. */
-export function planWallSeatedAssetScale(extent){
- if(!extent||![extent.x,extent.y,extent.z].every(v=>Number.isFinite(v)&&v>0))return 0;
- return Math.min(3,.72/extent.x,1.38/extent.y,.72/extent.z);
-}

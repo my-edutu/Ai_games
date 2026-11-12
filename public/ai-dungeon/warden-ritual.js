@@ -1,5 +1,5 @@
 import * as THREE from '/dungeon/vendor/three.module.js';
-import {planWardenCourtChapter,planWardenCourtStone,planWardenRift,WARDEN_COURT_STONES,WARDEN_RIFT_SEGMENTS} from '/dungeon/warden-chapter-plan.js';
+import {planWardenCourtChapter,planWardenCourtStone,planWardenRift,WARDEN_COURT_STONES,WARDEN_RIFT_SEGMENTS,WARDEN_WALL_BUTTRESS_PROFILE} from '/dungeon/warden-chapter-plan.js';
 import {planWardenTellStage,planWardenReliefBeat,planWardenReliefTile} from '/dungeon/warden-tell-plan.js';
 // Read-only original Warden ritual art. All beams, rings and shatter effects
 // derive exclusively from the real public boss/defender/simulation state.
@@ -165,9 +165,16 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  candidates.sort((a,b)=>a.score-b.score||a.dx-b.dx||a.dz-b.dz);
  const buttressStone=new THREE.MeshStandardMaterial({color:'#484247',roughness:.95,metalness:.09});
  const buttressMetal=new THREE.MeshStandardMaterial({color:'#82705b',roughness:.67,metalness:.39});
- const shaft=new THREE.CylinderGeometry(.22,.33,2.3,7),capGeo=new THREE.CylinderGeometry(.43,.31,.19,7);
- const archGeo=new THREE.TorusGeometry(.38,.063,5,18,Math.PI);
- const budGeo=new THREE.DodecahedronGeometry(.17,0);
+ // Genuine after-footage still showed a gigantic dark shaft with a broad
+ // bronze polygonal capital. These EXACT source cylinders and bronze caps
+ // produced the recognizable physical silhouette. Reconstruct them into
+ // low original masonry-mounted sculptural relief without losing the boss
+ // cathedral, authored materials, genuine solid-wall source placement or batching.
+ const wallMass=WARDEN_WALL_BUTTRESS_PROFILE;
+ const shaft=new THREE.CylinderGeometry(wallMass.shaftTop,wallMass.shaftBase,wallMass.shaftHeight,7);
+ const capGeo=new THREE.CylinderGeometry(wallMass.capTop,wallMass.capBase,wallMass.capHeight,7);
+ const archGeo=new THREE.TorusGeometry(wallMass.archRadius,wallMass.archTube,5,18,Math.PI);
+ const budGeo=new THREE.DodecahedronGeometry(wallMass.finialRadius,0);
  // Same original Gothic shaft, cap, ogive and finial, in the same genuine
  // impassable wall niches. Four retained submissions replace up to sixteen
  // separate objects; visibility follows the exact physical sightline policy.
@@ -179,10 +186,10 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
   fixedCourt.add(buttress);wallProps.push(buttress);
  }
  const buttressParts=[
-  {name:'Warden batched cathedral shaft',geometry:shaft,material:buttressStone,y:1.16,z:0},
-  {name:'Warden batched cathedral cap',geometry:capGeo,material:buttressMetal,y:2.26,z:0},
-  {name:'Warden batched cathedral pointed arch',geometry:archGeo,material:buttressStone,y:2.48,z:-.13,roll:Math.PI},
-  {name:'Warden batched cathedral finial',geometry:budGeo,material:buttressMetal,y:2.49,z:-.14}
+  {name:'Warden batched cathedral shaft',geometry:shaft,material:buttressStone,y:wallMass.shaftY,z:0},
+  {name:'Warden batched cathedral cap',geometry:capGeo,material:buttressMetal,y:wallMass.capY,z:0},
+  {name:'Warden batched cathedral pointed arch',geometry:archGeo,material:buttressStone,y:wallMass.archY,z:-.08,roll:Math.PI},
+  {name:'Warden batched cathedral finial',geometry:budGeo,material:buttressMetal,y:wallMass.finialY,z:-.08}
  ];
  const buttressBatches=wallProps.length?buttressParts.map(part=>{
   const mesh=new THREE.InstancedMesh(part.geometry,part.material,wallProps.length);
@@ -531,7 +538,7 @@ export function createWardenRitual(world,exit,{reducedMotion=false,map=null}={})
  }
  return {accept,animate,setDecorativePriority,setSightlines,dispose,metrics:()=>({ceremonialDrawBatches:ceremonialBatches.length,
   concentricDrawBatches:concentricBatches.length,sculptedCourtSlabs:courtSlabCount,originalEngravings:cutCount,cathedralWallButtresses:wallProps.length,cathedralWallBatches:buttressBatches.length,
-  cathedralSourceDraws:wallProps.length*4,shatterDrawBatches:shatterShards.count>0?1:0,
+  cathedralSourceDraws:wallProps.length*4,cathedralWallProfile:{mountedOnImpassableWall:true,actualPhysicalTopMeters:wallMass.maxTopMeters,originalPhysicalShaftMeters:wallMass.oldShaftHeight,originalCrownHeightMeters:wallMass.oldArchHeight,retainedDrawBatches:buttressBatches.length},shatterDrawBatches:shatterShards.count>0?1:0,
   decorativePriority:{mode:decorativePriority.mode,glyphOpacity:glyph.opacity,
    conduitOpacity:conduit.opacity,reliefOpacity:reliefVein.opacity},
   shatterSourcePieces:SHATTER_SHARD_COUNT,phaseFractureSegments:faultVoidMesh.visible?WARDEN_RIFT_SEGMENTS:0,chapterOpenness:Math.round(chapterOpenness*1000)/1000,chapterTransitions,hiddenWallButtresses:hiddenWallProps,fixedCeremonialPlinths:plinths.length,hiddenPlinths,retractedPlinths:plinths.filter(p=>p.position.y<-.55).length,phaseRelief:phase,visible,shieldActive:ward,exposedCounterWindow:exposed,phase,activeDefenders:defenders,activeTethers:linkCount,shattering:breakAge<SHATTER_TIME,maxTethers:LIMIT,originalBasaltReliefs:12,warningTiles:warningCount,warningEdgedTiles:0,warningBoundaryEdges,warningIncisions:warningIncisions.count,warningTellProgress:warningStage.progress,warningShape,warningStoneLift,warningStoneGeometry:'bevelled-original-basalt',impactReliefFrames,impactActive:impactAge>0})};

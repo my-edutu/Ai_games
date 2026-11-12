@@ -61,3 +61,14 @@ export function planWardenRegaliaMotion(id,phase='SENTINEL',charge=0,reducedMoti
  else if(id==='ember-heart')scale=1+stage*.13+warning*.11+opened*.20;
  return Object.freeze({x,y,roll,scale});
 }
+
+/** Original Warden wall-owned stone relief, not a tall free-standing opaque
+ * tower in the near-camera actor corridor. These remain rendered physical
+ * geometry on real impassable map walls, with unchanged 4 retained batches. */
+export const WARDEN_WALL_BUTTRESS_PROFILE=Object.freeze({
+ shaftTop:.15,shaftBase:.19,shaftHeight:.86,shaftY:.45,
+ capTop:.24,capBase:.20,capHeight:.13,capY:.91,
+ archRadius:.23,archTube:.043,archY:1.04,
+ finialRadius:.085,finialY:1.08,
+ maxTopMeters:1.20,oldShaftHeight:2.30,oldArchHeight:2.48
+});
