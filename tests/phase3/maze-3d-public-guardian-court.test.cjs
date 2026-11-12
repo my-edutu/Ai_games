@@ -150,3 +150,53 @@ test('one real guardian duel earns a continuous public, level, open physical cau
  assert.equal(world.stats().geometryCount,0);
  assert.equal(world.stats().materialCount,0);
 });
+
+
+test('witnessed guardian visibly actuates only the true public Tideglass causeway, without a fake attack or GPU churn',async()=>{
+  const {createMazeWorld}=await load();
+  const s=original(),truth=JSON.stringify(s),world=createMazeWorld({balanced:true});
+  const budget=world.stats();
+  const leaf=(cell,side)=>world.group.getObjectByName('Published guardian warning floor leaf '+cell+' '+side);
+  world.update(s);
+  assert.equal(world.stats().guardianTideSignalTiles,3,'three joined real public causeway cells earn physical floor leaves');
+  const real=[6,7,8].flatMap(cell=>[-1,1].map(side=>leaf(cell,side)));
+  assert.ok(real.every(Boolean),'six actual attached original Three meshes, not an overlay or counted fiction');
+  const sourceMaterials=new Set(real.map(mesh=>mesh.material));
+  assert.equal(sourceMaterials.size,1,'neutral floor has one pooled sea-glass material');
+  assert.equal(world.stats().geometryCount,budget.geometryCount);
+  assert.equal(world.stats().materialCount,budget.materialCount);
+  world.animate(0,{guardianCell:8,guardianBeat:0,reducedMotion:false});
+  const before=real.map(mesh=>({m:mesh.material,y:mesh.position.y,r:mesh.rotation.x}));
+  world.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+  for(let i=0;i<real.length;i++){
+    assert.notEqual(real[i].material,before[i].m,'actual witnessed brace lights the broad physical threshold');
+    assert.ok(real[i].position.y>before[i].y+.01,'published floor physically responds, without changing path authority');
+    assert.ok(Math.abs(real[i].rotation.x)>.09,'connected leaves visibly counter-hinge across the court');
+  }
+  const braceHeight=real[0].position.y;
+  world.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+  assert.ok(real[0].position.y<braceHeight,'genuine release makes the threshold settle rather than inventing a strike');
+  world.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+  assert.ok(real.every((mesh,i)=>mesh.material===before[i].m&&mesh.position.y===0&&mesh.rotation.x===0),
+    'unpublished enemy ID instantly revokes all signal, including the physical hinges');
+  world.animate(1,{guardianCell:8,guardianBeat:1,reducedMotion:true});
+  assert.ok(real.every(mesh=>mesh.rotation.x===0),'reduced motion holds a static witnessed state');
+  world.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+  assert.equal(world.stats().geometryCount,budget.geometryCount,'animated warning never creates new GPU shapes');
+  assert.equal(world.stats().materialCount,budget.materialCount,'animated warning reuses the installed material pool');
+  world.update({...s,visibleCells:[6,7,11]});
+  assert.equal(world.stats().guardianTideSignalTiles,0,'hidden guardian removes its entire 3D warning lane');
+  world.update({...s,doors:[{a:7,b:8,open:false}]});
+  assert.equal(world.stats().guardianTideSignalTiles,0,'sealed door never receives a false continuous warning');
+  world.update({...s,result:{reason:'capture'}});
+  assert.equal(world.stats().guardianTideSignalTiles,0,'terminal result clears stage and warning');
+  for(let i=0;i<6;i++){
+    world.update({...s,runToken:'tideglass-signal-reset-'+i});
+    assert.equal(world.stats().guardianTideSignalTiles,3);
+    assert.ok(world.stats().geometryCount<100,'strict six-run geometry ceiling unchanged');
+  }
+  assert.equal(JSON.stringify(s),truth,'no mutation of autonomous game state or public knowledge');
+  world.dispose();
+  assert.equal(world.stats().geometryCount,0);
+  assert.equal(world.stats().materialCount,0);
+});

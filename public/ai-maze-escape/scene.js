@@ -626,7 +626,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Read the connected physical shutter/piston pose BEFORE updating Pip's
     // full-body rig in this same native render frame, not one frame later.
     world.animate(elapsed, {...settings, gateTime:gateVisualTime,
-      stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position});
+      stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position,
+      guardianCell:closestThreat?.cell,guardianBeat:closestThreat?.encounterBeat});
     const pressureProgress=pressureCue
       ? world.publicPressureProgress(pressureCue.cell) : 0;
     // Only the new authoritative PUBLIC wait decision, paired with a still
