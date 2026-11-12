@@ -15,9 +15,9 @@
     "testFirstCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183619874 — completed FAILURE; observed expected RED test #558: first source-grounded Floor9 canyon layers were 3 vs staged expectation 0",
     "productionCommit": "2350f4166f88523bb27093b6593a77e073e9938c",
     "actualChange": "Exact source-earned low-tier 8->9: first submitted frame contains authentic ground/platforms/hazards/tower/arch but not optional 8640-triangle colored panorama and distant citadels. After first successful returned Three frame, build original vista with bounded fade. After second separately returned same-source frame, build original seven-citadel backdrop with independent fade. Bounded source-identity cancellation and geometry/material disposal; normal floors and high tier unchanged. No physics or source progression changed.",
-    "exactImplementationCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183745012 — COMPLETED conclusion success",
-    "newSourcePinnedFilms": "https://github.com/my-edutu/Ai_games/actions/runs/43184271921 — COMPLETED at exact immutable candidate ae2468035fc228550b8674bb09327ef53296c9f9, original 9-job normal-speed film and native source pairing completed with conclusion failure; outputs not yet independently inspected",
-    "realNativeTimingImprovement": "NOT EVALUATED — staged CPU/GPU work is an engineering hypothesis, not 1x video acceptance",
+    "exactImplementationCheck": "https://github.com/my-edutu/Ai_games/actions/runs/43183745012 — SUCCESS at exact game implementation 2350f4166f88523bb27093b6593a77e073e9938c; CI safety only",
+    "newSourcePinnedFilms": "https://github.com/my-edutu/Ai_games/actions/runs/43184271921 — 8/8 original >=60s native baseline/candidate desktop+portrait films complete at exact candidate ae2468035fc228550b8674bb09327ef53296c9f9, ledge authentic, ninth pair-source-events FAILED 0/2 event/native accepted viewports",
+    "realNativeTimingImprovement": "NOT VERIFIED as causal quality: candidate source/native gaps measured 1.871/1.454s versus 2.52/2.529s in older separate source footage; 0/2 strict pairing remains failed, no actual-device GPU-present timing or blind preference.",
     "review": "docs/reviews/2026-11-12-tower-pr68-submitted-canyon-upload-pipeline.md",
     "independentRandomizedBlindCritics": {
       "LOOKS": "0/5",
@@ -25,50 +25,30 @@
       "PLAYS": "0/5"
     },
     "supportedActualDeviceP50P95P99Memory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect new original source-pinned 60+s matched low-tier desktop 960x600 and portrait 390x844 videos including full ascent, moving, earned guardian/crusher and opened real arch, floor9 onward, outcome/restart. Measure old/new source->browser->Three->native timing; reject if staged scenery appears blank, pops or timing worsens; strict source/native guardian pairing must exceed previous 0/2 and genuine physical crossing be visible. Remain P0; no blind pass without independent critics or device budgets.",
-    "finalCandidateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43184270938 — IN_PROGRESS; no passing claim"
+    "nextHighestImpactAction": "Reconstruct authentic body/arch/ground/camera continuity over Floor8->9 as a single viewer-visible spatial crossing and reduce source->browser->Three->native desynchronization without inventing physics or retiming source. Recapture original >=60s full ascent/moving/guardian/crusher/outcome/restart at 960x600 and 390x844 with strict source-to-native pairing and fresh 5x3 independent critics; remain P0 until accepted.",
+    "finalCandidateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43184270938 — SUCCESS at exact immutable film candidate ae2468035fc228550b8674bb09327ef53296c9f9; CI safety only",
+    "originalFilmArtifacts": {
+      "candidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43184271921/artifacts/13928320808",
+      "frozenBaselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43184271921/artifacts/13927902682"
+    },
+    "candidateOriginalNativeSeconds": {
+      "desktop960x600": 72.16,
+      "portrait390x844": 73.92
+    },
+    "measuredAfterCandidateSourceTick451ToNativeFloor9Seconds": {
+      "desktop": 1.871,
+      "portrait": 1.454,
+      "method": "actual unmodified original WebM source/native HUD + phase sidecars; NOT physical passage or GPU present; only same-candidate diagnostic"
+    },
+    "measuredAfterCandidateBrowserToThreeReturnMs": {
+      "desktop": 1100,
+      "portrait": 836,
+      "method": "JS/browser accepted to returned Three scene; NOT frame present/GPU/hardware FPS"
+    },
+    "strictGuardianNativeAcceptedViewports": "0/2 — FAILED; no original full-body grounded doorway crossing visible in sampled real frames",
+    "observedNewNativeVisualDefect": "Original 1x native desktop frames 25.17s bronze Floor8 to 25.25s purple Floor9 cut; portrait shows similarly abrupt new world. Source-backed floor and HUD change but not spatially continuous body-through-door movement. The 8 to 9 transition remains P0 blocker."
   },
-"p0ClockworkCapRealFilmAndCiVetoUnblock20261112": {
-    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
-    "leadingAssessorVerdict": "NOT EVALUATED",
-    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-    "inspectedOriginalCandidateSourceSha": "e67af64d3dc4224024646752d89fea6b383321f7",
-    "authenticFullMotionCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345 — eight 60+s 1x baseline/candidate films succeeded; ninth strict event pairing FAILED",
-    "originalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345/artifacts/13921229961",
-    "originalFrozenBaselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/43170429345/artifacts/13922775120",
-    "nativeCandidateFilmSeconds": {
-      "desktop960x600": 72.92,
-      "portrait390x844": 73.24
-    },
-    "strictEventMatchedGuardianViewportCount": "0/2 — failed, not experience-accepted",
-    "observedOriginalFilmDefect": "Floor8 bronze gallery and hero/guardian still compete in portrait; near 25.5-25.75s the candidate visibly cuts to violet Floor9 instead of an uninterrupted full-body grounded passage. Original source event and drawn HUD phase are not synchronized.",
-    "originalSourceTick451ToNativeFloor9Seconds": {
-      "desktop": 2.52,
-      "portrait": 2.529,
-      "method": "Source timebase/native WebM HUD witness; NOT GPU-present frame timing or target-device FPS"
-    },
-    "actualBrowserAcceptedToThreeReturnMs": {
-      "desktop": 1722,
-      "portrait": 1275,
-      "method": "Browser CPU/Three returned timing only; NOT target-device GPU latency"
-    },
-    "verifiedExistingCIBlocker": "https://github.com/my-edutu/Ai_games/actions/runs/43170429395 — 1 failing living-floor-eight sightline test, stale historic rear-pier angular rays after approved real 3D pylon relocation",
-    "testOnlyUnblockCommit": "fb4cc21fa694990849e580a7b4c131772ee8786b",
-    "testUnblockDetails": "Uses actual production clockworkCapActionClearSpan for each of three authored pylon bearings, asserts full-shaft frontal corridor clearance, retains all six real geometry ray tests for front absence and rear structural load path; no weakened gameplay gates",
-    "exactTestFixTechnicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43177183897 — SUCCESS at exact fb4cc21f test code SHA; guardrail only",
-    "reviewFile": "docs/reviews/2026-11-12-tower-pr68-clockwork-cap-physical-daylight.md",
-    "reviewAddendumCommit": "5ed86d5450fa468eda09f2c795877cb5b2299a80",
-    "newProductionGameplayChange": "NONE this run: verifiable pre-existing CI blocker fixed; 3D game source and PR58 unchanged",
-    "postTestFixSourcePinnedMovie": "NOT CAPTURED — no new 3D production change and no false video quality claim",
-    "independentRandomizedBlindCritics": {
-      "LOOKS": "0/5",
-      "FEELS": "0/5",
-      "PLAYS": "0/5"
-    },
-    "realTargetDeviceFrameP50P95P99AndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Rebuild the source->3D-submitted->native presented Floor8->9 physical handoff as one genuinely continuous, grounded camera/world motion shot, addressing observed ~2.5s latency, not another cosmetic HUD patch. Capture 60+s original 960x600+390x844 baseline/candidate matching seed/tier across ascent, moving, guardian/crusher and outcome/restart. Demand strict event pairing >0/2, then actual-device budgets and 5 fresh blinded reviewers per pillar. Remain P0 until acceptance."
-  },
-  "p0OriginalClockworkPhysicalCapDaylight20261112": {
+"p0OriginalClockworkPhysicalCapDaylight20261112": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
