@@ -128,3 +128,47 @@ test('historic immediate floor change keeps the original short exterior memory i
   assert.equal(effect.diagnostics().physicallyWalkableThreshold.extraDraws,0);
  }finally{effect.dispose();}
 });
+
+
+test('real 20Hz browser gap still carries the authentic Floor8->9 opened arch, never a fake floor jump',async()=>{
+  // Native 2026-11-12 original 960x600 and 390x844 danger films:
+  // independent public source has ALL ticks 443..454, but the browser
+  // observes grounded defeated Floor8 tick443 and next submitted Floor9
+  // tick454 after a cold WebGL frame. Exact 50ms source positions are
+  // 291896->338096 and continuous supported roof y=3238000.
+  const [THREE_IMPL,{createTowerGuardianPassage,observedGroundedGuardianHandoff,
+    observedFloorNineRunway}]=await Promise.all([THREE,passage]);
+  const before=source(),after=successor();
+  before.tick=443;before.player.x=291896;
+  after.tick=454;after.player.x=338096;
+  assert.equal(before.player.y,3238000);
+  assert.equal(after.player.y,3238000);
+  assert.equal(observedGroundedGuardianHandoff(before,after),true,
+    'bounded missing browser frames must not suppress the real defeated guardian crossing');
+  assert.ok(observedFloorNineRunway(before,after),
+    'the original Floor9 grounded runway must survive a 550ms browser gap');
+  const effect=createTowerGuardianPassage(THREE_IMPL);
+  try {
+    assert.equal(effect.begin(before,after,anchor),true,
+      'cold, never-painted earned-open arch must not be a prerequisite');
+    assert.equal(effect.diagnostics().continuousGroundedHandoff,true);
+    assert.equal(effect.diagnostics().inlayMode,'successor-ground');
+    assert.equal(effect.diagnostics().innerDoorAssemblyVisible,true);
+    assert.equal(effect.noteFrameSubmitted(after),true);
+  }finally{effect.dispose();}
+  const invalid=[
+    [{...before,runToken:'old-run'},after],
+    [{...before,enemies:[{...before.enemies[0],active:true,health:1}]},after],
+    [{...before,guardianExitX:undefined},after],
+    [{...before,player:{...before.player,grounded:false}},after],
+    [before,{...after,tick:471}],
+    [before,{...after,player:{...after.player,x:470000}}],
+    [before,{...after,player:{...after.player,groundedPlatformId:'f9:p2'}}],
+    [before,{...after,platforms:[{...after.platforms[0],y:cap.y+1000}]}],
+  ];
+  for(const [a,b] of invalid) {
+    assert.equal(observedGroundedGuardianHandoff(a,b),false,
+      'source-stale, fabricated, unsupported and impossible hops still veto the carry');
+    assert.equal(observedFloorNineRunway(a,b),null);
+  }
+});
