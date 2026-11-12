@@ -1,0 +1,24 @@
+# Infinite Tower Climb PR68 — P0 native-video latency attribution (12 Nov 2026)
+
+## Frozen scope and source review
+- PR68 `feat/tower-transformation-gauntlet-20261101` remains **open/draft**, on PR58. Frozen baseline is `1731b380851162741761c5569e2bc152a0869ca9`. No PR58 edits, merge, deployment, gameplay rule changes, or baseline move.
+- Authorities: AGENTS.md, games/infinite-tower-climb/GAUNTLET.md, docs/superpowers/specs/2026-11-01-infinite-tower-transformation-gauntlet-design.md. Stage **P0 OPEN; transformation NOT EVALUATED**.
+- **Observed at prior immutable candidate:** [run 43143515284](https://github.com/my-edutu/Ai_games/actions/runs/43143515284), candidate `ff5bfb99acaaa79351a97a11542cef0801545a04`. All eight original normal-speed desktop/portrait WebMs were produced; seven of eight scenario jobs succeeded. Baseline moving portrait had a genuine partially calibrated original-video clock: anchors 4.88→9.04s over 3.260s wall (slope **1.276**, outside strict bound). Native integrity was clean (71.76s and 1795 original decoded frames); the film's **full clock remains unverified**. The final event pair failed 0/2; do not relax clock bounds or pretend missing votes.
+- Native danger candidate video shows authentic 8→9 purple scene / 8→9 HUD about **24.75s** after start in both sizes, against original source tick451 native search at **23.3138s desktop / 23.3059s portrait**. Difference **+1.436s / +1.444s**, so event-to-original-pixel agreement is **0/2**. We examined original full-width frames around 12–34s; sampled frames are diagnostic, not full-motion acceptance.
+- Same original candidate danger browser diagnostic records first Floor9 source acceptance→returned Three.js render call at **694ms desktop** and **816ms portrait**. Renderer-return is NOT GPU presentation. The observed action still cuts abruptly between a bronze cap platform and violet Floor9 without an intelligible uninterrupted walking doorway; enlarged bronze scaffold obscures combat during ~16–24s.
+
+## Implemented P0 unblocker
+- Red tests at commit `a071f450c75646475200e5459f122d31ecf130a2` demand strict same run/token, source tick, matching original-WebM hash, non-segmented calibrated wall/native anchors, browser-accepted snapshot, actual Three render return and **drawn** original WebM HUD 8→9 glyph. Also reject missing story, another run, forged video, non-monotone anchors and partial baseline clock.
+- Code at `ef9421c479d636f8945a0b4aab4b201c4fa9bc26` adds bounded source-to-original-native phase-chain diagnostics in `scripts/tower-native-scene-phase.cjs`, automatically attached per original danger viewport when that native-sidecar runner executes. Separately exposes source→HTTP acceptance, acceptance→Three return, approximate Three return→original drawn HUD and source-cue→original drawn HUD. **None** are claimed as measured GPU latency, real physical doorway crossing, gameplay video PASS or hardware FPS.
+- This is not a gameplay visual improvement. It is an evidence pipeline unlock to allocate the actual ~1.4s timing mismatch across authoritative delivery, Three CPU/render, and original native film, rather than repeatedly changing camera settings on speculation. It never retimes or edits a WebM, changes source truth, smooths a failed gate, or fabricates test outcomes.
+- Source-only proof of guardian victory, Floor9 continuation and restart still must be watched in 1× original film; full visual match and unbiased independent critics remain absent.
+
+## Verification and blockers
+- Exact-head quality [workflow](https://github.com/my-edutu/Ai_games/actions/runs/43146708883) was pending when this review was started; no full green CI or improvement to filmed action claimed. Targeted mock tests were written first; review completed results rather than trusting source syntax.
+- The 8-film original after-code baseline/candidate campaign must run from a new immutable capture-request commit and publish the new real `presentationChain` diagnostics, two viewports, source-event pair, native-video hashes, and real 1x video.
+- Genuine blind reviews **LOOKS 0/5, FEELS 0/5, PLAYS 0/5**; physical device p50/p95/p99 and memory **NOT EVALUATED**.
+
+## Independent review passes (engineering only, not independent blind critics)
+**Specification:** No authority, AI, movement, guardian or collider touched. Native HUD glyph is explicitly not body crossing; SHA and source token are mandatory. Monotonic, fully calibrated anchors required. Missing data retains NOT EVALUATED.
+
+**Quality:** Value is explaining/triaging the persistent latency; lacks any measured user-visible improvement. Do not promote out of P0. A later run should inspect actual four-clock traces, inspect the full source-pinned 960×600 / 390×844 original clips at 1× and fix whichever is dominant: browser/Three delay, compositor drift, gateway scene cut, or crowded combat. Preserve frozen baseline and PR draft state.
