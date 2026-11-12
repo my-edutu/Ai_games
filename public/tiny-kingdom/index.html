@@ -20959,11 +20959,22 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const centre=unloading&&yard?[
   Math.max(-.25,Math.min(.25,(yard[0]-citizen.x)*.22)),
   Math.max(-.25,Math.min(.25,(yard[1]-citizen.z)*.22))]:[0,0];
+ // W249: a real farmer cutting wheat has a real IK sickle tip. Point the
+ // documentary lens BETWEEN the planted worker and that blade/standing
+ // grain, not at the feet or an arbitrary invisible harvest hotspot.
+ // No crop contact/worker is fabricated for framing; collision/roof/foliage
+ // candidates still undergo all original physical sightline checks.
+ const observedBlade=realFarmWork?realHarvestBladeContact(citizen):null;
+ const visibleCropAim=observedBlade?.stage==='cutting'&&
+  observedBlade.insideField?observedBlade.tip:null;
  const target=[citizen.x+(unloading?centre[0]:
-   working&&realWork?Math.sin(facing)*.19:0),
-  terrain(citizen.x,citizen.z)+(unloading?.77:working&&realWork?workFocusHeight:1.02),
+   working&&realWork?(visibleCropAim?
+    (visibleCropAim[0]-citizen.x)*.46:Math.sin(facing)*.19):0),
+  terrain(citizen.x,citizen.z)+(unloading?.77:
+   working&&realWork?(visibleCropAim?.66:workFocusHeight):1.02),
   citizen.z+(unloading?centre[1]:
-   working&&realWork?Math.cos(facing)*.19:0)];
+   working&&realWork?(visibleCropAim?
+    (visibleCropAim[1]-citizen.z)*.46:Math.cos(facing)*.19):0)];
  const roofs=followCameraRoofs();
  // The portrait lens is a genuine different field of view, not a CSS crop
  // of the desktop worksite camera. Frame both worker and real surroundings.
