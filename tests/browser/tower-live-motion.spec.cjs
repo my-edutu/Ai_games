@@ -203,10 +203,21 @@ for (const viewport of viewports) {
         // is not a substitute for watching the unmodified full-motion video.
         observedMotionEcho: d.observedMotionEcho || null,
         observedStageLight: d.observedStageLight || null,
+        // Real-source first-packet provenance: the prior native film had
+        // an earned HP0 door on source tick451 but still hard-cut to violet.
+        // Log exactly whether the ORIGINAL GPU gate+cap survived, how many
+        // real Three submissions occurred, and whether the biome blend was
+        // actually permitted. No pixel-quality or device FPS claim.
         observedPassage: d.passage?.active ? { runToken: d.passage.runToken, floor: d.passage.floor,
           sourceTick: d.passage.sourceTick, ageSeconds: d.passage.ageSeconds,
-           anchorPosition: d.passage.anchorPosition,
-           focusPosition: d.passage.focusPosition } : null,
+          stage: d.passage.stage, continuousGroundedHandoff: d.passage.continuousGroundedHandoff,
+          innerDoorAssemblyVisible: d.passage.innerDoorAssemblyVisible,
+          handoffSubmittedFrames: d.passage.handoffSubmittedFrames,
+          handoffDisplaySeconds: d.passage.handoffDisplaySeconds,
+          anchorPosition: d.passage.anchorPosition,
+          focusPosition: d.passage.focusPosition } : null,
+        observedOriginalGpuGatewayRetention: d.world?.retainedSourceCap ?? null,
+        observedGroundedBiomeThreshold: d.groundedBiomeThreshold ?? null,
         telegraphedEnemies: (s?.enemies || []).filter(e => e.active && e.telegraph).length,
         attacking: !!s?.player?.attacking, enemyKinds: (s?.enemies || []).filter(e => e.active).map(e => e.kind),
         frames: d.frames, frameMs: d.frameMs, renderResolution: d.resolution || null,
@@ -315,7 +326,13 @@ for (const viewport of viewports) {
             guardianDefeatShockwave:passage.guardianDefeatShockwave??null,
             guardianPowerReelProgress:passage.guardianPowerReelProgress??null,
             powerSegmentCount:passage.guardianPowerSegments??0,
-            sourceTickMatches:passage.sourceTick===s.tick
+            sourceTickMatches:passage.sourceTick===s.tick,
+            continuousGroundedHandoff: passage.continuousGroundedHandoff,
+            innerDoorAssemblyVisible: passage.innerDoorAssemblyVisible,
+            handoffSubmittedFrames: passage.handoffSubmittedFrames,
+            handoffDisplaySeconds: passage.handoffDisplaySeconds,
+            originalGpuGateAndCap: d?.world?.retainedSourceCap ?? null,
+            sourceGroundedBiomeLight: d?.groundedBiomeThreshold ?? null,
           } : null,
           note:'Unaltered 50ms source event and sampled render diagnostics, NOT proof that a WebM frame visually shows it'
         });
