@@ -977,6 +977,37 @@ export function planOriginalSourceSoleGrounding({
 
 
 /**
+ * Final-source physical shoe witness for original Walking_A body support.
+ * Both real skinned heel AND toe must remain non-sinking when the whole-body
+ * presentation root rises. A better maximum error alone is not sufficient:
+ * an improved buried toe must never be purchased by a deeper buried heel.
+ * The opposite near-loaded source shoe must not be raised into visible hover.
+ * No IK target or synthetic contact is created. Stateless, bounded, read-only.
+ */
+export function verifyOriginalSourceLoadedPelvisFootWitness({
+ before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN
+}={}){
+ if(![before,after,otherBefore,otherAfter].every(f=>f&&
+  finite(f.heelY)&&finite(f.toeY))||!finite(floorTopY))return null;
+ const beforeWorst=Math.max(Math.abs(before.heelY-floorTopY),
+  Math.abs(before.toeY-floorTopY));
+ const afterWorst=Math.max(Math.abs(after.heelY-floorTopY),
+  Math.abs(after.toeY-floorTopY));
+ if(beforeWorst-afterWorst<.0015||
+  after.heelY<before.heelY-.001||after.toeY<before.toeY-.001||
+  after.heelY<floorTopY-.055||after.toeY<floorTopY-.055||
+  after.heelY>floorTopY+.028||after.toeY>floorTopY+.028)return null;
+ const otherNearLoaded=otherBefore.heelY>=floorTopY-.045&&
+  otherBefore.heelY<=floorTopY+.025&&
+  otherBefore.toeY>=floorTopY-.045&&
+  otherBefore.toeY<=floorTopY+.025;
+ if(otherNearLoaded&&Math.max(otherAfter.heelY,otherAfter.toeY)>
+  floorTopY+.025)return null;
+ return {beforeWorstMeters:beforeWorst,afterWorstMeters:afterWorst,
+  improvementMeters:beforeWorst-afterWorst,otherNearLoaded};
+}
+
+/**
  * Original Walking_A can lower a genuinely loaded, skinned heel AND toe
  * beneath the authored -20mm stone plane while an airborne ankle correction
  * has no authority over the stance foot. Offer a restrained upward VISUAL
