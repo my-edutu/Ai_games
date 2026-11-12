@@ -147,7 +147,7 @@ export function planRenderSurfaceUpdate({
 
 /**
  * Evaluate software-renderer *delivery* separately from synchronous render.
- * Four sustained foreground stalls permit one reversible 20% pixel trial.
+ * Four severe stalls or eight of twelve foreground-slow deliveries permit ONE reversible 20% pixel trial.
  * Keep the reduction only if SIX genuinely delivered subsequent RAF intervals
  * show at least 20% improvement; otherwise restore full detail and lock.
  * This is presentation-only: no simulation ticks, actor data or sounds change.
@@ -189,13 +189,18 @@ export function createSoftwareDeliveryBudgetGovernor(){
    }
    return abortTrial(pixelCap);
   }
-  history.push(Math.min(intervalMs,60000));if(history.length>8)history.shift();
+  history.push(Math.min(intervalMs,60000));if(history.length>12)history.shift();
   slow=intervalMs>=1200?Math.min(4,slow+1):0;
   // The actual organic mobile encounter is consistently ~300–350ms RAF,
   // never reaching the old four >1200ms requirement. Trial only after
-  // EIGHT continuous stalled visible deliveries with cheap direct submit.
-  sustained=intervalMs>=280?Math.min(8,sustained+1):0;
-  if(!rejected&&!accepted&&(slow===4||sustained===8)&&pixelCap>MIN){
+  // EIGHT of the last TWELVE slow visible deliveries with cheap direct submit.
+  // A real 3–4 fps battle alternates 283ms deliveries with occasional 266ms
+  // frames; requiring eight CONSECUTIVE stalls ignored this verified pattern.
+  // Consider eight of twelve slow frames, and also demand a slow recent median.
+  // Short spikes never justify reducing visible actors or threat-cell quality.
+  sustained=history.filter(ms=>ms>=280).length;
+  const sustainedMotionLag=sustained>=8&&median(history.slice(-8))>=280;
+  if(!rejected&&!accepted&&(slow===4||sustainedMotionLag)&&pixelCap>MIN){
    const validViewport=Number.isSafeInteger(viewportPixels)&&viewportPixels>=MIN&&viewportPixels<=16384*16384;
    const min=validViewport&&viewportPixels<=360000?MIN:DESKTOP_MIN;
    // Only reduce actual framebuffer work, not a budget number above the

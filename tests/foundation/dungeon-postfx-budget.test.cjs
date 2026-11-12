@@ -434,3 +434,35 @@ test('production world owns the software-only stone plan and reports true source
  assert.match(env,/stoneRasterBudget,foregroundFusion,/);
  assert.match(app,/enrichEnvironment\(world,s\.map,s\.floor,vaultedSites,s\.exit,s\.units,s\.traps,\{softwareWebGL\}\)/);
 });
+
+test('actual mixed-lag SwiftShader cadence can begin ONE reversible measurable mobile pixel trial',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor,planDirectRenderBudget}=await load();
+ const gate=createSoftwareDeliveryBudgetGovernor(),w=390,h=658;
+ const mixed=[333,300,260,283,300,270,320,300,333,255,300,285];
+ let cap=650000,started=0,d;
+ for(const intervalMs of mixed){
+  d=gate.observe({intervalMs,renderMs:9,pixelCap:cap,viewportPixels:w*h});
+  cap=d.maxPixels;if(d.change)started++;
+ }
+ assert.equal(started,1,'mixed but persistently slow ORIGINAL RAF delivery deserves one trial');
+ assert.equal(cap,205000,'the trial actually reduces the 390px framebuffer');
+ assert.ok(planDirectRenderBudget(w,h,3,true,cap).renderPixels<
+           planDirectRenderBudget(w,h,3,true,650000).renderPixels*.85);
+ for(let i=0;i<6;i++){
+  d=gate.observe({intervalMs:185,renderMs:9,pixelCap:cap,viewportPixels:w*h});cap=d.maxPixels;
+ }
+ assert.equal(d.status,'validated','only six independently delivered improved frames retain lower pixels');
+ assert.equal(gate.stats().successfulTrials,1);
+ for(let i=0;i<12;i++)assert.equal(gate.observe({intervalMs:320,renderMs:9,pixelCap:cap,viewportPixels:w*h}).change,false);
+});
+test('sparse slow frames and invalid/suspended observer evidence preserve original visibility',async()=>{
+ const {createSoftwareDeliveryBudgetGovernor}=await load();const gate=createSoftwareDeliveryBudgetGovernor();
+ let cap=650000;
+ for(const gap of [300,180,180,300,180,180,300,180,180,300,180,180]){
+  const d=gate.observe({intervalMs:gap,renderMs:9,pixelCap:cap,viewportPixels:256620});
+  cap=d.maxPixels;assert.equal(d.change,false);
+ }
+ assert.equal(cap,650000);
+ assert.equal(gate.observe({intervalMs:30000,renderMs:10,pixelCap:cap,visible:false}).status,'hidden');
+ assert.equal(gate.stats().trialActive,false);
+});
