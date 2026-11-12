@@ -4087,24 +4087,8 @@ function rebuildGroundAtlas(){
  drawPath(river,4.0,'rgba(107,107,88,.52)');
  drawPath(river,2.4,'rgba(91,100,83,.26)');
  // Ploughed earth is limited to the SAME two genuine farm work parcels.
- for(let fi=0;fi<FARMSTEAD.fields.length;fi++){
-  const [x0,x1,z0,z1,rows]=FARMSTEAD.fields[fi],
-   px=world(x0),pz=world(z0),w=world(x1)-px,h=world(z1)-pz;
-  // Soil under the SAME two authentic farm parcels; no extra crops,
-  // accounting or changed plot bounds. Gentle bend breaks ruler grids.
-  ctx.fillStyle=fi?'rgba(141,105,73,.89)':'rgba(153,106,70,.89)';
-  ctx.fillRect(px,pz,w,h);
-  ctx.strokeStyle='rgba(75,67,49,.28)';
-  ctx.lineWidth=.16*size/GROUND_ATLAS_EXTENT;
-  for(let row=1;row<rows;row++){
-   const x=px+w*row/rows;ctx.beginPath();ctx.moveTo(x,pz);
-   for(let section=1;section<=7;section++)ctx.lineTo(
-    x+Math.sin(row*.91+section*.84+fi)*.065*size/GROUND_ATLAS_EXTENT,
-    pz+h*section/7);
-   ctx.stroke();
-  }
- }
- groundAtlasBaseCanvas=canvasAtlas;
+  farmScene.originalFieldGround=paintOriginalFarmFieldGround(ctx,world,size,GROUND_ATLAS_EXTENT);
+  groundAtlasBaseCanvas=canvasAtlas;
  groundAtlasBaseBuilds++;
  }else groundAtlasBaseReuses++;
  // The river, fields and all 262,144 noise texels are immutable. A real new
@@ -12664,6 +12648,40 @@ let farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0,stalkVisualModel:'w5
 // W194 authentic terraced planted earth: paired raised physical slopes
 // and wet lower runnel beneath ORIGINAL real wheat and actual worker hands.
 // Seasonal GPU residency, navigation, seeded labor and inventory unchanged.
+// W253: soil pigment follows the same AUTHENTIC z-aligned ridges as the
+// real 3D planted rows, rather than the older perpendicular atlas stripes.
+// Reuse the persistent 512px ground atlas, zero extra geometry or GPU buffers.
+function paintOriginalFarmFieldGround(ctx,world,size,extent){
+ if(!ctx||typeof world!=='function'||!Number.isFinite(size)||
+   !Number.isFinite(extent)||size<1||extent<1)
+  throw Error('W253 invalid original farm atlas dimensions');
+ let originalPlots=0,originalRows=0;
+ ctx.save();
+ for(const [x0,x1,z0,z1,rows] of FARMSTEAD.fields){
+  const px=world(x0),py=world(z0),pw=world(x1)-px,ph=world(z1)-py;
+  const loam=ctx.createLinearGradient(px,py,px+pw,py+ph);
+  loam.addColorStop(0,'rgba(98,69,42,.54)');
+  loam.addColorStop(.52,'rgba(137,99,58,.74)');
+  loam.addColorStop(1,'rgba(91,71,45,.55)');
+  ctx.fillStyle=loam;ctx.fillRect(px,py,pw,ph);originalPlots++;
+  for(let row=0;row<rows;row++){
+   const z=z0+(row+.5)*(z1-z0)/rows;
+   ctx.beginPath();
+   for(let section=0;section<=12;section++){
+    const x=x0+(x1-x0)*section/12;
+    const curve=.065*Math.sin(x*.68+row*.91)+.029*Math.sin(x*1.17-row*.52);
+    if(section===0)ctx.moveTo(world(x),world(z+curve));
+    else ctx.lineTo(world(x),world(z+curve));
+   }
+   ctx.strokeStyle=row%3===0?'rgba(58,47,36,.66)':'rgba(71,57,42,.49)';
+   ctx.lineWidth=Math.max(.5,.31*size/extent);
+   ctx.stroke();originalRows++;
+  }
+ }
+ ctx.restore();
+ return {originalPlots,originalRows,extraTriangles:0,extraTextures:0,
+  authoritativeFieldsUnchanged:true,authorityModified:false};
+}
 function farmSoil(x0,x1,z0,z1,rowIndex){
  const soil=[rgb(0x655341),rgb(0x79604b),rgb(0x69513e)],
   crown=[rgb(0x847058),rgb(0x78654f),rgb(0x87715b)],
@@ -12692,15 +12710,39 @@ function farmSoil(x0,x1,z0,z1,rowIndex){
 }
 // W55 original inhabited grain field: physically bending three-dimensional
 // cereals from existing deterministic planted coordinates, not new inventory.
+// W253: seeded original grain silhouettes and ripening ear-weight. Only
+// presentation geometry changes; the planted plot, workers and inventory do not.
+function authenticGrainHeadProfile(x,z,index,season){
+ if(![x,z,index,season].every(Number.isFinite)||season<0||season>3)
+  throw Error('W253 invalid planted-grain profile');
+ const a=biomeHash(index*7+64),b=biomeHash(index*11+413);
+ const c=biomeHash(index*17+271),d=biomeHash(index*19+577);
+ const azimuth=index*2.399963+c*1.7;
+ const ripe=season===1||season===2;
+ return {height:(season===3?.26:season===0?.72:season===1?1.26:1.13)*(.83+a*.34),
+  headBend:(ripe?.075:.038)+b*(ripe?.145:.06),
+  stemLeanX:Math.sin(azimuth)*(.055+a*.09),
+  stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
+  headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
+  earLength:(.175+d*.072)*(season===0?.78:1),
+  leafReach:.155+d*.105,livingSeason:season!==3,
+  rootedAt:[x,z],authorityModified:false};
+}
 function farmStalk(x,z,index,season,compact=false){
  const first=data.length,base=terrain(x,z)+.077;
+ const lived=authenticGrainHeadProfile(x,z,index,season);
  const sig=biomeHash(index*7+64),sig2=biomeHash(index*11+413);
  const sig3=biomeHash(index*17+271),sig4=biomeHash(index*19+577);
- const h=(season===3?.26:season===0?.66:season===1?1.20:1.06)*(.86+sig*.28);
+ const h=lived.height;
  const stalk=rgb(season===3?0xb1ae8e:season===0?0x638c46:season===1?0xa89545:0xb69a57);
- const head=rgb(season===3?0x96998c:season===0?0x9eb45d:season===1?0xd7bd6a:0xc8a762);
+ const head=rgb(season===3?0x96998c:season===0?[0x98b468,0xb7bd74,0x9dad57][index%3]:season===1?[0xd7bd6a,0xe7c47a,0xbda95f][index%3]:[0xc8a762,0xdeb77c,0xba9856][index%3]);
  const leaf=rgb(season===3?0x7e8872:season===0?0x518b52:0x899052);
- const dx=(sig-.5)*.20,dz=(sig2-.5)*.16,at=t=>[x+dx*t*t,base+h*t,z+dz*t*t];
+ const at=t=>{
+  const bow=Math.max(0,(t-.64)/.36),droop=bow*bow*lived.headBend;
+  return [x+lived.stemLeanX*t*t+lived.headDirection[0]*droop,
+   base+h*t-droop*.24,
+   z+lived.stemLeanZ*t*t+lived.headDirection[1]*droop];
+ };
  const bottom=at(0),upper=at(.86),tip=at(1),w=.012+sig3*.007;
  // Two perpendicular tapered, bent shaft planes instead of stacked cylinders.
  quad([bottom[0]-w,bottom[1],bottom[2]],[bottom[0]+w,bottom[1],bottom[2]],
@@ -12713,7 +12755,7 @@ function farmStalk(x,z,index,season,compact=false){
   // farmer still sees the full original hand-built cereal silhouette.
   if(compact){
    for(const side of [-1,1]){
-    const attach=at(side===1?.35:.53),reach=(.15+sig4*.07)*side;
+    const attach=at(side===1?.35:.53),reach=lived.leafReach*.86*side;
     tri(attach,[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04],
      [attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085],leaf);
    }
@@ -12726,7 +12768,7 @@ function farmStalk(x,z,index,season,compact=false){
    }
   }else{
   for(const side of [-1,1]){
-   const attach=at(side===1?.35:.53),reach=(.13+sig4*.08)*side;
+   const attach=at(side===1?.35:.53),reach=lived.leafReach*side;
    const mid=[attach[0]+reach*.55,attach[1]+h*.10,attach[2]+side*.04];
    const end=[attach[0]+reach,attach[1]+h*(side===1?.13:.17),attach[2]+side*.08];
    const fold=[attach[0]+reach*.43,attach[1]+h*.055,attach[2]-.05*side];
