@@ -3498,3 +3498,47 @@ test('live original stance skinned-foot safety reads each weighted source vertex
  assert.match(sampler,/candidate\.index<0/);
  assert.match(sampler,/candidate\?\.mesh\?\.isSkinnedMesh/);
 });
+
+
+test('witnessed zero-travel native Walking_A holds feet without freezing the mixer crossfade',async()=>{
+ const {planImportedLivingSourceStep:sourceStep,planImportedWalkingBlendRate:blend}=await load();
+ // Modelled no-travel visible frame, anchored to the ACTUAL imported
+ // Walking_A 1.0416666s source duration and source-GLB per-frame contract.
+ // This is deliberately a synthetic negative edge, not invented gameplay
+ // footage or a claim of a certified world-space planted foot.
+ const frame={mode:'move',sourceTime:.367,sourceDuration:1.0416666269302368,
+  effectiveSpeed:1.25,frameDelta:.016,frameInterval:.016,
+  visible:true,groundedTravel:0,groundedMoving:false,
+  walkingClip:true,teleport:false,reducedMotion:false};
+ let sourceTime=frame.sourceTime,realBlendSeconds=0;
+ for(let i=0;i<12;i++){
+  const sample={...frame,sourceTime};
+  const step=sourceStep(sample);
+  const rate=blend({...sample,sourceStep:step});
+  assert.equal(step,0,'a measured stationary visible root never winds imported Walking_A');
+  assert.equal(rate,0,'one legal Three.js mixer update still advances other action fades');
+  sourceTime+=step*frame.effectiveSpeed;
+  realBlendSeconds+=frame.frameDelta;
+ }
+ assert.equal(sourceTime,frame.sourceTime,'the source walking sole remains stationary');
+ assert.ok(realBlendSeconds>.18,'crossfade may settle on real rendered seconds without walking-in-place');
+ const resumed={...frame,groundedMoving:true,groundedTravel:.042,sourceTime};
+ const resumedStep=sourceStep(resumed),resumedRate=blend({...resumed,sourceStep:resumedStep});
+ assert.ok(resumedStep>0&&resumedRate>0,'one real next root translation resumes original feet');
+ assert.ok(Math.abs(resumedRate*resumed.frameDelta-resumedStep)<1e-9);
+ for(const changed of [
+  {mode:'idle'},{walkingClip:false},{teleport:true},{reducedMotion:true},
+  {visible:false},{groundedTravel:.05},{groundedTravel:-.01},
+  {sourceDuration:0},{sourceTime:NaN},{effectiveSpeed:0},
+  {frameInterval:3}
+ ]){
+  const sample={...frame,...changed};
+  assert.notEqual(sourceStep(sample),0,
+   'invalid or different owner must not be granted stationary Walking_A freeze');
+  assert.equal(blend({...sample,sourceStep:sourceStep(sample)}),null);
+ }
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(code,/planImportedWalkingBlendRate\(\{\.\.\.originalStep,sourceStep\}\)/);
+ assert.match(code,/actor\.activeClip\.setEffectiveTimeScale\(normalScale\*walkingBlendRate\)/);
+ assert.match(code,/actor\.mixer\.update\(Math\.min\(\.05,dt\)\)/);
+});
