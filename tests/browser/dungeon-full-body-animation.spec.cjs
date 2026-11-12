@@ -435,6 +435,11 @@ for(const view of [
    expect(skid.contactLocked).toBe(false);
    expect(skid.reductionMeters).toBeGreaterThanOrEqual(.004);
    expect(skid.reductionMeters).toBeLessThanOrEqual(.0180001);
+   expect(skid.witnessedRootTravelMeters).toBeGreaterThanOrEqual(.015);
+   expect(skid.witnessedRootTravelMeters).toBeLessThanOrEqual(.18);
+   expect(skid.witnessedRootTravelAgeSeconds).toBeGreaterThanOrEqual(0);
+   expect(skid.witnessedRootTravelAgeSeconds).toBeLessThanOrEqual(.18);
+   expect(skid.reductionMeters).toBeLessThanOrEqual(.55*skid.witnessedRootTravelMeters+.000001);
    expect(skid.beforeHeelTravelMeters-skid.afterHeelTravelMeters).toBeGreaterThan(.00399);
    expect(skid.beforeToeTravelMeters-skid.afterToeTravelMeters).toBeGreaterThan(.00399);
    expect(Math.hypot(skid.worldDeltaX,skid.worldDeltaZ)).toBeLessThanOrEqual(.0180001);
