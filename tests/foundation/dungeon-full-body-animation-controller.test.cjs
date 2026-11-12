@@ -3366,3 +3366,61 @@ test('restored-root ankle retry verifies BOTH source-skinned shoes, never a fabr
  assert.match(section,/retryWholeSoleSafety/);
  assert.match(section,/if\(!sourceSolesSafe\)[\s\S]*?restoreOriginalSourceLegsAfterRejectedPelvis/);
 });
+
+
+test('source GLB loaded-stance knee must improve BOTH weighted outsole edges without moving authority',async()=>{
+ const {chooseOriginalSourceLoadedKneeWitness:select}=await load();
+ assert.equal(typeof select,'function','must use a measured original lowerleg hinge, not a guessed joint or ankle-only pitch');
+ // GENUINE mobile source Walking_A tick 6 from exact 2449dfb CI #43167649329.
+ // Subsequent signed knee trials are SYNTHETIC prospective safety fixtures,
+ // not yet measured source-rig outcomes or a planted-foot visual pass.
+ const before={left:{heelY:-.040438,toeY:-.032446},
+  right:{heelY:.146139,toeY:-.024520}};
+ const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:.82,
+  ownerLocomotion:true,sourceHingeVerified:true,sourceInstanceSame:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.042,frameAge:.04,
+  floorTopY:-.02,side:'left',previousCorrectionRad:0,before};
+ const physical={signed:-.045,after:{left:{heelY:-.034,toeY:-.028},
+  right:{...before.right}}};
+ const worse={signed:.045,after:{left:{heelY:-.045,toeY:-.024},
+  right:{...before.right}}};
+ const accepted=select({...base,trials:[worse,physical]});
+ assert.equal(accepted?.delta,-.045,'choose only the safe true-source trial improving the worst weighted edge');
+ assert.ok(accepted.improvementMeters>.006);
+ assert.equal(accepted.contactLocked,false,'a single frame is never a world-space sole plant');
+ assert.equal(accepted.feetVerified,2);
+ assert.equal(select({...base,trials:[worse]}),null,'do not buy toe clearance with a buried heel');
+ assert.equal(select({...base,previousCorrectionRad:.045,trials:[physical]}),null,
+  'a 90mrad signed reversal across one frame is forbidden');
+ assert.equal(select({...base,previousCorrectionRad:-.045,trials:[physical]})?.delta,-.045);
+ const buriedOther={signed:-.045,after:{left:physical.after.left,
+  right:{...before.right,toeY:-.033}}};
+ assert.equal(select({...base,trials:[buriedOther]}),null,
+  'an opposite original shoe cannot be sunk to rescue the loaded foot');
+ const hoverOther={signed:-.045,after:{left:physical.after.left,
+  right:{...before.right,heelY:.21}}};
+ assert.equal(select({...base,trials:[hoverOther]}),null,
+  'an airborne original shoe must not jump from an already measured pose');
+ for(const invalid of [
+  {sourceClipName:'Idle'},{mode:'hurt'},{sourceWeight:.40},
+  {sourceHingeVerified:false},{sourceInstanceSame:false},
+  {reducedMotion:true},{interrupted:true},{teleport:true},
+  {rootTravel:0},{ownerLocomotion:false},{alive:false},
+  {before:{left:{heelY:NaN,toeY:-.03},right:before.right}},
+  {side:'right'},{floorTopY:0}
+ ])assert.equal(select({...base,...invalid,trials:[physical]}),null);
+ assert.equal(select({...base,trials:[physical,physical,physical]}),null,
+  'per original stance knee at most two reversible source-skin trials');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/function stageOriginalSourceLoadedKneeForMountedFoot\(/,
+  'the actual original Three.js rig must make source-knee trials, not paper poses');
+ const begin=renderer.indexOf('function stageRigLegsAfterMixer(');
+ const finish=renderer.indexOf('/**\n * Make the actual animated torso',begin);
+ assert.ok(begin>=0&&finish>begin);
+ const stage=renderer.slice(begin,finish);
+ assert.match(stage,/stageOriginalSourceLoadedKneeForMountedFoot\(/,
+  'loaded original lowerleg trials must be applied AFTER the connected six-joint base');
+ assert.match(renderer,/sourceStanceKneeCurrentFrameProofs/,
+  'the genuine browser should expose exact original-instance pre/post skinned heels and toes');
+});
