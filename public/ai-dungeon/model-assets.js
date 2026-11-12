@@ -1947,12 +1947,16 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  // 4mm threshold. Preserve an independently measured preceding source joint
  // before attempting a 45mrad release; never retain unmeasured old quats.
  let continuity='rescue';
- if(!selected&&priorProof&&!earlierToeProof){
+ // A physically proven previous upperleg may coexist with a new licensed
+ // ankle/calf rescue in THIS mixer frame. The hold is accepted only
+ // after the actual original GLB heels/toes and the earlier proof are
+ // reconciled to final source skin. No fabricated gait or foot lock.
+ if(!selected&&priorProof){
   selected=planOriginalSourceSwingThighHold({
    ...owner,priorSourceProofVerified:true,trials
   });
   if(selected)continuity='hold';
-  else{
+  else if(!earlierToeProof){
    selected=planOriginalSourceSwingThighEaseOut({
     ...owner,priorSourceProofVerified:true,trials
    });
@@ -1972,11 +1976,12 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
     trials:[{delta:selected.angleRad,after:final}]}):
    chooseOriginalSourceSwingThighSupport({...owner,
     trials:[{delta:selected.angleRad,after:final}]});
- const reconciled=earlierToeProof&&continuity==='rescue'?reconcileOriginalSourceSwingToeProofWithThigh({
+ const reconciled=earlierToeProof&&(continuity==='rescue'||continuity==='hold')?reconcileOriginalSourceSwingToeProofWithThigh({
   proof:earlierToeProof,side,sourceInstanceId:actor.assetRoot.uuid,
   sourceClipName:actor.activeImportedClipName,floorTopY:-.02,
   before:swing,after:final?.[side],
-  thighImprovementMeters:verified?.improvementMeters??NaN
+  thighImprovementMeters:verified?.improvementMeters??NaN,
+  continuityKind:continuity
  }):null;
  if(!verified||(earlierToeProof&&!reconciled)){
   upper.bone.quaternion.copy(original);
