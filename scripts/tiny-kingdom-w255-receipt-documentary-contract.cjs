@@ -44,7 +44,7 @@ assert.ok(view.target.every(Number.isFinite)&&Math.hypot(view.target[0]-actor.x,
 assert.equal(view.authorityModified,false,'No presentation mutation of source truth');
 assert.match(src,/const realMarketAim=unloading\?realReceiptCameraFocus\(citizen\):null;/,
  'Physical documentary lens must use real market contact');
-assert.match(src,/unloading\?\[3\.8,4\.4,5\.1,5\.7,6\.8\]/,
+assert.match(src,/unloading\?\(portraitLens\?\[[^\]]+\]:\[3\.8,4\.4,5\.1,5\.7,6\.8\]\)/,
  'Near market orbit must remain physically collision surveyed');
 const calls=(src.match(/emitLivedCanvasSack\(/g)||[]).length;
 assert.ok(calls>=5,'Farm, granary, market inventory, unloading and receipt must share original 3D cloth');

@@ -99,6 +99,8 @@ jobs:
         run: node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
       - name: W254 true open-sky market-receiving wing geometry and physical collision
         run: node scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs
+      - name: W264 original connected stone freight verge and unobstructed human-height street
+        run: node scripts/tiny-kingdom-w264-grainward-stone-corridor-contract.cjs
       - name: W255 original source real contact sacks and physically earned market camera
         run: node scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs
       - name: W256 genuine escrowed market-hand and live-receiving legibility contract
