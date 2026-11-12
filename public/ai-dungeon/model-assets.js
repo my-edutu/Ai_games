@@ -1804,6 +1804,10 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  const lower=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='lower');
  const foot=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='foot');
  const opposite=side==='left'?'right':'left';
+ // Old direction cannot constrain a future source gait after a frame without
+ // authentic loaded-vs-airborne evidence; only successful trials retain it.
+ const previous=upper?.swingThighAssistRad||0;
+ if(upper)upper.swingThighAssistRad=0;
  if(!upper?.bone?.isBone||!lower?.bone?.isBone||!foot?.bone?.isBone||
   !upper.last?.isQuaternion||lower.bone.parent!==upper.bone||
   foot.bone.parent!==lower.bone||actor.sourceLoadedPelvisCandidate||
@@ -1817,6 +1821,14 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
   actor.activeImportedClipName!=='Walking_A'||actor.u.hp<=0||
   actor.root?.visible!==true||actor.locomotionTeleport||reducedMotion||
   actor.fullBody?.interrupted)return;
+ const sourceWeight=actor.activeClip?.getEffectiveWeight?.()??NaN;
+ const rootTravel=actor.rigRecentGroundedTravel;
+ const frameAge=actor.rigRecentGroundedAge;
+ // Do not perform four real skinned-vertex reads and up to two source-joint
+ // transforms when the physical source motion is already not eligible.
+ if(!Number.isFinite(sourceWeight)||sourceWeight<.65||sourceWeight>1.001||
+  !Number.isFinite(rootTravel)||rootTravel<.008||rootTravel>.24||
+  !Number.isFinite(frameAge)||frameAge<0||frameAge>.18)return;
  const patches=sourceSolePatchVertexCandidates(actor);
  if(!['left','right'].every(s=>patches?.[s]?.anatomicalHeelToeVerified&&
   patches[s].sourceToeAxis?.selectedAnatomicalPatch===true&&
@@ -1848,17 +1860,24 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
    heelXZ:[heel[0],heel[2]],toeXZ:[toe[0],toe[2]]}:null];
  }));
  actor.assetRoot.updateMatrixWorld(true);
- const before=read(),previous=upper.swingThighAssistRad||0;
+ const before=read();
+ const swing=before?.[side],loaded=before?.[opposite];
+ // Before any costly live thigh trials prove the same exact pair of original
+ // vertices really represents an airborne heel + stone-level opposite shoe.
+ if(!swing||!loaded||![swing.heelY,swing.toeY,loaded.heelY,loaded.toeY]
+  .every(Number.isFinite)||swing.heelY<.055||swing.heelY>.34||
+  swing.toeY>=-.028||swing.toeY<-.18||
+  swing.heelY-swing.toeY<.08||
+  ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015))return;
  const owner={
   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
-  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
+  sourceWeight,
   ownerLocomotion:true,sourceThighAxisVerified:true,
   sourceChainVerified:true,sourceInstanceSame:!!actor.assetRoot?.uuid,
   alive:actor.u.hp>0,visible:actor.root.visible,
   teleport:Boolean(actor.locomotionTeleport),reducedMotion,
   interrupted:Boolean(actor.fullBody.interrupted),
-  rootTravel:actor.rigRecentGroundedTravel,
-  frameAge:actor.rigRecentGroundedAge,
+  rootTravel,frameAge,
   side,floorTopY:-.02,previousCorrectionRad:previous,before
  };
  original.copy(upper.bone.quaternion);
@@ -1875,7 +1894,6 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
   upper.bone.updateWorldMatrix(true,true);
  }
  const selected=chooseOriginalSourceSwingThighSupport({...owner,trials});
- upper.swingThighAssistRad=0;
  if(!selected)return;
  // Reapply chosen pose and independently measure actual weighted source skin.
  upper.bone.quaternion.copy(original).multiply(
