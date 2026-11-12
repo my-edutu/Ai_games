@@ -32,11 +32,17 @@ for(const token of [
  'function renderMedievalWardrobe(','function renderMedievalHairline(',
  'renderMedievalWardrobe(p,idx,x,y,z,size,rig,',
  'citizenMidVisualIndices.has(i)?','function getMedievalPopulationAudit(',
- 'midIndices:new Set','const midIndices=new Set',
+ 'midIndices:new Set','const rawMidIndices=new Set',
  'renderArticulatedHand(worldJoint(arm.wrist)',
  'getMedievalPopulationAudit,','drawForegroundResidentMesh();',
  'resetWorkingResidents();resetForegroundResidents();'
 ])if(token!=='midIndices:new Set')assert(html.includes(token),'missing real renderer integration '+token);
+assert(html.includes('const midIndices=keptPlan?'),
+ 'paused camera may retain the original middle-detail workers');
+assert(html.includes('new Set(citizenOrbitDetailHold.plan.midIndices)'),
+ 'same actual actors remain in the existing middle-detail rig');
+assert(html.includes('new Set(citizenOrbitDetailHold.plan.indices)'),
+ 'real full-body citizen identity remains unchanged during shallow orbit');
 assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'));
 assert(html.includes('!workingIndices.has(i))compactVillager(people[i]);'));
 assert(!html.slice(from,html.indexOf('function renderRealVillageWorkwear(',from)).includes('Math.random('),
