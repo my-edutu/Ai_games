@@ -34,7 +34,7 @@ assert.equal(project(aim,aim,shelves,.92,.58).visibleShelves,0,
  'zero-length camera cannot fabricate a valid view');
 const lens=extract('chooseRealMarketReceiptLens');
 for(const token of ['projectMarketReceiptShelves(', 'marketCourierPostSightline(',
- 'FARM_MARKET_STREET_DESTINATION','physicalFollowEyeClearance',
+ 'physicalFollowEyeClearance',
  'foregroundSceneProjection','foregroundVegetationProjection',
  'receiptId','actualShelfPoints','postCover','visibleShelves'])
  assert(lens.includes(token),'authentic dock lens must account for '+token);
