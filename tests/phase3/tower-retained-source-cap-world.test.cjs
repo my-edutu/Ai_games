@@ -73,6 +73,23 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       'diagnostics expose actual old guardian doorway retention, not just a cosmetic deck');
     assert.equal(retention.submittedFrames,0);
     assert.ok(retention.geometryCount>0&&retention.materialCount>0);
+    // The original warm cap is physically coplanar with Floor9 ground.
+    // Merely retaining its geometry still allows the new opaque violet
+    // deck to bury the bronze route in the REAL renderer. Require the
+    // existing OLD cap surface to remain front-depth-tested and fade by
+    // actual successfully submitted display frames, not source/HTTP ticks.
+    const bronzeDeck=genuine.children.filter(o=>o.isMesh &&
+      o.material?.name==='SourceEarnedOriginalClockworkDeck');
+    assert.ok(bronzeDeck.length>0,
+      'actual old cap landing geometry gets an independent retained deck surface');
+    const originalCover=bronzeDeck[0].material;
+    assert.ok(bronzeDeck.every(o=>o.material===originalCover &&
+      o.renderOrder>0),'the retained real deck, not a fake cover, is drawn last');
+    assert.equal(originalCover.depthTest,true,'real characters/obstacles still occlude it');
+    assert.equal(originalCover.depthWrite,false,'do not occlude the genuine Floor9 route');
+    assert.equal(originalCover.polygonOffset,true,'coplanar actual Floor9 floor cannot bury the original route');
+    assert.ok(originalCover.opacity>.8);
+    assert.ok(retention.originalBronzeDeckMeshes>0);
     assert.ok(world.group.getObjectByName('platform:f9:ground'),
       'the REAL new source ground must render immediately');
     for(let i=0;i<15;i++)world.update(second,.1,.1+i*.1,{quality:'low'});
@@ -80,6 +97,8 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       'unsubmitted GPU frames cannot consume old world continuity');
     world.noteFrameSubmitted(second,{});
     for(let i=0;i<5;i++)world.update(second,.1,2+i*.1,{quality:'low'});
+    assert.ok(originalCover.opacity<.8 && originalCover.opacity>.05,
+      'actual bronze deck hands visually into the violet deck during submitted-frame time');
     assert.ok(world.group.getObjectByName('platform:f8:cap'),
       'real cap survives the first successful new-floor renderer submission');
     world.noteFrameSubmitted(second,{});
