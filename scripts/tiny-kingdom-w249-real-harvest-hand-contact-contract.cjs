@@ -56,6 +56,12 @@ working=false;
 assert.equal(c.realHarvestBladeContact(actor),null);
 assert.equal(c.getHarvestInteractionAudit().active,false);
 assert.doesNotMatch(block,/people\.push\(|city\.push\(|Math\.random\s*\(|state\.(?:food|wood|gold)\s*=/);
+const camera=js.slice(js.indexOf('function planCitizenCamera('),
+ js.indexOf('function isReadableClosedHomeShot(',js.indexOf('function planCitizenCamera(')));
+assert.match(camera,/const observedBlade=realFarmWork\?realHarvestBladeContact\(citizen\):null/);
+assert.match(camera,/observedBlade\.insideField\?observedBlade\.tip:null/);
+assert.match(camera,/\(visibleCropAim\[0\]-citizen\.x\)\*\.46/);
+assert.match(camera,/followRayBlockers\(eye,target,roofs\)/);
 const tools=js.slice(js.indexOf('function emitWorkdayHandTool('),
  js.indexOf('\nfunction windmill(',js.indexOf('function emitWorkdayHandTool(')));
 assert.match(tools,/getAuthenticWorkGesture\(p\)\.stage/);
