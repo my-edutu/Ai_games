@@ -356,7 +356,7 @@ export function createPhysicalCombatFeedback({
   for(const item of [...pending]){
    // Never render or play a queued swing after a long real browser/GPU stall.
    if(observedSeconds-item.queuedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
-    pending.splice(pending.indexOf(item),1);expiredQueuedCues++;
+    pending.splice(pending.indexOf(item),1);
     // A warning with matching, STILL-LIVE public danger cells is not a stale
     // authored attack. The first actual frame may have stalled before its
     // warning could be painted. Restore ONLY the retained floor markers if
@@ -368,11 +368,19 @@ export function createPhysicalCombatFeedback({
        item.cue.proof==='authority-warning-window'&&
        isLiveWardenWarning(item.cue,previous)){
      const visual=!!safeCall(()=>visuals?.emit?.(item.cue));
-     if(visual){visualAccepted++;lateLiveWarningVisuals++}
+     if(visual){
+      visualAccepted++;lateLiveWarningVisuals++;
+      if(item.audioEpoch!==null)staleAudioDropped++;
+     }else expiredQueuedCues++;
+     // A revived LIVE hazard counts as visual admission, not as both admitted
+     // and expired: the browser counter invariant stays truthful.
      retainReceipt(item.cue,visual,false,null,visual?
       'live-warning-visual-only-after-stall':'live-warning-undrawable-after-stall');
      played++;
-    }else retainReceipt(item.cue,false,false,null,'expired-pending-before-frame');
+    }else{
+     expiredQueuedCues++;
+     retainReceipt(item.cue,false,false,null,'expired-pending-before-frame');
+    }
     continue;
    }
    item.remaining-=dt;
