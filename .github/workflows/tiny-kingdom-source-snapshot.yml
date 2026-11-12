@@ -15,6 +15,7 @@ on:
       - 'scripts/tiny-kingdom-w253-original-growing-field-contract.cjs'
       - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
       - 'scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs'
+      - 'scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -96,6 +97,8 @@ jobs:
         run: node scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs
       - name: W255 original source real contact sacks and physically earned market camera
         run: node scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs
+      - name: W256 genuine escrowed market-hand and live-receiving legibility contract
+        run: node scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt

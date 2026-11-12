@@ -26,7 +26,8 @@ assert.ok(draws.length<=22,'Per-bag source must remain bounded');
 assert.ok(draws.every(d=>JSON.stringify(d).indexOf('null')===-1),'Nonfinite sack geometry');
 assert.ok(body&&body.authoritativeInventoryUnchanged===true,'Render must never book a trade');
 const focus=extract('realReceiptCameraFocus');
-const env={getMarketParcelDeliveryPose:()=>({citizen:'Bram',escrowed:true,parcels:[
+const env={getMarketParcelDeliveryPose:()=>({citizen:'Bram',escrowed:true,
+ wrist:[.15,.92,10.23],citizenFacingRadians:0,parcels:[
  {contact:'cart-to-hand',position:[.7,.9,10.25],index:0},
  {contact:'wrist-to-dock',position:[.5,.8,10.85],index:1}]}),
  isMarketUnloading:p=>p.delivery?.stage==='unloading',

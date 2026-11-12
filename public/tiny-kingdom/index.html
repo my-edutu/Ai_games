@@ -21122,7 +21122,8 @@ function realReceiptCameraFocus(citizen){
     !isMarketUnloading(citizen))return null;
  const plan=getMarketParcelDeliveryPose(citizen.delivery.id);
  if(!plan||!plan.escrowed||plan.citizen!==citizen.name||
-    !plan.parcels.length)return null;
+    !plan.parcels.length||!Array.isArray(plan.wrist)||
+    plan.wrist.length!==3||!plan.wrist.every(Number.isFinite))return null;
  const parcel=plan.parcels.find(p=>p.contact==='wrist-to-dock')||
   plan.parcels.find(p=>p.contact==='cart-to-hand')||
   plan.parcels.find(p=>p.contact==='receiving-shelf');
@@ -21137,7 +21138,27 @@ function realReceiptCameraFocus(citizen){
   citizen.z+dz*.55*safe];
  return {source:'genuine-cart-to-hand-to-receiving-shelf',
   deliveryId:citizen.delivery.id,contact:parcel.contact,
-  parcelIndex:parcel.index,target,authorityModified:false};
+  parcelIndex:parcel.index,target,
+  // Actual authoritative escrowed shipment geometry. Do not synthesize an
+  // actor, package, or receipt just to make a more readable documentary.
+  parcelPosition:parcel.position.slice(),wristPosition:plan.wrist.slice(),
+  courierFacingRadians:plan.citizenFacingRadians,
+  authorityModified:false};
+}
+// A trade cannot be presented as a visible physical handoff unless BOTH
+// the original courier and the real parcel have a clear, human-scale view.
+// Existing posts, buildings, trees, bystanders and freight stay rendered.
+function isReadableMarketHandoffShot(shot,framing,active,portrait){
+ if(!active||!shot||!framing)return false;
+ return shot.blockers===0&&shot.eyeCollision?.clear===true&&
+  shot.foregroundSceneCover<(portrait?.23:.20)&&
+  shot.foregroundCargoCover<.17&&
+  shot.foregroundVegetationCover<.30&&
+  shot.vegetationFaceBlockers===0&&
+  shot.projectedWorkerHeightFraction>=(portrait?.18:.21)&&
+  (shot.marketPostSightline?.centerCover??0)<.05&&
+  framing.handBlockers===0&&framing.foregroundCitizenBlockers===0&&
+  framing.blockedBodyRays<=2&&framing.cameraProximityWarnings===0;
 }
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
@@ -21166,7 +21187,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const journeyCamera=homecoming||filmedLoadedCourier;
  const waypoint=citizen.path?.length?citizen.path[0]:citizen.target;
  const walkingFace=waypoint?Math.atan2(waypoint[0]-citizen.x,waypoint[1]-citizen.z):preferredYaw;
- const facing=realWork?builderStageAngle(citizen):journeyCamera?walkingFace:null;
+ const facing=realWork?builderStageAngle(citizen):journeyCamera?walkingFace:
+  unloading?realWorkerFacing(citizen):null;
  // Work is physically forward and below eye level: centre on the real bench
  // and actor, not empty air a metre above the task. Ordinary Follow is intact.
  // Frame the REAL worker and receiving stall together, rather than the
@@ -21230,7 +21252,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // G132 used the old survey yaw to generate every camera possibility; in a
  // dense grown village that produced an almost perfectly REAR-facing builder.
  // In documentary work mode search the REAL work-facing orbit first.
- const base=(working&&realWork)||journeyCamera?facing:preferredYaw;
+ const base=(working&&realWork)||journeyCamera||unloading?facing:preferredYaw;
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
@@ -21250,16 +21272,18 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
   Math.min(13,normalZoom+2.3)]):[12.8];
- const hands=realWork?documentaryWorkHandTargets(citizen):[];
+ const hands=realWork?documentaryWorkHandTargets(citizen):
+  realMarketAim?[realMarketAim.wristPosition,realMarketAim.parcelPosition]:[];
  let possibilities=[];
  for(const p of pitches)for(const z of zooms)for(const [angleIndex,angle] of angles.entries()){
   const shot=candidate(angle,p,z);
-  const alignment=realWork||journeyCamera?Math.cos(angle-facing):0;
+  const alignment=realWork||journeyCamera||unloading?Math.cos(angle-facing):0;
   const delta=Math.atan2(Math.sin(angle-preferredYaw),
    Math.cos(angle-preferredYaw));
   const oppositeYard=unloading&&Math.cos(angle)>-.25?250:0;
   const rearPenalty=journeyCamera?Math.max(0,.35-alignment)*95:
-   working&&realWork?Math.max(0,.20-alignment)*110:0;
+   working&&realWork?Math.max(0,.20-alignment)*110:
+   realMarketAim?Math.max(0,.08-alignment)*60:0;
   // G137 real mobile footage still lost a wrist behind passing citizens.
   // Rank ALL affordable raw eye positions by actual citizen-to-IK rays
   // before the expensive architecture/composition review, rather than
@@ -21310,6 +21334,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  }
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
+ let receivingBest=null,receivingFraming=null,receivingScore=Infinity,
+  readableReceivingCandidates=0;
  let frontBest=null,frontScore=Infinity,frontFraming=null;
  let readableBest=null,readableScore=Infinity,readableFraming=null;
  let usableFrontBest=null,usableFrontScore=Infinity,usableFrontFraming=null;
@@ -21340,7 +21366,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   if(!probes.includes(option))probes.push(option);
  }
  for(const {shot,coarse,alignment} of probes){
-  const canopy=((working&&realWork)||journeyCamera)?foregroundVegetationProjection(shot.eye,target):
+  const canopy=((working&&realWork)||journeyCamera||unloading)?foregroundVegetationProjection(shot.eye,target):
    {cover:0,largest:0,volumes:0,faceBlockers:0};
   shot.foregroundVegetationCover=canopy.cover;
   shot.foregroundVegetationLargest=canopy.largest;
@@ -21355,11 +21381,21 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.cameraProximityWarnings*42+
    framing.projectedBystanders*170+framing.projectedPosts*55+
    framing.projectedWorksitePosts*100+framing.frameCrowdBurden*65+
-   framing.handBlockers*(working&&realWork?175:15)+
-   framing.foregroundCitizenBlockers*(working&&realWork?290:30)+
+   framing.handBlockers*(realWork||realMarketAim?430:15)+
+   framing.foregroundCitizenBlockers*(realWork||realMarketAim?370:30)+
    framing.foregroundSceneCover*(portraitLens?1100:working?700:0)+
    shot.foregroundCargoCover*(portraitLens?1200:650)+
    canopy.cover*(portraitLens?1650:850)+canopy.faceBlockers*550;
+  if(isReadableMarketHandoffShot(shot,framing,Boolean(realMarketAim),portraitLens)){
+   readableReceivingCandidates++;
+   // All eligible candidates show the original wrist and escrowed parcel.
+   // Prefer real human scale and forward-facing action, not vacant paving.
+   const readable=score-alignment*95-
+    shot.projectedWorkerHeightFraction*220;
+   if(readable<receivingScore){
+    receivingScore=readable;receivingBest=shot;receivingFraming=framing;
+   }
+  }
   // Rank genuine street-level homeward sightlines by physical greenery,
   // structural faces and projected living human size. Never remove a tree
   // or move the real sleeper to manufacture an unobstructed camera shot.
@@ -21433,17 +21469,21 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
-  framing=clearHomewardBest?clearHomewardFraming:frontBest?frontFraming:
-   readableBest?readableFraming:usableFrontBest?usableFrontFraming:bestFraming;
+ const chosen=receivingBest||clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
+  framing=receivingBest?receivingFraming:clearHomewardBest?clearHomewardFraming:
+   frontBest?frontFraming:readableBest?readableFraming:
+   usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
   courierRouteCamera:filmedLoadedCourier,
   routeHeading:filmedLoadedCourier?walkingFace:null,
-  compositionScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
+  compositionScore:receivingBest?receivingScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
    readableBest?readableScore:usableFrontBest?usableFrontScore:bestScore,
-  workFacingMode:clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
+  workFacingMode:receivingBest?'verified-worker-hand-and-parcel':
+   clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
    usableFrontBest?'visible-front':'obstructed',
-  readableFrontCandidates,
+  readableFrontCandidates,readableReceivingCandidates,
+  witnessedCargoContact:receivingBest?realMarketAim.contact:null,
+  witnessedParcelIndex:receivingBest?realMarketAim.parcelIndex:null,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
   clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
