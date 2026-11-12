@@ -8623,7 +8623,7 @@
   "m1OriginalSourceWallMasonry20261112": {
     "at": "2026-11-12",
     "stage": "A_INCOMPLETE",
-    "status": "SOURCE_INTEGRATED_REAL_AFTER_UNVERIFIED",
+    "status": "REJECTED_AS_VISIBLE_ENTRY_CAUSE_AND_SOURCE_REVERTED",
     "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
     "beforeSha": "af7f9e76ee781ff5dfe839e9f91ad021df8fb57c",
     "integrationSha": "aaa3e9157c2d2544a3f7baa64be5028f5384812d",
@@ -8634,7 +8634,7 @@
     "observed": "Actual 390px immersive entry still huge black central column and pale polygon crown after previous replacement of four border columns; original five-stage 1440/390 opted-in audio film passes. Do not count prior source tests as a visual win.",
     "implementation": "Actual licensed original GLB dungeon_pillar/wall supported on one-faced solid wall sites, away from living party within 2.7 cells, spaced >=3 tiles; original mesh ratios uniform; 1.38m height and .72m width/depth genuine loaded-mesh envelope; live diagnostic mounted sources, unchanged authority/audio.",
     "tests": "Two pure source-wall/geometry contracts written; local isolated planner prototype PASS; new exact-head authoritative/browser/CI pending.",
-    "newHeadRealMotion": "NOT_OBSERVED",
+    "newHeadRealMotion": "REAL_390PX_IMMERSIVE_ENTRY_STILL_HAS_SAME_OPAQUE_SHAFT",
     "matchedImmutableBaseline": "UNVERIFIED",
     "hardwarePerformance": "UNVERIFIED",
     "originalHPBladeAudio": "UNVERIFIED",
@@ -8643,6 +8643,34 @@
     "feels": "UNVERIFIED",
     "plays": "UNVERIFIED",
     "pr72": "ISOLATED_UNADOPTED",
-    "next": "Inspect 390px exact-head immersive entry, real organic desktop/mobile video and original sound; identify actual GLB wall heights and rendered source owner; reject if central shaft persists, trace exact mesh. Continue adult source rig, truthful impact/audio, performance and >=3 blind critics; no merge/deploy."
+    "next": "Inspect 390px exact-head immersive entry, real organic desktop/mobile video and original sound; identify actual GLB wall heights and rendered source owner; reject if central shaft persists, trace exact mesh. Continue adult source rig, truthful impact/audio, performance and >=3 blind critics; no merge/deploy.",
+    "rejectionEvidenceRun": 43152458996,
+    "revertedIn": "2d437928ac572b9c74c299d1c7909b1a02b8e5b5"
+  },
+  "m1WardenOriginalLowButtress20261112": {
+    "at": "2026-11-12",
+    "stage": "A_INCOMPLETE",
+    "status": "PHYSICAL_SOURCE_REBUILD_AFTER_NOT_YET_OBSERVED",
+    "immutableBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedPreviousHead": "aaa3e9157c2d2544a3f7baa64be5028f5384812d",
+    "rejectedPreviousGLBIntegrationIn": "2d437928ac572b9c74c299d1c7909b1a02b8e5b5",
+    "trueSameViewBeforeRun": 43146682020,
+    "trueSameViewAfterRejectedRun": 43152458996,
+    "observed": "Exact real 390px immersive captures before and after the optional original GLB wall reposition still show essentially identical central gigantic dark tapered seven-sided shaft and broad brown polygonal cap. Therefore GLB placement hypothesis rejected and that code/test reverted. Its earlier commit and audit stay in history.",
+    "actualGeometryMatch": "Original production Warden ritual cathedral wall buttress shaft was CylinderGeometry(.22,.33,2.3,7) with brown cap CylinderGeometry(.43,.31,.19,7) at Y2.26, matching the giant seen shape; no pixel-owner ray proof yet; physically reduced to <=1.2m wall relief and cap radius<=.24, without new draw submissions.",
+    "integrationSha": "2d437928ac572b9c74c299d1c7909b1a02b8e5b5",
+    "originalWorldChanges": "Warden wall props keep real impassable map wall placement; original 4 retained GPU batches, native materials, other court architecture, true danger cells, combat authority, replay/save and original sound are unchanged. Old optional GLB changes reverted.",
+    "focusedTest": "Added pure source geometry profile fixture; new exact-head foundation and visual browser jobs pending.",
+    "newHeadActualMovingGame": "NOT_OBSERVED",
+    "mobileClearance": "NOT_YET_OBSERVED",
+    "hardwarePerformance": "UNVERIFIED",
+    "immutableBaselineMatchedAV": "UNVERIFIED",
+    "bladeHpAudio": "UNVERIFIED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "pr72": "SEPARATE_UNADOPTED",
+    "next": "Inspect 390px original immersive exact new-head browser vs af7f and aaa3; if giant shaft remains identify exact rendered named mesh via real pixel raycast, not guess or tune. Inspect full original 1440/390 Warden motion audio, replay, CI/performance, then adult rig source reconstruction with true blade/HP/audio and 3 blinded critics. No merge/deploy."
   }
 }
