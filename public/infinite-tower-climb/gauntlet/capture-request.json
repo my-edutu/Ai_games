@@ -1,4 +1,34 @@
 {
+"p0Observed11TickBrowserGapAfterFilm20261112": {
+    "stage": "P0 OPEN — assessor NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of THIS capture-request commit (not live branch head)",
+    "previousCandidate": "5dca3a72e9ee96c423c9bc1e30851d7a8937a018",
+    "previousOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43201804634 — 7/8 original native video jobs success, baseline moving floor7 FAILED, pair-source-events 0/2 accepted",
+    "previousSourceGroundedEvent": "Defeated Floor8 source tick443 x291896 -> floor9 tick454 x338096 with tick451 actual source floor advance x324296; web browser missed tick451 while old Frame cold, not a physics teleport",
+    "previousNativeVisual": "960x600 at ~25.5s bronze Floor8 physical crossing cut to unrelated violet Floor9 scene; also visible in 390x844; original exact artifact https://github.com/my-edutu/Ai_games/actions/runs/43201804634/artifacts/13935263714",
+    "previousSourceToNativeSeconds": {
+      "desktop": 2.756,
+      "portrait": 1.865,
+      "note": "not native device GPU present or FPS"
+    },
+    "codeCommit": "4c57238ff5c8634202a96e09fdcb5704b0f34728",
+    "testFirstCommit": "7977f1424e09c8974a137afcb6ec2e36e5a04669",
+    "existingTestCorrection": "bb5cfff5d3314e30f841234edc5b37250856df71",
+    "change": "Bounded 9–12 tick browser observation gap can now carry the original source-earned true open inner gateway and Floor9 grounded runway only with defeated HP0 source, same run, exact aligned grounded support, earned gate proximity and bounded movement. No simulation modification.",
+    "capture": "Nine-job original source + matched frozen baseline and this EXACT new candidate, 8 original normal-speed 1x unedited >=60s WebMs of floor0 ascent, floor7 moving, Floor8 authentic guardian/crusher earned physical threshold into Floor9, terminal outcome and natural restart, both 960x600 and 390x844; same seed, tier, 20Hz, real WebGL Chromium; sidecars source/browser/Three/native native event PTS and provenance",
+    "require": "Inspect full-motion at 1x, including 23–29s real body/threshold/portal spatial continuity and real on-floor walk, no false camera cut or made-up source victory. 2/2 original event-source/native alignment required; previous baseline moving job failure must be diagnosed. Keep major UX regression veto.",
+    "reject": "Guardian alive, airborne, missing unsupported source, wrong run/tick, false level gate, camera/bronze obstruction, missing portal, clipped hero, new WebGL latency, truncated film, high-tier or portrait regressions. Do not claim pass based on CI alone.",
+    "latestQuality": "NOT VERIFIED at recording request — check exact candidate results",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceMemoryAndFrameTimes": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-12-tower-pr68-native-sparse-gateway-observation.md",
+    "next": "Inspect all new genuine 1x original WebMs and 2/2 pairing, then repair remaining source-to-native physical crossing and high priority source/scene cut; P0 remains open."
+  },
   "p0ColdOldFrameSourceCrossingAfterFilm20261112": {
     "stage": "P0 OPEN — assessor NOT EVALUATED",
     "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
