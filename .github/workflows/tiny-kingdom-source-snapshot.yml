@@ -10,6 +10,7 @@ on:
       - 'scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs'
       - 'scripts/tiny-kingdom-w249-real-harvest-hand-contact-contract.cjs'
       - 'scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs'
+      - 'scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
@@ -81,6 +82,8 @@ jobs:
         run: node scripts/tiny-kingdom-w249-real-harvest-hand-contact-contract.cjs
       - name: W250 shared adult working anatomy, animated wool and terrain-rolling feet
         run: node scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs
+      - name: W251 authentic open-air field workcourt and actual farmer camera clearance
+        run: node scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs
       - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
