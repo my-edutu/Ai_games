@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
+      - 'scripts/tiny-kingdom-w270-presentation-hotpath.cjs'
       - 'scripts/tiny-kingdom-w125-unbroken-economic-film.cjs'
       - '.github/workflows/tiny-kingdom-w125-economic-chain.yml'
   workflow_dispatch:
@@ -26,6 +27,8 @@ jobs:
           node-version: '22.16.0'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: W270 genuine game renderer actor, worksite and credited cargo hotpath contracts
+        run: node scripts/tiny-kingdom-w270-presentation-hotpath.cjs
       - name: W125 original-source test-first farmer market home ledger
         run: node scripts/tiny-kingdom-w125-market-household-contract.cjs
       - run: npx playwright install --with-deps chromium
