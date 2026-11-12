@@ -4,6 +4,7 @@ const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
 const {correlateD04OriginalSourceStarts}=require('./dungeon-d04-source-start-correlation.cjs');
 const fs=require('node:fs');
+const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
  sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM}=require('./dungeon-d04-decoded-video-proof.cjs');
 const {inspectRealWebMVideoPTS,classifyEncodedFrameYield}=require('./dungeon-d04-webm-pts-proof.cjs');
@@ -42,8 +43,21 @@ const {assessD04Capture,persistD04CaptureEvidence,classifyCompositorWitness,MAX_
  * processor tap of original PCM. Both capture clocks are overlapping, NOT
  * calibrated for sample-accurate synchronization.
  */
-async function beginD04LiveAVCapture(page){
- return page.evaluate(()=>{
+async function beginD04LiveAVCapture(page,captureProfile){
+ // Keep the actual original A/V mux independent of four diagnostic encoders.
+ // Disabled probes are marked SKIPPED, not broken or real-game evidence.
+ const disabledProbes={
+  videoOnly:skippedConcurrentD04Probe('real-webgl-canvas-video-only'),
+  audioOnly:skippedConcurrentD04Probe('real-opted-in-soundstage-audio-only'),
+  nativeVideoOnly:skippedConcurrentD04Probe('real-webgl-canvas-native-video-only'),
+  control2dOnly:skippedConcurrentD04Probe('synthetic-2d-canvas-encoder-control-not-gameplay')
+ };
+ return page.evaluate(({profile,disabledProbes})=>{
+  if(profile?.id!=='single-primary-authentic-av'||
+   profile.concurrentRecorders?.length!==1||
+   profile.concurrentRecorders[0]!=='real-canvas-plus-opted-in-soundstage'||
+   profile.concurrentIsolatedProbes!==false)
+   return {status:'UNAVAILABLE',reason:'Invalid one-encoder D04 capture profile'};
   const unavailable=reason=>({status:'UNAVAILABLE',reason});
   const canvas=document.querySelector('#world');
   const sound=window.__DUNGEON_CAPTURE_SOUND__?.();
@@ -465,23 +479,14 @@ async function beginD04LiveAVCapture(page){
   try{recorder.start(250);activeRecorders.add(recorder)}
   catch(e){finishCanvasDeliveryMonitor();stopFramePump();videoTracks.forEach(t=>t.stop());
    return unavailable('Recorder start: '+String(e))}
-  const videoProbe=startIsolatedRecorder(new MediaStream([videoTrack]),
-   ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-video-only',20*1024*1024,true);
-  const audioProbe=startIsolatedRecorder(new MediaStream(soundTracks),
-   ['audio/webm;codecs=opus','audio/webm'],'real-opted-in-soundstage-audio-only',2*1024*1024,false);
-  // Chromium software-WebGL delivered explicit requestFrame receipts but zero
-  // video bytes. Probe a truly native canvas capture track from the SAME
-  // running Dungeon canvas; never draw substitute frames or touch authority.
-  let nativeCanvasStream=null;
-  try{if(explicitFrames)nativeCanvasStream=canvas.captureStream(24)}catch{}
-  const nativeTracks=nativeCanvasStream?.getVideoTracks()||[];
-  const nativeVideoProbe=nativeTracks.length===1?
-   startIsolatedRecorder(new MediaStream(nativeTracks),
-    ['video/webm;codecs=vp8','video/webm'],'real-webgl-canvas-native-video-only',
-    20*1024*1024,true,'native-capture-stream'):
-   Promise.resolve({source:'real-webgl-canvas-native-video-only',status:'UNAVAILABLE',
-    reason:'Distinct native canvas track unavailable'});
-  const control2dProbe=start2DEncoderPositiveControl();
+  // Software-WebGL was competing with five concurrent MediaRecorders.
+  // Keep only the source-authentic combined recorder during primary capture.
+  // The original PCM worklet is not an encoder; serial probes run afterward.
+  const videoProbe=Promise.resolve(disabledProbes.videoOnly);
+  const audioProbe=Promise.resolve(disabledProbes.audioOnly);
+  const nativeTracks=[];
+  const nativeVideoProbe=Promise.resolve(disabledProbes.nativeVideoOnly);
+  const control2dProbe=Promise.resolve(disabledProbes.control2dOnly);
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
@@ -515,9 +520,12 @@ async function beginD04LiveAVCapture(page){
    }).finally(()=>{finishCanvasDeliveryMonitor();stopFramePump();
     videoTracks.forEach(t=>t.stop());nativeTracks.forEach(t=>t.stop());
    });
-  return {status:'STARTED',videoTracks:videoTracks.length,audioTracks:soundTracks.length,
+  return {status:'STARTED',captureProfile:profile.id,
+   primaryEncoderCount:profile.concurrentRecorders.length,
+   concurrentAuxiliaryEncoders:0,
+   videoTracks:videoTracks.length,audioTracks:soundTracks.length,
    evidence:'Actual canvas + opted-in sound bus; independent live PCM; no sample-sync assertion'};
- });
+ },{profile:captureProfile,disabledProbes});
 }
 
 async function attachD04LiveAVCapture(page,started,testInfo){
@@ -738,7 +746,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  }
  // Record the ACTUAL running canvas and spectator's consented original sound
  // before releasing the real HP-loss transition, not a detached audio audition.
- const captureStarted=optedIn?await beginD04LiveAVCapture(page):
+ const captureStarted=optedIn?await beginD04LiveAVCapture(page, createD04CaptureProfile()):
   {status:'UNAVAILABLE',reason:'User did not opt in'};
  // This state pair comes ONLY from real seeded DungeonRuntime.step().
  // No hand-edited HP, staged cinematic hit, or synthetic combat action.
