@@ -55,5 +55,7 @@ test('real scene uses its single attached lamp and retains the strict one-edge b
   assert.match(scene,/publicLanternEncounter\(s,closestThreat\.cell\)/,
     'existing only-adjacent physical beam stays unchanged');
   assert.match(scene,/publicLanternRadiusWorld:\s*lanternLight\.distance/);
+  assert.match(scene,/import \{ publicGuardianLanternReach \} from '\.\/public-lantern-encounter\.mjs';/,
+    'the new light-reach helper is separately imported so the original public-only lantern wiring contract stays untouched');
   assert.doesNotMatch(scene,/privateMaze.*lanternLight|secretSafeRoute.*lanternLight/i);
 });
