@@ -88,7 +88,15 @@ test('M1 original Gothic wall niches are four retained draws with exact transfor
  assert.equal(r.metrics().cathedralWallBatches,4);
  assert.equal(r.metrics().cathedralSourceDraws,sites.length*4);
  const part=draws[2],i=0,local=new THREE.Object3D(),actual=new THREE.Matrix4(),expected=new THREE.Matrix4();
- sites[i].updateMatrix();local.position.set(0,2.48,-.13);local.rotation.z=Math.PI;local.updateMatrix();
+ const {WARDEN_WALL_BUTTRESS_PROFILE:profile}=await import(asUrl(code('warden-chapter-plan.js')));
+ assert.ok(profile.maxTopMeters<=1.2,'the rebuilt original wall relief has a bounded vertical silhouette');
+ assert.ok(profile.shaftY+profile.shaftHeight/2<=profile.maxTopMeters);
+ assert.ok(profile.capY+profile.capHeight/2<=profile.maxTopMeters);
+ assert.ok(profile.archY+profile.archRadius+profile.archTube<=profile.maxTopMeters+.000001);
+ assert.ok(profile.finialY+profile.finialRadius<=profile.maxTopMeters);
+ assert.equal(draws[0].geometry.parameters.height,profile.shaftHeight,'actual drawn shaft is low relief');
+ assert.equal(draws[1].geometry.parameters.height,profile.capHeight,'actual drawn cap is low relief');
+ sites[i].updateMatrix();local.position.set(0,profile.archY,-.08);local.rotation.z=Math.PI;local.updateMatrix();
  expected.multiplyMatrices(sites[i].matrix,local.matrix);part.getMatrixAt(i,actual);
  for(let k=0;k<16;k++)assert.ok(Math.abs(actual.elements[k]-expected.elements[k])<.000001,
   'original pointed Gothic crown matrix '+k);
