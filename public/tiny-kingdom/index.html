@@ -13009,8 +13009,14 @@ function farmStalk(x,z,index,season,compact=false){
   if(compact){
    for(const side of [-1,1]){
     const attach=at(side===1?.35:.53),reach=lived.leafReach*.86*side;
-    tri(attach,[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04],
-     [attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085],leaf);
+    // W260: a real ribbon blade has TWO lit sides. Earlier the back was
+    // discarded by WebGL face culling and the crops looked like wire fences
+    // whenever the player orbited toward the granary/courier entrance.
+    // Keep one original leaf, one backface, and every actual growing root.
+    const bladeMid=[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04];
+    const bladeTip=[attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085];
+    tri(attach,bladeMid,bladeTip,leaf);
+    tri(bladeTip,bladeMid,attach,leaf.map(c=>c*.76));
    }
    for(let g=0;g<3;g++){
     const p=at(.76+g*.078),kernel=(.074-g*.013)*(.86+sig3*.25);
@@ -13025,7 +13031,12 @@ function farmStalk(x,z,index,season,compact=false){
    const mid=[attach[0]+reach*.55,attach[1]+h*.10,attach[2]+side*.04];
    const end=[attach[0]+reach,attach[1]+h*(side===1?.13:.17),attach[2]+side*.08];
    const fold=[attach[0]+reach*.43,attach[1]+h*.055,attach[2]-.05*side];
+   // Physically two-sided curved blade: the same planted leaf remains
+   // readable when the genuine follow camera crosses to its reverse side.
+   // Four added triangles per detailed stalk, below the existing 26 cap.
    tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
+   const reverseLeaf=leaf.map(c=>c*.77);
+   tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
   }
   // Eight alternating grains with four cross-facing kernels: 3D ears that
   // narrow naturally toward the tip, not flat plastic cones.
@@ -13060,14 +13071,26 @@ function ripeningField(bounds,plotIndex,season,compact=false){
   materialScope(MATERIAL.FOLIAGE,()=>{
    for(let col=0;col<columns;col++){
     const id=plotIndex*10000+row*131+col;
-    const jitterX=(biomeHash(id+79)-.5)*.22,jitterZ=(biomeHash(id+883)-.5)*span*.45;
-    const x=x0+(col+.5)*(x1-x0)/columns+jitterX,z=zz+jitterZ;
+    // W260: preserve EVERY original stem and field row, but break the rigid
+    // prototype picket-grid with real, seed-stable runs of grouped grain.
+    // The two true production parcels and ground-texture furrows stay fixed.
+    const windSow=Math.sin((row+1)*.63+plotIndex*.71)*
+      Math.sin(Math.PI*(col+.5)/columns);
+    const jitterX=(biomeHash(id+79)-.5)*.22+windSow*.17;
+    const jitterZ=(biomeHash(id+883)-.5)*span*.45+
+      Math.sin(row*.82+plotIndex*1.7)*span*.085;
+    const x=Math.max(x0+.045,Math.min(x1-.045,
+      x0+(col+.5)*(x1-x0)/columns+jitterX));
+    const z=Math.max(z0+.045,Math.min(z1-.045,zz+jitterZ));
     // Two staggered stems per planted clump; no grid of identical wheat icons.
     farmStalk(x,z,id*2,season,compact);
     // Still exactly two original real stems per planted clump; uneven
     // sowing softens the old rectilinear prototype look without extra mesh.
     const spacing=.09+biomeHash(id*31+19)*.19;
-    farmStalk(x+spacing,z-.06-biomeHash(id*41+3)*.13,id*2+1,season,compact);
+    farmStalk(Math.max(x0+.045,Math.min(x1-.045,x+spacing)),
+      Math.max(z0+.045,Math.min(z1-.045,
+      z-.06-biomeHash(id*41+3)*.13)),
+      id*2+1,season,compact);
    }
   });
  }
@@ -21451,7 +21474,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const normalPitch=unloading?(actionCameraPitch??.29):filmedLoadedCourier?.24:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
  const normalZoom=unloading?(actionCameraZoom??5.7):
-  filmedLoadedCourier?(canvas.clientWidth<500?5.25:5.7):journeyCamera?7.6:
+  filmedLoadedCourier?(canvas.clientWidth<500?4.65:5.15):journeyCamera?7.6:
   working?(actionCameraZoom??(liveWorkday?(portraitLens?6.05:4.85):6.2)):12.8;
  const candidate=(angle,pitch=normalPitch,zoom=normalZoom)=>{
   const radius=Math.cos(pitch)*zoom,elevation=Math.sin(pitch)*zoom;
@@ -21526,7 +21549,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // Do not choose a physically clear EMPTY road over the genuine
    // escrowed courier. Favor the actual projected actor and real cargo.
    const routeSizePenalty=filmedLoadedCourier?
-    Math.max(0,(portraitLens?.15:.19)-shot.projectedWorkerHeightFraction)*3600:0;
+    Math.max(0,(portraitLens?.21:.24)-shot.projectedWorkerHeightFraction)*4700:0;
    // Avoid physically standing the observer inside dense ripe wheat when a
   // genuinely clear exterior camera can see the same working hands.
   const cropEye=realFarmWork&&FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
