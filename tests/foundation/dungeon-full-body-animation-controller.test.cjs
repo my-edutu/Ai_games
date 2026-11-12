@@ -4018,7 +4018,7 @@ test('RED: real original Walking_A swing upperleg releases its witnessed angle g
  assert.equal(second?.angleRad,.045,'90→45mrad requires a new original dual-foot read');
  const neutral=ease({...owner,previousCorrectionRad:.045,
   before:{...before,left:{...before.left,toeY:-.022}},
-  trials:[candidate(0,-.022,.215,baseFoot,[0,.20])]});
+  trials:[{delta:0,after:{left:{...before.left,toeY:-.022},right:baseFoot}}]});
  assert.equal(neutral?.angleRad,0,'45→0 can legally return to licensed source pose');
  for(const bad of [
   {priorSourceProofVerified:false},{sourceClipName:'Idle'},{sourceInstanceSame:false},
