@@ -94,3 +94,41 @@ test('frame interval history stays bounded during a long-running expedition', as
   for (let frame = 1; frame <= 300; frame++) progress.submitted(snapshot, frame * 16);
   assert.deepEqual(progress.diagnostics(4800).frameMs, { p50: 16, p95: 16, p99: 16, max: 16, samples: 240 });
 });
+
+
+test('real source floor transition retains bounded CPU/world/WebGL time partitions without inventing pixels', async () => {
+  const progress = await create();
+  const source = { runToken: 'earned-episode', tick: 451, floor: 9, lifecycle: 'running' };
+  progress.received(source, 100, 1000);
+  progress.submitted(source, 1250, 2250, {
+    sceneUpdateMs: 420.234,
+    rendererReturnMs: 705.556,
+    worldRebuildMs: 381.12,
+    totalSubmissionMs: 1125.79,
+  });
+  const rendered = progress.diagnostics(1250).sourceTransitions.find(x => x.phase === 'renderer-submitted');
+  assert.deepEqual(rendered.renderWorkMs, {
+    sceneUpdate: 420.2, rendererReturn: 705.6,
+    worldRebuild: 381.1, total: 1125.8,
+  });
+  assert.equal(progress.diagnostics(1250).sourceTransitionProof,
+    'browser-acceptance-and-renderer-return-only-NOT-native-video');
+  // Native WebM clock and GPU-present remain unmeasured.
+  progress.received({...source, floor: 10, tick: 612}, 1400, 2400);
+  progress.submitted({...source, floor: 10, tick: 612}, 1440, 2440, {
+    sceneUpdateMs: -1, rendererReturnMs: NaN, worldRebuildMs: Infinity,
+    totalSubmissionMs: 40,
+  });
+  const later = progress.diagnostics(1440).sourceTransitions.at(-1);
+  assert.deepEqual(later.renderWorkMs, {sceneUpdate: null,
+    rendererReturn: null, worldRebuild: null, total: 40});
+  for (let floor = 11; floor < 90; floor++) {
+    const other = {...source, tick: floor * 40, floor};
+    progress.received(other, floor * 10, floor * 100);
+    progress.submitted(other, floor * 10 + 5, floor * 100 + 5, {
+      sceneUpdateMs: 1, rendererReturnMs: 4,
+      worldRebuildMs: 1, totalSubmissionMs: 5,
+    });
+  }
+  assert.equal(progress.diagnostics(10000).sourceTransitions.length, 64);
+});
