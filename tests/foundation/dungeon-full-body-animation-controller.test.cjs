@@ -4092,3 +4092,52 @@ test('severely buried original Walking_A swing holds its already-witnessed upper
  assert.match(native,/sourceSwingThighHoldFrames/,
   'hold and release must retain distinct read-only evidence');
 });
+
+
+test('RED: a genuine same-frame ankle/calf proof may coexist with a previously supported original Walking_A swing-thigh HOLD',async()=>{
+ const {reconcileOriginalSourceSwingToeProofWithThigh:reconcile}=await load();
+ // Physical source-GLB WebGL at exact predecessor 0b30c1eee290:
+ // mobile original Walking_A toe remained ~79.47mm below the real stone
+ // after a legally measured same-frame source foot correction; a continuity
+ // hold must not be vetoed solely because that proof exists.
+ // The proposed 1.5mm thigh improvement here is a SYNTHETIC unit trial;
+ // no claim that the new hold was observed in a WebGL movie.
+ const proof={source:'same-original-GLB-foot-skinned-vertices',
+  side:'right',sourceClip:'Walking_A',sourceInstanceId:'original-clone',
+  floorTopY:-.02,beforeToeY:-.105725,afterToeY:-.099469,
+  beforeHeelY:.17229,afterHeelY:.176928,liftMeters:.006256,
+  penetrationAfterMeters:.079469};
+ const before={heelY:.176928,toeY:-.099469,
+  heelXZ:[.11,.03],toeXZ:[.14,.21]};
+ const after={heelY:.177528,toeY:-.097969,
+  heelXZ:[.111,.031],toeXZ:[.141,.211]};
+ const owner={proof,side:'right',sourceInstanceId:'original-clone',
+  sourceClipName:'Walking_A',floorTopY:-.02,
+  before,after,thighImprovementMeters:.0015};
+ assert.equal(reconcile(owner),null,
+  '1.5mm is insufficient to invent a NEW 4mm source thigh rescue');
+ const held=reconcile({...owner,continuityKind:'hold'});
+ assert.ok(held,'a physically measured 1.5mm native thigh HOLD must preserve the valid same-frame ankle+calf proof');
+ assert.equal(held.combinedSourceThighKind,'hold');
+ assert.equal(held.contactLocked,false);
+ assert.ok(Math.abs(held.afterToeY-after.toeY)<1e-8);
+ assert.ok(Math.abs(held.liftMeters-(proof.liftMeters+.0015))<1e-6);
+ for(const bad of [
+  {continuityKind:'invented'},
+  {continuityKind:'hold',thighImprovementMeters:.0004},
+  {continuityKind:'hold',thighImprovementMeters:.041},
+  {continuityKind:'hold',sourceInstanceId:'different-clone'},
+  {continuityKind:'hold',sourceClipName:'Idle'},
+  {continuityKind:'hold',after:{...after,toeXZ:[.23,.22]}},
+  {continuityKind:'hold',before:{...before,toeY:-.14}}
+ ])assert.equal(reconcile({...owner,...bad}),null,
+  'unwitnessed same-frame thigh or mismatched clone/clip/foot must fail closed');
+ const native=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=native.slice(native.indexOf('function stageOriginalSourceSwingThighAfterMixer('),
+  native.indexOf('function stageRigLegsAfterMixer('));
+ assert.match(stage,/planOriginalSourceSwingThighHold\(/);
+ assert.match(stage,/continuityKind:continuity/,
+  'the live original source-skin adapter must reconcile same-frame ankle and measured thigh holds');
+ assert.match(stage,/earlierToeProof&&.*continuity===.hold./,
+  'a hold and its existing same-frame ankle proof must pass final original heel/toe reconciliation');
+});
