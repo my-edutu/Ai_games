@@ -5287,6 +5287,9 @@ function getColdSceneryBuildAudit(){
  return {source:'real-cold-static-stage-profile',builds:coldSceneBuilds,
   last:coldSceneLast?{...coldSceneLast}:null,
   avoidedTerrainSourceCopies,avoidedTerrainFloats,
+  cachedStaticAppendCalls,cachedStaticAppendFloats,
+  cachedTypedRangeCopies,cachedTypedRangeFloats,
+  unchangedVertexOrder:true,sourceRangesWithoutTemporaryArrays:true,
   neverSkipsWorldGeometry:true,hardwarePerformanceNotMeasured:true};
 }
 let data=[];let scenicMeshCache=null,scenicMeshKey='',scenicMeshRebuilds=0,scenicMeshTriangles=0;
@@ -5332,10 +5335,30 @@ function civicCacheStats(){
   gpuResident:Boolean(gpuAvailable&&civicBuffer),gpuUploads:civicGpuUploads,
   gpuDisposals:civicGpuDisposals,gpuTriangles:activeCivicMesh().length/30};
 }
+let cachedStaticAppendCalls=0,cachedStaticAppendFloats=0;
+let cachedTypedRangeCopies=0,cachedTypedRangeFloats=0;
+// Phase 1 original-mesh spine. A climate or new REAL house must not build
+// hundreds of transient JS slices/varargs just to copy retained vertices.
+// Preserve the complete 10-float vertex sequence, including materials/normal.
 function appendCivicCachedVertices(vertices){
- // Avoid one huge spread/apply call (argument overflow) and keep output order.
- for(let i=0;i<vertices.length;i+=8192)
-  data.push(...vertices.slice(i,i+8192));
+ const count=vertices.length;
+ if(!count)return;
+ const at=data.length;
+ data.length=at+count;
+ for(let i=0;i<count;i++)data[at+i]=vertices[i];
+ cachedStaticAppendCalls++;
+ cachedStaticAppendFloats+=count;
+}
+// Transfer a genuine finished home or real solar-contact shadow directly
+// into one GPU-ready typed vertex stream without an intermediate JS slice.
+function copyStaticVertexRange(start){
+ if(!Number.isInteger(start)||start<0||start>data.length)
+  throw Error('W300 invalid original static vertex range start');
+ const length=data.length-start,result=new Float32Array(length);
+ for(let i=0;i<length;i++)result[i]=data[start+i];
+ cachedTypedRangeCopies++;
+ cachedTypedRangeFloats+=length;
+ return result;
 }
 function restoreCivicStats(stats){
  guildhallVisualStats={...stats.guildhall};
@@ -6485,7 +6508,7 @@ function directionalCastShadows(time){
       else{releaseGeometryBuffer(obsolete.buffer);solarShadowGpuDisposals++;}
      }
     }
-    const vertices=new Float32Array(data.slice(first));
+    const vertices=copyStaticVertexRange(first);
     let buffer=recycled?.buffer||null,capacityFloats=recycled?.capacityFloats||0;
     if(gpuAvailable){
      if(buffer)solarShadowGpuHandleReuses++;
@@ -7983,7 +8006,7 @@ function renderCachedHomeLot(x,z,k,index,isCompact,climateKey){
  grainwardMasonryFacing(x,z,k,index,isCompact);
  houseGeometryBuilds++;
  if(!gpuAvailable)return; // The Canvas2D fallback bakes changing daylight.
- const vertices=new Float32Array(data.slice(first));
+ const vertices=copyStaticVertexRange(first);
  if(vertices.length%30)throw Error('G153 per-lot triangle stride mismatch');
  if(vertices.length>HOUSE_GEOMETRY_CACHE_FLOAT_BUDGET)return;
  const counters=houseCountersDelta(before),finalMaterial=currentMaterial;
