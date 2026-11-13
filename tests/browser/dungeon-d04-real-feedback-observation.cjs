@@ -112,7 +112,12 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
   // malformed delivered/audio:false receipt borrow its success.
   const submittedVisual=receipt.decision==='delivered'&&receipt.audio===true||
    receipt.decision==='visual-only-submitted'&&receipt.audio===false;
-  if(receipt.visual!==true||!submittedVisual||
+  // Production admits audio for an independently witnessed HP loss even
+  // when optional pooled shards are occluded. That is legitimate SOUND,
+  // but cannot qualify as visible impact in authentic moving-game footage.
+  // An older adapter lacking the drawable witness fails closed.
+  if(receipt.visual!==true||receipt.visualDrawableAtSubmission!==true||
+   !submittedVisual||
    !validFrameId(receipt.frameId)||
    !Number.isFinite(receipt.observedClockMs)||
    !Number.isFinite(receipt.submittedClockMs)||
