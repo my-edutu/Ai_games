@@ -331,6 +331,40 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   try{latest=getCurrentSnapshot()}catch{return false}
   return isLiveWardenWarning(cue,latest);
  }
+ // Block and evade art are transient, BODY-LOCAL public observations. A
+ // delayed frame cannot revive their 11th-tick motion on a 12th-tick pose.
+ // The planner has already proved unique HP-loss guarding / one-cell escape;
+ // here we only revalidate that the *same* public actor, cell and action
+ // remain drawable at the release tick. No event text or attacker is parsed.
+ // Injected test stages without a public snapshot getter preserve the
+ // established trusted-cue contract; the live Dungeon always supplies one.
+ function transientBodyStillWitnessed(cue,type){
+  if(typeof getCurrentSnapshot!=='function')return true;
+  let latest=null;
+  try{latest=getCurrentSnapshot()}catch{return false}
+  if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+    !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+    latest.run+':'+latest.floor!==cue.sceneKey||
+    !Array.isArray(latest.units))return false;
+  let witness=null;
+  // Only the 96-unit public ACTION window can authorize these effects.
+  // Duplicate IDs cannot justify choosing an arbitrary defending body.
+  for(let i=0;i<Math.min(latest.units.length,96);i++){
+   const u=latest.units[i];
+   if(u?.id!==cue.actorId)continue;
+   if(witness)return false;
+   witness=u;
+  }
+  if(!witness||witness.faction!=='party'||!cell(witness)||
+    !Number.isInteger(witness.hp)||witness.hp<0)return false;
+  if(type==='block')
+   return witness.action==='guard'&&witness.actionTick===cue.tick&&
+    witness.guardTick===cue.tick&&witness.x===cue.from.x&&
+    witness.z===cue.from.z;
+  return witness.hp>0&&witness.action==='move'&&
+   witness.actionTick===cue.tick&&witness.x===cue.to.x&&
+   witness.z===cue.to.z;
+ }
  function allocate(pool,priority){
   let index=pool.slots.findIndex(x=>x===null);
   if(index>=0)return index;
@@ -408,6 +442,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    typeof cue.actorId!=='string'||cue.actorId.length===0||
    !cell(cue.from)||!cell(cue.to)||
    Math.abs(cue.to.x-cue.from.x)+Math.abs(cue.to.z-cue.from.z)!==1))return false;
+  // Real moving Dungeon frames may arrive after the guard or sidestep
+  // has ended. Never attach yesterday's dust/shield to an unrelated pose.
+  if((type==='block'||type==='dust')&&
+   !transientBodyStillWitnessed(cue,type))return false;
   if(reducedMotion&&['trail','dust'].includes(type))return false;
   // The boss cell is NOT the strike footprint. Ground markers may only
   // occupy the actual public danger cells, never an inferred radial zone.
