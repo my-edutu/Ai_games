@@ -230,6 +230,19 @@ export function observedCameraGpuPressure(queue) {
     Number.isFinite(queue.skipped) && queue.skipped >= 16;
 }
 
+/**
+ * When a settled world view needs to rebuild its HDR/depth/display cache,
+ * three complete GPU passes can prolong a queue already proven to be starved
+ * by completed WebGL fences. Keep the entire original Three.js scene instead:
+ * one direct fully lit draw (with water, serpent, contact and cues) is cheaper
+ * than rebuilding static color/depth plus display and then drawing live layers.
+ * A valid cache hit always retains the faster cached path. Unsupported, lost,
+ * or merely slow-RAF renderers cannot trigger a speculative downgrade.
+ */
+export function shouldRenderFullSceneOnCacheMiss({ queue, cacheHit = false, shadowDirty = false } = {}) {
+  return (!cacheHit || shadowDirty) && observedCameraGpuPressure(queue);
+}
+
 export function shouldCutUnderGpuPressure({ mode, anchor, queue, inTransit = false } = {}) {
   // GPU fences may finish after a follow/detail reframe has already started.
   // That first slow frame is not enough evidence to decide on a cut; however,

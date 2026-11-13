@@ -8,7 +8,7 @@ import { createCourtyardEcology } from './courtyard-ecology.mjs';
 import { createWorld } from './world.mjs';
 import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
-import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure, observedCameraGpuPressure } from './camera.mjs';
+import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure, observedCameraGpuPressure, shouldRenderFullSceneOnCacheMiss } from './camera.mjs';
 
 // BEGIN R38 CONTACT HELPER
 /**
@@ -228,6 +228,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let staticMeshCount = 0;
   let cacheHits = 0;
   let cacheBuilds = 0;
+  // Complete original full-scene draws substituted for a costly cache REBUILD
+  // only after actual completed GPU-fence pressure, never counted as presents.
+  let pressureDirectFrames = 0;
+  let currentGpuQueue = null;
   let cacheActive = false;
   // Keep HDR/MSAA color and depth for cache rebuilds. Bake display color once,
   // then copy only color/depth each frame while animated geometry stays live.
@@ -314,6 +318,21 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       return;
     }
     renderer.getDrawingBufferSize(cacheSize);
+    camera.updateMatrixWorld();
+    const key = [dimensions, quality, world.propRevision?.() || 0, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
+      renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
+    const cacheHit = !!staticTarget && staticTarget.width === cacheSize.x && staticTarget.height === cacheSize.y && key === staticKey;
+    // Only after actual COMPLETED GPU fences establish starvation: the
+    // unmodified direct scene draws ALL original static and animated layers,
+    // original shadows, original fog and depth. It replaces an HDR/depth bake,
+    // display conversion AND live composition, without creating new targets.
+    // Retain cache reuse for a matching true view and ordinary healthy GPUs.
+    if (shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit, shadowDirty: renderer.shadowMap.needsUpdate })) {
+      invalidateStaticCache();
+      pressureDirectFrames++;
+      renderer.render(scene, camera);
+      return;
+    }
     if (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y) {
       staticTarget?.dispose();
       displayTarget?.dispose();
@@ -336,9 +355,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
       invalidateStaticCache();
     }
-    camera.updateMatrixWorld();
-    const key = [dimensions, quality, world.propRevision?.() || 0, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
-      renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
     const oldFog = scene.fog;
@@ -581,6 +597,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // photographic-cut decision. This is measured GPU backpressure, never RAF,
     // nominal video FPS or a simulated gameplay signal.
     const gpuQueue = frameGate.stats();
+    currentGpuQueue = gpuQueue;
     const severeCameraPressure = observedCameraGpuPressure(gpuQueue);
     const anchor = cinematicAnchor.resolve({
       mode: cameraMode, runToken: snapshot.runToken, head,
@@ -648,6 +665,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
+        pressureDirectFrames, // actual complete draws, NOT physical displayed frames or strict one-second count
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS
       livingGarden: livingGarden?.stats?.(),
