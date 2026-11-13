@@ -11242,6 +11242,11 @@ function getMarketGatewayAudit(){
   postHeight:MARKET_ENTRY_ARCH.postHeight,
   openClearWidth:MARKET_ENTRY_ARCH.postOffset*2-MARKET_ENTRY_ARCH.postWidth,
   structuralPosts:physicalMarketUprights().length,
+  freightCrossBeams:marketQuarterStats.freightCrossBeams||0,
+  openSkyFreightMarkers:marketQuarterStats.openSkyFreightMarkers||0,
+  clearCorridorMeasured:marketQuarterStats.corridorClearWidth||
+    MARKET_ENTRY_ARCH.postOffset*2-MARKET_ENTRY_ARCH.postWidth,
+  physicalOpenSkyOverRealReceipts:true,
   pavingStones:marketQuarterStats.pavingStones,
   receivingBays:marketQuarterStats.receivingBays,
   hasRealStonePlinths:true,ornamentalOnly:true,
