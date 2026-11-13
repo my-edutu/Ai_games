@@ -96,7 +96,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  // Bounded D04-only JS matrix-update pressure, not a GPU timer or proof
  // that the WebGL driver uploaded every dirty reserved instance.
- let advanceFrames=0,lastAdvanceMatrixWrites=0,lastAdvanceDirtyPools=0,
+ let advanceFrames=0,idleAdvanceSkips=0,lastAdvanceMatrixWrites=0,lastAdvanceDirtyPools=0,
   lastAdvancePotentialBufferBytes=0;
  const lastAdvanceWritesByPool=Object.fromEntries(
   Object.keys(PHYSICAL_FEEDBACK_POOL_LIMITS).map(name=>[name,0]));
@@ -542,6 +542,19 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function advance(frameSeconds,actualFrameSeconds=frameSeconds){
   if(disposed)return;
+  // Every retained matrix is hidden when its last occupied slot retires.
+  // Empty D04 effects are common between fights; avoid scanning all 102
+  // reserved instance slots each idle frame without changing any live
+  // Warden hazard, measurement, visual lifetime or WebGL submission.
+  if(active===0){
+   lastAdvanceMatrixWrites=0;lastAdvanceDirtyPools=0;
+   lastAdvancePotentialBufferBytes=0;
+   for(const name of Object.keys(lastAdvanceWritesByPool))
+    lastAdvanceWritesByPool[name]=0;
+   advanceFrames=Math.min(Number.MAX_SAFE_INTEGER,advanceFrames+1);
+   idleAdvanceSkips=Math.min(Number.MAX_SAFE_INTEGER,idleAdvanceSkips+1);
+   return;
+  }
   const dt=clamp(frameSeconds,0,.05);
   let frameMatrixWrites=0,dirtyPoolCount=0,potentialBufferBytes=0;
   // Authoritative pose dt is deliberately clamped, but VFX lifetime must
@@ -880,7 +893,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    unmeasuredTrailFrames,retiredDeadTrails,retiredInterruptedTrails,occludedFlights,blockedFlights,
    retiredStaleFrameInstances,disposed,
   // CPU submission intent, not a hardware upload or frame-time benchmark.
-  advanceFrames,lastAdvanceMatrixWrites,lastAdvanceDirtyPools,
+  advanceFrames,idleAdvanceSkips,lastAdvanceMatrixWrites,lastAdvanceDirtyPools,
   lastAdvancePotentialBufferBytes,
   lastAdvanceWritesByPool:Object.freeze({...lastAdvanceWritesByPool}),
   reservedInstances:TOTAL,drawCalls:pools.size,
