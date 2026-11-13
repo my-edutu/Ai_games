@@ -590,7 +590,13 @@ export function createMazeWorld(options = {}) {
       horizontal ? 2.32 : .39, .34, horizontal ? .39 : 2.32, cell);
     add(box, guardianStage ? seaGlass : lightStone, x, .355, z,
       horizontal ? 2.34 : .44, .075, horizontal ? .44 : 2.34, cell);
-    if (guardianStage) {
+    // Pass337: original browser ray proved that the pressure-adjacent
+    // spectator edge needs its full opaque Tideglass wall and cap, NOT an
+    // additional overlaid broad face. The extra layer hid an actual
+    // published Pip-side stage course in the exact 390px brace and failed
+    // the unchanged source-bound visibility gate. On a pressure-adjacent
+    // edge keep dark masonry/cap and true connected moving hazard instead.
+    if (guardianStage && !pressureStage) {
       // Large attached mineral facing and a restrained continuous crest:
       // these share real parent stone, not a passage-shaped hole or HUD cue.
       add(box, darkMetal, x, .20, z,

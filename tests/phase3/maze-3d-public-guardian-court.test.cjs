@@ -1105,8 +1105,15 @@ test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory p
    const linkedPressure={...s,visibleCells:[...s.visibleCells,101],
      cells:[...s.cells.map(c=>c.cell===100?{...c,neighbors:[83,101]}:c),
        {cell:101,blocked:false,trap:true,neighbors:[100]}]};
-   w.update(linkedPressure);darkWall();
-   assert.equal(w.stats().guardianSightlineParapets>=1,true,
+   w.update(linkedPressure);
+   assert.equal(wallInstances('eed5a0',[2.34,.075,.44]),0,
+     'a linked pressure trigger on another edge cannot restore a giant ivory spectator cap');
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),1);
+   assert.equal(wallInstances('28574f',[2.32,.34,.39]),1,
+     'the true nonpassage dark guardian body remains opaque');
+   assert.equal(wallInstances('334a46',[2.14,.22,.43]),0,
+     'do not stack a redundant broad physical facing over an adjacent real pressure stage');
+   assert.ok(w.stats().guardianSightlineParapets>=1,
      'the nonpassage spectator boundary may be dark even when another real edge leads to pressure');
    // The actual pressure tile and its true reciprocal path remain authoritative;
    // never reclassify a spectator wall ON a physical pressure endpoint.

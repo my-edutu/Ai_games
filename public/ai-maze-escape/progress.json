@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T16:49:46.000Z",
+  "updatedAt": "2026-11-13T17:05:16.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass336 candidate: independently retrieved complete exact Pass335 Chromium/WebGL artifact 14058711819, all 39 uncropped screenshots and 37/37 PNG SHA-256 metadata sidecars; actual 390px Pip/Thornback brace stayed ivory at a 2.34m sealed 100/117 foreground retaining wall, mean image difference .0376/255 vs Pass334, so Pass335 REJECTED. Pass336 isolates a false pressure-priority veto arising from a linked pressure mechanism on a DIFFERENT wall edge, retaining real pressure endpoints and authority. Original native ray/geometry acceptance, full CI, independent visual critic PENDING. Nintendo bar unmet."
+    "summary": "Pass337 candidate: actual Pass336 native action 43467898859 failed a strict source-bound 390px ray visibility assertion. Retrieved partial 22 original full PNGs, independently SHA-verified 21/21 image sidecars; actual full spectator cap/body changed from ivory to Tideglass, but a redundant extra mineral facing over a pressure-adjacent wall hid the established Pip-side course hit. Pass337 preserves dark fully opaque cap/body and removes ONLY this extra layer on pressure-adjacent guardian walls; same strict browser gate retained, CI/rendered verdict pending. Nintendo benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass337 2026-11-13: Real Pass336 partial source-native artifact 14060500024, 22 uncropped PNGs 21/21 matching SHA sidecars; valid 390px brace 2.34m #5d968e cap and solid #28574f wall, but old 2.31m Pip course source-ray was obscured by redundant broad #334a46 face, so 1/7 browser suites failed. Actual Pass336 brace 0.6202/255 difference, insufficient artistic win. Production condition now omits EXTRA broad face only when authentic nearby pressure stage shares guardian spectator wall; dark cap/core and real pressure edge persist. Installed-Three regression strengthened. Exact-HEAD native screenshots/CI/critic pending, benchmark unmet. Never merge/deploy/force.",
     "Pass336 2026-11-13: ORIGINAL exact Pass335 artifact 14058711819 visually inspected and 37/37 direct PNG SHA-256 hashes verified; .50,.66 390px brace still hits untouched ivory 2.34m spectator cap, .0376/255 mean frame difference vs Pass334. Real public outerOrdinary+foreground includes both 100/117; broad veto misprioritizes pressure joined on a DIFFERENT edge. Production candidate restricts spectator wall exclusion to actual true pressure endpoints and existing privacy/geometry limits; new installed Three linked-pressure counterexample and exact native no-crop ray require #5d968e cap/#28574f opaque core. New CI/native render/critic pending; fixed Nintendo benchmark not met; PR open draft unmerged/undeployed.",
     "Pass334 2026-11-13: Original exact Pass333 action 43444856406 failed 1/7 native suites on an obsolete fixed 390px pixel/cell100 ray despite 168/168 focused source tests and six other native suites passing. Retrieved partial authentic 22 uncropped PNGs, verified 21/21 sidecar hashes and true 390 brace SHA 33cdecae; changed screenshot 54.378/255 against Pass332. Actual public ray .50,.73 now intersects cell117 complete 2.39m #28574f deck and 2.39m #8e7851 lip; .50,.66 still intersects cell99 2.31m #5d968e. Strengthened camera-real exact source/full geometry browser assertions, original ±.95 and <100 thresholds unchanged. NEW exact-HEAD CI and complete render review PENDING; no Nintendo win.",
     "Pass333 2026-11-13: Inspected exact Pass332 native action 43430328543 39 untouched PNG frames/37 direct hashes. Real 390px guardian brace remains vertically stacked, prior wall 1.164/255 RGB diff. Added deterministic public guardian 0→.40rad opposing-body camera orbit; no authority, private map, NDC gate or allocation changes. New exact-HEAD WebGL/CI/artistic acceptance PENDING.",
