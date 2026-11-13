@@ -347,7 +347,36 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    hand:type==='trail'||kineticRelease||wardenHand,
    chest:victim||wardenChest,
    requireBone:type==='trail'||requireObservedEmitter||requireWardenBone});
-  if(sampledPoint)return sampledPoint;
+  if(sampledPoint){
+    // Even a perfectly positioned, drawable character can be an OLD rig
+    // from a subsequent authority tick, or retain stale actor.u HP while the
+    // public victim has changed. The interpolated and unloaded HP paths
+    // already revalidate the current unique public victim; the direct
+    // skinned-body fast path must not bypass that same causality boundary.
+    // This is one bounded read per admitted HP cue, never a per-frame scan.
+    if(victim&&typeof getCurrentSnapshot==='function'){
+      let latest=null;
+      try{latest=getCurrentSnapshot()}catch{return null}
+      if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+        !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+        latest.run+':'+latest.floor!==cue.sceneKey||
+        !Array.isArray(latest.units))return null;
+      let witness=null;
+      for(let i=0;i<Math.min(latest.units.length,256);i++){
+        const u=latest.units[i];
+        if(u?.id!==cue.targetId)continue;
+        if(witness)return null; // duplicate identities cannot choose a body
+        witness=u;
+      }
+      const u=actor?.u;
+      if(!witness||!cell(witness)||witness.x!==at.x||witness.z!==at.z||
+        !Number.isInteger(witness.hp)||witness.hp<0||
+        u?.id!==cue.targetId||u.x!==witness.x||u.z!==witness.z||
+        u.hp!==witness.hp||u.kind!==witness.kind||
+        u.faction!==witness.faction)return null;
+    }
+    return sampledPoint;
+  }
   if(victim&&actor){
    const observed=sampleInterpolatedHPVictim(cue,at,actor);
    if(observed)return observed;
