@@ -52,8 +52,8 @@ assert(face.includes('tagWorkSkinRange(11,first)'),
  'real connected compact head retains GPU joint 11 at actual face emitter');
 const cloth=extract('renderRealVillageWorkwear');
 assert(cloth.includes('const shell=rings.map(verticesFor)')&&
- cloth.includes('const gait=rig.traveling')&&
- cloth.includes('const labor=rig.working')&&
+ cloth.includes('const physical=realWorkcoatMotion(p,rig)')&&
+ cloth.includes('const gait=physical.stride*2.2, labor=physical.lean;')&&
  cloth.includes('r.pleat')&&cloth.includes('layer===0')&&
  cloth.includes('const hemShell=verticesFor(hem,0)'),
  'original wool ring and hem vertices MUST have finite explicit deformation index');

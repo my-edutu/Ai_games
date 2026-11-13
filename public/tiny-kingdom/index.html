@@ -13554,27 +13554,36 @@ function paintOriginalFarmFieldGround(ctx,world,size,extent){
   authoritativeFieldsUnchanged:true,authorityModified:false};
 }
 function farmSoil(x0,x1,z0,z1,rowIndex){
- const soil=[rgb(0x655341),rgb(0x79604b),rgb(0x69513e)],
-  crown=[rgb(0x847058),rgb(0x78654f),rgb(0x87715b)],
-  moist=[rgb(0x504638),rgb(0x594a39),rgb(0x4a4435)],
-  grass=rgb(0x7d8d56),segments=Math.ceil((x1-x0)/.70);
+ // W290: one continuous, terrain-following raised earth furrow for every
+ // actual planted row, not decorative detached rectangles. Geometry is still
+ // the same four small quads at each original cross-section: no added VBO,
+ // planted crowns, fake harvest or village navigation mutation.
+ const soil=[rgb(0x5c4835),rgb(0x6b543e),rgb(0x604936)],
+  crown=[rgb(0x796448),rgb(0x857050),rgb(0x786346)],
+  moist=[rgb(0x463a30),rgb(0x514334),rgb(0x4d3e32)],
+  grass=rgb(0x707e51),segments=Math.ceil((x1-x0)/.70),
+  centre=(z0+z1)*.5;
  materialScope(MATERIAL.ROAD,()=>{
   for(let i=0;i<segments;i++){
-   const xa=x0+(x1-x0)*i/segments,xb=x0+(x1-x0)*(i+1)/segments,
-    mid=(z0+z1)/2;
+   const xa=x0+(x1-x0)*i/segments,xb=x0+(x1-x0)*(i+1)/segments;
    const point=(x,z,lift)=>{
-    const bend=.065*Math.sin(x*.68+rowIndex*.91)+
-     .029*Math.sin(x*1.17-rowIndex*.52);
+    // Neighbouring endpoints use the same world x; every true furrow remains
+    // joined and drains downhill rather than forming a tiled checkerboard.
+    const bend=.052*Math.sin(x*.56+rowIndex*.93)+
+     .023*Math.sin(x*1.12-rowIndex*.46);
     return [x,terrain(x,z+bend)+lift,z+bend];
    };
-   quad(point(xa,z0,.010),point(xa,mid,.070),
-    point(xb,mid,.070),point(xb,z0,.010),soil[rowIndex%3]);
-   quad(point(xa,mid,.070),point(xa,z1,.018),
-    point(xb,z1,.018),point(xb,mid,.070),crown[(i+rowIndex)%3]);
-   quad(point(xa,z1,.018),point(xa,z1+.055,.003),
-    point(xb,z1+.055,.003),point(xb,z1,.018),moist[(i+rowIndex)%3]);
-   if(i%3===0)quad(point(xa,z0-.06,.009),point(xa,z0,.009),
-    point(xb,z0,.009),point(xb,z0-.06,.009),grass);
+   const shoulder=z0+(centre-z0)*.20;
+   const crest=centre+(z1-centre)*.12;
+   // Sloping real shoulder, broad raised sowing ridge, eroded narrow drain.
+   quad(point(xa,z0,.012),point(xa,shoulder,.047),
+    point(xb,shoulder,.047),point(xb,z0,.012),soil[rowIndex%3]);
+   quad(point(xa,shoulder,.047),point(xa,crest,.101),
+    point(xb,crest,.101),point(xb,shoulder,.047),crown[rowIndex%3]);
+   quad(point(xa,crest,.101),point(xa,z1,.016),
+    point(xb,z1,.016),point(xb,crest,.101),moist[(rowIndex+i)%3]);
+   if(i%3===0)quad(point(xa,z1,.016),point(xa,z1+.055,.006),
+    point(xb,z1+.055,.006),point(xb,z1,.016),grass);
   }
  });
  farmScene.rows++;
@@ -13590,91 +13599,111 @@ function authenticGrainHeadProfile(x,z,index,season){
  const c=biomeHash(index*17+271),d=biomeHash(index*19+577);
  const azimuth=index*2.399963+c*1.7;
  const ripe=season===1||season===2;
- return {height:(season===3?.26:season===0?.72:season===1?1.26:1.13)*(.83+a*.34),
-  headBend:(ripe?.075:.038)+b*(ripe?.145:.06),
+ // W290: the complete ORIGINAL wheat crop now forms a human-scale
+ // continuous planted stand with bowed heads, broader leaf blades and a
+ // natural green-to-gold canopy. The same exact 668 seeded stems, seasonal
+ // source meshes, field roots and work contacts remain authoritative.
+ return {height:(season===3?.26:season===0?.88:season===1?1.41:1.30)*(.83+a*.34),
+  headBend:(ripe?.086:.044)+b*(ripe?.153:.069),
   stemLeanX:Math.sin(azimuth)*(.055+a*.09),
   stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
   headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
-  earLength:(.175+d*.072)*(season===0?.78:1),
-  leafReach:.155+d*.105,livingSeason:season!==3,
+  earLength:(.20+d*.08)*(season===0?.73:1),
+  leafReach:.195+d*.12,livingSeason:season!==3,
   rootedAt:[x,z],authorityModified:false};
 }
 function farmStalk(x,z,index,season,compact=false){
  const first=data.length,base=terrain(x,z)+.077;
  const lived=authenticGrainHeadProfile(x,z,index,season);
- const sig=biomeHash(index*7+64),sig2=biomeHash(index*11+413);
  const sig3=biomeHash(index*17+271),sig4=biomeHash(index*19+577);
  const h=lived.height;
- const stalk=rgb(season===3?0xb1ae8e:season===0?0x638c46:season===1?0xa89545:0xb69a57);
- const head=rgb(season===3?0x96998c:season===0?[0x98b468,0xb7bd74,0x9dad57][index%3]:season===1?[0xd7bd6a,0xe7c47a,0xbda95f][index%3]:[0xc8a762,0xdeb77c,0xba9856][index%3]);
- const leaf=rgb(season===3?0x7e8872:season===0?0x518b52:0x899052);
+ const stalk=rgb(season===3?0x999b86:season===0?0x658a48:
+  season===1?0x9c894e:0xa89655);
+ const head=rgb(season===3?0x93998a:
+  season===0?[0x9ab16c,0xacb978,0x98a85c][index%3]:
+  season===1?[0xdac079,0xd7b46a,0xc9ad6b][index%3]:
+  [0xc8a96e,0xd7b779,0xc1a36c][index%3]);
+ const leaf=rgb(season===3?0x777f71:season===0?0x59844d:0x8f945e);
+ const ax=lived.headDirection[0],az=lived.headDirection[1];
  const at=t=>{
-  const bow=Math.max(0,(t-.64)/.36),droop=bow*bow*lived.headBend;
-  return [x+lived.stemLeanX*t*t+lived.headDirection[0]*droop,
+  const bow=Math.max(0,(t-.60)/.40),droop=bow*bow*lived.headBend;
+  return [x+lived.stemLeanX*t*t+ax*droop,
    base+h*t-droop*.24,
-   z+lived.stemLeanZ*t*t+lived.headDirection[1]*droop];
+   z+lived.stemLeanZ*t*t+az*droop];
  };
- const bottom=at(0),upper=at(.86),tip=at(1),w=.012+sig3*.007;
- // Two perpendicular tapered, bent shaft planes instead of stacked cylinders.
- quad([bottom[0]-w,bottom[1],bottom[2]],[bottom[0]+w,bottom[1],bottom[2]],
-  [upper[0]+w*.47,upper[1],upper[2]],[upper[0]-w*.47,upper[1],upper[2]],stalk);
- quad([bottom[0],bottom[1],bottom[2]-w],[bottom[0],bottom[1],bottom[2]+w],
-  [upper[0],upper[1],upper[2]+w*.47],[upper[0],upper[1],upper[2]-w*.47],stalk);
+ const bottom=at(0),upper=at(.85),tip=at(1),
+  width=.021+sig3*.010;
+ // Two intersecting, tapering stem faces remain exactly FOUR triangles.
+ // Their larger human-visible silhouette uses the SAME planted root.
+ quad([bottom[0]-width,bottom[1],bottom[2]],
+  [bottom[0]+width,bottom[1],bottom[2]],
+  [upper[0]+width*.40,upper[1],upper[2]],
+  [upper[0]-width*.40,upper[1],upper[2]],stalk);
+ quad([bottom[0],bottom[1],bottom[2]-width],
+  [bottom[0],bottom[1],bottom[2]+width],
+  [upper[0],upper[1],upper[2]+width*.40],
+  [upper[0],upper[1],upper[2]-width*.40],stalk);
  if(season!==3){
-  // Complete original 3D stems remain in both seasonal meshes. The compact
-  // far camera retains two leaves and three tapered ear rows; the close
-  // farmer still sees the full original hand-built cereal silhouette.
+  const reverseLeaf=leaf.map(v=>v*.79);
   if(compact){
+   // Same four two-sided original leaf triangles, now with true swept
+   // outboard width and drooping tip instead of narrow vertical sticks.
    for(const side of [-1,1]){
-    const attach=at(side===1?.35:.53),reach=lived.leafReach*.86*side;
-    // W260: a real ribbon blade has TWO lit sides. Earlier the back was
-    // discarded by WebGL face culling and the crops looked like wire fences
-    // whenever the player orbited toward the granary/courier entrance.
-    // Keep one original leaf, one backface, and every actual growing root.
-    const bladeMid=[attach[0]+reach*.53,attach[1]+h*.12,attach[2]+side*.04];
-    const bladeTip=[attach[0]+reach,attach[1]+h*.16,attach[2]+side*.085];
-    tri(attach,bladeMid,bladeTip,leaf);
-    tri(bladeTip,bladeMid,attach,Array.isArray(leaf)?leaf.map(c=>c*.76):leaf);
+    const attach=at(side===1?.35:.52),reach=lived.leafReach*side;
+    const flank=side===1?.10:-.08;
+    const mid=[attach[0]+reach*.56,attach[1]+h*.105,
+     attach[2]+flank*.48];
+    const end=[attach[0]+reach,attach[1]+h*.045,
+     attach[2]+flank];
+    tri(attach,mid,end,leaf);tri(end,mid,attach,reverseLeaf);
    }
    for(let g=0;g<3;g++){
-    const p=at(.76+g*.078),kernel=(.074-g*.013)*(.86+sig3*.25);
-    for(const side of [-1,1])
-     tri([p[0],p[1]-.017,p[2]],
-      [p[0]+side*kernel,p[1]+.022,p[2]+side*.012],
-      [p[0]+side*.010,p[1]+.087,p[2]],head);
+    const p=at(.76+g*.076),kernel=(.095-g*.018)*(.88+sig3*.22);
+    for(const side of [-1,1]){
+     const span=side*kernel;
+     tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
+      [p[0]+span*az,p[1]+.022,p[2]-span*ax],
+      [p[0]+ax*.027+span*.12,p[1]+.095,p[2]+az*.027+span*.12],
+      head);
+    }
    }
   }else{
-  for(const side of [-1,1]){
-   const attach=at(side===1?.35:.53),reach=lived.leafReach*side;
-   const mid=[attach[0]+reach*.55,attach[1]+h*.10,attach[2]+side*.04];
-   const end=[attach[0]+reach,attach[1]+h*(side===1?.13:.17),attach[2]+side*.08];
-   const fold=[attach[0]+reach*.43,attach[1]+h*.055,attach[2]-.05*side];
-   // Physically two-sided curved blade: the same planted leaf remains
-   // readable when the genuine follow camera crosses to its reverse side.
-   // Four added triangles per detailed stalk, below the existing 26 cap.
-   tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
-   const reverseLeaf=Array.isArray(leaf)?leaf.map(c=>c*.77):leaf;
-   tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
-  }
-  // Eight alternating grains with four cross-facing kernels: 3D ears that
-  // narrow naturally toward the tip, not flat plastic cones.
-  for(let g=0;g<4;g++){
-   const p=at(.74+g*.058),kernel=(.064-g*.009)*(.86+sig3*.30);
+   // Detailed original farmer view: eight two-sided curved broad leaf
+   // triangles, twelve mature grain-kernel triangles, two awns. Remain
+   // exactly 26 triangles per genuine planted stem (16 in far LOD).
    for(const side of [-1,1]){
-    tri([p[0],p[1]-.017,p[2]],
-     [p[0]+side*kernel,p[1]+.020,p[2]+side*.009],
-     [p[0]+side*.011,p[1]+.084,p[2]],head);
-    if(g%2===1)tri([p[0],p[1]-.015,p[2]],
-     [p[0]+side*.008,p[1]+.013,p[2]+side*kernel*.75],
-     [p[0],p[1]+.082,p[2]+side*.006],head);
+    const attach=at(side===1?.36:.53),reach=lived.leafReach*side;
+    const flank=side===1?.15:-.13;
+    const mid=[attach[0]+reach*.51,attach[1]+h*.115,
+     attach[2]+flank*.56];
+    const end=[attach[0]+reach,attach[1]+h*.029,
+     attach[2]+flank];
+    const fold=[attach[0]+reach*.42,attach[1]+h*.025,
+     attach[2]-flank*.38];
+    tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
+    tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
+   }
+   for(let g=0;g<4;g++){
+    const p=at(.74+g*.058),kernel=(.083-g*.011)*(.90+sig3*.24);
+    for(const side of [-1,1]){
+     const span=side*kernel;
+     tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
+      [p[0]+span*az,p[1]+.019,p[2]-span*ax],
+      [p[0]+ax*.023+span*.10,p[1]+.087,p[2]+az*.023+span*.10],head);
+     if(g%2===1)tri(
+      [p[0]-az*.012,p[1]-.014,p[2]+ax*.012],
+      [p[0]+ax*.020,p[1]+.013,p[2]+az*.020],
+      [p[0]+side*kernel*.77*ax,p[1]+.084,
+       p[2]+side*kernel*.77*az],head);
+    }
    }
   }
-  }
-  const awn=season===0?.105:.14;
+  const awn=season===0?.112:.15;
   for(const side of [-1,1]){
-   tri([tip[0]+side*.009,tip[1]-.055,tip[2]],
-    [tip[0]+side*(.036+sig4*.02),tip[1]+awn,tip[2]+side*.013],
-    [tip[0],tip[1]-.030,tip[2]+.007],head);
+   tri([tip[0]+side*.013,tip[1]-.052,tip[2]],
+    [tip[0]+side*(.049+sig4*.016),tip[1]+awn,
+     tip[2]+side*.038],
+    [tip[0],tip[1]-.030,tip[2]+.011],head);
   }
   farmScene.seedHeads++;
  }
