@@ -226,3 +226,33 @@ test('silent HP shards retire on an unverified real frame instead of ghosting in
   assert.equal(director.stats().visuals.drawCalls,7);
  }finally{director.dispose()}
 });
+
+
+test('cap-preempted transient effects hide actual retained matrices but preserve Warden danger',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {THREE,scene}=stage(),v=createPhysicalFeedbackVisuals(THREE,scene);
+ const a=injury('1:1:11:damage:-:enemy-1-0');
+ const b=injury('1:1:11:damage:-:enemy-1-1','enemy-1-1');
+ const warning={id:'1:1:11:threat-warning:-:-',sceneKey:'1:1',
+  tick:11,kind:'threat-warning',visual:'warning',audio:'threat-warning',
+  verified:true,proof:'authority-warning-window',
+  detail:{cells:[{x:2,z:2}]},severity:.5,duration:.6,priority:5};
+ try{
+  assert.equal(v.emit(a),true);assert.equal(v.emit(b),true);
+  assert.equal(v.emit(warning),true);
+  assert.equal(v.stats().instancesByPool.hit,8);
+  assert.equal(v.retireStaleCue(a.id,'awaiting-frame-cap-rejected'),4);
+  assert.equal(v.retireStaleCue(b.id,'awaiting-frame-cap-preempted'),4);
+  assert.equal(v.stats().instancesByPool.hit,0,
+   'cue-specific cap termination must remove both rejected and displaced fragments');
+  assert.equal(v.hasLiveCue(a.id),false);assert.equal(v.hasLiveCue(b.id),false);
+  assert.equal(v.stats().activeDrawCalls,1,'only live danger signal remains visible');
+  assert.equal(v.retireStaleCue(warning.id,'awaiting-frame-cap-preempted'),0,
+   'audio frame-queue capacity is not authority to delete live danger cells');
+  assert.equal(v.hasLiveCue(warning.id),true);
+  assert.equal(v.retireStaleCue(a.id,'awaiting-frame-cap-rejected'),0,
+   'terminal VFX retirement must be idempotent');
+  assert.equal(v.stats().retiredStaleFrameInstances,8);
+  assert.ok(v.stats().reservedInstances<=104);
+ }finally{v.dispose()}
+});
