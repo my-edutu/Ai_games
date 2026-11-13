@@ -19,7 +19,7 @@ Changed: `tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs`, `public
 ## Verification and acceptance caveats
 
 * **Test-first failure:** [CI 43342835119](https://github.com/my-edutu/Ai_games/actions/runs/43342835119), expected new negative case failed, 233/234 native tests passed.
-* **Corrected native/build and genuine Chrome verification:** [CI 43343167173](https://github.com/my-edutu/Ai_games/actions/runs/43343167173). Its outcome must be checked; do not equate a queued or running job with a pass.
+* **Corrected native/build verification:** [CI 43343167173](https://github.com/my-edutu/Ai_games/actions/runs/43343167173) passed **234/234 native contracts** and the production build (verified from completed contracts-job logs). Its separate real Dungeon Chrome `real-preview` job is in progress at this inspection; no fresh genuine browser A/V acceptance is claimed.
 * **Static-contract scope:** the 350+120ms and 180+35ms clocks are injected visual-adapter experiments, not a real browser FPS benchmark. Original native Chrome prior run still failed strict physical-impact acceptance.
 * **Existing authentic media:** earlier original desktop WebM has 13 VP8 frames with a 3.015s maximum gap; 390px mobile has 11 frames with a 1.512s maximum gap, each with an Opus track but no proven PCM-to-visible-impact synchronization. These clips predate this fix.
 
