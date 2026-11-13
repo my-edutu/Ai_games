@@ -462,21 +462,3 @@ test('a sealed Warden films the ACTUAL distant guardian melee rather than the in
  s.guardianWard=true;s.units.find(u=>u.id==='ward-revenant').hp=0;
  assert.equal(planCinematicShot(s,null).mode,'warden-approach','a dead guardian is not an active subject');
 });
-
-test('complete authentic mobile warning inset permits nearer original boss lens without changing other views',async()=>{
- const {planReadableExpeditionLens}=await planner();
- const shot={mode:'warden-warning',offsets:[4,10,7],subjects:['warden','vanguard'],
-  spread:2,warningFocus:{closeness:0}};
- const full={insetHasAllCells:true,originalCellCount:23,cells:[{x:9,z:9}],
-  radiusScale:.68,heightScale:.66,fovReduction:6};
- const old=planReadableExpeditionLens(shot,{width:390,height:658});
- const close=planReadableExpeditionLens(shot,{width:390,height:658,dualPlaneWarning:full});
- assert.ok(close.fov<old.fov);
- assert.ok(Math.hypot(close.offsets[0],close.offsets[2])<Math.hypot(old.offsets[0],old.offsets[2])*.75);
- assert.ok(close.offsets[1]<old.offsets[1]*.75);
- assert.deepEqual(planReadableExpeditionLens(shot,{width:1440,height:832,dualPlaneWarning:full}),
-  planReadableExpeditionLens(shot,{width:1440,height:832}));
- assert.deepEqual(planReadableExpeditionLens(shot,{width:390,height:658,reducedMotion:true,dualPlaneWarning:full}),
-  planReadableExpeditionLens(shot,{width:390,height:658,reducedMotion:true}));
- assert.deepEqual(planReadableExpeditionLens(shot,{width:390,height:658,dualPlaneWarning:{...full,insetHasAllCells:false}}),old);
-});

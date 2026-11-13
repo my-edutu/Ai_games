@@ -315,7 +315,7 @@ const DIRECTOR_LENS=Object.freeze({
  'portal-descent': Object.freeze({radius:5.65,height:6.40,fov:43,aim:.59,follow:5.2,key:1.08}),
  'last-stand':     Object.freeze({radius:4.65,height:5.30,fov:45,aim:.24,follow:3.3,key:.76})
 });
-export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMotion=false,dualPlaneWarning=null}={}){
+export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMotion=false}={}){
  if(!shot||!Object.hasOwn(DIRECTOR_LENS,shot.mode)||!Array.isArray(shot.offsets)||
     shot.offsets.length!==3||!shot.offsets.every(Number.isFinite))return null;
  const policy=DIRECTOR_LENS[shot.mode];
@@ -323,9 +323,6 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  if(horizontal<.05)return null;
  const aspect=Number.isFinite(width)&&Number.isFinite(height)&&height>0?width/height:1.73;
  const portrait=aspect<.88,warning=shot.mode==='warden-warning'||shot.mode==='breach-warning';
- const twoPlane=portrait&&!reducedMotion&&shot.mode==='warden-warning'&&
-  dualPlaneWarning?.insetHasAllCells===true&&dualPlaneWarning.originalCellCount>0&&
-  Array.isArray(dualPlaneWarning.cells)&&dualPlaneWarning.cells.length>0;
  const closeDuel=shot.mode==='warden-counter'||shot.mode==='warden-contact'||shot.mode==='warden-exposed';
  // Let original skinned combatants fill the frame while truly closing
  // range, not only at HP loss. Existing camera following smooths transitions.
@@ -367,12 +364,10 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  // existing subject-fit gate will widen FOV if a danger cell or body is cut.
  // Warden warnings and cast releases never enter this closer approach.
  const radius=(terminal?clip(policy.radius+Math.max(0,shot.spread||0)*.68,4.65,7.15):
-  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch*(1-.22*actionCloseness)*(1-.18*guardianCloser)*
-  (twoPlane?dualPlaneWarning.radiusScale:1);
+  policy.radius-2.5*approachNear-2.4*threatCloser*threatScale)*stretch*(1-.22*actionCloseness)*(1-.18*guardianCloser);
  const y=(policy.height-2.25*approachNear-2.2*threatCloser*threatScale+
   (terminal?Math.min(.85,Math.max(0,shot.spread||0)*.21):0))*
-  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1)*(1-.14*actionCloseness)*(1-.10*guardianCloser)*
-  (twoPlane?dualPlaneWarning.heightScale:1);
+  (portrait?(warning?1.17-.13*compactPortraitWarning:closeDuel?1.04:1.07):1)*(1-.14*actionCloseness)*(1-.10*guardianCloser);
  const offsets=Object.freeze([
   round(shot.offsets[0]/horizontal*radius),
   round(y),
@@ -380,8 +375,7 @@ export function planReadableExpeditionLens(shot,{width=1440,height=832,reducedMo
  ]);
  return Object.freeze({
   mode:shot.mode,offsets,
-  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0)-2.4*actionCloseness-1.2*guardianCloser-
-   (twoPlane?dualPlaneWarning.fovReduction:0),
+  fov:policy.fov+(portrait?(warning?6:closeDuel?2:4):0)-2.4*actionCloseness-1.2*guardianCloser,
   lookY:policy.aim+(approachNear*.18)+.15*threatCloser+.12*actionCloseness,
   following:reducedMotion?1:policy.follow+(approachNear*1.2),
   keyScale:policy.key,

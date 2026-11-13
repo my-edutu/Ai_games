@@ -9435,5 +9435,45 @@
     "plays": "UNVERIFIED",
     "transformedVerified": false,
     "next": "Restore original GLB editing+browser; integrated adult Vanguard-Revenant-Warden source-skinned anatomy and weighty full-body motion with genuine HP/contact/audio; re-film unheld desktop/mobile complete Warden/counter/defeat; profile GPU and 3 blinded critics. No merge/deploy."
+  },
+  "m1DualPlaneRealFilmRejection20261113": {
+    "date": "2026-11-13",
+    "branch": "feat/ai-dungeon-3d-gauntlet-foundation",
+    "baseline": "281735d0910c6b2443648af976003d50412ee324",
+    "inspectedHead": "ef31cb22228016f55cccb54033ef20d92008b16c",
+    "actualAfterRun": 43342929441,
+    "actualMobileArtifact": 14001151464,
+    "actualDesktopArtifact": 14000073697,
+    "comparatorBeforeSource": "00ebf82d3ebea3792da2485bb94295764ad402d3",
+    "comparatorBeforeArtifact": "dungeon-m1-00eb-mobile.zip",
+    "seed": "gauntlet-corpus-v1-0",
+    "viewport": "390x659 canvas, 390x844 browser",
+    "observation": "Real matched warning and release checkpoint crops remain essentially unchanged from 00eb; mobile warning still depicts miniature Warden, while counter shot changes substantially and crops part of foreground party. Pixel MAE across 390x659 source frames: WARNING 1.604, RELEASE 2.123, COUNTER 26.38 (0-255 channels). These image differences are descriptive, not proof of causality or frame-by-frame performance.",
+    "exactHeadUnheld": {
+      "mobileUnique": 445,
+      "desktopUnique": 697,
+      "totalAuthority": 946,
+      "missingMobileWarning": true,
+      "missingMobileCounter": true,
+      "missingDesktopRelease": true
+    },
+    "originalAudioTracks": "STEREO_OPUS_PRESENT_SYNC_UNVERIFIED",
+    "qa": {
+      "foundation": "AUTHORITY_PASS_BROWSER_2_OF_3",
+      "browserFailure": "ONE_SOURCE_CRANIAL_RATIO",
+      "catalogue": "1271_PASS_5_FAIL_INCLUDING_REAL_FOREGROUND_CAMERA_BEHAVIOR",
+      "independentCritics": 0
+    },
+    "reviewDecision": "REJECT_DUAL_PLANE_WARNING_CANDIDATE_UNPROVEN_MATERIAL_ACTOR_GAIN_WITH_CHANGED_COUNTER_COMPOSITION",
+    "sourceChange": "ROLL_BACK_EXACT_FIVE_DUAL_PLANE_SOURCE_AND_TEST_FILES_TO_PRIOR_VALIDATED_27CF_BLOBS; other changes preserved",
+    "codeAcceptance": "NOT_OBSERVED_AFTER_ROLLBACK",
+    "stage": "A_INCOMPLETE_B_ARTISTICALLY_REJECTED",
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "transformedVerified": false,
+    "blocker": "Shared source-asset/real browser development connector NOT_FOUND: Tunnel-client has not been seen for 300 seconds; independent workers unavailable",
+    "pr72": "3090f1c67d9b5255e800049706c7af8f62dd5630_SEPARATE_UNADOPTED",
+    "next": "Restore source-rig workspace; build ONE materially new original adult-skeletal Vanguard/Revenant/Warden GLB-and-motion exemplar, author attack/guard/hurt/death, inspect natural full-motion hand-to-blade and positive-HP-loss original audio on 1440/390, fix camera foreground obstruction, multi-seed and all-gate replay/CI, locked M1 baseline and >=3 blind critics. No merge/deploy/new PR."
   }
 }
