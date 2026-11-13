@@ -335,6 +335,9 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
   const [{createTowerWorld}]=await loaded;
   const oldFrame=old(), first=next();
   first.tick=454;
+  // The actual immutable F9 snapshot carries a standing/zero-vy roof contact;
+  // the generic geometry fixture intentionally omitted presentation state.
+  first.player={...first.player,state:'standing',vy:0};
   const crossing={
     runToken:oldFrame.runToken,sourceTick:451,fromFloor:8,toFloor:9,
     cap,exitX:gate,crossingX:gate+13000,crossingY:body.y,
