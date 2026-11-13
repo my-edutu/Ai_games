@@ -371,3 +371,61 @@ test('D04 block VFX requires one corroborated guarded HP loss, no invented block
  const absorbed={...valid,units:[hero({hp:30,action:'guard',guardTick:11}),foe()]};
  assert.equal(planPhysicalFeedback(old,absorbed).find(c=>c.kind==='block').actorId,null);
 });
+
+test('D04 diagnoses actual slow post-visual WebGL submissions without mistaking raw rAF interval for render cost',async()=>{
+ const {createPhysicalCombatFeedback,MAX_RECENT_SLOW_SUBMISSION_PHASES}=await load('physical-combat-feedback.js');
+ let now=0;
+ const visuals={emit:()=>false,advance(){now+=.020},reset(){},dispose(){},stats(){return {active:0}}};
+ const audio={enable:()=>true,emit:()=>true,disable(){},flush(){},cleanup(){},dispose(){},stats(){return {activeVoices:0}}};
+ const c=createPhysicalCombatFeedback({visualAdapter:visuals,audioAdapter:audio,
+  requirePresentedFrame:true,clock:()=>now});
+ try{
+  assert.equal(c.enableAudioFromGesture(),true);
+  now=.010;c.advance(.016,.016); // end at .030 (20ms in visual advance)
+  now=.160;c.acknowledgePresentedFrame(1,.025); // 130ms after visual, of which 25ms is renderer
+  let s=c.stats();
+  assert.equal(s.verifiedSubmissionPhaseFrames,1);
+  assert.equal(s.unverifiedSubmissionPhaseFrames,0);
+  assert.equal(s.slowSubmissionFrames,1);
+  assert.equal(s.limits.maxSlowSubmissionPhases,MAX_RECENT_SLOW_SUBMISSION_PHASES);
+  assert.deepEqual(s.recentSlowSubmissionPhases[0],{
+   frameId:1,observedRafMs:16,advanceToSubmissionMs:150,
+   d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+   beforeRendererMs:105,rendererMs:25
+  });
+  c.acknowledgePresentedFrame(1,.025);
+  assert.equal(c.stats().slowSubmissionFrames,1,'replayed submissions cannot inflate phase metrics');
+  now=.200;c.advance(.016,.016);now=.240;c.acknowledgePresentedFrame(2,.010);
+  s=c.stats();
+  assert.equal(s.verifiedSubmissionPhaseFrames,2);
+  assert.equal(s.slowSubmissionFrames,1,'ordinary frames do not enter the forensic slow-frame ring');
+  assert.equal(s.recentSlowSubmissionPhases.length,1);
+ }finally{c.dispose()}
+});
+test('D04 slow-frame attribution fails closed for clock regressions and is bounded under repeated stalls',async()=>{
+ const {createPhysicalCombatFeedback,MAX_RECENT_SLOW_SUBMISSION_PHASES}=await load('physical-combat-feedback.js');
+ let now=0,invalid=false;
+ const c=createPhysicalCombatFeedback({
+  visualAdapter:{advance(){now+=.01},emit(){return false},reset(){},dispose(){},stats(){return {active:0}}},
+  audioAdapter:{enable(){return true},emit(){return true},disable(){},flush(){},cleanup(){},dispose(){},stats(){return {activeVoices:0}}},
+  requirePresentedFrame:true,clock:()=>invalid?NaN:now
+ });
+ try{
+  c.enableAudioFromGesture();
+  now=.01;c.advance(.016,.016);invalid=true;now=.25;c.acknowledgePresentedFrame(1,.02);
+  let s=c.stats();
+  assert.equal(s.unverifiedSubmissionPhaseFrames,1);
+  assert.equal(s.verifiedSubmissionPhaseFrames,0);
+  assert.equal(s.recentSlowSubmissionPhases.length,0,'unverified clocks cannot fabricate a renderer phase');
+  invalid=false;
+  for(let i=2;i<MAX_RECENT_SLOW_SUBMISSION_PHASES+9;i++){
+   now+=.001;c.advance(.016,.016);
+   now+=.2;c.acknowledgePresentedFrame(i,.02);
+  }
+  s=c.stats();
+  assert.equal(s.recentSlowSubmissionPhases.length,MAX_RECENT_SLOW_SUBMISSION_PHASES);
+  assert.ok(s.recentSlowSubmissionPhases.every(x=>x.advanceToSubmissionMs>=200&&x.beforeRendererMs>=0));
+  assert.equal(s.slowSubmissionFrames,MAX_RECENT_SLOW_SUBMISSION_PHASES+7);
+  assert.equal(s.verifiedSubmissionPhaseFrames,MAX_RECENT_SLOW_SUBMISSION_PHASES+7);
+ }finally{c.dispose()}
+});
