@@ -259,7 +259,10 @@ test('a genuinely framed guardian duel retains continuous bounded camera AND foc
 });
 test('the real scene uses one duel budget for both camera and gaze, after recorded body projection', () => {
   const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
-  assert.match(source,/duelOrbitBudget = towerDuelOrbitBudget\(dt, camera\.aspect, scratch,/);
+  assert.match(source,/duelOrbitBudget = towerDuelOrbitBudget\(cameraDt, camera\.aspect, scratch,/);
+  assert.match(source,/const cameraDt = sourceSubmittedDoorwayCameraDt\(dt,coldArchLens,snapshot,options\)/);
+  assert.doesNotMatch(source,/duelOrbitBudget = towerDuelOrbitBudget\(dt, camera\.aspect, scratch,/,
+    'guardian duel must use the bounded source-qualified frame duration');
   assert.match(source,/followTowerCamera\(camera\.position, destination, cameraBlend, duelOrbitBudget\);/);
   assert.match(source,/followTowerFocus\(lookAt, focus, cameraBlend, duelOrbitBudget\);/);
   assert.match(source,/if \(initialized && !overview && !options\.reducedMotion &&/);

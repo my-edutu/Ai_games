@@ -8,7 +8,7 @@ import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
 import { readRenderedGuardianCenter, observedDrawnGuardianCameraAnchor } from './rendered-guardian-center.mjs';
 import { observedWoundedCapAirDuel } from './wounded-cap-duel.mjs';
-import { SCALE, pointFor, angleFor, guardianGateAnchorX } from './coordinates.mjs';
+import { SCALE, pointFor, angleFor, guardianGateAnchorX, guardianTraversalGatePose } from './coordinates.mjs';
 import { snapshotVelocity } from './motion.mjs';
 import { createRenderProgress } from './render-progress.mjs';
 import { createTowerFinale } from './finale.mjs';
@@ -2580,6 +2580,9 @@ export function createTowerScene(canvas, settings = {}) {
   let physicalThresholdFrameSourceBound = false;
   let sourceSubmittedDoorwayLimitedFrames = 0;
   let sourceSubmittedDoorwayLastStep = 0;
+  // Bounded observational evidence on returned native Three.js submissions.
+  const physicalDoorwaySubmissionAudit = [];
+  let physicalDoorwayAuditEpisode = null;
   const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
   const thresholdGaze = new THREE.Vector3(), thresholdPreviousGaze = new THREE.Vector3();
   const thresholdPreviousCamera = new THREE.Vector3(), thresholdBestCamera = new THREE.Vector3();
@@ -5021,6 +5024,79 @@ export function createTowerScene(canvas, settings = {}) {
       for (const entry of enemies.values()) {
         if (entry.impact.visible && entry.impactFramesRemaining > 0) entry.impactFramesRemaining--;
       }
+      // Diagnose the native F8 bronze to F9 violet discontinuity with the
+      // EXACT camera that actually submitted the frame. Do not age the
+      // original GPU gateway before recording its physical sightline.
+      // No second render, held pose, gameplay or authoritative movement.
+      const crossing = snapshot?.lastGuardianCrossing;
+      const liveBody = snapshot?.player;
+      if (!options.stale && snapshot?.lifecycle === 'running' &&
+          snapshot.floor === 9 && snapshot.theme === 'void' &&
+          crossing?.runToken === snapshot.runToken &&
+          crossing.fromFloor === 8 && crossing.toFloor === 9 &&
+          crossing.guardian?.kind === 'guardian' &&
+          crossing.guardian.active === false &&
+          Number.isSafeInteger(crossing.guardian.health) &&
+          crossing.guardian.health <= 0 &&
+          crossing.cap?.id === 'f8:cap' &&
+          [snapshot.tick, crossing.sourceTick, crossing.exitX,
+            crossing.cap.y, crossing.cap.height, liveBody?.halfHeight]
+            .every(Number.isSafeInteger) &&
+          liveBody.health > 0 && liveBody.halfHeight > 0 &&
+          snapshot.tick >= crossing.sourceTick &&
+          snapshot.tick - crossing.sourceTick <= 55) {
+        const episode = String(snapshot.runToken) + ':' + crossing.sourceTick;
+        if (physicalDoorwayAuditEpisode !== episode) {
+          physicalDoorwayAuditEpisode = episode;
+          physicalDoorwaySubmissionAudit.length = 0;
+        }
+        // One witness per genuine source tick, not every 60-Hz video frame.
+        if (physicalDoorwaySubmissionAudit.length < 56 &&
+            physicalDoorwaySubmissionAudit.at(-1)?.sourceTick !== snapshot.tick) {
+          const retained = world.retainedFilmHandoff?.(snapshot) ?? null;
+          const pose = guardianTraversalGatePose(
+            crossing.exitX, crossing.cap.y + crossing.cap.height,
+            snapshot.chunkBaseY, snapshot.worldWidth);
+          const heroWorld = climber.group.position.clone();
+          heroWorld.y += liveBody.halfHeight / SCALE;
+          const gateWorld = pose
+            ? new THREE.Vector3(pose.x, pose.y + 2, pose.z) : null;
+          const heroProjection = heroWorld.clone().project(camera);
+          const gateProjection = gateWorld?.clone().project(camera) ?? null;
+          const ndc = point => point
+            ? [point.x, point.y, point.z].map(v =>
+                Number.isFinite(v) ? Number(v.toFixed(4)) : null) : null;
+          const heroNdc = ndc(heroProjection);
+          const originalGateNdc = ndc(gateProjection);
+          const safePoint = n => !!n && n.every(Number.isFinite) &&
+            Math.abs(n[0]) <= .78 && Math.abs(n[1]) <= .76 &&
+            n[2] >= -1 && n[2] <= 1;
+          const heroCoreClear = towerCoreSightlineClear(
+            camera.position, heroWorld, 23.5);
+          const originalGateCoreClear = !!gateWorld &&
+            towerCoreSightlineClear(camera.position, gateWorld, 23.5);
+          const coldLens = retained
+            ? observedSourceBoundColdDoorwayLens(snapshot, retained,
+                climber.group.position, camera.aspect, zoom) : null;
+          physicalDoorwaySubmissionAudit.push({
+            sourceTick: snapshot.tick,
+            crossingTick: crossing.sourceTick, runToken: snapshot.runToken,
+            floor: snapshot.floor, cameraMode: options.camera,
+            returnedWebglMs: Number(rendererReturnedAt.toFixed(2)),
+            renderReturnCostMs: Number((rendererReturnedAt - sceneReadyAt).toFixed(2)),
+            retainedOriginalGpu: !!retained,
+            retainedSubmittedFrames: retained?.submittedFrames ?? null,
+            sourceOwnedColdLens: !!coldLens,
+            heroNdc, originalGateNdc, heroCoreClear, originalGateCoreClear,
+            bothInProjectedSafeFrame: safePoint(heroNdc) &&
+              safePoint(originalGateNdc) && heroCoreClear && originalGateCoreClear,
+            cameraAzimuth: Number(Math.atan2(
+              camera.position.x, camera.position.z).toFixed(4)),
+            opticalFov: Number(camera.fov.toFixed(3)),
+            evidence: 'Returned source-owned Three.js camera projection; not proof of native WebM pixels or visual quality',
+          });
+        }
+      }
       // First-frame budget advances only on returned real Three.js work.
       // A stalled, failed or unsubmitted scene cannot consume presentation.
       // The following frame's observe() changes scale and calls resize once.
@@ -5412,6 +5488,16 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
+      physicalDoorwaySubmissionAudit: {
+        episode: physicalDoorwayAuditEpisode,
+        source: 'first 56 unique source ticks with real WebGL returns after guardian victory',
+        frames: physicalDoorwaySubmissionAudit.map(frame => ({
+          ...frame,
+          heroNdc: frame.heroNdc?.slice() ?? null,
+          originalGateNdc: frame.originalGateNdc?.slice() ?? null,
+        })),
+        limitation: 'Projected scene coordinates are not native pixels, qualitative acceptance or actual-device FPS',
+      },
       cameraRayMeshOwners: observedCameraMeshOwners(),
       cameraRayMeshOwnerAudit: {
         requested: typeof window !== 'undefined' &&

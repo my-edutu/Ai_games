@@ -9840,5 +9840,25 @@
     "nextHighestImpactAction": "Inspect exact-source candidate first 22-31s at 1x with original source/browser/Three/native PTS, measure first cold camera step and body/gate/deck projection both viewports. If no continuous same-body-through-original-arch shot, rebuild physical world/camera occlusion and shared depth rather than modifying decorative timers.",
     "review": "docs/reviews/2026-11-13-tower-pr68-submitted-frame-camera-cadence-vs-native-cut.md",
     "safety": "Frozen baseline intact; PR68 stays open draft based on PR58; never merge, deploy, force push, modify PR58 or other games"
+  },
+  "p0ReturnedWebglPhysicalGatewayProjectionAudit20261113": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHead": "7d3e4ff9feeb58693c5eeabc6a5fb149f8244a93",
+    "candidateSourceSha": "Exact immutable github.sha of this evidence commit; do not use floating branch",
+    "previousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43419122971",
+    "previousFullCycleEvidence": "All eight original 60s+ recordings, 8/8 source stories; strict video event pairing 0/2 viewports",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43419122920 — failed stale cameraDt regex in two phase3 partitions, not green",
+    "meaningfulUnblocker": "Returned-WebGL bounded source-pinned original gateway+live body camera NDC, core rays, arch GPU witness, FOV and submission elapsed diagnostic, before aging original world. Two stale CI test contracts repaired.",
+    "nextAction": "Inspect 22–32s original native candidate desktop/portrait with physicalDoorwaySubmissionAudit first F9 submitted tick and fix real missing GPU geometry vs camera vs raster occlusion. Prove authentic Floor9/restart; no acceptance or reviewer fabrication.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-returned-webgl-physical-doorway-audit.md",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "safety": "No other games, PR58 edits, baseline move, merge, deploy, force-push or draft promotion"
   }
 }

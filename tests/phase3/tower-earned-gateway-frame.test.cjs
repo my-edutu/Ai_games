@@ -51,7 +51,10 @@ test('shipped 3D follow camera and source diagnostics support later guardian cap
   const fs=require('node:fs');
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/camera\.aspect > 0 && camera\.aspect < 2\.5/);
-  assert.match(scene,/earnedGatewayEscortResponse\(camera\.aspect, dt\)/);
+  assert.match(scene,/earnedGatewayEscortResponse\(camera\.aspect, cameraDt\)/);
+  assert.match(scene,/const cameraDt = sourceSubmittedDoorwayCameraDt\(dt,coldArchLens,snapshot,options\)/);
+  assert.doesNotMatch(scene,/earnedGatewayEscortResponse\(camera\.aspect, dt\)/,
+    'the earned door and living body share one source-qualified camera submission clock');
   assert.match(scene,/const earnedSource = !options\.stale &&/);
   assert.doesNotMatch(scene,/const earnedSource = snapshot\?\.floor === 8/);
 });
