@@ -60,7 +60,7 @@ export function createPhysicalCombatFeedback({
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
    receiptRenderSubmissionSeconds=null,latestTrustedClock=null,
    lastVisualAdvanceStartClock=null,lastVisualAdvanceEndClock=null,
-   lastFullVisualAdvanceEndClock=null,lastPostEmissionWallClock=null,
+   lastFullVisualAdvanceEndClock=null,lastPostEmissionWallClock=undefined,
    visualAdvanceSerial=0,recordedVisualAdvanceSerial=0,
    lastObservedActualFrameSeconds=null,
    verifiedSubmissionPhaseFrames=0,unverifiedSubmissionPhaseFrames=0,
@@ -613,7 +613,7 @@ export function createPhysicalCombatFeedback({
    const afterEmit=hasHp?observedWallClock():null;
    // The identical shared post-emission clock doubles as phase evidence.
    // Simultaneous real HP losses must not cause a new clock read per victim.
-   if(afterEmit!==null)lastPostEmissionWallClock=afterEmit;
+   if(hasHp)lastPostEmissionWallClock=afterEmit;
    for(const item of staged)
     finishEmittedCue(item.cue,item.visual,item.plannedAudioEpoch,
      item.observedActionAt,afterEmit);
@@ -706,7 +706,7 @@ export function createPhysicalCombatFeedback({
    lastVisualAdvanceStartClock=wallNow;
    lastVisualAdvanceEndClock=null;
    lastFullVisualAdvanceEndClock=null;
-   lastPostEmissionWallClock=null;
+   lastPostEmissionWallClock=undefined;
    for(const item of pending){
     if(!item.freshlyObserved)continue;
     item.freshlyObserved=false;
@@ -736,7 +736,8 @@ export function createPhysicalCombatFeedback({
   // A failed/non-monotonic final clock makes this diagnostic unverified;
   // it never changes audio consent, HP proof or the 400ms impact deadline.
   if(requirePresentedFrame)lastFullVisualAdvanceEndClock=
-   lastPostEmissionWallClock??observedWallClock();
+   lastPostEmissionWallClock!==undefined?
+    lastPostEmissionWallClock:observedWallClock();
   safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
