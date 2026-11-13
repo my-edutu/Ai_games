@@ -1205,7 +1205,15 @@ export function createMazeWorld(options = {}) {
       const guardianCourtCell=guardianSightlines.has(c.cell) && !pressureSightline
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell && !s.keys.some(k=>k.cell===c.cell);
-      const guardianQuietRingCell=guardianQuietRing.has(c.cell) && !pressureSightline
+      // Source-native Pass341 evidence changed only 0.7017/255 in the 390px
+      // encounter: an ACTUAL publicly visible spectator is also inside the
+      // broad two-cell pressure *proximity* ring. Proximity is not pressure
+      // machinery. Reserve the witnessed guardian's negative space even when
+      // these two scenic envelopes overlap. This flag ONLY omits optional tall
+      // wall/pennant/foliage dressing; it never suppresses the real trap, its
+      // moving jaws, connected approaches, solid walls, navigation or doors.
+      // An actually known hazard cell and all objectives stay protected.
+      const guardianQuietRingCell=guardianQuietRing.has(c.cell)
         && !c.trap && !c.checkpoint && !c.clue && c.cell!==s.exitCell
         && !s.keys.some(k=>k.cell===c.cell);
       if(guardianCourtCell)guardianCourtTiles++;
