@@ -1027,6 +1027,16 @@ for(const view of [
   expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
   expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
   expect(proof.afterToeY).toBeGreaterThan(proof.beforeToeY);
+  // Only a genuinely measured >=15% relief justifies moving the source
+  // knuckle if this toe remains >25mm buried in the original dungeon stone.
+  // Previous real desktop 6.283mm / ~69mm did not earn this gate; it
+  // represented an isolated 100mrad cosmetic toe bend, not real clearance.
+  if(proof.afterToeY<-.045){
+   const beforeBurial=-.02-proof.beforeToeY;
+   expect(beforeBurial).toBeGreaterThan(.025);
+   expect(proof.afterToeY-proof.beforeToeY).toBeGreaterThanOrEqual(
+    beforeBurial*.15-.00001);
+  }
   // Exact source toe residual in real mobile entry was 7.94mm below
   // the actual -20mm stone at 85.5% Walking_A blend. A new optional
   // partial-source toe-hinge receipt cannot claim a deep-stone rescue:
