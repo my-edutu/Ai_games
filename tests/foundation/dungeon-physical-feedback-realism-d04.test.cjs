@@ -838,7 +838,7 @@ test('D04 visible HP body must match the unique current public injury witness be
  const check=(snapshot,body,expected,message)=>{
   stage.reset();current=snapshot;actor.u=body;
   assert.equal(stage.emit(original),expected,message);
-  assert.equal(stage.stats().instancesByPool.hit,expected?6:0,
+  assert.equal(stage.stats().instancesByPool.hit,expected?5:0,
    'no unverified injury fragments may remain in retained GPU pools');
  };
  try{
