@@ -61,3 +61,26 @@ test('safe-zone placement is finite, bounded and hysteretic for live motion',asy
  assert.match(app,/placeWardenThreatInset\(\)/);
  assert.match(app,/planThreatInsetSafeZone\(/);
 });
+
+test('genuine adjacent mobile Warden gains a bounded original 3D view while the inset retains 23 true cells',async()=>{
+ const {planWardenThreatInset,planWardenDualPlaneWarning}=await load();
+ const s=state(),before=JSON.stringify(s);
+ s.units[1].x=8;s.units[1].z=9;
+ const unchanged=JSON.stringify(s),full=planWardenThreatInset(s);
+ const close=planWardenDualPlaneWarning(s,{width:390,height:658,cinematic:true});
+ assert.ok(close);assert.equal(close.originalCellCount,23);
+ assert.equal(full.cells.length,23);assert.ok(close.cells.length<23&&close.cells.length>0);
+ for(const cell of close.cells)assert.ok(full.cells.some(c=>c.x===cell.x&&c.z===cell.z));
+ assert.ok(close.radiusScale<.8&&close.heightScale<.8);
+ assert.equal(JSON.stringify(s),unchanged);
+});
+test('manual desktop reduced-motion and missing or remote real Warden cannot shrink danger',async()=>{
+ const {planWardenDualPlaneWarning:choose}=await load();
+ const s=state(),dims={width:390,height:658,cinematic:true};
+ assert.equal(choose(s,{...dims,cinematic:false}),null);
+ assert.equal(choose(s,{...dims,width:1440}),null);
+ assert.equal(choose(s,{...dims,reducedMotion:true}),null);
+ assert.equal(choose({...s,bossWarning:null},dims),null);
+ assert.equal(choose({...s,tick:warning.attackTick},dims),null);
+ assert.equal(choose({...s,units:s.units.map(u=>u.faction==='party'?{...u,x:0,z:0}:u)},dims),null);
+});
