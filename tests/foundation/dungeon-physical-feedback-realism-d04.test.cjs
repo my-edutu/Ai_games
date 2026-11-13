@@ -63,6 +63,10 @@ test('new physical blade streak geometry is tapered, bounded and shared; actual 
 test('authentic injured body interpolates within its own current cell without losing HP-only contact art',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
+ const OriginalPose=T.Object3D;
+ T.Object3D=class extends OriginalPose{
+  updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,z:this.position.z}}
+ };
  const unit={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:12};
  let snapshot={run:1,floor:1,tick:11,units:[unit]};
  // The actual character rig has not yet reached its newly observed cell:
@@ -77,6 +81,11 @@ test('authentic injured body interpolates within its own current cell without lo
   assert.equal(stage.emit(cue()),true,
    'a known injured victim within one legitimate cell-step retains body-local hit art');
   assert.ok(stage.stats().instancesByPool.hit>=4);
+  const hitMesh=[...scene.children][1]; // fixed pool order: trail then hit
+  assert.equal(hitMesh.matrices[0].x,actor.root.position.x,
+   'the first damage fragment starts at the actual drawn body, not at the unoccupied destination cell');
+  assert.equal(hitMesh.matrices[0].y,1.12,
+   'victim-local chest height is used during interpolation');
   stage.reset();
   actor.root.position.x=-8.02;
   assert.equal(stage.emit(cue()),false,
