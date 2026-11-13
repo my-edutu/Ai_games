@@ -486,7 +486,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(cold(realFirstRender,ownedSourceWitness),true);
     assert.equal(world.diagnostics().deferredDistantArrival?.structureDeferred,true);
     world.noteFrameSubmitted(realFirstRender,{});
-    const later={...realFirstRender,tick:461};
+    const later={...realFirstRender,tick:461,
+      player:{...realFirstRender.player,x:gate+29000}};
     world.update(later,.05,.1,{quality:'low'},
       {...passage,handoffSubmittedFrames:1,handoffDisplaySeconds:.05});
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
@@ -495,7 +496,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'the new opaque monumental shaft cannot replace the original first doorway');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
-      'successfully returned frames blend the real landing toward void, not a painted static proxy');
+      'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
     assert.equal(world.diagnostics().retainedSourceCap?.sharedPhysicalRoofColor,
       sharedSurface.material.color.getHexString());
     // Under the source-authenticated handoff the heavy violet shaft stays

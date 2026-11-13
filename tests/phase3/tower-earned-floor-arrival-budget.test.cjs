@@ -16,6 +16,7 @@ const raw=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/wo
 const source=raw.replace("'/tower/vendor/three.module.js'",JSON.stringify(three))
   .replace("'./coordinates.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/coordinates.mjs')))
   .replace("'./crossfloor-arrival.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href))
+  .replace("'./source-physical-arrival-palette.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href))
   .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/world-surface.mjs')))
   .replace("'./guardian-transmission-layout.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')))
