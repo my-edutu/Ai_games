@@ -7,13 +7,18 @@ export function publicGuardianDuelCameraElevation(aspect,strength,beat,reducedMo
   if(reducedMotion || !Number.isFinite(aspect) || aspect<.35 || aspect>=.60
     || !Number.isFinite(strength) || strength<=.70
     || !Number.isFinite(beat) || beat<=0 || beat>1)return neutral;
-  // Smooth the verified high recognition into a lower true 3D shot as
-  // Thornback's connected foreclaws brace and its original shell unseals.
-  // No zoom, crop, extra renderer resources or new gameplay event.
+  // Exact-source Pass329 390px brace/release frames still view the shell and
+  // Pip's planted boots mostly from above; the four linked court signals
+  // hide their physical warning profile. Make the already WITNESSED warning
+  // -> brace -> release an authored three-quarter LOWER reveal, not a new
+  // event or private-map camera request. Its 21 -> 13.57 -> 11.5 elevation
+  // is smooth, bounded and stable at full release. Native physical full-body
+  // +/- .95 and HUD occlusion gates must approve the actual scene, not us.
+  // No zoom, altered actor roots, renderer resources or game authority.
   const attention=Math.max(0,Math.min(1,(strength-.70)/.10));
-  const t=Math.max(0,Math.min(1,(beat-.10)/.68));
+  const t=Math.max(0,Math.min(1,(beat-.07)/.60));
   const reveal=t*t*(3-2*t);
-  return neutral-6.2*attention*reveal;
+  return neutral-9.5*attention*reveal;
 }
 
 // Source-bound, full-mesh portrait pairing. The host already proved a

@@ -13,9 +13,9 @@ test('Pass308 native 390 public guardian performance moves its physical lens onl
  const aspect=390/844,strength=.818181818;
  const first=e(aspect,strength,.00198,false),brace=e(aspect,strength,.48889,false),release=e(aspect,strength,.89953,false);
  assert.equal(first,21,'first public warning uses original high view');
- assert.ok(brace<18.3&&brace>15.2,'real planted foreclaws earn a visible profile shot');
- assert.ok(release<15.1&&release>14.7,'real shell opening holds a still lower profile');
- assert.ok(first-brace>2&&brace-release>2,'not three near-identical overhead frames');
+ assert.ok(brace<13.7&&brace>13.45,'real planted foreclaws earn a strong lower profile shot');
+ assert.ok(release<11.55&&release>11.45,'real shell opening holds the complete lower three-quarter pose');
+ assert.ok(first-brace>7&&brace-release>1.8,'notice, brace and release require distinct real optical presentations');
  assert.equal(e(aspect,strength,1,false),release,'release holds a stable final shot');
  assert.equal(e(aspect,strength,.89953,false),release,'same original public beat replays deterministically');
 });
@@ -97,4 +97,25 @@ test('Pass309 production source reads only actual public 3D actors, preserves ex
  assert.match(scene,/root\.traverseVisible\(mesh=>/);
  assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(\s*aspect,closestThreat\.strength,targetHeight,halfHeight,realBodies/);
  assert.doesNotMatch(scene,/privateMaze.*closestThreatModel|secretRoute.*closestThreatModel/);
+});
+
+test('Pass330 observed guardian camera has a continuous real warning-to-brace trajectory and clears invalid/hidden beats',async()=>{
+ const {publicGuardianDuelCameraElevation:e}=await camera();
+ const aspect=390/844, strength=.818181818;
+ const at=[.00198,.07,.08,.18,.29,.39,.48889,.58,.67,.89953,1]
+   .map(beat=>e(aspect,strength,beat,false));
+ assert.equal(at[0],21);
+ assert.equal(at[1],21,'no camera anticipation before a real published warning');
+ for(let i=1;i<at.length;i++)assert.ok(at[i]<=at[i-1]+1e-9,
+   'camera may descend but never bounce higher in the witnessed sequence');
+ assert.ok(at.every(value=>Number.isFinite(value)&&value>=11.5&&value<=21),
+   'the original three-quarter guardian orbit stays physically bounded');
+ assert.ok(Math.abs(e(aspect,strength,.071,false)-e(aspect,strength,.07,false))<.01,
+   'no cut at the first public camera transition');
+ assert.ok(Math.abs(e(aspect,strength,.669,false)-e(aspect,strength,.67,false))<.01,
+   'no cut at the completed physical reveal');
+ assert.equal(e(aspect,strength,.89953,true),21,
+   'reduced motion preserves the familiar static angle');
+ assert.equal(e(aspect,0,.89953,false),21,
+   'a hidden/unobserved guardian cannot trigger a cinematic');
 });
