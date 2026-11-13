@@ -91,6 +91,53 @@ function scan(arm,mode,manifest){
  * did not witness a frame; it cannot prove that WebGL never rendered it.
  * Treat warmup and effect-density groups as correlations, never causality.
  */
+// Summarize *observed* bounded D04 phase receipts sampled from real Chrome.
+// Serial browser arms, 80ms sampling and software WebGL cannot certify GPU
+// completion, a specific attacker, impact-to-PCM onset or D04 causation.
+function slowPhaseEvidence(frames){
+ const seen=new Map(),poisoned=new Set();
+ let samplesWithCounters=0,rejectedRecords=0,duplicateSamplesSuppressed=0;
+ let latestCumulativeSlowFrames=null,latestVerifiedFrames=null,
+  latestUnverifiedFrames=null;
+ for(const s of frames){
+  if(!safe(s.slowSubmissionFrames)||!safe(s.verifiedSubmissionPhaseFrames)||
+   !safe(s.unverifiedSubmissionPhaseFrames)||
+   !Array.isArray(s.recentSlowSubmissionPhases))continue;
+  samplesWithCounters++;
+  latestCumulativeSlowFrames=s.slowSubmissionFrames;
+  latestVerifiedFrames=s.verifiedSubmissionPhaseFrames;
+  latestUnverifiedFrames=s.unverifiedSubmissionPhaseFrames;
+  const ring=s.recentSlowSubmissionPhases;
+  if(ring.length>32){rejectedRecords+=ring.length;continue}
+  for(const r of ring){
+   const shape=r&&positive(r.frameId)&&r.frameId<=s.frameId&&
+    (r.observedRafMs===null||safe(r.observedRafMs))&&
+    safe(r.advanceToSubmissionMs)&&r.advanceToSubmissionMs>=100&&
+    safe(r.d04VisualAdvanceMs)&&safe(r.afterVisualToSubmissionMs)&&
+    Math.abs(r.d04VisualAdvanceMs+r.afterVisualToSubmissionMs-
+     r.advanceToSubmissionMs)<=2&&
+    ((r.beforeRendererMs===null&&r.rendererMs===null)||
+     (safe(r.beforeRendererMs)&&safe(r.rendererMs)&&
+      Math.abs(r.beforeRendererMs+r.rendererMs-r.afterVisualToSubmissionMs)<=2));
+   if(!shape||poisoned.has(r?.frameId)){rejectedRecords++;continue}
+   const k=r.frameId,prior=seen.get(k);
+   if(prior){
+    if(JSON.stringify(prior)===JSON.stringify(r))duplicateSamplesSuppressed++;
+    else{rejectedRecords++;seen.delete(k);poisoned.add(k)}
+   }else seen.set(k,r);
+  }
+ }
+ const ordered=[...seen.values()].sort((a,b)=>b.advanceToSubmissionMs-
+  a.advanceToSubmissionMs);
+ const worst=ordered.length?{...ordered[0]}:null;
+ return {status:samplesWithCounters===0?'NO_BROWSER_PHASE_SAMPLES':
+    ordered.length?'OBSERVED_BOUNDED_PHASE_RECEIPTS':'NO_SLOW_PHASE_RECEIPTS_OBSERVED',
+  samplesWithCounters,uniqueVerifiedSlowFrames:ordered.length,
+  rejectedRecords,duplicateSamplesSuppressed,
+  latestCumulativeSlowFrames,latestVerifiedFrames,latestUnverifiedFrames,
+  worst,causedByD04:null,sampleSynchronized:false,
+  caveat:'Frame CPU-phase intervals only, not GPU completion or measured sample-accurate impact audio. Missing receipts may be an 80ms sampler gap.'};
+}
 function summarizeFramePressure(scanResult,manifest){
  const indexByKey=new Map(manifest.map(m=>[key(m.scene),m.stageIndex]));
  const sampled=scanResult.frames.map(s=>({...s,stageIndex:indexByKey.get(key(s.scene))}));
@@ -122,6 +169,7 @@ function summarizeFramePressure(scanResult,manifest){
   skippedAuthorityStagesBetweenSamples:skipped,
   diagnosticUnobservedHpLossStageIndices:missingDamage,
   renderCallsOver400Ms:sampled.filter(s=>s.directRenderMs>400).length,
+  slowPhaseEvidence:slowPhaseEvidence(sampled),
   vfxInstancePressure,
   warmupRenderMs:stats(sampled.slice(0,2).map(s=>s.directRenderMs)),
   postWarmupRenderMs:stats(sampled.slice(2).map(s=>s.directRenderMs)),
