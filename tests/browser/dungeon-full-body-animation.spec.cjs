@@ -703,6 +703,16 @@ for(const view of [
     proof.before?.[side]?.toeY-.001501);
   }else{
    expect(proof.improvementMeters).toBeGreaterThanOrEqual(.004);
+   // Genuine original-GLB source thigh trials must purchase meaningful
+   // clearance, not merely rotate an adult limb while its airborne toe
+   // remains deeply beneath stone. This verifies the *actual* final
+   // skinned toe in desktop and 390px Chromium, not a synthetic test pose.
+   const burialBefore=-.02-proof.before?.[side]?.toeY;
+   const burialAfter=-.02-proof.after?.[side]?.toeY;
+   if(Number.isFinite(burialBefore)&&Number.isFinite(burialAfter)&&
+    burialAfter>.025)
+    expect(proof.improvementMeters+.000001).toBeGreaterThanOrEqual(
+     burialBefore*.10);
   }
   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.135001);
   if(Math.abs(proof.angleRad)>.090001){
