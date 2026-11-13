@@ -75,15 +75,20 @@ test('partial original sword-clip crossfade must keep a visible connected body c
   const fade=[0,.10,.25,.40,.60,.80,1].map(sourceBlend=>
    pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend}));
   for(let i=1;i<fade.length;i++){
-   const priorSpineMagnitude=Math.abs(fade[i-1].spine.yaw);
-   const nextSpineMagnitude=Math.abs(fade[i].spine.yaw);
-   assert.ok(Number.isFinite(priorSpineMagnitude)&&Number.isFinite(nextSpineMagnitude),
-    kind+': source crossfade must produce finite numeric spine ownership');
-   assert.ok(nextSpineMagnitude>=priorSpineMagnitude,
-    kind+': original sword spine monotonicity failed at fade '+i+
-    ' (raw '+fade[i-1].spine.yaw+' -> '+fade[i].spine.yaw+
-    ', magnitudes '+priorSpineMagnitude+' -> '+nextSpineMagnitude+
-    ', compare='+(nextSpineMagnitude>=priorSpineMagnitude)+')');
+   const sourceShare=[0,.10,.25,.40,.60,.80,1][i];
+   const previousShare=[0,.10,.25,.40,.60,.80,1][i-1];
+   const sourceSpineMagnitude=Math.abs(full.spine.yaw);
+   const previousSpineMagnitude=Math.abs(fade[i-1].spine.yaw);
+   const currentSpineMagnitude=Math.abs(fade[i].spine.yaw);
+   assert.ok(Number.isFinite(currentSpineMagnitude)&&Number.isFinite(previousSpineMagnitude),
+    kind+': imported source blend must yield finite spine magnitudes');
+   // Exact source ownership must be linear: this is STRICTER than a bare
+   // monotonic check, which can pass invalid oversized/sudden crossfades.
+   // Four-decimal numeric rounding allows at most one rounding unit.
+   assert.ok(Math.abs(currentSpineMagnitude-sourceSpineMagnitude*sourceShare)<=.00015&&
+    Math.abs(previousSpineMagnitude-sourceSpineMagnitude*previousShare)<=.00015,
+    kind+': genuine source spine must retain linear post-mixer ownership at fade '+i+
+    ', expected '+sourceSpineMagnitude*sourceShare+' got '+currentSpineMagnitude);
    assert.ok(Math.abs(fade[i].root.z-fade[i-1].root.z)<.065,
     'a later source crossfade cannot teleport the source-skinned support feet');
   }
