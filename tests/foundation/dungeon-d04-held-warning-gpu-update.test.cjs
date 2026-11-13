@@ -290,3 +290,39 @@ test('a newly admitted but still unmeasured sword must not dirty its hidden GPU 
   assert.equal(visual.stats().drawCalls,7);
  }finally{visual.dispose()}
 });
+
+
+test('idle D04 retained pools skip untouched slot scans but still admit new real warnings',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ let latest=snapshot(11);
+ const visual=createPhysicalFeedbackVisuals(THREE,scene,{getCurrentSnapshot:()=>latest});
+ try{
+  const initial=meshes.map(mesh=>mesh.matrixWrites);
+  for(let i=0;i<12;i++)visual.advance(.016,.016);
+  const idle=visual.stats();
+  assert.equal(idle.idleAdvanceSkips,12,
+   'every wholly empty frame should bypass all 102 reserved instance slot scans');
+  assert.equal(idle.advanceFrames,12,'skipped frames still contribute to bounded diagnostics');
+  assert.equal(idle.lastAdvanceMatrixWrites,0);
+  assert.equal(idle.lastAdvanceDirtyPools,0);
+  assert.equal(idle.lastAdvancePotentialBufferBytes,0);
+  assert.deepEqual(meshes.map(mesh=>mesh.matrixWrites),initial);
+  assert.equal(Object.keys(idle.lastAdvanceWritesByPool).length,7);
+  assert.ok(Object.values(idle.lastAdvanceWritesByPool).every(n=>n===0));
+  assert.equal(visual.emit(cue),true,
+   'a fresh verified Warden marker must be drawable immediately after idle');
+  visual.advance(.05,.05);
+  assert.equal(visual.stats().idleAdvanceSkips,12,
+   'an active hazard must NEVER take the all-idle fast path');
+  assert.equal(visual.stats().instancesByPool.signal,1);
+  assert.equal(meshes[4].visible,true);
+  latest=snapshot(11,false);
+  visual.advance(.016,.016);
+  assert.equal(visual.stats().active,0);
+  visual.advance(.016,.016);
+  assert.equal(visual.stats().idleAdvanceSkips,13,
+   'return to idle only after authoritative warning cleanup');
+  assert.equal(visual.stats().lastAdvanceDirtyPools,0);
+ }finally{visual.dispose()}
+});
