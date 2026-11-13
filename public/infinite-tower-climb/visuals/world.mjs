@@ -7,6 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
+import { observedSourcePhysicalArrivalPalette } from './source-physical-arrival-palette.mjs';
 
 
 /**
@@ -1833,7 +1834,7 @@ export function createTowerWorld(){
   function buildPlatform(p,width,guardianCap=false){
     const root=new THREE.Group();root.name=`platform:${p.id}`;floorGroup.add(root);
     const angle=p.width/width*ARC,h=p.height/SCALE;
-    const bodyMaterial=theme==='ruins'?materials.stone:theme==='void'?materials.crystal:theme==='clockwork'?materials.copper:materials.metal;
+    const sourceBodyMaterial=theme==='ruins'?materials.stone:theme==='void'?materials.crystal:theme==='clockwork'?materials.copper:materials.metal;
     // REAL successor ground uses its EXISTING collision-aligned roof. While
     // the identical old bronze cap and HP-opened gate share this physical
     // threshold, gradually acclimatize only its landing material. No extra
@@ -1842,6 +1843,13 @@ export function createTowerWorld(){
       retainedEarnedCap?.floor===9 &&
       retainedEarnedCap.runToken===lastSnapshot?.runToken &&
       retainedEarnedCap.originalDeckSurface?.color;
+    const bodyMaterial=sharedPhysicalRoof?sourceBodyMaterial.clone():sourceBodyMaterial;
+    const arrivalRim=sharedPhysicalRoof?materials.copper.clone():null;
+    const arrivalSourceBronze=sharedPhysicalRoof?
+      retainedEarnedCap.originalDeckSurface.color.clone():null;
+    if(sharedPhysicalRoof){
+      floorMaterials.add(bodyMaterial);floorMaterials.add(arrivalRim);
+    }
     const arrivalSurface=sharedPhysicalRoof?materials.landing.clone():null;
     if(arrivalSurface){
       arrivalSurface.name='SourceEarnedSharedPhysicalArrivalRoof';
@@ -1853,7 +1861,7 @@ export function createTowerWorld(){
     mesh(root,sector(22.45,27.05,angle,.48),bodyMaterial,[0,h-.64,0]).userData.structural=true;
     mesh(root,sector(22.5,26.97,angle,.10),materials.dark,[0,h-.74,0]);
     mesh(root,sector(22.4,27.18,angle,.16),arrivalSurface||materials.landing,[0,h-.16,0]);
-    mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:materials.copper,[0,h-.27,0]);
+    mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
     mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
     for(let i=0;i<count;i++){
@@ -1881,7 +1889,7 @@ export function createTowerWorld(){
     // Two broad ceramic corners identify a usable landing; all upper vertices
     // terminate at exactly p.y + p.height and never invent a raised collider.
     const landingMarks=[];for(const a of [-angle*.35,angle*.35])landingMarks.push(at(a,26.45,h-.009,[.16,.018,.55]));
-    instanced(root,box(),p.kind==='moving'?materials.mint:materials.copper,landingMarks);
+    instanced(root,box(),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),landingMarks);
     const faceCount=Math.max(2,Math.round(angle*25/3.4));
     if(theme==='ruins'){
       const rock=[],moss=[];
@@ -2150,7 +2158,14 @@ export function createTowerWorld(){
       root.add(traveler,countergear,actuator,gearVisual);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,capLandingMaterial,arrivalSurface,guardianGate,traveler,countergear,actuator,gearVisual,
+      capMaterials,capLandingMaterial,arrivalSurface,
+      // The actual F9 support has its own original bronze-to-violet materials;
+      // shared crystals, danger indicators and future landing platforms do not.
+      arrivalPalette:arrivalSurface?{
+        bronze:arrivalSourceBronze,top:arrivalSurface,topVoid:materials.landing.color.clone(),
+        body:bodyMaterial,bodyVoid:sourceBodyMaterial.color.clone(),
+        rim:arrivalRim,rimVoid:materials.copper.color.clone()}:null,
+      guardianGate,traveler,countergear,actuator,gearVisual,
       motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
@@ -2797,6 +2812,19 @@ export function createTowerWorld(){
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
+    // This is the SAME real Floor9 platform that the authoritative player
+    // walks on. Unlike the old 1.25s display-only fade, source distance
+    // from the genuine bronze sill drives a coherent top/beam/rim material
+    // handoff even after a slow first WebGL frame. No route or collider edit.
+    const arrivalDeck=platforms.get('f9:ground')?.arrivalPalette;
+    if(arrivalDeck){
+      const proof=!options.stale && !options.reducedMotion
+        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
+      const w=proof?.oldWeight??0;
+      arrivalDeck.top.color.copy(arrivalDeck.topVoid).lerp(arrivalDeck.bronze,w);
+      arrivalDeck.body.color.copy(arrivalDeck.bodyVoid).lerp(arrivalDeck.bronze,.82*w);
+      arrivalDeck.rim.color.copy(arrivalDeck.rimVoid).lerp(arrivalDeck.bronze,.48*w);
+    }
     const arrival=deferredDistantArrival;
     function appendDeferredVista(arrival) {
       const began=performance.now();

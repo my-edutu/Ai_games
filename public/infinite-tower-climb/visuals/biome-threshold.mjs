@@ -10,8 +10,15 @@
 // never start a second timer, duplicate a gate, or claim native-video proof.
 import { observedSourceEarnedColdFrameContinuation,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
+import { observedSourcePhysicalArrivalPalette } from './source-physical-arrival-palette.mjs';
 
 export function observedGroundedBiomeThreshold(frame, passage, options = {}, retainedCap = null) {
+  // Anchor the horizon to the SAME real distance-from-bronze-sill as the
+  // actual F9 platform top, beams and edge. Slow WebGL may have retired its
+  // original gateway presentation before pixels reached the viewer; this
+  // source-backed corridor still keeps both environmental palettes coherent.
+  const spatial=(!options?.stale && !options?.reducedMotion)
+    ?observedSourcePhysicalArrivalPalette(frame,retainedCap):null;
   // The visually first F9 frame may arrive after the nonauthoritative passage
   // animation cue expired. The ACTUAL old cap still has source-and-GPU proof:
   // ease sky/fog/lights from warm bronze instead of instant full-void purple.
@@ -23,8 +30,14 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
       retainedCap.visibleSeconds/1.25));
     const smooth=progress*progress*(3-2*progress);
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
-      oldWeight:1-smooth,progress,sourceBound:true,
+      oldWeight:Math.max(1-smooth,spatial?.oldWeight??0),progress,sourceBound:true,
       limitation:'Actual same-run old-cap geometry and submitted frame clock; native pixels NOT EVALUATED'};
+  }
+  if(spatial && (!passage || passage.stage!=='handoff')){
+    return {from:'clockwork',to:'void',sourceTick:frame.tick,
+      oldWeight:spatial.oldWeight,progress:spatial.progress,
+      sourceBound:true,
+      limitation:'The real crossed sill and source distance color the drawn horizon, not native-film acceptance'};
   }
   const p=frame?.player;
   if (options?.stale || options?.reducedMotion ||
@@ -55,7 +68,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   const smooth=progress*progress*(3-2*progress);
   return {
     from:'clockwork',to:'void',sourceTick:frame.tick,
-    oldWeight:1-smooth,progress,
+    oldWeight:Math.max(1-smooth,spatial?.oldWeight??0),progress,
     sourceBound:true,
     limitation:'Submitted-frame clock and source-backed arch only; NOT proof of native pixels, physical passage or preference',
   };
