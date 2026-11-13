@@ -10057,5 +10057,29 @@
     "outcomeThisRun": "Verified quality blocker unblocked: real-world retained gateway and floor-nine 13/13 cases pass, no failed assertions hidden. Game code not changed and cinematic acceptance NOT passed.",
     "verifiedCIStatus": "FAILED overall; phase6-0 Maze timeout outside the expressly restricted Tower-only ownership.",
     "strictlyOriginalNativeEventAcceptance": "0/2 viewport at earlier candidate 8ee2f43b and 43466814378 eight true films; sudden old bronze to new violet scene cut at 24.5–25.5s."
+  },
+  "p0SourceOriginalGatewayLoadPaths20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "inspectedInitialHead": "1050716f1d9f8750d8722ef803580a871a6d4d93",
+    "meaningfulRealSourceRendererCommit": "98828d00eb4b43798e32e185b3fc3cbd57b32638",
+    "focusedRealThreeTestCommit": "0bc98c4f6d2c3e67847d90b964cc6457752bd431",
+    "completedOutcome": "Replaced first-material-batch old-gallery selection with bounded physically nearest ACTUAL Floor8 structural triangles, faithful transforms including source instances, original normals/UVs, per-material load paths. Unchanged genuine cap/gate, Floor9 platforms, collider, authority and source clocks.",
+    "priorOriginalNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43466814378 — all eight >=60s 1x matched videos; strict native source-to-video Floor8-to9 0/2; disjoint bronze Floor8->violet Floor9 at ~25-26s",
+    "existingCiVeto": "https://github.com/my-edutu/Ai_games/actions/runs/43485277658 — real Three retained-world 13/13 passed, overall failed 9/10 due phase6 Maze readiness timeout; Maze forbidden",
+    "newQualityProduction": "https://github.com/my-edutu/Ai_games/actions/runs/43488353746 — in progress at review; not assumed green",
+    "newQualityTests": "https://github.com/my-edutu/Ai_games/actions/runs/43488848063 — pending at review; not assumed green",
+    "originalCandidateNativeCapture": "NOT EVALUATED for this changed source; exact 9-job request required; no favorable pixel verdict",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "biggestExperienceGap": "Unbroken original bronze full-body physical threshold through Floor9 not proven in desktop or portrait; native 0/2 on previous code. This reconstruction may still fail true filmed camera-world continuity.",
+    "nextHighestImpactAction": "Run exact immutable-source 9-job original baseline/candidate 60+s paired capture after this code change; compare 22-31s native film, source ticks, WebGL returns and image PTS, audit geometry continuity in real viewports. If still hard cut, rebuild unified world depth/camera; fix new genuine regressions without touching Maze or baseline.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-source-load-path-gallery-physical-gateway.md",
+    "safety": "PR68 remains open draft on PR58; frozen baseline unchanged; no merge, deployment, force push, modification to other games or fake reviews."
   }
 }
