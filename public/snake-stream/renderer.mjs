@@ -28,6 +28,21 @@ export function canReuseStaticWorldCache({ sourceWidth, sourceHeight, presentWid
     Math.abs(sourceWidth / sourceHeight - presentWidth / presentHeight) <= 0.003;
 }
 
+/**
+ * Preserve the previously certified HDR color/depth cache on a GPU-pressure
+ * direct frame. A transient camera move / quality downgrade is a cache MISS,
+ * not proof that the previously baked view is invalid. The cache is keyed to
+ * exact world props, camera transform, projection, fog and CSS layout; if it
+ * comes back, reusing those original pixels avoids three expensive static
+ * passes without changing any geometry, shading, live cues or raster.
+ * Full-world rebuilds and real CSS changes invalidate the key separately.
+ * No extra framebuffer, upload, scene pass or GL synchronization is created.
+ */
+export function selectStaticWorldCachePath({ cacheHit = false, pressureDirect = false } = {}) {
+  if (pressureDirect) return 'direct-preserve';
+  return cacheHit ? 'compose' : 'rebuild';
+}
+
 // BEGIN R38 CONTACT HELPER
 /**
  * Preserve every visible ground contact while updating only the instance
@@ -151,6 +166,30 @@ export function planInitialLowModeRaster({ width, height, pixelRatio, quality })
   return Math.min(pixelRatio, 0.4); // exact existing adaptive raster floor
 }
 // END T4 FIRST-LOW-FRAME PLAN
+/**
+ * Admit the optional three-pass static HDR/depth/display bake only after a
+ * COMPLETE normal 3D frame submitted since this world was built has drained a real
+ * GPU fence at a sustainable latency. Supported-but-congested GPUs instead
+ * retain the original complete direct scene (all terrain, snake, water,
+ * shadows, portals and effects), avoiding an unproven startup command burst.
+ * A cumulative historical skip counter is never used to permanently deny
+ * admission after recovery. Existing valid cache hits and unsupported/failed
+ * fence implementations preserve the previous path. This is a GPU-work
+ * policy, NOT a frame submission counter or physical display FPS metric.
+ */
+export function shouldAdmitFullSceneCache({ queue, cacheHit = false, directDraws = 0,
+  submittedAtWorldBuild = 0 } = {}) {
+  if (cacheHit || !queue || queue.supported !== true || queue.failed === true) return true;
+  if (!Number.isInteger(directDraws) || directDraws < 1 ||
+      !Number.isInteger(submittedAtWorldBuild) || submittedAtWorldBuild < 0 ||
+      !Number.isInteger(queue.completed) || queue.completed <= submittedAtWorldBuild) return false;
+  // FIFO GPU fences: completed > pre-world submitted watermark proves that
+  // the completed sample belongs to this new world, not an old pending frame.
+  // This is genuine completed-fence wall time, not a requestAnimationFrame gap.
+  return Number.isFinite(queue.lastObservedLatencyMs) &&
+    queue.lastObservedLatencyMs > 0 && queue.lastObservedLatencyMs <= 80;
+}
+
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -266,6 +305,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let cacheHits = 0;
   let cacheBuilds = 0;
   let retainedHigherRasterCompositions = 0;
+  // One world-scoped cache-admission state; no buffers, GPU resources or
+  // retained public snapshots. The gate keeps counting genuine full renders.
+  let cacheAdmissionReady = false;
+  let cacheProbeDirectFrames = 0;
+  let submittedAtWorldBuild = 0;
   // Complete original full-scene draws substituted for a costly cache REBUILD
   // only after actual completed GPU-fence pressure, never counted as presents.
   let pressureDirectFrames = 0;
@@ -355,6 +399,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Follow/detail and the easing back to overview retain the ordinary 3D path.
     if (!cacheSupported || !staticMeshCount || cameraTarget.distanceToSquared(desiredTarget) > 0 ||
         cameraOffset.distanceToSquared(desiredPosition) > 0) {
+      // An actual camera-flight direct frame is a full original scene too.
+      // Credit it as a new-world admission probe instead of demanding another
+      // redundant full-scene draw once the camera finally settles.
+      if (staticMeshCount && !cacheAdmissionReady)
+        cacheProbeDirectFrames = Math.min(1048576, cacheProbeDirectFrames + 1);
       renderer.render(scene, camera);
       return;
     }
@@ -370,13 +419,32 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       presentWidth: cacheSize.x, presentHeight: cacheSize.y,
       matchingView: key === staticKey, sameCssLayout: cachedCssLayout === lastCssLayout,
     });
+    // On the first settled overview of a world, the old renderer spent an
+    // HDR static bake, display bake and live composite before ANY real scene
+    // frame completed. Make a full direct 3D submission first, then admit
+    // the optional cache only if a completed fence demonstrates headroom.
+    // Later changed views keep normal cache behavior after admission.
+    if (!cacheAdmissionReady && !shouldAdmitFullSceneCache({ queue: currentGpuQueue,
+      cacheHit, directDraws: cacheProbeDirectFrames, submittedAtWorldBuild })) {
+      cacheProbeDirectFrames = Math.min(1048576, cacheProbeDirectFrames + 1);
+      renderer.render(scene, camera);
+      return;
+    }
+    cacheAdmissionReady = true;
     // Only after actual COMPLETED GPU fences establish starvation: the
     // unmodified direct scene draws ALL original static and animated layers,
     // original shadows, original fog and depth. It replaces an HDR/depth bake,
     // display conversion AND live composition, without creating new targets.
     // Retain cache reuse for a matching true view and ordinary healthy GPUs.
-    if (shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit, shadowDirty: renderer.shadowMap.needsUpdate })) {
-      invalidateStaticCache();
+    const cachePath = selectStaticWorldCachePath({ cacheHit,
+      pressureDirect: shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit,
+        shadowDirty: renderer.shadowMap.needsUpdate }),
+    });
+    if (cachePath === 'direct-preserve') {
+      // A direct full scene from camera B must NOT destroy the genuine static
+      // color/depth photograph of camera A. The exact-match key rejects B;
+      // returning to A can reuse its complete original 3D view immediately.
+      // A new world, changed props/CSS or disposal still invalidates normally.
       pressureDirectFrames++;
       renderer.render(scene, camera);
       return;
@@ -622,6 +690,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         }
         else { object.castShadow = false; object.layers.enable(DYNAMIC_LAYER); }
       });
+      // A newly constructed world must obtain its own completed full-scene
+      // fence; counters from the prior board may not authorize an HDR bake.
+      cacheAdmissionReady = false;
+      cacheProbeDirectFrames = 0;
+      submittedAtWorldBuild = frameGate.stats().submitted;
       invalidateStaticCache();
       scene.add(world.group);
       dimensions = key;
@@ -739,6 +812,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
         retainedHigherRasterCompositions, // cached full-static+live compositions, never actual presents
+        probeDirectFrames: cacheProbeDirectFrames, // complete original draws, NOT display presents
+        admissionReady: cacheAdmissionReady, // permission, NOT a frame-rate result
         pressureDirectFrames, // actual complete draws, NOT physical displayed frames or strict one-second count
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS

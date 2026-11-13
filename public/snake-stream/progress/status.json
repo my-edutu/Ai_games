@@ -1,9 +1,9 @@
 {
   "updatedAt": "2026-11-13",
-  "status": "T0 UNSIGNED / T1 BUILDING visual SELF-REJECT / T2 BUILDING / T3 BUILDING / T4 HARD RED 1/17 strict original at 062ee8b; high-resolution static cache reuse BUILDING native-only",
-  "detail": "Exact head 062ee8b original Chromium #43381090405 recorded 1/17 genuine 1s WebGL submissions, 615 queue skips, 53/95 browser pass; native CI red. Cache target stuck at 1178x651 after 751x415 raster fallback: 3 builds, 2 hits, 16 pressure direct draws. New exact-source retained full static HDR color/depth cache native RED 3/5 -> GREEN 5/5, strict gate untouched; candidate actual Chromium, unscripted before/after and physical presents PENDING. Rectangular whole-world visual still self-rejected.",
+  "status": "T0 UNSIGNED / T1 BUILDING visually SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; integrated full-world GPU-cache admission and certified-view retention native 9/9, browser unverified",
+  "detail": "Exact parent a7db906 original Chromium #43393372261: 1/17 genuine complete WebGL submissions in strict 1s at 751x415, 863 GPU skips, 4426.4ms maximum observed completed fence; browser 53/95, native 704/772. Integrated exact renderer blob 4a11d389... defers three-pass static HDR bake until completed new-world FIFO fence qualifies, preserves existing certified cache across transient pressure direct draws. Parent RED 7/9 -> candidate GREEN 9/9, syntax PASS; new-head full Chromium/film, real-device FPS/p95, full CI, T1 visual and independent acceptance NOT VERIFIED.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "062ee8b strict original Chromium 1/17 genuine full-render submissions at 751x415 HARD RED; current real island still reads as a rectangular courtyard. Cache reuse candidate awaiting exact-new-head browser acceptance.",
+  "latestCaption": "No accepted visual or FPS transformation: last authentic full game still dominated by tiled rectangle with undersized overview serpent. T4 candidate browser strict result pending; gate >=17 complete draws/1s unchanged.",
   "reviews": [
     {
       "area": "November 12 aa4e browser: explicit reduced-motion detail became overview; repaired native camera and detail GPU cuts, acceptance pending",
