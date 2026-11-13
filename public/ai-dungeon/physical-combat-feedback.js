@@ -60,6 +60,7 @@ export function createPhysicalCombatFeedback({
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
    receiptRenderSubmissionSeconds=null,latestTrustedClock=null,
    lastVisualAdvanceStartClock=null,lastVisualAdvanceEndClock=null,
+   lastFullVisualAdvanceEndClock=null,
    visualAdvanceSerial=0,recordedVisualAdvanceSerial=0,
    lastObservedActualFrameSeconds=null,
    verifiedSubmissionPhaseFrames=0,unverifiedSubmissionPhaseFrames=0,
@@ -343,10 +344,10 @@ export function createPhysicalCombatFeedback({
   recordedVisualAdvanceSerial=visualAdvanceSerial;
   const phaseVerified=freshAdvance&&submittedWallClock!==null&&
    Number.isFinite(lastVisualAdvanceStartClock)&&
-   Number.isFinite(lastVisualAdvanceEndClock)&&
+   Number.isFinite(lastFullVisualAdvanceEndClock)&&
    lastVisualAdvanceStartClock>=0&&
-   lastVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
-   submittedWallClock>=lastVisualAdvanceEndClock;
+   lastFullVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
+   submittedWallClock>=lastFullVisualAdvanceEndClock;
   if(!phaseVerified){
    unverifiedSubmissionPhaseFrames++;
   }else{
@@ -354,7 +355,7 @@ export function createPhysicalCombatFeedback({
    const advanceToSubmission=submittedWallClock-lastVisualAdvanceStartClock;
    if(advanceToSubmission>=SLOW_SUBMISSION_PHASE_SECONDS){
     slowSubmissionFrames++;
-    const afterVisual=submittedWallClock-lastVisualAdvanceEndClock;
+    const afterVisual=submittedWallClock-lastFullVisualAdvanceEndClock;
     const measuredRender=Number.isFinite(renderSubmissionSeconds)&&
      renderSubmissionSeconds>=0&&renderSubmissionSeconds<=afterVisual?
      renderSubmissionSeconds:null;
@@ -364,7 +365,7 @@ export function createPhysicalCombatFeedback({
       lastObservedActualFrameSeconds>0?
       Math.round(lastObservedActualFrameSeconds*1000):null,
      advanceToSubmissionMs:Math.round(advanceToSubmission*1000),
-     d04VisualAdvanceMs:Math.round((lastVisualAdvanceEndClock-
+     d04VisualAdvanceMs:Math.round((lastFullVisualAdvanceEndClock-
       lastVisualAdvanceStartClock)*1000),
      afterVisualToSubmissionMs:Math.round(afterVisual*1000),
      // Residual main-thread work before renderer.render() is not necessarily
@@ -701,6 +702,7 @@ export function createPhysicalCombatFeedback({
    const wallNow=observedWallClock();
    lastVisualAdvanceStartClock=wallNow;
    lastVisualAdvanceEndClock=null;
+   lastFullVisualAdvanceEndClock=null;
    for(const item of pending){
     if(!item.freshlyObserved)continue;
     item.freshlyObserved=false;
@@ -722,7 +724,15 @@ export function createPhysicalCombatFeedback({
   // other main-thread work and renderer submission. Neither measurement
   // changes the original 400ms safety gate or asserts decoded A/V alignment.
   if(requirePresentedFrame)lastVisualAdvanceEndClock=observedWallClock();
-  popDue(dt);safeCall(()=>foley?.cleanup?.());
+  popDue(dt);
+  // The previous phase timestamp was sampled BEFORE actual cue emissions,
+  // wrongly attributing expensive D04 visual admission to other main-thread
+  // work. Keep that pre-emission clock for the safety deadline in popDue(),
+  // but finish the forensic phase AFTER all retained effects are admitted.
+  // A failed/non-monotonic final clock makes this diagnostic unverified;
+  // it never changes audio consent, HP proof or the 400ms impact deadline.
+  if(requirePresentedFrame)lastFullVisualAdvanceEndClock=observedWallClock();
+  safeCall(()=>foley?.cleanup?.());
   return Math.max(0,before-pending.length);
  }
  // WebAudio's clock freezes on suspend. Without revocation, a queued sword
