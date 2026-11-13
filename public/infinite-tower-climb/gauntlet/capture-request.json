@@ -1845,5 +1845,28 @@
     "deviceP50P95P99Memory": "NOT EVALUATED",
     "leadingTransformationVerdict": "NOT EVALUATED",
     "safety": "Never modify frozen baseline, PR58, draft PR68 status, other games; never merge/deploy/force-push."
+  },
+  "p0SourceVerifiedOriginalDoorOpticsAndOcclusionCapture20261113": {
+    "stage": "P0 OPEN; native before/after video and all blind acceptance gates NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "gameplayCodeSha": "d0ac1751c487e590295178e39e5eac61f8960be0",
+    "testCorrectionSha": "bbc4c8388481527158b8c06162221b22e4b1597a",
+    "candidateSourceSha": "EXACT immutable github.sha OF THIS capture-request commit (not floating PR head)",
+    "matchingSeed": "tower-transformation-capture-v1",
+    "matchingGraphicsTier": "low",
+    "sourceExecution": "Real original 20 Hz immutable actual baseline and candidate source; no mocked bodies, combat, floors, renderer, video or physics",
+    "fullMotionRequirement": "Run existing nine-job GitHub Actions 8 real native full-motion >=60s original 1x baseline/candidate ascent, moving deck, danger/guardian + crushed threshold, outcome/restart; original desktop 960x600 and portrait 390x844 per scenario; native WebM PTS, source hash, run/episode and renderer/HTTP event sidecars.",
+    "mustInspect": "First episode 22-31 seconds: authoritative tick451 actual grounded Floor8-9 gateway crossing; compare actual opened bronze gate f8:cap and live climber, original shared roof, actual Floor9 ground and unobscured safe single camera/portrait optic in same uninterrupted continuous normal-speed video with true source/browser/Three/native event pairing. Prior original 43380901677 still full-world hard-cuts and failed strict native 0/2. DO NOT count code or tests as passing until original footage visibly passes BOTH.",
+    "changeUnderTest": "Physical source-backed old cap mesh and grille retained up to eight returned Three.js frames and 1.25s while 48 source tick limit preserved, matching environmental/landing/opaque-shell staging; F9 full-body old-gate wide portrait safety and actual foreground occlusion priority enabled when source-authenticated; no fake body/door, engine or progress.",
+    "priorSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43380901677",
+    "preCaptureQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43388374280 — failed phase3 legacy old-window test and phase3 real Three runner shutdown, corrected test; no clean exact-head verdict yet.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDevicePerformance": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-doorway-occlusion-and-optical-continuity.md",
+    "safety": "Frozen baseline, PR58, other games unchanged. PR68 remains open draft. Never merge/deploy/force-push/promote."
   }
 }
