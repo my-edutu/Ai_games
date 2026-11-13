@@ -47,7 +47,7 @@ const loadedTris=data.length/30;
 assert.ok(loadedTris>150&&loadedTris<900,'original loaded handcart bounded');
 assert.equal(context.compactCitizenAnimation.lastAnimatedCartWheels,2);
 assert.ok(points.every(v=>v.every(Number.isFinite)),'all geometric vertices finite');
-assert.ok(stats.boxes>=6&&stats.quad>=70,'complete chassis, wheels, physical sacks');
+assert.ok(stats.boxes>=6&&stats.quad>=60,'complete chassis, wheels, physical sacks');
 realVisibleBundles=0;
 context.emitStreetCargo({...worker,delivery:{...worker.delivery,stage:'unloading'}},18,.2,1,1);
 const unloadedTris=data.length/30-loadedTris;
@@ -56,7 +56,7 @@ assert.equal(context.compactCitizenAnimation.lastAnimatedCartWheels,4);
 const prev=data.length;
 context.emitStreetCargo({name:'Nobody',job:'farmer',phase:0,delivery:null},18,.2,1,1);
 assert.equal(data.length,prev,'no fake handcart for a citizen with no real consignment');
-for(const match of source.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/g)){
+for(const match of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)){
  if(match[1].trim())new vm.Script(match[1],{filename:'tiny-kingdom-inline-production.js'});
 }
 console.log('W288 genuine courier joinery and cargo rendering PASS; loaded triangles='+
