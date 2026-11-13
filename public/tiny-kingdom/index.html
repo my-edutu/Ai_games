@@ -12352,7 +12352,8 @@ const HIGHSTREET_LANES=Object.freeze([
 ]);
 let highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
  houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
- wheelwaySegments:0,
+ wheelwaySegments:0,kitchenGardens:0,kitchenGardenBeds:0,
+  kitchenGardenPlants:0,kitchenGardenTriangles:0,
  surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
  totalTriangles:0,cached:false};
 function highStreetLane(points,width=1.55){
@@ -12442,6 +12443,101 @@ function highStreetWashLine(x,z,shade){
  });
  highStreetStats.washLines++;
 }
+// W286 original inhabited-market corridor: complete existing-home kitchen
+// gardens replace placeholder soil cubes. All 12 founding yards gain open
+// stone-edged beds, actual wicker back fencing, low gravel drainage and mixed
+// herbs on terrain. Their geometry lives in the existing retained civic VBO;
+// crops are decoration, never simulated food, jobs, paths or new inventory.
+function renderInhabitedKitchenGarden(xx,zz,index,sign){
+ const start=data.length,bedZ=zz+.43+(index%3)*.035;
+ const ash=[rgb(0x998d79),rgb(0xa99b86),rgb(0x807969)],
+   soil=[rgb(0x584837),rgb(0x66513b),rgb(0x725840)],
+   greens=[rgb(0x587a46),rgb(0x769554),rgb(0x86995d),
+    rgb(0x5f8055),rgb(0x8e9b62)],
+   oak=rgb(0x796143),lath=rgb(0xa58b66);
+ const ground=(x,z)=>terrain(x,z);
+ // Two adjacent raised plots share the original home-plot footprint.
+ materialScope(MATERIAL.STONE,()=>{
+  for(let bed=0;bed<2;bed++){
+   const x=xx+(bed?-.49:.49),z=bedZ;
+   for(const side of [-1,1]){
+    const rx=x+side*.31,rz=z+side*.49;
+    box(rx,ground(rx,z)+.015,z,.085,.16,.98,ash[(index+bed+side+4)%3]);
+    box(x,ground(x,rz)+.015,rz,.66,.16,.082,ash[(index+bed+side+3)%3]);
+   }
+   const runoffX=x+(bed?-.39:.39);
+   for(let i=0;i<3;i++){
+    const zz0=z-.31+i*.31;
+    box(runoffX,ground(runoffX,zz0)+.015,zz0,.10,.036,.25,
+     ash[(index+bed+i)%3]);
+   }
+  }
+  // Low worn access stones preserve the real doorway and all navigation.
+  for(let step=0;step<5;step++){
+   const x=xx+Math.sin(index*.7+step*1.11)*.08,
+    z=zz-.83+step*.33;
+   box(x,ground(x,z)+.016,z,.26,.046,.21,ash[(index+step)%3]);
+  }
+ });
+ materialScope(MATERIAL.ROAD,()=>{
+  for(let bed=0;bed<2;bed++){
+   const x=xx+(bed?-.49:.49),z=bedZ,y=ground(x,z);
+   box(x,y+.072,z,.53,.11,.89,soil[(index+bed)%3]);
+   for(let row=0;row<3;row++){
+    box(x,y+.178,z-.3+row*.30,.47,.027,.044,
+     soil[(index+bed+row+1)%3]);
+   }
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Short open-to-street back weaving uses the existing yard fence,
+  // never forms an occluding full-height building or blocks a worker.
+  for(let row=0;row<4;row++){
+   const z=zz+1.063,y=ground(xx,z)+.17+row*.11;
+   for(let segment=0;segment<6;segment++){
+    const x=xx-1.06+segment*.355,bend=(segment+row)%2?.021:-.021;
+    limbSegment([x,y,z+bend],
+     [x+.365,y+.014*Math.sin(index+segment),z-bend],
+     .023,row%2?oak:lath,4);
+   }
+  }
+  for(const side of [-1,1]){
+   const x=xx+side*.88,z=zz+.81,y=ground(x,z);
+   box(x,y+.02,z,.072,.66,.072,oak);
+   limbSegment([x,y+.65,z],
+    [xx+side*.62,ground(xx+side*.62,zz+.49)+.86,zz+.49],
+    .032,lath,4);
+  }
+ });
+ materialScope(MATERIAL.FOLIAGE,()=>{
+  // Cosmetic variation uses only a stable lot index, never world RNG.
+  for(let bed=0;bed<2;bed++){
+   const bx=xx+(bed?-.49:.49);
+   for(let row=0;row<3;row++)for(let plant=0;plant<4;plant++){
+    const x=bx-.20+plant*.13,z=bedZ-.31+row*.30,
+     h=.14+.065*biomeHash(index*71+bed*29+row*11+plant);
+    cone(x,ground(x,z)+.16,z,.080,h,
+     greens[(index+bed*3+row+plant)%greens.length],5);
+    if((row+plant+index)%3===0)
+     cone(x+.03,ground(x,z)+.21,z-.026,.054,.13,
+      greens[(index+bed+plant+2)%greens.length],5);
+   }
+  }
+  for(const side of [-1,1])for(let leaf=0;leaf<4;leaf++){
+   const x=xx+side*.87,z=zz+.81,y=ground(x,z);
+   cone(x-side*.036,y+.22+leaf*.125,z-.04,.07,.15,
+    greens[(index+leaf+2)%greens.length],5);
+  }
+ });
+ const triangles=(data.length-start)/30;
+ if(!Number.isInteger(triangles)||triangles<100||triangles>1400)
+  throw Error('W286 unbounded original household garden geometry');
+ highStreetStats.kitchenGardens++;
+ highStreetStats.kitchenGardenBeds+=2;
+ highStreetStats.kitchenGardenPlants+=32;
+ highStreetStats.kitchenGardenTriangles+=triangles;
+ return triangles;
+}
 function highStreetHomeYard(x,z,variant,index){
  const sign=x<0?-1:1,xx=x+sign*2.65,zz=z+.32,y=terrain(xx,zz);
  const pole=rgb(0x6e5640),fence=rgb(0x988060),soil=rgb(0x68503e);
@@ -12460,7 +12556,7 @@ function highStreetHomeYard(x,z,variant,index){
   box(xx,y+.64,zz+1.12,2.38,.08,.09,fence);
   // Low timber step and a raised kitchen-garden plot, not a fake farm event.
   box(xx-sign*.28,y+.03,zz-.8,.75,.16,.48,rgb(0xa29781));
-  box(xx+sign*.39,y+.01,zz+.50,.57,.16,.60,soil);
+  // Original placeholder garden cube is replaced by actual ground-level beds.
  });
  if(index%2===0){
   highStreetWashLine(xx,zz-.31,variant);
@@ -12474,6 +12570,7 @@ function highStreetHomeYard(x,z,variant,index){
   });
  }
  highStreetGoods(xx-sign*.28,zz-.18,variant);
+ renderInhabitedKitchenGarden(xx,zz,index,sign);
  highStreetStats.houseYards++;highStreetStats.stallYards++;
 }
 // W242: Rebuild BOTH existing public craft houses as structurally coherent
@@ -12757,7 +12854,8 @@ function marketToRealHomeStreet(){
 function inhabitedHighStreet(){
  highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
   houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
-  wheelwaySegments:0,
+  wheelwaySegments:0,kitchenGardens:0,kitchenGardenBeds:0,
+  kitchenGardenPlants:0,kitchenGardenTriangles:0,
   surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
   totalTriangles:0,cached:false};
  const first=data.length;
