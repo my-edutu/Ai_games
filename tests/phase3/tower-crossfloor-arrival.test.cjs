@@ -149,8 +149,8 @@ test('cold actual source crossing keeps original cap/horizon through first delay
  assert.equal(deny({...source,player:{...source.player,x:exitX+140000}}),false);
  assert.equal(deny({...source,player:{...source.player,y:265000}}),false);
  assert.equal(deny(source,{...held,oldCapWidth:119999}),false);
- assert.equal(deny(source,{...held,visibleSeconds:.85}),false);
- assert.equal(deny(source,{...held,submittedFrames:4}),false);
+ assert.equal(deny(source,{...held,visibleSeconds:1.25}),false);
+ assert.equal(deny(source,{...held,submittedFrames:9}),false);
  assert.equal(shell(source,inactivePassage,held,{...job,proof:'guessed-gate'}),false);
  assert.match((await import('node:fs')).readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8'),/sourceColdFrame=observedSourceEarnedColdFrameContinuation/);
 });
