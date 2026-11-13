@@ -1617,6 +1617,30 @@ export function planOriginalSourceStanceSampleHandoff({
  return {recordSample:true,allowRelief:changed===false};
 }
 
+/**
+ * An actual licensed Walking_A may be visible only every 0.4-2.0 seconds on
+ * software WebGL. An expensive slow rendered frame can still contain FOUR
+ * verifiable original weighted heel/toe points, but it is not evidence of
+ * short-interval contact or source-shoe sliding. Record CURRENT same-clone
+ * post-mixer shoes only: never adjust the root, carry an offset, or compare
+ * across that sparse interval. A later normal-width unchanged visible frame
+ * must independently witness fresh real root travel and pass the existing
+ * both-shoe rollback before any bounded relief is allowed.
+ *
+ * Reuses every strict original anatomy, source weight, ownership, life,
+ * visibility, teleport, interruption and witnessed-root gate. No timer,
+ * inferred target/plant, authority mutation or source clip seek.
+ */
+export function planOriginalSourceStanceSlowFramePrime(options={}){
+ const elapsed=options?.frameInterval;
+ if(!finite(elapsed)||elapsed<=.35||elapsed>2)return null;
+ const validated=planOriginalSourceStanceSampleHandoff({
+  ...options,frameInterval:.35
+ });
+ return validated?.recordSample===true?
+  {recordSample:true,allowRelief:false}:null;
+}
+
 export function planOriginalSourceStanceSlideRelief({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
  ownerLocomotion=false,rootTravel=NaN,recentRootTravel=NaN,
