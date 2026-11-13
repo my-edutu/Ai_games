@@ -120,9 +120,9 @@ export function observedSourceEarnedColdFrameContinuation(source, held) {
       !Number.isSafeInteger(w.sourceTick) ||
       source.tick<w.sourceTick || source.tick-w.sourceTick>48 ||
       !Number.isSafeInteger(held.submittedFrames) ||
-      held.submittedFrames<0 || held.submittedFrames>3 ||
+      held.submittedFrames<0 || held.submittedFrames>8 ||
       !Number.isFinite(held.visibleSeconds) ||
-      held.visibleSeconds<0 || held.visibleSeconds>=.85 ||
+      held.visibleSeconds<0 || held.visibleSeconds>=1.25 ||
       cap.id!=='f8:cap' || held.oldCapId!==cap.id ||
       guardian.kind!=='guardian' || guardian.floor!==8 ||
       guardian.active!==false || !(guardian.health<=0) ||
