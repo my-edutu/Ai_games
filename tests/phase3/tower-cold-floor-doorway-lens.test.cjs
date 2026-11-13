@@ -83,5 +83,8 @@ test('production bridge consumes the genuine retained GPU witness in one camera,
   assert.match(scene,/const opticalHandoff=!opticalGuardian/);
   assert.match(scene,/snapshot\.floor===9 && opticalHandoff/);
   assert.match(scene,/source-original-floor-nine-gateway/);
+  assert.match(scene,/earnedGateway:gatewayEarned \|\| opticalHandoff/);
+  assert.match(scene,/opticalHandoff && p\.state==='airborne' && p\.grounded===false/);
+  assert.match(scene,/protectRouteSightlines\(camera,/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
