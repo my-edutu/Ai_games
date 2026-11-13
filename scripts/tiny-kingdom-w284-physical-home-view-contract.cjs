@@ -41,8 +41,9 @@ occluded=false;forest=true;
 assert.equal(ctx.chooseRealHomeManualOrbit(home,Math.PI,.2,5.1),null,
  'vegetation must not obscure the original doorway');
 forest=false;
-assert(html.includes('grainJourney.homeLens=chooseRealHomeManualOrbit('),
- 'real touch/keyboard orbit must use the same safe physical lens');
+assert(html.includes('const next=chooseRealHomeManualOrbit(home,a,t,z);')&&
+ html.includes('grainJourney.homeLens={...grainJourney.homeLens,...next};'),
+ 'real touch/keyboard orbit must use the safe physical lens and keep original household provenance');
 assert(html.includes('homeWitnessPhysicalRepairs++'),
  'occluded transitions must reframe the actual cottage, not hide buildings');
 assert(html.includes('...grainJourney.homeLens')||html.includes('...lens'),
