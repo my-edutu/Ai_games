@@ -17440,7 +17440,7 @@ function emitStreetCargo(p,x,y,z,size){
  // two angled shafts, loaded tray and cross-brace share the citizen's facing
  // and actual locomotion; only genuinely travelling supplies receive it.
  if(p.delivery){
-  const cy=y+.27*size,cz=z-.80*size,wood=rgb(0x8d6846);
+  const cy=y+.27*size,cz=z-.72*size,wood=rgb(0x8d6846);
   const hardwood=rgb(0x73543a),lightOak=rgb(0xb08a5d);
   materialScope(MATERIAL.WOOD,()=>{
    // W288: one real load-bearing handcart: low ash plank floor, two raised
@@ -17513,7 +17513,7 @@ function emitStreetCargo(p,x,y,z,size){
     // Silhouette shows actual loaded/unloaded units without extra entities.
     for(let j=0;j<actualLoad.visibleBundles;j++){
      const lateral=(j-1)*.175*size,sx=x+lateral,
-      low=cy+.12*size+(j===1?.05*size:0),
+      low=cy+.14*size+(j===1?.05*size:0),
       high=low+.24*size,half=.102*size,zHalf=.149*size;
      const a=[sx-half,low,cz-zHalf],b=[sx+half,low,cz-zHalf],
       c=[sx+half,low,cz+zHalf],d=[sx-half,low,cz+zHalf],
