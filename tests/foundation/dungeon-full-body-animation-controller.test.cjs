@@ -4970,3 +4970,45 @@ test('sparse full-body pivot exposes original GLB visible-frame/clone witness wi
  assert.match(source,/mount\.last\.multiply\(mount\.next\)/,
   'native spine must remain reversible on original mixer re-entry');
 });
+
+
+// RED from authentic 390px original GLB source clip at tick 3, head e54ccb8:
+// artifact 14060235425. Walking_A weight .92739, frame 33.3ms,
+// airborne heel 191mm above stone, actual weighted toe 86mm below stone.
+// The 80mrad 60Hz ankle cap recovers only ~6.26mm with the source calf.
+// A 120mrad / 33ms native-joint envelope is slower in angular speed
+// than 80mrad / 16ms, still requires measured opposite-shoe safety and
+// actual final weighted GLB toe proof; never certified foot-contact IK.
+test('RED: 390px source swing toe uses bounded 33ms deep-frame ankle ownership, not a 16ms cap',async()=>{
+ const {planOriginalSourceSwingToeClearance:plan,
+  auditOriginalSourceSwingAnkleSlew:audit}=await load();
+ const original={mode:'move',sourceClipName:'Walking_A',
+  sourceAnatomyVerified:true,sourceWeight:.9273910522460938,
+  alive:true,visible:true,groundedMoving:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.0477,
+  frameInterval:.0333,floorTopY:-.02,heelWorldY:.171,
+  toeWorldY:-.10598832271033063,trialToeWorldY:-.0942,
+  trialAngleRad:-.2,previousCorrectionRad:0};
+ const delta=plan(original);
+ assert.ok(Math.abs(delta+.12)<1e-6,
+  'true 33.3ms original swing may safely request <=120mrad of source-ankle motion');
+ const witness={...original,sourceInstanceSame:true,previousAngleRad:0};
+ const receipt=audit({...witness,nextAngleRad:delta});
+ assert.ok(receipt?.sparseFrameAllowanceUsed);
+ assert.ok(Math.abs(receipt.limitRad-.12)<1e-6);
+ assert.equal(audit({...witness,nextAngleRad:-.121}),null,
+  'even 1mrad over the source-frame budget must fail closed');
+ assert.ok(Math.abs(plan({...original,frameInterval:.016})+.08)<1e-6);
+ assert.ok(Math.abs(plan({...original,sourceWeight:.8})+.08)<1e-6);
+ assert.equal(audit({...witness,sourceWeight:.8,nextAngleRad:-.12}),null);
+ for(const bad of [{mode:'hurt'},{sourceClipName:'Idle'},{alive:false},
+  {visible:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{groundedMoving:false},
+  {heelWorldY:-.005},{toeWorldY:-.028},
+  {sourceAnatomyVerified:false},{rootTravel:0}])
+  assert.equal(plan({...original,...bad}),0,
+   'invalid source owner/sole cannot rotate: '+JSON.stringify(bad));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/auditOriginalSourceSwingAnkleSlew\(/);
+ assert.match(renderer,/confirmOriginalSourceSwingToeLift\(/);
+});
