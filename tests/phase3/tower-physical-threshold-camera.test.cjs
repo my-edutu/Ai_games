@@ -51,7 +51,7 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   assert.ok(reveal>0 && finalLook>0 && finalMatrices>finalLook,
     'submit the corrected lens before the real world sightline pass');
   assert.match(scene.slice(finalMatrices+'camera.updateMatrixWorld(true);'.length,reveal),
-    /^\\s*}\\s*}\\s*$/,
+    /^\s*}\s*}\s*$/,
     'no intervening camera/world stage may override the corrected shot');
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
