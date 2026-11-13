@@ -11,6 +11,46 @@ const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',ac
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
 
+// Original source witness at exact 390px Chromium #43374532241: the
+// LAST absolute ankle overlay is 0.186613rad at a 16.8ms frame. This does
+// NOT prove a 186mrad single-frame move: previous verified source overlay
+// may be 106.613mrad. Runtime acceptance and evidence must compare actual
+// previous and proposed original-ankle angles, not the absolute overlay.
+test('RED: source ankle slew receipts must use witnessed per-frame delta, never cumulative correction',async()=>{
+ const {auditOriginalSourceSwingAnkleSlew:audit}=await load();
+ const observed={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,heelWorldY:.23,
+  toeWorldY:-.07093,floorTopY:-.02,frameInterval:.0168};
+ const legal=audit({...observed,previousAngleRad:.10661333333333233,
+  nextAngleRad:.18661333333333233});
+ assert.ok(legal,'80mrad real 60Hz step within full-body source contract');
+ assert.ok(Math.abs(legal.stepRad-.08)<.00001);
+ assert.equal(legal.sparseFrameAllowanceUsed,false,
+  'a cumulative 186mrad overlay is NOT a 186mrad sparse-frame slew');
+ assert.equal(audit({...observed,previousAngleRad:0,
+  nextAngleRad:.18661333333333233}),null,
+  'a 186mrad one-frame ankle jump at 60Hz must never reach original skinned GLB');
+ const sparse=audit({...observed,frameInterval:.14,previousAngleRad:0,
+  nextAngleRad:.128});
+ assert.ok(sparse?.sparseFrameAllowanceUsed,'real 140ms deep original toe uses bounded 128mrad slew');
+ assert.ok(Math.abs(sparse.limitRad-.128)<.00001);
+ for(const bad of [
+  {toeWorldY:-.036,nextAngleRad:.128,previousAngleRad:0,frameInterval:.14},
+  {sourceWeight:.8,nextAngleRad:.128,previousAngleRad:0,frameInterval:.14},
+  {sourceClipName:'Idle'},{mode:'hurt'},{sourceInstanceSame:false},
+  {visible:false},{alive:false},{teleport:true},{interrupted:true},
+  {reducedMotion:true},{frameInterval:NaN},{nextAngleRad:NaN},
+  {previousAngleRad:.3},{nextAngleRad:.3}
+ ])assert.equal(audit({...observed,previousAngleRad:0,nextAngleRad:.08,...bad}),null,
+  'unproven source owner/timing/overshoot rejects the live ankle: '+JSON.stringify(bad));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/auditOriginalSourceSwingAnkleSlew\(/,
+  'the actual Three.js original-skinned foot must enforce this limit');
+ assert.match(renderer,/sparseFrameAllowanceUsed/,
+  'browser foot evidence must distinguish measured step from cumulative ankle correction');
+});
+
 // Regression — genuine source-skinned swing toe remains buried ~47–76mm on
 // recent 390px CC0 Walking_A; a long but visible frame should be able to
 // use its independently verified original-ankle toe-lift trial, not only
