@@ -1,3 +1,19 @@
+## W292 · one active integrated Phase 1 milestone / five blocking workstreams · 13 November 2026
+
+DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64) ONLY; source [e4313afe](https://github.com/my-edutu/Ai_games/commit/e4313afefcff0c64f95012d239e1b61dd5f314b4); frozen baseline `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Genuinely recorded W291 1024/390 workday shows original 6×7 aligned grey receiving-market foreground, even after scattered outer paving. W292 repairs that actual site with 42 physically spaced slabs, 24 earth panels and 14 preserved drain sections; W292 exact-source visual verdict PENDING. No phase promotion, no new FPS claim, no merger.
+
+| Priority / owner | Grounded current blocker | Concrete gate for acceptance |
+| --- | --- | --- |
+| 1. Retained render spine / measured CPU+driver+GPU | Older six-sample W282 software Day1 p95 ~268ms, static ~251ms; W291 full film had no hardware FPS. W292 adds only 46 static triangles, no measured speed-up | Same-commit, same-scene profiled Day1/workday/Day121 CPU, driver, GPU with bounded allocations and representative physical mobile/desktop ≥30 sustained FPS, p95≤33.3ms |
+| 2. Coherent original inhabited medieval place / environment | W291 exact original receiving shot still a checkerboard; W292 source changes original physical court, not yet observed on video | True continuous coherent farm/granary/market/home Day1, Day121, 390px before-after moving screenshots and separate blind quality judgment |
+| 3. Real human-scale work / authentic economy | Previous real chain Bram credited 3.024 and Selene consumed bought 0.8, but characters remain toy-scale and labour hard to read | Uninterrupted true worker harvest→loaded walk→unload and confirmed receipt→inhabitant meal, four genuine contact professions, deterministic replay |
+| 4. Unblocked physically safe camera / 390px | W291 filmed market, house and portrait are functional but foreground roofs and UI still can obstruct, hardware latency unknown | Actual touch/orbit/follow/pause/save/restore no dropped input, no building/citizen silently hidden, no page/GL errors and measured hardware timing |
+| 5. Complete independent evidence/soak | New W292 source, browser, GPU, native device and critics unconfirmed; first original-market CI saw stale W207 matcher fixed subsequently | Exact-source uncut same-state G088/W292 day1/workday/day121/mobile A/B, 120d and long-soak, <160k, real devices, truly independent LOOK/FEEL/PLAY and separate commercial evaluation |
+
+**Scorecard A:** LOOK/FEEL/PLAY **NOT PROVEN**. **Scorecard B:** commercial reference **FAIL**. Next: inspect fresh exact SHA running footage/CI, fix true defect if present, continue substantive rendering/architectural and expressive-human transformation. Draft PR only; no merge.
+
+---
+
 ## W291 · single active Phase 1 milestone / five durable blocking workstreams · 13 November 2026
 
 OPEN DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64). Pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Production source [`d8c56c6301fd5f41acbd5a81291b49cccdc87d2c`](https://github.com/my-edutu/Ai_games/commit/d8c56c6301fd5f41acbd5a81291b49cccdc87d2c); test source [`b396e26c`](https://github.com/my-edutu/Ai_games/commit/b396e26c42290a9305d80a99f1b5b47874f752b9). The SAME authentic farmer→loaded courier→market receipt→buyer→inhabited home, then Day121 and mobile. Do not merge.
