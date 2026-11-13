@@ -296,3 +296,69 @@ test('audio adapter context rebind refusal audits the unsubmitted real-HP cue ra
   assert.deepEqual(h.audio,[]);
  }finally{h.d.dispose()}
 });
+
+
+test('D04 does not draw a genuine injury after its own visual pass consumes the remaining 400ms window',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const images=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{emit(cue){images.push(cue);return true},
+   advance(){now+=.120},hasLiveCue(){return true},
+   hasDrawableCue(){return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  d.enableAudioFromGesture();
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  now=100.350; // 350ms of real wait before this D04 visual pass
+  d.advance(.016,.460); // an older rAF span must not replace the actual arrival clock
+  assert.equal(images.length,0,
+   '120ms of visual work pushes authentic damage to 470ms: do not draw a late shard');
+  assert.equal(d.stats().expiredQueuedCues,1);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'expired-pending-before-frame');
+  assert.equal(receipt.frameId,null);
+  assert.equal(receipt.audio,false);
+  assert.equal(receipt.submittedClockMs,null);
+  assert.equal(receipt.pendingExpiredBeforeVisualMs,350);
+  assert.equal(receipt.pendingExpiredVisualPassMs,120);
+  assert.equal(receipt.pendingExpiredWallAgeMs,470);
+  assert.equal(d.acknowledgePresentedFrame(1,.010),0,
+   'a later real WebGL acknowledgment cannot revive expired injury sound');
+  assert.deepEqual(sounds,[]);
+ }finally{d.dispose()}
+});
+test('D04 retains on-time HP art and sound when full post-visual age remains below 400ms',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const images=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{emit(cue){images.push(cue);return true},
+   advance(){now+=.035},hasLiveCue(){return true},
+   hasDrawableCue(){return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  d.enableAudioFromGesture();
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  now=100.180;
+  d.advance(.016,.600); // the old rAF interval precedes this late-arriving new HP witness
+  assert.equal(images.length,1,'215ms total age still earns the first drawable injury frame');
+  assert.equal(sounds.length,0,'visual admission is not sound playback');
+  now=100.230;
+  assert.equal(d.acknowledgePresentedFrame(1,.010),1);
+  assert.equal(sounds.length,1);
+  const r=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(r.decision,'delivered');
+  assert.equal(r.observationToSubmissionMs,230);
+  assert.equal(r.sampleSynchronized,false);
+ }finally{d.dispose()}
+});
