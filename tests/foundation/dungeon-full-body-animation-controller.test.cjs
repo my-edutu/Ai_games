@@ -4747,6 +4747,12 @@ test('RED: original source first walking crossfade must counterturn a witnessed 
  };
  const first=plan(witnessed);
  assert.ok(first,'the original imported spine must not miss its first REAL walking turn during source fade');
+ const sparseFirst=plan({...witnessed,frameInterval:.37});
+ assert.ok(sparseFirst&&sparseFirst.offsetRad>0&&sparseFirst.offsetRad<=.12,
+  'source-verified 370ms displayed frame must preserve bounded first-walk spine response');
+ assert.equal(plan({...witnessed,frameInterval:.37,sourceInstanceSame:false}),null,
+  'a sparse frame cannot make an unverified source instance eligible');
+
  assert.ok(first.offsetRad>.05&&first.offsetRad<=.12,
   'counterturn is limited by source blend weight and never rotates the root or native legs');
  assert.equal(first.sourceClip,'Walking_A');
@@ -4760,7 +4766,7 @@ test('RED: original source first walking crossfade must counterturn a witnessed 
  for(const bad of [
   {previousMode:'attack'},{previousMode:'hurt'},
   {previousMode:'guard'},{previousMode:'defeat'},
-  {sourceWeight:.6},{rootTravel:0},{frameInterval:.37},
+  {sourceWeight:.6},{rootTravel:0},{frameInterval:2.01},
   {sourceInstanceSame:false},{ownerLocomotion:false},
   {sourceClipName:'Idle'},{alive:false},{visible:false},
   {teleport:true},{reducedMotion:true},{interrupted:true}
@@ -4788,6 +4794,12 @@ test('RED: a genuine moving Walking_A crossfade at 78 percent retains measured s
   currentRootYaw:-2.62055,previousOffsetRad:0};
  const pose=plan(witness);
  assert.ok(pose,'source crossfade may still be 78 percent after movement is already owned');
+ const sparseFade=plan({...witness,frameInterval:.37});
+ assert.ok(sparseFade&&sparseFade.offsetRad>0&&sparseFade.offsetRad<=.12,
+  'same licensed 78-percent walking crossfade retains safe sparse-frame spine turn');
+ assert.equal(plan({...witness,frameInterval:.37,reducedMotion:true}),null,
+  'reduced-motion ownership excludes the sparse-frame torso overlay');
+
  assert.ok(pose.offsetRad>.05&&pose.offsetRad<=.12,
   'genuine pivot must turn existing skinned chest opposite the visible root');
  assert.equal(pose.sourceClip,'Walking_A');
@@ -4802,7 +4814,7 @@ test('RED: a genuine moving Walking_A crossfade at 78 percent retains measured s
   {sourceWeight:.74},{mode:'attack'},{mode:'guard'},{mode:'hurt'},
   {mode:'defeat'},{sourceClipName:'Idle'},{previousMode:'idle',previousOffsetRad:.01},
   {previousMode:'cast'},{sourceInstanceSame:false},{ownerLocomotion:false},
-  {rootTravel:0},{rootTravel:.181},{frameInterval:.37},
+  {rootTravel:0},{rootTravel:.181},{frameInterval:2.01},
   {visible:false},{alive:false},{teleport:true},
   {interrupted:true},{reducedMotion:true}
  ])assert.equal(plan({...witness,...bad}),null,
