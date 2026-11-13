@@ -10083,5 +10083,35 @@
     "nextHighestImpactAction": "Run exact immutable-source 9-job original baseline/candidate 60+s paired capture after this code change; compare 22-31s native film, source ticks, WebGL returns and image PTS, audit geometry continuity in real viewports. If still hard cut, rebuild unified world depth/camera; fix new genuine regressions without touching Maze or baseline.",
     "review": "docs/reviews/2026-11-13-tower-pr68-source-load-path-gallery-physical-gateway.md",
     "safety": "PR68 remains open draft on PR58; frozen baseline unchanged; no merge, deployment, force push, modification to other games or fake reviews."
+  },
+  "p0RealPortraitDelayedGatewayPublication20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "branchHeadBeforeWork": "6ef3b26c855821bc793646f904217b3e89fb7ccc",
+    "previousOriginalFullMotionCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43489266207",
+    "previousCandidateSourceSha": "07aa3bda79299d8e9b471ba1b4673d6d9ab8982a",
+    "originalFullMotionEvidence": "8/8 native full 1x baseline/candidate films succeeded; strict native source/event-matched guardian crossing 0/2. Bronze Floor8 abruptly becomes violet Floor9 25-25.5s both viewports. Desktop first F9 GPU tick454 original gate kept but visual cut; PORTRAIT first F9 GPU tick460 old gate MISSING, despite HP-zero grounded source passage tick451 and both actors in camera bounds.",
+    "observedPrimarySystemicBlocker": "Original bronze door had been staged by real defeated guardian and grounded source crossing but first portrait F9 Three rebuild demanded the not-yet-published immutable lastGuardianCrossing record; queued old GPU gate deleted before render. Existing source crossing record later arrives and validates actual tick451; presentation must not fabricate it.",
+    "committedSourceAndTests": [
+      "6b168c9e4797e4361dbb18370e7a29259313de3f",
+      "57952d1d98850360c948e307f08cba4416e46f33",
+      "abb89fb86a792a3f0ec142d2dc7d12b2e4dae2bb",
+      "700b7292df9c873dc65052a3d39974219829b5d1"
+    ],
+    "sourceSafety": "Only actual previously rendered old floor GPU cap+door may persist; accepted source-staged zero-HP guardian, old f8 cap, same-run previous-to-new grounded whole-body crossing, aligned f9 roof, strict <=12 tick / plausible movement. Immutable HP-zero crossing not invented. Wrong run, changed roof, dead/distant hero and conflicting publication rejected.",
+    "testFirstExpectedRed": "https://github.com/my-edutu/Ai_games/actions/runs/43493539499 — portrait first-frame regression confirmed failed prior to implementation; unrelated phase6 partition also failed, never green claim.",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43494255841 — pending; no green claim",
+    "freshRealNativeCapture": "NOT YET RETURNED. New immutable-source capture requested separately; 8 original films + pair-source-events required.",
+    "authenticAfterChangePortalAndCompleteLoop": "NOT EVALUATED",
+    "supportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "independentBlindReviewerCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "biggestExperienceGap": "Same original bronze gateway and live full-body hero still NOT proven continuous in original normal-speed floor-eight→floor-nine pixels, especially portrait; whole-game restart/quality and physical hardware unresolved.",
+    "nextHighestImpactAction": "Read exact-head quality, then inspect new eight-video immutable-source native campaign and source/native WebGL PTS 22–31s. If portrait gateway now present but shot still hard-cuts, rebuild shared geometry/physical camera-depth and opaque-shaft occlusion, not separate fade timers. Preserve baseline and P0 until 2/2 strict crossing and authentic restart.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-late-source-portrait-original-gateway.md"
   }
 }
