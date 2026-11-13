@@ -986,6 +986,48 @@ for(const view of [
    expect(afterDepth).toBeLessThan(beforeDepth-.001);
   }
  }
+
+ // New LAST original toe-knuckle presentation is optional: it may exist
+ // only when both SOURCE weighted shoes make the physically safe trial.
+ // If zero is accepted, report the failure to witness rather than claiming
+ // foot planting or viewer-visible toe-clearance improvement.
+ const toeJointTrace=trace.map(t=>({
+  tick:t.tick,sourceId:t.sourceId,
+  clip:t.nativeLegOwnership?.clipName,
+  weight:t.nativeLegOwnership?.originalSourceWeight,
+  cumulative:t.nativeLegOwnership?.sourceToeJointAcceptedFrames??0,
+  originalTwoShoeProof:t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs??null,
+  originalWeightedFeet:t.sourceSolePatchWorld??null
+ }));
+ for(const t of trace)for(const side of ['left','right']){
+  const proof=t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs?.[side];
+  if(!proof)continue;
+  expect(proof.source).toBe('licensed-original-Walking_A-toes-hinge');
+  expect(proof.sourceInstanceId).toBe(t.sourceId);
+  expect(proof.sourceBone.toLowerCase()).toBe(side==='left'?'toesl':'toesr');
+  expect(proof.sourceTrack.toLowerCase().endsWith(proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
+  expect(proof.oppositeFootVerified).toBe(true);
+  expect(proof.originalSourceContactLocked).toBe(false);
+  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.100001);
+  expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
+  expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
+  expect(proof.afterToeY).toBeGreaterThan(proof.beforeToeY);
+  const opposite=side==='left'?'right':'left';
+  const original=proof.before?.[opposite],after=proof.after?.[opposite];
+  expect(original&&after,'both original source shoes must be attached').toBeTruthy();
+  for(const y of ['heelY','toeY'])expect(Math.abs(after[y]-original[y])).toBeLessThanOrEqual(.002001);
+  for(const p of ['heelXZ','toeXZ'])expect(Math.hypot(
+   after[p][0]-original[p][0],after[p][1]-original[p][1]
+  )).toBeLessThanOrEqual(.002001);
+ }
+ await test.info().attach('original-source-toes-hinge-airborne-proof',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   acceptedFrames:toeJointTrace.filter(t=>Object.values(t.originalTwoShoeProof??{}).some(Boolean)).length,
+   onlyReadbackVerified:true,footPlantClaimed:false,
+   limitation:'Zero accepted source-toes hinge probes means original source-foot clearance remains inconclusive, NOT improved.',
+   frames:toeJointTrace},null,2))
+ });
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
  // The observed licensed Walking_A crossfade commonly carries ~.51-.58
