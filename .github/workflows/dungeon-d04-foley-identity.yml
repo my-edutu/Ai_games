@@ -13,6 +13,7 @@ on:
       - public/ai-dungeon/physical-feedback-visuals.js
       - scripts/serve-dungeon-stream.cjs
       - tests/foundation/dungeon-d04-*.test.cjs
+      - tests/foundation/dungeon-physical-feedback-realism-d04.test.cjs
       - tests/foundation/dungeon-d04-queue-pressure-audit.test.cjs
       - tests/browser/dungeon-d04-dynamic-render-pair.cjs
       - tests/browser/dungeon-d04-capture-cost-pair.cjs
@@ -91,7 +92,8 @@ jobs:
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
             tests/foundation/dungeon-d04-simultaneous-verified-impact-foley.test.cjs \
-            tests/foundation/dungeon-d04-simultaneous-verified-swing-foley.test.cjs
+            tests/foundation/dungeon-d04-simultaneous-verified-swing-foley.test.cjs \
+            tests/foundation/dungeon-physical-feedback-realism-d04.test.cjs
       - run: npm run build
   real-preview:
     runs-on: ubuntu-24.04
