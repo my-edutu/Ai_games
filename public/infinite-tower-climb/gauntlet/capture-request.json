@@ -1952,5 +1952,27 @@
     },
     "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "leadingTransformationVerdict": "NOT EVALUATED"
+  },
+  "p0SourceScopeCrashVetoAndRecovery20261113": {
+    "stage": "P0 OPEN; root-caused and repaired cold doorway diagnostics runtime crash; NO quality acceptance",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionAndFixShas": [
+      "4e989f90563e2bce9adae5e8d792a4c8bd93f0bb",
+      "84a4ecd645bf5837397d75b7b596f760889a3abf"
+    ],
+    "candidateSourceSha": "EXACT immutable github.sha of this evidence commit only, not floating branch",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "required": "Full existing 9-job source-pinned 1x baseline/candidate 60+ seconds each ascent/moving/floor8 guardian+crusher->physical bronze doorway->Floor9 onwards/outcome-restart, 960x600 desktop and 390x844 portrait, matched seed/tier/native PTS/source events.",
+    "crashVeto": "Previous captured candidate b0f15af1 CI/browser failed ReferenceError: coldArchLens is not defined in diagnostics() closure. No new candidate WebM was accepted. Runtime bug fixed in 84a4ecd645bf5837397d75b7b596f760889a3abf.",
+    "criticalEvidence": "After startup check, compare original 22-32s native full 1x frames, source tick451 vs actual returned camera and physicalThresholdCamera 2-subject NDC, original gate, real body, roof and Floor9 violet shaft. Require continuous same real bronze door physically crossed both viewports or keep P0 OPEN.",
+    "priorAuthenticFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43404230264 — old 0/2 native visual doorway, 8/8 genuine source stories with pairing failure",
+    "newCandidateVerdict": "NOT EVALUATED",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED"
   }
 }

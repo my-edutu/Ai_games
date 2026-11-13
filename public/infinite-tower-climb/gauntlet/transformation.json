@@ -9791,5 +9791,29 @@
     "highestPriorityNext": "Inspect new full native source-pinned film first F9 shot, physical original door and actual body projections plus outcome/restart and baseline native clock; if abrupt cut persists rebuild shared spatial camera/world depth not timers.",
     "review": "docs/reviews/2026-11-13-tower-pr68-final-physical-doorway-camera-arbitration.md",
     "safety": "PR68 draft on PR58; frozen baseline intact; no merge/deploy/force-push/draft promotion or unrelated-game edit."
+  },
+  "p0SourceScopeCrashVetoAndRecovery20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalProductionSha": "4e989f90563e2bce9adae5e8d792a4c8bd93f0bb",
+    "repairedSourceSha": "84a4ecd645bf5837397d75b7b596f760889a3abf",
+    "exactHeadQualityFailed": "https://github.com/my-edutu/Ai_games/actions/runs/43411430240 — Phase3 shards 0/3 FAILED with ReferenceError coldArchLens is not defined, other CI unverified",
+    "originalRecordingFailed": "https://github.com/my-edutu/Ai_games/actions/runs/43412008785 — candidate evidence and ledge failed browser startup due same ReferenceError, no valid new candidate native 1x film. Source tick evidence from prior film only.",
+    "rootCause": "New physicalThresholdCamera diagnostics() closure referenced coldArchLens declared only inside update(). Runtime diagnostics called in render preflight and crashed all browser captures. Code tested via exact CI; failure addressed.",
+    "verifiedRepair": "Move sourceBound into module-local persistent scalar physicalThresholdFrameSourceBound assigned per update from qualified thresholdSteps, expose only that scalar in diagnostics(); add regression source contract. Source simulation unchanged.",
+    "fixedFocusedTest": "tests/phase3/tower-physical-threshold-camera.test.cjs",
+    "newQuality": "NEW exact-head GitHub CI after recovery commit not yet inspected / NOT EVALUATED",
+    "newCapture": "REQUESTED by NEW capture-request evidence commit, exact immutable candidate github.sha after scope fix; no accepted new film yet.",
+    "previousNativeAcceptance": "0/2 on last fully recorded candidate b17ec533; recovered new 2/2 NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Verify exact-head Phase3 diagnostics no ReferenceError, restore nine original normal-speed 60s+ candidate/frozen paired films, inspect same bronze arch and full hero body crossing in both viewports. If visual discontinuity remains, redesign depth/camera path. Certify outcome/restart and source PTS.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-final-physical-doorway-camera-arbitration.md",
+    "safety": "PR68 stays draft based on PR58; frozen baseline preserved; no unrelated game files, merge, deployment, force push or draft promotion."
   }
 }
