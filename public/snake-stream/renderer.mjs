@@ -206,6 +206,30 @@ export function shouldAdmitFullSceneCache({ queue, cacheHit = false, directDraws
     queue.lastObservedLatencyMs >= 120 && queue.lastObservedLatencyMs <= 5000;
 }
 
+/**
+ * Rebuild the COMPLETE source-matched 3D HDR/depth photograph when a stable
+ * follow/detail shot has first survived a real completed GPU fence. The
+ * congested-path optimization previously rendered every subsequent MISS in
+ * direct mode forever: a camera reframe could NEVER recover its cheap cached
+ * steady state, even after the safe camera anchor held its view for seconds.
+ *
+ * This certificate is per-view (submission watermark), requires a physically
+ * completed full 3D draw, and is reset on camera/world/prop/CSS changes. A
+ * frame submission or RAF callback alone is not evidence. The actual full
+ * static scene is still rebuilt unabridged; no asset/cue or geometry is dropped.
+ */
+export function shouldPromoteStableShotCache({ queue, cacheHit = false, directFrames = 0,
+  submittedAtViewStart = 0 } = {}) {
+  return !cacheHit && queue?.supported === true && queue.failed === false &&
+    Number.isInteger(directFrames) && directFrames >= 1 &&
+    Number.isInteger(submittedAtViewStart) && submittedAtViewStart >= 0 &&
+    Number.isInteger(queue.completed) && queue.completed > submittedAtViewStart &&
+    Number.isInteger(queue.skipped) && queue.skipped >= 16 &&
+    Number.isInteger(queue.pending) && queue.pending <= 1 &&
+    Number.isFinite(queue.lastObservedLatencyMs) &&
+    queue.lastObservedLatencyMs >= 120 && queue.lastObservedLatencyMs <= 5000;
+}
+
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -329,6 +353,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   // Complete original full-scene draws substituted for a costly cache REBUILD
   // only after actual completed GPU-fence pressure, never counted as presents.
   let pressureDirectFrames = 0;
+  // Real completed-fence admission for each NEW settled camera/prop/world
+  // view. A stale prior-view fence cannot certify this cache rebuild.
+  let pressureMissViewKey = '';
+  let pressureMissSubmittedAt = 0;
+  let pressureMissDirectFrames = 0;
   let currentGpuQueue = null;
   let cacheActive = false;
   // Keep HDR/MSAA color and depth for cache rebuilds. Bake display color once,
@@ -407,6 +436,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // photograph. A new game, geometry revision, shot or CSS layout still
     // invalidates by the ordinary exact-world/camera key.
     if (!preserveView) staticKey = '';
+    if (!preserveView) { pressureMissViewKey = ''; pressureMissDirectFrames = 0; }
     cacheActive = false;
   }
 
@@ -454,6 +484,23 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // follow the original complete-scene direct-preserve recovery path.
     const newlyAdmitted = !cacheAdmissionReady;
     cacheAdmissionReady = true;
+    // The exact camera+projection+prop+fog key is the only stable-shot identity.
+    // Direct frames in transit never certify the settled camera: they don't
+    // enter this key path. A topology/portal change changes the key and resets
+    // the fence watermark before any new whole-scene cache work.
+    if (cacheHit) {
+      pressureMissViewKey = '';
+      pressureMissDirectFrames = 0;
+    } else if (pressureMissViewKey !== key) {
+      pressureMissViewKey = key;
+      pressureMissSubmittedAt = currentGpuQueue.submitted;
+      pressureMissDirectFrames = 0;
+    }
+    const certifiedNewView = !newlyAdmitted && shouldPromoteStableShotCache({
+      queue: currentGpuQueue, cacheHit,
+      directFrames: pressureMissDirectFrames,
+      submittedAtViewStart: pressureMissSubmittedAt,
+    });
     // Only after actual COMPLETED GPU fences establish starvation: the
     // unmodified direct scene draws ALL original static and animated layers,
     // original shadows, original fog and depth. It replaces an HDR/depth bake,
@@ -461,7 +508,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Retain cache reuse for a matching true view and ordinary healthy GPUs.
     const cachePath = selectStaticWorldCachePath({ cacheHit,
       pressureDirect: !newlyAdmitted && shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit,
-        shadowDirty: renderer.shadowMap.needsUpdate }),
+        shadowDirty: renderer.shadowMap.needsUpdate }) && !certifiedNewView,
     });
     if (cachePath === 'direct-preserve') {
       // A direct full scene from camera B must NOT destroy the genuine static
@@ -470,6 +517,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       // A new world, changed props/CSS or disposal still invalidates normally.
       pressureDirectFrames++;
       renderer.render(scene, camera);
+      // Only a complete, actually submitted direct full-scene draw is eligible
+      // to supply the following current-view completed-fence certificate.
+      pressureMissDirectFrames += 1;
       return;
     }
     // When the previously baked image covers the new smaller raster AND the
@@ -525,6 +575,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         staticKey = key;
         cachedCssLayout = lastCssLayout;
         cacheBuilds++;
+        pressureMissViewKey = '';
+        pressureMissDirectFrames = 0;
       } else cacheHits++;
       // BEGIN R46 ONE-PASS CACHE COMPOSITION
       // One live scene pass: original cached color and depth first, then live
@@ -718,6 +770,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       cacheAdmissionReady = false;
       cacheProbeDirectFrames = 0;
       submittedAtWorldBuild = frameGate.stats().submitted;
+      pressureMissViewKey = '';
+      pressureMissDirectFrames = 0;
       invalidateStaticCache();
       scene.add(world.group);
       dimensions = key;
@@ -837,6 +891,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         retainedHigherRasterCompositions, // cached full-static+live compositions, never actual presents
         probeDirectFrames: cacheProbeDirectFrames, // complete original draws, NOT display presents
         admissionReady: cacheAdmissionReady, // permission, NOT a frame-rate result
+        pressureMissDirectFrames, // actual stable-view full-scene draws, not RAF
         pressureDirectFrames, // actual complete draws, NOT physical displayed frames or strict one-second count
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS
