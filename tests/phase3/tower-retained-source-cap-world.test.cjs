@@ -37,7 +37,7 @@ beforeEach(t=>resourceCheckpoint('subtest-begin:'+t.name));
 afterEach(t=>resourceCheckpoint('subtest-end:'+t.name));
 const cap={id:'f8:cap',kind:'oneway',x:115200,y:3212000,width:249600,height:12000};
 const gate=cap.x+Math.floor(cap.width*.76);
-const body={health:5,grounded:true,halfWidth:9000,halfHeight:14000,
+const body={health:5,grounded:true,state:'standing',vy:0,halfWidth:9000,halfHeight:14000,
   y:3238000,x:gate+13000};
 const common={runToken:'real-geometry-lifetime',lifecycle:'running',
   worldWidth:480000,chunkBaseY:2880000,chunkHeight:360000,
@@ -237,13 +237,18 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
     world.update(after,.05,.05,{quality:'low'});
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),actualOldGate);
     assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true);
-    // No newly submitted frame may extend an airborne doorway beyond the
-    // authoritative 24-tick launch allowance; do not conflate source ticks
-    // with a GPU submission or introduce a ghost entrance.
-    const outside={...after,tick:478};
-    world.update(outside,.05,.1,{quality:'low'});
+    // The original cold gate remains source-proven for up to 48 ticks
+    // even if the GPU has not submitted a successor frame. Check both
+    // sides of that immutable authority bound, not an obsolete 24-tick
+    // presentation-only launch window.
+    const within={...after,tick:478};
+    world.update(within,.05,.1,{quality:'low'});
+    assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true,
+      'the original door is still valid inside the authenticated cold 48-tick window');
+    const outside={...after,tick:500};
+    world.update(outside,.05,.15,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap,null,
-      'the source-earned old cap cannot persist past the bounded first airborne continuation');
+      'source-earned original cap must retire after 48 authoritative ticks');
   }finally{world.dispose();}
 });
 
@@ -422,7 +427,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
   const oldFrame=old(), first=next();
   first.tick=454;
   // The actual immutable F9 snapshot carries a standing/zero-vy roof contact;
-  // the generic geometry fixture intentionally omitted presentation state.
+  // source-grounded fixture provides the same valid authoritative motion fields.
   first.player={...first.player,state:'standing',vy:0};
   const crossing={
     runToken:oldFrame.runToken,sourceTick:451,fromFloor:8,toFloor:9,
@@ -471,11 +476,13 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     const canonicalVoidColor=world.group.getObjectByName('platform:f9:ground')
       .children.find(o=>o.isMesh&&o.material?.name==='SourceEarnedSharedPhysicalArrivalRoof')
       .material.color.clone();
-    assert.equal(roof(realFirstRender,passage,retained),true,
+    const ownedSourceWitness=world.retainedFilmHandoff(realFirstRender);
+    assert.ok(ownedSourceWitness,'retained world issues real source-bound roof witness');
+    assert.equal(roof(realFirstRender,passage,ownedSourceWitness),true,
       'retained architecture must recognize the SAME passage observation');
     assert.ok(world.retainedFilmHandoff(realFirstRender),
       'warm horizon must receive original recorded HP-zero crossing clock');
-    assert.equal(cold(realFirstRender,world.retainedFilmHandoff(realFirstRender)),true);
+    assert.equal(cold(realFirstRender,ownedSourceWitness),true);
     assert.equal(world.diagnostics().deferredDistantArrival?.structureDeferred,true);
     world.noteFrameSubmitted(realFirstRender,{});
     const later={...realFirstRender,tick:461};
