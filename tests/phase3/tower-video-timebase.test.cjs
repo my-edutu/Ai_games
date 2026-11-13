@@ -75,7 +75,7 @@ test('real original portrait: reject mismatched native pictures, not genuine PTS
  assert.equal(repaired.maxVideoToWallSlope,1);
  // Good pixel matches that genuinely disagree with time MUST still veto.
  const trueDiscontinuity=a.map((x,i)=>i===6?{
-   ...x,imageDifference:.4,uniquenessMargin:20,videoPtsSeconds:18}:x);
+   ...x,imageDifference:.4,uniquenessMargin:20,videoPtsSeconds:16.5}:x);
  const blocked=assessVideoTimebase(trueDiscontinuity);
  assert.notEqual(blocked.status,'CALIBRATED');
  assert.equal(blocked.status,'PARTIALLY_CALIBRATED');
