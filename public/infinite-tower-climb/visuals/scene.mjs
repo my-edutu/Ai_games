@@ -31,6 +31,7 @@ import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardi
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
+import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -2577,6 +2578,8 @@ export function createTowerScene(canvas, settings = {}) {
   let earnedGatewayEscortLastGain = 0, earnedGatewayEscortApplications = 0;
   let physicalThresholdFrameGain = 0, physicalThresholdFrameCorrections = 0;
   let physicalThresholdFrameSourceBound = false;
+  let sourceSubmittedDoorwayLimitedFrames = 0;
+  let sourceSubmittedDoorwayLastStep = 0;
   const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
   const thresholdGaze = new THREE.Vector3(), thresholdPreviousGaze = new THREE.Vector3();
   const thresholdPreviousCamera = new THREE.Vector3(), thresholdBestCamera = new THREE.Vector3();
@@ -3564,6 +3567,17 @@ export function createTowerScene(canvas, settings = {}) {
     const coldArchLens = coldArchProof
       ? observedSourceBoundColdDoorwayLens(snapshot, coldArchProof,
           climber.group.position, camera.aspect, zoom) : null;
+    // The first *returned* new-floor render can follow a 0.9s+ GPU stall.
+    // Do not spend that unseen wall time teleporting this SAME exterior
+    // camera and all its safety directors away from the original doorway.
+    // This affects only source-proven next-floor presentation; the fixed-step
+    // simulation, real hero position and elapsed game time remain untouched.
+    const cameraDt = sourceSubmittedDoorwayCameraDt(dt,coldArchLens,snapshot,options);
+    if (cameraDt < dt) {
+      sourceSubmittedDoorwayLimitedFrames = Math.min(1000000,
+        sourceSubmittedDoorwayLimitedFrames + 1);
+      sourceSubmittedDoorwayLastStep = cameraDt;
+    } else if (!coldArchLens) sourceSubmittedDoorwayLastStep = 0;
     const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
       sourceGroundedHandoffShot || sourceAirborneHandoffShot || coldArchLens;
     // Prior source-pinned desktop and phone films never kept the actual
@@ -3817,13 +3831,13 @@ export function createTowerScene(canvas, settings = {}) {
         sourceGuardian.halfWidth/SCALE,sourceGuardian.halfHeight/SCALE);
       const foreground=observedGuardianForegroundPressure(
         submittedHeroBounds,submittedGuardianBounds);
-      duelOrbitBudget = towerDuelOrbitBudget(dt, camera.aspect, scratch,
+      duelOrbitBudget = towerDuelOrbitBudget(cameraDt, camera.aspect, scratch,
         guardianRescueEnemyProjection,
         towerCoreSightlineClear(camera.position, actorFramePoint, 23.5),
         towerCoreSightlineClear(camera.position, currentGuardianDrawPoint, 23.5),
         foreground.occlusion+foreground.dominance*.3);
     }
-    const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-dt * cameraRate);
+    const cameraBlend = options.reducedMotion ? 1 : 1 - Math.exp(-cameraDt * cameraRate);
     if (!initialized) { camera.position.copy(destination); lookAt.copy(focus); initialized = true; }
     else {
       followTowerCamera(camera.position, destination, cameraBlend, duelOrbitBudget);
@@ -3844,7 +3858,7 @@ export function createTowerScene(canvas, settings = {}) {
       scratch.copy(actorFramePoint).project(camera);
       actorRescueFraction = recoverTowerActorView(camera.position, lookAt,
         actorFramePoint, scratch.x, scratch.y, scratch.z,
-        camera.aspect, dt, actorOrbitTarget);
+        camera.aspect, cameraDt, actorOrbitTarget);
       // A final real-submitted-frame safe margin check follows the guardian
       // chase and source-earned impact camera below, not the early lens.
     }
@@ -3890,7 +3904,7 @@ export function createTowerScene(canvas, settings = {}) {
       actorBefore[2] = guardianRescueActorProjection.z;
       const pressure = guardianFramePressure(guardianBefore, camera.aspect);
       if (pressure > .12 && Number.isFinite(pressure)) {
-        const step = guardianCameraRecoveryBlend(pressure, dt);
+        const step = guardianCameraRecoveryBlend(pressure, cameraDt);
         guardianRescuePreviousCamera.copy(camera.position);
         guardianRescuePreviousGaze.copy(lookAt);
         followTowerCamera(camera.position, destination, step);
@@ -3943,7 +3957,7 @@ export function createTowerScene(canvas, settings = {}) {
         guardianRescuePoint.copy(observed);
       }
       const verified = refineTowerActorSafeFrame(camera, lookAt, actorFramePoint,
-        dt, actorSafeProjection, actorOrbitTarget,
+        cameraDt, actorSafeProjection, actorOrbitTarget,
         actorSafePreviousCamera, actorSafePreviousGaze,
         protectGuardian ? guardianRescuePoint : null,
         protectGuardian ? guardianRescueEnemyProjection : null);
@@ -3999,7 +4013,7 @@ export function createTowerScene(canvas, settings = {}) {
       // and frame-rate-dependent displacement below the grounded lens.
       const nextRadius = Math.max(30.8, previousRadius -
         Math.min(airborneDuelLanding ? .46 : .85,
-          dt * (airborneDuelLanding ? 8 : 13)));
+          cameraDt * (airborneDuelLanding ? 8 : 13)));
       if (nextRadius < previousRadius - .1 && duelActorBefore[3] < .16 &&
         previousRadius > 30.9) {
         duelPreviousCamera.copy(camera.position);
@@ -4064,7 +4078,7 @@ export function createTowerScene(canvas, settings = {}) {
       }
       portraitAimLastGain=correctTowerPortraitFocus(camera,lookAt,actorFramePoint,
         protectGuardian?guardianRescuePoint:null,
-        protectLanding?portraitAimLanding:null,dt,actorSafeProjection,
+        protectLanding?portraitAimLanding:null,cameraDt,actorSafeProjection,
         portraitAimGuardianProjection,portraitAimLandingProjection,
         portraitAimPreviousFocus,p.halfHeight/SCALE,
         protectGuardian&&Number.isFinite(sourceGuardian.halfHeight)?
@@ -4082,7 +4096,7 @@ export function createTowerScene(canvas, settings = {}) {
     if (!overview && !options.reducedMotion && !options.stale &&
       options.camera === 'follow' && snapshot.lifecycle === 'running' &&
       p.health > 0 && zoom <= 1.02 && camera.aspect > 0 &&
-      camera.aspect < .85 && Number.isFinite(dt) && dt > 0 &&
+      camera.aspect < .85 && Number.isFinite(cameraDt) && cameraDt > 0 &&
       sourceGuardian?.health > 0 && sourceGuardian.active === true &&
       Number.isFinite(sourceGuardian.halfHeight) && sourceGuardian.halfHeight > 0 &&
       Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
@@ -4120,7 +4134,7 @@ export function createTowerScene(canvas, settings = {}) {
         jointPreviousCamera.copy(camera.position);
         jointPreviousFocus.copy(lookAt);
         const jointBlend = Math.min(.23,
-          1 - Math.exp(-Math.min(.06, dt) * 12));
+          1 - Math.exp(-Math.min(.06, cameraDt) * 12));
         followTowerCamera(camera.position, destination, jointBlend);
         followTowerFocus(lookAt, focus, jointBlend);
         camera.lookAt(lookAt); camera.updateMatrixWorld(true);
@@ -4166,7 +4180,7 @@ export function createTowerScene(canvas, settings = {}) {
       snapshot.lifecycle === 'running' && p.health > 0 &&
       actionStage?.kind === 'hazard' && sourceGuardian?.active === true &&
       sourceGuardian.health > 0 && followComposition?.guardianStaged &&
-      Number.isFinite(dt) && dt > 0 && Number.isFinite(camera.aspect) &&
+      Number.isFinite(cameraDt) && cameraDt > 0 && Number.isFinite(camera.aspect) &&
       camera.aspect > 0 && camera.aspect < 2 &&
       Number.isFinite(p.halfHeight) && p.halfHeight > 0 &&
       Number.isFinite(sourceGuardian.halfHeight) &&
@@ -4221,7 +4235,7 @@ export function createTowerScene(canvas, settings = {}) {
         if (depth > 1 && Number.isFinite(depth) &&
           tangent > 0 && Number.isFinite(tangent)) {
           crossfirePreviousFocus.copy(lookAt);
-          const response = Math.min(.21,1-Math.exp(-Math.min(.06,dt)*5));
+          const response = Math.min(.21,1-Math.exp(-Math.min(.06,cameraDt)*5));
           const sx = clamp(hX-clamp(hX,-.63,.63),-1,1) *
             depth * tangent * camera.aspect * response;
           const sy = clamp(hY-clamp(hY,-.69,.69),-1,1) *
@@ -4294,7 +4308,7 @@ export function createTowerScene(canvas, settings = {}) {
         (p.state === 'standing' || !!sourceAirborneWalk?.realAirborneCap ||
           !!sourceAirborneHandoffShot?.airborneHandoff) &&
         camera.aspect > 0 && camera.aspect < 2.5 &&
-        Number.isFinite(dt) && dt > 0 && zoom <= 1.1 &&
+        Number.isFinite(cameraDt) && cameraDt > 0 && zoom <= 1.1 &&
         (arrivalFraming > .16 || sourceWalkProgress > .24 ||
           (sourceAirborneWalk?.approach ?? 0) > .16 ||
           groundedHandoffEscort > .04 || airborneHandoffEscort > .04)) {
@@ -4321,7 +4335,7 @@ export function createTowerScene(canvas, settings = {}) {
           earnedGatewayPreviousFocus.copy(lookAt);
           // Desktop has a wider action corridor and needs less correction;
           // portrait keeps the proven safe body-first correction budget.
-          const response = earnedGatewayEscortResponse(camera.aspect, dt);
+          const response = earnedGatewayEscortResponse(camera.aspect, cameraDt);
           const sx = clamp(earnedGatewayBefore[0] -
               clamp(earnedGatewayBefore[0], -.66, .66), -1.25, 1.25) *
             depth * tangent * camera.aspect * response;
@@ -4372,7 +4386,7 @@ export function createTowerScene(canvas, settings = {}) {
       const frameStandoff = guardianExteriorPortraitStandoff(
         camera.position, currentGuardianDrawPoint, actorFramePoint,
         sourceGuardian.halfHeight / SCALE, camera.aspect,
-        Math.min(1.1, Math.max(.10, dt * 13)));
+        Math.min(1.1, Math.max(.10, cameraDt * 13)));
       if (frameStandoff) {
         guardianStandoffPreviousCamera.copy(camera.position);
         camera.position.set(frameStandoff.x, frameStandoff.y, frameStandoff.z);
@@ -4425,12 +4439,12 @@ export function createTowerScene(canvas, settings = {}) {
       snapshot.tick >= lastSubmittedGuardian.tick;
     const boundedSubmittedView = previousGuardianSubmitted
       ? boundedObservedGuardianOrbit(lastSubmittedGuardianCamera,
-        camera.position, dt, camera.aspect) : null;
+        camera.position, cameraDt, camera.aspect) : null;
     if (boundedSubmittedView) {
       guardianOrbitPreviousCamera.copy(camera.position);
       guardianOrbitPreviousFocus.copy(lookAt);
       const boundedGaze = boundedObservedGuardianOrbit(
-        lastSubmittedGuardianFocus, lookAt, dt, camera.aspect, 1.05, 23.5);
+        lastSubmittedGuardianFocus, lookAt, cameraDt, camera.aspect, 1.05, 23.5);
       camera.position.set(boundedSubmittedView.x,
         boundedSubmittedView.y, boundedSubmittedView.z);
       if (boundedGaze) lookAt.set(boundedGaze.x,boundedGaze.y,boundedGaze.z);
@@ -4555,7 +4569,7 @@ export function createTowerScene(canvas, settings = {}) {
         } else guardianWorldTargetAngle=null;
       }
       if (guardianWorldTargetAngle !== null) {
-        const nextAngle=boundedGuardianWorldAngle(currentAngle,guardianWorldTargetAngle,dt);
+        const nextAngle=boundedGuardianWorldAngle(currentAngle,guardianWorldTargetAngle,cameraDt);
         if (nextAngle!==null) {
           candidateWorldPos.set(Math.sin(nextAngle)*radius,
             camera.position.y,Math.cos(nextAngle)*radius);
@@ -4678,7 +4692,7 @@ export function createTowerScene(canvas, settings = {}) {
     const opticalNext=options.reducedMotion
       ?GUARDIAN_OPTICAL_BASE_FOV
       :boundedGuardianOpticalFov(camera.fov,
-        guardianPortraitOpticalTarget,dt);
+        guardianPortraitOpticalTarget,cameraDt);
     if (Math.abs(opticalNext-camera.fov)>.0001) {
       camera.fov=opticalNext;
       camera.updateProjectionMatrix();
@@ -4702,7 +4716,7 @@ export function createTowerScene(canvas, settings = {}) {
       options.camera === 'follow' && !overview && !options.stale &&
       !options.reducedMotion && Math.abs(orbit) < .025 &&
       snapshot.lifecycle === 'running' && snapshot.floor === 9 && p.health > 0
-        ? sourceDoorwayFrameSteps(dt,camera.aspect) : null;
+        ? sourceDoorwayFrameSteps(cameraDt,camera.aspect) : null;
     physicalThresholdFrameSourceBound = !!thresholdSteps;
     if (thresholdSteps && Array.isArray(coldArchLens.gateway)) {
       thresholdHero.copy(climber.group.position);
@@ -5453,6 +5467,11 @@ export function createTowerScene(canvas, settings = {}) {
         criterion: 'Actual smoothed source-final camera; source projection only, not verified video visibility',
       } : null,
       guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
+      sourceSubmittedDoorwayCadence: {
+        boundedCameraFrames: sourceSubmittedDoorwayLimitedFrames,
+        lastCameraStepSeconds: Number(sourceSubmittedDoorwayLastStep.toFixed(4)),
+        limitation: 'Source-proven old arch GPU frame motion cap only; NOT native WebM continuity, real FPS or acceptance'
+      },
       physicalThresholdCamera: {sourceBound: physicalThresholdFrameSourceBound,
         lastGain:Number(physicalThresholdFrameGain.toFixed(4)),
         acceptedFrames:physicalThresholdFrameCorrections,
