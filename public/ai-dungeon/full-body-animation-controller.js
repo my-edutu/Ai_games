@@ -1729,12 +1729,19 @@ export function planOriginalSourceWalkingTorsoCounterturn({
  // A witnessed original Idle->Walking_A transition is still the SAME
  // imported body. Its first root pivot can happen at 78% clip weight, before
  // the old 85% gate and before a move-only yaw tracker had a previous sample.
- // Permit only this narrow source-fade entry; ordinary walking stays strict.
+ // The true 78%-weighted Walking_A turn can be observed one displayed
+ // frame AFTER the visual owner already became 'move'. Requiring 85% for
+ // every move->move frame silently dropped one of two genuine source pivots
+ // in the 1440px original GLB film (#43427834389), even though the source
+ // remained the same healthy, visible, travelled, uninterrupted rig.
+ // Keep >=75% as a STRICT source crossfade proof for both idle->walk and
+ // continuing walk; scale the chest response by the actual clip weight.
+ // All other real-body travel, source identity and pose-owner gates remain.
  const firstWalkFrame=previousMode==='idle';
  if(mode!=='move'||sourceClipName!=='Walking_A'||
   !['idle','move'].includes(previousMode)||
   !finite(sourceWeight)||
-  sourceWeight<(firstWalkFrame?.75:.85)||sourceWeight>1.001||
+  sourceWeight<.75||sourceWeight>1.001||
   (firstWalkFrame&&Math.abs(previousOffsetRad)>.0001)||
   sourceInstanceSame!==true||ownerLocomotion!==true||
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
@@ -1752,9 +1759,12 @@ export function planOriginalSourceWalkingTorsoCounterturn({
   // During the original Idle->Walking_A crossfade, borrow only the
   // source animation's ACTUAL effective weight. This cannot rotate the
   // authority root, original legs, weapon socket or blend other clips.
-  const firstStepWeight=firstWalkFrame?Math.min(1,sourceWeight/.85):1;
+  // A continuation of the fade is still a fade even if the animation
+  // owner already entered 'move'. Never give 78%-weighted source bones a
+  // full-weight torso correction. Once the source is >=85%, use 1.0.
+  const witnessedSourceWeight=Math.min(1,sourceWeight/.85);
   const desired=-Math.sign(signedYawChange)*
-   Math.min(.12,.25*turned)*firstStepWeight;
+   Math.min(.12,.25*turned)*witnessedSourceWeight;
   // A rapid direction reversal cannot snap the original spine from
   // +120mrad to -120mrad in one source frame.
   offset=clamp(desired,previousOffsetRad-.12,previousOffsetRad+.12);
