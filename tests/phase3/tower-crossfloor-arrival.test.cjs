@@ -150,3 +150,38 @@ test('cold actual source crossing keeps original cap/horizon through first delay
  assert.equal(shell(source,inactivePassage,held,{...job,proof:'guessed-gate'}),false);
  assert.match((await import('node:fs')).readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8'),/sourceColdFrame=observedSourceEarnedColdFrameContinuation/);
 });
+
+test('queued real guardian crossing survives skipped render observations without inventing a new world',async()=>{
+ const {observedQueuedOriginalCapAtFirstRender:valid}=await loaded;
+ const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+ const exitX=cap.x+Math.floor(cap.width*.76);
+ const w={runToken:'same-run',sourceTick:451,fromFloor:8,toFloor:9,
+   cap,exitX,crossingX:exitX+13000,halfWidth:9000,halfHeight:14000,
+   guardian:{kind:'guardian',floor:8,active:false,health:0}};
+ const queued={runToken:w.runToken,floor:9,tick:454,crossingTick:451,
+   oldCapId:'f8:cap',oldCapX:cap.x,oldCapWidth:cap.width,
+   oldRoofY:3224000,thresholdX:exitX,nextBaseY:3240000,worldWidth:480000};
+ const source={runToken:w.runToken,floor:9,theme:'void',lifecycle:'running',
+   tick:460,chunkBaseY:3240000,worldWidth:480000,lastGuardianCrossing:w,
+   platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}],
+   player:{x:exitX+19000,y:3238000,halfWidth:9000,halfHeight:14000,
+     health:4,grounded:true,groundedPlatformId:'f9:ground',state:'standing',vy:0}};
+ const frozen=JSON.stringify([source,queued]);
+ assert.equal(valid(source,queued),true);
+ assert.equal(valid({...source,player:{...source.player,y:3265000,
+   grounded:false,groundedPlatformId:null,state:'airborne',vy:2400}},queued),true);
+ for(const [s,q] of [
+   [{...source,tick:454},queued],
+   [{...source,tick:467},queued],
+   [{...source,runToken:'other'},queued],
+   [{...source,floor:10},queued],
+   [{...source,lastGuardianCrossing:{...w,sourceTick:450}},queued],
+   [{...source,lastGuardianCrossing:{...w,guardian:{...w.guardian,health:1,active:true}}},queued],
+   [{...source,platforms:[{...source.platforms[0],y:3212001}]},queued],
+   [{...source,player:{...source.player,x:exitX+100000}},queued],
+   [{...source,player:{...source.player,health:0}},queued],
+   [source,{...queued,crossingTick:450}],
+   [source,{...queued,oldCapWidth:249599}],
+ ]) assert.equal(valid(s,q),false);
+ assert.equal(JSON.stringify([source,queued]),frozen);
+});

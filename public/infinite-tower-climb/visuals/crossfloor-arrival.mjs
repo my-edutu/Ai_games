@@ -13,6 +13,66 @@
  * bounded tick/run, and frozen cap footprint still match. This is NEVER
  * permission to spawn a platform or to skip a collision/source event.
  */
+
+/*
+ * WebGL can submit the first Floor9 frame AFTER the browser's original
+ * source-authenticated HP-zero doorway request. Reattach only the original
+ * prior-floor GPU geometry if the next immutable snapshot matches the SAME
+ * recorded crossing, unchanged cap/roof, close living body and bounded
+ * 12-tick observation gap. No unobserved pose or game event is fabricated.
+ */
+export function observedQueuedOriginalCapAtFirstRender(source, queued) {
+  const w=source?.lastGuardianCrossing,p=source?.player;
+  const cap=w?.cap,guardian=w?.guardian;
+  if (!queued||!w||!p||!cap||!guardian||
+      source.lifecycle!=='running'||source.floor!==9||source.theme!=='void'||
+      source.runToken!==queued.runToken||w.runToken!==queued.runToken||
+      queued.floor!==9||w.fromFloor!==8||w.toFloor!==9||
+      ![source.tick,queued.tick,queued.crossingTick,w.sourceTick,
+        source.chunkBaseY,source.worldWidth,
+        cap.x,cap.y,cap.width,cap.height,w.exitX,w.crossingX,
+        w.halfWidth,w.halfHeight,queued.oldCapX,queued.oldCapWidth,
+        queued.oldRoofY,queued.thresholdX,p.x,p.y,p.halfWidth,p.halfHeight]
+        .every(Number.isSafeInteger)||
+      w.sourceTick!==queued.crossingTick||
+      queued.tick<w.sourceTick||queued.tick-w.sourceTick>12||
+      source.tick<=queued.tick||source.tick-queued.tick>12||
+      source.tick-w.sourceTick>48||
+      source.chunkBaseY!==queued.nextBaseY||
+      source.worldWidth!==queued.worldWidth||
+      cap.id!=='f8:cap'||queued.oldCapId!==cap.id||
+      cap.width<=0||cap.height<=0||
+      cap.x!==queued.oldCapX||cap.width!==queued.oldCapWidth||
+      cap.y+cap.height!==queued.oldRoofY||
+      w.exitX!==queued.thresholdX||
+      w.exitX!==cap.x+Math.floor(cap.width*.76)||
+      w.crossingX<w.exitX+w.halfWidth+4000||
+      w.halfWidth<=0||w.halfHeight<=0||
+      guardian.kind!=='guardian'||guardian.floor!==8||
+      guardian.active!==false||!Number.isSafeInteger(guardian.health)||
+      guardian.health>0||
+      p.halfWidth!==w.halfWidth||p.halfHeight!==w.halfHeight||
+      !(p.health>0)||!Array.isArray(source.platforms)||
+      p.x<w.crossingX||p.x>w.exitX+90000||
+      p.x-w.crossingX>(source.tick-w.sourceTick)*18000) return false;
+  const ground=source.platforms.find(s=>s?.id==='f9:ground');
+  if(!ground||![ground.x,ground.y,ground.width,ground.height]
+      .every(Number.isSafeInteger)||ground.width<=0||ground.height<=0||
+      ground.y+ground.height!==queued.oldRoofY||
+      p.x-p.halfWidth<ground.x||
+      p.x+p.halfWidth>ground.x+ground.width) return false;
+  const foot=p.y-p.halfHeight;
+  if(!Number.isSafeInteger(foot)||
+      foot<queued.oldRoofY-2500||foot>queued.oldRoofY+160000) return false;
+  if(p.grounded===false)
+    return p.state==='airborne'&&p.groundedPlatformId==null&&Number.isFinite(p.vy);
+  return p.grounded===true&&(p.state==='standing'||p.state==='hurt')&&
+    p.vy===0&&foot===queued.oldRoofY&&
+    (p.groundedPlatformId==='f9:ground'||
+      (p.groundedPlatformId==='f8:cap'&&
+       p.x-p.halfWidth>=cap.x&&p.x+p.halfWidth<=cap.x+cap.width));
+}
+
 export function observedRetainedOriginalCapRoofContact(source,held) {
   const p=source?.player;
   if (!held || !p || source?.lifecycle!=='running' ||

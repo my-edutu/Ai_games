@@ -150,5 +150,10 @@ jobs:
           printf '%s\n' "${selected[@]}"
           # Never background, mask failure, skip a failing file, or count test
           # outputs as gameplay acceptance. GitHub's job conclusion is veto.
-          timeout --signal=TERM --kill-after=5s 210s \
-            node --test --test-concurrency=2 "${selected[@]}"
+          # Keep the full inventory; isolate each file's bounded Node
+          # worker because a shared phase3 worker was externally shut down.
+          for file in "${selected[@]}"; do
+            printf 'Exact-source test: %s\n' "$file"
+            timeout --signal=TERM --kill-after=5s 75s \
+              node --test --test-concurrency=1 "$file"
+          done

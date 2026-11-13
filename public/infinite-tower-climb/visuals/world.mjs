@@ -5,7 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender } from './crossfloor-arrival.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 // Display-submission-timed copy of the ACTUAL source cap landing surface:
@@ -2037,7 +2037,10 @@ export function createTowerWorld(){
       previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,
       thresholdX:guardianGateAnchorX(previous,authored),
       oldRoofY:ground.y+ground.height,
-      oldCapId:authored.id,oldCapX:authored.x,oldCapWidth:authored.width
+      oldCapId:authored.id,oldCapX:authored.x,oldCapWidth:authored.width,
+      worldWidth:next.worldWidth,
+      crossingTick:Number.isSafeInteger(next.lastGuardianCrossing?.sourceTick)
+        ? next.lastGuardianCrossing.sourceTick : null
     };
     return true;
   }
@@ -2046,7 +2049,9 @@ export function createTowerWorld(){
     const requested = pendingEarnedCap;
     pendingEarnedCap = null;
     if (!requested || requested.runToken !== next.runToken ||
-        requested.floor !== next.floor || requested.tick !== next.tick) return;
+        requested.floor !== next.floor ||
+        !(requested.tick === next.tick ||
+          observedQueuedOriginalCapAtFirstRender(next,requested))) return;
     const sourceEntry = platforms.get('f8:cap');
     const root = sourceEntry?.root;
     const realGate = sourceEntry?.guardianGate?.frame;
@@ -2128,7 +2133,8 @@ export function createTowerWorld(){
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
       oldCapId:requested.oldCapId,oldCapX:requested.oldCapX,
       oldCapWidth:requested.oldCapWidth,
-      submittedFrames:0,visibleSeconds:0};
+      submittedFrames:0,visibleSeconds:0,
+      firstObservedTick:requested.tick,firstWorldRenderTick:next.tick};
   }
   function updateRetainedCap(snapshot,dt,options,passageWitness) {
     const held = retainedEarnedCap;
@@ -2253,7 +2259,8 @@ export function createTowerWorld(){
     const earnedSourceUploadWitness = pendingEarnedCap &&
       pendingEarnedCap.runToken===snapshot.runToken &&
       pendingEarnedCap.floor===snapshot.floor &&
-      pendingEarnedCap.tick===snapshot.tick &&
+      (pendingEarnedCap.tick===snapshot.tick ||
+        observedQueuedOriginalCapAtFirstRender(snapshot,pendingEarnedCap)) &&
       snapshot.lifecycle==='running';
     const adjacentBrowserProof = observedEarnedFloorArrival(lastSnapshot,snapshot);
     const deferDistant = requestedQuality==='low' &&
@@ -3082,6 +3089,10 @@ export function createTowerWorld(){
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
+      firstObservedTick:retainedEarnedCap.firstObservedTick,
+      firstWorldRenderTick:retainedEarnedCap.firstWorldRenderTick,
+      pendingSourceTickGap:retainedEarnedCap.firstWorldRenderTick-
+        retainedEarnedCap.firstObservedTick,
       submittedFrames:retainedEarnedCap.submittedFrames,
       visibleSeconds:Number(retainedEarnedCap.visibleSeconds.toFixed(3)),
       geometryCount:retainedEarnedCap.ownedGeometries.size,

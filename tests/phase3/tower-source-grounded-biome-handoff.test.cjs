@@ -71,16 +71,16 @@ test('actual renderer blends old and new environmental lighting together, after 
   const scene=fs.readFileSync(path.join(root,
     'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/import \{ observedGroundedBiomeThreshold \} from '\.\/biome-threshold\.mjs'/);
-  assert.match(scene,/observedGroundedBiomeThreshold\(snapshot,passage\.diagnostics\(\),options\)/);
+  assert.match(scene,/observedGroundedBiomeThreshold\(snapshot,passage\.diagnostics\(\),options,/);
   for(const channel of ['scene.fog.color','skyMaterial.uniforms.top.value',
     'skyMaterial.uniforms.horizon.value','skyMaterial.uniforms.bottom.value',
     'hemi.color','hemi.groundColor','sun.color','rim.color','bounce.color',
     'renderer.toneMappingExposure'])
     assert.ok(scene.includes(channel),'lighting layer missing '+channel);
-  assert.ok(scene.indexOf('observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options)')>
+  assert.ok(scene.indexOf('observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options,')>
     scene.indexOf('bounce.target.position.copy(actionLightTarget)'),
     'handoff must coordinate final effective action lighting, not be overwritten by ordinary lights');
-  assert.ok(scene.indexOf('observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options)')<
+  assert.ok(scene.indexOf('observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options,')<
     scene.indexOf('renderer.render(scene, camera);'),
     'floor-nine horizon must be committed for the actual native frame');
 });
