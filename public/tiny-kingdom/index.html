@@ -6120,16 +6120,32 @@ function buildValleySurface(){
   corner.push(row);
  }
  const emit=(a,b,c)=>data.push(...a,...b,...c);
+ // W295 Phase 1 resident-ground spine: keep real four-facet soil under the
+ // inhabited market and working fields. All distant tiles still form the
+ // COMPLETE closed terrain surface, but use two joined triangles instead of
+ // four midpoint triangles that spend GPU/CPU time on subpixel relief.
+ // Every adjacent cell shares its original corner elevations and winding.
+ // This changes NO terrain height query, citizen path, collision or world RNG.
+ let fineTiles=0,coarseTiles=0;
  for(let ix=0;ix<n;ix++)for(let iz=0;iz<n;iz++){
   const a=corner[ix][iz],d=corner[ix][iz+1],
    c=corner[ix+1][iz+1],b=corner[ix+1][iz],
-   mid=shadeValleySurfaceVertex(axis[ix]+step*.5,axis[iz]+step*.5);
-  centres++;
-  // Same original winding, normals, four facets and material per vertex.
-  emit(a,d,mid);emit(d,c,mid);emit(c,b,mid);emit(b,a,mid);
+   cx=axis[ix]+step*.5,cz=axis[iz]+step*.5;
+  const workingTown=Math.hypot(cx+4,cz-3)<17,
+   realFarm=Math.hypot(cx-29,cz+7.6)<9;
+  if(workingTown||realFarm){
+   const mid=shadeValleySurfaceVertex(cx,cz);
+   centres++;fineTiles++;
+   emit(a,d,mid);emit(d,c,mid);emit(c,b,mid);emit(b,a,mid);
+  }else{
+   coarseTiles++;
+   emit(a,d,c);emit(a,c,b);
+  }
  }
  valleySurfaceBuildStats={
   tiles:n*n,triangles:(data.length-first)/30,
+  fineTiles,coarseTiles,allTerrainTilesPreserved:fineTiles+coarseTiles===n*n,
+  fullResolutionFarmAndMarket:true,cornerEdgesJoined:true,
   uniqueSamples:corners+centres,cornerSamples:corners,centreSamples:centres,
   legacyRepeatedSamples:n*n*4*3,
   avoidedRepeatedSamples:n*n*4*3-corners-centres,
@@ -9196,7 +9212,11 @@ function tree(x,z,s=1){
     (.43-tier*.076)*s,1.04*s,dark,signature+tier*2.73);
    // 4/6/8 radial boughs in far/mid/near trees; the original four-tier
    // evergreen volume and all forest members remain present.
-   const spokes=detailTier==='far'?4:detailTier==='mid'?6:8;
+   // All real conifers retain their trunks and FOUR connected crown tiers.
+   // The original near-town boughs stay at eight. At far/middle distances
+   // 2/4 bilateral arm fans stay legible while avoiding thousands of
+   // subpixel branch and double-sided needle triangles in the immutable VBO.
+   const spokes=detailTier==='far'?2:detailTier==='mid'?4:8;
    forestLodStats.skippedConiferSprays+=8-spokes;
    forestLodStats.reclaimedTriangles+=(8-spokes)*16;
    for(let arm=0;arm<spokes;arm++){
