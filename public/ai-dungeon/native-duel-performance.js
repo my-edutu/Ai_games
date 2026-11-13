@@ -59,17 +59,15 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  // Actual THREE.AnimationAction post-mixer fade weight owns every additive
  // bone in the same connected strike. Do not jump hips/soles/wrist ahead
  // while the genuine source one-shot is still crossfading from locomotion.
- // Easing the *real imported* AnimationAction's current weight keeps the
- // authenticated partial-fade sword performance readable as one connected
- // pelvis -> spine -> shoulder -> hand/weapon -> supported-feet chain.
- // The original linear 0.60 fade left its witnessed active torso at just
- // 0.0922rad in source WebGL (Actions #43348792350). A smooth sublinear
- // support envelope reaches precisely zero with the source clip, precisely
- // one at full ownership, and never exceeds full-strength original joints.
- // Contact weight/strength below remain gated by the unmodified sourceBlend:
- // this cannot manufacture a hit, swing, target, movement tick or damage.
- const physicalBlend=sourceBlend*(2-sourceBlend);
- const w=p.power*physicalBlend,s=p.side,foot=p.plant*physicalBlend,t=age;
+ // Preserve the original Three.js blend contract exactly: EVERY imported
+ // hip, spine, shoulder, wrist, support leg, cosmetic root and contact
+ // envelope must remain linear in the source action's actual weight.
+ // Genuine WebGL #43348792350 measured only 0.0922 rad in an authentic
+ // adjacent melee. Improve the CONNECTED authored physical swing amplitudes
+ // below, not the clip-mixer envelope. This retains the real imported source
+ // action's ownership, protects interrupted crossfades, and cannot fake
+ // targets, damage, contact or authoritative movement.
+ const w=p.power*sourceBlend,s=p.side,foot=p.plant*sourceBlend,t=age;
  const wind=t<p.wind?ease(t/p.wind):t<NATIVE_CONTACT_TIME?
   1-ease((t-p.wind)/(NATIVE_CONTACT_TIME-p.wind)):0;
  const release=t<.105?0:t<NATIVE_CONTACT_TIME?
@@ -103,17 +101,17 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
   contactWeight:round(sourceBlend*release*(1-.32*settle)),
   strength:round(sourceBlend*clamp(.55*wind+.8*release)),
   head:{pitch:round(w*(-.047*wind+.030*release)),yaw:round(s*w*(.060*wind-.07*release)),roll:round(-s*w*.022*settle)},
-  hips:{pitch:round(w*(.069*wind-.082*release)),yaw:round(s*w*(-.091*wind+.117*release)),roll:round(s*w*(.032*wind-.038*release))},
-  spine:{pitch:round(w*(.067*wind-.117*release)),yaw:round(s*w*(-.107*wind+.155*release)),roll:round(s*w*(.056*wind-.060*release))},
-  wrist:{pitch:round(w*(-.082*wind+.153*release)),yaw:round(s*w*(.061*wind-.08*release)),roll:round(s*w*(-.068*wind+.102*release))},
+  hips:{pitch:round(w*(.069*wind-.082*release)),yaw:round(s*w*(-.091*wind+.14*release)),roll:round(s*w*(.032*wind-.038*release))},
+  spine:{pitch:round(w*(.067*wind-.117*release)),yaw:round(s*w*(-.107*wind+.22*release)),roll:round(s*w*(.056*wind-.060*release))},
+  wrist:{pitch:round(w*(-.082*wind+.185*release)),yaw:round(s*w*(.061*wind-.08*release)),roll:round(s*w*(-.068*wind+.102*release))},
   arms:{
    left:{pitch:round(w*(-.074*wind+.068*release)),roll:round(s*w*(.057*wind-.029*release))},
-   right:{pitch:round(w*(.131*wind-.148*release)),roll:round(s*w*(-.070*wind+.092*release))}
+   right:{pitch:round(w*(.131*wind-.165*release)),roll:round(s*w*(-.070*wind+.092*release))}
   },
-  forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.113*release))},
+  forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.126*release))},
   legs,
-  root:{x:round(physicalBlend*s*(.018*wind+.014*drive)),
-   y:round(physicalBlend*(-.042*p.plant*wind-.026*release+.012*settle)),
-   z:round(physicalBlend*(.023*wind-.20*p.plant*drive+heelRecovery))}
+  root:{x:round(sourceBlend*s*(.018*wind+.014*drive)),
+   y:round(sourceBlend*(-.042*p.plant*wind-.026*release+.012*settle)),
+   z:round(sourceBlend*(.023*wind-.20*p.plant*drive+heelRecovery))}
  };
 }
