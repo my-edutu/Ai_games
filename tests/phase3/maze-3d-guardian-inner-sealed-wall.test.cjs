@@ -111,3 +111,47 @@ test('Pass344 third-ring public same-tier NONPASSAGE screens become real low sto
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass345 visibility-only disclosure restores real third-ring low and tall guardian walls',async()=>{
+  const {createMazeWorld,publicGuardianCausewayCells,
+    publicGuardianWitnessedForegroundCells}=await load();
+  const base=court();
+  // Real one-edge guardian route 6-7; known 13 is grid distance 3 from
+  // explorer6 and NOT adjacent to either route cell. Former reefVisibility
+  // failed to include its disclosure, leaving old physical masonry stale.
+  const hidden={...base,threats:[{id:'thornback',cell:7}],
+    visibleCells:[6,7,11,12],
+    cells:[...base.cells,{cell:13,blocked:false,neighbors:[]}]};
+  const visible={...hidden,visibleCells:[...hidden.visibleCells,13]};
+  const original=JSON.stringify(visible),w=createMazeWorld({balanced:true});
+  try{
+    assert.deepEqual([...publicGuardianCausewayCells(hidden)],[[6,'x'],[7,'x']]);
+    assert.equal(publicGuardianWitnessedForegroundCells(hidden,undefined,3).has(13),false);
+    assert.equal(publicGuardianWitnessedForegroundCells(visible,undefined,3).has(13),true);
+    assert.equal(publicGuardianWitnessedForegroundCells(visible).has(13),false,
+      'the original material/floor district stays exactly two cells');
+    w.update(hidden);
+    const before=w.stats();
+    // Only visibleCells changes: same known geometry, run, topology, threat.
+    w.update(visible);
+    const now=w.stats();
+    assert.ok(now.guardianSightlineParapets>before.guardianSightlineParapets,
+      'new public far-end must rebuild actual opaque low guardian wall');
+    assert.equal(now.geometryCount,before.geometryCount,'no new GPU classes');
+    w.update(hidden);
+    assert.equal(w.stats().guardianSightlineParapets,before.guardianSightlineParapets,
+      'loss of current visibility restores authentic full-height solid wall');
+    w.update(visible);
+    assert.equal(w.stats().guardianSightlineParapets,now.guardianSightlineParapets,
+      're-disclosure restores ONLY the witnessed solid low wall');
+    w.update({...visible,threats:[]});
+    assert.equal(w.stats().guardianSightlineParapets,0,
+      'unwitnessed guardian cannot create cutaway');
+    assert.equal(JSON.stringify(visible),original,'public source remains immutable');
+    assert.ok(w.stats().geometryCount<100,'strict existing GPU budget');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

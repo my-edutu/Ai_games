@@ -3356,6 +3356,13 @@ export function createMazeWorld(options = {}) {
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
+    // A third-ring PUBLIC wall may be diagonal to both guardian causeway
+    // cells. If ONLY its present visibility changes, the old two-cell key
+    // cannot invalidate its actual opaque full-height/low-wall geometry.
+    // Scope invalidation to currently published, same-elevation third-ring
+    // cells; no private route, remembered visibility, or collision mutation.
+    const keyedPeripheralWalls=publicGuardianWitnessedForegroundCells(
+      s,keyedGuardianCauseway,3);
     const reefVisibility=new Set();
     for(const cell of keyedGuardianCauseway.keys()){
       for(const n of [cell-1,cell+1,cell-s.width,cell+s.width]){
@@ -3373,6 +3380,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-causeway:' + [...keyedGuardianCauseway].map(([id,axis])=>id+':'+axis).sort().join('.')
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
+      + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
