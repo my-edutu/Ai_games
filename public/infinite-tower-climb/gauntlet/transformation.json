@@ -141,7 +141,7 @@
     "review": "docs/reviews/2026-11-13-tower-pr68-cold-first-frame-source-gateway-retention.md",
     "safety": "Draft PR68 with baseline unchanged; no merge/deploy/force-push/PR58 edit/other games"
   },
-"p0ColdSourceBackedFirstGpuFrame20261113": {
+  "p0ColdSourceBackedFirstGpuFrame20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -172,37 +172,37 @@
     "review": "docs/reviews/2026-11-13-tower-pr68-cold-first-frame-source-gateway-retention.md",
     "safety": "PR68 open draft on PR58, frozen SHA unchanged; no merge/deploy/force push/other game edits"
   },
-"p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
-      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
-      "leadingVerdict": "NOT EVALUATED",
-      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "inspectedPreRunHead": "34c481fc1fc76a1427f407a36730b44f76ee6890",
-      "productionCodeSha": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
-      "realNativeSourceSha": "34c481fc1fc76a1427f407a36730b44f76ee6890",
-      "previousRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
-      "originalFilms": "Candidate original unmodified 72.20s desktop 960x600 and 73.44s portrait 390x844 danger films; source crossings tick451 legitimate, 8/8 source timelines paired. Baseline moving video job failed partial-native-clock calibration; strict native guardian pair 0/2.",
-      "specificObservedDefect": "Desktop first sampled Floor9 tick464 and portrait tick473 show real player standing with handoff active but observedOriginalGpuGatewayRetention=null. Around 24-26 seconds bronze old-cap scaffolding cuts to violet Floor9. Old arch, real body and roof not sustained together in native frames. Do not claim corrected film before recapture.",
-      "confirmedSourceContractGap": "Existing recordedDoorstepHandoff has a <=12-tick expiry; later source-grounded original f8:cap support on the same real roof could retire the GPU cap at first slow Floor9 render despite passage still active. This is a presentation-only hypothesis fixed in owned world retention; physical contact and source proof must hold.",
-      "implementedChange": "Original f8:cap footprint and roof are retained ONLY after source-authenticated previous guardian HP-zero Floor8->9 handoff. A pure contact validator recognizes actual grounded standing/hurt hero on that same old f8:cap roof for up to 48 source ticks, same run, same 90m vicinity, same cap extents, alive, zero vy. Shared with original cap GPU lifecycle and source-bound opaque Floor9 shell staging; now reports actualOldCapSupport in world diagnostics. No player/floor/collision/AI changes.",
-      "affectedFiles": [
-        "public/infinite-tower-climb/visuals/crossfloor-arrival.mjs",
-        "public/infinite-tower-climb/visuals/world.mjs",
-        "tests/phase3/tower-crossfloor-arrival.test.cjs"
-      ],
-      "sourceCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 — started/in progress when this review was written; NOT yet marked green",
-      "newNativeCapture": "REQUESTED via exact immutable github.sha of capture-request commit; must inspect source-to-Three/native WebM and old-cap support diagnostics",
-      "oldNativeGuardianPairs": "0/2; new source NOT YET EVALUATED",
-      "independentCritics": {
-        "LOOKS": "0/5",
-        "FEELS": "0/5",
-        "PLAYS": "0/5"
-      },
-      "supportedActualDeviceFrameTimeMemory": "NOT EVALUATED",
-      "biggestGap": "Visible full-body body-through-same-original-bronze-arch at Floor8->9 in true 1x desktop/portrait film without cut; native event alignment, moving baseline full-length safe clock, verified outcome/restart still incomplete.",
-      "nextHighestImpactAction": "Inspect new exact immutable-source 9-job capture original unedited 22-31s danger WebMs and native/renderer event traces; check actualOldCapSupport true while old GPU gateway visible. If cap still absent, trace failed stageGroundedCapContinuation and replace disjoint world/camera geometry handoff, not another loose witness. Preserve partial-baseline film clock veto; run fresh 5x LOOKS/FEELS/PLAYS, actual device p50/p95/p99 and memory before P0 exit.",
-      "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
-      "safety": "PR68 open draft over PR58; immutable baseline unchanged; no merge/deploy/force-push/other-game edits"
+  "p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreRunHead": "34c481fc1fc76a1427f407a36730b44f76ee6890",
+    "productionCodeSha": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
+    "realNativeSourceSha": "34c481fc1fc76a1427f407a36730b44f76ee6890",
+    "previousRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
+    "originalFilms": "Candidate original unmodified 72.20s desktop 960x600 and 73.44s portrait 390x844 danger films; source crossings tick451 legitimate, 8/8 source timelines paired. Baseline moving video job failed partial-native-clock calibration; strict native guardian pair 0/2.",
+    "specificObservedDefect": "Desktop first sampled Floor9 tick464 and portrait tick473 show real player standing with handoff active but observedOriginalGpuGatewayRetention=null. Around 24-26 seconds bronze old-cap scaffolding cuts to violet Floor9. Old arch, real body and roof not sustained together in native frames. Do not claim corrected film before recapture.",
+    "confirmedSourceContractGap": "Existing recordedDoorstepHandoff has a <=12-tick expiry; later source-grounded original f8:cap support on the same real roof could retire the GPU cap at first slow Floor9 render despite passage still active. This is a presentation-only hypothesis fixed in owned world retention; physical contact and source proof must hold.",
+    "implementedChange": "Original f8:cap footprint and roof are retained ONLY after source-authenticated previous guardian HP-zero Floor8->9 handoff. A pure contact validator recognizes actual grounded standing/hurt hero on that same old f8:cap roof for up to 48 source ticks, same run, same 90m vicinity, same cap extents, alive, zero vy. Shared with original cap GPU lifecycle and source-bound opaque Floor9 shell staging; now reports actualOldCapSupport in world diagnostics. No player/floor/collision/AI changes.",
+    "affectedFiles": [
+      "public/infinite-tower-climb/visuals/crossfloor-arrival.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-crossfloor-arrival.test.cjs"
+    ],
+    "sourceCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 — started/in progress when this review was written; NOT yet marked green",
+    "newNativeCapture": "REQUESTED via exact immutable github.sha of capture-request commit; must inspect source-to-Three/native WebM and old-cap support diagnostics",
+    "oldNativeGuardianPairs": "0/2; new source NOT YET EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
     },
+    "supportedActualDeviceFrameTimeMemory": "NOT EVALUATED",
+    "biggestGap": "Visible full-body body-through-same-original-bronze-arch at Floor8->9 in true 1x desktop/portrait film without cut; native event alignment, moving baseline full-length safe clock, verified outcome/restart still incomplete.",
+    "nextHighestImpactAction": "Inspect new exact immutable-source 9-job capture original unedited 22-31s danger WebMs and native/renderer event traces; check actualOldCapSupport true while old GPU gateway visible. If cap still absent, trace failed stageGroundedCapContinuation and replace disjoint world/camera geometry handoff, not another loose witness. Preserve partial-baseline film clock veto; run fresh 5x LOOKS/FEELS/PLAYS, actual device p50/p95/p99 and memory before P0 exit.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
+    "safety": "PR68 open draft over PR58; immutable baseline unchanged; no merge/deploy/force-push/other-game edits"
+  },
   "p0OriginalSingleCameraJointBodyGatewaySource20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
@@ -9619,5 +9619,36 @@
     "nextHighestImpactAction": "Inspect source-pinned candidate original film specifically first F9 tick451/452; cure source lastGuardianCrossing publish/first-frame selectedSource current-support veto and preserve exact real old cap/gate in new scene, then rebuild real camera/world transition if still visually hard cuts. Validate genuine outcome/restart and moving platform. No stage promotion.",
     "safety": "PR68 open DRAFT, base PR58 unchanged, frozen baseline preserved; no merge, deploy, force-push, fabricated videos/votes/metrics",
     "reviewFile": "docs/reviews/2026-11-12-tower-pr68-native-film-clock-and-flight-gate-source-veto.md"
+  },
+  "p0FirstEpisodeNativeVideoClockRectification20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceInspectedBeforeChanges": "1f0fd40ca011a2665b244f6fb6d6b8026bc188f2",
+    "originalNormalSpeedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43377023425 — all 8 original baseline/candidate 60s+ films recorded; pairing job failed 0/2 native event visibility; campaign overall failure",
+    "originalSourceVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43377023425/artifacts/14014613773",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43377023381 — FAILED runner shutdown in Tower phase3 plus unrelated Maze phase6 timeout; no green claim",
+    "observedGenuineFirstEpisode": "Both viewport source guardian crossing tick451; desktop original drawn HUD 24.75s + first violet phase 25.50s against 23.198s source; portrait original first drawn HUD 25.25s + violet 26.50s against 23.869s source. Both native shots still fail convincing continuous full-body same original bronze doorway crossing.",
+    "diagnosedEvidenceBlocker": "Portrait unmodified 73.36s original WebM recorded second genuine restart episode 8->9 at HUD66.75s, violet67.75s. An isolated bogus 9 glyph at22.25s and ~1.25s mixed-color bridge caused old original-film detectors to skip true first episode and falsely attribute 42.881s render latency. Source/video event integrity is not equivalent to physical crossing quality.",
+    "implementedSystemicUnblocker": "Repaired both ORIGINAL WebM 4fps witness pipelines: isolated-one-glyph tolerance under sustained 8 and four-frame 9 consensus; bounded prior-warm/mixed-color/1s-void detection; regression cases prevent second-run miscue and reject multiple ghosts/short purple flares. Source files untouched except observational scripts and their Tower tests.",
+    "commits": [
+      "39e6eec4c0a26526e8630d79894b1c615f9c1fa9",
+      "6be4aadfa27f8f566870572f44da059d639f6900",
+      "b1cd4c6ebd7ebdfcbea69b95fa0f95f96de408f4",
+      "5ff6e555f97b31139db5e400bf4da7a04e6475bb",
+      "f844aa5d0ec370499cad89b065034f23f5a8fd62"
+    ],
+    "exactCodeTests": "PENDING exact-head CI; original native pixel witness independently sampled from source-pinned 1x WebMs. No 1x film quality pass or source-aligned feedback invented.",
+    "nativeFirstEpisodeVisualAcceptance": "NOT EVALUATED: old campaign paired event-quality 0/2; first-episode clock corrected in analysis, requires new exact SHA capture/reprocessing and full-motion human visual review",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "biggestExperienceGap": "Real full-body original source-owned bronze gateway still disappears into violet Floor9 instead of continuous physical doorway crossing; true floor9 onward, outcome/restart and baseline film clock remain unverified for final P0.",
+    "nextHighestImpactAction": "Use corrected original native first-episode clock to inspect newly triggered exact-source matched 960x600 and 390x844 gameplay; verify actual old arch + whole-body hero + honest floor9 ground in the same shot, diagnose camera/material/depth occlusion; rebuild shared physical 3D gateway composition if hard cut persists. Preserve frozen source; CI veto and baseline outcome native timing remain open.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-first-episode-native-video-clock-rectification.md",
+    "safety": "Same draft PR68 based on PR58; original baseline frozen unchanged; no deploy, merge, force-push, draft status change or other game edits."
   }
 }
