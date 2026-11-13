@@ -212,6 +212,42 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   return {x:root.x,y:root.y+(hand?1.20:chest?1.12:1.00),
    z:root.z,yaw:actor.root.rotation?.y??0};
  }
+ // A genuine adjacent-tick HP drop may be observed before the visual
+ // interpolation finishes moving its already identified victim to the
+ // authoritative tile. The usual strict .58m anchor rejects such a body,
+ // then refuses a detached cell fallback because the actor exists.
+ // Admit a small ROOT-local correction only while the CURRENT public body
+ // itself still proves identity, HP, cell, tick and scene. No attacker,
+ // contact direction, wound geometry or future state is inferred.
+ function sampleInterpolatedHPVictim(cue,at,actor){
+  if(typeof getCurrentSnapshot!=='function'||!actor?.root?.visible||
+   !finite3(actor.root.position))return null;
+  let latest=null;
+  try{latest=getCurrentSnapshot()}catch{return null}
+  if(!latest||latest.tick!==cue.tick||
+   latest.run+':'+latest.floor!==cue.sceneKey||
+   !Array.isArray(latest.units))return null;
+  let witness=null;
+  for(let i=0;i<Math.min(latest.units.length,256);i++){
+   const u=latest.units[i];
+   if(u?.id!==cue.targetId)continue;
+   if(witness)return null; // ambiguous public IDs cannot choose a body
+   witness=u;
+  }
+  const u=actor.u;
+  if(!witness||!u||u.id!==cue.targetId||
+   u.x!==at.x||u.z!==at.z||witness.x!==at.x||witness.z!==at.z||
+   !Number.isInteger(witness.hp)||witness.hp<0||
+   u.hp!==witness.hp||u.kind!==witness.kind||
+   u.faction!==witness.faction)return null;
+  const p=actor.root.position;
+  // Less than one tile: an interpolating body, not an actor stranded in
+  // another cell or recycled after floor teardown. Keep chips on the drawn
+  // root instead of creating an empty-cell contact at the destination.
+  if(Math.hypot(p.x-(at.x-9),p.z-(at.z-9))>.96||
+   Math.abs(p.y)>0.75)return null;
+  return {x:p.x,y:p.y+1.12,z:p.z,yaw:actor.root.rotation?.y??0};
+ }
  function anchor(cue,type){
   if(type==='dust')return cell(cue.from)?world(cue.from,.07):null;
   const victim=type==='hit';
@@ -312,6 +348,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    chest:victim||wardenChest,
    requireBone:type==='trail'||requireObservedEmitter||requireWardenBone});
   if(sampledPoint)return sampledPoint;
+  if(victim&&actor){
+   const observed=sampleInterpolatedHPVictim(cue,at,actor);
+   if(observed)return observed;
+  }
   // A stale or invisible body never falls back to a fake floor-height
   // release/recovery ring, even though the authority proved the event.
   if(type==='trail'||wardenBodySignal)return null;
