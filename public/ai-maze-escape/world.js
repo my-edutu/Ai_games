@@ -1917,12 +1917,14 @@ export function createMazeWorld(options = {}) {
             -cellHeight(n,s.width,s.height))<1e-8
           && !s.doors.some(d=>(d.a===c.cell&&d.b===n)
             ||(d.b===c.cell&&d.a===n))
-          && !s.cells.some(t=>t.trap===true && t.blocked!==true
-            && s.visibleCells.includes(t.cell)
-            && Array.isArray(t.neighbors)
-            && ((c.neighbors.includes(t.cell) && t.neighbors.includes(c.cell))
-              || (adjacentKnown.neighbors.includes(t.cell)
-                && t.neighbors.includes(n))));
+          // Pass336: the exact-HEAD public brace has an actual pressure
+          // trigger joined to a THIRD tile beside this spectator wall. A
+          // pressure neighbor on ANOTHER EDGE must not make the physically
+          // impassable 100/117 boundary an ivory warning slab. Excluding real
+          // trap endpoints above still preserves the pressure wall and its
+          // mechanical cues; this wall is NOT a crossing or safe-route cue.
+          // Never use a private hazard graph or a remembered-only cell.
+          ;
         // The older blocked-cell flank rule remains, but a genuine
         // spectator-side public guardian wall may outrank a merely nearby
         // pressure apron. A CONNECTED hazard never earns this cutaway.

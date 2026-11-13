@@ -1105,9 +1105,16 @@ test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory p
    const linkedPressure={...s,visibleCells:[...s.visibleCells,101],
      cells:[...s.cells.map(c=>c.cell===100?{...c,neighbors:[83,101]}:c),
        {cell:101,blocked:false,trap:true,neighbors:[100]}]};
-   w.update(linkedPressure);
+   w.update(linkedPressure);darkWall();
+   assert.equal(w.stats().guardianSightlineParapets>=1,true,
+     'the nonpassage spectator boundary may be dark even when another real edge leads to pressure');
+   // The actual pressure tile and its true reciprocal path remain authoritative;
+   // never reclassify a spectator wall ON a physical pressure endpoint.
+   const pressureOnBoundary={...s,cells:s.cells.map(c=>c.cell===117
+     ? {...c,trap:true}:c)};
+   w.update(pressureOnBoundary);
    assert.equal(wallInstances('5d968e',[2.34,.075,.44]),0,
-     'a reciprocal disclosed pressure trigger keeps its own hazard perimeter');
+     'the spectator cutaway cannot recolor a wall with a real trap endpoint');
    for(let i=0;i<6;i++){
      w.update({...s,runToken:'guardian-rail-reset-'+i});darkWall();
      assert.ok(w.stats().geometryCount<100,'original six-reset GPU budget stays strict');

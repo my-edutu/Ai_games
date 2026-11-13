@@ -812,6 +812,23 @@ test('a real close public encounter frames both autonomous actors and saves date
     // Earlier installed-Three tests retain cell100's own source priority.
     if(phase.name==='brace'){
       const rayAt=(u,v)=>foregroundPicks.find(p=>p.u===u&&p.v===v)?.hits??[];
+      // Pass336: the previous full source-native Pass335 artwork changed
+      // .0376/255 mean RGB but the REAL 390px brace still ray-hit the
+      // complete 2.34m ivory 100/117 spectator wall. Assert the ORIGINAL
+      // uncropped WebGL first-hit, not an off-camera synthetic material.
+      // This wall is genuinely mutually impassable; the separately linked
+      // public pressure trigger must retain its own real physical edge.
+      const guardRail=rayAt(.50,.66);
+      const railCap=guardRail.find(hit=>hit.cell===100
+        &&hit.dimensions?.[0]===2.34&&hit.dimensions?.[1]===.075
+        &&hit.dimensions?.[2]===.44);
+      expect(railCap,'real 390px witnessed duel must retain complete physical opaque 2.34m retaining cap').toBeTruthy();
+      expect(railCap.color,'authentic camera first-hit ivory slab must yield to Tideglass, without screen crop').toBe('5d968e');
+      const railBody=guardRail.find(hit=>hit.cell===100
+        &&hit.dimensions?.[0]===2.32&&hit.dimensions?.[1]===.34
+        &&hit.dimensions?.[2]===.39);
+      expect(railBody,'the actual nonpassage wall body must remain installed and solid').toBeTruthy();
+      expect(railBody.color,'authentic guardian spectator wall body must read as connected dark mineral').toBe('28574f');
       const foreground=rayAt(.50,.73);
       const fullDeck=foreground.find(hit=>hit.cell===117
         &&hit.dimensions?.[0]===2.39&&hit.dimensions?.[1]===.07
