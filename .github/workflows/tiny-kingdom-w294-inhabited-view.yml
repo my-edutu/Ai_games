@@ -45,4 +45,5 @@ jobs:
           path: |
             test-results/
             playwright-report/
+            artifacts/tiny-kingdom/w295-camera/
           retention-days: 14

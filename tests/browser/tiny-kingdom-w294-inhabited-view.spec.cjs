@@ -61,12 +61,23 @@ test('W294 original lived-in street direction follows genuine camera without hid
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
   const prefix='W294-'+viewport.width+'-'+label;
-  await info.attach(prefix+'.png',{body:await page.screenshot(),contentType:'image/png'});
-  await info.attach(prefix+'.json',{body:Buffer.from(JSON.stringify({viewport,yaw,
-   sourceCommit:process.env.GITHUB_SHA||null,softwareWebGL:true,
+  // W295 verification: keep source-owned screenshots AND the complete real
+  // geometry/CPU/gl/authority audit as downloadable evidence. Playwright's
+  // ephemeral info.attach records were not retained in prior successful ZIPs.
+  const evidenceDir=path.resolve(__dirname,'../../artifacts/tiny-kingdom/w295-camera');
+  fs.mkdirSync(evidenceDir,{recursive:true});
+  const exactHead=require('node:child_process')
+   .execFileSync('git',['rev-parse','HEAD'],{cwd:path.resolve(__dirname,'../..')})
+   .toString().trim();
+  const pixels=await page.screenshot();
+  const metadata=JSON.stringify({viewport,yaw,
+   sourceCommit:exactHead,softwareWebGL:true,
    independentReviewer:false,nativeGPUFPS:'NOT MEASURED',
-   uncutWorkday:false,accelerated120Days:true,state},null,2)),
-   contentType:'application/json'});
+   uncutWorkday:false,accelerated120Days:true,state},null,2);
+  fs.writeFileSync(path.join(evidenceDir,prefix+'.png'),pixels);
+  fs.writeFileSync(path.join(evidenceDir,prefix+'.json'),metadata);
+  await info.attach(prefix+'.png',{body:pixels,contentType:'image/png'});
+  await info.attach(prefix+'.json',{body:Buffer.from(metadata),contentType:'application/json'});
   expect(state.authority).toBe(start.authority);
   expect(state.population).toBe(start.population);
   expect(state.buildings).toBe(start.metrics.buildings);
