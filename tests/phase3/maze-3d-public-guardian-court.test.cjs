@@ -1045,11 +1045,11 @@ test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory p
  const {createMazeWorld,cellPosition}=await load();
  const {Matrix4,Vector3,Quaternion}=await import(three);
  // Exact ORIGINAL public geometry relationship from 2026-11-13 WebGL:
- // Pip99 faces Thornback98; publicly visible ordinary100 and117 have a
+ // The real source has a 17x11 grid: rows 5 and 6 are one terrace.\n // Pip99 faces Thornback98; publicly visible ordinary100 and117 have a
  // closed NONPASSAGE boundary at x16.8,z1.2. Only color and genuine joined
  // mineral masonry change, never the game collision or navigation truth.
  const s={runToken:'source-guardian-rail',lifecycle:'running',result:null,
-   width:17,height:17,currentCell:99,
+   width:17,height:11,currentCell:99,
    visibleCells:[98,99,100,117],
    cells:[
      {cell:98,blocked:false,trap:false,checkpoint:false,clue:false,neighbors:[99]},
