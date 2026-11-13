@@ -29,6 +29,7 @@ import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborn
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff, boundedObservedGuardianOrbit } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
+import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -3545,8 +3546,17 @@ export function createTowerScene(canvas, settings = {}) {
       typeof observedAirborneHandoffShot === 'function'
       ? observedAirborneHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
+    // Preserve the truthful old bronze gate in the *first actually submitted*
+    // Floor 9 shot even when its shorter decorative passage animation expired.
+    // The world owner only exposes a source-validated ORIGINAL mesh witness.
+    const coldArchProof = !overview && !options.stale && !options.reducedMotion &&
+      snapshot.lifecycle === 'running' && snapshot.floor === 9
+        ? world.retainedFilmHandoff?.(snapshot) : null;
+    const coldArchLens = coldArchProof
+      ? observedSourceBoundColdDoorwayLens(snapshot, coldArchProof,
+          climber.group.position, camera.aspect, zoom) : null;
     const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
-      sourceGroundedHandoffShot || sourceAirborneHandoffShot;
+      sourceGroundedHandoffShot || sourceAirborneHandoffShot || coldArchLens;
     // Prior source-pinned desktop and phone films never kept the actual
     // BODY and physical old gateway together on the first Floor9 frames.
     // Let that same proof request a two-subject gaze, never a new viewpoint.
@@ -3557,7 +3567,8 @@ export function createTowerScene(canvas, settings = {}) {
           climber.group.position, camera.aspect, zoom) : null;
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
       ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot ||
-        sourceAirborneHandoffShot ? passage.diagnostics() : null;
+        sourceAirborneHandoffShot ? passage.diagnostics()
+          : coldArchLens ? {focusPosition:coldArchLens.gateway} : null;
     // The source-qualified next-floor camera request must also reach the
     // real visual rescue below. Before this, the follow lens tracked the
     // doorway but the safety-gated escort could never run: it depended only
@@ -3592,6 +3603,30 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
       focus.lerp(earnedGatewayFocus, realCapLens.focusWeight);
+      if (coldArchLens?.coldOriginalArch) {
+        // The source owns BOTH the new living body and original doorway.
+        // Share one exterior follow gaze after the first GPU return, never a
+        // last-second re-spawn/camera cut. The subsequent actor/core safety
+        // and physical sightline checks keep priority.
+        const [x,y,z] = coldArchLens.focus;
+        const w = coldArchLens.focusWeight;
+        focus.x += (x - focus.x) * w;
+        focus.y += (y - focus.y) * w;
+        focus.z += (z - focus.z) * w;
+        const existingRadius = Math.hypot(destination.x,destination.z);
+        if (existingRadius > 1 && existingRadius < coldArchLens.radius) {
+          // Expand at most 12% per REAL frame. The ordinary lens may be
+          // too tight to hold the original arch and actual progressing
+          // climber together after a costly new-floor WebGL submission.
+          const scale = Math.min(1.12,coldArchLens.radius/existingRadius);
+          const x = destination.x * scale, z = destination.z * scale;
+          const proposed = {x,y:destination.y,z};
+          if (towerCoreSightlineClear(proposed,climber.group.position) &&
+              towerCoreSightlineClear(proposed,earnedGatewayFocus)) {
+            destination.x=x;destination.z=z;
+          }
+        }
+      }
       if (jointThresholdShot) {
         // Reuse the current focus vector; no extra camera or render target.
         // Preserve the ordinary actor/core rescue and manual overview vetoes.
