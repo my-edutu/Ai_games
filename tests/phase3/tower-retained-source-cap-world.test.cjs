@@ -641,3 +641,42 @@ test('an unrelated late crossing cannot reauthorize the retained original gatewa
   assert.equal(world.retainedFilmHandoff(corrupt),null);
  }finally{world.dispose();}
 });
+
+
+test('real Three world retains the identical old bronze gate across a nine-tick delayed portrait GPU rebuild before crossing publication',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const before=old(),crossed=next();
+  assert.equal(before.floor,8);
+  assert.equal(crossed.floor,9);
+  assert.equal(crossed.tick-before.tick,1);
+  assert.equal(crossed.lastGuardianCrossing,undefined,
+    'this test exercises the authentic delayed publication, not a manufactured immutable record');
+  const world=createTowerWorld();
+  try{
+    world.update(before,.05,0,{quality:'low'});
+    const oldCap=world.group.getObjectByName('platform:f8:cap');
+    const oldGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    assert.ok(oldCap?.isGroup && oldGate?.isGroup,
+      'actual original Floor8 cap and separate HP-driven guardian door must already exist');
+    assert.equal(world.stageGroundedCapContinuation(before,crossed),true,
+      'a zero-HP guardian with a genuine same-roof grounded old-to-new handoff stages the old GPU owner');
+    const late={...crossed,tick:460,
+      player:{...crossed.player,x:crossed.player.x+16500}};
+    const untouched=JSON.stringify([before,crossed,late]);
+    world.update(late,.05,.5,{quality:'low'});
+    assert.equal(world.group.getObjectByName('platform:f8:cap'),oldCap,
+      'first actual Floor9 Three rebuild must not delete the already-rendered bronze cap');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),oldGate,
+      'first actual Floor9 Three rebuild must not delete the original opened doorway');
+    const held=world.diagnostics().retainedSourceCap;
+    assert.equal(held?.guardianGateRetained,true);
+    assert.equal(held?.crossingTick,null,
+      'unpublished immutable guardian crossing stays UNKNOWN, not fabricated as tick451');
+    assert.equal(held?.firstWorldRenderTick,460);
+    assert.equal(JSON.stringify([before,crossed,late]),untouched,
+      'reconstructing visuals cannot edit authoritative source snapshots');
+    world.update({...late,runToken:'unrelated-run'},.05,.55,{quality:'low'});
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),null,
+      'wrong-run retention is immediately discarded');
+  } finally { world.dispose(); }
+});
