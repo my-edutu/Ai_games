@@ -2163,5 +2163,26 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "leadingTransformationVerdict": "NOT EVALUATED"
+  },
+  "p0VoidShaftLoadBearingRealNativeFilm20261113": {
+    "stage": "P0 OPEN · real captured quality NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementationCommit": "7e608f1313072e8ea24a8a422dd33cce3c7706c6",
+    "candidateSourceSha": "EXACT immutable github.sha of this gauntlet evidence commit; not floating HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "requested": "Full original 9-job baseline/candidate 1x capture with authentic gameplay >=60 seconds per ascent, moving, danger/guardian, and outcome/restart, desktop 960x600 and portrait 390x844, matched seed/tier and immutable baseline SHA",
+    "priorityOriginalDefect": "Previous 4faa 8/8 full films show abrupt Floor8 warm bronze to Floor9 opaque violet scene at 25-26s (0/2 strict native crossing). Original old gateway and climber have projected camera centroids but their actual pixels were not proven. New production source reconstructs original Void structural aperture at body height rather than mutating gameplay or just alpha fading.",
+    "validate": "Capture true original code under new exact GitHub SHA, inspect full motion 22-31s with one uninterrupted world, original opened GPU bronze gateway still physically connected to actual whole-body 3D climber; verify first authentic Floor9 source tick, actual returned WebGL frame and native PTS all differ only as measured, never conflated. Validate floor nine onward and real outcome/restart, all three scenarios, no cosmetics-only PASS",
+    "compare": "https://github.com/my-edutu/Ai_games/actions/runs/43503889892 previous immutable source candidate 4faa and frozen baseline 1731b380851162741761c5569e2bc152a0869ca9",
+    "linkedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43513932362, phase6 pending at request time",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceMeasurements": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-void-load-bearing-aperture-vs-native-world-cut.md"
   }
 }

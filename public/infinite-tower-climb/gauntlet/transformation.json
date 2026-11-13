@@ -10139,5 +10139,30 @@
     "nextHighestImpactAction": "Inspect exact-source CI and eight new baseline/candidate full-motion movies, align source tick451 to 22–31s frame PTS in desktop/portrait, inspect real old door and F9 shaft occlusion; if hard cut remains rebuild single physical depth/camera path, then prove floor9 onward and actual outcome/restart.",
     "review": "docs/reviews/2026-11-13-tower-pr68-prepublication-bronze-world-unified-first-gpu-director.md",
     "safety": "Frozen baseline unchanged; PR68 draft based PR58; no deploy/merge/force-push/other-game edits"
+  },
+  "p0VoidShaftLoadBearingRealNativeFilm20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPriorCandidateSha": "4faa852ba0d86ffd0480627cc7fd60a09bdba8e3",
+    "inspectedOriginalNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43503889892",
+    "inspectedOriginalFilms": "8/8 unaltered normal-speed baseline/candidate WebMs available; real desktop and portrait danger films visibly show abrupt bronze-to-violet structural cutoff at 25-26s; native crossing 0/2. Frozen baseline unchanged.",
+    "originalEventAudit": "At original Floor8 HP0 source tick451, desktop source-search 23.213s but original Floor9 HUD 25.0s and violet scene 25.5s; portrait source-search 23.448s but HUD 25.0s and violet 26.0s. 1.5-2.55s source/native displacement. No claim of visual passage.",
+    "sourceCodeCommit": "7e608f1313072e8ea24a8a422dd33cce3c7706c6",
+    "implementedOriginal3DChange": "Replaced permanently opaque incoming Void full-height central drum, three solid outer buttress masses and blocking geological slabs with connected physical stone foundations, roof crowns, rear bearing piers, short near-side stanchions, metal diagonal ties and open action-height architectural sightlines. Existing original Clockwork gateway and character continue governed by real source; F9 collision/platforms/hazards unchanged; actual world is batched under original GPU budget.",
+    "newSourceTests": "tests/phase3/tower-void-physical-opening.test.cjs; tests exercise real Three.js low-tier geometry, actual original triangle provenance, clear action-height central corridor, resource budget and no authoritative mutation.",
+    "initialExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43513932362 — at last checked 9/10 jobs succeeded, phase6 still in progress; do not claim green",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43503890268 — failed unrelated Maze phase6 timeout 124; not repaired by new art",
+    "newNativeSourcePinnedCapture": "Requested on this evidence commit; candidate is its immutable github.sha from workflow, not floating branch HEAD. Link inspect the branch actions after run starts.",
+    "primaryExperienceGap": "Original bronze doorway and actual climber not yet seen continuously together in a fully physical Floor8->9 crossing on desktop AND portrait. New Void open geometry not yet visually verified, despite geometry tests.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new 9-job original 60+ second films and event sidecars at matching source pin, especially 22-31s desktop/portrait; determine whether genuine unchanged bronze gateway now visually survives behind new open Void shaft. If not, inspect topmost actual occluding physical mesh and camera sightline; adjust connected world depth/framing without inventing victory or player poses. Keep P0 until 2/2 plus full restart, complete CI and device gates.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-void-load-bearing-aperture-vs-native-world-cut.md",
+    "safety": "PR68 remains open draft based on PR58, frozen baseline unchanged; no merge/deploy/force-push/other game changes"
   }
 }
