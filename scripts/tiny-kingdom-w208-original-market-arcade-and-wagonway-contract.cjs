@@ -6,7 +6,10 @@ assert(js,'actual original playable scene');new vm.Script(js[1]);
 function between(a,b){const p=src.indexOf(a),q=src.indexOf(b,p);assert(p>=0&&q>p,a);return src.slice(p,q)}
 const ground=between('function marketCobblestoneSquare(){','function marketTimberCart(');
 assert.match(ground,/surfaceModel='w208-natural-clay-market-and-freight-wagonway'/);
-assert.match(ground,/const\s+stoneCandidateKeep=biomeHash\(key\+273\)>?.\d+/);
+assert.match(ground,/const acceptedStoneCenters=\[\]/,
+ 'original market has bounded actual separated stone centers');
+assert.match(ground,/if\(nearby<\.72\)/,
+ 'the original courtyard stones retain physical clearance');
 assert.match(ground,/const\s+realWheelLane=Math\.abs\(x-3\.22\)/);
 assert.match(src,/marketReceivingSideEnclosure\(\);\s*marketReceivingRoofInterior\(\);/,
  'do not undo original W207 inward roof; connect the same open grain hall');

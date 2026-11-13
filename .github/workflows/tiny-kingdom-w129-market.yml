@@ -18,6 +18,7 @@ on:
       - 'scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs'
       - 'scripts/tiny-kingdom-w207-market-roof-and-worn-court-contract.cjs'
       - 'scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs'
+      - 'scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs'
       - 'scripts/tiny-kingdom-w210-street-boundary-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
@@ -63,6 +64,7 @@ jobs:
           node scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs
           node scripts/tiny-kingdom-w207-market-roof-and-worn-court-contract.cjs
           node scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs
+          node scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs
           node scripts/tiny-kingdom-w210-street-boundary-contract.cjs
 
   original-market-webgl:

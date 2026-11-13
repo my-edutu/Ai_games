@@ -11578,28 +11578,61 @@ function marketReceivingDock(){
 // W106 the original roofed receiving stalls sit on the SAME hand-worked
 // market court and drainage; NO additional market, stock, or delivery state.
 function marketReceivingCourt(){
+ // W292: the original 6x7 aligned small grey receiving slabs still read as
+ // checkerboard in real W291 desktop/mobile receiving-hall footage. The
+ // original 42 walkable paving stones and 14 drain sections remain, while
+ // their physical geometry is no longer aligned in rows. No inventory, job,
+ // route, contact, saved state or camera-only prop is created.
  const earth=rgb(0x77705e),
   tones=[rgb(0x9b917d),rgb(0xaaa18d),rgb(0x817d70),rgb(0xc0af96)];
  const surface=(x,z,h=.090)=>[x,terrain(x,z)+h,z];
  const before=data.length;
  marketQuarterStats.receivingDrainSegments=0;
+ marketQuarterStats.receivingCourtPattern='w292-separated-flagstones-on-continuous-clay';
+ marketQuarterStats.receivingSoilPanels=0;
+ marketQuarterStats.receivingStoneCandidates=0;
+ marketQuarterStats.receivingStoneMinimumSeparation=0;
  materialScope(MATERIAL.ROAD,()=>{
-  quad(surface(-3.62,11.20,.067),surface(-3.62,13.70,.067),
-   surface(1.14,13.70,.067),surface(1.14,11.20,.067),earth);
-  for(let row=0;row<6;row++)for(let col=0;col<7;col++){
-   const key=row*31+col*13,shift=(row%2)*.115;
-   const x=-3.55+col*.67+shift,z=11.34+row*.36;
-   // Same walkable receiving court, with separated original irregular stone
-    // rather than cloned 7-column pavement bricks.
-    const skew=(biomeHash(key+43)-.5)*.115;
-    const w=.38+.16*biomeHash(key+7),d=.17+.16*biomeHash(key+9);
-   const h=.082+.007*biomeHash(key+17);
-   quad(surface(x,z+.018,h),surface(x+skew,z+d,h),
-    surface(x+w+skew,z+d-.012,h),surface(x+w,z,h),
-    tones[(row*7+col*3)%tones.length]);
+  // One terrain-following earthen floor, with shared colour so
+  // adjoining subdivided geometry does not form a tiled chessboard.
+  for(let row=0;row<6;row++)for(let col=0;col<4;col++){
+   const x0=-3.62+col*1.19,x1=x0+1.19;
+   const z0=11.20+row*(2.50/6),z1=z0+2.50/6;
+   quad(surface(x0,z0,.067),surface(x0,z1,.067),
+    surface(x1,z1,.067),surface(x1,z0,.067),earth);
+   marketQuarterStats.receivingSoilPanels++;
+  }
+  // The original 42 stones use stable separated coordinates, not
+  // six equally-spaced cloned rows. Each stone is one two-triangle
+  // irregular four-corner slab, cached inside the civic GPU buffer.
+  const fract=n=>n-Math.floor(n),placed=[];
+  let minimum=Infinity;
+  for(let candidate=0;candidate<420&&placed.length<42;candidate++){
+   marketQuarterStats.receivingStoneCandidates++;
+   const x=-3.37+4.22*fract((candidate+.31)*.754877666+
+    biomeHash(candidate*23+11)*.12);
+   const z=11.33+2.24*fract((candidate+.17)*.56984029+
+    biomeHash(candidate*19+17)*.10);
+   const nearest=placed.reduce((d,p)=>Math.min(d,Math.hypot(x-p[0],z-p[1])),Infinity);
+   if(nearest<.35)continue;
+   const width=.28+.14*biomeHash(candidate*31+23);
+   const depth=.17+.13*biomeHash(candidate*37+29);
+   const skew=(biomeHash(candidate*41+31)-.5)*.48;
+   const co=Math.cos(skew),si=Math.sin(skew),h=.082+
+    .010*biomeHash(candidate*43+37);
+   const point=(u,v)=>{
+    const dx=u*width,dz=v*depth;
+    return surface(x+dx*co-dz*si,z+dx*si+dz*co,h);
+   };
+   quad(point(-.52,-.48),point(-.47,.48),point(.48,.53),
+    point(.53,-.46),tones[(candidate+Math.floor((x+10)*3))%tones.length]);
+   placed.push([x,z]);
+   if(Number.isFinite(nearest))minimum=Math.min(minimum,nearest);
    marketQuarterStats.entryPathStones++;
   }
-  // A genuinely shallow, walkable gutter OUTSIDE the receiving aisle.
+  if(placed.length!==42)throw Error('W292 original 42 receiving flagstones not retained');
+  marketQuarterStats.receivingStoneMinimumSeparation=minimum;
+  // Preserve actual two-sided drainage outside the live courier aisle.
   for(let n=0;n<7;n++){
    const z=11.20+n*.35,next=z+.35;
    for(const x of [-3.51,1.04]){

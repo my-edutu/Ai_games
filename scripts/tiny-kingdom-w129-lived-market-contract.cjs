@@ -28,8 +28,10 @@ const ground=source.slice(source.indexOf('function marketCobblestoneSquare(){'),
 assert(ground.includes('const bands=4,sectors=32'), 'terrain-following rings not seven-metre sinking fan');
 assert(ground.includes('marketQuarterStats.mortarTriangles+=2'));
 assert(!ground.includes('tri(sample(cx,cz,.066),edge(b),edge(a)'));
-assert(ground.includes('width=.705+.035*biomeHash(key+7)'));
-assert(ground.includes('depth=.755+.040*biomeHash(key+9)'));
+assert(ground.includes("stoneDistribution='w291-low-discrepancy-separated-court'"),
+ 'original market stones are genuinely separate, not checkerboard slabs');
+assert(ground.includes('marketQuarterStats.stoneMinimumSpacing<.72-.000001'),
+ 'the authentic original market keeps its stone-clearance contract');
 assert(ground.includes('marketWheelPassages'));
 assert(ground.includes('marketDrainSegments'));
 assert(source.includes('grainwardMarketRoofEdges();'),'same true market civic mesh');
