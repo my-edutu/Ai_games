@@ -5371,12 +5371,24 @@ function restoreCivicStats(stats){
  if(stats.roadside)roadsideMicroterrainStats={...stats.roadside};
  currentMaterial=stats.finalMaterial;
 }
-function rememberCivicScenery(key,vertices,stats){
- if(vertices.length%30!==0)throw Error('Civic mesh is not a complete triangle stream');
+function rememberCivicScenery(key,source,stats){
+ // W302: the original completed farm, granary, market, road and guildhall
+ // already occupy data[civicStart..]. Never materialize a second multi-MB
+ // JavaScript slice before making the one exact GPU upload-ready Float32Array.
+ // Keep the legacy array/typed-array entry path for focused source probes.
+ const fromFrame=Number.isInteger(source);
+ if(fromFrame&&(source<0||source>data.length))
+  throw Error('W302 invalid original civic source offset');
+ const vertices=fromFrame?
+  (civicGpuResidencyEnabled?copyStaticVertexRange(source):data.slice(source)):
+  source;
+ if(!vertices||typeof vertices.length!=='number'||vertices.length%30!==0)
+  throw Error('Civic mesh is not a complete triangle stream');
  if(vertices.length>CIVIC_CACHE_FLOAT_BUDGET)return false;
- // One physically complete original civic quarter, independently resident on
- // the GPU. Building another REAL house never repacks, copies or uploads it.
- const retained=civicGpuResidencyEnabled?new Float32Array(vertices):vertices;
+ // The typed range is now already the precise retained original geometry.
+ // Do not allocate/copy it again; use the SAME vertex view in the civic VBO.
+ const retained=civicGpuResidencyEnabled&&!(vertices instanceof Float32Array)?
+  new Float32Array(vertices):vertices;
  let buffer=null,ranges=[];
  if(civicGpuResidencyEnabled){
   const packed=packLinearResidentScenery(retained,'civic')||packSpatialScenery(retained);
@@ -25915,7 +25927,7 @@ hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage ov
 farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
 riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();farmMarketStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
- const stored=rememberCivicScenery(civicKey,data.slice(civicStart),{
+ const stored=rememberCivicScenery(civicKey,civicStart,{
   guildhall:{...guildhallVisualStats},farm:{...farmScene},
   craft:{...craftCounters},market:{...marketQuarterStats},
   highStreet:{...highStreetStats},farmMarketStreet:{...farmMarketStreetStats},

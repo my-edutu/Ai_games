@@ -21,6 +21,7 @@ on:
       - 'scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs'
       - 'scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs'
       - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w302-retained-civic-contract.cjs'
       - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
       - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs'
@@ -57,6 +58,8 @@ jobs:
           persist-credentials: false
       - name: W188 real seasonal home-cache source contract and full game syntax
         run: node scripts/tiny-kingdom-w188-home-season-residency-contract.cjs
+      - name: W302 retained original civic GPU mesh, one typed source and fallback
+        run: node scripts/tiny-kingdom-w302-retained-civic-contract.cjs
       - name: W189 conservative full-geometry packing and W183 submitted camera contract
         run: |
           node scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs

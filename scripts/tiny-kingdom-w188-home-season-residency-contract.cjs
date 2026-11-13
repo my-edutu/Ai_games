@@ -25,6 +25,8 @@ const takeStale=fragment('function takeStaleHomeClusterForGrowth(',
  '// W179 Phase 1');
 const buildLot=fragment('function renderCachedHomeLot(',
  '// W78: real new cottages');
+const typedRange=fragment('function copyStaticVertexRange(',
+ 'function restoreCivicStats(');
 const context=vm.createContext({
  HOME_CLUSTER_EDGE:16,HOME_CLUSTER_FLOAT_BUDGET:4600000,
  city:[[4,4,0],[6,5,1],[20,4,2]],
@@ -68,6 +70,7 @@ assert.equal(run('homeClusterReservedFloats'),0);
 // authoritative citizens, jobs, receipts or clock are required.
 const lot={
  gpuAvailable:true,currentMaterial:7,data:[],
+ cachedTypedRangeCopies:0,cachedTypedRangeFloats:0,
  houseGeometryCache:new Map(),houseGeometryCachedFloats:0,
  houseGeometryBuilds:0,houseGeometryReuses:0,houseGeometryEvictions:0,
  HOUSE_GEOMETRY_CACHE_FLOAT_BUDGET:4000,HOUSE_GEOMETRY_CACHE_MAX_ENTRIES:10,
@@ -86,7 +89,7 @@ lot.compactHouse=(x,z,k)=>{
 lot.house=lot.compactHouse;
 lot.appendCivicCachedVertices=vertices=>{for(const value of vertices)lot.data.push(value)};
 const lotContext=vm.createContext(lot);
-vm.runInContext(marker+'\n'+buildLot,lotContext,{timeout:2000});
+vm.runInContext(marker+'\n'+typedRange+'\n'+buildLot,lotContext,{timeout:2000});
 const meshFrames=[];
 for(const season of seasons){
  lot.data=[];
