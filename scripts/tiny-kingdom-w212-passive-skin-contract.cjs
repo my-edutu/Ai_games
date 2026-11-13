@@ -57,10 +57,17 @@ const keyStart=html.indexOf('function realForegroundPoseKey(');
 const keyEnd=html.indexOf('function realForegroundPoseStale(',keyStart);
 assert(keyStart>=0&&keyEnd>keyStart,'actual full-detail GPU key exists');
 const clock={t:12};
+const helperStart=html.indexOf('function originalWorkToolTopologyKey(');
+const helperEnd=html.indexOf('function realWorkerPoseKey(',helperStart);
+assert(helperStart>0&&helperEnd>helperStart,
+ 'Read the exact production earned-tool topology predicate');
 const keyFunction=new Function('state','workingSkinCapable',
- 'isWorkingAtSite','citizenRigPose','climateAt','carryingCommuterLantern',
- html.slice(keyStart,keyEnd)+';return realForegroundPoseKey;')(
- clock,true,()=>false,()=>({acting:{action:'rest'}}),
+ 'isWorkingAtSite','getAuthenticWorkGesture','workdayEvents',
+ 'citizenRigPose','climateAt','carryingCommuterLantern',
+ html.slice(helperStart,helperEnd)+html.slice(keyStart,keyEnd)+
+ ';return realForegroundPoseKey;')(
+ clock,true,()=>false,()=>({stage:'off'}),[],
+ ()=>({acting:{action:'rest'}}),
  ()=>({season:'SPRING'}),p=>clock.t>=16&&p.activity==='Returning home at dusk');
 const originalWalker={name:'Iris',job:'gatherer',activity:'Returning home at dusk',
  trait:'patient',friend:0,target:[2,9],phase:.35,workTimer:0,
