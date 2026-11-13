@@ -631,12 +631,25 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion,sourceFrameInterval=.
   actor.activeImportedClipName==='Walking_A'&&
   actor.u.hp>0&&actor.root?.visible===true&&sourceFrameVisible===true&&
   !reducedMotion&&!actor.locomotionTeleport&&!actor.fullBody?.interrupted;
+ // The first original Walking_A frame can already turn the REAL root
+ // ~0.637rad while fading in from Idle (measured source weight ~0.7826).
+ // Remember the previous visible original Idle yaw for this SAME cloned GLB
+ // without posing idle, treating attack/guard as an anchor, or changing
+ // the authoritative root. Once walking begins, use fresh walking frames.
+ const safeIdleAnchor=actor.fullBody?.mode==='idle'&&
+  actor.activeImportedClipName==='Idle'&&
+  (actor.activeClip?.getEffectiveWeight?.()??0)>=.85&&
+  actor.u.hp>0&&actor.root?.visible===true&&sourceFrameVisible===true&&
+  !reducedMotion&&!actor.locomotionTeleport&&!actor.fullBody?.interrupted;
+ const priorMode=actor.rigWalkingTurnPreviousMode;
  const priorSame=Boolean(walkOwner&&sourceId&&
   actor.rigWalkingTurnSourceId===sourceId&&
+  (priorMode==='move'||priorMode==='idle')&&
   Number.isFinite(actor.rigWalkingTurnSourceYaw));
  const walkingTorsoCounterturn=priorSame?
   planOriginalSourceWalkingTorsoCounterturn({
-   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
+   mode:actor.fullBody.mode,previousMode:priorMode,
+   sourceClipName:actor.activeImportedClipName,
    sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
    sourceInstanceSame:true,ownerLocomotion:true,
    alive:true,visible:true,teleport:false,reducedMotion:false,
@@ -648,14 +661,21 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion,sourceFrameInterval=.
   }):null;
  actor.walkingTorsoCounterturn=walkingTorsoCounterturn;
  actor.rigWalkingTurnOffsetRad=walkingTorsoCounterturn?.offsetRad??0;
- if(walkOwner){
+ if(walkOwner||safeIdleAnchor){
   actor.rigWalkingTurnSourceId=sourceId;
   actor.rigWalkingTurnSourceYaw=actor.root.rotation.y;
+  actor.rigWalkingTurnPreviousMode=walkOwner?'move':'idle';
  }else{
+  // An attack, guard, hit, teleport or hidden source may never lend a
+  // stale yaw anchor to a later turn, even if the GLB clone is unchanged.
   actor.rigWalkingTurnSourceId=null;
   actor.rigWalkingTurnSourceYaw=null;
+  actor.rigWalkingTurnPreviousMode=null;
  }
  if(walkingTorsoCounterturn){
+  if(priorMode==='idle')
+   actor.rigWalkingTurnFirstWalkFrames=Math.min(1000000,
+    (actor.rigWalkingTurnFirstWalkFrames||0)+1);
   actor.rigWalkingTurnFrames=Math.min(1000000,(actor.rigWalkingTurnFrames||0)+1);
   actor.rigWalkingTurnPeakRad=Math.max(actor.rigWalkingTurnPeakRad||0,
    Math.abs(walkingTorsoCounterturn.offsetRad));
@@ -3657,6 +3677,7 @@ function inspectSourceRigDeformation(actors){
     sourceStanceSlideReliefFrames:actor.sourceStanceSlideReliefFrames||0,
      originalWalkingTorsoCounterturnRad:actor.walkingTorsoCounterturn?.offsetRad??0,
      originalWalkingTorsoCounterturnFrames:actor.rigWalkingTurnFrames||0,
+     originalWalkingTorsoFirstWalkFrames:actor.rigWalkingTurnFirstWalkFrames||0,
      originalWalkingTorsoCounterturnPeakRad:actor.rigWalkingTurnPeakRad||0,
     sourceStanceSlideWarmupFrames:actor.sourceStanceSlideWarmupFrames||0,
     sourceStanceSlideSlowWarmupFrames:actor.sourceStanceSlideSlowWarmupFrames||0,
