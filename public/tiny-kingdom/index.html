@@ -12448,6 +12448,28 @@ function highStreetWashLine(x,z,shade){
 // stone-edged beds, actual wicker back fencing, low gravel drainage and mixed
 // herbs on terrain. Their geometry lives in the existing retained civic VBO;
 // crops are decoration, never simulated food, jobs, paths or new inventory.
+// W287: the same actual 12 household plots retain their stone beds,
+// occupied door access and planted silhouettes without hundreds of little
+// cone caps and sixteen redundant stone drainage boxes per property.
+// Lightweight double-faced garden leaves read as foliage from both sides;
+// both sides remain original real 3D geometry in the retained civic VBO.
+// Every leaf is cosmetic; it can never create harvested food or fake a job.
+function renderW287GardenLeafSpray(x,z,seed,greens){
+ const y=terrain(x,z)+.16;
+ for(let blade=0;blade<3;blade++){
+  const angle=seed*1.31+blade*2.399963,
+   cx=Math.cos(angle),cz=Math.sin(angle),
+   half=.031+.012*biomeHash(seed*37+blade*11),
+   lean=.040+.052*biomeHash(seed*19+blade*13),
+   lift=.17+.10*biomeHash(seed*31+blade*7),
+   a=[x-cz*half,y,z+cx*half],
+   b=[x+cz*half,y,z-cx*half],
+   tip=[x+cx*lean,y+lift,z+cz*lean],
+   tone=greens[(Math.floor(seed)+blade)%greens.length];
+  // Backface culling must never erase entire kitchen-garden beds on orbit.
+  tri(a,b,tip,tone);tri(b,a,tip,tone.map(t=>t*.82));
+ }
+}
 function renderInhabitedKitchenGarden(xx,zz,index,sign){
  const start=data.length,bedZ=zz+.43+(index%3)*.035;
  const ash=[rgb(0x998d79),rgb(0xa99b86),rgb(0x807969)],
@@ -12456,7 +12478,6 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
     rgb(0x5f8055),rgb(0x8e9b62)],
    oak=rgb(0x796143),lath=rgb(0xa58b66);
  const ground=(x,z)=>terrain(x,z);
- // Two adjacent raised plots share the original home-plot footprint.
  materialScope(MATERIAL.STONE,()=>{
   for(let bed=0;bed<2;bed++){
    const x=xx+(bed?-.49:.49),z=bedZ;
@@ -12466,13 +12487,18 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
     box(x,ground(x,rz)+.015,rz,.66,.16,.082,ash[(index+bed+side+3)%3]);
    }
    const runoffX=x+(bed?-.39:.39);
+   // Drainage is an open, thin downhill channel, not six intersecting
+   // solid stone cubes: paired terrain-bound faces read correctly from
+   // either side of the camera while exposing the same original runoff.
    for(let i=0;i<3;i++){
-    const zz0=z-.31+i*.31;
-    box(runoffX,ground(runoffX,zz0)+.015,zz0,.10,.036,.25,
-     ash[(index+bed+i)%3]);
+    const z0=z-.31+i*.31,c=ash[(index+bed+i)%3],
+      a=[runoffX-.05,ground(runoffX-.05,z0-.125)+.029,z0-.125],
+      b=[runoffX+.05,ground(runoffX+.05,z0-.125)+.029,z0-.125],
+      d=[runoffX-.05,ground(runoffX-.05,z0+.125)+.029,z0+.125],
+      e=[runoffX+.05,ground(runoffX+.05,z0+.125)+.029,z0+.125];
+    quad(a,b,e,d,c);
    }
   }
-  // Low worn access stones preserve the real doorway and all navigation.
   for(let step=0;step<5;step++){
    const x=xx+Math.sin(index*.7+step*1.11)*.08,
     z=zz-.83+step*.33;
@@ -12483,22 +12509,25 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
   for(let bed=0;bed<2;bed++){
    const x=xx+(bed?-.49:.49),z=bedZ,y=ground(x,z);
    box(x,y+.072,z,.53,.11,.89,soil[(index+bed)%3]);
-   for(let row=0;row<3;row++){
+   for(let row=0;row<3;row++)
     box(x,y+.178,z-.3+row*.30,.47,.027,.044,
      soil[(index+bed+row+1)%3]);
-   }
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
-  // Short open-to-street back weaving uses the existing yard fence,
-  // never forms an occluding full-height building or blocks a worker.
+  // Real outward-woven horizontal lath remains double-sided but no longer
+  // tessellates each thin reed as a closed miniature cylinder on both faces.
   for(let row=0;row<4;row++){
    const z=zz+1.063,y=ground(xx,z)+.17+row*.11;
    for(let segment=0;segment<6;segment++){
-    const x=xx-1.06+segment*.355,bend=(segment+row)%2?.021:-.021;
-    limbSegment([x,y,z+bend],
-     [x+.365,y+.014*Math.sin(index+segment),z-bend],
-     .023,row%2?oak:lath,4);
+    const x=xx-1.06+segment*.355,
+     bend=(segment+row)%2?.021:-.021,
+     a=[x,y-.012,z+bend],
+     b=[x+.365,y-.012,z-bend],
+     c=[x+.365,y+.012,z-bend],
+     d=[x,y+.012,z+bend],
+     tint=row%2?oak:lath;
+    quad(a,b,c,d,tint);quad(d,c,b,a,tint);
    }
   }
   for(const side of [-1,1]){
@@ -12510,28 +12539,23 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
   }
  });
  materialScope(MATERIAL.FOLIAGE,()=>{
-  // Cosmetic variation uses only a stable lot index, never world RNG.
   for(let bed=0;bed<2;bed++){
    const bx=xx+(bed?-.49:.49);
    for(let row=0;row<3;row++)for(let plant=0;plant<4;plant++){
-    const x=bx-.20+plant*.13,z=bedZ-.31+row*.30,
-     h=.14+.065*biomeHash(index*71+bed*29+row*11+plant);
-    cone(x,ground(x,z)+.16,z,.080,h,
-     greens[(index+bed*3+row+plant)%greens.length],5);
-    if((row+plant+index)%3===0)
-     cone(x+.03,ground(x,z)+.21,z-.026,.054,.13,
-      greens[(index+bed+plant+2)%greens.length],5);
+    const x=bx-.20+plant*.13,z=bedZ-.31+row*.30;
+    renderW287GardenLeafSpray(x,z,index*71+bed*29+row*11+plant,greens);
    }
   }
+  // The old eight five-sided ornamental cone stacks become climbing
+  // irregular leaves on exactly the two original low fence uprights.
   for(const side of [-1,1])for(let leaf=0;leaf<4;leaf++){
-   const x=xx+side*.87,z=zz+.81,y=ground(x,z);
-   cone(x-side*.036,y+.22+leaf*.125,z-.04,.07,.15,
-    greens[(index+leaf+2)%greens.length],5);
+   const x=xx+side*.87,z=zz+.81+leaf*.012;
+   renderW287GardenLeafSpray(x-side*.036,z,index*37+leaf*17+(side+1)*43,greens);
   }
  });
  const triangles=(data.length-start)/30;
- if(!Number.isInteger(triangles)||triangles<100||triangles>1400)
-  throw Error('W286 unbounded original household garden geometry');
+ if(!Number.isInteger(triangles)||triangles<200||triangles>720)
+  throw Error('W287 unbounded or missing complete planted household garden');
  highStreetStats.kitchenGardens++;
  highStreetStats.kitchenGardenBeds+=2;
  highStreetStats.kitchenGardenPlants+=32;
