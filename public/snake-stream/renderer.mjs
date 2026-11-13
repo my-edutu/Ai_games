@@ -116,6 +116,23 @@ export function boundedStartupPixelRatio(width,height,ratio) {
   return Math.min(ratio,Math.max(Math.min(ratio,0.4),Math.sqrt(768000/(width*height))));
 }
 // END R53 STARTUP RASTER HELPER
+// BEGIN T4 FIRST-LOW-FRAME PLAN
+/**
+ * The verified low-quality 1080p stream spent its first HDR/shadow/cache
+ * submissions at a 0.75 ratio (1178x651), only later dropping to its
+ * existing 0.4 ratio (751x415) after GPU queue starvation. Both expensive
+ * cache buffers were rebuilt at the second resolution. Select that SAME
+ * existing low-tier raster before first renderer submission instead.
+ * Balanced-quality viewers and mobile/ordinary canvases stay unchanged.
+ * This is not a frame-count substitution, a gate change or a GPU FPS claim.
+ */
+export function planInitialLowModeRaster({ width, height, pixelRatio, quality }) {
+  if (![width, height, pixelRatio].every(Number.isFinite) ||
+      width <= 0 || height <= 0 || pixelRatio <= 0) return pixelRatio;
+  if (quality !== 'low' || width < 1500 || height < 800 || width * height < 1500000) return pixelRatio;
+  return Math.min(pixelRatio, 0.4); // exact existing adaptive raster floor
+}
+// END T4 FIRST-LOW-FRAME PLAN
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -423,7 +440,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // R51 measured quality adjustments, critical cues and all 3D layers remain.
     if (frameCount === 0) {
       const initialRatio = renderer.getPixelRatio();
-      const startupRatio = boundedStartupPixelRatio(width, height, initialRatio);
+      let startupRatio = boundedStartupPixelRatio(width, height, initialRatio);
+      // Low mode already ends at the existing 0.4 floor in the measured
+      // 1080p stream; avoid expensive initial cache/shadow work at 0.75.
+      startupRatio = planInitialLowModeRaster({ width, height, pixelRatio: startupRatio, quality });
       if (startupRatio < initialRatio) renderer.setPixelRatio(startupRatio);
       // BEGIN R54 SHADOW FIRST-PAINT
       // R53 already bounds the first oversized color raster. Keep the first
@@ -445,9 +465,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
 
   function applyQuality(pixelRatio = Math.min(window.devicePixelRatio || 1, 0.75)) {
     if (quality !== 'low') return;
-    renderer.setPixelRatio(pixelRatio);
+    const ratioChanged = Math.abs(renderer.getPixelRatio() - pixelRatio) > 1e-5;
+    if (ratioChanged) renderer.setPixelRatio(pixelRatio);
     // Refining an already-low render scale does not invalidate its shadow map.
-    if (sun.shadow.mapSize.x !== 1024 || sun.shadow.mapSize.y !== 1024) {
+    const shadowChanged = sun.shadow.mapSize.x !== 1024 || sun.shadow.mapSize.y !== 1024;
+    if (shadowChanged) {
       sun.shadow.mapSize.set(1024, 1024);
       sun.shadow.map?.dispose();
       sun.shadow.map = null;
@@ -456,6 +478,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // BEGIN R43 WATER SAMPLING ADAPT
     if (world) configureLowQualityWaterSampling(world, THREE);
     // END R43 WATER SAMPLING ADAPT
+    // Measured adaptation can settle at the same 0.4 ratio. Preserve the
+    // expensive, correctly dimensioned static color/depth cache in that case.
+    if (!ratioChanged && !shadowChanged) return;
     invalidateStaticCache();
     dirty = true;
   }

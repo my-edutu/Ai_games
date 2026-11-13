@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-12",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED / T2 BUILDING / T3 BUILDING explicit stable reduced-motion close shot repaired natively / T4 HARD RED, aa4e original strict 12/17",
-  "detail": "aa4e browser #43152516883 strict original 12/17 WebGL frames at 751x415 with 646 skips, 36/95 checks. Native #43152516943 684/747 passed. Explicit reduced-motion close camera was overridden to overview; source-exact production candidate now respects manual stable camera and guards both follow/detail reframes under measured severe GPU pressure. Native RED→GREEN 8/8, related 20/20, TypeScript, 900-tick host authority passed. New-head Chromium and device measurements pending; whole-scene rectangular court visually self-rejected.",
+  "updatedAt": "2026-11-13",
+  "status": "T0 UNSIGNED / T1 BUILDING visual SELF-REJECT / T2 BUILDING / T3 BUILDING / T4 HARD RED 1/17 strict original at 6b0826f; first-low-frame candidate native-only",
+  "detail": "Exact parent 6b0826f browser #43352572173 counted 1/17 complete original 1s WebGL submissions, 747 queue skips, 53/95 browser pass; native 699/764. Native-tested T4 first-low-frame change prevents unnecessary 0.75 to existing 0.4 high-cost cache rebuild, RED 0/3 to GREEN 3/3, 30/33 selected with 3 inherited failures; candidate real WebGL frames, FPS and independent acceptance PENDING. Whole-game rectangle still self-rejected.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "aa4e strict original 1-second WebGL 12/17 HARD RED; current real game still rectangular; native camera correctness/performance candidate awaiting original Chromium gate.",
   "reviews": [
