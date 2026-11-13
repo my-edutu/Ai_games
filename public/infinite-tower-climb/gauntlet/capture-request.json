@@ -1,4 +1,25 @@
 {
+  "p0QueuedOriginalArchFirstRendererSourcePinned20261113": {
+    "stage": "P0 exact-source original full-motion audit — NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "codeCommit": "ae46968f4ff827a3d331c8afc87a3411ef50c8d0",
+    "candidateSourceSha": "EXACT github.sha of THIS capture-request commit; never floating branch HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "requiredCapture": "Existing nine-job true original 1x 20Hz source capture: baseline vs candidate ascent/floor0, moving deck/floor7, authentic Floor8 guardian+crusher crossing and Floor9 continuation, and result/restart; desktop 960x600, portrait 390x844, 60+ seconds each, unaltered source and genuine native PTS and source/browser/Three/native event pairing.",
+    "criticalReview": "Inspect 22-31s native original footage in BOTH viewports and source tick451. The real old original bronze arch and f8:cap must remain rendered with the actual full-body player across the same walkable exit, not hard cut into a violet Floor9 replacement. Compare newly diagnosed firstObservedTick, firstWorldRenderTick, pendingSourceTickGap, old roof/arch plus camera source/capture sidecars. Reject fabricated footage or successful API acknowledgements as pixel proof.",
+    "priorNativeRun": "https://github.com/my-edutu/Ai_games/actions/runs/43351994917; 0/2 strict native guardian crossing accepted",
+    "newQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43360975660 pending",
+    "review": "docs/reviews/2026-11-13-tower-pr68-queued-gpu-original-arch-source-bound-review.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevices": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED",
+    "safety": "Original baseline SHA unchanged; same PR68 draft; no merge, deploy, force-push, PR58 edit or unrelated games"
+  },
   "p0NativeFirstFrameIntegrationRecapture20261113": {
     "stage": "P0 original normal-speed source-pinned GPU frame capture — no acceptance",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",

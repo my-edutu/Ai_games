@@ -292,3 +292,40 @@ test('source-owned visual gateway and original real cap survive first authentic 
       'a wrong-run visual passage cannot borrow authenticated old world geometry');
   }finally{other.dispose();}
 });
+
+
+test('real old bronze arch and cap remain the SAME GPU objects when source advances before first Floor9 world render',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const previous=old(),first=next();
+  first.lastGuardianCrossing={
+    runToken:previous.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+    worldWidth:previous.worldWidth,cap,exitX:gate,
+    crossingX:first.player.x,crossingY:first.player.y,
+    halfWidth:first.player.halfWidth,halfHeight:first.player.halfHeight,
+    guardian:previous.enemies[0],
+  };
+  const later={...first,tick:460,player:{...first.player,x:gate+19000}};
+  const frozen=JSON.stringify([previous,first,later]);
+  const world=createTowerWorld();
+  try{
+    world.update(previous,.05,0,{quality:'low'});
+    const originalGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    const originalCap=world.group.getObjectByName('platform:f8:cap');
+    assert.ok(originalGate?.isGroup && originalCap?.isGroup);
+    assert.equal(world.stageGroundedCapContinuation(previous,first),true);
+    world.update(later,.05,.05,{quality:'low'});
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
+      'late first source frame must attach same original GPU gateway');
+    assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap,
+      'original roof is retained, not an invented replacement');
+    assert.ok(world.group.getObjectByName('platform:f9:ground'),
+      'authentic next-floor walkable platform must not be deferred');
+    const diag=world.diagnostics();
+    assert.equal(diag.retainedSourceCap?.firstObservedTick,451);
+    assert.equal(diag.retainedSourceCap?.firstWorldRenderTick,460);
+    assert.equal(diag.retainedSourceCap?.pendingSourceTickGap,9);
+    assert.equal(diag.deferredDistantArrival?.structureDeferred,true,
+      'noninteractive opaque shell should not occlude original crossing in first actual frame');
+    assert.equal(JSON.stringify([previous,first,later]),frozen);
+  }finally{world.dispose();}
+});

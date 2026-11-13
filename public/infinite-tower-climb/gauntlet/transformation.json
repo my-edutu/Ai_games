@@ -1,4 +1,29 @@
 {
+  "p0QueuedOriginalGpuCapFirstFrameSourceRace20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceImplementationSha": "ae46968f4ff827a3d331c8afc87a3411ef50c8d0",
+    "priorNativeCandidateSha": "c6c75092efb9e6a8cf8d0b01896b72823233a191",
+    "priorRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43351994917",
+    "actualFullMotionFinding": "Original 72.2s desktop and genuine portrait 1x source-pinned recordings still show the hard bronze Floor8 to violet Floor9 cut ~24.4-25.2s; HP-zero source crossing tick451 real; strict native event/image acceptance 0/2.",
+    "observedRootCause": "stageGroundedCapContinuation correctly queued the actual old f8:cap and separate GPU bronze arch at first observed Floor9 tick, but beginRetainedCapRebuild and earned structural-shell deferral formerly required CURRENT tick === queued tick. During delayed cold renderer the live 20Hz source can advance between accept and first actual WebGL; old GPU subtrees were discarded and incoming violet shell uploaded too soon.",
+    "productionChange": "Same real verified old f8 cap and gate persist into the first delayed same-run Floor9 renderer only if immutable recorded guardian HP0 crossing, source roof, cap footprint, bounded 12-tick observational lag, living actual player position and current source match. New diagnostic firstObservedTick/firstWorldRenderTick/pendingSourceTickGap. No authoritative positions, floors, platform collisions, guardian HP, progression, asset copies, or fictitious frame.",
+    "targetedCIRepair": "Latest prior full catalogue 43356084652 had phase3 0 one genuine outdated source-test assertion (biome handoff now has retained cap 4th argument) and phase3 1 runner shutdown after 175 passing tests. Exact production assertion updated; same complete phase file inventory runs each file in its own bounded independent Node process; no skipping tests, all failures veto.",
+    "oldQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43356084652 — FAILED, 8/10 jobs succeeded; phase3-0 assertion failed and phase3-1 GitHub runner shutdown",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43360975660 — in progress at inspection; no green claim",
+    "originalNormalSpeedCapture": "REQUESTED via exact immutable github.sha capture-request commit. New candidate footage NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-queued-gpu-original-arch-source-bound-review.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realSupportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "largestExperienceGap": "No certified uninterrupted full-body single physical old bronze doorway crossing in normal-speed 960x600 and 390x844. Match source, Chrome/Three and native video PTS, verify source-driven Floor9 onward, result/restart. Frozen baseline outcome native film clock remains veto.",
+    "nextHighestImpactAction": "Inspect exact-sha quality and eight original 60+s videos once complete. In first filmed F9 tick compare pendingSourceTickGap, original GPU cap/arch visibility, hero and real gate projected joint camera, and normal-speed bronze->void color/depth continuity for desktop/portrait. If severe native cut persists, repair spatial scene/camera cold-structure compositing; no stage advancement without real acceptance.",
+    "safety": "PR68 same open draft over PR58; frozen source SHA unchanged; no other-game changes, merge/deploy/force-push/draft promotion."
+  },
   "p0ActualSourceNativeF9CutAndParallelCiVeto20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
