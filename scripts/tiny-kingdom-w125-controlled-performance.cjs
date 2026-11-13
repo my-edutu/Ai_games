@@ -89,6 +89,8 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
    const snapshotStats=await page.evaluate(()=>{
     const g=window.__tinyKingdom,gl=document.getElementById('world').getContext('webgl');
     return {renderer:g.renderQuality(),scene:g.renderStats(),
+     coldSceneryBuild:g.getColdSceneryBuildAudit(),
+     groundAtlas:g.getGroundAtlasAudit?.()??null,
      cpu:g.getFrameProfile(),cadence:g.getDrawCadenceAudit(),
      gpu:g.getGpuFrameTimerAudit(),
      geometry:g.getGeometryAudit(),
