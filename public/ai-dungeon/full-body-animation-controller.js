@@ -909,7 +909,16 @@ export function chooseOriginalSourceSwingToeJointRelief({
    !foot(after?.[side])||!foot(after?.[opposite]))continue;
   const next=after[side],other=after[opposite];
   const lift=next.toeY-swing.toeY;
-  if(lift<.004||lift>.04||next.toeY>floorTopY+.035||
+  // Original desktop source-skinned WebGL #43515311088: an original
+  // 100mrad toe hinge raised the toe just 6.283mm, but left it 62.93mm
+  // beneath stone (~9% relief). That reads as an isolated toe twitch.
+  // Only when STILL >25mm submerged after the trial, require >=15% of
+  // the original burial to be relieved, or keep the licensed mixer pose.
+  // Shallow final clearance and all same-source dual-shoe gates are intact.
+  const beforeBurial=floorTopY-swing.toeY;
+  const finalBurial=floorTopY-next.toeY;
+  if((finalBurial>.025&&lift<beforeBurial*.15)||
+   lift<.004||lift>.04||next.toeY>floorTopY+.035||
    // At sparse full-weight keyframes a measured 6mm lift is useful even
    // if a previously 22mm-buried airborne toe is still 14mm submerged.
    // Report partial improvement, NEVER contact, sole plant or clear floor.
