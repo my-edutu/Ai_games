@@ -1,5 +1,5 @@
 import * as THREE from '/tower/vendor/three.module.js';
-import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
+import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
@@ -1692,7 +1692,10 @@ export function createTowerWorld(){
       floorGroup.add(frame);
       const doorway=new THREE.Group();
       doorway.name='GuardianGateInset';
-      doorway.position.z=GUARDIAN_CAP_CORRIDOR.visibleSealRadius;frame.add(doorway);
+      // The gate plane is mounted at the published EXIT X, perpendicular to
+      // the climber's clockwise annular traversal. It is not an exterior
+      // radial wall parallel to the moving hero's route.
+      doorway.position.z=0;frame.add(doorway);
       // Real original portrait danger capture 9924ca01 showed the outer gate's
       // counterweights and centre pulley covering the skinned climber at 20s
       // after the secondary earned doorway had already been suppressed.
@@ -2657,13 +2660,23 @@ export function createTowerWorld(){
         }
       }
       if(entry.guardianGate){
-        // A cap can move or appear at a different height in a replay. Anchor
-        // its independent decorative doorway to the exact live cap transform.
-        // The doorway's child inset remains safely inside the walking radius.
+        // The actual source exit crosses X on the annular route. Previously
+        // rotating a gate at the origin by theta mounted the arch facing
+        // radially and PARALLEL to hero travel. Even a retained original GPU
+        // gateway could never show a body walking through that wall. Mount
+        // this SAME source-driven original gate at the exit's outer-deck
+        // world point, normal to the route tangent. Its piers extend across
+        // the radial deck, not along the route. No collision or AI changes.
         const anchorX=guardianGateAnchorX(snapshot,p);
         entry.guardianGate.anchorX=anchorX;
-        entry.guardianGate.frame.rotation.y=angleFor(anchorX,snapshot.worldWidth);
-        entry.guardianGate.frame.position.set(0,entry.root.position.y+p.height/SCALE,0);
+        const traversalGate=guardianTraversalGatePose(anchorX,
+          p.y+p.height,snapshot.chunkBaseY,snapshot.worldWidth);
+        if(traversalGate){
+          entry.guardianGate.frame.visible=true;
+          entry.guardianGate.frame.rotation.y=traversalGate.yaw;
+          entry.guardianGate.frame.position.set(
+            traversalGate.x,traversalGate.y,traversalGate.z);
+        }else entry.guardianGate.frame.visible=false;
         // Only the genuine, present guardian's authoritative active state can
         // release the gate. A missing snapshot or transport outage never
         // fabricates a victory. On a mid-run renderer rebuild, it rehydrates
