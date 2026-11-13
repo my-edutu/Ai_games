@@ -91,9 +91,16 @@ export function createPhysicalCombatFeedback({
   revokeAwaitingAudio(reason+'-awaiting-frame');
   pending.length=0;seen.clear();
   observedAtByCueId.clear();
-  lastPresentedFrame=null;highestNumericPresentedFrame=-1;
+  // An automatic floor/run transition changes authoritative scene identity,
+  // NOT the still-running WebGL renderer's submitted-frame serial. Preserve
+  // replay witnesses so a late callback for the previous scene cannot
+  // authorize newly queued combat audio without another genuine submission.
+  // Only explicit reset/dispose may start a fresh renderer receipt epoch.
+  if(reason!=='scene-transition'){
+   lastPresentedFrame=null;highestNumericPresentedFrame=-1;
+   recentStringFrameIds.clear();
+  }
   lastVisualAdvanceStartClock=null;lastVisualAdvanceEndClock=null;
-  recentStringFrameIds.clear();
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
  function retainReceipt(cue,visual,audio=false,frameId=null,decision=null,submittedWallAt=null){
