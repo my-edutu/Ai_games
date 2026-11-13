@@ -126,6 +126,24 @@ export function createPhysicalCombatFeedback({
    Math.round((lastVisualAdvanceEndClock-lastVisualAdvanceStartClock)*1000):null;
   const afterVisualAdvanceToSubmissionMs=validAdvanceEnd?
    Math.round((receiptClock-lastVisualAdvanceEndClock)*1000):null;
+  // A cue can expire BEFORE any WebGL submission when the REAL main thread
+  // spends the remaining deadline inside D04's own visual pass. Keep the
+  // bounded preframe phase clocks in that terminal receipt, without claiming
+  // a submitted frame or played sample. Reuse existing clock samples.
+  const expiredPending=frameId===null&&decision==='expired-pending-before-frame';
+  const measuredExpiry=expiredPending&&validObserved&&
+   Number.isFinite(lastVisualAdvanceStartClock)&&
+   Number.isFinite(lastVisualAdvanceEndClock)&&
+   lastVisualAdvanceStartClock>=observedAt&&
+   lastVisualAdvanceEndClock>=lastVisualAdvanceStartClock;
+  const pendingExpiryFields=expiredPending?{
+   pendingExpiredBeforeVisualMs:measuredExpiry?
+    Math.round((lastVisualAdvanceStartClock-observedAt)*1000):null,
+   pendingExpiredVisualPassMs:measuredExpiry?
+    Math.round((lastVisualAdvanceEndClock-lastVisualAdvanceStartClock)*1000):null,
+   pendingExpiredWallAgeMs:measuredExpiry?
+    Math.round((lastVisualAdvanceEndClock-observedAt)*1000):null
+  }:null;
   const receipt=Object.freeze({cueId:cue.id,kind:cue.kind,tick:cue.tick,
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
    intendedDelayMs:Math.round(cue.delay*1000),
@@ -137,7 +155,7 @@ export function createPhysicalCombatFeedback({
    renderSubmissionMs:frameId!==null&&
     Number.isFinite(receiptRenderSubmissionSeconds)&&receiptRenderSubmissionSeconds>=0?
     Math.round(receiptRenderSubmissionSeconds*1000):null,
-   sampleSynchronized:false});
+   sampleSynchronized:false,...(pendingExpiryFields??{})});
   receipts.push(receipt);
   if(receipts.length>MAX_PHYSICAL_RECEIPTS)receipts.shift();
  }
@@ -424,8 +442,24 @@ export function createPhysicalCombatFeedback({
  function popDue(dt){
   if(!pending.length)return;
   for(const item of [...pending]){
-   // Never render or play a queued swing after a long real browser/GPU stall.
-   if(observedSeconds-item.queuedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+   // A fresh HP witness may arrive after the preceding rAF interval, but the
+   // D04 visual pass itself can then consume the remaining deadline. The raw
+   // frame clock and the pre-visual wall sample omit that subsequent work.
+   // Use the already-sampled POST-visual clock, when bound to this exact cue.
+   // Only the opt-in submission path reads this clock; missing proof retains
+   // the existing conservative raw-frame fallback.
+   const frameAge=Math.max(0,observedSeconds-item.queuedAt);
+   const observedAt=requirePresentedFrame?observedAtByCueId.get(item.cue.id):null;
+   const postVisualWallAge=requirePresentedFrame&&
+    Number.isFinite(observedAt)&&observedAt>=0&&
+    Number.isFinite(lastVisualAdvanceEndClock)&&
+    lastVisualAdvanceEndClock>=observedAt?
+    lastVisualAdvanceEndClock-observedAt:null;
+   const realAge=postVisualWallAge===null?frameAge:
+    Math.max(frameAge,postVisualWallAge);
+   // Never render or play queued impact after a long visual/WebGL stall.
+   // Live warnings have a separately authorized, silent danger recovery.
+   if(realAge>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
     pending.splice(pending.indexOf(item),1);
     // A warning with matching, STILL-LIVE public danger cells is not a stale
     // authored attack. The first actual frame may have stalled before its
@@ -453,15 +487,11 @@ export function createPhysicalCombatFeedback({
     }
     continue;
    }
-   // The opt-in D04 clock must age a planned cue against observed REAL
-   // time, not the 50ms animation cap. A 215ms verified-melee delay can
-   // become eligible in a single genuine 240ms frame; advancing it by only
-   // 50ms would defer its first draw until AFTER the fixed 400ms deadline.
-   // The preceding stale-age gate still forbids all late/unverified impacts,
-   // and non-submission callers preserve their original capped-step timing.
+   // Presentation delays share the post-visual REAL elapsed age with the
+   // expiry gate, never the 50ms animation cap or pre-visual estimate.
+   // The established non-submission adapter is unchanged.
    if(requirePresentedFrame)
-    item.remaining=Math.max(0,presentationDelay(item.cue)-
-     Math.max(0,observedSeconds-item.queuedAt));
+    item.remaining=Math.max(0,presentationDelay(item.cue)-realAge);
    else item.remaining-=dt;
   }
   const due=pending.filter(x=>x.remaining<=0).sort((a,b)=>
