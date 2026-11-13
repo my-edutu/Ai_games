@@ -177,43 +177,38 @@ export function createPhysicalCombatFeedback({
   }
   awaitingPresentation.length=0;
  }
- function emit(cue,plannedAudioEpoch=null,observedActionAt=observedSeconds){
+ // Stage an entire genuine WebGL-frame batch before releasing its sounds.
+ // One shared post-emission clock must cover all simultaneous real HP losses:
+ // a slow early emission must not leave old injury art in the next GPU draw.
+ // Do not take one clock reading per victim or revise authoritative HP.
+ function emit(cue,plannedAudioEpoch=null,observedActionAt=observedSeconds,stagedBatch=null){
   if(disposed)return;
-  // A gesture authorizes only cues planned during that enabled session.
-  // Delayed cues accepted before opt-in (or before mute/re-enable) stay silent.
+  const visual=!!safeCall(()=>visuals?.emit?.(cue));
+  if(stagedBatch!==null){
+   stagedBatch.push({cue,visual,plannedAudioEpoch,observedActionAt});
+   return;
+  }
+  finishEmittedCue(cue,visual,plannedAudioEpoch,observedActionAt);
+ }
+ function finishEmittedCue(cue,visual,plannedAudioEpoch,observedActionAt,afterEmit=null){
   const soundEligible=optedIn&&audioReady()&&
    plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
-  const visual=!!safeCall(()=>visuals?.emit?.(cue));
-  // A genuine HP shard can cross its ORIGINAL 400ms deadline inside
-  // visuals.emit(), after the post-advance/pending time check but BEFORE the
-  // next WebGL submission. Do not leave that stale shard in a retained GPU
-  // pool or stage old impact foley merely because it was timely on entry.
-  // This is a bounded, opt-in DAMAGE-only post-emission check; it never
-  // invents a hit, changes authority, extends a deadline or retires a live
-  // Warden warning. Actual D04 visuals can retire exactly this cue's slots.
-  if(requirePresentedFrame&&
+  // The shared clock is read ONCE after all this frame's actual D04 emits,
+  // regardless of how many victims were injured. It captures a costly
+  // emission that began early, outside the previous final-100ms guard.
+  // No WebGL frame, sound start or HP source attribution is inferred.
+  if(requirePresentedFrame&&afterEmit!==null&&
     (cue.kind==='damage'||cue.kind==='damage-fatal')&&
     cue.verified===true&&cue.proof==='observed-hp-drop'){
    const observedAt=observedAtByCueId.get(cue.id);
-   // The ordinary multi-injury frame has ONE observation and ONE submit
-   // clock sample. Read an extra after-emission clock only when the existing
-   // post-visual witness is within 100ms of the original expiry; otherwise
-   // the extra clock reads themselves distort cheap-frame evidence and cost.
-   // Post-WebGL acknowledgment still checks the full deadline even when an
-   // unusually slow emission begins much earlier than this final window.
-   const nearDeadline=Number.isFinite(observedAt)&&observedAt>=0&&
-    Number.isFinite(lastVisualAdvanceEndClock)&&
-    lastVisualAdvanceEndClock>=observedAt&&
-    lastVisualAdvanceEndClock-observedAt>=
-     MAX_AUDIO_VISUAL_STALENESS_SECONDS-.100;
-   const afterEmit=nearDeadline?observedWallClock():null;
-   if(afterEmit!==null&&afterEmit>=observedAt&&
+   if(Number.isFinite(observedAt)&&observedAt>=0&&
+      afterEmit>=observedAt&&
       afterEmit-observedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
     const retired=visual?safeCall(()=>visuals?.retireStaleCue?.(cue.id,'stale-frame')):0;
     const retiredSafely=!visual||retired===true||
      Number.isSafeInteger(retired)&&retired>0;
-    if(!retiredSafely)adapterFailures++; // Never pretend old pixels were removed.
-    expiredQueuedCues++; // Never double-count an unsubmitted, retired shard as admitted.
+    if(!retiredSafely)adapterFailures++;
+    expiredQueuedCues++;
     if(optedIn&&audioReady())staleAudioDropped++;
     retainReceipt(cue,visual,false,null,retiredSafely?
      'expired-during-visual-emission':'expired-emission-retirement-unverified');
@@ -540,9 +535,26 @@ export function createPhysicalCombatFeedback({
   const due=pending.filter(x=>x.remaining<=0).sort((a,b)=>
    b.cue.priority-a.cue.priority||a.cue.tick-b.cue.tick||
    a.cue.id.localeCompare(b.cue.id,'en'));
+  // Stage visual emissions in original priority order, then use ONE
+  // bounded shared post-emission sample for every verified HP injury in this
+  // frame. Finish cue admissions in the same order to retain audio priority,
+  // dedupe and saturation behaviour. Non-gated callers remain synchronous.
+  const staged=requirePresentedFrame?[]:null;
   for(const item of due){
    const at=pending.indexOf(item);
-   if(at!==-1){pending.splice(at,1);emit(item.cue,item.audioEpoch,item.queuedAt)}
+   if(at!==-1){
+    pending.splice(at,1);
+    emit(item.cue,item.audioEpoch,item.queuedAt,staged);
+   }
+  }
+  if(staged?.length){
+   const hasHp=staged.some(({cue})=>
+    (cue.kind==='damage'||cue.kind==='damage-fatal')&&
+    cue.verified===true&&cue.proof==='observed-hp-drop');
+   const afterEmit=hasHp?observedWallClock():null;
+   for(const item of staged)
+    finishEmittedCue(item.cue,item.visual,item.plannedAudioEpoch,
+     item.observedActionAt,afterEmit);
   }
  }
  function acceptSnapshot(snapshot){
