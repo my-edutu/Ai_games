@@ -101,7 +101,7 @@
     "verdict": "NOT EVALUATED",
     "safety": "Same draft PR68, immutable baseline unchanged; no PR58 rewrite, merge, deploy, forcepush or other game edits"
   },
-"p0ColdSourceBackedFirstGpuFrameCapture20261113": {
+  "p0ColdSourceBackedFirstGpuFrameCapture20261113": {
     "stage": "P0 source-authentic cold first frame / no acceptance",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
     "productionCodeSha": "07d4e6e33372606b75ea93a462270b7cde6e9ac7",
@@ -123,27 +123,27 @@
     "stageVerdict": "NOT EVALUATED",
     "safety": "Never modify frozen baseline or PR58, merge, deploy, force-push, alter draft, other game or invent reviewers/footage"
   },
-"p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
-      "stage": "P0 exact source-pinned original film recapture ONLY; no acceptance",
-      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-      "codeUnderAssessment": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
-      "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit; never floating branch HEAD",
-      "originalExpected": "9-job campaign: 8 original >=60sec unedited normal-speed 1x baseline/candidate WebMs at same seed tower-transformation-capture-v1, low tier, 20Hz original source; desktop 960x600 portrait 390x844 ascent floor0, moving floor7, guardian/crusher floor8→authentic grounded f9, real outcome/intermission/restart floor0; plus source/camera/native-event pairing job.",
-      "previousNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
-      "previousFailures": "Candidate original 72.20s desktop and 73.44s portrait Floor8-to9 hard bronze/violet transition, source crossing tick451 valid, 0/2 native event acceptance. Baseline moving desktop partial native transport clock veto remains; never weaken frame calibration.",
-      "acceptanceQuestion": "Does actual old GPU cap and original HP-open bronze guardian gate remain in same normal-speed native shot with the actual full-body climber standing on verifiable original f8:cap roof and crossing the physically continuous Floor9 platform, instead of disappearing on a >12-tick delayed browser sample? Inspect actualOldCapSupport and original retainedSourceCap diagnostics, strict source-browser-Three-native event provenance, then watch complete unedited desktop/portrait videos.",
-      "testCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 (not assumed pass)",
-      "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
-      "sourceAuthority": "No invented Floor9 support, previous cap is already source-verified; only source-owned real support via original f8:cap ID and exact roof/contact is eligible; no simulation or replay change.",
-      "critics": {
-        "LOOKS": "0/5",
-        "FEELS": "0/5",
-        "PLAYS": "0/5"
-      },
-      "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
-      "verdict": "NOT EVALUATED",
-      "safety": "Frozen baseline and active PR58 unmodified; PR68 remains open/draft; no merge, deployment, force-push, changes to other games"
+  "p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
+    "stage": "P0 exact source-pinned original film recapture ONLY; no acceptance",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "codeUnderAssessment": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit; never floating branch HEAD",
+    "originalExpected": "9-job campaign: 8 original >=60sec unedited normal-speed 1x baseline/candidate WebMs at same seed tower-transformation-capture-v1, low tier, 20Hz original source; desktop 960x600 portrait 390x844 ascent floor0, moving floor7, guardian/crusher floor8→authentic grounded f9, real outcome/intermission/restart floor0; plus source/camera/native-event pairing job.",
+    "previousNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
+    "previousFailures": "Candidate original 72.20s desktop and 73.44s portrait Floor8-to9 hard bronze/violet transition, source crossing tick451 valid, 0/2 native event acceptance. Baseline moving desktop partial native transport clock veto remains; never weaken frame calibration.",
+    "acceptanceQuestion": "Does actual old GPU cap and original HP-open bronze guardian gate remain in same normal-speed native shot with the actual full-body climber standing on verifiable original f8:cap roof and crossing the physically continuous Floor9 platform, instead of disappearing on a >12-tick delayed browser sample? Inspect actualOldCapSupport and original retainedSourceCap diagnostics, strict source-browser-Three-native event provenance, then watch complete unedited desktop/portrait videos.",
+    "testCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 (not assumed pass)",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
+    "sourceAuthority": "No invented Floor9 support, previous cap is already source-verified; only source-owned real support via original f8:cap ID and exact roof/contact is eligible; no simulation or replay change.",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
     },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "safety": "Frozen baseline and active PR58 unmodified; PR68 remains open/draft; no merge, deployment, force-push, changes to other games"
+  },
   "p0OriginalSingleCameraJointBodyGatewaySource20261113": {
     "stage": "P0 evidence capture only; not acceptance",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -1819,5 +1819,31 @@
     "safety": "PR68 open DRAFT, base PR58 unchanged, frozen baseline preserved; no merge, deploy, force-push, fabricated videos/votes/metrics",
     "requestPurpose": "Trigger existing nine-job original baseline/candidate 1x recording for this exact immutable request commit; same 20Hz source/seed/tier and strict film/event pairing; tests and prior film never substitute for after-video.",
     "captureMatrix": "Same seed tower-transformation-capture-v1, low tier, 60+seconds 1x unaltered WebM, desktop 960x600 and portrait 390x844, frozen baseline SHA vs immutable github.sha candidate, scenarios ascent floor0, moving floor7, real Floor8 guardian/crusher grounded→Floor9, outcome/restart floor0; keep original native timecodes and strict validator unchanged."
+  },
+  "p0FirstEpisodeNativePhaseRepairRecapture20261113": {
+    "stage": "P0 OPEN; original 1x normal-speed capture not yet adjudicated",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit, not a moving branch",
+    "sourceCodeFixShas": [
+      "39e6eec4c0a26526e8630d79894b1c615f9c1fa9",
+      "6be4aadfa27f8f566870572f44da059d639f6900"
+    ],
+    "testAndEvidenceShas": [
+      "b1cd4c6ebd7ebdfcbea69b95fa0f95f96de408f4",
+      "f844aa5d0ec370499cad89b065034f23f5a8fd62",
+      "fed46d151a7acc73e802c4160f399bb0132738f4"
+    ],
+    "requested": "EXISTING nine-job baseline/candidate from source-pinned immutable 20Hz original runtime 1x >=60s WebM: genuine ascent, moving floor7, actual Floor8 guardian/crusher earned door into floor9, result/restart, desktop 960x600 portrait 390x844, same seed tower-transformation-capture-v1 and low graphics. Capture authentic source/browser/Three/native video PTS.",
+    "criticalAudit": "Check first ORIGINAL episode not a later game/restart: source tick451 at ~23.198s desktop and 23.869s portrait; real HUD 8->9 first at24.75/25.25, violet scene 25.5/26.5. Previous portrait sidecar wrongly matched 66.75/67.75 second episode after one stray 9 glyph and intermediate bronze/violet transition. Require full actual same old bronze doorway+moving full-body climber+new true physical floor9 continuity. Correct clocks do NOT confer gameplay or experience acceptance.",
+    "previousFullOriginal": "https://github.com/my-edutu/Ai_games/actions/runs/43377023425 — 8/8 true videos recorded, final pair job FAILED 0/2; CI 43377023381 FAILED; video quality NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-first-episode-native-video-clock-rectification.md",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceP50P95P99Memory": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "safety": "Never modify frozen baseline, PR58, draft PR68 status, other games; never merge/deploy/force-push."
   }
 }
