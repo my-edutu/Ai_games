@@ -41,10 +41,10 @@ test('first real episode survives one isolated portrait 9-shaped glyph obstructi
   assert.equal(observed.nativeVideoSeconds,25.25);
   assert.equal(observed.precedingEightFrames,11);
   const rejected=digits.slice();
-  rejected[88]=9; // two consecutive nines are an earlier real/ambiguous phase
+  rejected[90]=9; // two consecutive nines remain inside the actual 12-sample pre-window
   assert.equal(findVisibleEightToNine(rejected).nativeVideoSeconds,66.75);
   const polluted=digits.slice();
-  polluted[90]=9; // two separate ghosts must not weaken the strict veto
+  polluted[96]=9; // two nonadjacent ghosts inside the same pre-window must be rejected
   assert.equal(findVisibleEightToNine(polluted).nativeVideoSeconds,66.75);
 });
 
