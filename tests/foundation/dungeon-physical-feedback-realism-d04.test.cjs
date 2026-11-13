@@ -876,7 +876,7 @@ test('D04 removes an orphaned trail draw call immediately when pool priority pre
    updateWorldMatrix(){},getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}};
   const actor={u:{id,kind:'vanguard',faction:'party',x:2,z:2,
    hp:30,action:'attack',actionTick:11},
-   authored:true,rigMeleeBones:[{part:'wrist',bone:hand}],
+   authored:true,assetRoot:{},rigMeleeBones:[{part:'wrist',bone:hand}],
    root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
   actors.set(id,actor);return actor;
  };
