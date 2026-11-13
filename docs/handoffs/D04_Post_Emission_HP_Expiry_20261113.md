@@ -1,0 +1,31 @@
+# D04 — Retire near-expired authentic injury art after costly visual emission (13 November 2026)
+
+**State:** isolated opt-in correctness improvement; NOT full 3D physical-realism acceptance, not deployed. Source branch: `feat/dungeon-d04-combat-feedback-realism-20261108`. Frozen BEFORE: `281735d0910c6b2443648af976003d50412ee324`. Normal `/dungeon` remains the legacy spectator; experimental D04 remains `?feedback=d04`. Do not merge main, Draft PR #49 or other sessions' branches.
+
+## Observable problem and conservative scope
+
+The latest completed genuine Chrome trial, [run 43350081788](https://github.com/my-edutu/Ai_games/actions/runs/43350081788), completed five browser tests but failed strict `AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED`. Its continuous comparisons still measured multi-second render stalls in both legacy and D04 modes. This is NOT evidence that D04 caused those stalls or that this change solves them. Existing actual desktop and 390px mobile WebMs decode to 13 and 11 video frames respectively (maximum gaps 3.015s and 1.512s), plus original Opus packets; those earlier clips do not prove physical contact or decoded audio alignment.
+
+A separate reproducible D04-owned defect existed at the last pre-WebGL boundary. `popDue()` checked the cue's wall age *after* `visuals.advance()`, but then `emit()` could spend the remaining budget creating pooled GPU instances. A real HP injury at 350ms could enter visual emission, spend 100ms there, and leave a 450ms shard in the retained pool for the upcoming render, even though no late sound would be authorized.
+
+For authentic `damage` / `damage-fatal` with `proof='observed-hp-drop'`, D04 now takes a second monotonic sample **only if the already sampled post-visual age lies inside the final 100ms of the 400ms deadline**. If that near-expiry emission crosses 400ms, retire exactly the associated retained visual instances with the already existing `retireStaleCue(cue.id,'stale-frame')` API **before** the next WebGL call, do not enqueue original impact audio, and record a terminal non-submitted receipt. The emission is not counted as visually accepted; one expired cue is counted instead, maintaining `visualAccepted + expiredQueuedCues <= queued`. If an adapter cannot retire the instances, report an adapter failure and an `expired-emission-retirement-unverified` receipt rather than claiming successful cleanup.
+
+There is intentionally **no new per-cue clock read on ordinary early, simultaneous injuries**. The previous single-observation/single-frame-sample contract remains intact. This extra guard does not cover an unusually costly emission beginning *earlier* than the final 100ms; the unchanged 400ms post-WebGL audio gate still rejects its stale sound. The complete cross-frame visual-liveness and performance problem is NOT closed by this targeted patch.
+
+## Test-first evidence and commands
+
+- [Test-first commit `c3f5a84`](https://github.com/my-edutu/Ai_games/commit/c3f5a8440a4c3a348a6d2a273517148018feefa0) added an actual-HP-loss 340ms wait + 10ms visual advance + 100ms emission case, requiring no retained shard, no staged sound, a non-submitted terminal receipt and zero emitted audio; a 180+10+20ms timely contrast still passes. [Pre-fix CI `43357436930`](https://github.com/my-edutu/Ai_games/actions/runs/43357436930) recorded **242/243 passing, exactly one new regression failing**. The separate browser job was skipped.
+- [First implementation `190c5cc`](https://github.com/my-edutu/Ai_games/commit/190c5cc495f1ce659a78c0f06fe95c68a0606b81) retired late shards, but unconditionally took new per-injury clock reads. [CI `43357685580`](https://github.com/my-edutu/Ai_games/actions/runs/43357685580) exposed the old simultaneous-injury shared-clock contract failing (**242/243 passing**). This intermediate implementation was not acceptable.
+- [Bounded correction `f42b898`](https://github.com/my-edutu/Ai_games/commit/f42b898746bb0f04c3316caaedb7545c502c7955) restricts the extra clock to the final 100ms margin. [CI `43357879315`](https://github.com/my-edutu/Ai_games/actions/runs/43357879315) completed the **243/243 native contract** job and production build successfully. The genuine Chrome job was running when this handoff was authored; do not infer its result here.
+
+The CI native job runs its explicit D04 test group (including `tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs`) followed by `npm run build`. These are injected-clock, injected-visual regression contracts, not decoded Chrome audio sample evidence.
+
+## Scope, review and rollback
+
+Modified only `tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs`, `public/ai-dungeon/physical-combat-feedback.js`, and this documentation. No authoritative `games/ai-dungeon/src/**`, rigs, animation, camera, global lighting, master audio routing, assets, replay or AI changes. Seven retained GPU pools / 102 instances, <=7 new draw calls, <=8 live original voices, 32 pending / 32 awaiting frame / 64 receipts, WebAudio fresh gesture / mute persistence, reduced-motion / reduced-flash, no invented attacker, anonymous HP proof, scene cleanup and the 400ms sound deadline remain in effect. No borrowed audio.
+
+**Specification review:** the shard was created after a real HP decline, not an inferred hit; a near-deadline expired emission is removed before rendering and never certifies audio; it cannot remove unrelated live warnings. **Quality review:** the ordinary simultaneous-injury clock cost was restored after the intermediate CI failure; renderer stalls remain both an evidence and experience blocker. Roll back correction `f42b898` and implementation `190c5cc` together if the bounded emission gate regresses, retaining the red tests.
+
+## Next dominant weakness
+
+Inspect the completed genuine browser timeline/receipts to separate authority observation age, D04 visual pass, D04 emission and actual renderer/encoder stalls, then optimize only measured D04-owned costs. Strict visual acceptance, three matched camera directions and actual moving desktop/390px mobile A/V, Warden warning/release/recovery/counter, missed swing, block, dodge, shot, spell, true impact, decoded impact-to-PCM sync and 20-minute cleanup soak are NOT verified. Do not claim Diablo IV parity, production readiness or a fabricated improvement percentage.
