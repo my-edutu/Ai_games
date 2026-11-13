@@ -1134,14 +1134,18 @@ test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory p
 
 test('public guardian second-ring performance clears tall decorative occluders but keeps every real wall',async()=>{
   const {createMazeWorld,publicGuardianCausewayCells}=await load();
-  // Four authentic currently disclosed ordinary cells. 15->16->17 is a
-  // reciprocal same-tier duel; spectator cell22 is a KNOWN sealed flank.
-  // Without an actual guardian, this fixture owns its original taller ruins.
+  // The actual public floor tiers matter: 14 and 15 are both row two
+  // (2.8m), while cell22 sits on the lower row-three clay terrace (1.4m).
+  // The 14->15 sealed edge is built by cell14 first and owns a real
+  // deterministic roofed windcatcher. The different-height 22 remains
+  // a negative control and must retain its original unrelated scenery.
+  // Pip 15->16->17 is a genuinely reciprocal level actor corridor.
   const duo={
     runToken:'guardian-negative-space',lifecycle:'running',result:null,
     width:7,height:7,currentCell:15,
-    visibleCells:[15,16,17,22],
+    visibleCells:[14,15,16,17,22],
     cells:[
+      {cell:14,blocked:false,neighbors:[]},
       {cell:15,blocked:false,neighbors:[16]},
       {cell:16,blocked:false,neighbors:[15,17]},
       {cell:17,blocked:false,neighbors:[16]},
@@ -1150,7 +1154,7 @@ test('public guardian second-ring performance clears tall decorative occluders b
     threats:[{id:'thornback',cell:17}],
     doors:[],keys:[],inventory:[],exitCell:null,
   };
-  const quiet={...duo,threats:[]},hidden={...duo,visibleCells:[15,16,22]};
+  const quiet={...duo,threats:[]},hidden={...duo,visibleCells:[14,15,16,22]};
   const baseline=createMazeWorld({balanced:true}),world=createMazeWorld({balanced:true});
   const first=JSON.stringify(duo);
   try{
@@ -1163,7 +1167,7 @@ test('public guardian second-ring performance clears tall decorative occluders b
     assert.equal(during.guardianCausewayTiles,3,'the genuine connected hero/guardian stage remains');
     assert.ok(during.wallWindcatchers<before.wallWindcatchers,
       'repeated tall windcatcher towers clear the original living actor stage');
-    assert.ok(during.instances>0&&during.renderedCells.includes(22),
+    assert.ok(during.instances>0&&during.renderedCells.includes(14)&&during.renderedCells.includes(22),
       'the known sealed spectator wall and its world tile remain physical');
     assert.equal(during.geometryCount,before.geometryCount,'no new GPU geometry classes');
     assert.equal(during.materialCount,before.materialCount,'no new material classes');
