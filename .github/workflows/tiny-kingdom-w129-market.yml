@@ -20,6 +20,7 @@ on:
       - 'scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs'
       - 'scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs'
       - 'scripts/tiny-kingdom-w299-original-market-gable-contract.cjs'
+      - 'scripts/tiny-kingdom-w304-market-sightline-contract.cjs'
       - 'scripts/tiny-kingdom-w300-cached-static-append-contract.cjs'
       - 'scripts/tiny-kingdom-w301-roofline-contract.cjs'
       - 'scripts/tiny-kingdom-w210-street-boundary-contract.cjs'
@@ -55,6 +56,7 @@ jobs:
           node scripts/tiny-kingdom-w129-lived-market-contract.cjs
           node scripts/tiny-kingdom-w106-market-court-contract.cjs
           node scripts/tiny-kingdom-w129-ground-contact-contract.cjs
+          node scripts/tiny-kingdom-w304-market-sightline-contract.cjs
           node scripts/tiny-kingdom-w197-compact-stone-residency-contract.cjs
           node scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs
           node scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs
