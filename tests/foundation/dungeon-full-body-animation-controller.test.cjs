@@ -5185,3 +5185,44 @@ test('source-toe gate receipts distinguish absent licensed evidence from safe me
  assert.match(stage,/chooseOriginalSourceSwingToeJointRelief\(\{\.\.\.owner,trials\}\)/);
  assert.match(stage,/if\(!verified\)/);
 });
+
+test('RED: genuine 116.7ms fully-owned Walking_A original mobile toe may test a safe bounded hinge',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ // From exact source WebGL #43506968564 mobile tick 6: after verified
+ // original ankle lift, right toe still 21.918mm below -20mm stone.
+ // Opposite original weighted shoe is near floor but NOT a certified
+ // two-point world contact. Future trial is hypothetical until native GLB.
+ const right={heelY:.17539100052644596,toeY:-.04191837080394184,
+  heelXZ:[-3.80,-7.10],toeXZ:[-3.93,-7.13]};
+ const left={heelY:-.00899,toeY:.01198,
+  heelXZ:[-4.13,-6.95],toeXZ:[-4.35,-6.95]};
+ const lifted={left:{...left},right:{...right,toeY:-.034,
+  heelY:right.heelY+.001,toeXZ:[right.toeXZ[0]+.003,right.toeXZ[1]+.002]}};
+ const witness={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceToeChainVerified:true,sourceToeTrackVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.029,frameAge:.0167,
+  frameInterval:.1167,side:'right',floorTopY:-.02,
+  before:{left,right},trials:[{angleRad:-.1,after:lifted}]};
+ const accepted=choose(witness);
+ assert.equal(accepted?.side,'right',
+  'a 116.7ms actual original full-weight frame may try a safe two-shoe hinge');
+ assert.ok(accepted?.liftMeters>.007&&accepted?.liftMeters<.009);
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.oppositeFootVerified,true);
+ for(const unsafe of [
+  {frameInterval:.151},{sourceWeight:.949},{frameInterval:1.0},
+  {sourceInstanceSame:false},{rootTravel:0},{frameAge:.25},
+  {sourceToeTrackVerified:false},{reducedMotion:true},{teleport:true},
+  {interrupted:true},{alive:false},{mode:'attack'},
+  {trials:[{angleRad:-.1,after:{...lifted,left:{...left,heelY:left.heelY+.006}}}]},
+  {trials:[{angleRad:-.1,after:{...lifted,right:{...lifted.right,toeY:-.042}}}]}
+ ])assert.equal(choose({...witness,...unsafe}),null,
+  'later, partial-weight, unsupported or worse original skinned frames stay closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer('),
+  renderer.indexOf('const originalSourceSwingToesAxis='));
+ assert.match(stage,/sourceWeight<\.95&&frameInterval>\.1/,
+  'actual imported mixer must not open sparse frames to partially owned clips');
+ assert.match(stage,/frameInterval>\.15/,'a >150ms source gap remains forbidden');
+});
