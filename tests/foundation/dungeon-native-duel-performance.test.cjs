@@ -76,7 +76,7 @@ test('partial original sword-clip crossfade must keep a visible connected body c
    pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend}));
   for(let i=1;i<fade.length;i++){
    assert.ok(Math.abs(fade[i].spine.yaw)>=Math.abs(fade[i-1].spine.y),
-    'the native source spine must gain pose strength monotonically');
+    kind+': source spine blend ['+i+'] '+fade[i-1].spine.yaw+' -> '+fade[i].spine.yaw+' must be monotonic');
    assert.ok(Math.abs(fade[i].root.z-fade[i-1].root.z)<.065,
     'a later source crossfade cannot teleport the source-skinned support feet');
   }
