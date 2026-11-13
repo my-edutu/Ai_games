@@ -4611,12 +4611,21 @@ export function createTowerScene(canvas, settings = {}) {
       sourceGuardian?.active===true && !!currentGuardianDrawPoint;
     const opticalEarned=!opticalGuardian && gatewayEarned &&
       (sourceEarnedWalk || sourceAirborneWalk) && !!liveExit;
+    // The same source-authenticated original bronze doorway remains a real
+    // second subject on the first Floor9 render. Do not silently drop the
+    // portrait two-subject safety optic merely because the source floor
+    // advanced: the climber and old arch must fit the SAME continuous shot.
+    const opticalHandoff=!opticalGuardian &&
+      coldArchLens?.coldOriginalArch===true &&
+      coldArchLens.sourceTick===snapshot.tick;
     const opticalAllowed=!overview && !options.stale &&
       !options.reducedMotion && options.camera==='follow' &&
       camera.aspect>.35 && camera.aspect<.85 &&
       Math.abs(orbit)<.025 && zoom<=1.03 &&
-      snapshot.lifecycle==='running' && snapshot.floor===8 &&
-      p.health>0 && (opticalGuardian || opticalEarned) &&
+      snapshot.lifecycle==='running' &&
+      ((snapshot.floor===8 && (opticalGuardian || opticalEarned)) ||
+        (snapshot.floor===9 && opticalHandoff)) &&
+      p.health>0 &&
       actionStage?.kind!=='hazard';
     if (opticalAllowed) {
       const partner=opticalGuardian
@@ -4649,12 +4658,14 @@ export function createTowerScene(canvas, settings = {}) {
         blocked:!coreClear || (opticalGuardian &&
           guardianWorldLastRayObstructed),
       });
-      guardianPortraitOpticalKind=opticalGuardian?'guardian':'earned-gateway';
+      guardianPortraitOpticalKind=opticalGuardian?'guardian':
+        opticalHandoff?'source-original-floor-nine-gateway':'earned-gateway';
       guardianPortraitOpticalSourceTick=snapshot.tick;
     }
     // A rejected or finished original shot continuously returns to the
     // 42-degree authoring lens. Never carry a wide rescue or close portrait
-    // lens into a dead boss, another expedition, spectator turn or new floor.
+    // lens into a dead boss, another expedition or spectator turn. Floor9
+    // keeps it only for a live, source-proven original gateway sightline.
     const opticalNext=options.reducedMotion
       ?GUARDIAN_OPTICAL_BASE_FOV
       :boundedGuardianOpticalFov(camera.fov,
