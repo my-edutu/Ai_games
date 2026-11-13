@@ -431,6 +431,51 @@ test('D04 slow-frame attribution fails closed for clock regressions and is bound
 });
 
 
+
+test('silent D04 preview retains verified WebGL phase receipts without granting combat audio',async()=>{
+  const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+  let now=0,soundEmits=0;
+  const c=createPhysicalCombatFeedback({
+   visualAdapter:{emit(){return true},advance(){now+=.005},reset(){},dispose(){},stats(){return {active:0}}},
+   audioAdapter:{enable(){return true},emit(){soundEmits++;return true},
+    disable(){},flush(){},cleanup(){},dispose(){},stats(){return {activeVoices:0}}},
+   requirePresentedFrame:true,clock:()=>now
+  });
+  try{
+   c.acceptSnapshot(snap(10));
+   now=.005;
+   c.acceptSnapshot(snap(11,{units:[hero(),foe({hp:23})]}));
+   now=.010;c.advance(.016,.016);
+   now=.160;
+   assert.equal(c.acknowledgePresentedFrame(1,.025),0,'a silent receipt never delivers audio');
+   let s=c.stats();
+   assert.equal(s.framesAcknowledged,1,'a real visual submission must be measurable before audio consent');
+   assert.equal(s.verifiedSubmissionPhaseFrames,1);
+   assert.equal(s.slowSubmissionFrames,1);
+   assert.equal(s.recentSlowSubmissionPhases[0].rendererMs,25);
+   assert.equal(s.audioOptedIn,false);
+   assert.equal(s.audioAccepted,0);
+   assert.equal(s.awaitingPresentation,0);
+   assert.equal(soundEmits,0,'old injury cannot acquire audio after a later gesture');
+   c.acknowledgePresentedFrame(1,.025);
+   assert.equal(c.stats().framesAcknowledged,1,'silent replay is not a second real frame');
+   assert.equal(c.enableAudioFromGesture(),true);
+   now=.180;c.advance(.016,.016);
+   now=.320;c.acknowledgePresentedFrame(2,.025);
+   c.muteAudio();
+   now=.330;c.advance(.016,.016);
+   now=.490;
+   assert.equal(c.acknowledgePresentedFrame(3,.025),0);
+   s=c.stats();
+   assert.equal(s.framesAcknowledged,3,'muted D04 still measures real submitted visuals');
+   assert.equal(s.verifiedSubmissionPhaseFrames,3);
+   assert.equal(s.audioOptedIn,false);
+   assert.equal(s.audioAccepted,0);
+   assert.equal(soundEmits,0);
+   assert.equal(s.awaitingPresentation,0);
+  }finally{c.dispose()}
+ });
+
 test('D04 slow-phase evidence includes real cue admission after the retained visual advance',async()=>{
  const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
  let now=0;
