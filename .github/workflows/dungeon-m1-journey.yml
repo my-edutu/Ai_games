@@ -1,0 +1,80 @@
+name: Dungeon M1 Authentic Organic Journey Evidence
+on:
+  pull_request:
+    paths:
+      - 'tests/browser/dungeon-m1-organic-journey.spec.cjs'
+      - 'tests/browser/dungeon-m1-unheld-journey.spec.cjs'
+      - 'tests/browser/dungeon-m1-unheld-feed.cjs'
+      - 'tests/browser/dungeon-m1-unheld.playwright.config.cjs'
+      - 'tests/foundation/dungeon-m1-unheld-feed.test.cjs'
+      - 'tests/browser/dungeon-m1-renderer-assay.spec.cjs'
+      - 'tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs'
+      - 'tests/browser/dungeon-m1-journey.playwright.config.cjs'
+      - 'tests/foundation/dungeon-m1-observer-policy.test.cjs'
+      - '.github/workflows/dungeon-m1-journey.yml'
+      - 'games/ai-dungeon/**'
+      - 'public/ai-dungeon/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dungeon-m1-journey-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  authentic-film:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.number == 49
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [desktop, mobile]
+    # Playwright 1.55 requires a supported runner OS; ubuntu-latest resolved to unsupported 26.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: 'npm'}
+      - run: npm ci
+      - run: npm run build
+      - run: node --test tests/foundation/dungeon-m1-ordered-feed.test.cjs tests/foundation/dungeon-m1-rendered-capture.test.cjs tests/foundation/dungeon-m1-observer-policy.test.cjs tests/foundation/dungeon-m1-unheld-feed.test.cjs
+      - run: npm run dungeon:assets:strict
+      - name: Use installed Chrome or fetch Chromium without apt-font dependency
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo 'DUNGEON_SYSTEM_CHROME=1' >> "$GITHUB_ENV"
+          else
+            npx playwright install chromium
+          fi
+      - name: Record actual entire journey and original opt-in sound
+        run: npx playwright test -c tests/browser/dungeon-m1-journey.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Record unheld organic motion and original opt-in sound without milestone pauses
+        if: always()
+        run: npx playwright test -c tests/browser/dungeon-m1-unheld.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Profile clean Warden rendering and isolated capture observers
+        if: always()
+        run: npx playwright test -c tests/browser/dungeon-m1-renderer-assay.playwright.config.cjs
+        env:
+          DUNGEON_REQUIRE_MODELS: '1'
+          DUNGEON_M1_VIEWPORT: ${{ matrix.viewport }}
+      - name: Upload real evidence or explicit recording failure with source SHA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon-m1-organic-${{ matrix.viewport }}
+          path: |
+            artifacts/dungeon-m1-organic-journey-${{ matrix.viewport }}*
+            artifacts/dungeon-m1-unheld-${{ matrix.viewport }}*
+            artifacts/dungeon-m1-renderer-assay-${{ matrix.viewport }}*
+            test-results/**
+          if-no-files-found: warn
+          retention-days: 14

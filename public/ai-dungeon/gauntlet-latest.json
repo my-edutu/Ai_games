@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-11",
+  "status": "IN PROGRESS — NOT TRANSFORMED (live Warden risk-centroid and complete hazard-corner fit candidate; AFTER unverified)",
+  "reference": "Diablo IV dungeon presentation / No Rest for the Wicked sculpted worlds / Path of Exile 2 attack clarity; no matched baseline A/B or official fidelity score",
+  "metrics": {
+    "sample_seeds": 24,
+    "ticks_per_seed": 900,
+    "verified_seed_runs": 24,
+    "determinism_failures": 0,
+    "highest_floor_seen": 10,
+    "total_floor_advances": 174,
+    "total_restarts": 4,
+    "max_seed_elapsed_ms": 1169,
+    "m1_capture_observer_update": {
+      "date": "2026-11-10",
+      "parentSourceSha": "47327ba063595c27d19d43f25a016ea2048670e7",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "change": "Remove duplicated Playwright screenshot filmstrip; isolate native profiler from clean OFF/ON/OFF",
+      "stage": "A_INCOMPLETE",
+      "afterGameplay": "NOT_OBSERVED",
+      "critics": 0,
+      "captureContracts": "7/7",
+      "dungeonTests": "403/403",
+      "catalogueTests": "1147/1150; three existing scene-source assertion failures",
+      "handoff": "docs/gauntlet/AI_DUNGEON_M1_CAPTURE_OBSERVER_20261110.md",
+      "next": "Review clean native-vs-filmstrip controls and organic A/V; no game quality or smoothness victory until genuine moving comparisons"
+    },
+    "m1_exact_head_motion_20261110": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "exactHead": "333d09c0dcf0fae0917e93929c6dfecdb44d25da",
+      "previous": "27edc295104635a717ab438f116f3dbebd59a674",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "seed": "gauntlet-corpus-v1-0",
+      "beforeRun": 42866909371,
+      "afterRun": 42874282144,
+      "authenticStages": "5/5 BOTH DESKTOP AND MOBILE",
+      "authority": "946/946 per viewport per run",
+      "originalAudio": "PRESENT, HP_CONTACT_SYNC_UNVERIFIED",
+      "desktop": {
+        "prior": {
+          "frames": 848,
+          "fps": 1.71,
+          "p95GapMs": 1933,
+          "over1s": 255,
+          "wardenMinHeroPx": 80
+        },
+        "latest": {
+          "frames": 924,
+          "fps": 3.25,
+          "p95GapMs": 1060,
+          "over1s": 54,
+          "wardenMinHeroPx": 81
+        }
+      },
+      "mobile": {
+        "prior": {
+          "frames": 504,
+          "fps": 1.63,
+          "p95GapMs": 2205,
+          "over1s": 87,
+          "combatMinHeroPx": 86,
+          "wardenMinHeroPx": 37
+        },
+        "latest": {
+          "frames": 509,
+          "fps": 1.58,
+          "p95GapMs": 2106,
+          "over1s": 80,
+          "combatMinHeroPx": 96,
+          "wardenMinHeroPx": 37
+        }
+      },
+      "cleanHeldRafP50Ms": {
+        "desktopPrior": 533,
+        "desktopAfter": 317,
+        "mobilePrior": 433,
+        "mobileAfter": 433
+      },
+      "captureFilmstripVsCleanRatio": {
+        "desktop": 1.105,
+        "mobile": 1.115
+      },
+      "caveats": "Captured CI SwiftShader fps is not real hardware fps. Desktop change not causally linked to mobile-only camera change; 37px smallest living hero may be distant unengaged teammate. Independent blinded majority absent.",
+      "productionSourceChangedThisExecution": false,
+      "visibleExperienceImprovementThisExecution": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Measure engaged Vanguard/guardian and Warden actor-ID-specific bounds, warning cells and occlusion in actual moving 390px film; compare hardware GPU with CI SwiftShader and isolate compositor/readback/dynamic instance uploads, then correct dominant game-side bottleneck with full genuine replay/motion/A-V verification. Review PR72 native rig and video independently before any import."
+    },
+    "m1_original_foreground_replicas_candidate": {
+      "parentSha": "214a5dcd93a3829384f63d48604ae0bbbe29d996",
+      "sourceStage": "A_INCOMPLETE",
+      "physicalDrawBudget": "Maximum 43 original source meshes to 5 retained GPU batches across full populated original pillar and banner groups; NOT FPS",
+      "testStatus": "new 2/2; dungeon 403/403; build PASS; full catalogue timed out",
+      "actualAfterGameplay": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED"
+    },
+    "m1SourceSkinCameraContinuation": {
+      "stage": "A_INCOMPLETE",
+      "sourceParent": "941b2233221002117c3cb9f6bc8d1243eadc0402",
+      "sourceRun": 42907934031,
+      "development": "Native skinned original geometry and actual camera, immutable projection fix",
+      "localFocused": "4/4",
+      "dungeon": "403/403",
+      "authority": "24×900, zero divergence",
+      "actualAfterMotion": "NOT_OBSERVED",
+      "critics": 0
+    },
+    "m1WardenWarningPhysicalCutaway20261111": {
+      "parentSourceSha": "65edae9ebb8b78e90f08cc706b6039a245d2a3bf",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "actualAFTER": "NOT_OBSERVED",
+      "sourceChanges": "True Warden authority hazard sightline physically recedes only obstructing original foreground 3D props",
+      "verification": "405/405 focused foundation; 24x900 replay no divergences; original audio/film pending new head",
+      "criticCount": 0,
+      "pillars": "LOOKS FEELS PLAYS UNVERIFIED"
+    },
+    "m1BaseWorldArchitecturalBatches20261111": {
+      "milestone": "A_INCOMPLETE",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parent": "b69504c565a6d5d746e942dd08dd7c7f48997680",
+      "productionChange": "Real original stone columns, ogive ribs and shrine render instancing with physical cutaway intact",
+      "sourceTest": "2/2 THREE PASS",
+      "foundationBeforeTestRegistration": "405/405 PASS",
+      "headless": "24×900 no replay divergence",
+      "newHeadMovingAudio": "NOT_OBSERVED",
+      "gameFps": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new head original film/metrics, reject any camera/warning/performance regression, then dominant graphics cost and adult original rig combat vertical slice"
+    },
+    "m1NativeGlbStallClockCorrection20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "42edd32cc8228acdd13542222e1328a26d3c10e3",
+      "prechangeOriginalRun": 42939170054,
+      "mobileEvidenceArtifact": 13819869095,
+      "seed": "gauntlet-corpus-v1-0",
+      "rootCause": "The original source skinned GLB AnimationMixer received at most 50ms per delivered RAF although actual Warden mobile RAF median was ~433ms; source full-body clips and one-shot visual ages consequently progressed in slow-motion during genuine CI graphics stalls",
+      "integration": "Time-bounded 350ms wall-time playback for original skinned GLB mixer and source pose age, 50ms first-pose gate for each new authentic attack/cast/hurt, native original assets retained; independent 50ms VFX/flash clock unchanged",
+      "newTest": "RED missing helper 1/9 then GREEN 9/9",
+      "foundation": "408/408 PASS",
+      "typescriptBuild": "PASS",
+      "headless": "ATTEMPTED_TIMEOUT; no new replay validation claimed",
+      "newHeadRealDesktopMobileAV": "NOT_OBSERVED",
+      "gpuFpsGain": "UNVERIFIED",
+      "hitSoundSync": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect new-head exact-code authentic 1440/390 original motion/audio one-shot recovery and footfalls vs same-seed parent and immutable baseline, reject visual/authority regressions; profile real hardware/SwiftShader raster, then transform original adult GLB Vanguard/Revenant/Warden exemplar with truthful audio"
+    },
+    "m1_visible_melee_contact_sync_20261111": {
+      "parentHead": "6c97896d584a14b663437e769b77524286bec3b9",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "change": "True source-GLB original sword pose, confirmed HP contact spall, injury and opt-in original audio share 50ms windup→215ms contact→bounded recovery under severely sparse RAF",
+      "headless": "24×900 PASS no divergence",
+      "dungeonTests": "408/408",
+      "focused": "31/31",
+      "actualNewHeadGameplay": "NOT_OBSERVED",
+      "soundHitSync": "UNVERIFIED",
+      "blindedCritics": 0,
+      "next": "Inspect exact-head true skinned wrist/spine 215ms sample and organic source audio/video desktop and mobile; if legitimate contact or cue sync fails, reject/fix; then original adult-scale 390px Vanguard/Revenant/Warden integrated art+motion, profile actual GPU vs SwiftShader and 3 blinded critics"
+    },
+    "m1WardenEveryThreatCell20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "9d474cbdde9c5e254d8a86bfdd1b7349c3fc183f",
+      "sourceCommit": "360fdd6dc4d949cbb48f24abcb9c3705b9c8b6eb",
+      "beforeOrganicWorkflow": 42961471342,
+      "beforeMobileArtifact": 13829887236,
+      "beforeDesktopArtifact": 13829936863,
+      "trueMobileWardenWarningCells": 25,
+      "preChangeIncisedCells": 6,
+      "postChangeIncisedCells": 25,
+      "postChangeAdditionalDrawCalls": 0,
+      "change": "Source-native low profile spatially oriented physical scar per real dangerous cell; retained three original mesh draw families and stronger danger surface contrast with reduced-motion protection",
+      "localTdd": "1 RED→5/5 GREEN",
+      "foundation": "413/413 PASS",
+      "headless": "24 seeds x 900 ticks zero replay divergence; 199 floor transitions and five restarts",
+      "catalogue": "Attempted npm test; local timeout, preceding catalogue CI FAILED",
+      "afterOriginalMotionAudio": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "hpAudioSync": "UNVERIFIED",
+      "next": "Inspect real exact new-head desktop/mobile audiovisual five-stage journey and Warden warning per-cell visibility vs parent9d and locked baseline; reject regressions, then original adult-scale rigged Vanguard/Revenant/Warden art and GPU bottleneck remediation; PR72 remains independent"
+    },
+    "m1WardenSourceRigBatch20261111": {
+      "stage": "A_INCOMPLETE",
+      "status": "IN_PROGRESS_NOT_TRANSFORMED",
+      "immutableBaseline": "281735d0910c6b2443648af976003d50412ee324",
+      "parentHead": "c1d64a08f546f659de811d7faed10cfd9226c29e",
+      "organicBeforeRun": 42964249454,
+      "productionIntegration": "Original 22 nonhorn bone-driven Warden regalia details rendered in 8 original shape/finish retained Three.js InstancedMesh GPU batches plus 2 original sculpted head-bone horns; same native skeleton, per-part phase pose and bind-world transforms",
+      "scope": "presentation-only; no authority/audio/AI/saves/RNG change",
+      "localTdd": "RED first then 3/3 actual THREE matrix equivalence and bounded draw contracts PASS",
+      "localDungeon": "416/416 PASS incl TypeScript build",
+      "localBrowser": "BLOCKED_BY_ADMINISTRATOR",
+      "headless": "attempted; timed out; NOT VALIDATED",
+      "exactHeadAfterAudioVideo": "NOT_OBSERVED",
+      "actualPerformanceGain": "UNVERIFIED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED",
+      "next": "Inspect exact new head original five-stage 1440/390 A/V, 24 native regalia parts and original motion, 25/25 danger incision truth, draw/pacing, reject art/perf regressions; then native adult-scale exemplar, GPU remediation and 3 blinded critics"
+    },
+    "m1_original_risk_safe_portrait_20261111": {
+      "stage": "A_INCOMPLETE",
+      "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+      "inspectedHead": "a14bf7087a4788af14c21cdafcec98c8542ccc87",
+      "change": "Only genuine original Warden threat corners and source-bone duelist accepted for portrait optical orbit; no extra render passes or authority changes",
+      "tdd": "4/4 focused RED→GREEN; 420/420 Dungeon foundation+build PASS",
+      "replay": "24 x 900 zero divergence; 199 transitions, 5 restarts",
+      "actualAfterAV": "NOT_OBSERVED",
+      "afterPerf": "UNVERIFIED",
+      "critics": 0,
+      "next": "Inspect actual original source desktop/mobile audiovisual and camera-selection effect, reject when unselected/worse, then native 3D full-body exemplar and true renderer cost"
+    },
+    "m1AuthenticWardenCameraReview20261111": {
+      "stage": "A_INCOMPLETE",
+      "verdict": "IN_PROGRESS_NOT_TRANSFORMED",
+      "inspectedSha": "44324003a5aa5b8f14348d4191d218c1a94a3296",
+      "baseline": "281735d0910c6b2443648af976003d50412ee324",
+      "sameSeed": "gauntlet-corpus-v1-0",
+      "priorRun": 43010743270,
+      "afterRun": 43013765575,
+      "mobilePriorArtifact": 13850612416,
+      "mobileObservedArtifact": 13851599662,
+      "desktopObservedArtifact": 13852726763,
+      "observedWardenNativePixels": {
+        "mobile": {
+          "vanguard": [
+            23,
+            33
+          ],
+          "ranger": [
+            31,
+            34
+          ],
+          "warden": [
+            32,
+            33
+          ]
+        },
+        "desktopCurrent": {
+          "vanguard": 42,
+          "ranger": 72,
+          "warden": 78
+        }
+      },
+      "realStages": "5/5 each at source HEAD 44324003; 946 authority snapshots each",
+      "realSound": "Original opted-in Opus plus WAV exists; confirmed hit synchronization UNVERIFIED",
+      "measuredSoftwareRAF": "Mobile OFF median 383.3ms with 306 draw calls; desktop OFF median 358.4ms with 308 draw calls; CI SwiftShader, not hardware FPS",
+      "visibleVerdict": "Lower portrait shot really selected; closer Vanguard 23->33px, but actors still small and rigid stone dominates, severe RAF delays; not transformed",
+      "nextSourceCandidate": "Hold genuine warning physical lens through actual release and earned recovery; test source contracts, new-head film pending",
+      "candidateAfterFilm": "NOT_OBSERVED",
+      "critics": 0,
+      "looks": "UNVERIFIED",
+      "feels": "UNVERIFIED",
+      "plays": "UNVERIFIED"
+    }
+  },
+  "failures": [],
+  "runs": [
+    {
+      "seed": "gauntlet-corpus-v1-0",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 1169
+    },
+    {
+      "seed": "gauntlet-corpus-v1-1",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 73,
+      "elapsedMs": 952
+    },
+    {
+      "seed": "gauntlet-corpus-v1-2",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 970
+    },
+    {
+      "seed": "gauntlet-corpus-v1-3",
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 7,
+      "kills": 23,
+      "elapsedMs": 957
+    },
+    {
+      "seed": "gauntlet-corpus-v1-4",
+      "highestFloor": 5,
+      "deaths": 1,
+      "floorsAdvanced": 6,
+      "kills": 17,
+      "elapsedMs": 826
+    },
+    {
+      "seed": "gauntlet-corpus-v1-5",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 897
+    },
+    {
+      "seed": "gauntlet-corpus-v1-6",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 846
+    },
+    {
+      "seed": "gauntlet-corpus-v1-7",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 100,
+      "elapsedMs": 900
+    },
+    {
+      "seed": "gauntlet-corpus-v1-8",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 85,
+      "elapsedMs": 824
+    },
+    {
+      "seed": "gauntlet-corpus-v1-9",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 77,
+      "elapsedMs": 849
+    },
+    {
+      "seed": "gauntlet-corpus-v1-10",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 871
+    },
+    {
+      "seed": "gauntlet-corpus-v1-11",
+      "highestFloor": 1,
+      "deaths": 0,
+      "floorsAdvanced": 0,
+      "kills": 5,
+      "elapsedMs": 655
+    },
+    {
+      "seed": "gauntlet-corpus-v1-12",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 867
+    },
+    {
+      "seed": "gauntlet-corpus-v1-13",
+      "highestFloor": 7,
+      "deaths": 0,
+      "floorsAdvanced": 6,
+      "kills": 67,
+      "elapsedMs": 861
+    },
+    {
+      "seed": "gauntlet-corpus-v1-14",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 80,
+      "elapsedMs": 868
+    },
+    {
+      "seed": "gauntlet-corpus-v1-15",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 868
+    },
+    {
+      "seed": "gauntlet-corpus-v1-16",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 89,
+      "elapsedMs": 839
+    },
+    {
+      "seed": "gauntlet-corpus-v1-17",
+      "highestFloor": 9,
+      "deaths": 0,
+      "floorsAdvanced": 8,
+      "kills": 88,
+      "elapsedMs": 831
+    },
+    {
+      "seed": "gauntlet-corpus-v1-18",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 68,
+      "elapsedMs": 782
+    },
+    {
+      "seed": "gauntlet-corpus-v1-19",
+      "highestFloor": 8,
+      "deaths": 0,
+      "floorsAdvanced": 7,
+      "kills": 78,
+      "elapsedMs": 802
+    },
+    {
+      "seed": "gauntlet-corpus-v1-20",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 92,
+      "elapsedMs": 918
+    },
+    {
+      "seed": "gauntlet-corpus-v1-21",
+      "highestFloor": 6,
+      "deaths": 1,
+      "floorsAdvanced": 9,
+      "kills": 26,
+      "elapsedMs": 801
+    },
+    {
+      "seed": "gauntlet-corpus-v1-22",
+      "highestFloor": 6,
+      "deaths": 1,
+      "floorsAdvanced": 8,
+      "kills": 23,
+      "elapsedMs": 797
+    },
+    {
+      "seed": "gauntlet-corpus-v1-23",
+      "highestFloor": 10,
+      "deaths": 0,
+      "floorsAdvanced": 9,
+      "kills": 96,
+      "elapsedMs": 818
+    }
+  ],
+  "visualVerdict": "UNVERIFIED: latest source-skin physical camera and actor-ID visibility lack exact-head organic browser motion, matched locked-baseline before/after and 3 blind critics.",
+  "productionReady": false,
+  "milestoneBaselineSha": "281735d0910c6b2443648af976003d50412ee324",
+  "candidateCommit": "4a599c56500bd3db4064808536b219748338d5c3",
+  "metricsProvenance": "Local current-source 9af59bc npm run dungeon:test 309/309, npm run dungeon:gauntlet 24 seeds ×900 ticks: 174 advances, 4 restarts, 0 determinism mismatches. No claim for visual quality.",
+  "transformation": {
+    "milestoneId": "DUNGEON-TRANSFORMATION-01",
+    "status": "IN_PROGRESS",
+    "verdict": "NOT_TRANSFORMED",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "candidateCodeCommit": "4a599c56500bd3db4064808536b219748338d5c3",
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "critics": 0,
+    "originalAudioMotion": "UNVERIFIED",
+    "afterBrowser": "PENDING_NEW_EXACT_HEAD",
+    "nextTask": "Review new-head organic desktop/mobile real Warden film/audio, ensure no lost hazard cells or route support and actually clearer actors. Reject regressions, then repair authentic native skinned melee visibility and contact audio sync under sparse RAF."
+  },
+  "acceptanceStatus": "NOT TRANSFORMED — 0/3 blind independent critics; no matched continuous desktop/mobile audiovisual 5-stage adventure.",
+  "latestCandidateSha": "4a599c56500bd3db4064808536b219748338d5c3",
+  "latestImplementation": "Scene-only original Warden Court clearance candidate after genuine parent browser: seven-by-seven actor/hazard floor keeps true geometry but removes generic small clutter and unsupported 2m boss piers, Gothic crown only when supported by two real wall cells; new-head game unobserved.",
+  "biggestRemainingGap": "Actual mobile Warden original bodies tiny amid clutter, native spine/wrist current action witness failed, SwiftShader huge RAF stalls; source scene candidate not yet verified",
+  "nextImplementationTask": "Review new-head organic desktop/mobile real Warden film/audio, ensure no lost hazard cells or route support and actually clearer actors. Reject regressions, then repair authentic native skinned melee visibility and contact audio sync under sparse RAF.",
+  "candidateSafety": "Authority/risk guard retains all real cells, source rig/stone check, reduced motion/manual unchanged; synthetic V8 module test passed; full CI/real 1440/390 head still UNVERIFIED.",
+  "m1WardenCourtHierarchy": {
+    "status": "SOURCE_VERIFIED_AV_UNVERIFIED",
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "prechangeSha": "e8bd7f4355642c3190588b186e7295a483e77ce0",
+    "beforeOriginalWorkflow": 42951483660,
+    "change": "Genuine Warden phase reduces only original noncritical court decorative material priority while authoritative 3D warning cells remain intact",
+    "newHeadGameplay": "NOT_OBSERVED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED"
+  },
+  "m1WardenCourtRealSpaceCandidate": {
+    "status": "CODE_INTEGRATED_AWAITING_NEW_HEAD_BROWSER",
+    "reviewedPreviousHeadSha": "a6879ff1e98d1981628c8b62d4723b267f28582e",
+    "originalBeforeWorkflow": 43018034998,
+    "originalMobileArtifact": 13853668387,
+    "originalDesktopArtifact": 13854311500,
+    "baselineSha": "281735d0910c6b2443648af976003d50412ee324",
+    "afterVideo": "NOT_OBSERVED",
+    "quality": "UNVERIFIED",
+    "originalAudioSync": "UNVERIFIED",
+    "independentCritics": 0
+  }
+}

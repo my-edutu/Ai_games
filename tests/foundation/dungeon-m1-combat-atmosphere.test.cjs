@@ -1,0 +1,43 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const load=async name=>import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync(path.join(root,'public/ai-dungeon',name),'utf8')).toString('base64'));
+const map=['#######','#.....#','#.....#','#.....#','#.....#','#.....#','#######'];
+const hero={id:'vanguard',faction:'party',kind:'vanguard',hp:40,x:2,z:3,action:'attack',targetId:'revenant',actionTick:18};
+const enemy={id:'revenant',faction:'enemy',kind:'revenant',hp:22,x:4,z:3};
+test('real imminent attacks preserve a quiet combat stage without inventing an engagement',async()=>{
+ const {planCombatQuietZone,ambientVisibilityAt}=await load('ambient-focus-plan.js');
+ const idle={phase:'exploring',tick:20,map,units:[{...hero,action:'idle'},enemy]};
+ assert.equal(planCombatQuietZone(idle),null,'distant idle enemies do not mute the dungeon');
+ const engaged={...idle,units:[hero,enemy]};
+ const zone=planCombatQuietZone(engaged);
+ assert.ok(zone&&zone.mode==='combat');
+ assert.ok(zone.radius>=3&&zone.radius<=6);
+ assert.ok(ambientVisibilityAt(zone.x,zone.z,zone)<.4,'actually engaged bodies have calm negative space');
+ assert.equal(ambientVisibilityAt(20,20,zone),1,'ambience remains at distance');
+ assert.deepEqual(zone,planCombatQuietZone(engaged),'same authoritative snapshot yields identical cosmetic priorities');
+ assert.equal(planCombatQuietZone({...engaged,phase:'intermission'}),null);
+ assert.equal(planCombatQuietZone({...engaged,units:[{...hero,hp:0},enemy]}),null);
+});
+test('legitimate live Warden warning takes priority over ambient fireflies',async()=>{
+ const {planCombatQuietZone}=await load('ambient-focus-plan.js');
+ const boss={...enemy,kind:'warden',id:'warden',x:5,z:3};
+ const state={phase:'exploring',tick:20,map,units:[{...hero,action:'move'},boss],bossWarning:{attackTick:22,cells:[{x:2,z:3}]}};
+ const zone=planCombatQuietZone(state);
+ assert.equal(zone?.mode,'boss-warning');
+ assert.ok(zone.radius>=4);
+ assert.equal(planCombatQuietZone({...state,bossWarning:{attackTick:18,cells:[{x:2,z:3}]} }),null,'stale warning cannot fabricate boss emphasis');
+});
+test('ambience near genuine active skirmishes shares the ONE world staging source, without altering AI',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const living=fs.readFileSync(path.join(root,'public/ai-dungeon/living-world.js'),'utf8');
+ const atmosphere=fs.readFileSync(path.join(root,'public/ai-dungeon/biome-atmosphere.js'),'utf8');
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.match(living,/import \{planCombatQuietZone,ambientVisibilityAt\} from '\/dungeon\/ambient-focus-plan\.js'/);
+ assert.match(atmosphere,/import \{planCombatQuietZone,ambientVisibilityAt\} from '\/dungeon\/ambient-focus-plan\.js'/);
+ assert.match(app,/world\.userData\.livingWorld\?\.accept\?\.\(s\)/);
+ assert.match(app,/world\.userData\.atmosphere\?\.accept\?\.\(s\)/);
+ assert.ok(server.includes("['/dungeon/ambient-focus-plan.js','ambient-focus-plan.js']"));
+});

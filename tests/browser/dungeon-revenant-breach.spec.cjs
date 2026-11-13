@@ -1,0 +1,23 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+const fs=require('node:fs');fs.mkdirSync('artifacts',{recursive:true});
+test('authentic public charged-tile view renders two original 3D batches on desktop and mobile',async({page})=>{
+ test.setTimeout(150000);
+ const game=DungeonRuntime.create('m1-revenant-visual'),s=game.state;
+ const hero=s.units.find(u=>u.id==='vanguard'),rev=s.units.find(u=>u.kind==='revenant');
+ hero.x=2;hero.z=1;rev.x=3;rev.z=1;s.tick=5;
+ rev.breachUntilTick=6;rev.breachTargetId=hero.id;rev.breachX=hero.x;rev.breachZ=hero.z;
+ const snapshot=game.publicState();expect(snapshot.revenantWarnings).toHaveLength(1);
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.revenantTellCount??0),{timeout:35000}).toBe(1);
+ const checksum=await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-m1-breach-desktop.png'});
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.revenantTellCount??0),{timeout:35000}).toBe(1);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-m1-breach-mobile.png'});
+ expect(await page.evaluate(()=>window.__DUNGEON_PUBLIC_STATE__.checksum)).toBe(checksum);
+ expect(errors).toEqual([]);
+});

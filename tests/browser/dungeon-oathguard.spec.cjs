@@ -1,0 +1,24 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
+const fs=require('node:fs');fs.mkdirSync('artifacts',{recursive:true});
+test('the real renderer shows one authority-tied Oathguard shield at desktop and mobile sizes',async({page})=>{
+ test.setTimeout(150000);
+ const game=DungeonRuntime.create('m1-oathguard-webgl'),s=game.state;
+ const guardian=s.units.find(u=>u.id==='vanguard'),ally=s.units.find(u=>u.id==='ranger');
+ guardian.x=1;guardian.z=1;guardian.action='guard';guardian.guardTick=6;
+ guardian.targetId=ally.id;ally.x=2;ally.z=1;s.tick=6;
+ const snapshot=game.publicState();
+ await page.route('**/dungeon/state',route=>route.fulfill({json:snapshot}));
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:1440,height:832});await page.goto('/dungeon');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardVisible??false),{timeout:40000}).toBe(true);
+ await expect(page.locator('.hero-card[data-hero-id="vanguard"] .hero-sub b')).toContainText('COVER');
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardPhysicalPanels??0)).toBeGreaterThanOrEqual(8);
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.cinematicShot?.mode)).toBe('oathguard-cover');
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-m1-oathguard-desktop.png'});
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.oathguardVisible??false),{timeout:40000}).toBe(true);
+ await page.locator('canvas#world').screenshot({path:'artifacts/dungeon-m1-oathguard-mobile.png'});
+ expect(errors).toEqual([]);
+});

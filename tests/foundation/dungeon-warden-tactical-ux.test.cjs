@@ -1,0 +1,36 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const source=fs.readFileSync(path.join(root,'public/ai-dungeon/warden-tactical-ux-plan.js'),'utf8');
+const load=()=>import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const boss={id:'w',kind:'warden',faction:'enemy',hp:70,maxHp:100,action:'idle',actionTick:1};
+const state=(props={})=>({phase:'playing',tick:8,units:[boss],bossPhase:'SENTINEL',guardianWard:false,...props});
+test('warden narrative follows guarded, warned, genuine cast and counter windows',async()=>{
+ const {planWardenTacticalCue:plan}=await load();
+ const sealed=plan(state({guardianWard:true,defendersRemaining:2}),{nearBoss:true});
+ assert.equal(sealed.mode,'sealed');assert.match(sealed.floor,/BINDING GUARDS · 2/);
+ const dodge=plan(state({bossWarning:{shape:'RIFT_CROSS',attackTick:10,cells:[{x:8,z:9}]}}),{nearBoss:true});
+ assert.equal(dodge.mode,'warning');assert.match(dodge.label,/DODGE RIFT CROSS · 2/);
+ const landed=plan(state({bossRecovery:{remaining:2},units:[{...boss,action:'cast',actionTick:8}]}),{nearBoss:true});
+ assert.equal(landed.mode,'counter');assert.match(landed.floor,/WARDEN EXPOSED/);
+ assert.match(landed.label,/STRIKE LANDED/);assert.equal(landed.striking,true);
+ const counter=plan(state({tick:9,bossRecovery:{remaining:1},units:[{...boss,action:'cast',actionTick:8}]}),{nearBoss:true});
+ assert.equal(counter.mode,'counter');assert.match(counter.label,/COUNTER/);
+ assert.equal(plan(state({units:[{...boss,action:'cast',actionTick:8}]}),{nearBoss:true}).mode,'release');
+ assert.equal(plan(state(),{nearBoss:true}).floor,'WARDEN EXPOSED');
+ assert.equal(plan(state(),{nearBoss:false}),null);
+ assert.equal(plan(state({units:[{...boss,hp:0}]}),{nearBoss:true}),null);
+ assert.equal(plan(state({phase:'intermission'}),{nearBoss:true}),null);
+ assert.equal(plan(state({bossWarning:{shape:'NOVA',attackTick:7,cells:[{x:9,z:9}]}}),{nearBoss:true}).mode,'unsealed');
+});
+test('warden tactical projection leaves authoritative state untouched and is properly wired',async()=>{
+ const {planWardenTacticalCue:plan}=await load();
+ const s=state({bossRecovery:{remaining:2},units:[{...boss,action:'cast',actionTick:8}]});
+ const frozen=JSON.stringify(s);plan(s,{nearBoss:true});assert.equal(JSON.stringify(s),frozen);
+ assert.doesNotMatch(source,/Math\.random|Date\.now|performance\.|setTimeout|requestAnimationFrame|fetch\(/);
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const server=fs.readFileSync(path.join(root,'scripts/serve-dungeon-stream.cjs'),'utf8');
+ assert.match(app,/planWardenTacticalCue\(s,\{nearBoss\}\)/);
+ assert.ok(server.includes("['/dungeon/warden-tactical-ux-plan.js','warden-tactical-ux-plan.js']"));
+});
