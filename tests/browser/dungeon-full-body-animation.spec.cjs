@@ -1012,6 +1012,17 @@ for(const view of [
   expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
   expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
   expect(proof.afterToeY).toBeGreaterThan(proof.beforeToeY);
+  // Exact source toe residual in real mobile entry was 7.94mm below
+  // the actual -20mm stone at 85.5% Walking_A blend. A new optional
+  // partial-source toe-hinge receipt cannot claim a deep-stone rescue:
+  // require both genuine source-skinned feet and nearly cleared shallow toe.
+  if((t.nativeLegOwnership?.originalSourceWeight??0)<.90){
+   expect(t.nativeLegOwnership.originalSourceWeight).toBeGreaterThanOrEqual(.82);
+   expect(proof.beforeToeY).toBeGreaterThan(-.04501);
+   expect(proof.beforeToeY).toBeLessThanOrEqual(-.026);
+   expect(proof.afterToeY).toBeGreaterThanOrEqual(-.02301);
+   expect(proof.afterToeY).toBeLessThanOrEqual(-.01199);
+  }
   const opposite=side==='left'?'right':'left';
   const original=proof.before?.[opposite],after=proof.after?.[opposite];
   expect(original&&after,'both original source shoes must be attached').toBeTruthy();
