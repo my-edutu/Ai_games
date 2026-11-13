@@ -189,6 +189,50 @@ export function planOriginalSourceSwingToeClearance({
 }
 
 /**
+ * Independent receipt for the actual bounded original Walking_A ankle STEP.
+ *
+ * The live original GLB's 0.187rad total angle at a genuine 16.8ms frame
+ * does NOT mean 0.187rad was applied IN that frame: the prior licensed foot
+ * pose may already have 0.107rad of lawful correction. This recomputes the
+ * source-only rate envelope against PREVIOUS measured joint ownership and
+ * must pass before the adapter commits any new weighted-source ankle pose.
+ *
+ * This is a visual-pose safeguard and evidence contract, never a target,
+ * gameplay step, planted-contact claim, IK solution, clip mutation or hit.
+ */
+export function auditOriginalSourceSwingAnkleSlew({
+ mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,frameInterval=NaN,floorTopY=NaN,
+ heelWorldY=NaN,toeWorldY=NaN,previousAngleRad=NaN,nextAngleRad=NaN
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  sourceInstanceSame!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![sourceWeight,frameInterval,floorTopY,heelWorldY,toeWorldY,
+   previousAngleRad,nextAngleRad].every(finite)||
+  sourceWeight<.5||sourceWeight>1.001||
+  frameInterval<=0||frameInterval>.35||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(previousAngleRad)>.23||Math.abs(nextAngleRad)>.220001)return null;
+ const heelClear=heelWorldY-floorTopY,toeClear=toeWorldY-floorTopY;
+ if(heelClear<.075||heelClear>.28||toeClear>=-.01||toeClear<-.16||
+  (previousAngleRad!==0&&nextAngleRad!==0&&
+   Math.sign(previousAngleRad)!==Math.sign(nextAngleRad)))return null;
+ const deepSwing=toeClear<=-.045&&sourceWeight>=.9&&frameInterval>.05;
+ const limitRad=.08+(deepSwing?
+  .08*clamp((frameInterval-.05)/.15,0,1):0);
+ const step=nextAngleRad-previousAngleRad;
+ if(Math.abs(step)>limitRad+.000001)return null;
+ return Object.freeze({
+  source:'verified-original-Walking_A-per-presented-frame-ankle-slew',
+  stepRad:Math.abs(step),signedStepRad:step,limitRad,
+  sparseFrameAllowanceUsed:Math.abs(step)>.080001,
+  contactLocked:false
+ });
+}
+
+/**
  * Hold ONLY a real recent original-world root-travel witness across adjacent
  * same-owner Walking_A display frames. Software WebGL can produce multiple
  * source-keyframed poses after one authoritative movement snapshot while the
