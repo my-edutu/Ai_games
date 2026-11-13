@@ -83,14 +83,52 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  assert.equal(stage.stats().activeDrawCalls,1,'actual animated hand displacement produces a single measured ribbon draw');
  assert.equal(stage.hasDrawableCue(cue().id),true,'observed wrist movement makes this slot drawable');
  assert.ok(stage.stats().measuredTrailFrames>=1);
- assert.equal(stage.emit(cue({kind:'ranged-release',visual:'launch',actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
- assert.equal(stage.emit(cue({kind:'spell-release',visual:'cast',actorId:'mystic',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
+ assert.equal(stage.emit(cue({kind:'ranged-release',visual:'launch',proof:'authority-action',actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
+ assert.equal(stage.emit(cue({kind:'spell-release',visual:'cast',proof:'authority-action',actorId:'mystic',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
  assert.equal(stage.emit(cue({kind:'evade',visual:'evade',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:2,z:3}})),true);
  const counts=stage.stats().instancesByPool;
  assert.ok(counts.trail>=1 && counts.projectile>=1 && counts.spell>=1 && counts.dust>=1);
  assert.equal(stage.emit(cue({kind:'damage',visual:'hit',proof:'guessed'})),false);
  stage.reset();assert.equal(stage.stats().activeDrawCalls,0);
  stage.dispose();
+});
+test('D04 visual admission rejects crossed injury/release cue contracts without creating detached effects',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const actors={
+  ranger:{u:{id:'ranger',kind:'ranger',action:'attack',actionTick:11,hp:20},
+   authored:false,root:{visible:true,position:{x:-7,y:0,z:-7}}},
+  mystic:{u:{id:'mystic',kind:'mystic',action:'cast',actionTick:11,hp:20},
+   authored:false,root:{visible:true,position:{x:-7,y:0,z:-7}}}
+ };
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors[id]??null});
+ const release=(id,kind,visual)=>cue({
+  id:'1:1:11:'+kind+':'+id+':enemy',kind,visual,proof:'authority-action',
+  actorId:id,targetId:'enemy',from:{x:2,z:2},to:{x:4,z:2},duration:.26
+ });
+ const arrow=release('ranger','ranged-release','launch');
+ const spell=release('mystic','spell-release','cast');
+ try{
+  assert.equal(stage.emit({...arrow,proof:'observed-hp-drop'}),false,
+   'an observed injury is NOT evidence of a new arrow launch');
+  assert.equal(stage.emit({...spell,proof:'observed-hp-drop'}),false,
+   'an observed injury is NOT evidence of a spell release');
+  assert.equal(stage.emit({...arrow,proof:'guessed'}),false,
+   'an unspecified source may not mint a projectile');
+  assert.equal(stage.emit(cue({targetId:null})),false,
+   'an anonymous HP change cannot be rendered as a localized victim impact');
+  assert.equal(stage.emit(cue({kind:'swing'})),false,
+   'an attempted swing cannot wear the verified HP-injury visual contract');
+  assert.equal(stage.stats().active,0,
+   'rejected evidence creates no retained fragments or sound authorization');
+  assert.equal(stage.emit(arrow),true,'genuinely witnessed ranger launch remains drawable');
+  assert.equal(stage.emit(spell),true,'genuinely witnessed spell remains drawable');
+  assert.equal(stage.emit(cue()),true,'genuine victim HP injury remains drawable');
+  assert.equal(stage.stats().instancesByPool.projectile,1);
+  assert.equal(stage.stats().instancesByPool.spell,1);
+  assert.ok(stage.stats().instancesByPool.hit>=4);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
 });
 test('D04 delayed releases require a witnessed firing or casting pose, never a stale hand or empty cell',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
