@@ -66,7 +66,11 @@ export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbi
   const t=Math.max(0,Math.min(1,(beat-.16)/.57));
   if(t<=0)return 0;
   const reveal=t*t*(3-2*t);
-  // Preserve the known camera side and hand off framing to the existing
-  // conservative full-mesh two-endpoint +/-0.95 physical outline fitter.
-  return -Math.sign(currentOrbit)*Math.min(.40,Math.abs(currentOrbit)*.54)*attention*reveal;
+  // Pass338 exact Pass337 390px WebGL brace still merges the guardian shell
+  // with Pip into a near-vertical column. At the same PUBLIC brace and shell
+  // release, open up the opposed three-quarter shot rather than repainting
+  // yet another static terrace. Retain at least 15% of the original actor
+  // axis orbit: no camera-side reversal. The existing exact full-body NDC
+  // fitter, pressure priority and native 44px HUD tests remain authoritative.
+  return -Math.sign(currentOrbit)*Math.min(.66,Math.abs(currentOrbit)*.85)*attention*reveal;
 }

@@ -128,13 +128,13 @@ test('Pass333 source-observed 390px guardian physically un-stacks toward a side-
  assert.deepEqual(frame.slice(0,3),[0,0,0]);
  for(let i=1;i<frame.length;i++)assert.ok(frame[i]>=frame[i-1]-1e-12,
    'no sudden camera reversal through actual public witness');
- assert.ok(frame[5]>.23&&frame[5]<.29,'genuine planted brace gains independent actor silhouette');
- assert.ok(frame[8]>.39&&frame[8]<=.40000001,'full shell release earns visible separation');
+ assert.ok(frame[5]>.38&&frame[5]<.45,'the actual planted brace now exposes both opposed bodies rather than re-stacking them');
+ assert.ok(frame[8]>.65&&frame[8]<=.66000001,'complete shell release earns an opposed three-quarter actor composition');
  assert.equal(frame[8],frame[9],'hold the completed disclosure');
  assert.equal(shot(a,s,.89953,o),frame[8]);
  assert.equal(shot(a,s,.89953,-o),-frame[8],'mirror the same public encounter');
- assert.ok(frame.every(v=>o+v<0&&Math.abs(o+v)>=.38),
-   'the camera never flips across the actors to invent a new space');
+ assert.ok(frame.every(v=>o+v<0&&Math.abs(o+v)>=.11),
+   'the stronger real duel remains on the ORIGINAL camera side with a nonzero 0.12rad reserve');
 });
 test('Pass333 no shoulder camera on unknown, ended, reduced-motion or wrong-size/attention inputs',async()=>{
  const {publicGuardianDuelShoulderOrbit:shot}=await camera();
@@ -151,4 +151,19 @@ test('Pass333 no shoulder camera on unknown, ended, reduced-motion or wrong-size
  assert.match(scene,/portraitEncounterOrbit\+=publicGuardianDuelShoulderOrbit\(\s*aspect,closestThreat\.strength,closestThreat\.encounterBeat,\s*portraitEncounterOrbit,settings\.reducedMotion\)/);
  assert.match(scene,/publicPortraitGuardianHalfHeight\(/,
    'preserve real actor mesh physical camera bounds and strict tests');
+});
+
+test('Pass338 320px and 390px physical duel cameras only open up on public brace/release, not on unseen or reduced-motion combat',async()=>{
+ const {publicGuardianDuelShoulderOrbit:shot}=await camera();
+ for(const a of [320/740,390/844]){
+   assert.equal(shot(a,.818181818,.07,-.78),0);
+   assert.ok(shot(a,.818181818,.48889,-.78)>.38);
+   assert.equal(shot(a,.818181818,.89953,-.78),.66);
+   assert.equal(shot(a,.818181818,.89953,.78),-.66);
+   assert.equal(shot(a,.818181818,.89953,-.78,true),0);
+   assert.equal(shot(a,.69,.89953,-.78),0);
+   assert.equal(shot(a,.818181818,.89953,0),0);
+ }
+ assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(/,
+   'production continues to use actual connected body outlines and unchanged strict native framing limits');
 });
