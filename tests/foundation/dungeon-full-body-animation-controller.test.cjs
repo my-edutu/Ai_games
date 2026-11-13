@@ -4773,6 +4773,43 @@ test('RED: original source first walking crossfade must counterturn a witnessed 
   'real original imported spine must own the rendered turn, not the simulation root');
 });
 
+// Genuine source-rig 1440px/390px nine-tick video (Actions #43427834389):
+// the first ~0.6375rad travelling root pivot can arrive AFTER the render
+// owner already entered move, while the original Walking_A has only ~78%
+// mixer weight. The old >=.85 subsequent-walk threshold silenced the entire
+// source spine on this lawful crossfade frame. This is source pose only.
+test('RED: a genuine moving Walking_A crossfade at 78 percent retains measured spine-turn continuity',async()=>{
+ const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
+ const witness={mode:'move',previousMode:'move',sourceClipName:'Walking_A',
+  sourceWeight:.7826083898544312,sourceInstanceSame:true,
+  ownerLocomotion:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.059125,
+  frameInterval:.0581,previousRootYaw:-1.98305,
+  currentRootYaw:-2.62055,previousOffsetRad:0};
+ const pose=plan(witness);
+ assert.ok(pose,'source crossfade may still be 78 percent after movement is already owned');
+ assert.ok(pose.offsetRad>.05&&pose.offsetRad<=.12,
+  'genuine pivot must turn existing skinned chest opposite the visible root');
+ assert.equal(pose.sourceClip,'Walking_A');
+ assert.equal(pose.contactLocked,false);
+ const next=plan({...witnessedSafe(witness),sourceWeight:.93,
+  previousRootYaw:witness.currentRootYaw,
+  currentRootYaw:witness.currentRootYaw,previousOffsetRad:pose.offsetRad,
+  rootTravel:.03,frameInterval:.0334});
+ assert.ok(next&&next.offsetRad>0&&next.offsetRad<pose.offsetRad,
+  'mixer-owned spine must release without a discontinuous reverse snap');
+ for(const bad of [
+  {sourceWeight:.74},{mode:'attack'},{mode:'guard'},{mode:'hurt'},
+  {mode:'defeat'},{sourceClipName:'Idle'},{previousMode:'idle',previousOffsetRad:.01},
+  {previousMode:'cast'},{sourceInstanceSame:false},{ownerLocomotion:false},
+  {rootTravel:0},{rootTravel:.181},{frameInterval:.37},
+  {visible:false},{alive:false},{teleport:true},
+  {interrupted:true},{reducedMotion:true}
+ ])assert.equal(plan({...witness,...bad}),null,
+  'no fading source-spin compensation without live original locomotion witness: '+JSON.stringify(bad));
+});
+function witnessedSafe(witness){return {...witness};}
+
 test('real original Walking_A torso counterturn has bounded source-owned follow-through and safe release',async()=>{
  const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
  const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
