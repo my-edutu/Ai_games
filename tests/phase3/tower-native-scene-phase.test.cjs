@@ -13,6 +13,22 @@ test('stage transition requires genuinely sustained cool film after warm scene',
   assert.equal(findSustainedVoidPhase([...warm,.5,...warm,...cool]).nativeSeconds,40.25);
   assert.equal(findSustainedVoidPhase([...warm,.5,...warm]),null);
 });
+test('first real chromatic transition survives a partially violet physical doorway bridge',()=>{
+  // 1x original portrait film reaches its first F9 HUD at 25.25s, but the
+  // warm bronze cap and incoming violet world overlap for >1s. A detector
+  // requiring the IMMEDIATELY preceding 3s to be solid warm incorrectly
+  // reports the next episode around 67s instead of the first arrival.
+  const warm=Array(100).fill(.02),transition=Array(5).fill(.14),
+    cool=Array(36).fill(.45),restart=Array(110).fill(.02);
+  const observed=findSustainedVoidPhase([
+    ...warm,...transition,...cool,...restart,...transition,...cool]);
+  assert.equal(observed.nativeSeconds,26.25);
+  assert.ok(observed.warmToCoolBridgeSeconds>=1.25);
+  assert.ok(observed.beforeMean<.08);
+  assert.equal(findSustainedVoidPhase([
+    ...warm,...transition,.4,.4,...restart]),null);
+});
+
 test('true source observation over two seconds ahead of native palette is a cue veto, not a fake visual proof',()=>{
   const clock={sourceEventTimecodes:[{kind:'floor-transition',fromFloor:8,toFloor:9,observedEpisode:0,
     inOriginalVideo:true,nativeVideoSeconds:23.1,sourceTick:451}]};
