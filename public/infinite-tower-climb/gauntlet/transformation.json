@@ -9882,5 +9882,29 @@
     "nextHighestImpactAction": "Capture exact commit first-episode renderer diagnostics with native 60+s baseline/candidate footage at both viewports and source event PTS; identify real missing/hidden gate and repair the unified cold F9 render budget and physical camera/geometry together. Reopen as long as 0/2 strict native crossing.",
     "review": "docs/reviews/2026-11-13-tower-pr68-first-episode-submission-export.md",
     "safety": "Draft PR68 stays on PR58; immutable baseline, gameplay authority and other games untouched. Never merge, deploy, force push or move baseline."
+  },
+  "p0ColdVoidProgramPrepare20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreChangeHead": "0cffc907d011d19382217fbf6f54ab832319263a",
+    "priorSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43428237425",
+    "priorSourceSha": "80a87f43c3995624b739c136ca8e946a1e52d2d9",
+    "observedDefect": "Original native portrait and desktop F8 bronze→F9 violet hard scene cut, same physical doorway and moving climber not continuously visible. Strict native gate 0/2; no improvement claimed.",
+    "firstEpisodeGPUTrace": "Desktop F9 browser tick451→returned WebGL tick459: scene update 100.7ms, world rebuild 88.8ms, renderer return 463.3ms (total 564ms). Second crossing same device renderer 79.5ms. Portrait first F9 browser tick452→returned tick457: world rebuild 59.8ms, renderer return 100.2ms; second renderer 67.2ms. Suspected first-use GPU program/upload cost; not yet causally isolated.",
+    "implementation": "Source-qualified once-per-WebGL-context, browser-offscreen compileAsync of 4 bounded Void MeshStandardMaterial variants on static+instanced prototype geometry; staged only after real live Floor8 Clockwork submission, retained until first genuine F9 render or restart/context loss; no F9 mock gameplay, renderer preview, authority, colliders, world geometry changes.",
+    "localFocusedTests": "3/3 source-free Node v22 fake-WebGL resource/async/source-episode tests PASS; integrated source-file contract added; exact-head CI NOT YET VERIFIED",
+    "newSourcePinnedVideo": "NOT EVALUATED — existing newly queued nine-job capture on parent source 0cffc... cannot certify this later prewarm implementation; do not overenqueue while runner-admission blocked",
+    "acceptance": "Source-pinned normal speed ≥60s full 960x600 and 390x844; first/second F9 GPU work timing, exact first-episode original doorway projection from exported sidecar and native 1x video, outcome/restart, actual device p50/p95/p99 memory",
+    "critics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevice": "NOT EVALUATED",
+    "biggestExperienceGap": "F8→F9 first GPU renderer return stalls across 5-8 source ticks; visibility/body-through-original-doorway remains unproven. CompileAsync may not address upload or camera issues.",
+    "nextHighestImpactAction": "Complete already-queued exact-head original F9 first-episode physical-doorway-submissions.json/native footage, then source-pin this shader-prewarm candidate on a separate controlled capture after runner capacity, compare first GPU cost and native physical threshold; revert prewarm if it only moves hitches or increases resource use.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-cold-void-program-prewarm-source-cadence.md",
+    "safety": "No PR58, baseline, other games, merge, deploy, draft promotion or force-push"
   }
 }

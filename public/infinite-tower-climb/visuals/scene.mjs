@@ -32,6 +32,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
+import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -2100,6 +2101,10 @@ export function createTowerScene(canvas, settings = {}) {
   const sky = new THREE.Mesh(skyGeometry, skyMaterial);
   sky.renderOrder = -100;
   scene.add(sky);
+  // Compile a tiny bounded set of actual Void shader FEATURES offscreen during
+  // the source-observed Floor8 scene, before the first costly Floor9 WebGL
+  // submission. Never render a preview world or predict source progress.
+  let voidProgramPrewarm = createTowerVoidProgramPrewarm(THREE, renderer, scene, camera);
   let reflectionTarget = null, reflectionDirty = true, reflectionFirstFrame = true, reflectionBuilds = 0;
   let reflectionFailures = 0, reflectionLastError = null;
   function releaseEnvironment() {
@@ -2661,6 +2666,10 @@ export function createTowerScene(canvas, settings = {}) {
     terminalCameraRun = null; terminalCameraBegan = 0;
   }
   function rebuildGraphicsResources() {
+    // Context loss invalidates WebGL program caches; never resurrect a stale
+    // compile promise or another run's provisional shader owner.
+    voidProgramPrewarm.dispose();
+    voidProgramPrewarm = createTowerVoidProgramPrewarm(THREE, renderer, scene, camera);
     // Dispose while WebGL is still lost: Three's disposal listeners otherwise
     // retain old-context buffers and VAOs after its restore handler resets caches.
     // Rebuild resource owners, including their detached/cached geometries.
@@ -5138,6 +5147,11 @@ export function createTowerScene(canvas, settings = {}) {
       renderRecoveryAttempts = 0;
       renderFaultRetryAt = 0;
       renderFaultState = 'live';
+      // This runs ONLY after genuine WebGL return, not after source receipt.
+      // A live Clockwork F8 can prepare nonvisible Void programs while the
+      // actual guardian still plays; real F9/restart retires the bounded owner.
+      voidProgramPrewarm.onSubmittedFrame(snapshot);
+      voidProgramPrewarm.begin(snapshot, options);
     } catch (error) {
       coldFloorPolicy.reset();coldFloorScale = 1;resolutionDirty = true;
       renderErrors++;
@@ -5488,6 +5502,7 @@ export function createTowerScene(canvas, settings = {}) {
       lighting: { environmentReady: !!reflectionTarget, environmentState: disposed ? 'disposed' : reflectionDirty ? 'pending' : reflectionTarget ? 'ready' : 'direct', environmentBuilds: reflectionBuilds,
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
+      voidProgramPrewarm: voidProgramPrewarm.diagnostics(),
       physicalDoorwaySubmissionAudit: {
         episode: physicalDoorwayAuditEpisode,
         source: 'first 56 unique source ticks with real WebGL returns after guardian victory',
@@ -5600,6 +5615,7 @@ export function createTowerScene(canvas, settings = {}) {
     canvas.removeEventListener('webglcontextlost', lost); canvas.removeEventListener('webglcontextrestored', restored);
     canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointermove', pointerMove);
     canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp); canvas.removeEventListener('wheel', wheel);
+    voidProgramPrewarm.dispose();
     releaseEnvironment();
     sun.shadow.dispose(); sun.shadow.map = null; sun.shadow.mapPass = null;
     clearActors(); climber.dispose(); world.dispose(); finale.dispose(); passage.dispose(); routeIntent.dispose(); landingApproach.dispose(); movingDeckSuspension.dispose(); hazardPressure.dispose(); guardianCircuit.dispose(); guardianShotStage.dispose(); guardianGuardStage.dispose(); atmosphere.dispose(); recoveryTransfer.dispose();
