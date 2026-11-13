@@ -7909,18 +7909,28 @@ function physicalMarketArcadeRoofVolumes(){
  return roofs;
 }
 function grainwardTradeArcade(){
+ // W305 Phase 1: the TWO genuine market-side connecting roofs retain their
+ // exact slopes, original end-merchants and physical camera AABBs. Replace ten
+ // floating cylindrical scaffold members with continuous limewashed soffits,
+ // proper two-edge sawn oak fascia and three flush transverse roof ties per
+ // side. All workers and carts still pass under the original >2.05m clearance.
+ // Every surface is part of the ORIGINAL cached civic VBO, not a fake shop,
+ // a cutaway wall, a new ground obstacle or an extra GPU allocation.
  const first=data.length,plans=grainwardMarketArcadePlan(),
   clays=[rgb(0x967c64),rgb(0x866e59),rgb(0x796e62)],
-  oak=rgb(0x69503b),light=rgb(0xb0997b);
- for(const plan of plans){
+  oak=rgb(0x69503b),light=rgb(0xb0997b),
+  lime=[rgb(0xb9b09b),rgb(0xc2b49b)];
+ marketQuarterStats.arcadeRoofUndersides=0;
+ marketQuarterStats.arcadeTimberFaces=0;
+ marketQuarterStats.arcadeScaffoldBeams=0;
+ for(const [index,plan] of plans.entries()){
   const sign=Math.sign(plan.outerX),span=plan.z1-plan.z0;
   const at=(t,x,raise)=>{
    const y=plan.y0+(plan.y1-plan.y0)*t;
    return [x,y+raise,plan.z0+span*t];
   };
-  // Continuous SHED roofs, supported by original merchant end-posts
-  // through oak bridge trusses. Market centre remains open to the sky,
-  // avoiding an opaque roof across the real courier/market worksite.
+  // Keep the exact previously verified roof vertices and outward winding.
+  // The physical obstruction model and its real-human clearance stay true.
   materialScope(MATERIAL.ROOF,()=>{
    for(let k=0;k<4;k++){
     const t=k/4,u=(k+1)/4;
@@ -7930,19 +7940,44 @@ function grainwardTradeArcade(){
     else quad(d,c,b,a,clays[k%3]);
    }
   });
+  // Complete the underside of BOTH existing shelter slopes rather than
+  // leaving a translucent toy canopy above the authentic buying aisle.
+  // Reverse roof winding makes these faces visible from the ground.
+  materialScope(MATERIAL.PLASTER,()=>{
+   for(let k=0;k<4;k++){
+    const t=k/4,u=(k+1)/4,
+     a=at(t,plan.innerX,.208),b=at(t,plan.outerX,-.132),
+     c=at(u,plan.outerX,-.132),d=at(u,plan.innerX,.208);
+    if(sign<0)quad(d,c,b,a,lime[index%lime.length]);
+    else quad(a,b,c,d,lime[index%lime.length]);
+    marketQuarterStats.arcadeRoofUndersides++;
+   }
+  });
   materialScope(MATERIAL.WOOD,()=>{
-   // Sloping longitudinal beams genuinely bear on the existing roofs.
-   for(const [x,rise] of [[plan.innerX,.255],[plan.outerX,-.075]])
-    limbSegment(at(0,x,rise),at(1,x,rise),.074,oak,4);
+   // Two full-length vertical fascia boards are flush against the historic
+   // eaves, not suspended below the courier's head. A quad replaces each
+   // cylindrical long truss without changing the protected roof geometry.
+   for(const [xx,rise] of [[plan.innerX,.232],[plan.outerX,-.108]]){
+    const a=at(0,xx,rise),b=at(1,xx,rise),
+     p=[a[0],a[1]+.032,a[2]],q=[b[0],b[1]+.032,b[2]],
+     r=[b[0],b[1]-.068,b[2]],t=[a[0],a[1]-.068,a[2]];
+    if(sign<0)quad(t,r,q,p,oak);else quad(p,q,r,t,oak);
+    marketQuarterStats.arcadeTimberFaces++;
+   }
+   // Three flush sawn roof ties read as real construction from below,
+   // preserving the open trading lane and removing giant hanging cylinders.
    for(const t of [0,.5,1]){
-    limbSegment(at(t,plan.innerX,.22),at(t,plan.outerX,-.11),
-     .063,t===.5?light:oak,4);
+    const a=at(t,plan.innerX,.204),b=at(t,plan.outerX,-.136),
+     p=[a[0],a[1]-.037,a[2]],q=[b[0],b[1]-.037,b[2]],
+     r=[b[0],b[1]-.081,b[2]],d=[a[0],a[1]-.081,a[2]];
+    if(sign<0)quad(d,r,q,p,light);else quad(p,q,r,d,light);
+    marketQuarterStats.arcadeTimberFaces++;
    }
   });
  }
  const triangles=(data.length-first)/30;
- if(!Number.isInteger(triangles)||triangles>240||triangles<35)
-  throw Error('W131 unbounded or incomplete linked market roofs');
+ if(!Number.isInteger(triangles)||triangles>80||triangles<40)
+  throw Error('W305 original inhabited-market arcade geometry out of bounds');
  marketQuarterStats.grainwardArcadeSpans=plans.length;
  marketQuarterStats.grainwardArcadeTriangles=triangles;
  marketQuarterStats.grainwardArcadeNoPosts=plans.every(p=>p.noNewGroundPosts);
