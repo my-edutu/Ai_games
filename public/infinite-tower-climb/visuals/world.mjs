@@ -18,6 +18,15 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
  * bridge, enemy, physics contact, invented source sample or render-only actor.
  * The original source roof/door are retained separately and unchanged.
  */
+// Preserve the ACTUAL original Clockwork load path near the source-earned
+// doorway. The first generation took the first 3,600 eligible triangles in
+// material-batch enumeration order, discarding closer doorway posts while
+// retaining whichever unrelated wall the batch happened to list first.
+// This source-geometry selection is independent of batch iteration order:
+// it samples genuine existing THREE meshes (including structural instances),
+// ranks each real triangle by proximity to the original passage, and honors
+// fixed low-tier draw/vertex caps. No new authored platform, synthetic gateway,
+// collider, enemy, scripted pose or new simulation step is constructed.
 export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresholdX,
     roofY, baseY, worldWidth, limits = {}) {
   if (!oldFloor?.isGroup || ![thresholdX,roofY,baseY,worldWidth].every(Number.isSafeInteger) ||
@@ -25,70 +34,138 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
       !THREE?.BufferGeometry || !THREE?.Mesh) return null;
   const target = angleFor(thresholdX,worldWidth);
   const roof = (roofY-baseY)/SCALE;
-  const maxFaces = Math.min(4096, Math.max(0, Number.isSafeInteger(limits.maxFaces) ? limits.maxFaces : 3600));
-  const maxBatches = Math.min(10, Math.max(0, Number.isSafeInteger(limits.maxBatches) ? limits.maxBatches : 8));
+  const maxFaces = Math.min(4096, Math.max(0,
+    Number.isSafeInteger(limits.maxFaces) ? limits.maxFaces : 3600));
+  const maxBatches = Math.min(10, Math.max(0,
+    Number.isSafeInteger(limits.maxBatches) ? limits.maxBatches : 8));
+  if (!maxFaces || !maxBatches) return null;
   const root = new THREE.Group();
   root.name = 'OriginalSourceClockworkThresholdGallery';
-  const geometries = [], materials = [];
-  let faces = 0;
-  for (const source of oldFloor.children) {
-    if (faces >= maxFaces || root.children.length >= maxBatches) break;
-    // Actual rigid-batched original structure ONLY. No old gameplay decks,
-    // moving drives, enemies, hazards, distant citadels or foreground FX.
-    if (!source.isMesh || source.name !== 'rigid-material-batch' ||
-        !source.geometry?.getAttribute('position') ||
-        Array.isArray(source.material) || !source.material ||
-        source.material.vertexColors ||
-        source.position.lengthSq() > 1e-10 ||
-        source.rotation.x !== 0 || source.rotation.y !== 0 || source.rotation.z !== 0 ||
-        Math.abs(source.scale.x-1)>1e-8 || Math.abs(source.scale.y-1)>1e-8 ||
-        Math.abs(source.scale.z-1)>1e-8) continue;
-    const original=source.geometry, p=original.getAttribute('position'),
-      n=original.getAttribute('normal'), uv=original.getAttribute('uv'), ids=original.getIndex();
-    const count=ids?ids.count:p.count;
-    if (!n || !uv || count%3!==0) continue;
-    const positions=[],normals=[],uvs=[];
-    for(let i=0;i<count && faces+positions.length/9<maxFaces;i+=3){
-      const vertices=[], norm=[], tex=[];
-      let accepted=true;
-      for(let j=0;j<3;j++){
-        const index=ids?ids.getX(i+j):i+j;
-        const x=p.getX(index),y=p.getY(index),z=p.getZ(index);
-        const radius=Math.hypot(x,z);
-        const delta=Math.atan2(Math.sin(Math.atan2(x,z)-target),
-          Math.cos(Math.atan2(x,z)-target));
-        // Only triangles physically INSIDE the original cap-side corridor
-        // and its nearby connected tower support. This avoids a second full
-        // Floor8 world and prevents memory/draw-call accumulation on phones.
-        if(![x,y,z,radius,delta].every(Number.isFinite) ||
-            radius<12.7 || radius>39 || Math.abs(delta)>.46 ||
-            y<roof-32 || y>roof+21){accepted=false;break;}
-        vertices.push(x,y,z);
-        norm.push(n.getX(index),n.getY(index),n.getZ(index));
-        tex.push(uv.getX(index),uv.getY(index));
+  const inverse = new THREE.Matrix4();
+  const composed = new THREE.Matrix4();
+  const instance = new THREE.Matrix4();
+  const normalMatrix = new THREE.Matrix3();
+  const position = new THREE.Vector3(), normal = new THREE.Vector3();
+  oldFloor.updateWorldMatrix(true,true);
+  inverse.copy(oldFloor.matrixWorld).invert();
+  const batches = [];
+  // Traverse non-gameplay structural source nodes AND the original static
+  // rigid batches. The source cap and actual gate are independently retained
+  // by the same handoff owner; never duplicate them here.
+  const sourceMeshes = [];
+  function gather(node,gameplay=false) {
+    const excluded=gameplay || /^platform:|^hazard:|^AuthoritativeGuardianGate/.test(node.name);
+    if (excluded) return;
+    if (node.isMesh && !node.userData?.ambientDetail &&
+        (node.name==='rigid-material-batch' || node.userData?.structural===true))
+      sourceMeshes.push(node);
+    for (const child of node.children || []) gather(child,excluded);
+  }
+  gather(oldFloor);
+  for (const source of sourceMeshes) {
+    const original=source.geometry,p=original?.getAttribute('position');
+    const n=original?.getAttribute('normal'),uv=original?.getAttribute('uv');
+    const indices=original?.getIndex();
+    if (!p || !n || !uv || !source.material ||
+        Array.isArray(source.material) || source.material.vertexColors ||
+        !Number.isSafeInteger(p.count) || p.count<3) continue;
+    const count=indices?indices.count:p.count;
+    if (count%3!==0) continue;
+    const group={source,triangles:[],best:Infinity};
+    const instanceCount=source.isInstancedMesh ? Math.min(source.count,128) : 1;
+    for(let copy=0;copy<instanceCount;copy++) {
+      composed.multiplyMatrices(inverse,source.matrixWorld);
+      if(source.isInstancedMesh){
+        source.getMatrixAt(copy,instance);
+        composed.multiply(instance);
       }
-      if(accepted){positions.push(...vertices);normals.push(...norm);uvs.push(...tex);}
+      normalMatrix.getNormalMatrix(composed);
+      for(let i=0;i<count;i+=3){
+        const positions=[],normals=[],uvs=[];
+        let score=0,accepted=true;
+        for(let j=0;j<3;j++){
+          const index=indices?indices.getX(i+j):i+j;
+          position.fromBufferAttribute(p,index).applyMatrix4(composed);
+          const radius=Math.hypot(position.x,position.z);
+          const delta=Math.atan2(Math.sin(Math.atan2(position.x,position.z)-target),
+            Math.cos(Math.atan2(position.x,position.z)-target));
+          if (![position.x,position.y,position.z,radius,delta].every(Number.isFinite) ||
+              radius<12.7 || radius>39 || Math.abs(delta)>.46 ||
+              position.y<roof-32 || position.y>roof+21) {
+            accepted=false;break;
+          }
+          normal.fromBufferAttribute(n,index).applyMatrix3(normalMatrix).normalize();
+          positions.push(position.x,position.y,position.z);
+          normals.push(normal.x,normal.y,normal.z);
+          uvs.push(uv.getX(index),uv.getY(index));
+          // Every actual triangle is evaluated in a COMMON world basis,
+          // not in material grouping order or geometry-index order.
+          score+=Math.pow(delta/.46,2)*1.8+
+            Math.pow((position.y-(roof+3))/32,2)+
+            Math.pow((radius-25)/14,2);
+        }
+        if(accepted){
+          const triangle={score:score/3,positions,normals,uvs};
+          group.triangles.push(triangle);
+          if(triangle.score<group.best)group.best=triangle.score;
+        }
+      }
     }
-    if(positions.length < 9) continue;
+    if(group.triangles.length) {
+      group.triangles.sort((a,b)=>a.score-b.score);
+      batches.push(group);
+    }
+  }
+  if(!batches.length)return null;
+  // Preserve a bounded cross-section of actual bearing posts, drums and
+  // connected framing instead of selecting only the first material batch.
+  batches.sort((a,b)=>a.best-b.best);
+  const selected=batches.slice(0,maxBatches);
+  const picked=selected.map(()=>[]);
+  let remaining=maxFaces;
+  // Give each physically nearby original structural material a small
+  // guaranteed share. Remaining faces go to the globally nearest geometry.
+  const firstShare=Math.min(32,Math.floor(maxFaces/selected.length));
+  for(let j=0;j<selected.length;j++){
+    const count=Math.min(firstShare,selected[j].triangles.length);
+    picked[j].push(...selected[j].triangles.slice(0,count));
+    remaining-=count;
+  }
+  const rest=[];
+  for(let j=0;j<selected.length;j++)
+    for(const triangle of selected[j].triangles.slice(picked[j].length))
+      rest.push({j,triangle});
+  rest.sort((a,b)=>a.triangle.score-b.triangle.score);
+  for(let i=0;i<remaining && i<rest.length;i++)
+    picked[rest[i].j].push(rest[i].triangle);
+  const geometries=[],materials=[];
+  let faces=0;
+  for(let j=0;j<selected.length;j++){
+    if(!picked[j].length)continue;
+    const positions=[],normals=[],uvs=[];
+    for(const triangle of picked[j]){
+      positions.push(...triangle.positions);
+      normals.push(...triangle.normals);
+      uvs.push(...triangle.uvs);
+    }
     const geometry=new THREE.BufferGeometry();
     geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
     geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
     geometry.computeBoundingSphere();
-    const material=source.material.clone();
+    const material=selected[j].source.material.clone();
     material.name='OriginalClockworkGallerySourceSurface';
     material.transparent=false;material.opacity=1;material.depthTest=true;
     const fragment=new THREE.Mesh(geometry,material);
     fragment.name='source-extracted-clockwork-structural-triangles';
     fragment.castShadow=false;fragment.receiveShadow=false;
-    root.add(fragment);
-    geometries.push(geometry);materials.push(material);
-    faces+=positions.length/9;
+    root.add(fragment);geometries.push(geometry);materials.push(material);
+    faces+=picked[j].length;
   }
-  if(!faces) return null;
+  if(!faces)return null;
   return {root,geometries,materials,faces,
     bytes:faces*3*8*Float32Array.BYTES_PER_ELEMENT,
-    source:'original-Three-floor-eight-rigid-structural-batches'};
+    source:'closest-original-Three-floor-eight-load-paths-not-batch-order'};
 }
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
