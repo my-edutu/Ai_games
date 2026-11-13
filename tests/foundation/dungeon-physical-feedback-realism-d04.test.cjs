@@ -861,6 +861,7 @@ test('D04 visible HP body must match the unique current public injury witness be
    'a drawable root positioned correctly cannot override wrong actor authority coordinates');
   check({...current,units:[{...victim,hp:NaN}]},{...victim},false,
    'non-finite public HP cannot authenticate a body-local contact');
-  check(current,{...victim},true,'valid current body remains drawable after invalid snapshots');
+  check({run:1,floor:1,tick:11,units:[victim]},{...victim},true,
+   'valid current body remains drawable after invalid snapshots');
  }finally{stage.dispose()}
 });
