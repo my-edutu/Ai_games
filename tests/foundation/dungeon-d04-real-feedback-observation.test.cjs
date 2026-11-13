@@ -130,6 +130,38 @@ test('same-tick unrelated injury, wrong actor identity, and stale frames never p
   assert.equal(verdict.visualAcceptance,false,JSON.stringify(receipt));
  }
 });
+test('muted real HP impact with an acknowledged visual-only frame counts as visual evidence, never audio proof',()=>{
+ const physicalFeedback={...later.physicalFeedback,visualAccepted:1,expiredQueuedCues:128,
+  recentDeliveryReceipts:[{...delivered(4,'enemy-1-0'),
+   decision:'visual-only-submitted',audio:false,frameId:12}]};
+ const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback}});
+ assert.equal(verdict.status,'VISUAL_ADMITTED_NOT_AV_VERIFIED');
+ assert.equal(verdict.damageVisualAdmitted,1);
+ assert.equal(verdict.visualAcceptance,true);
+ assert.equal(verdict.sampleSynchronized,false);
+});
+test('real string frame IDs and silent HP visuals require credible frame and consent provenance',()=>{
+ const evidence=receipt=>classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:{...later.physicalFeedback,
+   visualAccepted:1,expiredQueuedCues:128,recentDeliveryReceipts:[receipt]}}});
+ const authentic={...delivered(4,'enemy-1-0'),
+  decision:'visual-only-submitted',audio:false,frameId:'real-webgl-frame-18'};
+ assert.equal(evidence(authentic).status,'VISUAL_ADMITTED_NOT_AV_VERIFIED',
+  'an opaque frame identity accepted by the D04 controller must not be discarded');
+ for(const invalid of [
+  {...authentic,audio:true},
+  {...authentic,frameId:null},
+  {...authentic,frameId:''},
+  {...authentic,frameId:'x'.repeat(129)},
+  {...authentic,decision:'visual-submission-unverified'},
+  {...authentic,decision:'stale-frame'},
+  {...authentic,cueId:'1:1:4:damage:guessed:enemy-1-0'},
+  {...authentic,observationToSubmissionMs:401},
+ ]){
+  assert.equal(evidence(invalid).visualAcceptance,false,JSON.stringify(invalid));
+ }
+});
 test('authentic delivered HP-loss receipt proves ONLY frame-level visual admission, not audio alignment',()=>{
  const receipt=delivered(4,'enemy-1-0');
  const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
