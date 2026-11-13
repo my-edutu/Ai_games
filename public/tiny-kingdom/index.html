@@ -14251,7 +14251,7 @@ function granaryArchitecture(){
   beam=rgb(0x6b4b35),slate=rgb(0x8d7566),
   oldOak=rgb(0x81644b),louver=rgb(0x98846b);
  const audit={source:'raised-authentic-granary-loft-and-road',
-  raisedPiers:0,granaries:0,roofCourseRows:8,newRoofCourseTriangles:0,
+  raisedPiers:0,granaries:0,upperGrainWindows:0,roofCourseRows:8,newRoofCourseTriangles:0,
   replacedSingleTileTriangles:252,ventilatedGableFaces:0,louverSlats:0,
   structuralDiagonalBraces:0,underfloorJoists:0,
   groundFloorClearanceMet:false,realDoorUnblocked:false,totalTriangles:0,
@@ -14280,9 +14280,12 @@ function granaryArchitecture(){
  materialScope(MATERIAL.PLASTER,()=>{
   box(x,y+.90,z,w,1.53,d,plaster);
  });
+ // W303 limewashed original grain loft below its oak-framed tiled roof.
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,y+2.43,z,w+.18,.80,d+.14,rgb(0xc6b49a));
+ });
  materialScope(MATERIAL.WOOD,()=>{
-  const upperOak=rgb(0x806449),tieOak=rgb(0x594536);
-  box(x,y+2.43,z,w+.18,.80,d+.14,upperOak);
+  const tieOak=rgb(0x594536);
   for(const side of [-1,1]){
    const zz=z+side*(d*.5+.105);
    box(x,y+2.43,zz,w+.26,.12,.14,tieOak);
@@ -14342,6 +14345,25 @@ function granaryArchitecture(){
   box(x-.42,y+1.91,front-.09,.075,1.45,.12,beam);
   box(x+.42,y+1.91,front-.09,.075,1.45,.12,beam);
  });
+ // Front upper glazing is higher than the unchanged physical freight door.
+ // Both complete windows are on the real storehouse, not fictional stock.
+ const loftFront=z-d*.52-.022;
+ for(const side of [-1,1]){
+  const cx=x+side*w*.29;
+  materialScope(MATERIAL.GENERAL,()=>{
+   quad([cx-.225,y+2.315,loftFront],[cx+.225,y+2.315,loftFront],
+    [cx+.225,y+2.722,loftFront],[cx-.225,y+2.722,loftFront],
+    rgb(0x374b4c));
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const xx of [cx-.242,cx+.242])
+    box(xx,y+2.515,loftFront-.009,.045,.46,.049,rgb(0x6b4c35));
+   for(const yy of [y+2.295,y+2.737])
+    box(cx,yy,loftFront-.007,.52,.046,.052,rgb(0x6b4c35));
+   box(cx,y+2.510,loftFront-.030,.035,.40,.040,rgb(0xac9776));
+  });
+  audit.upperGrainWindows++;
+ }
  const front=z-d*.52;
  const eave=y+3.19,peak=y+4.62;
  materialScope(MATERIAL.ROOF,()=>{
@@ -15101,7 +15123,7 @@ function grainwardFieldThreshingCourt(){
  const oak=rgb(0x6b5039),joint=rgb(0x9b7a54),
   roof=[rgb(0x8b6650),rgb(0x9b775d),rgb(0x725b4f),rgb(0xa78666)];
  let flagstones=0,approachPanels=0,posts=0,braces=0,rafters=0,
-  roofPanels=0,slattedCourses=0;
+  roofPanels=0,slattedCourses=0,wattleSideBays=0,stoneWallFootings=0;
  const at=(xx,zz,rise)=>[xx,terrain(xx,zz)+rise,zz];
  materialScope(MATERIAL.STONE,()=>{
   // Thirty complete handmade pavers settle against the original uneven
@@ -15159,12 +15181,39 @@ function grainwardFieldThreshingCourt(){
    const top=xx===westBay[1]||xx===eastBay[0]?wingPeak:eave;
    limbSegment([xx,top-.13,south+.10],[xx,top-.13,north-.10],.072,joint,4);
   }
-  // Sheltered side panels retain wall joinery; open centre stays breathable.
-  for(const side of [-1,1])for(let j=0;j<7;j++){
-   const height=eave-.80+j*.105,
-    xx=side<0?(west+westBay[1])*.5:(east+eastBay[0])*.5;
-   box(xx,height,south+.12,.79,.047,.058,j%2?oak:joint);
-   slattedCourses++;
+  // W303 rebuild the SAME six-post physical shelter as inhabited rural
+  // joinery: stone footings, two-sided limewashed knee-walls, oak louvres.
+  // The real farmer's central aisle stays OPEN under sky and unobstructed.
+  for(const side of [-1,1]){
+   const xx=side<0?west+.27:east-.27;
+   for(let bay=0;bay<2;bay++){
+    const z0=south+.25+(north-south-.50)*bay/2,
+     z1=south+.25+(north-south-.50)*(bay+1)/2,
+     mid=(z0+z1)*.5;
+    materialScope(MATERIAL.STONE,()=>{
+     box(xx,terrain(xx,mid)+.065,mid,.245,.20,z1-z0+.05,
+      fieldStone[(bay+(side+1))%fieldStone.length]);
+     stoneWallFootings++;
+    });
+    materialScope(MATERIAL.PLASTER,()=>{
+     const p=(offset,z,h)=>[xx+side*offset,terrain(xx,z)+h,z];
+     quad(p(.087,z0,.18),p(.087,z1,.18),p(.087,z1,.72),
+      p(.087,z0,.72),rgb(0xc5b79b));
+     quad(p(-.087,z1,.18),p(-.087,z0,.18),p(-.087,z0,.72),
+      p(-.087,z1,.72),rgb(0xb9a98d));
+     wattleSideBays++;
+    });
+    box(xx,terrain(xx,mid)+.795,mid,.17,.085,z1-z0+.14,joint);
+   }
+   for(let j=0;j<7;j++){
+    const height=eave-.80+j*.105,
+     sx=side<0?(west+westBay[1])*.5:(east+eastBay[0])*.5,
+     z=south+.09,col=j%2?oak:joint;
+    const a=[sx-.39,height-.023,z],b=[sx+.39,height-.023,z],
+     c=[sx+.39,height+.023,z],d=[sx-.39,height+.023,z];
+    quad(a,b,c,d,col);quad(d,c,b,a,col);
+    slattedCourses++;
+   }
   }
  });
  materialScope(MATERIAL.ROOF,()=>{
@@ -15190,7 +15239,7 @@ function grainwardFieldThreshingCourt(){
  return {source:'authentic-open-field-threshing-court-with-real-side-shelters',
   linkedToActualFarm:true,linkedGate:FIELD_TO_GRANARY_GATE.slice(),
   flagstones,approachPanels,posts,braces,rafters,roofPanels,slattedCourses,
-  openAisleMetres,openToSky:true,triangles,realFarmGateUnblocked,extraBuffers:0,addedActors:0,addedGoods:0,
+  wattleSideBays,stoneWallFootings,openAisleMetres,openToSky:true,triangles,realFarmGateUnblocked,extraBuffers:0,addedActors:0,addedGoods:0,
   changesNavigation:false,changesEconomy:false,changesAuthority:false};
 }
 
@@ -15206,7 +15255,21 @@ function farmstead(){
 }
 
 // Original orchard: independently budgeted forks, twigs and seasonal foliage.
-let orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,season:-1,meshTriangles:0};
+let orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,fruitTriangles:0,season:-1,meshTriangles:0};
+// Same true ornamental fruit: closed 3D octahedron rather than 48 wasted
+// triangles on a 10.5cm object, reducing cost of all 45 non-winter fruit.
+function originalOrchardFruit(x,y,z,r,col){
+ const ring=Array.from({length:4},(_,i)=>{
+  const a=Math.PI*.25+i*Math.PI*.5;
+  return [x+Math.cos(a)*r,y,z+Math.sin(a)*r];
+ });
+ const top=[x,y+r*1.06,z],bottom=[x,y-r*.94,z];
+ for(let i=0;i<4;i++){
+  const j=(i+1)%4;
+  tri(top,ring[i],ring[j],col);tri(bottom,ring[j],ring[i],col);
+ }
+ return 8;
+}
 function orchardTrees(){
  const season=climateAt(state.t).season;
  const bark=rgb(0x765b3e),palettes=[
@@ -15217,7 +15280,7 @@ function orchardTrees(){
  ],foliage=palettes[season];
  const produce=season===0?[0xffd4ad,0xffb4a3,0xf3e3c1]:
   season===1?[0x86aa55,0xb4c86d,0xa9c55c]:[0xb96e4b,0xe2aa62,0xc67e50];
- orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,season,meshTriangles:0};
+ orchardVisualStats={trees:0,forks:0,tipTwigs:0,crownLobes:0,fruit:0,fruitTriangles:0,season,meshTriangles:0};
  for(let row=0;row<3;row++)for(let col=0;col<3;col++){
   const x=-28+col*2.9,z=6+row*3.2,y=terrain(x,z);
   orchardVisualStats.trees++;
@@ -15252,10 +15315,11 @@ function orchardTrees(){
    for(let fruit=0;fruit<(season===3?0:5);fruit++){
     const angle=fruit*2.399963+col*.5+row*.23;
     const fx=x+Math.sin(angle)*.64,fz=z+Math.cos(angle)*.55;
-    ellipsoid(fx,y+1.82+.19*Math.cos(angle),fz,.105,.105,.105,
-      rgb(produce[(fruit+row)%3]),6);
+    orchardVisualStats.fruitTriangles+=originalOrchardFruit(
+      fx,y+1.82+.19*Math.cos(angle),fz,.105,
+      rgb(produce[(fruit+row)%3]));
     orchardVisualStats.fruit++;
-    orchardVisualStats.meshTriangles+=48;
+    orchardVisualStats.meshTriangles+=8;
    }
   });
  }
