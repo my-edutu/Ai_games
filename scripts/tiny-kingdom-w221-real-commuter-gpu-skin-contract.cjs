@@ -40,7 +40,8 @@ assert.equal(vm.runInContext('commuterPoseStale',context)(entry,person,.3),true,
 const rig=fragment('function citizenRigPose(', 'function citizenEmbodiedPose(');
 assert(rig.includes('const intensity=traveling?.72:0;'),
  'real feet stay planted whenever no authoritative route movement exists');
-const fgSource=fragment('function originalWorkToolTopologyKey(', 'function realForegroundPoseStale(');
+const fgSource=fragment('function originalWorkToolTopologyKey(', 'function realWorkerPoseKey(')+
+ fragment('function realForegroundPoseKey(', 'function realForegroundPoseStale(');
 const fgContext=vm.createContext({workingSkinCapable:true,
  isWorkingAtSite:()=>false,getAuthenticWorkGesture:()=>({stage:'off'}),
  workdayEvents:[],carryingCommuterLantern:p=>
