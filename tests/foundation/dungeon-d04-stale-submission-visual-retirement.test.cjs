@@ -184,3 +184,45 @@ test('missing or untrusted Warden snapshot cannot extend an expired visual cue',
    'standalone adapters without live authority keep their finite old lifetime');
  }finally{legacy.dispose()}
 });
+
+test('silent HP shards retire on an unverified real frame instead of ghosting into later WebGL draws',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {THREE,scene}=stage();let now=100;
+ const sounds=[];
+ const director=createPhysicalCombatFeedback({THREE,scene,clock:()=>now,
+  requirePresentedFrame:true,
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}});
+ const snapshot=(tick,hp)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'enemy-1-0',kind:'revenant',faction:'enemy',x:2,z:2,hp,maxHp:30,
+  action:hp<30?'hurt':'idle',actionTick:tick
+ }]});
+ try{
+  director.acceptSnapshot(snapshot(10,30));
+  director.acceptSnapshot(snapshot(11,20));
+  now=100.016;director.advance(.016,.016);
+  assert.ok(director.stats().visuals.instancesByPool.hit>=4,
+   'actual observed HP loss creates bounded silent retained shards');
+  assert.equal(director.stats().awaitingVisualReceipt,1);
+  now=NaN; // WebGL submitted; browser clock cannot verify the cue's age.
+  assert.equal(director.acknowledgePresentedFrame(1,.005),0);
+  const receipt=director.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'visual-submission-unverified');
+  assert.equal(receipt.frameId,1);
+  assert.equal(receipt.audio,false);
+  assert.equal(receipt.submittedClockMs,null);
+  assert.equal(director.stats().awaitingVisualReceipt,0);
+  assert.equal(director.stats().visuals.instancesByPool.hit,0,
+   'invalid CPU submission timing must retire its untrusted VFX before another draw');
+  assert.equal(director.stats().visuals.activeDrawCalls,0,
+   'expired shard geometry must not stay visible on a later unrelated frame');
+  assert.ok(director.stats().visuals.retiredStaleFrameInstances>=4);
+  now=100.04;
+  assert.equal(director.enableAudioFromGesture(),true);
+  assert.equal(director.acknowledgePresentedFrame(2,.005),0);
+  assert.deepEqual(sounds,[],'late audio opt-in must not replay an unverified injury');
+  assert.ok(director.stats().visuals.reservedInstances<=104);
+  assert.equal(director.stats().visuals.drawCalls,7);
+ }finally{director.dispose()}
+});
