@@ -13,6 +13,11 @@ import {planAuthorityEvasions} from './evasion-performance-plan.js';
 export const PHYSICAL_FEEDBACK_MAX_CUES = 24;
 export const PHYSICAL_FEEDBACK_MAX_TICK_GAP = 5;
 export const PHYSICAL_FEEDBACK_MAX_EVENT_SCAN = 96;
+// Separate bounded public-HP observation window: action pose and event scans
+// stay at 96, but a real injured victim must not disappear merely because
+// other public units preceded it in a large snapshot. No additional effect
+// instances, voices or cues may be admitted beyond their existing budgets.
+export const PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN = 256;
 export const PHYSICAL_FEEDBACK_MAX_WARNING_MARKERS = 8;
 export const PHYSICAL_FEEDBACK_DELAYS = Object.freeze({
   swing: .12, rangedRelease: .21, spellRelease: .29,
@@ -157,10 +162,9 @@ function immutableCue(s,kind,tick,{actorId=null,targetId=null,from=null,to=null,
   detail:detail?Object.freeze({...detail}):null
  });
 }
-function fallbackDamageBeats(previous,next){
- const before=new Map(previous.units.slice(0,96).filter(u=>validId(u?.id)).map(u=>[u.id,u]));
+function fallbackDamageBeats(before,next){
  const beats=[];
- for(const u of next.units.slice(0,96)){
+ for(const u of next.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)){
   const prior=before.get(u?.id);
   if(!positiveHealthDrop(prior,u)||!point(u))continue;
   beats.push({id:u.id,kind:u.kind,faction:u.faction,damage:prior.hp-u.hp,
@@ -184,8 +188,13 @@ export function planPhysicalFeedback(previous,next,{
  if(!validScene(previous)||!validScene(next)||sceneKey(previous)!==sceneKey(next)||
   next.tick<=previous.tick)return [];
  const gap=next.tick-previous.tick;
- const oldUnits=new Map(previous.units.slice(0,96).filter(u=>validId(u?.id)).map(u=>[u.id,u]));
- const currentUnits=new Map(next.units.slice(0,96).filter(u=>validId(u?.id)).map(u=>[u.id,u]));
+ // Only this read-only identity index extends beyond the 96-unit action
+ // window. Real HP deltas need the same prior/current IDs even when a large
+ // roster places the injured body later in either snapshot. Max 256 entries.
+ const oldUnits=new Map(previous.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)
+  .filter(u=>validId(u?.id)).map(u=>[u.id,u]));
+ const currentUnits=new Map(next.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)
+  .filter(u=>validId(u?.id)).map(u=>[u.id,u]));
  const proposed=[],seen=new Set();
  const push=(kind,tick,fields)=>{
   const c=immutableCue(next,kind,tick,fields);
@@ -388,8 +397,10 @@ export function planPhysicalFeedback(previous,next,{
   // Adjacent PUBLIC HP transitions are the sole source of injury truth.
   // Optional legacy choreography can annotate an incoming lane, but its
   // failure, 64-unit cap, incomplete results or stale metadata must NEVER
-  // erase an injury witnessed in the D04 96-unit observation window.
-  const beats=fallbackDamageBeats(previous,next);
+  // erase an injury witnessed in the bounded D04 256-unit HP window.
+  // The original 96-unit ACTION scan and 18-injury/24-total cue ceilings
+  // remain unchanged, and the prior identity map is reused (no third map).
+  const beats=fallbackDamageBeats(oldUnits,next);
   let annotations=null;
   if(typeof deriveDamageBeats==='function'){
    try{
