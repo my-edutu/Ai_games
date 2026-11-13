@@ -94,7 +94,7 @@ jobs:
             tests/foundation/dungeon-d04-foley-cue-idempotency.test.cjs \
             tests/foundation/dungeon-d04-simultaneous-verified-impact-foley.test.cjs \
             tests/foundation/dungeon-d04-simultaneous-verified-swing-foley.test.cjs \
-            tests/foundation/dungeon-physical-feedback-d04.test.cjs
+            tests/foundation/dungeon-physical-feedback-d04.test.cjs \
             tests/foundation/dungeon-physical-feedback-realism-d04.test.cjs
       - run: npm run build
   real-preview:
