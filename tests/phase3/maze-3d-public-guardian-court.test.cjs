@@ -697,3 +697,78 @@ test('Pass321 authentic guardian visual foreground is a public sealed Tideglass 
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass322 witnessed second-ring mobile forecourt physically converts public floor and sealed stone',async()=>{
+  const {createMazeWorld,publicGuardianOuterCourtCells:outer,cellPosition,cellHeight}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const state={
+    runToken:'second-ring-webgl',lifecycle:'running',result:null,
+    width:17,height:10,currentCell:99,visibleCells:[98,99,101,117],
+    cells:[
+      {cell:98,blocked:false,neighbors:[99]},
+      {cell:99,blocked:false,neighbors:[98]},
+      {cell:101,blocked:false,neighbors:[]},
+      {cell:117,blocked:true,neighbors:[]}
+    ],doors:[],keys:[],inventory:[],exitCell:null,
+    threats:[{id:'thornback',cell:98}]
+  },truth=JSON.stringify(state);
+  assert.deepEqual([...outer(state).ordinary],[101],
+    'only real second-ring published ordinary floor forms a broad physical stage');
+  assert.deepEqual([...outer(state).sealed],[117],
+    'next public blocked stone gets sealed relief, never a fake bridge');
+  const hidden={...state,visibleCells:[98,99]};
+  assert.deepEqual([...outer(hidden).ordinary],[],'no hidden tile in the decorative stage');
+  assert.deepEqual([...outer(hidden).sealed],[],'no unseen blocked rock reveal');
+  assert.equal(outer({...state,doors:[{a:98,b:99,open:false}]}).ordinary.size,0,
+    'closed actual guardian gate revokes the entire encounter stage');
+  assert.equal(outer({...state,threats:[]}).ordinary.size,0,
+    'unseen/absent threat cannot trigger architecture');
+  assert.equal(outer({...state,result:{reason:'capture'}}).sealed.size,0,
+    'terminal result clears visual marker');
+  assert.deepEqual([...outer({...state,doors:[{a:101,b:102,open:false}]}).ordinary],[],
+    'gate hardware/landing is never painted by cosmetic scenery');
+  assert.deepEqual([...outer({...state,privateMaze:{cells:[{cell:100,blocked:false}]},
+    secretPath:[99,100,101]}).ordinary],[101],
+    'private map/AI solver must not affect authored scene');
+  const w=createMazeWorld({balanced:true}),originalBudget=w.stats();
+  const fullFloor=(cell)=>{
+    const center=cellPosition(cell,state.width,state.height),height=cellHeight(cell,state.width,state.height);
+    const m=new Matrix4(),p=new Vector3(),q=new Quaternion(),dim=new Vector3();
+    let count=0;
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh||mesh.material?.color?.getHexString()!=='28574f')return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,m);m.decompose(p,q,dim);
+        if(Math.abs(p.x-center.x)<.0001&&Math.abs(p.z-center.z)<.0001
+          &&Math.abs(p.y-height+.035)<.0001&&Math.abs(dim.x-2.31)<.0001
+          &&Math.abs(dim.y-.07)<.0001&&Math.abs(dim.z-2.31)<.0001)count++;
+      }
+    });
+    return count;
+  };
+  try {
+    w.update(state);
+    assert.equal(w.stats().guardianOuterCourtFloorTiles,1);
+    assert.equal(w.stats().guardianOuterCourtSealedTiles,1);
+    assert.equal(fullFloor(101),1,'actual 2.31m dark floor exists at disclosed real tile');
+    assert.equal(w.stats().geometryCount,originalBudget.geometryCount);
+    assert.equal(w.stats().materialCount,originalBudget.materialCount);
+    w.update(hidden);
+    assert.equal(w.stats().guardianOuterCourtFloorTiles,0,
+      'public visibility change immediately invalidates terrain signature');
+    assert.equal(w.stats().guardianOuterCourtSealedTiles,0);
+    w.update({...state,doors:[{a:98,b:99,open:false}]});
+    assert.equal(w.stats().guardianOuterCourtFloorTiles,0);
+    for(let i=0;i<6;i++){
+      w.update({...state,runToken:'outer-court-reset-'+i});
+      assert.equal(w.stats().guardianOuterCourtFloorTiles,1);
+      assert.equal(w.stats().guardianOuterCourtSealedTiles,1);
+      assert.ok(w.stats().geometryCount<100,'unchanged six-run GPU resource bar');
+    }
+    assert.equal(JSON.stringify(state),truth,'no AI, physics, hidden-map or authority modification');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
