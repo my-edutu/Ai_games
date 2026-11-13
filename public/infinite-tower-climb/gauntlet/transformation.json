@@ -1,4 +1,28 @@
 {
+  "p0RealRoofTransitionAndOcclusionBudget20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPr68Sha": "2384938461a676137c309b8c713e3e5013427ffa",
+    "productionAndFocusedTestCommit": "4bd29433c028d5c73e7f00df7195a272ed4bc39c",
+    "originalCandidateFilmCodeSha": "1f83ad38cd61324abda63ad26d30b890aca5fa13",
+    "originalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43367166927",
+    "originalCaptureTruth": "Eight complete authentic 60s+ 1x baseline/candidate scenarios recorded at frozen source SHAs; 8/8 scenario source stories indexed, strict native source+pixel guardian event pair 0/2 and original F8 bronze to F9 violet full-world cut at ~24-26 seconds BOTH viewports. GPU gate retention alone did not produce a physical body-through-same-doorway shot.",
+    "newlyInspectedRealSourceRenderEvidence": "Desktop first returned F9 renderer tick453, sample tick475 original bronze cap+gate retained (8 GPU submissions, 0.5s) yet full film still hard-cuts. Portrait renderer tick452, sampled tick461 original cap+gate retained (2 submissions, 0.1s), sample tick471 retained (8 submissions, 0.5s) yet film still cuts. On both, new opaque violet shaft appears too soon, before old cap/gateway ceases to be authentic. This rules out simple missing geometry as sufficient explanation.",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43367280307 — FAILED: 3 outdated three-clock test fixtures, phase3 runner shutdown, phase6 unrelated Maze suite timeout. No green claim.",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43373484236 — running when production evidence written; exact-head code verification pending, CI is veto only.",
+    "implementedSystemicSlice": "The real f9:ground landing surface receives an earned, single cloned material with the ORIGINAL f8:cap bronze color on the same authoritative walkable geometry; blends toward canonical violet only with returned WebGL frame-dependent cap fading, and resets to canonical F9 color on source departure. Opaque noninteractive F9 shaft staged behind authentic same-run roof/arch until the shared verified passage display clock (bounded 10 submissions/1.25s instead of 5/0.55), preserving actual F9 platform/hero/hazards on first frame. Unit three-clock fixtures and real-world Three tests updated; no new collider, simulated pose, floor, gameplay event or offscreen scene fabricated.",
+    "sourceSafety": "Only Tower world, source gate presentation contract and Tower tests changed. Never modify frozen baseline, PR58, unrelated games, or draft/merge/deploy/force-push.",
+    "newOriginalFullMotionCapture": "TRIGGERED via exact immutable candidate github.sha on evidence commit; not yet evaluated. Desktop 960x600 portrait 390x844 matched low/seed 60s+ 1x.",
+    "nextHighestImpactAction": "Inspect new native 22-31s paired original F8/F9 source/browser/Three/WebM evidence; demand old gate+full hero+authentic source-owned connected bronze→void roof visible without scene cut in 2/2, then certify full restart and frozen outcome PTS. If still hard cut repair physical depth/camera occlusion rather than another independent timer.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-physical-roof-shaft-staging-original-video.md"
+  },
   "p0UnifiedThreeSourceRenderClocks20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",

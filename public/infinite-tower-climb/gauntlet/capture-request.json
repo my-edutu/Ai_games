@@ -1,4 +1,25 @@
 {
+  "p0RealRoofAndShaftOriginalFilmCapture20261113": {
+    "stage": "P0 OPEN, EXACT original gameplay from current code; verdict NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionCommit": "4bd29433c028d5c73e7f00df7195a272ed4bc39c",
+    "candidateSourceSha": "IMMUTABLE github.sha OF THIS evidence commit; never floating HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "requested": "Existing 9-job 1x original 20Hz source-locked baseline/candidate ascent, moving floor7, earned guardian/crusher + grounded bronze gateway f8→f9, and outcome/restart floor0; each >=60s at desktop 960x600 AND portrait 390x844, matching seed/tier. Preserve original native transport PTS and source/browser/Three/pixel event pairing.",
+    "criticalVisualGate": "Prior authentic 43367166927 retains original real GPU bronze cap/arch in source diagnostics but still visibly hard cuts to purple F9 scene. New candidate must show SAME old bronze doorway, ACTUAL full 3D climber, shared real original old and source-floor9 ground, continuous material/color/depth/camera in unaltered full-motion WebM. Reject false pixel claims; compare 22-31s and full floor9 onward, result/restart.",
+    "newCodeSpecificEvidence": "At first real F9 GPU frame compare original f8:cap and AuthoritativeGuardianGate object identity, new SourceEarnedSharedPhysicalArrivalRoof material, sharedPhysicalRoofColor source-trace, deferred-original-floor-nine-architecture absence during earliest real source-bound arch frames and honest restoration after old arch retires. Source valid and wrong-run rejection; no invented visual pose.",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43367166927 — 8/8 normal-speed scenario clips, 0/2 strict native event-pixel acceptance",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43373484236 — pending",
+    "review": "docs/reviews/2026-11-13-tower-pr68-physical-roof-shaft-staging-original-video.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED"
+  },
   "p0UnifiedThreeSourceRenderClocksCapture20261113": {
     "stage": "P0 OPEN; exact immutable source capture NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
