@@ -534,3 +534,59 @@ test('cross-route gateway pose fails closed on invalid source geography',async()
     [300000,Infinity,2880000,480000],
   ]) assert.equal(guardianTraversalGatePose(...data),null);
 });
+
+test('real Three Floor8 original cap and bronze doorway survive a LATE HP-zero record after genuine browser successor',async()=>{
+ const [{createTowerWorld}]=await loaded;
+ const before=old(),after=next();
+ const crossing={runToken:before.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+  cap:{...cap},exitX:gate,crossingX:gate+13000,
+  crossingY:after.player.y,halfWidth:after.player.halfWidth,
+  halfHeight:after.player.halfHeight,
+  guardian:{kind:'guardian',floor:8,active:false,health:0}};
+ const late={...after,tick:462,lastGuardianCrossing:crossing};
+ const original=JSON.stringify([before,after,late]);
+ const world=createTowerWorld();
+ try{
+  world.update(before,.05,0,{quality:'low'});
+  const originalArch=world.group.getObjectByName('AuthoritativeGuardianGate');
+  const originalCap=world.group.getObjectByName('platform:f8:cap');
+  assert.ok(originalArch && originalCap);
+  assert.equal(world.stageGroundedCapContinuation(before,after),true);
+  world.update(after,.05,.05,{quality:'low'});
+  assert.equal(world.diagnostics().retainedSourceCap?.crossingTick,null,
+   'first observed browser successor has no immutable crossing record yet');
+  world.noteFrameSubmitted(after,{},.05);
+  world.update(late,.05,.15,{quality:'low'});
+  assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
+  assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap);
+  const retained=world.diagnostics().retainedSourceCap;
+  assert.equal(retained?.crossingTick,451);
+  assert.equal(retained?.lateRecordedCrossingReacquiredAtTick,462);
+  assert.equal(retained?.sourceAlignedPassage,true);
+  assert.equal(world.retainedFilmHandoff(late)?.crossingTick,451,
+   'real camera/biome source ownership can now share the retained original doorway');
+  assert.ok(world.group.getObjectByName('platform:f9:ground'),
+   'the source-authoritative next-floor ground remains live and walkable');
+  assert.equal(JSON.stringify([before,after,late]),original,
+   'source snapshots remain untouched; no floor, collider or outcome synthesized');
+ }finally{world.dispose();}
+});
+
+test('an unrelated late crossing cannot reauthorize the retained original gateway',async()=>{
+ const [{createTowerWorld}]=await loaded;
+ const first=old(),second=next(),world=createTowerWorld();
+ try{
+  world.update(first,.05,0,{quality:'low'});
+  assert.equal(world.stageGroundedCapContinuation(first,second),true);
+  world.update(second,.05,.05,{quality:'low'});
+  const corrupt={...second,tick:462,lastGuardianCrossing:{
+   runToken:second.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+   cap:{...cap,width:cap.width-1},exitX:gate,crossingX:gate+13000,
+   crossingY:second.player.y,halfWidth:second.player.halfWidth,
+   halfHeight:second.player.halfHeight,
+   guardian:{kind:'guardian',floor:8,active:false,health:0}}};
+  world.update(corrupt,.05,.1,{quality:'low'});
+  assert.equal(world.diagnostics().retainedSourceCap?.crossingTick,null);
+  assert.equal(world.retainedFilmHandoff(corrupt),null);
+ }finally{world.dispose();}
+});

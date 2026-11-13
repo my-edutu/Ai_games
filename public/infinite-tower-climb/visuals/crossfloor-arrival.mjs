@@ -161,6 +161,22 @@ export function observedSourceEarnedColdFrameContinuation(source, held) {
      p.x-p.halfWidth>=cap.x && p.x+p.halfWidth<=cap.x+cap.width);
 }
 
+// A live WebGL/browser handoff may first retain the TRUE old gate from an
+// adjacent browser guardian packet, before the immutable HP-zero crossing
+// record appears in later Floor9 source snapshots. Re-bind only that already
+// GPU-resident original gate to the subsequently OBSERVED matching record.
+// Never manufacture a crossing, restart history, geometry, actor or tick.
+export function reconcileRecordedOriginalCapCrossing(source, held) {
+  const tick=source?.lastGuardianCrossing?.sourceTick;
+  if (!held || held.crossingTick != null ||
+      !Number.isSafeInteger(tick) ||
+      !Number.isSafeInteger(held.sourceTick) ||
+      tick>held.sourceTick || held.sourceTick-tick>12 ||
+      !observedSourceEarnedColdFrameContinuation(
+        source,{...held,crossingTick:tick})) return null;
+  return tick;
+}
+
 export function observedClockworkRoofContinuity(source, passage, held) {
   const p=source?.player;
   if (!held || !p || source?.lifecycle!=='running' ||

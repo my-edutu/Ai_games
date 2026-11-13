@@ -5,7 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender } from './crossfloor-arrival.mjs';
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing } from './crossfloor-arrival.mjs';
 
 
 /**
@@ -2262,6 +2262,21 @@ export function createTowerWorld(){
   function updateRetainedCap(snapshot,dt,options,passageWitness) {
     const held = retainedEarnedCap;
     if (!held) return;
+    // Real desktop 1x first-episode capture a47adb13: the original gate was
+    // present at tick460 but gone by the returned tick462 camera audit. The
+    // first browser successor arrived before lastGuardianCrossing, leaving
+    // held.crossingTick null. Once the same-run immutable HP-zero record
+    // actually arrives, reconcile the EXISTING old GPU gate/roof instead of
+    // destroying the scene because two honest source clocks differed.
+    // Reject stale rendering, old runs, wrong roofs, distant/dead bodies and
+    // any incomplete source proof; the validator owns every safety check.
+    if (!options.stale && held.crossingTick == null) {
+      const recordedTick=reconcileRecordedOriginalCapCrossing(snapshot,held);
+      if (recordedTick !== null) {
+        held.crossingTick=recordedTick;
+        held.lateRecordedCrossingReacquiredAtTick=snapshot.tick;
+      }
+    }
     // The actual next-floor route may take the hero airborne before two
     // cold WebGL frames have submitted. Do not erase the *original* earned
     // doorway merely on first takeoff. Bound its retention to the physical
@@ -3317,6 +3332,7 @@ export function createTowerWorld(){
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
       crossingTick:retainedEarnedCap.crossingTick,
+      lateRecordedCrossingReacquiredAtTick:retainedEarnedCap.lateRecordedCrossingReacquiredAtTick ?? null,
       firstObservedTick:retainedEarnedCap.firstObservedTick,
       firstWorldRenderTick:retainedEarnedCap.firstWorldRenderTick,
       pendingSourceTickGap:retainedEarnedCap.firstWorldRenderTick-

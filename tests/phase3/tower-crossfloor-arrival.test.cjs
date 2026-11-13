@@ -189,3 +189,43 @@ test('queued real guardian crossing survives skipped render observations without
  ]) assert.equal(valid(s,q),false);
  assert.equal(JSON.stringify([source,queued]),frozen);
 });
+
+test('delayed immutable HP-zero record re-authenticates an already-rendered REAL old gate, not a new fabricated crossing',async()=>{
+ const {reconcileRecordedOriginalCapCrossing:reconcile}=await loaded;
+ const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+ const exitX=cap.x+Math.floor(cap.width*.76),crossingX=exitX+13000;
+ const w={runToken:'source-run',sourceTick:451,fromFloor:8,toFloor:9,
+  cap,exitX,crossingX,crossingY:3238000,halfWidth:9000,halfHeight:14000,
+  guardian:{kind:'guardian',floor:8,active:false,health:0}};
+ const held={runToken:'source-run',floor:9,sourceTick:451,
+  crossingTick:null,oldCapId:'f8:cap',oldCapX:cap.x,
+  oldCapWidth:cap.width,oldRoofY:cap.y+cap.height,thresholdX:exitX,
+  submittedFrames:1,visibleSeconds:.08};
+ const source={runToken:'source-run',lifecycle:'running',floor:9,theme:'void',
+  tick:462,lastGuardianCrossing:w,
+  platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}],
+  player:{x:crossingX,y:3238000,halfWidth:9000,halfHeight:14000,
+   grounded:true,groundedPlatformId:'f9:ground',state:'standing',vy:0,health:5}};
+ const before=JSON.stringify([source,held]);
+ assert.equal(reconcile(source,held),451);
+ assert.equal(JSON.stringify([source,held]),before,
+  'immutable source and retained witnesses may not be modified by validation');
+ assert.equal(reconcile(source,{...held,crossingTick:451}),null,
+  'never rebind an already witnessed GPU doorway');
+ for(const changed of [
+  {...source,runToken:'new-run'},
+  {...source,lastGuardianCrossing:{...w,runToken:'other-run'}},
+  {...source,lastGuardianCrossing:{...w,sourceTick:450}},
+  {...source,lastGuardianCrossing:{...w,cap:{...cap,width:cap.width-1}}},
+  {...source,lastGuardianCrossing:{...w,guardian:{...w.guardian,health:1,active:true}}},
+  {...source,player:{...source.player,x:exitX+140000}},
+  {...source,player:{...source.player,health:0}},
+  {...source,tick:500},
+  {...source,floor:10},
+  {...source,lifecycle:'result'},
+ ]) assert.equal(reconcile(changed,held),null);
+ assert.equal(reconcile(source,{...held,visibleSeconds:1.25}),null,
+  'a finished display window cannot reopen the old world');
+ assert.equal(reconcile(source,{...held,sourceTick:464}),null,
+  'a source tick beyond the original 12-tick doorway authorization is invalid');
+});
