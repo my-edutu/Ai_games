@@ -89,3 +89,34 @@ test('D04 replay protection remains bounded under many unique string IDs',async(
  assert.equal(sounds.length,2);
  director.dispose();
 });
+
+test('D04 floor transitions cannot recycle an already submitted numeric frame to sound a new cue',async()=>{
+ const {director,sounds,stage}=await rig();
+ try{
+  stage(2);assert.equal(director.acknowledgePresentedFrame(500,.003),1);
+  director.acceptSnapshot(snapshot(1,1,2)); // Automatic floor transition, NOT renderer reset.
+  stage(2,1,2);
+  assert.equal(director.stats().awaitingPresentation,1);
+  assert.equal(director.acknowledgePresentedFrame(500,.003),0,
+   'old submitted frame serial cannot certify the new floor before another draw');
+  assert.equal(director.stats().awaitingPresentation,1);
+  assert.equal(sounds.length,1);
+  assert.equal(director.acknowledgePresentedFrame(501,.003),1);
+  assert.equal(sounds.length,2);
+ }finally{director.dispose()}
+});
+
+test('D04 run transitions keep bounded opaque frame-replay protection until explicit renderer reset',async()=>{
+ const {director,sounds,stage}=await rig();
+ try{
+  stage(2);assert.equal(director.acknowledgePresentedFrame('old-run-frame',.003),1);
+  director.acceptSnapshot(snapshot(1,2,1)); // New authority run, same live WebGL canvas.
+  stage(2,2,1);
+  assert.equal(director.acknowledgePresentedFrame('old-run-frame',.003),0);
+  assert.equal(director.stats().awaitingPresentation,1);
+  assert.equal(sounds.length,1);
+  assert.equal(director.acknowledgePresentedFrame('new-run-frame',.003),1);
+  assert.equal(sounds.length,2);
+  assert.ok(director.stats().recentStringFrameIds<=64);
+ }finally{director.dispose()}
+});
