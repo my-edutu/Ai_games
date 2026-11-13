@@ -5,7 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 // Display-submission-timed copy of the ACTUAL source cap landing surface:
@@ -2036,7 +2036,8 @@ export function createTowerWorld(){
       runToken:next.runToken, floor:next.floor, tick:next.tick,
       previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,
       thresholdX:guardianGateAnchorX(previous,authored),
-      oldRoofY:ground.y+ground.height
+      oldRoofY:ground.y+ground.height,
+      oldCapId:authored.id,oldCapX:authored.x,oldCapWidth:authored.width
     };
     return true;
   }
@@ -2125,6 +2126,8 @@ export function createTowerWorld(){
       ownedGeometries,ownedMaterials,
       runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
+      oldCapId:requested.oldCapId,oldCapX:requested.oldCapX,
+      oldCapWidth:requested.oldCapWidth,
       submittedFrames:0,visibleSeconds:0};
   }
   function updateRetainedCap(snapshot,dt,options,passageWitness) {
@@ -2143,9 +2146,16 @@ export function createTowerWorld(){
       Math.abs(p.x-held.thresholdX)<=90000 &&
       Number.isSafeInteger(sole) &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+55000;
+    // The cold browser may first display a genuine grounded Floor9 snapshot
+    // MORE THAN 12 ticks after the recorded crossing. Its standing support
+    // can still be the original f8:cap on the EXACT same roof. The previous
+    // 12-tick doorstep witness rightly expires, but it must not immediately
+    // erase the actual original GPU arch while the boots still occupy it.
+    const onOriginalCapRoof=observedRetainedOriginalCapRoofContact(snapshot,held);
     const onNewRoof=(p?.grounded===true &&
       p.groundedPlatformId==='f9:ground') ||
-      !!observedRecordedGuardianDoorstepHandoff(snapshot);
+      !!observedRecordedGuardianDoorstepHandoff(snapshot) ||
+      onOriginalCapRoof;
     // After the real source-earned crossing, the old GPU cap/arch physically
     // remains behind a jumping hero. Under slow WebGL it must survive the same
     // actual passage window as the camera and horizon, rather than retire on
@@ -3049,6 +3059,8 @@ export function createTowerWorld(){
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
       sourceAlignedPassage:retainedEarnedCap.sourceAlignedPassage===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
+      actualOldCapSupport:observedRetainedOriginalCapRoofContact(lastSnapshot,retainedEarnedCap),
+      originalCapId:retainedEarnedCap.oldCapId,
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
         ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
