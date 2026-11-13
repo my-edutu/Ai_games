@@ -765,6 +765,42 @@ test('a real close public encounter frames both autonomous actors and saves date
       [[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]].map(([u,v])=>({
         u,v,hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]
       })));
+    // Pass327: diagnose the remaining REAL native 390px court failure from
+    // public game/source state, rather than guessing at a mesh whose pixels
+    // are unchanged. THIS never accesses private topology, engine AI plans,
+    // or injects a rendered model. The original PNG is already on disk.
+    if(phase.name==='brace'){
+      const publicCourt=await page.evaluate(async()=>{
+        const s=window.__MAZE_PUBLIC_STATE__;
+        const {publicGuardianStageCells,publicGuardianCausewayCells,
+          publicGuardianWitnessedForegroundCells,publicGuardianOuterCourtCells,
+          publicGuardianForecourtShoulderCells}=await import('/maze/world.js');
+        const isPublic=c=>s.visibleCells.includes(c.cell);
+        const near=[98,99,100];
+        const causeway=publicGuardianCausewayCells(s),outer=publicGuardianOuterCourtCells(s,causeway);
+        return {
+          currentCell:s.currentCell,lifecycle:s.lifecycle,result:s.result,
+          visibleNear:s.visibleCells.filter(id=>near.includes(id)),
+          publicNear:s.cells.filter(c=>near.includes(c.cell)&&isPublic(c))
+            .map(c=>({cell:c.cell,blocked:c.blocked,trap:c.trap,
+              checkpoint:c.checkpoint,clue:c.clue,neighbors:c.neighbors})),
+          visibleThreatCells:s.threats.filter(t=>s.visibleCells.includes(t.cell)).map(t=>t.cell),
+          publicDoors:s.doors.filter(d=>near.includes(d.a)||near.includes(d.b))
+            .map(d=>({a:d.a,b:d.b,open:d.open})),
+          stage:[...publicGuardianStageCells(s)],causeway:[...causeway],
+          outerOrdinary:[...outer.ordinary],outerSealed:[...outer.sealed],
+          shoulders:[...publicGuardianForecourtShoulderCells(s,causeway)],
+          foreground:[...publicGuardianWitnessedForegroundCells(s,causeway)],
+          world:{guardianCourtTiles:window.__MAZE_3D__?.world?.guardianCourtTiles,
+            guardianCausewayTiles:window.__MAZE_3D__?.world?.guardianCausewayTiles,
+            guardianOuterCourtFloorTiles:window.__MAZE_3D__?.world?.guardianOuterCourtFloorTiles},
+        };
+      });
+      fs.writeFileSync(path.join(dir,'guardian-original-public-foreground-diagnosis-390.json'),
+        JSON.stringify({capturedAt:new Date().toISOString(),imageSha256:hash(image),
+          source:'Exact-HEAD original native WebGL brace, only sanitized CURRENT public cells. Passive diagnosis, never controls pixels, routes or collision.',
+          publicCourt,foregroundPicks},null,2));
+    }
     // Pass325 strict native source-frame gate: earlier installed-Three
     // synthetics claimed success but the real 390px foreground ray still
     // hit TWO unchanged tan slabs. Require actual original full-scale
