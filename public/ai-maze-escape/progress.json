@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T14:38:48.664Z",
+  "updatedAt": "2026-11-13T15:04:34.347Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass333 candidate from verified Pass332 39 original full-resolution WebGL PNGs/37 SHA matches: real Pip/Thornback 390px actors remain vertically stacked; Pass332 wall treatment changes brace only 1.164/255. A source-only 0→0.40rad camera shoulder now separates the physically animated duel on the real witnessed brace/release while preserving strict no-crop/mobile/privacy/gameplay/CI gates. New exact-HEAD capture and independent criticism PENDING, Nintendo benchmark unmet."
+    "summary": "Pass334 verified Pass333's native 390px Pip/Thornback shoulder camera against original 22 uncropped WebGL PNGs (21/21 image hashes), but exact-source visual CI fails because its old fixed pixel now hits visible cell117 rather than cell100. Significant genuine camera change (54.378/255 brace RGB) is NOT full Nintendo parity. New camera-real exact-floor/lip/source-Pip-course assertions require fresh exact-HEAD CI and complete original full-frame SHA review; fixed benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass334 2026-11-13: Original exact Pass333 action 43444856406 failed 1/7 native suites on an obsolete fixed 390px pixel/cell100 ray despite 168/168 focused source tests and six other native suites passing. Retrieved partial authentic 22 uncropped PNGs, verified 21/21 sidecar hashes and true 390 brace SHA 33cdecae; changed screenshot 54.378/255 against Pass332. Actual public ray .50,.73 now intersects cell117 complete 2.39m #28574f deck and 2.39m #8e7851 lip; .50,.66 still intersects cell99 2.31m #5d968e. Strengthened camera-real exact source/full geometry browser assertions, original ±.95 and <100 thresholds unchanged. NEW exact-HEAD CI and complete render review PENDING; no Nintendo win.",
     "Pass333 2026-11-13: Inspected exact Pass332 native action 43430328543 39 untouched PNG frames/37 direct hashes. Real 390px guardian brace remains vertically stacked, prior wall 1.164/255 RGB diff. Added deterministic public guardian 0→.40rad opposing-body camera orbit; no authority, private map, NDC gate or allocation changes. New exact-HEAD WebGL/CI/artistic acceptance PENDING.",
     "Pass332 2026-11-13: Source parent ce35102b (native WebGL 43420886574 success). Physical full-span opaque guardian-stage side bulwarks replace repetitive bright caps with pooled dark Tideglass stone, attached broad dark face and grounded glazes, while actual impassable public edges, all non-guardian gates/traps, AI, privacy, camera and HUD are unchanged. Installed-Three real geometry, public-disconnected, hidden/sealed fallback, six-reset <100 and disposal regressions. NEW exact-HEAD native full-frame WebGL/CI/critic evidence PENDING; no Nintendo quality win.",
     "Pass329 2026-11-13: Source-bound Pass328 43403966189 native WebGL SUCCESS, original artifact 14025839810, 39 complete full-frame PNGs, 37/37 direct hashes + three gate hashes. Real cell100 2.31m foreground #cead72 -> #5d968e. New source candidate darkens the four broad truly hinged guardian bodies at live brace while linked narrow crests, crowns, lenses and floor leaves remain amber; focused installed-Three regression. New exact-HEAD captures PENDING, Nintendo benchmark unmet.",
@@ -320,6 +321,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass334 camera-real screenshot gate after the physical opposed-body turn",
+      "date": "2026-11-13",
+      "reviewer": "Direct original WebGL reviewer; independent critic unavailable",
+      "verdict": "Significant Pass333 visual camera change confirmed; one obsolete browser fixed-ray gate repaired; new native screenshots and quality bar pending",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-334-authentic-camera-real-foreground-test-2026-11-13.md"
+    },
     {
       "title": "Pass329: verified Pass328 native improvement and 3D guardian warning hierarchy candidate",
       "date": "2026-11-13",
@@ -921,6 +929,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass334 camera-real native material contract",
+      "status": "New exact-head Chromium/WebGL capture pending; incoming Pass333 6/7 browser suites passed, focused 168/168 passed",
+      "detail": "Original 22 full-resolution partial PNGs, 21/21 SHA image sidecars; strict source ray targets corrected to real on-screen public cell117 and cell99, no color tolerance reduction or camera/AI changes."
+    },
     {
       "name": "Pass329 full-size guardian signal hierarchy",
       "status": "Incoming Pass328 native run succeeded, new Pass329 exact-HEAD native rendering pending",
