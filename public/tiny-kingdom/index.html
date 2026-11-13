@@ -1220,6 +1220,26 @@ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden])
  }
 }
 
+
+/* W276 Phase 1 — the original 390px market camera must remain inspectable
+   after tapping a verified parcel stage. All five physical camera choices
+   and real receipts remain in the DOM, with voluntary expanded evidence. */
+#grain-chain-details{display:none}
+@media(max-width:520px){
+ body[data-command="world"][data-supply="open"] #grain-chain-details{
+  display:block!important;min-height:44px;border:1px solid #bca57b;
+  border-radius:8px;background:#2b4b3d;color:#f7e5c3;
+  font:700 11px/1.3 system-ui;padding:8px 12px;cursor:pointer;
+ }
+ #grain-chain-details:focus-visible{outline:3px solid #f4da9b;outline-offset:2px}
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
+ #world-supply-trail>.supply-stage{display:none!important}
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"] #world-trace-follow{min-height:44px}
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"]:not([data-hud="cinema"]):not([data-street="on"]):not([data-workday="live"]):not([data-workday="homecoming"]) #world-ribbon{
+  max-height:min(31vh,260px)!important;
+ }
+}
+
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1248,7 +1268,7 @@ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden])
  <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
  <button id="world-watch-life" type="button" aria-label="Follow a real worker or courier in the living village">⚒ Watch village life</button>
  <button id="world-trace-toggle" type="button" aria-expanded="false" aria-controls="world-supply-trail" aria-label="Show the actual farm to market supply trail" aria-keyshortcuts="T">◈ Supply</button>
- <div id="world-supply-trail" role="group" aria-label="Real farm to market to home economic activity" hidden><div id="grain-chain" role="group" aria-label="One real parcel evidence stages"><div id="grain-chain-caption">Live town activity is not evidence of one linked parcel</div><div id="grain-chain-steps"><button id="grain-chain-field" type="button" aria-label="Field: Waiting" aria-pressed="false" data-target="supply-field" data-evidence="waiting">Field<small>Waiting</small></button><button id="grain-chain-road" type="button" aria-label="Cart: Waiting" aria-pressed="false" data-target="supply-cargo" data-evidence="waiting">Cart<small>Waiting</small></button><button id="grain-chain-market" type="button" aria-label="Market: Waiting" aria-pressed="false" data-target="supply-receipt" data-evidence="waiting">Market<small>Waiting</small></button><button id="grain-chain-purchase" type="button" aria-label="Buyer: Waiting" aria-pressed="false" data-target="supply-trade" data-evidence="waiting">Buyer<small>Waiting</small></button><button id="grain-chain-meal" type="button" aria-label="Home: Waiting" aria-pressed="false" data-target="supply-meal" data-evidence="waiting">Home<small>Waiting</small></button></div></div>
+ <div id="world-supply-trail" role="group" aria-label="Real farm to market to home economic activity" hidden><div id="grain-chain" role="group" aria-label="One real parcel evidence stages"><div id="grain-chain-caption">Live town activity is not evidence of one linked parcel</div><div id="grain-chain-steps"><button id="grain-chain-field" type="button" aria-label="Field: Waiting" aria-pressed="false" data-target="supply-field" data-evidence="waiting">Field<small>Waiting</small></button><button id="grain-chain-road" type="button" aria-label="Cart: Waiting" aria-pressed="false" data-target="supply-cargo" data-evidence="waiting">Cart<small>Waiting</small></button><button id="grain-chain-market" type="button" aria-label="Market: Waiting" aria-pressed="false" data-target="supply-receipt" data-evidence="waiting">Market<small>Waiting</small></button><button id="grain-chain-purchase" type="button" aria-label="Buyer: Waiting" aria-pressed="false" data-target="supply-trade" data-evidence="waiting">Buyer<small>Waiting</small></button><button id="grain-chain-meal" type="button" aria-label="Home: Waiting" aria-pressed="false" data-target="supply-meal" data-evidence="waiting">Home<small>Waiting</small></button></div><button id="grain-chain-details" type="button" aria-expanded="false" aria-controls="supply-field supply-cargo supply-receipt supply-trade supply-meal supply-home">Show receipt details</button></div>
   <div class="supply-stage"><small>Field</small><output id="supply-field">No harvest underway</output></div>
   <div class="supply-stage"><small>In transit</small><output id="supply-cargo">No loaded courier</output></div>
   <div class="supply-stage"><small>Market receipt</small><output id="supply-receipt">No delivery recorded</output></div>
@@ -23247,6 +23267,23 @@ function updateWorldRibbon(){
 }
 
 let supplyTrailOpen=false,supplyTrailLastEpoch=-1,supplyTrailLastWall=0;
+let supplyTrailDetailsOpen=false;
+document.body.dataset.supplyDetails='closed';
+function setSupplyTrailDetails(open){
+ supplyTrailDetailsOpen=Boolean(open);
+ document.body.dataset.supplyDetails=supplyTrailDetailsOpen?'open':'closed';
+ const toggle=document.getElementById('grain-chain-details');
+ toggle.setAttribute('aria-expanded',String(supplyTrailDetailsOpen));
+ toggle.textContent=supplyTrailDetailsOpen?'Hide receipt details':'Show receipt details';
+ return supplyTrailDetailsOpen;
+}
+function getSupplyTrailDetailsAudit(){
+ return {source:'original-real-parcel-responsive-disclosure',
+  expanded:supplyTrailDetailsOpen,open:supplyTrailOpen,
+  portrait:window.matchMedia('(max-width: 520px)').matches,
+  fiveCameraStagesStillUsable:true,receiptDetailsRemoved:false,
+  changesAuthority:false,changesNavigation:false};
+}
 // Only read real farmers, the serialized physical load escrow, confirmed
 // market receipts and genuinely occupied homes. NEVER advance steps here,
 // invent a citizen, move cargo or credit inventory for presentation.
@@ -23428,6 +23465,8 @@ function updateSupplyTrail(force=false){
 }
 function toggleSupplyTrail(){
  supplyTrailOpen=!supplyTrailOpen;
+ if(supplyTrailOpen)
+  setSupplyTrailDetails(!window.matchMedia('(max-width: 520px)').matches);
  document.body.dataset.supply=supplyTrailOpen?'open':'closed';
  document.getElementById('world-supply-trail').hidden=!supplyTrailOpen;
  document.getElementById('world-trace-toggle')
@@ -24039,6 +24078,7 @@ function getVillageDocumentaryAudit(){
  }
  button('world-watch-life',watchVillageLife);
  button('world-trace-toggle',toggleSupplyTrail);
+ button('grain-chain-details',()=>setSupplyTrailDetails(!supplyTrailDetailsOpen));
  document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()!=='t'||e.ctrlKey||e.metaKey||e.altKey||cinematicHud||
     /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||
@@ -24065,6 +24105,10 @@ function getVillageDocumentaryAudit(){
 function inspectRealGrainStage(name){
  const allowed=['field','road','market','purchase','meal'];
  if(!allowed.includes(name))return {observed:false,reason:'invalid-stage'};
+ // Do not hide the actual market or original worker when a stage is chosen.
+ // Retain the five working camera controls and an explicit details button.
+ if(supplyTrailOpen&&window.matchMedia('(max-width: 520px)').matches)
+  setSupplyTrailDetails(false);
  const plan=grainJourney?planRealGrainJourney(grainJourney,people,
   deliveryReceipts,state.householdTrades||[],state.householdMeals||[]):null;
  const evidence=realGrainChainStages(grainJourney,plan,getSupplyTrailSnapshot());
@@ -25845,7 +25889,7 @@ drawForegroundResidentMesh();
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
- getRealGrainJourneyAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
+ getRealGrainJourneyAudit,getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
