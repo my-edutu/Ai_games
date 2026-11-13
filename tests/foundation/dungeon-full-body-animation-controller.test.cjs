@@ -10,6 +10,50 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+// RED from exact-head genuine 390px original Walking_A GLB frames 61->62,
+// artifact 14016206479 (2026-11-13). The LEFT shoe's *projected* outsole
+// shortened 42.36mm as its heel lifted, but real 3D heel->toe length moved
+// only 2.60mm. Right source-loaded shoe travelled 75mm while root moved
+// 48mm and its own full 3D sole length changed just 0.29mm. Rejecting the
+// entire frame on XZ projection or 32mm toe burial leaves visible skating.
+// This test permits only limited readback-verified visual offset, NOT IK.
+test('RED: original mobile swing projection is not source-shoe stretch; safely relieve a genuinely sliding opposite loaded shoe',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ const previous={
+  left:{heel:[-5.921272467516664,.15102559699254303,-7.101084537122692],
+   toe:[-6.028363361299623,-.12087199037233565,-7.031182705155697]},
+  right:{heel:[-6.000723334749433,-.02573671787903191,-7.242291904258083],
+   toe:[-6.27116265748803,-.05237910039147111,-7.244917527332103]}
+ };
+ const current={
+  left:{heel:[-5.90237460863833,.23052881226107066,-7.088257307946525],
+   toe:[-5.984694555296527,-.060221163905367046,-7.065060509033337]},
+  right:{heel:[-5.925695535370676,.007995713645194212,-7.249690091190102],
+   toe:[-6.1968045290304605,-.001871880393715629,-7.239738505344751]}
+ };
+ const safe={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.047717735579596,frameInterval:.0473,
+  previousRootYaw:0,currentRootYaw:0,floorTopY:-.02,
+  previous,current};
+ const result=plan(safe);
+ assert.equal(result?.side,'right','only real 270mm source-loaded right shoe may receive relief');
+ assert.ok(result.reductionMeters>=.0179&&result.reductionMeters<=.0180001);
+ assert.equal(result.contactLocked,false,'do not call this foot-plant IK');
+ assert.equal(result.oppositeSwing3DLengthVerified,true,
+  '3D heel/toe length rather than false 2D projection stretch must be audited');
+ for(const bad of [
+  {current:{...current,left:{...current.left,toe:[current.left.toe[0],current.left.toe[1]+.04,current.left.toe[2]]}}},
+  {previousRootYaw:0,currentRootYaw:.637},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'}, {rootTravel:0},
+  {current:{...current,right:{...current.right,toe:[current.right.toe[0],current.right.toe[1]-.03,current.right.toe[2]]}}},
+  {previous:{...previous,right:{...previous.right,toe:[previous.right.toe[0],previous.right.toe[1]-.03,previous.right.toe[2]]}}},
+  {reducedMotion:true},{teleport:true},{mode:'hurt'}
+ ])assert.equal(plan({...safe,...bad}),null,'source or motion corruption must reject the offset');
+});
+
+
 
 // Original source witness at exact 390px Chromium #43374532241: the
 // LAST absolute ankle overlay is 0.186613rad at a 16.8ms frame. This does
