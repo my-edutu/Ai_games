@@ -1890,5 +1890,25 @@
     "leadingVerdict": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-13-tower-pr68-tangential-gateway-physical-path-reconstruction.md",
     "safety": "PR68 draft and PR58 base unchanged, no merge/deploy/force push or baseline move"
+  },
+  "p0OriginalGalleryCrossFloorFullNative20261113": {
+    "stage": "P0 OPEN — original gameplay proof pending, NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "0be9677bca8ac743d9b6a46bbcb38ee0b3eae392",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit",
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "required": "Existing nine-job normal-speed 20Hz matched baseline/candidate original full 60+s clips ascent, moving, danger/guardian with authentic opened Floor8 gateway and Floor9 onward, outcome/restart, desktop 960x600 and portrait 390x844, source/native timeline and full original PTS preserved",
+    "criticalVideo": "Watch entire real 22–31s crossing, source tick451, same original bronze gateway + cap + extracted source structural gallery + full-body 3D hero entering and exiting door against real Floor9 ground. No violet scene replacement, clipped old-galleries, false floor, fake actor pose or HUD-only pass. Compare both source traces and browser/Three/native WebM pixel phase and later true restart.",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43396246939 — 8 full clips but original strict event/native crossing 0/2",
+    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43398880759 — pending",
+    "sourceResources": "exact original static batch triangles <=4096, <=10 batches, no new shadow maps; actual mobile device memory/performance NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "leadingVerdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-source-original-gallery-across-physical-door.md"
   }
 }
