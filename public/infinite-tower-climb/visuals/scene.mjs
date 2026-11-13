@@ -4700,8 +4700,12 @@ export function createTowerScene(canvas, settings = {}) {
         (landingApproach.diagnostics().visible || airborneDuelLanding),
       observedHazard:actionStage?.kind==='hazard' &&
         [actionStage.x,actionStage.y].every(Number.isFinite),
-      earnedGateway:gatewayEarned,
-      airborneGateway:sourceAirborneWalk?.realAirborneCap === true,
+      // A source-proven original GPU gateway is still an actual sightline
+      // on the new floor; previously only the vanished old-floor exit flag
+      // protected it, so opaque Floor9 scenery could bury a retained arch.
+      earnedGateway:gatewayEarned || opticalHandoff,
+      airborneGateway:sourceAirborneWalk?.realAirborneCap === true ||
+        (opticalHandoff && p.state==='airborne' && p.grounded===false),
     });
     if(protectLiveRoute || protectTerminalScene){
       actorFramePoint.copy(climber.group.position);
