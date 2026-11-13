@@ -983,3 +983,59 @@ test('Pass324 real 390px foreground ray-identified public cell gets full-floor T
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('Pass332 witnessed sealed flank reconstructs full solid Tideglass bulwarks without exposing hidden routes',async()=>{
+  const {createMazeWorld}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const s=original();
+  // Cell 9 is public, on the same floor as guardian cell 8, but the two
+  // explicitly reject one another as neighbors: the wall is NOT a passage.
+  s.visibleCells.push(9);
+  s.cells.push({cell:9,blocked:false,neighbors:[]});
+  const truth=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),baseline=w.stats();
+  const instances=(color,dimensions)=>{
+    const found=[],m=new Matrix4(),p=new Vector3(),q=new Quaternion(),size=new Vector3();
+    w.group.traverse(node=>{
+      if(!node.isInstancedMesh || node.material?.color?.getHexString()!==color)return;
+      for(let i=0;i<node.count;i++){
+        node.getMatrixAt(i,m);m.decompose(p,q,size);
+        if(dimensions.every((value,j)=>Math.abs([size.x,size.y,size.z][j]-value)<.002))
+          found.push({x:p.x,z:p.z});
+      }
+    });
+    return found;
+  };
+  try {
+    w.update(s);
+    assert.ok(w.stats().guardianSightlineParapets>=1,
+      'the actual public disconnected flank keeps a continuous blocking wall');
+    assert.ok(instances('28574f',[.39,.34,2.32]).length>=1,
+      'the full-scale opaque guardian wall uses dark Tideglass stone, not a cosmetic dot');
+    assert.ok(instances('334a46',[.43,.22,2.14]).length>=1,
+      'one substantial dark attached face belongs to the real wall footprint');
+    assert.ok(instances('82b1a2',[.08,.042,2.08]).length>=1,
+      'its restrained long mineral crest is physically attached to the same solid flank');
+    assert.equal(w.stats().geometryCount,baseline.geometryCount,
+      'the rebuilt architecture only uses pooled installed Three geometry');
+    assert.equal(w.stats().materialCount,baseline.materialCount);
+    assert.equal(JSON.stringify(s),truth,'no public map or AI mutation');
+    w.update({...s,visibleCells:s.visibleCells.filter(c=>c!==9)});
+    assert.equal(w.stats().guardianSightlineParapets,0,
+      'a hidden far-side cell must not generate an invented blocking bulwark');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(w.stats().guardianSightlineParapets,0,
+      'a real closed gate withdraws the guardian-specific stage');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'guardian-bulwark-reset-'+i});
+      assert.ok(w.stats().guardianSightlineParapets>=1);
+      assert.ok(w.stats().geometryCount<100,
+        'the unchanged strict six-run reset geometry budget holds');
+    }
+  } finally {
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

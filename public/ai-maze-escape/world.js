@@ -579,10 +579,25 @@ export function createMazeWorld(options = {}) {
     if (guardianStage) guardianSightlineParapets++;
     else if (pressureStage) pressureStageParapets++;
     else gateForecourtParapets++;
-    block(deepStone, x, .17, z, horizontal ? 2.32 : .39, .34,
-      horizontal ? .39 : 2.32, cell);
-    add(box, lightStone, x, .355, z, horizontal ? 2.34 : .44, .075,
-      horizontal ? .44 : 2.34, cell);
+    // Pass332: the 390px photographed Pip/Thornback court still reads as a
+    // generic ivory maze because its nearby genuinely SEALED side walls use
+    // exactly the same bright cap as all unrelated passages. Build a broad,
+    // physically continuous DARK Tideglass bulwark only on the witnessed
+    // guardian stage; ordinary gates and real pressure walls stay unchanged.
+    // It remains opaque and impassable. No hidden cell, new route, collider,
+    // camera adjustment, resource class or per-frame mesh is introduced.
+    block(guardianStage ? darkJade : deepStone, x, .17, z,
+      horizontal ? 2.32 : .39, .34, horizontal ? .39 : 2.32, cell);
+    add(box, guardianStage ? seaGlass : lightStone, x, .355, z,
+      horizontal ? 2.34 : .44, .075, horizontal ? .44 : 2.34, cell);
+    if (guardianStage) {
+      // Large attached mineral facing and a restrained continuous crest:
+      // these share real parent stone, not a passage-shaped hole or HUD cue.
+      add(box, darkMetal, x, .20, z,
+        horizontal ? 2.14 : .43, .22, horizontal ? .43 : 2.14, cell);
+      add(box, inlay, x, .325, z,
+        horizontal ? 2.08 : .08, .042, horizontal ? .08 : 2.08, cell);
+    }
     // The real pressure mechanism is the only moving center of this disclosed
     // court. Keep the solid NONPASSAGE wall but remove its repetitive bright
     // rail; ordinary disclosed gates retain their full architectural trim.
@@ -596,8 +611,10 @@ export function createMazeWorld(options = {}) {
       // The low SOLID barrier remains visually closed; neither wall edge nor
       // the real collision/navigation topology is changed.
       const pierHeight = lowStage ? .40 : .64;
-      block(stone, px, pierHeight / 2, pz, .24, pierHeight, .24, cell);
-      add(box, lightStone, px, lowStage ? .43 : .66, pz, .28, .055, .28, cell);
+      block(guardianStage ? darkJade : stone, px, pierHeight / 2, pz,
+        .24, pierHeight, .24, cell);
+      add(box, guardianStage ? inlay : lightStone, px,
+        lowStage ? .43 : .66, pz, .28, .055, .28, cell);
     }
   }
   // A physical original tile rosette distinguishes already-disclosed gate
