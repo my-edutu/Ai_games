@@ -6,6 +6,7 @@ on:
       - 'tests/browser/tiny-kingdom-w125-camera-ux.spec.cjs'
       - 'tests/browser/tiny-kingdom-w126-mobile-tap-targets.spec.cjs'
       - 'scripts/tiny-kingdom-w125-camera-*.cjs'
+      - 'scripts/tiny-kingdom-w297-physical-orbit-contract.cjs'
       - '.github/workflows/tiny-kingdom-w125-camera-evidence.yml'
   workflow_dispatch:
 permissions:
@@ -31,6 +32,8 @@ jobs:
       - run: npm run build
       - name: W125 camera integrity and embedded JS syntax
         run: node scripts/tiny-kingdom-w125-camera-contract.cjs
+      - name: W297 original physical roof-sightline camera regression
+        run: node scripts/tiny-kingdom-w297-physical-orbit-contract.cjs
       - name: Chromium installation
         run: npx playwright install --with-deps chromium
       - name: Desktop and 390px real gesture, render and replay regression
