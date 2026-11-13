@@ -68,32 +68,6 @@ jobs:
           name: tower-source-chain-${{ github.sha }}
           path: artifacts/tower-source-chain/
           retention-days: 7
-      # Node's one-process all-phase catalogue runner has repeatedly stalled or
-      # lost its hosted runner immediately after test #960. Preserve the EXACT
-      # same foundation + phase2..6 file coverage as npm test, but isolate each
-      # phase into an independent bounded child process. This is a safety veto,
-      # not a game-quality result or permission to ignore another game's tests.
-      - name: Verify every repository test phase (bounded guardrail only)
-        shell: bash
-        run: |
-          set -uo pipefail
-          failed=0
-          for phase in foundation phase2 phase3 phase4 phase5 phase6; do
-            echo "::group::Repository test phase: $phase"
-            echo "Running all tests/$phase/*.test.cjs with Node concurrency 2"
-            # A stalled test must fail this phase; never skip or force-exit it.
-            timeout --signal=TERM --kill-after=5s 240s node --test --test-concurrency=2 tests/"$phase"/*.test.cjs
-            result=$?
-            echo "::endgroup::"
-            if [ "$result" -ne 0 ]; then
-              echo "::error::Repository test phase $phase failed (exit $result)"
-              printf '| %s | FAIL (%s) |\n' "$phase" "$result" >> "$GITHUB_STEP_SUMMARY"
-              failed=1
-            else
-              printf '| %s | PASS |\n' "$phase" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
-          exit "$failed"
       - name: Verify Tower authority (guardrail only)
         run: npm run tower:stream:self-test
       # The source-only contract already completed while GitHub's Ubuntu
@@ -113,3 +87,68 @@ jobs:
           name: tower-transformation-integrity-failure
           path: test-results/
           retention-days: 7
+  # Full catalogue regression remains a VETO. The previous combined runner
+  # was externally shut down at test #616 even after phase isolation.
+  # Give each COMPLETE test file exactly one bounded independent runner:
+  # foundation, phase2, phase4-6 plus four disjoint phase3 partitions.
+  # A missing file, empty shard, test failure or runner termination fails CI.
+  # This is not a substitute for original video or hardware acceptance.
+  catalogue-guardrail:
+    name: catalogue-guardrail (${{ matrix.phase }} ${{ matrix.shard }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {phase: foundation, shard: 0, shards: 1}
+          - {phase: phase2, shard: 0, shards: 1}
+          - {phase: phase3, shard: 0, shards: 4}
+          - {phase: phase3, shard: 1, shards: 4}
+          - {phase: phase3, shard: 2, shards: 4}
+          - {phase: phase3, shard: 3, shards: 4}
+          - {phase: phase4, shard: 0, shards: 1}
+          - {phase: phase5, shard: 0, shards: 1}
+          - {phase: phase6, shard: 0, shards: 1}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build actual repository for exact-source test contracts
+        run: npm run build
+      - name: Execute the complete non-overlapping test-file partition
+        shell: bash
+        env:
+          TEST_PHASE: ${{ matrix.phase }}
+          TEST_SHARD: ${{ matrix.shard }}
+          TEST_SHARDS: ${{ matrix.shards }}
+        run: |
+          set -euo pipefail
+          mapfile -d '' -t all_files < <(find "tests/$TEST_PHASE" -maxdepth 1 -type f -name '*.test.cjs' -print0 | sort -z)
+          if (( ${#all_files[@]} < TEST_SHARDS )); then
+            echo "::error::The phase has fewer test files than shards; no silent skipped tests"
+            exit 1
+          fi
+          selected=()
+          for i in "${!all_files[@]}"; do
+            if (( i % TEST_SHARDS == TEST_SHARD )); then
+              selected+=("${all_files[i]}")
+            fi
+          done
+          if (( ${#selected[@]} == 0 )); then
+            echo "::error::An empty test shard is a failed catalogue guardrail"
+            exit 1
+          fi
+          printf 'Exact SHA: %s, phase: %s, partition: %s/%s, files: %s of %s\n' \
+            "$GITHUB_SHA" "$TEST_PHASE" "$TEST_SHARD" "$TEST_SHARDS" \
+            "${#selected[@]}" "${#all_files[@]}"
+          printf '%s\n' "${selected[@]}"
+          # Never background, mask failure, skip a failing file, or count test
+          # outputs as gameplay acceptance. GitHub's job conclusion is veto.
+          timeout --signal=TERM --kill-after=5s 210s \
+            node --test --test-concurrency=2 "${selected[@]}"
