@@ -915,3 +915,40 @@ test('D04 removes an orphaned trail draw call immediately when pool priority pre
   assert.equal(stage.stats().activeDrawCalls,1,'a later independent wrist passage restores drawing');
  }finally{stage.dispose()}
 });
+
+test('D04 revoking an interrupted Warden release hides its GPU signal draw and uploads the retirement matrix before the next real frame',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const actor={u:{id:'warden',kind:'warden',faction:'enemy',x:2,z:2,
+  hp:60,action:'cast',actionTick:11},
+  authored:false,root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='warden'?actor:null
+ });
+ const release=cue({id:'1:1:11:warden-release:warden:-',
+  kind:'warden-release',visual:'warden',audio:'warden-release',
+  proof:'authority-action',actorId:'warden',targetId:null,
+  from:{x:2,z:2},to:null,duration:.3,priority:8});
+ const signalMesh=[...scene.children][4]; // fixed retained-pool order: trail, hit, block, dust, signal
+ try{
+  assert.equal(stage.emit(release),true,'real live cast authorizes one body-local release glyph');
+  assert.equal(stage.stats().instancesByPool.signal,1);
+  assert.equal(stage.stats().activeDrawCalls,1);
+  // A real renderer clears needsUpdate after uploading the visible signal.
+  // Subsequent authority interruption must upload the HIDDEN matrix too.
+  signalMesh.instanceMatrix.needsUpdate=false;
+  actor.u.action='idle';
+  stage.advance(.016,.016);
+  assert.equal(stage.stats().instancesByPool.signal,0,
+   'interrupted authoritative pose retires the old glyph');
+  assert.equal(stage.stats().activeDrawCalls,0,
+   'no orphaned Warden release draw may remain after interruption');
+  assert.equal(signalMesh.visible,false);
+  assert.equal(signalMesh.instanceMatrix.needsUpdate,true,
+   'GPU must receive the cleared instance matrix before the next submission');
+  assert.equal(stage.stats().lastAdvanceDirtyPools,1,
+   'retirement is an actual dirty retained-pool update, not just a JS slot removal');
+  assert.equal(stage.stats().retiredUnanchoredBodySignals,1);
+  assert.equal(stage.hasDrawableCue(release.id),false);
+ }finally{stage.dispose()}
+});
