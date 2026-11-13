@@ -17,7 +17,7 @@ test('W281 original housing residency reuses its verified topology but invalidat
   homePartitionLastTopology:'',homePartitionTopologyScans:0,homePartitionFastReuses:0,
   homePartitionGuardFallbacks:0,homeClustersEnabled:()=>true,
   detailedHomeSet:()=>{calls.details++;return new Set([0])},
-  homeClusterGroups:()=>{calls.groups++;return [{key:'different'}]},
+  homeClusterGroups:()=>{calls.groups++;return [{key:ctx.city[0][0]===2?'old':'new'}]},
   buildHomeClusters:()=>{calls.builds++;ctx.homeClusterActive=[one]},
   resetHomeVisualStats:()=>{},
   settlementSeasonCache:new Map(),scenicMeshCache:new Float32Array(30),

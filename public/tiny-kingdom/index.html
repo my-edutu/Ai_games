@@ -7972,7 +7972,11 @@ function refreshIndependentHousing(climateKey,sceneKey){
  }
  const fullHomes=detailedHomeSet(),groups=homeClusterGroups(fullHomes,climateKey);
  if(groups.length===homeClusterActive.length&&
-  groups.every((group,i)=>homeClusterActive[i].key===group.key))return false;
+  groups.every((group,i)=>homeClusterActive[i].key===group.key)&&
+  homePartitionResidencyMatches()){
+  homePartitionLastTopology=topology;
+  return false;
+ }
  const priorCivicKey=civicActiveKey,priorSceneKey=scenicMeshKey;
  const priorHomes=homeClusterActive.reduce((n,e)=>n+e.homes,0);
  resetHomeVisualStats();
