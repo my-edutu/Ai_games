@@ -5063,3 +5063,47 @@ test('RED: slow 33ms original severe swing can advance a previously verified sou
  ])assert.equal(choose({...source,...invalid}),null,
   'unverified source/frame/shoe evidence must retain old 45mrad source thigh limit');
 });
+
+
+// Native Walking_A source video #43487028269: original 390px airborne toes
+// still penetrate 70–100mm even while genuine skinned heels are elevated.
+// Test a CONNECTED original toesr/toesl joint only if BOTH source shoes prove
+// a net rise, not by inventing IK, world contact, target or source keyframes.
+test('RED: licensed toe-hinge source can reduce witnessed swing-toe burial without sliding the loaded shoe',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ assert.equal(typeof choose,'function');
+ const right={heelY:.18,toeY:-.104,heelXZ:[1,2],toeXZ:[1.06,2.2]};
+ const left={heelY:-.035,toeY:-.043,heelXZ:[0,2],toeXZ:[0,2.22]};
+ const source={left,right};
+ const goodAfter={left:{...left},right:{...right,toeY:-.089,toeXZ:[1.065,2.204],heelY:.181}};
+ const inputs={mode:'move',sourceClipName:'Walking_A',sourceWeight:.93,
+  ownerLocomotion:true,sourceToeChainVerified:true,sourceToeTrackVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.05,frameAge:.033,frameInterval:.0333,
+  side:'right',floorTopY:-.02,before:source,
+  trials:[{angleRad:-.10,after:goodAfter},
+   {angleRad:.10,after:{left,right:{...right,toeY:-.110}}}]};
+ const accepted=choose(inputs);
+ assert.equal(accepted?.side,'right');
+ assert.equal(accepted?.angleRad,-.10);
+ assert.ok(accepted?.liftMeters>.014 && accepted?.liftMeters<.016);
+ assert.equal(accepted.contactLocked,false);
+ assert.equal(accepted.oppositeFootVerified,true);
+ for(const bad of [
+  {sourceClipName:'Idle'},{sourceWeight:.7},{sourceInstanceSame:false},
+  {sourceToeTrackVerified:false},{sourceToeChainVerified:false},
+  {rootTravel:0},{frameAge:.25},{frameInterval:.4},
+  {reducedMotion:true},{teleport:true},{interrupted:true},
+  {alive:false},{visible:false},{mode:'hurt'},
+  {trials:[{angleRad:-.10,after:{...goodAfter,left:{...left,toeY:-.05}}}]},
+  {trials:[{angleRad:-.10,after:{...goodAfter,right:{...goodAfter.right,heelY:.172}}}]},
+  {trials:[{angleRad:-.10,after:{...goodAfter,right:{...goodAfter.right,toeXZ:[1.08,2.21]}}}]},
+  {trials:[{angleRad:-.10,after:{...goodAfter,right:{...goodAfter.right,toeY:-.102}}}]},
+  {trials:[{angleRad:-.30,after:goodAfter}]}
+ ])assert.equal(choose({...inputs,...bad}),null,'unsafe or unsupported original source bone must fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/stageOriginalSourceSwingToesAfterMixer\(actor,reducedMotion\)/,
+  'actual source mixer and skinned-sole readback must call the toe controller');
+ assert.match(renderer,/restoreOriginalSourceSwingToesBeforeMixer\(actor\)/,
+  'source toe overlays must restore before each original animation mixer frame');
+});
