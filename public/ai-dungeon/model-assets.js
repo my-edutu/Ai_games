@@ -1466,7 +1466,8 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   });
   if(!held)return 0;
   actor.sourceSwingToeLiftProof={
-   source:held.source,sourceInstanceId:actor.assetRoot.uuid,
+   source:'same-original-GLB-foot-skinned-vertices',
+   continuitySource:held.source,sourceInstanceId:actor.assetRoot.uuid,
    side:mount.side,sourceClip:actor.activeImportedClipName,
    sourceWeight:actor.activeClip.getEffectiveWeight(),
    beforeToeY:toeY,afterToeY:afterToe,
