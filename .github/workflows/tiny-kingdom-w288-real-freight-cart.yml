@@ -1,0 +1,19 @@
+name: Tiny Kingdom W288 Genuine Freight Cart
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w288-real-freight-cart-contract.cjs
+      - .github/workflows/tiny-kingdom-w288-real-freight-cart.yml
+  workflow_dispatch:
+jobs:
+  actual-courier-cart:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exercise source-owned real cart joinery and genuinely unloading food
+        run: node scripts/tiny-kingdom-w288-real-freight-cart-contract.cjs
