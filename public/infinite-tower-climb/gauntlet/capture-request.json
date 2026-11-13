@@ -2015,5 +2015,22 @@
     "realDeviceP50P95P99Memory": "NOT EVALUATED",
     "safety": "No other games, PR58 edits, baseline move, merge, deploy, force-push or draft promotion",
     "requiredCapture": "Existing nine-job exact-source normal-speed 1x 60s+ ascent/moving/guardian-crusher/complete outcome-restart, 960x600 and 390x844, same seed/tier, source/native PTS; inspect source tick451 and new returned-WebGL diagnostics in sidecar."
+  },
+  "p0FirstEpisodeNativeRendererExportCapture20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCodeSha": "be7abeda2853a7f77f0fb1ab0662affd88dd3f3c",
+    "candidateSourceSha": "EXACT immutable github.sha of this capture request commit; never floating branch ref",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43428237425",
+    "previousExactSourceFirstFloor9": "Crossing tick451; first renderer-return tick459 desktop, tick457 portrait; still strict native 0/2. Original first-episode retained GPU audit was not exported.",
+    "newCaptureRequirement": "Nine job same-seed/tier 1x unmodified native 60+s desktop960x600 portrait390x844 baseline+candidate, with physical-doorway-submissions.json source-owned first-episode returned GPU frame evidence at original first F9 crossing; align to original WebM wall clock/PTS, no fabricated pixels, reviews or pass.",
+    "nextHighestImpactAction": "Compare exported first-episode original retained gate/hero NDC+core rays to native 22-32s and rebuild cold F9 camera/scene GPU budget or true geometry/occlusion as proven. Verify outcome/restart and device performance. Do not advance P0 from tests alone.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "verdict": "NOT EVALUATED",
+    "safety": "PR68 draft on PR58. No force push merge deploy baseline move or unrelated game changes."
   }
 }
