@@ -72,6 +72,18 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     assert.equal(retention.floor,9);
     assert.equal(retention.guardianGateRetained,true,
       'diagnostics expose actual old guardian doorway retention, not just a cosmetic deck');
+    // The original filmed hard cut is a WORLD continuity defect, not just
+    // the earlier missing-gate/timer problem. The source-owned original
+    // structural triangles must now survive in a strictly bounded region,
+    // with their original roof/door and no duplicate Floor8 gameplay actors.
+    const gallery=world.group.getObjectByName('OriginalSourceClockworkThresholdGallery');
+    assert.ok(gallery?.isGroup && gallery.children.length>0,
+      'a real bounded fragment of original Floor8 architecture survives with its gate');
+    assert.ok(retention.originalGalleryTriangles>0 && retention.originalGalleryTriangles<=4096);
+    assert.ok(retention.originalGalleryBatches<=10);
+    assert.equal(retention.originalGalleryBytes,retention.originalGalleryTriangles*96);
+    assert.ok(gallery.children.every(mesh=>mesh.material?.name==='OriginalClockworkGallerySourceSurface' &&
+      mesh.castShadow===false && mesh.receiveShadow===false));
     assert.equal(retention.submittedFrames,0);
     assert.ok(retention.geometryCount>0&&retention.materialCount>0);
     // The original warm cap is physically coplanar with Floor9 ground.
@@ -109,6 +121,8 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
       'old unlocked gate and its GPU resources must retire with old cap');
     assert.equal(world.diagnostics().retainedSourceCap,null);
+    assert.equal(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery'),undefined,
+      'source gallery resources are retired on genuine departure/cleanup');
     assert.equal(JSON.stringify([first,second]),original,
       'the old/new authoritative source must be immutable');
   }finally{world.dispose();}

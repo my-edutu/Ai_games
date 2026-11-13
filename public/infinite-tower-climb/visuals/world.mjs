@@ -7,6 +7,90 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender } from './crossfloor-arrival.mjs';
 
+
+/**
+ * Extract ORIGINAL clockwork load-bearing triangles around the real exit.
+ * The Floor8->9 world rebuild previously kept only the cap and door, while
+ * deleting ALL surrounding old architecture; the native picture still jumped
+ * to an unrelated violet world. Preserve a strictly budgeted 3D portion of
+ * the ALREADY RENDERED original structural batches with the SAME positions,
+ * normals, UVs, materials and historical chunk transform. No authored proxy
+ * bridge, enemy, physics contact, invented source sample or render-only actor.
+ * The original source roof/door are retained separately and unchanged.
+ */
+export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresholdX,
+    roofY, baseY, worldWidth, limits = {}) {
+  if (!oldFloor?.isGroup || ![thresholdX,roofY,baseY,worldWidth].every(Number.isSafeInteger) ||
+      worldWidth <= 0 || thresholdX < 0 || thresholdX > worldWidth ||
+      !THREE?.BufferGeometry || !THREE?.Mesh) return null;
+  const target = angleFor(thresholdX,worldWidth);
+  const roof = (roofY-baseY)/SCALE;
+  const maxFaces = Math.min(4096, Math.max(0, Number.isSafeInteger(limits.maxFaces) ? limits.maxFaces : 3600));
+  const maxBatches = Math.min(10, Math.max(0, Number.isSafeInteger(limits.maxBatches) ? limits.maxBatches : 8));
+  const root = new THREE.Group();
+  root.name = 'OriginalSourceClockworkThresholdGallery';
+  const geometries = [], materials = [];
+  let faces = 0;
+  for (const source of oldFloor.children) {
+    if (faces >= maxFaces || root.children.length >= maxBatches) break;
+    // Actual rigid-batched original structure ONLY. No old gameplay decks,
+    // moving drives, enemies, hazards, distant citadels or foreground FX.
+    if (!source.isMesh || source.name !== 'rigid-material-batch' ||
+        !source.geometry?.getAttribute('position') ||
+        Array.isArray(source.material) || !source.material ||
+        source.material.vertexColors ||
+        source.position.lengthSq() > 1e-10 ||
+        source.rotation.x !== 0 || source.rotation.y !== 0 || source.rotation.z !== 0 ||
+        Math.abs(source.scale.x-1)>1e-8 || Math.abs(source.scale.y-1)>1e-8 ||
+        Math.abs(source.scale.z-1)>1e-8) continue;
+    const original=source.geometry, p=original.getAttribute('position'),
+      n=original.getAttribute('normal'), uv=original.getAttribute('uv'), ids=original.getIndex();
+    const count=ids?ids.count:p.count;
+    if (!n || !uv || count%3!==0) continue;
+    const positions=[],normals=[],uvs=[];
+    for(let i=0;i<count && faces+positions.length/9<maxFaces;i+=3){
+      const vertices=[], norm=[], tex=[];
+      let accepted=true;
+      for(let j=0;j<3;j++){
+        const index=ids?ids.getX(i+j):i+j;
+        const x=p.getX(index),y=p.getY(index),z=p.getZ(index);
+        const radius=Math.hypot(x,z);
+        const delta=Math.atan2(Math.sin(Math.atan2(x,z)-target),
+          Math.cos(Math.atan2(x,z)-target));
+        // Only triangles physically INSIDE the original cap-side corridor
+        // and its nearby connected tower support. This avoids a second full
+        // Floor8 world and prevents memory/draw-call accumulation on phones.
+        if(![x,y,z,radius,delta].every(Number.isFinite) ||
+            radius<12.7 || radius>39 || Math.abs(delta)>.46 ||
+            y<roof-32 || y>roof+21){accepted=false;break;}
+        vertices.push(x,y,z);
+        norm.push(n.getX(index),n.getY(index),n.getZ(index));
+        tex.push(uv.getX(index),uv.getY(index));
+      }
+      if(accepted){positions.push(...vertices);normals.push(...norm);uvs.push(...tex);}
+    }
+    if(positions.length < 9) continue;
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+    geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+    geometry.computeBoundingSphere();
+    const material=source.material.clone();
+    material.name='OriginalClockworkGallerySourceSurface';
+    material.transparent=false;material.opacity=1;material.depthTest=true;
+    const fragment=new THREE.Mesh(geometry,material);
+    fragment.name='source-extracted-clockwork-structural-triangles';
+    fragment.castShadow=false;fragment.receiveShadow=false;
+    root.add(fragment);
+    geometries.push(geometry);materials.push(material);
+    faces+=positions.length/9;
+  }
+  if(!faces) return null;
+  return {root,geometries,materials,faces,
+    bytes:faces*3*8*Float32Array.BYTES_PER_ELEMENT,
+    source:'original-Three-floor-eight-rigid-structural-batches'};
+}
+
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 // Display-submission-timed copy of the ACTUAL source cap landing surface:
 // static before the first completed Three.js frame, then ease the original
@@ -2126,9 +2210,17 @@ export function createTowerWorld(){
         existingMesh.renderOrder = 2;
       }
     }
+    const gallery = extractOriginalClockworkThresholdGallery(THREE,
+      floorGroup,requested.thresholdX,requested.oldRoofY,
+      requested.previousBaseY,requested.worldWidth);
+    if(gallery){
+      for(const geometry of gallery.geometries) floorGeometries.add(geometry);
+      for(const material of gallery.materials) floorMaterials.add(material);
+    }
     const continuity = new THREE.Group();
     continuity.name = 'ObservedGroundedCapGatewayContinuity';
     continuity.add(root,realGate);
+    if(gallery) continuity.add(gallery.root);
     continuity.position.y = (requested.previousBaseY - requested.nextBaseY) / SCALE;
     const allGeometries = new Set(), allMaterials = new Set();
     continuity.traverse(object => {
@@ -2148,6 +2240,10 @@ export function createTowerWorld(){
     if (bronzeSurface) ownedMaterials.add(bronzeSurface);
     group.add(continuity);
     retainedEarnedCap = {root:continuity,guardianGateRetained:true,
+      originalGalleryTriangles:gallery?.faces ?? 0,
+      originalGalleryBytes:gallery?.bytes ?? 0,
+      originalGalleryBatches:gallery?.root.children.length ?? 0,
+      originalGalleryMaterials:gallery?.materials ?? [],
       originalDeckSurface:bronzeSurface,
       originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
@@ -2252,6 +2348,19 @@ export function createTowerWorld(){
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
         held.submittedFrames, held.visibleSeconds);
+    // The same sourced structural triangles linger through the real first
+    // successor frame, then retire optically with the original roof/arch.
+    // Only the extracted original-gallery material clones are touched.
+    const originalPresence=observedRetainedOriginalBronzeCover(
+      held.submittedFrames,held.visibleSeconds);
+    for(const material of held.originalGalleryMaterials){
+      const transparent=originalPresence<.995;
+      if(material.transparent!==transparent){
+        material.transparent=transparent;material.needsUpdate=true;
+      }
+      material.opacity=originalPresence;
+      material.depthWrite=!transparent;
+    }
     // The authentic F9 roof must not change from bronze to violet all at
     // once behind an otherwise still-present old gateway. Its original
     // gameplay geometry is unchanged; interpolate only its existing
@@ -3128,6 +3237,9 @@ export function createTowerWorld(){
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
       sourceAlignedPassage:retainedEarnedCap.sourceAlignedPassage===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
+      originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
+      originalGalleryBytes:retainedEarnedCap.originalGalleryBytes,
+      originalGalleryBatches:retainedEarnedCap.originalGalleryBatches,
       actualOldCapSupport:observedRetainedOriginalCapRoofContact(lastSnapshot,retainedEarnedCap),
       originalCapId:retainedEarnedCap.oldCapId,
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
