@@ -365,8 +365,8 @@ test('guardian approach anchors one stationary physical gate without relocating 
     const gate = named(world.group, 'AuthoritativeGuardianGate');
     const deck = named(world.group, `platform:f${sourceFrame.floor}:cap`);
     assert.ok(gate && deck, 'distinct world-space gateway and authoritative cap exist');
-    assert.ok(Math.abs(gate.rotation.y - angleFor(x, sourceFrame.worldWidth)) < 1e-9,
-      'real 3D lock angle is tied to the deterministic guardian approach');
+    assert.ok(Math.abs(gate.rotation.y - (angleFor(x, sourceFrame.worldWidth) + Math.PI/2)) < 1e-9,
+      'the original bronze arch faces the deterministic X-travel crossing plane, not the radial wall');
     assert.ok(Math.abs(deck.rotation.y - angleFor(cap.x + cap.width / 2, sourceFrame.worldWidth)) < 1e-9,
       'unchanged collision-aligned deck remains centered on its actual source coordinates');
     assert.equal(world.diagnostics().guardianGates[0].anchorX, x);
@@ -374,7 +374,7 @@ test('guardian approach anchors one stationary physical gate without relocating 
     assert.equal(guardianGateAnchorX(patrol, cap), x,
       'enemy movement and damage never drag the stone architecture around');
     world.update(patrol, .05, .05, { quality: 'low' });
-    assert.ok(Math.abs(gate.rotation.y - angleFor(x, sourceFrame.worldWidth)) < 1e-9);
+    assert.ok(Math.abs(gate.rotation.y - (angleFor(x, sourceFrame.worldWidth) + Math.PI/2)) < 1e-9);
     world.update(patrol, .05, .10, { quality: 'high', reducedMotion: true });
     assert.equal(world.diagnostics().guardianGates[0].anchorX, x,
       'quality rebuild and still-motion presentation reconstruct the same authentic gate');
