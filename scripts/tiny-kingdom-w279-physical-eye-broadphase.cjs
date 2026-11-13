@@ -21,6 +21,7 @@ const ctx=vm.createContext({WeakMap,Map,Set,Array,Number,Math,
  cameraOcclusionStaticRows:new WeakMap()});
 vm.runInContext(source,ctx,{timeout:3000});
 const examine=vm.runInContext('physicalFollowEyeClearance',ctx);
+const proximity=vm.runInContext('cameraShotProximityWarnings',ctx);
 const exhaustive=(eye,rows)=>{
  if(!Array.isArray(eye)||eye.length!==3||eye.some(v=>!Number.isFinite(v)))
   return {clear:false,kind:'invalid-eye'};
@@ -33,14 +34,27 @@ const exhaustive=(eye,rows)=>{
  }
  return {clear:true,kind:null};
 };
-let checked=0;
+const referenceProximity=(eye,rows)=>{
+ let count=0;
+ for(const roof of rows){
+  const bottom=roof.bottom??(-.22);
+  if(eye[1]>roof.top+.48||eye[1]<bottom-.35)continue;
+  const dx=Math.max(0,Math.abs(eye[0]-roof.x)-roof.rx),
+   dz=Math.max(0,Math.abs(eye[2]-roof.z)-roof.rz);
+  if(Math.hypot(dx,dz)<.95)count++;
+ }
+ return count;
+};
+let checked=0,proximityChecks=0;
 const sample=roofs=>{
  for(let x=-48;x<=48;x+=1.47)for(let z=-29;z<=33;z+=1.19){
   const y=(((Math.round(x*37+z*21)%11)+11)%11)*.51;
   const eye=[x,y,z],a=exhaustive(eye,roofs),b=examine(eye,roofs);
   assert.deepEqual([b.clear,b.kind],[a.clear,a.kind],
    'original camera kind changed on physical eye '+eye);
-  checked++;
+  assert.equal(proximity(eye,roofs),referenceProximity(eye,roofs),
+   'Day-120 and live courier physical proximity warning parity '+eye);
+  checked++;proximityChecks++;
  }
 };
 const fixed=Array.from({length:28},(_,i)=>({
@@ -64,5 +78,10 @@ const audit=vm.runInContext('getCameraEyeClearanceAudit',ctx)();
 assert(audit.indexed>0&&audit.fallback>0);
 assert(audit.exactTests<audit.potentialTests);
 assert(audit.liveFreightChecks>0);
+const nearAudit=vm.runInContext('getCameraShotProximityAudit',ctx)();
+assert.equal(nearAudit.queries,proximityChecks);
+assert(nearAudit.exact<nearAudit.possible,
+ 'genuine camera survey must reduce original roof distance checks');
+assert.equal(nearAudit.authorityChanged,false);
 assert.equal(audit.authoritativeStateChanged,false);
-console.log('W279 source PASS: '+checked+' real camera samples parity including grown-town homes, live moved escrowed courier, 8m boundaries and invalid-index full fallback. CPU slab reduction is structural; actual frame timing, live gameplay, physical hardware 30fps and blinded experience judgement remain UNPROVEN.');
+console.log('W280 source PASS: '+checked+' real camera samples parity including grown-town homes, live moved escrowed courier, 8m boundaries and invalid-index full fallback. CPU slab reduction is structural; actual frame timing, live gameplay, physical hardware 30fps and blinded experience judgement remain UNPROVEN.');

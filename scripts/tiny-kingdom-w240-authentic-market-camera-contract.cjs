@@ -43,7 +43,11 @@ assert.match(html,/marketArcadeRoofBands:count\('market-arcade-roof'\)/);
 // be placed inside a clay roof or call an obstructed shot readable.
 const clearance=section('const PHYSICAL_FOLLOW_EYE_KINDS=', 'function physicalCitizenForegroundBlockers(');
 const frame=section('const WORKDAY_OPAQUE_SCENE_KINDS=', 'function foregroundSceneProjection(');
-const physical={terrain:()=>0,Set};
+// W279/W280 source contract separately checks indexed physical selection.
+// This arcade roof check exercises exact eye collision in safe full-scan fallback.
+const physical={terrain:()=>0,Set,Map,WeakMap,Number,Math,
+ cameraOcclusionStaticRows:new WeakMap(),
+ cameraRayIndexFor:()=>({valid:false})};
 vm.createContext(physical);
 vm.runInContext(clearance+'\nthis.inspect=physicalFollowEyeClearance;',physical);
 const held={x:0,z:0,rx:.2,rz:2,bottom:3.9,top:4.25,kind:'market-arcade-roof'};
