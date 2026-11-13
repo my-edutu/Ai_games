@@ -106,8 +106,13 @@ test('anonymous event kinds cannot invent a dodge without actual movement',async
  assert.equal(cues.find(c=>c.kind==='block').actorId,null,
   'semantic text alone cannot anchor a block to one combatant');
  const walking=snap(11,{units:[hero({x:2,z:3,action:'move',actionTick:11}),foe()],events:[{tick:11,kind:'evade',text:'whatever'}]});
- assert.equal(planPhysicalFeedback(old,walking).find(c=>c.kind==='evade').actorId,'vanguard');
- const withoutEvent={...walking,events:[]};
+ assert.equal(planPhysicalFeedback(old,walking).some(c=>c.kind==='evade'),false,
+  'an arbitrary evade label cannot certify escape despite a one-cell move');
+ const witnessed={...walking,events:[{tick:11,kind:'evade',
+  text:'vanguard slipped away from the marked shadow hex'}]};
+ assert.equal(planPhysicalFeedback(old,witnessed).find(c=>c.kind==='evade').actorId,'vanguard',
+  'matching public semantic event and genuine one-cell movement earn dodge art');
+ const withoutEvent={...witnessed,events:[]};
  assert.equal(planPhysicalFeedback(old,withoutEvent).some(c=>c.kind==='evade'),false);
 });
 
