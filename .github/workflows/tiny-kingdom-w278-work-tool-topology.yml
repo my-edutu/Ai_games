@@ -1,0 +1,18 @@
+name: Tiny Kingdom W278 Real Work-Tool GPU Topology
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w278-work-tool-topology.cjs
+      - .github/workflows/tiny-kingdom-w278-work-tool-topology.yml
+jobs:
+  true-original-geometry-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Real work phase tool topology and full game syntax
+        run: node scripts/tiny-kingdom-w278-work-tool-topology.cjs
