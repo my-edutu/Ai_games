@@ -785,7 +785,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      const observed=anchor(slot.cue,'signal');
      if(!observed){
       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
-      active--;retiredUnanchoredBodySignals++;continue;
+      // Upload the hidden retained matrix before any later WebGL submission.
+      // Without a dirty flag, an interrupted glyph keeps an orphaned draw.
+      active--;retiredUnanchoredBodySignals++;dirty=true;continue;
      }
      slot.origin=observed;
     }
