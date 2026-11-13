@@ -5159,3 +5159,29 @@ test('RED: true 85-percent original Walking_A crossfade can finish a shallow air
  assert.equal(choose(deep),null,
   'partial source blend cannot authorise the existing severe toe-hinge correction');
 });
+
+test('source-toe gate receipts distinguish absent licensed evidence from safe measured articulation',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer(');
+ const end=renderer.indexOf('const originalSourceSwingToesAxis=',begin);
+ assert.ok(begin>0&&end>begin);
+ const stage=renderer.slice(begin,end);
+ assert.match(stage,/sourceToeJointGateLast/);
+ assert.match(stage,/sourceToeJointGateCounts/);
+ for(const reason of [
+  'invalid-original-source-frame-or-motion-witness',
+  'unverified-original-weighted-sole',
+  'missing-original-walking-clip',
+  'missing-direct-source-toe-child',
+  'missing-unique-toe-quaternion-track',
+  'no-safe-airborne-and-opposite-shoe-pair',
+  'source-toe-hinge-trial-not-admissible',
+  'final-source-skin-readback-rejected',
+  'accepted-original-source-toe-lift'
+ ])assert.ok(stage.includes(reason),reason);
+ const diagnostic=renderer.slice(renderer.indexOf('nativeLegOwnership:{'));
+ assert.match(diagnostic,/sourceToeJointGateLast:actor\.sourceToeJointGateLast\?\?null/);
+ assert.match(diagnostic,/sourceToeJointGateCounts:actor\.sourceToeJointGateCounts\?\?null/);
+ assert.match(stage,/chooseOriginalSourceSwingToeJointRelief\(\{\.\.\.owner,trials\}\)/);
+ assert.match(stage,/if\(!verified\)/);
+});
