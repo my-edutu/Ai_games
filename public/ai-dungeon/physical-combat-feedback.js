@@ -364,9 +364,17 @@ export function createPhysicalCombatFeedback({
     observedSeconds-item.at:
     Math.max(observedSeconds-item.at,
      Math.max(0,verifiedWallAge-renderSubmissionSeconds));
+   // The optional monotonic clock is the ONLY way to measure time spent
+   // between advance() and the completed WebGL submission. A valid 16ms rAF
+   // interval could precede a >400ms render stall. If a configured clock
+   // disappears or moves backwards, never use that older rAF interval to
+   // authorize an original impact sound whose actual age is unknown.
+   // Clockless injected adapters retain their historical raw-frame contract;
+   // the actual opt-in browser always supplies this clock.
+   const submissionAgeVerified=typeof clock!=='function'||verifiedWallAge!==null;
    const decision=classifySubmittedCombatAudio({
     sceneMatches:item.sceneId===sceneId,
-    observedFrameVerified:!unverifiedFrameInterval,
+    observedFrameVerified:!unverifiedFrameInterval&&submissionAgeVerified,
     elapsedSeconds:elapsedBeforeSubmission,
     submissionSeconds:renderSubmissionSeconds,
     maxStalenessSeconds:MAX_AUDIO_VISUAL_STALENESS_SECONDS,
