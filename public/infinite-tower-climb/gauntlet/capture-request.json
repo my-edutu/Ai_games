@@ -2142,5 +2142,26 @@
     "leadingTransformationVerdict": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-13-tower-pr68-late-source-portrait-original-gateway.md",
     "safety": "No merge, deploy, force-push, baseline update, PR58 edit, unrelated games change, or change from draft status"
+  },
+  "p0PrepublicationBronzeGatewayWholeSceneDirector20261113": {
+    "stage": "P0, new original native source-pinned films — NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "55c357f2b76d8e0b5e4a70b8fb449d1270925103",
+    "candidateSourceSha": "EXACT IMMUTABLE github.sha OF THIS CAPTURE REQUEST/EVIDENCE COMMIT — NOT FLOATING BRANCH HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "requested": "Nine-job exact immutable-source 20Hz normal-speed 1x, baseline/candidate authentic ascent, floor7 moving platforms, floor8 crusher/guardian HP-zero→real original bronze doorway→floor9 onward, and outcome/restart; >=60s desktop 960x600 and portrait 390x844, matched seed, capture method and native WebM PTS.",
+    "criticalOriginalVisualGate": "Verify actual drawn full body and ORIGINAL already opened Floor8 bronze arch/structural supports stay in one stable physical shot during F8→9; verify no abrupt opaque violet shaft, flash or camera jump at 22–31s. Match immutable recorded tick451, first browser receipt, first WebGL submitted frame and native image PTS. Strict 0/2 last original candidate; current version NOT EVALUATED.",
+    "sourceSpecificChecks": "On late first original F9 GPU frame, original staged grounded receipt may precede published lastGuardianCrossing; measure retained GPU original gate/cap, original provenance, coldArchLens source auth, shared bronze fog/light and source-owned deferred F9 opaque structure; reject false recorded-crossing mismatch and wrong-run extension.",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43494670086",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43503035733 not yet verified",
+    "review": "docs/reviews/2026-11-13-tower-pr68-prepublication-bronze-world-unified-first-gpu-director.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED"
   }
 }

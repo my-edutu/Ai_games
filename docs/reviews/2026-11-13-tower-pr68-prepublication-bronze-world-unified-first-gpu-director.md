@@ -1,0 +1,25 @@
+# P0 original physical gateway scene before delayed immutable crossing publication
+
+**13 November 2026 · Draft PR #68 · P0 OPEN · leading verdict NOT EVALUATED.**
+
+## Original moving evidence and precise blocker
+
+Inspect the authentic eight baseline/candidate normal-speed films from [campaign 43494670086](https://github.com/my-edutu/Ai_games/actions/runs/43494670086), pinned to candidate `603f2a5a38f6f918b2a7a1b01f4500fcbce0234b` and frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`. The strict source/native event pairing job failed, and the normal-speed desktop/portrait guardian clips remain unaccepted (0/2). At approximately 25 seconds in desktop, source-driven Floor 8 bronze clockwork abruptly switches to a differently framed violet Floor 9, with no continuous full-body walk through the **same original arch**. Original recorded guardian HP-zero crossing source tick 451 was real; earlier portrait WebGL first returned at tick 460, after the initially accepted source receipt but before immutable `lastGuardianCrossing` publication.
+
+The prior fix preserved authentic old gate/cap mesh identity for a verified grounded source receipt, but the actual incoming opaque shell, bronze→violet fog/lighting, and late first-frame dual-subject camera used **different authorization**. All could show a violet unrelated world even while the original old geometry had been safely retained. This run targets *one shared physical-world presentation contract*, not another independent fade, visual proxy or fake avatar animation.
+
+## Implemented connected game change
+
+- [`63df71da`](https://github.com/my-edutu/Ai_games/commit/63df71daa7c55a4e7a3d13b68898813e97d240fb): `crossfloor-arrival.mjs` requires an already-staged **original** rendered gate, verified old guardian/cap + genuine observed grounded Floor 8→9 receipt, same run/roof/body support/unchanged world width, strict 12-source-tick and 1.25s/8-submission bounds; it refuses an already-present conflicting immutable crossing record. `world.mjs` stores this exact received provenance in the retained original Three GPU group and offers a source-qualified read-only handoff for camera/horizon. `cold-doorway-camera.mjs` now frames the same original physical gate and real drawn actor on the verified pre-publication receipt (subject to existing camera safety), while `biome-threshold.mjs` shares the same submitted-frame bronze→void environmental transition. No source event, floor, HP, collider or player pose is invented.
+- [`129484ef`](https://github.com/my-edutu/Ai_games/commit/129484efacc1d5e9509b371ada213df305fd6b59): focused multi-system source fixture and veto tests for camera, warm biome, deferred shaft and unchanged authority, plus wrong run/dead body/false support/distant body/stale frame/conflicting recorded crossing.
+- [`55c357f2`](https://github.com/my-edutu/Ai_games/commit/55c357f2b76d8e0b5e4a70b8fb449d1270925103): fixed a production proof-label mismatch: source-authenticated original staged passages legitimately schedule the deferred shell under `recorded-source-gateway` even before immutable-record publication, while generic adjacent browser observations MUST NOT defer or prolong architecture. Corrected the test fixture to match that genuine production pathway.
+
+Previous exact-head quality [43494973400](https://github.com/my-edutu/Ai_games/actions/runs/43494973400) was **FAILED**: nine jobs succeeded and Phase6's unrelated maze-readiness suite hit timeout exit 124. No changes to Maze or any other game. Latest exact-head candidate quality [43503035733](https://github.com/my-edutu/Ai_games/actions/runs/43503035733) **NOT YET VERIFIED** at this review; CI is a veto, not evidence of better movement. Production changed source and test contract, but **fresh full-motion gameplay from this exact revision remains NOT EVALUATED**. No actual-device frame-time/memory measurements or independent fresh-context reviewers have been performed.
+
+## Video acceptance work and next highest-impact action
+
+The new immutable-source eight-film + event-matching campaign is requested by the matching `capture-request.json` commit (baseline pinned `1731b380851162741761c5569e2bc152a0869ca9`, candidate pinned to that new evidence commit). Review original unedited normal-speed 960×600 and 390×844 danger films at 22–31s alongside source tick451, browser-received crossing record, first returned WebGL frame, physical projected old gateway and actual full-body climber, original gallery and F9 opaque-shell state. Inspect complete 60+s ascent, moving-floor and outcome/restart videos. If a hard violet world cut persists, rebuild **physical world depth/occlusion and camera composition** rather than extending timing/fade windows. Do not advance P0 on helper/CI success alone.
+
+**Independent randomized blind reviews:** LOOKS 0/5, FEELS 0/5, PLAYS 0/5. **Supported actual device p50/p95/p99 and memory:** NOT EVALUATED. **Leading transformation verdict:** NOT EVALUATED.
+
+**Safety:** immutable PR58 base `1731b380851162741761c5569e2bc152a0869ca9`, PR68 draft/open, no baseline move, deploy, merge, force-push, promotion, PR58 overwrite or edits to unrelated games.
