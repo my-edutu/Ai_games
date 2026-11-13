@@ -8,15 +8,16 @@ function specimen(){
     halfHeight:18000,health:5,grounded:true,
     groundedPlatformId:'f9:p1',vy:0,state:'standing'},
   platforms:[{id:'f9:p1',x:280000,y:80000,width:90000,height:2000}]};
- const held={runToken:'real-run',floor:9,sourceTick:451,
+ const held={runToken:'real-run',floor:9,sourceTick:454,
+  crossingTick:451,firstWorldRenderTick:460,
   thresholdX:320000,oldRoofY:82000,submittedFrames:2,visibleSeconds:.2};
  const passage={sourceBound:true,active:true,stage:'handoff',
   continuousGroundedHandoff:true,innerDoorAssemblyVisible:true,
   exteriorMemoryFrameVisible:false,runToken:'real-run',
-  floor:9,sourceTick:451};
+  floor:9,sourceTick:454};
  const job={state:'awaiting-actual-first-render',
   proof:'recorded-source-gateway',runToken:'real-run',
-  floor:9,sourceTick:451,structureDeferred:true,submittedFrames:2};
+  floor:9,sourceTick:460,structureDeferred:true,submittedFrames:2};
  return {source,held,passage,job};
 }
 test('actual supported climber and original source-earned bronze gate delay cold opaque Floor9 shaft',async()=>{
@@ -67,7 +68,7 @@ test('original cap contact survives a genuinely late first F9 browser frame, nev
   observedClockworkRoofContinuity:continuity,
   holdIncomingStructuralShell:shell}=await loaded;
  const s=specimen();
- s.source.tick=476;s.held.sourceTick=454;s.passage.sourceTick=454;s.job.sourceTick=454;
+ s.source.tick=476;s.held.sourceTick=454;s.passage.sourceTick=454;s.job.sourceTick=460;
  s.source.player.groundedPlatformId='f8:cap';
  s.source.platforms=[{id:'f9:ground',x:280000,y:80000,width:90000,height:2000}];
  s.held.oldCapId='f8:cap';s.held.oldCapX=280000;s.held.oldCapWidth=90000;
@@ -116,17 +117,20 @@ test('cold actual source crossing keeps original cap/horizon through first delay
    player:{x:crossingX+8000,y:195000,halfWidth:9000,halfHeight:18000,
      health:5,grounded:false,groundedPlatformId:null,vy:4000,state:'airborne'},
    platforms:[{id:'f9:ground',x:260000,y:80000,width:160000,height:2000}]};
- const held={runToken:'real-run',floor:9,sourceTick:451,
+ const held={runToken:'real-run',floor:9,sourceTick:453,
+   crossingTick:451,firstWorldRenderTick:460,
    thresholdX:exitX,oldRoofY:82000,oldCapId:oldCap.id,
    oldCapX:oldCap.x,oldCapWidth:oldCap.width,
    submittedFrames:1,visibleSeconds:.12};
  const inactivePassage={sourceBound:false,active:false,stage:'idle'};
  const job={state:'awaiting-actual-first-render',
    structureDeferred:true,proof:'recorded-source-gateway',
-   runToken:'real-run',floor:9,sourceTick:451,submittedFrames:1};
+   runToken:'real-run',floor:9,sourceTick:460,submittedFrames:1};
  const initial=JSON.stringify([source,held,job]);
  assert.equal(real(source,held),true);
  assert.equal(shell(source,inactivePassage,held,job),true);
+ assert.equal(shell(source,inactivePassage,held,{...job,sourceTick:453}),false,
+   'a browser receipt tick must never impersonate actual first WebGL rebuild');
  assert.equal(JSON.stringify([source,held,job]),initial);
  const {observedGroundedBiomeThreshold}=await import('../../public/infinite-tower-climb/visuals/biome-threshold.mjs');
  const fade=observedGroundedBiomeThreshold(source,inactivePassage,{},held);

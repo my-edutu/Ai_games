@@ -1601,11 +1601,25 @@ export function createTowerWorld(){
     const root=new THREE.Group();root.name=`platform:${p.id}`;floorGroup.add(root);
     const angle=p.width/width*ARC,h=p.height/SCALE;
     const bodyMaterial=theme==='ruins'?materials.stone:theme==='void'?materials.crystal:theme==='clockwork'?materials.copper:materials.metal;
+    // REAL successor ground uses its EXISTING collision-aligned roof. While
+    // the identical old bronze cap and HP-opened gate share this physical
+    // threshold, gradually acclimatize only its landing material. No extra
+    // platform, overlay, collider, route, vertices or gameplay clock.
+    const sharedPhysicalRoof=p.id==='f9:ground' && theme==='void' &&
+      retainedEarnedCap?.floor===9 &&
+      retainedEarnedCap.runToken===lastSnapshot?.runToken &&
+      retainedEarnedCap.originalDeckSurface?.color;
+    const arrivalSurface=sharedPhysicalRoof?materials.landing.clone():null;
+    if(arrivalSurface){
+      arrivalSurface.name='SourceEarnedSharedPhysicalArrivalRoof';
+      arrivalSurface.color.copy(retainedEarnedCap.originalDeckSurface.color);
+      floorMaterials.add(arrivalSurface);
+    }
     // The route is an engineered deck, not another monumental shelf. A slim
     // curved box beam, rolled edge and open rear webs leave the undercroft open.
     mesh(root,sector(22.45,27.05,angle,.48),bodyMaterial,[0,h-.64,0]).userData.structural=true;
     mesh(root,sector(22.5,26.97,angle,.10),materials.dark,[0,h-.74,0]);
-    mesh(root,sector(22.4,27.18,angle,.16),materials.landing,[0,h-.16,0]);
+    mesh(root,sector(22.4,27.18,angle,.16),arrivalSurface||materials.landing,[0,h-.16,0]);
     mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:materials.copper,[0,h-.27,0]);
     mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
@@ -1900,7 +1914,7 @@ export function createTowerWorld(){
       root.add(traveler,countergear,actuator,gearVisual);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,capLandingMaterial,guardianGate,traveler,countergear,actuator,gearVisual,
+      capMaterials,capLandingMaterial,arrivalSurface,guardianGate,traveler,countergear,actuator,gearVisual,
       motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
   function buildHazard(h,width){
@@ -1988,6 +2002,11 @@ export function createTowerWorld(){
   function retireEarnedCap() {
     if (!retainedEarnedCap) return;
     const held = retainedEarnedCap;
+    // A verified passage may end early (death, new run, changed location).
+    // Restore the real F9 ground's canonical void material in that same
+    // frame; never leave a historical bronze tint on an unrelated route.
+    const arrival=platforms.get('f9:ground')?.arrivalSurface;
+    if(arrival && materials.landing)arrival.color.copy(materials.landing.color);
     held.root.removeFromParent();
     held.root.traverse(object => {
       if (object.isInstancedMesh) object.dispose();
@@ -2230,6 +2249,14 @@ export function createTowerWorld(){
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
         held.submittedFrames, held.visibleSeconds);
+    // The authentic F9 roof must not change from bronze to violet all at
+    // once behind an otherwise still-present old gateway. Its original
+    // gameplay geometry is unchanged; interpolate only its existing
+    // dedicated source-owned landing shader toward the actual void palette.
+    const arrival=platforms.get('f9:ground')?.arrivalSurface;
+    if(arrival && held.originalDeckSurface && materials.landing)
+      arrival.color.copy(materials.landing.color).lerp(
+        held.originalDeckSurface.color,held.originalDeckSurface.opacity);
     if (held.submittedFrames >= 5 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
       retireEarnedCap();
   }
@@ -3093,6 +3120,7 @@ export function createTowerWorld(){
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
         ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
+      sharedPhysicalRoofColor:platforms.get('f9:ground')?.arrivalSurface?.color.getHexString()??null,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
       crossingTick:retainedEarnedCap.crossingTick,

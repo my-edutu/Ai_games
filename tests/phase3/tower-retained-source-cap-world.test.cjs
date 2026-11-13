@@ -371,7 +371,20 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(retained.pendingSourceTickGap,6);
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
     assert.equal(world.group.getObjectByName('platform:f8:cap'),originalRoof);
-    assert.equal(world.group.getObjectByName('platform:f9:ground')?.isGroup,true);
+    const realSuccessorRoof=world.group.getObjectByName('platform:f9:ground');
+    assert.equal(realSuccessorRoof?.isGroup,true);
+    const sharedSurface=realSuccessorRoof.children.find(o=>o.isMesh &&
+      o.material?.name==='SourceEarnedSharedPhysicalArrivalRoof');
+    const oldSurface=originalRoof.children.find(o=>o.isMesh &&
+      o.material?.name==='SourceEarnedOriginalClockworkDeck');
+    assert.ok(sharedSurface && oldSurface,
+      'one physical real F9 route must inherit old retained cap color, no proxy bridge');
+    assert.ok(sharedSurface.material.color.equals(oldSurface.material.color),
+      'the same walkable roof cannot begin its new-floor film as a violet hard cut');
+    const firstGroundColor=sharedSurface.material.color.clone();
+    const canonicalVoidColor=world.group.getObjectByName('platform:f9:ground')
+      .children.find(o=>o.isMesh&&o.material?.name==='SourceEarnedSharedPhysicalArrivalRoof')
+      .material.color.clone();
     assert.equal(roof(realFirstRender,passage,retained),true,
       'retained architecture must recognize the SAME passage observation');
     assert.ok(world.retainedFilmHandoff(realFirstRender),
@@ -387,6 +400,34 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'awaiting-actual-first-render',
       'the new opaque monumental shaft cannot replace the original first doorway');
     assert.equal(world.diagnostics().vistaLayers,0);
+    assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
+      'successfully returned frames blend the real landing toward void, not a painted static proxy');
+    assert.equal(world.diagnostics().retainedSourceCap?.sharedPhysicalRoofColor,
+      sharedSurface.material.color.getHexString());
+    // Under the source-authenticated handoff the heavy violet shaft stays
+    // absent while the REAL bronze doorway and grounded successor roof
+    // are visible together. Eight actual returned submissions are not
+    // permission to bury the same threshold behind the purple architecture.
+    for(let step=2;step<=8;step++){
+      const frame={...later,tick:460+step};
+      const witness={...passage,handoffSubmittedFrames:step,
+        handoffDisplaySeconds:step*.05};
+      world.noteFrameSubmitted(frame,{});
+      world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
+    }
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined);
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-actual-first-render');
+    // A far or wrong-run hero must release the old doorway without prolonging
+    // deferred architecture or changing canonical F9 platform materials.
+    const departed={...later,tick:476,
+      player:{...later.player,x:gate+160000}};
+    world.update(departed,.05,.8,{quality:'low'},passage);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined);
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
+      'noninteractive new-floor structure arrives after the real body leaves the source gate');
+    assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
+      'old bronze must not remain frozen on the new floor after authentic departure');
     assert.equal(JSON.stringify([oldFrame,first,realFirstRender]),frozen);
     assert.equal(cold({...realFirstRender,runToken:'other'},
       world.retainedFilmHandoff(realFirstRender)),false);

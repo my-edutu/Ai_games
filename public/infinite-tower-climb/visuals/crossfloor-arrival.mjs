@@ -213,8 +213,14 @@ export function holdIncomingStructuralShell(source,passage,held,job) {
       // not by the earlier browser observation or the HP-zero source tick.
       job.sourceTick!==held?.firstWorldRenderTick ||
       !Number.isSafeInteger(job.submittedFrames) ||
-      job.submittedFrames<1 || job.submittedFrames>=5 ||
-      held.submittedFrames>=5 || held.visibleSeconds>=.55) return false;
+      job.submittedFrames<1 || job.submittedFrames>=10 ||
+      held.submittedFrames>=10 || held.visibleSeconds>=1.25) return false;
+  // Actual 1x films still lost the entire bronze doorway behind an opaque
+  // purple shaft even while original GPU cap/gate were retained. Share the
+  // same bounded real-passage display clock as the roof instead of uploading
+  // the massive noninteractive new architecture after just one submission.
+  // Both branches remain fully source-validated and terminate on wrong run,
+  // death, changed floor, stale crossing, distant climber or elapsed window.
   return observedClockworkRoofContinuity(source,passage,held) ||
     observedSourceEarnedColdFrameContinuation(source,held);
 }
