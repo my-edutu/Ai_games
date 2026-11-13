@@ -9475,5 +9475,25 @@
     "blocker": "Shared source-asset/real browser development connector NOT_FOUND: Tunnel-client has not been seen for 300 seconds; independent workers unavailable",
     "pr72": "3090f1c67d9b5255e800049706c7af8f62dd5630_SEPARATE_UNADOPTED",
     "next": "Restore source-rig workspace; build ONE materially new original adult-skeletal Vanguard/Revenant/Warden GLB-and-motion exemplar, author attack/guard/hurt/death, inspect natural full-motion hand-to-blade and positive-HP-loss original audio on 1440/390, fix camera foreground obstruction, multi-seed and all-gate replay/CI, locked M1 baseline and >=3 blind critics. No merge/deploy/new PR."
+  },
+  "m1ImmediateSourceForegroundClearance20261113": {
+    "date": "2026-11-13",
+    "pr": 49,
+    "parent": "4dff4142961e428d244950da00a0d7dfbd089687",
+    "baseline": "281735d0910c6b2443648af976003d50412ee324",
+    "stage": "A_INCOMPLETE_B_UNVERIFIED",
+    "status": "CANDIDATE_BROWSER_UNVERIFIED",
+    "actualBeforeRun": 43349971747,
+    "actualMobileUnique": "436/946",
+    "actualDesktopUnique": "456/946",
+    "source": "Verified foreground obstructors immediately physically cleared in display frame; gradual return after unblocked, no simulated outcome changes.",
+    "tests": "Local source RED before, 3/3 GREEN after; four native Node tests on branch; official CI pending",
+    "realAfter": "NOT_OBSERVED",
+    "pr72": "SEPARATE_UNADOPTED",
+    "critics": 0,
+    "looks": "UNVERIFIED",
+    "feels": "UNVERIFIED",
+    "plays": "UNVERIFIED",
+    "next": "Authentic new 390px/1440px visual audit and revert if worse; then major original source-skinned adult cast, grounded original sword/contact/HP/audio, hardware perf, immutable BEFORE A/B and 3 blind critics."
   }
 }

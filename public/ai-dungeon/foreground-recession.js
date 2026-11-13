@@ -17,8 +17,11 @@ export function applyForegroundRecession(group,blocked,frameDelta=0,reducedMotio
  // Fast genuine obstruction clearance, slower original architectural return.
  // Every step is bounded even when software WebGL stalls; reduced motion
  // and first-shot sightline protection remain immediate.
- state.fraction=reducedMotion?(blocked?0:1):blocked?
-  Math.max(0,state.fraction-12*dt):Math.min(1,state.fraction+4*dt);
+ // The camera director expects verified source foreground clearance in
+ // the CURRENT frame. A 2-frame recession can obscure source-skinned
+ // heads, boots and weapons for seconds during slow software-WebGL frames.
+ // Physically clear genuine obstruction now; restore stone only afterward.
+ state.fraction=blocked?0:reducedMotion?1:Math.min(1,state.fraction+4*dt);
  const smooth=state.fraction*state.fraction*(3-2*state.fraction);
  group.position.y=state.baseY-state.depth*(1-smooth);
  group.visible=state.fraction>.001;
