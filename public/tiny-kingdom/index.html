@@ -13644,7 +13644,7 @@ function farmStalk(x,z,index,season,compact=false){
   [upper[0],upper[1],upper[2]+width*.40],
   [upper[0],upper[1],upper[2]-width*.40],stalk);
  if(season!==3){
-  const reverseLeaf=leaf.map(v=>v*.79);
+  const reverseLeaf=Array.isArray(leaf)?leaf.map(v=>v*.79):leaf;
   if(compact){
    // Same four two-sided original leaf triangles, now with true swept
    // outboard width and drooping tip instead of narrow vertical sticks.
