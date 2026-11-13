@@ -4700,3 +4700,45 @@ test('original Walking_A ankle swing correction remains continuously owned only 
  ])assert.equal(hold({...source,...bad}),null,
   'unproven source ankle hold must release instead of inventing a foot contact: '+JSON.stringify(bad));
 });
+
+
+// Actual original GLB mobile Walking_A frames 21→22, 23→24, artifact
+// #14021026201: the authority root turns ~0.637rad between visible frames.
+// Counterturn only the ORIGINAL imported chest; the legs, root movement,
+// source hand/weapon socket and AnimationMixer keyframes remain untouched.
+// No inference of a damage event, new target, contact or fake foot plant.
+test('real original Walking_A torso counterturn has bounded source-owned follow-through and safe release',async()=>{
+ const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
+ const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.095,frameInterval:.0936,
+  previousRootYaw:-1.275,currentRootYaw:-1.9125,previousOffsetRad:0};
+ const turn=plan(base);
+ assert.ok(turn,'real imported fast-turn frame must support bounded chest lag');
+ assert.ok(turn.offsetRad>.03&&turn.offsetRad<=.12,
+  'negative root turn requires a positive, <=120mrad source-spine counterturn');
+ assert.equal(turn.contactLocked,false);
+ assert.ok(turn.originalYawStepRad>.63&&turn.originalYawStepRad<.65);
+ const release=plan({...base,previousRootYaw:base.currentRootYaw,
+  currentRootYaw:base.currentRootYaw,previousOffsetRad:turn.offsetRad,
+  frameInterval:.0334,rootTravel:.035});
+ assert.ok(release&&release.offsetRad>=0&&release.offsetRad<turn.offsetRad,
+  'same original source must release chest lag monotonically, not snap or reset');
+ for(const bad of [
+  {mode:'attack'},{mode:'hurt'},{mode:'cast'},{mode:'guard'},
+  {mode:'defeat'},{sourceClipName:'Idle'},{sourceWeight:.6},
+  {sourceInstanceSame:false},{ownerLocomotion:false},{alive:false},
+  {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0},{frameInterval:.36},{frameInterval:0},
+  {previousRootYaw:NaN},{currentRootYaw:NaN},{previousOffsetRad:NaN}
+ ])assert.equal(plan({...base,...bad}),null,
+  'a non-locomotion/unsafe source must never counterfeit torso recovery');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceWalkingTorsoCounterturn\(/,
+  'native Three.js rAF must invoke the pure original-source counterturn');
+ assert.match(renderer,/walkingTorsoCounterturn\?\.offsetRad/,
+  'only a source-owned reversible imported spine mount receives its offset');
+ assert.match(renderer,/actor\.rigMeleeBones/,
+  'the original spine must reuse the existing reversible source-bone attachment');
+});
