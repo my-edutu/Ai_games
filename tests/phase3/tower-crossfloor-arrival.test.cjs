@@ -215,7 +215,7 @@ test('delayed immutable HP-zero record re-authenticates an already-rendered REAL
  for(const changed of [
   {...source,runToken:'new-run'},
   {...source,lastGuardianCrossing:{...w,runToken:'other-run'}},
-  {...source,lastGuardianCrossing:{...w,sourceTick:450}},
+  {...source,lastGuardianCrossing:{...w,sourceTick:437}},
   {...source,lastGuardianCrossing:{...w,cap:{...cap,width:cap.width-1}}},
   {...source,lastGuardianCrossing:{...w,guardian:{...w.guardian,health:1,active:true}}},
   {...source,player:{...source.player,x:exitX+140000}},
