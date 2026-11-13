@@ -105,7 +105,10 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   assert.equal(visual.length,0,'no effects before a real render opportunity');
   assert.equal(calls-beforeSnapshotCalls,1,
    'all HP losses in one immutable public snapshot share their observation boundary');
+  const beforeAdvanceCalls=calls;
   director.advance(.016,.016);
+  assert.equal(calls-beforeAdvanceCalls,3,
+   'visual start/end plus ONE shared post-emission clock for both HP injuries');
   assert.equal(visual.filter(c=>c.proof==='observed-hp-drop').length,2);
   const beforeReceiptCalls=calls;
   assert.equal(director.acknowledgePresentedFrame(1,.012),2);
@@ -115,10 +118,11 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   assert.equal(receipts.length,2);
   assert.equal(new Set(receipts.map(r=>r.observedClockMs)).size,1);
   assert.equal(new Set(receipts.map(r=>r.submittedClockMs)).size,1);
-  // One extra post-visual-work clock read now separates real-frame phases.
-  assert.ok(receipts.every(r=>r.observationToSubmissionMs===30));
+  // A single shared post-emission clock covers BOTH HP injuries. Only the
+  // actual WebGL receipt supplies submitted time, not decoded PCM/VP8 sync.
+  assert.ok(receipts.every(r=>r.observationToSubmissionMs===40));
   assert.ok(receipts.every(r=>r.beforeVisualAdvanceMs===10&&
-   r.visualAdvanceMs===10&&r.afterVisualAdvanceToSubmissionMs===10));
+   r.visualAdvanceMs===10&&r.afterVisualAdvanceToSubmissionMs===20));
   assert.ok(receipts.every(r=>r.sampleSynchronized===false));
   assert.deepEqual(new Set(audio.map(c=>c.targetId)),new Set(['hero','ally']));
   assert.equal(director.acknowledgePresentedFrame(1,.012),0,'replay must not create a second receipt');
