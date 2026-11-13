@@ -1,0 +1,32 @@
+# D04 — Shared post-emission HP deadline and early slow emitter cleanup (13 November 2026)
+
+**Status: isolated opt-in correctness increment; NOT realism-accepted or deployed.** Branch `feat/dungeon-d04-combat-feedback-realism-20261108`; frozen BEFORE comparison `281735d0910c6b2443648af976003d50412ee324`. Normal `/dungeon` remains legacy; the experiment requires `?feedback=d04`. No main, Draft PR #49, gameplay, character, camera or lighting edits.
+
+## Defect observed and reproduced
+
+The previous [D04 near-expiry correction](D04_Post_Emission_HP_Expiry_20261113.md) covered authentic injury visual emission only when its pre-emission clock was already within the final 100ms of the 400ms deadline. An injury observed 80ms earlier could still start its first D04 visual emission, spend 450ms inside the adapter, and leave a stale pooled fragment for the next WebGL frame even though the eventual original impact audio would be rejected. This is a **test-reproduced D04-owned visual-liveness bug**, not a measured cause of the intermittent multi-second real Chrome render stalls.
+
+New test-first regression: [`d938392`](https://github.com/my-edutu/Ai_games/commit/d938392386faa89b730f469998170b02fb878a57) in `tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs` models a real `observed-hp-drop` after 80ms, an injected 450ms visual emission, one pooled slot and one renderer acknowledgement. [Pre-fix CI 43363319565](https://github.com/my-edutu/Ai_games/actions/runs/43363319565) correctly failed **one of 244 tests**, with the stale shard still live. These are deliberately injected clocks/adapters; they are not genuine GPU/PCM playback.
+
+## Isolated implementation
+
+[`a603973`](https://github.com/my-edutu/Ai_games/commit/a6039734278cf3b4f9bb206faba2be3273f63200) stages a bounded due-frame batch in its existing semantic priority order and samples ONE shared monotonic post-emission clock when at least one verified HP injury is present. All staged cues are then finalized in that original priority order. Authentic injuries that have exceeded the unchanged 400ms deadline are retired by cue ID **before the next WebGL submission**, recorded as terminal `expired-during-visual-emission`, and never staged for original audio. Unknown visual retirement is reported as unverified instead of fabricated cleanup. No attacker is attributed by an injury, no attempted swing is treated as damage, and no additional WebGL pool, instance, draw call or audio voice is created.
+
+The former one-clock-per-injury attempt was rejected because simultaneous HP losses must share the same observation and submit clocks. This revised design samples **one extra clock per due batch containing real HP loss**, not one per victim. No extra clock is sampled for a batch with only misses, movements, Warden warnings or spells. Non-submission/legacy callers stay synchronous.
+
+[`786f6fc`](https://github.com/my-edutu/Ai_games/commit/786f6fcfd85bf84fa2bfefb186f24bd055d03a0a) updated the existing two-simultaneous-HP clock contract to assert precisely three frame-boundary reads (start, after visual advance, after emitted batch), **one** post-WebGL read for both victims and the changed 40ms shared observation-to-submission instrumentation. This is an explicitly measured synthetic clock fixture, not a new performance score. [Intermediate CI 43363450753](https://github.com/my-edutu/Ai_games/actions/runs/43363450753) had 243/244 pass, with exactly this expected stale instrumentation assertion failing; the new early-expiry regression passed.
+
+## Verification and evidence classifications
+
+- [Corrected CI 43363597511](https://github.com/my-edutu/Ai_games/actions/runs/43363597511): **244/244 native D04 contracts passed and `npm run build` passed**. Genuine Chrome `real-preview` was **in progress** when this document was committed; do not claim browser acceptance until its completed artifact and verdict are read.
+- [Previous completed genuine Chrome run 43357879315](https://github.com/my-edutu/Ai_games/actions/runs/43357879315) still failed strict `AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED`; all five other browser cases passed. It observed actual multi-second WebGL/scene stalls on BOTH legacy and D04, which is not proof D04 caused them or that this patch fixes them.
+- Previously captured genuine Dungeon desktop/390px WebMs contain original VP8 and Opus but only 13/11 decoded video frames respectively with 3.015s/1.512s maximum gaps. Those artifacts **predate this patch**, show sparse movement, and do NOT certify moving blade contact or sampled sound synchronization.
+- The test-first case is an injected 450ms visual-adapter hold, not a measured real browser effect duration. All wall-clock receipts remain `sampleSynchronized:false`; source-start reports cannot be subtracted from video PTS.
+
+## Boundaries, review and rollback
+
+Modified only `public/ai-dungeon/physical-combat-feedback.js`, `tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs`, `tests/foundation/dungeon-d04-pre-submit-wall-deadline.test.cjs`, and this handoff. The existing seven pools / 102 reserved instances, <=7 D04 draws, <=8 original simultaneous voices, 32 pending / 32 awaiting / 64 receipts, WebAudio fresh gesture, explicit mute persistence, reduced flash/motion, authoritative HP causality, scene cleanup and immutable 400ms sound deadline remain unchanged. No external/licensed sound assets added.
+
+**Specification review:** one authenticated HP decrease can stage an injury; a stale emission cannot become a future visible hit or trigger old sound; other warnings are not cancelled by injury expiry. **Quality review:** the extra sample is batch-shared and limited to real HP events; strict native tests pass. A stalled later WebGL render can still exceed the deadline after D04 has finalized all cues. Its already-submitted pixels cannot be retroactively undone, and the independent post-WebGL audio deadline must stay fail-closed.
+
+Rollback the production commit `a603973` and the altered shared-clock expectation in `786f6fc` together; preserve the red early-slow-emission regression as a rejection gate when redesigning. The next dominant weakness is **actual render-submission latency and sparse matched moving A/V**. Compare D04 phase clocks with genuine WebGL submission on three fixed view directions and both 1440x900 / 390x844, and collect true misses, block, dodge, projectile, spell, verified impact, full Warden lifecycle, decoded PCM alignment and the 20-minute cleanup soak. None are passed merely by this test.
