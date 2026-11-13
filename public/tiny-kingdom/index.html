@@ -23103,10 +23103,12 @@ function applyPlayerCamera(a,t,z){
  if(follow&&grainJourney?.homeWitness){
   const home=getRealGrainHomeWitness();
   if(home){
-   const v=safeFreeOrbit(a,t,z,[home.x,home.z]);if(!v)return false;
-   yaw=v.yaw;pitch=v.pitch;zoom=v.zoom;
-   grainJourney.homeLens={yaw,pitch,zoom,citySize:city.length,
-    viewportWidth:canvas.clientWidth,viewportHeight:canvas.clientHeight};
+   const next=chooseRealHomeManualOrbit(home,a,t,z);
+   if(!next)return false;
+   yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
+   // Never throw away the earned original homeIndex, door aim or lens proof
+   // during a manual orbit/zoom. The true physical eye is in next.eye.
+   grainJourney.homeLens={...grainJourney.homeLens,...next};
    presentationEpoch++;return true;
   }
  }
@@ -24039,6 +24041,64 @@ function chooseRealGrainHomeLens(home){
  }
  return best?{...best,checkedShots:surveyed,clearShots:clear}:null;
 }
+
+ // W284: the observed original, recorded household is a physical exterior,
+ // not a re-enacted meal or a lens pointing through an occupied cottage.
+ // The same complete roof/plant/scene proof guards manual touch orbit and
+ // camera transitions. Failures leave the original world intact.
+let homeWitnessPhysicalRepairs=0,homeWitnessPhysicalSurveys=0,
+ homeWitnessManualRejections=0;
+function originalRealHomeEye(home,angle,tilt,distance){
+ const radius=Math.cos(tilt)*distance;
+ return [home.x+Math.sin(angle)*radius,
+  terrain(home.x,home.z)+1.02+Math.sin(tilt)*distance,
+  home.z+Math.cos(angle)*radius];
+}
+function inspectRealHomeCamera(home,eye){
+ const front=realGrainHomeFrontage(home);
+ if(!front||!Array.isArray(eye)||eye.length!==3||
+    !eye.every(Number.isFinite))
+  return {clear:false,reason:'no-real-frontage'};
+ homeWitnessPhysicalSurveys++;
+ const roofs=followCameraRoofs();
+ const physical=physicalFollowEyeClearance(eye,roofs),
+  blockers=followRayBlockers(eye,front.aim,roofs);
+ if(!physical.clear||blockers!==0)
+  return {clear:false,reason:!physical.clear?'physical-eye':'real-roof-ray'};
+ const plants=foregroundVegetationProjection(eye,front.aim),
+  scene=foregroundSceneProjection(eye,front.aim,roofs);
+ const clear=plants.faceBlockers===0&&plants.cover<.32&&scene.cover<.44;
+ return {clear,reason:clear?'real-door-in-view':'real-foreground-cover',
+  aim:front.aim.slice(),homeKey:front.homeKey,
+  sceneCover:scene.cover,canopyCover:plants.cover};
+}
+function chooseRealHomeManualOrbit(home,requestYaw,requestPitch,requestZoom){
+ const front=realGrainHomeFrontage(home);
+ if(!front||![requestYaw,requestPitch,requestZoom].every(Number.isFinite))
+  return null;
+ const pitch=Math.max(.10,Math.min(.70,requestPitch)),
+  zoom=Math.max(4.1,Math.min(13,requestZoom));
+ // Exact requested direction is first. Bounded near alternatives only for
+ // actual obstructed brickwork, vegetation and occupied roofs; user input
+ // cannot silently discard the documented meal-home identity.
+ for(const turn of [0,-.14,.14,-.32,.32,-.54,.54]){
+  for(const rise of [0,.08,-.08]){
+   const yaw=requestYaw+turn,t=Math.max(.10,Math.min(.70,pitch+rise));
+   const eye=originalRealHomeEye(home,yaw,t,zoom);
+   const proof=inspectRealHomeCamera(home,eye);
+   if(!proof.clear)continue;
+   return {source:'real-recorded-cottage-manual-physical-orbit',
+    homeIndex:front.homeIndex,homeKey:front.homeKey,
+    citySize:city.length,viewportWidth:canvas.clientWidth,
+    viewportHeight:canvas.clientHeight,
+    yaw,pitch:t,zoom,eye,aim:front.aim.slice(),
+    sceneCover:proof.sceneCover,canopyCover:proof.canopyCover,
+    blockingVolumes:0,userAdjusted:true};
+  }
+ }
+ homeWitnessManualRejections++;
+ return null;
+}
 function toggleRealGrainHomeWitness(){
  if(!grainJourney)return false;
  const home=getRealGrainHomeWitness();
@@ -24091,6 +24151,10 @@ function getRealGrainJourneyAudit(){
    aim:grainJourney.homeLens.aim.slice(),
    historicalMealNotReenacted:true}:null,
   historicalMealNotReenacted:true,
+  homeCameraPhysical:{repairs:homeWitnessPhysicalRepairs,
+   surveys:homeWitnessPhysicalSurveys,
+   manualRejections:homeWitnessManualRejections,
+   originalGeometryHidden:false,mealReenacted:false},
   producer:grainJourney.producer,deliveryId:grainJourney.deliveryId,
   lockedTradeId:grainJourney.tradeId||null,
   verifiedTrade:Boolean(plan?.hasVerifiedTrade),
@@ -25371,13 +25435,44 @@ if(follow&&!daybreakReturn){
  const home=grainJourney?.homeWitness?getRealGrainHomeWitness():null;
  const market=grainJourney?.marketWitness?grainJourney.marketLens:null;
  if(home&&grainJourney.homeLens){
-  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ease=reduceMotion?1:cameraWallEase(wallDt,5.4);
-  focusPoint[0]+=(home.x-focusPoint[0])*ease;
-  focusPoint[1]+=(home.z-focusPoint[1])*ease;
-  const lens=grainJourney.homeLens;
-  yaw+=Math.atan2(Math.sin(lens.yaw-yaw),Math.cos(lens.yaw-yaw))*ease;
-  pitch+=(lens.pitch-pitch)*ease;zoom+=(lens.zoom-zoom)*ease;
+  // A genuine new building, save restore or viewport turn can invalidate a
+  // formerly clear real cottage. Re-survey instead of filming through walls.
+  const front=realGrainHomeFrontage(home);
+  let lens=grainJourney.homeLens;
+  if(!front||lens.homeIndex!==home.homeIndex||
+     lens.homeKey!==front.homeKey||lens.citySize!==city.length||
+     lens.viewportWidth!==canvas.clientWidth||
+     lens.viewportHeight!==canvas.clientHeight){
+   lens=front?chooseRealGrainHomeLens(home):null;
+   grainJourney.homeLens=lens;
+  }
+  if(lens){
+   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   const ease=reduceMotion?1:cameraWallEase(wallDt,5.4);
+   focusPoint[0]+=(home.x-focusPoint[0])*ease;
+   focusPoint[1]+=(home.z-focusPoint[1])*ease;
+   yaw+=Math.atan2(Math.sin(lens.yaw-yaw),Math.cos(lens.yaw-yaw))*ease;
+   pitch+=(lens.pitch-pitch)*ease;zoom+=(lens.zoom-zoom)*ease;
+   // At 2-5 SOFTWARE frames per second a valid moving eye can still pass
+   // behind a real roof or market canopy for several seconds. Only repair
+   // an actually obstructed intermediate view to the independently surveyed
+   // physical cottage exterior, never hide geometry or create a meal actor.
+   const stillMoving=Math.hypot(focusPoint[0]-home.x,focusPoint[1]-home.z)>.04||
+    Math.abs(Math.atan2(Math.sin(lens.yaw-yaw),Math.cos(lens.yaw-yaw)))>.014||
+    Math.abs(lens.pitch-pitch)>.014||Math.abs(lens.zoom-zoom)>.07;
+   if(stillMoving&&Array.isArray(lens.eye)&&
+       inspectRealHomeCamera(home,lens.eye).clear){
+    const movingEye=originalRealHomeEye(
+     {x:focusPoint[0],z:focusPoint[1]},yaw,pitch,zoom);
+    if(!inspectRealHomeCamera(home,movingEye).clear){
+     focusPoint[0]=home.x;focusPoint[1]=home.z;
+     yaw=lens.yaw;pitch=lens.pitch;zoom=lens.zoom;
+     homeWitnessPhysicalRepairs++;
+    }
+   }
+  }else{
+   grainJourney.homeWitness=false;
+  }
   lastFollowShot=null;
  }else if(market){
   // A real completed receipt is already in the market's inventory.
