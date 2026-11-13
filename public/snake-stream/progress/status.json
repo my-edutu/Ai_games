@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-13",
-  "status": "T0 UNSIGNED / T1 BUILDING and visually SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; GPU cache bootstrap source integrated, fresh Chromium acceptance PENDING",
-  "detail": "Source exact parent 8050091d Chromium #43441202009 remained 2/17 genuine full-scene submissions in original 1s at 751x415, GPU queue skips 560, cache builds/hits 0; native CI 716/785, browser 52/95. Tested current-world GPU-fence cache bootstrap candidate renderer e2c436d4 RED 1/4 -> GREEN 4/4 focused native, TypeScript and authority tests previously passed; new source-head strict WebGL, 1920/390 gameplay, 45-90s authentic film, 30 displayed FPS/device p95, full catalog and independent quality acceptance NOT VERIFIED. No milestone passed.",
+  "status": "T0 UNSIGNED / T1 BUILDING visually SELF-REJECTED pending exact-new-head Chromium / T2 BUILDING / T3 BUILDING / T4 HARD RED",
+  "detail": "T1 shared source-owned physically 3D four-shore tidal relief changes existing real cliff+moss+limestone meshes only; exact 722 parent RED 0/3 -> GREEN 3/3; focused 13/13, TS and 900 tick authority and 10k seeded pass. Last original parent 722 strict benchmark 8/17 at 751x415, 334 GPU skips, browser 49/95, native 720/789. New-head WebGL video/FPS/independent acceptance PENDING. Never merge/deploy.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "No accepted visual or FPS transformation: last authentic full game still dominated by tiled rectangle with undersized overview serpent. T4 candidate browser strict result pending; gate >=17 complete draws/1s unchanged.",
+  "latestCaption": "NO accepted T1 art win: last genuine 722 whole game remains a highly rectangular courtyard; unified real geology is native-verified only. Original >=17 actual WebGL complete renderer submission gate still RED; new source proof pending.",
   "reviews": [
+    {
+      "area": "2026-11-13 T1 shared four-shore original 3D exterior relief BUILDING; source-matched Chromium pending",
+      "sourceHead": "722eb72bfb43f7d43ad148a2ba855a24bbf2ad60",
+      "worldSourceOldBlob": "e7f5d449701954afd8f04f2cfa4a17e998940b32",
+      "worldCandidateBlob": "1ebc8b55412f1dcc67725ddc493bd00b63d55b9c",
+      "browser": "Completed parent Chromium #43487976974 49/95; untouched strict 8 genuine complete WebGL submissions / required 17 at 751x415, 334 GPU queue skips; NEW HEAD NOT YET MEASURED",
+      "nativeCI": "Parent #43487976941 720/789; focused native RED 0/3 -> candidate GREEN 3/3; related 13/13; TypeScript, 900 authority/restart/recovery/privacy and 10,000 seeded ticks passed",
+      "checks": "Shared physical tidal relief in original cliff, moss and limestone meshes; original 33 draw objects, 13 static batches, four textures; all game authority, captions, water, waterfall, snake, portals untouched. Broader old resource-contract suite still red on untouched parent.",
+      "verdict": "T0 UNSIGNED, T1 BUILDING self-rejected based on parent video, T2/T3 BUILDING, T4 HARD RED, independent review pending; no acceptance, merge or deploy"
+    },
     {
       "area": "2026-11-13 current-world real GPU completed-fence cache bootstrap source integrated ONLY",
       "sourceHead": "8050091d5af7c3144168de3fc44804397270a22b",

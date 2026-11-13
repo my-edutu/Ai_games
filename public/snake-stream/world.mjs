@@ -476,8 +476,9 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
       const coastalCrown = .5 + .5 * Math.cos(a * 8 + .33);
       const longSlope = .5 + .5 * Math.sin(a * 3 - .48);
       const fracturedCape = .5 + .5 * Math.cos(a * 11 - .72);
+      const tide = sampleTidalTerraceRelief(width,height,a);
       const terraceReach = 2.95 * (.49 * broadBay + .61 * coastalCrown
-        + .37 * longSlope + .20 * fracturedCape);
+        + .37 * longSlope + .20 * fracturedCape) + 1.05*tide.cape-.28*tide.inlet;
       const outward = ring / (ringCount - 1);
       // The four corner groves plus west/east valleys and northern old-growth
       // were previously detached islands. Connect their ACTUAL world-space
@@ -500,12 +501,15 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
         rootedCape = Math.max(rootedCape,
           Math.max(0, forest.distance - expectedOuter - .72) * lobe);
       }
+      const terraceStage=[0,.06,.48,.13][ring];
       const radius = boundary + shelf + erosion + grain
-        + (terraceReach + rootedCape) * outward * outward;
+        + (terraceReach + rootedCape) * outward * outward
+        + terraceStage*tide.reach;
       const y = depth - (ring === 0 ? 0 : .065 * Math.sin(a * 7 - ring * .65) ** 2)
         - .020 * Math.sin(a * 13 + ring * .4) ** 2
         - outward * .16 * (.5 + .5 * Math.sin(a * 9 - .4))
-        + outward * .12 * Math.cos(a * 5 + .24);
+        + outward * .12 * Math.cos(a * 5 + .24)
+        + terraceStage*tide.rise;
       const x = radius * cx, z = radius * cz;
       positions.push(x, y, z);
       uvs.push(x / 5 + .5, z / 5 + .5);
@@ -561,14 +565,16 @@ export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
         +.31*Math.sin(9*a-.23)+.19*Math.cos(17*a+.64);
       const grain=.065*Math.sin(21*a+ring*.47);
       const wooded = sampleWoodlandBankCrown(width,height,a);
+      const tide = sampleTidalTerraceRelief(width,height,a);
       // The original four-ring, 672-triangle apron becomes a continuous,
       // nonrectangular eroded forest shoulder. The playable fan (ring 0) and
       // outer underwater foot (ring 3) retain their exact heights.
       const ridge=[0,.19,.66,0][ring]*wooded;
+      const terraceStage=[0,.16,.50,.18][ring];
       const r=border+reach+out*(.17*wave+grain)
-        +out*out*.40*wooded;
+        +out*out*.40*wooded+terraceStage*tide.reach;
       const slope=y+ridge-out*.045*(.5+.5*Math.sin(7*a-.31))
-        -.015*out*Math.sin(11*a+ring*.5);
+        -.015*out*Math.sin(11*a+ring*.5)+terraceStage*tide.rise;
       const x=r*cx,z=r*cz;
       positions.push(x,slope,z);
       uvs.push(x/5+.5,z/5+.5);
@@ -601,6 +607,34 @@ export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
 // coping around the connected eroded shelves. This is a bounded STATIC field;
 // unlike adding decorative islands, it cannot create draw calls, assets,
 // moving obstacles or per-frame scene allocations.
+/**
+ * One source-owned four-shore tidal relief field shared by the original
+ * under-court limestone apron and both continuous cliff/moss shelves.
+ * It alters ONLY one-time static exterior geometry: all gameplay cell centres,
+ * fruit, hazards, portals and their authoritative traversal remain untouched.
+ */
+export function sampleTidalTerraceRelief(width, height, angle) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2 || !Number.isFinite(angle))
+    throw new RangeError('Tidal relief requires a real board and finite shore angle');
+  const W=width/2,H=height/2,cx=Math.cos(angle),cz=Math.sin(angle);
+  const horizontal=(H+.095)/Math.max(1e-8,Math.abs(cz)) <=
+    (W+.095)/Math.max(1e-8,Math.abs(cx));
+  const edge=horizontal?(cz<0?0:1):(cx<0?2:3);
+  const boundary=Math.min((W+.095)/Math.max(1e-8,Math.abs(cx)),
+    (H+.095)/Math.max(1e-8,Math.abs(cz)));
+  const along=horizontal?boundary*cx+W:boundary*cz+H;
+  const span=horizontal?width:height;
+  const u=Math.max(0,Math.min(1,along/span));
+  const bump=(centre,spread)=>Math.exp(-Math.pow((u-centre)/spread,2));
+  const cape=Math.max(bump(.19+edge*.014,.095),.94*bump(.72-edge*.018,.11));
+  const inlet=Math.max(bump(.44+edge*.009,.12),.46*bump(.91-edge*.012,.055));
+  const woodland=sampleWoodlandBankCrown(width,height,angle);
+  const rill=.5+.5*Math.sin(angle*9.2+.35*Math.sin(angle*3.1));
+  return {edge,cape,inlet,woodland,
+    rise:.45*cape+.28*woodland-.35*inlet+.055*(rill-.5),
+    reach:.54*cape+.27*woodland-.19*inlet+.09*(rill-.5)};
+}
+
 function sculptTidalRill(edge, along) {
   const broad = .5 + .5 * Math.sin(along * .82 + edge * 1.72
     + .34 * Math.sin(along * .27 - edge * .31));
