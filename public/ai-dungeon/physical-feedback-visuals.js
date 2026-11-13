@@ -373,11 +373,27 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(disposed||!cue||cue.verified===false)return false;
   const type=category(cue),pool=pools.get(type);
   if(!pool)return false;
-  if(type==='hit'&&cue.proof!=='observed-hp-drop')return false;
+  // A nominally verified cue from an adapter is NOT interchangeable with
+  // the planner's concrete injury/release contract. In particular, an HP
+  // witness cannot manufacture a fresh arrow or spell, and an attempted
+  // swing cannot masquerade as a localized victim injury. The ordinary
+  // renderer trusts the read-only planner; this second ingress guard
+  // prevents mixed/invalid cue families from minting physical art.
+  if(type==='hit'&&(
+   !['damage','damage-fatal'].includes(cue.kind)||
+   cue.proof!=='observed-hp-drop'||
+   typeof cue.targetId!=='string'||cue.targetId.length===0||
+   !cell(cue.to)))return false;
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
   if(type==='block'&&cue.proof!=='authority-block-unique-guarded-hp')return false;
-  if((type==='projectile'||type==='spell')&&(!cue.targetId||!cell(cue.to)))return false;
+  if(type==='projectile'&&
+   (cue.kind!=='ranged-release'||cue.proof!=='authority-action'))return false;
+  if(type==='spell'&&
+   (cue.kind!=='spell-release'||cue.proof!=='authority-action'))return false;
+  if((type==='projectile'||type==='spell')&&
+   (typeof cue.targetId!=='string'||cue.targetId.length===0||
+    !cell(cue.to)))return false;
   if(type==='dust'&&(!cell(cue.from)||!cell(cue.to)||
    Math.abs(cue.to.x-cue.from.x)+Math.abs(cue.to.z-cue.from.z)!==1))return false;
   if(reducedMotion&&['trail','dust'].includes(type))return false;
