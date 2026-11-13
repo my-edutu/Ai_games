@@ -32,6 +32,16 @@ async function inspect(page){
 function assertWorld(a){
  expect(a.renderer).toBe('webgl');
  expect(a.market.stalls).toBe(4);
+ // W305: scene-level WebGL, at desktop, 390px and grown Day-121, must
+ // actually contain BOTH complete original roofed shop corridors and their
+ // physical lime soffit, not just a successful source-only geometry mock.
+ expect(a.market.arcadeRoofUndersides).toBe(8);
+ expect(a.market.arcadeTimberFaces).toBe(10);
+ expect(a.market.arcadeScaffoldBeams).toBe(0);
+ expect(a.market.grainwardArcadeSpans).toBe(2);
+ expect(a.market.grainwardArcadeNoPosts).toBe(true);
+ expect(a.market.grainwardArcadeTriangles).toBeGreaterThanOrEqual(40);
+ expect(a.market.grainwardArcadeTriangles).toBeLessThanOrEqual(80);
  // W206: physical reception roof must no longer sit across the actual
  // unloading worker's upper body. Check the genuine playable WebGL state.
  expect(a.raisedReceivingHall.raisedEaveAboveGround).toBeGreaterThanOrEqual(3.1);
