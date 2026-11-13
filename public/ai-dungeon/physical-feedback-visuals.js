@@ -629,9 +629,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     pool.mesh.setMatrixAt(index,transform(pool,pool.slots[index]));
     pool.mesh.instanceMatrix.needsUpdate=true;
    }
-   // A new trail remains hidden until a real skinned wrist passage; other
-   // cue families still write their immediately visible initial matrices.
+   // A new trail remains hidden until its OWN skinned wrist passage.
+   // When queue priority preempts the only measured ribbon, the previous
+   // mesh.visible flag must not survive with all eight new slots hidden.
+   // Otherwise WebGL repeatedly submits an empty trail draw until expiration.
+   // Recheck only on a displaced trail (8 fixed slots), never every idle frame.
    if(type!=='trail')pool.mesh.visible=true;
+   else if(displacedOccupied)
+    pool.mesh.visible=pool.slots.some(slot=>slot!==null&&
+     slot.age<slot.life&&slot.measuredPath!==null);
    created++;spawned++;
   }
   if(type==='hit')confirmedFragments+=created;
