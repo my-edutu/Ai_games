@@ -69,8 +69,11 @@ export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbi
   // Pass338 exact Pass337 390px WebGL brace still merges the guardian shell
   // with Pip into a near-vertical column. At the same PUBLIC brace and shell
   // release, open up the opposed three-quarter shot rather than repainting
-  // yet another static terrace. Retain at least 15% of the original actor
-  // axis orbit: no camera-side reversal. The existing exact full-body NDC
+  // yet another static terrace. Pass338's 0.66rad overshot the original
+  // native Follow lens depth contract (>0.20rad orbit) and timed out the
+  // uncropped 390px WebGL capture. Pass339 holds at most 0.52rad while
+  // retaining at least 33% of the authentic original actor-axis orbit.
+  // No camera-side reversal. The existing exact full-body NDC
   // fitter, pressure priority and native 44px HUD tests remain authoritative.
-  return -Math.sign(currentOrbit)*Math.min(.66,Math.abs(currentOrbit)*.85)*attention*reveal;
+  return -Math.sign(currentOrbit)*Math.min(.52,Math.abs(currentOrbit)*.67)*attention*reveal;
 }
