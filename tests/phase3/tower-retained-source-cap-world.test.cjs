@@ -676,7 +676,7 @@ test('real Three world retains the identical old bronze gate across a nine-tick 
     assert.equal(JSON.stringify([before,crossed,late]),untouched,
       'reconstructing visuals cannot edit authoritative source snapshots');
     world.update({...late,runToken:'unrelated-run'},.05,.55,{quality:'low'});
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),null,
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate') == null,true,
       'wrong-run retention is immediately discarded');
   } finally { world.dispose(); }
 });
