@@ -154,6 +154,22 @@ jobs:
           # worker because a shared phase3 worker was externally shut down.
           for file in "${selected[@]}"; do
             printf 'Exact-source test: %s\n' "$file"
-            timeout --signal=TERM --kill-after=5s 75s \
-              node --test --test-concurrency=1 "$file"
+            if [[ "$file" == 'tests/phase3/tower-retained-source-cap-world.test.cjs' ]]; then
+              # The last two exact-source runs received a runner shutdown
+              # while this genuine Three.js world test was active (no TAP
+              # subtests reported). Preserve ALL assertions, emit the
+              # memory environment and mark each real scene boundary.
+              # A killed process still fails the entire catalogue veto.
+              printf 'Tower retained-world probe: SHA=%s\n' "$GITHUB_SHA"
+              free -m
+              for limit in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.current; do
+                if [[ -r "$limit" ]]; then printf '%s: ' "$limit"; cat "$limit"; fi
+              done
+              TOWER_P0_RESOURCE_DIAGNOSTICS=1 \
+                timeout --signal=TERM --kill-after=5s 75s \
+                node --test --test-concurrency=1 "$file"
+            else
+              timeout --signal=TERM --kill-after=5s 75s \
+                node --test --test-concurrency=1 "$file"
+            fi
           done
