@@ -4,6 +4,11 @@
 // A WebGL submission receipt is not a visual hit, and a stale effect is not
 // recoverable by stretching its audio deadline.
 const validCount=value=>Number.isSafeInteger(value)&&value>=0;
+// Exact same frame-ID contract as the D04 WebGL receipt controller:
+// the real Dungeon uses numeric serials, while independent capture adapters
+// may submit bounded opaque IDs. Neither identifies encoded video frames.
+const validFrameId=value=>validCount(value)||
+ typeof value==='string'&&value.length>0&&value.length<=128;
 function actualDamageVictimCount(before,after){
  if(!before||!after||!validCount(before.run)||!validCount(after.run)||
   !validCount(before.floor)||!validCount(after.floor)||
@@ -83,8 +88,14 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
    `${expectedScene}:${after.tick}:${receipt.kind}:-:${id}`);
   if(!target)continue;
   originalDamageReceiptObserved=true;
-  if(receipt.visual!==true||receipt.decision!=='delivered'||
-   !validCount(receipt.frameId)||
+  // A muted D04 impact has a genuine, cue-specific VISUAL-only frame
+  // receipt after its alive/drawable/current-scene checks. It is legitimate
+  // visual admission, never original foley onset or PCM/video alignment.
+  // Conversely, stale or unverified attempts cannot borrow visual credit.
+  const submittedVisual=receipt.decision==='delivered'||
+   receipt.decision==='visual-only-submitted'&&receipt.audio===false;
+  if(receipt.visual!==true||!submittedVisual||
+   !validFrameId(receipt.frameId)||
    !Number.isFinite(receipt.observedClockMs)||
    !Number.isFinite(receipt.submittedClockMs)||
    receipt.submittedClockMs<receipt.observedClockMs||
