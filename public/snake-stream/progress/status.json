@@ -1,9 +1,9 @@
 {
   "updatedAt": "2026-11-13",
-  "status": "T0 UNSIGNED / T1 BUILDING visual SELF-REJECT / T2 BUILDING / T3 BUILDING / T4 HARD RED 1/17 strict original at 6b0826f; first-low-frame candidate native-only",
-  "detail": "Exact parent 6b0826f browser #43352572173 counted 1/17 complete original 1s WebGL submissions, 747 queue skips, 53/95 browser pass; native 699/764. Native-tested T4 first-low-frame change prevents unnecessary 0.75 to existing 0.4 high-cost cache rebuild, RED 0/3 to GREEN 3/3, 30/33 selected with 3 inherited failures; candidate real WebGL frames, FPS and independent acceptance PENDING. Whole-game rectangle still self-rejected.",
+  "status": "T0 UNSIGNED / T1 BUILDING visual SELF-REJECT / T2 BUILDING / T3 BUILDING / T4 HARD RED 1/17 strict original at 062ee8b; high-resolution static cache reuse BUILDING native-only",
+  "detail": "Exact head 062ee8b original Chromium #43381090405 recorded 1/17 genuine 1s WebGL submissions, 615 queue skips, 53/95 browser pass; native CI red. Cache target stuck at 1178x651 after 751x415 raster fallback: 3 builds, 2 hits, 16 pressure direct draws. New exact-source retained full static HDR color/depth cache native RED 3/5 -> GREEN 5/5, strict gate untouched; candidate actual Chromium, unscripted before/after and physical presents PENDING. Rectangular whole-world visual still self-rejected.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "aa4e strict original 1-second WebGL 12/17 HARD RED; current real game still rectangular; native camera correctness/performance candidate awaiting original Chromium gate.",
+  "latestCaption": "062ee8b strict original Chromium 1/17 genuine full-render submissions at 751x415 HARD RED; current real island still reads as a rectangular courtyard. Cache reuse candidate awaiting exact-new-head browser acceptance.",
   "reviews": [
     {
       "area": "November 12 aa4e browser: explicit reduced-motion detail became overview; repaired native camera and detail GPU cuts, acceptance pending",

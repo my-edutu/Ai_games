@@ -10,6 +10,24 @@ import { createSerpent } from './serpent.mjs';
 import { buildMotion, cellPoint } from './motion.mjs';
 import { cameraComposition, createPresentationCameraAnchor, advancePresentationCameraPose, shouldCutUnderGpuPressure, observedCameraGpuPressure, shouldRenderFullSceneOnCacheMiss } from './camera.mjs';
 
+/**
+ * A valid higher-resolution static HDR color/depth image already represents
+ * the SAME camera/world after GPU-pressure-driven 1080p raster reduction.
+ * Composing that genuine 3D image at fewer output pixels costs one existing
+ * cache-quad pass; disposing and rebuilding it costs HDR, display conversion,
+ * shadows and another live pass. Never reuse a lower-resolution image, a
+ * different scene/pose, or a changed CSS camera framing. No raster or 17-draw
+ * threshold is modified by this bounded cache-admission contract.
+ */
+export function canReuseStaticWorldCache({ sourceWidth, sourceHeight, presentWidth, presentHeight,
+  matchingView = false, sameCssLayout = false } = {}) {
+  if (!matchingView || !sameCssLayout ||
+      ![sourceWidth, sourceHeight, presentWidth, presentHeight].every(n => Number.isInteger(n) && n > 0)) return false;
+  // Integer drawing buffer rounding is harmless, an actual aspect change is not.
+  return sourceWidth >= presentWidth && sourceHeight >= presentHeight &&
+    Math.abs(sourceWidth / sourceHeight - presentWidth / presentHeight) <= 0.003;
+}
+
 // BEGIN R38 CONTACT HELPER
 /**
  * Preserve every visible ground contact while updating only the instance
@@ -242,9 +260,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let staticTarget = null;
   let displayTarget = null;
   let staticKey = '';
+  let lastCssLayout = '';
+  let cachedCssLayout = '';
   let staticMeshCount = 0;
   let cacheHits = 0;
   let cacheBuilds = 0;
+  let retainedHigherRasterCompositions = 0;
   // Complete original full-scene draws substituted for a costly cache REBUILD
   // only after actual completed GPU-fence pressure, never counted as presents.
   let pressureDirectFrames = 0;
@@ -321,8 +342,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   // END R46 SINGLE-PASS CACHE QUAD
   const cacheCamera = new THREE.Camera();
 
-  function invalidateStaticCache() {
-    staticKey = '';
+  function invalidateStaticCache({ preserveView = false } = {}) {
+    // Only a measured quality/raster reduction can preserve the same static
+    // photograph. A new game, geometry revision, shot or CSS layout still
+    // invalidates by the ordinary exact-world/camera key.
+    if (!preserveView) staticKey = '';
     cacheActive = false;
   }
 
@@ -336,9 +360,16 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     }
     renderer.getDrawingBufferSize(cacheSize);
     camera.updateMatrixWorld();
-    const key = [dimensions, quality, world.propRevision?.() || 0, cacheSize.x, cacheSize.y, scene.fog.near, scene.fog.far,
+    // The static photograph is independent of water-sampling quality and
+    // output raster pixel count. Gameplay props, complete camera pose, fog,
+    // exposure and board identity remain mandatory exact-match inputs.
+    const key = [dimensions, world.propRevision?.() || 0, scene.fog.near, scene.fog.far,
       renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
-    const cacheHit = !!staticTarget && staticTarget.width === cacheSize.x && staticTarget.height === cacheSize.y && key === staticKey;
+    const cacheHit = canReuseStaticWorldCache({
+      sourceWidth: staticTarget?.width, sourceHeight: staticTarget?.height,
+      presentWidth: cacheSize.x, presentHeight: cacheSize.y,
+      matchingView: key === staticKey, sameCssLayout: cachedCssLayout === lastCssLayout,
+    });
     // Only after actual COMPLETED GPU fences establish starvation: the
     // unmodified direct scene draws ALL original static and animated layers,
     // original shadows, original fog and depth. It replaces an HDR/depth bake,
@@ -350,7 +381,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       renderer.render(scene, camera);
       return;
     }
-    if (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y) {
+    // When the previously baked image covers the new smaller raster AND the
+    // view is identical, retain its genuine color+depth; no extra GPU targets.
+    // Any different view still rebuilds at the real current output dimensions.
+    if (!cacheHit && (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y)) {
       staticTarget?.dispose();
       displayTarget?.dispose();
       staticTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
@@ -381,7 +415,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     cacheBakeMaterial.uniforms.toneMappingExposure.value = renderer.toneMappingExposure;
     const oldAutoClear = renderer.autoClear;
     try {
-      if (key !== staticKey || renderer.shadowMap.needsUpdate) {
+      // A quality downgrade may make shadow-map resolution dirty; the old
+      // valid cached color/depth already contains the full correct static
+      // scene and higher-quality prior shadows. Do not rebake unchanged stone.
+      if (key !== staticKey || (!cacheHit && renderer.shadowMap.needsUpdate)) {
         camera.layers.set(STATIC_LAYER);
         renderer.setRenderTarget(staticTarget);
         renderer.autoClear = true;
@@ -395,6 +432,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         renderer.render(cacheScene, cacheCamera);
         cacheQuad.material = cacheMaterial;
         staticKey = key;
+        cachedCssLayout = lastCssLayout;
         cacheBuilds++;
       } else cacheHits++;
       // BEGIN R46 ONE-PASS CACHE COMPOSITION
@@ -406,6 +444,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       liveCacheQuad.visible = true;
       renderer.render(scene, camera);
       cacheActive = true;
+      if (cacheHit && (staticTarget.width > cacheSize.x || staticTarget.height > cacheSize.y))
+        retainedHigherRasterCompositions++;
       // END R46 ONE-PASS CACHE COMPOSITION
     } finally {
       cacheQuad.material = cacheMaterial;
@@ -435,6 +475,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     dirty = false;
     const width = Math.max(1, canvas.clientWidth);
     const height = Math.max(1, canvas.clientHeight);
+    const cssLayout = `${width}x${height}`;
+    const sameCssLayout = cssLayout === lastCssLayout;
+    lastCssLayout = cssLayout;
     // BEGIN R53 STARTUP RASTER RESIZE
     // Only the first large canvas starts in a bounded raster budget. Later
     // R51 measured quality adjustments, critical cues and all 3D layers remain.
@@ -460,7 +503,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    invalidateStaticCache();
+    // A pixel-ratio-only resize leaves the same world-space perspective and
+    // exact cached 3D photograph. A physical CSS viewport change never does.
+    if (!sameCssLayout) invalidateStaticCache();
   }
 
   function applyQuality(pixelRatio = Math.min(window.devicePixelRatio || 1, 0.75)) {
@@ -481,7 +526,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Measured adaptation can settle at the same 0.4 ratio. Preserve the
     // expensive, correctly dimensioned static color/depth cache in that case.
     if (!ratioChanged && !shadowChanged) return;
-    invalidateStaticCache();
+    // Keep any already completed static color/depth photograph across a
+    // measured quality downgrade. The render path checks source size, exact
+    // camera/world identity and target aspect before actually reusing it.
+    invalidateStaticCache({ preserveView: true });
     dirty = true;
   }
   applyQuality();
@@ -690,6 +738,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
+        retainedHigherRasterCompositions, // cached full-static+live compositions, never actual presents
         pressureDirectFrames, // actual complete draws, NOT physical displayed frames or strict one-second count
         width: staticTarget?.width || 0, height: staticTarget?.height || 0, samples: cacheSamples },
       // BEGIN T1 LIVING GARDEN STATS
