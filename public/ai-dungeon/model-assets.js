@@ -3596,6 +3596,9 @@ function inspectSourceRigDeformation(actors){
     sourceStanceSlideCarryFrames:actor.sourceStanceCarryFrames||0,
     sourceStanceSlideCarryPeakMeters:actor.sourceStanceCarryPeakMeters||0,
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
+    // This counter is only a verified original-GLB same-angle continuation;
+    // it cannot be interpreted as new contact or a successful foot plant.
+    sourceSwingToeContinuityFrames:actor.sourceSwingToeContinuityFrames||0,
     sourceSwingToeCorrectionsThisFrame:actor.sourceSwingToeCorrectionsThisFrame||0,
     sourceSwingToeCurrentFrameProofs:actor.sourceSwingToeCurrentFrameProofs??null,
      sourceSwingThighCurrentFrameProofs:actor.sourceSwingThighCurrentFrameProofs??null,
