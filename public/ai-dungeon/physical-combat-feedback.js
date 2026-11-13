@@ -309,7 +309,10 @@ export function createPhysicalCombatFeedback({
   // Some embedded AudioContext adapters have no statechange EventTarget.
   // A frame receipt is also an opportunity to revoke an unavailable clock.
   onAudioStateChange();
-  if(disposed||!requirePresentedFrame||!optedIn||
+  // A genuine WebGL submission is observable even with sound disabled.
+  // Keep visual-frame and performance evidence independent of audio consent;
+  // only a fresh gesture can enqueue sound, and mute revokes staged voices.
+  if(disposed||!requirePresentedFrame||
    !(typeof frameId==='string'&&frameId.length>0&&frameId.length<=128||
      Number.isSafeInteger(frameId)&&frameId>=0))return 0;
   // A second call bearing an old frame ID is not a new render submission.
