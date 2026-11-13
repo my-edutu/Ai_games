@@ -78,6 +78,10 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
    frame.recentDeliveryReceipts:[])
  ];
  const admitted=new Set();
+ // Bounded, cue-exact failure reasons from genuine browser receipts. These
+ // forensic clocks NEVER authorize delayed effects or infer an attacker.
+ const damageReceiptDecisions=new Set();
+ let damageWorstSubmissionAgeMs=null,damageWorstPendingExpiryWallAgeMs=null;
  let originalDamageReceiptObserved=false;
  for(const receipt of receipts){
   if(!receipt||receipt.scene!==expectedScene||receipt.tick!==after.tick||
@@ -88,11 +92,25 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
    `${expectedScene}:${after.tick}:${receipt.kind}:-:${id}`);
   if(!target)continue;
   originalDamageReceiptObserved=true;
+  if(typeof receipt.decision==='string'&&
+   /^[a-z][a-z0-9-]{0,63}$/.test(receipt.decision)&&
+   damageReceiptDecisions.size<16)damageReceiptDecisions.add(receipt.decision);
+  if(Number.isFinite(receipt.observationToSubmissionMs)&&
+   receipt.observationToSubmissionMs>=0&&receipt.observationToSubmissionMs<=600000)
+   damageWorstSubmissionAgeMs=Math.max(damageWorstSubmissionAgeMs??0,
+    receipt.observationToSubmissionMs);
+  if(Number.isFinite(receipt.pendingExpiredWallAgeMs)&&
+   receipt.pendingExpiredWallAgeMs>=0&&receipt.pendingExpiredWallAgeMs<=600000)
+   damageWorstPendingExpiryWallAgeMs=Math.max(damageWorstPendingExpiryWallAgeMs??0,
+    receipt.pendingExpiredWallAgeMs);
   // A muted D04 impact has a genuine, cue-specific VISUAL-only frame
   // receipt after its alive/drawable/current-scene checks. It is legitimate
   // visual admission, never original foley onset or PCM/video alignment.
   // Conversely, stale or unverified attempts cannot borrow visual credit.
-  const submittedVisual=receipt.decision==='delivered'||
+  // The controller records 'delivered' only after foley.emit() succeeds.
+  // A silent admitted frame has a DIFFERENT terminal decision; never let a
+  // malformed delivered/audio:false receipt borrow its success.
+  const submittedVisual=receipt.decision==='delivered'&&receipt.audio===true||
    receipt.decision==='visual-only-submitted'&&receipt.audio===false;
   if(receipt.visual!==true||!submittedVisual||
    !validFrameId(receipt.frameId)||
@@ -109,6 +127,8 @@ function classifyAuthenticD04RenderObservation({before,after,atDamage,latest}={}
  const base={authoritativeDamage:true,damageVictims:victims,
   damageVisualAdmitted:admitted.size,
   damageCueReceiptObserved:originalDamageReceiptObserved,
+  damageReceiptDecisions:[...damageReceiptDecisions].sort(),
+  damageWorstSubmissionAgeMs,damageWorstPendingExpiryWallAgeMs,
   queued:frame.queued,expiredQueuedCues:frame.expiredQueuedCues,
   framesAcknowledged:frame.framesAcknowledged,visualAccepted:frame.visualAccepted};
  if(frame.adapterFailures>0)
