@@ -802,6 +802,17 @@ export function chooseOriginalSourceSwingThighSupport({
    shift(other.toeXZ,loaded.toeXZ)>.003)continue;
   const improvement=moved.toeY-source.toeY;
   if(improvement<.004||improvement>.06)continue;
+  // A licensed 45mrad thigh twist is noticeable across pelvis and both
+  // connected legs. If the same source-weighted toe STILL sits >25mm under
+  // the real stone plane, require >=10% of the original burial to clear.
+  // Real 390px footage measured ~14.4mm connected thigh lift against
+  // ~76.5mm burial: preserve that useful correction. Do not repeat the
+  // ineffective 5-6mm "rescue" of an 85mm-buried swing foot.
+  // Shallow toes that genuinely clear the plane retain the prior >=4mm
+  // floor/heel/XZ/two-shoe gates; this never asserts contact or IK.
+  const burialBefore=floorTopY-source.toeY;
+  const burialAfter=floorTopY-moved.toeY;
+  if(burialAfter>.025&&improvement<burialBefore*.10)continue;
   if(!best||improvement>best.improvementMeters)
    best=Object.freeze({angleRad:delta,side,improvementMeters:improvement,
     beforeToeY:source.toeY,afterToeY:moved.toeY,
