@@ -2014,13 +2014,31 @@ function restoreOriginalSourceSwingToesBeforeMixer(actor){
  * buried airborne toe while preserving the loaded shoe, do nothing.
  */
 function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
+ // Exact original-rig rejection receipts, not invented IK/contact. The
+ // reason vocabulary is fixed and counters saturate to bound diagnostics.
+ actor.sourceToeJointGateLast??={left:null,right:null};
+ actor.sourceToeJointGateLast.left=null;
+ actor.sourceToeJointGateLast.right=null;
+ actor.sourceToeJointGateCounts??=Object.create(null);
+ const markGate=(side,reason)=>{
+  actor.sourceToeJointGateLast[side]=reason;
+  actor.sourceToeJointGateCounts[reason]=Math.min(1000000,
+   (actor.sourceToeJointGateCounts[reason]||0)+1);
+ };
+ const markBoth=reason=>{
+  markGate('left',reason);markGate('right',reason);
+ };
  actor.sourceToeJointCurrentFrameProofs??={left:null,right:null};
  actor.sourceToeJointCurrentFrameProofs.left=null;
  actor.sourceToeJointCurrentFrameProofs.right=null;
  if(actor.fullBody?.mode!=='move'||actor.fullBody?.owner?.locomotion!==true||
   actor.activeImportedClipName!=='Walking_A'||actor.u?.hp<=0||
   actor.root?.visible!==true||actor.locomotionTeleport||reducedMotion||
-  actor.fullBody?.interrupted)return;
+  actor.fullBody?.interrupted){
+  if(actor.activeImportedClipName==='Walking_A')
+   markBoth('not-walking-owner');
+  return;
+ }
  const sourceWeight=actor.activeClip?.getEffectiveWeight?.()??NaN;
  const travel=actor.rigRecentGroundedTravel,age=actor.rigRecentGroundedAge;
  const frameInterval=actor.rigSourceSwingFrameInterval;
@@ -2028,13 +2046,22 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
   !Number.isFinite(travel)||travel<.008||travel>.24||
   !Number.isFinite(age)||age<0||age>.18||
   !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.1||
-  !actor.assetRoot?.uuid)return;
+  !actor.assetRoot?.uuid){
+  markBoth('invalid-original-source-frame-or-motion-witness');
+  return;
+ }
  const patches=sourceSolePatchVertexCandidates(actor);
  if(!['left','right'].every(s=>patches?.[s]?.anatomicalHeelToeVerified===true&&
   patches[s].sourceToeAxis?.selectedAnatomicalPatch===true&&
-  patches[s].heel?.mesh===patches[s].toe?.mesh))return;
+  patches[s].heel?.mesh===patches[s].toe?.mesh)){
+  markBoth('unverified-original-weighted-sole');
+  return;
+ }
  const clip=actor.availableClips?.find(c=>c?.name==='Walking_A');
- if(!clip||!Array.isArray(clip.tracks)||clip.tracks.length>1500)return;
+ if(!clip||!Array.isArray(clip.tracks)||clip.tracks.length>1500){
+  markBoth('missing-original-walking-clip');
+  return;
+ }
  const axis=originalSourceSwingToesAxis;
  const read=()=>Object.fromEntries(['left','right'].map(s=>{
   const heel=sourceSkinnedSoleWorld(patches[s].heel);
@@ -2045,16 +2072,25 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  for(const side of ['left','right']){
   const mount=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='foot');
   const foot=mount?.bone;
-  if(!foot?.isBone||!/^foot[._-]?[lr]$/i.test(foot.name))continue;
+  if(!foot?.isBone||!/^foot[._-]?[lr]$/i.test(foot.name)){
+   markGate(side,'missing-original-foot-bone');
+   continue;
+  }
   const name='toes'+(side==='left'?'l':'r');
   const toeBone=foot.children?.find(b=>b?.isBone&&b.name?.toLowerCase()===name);
-  if(!toeBone||toeBone.parent!==foot)continue;
+  if(!toeBone||toeBone.parent!==foot){
+   markGate(side,'missing-direct-source-toe-child');
+   continue;
+  }
   const trackName=toeBone.name.toLowerCase()+'.quaternion';
   const matching=clip.tracks.filter(t=>
    typeof t?.name==='string'&&
    t.name.toLowerCase().endsWith(trackName)&&
    t.times?.length>=4&&t.values?.length===t.times.length*4);
-  if(matching.length!==1)continue;
+  if(matching.length!==1){
+   markGate(side,'missing-unique-toe-quaternion-track');
+   continue;
+  }
   actor.assetRoot.updateMatrixWorld(true);
   const before=read();
   const swing=before?.[side],loaded=before?.[side==='left'?'right':'left'];
@@ -2065,8 +2101,10 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    // shallow toe burial, if the original opposite shoe actually supports.
    // Deep swinging toes retain the preexisting >=90%-source requirement.
    (sourceWeight<.90&&(swing.toeY<=-.045||frameInterval>.05))||
-   ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015))
+   ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015)){
+   markGate(side,'no-safe-airborne-and-opposite-shoe-pair');
    continue;
+  }
   const original=mount.originalSourceToesQuaternion??(
    mount.originalSourceToesQuaternion=new THREE.Quaternion());
   const probe=mount.originalSourceToesProbe??(
@@ -2091,7 +2129,10 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    reducedMotion,interrupted:false,rootTravel:travel,frameAge:age,
    frameInterval,side,floorTopY:-.02,before};
   const selected=chooseOriginalSourceSwingToeJointRelief({...owner,trials});
-  if(!selected)continue;
+  if(!selected){
+   markGate(side,'source-toe-hinge-trial-not-admissible');
+   continue;
+  }
   toeBone.quaternion.copy(original).multiply(
    probe.setFromAxisAngle(axis,selected.angleRad));
   toeBone.updateWorldMatrix(true,true);
@@ -2101,6 +2142,7 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
   if(!verified){
    toeBone.quaternion.copy(original);
    toeBone.updateWorldMatrix(true,true);
+   markGate(side,'final-source-skin-readback-rejected');
    continue;
   }
   actor.originalSwingToeJointRestore??=[];
@@ -2113,6 +2155,7 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    originalSourceContactLocked:false};
   actor.sourceToeJointAcceptedFrames=Math.min(1000000,
    (actor.sourceToeJointAcceptedFrames||0)+1);
+  markGate(side,'accepted-original-source-toe-lift');
  }
 }
 const originalSourceSwingToesAxis=new THREE.Vector3(1,0,0);
@@ -3874,6 +3917,8 @@ function inspectSourceRigDeformation(actors){
      sourceSwingThighAcceptedFrames:actor.sourceSwingThighAcceptedFrames||0,
      sourceToeJointAcceptedFrames:actor.sourceToeJointAcceptedFrames||0,
      sourceToeJointCurrentFrameProofs:actor.sourceToeJointCurrentFrameProofs??null,
+     sourceToeJointGateLast:actor.sourceToeJointGateLast??null,
+     sourceToeJointGateCounts:actor.sourceToeJointGateCounts??null,
      sourceSwingThighEaseOutFrames:actor.sourceSwingThighEaseOutFrames||0,
      sourceSwingThighHoldFrames:actor.sourceSwingThighHoldFrames||0,
     // Read-only same-frame measurements of the original stance heel + toe.
