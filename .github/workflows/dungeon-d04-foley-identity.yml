@@ -72,6 +72,7 @@ jobs:
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \
             tests/foundation/dungeon-d04-hp-damage-annotation-fallback.test.cjs \
+            tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
             tests/foundation/dungeon-d04-scene-flush-receipts.test.cjs \
             tests/foundation/dungeon-d04-held-warning-gpu-update.test.cjs \
             tests/foundation/dungeon-d04-pre-submit-wall-deadline.test.cjs \
