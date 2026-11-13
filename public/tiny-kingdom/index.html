@@ -11075,49 +11075,60 @@ function marketCobblestoneSquare(){
     marketQuarterStats.mortarTriangles+=2;
    }
   }
-  for(let row=0;row<15;row++)for(let col=0;col<19;col++){
-   const key=col*83+row*1137;
-   // W207: real broken fieldstones over a single continuous compacted clay
-    // market surface; identical candidate count and physical navigation.
-    const drift=(biomeHash(key+151)-.5)*.29;
-    const wander=(biomeHash(key+191)-.5)*.26;
-   const x=cx-7.25+(col+.5)*.78+(row%2)*.28+
-    (biomeHash(key+31)-.5)*.045+drift;
-   const z=cz-6.50+(row+.5)*.86+(biomeHash(key+21)-.5)*.045+wander;
+  // W291 original market-to-home ground reconstruction. The old aligned
+  // 15-by-19 rectangles read as a checkerboard in genuine ground-level video.
+  // Deterministic low-discrepancy candidates plus real spatial separation
+  // create an uneven stone-and-clay court without a new mesh, texture,
+  // random stream, collider, economic event or artificial courier.
+  // Each accepted stone remains one raised four-corner polygon (2 triangles).
+  marketQuarterStats.stoneDistribution='w291-low-discrepancy-separated-court';
+  const acceptedStoneCenters=[];
+  const fract=n=>n-Math.floor(n);
+  let candidateChecks=0,clearanceRejected=0,nearestAccepted=Infinity;
+  for(let candidate=0;candidate<620&&acceptedStoneCenters.length<158;candidate++){
+   candidateChecks++;
+   // Independent irrational rotations avoid rows, columns and repeated seams.
+   // The bounded stratification keeps both sides of the original market lived-in.
+   const x=cx+(fract((candidate+.37)*.61803398875+
+     biomeHash(candidate*23+421)*.11)*2-1)*rx*.93;
+   const z=cz+(fract((candidate+.73)*.75487766625+
+     biomeHash(candidate*31+773)*.11)*2-1)*rz*.93;
    if(((x-cx)/rx)**2+((z-cz)/rz)**2>.88)continue;
-    // W208 large-scale original market reconstruction: expose the REAL
-    // compacted-clay cart way and irregular worn-stone shoulder patches.
-    // Previously ~220 evenly tiled setts covered the entire public court;
-    // a continuous, irregular earth passage must be visually evident.
-    // No terrain height/collision/nav edit or new economic transaction.
-    const stoneCandidateKeep=biomeHash(key+273)>.34;
-    const realWheelLane=Math.abs(x-3.22)<1.10;
-    if(!stoneCandidateKeep||
-       (realWheelLane&&biomeHash(key+223)<.92))continue;
-   const chip=biomeHash(key+71),worn=biomeHash(key+47);
-   const width=.705+.035*biomeHash(key+7),depth=.755+.040*biomeHash(key+9);
-    // Broken stones vary in physical footprint, rather than pigment alone.
-    // Open clay joints interrupt the W206 uniform 15-by-19 tile checkerboard.
-    const weatheredWidth=width*(.60+.38*biomeHash(key+131));
-    const weatheredDepth=depth*(.60+.36*biomeHash(key+173));
-    const skew=(biomeHash(key+23)-.5)*.13;
-    const left=x-weatheredWidth*.5,right=x+weatheredWidth*.5;
-    const front=z-weatheredDepth*.5,back=z+weatheredDepth*.5;
-   const lift=.075+.012*worn;
-   const color=rgb(stones[(row*11+col*7)%stones.length]);
-   quad(sample(left,front+.07*chip,lift),
-    sample(left+skew,back,lift+.006*chip),
-    sample(right+skew*.55,back-.05*worn,lift+.003),
-    sample(right,front+.05*chip,lift),color);
+   const realWheelLane=Math.abs(x-3.22)<1.10;
+   if(realWheelLane&&biomeHash(candidate*37+223)<.92)continue;
+   const nearby=acceptedStoneCenters.reduce((min,p)=>
+    Math.min(min,Math.hypot(x-p[0],z-p[1])),Infinity);
+   if(nearby<.72){clearanceRejected++;continue;}
+   if(Number.isFinite(nearby))nearestAccepted=Math.min(nearestAccepted,nearby);
+   const width=.52+.19*biomeHash(candidate*47+7);
+   const depth=.46+.20*biomeHash(candidate*53+9);
+   const angle=(biomeHash(candidate*59+23)-.5)*.48;
+   const co=Math.cos(angle),si=Math.sin(angle);
+   const lift=.074+.013*biomeHash(candidate*61+47);
+   const chip=biomeHash(candidate*71+71);
+   const point=(u,v,h=0)=>{
+    const dx=u*width,dz=v*depth;
+    const px=x+dx*co-dz*si,pz=z+dx*si+dz*co;
+    return sample(px,pz,lift+h);
+   };
+   const tone=rgb(stones[(candidate*7+Math.floor(x*3)+1024)%stones.length]);
+   quad(point(-.49,-.51),point(-.53,.44+.07*chip),
+    point(.48,.51),point(.56,-.45-.05*chip),tone);
+   acceptedStoneCenters.push([x,z]);
    marketQuarterStats.pavingStones++;
-   if((row+col*3)%13===0){
-    tri(sample(left+.06,front+.06,lift+.003),
-     sample(left+.16,front+.07,lift+.003),
-     sample(left+.09,front+.19,lift+.003),
-     rgb(stones[(row+col+3)%stones.length]));
+   if(candidate%13===0){
+    tri(point(-.42,-.43,.003),point(-.21,-.42,.003),
+     point(-.32,-.26,.003),rgb(stones[(candidate+3)%stones.length]));
     marketQuarterStats.raisedStoneDetails++;
    }
   }
+  marketQuarterStats.stoneCandidatesConsidered=candidateChecks;
+  marketQuarterStats.stoneClearanceRejections=clearanceRejected;
+  marketQuarterStats.stoneMinimumSpacing=Number.isFinite(nearestAccepted)?
+   nearestAccepted:0;
+  if(acceptedStoneCenters.length<90||acceptedStoneCenters.length>165||
+     marketQuarterStats.stoneMinimumSpacing<.72-.000001)
+   throw Error('W291 authentic court lost bounded separated paving');
   // The physical central passage remains open to the existing two market
   // receiving shelves, including for carts and the unloading courier.
   for(let section=0;section<11;section++){
@@ -12377,7 +12388,7 @@ const HIGHSTREET_LANES=Object.freeze([
   [[-13,0],[-9,3],[-4,3],[-2,7]],
   [[8,6],[11,7],[14,8.1]]
 ]);
-let highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
+let highStreetStats={connectedLanes:0,pavingStones:0,laneStoneWeathered:0,shopfronts:0,
  houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
  wheelwaySegments:0,kitchenGardens:0,kitchenGardenBeds:0,
   kitchenGardenPlants:0,kitchenGardenTriangles:0,
@@ -12414,17 +12425,29 @@ function highStreetLane(points,width=1.55){
      row%3===0?earth:joint);
     highStreetStats.wheelwaySegments++;
     for(const side of [-1,1]){
-     const jitter=.035*Math.sin(row*7.7+part*13.2+side*5.9);
-     const off=side*width*.30+jitter;
-     const left=off-width*.145,right=off+width*.145;
-     const start=(row+.06)/n,end=(row+.91)/n;
+     // W291: keep the same shoulder-stone count and original central
+     // courier corridor, but weather each genuine four-corner flagstone.
+     // Unequal ends/widths and slightly independent seams avoid marching
+     // ruler-straight grey stripes in the real household camera footage.
+     const seed=part*607+row*37+(side+1)*79;
+     const jitter=.045*(biomeHash(seed+3)-.5);
+     const off=side*width*.31+jitter;
+     const half=width*.14;
+     const aWidth=.76+.20*biomeHash(seed+7);
+     const bWidth=.77+.21*biomeHash(seed+11);
+     const leftA=off-half*aWidth,rightA=off+half*aWidth;
+     const leftB=off-half*bWidth+.028*(biomeHash(seed+13)-.5);
+     const rightB=off+half*bWidth+.032*(biomeHash(seed+17)-.5);
+     const start=(row+.10+.07*biomeHash(seed+23))/n;
+     const end=(row+.81+.12*biomeHash(seed+29))/n;
      const x0=a[0]+dx*start,z0=a[1]+dz*start;
      const x1=a[0]+dx*end,z1=a[1]+dz*end;
-     quad(sample(x0+nx*left,z0+nz*left,.071),
-      sample(x1+nx*left,z1+nz*left,.071),
-      sample(x1+nx*right,z1+nz*right,.071),
-      sample(x0+nx*right,z0+nz*right,.071),
+     quad(sample(x0+nx*leftA,z0+nz*leftA,.068),
+      sample(x1+nx*leftB,z1+nz*leftB,.072),
+      sample(x1+nx*rightB,z1+nz*rightB,.074),
+      sample(x0+nx*rightA,z0+nz*rightA,.068),
       stones[(part*7+row*11+(side+1)*3)%stones.length]);
+     highStreetStats.laneStoneWeathered++;
      highStreetStats.pavingStones++;
     }
    }
@@ -12903,7 +12926,7 @@ function marketToRealHomeStreet(){
  audit.totalTriangles=(data.length-first)/30;
 }
 function inhabitedHighStreet(){
- highStreetStats={connectedLanes:0,pavingStones:0,shopfronts:0,
+ highStreetStats={connectedLanes:0,pavingStones:0,laneStoneWeathered:0,shopfronts:0,
   houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
   wheelwaySegments:0,kitchenGardens:0,kitchenGardenBeds:0,
   kitchenGardenPlants:0,kitchenGardenTriangles:0,
