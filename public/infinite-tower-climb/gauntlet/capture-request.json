@@ -2050,5 +2050,27 @@
       "PLAYS": "0/5"
     },
     "hardware": "NOT EVALUATED"
+  },
+  "p0LateImmutableCrossingRebinding20261113": {
+    "stage": "P0 exact-source native recapture, verdict NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "2fd5c77907f39a9ed3318ebf92304a6bbde811fa",
+    "candidateSourceSha": "EXACT immutable github.sha OF THIS evidence-commit workflow execution; never a floating branch",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "required": "Existing 9-job original 20Hz low-tier 1x source-pinned baseline/candidate normal-speed clips 60s+; ascent floor0, moving floor7, real Floor8 guardian/crusher HP0 earned original bronze threshold to Floor9 and onward, outcome/intermission/restart floor0; desktop960x600 portrait390x844 with source/renderer/native-PTS pairing and no video edits.",
+    "systemChangeUnderTest": "Real desktop source first browser successor stage retains actual old GPU bronze gateway at tick460 but has no immutable crossingTick; returned tick462 loses original GPU gate. A later actual source-published HP0 crossing is now allowed to source-authenticate that EXISTING old roof/door, after strict same-run original-cap/foot/guardian evidence, preserving actual camera/biome and deferred structural shot. Portrait already retained initially yet still visually cut.",
+    "criticalNativeAcceptance": "Watch original source-pinned FULL MOTION at 22-31s both views. Require full 3D climber and SAME original open bronze doorway, physically continuous grounded old/new roof and honest ninth-floor emergence; compare before/after event PTS and first returned WebGL geometric diagnostics. Accept neither original GPU existence alone nor NDC projection as pixel proof.",
+    "priorOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43444241163 — all 8 full WebMs uploaded; failed baseline ascent compositor timebase, strict video pairing 0/2; original camera/gate hard cut",
+    "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43454787711 — IN PROGRESS when requested; no green claim",
+    "review": "docs/reviews/2026-11-13-tower-pr68-late-hp0-original-doorway-rebind.md",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameMemory": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "safety": "Same open draft PR68, never touch frozen baseline source, PR58, other games; no merges/deploys/force pushes."
   }
 }

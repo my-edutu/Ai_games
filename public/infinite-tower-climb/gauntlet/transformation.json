@@ -9930,5 +9930,36 @@
     "nextHighestImpactAction": "Inspect next exact-source 9-job video+per-frame audit for first genuine F9 doorway, heroic body, depth/camera occlusion and WebGL first-return cost; rebuild failing physical component if hard cut persists. CI veto until all contracts green; no stages advanced.",
     "review": "docs/reviews/2026-11-13-tower-pr68-frozen-source-native-capture-symmetry-recovery.md",
     "safety": "Only same PR68 branch evidence/workflow/test code changed. No PR58 rewrite, baseline move, merge/deploy/force-push, draft promotion or unrelated games."
+  },
+  "p0LateImmutableCrossingRebinding20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBranchSha": "a47adb13ec11841e3e528791230a9b831f030d93",
+    "sourceProductionSha": "2fd5c77907f39a9ed3318ebf92304a6bbde811fa",
+    "originalSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43444241163",
+    "originalSourceCandidateSha": "a47adb13ec11841e3e528791230a9b831f030d93",
+    "nativeVideoObserved": "Inspected actual unedited desktop/portrait 1x first-episode video at ~22-29 seconds: same original bronze gate/full-body crossing still NOT visually continuous; bronze Floor8 and violet Floor9 replace one another around 25-26s. Candidate guardian source tick451 real. Strict event-to-native match 0/2; independent critic acceptance NOT EVALUATED.",
+    "provedSystemicClockDefect": "Desktop first transition browser-original GPU held at source tick460 with crossingTick=null (selectedSource old-browser-guardian-only); returned 3D audit at tick462 shows 0 retainedOriginalGpu frames although full hero and gate project into safe frame. Portrait original cap survives first returned tick458 with recorded crossing tick451, but still visually hard cuts; 3D projection is not pixels.",
+    "meaningfulProductionChange": "Reconcile only a subsequently surfaced immutable genuine same-run HP-zero f8->f9 crossing with an ALREADY retained original Floor8 bronze GPU cap+arch, after complete roof, guardian, living body, time, run, platform and compositor-submission safety validation. This allows existing camera/biome/deferred shell to share one source-owned retained gateway instead of expiring on null crossingTick. No new geometry, collision, platform, fake pose, floor, guardian victory, replay or input change.",
+    "affectedFiles": [
+      "public/infinite-tower-climb/visuals/crossfloor-arrival.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-crossfloor-arrival.test.cjs",
+      "tests/phase3/tower-retained-source-cap-world.test.cjs"
+    ],
+    "verification": "Source-matched pure and actual-Three tests added. Exact-head quality https://github.com/my-edutu/Ai_games/actions/runs/43454787711 started, result NOT YET VERIFIED. Prior https://github.com/my-edutu/Ai_games/actions/runs/43444240887 FAILED phase3 runner shutdown plus unrelated phase6 timeout; no CI acceptance.",
+    "baselineCaptureCaveat": "8 videos are uploaded from 43444241163, but baseline ascent desktop full-film compositor timebase had PARTIALLY_CALIBRATED discontinuity, so that job is failed despite films and 0/2 strict duet acceptance. Never weaken film timebase or fabricate matching.",
+    "newNormalSpeedCapture": "Requested by matching exact immutable github.sha of evidence commit via capture-request.json; new videos NOT YET EVALUATED.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "biggestExperienceGap": "Unedited desktop and portrait pixels still show a warm bronze -> purple cut without convincing contiguous original open door + whole real climber passage. Portrait initially holds original gate yet still loses shared view; renderer return is not native pixel.",
+    "nextHighestImpactAction": "Inspect freshly source-pinned 60+s desktop/portrait first-episode native videos and physical-doorway-submissions at ticks451 onward; demand returned retainedOriginalGpu+sourceOwnedColdLens and actual source-to-PTS 2/2, then rebuild shared physical camera depth/occlusion if native still cuts. Resolve baseline partial compositor timebase without weakening >0.5s gap veto; certify full outcome/restart.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-late-hp0-original-doorway-rebind.md",
+    "restrictions": "Keep PR68 draft on PR58, frozen baseline SHA unchanged; never merge/deploy/force-push, change PR58 or unrelated games."
   }
 }

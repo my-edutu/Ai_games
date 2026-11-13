@@ -1,0 +1,30 @@
+# P0 — original GPU bronze doorway loses late immutable HP-zero authority (13 November 2026)
+
+**Status:** P0 OPEN · **Leading transformation verdict:** NOT EVALUATED · **Protected baseline:** `1731b380851162741761c5569e2bc152a0869ca9` · **Production commit:** [2fd5c77907f39a9ed3318ebf92304a6bbde811fa](https://github.com/my-edutu/Ai_games/commit/2fd5c77907f39a9ed3318ebf92304a6bbde811fa) · Same open Draft PR [#68](https://github.com/my-edutu/Ai_games/pull/68) based on active PR58.
+
+## Source and native gameplay inspected before changing code
+
+The latest [nine-job original capture](https://github.com/my-edutu/Ai_games/actions/runs/43444241163) includes all eight original baseline/candidate desktop and portrait 60s-plus WebM clips, candidate SHA `a47adb13ec11841e3e528791230a9b831f030d93`, frozen baseline SHA unchanged. The baseline ascent job reports an **unsafe partial original WebM compositor timebase** in desktop even though both films uploaded, and the strict real event/native-video paired job reports **0/2 viewports**. Never promote this to matched evidence.
+
+I opened the actual candidate native 1x desktop/portrait `danger` WebMs around 22–29 seconds, not just screenshots or fixture traces. The bronze eight-floor boss cap is visible before passage. The climber reaches actual Floor 9, but at approximately 25–26 seconds the bronze environment is replaced by a violet Floor 9 view; there is no continuous source-owned full-body passage through the same original HP-open bronze doorway in **either** viewport. New native experience acceptance: **NOT EVALUATED**.
+
+The *specific newly localized first-episode source-to-GPU defect* is in the returned original WebGL and motion sidecars, independently of the pixel failure:
+
+- Desktop browser source tick451 accepted Floor9. At tick460 the retained original **GPU** cap and gate, 253 original structural triangles and bronze roof cover were all present, but `crossingTick:null` because the first browser successor used `old-browser-guardian-only`; its earliest source audit had no separately recorded `lastGuardianCrossing`. At first later returned physical-doorway audit tick462 (11 ticks since source HP0), original GPU ownership had already vanished. Both true hero and authentic original gate still projected inside the safe camera frame with unobstructed ray tests. Thus a camera-only pan would be the wrong primary fix for this desktop defect.
+- Portrait has the authentic immutable crossing tick451 by first Floor9 browser observation tick452; its original retained cap/gate is present at first returned tick458, but original native pixels **still** visually hard-cut. Therefore retaining a physical old gate is necessary but not sufficient for continuous original motion.
+
+## Systemic production repair (not a fabricated gameplay event)
+
+`crossfloor-arrival.mjs` now offers **read-only** `reconcileRecordedOriginalCapCrossing`: it can recover the genuine HP-zero tick only when the same-run source publishes it later, and the existing original-cap validator confirms the true roof, HP-defeated original guardian, floor8→9 exit geometry, source player footprint/grounding or honest airborne support, bounded observation and successful-submission age. It refuses missing/wrong/old/future crossings, another run, stale scene, changed cap, dead/distant body or completed display window.
+
+`world.mjs` invokes this on the **already-rendered** original bronze cap/gate before the release decision and stores `lateRecordedCrossingReacquiredAtTick` in the non-authoritative diagnostics. The same live `retainedFilmHandoff` can then drive existing source-bound camera, environmental handoff and deferred opaque shell instead of destroying the only genuine gateway on a null early crossing. No source simulation, AI steering, collider, portal, hero pose, graphics quality, sound or restart rules changed. Existing old GPU geometry is reused and cleaned up by its original bounded owner; no new draw call/shadow budget introduced.
+
+Focused new contracts include **pure false-source rejection** and **actual Three.js original-cap/arch identity** after the delayed record, plus a corrupt cap failure. Technical test execution is requested by [exact-head quality](https://github.com/my-edutu/Ai_games/actions/runs/43454787711). It was in progress at implementation; **no green CI asserted**. Previous [quality](https://github.com/my-edutu/Ai_games/actions/runs/43444240887) failed due to a phase3 runner shutdown during retained-world testing and an unrelated phase6 Maze-readiness timeout; this task does not alter Maze.
+
+## Unpassed gates and next highest-impact work
+
+The accompanied capture request pins candidate to immutable workflow `github.sha` and runs all nine original baseline/candidate film/evidence jobs. Re-inspect **actual original WebMs** and `physical-doorway-submissions.json` for both viewports. Check desktop old cap retained at the real first returned event, watch a full-body same-bronze-gateway/grounded threshold shot, and demand strict event-matched native 2/2. If portrait or desktop still hard cuts, the remaining deficit is shared world-depth/hero-door composition and actual camera occlusion, **not another clock assertion**. Diagnose old/new geometry collision/scene projection from native frames and rebuild the physical shot.
+
+Full loop outcome/restart, native paired ascent source calibration, hardware p50/p95/p99+memory, low/high graphics/mobile accessibility and **five genuinely independent blind reviewers in each of LOOKS, FEELS and PLAYS** remain unverified; all reviewer counts **0/5**. No user-facing transformation acceptance is claimed.
+
+**Integrity:** frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` untouched; PR68 open and draft on PR58; no merge, deploy, force-push, unrelated games or baseline movement.
