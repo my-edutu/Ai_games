@@ -4775,7 +4775,7 @@ export function createTowerScene(canvas, settings = {}) {
     // transition ALL environmental channels together with the grounded arch.
     // Do not overwrite physical dangers, hero/boss lighting, or user camera.
     const thresholdLight=observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options,
-      world.retainedFilmHandoff(snapshot));
+      world.retainedFilmHandoff?.(snapshot) ?? null);
     const oldWeight=thresholdLight?.oldWeight ?? 0;
     if(thresholdLight || lastBiomeHandoffOldWeight>0){
       const from=thresholdColors.from,to=thresholdColors.to;
