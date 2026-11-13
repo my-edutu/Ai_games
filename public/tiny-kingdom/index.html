@@ -6567,6 +6567,16 @@ function directionalCastShadows(time){
 // W81: real hand-laid clay COURSES with raised drip lips and existing
 // original mipmapped shingle atlas: detailed 252->48 and compact 48->24
 // overlay triangles/house. Preserve full roofs, people, simulation and save.
+// W301: settled hand-made tile roofs for every real home, stall and
+// freight shelter; no new vertices, buildings, workers or resource state.
+function settledRoofCourseHeight(x,front,back,variant,t,z,eave,peak,lift){
+ if(![x,front,back,variant,t,z,eave,peak,lift].every(Number.isFinite)||
+    back<=front||peak<=eave||t<0||t>1)throw Error('W301 roof');
+ const age=.5+.5*Math.sin(x*.317+front*.241+variant*1.59);
+ const along=Math.max(0,Math.min(1,(z-front)/(back-front)));
+ return eave+(peak-eave)*t+lift+Math.sin(Math.PI*t)*
+  ((.038+.054*age)+Math.sin(along*Math.PI*1.15+x*.27+variant*.73)*(.006+.010*age));
+}
 function originalClayRoofCourses(x,eave,peak,halfW,front,back,palette,courses,variant,compact){
  const start=data.length,shades=palette.map(t=>Array.isArray(t)?t:rgb(t));
  materialScope(MATERIAL.ROOF,()=>{
@@ -6574,17 +6584,18 @@ function originalClayRoofCourses(x,eave,peak,halfW,front,back,palette,courses,va
    const lo=course/courses,hi=(course+1)/courses;
    const x0=x+side*halfW*(1-lo),x1=x+side*halfW*(1-hi);
    const lift=.026+.002*((course+variant)%3);
-   const y0=eave+(peak-eave)*lo+lift,y1=eave+(peak-eave)*hi+lift;
+   const at=(t,z)=>settledRoofCourseHeight(x,front,back,variant,t,z,eave,peak,lift);
+    const yf0=at(lo,front),yb0=at(lo,back),yf1=at(hi,front),yb1=at(hi,back);
    const pigment=shades[(course*3+(side+1)+variant)%shades.length];
    const dark=shades[(course+variant+2)%shades.length].map(v=>v*.73);
    if(side<0){
-    quad([x0,y0,front],[x0,y0,back],[x1,y1,back],[x1,y1,front],pigment);
-    quad([x0,y0+.014,front],[x0,y0-.032,front],
-     [x0,y0-.032,back],[x0,y0+.014,back],dark);
+    quad([x0,yf0,front],[x0,yb0,back],[x1,yb1,back],[x1,yf1,front],pigment);
+    quad([x0,yf0+.014,front],[x0,yf0-.032,front],
+     [x0,yb0-.032,back],[x0,yb0+.014,back],dark);
    }else{
-    quad([x0,y0,front],[x1,y1,front],[x1,y1,back],[x0,y0,back],pigment);
-    quad([x0,y0+.014,back],[x0,y0-.032,back],
-     [x0,y0-.032,front],[x0,y0+.014,front],dark);
+    quad([x0,yf0,front],[x1,yf1,front],[x1,yb1,back],[x0,yb0,back],pigment);
+    quad([x0,yb0+.014,back],[x0,yb0-.032,back],
+     [x0,yf0-.032,front],[x0,yf0+.014,front],dark);
    }
   }
  });
@@ -6607,17 +6618,18 @@ function originalHipRoofCourses(x,eave,peak,halfW,front,back,inset,palette,cours
    const lo=course/courses,hi=(course+1)/courses;
    const x0=x+side*halfW*(1-lo),x1=x+side*halfW*(1-hi);
    const lift=.026+.002*((course+variant)%3);
-   const y0=eave+(peak-eave)*lo+lift,y1=eave+(peak-eave)*hi+lift;
+   const at=(t,z)=>settledRoofCourseHeight(x,front,back,variant,t,z,eave,peak,lift);
    const f0=front+inset*lo,b0=back-inset*lo;
    const f1=front+inset*hi,b1=back-inset*hi;
+    const yf0=at(lo,f0),yb0=at(lo,b0),yf1=at(hi,f1),yb1=at(hi,b1);
    const pigment=shades[(course*3+(side+1)+variant)%shades.length];
    const dark=shades[(course+variant+2)%shades.length].map(v=>v*.73);
    if(side<0){
-    quad([x0,y0,b0],[x1,y1,b1],[x1,y1,f1],[x0,y0,f0],pigment);
-    quad([x0,y0+.014,b0],[x0,y0-.032,b0],[x0,y0-.032,f0],[x0,y0+.014,f0],dark);
+    quad([x0,yb0,b0],[x1,yb1,b1],[x1,yf1,f1],[x0,yf0,f0],pigment);
+    quad([x0,yb0+.014,b0],[x0,yb0-.032,b0],[x0,yf0-.032,f0],[x0,yf0+.014,f0],dark);
    }else{
-    quad([x0,y0,f0],[x1,y1,f1],[x1,y1,b1],[x0,y0,b0],pigment);
-    quad([x0,y0+.014,f0],[x0,y0-.032,f0],[x0,y0-.032,b0],[x0,y0+.014,b0],dark);
+    quad([x0,yf0,f0],[x1,yf1,f1],[x1,yb1,b1],[x0,yb0,b0],pigment);
+    quad([x0,yf0+.014,f0],[x0,yf0-.032,f0],[x0,yb0-.032,b0],[x0,yb0+.014,b0],dark);
    }
   }
  });
@@ -6638,7 +6650,9 @@ function getRoofCoursingAudit(){
   compactCourses:villageVisualLod.compactRoofCourses,
   patternedCompactShingles:villageVisualLod.compactRoofTiles,
   reclaimedTriangles:gpuAvailable?detailedHomes*204+compactHomes*24:0,
-  fullHouseCount:city.length,noRemovedResidents:true,noAuthorityChanges:true};
+  fullHouseCount:city.length,noRemovedResidents:true,noAuthorityChanges:true,
+  originalRoofTriangleCountRetained:true,settledRoofline:true,
+  realHardwareFPS:'NOT PROVEN',experienceMilestone:'NOT PROVEN'};
 }
 // W157: a single physically joined original roof language across GENUINE
 // inhabited cottages, the existing granary and two real market shop lofts.
@@ -11749,8 +11763,10 @@ function marketReceivingDock(){
       (site.ridgeAboveGround-site.eaveAboveGround)*a,
     by=ground+site.eaveAboveGround+
       (site.ridgeAboveGround-site.eaveAboveGround)*b,
-    p0=[ax,ay,site.frontZ],p1=[bx,by,site.frontZ],
-    p2=[bx,by,site.backZ],p3=[ax,ay,site.backZ],
+    p0=[ax,settledRoofCourseHeight(cx,site.frontZ,site.backZ,1,a,site.frontZ,roofEave,roofRidge,.008),site.frontZ],
+     p1=[bx,settledRoofCourseHeight(cx,site.frontZ,site.backZ,1,b,site.frontZ,roofEave,roofRidge,.008),site.frontZ],
+    p2=[bx,settledRoofCourseHeight(cx,site.frontZ,site.backZ,1,b,site.backZ,roofEave,roofRidge,.008),site.backZ],
+     p3=[ax,settledRoofCourseHeight(cx,site.frontZ,site.backZ,1,a,site.backZ,roofEave,roofRidge,.008),site.backZ],
     tone=tile[(course+(side<0?1:0))%tile.length];
    if(side<0)quad(p3,p2,p1,p0,tone);
    else quad(p0,p1,p2,p3,tone);
@@ -12199,8 +12215,11 @@ function marketStall(s,index){
    const a=course/courses,b=(course+1)/courses;
    const ax=x+side*edge*(1-a),bx=x+side*edge*(1-b);
    const ay=eave+(peak-eave)*a,by=eave+(peak-eave)*b;
-   const p0=[ax,ay,z-1.17],p1=[bx,by,z-1.17],
-    p2=[bx,by,z+1.17],p3=[ax,ay,z+1.17];
+   const near=z-1.17,far=z+1.17;
+   const p0=[ax,settledRoofCourseHeight(x,near,far,index,a,near,eave,peak,.012),near],
+    p1=[bx,settledRoofCourseHeight(x,near,far,index,b,near,eave,peak,.012),near],
+    p2=[bx,settledRoofCourseHeight(x,near,far,index,b,far,eave,peak,.012),far],
+    p3=[ax,settledRoofCourseHeight(x,near,far,index,a,far,eave,peak,.012),far];
    const shade=rgb(colors[(course+index)%colors.length]);
    if(side<0)quad(p3,p2,p1,p0,shade);
    else quad(p0,p1,p2,p3,shade);
