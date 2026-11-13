@@ -1,7 +1,7 @@
 'use strict';
 // Real shipped Three.js Floor8->9 original cap resource ownership; the source
 // validator already resides in guardian-passage.mjs, never a fake win fixture.
-const {test,after}=require('node:test');
+const {test,after,beforeEach,afterEach}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {pathToFileURL}=require('node:url');
@@ -31,6 +31,10 @@ function resourceCheckpoint(phase){
   const m=process.memoryUsage();
   process.stderr.write(`TOWER_P0_RESOURCE phase=${phase} elapsedMs=${Math.round(performance.now()-auditStart)} rssMiB=${Math.round(m.rss/1048576)} heapMiB=${Math.round(m.heapUsed/1048576)} externalMiB=${Math.round(m.external/1048576)}\n`);
 }
+// Diagnose the real retained-world hosted-runner SIGKILL at subtest granularity.
+// Do not skip tests, increase timeout, alter game snapshots or infer a pass.
+beforeEach(t=>resourceCheckpoint('subtest-begin:'+t.name));
+afterEach(t=>resourceCheckpoint('subtest-end:'+t.name));
 const cap={id:'f8:cap',kind:'oneway',x:115200,y:3212000,width:249600,height:12000};
 const gate=cap.x+Math.floor(cap.width*.76);
 const body={health:5,grounded:true,halfWidth:9000,halfHeight:14000,
@@ -150,6 +154,7 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       world.update(second,.1,6+i*.1,{quality:'low'});
     }
     resourceCheckpoint('twenty-real-submissions');
+    resourceCheckpoint('final-retirement-assertions-begin');
     assert.equal(world.group.getObjectByName('platform:f8:cap'),undefined,
       'the bounded old floor must retire on submitted-frame display time');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
@@ -159,7 +164,8 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       'source gallery resources are retired on genuine departure/cleanup');
     assert.equal(JSON.stringify([first,second]),original,
       'the old/new authoritative source must be immutable');
-  }finally{world.dispose();}
+    resourceCheckpoint('final-retirement-assertions-end');
+  }finally{resourceCheckpoint('first-test-dispose-begin');world.dispose();resourceCheckpoint('first-test-dispose-end');}
 });
 test('unearned, stale, wrong-run or geometry-mismatched cap never attaches old world',async()=>{
   const [{createTowerWorld}]=await loaded;
