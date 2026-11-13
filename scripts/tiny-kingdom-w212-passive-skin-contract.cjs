@@ -44,15 +44,19 @@ yes({}, {visible:false});yes({activity:'Exploring the valley'});
  no({}, {verifiedMeal:true});no({provisions:.8},{verifiedMeal:true});
  no({activity:'Traveling home with provisions',provisions:.8});
 no({delivery:{id:'Bram:32'}});no({}, {unload:true});no({}, {working:true});
-// The original worker geometry is GPU skinned until 18% screen height;
-// an already retained rig lasts to 22% to prevent threshold flicker.
-yes({}, {height:.16});no({}, {height:.21});
-yes({}, {height:.21,cached:true});no({}, {height:.23,cached:true});
+// W296's actual 27%-enter/32.5%-hold ORIGINAL commuter full-body
+// GPU joint rig now covers readable mid-shots. A selected worker, receipt,
+// real tool contact or earned household meal still uses live CPU hands.
+yes({}, {height:.16});yes({}, {height:.21});
+yes({}, {height:.269});no({}, {height:.270});
+yes({}, {height:.30,cached:true});
+yes({}, {height:.324,cached:true});
+no({}, {height:.325,cached:true});
 no({}, {skin:false});no({}, {gpu:false});
 no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
 no({activity:'Unloading grain'});no({activity:'Collecting household provisions'});
 no({activity:'Forging a hinge'});no({phase:NaN});
-no({}, {height:.23,visible:true});
+no({}, {height:.33,visible:true});
 const fn=html.slice(html.indexOf('function getForegroundSkinAudit('),
  html.indexOf('let actorGpuStaging=',html.indexOf('function getForegroundSkinAudit(')));
 assert(fn.includes('passiveSkinnedWithoutReceiptMeal:true'));
