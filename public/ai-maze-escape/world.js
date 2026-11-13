@@ -3710,5 +3710,24 @@ export function createMazeWorld(options = {}) {
       });
     return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianForecourtShoulderTiles, guardianOuterCourtFloorTiles, guardianOuterCourtSealedTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
-  return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress };
+  // On-demand production-mesh ray identification for exact-source native visual
+  // diagnosis. Batches contain ONLY public render cells; never enumerate
+  // private topology or use a picked cell for AI/game authority.
+  function describePublicRayHit(hit) {
+    const entry=hit.object.isInstancedMesh && Number.isInteger(hit.instanceId)
+      ? batches.find(batch=>batch.mesh===hit.object)?.entries[hit.instanceId] : null;
+    const id=entry?.cell;
+    const cell=Number.isSafeInteger(id) && snapshot?.visibleCells?.includes(id) ? id : null;
+    const dimensions=new THREE.Vector3(), origin=new THREE.Vector3(), orientation=new THREE.Quaternion();
+    if(entry)entry.matrix.decompose(origin,orientation,dimensions);
+    else hit.object.getWorldPosition(origin);
+    return {cell, name:hit.object.name||null,
+      material:hit.object.material?.name||null,
+      color:hit.object.material?.color?.getHexString()||null,
+      instanced:!!entry, worldPosition:origin.toArray().map(n=>+n.toFixed(3)),
+      dimensions:entry?dimensions.toArray().map(n=>+n.toFixed(3)):null,
+      contact:hit.point.toArray().map(n=>+n.toFixed(3)),
+      distance:+hit.distance.toFixed(3)};
+  }
+  return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress, describePublicRayHit };
 }

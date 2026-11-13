@@ -1563,6 +1563,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (object.geometry && (object.isMesh || object.isLine))
           referencedGeometries.add(object.geometry.id);
       });
+      // Native capture can identify real 3D geometry behind a screenshot
+      // pixel. This reports CURRENT PUBLIC render cells and mesh materials,
+      // not secret topology or an AI control. Allocated only on demand.
+      window.__MAZE_PUBLIC_SCENE_PICK__=(u,v)=>{
+        if(!Number.isFinite(u)||!Number.isFinite(v)||u<0||u>1||v<0||v>1)return [];
+        const raycaster=new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(2*u-1,1-2*v),camera);
+        return raycaster.intersectObject(world.group,true).slice(0,6)
+          .map(hit=>world.describePublicRayHit(hit));
+      };
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
         triangles: renderer.info.render.triangles, drawCalls: renderer.info.render.calls,
@@ -1707,6 +1717,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     canvas.removeEventListener('webglcontextrestored', contextRestored);
     explorerLantern?.remove(lanternWarning);
     lanternWarningGeometry.dispose(); lanternWarningMaterial.dispose();
+    delete window.__MAZE_PUBLIC_SCENE_PICK__;
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();

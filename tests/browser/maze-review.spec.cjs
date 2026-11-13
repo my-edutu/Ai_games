@@ -759,6 +759,12 @@ test('a real close public encounter frames both autonomous actors and saves date
     });
     const image=path.join(dir,'guardian-real-beat-'+phase.name+'-390.png');
     await page.screenshot({path:image,fullPage:true});
+    // Source-bound native screenshot PAUSED above: identify the TRUE
+    // installed Three meshes under the pale foreground, not guessed tiles.
+    const foregroundPicks=await page.evaluate(()=>
+      [[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]].map(([u,v])=>({
+        u,v,hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]
+      })));
     const post=await page.evaluate(()=>({
       beat:window.__MAZE_3D__?.witnessedExplorerGuardianBeat,
       guardianBeat:window.__MAZE_3D__?.witnessedGuardianBeat,
@@ -772,7 +778,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       seed:encounter.seed,tick:frame.snapshot.tick,runToken:frame.snapshot.runToken,
       viewport:{width:390,height:844},phase:phase.name,
       imageSha256:hash(image),sourceSha256:nativeSourceHashes,
-      beforeScreenshot:prior,afterScreenshot:post,
+      beforeScreenshot:prior,afterScreenshot:post,foregroundPicks,
       caveat:'Only the already-rendered game frame is held during screenshot acquisition; the real browser visual clock resumes naturally between frames. This does NOT measure GPU FPS or prove Nintendo parity; source-bound visual critique still required.',
     },null,2));
     renderedPhases.push(prior);
