@@ -1685,6 +1685,16 @@ export function planOriginalSourceStanceSlideRelief({
  const yawDifference=currentRootYaw-previousRootYaw;
  const yawChange=finite(previousRootYaw)&&finite(currentRootYaw)?
   Math.abs(Math.atan2(Math.sin(yawDifference),Math.cos(yawDifference))):NaN;
+ // Real 390px original-source WebGL frames 23->24 and 24->25 on
+ // #43332071080 turn about 0.637 rad PER displayed frame. A shoe's
+ // world-XZ displacement during such a turn is not evidence that the
+ // imported Walking_A gait is skating. Never "rescue" a rotation by
+ // laterally sliding the entire rendered source rig; that creates a
+ // viewer-visible reverse pivot and can detach the apparent floor contact.
+ // Small <=80 mrad source-root turns preserve the existing strict
+ // two-foot motion proof. A legacy pure caller with no yaw evidence
+ // retains its prior contract; live GLB always supplies both headings.
+ if(finite(yawChange)&&yawChange>.08)return null;
  const verifiedSwingHeel=finite(yawChange)&&yawChange<=.08&&
   opposite.a.heel[1]>=floorTopY+.08&&
   opposite.b.heel[1]>=floorTopY+.08;
