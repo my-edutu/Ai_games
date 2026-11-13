@@ -16,7 +16,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
 export function observedRetainedOriginalBronzeCover(submittedFrames, visibleSeconds) {
   if (!Number.isSafeInteger(submittedFrames) || submittedFrames < 0 ||
       !Number.isFinite(visibleSeconds) || visibleSeconds < 0) return 0;
-  const t = Math.max(0, Math.min(1, (visibleSeconds - .15) / 1.15));
+  const t = Math.max(0, Math.min(1, (visibleSeconds - .12) / 1.25));
   return .94 * (1 - t * t * (3 - 2 * t));
 }
 export const THEMES = Object.freeze({
@@ -2221,7 +2221,7 @@ export function createTowerWorld(){
     const sourceColdFrame=observedSourceEarnedColdFrameContinuation(snapshot,held);
     const retainedBackdrop = (observedClockworkRoofContinuity(
       snapshot,passageWitness,held) || sourceColdFrame) &&
-      held.submittedFrames < 5 && held.visibleSeconds < .85;
+      held.submittedFrames < 9 && held.visibleSeconds < 1.25;
     const justLaunched=sourceFlight &&
       snapshot.tick-held.sourceTick<=24 && nearDoor;
     // Historical architecture only: no collider, contact or extra event.
