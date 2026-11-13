@@ -2488,7 +2488,8 @@ let foregroundResidentCache=new Map(),foregroundResidentVisible=[],
  foregroundResidentUploads=0,foregroundResidentFullUploads=0,
  foregroundResidentPartialUploads=0,foregroundResidentDrawCalls=0,
  foregroundResidentBatchDrawCalls=0,foregroundResidentRootDrawCalls=0,
- foregroundResidentFallbacks=0,foregroundResidentUploadBytes=0;
+ foregroundResidentFallbacks=0,foregroundResidentUploadBytes=0,
+ foregroundResidentBudgetBypasses=0;
 function isForegroundResidentCandidate(p,i,nearPeople){
  if(!gpuAvailable||!foregroundResidentEnabled||!p||!nearPeople.has(i)||p.delivery||
     isMarketUnloading(p)||isWorkingAtSite(p)||
@@ -2500,8 +2501,10 @@ function isForegroundResidentCandidate(p,i,nearPeople){
 // mesh through a small camera change. Every actual foot/hand joint is updated
 // from current authoritative motion; followed workers, freight and physical
 // receiving contact remain in the original per-tick CPU geometry.
-const WORKSITE_SKIN_ENTER_SCREEN_HEIGHT=.155;
-const WORKSITE_SKIN_RETAIN_SCREEN_HEIGHT=.195;
+// W296: keep unselected genuine near workers' full 13-joint original rigs
+// resident through an ordinary orbit; selected hero and real freight stay live.
+const WORKSITE_SKIN_ENTER_SCREEN_HEIGHT=.245;
+const WORKSITE_SKIN_RETAIN_SCREEN_HEIGHT=.295;
 const WORKSITE_SKIN_FALLBACK_SCREEN_HEIGHT=.115;
 function worksiteGpuSkinSizeGate(heightFraction,previouslySkinned,capable){
  if(!Number.isFinite(heightFraction)||heightFraction<0)return false;
@@ -2546,8 +2549,10 @@ function realForegroundFacing(p){
 // pedestrian viewing window. True labor, parcels, market hands, verified
 // meals and manually followed workers stay in the live contact path.
 // Hysteresis avoids unnecessary JS regeneration at a camera LOD boundary.
-const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.18;
-const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.22;
+// W296: live full-body foot/hand GPU skin covers medium-shot pedestrians
+// without re-baking their sculpted original vertex data every camera tick.
+const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.27;
+const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.325;
 function physicallySmallWalkingSkinWindow(heightFraction,previouslySkinned){
  return Number.isFinite(heightFraction)&&heightFraction>=0&&
   heightFraction<(previouslySkinned?
@@ -2622,6 +2627,15 @@ function realForegroundPoseStale(entry,p,key,angle){
  return Math.hypot(p.x-entry.x,p.z-entry.z)>(active?.015:FOREGROUND_ROOT_METERS)||
   Math.abs(turn)>(active?.010:FOREGROUND_ROOT_RADIANS);
 }
+// A real original sculpt may exceed the bounded 3MB resident geometry pool.
+// Reject ONLY that actor's admission; the caller still renders every denied
+// person through its unchanged live villager path. No geometry or agent is culled.
+function foregroundResidentBudgetAdmits(meshFloats,usedFloats,maxFloats){
+ return Number.isInteger(meshFloats)&&meshFloats>0&&meshFloats%30===0&&
+  Number.isInteger(usedFloats)&&usedFloats>=0&&
+  Number.isInteger(maxFloats)&&maxFloats>=0&&
+  meshFloats<=maxFloats-usedFloats;
+}
 function prepareForegroundResidents(rows,frame){
  foregroundResidentVisible=[];
  if(!gpuAvailable||!rows.length){
@@ -2649,6 +2663,7 @@ function prepareForegroundResidents(rows,frame){
  for(const {p,i} of limited){
   const walkingSkin=isForegroundWalkingSkinCandidate(p,i,frame);
   const key=realForegroundPoseKey(p,i,walkingSkin),angle=realForegroundFacing(p);
+  const beforeActor=restingActorCounters();
   let entry=foregroundResidentCache.get(i),fresh=false;
   if(realForegroundPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
@@ -2678,15 +2693,22 @@ function prepareForegroundResidents(rows,frame){
    applyRestingActorMetrics(entry.delta);
    foregroundResidentReuses++;
   }
-  total+=entry.mesh.length;
-  if(!entry.mesh.length||entry.mesh.length%30!==0||
-     total>FOREGROUND_RESIDENT_FLOAT_BUDGET){
-   resetRestingActorMetrics(beforeAll);
-   foregroundResidentVisible=[];foregroundResidentLayoutKey='';
-   foregroundResidentMesh=new Float32Array(0);
-   foregroundResidentFallbacks++;return false;
+  // A single large near actor must not evict every other original real
+  // citizen from their reusable GPU meshes. Preserve already admitted bodies
+  // and let the outer renderer draw this one citizen with live CPU IK.
+  if(!foregroundResidentBudgetAdmits(entry.mesh.length,total,
+       FOREGROUND_RESIDENT_FLOAT_BUDGET)){
+   resetRestingActorMetrics(beforeActor);
+   foregroundResidentBudgetBypasses++;
+   continue;
   }
+  total+=entry.mesh.length;
   next.set(i,entry);selected.push({p,i,entry,fresh});
+ }
+ if(!selected.length){
+  foregroundResidentVisible=[];foregroundResidentCache.clear();
+  foregroundResidentLayoutKey='';foregroundResidentMesh=new Float32Array(0);
+  return false;
  }
  let offset=0;
  for(const row of selected){
@@ -2856,6 +2878,7 @@ function getForegroundResidentAudit(){
   uploadedBytes:foregroundResidentUploadBytes,drawCalls:foregroundResidentDrawCalls,
   batchedDrawCalls:foregroundResidentBatchDrawCalls,
   rootedDrawCalls:foregroundResidentRootDrawCalls,fallbacks:foregroundResidentFallbacks,
+  budgetBypasses:foregroundResidentBudgetBypasses,
   activeWorkHandsLive:true,loadedCargoLive:true,unloadingLive:true,
   observedWorkerLive:true,authorityModified:false,physicalHardwareFpsUnmeasured:true};
 }
