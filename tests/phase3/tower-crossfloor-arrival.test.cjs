@@ -229,3 +229,47 @@ test('delayed immutable HP-zero record re-authenticates an already-rendered REAL
  assert.equal(reconcile(source,{...held,sourceTick:464}),null,
   'a source tick beyond the original 12-tick doorway authorization is invalid');
 });
+
+
+test('portrait first GPU submission keeps the actual previously rendered bronze gateway when the HP-zero record arrives late',async()=>{
+ const {observedQueuedOriginalCapAtFirstRender:admit}=await loaded;
+ const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+ const exitX=cap.x+Math.floor(cap.width*.76);
+ const queued={runToken:'same-source-run',floor:9,tick:451,crossingTick:null,
+   oldCapId:cap.id,oldCapX:cap.x,oldCapWidth:cap.width,
+   oldRoofY:cap.y+cap.height,thresholdX:exitX,nextBaseY:3240000,
+   worldWidth:480000,
+   // Set only by a successful prior-floor HP0 + real grounded F8->F9
+   // stage, never inferred on a future-floor frame.
+   verifiedObservedFloorAdvance:true,observedCrossingX:324296,
+   observedCrossingY:3238000,observedHalfWidth:9000,
+   observedHalfHeight:14000};
+ const source={runToken:queued.runToken,lifecycle:'running',floor:9,
+   theme:'void',tick:460,chunkBaseY:3240000,worldWidth:480000,
+   platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}],
+   player:{x:340796,y:3238000,halfWidth:9000,halfHeight:14000,
+     health:4,grounded:true,groundedPlatformId:'f9:ground',
+     state:'standing',vy:0}};
+ const before=JSON.stringify([source,queued]);
+ assert.equal(admit(source,queued),true,
+   'do not delete the genuine old GPU doorway merely because delayed first Floor9 render still lacks a published crossing record');
+ assert.equal(JSON.stringify([source,queued]),before);
+ const w={runToken:queued.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+   cap,exitX,crossingX:324296,halfWidth:9000,halfHeight:14000,
+   guardian:{kind:'guardian',floor:8,active:false,health:0}};
+ assert.equal(admit({...source,lastGuardianCrossing:w},queued),true,
+   'the recorded HP-zero crossing may arrive after the browser has already staged the original doorway');
+ for(const [s,q] of [
+   [{...source,runToken:'another-run'},queued],
+   [{...source,tick:464},queued],
+   [{...source,floor:10},queued],
+   [{...source,platforms:[{...source.platforms[0],y:3212001}]},queued],
+   [{...source,player:{...source.player,x:exitX+120000}},queued],
+   [{...source,player:{...source.player,groundedPlatformId:'invented'}},queued],
+   [source,{...queued,verifiedObservedFloorAdvance:false}],
+   [source,{...queued,observedCrossingX:exitX-25000}],
+   [source,{...queued,observedCrossingY:3238001}],
+   [{...source,lastGuardianCrossing:{...w,runToken:'another-run'}},queued],
+   [{...source,lastGuardianCrossing:{...w,guardian:{...w.guardian,active:true,health:1}}},queued],
+ ]) assert.equal(admit(s,q),false);
+});
