@@ -877,9 +877,25 @@ test('Pass324 real 390px foreground ray-identified public cell gets full-floor T
     // published pressure tile one more cell away can make cell100 part of
     // pressureSightlines. The CHECKPOINT floor remains a neutral public
     // guardian foreground (not an asserted safe route or moving hazard).
+    // Pass328: replicate the real native public state, not the earlier
+    // checkpoint=true synthetic which accidentally prevented the actual
+    // pressureCourtApron material-precedence conflict. Cell100 is ordinary,
+    // with an observed nearby trap but NO reciprocal trap route.
     const nearPressure={...s,visibleCells:[98,99,100,101],
-      cells:[...s.cells,{cell:101,blocked:false,trap:true,neighbors:[]}]};
+      cells:[...s.cells.map(c=>c.cell===100
+        ? {...c,checkpoint:false,clue:false,neighbors:[101]}:c),
+      {cell:101,blocked:false,trap:true,neighbors:[]}]};
     w.update(nearPressure);assertColored();
+    // When BOTH observed tiles really open reciprocally onto the pressure
+    // trigger, its authored dark physical basin must still win. Neutral
+    // guardian art cannot conceal a real accessible pressure mechanism.
+    const linkedPressure={...nearPressure,cells:nearPressure.cells.map(c=>
+      c.cell===101?{...c,neighbors:[100]}:c)};
+    w.update(linkedPressure);
+    assert.equal(instances(100,'28574f',2.39,.07,2.39,-.035),1,
+      'an actual reciprocal discovered pressure link retains its basin');
+    assert.equal(instances(100,'5d968e',2.31,.07,2.31,-.035),0,
+      'guardian art cannot disguise the physical active linked basin');
     // Pass326: the authentic near-camera foreground can be a physically
     // IMPASSABLE public tile. Previously the helper rejected it as blocked,
     // leaving both huge original TAN meshes in the native 390px screenshots.

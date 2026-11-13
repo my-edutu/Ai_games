@@ -1289,7 +1289,17 @@ export function createMazeWorld(options = {}) {
       // Keep that truthful original high-court contrast. The lower two tiers
       // add one intentional district of warm clay and sea-glass respectively,
       // while adjacent courts retain a clear ivory/stone separation.
-      const floorMaterial = pressureCourtBasin ? darkJade : pressureCourtApron
+      // Pass328: actual untouched 390px WebGL picked public cell100's
+      // BEIGE 2.31m deck despite the correctly recolored 2.39m load lip.
+      // Native public state proves this is a merely NEARBY pressure apron,
+      // while a currently witnessed, reciprocal Pip/Thornback causeway
+      // requires the same full neutral sea-glass foreground. Preserve the
+      // REAL linked pressure basin above both priorities; never suppress a
+      // disclosed active hazard, invent a path, or read private topology.
+      const guardianPressureBackdrop = witnessedForeground
+        && pressureCourtApron && !pressureCourtBasin;
+      const floorMaterial = pressureCourtBasin ? darkJade
+        : guardianPressureBackdrop ? seaGlass : pressureCourtApron
         ? (tier === 2 ? lightStone : tier === 1 ? stone : seaGlass)
         : guardianCourtCell ? seaGlass
         : guardianForecourtShoulder ? darkJade
