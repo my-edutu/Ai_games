@@ -1,0 +1,46 @@
+name: Tiny Kingdom W294 Authentic Inhabited Camera District
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w293-camera-home-detail-contract.cjs
+      - scripts/tiny-kingdom-w294-visible-inhabited-street-contract.cjs
+      - tests/browser/tiny-kingdom-w294-inhabited-view.spec.cjs
+      - .github/workflows/tiny-kingdom-w294-inhabited-view.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w294-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  true-inhabited-camera:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/tiny-kingdom-w293-camera-home-detail-contract.cjs
+      - run: node scripts/tiny-kingdom-w294-visible-inhabited-street-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w294-inhabited-view.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w294-authentic-inhabited-view
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14
