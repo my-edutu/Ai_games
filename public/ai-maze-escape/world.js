@@ -1513,7 +1513,7 @@ export function createMazeWorld(options = {}) {
                 alongX?0:side*.29,.82,alongX?side*.29:0,
                 alongX?.48:.27,.14,alongX?.27:.48);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
-              sentinels.push({lift,crown,lens,sailPivot,sail,side});
+              sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
           }
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
@@ -3391,7 +3391,15 @@ export function createMazeWorld(options = {}) {
         // motion it remains rigid but retains the truthful amber warning.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?beacon.side:-beacon.side)*.88*action;
-        beacon.sail.material=action>.28?amber:seaGlass;
+        // Pass329 original 390px brace showed FOUR opaque amber feathers
+        // visually overtaking Pip and Thornback. Keep the full-size hinged
+        // SEA-GLASS body visibly moving through the real guardian warning,
+        // but move the warm event emphasis to its CONNECTED narrow crest.
+        // The existing substantial crown, lens and floor leaves still glow
+        // amber on witnessed brace; none is an invented strike/hit indicator.
+        // Reuse pooled materials; reduced motion freezes geometry, not truth.
+        beacon.sail.material=action>.28?darkJade:seaGlass;
+        beacon.crest.material=action>.28?amber:lightStone;
       }
       for(const face of signal.faces){
         face.object.material=action>.28?amber:seaGlass;

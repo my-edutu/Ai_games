@@ -575,6 +575,63 @@ test('Pass319 genuine 390px guardian shot: long rooted warning feathers preserve
 });
 
 
+
+test('Pass329 authentic 390px guardian warning keeps full physical movement but gives actors visual priority over four amber paddles',async()=>{
+  const {createMazeWorld}=await load();
+  const s=original(),source=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const names=kind=>[6,8].flatMap(cell=>[-1,1].map(side=>
+    w.group.getObjectByName('Published guardian Tideglass '+kind+' '+cell+' '+side)));
+  try{
+    w.update(s);
+    const sails=()=>names('full shell-fan');
+    const crests=()=>names('shell-fan crest');
+    const crowns=()=>names('sentinel crown');
+    const initialSails=sails().map(p=>p?.material);
+    const initialCrests=crests().map(p=>p?.material);
+    assert.equal(sails().filter(Boolean).length,4,'all four substantial original endpoint fans remain');
+    assert.equal(crests().filter(Boolean).length,4,'each full-size moving fan retains a connected narrow enamel crown');
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    assert.ok(sails().every((p,i)=>p.material!==initialSails[i]
+      && p.material!==crests()[i].material),
+      'the broad moving bodies use dark mineral rather than becoming four enormous amber warning slabs');
+    assert.ok(crests().every((p,i)=>p.material!==initialCrests[i]
+      && p.material===crowns()[i].material),
+      'the true witnessed guardian brace illuminates only the connected narrow feather crests and rooted crowns');
+    assert.ok(sails().every(p=>Math.abs(p.parent.rotation.x)>.78),
+      'the full real hinge still swings outside the physically open actor corridor');
+    w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(sails().every(p=>Math.abs(p.parent.rotation.x)<.45),
+      'real withdrawal restores the original physical silhouette');
+    w.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+    assert.ok(sails().every((p,i)=>p.material===initialSails[i]
+      && p.parent.rotation.x===0));
+    assert.ok(crests().every((p,i)=>p.material===initialCrests[i]),
+      'invalid or hidden guardian threat must remove all original amber emphasis');
+    w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.ok(sails().every((p,i)=>p.parent.rotation.x===0
+      && p.material!==initialSails[i]));
+    assert.ok(crests().every((p,i)=>p.material===crowns()[i].material),
+      'reduced motion must keep the real warning visible but stationary');
+    assert.equal(w.stats().geometryCount,budget.geometryCount);
+    assert.equal(w.stats().materialCount,budget.materialCount);
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.ok(sails().every(p=>p===undefined),'an unseen guardian cannot stage the warning');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.ok(sails().every(p=>p===undefined),'a sealed corridor cannot signal a guardian crossing');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'pass329-guardian-signal-reset-'+i});
+      assert.equal(sails().filter(Boolean).length,4);
+      assert.ok(w.stats().geometryCount<100,'strict six-run geometry budget remains unchanged');
+    }
+    assert.equal(JSON.stringify(s),source,'presentation never changes authoritative AI or public disclosure');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
+
 test('Pass320 verified 390px guardian foreground is a rooted low sealed mineral reef, never a pale fake route',async()=>{
   const {createMazeWorld,cellPosition,cellHeight}=await load();
   const {Matrix4,Vector3,Quaternion}=await import(three);
