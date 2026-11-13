@@ -118,7 +118,18 @@ test('authentic floor 9 submits the source deck first, the original canyon secon
     assert.equal(diag.deferredDistantArrival.submittedFrames,2);
     assert.ok(diag.deferredDistantArrival.deferredBuildMs>=0);
     assert.equal(distant(world).filter(o=>o.material.type==='MeshBasicMaterial').length,1);
+    // The original 40 RAF updates no longer imply 40 displayed WebGL
+    // frames: this is precisely the old hard-cut regression. Without a
+    // returned GPU frame, neither original canyon nor remote skyline ages.
     for(let i=0;i<40;i++)world.update(to,.016,i/60,{quality:'low'});
+    diag=world.diagnostics();
+    assert.equal(diag.deferredDistantArrival.state,'fading-remote-arrival');
+    assert.equal(diag.deferredDistantArrival.fade,0);
+    assert.equal(diag.deferredDistantArrival.vistaFade,0);
+    for(let i=0;i<40;i++){
+      world.noteFrameSubmitted(to,{},.016);
+      world.update(to,.016,1+i/60,{quality:'low'});
+    }
     diag=world.diagnostics();
     assert.equal(diag.deferredDistantArrival.state,'complete');
     assert.equal(diag.deferredDistantArrival.fade,1);
@@ -142,7 +153,7 @@ test('the shipped scene releases deferred world only after returned WebGL and ne
   const updated=scene.indexOf('update(motionDt);');
   const rendered=scene.indexOf('renderer.render(scene, camera)');
   assert.ok(updated>=0 && rendered>updated,'world must prepare before the real 3D render');
-  const acknowledged=scene.indexOf('world.noteFrameSubmitted?.(snapshot,options)');
+  const acknowledged=scene.indexOf('world.noteFrameSubmitted?.(snapshot,options,dt)');
   assert.ok(acknowledged>rendered);
   assert.ok(acknowledged<scene.indexOf('renderProgress.submitted(snapshot, rendererReturnedAt, Date.now()'));
   assert.match(scene,/const sceneReadyAt = performance\.now\(\)/);
