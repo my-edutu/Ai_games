@@ -23,7 +23,7 @@ test('first real chromatic transition survives a partially violet physical doorw
   const observed=findSustainedVoidPhase([
     ...warm,...transition,...cool,...restart,...transition,...cool]);
   assert.equal(observed.nativeSeconds,26.25);
-  assert.ok(observed.warmToCoolBridgeSeconds>=1.25);
+  assert.ok(observed.warmToCoolBridgeSeconds>=.25 && observed.warmToCoolBridgeSeconds<=2);
   assert.ok(observed.beforeMean<.08);
   assert.equal(findSustainedVoidPhase([
     ...warm,...transition,.4,.4,...restart]),null);
