@@ -32,6 +32,10 @@ vm.runInContext([
  pick('function marketReceivingOpenFrontTruss(', '\nfunction '),
  pick('function marketReceivingSideEnclosure(', '\nfunction '),
  pick('function marketReceivingRoofInterior(', '\nfunction '),
+ // W301 shares the actual settled tile height helper with original receiving wings.
+ // Execute the real helper in this geometry context instead of falsely treating
+ // the intentional W301 roof revision as a browser/runtime failure.
+ pick('function settledRoofCourseHeight(', '\nfunction originalClayRoofCourses('),
  pick('function marketReceivingDock(', '\nfunction '),
  'this.profile=MARKET_RECEIVING_HALL;this.drawDock=marketReceivingDock;this.cameraVolumes=physicalTradeCorridorCameraVolumes;this.marketAudit=getMarketReceivingHallAudit;'
  ].join('\n'),scene);
