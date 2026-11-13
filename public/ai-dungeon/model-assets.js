@@ -1558,6 +1558,10 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
    floorTopY:-.02,liftMeters:held.measuredToeLiftMeters,
    penetrationBeforeMeters:Math.max(0,-.02-toeY),
    penetrationAfterMeters:Math.max(0,-.02-afterToe),
+   // A verified held ankle has the same genuine source-depth classification
+   // as a freshly corrected ankle; omitting this boolean breaks mobile
+   // original-GLB proof even when both real skinned shoes were rechecked.
+   earlySourceToeRescue:toeY>-.045&&toeY<-.03,
    appliedAngleRad:previous,continuityHold:true,contactLocked:false,
    originalOppositeShoeVerified:true
   };
