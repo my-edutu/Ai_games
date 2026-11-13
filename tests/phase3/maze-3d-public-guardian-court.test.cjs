@@ -635,3 +635,65 @@ test('Pass320 verified 390px guardian foreground is a rooted low sealed mineral 
     assert.equal(world.stats().materialCount,0);
   }
 });
+
+test('Pass321 authentic guardian visual foreground is a public sealed Tideglass floor, never a guessed route',async()=>{
+  const {createMazeWorld,publicGuardianForecourtShoulderCells:shoulders,
+    publicGuardianCausewayCells:duel,cellPosition,cellHeight}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const s=original();
+  s.visibleCells.push(9);
+  s.cells.push({cell:9,blocked:false,neighbors:[]});
+  const truth=JSON.stringify(s);
+  assert.deepEqual([...duel(s).keys()],[6,7,8]);
+  assert.deepEqual([...shoulders(s)],[9]);
+  assert.deepEqual([...shoulders({...s,visibleCells:s.visibleCells.filter(id=>id!==9)})],[],
+    'unseen stone cannot materialise');
+  assert.deepEqual([...shoulders({...s,doors:[{a:8,b:9,open:false}]})],[],
+    'a real portcullis must not look like a blind forecourt wall');
+  assert.deepEqual([...shoulders({...s,threats:[]})],[],
+    'no real publicly seen guardian means no stage');
+  assert.deepEqual([...shoulders({...s,privateMaze:{cells:[{cell:14,blocked:false}]},
+    secretPath:[8,9,14]})],[9],'private map cannot affect original stage');
+  const reciprocal={...s,cells:s.cells.map(c=>c.cell===8
+    ?{...c,neighbors:[7,9]}:c.cell===9?{...c,neighbors:[8]}:c)};
+  assert.deepEqual([...shoulders(reciprocal)],[],
+    'a true public passage cannot masquerade as a sealed wall');
+  assert.equal(JSON.stringify(s),truth);
+  const w=createMazeWorld({balanced:true}),initial=w.stats();
+  const physicalDarkFloor=()=>{
+    const pos=cellPosition(9,s.width,s.height),height=cellHeight(9,s.width,s.height);
+    let count=0;
+    const m=new Matrix4(),p=new Vector3(),q=new Quaternion(),sz=new Vector3();
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh||mesh.material?.color?.getHexString()!=='28574f')return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,m);m.decompose(p,q,sz);
+        if(Math.abs(p.x-pos.x)<.0001&&Math.abs(p.z-pos.z)<.0001
+          &&Math.abs(p.y-height+.035)<.0001
+          &&Math.abs(sz.x-2.31)<.0001&&Math.abs(sz.y-.07)<.0001
+          &&Math.abs(sz.z-2.31)<.0001)count++;
+      }
+    });
+    return count;
+  };
+  try{
+    w.update(s);
+    assert.equal(w.stats().guardianForecourtShoulderTiles,1);
+    assert.equal(physicalDarkFloor(),1,'an actual 2.31m dark floor replaces the ivory forecourt');
+    assert.equal(w.stats().geometryCount,initial.geometryCount);
+    assert.equal(w.stats().materialCount,initial.materialCount);
+    w.update({...s,visibleCells:s.visibleCells.filter(id=>id!==9)});
+    assert.equal(w.stats().guardianForecourtShoulderTiles,0);
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'pass321-forecourt-'+i});
+      assert.equal(w.stats().guardianForecourtShoulderTiles,1);
+      assert.equal(physicalDarkFloor(),1);
+      assert.ok(w.stats().geometryCount<100,'original strict six-reset budget unchanged');
+    }
+    assert.equal(JSON.stringify(s),truth);
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
