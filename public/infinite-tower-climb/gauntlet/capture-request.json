@@ -1,4 +1,23 @@
 {
+  "p0OriginalSingleCameraJointBodyGatewaySource20261113": {
+    "stage": "P0 evidence capture only; not acceptance",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "7d4c750d0d5b87fb7ddc8afaa5e30c1c018ea112",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit; candidate checkout must not follow later branch movement",
+    "requiredOriginalFilms": "Eight original 60+s 1x baseline/candidate WebMs for ascent floor0, moving platform floor7, genuine Floor8 guardian/crusher crossing into floor9 and outcome/restart floor0; both desktop 960x600 and portrait 390x844; same 20Hz source, seed tower-transformation-capture-v1 and low tier. Ninth independent source/evidence job; strict no-fake-event/native clock pairing.",
+    "primaryVisualQuestion": "Does full-body actual climber continuously cross the SAME opened original bronze guardian arch in native pixels, where source tick451 earns grounded crossing, with old cap and emerging Floor9 legible together and no bronze-violet hard cut? Inspect unmodified full-motion in both viewports and genuine source/Three/native clocks.",
+    "previousOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/43323491483 — strict pair 0/2 and original baseline desktop outcome native timebase partial",
+    "exactCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43338949476 — failed runner shutdown; do not assert green",
+    "baselineOutcomeVeto": "Unmodified frozen baseline desktop native film clock gap must be repaired through authentic recapture or capture-harness evidence, never relaxed validation or changed baseline",
+    "review": "docs/reviews/2026-11-13-tower-pr68-physical-joint-camera-and-native-runner-veto.md",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevicePerfMemory": "NOT EVALUATED",
+    "safety": "No modification to source baseline/PR58/other games; no merge/deploy/force-push/draft promotion"
+  },
   "p0MultiFrameOriginalClockworkToVoidNativeReview20261112": {
     "stage": "P0 same-world source-owned multi-frame original gateway/roof vs opaque Floor9 shaft; NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
