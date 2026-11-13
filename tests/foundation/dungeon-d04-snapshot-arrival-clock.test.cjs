@@ -362,3 +362,74 @@ test('D04 retains on-time HP art and sound when full post-visual age remains bel
   assert.equal(r.sampleSynchronized,false);
  }finally{d.dispose()}
 });
+
+
+test('D04 retires an authentic HP shard if its own emission crosses the pre-submit deadline',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const live=new Set(),retired=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   advance(){now+=.010},
+   emit(cue){live.add(cue.id);now+=.100;return true},
+   retireStaleCue(id,reason){retired.push({id,reason});live.delete(id);return true},
+   hasLiveCue(id){return live.has(id)},hasDrawableCue(id){return live.has(id)},
+   reset(){live.clear()},dispose(){}
+  },
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  now=100.340;
+  d.advance(.016,.350);
+  assert.equal(live.size,0,
+   'a shard emitted at 450ms must be retired BEFORE the next actual WebGL draw');
+  assert.equal(retired.length,1,'retire only the expired authentic injury');
+  assert.equal(d.stats().awaitingPresentation,0,
+   'an expired emission cannot await a frame and later sound');
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'expired-during-visual-emission');
+  assert.equal(receipt.frameId,null,'an admission is not a WebGL submission');
+  assert.equal(receipt.audio,false);
+  assert.equal(receipt.sampleSynchronized,false);
+  assert.equal(d.acknowledgePresentedFrame(1,.008),0);
+  assert.deepEqual(sounds,[]);
+ }finally{d.dispose()}
+});
+
+test('D04 retains a real HP shard whose entire visual emission fits the deadline',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const live=new Set(),retired=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   advance(){now+=.010},
+   emit(cue){live.add(cue.id);now+=.020;return true},
+   retireStaleCue(id){retired.push(id);live.delete(id);return true},
+   hasLiveCue(id){return live.has(id)},hasDrawableCue(id){return live.has(id)},
+   reset(){live.clear()},dispose(){}
+  },
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  d.enableAudioFromGesture();
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  now=100.180;
+  d.advance(.016,.200);
+  assert.equal(live.size,1);
+  assert.deepEqual(retired,[]);
+  assert.equal(d.stats().awaitingPresentation,1);
+  now=100.240;
+  assert.equal(d.acknowledgePresentedFrame(1,.008),1);
+  assert.equal(sounds.length,1);
+  assert.equal(d.stats().recentDeliveryReceipts.at(-1).decision,'delivered');
+ }finally{d.dispose()}
+});
