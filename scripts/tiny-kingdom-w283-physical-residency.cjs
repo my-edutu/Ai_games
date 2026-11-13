@@ -9,10 +9,15 @@ const section=(start,end)=>{
 const gpu=section('const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=', 'function isForegroundWalkingSkinCandidate(');
 const ctx={Number,Math};
 vm.runInNewContext(gpu+';this.gate=physicallySmallWalkingSkinWindow;',ctx);
+// W296 admits faithful 13-joint commuter rigs to the original 27% body
+// height, then retains them to 32.5%; no false filmed close-hand contact.
 assert.equal(ctx.gate(.17,false),true);
-assert.equal(ctx.gate(.195,false),false);
-assert.equal(ctx.gate(.195,true),true);
-assert.equal(ctx.gate(.23,true),false);
+assert.equal(ctx.gate(.269,false),true);
+assert.equal(ctx.gate(.270,false),false);
+assert.equal(ctx.gate(.295,false),false);
+assert.equal(ctx.gate(.295,true),true);
+assert.equal(ctx.gate(.324,true),true);
+assert.equal(ctx.gate(.325,true),false);
 assert.equal(ctx.gate(NaN,true),false);
 assert.equal(ctx.gate(-1,true),false);
 const blockers={clear:false},actor={
