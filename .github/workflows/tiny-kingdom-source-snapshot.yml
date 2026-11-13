@@ -14,6 +14,7 @@ on:
       - 'scripts/tiny-kingdom-w252-field-visibility-contract.cjs'
       - 'scripts/tiny-kingdom-w253-original-growing-field-contract.cjs'
       - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
       - 'scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs'
       - 'scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs'
       - 'scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs'
