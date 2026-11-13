@@ -356,7 +356,31 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // release/recovery ring, even though the authority proved the event.
   if(type==='trail'||wardenBodySignal)return null;
   if(actor)return null; // Stale/wrong-cell actor: suppress disconnected art.
-  if(victim)return world(at,1.07);
+  // A model that has not loaded is not permission to attach HP chips to
+  // yesterday's empty tile. The planner observed a real HP drop, but the
+  // live spectator must still independently witness this exact victim,
+  // run, floor, tick and public cell before placing fallback injury art.
+  // The injected no-snapshot preview harness retains its trusted-cue API.
+  if(victim){
+   if(typeof getCurrentSnapshot==='function'){
+    let latest=null;
+    try{latest=getCurrentSnapshot()}catch{return null}
+    if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+     !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+     latest.run+':'+latest.floor!==cue.sceneKey||
+     !Array.isArray(latest.units))return null;
+    let witness=null;
+    for(let i=0;i<Math.min(latest.units.length,256);i++){
+     const u=latest.units[i];
+     if(u?.id!==cue.targetId)continue;
+     if(witness)return null; // An ambiguous public ID has no safe tile.
+     witness=u;
+    }
+    if(!witness||!cell(witness)||witness.x!==at.x||witness.z!==at.z||
+     !Number.isInteger(witness.hp)||witness.hp<0)return null;
+   }
+   return world(at,1.07);
+  }
   // Other neutral utility cues may use their known public world cell;
   // Warden release/recovery already returned above without a real body.
   // Unidentified events never get a fabricated world point.
