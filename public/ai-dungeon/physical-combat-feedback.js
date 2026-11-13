@@ -18,6 +18,10 @@ export const MAX_PHYSICAL_SEEN_IDS=192;
 export const MAX_PHYSICAL_RECEIPTS=64;
 export const MAX_AUDIO_AWAITING_FRAME=32;
 export const MAX_AUDIO_VISUAL_STALENESS_SECONDS=.40;
+// Only confirmed, slow post-advance WebGL receipts occupy this diagnostic ring.
+// This is performance attribution, never a new deadline or acceptance score.
+export const MAX_RECENT_SLOW_SUBMISSION_PHASES=32;
+const SLOW_SUBMISSION_PHASE_SECONDS=.100;
 // String frame IDs are supported by test/capture adapters. Keep bounded
 // history so a non-adjacent replay cannot masquerade as a new WebGL submit.
 const MAX_RECENT_STRING_FRAME_IDS=64;
@@ -55,8 +59,12 @@ export function createPhysicalCombatFeedback({
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
    receiptRenderSubmissionSeconds=null,latestTrustedClock=null,
-   lastVisualAdvanceStartClock=null,lastVisualAdvanceEndClock=null;
- const recentStringFrameIds=new Set();
+   lastVisualAdvanceStartClock=null,lastVisualAdvanceEndClock=null,
+   visualAdvanceSerial=0,recordedVisualAdvanceSerial=0,
+   lastObservedActualFrameSeconds=null,
+   verifiedSubmissionPhaseFrames=0,unverifiedSubmissionPhaseFrames=0,
+   slowSubmissionFrames=0;
+ const recentStringFrameIds=new Set(),recentSlowSubmissionPhases=[];
  const pending=[],awaitingPresentation=[],seen=new Set(),receipts=[];
  // One bounded timestamp per recent cue ID; old scenes release these entries.
  const observedAtByCueId=new Map();
@@ -328,6 +336,48 @@ export function createPhysicalCombatFeedback({
   // This only tightens the existing 400ms sound deadline; it never grants a
   // stale cue a later frame, manufactures contact or changes visual authority.
   const submittedWallClock=observedWallClock();
+  // Reuse clocks taken at the genuine D04 visual start/end and post-WebGL
+  // receipt; no new hot-path timer call, GPU-completion or A/V claim.
+  // Never attribute a stale prior advance to a fresh submission serial.
+  const freshAdvance=visualAdvanceSerial>recordedVisualAdvanceSerial;
+  recordedVisualAdvanceSerial=visualAdvanceSerial;
+  const phaseVerified=freshAdvance&&submittedWallClock!==null&&
+   Number.isFinite(lastVisualAdvanceStartClock)&&
+   Number.isFinite(lastVisualAdvanceEndClock)&&
+   lastVisualAdvanceStartClock>=0&&
+   lastVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
+   submittedWallClock>=lastVisualAdvanceEndClock;
+  if(!phaseVerified){
+   unverifiedSubmissionPhaseFrames++;
+  }else{
+   verifiedSubmissionPhaseFrames++;
+   const advanceToSubmission=submittedWallClock-lastVisualAdvanceStartClock;
+   if(advanceToSubmission>=SLOW_SUBMISSION_PHASE_SECONDS){
+    slowSubmissionFrames++;
+    const afterVisual=submittedWallClock-lastVisualAdvanceEndClock;
+    const measuredRender=Number.isFinite(renderSubmissionSeconds)&&
+     renderSubmissionSeconds>=0&&renderSubmissionSeconds<=afterVisual?
+     renderSubmissionSeconds:null;
+    const receipt=Object.freeze({
+     frameId,
+     observedRafMs:Number.isFinite(lastObservedActualFrameSeconds)&&
+      lastObservedActualFrameSeconds>0?
+      Math.round(lastObservedActualFrameSeconds*1000):null,
+     advanceToSubmissionMs:Math.round(advanceToSubmission*1000),
+     d04VisualAdvanceMs:Math.round((lastVisualAdvanceEndClock-
+      lastVisualAdvanceStartClock)*1000),
+     afterVisualToSubmissionMs:Math.round(afterVisual*1000),
+     // Residual main-thread work before renderer.render() is not necessarily
+     // D04 code. A contradictory render interval has an UNKNOWN breakdown.
+     beforeRendererMs:measuredRender===null?null:
+      Math.round((afterVisual-measuredRender)*1000),
+     rendererMs:measuredRender===null?null:Math.round(measuredRender*1000)
+    });
+    recentSlowSubmissionPhases.push(receipt);
+    if(recentSlowSubmissionPhases.length>MAX_RECENT_SLOW_SUBMISSION_PHASES)
+     recentSlowSubmissionPhases.shift();
+   }
+  }
   let released=0;
   for(const item of awaitingPresentation.splice(0)){
    // A revoked/impacted Warden footprint cannot release a ghost warning sound
@@ -637,6 +687,9 @@ export function createPhysicalCombatFeedback({
   if(disposed)return 0;
   onAudioStateChange();
   const dt=clamp(frameSeconds,0,.05);
+  // Phase clocks belong to one visual advance, never a prior frame.
+  visualAdvanceSerial++;
+  lastObservedActualFrameSeconds=actualFrameSeconds;
   renderedSeconds+=dt;
   // Raw browser time, not the 50ms animation cap, determines late audio.
   // An invalid frame interval cannot certify a timely delivered sound.
@@ -777,6 +830,8 @@ export function createPhysicalCombatFeedback({
   audioInterruptions,injectedContextMismatch,injectedOutputMismatch,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,framesAcknowledged,
+  verifiedSubmissionPhaseFrames,unverifiedSubmissionPhaseFrames,
+  slowSubmissionFrames,recentSlowSubmissionPhases:[...recentSlowSubmissionPhases],
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
   expiredQueuedCues,lateLiveWarningVisuals,invalidFrameIntervals,observedFrameMs:Math.round(observedSeconds*1000),
   staleAudioDropped,expiredVisualAudioDropped,retroactiveAudioSuppressed,
@@ -785,7 +840,8 @@ export function createPhysicalCombatFeedback({
   recentDeliveryReceipts:[...receipts],duplicateCues:duplicates,
   pendingOverflow:overflow,adapterFailures,sceneResets,
   limits:{maxPending:MAX_PHYSICAL_PENDING,maxSeen:MAX_PHYSICAL_SEEN_IDS,
-   maxReceipts:MAX_PHYSICAL_RECEIPTS,maxAudioAwaitingFrame:MAX_AUDIO_AWAITING_FRAME},
+   maxReceipts:MAX_PHYSICAL_RECEIPTS,maxAudioAwaitingFrame:MAX_AUDIO_AWAITING_FRAME,
+   maxSlowSubmissionPhases:MAX_RECENT_SLOW_SUBMISSION_PHASES},
   visuals:visuals?.stats?.()??null,audio:foley?.stats?.()??null
  });}
  observeAudioState(ctx);
