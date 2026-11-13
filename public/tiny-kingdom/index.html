@@ -1974,11 +1974,24 @@ function realWorkerFacing(p){
  const focus=occupationalPerformance(p).focus;
  return focus?Math.atan2(focus[0]-p.x,focus[1]-p.z):0;
 }
+// W278 Phase 1: the existing ORIGINAL worker can start cutting,
+// gather/retie a sheaf, then return home while a recent earned-work prop
+// remains visible. These are different actual triangle topologies, not
+// merely different GPU bone matrices. Key both retained full and compact
+// buffers to the precise AUTHORITATIVE work stage and short-lived event
+// window. Never reanimate a fictional sale or alter the game's saved world.
+function originalWorkToolTopologyKey(p){
+ const stage=isWorkingAtSite(p)?getAuthenticWorkGesture(p).stage:'off';
+ const earned=workdayEvents.some(e=>e.citizen===p.name&&
+  state.t-e.time>=0&&state.t-e.time<=1.5);
+ return stage+'|'+(earned?'earned-original-tool':'no-recent-tool');
+}
 function realWorkerPoseKey(p,i){
  // The worker's legitimate time/occupation/IK beat define bone topology.
  // Tiny changes to world-space x/z are applied by the original root shader.
  return [i,p.name,p.job,p.activity,p.target?.[0],p.target?.[1],
   workingSkinCapable?'joint-matrix-v1':'cpu-original',
+  originalWorkToolTopologyKey(p),
   // Actual hourly phase still drives every joint. Only visually significant
   // garment/face/weather/tool topology revisions rebake the original mesh.
   workingSkinCapable?Math.floor((state.t+i*.23)/1.5):Math.floor(p.phase/.75),
@@ -2564,6 +2577,7 @@ function realForegroundPoseKey(p,i,walkingSkin=false){
  const active=isWorkingAtSite(p),skinned=workingSkinCapable&&(active||walkingSkin);
  return [i,p.name,p.job,p.activity,p.trait,p.friend,
   skinned?'real-joint-palette-v2':'cpu-fine-pose',
+  originalWorkToolTopologyKey(p),
   p.target?.[0],p.target?.[1],
   // A real night lantern changes mesh topology, even during an unchanged
   // evening commute with identical phase, activity and route target.

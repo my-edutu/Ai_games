@@ -24,6 +24,12 @@ function scenario(count,zoom,opts={}){
   projectRealCitizenDetail:p=>({
    visible:true,heightFraction:p.work?.12:.10,screenX:0,screenY:0}),
   isMarketUnloading:()=>false,isWorkingAtSite:p=>p.work,
+  // The real selection policy evaluates paused-orbit hysteresis.
+  // Source-executed mocks must provide the actual camera-mode dependencies.
+  frozen:false,city:[],focusPoint:[0,0],yaw:0,pitch:0,
+  citizenOrbitDetailHold:null,citizenOrbitDetailHolds:0,
+  citizenOrbitDetailReplans:0,citizenOrbitDetailLastWasHeld:false,
+  canKeepOrbitDetail:()=>false,
   presentationEpoch:0,state:{t:24},citizenProjectionCache:null,
   citizenProjectionHits:0,citizenProjectionBuilds:0,citizenProjectionActorsLast:0};
  return new Function(...Object.keys(deps),original+
