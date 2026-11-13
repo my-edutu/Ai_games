@@ -386,7 +386,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    !cell(cue.to)))return false;
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
-  if(type==='block'&&cue.proof!=='authority-block-unique-guarded-hp')return false;
+  // A public block event alone has no known defending body or attacker.
+  // Only the planner's unique same-tick guard plus HP-loss witness may
+  // draw localized shield contact; actorId is a defender, never a guessed foe.
+  if(type==='block'&&(cue.kind!=='block'||
+   cue.proof!=='authority-block-unique-guarded-hp'||cue.verified!==true||
+   typeof cue.actorId!=='string'||cue.actorId.length===0||
+   !cell(cue.from)))return false;
   if(type==='projectile'&&
    (cue.kind!=='ranged-release'||cue.proof!=='authority-action'))return false;
   if(type==='spell'&&
@@ -394,7 +400,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if((type==='projectile'||type==='spell')&&
    (typeof cue.targetId!=='string'||cue.targetId.length===0||
     !cell(cue.to)))return false;
-  if(type==='dust'&&(!cell(cue.from)||!cell(cue.to)||
+  // The public "evade" event can also describe a spell hitting empty stone.
+  // Adjacent coordinates are insufficient: grit needs the planner's unique
+  // witnessed evader and legal one-cell step, never inferred attacker/contact.
+  if(type==='dust'&&(cue.kind!=='evade'||
+   cue.proof!=='authority-event-and-observed-step'||cue.verified!==true||
+   typeof cue.actorId!=='string'||cue.actorId.length===0||
+   !cell(cue.from)||!cell(cue.to)||
    Math.abs(cue.to.x-cue.from.x)+Math.abs(cue.to.z-cue.from.z)!==1))return false;
   if(reducedMotion&&['trail','dust'].includes(type))return false;
   // The boss cell is NOT the strike footprint. Ground markers may only
