@@ -1,10 +1,18 @@
 {
   "updatedAt": "2026-11-13",
-  "status": "T0 UNSIGNED / T1 BUILDING visually SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; native four-shore connected flowing-waterfall candidate verified, browser unaccepted",
-  "detail": "Exact parent 2c2fe65 source Chromium #43413692799: 1/17 genuine complete WebGL submissions in untouched strict 1s at 751x415, 807 GPU skips; browser 51/95 and native 712/781 FAIL. Native verified new source world blob db46e9e1 builds 4 original shoreline-connected 3D flowing-waterfall courses in the existing one fall draw object, using the existing animated water field and identical sea geometry: parent RED 0/4 -> candidate GREEN 4/4; selected water/lifecycle 8/8, TypeScript and 900-tick authority/recovery PASS. New-head authentic browser/45-90s film, useful displayed performance, complete CI, T1 whole-game visual and independent acceptance PENDING. No success claim.",
+  "status": "T0 UNSIGNED / T1 BUILDING and visually SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED; GPU cache bootstrap source integrated, fresh Chromium acceptance PENDING",
+  "detail": "Source exact parent 8050091d Chromium #43441202009 remained 2/17 genuine full-scene submissions in original 1s at 751x415, GPU queue skips 560, cache builds/hits 0; native CI 716/785, browser 52/95. Tested current-world GPU-fence cache bootstrap candidate renderer e2c436d4 RED 1/4 -> GREEN 4/4 focused native, TypeScript and authority tests previously passed; new source-head strict WebGL, 1920/390 gameplay, 45-90s authentic film, 30 displayed FPS/device p95, full catalog and independent quality acceptance NOT VERIFIED. No milestone passed.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
   "latestCaption": "No accepted visual or FPS transformation: last authentic full game still dominated by tiled rectangle with undersized overview serpent. T4 candidate browser strict result pending; gate >=17 complete draws/1s unchanged.",
   "reviews": [
+    {
+      "area": "2026-11-13 current-world real GPU completed-fence cache bootstrap source integrated ONLY",
+      "sourceHead": "8050091d5af7c3144168de3fc44804397270a22b",
+      "browser": "Parent completed #43441202009: 2/17 strict genuine complete frames, 560 skips, cache 0; candidate matched Chromium PENDING",
+      "nativeCI": "Parent #43441202152 716/785; new test native RED parent 1/4 -> GREEN candidate 4/4; selected 16/17 with one inherited issue",
+      "checks": "Source-exact renderer production e2c436d4, test 61c446f6. Recovered TypeScript/900 authority/10k seeded pass in prior isolated source locked session. Full quality, display presents and strict repeated threshold unverified.",
+      "verdict": "T0 UNSIGNED / T1 BUILDING self-rejected / T2/T3 BUILDING / T4 HARD RED; no merge/deploy/force-push"
+    },
     {
       "area": "November 12 aa4e browser: explicit reduced-motion detail became overview; repaired native camera and detail GPU cuts, acceptance pending",
       "sourceHead": "aa4e54bc4d6dce79f4f2e45645f548cc11302d95",
@@ -14,12 +22,12 @@
       "verdict": "T0 UNSIGNED/T1 BUILDING visual self-rejected/T2 BUILDING/T3 BUILDING native/T4 HARD RED. Matched new Chromium, film, device FPS/p95 and independent critique pending. No merge or deploy."
     },
     {
-        "area": "Nov 12 2c2c source T4 real full-scene moving-follow GPU bottleneck: guarded camera reframe (BUILDING/UNACCEPTED)",
-        "sourceHead": "2c2c3b401dde09c1d82069874ddfaa99ac70ba10",
-        "browser": "Original Chromium #43138308007 strict 3/17 genuine full-frame at 751x415; 340 queue skips, moving-follow full-app GPU diagnostic p95 264.85ms vs settled cache p95 24ms, browser 36/95; candidate unmeasured",
-        "nativeCI": "Original #43138308001 failed, reproduction #43138308065 success; candidate source-exact RED->GREEN 3/3, TS+900 tick+10000 seeded pass, sightline historical occlusion fail reproduced on exact parent",
-        "checks": "camera pressure snaps real full-scene pose only when follow anchor.reset & not snap, latest completed fence >=120ms and skips>=16; untouched GPU gate/frame queue, authority, assets and water",
-        "verdict": "T0 unsigned / T1 building visually self-rejected / T2-T3 building / T4 HARD RED; no authentic candidate visual/performance win or independent acceptance."
+      "area": "Nov 12 2c2c source T4 real full-scene moving-follow GPU bottleneck: guarded camera reframe (BUILDING/UNACCEPTED)",
+      "sourceHead": "2c2c3b401dde09c1d82069874ddfaa99ac70ba10",
+      "browser": "Original Chromium #43138308007 strict 3/17 genuine full-frame at 751x415; 340 queue skips, moving-follow full-app GPU diagnostic p95 264.85ms vs settled cache p95 24ms, browser 36/95; candidate unmeasured",
+      "nativeCI": "Original #43138308001 failed, reproduction #43138308065 success; candidate source-exact RED->GREEN 3/3, TS+900 tick+10000 seeded pass, sightline historical occlusion fail reproduced on exact parent",
+      "checks": "camera pressure snaps real full-scene pose only when follow anchor.reset & not snap, latest completed fence >=120ms and skips>=16; untouched GPU gate/frame queue, authority, assets and water",
+      "verdict": "T0 unsigned / T1 building visually self-rejected / T2-T3 building / T4 HARD RED; no authentic candidate visual/performance win or independent acceptance."
     },
     {
       "area": "Nov 12 cf6d parent T1 physically continuous seven woodland banks and eroded masonry (BUILDING, source-matched Chromium pending)",

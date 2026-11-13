@@ -178,7 +178,7 @@ export function planInitialLowModeRaster({ width, height, pixelRatio, quality })
  * policy, NOT a frame submission counter or physical display FPS metric.
  */
 export function shouldAdmitFullSceneCache({ queue, cacheHit = false, directDraws = 0,
-  submittedAtWorldBuild = 0 } = {}) {
+  submittedAtWorldBuild = 0, bootstrapRecoverable = false } = {}) {
   if (cacheHit || !queue || queue.supported !== true || queue.failed === true) return true;
   if (!Number.isInteger(directDraws) || directDraws < 1 ||
       !Number.isInteger(submittedAtWorldBuild) || submittedAtWorldBuild < 0 ||
@@ -186,8 +186,24 @@ export function shouldAdmitFullSceneCache({ queue, cacheHit = false, directDraws
   // FIFO GPU fences: completed > pre-world submitted watermark proves that
   // the completed sample belongs to this new world, not an old pending frame.
   // This is genuine completed-fence wall time, not a requestAnimationFrame gap.
-  return Number.isFinite(queue.lastObservedLatencyMs) &&
-    queue.lastObservedLatencyMs > 0 && queue.lastObservedLatencyMs <= 80;
+  if (!Number.isFinite(queue.lastObservedLatencyMs) || queue.lastObservedLatencyMs <= 0) return false;
+  if (queue.lastObservedLatencyMs <= 80) return true;
+  // T4 CACHE BOOTSTRAP DEADLOCK: a frozen low-tier full world reached ~25ms
+  // GPU time only AFTER the actual static HDR/depth photograph was available,
+  // while live default uncached frames cost ~280ms. Requiring a <=80ms
+  // completed direct scene BEFORE ever constructing that cache makes the
+  // renderer incapable of entering the cheaper full-quality cache path.
+  // Permit ONE honest cache build only after TWO current-world complete
+  // GPU fences, sustained real queue skips, and a free FIFO slot. That
+  // frame still renders the whole 3D world and consumes real GPU time;
+  // neither the untouched strict draw gate nor display presents are faked.
+  // Low and balanced clients use the same source-exact policy only when
+  // evidence establishes actual starvation; an old-world fence cannot pass.
+  return bootstrapRecoverable === true && directDraws >= 2 &&
+    queue.completed >= submittedAtWorldBuild + 2 &&
+    Number.isInteger(queue.skipped) && queue.skipped >= 16 &&
+    Number.isInteger(queue.pending) && queue.pending <= 1 &&
+    queue.lastObservedLatencyMs >= 120 && queue.lastObservedLatencyMs <= 5000;
 }
 
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
@@ -425,11 +441,18 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // the optional cache only if a completed fence demonstrates headroom.
     // Later changed views keep normal cache behavior after admission.
     if (!cacheAdmissionReady && !shouldAdmitFullSceneCache({ queue: currentGpuQueue,
-      cacheHit, directDraws: cacheProbeDirectFrames, submittedAtWorldBuild })) {
+      cacheHit, directDraws: cacheProbeDirectFrames, submittedAtWorldBuild,
+      bootstrapRecoverable: true })) {
       cacheProbeDirectFrames = Math.min(1048576, cacheProbeDirectFrames + 1);
       renderer.render(scene, camera);
       return;
     }
+    // An initial admission that has PROVED two current-world completed
+    // fences must actually construct its source-exact HDR static photograph.
+    // Otherwise the cache-miss pressure branch repeats direct renders forever
+    // despite granting admission. Subsequent genuine pressure/misses still
+    // follow the original complete-scene direct-preserve recovery path.
+    const newlyAdmitted = !cacheAdmissionReady;
     cacheAdmissionReady = true;
     // Only after actual COMPLETED GPU fences establish starvation: the
     // unmodified direct scene draws ALL original static and animated layers,
@@ -437,7 +460,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // display conversion AND live composition, without creating new targets.
     // Retain cache reuse for a matching true view and ordinary healthy GPUs.
     const cachePath = selectStaticWorldCachePath({ cacheHit,
-      pressureDirect: shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit,
+      pressureDirect: !newlyAdmitted && shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit,
         shadowDirty: renderer.shadowMap.needsUpdate }),
     });
     if (cachePath === 'direct-preserve') {
