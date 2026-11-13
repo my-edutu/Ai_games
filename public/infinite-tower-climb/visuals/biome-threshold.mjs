@@ -18,7 +18,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   if (!options?.stale && !options?.reducedMotion &&
       observedSourceEarnedColdFrameContinuation(frame,retainedCap)) {
     const progress=Math.min(1,Math.max(0,
-      retainedCap.visibleSeconds/.85));
+      retainedCap.visibleSeconds/1.25));
     const smooth=progress*progress*(3-2*progress);
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
       oldWeight:1-smooth,progress,sourceBound:true,
