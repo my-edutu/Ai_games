@@ -379,12 +379,17 @@ test('real old bronze arch and cap remain the SAME GPU objects when source advan
   const frozen=JSON.stringify([previous,first,later]);
   const world=createTowerWorld();
   try{
+    resourceCheckpoint('late-original-before-world-build');
     world.update(previous,.05,0,{quality:'low'});
+    resourceCheckpoint('late-original-after-world-build');
     const originalGate=world.group.getObjectByName('AuthoritativeGuardianGate');
     const originalCap=world.group.getObjectByName('platform:f8:cap');
     assert.ok(originalGate?.isGroup && originalCap?.isGroup);
     assert.equal(world.stageGroundedCapContinuation(previous,first),true);
+    resourceCheckpoint('late-original-after-source-stage');
+    resourceCheckpoint('late-original-before-first-delayed-successor');
     world.update(later,.05,.05,{quality:'low'});
+    resourceCheckpoint('late-original-after-first-delayed-successor');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
       'late first source frame must attach same original GPU gateway');
     assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap,
@@ -398,7 +403,8 @@ test('real old bronze arch and cap remain the SAME GPU objects when source advan
     assert.equal(diag.deferredDistantArrival?.structureDeferred,true,
       'noninteractive opaque shell should not occlude original crossing in first actual frame');
     assert.equal(JSON.stringify([previous,first,later]),frozen);
-  }finally{world.dispose();}
+    resourceCheckpoint('late-original-after-assertions');
+  }finally{resourceCheckpoint('late-original-dispose-begin');world.dispose();resourceCheckpoint('late-original-dispose-end');}
 });
 
 
