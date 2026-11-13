@@ -1802,7 +1802,20 @@ export function planOriginalSourceStanceSlideRelief({
   // heel-to-toe projection temporarily 90mm on an INTACT original skin.
   // Only the separately verified airborne opposite shoe may use that
   // wider bound below. The uniquely loaded original shoe stays strict.
-  if(span<.080||span>.38||nextSpan<.080||nextSpan>.38||
+  // Verified original desktop Walking_A 61->62: the AIRBORNE source heel
+  // rises 204-207mm above stone while the intact 306->304mm 3D shoe has
+  // only a 63->78mm XZ projection. The prior universal 80mm minimum
+  // rejected the separately stable, loaded right heel+toe (36mm drift)
+  // before the actual 19.64mm root step and post-move readback were tested.
+  // Permit 55-80mm projection ONLY for a demonstrably airborne original
+  // 3D-length-stable shoe. A loaded shoe, altered skin or ground-level
+  // foreshortening retains the original strict 80mm cutoff. Do NOT lock
+  // the sole or add any authoritative movement.
+  const horizontalProjectionStable=span>=.080&&nextSpan>=.080;
+  const steepSourceSwingStable=originalSwingAnatomyStable&&
+   span>=.055&&nextSpan>=.055;
+  if(span>.38||nextSpan>.38||
+   (!horizontalProjectionStable&&!steepSourceSwingStable)||
    (projectedSpanDelta>.036&&!originalSwingAnatomyStable))return null;
   const solePoints=[a.heel,a.toe,b.heel,b.toe];
   return {a,b,span,nextSpan,projectedSpanDelta,
