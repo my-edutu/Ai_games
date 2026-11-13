@@ -30,6 +30,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -2574,6 +2575,13 @@ export function createTowerScene(canvas, settings = {}) {
   const earnedGatewayActorBefore = [0,0,0,0], earnedGatewayActorAfter = [0,0,0,0];
   const earnedGatewayBefore = [0,0,0], earnedGatewayAfter = [0,0,0];
   let earnedGatewayEscortLastGain = 0, earnedGatewayEscortApplications = 0;
+  let physicalThresholdFrameGain = 0, physicalThresholdFrameCorrections = 0;
+  const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
+  const thresholdGaze = new THREE.Vector3(), thresholdPreviousGaze = new THREE.Vector3();
+  const thresholdPreviousCamera = new THREE.Vector3(), thresholdBestCamera = new THREE.Vector3();
+  const thresholdBestGaze = new THREE.Vector3(), thresholdProjection = new THREE.Vector3();
+  const thresholdHeroBefore = [0,0,0,0], thresholdGateBefore = [0,0,0,0];
+  const thresholdHeroAfter = [0,0,0,0], thresholdGateAfter = [0,0,0,0];
   const guardianSightPoints=[];
   const climberCapSightPoint = new THREE.Vector3();
   const lookAt = new THREE.Vector3();
@@ -4677,6 +4685,81 @@ export function createTowerScene(canvas, settings = {}) {
       guardianPortraitOpticalChanges=Math.min(1000000,
         guardianPortraitOpticalChanges+1);
     }
+    // POST-DIRECTOR PHYSICAL CROSSING: the ordinary follow, guardian, hero
+    // rescue and portrait optical lens have already selected their positions.
+    // A genuine *retained original* Floor8 bronze arch is still behind the
+    // actual Floor9 body in the same world. On the real cold WebGL frame the
+    // previous early focus correction could be entirely overwritten. Inspect
+    // the final real projection and take a tiny, reversible exterior gaze /
+    // shoulder step only if that same doorway becomes measurably more visible
+    // WITHOUT losing the full hero or looking through the solid tower core.
+    // No second camera, source interpolation, collider, floor or authoring
+    // shortcut. This is bypassed for overview, manual orbit and reduced motion.
+    physicalThresholdFrameGain = 0;
+    const thresholdSteps = coldArchLens?.coldOriginalArch === true &&
+      coldArchLens.sourceTick === snapshot.tick &&
+      options.camera === 'follow' && !overview && !options.stale &&
+      !options.reducedMotion && Math.abs(orbit) < .025 &&
+      snapshot.lifecycle === 'running' && snapshot.floor === 9 && p.health > 0
+        ? sourceDoorwayFrameSteps(dt,camera.aspect) : null;
+    if (thresholdSteps && Array.isArray(coldArchLens.gateway)) {
+      thresholdHero.copy(climber.group.position);
+      thresholdHero.y += p.halfHeight / SCALE;
+      thresholdGate.set(...coldArchLens.gateway);
+      thresholdPreviousCamera.copy(camera.position);
+      thresholdPreviousGaze.copy(lookAt);
+      measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
+        camera,duelTop,duelBottom,thresholdHeroBefore);
+      measureDuelBodyNdc(thresholdGate,2.1,
+        camera,duelTop,duelBottom,thresholdGateBefore);
+      thresholdGaze.copy(thresholdHero).lerp(thresholdGate,.50);
+      thresholdGaze.sub(thresholdPreviousGaze);
+      const gazeDistance=thresholdGaze.length();
+      if (gazeDistance > .0001) {
+        thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
+        const originalAngle=Math.atan2(camera.position.x,camera.position.z);
+        const radius=Math.hypot(camera.position.x,camera.position.z);
+        let best=0;
+        for (const shoulder of [0,-1,1]) {
+          camera.position.copy(thresholdPreviousCamera);
+          lookAt.copy(thresholdPreviousGaze).add(thresholdGaze);
+          if (shoulder && radius>25){
+            const angle=originalAngle+shoulder*thresholdSteps.orbitRadians;
+            camera.position.x=Math.sin(angle)*radius;
+            camera.position.z=Math.cos(angle)*radius;
+          }
+          if (!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
+              !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
+            continue;
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
+            camera,duelTop,duelBottom,thresholdHeroAfter);
+          measureDuelBodyNdc(thresholdGate,2.1,
+            camera,duelTop,duelBottom,thresholdGateAfter);
+          const gain=sourceDoorwayFrameGain(
+            thresholdHeroBefore,thresholdGateBefore,
+            thresholdHeroAfter,thresholdGateAfter,true,true);
+          if (gain>best){
+            best=gain;
+            thresholdBestCamera.copy(camera.position);
+            thresholdBestGaze.copy(lookAt);
+          }
+        }
+        if (best>0){
+          camera.position.copy(thresholdBestCamera);
+          lookAt.copy(thresholdBestGaze);
+          physicalThresholdFrameGain=best;
+          physicalThresholdFrameCorrections=Math.min(1000000,
+            physicalThresholdFrameCorrections+1);
+        } else {
+          camera.position.copy(thresholdPreviousCamera);
+          lookAt.copy(thresholdPreviousGaze);
+        }
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
+      }
+    }
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
     // camera submitted this frame, never the desired/planned lens. A viewer
@@ -5368,6 +5451,10 @@ export function createTowerScene(canvas, settings = {}) {
         criterion: 'Actual smoothed source-final camera; source projection only, not verified video visibility',
       } : null,
       guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
+      physicalThresholdCamera: {sourceBound: !!coldArchLens?.coldOriginalArch,
+        lastGain:Number(physicalThresholdFrameGain.toFixed(4)),
+        acceptedFrames:physicalThresholdFrameCorrections,
+        limitation:'Same original GPU doorway and actual body NDC; not visible WebM acceptance'},
       guardianRescueApplications,
       guardianSubmittedOrbitContinuity: {
         cappedFrames:guardianOrbitCappedFrames,
