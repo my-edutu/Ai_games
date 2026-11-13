@@ -85,7 +85,7 @@ test('visual effect groups physically distinguish guided arrow, magic orb, roote
  assert.ok(stage.stats().measuredTrailFrames>=1);
  assert.equal(stage.emit(cue({kind:'ranged-release',visual:'launch',proof:'authority-action',actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
  assert.equal(stage.emit(cue({kind:'spell-release',visual:'cast',proof:'authority-action',actorId:'mystic',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}})),true);
- assert.equal(stage.emit(cue({kind:'evade',visual:'evade',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:2,z:3}})),true);
+ assert.equal(stage.emit(cue({kind:'evade',visual:'evade',proof:'authority-event-and-observed-step',actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:2,z:3}})),true);
  const counts=stage.stats().instancesByPool;
  assert.ok(counts.trail>=1 && counts.projectile>=1 && counts.spell>=1 && counts.dust>=1);
  assert.equal(stage.emit(cue({kind:'damage',visual:'hit',proof:'guessed'})),false);
@@ -670,4 +670,39 @@ test('body-local foley witness reads live guard, utility and Warden recovery wit
  assert.equal(stage.stats().active,0,'probe cannot create effects');
  assert.equal(stage.stats().reservedInstances,102);
  stage.dispose();
+});
+
+test('D04 witnessed dodge and guarded HP block cannot be minted from unrelated public evidence',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const stage=createPhysicalFeedbackVisuals(T,scene);
+ const dodge=cue({id:'1:1:11:evade:vanguard:-',kind:'evade',visual:'evade',
+  audio:'evade',proof:'authority-event-and-observed-step',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:3,z:2}});
+ const block=cue({id:'1:1:11:block:vanguard:-',kind:'block',visual:'block',
+  audio:'block',proof:'authority-block-unique-guarded-hp',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null});
+ try{
+  for(const [name,bad] of [
+   ['HP injury is not a dodge',{...dodge,proof:'observed-hp-drop'}],
+   ['unattributed miss is not an observed dodger',{...dodge,proof:'authority-event'}],
+   ['wrong action cannot masquerade as dodge',{...dodge,kind:'damage'}],
+   ['unnamed dodger cannot receive localized grit',{...dodge,actorId:null}],
+   ['missing authoritative verification cannot make dodge',{...dodge,verified:undefined}],
+   ['unattributed block event has no localized contact',{...block,proof:'authority-event'}],
+   ['HP injury alone cannot prove a guarded block',{...block,proof:'observed-hp-drop'}],
+   ['wrong action cannot become a shield spark',{...block,kind:'swing'}],
+   ['anonymous defender cannot receive shield art',{...block,actorId:null}],
+   ['nonlocal defender cannot receive shield art',{...block,from:null}],
+   ['missing verified block cannot receive shield art',{...block,verified:undefined}]
+  ]){
+   assert.equal(stage.emit(bad),false,name);
+  }
+  assert.equal(stage.stats().active,0,'all rejected evidence must leave retained pools empty');
+  assert.equal(stage.emit(dodge),true,'unique witnessed legal step still shows two grit chips');
+  assert.equal(stage.emit(block),true,'unique guarded HP loss still shows restrained shield contact');
+  assert.equal(stage.stats().instancesByPool.dust,2);
+  assert.equal(stage.stats().instancesByPool.block,1);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
 });
