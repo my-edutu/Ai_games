@@ -120,26 +120,57 @@ test('real D04 HP cue records one bounded observation-to-render timeline, not pr
  h.director.dispose();
 });
 
-test('missing or backwards clocks do not fabricate A/V timing while scene and sound safety remain intact',async()=>{
+test('backwards explicit clock must reject HP impact sound instead of laundering raw-frame age',async()=>{
  const {createPhysicalCombatFeedback}=await load();
  let now=50;
  const h=harness(createPhysicalCombatFeedback,()=>now);
- h.director.acceptSnapshot(snapshot(10,30));
- h.director.acceptSnapshot(snapshot(11,20));
- now=49; // Browser clock regression cannot become a negative measured latency.
- h.director.advance(.016,.016);
- assert.equal(h.director.acknowledgePresentedFrame(1,.003),1);
- const r=h.director.stats().recentDeliveryReceipts.at(-1);
- assert.equal(r.audio,true,'the established frame-based safety gate remains independent');
- assert.equal(r.observedClockMs,50000);
- assert.equal(r.submittedClockMs,null,
-  'invalid/backwards wall stamps must never imply a synchronous impact');
- assert.equal(r.observationToSubmissionMs,null);
- assert.equal(r.sampleSynchronized,false);
- h.director.muteAudio();
- assert.equal(h.director.acknowledgePresentedFrame(2,.002),0);
- assert.equal(h.director.stats().recentDeliveryReceipts.length,1);
- h.director.dispose();
+ try{
+  h.director.acceptSnapshot(snapshot(10,30));
+  h.director.acceptSnapshot(snapshot(11,20));
+  now=49; // The browser's wall clock cannot verify any elapsed submission age.
+  h.director.advance(.016,.016);
+  assert.equal(h.director.acknowledgePresentedFrame(1,.003),0);
+  assert.deepEqual(h.audio,[],'unverified receipt cannot start original foley');
+  const r=h.director.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(r.audio,false);
+  assert.equal(r.decision,'unverified-frame');
+  assert.equal(r.observedClockMs,50000);
+  assert.equal(r.submittedClockMs,null,
+   'invalid/backwards wall stamps must never imply a synchronous impact');
+  assert.equal(r.observationToSubmissionMs,null);
+  assert.equal(r.sampleSynchronized,false);
+  h.director.muteAudio();
+  assert.equal(h.director.acknowledgePresentedFrame(2,.002),0);
+  assert.equal(h.director.stats().recentDeliveryReceipts.length,1);
+ }finally{h.director.dispose()}
+});
+
+test('receipt-clock failure after a valid visual pass cannot authorize a stalled HP sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=200;
+ const h=harness(createPhysicalCombatFeedback,()=>now);
+ try{
+  h.director.acceptSnapshot(snapshot(10,30));
+  h.director.acceptSnapshot(snapshot(11,20));
+  now=200.018;
+  h.director.advance(.018,.018);
+  assert.equal(h.visual.length,1);
+  assert.equal(h.director.stats().awaitingPresentation,1);
+  now=NaN; // Actual WebGL work might have taken >400ms: the clock is lost.
+  assert.equal(h.director.acknowledgePresentedFrame(1,.008),0);
+  assert.deepEqual(h.audio,[]);
+  const r=h.director.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(r.kind,'damage');
+  assert.equal(r.decision,'unverified-frame');
+  assert.equal(r.audio,false);
+  assert.equal(r.submittedClockMs,null);
+  assert.equal(r.sampleSynchronized,false);
+  assert.equal(h.director.stats().awaitingPresentation,0,
+   'one rejected receipt must never replay on a later apparently valid frame');
+  now=200.040;
+  assert.equal(h.director.acknowledgePresentedFrame(2,.008),0);
+  assert.deepEqual(h.audio,[]);
+ }finally{h.director.dispose()}
 });
 
 
