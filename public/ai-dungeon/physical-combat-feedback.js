@@ -184,6 +184,32 @@ export function createPhysicalCombatFeedback({
   const soundEligible=optedIn&&audioReady()&&
    plannedAudioEpoch!==null&&plannedAudioEpoch===audioEpoch;
   const visual=!!safeCall(()=>visuals?.emit?.(cue));
+  // A genuine HP shard can cross its ORIGINAL 400ms deadline inside
+  // visuals.emit(), after the post-advance/pending time check but BEFORE the
+  // next WebGL submission. Do not leave that stale shard in a retained GPU
+  // pool or stage old impact foley merely because it was timely on entry.
+  // This is a bounded, opt-in DAMAGE-only post-emission check; it never
+  // invents a hit, changes authority, extends a deadline or retires a live
+  // Warden warning. Actual D04 visuals can retire exactly this cue's slots.
+  if(requirePresentedFrame&&
+    (cue.kind==='damage'||cue.kind==='damage-fatal')&&
+    cue.verified===true&&cue.proof==='observed-hp-drop'){
+   const observedAt=observedAtByCueId.get(cue.id);
+   const afterEmit=observedWallClock();
+   if(Number.isFinite(observedAt)&&observedAt>=0&&
+      afterEmit!==null&&afterEmit>=observedAt&&
+      afterEmit-observedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+    const retired=visual?safeCall(()=>visuals?.retireStaleCue?.(cue.id,'stale-frame')):0;
+    const retiredSafely=!visual||retired===true||
+     Number.isSafeInteger(retired)&&retired>0;
+    if(!retiredSafely)adapterFailures++; // Never pretend old pixels were removed.
+    expiredQueuedCues++; // Never double-count an unsubmitted, retired shard as admitted.
+    if(optedIn&&audioReady())staleAudioDropped++;
+    retainReceipt(cue,visual,false,null,retiredSafely?
+     'expired-during-visual-emission':'expired-emission-retirement-unverified');
+    played++;return;
+   }
+  }
   if(visual)visualAccepted++;
   // Reduced-motion deliberately hides the sword trail, but must NOT
   // bypass living source/action provenance. A witnessed attempt can sound
