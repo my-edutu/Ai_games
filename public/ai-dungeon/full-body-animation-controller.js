@@ -859,7 +859,7 @@ export function chooseOriginalSourceSwingToeJointRelief({
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,side='',floorTopY=NaN,
  before=null,trials=[]
 }={}){
- if(mode!=='move'||sourceClipName!=='Walking_A'||sourceWeight<.90||
+ if(mode!=='move'||sourceClipName!=='Walking_A'||sourceWeight<.82||
   sourceWeight>1.001||ownerLocomotion!==true||
   sourceToeChainVerified!==true||sourceToeTrackVerified!==true||
   sourceInstanceSame!==true||alive!==true||visible!==true||
@@ -877,10 +877,19 @@ export function chooseOriginalSourceSwingToeJointRelief({
  const swing=before[side],loaded=before[opposite];
  if(!foot(swing)||!foot(loaded)||
   swing.heelY<floorTopY+.075||swing.heelY>floorTopY+.36||
-  swing.toeY>=floorTopY-.025||swing.toeY<floorTopY-.16||
+  swing.toeY>=floorTopY-.006||swing.toeY<floorTopY-.16||
   swing.heelY-swing.toeY<.08||
   ![loaded.heelY,loaded.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ // Real 390px source 85.5%-weighted Walking_A had an airborne toe only
+ // 7.94mm below stone after native ankle/calf support. A verified real
+ // original heel and stable opposite shoe may finish that shallow clearance
+ // *before* full mixer weight without giving an unowned early blend a deep
+ // 40-90mm correction. All source joints/contacts remain mixer-owned.
+ const residual=floorTopY-swing.toeY;
+ const shallow=residual>=.006&&residual<.025;
+ if((shallow?(sourceWeight<.82||frameInterval>.05):sourceWeight<.90))
+  return null;
  const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  let best=null;
  for(const trial of trials){
@@ -890,6 +899,7 @@ export function chooseOriginalSourceSwingToeJointRelief({
   const next=after[side],other=after[opposite];
   const lift=next.toeY-swing.toeY;
   if(lift<.004||lift>.04||next.toeY>floorTopY+.035||
+   (shallow&&(next.toeY<floorTopY-.003||next.toeY>floorTopY+.008))||
    next.toeY<floorTopY-.16||
    Math.abs(next.heelY-swing.heelY)>.004||
    xz(next.heelXZ,swing.heelXZ)>.008||
