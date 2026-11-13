@@ -22,13 +22,24 @@ for(const stage of ['farm','market','homes']){
  assert(result.zoom>=7.5&&result.zoom<=85);
  assert(result.focus.every(n=>Number.isFinite(n)&&Math.abs(n)<=40));
  if(stage==='homes'){
-  assert.equal(result.inspectedHomeLots.length,10);
+  assert(result.inspectedHomeLots.length>=4&&result.inspectedHomeLots.length<=8,
+   'actual inhabited district, not an isolated roof');
+  assert.equal(result.districtHomeCount,result.inspectedHomeLots.length);
+  assert.equal(result.districtSource,'grown');
+  assert(result.zoom<=45,'a legible actual house scale on narrow screens');
   for(const p of result.inspectedHomeLots)assert(homes.slice(12)
    .some(h=>h[0]===p[0]&&h[1]===p[1]),'no fabricated cottage survey');
  }
 }
 const day1=vm.runInContext('planRealEconomicSurvey('+JSON.stringify(homes.slice(0,12))+',[29,-5],'+JSON.stringify(fields)+',[-1,10.2],1024,640,"homes")',ctx);
 assert.equal(day1.grownHomes,0);
+assert.equal(day1.districtSource,'inhabited-core');
+assert(day1.districtHomeCount>=4,'founding street not one remote cottage');
+const early=vm.runInContext('planRealEconomicSurvey('+JSON.stringify([...homes.slice(0,12),[-17,-14]])+',[29,-5],'+JSON.stringify(fields)+',[-1,10.2],1024,640,"homes")',ctx);
+assert.equal(early.grownHomes,1);
+assert.equal(early.districtSource,'inhabited-core');
+assert(early.districtHomeCount>=4,'one newly built isolated house must not become an empty-land tour');
+assert(early.zoom<=33,'real house scale, not distant empty meadow');
 assert.equal(JSON.stringify(homes),original);
 assert(html.includes('id="camera-survey"'));
 assert(html.includes("button('camera-survey',advanceRealEconomicSurvey)"));

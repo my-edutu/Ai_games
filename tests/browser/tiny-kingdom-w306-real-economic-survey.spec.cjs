@@ -49,7 +49,15 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   await survey(page,'farm',size.width+'-farm');
   await survey(page,'market',size.width+'-market');
   const grown=await survey(page,'homes',size.width+'-homes');
-  expect(grown.survey.last.grownHomes).toBe(0);
+  // During expensive software-WebGL startup the actual autonomous village
+  // may finish a new home before pause. Inspect the authoritative count,
+  // not a speculative zero-growth assumption.
+  expect(grown.survey.last.grownHomes).toBe(
+   Math.max(0,grown.survey.last.recordedHomes-grown.survey.last.foundingHomes));
+  expect(grown.survey.last.districtHomeCount).toBeGreaterThanOrEqual(4);
+  expect(grown.survey.last.districtHomeCount).toBeLessThanOrEqual(8);
+  expect(grown.survey.last.zoom).toBeLessThanOrEqual(size.width===390?45:33);
+  expect(grown.survey.last.inspectedHomeLots.length).toBe(grown.survey.last.districtHomeCount);
   expect(errors).toEqual([]);
  });
 }
@@ -68,6 +76,10 @@ test('W306 actual 120-day homes and 390px physical survey stay authoritative',as
  const grown=await survey(page,'homes','day121-inhabited-new-homes');
  expect(grown.survey.last.grownHomes).toBeGreaterThanOrEqual(12);
  expect(grown.survey.last.inspectedHomeLots.length).toBeGreaterThan(0);
+ expect(grown.survey.last.districtSource).toBe('grown');
+ expect(grown.survey.last.districtHomeCount).toBeGreaterThanOrEqual(4);
+ expect(grown.survey.last.districtHomeCount).toBeLessThanOrEqual(8);
+ expect(grown.survey.last.zoom).toBeLessThanOrEqual(33);
  expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot()))).toBe(frozen);
  await page.setViewportSize({width:390,height:844});
  await page.waitForTimeout(500);

@@ -23827,19 +23827,21 @@ function panPlayerCamera(dx,dy){
 const REAL_ECONOMIC_SURVEY_STAGES=Object.freeze(['farm','market','homes']);
 let realEconomicSurveyIndex=-1,realEconomicSurveyVisits=0,realEconomicSurveyLast=null;
 function planRealEconomicSurvey(homes,granary,fields,market,width,height,stage){
- if(!Array.isArray(homes)||!Array.isArray(granary)||granary.length<2||
+ if(!Array.isArray(homes)||!homes.length||!Array.isArray(granary)||granary.length<2||
   !Array.isArray(fields)||!fields.length||!Array.isArray(market)||
   ![...granary.slice(0,2),...market.slice(0,2),width,height].every(Number.isFinite)||
   width<200||height<200||!REAL_ECONOMIC_SURVEY_STAGES.includes(stage)||
   homes.some(h=>!Array.isArray(h)||h.length<2||
    !Number.isFinite(h[0])||!Number.isFinite(h[1])))
-  throw Error('W306 requires real town, farm and receiving-market positions');
- const mobile=width<=520,oldHomes=Math.min(12,homes.length);
- let focus,yaw,pitch,zoom,inspected=[];
+  throw Error('W307 survey requires actual town, farm and receiving-market positions');
+ const mobile=width<=520,oldHomes=Math.min(12,homes.length),
+  grownHomes=Math.max(0,homes.length-oldHomes);
+ let focus,yaw,pitch,zoom,inspected=[],districtHomeCount=0,
+  districtSource='none',districtRadius=0;
  if(stage==='farm'){
   const f=fields[0];
   if(!Array.isArray(f)||f.length<4||
-   !f.slice(0,4).every(Number.isFinite))throw Error('W306 invalid real field');
+   !f.slice(0,4).every(Number.isFinite))throw Error('W307 invalid real field');
   focus=[(f[0]+f[1]+2*granary[0])/4,
    (f[2]+f[3]+2*granary[1])/4];
   yaw=2.42;pitch=mobile?.94:.82;zoom=mobile?40:30;
@@ -23847,22 +23849,40 @@ function planRealEconomicSurvey(homes,granary,fields,market,width,height,stage){
   focus=market.slice(0,2);yaw=2.15;
   pitch=mobile?.99:.79;zoom=mobile?36:28;
  }else{
-  const grown=homes.length>oldHomes?homes.slice(oldHomes):homes;
-  inspected=grown.slice(-Math.min(10,grown.length));
-  const xs=inspected.map(p=>p[0]).sort((a,b)=>a-b),
-   zs=inspected.map(p=>p[1]).sort((a,b)=>a-b);
-  const middle=a=>a[Math.floor((a.length-1)/2)]||0;
-  focus=[middle(xs),middle(zs)];
-  const distance=inspected.reduce((m,p)=>
-   Math.max(m,Math.hypot(p[0]-focus[0],p[1]-focus[1])),0);
-  yaw=.72;pitch=mobile?1.14:1.04;
-  // The mobile view is explicitly a survey of SOME actual new homes, never
-  // a false promise to squeeze all real households into one narrow frame.
-  zoom=Math.max(mobile?42:31,Math.min(77,24+distance*1.42));
+  // W307: a real, walkable *district* rather than the newest lone house
+  // surrounded by empty grass. For mature towns inspect constructed growth;
+  // while expansion begins show the genuine inhabited founding street.
+  const candidates=grownHomes>=4?homes.slice(oldHomes):homes;
+  districtSource=grownHomes>=4?'grown':'inhabited-core';
+  const near=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  let anchor=candidates[0],highest=-Infinity;
+  for(let i=0;i<candidates.length;i++){
+   const local=candidates.reduce((n,h)=>n+(near(h,candidates[i])<=12?1:0),0);
+   // A density-first, stable choice; do not depend on render frame or RNG.
+   const score=local*100+i*.0001;
+   if(score>highest){highest=score;anchor=candidates[i];}
+  }
+  const nearby=candidates.map((p,i)=>({p,i,d:near(p,anchor)}))
+   .sort((a,b)=>a.d-b.d||a.i-b.i);
+  let selected=nearby.filter(e=>e.d<=12).slice(0,8);
+  if(selected.length<Math.min(4,nearby.length))
+   selected=nearby.slice(0,Math.min(4,nearby.length));
+  inspected=selected.map(e=>e.p);
+  districtHomeCount=inspected.length;
+  focus=[
+   inspected.reduce((n,p)=>n+p[0],0)/districtHomeCount,
+   inspected.reduce((n,p)=>n+p[1],0)/districtHomeCount
+  ];
+  districtRadius=inspected.reduce((m,p)=>Math.max(m,near(p,focus)),0);
+  yaw=.72;pitch=mobile?1.04:.92;
+  // Scale for several genuine homes. Larger worker-scale architecture
+  // rather than overview-wide empty land; camera collision stays authoritative.
+  zoom=Math.max(mobile?31:21,Math.min(mobile?45:33,
+   (mobile?29:19)+districtRadius*(mobile?1.05:.76)));
  }
  return {stage,focus:focus.map(n=>Math.max(-40,Math.min(40,n))),
   yaw,pitch,zoom,recordedHomes:homes.length,foundingHomes:oldHomes,
-  grownHomes:homes.length-oldHomes,
+  grownHomes,districtHomeCount,districtSource,districtRadius,
   inspectedHomeLots:inspected.map(h=>[h[0],h[1]]),
   source:'physical-real-farm-market-grown-home-camera',
   authorityChanged:false};
@@ -23897,7 +23917,7 @@ function advanceRealEconomicSurvey(){
   REAL_ECONOMIC_SURVEY_STAGES[(next+1)%3]);
  showToast(stage==='farm'?'Surveying original planted fields and granary':
   stage==='market'?'Surveying authentic freight receiving market':
-   'Surveying '+plan.grownHomes+' actual new homes of '+plan.recordedHomes+' lots');
+   'Surveying '+plan.districtHomeCount+' actual occupied '+(plan.districtSource==='grown'?'new homes':'village homes')+' of '+plan.recordedHomes+' lots');
  setCommandView('world','user');presentationEpoch++;
  return {accepted:true,...realEconomicSurveyLast};
 }
