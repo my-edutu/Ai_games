@@ -1,0 +1,28 @@
+# PR68 P0 — legitimate source crossing hidden by cold first Floor9 render (13 November 2026)
+
+**Stage: P0 EVIDENCE + GAME-LOOP TRUTH OPEN. Assessor: NOT EVALUATED.** Draft PR68 remains based on frozen PR58 `1731b380851162741761c5569e2bc152a0869ca9`, never moved.
+
+## Evidence inspected before source edit
+- Source-pinned 9-job baseline/candidate campaign: [43348491817](https://github.com/my-edutu/Ai_games/actions/runs/43348491817), candidate immutable `af54a018eb15b0b8a8c27dd4432c9f9f9b5da846`. **Eight of eight original low-tier 1x scenario recording jobs completed**; the matching job **failed**, strict physical source-to-native crossing acceptance **0/2 viewports**, even though original source story pairing was 8/8. This is an experience failure, not a missing authored victory.
+- Downloaded original unmodified candidate danger desktop and portrait WebMs and native/frame/event sidecars from [artifact 14003465581](https://github.com/my-edutu/Ai_games/actions/runs/43348491817/artifacts/14003465581). Both recorded approximately **68 seconds**. Grounded guardian HP0 + Floor8→9 source crossing are genuine at **source tick 451**. At roughly 25–25.5s both original native films hard-cut from bronze Floor8 to violet Floor9 rather than showing the same opened arch/body together; candidate still **NOT ACCEPTED**.
+- Native forensic evidence: source crossing search around desktop 22.946s, Floor9 HUD first native sample ~25.25s (roughly 2.30s later); the cold original Three.js renderer returned ~1.26s after a prior browser F9 observation. First sampled late F9 player is already airborne (desktop tick483, portrait tick477), up to ~81m above the original roof; both corresponding first-world observations record `observedOriginalGpuGatewayRetention=null`. A 12-tick presentation cue or a 55m near-roof check can retire the actual old geometry BEFORE native pixels show a transition.
+- Exact-head [quality workflow 43348491829](https://github.com/my-edutu/Ai_games/actions/runs/43348491829) **FAILED because the GitHub runner shut down after test #959**. It is NOT a successful technical check. The original baseline moving-scenario film job completed in this campaign; full strict film pairing still did not.
+
+## Meaningful production intervention
+
+Code commit [07d4e6e33372606b75ea93a462270b7cde6e9ac7](https://github.com/my-edutu/Ai_games/commit/07d4e6e33372606b75ea93a462270b7cde6e9ac7) joins four interlocking real-game ownership boundaries:
+
+1. `visuals/crossfloor-arrival.mjs`: new **pure source-verification** `observedSourceEarnedColdFrameContinuation`. It revalidates the exact HP-zero immutable previous cap, source tick, platform footprint and actual shared Floor9 roof, current living player dimensions/trajectory, run identity, same actual Floor9 platform, bounds of **48 true source ticks / 90m forward / 160m above roof**, and at most the initial **three** truly submitted GPU frames / **0.85s** of visible presentation age. An unknown/dead/remote/restarted actor, false/corrupt crossing or stale floor cannot borrow a doorway. No interpolated body or source state.
+2. `visuals/world.mjs`: the original already-rendered bronze cap, opened door and coincident roof no longer rely solely on a separate short-lived passage-animation flag after the slow F9 renderer returns. The same verified original source window controls old-world retention and deferral of the *noninteractive* opaque F9 tower structure. New O(1) `retainedFilmHandoff` exposes only source-vetted primitive evidence to the light director; it does not traverse the entire Three world.
+3. `visuals/biome-threshold.mjs` and `visuals/scene.mjs`: existing fog/sky/key/fill/rim environmental handoff now continues from the **same source-authenticated real old GPU cap** during a cold first F9 frame even when decorative passage flags expire. The old warm hue fades to the genuine incoming Void colors through submitted-frame time instead of a synchronized purple full-world flash. No new renderer, shaders, gameplay clock, camera teleport, collider or fake guardian.
+4. `tests/phase3/tower-crossfloor-arrival.test.cjs`: exercise an actually delayed airborne F9 snapshot, source-to-GPU same-run validation, original non-mutating state, biome director connection, wrong HP/run/floor/time/platform/vista proof vetoes.
+
+**Tests:** Newly triggered [quality workflow 43351138321](https://github.com/my-edutu/Ai_games/actions/runs/43351138321), pending at time of documentation, NOT called green. A new immutable-source native capture is requested separately. These contracts are not native evidence.
+
+## Unresolved acceptance and next largest step
+
+Inspect new exact-SHA, normal-speed 60+s, matched desktop 960×600 and portrait 390×844 original danger videos and source/browser/Three/native event correspondence; inspect retained GPU geometry plus old bronze and actual full-body within same unbroken camera shot. **Reject** if the old cap still is not rendered when first F9 frame appears or is below the visible camera; that would require a deeper world+camera/GPU first-frame redesign, not more arbitrary timers. Confirm fresh full ascent→moving hazard→real guardian/crusher→floor-nine onward→result/restart and baseline native clock. If strict 2/2 remains false, **P0 stays OPEN**.
+
+Hardware p50/p95/p99, memory, independent randomized blinded critics (**LOOKS 0/5, FEELS 0/5, PLAYS 0/5**) and full-cycle grading remain **NOT EVALUATED**. Do not treat test counts, source ticks, thumbnails or GPU-submission clocks as experience preference, measured device frame time or video success.
+
+Safety: frozen baseline SHA unchanged; no edits to PR58, other games or main; no merge, deployment, force push or PR draft promotion.

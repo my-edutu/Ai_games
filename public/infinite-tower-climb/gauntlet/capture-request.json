@@ -1,5 +1,27 @@
 {
-    "p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
+  "p0ColdSourceBackedFirstGpuFrameCapture20261113": {
+    "stage": "P0 source-authentic cold first frame / no acceptance",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "07d4e6e33372606b75ea93a462270b7cde6e9ac7",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit, never branch tip",
+    "sourceRunToCompare": "https://github.com/my-edutu/Ai_games/actions/runs/43348491817",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "required": "9-job campaign: original 20Hz fixed-step untouched baseline/candidate 60+s 1x WebMs in desktop 960x600 portrait 390x844; matched ascent floor0, moving platform floor7, genuine upper-cap guardian/crusher floor8 crossing into floor9 and onward, outcome/restart floor0; authentic source/browser/Three/native PTS paired events",
+    "criticalFilmQuestion": "Does the same actual original source-owned opened bronze gateway, old cap, grounded walkable roof and full rendered body appear together through a continuous crossing in native 1x films, not a violet hard cut? Check old GPU cap retention in late first F9 frame at source tick477/483, roof source proof, bounded <=3 returned GPU frames, color-handoff and actual native event pairing. A 3D returned frame is not a filmed pixel.",
+    "priorStrictPair": "0/2 accepted on source af54a018",
+    "sourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/43351138321 - pending, not assumed passing",
+    "review": "docs/reviews/2026-11-13-tower-pr68-cold-first-frame-source-gateway-retention.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDevices": "NOT EVALUATED",
+    "stageVerdict": "NOT EVALUATED",
+    "safety": "Never modify frozen baseline or PR58, merge, deploy, force-push, alter draft, other game or invent reviewers/footage"
+  },
+"p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
       "stage": "P0 exact source-pinned original film recapture ONLY; no acceptance",
       "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "codeUnderAssessment": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
