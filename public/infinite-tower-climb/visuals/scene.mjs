@@ -2576,6 +2576,7 @@ export function createTowerScene(canvas, settings = {}) {
   const earnedGatewayBefore = [0,0,0], earnedGatewayAfter = [0,0,0];
   let earnedGatewayEscortLastGain = 0, earnedGatewayEscortApplications = 0;
   let physicalThresholdFrameGain = 0, physicalThresholdFrameCorrections = 0;
+  let physicalThresholdFrameSourceBound = false;
   const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
   const thresholdGaze = new THREE.Vector3(), thresholdPreviousGaze = new THREE.Vector3();
   const thresholdPreviousCamera = new THREE.Vector3(), thresholdBestCamera = new THREE.Vector3();
@@ -4702,6 +4703,7 @@ export function createTowerScene(canvas, settings = {}) {
       !options.reducedMotion && Math.abs(orbit) < .025 &&
       snapshot.lifecycle === 'running' && snapshot.floor === 9 && p.health > 0
         ? sourceDoorwayFrameSteps(dt,camera.aspect) : null;
+    physicalThresholdFrameSourceBound = !!thresholdSteps;
     if (thresholdSteps && Array.isArray(coldArchLens.gateway)) {
       thresholdHero.copy(climber.group.position);
       thresholdHero.y += p.halfHeight / SCALE;
@@ -5451,7 +5453,7 @@ export function createTowerScene(canvas, settings = {}) {
         criterion: 'Actual smoothed source-final camera; source projection only, not verified video visibility',
       } : null,
       guardianRescueBlend: Number(guardianRescueBlend.toFixed(4)),
-      physicalThresholdCamera: {sourceBound: !!coldArchLens?.coldOriginalArch,
+      physicalThresholdCamera: {sourceBound: physicalThresholdFrameSourceBound,
         lastGain:Number(physicalThresholdFrameGain.toFixed(4)),
         acceptedFrames:physicalThresholdFrameCorrections,
         limitation:'Same original GPU doorway and actual body NDC; not visible WebM acceptance'},

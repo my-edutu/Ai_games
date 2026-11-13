@@ -39,6 +39,9 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   assert.match(scene,/sourceDoorwayFrameSteps\(dt,camera\.aspect\)/);
   assert.match(scene,/sourceDoorwayFrameGain\(/);
   assert.match(scene,/physicalThresholdFrameGain/);
+  assert.match(scene,/physicalThresholdFrameSourceBound = !!thresholdSteps/);
+  assert.match(scene,/physicalThresholdCamera: \{sourceBound: physicalThresholdFrameSourceBound/);
+  assert.doesNotMatch(scene,/physicalThresholdCamera: \{sourceBound: !!coldArchLens/);
   assert.match(scene,/camera\.lookAt\(lookAt\);\s*camera\.updateMatrixWorld\(true\);\s*world\.revealGuardianSightlines/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
