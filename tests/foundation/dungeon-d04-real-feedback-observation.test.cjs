@@ -99,7 +99,7 @@ test('real preview persists original media and forensic verdict BEFORE the final
 
 const delivered=(tick,target,kind='damage')=>({
  cueId:`1:1:${tick}:${kind}:-:${target}`,scene:'1:1',tick,kind,
- visual:true,audio:false,frameId:12,decision:'delivered',
+ visual:true,audio:true,frameId:12,decision:'delivered',
  observedClockMs:1000,submittedClockMs:1120,observationToSubmissionMs:120
 });
 test('unrelated admitted visual at a later tick cannot certify the original authentic HP-loss victim',()=>{
@@ -170,5 +170,40 @@ test('authentic delivered HP-loss receipt proves ONLY frame-level visual admissi
  assert.equal(verdict.status,'VISUAL_ADMITTED_NOT_AV_VERIFIED');
  assert.equal(verdict.visualAcceptance,true);
  assert.equal(verdict.damageVisualAdmitted,1);
+ assert.equal(verdict.sampleSynchronized,false);
+});
+
+test('a falsely silent delivered event cannot masquerade as an authenticated HP injury frame',()=>{
+ // Production D04 emits 'delivered' ONLY when original foley.emit() succeeds.
+ // Silent but drawable impacts instead earn 'visual-only-submitted'.
+ const forged={...delivered(4,'enemy-1-0'),audio:false};
+ const frame={...later.physicalFeedback,visualAccepted:1,expiredQueuedCues:128,
+  recentDeliveryReceipts:[forged]};
+ const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:frame}});
+ assert.equal(verdict.status,'AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED');
+ assert.equal(verdict.visualAcceptance,false);
+ assert.equal(verdict.sampleSynchronized,false);
+ assert.deepEqual(verdict.damageReceiptDecisions,['delivered']);
+ assert.equal(verdict.damageWorstSubmissionAgeMs,120);
+});
+
+test('original authentic missed impact remains diagnosable without granting an expired sound or visual',()=>{
+ const late={...delivered(4,'enemy-1-0'),audio:false,visual:true,
+  decision:'stale-frame',frameId:33,
+  observedClockMs:1000,submittedClockMs:2700,observationToSubmissionMs:1700};
+ const beforeFrame={...late,frameId:null,decision:'expired-pending-before-frame',
+  observedClockMs:1000,submittedClockMs:null,observationToSubmissionMs:null,
+  pendingExpiredWallAgeMs:1550};
+ const feedback={...later.physicalFeedback,visualAccepted:0,expiredQueuedCues:129,
+  recentDeliveryReceipts:[late,beforeFrame,late]};
+ const verdict=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:feedback}});
+ assert.equal(verdict.status,'AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED');
+ assert.equal(verdict.visualAcceptance,false);
+ assert.deepEqual(verdict.damageReceiptDecisions,
+  ['expired-pending-before-frame','stale-frame']);
+ assert.equal(verdict.damageWorstSubmissionAgeMs,1700);
+ assert.equal(verdict.damageWorstPendingExpiryWallAgeMs,1550);
  assert.equal(verdict.sampleSynchronized,false);
 });
