@@ -1,0 +1,24 @@
+# Infinite Tower Climb PR68 — Source-tangent original bronze gateway reconstruction (13 November 2026)
+
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH — OPEN. **Leading transformation verdict: NOT EVALUATED.**
+
+## Reviewed source and authentic original films
+Opened draft PR68 on top of active draft PR58; inspected exact pre-run SHA `9e26ddc3e31c8e12d147797c7ea047d7fbada3c7`. The frozen baseline is `1731b380851162741761c5569e2bc152a0869ca9`, and must remain untouched.
+
+The nine-job campaign [43388991579](https://github.com/my-edutu/Ai_games/actions/runs/43388991579) completed eight real source-pinned >=60s 1× baseline/candidate gameplay WebMs (ascent, moving, danger/guardian, outcome; desktop 960×600 and portrait 390×844, same seed and low tier). The event-pair job indexed all eight authentic source stories but failed its strict native pixel/timebase check. The native candidate danger desktop and portrait full-motion footage was downloaded and visually inspected in the 22–31s crossing sequence. Both show an abrupt bronze Clockwork Floor 8 → violet Void Floor 9 replacement around 24.5–25.25s. No convincing readable body-through-SAME-original-doorway shot or accepted native source-event pair; **0/2 viewports**. Original 1× film, not CI tests, remains the experience veto.
+
+The previous [exact-head CI 43388991630](https://github.com/my-edutu/Ai_games/actions/runs/43388991630) was **not green**: Phase3 shard2 suffered external runner shutdown while executing real Three scene test; Phase6 failed a 75s timeout in an unrelated Maze readiness test, which is outside this task's ownership. Do not alter another game to improve the Tower score. All independent critics remain LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Real-device p50/p95/p99 and memory remain NOT EVALUATED.
+
+## New systemic geometry finding
+The visually retained `AuthoritativeGuardianGate` previously stood at tower origin, rotated only by the player's radial azimuth `angleFor(exitX)`, with its child `GuardianGateInset` pushed out to radius 24.25. **That made the decorative bronze doorway face outwards through a radial wall, with its opening plane parallel to the actual tangential, increasing-X annular climber route.** The source could legitimately earn Floor 9 without the 3D full-body hero ever moving *through* that visible doorway. Repeated retention, warm lighting, camera/timer patches could not correct this geometric mismatch.
+
+This run defined a single `guardianTraversalGatePose` directly from the published authoritative exit X, roof Y and chunk origin. It mounts the **existing original source-health-driven bronze arch** at radius 24.25 on the cap roof, facing the increasing-X tangent (yaw theta+90 degrees), so the door opening spans the deck's radial walking corridor and its crossing plane coincides with the source exit. The game's existing standing, run, guardian, door unlocking, floor transition, collision and seeded authority are unchanged. The cold handoff follow camera aims at this same real doorway center instead of the previous 27.78m target in empty exterior space. The original resource-retention and cleanup contract remains in force: the same GPU gate object survives the source-verified successor, never fabricated geometry or victory.
+
+**Production commits:** `20c5bcf3be8dc574806a8978f6434c2a73bea63c` (pure pose), `818366df1262d34c746c7ee30e224aaed57058f7` (world arch reconstructed across actual route), `a744da72607fc0ab9aa21a59048db5313f9f7815` (physical camera), `bb2f22fcdb7de9609998fa5006751228e18d0750` (real Three gateway-vs-route and invalid-source regression).
+
+## Verification gates and required next action
+New dedicated Three tests assert the original physical arch is centered at the source exit, portal normal follows the route tangent, a source-sized avatar can move from the negative to positive side *between* the actual piers, and the SAME original gate persists into the validated Floor9 world. Malformed-source locations fail closed. Source gameplay and prior baseline are not changed. Tests and new actual normal-speed movies are **pending verification**; do not promote from geometrical correctness alone.
+
+Next: inspect exact-head CI and a new 9-job source-pinned capture at both viewports; watch the full 22–31s genuine crossing and full-game outcome/restart, pair source/browser/Three/native PTS, and measure whether one opened original bronze door truly frames the hero from either side. If the new tangential arch is edge-on/occluded from the existing exterior camera or the violet shaft still hard-replaces old cap, P0 remains open and must reconstruct the *joint* camera/physical depth of the shared crossing, not adjust timers. Preserve full gameplay source and replay truth.
+
+**Safety:** PR68 remains open/draft on PR58; frozen baseline unchanged. Do not merge, deploy, force-push, change PR58, modify other games or manufacture reviewer/device results.
