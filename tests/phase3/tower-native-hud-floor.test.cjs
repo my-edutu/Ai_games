@@ -26,6 +26,28 @@ test('sustained visible 8 before sustained 9, not one-frame noise',()=>{
   assert.equal(findVisibleEightToNine([...Array(4).fill(8),...Array(10).fill(9)]),null);
   assert.equal(findVisibleEightToNine([8,9]),null);
 });
+test('first real episode survives one isolated portrait 9-shaped glyph obstruction',()=>{
+  // A true 2026-11-13 portrait original WebM had a 9-shaped noisy sample
+  // at 22.25s, the first honest 8->9 at 25.25s, and a second real
+  // 8->9 after a run restart at 66.75s. The old zero-stray rule returned
+  // ONLY the later event, incorrectly reporting a 42.9s source/video delay.
+  const digits=Array(293).fill(null);
+  digits.fill(8,0,101);
+  digits[89]=9; // one isolated earlier observation, not a genuine crossing
+  digits.fill(9,101,145);
+  digits.fill(8,145,267);
+  digits.fill(9,267);
+  const observed=findVisibleEightToNine(digits);
+  assert.equal(observed.nativeVideoSeconds,25.25);
+  assert.equal(observed.precedingEightFrames,11);
+  const rejected=digits.slice();
+  rejected[88]=9; // two consecutive nines are an earlier real/ambiguous phase
+  assert.equal(findVisibleEightToNine(rejected).nativeVideoSeconds,66.75);
+  const polluted=digits.slice();
+  polluted[90]=9; // two separate ghosts must not weaken the strict veto
+  assert.equal(findVisibleEightToNine(polluted).nativeVideoSeconds,66.75);
+});
+
 test('independent original-HUD observation vetoes miscuing without invented game event',()=>{
   const clock={sourceEventTimecodes:[{kind:'floor-transition',fromFloor:8,toFloor:9,
     observedEpisode:0,inOriginalVideo:true,nativeVideoSeconds:23.1065,sourceTick:451}]};
