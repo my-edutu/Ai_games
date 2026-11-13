@@ -29,7 +29,7 @@ async function authenticReceipt() {
   const hero=await coords.then(c=>c.pointFor(source.player.x,
     source.player.y,source.chunkBaseY,source.worldWidth,25));
   const job={state:'awaiting-actual-first-render',
-    structureDeferred:true,proof:'adjacent-browser-guardian',
+    structureDeferred:true,proof:'recorded-source-gateway',
     runToken:source.runToken,floor:9,sourceTick:460,submittedFrames:1};
   return {source,held,hero,job};
 }

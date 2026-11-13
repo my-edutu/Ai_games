@@ -302,7 +302,10 @@ export function observedClockworkRoofContinuity(source, passage, held) {
 }
 
 export function holdIncomingStructuralShell(source,passage,held,job) {
-  const firstGpuReceipt=job?.proof==='adjacent-browser-guardian' &&
+  // Only the real source-staged original gateway schedules a deferred
+  // structural shell. Its existing proof label predates late immutable
+  // crossing publication; ordinary browser-adjacent scenes cannot hide F9.
+  const firstGpuReceipt=job?.proof==='recorded-source-gateway' &&
     observedStagedOriginalCapBeforeRecordedCrossing(source,held);
   if(!job || job.state!=='awaiting-actual-first-render' ||
       job.structureDeferred!==true ||
