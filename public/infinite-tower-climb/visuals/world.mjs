@@ -84,7 +84,7 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
       normalMatrix.getNormalMatrix(composed);
       for(let i=0;i<count;i+=3){
         const positions=[],normals=[],uvs=[];
-        let score=0,accepted=true;
+        let score=0,accepted=true,minY=Infinity,maxY=-Infinity;
         for(let j=0;j<3;j++){
           const index=indices?indices.getX(i+j):i+j;
           position.fromBufferAttribute(p,index).applyMatrix4(composed);
@@ -93,21 +93,28 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
             Math.cos(Math.atan2(position.x,position.z)-target));
           if (![position.x,position.y,position.z,radius,delta].every(Number.isFinite) ||
               radius<12.7 || radius>39 || Math.abs(delta)>.46 ||
-              position.y<roof-32 || position.y>roof+21) {
+              // Retain original bearings that CROSS the old/new roof seam.
+              // The former every-vertex short slice silently deleted their
+              // upright faces and caused the native clockwork skyline to pop.
+              // Remote shaft walls still fail this hard 125m source envelope.
+              position.y<roof-85 || position.y>roof+40) {
             accepted=false;break;
           }
           normal.fromBufferAttribute(n,index).applyMatrix3(normalMatrix).normalize();
           positions.push(position.x,position.y,position.z);
           normals.push(normal.x,normal.y,normal.z);
           uvs.push(uv.getX(index),uv.getY(index));
-          // Every actual triangle is evaluated in a COMMON world basis,
-          // not in material grouping order or geometry-index order.
+          minY=Math.min(minY,position.y);
+          maxY=Math.max(maxY,position.y);
+          // Rank genuine source triangle footprint and actual vertical
+          // interval, not a distant endpoint of a long load-bearing post.
           score+=Math.pow(delta/.46,2)*1.8+
-            Math.pow((position.y-(roof+3))/32,2)+
             Math.pow((radius-25)/14,2);
         }
-        if(accepted){
-          const triangle={score:score/3,positions,normals,uvs};
+        if(accepted && minY<=roof+21 && maxY>=roof-32){
+          const nearestY=Math.max(minY,Math.min(roof+3,maxY));
+          const triangle={score:score/3+
+            Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs};
           group.triangles.push(triangle);
           if(triangle.score<group.best)group.best=triangle.score;
         }

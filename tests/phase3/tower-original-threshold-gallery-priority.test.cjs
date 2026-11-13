@@ -17,6 +17,7 @@ for(const [from,to] of Object.entries({
   "'./coordinates.mjs'":uri('coordinates.mjs'),
   "'./guardian-passage.mjs'":uri('guardian-passage.mjs'),
   "'./crossfloor-arrival.mjs'":uri('crossfloor-arrival.mjs'),
+  "'./source-physical-arrival-palette.mjs'":uri('source-physical-arrival-palette.mjs'),
   "'./world-surface.mjs'":uri('world-surface.mjs'),
   "'./scene-hierarchy.mjs'":uri('scene-hierarchy.mjs'),
   "'./mesh-provenance.mjs'":uri('mesh-provenance.mjs'),
@@ -98,6 +99,34 @@ test('source transformed instances retain the original geometry, normal, UV and 
     assert.equal(result.bytes,result.faces*96);
   } finally { clean(result,old); }
 });
+test('roof-spanning original bronze bearing retains real continuous height without invented supports',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(1.4,82,1.4),
+    new THREE.MeshStandardMaterial({color:0x927b56}));
+  beam.name='source-structural-roof-bearing';
+  beam.userData.structural=true;
+  beam.position.set(Math.sin(at)*25,roof-13,Math.cos(at)*25);
+  old.add(beam);let result;
+  try{
+    result=world.extractOriginalClockworkThresholdGallery(
+      THREE,old,EXIT_X,ROOF_Y,BASE_Y,WIDTH,{maxFaces:32,maxBatches:2});
+    assert.ok(result && result.faces>=8,
+      'real support spanning the old/new roof plane must not vanish because its vertices lie beyond a narrow slice');
+    const ys=[];
+    for(const child of result.root.children){
+      const vertices=child.geometry.getAttribute('position');
+      for(let i=0;i<vertices.count;i++)ys.push(vertices.getY(i));
+    }
+    assert.ok(Math.min(...ys)<roof-40 && Math.max(...ys)>roof+21,
+      'preserved triangles contain both ends of the same source roof-spanning mesh');
+    assert.equal(result.bytes,result.faces*96);
+    assert.ok(result.faces<=32 && result.root.children.length<=2);
+    assert.equal(beam.parent,old,'original old-floor GPU mesh is not relocated');
+    assert.equal(result.root.children[0].material.name,'OriginalClockworkGallerySourceSurface');
+  }finally{clean(result,old);}
+});
+
 test('playable platforms, boss gateway and ambient silhouettes cannot be copied into historical structural gallery',async()=>{
   const [THREE,world]=await loaded;
   const old=new THREE.Group();

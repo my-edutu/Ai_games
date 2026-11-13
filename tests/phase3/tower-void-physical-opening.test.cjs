@@ -16,7 +16,7 @@ const three=pathToFileURL(path.join(ROOT,'node_modules/three/build/three.module.
 const raw=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
 let source=raw.replace("'/tower/vendor/three.module.js'",JSON.stringify(three));
 for(const n of ['coordinates','world-surface','scene-hierarchy','mesh-provenance',
- 'guardian-passage','crossfloor-arrival','guardian-transmission-layout'])
+ 'guardian-passage','crossfloor-arrival','source-physical-arrival-palette','guardian-transmission-layout'])
  source=source.replace("'./"+n+".mjs'",JSON.stringify(local(n)));
 const destination=path.join(dir,'world.mjs');
 fs.writeFileSync(destination,source);
