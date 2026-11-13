@@ -145,9 +145,9 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
   const lensSource=scene.match(/\bconst realCapLens\s*=\s*([^;]+);/);
   const stageSource=scene.match(/\bconst realCapStage\s*=\s*([\s\S]*?);/);
   assert.ok(lensSource&&stageSource,'the real scene must select both shot and stage');
-  const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,sourceGroundedHandoffShot=null,sourceAirborneHandoffShot=null)=>{
+  const select=(sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,sourceGroundedHandoffShot=null,sourceAirborneHandoffShot=null,coldArchLens=null)=>{
     const context={sourceEarnedWalk,sourceAirborneWalk,sourceLastStand,sourceGroundedHandoffShot,sourceAirborneHandoffShot,
-      earnedPassageStage:{id:'true-cap'},passage:{diagnostics:()=>({id:'locked-cap'})}};
+      coldArchLens,earnedPassageStage:{id:'true-cap'},passage:{diagnostics:()=>({id:'locked-cap'})}};
     return {
       lens:vm.runInNewContext('('+lensSource[1]+')',context,{timeout:50}),
       stage:vm.runInNewContext('('+stageSource[1]+')',context,{timeout:50}),
@@ -170,6 +170,14 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
     'real source-owned near-gateway Floor9 takeoff must retain the old physical exit');
   assert.equal(select(null,null,null,null,'airborne-handoff').stage.id,'locked-cap',
     'next-floor airborne lens inherits original gateway stage, not a fake new gate');
-  assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
+  const originalArchLens={coldOriginalArch:true,gateway:[1,2,3],focusWeight:.25};
+  assert.equal(select(null,null,null,null,null,originalArchLens).lens,originalArchLens,
+    'actual retained original arch owns the post-render camera only if prior source shots end');
+  assert.deepEqual(Array.from(select(null,null,null,null,null,originalArchLens).stage.focusPosition),
+    originalArchLens.gateway,
+    'original source-authenticated physical gateway, not the expired cosmetic cue, anchors the gaze');
+  assert.equal(select(null,null,null,'grounded-handoff',null,originalArchLens).lens,'grounded-handoff',
+    'actual nearby supported handoff outranks the delayed GPU fallback');
+  assert.match(scene,/safeEarnedGatewayDollyRadius\\(destination,/);
   assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
 });

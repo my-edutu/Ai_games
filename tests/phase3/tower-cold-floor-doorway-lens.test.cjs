@@ -67,6 +67,6 @@ test('production bridge consumes the genuine retained GPU witness in one camera,
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/world\.retainedFilmHandoff\?\.\(snapshot\)/);
   assert.match(scene,/observedSourceBoundColdDoorwayLens\(snapshot, coldArchProof,/);
-  assert.match(scene,/coldArchLens\.coldOriginalArch/);
+  assert.match(scene,/coldArchLens\?\.coldOriginalArch/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
