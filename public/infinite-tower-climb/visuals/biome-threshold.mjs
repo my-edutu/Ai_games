@@ -8,7 +8,8 @@
 // software WebGL that erased the old warm gateway context during a >1s stall.
 // Sample the *existing* authentic opened arch's submitted-frame lifetime;
 // never start a second timer, duplicate a gate, or claim native-video proof.
-import { observedSourceEarnedColdFrameContinuation } from './crossfloor-arrival.mjs';
+import { observedSourceEarnedColdFrameContinuation,
+  observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 
 export function observedGroundedBiomeThreshold(frame, passage, options = {}, retainedCap = null) {
   // The visually first F9 frame may arrive after the nonauthoritative passage
@@ -16,7 +17,8 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   // ease sky/fog/lights from warm bronze instead of instant full-void purple.
   // The old doorway remains spatially anchored; only environment colors move.
   if (!options?.stale && !options?.reducedMotion &&
-      observedSourceEarnedColdFrameContinuation(frame,retainedCap)) {
+      (observedSourceEarnedColdFrameContinuation(frame,retainedCap) ||
+        observedStagedOriginalCapBeforeRecordedCrossing(frame,retainedCap))) {
     const progress=Math.min(1,Math.max(0,
       retainedCap.visibleSeconds/1.25));
     const smooth=progress*progress*(3-2*progress);

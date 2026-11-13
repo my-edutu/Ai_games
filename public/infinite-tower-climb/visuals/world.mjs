@@ -5,7 +5,8 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing } from './crossfloor-arrival.mjs';
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
+  observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 
 
 /**
@@ -2379,6 +2380,16 @@ export function createTowerWorld(){
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
       oldCapId:requested.oldCapId,oldCapX:requested.oldCapX,
       oldCapWidth:requested.oldCapWidth,
+      // Carry ONLY the already checked observed grounded receipt into the
+      // original GPU owner. This allows a camera/lighting/shaft decision
+      // before delayed immutable crossing publication, never a new win.
+      tick:requested.tick, nextBaseY:requested.nextBaseY,
+      worldWidth:requested.worldWidth,
+      verifiedObservedFloorAdvance:requested.verifiedObservedFloorAdvance,
+      observedCrossingX:requested.observedCrossingX,
+      observedCrossingY:requested.observedCrossingY,
+      observedHalfWidth:requested.observedHalfWidth,
+      observedHalfHeight:requested.observedHalfHeight,
       submittedFrames:0,visibleSeconds:0,
       firstObservedTick:requested.tick,firstWorldRenderTick:next.tick};
   }
@@ -3428,13 +3439,25 @@ export function createTowerWorld(){
   // traversal in the camera/light hot path; never expose writable GPU roots.
   function retainedFilmHandoff(snapshot) {
     const held=retainedEarnedCap;
-    return observedSourceEarnedColdFrameContinuation(snapshot,held)
-      ? {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
-        crossingTick:held.crossingTick,
-        thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
-        oldCapId:held.oldCapId,oldCapX:held.oldCapX,
-        oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
-        visibleSeconds:held.visibleSeconds} : null;
+    const immutable=observedSourceEarnedColdFrameContinuation(snapshot,held);
+    const priorGrounded=!immutable &&
+      observedStagedOriginalCapBeforeRecordedCrossing(snapshot,held);
+    if(!immutable && !priorGrounded)return null;
+    return {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
+      crossingTick:held.crossingTick,
+      thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
+      oldCapId:held.oldCapId,oldCapX:held.oldCapX,
+      oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
+      visibleSeconds:held.visibleSeconds,
+      ...(priorGrounded?{
+        guardianGateRetained:true,
+        verifiedObservedFloorAdvance:held.verifiedObservedFloorAdvance,
+        tick:held.tick,nextBaseY:held.nextBaseY,worldWidth:held.worldWidth,
+        observedCrossingX:held.observedCrossingX,
+        observedCrossingY:held.observedCrossingY,
+        observedHalfWidth:held.observedHalfWidth,
+        observedHalfHeight:held.observedHalfHeight
+      }:{})};
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,

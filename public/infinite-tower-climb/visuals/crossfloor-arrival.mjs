@@ -57,6 +57,22 @@ export function observedQueuedOriginalCapFromGroundedReceipt(source,queued) {
     p.y===queued.observedCrossingY && foot===queued.oldRoofY;
 }
 
+// A first, actually submitted F9 frame can precede the immutable HP-zero
+// crossing publication. It may only share the original GPU cap, gateway,
+// camera and horizon if the SAME previously authenticated grounded receipt
+// still matches the real alive body and old roof. This does not create a
+// lastGuardianCrossing record or infer a win from scenery.
+export function observedStagedOriginalCapBeforeRecordedCrossing(source,held) {
+  return held?.guardianGateRetained === true &&
+    held?.verifiedObservedFloorAdvance === true &&
+    held?.crossingTick == null &&
+    Number.isSafeInteger(held.submittedFrames) &&
+    held.submittedFrames >= 0 && held.submittedFrames <= 8 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds >= 0 && held.visibleSeconds < 1.25 &&
+    observedQueuedOriginalCapFromGroundedReceipt(source,held);
+}
+
 // Physically earned, source-bounded old-to-new tower world continuity.
 // Renderer submissions are NOT equivalent to pixels reaching the native film.
 // Preserve the original bronze gate/roof across several submissions while a
@@ -286,9 +302,11 @@ export function observedClockworkRoofContinuity(source, passage, held) {
 }
 
 export function holdIncomingStructuralShell(source,passage,held,job) {
+  const firstGpuReceipt=job?.proof==='adjacent-browser-guardian' &&
+    observedStagedOriginalCapBeforeRecordedCrossing(source,held);
   if(!job || job.state!=='awaiting-actual-first-render' ||
       job.structureDeferred!==true ||
-      job.proof!=='recorded-source-gateway' ||
+      !(job.proof==='recorded-source-gateway' || firstGpuReceipt) ||
       job.runToken!==source?.runToken || job.floor!==source?.floor ||
       !Number.isSafeInteger(job.sourceTick) ||
       // The deferral was scheduled by the ACTUAL first rebuilt 3D frame,
@@ -304,5 +322,6 @@ export function holdIncomingStructuralShell(source,passage,held,job) {
   // Both branches remain fully source-validated and terminate on wrong run,
   // death, changed floor, stale crossing, distant climber or elapsed window.
   return observedClockworkRoofContinuity(source,passage,held) ||
-    observedSourceEarnedColdFrameContinuation(source,held);
+    observedSourceEarnedColdFrameContinuation(source,held) ||
+    firstGpuReceipt;
 }

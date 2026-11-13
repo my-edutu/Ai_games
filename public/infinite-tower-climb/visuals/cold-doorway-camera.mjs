@@ -5,11 +5,48 @@
 // the shorter cosmetic passage animation has expired. This is not an avatar
 // interpolation, temporal replay, new floor, trigger or camera cut.
 import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
+import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
 
+// This is not a substitute for a recorded win: the original authored door
+// and defeated old guardian have ALREADY been observed and retained by World.
+// Until an immutable record arrives, frame only that same bounded source
+// receipt; if a record exists but conflicts, the lower-authority receipt is
+// never allowed to override it.
+export function observedPriorGroundedOriginalDoorwayLens(source,held,drawnHero,aspect,zoom=1) {
+  if (!observedStagedOriginalCapBeforeRecordedCrossing(source,held) ||
+      !drawnHero || !finite(aspect) || aspect<=0 || aspect>=2.5 ||
+      !finite(zoom) || zoom<=0 || zoom>1.1) return null;
+  const p=source.player;
+  const actual=pointFor(p.x,p.y,source.chunkBaseY,source.worldWidth,25);
+  if (![drawnHero.x,drawnHero.y,drawnHero.z].every(finite) ||
+      Math.hypot(actual.x-drawnHero.x,actual.z-drawnHero.z)>3 ||
+      Math.abs(actual.y-drawnHero.y)>3) return null;
+  const pose=guardianTraversalGatePose(held.thresholdX,held.oldRoofY,
+    source.chunkBaseY,source.worldWidth);
+  if(!pose)return null;
+  const gate={x:pose.x,y:pose.y+2,z:pose.z};
+  const bodyY=drawnHero.y+p.halfHeight/SCALE;
+  const span=Math.hypot(drawnHero.x-gate.x,drawnHero.z-gate.z);
+  const rise=Math.abs(bodyY-gate.y);
+  if(span>26||rise>28)return null;
+  const proximity=Math.max(0,1-span/26);
+  return {sourceTick:source.tick,sourceBound:true,coldOriginalArch:true,
+    witnessKind:'previous-defeated-guardian-and-observed-grounded-receipt',
+    focus:[(drawnHero.x+gate.x)*.5,(bodyY+gate.y)*.5,
+      (drawnHero.z+gate.z)*.5],
+    gateway:[gate.x,gate.y,gate.z],
+    focusWeight:Math.min(.44,.16+proximity*.28),
+    radius:Math.min(83,Math.max(aspect<.85?62:52,
+      (aspect<.85?62:52)+span*.9))*
+      Math.min(1.25,Math.max(.85,zoom)),span,rise};
+}
+
 export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspect, zoom = 1) {
+  if (source?.lastGuardianCrossing == null)
+    return observedPriorGroundedOriginalDoorwayLens(source,held,drawnHero,aspect,zoom);
   const p = source?.player, w = source?.lastGuardianCrossing, cap = w?.cap;
   if (!p || !w || !cap || !held || !drawnHero ||
       source?.lifecycle !== 'running' || source.floor !== 9 ||
