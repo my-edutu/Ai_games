@@ -12282,14 +12282,26 @@ function marketQuarter(){
  grainwardTradeArcade();
  marketTimberCart(2.45,9.90);marketReceivingDock();marketReceivingCourt();
  const gate=MARKET_ENTRY_ARCH,{x,z}=gate,y=terrain(x,z);
- // Genuine old stone pier pads and raised oak lintel. The two 18cm
- // uprights stand OUTSIDE the courier handoff aisle; slender carved timber
- // knees connect them to the high crossbeam without visual walling.
+ // W304 Phase 1: the real grain unloading corridor is photographed through
+ // THIS physical entrance. The old 5.84-metre freestanding lintel obscured
+ // the upper receiving market and made four good shop roofs read as one dark
+ // scaffolding ceiling. Retain BOTH original roadside markers and exact
+ // camera-collision post positions, but finish each outside the freight aisle
+ // as a coherent independent stone-and-oak trade marker.
+ // No road, market, real farmer, stock, collision footprint or camera lens is
+ // moved, and no overhead element crosses the real courier's centreline.
+ marketQuarterStats.freightCrossBeams=0;
+ marketQuarterStats.openSkyFreightMarkers=0;
+ marketQuarterStats.corridorClearWidth=
+  gate.postOffset*2-gate.postWidth;
  materialScope(MATERIAL.STONE,()=>{
   for(const side of [-1,1]){
-   const px=x+side*gate.postOffset,pz=z;
-   box(px,terrain(px,pz)+.025,pz,.40,.105,.40,rgb(0x8f8879));
-   box(px,terrain(px,pz)+.135,pz,.30,.085,.30,rgb(0xb1a58c));
+   const px=x+side*gate.postOffset,pz=z,py=terrain(px,pz);
+   box(px,py+.025,pz,.40,.105,.40,rgb(0x8f8879));
+   box(px,py+.135,pz,.30,.085,.30,rgb(0xb1a58c));
+   // Buttressing projects AWAY from real workers and freight. Its ground
+   // level silhouette is masonry, rather than an invented crossing gate.
+   box(px+side*.29,py+.27,pz,.38,.36,.30,rgb(0x968d7c));
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
@@ -12297,17 +12309,24 @@ function marketQuarter(){
    grain=rgb(0xbd9867),iron=rgb(0x5e5c53);
   for(const side of [-1,1]){
    const px=x+side*gate.postOffset,pz=z,py=terrain(px,pz);
+   // EXACT original 18cm timber upright at the original market coordinate.
+   // The physical sightline planner continues to certify this real post.
    box(px,py+.18,pz,gate.postWidth,gate.postHeight-.18,.185,post);
    box(px,py+gate.postHeight-.30,pz,.29,.17,.27,beam);
-   limbSegment([px,py+gate.postHeight-.68,pz+.035],
-    [px-side*.58,py+gate.beamHeight-.07,pz+.035],.066,grain,4);
+   // Independent outboard arm and timber knee end at the outer masonry;
+   // neither hangs over the courier receipt at x=-1.0 / +0.85.
+   box(px+side*.46,py+gate.beamHeight-.17,pz,
+    1.05,.14,.24,beam);
+   limbSegment([px,py+gate.postHeight-.72,pz],
+    [px+side*.78,py+gate.beamHeight-.12,pz],.060,grain,4);
+   // Period-readable hanging timber guildmark, not a fabricated trader,
+   // trade inventory or source of revenue. Mounted to the SIDE of the post.
+   const sx=px+side*.86;
+   box(sx,py+gate.beamHeight-.41,pz+.12,.45,.39,.09,post);
+   box(sx,py+gate.beamHeight-.18,pz+.19,.52,.07,.055,grain);
+   box(sx,py+gate.beamHeight-.65,pz+.19,.52,.055,.055,grain);
    box(px,py+gate.postHeight-.12,pz+.115,.18,.065,.035,iron);
-  }
-  box(x,y+gate.beamHeight,z,gate.beamWidth,.25,.29,beam);
-  box(x,y+gate.beamHeight+.27,z,gate.beamWidth-.45,.09,.22,grain);
-  for(let i=0;i<5;i++){
-   const xx=x+(i-2)*.94;
-   box(xx,y+gate.beamHeight+.08,z+.152,.055,.20,.038,post);
+   marketQuarterStats.openSkyFreightMarkers++;
   }
  });
  marketQuarterStats.coveredArcades++;
