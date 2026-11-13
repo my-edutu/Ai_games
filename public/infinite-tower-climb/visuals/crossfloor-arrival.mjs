@@ -89,7 +89,9 @@ export function observedQueuedOriginalCapAtFirstRender(source, queued) {
       source.lifecycle!=='running'||source.floor!==9||source.theme!=='void'||
       source.runToken!==queued.runToken||w.runToken!==queued.runToken||
       queued.floor!==9||w.fromFloor!==8||w.toFloor!==9||
-      ![source.tick,queued.tick,queued.crossingTick,w.sourceTick,
+      !((queued.crossingTick==null && queued.verifiedObservedFloorAdvance===true) ||
+        Number.isSafeInteger(queued.crossingTick)) ||
+      ![source.tick,queued.tick,w.sourceTick,
         source.chunkBaseY,source.worldWidth,
         cap.x,cap.y,cap.width,cap.height,w.exitX,w.crossingX,
         w.halfWidth,w.halfHeight,queued.oldCapX,queued.oldCapWidth,
