@@ -126,6 +126,25 @@ export function selectOriginalSourceSwingAnkleTrial({
  return best;
 }
 
+/**
+ * Connected native swing ankle/sole pacing from genuine source WebGL:
+ * at 16ms an original source joint retains its 80mrad frame budget;
+ * at 33.3ms (actual 390px Walking_A tick 3, #14060235425) it may use
+ * 120mrad, a *lower* angular speed, when the weighted toe is >45mm
+ * submerged and its heel is independently airborne. At 140ms preserve
+ * the existing 128mrad source-slow-frame receipt; cap every step at
+ * 160mrad and every accumulated original-foot overlay at 220mrad.
+ * This is only an eligibility envelope. The live source adapter must
+ * still verify actual skinned toe lift, heel, opposite shoe, source
+ * clip/weight/clone, interruption and reduction of penetration.
+ * Nothing locks a foot or changes the simulation root/asset/keyframes.
+ */
+function originalSourceDeepSwingFrameSlew(frameInterval){
+ const oldSlow=.08+.08*clamp((frameInterval-.05)/.15,0,1);
+ const mobileCadence=.08+.04*clamp((frameInterval-.016)/.0173,0,1);
+ return Math.min(.16,Math.max(oldSlow,mobileCadence));
+}
+
 export function planOriginalSourceSwingToeClearance({
  mode='idle',sourceClipName='',sourceAnatomyVerified=false,sourceWeight=NaN,
  alive=false,visible=false,groundedMoving=false,teleport=false,
@@ -175,14 +194,15 @@ export function planOriginalSourceSwingToeClearance({
  // Only a deeply submerged AIRBORNE toe with a VERIFIED source-ankle
  // upward trial, fully owned imported Walking_A and a recent genuine
  // movement witness may spend a larger age-scaled angular envelope.
- // Preserve the normal 80mrad slew at 60Hz, shallow penetration, partial
- // mixer fades and gaps >350ms. Never go beyond 160mrad in one frame,
+ // Preserve 80mrad at true 60Hz, scale only an actually witnessed 33ms
+ // deeply buried 390px airborne toe to <=120mrad, and retain the older
+ // sparse-frame 140ms/128mrad contract. Partial fades, shallow penetration
+ // and gaps >350ms keep the strict base limit. Never exceed 160mrad,
  // the existing 220mrad total bound or any independent final skinned
  // toe/heel/opposite-foot safety check in the actual Three.js adapter.
  const deepSwing=toeClear<=-.045&&sourceWeight>=.9&&
-  finite(frameInterval)&&frameInterval>.05&&frameInterval<=.35;
- const maxFrameSlew=.08+(deepSwing?
-  .08*clamp((frameInterval-.05)/.15,0,1):0);
+  finite(frameInterval)&&frameInterval>.016&&frameInterval<=.35;
+ const maxFrameSlew=deepSwing?originalSourceDeepSwingFrameSlew(frameInterval):.08;
  return clamp(signedTarget,
   Math.max(-.22,previousCorrectionRad-maxFrameSlew),
   Math.min(.22,previousCorrectionRad+maxFrameSlew));
@@ -219,9 +239,8 @@ export function auditOriginalSourceSwingAnkleSlew({
  if(heelClear<.075||heelClear>.28||toeClear>=-.01||toeClear<-.16||
   (previousAngleRad!==0&&nextAngleRad!==0&&
    Math.sign(previousAngleRad)!==Math.sign(nextAngleRad)))return null;
- const deepSwing=toeClear<=-.045&&sourceWeight>=.9&&frameInterval>.05;
- const limitRad=.08+(deepSwing?
-  .08*clamp((frameInterval-.05)/.15,0,1):0);
+ const deepSwing=toeClear<=-.045&&sourceWeight>=.9&&frameInterval>.016;
+ const limitRad=deepSwing?originalSourceDeepSwingFrameSlew(frameInterval):.08;
  const step=nextAngleRad-previousAngleRad;
  if(Math.abs(step)>limitRad+.000001)return null;
  return Object.freeze({

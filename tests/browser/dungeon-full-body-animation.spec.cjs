@@ -939,8 +939,14 @@ for(const view of [
     ankle.sourceAnkleStepRad>.080001,
     'only a genuinely slow new original toe step earns the sparse-frame label');
    if(ankle.frameAwareSwingUsed){
-    expect(ankle.visibleFrameIntervalSeconds).toBeGreaterThan(.05);
+    expect(ankle.visibleFrameIntervalSeconds).toBeGreaterThan(.016);
     expect(ankle.sourceWeight).toBeGreaterThanOrEqual(.9);
+    expect(ankle.penetrationBeforeMeters).toBeGreaterThanOrEqual(.045);
+    // The genuine 390px 33.3ms deeply submerged original toe may now
+    // receive 120mrad, never a free 60Hz snap or a fake stance plant.
+    // The actual imported heel/toe and opposite shoe remain checked.
+    if(ankle.visibleFrameIntervalSeconds<=.05)
+     expect(ankle.sourceAnkleFrameLimitRad).toBeLessThanOrEqual(.120001);
    }
   }
 
