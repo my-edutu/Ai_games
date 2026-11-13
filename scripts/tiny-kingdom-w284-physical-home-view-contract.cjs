@@ -3,7 +3,7 @@
 // original recorded household camera, not an invented meal or synthetic town.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-new vm.Script(html.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1]||'');
+new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]||'');
 const a=html.indexOf('function originalRealHomeEye(');
 const b=html.indexOf('function toggleRealGrainHomeWitness(){',a);
 assert(a>=0&&b>a,'the running game must have original physical household lens logic');
