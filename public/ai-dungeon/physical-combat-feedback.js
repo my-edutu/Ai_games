@@ -97,7 +97,7 @@ export function createPhysicalCombatFeedback({
  function flush(reason='explicit-reset'){
   for(const item of pending)
    retainReceipt(item.cue,false,false,null,reason+'-pending');
-  revokeAwaitingAudio(reason+'-awaiting-frame');
+  revokeAwaitingAudio(reason+'-awaiting-frame',{preserveVisual:false});
   pending.length=0;seen.clear();
   observedAtByCueId.clear();
   // An automatic floor/run transition changes authoritative scene identity,
@@ -179,12 +179,23 @@ export function createPhysicalCombatFeedback({
  // Preserve one bounded per-injury decision before dropping staged foley so
  // genuine HP losses cannot disappear from the evidence trail after mute,
  // browser suspension, or soundstage replacement.
- function revokeAwaitingAudio(decision){
+ function revokeAwaitingAudio(decision,{preserveVisual=true}={}){
+  // Explicit mute/audio-context suspension must not erase real visual
+  // submission provenance. Keep the already-admitted GPU cue awaiting its
+  // genuine frame, but permanently revoke its OLD sound authorization.
+  // Scene teardown instead retires BOTH queues without ghost evidence.
+  const visualOnly=[];
   for(const item of awaitingPresentation){
-   staleAudioDropped++;
-   retainReceipt(item.cue,item.visual,false,null,decision);
+   if(item.soundAuthorized){
+    staleAudioDropped++;
+    retainReceipt(item.cue,item.visual,false,null,decision);
+   }else if(!preserveVisual){
+    retainReceipt(item.cue,item.visual,false,null,decision+'-visual');
+   }
+   if(preserveVisual&&item.visual)
+    visualOnly.push({...item,soundAuthorized:false});
   }
-  awaitingPresentation.length=0;
+  awaitingPresentation.splice(0,awaitingPresentation.length,...visualOnly);
  }
  // Stage an entire genuine WebGL-frame batch before releasing its sounds.
  // One shared post-emission clock must cover all simultaneous real HP losses:
@@ -268,20 +279,22 @@ export function createPhysicalCombatFeedback({
   }
   // The integrator can require evidence of a real renderer submission before
   // launching a combat transient. No guessing a frame from a time delay.
-  if(soundEligible&&requirePresentedFrame){
+  if(requirePresentedFrame&&(soundEligible||visual)){
+   // One shared 32-slot pool covers BOTH sound-authorized and silent
+   // visual-only receipts. Do not add a second unbounded renderer queue.
    if(awaitingPresentation.length>=MAX_AUDIO_AWAITING_FRAME){
     let weakest=0;
     for(let i=1;i<awaitingPresentation.length;i++)
      if(awaitingPresentation[i].cue.priority<awaitingPresentation[weakest].cue.priority)weakest=i;
     if(awaitingPresentation[weakest].cue.priority>=cue.priority){
-     staleAudioDropped++;
+     if(soundEligible)staleAudioDropped++;
      // VFX admission is not an actual WebGL submission or audible onset.
      // An overloaded original-foley queue must retain its rejected receipt.
      retainReceipt(cue,visual,false,null,'awaiting-frame-cap-rejected');
      played++;return;
     }
     const evicted=awaitingPresentation.splice(weakest,1)[0];
-    staleAudioDropped++;
+    if(evicted.soundAuthorized)staleAudioDropped++;
     // The displaced cue may have drawn an unsubmitted retained effect, but
     // MUST NOT be counted as having delivered its original impact sound.
     retainReceipt(evicted.cue,evicted.visual,false,null,'awaiting-frame-cap-preempted');
@@ -289,7 +302,9 @@ export function createPhysicalCombatFeedback({
    // Preserve the timestamp when the authority action was first observed.
    // Resetting this clock at delayed VFX admission could make a 290ms spell
    // sound another 400ms later, long after its genuine animated release.
-   awaitingPresentation.push({cue,visual,at:observedActionAt,sceneId});
+   awaitingPresentation.push({cue,visual,at:observedActionAt,sceneId,
+    soundAuthorized:soundEligible});
+   if(optedIn&&!soundEligible)retroactiveAudioSuppressed++;
   }else{
    const audio=soundEligible?!!safeCall(()=>foley?.emit?.(cue)):false;
    if(audio)audioAccepted++;
@@ -403,6 +418,50 @@ export function createPhysicalCombatFeedback({
     else unverifiedVisualLiveness++; // Older injected adapters only.
     if(typeof visuals?.hasDrawableCue==='function')
      visualDrawable=safeCall(()=>visuals.hasDrawableCue(item.cue.id))===true;
+   }
+   // Silent original-fx mode still needs a *cue-specific* genuine-frame
+   // witness. A pool admission is not a submitted visual, and an audio click
+   // after this frame must never play an older injury. Keep this path fully
+   // independent of foley.emit(), including on mute and device suspension.
+   if(item.soundAuthorized===false){
+    const observedAt=observedAtByCueId.get(item.cue.id);
+    const age=submittedWallClock!==null&&
+     Number.isFinite(observedAt)&&observedAt>=0&&
+     submittedWallClock>=observedAt?
+     submittedWallClock-observedAt:null;
+    let silentDecision='visual-submission-unverified';
+    if(item.sceneId!==sceneId) silentDecision='scene-changed';
+    else if(age===null||unverifiedFrameInterval||
+     !Number.isFinite(renderSubmissionSeconds)||renderSubmissionSeconds<0){
+     silentDecision='visual-submission-unverified';
+    }else if(Math.max(observedSeconds-item.at,age)>MAX_AUDIO_VISUAL_STALENESS_SECONDS||
+     renderSubmissionSeconds>age+.01){
+     silentDecision='stale-frame';
+    }else if(visualAlive===true&&visualDrawable===false){
+     // A valid retained visual may still be occluded on this frame. Retain
+     // its ORIGINAL observation time, never make an unseen effect "pass".
+     awaitingPresentation.push(item);continue;
+    }else if(visualAlive!==true||visualDrawable!==true){
+     silentDecision='visual-submission-unverified';
+    }else if(item.cue.kind==='swing'&&!reducedMotion&&
+     typeof visuals?.hasAuthenticatedSwingPose==='function'&&
+     safeCall(()=>visuals.hasAuthenticatedSwingPose(item.cue))!==true){
+     silentDecision='revoked-drawn-swing-pose';
+    }else if(['warden-release','opening','guard','cast-utility'].includes(item.cue.kind)&&
+     typeof visuals?.hasAuthenticatedBodyPose==='function'&&
+     safeCall(()=>visuals.hasAuthenticatedBodyPose(item.cue))!==true){
+     silentDecision='revoked-drawn-body-pose';
+    }else{
+     silentDecision='visual-only-submitted';
+    }
+    // An unverified, stale or revoked visual must not remain as a ghost
+    // impact on the following genuine WebGL frame. This never authorizes
+    // sound, calls the rule engine or identifies a perpetrator.
+    if(silentDecision!=='visual-only-submitted')
+     safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,silentDecision));
+    retainReceipt(item.cue,item.visual,false,frameId,
+     silentDecision,submittedWallClock);
+    continue;
    }
    const observedWallAt=observedAtByCueId.get(item.cue.id);
    const verifiedWallAge=submittedWallClock!==null&&
