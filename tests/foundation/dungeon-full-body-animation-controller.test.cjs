@@ -5012,3 +5012,54 @@ test('RED: 390px source swing toe uses bounded 33ms deep-frame ankle ownership, 
  assert.match(renderer,/auditOriginalSourceSwingAnkleSlew\(/);
  assert.match(renderer,/confirmOriginalSourceSwingToeLift\(/);
 });
+
+
+// Session 03, observed 390px original source rig 13 Nov 2026:
+// The legitimate right Walking_A swing toe remains 40.52mm below the
+// -20mm stone after ankle/calf and a previously supported 45->90mrad thigh.
+// Original same-clip weighted shoes show a further connected source thigh
+// candidate may be justified at a 33.3ms *displayed* frame. This unit test
+// supplies an admissible trial shape, NOT a claim that a 135mrad original GLB
+// trial has already passed in Chromium: the adapter must physically sample it.
+// Preserve the 45mrad budget at 60Hz and all original loaded-shoe rollback.
+test('RED: slow 33ms original severe swing can advance a previously verified source thigh from 45 to 135mrad only with two-shoe readback',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ const before={
+  left:{heelY:-.029755311384865243,toeY:-.027219721980142934,
+   heelXZ:[-3.708293965906079,-6.974447055184139],
+   toeXZ:[-3.9782762598880352,-6.946826857141719]},
+  right:{heelY:.22888706715357968,toeY:-.07466103091057794,
+   heelXZ:[-3.6947178550768105,-7.134137634328954],
+   toeXZ:[-3.6643410393187206,-7.1519771656323226]}
+ };
+ // Candidate measurement contract: a future actual same-source 135mrad
+ // trial must supply independently measured coordinates as these fields.
+ const after={
+  left:{...before.left},right:{heelY:.240,toeY:-.054,
+   heelXZ:[-3.697,-7.1345],toeXZ:[-3.647,-7.1525]}
+ };
+ const source={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceThighAxisVerified:true,
+  sourceChainVerified:true,sourceInstanceSame:true,
+  priorSourceProofVerified:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.045,frameAge:.0333,frameInterval:.0333,
+  side:'right',floorTopY:-.02,previousCorrectionRad:-.045,
+  before,trials:[{delta:-.135,after}]
+ };
+ const accepted=choose(source);
+ assert.equal(accepted?.angleRad,-.135,
+  'source thigh may spend 90mrad in a real >=32ms frame only after a proven prior 45mrad pose');
+ assert.equal(accepted?.oppositeFootVerified,true);
+ assert.equal(accepted?.contactLocked,false);
+ for(const invalid of [
+  {frameInterval:.0167},{frameInterval:.051},
+  {frameInterval:.031},{sourceWeight:.75},
+  {priorSourceProofVerified:false},{previousCorrectionRad:0},
+  {teleport:true},{reducedMotion:true},{sourceInstanceSame:false},
+  {trials:[{delta:-.135,after:{...after,left:{...after.left,heelY:before.left.heelY+.01}}}]},
+  {trials:[{delta:-.135,after:{...after,right:{...after.right,toeY:-.09}}}]}
+ ])assert.equal(choose({...source,...invalid}),null,
+  'unverified source/frame/shoe evidence must retain old 45mrad source thigh limit');
+});
