@@ -7655,22 +7655,49 @@ function grainwardGranaryRoof(x,z,eave,peak,halfRoof){
  return {roofBays:2,triangles:(data.length-start)/30};
 }
 function grainwardMarketRoofEdges(){
- // Four genuinely trading shelters, their original roofs and uprights;
- // bargeboards are above the open stalls, never across the courier aisle.
- const start=data.length;let rafters=0;
- materialScope(MATERIAL.WOOD,()=>{
-  for(const [index,stall] of MARKET_STALLS.entries()){
-   const y=terrain(stall.x,stall.z),profile=marketStallProfile(index);
-   for(const end of [-1,1])for(const side of [-1,1]){
-    const zz=stall.z+end*1.19;
-    limbSegment([stall.x+side*1.53,y+profile.eave-.025,zz],
-     [stall.x,y+profile.peak-.045,zz],.047,rgb(0x7c5d42),4);
-    rafters++;
-   }
+ // W299: replace the four merchant roofs' excess exposed scaffold with
+ // eight ORIGINAL solid upper gables and sixteen thin timber bargeboards.
+ // The ground-floor real selling bays, courier hands, stock, entrances and
+ // two physical market arcades remain clear; no new collision or agents.
+ // Built once in the existing resident civic VBO at original stall locations.
+ const start=data.length;let frames=0,gables=0;
+ for(const [index,stall] of MARKET_STALLS.entries()){
+  const y=terrain(stall.x,stall.z),profile=marketStallProfile(index);
+  const eave=y+profile.eave,peak=y+profile.peak;
+  const plaster=rgb([0xc6baa2,0xc1bbb0,0xc7b99f,0xc1b29b][index]);
+  const oak=rgb([0x77553e,0x6a5545,0x856c50,0x786148][index]);
+  for(const end of [-1,1]){
+   const gableZ=stall.z+end*1.174;
+   const left=[stall.x-1.48,eave-.09,gableZ],
+    right=[stall.x+1.48,eave-.09,gableZ],
+    peakPoint=[stall.x,peak-.095,gableZ];
+   materialScope(MATERIAL.PLASTER,()=>{
+    if(end<0)tri(right,left,peakPoint,plaster);
+    else tri(left,right,peakPoint,plaster);
+    gables++;
+   });
+   // Outward-facing roof-end timber follows the same true pitched slopes.
+   // Planar joinery replaces 32 freestanding cylindrical diagonal beams.
+   const boardZ=stall.z+end*1.190;
+   materialScope(MATERIAL.WOOD,()=>{
+    for(const side of [-1,1]){
+     const lower=[stall.x+side*1.53,eave-.105,boardZ],
+      upper=[stall.x,peak-.105,boardZ],
+      upperLip=[stall.x,peak-.015,boardZ],
+      lowerLip=[stall.x+side*1.53,eave-.015,boardZ];
+     if(end===-side)quad(lower,upper,upperLip,lowerLip,oak);
+     else quad(lowerLip,upperLip,upper,lower,oak);
+     frames++;
+    }
+   });
   }
- });
- marketQuarterStats.grainwardRoofFrames=rafters;
- marketQuarterStats.grainwardRoofTriangles=(data.length-start)/30;
+ }
+ const triangles=(data.length-start)/30;
+ if(frames!==16||gables!==8||triangles!==40)
+  throw Error('W299 genuine four-stall gable geometry incomplete');
+ marketQuarterStats.grainwardRoofFrames=frames;
+ marketQuarterStats.grainwardRoofGables=gables;
+ marketQuarterStats.grainwardRoofTriangles=triangles;
 }
 function getGrainwardDistrictAudit(){
  return {source:'W258-genuine-farm-four-trade-market-and-inhabited-burgage',
@@ -12139,12 +12166,8 @@ function marketStall(s,index){
     marketQuarterStats.timberBraces++;
    }
   }
-  // Lift the ridge above the original toy tent and brace both real gables.
-  for(const sz of [-1,1])for(const sx of [-1,1]){
-   const zz=z+sz*1.09;
-   limbSegment([x+sx*1.50,y+profile.eave-.04,zz],
-    [x,y+profile.peak-.03,zz],.057,timber,4);
-  }
+  // W299: remove duplicated giant timber trusses; contiguous plaster
+  // gables and timber bargeboards finish all original roofs above workers.
   box(x,y+profile.peak-.09,z,.12,.14,d+.20,timber);
  });
  materialScope(tiled?MATERIAL.ROOF:MATERIAL.GENERAL,()=>{
