@@ -181,3 +181,52 @@ test('public two-cell guardian standoff waits instead of advancing into contact,
   const sealed={...observation,doors:[{id:'closed',a:1,b:2,open:false,requiredKeyId:'unknown'}]};
   assert.notEqual(chooseMazeAction(state,sealed,belief).intent.mode,'evading-threat');
 });
+
+test('a publicly witnessed guardian on a bend cannot be used as a shortcut to a known goal or unknown frontier',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},'published-guardian-flank');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=0;
+  state.ai.recentCells=[0];
+
+  // Short goal route 0→5→6→7 crosses the NOW-VISIBLE guardian at 6.
+  // An actual previously discovered, longer flank 0→1→2→3→8→7 exists.
+  // The guardian is diagonal from Pip, so the two-cell straight duel logic
+  // does not take over. No future patrol positions or world map are consulted.
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1,5]),'1':beliefCell(1,[0,2]),
+    '2':beliefCell(2,[1,3]),'3':beliefCell(3,[2,8]),
+    '5':beliefCell(5,[0,6]),'6':beliefCell(6,[5,7]),
+    '7':beliefCell(7,[6,8,12]),'8':beliefCell(8,[3,7])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:6,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,5,6,7],rememberedCells:[1,2,3,8],
+    cells:Object.values(belief.cells).map(cell=>({...cell,
+      visible:[0,5,6,7].includes(cell.cell)})),
+    doors:[],keys:[],threats:[{id:'guardian',cell:6,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:7,recentCells:[0]};
+  const goal=chooseMazeAction(state,observation,belief);
+  assert.equal(goal.intent.mode,'searching-exit');
+  assert.deepEqual(goal.action,{kind:'move',targetCell:1},
+    'Pip must take the real known longer flank rather than walk into the seen guardian');
+  assert.equal(goal.plannedPath.includes(6),false);
+
+  // A frontier beyond that same public threat must use the same protected
+  // route, even though the goal cell 12 itself is genuinely still unknown.
+  belief.frontiers=[12];
+  observation.exitCell=null;
+  const frontier=chooseMazeAction(state,observation,belief);
+  assert.equal(frontier.intent.mode,'exploring');
+  assert.deepEqual(frontier.action,{kind:'move',targetCell:1});
+  assert.equal(frontier.plannedPath.includes(6),false);
+  assert.equal(frontier.plannedPath.at(-1),12);
+
+  // Once the guardian is no longer PUBLICLY observed, it must not become an
+  // omniscient permanent obstacle. The short route is again the valid choice.
+  observation.threats=[];
+  belief.frontiers=[];
+  observation.exitCell=7;
+  const cleared=chooseMazeAction(state,observation,belief);
+  assert.deepEqual(cleared.action,{kind:'move',targetCell:5});
+  assert.equal(cleared.plannedPath.includes(6),true);
+});

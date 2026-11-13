@@ -159,9 +159,15 @@ function targetDecision(
 ): MazeDecision | null {
   const path = findKnownPath(belief, observation.currentCell, target, {
     inventory: observation.inventory,
-    avoidCells: Object.values(belief.cells)
-      .filter(cell => cell.trap || cell.blocked)
-      .map(cell => cell.cell),
+    // A currently SEEN guardian is a real collidable occupied cell, not a
+    // speculative future patrol. An objective can be pursued around that cell
+    // on a longer publicly learned route; never plan through its body.
+    avoidCells: [
+      ...Object.values(belief.cells)
+        .filter(cell => cell.trap || cell.blocked)
+        .map(cell => cell.cell),
+      ...observation.threats.map(threat => threat.cell),
+    ],
     allowUnknownGoal,
   });
   if (!path || path.path.length < 2) return null;
@@ -280,9 +286,15 @@ export function chooseMazeAction(
       frontier,
       path: findKnownPath(belief, observation.currentCell, frontier, {
         inventory: observation.inventory,
-        avoidCells: Object.values(belief.cells)
-          .filter(cell => cell.trap || cell.blocked)
-          .map(cell => cell.cell),
+        // Re-evaluate against live public threat occupancy on EVERY tick,
+        // including exploratory routes to as-yet-unseen frontier cells.
+        // Remembered/hidden threats never become an oracle obstacle.
+        avoidCells: [
+          ...Object.values(belief.cells)
+            .filter(cell => cell.trap || cell.blocked)
+            .map(cell => cell.cell),
+          ...observation.threats.map(threat => threat.cell),
+        ],
         allowUnknownGoal: true,
       }),
     }))
