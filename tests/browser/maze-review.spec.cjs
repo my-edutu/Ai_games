@@ -761,10 +761,18 @@ test('a real close public encounter frames both autonomous actors and saves date
     await page.screenshot({path:image,fullPage:true});
     // Source-bound native screenshot PAUSED above: identify the TRUE
     // installed Three meshes under the pale foreground, not guessed tiles.
-    const foregroundPicks=await page.evaluate(()=>
-      [[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]].map(([u,v])=>({
+    const foregroundPicks=await page.evaluate((brace)=>{
+      const rays=[[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]];
+      // The real actor-axis camera rotates between beats. Search the SAME
+      // unaltered visible WebGL screen around the wall rather than assuming
+      // a physical 2.34m cap remains under one fixed screenshot pixel.
+      // Keep the original first-hit rays and exact dimensions/colors.
+      if(brace)for(const u of [.44,.47,.50,.53,.56])
+        for(const v of [.58,.60,.62,.64,.66,.68])rays.push([u,v]);
+      return rays.map(([u,v])=>({
         u,v,hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]
-      })));
+      }));
+    },phase.name==='brace');
     // Pass327: diagnose the remaining REAL native 390px court failure from
     // public game/source state, rather than guessing at a mesh whose pixels
     // are unchanged. THIS never accesses private topology, engine AI plans,
@@ -819,11 +827,17 @@ test('a real close public encounter frames both autonomous actors and saves date
       // This wall is genuinely mutually impassable; the separately linked
       // public pressure trigger must retain its own real physical edge.
       const guardRail=rayAt(.50,.66);
-      const railCap=guardRail.find(hit=>hit.cell===100
+      // Pass340: source-authentic Pass339 changed the ACTUAL camera projection:
+      // (.50,.66) now first hits the opaque cell100 body; its 2.34m crest
+      // projects above that pixel. Scan native full-frame WebGL nearby instead
+      // of requiring an off-ray cap, without shrinking, faking or removing it.
+      expect(guardRail[0]?.cell,'real body must be first visible geometry at the original uncropped pixel').toBe(100);
+      expect(guardRail[0]?.color,'the actual first visible sealed wall must be dark mineral').toBe('28574f');
+      const railCap=foregroundPicks.flatMap(p=>p.hits).find(hit=>hit.cell===100
         &&hit.dimensions?.[0]===2.34&&hit.dimensions?.[1]===.075
         &&hit.dimensions?.[2]===.44);
-      expect(railCap,'real 390px witnessed duel must retain complete physical opaque 2.34m retaining cap').toBeTruthy();
-      expect(railCap.color,'authentic camera first-hit ivory slab must yield to Tideglass, without screen crop').toBe('5d968e');
+      expect(railCap,'real 390px witnessed duel must retain complete on-screen physical opaque 2.34m retaining cap').toBeTruthy();
+      expect(railCap.color,'genuinely camera-visible retaining crest must stay Tideglass, not ivory').toBe('5d968e');
       const railBody=guardRail.find(hit=>hit.cell===100
         &&hit.dimensions?.[0]===2.32&&hit.dimensions?.[1]===.34
         &&hit.dimensions?.[2]===.39);
@@ -849,12 +863,16 @@ test('a real close public encounter frames both autonomous actors and saves date
       // At the upper camera ray the public Pip course is still a complete
       // source-rendered 2.31m sea-glass tile: both adjoining materials remain
       // genuine rather than passing on a single dark decorative stripe.
-      const witnessedCourse=rayAt(.50,.66).find(hit=>hit.cell===99
+      // The same original ray now reaches the actually disclosed stage
+      // cell116 behind the solid public cell100 wall, NOT off-ray cell99.
+      // Require the identical full-width 2.31m sea-glass course in this
+      // source-bound image; do not relax the geometry or material contract.
+      const witnessedCourse=rayAt(.50,.66).find(hit=>hit.cell===116
         &&hit.dimensions?.[0]===2.31&&hit.dimensions?.[1]===.07
         &&hit.dimensions?.[2]===2.31);
-      expect(witnessedCourse,'actual Pip-side 2.31m course must remain geometrically ray-visible')
+      expect(witnessedCourse,'current authentic camera ray must show the full 2.31m disclosed Pip-side stage course')
         .toBeTruthy();
-      expect(witnessedCourse.color,'genuine foreground guardian course remains original source-authenticated sea glass')
+      expect(witnessedCourse.color,'genuine guardian course must retain original source-authenticated sea glass')
         .toBe('5d968e');
     }
 
