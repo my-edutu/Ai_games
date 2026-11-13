@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -616,11 +616,50 @@ const NATIVE_MELEE_NO_BRACE=Object.freeze({
  right:Object.freeze({upper:0,lower:0,foot:0})
 });
 const NATIVE_MELEE_NO_ROOT=Object.freeze({x:0,y:0,z:0,pitch:0,roll:0,yaw:0});
-function stageRigMeleeAfterMixer(actor,since,reducedMotion){
+function stageRigMeleeAfterMixer(actor,since,reducedMotion,sourceFrameInterval=.016,sourceFrameVisible=true){
  actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;
  if(!actor.rigMeleeBones?.length)return;
  const pose=planRigMeleeFollowThrough(actor.u.kind,actor.fullBody?.owner.duel?'attack':'idle',since,
   actor.animationFacing?.distance,actor.animationFacing?.targetId,reducedMotion||actor.u.hp<=0);
+ // The true original Walking_A root can turn ~0.637rad in one mobile
+ // displayed frame. Oppose only a bounded fraction in the real imported
+ // chest during actual source-owned travel; original legs, actor root,
+ // hand/weapon socket and source AnimationMixer are left untouched.
+ const sourceId=actor.assetRoot?.uuid??null;
+ const walkOwner=actor.fullBody?.mode==='move'&&
+  actor.fullBody?.owner?.locomotion===true&&
+  actor.activeImportedClipName==='Walking_A'&&
+  actor.u.hp>0&&actor.root?.visible===true&&sourceFrameVisible===true&&
+  !reducedMotion&&!actor.locomotionTeleport&&!actor.fullBody?.interrupted;
+ const priorSame=Boolean(walkOwner&&sourceId&&
+  actor.rigWalkingTurnSourceId===sourceId&&
+  Number.isFinite(actor.rigWalkingTurnSourceYaw));
+ const walkingTorsoCounterturn=priorSame?
+  planOriginalSourceWalkingTorsoCounterturn({
+   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
+   sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
+   sourceInstanceSame:true,ownerLocomotion:true,
+   alive:true,visible:true,teleport:false,reducedMotion:false,
+   interrupted:false,rootTravel:actor.rigLastGroundedTravel,
+   frameInterval:sourceFrameInterval,
+   previousRootYaw:actor.rigWalkingTurnSourceYaw,
+   currentRootYaw:actor.root.rotation.y,
+   previousOffsetRad:actor.rigWalkingTurnOffsetRad??0
+  }):null;
+ actor.walkingTorsoCounterturn=walkingTorsoCounterturn;
+ actor.rigWalkingTurnOffsetRad=walkingTorsoCounterturn?.offsetRad??0;
+ if(walkOwner){
+  actor.rigWalkingTurnSourceId=sourceId;
+  actor.rigWalkingTurnSourceYaw=actor.root.rotation.y;
+ }else{
+  actor.rigWalkingTurnSourceId=null;
+  actor.rigWalkingTurnSourceYaw=null;
+ }
+ if(walkingTorsoCounterturn){
+  actor.rigWalkingTurnFrames=Math.min(1000000,(actor.rigWalkingTurnFrames||0)+1);
+  actor.rigWalkingTurnPeakRad=Math.max(actor.rigWalkingTurnPeakRad||0,
+   Math.abs(walkingTorsoCounterturn.offsetRad));
+ }
  for(const mount of actor.rigMeleeBones){
   // One genuine imported bone receives ONE original melee performance,
   // not legacy follow-through + secondary beat + native duel stacked.
@@ -636,7 +675,7 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion){
   const strike=mount.part==='spine'&&!reducedMotion&&actor.fullBody?.owner.warning?actor.wardenStrikePose?.spine:null;
   mount.next.setFromEuler(mount.euler.set(
    Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+native.pitch+dodge.pitch+bearing.pitch+(actor.rigGuardPose?.chest?.pitch??0)+stride.pitch+(strike?.pitch??0))),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+native.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0))),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+native.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0)+(mount.part==='spine'?(actor.walkingTorsoCounterturn?.offsetRad??0):0))),
    Math.max(-.46,Math.min(.46,joint.roll+extra.roll+native.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0)+(strike?.roll??0))),'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
   mount.last.copy(mount.next);
@@ -3071,7 +3110,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
  stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
  auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
- stageRigMeleeAfterMixer(actor,poseAge,reducedMotion);
+ stageRigMeleeAfterMixer(actor,poseAge,reducedMotion,sourceFrameInterval,sourceFrameVisible);
  stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
  stageSkinnedHitAfterMixer(actor,reducedMotion);
  stageSkinnedDefeatAfterMixer(actor,reducedMotion);
@@ -3616,6 +3655,9 @@ function inspectSourceRigDeformation(actors){
     bodyStrideWeight:actor.rigFullBodyStride?.weight??0,
     gaitWeight:actor.rigGaitWeight??0,
     sourceStanceSlideReliefFrames:actor.sourceStanceSlideReliefFrames||0,
+     originalWalkingTorsoCounterturnRad:actor.walkingTorsoCounterturn?.offsetRad??0,
+     originalWalkingTorsoCounterturnFrames:actor.rigWalkingTurnFrames||0,
+     originalWalkingTorsoCounterturnPeakRad:actor.rigWalkingTurnPeakRad||0,
     sourceStanceSlideWarmupFrames:actor.sourceStanceSlideWarmupFrames||0,
     sourceStanceSlideSlowWarmupFrames:actor.sourceStanceSlideSlowWarmupFrames||0,
     sourceStanceSlideReliefProof:actor.sourceStanceSlideReliefProof??null,
