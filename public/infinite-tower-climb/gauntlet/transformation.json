@@ -9650,5 +9650,34 @@
     "nextHighestImpactAction": "Use corrected original native first-episode clock to inspect newly triggered exact-source matched 960x600 and 390x844 gameplay; verify actual old arch + whole-body hero + honest floor9 ground in the same shot, diagnose camera/material/depth occlusion; rebuild shared physical 3D gateway composition if hard cut persists. Preserve frozen source; CI veto and baseline outcome native timing remain open.",
     "review": "docs/reviews/2026-11-13-tower-pr68-first-episode-native-video-clock-rectification.md",
     "safety": "Same draft PR68 based on PR58; original baseline frozen unchanged; no deploy, merge, force-push, draft status change or other game edits."
+  },
+  "p0RealFloorNineOriginalGateOcclusionAndPortraitOptics20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreRunHead": "39ac9d057a836804e2887cf844ac060354ebcac2",
+    "actualSourceProductionCommit": "d0ac1751c487e590295178e39e5eac61f8960be0",
+    "focusedSourceTestsThroughCommit": "bbc4c8388481527158b8c06162221b22e4b1597a",
+    "productionChanges": [
+      "One same-run source/real cap bounded 1.25-second and eight submitted-frame original bronze GPU door, roof, warm-to-void horizon and deferred noninteractive shaft",
+      "Single full-body hero and same physical opened arch camera framing with Floor9 portrait two-subject optics, no camera switch",
+      "Correct Floor9 real original gateway flag passed to actual 3D foreground occlusion protection; prioritizes real hazard and landing, no collision or source changes"
+    ],
+    "previousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43380901677",
+    "originalVideoFinding": "Old 8/8 original baseline/candidate 60s+ scenarios filmed, strict source/native guardian crossing 0/2. True tick451 earned physical door crossing, bronze Floor8-to-violet Floor9 hard visual switch at first native episode around desktop 24.75s and portrait 25.25s; old rendering failed full-body same-gate shot.",
+    "preliminaryCI": "https://github.com/my-edutu/Ai_games/actions/runs/43388374280 — not green; phase3 shard3 original old-window assertion rejected intended bound and corrected by bbc4c838; phase3 shard2 external runner shutdown during real retained cap test; remaining jobs not all accepted; full exact-head veto outstanding.",
+    "newOriginalCapture": "Capture-request commit not yet dispatched; must run immutable source 9-job workflow and inspect native originals before any acceptance.",
+    "verifiedExperienceImprovement": "NOT EVALUATED: source logic and test wiring are NOT native video proof",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "strictNewNativeCrossing": "NOT EVALUATED; preceding source candidate failed both desktop/portrait",
+    "biggestExperienceGap": "Body and original bronze doorway must remain visibly and physically continuous in one nonhardcut source-event-matched native Film; newly changed camera/occlusion/lighting remains unproven. Full floor-nine onward, genuine outcome/restart and baseline outcome film PTS also unaccepted.",
+    "nextHighestImpactAction": "Capture all eight authentic 60s+ source-pinned before/after films from current PR68 evidence SHA and frozen baseline at 960x600 and 390x844; review 22–31s genuine normal-speed motion and first episode source vs rendered native PTS. If violet cut persists, reconstruct physical geometry/depth and camera; separately investigate CI shard2 runner shutdown and outcome baseline native timing. Hold P0 until both viewports and full loop pass; then P1.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-doorway-occlusion-and-optical-continuity.md",
+    "safety": "Only same draft PR68 branch. Frozen baseline unchanged. No merge, deploy, force-push, draft promotion or unrelated game edits."
   }
 }
