@@ -2343,8 +2343,10 @@ export function createTowerWorld(){
       retireEarnedCap();
       return;
     }
-    if (held.submittedFrames > 0 && Number.isFinite(dt))
-      held.visibleSeconds += Math.min(.1,Math.max(0,dt));
+    // The presented handoff must age ONLY after a real successful WebGL
+    // submission. Advancing time here consumed the old doorway/gallery during
+    // dropped or stalled renders, so the native video only ever showed F9.
+    // noteFrameSubmitted() exclusively owns this display clock.
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
         held.submittedFrames, held.visibleSeconds);
@@ -2490,30 +2492,84 @@ export function createTowerWorld(){
       firstRenderSubmitted:false, submittedFrames:0,
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
+      structuralMaterials:[],structuralShadows:[],structuralFade:1,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       vistaBuildMs:null, deferredBuildMs:null,
     };
   }
-  function noteFrameSubmitted(snapshot, options={}) {
-    // A browser fetch, a failed renderer, stale source, another episode or
-    // quality rebuild cannot unlock deferred GPU work. The caller invokes
-    // this only AFTER the real renderer.render() has returned successfully.
-    if(retainedEarnedCap && !options.stale && snapshot &&
-        snapshot.runToken === retainedEarnedCap.runToken &&
-        snapshot.floor === retainedEarnedCap.floor &&
-        snapshot.tick >= retainedEarnedCap.sourceTick)
-      retainedEarnedCap.submittedFrames = Math.min(10,retainedEarnedCap.submittedFrames+1);
+  function noteFrameSubmitted(snapshot, options={}, renderedDt=0) {
+    // Exactly ONE verified renderer.render return can advance the visible
+    // handoff. Source ticks, browser packets, RAF updates without a drawn
+    // frame and failed GPU submissions cannot spend this visual clock.
+    const shown = Number.isFinite(renderedDt)
+      ? Math.min(.1,Math.max(0,renderedDt)) : 0;
+    const held=retainedEarnedCap;
+    if (held && !options.stale && snapshot &&
+        snapshot.runToken===held.runToken &&
+        snapshot.floor===held.floor && snapshot.tick>=held.sourceTick &&
+        snapshot.lifecycle==='running') {
+      held.submittedFrames=Math.min(10,held.submittedFrames+1);
+      held.visibleSeconds=Math.min(3,held.visibleSeconds+shown);
+    }
     const job=deferredDistantArrival;
-    if (!job || !['awaiting-actual-first-render','awaiting-structural-submission','awaiting-vista-submission'].includes(job.state) ||
-        options.stale || !snapshot || snapshot.runToken!==job.runToken ||
-        snapshot.floor!==job.floor ||
-        key!==job.key || snapshot.tick<job.sourceTick) return false;
-    // Exactly one GPU upload tranche per returned Three.js frame. HTTP
-    // acceptance and JS animation never advance this queue. On context loss
-    // or source/run switch, clearFloor() cancels the entire pending tranche.
-    job.submittedFrames=Math.min(12,job.submittedFrames+1);
-    job.firstRenderSubmitted=true;
-    return true;
+    if(!job || options.stale || !snapshot ||
+        snapshot.lifecycle!=='running' || snapshot.runToken!==job.runToken ||
+        snapshot.floor!==job.floor || key!==job.key ||
+        snapshot.tick<job.sourceTick) return false;
+    const advancing=['awaiting-actual-first-render',
+      'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state);
+    if(advancing){
+      // Only a returned actual F9 frame advances the staged GPU upload queue.
+      job.submittedFrames=Math.min(12,job.submittedFrames+1);
+      job.firstRenderSubmitted=true;
+    }
+    // The noninteractive original Floor9 shaft previously arrived OPAQUE on
+    // one arbitrary render while the source-owned bronze scene was fading.
+    // Isolate only its batched scene materials, then reveal the original shaft
+    // by returned frames. Gameplay decks, traps, guardian and actor retain
+    // their independent opaque materials and truthful geometry throughout.
+    if(job.structuralMaterials?.length &&
+       Number.isSafeInteger(job.structureBuiltAtSubmitted) &&
+       job.submittedFrames>job.structureBuiltAtSubmitted &&
+       job.structuralFade<1){
+      job.structuralFade=options.reducedMotion?1:
+        Math.min(1,job.structuralFade+shown/.8);
+      for(const {material,originalOpacity} of job.structuralMaterials)
+        material.opacity=originalOpacity*job.structuralFade;
+      if(job.structuralFade>=1){
+        for(const {material,originalTransparent,originalDepthWrite}
+            of job.structuralMaterials){
+          material.transparent=originalTransparent;
+          material.depthWrite=originalDepthWrite;
+          material.needsUpdate=true;
+        }
+        for(const {mesh,castShadow} of job.structuralShadows)
+          mesh.castShadow=castShadow;
+      }
+    }
+    if(job.vistaMaterial &&
+       ['awaiting-vista-submission','fading-remote-arrival','complete'].includes(job.state) &&
+       job.vistaFade<1){
+      job.vistaFade=options.reducedMotion?1:
+        Math.min(1,job.vistaFade+shown/.55);
+      job.vistaMaterial.opacity=job.vistaFade;
+    }
+    if(job.state==='fading-remote-arrival' && job.fade<1){
+      job.fade=options.reducedMotion?1:
+        Math.min(1,job.fade+shown/.55);
+      if(job.material)job.material.opacity=job.fade;
+    }
+    if(job.state==='fading-remote-arrival' &&
+       job.fade>=1 && job.vistaFade>=1 &&
+       (!job.structuralMaterials?.length || job.structuralFade>=1)){
+      job.state='complete';
+      if(job.vistaMaterial){
+        job.vistaMaterial.transparent=false;
+        job.vistaMaterial.depthWrite=true;
+        job.vistaMaterial.needsUpdate=true;
+      }
+    }
+    return advancing;
   }
   function update(snapshot,dt=0,time=0,options={},passageWitness=null){
     if(disposed||!snapshot)return;
@@ -2578,6 +2634,36 @@ export function createTowerWorld(){
           object.receiveShadow=!object.userData.ambientDetail;
         });
         batchRigid(structuralRoot,animatedStructuralRoots);
+        // Cloned per-world structural materials are independent of the
+        // first-frame F9 ground, moving platforms and hazards. A shared
+        // material fade would make the ACTUAL walkable floor disappear.
+        const isolated=new Map(), shadowStates=[];
+        structuralRoot.traverse(object=>{
+          if(!object.isMesh || !object.material)return;
+          shadowStates.push({mesh:object,castShadow:object.castShadow});
+          object.castShadow=false;
+          function isolate(original){
+            if(!isolated.has(original)){
+              const material=original.clone();
+              material.name='SourceEarnedIncomingFloorNineShaft';
+              material.transparent=true;
+              material.depthWrite=false;
+              material.opacity=0;
+              material.needsUpdate=true;
+              floorMaterials.add(material);
+              isolated.set(original,{material,
+                originalOpacity:original.opacity,
+                originalTransparent:original.transparent,
+                originalDepthWrite:original.depthWrite});
+            }
+            return isolated.get(original).material;
+          }
+          object.material=Array.isArray(object.material)
+            ?object.material.map(isolate):isolate(object.material);
+        });
+        arrival.structuralMaterials=[...isolated.values()];
+        arrival.structuralShadows=shadowStates;
+        arrival.structuralFade=0;
         const used=new Set();
         floorGroup.traverse(object=>{if(object.geometry)used.add(object.geometry);});
         for(const geometry of floorGeometries)if(!used.has(geometry)){
@@ -2639,28 +2725,10 @@ export function createTowerWorld(){
       arrival.deferredBuildMs=+(performance.now()-began).toFixed(2);
       arrival.fade=0;
     }
-    if(arrival?.vistaMaterial && !options.stale &&
-        ['awaiting-vista-submission','fading-remote-arrival'].includes(arrival.state)){
-      arrival.vistaFade=options.reducedMotion?1:
-        Math.min(1,arrival.vistaFade+Math.min(.08,Math.max(0,dt))/0.55);
-      arrival.vistaMaterial.opacity=arrival.vistaFade;
-    }
-    if (arrival && arrival.state==='fading-remote-arrival' &&
-        !options.stale) {
-      arrival.fade=options.reducedMotion?1:
-        Math.min(1,arrival.fade+Math.min(.08,Math.max(0,dt))/0.55);
-      if(arrival.material)arrival.material.opacity=arrival.fade;
-      if(arrival.fade>=1 && arrival.vistaFade>=1){
-        arrival.state='complete';
-        // Retire transient transparency so the full original geological
-        // panorama does not incur permanent alpha sorting or overdraw cost.
-        if(arrival.vistaMaterial){
-          arrival.vistaMaterial.transparent=false;
-          arrival.vistaMaterial.depthWrite=true;
-          arrival.vistaMaterial.needsUpdate=true;
-        }
-      }
-    }
+    // The returned-frame contract owns all incoming material fades in
+    // noteFrameSubmitted(). A submitted F9 screenshot cannot skip directly
+    // to the final violet world merely because many RAF updates happened
+    // while WebGL was blocked.
     // QUIET -> CRISIS -> RELEASE across all five actual 3D tower biomes.
     // On verified guardian combat or a near dangerous shutter, decorative
     // machinery, furnace glare, motes and distant clouds yield to the
@@ -3276,6 +3344,8 @@ export function createTowerWorld(){
       proof:deferredDistantArrival.proof,
       structureDeferred:deferredDistantArrival.structureDeferred === true,
       structureBuildMs:deferredDistantArrival.structureBuildMs,
+      structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
+      isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
       fade:+deferredDistantArrival.fade.toFixed(3),
       vistaFade:+deferredDistantArrival.vistaFade.toFixed(3),
       initialRebuildMs:deferredDistantArrival.initialRebuildMs,
