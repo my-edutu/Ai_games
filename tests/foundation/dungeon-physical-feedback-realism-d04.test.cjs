@@ -271,7 +271,7 @@ test('ranged visual arriving at the target does not fabricate impact spalls or a
   actors.set(id,{u:{id,kind:id,action:id==='ranger'?'attack':'idle',actionTick:11,hp:30},
    root:{visible:true,position:{x:x-9,y:0,z:z-9}}});
  const v=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
- const arrow=cue({kind:'ranged-release',visual:'launch',proof:'authority-action-not-hit',
+ const arrow=cue({kind:'ranged-release',visual:'launch',proof:'authority-action',
   actorId:'ranger',targetId:'revenant',from:{x:2,z:2},to:{x:3,z:2}});
  assert.equal(v.emit(arrow),true);
  for(let i=0;i<20;i++)v.advance(.05);
@@ -360,7 +360,7 @@ test('map-backed D04 preview clips projectiles at true stone and suppresses adja
  const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>id==='ranger'?ranger:null,
   getFloorMap:()=>{reads++;return map}});
  const shot=cue({kind:'ranged-release',visual:'launch',audio:'ranged-release',
-  proof:'authority-action-not-hit',actorId:'ranger',targetId:'revenant',
+  proof:'authority-action',actorId:'ranger',targetId:'revenant',
   from:{x:2,z:2},to:{x:7,z:2}});
  assert.equal(stage.emit(shot),true);
  assert.equal(stage.stats().occludedFlights,1);
@@ -393,7 +393,7 @@ test('D04 900ms render stall expires unconfirmed arrow without fabricating arriv
   authored:false,root:{visible:true,position:{x:-7,y:0,z:-7}}};
  const v=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>id==='ranger'?ranger:null});
  const arrow=cue({kind:'ranged-release',visual:'launch',actorId:'ranger',
-  targetId:'revenant',from:{x:2,z:2},to:{x:5,z:2},proof:'authority-action-not-hit'});
+  targetId:'revenant',from:{x:2,z:2},to:{x:5,z:2},proof:'authority-action'});
  assert.equal(v.emit(arrow),true);
  assert.equal(v.stats().instancesByPool.projectile,1);
  v.advance(.016,.9);
