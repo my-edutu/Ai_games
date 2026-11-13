@@ -112,7 +112,7 @@ export function createPhysicalCombatFeedback({
   lastVisualAdvanceStartClock=null;lastVisualAdvanceEndClock=null;
   safeCall(()=>visuals?.reset?.());safeCall(()=>foley?.flush?.());
  }
- function retainReceipt(cue,visual,audio=false,frameId=null,decision=null,submittedWallAt=null){
+ function retainReceipt(cue,visual,audio=false,frameId=null,decision=null,submittedWallAt=null,visualDrawableAtSubmission=null){
   // These are only observation and post-WebGL receipt times. They do NOT
   // certify encoded video PTS, audible sample onset or physical blade contact.
   // renderedMs is a simulation/presentation accumulation, NOT a wall clock.
@@ -164,6 +164,12 @@ export function createPhysicalCombatFeedback({
    scene:cue.sceneKey,renderedMs:Math.round(renderedSeconds*1000),
    intendedDelayMs:Math.round(cue.delay*1000),
    scheduledDelayMs:Math.round(presentationDelay(cue)*1000),visual,audio,frameId,decision,
+   // A cue may legitimately emit HP foley from independently verified damage
+   // while the retained shards remain occluded. Only a positive submitted
+   // drawable-slot witness supports a VISIBLE impact acceptance verdict.
+   // Null is unknown, never an implicit true from an older adapter.
+   visualDrawableAtSubmission:visualDrawableAtSubmission===true?true:
+    visualDrawableAtSubmission===false?false:null,
    observedClockMs,submittedClockMs,
    beforeVisualAdvanceMs,visualAdvanceMs,afterVisualAdvanceToSubmissionMs,
    observationToSubmissionMs:validSubmit?
@@ -469,7 +475,7 @@ export function createPhysicalCombatFeedback({
     if(silentDecision!=='visual-only-submitted')
      safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,silentDecision));
     retainReceipt(item.cue,item.visual,false,frameId,
-     silentDecision,submittedWallClock);
+     silentDecision,submittedWallClock,visualDrawable);
     continue;
    }
    const observedWallAt=observedAtByCueId.get(item.cue.id);
@@ -603,7 +609,7 @@ export function createPhysicalCombatFeedback({
    const audible=!!safeCall(()=>foley?.emit?.(soundCue));
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
-    audible?'delivered':'foley-rejected',submittedWallClock);
+    audible?'delivered':'foley-rejected',submittedWallClock,visualDrawable);
   }
   return released;
  }
