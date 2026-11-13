@@ -4929,7 +4929,9 @@ export function createTowerScene(canvas, settings = {}) {
       coldFloorPolicy.submitted(snapshot);
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
-      world.noteFrameSubmitted?.(snapshot,options);
+      // Only the successfully returned original render owns the old/new
+      // world presentation clock; source packets and stalled RAFs do not.
+      world.noteFrameSubmitted?.(snapshot,options,dt);
       // The source-earned physical gateway is timed from an actual returned
       // Three.js submission, not from a browser receipt or stalled render.
       // Its owned run/floor/tick gate rejects stale and interrupted attempts.
