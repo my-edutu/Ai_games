@@ -29,7 +29,7 @@ import { witnessedAirbornePulse, witnessedGuardianCounterPulse } from './airborn
 import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, guardianExteriorPortraitStandoff, boundedObservedGuardianOrbit } from './guardian-camera-safety.mjs';
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
-import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
+import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
 import { weightedGuardianWorldOcclusion, selectGuardianWorldShoulder, boundedGuardianWorldAngle } from './guardian-world-occlusion.mjs';
@@ -3547,6 +3547,14 @@ export function createTowerScene(canvas, settings = {}) {
           camera.aspect, zoom) : null;
     const realCapLens = sourceEarnedWalk || sourceAirborneWalk || sourceLastStand ||
       sourceGroundedHandoffShot || sourceAirborneHandoffShot;
+    // Prior source-pinned desktop and phone films never kept the actual
+    // BODY and physical old gateway together on the first Floor9 frames.
+    // Let that same proof request a two-subject gaze, never a new viewpoint.
+    const jointThresholdShot = !overview && !options.stale &&
+      !options.reducedMotion && snapshot.lifecycle === 'running' &&
+      (sourceGroundedHandoffShot || sourceAirborneHandoffShot)
+      ? observedEarnedCrossfloorJointShot(snapshot, passage.diagnostics(),
+          climber.group.position, camera.aspect, zoom) : null;
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
       ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot ||
         sourceAirborneHandoffShot ? passage.diagnostics() : null;
@@ -3584,6 +3592,15 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
       focus.lerp(earnedGatewayFocus, realCapLens.focusWeight);
+      if (jointThresholdShot) {
+        // Reuse the current focus vector; no extra camera or render target.
+        // Preserve the ordinary actor/core rescue and manual overview vetoes.
+        const [x,y,z] = jointThresholdShot.focus;
+        const w = jointThresholdShot.focusWeight;
+        focus.x += (x - focus.x) * w;
+        focus.y += (y - focus.y) * w;
+        focus.z += (z - focus.z) * w;
+      }
     }
     const arrivalFraming = liveExit &&
       earnedPassageStage?.stage === 'earned-open'
@@ -3696,6 +3713,12 @@ export function createTowerScene(canvas, settings = {}) {
     // supported successor-floor steps; no hard cut or timeline hold.
     if (groundedHandoffEscort > .04 && !options.reducedMotion)
       cameraRate = Math.max(cameraRate, 3.9 + 4 * groundedHandoffEscort);
+    // The original first Floor9 observation is often AIRBORNE. Previously
+    // its genuine escort had no corresponding camera follow-rate response,
+    // so the visual actor and old threshold separated before the first
+    // completed cold Three.js submission.
+    if (airborneHandoffEscort > .04 && !options.reducedMotion)
+      cameraRate = Math.max(cameraRate, 3.9 + 4 * airborneHandoffEscort);
     if (!overview && !options.reducedMotion && initialized) {
       // Project the real current climber into the camera image from the
       // previous submitted pose. This catches a fast dash, launch or new-floor

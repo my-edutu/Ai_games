@@ -1,4 +1,4 @@
-import { pointFor } from './coordinates.mjs';
+import { pointFor, SCALE } from './coordinates.mjs';
 import { observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
 // Only a real unlocked cap threshold may request this optional camera escort.
 // Pure, source-independent framing veto: never touches authority or input.
@@ -209,6 +209,65 @@ export function observedLiveGuardianLastStandShot(snapshot, lock, aspect, zoom =
     Math.min(1.25, Math.max(.85, zoom)));
   return { sourceTick:snapshot.tick, radius,
     focusWeight:Math.min(.24, .1 + approach * .14), approach, exitX };
+}
+
+
+// One real exterior camera, one physically occupied source doorway, one
+// source-observed body. Previous native 1x footage jumped from the bronze
+// cap to a distant violet shaft while the hero was already on Floor 9.
+// Framing only the gateway OR only the climber makes that seam invisible.
+// This midpoint is a bounded PRESENTATION request, not a camera cut, second
+// renderer, interpolated source pose, or authorization to cross.
+export function observedEarnedCrossfloorJointShot(snapshot, passage, hero, aspect, zoom = 1) {
+  const p = snapshot?.player, gate = passage?.focusPosition;
+  if (snapshot?.lifecycle !== 'running' || snapshot?.stale ||
+      snapshot?.floor !== 9 || snapshot?.theme !== 'void' ||
+      !(p?.health > 0) || !(p.halfHeight > 0) ||
+      passage?.sourceBound !== true || passage.active !== true ||
+      passage.stage !== 'handoff' ||
+      passage.continuousGroundedHandoff !== true ||
+      passage.innerDoorAssemblyVisible !== true ||
+      passage.exteriorMemoryFrameVisible !== false ||
+      passage.runToken !== snapshot.runToken ||
+      passage.floor !== snapshot.floor ||
+      !Number.isSafeInteger(snapshot.tick) ||
+      !Number.isSafeInteger(passage.sourceTick) ||
+      snapshot.tick < passage.sourceTick ||
+      snapshot.tick - passage.sourceTick > 24 ||
+      ![aspect, zoom, snapshot.worldWidth, snapshot.chunkBaseY,
+        p.x, p.y, p.halfHeight, passage.ageSeconds,
+        passage.durationSeconds, hero?.x, hero?.y, hero?.z]
+        .every(Number.isFinite) ||
+      aspect <= 0 || aspect >= 2.5 || zoom <= 0 || zoom > 1.1 ||
+      snapshot.worldWidth <= 0 ||
+      !Array.isArray(gate) || gate.length !== 3 ||
+      !gate.every(Number.isFinite) ||
+      passage.ageSeconds < 0 || passage.durationSeconds <= 0 ||
+      passage.ageSeconds >= passage.durationSeconds) return null;
+  // The animated body must still occupy its REAL mapped game location.
+  // A stale rig, separate level, remote boss or reset cannot drag the shot.
+  const mapped = pointFor(p.x, p.y, snapshot.chunkBaseY,
+    snapshot.worldWidth, 25);
+  if (Math.hypot(hero.x - mapped.x, hero.z - mapped.z) > 3 ||
+      Math.abs(hero.y - mapped.y) > 3) return null;
+  const bodyY = hero.y + p.halfHeight / SCALE;
+  const planar = Math.hypot(hero.x - gate[0], hero.z - gate[2]);
+  const vertical = Math.abs(bodyY - gate[1]);
+  if (planar >= 13 || vertical >= 8) return null;
+  const nearby = Math.min(1, (13 - planar) / 10, (8 - vertical) / 6);
+  const remaining = Math.min(1,
+    (passage.durationSeconds - passage.ageSeconds) /
+    Math.max(.1, passage.durationSeconds - 1.05));
+  const weight = nearby * remaining;
+  if (weight <= .04) return null;
+  // The final camera still follows a single continuous spring: this is only
+  // a small shift in its target, limited by both physical subjects and age.
+  return { sourceTick: snapshot.tick, sourceBound: true,
+    focus: [(hero.x + gate[0]) * .5, (bodyY + gate[1]) * .5,
+      (hero.z + gate[2]) * .5],
+    focusWeight: Math.min(.34, .34 * weight),
+    planarSeparation: planar, verticalSeparation: vertical,
+    limitation: 'Source-body plus original walkable gateway gaze only; native pixels NOT EVALUATED' };
 }
 
 // The SOURCE-verified grounded Floor8→9 passage outlives the old floor's
