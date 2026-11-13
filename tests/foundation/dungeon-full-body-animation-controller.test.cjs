@@ -28,7 +28,7 @@ test('original deeply buried swing toe uses a bounded frame-aware source ankle s
   'ordinary source animation frames retain the prior 80mrad joint slew');
  assert.ok(Math.abs(plan({...witnessed,frameInterval:.35})-.16)<.000001,
   'even severe original-source frame sparsity cannot exceed 160mrad in one sample');
- assert.ok(Math.abs(plan({...witnessed,frameInterval:.14,toeWorldY:-.036})-.08)<.000001,
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.14,toeWorldY:-.036,trialToeWorldY:-.010})-.08)<.000001,
   'a shallow toe intrusion cannot request the faster deep-swing envelope');
  assert.ok(Math.abs(plan({...witnessed,frameInterval:.14,sourceWeight:.8})-.08)<.000001,
   'partly owned source clips cannot get the faster ankle envelope');
