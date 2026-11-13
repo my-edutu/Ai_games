@@ -102,6 +102,71 @@ export function createFogAwareWaterPlane(THREE, extent, boardWidth, boardHeight)
   return surface;
 }
 
+
+/**
+ * Four genuine tidal waterfalls, built once at the same physical ledges as
+ * the original collapsed limestone. Their upper faces sit on tier-zero ruin
+ * coping; the next two courses descend to the ACTUAL existing -3.62 lake.
+ * All four replace the two flat floating waterfall strips in the same live
+ * waterfall draw object and reuse the existing animated water-field texture.
+ * In particular, no extra mesh, material, texture, full-frame shader pass,
+ * gameplay collider, portal connection, or GPU buffer upload per tick.
+ * This is original authored presentation geology, not AI event data.
+ */
+export function buildNativeFourShoreWaterfallGeometry(THREE,width,height) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) ||
+      width<2 || height<2 || width>2048 || height>2048)
+    throw new RangeError('Native waterfall courses require bounded real board geometry');
+  const rows=10, mouths=4, positions=new Float32Array(mouths*rows*2*3);
+  const uvs=new Float32Array(mouths*rows*2*2);
+  const indices=new Uint16Array(mouths*(rows-1)*6);
+  const roots=[.54,.29,.43,.70],sealevel=-3.62;
+  for(let edge=0;edge<mouths;edge++) {
+    const along=roots[edge]*(edge<2?width+2:height+2);
+    // Existing actual THREE-dimensional masonry courses, including each
+    // true cape, inlet and independently broken/stepped ruin block.
+    const stones=[0,1,2].map(tier=>sculptCoastCourse(width,height,edge,tier,along));
+    const outward=edge===0?{x:0,z:-1}:edge===1?{x:0,z:1}:edge===2?{x:-1,z:0}:{x:1,z:0};
+    const cross={x:-outward.z,z:outward.x};
+    const upper=stones[0].y+stones[0].sy*.5+.045;
+    const middle=Math.min(upper-.25,Math.max(-3.46,stones[1].y+stones[1].sy*.5+.045));
+    const ends=[{x:stones[0].x,z:stones[0].z,y:upper},
+      {x:stones[1].x,z:stones[1].z,y:middle},
+      {x:stones[2].x,z:stones[2].z,y:sealevel+.03},
+      {x:stones[2].x+outward.x*1.25,z:stones[2].z+outward.z*1.25,y:sealevel+.03}];
+    for(let row=0;row<rows;row++) {
+      const t=row/(rows-1),segment=Math.min(2,Math.floor(t*3)),u=t*3-segment;
+      const from=ends[segment],to=ends[segment+1];
+      const x=from.x+(to.x-from.x)*u,z=from.z+(to.z-from.z)*u;
+      const y=from.y+(to.y-from.y)*u;
+      // Subtle uneven width where rushing water is squeezed by actual rock;
+      // visible real water remains entirely OUTSIDE all playable cell centres.
+      const halfWidth=(.39+.10*t+.035*Math.sin(t*Math.PI*2+edge))*(1-.19*Math.sin(t*Math.PI));
+      for(let side=0;side<2;side++) {
+        const v=edge*rows*2+row*2+side,offset=v*3;
+        const span=(side===0?-1:1)*halfWidth;
+        positions[offset]=x+cross.x*span;
+        positions[offset+1]=y;
+        positions[offset+2]=z+cross.z*span;
+        uvs[v*2]=side;
+        uvs[v*2+1]=t*1.8;
+      }
+      if(row<rows-1) {
+        const v=edge*rows*2+row*2,i=(edge*(rows-1)+row)*6;
+        indices[i]=v;indices[i+1]=v+1;indices[i+2]=v+2;
+        indices[i+3]=v+1;indices[i+4]=v+3;indices[i+5]=v+2;
+      }
+    }
+  }
+  const combined=new THREE.BufferGeometry();
+  combined.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  combined.setAttribute('uv',new THREE.BufferAttribute(uvs,2));
+  combined.setIndex(new THREE.BufferAttribute(indices,1));
+  combined.computeVertexNormals();
+  combined.computeBoundingSphere();
+  return combined;
+}
+
 export function bakeWaterEdgeGeometry(THREE, source, transforms) {
   const p = source.getAttribute('position'), n = source.getAttribute('normal'), uv = source.getAttribute('uv');
   if (!p || !n || !uv || !Array.isArray(transforms) || !transforms.length) throw new Error('Water edge bake needs indexed visual geometry and transforms');
@@ -1668,17 +1733,13 @@ export function createWorld(THREE, {width, height}) {
   const foamShape=new THREE.TorusGeometry(1,.025,3,28);
   const foam=new THREE.Mesh(geometry(bakeWaterEdgeGeometry(THREE,foamShape,foamTransforms)),foamMat);
   foamShape.dispose();foam.name='Baked live foam contours';group.add(foam);
-  const fallMat=material({color:0x95d8c3,transparent:true,opacity:.57,roughness:.25,metalness:.15,side:THREE.DoubleSide,depthWrite:false});
-  const fallTransforms=[];
-  for(const x of [-W-1.5,W+1.5]){
-    edgePose.position.set(x,-2.2,-H+3);
-    edgePose.rotation.set(0,x<0?-.5:.5,0);
-    edgePose.scale.set(1,1,1);
-    edgePose.updateMatrix();fallTransforms.push(edgePose.matrix.clone());
-  }
-  const fallShape=new THREE.PlaneGeometry(.43,2.35,3,1);
-  const falls=new THREE.Mesh(geometry(bakeWaterEdgeGeometry(THREE,fallShape,fallTransforms)),fallMat);
-  fallShape.dispose();falls.name='Baked live edge falls';group.add(falls);
+  // Preserve the original ONE live fall mesh and original flowing-water map.
+  // Its four truly stepped shore courses replace two unsupported flat panels.
+  // Shared texture scrolling affects only the standard-material waterfall UV;
+  // the original sea shader still samples its own animated world-coordinate UV.
+  const fallMat=material({color:0xdffaf2,map:waterMap,transparent:true,opacity:.72,roughness:.25,metalness:.15,side:THREE.DoubleSide,depthWrite:false});
+  const falls=new THREE.Mesh(geometry(buildNativeFourShoreWaterfallGeometry(THREE,width,height)),fallMat);
+  falls.name='Baked live edge falls';group.add(falls);
   // Bounded gameplay pools. Every occupied cell can be represented without reallocating.
   const capacity=width*height;
   function pool(g,m,n=capacity){const mesh=new THREE.InstancedMesh(g,m,n);mesh.count=0;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;}
@@ -1744,6 +1805,9 @@ export function createWorld(THREE, {width, height}) {
   function update(snapshot,{time=0,reducedMotion=false}={}){
     if(disposed)return;
     waterMaterial.uniforms.time.value=reducedMotion?0:time;
+    // One existing texture transform animates all four true cliff-fed falls.
+    // Respect reduced motion; no per-frame geometric rebuild or allocation.
+    fallMat.map.offset.y= reducedMotion?0:time*.13;
     // Only fields used by the geometry belong in these signatures. Public
     // hazard phase advances every tick even when its visible state is unchanged.
     const stableSignature=JSON.stringify([snapshot.obstacles||[],(snapshot.portals||[]).map(pair=>[pair.entry,pair.exit])]);

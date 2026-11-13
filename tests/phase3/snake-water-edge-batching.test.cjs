@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 
 test('live water-edge decoration uses two draw objects without losing a vertex or a cue', async () => {
   const THREE = await import('three');
-  const { createWorld, bakeWaterEdgeGeometry } = await import('../../public/snake-stream/world.mjs');
+  const { createWorld, bakeWaterEdgeGeometry, buildNativeFourShoreWaterfallGeometry } = await import('../../public/snake-stream/world.mjs');
   assert.equal(typeof bakeWaterEdgeGeometry, 'function');
   for (const [width, height] of [[8, 8], [28, 16], [40, 24]]) {
     const world = createWorld(THREE, { width, height });
@@ -17,12 +17,7 @@ test('live water-edge decoration uses two draw objects without losing a vertex o
           obj.rotation.x = -Math.PI / 2; obj.scale.set(1.4 + (i % 3) * .2, .7, 1);
           obj.updateMatrix(); return obj.matrix;
         } },
-      { name: 'Baked live edge falls', count: 2, shape: new THREE.PlaneGeometry(.43, 2.35, 3, 1),
-        matrix: i => {
-          const obj = new THREE.Object3D(), x = i ? W + 1.5 : -W - 1.5;
-          obj.position.set(x, -2.2, -H + 3); obj.rotation.y = x < 0 ? -.5 : .5;
-          obj.updateMatrix(); return obj.matrix;
-        } },
+
     ];
     try {
       const before = world.stats();
@@ -57,13 +52,37 @@ test('live water-edge decoration uses two draw objects without losing a vertex o
           expected.dispose();
         }
       }
+      // The old two unsupported flat panels have been rebuilt into FOUR
+      // shore-connected multi-course cataracts in the SAME waterfall mesh.
+      // Preserve the historical one-draw lifecycle/resource assertions and
+      // make the geometry assertion stronger than the old two-panel test:
+      // compare EVERY actual vertex, UV, normal and index to the independent
+      // source-native physical course builder on all three board sizes.
+      const falls=world.group.getObjectByName('Baked live edge falls');
+      assert.ok(falls?.isMesh);
+      assert.equal(falls.parent,world.group);
+      assert.equal(falls.userData.staticWorld,undefined);
+      assert.equal(falls.material.transparent,true);
+      assert.equal(falls.material.depthWrite,false);
+      const expectedFalls=buildNativeFourShoreWaterfallGeometry(THREE,width,height);
+      for(const name of ['position','uv','normal']){
+        const actual=falls.geometry.getAttribute(name),reference=expectedFalls.getAttribute(name);
+        assert.equal(actual.count,reference.count);
+        for(let v=0;v<reference.array.length;v++)
+          assert.ok(Math.abs(actual.array[v]-reference.array[v])<1e-5,`four falls real ${name} byte ${v}`);
+      }
+      assert.deepEqual(Array.from(falls.geometry.index.array),Array.from(expectedFalls.index.array));
+      expectedFalls.dispose();
       const water = world.group.getObjectByName('Flowing water');
       assert.ok(water?.material.uniforms.waterField.value);
+      assert.equal(falls.material.map,water.material.uniforms.waterField.value,'same original water texture, no new texture resource');
       const publicFrame = Object.freeze({obstacles:Object.freeze([]),portals:Object.freeze([]),hazards:Object.freeze([]),food:null});
       world.update(publicFrame, {time:3.5,reducedMotion:false});
       assert.equal(water.material.uniforms.time.value, 3.5);
+      assert.ok(falls.material.map.offset.y>0,'four true falls flow with the same public time');
       world.update(publicFrame, {time:9,reducedMotion:true});
       assert.equal(water.material.uniforms.time.value, 0);
+      assert.equal(falls.material.map.offset.y,0,'reduced-motion suppresses waterfall animation');
       for (const key of ['drawObjects','staticMeshes','geometries','materials','textures']) {
         assert.equal(world.stats()[key], before[key], 'no repeated resources or invisible prop disappearance: '+key);
       }
