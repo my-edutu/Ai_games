@@ -329,3 +329,65 @@ test('real old bronze arch and cap remain the SAME GPU objects when source advan
     assert.equal(JSON.stringify([previous,first,later]),frozen);
   }finally{world.dispose();}
 });
+
+
+test('three authentic crossing clocks preserve original doorway, warm horizon witness, and structural deferral after delayed first GPU render',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const oldFrame=old(), first=next();
+  first.tick=454;
+  const crossing={
+    runToken:oldFrame.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+    cap,exitX:gate,crossingX:gate+13000,crossingY:body.y,
+    halfWidth:body.halfWidth,halfHeight:body.halfHeight,
+    guardian:oldFrame.enemies[0],
+  };
+  first.lastGuardianCrossing=crossing;
+  const realFirstRender={...first,tick:460,player:{...first.player,x:gate+19000}};
+  const frozen=JSON.stringify([oldFrame,first,realFirstRender]);
+  const passage={sourceBound:true,active:true,stage:'handoff',
+    continuousGroundedHandoff:true,innerDoorAssemblyVisible:true,
+    exteriorMemoryFrameVisible:false,runToken:first.runToken,
+    floor:9,sourceTick:454,handoffSubmittedFrames:0,
+    handoffDisplaySeconds:0,handoffVisibleWindowSeconds:1.65};
+  const {observedSourceEarnedColdFrameContinuation:cold,
+    observedClockworkRoofContinuity:roof}=await import(uri('crossfloor-arrival.mjs'));
+  const world=createTowerWorld();
+  try{
+    world.update(oldFrame,.05,0,{quality:'low'});
+    const originalArch=world.group.getObjectByName('AuthoritativeGuardianGate');
+    const originalRoof=world.group.getObjectByName('platform:f8:cap');
+    assert.ok(originalArch && originalRoof);
+    assert.equal(world.stageGroundedCapContinuation(oldFrame,first),true);
+    world.update(realFirstRender,.05,.05,{quality:'low'},passage);
+    const retained=world.diagnostics().retainedSourceCap;
+    assert.ok(retained);
+    assert.equal(retained.crossingTick,451,'recorded authoritative grounded contact');
+    assert.equal(retained.sourceTick,454,'browser-accepted successor belongs to passage');
+    assert.equal(retained.firstObservedTick,454);
+    assert.equal(retained.firstWorldRenderTick,460,'real WebGL rebuild may lag browser');
+    assert.equal(retained.pendingSourceTickGap,6);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
+    assert.equal(world.group.getObjectByName('platform:f8:cap'),originalRoof);
+    assert.equal(world.group.getObjectByName('platform:f9:ground')?.isGroup,true);
+    assert.equal(roof(realFirstRender,passage,retained),true,
+      'retained architecture must recognize the SAME passage observation');
+    assert.ok(world.retainedFilmHandoff(realFirstRender),
+      'warm horizon must receive original recorded HP-zero crossing clock');
+    assert.equal(cold(realFirstRender,world.retainedFilmHandoff(realFirstRender)),true);
+    assert.equal(world.diagnostics().deferredDistantArrival?.structureDeferred,true);
+    world.noteFrameSubmitted(realFirstRender,{});
+    const later={...realFirstRender,tick:461};
+    world.update(later,.05,.1,{quality:'low'},
+      {...passage,handoffSubmittedFrames:1,handoffDisplaySeconds:.05});
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,
+      'awaiting-actual-first-render',
+      'the new opaque monumental shaft cannot replace the original first doorway');
+    assert.equal(world.diagnostics().vistaLayers,0);
+    assert.equal(JSON.stringify([oldFrame,first,realFirstRender]),frozen);
+    assert.equal(cold({...realFirstRender,runToken:'other'},
+      world.retainedFilmHandoff(realFirstRender)),false);
+    assert.equal(cold({...realFirstRender,lastGuardianCrossing:{
+      ...crossing,sourceTick:450}},world.retainedFilmHandoff(realFirstRender)),false);
+  }finally{world.dispose();}
+});

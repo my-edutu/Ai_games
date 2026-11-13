@@ -113,8 +113,10 @@ export function observedSourceEarnedColdFrameContinuation(source, held) {
       source.theme!=='void' || source.runToken!==held.runToken ||
       w.runToken!==held.runToken || held.floor!==9 ||
       w.fromFloor!==8 || w.toFloor!==9 ||
-      w.sourceTick!==held.sourceTick ||
-      !Number.isSafeInteger(source.tick) ||
+      w.sourceTick!==held.crossingTick ||
+      !Number.isSafeInteger(held.sourceTick) ||
+      held.sourceTick<w.sourceTick || held.sourceTick-w.sourceTick>12 ||
+      !Number.isSafeInteger(source.tick) || source.tick<held.sourceTick ||
       !Number.isSafeInteger(w.sourceTick) ||
       source.tick<w.sourceTick || source.tick-w.sourceTick>48 ||
       !Number.isSafeInteger(held.submittedFrames) ||
@@ -207,7 +209,9 @@ export function holdIncomingStructuralShell(source,passage,held,job) {
       job.proof!=='recorded-source-gateway' ||
       job.runToken!==source?.runToken || job.floor!==source?.floor ||
       !Number.isSafeInteger(job.sourceTick) ||
-      job.sourceTick!==held?.sourceTick ||
+      // The deferral was scheduled by the ACTUAL first rebuilt 3D frame,
+      // not by the earlier browser observation or the HP-zero source tick.
+      job.sourceTick!==held?.firstWorldRenderTick ||
       !Number.isSafeInteger(job.submittedFrames) ||
       job.submittedFrames<1 || job.submittedFrames>=5 ||
       held.submittedFrames>=5 || held.visibleSeconds>=.55) return false;

@@ -2129,7 +2129,12 @@ export function createTowerWorld(){
       originalDeckSurface:bronzeSurface,
       originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
-      runToken:next.runToken,floor:next.floor,sourceTick:next.tick,
+      // Distinct clocks: immutable HP-zero crossing, first browser-accepted
+      // successor, and first actually rebuilt WebGL successor. Previously
+      // sourceTick was overwritten with the last one, so BOTH authentic
+      // crossing and original passage validators rejected retained geometry.
+      runToken:next.runToken,floor:next.floor,sourceTick:requested.tick,
+      crossingTick:requested.crossingTick,
       thresholdX:requested.thresholdX,oldRoofY:requested.oldRoofY,
       oldCapId:requested.oldCapId,oldCapX:requested.oldCapX,
       oldCapWidth:requested.oldCapWidth,
@@ -3070,6 +3075,7 @@ export function createTowerWorld(){
     const held=retainedEarnedCap;
     return observedSourceEarnedColdFrameContinuation(snapshot,held)
       ? {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
+        crossingTick:held.crossingTick,
         thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
         oldCapId:held.oldCapId,oldCapX:held.oldCapX,
         oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
@@ -3089,6 +3095,7 @@ export function createTowerWorld(){
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
       sourceTick:retainedEarnedCap.sourceTick,
+      crossingTick:retainedEarnedCap.crossingTick,
       firstObservedTick:retainedEarnedCap.firstObservedTick,
       firstWorldRenderTick:retainedEarnedCap.firstWorldRenderTick,
       pendingSourceTickGap:retainedEarnedCap.firstWorldRenderTick-

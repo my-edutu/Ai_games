@@ -1,4 +1,25 @@
 {
+  "p0UnifiedThreeSourceRenderClocks20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "implementation": "three distinct immutable source/display clocks for one physical crossing; original GPU roof + arch retention, clock-aligned warm biome and delayed opaque shaft",
+    "sourceHeadBeforeChange": "c943e5d2d5284201f97c9ef92bda2e374f4a859e",
+    "lastOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43361396160",
+    "lastExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/43361396263 — FAILED",
+    "actualFootage": "Existing exact-source 60+s desktop and portrait real film still visually hard-cuts bronze F8 to violet F9 despite real crossing tick451; previous native acceptance 0/2; newly changed code has no accepted native film",
+    "suspectedRootCause": "The real guardian crossing tick, browser-accepted passage tick, and first WebGL rebuild tick were incorrectly conflated; authentic cold-frame, passage and deferred shell validators rejected different legitimate clocks",
+    "targetedVerification": "New full real-Three object identity, clock continuity, cold horizon, deferred shell and wrong-crossing/wrong-run tests; exact-head CI and new native capture PENDING after commit",
+    "nextHighestImpactAction": "Inspect new source-pinned 60+s normal-speed native desktop/portrait guardian frames and actual GPU arch alongside source events; if hard cut remains rebuild shared physical depth/camera, certify full floor9 onward and outcome/restart",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realHardware": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-three-clock-physical-doorway-handoff.md",
+    "safety": "No merge, deployment, force push, baseline modification, PR58 edits, unrelated games or draft conversion"
+  },
   "p0QueuedOriginalGpuCapFirstFrameSourceRace20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
