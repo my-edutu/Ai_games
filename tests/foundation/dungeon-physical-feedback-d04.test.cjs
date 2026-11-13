@@ -429,3 +429,44 @@ test('D04 slow-frame attribution fails closed for clock regressions and is bound
   assert.equal(s.verifiedSubmissionPhaseFrames,MAX_RECENT_SLOW_SUBMISSION_PHASES+7);
  }finally{c.dispose()}
 });
+
+
+test('D04 slow-phase evidence includes real cue admission after the retained visual advance',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ let now=0;
+ const emitted=[];
+ const visuals={
+  advance(){now+=.020},
+  emit(cue){emitted.push(cue);now+=.060;return true},
+  reset(){},dispose(){},stats(){return {active:0}},
+  hasLiveCue(){return true},hasDrawableCue(){return true}
+ };
+ const audio={enable(){return true},emit(){return false},disable(){},
+  flush(){},cleanup(){},dispose(){},stats(){return {activeVoices:0}}};
+ const c=createPhysicalCombatFeedback({visualAdapter:visuals,audioAdapter:audio,
+  requirePresentedFrame:true,clock:()=>now});
+ try{
+  assert.equal(c.enableAudioFromGesture(),true);
+  c.acceptSnapshot(snap(10));
+  now=.010;
+  c.acceptSnapshot(snap(11,{units:[hero({action:'attack',actionTick:11}),foe()]}));
+  now=.020;c.advance(.016,.016);
+  assert.deepEqual(emitted.map(x=>x.kind),['swing'],
+   'only an actual public attempted action stages the emitted cue');
+  assert.equal(emitted[0].proof,'authority-attempt-not-hit');
+  assert.equal(emitted[0].targetId,null,
+   'a swing admission must not invent a damaged victim');
+  now=.160;c.acknowledgePresentedFrame(1,.020);
+  const phase=c.stats().recentSlowSubmissionPhases[0];
+  assert.ok(phase,'genuine slow submission should be retained');
+  assert.equal(phase.advanceToSubmissionMs,140);
+  assert.equal(phase.d04VisualAdvanceMs,80,
+   '20ms pooled aging AND 60ms actual effect emission belong to D04');
+  assert.equal(phase.afterVisualToSubmissionMs,60,
+   'already-charged D04 emission must not be blamed on non-D04 work');
+  assert.equal(phase.beforeRendererMs,40);
+  assert.equal(phase.rendererMs,20);
+  assert.equal(c.stats().audioAccepted,0,
+   'a staged sword attempt alone does not authorize an audible impact');
+ }finally{c.dispose()}
+});
