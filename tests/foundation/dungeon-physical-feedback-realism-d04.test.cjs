@@ -865,3 +865,53 @@ test('D04 visible HP body must match the unique current public injury witness be
    'valid current body remains drawable after invalid snapshots');
  }finally{stage.dispose()}
 });
+
+
+test('D04 removes an orphaned trail draw call immediately when pool priority preempts its only measured blade',async()=>{
+ const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const actors=new Map();
+ const makeActor=id=>{
+  const hand={isBone:true,world:{x:-6.8,y:1.2,z:-7},
+   updateWorldMatrix(){},getWorldPosition(out){return out.set(this.world.x,this.world.y,this.world.z)}};
+  const actor={u:{id,kind:'vanguard',faction:'party',x:2,z:2,
+   hp:30,action:'attack',actionTick:11},
+   authored:true,rigMeleeBones:[{part:'wrist',bone:hand}],
+   root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+  actors.set(id,actor);return actor;
+ };
+ const stage=createPhysicalFeedbackVisuals(T,scene,{actorById:id=>actors.get(id)});
+ const swing=(id,priority)=>cue({id:'1:1:11:swing:'+id+':-',
+  kind:'swing',visual:'trail',audio:'whoosh',
+  proof:'authority-attempt-not-hit',actorId:id,targetId:null,
+  from:{x:2,z:2},to:null,priority,duration:.35});
+ try{
+  const first=makeActor('blade-0');
+  assert.equal(stage.emit(swing('blade-0',1)),true);
+  for(let i=1;i<PHYSICAL_FEEDBACK_POOL_LIMITS.trail;i++){
+   const id='blade-'+i;makeActor(id);
+   assert.equal(stage.emit(swing(id,2)),true);
+  }
+  assert.equal(stage.stats().activeDrawCalls,0,'no animated wrist means no visible sword trail');
+  first.rigMeleeBones[0].bone.world.x+=.15;
+  stage.advance(.016,.016);
+  assert.equal(stage.hasDrawableCue(swing('blade-0',1).id),true);
+  assert.equal(stage.stats().activeDrawCalls,1,'one witnessed sword passage is drawable');
+  makeActor('replacement');
+  assert.equal(stage.emit(swing('replacement',3)),true,
+   'a higher-priority attempted swing replaces the weakest live trail slot');
+  assert.equal(stage.hasDrawableCue(swing('blade-0',1).id),false,
+   'preempted blade cannot certify an old whoosh');
+  assert.equal(stage.hasDrawableCue(swing('replacement',3).id),false,
+   'replacement starts hidden until its own observed wrist movement');
+  assert.equal(stage.stats().activeDrawCalls,0,
+   'a mesh with only hidden replacement trails must not remain a live WebGL draw call');
+  stage.advance(.016,.016);
+  assert.equal(stage.stats().activeDrawCalls,0,'idle hidden trails stay free of draw submissions');
+  const replacement=actors.get('replacement');
+  replacement.rigMeleeBones[0].bone.world.x+=.15;
+  stage.advance(.016,.016);
+  assert.equal(stage.hasDrawableCue(swing('replacement',3).id),true);
+  assert.equal(stage.stats().activeDrawCalls,1,'a later independent wrist passage restores drawing');
+ }finally{stage.dispose()}
+});
