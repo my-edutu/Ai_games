@@ -1,4 +1,28 @@
 {
+  "p0ActualSourceNativeF9CutAndParallelCiVeto20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreRunHead": "49e398f9938c8d80704021236455a5e4c2a0bcbe",
+    "exactNativeSourceSha": "c6c75092efb9e6a8cf8d0b01896b72823233a191",
+    "originalNativeEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/43351994917",
+    "originalVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43351994917/artifacts/14004487385",
+    "actualFilmObservation": "Original candidate danger desktop 960x600 and portrait 390x844 1x native videos inspected in 22.0-30.8s motion: hard bronze Floor8->violet Floor9 cut at ~24.4-25.2s; no accepted continuous full-body old door walk, strict 0/2",
+    "exactSourceWitness": "Source HP0 tick451. Desktop sampled F9 tick465 real old bronze cap/arch retained, tick485 retired while handoff still active. Portrait sampled F9 tick460 handoff active but original GPU arch retention NULL. This contradicts treating verified game source or GPU-submission diagnostic as film quality.",
+    "verifiedBlocker": "Exact-head 49e398f... quality https://github.com/my-edutu/Ai_games/actions/runs/43353852391 FAILED external runner shutdown after test #616 before remaining full catalogue. Repeated same-job isolation insufficient.",
+    "implementationCommit": "d846ba7f800864e6e3c42e857c02093c0478b6dd",
+    "meaningfulOutcome": "Replaced one long combined catalogue test step with nine independent bounded real Node/build jobs exhaustively covering original npm test foundation and phase2-6 test files. Failures/timeouts/empty shards still veto. Unchanged source gameplay, no fabricated capture.",
+    "newQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43356084652 — queued at write, not verified",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-native-f9-seam-and-independent-ci-veto.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Review exact new CI partitions. Then address portrait missing GPU arch and desktop too-early arch retirement via one source-authorized world+camera depth/occlusion and physical crossing design, recapture 60+s 2/2 real viewport events, full result/restart, matched frozen baseline and independent actual-device/critic gates.",
+    "safety": "Draft PR68 over PR58, no baseline move, no other-game edits, no merge/deploy/force-push/draft promotion"
+  },
   "p0NativeFirstFrameIntegrationCiVeto20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
