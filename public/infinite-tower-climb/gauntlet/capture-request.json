@@ -1,5 +1,27 @@
 {
-  "p0ColdSourceBackedFirstGpuFrameCapture20261113": {
+  "p0NativeFirstFrameIntegrationRecapture20261113": {
+    "stage": "P0 original normal-speed source-pinned GPU frame capture — no acceptance",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "meaningfulCodeSha": "07d4e6e33372606b75ea93a462270b7cde6e9ac7",
+    "exactHeadIntegrationFix": "8caa5314e27564fceb2e17f3f8530d5f6387dec5",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit",
+    "baselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalSourceSeed": "tower-transformation-capture-v1",
+    "required": "Same low-tier original 20Hz source, original 1x true WebM at least 60s each: 8 matched baseline and candidate scenes ascent/moving/danger/outcome, each desktop 960x600 portrait 390x844, plus independent pair-source-events job; capture authentic event/native pixel clock integrity",
+    "criticalVisibleGate": "Old real bronze guardian cap+open arch and true whole-body grounded Floor8-to-Floor9 crossing must be seen continuously in unmodified native desktop and portrait, not a violet cut; verify first delayed F9 tick477/483, body sourced from same run, <=48tick original crossing, <=3 submitted frames, source-valid old platform footprint and smoothing light; no fake source/clip claims.",
+    "lastOriginalFullRun": "https://github.com/my-edutu/Ai_games/actions/runs/43348491817 — original native strict 0/2; previous code only",
+    "technicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/43351760860 — pending, no green claim",
+    "review": "docs/reviews/2026-11-13-tower-pr68-cold-first-frame-source-gateway-retention.md",
+    "independentRandomBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceFrameMemory": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "safety": "Same draft PR68, immutable baseline unchanged; no PR58 rewrite, merge, deploy, forcepush or other game edits"
+  },
+"p0ColdSourceBackedFirstGpuFrameCapture20261113": {
     "stage": "P0 source-authentic cold first frame / no acceptance",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
     "productionCodeSha": "07d4e6e33372606b75ea93a462270b7cde6e9ac7",
