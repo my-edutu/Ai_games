@@ -25,9 +25,9 @@ test('actual supported climber and original source-earned bronze gate delay cold
  const s=specimen();
  assert.equal(observedClockworkRoofContinuity(s.source,s.passage,s.held),true);
  assert.equal(holdIncomingStructuralShell(s.source,s.passage,s.held,s.job),true);
- assert.equal(holdIncomingStructuralShell(s.source,s.passage,s.held,{...s.job,submittedFrames:5}),false);
- assert.equal(holdIncomingStructuralShell(s.source,s.passage,{...s.held,visibleSeconds:.55},s.job),false);
- assert.equal(holdIncomingStructuralShell(s.source,s.passage,{...s.held,submittedFrames:5},s.job),false);
+ assert.equal(holdIncomingStructuralShell(s.source,s.passage,s.held,{...s.job,submittedFrames:10}),false);
+ assert.equal(holdIncomingStructuralShell(s.source,s.passage,{...s.held,visibleSeconds:1.25},s.job),false);
+ assert.equal(holdIncomingStructuralShell(s.source,s.passage,{...s.held,submittedFrames:10},s.job),false);
 });
 test('mismatched run, time, support, roof, source stage, or later floor cannot prolong old architecture',async()=>{
  const {observedClockworkRoofContinuity,holdIncomingStructuralShell}=await loaded;
@@ -35,7 +35,7 @@ test('mismatched run, time, support, roof, source stage, or later floor cannot p
   const q={...s,[who]:{...s[who],...over}};
   return observedClockworkRoofContinuity(q.source,q.passage,q.held)};
  assert.equal(f({runToken:'another-run'}),false);
- assert.equal(f({tick:500}),false);
+ assert.equal(f({tick:503}),false);
  assert.equal(f({floor:10}),false);
  assert.equal(f({theme:'clockwork'}),false);
  assert.equal(f({lifecycle:'intermission'}),false);
@@ -59,8 +59,8 @@ test('source continuity makes no changes to immutable gameplay records',async()=
  const before=JSON.stringify(s);
  assert.equal(observedClockworkRoofContinuity(s.source,s.passage,s.held),true);
  assert.equal(JSON.stringify(s),before);
- assert.equal(observedClockworkRoofContinuity({...s.source,tick:499},s.passage,s.held),true);
- assert.equal(observedClockworkRoofContinuity({...s.source,tick:500},s.passage,s.held),false);
+ assert.equal(observedClockworkRoofContinuity({...s.source,tick:502},s.passage,s.held),true);
+ assert.equal(observedClockworkRoofContinuity({...s.source,tick:503},s.passage,s.held),false);
 });
 
 test('original cap contact survives a genuinely late first F9 browser frame, never invents a F9 platform',async()=>{
