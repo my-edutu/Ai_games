@@ -982,7 +982,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
 
  /**
-  * A timed-out WebGL submission may have drawn an old transient for the
+  * A timed-out or clock-unverified WebGL submission may have drawn an old transient for the
   * duration of the stall. Remove its retained GPU slots BEFORE any later
   * frame can re-display that ghost. This is a presentation cleanup only:
   * never mutate authority, claim an impact, or revoke a still-authoritative
@@ -992,7 +992,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function retireStaleCue(cueId,reason){
   if(disposed||typeof cueId!=='string'||!cueId||
    !['stale-frame','expired-visual','unverified-frame',
-     'revoked-drawn-swing-pose','revoked-drawn-body-pose'].includes(reason))return 0;
+     'revoked-drawn-swing-pose','revoked-drawn-body-pose',
+     'visual-submission-unverified'].includes(reason))return 0;
   let retired=0;
   for(const pool of pools.values()){
    let dirty=false;
