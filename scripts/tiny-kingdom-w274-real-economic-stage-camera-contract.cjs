@@ -15,7 +15,7 @@ const trace={producer:'Bram',deliveryId:null};
 let stage='harvesting',verified=false,receipt=false,meal=false;
 const events=[],chips=Object.fromEntries(['field','road','market','purchase','meal']
  .map(s=>[s,{dataset:{inspecting:'false'}}]));
-const ctx={people,grainJourney:trace,state:{householdTrades:[],householdMeals:[]},
+const ctx={people,grainJourney:trace,supplyTrailOpen:false,state:{householdTrades:[],householdMeals:[]},
  deliveryReceipts:[],city:[[0,0,0]],selectedCitizen:0,follow:true,streetWalk:false,
  presentationEpoch:0,lastFollowShot:null,liveShotPlanCache:null,
  getSupplyTrailSnapshot:()=>({}),realGrainChainStages:()=>({stages:{

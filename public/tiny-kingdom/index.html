@@ -1240,6 +1240,47 @@ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden])
  }
 }
 
+
+/* W277 Phase 1 authentic world-first economic field of view. W276 real
+   1024px gameplay exposed a 720px-wide, six-receipt document over an active
+   medieval town; those RECEIPTS and the five real physical camera actions
+   remain intact but no longer cover the scene by default on desktop. A player
+   can expand the same genuine evidence and collapse it without time travel,
+   teleportation, new inventory, hidden citizens or a second rendered world. */
+body[data-command="world"][data-supply="open"] #grain-chain-details{
+ display:block!important;min-height:44px;border:1px solid #cdb68b;
+ border-radius:8px;background:#2b4b3d;color:#f7e5c3;
+ font:700 11px/1.3 system-ui;padding:8px 12px;cursor:pointer;
+}
+body[data-command="world"][data-supply="open"] #grain-chain-details:focus-visible{
+ outline:3px solid #f4da9b;outline-offset:2px;
+}
+body[data-command="world"][data-supply="open"][data-supply-details="closed"]
+ #world-supply-trail>.supply-stage{display:none!important}
+@media(min-width:791px){
+ body[data-command="world"][data-supply="open"]:not([data-hud="cinema"]):not([data-street="on"]):not([data-workday="live"]):not([data-workday="homecoming"]) #world-ribbon{
+  position:fixed!important;top:auto!important;bottom:74px!important;
+  left:auto!important;right:12px!important;transform:none!important;
+  display:flex!important;flex-wrap:wrap!important;
+  width:min(424px,calc(100vw - 24px))!important;
+  max-width:min(424px,calc(100vw - 24px))!important;
+  max-height:min(44vh,286px)!important;min-height:52px!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  align-content:flex-start!important;white-space:normal!important;
+  gap:5px!important;padding:8px!important;
+ }
+ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden]){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:5px!important;
+ }
+ body[data-command="world"][data-supply="open"] #world-trace-follow{
+  grid-column:auto!important;min-height:44px!important;
+ }
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"]:not([data-hud="cinema"]):not([data-street="on"]):not([data-workday="live"]):not([data-workday="homecoming"]) #world-ribbon{
+  max-height:min(42vh,275px)!important;
+ }
+}
+
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -23466,7 +23507,7 @@ function updateSupplyTrail(force=false){
 function toggleSupplyTrail(){
  supplyTrailOpen=!supplyTrailOpen;
  if(supplyTrailOpen)
-  setSupplyTrailDetails(!window.matchMedia('(max-width: 520px)').matches);
+  setSupplyTrailDetails(false);
  document.body.dataset.supply=supplyTrailOpen?'open':'closed';
  document.getElementById('world-supply-trail').hidden=!supplyTrailOpen;
  document.getElementById('world-trace-toggle')
@@ -24107,7 +24148,7 @@ function inspectRealGrainStage(name){
  if(!allowed.includes(name))return {observed:false,reason:'invalid-stage'};
  // Do not hide the actual market or original worker when a stage is chosen.
  // Retain the five working camera controls and an explicit details button.
- if(supplyTrailOpen&&window.matchMedia('(max-width: 520px)').matches)
+ if(supplyTrailOpen)
   setSupplyTrailDetails(false);
  const plan=grainJourney?planRealGrainJourney(grainJourney,people,
   deliveryReceipts,state.householdTrades||[],state.householdMeals||[]):null;

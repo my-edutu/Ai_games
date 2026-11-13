@@ -30,9 +30,28 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
    await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeVisible();
    await page.locator('#grain-chain-details').click();
    await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeHidden();
-  }else await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeVisible();
+  }else{
+   // Real W276 frame obscured the entire town behind a 720px document.
+   // Desktop now protects the real WebGL scene exactly as portrait does.
+   await expect(page.locator('#grain-chain-details')).toBeVisible();
+   await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeHidden();
+   const collapsed=await page.evaluate(()=>{
+    const r=document.querySelector('#world-ribbon').getBoundingClientRect();
+    return {width:r.width,height:r.height,right:r.right,
+     audit:window.__tinyKingdom.getSupplyTrailDetailsAudit()};
+   });
+   expect(collapsed.audit.expanded).toBe(false);
+   expect(collapsed.width).toBeLessThanOrEqual(436);
+   expect(collapsed.height).toBeLessThanOrEqual(289);
+   expect(collapsed.right).toBeLessThanOrEqual(1024);
+   await page.locator('#grain-chain-details').click();
+   await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeVisible();
+   await page.locator('#grain-chain-details').click();
+   await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeHidden();
+  }
   await page.locator('#grain-chain-market').click();
   await expect(page.locator('#grain-chain-market')).toBeVisible();
+  await expect(page.locator('#world-supply-trail>.supply-stage').first()).toBeHidden();
   const after=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {snapshot:JSON.stringify(g.exportSnapshot()),

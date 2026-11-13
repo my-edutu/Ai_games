@@ -33,7 +33,8 @@ function simulate(working,pinned=false){
   frozen:false,city:Array.from({length:17},()=>[0,0]),
   focusPoint:[0,0],yaw:0,pitch:.5,
   // W271 names are real source locals, not parameters. The original
-  // function owns its own single definition and physical orbit policy.};
+  // function owns its own single definition and physical orbit policy.
+ }; 
  return new Function(...Object.keys(deps),originalFunction+';return selectVisibleCitizenDetail();')
   (...Object.values(deps));
 }
