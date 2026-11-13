@@ -57,6 +57,7 @@ test('W294 original lived-in street direction follows genuine camera without hid
     buildings:g.metrics().buildings,population:g.getState().people.length,
     details:skyline.lots.filter(x=>!x.compact).map(x=>x.lot),
     homes,geometry:g.getGeometryAudit(),profile:g.getFrameProfile(),
+    camera:g.getFreeCameraCollisionAudit(),
     error:gl?.getError()??-1,
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
@@ -87,6 +88,11 @@ test('W294 original lived-in street direction follows genuine camera without hid
   expect(state.homes.detailPolicy.allOriginalHomesRetained).toBe(true);
   expect(state.details.length).toBe(6);
   expect(state.geometry.totalTriangles).toBeLessThan(160000);
+  // W297: a camera that films only the underside of a real occupied roof
+  // cannot pass just because its pixels and home counts are nonzero.
+  expect(state.camera.eyeClear).toBe(true);
+  expect(state.camera.viewClear).toBe(true);
+  expect(state.camera.nearBlockers).toBe(0);
   expect(state.error).toBe(0);
   expect(state.overflow).toBeLessThanOrEqual(0);
   return state;

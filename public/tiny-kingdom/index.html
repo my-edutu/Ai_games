@@ -23497,32 +23497,78 @@ function freeCameraEyeClear(eye,volumes){
  }
  return true;
 }
+// W297: Day-121 1024/390 east footage exposed camera inside solid roof.
+// Keep actual full 3D town; physically recover the spectator eye instead.
+let freeCameraSightlineChecks=0;
+let freeCameraSightlineRepairs=0;
+let freeCameraSightlineFailures=0;
+function freeCameraSightline(view,volumes){
+ freeCameraSightlineChecks++;
+ const eye=freeCameraEye(view.yaw,view.pitch,view.zoom,view.focus);
+ if(!freeCameraEyeClear(eye,volumes))
+  return {clear:false,eye,eyeClear:false,nearBlockers:0,
+   foregroundSceneCover:1,dominantCover:1};
+ const aim=[view.focus[0],.25,view.focus[1]];
+ // Only the NEAR 55% of the ray may be blocked: an actual house being
+ // photographed at the focus is not itself an invalid camera.
+ const nearAim=eye.map((v,i)=>v+(aim[i]-v)*.55);
+ const nearBlockers=view.zoom<=20?followRayBlockers(eye,nearAim,volumes):0;
+ if(nearBlockers)
+  return {clear:false,eye,eyeClear:true,nearBlockers,
+   foregroundSceneCover:1,dominantCover:1};
+ const scene=foregroundSceneProjection(eye,aim,volumes);
+ const foregroundSceneCover=scene.cover,dominantCover=scene.largest;
+ const clear=Number.isFinite(foregroundSceneCover)&&
+  Number.isFinite(dominantCover)&&
+  !(dominantCover>=.82&&foregroundSceneCover>=.94);
+ return {clear,eye,eyeClear:true,nearBlockers,
+  foregroundSceneCover,dominantCover};
+}
 function safeFreeOrbit(a,t,z,f=focusPoint){
+ if(![a,t,z,...f].every(Number.isFinite))return null;
  const volumes=followCameraRoofs();
  const point=[clampPlayerCamera(f[0],-40,40),clampPlayerCamera(f[1],-40,40)];
  const target={yaw:a,pitch:clampPlayerCamera(t,.22,1.38),
   zoom:clampPlayerCamera(z,7.5,85),focus:point};
- // Survey only on input, not for each expensive citizen-rendering frame.
- for(const [da,dp,dz] of [[0,0,0],[0,.10,0],[0,.23,0],
-  [-.14,.08,0],[.14,.08,0],[0,.16,2.5],[0,.30,4.5],
-  [-.28,.18,2.5],[.28,.18,2.5]]){
-  const v={...target,yaw:target.yaw+da,
+ // Evaluated only on actual input or inspection; no repeated per-frame rays.
+ // Prefer EXACT requested angle, then limited elevation/recession/turn.
+ const candidates=[
+  [0,0,0],[0,.16,0],[0,.36,0],[0,.62,0],
+  [-.24,.16,0],[.24,.16,0],[-.48,.28,0],[.48,.28,0],
+  [-.8,.36,2.5],[.8,.36,2.5],[0,.38,3.5],[0,.6,3.5],
+  [-.34,.54,3.5],[.34,.54,3.5],[-1.12,.44,5],[1.12,.44,5],
+  [0,.72,7.5],[-.65,.7,8],[.65,.7,8]
+ ];
+ const focusOffsets=[[0,0],[0,1.7],[0,-1.7],[1.7,0],[-1.7,0]];
+ let attempts=0;
+ for(const [fx,fz] of focusOffsets)for(const [da,dp,dz] of candidates){
+  const v={...target,
+   focus:[clampPlayerCamera(point[0]+fx,-40,40),
+    clampPlayerCamera(point[1]+fz,-40,40)],
+   yaw:target.yaw+da,
    pitch:clampPlayerCamera(target.pitch+dp,.22,1.38),
    zoom:clampPlayerCamera(target.zoom+dz,7.5,85)};
-  if(freeCameraEyeClear(freeCameraEye(v.yaw,v.pitch,v.zoom,v.focus),volumes)){
+  const shot=freeCameraSightline(v,volumes);
+  attempts++;
+  if(shot.clear){
+   if(attempts>1)freeCameraSightlineRepairs++;
    freeCameraLastClear=v;return v;
   }
  }
  cameraNavigationStats.rejectedViews++;
- return freeCameraLastClear&&freeCameraEyeClear(
-  freeCameraEye(freeCameraLastClear.yaw,freeCameraLastClear.pitch,
-   freeCameraLastClear.zoom,freeCameraLastClear.focus),volumes)?
-  freeCameraLastClear:null;
+ freeCameraSightlineFailures++;
+ if(freeCameraLastClear&&freeCameraSightline(freeCameraLastClear,volumes).clear)
+  return freeCameraLastClear;
+ return null;
 }
 function getFreeCameraCollisionAudit(){
- const eye=freeCameraEye(yaw,pitch,zoom),volumes=followCameraRoofs();
+ const volumes=followCameraRoofs();
+ const shot=freeCameraSightline({yaw,pitch,zoom,focus:focusPoint},volumes);
  return {source:'real-world-camera-and-physical-roof-volume',
-  eye,eyeClear:freeCameraEyeClear(eye,volumes),volumes:volumes.length,
+  ...shot,viewClear:shot.clear,volumes:volumes.length,
+  checkedSightlines:freeCameraSightlineChecks,
+  repairedSightlines:freeCameraSightlineRepairs,
+  failedSightlineSearches:freeCameraSightlineFailures,
   rejectedViews:cameraNavigationStats.rejectedViews,
   worldHidden:false,authoritativeChanges:false};
 }
@@ -26730,10 +26776,21 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,setActorStreamSplitForTesting,
- setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// G068: a manually specified inspection shot must not drift as Follow or Cinematic keeps ticking.
+ setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// Authored camera checks and manual pointer input share real roof safety.
  freeCameraReturn=null;
  if(streetWalk)setStreetWalk(false);
-if(follow)setCitizenFollow(false);cinematic=false;document.getElementById('camera').classList.remove('active');
-yaw=Number.isFinite(o.yaw)?o.yaw:yaw;pitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;zoom=Number.isFinite(o.zoom)?Math.max(4.5,Math.min(85,o.zoom)):zoom;if(Array.isArray(o.focus)&&o.focus.length===2&&o.focus.every(Number.isFinite))focusPoint=o.focus.slice(0,2)}};
+ if(follow)setCitizenFollow(false);
+ cinematic=false;document.getElementById('camera').classList.remove('active');
+ const wantedYaw=Number.isFinite(o.yaw)?o.yaw:yaw;
+ const wantedPitch=Number.isFinite(o.pitch)?Math.max(.25,Math.min(1.45,o.pitch)):pitch;
+ const wantedZoom=Number.isFinite(o.zoom)?Math.max(4.5,Math.min(85,o.zoom)):zoom;
+ const wantedFocus=Array.isArray(o.focus)&&o.focus.length===2&&
+  o.focus.every(Number.isFinite)?o.focus.slice(0,2):focusPoint;
+ const safe=safeFreeOrbit(wantedYaw,wantedPitch,wantedZoom,wantedFocus);
+ if(safe){
+  yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;
+  focusPoint=safe.focus.slice();presentationEpoch++;lastFrozenFrameKey=null;
+ }
+}};
 })();
 </script></body></html>
