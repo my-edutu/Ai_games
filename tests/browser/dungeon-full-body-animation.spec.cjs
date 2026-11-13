@@ -997,8 +997,22 @@ for(const view of [
   weight:t.nativeLegOwnership?.originalSourceWeight,
   cumulative:t.nativeLegOwnership?.sourceToeJointAcceptedFrames??0,
   originalTwoShoeProof:t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs??null,
+  originalSourceGate:t.nativeLegOwnership?.sourceToeJointGateLast??null,
+  boundedGateCounts:t.nativeLegOwnership?.sourceToeJointGateCounts??null,
   originalWeightedFeet:t.sourceSolePatchWorld??null
  }));
+ // A genuinely displayed original walking source pose must explicitly
+ // classify both toe sides; no eligible trial remains an honest rejection.
+ // These witnesses never certify foot contact or a visual improvement.
+ for(const sample of toeJointTrace.filter(t=>t.clip==='Walking_A')){
+  expect(sample.originalSourceGate).toBeTruthy();
+  for(const side of ['left','right']){
+   expect(typeof sample.originalSourceGate[side]).toBe('string');
+   expect(sample.originalSourceGate[side].length).toBeGreaterThan(3);
+  }
+  expect(Object.values(sample.boundedGateCounts??{}).every(v=>
+   Number.isInteger(v)&&v>=0&&v<=1000000)).toBe(true);
+ }
  for(const t of trace)for(const side of ['left','right']){
   const proof=t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs?.[side];
   if(!proof)continue;
@@ -1008,6 +1022,7 @@ for(const view of [
   expect(proof.sourceTrack.toLowerCase().endsWith(proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
   expect(proof.oppositeFootVerified).toBe(true);
   expect(proof.originalSourceContactLocked).toBe(false);
+  expect(t.nativeLegOwnership?.sourceToeJointGateLast?.[side]).toBe('accepted-original-source-toe-lift');
   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.100001);
   expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
   expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
