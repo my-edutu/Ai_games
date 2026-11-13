@@ -1,3 +1,19 @@
+## W290 · one active Phase 1 five-impact blocker backlog · 13 November 2026
+
+Only DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64) and production source [af7ec2eec38a9bee88e81898e1d36cb0e55a6ceb](https://github.com/my-edutu/Ai_games/commit/af7ec2eec38a9bee88e81898e1d36cb0e55a6ceb); immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. One uninterrupted real farmer → loaded courier → credited market → home, plus Day120 and 390px. W290 field art is new, NOT a verified experience PASS.
+
+| Blocking impact / owner workstream | Real last observation or latest uncertainty | Measurable acceptance condition |
+| --- | --- | --- |
+| 1. Real CPU static + per-tick actor + driver/GPU frame stalls / render spine | Historic W282 Day1 six-sample software frame CPU p95 ~268 ms, 251 ms static; W290 exact-source p50/p95/p99 pending; no comparable native hardware | Matched Day1/workday/Day120 source/seed/frame timings, sustainable buffers/heap and 30+ actual hardware FPS, p95 <=33.3ms without missing real people/buildings |
+| 2. Complete human-scale farm→granary→market→home architecture / environment | W289 original desktop source shows toy-like green-grid field and angular buildings; W290 regenerates 668 real crop silhouettes and ridge surfaces at unchanged 4/16/26 triangles per stem, **after-footage absent** | Genuine moving-source films and independent A/B prove compelling continuous original district and credible roofs/materials at normal camera, not just geometry deltas |
+| 3. Visible truthful harvest→cart→receipt→consumption / characters + economy | W289 authentic Bram 3.024 receipt `Bram:32` and Selene 0.8 household purchase still work; actors tiny, labour difficult to appreciate | Uncut genuine selected worker workday and physically aligned IK feet/hands, cargo and received goods; deterministic replay and contact audit across Day120 |
+| 4. Camera and 390px touch / camera+UI | W216 latest controlled paused orbit unexpectedly rebuilt one actor/world mesh (20→21), source-aware cause unresolved; 390px native input response unknown | Actual orbit/follow/camera gestures never lose input or hide ongoing people, clean viewport/GL, stable cache residency and source-matched 390px recording |
+| 5. Independent quality and soak / evidence+QA | Prior W289 clips inspected; W290 CI, screenshots, native GPU/mobile p95, >120-day soak and blinded separate critics not yet delivered | Same seed and SHA full uncropped Day1/workday/Day120/mobile versus pinned G088; true independent LOOK/FEEL/PLAY approval, 160k limit and 30 FPS hardware pass separately; B commercial judged independently |
+
+A: LOOK/FEEL/PLAY **NOT PROVEN**. B commercial reference **FAIL**. One active Phase 1 milestone. No PR merge.
+
+---
+
 ## W271 · ONE durable Phase 1 five-blocker backlog · 12 November 2026
 
 Only original [DRAFT #64](https://github.com/my-edutu/Ai_games/pull/64); running source [aca2141e](https://github.com/my-edutu/Ai_games/commit/aca2141e59447bd052b28d339764da545e273869), supporting contract [dedfce0](https://github.com/my-edutu/Ai_games/commit/dedfce0883ca4b9a9681e7cd11232f64e9b07f03), frozen G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Phase 1 continues SAME authentic harvested wheat → credited loaded courier → two receiving shelves → buyer/home consumption, Day-120 grown town and 390px. No new milestone/pass, no merge.
