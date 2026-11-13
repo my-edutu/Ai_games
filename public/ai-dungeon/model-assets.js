@@ -2024,7 +2024,7 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  const sourceWeight=actor.activeClip?.getEffectiveWeight?.()??NaN;
  const travel=actor.rigRecentGroundedTravel,age=actor.rigRecentGroundedAge;
  const frameInterval=actor.rigSourceSwingFrameInterval;
- if(!Number.isFinite(sourceWeight)||sourceWeight<.90||sourceWeight>1.001||
+ if(!Number.isFinite(sourceWeight)||sourceWeight<.82||sourceWeight>1.001||
   !Number.isFinite(travel)||travel<.008||travel>.24||
   !Number.isFinite(age)||age<0||age>.18||
   !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.1||
@@ -2060,7 +2060,11 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
   const swing=before?.[side],loaded=before?.[side==='left'?'right':'left'];
   if(!swing||!loaded||![swing.heelY,swing.toeY,loaded.heelY,loaded.toeY]
    .every(Number.isFinite)||swing.heelY<.055||swing.heelY>.34||
-   swing.toeY>=-.045||swing.toeY<-.18||
+   swing.toeY>=-.026||swing.toeY<-.18||
+   // A partial Walking_A crossfade may only finish <=25mm *residual*
+   // shallow toe burial, if the original opposite shoe actually supports.
+   // Deep swinging toes retain the preexisting >=90%-source requirement.
+   (sourceWeight<.90&&(swing.toeY<=-.045||frameInterval>.05))||
    ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015))
    continue;
   const original=mount.originalSourceToesQuaternion??(
