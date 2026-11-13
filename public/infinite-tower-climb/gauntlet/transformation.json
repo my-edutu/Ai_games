@@ -9964,5 +9964,34 @@
     "sourceContractTestCorrectionSha": "093abf878a24c2bf6b459b1d7845bc94c696bde0",
     "firstExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/43454787711 — FAILED new negative test incorrectly excluded plausible one-tick earlier genuine crossing, and unrelated phase6 timed out. This test expectation was corrected WITHOUT reducing original 12-tick immutable source bound; no full green CI.",
     "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43455491975 — QUEUED exact head after focused expectation correction; NOT CLAIMED PASS"
+  },
+  "p0AuthenticAirborneFloorNineGpuSubmission20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceHeadBeforeChange": "717e7b98061151fe6c7f6dd1ee0ddc6186fc3cb5",
+    "productionCodeCommits": [
+      "d63d8eafd9ba35559614679524ea730a0eb095cd",
+      "dda0f4c78feb8347dba493d87da3551a43d3a526"
+    ],
+    "integrationTestsCommit": "955540997d57619738a854260579f6b90f8f46e8",
+    "reviewCommit": "ad2e58260ef6a03d05230bc35f3dad22d5fe9811",
+    "previousAuthenticFilmRun": "https://github.com/my-edutu/Ai_games/actions/runs/43455234728",
+    "priorFilmCandidateSha": "d45b0a53ad4237f43b6df4c2a110fefbb1666107",
+    "previousExactQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43455491975 — FAILED phase3-3 runner shutdown; other partitions passing do not establish green CI",
+    "nativeGameplayFinding": "Inspected real 1x 21.5–30.5s candidate danger desktop+portrait. 25–26s abrupt bronze Floor8 -> violet Floor9 without continuous full-body through the SAME original real gate; strict native source/video acceptance 0/2 and baseline guardian episode not equivalent.",
+    "measuredPriorColdCost": "Prior real candidate desktop first Floor9 WebGL return ~820ms and scene update ~198ms; portrait first return ~174ms; source->native difference seconds. Not actual hardware p50/p95/p99.",
+    "systemLevelChange": "First genuinely earned F8->F9 GPU framebuffer 4-submission resolution ramp now stays bound over actual low-tier grounded-to-airborne movement, transient passage cue expiry, same-run original retained HP-zero cap; never age from HTTP/RAF. Prevent extra full-resolution target realloc during cold first F9 render, while DOM/HUD remain sharp and source motion unchanged.",
+    "verification": "New isolated policy regression tests committed but NOT YET VERIFIED by exact-head CI. New source-pinned WebM films NOT YET CAPTURED or reviewed. No scene/experience improvement claimed.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "biggestExperienceGap": "Still no valid normal-speed filmed 2/2 same physical bronze gateway and continuous source-owned full-body Floor8->Floor9 movement; non-equivalent baseline danger episode and native video clock.",
+    "nextHighestImpactAction": "Use new exact-head 9-job capture + source-pinned video/native PTS/WebGL sidecars to decide if guarded framebuffer ramp reduces cold viewport presentation delay; inspect body/door film 22–31s. If hard cut survives, work on single shared world-geometry+depth+camera physical passage. Fix exact-head phase3 shutdown and baseline episode matching. Real hardware and independent reviewers open.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-authentic-airborne-cold-gpu-framebuffer-continuity.md",
+    "safety": "Draft PR68 on PR58 unchanged; frozen baseline untouched, no merge, deploy, force-push, promotion, other-game changes."
   }
 }
