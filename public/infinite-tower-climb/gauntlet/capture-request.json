@@ -1,4 +1,25 @@
 {
+    "p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
+      "stage": "P0 exact source-pinned original film recapture ONLY; no acceptance",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "codeUnderAssessment": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
+      "candidateSourceSha": "EXACT immutable github.sha of THIS capture-request commit; never floating branch HEAD",
+      "originalExpected": "9-job campaign: 8 original >=60sec unedited normal-speed 1x baseline/candidate WebMs at same seed tower-transformation-capture-v1, low tier, 20Hz original source; desktop 960x600 portrait 390x844 ascent floor0, moving floor7, guardian/crusher floor8→authentic grounded f9, real outcome/intermission/restart floor0; plus source/camera/native-event pairing job.",
+      "previousNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
+      "previousFailures": "Candidate original 72.20s desktop and 73.44s portrait Floor8-to9 hard bronze/violet transition, source crossing tick451 valid, 0/2 native event acceptance. Baseline moving desktop partial native transport clock veto remains; never weaken frame calibration.",
+      "acceptanceQuestion": "Does actual old GPU cap and original HP-open bronze guardian gate remain in same normal-speed native shot with the actual full-body climber standing on verifiable original f8:cap roof and crossing the physically continuous Floor9 platform, instead of disappearing on a >12-tick delayed browser sample? Inspect actualOldCapSupport and original retainedSourceCap diagnostics, strict source-browser-Three-native event provenance, then watch complete unedited desktop/portrait videos.",
+      "testCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 (not assumed pass)",
+      "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
+      "sourceAuthority": "No invented Floor9 support, previous cap is already source-verified; only source-owned real support via original f8:cap ID and exact roof/contact is eligible; no simulation or replay change.",
+      "critics": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "verdict": "NOT EVALUATED",
+      "safety": "Frozen baseline and active PR58 unmodified; PR68 remains open/draft; no merge, deployment, force-push, changes to other games"
+    },
   "p0OriginalSingleCameraJointBodyGatewaySource20261113": {
     "stage": "P0 evidence capture only; not acceptance",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",

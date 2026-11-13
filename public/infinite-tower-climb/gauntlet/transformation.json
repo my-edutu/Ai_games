@@ -1,4 +1,35 @@
 {
+    "p0OriginalCapPhysicalSupportAfterSlowFirstFloor9Frame20261113": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+      "leadingVerdict": "NOT EVALUATED",
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "inspectedPreRunHead": "34c481fc1fc76a1427f407a36730b44f76ee6890",
+      "productionCodeSha": "a2c2657b02a5df12aa4a9970684d548442a0eac7",
+      "realNativeSourceSha": "34c481fc1fc76a1427f407a36730b44f76ee6890",
+      "previousRealCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43339629323",
+      "originalFilms": "Candidate original unmodified 72.20s desktop 960x600 and 73.44s portrait 390x844 danger films; source crossings tick451 legitimate, 8/8 source timelines paired. Baseline moving video job failed partial-native-clock calibration; strict native guardian pair 0/2.",
+      "specificObservedDefect": "Desktop first sampled Floor9 tick464 and portrait tick473 show real player standing with handoff active but observedOriginalGpuGatewayRetention=null. Around 24-26 seconds bronze old-cap scaffolding cuts to violet Floor9. Old arch, real body and roof not sustained together in native frames. Do not claim corrected film before recapture.",
+      "confirmedSourceContractGap": "Existing recordedDoorstepHandoff has a <=12-tick expiry; later source-grounded original f8:cap support on the same real roof could retire the GPU cap at first slow Floor9 render despite passage still active. This is a presentation-only hypothesis fixed in owned world retention; physical contact and source proof must hold.",
+      "implementedChange": "Original f8:cap footprint and roof are retained ONLY after source-authenticated previous guardian HP-zero Floor8->9 handoff. A pure contact validator recognizes actual grounded standing/hurt hero on that same old f8:cap roof for up to 48 source ticks, same run, same 90m vicinity, same cap extents, alive, zero vy. Shared with original cap GPU lifecycle and source-bound opaque Floor9 shell staging; now reports actualOldCapSupport in world diagnostics. No player/floor/collision/AI changes.",
+      "affectedFiles": [
+        "public/infinite-tower-climb/visuals/crossfloor-arrival.mjs",
+        "public/infinite-tower-climb/visuals/world.mjs",
+        "tests/phase3/tower-crossfloor-arrival.test.cjs"
+      ],
+      "sourceCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43348180585 — started/in progress when this review was written; NOT yet marked green",
+      "newNativeCapture": "REQUESTED via exact immutable github.sha of capture-request commit; must inspect source-to-Three/native WebM and old-cap support diagnostics",
+      "oldNativeGuardianPairs": "0/2; new source NOT YET EVALUATED",
+      "independentCritics": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "supportedActualDeviceFrameTimeMemory": "NOT EVALUATED",
+      "biggestGap": "Visible full-body body-through-same-original-bronze-arch at Floor8->9 in true 1x desktop/portrait film without cut; native event alignment, moving baseline full-length safe clock, verified outcome/restart still incomplete.",
+      "nextHighestImpactAction": "Inspect new exact immutable-source 9-job capture original unedited 22-31s danger WebMs and native/renderer event traces; check actualOldCapSupport true while old GPU gateway visible. If cap still absent, trace failed stageGroundedCapContinuation and replace disjoint world/camera geometry handoff, not another loose witness. Preserve partial-baseline film clock veto; run fresh 5x LOOKS/FEELS/PLAYS, actual device p50/p95/p99 and memory before P0 exit.",
+      "review": "docs/reviews/2026-11-13-tower-pr68-original-cap-roof-support-late-native-continuity.md",
+      "safety": "PR68 open draft over PR58; immutable baseline unchanged; no merge/deploy/force-push/other-game edits"
+    },
   "p0OriginalSingleCameraJointBodyGatewaySource20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingVerdict": "NOT EVALUATED",
