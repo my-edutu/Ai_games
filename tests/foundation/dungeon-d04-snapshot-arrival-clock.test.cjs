@@ -265,7 +265,10 @@ test('suspended WebAudio retains a specific bounded revocation receipt for an un
  const h=contextBoundHarness(createPhysicalCombatFeedback);
  try{
   h.context.state='suspended';h.signal();
-  assert.equal(h.d.stats().awaitingPresentation,0);
+  assert.equal(h.d.stats().awaitingAudioFrame,0,
+   'sound permission is irrevocably cleared on this transition');
+  assert.equal(h.d.stats().awaitingVisualReceipt,1,
+   'the existing visual remains pending for a genuine frame without sound');
   const receipts=h.d.stats().recentDeliveryReceipts;
   assert.equal(receipts.length,1);
   assert.equal(receipts[0].kind,'damage');
@@ -289,7 +292,10 @@ test('explicit mute records suppressed staged HP sound without claiming delivery
  const h=contextBoundHarness(createPhysicalCombatFeedback);
  try{
   h.d.muteAudio();
-  assert.equal(h.d.stats().awaitingPresentation,0);
+  assert.equal(h.d.stats().awaitingAudioFrame,0,
+   'sound permission is irrevocably cleared on this transition');
+  assert.equal(h.d.stats().awaitingVisualReceipt,1,
+   'the existing visual remains pending for a genuine frame without sound');
   const receipts=h.d.stats().recentDeliveryReceipts;
   assert.equal(receipts.length,1);
   assert.equal(receipts[0].kind,'damage');
@@ -315,7 +321,10 @@ test('audio adapter context rebind refusal audits the unsubmitted real-HP cue ra
  try{
   assert.equal(h.d.attachAudioContext({state:'running'}),false,
    'a previously constructed injected sound adapter must not switch contexts');
-  assert.equal(h.d.stats().awaitingPresentation,0);
+  assert.equal(h.d.stats().awaitingAudioFrame,0,
+   'sound permission is irrevocably cleared on this transition');
+  assert.equal(h.d.stats().awaitingVisualReceipt,1,
+   'the existing visual remains pending for a genuine frame without sound');
   const receipt=h.d.stats().recentDeliveryReceipts.at(-1);
   assert.equal(receipt.kind,'damage');
   assert.equal(receipt.decision,'audio-adapter-rebind-refused');
