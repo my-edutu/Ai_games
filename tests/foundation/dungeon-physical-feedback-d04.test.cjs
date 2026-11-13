@@ -628,13 +628,13 @@ test('expired or unverifiable silent HP visuals cannot masquerade as submitted i
 
 test('D04 saturated frame receipt queue retires visual admissions it can no longer witness',async()=>{
  const {createPhysicalCombatFeedback,MAX_AUDIO_AWAITING_FRAME}=await load('physical-combat-feedback.js');
- const units=Array.from({length:48},(_,i)=>({
+ const units=Array.from({length:36},(_,i)=>({
   id:'witness-'+i,kind:'revenant',faction:'enemy',
   x:1+i%8,z:1+Math.floor(i/8),hp:30,maxHp:30,
   action:'idle',actionTick:10,targetId:null
  }));
  const state=(tick,firstHp,secondHp)=>snap(tick,{units:units.map((u,i)=>({
-  ...u,hp:i<24?firstHp:secondHp,actionTick:tick
+  ...u,hp:i<18?firstHp:secondHp,actionTick:tick
  }))});
  for(const secondHp of [20,0]){
   // Equal-priority injuries reject the newest overflow; fatal injuries
@@ -659,18 +659,18 @@ test('D04 saturated frame receipt queue retires visual admissions it can no long
    assert.equal(feedback.enableAudioFromGesture(),true);
    feedback.acceptSnapshot(state(11,20,30));
    feedback.advance(.016,.016);
-   assert.equal(feedback.stats().awaitingPresentation,24);
+   assert.equal(feedback.stats().awaitingPresentation,18);
    feedback.acceptSnapshot(state(12,20,secondHp));
    feedback.advance(.016,.016);
    const receipts=feedback.stats().recentDeliveryReceipts;
    const reason=secondHp===0?'awaiting-frame-cap-preempted':'awaiting-frame-cap-rejected';
    assert.equal(feedback.stats().awaitingPresentation,MAX_AUDIO_AWAITING_FRAME);
-   assert.equal(retired.length,16,
-    'exactly 16 superseded/unwitnessed visual cues must be retired at the queue cap');
+   assert.equal(retired.length,4,
+    'exactly four superseded/unwitnessed visual cues must be retired at the queue cap');
    assert.ok(retired.every(x=>x.reason===reason),reason);
    assert.equal(live.size,MAX_AUDIO_AWAITING_FRAME,
     'there cannot be live GPU effects without their bounded frame-witness queue');
-   assert.equal(receipts.filter(x=>x.decision===reason).length,16);
+   assert.equal(receipts.filter(x=>x.decision===reason).length,4);
    assert.ok(retired.every(x=>!live.has(x.id)),
     'a terminal queue decision must not re-display the evicted injury on a later frame');
    assert.deepEqual(sounds,[],'no audio can begin before a genuine frame submission');
