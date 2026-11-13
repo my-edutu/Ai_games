@@ -1856,6 +1856,11 @@ export function planOriginalSourceStanceSlideRelief({
  // This authorizes <=18mm reversible slide RELIEF, not a locked foot or IK.
  if(sample.buriedNearLoaded&&(!verifiedSwingHeel||
   !opposite.originalSwingAnatomyStable||
+  // A near-stone loaded outsole must ALSO be close to horizontal in both
+  // original weighted poses. 30mm artificial lowering of only the toe can
+  // preserve a 270mm 3D span while creating a visibly broken foot pitch.
+  Math.abs(sample.a.heel[1]-sample.a.toe[1])>.035||
+  Math.abs(sample.b.heel[1]-sample.b.toe[1])>.035||
   sample.sourceLengthDelta>.004||
   Math.hypot(sample.a.heel[0]-sample.a.toe[0],
    sample.a.heel[1]-sample.a.toe[1],
