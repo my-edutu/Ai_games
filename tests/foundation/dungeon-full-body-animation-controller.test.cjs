@@ -4512,3 +4512,45 @@ test('RED: real original GLB skating correction must not mistake a rotating root
  assert.match(renderer,/previousRootYaw:previous\.rootYaw,currentRootYaw:actor\.root\.rotation\.y/,
   'the live licensed clone already measures both actual source-facing orientations');
 });
+
+
+test('RED: sparse genuine Walking_A WebGL frame primes original skinned shoes without authorizing a stale planted-foot correction',async()=>{
+ const {planOriginalSourceStanceSlowFramePrime:prime,
+  planOriginalSourceStanceSampleHandoff:normal}=await load();
+ // Original 390px source-GLB rAF evidence on exact #43339945755 has sparse
+ // genuine displayed frames and no accepted skinned-shoe sample or relief.
+ // The prior <=350ms handoff rejects even an unmodified current-frame sample.
+ // Sample-only recovery is distinct from the strict same-frame slide gate.
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:.90,
+  ownerLocomotion:true,sourceAnatomyVerified:true,rootTravel:.05066888433054339,
+  frameInterval:.75,changed:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(normal(source),null,
+  'slow frames must never silently authorize ordinary same-frame skid relief');
+ for(const changed of [true,false]){
+  assert.deepEqual(prime({...source,changed}),
+   {recordSample:true,allowRelief:false},
+   'actual post-mixer source feet may be sampled, never corrected, in a slow frame');
+ }
+ assert.deepEqual(prime({...source,frameInterval:1.8}),
+  {recordSample:true,allowRelief:false},
+  'bounded 1.8s mobile source frames may only prime current-original-shoe evidence');
+ for(const bad of [
+  {frameInterval:.35},{frameInterval:0},{frameInterval:2.01},
+  {rootTravel:.181},{rootTravel:-.001},{sourceClipName:'Idle'},
+  {sourceWeight:.64},{ownerLocomotion:false},{sourceAnatomyVerified:false},
+  {visible:false},{alive:false},{reducedMotion:true},
+  {teleport:true},{interrupted:true},{changed:'unknown'}
+ ])assert.equal(prime({...source,...bad}),null,
+  'reject stale or ineligible imported source: '+Object.keys(bad).join(','));
+ assert.deepEqual(normal({...source,frameInterval:.05,changed:false}),
+  {recordSample:true,allowRelief:true},
+  'only a subsequent genuinely fast unchanged owner may attempt measured correction');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer('),
+  renderer.indexOf('function disposeActorAsset('));
+ assert.match(stage,/planOriginalSourceStanceSlowFramePrime\(/,
+  'live imported Three.js GLB must use sample-only slow handoff');
+ assert.match(stage,/handoff\.allowRelief&&/,
+  'a sparse frame must not directly produce foot-slide displacement');
+});
