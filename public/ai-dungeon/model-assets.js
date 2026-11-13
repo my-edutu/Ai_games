@@ -2083,6 +2083,8 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
   sourceWeight,
   ownerLocomotion:true,sourceThighAxisVerified:true,
   sourceChainVerified:true,sourceInstanceSame:!!actor.assetRoot?.uuid,
+  priorSourceProofVerified:priorProof,
+  frameInterval:actor.rigSourceSwingFrameInterval??NaN,
   alive:actor.u.hp>0,visible:actor.root.visible,
   teleport:Boolean(actor.locomotionTeleport),reducedMotion,
   interrupted:Boolean(actor.fullBody.interrupted),
@@ -2099,17 +2101,23 @@ function stageOriginalSourceSwingThighAfterMixer(actor,side,reducedMotion){
  const severeBurial=swing.toeY<-.045;
  const trials=[];
  // At most FIVE original weighted two-shoe readbacks; never guess an IK foot.
- // A 135mrad follow-up is eligible only after a previous, same-signed
- // successful 90mrad source correction on this original upperleg.
+ // A 135mrad follow-up usually needs a previously verified 90mrad thigh.
+ // Exception: the actual 33.3ms original-GLB mobile swing may try
+ // 45→135mrad only after a SAME-source previous accepted 45mrad pose.
+ // Even this candidate changes NOTHING unless live weighted heels/toes
+ // of BOTH shoes pass the unchanged post-rotation rollback gates.
  const angles=[-.045,.045];
- // Do not read the expensive original skinned shoe at +/-90 mrad until
- // its previous ORIGINAL upperleg had a verified, same-signed 45+ mrad
- // correction. The pure selector independently imposes the 45mrad slew.
  if(severeBurial&&Number.isFinite(previous)&&
   Math.abs(previous)>=.044999&&Math.abs(previous)<=.13500001)
   angles.push(Math.sign(previous)*.09);
+ const cadenceThighCandidate=severeBurial&&priorProof&&sourceWeight>=.9&&
+  Number.isFinite(actor.rigSourceSwingFrameInterval)&&
+  actor.rigSourceSwingFrameInterval>=.032&&
+  actor.rigSourceSwingFrameInterval<=.05&&
+  Math.abs(Math.abs(previous)-.045)<.00001;
  if(severeBurial&&Number.isFinite(previous)&&
-  Math.abs(previous)>=.089&&Math.abs(previous)<=.13500001)
+  (Math.abs(previous)>=.089&&Math.abs(previous)<=.13500001||
+   cadenceThighCandidate))
   angles.push(Math.sign(previous)*.135);
  // At most one extra physical source-foot probe for a genuinely
  // witnessed 45mrad return, including 135→90 without severe burial.
