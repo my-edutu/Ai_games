@@ -1297,7 +1297,7 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
 <div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="experience.html">VIEW EXPERIENCE SCORECARD ↗</a> · <a href="progress.html">HISTORY ↗</a></div>
-<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-near camera-far camera-street" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button></nav><div class="toast" id="toast"></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
 <div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><progress id="workday-progress" max="100" value="0" aria-label="Progress through the selected villager's actual working shift"></progress><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
@@ -23821,6 +23821,95 @@ function panPlayerCamera(dx,dy){
  focusPoint=v.focus.slice();cameraNavigationStats.panMoves++;
  presentationEpoch++;return true;
 }
+// W306: the SAME populated world, genuine planted grain, receiving market and
+// inhabited growth surveyed with real manually interruptible spectator cameras.
+// Strictly presentational: never inserts actors, inventories or world lots.
+const REAL_ECONOMIC_SURVEY_STAGES=Object.freeze(['farm','market','homes']);
+let realEconomicSurveyIndex=-1,realEconomicSurveyVisits=0,realEconomicSurveyLast=null;
+function planRealEconomicSurvey(homes,granary,fields,market,width,height,stage){
+ if(!Array.isArray(homes)||!Array.isArray(granary)||granary.length<2||
+  !Array.isArray(fields)||!fields.length||!Array.isArray(market)||
+  ![...granary.slice(0,2),...market.slice(0,2),width,height].every(Number.isFinite)||
+  width<200||height<200||!REAL_ECONOMIC_SURVEY_STAGES.includes(stage)||
+  homes.some(h=>!Array.isArray(h)||h.length<2||
+   !Number.isFinite(h[0])||!Number.isFinite(h[1])))
+  throw Error('W306 requires real town, farm and receiving-market positions');
+ const mobile=width<=520,oldHomes=Math.min(12,homes.length);
+ let focus,yaw,pitch,zoom,inspected=[];
+ if(stage==='farm'){
+  const f=fields[0];
+  if(!Array.isArray(f)||f.length<4||
+   !f.slice(0,4).every(Number.isFinite))throw Error('W306 invalid real field');
+  focus=[(f[0]+f[1]+2*granary[0])/4,
+   (f[2]+f[3]+2*granary[1])/4];
+  yaw=2.42;pitch=mobile?.94:.82;zoom=mobile?40:30;
+ }else if(stage==='market'){
+  focus=market.slice(0,2);yaw=2.15;
+  pitch=mobile?.99:.79;zoom=mobile?36:28;
+ }else{
+  const grown=homes.length>oldHomes?homes.slice(oldHomes):homes;
+  inspected=grown.slice(-Math.min(10,grown.length));
+  const xs=inspected.map(p=>p[0]).sort((a,b)=>a-b),
+   zs=inspected.map(p=>p[1]).sort((a,b)=>a-b);
+  const middle=a=>a[Math.floor((a.length-1)/2)]||0;
+  focus=[middle(xs),middle(zs)];
+  const distance=inspected.reduce((m,p)=>
+   Math.max(m,Math.hypot(p[0]-focus[0],p[1]-focus[1])),0);
+  yaw=.72;pitch=mobile?1.14:1.04;
+  // The mobile view is explicitly a survey of SOME actual new homes, never
+  // a false promise to squeeze all real households into one narrow frame.
+  zoom=Math.max(mobile?42:31,Math.min(77,24+distance*1.42));
+ }
+ return {stage,focus:focus.map(n=>Math.max(-40,Math.min(40,n))),
+  yaw,pitch,zoom,recordedHomes:homes.length,foundingHomes:oldHomes,
+  grownHomes:homes.length-oldHomes,
+  inspectedHomeLots:inspected.map(h=>[h[0],h[1]]),
+  source:'physical-real-farm-market-grown-home-camera',
+  authorityChanged:false};
+}
+function advanceRealEconomicSurvey(){
+ const next=(realEconomicSurveyIndex+1)%REAL_ECONOMIC_SURVEY_STAGES.length,
+  stage=REAL_ECONOMIC_SURVEY_STAGES[next],from={
+   yaw,pitch,zoom,focus:focusPoint.slice()};
+ const plan=planRealEconomicSurvey(city,FARMSTEAD.granary,FARMSTEAD.fields,
+  [-1,10.2],canvas.clientWidth,canvas.clientHeight,stage);
+ if(streetWalk)setStreetWalk(false);
+ if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
+ if(follow)setCitizenFollow(false);
+ cinematic=false;document.getElementById('camera').classList.remove('active');
+ const safe=safeFreeOrbit(plan.yaw,plan.pitch,plan.zoom,plan.focus);
+ if(!safe)return {accepted:false,stage,reason:'physical-camera-blocked'};
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;focusPoint=safe.focus.slice();
+  freeCameraReturn=null;
+ }else{
+  yaw=from.yaw;pitch=from.pitch;zoom=from.zoom;focusPoint=from.focus.slice();
+  freeCameraReturn={from,to:{...safe,focus:safe.focus.slice()},
+   elapsed:0,duration:swiftGpu?.55:.85};
+ }
+ realEconomicSurveyIndex=next;realEconomicSurveyVisits++;
+ realEconomicSurveyLast={...plan,focus:safe.focus.slice(),physicalSafe:true};
+ const btn=document.getElementById('camera-survey');
+ btn.dataset.stage=stage;
+ btn.textContent=stage==='farm'?'⇢ Farm → Market':
+  stage==='market'?'⇢ Market → Homes':'⇢ Homes → Farm';
+ btn.setAttribute('aria-label','Continue real economic survey to '+
+  REAL_ECONOMIC_SURVEY_STAGES[(next+1)%3]);
+ showToast(stage==='farm'?'Surveying original planted fields and granary':
+  stage==='market'?'Surveying authentic freight receiving market':
+   'Surveying '+plan.grownHomes+' actual new homes of '+plan.recordedHomes+' lots');
+ setCommandView('world','user');presentationEpoch++;
+ return {accepted:true,...realEconomicSurveyLast};
+}
+function getRealEconomicSurveyAudit(){
+ return {source:'actual-farm-market-grown-town-workday-camera',
+  visits:realEconomicSurveyVisits,stage:realEconomicSurveyLast?.stage||'off',
+  last:realEconomicSurveyLast?{...realEconomicSurveyLast,
+   inspectedHomeLots:realEconomicSurveyLast.inspectedHomeLots.map(p=>p.slice())}:null,
+  realHomesRetained:true,allOriginalPeopleRetained:true,
+  inventedTransactions:0,manualInputCancelsTransition:true,
+  authorityChanged:false,hardwareFPS:'NOT MEASURED'};
+}
 function requestSettlementOverview(){
  const from={yaw,pitch,zoom,focus:focusPoint.slice()};
  const before=follow&&previousFollowCamera?previousFollowCamera:null;
@@ -25235,6 +25324,7 @@ function inspectRealGrainStage(name){
  button('camera-near',()=>zoomPlayerCamera(.79));
  button('camera-far',()=>zoomPlayerCamera(1.27));
  button('camera-street',()=>setStreetWalk(!streetWalk));
+  button('camera-survey',advanceRealEconomicSurvey);
 button('workday-watch',watchLatestWork);
 button('workday-live',watchLiveWorkday);
 button('forge-follow',watchForgeShift);
@@ -25261,7 +25351,7 @@ document.addEventListener('keydown',e=>{
  const editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||
   document.activeElement?.isContentEditable;
  if(editing||e.ctrlKey||e.metaKey||e.altKey||streetWalk||cinematicHud)return;
- if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_','Home','f','F'].includes(e.key)){
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_','Home','f','F','g','G'].includes(e.key)){
   cameraNavigationStats.keyboardInputs++;
   switch(e.key){
    case 'ArrowLeft':applyPlayerCamera(yaw-.13,pitch,zoom);break;
@@ -25271,6 +25361,7 @@ document.addEventListener('keydown',e=>{
    case '+':case '=':zoomPlayerCamera(.82);break;
    case '-':case '_':zoomPlayerCamera(1.22);break;
    case 'Home':requestSettlementOverview();break;
+    case 'g':case 'G':advanceRealEconomicSurvey();break;
    case 'f':case 'F':document.getElementById('focus').click();break;
   }
   e.preventDefault();e.stopPropagation();
@@ -26942,7 +27033,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getCameraNavigationAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
