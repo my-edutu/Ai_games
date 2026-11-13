@@ -433,3 +433,44 @@ test('D04 retains a real HP shard whose entire visual emission fits the deadline
   assert.equal(d.stats().recentDeliveryReceipts.at(-1).decision,'delivered');
  }finally{d.dispose()}
 });
+
+
+test('early authentic HP admission retires its own shard if slow visual emission crosses 400ms',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const live=new Set(),retired=[],sounds=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   advance(){},
+   emit(cue){live.add(cue.id);now+=.450;return true},
+   retireStaleCue(id,reason){retired.push({id,reason});return live.delete(id)?1:0},
+   hasLiveCue(id){return live.has(id)},hasDrawableCue(id){return live.has(id)},
+   reset(){live.clear()},dispose(){}
+  },
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}}
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30,'idle'));
+  d.acceptSnapshot(snapshot(11,20,'hurt'));
+  now=100.080; // plenty of time when admission starts
+  d.advance(.016,.080);
+  assert.equal(live.size,0,
+   'a 450ms emission must not leave a stale authentic injury for the next GPU draw');
+  assert.equal(retired.length,1,'retire exactly its own retained slot');
+  assert.equal(retired[0].reason,'stale-frame');
+  assert.equal(d.stats().visualAccepted,0,'a never-submitted stale injury cannot count as admitted');
+  assert.equal(d.stats().expiredQueuedCues,1);
+  assert.equal(d.stats().awaitingPresentation,0);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.kind,'damage');
+  assert.equal(receipt.decision,'expired-during-visual-emission');
+  assert.equal(receipt.frameId,null);
+  assert.equal(receipt.audio,false);
+  assert.equal(d.acknowledgePresentedFrame(1,.008),0,
+   'a later genuine frame must never revive stale original impact sound');
+  assert.deepEqual(sounds,[]);
+ }finally{d.dispose()}
+});
