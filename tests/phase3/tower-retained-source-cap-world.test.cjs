@@ -22,6 +22,15 @@ fs.writeFileSync(local,source);
 after(()=>fs.rmSync(scratch,{recursive:true,force:true}));
 const loaded=Promise.all([import(pathToFileURL(local).href),
   import(uri('guardian-passage.mjs'))]);
+// CI-only memory/phase probes for the repeated no-TAP-output hosted-runner
+// shutdown: never affect production scene, snapshots or test assertions.
+const auditEnabled=process.env.TOWER_P0_RESOURCE_DIAGNOSTICS==='1';
+const auditStart=performance.now();
+function resourceCheckpoint(phase){
+  if(!auditEnabled)return;
+  const m=process.memoryUsage();
+  process.stderr.write(`TOWER_P0_RESOURCE phase=${phase} elapsedMs=${Math.round(performance.now()-auditStart)} rssMiB=${Math.round(m.rss/1048576)} heapMiB=${Math.round(m.heapUsed/1048576)} externalMiB=${Math.round(m.external/1048576)}\n`);
+}
 const cap={id:'f8:cap',kind:'oneway',x:115200,y:3212000,width:249600,height:12000};
 const gate=cap.x+Math.floor(cap.width*.76);
 const body={health:5,grounded:true,halfWidth:9000,halfHeight:14000,
@@ -49,7 +58,9 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
   const original=JSON.stringify([first,second]);
   const world=createTowerWorld();
   try{
+    resourceCheckpoint('first-test-start');
     world.update(first,.05,0,{quality:'low'});
+    resourceCheckpoint('first-clockwork-rebuild');
     const genuine=world.group.getObjectByName('platform:f8:cap');
     assert.ok(genuine && genuine.isGroup,'original rendered source cap is present');
     const originalGate=world.group.getObjectByName('AuthoritativeGuardianGate');
@@ -60,6 +71,7 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       'walkable cap alone does NOT include the old physical guardian gateway');
     assert.equal(world.stageGroundedCapContinuation(first,second),true);
     world.update(second,.05,.05,{quality:'low'});
+    resourceCheckpoint('first-void-rebuild');
     assert.equal(world.group.getObjectByName('platform:f8:cap'),genuine,
       'the already-rendered original meshes must survive, not synthetic replacement');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
@@ -105,12 +117,21 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     assert.ok(retention.originalBronzeDeckMeshes>0);
     assert.ok(world.group.getObjectByName('platform:f9:ground'),
       'the REAL new source ground must render immediately');
-    for(let i=0;i<15;i++)world.update(second,.1,.1+i*.1,{quality:'low'});
+    // Check the same stalled-WebGL source clock at several elapsed boundaries
+    // rather than rebuilding identical scene observations 15 times. No source
+    // step or successful renderer submission may be invented by the test.
+    for(const elapsed of [.1,.35,.75,1.5])
+      world.update(second,.1,elapsed,{quality:'low'});
+    resourceCheckpoint('pre-first-return-stalled-boundaries');
     assert.ok(world.group.getObjectByName('platform:f8:cap'),
       'unsubmitted GPU frames cannot consume old world continuity');
     world.noteFrameSubmitted(second,{},.1);
     const firstShownOpacity=originalCover.opacity;
-    for(let i=0;i<20;i++)world.update(second,.1,2+i*.1,{quality:'low'});
+    // The returned WebGL frame is unique: additional observed source updates
+    // across several seconds must leave its recorded opacity/time unchanged.
+    for(const elapsed of [2,2.75,3.9])
+      world.update(second,.1,elapsed,{quality:'low'});
+    resourceCheckpoint('post-first-return-stalled-boundaries');
     assert.equal(originalCover.opacity,firstShownOpacity,
       'twenty stalled/unsubmitted updates CANNOT consume the old bronze shot');
     assert.equal(world.diagnostics().retainedSourceCap?.visibleSeconds,.1,
@@ -121,12 +142,14 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       world.noteFrameSubmitted(second,{},.1);
       world.update(second,.1,4+i*.1,{quality:'low'});
     }
+    resourceCheckpoint('six-real-submissions');
     assert.ok(originalCover.opacity<.8 && originalCover.opacity>.05,
       'the visible old deck progresses only across real successful WebGL returns');
     for(let i=0;i<14;i++){
       world.noteFrameSubmitted(second,{},.1);
       world.update(second,.1,6+i*.1,{quality:'low'});
     }
+    resourceCheckpoint('twenty-real-submissions');
     assert.equal(world.group.getObjectByName('platform:f8:cap'),undefined,
       'the bounded old floor must retire on submitted-frame display time');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
