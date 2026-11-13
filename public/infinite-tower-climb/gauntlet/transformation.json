@@ -9697,16 +9697,18 @@
     "implementedPlayableSlice": "Move ORIGINAL source-HP-linked bronze doorway onto published guardian exit X on actual annular cap roof, with arch normal following increasing-X tangent (yaw theta+π/2), opening spanning radial deck; co-align cold follow camera with same original gate; no fake door, platform, collision, victory, authority or replay changes.",
     "focusedVerification": "Added real Three source/crossing-plane intersection and original object-retention tests, invalid source rejection; new exact-head CI and native source-pinned capture NOT YET VERIFIED.",
     "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43388991630 — FAILED phase3 shard2 GitHub runner shutdown and phase6 unrelated Maze readiness 75s timeout; no green claim.",
-    "latestExactHeadQuality": "NOT YET VERIFIED; CI veto remains",
-    "newOriginalSourcePinnedCapture": "NOT YET VERIFIED; request must pin immutable github.sha at new candidate evidence commit",
+    "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43396471472 — test-fix head 591775e3cced1def0b6a65121cd1c98afd2f7194, PENDING, no green claim",
+    "newOriginalSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43396246939 — nine-job immutable candidate 21c2c65aee2ffbb815aba763362c872fc01e1058 vs unchanged frozen baseline; IN PROGRESS, new native footage NOT EVALUATED",
     "independentCritics": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
       "PLAYS": "0/5"
     },
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Watch new 60+s original Floor8-to9 normal-speed desktop/portrait films 22–31s and entire cycle: verify the same original source-opened bronze arch straddles the actual full-body movement, protect against edge-on camera/occlusion and violet shaft cut; pair authoritative events, Three submissions and decoded native PTS, certify outcome/restart, fix precise geometry/camera cause if still 0/2. No stage advancement without full evidence.",
+    "nextHighestImpactAction": "Inspect exact capture 43396246939 actual normal-speed 22–31s and full cycle 2/2, determine camera view/occlusion around reoriented source bronze arch; validate native PTS and P0 complete gameplay; resolve exact CI 43396471472 runner/Phase6 veto without touching another game, then only progress when independent blind votes and real hardware evidence exist.",
     "review": "docs/reviews/2026-11-13-tower-pr68-tangential-gateway-physical-path-reconstruction.md",
-    "safety": "Draft PR68 preserved over PR58, frozen baseline unchanged; no merge, deployment, force-push, draft conversion, PR58 edits, or other games"
+    "safety": "Draft PR68 preserved over PR58, frozen baseline unchanged; no merge, deployment, force-push, draft conversion, PR58 edits, or other games",
+    "legacyTestContractCorrection": "591775e3cced1def0b6a65121cd1c98afd2f7194 — repaired old tower-guardian-seal experience angle assertion which still expected radial wall orientation, while retaining source-anchored and deck tests",
+    "localKinematicCheck": "Independent geometry sanity on authoritative cap exitX 304896: source center x exit−12000 projects −1.3743m behind original arch plane, exit+12000 projects +1.3743m beyond, both at −0.712m across radial opening (inside ±3.38m); analytic geometry only, NOT a native-video or full Three engine acceptance."
   }
 }
