@@ -9737,5 +9737,35 @@
     "nextHighestImpactAction": "Resolve exact CI and inspect newly triggered full 1x source-pinned native films against source tick451, original gallery/door/hero 3D placement, native PTS and outcome/restart; if visual seam persists rebuild shared spatial camera/world depth",
     "review": "docs/reviews/2026-11-13-tower-pr68-source-original-gallery-across-physical-door.md",
     "safety": "Same PR68 draft based PR58; frozen baseline unchanged. Never merge/deploy/force-push or touch other games."
+  },
+  "p0SubmittedGpuBronzeWorldOriginalShaft20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedOriginalPr68Source": "780da96215507b389b5425f948cb19146a2b1a61",
+    "productionCommits": [
+      "0e754fdede8e7319a857f5f263d8dcc677e79778",
+      "38d4720bbb8b7e08b303fb529690238a8c6c37d7"
+    ],
+    "regressionCommit": [
+      "0c8c12528823021b78d295b49742d27711775b4f",
+      "5a2f726285d1715dc92d31a622b178d1935e6bf8"
+    ],
+    "originalFilmReference": "https://github.com/my-edutu/Ai_games/actions/runs/43399201247 — 8 original >=60s scenario recordings, strict source/native event crossing 0/2, bronze Floor8 to violet Floor9 native hard cut remains",
+    "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43399201299 — FAILED runner shutdown Phase3 shard2; no green CI",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43403516867 — PENDING on core code/test source; not verified green",
+    "majorSourceDefect": "Previous old real original bronze roof/arch/gallery, incoming F9 opaque shaft and distant scenery aged on unsubmitted RAF updates or arrived in one opaque frame. A slow/blocked WebGL frame could consume old-world visual window without native pixels. CPU/GPU staging/source diagnostics not native-film proof.",
+    "implementedSystemicSlice": "Unified actual successful WebGL-return-driven presentation clock for the authentic source-earned retained bronze doorway/gallery, separately batched original incoming F9 monument and deferred canyon/citadels. Shaft-only material clones alpha 0->1 across real returned frame dt, restores depth/shadow state. F9 original real gameplay platforms/traps/climber remain opaque and authoritative, no fake collider/floor/pose. Source-bound cleanup; no unrelated games.",
+    "authenticFilmForThisNewCandidate": "NOT EVALUATED until exact source-pinned capture completes and native full-motion inspected; prior 0/2",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "risks": "Material clone cost and GPU low-tier alpha overdraw unmeasured; latest CI not green; 2/2 native same original physical doorway traversal not established; baseline outcome PTS gap and result/restart certification open.",
+    "nextHighestImpactAction": "Inspect new CI then source-pinned 1x 60+s candidate and frozen baseline videos + source tick451/renderer/native PTS desktop 960x600 and portrait 390x844. Demand real full-body same original bronze arch/roof crossing without hard violet cut, floor9 onward, outcome/restart; if not rebuild unified 3D camera/world depth. Keep P0 open.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-submitted-gpu-world-ownership-and-gateway-reveal.md",
+    "safety": "Draft PR68 on PR58; preserve frozen baseline, no merge/deploy/force-push/draft conversion/PR58 rewrite/unrelated games."
   }
 }
