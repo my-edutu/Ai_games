@@ -129,3 +129,53 @@ test('unmatched live D04 frame cannot hide excess instance-matrix update pressur
   x.kind==='VFX_DIRTY_BUFFER_BYTES_CAP'));
  assert.equal(v.causedByD04,null);
 });
+
+
+test('genuine sampled slow phases are deduplicated and split without inventing causation',()=>{
+ const b=arm('d04');
+ const first={frameId:4,observedRafMs:16,advanceToSubmissionMs:150,
+  d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+  beforeRendererMs:105,rendererMs:25};
+ const second={frameId:5,observedRafMs:16,advanceToSubmissionMs:165,
+  d04VisualAdvanceMs:25,afterVisualToSubmissionMs:140,
+  beforeRendererMs:10,rendererMs:130};
+ for(let i=0;i<b.samples.length;i++){
+  const s=b.samples[i];
+  s.verifiedSubmissionPhaseFrames=i+1;
+  s.unverifiedSubmissionPhaseFrames=0;
+  s.slowSubmissionFrames=i>=4?2:i>=3?1:0;
+  s.recentSlowSubmissionPhases=i<3?[]:i===3?[first]:[first,second];
+ }
+ const v=verdict(arm('legacy'),b),e=v.framePressure.preview.slowPhaseEvidence;
+ assert.equal(e.status,'OBSERVED_BOUNDED_PHASE_RECEIPTS');
+ assert.equal(e.uniqueVerifiedSlowFrames,2);
+ assert.equal(e.duplicateSamplesSuppressed,3);
+ assert.equal(e.rejectedRecords,0);
+ assert.equal(e.worst.advanceToSubmissionMs,165);
+ assert.equal(e.worst.rendererMs,130);
+ assert.equal(e.latestCumulativeSlowFrames,2);
+ assert.equal(e.sampleSynchronized,false);
+ assert.equal(v.causedByD04,null);
+});
+test('contradictory or future submission clocks never gain valid phase attribution',()=>{
+ const b=arm('d04');
+ b.samples.forEach((s,i)=>{
+  s.verifiedSubmissionPhaseFrames=i+1;
+  s.unverifiedSubmissionPhaseFrames=0;
+  s.slowSubmissionFrames=i>=3?1:0;
+  s.recentSlowSubmissionPhases=[];
+ });
+ const valid={frameId:4,observedRafMs:16,advanceToSubmissionMs:150,
+  d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+  beforeRendererMs:null,rendererMs:null};
+ b.samples[3].recentSlowSubmissionPhases=[valid,
+  {...valid,frameId:5},
+  {...valid,beforeRendererMs:20,rendererMs:25}];
+ b.samples[4].recentSlowSubmissionPhases=[valid];
+ const e=verdict(arm('legacy'),b).framePressure.preview.slowPhaseEvidence;
+ assert.equal(e.uniqueVerifiedSlowFrames,1);
+ assert.equal(e.worst.rendererMs,null);
+ assert.equal(e.rejectedRecords,2);
+ assert.equal(e.duplicateSamplesSuppressed,1);
+ assert.equal(e.sampleSynchronized,false);
+});
