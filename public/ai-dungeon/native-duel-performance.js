@@ -59,7 +59,17 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
  // Actual THREE.AnimationAction post-mixer fade weight owns every additive
  // bone in the same connected strike. Do not jump hips/soles/wrist ahead
  // while the genuine source one-shot is still crossfading from locomotion.
- const w=p.power*sourceBlend,s=p.side,foot=p.plant*sourceBlend,t=age;
+ // Easing the *real imported* AnimationAction's current weight keeps the
+ // authenticated partial-fade sword performance readable as one connected
+ // pelvis -> spine -> shoulder -> hand/weapon -> supported-feet chain.
+ // The original linear 0.60 fade left its witnessed active torso at just
+ // 0.0922rad in source WebGL (Actions #43348792350). A smooth sublinear
+ // support envelope reaches precisely zero with the source clip, precisely
+ // one at full ownership, and never exceeds full-strength original joints.
+ // Contact weight/strength below remain gated by the unmodified sourceBlend:
+ // this cannot manufacture a hit, swing, target, movement tick or damage.
+ const physicalBlend=sourceBlend*(2-sourceBlend);
+ const w=p.power*physicalBlend,s=p.side,foot=p.plant*physicalBlend,t=age;
  const wind=t<p.wind?ease(t/p.wind):t<NATIVE_CONTACT_TIME?
   1-ease((t-p.wind)/(NATIVE_CONTACT_TIME-p.wind)):0;
  const release=t<.105?0:t<NATIVE_CONTACT_TIME?
@@ -102,8 +112,8 @@ export function planNativeDuelPose(kind,action,age=0,{targetId=null,distance=nul
   },
   forearms:{left:round(w*(.046*wind-.035*release)),right:round(w*(.096*wind-.113*release))},
   legs,
-  root:{x:round(sourceBlend*s*(.018*wind+.014*drive)),
-   y:round(sourceBlend*(-.042*p.plant*wind-.026*release+.012*settle)),
-   z:round(sourceBlend*(.023*wind-.20*p.plant*drive+heelRecovery))}
+  root:{x:round(physicalBlend*s*(.018*wind+.014*drive)),
+   y:round(physicalBlend*(-.042*p.plant*wind-.026*release+.012*settle)),
+   z:round(physicalBlend*(.023*wind-.20*p.plant*drive+heelRecovery))}
  };
 }
