@@ -791,3 +791,35 @@ test('D04 delayed evasion and shield contact cannot resurrect after the witnesse
   assert.equal(stage.stats().reservedInstances,102);
  }finally{stage.dispose()}
 });
+
+
+test('D04 unloaded victim can receive HP chips only from its unique current public injury cell',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const injured={id:'revenant',kind:'revenant',faction:'enemy',hp:12,
+  x:3,z:2};
+ let latest={run:1,floor:1,tick:11,units:[injured]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:()=>null,getCurrentSnapshot:()=>latest
+ });
+ const proof=cue();
+ const check=(next,allowed,why)=>{
+  stage.reset();latest=next;
+  assert.equal(stage.emit(proof),allowed,why);
+ };
+ try{
+  check(latest,true,'unloaded mesh may use a unique same-tick wounded public cell');
+  assert.ok(stage.stats().instancesByPool.hit>=4);
+  check({...latest,tick:12},false,'previous tick cannot cause a fresh ground-centre injury');
+  check({...latest,run:2},false,'old-run cue cannot attach to the new run');
+  check({...latest,floor:2},false,'old-floor cue cannot attach to the new floor');
+  check({...latest,units:[]},false,'missing public victim cannot anchor injury art');
+  check({...latest,units:[{...injured,x:4}]},false,'moved victim cannot leave chips on its old tile');
+  check({...latest,units:[injured,{...injured}]},false,'duplicate victim IDs are ambiguous');
+  check({...latest,units:[{...injured,hp:NaN}]},false,'non-finite HP is not a public witness');
+  check({...latest,units:new Array(256).fill(null).concat(injured)},false,
+   'units beyond the bounded 256-unit public HP observation window are not witnessed');
+  assert.equal(stage.stats().active,0);
+  check({run:1,floor:1,tick:11},false,'missing unit array fails closed');
+ }finally{stage.dispose()}
+});
