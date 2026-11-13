@@ -69,3 +69,24 @@ export const GUARDIAN_CAP_CORRIDOR = Object.freeze({
   visibleSealRadius: 24.25, climberPathRadius: 25,
   conduitReach: 2.1,
 });
+
+// The guardian's authored exit is an X threshold along the annular walking
+// route, not a radial doorway through the solid tower wall. The bronze gate
+// is a physical presentation of THAT source plane: its normal follows the
+// climber's increasing-x tangent, while its opening spans the actual annular
+// deck. This uses the original door meshes; it never creates gameplay
+// collision, advances the run, or changes the published source threshold.
+export function guardianTraversalGatePose(exitX, roofY, chunkBaseY, worldWidth) {
+  if (![exitX,roofY,chunkBaseY,worldWidth].every(Number.isSafeInteger) ||
+      worldWidth <= 0 || exitX < 0 || exitX > worldWidth) return null;
+  const theta = angleFor(exitX,worldWidth);
+  const radius = GUARDIAN_CAP_CORRIDOR.visibleSealRadius;
+  return {
+    x: Math.sin(theta)*radius,
+    y: (roofY-chunkBaseY)/SCALE,
+    z: Math.cos(theta)*radius,
+    yaw: theta + Math.PI/2,
+    radius, theta,
+  };
+}
+
