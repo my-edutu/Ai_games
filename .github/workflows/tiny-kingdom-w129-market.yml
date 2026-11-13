@@ -21,6 +21,7 @@ on:
       - 'scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs'
       - 'scripts/tiny-kingdom-w299-original-market-gable-contract.cjs'
       - 'scripts/tiny-kingdom-w300-cached-static-append-contract.cjs'
+      - 'scripts/tiny-kingdom-w301-roofline-contract.cjs'
       - 'scripts/tiny-kingdom-w210-street-boundary-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
@@ -69,6 +70,7 @@ jobs:
           node scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs
           node scripts/tiny-kingdom-w299-original-market-gable-contract.cjs
           node scripts/tiny-kingdom-w300-cached-static-append-contract.cjs
+          node scripts/tiny-kingdom-w301-roofline-contract.cjs
           node scripts/tiny-kingdom-w210-street-boundary-contract.cjs
 
   original-market-webgl:
