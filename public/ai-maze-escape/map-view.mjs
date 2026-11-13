@@ -515,7 +515,12 @@ export function publicPhysicalPressureHeroReadabilityHalfHeight(
   const zoom=.515/heroWidth;
   // Genuine diagonal action normally needs ~15.7%. Retreat may need more
   // after Pip physically travels away, but never sacrifice jaw legibility.
-  if (zoom> (withdrawal ? 1.38 : 1.20)) return halfHeight;
+  // Pass317: unmodified 390px tick467 source WebGL showed a full hero width
+  // .42815267 NDC and safe physical jaw width .760. Restoring Pip to .515
+  // needs 1.20284x, narrowly beyond the former nominal 1.20x guard.
+  // Never relax the REAL pair-width <=1.76, vertical <=.88 or browser
+  // +/- .95 gates that are evaluated just below and at the native scene.
+  if (zoom> (withdrawal ? 1.38 : 1.24)) return halfHeight;
   const jawWidth=(jaw.right-jaw.left)*zoom;
   const pairWidth=(Math.max(hero.right,jaw.right)-Math.min(hero.left,jaw.left))*zoom;
   const vertical=Math.max(Math.abs(hero.bottom),Math.abs(hero.top),

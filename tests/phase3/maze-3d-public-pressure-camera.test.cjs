@@ -466,3 +466,43 @@ test('Pass258 exact 320px connected pressure arch keeps real Pip and jaw within 
   assert.match(scene,/retreatHeight=publicPhysicalPressureRetreatHalfHeight\(/);
   assert.match(scene,/heroSpan=physicalSpan\(explorer\.group\);\s*jawSpan=physicalSpan\(hazard\);\s*}\s*const horizontalShift=/);
 });
+
+test('Pass317 original 390px tick467 pressure approach restores FULL physical Pip readability without cropping the jaw',async()=>{
+  const {publicPhysicalPressureHeroReadabilityHalfHeight:fit}=await load();
+  // Original unmodified Pass316 WebGL artifact 13999198500,
+  // public-tide-shear-approach-390.json at 2026-11-13T01:06 UTC:
+  // 390x844, seed maze-visual-reference-3, authoritative tick 467.
+  // All full-resolution image SHA sidecars and gate manifest checked.
+  const hero={left:-.7242787862420919,right:-.29612611640849695,
+    bottom:-.1850155141572028,top:.11709701680511303};
+  const jaw={left:-.08468488826602291,right:.6753151117339771,
+    bottom:.082689280405134,top:.5845253564687509};
+  const halfHeight=6.915350898647892,aspect=390/844;
+  const before=JSON.stringify({hero,jaw}), fitted=fit(hero,jaw,halfHeight,aspect,true,false);
+  const zoom=halfHeight/fitted;
+  assert.ok(zoom>1.20 && zoom<1.24,
+    'the original real hero is only 0.00284x beyond the prior nominal cap');
+  assert.ok((hero.right-hero.left)*zoom>.49,
+    'the same original physical Pip must now clear strict real 390px readability');
+  assert.ok((jaw.right-jaw.left)*zoom>.70,
+    'the complete original Tide-Shear must remain useful action scale');
+  const pairLeft=Math.min(hero.left,jaw.left)*zoom;
+  const pairRight=Math.max(hero.right,jaw.right)*zoom;
+  const fullY=Math.max(...[hero.bottom,hero.top,jaw.bottom,jaw.top].map(Math.abs))*zoom;
+  assert.ok(pairLeft>-.95 && pairRight<.95 && fullY<.88,
+    'BOTH complete physical actor/mechanism silhouettes stay within the unchanged native no-crop gate');
+  assert.equal(JSON.stringify({hero,jaw}),before,
+    'no fake actor, pressure movement or source authority mutation');
+  assert.equal(fit(hero,jaw,halfHeight,aspect,false,false),halfHeight,
+    'no optical change without a public-authorized stage');
+  assert.equal(fit(hero,jaw,halfHeight,320/740,true,false),halfHeight,
+    '320px retains its separately verified pressure framing');
+  assert.equal(fit(hero,jaw,halfHeight,844/390,true,false),halfHeight,
+    'landscape cannot silently inherit a narrow portrait zoom');
+  const impossibleJaw={left:-.93,right:.84,bottom:-.25,top:.55};
+  assert.equal(fit(hero,impossibleJaw,halfHeight,aspect,true,false),halfHeight,
+    'even the new 390 lens may NOT disguise a physically impossible full-body pair');
+  const source=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(source,/readablePairHeight=publicPhysicalPressureHeroReadabilityHalfHeight\(/,
+    'the tested physically conservative lens must drive the actual production camera');
+});
