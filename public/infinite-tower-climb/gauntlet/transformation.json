@@ -9815,5 +9815,30 @@
     "nextHighestImpactAction": "Verify exact-head Phase3 diagnostics no ReferenceError, restore nine original normal-speed 60s+ candidate/frozen paired films, inspect same bronze arch and full hero body crossing in both viewports. If visual discontinuity remains, redesign depth/camera path. Certify outcome/restart and source PTS.",
     "review": "docs/reviews/2026-11-13-tower-pr68-final-physical-doorway-camera-arbitration.md",
     "safety": "PR68 stays draft based on PR58; frozen baseline preserved; no unrelated game files, merge, deployment, force push or draft promotion."
+  },
+  "p0SourceSubmittedDoorwayCameraCadence20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedSourceSha": "e4513ca55b69f7b20d18f90927f44d0be3929e8b",
+    "implementationCommit": "984209eef37aa489ba3501fbd165aaef3e84c413",
+    "priorExactNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43412674243",
+    "priorNativeFilmTruth": "Eight matched scenario source-pinned normal-speed baseline/candidate 60s+ original clips; actual hero reaches floor9 at source tick451. Native bronze-to-violet cut around 24.6-25.2s on desktop 960x600 and portrait 390x844. 0/2 strict native physical passage pair accepted. Baseline guardian HP-zero event absent; do not fake comparability.",
+    "lastCheckedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43412674285 — FAILED phase3 and phase6 jobs; not full green",
+    "primaryCauseHypothesis": "First actual Floor9 Three/WebGL frame may follow up to .5s clamped delayed RAF, forcing camera and multiple safety directors to consume unseen wall-time in a single large angle/position/gaze interpolation step. Existing world rebase is already source-correct; camera submitted-image cadence was not.",
+    "systemicImplementation": "source-bound retained original bronze GPU gateway lens now selects max 1/25s camera response for entire existing follow, actor/duel, gateway and FOV camera pipeline on genuine living same-source Floor9 frame. No fake movement, extra camera/render, physics or collision edits.",
+    "verifiedChecks": "Local Node v22 pure helper smoke tests 2/2 PASS; production source-contract test added but exact-head CI pending. These do not establish 3D improvement.",
+    "newOriginalCapture": "REQUESTED by new capture-request.json evidence update; immutable github.sha must be read from actual Action. NOT YET REVIEWED.",
+    "newNativeAcceptance": "NOT EVALUATED; previously inspected 0/2 failed",
+    "actualSupportedDeviceP50P95P99Memory": "NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "biggestExperienceGap": "Current original-video hard bronze Floor8 to violet Floor9 scene discontinuity; genuine same doorway full-body passage and outcome/restart not yet proven",
+    "nextHighestImpactAction": "Inspect exact-source candidate first 22-31s at 1x with original source/browser/Three/native PTS, measure first cold camera step and body/gate/deck projection both viewports. If no continuous same-body-through-original-arch shot, rebuild physical world/camera occlusion and shared depth rather than modifying decorative timers.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-submitted-frame-camera-cadence-vs-native-cut.md",
+    "safety": "Frozen baseline intact; PR68 stays open draft based on PR58; never merge, deploy, force push, modify PR58 or other games"
   }
 }
