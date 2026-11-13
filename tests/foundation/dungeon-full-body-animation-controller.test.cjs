@@ -4554,3 +4554,33 @@ test('RED: sparse genuine Walking_A WebGL frame primes original skinned shoes wi
  assert.match(stage,/handoff\.allowRelief&&/,
   'a sparse frame must not directly produce foot-slide displacement');
 });
+
+test('original Walking_A ankle swing correction remains continuously owned only with a fresh weighted two-shoe lift',async()=>{
+ const {confirmOriginalSourceSwingToeContinuation:hold}=await load();
+ assert.equal(typeof hold,'function','the current imported-rig ankle must support measured continuity');
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:.95,
+  ownerLocomotion:true,sourceInstanceSame:true,sourceAnatomyVerified:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.042,frameAge:.04,floorTopY:-.02,previousCorrectionRad:.08,
+  beforeToeY:-.084,beforeHeelY:.17,afterToeY:-.075,afterHeelY:.173,
+  otherBeforeHeelY:-.019,otherBeforeToeY:-.015,
+  otherAfterHeelY:-.019,otherAfterToeY:-.015};
+ const confirmed=hold(source);
+ assert.ok(confirmed,'the same real original loaded/swing pair must not pop an independently safe ankle hold');
+ assert.equal(confirmed.angleRad,.08);
+ assert.equal(confirmed.contactLocked,false,'airborne swing is not a planted IK foot');
+ assert.ok(confirmed.measuredToeLiftMeters>.008);
+ for(const bad of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.49},
+  {ownerLocomotion:false},{sourceInstanceSame:false},
+  {sourceAnatomyVerified:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0},{frameAge:.181},{previousCorrectionRad:0},
+  {previousCorrectionRad:.23},{beforeHeelY:-.012},
+  {beforeToeY:-.02},{afterToeY:-.085},
+  {afterHeelY:.35},{otherAfterHeelY:-.025},
+  {otherAfterToeY:-.021},{floorTopY:0},
+  {afterToeY:NaN}
+ ])assert.equal(hold({...source,...bad}),null,
+  'unproven source ankle hold must release instead of inventing a foot contact: '+JSON.stringify(bad));
+});
