@@ -45,7 +45,7 @@ import {planWorldStoryStage} from '/dungeon/world-story-stage-plan.js';
 import {addContactProjection} from '/dungeon/contact-projection.js';
 import {createLivingWorld} from '/dungeon/living-world.js';
 import {createChapterNaves} from '/dungeon/chapter-nave.js';
-import {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats as assetStats,inspectSourceRigDeformation} from '/dungeon/model-assets.js';
+import {attachCharacter,updateActor,stageRigWalkingFacingAfterRootYaw,disposeActorAsset,putEnvironment,stats as assetStats,inspectSourceRigDeformation} from '/dungeon/model-assets.js';
 const $=id=>document.getElementById(id),canvas=$('world'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const spectatorUI=installSpectatorUI();
 let focusedHeroId='vanguard',autoDirector=true,lastAutoSwitch=0;
@@ -1195,6 +1195,9 @@ function animate(t){
      hasCombatFacing:Boolean(a.combatFacing)
     });
   }
+  // Finish original source-bone yaw only after this frame's real visible
+  // facing has settled; imported feet, authority and hand attachment stay.
+  stageRigWalkingFacingAfterRootYaw(a,reduced,frameInterval,!document.hidden);
  }
  // One physically staged protection, derived from the real public turn.
  const oathguardPlan=planOathguardPose(state);

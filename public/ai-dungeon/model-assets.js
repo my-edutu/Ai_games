@@ -621,6 +621,48 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion,sourceFrameInterval=.
  if(!actor.rigMeleeBones?.length)return;
  const pose=planRigMeleeFollowThrough(actor.u.kind,actor.fullBody?.owner.duel?'attack':'idle',since,
   actor.animationFacing?.distance,actor.animationFacing?.targetId,reducedMotion||actor.u.hp<=0);
+ // Imported spine counterturn is intentionally NOT staged here: the public
+ // root-facing yaw is finalized later in this same displayed animation frame.
+ actor.walkingTorsoCounterturn=null;
+ for(const mount of actor.rigMeleeBones){
+  // One genuine imported bone receives ONE original melee performance,
+  // not legacy follow-through + secondary beat + native duel stacked.
+  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
+  const joint=nativeMelee?RIG_ZERO:pose[mount.part],
+   extra=nativeMelee?RIG_ZERO:(actor.performanceBeat?.[mount.part]||RIG_ZERO);
+  const native=actor.nativeDuel?.[mount.part]||RIG_ZERO;
+  const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
+  const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
+  const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
+  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&mount.part==='spine'?
+   actor.wardenCharge?.threatPerformance:null;
+  const strike=mount.part==='spine'&&!reducedMotion&&actor.fullBody?.owner.warning?actor.wardenStrikePose?.spine:null;
+  mount.next.setFromEuler(mount.euler.set(
+   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+native.pitch+dodge.pitch+bearing.pitch+(actor.rigGuardPose?.chest?.pitch??0)+stride.pitch+(strike?.pitch??0))),
+   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+native.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0))),
+   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+native.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0)+(strike?.roll??0))),'YXZ'));
+  mount.bone.quaternion.multiply(mount.next);
+  mount.last.copy(mount.next);
+  actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
+   Math.abs(joint.pitch+extra.pitch+native.pitch),
+   Math.abs(joint.yaw+extra.yaw+native.yaw),
+   Math.abs(joint.roll+extra.roll+native.roll));
+ }
+ actor.rigMeleePeak=Math.max(actor.rigMeleePeak||0,actor.rigMeleeCurrentPeak);
+ actor.rigMeleeActive=actor.rigMeleeCurrentPeak>.08;
+ if(actor.rigMeleeActive)actor.rigMeleeObservedActiveFrames=Math.min(1000000,
+  (actor.rigMeleeObservedActiveFrames||0)+1);
+}
+// The public renderer interpolates and assigns the genuine root facing AFTER
+// updateActor has evaluated the original AnimationMixer skeleton. Finish the
+// imported spine -> shoulder -> original hand/weapon counterturn only AFTER
+// that real visible yaw has been assigned. Otherwise the native skeleton
+// compares the old yaw to itself, misses an observed ~0.637rad turn and pops.
+// This is bounded post-mixer pose ownership, never steering/authority/IK.
+function stageRigWalkingFacingAfterRootYaw(actor,reducedMotion,sourceFrameInterval=.016,sourceFrameVisible=true){
+ if(!actor?.authored||!actor.mixer)return;
+ const mount=actor.rigMeleeBones?.find(m=>m.part==='spine');
+ if(!mount?.bone)return;
  // The true original Walking_A root can turn ~0.637rad in one mobile
  // displayed frame. Oppose only a bounded fraction in the real imported
  // chest during actual source-owned travel; original legs, actor root,
@@ -680,35 +722,16 @@ function stageRigMeleeAfterMixer(actor,since,reducedMotion,sourceFrameInterval=.
   actor.rigWalkingTurnPeakRad=Math.max(actor.rigWalkingTurnPeakRad||0,
    Math.abs(walkingTorsoCounterturn.offsetRad));
  }
- for(const mount of actor.rigMeleeBones){
-  // One genuine imported bone receives ONE original melee performance,
-  // not legacy follow-through + secondary beat + native duel stacked.
-  const nativeMelee=actor.nativeDuel?.mode&&actor.nativeDuel.mode!=='rest';
-  const joint=nativeMelee?RIG_ZERO:pose[mount.part],
-   extra=nativeMelee?RIG_ZERO:(actor.performanceBeat?.[mount.part]||RIG_ZERO);
-  const native=actor.nativeDuel?.[mount.part]||RIG_ZERO;
-  const dodge=mount.part==='spine'?(actor.evasionFrame?.spine||RIG_ZERO):RIG_ZERO;
-  const bearing=mount.part==='spine'?(actor.rigBearing?.chest||RIG_ZERO):RIG_ZERO;
-  const stride=mount.part==='spine'?(actor.rigFullBodyStride?.chest||RIG_ZERO):RIG_ZERO;
-  const threat=actor.u.kind==='warden'&&actor.u.hp>0&&!reducedMotion&&actor.fullBody?.owner.warning&&mount.part==='spine'?
-   actor.wardenCharge?.threatPerformance:null;
-  const strike=mount.part==='spine'&&!reducedMotion&&actor.fullBody?.owner.warning?actor.wardenStrikePose?.spine:null;
-  mount.next.setFromEuler(mount.euler.set(
-   Math.max(-.55,Math.min(.55,joint.pitch+extra.pitch+native.pitch+dodge.pitch+bearing.pitch+(actor.rigGuardPose?.chest?.pitch??0)+stride.pitch+(strike?.pitch??0))),
-   Math.max(-.48,Math.min(.48,joint.yaw+extra.yaw+native.yaw+dodge.yaw+bearing.yaw+stride.yaw+(threat?.torsoYaw??0)+(strike?.yaw??0)+(mount.part==='spine'?(actor.walkingTorsoCounterturn?.offsetRad??0):0))),
-   Math.max(-.46,Math.min(.46,joint.roll+extra.roll+native.roll+dodge.roll+bearing.roll+stride.roll+(threat?.torsoRoll??0)+(strike?.roll??0))),'YXZ'));
+
+ if(walkingTorsoCounterturn){
+  // Keep the exact applied post-mixer quaternion reversible with the other
+  // original source-bone overlays on the next real AnimationMixer frame.
+  mount.next.setFromEuler(mount.euler.set(0,walkingTorsoCounterturn.offsetRad,0,'YXZ'));
   mount.bone.quaternion.multiply(mount.next);
-  mount.last.copy(mount.next);
-  actor.rigMeleeCurrentPeak=Math.max(actor.rigMeleeCurrentPeak,
-   Math.abs(joint.pitch+extra.pitch+native.pitch),
-   Math.abs(joint.yaw+extra.yaw+native.yaw),
-   Math.abs(joint.roll+extra.roll+native.roll));
+  mount.last.multiply(mount.next);
  }
- actor.rigMeleePeak=Math.max(actor.rigMeleePeak||0,actor.rigMeleeCurrentPeak);
- actor.rigMeleeActive=actor.rigMeleeCurrentPeak>.08;
- if(actor.rigMeleeActive)actor.rigMeleeObservedActiveFrames=Math.min(1000000,
-  (actor.rigMeleeObservedActiveFrames||0)+1);
 }
+
 // Genuine ranged release follows the actual imported chest/shoulder/elbow
 // joints and composes into the existing reversible mount quaternion.
 function stageRigRangedAfterMixer(actor,since,reducedMotion){
@@ -3857,4 +3880,4 @@ function stats(actors){
  hiddenFallbackOrnamentActors:authored.filter(a=>(a.detail?.hiddenProceduralOrnamentCount||0)>0).length,
  hiddenFallbackOrnamentMeshes:authored.reduce((n,a)=>n+(a.detail?.hiddenProceduralOrnamentCount||0),0),rigGripAlignedActors:authored.filter(a=>a.rigGripAligned).length,rigGripMaxShiftMeters:Math.max(0,...authored.map(a=>a.rigGripShiftMeters||0)),rigGripCandidates:authored.filter(a=>a.rigGripCandidateMeters!==null).map(a=>({kind:a.u.kind,meters:a.rigGripCandidateMeters})).slice(0,3),rigHandBoneNames:authored.filter(a=>a.rigHandBoneName).map(a=>a.rigHandBoneName).slice(0,8),skinnedHitActors:authored.filter(a=>(a.skinnedHitWeight||0)>.02).length,skinnedHitPeak:Math.max(0,...authored.map(a=>a.skinnedHitPeak||0)),skinnedDefeatActors:authored.filter(a=>a.skinnedDefeatWeight>.02).length,forgedMicrotextures:forgedMicrotextureCache.size,authoredCharacters:authored.length,proceduralFallbacks:all.length-authored.length,uniqueAssets:cache.size,missingAssets:failures.size,incompleteAssets:incompleteAssets.size,texturedCharacters:authored.filter(a=>a.textureReadiness?.decodedColorMaps>0).length,decodedColorMaps:authored.reduce((n,a)=>n+(a.textureReadiness?.decodedColorMaps||0),0)};
 }
-export {attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats,inspectSourceRigDeformation};
+export {attachCharacter,updateActor,stageRigWalkingFacingAfterRootYaw,disposeActorAsset,putEnvironment,stats,inspectSourceRigDeformation};
