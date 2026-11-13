@@ -4718,6 +4718,22 @@ test('original Walking_A ankle swing correction remains continuously owned only 
 // threshold could never compensate this actual first-frame snap.
 // This test requires a first-entry *read-only* yaw witness, never a changed
 // authoritative turn, fabricated foot plant or independent weapon animation.
+test('RED: original walking spine must finish AFTER the true rendered root yaw, not its stale pre-turn pose',()=>{
+ const app=fs.readFileSync(path.join(root,'public/ai-dungeon/app.js'),'utf8');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const rigUpdate=app.indexOf('updateActor(a,dt,since,reduced,frameInterval,!document.hidden)');
+ const authoritativeVisualYaw=app.indexOf('a.root.rotation.y=approachOriginalSourceWalkYaw(');
+ const lateSourceSpine=app.indexOf('stageRigWalkingFacingAfterRootYaw(a,reduced,frameInterval,!document.hidden)');
+ assert.ok(rigUpdate>=0&&authoritativeVisualYaw>rigUpdate,
+  'genuine original spine was already posed before the displayed root changed direction');
+ assert.ok(lateSourceSpine>authoritativeVisualYaw,
+  'the original chest/shoulder/weapon chain must receive THIS FRAME actual visual root pivot after yaw interpolation');
+ assert.match(model,/function stageRigWalkingFacingAfterRootYaw\\(/,
+  'the live source-rig update must finish its reversible original-spine pose on the actual visible yaw');
+ assert.match(model,/mount\\.last\\.multiply\\(mount\\.next\\)/,
+  'a post-root source-spine overlay must be reversible before the next imported AnimationMixer frame');
+});
+
 test('RED: original source first walking crossfade must counterturn a witnessed 0.6375-radian root pivot',async()=>{
  const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
  const witnessed={
