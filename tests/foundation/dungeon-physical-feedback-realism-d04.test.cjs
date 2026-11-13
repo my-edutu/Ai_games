@@ -823,3 +823,44 @@ test('D04 unloaded victim can receive HP chips only from its unique current publ
   check({run:1,floor:1,tick:11},false,'missing unit array fails closed');
  }finally{stage.dispose()}
 });
+
+test('D04 visible HP body must match the unique current public injury witness before drawing fragments',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:12};
+ const actor={u:{...victim},root:{visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ let current={run:1,floor:1,tick:11,units:[victim]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current
+ });
+ const original=cue();
+ const check=(snapshot,body,expected,message)=>{
+  stage.reset();current=snapshot;actor.u=body;
+  assert.equal(stage.emit(original),expected,message);
+  assert.equal(stage.stats().instancesByPool.hit,expected?6:0,
+   'no unverified injury fragments may remain in retained GPU pools');
+ };
+ try{
+  check(current,{...victim},true,'same-tick public HP injury is anchored to the visible injured body');
+  check({...current,tick:12},{...victim},false,
+   'a once-witnessed injury cannot be painted on a later drawable body');
+  check({...current,run:2},{...victim},false,
+   'a recycled body on another run does not authorize old HP chips');
+  check({...current,floor:2},{...victim},false,
+   'a recycled body on another floor does not authorize old HP chips');
+  check({...current,units:[]},{...victim},false,
+   'an old model left at the right coordinates is not a live victim');
+  check({...current,units:[victim,{...victim}]},{...victim},false,
+   'duplicate current public IDs never choose an arbitrary rendered body');
+  check({...current,units:[{...victim,hp:10}]},{...victim},false,
+   'body HP must not contradict the public victim injury state');
+  check(current,{...victim,hp:10},false,
+   'a stale drawn model HP must not masquerade as the injured public unit');
+  check(current,{...victim,x:4},false,
+   'a drawable root positioned correctly cannot override wrong actor authority coordinates');
+  check({...current,units:[{...victim,hp:NaN}]},{...victim},false,
+   'non-finite public HP cannot authenticate a body-local contact');
+  check(current,{...victim},true,'valid current body remains drawable after invalid snapshots');
+ }finally{stage.dispose()}
+});
