@@ -390,10 +390,19 @@ test('real old bronze arch and cap remain the SAME GPU objects when source advan
     resourceCheckpoint('late-original-before-first-delayed-successor');
     world.update(later,.05,.05,{quality:'low'});
     resourceCheckpoint('late-original-after-first-delayed-successor');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
+    // Giant Three scene graphs have recursive parent links: compare GPU
+    // identity as booleans so a *failing* identity assertion produces a
+    // useful TAP failure, rather than spending the runner's deadline
+    // formatting an enormous actual/expected hierarchy.
+    resourceCheckpoint('late-original-before-gpu-identity-lookup');
+    const survivingGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    const survivingCap=world.group.getObjectByName('platform:f8:cap');
+    resourceCheckpoint('late-original-after-gpu-identity-lookup');
+    assert.equal(survivingGate === originalGate,true,
       'late first source frame must attach same original GPU gateway');
-    assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap,
+    assert.equal(survivingCap === originalCap,true,
       'original roof is retained, not an invented replacement');
+    resourceCheckpoint('late-original-after-identity-assertions');
     assert.ok(world.group.getObjectByName('platform:f9:ground'),
       'authentic next-floor walkable platform must not be deferred');
     const diag=world.diagnostics();
