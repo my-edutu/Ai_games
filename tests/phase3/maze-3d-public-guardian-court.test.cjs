@@ -1039,3 +1039,81 @@ test('Pass332 witnessed sealed flank reconstructs full solid Tideglass bulwarks 
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory parapet, not a secret opening',async()=>{
+ const {createMazeWorld,cellPosition}=await load();
+ const {Matrix4,Vector3,Quaternion}=await import(three);
+ // Exact ORIGINAL public geometry relationship from 2026-11-13 WebGL:
+ // Pip99 faces Thornback98; publicly visible ordinary100 and117 have a
+ // closed NONPASSAGE boundary at x16.8,z1.2. Only color and genuine joined
+ // mineral masonry change, never the game collision or navigation truth.
+ const s={runToken:'source-guardian-rail',lifecycle:'running',result:null,
+   width:17,height:17,currentCell:99,
+   visibleCells:[98,99,100,117],
+   cells:[
+     {cell:98,blocked:false,trap:false,checkpoint:false,clue:false,neighbors:[99]},
+     {cell:99,blocked:false,trap:false,checkpoint:false,clue:false,neighbors:[98]},
+     {cell:100,blocked:false,trap:false,checkpoint:false,clue:false,neighbors:[83,101]},
+     {cell:117,blocked:false,trap:false,checkpoint:false,clue:false,neighbors:[116,134]}
+   ],doors:[],keys:[],inventory:[],exitCell:null,
+   threats:[{id:'thornback',cell:98}]};
+ const before=JSON.stringify(s),w=createMazeWorld({balanced:true}),budget=w.stats();
+ const a=cellPosition(100,s.width,s.height),b=cellPosition(117,s.width,s.height),
+   mx=(a.x+b.x)/2,mz=(a.z+b.z)/2;
+ const wallInstances=(hex,dims)=>{
+   let count=0;const matrix=new Matrix4(),position=new Vector3(),
+     rotation=new Quaternion(),scale=new Vector3();
+   w.group.traverse(node=>{
+     if(!node.isInstancedMesh || node.material?.color?.getHexString()!==hex)return;
+     for(let i=0;i<node.count;i++){
+       node.getMatrixAt(i,matrix);matrix.decompose(position,rotation,scale);
+       if(Math.abs(position.x-mx)<.003 && Math.abs(position.z-mz)<.003
+         && dims.every((n,j)=>Math.abs([scale.x,scale.y,scale.z][j]-n)<.003))
+         count++;
+     }
+   });
+   return count;
+ };
+ const darkWall=()=>{
+   assert.equal(wallInstances('eed5a0',[2.34,.075,.44]),0,
+     'real foreground must not retain the source-proven wide ivory railing');
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),1,
+     'original full-width rail now belongs to one connected sea-glass court');
+   assert.equal(wallInstances('28574f',[2.32,.34,.39]),1,
+     'solid full-scale dark masonry persists at the actual nonpassage');
+   assert.equal(wallInstances('334a46',[2.14,.22,.43]),1,
+     'large, physically attached dark mineral wall face replaces repetition');
+ };
+ try {
+   w.update(s);darkWall();
+   assert.ok(w.stats().guardianSightlineParapets>=1);
+   assert.equal(w.stats().geometryCount,budget.geometryCount);
+   assert.equal(w.stats().materialCount,budget.materialCount);
+   assert.equal(JSON.stringify(s),before,'no autonomous gameplay, public map or source mutation');
+   w.update({...s,visibleCells:[98,99,100]});
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),0,
+     'unknown opposite cell cannot produce a disclosed guardian boundary');
+   w.update({...s,doors:[{a:98,b:99,open:false}]});
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),0,
+     'a real sealed guardian encounter removes its stage');
+   w.update({...s,cells:s.cells.map(c=>c.cell===100
+     ? {...c,neighbors:[83,101,117]}
+     : c.cell===117 ? {...c,neighbors:[100,116,134]}:c)});
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),0,
+     'a real discovered passage must never be disguised as a solid rail');
+   const linkedPressure={...s,visibleCells:[...s.visibleCells,101],
+     cells:[...s.cells.map(c=>c.cell===100?{...c,neighbors:[83,101]}:c),
+       {cell:101,blocked:false,trap:true,neighbors:[100]}]};
+   w.update(linkedPressure);
+   assert.equal(wallInstances('5d968e',[2.34,.075,.44]),0,
+     'a reciprocal disclosed pressure trigger keeps its own hazard perimeter');
+   for(let i=0;i<6;i++){
+     w.update({...s,runToken:'guardian-rail-reset-'+i});darkWall();
+     assert.ok(w.stats().geometryCount<100,'original six-reset GPU budget stays strict');
+   }
+ }finally{
+   w.dispose();assert.equal(w.stats().geometryCount,0);
+   assert.equal(w.stats().materialCount,0);
+ }
+});

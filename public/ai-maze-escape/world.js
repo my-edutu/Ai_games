@@ -1890,17 +1890,52 @@ export function createMazeWorld(options = {}) {
             -cellHeight(n,s.width,s.height))<1e-8
           && ((guardianSightlines.has(c.cell) && guardianCauseway.has(c.cell))
             || (guardianSightlines.has(n) && guardianCauseway.has(n)));
-        // The older blocked-cell flank rule is retained unchanged. A
-        // closed gate, unseen wall, actual passage, stair or any uncertain
-        // neighbor still has its full source-authentic silhouette.
-        const guardianParapet = !publicParapet && !pressureParapet
+        // Pass335: source-authentic 390px brace at (.50,.66) first hits a
+        // FULL 2.34m ivory cap on the sealed boundary cell100 -> cell117.
+        // Both are currently PUBLIC ordinary second-ring guardian foreground
+        // at the hero's real level, with NO reciprocal passage. Earlier
+        // guardian-only coloring missed the wall because it is two tiles
+        // away and ALSO falls into a merely NEARBY pressure sightline.
+        // Give the whole genuinely solid spectator-facing perimeter a
+        // continuous dark Tideglass face/crest, not more cosmetic props.
+        // A real gate, unseen side, actual passage, height change or a
+        // directly linked public pressure trigger always retains priority.
+        const guardianForegroundSealedScreen=!!adjacentKnown
+          && guardianForeground.has(c.cell) && guardianForeground.has(n)
+          && guardianOuterCourt.ordinary.has(c.cell)
+          && guardianOuterCourt.ordinary.has(n)
+          && c.blocked===false && adjacentKnown.blocked===false
+          && !c.trap && !adjacentKnown.trap
+          && !c.checkpoint && !adjacentKnown.checkpoint
+          && !c.clue && !adjacentKnown.clue
+          && c.cell!==s.exitCell && n!==s.exitCell
+          && !s.keys.some(k=>k.cell===c.cell || k.cell===n)
+          && s.visibleCells.includes(c.cell) && s.visibleCells.includes(n)
+          && Array.isArray(c.neighbors) && Array.isArray(adjacentKnown.neighbors)
+          && !c.neighbors.includes(n) && !adjacentKnown.neighbors.includes(c.cell)
+          && Math.abs(cellHeight(c.cell,s.width,s.height)
+            -cellHeight(n,s.width,s.height))<1e-8
+          && !s.doors.some(d=>(d.a===c.cell&&d.b===n)
+            ||(d.b===c.cell&&d.a===n))
+          && !s.cells.some(t=>t.trap===true && t.blocked!==true
+            && s.visibleCells.includes(t.cell)
+            && Array.isArray(t.neighbors)
+            && ((c.neighbors.includes(t.cell) && t.neighbors.includes(c.cell))
+              || (adjacentKnown.neighbors.includes(t.cell)
+                && t.neighbors.includes(n))));
+        // The older blocked-cell flank rule remains, but a genuine
+        // spectator-side public guardian wall may outrank a merely nearby
+        // pressure apron. A CONNECTED hazard never earns this cutaway.
+        const guardianParapet = !publicParapet
+          && (!pressureParapet || guardianForegroundSealedScreen)
           && n>=0 && knownByCell.has(n) && !gateEdges.has(key)
-          && (guardianCauseway.has(c.cell) || guardianCauseway.has(n))
-          && (guardianSealedReefScreen ||
-            (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
-              || (guardianSightlines.has(n) && guardianBlockedRelief.has(c.cell)))
-              && (!!c.blocked !== !!knownByCell.get(n).blocked)
-              && !knownByCell.get(n).neighbors?.includes(c.cell)));
+          && (guardianForegroundSealedScreen
+            || ((guardianCauseway.has(c.cell) || guardianCauseway.has(n))
+              && (guardianSealedReefScreen ||
+                (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
+                  || (guardianSightlines.has(n) && guardianBlockedRelief.has(c.cell)))
+                  && (!!c.blocked !== !!knownByCell.get(n).blocked)
+                  && !knownByCell.get(n).neighbors?.includes(c.cell)))));
         const fossilStageEdge = fossilSide && fossilSide.n === n;
         if (publicParapet || pressureParapet || guardianParapet)
           gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell,

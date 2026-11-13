@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T15:04:34.347Z",
+  "updatedAt": "2026-11-13T16:22:26.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass334 verified Pass333's native 390px Pip/Thornback shoulder camera against original 22 uncropped WebGL PNGs (21/21 image hashes), but exact-source visual CI fails because its old fixed pixel now hits visible cell117 rather than cell100. Significant genuine camera change (54.378/255 brace RGB) is NOT full Nintendo parity. New camera-real exact-floor/lip/source-Pip-course assertions require fresh exact-HEAD CI and complete original full-frame SHA review; fixed benchmark unmet."
+    "summary": "Pass335 candidate: retrieved exact Pass334 native WebGL artifact 14050575820 at HEAD 57fbd331; 39 uncropped full-resolution PNGs, 37/37 PNG JSON SHA-256 verified, original 390px brace ray (.50,.66) directly hits wide ivory 2.34m parapet at public nonpassage cell100->117. Original guarded reciprocal, same-level, publicly disclosed guardian spectator wall now proposed as substantial full-width dark Tideglass masonry even when an unrelated nearby pressure apron overlaps; actual connected pressure, gates, hidden cells and real passages are excluded. New exact-HEAD CI/rendered BEFORE/AFTER and independent critic PENDING. Nintendo benchmark unmet."
   },
   "captures": [
     {
