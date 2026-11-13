@@ -9906,5 +9906,29 @@
     "nextHighestImpactAction": "Complete already-queued exact-head original F9 first-episode physical-doorway-submissions.json/native footage, then source-pin this shader-prewarm candidate on a separate controlled capture after runner capacity, compare first GPU cost and native physical threshold; revert prewarm if it only moves hitches or increases resource use.",
     "review": "docs/reviews/2026-11-13-tower-pr68-cold-void-program-prewarm-source-cadence.md",
     "safety": "No PR58, baseline, other games, merge, deploy, draft promotion or force-push"
+  },
+  "p0FrozenBaselineNativeCaptureSymmetry20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedProductionHead": "ace2fa617c7d987e6e55254952b60cf591b84fb1",
+    "codeTestHeadBeforeEvidence": "c5d1baac1ea27d7f6b554ea6f4d3a7434c333a37",
+    "actualBlockedOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43437667005",
+    "exactObservedBlocker": "All FOUR baseline browser workers failed Cannot find module tower-physical-doorway-submissions.cjs from their neutral overlaid Playwright test; candidate four succeeded, source/event-pair 0/8. No eight-way matched native acceptance from that run.",
+    "resolution": "Original source unchanged; copied required observational helper in workflow baseline overlay, kept exact camera submission ordering by replacing stale textual adjacency test with guarded ordering assertion. Static contract: 11/11 neutral test dependencies copied, final submitted camera order valid. Node CI and new WebM still unverified.",
+    "priorNative": "43428237425: 8 original 60s+ recordings but strict physical doorway native matching 0/2; real F9 WebGL first return cost 463.3ms desktop, 100.2ms portrait.",
+    "latestQualityBeforeChanges": "https://github.com/my-edutu/Ai_games/actions/runs/43440949676 — RED Phase3-0 stale camera test, Phase3-3 missing baseline helper and Phase6 non-Tower runner timeout",
+    "currentGameCodeSource": "ace2fa617c7d987e6e55254952b60cf591b84fb1",
+    "requestedCapture": "This evidence commit pins exact immutable github.sha (including code changes) for 9-job true 1x baseline/candidate 960x600 & 390x844, four scenarios 60s+, video PTS+source events, exported first-episode gateway audit.",
+    "genuineIndependentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "biggestExperienceGap": "Native real full-body uninterrupted same original bronze gateway crossing Floor8→9 still not proved in either viewport; the prewarm performance candidate is not yet evaluated. Genuine full outcome/restart pairing and baseline films required.",
+    "nextHighestImpactAction": "Inspect next exact-source 9-job video+per-frame audit for first genuine F9 doorway, heroic body, depth/camera occlusion and WebGL first-return cost; rebuild failing physical component if hard cut persists. CI veto until all contracts green; no stages advanced.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-frozen-source-native-capture-symmetry-recovery.md",
+    "safety": "Only same PR68 branch evidence/workflow/test code changed. No PR58 rewrite, baseline move, merge/deploy/force-push, draft promotion or unrelated games."
   }
 }

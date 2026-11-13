@@ -2032,5 +2032,23 @@
     },
     "verdict": "NOT EVALUATED",
     "safety": "PR68 draft on PR58. No force push merge deploy baseline move or unrelated game changes."
+  },
+  "p0FrozenOriginalCaptureDependencyRecovery20261113": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedEvidence": "43437667005 candidate all scenarios filmed; frozen baseline all four workers failed missing neutral tower-physical-doorway-submissions helper; 0/8 matched source event pairs. Helper now installed without modifying original frozen playable game.",
+    "sourceCodeShaBeforeCaptureRequest": "c5d1baac1ea27d7f6b554ea6f4d3a7434c333a37",
+    "candidateSourceSha": "EXACT immutable github.sha of this evidence-request commit; never floating ref; unchanged protected baseline",
+    "requiredFilm": "9-job original gameplay: 8 genuinely recorded >=60s 1x native WebM baseline/candidate, ascent/moving/guardian-crusher/crossing-F9/outcome-restart; desktop 960x600 portrait 390x844 matched seed tower-transformation-capture-v1 and low tier. Pair exact native PTS and source events, extract first-episode GPU-doorway snapshots/physical-doorway-submissions.json.",
+    "visualProofRequired": "Only real complete hero through same original bronze gateway, with roof and Floor9 physical continuity in both native viewport recordings; no source-only pass, hallucinated camera, or synthetic episode.",
+    "priority": "Match exact native film+exported first-episode returned-WebGL diagnostics, compare warmed candidate first F9 WebGL cost and old GPU arch projection; fix actual world/camera depth/occlusion if remains hard cut.",
+    "safety": "No frozen baseline rewrite, no PR58 edits, no unrelated games, no merge/deploy/force-push/draft conversion.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED"
   }
 }

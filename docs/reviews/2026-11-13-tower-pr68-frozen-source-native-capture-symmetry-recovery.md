@@ -1,0 +1,24 @@
+# P0 — restore the frozen baseline’s original full-motion capture symmetry (13 November 2026)
+
+**Stage:** P0 OPEN. **Verdict:** NOT EVALUATED. **Protected frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9`. Same existing open Draft PR #68 on PR #58. No authority/gameplay movement or asset changes, deployment, merge, force-push, PR58 edit, or draft conversion.
+
+## Exact source and directly observed blocker
+
+- Inspected PR68 head `ace2fa617c7d987e6e55254952b60cf591b84fb1`, then committed a safe same-branch neutral capture fix and a source-camera test contract repair (code/test head `c5d1baac1ea27d7f6b554ea6f4d3a7434c333a37`).
+- Latest complete pinned real gameplay attempt [43437667005](https://github.com/my-edutu/Ai_games/actions/runs/43437667005) recorded candidate source `0cffc907d011d19382217fbf6f54ab832319263a` in all four 60+ second scenarios (desktop and portrait), but **all four frozen baseline jobs failed before video capture**. Baseline `tests/browser/tower-live-motion.spec.cjs` now requires `../../scripts/tower-physical-doorway-submissions.cjs`, which exists only in the current neutral harness. The workflow copied the new browser witness into the immutable baseline checkout **without copying that required neutral helper**, producing `Cannot find module '../../scripts/tower-physical-doorway-submissions.cjs'` and `No tests found`. No baseline video was produced in this run, and pair-source-events correctly vetoed 0/8. This is a verifiable capture symmetry blocker, **not** an actual baseline gameplay failure.
+- The earlier [43428237425](https://github.com/my-edutu/Ai_games/actions/runs/43428237425) had all eight genuine 60+s original source films, but failed strict native visual doorway matching **0/2 viewports**. In first Floor9 submission the source tick jumps 451→459 desktop and 452→457 portrait; real first-WebGL return cost measured 463.3ms desktop and 100.2ms portrait. Prior native film around 24–26 seconds abruptly replaces bronze Floor8 with violet Floor9. Hero and original door co-visible continuously: **NOT PROVED**.
+- On the current [43440949676 quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/43440949676), Phase3-3 failed the test of missing neutral helper; Phase3-0 failed a brittle camera assertion that assumed no intervening source guards between final `camera.updateMatrixWorld(true)` and `world.revealGuardianSightlines`; Phase6 timed out on a non-Tower readiness partition. **CI remains RED.**
+
+## Meaningful P0 unblocker delivered
+
+1. Updated `.github/workflows/tower-transformation-visual-evidence.yml` to install the returned-WebGL audit helper into the frozen checkout **only inside `source/scripts/` during capture**. The immutable baseline source commit, server, original runtime, assets and recorded native pixels are not edited.
+2. Repaired the Phase3 final-camera source contract to assert final `lookAt` → matrix update → only syntactic guard closures → genuine sightline pass. This checks **which camera is submitted**, without weakening source safety or inventing visible film improvements.
+3. Inspected current frozen helper imports: all 11 direct neutral browser-script dependencies are now copied to baseline; the final camera/sightline ordering and protected baseline marker passed static source validation. **This is not a local Node test run, green CI, original clip, GPU performance result or evidence of commercial quality.**
+
+## Required evidence next
+
+- Run the exact nine-job 1x baseline/candidate 60+s ascent, moving, guardian/crusher, outcome/restart original browser campaign triggered by the accompanying capture request. Confirm **8/8 native source-pinned videos**, real 960×600 and 390×844 dimensions and Native WebM PTS/scene/event calibration; compare exact source SHAs, seed/tier, first-episode `physical-doorway-submissions.json`. Never infer a matched baseline victory if source did not earn it.
+- New current production candidate’s prewarmed first F9 draw is **NOT EVALUATED**: inspect full-motion frame transitions and the returned original doorway/camera evidence against the source timeline. If native hard cut persists, use observed projections and original pixel scene to rebuild unified physically continuous world/camera depth rather than another unmeasured fade.
+- Investigate Phase6 external timeout separately, without modifying Maze/game content. Full exact-head CI is a safety veto. Real-device p50/p95/p99/memory and 5 genuinely independent randomized blind reviewers for EACH LOOKS/FEELS/PLAYS remain **NOT EVALUATED**; counts 0/5 each.
+
+**Next highest-impact action:** inspect newly obtained first-episode returned-WebGL diagnostics and genuine paired full-motion films, then correct the dominant physical doorway camera/world system. Remain at P0 until 2/2 native crossings + full loop and later acceptance gates hold.
