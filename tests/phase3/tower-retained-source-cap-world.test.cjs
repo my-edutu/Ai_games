@@ -108,14 +108,25 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     for(let i=0;i<15;i++)world.update(second,.1,.1+i*.1,{quality:'low'});
     assert.ok(world.group.getObjectByName('platform:f8:cap'),
       'unsubmitted GPU frames cannot consume old world continuity');
-    world.noteFrameSubmitted(second,{});
-    for(let i=0;i<5;i++)world.update(second,.1,2+i*.1,{quality:'low'});
-    assert.ok(originalCover.opacity<.8 && originalCover.opacity>.05,
-      'actual bronze deck hands visually into the violet deck during submitted-frame time');
+    world.noteFrameSubmitted(second,{},.1);
+    const firstShownOpacity=originalCover.opacity;
+    for(let i=0;i<20;i++)world.update(second,.1,2+i*.1,{quality:'low'});
+    assert.equal(originalCover.opacity,firstShownOpacity,
+      'twenty stalled/unsubmitted updates CANNOT consume the old bronze shot');
+    assert.equal(world.diagnostics().retainedSourceCap?.visibleSeconds,.1,
+      'the original gateway clock advances only on actually drawn frames');
     assert.ok(world.group.getObjectByName('platform:f8:cap'),
       'real cap survives the first successful new-floor renderer submission');
-    world.noteFrameSubmitted(second,{});
-    for(let i=0;i<17;i++)world.update(second,.1,3+i*.1,{quality:'low'});
+    for(let i=0;i<5;i++){
+      world.noteFrameSubmitted(second,{},.1);
+      world.update(second,.1,4+i*.1,{quality:'low'});
+    }
+    assert.ok(originalCover.opacity<.8 && originalCover.opacity>.05,
+      'the visible old deck progresses only across real successful WebGL returns');
+    for(let i=0;i<14;i++){
+      world.noteFrameSubmitted(second,{},.1);
+      world.update(second,.1,6+i*.1,{quality:'low'});
+    }
     assert.equal(world.group.getObjectByName('platform:f8:cap'),undefined,
       'the bounded old floor must retire on submitted-frame display time');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
@@ -232,15 +243,32 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
       'only the source-proven Floor 8 guardian exit defers the noninteractive structural shell');
     assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined,
       'the first playable frame must not upload the heavyweight new tower shaft');
-    world.noteFrameSubmitted(newFloor,{});
+    world.noteFrameSubmitted(newFloor,{},.05);
     world.update(newFloor,.05,.1,{quality:'low'});
-    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
+    const shaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
+    assert.ok(shaft,
       'the original new-floor architecture returns only after the first genuine render');
+    const shellMaterials=[];
+    shaft.traverse(o=>{
+      if(o.isMesh && o.material?.name==='SourceEarnedIncomingFloorNineShaft')
+        shellMaterials.push(o.material);
+    });
+    assert.ok(shellMaterials.length>0,'deferred shell isolates actual shaft materials');
+    assert.ok(shellMaterials.every(m=>m.transparent && !m.depthWrite && m.opacity===0),
+      'original violet structure cannot pop in as an opaque new-world slab');
+    assert.equal(world.diagnostics().deferredDistantArrival?.structuralFade,0);
+    for(let i=0;i<12;i++)world.update(newFloor,.05,.1+i*.05,{quality:'low'});
+    assert.ok(shellMaterials.every(m=>m.opacity===0),
+      'unsubmitted RAF frames cannot reveal the entire new shell behind the old gate');
     assert.equal(world.diagnostics().vistaLayers,0,
       'canyon upload must not share the structural shaft submission');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission');
-    world.noteFrameSubmitted(newFloor,{});
+    world.noteFrameSubmitted(newFloor,{},.05);
     world.update(newFloor,.05,.15,{quality:'low'});
+    assert.ok(world.diagnostics().deferredDistantArrival.structuralFade>0,
+      'successfully returned source frame begins the ACTUAL F9 shaft reveal');
+    assert.ok(shellMaterials.every(m=>m.opacity>0 && m.opacity<1),
+      'new shaft arrives gradually rather than a hard scene replacement');
     assert.equal(world.diagnostics().vistaLayers,3,
       'the original panorama returns only after a SECOND successful Three.js source frame submission');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-vista-submission');
