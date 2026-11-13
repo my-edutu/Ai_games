@@ -4808,3 +4808,20 @@ test('real original Walking_A torso counterturn has bounded source-owned follow-
  assert.match(renderer,/actor\.rigMeleeBones/,
   'the original spine must reuse the existing reversible source-bone attachment');
 });
+
+
+test('real original ankle hold and fresh rescue expose identical measured early toe-depth semantics',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const holdStart=source.indexOf('continuitySource:held.source,sourceInstanceId:actor.assetRoot.uuid');
+ const holdEnd=source.indexOf('actor.sourceSwingToeCurrentFrameProofs??=',holdStart);
+ const freshStart=source.indexOf('frameAwareSwingUsed:angularReceipt.sparseFrameAllowanceUsed');
+ const freshEnd=source.indexOf('actor.sourceSwingToeCurrentFrameProofs??=',freshStart);
+ assert.ok(holdStart>=0&&holdEnd>holdStart&&freshStart>=0&&freshEnd>freshStart,
+  'both original GLB same-sole rescue and held-source proof branches must exist');
+ for(const branch of [source.slice(holdStart,holdEnd),source.slice(freshStart,freshEnd)]){
+  assert.match(branch,/earlySourceToeRescue:toeY>-.045&&toeY<-.03/,
+   'genuine same-depth original skinned toe holds cannot report undefined early-rescue flag');
+  assert.match(branch,/penetrationBeforeMeters:Math\.max\(0,-\.02-toeY\)/,
+   'original measured toe depth must remain attached to the same-frame receipt');
+ }
+});
