@@ -4728,9 +4728,9 @@ test('RED: original walking spine must finish AFTER the true rendered root yaw, 
   'genuine original spine was already posed before the displayed root changed direction');
  assert.ok(lateSourceSpine>authoritativeVisualYaw,
   'the original chest/shoulder/weapon chain must receive THIS FRAME actual visual root pivot after yaw interpolation');
- assert.match(model,/function stageRigWalkingFacingAfterRootYaw\\(/,
+ assert.ok(model.includes('function stageRigWalkingFacingAfterRootYaw('),
   'the live source-rig update must finish its reversible original-spine pose on the actual visible yaw');
- assert.match(model,/mount\\.last\\.multiply\\(mount\\.next\\)/,
+ assert.ok(model.includes('mount.last.multiply(mount.next)'),
   'a post-root source-spine overlay must be reversible before the next imported AnimationMixer frame');
 });
 
