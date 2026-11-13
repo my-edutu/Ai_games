@@ -5222,7 +5222,7 @@ test('RED: genuine 116.7ms fully-owned Walking_A original mobile toe may test a 
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const stage=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer('),
   renderer.indexOf('const originalSourceSwingToesAxis='));
- assert.match(stage,/sourceWeight<\.95&&frameInterval>\.1/,
+ assert.match(stage,/frameInterval>\.1&&sourceWeight<\.95/,
   'actual imported mixer must not open sparse frames to partially owned clips');
  assert.match(stage,/frameInterval>\.15/,'a >150ms source gap remains forbidden');
 });
