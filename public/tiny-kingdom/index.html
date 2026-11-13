@@ -17440,15 +17440,30 @@ function emitStreetCargo(p,x,y,z,size){
  // two angled shafts, loaded tray and cross-brace share the citizen's facing
  // and actual locomotion; only genuinely travelling supplies receive it.
  if(p.delivery){
-  const cy=y+.27*size,cz=z-.72*size,wood=rgb(0x8d6846);
+  const cy=y+.27*size,cz=z-.80*size,wood=rgb(0x8d6846);
+  const hardwood=rgb(0x73543a),lightOak=rgb(0xb08a5d);
   materialScope(MATERIAL.WOOD,()=>{
-   box(x,cy,cz,.63*size,.11*size,.70*size,wood);
+   // W288: one real load-bearing handcart: low ash plank floor, two raised
+   // side boards, diagonally pegged frame and a clear rear freight opening.
+   // All attached to the existing courier and original physical receipt.
+   box(x,cy,cz,.75*size,.085*size,.90*size,wood);
+   box(x,cy-.095*size,cz,.13*size,.105*size,.89*size,hardwood);
+   box(x,cy+.045*size,cz+.40*size,.74*size,.12*size,.065*size,lightOak);
+   box(x,cy+.035*size,cz-.42*size,.74*size,.12*size,.068*size,hardwood);
    for(const side of [-1,1]){
     const xx=x+side*COURIER_CART_GRIP.lateral*size;
-     limbSegment([xx,y+COURIER_CART_GRIP.height*size,
-       z+COURIER_CART_GRIP.back*size],
-      [xx,cy+.08*size,cz-.25*size],.022*size,wood,5);
-    const wx=x+side*.40*size,wz=cz-.09*size,wy=y+.22*size;
+    // No added road obstacle: these long slim oak shafts end precisely
+    // at the original IK-gripped hand locations, not at invented hands.
+    limbSegment([xx,y+COURIER_CART_GRIP.height*size,
+      z+COURIER_CART_GRIP.back*size],
+     [xx,cy+.08*size,cz-.31*size],.024*size,wood,4);
+    const boardX=x+side*.355*size;
+    box(boardX,cy+.07*size,cz,.052*size,.185*size,.86*size,hardwood);
+    box(boardX,cy+.225*size,cz,.063*size,.041*size,.85*size,lightOak);
+    for(const end of [-1,1])
+     limbSegment([boardX,cy-.015*size,cz+end*.34*size],
+      [boardX,cy+.205*size,cz+end*.38*size],.022*size,wood,4);
+    const wx=x+side*.455*size,wz=cz-.075*size,wy=y+.22*size;
     const travelled=courierWheelTrails.get(p.delivery.id)?.distance||0;
     // Unlike a phase-driven spinning disc, this wheel's rotation is the
     // ACTUAL collision-checked distance traversed / its rolling radius.
@@ -17459,8 +17474,8 @@ function emitStreetCargo(p,x,y,z,size){
       wy+Math.cos(angle)*radius*size,
       wz+Math.sin(angle)*radius*size];
     const iron=rgb(0x51473c),spokeOak=rgb(0xb49364);
-    for(let ring=0;ring<10;ring++){
-     const a=ring*Math.PI/5,b=(ring+1)*Math.PI/5;
+    for(let ring=0;ring<8;ring++){
+     const a=ring*Math.PI/4,b=(ring+1)*Math.PI/4;
      // Proper hollow iron-shod wheel, not a solid elliptical coin.
      // Faces and outer running tread are both visible at street height.
      quad(wheelPoint(.21,a,.058),wheelPoint(.21,b,.058),
@@ -17470,16 +17485,18 @@ function emitStreetCargo(p,x,y,z,size){
      quad(wheelPoint(.21,a,-.058),wheelPoint(.21,b,-.058),
       wheelPoint(.21,b,.058),wheelPoint(.21,a,.058),iron);
     }
-    for(let spoke=0;spoke<6;spoke++){
-     const a=wheelAngle+spoke*Math.PI/3;
-     limbSegment(wheelPoint(.038,a,side*.075),
-      wheelPoint(.17,a,side*.075),.024*size,spokeOak,4);
+    for(let spoke=0;spoke<5;spoke++){
+     const a=wheelAngle+spoke*Math.PI*2/5;
+     limbSegment(wheelPoint(.040,a,side*.075),
+      wheelPoint(.170,a,side*.075),.021*size,spokeOak,3);
     }
     ellipsoid(wx+side*.076*size,wy,wz,
       .045*size,.066*size,.066*size,rope,5);
     compactCitizenAnimation.lastAnimatedCartWheels++;
    }
-   box(x,cy+.13*size,cz+.30*size,.68*size,.17*size,.045*size,wood);
+   // Rear floor stays visibly open while crates are unloaded at the
+   // actual market; no door material can cover the original parcels.
+   box(x,cy+.14*size,cz+.30*size,.75*size,.075*size,.048*size,lightOak);
    // The real inventory stays in escrow until the authoritative receipt,
    // while the cart's physical load empties in visible stages. W09's market
    // handoff mesh carries the package toward the stall during each stage.
@@ -17495,11 +17512,26 @@ function emitStreetCargo(p,x,y,z,size){
     // Soft cloth parcels take the place of the former featureless slab.
     // Silhouette shows actual loaded/unloaded units without extra entities.
     for(let j=0;j<actualLoad.visibleBundles;j++){
-     const lateral=(j-1)*.175*size;
-     box(x+lateral,cy+.14*size+(j===1?.05:0),cz,
-      .20*size,.22*size,.30*size,cloth);
-     box(x+lateral,cy+.35*size+(j===1?.05:0),cz,
-      .17*size,.035*size,.29*size,rope);
+     const lateral=(j-1)*.175*size,sx=x+lateral,
+      low=cy+.12*size+(j===1?.05*size:0),
+      high=low+.24*size,half=.102*size,zHalf=.149*size;
+     const a=[sx-half,low,cz-zHalf],b=[sx+half,low,cz-zHalf],
+      c=[sx+half,low,cz+zHalf],d=[sx-half,low,cz+zHalf],
+      e=[sx-half*.77,high,cz-zHalf*.79],
+      f=[sx+half*.77,high,cz-zHalf*.79],
+      g=[sx+half*.77,high,cz+zHalf*.79],
+      h=[sx-half*.77,high,cz+zHalf*.79];
+     // A tapered stitched grain sack replaces two rectangular solid
+     // boxes. Folded sides remain visible from actual moving camera eyes.
+     materialScope(MATERIAL.GENERAL,()=>{
+      quad(a,e,f,b,cloth);quad(b,f,g,c,cloth);
+      quad(c,g,h,d,cloth);quad(d,h,e,a,cloth);
+      quad(e,h,g,f,cloth);
+      quad([sx-.013*size,high+.006*size,cz-zHalf*.80],
+       [sx+.013*size,high+.006*size,cz-zHalf*.80],
+       [sx+.013*size,high+.006*size,cz+zHalf*.80],
+       [sx-.013*size,high+.006*size,cz+zHalf*.80],rope);
+     });
     }
    }
   });
