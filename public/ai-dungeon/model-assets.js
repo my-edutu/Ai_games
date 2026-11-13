@@ -688,6 +688,15 @@ function stageRigWalkingFacingAfterRootYaw(actor,reducedMotion,sourceFrameInterv
   actor.rigWalkingTurnSourceId===sourceId&&
   (priorMode==='move'||priorMode==='idle')&&
   Number.isFinite(actor.rigWalkingTurnSourceYaw));
+ // Save the real original-Walking_A yaw/interval proof, not inferred turns.
+ // These read-only scalar receipts are exposed only through the existing
+ // on-demand rig inspector and do not scan skins, allocate geometry or steer.
+ actor.rigWalkingTurnObservedFrameInterval=sourceFrameInterval;
+ actor.rigWalkingTurnObservedRootTravel=actor.rigLastGroundedTravel;
+ actor.rigWalkingTurnObservedSourceSame=priorSame;
+ actor.rigWalkingTurnObservedYawStepRad=priorSame?
+  Math.atan2(Math.sin(actor.root.rotation.y-actor.rigWalkingTurnSourceYaw),
+   Math.cos(actor.root.rotation.y-actor.rigWalkingTurnSourceYaw)):null;
  const walkingTorsoCounterturn=priorSame?
   planOriginalSourceWalkingTorsoCounterturn({
    mode:actor.fullBody.mode,previousMode:priorMode,
@@ -3703,6 +3712,10 @@ function inspectSourceRigDeformation(actors){
     gaitWeight:actor.rigGaitWeight??0,
     sourceStanceSlideReliefFrames:actor.sourceStanceSlideReliefFrames||0,
      originalWalkingTorsoCounterturnRad:actor.walkingTorsoCounterturn?.offsetRad??0,
+     originalWalkingTorsoObservedFrameSeconds:Number.isFinite(actor.rigWalkingTurnObservedFrameInterval)?actor.rigWalkingTurnObservedFrameInterval:null,
+     originalWalkingTorsoObservedRootTravelMeters:Number.isFinite(actor.rigWalkingTurnObservedRootTravel)?actor.rigWalkingTurnObservedRootTravel:null,
+     originalWalkingTorsoObservedYawStepRad:Number.isFinite(actor.rigWalkingTurnObservedYawStepRad)?actor.rigWalkingTurnObservedYawStepRad:null,
+     originalWalkingTorsoPriorSourceSame:Boolean(actor.rigWalkingTurnObservedSourceSame),
      originalWalkingTorsoCounterturnFrames:actor.rigWalkingTurnFrames||0,
      originalWalkingTorsoFirstWalkFrames:actor.rigWalkingTurnFirstWalkFrames||0,
      originalWalkingTorsoCounterturnPeakRad:actor.rigWalkingTurnPeakRad||0,

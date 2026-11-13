@@ -1747,7 +1747,12 @@ export function planOriginalSourceWalkingTorsoCounterturn({
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
   ![rootTravel,frameInterval,previousRootYaw,currentRootYaw,
     previousOffsetRad].every(finite)||
-  rootTravel<0||rootTravel>.18||frameInterval<=0||frameInterval>.35||
+  // Only the original same-frame source yaw and real root displacement
+   // authorize this chest pose. Software WebGL can deliver a real original
+   // Walking_A turn after >350ms without a fabricated intermediate frame.
+   // Unlike floor-contact / ankle IK, this counterturn never predicts motion;
+   // cap the observed gap at 2s and retain the strict 120mrad total / step.
+   rootTravel<0||rootTravel>.18||frameInterval<=0||frameInterval>2||
   Math.abs(previousOffsetRad)>.120001)return null;
  const yaw= currentRootYaw-previousRootYaw;
  const signedYawChange=Math.atan2(Math.sin(yaw),Math.cos(yaw));

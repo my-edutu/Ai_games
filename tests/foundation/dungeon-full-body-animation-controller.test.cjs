@@ -4833,7 +4833,7 @@ test('real original Walking_A torso counterturn has bounded source-owned follow-
   {mode:'defeat'},{sourceClipName:'Idle'},{sourceWeight:.6},
   {sourceInstanceSame:false},{ownerLocomotion:false},{alive:false},
   {visible:false},{teleport:true},{reducedMotion:true},{interrupted:true},
-  {rootTravel:0},{frameInterval:.36},{frameInterval:0},
+  {rootTravel:0},{frameInterval:2.1},{frameInterval:0},
   {previousRootYaw:NaN},{currentRootYaw:NaN},{previousOffsetRad:NaN}
  ])assert.equal(plan({...base,...bad}),null,
   'a non-locomotion/unsafe source must never counterfeit torso recovery');
@@ -4903,4 +4903,21 @@ test('RED: source Walking_A spine follows real root pivots even across sparse We
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(renderer,/stageRigWalkingFacingAfterRootYaw\(/);
  assert.match(renderer,/planOriginalSourceWalkingTorsoCounterturn\(/);
+});
+
+// An exact real imported source frame is the only allowed yaw reference.
+// The inspector must name its observed interval and same-clone anchor,
+// so sparse software-WebGL frames cannot masquerade as 60Hz IK proof.
+test('sparse full-body pivot exposes original GLB visible-frame/clone witness without new source scans',()=>{
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/rigWalkingTurnObservedFrameInterval=sourceFrameInterval/);
+ assert.match(source,/rigWalkingTurnObservedRootTravel=actor\.rigLastGroundedTravel/);
+ assert.match(source,/rigWalkingTurnObservedSourceSame=priorSame/);
+ for(const field of ['originalWalkingTorsoObservedFrameSeconds',
+  'originalWalkingTorsoObservedRootTravelMeters',
+  'originalWalkingTorsoObservedYawStepRad',
+  'originalWalkingTorsoPriorSourceSame'])
+  assert.ok(source.includes(field),'native inspector missing '+field);
+ assert.match(source,/mount\.last\.multiply\(mount\.next\)/,
+  'native spine must remain reversible on original mixer re-entry');
 });
