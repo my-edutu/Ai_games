@@ -1408,7 +1408,8 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   groundedMoving:witnessed,
   teleport:Boolean(actor.locomotionTeleport),reducedMotion,
   interrupted:Boolean(actor.fullBody.interrupted),
-  rootTravel:actor.rigRecentGroundedTravel,floorTopY:-.02,
+  rootTravel:actor.rigRecentGroundedTravel,
+  frameInterval:actor.rigSourceSwingFrameInterval??.016,floorTopY:-.02,
   heelWorldY:heelY,toeWorldY:toeY,trialToeWorldY:probeToeY,
   trialAngleRad:probeAngle,previousCorrectionRad:previous
  });
@@ -1515,6 +1516,10 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   beforeToeY:toeY,afterToeY:calf?.afterToeY??afterToeY,
   beforeHeelY:heelY,afterHeelY:calf?.afterHeelY??afterHeelY,
   floorTopY:-.02,liftMeters:lift+(calf?.liftMeters??0),
+  // Provenance only; a longer interval or a positive number does NOT
+  // certify stance contact, planted feet or physically complete clearance.
+  visibleFrameIntervalSeconds:actor.rigSourceSwingFrameInterval??null,
+  frameAwareSwingUsed:Math.abs(delta)>.080001,
   penetrationBeforeMeters:Math.max(0,-.02-toeY),
   penetrationAfterMeters:Math.max(0,-.02-(calf?.afterToeY??afterToeY)),
   earlySourceToeRescue:toeY>-.045&&toeY<-.03,
@@ -2614,6 +2619,9 @@ function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
 
 function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt,sourceFrameVisible=true){
  if(!actor.authored||!actor.mixer)return;
+ // Source-rig toe relief uses the actual visible-frame interval, not capped
+ // mixer dt or fabricated authority movement. This is read-only timing.
+ actor.rigSourceSwingFrameInterval=sourceFrameInterval;
  // Do not loop walk clips when the authoritative move has already settled.
  actor.fullBody=advanceFullBodyController(actor.fullBody,{
    unit:actor.u,grounded:actor.groundedPerformance,damageBeat:actor.damageBeat,
