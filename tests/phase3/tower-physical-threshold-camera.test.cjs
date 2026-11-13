@@ -42,6 +42,16 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   assert.match(scene,/physicalThresholdFrameSourceBound = !!thresholdSteps/);
   assert.match(scene,/physicalThresholdCamera: \{sourceBound: physicalThresholdFrameSourceBound/);
   assert.doesNotMatch(scene,/physicalThresholdCamera: \{sourceBound: !!coldArchLens/);
-  assert.match(scene,/camera\.lookAt\(lookAt\);\s*camera\.updateMatrixWorld\(true\);\s*world\.revealGuardianSightlines/);
+  // Frame-scoped cold-door corrections end in a nested source guard. The
+  // sightline pass must receive the FINAL submitted camera, not the earlier
+  // source-world or warmup lens. Closing guards are not extra camera stages.
+  const reveal=scene.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);');
+  const finalLook=scene.lastIndexOf('camera.lookAt(lookAt);',reveal);
+  const finalMatrices=scene.lastIndexOf('camera.updateMatrixWorld(true);',reveal);
+  assert.ok(reveal>0 && finalLook>0 && finalMatrices>finalLook,
+    'submit the corrected lens before the real world sightline pass');
+  assert.match(scene.slice(finalMatrices+'camera.updateMatrixWorld(true);'.length,reveal),
+    /^\\s*}\\s*}\\s*$/,
+    'no intervening camera/world stage may override the corrected shot');
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
