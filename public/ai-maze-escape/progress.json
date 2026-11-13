@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T20:23:26.678Z",
+  "updatedAt": "2026-11-13T21:45:03.904Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass342 first exact-commit visual workflow failed source regression (1/172): synthetic fixture chose a wall already replaced by the physical pressure parapet. Corrected genuinely roofed spectator fixture uses Pip11→10→9, spectator12 and unrelated public pressure19 without altering thresholds. New exact-HEAD CI/WebGL screenshot proof pending; Nintendo benchmark unmet."
+    "summary": "Pass343: Verified original Pass342 WebGL artifact 14073604301 (39 full-resolution PNGs, 37/37 source-image SHA pairs). Repetitive genuine solid inner spectator masonry still obstructs real guardian stage. New public two-sided sealed inner wall parapet candidate with installed-Three regression; exact-commit native image and independent review pending. Fixed Nintendo benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass343 2026-11-13: Original Pass342 native artifact 14073604301 recovered, 39 full-resolution PNGs /37 matched SHA pairs; 390 brace SHA 83c241bd... still has full-height stone spectator walls. Candidate rebuilds only witnessed inner/second-ring PUBLIClY SEALED two-sided nonpassages as continuous opaque low stone. No key, gate, pressure, collision, AI or unseen geometry change. New exact-commit tests/screenshots pending.",
     "Pass342 fixture correction 2026-11-13: first 43500380160 source test rejected assumed roof that had already become a pressure parapet; corrected real deterministic published spectator roof fixture without lowering any visual/resource/privacy bounds. New exact-HEAD visual CI pending.",
     "Pass342 2026-11-13: Original Pass341 native action 43495655031 39 full-resolution PNGs and 37/37 verified SHA pairs; 390px brace changed only 0.7017236/255 vs Pass340, REJECTED artistic win. The broad public pressure-proximity ring restored tall wall ornaments even during witnessed reciprocal guardian encounter. New code only suppresses nonfunctional tall spectator dressing while preserving actual disclosed trap and every real hazard/AI/gate/collision mechanism. Test fixture: publicly known pressure-proximate spectator with real roofed tower and source-based negative counterexamples. New exact-commit WebGL and critic pending; draft PR only.",
     "Pass341 2026-11-13: Actual 390px native Pip/Thornback stage has redundant tall ornamental walls, crenellations, pennants and trees competing with physical actors. Source-authentic public reciprocal stage second ring now omits ONLY nonfunctional roofed windcatchers, wall-top foliage/flags, random columns and fossil/plant clutter; retains walls/caps, signals, hazards, keys, collision, privacy and camera. New installed-Three comparative/regression contract. New CI, unaltered WebGL screenshots and independent critic PENDING; draft PR only.",

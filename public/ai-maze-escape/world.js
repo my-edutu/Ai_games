@@ -1926,8 +1926,12 @@ export function createMazeWorld(options = {}) {
         // directly linked public pressure trigger always retains priority.
         const guardianForegroundSealedScreen=!!adjacentKnown
           && guardianForeground.has(c.cell) && guardianForeground.has(n)
-          && guardianOuterCourt.ordinary.has(c.cell)
-          && guardianOuterCourt.ordinary.has(n)
+          // Pass343: cut down genuine published inner guardian spectator
+          // walls, not just outer/outer masonry. The existing opaque solid
+          // parapet remains; no unknown/one-way/open/pressure/gate edge qualifies.
+          && ((guardianOuterCourt.ordinary.has(c.cell)
+            && guardianOuterCourt.ordinary.has(n))
+            || guardianSightlines.has(c.cell) || guardianSightlines.has(n))
           && c.blocked===false && adjacentKnown.blocked===false
           && !c.trap && !adjacentKnown.trap
           && !c.checkpoint && !adjacentKnown.checkpoint
