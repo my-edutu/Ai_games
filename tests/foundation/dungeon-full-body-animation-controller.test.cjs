@@ -10,6 +10,38 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+
+// Regression — genuine source-skinned swing toe remains buried ~47–76mm on
+// recent 390px CC0 Walking_A; a long but visible frame should be able to
+// use its independently verified original-ankle toe-lift trial, not only
+// a 60Hz-sized angular step. This does NOT authorize stance IK or contact.
+test('original deeply buried swing toe uses a bounded frame-aware source ankle slew',async()=>{
+ const {planOriginalSourceSwingToeClearance:plan}=await load();
+ const witnessed={mode:'move',sourceClipName:'Walking_A',
+  sourceAnatomyVerified:true,sourceWeight:1,alive:true,visible:true,
+  groundedMoving:true,rootTravel:.04,floorTopY:-.02,
+  heelWorldY:.11,toeWorldY:-.094,trialToeWorldY:-.054,
+  trialAngleRad:.2,previousCorrectionRad:0};
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.14})-.128)<.000001,
+  'one verified 140ms deep-swing frame should lift more than 80mrad, capped below 160mrad');
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.016})-.08)<.000001,
+  'ordinary source animation frames retain the prior 80mrad joint slew');
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.35})-.16)<.000001,
+  'even severe original-source frame sparsity cannot exceed 160mrad in one sample');
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.14,toeWorldY:-.036})-.08)<.000001,
+  'a shallow toe intrusion cannot request the faster deep-swing envelope');
+ assert.ok(Math.abs(plan({...witnessed,frameInterval:.14,sourceWeight:.8})-.08)<.000001,
+  'partly owned source clips cannot get the faster ankle envelope');
+ for(const unsafe of [{heelWorldY:-.01},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{alive:false},{visible:false},{frameInterval:.5},
+  {sourceClipName:'Idle'}]){
+  const value=plan({...witnessed,...unsafe});
+  if(unsafe.frameInterval===.5)assert.equal(value,.08,
+   'an excessively long display gap cannot authorize an unbounded source ankle slew');
+  else assert.equal(value,0,'unsafe original rig owner must not be corrected');
+ }
+});
+
 test('real 390px original Walking_A calf: accept small but measurable heel-safe source lift with bounded slew',async()=>{
  const {selectOriginalSourceSwingCalfTrial:select,planOriginalSourceSwingCalfAssist:plan}=await load();
  // Actual same-skinned foot and ORIGINAL right lowerleg quaternion probes from
