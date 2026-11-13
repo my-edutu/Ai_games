@@ -706,3 +706,41 @@ test('D04 witnessed dodge and guarded HP block cannot be minted from unrelated p
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+
+test('D04 delayed evasion and shield contact cannot resurrect after the witnessed public pose has ended',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const unit=(action,actionTick,x,z,guardTick=null)=>({
+  id:'vanguard',kind:'vanguard',faction:'party',hp:25,maxHp:30,
+  x,z,action,actionTick,guardTick
+ });
+ let current={run:1,floor:1,tick:12,units:[unit('move',11,3,2)]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  getCurrentSnapshot:()=>current
+ });
+ const dodge=cue({id:'1:1:11:evade:vanguard:-',kind:'evade',visual:'evade',
+  audio:'evade',proof:'authority-event-and-observed-step',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:3,z:2}});
+ const block=cue({id:'1:1:11:block:vanguard:-',kind:'block',visual:'block',
+  audio:'block',proof:'authority-block-unique-guarded-hp',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null});
+ try{
+  assert.equal(stage.emit(dodge),false,'an old move cannot emit delayed dodge grit');
+  current={...current,tick:11,units:[unit('move',11,4,2)]};
+  assert.equal(stage.emit(dodge),false,'different destination cannot become the witnessed dodge');
+  current={...current,units:[unit('idle',11,3,2)]};
+  assert.equal(stage.emit(dodge),false,'the evasion action must still be observed');
+  current={...current,units:[unit('move',11,3,2)]};
+  assert.equal(stage.emit(dodge),true,'same-tick observed legal step can emit grit');
+  current={...current,tick:12,units:[unit('guard',11,2,2,11)]};
+  assert.equal(stage.emit(block),false,'expired guarded HP contact cannot float on a later frame');
+  current={...current,tick:11,units:[unit('guard',11,2,2,10)]};
+  assert.equal(stage.emit(block),false,'guardTick cannot differ from its block witness');
+  current={...current,units:[unit('guard',11,2,2,11)]};
+  assert.equal(stage.emit(block),true,'the live guarding defender retains its shield cue');
+  assert.equal(stage.stats().instancesByPool.dust,2);
+  assert.equal(stage.stats().instancesByPool.block,1);
+  assert.equal(stage.stats().reservedInstances,102);
+ }finally{stage.dispose()}
+});
