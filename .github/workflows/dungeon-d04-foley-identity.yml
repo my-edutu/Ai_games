@@ -73,6 +73,7 @@ jobs:
             tests/foundation/dungeon-d04-scene-flush-receipts.test.cjs \
             tests/foundation/dungeon-d04-held-warning-gpu-update.test.cjs \
             tests/foundation/dungeon-d04-pre-submit-wall-deadline.test.cjs \
+            tests/foundation/dungeon-d04-submitted-frame-replay-guard.test.cjs \
             tests/foundation/dungeon-d04-render-cost-pair.test.cjs \
             tests/foundation/dungeon-d04-dynamic-render-pair.test.cjs \
             tests/foundation/dungeon-d04-capture-cost-pair.test.cjs \
