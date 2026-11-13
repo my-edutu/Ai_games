@@ -52,7 +52,7 @@ no({}, {skin:false});no({}, {gpu:false});
 no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
 no({activity:'Unloading grain'});no({activity:'Collecting household provisions'});
 no({activity:'Forging a hinge'});no({phase:NaN});
-no({}, {height:.16,visible:true});
+no({}, {height:.23,visible:true});
 const fn=html.slice(html.indexOf('function getForegroundSkinAudit('),
  html.indexOf('let actorGpuStaging=',html.indexOf('function getForegroundSkinAudit(')));
 assert(fn.includes('passiveSkinnedWithoutReceiptMeal:true'));
