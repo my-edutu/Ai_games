@@ -57,3 +57,57 @@ test('actual disclosed inner guardian sealed edge has low solid masonry, never a
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('Pass344 third-ring public same-tier NONPASSAGE screens become real low stone; hidden/pressure/gated edges stay authoritative',async()=>{
+  const {createMazeWorld,publicGuardianWitnessedForegroundCells}=await load();
+  const s=court(),original=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),starting=w.stats();
+  try {
+    const near=publicGuardianWitnessedForegroundCells(s);
+    assert.equal(near.has(12),true);
+    assert.equal(near.has(13),false,'original two-cell floor/material district cannot spread');
+    w.update(s);
+    const oldWallCount=w.stats().guardianSightlineParapets;
+    const far={...s,visibleCells:[...s.visibleCells,13],
+      cells:[...s.cells,{cell:13,blocked:false,neighbors:[]}]};
+    const truth=JSON.stringify(far);
+    assert.equal(publicGuardianWitnessedForegroundCells(far).has(13),false,
+      'the ordinary visual court never uses a speculative third ring');
+    assert.equal(publicGuardianWitnessedForegroundCells(far,undefined,3).has(13),true,
+      'the extra wall-only tile is actually already published and level-matched');
+    w.update(far);
+    const actual=w.stats();
+    assert.ok(actual.guardianSightlineParapets>oldWallCount,
+      'real source-bound 12/13 spectator screen now reconstructs as solid LOW masonry');
+    assert.equal(actual.geometryCount,starting.geometryCount,'no new GPU geometry classes');
+    assert.equal(actual.materialCount,starting.materialCount,'no new material classes');
+    assert.equal(JSON.stringify(far),truth,'world rendering never mutates public knowledge');
+    const oneWay={...far,cells:far.cells.map(c=>c.cell===12?{...c,neighbors:[13]}:c)};
+    w.update(oneWay);
+    assert.ok(w.stats().guardianSightlineParapets<actual.guardianSightlineParapets,
+      'one-sided movement report is not proof of a sealed public wall');
+    w.update({...far,visibleCells:s.visibleCells});
+    assert.equal(w.stats().guardianSightlineParapets,oldWallCount,
+      'unpublished far endpoint never authorizes a cutaway');
+    w.update({...far,doors:[{a:12,b:13,open:false}]});
+    assert.ok(w.stats().guardianSightlineParapets<actual.guardianSightlineParapets,
+      'authentic closed gate must keep original sealed geometry');
+    w.update({...far,cells:far.cells.map(c=>c.cell===13?{...c,trap:true}:c)});
+    assert.ok(w.stats().guardianSightlineParapets<actual.guardianSightlineParapets,
+      'real disclosed pressure machinery cannot be flattened');
+    w.update({...far,visibleCells:far.visibleCells.filter(c=>c!==8)});
+    assert.equal(w.stats().guardianSightlineParapets,0,
+      'hidden Thornback cannot authorize a false visual cutaway');
+    for(let i=0;i<6;i++){
+      w.update({...far,runToken:'pass344-third-ring-reset-'+i});
+      assert.equal(w.stats().guardianSightlineParapets,actual.guardianSightlineParapets);
+      assert.ok(w.stats().geometryCount<100,'original strict six-run GPU budget remains <100');
+    }
+    assert.equal(JSON.stringify(s),original);
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

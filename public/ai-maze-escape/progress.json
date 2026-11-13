@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T21:46:59.512Z",
+  "updatedAt": "2026-11-13T22:03:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass343 initial focused CI 43513503503 rejected false test fixture spanning real 1.4m elevation boundary (172/173 tests passed); corrected seven-row same-tier source fixture without altering product geometry or thresholds. New exact-HEAD real WebGL screenshot acceptance pending. Nintendo benchmark unmet."
+    "summary": "Pass344 production candidate extends only genuinely disclosed same-tier guardian NONPASSAGE third-ring cutaway, preserving original two-cell floor district and all closed gates, pressure, navigation and privacy. Native exact-HEAD WebGL and full-frame before/after remain pending; Nintendo benchmark not met."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass344 2026-11-13: Source-authentic 390px Pip–Thornback frame remains crowded by genuine third-ring full-height spectator masonry even after Pass343. New strictly public, mutually sealed, same-level nonpassage cutaway uses existing low opaque Tideglass barrier only on witnessed safe wall edges; ordinary 2-cell court, collision, hidden routes, gates, pressure and authoritative AI unchanged. Added installed-Three test for far 12/13 wall, privacy negatives, reset and strict <100. New exact-commit Chromium/PNG hashes/independent critic PENDING; benchmark unmet.",
     "Pass343 fixture correction 2026-11-13: first focused 43513503503 failed 1/173 because fabricated five-row wall 7/12 was legitimately on different elevation tiers. Rebuilt original public fixture on seven rows with both actual spectator walls at 2.8m, preserving two-low-walls assertion, hidden/one-way/gated, GPU strictness. Re-run exact-HEAD native CI; no visual win.",
     "Pass343 2026-11-13: Original Pass342 native artifact 14073604301 recovered, 39 full-resolution PNGs /37 matched SHA pairs; 390 brace SHA 83c241bd... still has full-height stone spectator walls. Candidate rebuilds only witnessed inner/second-ring PUBLIClY SEALED two-sided nonpassages as continuous opaque low stone. No key, gate, pressure, collision, AI or unseen geometry change. New exact-commit tests/screenshots pending.",
     "Pass342 fixture correction 2026-11-13: first 43500380160 source test rejected assumed roof that had already become a pressure parapet; corrected real deterministic published spectator roof fixture without lowering any visual/resource/privacy bounds. New exact-HEAD visual CI pending.",

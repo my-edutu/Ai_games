@@ -256,7 +256,11 @@ export function publicGuardianOuterCourtCells(s,causeway=publicGuardianCausewayC
 // This is scene treatment only after a real public reciprocal Pip/guardian
 // causeway is witnessed; no unseen, remembered, private or fake geometry.
 // A stopped, hidden or gated duel restores the original palette.
-export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardianCausewayCells(s)) {
+export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardianCausewayCells(s),cutawayRange=2) {
+  // The normal two-cell material district remains fixed. Only the separate
+  // sealed-wall sightline caller may request a THIRD published tile, never
+  // unseen geometry, a new navigable connection or a camera-inferred route.
+  const maxDistance=cutawayRange===3?3:2;
   const foreground=new Set();
   if(!causeway.has(s?.currentCell)||!Array.isArray(s?.cells)
     ||!Array.isArray(s?.visibleCells) || !Number.isSafeInteger(s?.width)
@@ -271,7 +275,7 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
       ||c.trap===true)continue;
     const d=Math.abs(c.cell%s.width-s.currentCell%s.width)
       +Math.abs(Math.floor(c.cell/s.width)-Math.floor(s.currentCell/s.width));
-    if(d>0&&d<=2 && Math.abs(cellHeight(c.cell,s.width,s.height)-level)<1e-8)
+    if(d>0&&d<=maxDistance && Math.abs(cellHeight(c.cell,s.width,s.height)-level)<1e-8)
       foreground.add(c.cell);
   }
   return foreground;
@@ -1085,6 +1089,12 @@ export function createMazeWorld(options = {}) {
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
     const guardianOuterCourt=publicGuardianOuterCourtCells(s,guardianCauseway);
     const guardianForeground=publicGuardianWitnessedForegroundCells(s,guardianCauseway);
+    // The filmed 390px duel retains bulky full-height THIRD-ring masonry
+    // outside the already-correct two-cell Tideglass material district.
+    // Request one extra PUBLIC same-level tile solely for REAL sealed-wall
+    // reconstruction; the material district, actors and AI remain unchanged.
+    const guardianPeripheralWalls=publicGuardianWitnessedForegroundCells(
+      s,guardianCauseway,3);
     // This is the PUBLIC, currently witnessed performance envelope, not a
     // speculative camera reveal. The actual stage and its second disclosed
     // ring keep all stone, seals, stairs, pressure devices and collisions.
@@ -1925,13 +1935,19 @@ export function createMazeWorld(options = {}) {
         // A real gate, unseen side, actual passage, height change or a
         // directly linked public pressure trigger always retains priority.
         const guardianForegroundSealedScreen=!!adjacentKnown
-          && guardianForeground.has(c.cell) && guardianForeground.has(n)
+          && ((guardianForeground.has(c.cell) && guardianForeground.has(n))
+            || (guardianPeripheralWalls.has(c.cell) && guardianPeripheralWalls.has(n)
+              // Nearby REAL jaws always own their immediate physical stage.
+              // A broad public proximity ring is never permission to lower
+              // a pressure mechanism or its supporting wall.
+              && !pressureSightlines.has(c.cell) && !pressureSightlines.has(n)))
           // Pass343: cut down genuine published inner guardian spectator
           // walls, not just outer/outer masonry. The existing opaque solid
           // parapet remains; no unknown/one-way/open/pressure/gate edge qualifies.
           && ((guardianOuterCourt.ordinary.has(c.cell)
             && guardianOuterCourt.ordinary.has(n))
-            || guardianSightlines.has(c.cell) || guardianSightlines.has(n))
+            || guardianSightlines.has(c.cell) || guardianSightlines.has(n)
+            || (guardianPeripheralWalls.has(c.cell) && guardianPeripheralWalls.has(n)))
           && c.blocked===false && adjacentKnown.blocked===false
           && !c.trap && !adjacentKnown.trap
           && !c.checkpoint && !adjacentKnown.checkpoint
