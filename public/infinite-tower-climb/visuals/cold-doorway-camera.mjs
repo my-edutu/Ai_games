@@ -4,7 +4,7 @@
 // A late native frame must not throw away its real bronze arch merely because
 // the shorter cosmetic passage animation has expired. This is not an avatar
 // interpolation, temporal replay, new floor, trigger or camera cut.
-import { pointFor, SCALE } from './coordinates.mjs';
+import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
@@ -58,8 +58,13 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
 
   const actual = pointFor(p.x, p.y, source.chunkBaseY,
     source.worldWidth, 25);
-  const gateway = pointFor(held.thresholdX, held.oldRoofY + 20000,
-    source.chunkBaseY, source.worldWidth, 27.78);
+  // Gaze at the center of the SAME source-mounted, cross-route bronze
+  // gateway retained by the real World owner. The old 27.78m camera target
+  // was outside its actual 24.25m seal and biased the shot toward thin air.
+  const pose=guardianTraversalGatePose(held.thresholdX,held.oldRoofY,
+    source.chunkBaseY,source.worldWidth);
+  if (!pose) return null;
+  const gateway = {x:pose.x,y:pose.y+2,z:pose.z};
   if (![drawnHero.x, drawnHero.y, drawnHero.z].every(finite) ||
       Math.hypot(actual.x - drawnHero.x, actual.z - drawnHero.z) > 3 ||
       Math.abs(actual.y - drawnHero.y) > 3) return null;
