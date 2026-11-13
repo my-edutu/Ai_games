@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T21:45:03.904Z",
+  "updatedAt": "2026-11-13T21:46:59.512Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass343: Verified original Pass342 WebGL artifact 14073604301 (39 full-resolution PNGs, 37/37 source-image SHA pairs). Repetitive genuine solid inner spectator masonry still obstructs real guardian stage. New public two-sided sealed inner wall parapet candidate with installed-Three regression; exact-commit native image and independent review pending. Fixed Nintendo benchmark unmet."
+    "summary": "Pass343 initial focused CI 43513503503 rejected false test fixture spanning real 1.4m elevation boundary (172/173 tests passed); corrected seven-row same-tier source fixture without altering product geometry or thresholds. New exact-HEAD real WebGL screenshot acceptance pending. Nintendo benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass343 fixture correction 2026-11-13: first focused 43513503503 failed 1/173 because fabricated five-row wall 7/12 was legitimately on different elevation tiers. Rebuilt original public fixture on seven rows with both actual spectator walls at 2.8m, preserving two-low-walls assertion, hidden/one-way/gated, GPU strictness. Re-run exact-HEAD native CI; no visual win.",
     "Pass343 2026-11-13: Original Pass342 native artifact 14073604301 recovered, 39 full-resolution PNGs /37 matched SHA pairs; 390 brace SHA 83c241bd... still has full-height stone spectator walls. Candidate rebuilds only witnessed inner/second-ring PUBLIClY SEALED two-sided nonpassages as continuous opaque low stone. No key, gate, pressure, collision, AI or unseen geometry change. New exact-commit tests/screenshots pending.",
     "Pass342 fixture correction 2026-11-13: first 43500380160 source test rejected assumed roof that had already become a pressure parapet; corrected real deterministic published spectator roof fixture without lowering any visual/resource/privacy bounds. New exact-HEAD visual CI pending.",
     "Pass342 2026-11-13: Original Pass341 native action 43495655031 39 full-resolution PNGs and 37/37 verified SHA pairs; 390px brace changed only 0.7017236/255 vs Pass340, REJECTED artistic win. The broad public pressure-proximity ring restored tall wall ornaments even during witnessed reciprocal guardian encounter. New code only suppresses nonfunctional tall spectator dressing while preserving actual disclosed trap and every real hazard/AI/gate/collision mechanism. Test fixture: publicly known pressure-proximate spectator with real roofed tower and source-based negative counterexamples. New exact-commit WebGL and critic pending; draft PR only.",

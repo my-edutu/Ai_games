@@ -10,9 +10,12 @@ const load=()=>import('data:text/javascript;base64,'+Buffer.from(source
   .replace("'./vendor/three.module.js'",JSON.stringify(three))
   .replace("'./gate-moment.mjs'",JSON.stringify(gate))
   .replace("'./map-view.mjs'",JSON.stringify(map))).toString('base64'));
+// Seven rows keep both the witnessed 7/12 crossing and 11/12 spectator
+// pair on the SAME published elevation; the old five-row fixture placed
+// row 2 a full 1.4m lower, so it never met the original unchanged geometry gate.
 const court=()=>({
   runToken:'guardian-public-inner-seal',lifecycle:'running',result:null,
-  width:5,height:5,currentCell:6,visibleCells:[6,7,8,11,12],
+  width:5,height:7,currentCell:6,visibleCells:[6,7,8,11,12],
   cells:[
     {cell:6,blocked:false,neighbors:[7,11]},
     {cell:7,blocked:false,neighbors:[6,8]},
