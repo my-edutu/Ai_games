@@ -1776,6 +1776,23 @@ export function planOriginalSourceStanceSlideRelief({
   const span=Math.hypot(a.heel[0]-a.toe[0],a.heel[2]-a.toe[2]);
   const nextSpan=Math.hypot(b.heel[0]-b.toe[0],b.heel[2]-b.toe[2]);
   const projectedSpanDelta=Math.abs(nextSpan-span);
+  // Genuine 390px original Walking_A frame 61->62: the airborne shoe's
+  // projected XZ span shortened 42.36mm, but its complete 3D skinned
+  // heel-to-toe length changed only 2.60mm. Reject stretched skin, not
+  // normal source ankle articulation viewed in a horizontal projection.
+  // Both points must remain on the SAME licensed source shoe; the live
+  // adapter separately validates source clone, clip, root and final pose.
+  const length3D=foot=>Math.hypot(
+   foot.heel[0]-foot.toe[0],foot.heel[1]-foot.toe[1],
+   foot.heel[2]-foot.toe[2]);
+  const sourceLength=length3D(a),nextSourceLength=length3D(b);
+  const sourceLengthDelta=Math.abs(nextSourceLength-sourceLength);
+  const originalSwingAnatomyStable=
+   sourceLength>=.24&&sourceLength<=.34&&
+   nextSourceLength>=.24&&nextSourceLength<=.34&&
+   sourceLengthDelta<=.006&&
+   a.heel[1]>=floorTopY+.08&&b.heel[1]>=floorTopY+.08&&
+   projectedSpanDelta<=.055;
   // The opposite AIRBORNE shoe can change its world-XZ projected heel/toe
   // span by 18.99mm in authentic mobile Walking_A frame 87->88. The old
   // universal 18mm veto rejected even a stable right loaded shoe. Bound
@@ -1786,8 +1803,15 @@ export function planOriginalSourceStanceSlideRelief({
   // Only the separately verified airborne opposite shoe may use that
   // wider bound below. The uniquely loaded original shoe stays strict.
   if(span<.080||span>.38||nextSpan<.080||nextSpan>.38||
-   projectedSpanDelta>.036)return null;
+   (projectedSpanDelta>.036&&!originalSwingAnatomyStable))return null;
+  const solePoints=[a.heel,a.toe,b.heel,b.toe];
   return {a,b,span,nextSpan,projectedSpanDelta,
+   sourceLengthDelta,originalSwingAnatomyStable,
+   // The 32mm original source toe burial seen in exact 390px frames
+   // cannot be silently treated as ground contact. This narrow 35mm
+   // presentation tolerance is legal ONLY with a uniquely stable loaded
+   // source shoe and separately verified airborne opposite anatomy below.
+   buriedNearLoaded:solePoints.some(p=>p[1]<floorTopY-.026),
    // Actual original 390px Walking_A source-skinned frames 87->88
   // (2026-11-12 evidence #13980180305) show a unique right heel/toe
   // 30-31mm ABOVE the stone while visibly skating 75-77mm. The former
@@ -1796,8 +1820,8 @@ export function planOriginalSourceStanceSlideRelief({
   // this is NOT a physical contact, stance lock or fictitious footfall.
   // Keep the strict lower burial bound, two-point/same-shoe load,
   // unique opposite-foot, source-instance, root travel and rollback gates.
-  loaded:[a.heel,a.toe,b.heel,b.toe].every(p=>
-    p[1]>=floorTopY-.026&&p[1]<=floorTopY+.035)};
+  loaded:solePoints.every(p=>
+    p[1]>=floorTopY-.035&&p[1]<=floorTopY+.035)};
  };
  const left=points('left'),right=points('right');
  if(!left||!right||Number(left.loaded)+Number(right.loaded)!==1)return null;
@@ -1825,6 +1849,19 @@ export function planOriginalSourceStanceSlideRelief({
  const verifiedSwingHeel=finite(yawChange)&&yawChange<=.08&&
   opposite.a.heel[1]>=floorTopY+.08&&
   opposite.b.heel[1]>=floorTopY+.08;
+ // Expand the near-ground loaded threshold ONLY in the exact case of
+ // original 3D rigid sole length, stable heading, uniquely airborne other
+ // shoe and independently source-verified swing articulation. A damaged
+ // heel/toe pair, turning rig or non-airborne shoe keeps the strict veto.
+ // This authorizes <=18mm reversible slide RELIEF, not a locked foot or IK.
+ if(sample.buriedNearLoaded&&(!verifiedSwingHeel||
+  !opposite.originalSwingAnatomyStable||
+  sample.sourceLengthDelta>.004||
+  Math.hypot(sample.a.heel[0]-sample.a.toe[0],
+   sample.a.heel[1]-sample.a.toe[1],
+   sample.a.heel[2]-sample.a.toe[2])<.24||
+  sample.span<.20||sample.nextSpan<.20||
+  sample.projectedSpanDelta>.004))return null;
  if(sample.span<.11||sample.nextSpan<.11||
   sample.projectedSpanDelta>.018)return null;
  if((opposite.span<.11||opposite.nextSpan<.11||
@@ -1867,6 +1904,8 @@ export function planOriginalSourceStanceSlideRelief({
   otherShoeMinimumProjectedSpanMeters:Math.min(opposite.span,opposite.nextSpan),
   sourceYawChangeRadians:finite(yawChange)?yawChange:null,
   oppositeOriginalSwingHeelVerified:verifiedSwingHeel,
+  oppositeSwing3DLengthVerified:opposite.originalSwingAnatomyStable,
+  loadedNearBurial3DVerified:sample.buriedNearLoaded,
   contactLocked:false
  });
 }
