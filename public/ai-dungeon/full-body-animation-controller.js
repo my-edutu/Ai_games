@@ -867,7 +867,9 @@ export function chooseOriginalSourceSwingToeJointRelief({
   !['left','right'].includes(side)||
   ![sourceWeight,rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
-  frameInterval<=0||frameInterval>.1||Math.abs(floorTopY+.02)>.005||
+  frameInterval<=0||frameInterval>.15||
+  (frameInterval>.1&&sourceWeight<.95)||
+  Math.abs(floorTopY+.02)>.005||
   !before||!Array.isArray(trials)||trials.length<1||trials.length>2)
   return null;
  const point=p=>Array.isArray(p)&&p.length===2&&p.every(finite);
@@ -888,8 +890,17 @@ export function chooseOriginalSourceSwingToeJointRelief({
  // 40-90mm correction. All source joints/contacts remain mixer-owned.
  const residual=floorTopY-swing.toeY;
  const shallow=residual>=.006&&residual<.025;
- if((shallow?(sourceWeight<.82||frameInterval>.05):sourceWeight<.90))
-  return null;
+ // Genuine original mobile 116.7ms source frame: the previous 100ms
+ // gate missed a lawful, fully owned shallow swing-toe rescue. This is
+ // a last SMALL original-toe presentation trial, not an inferred step.
+ // Sparse intervals 100-150ms can ONLY test an >=95%-weighted original
+ // Walking_A, an airborne heel, a 6-25mm submerged toe and both weighted
+ // shoes. The strict 100mrad hinge and final same-frame skin readback remain.
+ const sparseFullShallow=shallow&&sourceWeight>=.95&&
+  frameInterval>.1&&frameInterval<=.15;
+ if((frameInterval>.1&&!sparseFullShallow)||
+  (shallow?(sourceWeight<.82||(frameInterval>.05&&!sparseFullShallow)):
+   sourceWeight<.90))return null;
  const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  let best=null;
  for(const trial of trials){
@@ -899,7 +910,12 @@ export function chooseOriginalSourceSwingToeJointRelief({
   const next=after[side],other=after[opposite];
   const lift=next.toeY-swing.toeY;
   if(lift<.004||lift>.04||next.toeY>floorTopY+.035||
-   (shallow&&(next.toeY<floorTopY-.003||next.toeY>floorTopY+.008))||
+   // At sparse full-weight keyframes a measured 6mm lift is useful even
+   // if a previously 22mm-buried airborne toe is still 14mm submerged.
+   // Report partial improvement, NEVER contact, sole plant or clear floor.
+   (shallow&&(next.toeY<(sparseFullShallow?
+    Math.max(swing.toeY+.006,floorTopY-.02):floorTopY-.003)||
+    next.toeY>floorTopY+.008))||
    next.toeY<floorTopY-.16||
    Math.abs(next.heelY-swing.heelY)>.004||
    xz(next.heelXZ,swing.heelXZ)>.008||
