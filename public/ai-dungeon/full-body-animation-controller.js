@@ -1704,6 +1704,59 @@ export function planOriginalSourceLoadedPelvisSupport({
  * compare two measured weighted heels and toes under the existing strict
  * source-sole planner. No inferred foot contact or authority is introduced.
  */
+
+/**
+ * The licensed Walking_A source root can rotate ~0.637rad in ONE visible
+ * 390px original WebGL frame (real frames 21->22 and 23->24, #14021026201).
+ * The existing imported spine drives the SAME hand/weapon hierarchy; an
+ * independently grounded travelling actor may visually counterturn only
+ * that upper-body bone, then recover smoothly toward the real source yaw.
+ *
+ * This is not actor/root steering, foot-lock IK, a new clip, a fabricated
+ * target or extra gameplay action. The source mixer and both true leg chains
+ * retain their original facing. Missing source proof = no overlay.
+ */
+export function planOriginalSourceWalkingTorsoCounterturn({
+ mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
+ ownerLocomotion=false,alive=true,visible=true,teleport=false,
+ reducedMotion=false,interrupted=false,rootTravel=NaN,
+ frameInterval=NaN,previousRootYaw=NaN,currentRootYaw=NaN,
+ previousOffsetRad=0
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.85||sourceWeight>1.001||
+  sourceInstanceSame!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![rootTravel,frameInterval,previousRootYaw,currentRootYaw,
+    previousOffsetRad].every(finite)||
+  rootTravel<0||rootTravel>.18||frameInterval<=0||frameInterval>.35||
+  Math.abs(previousOffsetRad)>.120001)return null;
+ const yaw= currentRootYaw-previousRootYaw;
+ const signedYawChange=Math.atan2(Math.sin(yaw),Math.cos(yaw));
+ const turned=Math.abs(signedYawChange);
+ let offset=0;
+ if(turned>.18&&turned<=.9&&rootTravel>=.015){
+  // Oppose only a small part of a genuinely observed travelling root turn.
+  // Never rotate feet/pelvis or swing the chest onto an invented enemy.
+  const desired=-Math.sign(signedYawChange)*Math.min(.12,.25*turned);
+  // A rapid direction reversal cannot snap the original spine from
+  // +120mrad to -120mrad in one source frame.
+  offset=clamp(desired,previousOffsetRad-.12,previousOffsetRad+.12);
+ }else{
+  // No additional root turn: restore original Walking_A chest at a
+  // bounded real visible-time rate, including a lawful stopping frame.
+  const returnStep=Math.min(.12,1.5*frameInterval);
+  offset=Math.sign(previousOffsetRad)*
+   Math.max(0,Math.abs(previousOffsetRad)-returnStep);
+ }
+ if(Math.abs(offset)<.0001)return null;
+ return Object.freeze({
+  source:'witnessed-original-Walking_A-upper-body-counterturn',
+  offsetRad:offset,originalYawStepRad:turned,
+  sourceClip:'Walking_A',contactLocked:false
+ });
+}
+
 export function planOriginalSourceStanceSampleHandoff({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  rootTravel=NaN,frameInterval=NaN,changed=true,
