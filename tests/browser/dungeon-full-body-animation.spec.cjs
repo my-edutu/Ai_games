@@ -437,6 +437,8 @@ for(const view of [
   if(nativeLeg?.sourceSwingToeLiftProof?.continuityHold){
    expect(nativeLeg.sourceSwingToeContinuityFrames).toBeGreaterThan(0);
    expect(nativeLeg.sourceSwingToeLiftProof.source)
+    .toBe('same-original-GLB-foot-skinned-vertices');
+   expect(nativeLeg.sourceSwingToeLiftProof.continuitySource)
     .toBe('same-original-GLB-weighted-swing-ankle-continuation');
    expect(nativeLeg.sourceSwingToeLiftProof.originalOppositeShoeVerified).toBe(true);
    expect(nativeLeg.sourceSwingToeLiftProof.contactLocked).toBe(false);
