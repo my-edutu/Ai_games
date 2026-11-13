@@ -2036,7 +2036,13 @@ export function planOriginalSourceStanceReliefCarry({
   !finite(recentRootTravel)||recentRootTravel<.015||
   recentRootTravel>.18||!finite(recentTravelAge)||
   recentTravelAge<0||recentTravelAge>.18||
-  !finite(frameInterval)||frameInterval<=0||frameInterval>.05||
+  // The licensed source renderer can deliver a 75-100ms displayed frame.
+  // Hard-dropping an already readback-verified <=18mm shoe correction at
+  // 50ms produces an instant reverse step. Permit ONLY its existing
+  // 120mm/second release for up to 150ms (the full lifetime of 18mm).
+  // Source clone, moving owner, fresh real travel, yaw and all interruption
+  // checks stay mandatory; a 150ms interval fully exhausts this offset.
+  !finite(frameInterval)||frameInterval<=0||frameInterval>.15||
   alive!==true||visible!==true||teleport||reducedMotion||interrupted)return null;
  const yawChange= Math.abs(Math.atan2(
   Math.sin(rootYaw-previous.rootYaw),
