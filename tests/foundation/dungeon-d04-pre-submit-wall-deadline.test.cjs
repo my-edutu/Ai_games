@@ -65,11 +65,26 @@ test('a real clock below the deadline does not double-charge the same renderer i
  assert.equal(r.played.length,1);
 });
 
-test('missing trusted wall clock keeps the existing raw-frame deadline',async()=>{
+test('configured but untrusted receipt clock fails closed even when raw-frame age is also stale',async()=>{
  const r=await run({clock:()=>NaN,renderSeconds:.39});
- assert.equal(r.delivered,0,'raw frame interval plus submit still exceeds 400ms');
+ assert.equal(r.delivered,0,'an invalid real receipt clock cannot certify audio');
  assert.equal(r.played.length,0);
- assert.equal(r.stats.recentDeliveryReceipts.at(-1).decision,'stale-frame');
+ assert.equal(r.stats.recentDeliveryReceipts.at(-1).decision,'unverified-frame');
+ assert.deepEqual(r.retired.map(x=>x.reason),['unverified-frame'],
+  'retire unverified GPU shards before any later draw');
+});
+
+test('clockless injected legacy frame adapter keeps the bounded raw-frame deadline',async()=>{
+ const stale=await run({clock:null,renderSeconds:.39});
+ assert.equal(stale.delivered,0);
+ assert.equal(stale.played.length,0);
+ assert.equal(stale.stats.recentDeliveryReceipts.at(-1).decision,'stale-frame');
+ const timely=await run({clock:null,renderSeconds:.02});
+ assert.equal(timely.delivered,1,'clockless injected adapters preserve the existing raw-frame contract');
+ assert.equal(timely.played.length,1);
+ assert.equal(timely.stats.recentDeliveryReceipts.at(-1).decision,'delivered');
+ assert.equal(timely.stats.recentDeliveryReceipts.at(-1).submittedClockMs,null,
+  'raw-frame-only legacy adapters must not claim an A/V timestamp');
 });
 
 test('mute still prevents delayed audio independent of genuine HP evidence',async()=>{
