@@ -30,3 +30,11 @@ Static source inspection confirms real-world ownership and focused test code exi
 5. Collect five genuinely independent randomized anonymous full-motion reviewers for each of LOOKS, FEELS, PLAYS only after matched normal-speed source-authentic footage; currently **0/5, 0/5, 0/5**.
 
 **Acceptance:** P0 OPEN; native 2/2 continuous physical doorway and complete matched episode **NOT EVALUATED** on new source; no independent preference or actual-device score; leading transformation **NOT EVALUATED**. PR68 remains draft, no merge/deploy/force push/PR58 rewrite, no unrelated-game changes; frozen baseline immutable.
+
+## Exact immutable-source campaign issued and CI feedback (same day)
+
+The [nine-job authentic 1x native gameplay campaign 43466814378](https://github.com/my-edutu/Ai_games/actions/runs/43466814378) is pinned to immutable **candidate `8ee2f43b989443936721e9296d1e5bca4084f034`** (contains the production and focused-test code above; freeze does not move). It was **in progress** at last inspection. No newly generated pixels, native video timing improvement, accepted doorway or outcome/restart certification is asserted.
+
+The matching [exact-head quality workflow 43466814205](https://github.com/my-edutu/Ai_games/actions/runs/43466814205) has already reported **FAILED** in Phase3-3: after progressing through earlier Tower tests, the runner sent a shutdown signal and `tests/phase3/tower-retained-source-cap-world.test.cjs` ended with **SIGKILL** after about 35.8 seconds, before the new isolated framebuffer test file. This repeats the separate previous failure and **is not green CI or a tested performance improvement**. Cause (resource exhaustion vs runner outage/test bug) is not yet established; isolate and measure that real Three world test before grading. The capture workflow remains a separate evidence exercise, not a release pass.
+
+**Next:** review the new baseline/candidate videos and source-to-WebM frame/camera timings once jobs complete; fix the repeated retained-world real Three test SIGKILL as a hard quality veto without skipping it or changing non-Tower games. Baseline remains protected; independent critics and actual-device benchmarks remain NOT EVALUATED.
