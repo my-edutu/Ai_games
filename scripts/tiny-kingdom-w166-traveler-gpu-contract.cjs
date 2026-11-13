@@ -12,6 +12,9 @@ function extract(a,b){
  assert(start>=0&&end>start,'original GPU actor contract: '+a);
  return source.slice(start,end);
 }
+// Execute the genuine production topology helper, not a test-only stub.
+// A worker's held-tool mesh changes at real work-stage/earned-event boundaries.
+const workTopology=extract('function originalWorkToolTopologyKey(','function realWorkerPoseKey(');
 const walk=extract('function isForegroundWalkingSkinCandidate(','function realForegroundPoseKey(');
 const key=extract('function realForegroundPoseKey(','function realForegroundPoseStale(');
 const stale=extract('function realForegroundPoseStale(','function prepareForegroundResidents(');
@@ -21,14 +24,15 @@ assert.match(source,/const skinned=workingSkinCapable&&\(isWorkingAtSite\(p\)\|\
 assert.match(source,/physicallySkinnedCommuters:/);
 assert.match(source,/workSkinDetailedMatrices\(entry,p\)/);
 assert.match(source,/gl\.uniformMatrix4fv\(uniforms\.workBone,false,workSkinDetailedMatrices\(entry,p\)\)/);
-const state={t:12};
+const state={t:12},workdayEvents=[];
 const deps={workingSkinCapable:true,gpuAvailable:true,follow:false,
  liveWorkday:false,selectedCitizen:0,FOREGROUND_ROOT_METERS:.045,
  FOREGROUND_ROOT_RADIANS:.035,projectRealCitizenDetail:()=>({visible:true,heightFraction:.08}),
  isMarketUnloading:()=>false,isWorkingAtSite:()=>false,
  carryingCommuterLantern:p=>p.activity==='Returning home at dusk'&&state.t>=19,
- citizenRigPose:()=>({acting:{action:'walking'}}),climateAt:()=>({season:0}),state};
-const make=d=>new Function(...Object.keys(d),walk+'\n'+key+'\n'+stale+
+ citizenRigPose:()=>({acting:{action:'walking'}}),climateAt:()=>({season:0}),
+ getAuthenticWorkGesture:p=>({stage:p.stage||'working'}),workdayEvents,state};
+const make=d=>new Function(...Object.keys(d),workTopology+'\n'+walk+'\n'+key+'\n'+stale+
  '\nreturn {candidate:isForegroundWalkingSkinCandidate,key:realForegroundPoseKey,stale:realForegroundPoseStale};'
  )(...Object.values(d));
 const p={name:'Original Citizen',job:'builder',activity:'Traveling to a worksite',
@@ -57,6 +61,20 @@ state.t+=4;
 assert.equal(t.key(p,1,true),bind,
  'an unchanged skinned adult must not rebuild complete geometry on a clock bucket');
 assert.equal(t.stale(fresh,p,bind,0),false,'unchanged original skin binding retained with true root motion');
+// The retained GPU bind is INVALIDATED for the real newly earned tool mesh,
+// then returns to its prior topology when the original 1.5-hour window ends.
+const beforeEarned=t.key(p,1,true);
+workdayEvents.push({citizen:p.name,time:state.t});
+assert.notEqual(t.key(p,1,true),beforeEarned,
+ 'recent real earned-work tool changes actual retained geometry topology');
+state.t+=1.6;
+assert.equal(t.key(p,1,true),beforeEarned,
+ 'expiry of earned work prop restores original geometry topology');
+workdayEvents.length=0;
+const workingTool=make({...deps,isWorkingAtSite:()=>true});
+assert.notEqual(workingTool.key({...p,stage:'harvest'},1,true),
+ workingTool.key({...p,stage:'gather'},1,true),
+ 'genuine profession stage must change retained work-tool mesh topology');
 assert.notEqual(t.key(p,1,false),cpu,'ungrouped detailed CPU actor stays fresh');
 assert.equal(t.stale({...fresh,skinned:false},p,bind,0),true,'non-skinned actor cannot masquerade as GPU gait');
 assert.notEqual(t.key({...p,activity:'Returning home at dusk'},1,true),bind,'real life stage invalidates bind');
