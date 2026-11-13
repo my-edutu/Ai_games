@@ -2072,5 +2072,29 @@
     "actualDeviceFrameMemory": "NOT EVALUATED",
     "leadingTransformationVerdict": "NOT EVALUATED",
     "safety": "Same open draft PR68, never touch frozen baseline source, PR58, other games; no merges/deploys/force pushes."
+  },
+  "p0EarnedAirborneColdGpuSubmissionOriginalMovies20261113": {
+    "stage": "P0 source-owned first Floor9 GPU/framebuffer continuity NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCommits": [
+      "d63d8eafd9ba35559614679524ea730a0eb095cd",
+      "dda0f4c78feb8347dba493d87da3551a43d3a526"
+    ],
+    "testsSha": "955540997d57619738a854260579f6b90f8f46e8",
+    "candidateSourceSha": "EXACT immutable github.sha OF THIS capture request commit; never floating PR head",
+    "previousOriginalMotionRun": "https://github.com/my-edutu/Ai_games/actions/runs/43455234728",
+    "exactLastQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43455491975 — FAILED phase3-3 external runner shutdown",
+    "originalGameRecordings": "Existing 9-job original 20-Hz autonomous source and real 1x native WebM: frozen-baseline/candidate each ascent, moving platform, actual upper-cap guardian/crusher F8->9, genuine outcome/restart. Both desktop 960x600 and portrait 390x844, low-tier, matched seed, >=60s, source/browser/Three/native original PTS sidecars.",
+    "evidenceGate": "At first grounded->airborne Floor9 rendered WebGL frame compare old original bronze gate and full 3D climber, continuous physically crossed same doorway and new-world depth, native light/geometry bridge around 22–31s. Compare first F9 browser-to-render-return ms, CPU scene rebuild ms, native video PTS/HUD lag with old 43455234728; check no extra high-resolution framebuffer reallocation during true F9 flight. Test counts, source contact, GPU returned, and 60s duration alone do NOT establish a visual PASS. Unmatched baseline guardian episode vetoes blind comparison.",
+    "nextAction": "If any 1x viewport still hard cuts, rebuild physical world/camera-depth passage rather than more timing/fades. Resolve baseline native timebase and match genuine guardian events, full outcome/restart, real device frame-time and independent critics.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-authentic-airborne-cold-gpu-framebuffer-continuity.md",
+    "safety": "Frozen baseline intact, keep same open draft PR68 on PR58, never merge/deploy/force-push or modify other games."
   }
 }
