@@ -7,7 +7,7 @@ new Function(script);
 const a=script.indexOf('function planCameraHomeDetailAnchor('),b=script.indexOf('function currentHomeDetailAnchor(',a);
 assert.ok(a>0&&b>a,'complete original camera and housing planning helpers');
 const {planCameraHomeDetailAnchor:plan,planOriginalNeighbourhoodDetail:homes}=
- new Function('const HOME_DETAIL_ANCHOR_METERS=11;'+script.slice(a,b)+
+ new Function('const HOME_DETAIL_ANCHOR_METERS=11; const HOME_DETAIL_TURN_THRESHOLD_RAD=.72; const HOME_DETAIL_RADIUS_DEADBAND=3;'+script.slice(a,b)+
  'return {planCameraHomeDetailAnchor,planOriginalNeighbourhoodDetail};')();
 const lots=Array.from({length:28},(_,i)=>i<14?
  [i*1.8-10,-6+Math.floor(i/7)*1.5,i%3]:
