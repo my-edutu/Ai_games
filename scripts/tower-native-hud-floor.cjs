@@ -69,9 +69,17 @@ function findVisibleEightToNine(samples,fps=FPS){
   const beforeFrames=Math.ceil(3*fps),afterFrames=Math.ceil(1*fps);
   for(let i=beforeFrames;i<=digits.length-afterFrames;i++){
     const before=digits.slice(i-beforeFrames,i),after=digits.slice(i,i+afterFrames);
+    // Original portrait recordings can have ONE isolated misread 9 amid
+    // twelve preceding 8 glyphs (e.g. a 0.25s obstruction) before the true
+    // first 8->9 crossing. Reject a sustained earlier 9 or two glitches,
+    // but do not discard the first real episode in favour of a later run.
+    const strayNines=before.reduce((n,d,j)=>n+(d===9?1:0),0);
+    const strayIsIsolated=strayNines===1 && before.every((d,j)=>
+      d!==9 || (before[j-1]!==9 && before[j+1]!==9));
     if(digits[i]!==9||digits[i-1]===9||
        before.filter(d=>d===8).length<Math.ceil(beforeFrames*.75)||
-       before.includes(9)||!after.every(d=>d===9))continue;
+       (strayNines>0&&!strayIsIsolated)||
+       !after.every(d=>d===9))continue;
     return {nativeVideoSeconds:i/fps,precisionSeconds:1/fps,
       observedDigitBefore:8,observedDigitAfter:9,
       precedingEightFrames:before.filter(d=>d===8).length,
