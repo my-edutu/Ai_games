@@ -18,9 +18,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: node --check public/tiny-kingdom/index.html
-        if: false
       - run: npx playwright test tests/browser/tiny-kingdom-w281-home-partitions.spec.cjs --workers=1
         env:
           CI: '1'
