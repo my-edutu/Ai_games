@@ -32,9 +32,8 @@ function simulate(working,pinned=false){
   // provide the real renderer's default state, not silently skip this code.
   frozen:false,city:Array.from({length:17},()=>[0,0]),
   focusPoint:[0,0],yaw:0,pitch:.5,
-  citizenOrbitDetailHold:null,citizenOrbitDetailHolds:0,
-  citizenOrbitDetailReplans:0,citizenOrbitDetailLastWasHeld:false,
-  canKeepOrbitDetail:()=>false};
+  // W271 names are real source locals, not parameters. The original
+  // function owns its own single definition and physical orbit policy.};
  return new Function(...Object.keys(deps),originalFunction+';return selectVisibleCitizenDetail();')
   (...Object.values(deps));
 }
