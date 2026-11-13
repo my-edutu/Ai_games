@@ -10,6 +10,10 @@ const fStart=html.indexOf('function isForegroundWalkingSkinCandidate(');
 const fEnd=html.indexOf('\nfunction realForegroundPoseKey(',fStart);
 assert(fStart>0&&fEnd>fStart,'original passive GPU skin gate exists');
 const source=html.slice(fStart,fEnd);
+// Execute the actual W283 screen-space hysteresis helper, not a duplicated threshold.
+const screenStart=html.indexOf('const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=');
+assert(screenStart>=0&&screenStart<fStart,'real moving-resident LOD contract exists');
+const screenSource=html.slice(screenStart,fStart);
 assert(source.includes("action==='Resting at home'"),'physically reached original home can retain small body');
 assert(source.includes("action==='Waiting for a safe route'"),'stranded real residents stay in the town');
 assert(source.includes('verifiedHouseholdMealEvidence(p)'),'original receipt-linked meal contact protected');
@@ -20,12 +24,14 @@ assert(html.includes('for(const person of people)renderVerifiedHomeMeal(person);
 const make=(opt={})=>new Function('workingSkinCapable','gpuAvailable',
  'isMarketUnloading','isWorkingAtSite','follow','liveWorkday',
  'selectedCitizen','projectRealCitizenDetail','verifiedHouseholdMealEvidence',
- 'return ('+source+');')(
+ 'foregroundResidentCache',
+ screenSource+'\nreturn ('+source+');')(
  opt.skin!==false,opt.gpu!==false,()=>!!opt.unload,()=>!!opt.working,
  !!opt.follow,!!opt.documentary,opt.selectedIndex??1,
  ()=>({visible:opt.visible!==false,heightFraction:opt.height??.085}),
- ()=>opt.verifiedMeal?{receipt:'real'}:null);
-const person={name:'Iris',x:3,z:1,phase:.4,activity:'Resting at home',
+ ()=>opt.verifiedMeal?{receipt:'real'}:null,
+ new Map(opt.cached?[[2,{skinned:true,key:'2:Iris:gatherer:motion'}]]:[]));
+const person={name:'Iris',job:'gatherer',x:3,z:1,phase:.4,activity:'Resting at home',
  provisions:0,delivery:null};
 const yes=(a={},f={})=>assert.equal(make(f)({...person,...a},2,{}),true);
 const no=(a={},f={})=>assert.equal(make(f)({...person,...a},2,{}),false);
@@ -38,7 +44,11 @@ yes({}, {visible:false});yes({activity:'Exploring the valley'});
  no({}, {verifiedMeal:true});no({provisions:.8},{verifiedMeal:true});
  no({activity:'Traveling home with provisions',provisions:.8});
 no({delivery:{id:'Bram:32'}});no({}, {unload:true});no({}, {working:true});
-no({}, {height:.16});no({}, {skin:false});no({}, {gpu:false});
+// The original worker geometry is GPU skinned until 18% screen height;
+// an already retained rig lasts to 22% to prevent threshold flicker.
+yes({}, {height:.16});no({}, {height:.21});
+yes({}, {height:.21,cached:true});no({}, {height:.23,cached:true});
+no({}, {skin:false});no({}, {gpu:false});
 no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
 no({activity:'Unloading grain'});no({activity:'Collecting household provisions'});
 no({activity:'Forging a hinge'});no({phase:NaN});
