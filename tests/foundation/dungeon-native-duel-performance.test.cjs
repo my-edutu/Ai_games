@@ -50,6 +50,39 @@ test('poses are finite, reversible, bounded and never invent target contact',asy
  assert.doesNotMatch(code,/Math\.random|Date\.now|DungeonRuntime|fetch\(|performance\.now/);
 });
 
+test('partial original sword-clip crossfade must keep a visible connected body chain without faking impact',async()=>{
+ const {planNativeDuelPose:pose,NATIVE_CONTACT_TIME}=await load();
+ // Genuine 13-Nov original source-rig WebGL #43348792350 measured only
+ // 0.0922 rad against its >0.11 rad actual melee-body acceptance gate.
+ // Weight 0.60 is an explicit conservative synthetic crossfade probe, NOT
+ // a claim that the browser measured this exact original mixer weight.
+ for(const kind of ['vanguard','revenant','warden']){
+  const part=pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend:.60});
+  const zero=pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend:0});
+  const full=pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend:1});
+  assert.ok(Math.abs(part.spine.yaw)>.11,kind+': torso must remain legible during an actual partially blended licensed sword strike');
+  assert.ok(Math.abs(part.hips.yaw)>.06&&Math.abs(part.wrist.pitch)>.09,
+   kind+': hips-to-shoulder-to-wrist phrase must be carried together');
+  assert.ok(Math.abs(part.legs.left.lower)+Math.abs(part.legs.right.lower)>.12,
+   kind+': a visible blade cannot be driven by a floating unsupported upper body');
+  assert.ok(Math.abs(part.spine.yaw)<Math.abs(full.spine.yaw),
+   kind+': a legal crossfade cannot jump to a fully weighted source pose');
+  assert.equal(zero.contactWeight,0);
+  assert.ok(part.contactWeight<full.contactWeight,
+   'source-clip ownership still controls the actual contact envelope');
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend:.60,reducedMotion:true}).mode,'rest');
+  assert.equal(pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend:.60,distance:2}).mode,'rest');
+  const fade=[0,.10,.25,.40,.60,.80,1].map(sourceBlend=>
+   pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend}));
+  for(let i=1;i<fade.length;i++){
+   assert.ok(Math.abs(fade[i].spine.yaw)>=Math.abs(fade[i-1].spine.y),
+    'the native source spine must gain pose strength monotonically');
+   assert.ok(Math.abs(fade[i].root.z-fade[i-1].root.z)<.065,
+    'a later source crossfade cannot teleport the source-skinned support feet');
+  }
+ }
+});
+
 test('source animation one-shots are normalized without changing simulation cadence',async()=>{
  const {planNativeOneShotSpeed:speed}=await load();
  assert.equal(speed('attack',1.24),2);
