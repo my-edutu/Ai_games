@@ -728,7 +728,8 @@ test('source AnimationMixer uses captured visual tick and single controller pose
   'an idle authority tick cannot restart a visually finishing legal source clip');
  assert.match(model,/const poseAge=actor\.fullBody\.age/);
  assert.match(model,/planNativeDuelPose\(actor\.u\.kind,actor\.fullBody\.owner\.duel\?'attack':'idle',poseAge/);
- assert.match(model,/stageRigMeleeAfterMixer\(actor,poseAge,reducedMotion\)/);
+ assert.match(model,/stageRigMeleeAfterMixer\(actor,poseAge,reducedMotion,sourceFrameInterval,sourceFrameVisible\)/,
+  'source-owned upper-body overlays must use actual original-rig visible frame timing');
  assert.match(model,/stageRigArmsAfterMixer\(actor,poseAge,reducedMotion\)/);
 });
 
