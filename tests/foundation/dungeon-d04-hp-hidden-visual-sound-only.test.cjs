@@ -49,6 +49,9 @@ test('adjacent true HP loss may sound after a real frame when retained injury is
  assert.deepEqual(r.originalSound.map(c=>c.kind),['damage']);
  assert.ok(r.stats.recentDeliveryReceipts.some(x=>
   x.kind==='damage'&&x.frameId===1&&x.decision==='delivered'));
+ const hidden=r.stats.recentDeliveryReceipts.find(x=>x.kind==='damage'&&x.decision==='delivered');
+ assert.equal(hidden.visualDrawableAtSubmission,false,
+  'HP audio may be genuine even when optional pooled fragments are occluded; do not call that a visible impact');
 });
 test('a hidden guard gesture is not exempted as HP-confirmed injury',async()=>{
  const r=await scenario({afterHp:30,afterAction:'guard'});
@@ -80,4 +83,13 @@ test('mute must block hidden-injury foley even with genuine HP loss and frame',a
  const r=await scenario({muted:true});
  assert.equal(r.admitted,0);
  assert.deepEqual(r.originalSound,[]);
+});
+
+test('a genuinely drawable submitted injury records an affirmative visual receipt independently of its audio',async()=>{
+ const r=await scenario({drawable:true});
+ assert.equal(r.admitted,1);
+ const delivered=r.stats.recentDeliveryReceipts.find(x=>x.kind==='damage'&&x.decision==='delivered');
+ assert.equal(delivered?.visual,true);
+ assert.equal(delivered?.audio,true);
+ assert.equal(delivered?.visualDrawableAtSubmission,true);
 });
