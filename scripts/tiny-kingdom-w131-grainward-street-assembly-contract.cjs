@@ -89,7 +89,7 @@ const runArcade=buildArcade(arcadeMesh,stalls,()=>.25,
  (m,draw)=>{const prior=material;material=m;draw();material=prior},
  {ROOF:ROOF_MATERIAL,WOOD:6},arcadeQuad,arcadeLimb,marketAudit);
 const drawnArcade=runArcade();
-assert.equal(drawnArcade,96,'small, bounded market-span material cost');
+assert.equal(drawnArcade,52,'W305 original full market arcades now use 52 rather than 96 geometry triangles, with all roof bays preserved');
 assert.equal(marketAudit.grainwardArcadeSpans,2);
 assert.equal(marketAudit.grainwardArcadeNoPosts,true);
 assert.equal(arcadeMesh.length/30,drawnArcade);
