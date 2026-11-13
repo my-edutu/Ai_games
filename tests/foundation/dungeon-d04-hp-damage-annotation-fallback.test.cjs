@@ -86,3 +86,24 @@ test('bounded 18-injury fallback preserves a decisive fatal loss beyond the firs
   'a genuine terminal HP loss must not be lost due to array order');
  assert.ok(actual.every(c=>c.actorId===null&&c.proof==='observed-hp-drop'));
 });
+
+
+test('a real victim beyond the first 96 public units keeps independently verified injury feedback',async()=>{
+ const {planPhysicalFeedback}=await load();
+ const before=Array.from({length:112},(_,i)=>unit('member-'+i,{
+  kind:'revenant',faction:'enemy',x:i+1,z:7,hp:30,maxHp:30,
+  action:'idle',actionTick:10
+ }));
+ const after=before.map((u,i)=>({
+  ...u,hp:i===111?0:i===109?18:u.hp,
+  action:i>=109?'hurt':'idle',actionTick:i>=109?11:10
+ }));
+ const result=wounds(planPhysicalFeedback(state(10,before),state(11,after),{
+  deriveDamageBeats:()=>[]
+ }));
+ assert.equal(result.length,2,
+  'array order and the action-only 96-unit scan must not erase real later HP losses');
+ assert.deepEqual(result.map(c=>c.targetId),
+  ['member-111','member-109'],'fatal damage remains first');
+ assert.ok(result.every(c=>c.actorId===null&&c.proof==='observed-hp-drop'&&c.verified===true));
+});
