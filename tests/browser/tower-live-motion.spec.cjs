@@ -5,6 +5,7 @@ const { createHash } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 const { assessTowerMotion } = require('../../scripts/tower-motion-evidence.cjs');
 const { summarizeTowerCrossfire } = require('../../scripts/tower-crossfire-evidence.cjs');
+const { summarizePhysicalDoorwaySubmissions } = require('../../scripts/tower-physical-doorway-submissions.cjs');
 const { indexTowerCaptureEvents } = require('../../scripts/tower-event-alignment.cjs');
 const { FROZEN, sourceStoryCoverage } = require('../../scripts/tower-event-pairing.cjs');
 const { MIN_CAPTURE_MS, captureWindowDecision, nextCaptureObservation } =
@@ -217,6 +218,10 @@ for (const viewport of viewports) {
           anchorPosition: d.passage.anchorPosition,
           focusPosition: d.passage.focusPosition } : null,
         observedOriginalGpuGatewayRetention: d.world?.retainedSourceCap ?? null,
+        // Unlike 1Hz camera samples, this is a rolling array of genuine
+        // returned WebGL frames from the same source crossing. Retain the
+        // entire first episode even if the second begins after restart.
+        observedPhysicalDoorwaySubmissionAudit: d.physicalDoorwaySubmissionAudit ?? null,
         observedGroundedBiomeThreshold: d.groundedBiomeThreshold ?? null,
         observedGroundedGatewaySourceAudit: d.groundedGatewaySourceAudit ?? null,
         telegraphedEnemies: (s?.enemies || []).filter(e => e.active && e.telegraph).length,
@@ -603,6 +608,13 @@ for (const viewport of viewports) {
   // Passive forensic camera index paired by observed source tick and wall time.
   // No watermark, fake actor, HUD, source mutation or altered video frames.
   // Browser samples are NOT calibrated to native WebM presentation timestamps.
+  const returnedDoorway=summarizePhysicalDoorwaySubmissions(observations);
+  fs.writeFileSync(path.join(dir,'physical-doorway-submissions.json'),
+    JSON.stringify({
+      sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
+      scenario,viewport:viewport.name,originalGameplayVideo:'live.webm',
+      ...returnedDoorway,
+    },null,2));
   const obstructionSamples=observations.filter(s=>Array.isArray(s.observedDecorativeOcclusion)&&
     s.observedDecorativeOcclusion.length).map(s=>({
       atMs:s.atMs, sourceTick:s.tick, runToken:s.runToken, floor:s.floor,

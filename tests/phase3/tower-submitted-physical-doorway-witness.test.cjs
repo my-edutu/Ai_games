@@ -12,7 +12,7 @@ test('real source-gated doorway evidence is sampled only AFTER returned WebGL an
   const sampled = source.indexOf('physicalDoorwaySubmissionAudit.push({',returned);
   const aged = source.indexOf('world.noteFrameSubmitted?.(snapshot,options,dt);',returned);
   assert.ok(rendered > 0 && rendered < returned && returned < sampled && sampled < aged);
-  assert.match(source,/crossing\.runToken === snapshot\.runToken/);
+  assert.match(source,/crossing\?\.runToken === snapshot\.runToken/);
   assert.match(source,/crossing\.fromFloor === 8 && crossing\.toFloor === 9/);
   assert.match(source,/crossing\.guardian\.health <= 0/);
   assert.match(source,/physicalDoorwaySubmissionAudit\.length < 56/);

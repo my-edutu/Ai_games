@@ -36,7 +36,7 @@ test('unbounded delta, invalid portrait and broken input cannot produce a new fr
 test('the production 3D camera checks the actual GPU-retained original arch and the drawn body after other camera directors',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/world\.retainedFilmHandoff\?\.\(snapshot\)/);
-  assert.match(scene,/sourceDoorwayFrameSteps\(dt,camera\.aspect\)/);
+  assert.match(scene,/sourceDoorwayFrameSteps\(cameraDt,camera\.aspect\)/);
   assert.match(scene,/sourceDoorwayFrameGain\(/);
   assert.match(scene,/physicalThresholdFrameGain/);
   assert.match(scene,/physicalThresholdFrameSourceBound = !!thresholdSteps/);

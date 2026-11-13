@@ -9860,5 +9860,27 @@
     },
     "realDeviceP50P95P99Memory": "NOT EVALUATED",
     "safety": "No other games, PR58 edits, baseline move, merge, deploy, force-push or draft promotion"
+  },
+  "p0FirstEpisodeSubmittedWebglEvidence20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedExactSourceSha": "80a87f43c3995624b739c136ca8e946a1e52d2d9",
+    "sourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43428237425",
+    "sourcePinnedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43428237435 — FAILED",
+    "sourceObservedFirstF9WebGL": "Desktop source crossing tick451 first returned tick459 (8-tick gap, 463.3ms renderer); portrait first returned tick457 (6-tick gap, 100.2ms renderer). These are renderer returns, NOT native video frames.",
+    "evidenceDefect": "New renderer physicalDoorwaySubmissionAudit existed but 1Hz original-capture observer never exported it; no video/source matched episode diagnosis possible. Original campaign 8/8 files completed but native strict pair 0/2.",
+    "implementedUnblocker": "Capture original returned-WebGL gateway/body camera projections on both matched desktop and portrait, deduplicate by same run+crossing tick, retain first episode across restart, isolate missing original GPU owner versus offscreen gate versus core-ray obstruction; export bounded source-pinned JSON artifact, no altered video or source physics. Align stale source-clock assertions with sourceSubmittedDoorwayCameraDt and optional guardian witness access.",
+    "capturedCurrentSourceVerdict": "NOT EVALUATED — new export needs a fresh exact-head real capture; previous source event-to-native accepted 0/2.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedHardware": "NOT EVALUATED",
+    "biggestExperienceGap": "The actual unedited F8 bronze to F9 violet hard cut persists; new passive evidence will distinguish world retention from camera/core occlusion, while 6-8 authentic source ticks elapse before first returned F9 WebGL shot.",
+    "nextHighestImpactAction": "Capture exact commit first-episode renderer diagnostics with native 60+s baseline/candidate footage at both viewports and source event PTS; identify real missing/hidden gate and repair the unified cold F9 render budget and physical camera/geometry together. Reopen as long as 0/2 strict native crossing.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-first-episode-submission-export.md",
+    "safety": "Draft PR68 stays on PR58; immutable baseline, gameplay authority and other games untouched. Never merge, deploy, force push or move baseline."
   }
 }
