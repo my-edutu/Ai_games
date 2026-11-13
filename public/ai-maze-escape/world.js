@@ -827,7 +827,7 @@ export function createMazeWorld(options = {}) {
         phase:cell*.37+side});
     }
   }
-  function wall(x, z, horizontal, id, cell, guardianBulwark = false) {
+  function wall(x, z, horizontal, id, cell, guardianBulwark = false, guardianQuietRing = false) {
     const h = .91 + variation(id + 22) * .12;
     const length = CELL_SIZE - .13, thickness = .31;
     // Make all three *known* altitude districts readable in actual 3D wall
@@ -902,7 +902,7 @@ export function createMazeWorld(options = {}) {
     }
     // A rooted, folded tide pennant grows only from the disclosed wall cap.
     // Its two textured sides remain a wall ornament, never a marker or route.
-    if (variation(id + 1343) > .76) {
+    if (!guardianQuietRing && variation(id + 1343) > .76) {
       tidePennants++;
       const u = variation(id + 102) > .5 ? -.72 : .72;
       const top = point(u, h + .82, 0);
@@ -926,7 +926,7 @@ export function createMazeWorld(options = {}) {
     // walls occur far more often than the isolated 'blocked' tile relics.
     // Windcatchers are unlit architecture, never navigation hints/keys.
     // Keep every foot and roof fastened to its already-built masonry.
-    if (variation(id + 2017) > .90) {
+    if (!guardianQuietRing && variation(id + 2017) > .90) {
       wallWindcatchers++;
       slab(deepStone, 0, h + .12, 0, 1.58, .24, .54);
       slab(facade, 0, h + .34, 0, 1.42, .24, .39);
@@ -975,7 +975,7 @@ export function createMazeWorld(options = {}) {
         }
       }
     }
-    if (gardenPatch(cell) > .46 && variation(id) > .25) {
+    if (!guardianQuietRing && gardenPatch(cell) > .46 && variation(id) > .25) {
       slab(moss, (variation(id + 1) - .5) * .3, h + .09, 0, 1.2 + variation(id + 5) * .8, .06, .34);
       const p = point((variation(id + 7) - .5) * 1.5, h + .08, 0);
       plant(p.x, p.y, p.z, id, cell, 1.1);
@@ -1085,6 +1085,13 @@ export function createMazeWorld(options = {}) {
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
     const guardianOuterCourt=publicGuardianOuterCourtCells(s,guardianCauseway);
     const guardianForeground=publicGuardianWitnessedForegroundCells(s,guardianCauseway);
+    // This is the PUBLIC, currently witnessed performance envelope, not a
+    // speculative camera reveal. The actual stage and its second disclosed
+    // ring keep all stone, seals, stairs, pressure devices and collisions.
+    // Only redundant non-functional tall dressings yield to full-body acting.
+    const guardianQuietRing=guardianCauseway.has(s.currentCell)
+      ? new Set([...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
+        ...guardianForeground]) : new Set();
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -1198,6 +1205,9 @@ export function createMazeWorld(options = {}) {
       const guardianCourtCell=guardianSightlines.has(c.cell) && !pressureSightline
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell && !s.keys.some(k=>k.cell===c.cell);
+      const guardianQuietRingCell=guardianQuietRing.has(c.cell) && !pressureSightline
+        && !c.trap && !c.checkpoint && !c.clue && c.cell!==s.exitCell
+        && !s.keys.some(k=>k.cell===c.cell);
       if(guardianCourtCell)guardianCourtTiles++;
       // Native full-frame 390px guardian action still has an oversized pale
       // foreground outside the dark physical duel. Treat ONLY a disclosed,
@@ -1632,7 +1642,7 @@ export function createMazeWorld(options = {}) {
       // walkable tile can own a low fossil alcove near its publicly confirmed
       // NON-PASSAGE side. Keep the real tile center and true route open.
       // This is a deterministic presentation variation, not an extra obstacle.
-      const fossilSide = !pressureSightline && !guardianCourtCell && !c.blocked && !c.trap && !c.checkpoint && !c.clue
+      const fossilSide = !pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell
         && !gateCourt && !gateApproachCells.has(c.cell)
         && !s.keys.some(key=>key.cell===c.cell)
@@ -1966,7 +1976,7 @@ export function createMazeWorld(options = {}) {
         } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
           !pressureSightline && (guardianCauseway.has(c.cell)
             || guardianForecourtShoulders.has(c.cell)
-            || guardianOuterCourt.ordinary.has(c.cell)));
+            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
@@ -1976,24 +1986,24 @@ export function createMazeWorld(options = {}) {
         // silhouette. Keep its actual hinged faces in view instead of planting
         // a tall raised garden on the same observed NON-PASSAGE edge. Other
         // walls retain their verdant profile; public navigation is untouched.
-        if (!pressureSightline && !guardianCourtCell && n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
+        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
           if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
           else coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
         }
         const region = `${Math.floor(col / 6)}:${Math.floor(row / 6)}`;
-        if (!pressureSightline && !guardianCourtCell && side === 0 && landmarkSites.get(region)?.cell === c.cell) {
+        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && side === 0 && landmarkSites.get(region)?.cell === c.cell) {
           const wide = landmarkSites.get(region).wide;
           gardenLandmark(x + (wide ? 1.2 : 0), z - 1.2, c.cell, c.cell * 19, wide);
         }
         // Cap a limited number of wall intersections with taller ruined columns.
-        if (!pressureSightline && !guardianCourtCell && !gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
+        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
           const px = x + (dx || (side === 0 ? -1 : 1)) * 1.2;
           const pz = z + (dz || (side === 1 ? -1 : 1)) * 1.2;
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (!pressureSightline && !guardianCourtCell && !fossilStageEdge && !gateApproachCells.has(c.cell)
+        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !fossilStageEdge && !gateApproachCells.has(c.cell)
           && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55)
           plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
@@ -2027,7 +2037,7 @@ export function createMazeWorld(options = {}) {
         // Two-cell grouping creates planted terraces with unplanted breathing
         // spaces rather than one identical tuft repeated around every tile.
         const patch = Math.floor(col / 2) * 47 + Math.floor(row / 2) * 97 + (dx ? 67 : 31);
-        if (!pressureSightline && !guardianCourtCell && variation(patch) > (dx + dz > 0 ? .24 : .47)) {
+        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && variation(patch) > (dx + dz > 0 ? .24 : .47)) {
           coastalGarden(x, z, dx, dz, c.cell * 71 + (dx + 2) * 13 + (dz + 2) * 23, c.cell);
         }
       }

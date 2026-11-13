@@ -1131,3 +1131,59 @@ test('Pass335 native 390px guardian foreground replaces the actual 2.34m ivory p
    assert.equal(w.stats().materialCount,0);
  }
 });
+
+test('public guardian second-ring performance clears tall decorative occluders but keeps every real wall',async()=>{
+  const {createMazeWorld,publicGuardianCausewayCells}=await load();
+  // Four authentic currently disclosed ordinary cells. 15->16->17 is a
+  // reciprocal same-tier duel; spectator cell22 is a KNOWN sealed flank.
+  // Without an actual guardian, this fixture owns its original taller ruins.
+  const duo={
+    runToken:'guardian-negative-space',lifecycle:'running',result:null,
+    width:7,height:7,currentCell:15,
+    visibleCells:[15,16,17,22],
+    cells:[
+      {cell:15,blocked:false,neighbors:[16]},
+      {cell:16,blocked:false,neighbors:[15,17]},
+      {cell:17,blocked:false,neighbors:[16]},
+      {cell:22,blocked:false,neighbors:[]},
+    ],
+    threats:[{id:'thornback',cell:17}],
+    doors:[],keys:[],inventory:[],exitCell:null,
+  };
+  const quiet={...duo,threats:[]},hidden={...duo,visibleCells:[15,16,22]};
+  const baseline=createMazeWorld({balanced:true}),world=createMazeWorld({balanced:true});
+  const first=JSON.stringify(duo);
+  try{
+    baseline.update(quiet);
+    const before=baseline.stats();
+    assert.ok(before.wallWindcatchers>0,'the disclosed ordinary spectator has real roofed wall towers to clear');
+    assert.deepEqual([...publicGuardianCausewayCells(duo)],[[15,'x'],[16,'x'],[17,'x']]);
+    world.update(duo);
+    const during=world.stats();
+    assert.equal(during.guardianCausewayTiles,3,'the genuine connected hero/guardian stage remains');
+    assert.ok(during.wallWindcatchers<before.wallWindcatchers,
+      'repeated tall windcatcher towers clear the original living actor stage');
+    assert.ok(during.instances>0&&during.renderedCells.includes(22),
+      'the known sealed spectator wall and its world tile remain physical');
+    assert.equal(during.geometryCount,before.geometryCount,'no new GPU geometry classes');
+    assert.equal(during.materialCount,before.materialCount,'no new material classes');
+    assert.equal(JSON.stringify(duo),first,'rendering does not change gameplay or public truth');
+    world.update(hidden);
+    assert.equal(world.stats().guardianCausewayTiles,0,
+      'undisclosed guardian instantly revokes the open performance envelope');
+    world.update(quiet);
+    assert.equal(world.stats().wallWindcatchers,before.wallWindcatchers,
+      'ordinary taller public scenery returns without an authentic encounter');
+    world.update({...duo,doors:[{a:16,b:17,open:false}]});
+    assert.equal(world.stats().guardianCausewayTiles,0,'known closed gate cannot earn a clear false stage');
+    for(let i=0;i<6;i++){
+      world.update({...duo,runToken:'guardian-negative-reset-'+i});
+      assert.equal(world.stats().guardianCausewayTiles,3);
+      assert.ok(world.stats().geometryCount<100,'unchanged strict six-reset resource ceiling');
+    }
+  }finally{
+    world.dispose();baseline.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+  }
+});
