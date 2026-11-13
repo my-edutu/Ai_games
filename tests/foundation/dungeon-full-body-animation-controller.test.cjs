@@ -4551,6 +4551,43 @@ test('genuine source stance offset exits smoothly instead of restarting the weig
 });
 
 
+
+test('RED: original weighted-shoe relief must retire over elapsed 75ms display frames instead of snapping back',async()=>{
+ const {planOriginalSourceStanceReliefCarry:carry}=await load();
+ // A prior same-GLB Walking_A source-skinned heel/toe readback already
+ // accepted a reversible 18mm correction. A later lawful 75ms display
+ // interval is NOT permission to instantly undo all 18mm at the root.
+ // Use only the measured interval, the original motion witness and the
+ // original clone; this is a decaying visual offset, not a planted IK foot.
+ const previous={x:-.018,z:0,sourceInstanceId:'vanguard-original-source',
+  clip:'Walking_A',rootYaw:-1.9125};
+ const evidence={previous,sourceInstanceId:'vanguard-original-source',
+  sourceClipName:'Walking_A',sourceWeight:1,mode:'move',
+  ownerLocomotion:true,recentRootTravel:.05469,recentTravelAge:.09,
+  rootYaw:-1.9125,frameInterval:.075,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ const first=carry(evidence);
+ assert.ok(first&&Math.abs(first.x+.009)<.000001,
+  '75ms of source-visible elapsed time should release only 9mm, not snap 18mm');
+ assert.equal(first.z,0);
+ assert.equal(first.sourceInstanceId,previous.sourceInstanceId);
+ assert.equal(first.clip,'Walking_A');
+ const second=carry({...evidence,previous:first,frameInterval:.06,recentTravelAge:.15});
+ assert.ok(second&&Math.abs(second.x+.0018)<.000001,
+  'subsequent 60ms frame retires the identical offset at 120mm/s');
+ assert.equal(carry({...evidence,previous:second,frameInterval:.015,
+  recentTravelAge:.165}),null,
+  'original measured correction must be gone within 150ms total');
+ for(const change of [
+  {sourceInstanceId:'new-clone'},{sourceClipName:'Idle'},
+  {sourceWeight:.55},{mode:'attack'},{ownerLocomotion:false},
+  {recentRootTravel:0},{recentTravelAge:.181},{frameInterval:.151},
+  {rootYaw:-1.7125},{teleport:true},{interrupted:true},
+  {reducedMotion:true},{alive:false},{visible:false}
+ ])assert.equal(carry({...evidence,...change}),null,
+  'a stale/unsafe original-source witness may never keep a floating visual offset');
+});
+
 test('RED: genuine Walking_A tick transition primes original skinned shoes without authorizing a blind slide',async()=>{
  const {planOriginalSourceStanceSampleHandoff:handoff,
   planOriginalSourceStanceSlideRelief:slide}=await load();
