@@ -2542,6 +2542,18 @@ function realForegroundFacing(p){
 // Phase 1 real GPU traveler rigs: keep original full detailed citizen geometry
 // and actual authoritative feet/route; only the binding pose stays resident.
 // The live shader bone palette changes every frame from the real current rig.
+// W283: original full-body GPU joint residency across a larger natural
+// pedestrian viewing window. True labor, parcels, market hands, verified
+// meals and manually followed workers stay in the live contact path.
+// Hysteresis avoids unnecessary JS regeneration at a camera LOD boundary.
+const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.18;
+const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.22;
+function physicallySmallWalkingSkinWindow(heightFraction,previouslySkinned){
+ return Number.isFinite(heightFraction)&&heightFraction>=0&&
+  heightFraction<(previouslySkinned?
+   FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT:
+   FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT);
+}
 function isForegroundWalkingSkinCandidate(p,i,frame){
  // W212: Extend the ACTUAL full-body 13-joint GPU residency to passive
  // off-duty residents, not just commuters. The same authoritative citizen
@@ -2566,7 +2578,11 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  if(passive&&typeof verifiedHouseholdMealEvidence==='function'&&
   Boolean(verifiedHouseholdMealEvidence(p)))return false;
  const projected=projectRealCitizenDetail(p,frame);
- return !projected.visible||projected.heightFraction<.115;
+ const prior=foregroundResidentCache.get(i);
+ const held=Boolean(prior?.skinned&&typeof prior.key==='string'&&
+  prior.key.startsWith([i,p.name,p.job].join(':')+':'));
+ return !projected.visible||
+  physicallySmallWalkingSkinWindow(projected.heightFraction,held);
 }
 function realForegroundPoseKey(p,i,walkingSkin=false){
  // Full-detail workers observed as <11.5% of the viewport keep the EXACT
@@ -2823,6 +2839,8 @@ function getForegroundResidentAudit(){
   physicallySkinnedCommuters:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&!isWorkingAtSite(row.p)&&
     /^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(row.p.activity||'')).length,
+  walkingSkinScreenWindow:{enter:FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT,
+   retain:FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT},
   physicallySkinnedPassiveResidents:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&
     ['Resting at home','Waiting for a safe route','Finding a home']
@@ -22564,6 +22582,79 @@ function getHomecomingThresholdCameraAudit(){
 // frame. A small render-only cache expires within 1.1 seconds and invalidates
 // for moving actors, growing town and spectators manually turning the lens.
 let liveShotPlanCache=null,liveShotPlanBuilds=0,liveShotPlanReuses=0;
+// W283 Phase 1 camera cost boundary: transport an already clear ORIGINAL
+// traveling-courier view down a short authentic road segment, revalidating
+// real 3D roofs, foreground cargo, vegetation, eye and actor at each step.
+// Missing evidence, turn, delivery transition or geometry collision ALWAYS
+// resumes the original full physical orbit search; authority is untouched.
+const COURIER_SHOT_TRANSLATE_MAX_METRES=.90;
+const COURIER_SHOT_TRANSLATE_MAX_MS=2000;
+const COURIER_SHOT_TRANSLATE_MAX_TURN=.17;
+let courierShotPhysicalReuses=0,courierShotPhysicalRejections=0,
+ courierShotPhysicalSurveys=0;
+function tryReusePhysicalCourierShot(cache,citizen,preferredYaw,now){
+ if(!cache||!citizen?.delivery||cache.mode!=='delivery'||
+  cache.stage!=='travel'||citizen.delivery.stage!=='travel'||
+  cache.deliveryId!==citizen.delivery.id||
+  !cache.shot?.courierRouteCamera||!Number.isFinite(cache.shot.routeHeading)||
+  !Number.isFinite(now)||now-cache.at<0||
+  now-cache.at>=COURIER_SHOT_TRANSLATE_MAX_MS||
+  cache.citizen!==citizen.name||cache.job!==citizen.job||
+  cache.activity!==citizen.activity||cache.citySize!==city.length||
+  cache.cityTopology!==cameraArchitectureTopologyKey()||
+  cache.viewWidth!==canvas.clientWidth||
+  cache.viewHeight!==canvas.clientHeight||
+  cache.requestZoom!==actionCameraZoom||
+  cache.requestPitch!==actionCameraPitch){
+  courierShotPhysicalRejections++;return null;
+ }
+ const dx=citizen.x-cache.x,dz=citizen.z-cache.z,prior=cache.shot;
+ if(![dx,dz,preferredYaw,prior.yaw,prior.pitch,prior.zoom,
+   ...prior.target].every(Number.isFinite)||
+   Math.hypot(dx,dz)>COURIER_SHOT_TRANSLATE_MAX_METRES){
+  courierShotPhysicalRejections++;return null;
+ }
+ const route=citizen.path?.length?citizen.path[0]:citizen.target;
+ if(!Array.isArray(route)||route.length!==2||!route.every(Number.isFinite)){
+  courierShotPhysicalRejections++;return null;
+ }
+ const heading=Math.atan2(route[0]-citizen.x,route[1]-citizen.z);
+ const turn=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+ if(turn(heading,prior.routeHeading)>COURIER_SHOT_TRANSLATE_MAX_TURN||
+    turn(preferredYaw,prior.yaw)>.25){
+  courierShotPhysicalRejections++;return null;
+ }
+ const radius=Math.cos(prior.pitch)*prior.zoom,
+  rise=Math.sin(prior.pitch)*prior.zoom,
+  elevation=terrain(citizen.x,citizen.z),
+  deltaHeight=elevation-terrain(cache.x,cache.z),
+  eye=[citizen.x+Math.sin(prior.yaw)*radius,elevation+1.02+rise,
+   citizen.z+Math.cos(prior.yaw)*radius],
+  target=[prior.target[0]+dx,prior.target[1]+deltaHeight,
+   prior.target[2]+dz],roofs=followCameraRoofs();
+ courierShotPhysicalSurveys++;
+ const clearance=physicalFollowEyeClearance(eye,roofs),
+  blockers=followRayBlockers(eye,target,roofs),
+  scene=foregroundSceneProjection(eye,target,roofs),
+  plants=foregroundVegetationProjection(eye,target),
+  human=projectedWorkerBodyFraction(eye,target,citizen);
+ if(!clearance.clear||blockers!==0||scene.cover>=.20||
+   (scene.cargoCover||0)>=.18||plants.faceBlockers!==0||
+   plants.cover>=.26||!Number.isFinite(human)||human<.16){
+  courierShotPhysicalRejections++;return null;
+ }
+ courierShotPhysicalReuses++;
+ return {...prior,eye,target,routeHeading:heading,blockers:0,
+  eyeCollision:clearance,projectedWorkerHeightFraction:human,
+  foregroundSceneCover:scene.cover,
+  foregroundBuildingCover:scene.buildingCover||0,
+  foregroundCargoCover:scene.cargoCover||0,
+  foregroundSceneLargest:scene.largest||0,
+  foregroundSceneVolumes:scene.volumes||0,
+  foregroundVegetationCover:plants.cover,
+  vegetationFaceBlockers:plants.faceBlockers,
+  physicallyRevalidatedCourierShot:true};
+}
 function observedWorkdayCameraPlan(citizen,preferredYaw){
  const observeHome=document.body.dataset.workday==='homecoming';
  const observedEntries=observeHome?getCottageHomecomingAudit():null;
@@ -22599,6 +22690,16 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
   Math.hypot(citizen.x-cache.x,citizen.z-cache.z)<.25&&turn<.24){
   liveShotPlanReuses++;return cache.shot;
  }
+ // On a genuine loaded street segment, reuse ONLY a physically re-certified
+ // mobile 3D view; a stale shot can never conceal an authentic courier.
+ const continued=observeDelivery?
+  tryReusePhysicalCourierShot(cache,citizen,preferredYaw,now):null;
+ if(continued){
+  liveShotPlanReuses++;
+  liveShotPlanCache={...cache,shot:continued,x:citizen.x,z:citizen.z,
+   at:now,requestedYaw:preferredYaw};
+  return continued;
+ }
  const shot=(observeHome?continuousHomecomingWitness(citizen,doorEntry,now):null)||
   planCitizenCamera(citizen,preferredYaw,observeWorkday);
  liveShotPlanBuilds++;
@@ -22620,6 +22721,9 @@ function getCourierDocumentaryCameraAudit(){
   realReceipt:receipt?{id:receipt.id,amount:receipt.amount,
    resource:receipt.resource,creditedAtUnloading:receipt.creditedAtUnloading}:null,
   builds:liveShotPlanBuilds,reuses:liveShotPlanReuses,
+  physicalCourierReuse:courierShotPhysicalReuses,
+  physicalCourierRejections:courierShotPhysicalRejections,
+  physicalCourierSurveys:courierShotPhysicalSurveys,
   camera:shot?{yaw:shot.yaw,pitch:shot.pitch,zoom:shot.zoom,
    blockers:shot.blockers,foregroundCover:shot.foregroundSceneCover,
    foregroundBuildingCover:shot.foregroundBuildingCover||0,

@@ -1,0 +1,22 @@
+name: Tiny Kingdom W283 Living Workday Rendering and Physical Camera
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w283-physical-residency.cjs
+      - .github/workflows/tiny-kingdom-w283-living-workday.yml
+jobs:
+  immutable-original-human-and-real-camera-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W283 real full-body skin + physically checked moving courier
+        run: node scripts/tiny-kingdom-w283-physical-residency.cjs
+      - name: Existing exact physical roof and moving-cart contract
+        run: node scripts/tiny-kingdom-w279-physical-eye-broadphase.cjs
+      - name: Existing original 13-joint human GPU motion contract
+        run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
