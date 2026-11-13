@@ -4708,6 +4708,55 @@ test('original Walking_A ankle swing correction remains continuously owned only 
 // Counterturn only the ORIGINAL imported chest; the legs, root movement,
 // source hand/weapon socket and AnimationMixer keyframes remain untouched.
 // No inference of a damage event, new target, contact or fake foot plant.
+
+// Genuine original source GLB before/after witness: mobile & desktop root
+// yaw ~0.6375rad on the FIRST legal visible Idle→Walking_A entry. The same
+// old source clone remains attached, root travel is ~59mm, and the original
+// Walking_A action is still crossfading (0.78260839 effective weight in the
+// authenticated nine-tick source rig trace from Actions #43403920729).
+// Previously the counterturn owner was reset in Idle and its >=.85 fade
+// threshold could never compensate this actual first-frame snap.
+// This test requires a first-entry *read-only* yaw witness, never a changed
+// authoritative turn, fabricated foot plant or independent weapon animation.
+test('RED: original source first walking crossfade must counterturn a witnessed 0.6375-radian root pivot',async()=>{
+ const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
+ const witnessed={
+  mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  sourceWeight:.7826083898544312,sourceInstanceSame:true,
+  ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.059125,frameInterval:.0581,
+  previousRootYaw:-1.98305,currentRootYaw:-2.62055,
+  previousOffsetRad:0
+ };
+ const first=plan(witnessed);
+ assert.ok(first,'the original imported spine must not miss its first REAL walking turn during source fade');
+ assert.ok(first.offsetRad>.05&&first.offsetRad<=.12,
+  'counterturn is limited by source blend weight and never rotates the root or native legs');
+ assert.equal(first.sourceClip,'Walking_A');
+ assert.equal(first.contactLocked,false);
+ const following=plan({...witnessed,previousMode:'move',
+  sourceWeight:1,previousRootYaw:witnessed.currentRootYaw,
+  currentRootYaw:witnessed.currentRootYaw,
+  previousOffsetRad:first.offsetRad,rootTravel:.02,frameInterval:.0167});
+ assert.ok(following&&following.offsetRad>0&&following.offsetRad<first.offsetRad,
+  'real source walking torso must unwind on following continuous displayed frame');
+ for(const bad of [
+  {previousMode:'attack'},{previousMode:'hurt'},
+  {previousMode:'guard'},{previousMode:'defeat'},
+  {sourceWeight:.6},{rootTravel:0},{frameInterval:.37},
+  {sourceInstanceSame:false},{ownerLocomotion:false},
+  {sourceClipName:'Idle'},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true}
+ ])assert.equal(plan({...witnessed,...bad}),null,
+  'no first-walk counterturn without the exact source continuity witness '+JSON.stringify(bad));
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/rigWalkingTurnPreviousMode/,
+  'native renderer must retain only its last safe original idle/walking yaw anchor');
+ assert.match(model,/planOriginalSourceWalkingTorsoCounterturn\(/,
+  'real original imported spine must own the rendered turn, not the simulation root');
+});
+
 test('real original Walking_A torso counterturn has bounded source-owned follow-through and safe release',async()=>{
  const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
  const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
