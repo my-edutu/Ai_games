@@ -2215,7 +2215,53 @@ export function createTowerWorld(){
            next.player.groundedPlatformId === 'f9:ground') ||
           observedSourceEarnedAirborneHandoff(previous,next) ||
           observedSourceEarnedDoorstepHandoff(previous,next))) return false;
+    // The first real Floor9 browser receipt can precede publication of the
+    // immutable lastGuardianCrossing record. We have ALREADY validated the
+    // real old GPU cap + gate, inactive zero-HP guardian, SAME cached roof,
+    // same run and a new live grounded f9:ground body. Independently witness
+    // the exact physical corridor crossing, capped by genuine observed ticks,
+    // before allowing the original GPU geometry to survive a delayed WebGL
+    // rebuild. Never infer a win from a new-floor sprite or changed theme.
+    const priorBody=previous.player, landedBody=next.player;
+    const threshold=guardianGateAnchorX(previous,authored);
+    const wholeBodyClearance=threshold+priorBody?.halfWidth+4000;
+    const observedTicks=next.tick-previous.tick;
+    const verifiedObservedFloorAdvance=
+      Number.isSafeInteger(previous.tick) &&
+      observedTicks>=1 && observedTicks<=12 &&
+      Number.isSafeInteger(previous.guardianExitX) &&
+      previous.guardianExitX===threshold &&
+      priorBody?.grounded===true &&
+      priorBody.groundedPlatformId==='f8:cap' &&
+      landedBody?.grounded===true &&
+      landedBody.groundedPlatformId==='f9:ground' &&
+      [priorBody.x,priorBody.y,priorBody.halfWidth,priorBody.halfHeight,
+        landedBody.x,landedBody.y,landedBody.halfWidth,landedBody.halfHeight]
+        .every(Number.isSafeInteger) &&
+      priorBody.halfWidth>0 && priorBody.halfHeight>0 &&
+      landedBody.halfWidth===priorBody.halfWidth &&
+      landedBody.halfHeight===priorBody.halfHeight &&
+      priorBody.x>=threshold-18000 &&
+      priorBody.x<=wholeBodyClearance &&
+      priorBody.x-priorBody.halfWidth>=authored.x &&
+      priorBody.x+priorBody.halfWidth<=authored.x+authored.width &&
+      priorBody.y-priorBody.halfHeight===authored.y+authored.height &&
+      landedBody.x>=wholeBodyClearance &&
+      landedBody.x>=priorBody.x &&
+      landedBody.x-priorBody.x<=observedTicks*18000 &&
+      landedBody.x+landedBody.halfWidth<=ground.x+ground.width &&
+      landedBody.x-landedBody.halfWidth>=ground.x &&
+      landedBody.y===priorBody.y &&
+      landedBody.y-landedBody.halfHeight===ground.y+ground.height;
     pendingEarnedCap = {
+      // Stored ONLY after the above physical, same-run old-to-new receipt.
+      // A later authoritative crossing may still supply its exact immutable
+      // tick; lack of publication must not delete the already drawn old door.
+      verifiedObservedFloorAdvance,
+      observedCrossingX:verifiedObservedFloorAdvance?landedBody.x:null,
+      observedCrossingY:verifiedObservedFloorAdvance?landedBody.y:null,
+      observedHalfWidth:verifiedObservedFloorAdvance?landedBody.halfWidth:null,
+      observedHalfHeight:verifiedObservedFloorAdvance?landedBody.halfHeight:null,
       runToken:next.runToken, floor:next.floor, tick:next.tick,
       previousBaseY:old.chunkBaseY, nextBaseY:next.chunkBaseY,
       thresholdX:guardianGateAnchorX(previous,authored),
