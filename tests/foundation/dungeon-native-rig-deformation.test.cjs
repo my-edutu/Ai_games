@@ -86,7 +86,12 @@ test('real GLB deformation audit is explicitly sampled, bounded, and joined to a
  assert.match(model,/function inspectSourceRigDeformation\(actors\)/);
  assert.match(model,/const sourceRigDeformationBaselines=new WeakMap\(\)/);
  assert.match(model,/sourceRigDeformationBaselines\.set\(actor\.assetRoot,baseline\)/);
- assert.match(model,/export \{attachCharacter,updateActor,disposeActorAsset,putEnvironment,stats,inspectSourceRigDeformation\}/);
+ const namedExports=model.match(/^export \{([^}]+)\};?$/m)?.[1]?.split(',').map(name=>name.trim());
+ assert.ok(namedExports,'original rig adapter must have an explicit named export contract');
+ for(const name of ['attachCharacter','updateActor','stageRigWalkingFacingAfterRootYaw',
+  'disposeActorAsset','putEnvironment','stats','inspectSourceRigDeformation']){
+  assert.ok(namedExports.includes(name),`missing original-rig public export: ${name}`);
+ }
  assert.match(app,/window\.__DUNGEON_SOURCE_RIG_DEFORMATION__=\(\)=>inspectSourceRigDeformation\(actors\)/);
  assert.match(server,/\/dungeon\/native-rig-deformation-plan\.js/);
  assert.match(browser,/__DUNGEON_SOURCE_RIG_DEFORMATION__/);
