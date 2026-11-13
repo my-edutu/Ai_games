@@ -6997,6 +6997,10 @@ const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<
  2400000:4600000;
 const homeClusterCache=new Map();
 let homeClusterActive=[],homeClusterOverride=null,homeClusterCachedFloats=0;
+// W281: exact rendered-lot identity, not a frame-count throttle. A view orbit
+// or 13-joint worker animation must not replan every occupied 16m GPU region.
+let homePartitionLastTopology='',homePartitionTopologyScans=0,
+ homePartitionFastReuses=0,homePartitionGuardFallbacks=0;
 let homeClusterBuilds=0,homeClusterHits=0,homeClusterUploads=0;
 let homeClusterDisposals=0,homeClusterEvictions=0,homeClusterStaleDrawn=0;
 // W77: account for the ACTUAL GPU allocation, including reserved growth room,
@@ -7017,6 +7021,9 @@ function clearHomeClusterCache(){
  }
  homeClusterCache.clear();homeClusterCachedFloats=0;
  homeClusterReservedFloats=0;homeClusterActive=[];
+ // World reset, save restore and renderer-mode changes must rebuild a truthful
+ // identity rather than recalling GPU homes from a previous settlement.
+ homePartitionLastTopology='';
 }
 function getHomePartitionAudit(){
  const keys=new Set(homeClusterActive.map(entry=>entry.key));
@@ -7047,6 +7054,9 @@ function getHomePartitionAudit(){
   staleDrawn:homeClusterActive.filter(entry=>
    !keys.has(entry.key)||homeClusterCache.get(entry.key)!==entry).length+
    homeClusterStaleDrawn,
+  realTownHomes:city.length,fastReuses:homePartitionFastReuses,
+  topologyScans:homePartitionTopologyScans,
+  guardFallbacks:homePartitionGuardFallbacks,
   authoritativeStateChanged:false,
   shape:'original complete material and mesh per inhabited spatial block'};
 }
@@ -7199,6 +7209,10 @@ function buildHomeClusters(fullHomes,climateKey){
   throw Error('W77 real occupied town exceeds GPU memory budget; do not hide homes');
  if(homeClusterActive.reduce((n,e)=>n+e.homes,0)!==city.length)
   throw Error('W76 dropped a real inhabited cottage');
+ // Only completed, checked uploads can validate a live scene. An exception
+ // leaves the old identity stale, so the next frame retries rather than hiding
+ // an authentic home or using an obsolete housing buffer.
+ homePartitionLastTopology=homePartitionLiveSignature();
 }
 function recallHomeClusterKeys(keys){
  if(!homeClustersEnabled())return !keys?.length;
@@ -7925,8 +7939,37 @@ streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
  totalTriangles:0,archetypes:[0,0,0,0]};
 }
+// The source of truth is the whole real lot topology (including same-count
+// relocations). It contains no season token: the original stone/wood/roof
+// geometry is already season invariant; seasonal shaders and terrain remain
+// separately invalidated by the existing scene key.
+function homePartitionLiveSignature(){
+ homePartitionTopologyScans++;
+ return HOME_STATIC_GEOMETRY_KEY_VERSION+'|'+city.length+'|'+
+  city.map((lot,i)=>i+':'+lot.join(':')).join(';');
+}
+function homePartitionResidencyMatches(){
+ if(!homeClusterActive.length)return false;
+ let represented=0;
+ for(const part of homeClusterActive){
+  if(!part?.buffer||homeClusterCache.get(part.key)!==part)return false;
+  represented+=part.homes;
+ }
+ return represented===city.length;
+}
 function refreshIndependentHousing(climateKey,sceneKey){
  if(!homeClustersEnabled()||scenicMeshKey!==sceneKey)return false;
+ // Stable city, original detail policy and all complete GPU buffers: no
+ // expensive grouping/LOD selection/house counters or geometry rebuild.
+ // A missing partition ALWAYS falls through to physical regeneration.
+ const topology=homePartitionLiveSignature();
+ if(homePartitionLastTopology===topology){
+  if(homePartitionResidencyMatches()){
+   homePartitionFastReuses++;
+   return false;
+  }
+  homePartitionGuardFallbacks++;
+ }
  const fullHomes=detailedHomeSet(),groups=homeClusterGroups(fullHomes,climateKey);
  if(groups.length===homeClusterActive.length&&
   groups.every((group,i)=>homeClusterActive[i].key===group.key))return false;
@@ -7966,6 +8009,8 @@ function getStationarySettlementAudit(){
   civicInvariantKey:homeClustersEnabled()?stationaryFounders():null,
   homes:city.length,activeClusterHomes:homeClusterActive.reduce((n,e)=>n+e.homes,0),
   growthClusterRefreshes:independentHousingRefreshes,
+  stableHomeFrameReuses:homePartitionFastReuses,
+  invalidResidencyFallbacks:homePartitionGuardFallbacks,
   growthWitnesses:independentHousingGrowthWitnesses.map(w=>({...w})),
   seasonGrowthReuses:settlementSeasonGrowthReuses,
   avoidedTownRebuilds:independentHousingGrowthSkips,
