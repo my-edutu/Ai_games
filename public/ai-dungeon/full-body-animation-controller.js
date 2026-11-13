@@ -249,6 +249,50 @@ export function confirmOriginalSourceSwingToeLift({
 
 
 /**
+ * Continue only an ALREADY measured original Walking_A swing-ankle lift.
+ * A safe, supported correction can be rejected by the next broad 0.1/0.2rad
+ * source probe even though the SAME finer previous angle still lifts its
+ * skinned toe. Abruptly dropping that joint delta produces a one-frame native
+ * ankle pop. Re-test the exact prior angle against BOTH original GLB shoes
+ * before reusing it; never freeze a source clip or infer world-space stance.
+ *
+ * No source bones/geometry, game authority, target or contact are invented.
+ * Fails closed on source handoff, injury, teleport, stale travel, buried heel
+ * or a changed opposite planted shoe. This is not certified stance IK.
+ */
+export function confirmOriginalSourceSwingToeContinuation({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ ownerLocomotion=false,sourceInstanceSame=false,sourceAnatomyVerified=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,floorTopY=NaN,
+ previousCorrectionRad=NaN,beforeToeY=NaN,beforeHeelY=NaN,
+ afterToeY=NaN,afterHeelY=NaN,otherBeforeHeelY=NaN,
+ otherBeforeToeY=NaN,otherAfterHeelY=NaN,otherAfterToeY=NaN
+}={}){
+ if(sourceInstanceSame!==true||sourceAnatomyVerified!==true||
+  !hasOriginalSourceSwingTravelWitness({
+   mode,sourceClipName,sourceWeight,ownerLocomotion,
+   travel:rootTravel,age:frameAge,alive,visible,
+   teleport,reducedMotion,interrupted
+  })||!finite(previousCorrectionRad)||
+  Math.abs(previousCorrectionRad)<.0001||
+  Math.abs(previousCorrectionRad)>.221||
+  ![otherBeforeHeelY,otherBeforeToeY,
+    otherAfterHeelY,otherAfterToeY].every(finite)||
+  Math.abs(otherAfterHeelY-otherBeforeHeelY)>.003||
+  Math.abs(otherAfterToeY-otherBeforeToeY)>.003)return null;
+ const lift=confirmOriginalSourceSwingToeLift({
+  beforeToeY,afterToeY,beforeHeelY,afterHeelY,
+  floorTopY,appliedAngleRad:previousCorrectionRad
+ });
+ if(lift===null)return null;
+ return Object.freeze({angleRad:previousCorrectionRad,
+  measuredToeLiftMeters:lift,contactLocked:false,
+  source:'same-original-GLB-weighted-swing-ankle-continuation'});
+}
+
+
+/**
  * Derive a permissible native lower-leg hinge from the EXISTING licensed
  * Walking_A quaternion track. Joint names, original source duration and
  * genuinely rotating, consistently collinear keyframes are all required.
