@@ -435,3 +435,60 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       ...crossing,sourceTick:450}},world.retainedFilmHandoff(realFirstRender)),false);
   }finally{world.dispose();}
 });
+
+
+test('the ORIGINAL HP-controlled bronze gate straddles the physical increasing-X walkway, not a radial wall',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const {guardianTraversalGatePose,pointFor,GUARDIAN_CAP_CORRIDOR}
+    =await import(uri('coordinates.mjs'));
+  const THREE=await import('three');
+  const before=old(),after=next();
+  const expected=guardianTraversalGatePose(gate,
+    cap.y+cap.height,before.chunkBaseY,before.worldWidth);
+  assert.ok(expected,'real source exit has a physical-world pose');
+  assert.equal(expected.radius,GUARDIAN_CAP_CORRIDOR.visibleSealRadius);
+  const world=createTowerWorld();
+  try{
+    const immutable=JSON.stringify([before,after]);
+    world.update(before,.05,0,{quality:'low'});
+    const arch=world.group.getObjectByName('AuthoritativeGuardianGate');
+    assert.ok(arch?.isGroup,'use the real originally modelled door');
+    arch.updateWorldMatrix(true,true);
+    const origin=arch.getWorldPosition(new THREE.Vector3());
+    assert.ok(origin.distanceTo(new THREE.Vector3(
+      expected.x,expected.y,expected.z))<1e-5,
+      'the physical door is centered at the actual annular source exit');
+    assert.ok(Math.abs(arch.rotation.y-expected.yaw)<1e-6,
+      'the arch normal must follow travel tangent, not the radial world normal');
+    // The true source x threshold must intersect the portal opening. This
+    // is a spatial proof, NOT a fabricated passage event or visual score.
+    const entry=pointFor(gate-12000,cap.y+cap.height,
+      before.chunkBaseY,before.worldWidth,GUARDIAN_CAP_CORRIDOR.climberPathRadius);
+    const exit=pointFor(gate+12000,cap.y+cap.height,
+      before.chunkBaseY,before.worldWidth,GUARDIAN_CAP_CORRIDOR.climberPathRadius);
+    const insideBefore=arch.worldToLocal(new THREE.Vector3(entry.x,entry.y,entry.z));
+    const insideAfter=arch.worldToLocal(new THREE.Vector3(exit.x,exit.y,exit.z));
+    assert.ok(insideBefore.z<-.3&&insideAfter.z>.3,
+      'real forward movement must cross the original bronze leaf plane');
+    assert.ok(Math.max(Math.abs(insideBefore.x),Math.abs(insideAfter.x))<3.0,
+      'the avatar corridor passes between actual bronze doorway piers');
+    // The source-earned floor progression retains the exact original GPU
+    // arch and the same crossing plane; it never synthesizes a replacement.
+    assert.equal(world.stageGroundedCapContinuation(before,after),true);
+    world.update(after,.05,.05,{quality:'low'});
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),arch);
+    arch.updateWorldMatrix(true,true);
+    assert.ok(Math.abs(arch.rotation.y-expected.yaw)<1e-6);
+    assert.equal(JSON.stringify([before,after]),immutable);
+  }finally{world.dispose();}
+});
+test('cross-route gateway pose fails closed on invalid source geography',async()=>{
+  const {guardianTraversalGatePose}=await import(uri('coordinates.mjs'));
+  for(const data of [
+    [NaN,3236000,2880000,480000],
+    [-1,3236000,2880000,480000],
+    [480001,3236000,2880000,480000],
+    [300000,3236000,2880000,0],
+    [300000,Infinity,2880000,480000],
+  ]) assert.equal(guardianTraversalGatePose(...data),null);
+});
