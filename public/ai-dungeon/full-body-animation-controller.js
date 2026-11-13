@@ -130,7 +130,7 @@ export function planOriginalSourceSwingToeClearance({
  mode='idle',sourceClipName='',sourceAnatomyVerified=false,sourceWeight=NaN,
  alive=false,visible=false,groundedMoving=false,teleport=false,
  reducedMotion=false,interrupted=false,rootTravel=NaN,
- floorTopY=NaN,heelWorldY=NaN,toeWorldY=NaN,
+ frameInterval=.016,floorTopY=NaN,heelWorldY=NaN,toeWorldY=NaN,
  trialToeWorldY=NaN,trialAngleRad=NaN,previousCorrectionRad=NaN
 }={}){
  if(mode!=='move'||!/^walking[_\s-]*a$/i.test(sourceClipName)||
@@ -168,9 +168,24 @@ export function planOriginalSourceSwingToeClearance({
  // cosmetic delta instead of preserving a physically opposing bend.
  if(sourceEase===0||(previousCorrectionRad!==0&&
   Math.sign(previousCorrectionRad)!==Math.sign(trialAngleRad)))return 0;
+ // Actual licensed Walking_A source footage on 390px Chromium shows
+ // a 47–76mm residual SWING toe burial after an 80mrad first-frame lift.
+ // At sparse genuine visible intervals, the same 80mrad budget is too
+ // little to clear the floor before the next authentic source keyframe.
+ // Only a deeply submerged AIRBORNE toe with a VERIFIED source-ankle
+ // upward trial, fully owned imported Walking_A and a recent genuine
+ // movement witness may spend a larger age-scaled angular envelope.
+ // Preserve the normal 80mrad slew at 60Hz, shallow penetration, partial
+ // mixer fades and gaps >350ms. Never go beyond 160mrad in one frame,
+ // the existing 220mrad total bound or any independent final skinned
+ // toe/heel/opposite-foot safety check in the actual Three.js adapter.
+ const deepSwing=toeClear<=-.045&&sourceWeight>=.9&&
+  finite(frameInterval)&&frameInterval>.05&&frameInterval<=.35;
+ const maxFrameSlew=.08+(deepSwing?
+  .08*clamp((frameInterval-.05)/.15,0,1):0);
  return clamp(signedTarget,
-  Math.max(-.22,previousCorrectionRad-.08),
-  Math.min(.22,previousCorrectionRad+.08));
+  Math.max(-.22,previousCorrectionRad-maxFrameSlew),
+  Math.min(.22,previousCorrectionRad+maxFrameSlew));
 }
 
 /**
