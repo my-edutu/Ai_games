@@ -873,6 +873,13 @@ test('Pass324 real 390px foreground ray-identified public cell gets full-floor T
   };
   try{
     w.update(s);assertColored();
+    // Real source images revealed an overlooked interaction: a currently
+    // published pressure tile one more cell away can make cell100 part of
+    // pressureSightlines. The CHECKPOINT floor remains a neutral public
+    // guardian foreground (not an asserted safe route or moving hazard).
+    const nearPressure={...s,visibleCells:[98,99,100,101],
+      cells:[...s.cells,{cell:101,blocked:false,trap:true,neighbors:[]}]};
+    w.update(nearPressure);assertColored();
     assert.equal(w.stats().geometryCount,budget.geometryCount);
     assert.equal(w.stats().materialCount,budget.materialCount);
     w.update({...s,visibleCells:[98,99]});

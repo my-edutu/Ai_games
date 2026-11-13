@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T08:52:00.000Z",
+  "updatedAt": "2026-11-13T09:10:57.664Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass324 verified exact native Pass324 ray diagnosis on 39 untouched WebGL PNGs and 37/37 screenshot SHA pairs plus true three gate hashes. Foreground is publicly visible cell100 stone top and wide lip, NOT walls. Implemented original public-only Tideglass replacement for both large meshes with privacy, geometry and reset tests; new candidate WebGL review pending. Nintendo quality bar unmet."
+    "summary": "Pass325: inspected exact-HEAD Pass324 native WebGL; 39 original unaltered PNGs and 37/37 direct hashes verified. Genuine tick34 390px ray still sees BOTH pale cell100 foreground meshes, with 0 changed pixels on the large terrace; synthetic Pass324 test was insufficient. Corrected conflict between public guardian foreground and a known nearby pressure sightline while retaining real trap-floor priority; added strict native source-render pixel/mesh assertion. New exact-HEAD CI/render and independent visual critic pending; Nintendo bar unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass325 2026-11-13: Reviewed exact-head Pass324 WebGL run 43396754993 artifact 14023886813. Verified 39 uncropped originals, 37/37 PNG hashes. Native 390x844 original guardian ray x=.50,y=.73 still reports cell100 original #cead72 2.31m slab AND 2.39m lip despite synthetic tests; actual brace mean 1.455/255 difference, with no changes on dominant mid-lower slab. Removed the irrelevant pressure-sightline veto on a non-trap, genuinely visible public guardian foreground; actual pressure apron/basin still controls its own artwork and trap remains exempt. Added native unmodified WebGL cell100 ray assertion and installed Three public checkpoint+nearby known trap regression. New candidate render/whole CI pending, Nintendo parity rejected. OPEN DRAFT, NO merge/deploy/force.",
     "Pass324 2026-11-13: Native exact-head WebGL 43395166086 SUCCESS at diagnostic SHA 5ee8e616. Retrieved original artifact 14022991483, 39 full uncropped screenshots, 37/37 direct SHA256 sidecars and three gate hashes verified. Original production camera ray picks at 390px brace identify public cell100 2.31m #cead72 top and 2.39m stone foundation lip as the actual pale foreground (previous wall edits missed target). Source candidate replaces these two substantive meshes with sea-glass top and deep mineral lip during genuinely witnessed same-height public Pip-Thornback court; no AI, gate, trap, privacy, camera or pooled resource class changes, strict six-run <100 test. New source render/whole CI/independent critic PENDING. Nintendo benchmark UNMET.",
     "Pass323 2026-11-13: independently retrieved original Pass322 WebGL 43378591198 on bbba8d94439b64284a191f90c8e92632c440121d; verified all 39 PNGs, 37/37 direct PNG+SHA256 sidecars and three gate hashes. Real 390 brace remained pale foreground (0.884/255 RGB delta vs Pass321), so prior visual win rejected. Implemented full-height opaque Tideglass mineral wall bay panels on genuine publicly witnessed guardian course, retaining collision, privacy, GPU classes, gates, strict six-reset <100 and original UI. New native WebGL/CI/independent review pending.",
     "Pass322 2026-11-13: independently reviewed exact Pass321 native WebGL 43372277315 artifact 14014050213; 39 original PNGs, 37/37 SHA sidecars, all 3 gate hashes verified. Real 390x844 guardian remains dominated by pale foreground; prior visual improvement rejected (2.52/255 mean brace difference against Pass320, 1.51/255 in bottom third). Source candidate rebuilds first public two-ring neutral stage with sealed blocked reef, current visibility cache, installed-Three tests, no AI/collision/private data/HUD changes or GPU resource class additions. New exact-source WebGL/CI/independent critic pending.",

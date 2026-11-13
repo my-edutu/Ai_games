@@ -765,6 +765,19 @@ test('a real close public encounter frames both autonomous actors and saves date
       [[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]].map(([u,v])=>({
         u,v,hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]
       })));
+    // Pass325 strict native source-frame gate: earlier installed-Three
+    // synthetics claimed success but the real 390px foreground ray still
+    // hit TWO unchanged tan slabs. Require actual original full-scale
+    // source mesh color on the authentic brace, no screenshot crop/retouch.
+    if(phase.name==='brace'){
+      const publicGround=foregroundPicks.find(p=>p.u===.50&&p.v===.73)?.hits
+        .find(hit=>hit.cell===100&&hit.dimensions?.[0]===2.31
+          &&hit.dimensions?.[1]===.07&&hit.dimensions?.[2]===2.31);
+      expect(publicGround,'actual original 2.31m cell100 foreground floor must be ray-hit')
+        .toBeTruthy();
+      expect(publicGround.color,'actual 390px Pip–Thornback foreground must not remain the original giant beige slab')
+        .not.toBe('cead72');
+    }
     const post=await page.evaluate(()=>({
       beat:window.__MAZE_3D__?.witnessedExplorerGuardianBeat,
       guardianBeat:window.__MAZE_3D__?.witnessedGuardianBeat,

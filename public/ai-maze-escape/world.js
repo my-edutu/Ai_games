@@ -1187,9 +1187,15 @@ export function createMazeWorld(options = {}) {
         && !pressureSightline && !guardianCourtCell && !guardianForecourtShoulder;
       if(guardianOuterCourtFloor)guardianOuterCourtFloorTiles++;
       const guardianCausewayAxis=guardianCourtCell?guardianCauseway.get(c.cell):null;
+      // Pass325: genuine 390px native rays prove the checkpoint-front terrace
+      // stays beige even after Pass324's synthetic foreground test. A known
+      // nearby pressure cell can mark this ordinary checkpoint tile as a
+      // pressure sightline; that must not veto neutral guardian-court floor.
+      // Real pressure basins/aprons still take priority in floorMaterial and
+      // the trap tile itself stays excluded by the public foreground helper.
       const witnessedForeground=guardianForeground.has(c.cell)
-        && !pressureSightline && !guardianCourtCell
-        && !guardianForecourtShoulder && !guardianOuterCourtFloor;
+        && !guardianCourtCell && !guardianForecourtShoulder
+        && !guardianOuterCourtFloor && c.trap!==true;
       // A discovered moving Tide-Shear needs an actual *continuous* stage,
       // not another carpet of tiny floor glyphs. Unite only surrounding
       // already-published ordinary walkable tiles into a quiet mineral apron.
