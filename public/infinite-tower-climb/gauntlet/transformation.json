@@ -1,4 +1,32 @@
 {
+  "p0SourceRetainedBronzeDoorCamera20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBranchHeadBeforeChange": "214bc389831384bcdcab161fcd1cb20362c014e4",
+    "sourceProductionSha": "1b51b7e3143c13dac14ab3a525ba9fc69c220799",
+    "towerTestFixes": [
+      "77c39d78e8f5ef035d129439e758968be9cd468b",
+      "7fb2668062ed3c72505387cf57e70491f9e95c65"
+    ],
+    "oldOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43367166927",
+    "oldNativeEvidence": "Eight baseline/candidate 1x real videos 60s+ matched. True HP-zero crossing tick451, abrupt bronze Floor8 to violet Floor9 native cut 22–31s both viewports. Strict native 0/2 on OLD candidate. Source retention alone did not make original door and body share a shot.",
+    "implementedExperienceSlice": "New source-authenticated original retained bronze GPU cap/gateway two-subject follow camera on late cold Floor9 submission, bounds living actual hero/gate, owner roof and immutable source crossing; optional source-safe 12% bounded exterior radial widening. No invented body/floor/collider/physics.",
+    "firstExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43376270285 — first candidate implementation failed Tower-only production-wiring regex and phase4 legacy extracted-expression VM context; those tests corrected.",
+    "correctedExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43376757350 — pending; not claimed green.",
+    "newOriginalCapture": "REQUESTED by evidence commit capture-request.json using exact immutable candidate github.sha; recording and native pixels NOT YET REVIEWED.",
+    "sourceNativeVerification": "NOT EVALUATED for this new production camera; old strict native crossing 0/2",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "Uncertified body-through-same-bronze-door normal-speed F8->F9 shot both viewport, true Floor9 onward + result/restart. Current camera may still be occluded despite genuine source and GPU witness.",
+    "nextHighestImpactAction": "Inspect first real submitted Floor9 camera+original gate+hero geometry and native 22–31s exact-sha video in both viewports and matching source/event/PTS; if abrupt cut persists rebuild shared physical world/camera occlusion and common depth. Also resolve frozen baseline outcome native timing without weakening truth.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-source-owned-cold-doorway-camera.md",
+    "safety": "Draft PR68 stays open on PR58; frozen baseline intact; never merge/deploy/force-push/promote draft/alter other games."
+  },
   "p0RealRoofTransitionAndOcclusionBudget20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
