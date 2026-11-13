@@ -818,3 +818,78 @@ test('Pass323 whole blind guardian wall converts full size masonry without chang
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass324 real 390px foreground ray-identified public cell gets full-floor Tideglass top AND mineral lip',async()=>{
+  const {createMazeWorld,publicGuardianWitnessedForegroundCells:foreground,cellPosition,cellHeight}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  // Actual source-bound native guardian: tick34 Pip 99, Thornback 98,
+  // foreground THREE ray hit cell100 .73/.80 native y at x16.8,z0.
+  // A known checkpoint may display unchanged props while its BASE floor
+  // receives neutral scenery, never a route, private clue or fake passage.
+  const s={runToken:'ray-grounded-foreground',lifecycle:'running',result:null,
+    width:17,height:11,currentCell:99,visibleCells:[98,99,100],
+    cells:[
+      {cell:98,blocked:false,neighbors:[99]},
+      {cell:99,blocked:false,neighbors:[98]},
+      {cell:100,blocked:false,checkpoint:true,neighbors:[]}
+    ],doors:[],keys:[],inventory:[],exitCell:null,
+    threats:[{id:'thornback',cell:98}]};
+  const original=JSON.stringify(s);
+  assert.deepEqual([...foreground(s)],[98,100],
+    'only actual visible same-level neighbors of a public open guardian pair qualify');
+  assert.equal(foreground({...s,visibleCells:[98,99]}).has(100),false,
+    'a no-longer-visible cell is never staged by this public image treatment');
+  assert.equal(foreground({...s,threats:[]}).size,0,'no visible guardian, no foreground effect');
+  assert.equal(foreground({...s,doors:[{a:98,b:99,open:false}]}).size,0,
+    'closed true gate revokes the whole staged causeway');
+  assert.equal(foreground({...s,cells:s.cells.map(c=>c.cell===100?{...c,trap:true}:c)}).has(100),false,
+    'pressure hazard retains its own authored floor rather than a guardian carpet');
+  assert.equal(foreground({...s,privateMaze:{cells:[{cell:101,trap:false}]}}).has(100),true,
+    'private maze cannot change the public art decision');
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const instances=(id,color,sx,sy,sz,y)=>{
+    const center=cellPosition(id,s.width,s.height),floor=cellHeight(id,s.width,s.height);
+    const m=new Matrix4(),p=new Vector3(),q=new Quaternion(),size=new Vector3();
+    let count=0;
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh||mesh.material?.color?.getHexString()!==color)return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,m);m.decompose(p,q,size);
+        if(Math.abs(p.x-center.x)<.0005&&Math.abs(p.z-center.z)<.0005
+          &&Math.abs(p.y-(floor+y))<.0005
+          &&Math.abs(size.x-sx)<.0005&&Math.abs(size.y-sy)<.0005
+          &&Math.abs(size.z-sz)<.0005)count++;
+      }
+    });
+    return count;
+  };
+  const assertColored=()=>{
+    assert.equal(instances(100,'5d968e',2.31,.07,2.31,-.035),1,
+      'actual full 2.31m foreground slab is teal instead of untouched beige');
+    assert.equal(instances(100,'8e7851',2.39,.19,2.39,-.135),1,
+      'actual 2.39m foreground load lip loses its dominant pale face');
+    assert.equal(instances(100,'cead72',2.31,.07,2.31,-.035),0,
+      'native-identified foreground top can no longer remain pale');
+  };
+  try{
+    w.update(s);assertColored();
+    assert.equal(w.stats().geometryCount,budget.geometryCount);
+    assert.equal(w.stats().materialCount,budget.materialCount);
+    w.update({...s,visibleCells:[98,99]});
+    assert.equal(instances(100,'5d968e',2.31,.07,2.31,-.035),0,
+      'visibility loss invalidates the actual terrain and removes decoration');
+    w.update({...s,threats:[]});
+    assert.equal(instances(100,'5d968e',2.31,.07,2.31,-.035),0);
+    w.update({...s,doors:[{a:98,b:99,open:false}]});
+    assert.equal(instances(100,'5d968e',2.31,.07,2.31,-.035),0);
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'foreground-rebuild-'+i});assertColored();
+      assert.ok(w.stats().geometryCount<100,'existing strict six-reset GPU cap stays unchanged');
+    }
+    assert.equal(JSON.stringify(s),original,'no map/AI/physics/hidden information is mutated');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

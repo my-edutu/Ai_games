@@ -248,6 +248,31 @@ export function publicGuardianOuterCourtCells(s,causeway=publicGuardianCausewayC
   return {ordinary,sealed};
 }
 
+// Pass324: NATIVE source-bound WebGL ray hits proved the giant foreground
+// was the 2.31m tan TOP and 2.39m tan LOAD LIP on public cell 100, not any
+// wall touched by previous attempts. Color only genuine CURRENTLY witnessed
+// nearby public, level and non-trap floor without changing a single collider,
+// objective, stair, gate, actor or route. Collected-key/checkpoint/known gate
+// cells may retain their actual objects; this changes ground material only,
+// NOT a route hint, unlock or prediction. A stopped/hidden duel restores art.
+export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardianCausewayCells(s)) {
+  const foreground=new Set();
+  if(!causeway.has(s?.currentCell)||!Array.isArray(s?.cells)
+    ||!Array.isArray(s?.visibleCells) || !Number.isSafeInteger(s?.width)
+    ||!Number.isSafeInteger(s?.height))return foreground;
+  const visible=new Set(s.visibleCells);
+  const level=cellHeight(s.currentCell,s.width,s.height);
+  for(const c of s.cells){
+    if(!Number.isSafeInteger(c?.cell)||!visible.has(c.cell)
+      ||c.blocked===true || c.trap===true)continue;
+    const d=Math.abs(c.cell%s.width-s.currentCell%s.width)
+      +Math.abs(Math.floor(c.cell/s.width)-Math.floor(s.currentCell/s.width));
+    if(d>0&&d<=2 && Math.abs(cellHeight(c.cell,s.width,s.height)-level)<1e-8)
+      foreground.add(c.cell);
+  }
+  return foreground;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -1032,6 +1057,7 @@ export function createMazeWorld(options = {}) {
     const guardianCauseway=publicGuardianCausewayCells(s);
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
     const guardianOuterCourt=publicGuardianOuterCourtCells(s,guardianCauseway);
+    const guardianForeground=publicGuardianWitnessedForegroundCells(s,guardianCauseway);
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -1161,6 +1187,9 @@ export function createMazeWorld(options = {}) {
         && !pressureSightline && !guardianCourtCell && !guardianForecourtShoulder;
       if(guardianOuterCourtFloor)guardianOuterCourtFloorTiles++;
       const guardianCausewayAxis=guardianCourtCell?guardianCauseway.get(c.cell):null;
+      const witnessedForeground=guardianForeground.has(c.cell)
+        && !pressureSightline && !guardianCourtCell
+        && !guardianForecourtShoulder && !guardianOuterCourtFloor;
       // A discovered moving Tide-Shear needs an actual *continuous* stage,
       // not another carpet of tiny floor glyphs. Unite only surrounding
       // already-published ordinary walkable tiles into a quiet mineral apron.
@@ -1202,7 +1231,7 @@ export function createMazeWorld(options = {}) {
       // deck: that visual signature is reserved for a truly public trap
       // and must vanish when private data alone advertises one.
       block(jade, x, -.30, z, 2.39, .14, 2.39, c.cell);
-      block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
+      block(witnessedForeground ? deepStone : stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
       // Only actual PUBLISHED board edges can have an outer seawall.
       // Undefined/hidden neighbors NEVER authorize a fake exposed face.
       const boardCol = c.cell % s.width, boardRow = Math.floor(c.cell / s.width);
@@ -1255,6 +1284,7 @@ export function createMazeWorld(options = {}) {
         : guardianCourtCell ? seaGlass
         : guardianForecourtShoulder ? darkJade
         : guardianOuterCourtFloor ? darkJade
+        : witnessedForeground ? seaGlass
         : tier === 2
           ? (patina > .83 ? clay : variation(district) > .67 ? lightStone : stone)
           : tier === 1 ? (patina > .64 ? clay : lightStone)
@@ -1296,7 +1326,7 @@ export function createMazeWorld(options = {}) {
           .039, z+(basinFacesEastWest ? 0 : direction*1.07),
           basinFacesEastWest ? .12 : 1.38, .024,
           basinFacesEastWest ? 1.38 : .12, c.cell);
-      } else if (pressureCourtApron || guardianCourtCell || guardianForecourtShoulder || guardianOuterCourtFloor || variation(c.cell + 50) > .55) {
+      } else if (pressureCourtApron || guardianCourtCell || guardianForecourtShoulder || guardianOuterCourtFloor || witnessedForeground || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
           add(box, deepStone, x + sign * .99, .003, z, .025, .006, 1.98, c.cell);
@@ -3207,6 +3237,7 @@ export function createMazeWorld(options = {}) {
     // An unchanged sightline incurs no extra terrain rebuild on each tick.
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
+    const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
     const reefVisibility=new Set();
     for(const cell of keyedGuardianCauseway.keys()){
       for(const n of [cell-1,cell+1,cell-s.width,cell+s.width]){
@@ -3223,6 +3254,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-blocked-relief:' + [...publicGuardianBlockedReliefCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-causeway:' + [...keyedGuardianCauseway].map(([id,axis])=>id+':'+axis).sort().join('.')
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
+      + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
@@ -3716,8 +3748,11 @@ export function createMazeWorld(options = {}) {
   function describePublicRayHit(hit) {
     const entry=hit.object.isInstancedMesh && Number.isInteger(hit.instanceId)
       ? batches.find(batch=>batch.mesh===hit.object)?.entries[hit.instanceId] : null;
+    // Reject ALL hits that are not current public instance geometry, even
+    // if those hidden/remembered objects were ray-intersected behind it.
     const id=entry?.cell;
-    const cell=Number.isSafeInteger(id) && snapshot?.visibleCells?.includes(id) ? id : null;
+    if(!Number.isSafeInteger(id)||!snapshot?.visibleCells?.includes(id))return null;
+    const cell=id;
     const dimensions=new THREE.Vector3(), origin=new THREE.Vector3(), orientation=new THREE.Quaternion();
     if(entry)entry.matrix.decompose(origin,orientation,dimensions);
     else hit.object.getWorldPosition(origin);

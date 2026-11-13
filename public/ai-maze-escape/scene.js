@@ -1570,8 +1570,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if(!Number.isFinite(u)||!Number.isFinite(v)||u<0||u>1||v<0||v>1)return [];
         const raycaster=new THREE.Raycaster();
         raycaster.setFromCamera(new THREE.Vector2(2*u-1,1-2*v),camera);
-        return raycaster.intersectObject(world.group,true).slice(0,6)
-          .map(hit=>world.describePublicRayHit(hit));
+        return raycaster.intersectObject(world.group,true).slice(0,12)
+          .map(hit=>world.describePublicRayHit(hit)).filter(Boolean).slice(0,6);
       };
       window.__MAZE_3D__ = {
         renderer: 'webgl', frames, cameraMode, runToken: s.runToken, tick: s.tick, quality: balanced ? 'balanced' : 'full',
