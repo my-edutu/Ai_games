@@ -1711,20 +1711,31 @@ export function planOriginalSourceLoadedPelvisSupport({
  * The existing imported spine drives the SAME hand/weapon hierarchy; an
  * independently grounded travelling actor may visually counterturn only
  * that upper-body bone, then recover smoothly toward the real source yaw.
+ * The first legal original Idle→Walking_A frame may use the SAME source
+ * clone's immediately preceding idle yaw as a read-only anchor; entry
+ * counterturn scales with actual original walking clip crossfade weight.
  *
  * This is not actor/root steering, foot-lock IK, a new clip, a fabricated
  * target or extra gameplay action. The source mixer and both true leg chains
  * retain their original facing. Missing source proof = no overlay.
  */
 export function planOriginalSourceWalkingTorsoCounterturn({
- mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
- ownerLocomotion=false,alive=true,visible=true,teleport=false,
- reducedMotion=false,interrupted=false,rootTravel=NaN,
+ mode='idle',previousMode='move',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,ownerLocomotion=false,alive=true,visible=true,
+ teleport=false,reducedMotion=false,interrupted=false,rootTravel=NaN,
  frameInterval=NaN,previousRootYaw=NaN,currentRootYaw=NaN,
  previousOffsetRad=0
 }={}){
+ // A witnessed original Idle->Walking_A transition is still the SAME
+ // imported body. Its first root pivot can happen at 78% clip weight, before
+ // the old 85% gate and before a move-only yaw tracker had a previous sample.
+ // Permit only this narrow source-fade entry; ordinary walking stays strict.
+ const firstWalkFrame=previousMode==='idle';
  if(mode!=='move'||sourceClipName!=='Walking_A'||
-  !finite(sourceWeight)||sourceWeight<.85||sourceWeight>1.001||
+  !['idle','move'].includes(previousMode)||
+  !finite(sourceWeight)||
+  sourceWeight<(firstWalkFrame?.75:.85)||sourceWeight>1.001||
+  (firstWalkFrame&&Math.abs(previousOffsetRad)>.0001)||
   sourceInstanceSame!==true||ownerLocomotion!==true||
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
   ![rootTravel,frameInterval,previousRootYaw,currentRootYaw,
@@ -1738,7 +1749,12 @@ export function planOriginalSourceWalkingTorsoCounterturn({
  if(turned>.18&&turned<=.9&&rootTravel>=.015){
   // Oppose only a small part of a genuinely observed travelling root turn.
   // Never rotate feet/pelvis or swing the chest onto an invented enemy.
-  const desired=-Math.sign(signedYawChange)*Math.min(.12,.25*turned);
+  // During the original Idle->Walking_A crossfade, borrow only the
+  // source animation's ACTUAL effective weight. This cannot rotate the
+  // authority root, original legs, weapon socket or blend other clips.
+  const firstStepWeight=firstWalkFrame?Math.min(1,sourceWeight/.85):1;
+  const desired=-Math.sign(signedYawChange)*
+   Math.min(.12,.25*turned)*firstStepWeight;
   // A rapid direction reversal cannot snap the original spine from
   // +120mrad to -120mrad in one source frame.
   offset=clamp(desired,previousOffsetRad-.12,previousOffsetRad+.12);
