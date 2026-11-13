@@ -365,6 +365,9 @@ for(const view of [
      sourceClipAfter:pair.after.nativeLegOwnership?.clipName??null,
      beforeCalfSafety:pair.before.nativeLegOwnership?.sourceSwingCalfTrialOutcome??null,
      afterCalfSafety:pair.after.nativeLegOwnership?.sourceSwingCalfTrialOutcome??null,
+     originalSpineCounterturnBeforeRad:pair.before.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
+     originalSpineCounterturnAfterRad:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
+     originalSpineCounterturnFrames:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnFrames??0,
      sourceTimeBefore:pair.before.sourceActionSample?.time??null,
      sourceTimeAfter:pair.after.sourceActionSample?.time??null,
      sourceDurationBefore:pair.before.sourceActionSample?.duration??null,
@@ -428,6 +431,17 @@ for(const view of [
   // Optional REAL original source skin after the bounded visual correction.
   // Never claim a foot plant or IK from a reduced shoe displacement.
   const nativeLeg=actor.nativeLegOwnership;
+  // Native imported chest may counterturn only under original Walking_A
+  // locomotion; a genuine result cannot change authoritative facing/feet.
+  const torsoTurn=nativeLeg?.originalWalkingTorsoCounterturnRad??0;
+  expect(Number.isFinite(torsoTurn)).toBe(true);
+  expect(Math.abs(torsoTurn)).toBeLessThanOrEqual(.120001);
+  expect(nativeLeg?.originalWalkingTorsoCounterturnPeakRad??0).toBeLessThanOrEqual(.120001);
+  if(Math.abs(torsoTurn)>.0001){
+   expect(actor.mode).toBe('move');
+   expect(nativeLeg.clipName).toBe('Walking_A');
+   expect(nativeLeg.originalWalkingTorsoCounterturnFrames).toBeGreaterThan(0);
+  }
   // Never infer a planted foot from a prior toe-lift angle: the final
   // original-GLB frame must report a same-clone weighted toe and opposite
   // shoe witness for any ankle-continuity hold actually displayed.
@@ -585,6 +599,18 @@ for(const view of [
     correctionsThisFrame:t.nativeLegOwnership?.sourceSwingToeCorrectionsThisFrame??0,
     currentFeet:t.nativeLegOwnership?.sourceSwingToeCurrentFrameProofs??null,
     lastHistorical:t.nativeLegOwnership?.sourceSwingToeLiftProof??null}))},null,2))
+ });
+ await test.info().attach('original-source-walking-torso-turn-witness',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'real-original-GLB-spine-sharp-travel-counterturn',
+   authoritativeFacingUnchanged:true,sourceFootPlantClaimed:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    clip:t.nativeLegOwnership?.clipName,
+    spineOffsetRad:t.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
+    acceptedFrames:t.nativeLegOwnership?.originalWalkingTorsoCounterturnFrames??0,
+    peakRad:t.nativeLegOwnership?.originalWalkingTorsoCounterturnPeakRad??0,
+    grip:t.sourceWeaponGrip??null}))},null,2))
  });
  await test.info().attach('original-source-measured-stance-slide-witness',{
   contentType:'application/json',
