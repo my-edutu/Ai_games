@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T06:10:51.000Z",
+  "updatedAt": "2026-11-13T06:57:44.171Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass322 review of original Pass321 native WebGL 43372277315: 39 unaltered screenshots, 37/37 SHA sidecars and three real gate hashes verified. 390px Pip-Thornback still dominated by giant ivory foreground; Pass321 visual win rejected. New public two-ring original Tideglass plaza is source-only, exact-HEAD rendered/artistic review pending. No Nintendo parity."
+    "summary": "Pass323 original Pass322 native WebGL artifact 14015917887: 39 uncropped PNGs, 37/37 SHA256 pairs plus three gate transitions verified. True 390px Pip/Thornback still dominated by pale foreground; Pass322 art win rejected. New physically substantial blind Tideglass wall reconstruction is source-only and requires exact-HEAD native approval; Nintendo parity not reached."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass323 2026-11-13: independently retrieved original Pass322 WebGL 43378591198 on bbba8d94439b64284a191f90c8e92632c440121d; verified all 39 PNGs, 37/37 direct PNG+SHA256 sidecars and three gate hashes. Real 390 brace remained pale foreground (0.884/255 RGB delta vs Pass321), so prior visual win rejected. Implemented full-height opaque Tideglass mineral wall bay panels on genuine publicly witnessed guardian course, retaining collision, privacy, GPU classes, gates, strict six-reset <100 and original UI. New native WebGL/CI/independent review pending.",
     "Pass322 2026-11-13: independently reviewed exact Pass321 native WebGL 43372277315 artifact 14014050213; 39 original PNGs, 37/37 SHA sidecars, all 3 gate hashes verified. Real 390x844 guardian remains dominated by pale foreground; prior visual improvement rejected (2.52/255 mean brace difference against Pass320, 1.51/255 in bottom third). Source candidate rebuilds first public two-ring neutral stage with sealed blocked reef, current visibility cache, installed-Three tests, no AI/collision/private data/HUD changes or GPU resource class additions. New exact-source WebGL/CI/independent critic pending.",
     "Pass321 2026-11-13: inspected original Pass320 WebGL 43362910081 source 5cd1c598 artifact 14009705955, 39 original full-resolution PNGs and 37/37 matching SHA sidecars. Rejected giant pale 390px guardian foreground. Source candidate darkens and models only public, non-gated, same-height, mutually NONPASSAGE ordinary floor directly next to a genuine live Pip–Thornback corridor; no false route, AI, collision, privacy or resource classes. Added actual installed-Three tile material, true gate, visibility, cleanup, six-reset <100 tests. New render/CI independent critic pending; worker/Ultracode tunnel unavailable.",
     "Pass320 2026-11-13: independently downloaded exact Pass319 SUCCESS native WebGL 43360797223 source 4680ef25 artifact 14007789438; 39 original full-resolution PNGs, 37/37 direct SHA256 sidecar matches. Actual 390 guardian 3-beat still suffers prominent blank pale blocked stone; official Nintendo goal not met. Rebuilt real published blocked guardian forecourt as lower opaque dark Tideglass sealed reef, joined low retaining bands and recess ribs, with physically measured installed Three visibility/cleanup/6-reset resource regressions. New exact-head browser/artistic verdict pending; independent worker and Ultracode tunnel unavailable.",

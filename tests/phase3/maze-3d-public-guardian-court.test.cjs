@@ -772,3 +772,49 @@ test('Pass322 witnessed second-ring mobile forecourt physically converts public 
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass323 whole blind guardian wall converts full size masonry without changing opacity, truth or GPU pool',async()=>{
+  const {createMazeWorld,cellPosition}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const s=original(),truth=JSON.stringify(s),hero=cellPosition(6,s.width,s.height);
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const capColors=()=>{
+    const found=[],matrix=new Matrix4(),p=new Vector3(),q=new Quaternion(),sz=new Vector3();
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh)return;
+      const color=mesh.material?.color?.getHexString();
+      if(color!=='82b1a2' && color!=='eed5a0')return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,matrix);matrix.decompose(p,q,sz);
+        if(Math.abs(p.x-(hero.x-1.2))<.0005 && Math.abs(p.z-hero.z)<.0005
+          && Math.abs(sz.x-.43)<.0005 && Math.abs(sz.y-.13)<.0005
+          && Math.abs(sz.z-2.37)<.0005)found.push(color);
+      }
+    });
+    return found;
+  };
+  try{
+    w.update(s);
+    assert.deepEqual(capColors(),['82b1a2'],
+      'actual still-solid west wall has a full 2.37m minted mineral top, not an ivory curtain');
+    assert.equal(w.stats().geometryCount,budget.geometryCount,'no new geometry class');
+    assert.equal(w.stats().materialCount,budget.materialCount,'no new material class');
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.deepEqual(capColors(),['eed5a0'],
+      'hidden guardian restores the original full opaque wall');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.deepEqual(capColors(),['eed5a0'],'a genuinely closed gate cannot trigger the guardian stage');
+    w.update({...s,result:{reason:'capture'}});
+    assert.deepEqual(capColors(),['eed5a0'],'terminal run restores original wall');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'blind-guardian-wall-'+i});
+      assert.deepEqual(capColors(),['82b1a2']);
+      assert.ok(w.stats().geometryCount<100,'strict six-run reset ceiling is not relaxed');
+    }
+    assert.equal(JSON.stringify(s),truth,'public world/AI rules remain immutable');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

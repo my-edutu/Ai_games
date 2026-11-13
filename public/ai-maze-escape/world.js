@@ -775,7 +775,7 @@ export function createMazeWorld(options = {}) {
         phase:cell*.37+side});
     }
   }
-  function wall(x, z, horizontal, id, cell) {
+  function wall(x, z, horizontal, id, cell, guardianBulwark = false) {
     const h = .91 + variation(id + 22) * .12;
     const length = CELL_SIZE - .13, thickness = .31;
     // Make all three *known* altitude districts readable in actual 3D wall
@@ -784,23 +784,38 @@ export function createMazeWorld(options = {}) {
     // AI state or collectible can influence this architectural language.
     const tier = cellHeight(cell, snapshot.width, snapshot.height);
     const tidalCourt = tier < .7, clayCourt = tier >= .7 && tier < 2.1;
-    const facade = tidalCourt ? seaGlass : clayCourt ? clay : stone;
-    const relief = tidalCourt ? inlay : clayCourt ? lightStone : jade;
+    // Only true public Pip–Thornback stages earn blind mineral wall bays.
+    // Preserve original wall height, opacity, closure and collision.
+    const facade = guardianBulwark ? darkJade : tidalCourt ? seaGlass : clayCourt ? clay : stone;
+    const relief = guardianBulwark ? inlay : tidalCourt ? inlay : clayCourt ? lightStone : jade;
     const point = (u, y, v) => ({ x: x + (horizontal ? u : v), y, z: z + (horizontal ? v : u) });
     const slab = (mat, u, y, v, a, b, c) => { const p = point(u, y, v); block(mat, p.x, p.y, p.z, horizontal ? a : c, b, horizontal ? c : a, cell); };
     slab(deepStone, 0, .09, 0, length + .08, .18, .46);
     for (let row = 0; row < 3; row++) {
       const count = row % 2 ? 4 : 3, w = length / count;
       for (let j = 0; j < count; j++) {
-        const coursedStone = variation(id + j * 7 + row * 19) > .82 ? jade
+        const coursedStone = guardianBulwark
+          ? (row === 1 ? seaGlass : row === 0 ? darkJade : jade)
+          : variation(id + j * 7 + row * 19) > .82 ? jade
           : row === 1 || (row === 0 && variation(id + j * 13) > .48) ? facade : stone;
         slab(coursedStone, -length / 2 + w * (j + .5),
           .19 + row * .235 + .11, 0, w - .025, .22, thickness);
       }
     }
     slab(darkJade, 0, h - .11, 0, length + .02, .13, .36);
-    slab(lightStone, 0, h, 0, length + .1, .13, .43);
-    if (tidalCourt || clayCourt) {
+    slab(guardianBulwark ? inlay : lightStone, 0, h, 0, length + .1, .13, .43);
+    if (guardianBulwark) {
+      // Genuine full-size TWO-SIDED sealed sea-glass bays: large physical
+      // wall surfaces, not a HUD decal or thin superficial accent.
+      // Every bay remains opaque and uses existing instanced geometry.
+      for (const side of [-1, 1]) {
+        slab(deepStone, 0, .47, side * .224, 1.98, .57, .045);
+        slab(seaGlass, 0, .47, side * .254, 1.78, .41, .046);
+        for (const offset of [-.67, 0, .67])
+          slab(jade, offset, .47, side * .284, .09, .43, .045);
+      }
+    }
+    if (tidalCourt || clayCourt || guardianBulwark) {
       // Stone-set panels and three rooted ribs on BOTH faces of an actual
       // impassable public wall. This is substantial modeled district relief,
       // never a false doorway, arrow, reachable platform or screen effect.
@@ -1838,7 +1853,10 @@ export function createMazeWorld(options = {}) {
             const ex=wx+(dz?sign*.94:0), ez=wz+(dx?sign*.94:0);
             block(lightStone,ex,.33,ez,.20,.34,.20,c.cell);
           }
-        } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell);
+        } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
+          !pressureSightline && (guardianCauseway.has(c.cell)
+            || guardianForecourtShoulders.has(c.cell)
+            || guardianOuterCourt.ordinary.has(c.cell)));
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
