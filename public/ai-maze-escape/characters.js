@@ -456,9 +456,15 @@ export function createExplorer(options = {}) {
     heldKey.position.set(-pickupCelebrate*.26,
       -.075+pickupCelebrate*.11, .14+pickupCelebrate*.03);
     heldKey.scale.setScalar(1+keyReach*.25+pickupCelebrate*.62);
-    // Shape, not color or blinking alone, communicates a real nearby warden.
-    // Reduced-motion keeps the same static visual cue.
-    alertFlare.visible=alert>.24;
+    // A disclosed nearby guardian WITHOUT a reciprocal, witnessed stage still
+    // earns the shape-coded warning. The genuine open-court performance already
+    // shows Thornback's planted body, Pip's lantern, four moving Tideglass
+    // sentinels and the compact danger HUD. The earlier floating triangle
+    // covered Pip's face and the guardian's attack silhouette in original
+    // 390px WebGL frames; suppress that duplicate ONLY for this public duel.
+    // This never hides a sealed/unknown-corridor warning, changes an enemy,
+    // or affects reduced-motion event truth. No new render resources.
+    alertFlare.visible=alert>.24 && witnessedBeat===null;
     alertFlare.position.y=1.83+(s.reduced?0:Math.sin(s.time*4)*.035);
     alertFlare.rotation.y=.7-group.rotation.y;
     alertFlare.scale.setScalar(.85+alert*.27);

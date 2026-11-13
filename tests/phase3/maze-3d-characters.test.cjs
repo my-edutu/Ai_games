@@ -176,6 +176,22 @@ test('observed-threat cues read in silhouette and clear on neutral or terminal f
       assert.equal(spines.visible, true, 'Thornback signals a real nearby encounter');
       assert.ok(thornback.group.getObjectByName('armored body').rotation.y>.06, 'body participates in threat-facing direction');
       assert.ok(flare.scale.x>1, 'cue reads beyond the character silhouette at encounter strength');
+      // Pass331: the actual published reciprocal Pip–Thornback court already
+      // gives three independent in-world warnings. The old exclamation glyph
+      // sits directly on Pip's face in native 390px notice/brace/release.
+      // Keep the full model and alternate near-warning glyph unchanged.
+      for(const beat of [0,.48889,.89953,1]) {
+        pip.update({...attention,attentionStrength:.818181818,guardianEncounterBeat:beat});
+        assert.equal(flare.visible,false,
+          'a real public open-court duel must not hide Pip/Thornback behind a floating warning triangle');
+        assert.ok(pip.group.getObjectByName('swinging lantern').visible,
+          'the physical local lantern cue survives the change');
+      }
+      pip.update({...attention,attentionStrength:.818181818,guardianEncounterBeat:NaN});
+      assert.equal(flare.visible,true,
+        'a nearby disclosed warning without a witnessed reciprocal duel keeps the accessible shape cue');
+      pip.update({...attention,attentionStrength:.818181818,guardianEncounterBeat:.5,attentionHeading:undefined});
+      assert.equal(flare.visible,false,'unknown/ended attention cannot keep the former duel cue');
       pip.update({...attention,attentionStrength:0});
       thornback.update({...attention,attentionStrength:0});
       assert.equal(flare.visible, false, 'a stale guardian never leaves a persistent threat marker');
