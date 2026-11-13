@@ -109,8 +109,10 @@ export function planWardenDualPlaneWarning(state,{width=0,height=0,cinematic=fal
  const boss=inset.boss,dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.z-b.z);
  const near=[...inset.heroes].sort((a,b)=>dist(a,boss)-dist(b,boss))[0];
  if(dist(near,boss)>4)return null;
- const close=inset.cells.filter(cell=>dist(cell,boss)<=2||dist(cell,near)<=2);
- if(!close.length)return null;
+ const close=inset.cells.filter(cell=>dist(cell,boss)<=4||dist(cell,near)<=4);
+ // A fully compact warning already has a native close-shot path; never
+ // relabel its entire threat footprint as a selective nearby layer.
+ if(!close.length||close.length===inset.cells.length)return null;
  return Object.freeze({cells:Object.freeze(close),originalCellCount:inset.cells.length,
   insetHasAllCells:true,radiusScale:.68,heightScale:.66,fovReduction:6});
 }
