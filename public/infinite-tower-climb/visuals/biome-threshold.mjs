@@ -39,6 +39,14 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
       sourceBound:true,
       limitation:'The real crossed sill and source distance color the drawn horizon, not native-film acceptance'};
   }
+  // A named handoff state can outlive its two GPU-submission source-proof
+  // window. The physical sill's independent immutable HP-zero record still
+  // owns the living body's material/lighting environment in that case.
+  const spatialFallback=()=>spatial?{
+    from:'clockwork',to:'void',sourceTick:frame.tick,
+    oldWeight:spatial.oldWeight,progress:spatial.progress,sourceBound:true,
+    limitation:'Actual source body distance to original earned doorway, NOT native film acceptance'
+  }:null;
   const p=frame?.player;
   if (options?.stale || options?.reducedMotion ||
       frame?.lifecycle !== 'running' || frame.floor !== 9 ||
@@ -62,7 +70,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
       passage.handoffDisplaySeconds < 0 ||
       passage.handoffDisplaySeconds >= passage.handoffVisibleWindowSeconds ||
       (passage.handoffSubmittedFrames===0 &&
-        passage.handoffDisplaySeconds!==0)) return null;
+        passage.handoffDisplaySeconds!==0)) return spatialFallback();
   const progress=Math.min(1,Math.max(0,
     passage.handoffDisplaySeconds/passage.handoffVisibleWindowSeconds));
   const smooth=progress*progress*(3-2*progress);

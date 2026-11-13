@@ -48,3 +48,14 @@ test('live original GPU witness may bridge a delayed immutable record, never arb
  assert.equal(sample(s),null);
  assert.equal(sample({...s,runToken:'wrong'},{}),null);
 });
+
+test('a handoff animation that expired before the native video still inherits true spatial F9 palette',async()=>{
+ const {observedGroundedBiomeThreshold}=await import(pathToFileURL(path.resolve('public/infinite-tower-climb/visuals/biome-threshold.mjs')).href);
+ const s=good(),expired={stage:'handoff',sourceBound:false,active:true};
+ assert.equal(observedGroundedBiomeThreshold(s,expired,{}).oldWeight,1);
+ s.player.x+=45000;s.player.state='airborne';s.player.grounded=false;
+ s.player.groundedPlatformId=null;s.player.vy=100;s.tick=480;
+ const middle=observedGroundedBiomeThreshold(s,expired,{});
+ assert.ok(middle.oldWeight>0 && middle.oldWeight<1);
+ assert.equal(observedGroundedBiomeThreshold(s,expired,{stale:true}),null);
+});
