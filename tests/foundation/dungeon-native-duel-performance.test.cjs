@@ -75,8 +75,15 @@ test('partial original sword-clip crossfade must keep a visible connected body c
   const fade=[0,.10,.25,.40,.60,.80,1].map(sourceBlend=>
    pose(kind,'attack',NATIVE_CONTACT_TIME,{...opponent,sourceBlend}));
   for(let i=1;i<fade.length;i++){
-   assert.ok(Math.abs(fade[i].spine.yaw)>=Math.abs(fade[i-1].spine.y),
-    kind+': source spine blend ['+i+'] '+fade[i-1].spine.yaw+' -> '+fade[i].spine.yaw+' must be monotonic');
+   const priorSpineMagnitude=Math.abs(fade[i-1].spine.yaw);
+   const nextSpineMagnitude=Math.abs(fade[i].spine.yaw);
+   assert.ok(Number.isFinite(priorSpineMagnitude)&&Number.isFinite(nextSpineMagnitude),
+    kind+': source crossfade must produce finite numeric spine ownership');
+   assert.ok(nextSpineMagnitude>=priorSpineMagnitude,
+    kind+': original sword spine monotonicity failed at fade '+i+
+    ' (raw '+fade[i-1].spine.yaw+' -> '+fade[i].spine.yaw+
+    ', magnitudes '+priorSpineMagnitude+' -> '+nextSpineMagnitude+
+    ', compare='+(nextSpineMagnitude>=priorSpineMagnitude)+')');
    assert.ok(Math.abs(fade[i].root.z-fade[i-1].root.z)<.065,
     'a later source crossfade cannot teleport the source-skinned support feet');
   }
