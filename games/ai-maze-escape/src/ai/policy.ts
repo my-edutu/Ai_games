@@ -129,7 +129,56 @@ function chooseEvasion(
     };
   }
 
-  const target = [...nonClosing].sort((a, b) =>
+  // A safe side-step is more meaningful when it also keeps Pip on an
+  // ACTUALLY DISCOVERED route toward the key, exit or frontier. Previously,
+  // equally safe retreats were selected only by cell id/visit count, which
+  // could send Pip into an unrelated dead end on each guardian encounter.
+  // Candidate routes use the learned map, current inventory and the guardian
+  // cells published in THIS observation. Never predict enemy patrols.
+  const visibleKeys = observation.keys
+    .filter(key => !key.collected && !observation.inventory.includes(key.id))
+    .sort((a, b) => a.cell - b.cell);
+  const knownExit = observation.exitCell ?? Object.values(belief.cells)
+    .filter(cell => cell.exit).sort((a, b) => a.cell - b.cell)[0]?.cell;
+  const goals = [
+    ...visibleKeys.map(key => ({ cell: key.cell, frontier: false })),
+    ...(knownExit === undefined || knownExit === null
+      ? [] : [{ cell: knownExit, frontier: false }]),
+    ...belief.frontiers.map(cell => ({ cell, frontier: true })),
+  ];
+  const knownHazards = [
+    ...Object.values(belief.cells).filter(cell => cell.trap || cell.blocked)
+      .map(cell => cell.cell),
+    ...observation.threats.map(threat => threat.cell),
+    // Do not select a "retreat" whose entire goal route just U-turns through
+    // Pip's current threatened square on the next tick.
+    observation.currentCell,
+  ];
+  let purposefulRetreat: number | null = null;
+  for (const goal of goals) {
+    const routes = nonClosing.flatMap(cell => {
+      const route = findKnownPath(belief, cell, goal.cell, {
+        inventory: observation.inventory,
+        avoidCells: knownHazards,
+        allowUnknownGoal: goal.frontier,
+      });
+      return route ? [{ cell, length: route.path.length }] : [];
+    }).sort((a, b) =>
+      a.length - b.length
+      || threatDistance(b.cell) - threatDistance(a.cell)
+      || (belief.cells[String(a.cell)]?.visits ?? 0)
+        - (belief.cells[String(b.cell)]?.visits ?? 0)
+      || a.cell - b.cell,
+    );
+    if (routes.length) {
+      purposefulRetreat = routes[0]!.cell;
+      break;
+    }
+  }
+
+  // If every mission route is sealed or undiscovered, preserve the original
+  // conservative observed-distance retreat; NEVER invent a goal passage.
+  const target = purposefulRetreat ?? [...nonClosing].sort((a, b) =>
     threatDistance(b) - threatDistance(a)
     || (belief.cells[String(a)]?.visits ?? 0) - (belief.cells[String(b)]?.visits ?? 0)
     || a - b,
@@ -140,7 +189,9 @@ function chooseEvasion(
     intent: {
       mode: 'evading-threat',
       confidence: 0.92,
-      explanation: 'A visible threat is close; moving through the safest observed passage.',
+      explanation: purposefulRetreat !== null
+        ? 'A visible guardian blocks the corridor; retreating on a learned safe route toward the next objective.'
+        : 'A visible threat is close; moving through the safest observed passage.',
       nodeExpansions: legal.length,
       fallbackUsed: false,
     },

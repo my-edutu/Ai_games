@@ -230,3 +230,56 @@ test('a publicly witnessed guardian on a bend cannot be used as a shortcut to a 
   assert.deepEqual(cleared.action,{kind:'move',targetCell:5});
   assert.equal(cleared.plannedPath.includes(6),true);
 });
+
+test('guardian evasion takes a publicly learned objective-side retreat instead of a dead-end tie-break',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},
+    'observed-guardian-objective-retreat');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=6;
+  state.ai.recentCells=[6];
+  // Pip 6 faces guardian 8 across real reciprocal 6-7-8 links.
+  // North cell 1 and south cell 11 are equally safe (distance 3), but north
+  // is a dead end. The south route reaches a PUBLICLY learned exit via
+  // 11-12-13-14-9. Nobody reads unseen world, AI future patrol or path oracle.
+  const belief={schemaVersion:1,cells:{
+    '1':beliefCell(1,[6]),'6':beliefCell(6,[1,7,11]),
+    '7':beliefCell(7,[6,8]),'8':beliefCell(8,[7]),
+    '9':{...beliefCell(9,[14]),exit:true},
+    '11':beliefCell(11,[6,12]),'12':beliefCell(12,[11,13]),
+    '13':beliefCell(13,[12,14]),'14':beliefCell(14,[13,9])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:8,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const visible=[1,6,7,8,11,12];
+  const observation={schemaVersion:1,tick:0,currentCell:6,
+    visibleCells:visible,rememberedCells:[9,13,14],
+    cells:Object.values(belief.cells).map(cell=>({...cell,
+      visible:visible.includes(cell.cell)})),doors:[],keys:[],
+    threats:[{id:'guardian',cell:8,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[6]};
+  const exitRetreat=chooseMazeAction(state,observation,belief);
+  assert.equal(exitRetreat.intent.mode,'evading-threat');
+  assert.deepEqual(exitRetreat.action,{kind:'move',targetCell:11},
+    'Pip must take the equally safe retreat that continues toward its known exit');
+  assert.deepEqual(exitRetreat.plannedPath,[6,11]);
+
+  // A visible key takes priority over an exit, using only the same known map.
+  observation.keys=[{id:'observed-key',cell:12,collected:false}];
+  const keyRetreat=chooseMazeAction(state,observation,belief);
+  assert.equal(keyRetreat.action.targetCell,11);
+  assert.equal(keyRetreat.intent.mode,'evading-threat');
+
+  // If the actual learned exit route is sealed, this is not a made-up route.
+  // Both candidates are still non-closing; use the original conservative
+  // tie-break, with no speculative unblocking or privileged future state.
+  observation.keys=[];
+  belief.doors={sealed:{id:'sealed',a:11,b:12,requiredKeyId:'unknown',
+    open:false,lastSeenTick:0}};
+  observation.doors=[{id:'sealed',a:11,b:12,requiredKeyId:'unknown',open:false}];
+  const sealed=chooseMazeAction(state,observation,belief);
+  assert.equal(sealed.intent.mode,'evading-threat');
+  assert.deepEqual(sealed.action,{kind:'move',targetCell:1});
+
+  // Receding from public view removes the guardian evasion entirely.
+  observation.threats=[];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat');
+});

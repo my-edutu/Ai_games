@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13T00:40:00.000Z",
+  "updatedAt": "2026-11-13T00:52:35.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass314 exact-source native WebGL 43325912165 succeeded, with 39 original complete PNGs, 37/37 verified SHA-256 sidecars and 2 gate originals checked against the transition manifest. Real Pip/Thornback 390 three-phase action still fails fixed Nintendo visual-quality bar. Pass315 changes consequential public-only gameplay: objective/frontier route planning takes a genuinely learned longer flank around a currently witnessed guardian on a turning corridor rather than plotting through its collidable body; threat disappearance restores the short route. Fresh exact-HEAD tests/screenshots/seeded traces and independent critic PENDING. All strict <100 six-reset, ±0.95, 44px, privacy requirements unchanged. Whole-repo Pass314 CI separately failed."
+    "summary": "Pass315 exact-HEAD CI 43339944188 failed overall on independent Tiny Kingdom/artifact uploads, while build/test and Maze stream host self-test passed. Its WebGL 43339944143 remained capturing at inspection; no new exact-source rendered/independent art win. Pass316 is a candidate meaningful guardian decision: at a real observed standoff, choose a non-closing retreat with an actual learned path to key, exit or frontier over a dead-end tie, honoring public doors, observed threat cells and no speculative patrol. Exact-new-HEAD tests, native screenshot SHA verification and multi-seed outcomes pending. Fixed Captain Toad quality gate NOT met; <100 geometry, ±0.95 framing and 44px untouched."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass316 2026-11-13: source-confirmed Pass315 draft PR and CI; exact WebGL capture pending, no new screenshots claimed. New target-directed evasion for observed straight guardian standoffs: safe non-closing public retreat that preserves an actual key/exit/frontier path takes precedence over dead-end cell-id tie; sealed/unseen reverts conservatively. Dedicated deterministic public-only/closed-door/guardian-absence test and dated review added. New code/CI/render/independent critic pending; no Nintendo quality win.",
     "Pass315 2026-11-13: verified Pass314 authentic source-HEAD native WebGL artifact 13993363348, all 39 images and 37/37 original SHA image sidecars, reject Nintendo-quality art/gameplay. New public guardian-aware known key, exit and frontier routing: use live collidable threat cell as a temporary obstacle so Pip takes a legitimate observed longer flank; immediately restore shortest route when threat is not observed. Added test for diagonal threat on a turning route, goal/frontier bypass and disappearance. New exact-HEAD CI/render/critic pending, no quality victory.",
     "Pass314 2026-11-12: independently inspected Pass313 exact-source genuine 390 three-beat/320/1280 unaltered WebGL, verified 37/37 original SHA pairs, judged Nintendo quality still unmet. Implemented authoritative observed-only evasion: at a real two-cell guardian standoff with no observed non-closing step Pip waits for patrol change instead of advancing into one-cell contact. New deterministic side-escape, sealed/hidden regression; new CI/visual evidence pending; no gameplay victory claimed.",
     "Pass313 2026-11-12: retrieved authentic successful Pass312 43307030306 WebGL artifact, original 39 full-frame PNG/37 matching SHA-256 sidecars. Fixed Nintendo visual benchmark remains unmet; the four short beacons lack strong stage-scale action. New real published four physical root-hinged shell fans with sea-glass/ivory/amber brace/release and reduced-motion, true public-only, pooled geometry; exact new-HEAD CI/render/critic pending.",
