@@ -4472,3 +4472,43 @@ test('RED: genuine Walking_A tick transition primes original skinned shoes witho
  assert.match(stage,/sourceStanceSlideSample=\{sourceInstanceId/,
   'only actual measured original-world skinned shoes may enter the next frame');
 });
+
+
+test('RED: real original GLB skating correction must not mistake a rotating root for a translating stance',async()=>{
+ const {planOriginalSourceStanceSlideRelief:plan}=await load();
+ // The actual 390px original WebGL run #43332071080 records genuine
+ // per-frame actor turns of about 0.637 rad (frame 23→24, 24→25).
+ // The proven near-stone right shoe below is from a separate, authentic
+ // straight Walking_A source pair (#43275816923, frames 85→86).
+ // Rotated versions are SYNTHETIC safety counterexamples, NOT filmed shots.
+ const previous={
+  left:{heel:[-3.7622763645869743,.19619061649808212,-6.964968636370414],
+   toe:[-3.936331449985617,-.022848690971393016,-6.936989276434345]},
+  right:{heel:[-3.673845306509682,-.015892989888730707,-7.117537969611167],
+   toe:[-3.9433384106340967,-.022593029997116175,-7.1402535772176385]}
+ };
+ const current={
+  left:{heel:[-3.7521558152800223,.1624096473608331,-6.958929690108859],
+   toe:[-3.93614977336351,-.03730755226041721,-6.939063081035758]},
+  right:{heel:[-3.6117278594795095,-.03542813690635666,-7.119786377236892],
+   toe:[-3.880277883348968,-.03294688530907301,-7.142783473794835]}
+ };
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,rootTravel:.0445,
+  frameInterval:.05,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,floorTopY:-.02,previous,current,
+  previousRootYaw:-1.4383329545967325,currentRootYaw:-1.438332954596734};
+ assert.ok(plan(source)?.reductionMeters>0,
+  'preserve the independently witnessed original straight-stance improvement');
+ for(const yaw of [-1.4383329545967325+.6375,
+  -1.4383329545967325-.6375,
+  -1.4383329545967325+.09]){
+  assert.equal(plan({...source,currentRootYaw:yaw}),null,
+   'sharp real-turn-sized yaw cannot be silently converted into a false source-shoe skate rescue');
+ }
+ assert.ok(plan({...source,currentRootYaw:source.previousRootYaw+.079})?.reductionMeters>0,
+  'a small independently measured source-facing change retains existing bounded relief');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/previousRootYaw:previous\.rootYaw,currentRootYaw:actor\.root\.rotation\.y/,
+  'the live licensed clone already measures both actual source-facing orientations');
+});
