@@ -1089,7 +1089,10 @@ export function createMazeWorld(options = {}) {
       // opaque load-bearing foundation, the same upper playable surface,
       // and low-profile stone toe/cornice. Do not infer missing neighbors.
       block(deepStone, x, -1.26, z, 2.39, .28, 2.39, c.cell);
-      block(darkJade, x, -.30, z, 2.39, .14, 2.39, c.cell);
+      // Distinct neutral jade support, NOT the dark-jade 2.39m pressure
+      // deck: that visual signature is reserved for a truly public trap
+      // and must vanish when private data alone advertises one.
+      block(jade, x, -.30, z, 2.39, .14, 2.39, c.cell);
       block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
       // Only actual PUBLISHED board edges can have an outer seawall.
       // Undefined/hidden neighbors NEVER authorize a fake exposed face.
