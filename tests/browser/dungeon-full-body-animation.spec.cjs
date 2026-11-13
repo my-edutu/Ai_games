@@ -895,6 +895,25 @@ for(const view of [
   const current=Object.values(n?.sourceSwingToeCurrentFrameProofs??{}).filter(Boolean);
   expect(n?.sourceSwingToeCorrectionsThisFrame??0).toBe(current.length);
   expect(current.length).toBeLessThanOrEqual(2);
+  // The genuine same-frame imported sole witness must report a *per-frame*
+  // source ankle rotation, not mislabel a cumulative original-clip overlay
+  // as a sudden 186mrad 60Hz toe snap. Certified sole contact is NOT implied.
+  for(const ankle of current){
+   if(ankle.continuityHold)continue;
+   expect(Number.isFinite(ankle.sourceAnkleStepRad)).toBe(true);
+   expect(Number.isFinite(ankle.sourceAnkleFrameLimitRad)).toBe(true);
+   expect(ankle.sourceAnkleStepRad).toBeGreaterThanOrEqual(0);
+   expect(ankle.sourceAnkleStepRad).toBeLessThanOrEqual(
+    ankle.sourceAnkleFrameLimitRad+.000001);
+   expect(ankle.sourceAnkleFrameLimitRad).toBeLessThanOrEqual(.160001);
+   expect(ankle.frameAwareSwingUsed).toBe(
+    ankle.sourceAnkleStepRad>.080001,
+    'only a genuinely slow new original toe step earns the sparse-frame label');
+   if(ankle.frameAwareSwingUsed){
+    expect(ankle.visibleFrameIntervalSeconds).toBeGreaterThan(.05);
+    expect(ankle.sourceWeight).toBeGreaterThanOrEqual(.9);
+   }
+  }
 
   const calfMask=n?.sourceSwingCalfCurrentFrameMask??0;
   expect(Number.isInteger(calfMask)&&calfMask>=0&&calfMask<=3).toBe(true);
