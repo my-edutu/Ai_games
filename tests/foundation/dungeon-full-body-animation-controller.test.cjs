@@ -4862,3 +4862,45 @@ test('real original ankle hold and fresh rescue expose identical measured early 
    'original measured toe depth must remain attached to the same-frame receipt');
  }
 });
+
+
+// RED from real licensed Walking_A Chromium frames on exact-head Actions
+// #43437611652, trace.zip in source-rig artifact #14045498377.
+// Desktop frame 23->24: source weight 1, root -1.275->-1.9125 rad,
+// 54.69mm real root travel, 0 recorded original spine response.
+// 390px frames 20->21: -1.9125->-2.55 rad, 19.64mm real travel,
+// previous +120mrad response then 0: the visible arm/weapon chain snaps.
+// Severe software-WebGL frame sparsity must not veto a bounded ACTUAL
+// same-frame root turn. Such a turn cannot claim foot-plant or extra hits.
+test('RED: source Walking_A spine follows real root pivots even across sparse WebGL frames',async()=>{
+ const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
+ const on={mode:'move',previousMode:'move',sourceClipName:'Walking_A',
+  sourceWeight:1,sourceInstanceSame:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.05469,
+  frameInterval:1.07,previousRootYaw:-1.275,
+  currentRootYaw:-1.9125,previousOffsetRad:0};
+ const desktop=plan(on);
+ assert.ok(desktop,'authentic large-turn source frame must retain a connected chest response');
+ assert.ok(desktop.offsetRad>.11&&desktop.offsetRad<=.120001);
+ const mobile=plan({...on,rootTravel:.01964,frameInterval:.92,
+  previousRootYaw:-1.9125,currentRootYaw:-2.55,previousOffsetRad:.12});
+ assert.ok(mobile,'the second genuine mobile pivot must not erase prior spine correction');
+ assert.ok(mobile.offsetRad>=.11999&&mobile.offsetRad<=.120001,
+  'a same-direction root pivot cannot snap a real weapon-supporting chest to zero');
+ const sourceFade=plan({...on,sourceWeight:.78,previousMode:'idle'});
+ assert.ok(sourceFade?.offsetRad>.10&&sourceFade.offsetRad<.12,
+  'actual 78% licensed crossfade, not invented full-weight source, owns entry');
+ for(const bad of [
+  {frameInterval:2.1},{frameInterval:0},{frameInterval:NaN},
+  {rootTravel:0},{rootTravel:.181},{sourceWeight:.74},
+  {sourceInstanceSame:false},{ownerLocomotion:false},
+  {mode:'hurt'},{sourceClipName:'Idle'},{alive:false},
+  {visible:false},{teleport:true},{interrupted:true},
+  {reducedMotion:true},{previousRootYaw:NaN}
+ ])assert.equal(plan({...on,...bad}),null,
+  'sparse-source exception cannot create torso turns from unsupported evidence');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/stageRigWalkingFacingAfterRootYaw\(/);
+ assert.match(renderer,/planOriginalSourceWalkingTorsoCounterturn\(/);
+});
