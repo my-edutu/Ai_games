@@ -178,6 +178,6 @@ test('source-lived last stand stages the camera before the REAL gate unlock, wit
     'original source-authenticated physical gateway, not the expired cosmetic cue, anchors the gaze');
   assert.equal(select(null,null,null,'grounded-handoff',null,originalArchLens).lens,'grounded-handoff',
     'actual nearby supported handoff outranks the delayed GPU fallback');
-  assert.match(scene,/safeEarnedGatewayDollyRadius\\(destination,/);
+  assert.match(scene,/safeEarnedGatewayDollyRadius\(destination,/);
   assert.match(scene,/towerCoreSightlineClear\(camera\.position,/);
 });
