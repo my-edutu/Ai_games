@@ -428,6 +428,21 @@ for(const view of [
   // Optional REAL original source skin after the bounded visual correction.
   // Never claim a foot plant or IK from a reduced shoe displacement.
   const nativeLeg=actor.nativeLegOwnership;
+  // Never infer a planted foot from a prior toe-lift angle: the final
+  // original-GLB frame must report a same-clone weighted toe and opposite
+  // shoe witness for any ankle-continuity hold actually displayed.
+  expect(Number.isInteger(nativeLeg?.sourceSwingToeContinuityFrames)).toBe(true);
+  expect(nativeLeg.sourceSwingToeContinuityFrames).toBeGreaterThanOrEqual(0);
+  expect(nativeLeg.sourceSwingToeContinuityFrames).toBeLessThanOrEqual(1000000);
+  if(nativeLeg?.sourceSwingToeLiftProof?.continuityHold){
+   expect(nativeLeg.sourceSwingToeContinuityFrames).toBeGreaterThan(0);
+   expect(nativeLeg.sourceSwingToeLiftProof.source)
+    .toBe('same-original-GLB-weighted-swing-ankle-continuation');
+   expect(nativeLeg.sourceSwingToeLiftProof.originalOppositeShoeVerified).toBe(true);
+   expect(nativeLeg.sourceSwingToeLiftProof.contactLocked).toBe(false);
+   expect(nativeLeg.sourceSwingToeLiftProof.sourceClip).toBe('Walking_A');
+   expect(nativeLeg.sourceSwingToeLiftProof.liftMeters).toBeGreaterThan(.001);
+  }
   // Read the *rendered* source-rig carry, not merely a unit planner result.
   // A previous witnessed 18mm pivot shift must retire over the next three
   // <=50ms frames, not silently accumulate or pop beyond the 18mm budget.
