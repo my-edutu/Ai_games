@@ -290,6 +290,11 @@ export function createPhysicalCombatFeedback({
      if(soundEligible)staleAudioDropped++;
      // VFX admission is not an actual WebGL submission or audible onset.
      // An overloaded original-foley queue must retain its rejected receipt.
+     // This emitted VFX has no future frame-witness slot. Retire its
+     // GPU instances now; a queue rejection must not become a ghost hit.
+     // Authoritative Warden danger footprints refuse audio-only retirement.
+     if(visual)safeCall(()=>visuals?.retireStaleCue?.(
+      cue.id,'awaiting-frame-cap-rejected'));
      retainReceipt(cue,visual,false,null,'awaiting-frame-cap-rejected');
      played++;return;
     }
@@ -297,6 +302,10 @@ export function createPhysicalCombatFeedback({
     if(evicted.soundAuthorized)staleAudioDropped++;
     // The displaced cue may have drawn an unsubmitted retained effect, but
     // MUST NOT be counted as having delivered its original impact sound.
+    // The displaced sound/visual can no longer earn a submitted-frame
+    // receipt. Free only this cue's retained transient matrices.
+    if(evicted.visual)safeCall(()=>visuals?.retireStaleCue?.(
+     evicted.cue.id,'awaiting-frame-cap-preempted'));
     retainReceipt(evicted.cue,evicted.visual,false,null,'awaiting-frame-cap-preempted');
    }
    // Preserve the timestamp when the authority action was first observed.

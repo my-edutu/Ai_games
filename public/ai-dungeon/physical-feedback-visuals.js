@@ -993,7 +993,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(disposed||typeof cueId!=='string'||!cueId||
    !['stale-frame','expired-visual','unverified-frame',
      'revoked-drawn-swing-pose','revoked-drawn-body-pose',
-     'visual-submission-unverified'].includes(reason))return 0;
+     'visual-submission-unverified',
+      'awaiting-frame-cap-rejected','awaiting-frame-cap-preempted'].includes(reason))return 0;
   let retired=0;
   for(const pool of pools.values()){
    let dirty=false;
