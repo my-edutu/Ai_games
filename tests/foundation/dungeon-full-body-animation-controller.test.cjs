@@ -3797,6 +3797,31 @@ test('verified combat-start stops outgoing original Walking_A only after the act
 });
 
 
+test('RED: deeply buried original swing toes must not trigger an ineffective source thigh twitch',async()=>{
+ const {chooseOriginalSourceSwingThighSupport:choose}=await load();
+ // Based on actual original source-GLB toe burial; candidate after poses
+ // are synthetic *contract tests*, not asserted filmed improvements.
+ const base={left:{heelY:.202,toeY:-.105,heelXZ:[0,0],toeXZ:[0,.22]},
+  right:{heelY:-.023,toeY:-.028,heelXZ:[.2,0],toeXZ:[.2,.22]}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.95,
+  ownerLocomotion:true,sourceThighAxisVerified:true,sourceChainVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.036,frameAge:.032,
+  side:'left',floorTopY:-.02,before:base};
+ const candidate=(toeY,heelY=.201)=>({
+  delta:.045,after:{left:{heelY,toeY,heelXZ:[.01,.005],
+   toeXZ:[.012,.228]},right:base.right}
+ });
+ assert.equal(choose({...owner,trials:[candidate(-.099)]}),null,
+  'six millimetres of lift against 85mm of stone burial (<10%) is a visible thigh twitch, not meaningful clearance');
+ const usable={...owner,before:{...base,left:{...base.left,toeY:-.081}}};
+ const accepted=choose({...usable,trials:[candidate(-.074)]});
+ assert.equal(accepted?.improvementMeters>0,true,
+  'retain actual-foot-safe thigh corrections that resolve >10% of the original source stone burial');
+ assert.equal(accepted?.contactLocked,false,
+  'a guarded thigh correction is not a foot plant or authoritatively moved step');
+});
+
 test('RED: genuine source swing thigh supports a buried airborne toe without moving the opposite loaded shoe',async()=>{
  const {chooseOriginalSourceSwingThighSupport:choose}=await load();
  assert.equal(typeof choose,'function');
