@@ -60,6 +60,44 @@ test('new physical blade streak geometry is tapered, bounded and shared; actual 
  assert.equal(created.mats,scene.children.size,'materials are retained, not minted per hit');
  stage.dispose();assert.equal(created.geoDisposed,created.geos);assert.equal(created.matDisposed,created.mats);
 });
+test('authentic injured body interpolates within its own current cell without losing HP-only contact art',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const unit={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:12};
+ let snapshot={run:1,floor:1,tick:11,units:[unit]};
+ // The actual character rig has not yet reached its newly observed cell:
+ // 0.84m of presentation interpolation should not erase genuine HP loss.
+ const actor={u:unit,root:{visible:true,position:{x:-6.84,y:0,z:-7},
+  rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>snapshot
+ });
+ try{
+  assert.equal(stage.emit(cue()),true,
+   'a known injured victim within one legitimate cell-step retains body-local hit art');
+  assert.ok(stage.stats().instancesByPool.hit>=4);
+  stage.reset();
+  actor.root.position.x=-8.02;
+  assert.equal(stage.emit(cue()),false,
+   'a distant reused root cannot anchor the current victim');
+  actor.root.position.x=-6.84;
+  actor.u={...unit,id:'unrelated'};
+  assert.equal(stage.emit(cue()),false,
+   'an actor map collision must not assign the injury to another character');
+  actor.u={...unit,x:4};
+  assert.equal(stage.emit(cue()),false,
+   'a character assigned to a different authoritative cell is not a valid impact witness');
+  actor.u=unit;
+  snapshot={...snapshot,tick:12};
+  assert.equal(stage.emit(cue()),false,
+   'an expired observation tick cannot be relocalized onto a later pose');
+  snapshot={...snapshot,tick:11,units:[unit,{...unit}]};
+  assert.equal(stage.emit(cue()),false,
+   'duplicate public victim identities are not a reliable body anchor');
+  assert.equal(stage.stats().instancesByPool.hit,0);
+ }finally{stage.dispose()}
+});
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
