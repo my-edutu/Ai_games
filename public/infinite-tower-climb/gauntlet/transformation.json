@@ -6,6 +6,10 @@
     "inspectedBranchBeforeWork": "5cc5e9f7229fc0be55be8ab172eef3166788b2c0",
     "productionSystemSha": "26f08730f42f5948bef4f60f36b98c743a623f33",
     "testAndFixtureCorrectionSha": "795d42c7ccee23d1ac25e165a55adbd543f6db2b",
+    "lastVerifiedSourceHeadBeforeEvidence": "6eb83c952c53b812be7dae19b07072138a463be8",
+    "finalTestLoaderFixSha": "6eb83c952c53b812be7dae19b07072138a463be8",
+    "newNativeRecordingCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43521908769 — in progress, source-pinned to ff059ab58e22362b9f3c237149c226e3558cfbdf (same game source; further fixture edits do not alter gameplay)",
+    "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43522074664 — pending, NOT GREEN at inspection",
     "importantInspectedEvidence": {
       "previousNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43518986496",
       "originalVideos": "All eight original baseline/candidate normal-speed captures completed successfully; authentic source events 8/8 paired, but strict event-aligned physical crossing preference remains 0/2, unaccepted",

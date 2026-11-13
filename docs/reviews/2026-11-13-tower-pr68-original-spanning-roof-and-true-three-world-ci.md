@@ -23,3 +23,9 @@ The prior [exact-head quality run #43518986503](https://github.com/my-edutu/Ai_g
 ## Next action
 
 Read the exact-head quality result; inspect 60+ second original desktop/portrait danger films at their native 24–27 second phase with decoded compositor timestamps and adjacent source events; inspect authentic Floor9 onward and restart. If the actual bronze gateway or full climber remains discontinuous, prioritize one systemic shared world-depth/physical threshold/camera reconstruction, not another material tint, timer, or extra test count. Keep P0 open until credible playable evidence exists.
+
+## Follow-up exact-head CI failure and repair (source-only test imports)
+
+[Run #43521644501](https://github.com/my-edutu/Ai_games/actions/runs/43521644501) passed **integrity, Phase 3 shards 0, 1 and 3** before Phase 3 shard 2 was stopped by the final copied-World import error in `tower-guardian-seal-experience.test.cjs`. [Commit `6eb83c952c53b812be7dae19b07072138a463be8`](https://github.com/my-edutu/Ai_games/commit/6eb83c952c53b812be7dae19b07072138a463be8) fixes that real guardian/bronze gate fixture's missing new source-physical-arrival-palette import path, without changing shipped gameplay or asserting any P0 victory.
+
+Final-source CI requested: [run #43522074664](https://github.com/my-edutu/Ai_games/actions/runs/43522074664), **pending at inspection, not green**. New authentic 9-job game films: [run #43521908769](https://github.com/my-edutu/Ai_games/actions/runs/43521908769), pinned to evidence SHA `ff059ab58e22362b9f3c237149c226e3558cfbdf` carrying the same shipped 3D game and test code aside from the fixture import correction. No new full-motion comparison or independent critic acceptance has been carried out. P0 remains OPEN.
