@@ -24,7 +24,7 @@ test('cold source-earned Floor9 starts with authentic grounded roof, then stages
   assert.match(world,/arrival\.state==='awaiting-vista-submission'[\s\S]*?Number\.isSafeInteger\(arrival\.vistaBuiltAtSubmitted\)[\s\S]*?arrival\.submittedFrames>arrival\.vistaBuiltAtSubmitted[\s\S]*?!options\.stale\)/);
   assert.match(world,/for\(const p of snapshot\.platforms\|\|\[\]\)\{/);
   assert.match(world,/for\(const h of snapshot\.hazards\|\|\[\]\)buildHazard\(/);
-  assert.match(world,/noteFrameSubmitted\(snapshot, options=\{\}\)/);
+  assert.match(world,/noteFrameSubmitted\(snapshot, options=\{\}, renderedDt=0\)/);
   assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/,
     'presentation cannot authorize a new floor or move the player');
 });
@@ -35,4 +35,17 @@ test('deferred Floor9 shell must retain moving crystal parts rather than merging
   assert.match(world,/batchRigid\(structuralRoot,animatedStructuralRoots\)/);
   assert.match(world,/structuralRoot\.name='deferred-original-floor-nine-architecture'/);
   assert.match(world,/deferredDistantArrival\.structureDeferred/);
+});
+
+test('original shaft uses isolated fading materials and returned-frame clock rather than an unobserved RAF timer',()=>{
+  assert.match(world,/material\.name='SourceEarnedIncomingFloorNineShaft'/);
+  assert.match(world,/material\.opacity=0/);
+  assert.match(world,/floorMaterials\.add\(material\)/);
+  assert.match(world,/job\.structuralFade=options\.reducedMotion\?1:/);
+  assert.match(world,/const shown = Number\.isFinite\(renderedDt\)/);
+  assert.match(world,/held\.visibleSeconds=Math\.min\(3,held\.visibleSeconds\+shown\)/);
+  assert.doesNotMatch(world,/held\.visibleSeconds\s*\+=\s*Math\.min\(/);
+  assert.match(world,/job\.vistaFade\+shown\/\.55/);
+  assert.match(world,/job\.fade\+shown\/\.55/);
+  assert.match(world,/job\.structuralShadows/);
 });
