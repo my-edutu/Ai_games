@@ -606,12 +606,21 @@ test('expired or unverifiable silent HP visuals cannot masquerade as submitted i
    d.advance(.016,.016);
    clock+=variant==='slow'?.72:.03;
    d.acknowledgePresentedFrame(1,.012);
+   if(variant==='undrawable'){
+    // An occluded retained shard has not earned visible-frame evidence;
+    // keep its original deadline, then expire on the next genuine receipt.
+    assert.equal(d.stats().awaitingVisualReceipt,1);
+    assert.equal(d.stats().recentDeliveryReceipts.length,0);
+    clock+=.72;d.acknowledgePresentedFrame(2,.012);
+   }
    const receipt=d.stats().recentDeliveryReceipts.at(-1);
+   assert.ok(receipt,'every terminal visual decision needs a bounded receipt');
    assert.notEqual(receipt.decision,'visual-only-submitted',variant);
    assert.equal(receipt.audio,false);
-   assert.equal(receipt.frameId,1);
+   assert.equal(receipt.frameId,variant==='undrawable'?2:1);
    assert.equal(receipt.sampleSynchronized,false);
-   if(variant==='slow')assert.deepEqual(retired,['stale-frame']);
+   if(variant==='slow'||variant==='undrawable')
+    assert.deepEqual(retired,['stale-frame']);
   }finally{d.dispose()}
  }
 });
