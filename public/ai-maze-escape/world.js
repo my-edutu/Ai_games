@@ -1093,11 +1093,12 @@ export function createMazeWorld(options = {}) {
       block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
       // Only actual PUBLISHED board edges can have an outer seawall.
       // Undefined/hidden neighbors NEVER authorize a fake exposed face.
+      const boardCol = c.cell % s.width, boardRow = Math.floor(c.cell / s.width);
       const shorelineFaces = [];
-      if (col === 0) shorelineFaces.push([-1, 0]);
-      if (col === s.width - 1) shorelineFaces.push([1, 0]);
-      if (row === 0) shorelineFaces.push([0, -1]);
-      if (row === s.height - 1) shorelineFaces.push([0, 1]);
+      if (boardCol === 0) shorelineFaces.push([-1, 0]);
+      if (boardCol === s.width - 1) shorelineFaces.push([1, 0]);
+      if (boardRow === 0) shorelineFaces.push([0, -1]);
+      if (boardRow === s.height - 1) shorelineFaces.push([0, 1]);
       const pierHeight = 1.72 + floorY;
       const pierY = -.21 - pierHeight / 2;
       for (const [dx, dz] of shorelineFaces) {
