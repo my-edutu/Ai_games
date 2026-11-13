@@ -7073,6 +7073,7 @@ function getHomePartitionAudit(){
    !keys.has(entry.key)||homeClusterCache.get(entry.key)!==entry).length+
    homeClusterStaleDrawn,
   realTownHomes:city.length,fastReuses:homePartitionFastReuses,
+  detailPolicy:getHomeDetailPolicyAudit(),
   topologyScans:homePartitionTopologyScans,
   guardFallbacks:homePartitionGuardFallbacks,
   authoritativeStateChanged:false,
@@ -7963,7 +7964,11 @@ streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
 // separately invalidated by the existing scene key.
 function homePartitionLiveSignature(){
  homePartitionTopologyScans++;
+ // W293: inspect the actual occupied neighborhood, rather than locking
+ // the eight detailed home slots to the origin during a remote workday.
+ const lod=currentHomeDetailAnchor();
  return HOME_STATIC_GEOMETRY_KEY_VERSION+'|'+city.length+'|'+
+  'visible-neighborhood:'+lod.mode+':'+lod.x.toFixed(2)+':'+lod.z.toFixed(2)+'|'+
   city.map((lot,i)=>i+':'+lot.join(':')).join(';');
 }
 function homePartitionResidencyMatches(){
@@ -8038,10 +8043,70 @@ function getStationarySettlementAudit(){
   avoidedTownRebuilds:independentHousingGrowthSkips,
   scenicRebuilds:scenicMeshRebuilds,changesAuthority:false};
 }
+// W293 rendering spine: use retained full 3D inhabited architecture at the
+// actual camera's real household or street instead of perpetually spending
+// all grown-town detailed-house slots in the distant market-centre district.
+// All remaining original homes STILL DRAW in the complete compact renderer.
+// Six close details cap the scene cost; overview retains the original eight.
+// The 11-metre anchor deadband prevents worker gait/camera orbit rebuilding
+// entire 16m physical home GPU partitions at every authoritative simulation tick.
+const HOME_DETAIL_ANCHOR_METERS=11,HOME_DETAIL_INSPECTION_LIMIT=6;
+let homeDetailViewState={mode:'overview',x:0,z:0,updates:0};
+function planCameraHomeDetailAnchor(previous,mode,position,threshold=HOME_DETAIL_ANCHOR_METERS){
+ if(!previous||!['overview','inspection'].includes(previous.mode)||
+  ![previous.x,previous.z,previous.updates,threshold].every(Number.isFinite)||
+  threshold<=0||!['overview','inspection'].includes(mode))
+  throw Error('W293 invalid camera-neighborhood identity');
+ if(mode==='overview'){
+  return previous.mode==='overview'&&previous.x===0&&previous.z===0?
+   previous:{mode:'overview',x:0,z:0,updates:previous.updates+1};
+ }
+ if(!Array.isArray(position)||position.length<2||
+  ![position[0],position[1]].every(Number.isFinite))
+  throw Error('W293 invalid real camera focus');
+ const [x,z]=position;
+ if(previous.mode==='inspection'&&
+  Math.hypot(x-previous.x,z-previous.z)<threshold)return previous;
+ return {mode:'inspection',x,z,updates:previous.updates+1};
+}
+function planOriginalNeighbourhoodDetail(lots,anchor,limit){
+ if(!Array.isArray(lots)||!anchor||
+  ![anchor.x,anchor.z].every(Number.isFinite)||
+  !Number.isInteger(limit)||limit<1)
+  throw Error('W293 invalid real-home detail budget');
+ return new Set(lots.map((lot,i)=>{
+  if(!Array.isArray(lot)||lot.length<2||
+   ![lot[0],lot[1]].every(Number.isFinite))
+   throw Error('W293 invalid actual home lot');
+  return {i,d:(lot[0]-anchor.x)**2+(lot[1]-anchor.z)**2};
+ }).sort((a,b)=>a.d-b.d||a.i-b.i)
+ .slice(0,Math.min(limit,lots.length)).map(row=>row.i));
+}
+function currentHomeDetailAnchor(){
+ const inspect=homeClustersEnabled()&&city.length>12&&
+  (streetWalk||follow||(!cinematic&&zoom<14));
+ const position=streetWalk?streetPosition:focusPoint;
+ homeDetailViewState=planCameraHomeDetailAnchor(homeDetailViewState,
+  inspect?'inspection':'overview',inspect?position:null);
+ return homeDetailViewState;
+}
+function getHomeDetailPolicyAudit(){
+ const a=currentHomeDetailAnchor();
+ return {source:'physical-camera-real-inhabited-neighborhood-LOD',
+  mode:a.mode,anchor:[a.x,a.z],retainedLODChanges:a.updates,
+  movementThresholdMetres:HOME_DETAIL_ANCHOR_METERS,
+  activeDetailedHomeLimit:HOME_DETAIL_INSPECTION_LIMIT,
+  originalOverviewDetailLimit:VILLAGE_LOD_LIMIT,
+  allOriginalHomesRetained:true,hardwareFPS:'NOT MEASURED',
+  rendererBudgetRequiresRealVerification:true,
+  changesJobs:false,changesNavigation:false,changesEconomy:false};
+}
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
- return new Set(city.map(([x,z],i)=>({i,d:x*x+z*z}))
-  .sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,VILLAGE_LOD_LIMIT).map(row=>row.i));
+ const anchor=currentHomeDetailAnchor();
+ const limit=anchor.mode==='inspection'?
+  Math.min(VILLAGE_LOD_LIMIT,HOME_DETAIL_INSPECTION_LIMIT):VILLAGE_LOD_LIMIT;
+ return planOriginalNeighbourhoodDetail(city,anchor,limit);
 }
 function compactHouse(x,z,variant){
  // G107 civic-quarter workstream: one-and-two-storey homes with deliberately
