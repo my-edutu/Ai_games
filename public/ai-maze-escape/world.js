@@ -320,7 +320,7 @@ export function createMazeWorld(options = {}) {
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, pressureStageParapets = 0, guardianSightlineParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
-  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0;
+  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, shorelineLoadFacades = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
   let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], guardianTideSignals = [], publicHeroX = 0, publicHeroZ = 0;
@@ -932,7 +932,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const guardianSightlines=publicGuardianStageCells(s);
@@ -1084,11 +1084,46 @@ export function createMazeWorld(options = {}) {
       // source privacy, and all frame-time resource allocation stay intact.
       const foundationMineral = floorY > 2.1 ? deepStone : floorY > .7 ? jade : darkJade;
       block(foundationMineral, x, -1.14 - floorY / 2, z, 2.38, 2.14 + floorY, 2.38, c.cell);
+      // Pass318: reconstruct repetitive horizontal terrace ribbons into
+      // large vertical original Tideglass seawall bays. Keep the complete
+      // opaque load-bearing foundation, the same upper playable surface,
+      // and low-profile stone toe/cornice. Do not infer missing neighbors.
       block(deepStone, x, -1.26, z, 2.39, .28, 2.39, c.cell);
-      block(jade, x, -.85, z, 2.39, .13, 2.39, c.cell);
-      block(deepStone, x, -.42, z, 2.39, .25, 2.39, c.cell);
-      block(jade, x, -.27, z, 2.39, .12, 2.39, c.cell);
+      block(darkJade, x, -.30, z, 2.39, .14, 2.39, c.cell);
       block(stone, x, -.135, z, 2.39, .19, 2.39, c.cell);
+      // Only actual PUBLISHED board edges can have an outer seawall.
+      // Undefined/hidden neighbors NEVER authorize a fake exposed face.
+      const shorelineFaces = [];
+      if (col === 0) shorelineFaces.push([-1, 0]);
+      if (col === s.width - 1) shorelineFaces.push([1, 0]);
+      if (row === 0) shorelineFaces.push([0, -1]);
+      if (row === s.height - 1) shorelineFaces.push([0, 1]);
+      const pierHeight = 1.72 + floorY;
+      const pierY = -.21 - pierHeight / 2;
+      for (const [dx, dz] of shorelineFaces) {
+        const faceX = x + dx * 1.22, faceZ = z + dz * 1.22;
+        const facesX = dx !== 0;
+        // Broad DARK-BACKED glazed recesses are blind SOLID wall faces,
+        // not invented doors, objective markers or walkable connections.
+        add(box, darkJade, faceX, pierY, faceZ,
+          facesX ? .085 : 1.90, pierHeight * .80,
+          facesX ? 1.90 : .085, c.cell);
+        add(box, seaGlass, faceX + dx * .052, pierY, faceZ + dz * .052,
+          facesX ? .048 : 1.48, pierHeight * .55,
+          facesX ? 1.48 : .048, c.cell);
+        // Two large vertical load piers connect the toe to the known
+        // terrace underside. Every part uses the existing batched pools.
+        for (const side of [-1, 1]) {
+          const px = faceX + (facesX ? 0 : side * .77);
+          const pz = faceZ + (facesX ? side * .77 : 0);
+          add(bevel, deepStone, px, pierY, pz,
+            .21, pierHeight, .21, c.cell);
+        }
+        add(bevel, lightStone, faceX, -.205, faceZ,
+          facesX ? .25 : 2.05, .13,
+          facesX ? 2.05 : .25, c.cell);
+        shorelineLoadFacades++;
+      }
       // Three visibly different, physically tiled *public* terrace districts:
       // ivory observatory above, red-clay garden midway, sea-glass tidal court
       // below. Previously the same sand material dominated every altitude.
@@ -3433,7 +3468,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
@@ -3502,7 +3537,7 @@ export function createMazeWorld(options = {}) {
           inwardShearRadians: hinges.length
             ? Math.min(...hinges.map(jaw => jaw.side * jaw.object.rotation.z)) : 0};
       });
-    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   return { group, update, animate, dispose, stats, matchingPublicSocket, publicFossilAttention, publicPressureProgress };
 }
