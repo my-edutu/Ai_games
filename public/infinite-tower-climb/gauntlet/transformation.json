@@ -10069,7 +10069,7 @@
     "priorOriginalNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43466814378 — all eight >=60s 1x matched videos; strict native source-to-video Floor8-to9 0/2; disjoint bronze Floor8->violet Floor9 at ~25-26s",
     "existingCiVeto": "https://github.com/my-edutu/Ai_games/actions/runs/43485277658 — real Three retained-world 13/13 passed, overall failed 9/10 due phase6 Maze readiness timeout; Maze forbidden",
     "newQualityProduction": "https://github.com/my-edutu/Ai_games/actions/runs/43488353746 — in progress at review; not assumed green",
-    "newQualityTests": "https://github.com/my-edutu/Ai_games/actions/runs/43488848063 — phase3 3 and all other completed partitions successful; phase6 0 still in progress at inspection; overall not yet certified",
+    "newQualityTests": "https://github.com/my-edutu/Ai_games/actions/runs/43488848063 — SUCCESS all 10/10 jobs at test SHA 0bc98c4f; technical guardrail only; new 07aa3bda exact-source capture/quality still queued",
     "newSourcePinnedNineJobFilmCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43489266207 — QUEUED, exact immutable candidate SHA 07aa3bda79299d8e9b471ba1b4673d6d9ab8982a, native WebMs and event pair NOT EVALUATED",
     "productionExactQualityVerified": "https://github.com/my-edutu/Ai_games/actions/runs/43488353746 — SUCCESS 10/10 jobs at production SHA 98828d00; CI is a veto only, not a quality vote",
     "originalCandidateNativeCapture": "NOT EVALUATED for this changed source; exact 9-job request required; no favorable pixel verdict",
