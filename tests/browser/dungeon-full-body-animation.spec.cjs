@@ -368,6 +368,9 @@ for(const view of [
      originalSpineCounterturnBeforeRad:pair.before.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
      originalSpineCounterturnAfterRad:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
      originalSpineCounterturnFrames:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnFrames??0,
+     originalSpineFirstWalkFrames:pair.after.nativeLegOwnership?.originalWalkingTorsoFirstWalkFrames??0,
+     originalSourceClipWeightBefore:pair.before.nativeLegOwnership?.originalSourceWeight??null,
+     originalSourceClipWeightAfter:pair.after.nativeLegOwnership?.originalSourceWeight??null,
      sourceTimeBefore:pair.before.sourceActionSample?.time??null,
      sourceTimeAfter:pair.after.sourceActionSample?.time??null,
      sourceDurationBefore:pair.before.sourceActionSample?.duration??null,
@@ -1066,6 +1069,26 @@ for(const view of [
  await test.info().attach('source-GLB-floor-contact-patch',{
   contentType:'application/json',body:Buffer.from(JSON.stringify(patchEvidence,null,2))
  });
+ // Only actual consecutive SAME-source original Walking_A skinned frames can
+ // witness a genuine root pivot, an actual weighted source clip and bounded
+ // imported-spine relief. Do not substitute made-up root turns or unit poses.
+ const realOriginalTurns=rafWindows.flatMap(w=>w.pairs).filter(p=>{
+  if(p.beforeMode!=='move'||p.afterMode!=='move'||
+   p.sourceClipBefore!=='Walking_A'||p.sourceClipAfter!=='Walking_A'||
+   !Number.isFinite(p.originalSourceClipWeightAfter)||
+   p.originalSourceClipWeightAfter<.75||p.originalSourceClipWeightAfter>1.001||
+   !Array.isArray(p.beforeRootWorld)||!Array.isArray(p.afterRootWorld)||
+   !Number.isFinite(p.beforeRootYaw)||!Number.isFinite(p.afterRootYaw))return false;
+  const yaw=Math.atan2(Math.sin(p.afterRootYaw-p.beforeRootYaw),
+   Math.cos(p.afterRootYaw-p.beforeRootYaw));
+  const move=Math.hypot(p.afterRootWorld[0]-p.beforeRootWorld[0],
+   p.afterRootWorld[2]-p.beforeRootWorld[2]);
+  return Math.abs(yaw)>.18&&Math.abs(yaw)<=.9&&move>=.015&&move<=.18;
+ });
+ const physicallyObservedCounterturns=realOriginalTurns.filter(p=>
+  Number.isFinite(p.originalSpineCounterturnAfterRad)&&
+  Math.abs(p.originalSpineCounterturnAfterRad)>.0001&&
+  Math.abs(p.originalSpineCounterturnAfterRad)<=.120001);
  const rafEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
   source:'on-demand-original-source-GLB-after-render-requestAnimationFrame',
   legalAuthorityTicks:rafWindows.map(w=>w.tick),rafWindows,
@@ -1078,9 +1101,24 @@ for(const view of [
    w.pairs.filter(p=>p.facing.comparable).length,0),
   sourceFacingLagWitnesses:rafWindows.reduce((n,w)=>n+
    w.pairs.filter(p=>p.facing.classification==='source-facing-lags-world-travel').length,0),
-  caveat:'Consecutive original skinned frames are evidence, NOT IK, a floor raycast or validated foot plants.'};
+  genuineSourcePivotCandidates:realOriginalTurns.length,
+  originalImportedSpinePivotWitnesses:physicallyObservedCounterturns.length,
+  genuineSourceFirstWalkCounterturnFrames:rafWindows.reduce((max,w)=>Math.max(max,
+   ...w.pairs.map(p=>p.originalSpineFirstWalkFrames||0),0),0),
+  caveat:'Only actual source clip weight, same GLB, genuine XZ root displacement and bounded imported-spine proof qualify; not IK, a floor raycast or planted-foot evidence.'};
  expect(rafEvidence.consecutiveWitnessPairs,
   'an original-rig high-frequency source film must contain real adjacent displayed walking frames').toBeGreaterThan(0);
+ // Only demand a visible benefit when the FULL sampled evidence actually
+ // qualifies: real clip weight, distinct displayed frames, legal same-root
+ // displacement and angular turn. Empty opportunities remain explicitly
+ // unverified instead of fabricated counterturn success.
+ if(realOriginalTurns.length){
+  expect(physicallyObservedCounterturns.length,
+   'a witnessed 0.637rad original Walking_A pivot must have a measured bounded source-spine response').toBeGreaterThan(0);
+ }
+ for(const p of rafWindows.flatMap(w=>w.pairs)){
+  expect(Math.abs(p.originalSpineCounterturnAfterRad||0)).toBeLessThanOrEqual(.120001);
+ }
  // The old evidence path looked for solePatchWorld while live original GLB
  // diagnostics emit sourceSolePatchWorld. Reject another silently empty patch
  // metric for a qualifying imported walking pair on either viewport.
