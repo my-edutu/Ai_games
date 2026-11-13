@@ -1192,59 +1192,61 @@ test('public guardian second-ring performance clears tall decorative occluders b
   }
 });
 
+
 test('Pass342 a public pressure-proximity overlap no longer resurrects giant ornamental guardian spectator towers',async()=>{
   const {createMazeWorld,publicGuardianCausewayCells}=await load();
-  // 7x7 same-tier source: spectator 14 is a real nonpassage neighbor of
-  // live Pip15->16->17 Thornback. A separate PUBLIC pressure cell21
-  // is one coordinate away from 14, but 14->21 is NOT a public passage.
-  // That broad proximity ring previously vetoed the quiet spectator and
-  // left a towering roof in the unaltered 390px actor composition.
+  // Source-real 7x7 SAME-TIER sightline: Pip11->10->9 Thornback. The
+  // published spectator tile12 lies directly beyond a confirmed sealed
+  // nonpassage. Its NORTH wall faces undisclosed cell5 and owns an
+  // existing deterministic full roofed windcatcher. A separate public
+  // trap19 is nearby (distance 1 from spectator12), but is NOT connected
+  // to that northern wall. Unlike the rejected first fixture (cell14's
+  // east wall beside a public pressure edge), the real tower exists
+  // BEFORE any ornamental quieting. Do not weaken the expected reduction.
   const s={runToken:'published-pressure-overlap',lifecycle:'running',result:null,
-    width:7,height:7,currentCell:15,visibleCells:[14,15,16,17,21,22],
+    width:7,height:7,currentCell:11,visibleCells:[9,10,11,12,19],
     cells:[
-      {cell:14,blocked:false,neighbors:[]},
-      {cell:15,blocked:false,neighbors:[16]},
-      {cell:16,blocked:false,neighbors:[15,17]},
-      {cell:17,blocked:false,neighbors:[16]},
-      {cell:21,blocked:false,trap:true,neighbors:[]},
-      {cell:22,blocked:false,neighbors:[]},
-    ],threats:[{id:'thornback',cell:17}],doors:[],keys:[],inventory:[],exitCell:null
+      {cell:9,blocked:false,neighbors:[10]},
+      {cell:10,blocked:false,neighbors:[9,11]},
+      {cell:11,blocked:false,neighbors:[10]},
+      {cell:12,blocked:false,neighbors:[]},
+      {cell:19,blocked:false,trap:true,neighbors:[]},
+    ],threats:[{id:'thornback',cell:9}],doors:[],keys:[],inventory:[],exitCell:null
   };
-  const pristine=JSON.stringify(s);
-  const noGuardian={...s,threats:[]};
+  const pristine=JSON.stringify(s),noGuardian={...s,threats:[]};
   const baseline=createMazeWorld({balanced:true}),world=createMazeWorld({balanced:true});
   try {
     baseline.update(noGuardian);
     const usual=baseline.stats();
     assert.ok(usual.wallWindcatchers>0,
-      'actual public spectator still owns a deterministic roofed wall without an encounter');
-    assert.deepEqual([...publicGuardianCausewayCells(s)],[[15,'x'],[16,'x'],[17,'x']],
-      'pressure proximity cannot fabricate or revoke the genuine reciprocal guardian corridor');
+      'actual published spectator owns a deterministic roof above a true, unconnected solid north wall');
+    assert.deepEqual([...publicGuardianCausewayCells(s)],[[11,'x'],[10,'x'],[9,'x']],
+      'publicly nearby pressure never falsifies the reciprocal Pip-Thornback route');
     world.update(s);
     const staged=world.stats();
     assert.ok(staged.wallWindcatchers<usual.wallWindcatchers,
-      'the real source-built tall spectator ornament must yield to the physical duel even near a separate trap');
-    assert.ok(staged.renderedCells.includes(14)&&staged.renderedCells.includes(21),
-      'solid public spectator and real disclosed pressure floor both stay rendered');
+      'the existing roofed spectator ornament must yield during true encounter despite the separate public trap');
+    assert.ok(staged.renderedCells.includes(12)&&staged.renderedCells.includes(19),
+      'the published spectator and real trap remain full physical scenery');
     assert.equal(staged.geometryCount,usual.geometryCount,
-      'only original pooled Three.js geometry is used');
+      'only original pooled Three geometry, no resource budget change');
     assert.equal(staged.materialCount,usual.materialCount);
-    assert.equal(JSON.stringify(s),pristine,'no authoritative AI, route, trap or public snapshot mutation');
+    assert.equal(JSON.stringify(s),pristine,'no authoritative AI, trap, route, public state mutation');
     world.update(noGuardian);
     assert.equal(world.stats().wallWindcatchers,usual.wallWindcatchers,
-      'the originally authored scenery returns when no real duel is witnessed');
-    world.update({...s,doors:[{a:16,b:17,open:false}]});
+      'without public guardian the original tall roof returns');
+    world.update({...s,doors:[{a:10,b:9,open:false}]});
     assert.equal(world.stats().wallWindcatchers,usual.wallWindcatchers,
-      'a public closed gate never earns a false performance cutaway');
-    world.update({...s,visibleCells:[14,15,16,21,22],
-      cells:s.cells.filter(c=>c.cell!==17)});
+      'closed gate must not draw false guardian performance space');
+    world.update({...s,visibleCells:[10,11,12,19],
+      cells:s.cells.filter(c=>c.cell!==9)});
     assert.equal(world.stats().wallWindcatchers,usual.wallWindcatchers,
-      'an undisclosed guardian never influences the existing public trap');
+      'hidden warden cannot influence known spectator or unrelated public pressure');
     for(let i=0;i<6;i++){
       world.update({...s,runToken:'pressure-overlap-reset-'+i});
       assert.ok(world.stats().wallWindcatchers<usual.wallWindcatchers);
       assert.ok(world.stats().geometryCount<100,
-        'original strict six-run/reset geometry budget remains unchanged');
+        'strict original six-reset real geometry budget remains unchanged');
     }
   }finally{
     world.dispose();baseline.dispose();
