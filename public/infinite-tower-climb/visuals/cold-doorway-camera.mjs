@@ -27,9 +27,9 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
         .every(validInt) ||
       source.tick < held.sourceTick || source.tick - w.sourceTick > 48 ||
       held.sourceTick < w.sourceTick || held.sourceTick - w.sourceTick > 12 ||
-      held.submittedFrames < 0 || held.submittedFrames > 3 ||
+      held.submittedFrames < 0 || held.submittedFrames > 8 ||
       !finite(held.visibleSeconds) || held.visibleSeconds < 0 ||
-      held.visibleSeconds >= .85 ||
+      held.visibleSeconds >= 1.25 ||
       source.worldWidth <= 0 || p.halfWidth <= 0 || p.halfHeight <= 0 ||
       !(p.health > 0) || !finite(aspect) || aspect <= 0 || aspect >= 2.5 ||
       !finite(zoom) || zoom <= 0 || zoom > 1.1 ||
@@ -71,7 +71,7 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
   // old-world gaze immediately; ordinary Floor 9 follow takes over.
   if (span > 26 || rise > 28) return null;
   const proximity = Math.max(0, 1 - span / 26);
-  const weight = Math.min(.36, .12 + proximity * .24);
+  const weight = Math.min(.44, .16 + proximity * .28);
   return {
     sourceTick: source.tick, sourceBound: true, coldOriginalArch: true,
     focus: [(drawnHero.x + gateway.x) * .5,
@@ -80,8 +80,8 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
     focusWeight: weight,
     // Only an exterior viewpoint request; core and actor-safety vetoes
     // remain in scene.mjs and can reject it on any submitted frame.
-    radius: Math.min(83, Math.max(aspect < .85 ? 55 : 47,
-      (aspect < .85 ? 55 : 47) + span * .9)) *
+    radius: Math.min(83, Math.max(aspect < .85 ? 62 : 52,
+      (aspect < .85 ? 62 : 52) + span * .9)) *
       Math.min(1.25, Math.max(.85, zoom)),
     span, rise,
   };
