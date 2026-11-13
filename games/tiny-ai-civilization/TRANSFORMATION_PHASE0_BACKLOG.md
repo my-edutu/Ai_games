@@ -1,3 +1,19 @@
+## W291 · single active Phase 1 milestone / five durable blocking workstreams · 13 November 2026
+
+OPEN DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64). Pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Production source [`d8c56c6301fd5f41acbd5a81291b49cccdc87d2c`](https://github.com/my-edutu/Ai_games/commit/d8c56c6301fd5f41acbd5a81291b49cccdc87d2c); test source [`b396e26c`](https://github.com/my-edutu/Ai_games/commit/b396e26c42290a9305d80a99f1b5b47874f752b9). The SAME authentic farmer→loaded courier→market receipt→buyer→inhabited home, then Day121 and mobile. Do not merge.
+
+| Priority / persistent owner | Verified actual observation | What would close it |
+| --- | --- | --- |
+| 1. Scene-aware rendering spine / CPU+driver+GPU | W282 actual software Day1 six-frame p95 ~268 ms and static ~251 ms; later W290 software measured mismatched workloads. W291 added no buffer; no measured physical GPU improvement. | Source-matched Day1/workday/Day121 CPU vs GL driver vs GPU timing, stable resource caps and true hardware mobile/desktop p95 ≤33.3ms with 30+ sustained FPS |
+| 2. Original inhabited farm-granary-market-home architectural coherence / art | W290 real market looked checkerboard; W291 replaces market square stones and weathered original home-lane shoulder stones with bounded irregular terrain-following forms, **real W291 motion NOT YET INSPECTED**. Architecture/worker proportion remain obvious low-poly. | Matched authentic Day1/workday/Day121 and 390px moving footage demonstrates clear large visual improvement vs frozen G088, independent blind critics agree |
+| 3. Real profession work and believable human scale / autonomy+animation | W290 real Bram harvest and credited 3.024 food receipt, Selene 0.8 purchase/meal verified; actors remain visually miniature/low detail. W291 changed no worker behavior. | 1024/390 uncut fully real field harvest→loaded courier→market receipt→home workday, hand/foot/cargo aligned, genuine save/replay and 120-day progression |
+| 4. Responsive physically valid camera + mobile / camera+input | Existing W216 previous camera orbit had one unwanted 20→21 dynamic rebuild; W290 success 390 economy not a sustained mobile input gate; W291 strict replay and viewport evidence pending. | 390px real orbit/touch/pause/follow with no actor disappearance, input loss, camera clipping, shader errors or GPU residency leakage, and acceptable measured response |
+| 5. Strict independent experience acceptance / QA evidence | Original G088 fixed film; genuine W290 prior film inspected. New W291 NODE local 3/3 + JS parse, **not** filmed source; no new head hardware; no independent critics. | Same commit/seed controlled full uncropped Day1/workday/Day121/mobile A/B, long soak+deterministic replay, true hardware performance and genuinely separate harsh look/feel/play critics |
+
+**A LOOK/FEEL/PLAY: NOT PROVEN**. **B commercial-reference target: FAIL**. No claimed visual breakthrough, performance improvement or independent judging. Phase 1 remains active. Next run: download/inspect exact-head W291 original WebGL market/workday/mobile and Day121; reject weak visual or geometry-budget regressions before returning to major rendering stalls and expressive inhabited district.
+
+---
+
 ## W290 · one active Phase 1 five-impact blocker backlog · 13 November 2026
 
 Only DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64) and production source [af7ec2eec38a9bee88e81898e1d36cb0e55a6ceb](https://github.com/my-edutu/Ai_games/commit/af7ec2eec38a9bee88e81898e1d36cb0e55a6ceb); immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. One uninterrupted real farmer → loaded courier → credited market → home, plus Day120 and 390px. W290 field art is new, NOT a verified experience PASS.
