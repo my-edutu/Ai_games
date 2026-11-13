@@ -82,16 +82,15 @@ jobs:
             echo "::group::Repository test phase: $phase"
             echo "Running all tests/$phase/*.test.cjs with Node concurrency 2"
             # A stalled test must fail this phase; never skip or force-exit it.
-            timeout --signal=TERM --kill-after=5s 240s \\
-              node --test --test-concurrency=2 tests/"$phase"/*.test.cjs
+            timeout --signal=TERM --kill-after=5s 240s node --test --test-concurrency=2 tests/"$phase"/*.test.cjs
             result=$?
             echo "::endgroup::"
             if [ "$result" -ne 0 ]; then
               echo "::error::Repository test phase $phase failed (exit $result)"
-              printf '| %s | FAIL (%s) |\\n' "$phase" "$result" >> "$GITHUB_STEP_SUMMARY"
+              printf '| %s | FAIL (%s) |\n' "$phase" "$result" >> "$GITHUB_STEP_SUMMARY"
               failed=1
             else
-              printf '| %s | PASS |\\n' "$phase" >> "$GITHUB_STEP_SUMMARY"
+              printf '| %s | PASS |\n' "$phase" >> "$GITHUB_STEP_SUMMARY"
             fi
           done
           exit "$failed"
