@@ -1309,17 +1309,25 @@ export function createMazeWorld(options = {}) {
               sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
               sailPivot.position.y=.72;
               lift.add(sailPivot);
+              // Pass319: genuine full-resolution 390px guardian frames show
+              // four broad bright paddles competing with Pip and Thornback.
+              // Preserve the same four actual warning mechanisms but sculpt
+              // each as a taller, corridor-LONG mineral feather, narrow across
+              // the lane and rooted farther OUTSIDE the 1.38m clear centre.
+              // Their already-authoritative public brace still sweeps them
+              // farther outward; they are not gates, threat predictors or
+              // colliders. The existing pooled GPU classes are unchanged.
               const sail=mesh(sailPivot,bevel,seaGlass,
-                alongX?0:side*.16,.30,alongX?side*.16:0,
-                alongX?.17:.40,.68,alongX?.40:.17);
+                alongX?0:side*.26,.36,alongX?side*.26:0,
+                alongX?.56:.24,.94,alongX?.24:.56);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
               const spar=mesh(sailPivot,box,darkMetal,
-                alongX?0:side*.045,.29,alongX?side*.045:0,
-                alongX?.07:.09,.52,alongX?.09:.07);
+                alongX?0:side*.09,.38,alongX?side*.09:0,
+                alongX?.48:.075,.70,alongX?.075:.48);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
               const crest=mesh(sailPivot,bevel,lightStone,
-                alongX?0:side*.18,.65,alongX?side*.18:0,
-                alongX?.22:.38,.13,alongX?.38:.22);
+                alongX?0:side*.29,.82,alongX?side*.29:0,
+                alongX?.48:.27,.14,alongX?.27:.48);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
               sentinels.push({lift,crown,lens,sailPivot,sail,side});
             }

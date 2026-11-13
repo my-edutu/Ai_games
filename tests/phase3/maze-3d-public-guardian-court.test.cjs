@@ -519,3 +519,57 @@ test('Pass313 authentic endpoint shell fans open as one rooted THREE warning sys
     assert.equal(world.stats().materialCount,0);
   }
 });
+
+test('Pass319 genuine 390px guardian shot: long rooted warning feathers preserve the entire physical actor lane',async()=>{
+  const {createMazeWorld,cellPosition}=await load();
+  const {Box3}=await import(three);
+  const s=original(),truth=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),baseline=w.stats();
+  const panel=(cell,side)=>w.group.getObjectByName(
+    'Published guardian Tideglass full shell-fan '+cell+' '+side);
+  const feathers=()=>[6,8].flatMap(cell=>[-1,1].map(side=>({cell,side,mesh:panel(cell,side)})));
+  const outsideRealLane=()=>{
+    w.group.updateMatrixWorld(true);
+    return feathers().every(({cell,side,mesh})=>{
+      if(!mesh)return false;
+      const bounds=new Box3().setFromObject(mesh);
+      const centre=cellPosition(cell,s.width,s.height);
+      // The entire attached material body, not merely its pivot or a
+      // decorative texture, must stay OUTSIDE the physically traversable
+      // 1.38m centre strip at native-scale danger and recovery.
+      return side>0 ? bounds.min.z-centre.z>.78
+        : centre.z-bounds.max.z>.78;
+    });
+  };
+  try{
+    w.update(s);
+    assert.ok(feathers().every(({mesh})=>mesh
+      &&mesh.scale.y>=.92
+      &&mesh.scale.x>=.54
+      &&mesh.scale.z<=.25),
+      'four sculpted vertical feathers are longer along the real x corridor and narrower across it');
+    assert.ok(outsideRealLane(),'neutral connected 3D fins cannot obstruct the actor lane');
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    assert.ok(outsideRealLane(),'true witnessed brace fans OUT rather than swallowing Pip/Thornback');
+    w.animate(.90,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(outsideRealLane(),'release must preserve the original open corridor');
+    w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.ok(outsideRealLane(),'reduced motion holds a safe stationary physical shape');
+    assert.equal(w.stats().geometryCount,baseline.geometryCount,'no new GPU geometry class');
+    assert.equal(w.stats().materialCount,baseline.materialCount,'no new GPU material class');
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.equal(panel(6,1),undefined,'no invisible guardian receives physical warning blades');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(panel(8,1),undefined,'sealed passage cannot stage a guardian duel');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'pass319-wing-lane-'+i});
+      assert.ok(outsideRealLane(),'reset regenerates a physically clear public court');
+      assert.ok(w.stats().geometryCount<100,'unchanged six-run GPU budget');
+    }
+    assert.equal(JSON.stringify(s),truth,'AI state, collision and hidden map untouched');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
