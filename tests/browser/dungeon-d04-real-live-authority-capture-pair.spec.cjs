@@ -96,6 +96,12 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
      vfxDirtyPools:p?.visuals?.lastAdvanceDirtyPools??0,
      vfxPotentialBufferBytes:p?.visuals?.lastAdvancePotentialBufferBytes??0,
      vfxWritesByPool:p?.visuals?.lastAdvanceWritesByPool??{},
+     // Bounded opt-in D04 phase provenance after genuine WebGL receipt.
+     // A sampler gap is missing evidence, never an inferred dropped frame.
+     verifiedSubmissionPhaseFrames:p?.verifiedSubmissionPhaseFrames??0,
+     unverifiedSubmissionPhaseFrames:p?.unverifiedSubmissionPhaseFrames??0,
+     slowSubmissionFrames:p?.slowSubmissionFrames??0,
+     recentSlowSubmissionPhases:(p?.recentSlowSubmissionPhases||[]).slice(-32),
      previewAudioOptedIn:feedbackMode==='d04'&&p?.audioOptedIn===true,
      consentedSoundstage:(feedbackMode!=='d04'||p?.audioOptedIn===true)&&
       document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true',
@@ -256,5 +262,6 @@ test('D04 compares continuous legacy default against opt-in preview without any 
   viewport:r.viewport,status:r.verdict.status,matched:r.verdict.matchedTicks,
   matchedHpLoss:r.verdict.matchedHpLossTicks,legacy:r.verdict.legacy,
   preview:r.verdict.preview,all:r.verdict.allObserved,
+  slowPhaseEvidence:r.verdict.framePressure?.preview?.slowPhaseEvidence,
   excluded:r.verdict.excludedStages.length}))));
 });
