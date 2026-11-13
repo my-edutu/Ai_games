@@ -195,9 +195,19 @@ export function createPhysicalCombatFeedback({
     (cue.kind==='damage'||cue.kind==='damage-fatal')&&
     cue.verified===true&&cue.proof==='observed-hp-drop'){
    const observedAt=observedAtByCueId.get(cue.id);
-   const afterEmit=observedWallClock();
-   if(Number.isFinite(observedAt)&&observedAt>=0&&
-      afterEmit!==null&&afterEmit>=observedAt&&
+   // The ordinary multi-injury frame has ONE observation and ONE submit
+   // clock sample. Read an extra after-emission clock only when the existing
+   // post-visual witness is within 100ms of the original expiry; otherwise
+   // the extra clock reads themselves distort cheap-frame evidence and cost.
+   // Post-WebGL acknowledgment still checks the full deadline even when an
+   // unusually slow emission begins much earlier than this final window.
+   const nearDeadline=Number.isFinite(observedAt)&&observedAt>=0&&
+    Number.isFinite(lastVisualAdvanceEndClock)&&
+    lastVisualAdvanceEndClock>=observedAt&&
+    lastVisualAdvanceEndClock-observedAt>=
+     MAX_AUDIO_VISUAL_STALENESS_SECONDS-.100;
+   const afterEmit=nearDeadline?observedWallClock():null;
+   if(afterEmit!==null&&afterEmit>=observedAt&&
       afterEmit-observedAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
     const retired=visual?safeCall(()=>visuals?.retireStaleCue?.(cue.id,'stale-frame')):0;
     const retiredSafely=!visual||retired===true||
