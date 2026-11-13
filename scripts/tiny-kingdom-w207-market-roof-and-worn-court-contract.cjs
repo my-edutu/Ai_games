@@ -13,11 +13,16 @@ function section(a,b){
  return source.slice(start,end);
 }
 const ground=section('function marketCobblestoneSquare(){','function marketTimberCart(');
-assert.match(ground,/const\s+weatheredWidth=width\*\(\.60\+\.38\*biomeHash\(key\+131\)\)/,
- 'irregular original worn market setts require actual geometric reduction, not recoloring');
-assert.match(ground,/weatheredDepth=depth\*\(\.60\+\.36\*biomeHash\(key\+173\)\)/);
-assert.match(ground,/const\s+drift=\(biomeHash\(key\+151\)-\.5\)\*\.29/);
-assert.match(ground,/const\s+wander=\(biomeHash\(key\+191\)-\.5\)\*\.26/);
+assert.match(ground,/const acceptedStoneCenters=\[\]/,
+ 'the actual original market ground must have independent stone centres');
+assert.match(ground,/const width=\.52\+\.19\*biomeHash\(candidate\*47\+7\)/,
+ 'actual stones retain differently shaped physical widths');
+assert.match(ground,/const depth=\.46\+\.20\*biomeHash\(candidate\*53\+9\)/,
+ 'actual stone depths vary without simply recoloring the old slabs');
+assert.match(ground,/if\(nearby<\.72\)/,
+ 'original court enforces minimum space between individual stones');
+assert.match(ground,/quad\(point\(-\.49,-\.51\),point\(-\.53,\.44\+\.07\*chip\)/,
+ 'actual irregular corners survive civic caching');
 assert.match(ground,/marketQuarterStats\.surfaceModel='w208-natural-clay-market-and-freight-wagonway'/);
 const interior=section('function marketReceivingRoofInterior(){','function marketReceivingDock(){');
 assert.match(source,/marketReceivingRoofInterior\(\);\s*\/\/ W254/);
