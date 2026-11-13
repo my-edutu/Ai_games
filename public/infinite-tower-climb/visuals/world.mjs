@@ -1153,6 +1153,38 @@ export function createTowerWorld(){
         collar.name='ClockworkPressureWellPerimeterCollar';
         collar.userData.structural=true;
       }
+    } else if(theme==='void' && height>30) {
+      // REAL F8->9 native 1x footage (4faa852b, 25-27s) still replaces the
+      // opened bronze threshold with a solid purple central wall. This is
+      // original non-colliding architectural geometry, not a gameplay core.
+      // Preserve a heavyweight foundation and inhabited crown, but engineer
+      // a permanently OPEN central observation bay at actual climbing height.
+      // It has rear load stays and roof-to-ground bracing, not an alpha-faded
+      // full-height cylinder or a synthetic passage/actor/collider.
+      const base=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
+        [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
+      base.name='VoidOpenCoreFoundation';base.userData.structural=true;
+      const crown=lathe(root,[[0,height+10],[10.6,height+10],
+        [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
+      crown.name='VoidOpenCoreSupportedCrown';crown.userData.structural=true;
+      const core=new THREE.Group();core.name='VoidOpenCoreLoadPath';
+      core.position.z=-3;root.add(core);
+      const supports=[];
+      for(const side of [-1,1]) {
+        supports.push({p:[side*8.4,(9+height+10)*.5,-8.1],
+          s:[.74,height+1,.74]});
+        // Front legs stop below the real 18-40m action band, leaving a
+        // substantial real daylight window to the original HP-open arch.
+        supports.push({p:[side*8.4,10,8.1],s:[.82,2,.82]});
+        const strut=beam(core,[side*8.4,11,-8.1],
+          [side*8.4,height+9,-6.7],.26,materials.metal);
+        strut.name='VoidOpenCoreRearDiagonalStay';strut.userData.structural=true;
+        const roofTie=beam(core,[side*8.4,height+9,-8.1],
+          [side*8.4,height+10,8.1],.23,materials.metal);
+        roofTie.name='VoidOpenCoreCrownTie';roofTie.userData.structural=true;
+      }
+      const posts=instanced(core,bevel(),materials.stone,supports);
+      posts.name='VoidOpenCoreRearLoadPosts';posts.userData.structural=true;
     } else {
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
@@ -1162,7 +1194,46 @@ export function createTowerWorld(){
     for(const [i,p]of pylons.entries()){
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
       const shoulder=p.top-8;
-      if(openClockworkPylons) {
+      if(theme==='void' && height>30) {
+        // The violet outer buttresses previously formed three enormous
+        // opaque shafts across the new-floor and retained-door camera rays.
+        // Rebuild them as supported arches with rear bearing posts, low
+        // exterior stanchions and upper tension members. The authentic F9
+        // platform/hazard geometry remains untouched and fully opaque.
+        const baseY=-15,topY=shoulder+3,corner=p.R*.71;
+        const foundation=lathe(body,[[0,p.bottom],[p.R*.74,p.bottom],
+          [p.R*.95,p.bottom+2],[p.R*.94,-19],
+          [p.R*.76,baseY],[0,baseY]],materials.stone);
+        foundation.name='VoidOpenButtressFooting';
+        foundation.userData.structural=true;
+        const roof=lathe(body,[[p.R*.45,topY-1],[p.R*.59,topY-.5],
+          [p.R*.59,topY+1],[p.R*.45,topY+1.5]],materials.stone);
+        roof.name='VoidOpenButtressCrown';roof.userData.structural=true;
+        const uprights=[];
+        for(const sx of [-1,1])for(const sz of [-1,1]){
+          const tip=sz<0?topY:Math.min(10,topY-9);
+          uprights.push({p:[sx*corner,(baseY+tip)/2,sz*corner],
+            s:[.53,tip-baseY,.53]});
+        }
+        const piers=instanced(body,bevel(),materials.stone,uprights);
+        piers.name='VoidOpenButtressRearPiersAndFrontStanchions';
+        piers.userData.structural=true;
+        for(const sx of [-1,1]){
+          const upperTie=beam(body,[sx*corner,topY-2,-corner],
+            [sx*corner,topY,corner],.22,materials.metal);
+          upperTie.name='VoidOpenButtressRoofTensionTie';
+          upperTie.userData.structural=true;
+          const knee=beam(body,[sx*corner,baseY+.3,-corner],
+            [sx*corner*.68,baseY+9,-corner],.22,materials.copper);
+          knee.name='VoidOpenButtressRearKnee';knee.userData.structural=true;
+        }
+        for(const edge of [-1,1]){
+          const crownBeam=block(body,materials.metal,
+            [0,topY,edge*corner],[2*corner+.5,.43,.48]);
+          crownBeam.name='VoidOpenButtressCrownLintel';
+          crownBeam.userData.structural=true;
+        }
+      } else if(openClockworkPylons) {
         // Original 390x844 native footage at a0146896 still shows a real
         // 'tapered-structural-pylon' cutting through the living guardian.
         // Moving the SOLID shaft sideways did not create a window. Give this
@@ -1268,7 +1339,7 @@ export function createTowerWorld(){
     // the fabricated shells instead of competing with them as giant flat slabs.
     for(const [a,y,w,h,d,v]of capStructure.geology){
       const rock=new THREE.Group();radial(rock,a,16.1,y);root.add(rock);
-      if(openClockworkPylons && height>30){
+      if((openClockworkPylons || theme==='void') && height>30){
         // Three old floor-eight full-height geological slabs also filled
         // the portrait combat viewport. Retain mined footings and rooftop
         // stone masses, physically supported by two narrow steel ties each;
@@ -1276,11 +1347,11 @@ export function createTowerWorld(){
         // No collider or authoritative platform is represented by this art.
         const rootMass=mesh(rock,fracturedMass(v),materials.stone,
           [0,-17-y,0],[w,17,d]);
-        rootMass.name='ClockworkOpenGeologyFooting';
+        rootMass.name=theme==='void'?'VoidOpenGeologyFooting':'ClockworkOpenGeologyFooting';
         rootMass.userData.structural=true;
         const headMass=mesh(rock,fracturedMass(v),materials.stone,
           [0,height+15-y,0],[w*.8,6,d*.78]);
-        headMass.name='ClockworkOpenGeologyRoofMass';
+        headMass.name=theme==='void'?'VoidOpenGeologyRoofMass':'ClockworkOpenGeologyRoofMass';
         headMass.userData.structural=true;
         // Replace two tall near-camera geological rails with two real rear
         // crown-bearing stays plus two short foreground base stanchions.
@@ -1288,7 +1359,7 @@ export function createTowerWorld(){
         // physically open without transparency or artificial victory.
         const shoulderTies=instanced(rock,bevel(),materials.metal,
           clockworkOpenGeologicalTies(height,w,d,y));
-      shoulderTies.name='ClockworkOpenGeologicalSupportTies';
+      shoulderTies.name=theme==='void'?'VoidOpenGeologicalSupportTies':'ClockworkOpenGeologicalSupportTies';
         shoulderTies.userData.structural=true;
       } else {
         mesh(rock,fracturedMass(v),materials.stone,[0,0,0],[w,h,d])
