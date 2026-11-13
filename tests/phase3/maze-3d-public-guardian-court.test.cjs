@@ -573,3 +573,65 @@ test('Pass319 genuine 390px guardian shot: long rooted warning feathers preserve
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('Pass320 verified 390px guardian foreground is a rooted low sealed mineral reef, never a pale fake route',async()=>{
+  const {createMazeWorld,cellPosition,cellHeight}=await load();
+  const {Matrix4,Vector3,Quaternion}=await import(three);
+  const s=original();
+  s.visibleCells.push(5,9,12);
+  s.cells.push(...[5,9,12].map(cell=>({cell,blocked:true,neighbors:[]})));
+  const truth=JSON.stringify(s);
+  const world=createMazeWorld({balanced:true}),budget=world.stats();
+  const sealCenters=()=>{
+    const found=[],oldCaps=[];
+    const matrix=new Matrix4(),p=new Vector3(),q=new Quaternion(),size=new Vector3();
+    world.group.traverse(object=>{
+      if(!object.isInstancedMesh)return;
+      for(let i=0;i<object.count;i++){
+        object.getMatrixAt(i,matrix);matrix.decompose(p,q,size);
+        if(object.material?.color?.getHexString()==='28574f'
+          &&Math.abs(size.x-1.92)<.00001&&Math.abs(size.y-.055)<.00001
+          &&Math.abs(size.z-1.92)<.00001)
+          found.push({x:p.x,y:p.y,z:p.z});
+        if(object.material?.color?.getHexString()==='eed5a0'
+          &&Math.abs(size.x-1.91)<.00001&&Math.abs(size.y-.074)<.00001
+          &&Math.abs(size.z-1.91)<.00001)
+          oldCaps.push({x:p.x,z:p.z});
+      }
+    });
+    return {found,oldCaps};
+  };
+  try{
+    world.update(s);
+    assert.equal(world.stats().guardianBlockedReliefTiles,3);
+    const {found,oldCaps}=sealCenters();
+    assert.equal(found.length,3,'three actual opaque inset reefs replace three foreground ivory slabs');
+    assert.equal(oldCaps.length,0,'the old large pale foreground caps must truly disappear');
+    for(const cell of [5,9,12]){
+      const {x,z}=cellPosition(cell,s.width,s.height),y=cellHeight(cell,s.width,s.height);
+      assert.ok(found.some(p=>Math.abs(p.x-x)<.00001
+        &&Math.abs(p.y-y-.235)<.00001&&Math.abs(p.z-z)<.00001),
+        'each lowered blind reef must physically occupy exactly its disclosed blocked cell');
+    }
+    assert.equal(world.stats().geometryCount,budget.geometryCount,'no extra GPU geometry class');
+    assert.equal(world.stats().materialCount,budget.materialCount,'only pooled original materials');
+    assert.equal(JSON.stringify(s),truth,'renderer does not modify AI or public knowledge');
+    world.update({...s,visibleCells:[6,7,8,11]});
+    assert.equal(world.stats().guardianBlockedReliefTiles,0,'hidden blocked cells never appear');
+    assert.equal(sealCenters().found.length,0,'no hidden mineral seal persists');
+    world.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(world.stats().guardianBlockedReliefTiles,0,'sealed guardian passage revokes whole court');
+    world.update({...s,result:{reason:'capture'}});
+    assert.equal(world.stats().guardianBlockedReliefTiles,0,'terminal encounter clears visible stage');
+    for(let i=0;i<6;i++){
+      world.update({...s,runToken:'low-reef-reset-'+i});
+      assert.equal(sealCenters().found.length,3,'three original low galleries return on true redisclosure');
+      assert.ok(world.stats().geometryCount<100,'preserve six-run hard GPU geometry ceiling');
+    }
+  }finally{
+    world.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+  }
+});

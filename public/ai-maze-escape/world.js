@@ -1791,12 +1791,29 @@ export function createMazeWorld(options = {}) {
         // decorative blocked-cell ornament with a sealed mineral reef.
         if (guardianBlockedRelief.has(c.cell) && !pressureSightline) {
           guardianBlockedReliefTiles++;
-          block(deepStone,x,.18,z,2.12,.36,2.12,c.cell);
-          block(lightStone,x,.397,z,1.91,.074,1.91,c.cell);
-          block(jade,x,.457,z,1.66,.044,.50,c.cell);
+          // Pass320 actual 390px three-beat WebGL: the old huge, pale,
+          // flat 1.91m cap covered the near half of the two-actor stage.
+          // Rebuild ONLY a currently PUBLIC, genuinely impassable guardian
+          // flank as a LOWER, SEALED Tideglass reef gallery. The original
+          // load foundation remains solid; the opaque inset and three
+          // firmly attached cross-ribs cannot imply a walkable gate.
+          // All parts reuse pooled geometry/materials, never frame objects.
+          block(deepStone,x,.105,z,2.12,.21,2.12,c.cell);
+          block(darkJade,x,.235,z,1.92,.055,1.92,c.cell);
+          block(jade,x,.273,z,1.59,.021,1.59,c.cell);
           for(const side of [-1,1]) {
-            block(deepStone,x+side*.79,.514,z,.29,.16,1.68,c.cell);
-            block(seaGlass,x+side*.79,.604,z,.24,.052,1.52,c.cell);
+            // Four interlocking low retaining courses protect the rim
+            // without building another tall foreground camera curtain.
+            block(stone,x+side*.965,.29,z,.18,.27,1.87,c.cell);
+            block(stone,x,.29,z+side*.965,1.87,.27,.18,c.cell);
+            block(seaGlass,x+side*.965,.443,z,.10,.038,1.79,c.cell);
+            block(seaGlass,x,.443,z+side*.965,1.79,.038,.10,c.cell);
+          }
+          for(const offset of [-.48,0,.48]) {
+            // Blind structural ribs are INSIDE the sealed basin, never
+            // a raised bridge, beacon, button or authoritative collider.
+            block(deepStone,x+offset,.305,z,.12,.041,1.36,c.cell);
+            block(inlay,x+offset,.337,z,.058,.024,1.31,c.cell);
           }
         } else {
         // Original pressure-court cutaway: the old 2.7-unit pavilions and
