@@ -155,6 +155,8 @@ jobs:
           cp current-harness/tests/browser/tower-live-motion.spec.cjs source/tests/browser/tower-live-motion.spec.cjs
           cp current-harness/scripts/tower-motion-evidence.cjs source/scripts/tower-motion-evidence.cjs
           cp current-harness/scripts/tower-crossfire-evidence.cjs source/scripts/tower-crossfire-evidence.cjs
+          # Observational returned-WebGL doorway audit, also needed by frozen source's neutral film test.
+          cp current-harness/scripts/tower-physical-doorway-submissions.cjs source/scripts/tower-physical-doorway-submissions.cjs
           cp current-harness/scripts/tower-event-alignment.cjs source/scripts/tower-event-alignment.cjs
           cp current-harness/scripts/tower-event-pairing.cjs source/scripts/tower-event-pairing.cjs
           # The immutable baseline predates native-video calibration. Copy
