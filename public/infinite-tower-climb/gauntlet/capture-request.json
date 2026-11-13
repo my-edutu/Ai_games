@@ -2207,6 +2207,54 @@
     "verdict": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-13-tower-pr68-void-load-bearing-aperture-vs-native-world-cut.md"
   },
-  "p0SourceDistancePhysicalArrivalPalette20261113": {"stage":"P0 OPEN — immutable new candidate real-game comparison, NOT EVALUATED","codeCommit":"b97e5ad71b34c23488bf04d895839935c5250c58","candidateSourceSha":"EXACT immutable github.sha of this evidence request commit","frozenBaselineSha":"1731b380851162741761c5569e2bc152a0869ca9","viewportDesktop":"960x600","viewportPortrait":"390x844","seed":"tower-transformation-capture-v1","graphicsTier":"low","realFilms":"8 original 1x 60s+ baseline/candidate ascent, moving-deck floor7, real floor8 guardian HP0/crusher/danger through floor9, and outcome/restart; full native video transport PTS, source/browser/Three event alignment","inspect":"At 24.3-27s compare the actual original bronze cap/gateway and physical climber against source tick451. Determine whether the new source-position anchored Floor9 structural TOP+BEAM+RIM and common light/sky remove the instant violet swap in desktop and portrait. Require original old arch plus whole-body walk-through, not a source test, static still or swapped native clip. Reject even if the material blending merely hides the hard-cut.","priorRun":"https://github.com/my-edutu/Ai_games/actions/runs/43514248857","expectedNativeGate":"Still NOT EVALUATED; previous strict 0/2","review":"docs/reviews/2026-11-13-tower-pr68-physical-distance-floor-nine-entrance-materials.md","independentCritics":{"LOOKS":"0/5","FEELS":"0/5","PLAYS":"0/5"},"actualHardwareP50P95P99Memory":"NOT EVALUATED"},
-  "p0SourcePhysicalArrivalPaletteHandoffExpiryCorrection20261113": {"stage":"P0 OPEN; strict source/native pixels NOT EVALUATED","frozenBaselineSha":"1731b380851162741761c5569e2bc152a0869ca9","sourceProductionSha":"5d5156eb3694b45d28d628494f0499026102de48","candidateSourceSha":"EXACT github.sha of this new evidence commit","priorSource":"https://github.com/my-edutu/Ai_games/actions/runs/43514248857; full baseline/candidate eight movies, strict native 0/2","requested":"Same full 9-job original source-pinned baseline/candidate 1x 60+s ascent, floor7 moving, Floor8 guardian HP0 source tick451 and real F9 full-body doorway, outcome/restart, 960x600 and 390x844. Exact original PTS and matched 20Hz source trace.","majorGate":"Original bronze cap, full-body hero and actual source roof must connect through SAME old doorway in unedited video 24-27s, not just warm landing colors; old-violet world change must have physically coherent architectural depth. Require 2/2 or reject and keep P0 open.","independentCritics":{"LOOKS":"0/5","FEELS":"0/5","PLAYS":"0/5"},"hardware":"NOT EVALUATED","review":"docs/reviews/2026-11-13-tower-pr68-physical-distance-floor-nine-entrance-materials.md"}
+  "p0SourceDistancePhysicalArrivalPalette20261113": {
+    "stage": "P0 OPEN — immutable new candidate real-game comparison, NOT EVALUATED",
+    "codeCommit": "b97e5ad71b34c23488bf04d895839935c5250c58",
+    "candidateSourceSha": "EXACT immutable github.sha of this evidence request commit",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "viewportDesktop": "960x600",
+    "viewportPortrait": "390x844",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "realFilms": "8 original 1x 60s+ baseline/candidate ascent, moving-deck floor7, real floor8 guardian HP0/crusher/danger through floor9, and outcome/restart; full native video transport PTS, source/browser/Three event alignment",
+    "inspect": "At 24.3-27s compare the actual original bronze cap/gateway and physical climber against source tick451. Determine whether the new source-position anchored Floor9 structural TOP+BEAM+RIM and common light/sky remove the instant violet swap in desktop and portrait. Require original old arch plus whole-body walk-through, not a source test, static still or swapped native clip. Reject even if the material blending merely hides the hard-cut.",
+    "priorRun": "https://github.com/my-edutu/Ai_games/actions/runs/43514248857",
+    "expectedNativeGate": "Still NOT EVALUATED; previous strict 0/2",
+    "review": "docs/reviews/2026-11-13-tower-pr68-physical-distance-floor-nine-entrance-materials.md",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardwareP50P95P99Memory": "NOT EVALUATED"
+  },
+  "p0SourcePhysicalArrivalPaletteHandoffExpiryCorrection20261113": {
+    "stage": "P0 OPEN; strict source/native pixels NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionSha": "5d5156eb3694b45d28d628494f0499026102de48",
+    "candidateSourceSha": "EXACT github.sha of this new evidence commit",
+    "priorSource": "https://github.com/my-edutu/Ai_games/actions/runs/43514248857; full baseline/candidate eight movies, strict native 0/2",
+    "requested": "Same full 9-job original source-pinned baseline/candidate 1x 60+s ascent, floor7 moving, Floor8 guardian HP0 source tick451 and real F9 full-body doorway, outcome/restart, 960x600 and 390x844. Exact original PTS and matched 20Hz source trace.",
+    "majorGate": "Original bronze cap, full-body hero and actual source roof must connect through SAME old doorway in unedited video 24-27s, not just warm landing colors; old-violet world change must have physically coherent architectural depth. Require 2/2 or reject and keep P0 open.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-physical-distance-floor-nine-entrance-materials.md"
+  },
+  "p0OriginalPortraitNativeTimebaseConfidence20261114": {
+    "stage": "P0 OPEN",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceSha": "EXACT this capture-request commit github.sha, never branch tip",
+    "realCandidateGameSourceBeforeEvidence": "d863c44a062f7ad7e99ba95d533a88b6206f008f",
+    "required": "Record original low-tier 20Hz game 1x WebM 60+ sec baseline and candidate ascent, moving, guardian danger/Floor8->9, outcome/restart in desktop 960x600 and portrait 390x844 with matched source/PTS/renderer observations",
+    "forensicQuestion": "Did eliminating two visually invalid picture matches recover an authentic intact portrait native clock without loosening 0.75–1.25 slope, source, seed, unique-image or unaltered-video gate? If not reject.",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43521908769",
+    "realVisualGap": "Physical same-bronze-gate full-body crossing remains 0/2; evaluate never claim transformed from capture completeness",
+    "independentCritics": "LOOKS 0/5 FEELS 0/5 PLAYS 0/5",
+    "verdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-14-tower-pr68-original-portrait-timebase-confidence-recovery.md"
+  }
 }

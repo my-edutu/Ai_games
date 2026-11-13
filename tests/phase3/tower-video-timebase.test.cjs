@@ -55,6 +55,33 @@ test('refuses ambiguous native frames, screenshot stalls, and nonmatching video 
   ]).status,'NOT EVALUATED');
 });
 
+test('real original portrait: reject mismatched native pictures, not genuine PTS clock gaps',()=>{
+ const a=[
+   anchor(100000,0,{imageDifference:.3,uniquenessMargin:20}),
+   anchor(103000,3,{imageDifference:.3,uniquenessMargin:20}),
+   anchor(106000,6,{imageDifference:.3,uniquenessMargin:20}),
+   anchor(109000,9,{imageDifference:.3,uniquenessMargin:20}),
+   anchor(112000,12,{imageDifference:12.92,uniquenessMargin:4.68}),
+   anchor(115000,15,{imageDifference:.46,uniquenessMargin:19}),
+   anchor(118000,12.2,{imageDifference:19.63,uniquenessMargin:1.6}),
+   anchor(121000,21,{imageDifference:.36,uniquenessMargin:24}),
+   anchor(124000,24,{imageDifference:.38,uniquenessMargin:24}),
+ ];
+ const repaired=assessVideoTimebase(a);
+ assert.equal(repaired.status,'CALIBRATED');
+ assert.equal(repaired.anchorsAccepted,7);
+ assert.deepEqual(repaired.anchorTimeline.map(x=>x.videoPtsSeconds),[0,3,6,9,15,21,24]);
+ assert.equal(repaired.minVideoToWallSlope,1);
+ assert.equal(repaired.maxVideoToWallSlope,1);
+ // Good pixel matches that genuinely disagree with time MUST still veto.
+ const trueDiscontinuity=a.map((x,i)=>i===6?{
+   ...x,imageDifference:.4,uniquenessMargin:20,videoPtsSeconds:18}:x);
+ const blocked=assessVideoTimebase(trueDiscontinuity);
+ assert.notEqual(blocked.status,'CALIBRATED');
+ assert.equal(blocked.status,'PARTIALLY_CALIBRATED');
+ assert.ok(blocked.invalidIntervals.length>=1);
+});
+
 test('matches true source-independent image anchors, rejects static footage',()=>{
   const frame0=Buffer.alloc(FRAME_BYTES,20);
   const frame1=Buffer.alloc(FRAME_BYTES,100);

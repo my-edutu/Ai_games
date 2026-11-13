@@ -10,6 +10,12 @@ const THUMB_HEIGHT = 30;
 const FRAME_BYTES = THUMB_WIDTH * THUMB_HEIGHT;
 const MAX_VIDEO_BYTES = FRAME_BYTES * 240 * 30; // <=4 minutes at <=30fps
 const MIN_ANCHORS = 3;
+// In immutable original portrait film #43521908769, two incorrect native
+// picture matches with mean grayscale differences 12.92 and 19.63 passed
+// the old loose limit and generated fictitious compositor/PTS clock gaps.
+// Genuine neighbors were <=0.5. Exclude poor pixel matches before time fitting;
+// DO NOT relax source, unique-picture, slope, chronology or film safety gates.
+const MAX_MATCH_IMAGE_DIFFERENCE = 5.5;
 
 function median(values) {
   const sorted = [...values].sort((a,b)=>a-b);
@@ -26,7 +32,7 @@ function assessVideoTimebase(anchors) {
     Number.isFinite(a.captureSpanMs) && a.captureSpanMs>=0 &&
     a.captureSpanMs<=350 &&
     Number.isFinite(a.uniquenessMargin) && a.uniquenessMargin>=1.5 &&
-    a.imageDifference<=24).sort((a,b)=>a.wallAtMs-b.wallAtMs);
+    a.imageDifference<=MAX_MATCH_IMAGE_DIFFERENCE).sort((a,b)=>a.wallAtMs-b.wallAtMs);
   const separated=[];
   for(const anchor of valid)
     if(!separated.length||anchor.wallAtMs-separated.at(-1).wallAtMs>=3000)
@@ -286,6 +292,16 @@ function calibrateOriginalVideo({video,anchors,sourceTicks,sourceEvents}) {
         wallAtMs:(anchor.startAtMs+anchor.endAtMs)/2,file:anchor.file});
     }
     evidence.imageAnchorsChecked=matches.length;
+    evidence.visualMatchScreening={
+      maximumAcceptedMeanGrayDifference:MAX_MATCH_IMAGE_DIFFERENCE,
+      quarantined:matches.filter(x=>
+        x.imageDifference>MAX_MATCH_IMAGE_DIFFERENCE || x.uniquenessMargin<1.5)
+        .map(({file,imageDifference,uniquenessMargin,videoPtsSeconds})=>({
+          screenshot:file.split(/[\\/]/).at(-1),imageDifference,uniquenessMargin,
+          untrustedVideoPtsSeconds:videoPtsSeconds,
+        })),
+      note:'Quarantined picture matches do not certify native PTS, any source action, or visual quality.',
+    };
     const result=assessVideoTimebase(matches);
     evidence.status=result.status;
     evidence.calibration=result;
