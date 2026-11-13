@@ -5226,3 +5226,48 @@ test('RED: genuine 116.7ms fully-owned Walking_A original mobile toe may test a 
   'actual imported mixer must not open sparse frames to partially owned clips');
  assert.match(stage,/frameInterval>\.15/,'a >150ms source gap remains forbidden');
 });
+
+
+/**
+ * Test-first, source-observed quality gate (13 Nov real desktop WebGL,
+ * Actions #43515311088): source toe articulated ~6.283mm but remained
+ * ~62.93mm under the real -20mm stone. That is ~9.1% improvement on a
+ * ~69.21mm buried toe, not a credible floor clearance; it risks a visible
+ * isolated 100mrad knuckle twitch on the existing licensed Walking_A.
+ * Hypothetical post-trial shoe coordinates below test the acceptance
+ * contract only. No assertion that a new WebGL film improved yet.
+ */
+test('RED: deeply submerged original toe must earn meaningful relative clearance before an additive knuckle bend',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ const floor=-.02;
+ const left={heelY:-.026,toeY:-.024,
+  heelXZ:[-4.0,-6.8],toeXZ:[-4.22,-6.83]};
+ const right={heelY:.198,toeY:-.089213,
+  heelXZ:[-3.9,-7.0],toeXZ:[-4.15,-7.02]};
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceToeChainVerified:true,sourceToeTrackVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.035,
+  frameAge:.033,frameInterval:.0333,side:'right',floorTopY:floor,
+  before:{left,right}};
+ const unchanged={left,right:{...right,heelY:right.heelY+.0005,
+  toeXZ:[right.toeXZ[0]+.001,right.toeXZ[1]+.001]}};
+ const nearlyInvisible={...unchanged,right:{...unchanged.right,toeY:-.082930}};
+ assert.equal(choose({...gate,trials:[{angleRad:-.10,after:nearlyInvisible}]}),null,
+  '6.283mm only removes 9% of 69mm stone burial; do not invent helpful-looking toe pose');
+ const meaningful={...unchanged,right:{...unchanged.right,toeY:-.077}};
+ const result=choose({...gate,trials:[{angleRad:-.10,after:meaningful}]});
+ assert.ok(result&&result.liftMeters>.012&&result.oppositeFootVerified,
+  'independently skin-sampled >=15% reduction may remain eligible, never a claimed plant');
+ assert.equal(result.contactLocked,false);
+ const shallow={...gate,before:{left,right:{...right,toeY:-.032}},
+  trials:[{angleRad:-.10,after:{...unchanged,
+   right:{...unchanged.right,toeY:-.022}}}]};
+ assert.ok(choose(shallow),
+  '6-25mm residual-shallow same-source clearance keeps its prior absolute strict near-floor test');
+ for(const unsafe of [{sourceWeight:.60},{frameInterval:.151},{interrupted:true},
+  {sourceInstanceSame:false},{alive:false},{reducedMotion:true},{rootTravel:0}]){
+  assert.equal(choose({...gate,...unsafe,trials:[{angleRad:-.10,after:meaningful}]}),null,
+   'the complete original-source ownership and weighted-shoe gates remain mandatory');
+ }
+});
