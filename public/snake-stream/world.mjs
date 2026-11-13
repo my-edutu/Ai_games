@@ -357,6 +357,71 @@ export function sculptRuinedGateway(width, height) {
 
 /** Original procedural verdant-ruins diorama. No simulation state is retained or changed. */
 /**
+ * T1 seven-GROVE GEOLOGICAL CONTINUITY: rooted promontory causeways across
+ * actual sea, not seven disconnected backdrop props. The original headlands
+ * are deliberately retained; this one rock-and-lichen surface joins each
+ * grove to the SAME continuous courtyard coast. Twelve ground sections per
+ * grove use existing opaque limestone/lichen materials and static mesh
+ * batches; no shader, asset, per-frame work or authoritative/gameplay route.
+ * Only the exterior landscape is touched: every game cell/portal remains.
+ */
+export function buildRootedGroveCauseways(THREE,width,height,layer){
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+      width>2048||height>2048||!['bedrock','moss'].includes(layer))
+    throw new RangeError('Grove causeways need bounded real board and physical layer');
+  const W=width/2,H=height/2,sections=13,stone=layer==='bedrock';
+  const transverse=stone?[-1,-.86,-.42,0,.42,.86,1]:[-.47,0,.47];
+  const positions=[],uvs=[],indices=[];
+  const trees=stageHeadlandAnchors(width,height);
+  function appendFace(a,b,c){
+    const ax=positions[a*3],az=positions[a*3+2];
+    const bx=positions[b*3],bz=positions[b*3+2];
+    const cx=positions[c*3],cz=positions[c*3+2];
+    const up=(bz-az)*(cx-ax)-(bx-ax)*(cz-az);
+    if(up>0)indices.push(a,b,c); else indices.push(a,c,b);
+  }
+  for(const [idx,tree] of trees.entries()){
+    const dist=Math.hypot(tree.x,tree.z);
+    // Enter the EXISTING cliff/moss shelf outside the last actual gameplay
+    // cell, then terminate inside the original forest-headland rock. Never
+    // create a bridge across a portal discontinuity or a fake walkable cell.
+    const fraction=Math.min((W+2.3)/Math.max(1e-6,Math.abs(tree.x)),
+      (H+2.3)/Math.max(1e-6,Math.abs(tree.z)));
+    const startX=tree.x*fraction,startZ=tree.z*fraction;
+    const dx=tree.x-startX,dz=tree.z-startZ,run=Math.hypot(dx,dz);
+    const sidewaysX=-dz/run,sidewaysZ=dx/run;
+    const first=positions.length/3;
+    for(let section=0;section<sections;section++){
+      const t=section/(sections-1),shift=.36*Math.sin(Math.PI*t)*Math.sin(idx*2.21+.6);
+      const x=startX+dx*t+sidewaysX*shift;
+      const z=startZ+dz*t+sidewaysZ*shift;
+      const breadth=(1.08+1.06*t)*(.97+.03*Math.sin(idx*3.1+t*11));
+      const crown=-.41+.36*t+.06*Math.sin(t*8.8+idx*.7)*Math.sin(Math.PI*t);
+      const n=transverse.length;
+      for(let k=0;k<n;k++){
+        const u=transverse[k];
+        const vx=x+u*breadth*sidewaysX,vz=z+u*breadth*sidewaysZ;
+        const y=stone?(k===0||k===6?-3.91:
+          k===1||k===5?crown-1.16:k===2||k===4?crown-.16:crown)
+          :(k===1?crown+.055:crown-.09);
+        positions.push(vx,y,vz);uvs.push(vx/5+.5,vz/5+.5);
+      }
+      if(section){
+        for(let k=0;k<n-1;k++){
+          const a=first+(section-1)*n+k,b=first+section*n+k;
+          appendFace(a,b,b+1);appendFace(a,b+1,a+1);
+        }
+      }
+    }
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  return g;
+}
+
+/**
  * T1 - authentic original continuous eroded island strata, beneath the unchanged
  * playable slab grid. This replaces the old two orthogonal foundation boxes.
  * It is static, deterministic, original geometry: no game cells, props, water
@@ -1305,8 +1370,28 @@ export function createWorld(THREE, {width, height}) {
   // T1 physical island silhouette. Reuse BOTH original static cliff/moss
   // batches and original stone/moss materials: no additional WebGL pass,
   // shader, texture, light, live draw or gameplay-cell mutation.
+  function appendOriginalCoastGeometry(base,groves){
+    const bPos=base.getAttribute('position').array,gPos=groves.getAttribute('position').array;
+    const bUv=base.getAttribute('uv').array,gUv=groves.getAttribute('uv').array;
+    const offset=bPos.length/3;
+    const oldIndices=base.getIndex().array,newIndices=groves.getIndex().array;
+    const pos=new Float32Array(bPos.length+gPos.length);pos.set(bPos);pos.set(gPos,bPos.length);
+    const uv=new Float32Array(bUv.length+gUv.length);uv.set(bUv);uv.set(gUv,bUv.length);
+    const Index=(offset+gPos.length/3>65535)?Uint32Array:Uint16Array;
+    const index=new Index(oldIndices.length+newIndices.length);
+    index.set(oldIndices);
+    for(let i=0;i<newIndices.length;i++)index[oldIndices.length+i]=newIndices[i]+offset;
+    base.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    base.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    base.setIndex(new THREE.BufferAttribute(index,1));
+    base.computeVertexNormals();base.computeBoundingSphere();
+    groves.dispose();
+    return base;
+  }
   const erodedCliff = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'cliff'));
   const rootedMantle = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'moss'));
+  appendOriginalCoastGeometry(erodedCliff,buildRootedGroveCauseways(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildRootedGroveCauseways(THREE,width,height,'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
   // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously
