@@ -38,6 +38,67 @@ export function observedRetainedOriginalCapRoofContact(source,held) {
   return true;
 }
 
+// The initial F9 WebGL frame may return 30+ fixed-step ticks AFTER the
+// legitimate crossing. Renderer delay is not authority delay: the live player
+// can already be airborne high over the real roof by the time its pixels
+// appear. Validate the unmodified crossing record, unchanged cap footprint,
+// next-floor roof, current source body and short GPU-submission window before
+// retaining the ACTUAL prior-world mesh. No interpolated/held player pose,
+// extra platform, virtual doorway or event is introduced here.
+export function observedSourceEarnedColdFrameContinuation(source, held) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const cap=w?.cap,guardian=w?.guardian;
+  if (!held || !p || !w || !cap || !guardian ||
+      source.lifecycle!=='running' || source.floor!==9 ||
+      source.theme!=='void' || source.runToken!==held.runToken ||
+      w.runToken!==held.runToken || held.floor!==9 ||
+      w.fromFloor!==8 || w.toFloor!==9 ||
+      w.sourceTick!==held.sourceTick ||
+      !Number.isSafeInteger(source.tick) ||
+      !Number.isSafeInteger(w.sourceTick) ||
+      source.tick<w.sourceTick || source.tick-w.sourceTick>48 ||
+      !Number.isSafeInteger(held.submittedFrames) ||
+      held.submittedFrames<0 || held.submittedFrames>3 ||
+      !Number.isFinite(held.visibleSeconds) ||
+      held.visibleSeconds<0 || held.visibleSeconds>=.85 ||
+      cap.id!=='f8:cap' || held.oldCapId!==cap.id ||
+      guardian.kind!=='guardian' || guardian.floor!==8 ||
+      guardian.active!==false || !(guardian.health<=0) ||
+      ![guardian.health,cap.x,cap.y,cap.width,cap.height,
+        held.oldCapX,held.oldCapWidth,held.oldRoofY,
+        held.thresholdX,w.exitX,w.crossingX,w.crossingY,
+        w.halfWidth,w.halfHeight,p.x,p.y,p.halfWidth,p.halfHeight]
+        .every(Number.isSafeInteger) ||
+      !(cap.width>0) || !(cap.height>0) ||
+      held.oldCapX!==cap.x || held.oldCapWidth!==cap.width ||
+      held.oldRoofY!==cap.y+cap.height ||
+      w.exitX!==cap.x+Math.floor(cap.width*.76) ||
+      held.thresholdX!==w.exitX ||
+      w.crossingX<w.exitX+w.halfWidth+4000 ||
+      w.halfWidth<=0 || w.halfHeight<=0 ||
+      p.halfWidth!==w.halfWidth || p.halfHeight!==w.halfHeight ||
+      !(p.health>0) || !Array.isArray(source.platforms) ||
+      p.x<w.crossingX || p.x>w.exitX+90000 ||
+      p.x-w.crossingX>(source.tick-w.sourceTick)*18000) return false;
+  const ground=source.platforms.find(s=>s?.id==='f9:ground');
+  if (!ground || ![ground.x,ground.y,ground.width,ground.height]
+      .every(Number.isSafeInteger) || ground.width<=0 ||
+      ground.height<=0 || ground.y+ground.height!==held.oldRoofY ||
+      p.x-p.halfWidth<ground.x ||
+      p.x+p.halfWidth>ground.x+ground.width) return false;
+  const foot=p.y-p.halfHeight;
+  if (!Number.isSafeInteger(foot) ||
+      foot<held.oldRoofY-2500 || foot>held.oldRoofY+160000) return false;
+  if (p.grounded===false)
+    return p.state==='airborne' && p.groundedPlatformId==null &&
+      Number.isFinite(p.vy);
+  if (p.grounded!==true || (p.state!=='standing' && p.state!=='hurt') ||
+      p.vy!==0 || foot!==held.oldRoofY) return false;
+  return p.groundedPlatformId==='f9:ground' ||
+    (p.groundedPlatformId==='f8:cap' &&
+     p.x-p.halfWidth>=cap.x && p.x+p.halfWidth<=cap.x+cap.width);
+}
+
 export function observedClockworkRoofContinuity(source, passage, held) {
   const p=source?.player;
   if (!held || !p || source?.lifecycle!=='running' ||
@@ -90,5 +151,6 @@ export function holdIncomingStructuralShell(source,passage,held,job) {
       !Number.isSafeInteger(job.submittedFrames) ||
       job.submittedFrames<1 || job.submittedFrames>=5 ||
       held.submittedFrames>=5 || held.visibleSeconds>=.55) return false;
-  return observedClockworkRoofContinuity(source,passage,held);
+  return observedClockworkRoofContinuity(source,passage,held) ||
+    observedSourceEarnedColdFrameContinuation(source,held);
 }

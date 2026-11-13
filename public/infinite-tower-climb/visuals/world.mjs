@@ -5,7 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell } from './crossfloor-arrival.mjs';
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
 // Display-submission-timed copy of the ACTUAL source cap landing surface:
@@ -2184,9 +2184,14 @@ export function createTowerWorld(){
     // physical world became visible. Hold the ORIGINAL uncollidable cap and
     // gate for a handful of real submissions while the player is still on
     // an authentic nearby Floor9 deck or real airborne route. No fake pose.
-    const retainedBackdrop = observedClockworkRoofContinuity(
-      snapshot,passageWitness,held) && held.submittedFrames < 5 &&
-      held.visibleSeconds < .55;
+    // The recorded old cap survives a cold software-renderer gap even after
+    // the separate 3D passage cue has expired. Only the immutable same-run
+    // HP-zero 8->9 crossing, original roof and real nearby airborne body
+    // permit these first GPU-submitted frames to keep the historical world.
+    const sourceColdFrame=observedSourceEarnedColdFrameContinuation(snapshot,held);
+    const retainedBackdrop = (observedClockworkRoofContinuity(
+      snapshot,passageWitness,held) || sourceColdFrame) &&
+      held.submittedFrames < 5 && held.visibleSeconds < .85;
     const justLaunched=sourceFlight &&
       snapshot.tick-held.sourceTick<=24 && nearDoor;
     // Historical architecture only: no collider, contact or extra event.
@@ -2197,7 +2202,7 @@ export function createTowerWorld(){
       Number.isSafeInteger(p.x) && Number.isSafeInteger(sole) &&
       Math.abs(p.x-held.thresholdX)<=90000 &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+160000;
-    held.sourceAlignedPassage=samePassage;
+    held.sourceAlignedPassage=samePassage || sourceColdFrame;
     if (options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
@@ -3052,6 +3057,17 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
+  // Safe source-proven transition handle: avoid diagnostics()'s whole-scene
+  // traversal in the camera/light hot path; never expose writable GPU roots.
+  function retainedFilmHandoff(snapshot) {
+    const held=retainedEarnedCap;
+    return observedSourceEarnedColdFrameContinuation(snapshot,held)
+      ? {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
+        thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
+        oldCapId:held.oldCapId,oldCapX:held.oldCapX,
+        oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
+        visibleSeconds:held.visibleSeconds} : null;
+  }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     retainedSourceCap:retainedEarnedCap?{
@@ -3096,5 +3112,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

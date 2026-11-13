@@ -99,3 +99,54 @@ test('production world retains only the actual original floor-eight roof owner a
  assert.match(world,/onOriginalCapRoof=observedRetainedOriginalCapRoofContact\(snapshot,held\)/);
  assert.match(world,/actualOldCapSupport:observedRetainedOriginalCapRoofContact\(lastSnapshot,retainedEarnedCap\)/);
 });
+
+
+test('cold actual source crossing keeps original cap/horizon through first delayed airborne Floor9 render without inventing frames',async()=>{
+ const {observedSourceEarnedColdFrameContinuation:real,
+   holdIncomingStructuralShell:shell}=await loaded;
+ const oldCap={id:'f8:cap',x:260000,y:80000,width:120000,height:2000};
+ const exitX=oldCap.x+Math.floor(oldCap.width*.76);
+ const crossingX=exitX+13000, crossingY=100000;
+ const guardian={kind:'guardian',floor:8,active:false,health:0};
+ const witness={runToken:'real-run',sourceTick:451,fromFloor:8,toFloor:9,
+   exitX,crossingX,crossingY,halfWidth:9000,halfHeight:18000,
+   guardian,cap:oldCap};
+ const source={runToken:'real-run',lifecycle:'running',theme:'void',
+   floor:9,tick:483,lastGuardianCrossing:witness,
+   player:{x:crossingX+8000,y:195000,halfWidth:9000,halfHeight:18000,
+     health:5,grounded:false,groundedPlatformId:null,vy:4000,state:'airborne'},
+   platforms:[{id:'f9:ground',x:260000,y:80000,width:160000,height:2000}]};
+ const held={runToken:'real-run',floor:9,sourceTick:451,
+   thresholdX:exitX,oldRoofY:82000,oldCapId:oldCap.id,
+   oldCapX:oldCap.x,oldCapWidth:oldCap.width,
+   submittedFrames:1,visibleSeconds:.12};
+ const inactivePassage={sourceBound:false,active:false,stage:'idle'};
+ const job={state:'awaiting-actual-first-render',
+   structureDeferred:true,proof:'recorded-source-gateway',
+   runToken:'real-run',floor:9,sourceTick:451,submittedFrames:1};
+ const initial=JSON.stringify([source,held,job]);
+ assert.equal(real(source,held),true);
+ assert.equal(shell(source,inactivePassage,held,job),true);
+ assert.equal(JSON.stringify([source,held,job]),initial);
+ const {observedGroundedBiomeThreshold}=await import('../../public/infinite-tower-climb/visuals/biome-threshold.mjs');
+ const fade=observedGroundedBiomeThreshold(source,inactivePassage,{},held);
+ assert.ok(fade && fade.oldWeight>.9);
+ assert.equal(observedGroundedBiomeThreshold(source,inactivePassage,{stale:true},held),null);
+ assert.equal(observedGroundedBiomeThreshold(source,inactivePassage,{reducedMotion:true},held),null);
+ const deny=(s=source,h=held)=>real(s,h);
+ assert.equal(deny({...source,tick:500}),false);
+ assert.equal(deny({...source,runToken:'restarted'}),false);
+ assert.equal(deny({...source,floor:10}),false);
+ assert.equal(deny({...source,lifecycle:'intermission'}),false);
+ assert.equal(deny({...source,lastGuardianCrossing:{...witness,sourceTick:450}}),false);
+ assert.equal(deny({...source,lastGuardianCrossing:{...witness,guardian:{...guardian,active:true,health:1}}}),false);
+ assert.equal(deny({...source,player:{...source.player,health:0}}),false);
+ assert.equal(deny({...source,player:{...source.player,groundedPlatformId:'invented'}}),false);
+ assert.equal(deny({...source,player:{...source.player,x:exitX+140000}}),false);
+ assert.equal(deny({...source,player:{...source.player,y:265000}}),false);
+ assert.equal(deny(source,{...held,oldCapWidth:119999}),false);
+ assert.equal(deny(source,{...held,visibleSeconds:.85}),false);
+ assert.equal(deny(source,{...held,submittedFrames:4}),false);
+ assert.equal(shell(source,inactivePassage,held,{...job,proof:'guessed-gate'}),false);
+ assert.match((await import('node:fs')).readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8'),/sourceColdFrame=observedSourceEarnedColdFrameContinuation/);
+});
