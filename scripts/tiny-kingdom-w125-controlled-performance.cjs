@@ -3,7 +3,7 @@
 // viewport, SwiftShader and original authoritative step() on two exact source
 // commits. Not physical-device desktop/mobile GPU FPS or a visual quality PASS.
 const assert=require('node:assert/strict');
-const fs=require('node:fs'),path=require('node:path');
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {chromium}=require('playwright');
 const dir=path.resolve('artifacts/tiny-kingdom-w125-comparison');
 fs.mkdirSync(dir,{recursive:true});
@@ -12,6 +12,20 @@ const cases=[
  ['after',path.resolve('artifacts/w125-after.html')]
 ];
 const originalCamera={focus:[0,0],yaw:.85,pitch:.52,zoom:23};
+// The frozen G088 is the EXPERIENCE baseline. This local adjacent-commit
+// diagnostic cannot approve visual transformation, even with equal snapshots.
+const FROZEN_EXPERIENCE_BASELINE='2f6deb43feb1a1557848d44def53a6109deb1ab1';
+function compareCapturedBytes(before,after){
+ const read=name=>fs.readFileSync(path.join(dir,name));
+ const b=read(before),a=read(after);
+ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+ return {beforeSha256:hash(b),afterSha256:hash(a),
+  byteIdentical:b.equals(a),
+  verdict:b.equals(a)?'NO_CAPTURED_PIXEL_CHANGE':'DIFFERENT_CAPTURE_BYTES_NOT_QUALITY_PROOF',
+  comparisonKind:'same-world-viewport-PNG-bytes-neighboring-production-revisions',
+  independentlyJudged:false,commercialReferenceVerdict:'NOT_ASSESSED'};
+}
+
 // Each PR run must compare its own latest playable original-world source
 // against its most recent actual playable predecessor, not an archived W125
 // pair. Documentation/test-only commits MUST NOT become image comparators.
@@ -23,11 +37,14 @@ assert.notEqual(sourcePair.before,sourcePair.after);
 const evidence={schema:'tiny-kingdom-w125-controlled-software-v2',
  browser:'Chromium SwiftShader',physicalHardwareGpuFps:'NOT_PROVEN',
  old:sourcePair.before,new:sourcePair.after,
- sourcePair,
+ sourcePair,frozenExperienceBaseline:FROZEN_EXPERIENCE_BASELINE,
+ evidenceRole:'adjacent-source diagnostic only, NOT pinned-G088 experiential A/B',
  limitations:['Software-rendered p95/p99 are not physical desktop/mobile GPU',
   '390px is an emulated viewport, not a real phone',
   'Short captures are exploratory; no causal FPS claim without adequate samples',
-  'In-process comparison is subject to browser temperature and caching'],
+  'In-process comparison is subject to browser temperature and caching',
+  'Adjacent production revisions cannot substitute for the immutable G088 experience baseline',
+  'PNG byte identity demonstrates unchanged captured bytes, not worker-motion quality'],
  cases:{},errors:[],status:'INCOMPLETE'};
 const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
  JSON.stringify(evidence,null,2)+'\n');
@@ -232,6 +249,15 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
      GPUHardwareGain:'NOT_PROVEN',
      conclusion:enough?'EXPLORATORY_SOFTWARE_ONLY':'INSUFFICIENT_FRAME_SAMPLES'}];
    }));
+  evidence.imageIdentity=Object.fromEntries(
+   ['day1','workday','day120','mobile390'].map(label=>[label,
+    compareCapturedBytes('before-'+label+'.png','after-'+label+'.png')]));
+  evidence.identicalCaptureCount=Object.values(evidence.imageIdentity)
+   .filter(row=>row.byteIdentical).length;
+  evidence.experienceQualityVerdict='NOT_PROVEN';
+  evidence.hardBlocker=evidence.identicalCaptureCount===4?
+   'All four adjacent-commit screenshots are byte-identical: this comparison proves no visible change':
+   'Source-local images differ or incomplete; compare running motion versus immutable G088 separately';
   evidence.status='SOURCE_MATCHED_SOFTWARE_CAPTURE_ONLY';
  }catch(err){
   evidence.status='FAIL';
