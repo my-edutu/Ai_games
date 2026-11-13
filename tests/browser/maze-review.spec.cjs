@@ -777,6 +777,13 @@ test('a real close public encounter frames both autonomous actors and saves date
         .toBeTruthy();
       expect(publicGround.color,'actual 390px Pip–Thornback foreground must not remain the original giant beige slab')
         .not.toBe('cead72');
+      const publicLip=foregroundPicks.find(p=>p.u===.50&&p.v===.73)?.hits
+        .find(hit=>hit.cell===100&&hit.dimensions?.[0]===2.39
+          &&hit.dimensions?.[1]===.19&&hit.dimensions?.[2]===2.39);
+      expect(publicLip,'native ray must reach the complete structural load lip behind the floor')
+        .toBeTruthy();
+      expect(publicLip.color,'real 2.39m opaque near-camera foreground lip must not remain beige')
+        .not.toBe('cead72');
     }
     const post=await page.evaluate(()=>({
       beat:window.__MAZE_3D__?.witnessedExplorerGuardianBeat,

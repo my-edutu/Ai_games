@@ -248,13 +248,14 @@ export function publicGuardianOuterCourtCells(s,causeway=publicGuardianCausewayC
   return {ordinary,sealed};
 }
 
-// Pass324: NATIVE source-bound WebGL ray hits proved the giant foreground
-// was the 2.31m tan TOP and 2.39m tan LOAD LIP on public cell 100, not any
-// wall touched by previous attempts. Color only genuine CURRENTLY witnessed
-// nearby public, level and non-trap floor without changing a single collider,
-// objective, stair, gate, actor or route. Collected-key/checkpoint/known gate
-// cells may retain their actual objects; this changes ground material only,
-// NOT a route hint, unlock or prediction. A stopped/hidden duel restores art.
+// Pass326 real WebGL gate: Pass325 still ray-hit cell100 TAN top and lip.
+// The foreground is a PUBLIC non-trap terrace, but can be a truly BLOCKED
+// tile across a solid court boundary. Color its full opaque stone load deck
+// while keeping the ORIGINAL solid wall, impassability and navigation intact.
+// Do not interpret dark glass as a route, door, safety or collision change.
+// This is scene treatment only after a real public reciprocal Pip/guardian
+// causeway is witnessed; no unseen, remembered, private or fake geometry.
+// A stopped, hidden or gated duel restores the original palette.
 export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardianCausewayCells(s)) {
   const foreground=new Set();
   if(!causeway.has(s?.currentCell)||!Array.isArray(s?.cells)
@@ -263,8 +264,11 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
   const visible=new Set(s.visibleCells);
   const level=cellHeight(s.currentCell,s.width,s.height);
   for(const c of s.cells){
+    // A truly blocked but CURRENTLY VISIBLE stone tile still has the large
+    // 2.31m load top and 2.39m lip found by the real camera. Only its color
+    // changes; its opaque authentic wall/collider and route remain untouched.
     if(!Number.isSafeInteger(c?.cell)||!visible.has(c.cell)
-      ||c.blocked===true || c.trap===true)continue;
+      ||c.trap===true)continue;
     const d=Math.abs(c.cell%s.width-s.currentCell%s.width)
       +Math.abs(Math.floor(c.cell/s.width)-Math.floor(s.currentCell/s.width));
     if(d>0&&d<=2 && Math.abs(cellHeight(c.cell,s.width,s.height)-level)<1e-8)

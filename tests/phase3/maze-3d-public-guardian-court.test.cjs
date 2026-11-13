@@ -880,6 +880,16 @@ test('Pass324 real 390px foreground ray-identified public cell gets full-floor T
     const nearPressure={...s,visibleCells:[98,99,100,101],
       cells:[...s.cells,{cell:101,blocked:false,trap:true,neighbors:[]}]};
     w.update(nearPressure);assertColored();
+    // Pass326: the authentic near-camera foreground can be a physically
+    // IMPASSABLE public tile. Previously the helper rejected it as blocked,
+    // leaving both huge original TAN meshes in the native 390px screenshots.
+    // Recolor the solid load deck but NEVER alter its original blockage or
+    // invent a link through the existing real wall.
+    const sealedForeground={...s,cells:s.cells.map(c=>
+      c.cell===100?{...c,blocked:true}:c)};
+    assert.equal(foreground(sealedForeground).has(100),true,
+      'currently public blocked terrace remains legitimate neutral stage art');
+    w.update(sealedForeground);assertColored();
     assert.equal(w.stats().geometryCount,budget.geometryCount);
     assert.equal(w.stats().materialCount,budget.materialCount);
     w.update({...s,visibleCells:[98,99]});
