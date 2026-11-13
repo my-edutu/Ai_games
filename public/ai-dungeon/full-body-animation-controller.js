@@ -735,9 +735,10 @@ export function verifyOriginalSourceOppositeStanceForSwingThigh({
 export function chooseOriginalSourceSwingThighSupport({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceThighAxisVerified=false,sourceChainVerified=false,
- sourceInstanceSame=false,alive=false,visible=false,teleport=false,
+ sourceInstanceSame=false,priorSourceProofVerified=false,
+ alive=false,visible=false,teleport=false,
  reducedMotion=false,interrupted=false,rootTravel=NaN,frameAge=NaN,
- side='',floorTopY=NaN,previousCorrectionRad=0,before=null,trials=[]
+ frameInterval=NaN,side='',floorTopY=NaN,previousCorrectionRad=0,before=null,trials=[]
 }={}){
  if(mode!=='move'||sourceClipName!=='Walking_A'||ownerLocomotion!==true||
   sourceThighAxisVerified!==true||sourceChainVerified!==true||
@@ -767,19 +768,24 @@ export function chooseOriginalSourceSwingThighSupport({
   const severeBurial=source.toeY<floorTopY-.025;
   const isNormalTrial=Math.abs(Math.abs(delta)-.045)<=.00001;
   const isSevereTrial=severeBurial&&Math.abs(Math.abs(delta)-.09)<=.00001;
-  // Only a PREVIOUSLY ACCEPTED, same-signed 90mrad original source thigh
-  // may probe 135mrad one frame later, with max 45mrad extra travel.
+  // The SAME licensed original thigh may advance from its previously
+  // proven 45mrad correction to 135mrad over a genuinely rendered 33ms
+  // frame when the weighed source toe remains severely under the stone.
+  // This is <=90mrad/32ms, lower angular speed than 45mrad/16ms, and
+  // still requires an independent TWO-shoe skinned-world readback.
+  // Ordinary frames, source crossfades and unproved prior corrections
+  // retain the original 45mrad/frame staged progression.
+  const cadenceCatchup=severeBurial&&priorSourceProofVerified===true&&
+   sourceWeight>=.9&&finite(frameInterval)&&
+   frameInterval>=.032&&frameInterval<=.05&&
+   Math.abs(Math.abs(previousCorrectionRad)-.045)<.00001;
+  const allowableStep=cadenceCatchup?.09000001:.04500001;
   const isContinuedTrial=severeBurial&&
    Math.abs(Math.abs(delta)-.135)<=.00001&&
-   Math.abs(previousCorrectionRad)>=.089&&
+   (Math.abs(previousCorrectionRad)>=.089||cadenceCatchup)&&
    Math.abs(previousCorrectionRad)<=.13500001&&
    Math.sign(delta)===Math.sign(previousCorrectionRad)&&
-   Math.abs(delta-previousCorrectionRad)<=.04500001;
-  // A physically witnessed source leg cannot jump from 0 to 90 mrad in
-  // one displayed frame merely because the weighted toe is deeply buried.
-  // Build through separately remeasured 45 mrad stages (0→45→90→135),
-  // rather than correcting a geometric collision with an abrupt hip snap.
-  const allowableStep=.04500001;
+   Math.abs(delta-previousCorrectionRad)<=allowableStep;
   if(!finite(delta)||(!isNormalTrial&&!isSevereTrial&&!isContinuedTrial)||
    Math.abs(delta-previousCorrectionRad)>allowableStep||
    (previousCorrectionRad!==0&&Math.sign(delta)!==Math.sign(previousCorrectionRad))||
