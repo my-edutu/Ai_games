@@ -1868,5 +1868,27 @@
     "supportedActualDevicePerformance": "NOT EVALUATED",
     "review": "docs/reviews/2026-11-13-tower-pr68-original-doorway-occlusion-and-optical-continuity.md",
     "safety": "Frozen baseline, PR58, other games unchanged. PR68 remains open draft. Never merge/deploy/force-push/promote."
+  },
+  "p0OriginalBronzeCrossRouteGeometryNativeCapture20261113": {
+    "stage": "P0 OPEN — ORIGINAL CLIMBER-THROUGH-DOOR FILM NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionSha": "818366df1262d34c746c7ee30e224aaed57058f7",
+    "sourceCameraSha": "a744da72607fc0ab9aa21a59048db5313f9f7815",
+    "candidateSourceSha": "EXACT immutable github.sha of THIS capture request commit (never floating branch head)",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "scope": "Nine-job exact-source 1x original 20Hz gameplay recording: frozen baseline and candidate each ascent, moving floor7, real Floor8 crusher/guardian zero-HP -> original bronze gate -> Floor9 onward, source outcome/restart; ≥60s desktop 960x600 and portrait 390x844 matched seed/tier/native PTS.",
+    "importantNewGeometry": "The same original AuthoritativeGuardianGate now stands at the published exitX on the existing deck, with physical plane normal to tangential annular movement and opening across the radial walkway; before it stood radially facing, PARALLEL to the route and thus not walkable THROUGH in 3D. Cold follow now aims at same original door.",
+    "criticalNativeQuestion": "Does original 22-31s live WebM demonstrate full-body hero passing from approaching side to departing side of SAME SOURCE-UNLOCKED bronze arch without hard bronze/violet world replacement, desktop and portrait? Source tick451 cannot substitute for body crossing pixels; compare source/browser/Three/native decode and preserve honest clocks.",
+    "previousNegativeOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43388991579 — all 8 original movies completed; strict native source/image pairing FAILED, hard scene discontinuity both viewports",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-tangential-gateway-physical-path-reconstruction.md",
+    "safety": "PR68 draft and PR58 base unchanged, no merge/deploy/force push or baseline move"
   }
 }
