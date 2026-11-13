@@ -32,3 +32,13 @@ The prior full [Chrome run 43406997287](https://github.com/my-edutu/Ai_games/act
 - Prior continuous desktop and mobile Chrome captures are unaligned, with large frame gaps. Matched three moving directions, clean 390px sustained hits, full Warden warning/release/recovery/counter, miss/block/dodge/projectile/spell/impact comparison, original decoded A/V synchronization, and 20-minute cleanup soak are **not verified**.
 
 **Next dominant blocker:** actual active-combat WebGL frame delivery stalls, apparently downstream of D04's tiny per-frame visual pass in this trace, but also seen in legacy mode. Do not extend the 400ms sound gate or claim the new direct-anchor safety rule fixes submission latency. Acquire paired browser render-phase telemetry and synchronized evidence before any readiness upgrade. Legacy spectator remains default; `?feedback=d04` remains opt-in.
+
+## Corrected test-first verification (same isolated branch)
+
+- **RED confirmed:** [43415225909](https://github.com/my-edutu/Ai_games/actions/runs/43415225909) = 275/276, failure specifically `a once-witnessed injury cannot be painted on a later drawable body`, expected `false` versus actual `true`.
+- **Implementation and test calibration:** [161a299](https://github.com/my-edutu/Ai_games/commit/161a2995931c121de734b6a83a814d0178738acd) correctly rejected that stale tick and the remaining invalid identity/HP cases. The immediate [43415402823](https://github.com/my-edutu/Ai_games/actions/runs/43415402823) remained red, **not** because of source behavior: the regression's final positive case accidentally reused the preceding deliberately malformed `NaN`-HP snapshot. Do not label this as a successful green run.
+- **Test fixture corrected:** [d56f9e3](https://github.com/my-edutu/Ai_games/commit/d56f9e32cb006bacd0e60ac341fdf72e6bc29fd4) restores a legitimate same-tick snapshot before its final positive assertion; it never weakens any invalid-case rejection.
+- **GREEN confirmed:** [43415761597](https://github.com/my-edutu/Ai_games/actions/runs/43415761597), `contracts` job completed with **276/276** native checks passing, **0 failures**, and `npm run build` passed.
+- The real Chrome `real-preview` job in that same run was **queued** at this evidence checkpoint. No new-head moving-viewpoint, encoded video, audible PCM synchronization or strict visual acceptance is claimed here. Its result must be separately inspected.
+
+No protected or other-session files were changed. This correction is a source-level safety gate, not a performance victory.
