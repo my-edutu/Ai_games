@@ -5,7 +5,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const game=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const game=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/i)?.[1];
 assert(game,'real original game script missing');
 new vm.Script(game,{filename:'tiny-kingdom-authentic-game.js'});
 const part=(a,b)=>{
@@ -14,7 +14,7 @@ const part=(a,b)=>{
  return game.slice(i,j);
 };
 const courtSource=part('function fieldThreshingOpenAisleProfile(',
- '\\nfunction farmstead(');
+ '\nfunction farmstead(');
 const court={
  Math,Number,data:[],FARM_MARKET_STREET_ORIGIN:[29,-7.6],
  FIELD_TO_GRANARY_GATE:[21.7,-2.45],
@@ -30,8 +30,8 @@ const court={
 };
 vm.createContext(court);
 vm.runInContext(courtSource+
- '\\nthis.courtPlan=fieldThreshingOpenAisleProfile;'+
- '\\nthis.courtBuild=grainwardFieldThreshingCourt;',court);
+ '\nthis.courtPlan=fieldThreshingOpenAisleProfile;'+
+ '\nthis.courtBuild=grainwardFieldThreshingCourt;',court);
 const p=court.courtPlan(16.4,20.2),a=court.courtBuild();
 assert(p.openAisleMetres>=1.8,'do not roof over actual farmer work corridor');
 assert.equal(a.posts,6,'all original structural load posts retained');
@@ -48,7 +48,7 @@ assert.equal(a.changesAuthority,false);
 assert(court.data.every(Number.isFinite),'finite original worksite geometry');
 
 const fruitSource=part('function originalOrchardFruit(',
- '\\nfunction orchardTrees(');
+ '\nfunction orchardTrees(');
 let triangles=0;
 const fruit={Math,data:[],tri:(a,b,c)=>{triangles++;
  for(const v of [a,b,c]){
@@ -56,10 +56,10 @@ const fruit={Math,data:[],tri:(a,b,c)=>{triangles++;
   assert(v.every(Number.isFinite));
  }}};
 vm.createContext(fruit);vm.runInContext(fruitSource+
- '\\nthis.fruit=originalOrchardFruit;',fruit);
+ '\nthis.fruit=originalOrchardFruit;',fruit);
 assert.equal(fruit.fruit(-28,2,6,.105,[.9,.7,.3]),8);
 assert.equal(triangles,8,'8 real 3D faces per tiny orchard fruit');
-const orchard=part('function orchardTrees(', '\\n// W127E:');
+const orchard=part('function orchardTrees(', '\n// W127E:');
 assert(orchard.includes('originalOrchardFruit('),
  'all physically existing orchard fruit now use the bounded solid 3D mesh');
 assert(!orchard.includes('ellipsoid(fx,'),
@@ -67,7 +67,7 @@ assert(!orchard.includes('ellipsoid(fx,'),
 assert.match(orchard,/orchardVisualStats\.fruit\+\+/,
  'original 45 spring fruit objects still counted');
 const originalGranary=part('function granaryArchitecture(', 
- '\\n// W02 connected food economy:');
+ '\n// W02 connected food economy:');
 assert.match(originalGranary,/MATERIAL\.PLASTER[\s\S]*?box\(x,y\+2\.43,z,w\+\.18,\.80,d\+\.14/,
  'original raised granary upper storey must be limewashed full 3D mass');
 assert.match(originalGranary,/audit\.upperGrainWindows\+\+/,
