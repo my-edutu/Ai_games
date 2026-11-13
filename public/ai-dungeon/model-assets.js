@@ -2045,8 +2045,8 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  if(!Number.isFinite(sourceWeight)||sourceWeight<.82||sourceWeight>1.001||
   !Number.isFinite(travel)||travel<.008||travel>.24||
   !Number.isFinite(age)||age<0||age>.18||
-  !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.1||
-  !actor.assetRoot?.uuid){
+  !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.15||
+  (frameInterval>.1&&sourceWeight<.95)||!actor.assetRoot?.uuid){
   markBoth('invalid-original-source-frame-or-motion-witness');
   return;
  }
@@ -2101,6 +2101,8 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    // shallow toe burial, if the original opposite shoe actually supports.
    // Deep swinging toes retain the preexisting >=90%-source requirement.
    (sourceWeight<.90&&(swing.toeY<=-.045||frameInterval>.05))||
+   (frameInterval>.1&&(sourceWeight<.95||swing.toeY<=-.045||
+    swing.toeY>-.026))||
    ![loaded.heelY,loaded.toeY].every(y=>y>=-.075&&y<=.015)){
    markGate(side,'no-safe-airborne-and-opposite-shoe-pair');
    continue;
