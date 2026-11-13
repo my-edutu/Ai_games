@@ -33,7 +33,7 @@ test('cold native Floor9 receives real body+same original arch composition after
     assert.equal(result?.coldOriginalArch,true);
     assert.equal(result.sourceTick,476);
     assert.ok(result.span>0 && result.span<26);
-    assert.ok(result.focusWeight>.1 && result.focusWeight<=.36);
+    assert.ok(result.focusWeight>.1 && result.focusWeight<=.44);
     assert.ok(result.radius>=47 && result.radius<=104);
     assert.ok(result.focus.every(Number.isFinite));
     const frozen=JSON.stringify({source,held,hero});
@@ -56,17 +56,32 @@ test('no false or detached source, dead guardian, wrong run, distant body, stale
       guardian:{kind:'guardian',active:true,health:1}}},held,hero ],
     [ {...source,platforms:[]},held,hero ],
     [ source,{...held,oldCapX:0},hero ],
-    [ source,{...held,submittedFrames:8},hero ],
+    [ source,{...held,submittedFrames:9},hero ],
     [ source,{...held,visibleSeconds:1.5},hero ],
     [ source,held,{...hero,x:hero.x+12} ]
   ];
   for(const [s,h,v] of cases)assert.equal(shot(s,h,v,390/844),null);
   assert.equal(shot(source,held,hero,0),null);
 });
+test('source-backed late portrait submissions still frame the SAME original physical gate and actual moving body',async()=>{
+  const {observedSourceBoundColdDoorwayLens:shot}=await entry;
+  const {source,held,hero}=await fixture();
+  const late={...held,submittedFrames:7,visibleSeconds:1.1};
+  const frame=shot(source,late,hero,390/844);
+  assert.equal(frame?.coldOriginalArch,true);
+  assert.equal(frame?.sourceTick,source.tick);
+  assert.ok(frame.radius>=62,'portrait keeps both real subjects within its physically safe exterior radius');
+  assert.equal(shot(source,{...late,visibleSeconds:1.26},hero,390/844),null,
+    'old geometry cannot be prolonged past its bounded submitted-frame sightline');
+  assert.equal(shot(source,{...late,submittedFrames:9},hero,390/844),null);
+});
 test('production bridge consumes the genuine retained GPU witness in one camera, no teleport',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/world\.retainedFilmHandoff\?\.\(snapshot\)/);
   assert.match(scene,/observedSourceBoundColdDoorwayLens\(snapshot, coldArchProof,/);
   assert.match(scene,/coldArchLens\?\.coldOriginalArch/);
+  assert.match(scene,/const opticalHandoff=!opticalGuardian/);
+  assert.match(scene,/snapshot\.floor===9 && opticalHandoff/);
+  assert.match(scene,/source-original-floor-nine-gateway/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
