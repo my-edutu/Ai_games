@@ -25,12 +25,25 @@ function findSustainedVoidPhase(scores,fps=FPS){
   // Short purple spells, UI and intermittent flares cannot become a floor.
   const warm=Math.ceil(3*fps),cool=Math.ceil(1*fps),min=.22;
   for(let i=warm;i<=scores.length-cool;i++){
-    const past=scores.slice(i-warm,i),future=scores.slice(i,i+cool);
-    if(past.every(Number.isFinite)&&
-       past.reduce((a,b)=>a+b,0)/past.length<.08&&
-       past.filter(x=>x<.12).length>=Math.ceil(warm*.66)&&
-       future.every(x=>Number.isFinite(x)&&x>=min)){
+    const future=scores.slice(i,i+cool);
+    if(!future.every(x=>Number.isFinite(x)&&x>=min))continue;
+    // A legitimate cold-floor arrival may spend 0.5–2s in a partially
+    // bronze / partially violet palette. The immediate preceding 3s would
+    // therefore be MIXED rather than cold, and an adjacent-warm-only search
+    // wrongly selected a second run's 8->9 transition ~40s later. Confirm a
+    // real sustained warm scene BEFORE the bounded mixed-color bridge; never
+    // infer a floor from chroma alone or accept an earlier violet interval.
+    for(let bridge=0;bridge<=Math.ceil(2*fps);bridge++){
+      const start=i-bridge-warm,end=i-bridge;
+      if(start<0)break;
+      const past=scores.slice(start,end);
+      const intermediate=scores.slice(end,i);
+      if(!past.every(Number.isFinite)||
+         past.reduce((a,b)=>a+b,0)/past.length>=.08||
+         past.filter(x=>x<.12).length<Math.ceil(warm*.66)||
+         !intermediate.every(x=>Number.isFinite(x)&&x<min))continue;
       return {nativeSeconds:i/fps,precisionSeconds:1/fps,
+        warmToCoolBridgeSeconds:bridge/fps,
         beforeMean:past.reduce((a,b)=>a+b,0)/past.length,
         afterMean:future.reduce((a,b)=>a+b,0)/future.length};
     }
