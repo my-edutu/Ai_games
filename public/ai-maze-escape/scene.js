@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1071,6 +1071,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           // AUTHORED outlines before deciding the safe shared camera span.
           portraitEncounterOrbit=publicPortraitGuardianOrbitAngle(
             aspect,closestThreat.strength,pose,closestThreat,settings.reducedMotion);
+          // Actual public brace/release stacks two physical actors vertically.
+          // Recover a diagonal body-against-body shot ONLY as their shared
+          // witnessed event advances; preserve strict native full-mesh fit.
+          portraitEncounterOrbit+=publicGuardianDuelShoulderOrbit(
+            aspect,closestThreat.strength,closestThreat.encounterBeat,
+            portraitEncounterOrbit,settings.reducedMotion);
           const sine=Math.sin(portraitEncounterOrbit), cosine=Math.cos(portraitEncounterOrbit);
           // Pass307 original 390px WebGL: the grounded guardian brace and
           // connected shell release are nearly indistinguishable from above.

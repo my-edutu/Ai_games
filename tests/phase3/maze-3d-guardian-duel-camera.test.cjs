@@ -119,3 +119,36 @@ test('Pass330 observed guardian camera has a continuous real warning-to-brace tr
  assert.equal(e(aspect,0,.89953,false),21,
    'a hidden/unobserved guardian cannot trigger a cinematic');
 });
+
+test('Pass333 source-observed 390px guardian physically un-stacks toward a side-on duel at brace and release',async()=>{
+ const {publicGuardianDuelShoulderOrbit:shot}=await camera();
+ const a=390/844,s=.818181818,o=-.78;
+ const beats=[0,.07,.16,.20,.30,.48889,.60,.73,.89953,1];
+ const frame=beats.map(b=>shot(a,s,b,o));
+ assert.deepEqual(frame.slice(0,3),[0,0,0]);
+ for(let i=1;i<frame.length;i++)assert.ok(frame[i]>=frame[i-1]-1e-12,
+   'no sudden camera reversal through actual public witness');
+ assert.ok(frame[5]>.23&&frame[5]<.29,'genuine planted brace gains independent actor silhouette');
+ assert.ok(frame[8]>.39&&frame[8]<=.40000001,'full shell release earns visible separation');
+ assert.equal(frame[8],frame[9],'hold the completed disclosure');
+ assert.equal(shot(a,s,.89953,o),frame[8]);
+ assert.equal(shot(a,s,.89953,-o),-frame[8],'mirror the same public encounter');
+ assert.ok(frame.every(v=>o+v<0&&Math.abs(o+v)>=.38),
+   'the camera never flips across the actors to invent a new space');
+});
+test('Pass333 no shoulder camera on unknown, ended, reduced-motion or wrong-size/attention inputs',async()=>{
+ const {publicGuardianDuelShoulderOrbit:shot}=await camera();
+ const a=390/844;
+ for(const b of [undefined,null,NaN,Infinity,-Infinity,-1,0,1.01,'0.5'])
+   assert.equal(shot(a,.82,b,-.78,false),0);
+ for(const s of [0,.4,.70,NaN,Infinity,-1])
+   assert.equal(shot(a,s,.8,-.78,false),0);
+ for(const o of [0,.02,-.02,NaN,Infinity])
+   assert.equal(shot(a,.82,.8,o,false),0);
+ for(const size of [844/390,1280/900,.61,.2,NaN,Infinity])
+   assert.equal(shot(size,.82,.8,-.78,false),0);
+ assert.equal(shot(a,.82,.8,-.78,true),0);
+ assert.match(scene,/portraitEncounterOrbit\+=publicGuardianDuelShoulderOrbit\(\s*aspect,closestThreat\.strength,closestThreat\.encounterBeat,\s*portraitEncounterOrbit,settings\.reducedMotion\)/);
+ assert.match(scene,/publicPortraitGuardianHalfHeight\(/,
+   'preserve real actor mesh physical camera bounds and strict tests');
+});

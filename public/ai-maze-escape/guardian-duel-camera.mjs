@@ -48,3 +48,25 @@ export function publicGuardianPhysicalCloseupHalfHeight(
     currentHeight*top/.70,currentHeight*bottom/.84);
   return Number.isFinite(safe)?Math.min(currentHeight,safe):currentHeight;
 }
+
+/**
+ * Source-witnessed guardian over-the-shoulder composition. The approved
+ * actor-axis orbit keeps both actors onscreen at warning, but original
+ * unaltered 390px brace/release WebGL compressed them into ONE silhouette.
+ * On that same witnessed clock, reveal the two opposed physical bodies by
+ * easing a little back toward the normal diorama azimuth. This never moves
+ * an actor or authorizes a private guardian/camera, new route or collider.
+ */
+export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbit,reducedMotion=false){
+  if(reducedMotion || !Number.isFinite(aspect) || aspect<.35 || aspect>=.60
+    || !Number.isFinite(strength) || strength<=.70
+    || typeof beat!=='number' || !Number.isFinite(beat) || beat<=0 || beat>1
+    || !Number.isFinite(currentOrbit) || Math.abs(currentOrbit)<.03)return 0;
+  const attention=Math.max(0,Math.min(1,(strength-.70)/.10));
+  const t=Math.max(0,Math.min(1,(beat-.16)/.57));
+  if(t<=0)return 0;
+  const reveal=t*t*(3-2*t);
+  // Preserve the known camera side and hand off framing to the existing
+  // conservative full-mesh two-endpoint +/-0.95 physical outline fitter.
+  return -Math.sign(currentOrbit)*Math.min(.40,Math.abs(currentOrbit)*.54)*attention*reveal;
+}
