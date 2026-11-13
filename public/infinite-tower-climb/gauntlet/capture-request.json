@@ -2119,5 +2119,28 @@
     "supportedDeviceFrameAndMemory": "NOT EVALUATED",
     "transformationVerdict": "NOT EVALUATED",
     "boundaries": "PR68 remains draft over PR58, baseline never moves, no merging/deploy/force-push/other games"
+  },
+  "p0OriginalPortraitDoorwayMissingRecordRebuildRecapture20261113": {
+    "stage": "P0 OPEN — new original native source-pinned film mandatory; transformation NOT EVALUATED",
+    "immutableFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCodeCommit": "700b7292df9c873dc65052a3d39974219829b5d1",
+    "candidateSourceSha": "EXACT github.sha OF THIS capture-request commit, never floating PR68 branch; subsequent docs may not alter actual game source",
+    "sourceSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "target": "Run original 9-job campaign with EIGHT unedited 60s+ 1x 20Hz source-bound baseline/candidate ascent, moving, danger guardian/crusher -> grounded original bronze portal -> F9 onward, authentic outcome/restart, desktop 960x600 plus portrait 390x844 and one source-native event pairing. Record returned actual WebGL submission time and native WebM PTS.",
+    "originalBeforeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/43489266207 — 8 source-pinned films completed; 0/2 strict event-matched native physical gateway views, F8 bronze -> F9 violet abrupt scene cut.",
+    "exactPrimaryDefect": "Portrait first real F9 GPU return tick460 lost original old gateway despite true HP-zero grounded F8->F9 source tick451; immutable crossing lastGuardianCrossing not yet published when visual request staged. Source-authenticated existing original GPU gateway should survive late record publication and physical handoff.",
+    "requiredInspection": "Read original full normal speed pixel 22–31s DESKTOP and PORTRAIT, source actor/gate projections, old original retained gate identity, f8 and f9 physical same roof, real guardian HP-zero tick451, browser acceptance, first Three WebGL tick, native compositor real PTS; demand uninterrupted real body through SAME original bronze door, no abrupt switch to violet, no fabricated body/frames/authority.",
+    "sourceSpecificProof": "Check new verifiedObservedFloorAdvance true for same-run prior observed HP0 guardian, original cached f8 cap, grounded f9 landing, whole-body clearance and within <=12 observed ticks; original cap/gate stay identical objects at FIRST late GPU frame even if crossingTick null. Later authentic same-run crossing can reconcile. Reject mismatched record, wrong run/floor/roof/player, wrong new game state.",
+    "technicalVerification": "https://github.com/my-edutu/Ai_games/actions/runs/43494255841 — not yet confirmed green; CI alone does NOT certify new native footage",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-late-source-portrait-original-gateway.md",
+    "safety": "No merge, deploy, force-push, baseline update, PR58 edit, unrelated games change, or change from draft status"
   }
 }
