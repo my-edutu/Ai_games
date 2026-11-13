@@ -1,4 +1,26 @@
 {
+  "p0RealRoofSpanningBronzeGeometryAndSourceWorldFixtureRecovery20261113": {
+    "stage": "P0 OPEN — authentic gateway visual acceptance not proved",
+    "sourceBranch": "feat/tower-transformation-gauntlet-20261101",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateProductionSha": "26f08730f42f5948bef4f60f36b98c743a623f33",
+    "candidateExactHeadBeforeEvidenceRequest": "795d42c7ccee23d1ac25e165a55adbd543f6db2b",
+    "requested": "Run existing nine-job immutable-source baseline/candidate capture with actual desktop 960x600 and portrait 390x844, matched source seed/tier, 60+ second ascent, moving, danger, outcome and restart; preserve compositor-native timebase, physical gateway and exact source event matching",
+    "priorEightVideos": "https://github.com/my-edutu/Ai_games/actions/runs/43518986496 — recorded 8/8 source timelines, strict 0/2 viewport event-aligned visual crossing acceptance",
+    "priorCiVeto": "https://github.com/my-edutu/Ai_games/actions/runs/43518986503 — test fixture module resolution failed; see review",
+    "sourceAndTestChanges": [
+      "26f08730f42f5948bef4f60f36b98c743a623f33",
+      "795d42c7ccee23d1ac25e165a55adbd543f6db2b"
+    ],
+    "acceptOnlyIf": "Same original bronze gate and actual climber remain visibly contiguous through genuine source-earned crossing, floor nine traversal, outcome/restart; no manufactured clip or approval",
+    "reviewerCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-spanning-roof-and-true-three-world-ci.md"
+  },
   "p0SourceRetainedOriginalArchColdCameraFilm20261113": {
     "stage": "P0 OPEN; real source-pinned native film acceptance NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",

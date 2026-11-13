@@ -1,4 +1,35 @@
 {
+  "p0RealRoofSpanningBronzeGeometryAndSourceWorldFixtureRecovery20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedBranchBeforeWork": "5cc5e9f7229fc0be55be8ab172eef3166788b2c0",
+    "productionSystemSha": "26f08730f42f5948bef4f60f36b98c743a623f33",
+    "testAndFixtureCorrectionSha": "795d42c7ccee23d1ac25e165a55adbd543f6db2b",
+    "importantInspectedEvidence": {
+      "previousNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43518986496",
+      "originalVideos": "All eight original baseline/candidate normal-speed captures completed successfully; authentic source events 8/8 paired, but strict event-aligned physical crossing preference remains 0/2, unaccepted",
+      "previousCI": "https://github.com/my-edutu/Ai_games/actions/runs/43518986503 — failed 4/10 jobs because copied real world.mjs imported new source-physical-arrival-palette.mjs from absent /tmp sibling",
+      "firstCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/43521331877 — phase3 0 passed, phase3 1/2/3 failed at genuine unpatched temp imports and source-distance fixture assertion",
+      "correctedExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43521644501 — running/queued, no green claim"
+    },
+    "actualSourceChange": "Source-original clockwork structural triangle selection retains bounded unmodified vertical posts spanning Floor8→9 roof plane, rather than rejecting every genuine bearing triangle with an endpoint outside a short slice. Original normals, UVs, triangulation, material owners and 4096-face/10-batch hard budget stay intact. No game authority, new bridge, fake portal or duplicate actor.",
+    "actualTestChange": "Added real Three.js tall-bearing regression; repaired thirteen isolated test fixtures across source-world construction, geometry, foreground, landing and gateway; corrected retained-source-cap-world test to use real 10,000-unit source walking movement for palette changes, not a fictitious WebGL time-only color transition.",
+    "notProved": [
+      "No new exact-head native visual pass",
+      "No independent randomized 5x LOOKS, FEELS or PLAYS judgments",
+      "No actual-device p50/p95/p99 frame-time or memory measurements",
+      "No new full-loop visual crossing/restart acceptance"
+    ],
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevicePerformance": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect this new SHA's 60+ second 960x600 and 390x844 original motion, compare native 24–27s gateway/body/roof with source ticks, complete exact-head CI; if hard cut remains, reconstruct actual shared world depth and physical corridor camera rather than adding fades/timers. Continue through onward Floor9 and authentic restart.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-original-spanning-roof-and-true-three-world-ci.md"
+  },
   "p0SourceRetainedBronzeDoorCamera20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
