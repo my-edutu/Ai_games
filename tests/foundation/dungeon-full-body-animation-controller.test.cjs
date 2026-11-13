@@ -5107,3 +5107,55 @@ test('RED: licensed toe-hinge source can reduce witnessed swing-toe burial witho
  assert.match(renderer,/restoreOriginalSourceSwingToesBeforeMixer\(actor\)/,
   'source toe overlays must restore before each original animation mixer frame');
 });
+
+
+// Authentic 390px source original Walking_A at 85.5% crossfade, real
+// skinned right toe ends Y=-.027935m versus stone Y=-.020m after native
+// ankle/calf chain (Actions #43496805820, original mobile 9-tick GLB).
+// The sample does NOT have a certified loaded opposite shoe, so this unit
+// case's safe stable left shoe and post-hinge right toe are hypothetical
+// inputs to verify the contract, NOT claimed as captured WebGL improvement.
+// A narrow source-owned final toe release may finish 6-25mm residual burial
+// only after both licensed skinned shoes independently prove its safety.
+test('RED: true 85-percent original Walking_A crossfade can finish a shallow airborne toe only with two-shoe readback',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ const left={heelY:-.027,toeY:-.024,
+  heelXZ:[-4.62,-6.93],toeXZ:[-4.89,-6.93]};
+ const right={heelY:.22569519543567104,toeY:-.027935060055099208,
+  heelXZ:[-4.893967,-7.09717],toeXZ:[-5.036448,-7.14302]};
+ const before={left,right};
+ const lifted={left:{...left},right:{...right,
+  toeY:-.0209,heelY:right.heelY+.0005,
+  toeXZ:[right.toeXZ[0]+.003,right.toeXZ[1]+.002]}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:.8552172183990479,
+  ownerLocomotion:true,sourceToeChainVerified:true,sourceToeTrackVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.023635,frameAge:.033,frameInterval:.0333,side:'right',
+  floorTopY:-.02,before,trials:[{angleRad:-.10,after:lifted}]};
+ const accepted=choose(owner);
+ assert.equal(accepted?.angleRad,-.10,
+  'a real crossfade may use tested, safe toe hinge to finish shallow burial');
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.oppositeFootVerified,true);
+ assert.ok(accepted.liftMeters>.006&&accepted.afterToeY>=-.023,
+  'the heel remains airborne and actual sole is nearly clear, not a planted foot');
+ for(const reject of [
+  {sourceWeight:.819},{frameInterval:.051},
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},{ownerLocomotion:false},
+  {sourceToeChainVerified:false},{sourceToeTrackVerified:false},
+  {rootTravel:0},{frameAge:.21},{reducedMotion:true},
+  {interrupted:true},{teleport:true},{alive:false},
+  {before:{left,right:{...right,toeY:-.049}}},
+  {trials:[{angleRad:-.10,after:{...lifted,right:{...lifted.right,toeY:-.026}}}]},
+  {trials:[{angleRad:-.10,after:{...lifted,left:{...left,toeY:left.toeY+.006}}}]},
+  {trials:[{angleRad:-.10,after:{...lifted,right:{...lifted.right,heelY:right.heelY-.008}}}]}
+ ])assert.equal(choose({...owner,...reject}),null,
+  'no early shallow toe relief without safe real original-source two-shoe proof');
+ // A partially blended deep-burial source toe is still too risky: the
+ // previous >=90% clip-weight and severe-burial safeguards remain intact.
+ const deep={...owner,before:{left,right:{...right,toeY:-.089}},
+  trials:[{angleRad:-.10,after:{...lifted,right:{...lifted.right,toeY:-.074}}}]};
+ assert.equal(choose(deep),null,
+  'partial source blend cannot authorise the existing severe toe-hinge correction');
+});
