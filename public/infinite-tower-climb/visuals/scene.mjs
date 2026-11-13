@@ -5003,8 +5003,15 @@ export function createTowerScene(canvas, settings = {}) {
       // passage owner. A cold THREE framebuffer can now be bounded *before*
       // the expensive first post-doorway render, not after an HTTP receipt.
       // Change the low-tier canvas ONLY, never the authoritative snapshot.
+      // The current retained gate is ALREADY checked against the immutable
+      // same-run HP-zero crossing by the actual World owner. Low-tier
+      // framebuffer recovery may therefore span grounded arrival and the
+      // first real airborne follow frames, instead of reallocating a
+      // full-size GPU target in the middle of the doorway shot.
+      const retainedColdArrival = world.retainedFilmHandoff?.(snapshot) ?? null;
       const nextColdScale = coldFloorPolicy.observe(snapshot,passage.diagnostics(),
-        {stale:options.stale,camera:options.camera,quality:options.quality,reducedMotion:options.reducedMotion});
+        {stale:options.stale,camera:options.camera,quality:options.quality,reducedMotion:options.reducedMotion},
+        retainedColdArrival);
       if (nextColdScale !== coldFloorScale) {
         coldFloorScale = nextColdScale;
         resize();
