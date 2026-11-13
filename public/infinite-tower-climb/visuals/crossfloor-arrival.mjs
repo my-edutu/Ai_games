@@ -1,3 +1,62 @@
+// The first portrait WebGL submission in original 07aa3bda video reached
+// floor-nine at tick460; the browser had already accepted the REAL 8->9
+// grounded handoff at tick451 but its lastGuardianCrossing publication was
+// absent at that first browser receipt. The old GPU gateway was destroyed
+// before ever reaching native film, even though the original defeated
+// guardian, old grounded cap, new grounded deck and body were all witnessed.
+//
+// This narrow alternate route is ONLY for an already staged, original
+// source-owned F8 cap+gateway. The stage records the old defeated guardian
+// and genuine browser-observed grounded transition, independently from the
+// immutable crossing publication. It cannot spawn a gate or promote a floor.
+// Rejected if a crossing record EXISTS but conflicts; do not use the weaker
+// browser witness to override contradictory authority.
+export function observedQueuedOriginalCapFromGroundedReceipt(source,queued) {
+  const p=source?.player;
+  if(!queued?.verifiedObservedFloorAdvance || !p ||
+    source?.lastGuardianCrossing != null ||
+    source.lifecycle!=='running' || source.floor!==9 || source.theme!=='void' ||
+    source.runToken!==queued.runToken || queued.floor!==9 ||
+    !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(queued.tick) ||
+    source.tick<=queued.tick || source.tick-queued.tick>12 ||
+    source.chunkBaseY!==queued.nextBaseY ||
+    source.worldWidth!==queued.worldWidth ||
+    !Number.isSafeInteger(queued.oldCapX) ||
+    !Number.isSafeInteger(queued.oldCapWidth) ||
+    queued.oldCapId!=='f8:cap' || queued.oldCapWidth<=0 ||
+    ![queued.oldRoofY,queued.thresholdX,queued.observedCrossingX,
+      queued.observedCrossingY,queued.observedHalfWidth,
+      queued.observedHalfHeight,p.x,p.y,p.halfWidth,p.halfHeight]
+      .every(Number.isSafeInteger) ||
+    queued.observedHalfWidth<=0 || queued.observedHalfHeight<=0 ||
+    p.halfWidth!==queued.observedHalfWidth ||
+    p.halfHeight!==queued.observedHalfHeight ||
+    queued.thresholdX!==queued.oldCapX+Math.floor(queued.oldCapWidth*.76) ||
+    queued.observedCrossingX <
+      queued.thresholdX+queued.observedHalfWidth+4000 ||
+    queued.observedCrossingY-queued.observedHalfHeight!==queued.oldRoofY ||
+    p.x<queued.observedCrossingX ||
+    p.x-queued.observedCrossingX>(source.tick-queued.tick)*18000 ||
+    p.x>queued.thresholdX+90000 ||
+    !(p.health>0) || !Array.isArray(source.platforms)) return false;
+  const ground=source.platforms.find(s=>s?.id==='f9:ground');
+  if(!ground ||
+    ![ground.x,ground.y,ground.width,ground.height].every(Number.isSafeInteger) ||
+    ground.width<=0 || ground.height<=0 ||
+    ground.y+ground.height!==queued.oldRoofY ||
+    p.x-p.halfWidth<ground.x ||
+    p.x+p.halfWidth>ground.x+ground.width) return false;
+  const foot=p.y-p.halfHeight;
+  if(!Number.isSafeInteger(foot) ||
+      foot<queued.oldRoofY-2500 || foot>queued.oldRoofY+55000) return false;
+  if(p.grounded===false)
+    return p.state==='airborne' && p.groundedPlatformId==null &&
+      Number.isFinite(p.vy);
+  return p.grounded===true && p.groundedPlatformId==='f9:ground' &&
+    (p.state==='standing'||p.state==='hurt') && p.vy===0 &&
+    p.y===queued.observedCrossingY && foot===queued.oldRoofY;
+}
+
 // Physically earned, source-bounded old-to-new tower world continuity.
 // Renderer submissions are NOT equivalent to pixels reaching the native film.
 // Preserve the original bronze gate/roof across several submissions while a
@@ -22,6 +81,8 @@
  * 12-tick observation gap. No unobserved pose or game event is fabricated.
  */
 export function observedQueuedOriginalCapAtFirstRender(source, queued) {
+  if(source?.lastGuardianCrossing == null)
+    return observedQueuedOriginalCapFromGroundedReceipt(source,queued);
   const w=source?.lastGuardianCrossing,p=source?.player;
   const cap=w?.cap,guardian=w?.guardian;
   if (!queued||!w||!p||!cap||!guardian||
@@ -34,7 +95,10 @@ export function observedQueuedOriginalCapAtFirstRender(source, queued) {
         w.halfWidth,w.halfHeight,queued.oldCapX,queued.oldCapWidth,
         queued.oldRoofY,queued.thresholdX,p.x,p.y,p.halfWidth,p.halfHeight]
         .every(Number.isSafeInteger)||
-      w.sourceTick!==queued.crossingTick||
+      !(queued.crossingTick===w.sourceTick ||
+        (queued.crossingTick==null &&
+         queued.verifiedObservedFloorAdvance===true &&
+         queued.tick>=w.sourceTick && queued.tick-w.sourceTick<=12))||
       queued.tick<w.sourceTick||queued.tick-w.sourceTick>12||
       source.tick<=queued.tick||source.tick-queued.tick>12||
       source.tick-w.sourceTick>48||
