@@ -1115,6 +1115,13 @@ for(const view of [
  if(realOriginalTurns.length){
   expect(physicallyObservedCounterturns.length,
    'a witnessed 0.637rad original Walking_A pivot must have a measured bounded source-spine response').toBeGreaterThan(0);
+  // Previous real 1440px source film had TWO legal root-pivot candidates
+  // but only ONE imported-spine response. A green one-of-two is not a
+  // viewer-perceived continuity pass: every qualifying real source frame
+  // must own its own bounded original chest/weapon-follow-through response.
+  // Nonqualifying frames remain explicitly unclaimed in the raw evidence.
+  expect(physicallyObservedCounterturns.length,
+   'every legal actual Walking_A root pivot needs same-frame source-spine response, not just one lucky frame').toBe(realOriginalTurns.length);
  }
  for(const p of rafWindows.flatMap(w=>w.pairs)){
   expect(Math.abs(p.originalSpineCounterturnAfterRad||0)).toBeLessThanOrEqual(.120001);
