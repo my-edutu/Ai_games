@@ -520,3 +520,98 @@ test('D04 slow-phase evidence includes real cue admission after the retained vis
    'a staged sword attempt alone does not authorize an audible impact');
  }finally{c.dispose()}
 });
+
+
+test('silent genuine HP art needs its own timely submitted-frame witness without retroactive sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ let clock=200;
+ const played=[],retired=[];
+ const options={
+  requirePresentedFrame:true,clock:()=>clock,
+  visualAdapter:{emit(){return true},advance(){},reset(){},dispose(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   retireStaleCue(id,why){retired.push(why);return true}},
+  audioAdapter:{enable(){return true},emit(cue){played.push(cue);return true},
+   disable(){},flush(){},cleanup(){},dispose(){}}
+ };
+ const damaged=tick=>snap(tick,{units:[hero({hp:19,action:'hurt',actionTick:tick}),foe()]});
+ const d=createPhysicalCombatFeedback(options);
+ try{
+  d.acceptSnapshot(snap(10));d.acceptSnapshot(damaged(11));d.advance(.016,.016);
+  assert.equal(d.stats().awaitingPresentation,1,
+   'no sound consent still requires a per-cue visual submission receipt');
+  assert.equal(played.length,0);
+  clock+=.03;
+  assert.equal(d.acknowledgePresentedFrame(1,.015),0);
+  const proof=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(proof.decision,'visual-only-submitted');
+  assert.equal(proof.kind,'damage');
+  assert.equal(proof.frameId,1);
+  assert.equal(proof.visual,true);
+  assert.equal(proof.audio,false);
+  assert.equal(proof.observationToSubmissionMs,30);
+  assert.equal(d.enableAudioFromGesture(),true);
+  assert.equal(d.acknowledgePresentedFrame(2,.015),0);
+  assert.equal(played.length,0,'opting in cannot play an older silent injury');
+  assert.deepEqual(retired,[]);
+ }finally{d.dispose()}
+});
+
+test('mute preserves visual-only frame evidence but revokes original HP sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ let clock=100;
+ const emitted=[],retired=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>clock,
+  visualAdapter:{emit(){return true},advance(){},reset(){},dispose(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   retireStaleCue(id,reason){retired.push(reason);return true}},
+  audioAdapter:{enable(){return true},emit(c){emitted.push(c);return true},
+   disable(){},flush(){},cleanup(){},dispose(){}}
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snap(10));
+  d.acceptSnapshot(snap(11,{units:[hero({hp:20,action:'hurt',actionTick:11}),foe()]}));
+  d.advance(.016,.016);
+  assert.equal(d.stats().awaitingPresentation,1);
+  d.muteAudio();
+  assert.equal(d.stats().awaitingPresentation,1,'mute revokes sound, not the visual audit');
+  clock+=.025;
+  assert.equal(d.acknowledgePresentedFrame(1,.012),0);
+  assert.equal(emitted.length,0);
+  const tail=d.stats().recentDeliveryReceipts;
+  assert.equal(tail.at(-1).decision,'visual-only-submitted');
+  assert.ok(tail.some(x=>x.decision==='muted-before-submission'&&x.audio===false));
+  assert.deepEqual(retired,[]);
+ }finally{d.dispose()}
+});
+
+test('expired or unverifiable silent HP visuals cannot masquerade as submitted impact',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ for(const variant of ['slow','undrawable','unverified']){
+  let clock=100;
+  const retired=[];
+  const visual={emit(){return true},advance(){},reset(){},dispose(){},
+   hasLiveCue(){return true},
+   hasDrawableCue(){return variant!=='undrawable'},
+   retireStaleCue(id,why){retired.push(why);return true}};
+  if(variant==='unverified')delete visual.hasLiveCue;
+  const d=createPhysicalCombatFeedback({
+   requirePresentedFrame:true,clock:()=>clock,visualAdapter:visual
+  });
+  try{
+   d.acceptSnapshot(snap(10));
+   d.acceptSnapshot(snap(11,{units:[hero({hp:20,action:'hurt',actionTick:11}),foe()]}));
+   d.advance(.016,.016);
+   clock+=variant==='slow'?.72:.03;
+   d.acknowledgePresentedFrame(1,.012);
+   const receipt=d.stats().recentDeliveryReceipts.at(-1);
+   assert.notEqual(receipt.decision,'visual-only-submitted',variant);
+   assert.equal(receipt.audio,false);
+   assert.equal(receipt.frameId,1);
+   assert.equal(receipt.sampleSynchronized,false);
+   if(variant==='slow')assert.deepEqual(retired,['stale-frame']);
+  }finally{d.dispose()}
+ }
+});
