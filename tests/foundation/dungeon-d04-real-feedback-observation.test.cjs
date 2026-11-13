@@ -99,7 +99,7 @@ test('real preview persists original media and forensic verdict BEFORE the final
 
 const delivered=(tick,target,kind='damage')=>({
  cueId:`1:1:${tick}:${kind}:-:${target}`,scene:'1:1',tick,kind,
- visual:true,audio:true,frameId:12,decision:'delivered',
+ visual:true,audio:true,visualDrawableAtSubmission:true,frameId:12,decision:'delivered',
  observedClockMs:1000,submittedClockMs:1120,observationToSubmissionMs:120
 });
 test('unrelated admitted visual at a later tick cannot certify the original authentic HP-loss victim',()=>{
@@ -151,6 +151,7 @@ test('real string frame IDs and silent HP visuals require credible frame and con
   'an opaque frame identity accepted by the D04 controller must not be discarded');
  for(const invalid of [
   {...authentic,audio:true},
+  {...authentic,visualDrawableAtSubmission:false},
   {...authentic,frameId:null},
   {...authentic,frameId:''},
   {...authentic,frameId:'x'.repeat(129)},
@@ -206,4 +207,23 @@ test('original authentic missed impact remains diagnosable without granting an e
  assert.equal(verdict.damageWorstSubmissionAgeMs,1700);
  assert.equal(verdict.damageWorstPendingExpiryWallAgeMs,1550);
  assert.equal(verdict.sampleSynchronized,false);
+});
+
+test('verified HP sound-only impact cannot be upgraded into VISIBLE frame admission',()=>{
+ const hidden={...delivered(4,'enemy-1-0'),visualDrawableAtSubmission:false};
+ const evidence=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:{...later.physicalFeedback,
+   visualAccepted:1,expiredQueuedCues:128,recentDeliveryReceipts:[hidden]}}});
+ assert.equal(evidence.authoritativeDamage,true);
+ assert.equal(evidence.damageCueReceiptObserved,true);
+ assert.equal(evidence.visualAcceptance,false);
+ assert.equal(evidence.status,'AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED');
+ assert.deepEqual(evidence.damageReceiptDecisions,['delivered']);
+ assert.equal(evidence.sampleSynchronized,false);
+ // No receipt from an older adapter may claim drawable pixels implicitly.
+ const missing=classifyAuthenticD04RenderObservation({before,after,atDamage,
+  latest:{...later,physicalFeedback:{...later.physicalFeedback,
+   visualAccepted:1,expiredQueuedCues:128,recentDeliveryReceipts:[
+    {...hidden,visualDrawableAtSubmission:undefined}]}}});
+ assert.equal(missing.visualAcceptance,false);
 });
