@@ -1974,5 +1974,25 @@
       "PLAYS": "0/5"
     },
     "hardware": "NOT EVALUATED"
+  },
+  "p0SourceBoundSubmittedCameraCadenceFullMotion20261113": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN; native visual acceptance NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "984209eef37aa489ba3501fbd165aaef3e84c413",
+    "candidateSourceSha": "EXACT immutable github.sha of this evidence commit; never floating branch",
+    "previousNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43412674243",
+    "previousVerdict": "8/8 60+s original unedited films captured; native physical bronze F8 doorway crossing 0/2. Source tick451 verifies progression but not same-gateway pixels. Full 1x inspection shows hard bronze-to-violet frame substitution around 24.6-25.2s both viewports.",
+    "scenario": "Nine-job source-pinned true gameplay baseline/candidate ascent, moving-floor platform, Floor8 original guardian/crusher defeat and physically earned threshold into floor9, outcome/restart; all 960x600 and 390x844, >=60s at original 1x 20Hz source capture, matched seed/tier and native WebM PTS",
+    "requiredEvidence": "Review native normal-speed 22–31s: prove FIRST genuinely returned F9 frame uses bounded source-authenticated 1/25s camera step rather than whole unseen stalled RAF dt. Actual hero and ORIGINAL existing bronze GPU gateway, roof and floor9 ground must remain co-visible across shared body-through-door crossing. Inspect sourceSubmittedDoorwayCadence diagnostics with exact source run and native frames. Reject if doorway not painted or violet shaft still jumps. Inspect complete 60s outcome/restart, compare safety and hardware separately.",
+    "knownConstraint": "Frozen baseline may not defeat guardian in same run: don't fabricate a matched victory, source event alignment or independent critics.",
+    "requiredCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevices": "NOT EVALUATED",
+    "nextIfFailed": "Rebuild source-authentic world/camera physical occlusion and shared depth, not additional time-only cosmetic fade.",
+    "review": "docs/reviews/2026-11-13-tower-pr68-submitted-frame-camera-cadence-vs-native-cut.md",
+    "leadingTransformationVerdict": "NOT EVALUATED"
   }
 }
