@@ -1,0 +1,94 @@
+{
+  "layout": {
+    "viewportWidth": 1920,
+    "scrollWidth": 1920,
+    "canvas": {
+      "x": 39,
+      "y": 123,
+      "width": 1842,
+      "height": 842,
+      "top": 123,
+      "right": 1881,
+      "bottom": 965,
+      "left": 39
+    },
+    "primary": {
+      "x": 734.8125,
+      "y": 41.015625,
+      "width": 417.15625,
+      "height": 35.515625,
+      "top": 41.015625,
+      "right": 1151.96875,
+      "bottom": 76.53125,
+      "left": 734.8125
+    }
+  },
+  "animation": {
+    "frames": 6,
+    "elapsedMs": 1144.599999999995,
+    "maxGapMs": 266.59999999999945,
+    "averageFps": 5.242005940940089,
+    "actualDraws": 6
+  },
+  "presentation": {
+    "renderer": "webgl",
+    "frameCount": 26,
+    "quality": "low",
+    "cameraMode": "overview",
+    "drawCalls": 51,
+    "triangles": 10079,
+    "geometries": 45,
+    "textures": 14,
+    "frameMs": {
+      "p50": 216.60000000000144,
+      "p95": 1016.5999999999991,
+      "p99": 1583.2000000000003
+    },
+    "staticCache": {
+      "supported": true,
+      "active": true,
+      "hits": 22,
+      "builds": 4,
+      "width": 1381,
+      "height": 631,
+      "samples": 4
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 3,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 25,
+      "materials": 12,
+      "textures": 4,
+      "bodyRings": 134,
+      "bodyVertices": 1206,
+      "detail": "low",
+      "bodyTriangles": 2112,
+      "paths": 2,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": false,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "scene": "normal",
+  "tick": 550
+}

@@ -1,0 +1,1249 @@
+{
+  "version": 1,
+  "tick": 966,
+  "scene": "milestone",
+  "publicStatus": "Major growth milestone",
+  "snapshot": {
+    "version": 1,
+    "runToken": "a923f792",
+    "revision": 1978368,
+    "tick": 966,
+    "movementStep": 966,
+    "width": 28,
+    "height": 16,
+    "boardProfile": "portals",
+    "snake": [
+      {
+        "id": "snake-0",
+        "cell": 250,
+        "role": "head"
+      },
+      {
+        "id": "snake-1",
+        "cell": 222,
+        "role": "body"
+      },
+      {
+        "id": "snake-2",
+        "cell": 194,
+        "role": "body"
+      },
+      {
+        "id": "snake-3",
+        "cell": 193,
+        "role": "body"
+      },
+      {
+        "id": "snake-4",
+        "cell": 192,
+        "role": "body"
+      },
+      {
+        "id": "snake-5",
+        "cell": 164,
+        "role": "body"
+      },
+      {
+        "id": "snake-6",
+        "cell": 136,
+        "role": "body"
+      },
+      {
+        "id": "snake-7",
+        "cell": 108,
+        "role": "body"
+      },
+      {
+        "id": "snake-8",
+        "cell": 80,
+        "role": "body"
+      },
+      {
+        "id": "snake-9",
+        "cell": 52,
+        "role": "body"
+      },
+      {
+        "id": "snake-10",
+        "cell": 24,
+        "role": "body"
+      },
+      {
+        "id": "snake-11",
+        "cell": 23,
+        "role": "body"
+      },
+      {
+        "id": "snake-12",
+        "cell": 22,
+        "role": "body"
+      },
+      {
+        "id": "snake-13",
+        "cell": 21,
+        "role": "body"
+      },
+      {
+        "id": "snake-14",
+        "cell": 20,
+        "role": "body"
+      },
+      {
+        "id": "snake-15",
+        "cell": 19,
+        "role": "body"
+      },
+      {
+        "id": "snake-16",
+        "cell": 18,
+        "role": "body"
+      },
+      {
+        "id": "snake-17",
+        "cell": 17,
+        "role": "body"
+      },
+      {
+        "id": "snake-18",
+        "cell": 16,
+        "role": "body"
+      },
+      {
+        "id": "snake-19",
+        "cell": 15,
+        "role": "body"
+      },
+      {
+        "id": "snake-20",
+        "cell": 14,
+        "role": "body"
+      },
+      {
+        "id": "snake-21",
+        "cell": 13,
+        "role": "body"
+      },
+      {
+        "id": "snake-22",
+        "cell": 12,
+        "role": "body"
+      },
+      {
+        "id": "snake-23",
+        "cell": 11,
+        "role": "body"
+      },
+      {
+        "id": "snake-24",
+        "cell": 10,
+        "role": "body"
+      },
+      {
+        "id": "snake-25",
+        "cell": 9,
+        "role": "body"
+      },
+      {
+        "id": "snake-26",
+        "cell": 8,
+        "role": "body"
+      },
+      {
+        "id": "snake-27",
+        "cell": 7,
+        "role": "body"
+      },
+      {
+        "id": "snake-28",
+        "cell": 35,
+        "role": "body"
+      },
+      {
+        "id": "snake-29",
+        "cell": 34,
+        "role": "body"
+      },
+      {
+        "id": "snake-30",
+        "cell": 62,
+        "role": "body"
+      },
+      {
+        "id": "snake-31",
+        "cell": 90,
+        "role": "body"
+      },
+      {
+        "id": "snake-32",
+        "cell": 118,
+        "role": "body"
+      },
+      {
+        "id": "snake-33",
+        "cell": 146,
+        "role": "body"
+      },
+      {
+        "id": "snake-34",
+        "cell": 174,
+        "role": "body"
+      },
+      {
+        "id": "snake-35",
+        "cell": 202,
+        "role": "body"
+      },
+      {
+        "id": "snake-36",
+        "cell": 230,
+        "role": "body"
+      },
+      {
+        "id": "snake-37",
+        "cell": 258,
+        "role": "body"
+      },
+      {
+        "id": "snake-38",
+        "cell": 286,
+        "role": "body"
+      },
+      {
+        "id": "snake-39",
+        "cell": 285,
+        "role": "body"
+      },
+      {
+        "id": "snake-40",
+        "cell": 284,
+        "role": "body"
+      },
+      {
+        "id": "snake-41",
+        "cell": 283,
+        "role": "body"
+      },
+      {
+        "id": "snake-42",
+        "cell": 282,
+        "role": "body"
+      },
+      {
+        "id": "snake-43",
+        "cell": 281,
+        "role": "body"
+      },
+      {
+        "id": "snake-44",
+        "cell": 309,
+        "role": "body"
+      },
+      {
+        "id": "snake-45",
+        "cell": 337,
+        "role": "body"
+      },
+      {
+        "id": "snake-46",
+        "cell": 365,
+        "role": "body"
+      },
+      {
+        "id": "snake-47",
+        "cell": 393,
+        "role": "body"
+      },
+      {
+        "id": "snake-48",
+        "cell": 53,
+        "role": "body"
+      },
+      {
+        "id": "snake-49",
+        "cell": 81,
+        "role": "body"
+      },
+      {
+        "id": "snake-50",
+        "cell": 109,
+        "role": "body"
+      },
+      {
+        "id": "snake-51",
+        "cell": 137,
+        "role": "body"
+      },
+      {
+        "id": "snake-52",
+        "cell": 165,
+        "role": "body"
+      },
+      {
+        "id": "snake-53",
+        "cell": 166,
+        "role": "body"
+      },
+      {
+        "id": "snake-54",
+        "cell": 138,
+        "role": "body"
+      },
+      {
+        "id": "snake-55",
+        "cell": 110,
+        "role": "body"
+      },
+      {
+        "id": "snake-56",
+        "cell": 82,
+        "role": "body"
+      },
+      {
+        "id": "snake-57",
+        "cell": 54,
+        "role": "body"
+      },
+      {
+        "id": "snake-58",
+        "cell": 394,
+        "role": "body"
+      },
+      {
+        "id": "snake-59",
+        "cell": 395,
+        "role": "body"
+      },
+      {
+        "id": "snake-60",
+        "cell": 396,
+        "role": "body"
+      },
+      {
+        "id": "snake-61",
+        "cell": 397,
+        "role": "body"
+      },
+      {
+        "id": "snake-62",
+        "cell": 398,
+        "role": "body"
+      },
+      {
+        "id": "snake-63",
+        "cell": 399,
+        "role": "body"
+      },
+      {
+        "id": "snake-64",
+        "cell": 400,
+        "role": "body"
+      },
+      {
+        "id": "snake-65",
+        "cell": 428,
+        "role": "body"
+      },
+      {
+        "id": "snake-66",
+        "cell": 429,
+        "role": "body"
+      },
+      {
+        "id": "snake-67",
+        "cell": 430,
+        "role": "body"
+      },
+      {
+        "id": "snake-68",
+        "cell": 431,
+        "role": "body"
+      },
+      {
+        "id": "snake-69",
+        "cell": 432,
+        "role": "body"
+      },
+      {
+        "id": "snake-70",
+        "cell": 433,
+        "role": "body"
+      },
+      {
+        "id": "snake-71",
+        "cell": 405,
+        "role": "body"
+      },
+      {
+        "id": "snake-72",
+        "cell": 406,
+        "role": "tail"
+      }
+    ],
+    "food": {
+      "id": "objective-main",
+      "cell": 426,
+      "kind": "standard",
+      "expiresAt": null
+    },
+    "obstacles": [],
+    "hazards": [
+      {
+        "id": "hazard-75",
+        "cell": 75,
+        "active": false,
+        "phase": 6
+      },
+      {
+        "id": "hazard-144",
+        "cell": 144,
+        "active": false,
+        "phase": 6
+      },
+      {
+        "id": "hazard-263",
+        "cell": 263,
+        "active": false,
+        "phase": 6
+      },
+      {
+        "id": "hazard-406",
+        "cell": 406,
+        "active": false,
+        "phase": 6
+      },
+      {
+        "id": "hazard-422",
+        "cell": 422,
+        "active": false,
+        "phase": 6
+      }
+    ],
+    "portals": [
+      {
+        "id": "portal-29-418",
+        "entry": 29,
+        "exit": 418
+      },
+      {
+        "id": "portal-54-393",
+        "entry": 54,
+        "exit": 393
+      }
+    ],
+    "score": 104,
+    "foodsCollected": 70,
+    "length": 73,
+    "goal": 96,
+    "occupancy": 73,
+    "progress": 0.7604166666666666,
+    "progressionBand": "major",
+    "ai": {
+      "mode": "preserve-space",
+      "confidence": 91,
+      "intent": "preserve-space: reachable=376, foodDistance=27, tail=true"
+    },
+    "lifecycle": "running",
+    "dangerLevel": 1,
+    "authorityChecksum": "62746cb6",
+    "checksum": "7abdd6b1"
+  },
+  "hud": {
+    "goal": 96,
+    "length": 75,
+    "progress": 0.78125,
+    "occupancyPct": 0.16741071428571427,
+    "phase": "milestone",
+    "primaryLabel": "LENGTH 75 / 96",
+    "secondaryLabel": "78% • PORTALS",
+    "recordLabel": "BEST 96",
+    "intent": "seek-food: reachable=371, foodDistance=1, tail=true",
+    "danger": false,
+    "audienceLabel": "AUDIENCE INTERACTIONS — PHASE 4",
+    "cleanFeed": false
+  },
+  "entities": [
+    {
+      "id": "hazard-144",
+      "kind": "hazard",
+      "cell": 144,
+      "previousCell": 144,
+      "active": false,
+      "variant": "phase-11",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "hazard-263",
+      "kind": "hazard",
+      "cell": 263,
+      "previousCell": 263,
+      "active": false,
+      "variant": "phase-11",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "hazard-406",
+      "kind": "hazard",
+      "cell": 406,
+      "previousCell": 406,
+      "active": false,
+      "variant": "phase-11",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "hazard-422",
+      "kind": "hazard",
+      "cell": 422,
+      "previousCell": 422,
+      "active": false,
+      "variant": "phase-11",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "hazard-75",
+      "kind": "hazard",
+      "cell": 75,
+      "previousCell": 75,
+      "active": false,
+      "variant": "phase-11",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "objective-main",
+      "kind": "objective",
+      "cell": 20,
+      "previousCell": 20,
+      "variant": "bonus",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "portal-29-418-a",
+      "kind": "portal",
+      "cell": 29,
+      "previousCell": 29,
+      "variant": "entry",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "portal-29-418-b",
+      "kind": "portal",
+      "cell": 418,
+      "previousCell": 418,
+      "variant": "exit",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "portal-54-393-a",
+      "kind": "portal",
+      "cell": 54,
+      "previousCell": 54,
+      "variant": "entry",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "portal-54-393-b",
+      "kind": "portal",
+      "cell": 393,
+      "previousCell": 393,
+      "variant": "exit",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-0",
+      "kind": "snake",
+      "cell": 21,
+      "previousCell": 49,
+      "role": "head",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-1",
+      "kind": "snake",
+      "cell": 49,
+      "previousCell": 77,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-10",
+      "kind": "snake",
+      "cell": 127,
+      "previousCell": 126,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-11",
+      "kind": "snake",
+      "cell": 126,
+      "previousCell": 125,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-12",
+      "kind": "snake",
+      "cell": 125,
+      "previousCell": 124,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-13",
+      "kind": "snake",
+      "cell": 124,
+      "previousCell": 123,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-14",
+      "kind": "snake",
+      "cell": 123,
+      "previousCell": 122,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-15",
+      "kind": "snake",
+      "cell": 122,
+      "previousCell": 121,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-16",
+      "kind": "snake",
+      "cell": 121,
+      "previousCell": 120,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-17",
+      "kind": "snake",
+      "cell": 120,
+      "previousCell": 119,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-18",
+      "kind": "snake",
+      "cell": 119,
+      "previousCell": 118,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-19",
+      "kind": "snake",
+      "cell": 118,
+      "previousCell": 146,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-2",
+      "kind": "snake",
+      "cell": 77,
+      "previousCell": 105,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-20",
+      "kind": "snake",
+      "cell": 146,
+      "previousCell": 174,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-21",
+      "kind": "snake",
+      "cell": 174,
+      "previousCell": 202,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-22",
+      "kind": "snake",
+      "cell": 202,
+      "previousCell": 230,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-23",
+      "kind": "snake",
+      "cell": 230,
+      "previousCell": 258,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-24",
+      "kind": "snake",
+      "cell": 258,
+      "previousCell": 286,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-25",
+      "kind": "snake",
+      "cell": 286,
+      "previousCell": 314,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-26",
+      "kind": "snake",
+      "cell": 314,
+      "previousCell": 342,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-27",
+      "kind": "snake",
+      "cell": 342,
+      "previousCell": 370,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-28",
+      "kind": "snake",
+      "cell": 370,
+      "previousCell": 398,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-29",
+      "kind": "snake",
+      "cell": 398,
+      "previousCell": 426,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-3",
+      "kind": "snake",
+      "cell": 105,
+      "previousCell": 133,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-30",
+      "kind": "snake",
+      "cell": 426,
+      "previousCell": 427,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-31",
+      "kind": "snake",
+      "cell": 427,
+      "previousCell": 428,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-32",
+      "kind": "snake",
+      "cell": 428,
+      "previousCell": 429,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-33",
+      "kind": "snake",
+      "cell": 429,
+      "previousCell": 430,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-34",
+      "kind": "snake",
+      "cell": 430,
+      "previousCell": 431,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-35",
+      "kind": "snake",
+      "cell": 431,
+      "previousCell": 432,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-36",
+      "kind": "snake",
+      "cell": 432,
+      "previousCell": 433,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-37",
+      "kind": "snake",
+      "cell": 433,
+      "previousCell": 434,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-38",
+      "kind": "snake",
+      "cell": 434,
+      "previousCell": 435,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-39",
+      "kind": "snake",
+      "cell": 435,
+      "previousCell": 436,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-4",
+      "kind": "snake",
+      "cell": 133,
+      "previousCell": 132,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-40",
+      "kind": "snake",
+      "cell": 436,
+      "previousCell": 437,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-41",
+      "kind": "snake",
+      "cell": 437,
+      "previousCell": 438,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-42",
+      "kind": "snake",
+      "cell": 438,
+      "previousCell": 439,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-43",
+      "kind": "snake",
+      "cell": 439,
+      "previousCell": 440,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-44",
+      "kind": "snake",
+      "cell": 440,
+      "previousCell": 441,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-45",
+      "kind": "snake",
+      "cell": 441,
+      "previousCell": 442,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-46",
+      "kind": "snake",
+      "cell": 442,
+      "previousCell": 443,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-47",
+      "kind": "snake",
+      "cell": 443,
+      "previousCell": 444,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-48",
+      "kind": "snake",
+      "cell": 444,
+      "previousCell": 445,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-49",
+      "kind": "snake",
+      "cell": 445,
+      "previousCell": 446,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-5",
+      "kind": "snake",
+      "cell": 132,
+      "previousCell": 131,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-50",
+      "kind": "snake",
+      "cell": 446,
+      "previousCell": 418,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-51",
+      "kind": "snake",
+      "cell": 418,
+      "previousCell": 28,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-52",
+      "kind": "snake",
+      "cell": 28,
+      "previousCell": 56,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-53",
+      "kind": "snake",
+      "cell": 56,
+      "previousCell": 84,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-54",
+      "kind": "snake",
+      "cell": 84,
+      "previousCell": 85,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-55",
+      "kind": "snake",
+      "cell": 85,
+      "previousCell": 113,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-56",
+      "kind": "snake",
+      "cell": 113,
+      "previousCell": 141,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-57",
+      "kind": "snake",
+      "cell": 141,
+      "previousCell": 169,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-58",
+      "kind": "snake",
+      "cell": 169,
+      "previousCell": 197,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-59",
+      "kind": "snake",
+      "cell": 197,
+      "previousCell": 198,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-6",
+      "kind": "snake",
+      "cell": 131,
+      "previousCell": 130,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-60",
+      "kind": "snake",
+      "cell": 198,
+      "previousCell": 170,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-61",
+      "kind": "snake",
+      "cell": 170,
+      "previousCell": 142,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-62",
+      "kind": "snake",
+      "cell": 142,
+      "previousCell": 114,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-63",
+      "kind": "snake",
+      "cell": 114,
+      "previousCell": 86,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-64",
+      "kind": "snake",
+      "cell": 86,
+      "previousCell": 58,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-65",
+      "kind": "snake",
+      "cell": 58,
+      "previousCell": 30,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-66",
+      "kind": "snake",
+      "cell": 30,
+      "previousCell": 2,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-67",
+      "kind": "snake",
+      "cell": 2,
+      "previousCell": 1,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-68",
+      "kind": "snake",
+      "cell": 1,
+      "previousCell": 29,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-69",
+      "kind": "snake",
+      "cell": 29,
+      "previousCell": 419,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-7",
+      "kind": "snake",
+      "cell": 130,
+      "previousCell": 129,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-70",
+      "kind": "snake",
+      "cell": 419,
+      "previousCell": 391,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-71",
+      "kind": "snake",
+      "cell": 391,
+      "previousCell": 390,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-72",
+      "kind": "snake",
+      "cell": 390,
+      "previousCell": 362,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-73",
+      "kind": "snake",
+      "cell": 362,
+      "previousCell": 334,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-74",
+      "kind": "snake",
+      "cell": 334,
+      "previousCell": 306,
+      "role": "tail",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-8",
+      "kind": "snake",
+      "cell": 129,
+      "previousCell": 128,
+      "role": "body",
+      "updatedAtTick": 1043
+    },
+    {
+      "id": "snake-9",
+      "kind": "snake",
+      "cell": 128,
+      "previousCell": 127,
+      "role": "body",
+      "updatedAtTick": 1043
+    }
+  ],
+  "replayAvailable": 360,
+  "cleanFeed": false,
+  "vfx": [
+    {
+      "id": "victory:3978",
+      "kind": "victory",
+      "priority": 115,
+      "tick": 1829,
+      "durationTicks": 42,
+      "expiresAtTick": 1871,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "result:3979",
+      "kind": "result",
+      "priority": 110,
+      "tick": 1829,
+      "durationTicks": 36,
+      "expiresAtTick": 1865,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "milestone:3980",
+      "kind": "milestone",
+      "priority": 82,
+      "tick": 1829,
+      "durationTicks": 24,
+      "expiresAtTick": 1853,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "intermission:3982",
+      "kind": "intermission",
+      "priority": 58,
+      "tick": 1829,
+      "durationTicks": 24,
+      "expiresAtTick": 1853,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "food-collected:6300",
+      "kind": "food-collected",
+      "priority": 45,
+      "tick": 1039,
+      "durationTicks": 9,
+      "expiresAtTick": 1048,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "food-collected:3976",
+      "kind": "food-collected",
+      "priority": 45,
+      "tick": 1829,
+      "durationTicks": 9,
+      "expiresAtTick": 1838,
+      "motionScale": 1,
+      "flashScale": 1
+    },
+    {
+      "id": "food-spawned:6302",
+      "kind": "food-spawned",
+      "priority": 18,
+      "tick": 1039,
+      "durationTicks": 8,
+      "expiresAtTick": 1047,
+      "motionScale": 1,
+      "flashScale": 1
+    }
+  ],
+  "audio": {
+    "voices": [],
+    "captions": [],
+    "musicState": "result",
+    "muted": false,
+    "droppedVoices": 0,
+    "intendedSilence": false
+  },
+  "camera": {
+    "input": {
+      "boardWidth": 28,
+      "boardHeight": 16,
+      "viewportWidth": 1920,
+      "viewportHeight": 1080,
+      "headCell": 21,
+      "scene": "milestone",
+      "tick": 1043
+    },
+    "mode": "milestone-focus",
+    "x": 16.625,
+    "y": 5.375000000000002,
+    "zoom": 1.05,
+    "impulse": 0.18
+  }
+}

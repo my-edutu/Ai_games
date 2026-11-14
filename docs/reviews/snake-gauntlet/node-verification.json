@@ -1,0 +1,18 @@
+{
+  "node": "24.22.1",
+  "sourceCommit": "40bc6cc1f204d843a1bbd4b2658495ad3ffab069",
+  "sourceTree": "9a3ab47f894157b1e3f9a2e938f25da225962276",
+  "command": "npm run build && node --test --test-concurrency=4 tests/foundation/*.test.cjs tests/phase2/*.test.cjs tests/phase3/*.test.cjs tests/phase4/*.test.cjs tests/phase5/*.test.cjs tests/phase6/*.test.cjs",
+  "exitCode": 0,
+  "counts": {
+    "tests": 515,
+    "pass": 515,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "durationMs": 324993.925222,
+  "logSha256": "d404e652761566a2224b1a7231ed52a3ea11adacccf3069fdb543b6f2903209c",
+  "scope": "Full existing suite plus12 new focused presentation/model tests. Subsequent renderer cache changes require their own focused validation.",
+  "browser": "Final run pending static-cache correctness verification."
+}

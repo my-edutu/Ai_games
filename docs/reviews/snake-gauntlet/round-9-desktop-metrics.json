@@ -1,0 +1,104 @@
+{
+  "layout": {
+    "viewportWidth": 1920,
+    "scrollWidth": 1920,
+    "canvas": {
+      "x": 39,
+      "y": 123,
+      "width": 1842,
+      "height": 842,
+      "top": 123,
+      "right": 1881,
+      "bottom": 965,
+      "left": 39
+    },
+    "primary": {
+      "x": 734.8125,
+      "y": 41.015625,
+      "width": 417.15625,
+      "height": 35.515625,
+      "top": 41.015625,
+      "right": 1151.96875,
+      "bottom": 76.53125,
+      "left": 734.8125
+    }
+  },
+  "animation": {
+    "frames": 7,
+    "elapsedMs": 1286.3999999999887,
+    "maxGapMs": 316.7000000000007,
+    "averageFps": 5.441542288557262,
+    "actualDraws": 7
+  },
+  "presentation": {
+    "renderer": "webgl",
+    "frameCount": 28,
+    "quality": "low",
+    "cameraMode": "overview",
+    "pixelRatio": 0.4,
+    "drawingBuffer": {
+      "width": 736,
+      "height": 336
+    },
+    "renderScale": {
+      "adjusted": true,
+      "sampleFrameMs": 266.60000000000036,
+      "targetFrameMs": 33
+    },
+    "drawCalls": 50,
+    "triangles": 10742,
+    "geometries": 48,
+    "textures": 15,
+    "frameMs": {
+      "p50": 150.00000000000034,
+      "p95": 999.8999999999997,
+      "p99": 1349.8999999999999
+    },
+    "staticCache": {
+      "supported": true,
+      "active": true,
+      "hits": 25,
+      "builds": 3,
+      "width": 736,
+      "height": 336,
+      "samples": 4
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 24,
+      "materials": 13,
+      "textures": 4,
+      "bodyRings": 179,
+      "bodyVertices": 1611,
+      "detail": "low",
+      "bodyTriangles": 2816,
+      "paths": 3,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": false,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "scene": "normal",
+  "tick": 854
+}

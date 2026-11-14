@@ -1,0 +1,86 @@
+{
+  "ok": true,
+  "parser": "Chromium CSSStyleSheet; GPU disabled; no WebGL scene",
+  "summaries": [
+    {
+      "file": "public/snake-stream/styles.css",
+      "parsedRules": 73
+    },
+    {
+      "file": "public/snake-stream/viewer-overlays.css",
+      "parsedRules": 10
+    }
+  ],
+  "changes": [
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|:root",
+      "property": "--panel-strong",
+      "before": "rgba(15, 29, 23, .96)",
+      "after": "#0f1d17"
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|.stage",
+      "property": "box-shadow",
+      "before": "rgba(0, 0, 0, 0.16) 0px 12px 50px",
+      "after": null
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|.viewer-tools",
+      "property": "background-color",
+      "before": "rgba(16, 34, 26, 0.7)",
+      "after": "rgb(16, 34, 26)"
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|.viewer-tools",
+      "property": "backdrop-filter",
+      "before": "blur(12px)",
+      "after": null
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|.scene-card",
+      "property": "box-shadow",
+      "before": "rgba(8, 25, 15, 0.79) 0px 20px 80px, rgba(219, 205, 156, 0.035) 0px 0px 0px 5px inset",
+      "after": "rgba(219, 205, 156, 0.035) 0px 0px 0px 5px inset"
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|.scene-card",
+      "property": "backdrop-filter",
+      "before": "blur(18px)",
+      "after": null
+    },
+    {
+      "file": "public/snake-stream/styles.css",
+      "selector": "|#broadcast[data-scene=\"result\"] .scene-card",
+      "property": "background-color",
+      "before": "rgba(21, 40, 29, 0.97)",
+      "after": "rgb(21, 40, 29)"
+    },
+    {
+      "file": "public/snake-stream/viewer-overlays.css",
+      "selector": "|.board-overview",
+      "property": "background-color",
+      "before": "rgba(16, 39, 27, 0.85)",
+      "after": "rgb(16, 39, 27)"
+    },
+    {
+      "file": "public/snake-stream/viewer-overlays.css",
+      "selector": "|.board-overview",
+      "property": "backdrop-filter",
+      "before": "blur(10px)",
+      "after": null
+    },
+    {
+      "file": "public/snake-stream/viewer-overlays.css",
+      "selector": "|.board-overview",
+      "property": "box-shadow",
+      "before": "rgba(16, 39, 27, 0.267) 0px 6px 24px",
+      "after": null
+    }
+  ]
+}

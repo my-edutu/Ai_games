@@ -1,0 +1,21 @@
+# 2026-11-03 — exact 136e native coast/limestone full-stage candidate (not visual acceptance)
+
+**Parent:** `136e76ce6ca6b51642d433a0305351cd3d063df2`, open draft PR #52. No merge/deployment. **Reference:** official Snake Pass primary (https://store.steampowered.com/app/544330/Snake_Pass/), ASTRO BOT secondary. **Verdict:** T1 BUILDING / source-native RED→GREEN; actual candidate WebGL/material and motion acceptance PENDING; self-review only.
+
+## Shot brief / what is being corrected
+
+The exact real Chromium screenshots and original approximately 55-second autonomous gameplay show a large regularly rectangular stone playing area, insignificant serpent at overview scale and compressed landscaping around edges. This is unacceptable as whole-game entertainment against the reference. A better shot must have a strong foreground low open shoreline, midground cut-rock slopes and recognizable forest-rooted ruins, high cool rear/side canopy landforms and a contrasted natural aged-limestone clearing while keeping every public food, danger, portal, path and goal readable. The full board overview remains user-accessible, and long-form cinematic follow/detail remains truthful.
+
+## Source-exact integrated changes to verify in actual framebuffer
+
+- Reprofile every one of four offshore real native stone/moss coastlines as winding, continuous water-cut rainforest banks; raise the real rear and side vegetation-bearing terrain while keeping the foreground low and shoreline boundary fixed. Root eight existing volumetric trees to sampled authentic bank positions. All rooted ruins, fern beds, roots, reeds, lithic shelves and lilies follow the same points.
+- Interleave broad irregular sunworn warm-limestone strata with three existing actual seeded fern-root corridors directly in original world-owned once-generated 1024×512 stone atlas. No apparent fake fruit, portal, obstacle, path or audio event.
+- Preserve game and rendering authority. 8×8/28×16/40×24 real Three.js original triangles remain 18665/21785/21949 (<22k); still four original garden material batches, one garden atlas, 10 forest trees, original rooted assets, original game/snapshot/portal/hazard/fruit/scores/cues, reduced motion, mute, fallback and strict unchanged ≥17 original one-second actual full-desktop render submissions.
+- Red→green native actual exact parent fixtures: coast 1/2→2/2, original world atlas 1/2→2/2, TypeScript build passes. These are not rendered-world beauty measurements. Native original and new terrain upper moss vertices above y1.7 on 8×8 311→1281, 28×16 420→1820, 40×24 318→1427, purely offline geometry measure.
+- New Playwright browser captures same *public original game frame and exact 136e garden+ecology sources* and candidate production at 1920×1080 overview, 960×640 overview, 960×640 character detail and 390×844 portrait, eight genuine WebGL screenshots. Exact-source Chrome needs Actions to run, along with real existing ≥55s auto-film and strict original gate. Do NOT count new screenshot differences as visual win.
+
+## Actual gate and remaining blockers
+
+Verified **parent** [Chromium run 41701897906](https://github.com/my-edutu/Ai_games/actions/runs/41701897906): 67 of 86 browser checks passing; strict genuine full desktop **10/17 in 1014.3 ms FAIL** at actual 751×415 drawing buffer; 61 RAF callbacks do not count. [General CI run 41701897971](https://github.com/my-edutu/Ai_games/actions/runs/41701897971): 660/678 PASS, 18 FAIL; don't hide stale historical assertions. Diagnostic GPU times, video FPS and fence timings are not measured real-device display presentation. Runtime development tunnel unavailable; recovered SHA256-verified exact reproduction source+deps from Actions artifact `13263489275`; local Chromium loopback navigation returned `ERR_BLOCKED_BY_ADMINISTRATOR` and was NOT bypassed.
+
+The candidate has **no locally retrieved authentic WebGL screenshot or new source 55s film yet** and no real-device presented FPS/p95, no three gate passes, no independent critic, no long soak 40+ serpent/recovery/restart/security review and no full green tests. Even if full source renders, reject T1 unless complete still and uninterrupted motion show obviously better geometry, material, light, snake legibility and shot composition vs own exact before and reference. **Never merge or deploy.**

@@ -1,0 +1,164 @@
+[
+  {
+    "diagnosticOnly": true,
+    "fixedPixelRatio": 0.4,
+    "dynamicShadowReception": true,
+    "cadence": {
+      "frames": 9,
+      "elapsedMs": 1274.399999999977,
+      "maxGapMs": 350,
+      "averageFps": 7.0621468926554956,
+      "actualDraws": 9
+    },
+    "state": {
+      "renderer": "webgl",
+      "frameCount": 29,
+      "quality": "low",
+      "cameraMode": "overview",
+      "pixelRatio": 0.4,
+      "drawingBuffer": {
+        "width": 736,
+        "height": 336
+      },
+      "renderScale": {
+        "adjusted": true,
+        "sampleFrameMs": 133.34999999999962,
+        "targetFrameMs": 33
+      },
+      "drawCalls": 50,
+      "triangles": 10204,
+      "geometries": 48,
+      "textures": 15,
+      "frameMs": {
+        "p50": 99.99999999999964,
+        "p95": 716.6000000000006,
+        "p99": 1416.5
+      },
+      "staticCache": {
+        "supported": true,
+        "active": true,
+        "hits": 26,
+        "builds": 3,
+        "width": 736,
+        "height": 336,
+        "samples": 4
+      },
+      "world": {
+        "staticInstances": 6270,
+        "staticMeshes": 13,
+        "drawObjects": 39,
+        "geometries": 36,
+        "materials": 22,
+        "textures": 4,
+        "obstacles": 0,
+        "hazards": 5,
+        "portalEnds": 4,
+        "disposed": false
+      },
+      "serpent": {
+        "geometries": 26,
+        "materials": 13,
+        "textures": 4,
+        "bodyRings": 148,
+        "bodyVertices": 1332,
+        "detail": "low",
+        "bodyTriangles": 2352,
+        "paths": 1,
+        "maxBodyRings": 8192,
+        "truncated": false,
+        "disposed": false,
+        "bufferBytes": 9437184
+      },
+      "reducedMotion": false,
+      "cleanFeed": false,
+      "connected": true,
+      "audio": {
+        "muted": true,
+        "voices": 0,
+        "ambience": 0,
+        "context": "not-started"
+      }
+    }
+  },
+  {
+    "diagnosticOnly": true,
+    "fixedPixelRatio": 0.4,
+    "dynamicShadowReception": false,
+    "cadence": {
+      "frames": 8,
+      "elapsedMs": 1196.7000000000235,
+      "maxGapMs": 250,
+      "averageFps": 6.685050555694697,
+      "actualDraws": 8
+    },
+    "state": {
+      "renderer": "webgl",
+      "frameCount": 28,
+      "quality": "low",
+      "cameraMode": "overview",
+      "pixelRatio": 0.4,
+      "drawingBuffer": {
+        "width": 736,
+        "height": 336
+      },
+      "renderScale": {
+        "adjusted": true,
+        "sampleFrameMs": 150.05000000000024,
+        "targetFrameMs": 33
+      },
+      "drawCalls": 50,
+      "triangles": 10204,
+      "geometries": 48,
+      "textures": 15,
+      "frameMs": {
+        "p50": 116.60000000000093,
+        "p95": 766.7000000000002,
+        "p99": 1399.8999999999996
+      },
+      "staticCache": {
+        "supported": true,
+        "active": true,
+        "hits": 25,
+        "builds": 3,
+        "width": 736,
+        "height": 336,
+        "samples": 4
+      },
+      "world": {
+        "staticInstances": 6270,
+        "staticMeshes": 13,
+        "drawObjects": 39,
+        "geometries": 36,
+        "materials": 22,
+        "textures": 4,
+        "obstacles": 0,
+        "hazards": 5,
+        "portalEnds": 4,
+        "disposed": false
+      },
+      "serpent": {
+        "geometries": 26,
+        "materials": 13,
+        "textures": 4,
+        "bodyRings": 148,
+        "bodyVertices": 1332,
+        "detail": "low",
+        "bodyTriangles": 2352,
+        "paths": 1,
+        "maxBodyRings": 8192,
+        "truncated": false,
+        "disposed": false,
+        "bufferBytes": 9437184
+      },
+      "reducedMotion": false,
+      "cleanFeed": false,
+      "connected": true,
+      "audio": {
+        "muted": true,
+        "voices": 0,
+        "ambience": 0,
+        "context": "not-started"
+      }
+    }
+  }
+]

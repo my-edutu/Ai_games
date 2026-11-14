@@ -1,0 +1,1390 @@
+{
+  "updatedAt": "2026-11-14",
+  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (progressive body buffers native proven only)",
+  "detail": "Exact a99 parent strict Chromium #43522211760: 1/17 actual full WebGL submissions, 751x415, 754 queue skips; 53/95 browser, native CI inherited failing. T4 source-exact 8192-ring to 512 initial, full original mesh/texture/quality retained; 9,437,184 -> 589,824 native buffer bytes; 260-body 2048 ring bound and retired GPU geometry dispose. RED parent 0/2 -> GREEN candidate 2/2, related 9/9, TS and 900 authoritative self-test pass, 10,000 seeded ticks with no invariant failures, seven source/candidate geometry hashes identical. New-head WebGL/physical FPS unmeasured, T1 full scene remains rejected.",
+  "latestImage": "/progress/evidence/round-9-overview.jpg",
+  "latestCaption": "UNACCEPTED original-head screenshot: rectangular tiled court and small hero remain. T4 native buffer reservation fix does not establish displayed FPS or a visual transformation; strict 1/17 same-head remains stop-ship.",
+  "reviews": [
+    {
+      "area": "2026-11-14 T4 progressive actual high-detail serpent GPU body storage (NATIVE ONLY, HARD RED)",
+      "sourceHead": "a99a79e268ac6cd00e24875a68d64dcb1238fbbb",
+      "serpentParentBlob": "2418288cd8a7c7e8712c6e70953cefaa45e66525",
+      "serpentCandidateBlob": "0ec3f9c5eed3482e606d569abc3fb71d154e9737",
+      "testBlob": "881bb509f3e085c8cfaf0601121aa6c13f7f1c77",
+      "browser": "Original real a99 #43522211760: 1/17 complete / 751x415 / 754 skips; no new-head Chromium yet",
+      "native": "RED 0/2 -> GREEN 2/2; related 9/9; TypeScript, 900 authority and 10000 seeded ticks PASS; identical seven drawn-source native geometry hashes",
+      "buffers": "9,437,184 baseline bytes -> 589,824 first 512 rings, 2,359,296 at 2048 rings for 260-body; no geometry/content/quality reduction",
+      "verdict": "T0 UNSIGNED, T1 BUILDING visually self-rejected, T2/T3 BUILDING, T4 HARD RED; not accepted; independent critic pending"
+    },
+    {
+      "area": "2026-11-13 T4 completed-current-shot GPU-fence cache recovery (native-verified, full-game performance UNACCEPTED)",
+      "sourceHead": "d80360437f04e5e65d6c1a270a1386b623d8f05d",
+      "rendererParentBlob": "e2c436d4ba6c1fefb6af2c418b95db49cbf3223e",
+      "rendererCandidateBlob": "042db2f10b25b224a8c801aebe4466369b3f1f62",
+      "testBlob": "dc9b1d7f46a7885de3134df2db2db63bfeee8656",
+      "browser": "Actual d803 #43505303842: 52/95 browser, original strict 1 genuine full WebGL submission / >=17, 751x415, 754 queue skips, cache builds=1 hits=1, pressureDirectFrames=17; new candidate WebGL NOT YET MEASURED",
+      "nativeCI": "Actual d803 #43505303729 726/795, reproduction #43505303661 PASS; RED parent 0/3 -> GREEN candidate 3/3; selected 51/71 parent ->54/71 candidate same 17 inherited failures; TS, 900 authority/recovery/privacy, 10k seeded headless pass",
+      "checks": "Per-new-settled-camera exact key and complete draw watermark; only real current-view GPU completion and bounded pressure permit full unchanged native HDR/depth static cache build. No artwork/assets/authority/threshold changes.",
+      "verdict": "T0 unsigned, T1 building visually self-rejected, T2/T3 building, T4 HARD RED, independent whole-game critique pending; NO merge, deployment or visual/performance win"
+    },
+    {
+      "area": "2026-11-13 T1 shared four-shore original 3D exterior relief BUILDING; source-matched Chromium pending",
+      "sourceHead": "722eb72bfb43f7d43ad148a2ba855a24bbf2ad60",
+      "worldSourceOldBlob": "e7f5d449701954afd8f04f2cfa4a17e998940b32",
+      "worldCandidateBlob": "1ebc8b55412f1dcc67725ddc493bd00b63d55b9c",
+      "browser": "Completed parent Chromium #43487976974 49/95; untouched strict 8 genuine complete WebGL submissions / required 17 at 751x415, 334 GPU queue skips; NEW HEAD NOT YET MEASURED",
+      "nativeCI": "Parent #43487976941 720/789; focused native RED 0/3 -> candidate GREEN 3/3; related 13/13; TypeScript, 900 authority/restart/recovery/privacy and 10,000 seeded ticks passed",
+      "checks": "Shared physical tidal relief in original cliff, moss and limestone meshes; original 33 draw objects, 13 static batches, four textures; all game authority, captions, water, waterfall, snake, portals untouched. Broader old resource-contract suite still red on untouched parent.",
+      "verdict": "T0 UNSIGNED, T1 BUILDING self-rejected based on parent video, T2/T3 BUILDING, T4 HARD RED, independent review pending; no acceptance, merge or deploy"
+    },
+    {
+      "area": "2026-11-13 current-world real GPU completed-fence cache bootstrap source integrated ONLY",
+      "sourceHead": "8050091d5af7c3144168de3fc44804397270a22b",
+      "browser": "Parent completed #43441202009: 2/17 strict genuine complete frames, 560 skips, cache 0; candidate matched Chromium PENDING",
+      "nativeCI": "Parent #43441202152 716/785; new test native RED parent 1/4 -> GREEN candidate 4/4; selected 16/17 with one inherited issue",
+      "checks": "Source-exact renderer production e2c436d4, test 61c446f6. Recovered TypeScript/900 authority/10k seeded pass in prior isolated source locked session. Full quality, display presents and strict repeated threshold unverified.",
+      "verdict": "T0 UNSIGNED / T1 BUILDING self-rejected / T2/T3 BUILDING / T4 HARD RED; no merge/deploy/force-push"
+    },
+    {
+      "area": "November 12 aa4e browser: explicit reduced-motion detail became overview; repaired native camera and detail GPU cuts, acceptance pending",
+      "sourceHead": "aa4e54bc4d6dce79f4f2e45645f548cc11302d95",
+      "browser": "Completed #43152516883 strict 12 genuine complete renderer submissions/17 at 751x415, 646 GPU skips and 36/95 browser pass. Candidate Chromium unmeasured.",
+      "nativeCI": "#43152516943 684/747 pass; reproduction #43152516882 PASS; new native RED->GREEN 8/8, related 20/20, TypeScript and 900-tick authority pass, optional Three unavailable locally",
+      "checks": "Explicit reduced-motion follow/detail remain stable real 3D, cinematic remains disabled; observed severe fence/queue pressure triggers full-scene cut on detail or follow anchor, original 17 gate unchanged",
+      "verdict": "T0 UNSIGNED/T1 BUILDING visual self-rejected/T2 BUILDING/T3 BUILDING native/T4 HARD RED. Matched new Chromium, film, device FPS/p95 and independent critique pending. No merge or deploy."
+    },
+    {
+      "area": "Nov 12 2c2c source T4 real full-scene moving-follow GPU bottleneck: guarded camera reframe (BUILDING/UNACCEPTED)",
+      "sourceHead": "2c2c3b401dde09c1d82069874ddfaa99ac70ba10",
+      "browser": "Original Chromium #43138308007 strict 3/17 genuine full-frame at 751x415; 340 queue skips, moving-follow full-app GPU diagnostic p95 264.85ms vs settled cache p95 24ms, browser 36/95; candidate unmeasured",
+      "nativeCI": "Original #43138308001 failed, reproduction #43138308065 success; candidate source-exact RED->GREEN 3/3, TS+900 tick+10000 seeded pass, sightline historical occlusion fail reproduced on exact parent",
+      "checks": "camera pressure snaps real full-scene pose only when follow anchor.reset & not snap, latest completed fence >=120ms and skips>=16; untouched GPU gate/frame queue, authority, assets and water",
+      "verdict": "T0 unsigned / T1 building visually self-rejected / T2-T3 building / T4 HARD RED; no authentic candidate visual/performance win or independent acceptance."
+    },
+    {
+      "area": "Nov 12 cf6d parent T1 physically continuous seven woodland banks and eroded masonry (BUILDING, source-matched Chromium pending)",
+      "sourceHead": "cf6d7b20c51cf6da672bf46e4ba016073aa24d84",
+      "browser": "Completed original-head #43116314135 9 genuine complete renderer submissions/17 at 751x415; 37/95 browser; new candidate Chromium/45-90s footage pending",
+      "nativeCI": "Parent #43116313957 failure, reproduction #43116313952 success; new native RED -> GREEN 2/2; node syntax valid; broader suites historical failures and missing Three locally",
+      "checks": "Real physical foundation bank, coping, coastal ruins share bounded seven-headland envelope; unchanged game authority and original 672 triangles; candidate blobs 6d63de0b / db9cf2fe",
+      "verdict": "T0 unsigned / T1 building visually unaccepted / T2-T3 building / T4 hard red; no performance/art win or independent acceptance."
+    },
+    {
+      "area": "Nov 11 c14 strict browser regression and source-exact cache path correction",
+      "sourceHead": "c14f1a71a0e6d1884c7bd0ae62aba0c774b05447",
+      "browser": "Chromium #43104646142 34/95 checks; 1 genuine complete WebGL draw /17 at 751x415, 679 GPU skips, 16 transient direct draws; prior ff7 7/17. Corrective new-head strict gate pending.",
+      "nativeCI": "Actions #43104646066 failed; exact-head reproduction #43104646042 passed; patch-specific native regression c14 RED 2/3 -> candidate GREEN 3/3, node syntax valid",
+      "checks": "Restore exact verified ff7 renderer blob c80e6f1; no altered world/water/hero, no original threshold change; headless authority unchanged in source but not rerun full suite yet.",
+      "verdict": "T0 unsigned; T1 building visually self-rejected; T2/T3 building; T4 hard red. Corrective performance benefit unverified until complete current-head strict Chromium."
+    },
+    {
+      "area": "Nov 11 rooted rock foundation + apt-dependent Chromium preflight blocker",
+      "sourceHead": "37f28de55decb7bd07dbd6a11037ce8daf62d0c1",
+      "browser": "Original current-head #43038622522 FAILED before Chromium due Ubuntu apt DNS; no strict result at 37f. Previous valid b25 2/17 at 751×415. New candidate yet unverified.",
+      "nativeCI": "Parent #43038622656 678/739 passed, 61 failed; original source reproduction #43038622391 verified SHA256",
+      "checks": "RED 0/2 parent→GREEN 2/2 candidate; selected native 13/16 with 3 parent-reproduced inherited failures; TypeScript build, 900-tick host authority/privacy/restart/recovery and 10,000 seeded headless ticks PASS.",
+      "verdict": "T0 UNSIGNED, T1 BUILDING / visual self-rejected, T2/T3 BUILDING, T4 HARD RED. New source-matched Chromium/physical-device/independent review PENDING, never merge/deploy."
+    },
+    {
+      "area": "Nov 11 dd0282 browser preflight historical-source SHA fatal repaired without weakening test or changing game",
+      "sourceHead": "dd0282da575c8c99bc20800af76d400660b11ebb",
+      "browser": "Actions #42982550531 failed BEFORE Chromium tests at tests/fixtures/snake-t2-restore-bend-parent.cjs original SHA mismatch; new-head GPU gate UNMEASURED",
+      "nativeCI": "Actions #42982550524 676/733 failed; source reproduction #42982550633 success",
+      "checks": "original untouched source RED 0/1; repaired pinned ancestor SHA exact GREEN 1/1; related native 20/20; TypeScript & 900-tick authority PASS; Playwright discovery 107/67 files, no browser visuals yet",
+      "verdict": "T0 UNSIGNED/T1 SELF-REJECTED BUILDING/T2/T3 BUILDING/T4 HARD RED; original strict last valid 5/17 on older head; no milestone accepted, no merge/deploy"
+    },
+    {
+      "area": "Nov 11 live e1d0 severe performance blocker and original full-scene depth-cache recovery candidate",
+      "sourceHead": "e1d0f303e162ee6a733ba4303b685cecc52f4bc3",
+      "browser": "Chromium #42952842186: 37/95, original strict 2/17 at 751x415, GPU queue skip 682, full/live diagnostic p95 401ms; this is not physical displayed FPS",
+      "nativeCI": "Actions #42952842154 678/733; reproduction #42952842132 success",
+      "testedBlobs": {
+        "camera": "d7da83e77c10439d6e301b1ef02591e09ba3cb7e",
+        "renderer": "958329b5f177dc1fcf8f32e90b1fbd7d40ae750a",
+        "test": "ba4b348c3e18285fc19ada63ddb369dd5eaae8c1"
+      },
+      "checks": "new RED -> GREEN 3/3, affected candidate 34/36 vs parent 31/33 same two inherited failures; build, 900-tick selftest, 10000-tick simulation PASS",
+      "verdict": "No accepted quality or GPU performance win. T0 unsigned; T1 visibly REJECTED; T2/T3 building; T4 hard RED; candidate Chromium and independent review pending"
+    },
+    {
+      "area": "November 11 source-exact full shadow/color first-frame spatial material culling",
+      "sourceHead": "ec45719d7f865aff66a764349489f555c15ec196",
+      "localChecks": "new targeted RED -> GREEN 3/3, TS & 900 authority pass, native related 12/15 (3 parent-matched RED)",
+      "browser": "prior parent original strict 1/17 at 751x415, new source pending",
+      "verdict": "T0 UNSIGNED; T1 visually SELF-REJECTED; T2/T3 BUILDING; T4 HARD RED; native-only candidate; no acceptance"
+    },
+    {
+      "area": "Nov 11 5eb live Chromium verdict, T3 manual takeover corrected, still unaccepted",
+      "sourceHead": "5eb8c7a75ed4d0e41bdec8d7b12cbb2d152f2645",
+      "browser": "GitHub #42932809494 36/95; strict genuine 2/17 full desktop frames in original 1014.6ms at 751x415; GPU lifetime 836 skips; cinematic and overview captured",
+      "nativeCI": "GitHub #42932809482 684/731, 47 fail",
+      "reproduction": "GitHub #42932809575 succeeded; source tar SHA verified",
+      "visual": "Actual original 1920/portrait/detail and uninterrupted host film self-reviewed: rigid tiled rectangle persists; no independent approval",
+      "repair": "Real browser camera button fail, dedicated 0/2 RED -> 2/2 GREEN with code; broader 18/19 with parent-inherited occluder failure; TS and 900 tick self-test pass; corrected Chromium pending",
+      "verdict": "T0 UNSIGNED T1 BUILDING/SELF-REJECTED T2/T3 BUILDING T4 HARD RED 2/17; no acceptance or merge"
+    },
+    {
+      "area": "2026-11-11 truthful cinematic-first and synchronized 3D/2D spectator presentation",
+      "sourceParent": "daecbc44dc8a6205c5ab51fb4926848c7017f490",
+      "source": "draft PR #52 only; source-matched integration native evidence, Chromium/real device PENDING",
+      "focused": "RED parent -> GREEN candidate; selected 33/34 pass (1 inherited), TypeScript and 900 authoritative ticks PASS",
+      "performance": "No candidate strict gate; original parent 12 genuine full-desktop submissions / 17 required, 751x415; no physical presents",
+      "verdict": "T0 unsigned; T1 BUILDING; T2 unaccepted; T3 BUILDING and visual review pending; T4 HARD RED; no merge/deploy"
+    },
+    {
+      "area": "November 7 exact current-head Actions unblock, T2 offbranch native candidate (not visually accepted)",
+      "sourceHead": "8f26fffb35ecf82fce9dad2cfcf50a6d6c2f59b6",
+      "browser": "GitHub #42319515332 failed before chromium: ubuntu26.04-x64 unsupported by locked Playwright 1.55.0; no genuine current-head screenshots/video/strict frame evidence",
+      "nativeCI": "GitHub #42319515111 683/730 passed, 47 failed; still red",
+      "reproduction": "GitHub #42319515156 succeeded",
+      "runnerCorrection": "Two browser workflows pinned to ubuntu-24.04; dedicated native exact-registry RED->GREEN contract; repaired browser workflow not yet verified",
+      "t2Candidate": "Native same-head serpent blended turn orientation plus travelling swallow 7/7 Three.js articulation, TS and 900 host authority pass; selected 25/27 with two historical source-identity failures; not pushed or visual accepted",
+      "verdict": "T0 UNSIGNED / T1 BUILDING / T2 NATIVE UNACCEPTED / T3 UNACCEPTED / T4 HARD RED (last real older-source original strict 8/17 at 751x415); no merge/deploy"
+    },
+    {
+      "area": "November 6 T1 responsive 3D stone gateway and whole-scene overview (live 0ae descendant)",
+      "sourceHead": "0aece92a9517c2ad2510f642b8ff5cb6fb49a1fb",
+      "candidateWorldBlob": "baf756e485d0d02353533996cae205acdab861f9",
+      "candidateCameraBlob": "a91f976df606c72b0d2fa051b919454d868c03c7",
+      "verdict": "Candidate native strict geometry/camera RED exact parent -> GREEN 1/1, related 17/17, TypeScript and real 900-tick authority PASS. Genuine same-candidate Chromium/visual and independent review NOT DONE.",
+      "gap": "Current-head Actions absent; local Chromium ERR_BLOCKED_BY_ADMINISTRATOR. Last genuine older-head full-scene 14/17 <17 hard RED and 62/95 browser; 0ae+candidate full-frame acceptance, device present FPS/p95, long 40+ soak, fresh independent critic pending. T1 BUILDING; open draft only."
+    },
+    {
+      "area": "Nov 6 complete exact-head 118d WebGL review and integrated four-shore coastal island candidate",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "candidateBase": "f5433eb2a7b75d2889a936779b135bdc3e392886",
+      "verdict": "Actual Chromium 62/95, original strict 14/17 complete desktop WebGL submitted frames; CI 686/722. Current real 1920 self-rejected. Integrated candidate native TypeScript, 11/11 selected and 900-tick recovery pass; candidate authentic browser/performance/independent acceptance NOT YET VERIFIED.",
+      "gap": "Must reach >=17 actual complete desktop WebGL in three independent useful-raster runs plus full visual review, 40+ body soak, clean CI, real-device present FPS/p95, independent whole-game critic. T0 UNSIGNED/T1 BUILDING/T2 T3 unaccepted/T4 RED; open draft only."
+    },
+    {
+      "area": "Nov 6 exact staged T1 complete island and native planted four-shore masonry",
+      "verdict": "BUILDING, native new guard RED->GREEN 1/1, affected 14/14, TS and 900 tick authority PASS; no browser whole-game acceptance; strict prior 7/17 HARD RED",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "branchAdvanced": false,
+      "gap": "New 3D source staged off branch; source-matched true Chromium overview/detail/portrait and uninterrupted real film, strict >=17/1s, real display presents, long soak and independent criticism pending"
+    },
+    {
+      "area": "Nov 6 T1 real scenic four-shore plus rear limestone-bedrock/front ornament architecture",
+      "verdict": "BUILDING; staged off branch, source-native 1/1 new RED->GREEN, coast 4/4, TypeScript+900 authority pass, whole-scene visual/performance NOT ACCEPTED",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "branchAdvanced": false,
+      "gap": "118d Actions queued; no staged candidate full-game WebGL due administrator block; original strict prior 7/17, source-matched 1920/mobile/film and independent critic required"
+    },
+    {
+      "area": "Nov 6 connected four-shore original 3D island + battered masonry candidate on 118d source",
+      "verdict": "UNREFERENCED candidate native 4/4 coastal checks and TypeScript/900-tick self-test PASS; 3 inherited RED in 15 selected; no authentic candidate Chromium/visual independent acceptance; full desktop strict last real 7/17 HARD RED",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "candidateSourceBlob": "e6da1543906a24d1a75306ef0d0181f0569d6d54",
+      "branchAdvanced": false
+    },
+    {
+      "area": "November 6 isolated four-shore original stone/moss coastal headland geometry (118d parent)",
+      "verdict": "T1 BUILDING UNREFERENCED; RED parent -> GREEN new native geometry test all three boards/two layers; 13/13 related native and TS build pass, 900 tick timed out; no real candidate WebGL/video, strict gate remains last previously measured 7/17, no independent visual acceptance",
+      "sourceHead": "118d55990a80b3d89caad901081943a0dc53a8f7",
+      "branchAdvanced": false,
+      "gap": "Original head runs queued. Need source-matched genuine 1920/detail/390 WebGL, authentic 45-90 seconds, unmodified >=17 genuine completed desktop render submissions per 1s three times at usable resolution, device present FPS/p95, full CI, 40+body portal/hazard/recovery, accessibility/soak, independent whole-game visual critique. No merge or deploy."
+    },
+    {
+      "area": "Nov 6 isolated true physical T1 oxbow/canopy/light source candidate on ab94 parent",
+      "verdict": "T1 BUILDING / UNREFERENCED candidate native RED->GREEN, no verified matched actual current-candidate Chromium evidence, original strict full-desktop 7/17 HARD RED, prior full scene SELF-REJECTED, independent acceptance pending",
+      "sourceHead": "ab94d8307c017518f908c22e13a493161e3acb39",
+      "branchAdvanced": false
+    },
+    {
+      "area": "Nov 5 source-exact 67f real Chromium full-game GPU gate and native rooted bank repair",
+      "verdict": "Browser 62/95; original unchanged strict full-desktop gate 7 genuine complete renders vs >=17. CI 682/720 38 failures including real bank moss colour regression. Previous exact-source isolated tested source blob 3379939 restores bank green on 3 boards RED->GREEN and TypeScript/900 tick passed; no new head real benchmark pass, visual approval or source-to-video inspection.",
+      "gap": "Current-head true Chromium/real 55s gameplay need visual whole scene vs reference; >=17 genuine full desktop render submissions within unchanged original 1s repeatedly at useful resolution, real-device displayed FPS/p95, full native/browser green, 40+ body/food/hazard/portal/recovery soak, full cues/mute/captions/reduced/fallback/security, independent whole-game critique. T1 BUILDING/T4 HARD RED; never merge/deploy."
+    },
+    {
+      "area": "Nov 5 exact 396a real Chromium self-rejection and three-layer original limestone/physical bank/foliage source candidate",
+      "verdict": "True original 62/95 browser, 5/17 complete WebGL renders in 1s at 751x415; CI 680/718. Source-matched complete game visually rejected. New native original 3D materials three source stages, no GPU resource count changes: two new 8x8/28x16/40x24 tests RED exact parent->GREEN and existing weathered field RED->GREEN, 900 authoritative ticks/recovery and TypeScript PASS. Related 5/8 native, three inherited historical/lighting/forest failures. New-head Chromium and independent visual review NOT complete.",
+      "gap": "Original >=17 genuinely submitted complete full-desktop renders/1s repeatedly at useful raster; whole-game new-head true Chromium desktop/portrait/detail and 45-90s authentic film vs Snake Pass/ASTRO BOT, physical device displayed FPS/p95, full native/browser red, 40+ body fruit/portal/danger/restart/recovery, all a11y and security, independent whole-game critic. T1 BUILDING, T4 HARD RED; never merge/deploy."
+    },
+    {
+      "area": "November 5 source-exact 64ecc93e real whole-game self-rejection plus T1/T2 coordinated physical-shade and hero-scale native-only candidate",
+      "verdict": "Parent genuine Chromium 62/95, 11 of strict 17 real full-WebGL desktop draws at buffer 751x415, CI 675/713 38 fails; 1920/390 and 63.16s play inspected, obvious rectangle/mint roads/minuscule face self-rejected. New 3-board integrated real geometry guard RED parent -> GREEN candidate 1/1; existing weathered art guard, TypeScript and actual 900-authority/recovery ticks passed. Original connected-root historical identity guard and original natural mosaic contrast still red. 0 new meshes/texture/pass; no true candidate browser evidence and no independent critic.",
+      "gap": "Source-matched candidate real Chromium/WebGL desktop/portrait/detail & 45-90s truthful game footage may still look minor; if so reject SAME T1. Original >=17 genuine full-desktop/1s unchanged three repeated samples at useful buffer, physical device displayed p95, full native/browser CI, 40+ seeded body portal/restart/fruit/hazard/recovery soak, accessibility/captions/audio/mute/reduced/clean-feed/fallback/fairness/security and genuine independent Snake Pass/ASTRO BOT whole-game criticism ALL pending. NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "Nov 5 actual a421 WebGL T0 failure + integrated public-only T1 planted ecotone across actual geometry, original owned map and final ecology restorer",
+      "verdict": "LAST TRUE Chromium at a421: 62/95 browser, strict 7/17 genuine complete desktop renders in 1012ms at 751x415, 61 RAF != renders; CI 674/711, 37 fail. Inspected actual source-head 1920 and authentic 55s autonomous video: giant rectangular tiled court, pale crossing roots, small stylized snake. SELF REJECT. Candidate source-native 3-board true stone vertices 84–85.5% dark forest and FINAL 1024x512 atlas 76–78% planted green, warm true etched sunstone, seam 0.9606–0.9641; no added scene assets or public/game changes. Two focused RED on unchanged source -> GREEN candidate; selected original seam, forest, restrained earthly test recovered; historical old blob/triangle assertions NOT waived. TypeScript and actual 900 authoritative ticks, restart/recovery PASSED. NEW current-candidate real Chromium/45–90s gameplay and strict gate NOT YET RUN; broad native selection timed out locally, no full-green assertion. No independent critic.",
+      "gap": "Must inspect new source-exact 1920/detail/portrait actual WebGL and authentic 45-90s host gameplay; if visually minor REJECT and continue T1. Original strict untouched >=17 complete submitted full-scene desktop draws/1s repeatedly at useful resolution (not RAF or recording), device display-present p95, complete native/browser regression, 40+ body food/portal/danger/recovery/restart soak, full captions/mute/clean feed/reduced motion/fallback/security/fairness and independent Snake Pass and ASTRO BOT whole-game criticism. T1 BUILDING/T4 HARD RED/never merge-deploy."
+    },
+    {
+      "area": "Nov 5 32a9 exact-head browser fails before WebGL; repaired original-pigment + bend provenance and selected original serpent skin-quality regression",
+      "verdict": "Chromium Actions 41955328853 failed before browser because T2 parent restoration overlooked a later legitimate 3D pigment region; NO new 3D media/strict gate. CI 672/711 and 39 fail with 8x8 seam .94805, forest coverage and botanical gold .02938. Repaired byte-exact historical SHA guard rather than removing it, retained original immutable authoritative game/public path, improved bounded leaf highlights; isolated 4/4 targeted native and TypeScript build PASS. Previous real 92ee strict 8/17 remains HARD RED, full-scene visually SELF-REJECTED. New candidate exact-head browser not yet verified.",
+      "gap": "Need true new head 8 matched desktop/1080/portrait/detail real Chromium/WebGL stills, uncut authentic 45–90s play, untouched ≥17 original full-desktop renderer submissions in 1s repeatedly at useful resolution, physical-device presentation p95/FPS, whole-board forest and seams, all CI, resource/portal 40+ soak, accessibility/mute/captions/recovery/fairness, independent Snake Pass and ASTRO BOT whole-game review. T1 BUILDING. Never merge/deploy."
+    },
+    {
+      "area": "Nov 5 exact 92ee full-scene real WebGL hard performance regression / living-river and jade-serpent integrated native-only candidate",
+      "verdict": "Parent 62/95 browser, 672/709 native; unchanged strict one-second 8/17 complete full-desktop WebGL vs previous 13/17 at 751x415, HARD RED. Genuine current WebGL stills and 55.03s live game self-rejected. Native candidate broadens original 3D oxbow courses, reshapes planted pigment, makes original serpent dorsal gold broken and jade-dominant with unchanged resources. New focused 2 RED parent -> 2 GREEN candidate; 17/19 related native passing (two unchanged inherited SHA/history cases); TypeScript and 900 authoritative restart/recovery pass. No candidate browser or physical display/independent acceptance.",
+      "gap": "Exact new SHA matched desktop/1080/detail/390 true WebGL and 45–90s real autoplay must show dramatically improved whole frame, else SAME T1 REJECT; repeated unchanged original >=17 genuine complete desktop renders/1s at useful resolution, real-device displayed FPS/p95, all browser/native regressions, 40+ body food/danger/portal/restart/recovery soak, captions/mute/clean feed/reduced/fallback/fairness/security, independent whole-game Snake Pass primary / ASTRO BOT secondary criticism. NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "2026-11-05 df113 exact WebGL/65s gameplay self-rejection and T2 full-character curvature-budget candidate",
+      "verdict": "Current source exact Chromium 60/93 and native 671/708, mandatory strict original complete desktop 13 genuine WebGL submissions / 17 required (1005.3ms), real buffer 751x415, 61 RAF != draws. Inspected actual 1920/390/character WebGL and genuine 65.08s gameplay, giant tile rectangle/angular hero visually SELF-REJECTED vs Snake Pass. Exact parent original serpent blob c8af8e31. New public-only, portal-safe full-body bend sampling RED->GREEN, actual Three.js low body geometry changed with identical original low-LOD ring, triangle, resource count and byte-identical high-detail mesh; selected 17 native PASS, TS build and 900 authority ticks/recovery PASS. New exact-source Chromium 8 real matched views and untouched 55s gameplay capture authored but not executed, physical display performance not measured; independent critic unavailable. T1 BUILDING, T2 NATIVE CANDIDATE ONLY, T4 HARD RED.",
+      "gap": "New head authentic exact-source Chromium/WebGL desktop/1920/390/follow old-new paired screenshots and 45–90s full autonomous recording with dramatically better whole-game quality, otherwise REJECT and continue T1; repeated original >=17 genuinely completed whole-desktop WebGL render submissions in original one second at useful raster; real device displayed FPS/p95, all native/browser regressions including current 37 fails, 40+ body fruit/hazard/portal/restart/recovery soak, truthful cues, captions/mute/clean feed/reduced/fallback, viewer fairness/security and independent Snake Pass/ASTRO BOT quality criticism. NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "November 4 exact 8aea WebGL self rejection / T1 physical estuary and coastal forest candidate",
+      "verdict": "Parent browser 60/93, native CI 670/707. Original full desktop WebGL strict 11/17 at 751x415 HARD RED, genuine scene visually still rigid grid and small serpent, SELF REJECT. Native-only RED->GREEN physical riparian width variability on 3 real boards; selected watershed/forest/biome tests, TS build and 900 authority ticks recovery PASS. New-source Chromium locally blocked, no visual/performance acceptance.",
+      "gap": "Candidate actual same-source complete desktop/portrait/detail/1080p, 45–90s genuine autonomous game and independently dramatic whole-frame improvement; unchanged repeated >=17 genuine full WebGL render submissions in original 1s gate at useful resolution, real-device displayed FPS/p95, all native/browser regressions, 40+ body food/portal/hazard/restart/recovery soak, cues/audio/accessibility/fairness/security and independent official Snake Pass/ASTRO BOT referee; never merge/deploy."
+    },
+    {
+      "area": "2026-11-04 exact d1b source: native-only broad natural garden/terrace material integration",
+      "verdict": "Exact d1b current CI 668/706; real d1b WebGL run still verifying. New natural 3D stone + original owned atlas whole-field correction changes source-sampled warm .100 to .328, green .660 to .378, dark .627 to .401; 40/130/71 original fern sites unchanged. Focused test RED exact parent -> GREEN on 3 board sizes, selected native 7/8 (historical SHA failure not waived), TS build and 900 authoritative restart/recovery ticks pass. No demonstrated current-head coherent real visual, gameplay film, renderer submissions, physical display p95 or independent quality win.",
+      "gap": "Real exact current source 1080p/portrait/detail and 45–90s uninterrupted 3D video, visibly dramatic Snake Pass whole-game gain, unchanged original strict >=17 genuine completed desktop WebGL submissions/1s at useful resolution repeated; real-device present FPS/p95, full CI and browser, 40+ body food/hazard/portal/restart/recovery soak, accessibility/fair influence/security and independently judged whole-game acceptance. NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "2026-11-04 exact cfc real 3D 5/17 strict FAIL and unfinished interwoven native T1 candidate",
+      "verdict": "Live original cfc actual browser 60/91 pass, general CI 668/704 pass, strict complete desktop 5/17, 751x415 and 55s authentic footage still giant beige tile field/too small stiff hero. T1 self-reject, T4 hard red. Source-exact 2 RED->2 GREEN native interwoven rooted 3D environmental mask and source atlas, 18/22 related checks; build and 900 ticks with recovery pass; new candidate Chromium & genuine 55s movie NOT verified.",
+      "gap": "New same-source 8 Chromium/WebGL full desktop+detail+portrait+HD actual before-after and true 55s live movie, dramatic whole-scene and serpent improvement, repeated original ≥17 complete desktop WebGL renders/1s useful raster, physical display presents/p95, full CI/browser, long soak+recovery/a11y/fairness/security, independent Snake Pass/ASTRO BOT criticism."
+    },
+    {
+      "area": "Nov 4 exact 430 original Chromium entire WebGL fallback incident and transitive module route recovery",
+      "verdict": "Original 430 Chrome 8/91, source trace /garden-watersheds.mjs HTTP 404 => full 2D fallback; no genuine current 3D render-gate sample. CI 666/702; genuine whole-garden cover/forest/moss morphology red. Recovery code + real-host module closure native 2 RED->2 GREEN, selected 6/6 pass, TS and 900 authority ticks pass, not visually accepted.",
+      "gap": "Exact new candidate 3D WebGL real browser and 45-90s video, matched desktop/detail/portrait, full-screen Snake Pass-quality scene and serpent, strict original >=17 real full WebGL renders/1s at useful raster repeated, physical device presented p95/FPS, all CI, 40+ segment soak/recovery/a11y/fairness/security and independent review."
+    },
+    {
+      "area": "2026-11-04 exact 094b91cd current-head real browser rejection and branched-watercourse integrated T1 native candidate",
+      "verdict": "Current original Chromium 61/91 and CI 666/700, strict unchanged 8 genuinely complete renders/1006ms vs >=17 HARD RED, 751x415 real GPU buffer. 51.52s real gameplay and full-size images still giant rectangular paved board and tiny hero. New pure deterministic 3 roots/6 tributaries now drive existing physical moss beds, real 3D stone tint, true rooted fern sites and original owned material atlas; 28x16 130 original ferns and ecology 3020/3100 triangles, one mesh no textures; 40x24 3089/3100. RED->GREEN 2/2, original mineral safety 1/1, TS build+900 authority ticks green. No candidate WebGL or physical-device acceptance, related inherited/source-geometry tests remain failing, self review only.",
+      "gap": "Authentic same-SHA full desktop/1080/portrait/follow/detail WebGL A/B and uninterrupted 45-90s true autonomy must show dramatic whole-frame gain, otherwise SAME T1 rejected. Repeated original >=17 real whole-scene desktop submissions in one second at useful GPU buffer; device-presented FPS/p95, full CI and browser, long soak 40+ fruit/hazard/portal/restart/recovery, all a11y/fair influence/fallback/security and fresh independent Snake Pass/ASTRO BOT whole-game criticism. NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "2026-11-04 exact 3c504a93 whole-game real WebGL SELF-REJECT and shared physical weathered 3D garden material T1 candidate",
+      "verdict": "Verified actual source 3c504a93, browser 61/91, CI 667/699, original strict complete-desktop gate 11/17 genuine draws in 1014.2ms HARD RED, 751x415 GPU buffer. Real full-screen matched views and 56-62s movie still giant rectangular grid with small overview hero; self-rejected vs Snake Pass; independent acceptance not available. Candidate coordinates real flagstone native vertex tints, authored weathered limestone/soil/slate and original garden atlas using one static 129x65 sampled biome, no added meshes/materials/passes/texture/cell movements; focused RED exact parent to GREEN three board sizes, 8/10 relevant selected native tests (two baseline-historical failures), TS build and 900 tick authority recovery/restart pass. NO current-candidate browser or physical device verification.",
+      "gap": "New exact-commit 1920/phone/detail/follow genuine WebGL before-after and 45-90 second autonomous film with dramatic whole-game gain; unchanged original >=17 real full desktop renderer submissions in original 1s repeated useful resolution; physical device display FPS/p95, full CI, 40+ segment fruit/hazard/portal/restart/recovery long soak, all cues/a11y/fairness/fallback/security and truly independent Snake Pass/ASTRO BOT whole-game review. T1 BUILDING, T4 HARD RED; NEVER MERGE/DEPLOY."
+    },
+    {
+      "area": "Nov 4 exact 85d9 authentic WebGL and corrective native T1 limestone/fern basins",
+      "verdict": "85d9 browser 60/91, CI 665/698; unchanged strict 6 genuinely submitted complete full-desktop frames/17 FAIL. Source-exact real screenshots and 51.08-second gameplay self-reviewed: big rectangular field and small hero still unacceptable against Snake Pass. Corrective art direction changes existing true playfield substrate + 3 planted gully atlas/stone tints without new batches, textures, shaders, meshes, water removal or lost cues. Focused RED->GREEN, selected 11/11, build and 900 authoritative recovery/restart ticks PASS. NO new-source browser/independent visual acceptance, never merge/deploy.",
+      "gap": "Exact new SHA matched real WebGL desktop/full-HD/phone/follow/detail, 45–90s unscripted film and critical whole-game gains, repeated strict >=17 original genuine desktop full renders/1s at useful resolution, physical displayed FPS/p95, full CI, long 40+ segment fruit/portal/hazard/restart/recovery soak, a11y/captions/mute/fairness/fallback/security and independent external critique."
+    },
+    {
+      "area": "2026-11-04 live bf65 full-scene self rejection and full-field T1 forest flagstone candidate",
+      "verdict": "Exact current source browser 60/91, CI 665/697, original strict 8 genuine full WebGL desktops/17 FAIL at 751x415. Matched real eight before/after images show dark orthogonal courtyard still dominates. Native source candidate safely reduces gaps across every original tile, keeps chip weathering, coheres existing planted valley palette and contracts huge beige clearing. Original RED->1 GREEN across 3 sizes, existing native safe-geometry/woodland tests pass, build and 900 authority ticks recovery/restart pass; new-source browser/film/perf not measured, no independent critique, DRAFT never merge.",
+      "gap": "Real new SHA 1080/portrait/follow/detail matched WebGL and 45–90s genuine film must show substantial whole game improvement; unchanged >=17 strict genuine complete desktop renders/1s repeated at useful raster, physical device displayed p95/FPS, full CI, 40+ body fruit/portal/hazard/restart/recovery soak, accessibility/cues/fairness and independent official-reference critique."
+    },
+    {
+      "area": "2026-11-04 exact 54676dc 5/17 real WebGL SELF REJECT; native original forest surround and quarry lip repair",
+      "verdict": "Actual 546 Chromium 60/91, CI 662/694; original true full-desktop only 5/17 in 1011.6ms, 61 RAF not draws. True eight matched WebGL stills plus original 54–56s video dark orthogonal grid worsened, still SELF-REJECT vs Snake Pass. Existing quarry safe-lip test RED; corrected to GREEN plus 3-format native resource/geometry guards and 900 authoritative recovery/restart ticks; true new candidate browser evidence pending. Only SELF REVIEW; NEVER MERGE/DEPLOY.",
+      "gap": "True new-head matched real WebGL desktop/detail/portrait and 45–90s genuine autonomous game, unchanged repeated >=17 real complete full-desktop/1s submissions, physical present p95/FPS, full 32 failed Node tests and browser failures, seeded authoritative 40+ segment portal/danger/fruit/restart/recovery long-soak, all cues/accessibility/fallback/fairness/security and independent reference-based whole-game review."
+    },
+    {
+      "area": "2026-11-04 exact 3c48 completed WebGL self-rejection and authored whole-field flagstone mosaic T1 candidate",
+      "verdict": "Actual 3c48 browser 59/90 fail, Node 661/692 fail, strict original 6 genuinely complete desktop renders / 1011.6ms vs >=17 HARD RED (61 RAF not renders); 8 real source-paired 1080/follow/detail/390 WebGL images and genuine 55s+ film self-rejected: straight green rectangle still dominates. New native physical mosaic changes actual whole traversable floor, exact old world Git blob, 2 RED->2 GREEN, selected 13/13, build and 900 ticks recovery/restart pass; candidate real Chromium/WebGL and actual unchanged gate pending. SELF REVIEW, independent critic unavailable, no merge or deploy.",
+      "gap": "Whole-frame clearly improved new candidate actual source-matched Chromium/WebGL and uninterrupted 45–90s film; repeated unchanged 17 genuine complete desktop renders in original 1s, useful raster and physical-device presents/p95, no gallery cherry-picking; original full CI 31 failures, long 40+ body food/hazard/portal/restart/recovery/soak and independent Snake Pass/ASTRO BOT critic; never merge/deploy."
+    },
+    {
+      "area": "2026-11-04 exact 831 Chromium rejection / native exposed coast masonry integrated candidate",
+      "verdict": "Live 831 browser 58/89 CI 659/690. Unchanged original one-second strict true desktop 5/17 FAIL (RAF not renders). Matched real 99b/831 full desktop, follow, detail and phone screenshot SELF-REJECT giant bright tiled masonry and small hero. New candidate replaces rear boxes, irregular three four-sided masonry courses and border coping, native 2 RED->2 GREEN with resources/cues stable, TypeScript build and 900 authoritative recovery/restart ticks pass; actual new-head WebGL and strict performance NOT tested. T1 BUILDING / T4 HARD RED. DRAFT, no merge or deploy.",
+      "gap": "Actual new-head WebGL matched before/after eight complete views and unmodified 45–90s gameplay, dramatic whole-frame independent creative approval vs Snake Pass/ASTRO BOT, repeated unchanged >=17 true full desktop renderer submissions per original 1s at useful raster, physical display FPS/p95, 40+ body long-soak/recovery, complete CI and security/a11y/fairness."
+    },
+    {
+      "area": "2026-11-04 verified 99b current-head whole-game rejection; new integrated natural island foundation authored",
+      "verdict": "99b browser 57/88, Node 659/688, strict 6/17 actual complete desktop WebGL submissions HARD RED (RAF 61 irrelevant). Prior real screenshots/55s film SELF-REJECT: monolithic rectangular courtyard with tiny default serpent. Candidate replaces both huge actual underfloor rectangular foundation blocks with two organically winding layered native static mesh geometries reusing original cliff/moss materials and batch count, frozen 99b negative-control fixture and new 8 paired actual-WebGL capture test. NEW HEAD CI/NATIVE/CHROMIUM/VIDEO/STRICT PERFORMANCE NOT YET VERIFIED. No independent review, no merge/deploy.",
+      "gap": "Full-scene visibly substantial matched real before/after screenshots and uninterrupted 45–90s gameplay, unchanged repeated >=17 genuine complete desktop submissions in original one-second gate, real-device presented FPS and p95, full regressions, 40+ segment soak, cue/a11y/recovery/replay/fairness/security and independent criticism. T1 BUILDING, T4 HARD RED."
+    },
+    {
+      "area": "2026-11-04 verified exact 545beff real WebGL prior and T1 integrated garden/camera candidate",
+      "verdict": "Actual 545beff 59/88 browser PASS, general CI 657/685, original 6 genuine full-desktop submissions/17 FAIL in 1015.6ms at 751x415; 61 RAF != draw/presents. Prior 1920/portrait/detail/55s whole game visually self-rejected. Integrated physical woodland stage candidate repositions 10 original trees, sculpts 4 coasts, expands connected rooted atlas and lowers safe desktop camera with original sunlight; native RED 3/3 -> GREEN 3/3, original atlas threshold RED -> GREEN 56.90% to 63.31% while heart 100%, resource budgets preserved, 900 authoritative recovery/restart ticks + build pass. New-head WebGL unverified. T1 BUILDING SELF-REVIEW, T4 HARD RED.",
+      "gap": "Authentic paired candidate WebGL same-source desktop/1080/portrait/detail, 45–90s unscripted game, Snake Pass/ASTRO BOT whole-frame criticism; original >=17 real complete desktop submissions per 1s gate repeated at useful raster, physical device displayed p95/FPS, long 40+ segment portal/food/hazard/recovery/soak, controls accessibility/fallback/fairness/security and independent whole-game critic; DRAFT, NO MERGE/DEPLOY."
+    },
+    {
+      "area": "2026-11-04 exact f0 whole-game Chromium verified; grounded rainforest/stone/light integrated T1",
+      "verdict": "Genuine exact f0 Chromium 41736792203 completed 68/87, mandatory unchanged 1s full desktop genuine submissions 8/17 HARD FAIL at 751x415; 61 RAF is not frames; full CI 662/682 failed 20. Inspected real HD/phone/detail and 8 matched old/new f0 captures; little apparent visual transformation, giant rectangular court and small hero SELF-REJECTED vs Snake Pass. Exact-source proposed coherent original stone atlas, 3D courtyard floor-skin, four native garden materials and existing physical/ACES light study native source GREEN 3/3, related 9/9, TS build and 900 authoritative ticks recovery/restart PASS. Taller fern prototype REJECTED for true clearance/vegetation regressions. New candidate WebGL stills/55-second gameplay/strict gate NOT YET VERIFIED. SELF REVIEW, no independent critic.",
+      "gap": "Exact candidate matched genuine 1920/960/detail/portrait Chromium/WebGL paired eight captures versus immutable f0, visually dramatic integrated before/after and real 55-90s game, repeated ORIGINAL >=17 genuine completed full desktop renders in 1s at useful raster; never count RAF, GPU fences or film FPS. Real device presented FPS/p95, full CI, 40+ long-soak portal/fruit/hazard/recovery/fallback/captions/reduced-motion/mute/clean-feed/fair influence/security, independent whole-game critique. T1 BUILDING, T4 HARD RED. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 native complete terrain/material T1 candidate vs exact 136e",
+      "verdict": "Real original current 136e focused Chrome 67/86, strict genuine 10/17 one-second full desktop hard red at 751x415; general CI 660/678 fail. Native source-exact 136e fixtures, coast and owned-field material controls RED->GREEN; all 4 coasts raised, 8 trees grounded, original 1024x512 owned stone atlas natural warm limestone; garden triangles unchanged 18665/21785/21949, 4 meshes 1 texture, fixed public board cells intact, TS build pass. New candidate REAL Chromium images/55sec gameplay NOT VIEWED, independent whole-game critic unavailable; self-review acceptance PENDING.",
+      "gap": "Run actual candidate matched 8 WebGL images at HD/desktop/detail/portrait and authentic >=55s autonomous film, visually inspect whole-frame vs baseline + official Snake Pass, preserve unchanged strict >=17 genuine full desktop 1s repeated at useful raster; actual device present FPS/p95, full CI, portal/fruit/hazard/recovery/fallback/accessibility and 40+ segments long soak, independent critique. If only landscaping changes in a giant rectangle, reject and keep same T1 BUILDING. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 completed 7d1 whole-game real WebGL 8/17; future fully cupped-canopy/material candidate",
+      "verdict": "REAL exact 7d1 Chromium 41689325234 65/85 PASS 20 FAIL; original unchanged 1s desktop genuine 8 complete WebGL frames in 1000.8ms /17 required HARD FAIL at 751x415; 61 RAF not renderer submits; no physical present p95. General CI 656/674 failed 18. Personally viewed exact 1920/phone/close-up/70d2 vs 7d1 real captures plus original 55s host film sampled 10/30/50s: regular giant flat court, tiny hero, close-up better, SELF-REJECT whole game vs official Snake Pass. Candidate ten-tree cupped volumetric crown and original atlas mineral field from unreferenced 36a uses source-surrogate only, new-source genuine tests not yet executed. T1 BUILDING, T4 HARD RED, self review, DRAFT unmerged.",
+      "gap": "Next new head true Three RED-GREEN and same-source 1920/desktop/detail/390 true Chromium paired images, genuine >=55s autonomous host film, repeated original >=17 genuine full-desktop 1s draw gate, physical device presented FPS/p95, full CI, 40+ body food/hazard/portal/recovery/replay/fallback/a11y/security soak, independent reference-based critic. No visual win without dramatic real whole-frame gain. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 live exact 7d1 CI and unreferenced living-canopy plus mineral-court integrated T1 candidate",
+      "verdict": "Current 7d1 CI 656/674 fail 18; real 7d1 Chromium still in progress. Candidate ten 3D re-cupped crowns and same whole-board atlas native source code staged, not promoted. V8 fake-Three layout 12404 moved canopy vertices, identical 18665/21785/21949 triangle counts and zero board incursions; synthetic texture stub 401356 RGB pixels changed; genuine native-Three tests, browser exact screenshots, 55s film, performance NOT RUN. Prior 70d2 strict complete full desktop 11/17 FAIL and actual game visually self rejected vs official Snake Pass. No independent critic.",
+      "gap": "Finish current 7d1 actual WebGL and original 17 test without cancel; restore dev tooling; source-exact native RED->GREEN, 8 real 1080/desktop/detail/390 photos and unmodified 55s game candidate, repeated >=17 genuine full desktop 1s at useful raster, physical-device present p95 FPS, long 40+ body portal/fruit/hazard/recovery/replay/accessibility/security soak, independent whole-game quality review. DRAFT NO MERGE DEPLOY."
+    },
+    {
+      "area": "2026-11-03 exact 70d2 real WebGL reject plus original four-coast physical gullies T1 candidate",
+      "verdict": "Real Chromium 41676079653 64/83 pass, 19 fail; unchanged original full-desktop one-second 11/17 actual render submissions in 1015.4ms 751x415 (61 RAF NOT renders). Node 653/671 failed 18. Source exact 1080/390/hero real stills and 55s actual gameplay personally inspected: whole garden board giant rectangular tiled grid, tiny phone hero vs official Snake Pass => SELF-REJECTED. New source topology 4 coastal ridges and two channels each native RED old->3/3 GREEN, affected 8/8, build pass, geometry unchanged; its real browser/film not yet run.",
+      "gap": "Need source-matched new full HD/portrait/detail real WebGL and unscripted 55s real game, visually obvious coherent improvement, 3x unchanged >=17 genuinely rendered complete desktop/1s at useful raster, target device presented FPS/p95, original full suite and long soak 40+ portal/fruit/hazards/recovery/fallback/replay/accessibility/security and independent whole-game review. T1 BUILDING and T4 HARD RED. DRAFT only."
+    },
+    {
+      "area": "2026-11-03 complete exact-head 93bebb real whole-game WebGL and material renderer regression",
+      "verdict": "93 focused run 41667987074 FAILED 64/83 browser, original unchanged strict 1s complete desktop only 7/17 genuine renderer submissions in 1007.6ms at 751x415; 61 RAF callbacks are not full renders/presented frames. Previous different a9 12/17 FAILED, 93 5 fewer. Real 1920/390/detail and legitimate continuous 55s-game host film, actual 52.08s WebM inspected; some noticeable scene gains vs genuine T0, still giant regular grid, flat painted vines, tiny phone hero, self reject against Snake Pass/ASTRO BOT. General 93 652/668 FAIL; incoming old-growth physical source not browser tested. T1 SELF REJECTED BUILDING, T4 HARD RED, never merge/deploy.",
+      "gap": "Actual candidate source matched real WebGL desktop/portrait/detail+45–90s footage, ≥17 real complete full desktop render submissions per original 1s repeated at useful raster, physical presented FPS+p95, original assets/cues, 40+ body/portal/food/hazard/restart/recovery/long soak, independent blinded official Snake Pass/ASTRO BOT quality approval, full CI; no bypass."
+    },
+    {
+      "area": "2026-11-03 93bebb exact-source physical T1 forest/root/ruin composition, acceptance still pending",
+      "verdict": "Unreferenced physical production candidate only, native RED exact parent -> GREEN 3/3, build PASS. 8x8/28x16/40x24 stage 18665/21785/21949 native triangles all <22000, original 4 meshes/1 texture and every public cell intact. 93 CI 652/668 failed; exact 93 Chrome still running; prior a9 real strict 12/17 failed and whole game self rejected. No real candidate Chrome/film or independent critic, never merge/deploy.",
+      "gap": "Need actual exact-source matched full 1920/portrait/detail Chromium+uninterrupted 45–90s autonomous gameplay, genuine whole-game Snake Pass critique, unchanged original >=17 complete full-desktop submissions/1s repeated, physical device display present FPS/p95, 40+ segment portal/danger/food/restart/long soak/fallback/recovery/replay/accessibility and full CI. Local Chromium admin blocked; no bypass."
+    },
+    {
+      "area": "2026-11-03 T3 immersive spectator UI integrated candidate on exact 2b parent",
+      "verdict": "Engineering candidate: full-viewport game with restrained truthful length/goal/record HUD, semantic goal meter, lean captions, explicit Display accessibility menu and touch clean-feed recovery; source tests authored, no new-source executable Node/Chromium evidence yet. Current parent 2b CI 646/661 FAIL 15 and Chromium in progress. Previous actual 681 whole-game SELF-REJECT and true original render 12/17 FAIL. T1 and T3 BUILDING, self-review only.",
+      "gap": "Source-exact Node RED/GREEN/build/browser, 1080p/portrait/detail before/after, real 45-90sec autonomous footage, independent critique, unchanged >=17 genuine full-scene desktop renderer/1s repeated useful raster, physical-device presents/p95, T1 landscape/T2 movement, 40+ segment soak/fallback/recovery/replay. DRAFT no merge/deploy."
+    },
+    {
+      "area": "2026-11-03 68178 actual original WebGL full-scene rejection + earth-moss integrated candidate",
+      "verdict": "Original exact 68178 Chromium 41630840885 63/81 browser checks, original >=17 true full desktop renders only 12 /1008.9ms at 744x340; 61 RAF are not actual renders, no physical presented p95. Real 1920/portrait/detail plus genuine 63s overview/director whole-game visually SELF-REJECTED bright green rectangle and tiny stiff serpent; CI 644/659 FAIL 15 tests. New native candidate 0/2 RED→2/2 GREEN, affected 9/9 GREEN, TS build PASS. Same existing garden geometry/atlas/130 rooted fern clumps, no new mesh/pass/texture/false cues; native only, NOT quality acceptance.",
+      "gap": "NEW exact-source browser 1920/portrait/detail same-source A/B and 45–90s real motion, whole-scene dramatic improvement against Snake Pass / ASTRO BOT and independent critic, ≥17 original complete desktop 1s render submissions 3 times useful raster, physical display presented FPS/p95, full CI, long soak/restart/recovery/security/accessibility/portal behavior. T1 remains BUILDING. No merge/deploy."
+    },
+    {
+      "area": "2026-11-03 e312 real Chromium game quality and native deep-garden stage follow-up",
+      "verdict": "e312 focused Chrome 17 browser FAIL including unchanged strict original complete 10/17 real desktop WebGL renderer submissions at 736x336, 61 RAF not renders; 64.6s authentic autoplay and 1080/portrait/detail whole screen SELF REJECTED giant pale rectangle / tiny segmented serpent vs Snake Pass. e312 general 644/657 Node FAIL, TS build PASS. Source-verified native co-committed broader forest substrate on old stone atlas + old stone mesh, staged RED 1/2 to GREEN 12/12 affected and build PASS; new source actual WebGL/browser not yet tested. DRAFT NEVER MERGE DEPLOY.",
+      "gap": "Same-source NEW-head 1920/phone/detail WebGL images/45–90s authentic whole gameplay and independent full-frame verdict, strict >=17 real full desktop draws/1s repeated useful raster, real-device presents/p95/FPS, long soak/restart/recovery and general CI still open. If new source merely greens giant rectangle, REJECT continue T1/T2."
+    },
+    {
+      "area": "November 3 new e121-source whole-court planted three-basin and 130 fuller fern silhouette candidate",
+      "verdict": "BUILDING / NATIVE RED→GREEN and TS build PASS, NOT WebGL verified. Exact e121 offline SHA256 package; 28x16 native 15714/24192 green vertices, 15822/24192 materially changed and original 780 fern triangles plan area 3.683→6.994, not a visual grade. Prior 415dae actual game SELF-REJECTED with strict genuine 9/17 FAIL at 736x336. e121 actual browser/general Actions in progress; no arbitrary CI-cancelling push.",
+      "gap": "Native source changes must be judged by exact NEW candidate authentic 1080/detail/phone images and 45–90s autonomous footage; reject if court still dominates. Original >=17 true full desktop renderer submissions repeated 1s useful raster, actual device presented FPS/p95, independent genuine Snake Pass/ASTRO BOT full-scene review, T2 integrated expressive protagonist/T3 truth/phone/audio/T4 soak/replay/recovery all OPEN. Draft never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 exact 367d completed real Chromium whole-scene rejection; T1 broad floor and lateral canopy candidate",
+      "verdict": "Focused source-exact 41590547062 FINISHED 69 pass /12 fail: original 1s true full desktop 8/17 strict RED at 736x336, 10 obsolete historical current-source ancestor reconstructions, 1 wetland missing 1860 genuinely authored late art triangles. Full actual before/after whole-game visually SELF-REJECTED vs Snake Pass. General 41590547074 637/644. Native 367d original forest side high 239/309→1283/1527, unchanged 10 trees/4 garden batches/1 texture and <22k budget. Rewoven existing stone atlas >24 RGB difference in >60% sampled pixels at 28x16: only material triage. Native TDD original RED→candidate 20/20 focused GREEN and TS build PASS; corrected historic fixtures and real 6575 delta candidate browser not yet proved.",
+      "gap": "CANDIDATE NEW-HEAD real same-source Chromium/WebGL complete 1080/follow/detail/portrait screenshots and authentic 55–90 second gameplay, dramatic visually credible full-frame/animated improvement vs Snake Pass/ASTRO BOT independent critic, unchanged strict ≥17 real complete desktop submissions each 1s at useful raster repeated, physical device display-present p95/FPS, long soak/recovery and T2–T4 full acceptance all OPEN. DRAFT never merge/deploy."
+    },
+    {
+      "area": "November 3 367d exact-head 7 historical-source false-ancestry Node failures / staged source-preserving correction",
+      "verdict": "Current general 41590547074 FAILED 637/644; local offline reproducible build PASS and seven identical SHA test failures. Seven genuine old Git blobs are staged in unreferenced fix tree, while same-current-feature before/after is retained; unpublished while exact-head Chromium 41590547062 in progress. Real prior 8/17 whole-scene strict renderer FAIL at 736x336; full-scene last real visual SELF-REJECTED. T1 BUILDING, no verified new-head WebGL or native GREEN.",
+      "gap": "Inspect exact 367d real matched 1080/detail/phone screenshots and 55–90s authenticated gameplay first, validate new archival fix with native RED→GREEN and Actions, no strict 17 render gate changes. Need dramatically improved whole-garden/expressive serpentine animation and truthful T3; repeated >=17 complete renders useful raster, actual physical display p95/FPS, 40+ body portal/restart long-soak, genuine independent Snake Pass/ASTRO BOT review. Never merge/deploy."
+    },
+    {
+      "area": "November 3 e8310b2 completed exact-head strict full-render and historic wetland browser regression",
+      "verdict": "Focused 41575906365 78/80 browser, general 41575906367 169/174 browser FAILED. Unchanged complete 1s real renderer 9/17 and 11/17 (736x336) FAIL. Wetland predecessor reconstruction blob mismatch versus immutable 8c9409c Git source; genuine original source pinned in fixture and current feature-reversal A/B retained, tests after repair PENDING. 3 unrelated Tiny Kingdom browser failures. T1 visually SELF-REJECTED, self-review.",
+      "gap": "Substantial source-exact integrated garden and expressive serpent visual transformation; genuine matched current-head 1080/detail/portrait images + 55–90s motion and independent critique; strict >=17 real full-desktop render submissions repeated at useful raster; physical display-present p95/FPS; long soak and complete T2–T4 acceptance. Never merge/deploy."
+    },
+    {
+      "area": "November 3 historical-source real Chromium and serial CI walltime blockers",
+      "verdict": "At exact parent 1d3e63c real Chromium 4 old Git source reconstruction tests RED and focused/general cancelled 40/55min. Browser controls now pin immutable original historic Git files and separately test current-source feature reversibility; serial job limits 60/75min, no tests removed. All new head browser/CI verification PENDING. Original strict complete-desktop 10/17 FAIL at 736x336. T1 whole-frame visually rejected.",
+      "gap": "Substantial whole-world/hero improvement, real before/after 1920/portrait/detail and authenticated 55s current-head gameplay, unchanged >=17 complete desktop render submissions three times at useful raster, physical-device present p95, long soak/recovery and independent benchmark acceptance. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 b7b complete game real-WebGL visual rejection + strict original renderer gate",
+      "verdict": "Genuine head b7b original-screen 11/17 true desktop renderer submits FAIL over 1005ms, 736x336 GPU, p95 1733.2ms, 61 RAF does not count; CI 638/640 FAIL due two obsolete old SHA assumptions. Current standard 28x16 native 21561 triangles within unchanged 22k limit. Inspected 8 before/after full-game actual WebGL stills and genuine 55s report: huge rectangular tiled arena and stiff small serpent persist; 1920 mean RGB diff ~0.33/255 is NOT visual acceptance. T1 SELF-REJECTED, no independent critic.",
+      "gap": "Two immutable historical Git blobs plus current-source reversible behavior in two Node/two Chromium tests are candidate repair with NEW CI pending; real scene needs major integrated visual/acting work T1/T2/T3. Mandatory >=17 complete scene real desktop submissions in original 1s repeated at useful raster; physical display presents/p95, soak/recovery, independent Snake Pass/ASTRO BOT whole-game review all OPEN. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-03 exact a1a139 40x24 22k full native garden regression and preliminary high-area scale-aware mesh repair",
+      "verdict": "Real GitHub Actions general CI 41546094220 FAIL 628/640 (12 failures). Exact current source model census 18441/21561/23797 triangles (8x8/28x16/40x24); high 40x24 violates original <22000 gate. Proposed corrective analytic coast resampling preserves four original static meshes, a texture, seventy-two new crowns, full waterlilies and 10 canopy trees. Source-model new count 18441/21561/21725, deterministic, all cells clear; five real historic Git blob source-control fixtures prepared. Native Three, Actions, true WebGL footage and whole-game visual acceptance NOT PROVEN.",
+      "gap": "Original unchanged >=17 genuine full-desktop renderer submissions repeated per 1-second gate at useful raster, physical-device delivered FPS/p95, true 55-90s matched current candidate gameplay, full-scene garden vs Snake Pass and ASTRO BOT, real hero acting T2, cinematic true events T3, 40+ segment soak/recovery T4, independent criticism all OPEN. DRAFT PR, never merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact 1371c11 real module-load P0 and same-source static route recovery candidate",
+      "verdict": "Actual focused Chromium 41523259999 CANCELLED. Inspected Playwright trace: GET /app.js 200; GET /cinematic-director.mjs 404; complete viewer fails to start, 89.96s observed blank loading scene. Current T1 whole-game quality FAIL/SELF REVIEW; explicit route and asset manifest remediation with new focused Node and Playwright smoke awaiting current-head CI, not GREEN.",
+      "gap": "Real current-head six matching WebGL desktop/portrait/detail frames plus authentic >=55s whole gameplay and unchanged strict >=17 complete desktop render submissions per 1s; previous 361e072 12/17 FAIL; repeated useful-raster, real-device presentation p95, long soak, T2 anatomy, T3 full experience, independent official Snake Pass/ASTRO BOT quality critique remain OPEN. No merge/deploy."
+    },
+    {
+      "area": "November 2 exact bd2 source-matched true WebGL visual rejection and integrated native-garden grove candidate",
+      "verdict": "bd2 real 8-view and genuine 55s media generated before focused run 41499013691 cancelled; whole-scene self-rejected against Snake Pass: giant repetitive rectangular tiled courtyard, small stiff hero, subtle vegetation. General run 41499013896 cancelled but original unchanged strict full-desktop 1s 10/17 actual renders failed at GPU 736x336, p95 gap ~1400ms. Candidate actual owned stone texture blends three broad planted groves aligned with existing original 3D fern courses (28x16 38.49% atlas coverage measured, NOT screenshot quality), no new texture/pass/mesh/cell mutation. Focused source test RED→GREEN 2/2, affected 8/8, legacy 10/10, build pass. New-head Chromium/55s/strict performance, real-device present/p95, long-soak and independent critics unverified. T1 BUILDING SELF-REVIEW; never merge/deploy.",
+      "gap": "Only actual new-head media plus hard unchanged >=17 genuine renders repeated at useful raster and real-device present evidence can support whole-game quality; T2 expressive joined serpent, T3 camera/audio/mobile and T4 integrated long-soak and blind independent critique remain OPEN."
+    },
+    {
+      "area": "November 2 actual 57d6 Chromium 70/71 original strict 8/17 and continuous three-coastal-valley source candidate",
+      "verdict": "T1 previous complete v57 frame SELF-REJECTED vs official Snake Pass: almost invisible randomly scattered fern clumps, giant rectangular grid, small stiff hero. Actual 41489165416 true WebGL 70/71, strict original 8/17 full-desktop renderer submissions /1012.8ms at 736x336 (61 RAF callbacks not renders), real stills artifact 13165946708 and genuine 55s movies 13166161267. Current same-T1 candidate embeds three coherent physically planted valley courses, original sunlit 3D leaf vertex colors and stone pigmentation + non-emissive centre sundial in existing atlas. Focused RED then 13/13 GREEN, build success. Current-head Chrome/images/movies are not yet proven; SELF REVIEW / ACCEPTANCE PENDING.",
+      "gap": "Whole-frame substantial visible improvement and actual motion, unchanged genuine ≥17 full-desktop renderer submissions per 1s at useful pixel resolution, target-hardware display-present FPS/p95, multi-pass soak and reconnect, expressive cohesive T2 serpent and truthfully cinematic T3 phone/audio/HUD, T4 independent full-game comparison. No merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact a815 real WebGL 8/17 failure, coherent interstitial 3D understory candidate",
+      "verdict": "Current a815 focused Chromium 41457819710 68/69 and real WebGL/55-second live gameplay; unchanged strict desktop actual renders 8/17 over 1006.5ms at 736x336, frame gap p95 about 1800ms. Still giant rectangular grid, SELF-REJECTED vs Snake Pass. New production creates 130 3D leaf clumps and matching original world-owned atlas root pigments on real standard courtyard, one static mesh, 0 new textures/passes, all real game centres clear, local focused RED then 9/9 GREEN. Current candidate true browser film/images/strict gate NOT VERIFIED.",
+      "gap": "Whole-frame visibly dramatic new-head WebGL difference, unscripted 55s hero/scene critique, repeated >=17 genuine full-desktop submissions at useful raster, physical-device displayed FPS/p95, long soak/recovery, true T2 animation and T3 responsive cinematic audio/HUD, independent T4 reference acceptance. DRAFT, no merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact b649 3D dark-basin self-rejection and integrated owned-stone-atlas rescue",
+      "verdict": "Focused Chromium 41445295753 was genuine WebGL 68/69. Unchanged original strict one-second full desktop actual submissions failed 14/17 at 744x340. Whole frame SELF-REJECTED for dirty black central quarry and synthetic pale root streaks. Current source directly regrades existing owned 1024x512 stone texture once; local authentic RED→GREEN 5/5 plus deeper 2/2, current-head browser film/screenshots pending.",
+      "gap": "Independent Snake Pass/ASTRO BOT quality judgment; exact current-head 8-view real WebGL and unscripted 55s; original >=17 repeated full desktop submissions at useful raster; real device displayed p95, long soak/recovery, unified animated T2 character and T3 spectator UX, T4 whole-game acceptance. No merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact 9ac WebGL regression and one-mesh rooted-stage re-authoring",
+      "verdict": "Confirmed focused Chromium 41436731879: 64/67, strict 9/17 1006ms at 736x336, p95 frame-gap 1916.5ms, real WebGL and 55s video. Whole-frame fails Snake Pass: opaque angular pale carpets, grid dominates and small stiff serpent. New original ten-site rooted/seam build is candidate only; exact-source local focused 4/4 Node pass; browser administratively blocked, new-head visual, 55s movie and strict gate UNVERIFIED. Broad 41436731793 cancelled.",
+      "gap": "T1 remains BUILDING/SELF-REJECTED; current-head 8-view exact-source WebGL before/after and 55s genuine play, original strict >=17 true desktop submission gate at useful raster, independent critic, T2 hero anatomy, T3 cinematic UX, T4 physical device display-present p95 and soak/recovery all OPEN. No merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact 818388d whole-game true WebGL recovered, strict 9/17 failure and new broad rooted court mosaic build candidate",
+      "verdict": "Current Chrome 41428288575 64/67 and authentic 8 matched WebGL stills/55s movie; original strict complete desktop FAIL 9/17 genuine full renders, GPU raster 736x336, p95 ~1750ms. Separate general CI Node 625/625 GREEN, broad browser 7 failures incl independent strict 16/17. Full-scene SELF-REJECTED vs official Snake Pass: still a huge tiled rectangle and small stiff hero. New 10-bed T1 source candidate and exact measured scene resource comparison corrections not yet executed on new head.",
+      "gap": "New head Node/real WebGL after shots, true 45–90sec gameplay before/after motion, unchanged >=17 actual full-desktop gate repeatedly at useful raster, real-device display present FPS/p95, T2 expressive anatomy and T3 truthful cinematic/mobile experience, independent critic, long soak/recovery. Never merge/deploy."
+    },
+    {
+      "area": "November 2 exact 0865217416e completed P1 production 3D module-load regression and correction candidate",
+      "verdict": "Actual current-head focused Chromium Actions 41424227069 FAILED 60/66 browser checks: the after-scene used the safety Canvas fallback, not WebGL. Host whitelist lacks route for newly imported courtyard-ecology.mjs. General CI 41424227056 FAILED 8/624 Node checks because the GPU-free render-timing VM strips imports without an ecology stub. The correction adds allowed module routing/readiness and a timing-only stub with regression tests. No new-head GREEN or authentic after-scene evidence claimed.",
+      "gap": "Strict original >=17 genuine full-desktop 1s gate never produced a valid result on this fallback head; old a939 7/17 is historical only. New-head actual WebGL after views, 45–90s uncut gameplay, focused/full CI, repeated useful-raster full-scene render submissions, physical-device present p95, long-soak and independent whole-game Snake Pass/ASTRO BOT review all OPEN. T1 BUILDING/SELF-REJECTED, T2–T4 OPEN, NEVER merge/deploy."
+    },
+    {
+      "area": "November 2 exact a939 complete real browser and broad physical moss-courtyard T1 source candidate",
+      "verdict": "BASELINE SELF-REJECTED / T1 BUILDING. Authentic 41411192893: 63/64 browser, strict original 7 genuine complete 1s desktop renders /1010.4ms vs >=17 FAIL, GPU 736x336, p95 frame gap 1700ms, 61 RAF callbacks not render submissions. General 41411192881 CANCELLED. Source candidate integrates on-court three broad shallow braided physical moss/lichen landforms in ONE static-baked mesh with protected central clearing, but NO new-head executed test or visually accepted frames yet.",
+      "gap": "New-head real 8-view same-public-frame Chromium/WebGL before/after and genuine unscripted 55s film, full Node/browser GREEN/RED execution, strict unmodified useful-raster >=17 repeat, hardware displayed FPS/p95/soak, expressive joined serpent and camera/HUD/audio, independent Snake Pass + ASTRO BOT whole-game critic. Workspace tunnel disconnected; no local RED/GREEN. Never merge or deploy."
+    },
+    {
+      "area": "Nov 2 current exact ef7ce164 63/64 real browser + original desktop gate 8/17 and dynamic GPU path diagnostics",
+      "verdict": "T1 SELF-REJECTED / BUILDING; authentic Actions 41403962296 63 browser passed, unchanged original 1s strict gate FAILED 8/17 actual full-scene renders over 1002.2ms; 61 RAF is not renders, drawing buffer 736x336, frame gap p95 1516.6ms. Current runtime same 9d3; Node/build stages of general CI passed but browser run CANCELLED. Partial-workload query p95 full 20.84ms, omit water 12.86ms, omit serpent+contact 13.05ms at reduced raster only; no smoothness claim.",
+      "gap": "Latest source-matched 8 real Chromium stills and authentic 55s movie artifacts 13123768083/13123758184 generated but no new independent acceptance. Existing same runtime full-scene self-rejected. Must re-author massive courtyard and hero, optimize real full scene without removing water/body/cues, preserve strict >=17 gate, demonstrate repeated useful-raster/present p95 and device+soak. Workspace tunnel NOT_FOUND; this run is documentary review, no production RED/GREEN. Never merge/deploy."
+    },
+    {
+      "area": "2026-11-02 exact-current 9d3 real WebGL eight-shot and paired 55s whole-game quality review",
+      "verdict": "SELF REJECTED: on actual matched source frames the scene is still a huge repeated rectangular stone courtyard, thin decorative ecology, small striped tube-like serpent and distant unvarying view. The integrated promontory and chroma changes are visible but insufficient compared with official Snake Pass. Focused Chromium 41395259363: 63/64, original strict gate FAIL 11 genuine desktop renders/1007.4ms against >=17 at 736x336, p95 1433.2ms, GPU queue latency 2205.4ms. General CI 41395259356 CANCELLED browser; neither full CI nor device-present pacing accepted.",
+      "gap": "Continue the SAME T1 full-world/court physical design and integrated motion/performance milestone, not more isolated textures, counters or micro-rounds. Sources/artifacts: Actions 41395259363 preview 13120595085, motion 13119674387, metrics 13119902935. Independent critic/workspace unavailable; strict gate unchanged. T2/T3/T4/physical display FPS/soak still open. Never merge or deploy."
+    },
+    {
+      "area": "2026-11-02 exact-e228 Actions and integrated coast-to-court T1 source candidate",
+      "verdict": "Real preceding e228 Node 620/620 PASS; preview/general CI timed out 20/30min before all real browser tests, so no full-GREEN. Strict actual >=17 complete desktop 1s submits EXACTLY 17 at a severely reduced 736x336 GPU buffer; p95 about 1000ms. Last full-scene personally inspected 8fd visual rejected against official Snake Pass. New stronger chroma and eight-coast 3D escarpment source changes are NOT visually accepted.",
+      "gap": "New exact-source RED→GREEN runtime and 8 real Chromium/WebGL A/B screenshot + paired 55s authentic host recordings need actual same-commit Actions artifacts, independent critic, unchanged strict one-second gate at useful raster, real device display presents/p95, long soak and sustained T2–T4 development. Longer CI timeout is not proof of quality."
+    },
+    {
+      "area": "2026-11-02 exact 8fd real whole-game benchmark and material-integrity rescue",
+      "verdict": "Full visual T1 SELF-REJECTED vs official Snake Pass on true full-game WebGL and 55s unmodified film, independent critic missing. Real general CI FAIL 617/620 with protected-heart/palette/coverage defects; focused browser cancelled after 60 PASS. Strict unchanged 1s original full-desktop gate 18 actual submissions/17 required SINGLE PASS only at 736x336 GPU, p95 999.9ms.",
+      "gap": "Bound-preserving existing braided material rescue direct original atlas checks zero landmark deltas, 18.59% warm and 15/24 broad regions; new-head Node tests and authentic full WebGL/motion still PENDING. Huge repeating floor, simplified serpent, coherent animation, useful-raster hardware displayed FPS/p95, long soak and independent whole-game acceptance all OPEN."
+    },
+    {
+      "area": "November 2 verified aa7 prior Actions full-scene render stop-ship",
+      "verdict": "Actual Chromium run 41377380218 CANCELLED after >=51 browser test cases including real eight linked-reef before/after screenshots and unmodified 55.02s stream; ORIGINAL strict desktop WebGL gate FAIL 10/17 true full-scene submissions over 1015.7ms, GPU raster 736x336 and frame p95 1750ms; no software-rendering or device-present acceptance",
+      "gap": "Huge ongoing full-scene performance blocker; benchmark whole-game T1 remains SELF-REJECTED on last visually reviewed predecessor. Need new-head exact WebGL A/B, true motion, useful-raster repeat strict ≥17, display-present p95 and independent full-game review. No deployment or merge."
+    },
+    {
+      "area": "November 2 exact-parent aa7 current T1 braided complete court plus curved real four-coast landscape",
+      "verdict": "SOURCE CANDIDATE / current aa7 Actions status pending; Node and true Chromium eight-view captures authored but not executed, no creative milestone accepted; exact pre-candidate authentic whole-game critique still REJECTED",
+      "gap": "Need matched real new-head WebGL desktop/detail/portrait/1920 pictures and truthful 55s motion, full suite, strict >=17 genuine complete render submissions repeatedly at useful resolution, device-present FPS/p95, full Snake Pass/ASTRO BOT independently scored, smooth T2 anatomy, cinematic T3, long soak and T4. No merges/deploy."
+    },
+    {
+      "area": "November 2 exact 43a5e04 whole-frame WebGL + 4-coast physically linked terrain candidate",
+      "verdict": "Authentic Chromium 41372528524 CANCELLED after 52 browser passes, whole-game self-REJECTED vs Snake Pass; unchanged strict original 10 real complete desktop renderer submissions /1004.1ms vs required >=17 FAIL, 736x336 GPU, p95 1700ms. New original real 3D ridge geometry test-first RED/GREEN, six related Node tests and TS build PASS; actual new-head WebGL/55s motion acceptance pending.",
+      "gap": "Large grid court/assembled serpent, severe render pacing, useful-raster physical-device present FPS/p95, true browser/full CI, T2 organic anatomy/motion, T3 cinematic truthful HUD/audio/mobile, T4 long soak/recovery and independent whole-game critic. PR DRAFT; no merge/deploy."
+    },
+    {
+      "area": "November 2 actual 0e4c4b9 latest-head 8-view and two genuine 55s whole-game films; R55 visual-control regression",
+      "verdict": "Real Chromium 58/59 FAIL (R55 historical pre-T2 art not comparable), whole-scene SELF-REJECT, single original 17/17 genuine render PASS at reduced 777x355 and p95 1083.3ms; corrected strict same-art test pending new-head WebGL",
+      "gap": "Green/tan tiled board still dominates and hero not natural; repeated useful-raster 17+ actual desktop submissions, device presented FPS/p95, full CI, independent Snake Pass judgment, expressive T2, T3, T4, soak/recovery remain open."
+    },
+    {
+      "area": "November 2 inspected 1400168 real WebGL/55s artifacts and integrated scene/skin candidate",
+      "verdict": "Real prior Chromium run CANCELLED after 56 passes, prior whole-scene SELF-REJECTED; original STRICT 11/17 FAIL at 736x336 and p95 1166.6ms; general CI 614/616 FAIL from 2 genuine monotonic weathering regressions; local production repairs + new T2 botanical skin RED→GREEN, new-head visual/performance PENDING",
+      "gap": "New exact-source eight screenshot and authentic 55-second gameplay evidence and complete Node/browser CI needed; T1 complete scene remains rectangular; original >=17 genuine render gate and useful physical-device display p95 not achieved; cohesive hero motion, cinematic UX, soak, independent quality review OPEN, never merge/deploy."
+    },
+    {
+      "area": "2026-11-01 d16 true whole-scene critique + new sunlit 3D shelves, current acceptance pending",
+      "verdict": "REAL d16 55/55 Chromium and honest 55s clips, parent whole-game SELF-REJECTED; original strict one-time 18/17 PASS at GPU 777x355 and p95 1033ms, NOT smooth. New source-perfect two-stage terrain and floor 2/2 test-first GREEN, six combined T1 Node/build GREEN, after WebGL/movie/strict performance PENDING.",
+      "gap": "Dark artificial floor, repetitive court, small segmented snake still below Snake Pass. New-head true eight matched browser screenshots and live 55s full gameplay evidence must be reviewed; repeated >=17 genuine full-scene submissions at useful raster, real hardware present FPS/p95, independent critiques, T2–T4 and soak/recovery open. Never merge/deploy."
+    },
+    {
+      "area": "November 1 T1 current real whole-scene rejection and full-floor ecological material candidate",
+      "verdict": "4a961 REAL WEBGL 52/53; old full-scene REJECTED; original STRICT 13/17 FAILED; new floor RED→GREEN Node 9/9 and build PASS, new-head WebGL/movie/strict render PENDING; T1 BUILDING/SELF REVIEW/NOT ACCEPTED",
+      "gap": "Huge flat tiled courtyard and assembled hero still below Snake Pass, independent critic missing; local browser policy prevents WebGL. New exact-4a961 8-view and authentic 55s CI must be inspected; repeat ≥17 genuine full-scene submissions and useful real hardware present p95, T2–T4, device/soak open. No RAF/partial-workload/video FPS substitution; never merge/deploy."
+    },
+    {
+      "area": "November 1 T1 same milestone: first amphitheatre parser/geometry budget failed, scene redesigned and focused node verified",
+      "verdict": "First browser source-fixture parser error (run 41338314873) REPAIRED; first full 40x24 ridge count 22234/22000 FAIL, geometry RED without weakening tests. Rebuilt 8 larger, varied ridges/two tall trees 21937/22000, exact-source local 8/8 Node PASS plus TypeScript build; actual new-head WebGL and frame acceptance PENDING.",
+      "gap": "True 8 same-frame Chrome/WebGL screenshots/55s authentic autoplay and strict full scene ≥17 desktop submissions must be inspected. Previous 1b73 10/17 FAIL and whole-scene visually REJECTED. New candidate no independent critic, physical device display fps/p95, full Node suite, soak, expressive T2 hero, cinematic T3. T1 BUILDING; never merge/deploy."
+    },
+    {
+      "area": "November 1 T1 actual parent wetland rejected; authored four-coast amphitheatre candidate",
+      "verdict": "EXACT 1b73 WebGL 51/52, 8 real screenshots and 55-second footage inspected; old full-scene REJECTED; strict 10/17 ACTUAL renderer submissions FAIL (p95 1499.9ms), new candidate source/test/visual/CI PENDING, T1 BUILDING",
+      "gap": "New original 12 layered external geological masses, two tall original canopy trees and grounded vegetation four batches / one texture must be verified via current-head exact-source screenshots, authentic 55s game and uncompromised strict gate. Giant tile field, expressive serpent, credible full-HD GPU raster and real-device displayed fps, R5 soak, independent reference critique open; never merge/deploy."
+    },
+    {
+      "area": "Nov 1 T1 integrated riparian landscape candidate, previous head visually REJECTED",
+      "verdict": "Exact 8c9409c prior real WebGL 49/51, inspected eight images and genuine 55s movies; original 17-genuine-render strict gate FAIL 14/17, p95 1033.4ms. New integrated scene RED→GREEN unit, 107/107 focused Node/build/host PASS, current candidate real Chromium pending; T1 BUILDING.",
+      "gap": "24 water garden clusters, 192 lily pads, 72 blooms, 48 reeds + original physical floor patina and integrated material regrade, 14986→17770 garden triangles, four batches and one texture. Still awaiting verified new whole-frame screenshots, authentic motion, 17+ repeated full-scene render submissions, useful buffer/device display p95, R47 minimap activation visibility, independent Snake Pass critique, soak/recovery, T2–T4. Never merge/deploy."
+    },
+    {
+      "area": "Nov 1 T1 actual daff8c7 forest review and full-court floodplain correction",
+      "verdict": "daff8c7 FOCUSED TRUE WEBGL 49/50; 8 matched PNGs + authentic 55s films SELF REVIEW; whole-frame pale court REJECTED; STRICT desktop 7 actual/17 FAIL. New floodplain production Node 106/106 + host self-test PASS; after WebGL visual/CI PENDING.",
+      "gap": "Whole-board original sediment/moist limestone replaces repeated pale slab domination in same original atlas; exact parent sha preserved, no new draw/mesh/texture/authority. New honest current-head eight matched WebGL views, 55s film and strict full-scene gate not yet observed. Snake Pass visual and serpent hero realism still LOSE, p95 frame 1633.2ms, 736x336 GPU raster, physical presents/soak/independent critic OPEN. Never merge/deploy."
+    },
+    {
+      "area": "Nov 1 full-scene original forest/ruined aqueduct T1",
+      "verdict": "REAL HEAD b615 focused 49/49 WebGL PASS but inspected parent images visually REJECTED; new integrated canopy/arcade Node RED→GREEN only, browser proof/independent critique PENDING",
+      "gap": "New original eight trees/901 canopy leaves/four broken arches/39 vines and +5532 triangles require true-new-head full HD/detail/portrait real screenshot and 55s motion quality review, possibly performance regression. One true 17/17 renderer gate pass at degraded 744x340 raster, frame p95 1016.7ms; hardware device-present p95, repeated ≥17, independent Snake Pass comparison, soak and T2–T4 OPEN."
+    },
+    {
+      "area": "Nov 1 T0 factual checked 8 real WebGL snapshots and 2 live motion movies; T1 self-reviewed garden ecology rebuild",
+      "verdict": "b8ae focused 47/47 REAL CHROMIUM PASS; first T1 scene VISUAL CRITIQUE REJECT; connected ecology candidate LOCAL 103/103 NODE PASS, NEW HEAD WEBGL/55S PENDING; GAUNTLET NOT ACCEPTED",
+      "gap": "Old first T1 still checkerboard-dominant, banks triangulated, snake small. New rounded geology, flowing normals, folded fronds, arching root geometry and full-source video A/B require actual updated-head CI. Baseline strict 18 genuine WebGL submits/1008.8ms single PASS at only 777x355 buffer, p95 966.7ms and GPU queue tail 1377.6ms: no smoothness win. Independent whole-scene critic, repeat >=17 and real device-present p95/soak all OPEN; never merge/deploy."
+    },
+    {
+      "area": "Nov 1 T1 verified runtime blocker / recovery candidate",
+      "verdict": "CURRENT-HEAD CI FAILED: 6/47 BROWSER and 588/603 NODE · after-WebGL unverified · recovery committed for new-head CI; not visually accepted",
+      "gap": "Exact 3895f2e live log proves all new scene WebGL attempts fell to canvas-fallback. Missing static route and fractional RGB palette crash, 8 no-GPU VM failures and 6 dated archive Node SHA failures. 55s original autoplay captured but current after failed, not 3D matched A/B. This repair is unverified until new real Chromium/WebGL, original >=17 full desktop submissions, actual 55s after, fresh whole-game independent critique, device-present p95 and soak. Snake Pass/ASTRO BOT benchmark remains unmet."
+    },
+    {
+      "area": "November 1 whole-scene T0/T1 living-garden candidate",
+      "verdict": "BUILDING · NOT VISUALLY ACCEPTED · exact-source eight WebGL shots + dual 55s authentic gameplay tests require completed CI/artifact inspection",
+      "gap": "Four new actual 3D shoreline sectors, cliffs/ferns/ivy/broken bastions plus weathering in four static batches integrated without simulation changes. Previous R56 strict 16 actual/1003.9ms <17 FAIL. Increased scene complexity can lower throughput; new-head genuine full-scene/film, independent Snake Pass/ASTRO BOT critique, real-device present/p95 and soak remain unverified. Do not use historical images to claim progress."
+    },
+    {
+      "area": "Transformation acceptance — all four pillars together",
+      "verdict": "NOT ACCEPTED · pre-transformation baseline still open",
+      "gap": "Prior rounds focused on marginal geometry, material, pixel or CI differences. The next work must produce a whole-scene before/after visual and motion transformation judged against real Snake Pass and the existing game. No independent whole-game accepted transformation or repeatable smoothness evidence yet."
+    },
+    {
+      "area": "Round 56 · original portrait overview staging and real WebGL comparison",
+      "verdict": "CANDIDATE · NODE PROJECTION + REAL CHROMIUM BEFORE/AFTER COMMITTED · CI PENDING · STRICT 11/17 STILL FAIL",
+      "gap": "Actual projection must gain >=7% vertical ground coverage at 390x844 and 368x598 across board sizes while preserving every corner, unchanged landscape/detail/follow cameras, all public cues and bounded resources. Source-controlled 4 actual WebGL screenshots and Node regression awaiting CI. Snake Pass/ASTRO BOT, independent critic, normal 1080p >=17 actual submissions, real-device presents, long soak and R5 remain OPEN."
+    },
+    {
+      "area": "Round 55 · stable reduced-motion original serpent vertex buffer transfers",
+      "verdict": "REAL CHROMIUM REDUCED-MOTION A/B PASS · STRICT DEFAULT DESKTOP 11/17 FAIL · GENERAL CANCELLED",
+      "gap": "R55 real 960x640 reduced-motion overview/detail original/current Chromium/WebGL images pixel-identical, no resource delta or GL error (Actions 41300524852 evidence 13081266596); CPU-requested vertex transfers skipped on frozen body, not measured GPU bus or normal speed. Hard 1920x1080 produced 11 actual renderer submissions/1003.0ms vs unchanged >=17; 61 RAF callbacks are not render/present FPS. General run 41300524857 cancelled. Full visual benchmark, independent critic, device present, soak and R5 OPEN."
+    },
+    {
+      "area": "Round 54 · actual first shadow atlas WebGL comparison / 17-submission gate",
+      "verdict": "REAL 6 PNG CHROMIUM SOURCE VERIFIED · 42/43 BROWSER PASS · STRICT 10/17 FAIL · GENERAL NODE 591/592 TEST REGEX ISSUE FIXED LOCALLY",
+      "gap": "R54 1080p 2048²→1024² shadow only, unchanged 1296x592 canvas/33 draws/13,612 triangles; 1.145% pixels intensity>3 changed, native/retina exactly identical. Actual WebGL/GL0/pass cues. No causal or repeat throughput win, GPU max fence age ~2275ms. New-head corrected full Node, repeated >=17 actual submissions, display-present FPS, fresh independent Snake Pass/ASTRO BOT visual critic, physical mobile/soak/R5 all OPEN."
+    },
+    {
+      "area": "Round 53 · bounded large-canvas first render with original 3D content",
+      "verdict": "CANDIDATE · EXACT PREVIOUS BLOB · LOCAL 94/94 SNAKE NODE/BUILD/HOST PASS · NEW R53 WEBGL & >=17 STRICT PENDING",
+      "gap": "Before first 1080p GPU submission start >1.2M native raster at bounded 768k target, no ratio below 0.4. Ordinary/mobile retina unchanged; full original serpent, flowing water, portals, active hazards, food, public captions, R51 adaptation and 2-fence queue retained. R52 corrected CI 40/41 Chromium; strict 10/17 real submissions failure, 61 RAF not renders/presents. R53 actual Chromium A/B, repeat steady strict ≥17, hardware display present, independent visual critic, long soak and R5 remain OPEN. Snake Pass/ASTRO BOT full art bar LOSE."
+    },
+    {
+      "area": "R52 source-controlled real WebGL + historical SHA controls",
+      "verdict": "REAL SIX-IMAGE CHROMIUM A/B PASS · 35/41 ORIGINAL BROWSER · STRICT 10/17 FAIL · 91/91 LOCAL PATCHED NODE PASS · UPDATED CI PENDING",
+      "gap": "Repaired five old browser/two Node archival Git-SHA validations by excluding R52 from historical-only source hash; never changed original expected hashes or rendered historical controls, and restored R52 art to both old A/B visual arms. Chromium screenshot pixel changes 2.25% overview, 5.49% detail, 3.79% portrait; no increase in resources, but fixed Snake Pass/ASTRO BOT visual/real 17+ submissions/physical present/independent critic/soak still OPEN. "
+    },
+    {
+      "area": "Round 52 · original grove canopy material depth",
+      "verdict": "CANDIDATE · NEW SOURCE CONTROLLED WEBGL AND NODE TESTS PENDING · R51 HEAD 39/40, STRICT 7/17 FAIL",
+      "gap": "One authored existing-atlas broken foliage shade across rear inner courtyard, 1.9-cell perimeter intact, 0 new GPU assets/passes. Must inspect actual 960x640 overview/detail and 390x844 portrait PNGs, contrast and geometry budgets; no win inferred. R51 failed 7 actual renderer submissions/1015.9ms vs unchanged >=17, 61 RAF callbacks are not FPS; performance, full Snake Pass/ASTRO BOT craft, independent critic, physical presents, R5/soak OPEN."
+    },
+    {
+      "area": "Round 51 · one bounded post-scale throughput rescue",
+      "verdict": "CANDIDATE · NO R51 CI OR WEBGL EVIDENCE YET · PARENT R50 STRICT 15/17 FAIL",
+      "gap": "Existing one-shot quality scale stabilized at 0.53188 despite 15/17 strict fail. R51 only adds second 8-sample median, once down to existing 0.4 floor under sustained 48ms pressure; frozen 0.4 parent 41/1307.7 diagnostic not causal proof. New Node / real WebGL captures pending. No relaxed gate, no new GPU objects or missing critical cues. Device present, independent Snake Pass critic, R5/soak and steady >=17 still OPEN."
+    },
+    {
+      "area": "Round 50 · original interior flagstone mineral wash, fixed visual bar",
+      "verdict": "R50 REAL WEBGL VERIFIED IN 3 VIEWPORTS · PIXELS CHANGED SUBTLY (DETAIL 2.77%) · 38/39 BROWSER · 588/590 FULL NODE HISTORIC SHA RED FIXED LOCALLY · ONE 17/17 DESKTOP GATE NOT SUSTAINED",
+      "gap": "True original/current WebGL artifact 13073055058: detail 17,028 changed pixels 2.771% mean affected channel diff 3.52, zero new draw calls/assets/GL errors; too subtle to close material/whole-world craft. Single desktop real 17 submits/1006.3ms >= unchanged 17, 61 RAF not renders/presents; no repeat/soak. Old R44/R32 historical SHA only red in general 588/590 and old R44 browser only red in 38/39; three hash-only fixes validated 87/87 local Snake Node and build, fresh exact-head CI PENDING. Independent reviewer, hardware present FPS, R5/long soak, complete Snake Pass craft LOSE."
+    },
+    {
+      "area": "Round 49 · byte-identical contact-shadow matrix update gating",
+      "verdict": "R49 VERIFIED 37/38 REAL WEBGL · EXACT ORIGINAL/CURRENT PIXEL IDENTITY · STATIONARY TRANSFER REQUEST 4672→0 BYTES · STRICT 10/17 FAIL",
+      "gap": "Focused Actions 41277311607 source-controlled overview/detail original/current Chromium PNGs pixel-identical, 0 GL errors, same 33/44 draw calls, all resource counts. 73 contacts avoid repeat 4672 requested CPU/GPU upload bytes, but no GPU bus measurement nor causal FPS win. Strict default live 10 renderer submissions/1012.4ms <17 (61 RAF callbacks not renders). General CI browser was pending. Full Snake Pass/ASTRO BOT, independent critic/device-present/soak/R5 still OPEN."
+    },
+    {
+      "area": "Round 48 · public danger alert over conflicting fruit fixation",
+      "verdict": "R48 ACTUAL SOURCE-CONTROLLED CHROMIUM DETAIL+OVERVIEW A/B PASS · NODE 588/588 · OLD FIXTURE ISOLATION CANDIDATE · HARD 11/17 FAIL",
+      "gap": "R48 urgent public danger eye/head acting genuinely changes 261 overview and 11508 detail screenshot pixels at equal raster, no draw/triangle increase; new real browser test passes. Two old historic A/B fixture assumptions were incompatible with the intentional threat priority and are test-only corrected for recheck, original image/hash/±0.018 assertions intact. Strict 11 actual submissions/1012.8ms <17, RAF61 not frames. Whole game still below Snake Pass/ASTRO BOT; no independent critic, device-present FPS, soak/R5."
+    },
+    {
+      "area": "Round 47 · cue-safe whole-garden minimap identity and first-frame visibility",
+      "verdict": "R47 REAL CHROMIUM A/B PASS · 35/36 BROWSER · STRICT 10/17 SUBMITS FAIL",
+      "gap": "Fixed public frame mini-canvas pixels match before/after, duplicate paints suppressed, same-revision trap and caption plus reentry verified in real browser 41273304614. Sole failure 10 ACTUAL submits/1009.8ms <17, RAF61 is not real/display FPS. General browser pending; commercial reference, independent critic/device/soak/R5 still OPEN."
+    },
+    {
+      "area": "Round 46 · one-pass cached color/depth with original dynamic serpent and water",
+      "verdict": "R46 REAL WEBGL MATCHED-SCALE IMAGE A/B PASS · HARD 15/17 SUBMITS FAIL",
+      "gap": "Parent exact-head 41272350384 34/35: captured 960x640 overview/detail exact synthetic pixel parity and no WebGL error. 15 actual submissions/1011.7ms <17. Strict gate, production-device presents and full commercial craft remain OPEN."
+    },
+    {
+      "area": "Round 45 · existing original forked tongue responds to nearby public fruit",
+      "verdict": "NEW WEBGL DETAIL/OVERVIEW PASS · FOCUSED 31/34 · 2 HISTORICAL A/B TEST CORRECTIONS PENDING · STRICT 9/17 FAIL",
+      "gap": "Verify fixed-public-fruit original/current close-up fork cue in actual Chromium capture, four-heading motion and resource/priority contracts, and unchanged ≥17 actual frame gate. Fork may be tiny at overview scale; sustained actual frame throughput, device presents, independent Snake Pass critic, long soak/R5 OPEN."
+    },
+    {
+      "area": "Round 44 · original five-lobed harvest fruit and character-relative scale",
+      "verdict": "CANDIDATE · NEW SHA-CONTROLLED MODEL & REAL WEBGL CAPTURES PENDING; PRIOR STRICT 7/17 FAILED",
+      "gap": "Verify smaller fruit still legible in overview/portrait, detailed sculpt does not facet, same graphics/authority/cue budgets and ≥17 actual rendered submissions. Whole-game Snake Pass/ASTRO BOT LOSE; independent critic, device-present FPS, soak/R5 OPEN."
+    },
+    {
+      "area": "Round 43 · bounded original water mip filter in low tier",
+      "verdict": "R43 FOCUSED CHROMIUM 31/32 PASS; STRICT 7 ACTUAL OF 17 FAIL",
+      "gap": "R43 low-water one-mip A/B verified but 7 actual submits/1008.6ms <17; no causal performance benefit. Separate R44 candidate pending. Independent critic, actual device presents/soak/R5 open."
+    },
+    {
+      "area": "Round 42 · original lake shader WebGL verification",
+      "verdict": "FOCUSED CHROMIUM 31/31 PASS; STRICT 17/17 ONE SAMPLE; HISTORIC NODE SHA CORRECTION PENDING",
+      "gap": "Only one minimum-margin actual draw pacing pass. R42 images near pixel-equivalent; official Snake Pass/ASTRO BOT world richness still far ahead. Need full Node CI corrected, independent critic, real-device displayed FPS and soak/R5."
+    },
+    {
+      "area": "Round 41 · original 3D courtyard root/drainage channels",
+      "verdict": "BOUNDED ORIGINAL ATLAS + SHA-CONTROLLED MODEL/WEBGL A/B CANDIDATE · EXACT-HEAD CI PENDING · LAST STRICT 10/17 FAIL",
+      "gap": "New review must inspect actual WebGL edge breakup, central legibility and live metrics before any verified craft claim. Whole-game Snake Pass richer in scene/character/motion; no independent critic, reliable >=17 actual submits or device presents, soak/R5."
+    },
+    {
+      "area": "Round 40 · rejected single-sample final WebGL canvas experiment",
+      "verdict": "REJECTED AFTER ACTUAL BROWSER A/B · 29/30 BROWSER · 9/17 STRICT FAIL · RENDERER + HISTORIC TESTS RESTORED",
+      "gap": "Native-AA-off 10.85% detailed pixels changed with visibly jagged grouting/contours and no measured live submissions win; reverted. General new source count assertion also false (expected2 actual3) and removed with experiment. Commercial quality, ≥17 real submissions, independent critic/device-present/soak/R5 remain open."
+    },
+    {
+      "area": "Round 39 · public-fruit original jaw/cheek anticipation",
+      "verdict": "R39 REAL WEBGL SYNTHETIC A/B CONFIRMED · 26/29 INITIAL FOCUSED PASS · ARCHIVAL TEST-ONLY TDZ CORRECTED · STRICT 8 OF REQUIRED 17 ACTUAL SUBMISSIONS FAIL",
+      "gap": "Original jaw and cheek mesh shows a real screenshot pixel difference and passes exact-source A/B WebGL, zero GL errors and equal GPU resources. Historical R33/R34 guard mistakes caused only two test ReferenceErrors; minimal order fix pending rerun. Desktop gate remains 8 actual draws/1004.4ms <17; RAF callbacks not draws or display FPS. Whole-game commercial visual standard, continuous live/device cadence, independent review/soak/R5 still open."
+    },
+    {
+      "area": "Round 38 · live ground-contact instance-buffer subrange",
+      "verdict": "EXACT-SOURCE NODE 70/70 · TRUE WEBGL SOURCE CAPTURES PENDING · ≥17 ACTUAL SUBMISSIONS NOT VERIFIED · WHOLE-GAME LOSE",
+      "gap": "Single original 2048 contact-shadow transform buffer now requests only 64 bytes per used instance, unchanged total capacity and visible transforms; CPU range requests are not GPU speed. New exact prior-source true Chromium overview/detail screenshot gate pending, preserve strict 17. Fixed Snake Pass/ASTRO BOT reference, independent critic, device-present FPS and R5/soak remain open."
+    },
+    {
+      "area": "Round 37 · original attached upper-lid articulation",
+      "verdict": "ACTUAL WEBGL SHA-CONTROL PASS · 26/27 BROWSER · STRICT 11/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Measured 1,377 close-up changed pixels across the moving original lids, 76 overview; character eyes remain bulky/hooded versus Snake Pass. General CI signed-zero Node regression corrected after local 69/69 pass, corrected-head CI pending. No performance win, independent review, real-device presents, soak/R5."
+    },
+    {
+      "area": "Round 36 · live serpent index topology transfer",
+      "verdict": "R33/R34 HISTORY FIXED · 24/26 CURRENT BROWSER · R36 PIXEL-RACE RECHECK PENDING · REAL-LIVE 1/30 REUSE · STRICT 10/17 FAIL · WHOLE GAME LOSE",
+      "gap": "Prior Round36 A/B exact visual parity replicated once; corrected-history run showed 9 ±1/255 face pixel differences in overview, likely independent dangerEase capture frame. Synthetic neutral-danger exact-zero fixture pending. Only 1 index upload avoided in 30 actual gameplay draws, no speed benefit. 10 actual renders/1015ms <17, independent critic, device presented FPS, soak/R5 absent."
+    },
+    {
+      "area": "Round 35 · original inhabited-garden lichen at perimeter",
+      "verdict": "R35 ACTUAL CHROMIUM WEBGL A/B PASS · 23/25 FOCUSED · HISTORICAL R32 COMPARATOR FIX PENDING CI · STRICT 15/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Real source-controlled overview 26137/614400 changed display pixels, detail 12809/614400, same public snapshot/GL/budgets; perceptually subtle garden-edge effect, old broad court still repetitive vs Snake Pass. Strict desktop 15 actual submissions/1000.3ms <17, RAF61 not renders. Historical R32 source-index mistake corrected locally SHA-original verified, CI pending. No independent critic/device presents/soak/R5."
+    },
+    {
+      "area": "Round 34 · original near-public-fruit skull look",
+      "verdict": "REAL WEBGL A/B AND 65/65 FOCUSED NODE PASS · DESKTOP 9/17 FAIL · HISTORIC R33 SHA REGRESSION FIX PENDING · WHOLE-GAME LOSE",
+      "gap": "Actual close-up before/after 10396/614400 changed pixels, overview 190; head glance visible, unchanged resources. Focused browser 22/24; historical R33 guard needs prior-source isolation, strict FPS 9/1005.7ms <17. No independent visual approval, real display FPS, soak or R5. An extra all-four-heading regression locally increases focused Snake Node to 66/66; exact-parent Node 0/3 RED vs 3/3 GREEN. Remote fix CI PENDING."
+    },
+    {
+      "area": "Round 33 · existing sculpted face diffuse overview LOD",
+      "verdict": "EXACT SOURCE NODE 63/63 + HOST SELF-TEST + TRUE WEBGL A/B VERIFIED · STRICT 10/17 FAIL · WHOLE-GAME REFERENCE LOSE",
+      "gap": "Actual focused Chromium 22/23; controlled previous-source same frozen 960x640 comparison shows only 84 changed tiny overview face pixels, 0 detailed pixels. No causal speedup, performance gate 10/1013.6ms vs >=17; general CI ongoing, independent reference critique, device present frames, soak/R5 absent."
+    },
+    {
+      "area": "Round 32 · physical courtyard slab corner geometry",
+      "verdict": "TRUE WEBGL OVERVIEW/DETAIL A/B VERIFIED · REAL MODEL NODE VERIFIED · LEGACY BASELINE ISOLATION PENDING CI · STRICT 15/17 FAIL · WHOLE-GAME LOSE",
+      "gap": "Round32 focused real-WebGL A/B 20/22 (new sculpt test PASS, historic R31 SHA conflict and unchanged strict desktop 15/1014ms FAIL). General 564/565 Node incl. new R32 geometry PASS, old horizon exact-court hash conflict. Two legacy tests now maintain SHA/historic fixture/other-mesh byte parity with carefully scoped new top corners; run exact-source CI again. Frozen viewport pixel difference small; independent Snake Pass comparison and device-present FPS/soak/R5 still missing."
+    },
+    {
+      "area": "Round 31 · full garden scene and quarry slab texture",
+      "verdict": "RED→GREEN MODEL VALIDATED · real WebGL/visual verdict PENDING · overall Snake Pass LOSE",
+      "gap": "A mineral-modulated directional raised-lip shading pattern is baked into the existing original field color map. Identical frozen WebGL A/B, any stripe artifacts, sustained frame-delivery and independent full-game still/motion review remain open; 13 static material batches/4 textures held in source tests."
+    },
+    {
+      "area": "Round 30 · living serpent dorsal gold leaf markings",
+      "verdict": "PRODUCTION CANDIDATE · NODE AND TRUE WEBGL A/B PENDING · WHOLE-GAME LOSE",
+      "gap": "The earlier gold bands encircled the tube. Tapered bright dorsal centers fade into jade flanks with the same four original texture resources. Test the exact atlas pixels and the real-WebGL frozen frame; the unchanged >=17 actual-submission desktop gate, independent Snake Pass review, real-device soak and R5 are all open."
+    },
+    {
+      "area": "Round 29 · live 3D character sightline beside ruins",
+      "verdict": "PURE CAMERA RED→GREEN 3/3 · SAME-FRAME WEBGL A/B + WORLD TEST PENDING · WHOLE-GAME LOSE",
+      "gap": "Old frontal three-quarter close shot intersects authored rear column when snake is near the board's north boundary. New bounded camera-only occluders from the actual ruin geometry choose a clear stable shot without moving head/food or affecting overview, fallback, authority, portals or quality gates. Real Chromium screenshots and performance must still be verified."
+    },
+    {
+      "area": "Round 27 · live body motion",
+      "verdict": "TDD RED→GREEN · 53/53 FOCUSED NODE · BROWSER EVIDENCE PENDING",
+      "gap": "Previous rigid body generated zero frame-to-frame lateral motion on a frozen authoritative 10-cell path. New travelling 0.05-cell-or-smaller side bend moves the middle while anchoring skull/tail/portal ends. Reduced-motion freezes body undulation; no geometry/material/texture growth. Actual commercial-reference motion and GPU cadence still need validation."
+    },
+    {
+      "area": "Round 24 · original mouth/cheek chromatic integration",
+      "verdict": "NEW FACE TINT + BOTH LODS VERIFIED · 50/50 SNAKE NODE · 553/553 GENERAL NODE · TRUE WEBGL JAW-LOCALIZED PIXELS · STRICT DESKTOP GATE FAIL",
+      "gap": "Focused 41202987351 16/17 browser (8 actual submissions/1005.6ms; minimum 17). General 41202987425 28/29 browser (10/1002.2ms). Fixed Snake Pass face/world/motion comparison still LOSE, no independent critic/device R5, brief occlusion in motion, no FPS causal win."
+    },
+    {
+      "area": "Round 23 · instanced facial accents and exact WebGL draw preservation",
+      "verdict": "24→21 SERPENT MESHES · SAME-FRAME WEBGL DIRECT 52→49 / CACHED 36→33 DRAWS · 3 MATCHED PNGS PIXEL-IDENTICAL · 552/552 NODE · DESKTOP PACE FAIL",
+      "gap": "Focused CI 41199749902 16/17 browser at 10 actual submissions/1009.7ms; general 41199749900 28/29 at 9/1012.6ms, unchanged minimum 17. No sustained FPS claim. Reference-quality face/world/motion, independent critic and real-device/R5 remain open."
+    },
+    {
+      "area": "Round 22 · saturated distance-fog water texture bypass",
+      "verdict": "FOCUSED 17/17 AND ACTUAL DRAW GATE 17/17 PASSED ONCE · GENERAL 551/551 NODE BUT 7/17 DRAW GATE FAILED · NEAR-EXACT WEBGL PIXELS",
+      "gap": "Two matched frozen 960x640 actual WebGL PNGs pixel-identical, synthetic sightline 17 pixels max 1/255. Focused desktop 17 submissions/1008.2ms (min17); general desktop 7/1003.2ms (min17). Different host load and adaptive resolution make causal speed claim invalid. Snake Pass visual/motion, independent critic and device/soak/R5 remain open."
+    },
+    {
+      "area": "Round 21 · sparse fog-aware distant lake",
+      "verdict": "GEOMETRY COUNT VERIFIED (-48.34%) · 3 MATCHED WEBGL PNGS PIXEL-IDENTICAL · 549/549 NODE · DESKTOP FPS GATE FAILED",
+      "gap": "Focused 16/17 at 14 actual draws/1015ms, general 28/29 at 8/1004.2ms against unchanged >=17. Cache prop regression corrected for separately traced adaptive resize without lowering exact topology invalidation. No causal GPU/frame improvement, real-device/soak or independent Snake Pass visual win."
+    },
+    {
+      "area": "Round 20 · vertex-interpolated live water fog",
+      "verdict": "SOURCE/NEAR-PIXEL PARITY VERIFIED · 548/548 NODE GREEN · NO PROVEN SPEED WIN · DESKTOP GATE FAILED",
+      "gap": "Real frozen WebGL images differ <=3/255 color channel; 8,190 added water triangles. Focused browser 16/17 at 12 actual submissions/1011.2ms, general browser 28/29 at 8/1013.6ms, unchanged minimum 17. Different CI runners make GPU delta inconclusive. Official Snake Pass still wins face, world and motion; independent critic offline."
+    },
+    {
+      "area": "Round 18 · close-up food/face occlusion",
+      "verdict": "FOCUSED WEBGL CAPTURE VERIFIED · 545/545 NODE GREEN · ACTUAL-DRAW GATE FAILED · WHOLE-GAME LOSE",
+      "gap": "Synthetic near-head food fixture (real WebGL capture) shows face clearly beside fruit. Matched normal cached/direct 960x640 overview screenshots are pixel-identical against prior source. Focused browser 16/17 with 8 actual renders/1010.3ms; general browser 28/29 with 8/1007.6ms (min 17). Independent critic and device soak unavailable; official Snake Pass still wins character/world/motion."
+    },
+    {
+      "area": "Round 17 · actual WebGL color equivalence and quality",
+      "verdict": "FROZEN COLOR PARITY VERIFIED · ACTUAL FPS GATE FAILED · FULL TEST RECHECK PENDING",
+      "gap": "Matched 960×640 screenshot mean RGB delta 0.031249/255, maximum 1/255. Focused CI 15/16, actual desktop 10/1005ms vs >=17. Large foreground fruit can occlude hero. No independent Snake Pass win."
+    },
+    {
+      "area": "Round 17 · original water palette and runtime rendering",
+      "verdict": "SOURCE ARITHMETIC AND TDD EXPECTATION CHECKED · EXACT-SOURCE CI PENDING",
+      "gap": "One filtered water lookup and unchanged full surface; per-pixel RGB color blending moved to one-time preparation. Real screenshots and actual submitted frame gate must confirm equivalence and speed; official Snake Pass still wins water richness."
+    },
+    {
+      "area": "Round 16 · world composition and cliff silhouettes",
+      "verdict": "ROUND 16 INITIAL CAPTURE: REJECTED · revision 2 pending",
+      "gap": "Initial 15-layer cliff appeared as repeated flying-saucer plates. Revised layer profile bounds radial jumps and tilts bedding; needs fresh actual browser screenshot. Frame gate remains below 17 actual draws."
+    },
+    {
+      "area": "Round 15 · original pigment and camera-distance shading",
+      "verdict": "VERIFIED CODE + CAPTURES · overall LOSE",
+      "gap": "Original body/skull pigments retained; detail preserves full PBR. Frozen 960×640 replay changed 1.912% of pixels (mean RGB difference 0.0843). No actual frame-delivery win: 10 draws/1015ms versus required 17. The stronger official Snake Pass face/stone/water staging still wins. Self-review only."
+    },
+    {
+      "area": "Round 14 · snake face and eye supports",
+      "verdict": "SELF-REVIEW: narrow improvement, overall LOSE",
+      "gap": "Previous eye rims protruded 0.36585 relative to the head; the revised rims peak around 0.330. First closer-set trial hid pupils and was discarded; the accepted local real-render close-up restores visible pupils. Commercial Snake Pass reference remains stronger in facial anatomy, pose and materials."
+    },
+    {
+      "area": "Character and motion",
+      "verdict": "Grounded geometry verified · visual LOSE still open",
+      "gap": "Round 12 grounds the tapered body and skull. The last blind character comparison favored the official Snake Pass reference. New whole-game expressive motion review remains open."
+    },
+    {
+      "area": "World and water",
+      "verdict": "Round 25 floor treatment verified in real WebGL; whole-game visual LOSE",
+      "gap": "Weathered slab fissures/patina preserve existing field map and grid; 87,065/86,800 actual 960x640 overview pixels changed only on floor. Snake Pass still surpasses the giant planar tiled court in masonry depth, lush scene density and water material. No independent critic."
+    },
+    {
+      "area": "Frame delivery and reliability",
+      "verdict": "FAILED unchanged 17-actual-render submission threshold in both Round25 CI runs",
+      "gap": "Current focused 7 real submissions/1007.1ms and general 9/1015.6ms vs required >=17, despite 554/554 Node and broad browser regressions green. RAF/WebM fps not real drawing/display-present FPS. Real-device soak, R5 signoff and independent visual approval unavailable."
+    },
+    {
+      "area": "T1 physical entire-court paving and registered atlas; 2026-11-07",
+      "verdict": "BUILDING / NATIVE PASS / REAL CHROMIUM & INDEPENDENT ACCEPTANCE PENDING",
+      "gap": "No authentic source-matched candidate 1920/portrait/detail/45-90s recording or required original 3×17 WebGL complete draws; last e7 8/17 hard red. Parent 37 browser and 37 CI failures; historical hash fixture unchanged. No whole-game quality win claimed."
+    }
+  ],
+  "rounds": [
+    {
+      "title": "Baseline · flat 2D broadcast",
+      "summary": "Recorded the existing running game before the 3D transformation.",
+      "captures": [
+        {
+          "label": "Desktop capture",
+          "path": "/progress/evidence/baseline-desktop.jpg"
+        },
+        {
+          "label": "Mobile capture",
+          "path": "/progress/evidence/baseline-mobile.jpg"
+        }
+      ]
+    },
+    {
+      "title": "First construction · verdant ruins",
+      "summary": "Original procedural serpent and rich environment, responsive broadcast shell, safe WebGL fallback and motion handling. Visual review is still open.",
+      "captures": [
+        {
+          "label": "First 3D overview",
+          "path": "/progress/evidence/round-1-overview.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 2 · scene cleanup and performance",
+      "summary": "Quiet weathered stone, deeper background, more visible fruit, correct occupancy and public-friendly intent. Capture exposed a shadow-map quality-switch bug; fixed and tested in the next round.",
+      "captures": [
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-2-overview.jpg"
+        },
+        {
+          "label": "Follow view",
+          "path": "/progress/evidence/round-2-follow.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 3 · direct character comparison",
+      "summary": "Shadow-map rendering is valid after resizing (GL error 0). Blind A/B reference won; character anatomy and close framing are being rebuilt. Portrait distance fog still needed correction.",
+      "captures": [
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-3-overview.jpg"
+        },
+        {
+          "label": "Character evidence",
+          "path": "/progress/evidence/round-3-character-clean.jpg"
+        },
+        {
+          "label": "Portrait issue",
+          "path": "/progress/evidence/round-3-portrait.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 4 · continuous skull and portrait framing",
+      "summary": "A frozen real public replay frame makes the character and camera evidence reproducible. The reference still wins facial expression. Static world merging improved measured throughput from 2.29 to 3.88 FPS without removing scenery; the performance gate remains open.",
+      "captures": [
+        {
+          "label": "Character close-up",
+          "path": "/progress/evidence/round-4-character.jpg"
+        },
+        {
+          "label": "Overview",
+          "path": "/progress/evidence/round-4-overview.jpg"
+        },
+        {
+          "label": "Readable portrait",
+          "path": "/progress/evidence/round-4-portrait.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 5 · character expression and independent browser evidence",
+      "summary": "The new face is rendered and the portrait controls no longer overlap. Independent CI passes 11 of 12 checks. Matched cache captures show the same real replay frame; speed at full HD is still below the required gate.",
+      "captures": [
+        {
+          "label": "Character close-up",
+          "path": "/progress/evidence/round-5-character.jpg"
+        },
+        {
+          "label": "Portrait",
+          "path": "/progress/evidence/round-5-portrait.jpg"
+        },
+        {
+          "label": "Direct rendering",
+          "path": "/progress/evidence/round-5-cache-before.jpg"
+        },
+        {
+          "label": "Cached rendering",
+          "path": "/progress/evidence/round-5-overview.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 6 · verified cache color and targeted visual corrections",
+      "summary": "The display-color bake is pixel-identical to the preceding cache in the matched fixture, but full-HD speed remains 5.24 FPS. The next candidate keeps the large eyes while simplifying mouth layers, lowers the character camera, replaces plaid water and uses measured resolution adaptation. New actual captures and motion review are pending.",
+      "captures": []
+    },
+    {
+      "title": "Round 7 · the character in its garden",
+      "summary": "Actual captures show the lower camera, simplified facial outlines and organic water. A real 28.72-second motion recording exposes neutral, turning and eating states. Functional checks remain 11/12; pacing remains below 17 FPS and is being diagnosed further.",
+      "captures": [
+        {
+          "label": "Character and eating pose",
+          "path": "/progress/evidence/round-7-character.jpg"
+        },
+        {
+          "label": "Full-HD overview",
+          "path": "/progress/evidence/round-7-overview.jpg"
+        },
+        {
+          "label": "Portrait",
+          "path": "/progress/evidence/round-7-portrait.jpg"
+        },
+        {
+          "label": "Live progress page",
+          "path": "/progress/evidence/round-7-progress.jpg"
+        },
+        {
+          "label": "Actual gameplay motion · 12-second excerpt",
+          "path": "/progress/evidence/round-7-motion.mp4"
+        }
+      ]
+    },
+    {
+      "title": "Round 8 · attached jaw and measured rendering diagnosis",
+      "summary": "Actual images and gameplay motion were captured after the jaw and interface-compositing changes. The jaw still needs a rounded underside and an integrated mouth crease. Functional and regression checks pass; isolated pacing remains below the unchanged gate. The next experiment measures real renderer work and compares controlled rendering conditions.",
+      "captures": [
+        {
+          "label": "Actual character close-up",
+          "path": "/progress/evidence/round-8-character.jpg"
+        },
+        {
+          "label": "Actual full-HD overview",
+          "path": "/progress/evidence/round-8-overview.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 9 · shared mouth surface and independent measurement review",
+      "summary": "Actual captures show the revised muzzle/jaw boundary. A fresh anonymous character comparison still favors the reference and pinpoints the rear mouth junction. Twelve of thirteen browser checks pass; pacing still fails. Independent technical review caught an invalid GPU-completion assumption, which is being corrected before interpreting totals.",
+      "captures": [
+        {
+          "label": "Actual character close-up",
+          "path": "/progress/evidence/round-9-character.jpg"
+        },
+        {
+          "label": "Actual overview",
+          "path": "/progress/evidence/round-9-overview.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Round 11 · stable public HUD",
+      "summary": "Identical public frames no longer rewrite the HUD. Captions and reconnect updates remain live. Browser pace was still below the gate.",
+      "captures": []
+    },
+    {
+      "title": "Round 12 · grounded serpent and distant groves",
+      "summary": "Tapered body meets the ground; layered groves/cliffs improve background depth; stable props share a correctly invalidated cache. Browser 15/16, pacing failed.",
+      "captures": [
+        {
+          "label": "Actual last live-host screenshots and trace archive",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41167550976/artifacts/13029722241"
+        },
+        {
+          "label": "18-second live-host gameplay recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41167550976/artifacts/13030190849"
+        }
+      ]
+    },
+    {
+      "title": "Round 13 · single-sample organic water",
+      "summary": "Two periodic water fields and foam crests now share one filtered lookup. Focused TDD and local real WebGL capture passed; no new live-host or independent whole-game verdict was yet available.",
+      "captures": []
+    },
+    {
+      "title": "Round 14 · attached eye anatomy",
+      "summary": "Red→green geometry regression caps protruding sockets and requires pupils to sit forward of the skull. The first WebGL capture hid the gaze, so that revision was rejected. The corrected version retains blinking and both detailed/overview meshes. This is a small, self-reviewed character improvement, not an independent benchmark victory.",
+      "captures": []
+    },
+    {
+      "title": "Round 15 · camera-distance skin material LOD",
+      "summary": "Verified actual exact-head WebGL capture and 18.48-second motion: the distant body/skull use preallocated original-pigment shaders, with full PBR restored in close-up. 542/542 Node green; focused browser 15/16 but 10 draws/1015ms vs 17. Frozen overview very similar to prior source; no independent visual win.",
+      "captures": [
+        {
+          "label": "Current real WebGL screenshots and browser trace (run 41171326788)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13031152958"
+        },
+        {
+          "label": "Current 18.48-second motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13030759114"
+        },
+        {
+          "label": "Exact-head real frame timing and browser metrics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41171326788/artifacts/13031297210"
+        },
+        {
+          "label": "Previous matched frozen replay screenshot (for a fair before comparison)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41170386701/artifacts/13030936791"
+        }
+      ]
+    },
+    {
+      "title": "Round 16 · weathered headland strata",
+      "summary": "First source candidate passed model checks but its real browser capture looked like regular stacked saucers, so it was rejected. Revision 2 uses softer radial steps and irregularly tilted strata while preserving UV seam normals, stone materials, static cache, and gameplay. Exact-head browser comparison pending.",
+      "captures": []
+    },
+    {
+      "title": "Round 17 · baked original water palette",
+      "summary": "Small targeted rendering-cost candidate: retain the original animated opaque water and geometric world while moving per-fragment color/foam mixing to one deterministic texture bake. A dedicated regression is included; exact-source browser pacing, image comparison and independent reference critique remain open. First exact-head WebGL captures verify frozen RGB parity to within 1/255, but actual desktop pacing still fails and the original RG-only diversity check needed an equivalent displayed-color representation. New test verification pending.",
+      "captures": [
+        {
+          "label": "Round 17 actual browser screenshots and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41172921802/artifacts/13032375781"
+        },
+        {
+          "label": "Round 17 14.8-second actual gameplay motion capture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41172921802/artifacts/13032430669"
+        }
+      ]
+    },
+    {
+      "title": "Round 18 · foreground fruit sightline",
+      "summary": "Exact source 035216c: new real WebGL synthetic foreground-food stress capture passed and exposes the serpent face, while normal frozen overview before/after images are pixel-identical to prior source. General 545/545 Node green; focused 16/17 and general browser 28/29 fail unchanged 17 actual-draw cadence at 8/1010.3ms and 8/1007.6ms. Commercial visual benchmark still LOSE; independent critic unavailable.",
+      "captures": [
+        {
+          "label": "Actual WebGL character, overview, portrait and labeled synthetic food-sightline stress fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13034200025"
+        },
+        {
+          "label": "Real 19.08-second gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13033895958"
+        },
+        {
+          "label": "Exact-head browser metrics and real submitted-frame results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41177849409/artifacts/13033534430"
+        }
+      ]
+    },
+    {
+      "title": "Round 19 · merged live water-edge ornaments",
+      "summary": "Exact source 6b5cf573: six fixed foam + two fixed falls are now two real transparent live draw objects with exact vertex/UV/normal/index parity. Real WebGL 42→36 draw calls, world geometry 37→31; three frozen screenshots unchanged pixel-for-pixel. General 546/546 Node green and focused 16/17 browser, general 28/29 browser; actual desktop pacing remains FAILED at 11/1013.7ms and 10/1005ms (<17). Official Snake Pass craft/motion LOSE, independent critic unavailable.",
+      "captures": [
+        {
+          "label": "Current actual WebGL screenshot/trace captures, including labeled synthetic sightline fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035199108"
+        },
+        {
+          "label": "Current 16.6s actual WebGL gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035667493"
+        },
+        {
+          "label": "Current focused raw metrics and diagnostic profiles",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634973/artifacts/13035657602"
+        },
+        {
+          "label": "Current general browser scene captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41182634899/artifacts/13035359425"
+        }
+      ]
+    },
+    {
+      "title": "Round 20 · live water vertex-fog experiment and critical speed review",
+      "summary": "Exact-source 7fd68eae: fully present original animated single-texture water now interpolates fog in the vertex stage over an 8-unit tessellation; frozen real-WebGL color changes at most 3/255 per channel. Node 548/548 green; focused browser 16/17 at 12 actual submitted draws/1011.2ms, general 28/29 at 8/1013.6ms versus unchanged >=17. No verified speed win and 8190 extra water triangles need controlled A/B or rollback. Real 18.72s motion inspected. Official Snake Pass visual bar, fresh independent critic and device production signoff remain OPEN.",
+      "captures": [
+        {
+          "label": "Current corrected exact-source focused real WebGL screenshots/trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036161941"
+        },
+        {
+          "label": "Current corrected exact-source real gameplay motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036126907"
+        },
+        {
+          "label": "Current actual browser metrics and GPU diagnostic",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684110/artifacts/13036386539"
+        },
+        {
+          "label": "Source-matched frozen A/B (candidate captured at earlier code commit)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184331543/artifacts/13036107521"
+        },
+        {
+          "label": "General exact-source actual game and UI captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41184684128/artifacts/13035967867"
+        }
+      ]
+    },
+    {
+      "title": "Round 21 · sparse fog-aware lake tessellation",
+      "summary": "Exact source 9369be3, corrected strict trace-based cache regression 93b1a93. Full 512-unit live fogged lake retained with near 8-unit grid; only fully fogged distant water cells coarsened. 8192→4232 triangles (-48.34%). Matched 3 real WebGL frozen 960×640 images: 0 pixel changes; latest 11.80s real motion inspected. 549/549 Node; focused 16/17 browser at 14 actual submissions/1015ms, general 28/29 at 8/1004.2ms, both below unchanged 17. No proven FPS improvement or independent commercial visual parity; Gauntlet OPEN.",
+      "captures": [
+        {
+          "label": "Final exact-source focused real WebGL screenshots/trace and frozen pixel comparison",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038407096"
+        },
+        {
+          "label": "Final 11.80-second actual game motion WebM",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038471874"
+        },
+        {
+          "label": "Actual focused browser pacing and GPU diagnostic metrics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911300/artifacts/13038397086"
+        },
+        {
+          "label": "Final-source general browser captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41189911307/artifacts/13038672130"
+        },
+        {
+          "label": "Round 21 review and source code",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round21-water-fog-grid.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 22 · saturated water fog skips invisible far-field texture fetch",
+      "summary": "Production 7fabb967 and two shader/regression Node tests. Full live water and near-field animation preserved, far saturated fog exits before filtered lookup. Focused 17/17 browser with 17 actual render submissions/1008.2ms (minimum 17), first sample gate PASS; general 551/551 Node and 28/29 browser with only 7/1003.2ms, overall FAIL. Two frozen 960x640 actual WebGL captures pixel-identical, synthetic sightline differs 17 pixels max 1/255. Different scale/CI load: no verified causal FPS gain. 10.44-second actual motion inspected. Snake Pass character/world/motion, independent critic and real-device/R5 still open.",
+      "captures": [
+        {
+          "label": "Actual Round22 focused WebGL screenshots, overview, head, portrait, stress and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039404793"
+        },
+        {
+          "label": "10.44-second actual Snake gameplay motion recording",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039299984"
+        },
+        {
+          "label": "Actual focused pacing and GPU diagnostic data",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13040260738"
+        },
+        {
+          "label": "General CI browser captures (strict pacing failed)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996867/artifacts/13040760777"
+        },
+        {
+          "label": "Round22 source and evidence review",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round22-fog-saturated-water.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 23 · three fewer actual facial draw calls with preserved original character pixels",
+      "summary": "Original nostrils and four moving eye highlights preserved as three small two-instance batches with exact transforms and preallocated LOD. Final 552/552 Node tests; strict physical floor audit corrected for instance matrices. Real frozen WebGL 52→49 direct, 36→33 cached calls, 3 matched PNGs pixel-identical, and 19.88-second motion inspected. Focused desktop 10/1009.7ms and general 9/1012.6ms fail unchanged >=17 actual-render threshold. Snake Pass overall craft still loses; independent critic/real-device/R5 outstanding.",
+      "captures": [
+        {
+          "label": "Round23 actual exact-head WebGL screenshots, trace, frozen replay and character",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13041719112"
+        },
+        {
+          "label": "Round23 actual autonomous motion (19.88 seconds; recording fps is not rendered fps)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13042002895"
+        },
+        {
+          "label": "Round23 actual focused pacing/GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749902/artifacts/13041983232"
+        },
+        {
+          "label": "Round22 exact same frozen frame before batching",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41194996851/artifacts/13039404793"
+        },
+        {
+          "label": "Round23 general CI, full build/Node and strict browser results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41199749900"
+        }
+      ]
+    },
+    {
+      "title": "Round 24 · attached cream chin and jade cheeks",
+      "summary": "Existing high/low lower-jaw vertices now blend jade cheek roots into cream underside; no geometry, public gameplay or cue changes. New test and 553/553 Node green; real WebGL synthetic stress changes only local mouth pixels. Real 18.44s motion and current close-up inspected. Desktop actual-submission gates still fail focused 8/17 and general 10/17, and whole-game Snake Pass bar remains unmet. New evidence: GitHub CI 41202987351, Round24 written review. Embedded historical images are not current.",
+      "captures": []
+    },
+    {
+      "title": "Round 25 · weathered stone within unchanged garden texture and draw budget",
+      "summary": "Exact-source 8a6d1371 adds deterministic quarry fissures, mineral variation and subdued lichen to the existing 1024x512 stone field texture, without new meshes/materials/textures or simulation changes. 554/554 Node; focused 16/17 and general 28/29 browser, both strict actual-submission gates fail (7 and 9 vs min17). 87,065/86,800 changed floor-localized frozen WebGL pixels, valid real 18.32s motion. No whole-game Snake Pass visual/motion win, causal FPS win, independent critic, real-device or R5. PR draft.",
+      "captures": [
+        {
+          "label": "Round25 true WebGL screenshots, frozen replays, portrait and trace",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13043744016"
+        },
+        {
+          "label": "18.32-second actual autonomous Snake 3D gameplay WebM (recording fps is not rendered fps)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13044143018"
+        },
+        {
+          "label": "Exact source focused render pacing/GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104304/artifacts/13043958472"
+        },
+        {
+          "label": "General full CI runtime screenshots and motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41205104226/artifacts/13044044013"
+        },
+        {
+          "label": "Round25 chronological review and regression evidence",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round25-weathered-garden-stone.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 27 · living muscular serpent",
+      "summary": "An articulated travelling lateral wave makes the continuous snake tube flex subtly as it moves instead of looking rigid along grid cells. It fades at head, tail and each portal-separated fragment, stays within 0.083 cell of the authoritative path and turns off for reduced motion. No new assets or GPU draw calls. Actual CI video/reference review pending.",
+      "captures": []
+    },
+    {
+      "title": "Round 30 · leaf-shaped saddle pigment, no extra GPU work",
+      "summary": "Exact source 3ad6b8c: 19/20 focused browser PASS including frozen true-WebGL procedural body-color A/B. Two 960×640 current PNGs changed 4,064 pixels on jade tube (x193–430/y269–361); no new GPU resources. Strict desktop 6 actual render submissions/1001.2ms versus >=17 FAILED. Official Snake Pass whole-game visual/motion still LOSE; independent critic, real-device, soak and R5 absent.",
+      "captures": [
+        {
+          "label": "Exact-head real WebGL old/new body-pigment captures",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13050083830"
+        },
+        {
+          "label": "Real gameplay motion",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13049829293"
+        },
+        {
+          "label": "Focused metrics and actual submissions",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41222574598/artifacts/13050063910"
+        }
+      ]
+    },
+    {
+      "title": "Round 31 · original directional quarry-slab rims",
+      "summary": "Exact-source local RED→GREEN and 61/61 focused Snake Node PASS, TypeScript build PASS. New mineral-modulated warm west/north slab lips and shaded south/east recesses bake into existing 1024×512 texture, 13 static batches/4 maps, unchanged geometry, gameplay authority and cues. Frozen real-WebGL identical-snapshot A/B and current strict FPS pending CI; whole-game Snake Pass and device/R5 remain LOSE/OPEN.",
+      "captures": []
+    },
+    {
+      "title": "Round 32 · original sculpted quarry slab corners",
+      "summary": "Original 3D quarry corner sculpt verified by real Chromium/SwiftShader frozen public-frame overview/detail A/B (artifact 13052176221), and actual merged-world Node geometry test. Pixel delta modest and limited to field; strict desktop 15 actual renders/1014ms < 17 failed. Historical previous-round tests have been made source-specific, pending CI.",
+      "captures": []
+    },
+    {
+      "title": "Round 33 · bounded low-detail facial-surface shader palette",
+      "summary": "Exact SHA256 verified source: build + 63/63 Snake Node + host authority/recovery PASS. Real Chromium focused 22/23, old/new overview 84 tiny face pixels change, detail byte-identical; original PBR intact. 10 actual render submissions/1013.6ms < 17 FAIL; no causal FPS or official Snake Pass win. General CI browser pending, independent/device/soak/R5 open.",
+      "captures": [
+        {
+          "label": "Actual 960x640 frozen overview/detail true WebGL before/after, real live screenshots, traces and 22/23 results",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13052866911"
+        },
+        {
+          "label": "Actual 18.64-second gameplay motion WebM (25fps encoding not render FPS)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13053051679"
+        },
+        {
+          "label": "Actual submitted-frame / GPU metrics from same real browser run",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41228769206/artifacts/13053131620"
+        },
+        {
+          "label": "Full Round33 written verification and visual critique",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round33-face-overview-diffuse.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 34 · original skull follows near public fruit",
+      "summary": "Exact offline source SHA verifies build, 65/65 focused Node, host authority/recovery PASS; new two-case genuine prior RED (0/2) / new GREEN (2/2). Real Chromium focused 22/24: Round34 SHA1-prior WebGL synthetic public food before/after PASS, 10396 close-up changed pixels (1.692%) and 190 overview (0.031%); older R33 historical SHA guard needs a correction; desktop 9 actual WebGL submissions /1005.7ms vs minimum 17 FAIL. Commercial quality, independent device/soak/R5 gates remain open. Following targeted historical SHA isolation, additional all-four-heading Node case locally RED 0/3 on predecessor, GREEN 3/3 on production, and 66/66 focused Snake Node PASS; remote browser rerun pending.",
+      "captures": [
+        {
+          "label": "Round34 exact-prior true WebGL overview/detail before/after and browser trace; test PASS",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13055723760"
+        },
+        {
+          "label": "Current gameplay motion WebM (encoded frames are not rendered/display FPS)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13056367200"
+        },
+        {
+          "label": "Current actual render submissions and GPU diagnostics",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41237168587/artifacts/13056232714"
+        },
+        {
+          "label": "Round34 written measured visual critique, legacy baseline correction pending",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round34-public-head-attention.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 36 · preserve body frames while avoiding redundant GPU index uploads",
+      "summary": "Initial exact-prior frozen real WebGL overview/detail showed byte-identical pixels and 1 upload/3 reuse per 4-frame test, but a repeat produced 9 tiny face pixels of jitter in overview. Test now neutralizes synthetic danger easing only, without changing production or zero-difference threshold; corrected-head CI pending. Crucially actual live gameplay 29 index uploads/1 reuse across 30 drawn frames, strict 10 real submissions/1015ms <17; no FPS win, Snake Pass/independent/device/soak/R5 open.",
+      "captures": [
+        {
+          "label": "Round36 true WebGL exact-source before/after overview/detail PNG and traces; synthetic public frame",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241205012/artifacts/13057816137"
+        },
+        {
+          "label": "Round36 actual desktop performance metrics (11 real draws fail strict 17 threshold)",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241205012/artifacts/13058115295"
+        },
+        {
+          "label": "Round36 repeat raw real Chromium screenshots showing nine 1/255 face pixels of A/B jitter",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241932464/artifacts/13058400299"
+        },
+        {
+          "label": "Round36 live GPU queue and index upload request diagnostics on corrected-history run",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41241932464/artifacts/13058022009"
+        }
+      ]
+    },
+    {
+      "title": "Round 37 · articulated attached upper lids, measured in real WebGL",
+      "summary": "Exact-source d3cd3b8 real Chromium/SwiftShader/Playwright peak-blink A/B PASS (new test); 1,377 localized detail pixels / 76 overview changed, GL/resource budgets fixed, 26/27 browser checks passed. Self-review: clearer closing lid but bulky cartoon eye, much below Snake Pass and ASTRO BOT craft. Strict actual submissions 11 in 1003.5ms <17 FAIL; signed-zero Node test correction locally passed 69/69 and exact corrected-head CI pending. Snapshot/danger/portal/reduced-motion unchanged; no independent critic, device present, soak/R5. Draft/unmerged/undeployed.",
+      "captures": [
+        {
+          "label": "R37 true Chromium/WebGL exact-prior upper-lid A/B PNGs, trace and synthetic frozen public fixture",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13059110314"
+        },
+        {
+          "label": "R37 actual live motion WebM, encoding FPS is not presented game FPS",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13058184508"
+        },
+        {
+          "label": "R37 strict 11 actual render submissions/1003.5ms (fail) and GPU profiler",
+          "path": "https://github.com/my-edutu/Ai_games/actions/runs/41243738720/artifacts/13058373604"
+        },
+        {
+          "label": "R37 exact-source written visual critique, strong remaining gaps",
+          "path": "https://github.com/my-edutu/Ai_games/blob/feat/autonomous-snake-3d-gauntlet/docs/reviews/snake-gauntlet/round37-attached-upper-eyelids.md"
+        }
+      ]
+    },
+    {
+      "title": "Round 38 · dynamic grounded shadow update transfers",
+      "summary": "Actual Three.js SHA-controlled old/new transforms and portal/empty/cap behavior pass locally, 70/70 focused Snake Node and build green. Preserve the one existing 2048-instance shadow buffer but mark only visible instance-matrix prefix for GPU upload. Real frozen Chromium/WebGL before/after, full CI and strict ≥17 actual submissions pending. No FPS, independence, visual reference or R5 win claimed.",
+      "captures": []
+    },
+    {
+      "title": "Round 39 · anticipating fruit with the existing attached jaw",
+      "summary": "Verified new real Chromium/WebGL frozen-public-frame screenshot diff from the original jaw anticipation, with no resource or draw call increase. 26/29 initial browser PASS; two test-only historical ReferenceErrors corrected for recheck, strict live 8/17 actual-submission pace FAIL. Not commercial-quality or real-device performance approval.",
+      "captures": []
+    },
+    {
+      "title": "Round 42 · water UV flow interpolation",
+      "summary": "R42 water UV per-vertex flow: real Chromium/WebGL 31/31 focused pass, strict 17 actual render submissions/1007.1ms ONE sample. A/B 6 overview pixels one-green-level diff, 0 detail. Old historic SHA test correction in new head pending general CI; all full-game gates still open.",
+      "captures": []
+    },
+    {
+      "title": "Round 48 · meaningful public danger acting",
+      "summary": "Original sculpted skull now ducks and turns away from public fruit fixation under urgent public danger, public eating wins over recoil. New historical-source Node and dual-camera real Chromium/WebGL synthetic public-frame screenshot tests included; exact-head outcomes pending. R47 actual mini-map A/B passed 35/36 while desktop strict 10/17 submissions failed.",
+      "captures": []
+    },
+    {
+      "title": "Round 48 · real WebGL evidence and archival fixture isolation",
+      "summary": "Verified original/updated danger head acting in real Chromium/WebGL source-controlled 960x640 detail (11,508 changed pixels) and overview (261 changed pixels), equal GPU budgets; 588/588 Node locally and 85/85 focused. Historical R33/source and safe-fruit test-only fixtures corrected to preserve earlier exact gates. Hard desktop 11/17 actual renderer submissions still fails; corrected current-head CI pending.",
+      "captures": []
+    }
+  ],
+  "checks": [
+    "2026-11-04 exact d1b source CI 41908575723 668/706 (38 fail); current source browser 41908575656 still in progress. Native candidate source exact RED->GREEN three-board connected forest/real limestone palette, existing selected native 7/8 one historical source assertion failed, TS compile + 900 tick authority/recovery PASS. No actual new WebGL visual or unchanged 17-genuine-render win; last actual cfc strict 5/17 HARD RED. T1 BUILDING, T4 HARD RED. Draft NEVER MERGE/DEPLOY.",
+    "2026-11-04 source-exact 430 browser 41892277174 8/91; original 3D broken HTTP 404 garden-watersheds.mjs, all screens fall back to 2D (no valid 430 strict WebGL measurement). CI 666/702 failed. Candidate explicitly serves imported module from restricted route, new transitive dependency/HTTP deny-by-default native 2 RED->2 GREEN, focused 6/6, build and 900 tick authority/restart/recovery PASS. Same T1 BUILDING, T4 HARD RED last true WebGL 094b 8/17. Candidate new-head Chromium/gameplay/independent acceptance pending. Draft never merge/deploy.",
+    "2026-11-04 actual 3c48 browser 41801668180 59/90, native CI 41801668009 661/692; original complete desktop strict 6/17 in 1011.6ms at 751x415 HARD FAIL. Genuine 8 real paired WebGL and 55s+ film self-rejected. Next whole-floor mosaic native 2 RED->2 GREEN, selected 13/13, build and 900-tick host pass. New-source real browser/video/device/long-soak/independent approval NOT YET PROVEN; draft no merge/deploy.",
+    "2026-11-03 2b exact-source real Chromium 41641254466 completed 63/81 browser, original hard one-second 16/17 genuine full desktop render submissions FAIL at WebGL buffer 736x336. 61 RAF != true renders/device presents. 2b general CI 41641254208 646/661 Node pass 15 fail. T3 UI candidate not executed in browser, no acceptance; T1/T3 BUILDING.",
+    "2026-11-03 T3 immersive UX source candidate authored on 2b328e63; code/test objects staged without cancelling old Chromium 41641254466. Parent general CI 41641254208 646/661 FAIL 15; no candidate CI or real browser acceptance yet. Parent prior latest inspected 681 strict 12/17 genuine renders FAIL. T1/T3 BUILDING, never merge/deploy.",
+    "2026-11-02 exact-head 9d3 authentic 8-view Chromium/WebGL and paired 55s video inspected: full-scene T1 SELF-REJECTED; 63/64 focused browser with mandatory original >=17 1s genuine renders FAILED 11/17 /1007.4ms at 736x336. Runtime source unmodified; details in docs/reviews/snake-gauntlet/2026-11-02-current-9d3-real-webgl-motion-rejection.md.",
+    "2026-11-01: b8ae real 47/47 focused Chromium PASS and genuine 8 matched WebGL screenshots, dual 55-second autoplay movies. First T1 visibly inadequate and not accepted. Strict single 18 actual submits/1008.8ms >=17 PASS but raster only 777x355 and p95 ~966.7ms; physical present/soak and repeated pass OPEN. New connected ecology candidate locally 103/103 Snake Node+build PASS, new-head CI PENDING; source SHA exact head checkout corrected in workflows.",
+    "2026-11-01: user acceptance rule changed. Full game must LOOK / FEEL / PLAY substantially better; micro-patch tests, changed pixels, round/commit counts are not acceptance. See TRANSFORMATION_GAUNTLET.md.",
+    "T0 baseline and T1 living-world 3D rebuild still PENDING actual matched full-scene before/after and separate independent critic.",
+    "R56 focused 41303014224 desktop strict 12/17 actual frames over 1001.8ms failed. This is historical latest verified performance evidence, not a new test pass.",
+    "Round53 candidate built from SHA256-verified R52 offline source: exact original renderer Git blob bd7636ee3460fc09e6a9782ae66d37c20836f7f0 reversible, 94/94 focused Snake Node and TypeScript build/host recovery self-test PASS. Bounded first high-resolution canvas pixels from >1.2M to target 768k without lowering 0.4 floor or removing content; 1080p plus retina real-WebGL original/current test added, full live strict >=17 unchanged and pending CI. R52 corrected focused 41284832612: 40/41 Chromium PASS, hard 10 actual submissions/1014.2ms FAIL. General 41284832613 cancelled browser despite earlier stages green. Commercial visual/motion, independent critique, physical presents and soak/R5 remain OPEN.",
+    "R48 current production exact 75893e1: downloaded CI offline bundle; TypeScript build, local full Node 588/588, focused Snake 85/85, host authority/recovery PASS. Real GitHub Actions focused 41274549930 34/37 with R48 new WebGL original/current dual-camera pixels visibly different (261 overview, 11508 detail), equal draws/triangles, GL0, artifact 13071365964. 2 historic-only browser fixture collisions corrected without weakening original gaze ±0.018 or exact PNG assertions; new-head CI pending. Hard 11 actual submissions/1012.8ms <17 (RAF61 are not renders/device presents); whole game commercial visual quality, independent critique and soak/R5 OPEN.",
+    "R47 verified real Chromium 41273304614 35/36, mini-canvas A/B passes. Actual screenshot/trace 13070298042, motion 13070109184, metrics 13070825126. Hard 10 renderer submissions/1009.8ms vs >=17 FAIL, 61 RAF callbacks not frames. R47 general 41273304659 non-browser stages green/browser pending. R48 original public hazard acting exact-parent reversible Git blob 3c05c372, Node and real WebGL synthetic-capture tests committed but NEW HEAD CI pending. Independent art critique, device-present FPS and R5/soak not complete.",
+    "Round47 candidate on R46 head 5efbcd5: original map module SHA1 verified 1c74bf0c; new source exact reversible; Node red-to-green 3/3 PASS incl same-revision active hazard, fruit, portals, obstacle, snake, visibility, full original paint commands; new real WebGL before/after screenshot and correct 2D clear-count test included, current-head browser CI pending. R46 parent 41272350384 34/35, strict default desktop 15 submissions/1011.7ms FAIL ≥17. No renderer FPS claim or full quality signoff.",
+    "Round38 candidate on SHA 339b4d58: build and focused 70/70 Snake Node PASS; exact previous-world controller & real Three.js contact buffers byte-identical while request range covers 64 bytes per visible instance. Full local test timed out, new true-WebGL before/after and strict ≥17 real draw gate PENDING. Previous corrected Round37 run 41244333141 26/27; desktop 10 actual/1010.9ms FAIL (61 RAF != draws/presents).",
+    "Round36 corrected-history focused 41241932464 24/26: older R33/R34 real WebGL tests PASS; strict desktop 10 real render submissions/1015ms FAIL >=17, 61 RAF irrelevant. R36 prior exact pixel test now 9 changed overview face pixels (max1/255), detail untested in that run; isolate synthetic danger=0 only, exact-zero tolerance unchanged, fresh CI pending. Real gameplay index uploadRequests29 / reuseFrames1 over 30 renders: negligible live efficiency gain, no FPS win.",
+    "Round36 exact-source focused browser 41241205012: 23/26, NEW real WebGL A/B PASS in overview and detail, pixel and PNG byte identical, 1 index-upload request/3 reused per four frames, unchanged 33/44 draw calls. Desktop 11 actual submissions/1006.8ms FAIL vs >=17. Two legacy R33/R34 historical SHA-only guard defects fixed in tests; corrected new-head CI pending. General workflow 41241204899 browser pending.",
+    "Round36 candidate on parent fd9c8e5e26b021fc6211bac4dde73652400da1f1: original serpent index topology uploads skipped when portal break positions/LOD/count unchanged; Node exact predecessor parity and true WebGL frozen PNG regression added, NEW CI PENDING. Latest prior-head focused 41240251761 24/25; actual desktop 10 submissions/<approx 1s against minimum 17; no performance win claimed.",
+    "Round35 actual 41239708262 23/25 focused; same synthetic WebGL world A/B overview 26137/614400 visible changed pixels and detail 12809/614400; strict desktop 15 real render submissions/1000.3ms FAIL vs >=17; historic R32 comparator fix locally validated, CI pending.",
+    "Round35: model-only original courtyard lichen 66/66 focused Snake Node on verified R34 offline tree, TypeScript and host self-test pass; real R35 Chromium/WebGL screenshot and strict pacing pending. Previous-head 41238291500 23/24 focused; 10 actual draws/1013.2ms, min17, fail.",
+    "Round33 current true Chromium SwiftShader focused 41228769206 22/23 browser PASS, exact SHA1 before/after low-detail face PASS. Overview 84/614400 changed face pixels (max4/255), detail 0, original geometry/maps preserved. Strict desktop 10 actual submitted WebGL frames/1013.6ms <17 FAIL (~61 RAF not FPS). Local exact SHA verified build+63/63 Node+host self-test PASS. General run 41228769294 browser pending.",
+    "Round33 exact-parent 1cd9df8 new low-detail facial shader palette/test candidate. Current Node/full-build/browser screenshot/strict 17-real-render FPS pending exact-source CI. Round32 focused 41227381849 passed 21/22, strict desktop 8 actual WebGL submits/1003.9ms FAIL. Do not count ~61 RAF callbacks or captured-video fps as GPU/display presents.",
+    "Round30 source 3ad6b8c focused run 41222574598: 19/20 browser PASS including true-WebGL saddle A/B; strict desktop FAIL 6 actual submissions/1001.2ms vs >=17, ~60.93 RAF callbacks/s not drawn/display-present FPS. Frozen 960x640 before/after 4064 pixels changed, x193–430/y269–361; small body-pigment change only. General run 41222574536 in progress at last check.",
+    "Round31 original world 97039edc: new quarry-light regression RED on original; GREEN on edited source. 61/61 focused Snake Node PASS and TypeScript build PASS; browser test SHA-verifies old world and captures real Chromium WebGL before/after on exact public frame, pending live CI. No visual acceptance or strict-performance win claimed.",
+    "Round 27 local actual browser recording unavailable: Chromium policy blocked 127.0.0.1 navigation, and Playwright's pinned headless shell is not installed. GitHub isolated CI will evaluate actual updated 3D scene, browser FPS, mobile and reduced-motion. No browser success yet.",
+    "Round 27 local red→green: node --test tests/phase3/snake-body-undulation.test.cjs failed on original (observed 0 muscle wave), passed after implementation. Latest exact source TypeScript build and all 53 focused Snake tests pass. Whole local npm test timed out after 452 tests in unrelated campaigns; no full-suite pass claim.",
+    "Round25 true WebGL frozen 960x640 vs Round24: direct 87,065 and cached 86,800 changed pixels, exclusively floor-region differences, max channel 23/24 out of 255. Current general and focused PNGs identical on fixed snapshot. Real 18.32s gameplay inspected. Character, garden depth, motion and performance still below reference.",
+    "Round 25 exact source 8a6d1371: full CI 554/554 Node, build, host/authority/operations stages PASS; general browser 28/29 desktop actual draws 9/1015.6ms FAIL and focused 16/17 desktop 7/1007.1ms FAIL vs unchanged >=17. Both workflows overall FAIL; RAF ~61/s and 25fps capture are NOT rendered/display-present FPS.",
+    "Round 21 first-source browser prop-cache test exact-build assertion (expected4, observed5) traced to one independent legitimate adaptive resolution change ratio 0.75→0.667; fixed regression attributes exactly one cache rebuild per topology change, plus exactly one only upon actual scale transition; final browser test passes. No release gate weakened.",
+    "Round 21 corrected source 93b1a93: 549/549 Node tests, build/host/authority/operations green, focused 16/17 browser with 14 actual submissions/1015ms and general 28/29 with 8/1004.2ms. Both FAIL unchanged ≥17 actual-draw gate. RAF callbacks and recorded WebM frame rate are NOT rendered/present FPS.",
+    "Round 21 three matched frozen actual WebGL PNGs (cached, direct, explicitly synthetic food stress): each 0/614,400 changed pixels vs Round20. 512-unit fully visible animated lake retained, 8192→4232 triangles (-48.34%) by coarsening already-fogged fringe, no proven GPU FPS win.",
+    "Round 20 actual matched frozen WebGL direct prior/new 960x640: 34,099/614,400 pixels changed, mean RGB abs 0.02491/255, max 2/255. Cached max 1/255, synthetic near-fruit stress max 3/255; original moving water/cues remain. Source-level fog change NOT a proven throughput win and added water geometry could hurt SwiftShader.",
+    "Round 20 exact-source 7fd68eae (production d0795164, checkout merge b2968cd): 548/548 Node tests, TypeScript/host/authority/operations pass; focused 16/17 browser at 12 actual draw submissions/1011.2ms, general 28/29 at 8/1013.6ms. Both FAIL unchanged 17 gate; RAF callback rate/video FPS are not rendered or display-present FPS.",
+    "Round 19 real WebGL: six fewer draw calls (42→36), six fewer world draw objects (39→33), six fewer world geometries (37→31). Three matched frozen 960x640 actual WebGL PNGs pixel-identical. Archived previous world blob fails new test; candidate passes. Commercial visual bar still LOSE; no independent critic.",
+    "Round 19 exact 6b5cf573 and PR merge bf174c9: 546/546 Node tests pass, all host/authority/operational checks pass. General browser 28/29: 10 actual renders/1005ms < unchanged 17. Focused browser 16/17: 11 actual renders/1013.7ms <17. RAF callbacks and capture video FPS are not display-present FPS.",
+    "Round17 4bfef71 general 41172921698: build and 543/544 Node pass. Old raw-red-water diversity test fails on new RGB representation, while new palette test passes. Corrected old test now evaluates visible RGB tuples and GB contour combinations at unchanged >30 and >12 counts. New CI pending.",
+    "Round17 4bfef71 exact-head browser 41172921802: 15/16, actual desktop 10 submissions in 1005ms (<17); 60.70 RAF callbacks/s are not renders. 960x640 before image vs 418d495 source changed at most 1/255 per RGB channel, mean 0.031249/255.",
+    "Round 17 prior exact-head run 41172211493: focused browser 15/16, desktop 16 actual draw submissions over 1003.5ms vs >=17; ~60.79 RAF callbacks/s are not rendered FPS. Frozen minimal page water-on vs omitted is diagnostic only. New palette regression and exact-head CI pending.",
+    "Round 16 revision 2 TDD: anti-saucer/tilted-bedding test failed as expected on initial 15-ring candidate; updated profile passed 39 focused Snake Node tests, no failures. New CI screenshot and full suite pending.",
+    "Round 16 initial focused CI 41172211493: 15/16 browser checks passed; desktop actual renders 16/1003.5ms (<17 required). Actual screenshot shows regular plate-like strata: visual FAIL for initial silhouette. Image evidence: https://github.com/my-edutu/Ai_games/actions/runs/41172211493/artifacts/13031403527",
+    "Round 16 TDD: missing geometry factory failed as expected, new closed/UV-seam/normal/ledge geometry passed. All 39 focused Snake Node tests passed. Existing horizon and playable-court SHA fixtures passed. Real browser capture/pacing and fresh independent review pending.",
+    "Round 15 source commit 2e4fe40: general CI 41171326786 build + 542/542 Node tests, all four host self-tests, authority scan and operations/release checks pass. Overall general CI still FAILED browser (27/28).",
+    "Round 15 focused browser CI 41171326788 15/16. Desktop gate FAILED: 10 actual render submissions /1015ms versus unchanged minimum 17; 60.10 RAF callbacks/s not rendered frames. No FPS win.",
+    "Round 15 matched 960×640 real WebGL frozen snapshot differs on 1.912% of pixels, mean RGB-channel absolute delta 0.0843; detail, mobile portrait and 18.48s actual motion inspected. This is not visual parity or display-present FPS.",
+    "Round 14: 38/38 focused local Snake Node tests pass on combined candidate (current water + eyes); TypeScript build passed. Full local repository suite attempts timed out during other-game campaigns; latest full CI must be checked independently.",
+    "Round 14: facial eye-support regression red on original geometry (0.36585 head-relative crown), green on revised 0.330 geometry; local real WebGL detail A/B inspected, first occluding attempt rejected.",
+    "Round 13 exact-source isolated focused Snake Node suite 37/37 passed; TypeScript build passed. New one-fetch regression failed on the original two-fetch shader and passed on candidate.",
+    "Round 13 local frozen-frame WebGL 1440×900, fixed scale 0.5, untraced: before 42/40 vs after 42/44 actual submitted draws over 2.6s each. Inconclusive short diagnostic, not a live-host win.",
+    "Last live-host focused browser run ffe44de passed 15/16; desktop pacing failed with 8 actual submissions in 1008.2ms versus unchanged minimum 17. RAF cadence is not render FPS.",
+    "General CI on ffe44de passed build/Node/host/authority/operations stages but failed browser verification. No all-green CI claim.",
+    "Last full catalogue verification (ffe44de) 539/539 passed; Round 13 fresh entire-suite completion and current-head live-host validation remain open.",
+    "Independent whole-game visual/motion comparison, sustained device performance, accessibility throughout transitions and R5 production/soak are not complete."
+  ],
+  "transformation": {
+    "mode": "transformation",
+    "governance": "docs/reviews/snake-gauntlet/TRANSFORMATION_GAUNTLET.md",
+    "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
+    "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
+    "overall": "NOT ACCEPTED",
+    "milestone": "T0 UNSIGNED / T1 BUILDING integrated physical courtyard and matching atlas / T2-T3 unaccepted / T4 HARD RED 8 of required 17 genuine original one-second WebGL renders",
+    "milestoneStatus": "BUILDING",
+    "latestKnownStrictBrowser": "Exact current parent e7a2fa34 Chromium #42173863092 completed on 2026-11-06: original unchanged 1s full desktop 8 genuine full WebGL renderer submissions of required 17; GPU raster 751x415; 61 RAF callbacks and 416 GPU queue skips do not count. Browser 58/95. Candidate WebGL and physical-device displayed present FPS/p95 pending.",
+    "pillars": [
+      {
+        "name": "Living 3D world",
+        "status": "T1 BUILDING: real multi-cell 3D courtyard reconstructed; forest/ruins/lake retained; candidate whole-game source-matched Chromium imagery pending.",
+        "criterion": "Clearly transformed coherent original garden architecture/biomes/scene depth in matching real-game captures."
+      },
+      {
+        "name": "Hero and animation",
+        "status": "T2 experiment: 415dae film head tiny and mechanical in overview; inset original sculpted eye brow candidate native, original public turn/feeding/portal and reduced-motion protected. Motion acceptance pending.",
+        "criterion": "Coherent expressive snake, grounded organic turns, food/hazard/portal/restart motion visible in real play."
+      },
+      {
+        "name": "Materials and lighting",
+        "status": "T1 BUILDING: actual material atlas joints now use the same physical 1–3×1–2 slab partition; only native registered light/geometry evidence, authentic whole-game visual acceptance pending.",
+        "criterion": "Convincing stone, vegetation, water, scales, contact lighting and atmospheric staging across full frames."
+      },
+      {
+        "name": "Play feel and frame delivery",
+        "status": "T4 HARD RED: e7 original strict test 8 genuine complete desktop 1s renderer submissions/17 at 751×415; no new candidate strict runs or real-device displayed-p95 proof.",
+        "criterion": "Readable responsive gameplay/UX, real continuous autonomous video, repeatable >=17 actual browser draws and real-device smoothness evidence."
+      }
+    ],
+    "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
+    "candidate": "T1 whole-garden real coalesced limestone and registered actual physical joint atlas: world Git blob c074c606890c844d9606523f138c34f1a46403b1, parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263; 17/125/256 slab masses versus 64/448/960 individual cells.",
+    "candidateProof": "Exact parent RED geometry/atlas 0/2; candidate GREEN 2/2 new; six selected native checks pass, real raycast 1472/1472 cell centres and 496/496 shore body-radius contact points, resource contract 13 batches/4 textures, TypeScript/900-tick authority/10,000 ticks pass. Browser/local ERR_BLOCKED_BY_ADMINISTRATOR, true new-head footage, three untouched strict 17 submissions and real device display presents UNVERIFIED. Full suite failing historical fixtures, no independent acceptance.",
+    "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING. Last authentic running e7 whole-game Chromium images visually SELF-REJECTED for large rectangular court and tiny serpent. Latest strict e7 WebGL 8/17 genuine complete one-second renders at 751×415. Candidate runtime images not verified; no Gauntlet achieved."
+  },
+  "candidate": "T1 physical native connected corner catchments and outboard-only incised coast on exact original living-garden source, candidate Git blob 8242ed2ba552eb07925fb2eec70a58452b238fd2; 4 shore pair seams, 48 real triangles, 18713/21833/21997 living garden triangles",
+  "candidateProof": "Exact live original garden 5b52cc6ea76018d4684644d6e9410365d9a45447: both new physical geometry and contour tests RED, candidate 2/2 GREEN on 8x8,28x16,40x24; native stage 5/5; TypeScript+900-tick host self-test passed; broad selected 8/10 with two old pre-existing source-hash issues. Candidate WebGL and strict 17/1s real full-screen draw gates NOT YET MEASURED.",
+  "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING. Actual 1a5ab1e 1920 + 390 WebGL whole-scene still dominated by rectangular game court. Strict 5/17 original 1 second, no true 30 FPS physical presents. New topology candidate must undergo authentic same-head screenshots, complete autonomous video, physical device performance and blind reference comparison; NO GATE ACHIEVED."
+}
