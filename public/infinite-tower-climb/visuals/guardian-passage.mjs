@@ -1104,7 +1104,13 @@ export function createTowerGuardianPassage(THREE) {
   // Fail-safe for permanent WebGL failure without a false indefinite gate.
   const handoffNeverSubmittedTimeoutSeconds = 6;
   const duration = 2.9;
-  // Memoize one complete forensic report per actual source / Three passage\n  // mutation; ordinary world/camera callers share its identical immutable\n  // read-only snapshot instead of copying nested arrays 15+ times per frame.\n  // A new gate, tick, submitted render, staged beat, or restart invalidates it.\n  let diagnosticsCache = null;\n  function invalidateDiagnostics() { diagnosticsCache = null; }\n  const clamp = v => Math.max(0, Math.min(1, v));
+  // Memoize one complete forensic report per actual source / Three passage
+  // mutation; ordinary world/camera callers share its identical immutable
+  // read-only snapshot instead of copying nested arrays 15+ times per frame.
+  // A new gate, tick, submitted render, staged beat, or restart invalidates it.
+  let diagnosticsCache = null;
+  function invalidateDiagnostics() { diagnosticsCache = null; }
+  const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
     invalidateDiagnostics();
     group.visible = false;
