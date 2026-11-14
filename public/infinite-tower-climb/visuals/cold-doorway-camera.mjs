@@ -6,6 +6,7 @@
 // interpolation, temporal replay, new floor, trigger or camera cut.
 import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
+import { observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
@@ -47,6 +48,13 @@ export function observedPriorGroundedOriginalDoorwayLens(source,held,drawnHero,a
 export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspect, zoom = 1) {
   if (source?.lastGuardianCrossing == null)
     return observedPriorGroundedOriginalDoorwayLens(source,held,drawnHero,aspect,zoom);
+  // One physical original doorway cannot disappear from the camera on the
+  // eighth returned WebGL frame while World still paints its genuine bronze
+  // materials. Follow exactly that SAME source-validated optical lifetime,
+  // with no camera-only timer, fake pose, or scene resurrected after disposal.
+  const originalGateway = observedSourceGatewayDeparturePresence(source,held);
+  if (originalGateway?.sourceBound !== true ||
+      originalGateway.opacity <= .035) return null;
   const p = source?.player, w = source?.lastGuardianCrossing, cap = w?.cap;
   if (!p || !w || !cap || !held || !drawnHero ||
       source?.lifecycle !== 'running' || source.floor !== 9 ||
@@ -62,11 +70,11 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
         p.x, p.y, p.halfWidth, p.halfHeight, w.exitX,
         cap.x, cap.y, cap.width, cap.height, w.crossingX]
         .every(validInt) ||
-      source.tick < held.sourceTick || source.tick - w.sourceTick > 48 ||
+      source.tick < held.sourceTick || source.tick - w.sourceTick > 70 ||
       held.sourceTick < w.sourceTick || held.sourceTick - w.sourceTick > 12 ||
-      held.submittedFrames < 0 || held.submittedFrames > 8 ||
+      held.submittedFrames < 0 || held.submittedFrames > 60 ||
       !finite(held.visibleSeconds) || held.visibleSeconds < 0 ||
-      held.visibleSeconds >= 1.25 ||
+      held.visibleSeconds >= 3 ||
       source.worldWidth <= 0 || p.halfWidth <= 0 || p.halfHeight <= 0 ||
       !(p.health > 0) || !finite(aspect) || aspect <= 0 || aspect >= 2.5 ||
       !finite(zoom) || zoom <= 0 || zoom > 1.1 ||
