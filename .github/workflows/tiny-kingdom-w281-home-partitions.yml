@@ -9,6 +9,7 @@ on:
       - scripts/tiny-kingdom-w333-portrait-worker-core-camera-contract.cjs
       - scripts/tiny-kingdom-w334-physical-portrait-witness-contract.cjs
       - scripts/tiny-kingdom-w335-authentic-portrait-handoff-and-supply-contract.cjs
+      - scripts/tiny-kingdom-w337-physical-workday-gate-contract.cjs
       - scripts/tiny-kingdom-w315-growth-residency-contract.cjs
       - scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
       - scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
@@ -42,6 +43,7 @@ jobs:
           node scripts/tiny-kingdom-w333-portrait-worker-core-camera-contract.cjs
           node scripts/tiny-kingdom-w334-physical-portrait-witness-contract.cjs
           node scripts/tiny-kingdom-w335-authentic-portrait-handoff-and-supply-contract.cjs
+          node scripts/tiny-kingdom-w337-physical-workday-gate-contract.cjs
           node scripts/tiny-kingdom-w315-growth-residency-contract.cjs
           node scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
           node scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
