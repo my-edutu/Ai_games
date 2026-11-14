@@ -114,3 +114,37 @@ test('authentic guardian gateway earns a grounded recovery stride before the fir
   assert.equal(onward,true,
     'post-victory grounded stride must release to real floor-nine route, not trap the AI forever');
 });
+
+test('authentic 475-tick autonomous danger capture does not jump over earned grounded Floor Nine doorway',()=>{
+  // Reproduce the EXACT 20Hz source seed + opt-in configuration from the
+  // unmodified 2026-11-14 real WebM d55c3723 campaign. The earlier
+  // hand-placed fixture omitted the live F8 encounter and F9 arrival hazards;
+  // it passed while both actual films still jumped immediately after tick 475.
+  const runtime=TowerRuntime.create({...STREAM_CONFIG,launchFloor:8},
+    'tower-transformation-capture-v1',{policy:'autonomous'});
+  while(runtime.state.lifecycle==='running' && runtime.state.tick<475)
+    runtime.step();
+  const arrived=runtime.state;
+  assert.equal(arrived.floor,9,'match the real defeated guardian and earned 8->9 episode');
+  assert.equal(arrived.tick,475,'match the real film source tick, not a hand-placed win');
+  assert.equal(arrived.lastGuardianCrossing?.sourceTick,475);
+  assert.equal(arrived.player.grounded,true);
+  assert.equal(arrived.player.groundedPlatformId,'f9:ground');
+  const realRoof=arrived.chunks.find(c=>c.floor===9).platforms
+    .find(p=>p.id==='f9:ground');
+  assert.equal(arrived.player.position.y-arrived.player.halfHeight,
+    realRoof.y+realRoof.height);
+  // Never specify an action here: the REAL autonomous policy must own every
+  // decision, with all generated new-floor enemies/hazards still present.
+  // A genuine emergency evasion must be diagnosed rather than hidden.
+  for(let i=0;i<8;i++){
+    runtime.step();
+    const after=runtime.state;
+    assert.equal(after.floor,9);
+    assert.equal(after.player.grounded,true,
+      `real post-gateway tick ${after.tick} broke source ground; AI=${after.ai.mode}: ${after.ai.intent}`);
+    assert.equal(after.player.groundedPlatformId,'f9:ground');
+    assert.equal(after.player.position.y-after.player.halfHeight,
+      realRoof.y+realRoof.height);
+  }
+});
