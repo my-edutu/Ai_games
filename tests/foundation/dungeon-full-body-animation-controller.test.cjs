@@ -5381,7 +5381,7 @@ test('RED: original Walking_A linked hip-knee swing clears measured stone burial
   left:improved.left,right:{...improved.right,toeY:-.079}}}]}),null,
   'mere knee articulation that lifts <15% of buried toe is not enough');
  for(const bad of [
-  {sourceWeight:.81},{frameInterval:.15},{frameAge:.31},
+  {sourceWeight:.81},{frameInterval:.28},{frameAge:.31},
   {mode:'attack'},{sourceClipName:'Idle'},{sourceBindVerified:false},
   {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
   {sourceInstanceSame:false},{ownerLocomotion:false},{reducedMotion:true},
@@ -5422,4 +5422,47 @@ test('original linked upper+lower current-frame proof resets and final skinned o
  assert.ok(method.indexOf('if(!certified||')<method.indexOf('upper.last.multiply(upperDelta)'),
   'no source quaternion delta may persist without final independently measured both-shoe safety');
  assert.match(method,/actor\.sourceSwingLinkedCurrentFrameProofs\[side\]/);
+});
+
+
+test('RED: verified slow native swing frame may still clear a buried toe with both source shoes witnessed',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ // Genuine source-rig CI #43577448721 passes both 1721-step films but its
+ // desktop/mobile long WebM packet gaps exceed the old 100ms-only trial gate.
+ // This is a bounded eligibility change, NOT a presumed good IK result:
+ // real source bone axes, latest authority root travel, inverse bind and
+ // actual final skinned heel+toe of BOTH shoes still decide the pose.
+ const left={heelY:-.021,toeY:-.023,heelXZ:[-4.01,-6.85],toeXZ:[-4.19,-6.9]};
+ const right={heelY:.18,toeY:-.085,heelXZ:[-3.8,-7.1],toeXZ:[-4.02,-7.15]};
+ const after={left:{...left,heelY:-.0205,toeY:-.0225,
+  heelXZ:[-4.009,-6.85],toeXZ:[-4.189,-6.9]},
+ right:{...right,heelY:.172,toeY:-.064,
+  heelXZ:[-3.79,-7.11],toeXZ:[-3.99,-7.15]}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,sourceUpperTrackVerified:true,
+  sourceLowerTrackVerified:true,sourceBindVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.038,frameAge:.09,frameInterval:.18,floorTopY:-.02,
+  side:'right',before:{left,right}};
+ const trial={upperRad:.09,lowerRad:-.06,after};
+ const accepted=choose({...owner,trials:[trial]});
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.oppositeShoePreserved,true);
+ assert.ok(accepted?.liftMeters>=.012&&accepted?.fractionCleared>=.15,
+  'the recovered slow frame must materially clear the original skinned swing toe');
+ for(const unsupported of [
+  {frameInterval:.28},{frameAge:.26},{rootTravel:0},
+  {sourceInstanceSame:false},{sourceWeight:.7},{teleport:true},
+  {trials:[{...trial,after:{...after,left:{...after.left,toeY:-.010}}}]}
+ ])assert.equal(choose({...owner,...unsupported,
+  trials:unsupported.trials??[trial]}),null,
+  'do not borrow an old step, lose shoe support or claim original floor contact');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',begin);
+ assert.ok(begin>=0&&end>begin);
+ assert.match(renderer.slice(begin,end),
+  /frameAge:age,frameInterval:interval/,
+  'eligibility must be measured from the actual original mixer frame');
+ assert.match(renderer.slice(begin,end),/const after=read\(\)/);
 });
