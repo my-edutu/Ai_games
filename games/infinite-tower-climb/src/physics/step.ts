@@ -176,8 +176,20 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
         platformWidth:platform.width,platformHeight:platform.height,
         oneway:platform.kind==='oneway',
       });
-      if(hit&&(!first||hit.time<first.time||
-        (hit.time===first.time&&platform.id.localeCompare(first.platform.id)<0)))
+      // Two ACTUAL adjacent-floor solids can share a roof plane: the
+      // authentic bronze f8:cap and the new f9:ground overlap at the earned
+      // crossing. The former ID-order tie selected the OLD f8:cap and
+      // silently erased the next-floor supported stride on the next tick.
+      // For simultaneous REAL contacts, keep the currently supporting deck.
+      // Earlier physical collision time always wins. Airborne/unflagged
+      // historical replays preserve ordinary deterministic ID tie-breaking.
+      const oldSupport=p.groundedPlatformId;
+      const betterEqualTime=!!first&&hit?.time===first.time&&(
+        (platform.id===oldSupport&&first.platform.id!==oldSupport)||
+        (first.platform.id!==oldSupport&&
+          platform.id!==oldSupport&&
+          platform.id.localeCompare(first.platform.id)<0));
+      if(hit&&(!first||hit.time<first.time||betterEqualTime))
         first={platform,kind:hit.kind,time:hit.time};
     }
     if(first){
