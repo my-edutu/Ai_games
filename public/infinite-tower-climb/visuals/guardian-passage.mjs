@@ -356,11 +356,18 @@ export function observedLockedGuardianCap(snapshot) {
     platform.width > 0 && platform.height > 0);
   if (!cap || snapshot.guardianExitX !==
       cap.x + Math.floor(cap.width * .76)) return null;
+  const winch=snapshot.guardianGateActuation;
   const guardian = snapshot.enemies?.find(enemy =>
-    enemy.kind === 'guardian' && enemy.active === true &&
+    enemy.kind === 'guardian' &&
     (!Number.isSafeInteger(enemy.floor) || enemy.floor === snapshot.floor) &&
     typeof enemy.id === 'string' && !!enemy.id &&
-    Number.isFinite(enemy.health) && enemy.health > 0);
+    ((enemy.active === true && Number.isFinite(enemy.health) && enemy.health > 0) ||
+      (enemy.active === false && Number.isFinite(enemy.health) && enemy.health<=0 &&
+        winch?.floor===snapshot.floor&&winch.guardianId===enemy.id&&
+        Number.isSafeInteger(winch.defeatTick)&&
+        Number.isSafeInteger(winch.openAtTick)&&
+        winch.openAtTick>winch.defeatTick&&
+        snapshot.tick>=winch.defeatTick&&snapshot.tick<winch.openAtTick)));
   return guardian ? {runToken:snapshot.runToken, floor:snapshot.floor,
     tick:snapshot.tick, cap, guardian} : null;
 }
@@ -401,6 +408,13 @@ export function observedUnlockedGuardianCap(snapshot) {
     typeof enemy.id === 'string' && !!enemy.id &&
     [enemy.x, enemy.y, enemy.halfHeight, enemy.health].every(Number.isFinite) &&
     enemy.health <= 0 && enemy.halfHeight > 0);
+  const winch=snapshot.guardianGateActuation;
+  if(guardian&&winch?.floor===snapshot.floor&&
+     winch.guardianId===guardian.id&&
+     Number.isSafeInteger(winch.defeatTick)&&
+     Number.isSafeInteger(winch.openAtTick)&&
+     winch.openAtTick>winch.defeatTick&&
+     snapshot.tick>=winch.defeatTick&&snapshot.tick<winch.openAtTick)return null;
   return cap && guardian ? {
     runToken: snapshot.runToken, floor: snapshot.floor,
     tick: snapshot.tick, guardianId: guardian.id, cap, guardian,
