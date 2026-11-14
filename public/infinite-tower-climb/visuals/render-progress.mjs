@@ -74,17 +74,26 @@ export function createRenderProgress() {
     idleSince = now; submittedSinceReset = false; sampleAnchor = null;
     lastAcceptedSourcePhase = null; lastSubmittedSourcePhase = null;
   }
-  function diagnostics(now) {
+  // Constant-work HUD state. Do not sort frame-time samples or copy up to 64
+  // raw source/renderer events merely to refresh the ordinary live overlay.
+  // The full diagnostics() path below is intentionally retained for explicit,
+  // source-pinned capture and engineering inspection.
+  function liveness(now) {
     const visibleIdleMs = expected && visible ? Math.max(0, now - idleSince) : 0;
     const state = !expected ? 'waiting' : !visible ? 'hidden'
       : visibleIdleMs >= staleAfterMs ? 'stalled' : submittedSinceReset ? 'current' : 'starting';
+    return { state, visibleIdleMs: Math.round(visibleIdleMs),
+      staleAfterMs, submittedFrames,
+      lastSubmitted: lastSubmitted ? { ...lastSubmitted } : null };
+  }
+  function diagnostics(now) {
+    const live = liveness(now);
     const sorted = [...intervals].sort((a, b) => a - b);
     const percentile = fraction => sorted.length ? +sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))].toFixed(1) : null;
-    return { state, visibleIdleMs: Math.round(visibleIdleMs), staleAfterMs, submittedFrames,
+    return { ...live,
       frameMs: { p50: percentile(.5), p95: percentile(.95), p99: percentile(.99), max: percentile(1), samples: sorted.length },
-      lastSubmitted: lastSubmitted ? { ...lastSubmitted } : null,
       sourceTransitions: sourceTransitions.map(entry => ({ ...entry })),
       sourceTransitionProof: 'browser-acceptance-and-renderer-return-only-NOT-native-video' };
   }
-  return { expectFrame, received, submitted, setVisible, reset, diagnostics };
+  return { expectFrame, received, submitted, setVisible, reset, liveness, diagnostics };
 }
