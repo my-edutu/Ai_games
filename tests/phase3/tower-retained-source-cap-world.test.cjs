@@ -865,3 +865,52 @@ test('unearned ordinary Void rebuild never invents a source-original F8 entrance
       'normal Floor9 receives its original authored shaft, no fabricated F8 gate');
   }finally{world.dispose();}
 });
+
+
+test('actual cold first Floor9 desktop receipt inherits ORIGINAL GPU gate, cap and source Clockwork architecture after 64.8m ascent',async()=>{
+  const [{createTowerWorld},{observedRecordedGuardianAirborneHandoff,
+    observedSourceEarnedAirborneHandoff}]=await loaded;
+  // Exact seed danger witness: fixed-step HP0 tick441, winch opens, crossing
+  // tick475, first desktop WebGL-successor observation tick481. The last
+  // genuinely rendered Floor8 packet can still show a living locked guardian.
+  const first=old();first.tick=438;
+  first.enemies=[{...first.enemies[0],active:true,health:1}];
+  const second=next();second.tick=481;
+  second.player={...second.player,x:339996,y:3302800,health:4,
+    state:'airborne',vy:78000,grounded:false,groundedPlatformId:null};
+  second.lastGuardianCrossing={
+    runToken:first.runToken,sourceTick:475,fromFloor:8,toFloor:9,
+    cap:{id:cap.id,x:cap.x,y:cap.y,width:cap.width,height:cap.height},
+    guardian:{id:'f8:guardian',kind:'guardian',floor:8,active:false,
+      health:0,x:235000,y:3250000,halfHeight:18000},
+    exitX:gate,previousX:314796,previousY:3238000,previousHealth:1,
+    crossingX:321096,crossingY:3238000,halfWidth:9000,halfHeight:14000,
+    worldWidth:480000
+  };
+  const unchanged=JSON.stringify([first,second]);
+  const recorded=observedRecordedGuardianAirborneHandoff(second);
+  assert.ok(recorded,'true tick475 crossing must yield the old cap at tick481');
+  assert.equal(observedSourceEarnedAirborneHandoff(recorded,second),true);
+  const world=createTowerWorld();
+  try{
+    world.update(first,.05,0,{quality:'low'});
+    const realOldGate=world.group.getObjectByName('AuthoritativeGuardianGate');
+    const realOldCap=world.group.getObjectByName('platform:f8:cap');
+    assert.ok(realOldGate?.isGroup && realOldCap?.isGroup);
+    world.noteFrameSubmitted(first,{quality:'low'},.05);
+    assert.equal(world.stageGroundedCapContinuation(recorded,second),true,
+      'source-authenticated airborne floor advance must schedule historical GPU ownership');
+    world.update(second,.05,.05,{quality:'low'});
+    const owner=world.diagnostics().retainedSourceCap;
+    assert.equal(owner?.guardianGateRetained,true);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),realOldGate,
+      'rendered original unlocked bronze arch survives the GPU rebuild');
+    assert.equal(world.group.getObjectByName('platform:f8:cap'),realOldCap,
+      'the source original cap survives rather than a synthetic proxy');
+    assert.ok(owner.originalGalleryTriangles>0,
+      'bounded source-original Clockwork geometry must accompany the old arch');
+    assert.ok(world.group.getObjectByName('platform:f9:ground'),
+      'Floor9 gameplay ground is present alongside the source original gate');
+    assert.equal(JSON.stringify([first,second]),unchanged);
+  }finally{world.dispose();}
+});
