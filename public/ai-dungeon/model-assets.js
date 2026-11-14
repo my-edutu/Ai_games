@@ -2545,7 +2545,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   lower.sourceLinkedLowerAxis=new THREE.Vector3(...lowerAxis.axis));
  upperOriginal.copy(upper.bone.quaternion);
  lowerOriginal.copy(lower.bone.quaternion);
- const trialAngles=[[.09,-.06],[-.09,.06],[.09,-.075],[-.09,.075]];
+ // A genuinely measured >=50ms fully weighted Walking_A frame permits
+ // a stronger *coupled* source thigh+calf arc, still only when the original
+ // second shoe is independently read. The tighter 90mrad arc remains for
+ // rapid frames and partial crossfades; no extra skin trials/draw calls.
+ const trialAngles=interval>=.05&&weight>=.95?
+  [[.12,-.09],[-.12,.09],[.14,-.105],[-.14,.105]]:
+  [[.09,-.06],[-.09,.06],[.09,-.075],[-.09,.075]];
  const trials=[];
  try{
   for(const [upperRad,lowerRad] of trialAngles){
@@ -2561,6 +2567,18 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   lower.bone.quaternion.copy(lowerOriginal);
   upper.bone.updateWorldMatrix(true,true);
  }
+ // Record only real skinned-source candidate outcomes. An attempted toe
+ // lift is NOT a planted foot and must not be reported as accepted motion.
+ const bestMeasuredLift=Math.max(0,...trials.map(t=>
+  (t.after?.[side]?.toeY??swing.toeY)-swing.toeY));
+ actor.sourceSwingLinkedProbeFrames=Math.min(1000000,
+  (actor.sourceSwingLinkedProbeFrames||0)+1);
+ actor.sourceSwingLinkedLastProbe={sourceInstanceId:actor.assetRoot.uuid,
+  sourceClip:'Walking_A',side,frameInterval:interval,sourceWeight:weight,
+  beforeToeY:swing.toeY,sourceHeelY:swing.heelY,
+  oppositeHeelY:support.heelY,oppositeToeY:support.toeY,
+  bestMeasuredLiftMeters:bestMeasuredLift,
+  candidates:trials.length,contactLocked:false};
  const selected=chooseOriginalSourceSwingLinkedLegTrial({...owner,trials});
  if(!selected)return;
  upperDelta.setFromAxisAngle(upperLocalAxis,selected.upperRad);
@@ -2591,7 +2609,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   sourceUpperTrack:upperAxis.trackName,sourceLowerTrack:lowerAxis.trackName,
   sourceBindUpperMeters:bind.upperLength,sourceBindLowerMeters:bind.lowerLength,
   witnessedFrameIntervalSeconds:interval,witnessedRootTravelMeters:travel,
-  witnessedRootTravelAgeSeconds:age
+  witnessedSourceWeight:weight,witnessedRootTravelAgeSeconds:age
  };
  actor.sourceSwingLinkedAcceptedFrames=Math.min(1000000,
   (actor.sourceSwingLinkedAcceptedFrames||0)+1);
@@ -4131,6 +4149,8 @@ function inspectSourceRigDeformation(actors){
     sourceSwingToeCurrentFrameProofs:actor.sourceSwingToeCurrentFrameProofs??null,
      sourceSwingThighCurrentFrameProofs:actor.sourceSwingThighCurrentFrameProofs??null,
      sourceSwingLinkedCurrentFrameProofs:actor.sourceSwingLinkedCurrentFrameProofs??null,
+     sourceSwingLinkedProbeFrames:actor.sourceSwingLinkedProbeFrames||0,
+     sourceSwingLinkedLastProbe:actor.sourceSwingLinkedLastProbe??null,
      sourceSwingLinkedAcceptedFrames:actor.sourceSwingLinkedAcceptedFrames||0,
      sourceSwingThighAcceptedFrames:actor.sourceSwingThighAcceptedFrames||0,
      sourceToeJointAcceptedFrames:actor.sourceToeJointAcceptedFrames||0,
