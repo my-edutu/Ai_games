@@ -20,6 +20,7 @@ const context={
  civicCacheEvictions:0,civicGpuUploads:0,civicGpuDisposals:0,
  civicGpuResidencyFailures:0,civicRoadBufferRecycles:0,
  civicRoadBufferSubUploads:0,civicRoadBufferReallocations:0,
+ civicRoadBytesUploaded:0,
  civicBuffer:null,civicChunkRanges:[],
  civicCoreBuffer:{id:'real-farm-market-core'},activeCivicCoreKey:'spring-core',
  copyStaticVertexRange:start=>new Float32Array(context.data.slice(start)),
