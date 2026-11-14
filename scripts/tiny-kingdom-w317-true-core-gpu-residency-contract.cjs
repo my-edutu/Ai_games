@@ -68,7 +68,7 @@ function exercise(hardware){
  return gpuCalls;
 }
 const hardware=exercise(true),software=exercise(false);
-assert.match(script,/scenicVisibilityStats\.civicCore\s*=\s*drawVisibleStaticChunks/,
+assert.match(script,/scenicVisibilityStats\.civicCore\s*=\s*civicCoreBuffer\s*\?[\s\S]*?drawVisibleStaticChunks/,
  'real playable WebGL must issue the genuine complete original core draw');
 assert.match(script,/activeCivicCoreMesh\(\)\.length/,
  'Day-120 triangle guard must include split real civic core');
