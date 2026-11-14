@@ -2490,6 +2490,7 @@ export function createTowerWorld(){
       originalDeckSurface:bronzeSurface,
       originalGatewayMaterialStages:[...originalGatewayMaterialMap.values()],
       originalGatewayOpacity:1,
+      opticalExitSubmitted:false,
       originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
       // Distinct clocks: immutable HP-zero crossing, first browser-accepted
@@ -2655,6 +2656,8 @@ export function createTowerWorld(){
       departing?originalGatePresence*.94:0));
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=originalPresence;
+    if(originalGatePresence>.01 || originalPresence>.01)
+      held.opticalExitSubmitted=false;
     for(const material of held.originalGalleryMaterials){
       const transparent=originalPresence<.995;
       if(material.transparent!==transparent){
@@ -2677,7 +2680,8 @@ export function createTowerWorld(){
     // still-partially-visible arch out of the scene, producing a hard cut.
     // A fixed, finite backstop remains for GPU/memory and stuck-source safety;
     // it is NOT a claim that the forced backstop looks visually acceptable.
-    if ((originalGatePresence<=.01 && originalPresence<=.01 &&
+    if ((held.opticalExitSubmitted===true &&
+         originalGatePresence<=.01 && originalPresence<=.01 &&
          held.submittedFrames>=6 && held.visibleSeconds>=.9) ||
         (held.submittedFrames>=30 &&
          held.visibleSeconds>=RETAINED_CAP_SECONDS))
@@ -2817,6 +2821,13 @@ export function createTowerWorld(){
         snapshot.runToken===held.runToken &&
         snapshot.floor===held.floor && snapshot.tick>=held.sourceTick &&
         snapshot.lifecycle==='running') {
+      // One real submitted ORIGINAL source 3D frame must show the entire
+      // gateway/roof/gallery at zero opacity BEFORE this group is disposed.
+      // Source updates alone must not certify an optical exit the GPU never
+      // rendered, even if the actor already climbed above the arch.
+      held.opticalExitSubmitted=held.originalGatewayOpacity<=.01 &&
+        (held.originalDeckSurface?.opacity??0)<=.01 &&
+        held.originalGalleryMaterials.every(m=>m.opacity<=.01);
       held.submittedFrames=Math.min(60,held.submittedFrames+1);
       held.visibleSeconds=Math.min(3,held.visibleSeconds+shown);
     }
