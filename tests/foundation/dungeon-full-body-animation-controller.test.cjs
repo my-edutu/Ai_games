@@ -5919,3 +5919,68 @@ test('RED: first original source swing uses smallest genuinely sufficient paired
  assert.match(renderer,/planOriginalSourceSwingLinkedLegFollowups\(\{/);
  assert.match(renderer,/const after=read\(\)/);
 });
+
+
+// Test-first hypothesis: 14 Nov exact-HEAD original 41-joint source GLB
+// desktop tick 5 used licensed Walking_A upperlegr + lowerlegr, then left the
+// ORIGINAL right toe 63.88mm below stone, although its airborne heel and
+// opposite source-loaded shoe were independently measured. The hypothetical
+// +/-160mrad direct toesr trial below is NOT called a measured WebGL result.
+// The renderer must actually read both skinned shoes, certify an improvement
+// and retain the already earned original linked-leg source ownership.
+test('RED: certified original source-linked swing may finish toe clearance through a measured original toe joint, with exact dual-shoe final proof',async()=>{
+ const {chooseOriginalSourceSwingLinkedToeFinisher:choose}=await load();
+ assert.equal(typeof choose,'function','linked original hip/knee + direct toes joint has an explicit testable gate');
+ const supporting={heelY:-.028337000894740408,toeY:-.015558215866393926,
+  heelXZ:[0,0],toeXZ:[.08,0]};
+ const swing={heelY:.21876148050029315,toeY:-.08388248198576857,
+  heelXZ:[.1,.2],toeXZ:[.29,.2]};
+ const before={left:supporting,right:swing};
+ const linkedProof={
+  source:'measured-original-skinned-linked-leg',sourceClip:'Walking_A',
+  sourceInstanceId:'original-cc0-instance',side:'right',
+  contactLocked:false,oppositeShoePreserved:true,after:before
+ };
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceToeChainVerified:true,
+  sourceToeTrackVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.027765536808749935,frameAge:0,frameInterval:.04999999,
+  side:'right',floorTopY:-.02,linkedProof,before};
+ const supportedTrial={
+  angleRad:-.16,after:{left:supporting,right:{...swing,
+   heelY:swing.heelY+.0003,toeY:swing.toeY+.0112,
+   heelXZ:[.101,.201],toeXZ:[.294,.201]}}
+ };
+ const rejectedDirection={angleRad:.16,after:{left:supporting,
+  right:{...swing,toeY:swing.toeY-.003}}};
+ const chosen=choose({...gate,trials:[supportedTrial,rejectedDirection]});
+ assert.equal(chosen?.angleRad,-.16,'only the measured net-lifting original toe hinge survives');
+ assert.ok(chosen?.liftMeters>=.01119);
+ assert.equal(chosen?.contactLocked,false,'a partly buried toe is not a planted foot');
+ assert.equal(chosen?.oppositeFootVerified,true,'original loaded shoe must not be moved');
+ assert.equal(chosen?.linkedSourceRetained,true,'prior connected thigh/knee proof persists, reconciled against the final source skin');
+ const rejects=[
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceToeChainVerified:false},{sourceToeTrackVerified:false},
+  {sourceWeight:.79},{frameInterval:.3},{rootTravel:0},
+  {reducedMotion:true},{interrupted:true},{teleport:true},{mode:'hurt'},
+  {linkedProof:{...linkedProof,contactLocked:true}},
+  {linkedProof:{...linkedProof,sourceClip:'Idle'}},
+  {linkedProof:{...linkedProof,after:{...before,right:{...swing,toeY:swing.toeY+.01}}}},
+  {before:{...before,right:{...swing,toeY:-.014}}},
+  {trials:[{...supportedTrial,after:{...supportedTrial.after,left:{...supporting,toeY:supporting.toeY+.005}}}]},
+  {trials:[{...supportedTrial,after:{...supportedTrial.after,right:{...supportedTrial.after.right,heelY:swing.heelY+.012}}}]},
+  {trials:[{...supportedTrial,after:{...supportedTrial.after,right:{...supportedTrial.after.right,toeY:swing.toeY+.006}}}]},
+  {trials:[{...supportedTrial,after:{...supportedTrial.after,right:{...supportedTrial.after.right,toeXZ:[.33,.22]}}}]}
+ ];
+ for(const bad of rejects)assert.equal(choose({...gate,trials:[supportedTrial,rejectedDirection],...bad}),null,
+  'unsupported source or deformed skinned shoe must not authorize post-linked toe correction: '+JSON.stringify(bad));
+ const actualRenderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(actualRenderer,/chooseOriginalSourceSwingLinkedToeFinisher\(/,
+  'the actual original SkeletonUtils Three.js stage must consume the tested dual-shoe gate');
+ assert.match(actualRenderer,/sourceSwingLinkedCurrentFrameProofs\[side\].*=/,
+  'a successful toe correction must refresh the existing original connected leg final certificate');
+ assert.match(actualRenderer,/originalSwingToeJointRestore/,
+  'new source toe joint is reversed before the next original AnimationMixer step');
+});
