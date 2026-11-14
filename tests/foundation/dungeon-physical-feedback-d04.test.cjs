@@ -1124,3 +1124,52 @@ test('strict original fatal and nonfatal sounds require the actual post-injury p
   }finally{engine.dispose()}
  }
 });
+
+test('D04 counter stinger must preserve observed Warden HP and recovery evidence',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:4,z:4,
+  hp:70,maxHp:90,action:'cast',actionTick:10,recoveryUntilTick:11};
+ const prior=snap(10,{units:[hero(),foe(),warden]});
+ const next=snap(11,{units:[hero(),foe(),{...warden,hp:42,action:'hurt',actionTick:11}],
+  events:[{kind:'counter',tick:11,text:'earned recovery counter'}]});
+ const genuine=planPhysicalFeedback(prior,next).find(c=>c.kind==='counter');
+ assert.ok(genuine,'a real Warden recovery and HP transition yields a counter');
+ assert.equal(genuine.actorId,null,'HP witness never invents a counterattacker');
+ assert.deepEqual(genuine.detail,
+  {damage:28,maxHp:90,remainingHp:42,recoveryUntilTick:11},
+  'counter foley must carry its actual public HP/recovery witness');
+ assert.equal(isCanonicalVerifiedCombatFoleyCue(genuine),true);
+ const forgeries=[
+  {...genuine,detail:null},
+  {...genuine,detail:{...genuine.detail,damage:0}},
+  {...genuine,detail:{...genuine.detail,damage:3}},
+  {...genuine,detail:{...genuine.detail,maxHp:0}},
+  {...genuine,detail:{...genuine.detail,remainingHp:-1}},
+  {...genuine,detail:{...genuine.detail,remainingHp:75}},
+  {...genuine,detail:{...genuine.detail,recoveryUntilTick:10}},
+  {...genuine,severity:0},
+  {...genuine,severity:.99}
+ ];
+ for(const malformed of forgeries){
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(malformed),false,
+   'a matching event ID alone cannot manufacture earned Warden success');
+  const {ctx}=fakeAudio();ctx.state='running';
+  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(foley.enable(),true);
+   assert.equal(foley.emit(malformed),false);
+   assert.equal(foley.stats().activeVoices,0);
+   assert.equal(foley.stats().confirmedCueIds,0);
+   assert.deepEqual(foley.stats().recentOriginalStarts,[]);
+  }finally{foley.dispose()}
+ }
+ const {ctx}=fakeAudio();ctx.state='running';
+ const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(foley.enable(),true);
+  assert.equal(foley.emit(genuine),true,'real earned counter remains audible');
+  assert.equal(foley.emit(genuine),false,'one Warden counter cannot sound twice');
+  assert.equal(foley.stats().confirmedCueIds,1);
+ }finally{foley.dispose()}
+});
