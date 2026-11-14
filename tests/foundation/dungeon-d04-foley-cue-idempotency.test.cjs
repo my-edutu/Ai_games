@@ -147,13 +147,16 @@ for(const phase of ['allocate','start']){
   const fixture=failingPreemptionFixture();
   const engine=createOriginalCombatFoley(fixture.ctx,{requireVerifiedContact:true});
   assert.equal(engine.enable(),true);
-  // The strict preview rightly rejects fabricated block/evade identities.
-  // Fill the preemption mix with non-body-local audition recipes instead;
-  // this test measures WebAudio replacement failure, not action proof.
-  const low=['draw','cast-dry','utility','guard',
-   'recovery','interrupt','defeat','threat-warning'];
-  for(const [i,audio] of low.entries())
-   assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio);
+  // This tests transactional WebAudio preemption, not a bypass for
+  // fictitious decisive, interrupt or Warden-recovery authority.
+  // Five neutral audition recipes plus three 55ms-later repeats fill eight
+  // live voices before the shortest 155ms original voice can expire.
+  const neutral=['draw','cast-dry','utility','guard','threat-warning'];
+  neutral.forEach((audio,i)=>
+   assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio));
+  fixture.ctx.currentTime=.055;
+  ['draw','cast-dry','utility'].forEach((audio,i)=>
+   assert.equal(engine.emit({audio,id:'low-repeat-'+i,priority:1}),true,audio));
   const before=engine.stats();
   assert.equal(before.activeVoices,MAX_ORIGINAL_COMBAT_VOICES);
   const starts=fixture.getSourceStarts();
