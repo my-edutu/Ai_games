@@ -3166,6 +3166,7 @@ export function createTowerWorld(){
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       structuralMaterials:[],structuralShadows:[],structuralFade:1,
+      structuralRoot:null,vistaRoot:null,farRoot:null,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       actualFirstFrameVoidBearings:stagedVoidArchitecture?.coreDrawn===true,
       entireIncomingVoidCoreDeferred:stagedVoidArchitecture?.coreDeferred===true,
@@ -3235,6 +3236,13 @@ export function createTowerWorld(){
         sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade);
       for(const {material,originalOpacity} of job.structuralMaterials)
         material.opacity=originalOpacity*job.structuralFade;
+      // True GPU culling, not just alpha zero: a Three Mesh with
+      // transparent opacity=0 still submits its geometry/material program.
+      // Only the noninteractive deferred shaft is culled; genuine Floor9
+      // ground, moving platforms, hazards and the already-owned bronze arch
+      // remain fully visible and source-authentic. No extra render pass.
+      if(job.structuralRoot)
+        job.structuralRoot.visible=job.structuralFade>.015;
       if(job.structuralFade>=1){
         for(const {material,originalTransparent,originalDepthWrite}
             of job.structuralMaterials){
@@ -3252,11 +3260,13 @@ export function createTowerWorld(){
       job.vistaFade=options.reducedMotion?1:
         Math.min(1,job.vistaFade+shown/.55);
       job.vistaMaterial.opacity=job.vistaFade;
+      if(job.vistaRoot)job.vistaRoot.visible=job.vistaFade>.015;
     }
     if(job.state==='fading-remote-arrival' && job.fade<1){
       job.fade=options.reducedMotion?1:
         Math.min(1,job.fade+shown/.55);
       if(job.material)job.material.opacity=job.fade;
+      if(job.farRoot)job.farRoot.visible=job.fade>.015;
     }
     if(job.state==='fading-remote-arrival' &&
        job.fade>=1 && job.vistaFade>=1 &&
@@ -3311,6 +3321,12 @@ export function createTowerWorld(){
         vista.material.opacity=0;
         vista.material.depthWrite=false;
         arrival.vistaMaterial=vista.material;
+        // Opacity zero is STILL a Three.js draw submission. Do not waste
+        // software-WebGL time/shaders on a not-yet-visible full vista mesh.
+        // It remains the same authored source-world geometry and is never
+        // shown until returned renderer frames earn nonzero material alpha.
+        vista.visible=false;
+        arrival.vistaRoot=vista;
       }
       arrival.vistaBuildMs=+(performance.now()-began).toFixed(2);
       arrival.vistaBuiltAtSubmitted=arrival.submittedFrames;
@@ -3340,6 +3356,11 @@ export function createTowerWorld(){
         buildTower(arrival.height,false);
         const structuralRoot=new THREE.Group();
         structuralRoot.name='deferred-original-floor-nine-architecture';
+        // Whole-subtree visibility lets Three skip the real successor
+        // architecture until its source-gated fade is actually visible.
+        // Merely setting each material.opacity=0 never saved GPU draws.
+        structuralRoot.visible=false;
+        arrival.structuralRoot=structuralRoot;
         const added=floorGroup.children.slice(before);
         for(const child of added)structuralRoot.add(child);
         floorGroup.add(structuralRoot);
@@ -3437,6 +3458,8 @@ export function createTowerWorld(){
       // guardian signals, or physics-aligned geometry.
       const farRoot=new THREE.Group();
       farRoot.name='deferred-authentic-distant-citadels';
+      farRoot.visible=false;
+      arrival.farRoot=farRoot;
       const additions=floorGroup.children.slice(startChildCount);
       for(const child of additions){
         if(child.name==='distant-citadel-silhouette')farRoot.add(child);
@@ -4138,6 +4161,10 @@ export function createTowerWorld(){
       structureBuildMs:deferredDistantArrival.structureBuildMs,
       structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
       isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
+      // Mesh visibility, not merely opacity: falsifiable zero-alpha GPU culling.
+      structuralRootVisible:deferredDistantArrival.structuralRoot?.visible??null,
+      vistaRootVisible:deferredDistantArrival.vistaRoot?.visible??null,
+      farRootVisible:deferredDistantArrival.farRoot?.visible??null,
       fade:+deferredDistantArrival.fade.toFixed(3),
       vistaFade:+deferredDistantArrival.vistaFade.toFixed(3),
       initialRebuildMs:deferredDistantArrival.initialRebuildMs,
