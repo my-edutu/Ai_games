@@ -77,9 +77,14 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  let best=null;
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
+  // 140/105mrad is reserved for a physically observed >=50ms source frame,
+  // full Walking_A clip ownership and the SAME genuine dual-shoe skin trial.
+  // Below 50ms the original restrained 90/75mrad source arc remains the cap:
+  // a regular animation frame may not snap the original hip or knee.
+  const slowArc=frameInterval>=.05&&sourceWeight>=.95;
   if(![upperRad,lowerRad].every(finite)||
-   Math.abs(upperRad)<.075||Math.abs(upperRad)>.105||
-   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>.075||
+   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:.105)||
+   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:.075)||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    !validShoe(after?.[side])||!validShoe(after?.[other]))continue;
   const shoe=after[side],support=after[other];
