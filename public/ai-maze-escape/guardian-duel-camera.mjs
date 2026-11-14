@@ -7,18 +7,19 @@ export function publicGuardianDuelCameraElevation(aspect,strength,beat,reducedMo
   if(reducedMotion || !Number.isFinite(aspect) || aspect<.35 || aspect>=.60
     || !Number.isFinite(strength) || strength<=.70
     || !Number.isFinite(beat) || beat<=0 || beat>1)return neutral;
-  // Exact-source Pass329 390px brace/release frames still view the shell and
-  // Pip's planted boots mostly from above; the four linked court signals
-  // hide their physical warning profile. Make the already WITNESSED warning
-  // -> brace -> release an authored three-quarter LOWER reveal, not a new
-  // event or private-map camera request. Its 21 -> 13.57 -> 11.5 elevation
-  // is smooth, bounded and stable at full release. Native physical full-body
-  // +/- .95 and HUD occlusion gates must approve the actual scene, not us.
-  // No zoom, altered actor roots, renderer resources or game authority.
+  // Pass356: authentic 390px notice/brace/release images showed the camera
+  // CONTINUING to pitch down while Thornback is acting, exposing a tall
+  // foreground retaining wall and shifting the actor pair against different
+  // architecture at every beat. Make this one readable original three-quarter
+  // camera settle DURING the witnessed warning, then HOLD through grounded
+  // brace and shell release. The moderate 16.2m elevation looks OVER real
+  // opaque foreground stone; it never makes that stone transparent, creates
+  // a false path or changes public map/AI/physical actor positions. The actual
+  // native full-mesh ±.95 bounds and genuine wall/pressure tests still decide.
   const attention=Math.max(0,Math.min(1,(strength-.70)/.10));
-  const t=Math.max(0,Math.min(1,(beat-.07)/.60));
+  const t=Math.max(0,Math.min(1,(beat-.04)/.33));
   const reveal=t*t*(3-2*t);
-  return neutral-9.5*attention*reveal;
+  return neutral-4.8*attention*reveal;
 }
 
 // Source-bound, full-mesh portrait pairing. The host already proved a
@@ -63,17 +64,14 @@ export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbi
     || typeof beat!=='number' || !Number.isFinite(beat) || beat<=0 || beat>1
     || !Number.isFinite(currentOrbit) || Math.abs(currentOrbit)<.03)return 0;
   const attention=Math.max(0,Math.min(1,(strength-.70)/.10));
-  const t=Math.max(0,Math.min(1,(beat-.16)/.57));
+  // Complete the camera's bounded three-quarter shoulder reveal DURING
+  // the public warning, before the physical guardian brace starts. Do not
+  // keep orbiting around the characters WHILE their connected fins act.
+  // Preserve the proven maximum 0.52rad correction and at least 33% of the
+  // underlying public actor-axis orbit: no reversal, manual camera takeover,
+  // new map knowledge, or relaxed strict NDC/44px native acceptance gates.
+  const t=Math.max(0,Math.min(1,(beat-.04)/.33));
   if(t<=0)return 0;
   const reveal=t*t*(3-2*t);
-  // Pass338 exact Pass337 390px WebGL brace still merges the guardian shell
-  // with Pip into a near-vertical column. At the same PUBLIC brace and shell
-  // release, open up the opposed three-quarter shot rather than repainting
-  // yet another static terrace. Pass338's 0.66rad overshot the original
-  // native Follow lens depth contract (>0.20rad orbit) and timed out the
-  // uncropped 390px WebGL capture. Pass339 holds at most 0.52rad while
-  // retaining at least 33% of the authentic original actor-axis orbit.
-  // No camera-side reversal. The existing exact full-body NDC
-  // fitter, pressure priority and native 44px HUD tests remain authoritative.
   return -Math.sign(currentOrbit)*Math.min(.52,Math.abs(currentOrbit)*.67)*attention*reveal;
 }

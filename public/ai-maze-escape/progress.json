@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T09:17:15.186Z",
+  "updatedAt": "2026-11-14T10:45:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass355 source-authentic visual review REJECTED Pass354: 178/178 focused tests, 7/7 browser suites and the unchanged six-reset <100 budget passed at exact Pass354 SHA 91c95cc5, with 37/37 source PNG sidecars and 3/3 gate transition hashes verified. Original 390px guardian notice remained almost unchanged (0.534/255 RGB mean absolute pixel difference); brace/release differences are largely moving-camera/animation timing, not a consequential stage improvement. Production world.js and temporary candidate-only test reverted to the verified Pass353 source in one fast-forward commit. Nintendo benchmark NOT MET; exact rollback SHA CI requires separate completion."
+    "summary": "Pass356 candidate re-directs one authentic public Pip–Thornback 3D camera performance: settle camera yaw/pitch and actor focus on the witnessed early warning, hold through physical brace, reserve modest vertical resolution for actual shell release. Based on previously verified rollback WebGL at 7cbf4d83 with unchanged <100 six-reset. NEW source, tests, original WebGL SHA images and independent critic all PENDING. Nintendo benchmark UNMET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass356 2026-11-14: Source-only, substantial guardian-camera choreography candidate: early witnessed 3D camera settle, stable full-body brace/release angle, real shell-release-centered frame. Original 390 screenshot is not yet a new render; no benchmark or test victory claimed. Do not merge/deploy; review exact-HEAD native evidence before acceptance.",
     "Pass353 2026-11-14: Rejected Pass352 third-ring spectator cutaway from native source-bound full-screen 390px notice/brace chronology. Verified 39 genuine PNGs, 37/37 sidecar SHA and 3/3 gate SHA on successful 180/180, 7/7, <100 geometry CI; original frame remains cluttered. Fast-forward source/test rollback to prior proven tree; do not claim artistic win or pause Gauntlet.",
     "Pass350 2026-11-14: Native Pass349 unaltered 390px guardian brace visibly reads as one black goggle strip over a congested pair scene. Candidate replaces the solid shared visor with original separate orbital frames/bronze bridge, larger true top-facing paired lenses and two articulated rooted cheek shells that brace and withdraw on the same witnessed public encounter clock. Original source-bound installed Three tests cover bracing, release, hidden/reset, pooled geometry and reduced motion. New native 320/390/844/1280 WebGL/sha visual acceptance pending; no benchmark win.",
     "Pass347 2026-11-14: Original Pass346 real 390px guardian release at public beat .923 still has four large suspended court fins. Physical event-clock retraction now folds complete outboard fins and full-width floor leaves by .90; stricter installed-Three clearance and original strict geometry, camera, privacy, AI, 44px HUD requirements unchanged. Exact new native screenshots and independent visual verdict pending, no benchmark win.",

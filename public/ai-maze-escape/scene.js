@@ -1105,13 +1105,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             && closestThreat.strength>.70
             && Number.isFinite(closestThreat.encounterBeat)) {
             const witness=clamp((closestThreat.strength-.70)/.10,0,1);
-            // Keep the verified actual brace sightline (including its opaque
-            // public guardian wall) fixed. Only AFTER the real armor-shell
-            // release begins does the camera settle lower on both living
-            // actors. This is earned encounter resolution, never a fabricated
-            // prediction, a move or a new vision source.
+            // Seat the genuine two-body shot during the SAME published early
+            // warning as its yaw/elevation settle; do not pan abruptly while
+            // both bodies and linked stone fans are performing their brace.
+            // Only the final gentle lift follows the truly observed shell
+            // release. No new event clock, map leak, actor scale, or collision.
+            const warningSeat=clamp((closestThreat.encounterBeat-.04)/.33,0,1);
+            const warningEase=warningSeat*warningSeat*(3-2*warningSeat);
             const shellRelease=clamp((closestThreat.encounterBeat-.70)/.20,0,1);
-            desiredTarget.y+=1.18*witness*shellRelease;
+            desiredTarget.y+=witness*(.65*warningEase+.53*shellRelease);
           }
           targetHeight = publicPortraitGuardianHalfHeight(
             aspect,targetHeight,closestThreat.strength,pose,closestThreat,
