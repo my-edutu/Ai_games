@@ -29,7 +29,7 @@ const scope={};
 vm.createContext(scope);
 vm.runInContext(camera+'\nthis.check=physicallyReadableCourierRouteShot;',scope);
 const shot={eyeCollision:{clear:true},blockers:0,projectedWorkerHeightFraction:.17,
- foregroundSceneCover:.06,foregroundCargoCover:.04,foregroundVegetationCover:.11,
+ foregroundSceneCover:.06,foregroundActorCoreCover:.05,foregroundCargoCover:.04,foregroundVegetationCover:.11,
  vegetationFaceBlockers:0};
 const framing={blockedBodyRays:0,foregroundCitizenBlockers:0,handBlockers:0,cameraProximityWarnings:0};
 assert.equal(scope.check(shot,framing,true),true,'genuine clear mobile courier earns a readable view');
