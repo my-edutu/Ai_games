@@ -84,8 +84,13 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
    documentary.frameBefore,{timeout:150000});
   const live=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {audit:g.getRealEconomicSurveyAudit(),view:g.getLiveWorkdayView(),
+   const view=g.getLiveWorkdayView();
+   return {audit:g.getRealEconomicSurveyAudit(),view,
     workerNames:g.getActiveWorksites().map(w=>w.citizen),
+    realCameraPlan:g.getCitizenCameraPlan(),
+    actualComposition:g.getWorkdayCompositionAudit(),
+    documentaryDirector:g.getLiveWorkDirectorStats(),
+    actualProjectedCitizen:g.getCitizenPickCandidates().find(p=>p.name===view.citizen)||null,
     gl:document.getElementById('world').getContext('webgl')?.getError(),
     overflow:document.documentElement.scrollWidth-innerWidth,
     triangles:g.renderStats().lastFrameTriangles};
