@@ -712,14 +712,30 @@ export function createWarden(options = {}) {
     root.rotation.z=-side*.09;
     tailVanes.push({vane,side});
   }
-  const head=pivot(body,'warden mask',[0,.08,.62]);
-  // A broad forward bronze mask makes approach direction distinct from the dark elytra.
-  ball(head,bronze,[0,0,0],[.37,.245,.27]);
-  rounded(head,dark,[0,.035,.205],[.62,.19,.1],.045);
+  // Pass349: the genuine 390px Pip–Thornback encounter still shows a
+  // head buried behind dorsal armor: the original forward-only red slits
+  // disappear from a real overhead adventure camera. Reconstruct the WHOLE
+  // rooted mask, not a billboard, red UI icon, or false attack. Raise its
+  // bronze skull ahead of the shell and form two broad, physically connected
+  // upward-facing optical housings with deep rims, cheek armor and a true
+  // projecting mandible. The same head/antenna/jaw joints below still animate.
+  // Nothing moves the authoritative guardian root, collision or AI state.
+  const head=pivot(body,'warden mask',[0,.27,.73]);
+  ball(head,bronze,[0,.035,.015],[.47,.30,.34]);
+  rounded(head,dark,[0,.14,.24],[.77,.23,.17],.048);
   for (const side of [-1,1]) {
-    const brow=rounded(head,claw,[side*.17,.119,.254],[.23,.055,.04],.012); brow.rotation.z=-side*.2;
-    const lens=rounded(head,red,[side*.17,.032,.268],[.205,.095,.035],.025); lens.rotation.z=-side*.13;
-    ring(head,bronze,[side*.275,-.05,.13],.057,.014);
+    // Eyes sit above (not exclusively on the vertical front of) the mask;
+    // the camera reads one clear gaze direction even at 320px.
+    const socket=ball(head,dark,[side*.205,.25,.215],[.22,.125,.205]);
+    socket.rotation.x=-.25;
+    const optic=ball(head,red,[side*.205,.308,.287],[.153,.085,.126]);
+    optic.rotation.x=-.28;
+    const brow=rounded(head,claw,[side*.195,.349,.242],[.30,.075,.15],.023);
+    brow.rotation.z=-side*.13;
+    brow.rotation.x=-.17;
+    const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
+    cheek.rotation.y=side*.24;
+    ring(head,bronze,[side*.345,-.067,.18],.057,.014);
   }
   // A full 3D, hinged lower mask makes an observed confrontation read as
   // physical acting instead of only a red eye or a line of HUD text.
@@ -977,7 +993,12 @@ export function createWarden(options = {}) {
     // in this render loop.
     // The original attached bronze mask leans into its real planted foreclaws
     // during brace, then withdraws behind the reopening armor at release.
-    head.position.z=.62+alert*.07+plantedClaws*.18-display*.065*alert;
+    // The complete face rises into the witnessed grounded brace and
+    // withdraws beneath the actual opening shell, rather than letting the
+    // face disappear behind a fixed backpack in mobile native gameplay.
+    // Terminal/reduced poses remain deterministic with no new meshes.
+    head.position.y=.27+plantedClaws*.13-display*.045*alert;
+    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert;
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     for (const {antenna,side} of antennae) {
