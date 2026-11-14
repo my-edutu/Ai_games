@@ -8,6 +8,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
 
 
 /**
@@ -716,6 +717,9 @@ export function createTowerWorld(){
   const stoneSurface=createStoneSurfaceAsset(THREE);
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
+  // The source-earned OLD bronze gate and the NEW 3D architecture must share
+  // an actual walking-distance palette instead of one hard violet cold frame.
+  let originalClockworkArchitecturalPalette=null;
   // Actual source-floor static GPU attribute/index payload, not driver memory.
   let rigidUploadBytes=0, rigidExpandedBytes=0, rigidIndexedBatches=0, rigidBatchCount=0, rigidPackedVertexBuffers=0, rigidPriorSeparateVertexBuffers=0;
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
@@ -2826,7 +2830,8 @@ export function createTowerWorld(){
     const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && snapshot.theme==='void';
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
-    clearFloor();quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
+    clearFloor();originalClockworkArchitecturalPalette=null;
+    quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
       gate:theme==='ruins'?mat(0x43534b,.38,.73):null,gateTrim:theme==='ruins'?mat(0x87846a,.48,.64):null,
@@ -2849,6 +2854,17 @@ export function createTowerWorld(){
     materials.landing=mat(p.landing,theme==='ruins'?.03:.35,theme==='ruins'?.88:.62);
     if(theme==='ruins')weather(materials.landing);
     materials.tread=mat(p.dark,.4,.8,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+    // No second world, synthetic arch, extra GPU draw or gameplay changes.
+    // Only the live Floor9 render that owns the ORIGINAL retained F8 cap may
+    // tint its architectural material channels, never hazard telegraphs,
+    // warnings, enemy silhouettes, route emitters or future floors.
+    if(snapshot.floor===9 && theme==='void' &&
+       retainedEarnedCap?.floor===9 &&
+       retainedEarnedCap.runToken===snapshot.runToken &&
+       retainedEarnedCap.guardianGateRetained===true) {
+      originalClockworkArchitecturalPalette=
+        createOriginalClockworkArchitecturalPalette(materials,PALETTES.clockwork);
+    }
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
     const height=snapshot.chunkHeight/SCALE;
     // Commit a truthful Floor 9+ body/route/guardian world immediately. Cold
@@ -3007,6 +3023,17 @@ export function createTowerWorld(){
       arrivalDeck.top.color.copy(arrivalDeck.topVoid).lerp(arrivalDeck.bronze,w);
       arrivalDeck.body.color.copy(arrivalDeck.bodyVoid).lerp(arrivalDeck.bronze,.82*w);
       arrivalDeck.rim.color.copy(arrivalDeck.rimVoid).lerp(arrivalDeck.bronze,.48*w);
+    }
+    // Existing Floor9 stone/metal/trim above and around the real roof were
+    // previously fully violet on the FIRST rebuilt frame, even as the old
+    // original bronze arch remained visibly opaque. Color the current 3D
+    // architecture from that SAME validated physical departure, not a timer.
+    // This covers the monumental shaft, upper platform edge and walkable
+    // structures together; gameplay danger lights and character are untouched.
+    if(originalClockworkArchitecturalPalette) {
+      const sourceProof=!options.stale
+        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
+      originalClockworkArchitecturalPalette.update(sourceProof);
     }
     const arrival=deferredDistantArrival;
     function appendDeferredVista(arrival) {
@@ -3796,6 +3823,7 @@ export function createTowerWorld(){
       interleavedVertexBuffers:rigidPackedVertexBuffers,
       formerSeparateVertexAttributeBuffers:rigidPriorSeparateVertexBuffers,
       caveat:'CPU-side Three BufferGeometry payload, not GPU allocated memory or measured FPS'},
+    originalClockworkArchitecturalPalette:originalClockworkArchitecturalPalette?.diagnostics()??null,
     geometries:floorGeometries.size+primitives.size,materials:floorMaterials.size,platforms:platforms.size,hazards:hazards.size,activeHazardPressureFins:[...hazards.values()].reduce((n,h)=>n+(h.indicator.userData.activePressureTeeth||0),0),observedMovingDeckCranks:[...platforms.values()].filter(p=>p.traveler).length,observedMovingDeckDriveStages:[...platforms.values()].filter(p=>p.countergear&&p.actuator).length,observedMovingDeckGearBatches:[...platforms.values()].filter(p=>p.gearVisual?.count===2).length,observedMovingDeckDriveLastTick:[...platforms.values()].reduce((latest,p)=>Math.max(latest,p.motionSourceTick??-1),-1),ambientParticles:particles?.visible?48:0,sceneHierarchy:{sourceBound:true,kind:sceneFocusKind,decorativeFocus:Number(sceneFocus.toFixed(4)),addsDraws:0,physicsUnchanged:true},floor:lastSnapshot?.floor??null,theme,quality,disposed,guardianGates:[...platforms.entries()].filter(([,p])=>p.guardianGate).map(([id,p])=>({id,unlocked:p.guardianGate.unlocked,opening:p.guardianGate.progress,conduitReach:p.guardianGate.conduit.scale.z,anchorX:p.guardianGate.anchorX})),occludedGuardianCaps,occludedForegroundGears,occludedForegroundScreenGears,occludedForegroundCorridorGears,occludedForegroundClockFaces,
     decorativeOcclusionEvidence:decorativeOcclusionEvidence.map(item=>({...item})),
     decorativeSightlineGears:foregroundGears.length,decorativeSightlineRacks:foregroundRacks.length,clockFaceRayMeshes:foregroundGears.reduce((n,gear)=>n+gear.sceneryMeshes.length,0),ruinsPortalVoussoirs,ruinsGateLeaves,ruinsSanctuaryArches,ruinsSanctuaryPlants,ruinsSanctuaryCascadePanels,deferredDistantArrival:deferredDistantArrival?{
