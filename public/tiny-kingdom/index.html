@@ -2248,8 +2248,20 @@ function workSkinFramePalette(entry,p,slot,detail){
  workSkinSameStateFrameMisses++;
  const rig=citizenRigPose(p);
  const pose=citizenEmbodiedPose(p,i,rig);
- const current=detail?workSkinSegments(rig,pose,entry,workSkinDetailedPoint):
-  workSkinSegments(rig,pose,entry);
+ // W322 Phase 1: preserve original 13-joint GPU bind geometry, but advance
+ // each genuine person's WORLD root as they actually travel, turn and work.
+ // The old entry.x/z/angle froze moving citizens at the previous bind pose.
+ // Current physical endpoints produce delta matrices for the SAME complete
+ // clothing, boots, hands and real occupational tools, without new actors,
+ // invented receipts or changes to simulation/save/replay authority.
+ const liveRoot={x:p.x,z:p.z,ground:terrain(p.x,p.z),
+  angle:detail?realForegroundFacing(p):realWorkerFacing(p),
+  scale:entry.scale};
+ if(![liveRoot.x,liveRoot.z,liveRoot.ground,liveRoot.angle,
+  liveRoot.scale].every(Number.isFinite))
+  throw Error('W322 nonfinite authentic GPU citizen root');
+ const current=detail?workSkinSegments(rig,pose,liveRoot,workSkinDetailedPoint):
+  workSkinSegments(rig,pose,liveRoot);
  const computed=retainWorkerSkinPalette(entry,current,slot);
  entry[cacheKey]=key;
  return computed;
