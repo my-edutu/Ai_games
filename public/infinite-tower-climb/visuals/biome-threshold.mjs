@@ -10,7 +10,8 @@
 // never start a second timer, duplicate a gate, or claim native-video proof.
 import { observedSourceEarnedColdFrameContinuation,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette,
+  observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
 
 export function observedGroundedBiomeThreshold(frame, passage, options = {}, retainedCap = null) {
   // Anchor the horizon to the SAME real distance-from-bronze-sill as the
@@ -19,6 +20,20 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   // source-backed corridor still keeps both environmental palettes coherent.
   const spatial=(!options?.stale && !options?.reducedMotion)
     ?observedSourcePhysicalArrivalPalette(frame,retainedCap):null;
+  // The first native Floor9 frames showed violet sky while the ORIGINAL
+  // bronze arch was still materially visible. Coordinate three layers:
+  // old gateway material, noninteractive new structural shell, and horizon.
+  // This is an existing same-run source + actual GPU witness, not a timer.
+  const oldGate=!options?.stale && !options?.reducedMotion &&
+    retainedCap?.guardianGateRetained===true
+    ?observedSourceGatewayDeparturePresence(frame,retainedCap):null;
+  const originalArchOldWeight=oldGate?.sourceBound===true &&
+    retainedCap?.opticalExitSubmitted!==true &&
+    Number.isSafeInteger(retainedCap?.submittedFrames) &&
+    retainedCap.submittedFrames<30 &&
+    Number.isFinite(retainedCap?.visibleSeconds) &&
+    retainedCap.visibleSeconds<2.8
+    ?Math.min(1,Math.max(0,oldGate.opacity)):0;
   // The visually first F9 frame may arrive after the nonauthoritative passage
   // animation cue expired. The ACTUAL old cap still has source-and-GPU proof:
   // ease sky/fog/lights from warm bronze instead of instant full-void purple.
@@ -30,12 +45,13 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
       retainedCap.visibleSeconds/1.25));
     const smooth=progress*progress*(3-2*progress);
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
-      oldWeight:Math.max(1-smooth,spatial?.oldWeight??0),progress,sourceBound:true,
+      oldWeight:Math.max(1-smooth,spatial?.oldWeight??0,
+        originalArchOldWeight),progress,sourceBound:true,
       limitation:'Actual same-run old-cap geometry and submitted frame clock; native pixels NOT EVALUATED'};
   }
   if(spatial && (!passage || passage.stage!=='handoff')){
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
-      oldWeight:spatial.oldWeight,progress:spatial.progress,
+      oldWeight:Math.max(spatial.oldWeight,originalArchOldWeight),progress:spatial.progress,
       sourceBound:true,
       limitation:'The real crossed sill and source distance color the drawn horizon, not native-film acceptance'};
   }
@@ -44,7 +60,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   // owns the living body's material/lighting environment in that case.
   const spatialFallback=()=>spatial?{
     from:'clockwork',to:'void',sourceTick:frame.tick,
-    oldWeight:spatial.oldWeight,progress:spatial.progress,sourceBound:true,
+    oldWeight:Math.max(spatial.oldWeight,originalArchOldWeight),progress:spatial.progress,sourceBound:true,
     limitation:'Actual source body distance to original earned doorway, NOT native film acceptance'
   }:null;
   const p=frame?.player;
@@ -76,7 +92,8 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   const smooth=progress*progress*(3-2*progress);
   return {
     from:'clockwork',to:'void',sourceTick:frame.tick,
-    oldWeight:Math.max(1-smooth,spatial?.oldWeight??0),progress,
+    oldWeight:Math.max(1-smooth,spatial?.oldWeight??0,
+      originalArchOldWeight),progress,
     sourceBound:true,
     limitation:'Submitted-frame clock and source-backed arch only; NOT proof of native pixels, physical passage or preference',
   };
