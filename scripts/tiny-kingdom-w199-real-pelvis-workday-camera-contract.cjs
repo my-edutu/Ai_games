@@ -55,13 +55,20 @@ for(const field of ['cache.cityTopology===cameraArchitectureTopologyKey()',
 // A partly occluded real-worker shot may be retained ONLY when its camera eye
 // and roof rays have been checked and body/hand visibility is bounded.
 // The world, worksite and actor remain real and cannot be hidden for filming.
-assert(anchor.includes('shot.eyeCollision?.clear===true')&&
- anchor.includes('shot.blockers===0')&&
- anchor.includes('shot.handBlockers<=2')&&
- anchor.includes('shot.vegetationFaceBlockers===0')&&
- anchor.includes('shot.foregroundSceneCover<.42')&&
- anchor.includes('shot.projectedWorkerHeightFraction>')&&
- anchor.includes('!isWorkingAtSite(person)')&&
- anchor.includes('documentaryFullyClear:Boolean(row.clear)'),
+const decisionStart=source.indexOf('function genuineWorkdayShotDecision(shot,portrait){');
+const decisionEnd=source.indexOf('// Read-only W13 film progression;',decisionStart);
+assert(decisionStart>0&&decisionEnd>decisionStart,
+ 'the current live physical worker admission gate is accessible');
+const decision=source.slice(decisionStart,decisionEnd);
+assert(anchor.includes('genuineWorkdayShotDecision(shot,canvas.clientWidth<=520)')&&
+ anchor.includes('const physicallyUsable=admission.safe')&&
+ anchor.includes('!physicallyUsable')&&
+ decision.includes('shot.eyeCollision?.clear!==true')&&
+ decision.includes('shot.blockers!==0')&&
+ decision.includes('body>=(portrait?.15:.13)')&&
+ decision.includes('scene<.32&&core<.24&&cargo<.20')&&
+ decision.includes('hands<=1&&blocked<=2')&&
+ decision.includes('(shot.vegetationFaceBlockers??1)===0')&&
+ anchor.includes('documentaryFullyClear:Boolean(row.clear&&admission.readable)'),
  'only genuine working citizens with a physically unobstructed exterior eye and inspectable on-screen bodies may own the camera');
 console.log('W199 original-source workday IK + exact physical camera cache PASS; no FPS, image, independent critic or replay claim.');

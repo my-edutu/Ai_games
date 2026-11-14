@@ -96,4 +96,21 @@ assert.equal(view.driverCalls,2,'slow software uses exact prior WebGL calls');
 assert.equal(view.multiDrawBatches,0);
 assert.equal(ctx.softwareBatchCalls,0);
 
+// W339 regression: static and original planted-field driver audits must count
+// actual extension calls, not logical per-row draws, or native gains are fiction.
+const driverStart=html.indexOf('scenicVisibilityStats.totalDriverCalls=');
+const nativeStart=html.indexOf('scenicVisibilityStats.totalMultiDrawBatches=',driverStart);
+const savedStart=html.indexOf('scenicVisibilityStats.totalSavedDrawCalls=',nativeStart);
+assert(driverStart>0&&nativeStart>driverStart&&savedStart>nativeStart);
+assert(html.slice(driverStart,nativeStart).includes('fieldLodDraw.driverCalls'),
+ 'native field driver calls must not be inflated by logical source ranges');
+assert(html.slice(nativeStart,savedStart).includes('fieldLodDraw.multiDrawBatches'),
+ 'native field batches must appear in the combined real-scene audit');
+assert(html.slice(savedStart,savedStart+400).includes(
+ 'fieldLodDraw.drawCalls-fieldLodDraw.driverCalls'),
+ 'saved driver calls must account for the native crop batch');
+assert(html.includes('const farmMultiDrawStarts=new Int32Array(256)')&&
+ html.includes("typeof farmMultiDrawStarts==='undefined'"),
+ 'the native crop driver must reuse bounded production batch arguments');
+
 console.log('W326 original source PASS: planted row residency, conservative near/far union, one real frustum row, coalesced full farm, explicit 160k deficit; no FPS/visual claim.');

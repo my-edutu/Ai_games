@@ -15646,6 +15646,10 @@ function prepareResidentFarmFields(season){
 }
 // Every planted plot remains visible; the W245 scene budget changes only
 // HOW MUCH of the same real cereal detailing is affordable on this frame.
+// Reuse native WEBGL_multi_draw parameter storage across original live camera
+// frames instead of allocating two 256-element arrays every presented frame.
+// Physical VBO residency, source rows and fallback draws are unchanged.
+const farmMultiDrawStarts=new Int32Array(256),farmMultiDrawCounts=new Int32Array(256);
 let farmFieldSceneBudgetAudit={source:'real-complete-planted-farm-scene-budget',
  availableFieldTriangles:0,visiblePlots:0,requestedNear:0,retainedNear:0,
  protectedNear:0,minimumTriangles:0,usedTriangles:0,sceneBudgetBreached:false,
@@ -15758,8 +15762,12 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    grouped.get(command.buffer).push(command);
   }
   const maxRowsPerBatch=256;
-  const firsts=new Int32Array(maxRowsPerBatch);
-  const counts=new Int32Array(maxRowsPerBatch);
+  // The isolated original-source VM contract does not bootstrap the globals;
+  // production reuses these bounded arrays for every camera frame.
+  const firsts=typeof farmMultiDrawStarts==='undefined'?
+   new Int32Array(maxRowsPerBatch):farmMultiDrawStarts;
+  const counts=typeof farmMultiDrawCounts==='undefined'?
+   new Int32Array(maxRowsPerBatch):farmMultiDrawCounts;
   for(const [gpuBuffer,rows] of grouped){
    bindGeometry(gpuBuffer);fieldBufferBinds++;
    for(let offset=0;offset<rows.length;offset+=maxRowsPerBatch){
@@ -28102,11 +28110,11 @@ if(gpuAvailable){
  scenicVisibilityStats.totalDriverCalls=scenicVisibilityStats.landscape.driverCalls+
   scenicVisibilityStats.settlement.driverCalls+scenicVisibilityStats.civic.driverCalls+
   scenicVisibilityStats.civicCore.driverCalls+
-  scenicVisibilityStats.homes.driverCalls+fieldLodDraw.drawCalls;
+  scenicVisibilityStats.homes.driverCalls+fieldLodDraw.driverCalls;
  scenicVisibilityStats.totalMultiDrawBatches=scenicVisibilityStats.landscape.multiDrawBatches+
   scenicVisibilityStats.settlement.multiDrawBatches+scenicVisibilityStats.civic.multiDrawBatches+
   scenicVisibilityStats.civicCore.multiDrawBatches+
-  scenicVisibilityStats.homes.multiDrawBatches;
+  scenicVisibilityStats.homes.multiDrawBatches+fieldLodDraw.multiDrawBatches;
  scenicVisibilityStats.totalBridgedTriangles=
   scenicVisibilityStats.landscape.bridgedTriangles+
   scenicVisibilityStats.settlement.bridgedTriangles+
@@ -28120,7 +28128,8 @@ if(gpuAvailable){
   scenicVisibilityStats.settlement.savedDrawCalls+
   scenicVisibilityStats.civic.savedDrawCalls+
   scenicVisibilityStats.civicCore.savedDrawCalls+
-  scenicVisibilityStats.homes.savedDrawCalls;
+  scenicVisibilityStats.homes.savedDrawCalls+
+  Math.max(0,fieldLodDraw.drawCalls-fieldLodDraw.driverCalls);
  scenicVisibilityStats.batchMode=(staticBatchBridgeOverride===null?!swiftGpu:
   staticBatchBridgeOverride)?'conservative':'strict';
  if(solarShadowActive?.buffer){
