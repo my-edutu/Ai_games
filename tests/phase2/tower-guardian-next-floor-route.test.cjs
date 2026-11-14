@@ -83,3 +83,34 @@ test('the extra real deck is omitted when the validated platform budget is exhau
   assert.equal(chunk.platforms.length,8);
   assert.deepEqual(validateTowerChunk(chunk,config).issues,[]);
 });
+
+test('authentic guardian gateway earns a grounded recovery stride before the first floor-nine leap',()=>{
+  const {runtime,result}=earnedArrival();
+  assert.equal(result.lastGuardianCrossing?.sourceTick,result.tick,
+    'recovery must be anchored in the actual defeated-guardian crossing');
+  const {chooseTowerAction}=require('../../dist/games/infinite-tower-climb/src/ai/policy.js');
+  let groundedSteps=0;
+  for(let i=0;i<8;i++){
+    const observed=createTowerObservation(runtime.state,{includeHazardWindup:true});
+    const decision=chooseTowerAction(runtime.state,observed,{tactical:true});
+    assert.equal(decision.action.jump,false,
+      'first eight honest source ticks must show grounded gateway traversal, not immediate 13.8m/tick airborne teleport-like motion');
+    assert.equal(decision.action.dash,false,'no unearned post-win burst');
+    assert.equal(decision.intent.targetPlatformId,'f9:ground');
+    const after=runtime.step(decision.action);
+    assert.equal(after.floor,9,'grounded handoff must not invent another floor');
+    assert.equal(after.player.groundedPlatformId,'f9:ground',
+      'body must continue on genuine walkable successor ground');
+    groundedSteps++;
+  }
+  assert.equal(groundedSteps,8);
+  let onward=false;
+  for(let i=0;i<100;i++){
+    const observed=createTowerObservation(runtime.state,{includeHazardWindup:true});
+    const decision=chooseTowerAction(runtime.state,observed,{tactical:true});
+    if(decision.action.jump){onward=true;break;}
+    runtime.step(decision.action);
+  }
+  assert.equal(onward,true,
+    'post-victory grounded stride must release to real floor-nine route, not trap the AI forever');
+});
