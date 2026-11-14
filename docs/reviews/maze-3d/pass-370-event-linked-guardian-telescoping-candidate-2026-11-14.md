@@ -1,0 +1,17 @@
+# Pass370 — four original connected guardian standards become real event-driven telescoping stage machinery (2026-11-14 UTC)
+
+## Starting baseline, not a quality claim
+
+Read exact open Draft PR #53 HEAD `fa814c76814edaecf43c54c69df9ac2080149ccb`, its completed [native source-bound WebGL workflow 43637747067](https://github.com/my-edutu/Ai_games/actions/runs/43637747067), source, revision-4 HUD, previous [Pass369 original image criticism](./pass-369-pass368-native-guardian-third-ring-rejected-2026-11-14.md), ledger and public progress. Retrieved original [artifact 14131383324](https://github.com/my-edutu/Ai_games/actions/runs/43637747067/artifacts/14131383324). Confirmed **37 of 37 complete screenshot SHA-256 sidecars**, all **three genuine gate transition PNG hashes** and all **six pressure chronology PNG hashes**; the 390x844 full-frame guardian notice/brace/release and 320x740 / 844x390 / 1280x900 captures are real native Playwright WebGL, not cropped concept art. The original public foreground diagnostic still identifies the real impassable cell100 wall as the first hit at (u=.50,v=.66). Whole-repository CI separately failed; no claim it passed.
+
+## Single player-visible cause-and-effect experiment
+
+Source `public/ai-maze-escape/world.js` retains the four authentic wall-rooted Tideglass sentinel rigs, their same material/geometry pools, outward-rotating fans, physical warning floor and all collision-authoritative public geometry. The standard's entire existing connected lift has a **compact 48% resting height**, rises to **full physical height during only its genuine witnessed guardian brace**, and withdraws on actual shell release, hidden, invalid or terminal activity. A 75% fixed, stationary amber-height variant serves reduced-motion. This removes permanent competing silhouette mass without hiding a real wall, changing camera perspective or inventing a danger cue. It is not a mere material recolor. No authoritative AI, private map, door, pressure collider, deterministic seed, 44px HUD control, class allocation or resource ceiling changes.
+
+New installed-Three test asserts actual four connected lifts on real actor endpoints, world-scale neutral/brace/release transforms, instant cleanup on invalid and unpublished states, reduced-motion stability, source immutability and strict six-run reset resource budget below 100. All earlier stringent browser and Three tests are unchanged.
+
+## Required original-image critic / gate
+
+**Pending** the NEW source commit's focused exact-SHA test workflow and real unretouched Playwright capture artifact. Verify original full-resolution 320/390 portrait, 844x390 landscape and 1280x900 desktop, genuine 390 three-beat temporal separation, actor full-body and +/-.95 strict NDC bounds, wall100 first public ray, withdrawal width >=.70, real gate and pressure SHA chronology, 44px controls and six-reset budget. Compare before/after at the exact original seed/ticks, not number of tests or pixel delta. If the compressed stage feels like growing toy posts, falsely shrinks guardian danger, obscures real physical evidence or barely improves Pip/Thornback clarity, reject and roll back via a non-forced exact-HEAD update while keeping this review. Fresh-context independent critic and Ultracode were unavailable (coding tunnel `NOT_FOUND`), so no independent acceptance or Nintendo parity can be claimed.
+
+**Current verdict: candidate only; fixed Nintendo Captain Toad benchmark UNMET. PR #53 DRAFT, never merge, deploy or force-push.**
