@@ -6,6 +6,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
+      - scripts/tiny-kingdom-w315-growth-residency-contract.cjs
       - .github/workflows/tiny-kingdom-w265-growth-civic.yml
   workflow_dispatch:
 jobs:
@@ -19,5 +20,6 @@ jobs:
           node-version: '22'
       - name: Genuine grown-town civic residency and original route contracts
         run: |
+          node scripts/tiny-kingdom-w315-growth-residency-contract.cjs
           node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
           node scripts/tiny-kingdom-w264-grainward-stone-corridor-contract.cjs
