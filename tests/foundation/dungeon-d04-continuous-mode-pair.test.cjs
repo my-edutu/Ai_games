@@ -134,10 +134,12 @@ test('unmatched live D04 frame cannot hide excess instance-matrix update pressur
 test('genuine sampled slow phases are deduplicated and split without inventing causation',()=>{
  const b=arm('d04');
  const first={frameId:4,observedRafMs:16,advanceToSubmissionMs:150,
-  d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+  d04VisualAdvanceMs:20,d04RetainedAdvanceMs:20,d04EffectEmissionMs:0,
+  afterVisualToSubmissionMs:130,
   beforeRendererMs:105,rendererMs:25};
  const second={frameId:5,observedRafMs:16,advanceToSubmissionMs:165,
-  d04VisualAdvanceMs:25,afterVisualToSubmissionMs:140,
+  d04VisualAdvanceMs:25,d04RetainedAdvanceMs:10,d04EffectEmissionMs:15,
+  afterVisualToSubmissionMs:140,
   beforeRendererMs:10,rendererMs:130};
  for(let i=0;i<b.samples.length;i++){
   const s=b.samples[i];
@@ -166,7 +168,8 @@ test('contradictory or future submission clocks never gain valid phase attributi
   s.recentSlowSubmissionPhases=[];
  });
  const valid={frameId:4,observedRafMs:16,advanceToSubmissionMs:150,
-  d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+  d04VisualAdvanceMs:20,d04RetainedAdvanceMs:20,d04EffectEmissionMs:0,
+  afterVisualToSubmissionMs:130,
   beforeRendererMs:null,rendererMs:null};
  b.samples[3].recentSlowSubmissionPhases=[valid,
   {...valid,frameId:5},
@@ -177,5 +180,31 @@ test('contradictory or future submission clocks never gain valid phase attributi
  assert.equal(e.worst.rendererMs,null);
  assert.equal(e.rejectedRecords,2);
  assert.equal(e.duplicateSamplesSuppressed,1);
+ assert.equal(e.sampleSynchronized,false);
+});
+
+test('slow-frame forensic collector rejects contradictory or missing D04 emission subdivisions',()=>{
+ const b=arm('d04');
+ b.samples.forEach((s,i)=>{
+  s.verifiedSubmissionPhaseFrames=i+1;
+  s.unverifiedSubmissionPhaseFrames=0;
+  s.slowSubmissionFrames=i>=3?1:0;
+  s.recentSlowSubmissionPhases=[];
+ });
+ const valid={frameId:4,observedRafMs:16,advanceToSubmissionMs:160,
+  d04VisualAdvanceMs:80,d04RetainedAdvanceMs:20,d04EffectEmissionMs:60,
+  afterVisualToSubmissionMs:80,beforeRendererMs:60,rendererMs:20};
+ b.samples[3].recentSlowSubmissionPhases=[valid,
+  {...valid,frameId:5,d04EffectEmissionMs:95},
+  {...valid,frameId:6,d04RetainedAdvanceMs:-1},
+  {...valid,frameId:7,d04EffectEmissionMs:undefined}];
+ const e=verdict(arm('legacy'),b).framePressure.preview.slowPhaseEvidence;
+ assert.equal(e.uniqueVerifiedSlowFrames,1,
+  'only the measured, same-frame 20ms aging plus 60ms emission may be attributed');
+ assert.equal(e.worst.d04RetainedAdvanceMs,20);
+ assert.equal(e.worst.d04EffectEmissionMs,60);
+ assert.equal(e.rejectedRecords,3,
+  'contradictory, negative and absent emission clocks cannot receive D04 attribution');
+ assert.equal(e.causedByD04,null);
  assert.equal(e.sampleSynchronized,false);
 });
