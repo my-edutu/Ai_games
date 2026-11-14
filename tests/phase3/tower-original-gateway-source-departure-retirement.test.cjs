@@ -60,5 +60,8 @@ test('retained original 3D roof and arch share a source-verified optical retirem
   assert.match(world,/const sourceDeparture=\!options\.stale\s*\?observedSourceGatewayDeparturePresence\(snapshot,held\):null/);
   assert.match(world,/sourceDeparture\?\.sourceBound/);
   assert.match(world,/originalGatePresence<=\.01/);
+  // Authentic disappearing geometry needs a returned all-transparent GPU frame.
+  assert.match(world,/held\.opticalExitSubmitted===true/);
+  assert.match(world,/held\.opticalExitSubmitted=held\.originalGatewayOpacity<=\.01/);
   assert.doesNotMatch(world,/if\s*\(held\.submittedFrames\s*>=\s*5\s*&&\s*held\.visibleSeconds\s*>=\s*RETAINED_CAP_SECONDS\)/);
 });
