@@ -38,3 +38,11 @@ This is an observed code-path defect, not proof that it caused all of the origin
 ## Next highest-impact action
 
 Inspect the fresh actual WebMs at 1× from this exact code, especially 22–31 seconds and all Floor9 onward/outcome/restart events, with compositor native PTS vs source event tick441/451 and returned WebGL old gateway opacity/submitted frames. Verify *full body through same old arch* and compare to frozen source films; reject cut or unpaired event. If still discontinuous, reopen P0 for unified physical geometry/camera/scene-construction timing rather than treating tests, alpha or source logs as a pass.
+
+## Returned-WebGL retirement correction on the same P0 slice
+
+- **`4aaccd3e70903333a8e5de3dcfd7be9d194cd087`**: a source update setting the original gate to zero alpha is NOT proof those pixels were submitted. The original group is now allowed to retire naturally only AFTER the actual `noteFrameSubmitted` callback has witnessed a fully transparent original gate, deck and gallery in a real source-matched returned Three.js frame. A stale snapshot/failed frame cannot mark this condition. The prior physical run/source/age/resource backstops remain in force.
+- **`db9dfda0327b2f0997a970007c1f62e799e19135`**: expanded tower-only regression contract for the returned all-transparent frame prerequisite. Latest exact-source quality workflow https://github.com/my-edutu/Ai_games/actions/runs/43538967502 was PENDING at documentation; no green claim.
+- The previous capture requested by `9c993ec238322d9534e8eb247a53b0c49514f607`, https://github.com/my-edutu/Ai_games/actions/runs/43538863899, is tied to the *earlier* old-gate retirement implementation and **cannot certify this correction**. A new immutable source capture request is mandatory after the final edit.
+
+This correction reduces a specific unrendered-disposal race; it does **not** prove native-video continuity, acceptance, outcome/restart, supported-device fps or independent quality.
