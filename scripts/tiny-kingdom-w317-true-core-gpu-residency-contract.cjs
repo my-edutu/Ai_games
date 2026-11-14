@@ -16,6 +16,7 @@ function exercise(hardware){
  const gpuCalls={created:0,uploads:0,deletes:0};
  let data=Array.from({length:300},(_,i)=>i/10);
  const env={
+  data,
   navigator:{deviceMemory:8},Float32Array,Map,Math,Number,
   civicGpuResidencyEnabled:hardware,gpuAvailable:hardware,
   gl:{ARRAY_BUFFER:34962,STATIC_DRAW:35044,
@@ -29,7 +30,7 @@ function exercise(hardware){
   packSpatialScenery:()=>{throw Error('should reuse linear packed original geometry')},
   releaseGeometryBuffer:()=>{gpuCalls.deletes++},
   stationaryFounders:()=> 'founders-stable',
-  appendCivicCachedVertices:mesh=>data.push(...mesh),
+  appendCivicCachedVertices:mesh=>env.data.push(...mesh),
   climateAt:()=>({season:0}),
   prepareResidentFarmFields:()=>true,
   farmFieldResidentSeason:0,farmFieldResidentDisabled:true,
@@ -41,9 +42,9 @@ function exercise(hardware){
  const evalCore=s=>vm.runInNewContext(s,env,{timeout:2500});
  assert.equal(evalCore('rememberCivicCore("spring",0)'),true);
  assert.equal(gpuCalls.created,hardware?1:0);
- data=[];
+ env.data=[];
  assert.equal(evalCore('recallCivicCore("spring")'),true);
- assert.equal(data.length,hardware?0:300,
+ assert.equal(env.data.length,hardware?0:300,
   'hardware must draw original stored core VBO; software must append every float');
  assert.equal(evalCore('recallCivicCore("spring")'),true);
  assert.equal(gpuCalls.uploads,hardware?1:0,
@@ -56,7 +57,7 @@ function exercise(hardware){
   assert.equal(audit.gpuTriangles,10);
  }
  // A new climate must retain a separately, genuinely seasonal GPU source.
- data=Array.from({length:300},(_,i)=>i/8);
+ env.data=Array.from({length:300},(_,i)=>i/8);
  assert.equal(evalCore('rememberCivicCore("autumn",0)'),true);
  assert.equal(gpuCalls.uploads,hardware?2:0);
  evalCore('clearCivicCoreCache()');
