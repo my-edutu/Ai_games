@@ -121,7 +121,7 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
       requests.push(request); return operation.promise;
     },
     createTowerScene(canvas, settings) {
-      const view = { options: { ...settings }, disposed: false, accepted: [], renderProgress,
+      const view = { options: { ...settings }, disposed: false, accepted: [], renderProgress, forensicDiagnosticsCalls: 0,
         accept(data) {
           assert.equal(this.disposed, false);
           this.accepted.push(data);
@@ -133,7 +133,9 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
         setCamera(value) { this.options.camera = value; }, setMotion(value) { this.options.reducedMotion = value; },
         setQuality(value) { this.options.quality = value; }, setStale(value) { this.stale = value; },
         dispose() { this.disposed = true; },
-        diagnostics() { return { renderer: 'controlled-webgl-boundary', contextLost: false, quality: this.options.quality, renderProgress: this.renderProgress }; },
+        // Ordinary HUD liveness and explicit engineering diagnostics are separate.
+        hudDiagnostics() { return { renderer: 'controlled-webgl-boundary', contextLost: false, quality: this.options.quality, renderProgress: this.renderProgress }; },
+        diagnostics() { this.forensicDiagnosticsCalls++; return { renderer: 'controlled-webgl-boundary', contextLost: false, quality: this.options.quality, renderProgress: this.renderProgress }; },
       };
       views.push(view); return view;
     },
@@ -143,6 +145,8 @@ function appHarness({ width = 1440, search = '', renderProgress = { state: 'curr
   globals.createTowerAudio = moduleFunction(context, 'visuals/audio.mjs', 'createTowerAudio');
   globals.createPresentedPhaseLatch = moduleFunction(context, 'visuals/presented-phase-latch.mjs', 'createPresentedPhaseLatch');
   globals.nextTowerStatePollDelay = moduleFunction(context, 'visuals/live-state-cadence.mjs', 'nextTowerStatePollDelay');
+  // Real shipped HUD observer, not a stub; exercise the same cheap status path.
+  globals.createTowerLiveHudDiagnostics = moduleFunction(context, 'visuals/live-hud-diagnostics.mjs', 'createTowerLiveHudDiagnostics');
   const makeHUD = moduleFunction(context, 'visuals/hud.mjs', 'createHUD');
   globals.createHUD = options => {
     const hud = makeHUD(options);
@@ -484,4 +488,18 @@ test('page destruction clears pending control feedback as well as network timers
   app.close();
   assert.equal(app.timers.size, 0);
   assert.equal(app.node('control-feedback').hidden, true);
+});
+
+
+test('ordinary source HUD, submitted frames and disconnected recovery avoid forensic scene traversal', async t => {
+  const app = appHarness(); t.after(() => app.close());
+  await app.respond(app.requests[0], publicFrame(60));
+  assert.equal(app.views[0].forensicDiagnosticsCalls, 0, 'regular source polling and returned 3D frames stay constant work');
+  assert.equal(app.node('provider-state').parentElement.dataset.kind, 'online');
+  app.fireTimer(100);
+  app.requests[1].reject(new Error('temporary connection loss')); await flush();
+  assert.equal(app.node('provider-state').parentElement.dataset.kind, 'degraded');
+  assert.equal(app.views[0].forensicDiagnosticsCalls, 0, 'recovery cannot invoke full scene traversal');
+  app.diagnostics();
+  assert.equal(app.views[0].forensicDiagnosticsCalls, 1, 'engineering endpoint retains complete forensic read');
 });

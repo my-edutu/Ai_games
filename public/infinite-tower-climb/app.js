@@ -124,7 +124,7 @@ async function poll() {
     view?.setStale(true);
     hud.status('Reconnecting to the expedition', 'degraded');
     hud.update({ ...(current || {}), scene: 'recovery' }, {
-      ...window.__TOWER_RENDER_DIAGNOSTICS__(),
+      ...createTowerLiveHudDiagnostics(view, audio, request, presentedPhase),
       recoveryMessage: 'The connection was interrupted. Reconnecting automatically.',
       recoveryKind: 'connection',
       sourceScene: current?.scene,
