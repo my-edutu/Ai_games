@@ -30,7 +30,7 @@ const firstKey=key(),initialSearches=routeCalls;
 assert.ok(initialSearches>=2,'initial original freight and household routes planned');
 assert.equal(key(),firstKey);
 assert.equal(routeCalls,initialSearches,'stable town has no route replanning');
-city.push([72,72,2]); // true built home, far from ALL existing roads
+city.push([-30,-20,2]); // plausible playable-world home, far from ALL routes
 assert.equal(key(),firstKey,'remote genuine home must not alter actual civic road mesh');
 assert.equal(routeCalls,initialSearches,
  'remote-only construction must skip all navigation rerouting and civic rebuild');
@@ -41,7 +41,7 @@ const changed=key();
 assert.notEqual(changed,firstKey,'near-route home must invalidate real civic road VBO');
 assert.ok(routeCalls>initialSearches,'actual route-dependent construction is replanned');
 const atNear=routeCalls;
-city[13]=[72,72,2]; // same-count relocation, must not silently keep civic cache
+city[13]=[-34,-20,2]; // same-count relocation within the playable valley
 assert.equal(key(),firstKey,'relocated genuine near-route obstacle invalidates');
 assert.ok(routeCalls>atNear,'relocation must examine routes rather than append-skip');
 city[0][0]+=1; // founding house moved by save/restore
