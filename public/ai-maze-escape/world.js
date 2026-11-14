@@ -601,55 +601,53 @@ export function createMazeWorld(options = {}) {
   // Never alter the authentic gate seam, collision authority, undisclosed
   // cells, or any other wall. All material and geometry are already pooled.
   function gateForecourtParapet(x, z, horizontal, cell, pressureStage = false, guardianStage = false) {
+    // A real guardian court receives the same solid LOW stone cutaway, with
+    // separate diagnostic accounting from pressure and gate architecture.
     const lowStage = pressureStage || guardianStage;
     if (guardianStage) guardianSightlineParapets++;
     else if (pressureStage) pressureStageParapets++;
     else gateForecourtParapets++;
-
-    // Pass360: the source-matched 390x844 *physical ray* hit the opaque
-    // 2.32m-long guardian wall on PUBLIC cell100, then one of its 0.40m
-    // terminal piers. The fencing and terminal piers at the foreground are actual
-    // geometry, not distant decoration. Rebuild the entire WITNESSED,
-    // mutually NONPASSABLE guardian screen as one rooted, low continuous
-    // mineral sill: the stone body remains solid all the way across the
-    // original boundary, but its redundant terminal piers no longer cut across Pip and Thornback.
-    // Preserve the established full solid masonry body, broad sea-glass
-    // cap and qualified dark face/crest: older strict wall tests matter.
-    // Caller already requires both PUBLIC endpoints, current reciprocity
-    // rejection, same level, no key/gate and genuine witnessed duel.
-    // No collision, navigation, pressure mechanism, map knowledge or
-    // camera target is inferred from this view; all shapes are pooled.
-    if (guardianStage) {
-      // Preserve existing full-width opaque 0.34m stone, original broad
-      // sea-glass cap and established face/crest contracts. Remove only
-      // the extra terminal pier FOREST proven to interrupt native sightlines.
-      // Original full-scale wall solidity and side-wall identity are intact.
-      block(darkJade, x, .17, z,
-        horizontal ? 2.32 : .39, .34, horizontal ? .39 : 2.32, cell);
-      add(box, seaGlass, x, .355, z,
-        horizontal ? 2.34 : .44, .075, horizontal ? .44 : 2.34, cell);
-      if (!pressureStage) {
-        add(box, darkMetal, x, .20, z,
-          horizontal ? 2.14 : .43, .22, horizontal ? .43 : 2.14, cell);
-        add(box, inlay, x, .325, z,
-          horizontal ? 2.08 : .08, .042, horizontal ? .08 : 2.08, cell);
-      }
-      return;
-    }
-    // Unrelated known gate and pressure wall geometry remains unchanged.
-    block(deepStone, x, .17, z,
+    // Pass332: the 390px photographed Pip/Thornback court still reads as a
+    // generic ivory maze because its nearby genuinely SEALED side walls use
+    // exactly the same bright cap as all unrelated passages. Build a broad,
+    // physically continuous DARK Tideglass bulwark only on the witnessed
+    // guardian stage; ordinary gates and real pressure walls stay unchanged.
+    // It remains opaque and impassable. No hidden cell, new route, collider,
+    // camera adjustment, resource class or per-frame mesh is introduced.
+    block(guardianStage ? darkJade : deepStone, x, .17, z,
       horizontal ? 2.32 : .39, .34, horizontal ? .39 : 2.32, cell);
-    add(box, lightStone, x, .355, z,
+    add(box, guardianStage ? seaGlass : lightStone, x, .355, z,
       horizontal ? 2.34 : .44, .075, horizontal ? .44 : 2.34, cell);
-    if (!lowStage) add(box, seaGlass, x, .410, z,
-      horizontal ? 2.06 : .19, .037, horizontal ? .19 : 2.06, cell);
+    // Pass337: original browser ray proved that the pressure-adjacent
+    // spectator edge needs its full opaque Tideglass wall and cap, NOT an
+    // additional overlaid broad face. The extra layer hid an actual
+    // published Pip-side stage course in the exact 390px brace and failed
+    // the unchanged source-bound visibility gate. On a pressure-adjacent
+    // edge keep dark masonry/cap and true connected moving hazard instead.
+    if (guardianStage && !pressureStage) {
+      // Large attached mineral facing and a restrained continuous crest:
+      // these share real parent stone, not a passage-shaped hole or HUD cue.
+      add(box, darkMetal, x, .20, z,
+        horizontal ? 2.14 : .43, .22, horizontal ? .43 : 2.14, cell);
+      add(box, inlay, x, .325, z,
+        horizontal ? 2.08 : .08, .042, horizontal ? .08 : 2.08, cell);
+    }
+    // The real pressure mechanism is the only moving center of this disclosed
+    // court. Keep the solid NONPASSAGE wall but remove its repetitive bright
+    // rail; ordinary disclosed gates retain their full architectural trim.
+    if (!lowStage) add(box, seaGlass, x, .410, z, horizontal ? 2.06 : .19, .037,
+      horizontal ? .19 : 2.06, cell);
     for (const side of [-1, 1]) {
       const px = x + (horizontal ? side * .99 : 0);
       const pz = z + (horizontal ? 0 : side * .99);
+      // A pressure-court parapet has short rooted terminal piers, rather than
+      // identical tall corner blocks repeated across Pip's hazard sightline.
+      // The low SOLID barrier remains visually closed; neither wall edge nor
+      // the real collision/navigation topology is changed.
       const pierHeight = lowStage ? .40 : .64;
-      block(stone, px, pierHeight / 2, pz,
+      block(guardianStage ? darkJade : stone, px, pierHeight / 2, pz,
         .24, pierHeight, .24, cell);
-      add(box, lightStone, px,
+      add(box, guardianStage ? inlay : lightStone, px,
         lowStage ? .43 : .66, pz, .28, .055, .28, cell);
     }
   }

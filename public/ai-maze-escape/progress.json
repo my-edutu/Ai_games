@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T14:01:00.000Z",
+  "updatedAt": "2026-11-14T14:12:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass360b production fix after 177/179 candidate tests: restored unchanged original full-scale dark guardian wall, sea-glass cap and attached face/crest required by strict Pass332/335 tests; only native-ray-confirmed terminal post forest removed. Corrected candidate's new exact-HEAD CI/WebGL, original 4-viewport screenshot SHA and independent critic remain pending. Nintendo benchmark unmet."
+    "summary": "Pass361 exact-SHA genuine 74077e73 WebGL/artifact accepted as authentic (39 full frames, 37/37 SHA, gate 3/3, pressure 6/6), but actual 390 same-seed side-by-side notice and brace show no substantial foreground/actor readability win. Reject cosmetic Pass360b wall/pier candidate and restore previous validated world and original strict guardian tests. New rollback SHA CI awaits verification. Nintendo benchmark UNMET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass361 2026-11-14: actual Pass360b corrected exact native CI SUCCESS 43602747994; 39 full WebGL PNG, 37/37 SHA, 3/3 gate and 6/6 pressure matched. Native 390 same-seed notice/brace unchanged artistically (mean RGB 0.523/2.049 of 255), and release camera timing not an improvement. REJECT and restore EXACT previous production world and original protected guardian test SHA, one parented no-force commit with review/ledger/progress. New rollback own CI pending. No Nintendo win.",
     "Pass360b 2026-11-14: first candidate exact-commit WebGL 43602401051 failed two EXISTING full-scale solid-wall contract tests (177/179 passed). Do NOT lower tests: restore original dark wall .34m height, .075 cap and dark attached face/crest; remove only tall terminal piers/caps at publicly observed guardian nonpassage. Still pending new source-matched visual acceptance.",
     "Pass360 2026-11-14: substantial physical guardian spectator boundary reconstruction: replace observed full-height side pier forest with connected opaque rooted Tideglass low sill on genuinely disclosed sealed guardian edges; other pressure/gate walls and public-knowledge AI/collision untouched. New Three regression verifies exact physical instances and original <100 six-reset budget. Baseline HEAD native ZIP 39 PNGs, 37/37 SHA sidecars checked; candidate native visual and CI pending, NOT a quality win.",
     "Pass359 2026-11-14: Authentic exact-HEAD 000f4244 WebGL 43597755797 successful, 39 original full-frame PNGs, 37/37 paired SHA-256 and 3/3 gate transition verified; direct source-matched Pass357 versus Pass358 notice/brace/release rejects near-identical crowded Pip-Thornback encounter. Restore source-only original world/test blobs (no threshold changes), document rejection in same commit; new rollback SHA CI pending, no Nintendo/independent win.",
@@ -293,6 +294,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass361 next meaningful unit is real entire foreground guardian stage rebuilding/composition, not another pier or ornament microfix. Need full-frame exact-source before/after 320/390/844/1280 and true Pip/Thornback danger + gate/key story, no hidden routes, strict camera/floor/audio/UI/reduced-motion/resource gates, fresh independent source critic when tunnel available.",
     "Pass360 quality gate: inspect true exact-commit 390×844 guardian notice/brace/release with 320×740, 844×390, 1280×900; verify no-crop ±.95 and guardian retreat, navigation truth, 44px controls, six-reset resource budget. Use native source-verified before/after against fixed official Nintendo screenshot; revert if no significant full-frame composition gain. Independent critic unavailable until coding tunnel reconnects.",
     "Pass358c corrected source: require own exact-HEAD 179 focused tests + 7 native WebGL suites + original strict six-run <100 budget, exact-SHA 320/390/844/1280 full-frame source-captured hashes and before/after; disallow a false below-floor shell or weak perceived actor-stage win.",
     "Pass358: inspect exact-new-HEAD original 320/390/844/1280 dated unmodified WebGL PNGs and SHA hashes, compare notice/brace/release against genuine Pass357 original, retain only if large guardian mechanisms physically and convincingly emerge/withdraw without hiding real sealed geometry or losing complete Pip/Thornback; independent Nintendo critic when available.",
@@ -347,6 +349,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass361 independent-source-bound visual rejection of guardian pier experiment",
+      "reviewer": "Lead genuine uncropped WebGL screenshots, hashes and fixed-reference critique; detached fresh independent artist unavailable",
+      "verdict": "REJECTED: corrected Pass360b physically tested but still no substantial visual/gameplay win",
+      "date": "2026-11-14T14:12:00.000Z",
+      "summary": "Exactly SHA-matched 39 original PNGs from successful corrected workflow; 37/37 sidecars, 3 gate hashes, 6 pressure hashes. Direct original full-frame 390 notice/brace remains overwhelmingly crowded, average RGB 0.523/2.049/255. Restore original world and tests without lowering gates."
+    },
     {
       "title": "Pass360 ray-authored solid guardian stage sill candidate",
       "reviewer": "Lead original exact-HEAD public ray/screenshot inspection; fresh independent critic unavailable",
@@ -969,6 +978,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass361 native Pass360b screenshot authentic but artistic rejection",
+      "status": "Corrected source native 43602747994 SUCCESS; original source rollback new exact-CI PENDING",
+      "detail": "37/37 screenshot SHA, 3/3 gate, 6/6 pressure, four full viewport sizes; original 390 comparison no composition improvement. Keep exact original geometry resources and gameplay authority, no false success; separate agent unavailable."
+    },
     {
       "name": "Pass360b preserve pre-existing Pass332/335 full-scale wall contracts",
       "status": "New corrected commit CI and native WebGL evidence PENDING",
