@@ -225,6 +225,17 @@ export function observedRecordedGuardianAirborneHandoff(next) {
   if (!previous) return null;
   const ground=next.platforms.find(x=>x.id==='f9:ground');
   const roof=ground.y+ground.height,feet=p.y-p.halfHeight;
+  // Original 1x desktop danger film (candidate 8fdfc848, source tick481)
+  // first returned its true successor camera SIX fixed ticks after the
+  // immutable tick475 guardian crossing. The genuine jumping boots had
+  // risen 64.8m above that SAME old roof: the former 55m presentation gate
+  // rejected the authentic old gateway even though portrait at tick477
+  // retained it. Admit the source's real early vertical ascent, bounded to
+  // 90m and an observed <=14m rise per elapsed 50ms source tick. Never
+  // extrapolate an unobserved frame, relax exact cap/HP0 proof, or extend
+  // the 12-tick lifetime for a stale/other-run door.
+  const elapsedTicks=next.tick-w.sourceTick;
+  const sourceReachableRise=Math.min(90000,elapsedTicks*14000);
   if (p.halfWidth!==w.halfWidth || p.halfHeight!==w.halfHeight ||
       p.x<w.crossingX ||
       p.x-w.crossingX>(next.tick-w.sourceTick)*18000 ||
@@ -232,7 +243,7 @@ export function observedRecordedGuardianAirborneHandoff(next) {
       p.x-p.halfWidth<ground.x ||
       p.x+p.halfWidth>ground.x+ground.width ||
       !Number.isSafeInteger(feet) ||
-      feet<roof-2500 || feet>roof+55000) return null;
+      feet<roof-2500 || feet>roof+sourceReachableRise) return null;
   return previous;
 }
 
