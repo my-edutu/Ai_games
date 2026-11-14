@@ -17,6 +17,7 @@ for(const [from,to] of Object.entries({
   "'./coordinates.mjs'":uri('coordinates.mjs'),
   "'./guardian-passage.mjs'":uri('guardian-passage.mjs'),
   "'./crossfloor-arrival.mjs'":uri('crossfloor-arrival.mjs'),
+  "'./original-clockwork-architecture-palette.mjs'":uri('original-clockwork-architecture-palette.mjs'),
   "'./source-physical-arrival-palette.mjs'":uri('source-physical-arrival-palette.mjs'),
   "'./world-surface.mjs'":uri('world-surface.mjs'),
   "'./scene-hierarchy.mjs'":uri('scene-hierarchy.mjs'),
