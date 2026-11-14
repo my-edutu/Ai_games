@@ -18,7 +18,12 @@ export function observedQueuedOriginalCapFromGroundedReceipt(source,queued) {
     source.lifecycle!=='running' || source.floor!==9 || source.theme!=='void' ||
     source.runToken!==queued.runToken || queued.floor!==9 ||
     !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(queued.tick) ||
-    source.tick<=queued.tick || source.tick-queued.tick>12 ||
+    // A FIRST real Floor9 WebGL build may return on the exact browser
+    // receipt that already proved the defeated original guardian, physical
+    // old-cap support and same-run grounded seam. Requiring a future tick
+    // discarded the actual gateway before the compositor painted it.
+    // The full source/cap/body checks below still veto any false floor win.
+    source.tick<queued.tick || source.tick-queued.tick>12 ||
     source.chunkBaseY!==queued.nextBaseY ||
     source.worldWidth!==queued.worldWidth ||
     !Number.isSafeInteger(queued.oldCapX) ||
@@ -66,6 +71,9 @@ export function observedStagedOriginalCapBeforeRecordedCrossing(source,held) {
   return held?.guardianGateRetained === true &&
     held?.verifiedObservedFloorAdvance === true &&
     held?.crossingTick == null &&
+    // The existing GPU-owner may bridge only its SAME original already
+    // witnessed Floor9 packet, never a later source with a borrowed tick.
+    held?.sourceTick === held?.tick &&
     Number.isSafeInteger(held.submittedFrames) &&
     held.submittedFrames >= 0 && held.submittedFrames <= 8 &&
     Number.isFinite(held.visibleSeconds) &&
