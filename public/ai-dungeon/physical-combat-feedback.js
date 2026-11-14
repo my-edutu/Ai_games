@@ -399,9 +399,11 @@ export function createPhysicalCombatFeedback({
   recordedVisualAdvanceSerial=visualAdvanceSerial;
   const phaseVerified=freshAdvance&&submittedWallClock!==null&&
    Number.isFinite(lastVisualAdvanceStartClock)&&
+   Number.isFinite(lastVisualAdvanceEndClock)&&
    Number.isFinite(lastFullVisualAdvanceEndClock)&&
    lastVisualAdvanceStartClock>=0&&
-   lastFullVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
+   lastVisualAdvanceEndClock>=lastVisualAdvanceStartClock&&
+   lastFullVisualAdvanceEndClock>=lastVisualAdvanceEndClock&&
    submittedWallClock>=lastFullVisualAdvanceEndClock;
   if(!phaseVerified){
    unverifiedSubmissionPhaseFrames++;
@@ -420,8 +422,15 @@ export function createPhysicalCombatFeedback({
       lastObservedActualFrameSeconds>0?
       Math.round(lastObservedActualFrameSeconds*1000):null,
      advanceToSubmissionMs:Math.round(advanceToSubmission*1000),
+     // Backward-compatible D04-total plus two bounded subdivisions.
+     // The same already-sampled frame clocks separate pooled VFX aging
+     // from NEW cue emission. Neither measures GPU completion or audio PCM.
      d04VisualAdvanceMs:Math.round((lastFullVisualAdvanceEndClock-
       lastVisualAdvanceStartClock)*1000),
+     d04RetainedAdvanceMs:Math.round((lastVisualAdvanceEndClock-
+      lastVisualAdvanceStartClock)*1000),
+     d04EffectEmissionMs:Math.round((lastFullVisualAdvanceEndClock-
+      lastVisualAdvanceEndClock)*1000),
      afterVisualToSubmissionMs:Math.round(afterVisual*1000),
      // Residual main-thread work before renderer.render() is not necessarily
      // D04 code. A contradictory render interval has an UNKNOWN breakdown.
