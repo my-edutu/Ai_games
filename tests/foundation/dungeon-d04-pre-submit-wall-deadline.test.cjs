@@ -209,3 +209,52 @@ test('a missing or nonmonotonic D04 visual-work sample cannot fabricate phase at
   assert.equal(receipt.sampleSynchronized,false);
  }finally{d.dispose()}
 });
+
+test('a submitted HP impact cannot poison NEXT ordinary frame slow-WebGL phase accounting',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const played=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   emit(){return true},
+   advance(){now+=.012},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}
+  },
+  audioAdapter:{
+   enable(){return true},emit(cue){played.push(cue.kind);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}
+  }
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));
+  d.acceptSnapshot(snapshot(11,20));
+  d.advance(.016,.016); // First actual HP cue records a shared POST-emission clock.
+  now+=.018;
+  assert.equal(d.acknowledgePresentedFrame(1,.010),1);
+  assert.deepEqual(played,['damage']);
+  // A later genuine frame contains no newly admitted HP effects. Its visual
+  // phase end must come from THIS advance, not the old HP-emission clock.
+  now+=.030;
+  d.advance(.016,.016);
+  now+=.240; // 240ms of work AFTER the 12ms D04 visual pass.
+  assert.equal(d.acknowledgePresentedFrame(2,.022),0);
+  const stats=d.stats();
+  assert.equal(stats.framesAcknowledged,2);
+  assert.equal(stats.verifiedSubmissionPhaseFrames,2,
+   'an old HP cue cannot make a fresh measured WebGL phase unverified');
+  assert.equal(stats.unverifiedSubmissionPhaseFrames,0);
+  assert.equal(stats.slowSubmissionFrames,1);
+  const phase=stats.recentSlowSubmissionPhases.at(-1);
+  assert.equal(phase.frameId,2);
+  assert.equal(phase.advanceToSubmissionMs,252);
+  assert.equal(phase.d04VisualAdvanceMs,12);
+  assert.equal(phase.afterVisualToSubmissionMs,240);
+  assert.equal(phase.beforeRendererMs,218);
+  assert.equal(phase.rendererMs,22);
+  assert.deepEqual(played,['damage'],
+   'diagnosing a subsequent stall must never replay old impact audio');
+ }finally{d.dispose()}
+});
