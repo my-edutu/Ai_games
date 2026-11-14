@@ -283,6 +283,18 @@ export function createPhysicalCombatFeedback({
    played++;
    return;
   }
+  // A real public unmatched arrow/spell is attempt-only. With no flight
+  // mesh it still needs a CURRENT, unique, visible firing/casting body to
+  // authorize dry audio; a cancelled action or unloaded emitter is silent.
+  // Read-only proof allocates no VFX and cannot certify target contact.
+  if(requirePresentedFrame&&!visual&&
+     (cue.kind==='ranged-unmatched'||cue.kind==='cast-unmatched')&&
+     safeCall(()=>visuals?.hasAuthenticatedSourceOnlyAction?.(cue))!==true){
+   staleAudioDropped++;
+   retainReceipt(cue,false,false,null,'unverified-source-only-action');
+   played++;
+   return;
+  }
   // The integrator can require evidence of a real renderer submission before
   // launching a combat transient. No guessing a frame from a time delay.
   if(requirePresentedFrame&&(soundEligible||visual)){
@@ -577,6 +589,16 @@ export function createPhysicalCombatFeedback({
        safeCall(()=>visuals.hasAuthenticatedSwingAction(item.cue))!==true){
      staleAudioDropped++;
      retainReceipt(item.cue,false,false,frameId,'revoked-reduced-swing-action',submittedWallClock);
+     continue;
+    }
+    // The performer may disappear or change action BETWEEN VFX admission
+    // and actual WebGL submission. Revalidate even a dry, undrawn attempt;
+    // an accepted public event alone is not a physical source on this frame.
+    if((item.cue.kind==='ranged-unmatched'||item.cue.kind==='cast-unmatched')&&
+       safeCall(()=>visuals?.hasAuthenticatedSourceOnlyAction?.(item.cue))!==true){
+     staleAudioDropped++;
+     retainReceipt(item.cue,false,false,frameId,
+      'revoked-source-only-action',submittedWallClock);
      continue;
     }
     const release=item.cue.kind==='ranged-release'||item.cue.kind==='spell-release';
