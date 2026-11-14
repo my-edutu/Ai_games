@@ -116,27 +116,37 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   // This is a real WebGL camera-frame condition, not an invented production.
   expect(live.actualComposition?.foregroundActorCoreCover).toBeDefined();
   expect(live.actualComposition.foregroundActorCoreCover).toBeLessThan(.28);
-  // W311b RED: the actual W310 390px screenshot placed the Supply ribbon
-  // DIRECTLY on top of the real builder's shift caption. Both controls must
-  // remain readable, keyboard accessible and physically non-overlapping.
-  // This tests the actual rendered CSS rectangles, not a selector string.
+  // W312: test the ACTUAL activity caption used by the real workday
+  // director, not the tap-to-inspect caption (intentionally hidden here).
+  // The W311 mobile film proves the Supply button covered the visible shift.
+  // Write the raw browser rectangles BEFORE asserting so failures retain
+  // actionable evidence rather than a pass/fail bit without coordinates.
   if(size.width===390){
    const mobileCaptionViewport=await page.evaluate(()=>{
-    const label=document.getElementById('citizen-pick-caption'),
+    const label=document.getElementById('workday-activity'),
      supply=document.getElementById('world-ribbon'),
-     a=label.getBoundingClientRect(),b=supply.getBoundingClientRect();
-    return {labelVisible:getComputedStyle(label).display!=='none',
-     supplyVisible:getComputedStyle(supply).display!=='none',
+     supplyButton=document.getElementById('world-trace-toggle'),
+     a=label.getBoundingClientRect(),b=supply.getBoundingClientRect(),
+     c=supplyButton.getBoundingClientRect();
+    return {labelVisible:getComputedStyle(label).display!=='none'&&a.height>0,
+     supplyVisible:getComputedStyle(supply).display!=='none'&&b.height>0,
+     buttonVisible:getComputedStyle(supplyButton).display!=='none'&&c.height>0,
      workday:document.body.dataset.workday,
      citizenInspect:document.body.dataset.citizenInspect,
-     captionTop:a.top,supplyBottom:b.bottom,
-     gap:a.top-b.bottom};
+     captionTop:a.top,supplyBottom:b.bottom,gap:a.top-b.bottom,
+     buttonHeight:c.height,buttonWidth:c.width,
+     buttonInViewport:c.left>=0&&c.right<=innerWidth&&c.top>=0&&c.bottom<=innerHeight,
+     viewport:{width:innerWidth,height:innerHeight}};
    });
-   expect(mobileCaptionViewport.labelVisible).toBe(true);
-   expect(mobileCaptionViewport.supplyVisible).toBe(true);
-   expect(mobileCaptionViewport.gap).toBeGreaterThanOrEqual(8);
    fs.writeFileSync(out+'/390-real-workday-hud.json',
     JSON.stringify(mobileCaptionViewport,null,2));
+   expect(mobileCaptionViewport.workday).toBe('live');
+   expect(mobileCaptionViewport.labelVisible).toBe(true);
+   expect(mobileCaptionViewport.supplyVisible).toBe(true);
+   expect(mobileCaptionViewport.buttonVisible).toBe(true);
+   expect(mobileCaptionViewport.buttonHeight).toBeGreaterThanOrEqual(44);
+   expect(mobileCaptionViewport.buttonInViewport).toBe(true);
+   expect(mobileCaptionViewport.gap).toBeGreaterThanOrEqual(8);
   }
   expect(live.actualComposition?.handBlockers).toBeLessThanOrEqual(2);
   fs.writeFileSync(out+'/'+size.width+'-real-workday.json',JSON.stringify({documentary,live},null,2));
