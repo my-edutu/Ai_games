@@ -116,6 +116,28 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   // This is a real WebGL camera-frame condition, not an invented production.
   expect(live.actualComposition?.foregroundActorCoreCover).toBeDefined();
   expect(live.actualComposition.foregroundActorCoreCover).toBeLessThan(.28);
+  // W311b RED: the actual W310 390px screenshot placed the Supply ribbon
+  // DIRECTLY on top of the real builder's shift caption. Both controls must
+  // remain readable, keyboard accessible and physically non-overlapping.
+  // This tests the actual rendered CSS rectangles, not a selector string.
+  if(size.width===390){
+   const mobileCaptionViewport=await page.evaluate(()=>{
+    const label=document.getElementById('citizen-pick-caption'),
+     supply=document.getElementById('world-ribbon'),
+     a=label.getBoundingClientRect(),b=supply.getBoundingClientRect();
+    return {labelVisible:getComputedStyle(label).display!=='none',
+     supplyVisible:getComputedStyle(supply).display!=='none',
+     workday:document.body.dataset.workday,
+     citizenInspect:document.body.dataset.citizenInspect,
+     captionTop:a.top,supplyBottom:b.bottom,
+     gap:a.top-b.bottom};
+   });
+   expect(mobileCaptionViewport.labelVisible).toBe(true);
+   expect(mobileCaptionViewport.supplyVisible).toBe(true);
+   expect(mobileCaptionViewport.gap).toBeGreaterThanOrEqual(8);
+   fs.writeFileSync(out+'/390-real-workday-hud.json',
+    JSON.stringify(mobileCaptionViewport,null,2));
+  }
   expect(live.actualComposition?.handBlockers).toBeLessThanOrEqual(2);
   fs.writeFileSync(out+'/'+size.width+'-real-workday.json',JSON.stringify({documentary,live},null,2));
   await page.screenshot({path:out+'/'+size.width+'-real-workday.png'});
