@@ -1574,7 +1574,13 @@ export function createMazeWorld(options = {}) {
               signal.add(foot);
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
-              const lift=new THREE.Group();lift.position.y=.04;foot.add(lift);
+              // The four real guardian-side shell standards are RETRACTABLE hardware,
+              // not permanently tall scenery. At rest their linked full-body
+              // ceramic frames descend into the existing solid court plinths;
+              // only the witnessed brace lifts them above Pip and Thornback.
+              // Their previous full brace height, hinge roots and free aisle
+              // stay untouched, and there is no new collider, GPU class or AI cue.
+              const lift=new THREE.Group();lift.position.y=-.78;foot.add(lift);
               const pillar=mesh(lift,bevel,lightStone,0,.35,0,.20,.60,.20);
               pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
               const crown=mesh(lift,bevel,seaGlass,0,.72,0,.39,.18,.37);
@@ -3556,7 +3562,12 @@ export function createMazeWorld(options = {}) {
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
-        beacon.lift.position.y=reduced ? .04 : .04+action*.42;
+        // Two distinct physical heights: a low, receded shell silhouette
+        // during notice/withdrawal versus the SAME original high brace top.
+        // Full 1.24m captive lift travel is earned only by the current PUBLIC
+        // reciprocal guardian beat; hidden/ended/retreated state returns to
+        // subfloor rest. Static reduced motion preserves its old .04 pose.
+        beacon.lift.position.y=reduced ? .04 : -.78+action*1.24;
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
