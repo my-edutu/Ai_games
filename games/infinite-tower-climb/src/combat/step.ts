@@ -57,7 +57,19 @@ function guardianContactDamage(state:TowerState,enemy:TowerEnemy){
     ?Math.max(1,enemy.damage-1):enemy.damage;
 }
 function damagePlayer(state:TowerState,amount:number,source:string,events:Omit<TowerEvent,'seq'>[]){const p=state.player;if(p.invulnerableTicks>0)return;if(p.shieldCharges>0){p.shieldCharges--;p.invulnerableTicks=10;events.push({tick:state.tick,type:'shield-block',data:{source,remaining:p.shieldCharges}});return}p.health=Math.max(0,p.health-amount);p.invulnerableTicks=20;p.state='hurt';state.stats.damageTaken+=amount;events.push({tick:state.tick,type:'player-damage',data:{source,amount,health:p.health}})}
-function defeat(state:TowerState,enemy:TowerEnemy,events:Omit<TowerEvent,'seq'>[]){if(!enemy.active)return;enemy.active=false;state.stats.enemiesDefeated++;if(enemy.kind==='guardian')state.stats.guardiansDefeated++;const points=Math.floor((enemy.kind==='guardian'?100:20)*state.build.scoreMultiplierPermille/1000);state.player.score+=points;state.meaningfulEventTick=state.tick;events.push({tick:state.tick,type:'enemy-defeated',data:{id:enemy.id,kind:enemy.kind,points}})}
+function defeat(state:TowerState,enemy:TowerEnemy,events:Omit<TowerEvent,'seq'>[]){if(!enemy.active)return;enemy.active=false;state.stats.enemiesDefeated++;if(enemy.kind==='guardian'){
+  state.stats.guardiansDefeated++;
+  // The real defeated-guardian event, never a renderer clock, starts the
+  // physical winch release. Unflagged historic expeditions are unchanged.
+  const releaseTicks=state.config.guardianGateActuationTicks??0;
+  if(state.config.guardianArenaHazards===true&&
+     state.config.guardianSecondWind===true&&releaseTicks>0){
+    state.guardianGateActuation={floor:state.floor,guardianId:enemy.id,
+      defeatTick:state.tick,openAtTick:state.tick+releaseTicks};
+    events.push({tick:state.tick,type:'guardian-gate-actuation-started',
+      data:{floor:state.floor,guardianId:enemy.id,openAtTick:state.tick+releaseTicks}});
+  }
+}const points=Math.floor((enemy.kind==='guardian'?100:20)*state.build.scoreMultiplierPermille/1000);state.player.score+=points;state.meaningfulEventTick=state.tick;events.push({tick:state.tick,type:'enemy-defeated',data:{id:enemy.id,kind:enemy.kind,points}})}
 function spawnProjectile(state:TowerState,owner:'player'|'enemy',sourceId:string,position:{x:number;y:number},facing:-1|1,damage:number,events:Omit<TowerEvent,'seq'>[]){if(state.projectiles.filter(p=>p.active).length>=state.config.maxProjectiles)return;const id=`${sourceId}:projectile:${state.tick}:${state.stats.projectilesFired}`;state.projectiles.push({id,owner,floor:state.floor,position:{...position},velocity:{x:facing*state.config.projectileSpeed,y:0},halfWidth:5000,halfHeight:3500,damage,ttl:80,active:true,hitIds:[]});state.stats.projectilesFired++;events.push({tick:state.tick,type:'projectile-fired',data:{id,owner,sourceId}})}
 export function stepTowerCombat(input:TowerState,action:TowerAction,rng:NamedRng){const state=structuredClone(input),events:Omit<TowerEvent,'seq'>[]=[];const p=state.player;if(p.attackCooldown>0)p.attackCooldown--;if(p.abilityCooldown>0)p.abilityCooldown--;
   if(action.attack&&p.attackCooldown===0){p.attackCooldown=state.config.attackCooldownTicks;const reach=state.config.attackReach+state.build.attackReachBonus,candidates=state.enemies.filter(e=>e.active&&e.floor===state.floor&&Math.abs(e.position.y-p.position.y)<=p.halfHeight+e.halfHeight+10000&&((p.facing>0&&e.position.x>=p.position.x)||(p.facing<0&&e.position.x<=p.position.x))&&Math.abs(e.position.x-p.position.x)<=reach).sort((a,b)=>Math.abs(a.position.x-p.position.x)-Math.abs(b.position.x-p.position.x)||a.id.localeCompare(b.id));const enemy=candidates[0];if(enemy){// The existing 14-tick physical armor break is now a meaningful punish
