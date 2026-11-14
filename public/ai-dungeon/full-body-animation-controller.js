@@ -40,6 +40,66 @@ export const FULL_BODY_ANIMATION_MODES=MODES;
  * Source bind lengths and animated quaternion-track axes must be proved by
  * the caller. This never emits contact, shifts a root, or modifies authority.
  */
+/**
+ * Original-GLB two-stage paired source-leg search. The renderer has only
+ * FOUR actual skinned dual-shoe reads per frame. Test +/- starter arcs, then
+ * spend the two remaining reads around the sign that really raises the
+ * buried original toe without displacing the opposite weighted shoe.
+ *
+ * Not IK, no invented plant, and no acceptance: the independent final
+ * chooseOriginalSourceSwingLinkedLegTrial must still certify both shoes.
+ * Return null on ambiguous/unsafe samples; renderer retains symmetric probes.
+ */
+export function planOriginalSourceSwingLinkedLegFollowups({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false,
+ floorTopY=NaN,frameInterval=NaN,side='',before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||!finite(sourceWeight)||
+  sourceWeight<.92||sourceWeight>1.001||sourceInstanceSame!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.24||
+  !['left','right'].includes(side)||!Array.isArray(trials)||
+  trials.length!==2)return null;
+ const other=side==='left'?'right':'left';
+ const valid=shoe=>shoe&&[shoe.heelY,shoe.toeY].every(finite)&&
+  [shoe.heelXZ,shoe.toeXZ].every(v=>
+   Array.isArray(v)&&v.length===2&&v.every(finite));
+ const original=before?.[side],loaded=before?.[other];
+ if(!valid(original)||!valid(loaded)||
+  original.heelY-floorTopY<.10||original.heelY-floorTopY>.34||
+  floorTopY-original.toeY<.025||floorTopY-original.toeY>.12||
+  ![loaded.heelY,loaded.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ let best=null;
+ for(const t of trials){
+  const o=t?.after?.[other],shoe=t?.after?.[side];
+  if(![t?.upperRad,t?.lowerRad].every(finite)||
+   Math.sign(t.upperRad)===Math.sign(t.lowerRad)||
+   !valid(shoe)||!valid(o))continue;
+  const lift=shoe.toeY-original.toeY;
+  if(lift<.003||lift>.055||shoe.toeY>floorTopY+.05||
+   Math.abs(shoe.heelY-original.heelY)>.035||
+   shoe.heelY-floorTopY<.08||shoe.heelY-floorTopY>.35||
+   drift(shoe.heelXZ,original.heelXZ)>.07||
+   drift(shoe.toeXZ,original.toeXZ)>.07||
+   Math.abs(o.heelY-loaded.heelY)>.003||
+   Math.abs(o.toeY-loaded.toeY)>.003||
+   drift(o.heelXZ,loaded.heelXZ)>.004||
+   drift(o.toeXZ,loaded.toeXZ)>.004)continue;
+  if(best===null||lift>best.lift)best={sign:Math.sign(t.upperRad),lift};
+ }
+ if(!best)return null;
+ const slow=frameInterval>=.05&&sourceWeight>=.95;
+ const arcs=slow?[[.14,-.105],[.145,-.11]]:
+  [[.11,-.09],[.115,-.095]];
+ return arcs.map(a=>a.map(angle=>angle*best.sign));
+}
+
 export function chooseOriginalSourceSwingLinkedLegTrial({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
