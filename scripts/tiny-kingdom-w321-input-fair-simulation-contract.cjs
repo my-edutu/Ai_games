@@ -41,7 +41,7 @@ ctx.dragging=true;count=0;clock=0;
 const during=ctx.drainRenderTickBacklogTimeboxed(step*50,()=>{count++;clock+=3},64,ctx.interactiveSimulationBudget(),()=>clock);
 assert.equal(during.executed,2,'camera gesture yields rather than consuming full 16ms');
 assert.ok(during.remaining>gesture.remaining,'unused debt retained for later completion');
-assert.match(script,/const softwareInteractive=\(swiftGpu\|\|!gpuAvailable\)&&softwareCameraGestureActive\(\)/);
+assert.match(script,/const softwareInteractive=cooperativeSoftware&&softwareCameraGestureActive\(\)/);
 assert.match(script,/SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS/);
 assert.match(script,/const inputPriority=softwareCameraGestureActive\(\)/);
 assert.match(script,/const cooperativeSoftware=swiftGpu\|\|!gpuAvailable/);
