@@ -17,13 +17,32 @@ assert(planStart>0&&stallStart>planStart&&volumeStart>stallStart&&volumeEnd>volu
 const stalls=[
  {x:-5.4,z:2.25,face:1},{x:4.45,z:2.95,face:1},
  {x:4.30,z:8.50,face:-1},{x:-5.75,z:8.70,face:-1}];
+const emittedOriginalMarketQuads=[];
 const context={MARKET_STALLS:stalls,terrain:()=>0,
+ marketQuarterStats:{openRearScreenPanels:0,openRearScreenGaps:0},
+ quad:(a,b,c,d,col)=>{
+  assert([a,b,c,d].every(p=>p.length===3&&p.every(Number.isFinite)));
+  assert(Array.isArray(col)&&col.length===3&&col.every(Number.isFinite));
+  const cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  assert(Math.abs(cross)>0,'no zero-area original wood infill');
+  emittedOriginalMarketQuads.push([a,b,c,d]);
+ },
  marketStallProfile:i=>({structural:i<2,eave:[4.20,3.98,3.25,3.04][i]})};
 vm.runInNewContext(html.slice(planStart,stallStart)+
  html.slice(volumeStart,volumeEnd),context,{timeout:1500});
 const all=context.physicalStreetLevelStallVolumes();
 assert.equal(all.length,38,'4 existing shops: 8 original counters, 20 truthful narrow slats, 6 loft returns and 4 signs');
 const slats=all.filter(x=>x.kind==='market-stall-screen');
+for(const stall of stalls){
+ const before=emittedOriginalMarketQuads.length;
+ context.renderOpenRearTradeScreen(stall,[.46,.34,.23],[.73,.61,.46]);
+ assert.equal(emittedOriginalMarketQuads.length-before,10,
+  'each of the 5 original oak boards must really emit BOTH faces');
+}
+assert.equal(context.marketQuarterStats.openRearScreenPanels,20);
+assert.equal(context.marketQuarterStats.openRearScreenGaps,8);
+assert.equal(emittedOriginalMarketQuads.length*2,80,
+ 'twenty original narrow boards x two faces x 2 triangles, no discarded geometry');
 assert.equal(slats.length,20,'five actual thin wood rails/posts per original market booth');
 for(const stall of stalls){
  const rows=context.originalMarketOpenRearScreenPlan(stall);
