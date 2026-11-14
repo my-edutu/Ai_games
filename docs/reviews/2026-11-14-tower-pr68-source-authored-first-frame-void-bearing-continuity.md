@@ -1,0 +1,19 @@
+# Tower PR68 P0 — original first-frame Floor 9 bearing architecture
+
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH OPEN. **Transformation verdict: NOT EVALUATED.**
+
+**Source inspected:** PR68 original branch head `38b2b195add053bac14aeaec802fda865125163c`; PR58 active base frozen `1731b380851162741761c5569e2bc152a0869ca9`. PR68 OPEN and DRAFT. Baseline `1731b380851162741761c5569e2bc152a0869ca9` must never move.
+
+**Authentic evidence / dominant failure:** Last completed nine-job immutable baseline/candidate capture [#43567288087](https://github.com/my-edutu/Ai_games/actions/runs/43567288087) has eight original >=60-second normal-speed videos but 0/2 strict native F8→9 doorway acceptance. Candidate desktop visually cuts around 25.25–25.5s, portrait around 24.5–24.75s. The legitimate boss defeat and source floor progression do not yield one uninterrupted visible full-body bronze arch crossing. Previous original-file notes are in the [architectural palette review](2026-11-14-tower-pr68-original-bronze-to-void-architectural-acclimatization.md).
+
+**Systemic source defect fixed in this increment:** A source-authenticated cold F9 rebuild deferred ALL `buildTower()` architecture, not only distant/cosmetic layers. `holdIncomingStructuralShell` expressly prevented the successor shaft from even being constructed while the original bronze gate was visible. Accordingly, no physically stable F9 load-bearing depth could share the first original-gateway frame, and one large architecture replacement followed later. Matching colors alone cannot repair missing first-frame geometry.
+
+**Production implementation:** Refactored the already-authored Void open core and exterior bearing buttress into reusable original geometry builders. On the existing genuine same-run defeated-guardian F8→9 low-graphics continuation ONLY, include the original Void inner load path and the nearest of the two existing exterior buttresses in the first live F9 playable 3D scene. Keep the SAME original bronze GPU gateway, playable ground, actor and obstacles. Independently batch the early load-bearing frame with bounded materials; skip exactly those already built parts when the remaining noninteractive massive tower shell is later assembled. No duplicate core/buttress, invented portal/bridge, model source, collision, victory, camera transition or changed source simulation. Other floors, future runs and unearned F9 startups use normal complete architecture.
+
+**Rejection criteria:** Actual original 960x600 and 390x844 1x normal-speed source-matched videos must show the *same* gateway/hero/cap and stable adjacent F9 depth in one shot, plus onward F9 and authentic outcome/restart; a source/Three fixture pass is NOT quality acceptance. Check first F9 upload frame budget and actual device frame-time/memory before stage promotion.
+
+**New regression scope:** Real Three.js first-frame architectural geometry, original gateway identity, bounded early batch, no doubled core on genuine source-departure deferred build, zero synthetic old-frame creation for unearned successor. The previous eight original films are NOT footage of this new code. No independent randomized blind critics: LOOKS 0/5 · FEELS 0/5 · PLAYS 0/5. Real supported-device p50/p95/p99 and memory: NOT EVALUATED.
+
+**Verification at commit preparation:** Focused Node integration suite, exact-head CI and new original gameplay capture are NOT YET RUN for this new source. Record actual outcomes in the transformation ledger, never infer success from tests or a source patch.
+
+**Next highest-impact action:** exercise the new exact SHA with real source-pinned nine-job motion capture, inspect the complete original F8→9 world/hero/door at normal speed, frame-by-frame under matched source ticks and native PTS. If the scene still cuts, inspect structural shadow/depth test and camera ray versus this first-frame load path, and redesign architectural/occlusion composition, not fade timers.

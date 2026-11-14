@@ -756,3 +756,59 @@ test('real Three world retains the identical old bronze gate across a nine-tick 
       'wrong-run retention is immediately discarded');
   } finally { world.dispose(); }
 });
+
+test('source-earned new-floor FIRST scene includes actual Void load path and closest exterior bay without duplicate cold shaft',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const before=old(),after=next(),world=createTowerWorld();
+  const immutable=JSON.stringify([before,after]);
+  try {
+    world.update(before,.05,0,{quality:'low'});
+    const bronzeArch=world.group.getObjectByName('AuthoritativeGuardianGate');
+    assert.ok(bronzeArch?.isGroup);
+    assert.equal(world.stageGroundedCapContinuation(before,after),true);
+    world.update(after,.05,.05,{quality:'low'});
+    const bearing=world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame');
+    assert.ok(bearing?.isGroup,'actual F9 frame must contain source-gated structural destination');
+    assert.ok(bearing.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
+      'existing authored Void inner bearing geometry appears alongside original gateway');
+    assert.ok(bearing.getObjectByName('SourceEarnedVoidExteriorButtress')?.isGroup,
+      'the original nearest exterior buttress anchors the same visible threshold');
+    let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
+    assert.ok(meshes>0 && meshes<=12,
+      'early threshold structure stays a bounded real static batch, not full cold shaft');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
+    const pending=world.diagnostics().deferredDistantArrival;
+    assert.equal(pending?.actualFirstFrameVoidBearings,true);
+    assert.ok(pending.actualFirstFrameVoidBearingIndex===0 ||
+              pending.actualFirstFrameVoidBearingIndex===1);
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined);
+    // Genuine source-grounded departure releases the remaining *authored*
+    // shaft, but may never reconstruct or double the already visible bay.
+    world.noteFrameSubmitted(after,{},.05);
+    const departed={...after,tick:476,
+      player:{...after.player,x:gate+160000}};
+    world.update(departed,.05,.9,{quality:'low'});
+    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame'),bearing,
+      'same GPU structural owner continues through the new shaft upload');
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
+      'noninteractive rest of the authored shaft still arrives on source departure');
+    const copies=[];world.group.traverse(o=>{
+      if(o.name==='VoidOpenCoreLoadPath')copies.push(o);
+    });
+    assert.equal(copies.length,1,'deferred heavy construction cannot double the core');
+    assert.equal(JSON.stringify([before,after]),immutable);
+  }finally{world.dispose();}
+});
+
+test('unearned ordinary Void rebuild never invents a source-original F8 entrance frame',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try {
+    const successor=next();
+    world.update(successor,.05,0,{quality:'low'});
+    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame'),undefined);
+    assert.equal(world.diagnostics().deferredDistantArrival,null);
+    assert.ok(world.group.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
+      'normal Floor9 receives its original authored shaft, no fabricated F8 gate');
+  }finally{world.dispose();}
+});
