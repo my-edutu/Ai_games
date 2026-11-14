@@ -2255,7 +2255,10 @@ function workSkinFramePalette(entry,p,slot,detail){
  // clothing, boots, hands and real occupational tools, without new actors,
  // invented receipts or changes to simulation/save/replay authority.
  const liveRoot={x:p.x,z:p.z,ground:terrain(p.x,p.z),
-  angle:detail?realForegroundFacing(p):realWorkerFacing(p),
+  // The live full-detail sculpt faces its genuine job focus while working,
+  // not an obsolete travel waypoint. Off-duty bodies face the real route.
+  angle:detail&&!rig.working&&!rig.hauling?
+   realForegroundFacing(p):realWorkerFacing(p),
   scale:entry.scale};
  if(![liveRoot.x,liveRoot.z,liveRoot.ground,liveRoot.angle,
   liveRoot.scale].every(Number.isFinite))
