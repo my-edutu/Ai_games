@@ -26305,7 +26305,11 @@ function getLiveHudCadenceAudit(){
 // remains in the civic cache; no proxy citizens, altered A* or invented roads.
 const civicRoadMemo={topology:null,signature:null,checks:0,
  recomputations:0,unchangedGrowths:0,changedDependencies:0,
- freightPoints:0,householdPoints:0,adjacentNewHomes:0};
+ freightPoints:0,householdPoints:0,adjacentNewHomes:0,
+ // W315: only append-only REAL cottages farther than the existing freight,
+ // household and trade lanes may keep the original civic VBO and routes.
+ // Source lot IDs and paths are bounded by the current true settlement.
+ remoteGrowthSkips:0,priorLots:null,founderHomes:null,roadPaths:null};
 function civicStreetNearLot(lot,paths){
  const x=lot[0],z=lot[1],limit=6.5*6.5;
  for(const points of paths){
@@ -26323,9 +26327,37 @@ function civicStreetNearLot(lot,paths){
 function civicStreetDependencySignature(){
  const founderHomes=people.slice(0,12).map(p=>
   p.name+':'+citizenHomeIndex(p)).join(';');
- const topology=city.map(lot=>lot.join(',')).join(';')+'|'+founderHomes;
+ const lotKeys=city.map(lot=>lot.join(','));
+ const topology=lotKeys.join(';')+'|'+founderHomes;
  civicRoadMemo.checks++;
  if(civicRoadMemo.topology!==topology){
+  // W315 Phase 1. The original four historic roads depend on local topology.
+  // A REAL newly constructed house far beyond ALL formerly certified paths
+  // cannot block the already traversable route, change a founder's residence
+  // or change the market frontage. Preserve the previous original civic mesh
+  // and skip costly A* searches; the actual new house is STILL independently
+  // built and rendered in the retained home partition.
+  //
+  // Only strict append-only growth qualifies. Relocation, destruction, save
+  // restore, nearby construction and changed resident homes recompute every
+  // dependency. Never skip the full town, its citizens or a physical house.
+  const oldKeys=civicRoadMemo.priorLots;
+  const appendOnly=Array.isArray(oldKeys)&&oldKeys.length>=12&&
+   lotKeys.length>oldKeys.length&&
+   civicRoadMemo.founderHomes===founderHomes&&
+   oldKeys.every((key,i)=>key===lotKeys[i]);
+  const newLots=appendOnly?city.slice(oldKeys.length):[];
+  const safelyRemote=appendOnly&&Array.isArray(civicRoadMemo.roadPaths)&&
+   civicRoadMemo.signature!==null&&newLots.every(lot=>
+    !civicStreetNearLot(lot,civicRoadMemo.roadPaths)&&
+    Math.hypot(lot[0]+1,lot[1]-5)>=10);
+  if(safelyRemote){
+   civicRoadMemo.topology=topology;
+   civicRoadMemo.priorLots=lotKeys;
+   civicRoadMemo.remoteGrowthSkips++;
+   civicRoadMemo.unchangedGrowths++;
+   return civicRoadMemo.signature;
+  }
   const freight=routeBetween(...FARM_MARKET_STREET_ORIGIN,
    ...FARM_MARKET_STREET_DESTINATION)||[];
   let household=[],resident=null;
@@ -26355,6 +26387,9 @@ function civicStreetDependencySignature(){
   if(civicRoadMemo.signature===signature)civicRoadMemo.unchangedGrowths++;
   else civicRoadMemo.changedDependencies++;
   civicRoadMemo.topology=topology;civicRoadMemo.signature=signature;
+  civicRoadMemo.priorLots=lotKeys;
+  civicRoadMemo.founderHomes=founderHomes;
+  civicRoadMemo.roadPaths=paths;
   civicRoadMemo.recomputations++;
   civicRoadMemo.freightPoints=freight.length;
   civicRoadMemo.householdPoints=household.length;
