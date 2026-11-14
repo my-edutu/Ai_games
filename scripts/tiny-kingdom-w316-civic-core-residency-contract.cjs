@@ -27,7 +27,7 @@ function world(){
   guildhallVisualStats:{},farmScene:{},craftCounters:{},
   marketQuarterStats:{},highStreetStats:{},farmMarketStreetStats:{},
   farmStreetWeaveStats:{},roadsideMicroterrainStats:{},
-  GROUND:0,routeMode:1,season:'spring',daylight:'day',
+  FIELD_TO_GRANARY_GATE:[29,-5],routeMode:1,season:'spring',daylight:'day',
   stationaryFounders:()=>city.slice(0,12).map(x=>x.join(':')).join(';'),
   liveCivicTopologyKey:(climate,light)=>climate+':'+light+':route'+env.routeMode,
   climateAt:()=>({season:env.season==='spring'?0:2}),
