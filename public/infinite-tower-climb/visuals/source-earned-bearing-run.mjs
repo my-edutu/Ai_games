@@ -8,7 +8,22 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
      s.worldWidth<=0||!safe(s.chunkBaseY)||!s.runToken||
      old?.floor!==9||old.runToken!==s.runToken||
      old.oldCapId!=='f8:cap'||old.guardianGateRetained!==true||
-     old.verifiedObservedFloorAdvance!==true||
+     !(old.verifiedObservedFloorAdvance===true ||
+       // The authentic old Clockwork GPU frame can be retained from the
+       // last defeated-guardian browser packet before the immutable crossing
+       // record arrives. The 1x original WebM exposed exactly this case:
+       // source tick475 has TRUE f9:ground sole/roof contact while the
+       // previous source packet is >12 ticks old. Only the original,
+       // HP-defeat-validated retained old gate may authorize this first
+       // source-anchored noninteractive bearing construction.
+       (safe(old.sourceTick)&&safe(old.firstObservedTick)&&
+        old.firstObservedTick===old.sourceTick&&
+        s.tick>=old.sourceTick&&s.tick-old.sourceTick<=12&&
+        s.player.grounded===true&&
+        s.player.groundedPlatformId==='f9:ground'&&
+        safe(s.player.y)&&safe(s.player.halfHeight)&&
+        s.player.halfHeight>0&&
+        s.player.y-s.player.halfHeight===old.oldRoofY))||
      ![old.oldRoofY,old.thresholdX,old.oldCapX,old.oldCapWidth].every(safe)||
      old.oldCapWidth<=0||!Array.isArray(s.platforms))return null;
   const c=s.lastGuardianCrossing;

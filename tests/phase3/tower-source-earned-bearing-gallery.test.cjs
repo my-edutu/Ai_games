@@ -23,6 +23,15 @@ test('real old threshold and real F9 grounded step produce bounded coherent 3D b
   assert.ok(p.nodes.every(x=>x.x>=0&&x.x<=480000));
   assert.equal(p.nodes[0].x,296896);
 });
+test('cold GPU first F9 receipt retains TRUE grounded roof after delayed last-guardian record',async()=>{
+  const {plannedEarnedClockworkVoidBearings:f}=await load();
+  const first={...held,verifiedObservedFloorAdvance:false,sourceTick:475,firstObservedTick:475};
+  const groundBody={...source,player:{health:4,grounded:true,groundedPlatformId:'f9:ground',y:3238000,halfHeight:14000}};
+  assert.ok(f(groundBody,first));
+  assert.equal(f({...groundBody,player:{...groundBody.player,groundedPlatformId:'f8:cap'}},first),null);
+  assert.equal(f({...groundBody,player:{...groundBody.player,y:3239000}},first),null);
+  assert.equal(f({...groundBody,tick:490},first),null);
+});
 test('missing real support, wrong run, defeated source or claimed physics veto presentation gallery',async()=>{
   const {plannedEarnedClockworkVoidBearings:f}=await load();
   assert.equal(f(source,{...held,verifiedObservedFloorAdvance:false}),null);
