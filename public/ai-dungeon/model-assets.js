@@ -3014,6 +3014,18 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
      interrupted:Boolean(actor.fullBody?.interrupted)
     }));
    next.crossFadeFrom(previous,crossfadeSeconds,false);
+   // A strictly presentation-only trace: it says which REAL imported
+   // source clip was faded, not that a planted foot or movement occurred.
+   // Read alongside the existing live source weight and both skinned shoes.
+   actor.sourceRealTravelFadeReceipt=action==='move'?{
+    sourceClipName:clip.name,previousSourceClipName:previous.getClip?.()?.name??null,
+    seconds:crossfadeSeconds,
+    rootTravelMeters:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):null,
+    frameIntervalSeconds:sourceFrameInterval,
+    witnessedRootMovement:actor.fullBody?.owner?.locomotion===true&&
+     actor.groundedPerformance?.moving===true,
+    syntheticContact:false
+   }:null;
    // Three.js fades the previous source clip's WEIGHT over elapsed mixer time.
    // On a genuine stopped-to-idle arrival, freeze only its last planted
    // Walking_A keyframe so the skinned ankles cannot treadmill in place while
@@ -4148,6 +4160,7 @@ function inspectSourceRigDeformation(actors){
    guardBlend:Number.isFinite(actor.fullBody?.guardBlend)?actor.fullBody.guardBlend:0,
    guardOwned:Boolean(actor.fullBody?.owner.guard),
    nativeLegOwnership:{
+    originalRealTravelFade:actor.sourceRealTravelFadeReceipt??null,
     clipName:actor.activeImportedClipName??null,
     originalSourceWeight:actor.activeClip?.getEffectiveWeight?.()??null,
     overlayScale:actor.rigNativeLegOverlayScale??1,
