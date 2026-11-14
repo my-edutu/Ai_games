@@ -557,7 +557,8 @@ test('Thornback performs an original physical public encounter without a hidden-
       warden.update({...close,attentionStrength:result?1:0,result,reducedMotion:true});
       for (const {node} of pincers) assert.equal(node.rotation.y,0,'neutral and terminal poses erase stale pincer warnings');
       for (const {side,node} of antennae) assert.equal(node.rotation.z,side*.08,'terminal truth cannot retain a threat gesture');
-      assert.equal(head.position.z,.62,'neutral and terminal mask returns to its real rest position');
+      assert.equal(head.position.z,.73,'neutral and terminal mask returns to the actual raised forward skull, not a stale prior pose');
+      assert.equal(head.position.y,.27,'the disconnected public warning must settle the new complete face height');
     }
     warden.dispose();
   }
@@ -835,5 +836,57 @@ test('Pip and Thornback share immutable primitive buffers with exact last-owner 
     pip.dispose(); thornback.dispose();
     assert.deepEqual(rigPrimitiveResourceStats(), baseline,
       'final rig release returns primitive resource counts to their exact baseline');
+  }
+});
+
+test('Pass349 raised Thornback face is two true overhead-readable connected optics with event-linked head lift',async()=>{
+  const {createWarden,rigPrimitiveResourceStats}=await modulePromise;
+  for(const balanced of [false,true]){
+    const before=rigPrimitiveResourceStats();
+    const warden=createWarden({balanced});
+    const head=warden.group.getObjectByName('warden mask');
+    const jaw=warden.group.getObjectByName('hinged guardian lower mandible');
+    assert.ok(head?.isGroup && jaw?.parent===head,'new skull keeps its original animated physical mandible');
+    const optics=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian raised optical lens ${side}`));
+    const sockets=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian upper optical socket ${side}`));
+    const cheeks=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian cheek armor ${side}`));
+    for(let i=0;i<2;i++){
+      const side=i===0?-1:1;
+      const lens=optics[i],socket=sockets[i],cheek=cheeks[i];
+      assert.ok(lens?.isMesh && socket?.isMesh && cheek?.isMesh,
+        'each eye and structural cheek exists as actual original Three.js geometry');
+      assert.equal(lens.parent,head,'eyes move with the physically hinged skull, not with the HUD/camera');
+      assert.equal(socket.parent,head);
+      assert.equal(cheek.parent,head);
+      assert.ok(side*lens.position.x>.19 && lens.position.y>.30 && lens.position.z>.28,
+        'full-size original left/right eye faces UP and FORWARD for native elevated gameplay cameras');
+      assert.ok(socket.position.y>.24 && cheek.position.y>0);
+      assert.ok(lens.geometry.getAttribute('position') && cheek.geometry.getAttribute('position'));
+    }
+    warden.reset();
+    assert.equal(head.position.y,.27);
+    assert.equal(head.position.z,.73);
+    const eyePositions=optics.map(eye=>eye.position.toArray());
+    const linkedMeshes=new Set();
+    warden.group.traverse(node=>{if(node.geometry)linkedMeshes.add(node.geometry);});
+    const witness={heading:0,attentionHeading:.9,attentionStrength:1,danger:1,
+      encounterBeat:.49,moving:false,time:2,delta:.05,reducedMotion:true};
+    warden.update(witness);
+    assert.ok(head.position.y>.33 && head.position.z>.87,
+      'actual witnessed brace must raise and advance the complete skull, not merely recolor pupils');
+    const freeze=[head.position.y,head.position.z,...optics.flatMap(eye=>eye.position.toArray())];
+    warden.update({...witness,time:90});
+    assert.deepEqual([head.position.y,head.position.z,...optics.flatMap(eye=>eye.position.toArray())],
+      freeze,'reduced motion preserves a stable physically readable gaze');
+    warden.update({...witness,attentionStrength:0,encounterBeat:undefined});
+    assert.equal(head.position.y,.27,'unwitnessed danger cannot leave a raised face');
+    assert.equal(head.position.z,.73);
+    assert.deepEqual(optics.map(eye=>eye.position.toArray()),eyePositions);
+    for(let i=0;i<35;i++)warden.update({...witness,time:i/30,reducedMotion:false});
+    const afterMeshes=new Set();
+    warden.group.traverse(node=>{if(node.geometry)afterMeshes.add(node.geometry);});
+    assert.deepEqual(afterMeshes,linkedMeshes,'full animated face must reuse geometry without frame allocations');
+    warden.dispose();
+    assert.deepEqual(rigPrimitiveResourceStats(),before,'new original mask shares and releases every geometry buffer');
   }
 });
