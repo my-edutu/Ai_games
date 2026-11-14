@@ -5775,8 +5775,8 @@ test('RED: original mobile source-shoe evidence chooses bounded stronger paired 
   'source slow frames retain their existing <=145/110mrad limit');
  const reversed=trials.map(t=>({...t,after:{left,right:{...t.after.right,
   toeY:right.toeY+(t.upperRad>0?.0119:-.006)}}}));
- assert.deepEqual(plan({...input,trials:reversed}),[[.11,-.09],[.115,-.095]],
-  'mirrored genuine source bones must choose their own measured hinge sign');
+ assert.deepEqual(plan({...input,trials:reversed}),[[.105,-.085],[.11,-.09]],
+  'mirrored genuine source bones must choose the measured hinge sign under the safe first-frame fast-arc cap');
  for(const bad of [
   {mode:'hurt'},{sourceClipName:'Idle'},{sourceInstanceSame:false},
   {sourceWeight:.6},{alive:false},{visible:false},{teleport:true},
@@ -5828,9 +5828,19 @@ test('RED: real 390px Walking_A source-linked hip and knee clearance ramps inste
  assert.equal(first.contactLocked,false);
  const next=choose({...valid,previousLinkedCertified:true,
   previousUpperRad:first.upperRad,previousLowerRad:first.lowerRad});
- assert.equal(next?.upperRad,-.115,
-  'a fresh previous-frame verified original GLB shoe may deepen the linked bend');
- assert.equal(next?.lowerRad,.095);
+ assert.equal(next?.upperRad,-.11,
+  'a certified previous frame must prefer the smoother original knee when extra lift is under 2mm');
+ assert.equal(next?.lowerRad,.09);
+ // A new 5mm lift gain is a synthetic safety stress, NOT a recorded GLB frame.
+ const materialGain=trials.map(t=>t.upperRad===-.115?{
+  ...t,after:{...t.after,right:{...t.after.right,toeY:t.after.right.toeY+.005}}
+ }:t);
+ assert.equal(choose({...valid,trials:materialGain,previousLinkedCertified:true,
+  previousUpperRad:-.11,previousLowerRad:.09})?.upperRad,-.115,
+  'meaningful independently measured toe recovery must outrank joint-slew preference');
+ assert.equal(choose({...valid,previousLinkedCertified:true,
+  previousUpperRad:-.115,previousLowerRad:.095})?.upperRad,-.115,
+  'a stable already-certified stronger chain should not oscillate into a weaker pose');
  assert.equal(choose({...valid,previousLinkedCertified:true,
   previousUpperRad:.09,previousLowerRad:-.075}),null,
   'a reverse-sign historical pose cannot jump across two original knees');
