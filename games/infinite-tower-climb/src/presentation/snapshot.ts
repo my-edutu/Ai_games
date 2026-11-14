@@ -26,6 +26,8 @@ export interface TowerRenderSnapshot{
   guardianExitX?:number;
   // Live-only source geometry: a legal double jump cannot clear the living seal.
   guardianSealHeight?:number;
+  // Live opt-in only: actual physical gate opening deadline, not a visual clock.
+  guardianGateActuation?:TowerState['guardianGateActuation'];
   // Source-owned witnessed physical 8→9 event survives dropped client frames;
   // absent on frozen/default and on unrelated game scenarios.
   lastGuardianCrossing?:TowerState['lastGuardianCrossing'];
@@ -99,6 +101,14 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
     result:state.result?{reason:state.result.reason,kind:state.result.kind}:undefined,
     ...(guardianExitX!==undefined?{
       guardianExitX,guardianSealHeight:guardianArenaSealHeight(state.config)}:{}),
+    ...(state.config.guardianGateActuationTicks!==undefined &&
+      state.config.guardianArenaHazards===true &&
+      state.config.guardianSecondWind===true &&
+      state.guardianGateActuation?.floor===state.floor &&
+      state.guardianGateActuation.openAtTick>state.guardianGateActuation.defeatTick &&
+      state.enemies.some(e=>e.id===state.guardianGateActuation?.guardianId &&
+        e.floor===state.floor&&e.kind==='guardian'&&!e.active&&e.health<=0)
+      ?{guardianGateActuation:{...state.guardianGateActuation}}:{}),
     ...(state.config.guardianArenaHazards===true &&
       state.config.guardianSecondWind===true &&
       state.lastGuardianCrossing &&
