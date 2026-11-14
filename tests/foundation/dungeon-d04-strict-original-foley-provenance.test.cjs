@@ -29,7 +29,7 @@ const injury=(id='revenant',fatal=false,overrides={})=>({
  kind:fatal?'damage-fatal':'damage',
  visual:'hit',audio:fatal?'fatal-impact':'impact',
  proof:'observed-hp-drop',verified:true,actorId:null,targetId:id,
- from:null,to:{x:3,z:2},detail:{damage:12,maxHp:20},
+ from:null,to:{x:3,z:2},detail:{damage:12,maxHp:20,remainingHp:fatal?0:8},
  priority:7,severity:.6,...overrides
 });
 test('strict production foley cannot play a whoosh from an unverified action or invented source',async()=>{
