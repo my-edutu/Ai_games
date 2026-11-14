@@ -3001,8 +3001,8 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
    // Source pelvis, knees, shoulders and feet must not remain mostly
    // Idle once SAME original actor has already travelled real root metres.
    // The faster fade applies only to genuine idle/guard -> Walking_A.
-   const crossfadeSeconds=actor.fullBody?.interrupted?.09:
-    (oneShot?.12:planImportedRealTravelCrossfade({
+   const crossfadeSeconds=actor.fullBody?.interrupted ? .09 :
+    (oneShot ? .12 : planImportedRealTravelCrossfade({
      mode:action,previousMode:actor.currentAction,sourceClipName:clip.name,
      ownerLocomotion:actor.fullBody?.owner?.locomotion===true,
      groundedMoving:actor.groundedPerformance?.moving===true,
