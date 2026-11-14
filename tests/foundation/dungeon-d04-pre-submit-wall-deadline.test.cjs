@@ -258,3 +258,43 @@ test('a submitted HP impact cannot poison NEXT ordinary frame slow-WebGL phase a
    'diagnosing a subsequent stall must never replay old impact audio');
  }finally{d.dispose()}
 });
+
+test('genuine injury receipt separates D04 GPU-cue emission from non-D04 pre-render work',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let now=100;
+ const played=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,
+  visualAdapter:{
+   advance(){now+=.020},
+   emit(){now+=.120;return true}, // Real D04 retained effect admission cost.
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   reset(){},dispose(){}
+  },
+  audioAdapter:{
+   enable(){return true},emit(cue){played.push(cue.kind);return true},
+   flush(){},cleanup(){},disable(){},dispose(){}
+  }
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));
+  d.acceptSnapshot(snapshot(11,20)); // A real HP delta, not a swing's claim.
+  now+=.025;
+  d.advance(.016,.016);
+  now+=.090; // Other main-thread work, including an 18ms WebGL call.
+  assert.equal(d.acknowledgePresentedFrame(1,.018),1);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.decision,'delivered');
+  assert.equal(receipt.observationToSubmissionMs,255);
+  assert.equal(receipt.beforeVisualAdvanceMs,25);
+  assert.equal(receipt.visualAdvanceMs,20);
+  assert.equal(receipt.visualEmissionMs,120,
+   'D04 retained effect admission must never be charged to outside renderer/main-thread work');
+  assert.equal(receipt.afterVisualAdvanceToSubmissionMs,90);
+  assert.equal(receipt.renderSubmissionMs,18);
+  assert.deepEqual(played,['damage']);
+  assert.equal(receipt.sampleSynchronized,false,
+   'real WebGL submission is still NOT encoded VP8/Opus sample alignment');
+ }finally{d.dispose()}
+});
