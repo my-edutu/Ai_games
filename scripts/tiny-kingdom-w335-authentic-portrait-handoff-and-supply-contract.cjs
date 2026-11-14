@@ -20,6 +20,7 @@ function run(width,offset){
   workDuration:()=>1,chooseFilmableWorker:choices=>({...choices[0],shot:{eyeCollision:{clear:true},blockers:0}}),
   genuineWorkdayShotDecision:()=>({safe:true,readable:true}),
   focusPoint:[0,0],liveWorkCursor:0,liveWorkTransitions:0,liveWorkCuts:0,
+  liveWorkShotRetryAt:0,liveWorkShotDeferred:0,
   actionCameraZoom:5,actionCameraPitch:.4,lastFollowShot:{},
   window:{matchMedia:()=>({matches:false})},canvas:{clientWidth:width},
   anchorSelectedWorkdayCamera:()=>{ctx.anchored++;return true;},
