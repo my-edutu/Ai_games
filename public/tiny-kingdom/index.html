@@ -1345,6 +1345,45 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
   min-height:44px!important;min-width:92px!important;
  }
 }
+
+/* W336: real Day-121 390px citizen-workday hit targets. Keep the WORLD
+   playable, all original controls reachable via Command desk, and the
+   original horizontal scrolling worksite navigation. The old 34px targets
+   were too short for touch while the real subject was moving at low FPS.
+   This is geometry-neutral UI: no actors, stalls, work or economy change. */
+@media(max-width:520px){
+ body:is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .world-tour{
+  width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;
+  left:6px!important;right:6px!important;top:max(6px,env(safe-area-inset-top))!important;
+  transform:none!important;overflow-x:auto!important;overflow-y:hidden!important;
+  white-space:nowrap!important;gap:4px!important;padding:3px 5px!important;
+  touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:thin;
+ }
+ body:is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"]) .world-tour .tour-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;min-height:44px!important;min-width:44px!important;
+  padding:10px 11px!important;font-size:11px!important;line-height:1.2!important;
+ }
+ body:is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"])[data-command="world"] .bottom{
+  bottom:max(6px,env(safe-area-inset-bottom))!important;
+  width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;
+  padding:4px!important;gap:3px!important;display:flex;flex-wrap:nowrap;
+  justify-content:space-between;
+ }
+ body:is([data-workday="live"],[data-workday="delivery"],[data-workday="homecoming"])[data-command="world"] .bottom .btn{
+  min-width:44px!important;min-height:44px!important;display:inline-flex;
+  align-items:center;justify-content:center;
+  padding:8px 7px!important;font-size:10px!important;line-height:1.25!important;
+  flex:1 1 auto;white-space:normal;text-align:center;
+ }
+ body:is([data-workday="live"],[data-workday="delivery"]) #workday-activity{
+  bottom:111px!important;font-size:11px;line-height:1.35;
+  max-width:calc(100vw - 20px)!important;
+ }
+ body:is([data-workday="live"],[data-workday="delivery"]) #workday-progress{
+  bottom:94px!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -10678,11 +10717,32 @@ function renderMedievalWardrobe(p,index,x,y,z,s,rig,lod){
    quad(pt(-.12,.97,.230),pt(-.07,1.02,.240),
     pt(.235,.49,.285),pt(.18,.45,.280),d.leather);
   }else if(p.job==='builder'){
+   // W336: rebuild genuine joiner's near silhouette WITHOUT the four
+   // rectangular shoulder blocks that made the real 390px working builder
+   // look like stacked toy crates. The original 2-bone shoulder/wrist, tool
+   // contact, work activity and coat root deformation remain unchanged.
+   // Two physically draped, angled leather shoulder flaps and bound seams
+   // replace 4 solid cuboids; less geometry and no second actor/rig.
    for(const side of [-1,1]){
-    box(x+side*.29*s,y+.986*s,z,.185*s,.155*s,.27*s,d.leather);
-    box(x+side*.28*s,y+.76*s,z+.025*s,.12*s,.075*s,.27*s,d.trim);
+    const neck=pt(side*.145,1.115,.155),
+     shoulder=pt(side*.355,1.065,-.025),
+     front=pt(side*.295,.895,.235),
+     back=pt(side*.380,.925,-.105);
+    if(side>0){
+     quad(neck,shoulder,back,front,d.leather);
+     tri(neck,front,pt(side*.192,.792,.252),d.linen);
+    }else{
+     quad(front,back,shoulder,neck,d.leather);
+     tri(pt(side*.192,.792,.252),front,neck,d.linen);
+    }
+    // Genuine shoulder straps follow the body, not detached wooden armor.
+    quad(pt(side*.205,.99,.244),pt(side*.245,1.025,.225),
+     pt(side*.290,.77,.240),pt(side*.250,.75,.258),d.trim);
    }
-   box(x+.29*s,y+.46*s,z+.12*s,.20*s,.26*s,.16*s,d.leather);
+   // One supple satchel flap follows the existing work belt instead of
+   // a projecting square tool case; the real mallet stays on its actual wrist.
+   quad(pt(.22,.59,.19),pt(.39,.59,.17),
+    pt(.37,.37,.27),pt(.20,.38,.28),d.leather);
   }else if(p.job==='craftsperson'){
    box(x,y+.925*s,z+.262*s,.32*s,.22*s,.052*s,d.leather);
    for(const side of [-1,1])
