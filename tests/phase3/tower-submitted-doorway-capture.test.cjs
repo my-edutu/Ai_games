@@ -56,3 +56,61 @@ test('rejects invalid episode ticks and never infers video pixels from a project
   assert.match(browser,/observedPhysicalDoorwaySubmissionAudit: d\.physicalDoorwaySubmissionAudit/);
   assert.match(browser,/physical-doorway-submissions\.json/);
 });
+
+test('source-authenticated grounded doorway receipts survive the original native capture audit',()=>{
+  // Actual candidate d234293d: the first returned F9 WebGL frame showed the
+  // source-proven grounded seam at tick475 BEFORE publication of its immutable
+  // crossing record. It is not a speculative guardian kill or a fake clip.
+  const f=sample(475,{
+    crossingTick:null,
+    observedOriginalReceiptTick:475,
+    evidenceKind:'verified-original-grounded-source-receipt',
+  });
+  const out=read([observation(26000,[f])]);
+  assert.equal(out.state,'RETURNED_WEBGL_PROJECTIONS_ONLY');
+  assert.equal(out.nativeVerdict,'NOT EVALUATED');
+  assert.equal(out.firstEpisode,'expedition-a:475');
+  assert.equal(out.firstReturnedSourceGapTicks,0);
+  assert.equal(out.returnedFrameCount,1);
+  assert.equal(out.retainedOriginalGpuFrames,1);
+  assert.equal(out.originalGroundedReceiptFrames,1);
+  assert.equal(out.immutableGuardianRecordFrames,0);
+  assert.equal(out.rootCause,'BOTH_PROJECTED_NOT_NATIVE_PIXEL_VERIFIED');
+});
+test('receipt-only camera projections never manufacture a guardian victory or accept forged receipt evidence',()=>{
+  const genuine=sample(475,{
+    crossingTick:null,observedOriginalReceiptTick:475,
+    evidenceKind:'verified-original-grounded-source-receipt',
+  });
+  const invalid=[
+    sample(475,{crossingTick:null,observedOriginalReceiptTick:null,
+      evidenceKind:'verified-original-grounded-source-receipt'}),
+    sample(475,{crossingTick:null,observedOriginalReceiptTick:475,
+      evidenceKind:'immutable-defeated-guardian'}),
+    sample(488,{crossingTick:null,observedOriginalReceiptTick:475,
+      evidenceKind:'verified-original-grounded-source-receipt'}),
+    sample(474,{crossingTick:null,observedOriginalReceiptTick:475,
+      evidenceKind:'verified-original-grounded-source-receipt'}),
+    sample(475,{crossingTick:null,observedOriginalReceiptTick:475,
+      evidenceKind:'verified-original-grounded-source-receipt',
+      floor:8}),
+  ];
+  const out=read([observation(26000,[...invalid,genuine])]);
+  assert.equal(out.returnedFrameCount,1);
+  assert.equal(out.firstEpisode,'expedition-a:475');
+  assert.equal(out.originalGroundedReceiptFrames,1);
+  assert.equal(out.immutableGuardianRecordFrames,0);
+  assert.equal(out.nativeVerdict,'NOT EVALUATED');
+});
+test('immutable guardian-crossing record stays distinct from unrecorded grounded GPU receipt',()=>{
+  const provisional=sample(475,{crossingTick:null,observedOriginalReceiptTick:475,
+    evidenceKind:'verified-original-grounded-source-receipt'});
+  const immutable=sample(477,{crossingTick:475,
+    evidenceKind:'immutable-defeated-guardian'});
+  const out=read([observation(26000,[provisional,immutable])]);
+  assert.equal(out.firstEpisode,'expedition-a:475');
+  assert.equal(out.returnedFrameCount,2);
+  assert.equal(out.originalGroundedReceiptFrames,1);
+  assert.equal(out.immutableGuardianRecordFrames,1);
+  assert.equal(out.nativeVerdict,'NOT EVALUATED');
+});
