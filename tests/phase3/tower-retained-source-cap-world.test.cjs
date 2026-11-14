@@ -845,6 +845,10 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
       'same GPU structural owner continues through the new shaft upload');
     const newShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(newShaft,'incoming original support loads only after the real gateway is left behind');
+    assert.equal(newShaft.visible,false,
+      'source-deferred zero-alpha shaft must be culled as an entire real Three subtree; transparent opacity zero still incurs draw calls and shader work');
+    assert.equal(world.group.getObjectByName('platform:f9:ground')?.visible,true,
+      'the real physical new-floor walkable ground must NEVER be hidden with decorative architecture');
     assert.ok(newShaft.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
       'the actual ORIGINAL successor core now joins the post-render deferred shaft instead of screening the gate on cold first frame');
     const incomingMeshes=[];
