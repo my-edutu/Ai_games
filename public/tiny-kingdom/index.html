@@ -5380,6 +5380,7 @@ let civicCacheBuilds=0,civicCacheReuses=0,civicCacheEvictions=0,civicActiveKey='
 let civicBuffer=null,civicChunkRanges=[],civicGpuUploads=0,civicGpuDisposals=0;
 function activeCivicMesh(){return civicGpuResidencyEnabled?(civicSceneryCache.get(civicActiveKey)?.vertices||[]):[]}
 function clearCivicSceneryCache(){
+ clearCivicCoreCache();
  for(const item of civicSceneryCache.values())if(item.buffer&&gpuAvailable){
   releaseGeometryBuffer(item.buffer);civicGpuDisposals++;
  }
@@ -26413,6 +26414,80 @@ function liveCivicTopologyKey(climate,light){
  return climate+':'+(gpuAvailable?'shader-light':light)+
   ':actual-civic-roads:'+civicStreetDependencySignature();
 }
+// W316 continuing Phase 1: a real near-road house may change the truthful
+// courier/home street, but it does not rebuild the old guildhall, growing farm,
+// granary, workshop, receiving market or market roof. Retain that SAME exact
+// world vertex sequence as a bounded source region. No proxy meshes or actors.
+const CIVIC_CORE_MAX_ENTRIES=3;
+const CIVIC_CORE_FLOAT_BUDGET=
+ (typeof navigator!=='undefined'&&navigator.deviceMemory&&navigator.deviceMemory<=4)?
+  2700000:5100000;
+const civicCoreCache=new Map();
+let civicCoreCachedFloats=0,civicCoreBuilds=0,civicCoreReuses=0,
+ civicCoreEvictions=0,civicCoreSkippedOversize=0;
+function clearCivicCoreCache(){
+ civicCoreCache.clear();civicCoreCachedFloats=0;
+}
+function civicCoreResidencyKey(climate,light){
+ return climate+':'+(gpuAvailable?'shader-light':light)+
+  ':founders:'+stationaryFounders();
+}
+function getCivicCoreResidencyAudit(){
+ return {source:'w316-authentic-unchanged-granary-market-core-vs-real-road-dirty-region',
+  builds:civicCoreBuilds,reuses:civicCoreReuses,evictions:civicCoreEvictions,
+  skippedOversize:civicCoreSkippedOversize,entries:civicCoreCache.size,
+  maxEntries:CIVIC_CORE_MAX_ENTRIES,cachedFloats:civicCoreCachedFloats,
+  cachedBytes:civicCoreCachedFloats*Float32Array.BYTES_PER_ELEMENT,
+  floatBudget:CIVIC_CORE_FLOAT_BUDGET,
+  fullOriginalGeometryPreserved:true,newGpuBuffers:0,
+  modifiesCitizens:false,modifiesEconomy:false,modifiesNavigation:false,
+  affectsSavedReplay:false,hardwareFps:'NOT MEASURED'};
+}
+function rememberCivicCore(key,sourceStart){
+ const count=data.length-sourceStart;
+ if(!Number.isInteger(sourceStart)||sourceStart<0||count<=0||count%30)
+  throw Error('W316 partial or invalid original civic core vertex stream');
+ civicCoreBuilds++;
+ if(count>CIVIC_CORE_FLOAT_BUDGET){civicCoreSkippedOversize++;return false}
+ // One cold-build typed transfer. The cached geometry is never decimated and
+ // a new road reuses the same complete 10-float material/normal vertex layout.
+ const vertices=new Float32Array(count);
+ for(let i=0;i<count;i++)vertices[i]=data[sourceStart+i];
+ const stats={guildhall:{...guildhallVisualStats},farm:{...farmScene},
+  craft:{...craftCounters},market:{...marketQuarterStats}};
+ const previous=civicCoreCache.get(key);
+ if(previous)civicCoreCachedFloats-=previous.vertices.length;
+ civicCoreCache.delete(key);
+ civicCoreCache.set(key,{vertices,stats,finalMaterial:currentMaterial});
+ civicCoreCachedFloats+=vertices.length;
+ while(civicCoreCache.size>CIVIC_CORE_MAX_ENTRIES||
+       civicCoreCachedFloats>CIVIC_CORE_FLOAT_BUDGET){
+  const oldest=civicCoreCache.keys().next().value;
+  const retired=civicCoreCache.get(oldest);
+  civicCoreCachedFloats-=retired.vertices.length;
+  civicCoreCache.delete(oldest);
+  civicCoreEvictions++;
+ }
+ return civicCoreCache.has(key);
+}
+function recallCivicCore(key){
+ const entry=civicCoreCache.get(key);
+ if(!entry)return false;
+ // Re-establish the real seasonal resident field alongside the exact static
+ // farm geometry. Never suppress a farmer, crop, cargo or current worker pose.
+ if(gpuAvailable&&farmFieldResidentSeason!==climateAt(state.t).season&&
+    !farmFieldResidentDisabled)prepareResidentFarmFields(climateAt(state.t).season);
+ appendCivicCachedVertices(entry.vertices);
+ guildhallVisualStats={...entry.stats.guildhall};
+ farmScene={...entry.stats.farm};
+ Object.assign(craftCounters,entry.stats.craft);
+ marketQuarterStats={...entry.stats.market};
+ currentMaterial=entry.finalMaterial;
+ civicCoreCache.delete(key);civicCoreCache.set(key,entry);
+ civicCoreReuses++;
+ return true;
+}
+
 let civicGrowthRefreshes=0;
 function updateResidentCivicDistrict(nextTerrainKey,daylightStage){
 const civicKey=liveCivicTopologyKey(nextTerrainKey,daylightStage);
@@ -26433,10 +26508,24 @@ if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
 }else{
  civicCacheBuilds++;
  const civicStart=data.length;
-hall(0,-1); // Guildhall owns its roof, gables, windows and porch; no cottage overlay.
-// The worked spaces have identifiable props and readable boundaries.
-farmstead();if(gpuAvailable)windmill(-27,-18,0);fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
-riverBridge();hillsideSanctuary();forgeWorkshop();market(0,5);marketQuarter();inhabitedHighStreet();farmMarketStreet();well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+ // Keep original geometry order: 1) old farm/civic/receiving market,
+ // 2) real currently dependent household + freight streets,
+ // 3) the existing finishing fixtures. Only group (1) is retained here.
+ const unchangedCoreKey=civicCoreResidencyKey(nextTerrainKey,daylightStage);
+ if(!recallCivicCore(unchangedCoreKey)){
+  const coreStart=data.length;
+  hall(0,-1); // Guildhall owns its roof, gables, windows and porch.
+  farmstead();if(gpuAvailable)windmill(-27,-18,0);
+  fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);
+  fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
+  riverBridge();hillsideSanctuary();forgeWorkshop();
+  market(0,5);marketQuarter();
+  rememberCivicCore(unchangedCoreKey,coreStart);
+ }
+ // These two streets depend on actual traversable paths and founding homes:
+ // rebuild them whenever nearby ORIGINAL construction changes civic topology.
+ inhabitedHighStreet();farmMarketStreet();
+ well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);lantern(-5,-7,1.7);lantern(6,9,1.45);lantern(2,6,1.7);lantern(-14,6,1.45);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
  const stored=rememberCivicScenery(civicKey,civicStart,{
   guildhall:{...guildhallVisualStats},farm:{...farmScene},
@@ -27359,7 +27448,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicRoadDirtyAudit,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,

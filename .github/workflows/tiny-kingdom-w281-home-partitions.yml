@@ -6,6 +6,7 @@ on:
       - public/tiny-kingdom/index.html
       - tests/browser/tiny-kingdom-w281-home-partitions.spec.cjs
       - scripts/tiny-kingdom-w315-growth-residency-contract.cjs
+      - scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - .github/workflows/tiny-kingdom-w281-home-partitions.yml
   workflow_dispatch:
@@ -23,6 +24,7 @@ jobs:
       - name: W315 actual civic-route dependency + original growth source contracts
         run: |
           node scripts/tiny-kingdom-w315-growth-residency-contract.cjs
+          node scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
           node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
