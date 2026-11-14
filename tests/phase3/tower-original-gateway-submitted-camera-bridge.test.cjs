@@ -6,7 +6,8 @@ const load=import('../../public/infinite-tower-climb/visuals/original-gateway-su
 const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
 const thresholdX=cap.x+Math.floor(cap.width*.76);
 const prior={runToken:'genuine',floor:8,tick:448,chunkBaseY:2880000,
-  oldRoofY:cap.y+cap.height,thresholdX,
+  oldRoofY:cap.y+cap.height,thresholdX,oldCapId:'f8:cap',
+  originalGuardianObserved:true,originalGuardianHealth:1,
   camera:[4,40,64],gaze:[8,34,21]};
 const held={runToken:'genuine',floor:9,guardianGateRetained:true,
   oldCapId:'f8:cap',oldRoofY:cap.y+cap.height,thresholdX,
@@ -48,12 +49,39 @@ test('no lock for live guardian, wrong run, old roof, teleport, user camera or l
   ];
   for(const args of cases) assert.equal(plan(...args),null);
 });
+test('authentic last returned F8 view at living guardian HP1 is preserved for later HP0 record',async()=>{
+  const {observedOriginalGatewaySubmittedView:capture,
+    sourceOriginalGatewayCameraBridge:plan}=await load;
+  const old={
+    runToken:'genuine',floor:8,theme:'clockwork',lifecycle:'running',
+    tick:438,chunkBaseY:2880000,worldWidth:480000,
+    guardianExitX:thresholdX,platforms:[cap],
+    enemies:[{kind:'guardian',floor:8,active:true,health:1}],
+    player:{health:4,x:thresholdX-12000}
+  };
+  const original=capture(old,[4,40,64],[8,34,21]);
+  assert.ok(original && original.originalGuardianHealth===1,
+    'real previous rendered camera may precede last HP0 fixed step');
+  assert.equal(plan(snapshot,held,original,view).sourceBound,true,
+    'later immutable actual defeated crossing, NOT earlier active guardian, licenses use');
+  assert.equal(capture({...old,enemies:[]},[4,40,64],[8,34,21]),null);
+  assert.equal(capture({...old,runToken:'',enemies:old.enemies},[4,40,64],[8,34,21]),null);
+  assert.equal(capture({...old,player:{...old.player,x:thresholdX+100000}},[4,40,64],[8,34,21]),null);
+  assert.equal(capture({...old,guardianExitX:thresholdX+1},[4,40,64],[8,34,21]),null);
+  assert.equal(capture({...old,floor:9},[4,40,64],[8,34,21]),null);
+  assert.equal(plan({...snapshot,lastGuardianCrossing:{...snapshot.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:1}}},held,original,view),null,
+    'an early source camera alone must never invent opened gate');
+  assert.equal(plan(snapshot,held,{...original,originalGuardianObserved:false},view),null);
+  assert.equal(plan(snapshot,held,{...original,originalGuardianHealth:-1},view),null);
+});
 test('the real camera consumes only genuine submitted old floor view and verifies hero/core on new floor',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.ok(scene.includes('sourceOriginalGatewayCameraBridge(') &&
     scene.includes('snapshot,coldArchProof,originalGatewaySubmittedCamera'),
     'real source bridge must be called with retained original gate and last painted view');
-  assert.match(scene,/originalGatewaySubmittedCamera\s*=\s*\{/);
+  assert.match(scene,/originalGatewaySubmittedCamera=submittedOldView/);
+  assert.match(scene,/observedOriginalGatewaySubmittedView\(/);
   assert.match(scene,/bridgeHeroSafe && bridgeGateSafe/);
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdHero,23\.5\)/);
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdGate,23\.5\)/);

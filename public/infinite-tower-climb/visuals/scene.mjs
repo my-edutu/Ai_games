@@ -33,7 +33,7 @@ import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
-import { sourceOriginalGatewayCameraBridge } from './original-gateway-submitted-camera-bridge.mjs';
+import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -5077,28 +5077,14 @@ export function createTowerScene(canvas, settings = {}) {
         lastSubmittedGuardian.runToken = snapshot.runToken;
         lastSubmittedGuardian.floor = snapshot.floor;
         lastSubmittedGuardian.tick = snapshot.tick;
-        // Capture ONLY a defeated guardian's original old-world camera
-        // AFTER actual WebGL return. A source tick without a rendered image
-        // cannot seed the next physical shot. The same-run source cap and
-        // last original roof must match the future recorded crossing.
-        if(snapshot.floor===8 && snapshot.theme==='clockwork' &&
-           snapshot.player?.health>0 &&
-           Number.isSafeInteger(snapshot.guardianExitX)){
-          const oldCap=snapshot.platforms?.find(v=>v.id==='f8:cap');
-          const defeated=snapshot.enemies?.some(v=>v.kind==='guardian' &&
-            v.active===false && Number.isFinite(v.health) && v.health<=0);
-          if(oldCap && defeated &&
-             [oldCap.x,oldCap.y,oldCap.width,oldCap.height,
-               snapshot.chunkBaseY,snapshot.tick,snapshot.player.x]
-               .every(Number.isSafeInteger) &&
-             snapshot.guardianExitX===oldCap.x+Math.floor(oldCap.width*.76) &&
-             Math.abs(snapshot.player.x-snapshot.guardianExitX)<=90000){
-            originalGatewaySubmittedCamera={
-              runToken:snapshot.runToken,floor:8,tick:snapshot.tick,
-              chunkBaseY:snapshot.chunkBaseY,
-              oldRoofY:oldCap.y+oldCap.height,thresholdX:snapshot.guardianExitX,
-              camera:camera.position.toArray(),gaze:lookAt.toArray()};
-          }
+        // A real previously painted old-floor shot may show 1HP guardian
+        // BEFORE the source victory. Only immutable HP-zero crossing permits
+        // later use; the old source camera itself never manufactures defeat.
+        // Preserve the exact previous rendered cap and 3D character staging.
+        if(snapshot.floor===8){
+          const submittedOldView=observedOriginalGatewaySubmittedView(
+            snapshot,camera.position.toArray(),lookAt.toArray());
+          if(submittedOldView)originalGatewaySubmittedCamera=submittedOldView;
         }
         if(snapshot.floor!==8 && snapshot.floor!==9)
           originalGatewaySubmittedCamera=null;
@@ -5518,6 +5504,15 @@ export function createTowerScene(canvas, settings = {}) {
         retryRemainingMs: renderFaultState === 'retrying'
           ? Math.max(0, Math.round(renderFaultRetryAt - performance.now())) : null,
         totalExceptions: renderFaultCount, authoritativeGameplayPaused: false },
+      originalGatewayCameraBridge:{
+        originalSourceTick:originalGatewaySubmittedCamera?.runToken===snapshot?.runToken
+          ? originalGatewaySubmittedCamera.tick:null,
+        originalGuardianHealth:originalGatewaySubmittedCamera?.runToken===snapshot?.runToken
+          ? originalGatewaySubmittedCamera.originalGuardianHealth:null,
+        acceptedFrames:originalGatewayCameraBridgeAccepted,
+        vetoedFrames:originalGatewayCameraBridgeVetoed,
+        evidence:'Previously returned old-floor WebGL camera, used only after genuine source HP0; no raster or performance claims'
+      },
       actorSafeRefinements,
       portraitAimCorrections,
       jointShotApplications,
