@@ -319,7 +319,8 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
   // freeze, invented route, platform, guardian result or extra camera.
   // The World owner separately limits retention to 30 returned frames/2.8s.
   const sourceOwnedOriginalStillVisible=
-    job?.state==='awaiting-actual-first-render' &&
+    (job?.state==='awaiting-actual-first-render' ||
+     job?.state==='awaiting-structural-release') &&
     job.structureDeferred===true &&
     job.proof==='recorded-source-gateway' &&
     job.runToken===source?.runToken && job.floor===9 &&
@@ -348,7 +349,8 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
   // crossing publication; ordinary browser-adjacent scenes cannot hide F9.
   const firstGpuReceipt=job?.proof==='recorded-source-gateway' &&
     observedStagedOriginalCapBeforeRecordedCrossing(source,held);
-  if(!job || job.state!=='awaiting-actual-first-render' ||
+  if(!job || !['awaiting-actual-first-render',
+        'awaiting-structural-release'].includes(job.state) ||
       job.structureDeferred!==true ||
       !(job.proof==='recorded-source-gateway' || firstGpuReceipt) ||
       job.runToken!==source?.runToken || job.floor!==source?.floor ||
@@ -368,4 +370,61 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
   return observedClockworkRoofContinuity(source,passage,held) ||
     observedSourceEarnedColdFrameContinuation(source,held) ||
     firstGpuReceipt;
+}
+
+/**
+ * The authentic F9 noninteractive shaft may already be built and fully
+ * transparent while the genuine original bronze arch is still on screen.
+ * Only release that PREBUILT geometry after an actual WebGL return and either
+ * a physically observed old-gateway departure or a source-verified end to
+ * old architecture's optical hold. No new source floor, asset or fake frame.
+ */
+export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceGatePresence=null) {
+  if(job?.state!=='awaiting-structural-release' ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true ||
+     source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     job.floor!==9 || job.runToken!==source.runToken ||
+     !Number.isSafeInteger(source.tick) ||
+     !Number.isSafeInteger(job.sourceTick) ||
+     source.tick<job.sourceTick || source.tick-job.sourceTick>70 ||
+     !Number.isSafeInteger(job.submittedFrames) ||
+     !Number.isSafeInteger(job.structureBuiltAtSubmitted) ||
+     job.structureBuiltAtSubmitted<1 ||
+     job.submittedFrames<=job.structureBuiltAtSubmitted ||
+     job.submittedFrames>60) return false;
+  const sameOldGpuOwner=held?.guardianGateRetained===true &&
+    held.runToken===source.runToken && held.floor===9 &&
+    held.firstWorldRenderTick===job.sourceTick;
+  const crossing=source.lastGuardianCrossing;
+  const immutableVictory=crossing?.runToken===source.runToken &&
+    crossing.fromFloor===8 && crossing.toFloor===9 &&
+    crossing.cap?.id==='f8:cap' &&
+    crossing.guardian?.kind==='guardian' &&
+    crossing.guardian.active===false &&
+    Number.isSafeInteger(crossing.guardian.health) &&
+    crossing.guardian.health<=0 &&
+    Number.isSafeInteger(crossing.sourceTick) &&
+    source.tick>=crossing.sourceTick &&
+    source.tick-crossing.sourceTick<=70;
+  if(!sameOldGpuOwner && !immutableVictory) return false;
+  // Once the original geometry has legitimately retired, its existing
+  // retained gate cannot continue to veto a truthful F9 shaft.
+  if(!holdIncomingStructuralShell(source,passage,held,job,sourceGatePresence))
+    return true;
+  // Allow a measured same-shot warm-to-violet overlap only AFTER the actual
+  // original gateway has begun to recede, never while the bronze door is
+  // still primarily opaque. This requires the exact same-run source proof.
+  return sameOldGpuOwner &&
+    sourceGatePresence?.sourceBound===true &&
+    sourceGatePresence.sourceTick===source.tick &&
+    Number.isFinite(sourceGatePresence.opacity) &&
+    sourceGatePresence.opacity>=0 &&
+    sourceGatePresence.opacity<=.65 &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>=0 &&
+    held.originalGatewayOpacity<=.65 &&
+    held.opticalExitSubmitted!==true;
 }

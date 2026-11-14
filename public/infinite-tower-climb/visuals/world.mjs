@@ -5,7 +5,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
-import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
+import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
 import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
@@ -3124,10 +3124,11 @@ export function createTowerWorld(){
         snapshot.floor!==job.floor || key!==job.key ||
         snapshot.tick<job.sourceTick) return false;
     const advancing=['awaiting-actual-first-render',
-      'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state);
+      'awaiting-structural-release','awaiting-structural-submission',
+      'awaiting-vista-submission'].includes(job.state);
     if(advancing){
       // Only a returned actual F9 frame advances the staged GPU upload queue.
-      job.submittedFrames=Math.min(12,job.submittedFrames+1);
+      job.submittedFrames=Math.min(60,job.submittedFrames+1);
       job.firstRenderSubmitted=true;
     }
     // The noninteractive original Floor9 shaft previously arrived OPAQUE on
@@ -3135,7 +3136,8 @@ export function createTowerWorld(){
     // Isolate only its batched scene materials, then reveal the original shaft
     // by returned frames. Gameplay decks, traps, guardian and actor retain
     // their independent opaque materials and truthful geometry throughout.
-    if(job.structuralMaterials?.length &&
+    if(job.state!=='awaiting-structural-release' &&
+       job.structuralMaterials?.length &&
        Number.isSafeInteger(job.structureBuiltAtSubmitted) &&
        job.submittedFrames>job.structureBuiltAtSubmitted &&
        job.structuralFade<1){
@@ -3236,9 +3238,7 @@ export function createTowerWorld(){
       ?observedSourceGatewayDeparturePresence(snapshot,retainedEarnedCap):null;
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-actual-first-render' &&
-        arrival.submittedFrames>=1 && !options.stale &&
-        !holdIncomingStructuralShell(snapshot,passageWitness,
-          retainedEarnedCap,arrival,sourceOldGateway)) {
+        arrival.submittedFrames>=1 && !options.stale) {
       if (arrival.structureDeferred) {
         // Genuine 1x immutable source film 43300014722: the old bronze cap
         // survives as a real GPU mesh, yet a cold, fully rebuilt violet
@@ -3310,11 +3310,22 @@ export function createTowerWorld(){
         }
         arrival.structureBuildMs=+(performance.now()-began).toFixed(2);
         arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
-        arrival.state='awaiting-structural-submission';
+        // Prebuilt real Void geometry submits at zero opacity WHILE the
+        // original bronze doorway remains in the same actual world. The
+        // source-owned gateway, not this CPU construction, authorizes reveal.
+        arrival.state='awaiting-structural-release';
       } else appendDeferredVista(arrival);
     }
     if (arrival && arrival.key===key &&
+        arrival.state==='awaiting-structural-release' && !options.stale &&
+        observedPrebuiltVoidShaftRelease(snapshot,passageWitness,
+          retainedEarnedCap,arrival,sourceOldGateway)) {
+      arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+      arrival.state='awaiting-structural-submission';
+    }
+    if (arrival && arrival.key===key &&
         arrival.state==='awaiting-structural-submission' &&
+        arrival.structuralFade>=.35 &&
         Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
         arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
         !options.stale)
