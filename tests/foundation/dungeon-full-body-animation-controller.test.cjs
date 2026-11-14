@@ -5556,3 +5556,23 @@ test('RED: source-linked slow-frame full leg may trial a bounded stronger hip+kn
  assert.match(connected,/const after=read\(\)/);
  assert.match(connected,/certified\.oppositeShoePreserved!==true/);
 });
+
+
+// End-to-end source pose ownership must remain valid through the FINAL
+// displayed frame: an accepted linked leg cannot be shifted by later
+// source-toe or whole-pivot corrections without renewing BOTH shoe proofs.
+test('RED: full-leg original-source linked proof owns both shoes through final renderer composition',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const toe=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer('),
+   renderer.indexOf('const originalSourceSwingToesAxis='));
+ assert.match(toe,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\)/);
+ const slide=renderer.slice(renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer('),
+   renderer.indexOf('function ',renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer(')+10));
+ assert.match(slide,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\)return;/);
+ const browser=fs.readFileSync(path.join(root,
+   'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ const linked=browser.slice(browser.indexOf("await test.info().attach('original-source-linked-hip-knee-dual-shoe'"),
+   browser.indexOf("await test.info().attach('original-source-thigh-airborne-shoe-witness'"));
+ assert.match(linked,/frame\.sourceSolePatchWorld\?\.\[foot\]\?\.\[tip\]/);
+ assert.match(linked,/proof\.after\?\.\[foot\]/);
+});
