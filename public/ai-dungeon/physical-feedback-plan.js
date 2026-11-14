@@ -462,7 +462,7 @@ export function planPhysicalFeedback(previous,next,{
    push(u.hp===0?'damage-fatal':'damage',next.tick,{
     targetId:u.id,to:point(u),severity:(before.hp-u.hp)/u.maxHp,
     delay,verified:true,proof:'observed-hp-drop',
-    detail:{damage:before.hp-u.hp,maxHp:u.maxHp}
+    detail:{damage:before.hp-u.hp,maxHp:u.maxHp,remainingHp:u.hp}
    });
   }
  }
