@@ -411,6 +411,33 @@ export function confirmOriginalSourceSwingToeLift({
 }
 
 
+
+/**
+ * Physical-efficiency gate for the original source-skinned airborne toe.
+ * A positive toe delta by itself is not a convincing animation improvement:
+ * f235c439 genuine 390px Walking_A lifted its toe just 9.261mm with an
+ * 80mrad ankle twitch while leaving ~97.6mm inside stone. If a deep original
+ * toe remains buried, require >=10mm AND >=10% of starting penetration.
+ * Shallow, independently skinned source ankle relief retains existing bounds.
+ *
+ * A rejected ankle does not claim any ground contact or synthetic step; it
+ * relinquishes pose ownership so the last-resort verified original hip+knee
+ * sampler can evaluate the same imported skinned source chain.
+ */
+export function confirmOriginalSourceSwingAnkleNetClearance({
+ beforeToeY=NaN,afterToeY=NaN,beforeHeelY=NaN,afterHeelY=NaN,
+ floorTopY=NaN,appliedAngleRad=NaN
+}={}){
+ const lift=confirmOriginalSourceSwingToeLift({
+  beforeToeY,afterToeY,beforeHeelY,afterHeelY,floorTopY,appliedAngleRad
+ });
+ if(lift===null)return false;
+ const depth=floorTopY-beforeToeY;
+ const remaining=floorTopY-afterToeY;
+ return !(depth>.055&&remaining>.025&&
+  lift+1e-9<Math.max(.010,depth*.10));
+}
+
 /**
  * Continue only an ALREADY measured original Walking_A swing-ankle lift.
  * A safe, supported correction can be rejected by the next broad 0.1/0.2rad
