@@ -2530,8 +2530,23 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   swing.toeY>=-.045||swing.toeY<-.14||
   ![support.heelY,support.toeY].every(y=>
    Number.isFinite(y)&&y>=-.075&&y<=.015))return;
+ // Only a preceding displayed frame's independently skinned source-shoe
+ // certificate may authorize a larger linked swing this frame. Never reuse
+ // an accepted-frame counter, stale clip, disconnected joint or new action.
+ const preceding=actor.sourceSwingLinkedPriorFrameProofs?.[side]??null;
+ const previousLinkedCertified=Boolean(preceding&&
+  preceding.sourceInstanceId===actor.assetRoot.uuid&&
+  preceding.sourceClip==='Walking_A'&&
+  preceding.sourceUpperBone===upper.bone.name&&
+  preceding.sourceLowerBone===lower.bone.name&&
+  preceding.oppositeShoePreserved===true&&
+  preceding.contactLocked===false&&
+  !actor.fullBody?.changed&&!actor.fullBody?.restarted);
  const owner={
   mode:'move',sourceClipName:'Walking_A',sourceWeight:weight,
+  previousLinkedCertified,
+  previousUpperRad:previousLinkedCertified?preceding.upperRad:0,
+  previousLowerRad:previousLinkedCertified?preceding.lowerRad:0,
   sourceInstanceSame:Boolean(actor.assetRoot?.uuid),sourceChainVerified:true,
   sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
   sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
@@ -2625,6 +2640,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
     after[opposite].toeY-support.toeY:null
   })),
   candidates:trials.length,adaptiveFollowupUsed:measuredFollowups!==null,
+  previousLinkedCertified,linkedStartLimited:!previousLinkedCertified&&interval<.05,
   contactLocked:false};
  const selected=chooseOriginalSourceSwingLinkedLegTrial({...owner,trials});
  if(!selected)return;
@@ -2663,6 +2679,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
 }
 
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
+ // Only THIS immediately preceding displayed pose can lend a source-linked
+ // continuity certificate. The certificate is renewed by independent final
+ // skin measurements, not persistent across a missed original mixer frame.
+ const previousLinked=actor.sourceSwingLinkedCurrentFrameProofs;
+ actor.sourceSwingLinkedPriorFrameProofs=previousLinked?
+  {left:previousLinked.left??null,right:previousLinked.right??null}:
+  {left:null,right:null};
  // This original GLB two-shoe receipt belongs exclusively to this mixer frame.
  // Initialize before early returns or the first accepted connected-leg trial.
  actor.sourceSwingLinkedCurrentFrameProofs={left:null,right:null};
