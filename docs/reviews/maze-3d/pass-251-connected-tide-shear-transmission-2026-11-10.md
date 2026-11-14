@@ -1,0 +1,23 @@
+# Pass251 — mechanically connected tide-shear pressure court (2026-11-10 UTC)
+
+## Reviewed exact-source baseline
+
+Draft PR #53 was at `183e84ac903be3f3ca50f256bcb1fbfc0f052167`. [Source-bound Maze WebGL run 42865798758](https://github.com/my-edutu/Ai_games/actions/runs/42865798758) **SUCCEEDED** at this exact commit, including strict six-run reset/geometry checks and authentic browser captures. Its [original artifact 13786758741](https://github.com/my-edutu/Ai_games/actions/runs/42865798758/artifacts/13786758741) contains 37 unaltered native WebGL PNGs, captured 2026-11-10 17:36–17:37 UTC. All 35 individual PNG/JSON SHA-256 pairs match and the two standalone gate PNGs match the same-run transition manifest (37/37 originals in total). Pressure frames at 320×740 and 390×844 retain complete modeled Pip and pressure bounds within the unchanged ±0.95 NDC limit. At actual 390px pressure tick 5, observed inward jaw = 0.66rad and the complete jaw width = 0.8613 NDC; source PNG SHA-256 `73fa16d3b49fd52401b872c80bfddbb52bd1d7a52dd44009222ee4e2f0a4ab92`. SwiftShader CI frame time is NOT hardware GPU FPS.
+
+## Largest visible defect and implemented production unit
+
+Inspection of the **original full-frame**, unmodified 320/390/1280 encounter shows a serious physical-story gap: the broad coral treadle, rear ivory diaphragm and upper jaws appear spatially disconnected on mobile. Closing jaws and HUD warnings do not prove how this machinery is linked. The action also sits amid busy background masonry and water void. Against the fixed official [Nintendo Captain Toad gameplay](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/), authored staging and expressive feedback are still substantially below the benchmark.
+
+This pass connects the existing PUBLIC treadle to the SAME actual modeled mast/jaws using two original bronze-founded transmission tracks and broad gold/brass sliding drive bars. They visibly retract with the genuine public adjacent-pressure floor stroke, pitch as the real shutter beat develops, and return to rest on retreat, hidden-only state, terminal/reset and reconnect; reduced motion holds one truthful static contact pose. The complete geometry and swept rods remain within the real disclosed 2.4m tile, not a suggested new traversable route. All new mesh parts reuse existing pooled geometry and materials. No new trap, damage, authority tick, AI instruction, collision, new visibility, route hint, HUD story or shape class.
+
+An installed Three.js regression now checks both connected rods, floor-to-jaw timing, full geometric bounds before/after stroke, witnessed-only activation, diagonal non-activation, reduced motion, withdrawal, hidden privacy, six-run-class resource invariants and reset/disposal.
+
+## Source vs rendered verdict
+
+This is a **production candidate**, not a visual win. It must pass the NEW code SHA's focused native build, source test, strict six-run <100 resource budget, all 320/390/844/1280 no-crop framing and full-resolution original PNG SHA verification. Judge BEFORE/AFTER full-frame stage/motion, not the number of rods or test passes. Fresh-context independent critic, blind A/B and Ultracode were unavailable: coding tunnel returned `NOT_FOUND` this run. No current-commit rendered acceptance, fixed Nintendo parity, merge, deploy or force push is claimed.
+
+Next major gate: either reject/redesign the linked mechanism if mobile action still looks disconnected, or advance to a larger Tideglass Observatory level layout and purposeful pressure hazard puzzle with real victory resolution.
+
+## Source-bound Pass251 follow-up: inherited signed-zero representation in new rods
+
+On the exact `8d58534e` candidate [Maze workflow 42878914038](https://github.com/my-edutu/Ai_games/actions/runs/42878914038), the original installed-Three source gate failed **112/113 before any browser screenshots** at `tests/phase3/maze-3d-pressure-treadle.test.cjs:51`: a true fully retracted 3D drive rod produced `-0` from `-.26 * 0`, while a new test required identity with `+0`. This is exactly the prior confirmed Three.js signed-zero representational problem, **not evidence that the joint stays displaced**. All newly introduced zero-travel checks (far, diagonal, withdrawal, remembered-only and reduced-motion hidden) now require `abs(z) < 1e-12`, retaining strict physical no-displacement while accepting either signed zero; full contact travel, swept 2.4m cell bounds, privacy, resource and motion thresholds remain untouched. No production source changed in this repair. Recheck entire new HEAD CI/native WebGL before any benchmark claim.

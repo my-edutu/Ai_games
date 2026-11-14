@@ -1,0 +1,29 @@
+# Pass93 — disclosed-floor shell-fan art and accurate progress gate (2026-11-02 UTC)
+
+**Verdict: candidate committed, not visually accepted. The fixed [official Captain Toad: Treasure Tracker gameplay bar](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) is NOT MET.** This is a source-and-test checkpoint only: no current-head native WebGL original has yet been inspected by a fresh independent critic. Draft PR #53 must remain open, unmerged and undeployed.
+
+## Real cause, evidence and highest-impact target
+
+Pass92's [original dated 23-image SHA-verified audit](./pass-92-real-offshore-image-audit-and-native-gate-repair.md) rejected two impressive-sounding **offshore** towers: essentially invisible in the actual on-stage 320/390 Follow and only small native 844/1280 differences, not an observable art gain. Older genuine 320/390/844/1280 screenshots show a game-first full-frame 3D stage and working Pip/Thornback/HUD, but their broad uniform bare court paving, miniature actors and weak playable story moments still lose to Nintendo's **distinct miniature dioramas, vivid stage silhouette and readable cause/effect**. A percentage-of-pixel-difference calculation is not a quality score.
+
+### Builder 1 — an on-camera physical relief, no hidden topology
+
+[Source commit 28e478e](https://github.com/my-edutu/Ai_games/commit/28e478e3fe9a6d6820cb3a4d54dec481a05ddc8d) constructs **five connected, physically instanced shell-fan petals** on a deterministic subset of **already disclosed ordinary floor cells** at the true, terraced cell height. It uses existing authored `ShapeGeometry`, ceramic/mineral textures and `InstancedMesh` batch machinery: no extra materials, textures, geometry types, render-loop allocation, route decisions, fake keys, danger indicators or HUD text. It deliberately leaves known blocked cells, hazards, checkpoints and clues unobscured; tier-specific material choices distinguish actual stage districts. This directly affects the repeated playable court in native screenshots rather than invisible offshore water. This is an art *candidate*, not proof of perceptual improvement.
+
+### Separate geometry/privacy source critic
+
+[Contract commit 720e0c5](https://github.com/my-edutu/Ai_games/commit/720e0c550220fe040a046c2b2f007add1c61528d) adds a real production Three.js regression: zero undisclosed-floor shell surfaces; sufficient modeled on-camera relief; five physical petals per tessera, physically centered only on known cells at public terrace height; distinct district pigments; deterministic identical meshes with private route/warden/seed changed; unchanged public snapshot; no allocation or mutation during animation; full cleanup on empty new runs; unchanged GPU resource budgets. **The code was committed but the new CI has not concluded.** A source test is not a separate original-image artistic critic.
+
+## Actual whole-repo failure repaired without weakening the rule
+
+The previous exact-source [Autonomous Games CI 41519218983](https://github.com/my-edutu/Ai_games/actions/runs/41519218983) ran browser verification and failed 4 cases: **one maze progress-page assertion**, plus three Tiny Kingdom browser cases (G057 plaster, G058 grass, G063 river) unrelated to this Maze source. The Maze failure was a legitimate anti-claim check: an old detailed archived comparison string said **`100% pixel-identical`**, which made the independent progress JSON guard reject any `100%` substring. [Commit 4493cba](https://github.com/my-edutu/Ai_games/commit/4493cba76f7b799ad3df70636cc52e3d5067c99b) accurately reworded the *same verified* screenshot comparison to **pixel-identical at all three native sizes** without changing benchmark status, image evidence or weakening the test. Tiny Kingdom assertions were not modified in this Maze branch.
+
+## Mandatory visual gate, still pending
+
+Inspect exact-head [focused source-bound 3D workflow 41529707998](https://github.com/my-edutu/Ai_games/actions/runs/41529707998), [whole CI 41529707944](https://github.com/my-edutu/Ai_games/actions/runs/41529707944), and their actual dated full-resolution original screenshot sidecars when available. Independently verify exact HEAD, source hashes, PNG SHA-256, real 320×740 and 390×844 portrait, 844×390 landscape, 1280×900 desktop, witnessed real key pickup and genuine moving gate. Compare same-seed, same-motion screenshots against the earlier Pass92 accepted originals and frozen official Nintendo gallery; a blind A/B requires a separate fresh critic and should report the independent decision rather than test count. If shell-tessera colors are invisible/subpixel, overwhelm actors, resemble paths/treasure, or are clipped/obscure action, **reject/rebuild**, do not soften thresholds. Preserve full-height WebGL, fully framed Pip/Thornback, authentic objective/AI truth, one urgent chip, 44px controls, keyboard focus, real captions, high contrast, reduced motion, fallback/reconnect, deterministic public-only content and no HUD prose.
+
+The live shared-workspace tool tunnel was unavailable, so fresh subagents/Ultracode and an actual detached rendered-image critic could not be run here. The software SwiftShader machine is CPU-throttled: avoid interpreting its wall-clock delay as game GPU FPS. **Do not claim a product defect solely from CPU software timing; do not claim any Nintendo victory from source tests.**
+
+## Next critic-directed piece
+
+Use the post-commit real WebGL before/after images to decide whether the *on-stage* relief is visible enough. If insufficient, the next separately judgeable builder piece is stronger **character-scale, physical acting and near-camera authored moments**, not another far-offscreen ruin. The artistic benchmark remains open until an independent critic can inspect actual output and prefer it at native viewport dimensions.

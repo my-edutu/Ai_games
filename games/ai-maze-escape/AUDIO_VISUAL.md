@@ -3,6 +3,16 @@
 **Status:** Approved design  
 **Creative aim:** Turn uncertainty into a readable spectacle: darkness becomes mapped knowledge, routes become hypotheses, threats distort the plan, and the exit produces earned relief.
 
+## Implemented 3D garden viewer
+
+The current stream viewer uses original procedural Three.js geometry: an articulated amber-and-teal expedition robot, a six-legged armored warden, sandstone/jade terraces, carved ruins, vegetation, lagoon water and distinct interactables. Three coordinate-derived elevations are cosmetic; stairs exist only along disclosed legal navigation edges. Characters, route marks and camera targets share the same ground sampler. The public snapshot supplies cumulative steps; discovery is displayed as the actual known fraction, independently of escape completion.
+
+Follow, close and overview cameras support the current viewer. The full-quality renderer includes dynamic shadows and a generated environment reflection; the software tier retains the same rig parts and navigation geometry with reduced character tessellation. Every resource has an explicit bounded owner. A lost graphics context exposes the live public map immediately, and restoration discards stale motion history and resumes at the latest disclosed position.
+
+Sound is an original, bounded oscillator palette of footsteps, key/lock chimes, danger cues, result phrases and quiet ambient resonance. It starts through user activation, caps simultaneous voices at six and retains captions when muted or unavailable. This implementation is not a claim that every music/VFX state in the broader direction below is finished or independently approved.
+
+The separate development journal records actual captures, independent reference verdicts, remaining gaps and verification. Nintendo's Captain Toad imagery is used for comparison only; no reference artwork or character assets are shipped with the game.
+
 ## Visual Language
 
 The maze uses layered cartographic presentation with a strong explorer silhouette. Cells and passages have semantic states: hidden, currently visible, remembered-confirmed, remembered-uncertain, frontier, blocked, hazardous, objective-related, and invalidated. Critical distinctions use value, texture, outline, icon, and motion—not color alone.

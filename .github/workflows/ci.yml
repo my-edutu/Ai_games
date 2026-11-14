@@ -14,11 +14,23 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Locked Playwright 1.55.0 cannot install Chromium on ubuntu-26.04 latest.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Checkout exact PR source
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert checkout matches CI source SHA
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          checked_out="$(git rev-parse HEAD)"
+          if [ "$checked_out" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::CI checkout $checked_out differs from expected source $EXPECTED_HEAD_SHA"
+            exit 1
+          fi
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:

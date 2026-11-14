@@ -1,0 +1,52 @@
+'use strict';
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const {pathToFileURL} = require('node:url');
+const path = require('node:path');
+const moduleURL = pathToFileURL(path.resolve(__dirname,'../../public/ai-maze-escape/gate-moment.mjs')).href;
+
+test('public pressure staging preserves three observable physical phases and finite bounds',async()=>{
+  const {observedPressureProgress: pose} = await import(moduleURL);
+  const relay = p => Math.min(1,p/.17);
+  const shutter = p => Math.min(1,Math.max(0,(p-.34)/.36));
+  const piston = p => Math.min(1,Math.max(0,(p-.76)/.24));
+  const warn=pose(1,0),middle=pose(1,.35),late=pose(1,.80),full=pose(1,1.2);
+  assert.equal(warn,.20);
+  assert.equal(relay(warn),1);
+  assert.equal(shutter(warn),0);
+  assert.equal(piston(warn),0);
+  assert.ok(shutter(middle)>.3 && shutter(middle)<.6);
+  assert.equal(piston(middle),0,'first shutter movement does not also raise piston');
+  assert.equal(shutter(late),1,'shutter opening precedes full piston');
+  assert.ok(piston(late)>0 && piston(late)<1);
+  assert.equal(full,1);
+  assert.equal(piston(full),1);
+  assert.equal(pose(.079,10),.079,'published diagonal approach cannot invent contact');
+  assert.equal(pose(0,10),0,'withdrawal/rest immediately closes');
+  assert.equal(pose(-1,10),0);
+  assert.equal(pose(NaN,10),0);
+  assert.equal(pose(1,-4),.20,'rollback never skips a stage');
+  assert.equal(pose(1,Infinity),.20,'invalid visual time never skips a stage');
+});
+
+test('live 360ms steps preserve three ordered physical pressure phases within one action',async()=>{
+  const {publicPressureSequenceSeconds:cadence,observedPressureProgress:pose}=await import(moduleURL);
+  const duration=cadence(360);
+  assert.ok(Math.abs(duration-.432)<1e-10);
+  const phase=age=>pose(1,age,duration);
+  const shutter=p=>Math.max(0,Math.min(1,(p-.34)/.36));
+  const piston=p=>Math.max(0,Math.min(1,(p-.76)/.24));
+  assert.equal(phase(0),.20);
+  assert.ok(shutter(phase(.15))>.35 && shutter(phase(.15))<1);
+  assert.equal(piston(phase(.15)),0,'ivory shutters must move before piston');
+  assert.ok(piston(phase(.28))>.1 && piston(phase(.28))<1);
+  assert.equal(phase(.36),1,'full mechanism in real 360ms step');
+  assert.equal(piston(phase(.36)),1);
+  assert.equal(pose(0,.5,duration),0,'hidden/withdrawn pressure cannot linger');
+  assert.equal(pose(.079,.5,duration),.079,'diagonal observation cannot fake contact');
+  assert.equal(pose(1,-.5,duration),.20,'rollback starts with warning');
+  assert.equal(pose(1,.15,0),pose(1,.15),'invalid cadence retains old fallback');
+  assert.equal(cadence(180),.40,'fast steps retain perceptible staging');
+  assert.equal(cadence(4000),1.25,'slow steps do not exceed original upper bound');
+  assert.ok(Number.isFinite(cadence(NaN)));
+});

@@ -1,0 +1,108 @@
+name: AI Maze Escape Visual Evidence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/ai-maze-escape/**'
+      - 'games/ai-maze-escape/**'
+      - 'tests/browser/maze-review.spec.cjs'
+      - 'tests/browser/maze-3d.spec.cjs'
+      - 'tests/phase3/maze-*.test.cjs'
+      - 'scripts/capture-maze-3d.cjs'
+      - '.github/workflows/maze-visual-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maze-visual:
+    # Locked Playwright 1.55.0 cannot install Chromium on ubuntu-26.04 latest.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v6
+        with:
+          # pull_request defaults to refs/pull/*/merge, not the source PR HEAD.
+          # The screenshot and geometry gates must test this exact authored SHA.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Assert checkout matches the source-bound evidence SHA
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          checked_out="$(git rev-parse HEAD)"
+          if [ "$checked_out" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "::error::Evidence checkout $checked_out differs from expected PR source $EXPECTED_HEAD_SHA"
+            exit 1
+          fi
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build and test real Maze 3D presentation
+        run: npm run test:maze:phase3
+      - name: Verify live Maze stream host
+        run: npm run maze:stream:self-test
+      - name: Parse-check browser evidence before costly graphics setup
+        run: node --check tests/browser/maze-review.spec.cjs
+      # GitHub-hosted Ubuntu 24.04 already contains Chromium's launch libraries.
+      # Playwright --with-deps invokes APT for optional language fonts; on
+      # 2026-11-11 it stalled and failed DNS before ANY real geometry/screenshot
+      # test could run. Install the SAME locked 1.55.0 headless browser instead.
+      # Do not substitute a mock renderer or change the strict visual gates.
+      - name: Cache locked Playwright headless browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: maze-chromium-headless-1.55.0-${{ runner.os }}
+      - name: Install pinned headless Chromium without Ubuntu APT downloads
+        run: npx playwright install chromium --only-shell
+      - name: Verify native headless Chromium and real WebGL before geometry gate
+        run: |
+          node <<'NODE'
+          const { chromium } = require('@playwright/test');
+          (async () => {
+            const browser = await chromium.launch({ headless: true, args: ['--enable-unsafe-swiftshader'] });
+            try {
+              const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+              const result = await page.evaluate(() => {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (!gl) return { webgl: false };
+                gl.clearColor(0.1, 0.2, 0.3, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                const pixel = new Uint8Array(4);
+                gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+                return { webgl: true, pixel: [...pixel], error: gl.getError() };
+              });
+              if (!result.webgl || result.error !== 0 || result.pixel[3] === 0)
+                throw new Error('Real Chromium WebGL failed: ' + JSON.stringify(result));
+              console.log('Native Chromium WebGL smoke pass:', JSON.stringify(result));
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE
+      # Phase 0 must not be starved by an eight-minute full-scene evidence
+      # sequence: run the UNCHANGED six-reset budget before costly screenshots.
+      # Keep its failure fatal, but still gather unaltered images for diagnosis.
+      - name: Verify six real Maze run resets and strict geometry budget
+        id: geometry
+        run: npx playwright test tests/browser/maze-3d.spec.cjs --grep 'six real run transitions' --workers=1 --reporter=list
+      - name: Capture source-bound Maze browser evidence
+        if: success() || steps.geometry.outcome == 'failure'
+        run: npx playwright test tests/browser/maze-review.spec.cjs --workers=1 --reporter=list
+      - name: Preserve dated actual screenshots and source hashes
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-maze-escape-focused-visual-evidence
+          path: artifacts/maze-phase3
+          if-no-files-found: warn
+          retention-days: 30

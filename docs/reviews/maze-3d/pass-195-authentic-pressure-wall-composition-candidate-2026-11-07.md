@@ -1,0 +1,20 @@
+# Pass195 — source-bound two-ring pressure-court sightline candidate (2026-11-07 UTC)
+
+## The actual problem and evidence
+
+The exact-HEAD [Pass194 focused WebGL run 42392082336](https://github.com/my-edutu/Ai_games/actions/runs/42392082336) completed its authored 37-image capture stage, despite a later strict resource-test failure. Original [artifact 13583284967](https://github.com/my-edutu/Ai_games/actions/runs/42392082336/artifacts/13583284967) ZIP SHA-256: `5ac0082747ce972460bd533779e3ce0b5cb06f4cb6eba32b07ff5934e4252af3`. All 37 full-resolution PNG SHA-256 hashes match their 35 sidecars and two authentic gate-transition manifest references. The unaltered 390×844 pressure frame `public-tide-shear-pressure-390.png` SHA-256 `6415a77a65796f8403e4767b0137e3da5c3d701a3fea2aeddf9fb39b8799fc49` shows the physically present Pip, shutters and tide-shear mechanism squeezed against tall connected masonry; the near pressure silhouette is difficult to understand at normal mobile size. Real physical pressure bounds right **+.931939 NDC** remain within the unchanged **+.95** requirement. No crop or retouching was used in the critique.
+
+The Phase-0 six-run browser failure now has measured data: six real public-start geometry inventories **37, 37, 42, 41, 46, 45**, i.e. a **9** spread against the unchanged maximum **8**; character counts 1/1/1/1/1/1, shared world geometry classes 9/9/9/9/9/9, textures 4/4/4/4/4/4 and disclosed cell counts 10/4/4/4/4/4. All twelve geometry samples were previously below the separate strict 100 cap. Different public scenes may lazily load different existing mesh classes, but this is **not proven** to explain the spread; do not call it fixed or relax either threshold. Whole CI [42392082344](https://github.com/my-edutu/Ai_games/actions/runs/42392082344) also stopped before Maze browser checks on missing unrelated `tiny:stream:self-test`, after 694/694 Node tests passed.
+
+## One production scene-composition unit
+
+The existing authored two-cell public hazard breathing room suppressed tall greenery and blocked-tile towers, but its **nonpassage boundary walls still used the old one-cell threshold**, leaving dominant tall walls just outside the physical trap. This candidate uses the **same previously disclosed two-cell set** for those LOW, still-solid edge parapets. Every eligible edge requires BOTH real published endpoints, excludes real published gate edges and does not alter the authoritative public neighbor list, impassability, hidden-map privacy, Pip/Thornback, 44px UI, camera, audio, height, material palette or GPU primitive pool. The blocked stone cap remains on actual known blocked tiles. A new installed-Three test asserts a specifically disclosed two-cell nonpassage cutaway, missing-endpoint retention, unchanged GPU geometry pool and no cutaway from private-only trap metadata.
+
+**Source candidate only.** Do not assert this looks better until a new exact-HEAD WebGL workflow produces original full-frame 320/390/844/1280 captures, the 37 PNG hashes are verified, no pressure/withdrawal actor is cropped and a fresh independent critic can reject/accept the side-by-side against the fixed official Nintendo *Captain Toad: Treasure Tracker* gameplay benchmark (Luigi's Mansion 3 / ASTRO BOT supportive). No independent worker or Ultracode was available through the disconnected coding workspace. Do not infer GPU FPS from CPU SwiftShader.
+
+## Gates kept open
+
+1. The six-run strict renderer budget (<100) **and unchanged between-start spread <=8**: latest run **failed** the latter at 9. Diagnose first, no budget lowering or opportunistic screenshots.
+2. Original pressure approach/contact/withdrawal, guardian and real key/gate sequences must read at native size, remain completely inside unchanged ±.95 NDC and withdrawal width >=.70.
+3. Recheck public-only AI, deterministic collision/navigation, mobile 320/390 portrait / 844x390 / 1280x900, 44px touch, reduced motion, keyboard, contrast and full viewport.
+4. Genuine whole-repo CI and the fixed Nintendo comparison remain independent gates. **PR #53 OPEN DRAFT, never merge/deploy/force-push.**

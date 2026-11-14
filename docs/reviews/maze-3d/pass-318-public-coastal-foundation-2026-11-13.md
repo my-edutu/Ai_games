@@ -1,0 +1,9 @@
+# Pass318 — original Tideglass load-bearing seawall, source candidate
+
+2026-11-13 UTC. On OPEN DRAFT PR #53 at incoming commit `e3304d42f033325b42b24d089497b3b59416cd6f`.
+
+**Verified incoming:** focused exact-HEAD [WebGL 43354862753](https://github.com/my-edutu/Ai_games/actions/runs/43354862753) succeeded; whole [CI 43354862926](https://github.com/my-edutu/Ai_games/actions/runs/43354862926) failed on Tiny Kingdom OBS and unrelated evidence-upload steps. Prior Pass317 reported native Pip readability .515 NDC, but original rendered art still loses to the fixed Nintendo Captain Toad benchmark. The shared coding workspace tunnel is `NOT_FOUND`; new source cannot yet be visually inspected by an independent critic or Ultracode.
+
+**One substantial 3D composition change:** remove three near-identical horizontal band courses repeated under every disclosed foundation. Keep the solid load-bearing foundation, base/toe, cornice and all real traversable floor and walls, and instead create dark-backed original sea-glass load galleries with tall *joined* vertical stone piers solely along a **published actual board boundary**. One public corner has two exposed faces and four physical full-height piers. No undisclosed-neighbor inference, route/gate, hazard or collision change, no new material or geometry class or render-time allocation. An installed-Three test checks real physical pier transforms, lifecycle reset, resource pool bounds and public snapshot immutability.
+
+**Pending gates:** new exact-commit CI and native full-size Playwright 320/390/844/1280 screenshots with timestamps and original PNG SHA sidecars; six-run geometry <100; strict ±.95, withdrawal >=.70, 44px, accessibility and privacy; judge actual full-frame before/after compared with fixed official Captain Toad gameplay and a fresh-context independent critic. **No source-only artistic approval, never merge/deploy/force-push.**

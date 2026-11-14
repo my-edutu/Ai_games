@@ -1,0 +1,15 @@
+# Pass247 — source-authentic key celebration versus diagonal sighting (2026-11-10 UTC)
+
+## Actual failing exact-HEAD gameplay gate
+
+The prior exact-HEAD [AI Maze Escape Visual Evidence run 42837500732](https://github.com/my-edutu/Ai_games/actions/runs/42837500732), source `f869d65f3542d992997fe9c8676a223c6546d696`, passed the source build, stream checks, Chromium setup, unchanged six-run geometry/reset budget, and the complete source-bound 320/390/1280 Tide-Shear chronology. The gallery's **real** source-authoritative key pickup instead FAILED Playwright: when genuine six-plus WebGL pickup shards were present at desktop, the goal label remained **"Disclosed mechanism"**, not **"KEY FOUND"**, for the entire 10s assertion. The logged runner showed `expected KEY FOUND / received Disclosed mechanism`; five other browser tests passed. [Original artifact 13774698127](https://github.com/my-edutu/Ai_games/actions/runs/42837500732/artifacts/13774698127) was preserved by CI. These are **source-bound native browser diagnostics**, not an independent manual PNG/sidecar review in this run.
+
+## One concrete production gameplay-presentation repair
+
+The Pass246 published-diagonal **Watch jaws** cue was given unconditional priority over Pip's legitimate, *already witnessed* key pickup even while the original 3D shard-release animation had the story-camera focus. That turned the key reward into an unexplained event. The production mission chip now holds **KEY FOUND / Key collected / Keep exploring** for the existing short, same-run public pickup milestone when *only* a **nonurgent diagonal sighting** competes. **Immediate public pressure contact, observed connected retreat, and a genuine warden remain urgent and outrank the pickup.** Once the pickup beat expires, an actually visible diagonal jaw can again earn **Watch jaws** on its own merits. No cached secret, route, invented action, actor/model geometry, simulation rules, CSS overlays or camera tests changed.
+
+The original exact-source key-pickup desktop and 390px Playwright sequences now explicitly require the amber diagonal flag to be **false** when they observe a real 3D shard release. A separate source test guards this narrow priority rule. Existing genuinely moving pressure jaws, tick-4 early warning, tick-5 contact, tick-6 withdrawal, unchanged strict ±.95 and >.70 NDC physical envelopes, resource budget <100 and all 44px controls remain acceptance gates.
+
+## Acceptance boundary
+
+This is a production candidate until the **new exact-HEAD** whole-repository tests and native WebGL captures actually complete; do not claim the corrected pickup is rendered or visually judged on a different SHA. Reinspect complete original full-size key/puzzle/guardian captures and compare side-by-side with official Nintendo Captain Toad, plus Luigi's Mansion 3 / ASTRO BOT; an independent critic and genuine blind A/B remain unavailable in this connector session. The flagship authored experience and Nintendo-quality art are **NOT YET APPROVED**. Preserve Draft PR #53 without merging/deploying/forcing.

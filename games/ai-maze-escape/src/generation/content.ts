@@ -8,6 +8,70 @@ export function doorBetween(world:MazeWorld,a:number,b:number):MazeDoor|undefine
 function shortestDistance(world:MazeWorld,start:number,goal:number){const path=solveMaze(world,{start,goal});return path?path.length-1:Number.POSITIVE_INFINITY}
 function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:string){const pool=[...candidates],out:number[]=[];while(pool.length&&out.length<count){const index=rng.nextInt(stream,pool.length);out.push(pool.splice(index,1)[0])}return out}
 
+// Put one real moving Thornback patrol within an OPEN, traversable side branch
+// of the mandatory journey. The guardian still occupies and patrols its own
+// generated cells; Pip discovers it through normal public observation. This is
+// not a cinematic spawn, hidden-information oracle or forced capture.
+function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng){
+  const routeCells=new Set(route),ideal=Math.floor(route.length*0.35);
+  const choices:{approachIndex:number;spawn:number;retreat:number;straight:boolean}[]=[];
+  for(let index=Math.max(2,minimumDistance);index<route.length-2;index++){
+    const approach=route[index]!;
+    if(unavailable.has(approach))continue;
+    for(const spawn of passageNeighbors(world,approach)){
+      if(routeCells.has(spawn)||unavailable.has(spawn)
+        ||!passageNeighbors(world,spawn).includes(approach)
+        ||shortestDistance(world,world.start,spawn)<minimumDistance)continue;
+      const retreatOptions=passageNeighbors(world,spawn)
+        .filter(cell=>!routeCells.has(cell)&&!unavailable.has(cell)
+          &&passageNeighbors(world,cell).includes(spawn)).sort((a,b)=>a-b);
+      // A genuine two-cell straight approach makes Thornback readable whether
+      // it is advancing or withdrawing. Never cut new passages to stage it.
+      const fromRow=Math.floor(approach/world.width),fromCol=approach%world.width;
+      const spawnRow=Math.floor(spawn/world.width),spawnCol=spawn%world.width;
+      const aligned=retreatOptions.find(cell=>
+        Math.floor(cell/world.width)-spawnRow===spawnRow-fromRow
+        &&cell%world.width-spawnCol===spawnCol-fromCol);
+      const retreat=aligned??retreatOptions[0];
+      if(retreat!==undefined)choices.push({approachIndex:index,spawn,retreat,straight:aligned!==undefined});
+    }
+  }
+  if(!choices.length)return null;
+  // Keep the first staged encounter meaningfully early without placing a
+  // guardian on Pip's required exit/key/gate route. Stable tie-breaks and a
+  // named seeded stream retain replayable generation in the new content.
+  choices.sort((a,b)=>Math.abs(a.approachIndex-ideal)-Math.abs(b.approachIndex-ideal)
+    ||a.approachIndex-b.approachIndex||a.spawn-b.spawn||a.retreat-b.retreat);
+  // If a real straight side corridor exists, NEVER randomly select an
+  // off-axis bend. At both patrol endpoints the public one/two-cell view
+  // then supports the same physical Pip–Thornback encounter contract.
+  const alignedChoices=choices.filter(choice=>choice.straight);
+  const pool=alignedChoices.length?alignedChoices:choices;
+  const shortlist=pool.slice(0,Math.min(6,pool.length));
+  return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
+}
+
+// One genuine optional pressure court on the early public journey: earlier
+// traps were scattered across unseen off-route cells. Do not add passage
+// geometry, obstruct the required key/gate/exit path or reveal hidden cells.
+function chooseRoutePressureAlcove(world:MazeWorld,route:number[],offRoute:number[],reserved:Set<number>,visibilityRadius:number){
+  const offRouteCells=new Set(offRoute);
+  const minimum=Math.max(3,visibilityRadius+1);
+  const ideal=Math.max(minimum,Math.floor(route.length*.15));
+  const choices:{approachIndex:number;trap:number}[]=[];
+  for(let index=minimum;index<route.length-2;index++){
+    const approach=route[index]!;
+    if(reserved.has(approach))continue;
+    for(const trap of passageNeighbors(world,approach)){
+      if(!offRouteCells.has(trap)||!passageNeighbors(world,trap).includes(approach))continue;
+      choices.push({approachIndex:index,trap});
+    }
+  }
+  choices.sort((a,b)=>Math.abs(a.approachIndex-ideal)-Math.abs(b.approachIndex-ideal)
+    ||a.approachIndex-b.approachIndex||a.trap-b.trap);
+  return choices[0]?.trap??null;
+}
+
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -22,13 +86,35 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   }
   const reserved=new Set<number>([world.start,world.exit,...world.keys.map(key=>key.cell),...world.doors.flatMap(door=>[door.a,door.b])]);
   const routeSet=new Set(route),offRoute=Array.from({length:world.width*world.height},(_,cell)=>cell).filter(cell=>!reserved.has(cell)&&!routeSet.has(cell));
-  world.traps=chooseUnique(offRoute,Math.min(config.trapCount,offRoute.length),rng,'hazards:traps').sort((a,b)=>a-b);
+  const pressureAlcove=config.trapCount>0
+    ?chooseRoutePressureAlcove(world,route,offRoute,reserved,config.visibilityRadius):null;
+  const remainingOffRoute=pressureAlcove===null?offRoute:offRoute.filter(cell=>cell!==pressureAlcove);
+  const remainingTraps=Math.max(0,config.trapCount-(pressureAlcove===null?0:1));
+  world.traps=[...(pressureAlcove===null?[]:[pressureAlcove]),
+    ...chooseUnique(remainingOffRoute,Math.min(remainingTraps,remainingOffRoute.length),rng,'hazards:traps')]
+    .sort((a,b)=>a-b);
   const clueCandidates=route.slice(1,-1).filter(cell=>!reserved.has(cell));
   world.clues=chooseUnique(clueCandidates,Math.min(Math.max(1,dependencyCount),clueCandidates.length),rng,'dependencies:clues').sort((a,b)=>a-b);
   if(route.length>4)world.checkpoints=[route[Math.floor(route.length/2)]];
   const threatCount=Math.min(config.threatCount,8),threatReserved=new Set<number>([...reserved,...world.traps]);
-  const threatCandidates=Array.from({length:world.width*world.height},(_,cell)=>cell).filter(cell=>!threatReserved.has(cell)&&shortestDistance(world,world.start,cell)>=Math.max(3,config.visibilityRadius+1)&&passageNeighbors(world,cell).some(next=>!threatReserved.has(next)));
-  const spawns=chooseUnique(threatCandidates,Math.min(threatCount,threatCandidates.length),rng,'threat-policy:spawns');for(let i=0;i<spawns.length;i++){const spawn=spawns[i],neighbor=passageNeighbors(world,spawn).filter(cell=>!threatReserved.has(cell)).sort((a,b)=>a-b)[0];if(neighbor===undefined)continue;world.threats.push({id:`threat-${i+1}`,cell:spawn,route:[spawn,neighbor],routeIndex:0,direction:1,lastSeenTick:null,active:true});threatReserved.add(spawn);threatReserved.add(neighbor)}
+  const minimumDistance=Math.max(3,config.visibilityRadius+1);
+  if(threatCount){
+    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng);
+    if(watchpost){
+      world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
+      threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
+    }
+  }
+  const threatCandidates=Array.from({length:world.width*world.height},(_,cell)=>cell)
+    .filter(cell=>!threatReserved.has(cell)&&shortestDistance(world,world.start,cell)>=minimumDistance
+      &&passageNeighbors(world,cell).some(next=>!threatReserved.has(next)));
+  const spawns=chooseUnique(threatCandidates,Math.min(threatCount-world.threats.length,threatCandidates.length),rng,'threat-policy:spawns');
+  for(const spawn of spawns){
+    const neighbor=passageNeighbors(world,spawn).filter(cell=>!threatReserved.has(cell)).sort((a,b)=>a-b)[0];
+    if(neighbor===undefined)continue;
+    world.threats.push({id:`threat-${world.threats.length+1}`,cell:spawn,route:[spawn,neighbor],routeIndex:0,direction:1,lastSeenTick:null,active:true});
+    threatReserved.add(spawn);threatReserved.add(neighbor);
+  }
   return world;
 }
 

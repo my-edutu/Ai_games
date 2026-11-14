@@ -1,0 +1,15 @@
+# Pass188 — disclosed pressure-court blocked-tile sightline candidate
+
+2026-11-06 UTC · Existing draft PR #53. Official Nintendo Captain Toad gameplay visuals, supported by Luigi's Mansion 3 and ASTRO BOT, remain the fixed bar **NOT MET**.
+
+## One consequential scene composition gap
+
+The original Pass177 native 320/390 WebGL evidence (37 full-frame source-bound captures, artifact 13446725699, ZIP SHA-256 59a487eceb7fe29181addd2f6c23278838c7cf69259fdcc9e56ddbcc52b33d61) shows dense masonry masking the pressure device and Pip. Source audit exposes a surviving specific cause: the old pressure sightline suppresses planting and columns but **still creates full-height 2.7-unit decorative windcatchers and pavilions within disclosed blocked neighbor cells** and retains their opaque foreground walls. The Pass179 parapet condition excluded blocked neighbor tiles. Consequently the moving ivory shutters, relay and piston can still be physically hidden behind an impassable ruin, especially on real portrait viewports.
+
+## One authored 3D candidate, not cosmetic text
+
+On **known blocked cells only** inside a publicly disclosed pressure ring, use a clearly sealed low sculpted tide-ledge with connected cross-rib stone and sea-glass instead of the random full-height tower/pavilion. On the matching **known nonpassage edge**, retain a continuous low stone parapet, including a known blocked/safe boundary; preserve fully opaque walls on unknown edges, real door/gate edges and unrelated locations. The symmetric edge predicate is order-independent. Model pieces reuse existing batched box/stone/jade/sea-glass materials and geometry; no per-frame or new GPU classes. Floor, real blocked flag, real passages, authority/collision, run clocks, threat AI, hidden map, camera, Pip/Thornback and HUD are unchanged. This is a visible spatial edit aimed at freeing sightlines to the genuine consequential pressure act.
+
+## Verification and next gate
+
+A new installed-Three test inspects actual instanced terrain matrix heights at a known blocked tile, verifies tall default architecture returns without a public pressure fact, asserts solid public pressure parapet, order-independence, physical jaw retention, immutable sanitized snapshot, original geometry/material/texture budgets and disposal. Tests and exact-HEAD native WebGL **not executed**: shared coding workspace and independent worker service remain inaccessible; GitHub Actions jobs for previous head 6a522edd are still queued without started execution. The prior six-run browser resource assertion (102 vs strict <100) remains unverified as fixed. Must run installed-Three, strict six-run and full CI, capture unaltered SHA-matched full 320x740, 390x844, 844x390, 1280x900 pressure/action and guardian/key/gate images, retain ±0.95 NDC and withdrawal >=0.70, then fresh independent Nintendo comparison. Reject if blocked tile looks traversable or height causes new framing/occlusion. No rendered/independently judged win claimed, no merge/deploy.

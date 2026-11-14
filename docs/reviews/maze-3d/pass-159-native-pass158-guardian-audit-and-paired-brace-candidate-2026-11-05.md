@@ -1,0 +1,30 @@
+# Pass159 — original Pass158 WebGL artifact audited; paired physical brace candidate (2026-11-05 UTC)
+
+**Fixed quality bar:** [Nintendo's actual Captain Toad: Treasure Tracker gameplay screens](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/), with Luigi's Mansion 3 and ASTRO BOT as supporting performance/interaction references. No replacement target and no test-count victory. Source code is *our original game*, never copied Nintendo characters, level geometry or art.
+
+## What is directly proven
+
+- **Source:** exact PR #53 production commit `628f1cc607acf1c6b52d790ce451823dd2539683`, [successful original WebGL workflow 41968599096](https://github.com/my-edutu/Ai_games/actions/runs/41968599096), [artifact 13388912654](https://github.com/my-edutu/Ai_games/actions/runs/41968599096/artifacts/13388912654), captured 2026-11-05 04:36–04:42 UTC.
+- Independently unpacked the **original ZIP** and recomputed SHA-256 over all **28 native PNGs** against their matching dated original JSON sidecars: **28/28 matched, zero mismatches**. The sidecars bind named source files including `characters.js`, `scene.js`, `app.js`, `gameplay-hud.css` and `index.html`; these are real Chromium WebGL frames, not generated mockups. This proves evidence integrity, **not artistic quality**.
+- Three natural original 390×844 public guardian frames use the same real run token `5e87cabf`, tick 13, with observed phases at 04:38:08.798Z (**beat .00779**), 04:38:14.241Z (**beat .48889**), 04:38:18.424Z (**beat .92281**). Both genuine characters are fully framed in each image; native full 390 screenshots have four actual **44×44 px** controls. Real notice→brace→shell-release does **not** invent a dangerous attack, new AI move, free passage, or hidden foe.
+- Real 320×740 Detail screenshot has guardian horizontal NDC [+.0745,+.8712], and real 320 Follow screenshot [+ .0756,+.8833]; Pip also fully in frame. 390 Follow guardian right bound +.922 (< original +.95 margin). 844×390 landscape and 1280×900 desktop also record full Pip/Thornback and four 44px controls. None of these results is a hardware-GPU frame-rate claim.
+
+## Direct visual criticism — FAIL against the fixed bar
+
+Lead reviewer inspected the native **full-resolution original** 390 chronology plus 320, 844, 1280, not a cropped gameplay substitute. The screen is already full-stage with compact actionable danger, timer, keys, on-demand Map and Details; no oversized explanation dashboard obstructs action. Pip has lantern/body movement. Thornback's final shell release is distinctly readable.
+
+**Largest remaining gap:** the **middle defensive brace** is barely recognizable in the 390 portrait when seen at actual gameplay size, despite test-measured pincer/buckler rotations. In authentic screenshots the guardian's foreleg guards sit below/behind its body while the more distinctive tall dorsal fin only arrives at release. Repetitive beige/jade masonry and widely spaced environmental motifs are another major gap versus Nintendo's high-contrast toy-diorama staging, strong action silhouettes, authored consequences and scene variety. This is a genuine art/gameplay readability problem, **not** a SwiftShader CPU time issue.
+
+Not a blind independent Nintendo comparison: fresh-context worker/subagent/Ultracode route returned `NOT_FOUND: tunnel-client not seen for 300 seconds`. Do not call this an independently verified quality win.
+
+## Small independently judgeable builder change — unapproved until native re-capture
+
+1. [`c043d9f`](https://github.com/my-edutu/Ai_games/commit/c043d9f49fa4b8acfa211bf48b54a3355e3deda6) anchors **two permanent rounded ceramic-and-bronze 3D shoulder guards** to Thornback's existing armored body. At first public recognition they lie folded. At a truly witnessed middle brace the pivots raise and fan outward; as the actual public shell opens they fold again. This changes the model's upper readable silhouette rather than adding UI prose, a fake enemy signal or a rule-side effect. Updates use existing deterministic `defensiveSweep` derived only from the published guardian encounter clock; zero allocations in `update()`, with exact neutral teardown.
+2. [`b181f7c`](https://github.com/my-edutu/Ai_games/commit/b181f7c2292ba2cee49730000fac48dfe69505ea) extends the **installed Three.js real-rig test** to assert paired mesh ownership, raised middle transforms, fold/release distinction, repeatable pose, reduced-motion/LOD combinations, public withdrawal, terminal reset and graphics resource stability. No visual acceptance, model framing or privacy test was loosened.
+3. **Current source is not image-approved.** [Exact-source 41973459366 WebGL](https://github.com/my-edutu/Ai_games/actions/runs/41973459366) and [full CI 41973459873](https://github.com/my-edutu/Ai_games/actions/runs/41973459873) were queued/running when this review was written. Require all genuine source-bound 320/390/844/1280 PNGs and their SHA sidecars, compare the true 390 notice→brace→release against the old authentic image at native size. Specifically reject an improvement if the new upper guards obscure Pip's path, clip either actor, eclipse the mask or fail to make the middle action readable. Preserve original 0.95 margin and 44px controls.
+
+## Independent repo failure tracked separately
+
+[Full CI 41968599255](https://github.com/my-edutu/Ai_games/actions/runs/41968599255) failed **three Tiny Kingdom browser assertions** (`procedural-060` expected vs `procedural-063` for G057/G058; G063 river material array length difference). Focused Maze visual workflow passed. These failures are *not* the Maze's graphics throttling and must not be called green; leave other concurrent-game owners' tests/graphics untouched and do not weaken their checks.
+
+**Verdict: official Nintendo quality bar NOT MET; no independent blind A/B win. PR #53 must stay OPEN DRAFT, unmerged, undeployed. Keep original source-privacy rules, autonomy, keyboard and high-contrast/reduced-motion behavior. Next critic gate is authentic exact-head native images of the paired guard, followed by further substantive environment and gameplay staging if rejected.**

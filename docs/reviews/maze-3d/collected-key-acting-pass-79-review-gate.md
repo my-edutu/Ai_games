@@ -1,0 +1,17 @@
+# Pass79 — collected-key performance, source-bound critical gate (2026-11-02 UTC)
+
+## Fixed benchmark and honest review
+Official gameplay reference: https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/ (Captain Toad: Treasure Tracker). Supporting: Luigi's Mansion 3, ASTRO BOT. The 2026-11-02 authentic 1280/390 3D pickup reads as jade shards and a low opened shrine; Pip's connected glove does not present an unambiguous collected key. The official reference still wins on immediately readable physical reward action and coherent diverse authored scenes.
+
+The **before** CI was https://github.com/my-edutu/Ai_games/actions/runs/41449102920 (success), actual unaltered 22-PNG ZIP https://github.com/my-edutu/Ai_games/actions/runs/41449102920/artifacts/13143972644. All 22 unique full-resolution PNGs were independently SHA-256 matched to dated current-source JSON sidecars: 1280 key pickup 2026-11-02T13:04:37.765Z `e8affa07d4c8daf8e66f825feab191045e8ad2a0abe494b91caa56f7a02fc369`, 390 key pickup 13:04:52.116Z `49329c722e7ce6f2ef6153f7b99252024c477535750206aa9cbdfee80641b710`, true Follow 320 guardian 13:02:56.248Z `f30f2c08f529cb9d5ba9a53bcf008544d7f987e06bbcee274e84a2c6d41c3ca0`. Existing screenshots are **not new Pass79 verification**.
+
+## Independent pieces
+1. **Existing event truth:** only witnessed public same-run previous uncollected→collected key with actual inventory can set `recentPublicPickup`; no hypothetical treasure or undisclosed route. Retains all established gate/terminal/guardian precedence.
+2. **Modeled acting:** reuse Pip's wrist-connected modeled key, physically raised/turned/enlarged during that genuine pickup; keyed sealed gate and real danger supersede, old event clears. Source https://github.com/my-edutu/Ai_games/commit/0c6f0c8e0e511f01b93082b29043ea4bbeb50f9e.
+3. **Camera-timing coherence:** taper actual connected-key acting over rendered-frame witnessed shard dwell rather than CPU wall time. Source https://github.com/my-edutu/Ai_games/commit/0c7d406224499856badf5454ef60a7e2766f10ef.
+4. **Separate source critic gate:** true instanced character rig and exact source tests assert connection, no geometry/material allocation, strict threat/lock/observed gate/terminal override, reduced motion and cleared state. https://github.com/my-edutu/Ai_games/commit/72f179ed5936b2684d5c60d3b95c5abe7c6a2184. This critic is not a substitute for a fresh-context image critic.
+
+## Required new-source visual rejection gate
+https://github.com/my-edutu/Ai_games/actions/runs/41451398659 — focused authentic WebGL and Playwright 320×740/390×844/844×390/1280×900. Download the original dated screenshot archive. Verify all original hashes; inspect full-size real pickup before/after, model/glove connected and visibly legible at native 390, complete guardian and Pip physical bounds, 44px controls, no panels or face clipping, original physical key shards **after screenshot** and all source-privacy rules. Compare direct unscaled against the fixed Nintendo image, not test counts. https://github.com/my-edutu/Ai_games/actions/runs/41451398610 — whole repository tests. Both were queued/running when written; **no Pass79 green or image acceptance asserted**. Shared tunnel disconnected: no detached builder/critic subagents, Ultracode or blinded preference; hardware GPU FPS not inferred from throttled SwiftShader.
+
+**Decision: candidate only, benchmark NOT MET; PR open draft, no merge/deploy.**
