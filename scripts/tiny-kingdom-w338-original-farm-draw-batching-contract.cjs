@@ -74,7 +74,7 @@ assert.equal(view.budget.droppedPlotsForBudget,0);
 assert.equal(near.rowRanges.length,5);
 assert.match(html,/drawResidentFarmFields\(eye,planes,Math.max\(0,160000-nonFieldTriangles\)\)/);
 
-assert.match(html,/function drawResidentFarmFields\\([\\s\\S]*?multiDrawBatches/, 'W338 field GPU driver should consolidate genuine crop row draws');
+assert.match(html,/function drawResidentFarmFields\([\s\S]*?multiDrawBatches/, 'W338 field GPU driver should consolidate genuine crop row draws');
 ctx.draws=[];ctx.softwareBatchCalls=0;ctx.swiftGpu=false;ctx.scenicMultiDrawOverride=null;
 ctx.scenicMultiDrawExtension={multiDrawArraysWEBGL(mode,firsts,fo,counts,co,n){
  assert.equal(mode,ctx.gl.TRIANGLES);assert(n>1&&n<=256);
