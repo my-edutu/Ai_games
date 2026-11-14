@@ -23,9 +23,10 @@ test('real Floor9 first-frame pixel rescue ages on returned WebGL frames, not so
   // A stale out-of-order WebGL return cannot age the current living camera.
   assert.equal(policy.submitted(source),false);
   const frame=nextTick(459);
-  for(const nextScale of [.82,.90,.96,1]){
-    assert.equal(policy.submitted(frame),true);
-    assert.equal(policy.observe(frame,earned,follow),nextScale);
+  for(let returned=1;returned<=8;returned++){
+    assert.equal(policy.submitted(frame,610),true);
+    assert.equal(policy.observe(frame,earned,follow),returned===8?1:.72,
+      'four to eight genuinely returned frames share ONE cold drawing buffer before restoration');
   }
   assert.equal(policy.submitted(frame),false);
   assert.equal(policy.observe(frame,earned,follow),1,
@@ -37,17 +38,18 @@ test('source-earned gateway recovery stays bounded through REAL Floor9 airborne 
   const {createTowerColdFloorResolution}=await policyPromise;
   const policy=createTowerColdFloorResolution();
   assert.equal(policy.observe(source,earned,follow),.72);
-  policy.submitted(source);
+  policy.submitted(source,700);
   const air=nextTick(456,{player:{health:4,state:'airborne',
     grounded:false,groundedPlatformId:null,vy:14000}});
-  assert.equal(policy.observe(air,{stage:'none'},follow),.82,
+  assert.equal(policy.observe(air,{stage:'none'},follow),.72,
     'a real roof dismount cannot suddenly allocate a full-size target during cold GPU handoff');
-  assert.equal(policy.submitted(air),true);
-  assert.equal(policy.observe(nextTick(458,{player:air.player}),null,follow),.90);
-  policy.submitted(nextTick(458,{player:air.player}));
-  assert.equal(policy.observe(nextTick(461,{player:air.player}),null,follow),.96);
-  policy.submitted(nextTick(461,{player:air.player}));
-  assert.equal(policy.observe(nextTick(461,{player:air.player}),earned,follow),1);
+  assert.equal(policy.submitted(air,610),true);
+  assert.equal(policy.observe(nextTick(458,{player:air.player}),null,follow),.72);
+  assert.equal(policy.submitted(nextTick(458,{player:air.player}),140),true);
+  assert.equal(policy.observe(nextTick(461,{player:air.player}),null,follow),.72);
+  assert.equal(policy.submitted(nextTick(461,{player:air.player}),130),true);
+  assert.equal(policy.observe(nextTick(461,{player:air.player}),earned,follow),1,
+    'two inexpensive observed WebGL returns restore full pixels without a ramp');
   const diag=policy.diagnostics();
   assert.equal(diag.active,false);
   assert.equal(diag.finishedSourceTick,451);
@@ -130,7 +132,7 @@ test('real shipped Three scene starts the bounded framebuffer BEFORE render and 
   const update=scene.indexOf('update(motionDt);');
   const policy=scene.indexOf('coldFloorPolicy.observe(snapshot,passage.diagnostics()');
   const render=scene.indexOf('renderer.render(scene, camera);');
-  const submitted=scene.indexOf('coldFloorPolicy.submitted(snapshot);');
+  const submitted=scene.indexOf('coldFloorPolicy.submitted(snapshot, rendererReturnedAt - sceneReadyAt);');
   const retained=scene.indexOf('world.retainedFilmHandoff?.(snapshot)',update);
   assert.ok(update>=0 && retained>update && policy>retained &&
     policy<render && submitted>render);
