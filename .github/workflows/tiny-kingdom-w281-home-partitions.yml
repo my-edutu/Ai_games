@@ -9,6 +9,7 @@ on:
       - scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
       - scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
       - scripts/tiny-kingdom-w318-civic-gpu-allocation-fallback-contract.cjs
+      - scripts/tiny-kingdom-w319-civic-road-buffer-reuse-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - .github/workflows/tiny-kingdom-w281-home-partitions.yml
   workflow_dispatch:
@@ -29,6 +30,7 @@ jobs:
           node scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
           node scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
           node scripts/tiny-kingdom-w318-civic-gpu-allocation-fallback-contract.cjs
+          node scripts/tiny-kingdom-w319-civic-road-buffer-reuse-contract.cjs
           node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
