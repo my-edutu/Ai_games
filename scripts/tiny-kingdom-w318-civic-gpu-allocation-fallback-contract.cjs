@@ -4,7 +4,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const script=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const script=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(script,'real playable renderer required');new Function(script);
 const start=script.indexOf('function rememberCivicScenery(');
 const end=script.indexOf('// G140: resident original settlement VBOs',start);
