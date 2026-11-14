@@ -119,10 +119,17 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const victim=verifiedDamageFoleyVictim(cue);
  const releaseActor=verifiedReleaseFoleyActor(cue);
  if(actor===null&&victim===null&&releaseActor===null)return false;
- // The aim target for an authorized launch is never a confirmed injury.
- // Existing HP-only impact receipts retain the anonymous '-' source.
+ // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
+ // The public planner includes that target in its immutable swing ID even
+ // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
+ // strict foley expected '-' for every sword, muting real aimed attempts.
+ const aimedTarget=actor!==null?cue.targetId:null;
+ if(actor!==null&&aimedTarget!==null&&
+  (typeof aimedTarget!=='string'||aimedTarget.length<1||
+   aimedTarget.length>128))return false;
+ // Injury still has an anonymous perpetrator; release remains an action.
  const source=actor??releaseActor??'-';
- const target=victim??(releaseActor!==null?cue.targetId:null)??'-';
+ const target=victim??(releaseActor!==null?cue.targetId:aimedTarget)??'-';
  return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
 }
 
