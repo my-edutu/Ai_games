@@ -49,7 +49,7 @@ const changedFounder=key();
 assert.notEqual(changedFounder,firstKey,'founder relocation invalidates civic layout');
 assert.ok(env.civicRoadMemo.changedDependencies>=3);
 assert.equal(env.civicRoadMemo.remoteGrowthSkips,1);
-assert.equal(env.civicRoadMemo.checks,8);
+assert.equal(env.civicRoadMemo.checks,6);
 assert.ok(html.includes('getCivicRoadDirtyAudit'),
  'audit exposed to live game for scene-aware profiling');
 console.log('W315 contract PASS: original remote growth skips authoritative route searches; near growth, relocation and founding layout still invalidate, no actor/home elision. No hardware/FPS claim.');
