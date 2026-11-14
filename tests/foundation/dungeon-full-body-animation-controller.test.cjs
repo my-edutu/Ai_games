@@ -4099,7 +4099,11 @@ test('RED: native source swing thigh must build through genuine 45mrad steps, ne
     toeXZ:[toeX,-6.93385]},right:{...before.right}
   }};
  };
- const fortyFive=trial(-.045,-.0863,.2200,-2.6702);
+ // Synthetic 45mrad pose must satisfy the newer real-source ≥10% burial
+ // clearance gate before testing gradual 45→90→135mrad progression.
+ // The previous -.0863m hypothetical bought only 6.28mm of a 72.58mm
+ // burial, and was correctly rejected after the conservative runtime fix.
+ const fortyFive=trial(-.045,-.0848,.2200,-2.6702);
  const ninety=trial(-.09,-.08117217582850386,.22556160534,-2.65840335);
  const oneThirtyFive=trial(-.135,-.0755,.231,-2.6582);
  const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
@@ -4108,6 +4112,9 @@ test('RED: native source swing thigh must build through genuine 45mrad steps, ne
   reducedMotion:false,interrupted:false,rootTravel:.042,frameAge:.034,
   side:'left',floorTopY:-.02,before};
  const choices=[fortyFive,ninety,oneThirtyFive];
+ assert.equal(choose({...owner,previousCorrectionRad:0,
+  trials:[trial(-.045,-.0863,.2200,-2.6702)]}),null,
+  'the formerly accepted 6.28mm/72.58mm shallow benefit must not bypass the measured 10% gate');
  const first=choose({...owner,previousCorrectionRad:0,trials:choices});
  assert.equal(first?.angleRad,-.045,
   'the true first visible correction must not snap imported upperleg 90mrad');
