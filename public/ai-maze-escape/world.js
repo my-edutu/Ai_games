@@ -1566,41 +1566,7 @@ export function createMazeWorld(options = {}) {
           // with the same public warning as the rooted floor leaves. None
           // draws a speculative route, barrier, attacker or hidden map detail.
           const sentinels=[];
-          // A paired set of substantial floor-scale, original Tideglass
-          // encounter irises now visually seats BOTH authentic actors.
-          // These are NEITHER pressure triggers nor new collision platforms:
-          // all faces are flush (<4cm over the existing stage), and their
-          // mechanical petals articulate only on the published guardian beat.
-          // The actual open/public corridor and all four real standing
-          // warning machines, solid walls and AI authority remain unchanged.
-          const irises=[];
           if(c.cell===s.currentCell || s.threats.some(t=>t?.cell===c.cell)) {
-            const isGuardian=s.threats.some(t=>t?.cell===c.cell);
-            const iris=new THREE.Group();
-            iris.name='Published guardian Tideglass encounter iris '+c.cell;
-            signal.add(iris);
-            const bed=mesh(iris,cylinder,deepStone,0,.004,0,1.07,.025,1.07);
-            bed.name='Published guardian Tideglass full-size iris foundation '+c.cell;
-            const well=mesh(iris,cylinder,isGuardian?clay:seaGlass,
-              0,.019,0,.86,.013,.86);
-            well.name='Published guardian Tideglass actor well '+c.cell;
-            const rim=mesh(iris,ring,inlay,0,.021,0,1.02,1.02,.20,Math.PI/2);
-            rim.name='Published guardian Tideglass joined iris rim '+c.cell;
-            const petals=[];
-            for(let i=0;i<4;i++){
-              const angle=i*TAU/4;
-              const pivot=new THREE.Group();
-              pivot.name='Published guardian Tideglass iris mechanical pivot '+c.cell+' '+i;
-              pivot.position.set(Math.cos(angle)*.83,.030,Math.sin(angle)*.83);
-              pivot.rotation.y=-angle;
-              iris.add(pivot);
-              const petal=mesh(pivot,bevel,isGuardian?darkMetal:jade,
-                .12,0,0,.39,.045,.40);
-              petal.name='Published guardian Tideglass iris petal '+c.cell+' '+i;
-              petals.push({pivot,petal,index:i,angle});
-            }
-            irises.push({iris,petals});
-
             for(const side of [-1,1]) {
               const foot=new THREE.Group();
               foot.name='Published guardian Tideglass sentinel footing '+c.cell+' '+side;
@@ -1665,7 +1631,7 @@ export function createMazeWorld(options = {}) {
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
           }
-          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels,irises});
+          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
         }
       }
       // A genuinely PUBLIC trap has its own broad physical pressure court.
@@ -3586,16 +3552,6 @@ export function createMazeWorld(options = {}) {
         && row>=Math.min(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))
         && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))));
       const action=onLane?signalStrength:0;
-      // Mechanical floor-scale actor wells stay planted while their FOUR
-      // joined outer leaves respond to the same witnessed physical brace.
-      // At reduced motion the warning can change color, never position.
-      // Release, unknown guardian and hidden/cancelled stage return to rest.
-      for(const iris of signal.irises||[])for(const petal of iris.petals){
-        petal.pivot.rotation.y=-petal.angle;
-        petal.pivot.rotation.z=reduced?0:(petal.index%2?1:-1)*action*.62;
-        petal.petal.material=action>.28?amber
-          : signal.cell===guardianCell?darkMetal:jade;
-      }
       // The FULL linked 3D standard rises with the real published brace,
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.

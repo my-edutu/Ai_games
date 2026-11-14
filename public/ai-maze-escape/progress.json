@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T18:44:00.000Z",
+  "updatedAt": "2026-11-14T19:06:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass366 candidate: authored paired full-size physical Tideglass actor irises with eight mechanically responsive petals on true public guardian brace/release. New exact-SHA CI and actual native images UNVERIFIED; independent critic unavailable. Nintendo bar NOT MET."
+    "summary": "Pass367: actual exact-source Pass366 WebGL successful, 37/37 original PNG, 3/3 gate and 6/6 pressure SHA verified. Full native 320/390/844/1280 critic rejects extra dual-actor iris floor complexity as not materially improving Pip–Thornback visibility. Restoring known world and strict guardian tests. New rollback CI pending. Nintendo bar unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass367 2026-11-14: Original Pass366 37/37 native PNG, 3/3 gate, 6/6 pressure chronology SHA checks verified. Floor-scale dual-iris pilot passed original strict CI but unchanged foreground masonry and character competition at native 390px; REJECT. Return to proven source and protected tests in one expected-head, non-forced rollback commit; preserve dated criticism.",
     "Pass366 2026-11-14: Source candidate replaces anonymous endpoint floor stage presentation with two full-size joined Tideglass actor wells and 8 low event-driven physical iris petals; existing 4 sentinel mechanisms, all solid walls, public AI, camera, strict tests and <100 six-reset resource gate unchanged. Source/Three test candidate NOT new visually verified win.",
     "Pass365 2026-11-14: Full actual 39 original-PNG native WebGL Pass364 archive compared with previous rollback baseline, 37/37 image SHA sidecars, 3/3 gate, 6/6 pressure hashes verified. Four-corner standard relocation rejected as inadequate stage-composition improvement; restore source world.js and guardian tests to known baseline in one conflict-safe commit. No independent critic or benchmark win.",
     "Pass364 2026-11-14: Production candidate moves all four connected physical guardian signal standards to the far corners of their actual published Pip/Thornback endpoint tiles (0.70 world units longitudinally outward). Preserve wall100 first-hit, strict visibility, original warning hinges/floor leaves and game-first controls. Adds installed-Three geometry/cleanup/source-truth contract; new WebGL screenshots and CI PENDING, no artistic win claimed.",
@@ -299,6 +300,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass367: Existing foreground court remains the dominant defect. Need a distinct actual physical stage with readable Pip/Thornback and real obstacle/collision silhouette; no more decorative iris/prop/angle patches. First verify rollback exact-HEAD WebGL captures/strict wall100 ray and native actor envelopes.",
     "Pass366: Run exact-HEAD focused and whole CI; inspect uncropped native 320/390/844/1280 and genuine brace/release/pressure/key/gate renders with original SHA manifests. Critically compare to fixed Nintendo gameplay and rollback if actor platform effect is too subtle or creates clutter/cropping. Independent artist unavailable.",
     "Pass365: Rebuild the actual entire publicly disclosed guardian theatre to achieve a visible physical negative-space and action-composition gain at 320/390/844/1280, preserve cell100 first ray and genuine collision, all four moving stage-warning mechanisms, strict ±.95 actor bounds, pressure/gate chronology, <100 six-run budget and public-only AI. Re-test rollback SHA before any further candidate.",
     "Pass364 requires an exact-HEAD original uncropped WebGL 320/390/844/1280 and same-run 390 guardian notice/brace/release comparison against verified Pass363 baseline, including physical wall100 first-hit, strict ±0.95 NDC, withdrawal ≥.70, six-run <100, original frame/SHA evidence. Revert if standards still crowd actors or if any test fails; no benchmark win without independent source-bound critic.",
@@ -357,6 +359,14 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass367 original Pass366 dual-iris visual rejection",
+      "reviewer": "Lead full-frame original Playwright screenshots; independent worker unavailable",
+      "verdict": "REJECTED — no meaningful player-visible clarity gain",
+      "date": "2026-11-14T19:06:00.000Z",
+      "summary": "37 paired SHA images, original gate/pressure manifest hashes verified; paired low actor irises add scene detail rather than improving 390/320 actual encounter readability. Source rolled back to previously successful source; exact new HEAD CI pending.",
+      "url": "docs/reviews/maze-3d/pass-367-pass366-native-iris-rejection-and-rollback-2026-11-14.md"
+    },
     {
       "title": "Pass366 joined physical Pip–Thornback iris theatre",
       "reviewer": "Candidate source only; independent rendered critic pending",
@@ -1008,6 +1018,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass367 Pass366 original WebGL verdict and rollback",
+      "status": "Previous candidate native screenshot/strict test verified; rollback SHA CI pending",
+      "detail": "Pass366 43629227214 exact-source SUCCESS, artifact14127791229 37/37 PNG SHA 3/3 gate 6/6 pressure; 390 actual stage remains crowded. Whole CI 43629227212 failed unrelated steps. Independent critic tunnel unavailable."
+    },
     {
       "name": "Pass366 exact-source candidate",
       "status": "Pending focused/WebGL/whole-repo CI and original native captures",
@@ -1666,6 +1681,10 @@
     }
   ],
   "references": [
+    {
+      "title": "Pass367 original rejected Pass366 full native screenshots",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43629227214/artifacts/14127791229"
+    },
     {
       "title": "Pass365 rejected Pass364 exact-source original 39 native WebGL screenshots",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43618963683/artifacts/14123887222"
