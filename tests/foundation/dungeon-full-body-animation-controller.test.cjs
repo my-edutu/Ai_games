@@ -5729,3 +5729,48 @@ test('RED: real 33ms source swing permits measured paired 110/90mrad candidate w
  assert.match(stage,/const after=read\(\)/,
   'a linked original source knee must be independently reread after application');
 });
+
+
+// Session 03 original mobile real-shoe two-stage adaptive linked-leg sampler (test first).
+// Exact source 390px Actions #43617680418: original pinned Walking_A
+// right toe starts -107.2375mm, a +90/-75mrad probe lowers toe 6.003mm,
+// while -90/+75mrad LIFTS 11.852mm but cannot by itself meet the existing
+// 12mm/15% full-leg acceptance. Four actual skinned dual-shoe probes total.
+// Test must fail on the old controller before implementing adaptive refinement.
+test('RED: original mobile source-shoe evidence chooses bounded stronger paired hip-knee probes in the useful direction',async()=>{
+ const {planOriginalSourceSwingLinkedLegFollowups:plan}=await load();
+ assert.equal(typeof plan,'function','missing real-source adaptive dual-shoe trial planner');
+ const left={heelY:-.04271456036942769,toeY:-.009845767170410392,
+  heelXZ:[-6.1,-7.1],toeXZ:[-6.3,-7.1]};
+ const right={heelY:.1726583256797796,toeY:-.10723751743182805,
+  heelXZ:[-6.2,-7.0],toeXZ:[-6.4,-7.0]};
+ const before={left,right};
+ const trials=[
+  {upperRad:.09,lowerRad:-.075,after:{left,
+    right:{...right,toeY:right.toeY-.006003454328496027,heelY:.165}}},
+  {upperRad:-.09,lowerRad:.075,after:{left,
+    right:{...right,toeY:right.toeY+.011852074273402471,heelY:.16,
+     heelXZ:[-6.205,-7.0],toeXZ:[-6.405,-7.0]}}}
+ ];
+ const input={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceInstanceSame:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  floorTopY:-.02,frameInterval:.0166,side:'right',before,trials};
+ assert.deepEqual(plan(input),[[-.11,.09],[-.115,.095]],
+  'both remaining trials should search the actually improving original hip/knee sign');
+ assert.deepEqual(plan({...input,frameInterval:.08}),[[-.14,.105],[-.145,.11]],
+  'source slow frames retain their existing <=145/110mrad limit');
+ const reversed=trials.map(t=>({...t,after:{left,right:{...t.after.right,
+  toeY:right.toeY+(t.upperRad>0?.0119:-.006)}}}));
+ assert.deepEqual(plan({...input,trials:reversed}),[[.11,-.09],[.115,-.095]],
+  'mirrored genuine source bones must choose their own measured hinge sign');
+ for(const bad of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceWeight:.6},{alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{frameInterval:.26},
+  {trials:[]},{trials:trials.map(t=>({...t,after:{left,right:{...right,toeY:right.toeY-.01}}}))},
+  {trials:[trials[0],{...trials[1],after:{left:{...left,toeY:left.toeY+.015},
+   right:trials[1].after.right}}]}
+ ])assert.equal(plan({...input,...bad}),null,
+  'cannot infer an original-joint direction without valid, uncorrupted dual-shoe evidence');
+});
