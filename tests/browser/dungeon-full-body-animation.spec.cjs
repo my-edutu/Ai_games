@@ -711,6 +711,16 @@ for(const view of [
    expect(Math.abs(proof.after?.[opposite]?.[end+'Y']-
     proof.before?.[opposite]?.[end+'Y'])).toBeLessThanOrEqual(.003001);
   }
+  // The WebGL renderer runs source toe and stance-slide stages AFTER the
+  // linked-leg stage. An old precomposition proof must never be interpreted
+  // as a final physical result. Compare actual displayed source skin here.
+  for(const foot of ['left','right'])for(const tip of ['heel','toe']){
+   const final=frame.sourceSolePatchWorld?.[foot]?.[tip];
+   const predicted=proof.after?.[foot];
+   expect(Array.isArray(final)&&final.length===3).toBe(true);
+   expect(Math.abs(final[1]-predicted[tip==='heel'?'heelY':'toeY']))
+    .toBeLessThan(.003);
+  }
  }
  // Original upper-leg correction is a measured source-rig trial; never
  // promote a one-frame positive toe delta into a moving planted-foot claim.
