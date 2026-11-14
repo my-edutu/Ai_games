@@ -7,8 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
-import { sourceAlignedIncomingShaftOpacity } from './shared-threshold-architecture.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity } from './source-physical-arrival-palette.mjs';
 import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
 
 

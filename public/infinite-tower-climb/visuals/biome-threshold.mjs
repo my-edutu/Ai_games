@@ -11,8 +11,7 @@
 import { observedSourceEarnedColdFrameContinuation,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette,
-  observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
-import { sourceOwnedOriginalArchitectureCoverage } from './shared-threshold-architecture.mjs';
+  observedSourceGatewayDeparturePresence, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
 
 export function observedGroundedBiomeThreshold(frame, passage, options = {}, retainedCap = null) {
   // Anchor the horizon to the SAME real distance-from-bronze-sill as the

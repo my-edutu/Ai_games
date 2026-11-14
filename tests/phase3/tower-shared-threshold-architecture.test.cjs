@@ -14,7 +14,7 @@ const original = () => ({runToken:'actual-gateway-episode',floor:9,
 test('real bronze connected roof and gallery cap the existing incoming Void shaft as ONE threshold',async()=>{
   const {sourceOwnedOriginalArchitectureCoverage:coverage,
     sourceAlignedIncomingShaftOpacity:opacity}=await import(
-    '../../public/infinite-tower-climb/visuals/shared-threshold-architecture.mjs');
+    '../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
   const s=source(),h=original();
   const before=JSON.stringify([s,h]);
   assert.equal(coverage(s,h),.91);
@@ -33,7 +33,7 @@ test('real bronze connected roof and gallery cap the existing incoming Void shaf
 test('stale, restarted, dead, unearned, old-floor or expired owners cannot conceal real Floor 9',async()=>{
   const {sourceOwnedOriginalArchitectureCoverage:coverage,
     sourceAlignedIncomingShaftOpacity:opacity}=await import(
-    '../../public/infinite-tower-climb/visuals/shared-threshold-architecture.mjs');
+    '../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
   const s=source(),h=original();
   for(const [alterS,alterH] of [
     [{...s,runToken:'restart'},h],[{...s,floor:8},h],
