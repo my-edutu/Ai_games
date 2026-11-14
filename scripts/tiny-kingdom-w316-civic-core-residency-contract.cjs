@@ -80,7 +80,7 @@ const retained=world();
 const day1=retained.draw();
 const coreFirst=retained.calls.hall;
 assert.ok(day1.length>0&&coreFirst===1,'first frame draws full civic core');
-retained.city.push([24,17,0]);
+retained.env.city.push([24,17,0]);
 const afterNearRoad=retained.draw(2);
 assert.equal(retained.calls.hall,coreFirst,'near-road home cannot regenerate guildhall');
 assert.equal(retained.calls.farmstead,1,'genuine existing granary and farm retained');
