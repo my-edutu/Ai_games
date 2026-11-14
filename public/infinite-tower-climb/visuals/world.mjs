@@ -7,7 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
 import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
 
 
@@ -3982,6 +3982,14 @@ export function createTowerWorld(){
       oldCapId:held.oldCapId,oldCapX:held.oldCapX,
       oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
       visibleSeconds:held.visibleSeconds,
+      // Plain scalar copy of ACTUAL source-owned GPU materials: never leak
+      // writable Three material instances outside the renderer owner.
+      // Scene lighting and architectural reveal now sample the very same
+      // bronze roof/gallery coverage, not separate clocks.
+      firstWorldRenderTick:held.firstWorldRenderTick,
+      originalGatewayOpacity:held.originalGatewayOpacity,
+      originalArchitectureCoverage:
+        sourceOwnedOriginalArchitectureCoverage(snapshot,held),
       ...(priorGrounded?{
         guardianGateRetained:true,
         verifiedObservedFloorAdvance:held.verifiedObservedFloorAdvance,

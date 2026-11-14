@@ -53,12 +53,29 @@ test('stale, restarted, dead, unearned, old-floor or expired owners cannot conce
   assert.equal(opacity(s,h,NaN),0);
   assert.ok(Math.abs(opacity(s,h,9)-(1-coverage(s,h)))<1e-9);
 });
+test('camera/horizon owner receives exactly the original source-bound scalar, never mutable GPU materials',async()=>{
+  const {sourceOwnedOriginalArchitectureCoverage:coverage}=await import(
+    '../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
+  const s=source(),h=original();
+  const witnessed={
+    runToken:h.runToken,floor:h.floor,firstWorldRenderTick:h.firstWorldRenderTick,
+    submittedFrames:h.submittedFrames,visibleSeconds:h.visibleSeconds,
+    guardianGateRetained:true,opticalExitSubmitted:false,
+    originalArchitectureCoverage:coverage(s,h)
+  };
+  assert.equal(coverage(s,witnessed),.91);
+  assert.equal(coverage({...s,runToken:'restart'},witnessed),0);
+  assert.equal(coverage({...s,player:{health:0}},witnessed),0);
+  assert.equal(coverage({...s,tick:550},witnessed),0);
+});
 test('the real world and environmental lighting use the SAME bounded old-scene ownership',()=>{
   const world=fs.readFileSync(path.resolve(
     'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   const biome=fs.readFileSync(path.resolve(
     'public/infinite-tower-climb/visuals/biome-threshold.mjs'),'utf8');
   assert.match(world,/sourceAlignedIncomingShaftOpacity\(snapshot,held,nominalShaftFade\)/);
+  assert.match(world,/originalArchitectureCoverage:\s*sourceOwnedOriginalArchitectureCoverage\(snapshot,held\)/);
+  assert.match(world,/firstWorldRenderTick:held\.firstWorldRenderTick/);
   assert.match(biome,/sourceOwnedOriginalArchitectureCoverage\(frame,retainedCap\)/);
   assert.match(world,/material\.opacity=originalOpacity\*job\.structuralFade/);
   assert.match(world,/arrival\.structuralFade>=\.35[\s\S]*?appendDeferredVista\(arrival\)/);

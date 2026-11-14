@@ -143,6 +143,10 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
   const sample=opacity=>{
     if(Number.isFinite(opacity)) coverage=Math.max(coverage,clamp(opacity));
   };
+  // The world may pass a READ-ONLY primitive witness to the camera/sky
+  // rather than expose actual writable GPU materials. Its scalar coverage
+  // is measured from those same real meshes by the world owner.
+  sample(held.originalArchitectureCoverage);
   sample(held.originalGatewayOpacity);
   sample(held.originalDeckSurface?.opacity);
   if(Array.isArray(held.originalGalleryMaterials))
