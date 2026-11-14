@@ -2,6 +2,7 @@
 // coordinate space for one source-earned crossing. This does not interpolate
 // gameplay, invent a door, rewind a player, or use an assumed GPU frame rate.
 // The consumer must separately verify both bodies in-frame and clear core rays.
+import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 const integer=Number.isSafeInteger;
 const finite=Number.isFinite;
 // The last real Floor8 returned frame can precede the killing blow. In the
@@ -37,52 +38,88 @@ export function observedOriginalGatewaySubmittedView(source,camera,gaze) {
     witness:'Original F8 actor/guardian/cap and GPU-returned camera; never implies defeat'};
 }
 
+// The original native desktop film's first F9 renderer returned the SAME
+// authentic grounded crossing receipt (source tick 475) without the delayed
+// immutable lastGuardianCrossing record. The old helper demanded that record
+// AND a previously returned F8 camera within 25 ticks: the actual old camera
+// was 37 ticks earlier. Both conditions rejected the only physical bridge.
+// We may retain a previously submitted real F8 lens on that first F9 frame
+// ONLY when the independent old-cap/HP0/grounded seam was already verified,
+// with the original GPU owner in hand; no invented guardian defeat or actor.
+// Live hero, original gate and opaque tower-core projection are independently
+// vetoed in Scene after applying this proposed presentation-only lens.
 export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
-  const w=snapshot?.lastGuardianCrossing, p=snapshot?.player,cap=w?.cap;
-  if(!snapshot || !held || !prior || !w || !p || !cap ||
+  const w=snapshot?.lastGuardianCrossing,p=snapshot?.player;
+  const recorded=w!=null;
+  const cap=recorded?w.cap:null;
+  const initialGrounded=!recorded &&
+    observedStagedOriginalCapBeforeRecordedCrossing(snapshot,held);
+  if(!snapshot || !held || !prior || !p ||
+      (!recorded&&!initialGrounded) ||
       view.stale || view.overview || view.reducedMotion ||
       view.camera!=='follow' || snapshot.lifecycle!=='running' ||
       snapshot.floor!==9 || snapshot.theme!=='void' ||
       held.guardianGateRetained!==true ||
       snapshot.runToken!==prior.runToken ||
       snapshot.runToken!==held.runToken ||
-      w.runToken!==snapshot.runToken ||
-      w.fromFloor!==8 || w.toFloor!==9 ||
       prior.floor!==8 || prior.oldCapId!=='f8:cap' ||
       prior.originalGuardianObserved!==true ||
       !finite(prior.originalGuardianHealth) ||
-      prior.originalGuardianHealth<0 || cap.id!=='f8:cap' ||
-      held.oldCapId!==cap.id ||
-      w.guardian?.kind!=='guardian' ||
-      w.guardian.active!==false || !(w.guardian.health<=0) ||
-      !finite(w.guardian.health) || !(p.health>0) ||
+      prior.originalGuardianHealth<0 ||
+      held.oldCapId!=='f8:cap' ||
+      !(p.health>0) ||
       ![snapshot.tick,snapshot.chunkBaseY,prior.tick,prior.chunkBaseY,
-        prior.oldRoofY,prior.thresholdX,w.sourceTick,w.exitX,
-        cap.y,cap.height,held.oldRoofY,held.thresholdX,
+        prior.oldRoofY,prior.thresholdX,held.oldRoofY,held.thresholdX,
         held.submittedFrames,p.x,p.y,p.halfHeight].every(integer) ||
       !finite(held.visibleSeconds) ||
       !Array.isArray(prior.camera) || !Array.isArray(prior.gaze) ||
       prior.camera.length!==3 || prior.gaze.length!==3 ||
       !prior.camera.every(finite) || !prior.gaze.every(finite) ||
-      held.oldRoofY!==cap.y+cap.height ||
       prior.oldRoofY!==held.oldRoofY ||
-      prior.thresholdX!==held.thresholdX || w.exitX!==held.thresholdX ||
+      prior.thresholdX!==held.thresholdX ||
       held.submittedFrames<0 || held.submittedFrames>=10 ||
       held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
-      snapshot.tick<w.sourceTick || snapshot.tick-w.sourceTick>48 ||
-      prior.tick>w.sourceTick || w.sourceTick-prior.tick>25 ||
       p.halfHeight<=0 || Math.abs(p.x-held.thresholdX)>90000 ||
-      (p.y-p.halfHeight)<held.oldRoofY-2500 ||
-      (p.y-p.halfHeight)>held.oldRoofY+160000) return null;
-  // Same original 3D roof: the old camera Y is relative to the old chunk
-  // origin. Rebase only presentation coordinates, never source coordinates.
+      p.y-p.halfHeight<held.oldRoofY-2500 ||
+      p.y-p.halfHeight>held.oldRoofY+160000) return null;
+  // The source-backed GPU render can skip 30-40 fixed ticks on first cold
+  // Floor9 construction. Reuse ONLY the already-rendered same cap/roof F8
+  // view up to 48 ticks back; Scene must still accept the actual current hero
+  // and exact original doorway in safe NDC with no opaque core obstruction.
+  const realCrossingTick=recorded?w.sourceTick:held.tick;
+  if(!integer(realCrossingTick) ||
+     prior.tick>realCrossingTick ||
+     realCrossingTick-prior.tick>48 ||
+     snapshot.tick<realCrossingTick ||
+     snapshot.tick-realCrossingTick>(recorded?48:12)) return null;
+  if(recorded){
+    if(!cap || w.runToken!==snapshot.runToken ||
+      w.fromFloor!==8 || w.toFloor!==9 ||
+      cap.id!=='f8:cap' || held.oldCapId!==cap.id ||
+      w.guardian?.kind!=='guardian' ||
+      w.guardian.active!==false || !(w.guardian.health<=0) ||
+      !finite(w.guardian.health) ||
+      ![w.exitX,cap.y,cap.height].every(integer) ||
+      held.oldRoofY!==cap.y+cap.height ||
+      w.exitX!==held.thresholdX) return null;
+  } else {
+    // The only alternate proof is an already-rendered ORIGINAL, exact
+    // first-floor receipt. No next-floor preview, dead enemy inference,
+    // source delay or browser clock can create this proof.
+    if(!initialGrounded ||
+      !integer(held.sourceTick) || held.sourceTick!==held.tick ||
+      !integer(held.observedCrossingX) ||
+      !integer(held.observedCrossingY)) return null;
+  }
   const yShift=(prior.chunkBaseY-snapshot.chunkBaseY)/10000;
   if(!finite(yShift) || Math.abs(yShift)>1000)return null;
   const progress=held.submittedFrames/10;
   const weight=.72*(1-progress)*(1-progress);
-  return {sourceBound:true,sourceTick:snapshot.tick,crossingTick:w.sourceTick,
+  return {sourceBound:true,sourceTick:snapshot.tick,
+    crossingTick:realCrossingTick,
+    proof:recorded?'immutable-guardian-defeat':'verified-grounded-original-source-receipt',
     camera:[prior.camera[0],prior.camera[1]+yShift,prior.camera[2]],
     gaze:[prior.gaze[0],prior.gaze[1]+yShift,prior.gaze[2]],
     weight,originalFloor:8,successorFloor:9,
-    limitation:'Returned original GPU camera; candidate may be rejected by live 3D actor, doorway and core safety'};
+    limitation:'Real prior F8 WebGL camera, exact HP0/grounded old-cap evidence; scene must independently veto obstructed/cropped actor or gate; not native WebM proof'};
 }
