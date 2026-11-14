@@ -83,8 +83,12 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   // a regular animation frame may not snap the original hip or knee.
   const slowArc=frameInterval>=.05&&sourceWeight>=.95;
   if(![upperRad,lowerRad].every(finite)||
-   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:.105)||
-   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:.075)||
+   // On a real 33ms original gait frame, the old 105/75mrad fast
+   // ceiling excluded the measured 110/90mrad coupled probe before either
+   // skinned outsole could establish whether it clears stone. These remain
+   // smaller than the already-gated 145/110mrad slow-frame limit.
+   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:.115)||
+   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:.095)||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    !validShoe(after?.[side])||!validShoe(after?.[other]))continue;
   const shoe=after[side],support=after[other];

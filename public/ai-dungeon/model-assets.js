@@ -2557,9 +2557,14 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  // a stronger *coupled* source thigh+calf arc, still only when the original
  // second shoe is independently read. The tighter 90mrad arc remains for
  // rapid frames and partial crossfades; no extra skin trials/draw calls.
+ // A genuine 33.4ms original-source shoe probe rose 13.47mm yet narrowly
+ // missed the strict 15% clearance threshold. Use the SAME four bounded
+ // skinned dual-shoe reads to test a slightly stronger *linked* fast-frame
+ // hip+knee candidate; still reject it unless the FINAL native GLB source
+ // toe actually clears >=12mm AND >=15% with opposite shoe held stable.
  const trialAngles=interval>=.05&&weight>=.95?
   [[.12,-.09],[-.12,.09],[.14,-.105],[-.14,.105]]:
-  [[.09,-.06],[-.09,.06],[.09,-.075],[-.09,.075]];
+  [[.09,-.075],[-.09,.075],[.11,-.09],[-.11,.09]];
  const trials=[];
  try{
   for(const [upperRad,lowerRad] of trialAngles){
@@ -2588,6 +2593,17 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   beforeToeY:swing.toeY,sourceHeelY:swing.heelY,
   oppositeHeelY:support.heelY,oppositeToeY:support.toeY,
   bestMeasuredLiftMeters:bestMeasuredLift,
+  // Four real skinned two-shoe readbacks, bounded; never treat a rejected
+  // angle or a positive toe delta as an authorized planted foot.
+  candidateMeasurements:trials.map(({upperRad,lowerRad,after})=>({
+   upperRad,lowerRad,
+   sourceToeLiftMeters:Number.isFinite(after?.[side]?.toeY)?
+    after[side].toeY-swing.toeY:null,
+   oppositeHeelDeltaMeters:Number.isFinite(after?.[opposite]?.heelY)?
+    after[opposite].heelY-support.heelY:null,
+   oppositeToeDeltaMeters:Number.isFinite(after?.[opposite]?.toeY)?
+    after[opposite].toeY-support.toeY:null
+  })),
   candidates:trials.length,contactLocked:false};
  const selected=chooseOriginalSourceSwingLinkedLegTrial({...owner,trials});
  if(!selected)return;
