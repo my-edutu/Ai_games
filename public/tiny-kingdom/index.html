@@ -1907,7 +1907,9 @@ function drawResidentCommuters(){
   gl.enableVertexAttribArray(skinJointAttribute);
   gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0);
  }
- gl.uniform1f(uniforms.commuterEnabled,1);
+ // GPU-owned joint matrices already translate/rotate the authentic body.
+ // Keep legacy root transform ONLY for original unskinned fallback.
+ gl.uniform1f(uniforms.commuterEnabled,skin?0:1);
  if(skin)gl.uniform1f(uniforms.workSkinActive,1);
  try{
   for(const {p,entry,offset,count} of commuterResidentVisible){
@@ -1915,10 +1917,12 @@ function drawResidentCommuters(){
     gl.uniformMatrix4fv(uniforms.workBone,false,workSkinMatrices(entry,p));
     commuterSkinDrawCalls++;
    }
-   const yaw=realCommuterFacing(p)-entry.angle;
-   gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
-   gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
-    terrain(p.x,p.z)-entry.ground,yaw);
+   if(!skin){
+    const yaw=realCommuterFacing(p)-entry.angle;
+    gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
+    gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
+     terrain(p.x,p.z)-entry.ground,yaw);
+   }
    gl.drawArrays(gl.TRIANGLES,offset,count);
    commuterResidentDrawCalls++;
   }
@@ -2250,7 +2254,9 @@ function workSkinFramePalette(entry,p,slot,detail){
  const pose=citizenEmbodiedPose(p,i,rig);
  // W322 Phase 1: preserve original 13-joint GPU bind geometry, but advance
  // each genuine person's WORLD root as they actually travel, turn and work.
- // The old entry.x/z/angle froze moving citizens at the previous bind pose.
+ // Previously the shader supplied a second independent commuter-root stage.
+ // The new draw paths disable it for skinned actors: bone matrices own the
+ // current root exactly ONCE, keeping original joint contacts unchanged.
  // Current physical endpoints produce delta matrices for the SAME complete
  // clothing, boots, hands and real occupational tools, without new actors,
  // invented receipts or changes to simulation/save/replay authority.
@@ -2432,16 +2438,13 @@ function drawWorkingResidentMesh(){
   gl.enableVertexAttribArray(skinJointAttribute);
   gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0);
   gl.uniform1f(uniforms.workSkinActive,1);
-  gl.uniform1f(uniforms.commuterEnabled,1);
+  gl.uniform1f(uniforms.commuterEnabled,0);
   try{
    for(const {p,entry,offset,count} of workingResidentVisible){
-    const facing=realWorkerFacing(p);
-    const yaw=Math.atan2(Math.sin(facing-entry.angle),
-     Math.cos(facing-entry.angle));
+    // The original 13 bones now contain the complete true worksite root,
+    // including current terrain, job-facing contact and animated tool.
+    // Suppress redundant second shader rotation and driver uniforms.
     gl.uniformMatrix4fv(uniforms.workBone,false,workSkinMatrices(entry,p));
-    gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
-    gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
-     terrain(p.x,p.z)-entry.ground,yaw);
     gl.drawArrays(gl.TRIANGLES,offset,count);
     workingSkinDrawCalls++;workingSkinPaletteUpdates++;
     workingResidentDrawCalls++;workingResidentRootDrawCalls++;
@@ -2844,20 +2847,24 @@ function drawForegroundResidentMesh(){
   gl.bindBuffer(gl.ARRAY_BUFFER,foregroundResidentJointBuffer);
   gl.enableVertexAttribArray(skinJointAttribute);
   gl.vertexAttribPointer(skinJointAttribute,1,gl.FLOAT,false,4,0);
-  gl.uniform1f(uniforms.commuterEnabled,1);
   try{
    for(const {p,entry,offset,count} of foregroundResidentVisible){
     gl.uniform1f(uniforms.workSkinActive,entry.skinned?1:0);
+    // Mixed rows: skinned adult uses live world-joint root; an original
+    // CPU-sculpted fallback keeps its unchanged legacy commuter transform.
+    gl.uniform1f(uniforms.commuterEnabled,entry.skinned?0:1);
     if(entry.skinned){
      gl.uniformMatrix4fv(uniforms.workBone,false,workSkinDetailedMatrices(entry,p));
      foregroundSkinMatrices++;foregroundSkinDrawCalls++;
     }
-    const facing=realForegroundFacing(p);
-    const yaw=Math.atan2(Math.sin(facing-entry.angle),
-     Math.cos(facing-entry.angle));
-    gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
-    gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
-     terrain(p.x,p.z)-entry.ground,yaw);
+    if(!entry.skinned){
+     const facing=realForegroundFacing(p);
+     const yaw=Math.atan2(Math.sin(facing-entry.angle),
+      Math.cos(facing-entry.angle));
+     gl.uniform3f(uniforms.commuterOrigin,entry.x,entry.ground,entry.z);
+     gl.uniform4f(uniforms.commuterMotion,p.x,p.z,
+      terrain(p.x,p.z)-entry.ground,yaw);
+    }
     gl.drawArrays(gl.TRIANGLES,offset,count);
     foregroundResidentDrawCalls++;foregroundResidentRootDrawCalls++;
    }
