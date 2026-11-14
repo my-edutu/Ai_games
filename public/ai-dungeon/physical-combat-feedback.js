@@ -140,8 +140,17 @@ export function createPhysicalCombatFeedback({
    Math.round((lastVisualAdvanceStartClock-observedAt)*1000):null;
   const visualAdvanceMs=validAdvanceEnd?
    Math.round((lastVisualAdvanceEndClock-lastVisualAdvanceStartClock)*1000):null;
-  const afterVisualAdvanceToSubmissionMs=validAdvanceEnd?
-   Math.round((receiptClock-lastVisualAdvanceEndClock)*1000):null;
+  // The last D04 clock is sampled AFTER retained cue emissions. The old
+  // receipt charged that work to the renderer/non-D04 stage, masking real
+  // VFX cost on authentic HP-impact frames. Never infer missing samples.
+  const validFullVisualEnd=validAdvanceEnd&&
+   Number.isFinite(lastFullVisualAdvanceEndClock)&&
+   lastFullVisualAdvanceEndClock>=lastVisualAdvanceEndClock&&
+   lastFullVisualAdvanceEndClock<=receiptClock;
+  const visualEmissionMs=validFullVisualEnd?
+   Math.round((lastFullVisualAdvanceEndClock-lastVisualAdvanceEndClock)*1000):null;
+  const afterVisualAdvanceToSubmissionMs=validFullVisualEnd?
+   Math.round((receiptClock-lastFullVisualAdvanceEndClock)*1000):null;
   // A cue can expire BEFORE any WebGL submission when the REAL main thread
   // spends the remaining deadline inside D04's own visual pass. Keep the
   // bounded preframe phase clocks in that terminal receipt, without claiming
@@ -171,7 +180,8 @@ export function createPhysicalCombatFeedback({
    visualDrawableAtSubmission:visualDrawableAtSubmission===true?true:
     visualDrawableAtSubmission===false?false:null,
    observedClockMs,submittedClockMs,
-   beforeVisualAdvanceMs,visualAdvanceMs,afterVisualAdvanceToSubmissionMs,
+   beforeVisualAdvanceMs,visualAdvanceMs,visualEmissionMs,
+   afterVisualAdvanceToSubmissionMs,
    observationToSubmissionMs:validSubmit?
     Math.max(0,submittedClockMs-observedClockMs):null,
    renderSubmissionMs:frameId!==null&&

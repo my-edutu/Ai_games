@@ -137,7 +137,8 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   // actual WebGL receipt supplies submitted time, not decoded PCM/VP8 sync.
   assert.ok(receipts.every(r=>r.observationToSubmissionMs===40));
   assert.ok(receipts.every(r=>r.beforeVisualAdvanceMs===10&&
-   r.visualAdvanceMs===10&&r.afterVisualAdvanceToSubmissionMs===20));
+   r.visualAdvanceMs===10&&r.visualEmissionMs===10&&
+   r.afterVisualAdvanceToSubmissionMs===10));
   assert.ok(receipts.every(r=>r.sampleSynchronized===false));
   assert.deepEqual(new Set(audio.map(c=>c.targetId)),new Set(['hero','ally']));
   assert.equal(director.acknowledgePresentedFrame(1,.012),0,'replay must not create a second receipt');
