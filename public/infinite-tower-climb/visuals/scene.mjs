@@ -33,6 +33,7 @@ import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
+import { sourceOriginalGatewayCameraBridge } from './original-gateway-submitted-camera-bridge.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -2477,6 +2478,9 @@ export function createTowerScene(canvas, settings = {}) {
   const lastSubmittedGuardianCamera = new THREE.Vector3();
   const lastSubmittedGuardianFocus = new THREE.Vector3();
   const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
+  // A real already-submitted Floor8 view; never a fabricated future gateway.
+  let originalGatewaySubmittedCamera=null;
+  let originalGatewayCameraBridgeAccepted=0,originalGatewayCameraBridgeVetoed=0;
   const guardianOrbitPreviousCamera = new THREE.Vector3();
   const guardianOrbitPreviousFocus = new THREE.Vector3();
   const guardianOrbitHeroNdc = [0,0,0,0];
@@ -4712,6 +4716,51 @@ export function createTowerScene(canvas, settings = {}) {
       guardianPortraitOpticalChanges=Math.min(1000000,
         guardianPortraitOpticalChanges+1);
     }
+    // The last ACTUALLY SUBMITTED Clockwork camera and the already-retained
+    // ORIGINAL bronze gateway share a source-authenticated roof. Floor9
+    // changes the chunk-relative Y origin; a fresh follow director otherwise
+    // snaps to an unrelated violet shot before the actor walks through.
+    // Rebase the OLD lens into the new chunk, then blend it out by genuinely
+    // returned Floor9 frames. Geometry/source authority remain unchanged.
+    const originalBridge=sourceOriginalGatewayCameraBridge(
+      snapshot,coldArchProof,originalGatewaySubmittedCamera,{
+        camera:options.camera,overview,stale:options.stale,
+        reducedMotion:options.reducedMotion});
+    if(originalBridge){
+      thresholdPreviousCamera.copy(camera.position);
+      thresholdPreviousGaze.copy(lookAt);
+      camera.position.lerp(
+        thresholdBestCamera.set(...originalBridge.camera),originalBridge.weight);
+      lookAt.lerp(
+        thresholdBestGaze.set(...originalBridge.gaze),originalBridge.weight);
+      camera.lookAt(lookAt); camera.updateMatrixWorld(true);
+      thresholdHero.copy(climber.group.position);
+      thresholdHero.y+=p.halfHeight/SCALE;
+      const originalPose=guardianTraversalGatePose(
+        coldArchProof.thresholdX,coldArchProof.oldRoofY,
+        snapshot.chunkBaseY,snapshot.worldWidth);
+      if(originalPose)thresholdGate.set(originalPose.x,originalPose.y+2,originalPose.z);
+      const heroClip=actorSafeProjection.copy(thresholdHero).project(camera);
+      const gateClip=originalPose
+        ?scratch.copy(thresholdGate).project(camera):null;
+      const bridgeHeroSafe=Number.isFinite(heroClip.x) &&
+        Math.abs(heroClip.x)<=.76 && Math.abs(heroClip.y)<=.76 &&
+        heroClip.z>=-1 && heroClip.z<=1;
+      const bridgeGateSafe=!!gateClip && Number.isFinite(gateClip.x) &&
+        Math.abs(gateClip.x)<=.80 && Math.abs(gateClip.y)<=.80 &&
+        gateClip.z>=-1 && gateClip.z<=1;
+      if(bridgeHeroSafe && bridgeGateSafe &&
+         towerCoreSightlineClear(camera.position,thresholdHero,23.5) &&
+         towerCoreSightlineClear(camera.position,thresholdGate,23.5)){
+        originalGatewayCameraBridgeAccepted++;
+      }else{
+        // Never privilege a historical doorway over a real visible player.
+        camera.position.copy(thresholdPreviousCamera);
+        lookAt.copy(thresholdPreviousGaze);
+        camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+        originalGatewayCameraBridgeVetoed++;
+      }
+    }
     // POST-DIRECTOR PHYSICAL CROSSING: the ordinary follow, guardian, hero
     // rescue and portrait optical lens have already selected their positions.
     // A genuine *retained original* Floor8 bronze arch is still behind the
@@ -5028,10 +5077,36 @@ export function createTowerScene(canvas, settings = {}) {
         lastSubmittedGuardian.runToken = snapshot.runToken;
         lastSubmittedGuardian.floor = snapshot.floor;
         lastSubmittedGuardian.tick = snapshot.tick;
+        // Capture ONLY a defeated guardian's original old-world camera
+        // AFTER actual WebGL return. A source tick without a rendered image
+        // cannot seed the next physical shot. The same-run source cap and
+        // last original roof must match the future recorded crossing.
+        if(snapshot.floor===8 && snapshot.theme==='clockwork' &&
+           snapshot.player?.health>0 &&
+           Number.isSafeInteger(snapshot.guardianExitX)){
+          const oldCap=snapshot.platforms?.find(v=>v.id==='f8:cap');
+          const defeated=snapshot.enemies?.some(v=>v.kind==='guardian' &&
+            v.active===false && Number.isFinite(v.health) && v.health<=0);
+          if(oldCap && defeated &&
+             [oldCap.x,oldCap.y,oldCap.width,oldCap.height,
+               snapshot.chunkBaseY,snapshot.tick,snapshot.player.x]
+               .every(Number.isSafeInteger) &&
+             snapshot.guardianExitX===oldCap.x+Math.floor(oldCap.width*.76) &&
+             Math.abs(snapshot.player.x-snapshot.guardianExitX)<=90000){
+            originalGatewaySubmittedCamera={
+              runToken:snapshot.runToken,floor:8,tick:snapshot.tick,
+              chunkBaseY:snapshot.chunkBaseY,
+              oldRoofY:oldCap.y+oldCap.height,thresholdX:snapshot.guardianExitX,
+              camera:camera.position.toArray(),gaze:lookAt.toArray()};
+          }
+        }
+        if(snapshot.floor!==8 && snapshot.floor!==9)
+          originalGatewaySubmittedCamera=null;
       } else {
         lastSubmittedGuardian.runToken = null;
         lastSubmittedGuardian.floor = null;
         lastSubmittedGuardian.tick = -1;
+        originalGatewaySubmittedCamera=null;
       }
       if (resolutionPolicy.record(performance.now() - submissionStart,
         document.visibilityState === 'visible' && !options.stale, deltaMs)) resolutionDirty = true;
