@@ -722,22 +722,42 @@ export function createWarden(options = {}) {
   // Nothing moves the authoritative guardian root, collision or AI state.
   const head=pivot(body,'warden mask',[0,.27,.73]);
   ball(head,bronze,[0,.035,.015],[.47,.30,.34]);
-  rounded(head,dark,[0,.14,.24],[.77,.23,.17],.048);
+  // Pass350: the untouched native 390px guardian brace showed the new
+  // complete skull as one opaque black pair of glasses. The problem is
+  // physical silhouette/occlusion, not a color or exposure setting. Split
+  // that continuous dark strip into TWO real connected upper orbital rims,
+  // preserving a visible bronze bridge between the eyes. Then flank the
+  // full face with one hinged copper shell on each side: the same publicly
+  // witnessed guardian plant/release visibly compresses and relaxes them.
+  // Every part belongs to the existing mask; no AI, collision, new threat,
+  // secret map information or render-frame object allocation is involved.
+  rounded(head,plates,[0,.17,.29],[.16,.26,.18],.036);
+  const facialShells=[];
   for (const side of [-1,1]) {
+    const upperRim=rounded(head,dark,[side*.205,.20,.19],[.33,.14,.24],.036);
+    upperRim.rotation.z=-side*.12;
     // Eyes sit above (not exclusively on the vertical front of) the mask;
     // the camera reads one clear gaze direction even at 320px.
     const socket=ball(head,dark,[side*.205,.25,.215],[.22,.125,.205]);
     socket.name=`rooted guardian upper optical socket ${side}`;
     socket.rotation.x=-.25;
-    const optic=ball(head,red,[side*.205,.308,.287],[.153,.085,.126]);
+    const optic=ball(head,red,[side*.205,.316,.287],[.169,.100,.126]);
     optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
-    const brow=rounded(head,claw,[side*.195,.349,.242],[.30,.075,.15],.023);
+    const brow=rounded(head,claw,[side*.195,.364,.242],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
     const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
     cheek.name=`rooted guardian cheek armor ${side}`;
     cheek.rotation.y=side*.24;
+    // The substantial side carapace closes around the whole skull in the
+    // planted defensive pose, then yields during the observed shell reveal.
+    // Its pivot is attached to the real mask, outside the optical aperture.
+    const hinge=pivot(head,`articulated guardian facial shell ${side}`,
+      [side*.49,.11,.11]);
+    const facet=rounded(hinge,bronze,[side*.07,.025,.13],[.27,.35,.42],.065);
+    facet.rotation.y=side*.16;
+    facialShells.push({hinge,side});
     ring(head,bronze,[side*.345,-.067,.18],.057,.014);
   }
   // A full 3D, hinged lower mask makes an observed confrontation read as
@@ -1004,6 +1024,14 @@ export function createWarden(options = {}) {
     head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert;
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
+    // Absolute, source-observed facial acting: the paired bronze shells
+    // spread as the REAL foreclaws brace, then withdraw with the SAME earned
+    // carapace release. Hidden/terminal/reused rigs go to exact +0; reduced
+    // motion holds a still, truthful pose with no time-based blinking.
+    for (const {hinge,side} of facialShells) {
+      hinge.rotation.y=encounter>0?side*(.10+.48*brace-.40*display):0;
+      hinge.rotation.z=encounter>0?side*(.07+.27*brace-.22*display):0;
+    }
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
       antenna.rotation.x=alert*.22+(s.reduced?0:Math.sin(s.time*2.3+side)*.03);

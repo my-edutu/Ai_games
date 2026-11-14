@@ -847,6 +847,10 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     const head=warden.group.getObjectByName('warden mask');
     const jaw=warden.group.getObjectByName('hinged guardian lower mandible');
     assert.ok(head?.isGroup && jaw?.parent===head,'new skull keeps its original animated physical mandible');
+    const facialShells=[-1,1].map(side=>warden.group.getObjectByName(
+      `articulated guardian facial shell ${side}`));
+    assert.ok(facialShells.every(part=>part?.isGroup&&part.parent===head),
+      'Pass350 uses two real hinged carapace cheeks rooted on the current full-size mask');
     // The production rig.finish() merges rigid siblings by MATERIAL into
     // single real WebGL BufferGeometries before gameplay. Checking their old
     // individual Object3D names would falsely reject genuine vertices.
@@ -885,6 +889,16 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     warden.group.traverse(node=>{if(node.geometry)linkedMeshes.add(node.geometry);});
     const witness={heading:0,attentionHeading:.9,attentionStrength:1,danger:1,
       encounterBeat:.49,moving:false,time:2,delta:.05,reducedMotion:true};
+    warden.update({...witness,encounterBeat:0});
+    const notice=facialShells.map(part=>part.rotation.y);
+    warden.update(witness);
+    const brace=facialShells.map(part=>part.rotation.y);
+    warden.update({...witness,encounterBeat:1});
+    const release=facialShells.map(part=>part.rotation.y);
+    assert.ok(brace.every((angle,i)=>Math.abs(angle)>Math.abs(notice[i])+.2),
+      'the physically connected original cheeks spread during the genuine observed guardian plant');
+    assert.ok(release.every((angle,i)=>Math.abs(angle)<Math.abs(brace[i])-.20),
+      'their actual hinged face withdraws as the original observed shell opens');
     warden.update(witness);
     assert.ok(head.position.y>.33 && head.position.z>.87,
       'actual witnessed brace must raise and advance the complete skull, not merely recolor pupils');
@@ -895,6 +909,9 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     warden.update({...witness,attentionStrength:0,encounterBeat:undefined});
     assert.equal(head.position.y,.27,'unwitnessed danger cannot leave a raised face');
     assert.equal(head.position.z,.73);
+    assert.deepEqual(facialShells.map(part=>part.rotation.y),[0,0],
+      'hidden or withdrawn guardian cannot keep either eyewitness facial shell open');
+    assert.deepEqual(facialShells.map(part=>part.rotation.z),[0,0]);
     assert.strictEqual(opticalMesh.geometry.attributes.position.array,opticalBuffer,
       'public danger cannot replace or reposition the original sculpted optic geometry');
     for(let i=0;i<35;i++)warden.update({...witness,time:i/30,reducedMotion:false});
