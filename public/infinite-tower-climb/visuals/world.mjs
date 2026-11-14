@@ -1341,21 +1341,27 @@ export function createTowerWorld(){
         Math.sin(pylons[i].a-routeAngle),Math.cos(pylons[i].a-routeAngle)));
       return offset(index)<offset(best)?index:best;
     },0);
-    // Original normal-speed desktop/portrait candidate b16a8378 still
-    // shows the new Void exterior mass occupying the original bronze doorway
-    // depth at the exact 8->9 transition. Instead of staging that near opaque
-    // pylon INTO the first earned frame, retain the existing actual old gate
-    // and bearing gallery with the new Void REAR core support only. All
-    // original new-floor exterior piers are assembled after source departure
-    // by the existing deferred, renderer-submitted architecture job. No
-    // synthetic portal, gameplay floor, collision or false source event.
-    // Ordinary unearned Floor9 construction remains untouched.
+    // Exact 1x source-pinned danger films 43646710824 exposed the primary
+    // camera/world contradiction: the old arch and full-body hero both
+    // project safely on the first real F9 WebGL return (tick476), but the
+    // first incoming Void core is already fully opaque. Only ONE returned
+    // frame shares their source-authenticated doorstep before the recorded
+    // movie jumps from bronze to violet (0/2 viewport acceptance).
+    //
+    // Do not build an entirely new opaque center in FRONT of the real
+    // previously rendered bronze gate. The original F8 cap, gate and bounded
+    // structural gallery stay physically in this actual Three.js scene;
+    // the real F9 ground, moving platforms and hazards are constructed now.
+    // Build the ACTUAL authored Void core AND all its buttresses together
+    // only in the existing post-first-return deferred shaft owner, initially
+    // transparent at zero opacity. Its reveal remains source-departure gated.
+    // No proxy wall, invented gateway, alternate actor, simulation change,
+    // new geometry type, video edit or composited screenshot.
     const frame=new THREE.Group();
     frame.name='SourceEarnedVoidLandingBearingFrame';
     floorGroup.add(frame);
-    buildVoidOpenCoreLoadPath(height,frame);
     return {root:frame,pylonIndex:null,deferredPylonIndex:nearest,
-      runToken:snapshot.runToken};
+      coreDeferred:true,coreDrawn:false,runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
@@ -1396,7 +1402,12 @@ export function createTowerWorld(){
         collar.userData.structural=true;
       }
     } else if(theme==='void' && height>30) {
-      if(!stagedVoidArchitecture)buildVoidOpenCoreLoadPath(height,root);
+      // The source-earned first F9 viewport deliberately owns NO new opaque
+      // central core. This same normal authored geometry is built once
+      // after the first returned frame, in the deferred structural material
+      // owner, so its real supports reveal together with the new piers.
+      if(!stagedVoidArchitecture || stagedVoidArchitecture.coreDeferred===true)
+        buildVoidOpenCoreLoadPath(height,root);
     } else {
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
@@ -3156,7 +3167,8 @@ export function createTowerWorld(){
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       structuralMaterials:[],structuralShadows:[],structuralFade:1,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
-      actualFirstFrameVoidBearings:stagedVoidArchitecture!==null,
+      actualFirstFrameVoidBearings:stagedVoidArchitecture?.coreDrawn===true,
+      entireIncomingVoidCoreDeferred:stagedVoidArchitecture?.coreDeferred===true,
       actualFirstFrameVoidBearingIndex:stagedVoidArchitecture?.pylonIndex??null,
       deferredPhysicalButtressIndex:stagedVoidArchitecture?.deferredPylonIndex??null,
       vistaBuildMs:null, deferredBuildMs:null,
@@ -4120,6 +4132,7 @@ export function createTowerWorld(){
       structureDeferred:deferredDistantArrival.structureDeferred === true,
       // First-frame destination is a real source-owned mesh group, not a score.
       actualFirstFrameVoidBearings:deferredDistantArrival.actualFirstFrameVoidBearings === true,
+      entireIncomingVoidCoreDeferred:deferredDistantArrival.entireIncomingVoidCoreDeferred===true,
       actualFirstFrameVoidBearingIndex:deferredDistantArrival.actualFirstFrameVoidBearingIndex ?? null,
       deferredPhysicalButtressIndex:deferredDistantArrival.deferredPhysicalButtressIndex ?? null,
       structureBuildMs:deferredDistantArrival.structureBuildMs,

@@ -814,18 +814,21 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
     world.update(after,.05,.05,{quality:'low'});
     const bearing=world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame');
     assert.ok(bearing?.isGroup,'actual F9 frame must contain source-gated structural destination');
-    assert.ok(bearing.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
-      'existing authored Void inner bearing geometry appears alongside original gateway');
+    assert.equal(bearing.getObjectByName('VoidOpenCoreLoadPath'),undefined,
+      'the first genuine F9 rendering must not draw an opaque new core across the original bronze arch');
     assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
     assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
-    assert.ok(meshes>0 && meshes<=12,
-      'early threshold structure stays a bounded real static batch, not full cold shaft');
+    assert.equal(meshes,0,
+      'entire incoming noninteractive core is deferred; only original historical geometry and truthful playable F9 platforms render on first shot');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
     const pending=world.diagnostics().deferredDistantArrival;
-    assert.equal(pending?.actualFirstFrameVoidBearings,true);
+    assert.equal(pending?.actualFirstFrameVoidBearings,false);
+    assert.equal(pending?.entireIncomingVoidCoreDeferred,true);
+    assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')?.isGroup,
+      'the original historic machine room, rather than incoming violet core, backs the first real successor doorway');
     assert.equal(pending.actualFirstFrameVoidBearingIndex,null,
       'the nearest pylon must be reserved, not inserted into the first door-camera ray');
     assert.ok(pending.deferredPhysicalButtressIndex===0 ||
@@ -842,6 +845,15 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
       'same GPU structural owner continues through the new shaft upload');
     const newShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(newShaft,'incoming original support loads only after the real gateway is left behind');
+    assert.ok(newShaft.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
+      'the actual ORIGINAL successor core now joins the post-render deferred shaft instead of screening the gate on cold first frame');
+    const incomingMeshes=[];
+    newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
+    assert.ok(incomingMeshes.length>0 &&
+      incomingMeshes.every(mesh=>mesh.material?.opacity===0 ||
+        (Array.isArray(mesh.material) &&
+          mesh.material.every(material=>material.opacity===0))),
+      'real core and pylons have independent zero-opacity deferred materials, never hide the real F9 platforms');
     assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
       'the actual new exterior buttresses must still be constructed after departure');
     const copies=[];world.group.traverse(o=>{
