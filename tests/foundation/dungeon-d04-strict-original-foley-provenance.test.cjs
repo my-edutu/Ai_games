@@ -82,9 +82,11 @@ test('strictly rejected transients do not consume onset budgets, and mute clears
  assert.equal(f.emit(sword('revenant')),false);
  assert.equal(f.enable(),true);
  assert.equal(f.emit(injury('revenant')),true);
- assert.equal(f.emit({kind:'warden-release',audio:'warden-release',
+ assert.equal(f.emit({id:'1:1:7:warden-release:warden:-',sceneKey:'1:1',
+  tick:7,kind:'warden-release',visual:'warden',audio:'warden-release',
+  actorId:'warden',targetId:null,
   proof:'authority-action',verified:true,priority:8,severity:1}),true,
-  'Warden release is distinct from damage and swing proof');
+  'Warden release requires its own canonical public-action proof');
  f.dispose();
  assert.equal(f.stats().disposed,true);
 });
@@ -95,3 +97,41 @@ test('older standalone audition adapters keep their existing permissive surface'
  assert.equal(f.emit(injury('revenant',false,{actorId:'legacy-injected'})),true);
  f.dispose();
 });
+
+// The genuine browser release is an attempt, NEVER evidence of contact.
+// Fake nodes here prove admission only, not original PCM or real-game sync.
+for(const kind of ['ranged-release','spell-release','warden-release']){
+ test('strict D04 '+kind+' requires canonical witnessed public action before scheduling sound',async()=>{
+  const {createOriginalCombatFoley}=await load(),{ctx,sources}=fixture();
+  const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  assert.equal(f.enable(),true);
+  const actorId=kind==='warden-release'?'warden':
+   kind==='spell-release'?'cultist':'ranger';
+  const targetId=kind==='warden-release'?null:'revenant';
+  const visual=kind==='warden-release'?'warden':
+   kind==='spell-release'?'cast':'launch';
+  const witness={id:'1:1:42:'+kind+':'+actorId+':'+(targetId??'-'),
+   sceneKey:'1:1',tick:42,kind,visual,audio:kind,actorId,targetId,
+   verified:true,proof:'authority-action',priority:5,severity:.5};
+  for(const invalid of [
+   {...witness,id:'forged-release'},
+   {...witness,verified:false},
+   {...witness,proof:'authority-event'},
+   {...witness,actorId:null},
+   {...witness,visual:'none'},
+   {...witness,targetId:targetId===null?'invented-victim':null},
+   {...witness,sceneKey:'1:2'},
+   {...witness,tick:41}
+  ]){
+   const prior=sources.length;
+   assert.equal(f.emit(invalid),false,'unwitnessed release must remain silent');
+   assert.equal(sources.length,prior,'invalid source must never be scheduled');
+  }
+  assert.equal(f.stats().confirmedCueIds,0,
+   'invalid release must not occupy bounded authoritative event history');
+  assert.equal(f.emit(witness),true,'canonical release stays audible as action only');
+  assert.equal(f.stats().confirmedCueIds,1);
+  assert.equal(f.stats().activeVoices,1);
+  f.dispose();
+ });
+}
