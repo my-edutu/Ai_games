@@ -118,10 +118,18 @@ export function stepTowerPhysics(input:TowerState,action:TowerAction):{state:Tow
   // vertical lock lattice. No RNG, future state, auxiliary physics tick or
   // renderer-side collider; legacy/unflagged replay retains its exact path.
   const activeChunk=state.chunks.find(ch=>ch.floor===state.floor);
+  const release=state.guardianGateActuation;
+  const sourceWinchClosed=!!release&&release.floor===state.floor&&
+    Number.isSafeInteger(release.defeatTick)&&
+    Number.isSafeInteger(release.openAtTick)&&
+    state.tick>=release.defeatTick&&state.tick<release.openAtTick&&
+    state.enemies.some(enemy=>enemy.id===release.guardianId&&
+      enemy.floor===state.floor&&enemy.kind==='guardian'&&
+      enemy.active===false&&enemy.health<=0);
   if(c.guardianArenaHazards===true&&c.guardianSecondWind===true&&
     activeChunk?.guardian&&
-    state.enemies.some(enemy=>enemy.floor===state.floor&&
-      enemy.kind==='guardian'&&enemy.active&&enemy.health>0)){
+    (sourceWinchClosed||state.enemies.some(enemy=>enemy.floor===state.floor&&
+      enemy.kind==='guardian'&&enemy.active&&enemy.health>0))){
     const cap=activeChunk.platforms.find(platform=>
       platform.id===`f${state.floor}:cap`);
     if(cap){
