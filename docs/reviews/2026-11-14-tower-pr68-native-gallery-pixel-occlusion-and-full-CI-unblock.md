@@ -1,0 +1,20 @@
+# P0 — Original native Floor 8→9 gallery inspection and four-shard integration unblock
+**Stage:** P0 EVIDENCE + GAME-LOOP TRUTH — OPEN. **Leading transformation verdict:** NOT EVALUATED.
+**Branch:** feat/tower-transformation-gauntlet-20261101 (Draft PR #68 based on PR #58). **Frozen baseline:** `1731b380851162741761c5569e2bc152a0869ca9` — unchanged.
+
+## Evidence at immutable inspected candidate
+At `52b25cf4dfd46cffa371b252f3625dc516775aa6`, the latest original 1x normal-speed [nine-job campaign](https://github.com/my-edutu/Ai_games/actions/runs/43634670246) completed all eight baseline/candidate movies and all eight valid source event indexes. Its strict aligned native review **failed 0/2** viewports. This is a genuine quality veto, not a runner transport error.
+
+I inspected both actual candidate danger WebMs (960×600 and 390×844, ~72.9 seconds) at original timestamps 23–30 seconds, not mockups. Bronze Floor 8 gate/structural towers remain in camera through ~25.5 seconds, then the first violet Floor 9 decks and background occupy the frame near 26–27 seconds. The source-anchored forged bearing gallery does not yet demonstrate a continuous full-body passage through *the same* bronze threshold; in portrait, the walker can be masked by the original vertical supports during transition. This remains the largest systemic P0 experience gap.
+
+Original `native-scene-phase.json` reports source crossing tick **475**. Desktop: source event search 24.621s, first returned renderer near 25.248s, drawn HUD floor change 26.00s and violet phase 26.75s. Portrait: event search 24.851s, first return ~25.468s, drawn HUD 26.00s, violet phase 27.00s. Event→HUD latency 1.379s desktop / 1.149s portrait, returned renderer→HUD ~752ms desktop / 532ms portrait. These are hosted software-WebGL source/native diagnostic intervals, **not** device frame-time/FPS and not proof of visual causality.
+
+## New exact-source technical blocker resolved in code
+The [latest 10-job quality workflow](https://github.com/my-edutu/Ai_games/actions/runs/43634670209) failed four phase-3 partitions (6/10 passed). The failures are import resolution of `source-earned-bearing-run.mjs` in four other isolated `/tmp/.../world.mjs` Three.js fixtures; they do *not* demonstrate gameplay collision failure, though they genuinely veto this candidate from acceptance. Updated only those four Tower fixtures to resolve the unchanged **actual shipping** source module via file URL (no mocks, skipped tests, watered-down assertions or unrelated game edits). The source game/visual implementation is untouched this execution. This unblocks the production code's complete safety verification; passing CI remains necessary and insufficient.
+
+**Change scope:** four Tower-only imported-world integration fixtures, this review, transformation ledger and capture request. **Determinism/replay:** no runtime game or source mutation. **Performance:** no renderer/runtime changes; physical-device p50/p95/p99 and memory remain NOT EVALUATED. **Accessibility/portrait:** original native portrait reviewed but not accepted. **Security/privacy:** no new data collection. **Rollback:** revert this dedicated integration commit; baseline and PR58 remain untouched.
+
+## Current acceptance and next action
+New exact-head workflow/captures requested by the evidence commit remain NOT EVALUATED until their actual run URLs, logs and source-pinned native full films are inspected. Strict visual acceptance still **0/2** on previous genuine footage. Independent anonymous fresh-context critics: **LOOKS 0/5 · FEELS 0/5 · PLAYS 0/5**; hardware/UX/reduced-motion and memory NOT EVALUATED.
+
+**Next highest-impact P0 action:** use actual first-return renderer→compositor timing plus successive original 1x camera frames to remove the abrupt ~2s bronze→violet spatial replacement; ensure the full-body hero, one real original bronze arch, both new load-bearing bays and the first real Floor 9 step are simultaneously legible in a physically grounded passage. Do not add a fade to disguise a missing 3D handoff. Recheck actual restart and mobile visibility. Do not progress stages on test count.
