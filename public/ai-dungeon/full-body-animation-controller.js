@@ -2826,6 +2826,34 @@ export function planImportedWitnessedHurtMixerFrame({
  });
 }
 
+/**
+ * An original Walking_A skeleton must follow a REAL moving actor promptly:
+ * in source-GLB Chromium witnesses a lawful .0285m displacement already
+ * occurred while the new clip was still only .753 weighted. The ordinary
+ * .23s idle fade needs >=3 mixer render updates at the bounded .09s fade
+ * clock; do not leave a moving body's pelvis and both knees in Idle for
+ * that long. This is ONLY a faster source-to-source crossfade, not IK, root
+ * translation, a step, or contact/hit authorization.
+ *
+ * Guard/idle return, death, cast, hurt, attack, escape, teleport, reduced
+ * motion and uncorroborated movement preserve the established fade.
+ */
+export function planImportedRealTravelCrossfade({
+ mode='idle',previousMode='idle',sourceClipName='',
+ ownerLocomotion=false,groundedMoving=false,groundedTravel=NaN,
+ frameInterval=NaN,alive=false,visible=true,teleport=false,
+ reducedMotion=false,interrupted=false
+}={}){
+ if(mode!=='move'||!['idle','guard'].includes(previousMode)||
+  sourceClipName!=='Walking_A'||ownerLocomotion!==true||
+  groundedMoving!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![groundedTravel,frameInterval].every(finite)||
+  groundedTravel<.012||groundedTravel>.24||
+  frameInterval<.008||frameInterval>.24)return .23;
+ return .12;
+}
+
 export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,
  frameDelta=0,frameInterval=frameDelta,sourceStep=NaN,sourceDuration=NaN,
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
