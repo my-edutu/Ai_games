@@ -1,4 +1,5 @@
 import type{TowerAction,TowerPlatform,TowerState}from'../state/types';
+import{checksum}from'../../../../packages/replay/src/index';
 import{observedDashArrivalSafe}from'./dash-arrival';
 import{TOWER_GUARDIAN_PATROL_SPEED}from'../combat/step';import{chooseTowerUpgrade}from'../progression/builds';import{nextTowerPlatform,nextTowerTacticalPlatform,nextTowerEarnedCapHop}from'./graph';import{guardianArenaClearanceX}from'../generation/chunks';import type{TowerObservation}from'./observation';import{detectTowerStuck}from'./stuck';
 export interface TowerIntent{mode:'choosing-upgrade'|'evading-projectile'|'evading-hazard'|'evading-telegraph'|'bracing-telegraph'|'bracing-guardian-shield'|'engaging-enemy'|'recovering'|'collecting-resource'|'aligning'|'jumping'|'air-control'|'settling-landing'|'settling-launch'|'waiting';summary:string;confidence:number;fallbackUsed:boolean;targetPlatformId?:string}
@@ -874,6 +875,68 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
         'Steering back toward the cleared guardian cap',
       confidence:.96,fallbackUsed:false,targetPlatformId:cap.id}};
 }
+
+// The real 1x 2026-11-14 Floor8->9 film exposed an authoritative problem,
+// not a tint problem: on the first tick AFTER a genuine grounded boss-gate
+// crossing the pilot immediately jumped >13m, then climbed ~65m before the
+// cold world could submit its first frame. The original doorway and actual
+// full-body soles therefore never shared a convincing grounded passage.
+// Spend a bounded first HALF-SECOND walking and settling on the SAME real
+// f9:ground, before the existing genuine gateway-step ascent resumes.
+// This is a normal autonomous action, not a movement override, frozen replay
+// change, timer-driven pose, invulnerability grant or additional platform.
+// Published hazards, opponent decisions and recovery have priority above it.
+function observedEarnedGatewayGroundedStride(state:TowerState,
+  obs:TowerObservation):TowerDecision|null {
+  const w=state.lastGuardianCrossing,p=obs.player;
+  if(state.config.guardianArenaHazards!==true ||
+     state.config.guardianSecondWind!==true ||
+     state.floor!==9 || obs.floor!==9 ||
+     !w || !p || w.runToken!==checksum({runId:state.runId}) ||
+     w.fromFloor!==8 || w.toFloor!==9 ||
+     w.cap?.id!=='f8:cap' || w.guardian?.kind!=='guardian' ||
+     w.guardian.active!==false || w.guardian.health>0 ||
+     !Number.isSafeInteger(w.sourceTick) ||
+     !Number.isSafeInteger(obs.tick) || obs.tick!==state.tick ||
+     obs.tick-w.sourceTick<0 || obs.tick-w.sourceTick>=10 ||
+     !p.grounded || p.state!=='standing' ||
+     p.groundedPlatformId!=='f9:ground' || p.health<=0 ||
+     w.halfWidth!==state.player.halfWidth ||
+     w.halfHeight!==state.player.halfHeight ||
+     !Number.isSafeInteger(w.crossingX) ||
+     !Number.isSafeInteger(w.crossingY) ||
+     !Number.isSafeInteger(p.position.x) ||
+     !Number.isSafeInteger(p.position.y) ||
+     !Number.isFinite(p.velocity.x)) return null;
+  const ground=obs.platforms.find(platform=>platform.id==='f9:ground');
+  if(!ground || !Number.isSafeInteger(ground.x) ||
+     !Number.isSafeInteger(ground.y) ||
+     !Number.isSafeInteger(ground.width) ||
+     !Number.isSafeInteger(ground.height) ||
+     ground.width<=0 || ground.height<=0 ||
+     w.crossingY-w.halfHeight!==ground.y+ground.height ||
+     p.position.y-p.halfHeight!==ground.y+ground.height ||
+     p.position.x<w.crossingX-5000 ||
+     p.position.x-p.halfWidth<ground.x ||
+     p.position.x+p.halfWidth>ground.x+ground.width)
+     return null;
+  // Preserve the original forward stride, but brake BEFORE the real ground
+  // edge; source physics supplies acceleration, friction and solid contact.
+  const safeRight=ground.x+ground.width-p.halfWidth-10000;
+  if(safeRight<=w.crossingX) return null;
+  const goal=Math.min(w.crossingX+28000,safeRight);
+  const friction=Math.max(1,state.config.groundFriction);
+  const stopping=Math.max(0,p.velocity.x)**2/(2*friction);
+  const wanted:TowerAction['move']=
+    p.position.x+Math.max(0,p.velocity.x)+stopping+3000<goal?1:0;
+  const move=guardedEvasion(state,obs,wanted);
+  return {action:action(move),
+    intent:{mode:'aligning',summary:move===1
+      ?'Walking through the earned guardian threshold'
+      :'Settling onto the real Floor Nine landing',
+      confidence:.97,fallbackUsed:false,targetPlatformId:ground.id}};
+}
+
 // Tactical v2 is the live policy. Historical v1 is retained for pinned replay
 // evidence; it is never silently substituted into a new live expedition.
 export function chooseTowerAction(state:TowerState,observation:TowerObservation,options:{tactical?:boolean}={}):TowerDecision{
@@ -1275,6 +1338,12 @@ export function chooseTowerAction(state:TowerState,observation:TowerObservation,
       summary:`Firing earned pulse at observed ${distant.kind}`,
       confidence:.94,fallbackUsed:false}};
   }
+  // A genuine defeated-guardian source crossing deserves a grounded,
+  // physically simulated passage before the first successor launch.
+  // Emergency dodges, enemies, health recovery and combat won earlier.
+  const earnedGatewayStride=tactical
+    ?observedEarnedGatewayGroundedStride(state,observation):null;
+  if(earnedGatewayStride)return earnedGatewayStride;
   let target=currentPlatform(observation,state.ai.targetPlatformId);if(observation.player.grounded){target=tactical?nextTowerTacticalPlatform(observation,state.config,observation.player.groundedPlatformId,state.ai.targetPlatformId,state.player.halfWidth,state.player.halfHeight):nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId)}else if(!target)target=nextTowerPlatform(observation,state.config,observation.player.groundedPlatformId);
   if(!target)return{action:action(),intent:{mode:'waiting',summary:'Waiting for a valid route node',confidence:.6,fallbackUsed:false}};
   const center=target.x+target.width/2;if(!observation.player.grounded){const delta=center-observation.player.position.x;
