@@ -5615,3 +5615,34 @@ test('RED: real original-source root travel gets timely complete-body Walking_A 
  assert.match(act,/groundedTravel:/);
  assert.match(act,/next\.crossFadeFrom\(previous,crossfadeSeconds,false\)/);
 });
+
+
+// Session 03: genuine original Walking_A source nine-tick WebGL desktop/mobile
+// at exact 95806cb: both original clips enter Walking_A from Idle after
+// 0.44-0.54m of genuine actor travel over 0.467-0.917s sparse presentation.
+// 230ms full-skeleton idle blend leaves physical movement ahead of joints.
+// Require a bounded source catch-up; NEVER infer an authority step or contact.
+test('RED: imported licensed full-skeleton walk catches up to witnessed sparse root travel without forged steps',async()=>{
+ const {planImportedRealTravelCrossfade:fade}=await load();
+ const original={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  ownerLocomotion:true,groundedMoving:true,groundedTravel:.44,
+  frameInterval:.9166,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false};
+ assert.equal(fade(original),.09,
+  'desktop genuine .44m walking root should not retain 230ms Idle blend');
+ assert.equal(fade({...original,groundedTravel:.54,frameInterval:.4666}),.09,
+  '390px original .54m source travel needs same bounded full-body catch-up');
+ assert.equal(fade({...original,previousMode:'guard'}),.09);
+ assert.equal(fade({...original,groundedTravel:.0285356,frameInterval:.033}),.12,
+  'short real source motion retains earlier connected 120ms fade');
+ for(const mutation of [
+  {mode:'attack'},{mode:'defeat'},{previousMode:'attack'},
+  {sourceClipName:'Idle'},{ownerLocomotion:false},{groundedMoving:false},
+  {alive:false},{visible:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{groundedTravel:0},{groundedTravel:.6},
+  {frameInterval:0},{frameInterval:2.2},
+  {groundedTravel:.4,frameInterval:.02},
+  {groundedTravel:.3,frameInterval:1.5}
+ ])assert.equal(fade({...original,...mutation}),.23,
+   'no fake catchup on unknown/unsafe source or impossible cadence: '+JSON.stringify(mutation));
+});
