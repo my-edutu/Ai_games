@@ -81,6 +81,19 @@ compose(entry,person,'compactBonePalette',false);
 const before=actual.length;
 compose(entry,person,'compactBonePalette',false);
 assert.equal(actual.length,before,'repeat draw without world movement must reuse original 208-float palette');
+// W322 critical render contract: DO NOT transform a freshly world-rooted
+// 13-bone actor AGAIN in the shader commuter root stage. The old renderer had
+// a valid commuter-root path; GPU skin must use EITHER rooted joint palettes
+// OR the old commute transform, NEVER both. Unsupported/CPU rows retain it.
+const commuterDraw=fragment('function drawResidentCommuters(', 'function getResidentCommuterAudit(');
+const workerDraw=fragment('function drawWorkingResidentMesh(', 'function getWorkingResidentAudit(');
+const foregroundDraw=fragment('function drawForegroundResidentMesh(', 'function setForegroundResidentEnabledForTesting(');
+assert.match(commuterDraw,/gl\\.uniform1f\\(uniforms\\.commuterEnabled,skin\\?0:1\\)/,
+ 'whole commuter batch must disable double root when all real actors are joint-skinned');
+assert.match(workerDraw,/gl\\.uniform1f\\(uniforms\\.workSkinActive,1\\);[\\s\\S]*?gl\\.uniform1f\\(uniforms\\.commuterEnabled,0\\);/,
+ 'true profession worker GPU joints already own the complete authoritative world root');
+assert.match(foregroundDraw,/gl\\.uniform1f\\(uniforms\\.commuterEnabled,entry\\.skinned\\?0:1\\)/,
+ 'mixed foreground adult draw must keep CPU fallback root while not double-moving GPU joint meshes');
 // Never rewrite simulated person for an animation-only fix.
 assert.equal(person.x,3);assert.equal(person.z,4);
 assert.equal(person.job,'farmer');
