@@ -5409,17 +5409,17 @@ test('original linked upper+lower current-frame proof resets and final skinned o
  const frame=renderer.indexOf('function stageRigLegsAfterMixer(');
  assert.ok(frame>0);
  assert.match(renderer.slice(frame,frame+400),
-  /actor\\.sourceSwingLinkedCurrentFrameProofs=\\{left:null,right:null\\}/,
+  /actor\.sourceSwingLinkedCurrentFrameProofs=\{left:null,right:null\}/,
   'a stale or undefined linked witness must never survive an original mixer frame');
  const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
  const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
  assert.ok(start>0&&end>start);
  const method=renderer.slice(start,end);
- assert.match(method,/const after=read\\(\\)/);
- assert.match(method,/chooseOriginalSourceSwingLinkedLegTrial\\(\\{\\.\\.\\.owner,trials:\\[\\{/);
- assert.match(method,/certified\\.oppositeShoePreserved!==true/);
- assert.match(method,/certified\\.contactLocked!==false/);
+ assert.match(method,/const after=read\(\)/);
+ assert.match(method,/chooseOriginalSourceSwingLinkedLegTrial\(\{\.\.\.owner,trials:\[\{/);
+ assert.match(method,/certified\.oppositeShoePreserved!==true/);
+ assert.match(method,/certified\.contactLocked!==false/);
  assert.ok(method.indexOf('if(!certified||')<method.indexOf('upper.last.multiply(upperDelta)'),
   'no source quaternion delta may persist without final independently measured both-shoe safety');
- assert.match(method,/actor\\.sourceSwingLinkedCurrentFrameProofs\\[side\\]/);
+ assert.match(method,/actor\.sourceSwingLinkedCurrentFrameProofs\[side\]/);
 });
