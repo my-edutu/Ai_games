@@ -12309,7 +12309,9 @@ function marketStall(s,index){
   materialScope(MATERIAL.PLASTER,()=>{
    const rear=z-face*.855;
    const plaster=rgb(index%2?0xc3b39b:0xd4be9d);
-   const a=[x-1.20,y+.76,rear],b=[x+1.20,y+.76,rear],
+   // W314: the original rear shops have a physically open working-height
+   // trade bay beneath their preserved roof gables, not an opaque wall.
+   const a=[x-1.20,y+1.67,rear],b=[x+1.20,y+1.67,rear],
     c=[x+1.20,y+profile.eave-.075,rear],
     d=[x-1.20,y+profile.eave-.075,rear],
     apex=[x,y+profile.peak-.085,rear];
@@ -12407,6 +12409,7 @@ function marketQuarter(){
   stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
   carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
+  openRearScreenPanels:0,openRearScreenGaps:0,
   entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
  const begin=data.length;
  marketCobblestoneSquare();
@@ -21941,6 +21944,17 @@ function physicalStreetLevelStallVolumes(){
   for(const slat of originalMarketOpenRearScreenPlan(stall))
    add('market-stall-screen',slat.x,slat.z,
     slat.width*.5,slat.depth*.5,slat.bottom,slat.top);
+  // W314: the genuine upper gable remains solid in camera rays; the
+  // opened 0.84-1.67m bay never pretends that wood and plaster vanished.
+  add('market-stall-rear-gable',x,z-face*.855,1.20,.035,
+   y+1.67,y+profile.peak-.085);
+  if(!profile.structural){
+   // Two original louvred windows on each of the genuine artisan shops.
+   const ventZ=z-face*.844-face*.042;
+   for(const side of [-1,1])
+    add('market-stall-artisan-vent',x+side*.56,ventZ,.245,.060,
+     y+1.27,y+1.65);
+  }
   if(profile.structural){
    // Real occupied-looking upper tradehouse mass, above the OPEN counter.
    add('market-stall-upper-wall',x,z-face*.61,2.37/2,.58/2,

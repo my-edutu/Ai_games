@@ -27,12 +27,16 @@ const context={MARKET_STALLS:stalls,terrain:()=>0,
   assert(Math.abs(cross)>0,'no zero-area original wood infill');
   emittedOriginalMarketQuads.push([a,b,c,d]);
  },
- marketStallProfile:i=>({structural:i<2,eave:[4.20,3.98,3.25,3.04][i]})};
+ marketStallProfile:i=>({structural:i<2,eave:[4.20,3.98,3.25,3.04][i],peak:[5.58,5.25,4.39,4.16][i]})};
 vm.runInNewContext(html.slice(planStart,stallStart)+
  html.slice(volumeStart,volumeEnd),context,{timeout:1500});
 const all=context.physicalStreetLevelStallVolumes();
-assert.equal(all.length,38,'4 existing shops: 8 original counters, 20 truthful narrow slats, 6 loft returns and 4 signs');
+assert.equal(all.length,46,'4 original shops, 20 real open rear boards, 4 upper gables, 4 artisan vents and all original counters');
 const slats=all.filter(x=>x.kind==='market-stall-screen');
+assert.equal(all.filter(x=>x.kind==='market-stall-rear-gable').length,4);
+assert.equal(all.filter(x=>x.kind==='market-stall-artisan-vent').length,4);
+assert(html.includes('const a=[x-1.20,y+1.67,rear]'),
+ 'real rendered upper gables must not fill the merchant sightline');
 for(const stall of stalls){
  const before=emittedOriginalMarketQuads.length;
  context.renderOpenRearTradeScreen(stall,[.46,.34,.23],[.73,.61,.46]);

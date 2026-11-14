@@ -30,7 +30,7 @@ assert.equal(world.realReceiptCameraFocus({...actor,delivery:{...actor.delivery,
 const policy=extract('isReadableMarketHandoffShot');
 const cx={};vm.runInNewContext(policy,cx);
 const shot={blockers:0,eyeCollision:{clear:true},foregroundSceneCover:.11,
- foregroundCargoCover:.05,foregroundVegetationCover:.10,vegetationFaceBlockers:0,
+ foregroundActorCoreCover:.05,foregroundCargoCover:.05,foregroundVegetationCover:.10,vegetationFaceBlockers:0,
  projectedWorkerHeightFraction:.26,marketPostSightline:{centerCover:.01}};
 const framing={handBlockers:0,foregroundCitizenBlockers:0,blockedBodyRays:1,
  cameraProximityWarnings:0};
