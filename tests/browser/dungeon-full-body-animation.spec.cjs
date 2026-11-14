@@ -682,6 +682,10 @@ for(const view of [
   expect(proof.sourceClip).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.oppositeShoePreserved).toBe(true);
+  expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.008);
+  expect(proof.witnessedFrameIntervalSeconds).toBeLessThanOrEqual(.240001);
+  expect(proof.witnessedRootTravelAgeSeconds).toBeLessThanOrEqual(.150001);
+  expect(proof.witnessedRootTravelMeters).toBeGreaterThanOrEqual(.008);
   expect(proof.liftMeters).toBeGreaterThanOrEqual(.012);
   expect(proof.fractionCleared).toBeGreaterThanOrEqual(.15);
   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(

@@ -33,6 +33,10 @@ export const FULL_BODY_ANIMATION_MODES=MODES;
  * skinned heel/toe patches in the SAME source frame. Returning a candidate
  * merely permits a final, independent skinned re-read in the renderer.
  *
+ * Preserve fresh root travel (<=150ms) even if its immediately displayed
+ * original WebGL mixer frame arrives 100-240ms after the prior image.
+ * A slow frame alone never grants a leg correction: the SAME final skinned
+ * heel/toe of BOTH shoes must still certify >=12mm and >=15% clearance.
  * Source bind lengths and animated quaternion-track axes must be proved by
  * the caller. This never emits contact, shifts a root, or modifies authority.
  */
@@ -53,7 +57,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   teleport||reducedMotion||interrupted||
   ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.008||frameInterval>.1||
+  frameInterval<.008||frameInterval>.24||
   Math.abs(floorTopY+.02)>.005||
   !['left','right'].includes(side)||!Array.isArray(trials)||
   trials.length===0||trials.length>4)return null;

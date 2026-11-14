@@ -2467,7 +2467,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  if(!Number.isFinite(weight)||weight<.92||
   !Number.isFinite(travel)||travel<.008||travel>.24||
   !Number.isFinite(age)||age<0||age>.15||
-  !Number.isFinite(interval)||interval<.008||interval>.1)return;
+  !Number.isFinite(interval)||interval<.008||interval>.24)return;
  const read=()=>Object.fromEntries(['left','right'].map(s=>{
   const heel=sourceSkinnedSoleWorld(patches[s].heel);
   const toe=sourceSkinnedSoleWorld(patches[s].toe);
@@ -2549,7 +2549,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   sourceClip:'Walking_A',sourceUpperBone:upper.bone.name,
   sourceLowerBone:lower.bone.name,before,after,
   sourceUpperTrack:upperAxis.trackName,sourceLowerTrack:lowerAxis.trackName,
-  sourceBindUpperMeters:bind.upperLength,sourceBindLowerMeters:bind.lowerLength
+  sourceBindUpperMeters:bind.upperLength,sourceBindLowerMeters:bind.lowerLength,
+  witnessedFrameIntervalSeconds:interval,witnessedRootTravelMeters:travel,
+  witnessedRootTravelAgeSeconds:age
  };
  actor.sourceSwingLinkedAcceptedFrames=Math.min(1000000,
   (actor.sourceSwingLinkedAcceptedFrames||0)+1);
