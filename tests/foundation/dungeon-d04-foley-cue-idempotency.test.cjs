@@ -111,3 +111,64 @@ test('strict sword and injury foley reject sound without a stable event ID',asyn
  assert.equal(engine.stats().confirmedCueIds,0);
  engine.dispose();
 });
+
+
+// A failed high-priority sound may not sacrifice an already audible, lower
+// priority voice. These are WebAudio scheduling contracts, not recorded PCM.
+function failingPreemptionFixture(){
+ let failPhase=null,sourceStarts=0;
+ const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+ const node=kind=>({gain:param(),frequency:param(),Q:{value:0},
+  connect(){},disconnect(){},start(){
+   if(kind==='source'&&failPhase==='start'){
+    failPhase=null;throw Error('simulated output start failure');
+   }
+   if(kind==='source')sourceStarts++;
+  },stop(){}});
+ const ctx={state:'running',currentTime:0,destination:node('destination'),
+  createGain:()=>node('gain'),createBiquadFilter:()=>node('filter'),
+  createOscillator:()=>node('oscillator'),
+  createBufferSource(){
+   if(failPhase==='allocate'){
+    failPhase=null;throw Error('simulated output allocation failure');
+   }
+   return node('source');
+  },
+  createBuffer(_channels,length,rate){
+   return {length,sampleRate:rate,duration:length/rate,
+    getChannelData:()=>new Float32Array(length)};
+  }};
+ return {ctx,failNext:phase=>{failPhase=phase},getSourceStarts:()=>sourceStarts};
+}
+
+for(const phase of ['allocate','start']){
+ test('D04 high-priority '+phase+' failure cannot silence an existing eight-voice mix',async()=>{
+  const {createOriginalCombatFoley,MAX_ORIGINAL_COMBAT_VOICES}=await load();
+  const fixture=failingPreemptionFixture();
+  const engine=createOriginalCombatFoley(fixture.ctx,{requireVerifiedContact:true});
+  assert.equal(engine.enable(),true);
+  const low=['draw','ranged-release','spell-release','cast-dry',
+   'utility','guard','evade','recovery'];
+  for(const [i,audio] of low.entries())
+   assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio);
+  const before=engine.stats();
+  assert.equal(before.activeVoices,MAX_ORIGINAL_COMBAT_VOICES);
+  const starts=fixture.getSourceStarts();
+  fixture.failNext(phase);
+  const high={audio:'warden-release',id:'high-priority',priority:9};
+  assert.equal(engine.emit(high),false,'failed WebAudio cannot report delivery');
+  assert.equal(engine.stats().activeVoices,MAX_ORIGINAL_COMBAT_VOICES,
+   'failed candidate must preserve all eight legitimate ongoing voices');
+  assert.equal(engine.stats().stopped,before.stopped,
+   'failed candidate must not preempt an existing sound');
+  assert.equal(fixture.getSourceStarts(),starts,
+   'failed candidate must not start a new noise voice');
+  assert.equal(engine.emit(high),true,'same high-priority cue remains retryable');
+  assert.equal(engine.stats().activeVoices,MAX_ORIGINAL_COMBAT_VOICES,
+   'successful replacement must still meet the eight-voice cap');
+  assert.equal(engine.stats().stopped,before.stopped+1,
+   'only successful scheduling may retire a lower-priority voice');
+  assert.ok(engine.stats().peakVoices<=MAX_ORIGINAL_COMBAT_VOICES);
+  engine.dispose();
+ });
+}
