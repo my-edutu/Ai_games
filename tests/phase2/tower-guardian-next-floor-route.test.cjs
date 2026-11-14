@@ -115,7 +115,7 @@ test('authentic guardian gateway earns a grounded recovery stride before the fir
     'post-victory grounded stride must release to real floor-nine route, not trap the AI forever');
 });
 
-test('authentic 475-tick autonomous danger capture does not jump over earned grounded Floor Nine doorway',()=>{
+test('authentic 475-tick capture walks the real doorway without 25m overshoot and climbs the first successor step',()=>{
   // Reproduce the EXACT 20Hz source seed + opt-in configuration from the
   // unmodified 2026-11-14 real WebM d55c3723 campaign. The earlier
   // hand-placed fixture omitted the live F8 encounter and F9 arrival hazards;
@@ -136,12 +136,20 @@ test('authentic 475-tick autonomous danger capture does not jump over earned gro
     .find(p=>p.id==='f9:ground');
   assert.equal(arrived.player.position.y-arrived.player.halfHeight,
     realRoof.y+realRoof.height);
+  // The previous live gateway recovery sprinted 25.6m *past* its source
+  // crossing before reversing towards the adjacent first raised deck.
+  // That made a visually incoherent out-and-back on the same doorway roof.
+  // Keep a real, physically braked threshold stride within the original
+  // gateway sightline, then release into a REAL physics-controlled climb.
+  const crossingX=arrived.lastGuardianCrossing.crossingX;
+  let maxX=crossingX;
   // Never specify an action here: the REAL autonomous policy must own every
   // decision, with all generated new-floor enemies/hazards still present.
   // A genuine emergency evasion must be diagnosed rather than hidden.
   for(let i=0;i<8;i++){
     runtime.step();
     const after=runtime.state;
+    maxX=Math.max(maxX,after.player.position.x);
     assert.equal(after.floor,9);
     assert.equal(after.player.grounded,true,
       `real post-gateway tick ${after.tick} broke source ground; AI=${after.ai.mode}: ${after.ai.intent}`);
@@ -149,4 +157,22 @@ test('authentic 475-tick autonomous danger capture does not jump over earned gro
     assert.equal(after.player.position.y-after.player.halfHeight,
       realRoof.y+realRoof.height);
   }
+  assert.ok(maxX-crossingX<=17000,
+    `earned handoff overshot its true gateway by ${maxX-crossingX} source units, then must reverse towards the first physical ascent`);
+  let firstRealTakeoffTick=null;
+  let firstRealLandingOnStep=false;
+  for(let i=0;i<50;i++){
+    runtime.step();
+    const next=runtime.state;
+    if(!next.player.grounded && firstRealTakeoffTick===null)
+      firstRealTakeoffTick=next.tick;
+    if(next.player.groundedPlatformId==='f9:gateway-step'){
+      firstRealLandingOnStep=true;
+      break;
+    }
+  }
+  assert.ok(firstRealTakeoffTick!==null && firstRealTakeoffTick>=484,
+    'source-authentic threshold crossing must preserve a legible grounded beat before ordinary first leap');
+  assert.ok(firstRealLandingOnStep,
+    'braking for source doorway cannot strand the real climber or break first successor ascent');
 });

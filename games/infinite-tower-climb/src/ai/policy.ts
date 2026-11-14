@@ -924,7 +924,16 @@ function observedEarnedGatewayGroundedStride(state:TowerState,
   // edge; source physics supplies acceleration, friction and solid contact.
   const safeRight=ground.x+ground.width-state.player.halfWidth-10000;
   if(safeRight<=w.crossingX) return null;
-  const goal=Math.min(w.crossingX+28000,safeRight);
+  // The actual 475-tick source-run arrived with +6300 horizontal velocity.
+  // Sprinting another 28m overshoots the first ascent launch and then forces
+  // a 19m U-turn on the same roof. Hand over with a source-observed launch
+  // sightline instead of driving toward a pre-scripted far-right point.
+  const nextStep=obs.platforms.find(platform=>platform.id==='f9:gateway-step');
+  const firstLaunch=nextStep?launchX(ground,nextStep,state.player.halfWidth):w.crossingX;
+  const brakingRunout=Math.max(state.config.maxRunSpeed,
+    state.config.groundFriction*10);
+  const goal=Math.min(safeRight,w.crossingX+brakingRunout,
+    Math.max(w.crossingX,firstLaunch)+brakingRunout);
   const friction=Math.max(1,state.config.groundFriction);
   const stopping=Math.max(0,p.velocity.x)**2/(2*friction);
   const wanted:TowerAction['move']=
