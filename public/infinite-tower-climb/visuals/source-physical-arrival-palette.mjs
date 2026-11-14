@@ -66,9 +66,51 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // The full-body climber remains warm at the actual old sill, and walks
   // through a 90m material transition into the existing next-floor palette.
   // This changes NO geometry, physics, inputs, tick, enemy or gameplay state.
-  const progress=smooth((travel-6000)/84000);
+  // The actual F9 grounded runway may end only ~1.5m beyond the boss
+  // crossing. An old horizontal-only 9m tint corridor could therefore NEVER
+  // complete during honest onward gameplay, then disappear abruptly when the
+  // avatar jumped up the next platform. Use the current authoritative feet
+  // in BOTH walk and ascent dimensions, in the same fixed source units.
+  // This is a conservative straight-line displacement from the REAL old
+  // sill (not fictitious distance walked or a simulated extra frame).
+  const rise=Math.max(0,sole-roofY);
+  const pathDisplacement=Math.hypot(travel,rise);
+  const progress=smooth((pathDisplacement-6000)/84000);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
-    kind,travel,roofY,oldWeight,progress,
-    limitation:'True original threshold and actual source distance, not native film/independent acceptance'};
+    kind,travel,rise,pathDisplacement,roofY,oldWeight,progress,
+    limitation:'Verified original threshold and real 3D body displacement, not a new collider, native film or independent acceptance'};
+}
+
+// One physically occupied ORIGINAL bronze arch, never a fabricated successor
+// portal. Keep it solid until the recorded body has CLEARED its opening; after
+// that, optical retirement is limited by BOTH genuine 3D departure and
+// successful renderer submissions. A browser poll, timestamp jump or fake
+// victory cannot use this to spend an unseen original doorway.
+export function observedSourceGatewayDeparturePresence(source,held) {
+  if(held?.guardianGateRetained!==true ||
+     !valid(held?.submittedFrames) || held.submittedFrames<0 ||
+     held.submittedFrames>10 ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.visibleSeconds<0 || held.visibleSeconds>=1.65 ||
+     !valid(held.thresholdX)) return null;
+  const physical=observedSourcePhysicalArrivalPalette(source,held);
+  if(!physical?.sourceBound)return null;
+  const p=source.player;
+  const wholeBodyCleared=
+    p.x-p.halfWidth>=held.thresholdX+4000 ||
+    physical.rise>=70000;
+  const displayedSeconds=smooth((held.visibleSeconds-.12)/.90);
+  const submittedFrames=smooth((held.submittedFrames-1)/5);
+  const visibleProgress=Math.min(displayedSeconds,submittedFrames);
+  // Do not erase the real bronze gate while the actual climber still occupies
+  // the threshold. Only a fully-cleared original opening can retire its
+  // physically shared surrounding gallery / material.
+  const consumed=wholeBodyCleared
+    ?Math.min(physical.progress,visibleProgress):0;
+  return {sourceBound:true,sourceTick:source.tick,
+    actualSourcePosition:true,wholeBodyCleared,
+    opacity:1-consumed,sourceProgress:physical.progress,
+    submittedProgress:visibleProgress,
+    limitation:'Existing original gate material only; no actual video pixel or acceptance claim'};
 }
