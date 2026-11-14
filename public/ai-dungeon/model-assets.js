@@ -2910,7 +2910,12 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
  let clipSpeed=action==='move'?(actor.groundedPerformance?.clipSpeed??1):1;
  const tick=actor.fullBody?.actionTick??actor.u.actionTick??null;
  const newEvent=shouldRestartImportedOneShot(action,actor.currentAction,actor.currentActionTick,tick,forceRestart);
- if(actor.currentAction!==action)actor.rigGuardPlantHandoff=false;
+ if(actor.currentAction!==action){
+  actor.rigGuardPlantHandoff=false;
+  // Never replay an old move fade as if it belonged to a later
+  // authentic attack, cast, injury, guard, or defeat source owner.
+  actor.sourceRealTravelFadeReceipt=null;
+ }
  // Pending original Walking_A belongs only to this same lawful arrival.
  if(actor.currentAction!==action||newEvent){
   // A lawful new walk may begin while the last licensed walking-to-idle
