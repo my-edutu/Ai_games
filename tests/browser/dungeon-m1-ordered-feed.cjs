@@ -28,16 +28,23 @@ function createOrderedReplayFeed(snapshots){
 /**
  * Pure evidence pacing, NOT gameplay acceleration. Genuine ordered source
  * HTTP snapshots and their exact actually-rendered checksums are immutable.
- * On 2026-11-14 1,569 real source ticks separated first floor and defeat;
- * software WebGL failed at 420s while still delivering them IN ORDER.
- * Preserve 420s on ordinary chapters. Add 800ms for each remaining source
- * tick beyond 750, capped at 1.1m ms and the dedicated 33min job budget.
+ * On 2026-11-14, the exact original desktop WebGL journey remained at
+ * delivered index 1410 of 1706 after 1,075.2s, while original 390px mobile
+ * completed naturally. Desktop's rendered software-GLB frame p50 was 883ms,
+ * so 800ms beyond step 750 understated the unchanged feed's measured cost.
+ * Preserve 420s for ordinary chapters. For a long (>750-step) chapter,
+ * budget 1,350ms for each extra source step, capped at 1.6m ms. The natural
+ * 1,569-step floor-to-defeat chapter then receives 1,525,650ms, still inside
+ * the existing 30min test and 33min CI job ceilings.
+ * This NEVER accelerates authoritative steps, changes render snapshots,
+ * edits a pose, or accepts a checkpoint without its exact rendered checksum.
+ * Failure still emits the genuine partial WebM and NOT_DELIVERED receipt.
  */
 function planOrganicCheckpointWait({fromIndex=NaN,toIndex=NaN}={}){
  if(!Number.isSafeInteger(fromIndex)||fromIndex<0||
   !Number.isSafeInteger(toIndex)||toIndex<fromIndex)
   throw new RangeError('Ordered non-negative original source indices required');
- return Math.min(1100000,420000+Math.max(0,toIndex-fromIndex-750)*800);
+ return Math.min(1600000,420000+Math.max(0,toIndex-fromIndex-750)*1350);
 }
 module.exports={createOrderedReplayFeed,describeOrganicCheckpoint,planOrganicCheckpointWait};
 
