@@ -2679,16 +2679,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
 }
 
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
- // Only THIS immediately preceding displayed pose can lend a source-linked
- // continuity certificate. The certificate is renewed by independent final
- // skin measurements, not persistent across a missed original mixer frame.
+ // Hand the immediately prior certified source-frame shoes forward ONCE.
  const previousLinked=actor.sourceSwingLinkedCurrentFrameProofs;
- actor.sourceSwingLinkedPriorFrameProofs=previousLinked?
-  {left:previousLinked.left??null,right:previousLinked.right??null}:
-  {left:null,right:null};
- // This original GLB two-shoe receipt belongs exclusively to this mixer frame.
- // Initialize before early returns or the first accepted connected-leg trial.
+ actor.sourceSwingLinkedPriorFrameProofs={
+  left:previousLinked?.left??null,right:previousLinked?.right??null};
  actor.sourceSwingLinkedCurrentFrameProofs={left:null,right:null};
+ // No linked pose survives a missed original-mixer frame; both fresh shoes
+ // must be independently re-skinned before another bend is authorized.
  actor.sourceSwingThighCurrentFrameProofs={left:null,right:null};
  actor.sourceStanceKneeCurrentFrameProofs={left:null,right:null};
  actor.sourceStanceKneeProbeOutcomes={left:null,right:null};
