@@ -5432,6 +5432,25 @@ export function createTowerScene(canvas, settings = {}) {
     if(ownerAuditRetained.length>8) ownerAuditRetained.shift();
     return ownerAuditRetained.slice();
   }
+  // Routine 3D/HUD synchronization is invoked after EVERY returned WebGL
+  // frame and EVERY accepted HTTP poll. Full diagnostics() below traverses
+  // every world mesh, projects guardian/source event witnesses and copies
+  // capture histories; doing all that in the live UI path steals the exact
+  // main-thread budget needed to display the original F8->F9 gateway shot.
+  // Keep the capture endpoint unchanged, but let the ordinary HUD read only
+  // constant-work render liveness and a few bounded status scalars.
+  function hudDiagnostics() {
+    const progress = renderProgress.liveness(performance.now());
+    return {
+      renderer: 'three-webgl', frames: progress.submittedFrames,
+      tick: snapshot?.tick ?? 0, floor: snapshot?.floor ?? 0,
+      quality: options.quality, reducedMotion: options.reducedMotion,
+      contextLost,
+      renderFault: { state: renderFaultState },
+      renderProgress: progress,
+      resolution: { scale: resolutionPolicy.scale }
+    };
+  }
   function diagnostics() {
     const { frameMs, ...submissionProgress } = renderProgress.diagnostics(performance.now());
     const liveGuardian = snapshot?.enemies?.find(enemy => enemy.kind === 'guardian' && enemy.active);
@@ -5751,5 +5770,5 @@ export function createTowerScene(canvas, settings = {}) {
     for (const material of sharedMaterials) material.dispose();
     renderer.dispose(); scene.clear();
   }
-  return { accept, setCamera, setMotion, setStale, setQuality, diagnostics, dispose };
+  return { accept, setCamera, setMotion, setStale, setQuality, hudDiagnostics, diagnostics, dispose };
 }
