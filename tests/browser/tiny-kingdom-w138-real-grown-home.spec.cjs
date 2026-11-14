@@ -83,5 +83,89 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
   expect(partition.geometry.totalTriangles).toBe(complete.geometry.totalTriangles);
   expect(auto.geometry.totalTriangles).toBe(complete.geometry.totalTriangles);
  }
+
+ // The source-pinned Day-121 VIDEO must actually show the MATURE village.
+ // Earlier Playwright video mostly filmed Day-1 while 86,400 original
+ // synchronous simulation ticks blocked browser paint. A separate recorded
+ // page restores the identical authoritative saved world and gives the
+ // renderer uninterrupted wall-clock time to show real citizens at work.
+ // This is genuine gameplay after a valid restore, NOT a scripted movie.
+ async function filmMatureWorld(viewport){
+  const context=await page.context().browser().newContext({
+   viewport,recordVideo:{dir:info.outputPath('grown-films'),size:viewport}
+  });
+  const filmPage=await context.newPage();
+  const filmErrors=[];
+  filmPage.on('pageerror',error=>filmErrors.push(error.message));
+  const video=filmPage.video();
+  let evidence;
+  try{
+   await filmPage.setContent(html);
+   await filmPage.waitForFunction(()=>
+    window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+    null,{timeout:160000});
+   evidence=await filmPage.evaluate(({world,camera})=>{
+    const g=window.__tinyKingdom;
+    g.restoreSnapshot(JSON.parse(world));
+    g.setCamera(camera);
+    const restored=JSON.stringify(g.exportSnapshot());
+    const first=g.metrics();
+    return {restored,first,originalCitizenNames:
+     g.getState().people.map(p=>p.name),
+     renderer:g.renderer(),camera:g.getCamera()};
+   },{world:snapshot,camera:controls});
+   expect(evidence.restored).toBe(snapshot);
+   expect(evidence.first.day).toBeGreaterThanOrEqual(120);
+   expect(evidence.first.buildings).toBe(growth.buildings);
+   // Start a real workday observer, with the existing autonomous jobs.
+   // If everyone is legitimately resting, film the real populated overview.
+   await filmPage.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    if(g.getActiveWorksites().length)g.watchLiveWorkday();
+   });
+   await filmPage.waitForTimeout(2400);
+   await info.attach('W138-real-grown-'+viewport.width+'-workday.png',{
+    body:await filmPage.screenshot(),contentType:'image/png'});
+   await filmPage.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    g.setCamera({focus:[0,3],yaw:.58,pitch:.56,zoom:20});
+   });
+   await filmPage.waitForTimeout(2400);
+   const final=await filmPage.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const gl=document.getElementById('world').getContext('webgl');
+    return {metrics:g.metrics(),camera:g.getCamera(),
+     frame:g.getFrameProfile(),geometry:g.getGeometryAudit(),
+     realWorkers:g.getActiveWorksites(),citizens:g.getState().people.map(p=>p.name),
+     renderer:g.renderer(),error:gl?.getError()??-1,
+     horizontalOverflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   expect(final.metrics.day).toBeGreaterThanOrEqual(120);
+   expect(final.geometry.totalTriangles).toBeLessThan(160000);
+   expect(final.citizens).toEqual(evidence.originalCitizenNames);
+   expect(final.error).toBe(0);
+   expect(final.horizontalOverflow).toBeLessThanOrEqual(0);
+   expect(filmErrors).toEqual([]);
+   await info.attach('W138-real-grown-'+viewport.width+'-overview.png',{
+    body:await filmPage.screenshot(),contentType:'image/png'});
+   await info.attach('W138-real-grown-'+viewport.width+'-motion-evidence.json',{
+    body:Buffer.from(JSON.stringify({source:'actual-restored-Day121-uncut-running-WebGL',
+     viewport,originalSnapshotChecksum:JSON.parse(snapshot).checksum,
+     initialMetrics:evidence.first,final,
+     physicalGpu:false,independentCritic:false,
+     claims:'Recording does not establish 30 hardware FPS or visual transformation'},null,2)),
+    contentType:'application/json'});
+  }finally{
+   await context.close();
+   if(video){
+    const name='W138-authentic-Day121-'+viewport.width+'-uncut.webm';
+    const out=info.outputPath(name);
+    await video.saveAs(out);
+    await info.attach(name,{path:out,contentType:'video/webm'});
+   }
+  }
+ }
+ await filmMatureWorld({width:1024,height:640});
+ await filmMatureWorld({width:390,height:844});
  expect(pageErrors).toEqual([]);
 });
