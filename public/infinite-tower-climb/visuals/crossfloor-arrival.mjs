@@ -301,7 +301,40 @@ export function observedClockworkRoofContinuity(source, passage, held) {
     p.x-p.halfWidth>=s.x && p.x+p.halfWidth<=s.x+s.width);
 }
 
-export function holdIncomingStructuralShell(source,passage,held,job) {
+export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePresence=null) {
+  // The old bronze doorway can STILL be genuinely opaque after the short
+  // cinematic handoff has expired and ten GPU submissions have passed.
+  // Building the new opaque violet shaft at that arbitrary deadline covered
+  // the original arch in the full-motion 960x600 and 390x844 recordings.
+  // Hold ONLY the successor's noninteractive shell while the REAL existing
+  // source-authenticated old gateway is materially visible. This is NOT a
+  // freeze, invented route, platform, guardian result or extra camera.
+  // The World owner separately limits retention to 30 returned frames/2.8s.
+  const sourceOwnedOriginalStillVisible=
+    job?.state==='awaiting-actual-first-render' &&
+    job.structureDeferred===true &&
+    job.proof==='recorded-source-gateway' &&
+    job.runToken===source?.runToken && job.floor===9 &&
+    source?.floor===9 && source.theme==='void' &&
+    source.lifecycle==='running' &&
+    held?.guardianGateRetained===true &&
+    held.runToken===source.runToken && held.floor===source.floor &&
+    Number.isSafeInteger(job.sourceTick) &&
+    job.sourceTick===held.firstWorldRenderTick &&
+    Number.isSafeInteger(job.submittedFrames) &&
+    job.submittedFrames>=1 && job.submittedFrames<30 &&
+    Number.isSafeInteger(held.submittedFrames) &&
+    held.submittedFrames>=1 && held.submittedFrames<30 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds>=0 && held.visibleSeconds<2.8 &&
+    held.opticalExitSubmitted!==true &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>.12 &&
+    sourceGatePresence?.sourceBound===true &&
+    sourceGatePresence.sourceTick===source.tick &&
+    Number.isFinite(sourceGatePresence.opacity) &&
+    sourceGatePresence.opacity>.12;
+  if(sourceOwnedOriginalStillVisible)return true;
   // Only the real source-staged original gateway schedules a deferred
   // structural shell. Its existing proof label predates late immutable
   // crossing publication; ordinary browser-adjacent scenes cannot hide F9.
