@@ -89,11 +89,14 @@ const runArcade=buildArcade(arcadeMesh,stalls,()=>.25,
  (m,draw)=>{const prior=material;material=m;draw();material=prior},
  {ROOF:ROOF_MATERIAL,WOOD:6},arcadeQuad,arcadeLimb,marketAudit);
 const drawnArcade=runArcade();
-assert.equal(drawnArcade,52,'W305 original full market arcades now use 52 rather than 96 geometry triangles, with all roof bays preserved');
+assert.equal(drawnArcade,164,'W328 two original arcades: 64 real tile quads, 8 underside faces and 10 original oak structural faces');
 assert.equal(marketAudit.grainwardArcadeSpans,2);
+assert.equal(marketAudit.arcadeRoofTileFaces,64);
+assert.equal(marketAudit.arcadeRoofUndersides,8);
+assert.equal(marketAudit.arcadeTimberFaces,10);
 assert.equal(marketAudit.grainwardArcadeNoPosts,true);
 assert.equal(arcadeMesh.length/30,drawnArcade);
-assert.equal(roofFaces.length,8);
+assert.equal(roofFaces.length,64,'All 64 original pitched tile faces must be visible on the two authentic market roofs');
 for(const normal of roofFaces)assert(normal[1]>1e-7,
  'open market roof must face upward under actual WebGL backface culling');
 
