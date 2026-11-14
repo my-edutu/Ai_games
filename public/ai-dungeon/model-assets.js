@@ -2611,6 +2611,14 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    upperRad,lowerRad,
    sourceToeLiftMeters:Number.isFinite(after?.[side]?.toeY)?
     after[side].toeY-swing.toeY:null,
+   sourceHeelDeltaMeters:Number.isFinite(after?.[side]?.heelY)?
+    after[side].heelY-swing.heelY:null,
+   sourceHeelXZShiftMeters:Array.isArray(after?.[side]?.heelXZ)?
+    Math.hypot(after[side].heelXZ[0]-swing.heelXZ[0],
+     after[side].heelXZ[1]-swing.heelXZ[1]):null,
+   sourceToeXZShiftMeters:Array.isArray(after?.[side]?.toeXZ)?
+    Math.hypot(after[side].toeXZ[0]-swing.toeXZ[0],
+     after[side].toeXZ[1]-swing.toeXZ[1]):null,
    oppositeHeelDeltaMeters:Number.isFinite(after?.[opposite]?.heelY)?
     after[opposite].heelY-support.heelY:null,
    oppositeToeDeltaMeters:Number.isFinite(after?.[opposite]?.toeY)?
