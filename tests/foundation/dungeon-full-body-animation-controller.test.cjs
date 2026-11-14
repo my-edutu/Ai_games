@@ -5550,7 +5550,16 @@ test('RED: source-linked slow-frame full leg may trial a bounded stronger hip+kn
  const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
  const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
  const connected=renderer.slice(start,end);
- assert.match(connected,/const trialAngles=/);
+ // Native rendering now uses two opposite-signed original-shoe starter
+ // probes and exactly two measured follow-ups. The removed trialAngles
+ // variable was a stale structural test, not an animation acceptance gate.
+ assert.match(connected,/const starterAngles=/);
+ assert.match(connected,/const fallbackAngles=/);
+ assert.match(connected,/for\\(const angles of starterAngles\\)sample\\(angles\\)/);
+ assert.match(connected,/planOriginalSourceSwingLinkedLegFollowups\\(\\{/);
+ assert.match(connected,/for\\(const angles of measuredFollowups\\?\\?fallbackAngles\\)sample\\(angles\\)/);
+ assert.match(connected,/trials\\.length/);
+ assert.match(connected,/actor\\.sourceSwingLinkedLastProbe=/);
  assert.match(connected,/interval>=\.05&&weight>=\.95/);
  assert.match(connected,/\[\.14,-\.105\]/);
  assert.match(connected,/const after=read\(\)/);
