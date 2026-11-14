@@ -733,3 +733,50 @@ test('D04 never invents HP injury or sword action from non-unique public actor I
  assert.equal(valid.find(c=>c.kind==='damage').actorId,null,
   'verified HP loss never establishes which attack caused it');
 });
+
+test('D04 authored Warden warning foley requires its unique canonical future danger window',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:3,z:3,
+  hp:75,maxHp:90,action:'idle',actionTick:20};
+ const warning=(tick,remaining)=>snap(tick,{units:[hero(),warden],
+  bossWarning:{warning:true,shape:'NOVA',attackTick:23,turnsUntilImpact:remaining,
+   cells:[{x:4,z:3}]}});
+ for(const [before,after,kind] of [[warning(20,3),warning(21,2),'boss-warning-rising'],
+   [warning(21,2),warning(22,1),'boss-warning-final']]){
+  const authentic=planPhysicalFeedback(before,after).find(c=>c.kind===kind);
+  assert.ok(authentic,'positive case must use a true public planner Warden warning');
+  const malformed=[
+   {...authentic,verified:false},
+   {...authentic,proof:'authority-event'},
+   {...authentic,actorId:'invented-warden'},
+   {...authentic,targetId:'vanguard'},
+   {...authentic,id:authentic.id+':replay'},
+   {...authentic,detail:{...authentic.detail,attackTick:authentic.tick}}
+  ];
+  for(const bad of malformed){
+   const {ctx,counts}=fakeAudio();ctx.state='running';
+   const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+   try{
+    assert.equal(foley.enable(),true);
+    assert.equal(isCanonicalVerifiedCombatFoleyCue(bad),false,
+     'malformed warning is never a canonical Warden owner and danger-window witness');
+    assert.equal(foley.emit(bad),false,'invalid Warden warning must remain inaudible');
+    assert.equal(foley.stats().activeVoices,0);
+    assert.equal(foley.stats().confirmedCueIds,0);
+    assert.deepEqual(foley.stats().recentOriginalStarts,[]);
+    assert.equal(counts.buffers,1,'no additional noise texture on invalid warning');
+   }finally{foley.dispose()}
+  }
+  const {ctx}=fakeAudio();ctx.state='running';
+  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(foley.enable(),true);
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(authentic),true);
+   assert.equal(foley.emit(authentic),true,'authentic Warden danger cadence remains audible');
+   assert.equal(foley.emit(authentic),false,'exact warning cannot replay');
+   assert.equal(foley.stats().recentOriginalStarts.length,1);
+   assert.equal(foley.stats().activeVoices,1);
+  }finally{foley.dispose()}
+ }
+});
