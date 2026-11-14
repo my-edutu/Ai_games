@@ -22792,7 +22792,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   unloading?[.21,.29,.38]:
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
   journeyCamera?[.26,.34,.43]:
-  working?(actionCameraPitch===null?(portraitLens?[.12,.19,.26,.34,.42]:[.18,.24,.31,.42]):
+  working?(actionCameraPitch===null?(portraitLens?[.12,.19,.26,.34,.42,.54,.65]:[.18,.24,.31,.42,.55,.66]):
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
@@ -22801,9 +22801,9 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
   working?(portraitLens&&actionCameraZoom===null?
-  [normalZoom,3.8,4.25,4.85,5.35,7.1]:[normalZoom,Math.max(4.5,normalZoom-.7),
+  [normalZoom,3.8,4.25,4.85,5.35,7.1,8.5]:[normalZoom,Math.max(4.5,normalZoom-.7),
   Math.max(4.5,normalZoom-1.7),Math.min(13,normalZoom+1.1),
-  Math.min(13,normalZoom+2.3)]):[12.8];
+  Math.min(13,normalZoom+2.3),7.5,9.1]):[12.8];
  const hands=realWork?documentaryWorkHandTargets(citizen):
   realMarketAim?[realMarketAim.wristPosition,realMarketAim.parcelPosition]:[];
  let possibilities=[];
@@ -22884,6 +22884,19 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const surveyMax=portraitLens?78:56;
  const probes=possibilities.slice(0,portraitLens?40:28);
  const reserved=portraitLens?24:22;
+ // W309: authentic 1024px W308 footage showed Selene's entire workday
+ // buried behind a market freight wall, despite an active REAL worker.
+ // Guarantee a bounded look over existing cart roofs when the conventional
+ // near-eye orbit is physically boxed in. These are genuine roof/citizen
+ // surveyed vantage points, not hidden or moved geometry.
+ let elevatedIncluded=0;
+ for(const option of possibilities){
+  if(probes.length>=surveyMax||elevatedIncluded>=8)break;
+  if(option.shot.pitch>=.54&&option.shot.eyeCollision.clear&&
+     option.shot.blockers===0&&!probes.includes(option)){
+   probes.push(option);elevatedIncluded++;
+  }
+ }
  let includedFront=0;
  for(const option of possibilities){
   if(probes.length>=surveyMax||includedFront>=reserved)break;
@@ -24220,13 +24233,23 @@ function watchDelivery(requestedId=null){
 // A missing or physically obstructed candidate must fall back to the normal
 // collision-aware camera rather than claiming an imaginary unobstructed view.
 function anchorSelectedWorkdayCamera(row){
- if(!follow||!row||!row.clear||!row.shot||!row.person)return false;
+ if(!follow||!row||!row.shot||!row.person)return false;
  const person=people[row.index],shot=row.shot;
+ // W309: never throw away the director's real, already-scored physical
+ // vantage point merely because the worker's face/hand visibility falls
+ // short of the strongest documentary threshold. The old fallback
+ // re-ran from the PREVIOUS market/home yaw and could show a freight wall
+ // instead of the selected autonomous worker. Admit only a real exterior
+ // eye with validated geometry and useful body-scale evidence. Mark its
+ // partial status truthfully; do not label an obscured view "clear".
+ const physicallyUsable=shot.eyeCollision?.clear===true&&
+  shot.blockers===0&&shot.handBlockers<=2&&
+  shot.foregroundSceneCover<.42&&shot.foregroundVegetationCover<.42&&
+  shot.vegetationFaceBlockers===0&&
+  shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.105:.12);
  if(!person||person!==row.person||!isWorkingAtSite(person)||
-    shot.blockers!==0||shot.facingAlignment<=.12||
-    shot.foregroundSceneCover>=.20||shot.foregroundVegetationCover>=.30||
-    shot.vegetationFaceBlockers>0||shot.handBlockers>1||
-    ![shot.yaw,shot.pitch,shot.zoom].every(Number.isFinite))return false;
+    ![shot.yaw,shot.pitch,shot.zoom].every(Number.isFinite)||
+    !(row.clear||physicallyUsable))return false;
  yaw=shot.yaw;pitch=shot.pitch;zoom=shot.zoom;
  focusPoint=[person.x,person.z];
  lastFollowShot=shot;
@@ -24234,6 +24257,9 @@ function anchorSelectedWorkdayCamera(row){
  // changes job/activity, the town grows, the viewport changes or the player
  // explicitly turns the camera. This is a short-lived, bounded camera cache.
  liveShotPlanCache={citizen:person.name,job:person.job,
+  // A readably framed real person is not necessarily a fully clear face;
+  // keep this distinction for evaluation and never invent production.
+  documentaryFullyClear:Boolean(row.clear),
   mode:'workday',deliveryId:null,stage:null,homecomingEntryBand:0,
   activity:person.activity,citySize:city.length,
   cityTopology:cameraArchitectureTopologyKey(),requestedYaw:shot.yaw,

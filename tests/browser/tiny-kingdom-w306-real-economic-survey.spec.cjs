@@ -79,8 +79,11 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   expect(documentary.unchanged).toBe(true);
   // Capture only after the REAL 3D renderer submitted a worker-follow view,
   // not a still image from the previous houses shot on slow SwiftShader.
+  // W309: the first slow software frame may be the transitional courtyard
+  // before the genuine worker eye has been drawn. Inspect consecutive
+  // submitted views, with no teleport or fabricated production.
   await page.waitForFunction(previous=>
-   window.__tinyKingdom.getFrameProfile().totalFrames>previous,
+   window.__tinyKingdom.getFrameProfile().totalFrames>=previous+2,
    documentary.frameBefore,{timeout:150000});
   const live=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
@@ -101,6 +104,14 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   expect(live.gl).toBe(0);
   expect(live.triangles).toBeLessThan(160000);
   expect(live.overflow).toBeLessThanOrEqual(0);
+  // A selected real worker MUST be visible in the actual physically
+  // submitted camera frame: a caption atop a 60%-obstructed freight wall
+  // is not a documentary success. These are acceptance checks, not FPS.
+  expect(live.actualComposition?.active).toBe(true);
+  expect(live.actualComposition?.projectedWorkerHeightFraction)
+   .toBeGreaterThan(size.width===390?.105:.12);
+  expect(live.actualComposition?.foregroundSceneCover).toBeLessThan(.42);
+  expect(live.actualComposition?.handBlockers).toBeLessThanOrEqual(2);
   fs.writeFileSync(out+'/'+size.width+'-real-workday.json',JSON.stringify({documentary,live},null,2));
   await page.screenshot({path:out+'/'+size.width+'-real-workday.png'});
   expect(errors).toEqual([]);
