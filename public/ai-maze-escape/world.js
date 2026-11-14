@@ -3564,7 +3564,7 @@ export function createMazeWorld(options = {}) {
         // Reduced motion fixes one readable, stationary amber warning height.
         // The original lift, four fans, wall, collision and pooled GPU classes
         // remain intact; no new mesh, predicted strike or private AI access.
-        beacon.lift.scale.y=reduced ? .75 : .48+action*.52;
+        beacon.lift.scale.y=reduced ? .48 : .48+action*.52;
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable

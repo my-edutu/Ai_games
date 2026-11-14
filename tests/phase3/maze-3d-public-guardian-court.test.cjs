@@ -1379,7 +1379,7 @@ test('Pass370 real public guardian brace telescopes four linked standards out of
     assert.ok(lifts().every(l=>l.scale.y===.48&&l.position.y===.04),
       'unwitnessed attackers cannot keep the theatre deployed');
     w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
-    assert.ok(lifts().every(l=>l.scale.y===.75&&l.position.y===.04),
+    assert.ok(lifts().every(l=>l.scale.y===.48&&l.position.y===.04),
       'reduced motion has a fixed, nonmoving physical warning pose');
     assert.equal(w.stats().geometryCount,budget.geometryCount);
     assert.equal(w.stats().materialCount,budget.materialCount);
