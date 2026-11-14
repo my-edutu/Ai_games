@@ -24066,6 +24066,69 @@ function shouldRescuePortraitWorkerCore(width,observing,present,planned,transiti
   present>=PORTRAIT_CORE_BAD&&planned<=PORTRAIT_CORE_CLEAR&&
   transition>=PORTRAIT_CORE_TRANSITION;
 }
+// W334: bounded, conditional physical portrait witness. This is a camera
+// alternative only when the genuine actor has disappeared behind real
+// architecture AND the previously selected view is also obstructed.
+// Never change world objects, professions, locations or economic state.
+const PORTRAIT_ALT_RETRY_MS=1250,PORTRAIT_ALT_MAX_EYES=16;
+let portraitAltLastAttempt=-Infinity,portraitAltLastCitizen=null;
+let portraitAltAttempts=0,portraitAltCandidates=0,portraitAltRescues=0,
+ portraitAltNoClearEye=0,portraitImmediateRescues=0;
+function shouldSeekPhysicalPortraitAlternative(width,observing,currentCore,
+ currentCover,plannedCore,plannedCover,now,lastAttempt){
+ return Number.isFinite(width)&&width>0&&width<=520&&Boolean(observing)&&
+  [currentCore,currentCover,plannedCore,plannedCover].every(v=>
+   Number.isFinite(v)&&v>=0&&v<=1)&&
+  (currentCore>=.18||currentCover>=.52)&&
+  (plannedCore>=.13||plannedCover>=.38)&&
+  Number.isFinite(now)&&now-lastAttempt>=PORTRAIT_ALT_RETRY_MS;
+}
+function findPhysicalPortraitAlternative(citizen,shot,roofs){
+ if(!citizen||!shot||!Array.isArray(shot.target))return null;
+ const ground=terrain(citizen.x,citizen.z),
+  target=shot.target,face=[citizen.x,ground+1.34,citizen.z],
+  hands=documentaryWorkHandTargets(citizen);
+ const yawOffsets=[0,-.34,.34,-.68,.68,-1.06,1.06,Math.PI],
+  nearZoom=Math.max(4.5,Math.min(7.6,shot.zoom)),
+  lenses=[[Math.max(.36,Math.min(.53,shot.pitch)),nearZoom],
+   [.60,Math.min(10,nearZoom+1.7)]];
+ let best=null,bestScore=Infinity,checks=0;
+ for(const offset of yawOffsets)for(const [candidatePitch,candidateZoom] of lenses){
+  if(checks++>=PORTRAIT_ALT_MAX_EYES)break;
+  portraitAltCandidates++;
+  const candidateYaw=shot.yaw+offset,radius=Math.cos(candidatePitch)*candidateZoom;
+  const eye=[citizen.x+Math.sin(candidateYaw)*radius,
+   ground+1.02+Math.sin(candidatePitch)*candidateZoom,
+   citizen.z+Math.cos(candidateYaw)*radius];
+  if(!physicalFollowEyeClearance(eye,roofs).clear||
+   followRayBlockers(eye,target,roofs)!==0||
+   followRayBlockers(eye,face,roofs)!==0)continue;
+  const scene=foregroundSceneProjection(eye,target,roofs);
+  if(scene.actorCoreCover>=.13||scene.cover>=.38||
+   scene.cargoCover>=.22)continue;
+  const vegetation=foregroundVegetationProjection(eye,target);
+  if(vegetation.faceBlockers>0||vegetation.cover>=.28)continue;
+  const height=projectedWorkerBodyFraction(eye,target,citizen);
+  if(!Number.isFinite(height)||height<.13)continue;
+  if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
+  const score=scene.actorCoreCover*11+scene.cover*4+
+   vegetation.cover*5+Math.abs(offset)*.23+
+   Math.abs(candidateZoom-shot.zoom)*.08-height*.6;
+  if(score<bestScore){
+   bestScore=score;
+   best={...shot,yaw:candidateYaw,pitch:candidatePitch,
+    zoom:candidateZoom,eye,blockers:0,eyeCollision:{clear:true,kind:null},
+    foregroundSceneCover:scene.cover,
+    foregroundActorCoreCover:scene.actorCoreCover,
+    foregroundBuildingCover:scene.buildingCover,
+    foregroundCargoCover:scene.cargoCover,
+    foregroundVegetationCover:vegetation.cover,
+    vegetationFaceBlockers:0,projectedWorkerHeightFraction:height,
+    physicalPortraitAlternative:true,renderedWorldStillComplete:true};
+  }
+ }
+ return best;
+}
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
  liveShotPlanCache=null;
@@ -24152,6 +24215,11 @@ function workdayCameraCompositionAudit(){
   cameraSurveyReuses:liveShotPlanReuses,
   portraitWorkerCoreRescues:portraitCoreRescues,
   portraitWorkerExtraSceneSurveys:portraitCoreExtraSurveys,
+  portraitPhysicalWitnessAttempts:portraitAltAttempts,
+  portraitPhysicalWitnessEyes:portraitAltCandidates,
+  portraitPhysicalWitnessRescues:portraitAltRescues,
+  portraitPhysicalWitnessNoClearEye:portraitAltNoClearEye,
+  portraitImmediateWitnessRescues:portraitImmediateRescues,
   portraitCorePhysicalTargetRequired:true};
 }
 function setCitizenFollow(enabled){
@@ -27206,7 +27274,35 @@ if(follow&&!daybreakReturn){
  focusPoint[0]+=(citizen.x-focusPoint[0])*ease;
  focusPoint[1]+=(citizen.z-focusPoint[1])*ease;
  if(observingAction){
-  const plan=observedWorkdayCameraPlan(citizen,yaw);
+  let plan=observedWorkdayCameraPlan(citizen,yaw);
+  // Only the genuine 390px worker witness can trigger an alternative.
+  // Reuse the same physical survey for the subsequent camera decision.
+  const isPortraitWorkWitness=canvas.clientWidth>0&&canvas.clientWidth<=520&&
+   (liveWorkday||document.body.dataset.workday==='delivery')&&
+   !grainJourney?.homeWitness;
+  let portraitCurrentScene=null,portraitAlternativeSelected=false;
+  if(isPortraitWorkWitness){
+   const priorRadius=Math.cos(pitch)*zoom,priorEye=[
+    focusPoint[0]+Math.sin(yaw)*priorRadius,
+    terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(pitch)*zoom,
+    focusPoint[1]+Math.cos(yaw)*priorRadius];
+   const physicalRoofs=followCameraRoofs();
+   portraitCurrentScene=foregroundSceneProjection(priorEye,plan.target,physicalRoofs);
+   const now=performance.now(),lastAttempt=portraitAltLastCitizen===citizen.name?
+    portraitAltLastAttempt:-Infinity;
+   if(shouldSeekPhysicalPortraitAlternative(canvas.clientWidth,true,
+     portraitCurrentScene.actorCoreCover,portraitCurrentScene.cover,
+     plan.foregroundActorCoreCover??1,plan.foregroundSceneCover??1,
+     now,lastAttempt)){
+    portraitAltLastAttempt=now;portraitAltLastCitizen=citizen.name;
+    portraitAltAttempts++;
+    const alternate=findPhysicalPortraitAlternative(citizen,plan,physicalRoofs);
+    if(alternate){
+     plan=alternate;portraitAlternativeSelected=true;portraitAltRescues++;
+     if(liveShotPlanCache)liveShotPlanCache.shot=alternate;
+    }else portraitAltNoClearEye++;
+   }
+  }
   const turn=Math.atan2(Math.sin(plan.yaw-yaw),Math.cos(plan.yaw-yaw));
   // At software frame rates, slow easing can leave the worker fully hidden
   // for multiple seconds. Use a quicker yet bounded repair when blocked.
@@ -27229,7 +27325,8 @@ if(follow&&!daybreakReturn){
   const postBlocked=Boolean(presentPost&&presentPost.centerCover>.10);
   const clearPostDestination=!observeMarketHandoff||
    Boolean(destinationPost&&destinationPost.centerCover<.035);
-  const currentWorkerForeground=foregroundSceneProjection(eye,plan.target,roofs);
+  const currentWorkerForeground=portraitCurrentScene||
+   foregroundSceneProjection(eye,plan.target,roofs);
   const foregroundBlocked=currentWorkerForeground.cover>.42||
    foregroundVegetationProjection(eye,plan.target).faceBlockers>0||
    (postBlocked&&clearPostDestination);
@@ -27276,8 +27373,22 @@ if(follow&&!daybreakReturn){
    (followRayBlockers(nextEye,target,roofs)>0||
     (clearDestination&&(foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42||
     foregroundVegetationProjection(nextEye,plan.target).faceBlockers>0)));
-  if((repairEye||mustRepairPost||repairGeneral||portraitCoreRepair)&&
+  // W334: W333 footage proved the earlier narrow transition threshold
+  // could leave an actual worker behind a timber stall. When the current
+  // central silhouette is obscured, go straight to a physically surveyed
+  // clear worker lens; the game never cuts, hides or moves the architecture.
+  const portraitUnreadable=isPortraitWorkWitness&&
+   (currentWorkerForeground.actorCoreCover>=.18||
+    currentWorkerForeground.cover>=.52);
+  const portraitPlanActuallyReadable=plan.foregroundActorCoreCover<.13&&
+   plan.foregroundSceneCover<.38&&plan.vegetationFaceBlockers===0&&
+   plan.foregroundVegetationCover<.28;
+  const immediatePortraitWitness=portraitUnreadable&&
+   portraitPlanActuallyReadable;
+  if((repairEye||mustRepairPost||repairGeneral||portraitCoreRepair||
+      immediatePortraitWitness||portraitAlternativeSelected)&&
      plan.blockers===0&&plannedEyeClear){
+   if(immediatePortraitWitness&&!portraitCoreRepair)portraitImmediateRescues++;
    // Change only the observer's eye, never the worker, cargo, roofs or world.
    if(portraitCoreRepair)portraitCoreRescues++;
    focusPoint=[citizen.x,citizen.z];
