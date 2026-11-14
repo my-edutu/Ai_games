@@ -83,11 +83,28 @@ export function verifiedSwingFoleyActor(cue){
   cue.actorId:null;
 }
 /**
+ * A witnessed projectile/spell or Warden release proves an ACTION only.
+ * A projectile target is an explicitly verified aim, never hit/damage
+ * evidence; the Warden release has no asserted victim or target.
+ */
+export function verifiedReleaseFoleyActor(cue){
+ const visual=cue?.kind==='ranged-release'?'launch':
+  cue?.kind==='spell-release'?'cast':
+  cue?.kind==='warden-release'?'warden':null;
+ if(visual===null||cue.audio!==cue.kind||cue.visual!==visual||
+  cue.verified!==true||cue.proof!=='authority-action'||
+  typeof cue.actorId!=='string'||cue.actorId.length<1||
+  cue.actorId.length>128)return null;
+ if(cue.kind==='warden-release')return cue.targetId===null?cue.actorId:null;
+ return typeof cue.targetId==='string'&&cue.targetId.length>0&&
+  cue.targetId.length<=128?cue.actorId:null;
+}
+/**
  * An audio retry must not borrow a different run, tick, action or victim's
  * authoritative cue ID. A verified flag is not a substitute for an identity
  * matching the public snapshot planner's actual immutable event tuple.
  * No attacker is inferred for HP-only injury; '-' is a sentinel, not a source.
- * This guard is deliberately limited to strict production swing/injury foley.
+ * Verified release cues are checked as ACTION evidence, never contact.
  */
 export function isCanonicalVerifiedCombatFoleyCue(cue){
  if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
@@ -100,8 +117,13 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
   !Number.isSafeInteger(floor)||floor<1)return false;
  const actor=verifiedSwingFoleyActor(cue);
  const victim=verifiedDamageFoleyVictim(cue);
- if(actor===null&&victim===null)return false;
- return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${actor??'-'}:${victim??'-'}`;
+ const releaseActor=verifiedReleaseFoleyActor(cue);
+ if(actor===null&&victim===null&&releaseActor===null)return false;
+ // The aim target for an authorized launch is never a confirmed injury.
+ // Existing HP-only impact receipts retain the anonymous '-' source.
+ const source=actor??releaseActor??'-';
+ const target=victim??(releaseActor!==null?cue.targetId:null)??'-';
+ return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
 }
 
 export function createCombatMutePreference(storage){
@@ -166,7 +188,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
  // A bounded event-ID cache cannot alone prevent a very old authoritative
  // attack from becoming audible again after long-session cache rotation.
- // Strict canonical swing/HP witnesses use the same five-tick public planner
+ // Strict canonical swing/HP/release witnesses use the same five-tick public planner
  // horizon. The watermark advances only after WebAudio scheduling succeeds
  // and is cleared on scene reset; neutral audition recipes are unchanged.
  let canonicalSceneKey=null,highestCanonicalTick=-1;
