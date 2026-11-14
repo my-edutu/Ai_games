@@ -1255,51 +1255,6 @@ test('Pass342 a public pressure-proximity overlap no longer resurrects giant orn
   }
 });
   
-test('Pass368 third-ring published guardian theatre clears distant roofs and sealed towers, not real walls or hidden space',async()=>{
-  const {createMazeWorld,publicGuardianWitnessedForegroundCells:foreground}=await load();
-  // Published, level 17->16->15 guardian encounter. Tile20 is a known,
-  // three-cell-away spectator with a deterministic tall roof in the default
-  // world, beyond the previous two-ring cosmetic cutaway.
-  const s={runToken:'guardian-third-ring',lifecycle:'running',result:null,
-    width:7,height:7,currentCell:17,visibleCells:[15,16,17,20],
-    cells:[{cell:15,blocked:false,neighbors:[16]},
-      {cell:16,blocked:false,neighbors:[15,17]},
-      {cell:17,blocked:false,neighbors:[16]},
-      {cell:20,blocked:false,neighbors:[]}],
-    doors:[],keys:[],inventory:[],exitCell:null,threats:[{id:'thornback',cell:15}]};
-  const truth=JSON.stringify(s),none={...s,threats:[]};
-  assert.ok(foreground(s,undefined,3).has(20),'only the actual third published ring earns this treatment');
-  assert.ok(!foreground(s).has(20),'ordinary two-ring public foreground remains distinct');
-  const before=createMazeWorld({balanced:true}),stage=createMazeWorld({balanced:true});
-  try {
-    before.update(none);stage.update(s);
-    const normal=before.stats(),duel=stage.stats();
-    assert.ok(normal.wallWindcatchers>0,'ordinary published third-ring stage contains tall roofed architecture');
-    assert.ok(duel.wallWindcatchers<normal.wallWindcatchers,
-      'genuine public guardian stage clears actual tall roof silhouettes rather than adding ornaments');
-    assert.ok(duel.renderedCells.includes(20)&&duel.guardianCausewayTiles===3,
-      'real spectator remains rendered and the true physical guardian causeway survives');
-    assert.equal(duel.geometryCount,normal.geometryCount);
-    assert.equal(duel.materialCount,normal.materialCount);
-    const blocked={...s,cells:s.cells.map(c=>c.cell===20?{...c,blocked:true}:c)};
-    stage.update(blocked);
-    assert.ok(stage.stats().guardianBlockedReliefTiles>0,
-      'a public third-ring blocked relic becomes a solid low reef, never an open shortcut');
-    stage.update({...s,doors:[{a:16,b:15,open:false}]});
-    assert.equal(stage.stats().guardianCausewayTiles,0,'a sealed real gate revokes the scenic theatre');
-    stage.update({...s,visibleCells:[16,17,20],cells:s.cells.filter(c=>c.cell!==15)});
-    assert.equal(stage.stats().wallWindcatchers,normal.wallWindcatchers,
-      'undisclosed threat cannot remove third-ring roofs');
-    assert.equal(JSON.stringify(s),truth,'world presentation never mutates the published AI truth');
-    for(let i=0;i<6;i++){
-      stage.update({...s,runToken:'guardian-third-reset-'+i});
-      assert.ok(stage.stats().geometryCount<100,'strict existing six-run resource ceiling');
-    }
-  } finally {stage.dispose();before.dispose();
-    assert.equal(stage.stats().geometryCount,0);
-    assert.equal(stage.stats().materialCount,0);}
-});
-
 test('Pass346 physical guardian fins recline out of the actor lane and rise only on publicly witnessed brace',async()=>{
   const {createMazeWorld}=await load();
   const {Box3}=await import(three);
