@@ -283,3 +283,61 @@ test('D04 verified release audio shares five-tick window and resets on scene res
   'scene reset clears release history along with old sound voices');
  engine.dispose();
 });
+
+
+test('D04 original earned-counter foley requires the real HP-losing Warden witness, never a made-up blow',async()=>{
+ const planPath=path.resolve(__dirname,'../../public/ai-dungeon/physical-feedback-plan.js');
+ const {planPhysicalFeedback}=await import(pathToFileURL(planPath).href);
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load();
+ const boss=(hp,action,actionTick,recoveryUntilTick)=>({
+  id:'warden',kind:'warden',faction:'enemy',x:3,z:3,hp,maxHp:90,
+  action,actionTick,recoveryUntilTick
+ });
+ const hero={id:'vanguard',kind:'vanguard',faction:'party',x:2,z:3,
+  hp:30,maxHp:30,action:'idle',actionTick:23};
+ const state=(tick,warden,events=[])=>({run:1,floor:1,tick,
+  phase:'exploring',units:[hero,warden],events});
+ const previous=state(23,boss(75,'cast',23,24));
+ const current=state(24,boss(49,'hurt',24,undefined),[
+  {tick:24,kind:'counter',text:'public combat event with no trustworthy attacker ID'}
+ ]);
+ const authentic=planPhysicalFeedback(previous,current).find(c=>c.kind==='counter');
+ assert.ok(authentic,'real read-only planner should earn counter only during HP loss');
+ assert.equal(authentic.targetId,'warden');
+ assert.equal(authentic.actorId,null,'Warden as injured victim is not a known attacker');
+ assert.equal(isCanonicalVerifiedCombatFoleyCue(authentic),true);
+ const bad=[
+  {audio:'counter',priority:8},
+  {...authentic,verified:false},
+  {...authentic,proof:'authority-event'},
+  {...authentic,actorId:'vanguard'},
+  {...authentic,targetId:null},
+  {...authentic,targetId:'fabricated-warden'},
+  {...authentic,to:null},
+  {...authentic,to:{x:300,z:3}},
+  {...authentic,from:{x:2,z:3}},
+  {...authentic,id:authentic.id+':forged'}
+ ];
+ for(const cue of bad){
+  const {ctx,started}=fixture();
+  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(foley.enable(),true);
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(cue),false);
+   assert.equal(foley.emit(cue),false,
+    'unsupported counter must schedule no source and claim no damage');
+   assert.equal(foley.stats().activeVoices,0);
+   assert.equal(foley.stats().confirmedCueIds,0);
+   assert.equal(started.length,0);
+  }finally{foley.dispose()}
+ }
+ const {ctx,started}=fixture();
+ const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(foley.enable(),true);
+  assert.equal(foley.emit(authentic),true,'earned counter remains audible');
+  assert.equal(foley.emit(authentic),false,'same witnessed counter must not replay');
+  assert.ok(started.length>0);
+  assert.equal(foley.stats().confirmedCueIds,1);
+ }finally{foley.dispose()}
+});
