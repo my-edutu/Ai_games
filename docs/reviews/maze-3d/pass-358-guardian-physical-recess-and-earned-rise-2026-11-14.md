@@ -1,3 +1,7 @@
+## Pass358d — preserve direct physical hinge parenting after exact CI (2026-11-14 UTC)
+
+The previous ddfdb9ce [exact-source workflow 43597372721](https://github.com/my-edutu/Ai_games/actions/runs/43597372721) failed **three existing strict tests** (176/179 focused passed) because inserting an extra shellCarriage between physical sail and the original rooted sailPivot broke genuine Pass313/Pass329/Pass346 direct-hinge identity and motion contracts; the new test itself passed. This is a real regression, not a case for changing old tests. This correction preserves sail, spar, crest as original **direct children** of the same rooted hinge, preserves original pedestal .04m and witnessed brace +.42m, and repositions all three linked physical shells locally by -.62m at rest then +.62m on the actual witnessed brace, before withdrawing on release. Full-span outer clearance/collision/privacy, old reference/old strict tests and geometry budget unchanged. This is still **NOT an independently verified visual win**; the exact new commit must pass all pre-existing camera/motion/ray/resource tests AND original full-resolution WebGL comparisons before visual acceptance. No changes to engine AI, game rules, map privacy or hidden passage.
+
 # Pass358 — physically recessed guardian court: real original shell lift candidate (2026-11-14 UTC)
 
 ## Exact incoming evidence and concrete scene problem

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T12:56:30Z",
+  "updatedAt": "2026-11-14T13:02:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass358c: first source candidate showed real strict Pass346 conflict (reduced-motion static guardian pose), so keep original stationary stone post and build physically captive full ceramic/metal shell carriage separately. Four big openwork shells lower .62m during notice/release, rise .62m with original .42m rooted post only for published brace. Corrected exact-new-HEAD tests and WebGL captures pending; Nintendo benchmark still unmet."
+    "summary": "Pass358d source corrective candidate: exact-ddfdb9ce CI failed 3 previous strict rooted-hinge contracts (176/179). Directly restored original sail-parent hinge, unchanged original post/hinge animation, and locally recesses original full sail/spar/crest meshes -.62m until genuine witnessed guardian brace raises them .62m. New exact-SHA CI, WebGL originals and independent image critic not yet verified; Nintendo reference still unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass358d 2026-11-14: Exact ddfdb9ce native CI 43597372721 failed 3 prior strict full-hinge contracts because nested carriage illegally changed sail parent. Production correction restores original mesh parent on original rooted sailPivot; animates original sail/spar/crest local Y -0.62->0 on witnessed brace. Old tests kept intact and no acceptance thresholds weakened, new HEAD CI and source-native screenshot evidence pending.",
     "Pass358c 2026-11-14: genuine exact-commit CI exposed a reduced-motion static-pose violation in initial subfloor-post candidate (177/179 focused). Corrected PRODUCTION geometry instead of weakening tests: original grounded post remains at .04 and rises original .42 on public brace; NEW connected shell-carriage retracts the full existing sea-glass/bronze feather .62m on neutral/release and rises .62m solely for earned brace, preserving existing strict stationary reduced pose and whole openwork shell and collision/privacy.",
     "Pass358 2026-11-14: Source candidate replaces permanent foreground guardian endpoint standards with four original physically retracted stone-court shells, raising 1.24m only on actual disclosed brace to unchanged max height, then withdrawing. Installed-Three source-bound new test added; original six reset geometry <100 and strict camera/privacy/UI thresholds not lowered. No new full-resolution source-bound images yet; require actual image proof and reject if unconvincing.",
     "Pass357 2026-11-14: Exact Pass356 visual CI 43586902279 failed 4 longstanding real guardian camera tests before native Chromium or six-reset geometry; whole-repo CI also red. Rejecting unverified early camera settle and safely reverting exact production camera/scene to Pass355 verified source, removing candidate-only test without relaxing existing protected contracts. New source-bound rollback CI pending, no screenshot or benchmark win.",
@@ -957,6 +958,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass358d original hinge identity, three linked physical shells",
+      "status": "Corrected exact-HEAD CI/WebGL and original SHA sidecars PENDING",
+      "detail": "Previous 43597372721 only 176/179 focused passed; three existing strict rooted hinge source behavior failures require this production repair; no visual pass claim."
+    },
     {
       "name": "Pass358c correction to real reduced-motion guardian regression",
       "status": "New exact-source CI pending",

@@ -1597,14 +1597,12 @@ export function createMazeWorld(options = {}) {
               sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
               sailPivot.position.y=.72;
               lift.add(sailPivot);
-              // Recess the complete physical shell into the real stone
-              // pedestal at neutral. Brace raises the WHOLE openwork shape,
-              // structural spar and ivory crest, not just the warning lens.
-              // Group-only hierarchy reuses every original pooled GPU mesh.
-              const shellCarriage=new THREE.Group();
-              shellCarriage.name='Published guardian Tideglass captive shell carriage '+c.cell+' '+side;
-              shellCarriage.position.y=-.62;
-              sailPivot.add(shellCarriage);
+              // The entire actual shell rises/retracts on the ORIGINAL
+              // rooted hinge. Preserve direct mesh parenting: real existing
+              // guardian clearance, brace, reduced-motion and ray contracts
+              // require the fin's parent to remain this same physical pivot.
+              // Recess only the three connected body meshes locally, never
+              // the structural post or any real collider.
               // Pass319: genuine full-resolution 390px guardian frames show
               // four broad bright paddles competing with Pip and Thornback.
               // Preserve the same four actual warning mechanisms but sculpt
@@ -1624,22 +1622,22 @@ export function createMazeWorld(options = {}) {
               // and crest (.64) counter that real swing while the sentinel
               // base remains at the original rooted court-side point.
               const restTilt=alongX?side*1.28:-side*1.28;
-              const sail=mesh(shellCarriage,guardianOpenShell,seaGlass,
-                alongX?0:side*.57,.36,alongX?side*.57:0,
+              const sail=mesh(sailPivot,guardianOpenShell,seaGlass,
+                alongX?0:side*.57,.36-.62,alongX?side*.57:0,
                 alongX?.56:.24,.94,alongX?.24:.56,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
-              const spar=mesh(shellCarriage,box,darkMetal,
-                alongX?0:side*.44,.38,alongX?side*.44:0,
+              const spar=mesh(sailPivot,box,darkMetal,
+                alongX?0:side*.44,.38-.62,alongX?side*.44:0,
                 alongX?.48:.075,.70,alongX?.075:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
-              const crest=mesh(shellCarriage,bevel,lightStone,
-                alongX?0:side*.64,.45,alongX?side*.64:0,
+              const crest=mesh(sailPivot,bevel,lightStone,
+                alongX?0:side*.64,.45-.62,alongX?side*.64:0,
                 alongX?.48:.27,.14,alongX?.27:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
-              sentinels.push({lift,crown,lens,sailPivot,shellCarriage,sail,crest,side});
+              sentinels.push({lift,crown,lens,sailPivot,sail,spar,crest,side});
             }
           }
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
@@ -3571,12 +3569,15 @@ export function createMazeWorld(options = {}) {
         // witnessed brace. Its motion and static reduced-state match all
         // previously enforced physical guardian contracts.
         beacon.lift.position.y=reduced ? .04 : .04+action*.42;
-        // The connected FULL ceramic/metal shell sits on a separately
-        // captive carriage, not another floating ornament. It emerges by
-        // .62m ONLY on the real public brace, then descends on release,
-        // hidden/nonreciprocal threat or terminal reset. Reduced motion
-        // retains one stable lowered shell with the original stationary post.
-        beacon.shellCarriage.position.y=-.62+(reduced?0:action*.62);
+        // The three FULL connected ceramic/metal bodies retract locally
+        // on the unchanged ORIGINAL hinged pivot, not by moving a parent.
+        // Current witnessed brace reveals the complete original shell,
+        // then release/hidden/terminal restores its neutral low silhouette.
+        // This preserves existing exact pivot/parent/ray/aisle contracts.
+        const shellRise=reduced?0:action*.62;
+        beacon.sail.position.y=.36-.62+shellRise;
+        beacon.spar.position.y=.38-.62+shellRise;
+        beacon.crest.position.y=.45-.62+shellRise;
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
