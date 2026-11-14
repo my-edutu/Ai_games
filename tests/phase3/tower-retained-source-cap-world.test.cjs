@@ -197,8 +197,8 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       world.update(second,.1,4+i*.1,{quality:'low'});
     }
     resourceCheckpoint('six-real-submissions');
-    assert.ok(originalCover.opacity<.8 && originalCover.opacity>.05,
-      'the visible old deck progresses only across real successful WebGL returns');
+    assert.ok(originalCover.opacity>=.9 && originalCover.opacity<=.94,
+      'source-stationary full-body at the actual original sill cannot fade away merely because renderer frames returned');
     for(let i=0;i<14;i++){
       world.noteFrameSubmitted(second,{},.1);
       world.update(second,.1,6+i*.1,{quality:'low'});
@@ -371,20 +371,46 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
       'unsubmitted RAF frames cannot reveal the entire new shell behind the old gate');
     assert.equal(world.diagnostics().vistaLayers,0,
       'canyon upload must not share the structural shaft submission');
-    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release');
     world.noteFrameSubmitted(newFloor,{},.05);
     world.update(newFloor,.05,.15,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.structuralFade,0,
+      'real WebGL returns alone cannot invent the climber leaving the intact original gateway');
+    assert.ok(shellMaterials.every(m=>m.opacity===0),
+      'real prebuilt shaft must stay invisible beneath a stationary full-opacity source gate');
+    assert.equal(world.diagnostics().vistaLayers,0,
+      'no heavyweight panorama may upload before original source doorway departure');
+    // The source, not an unobserved elapsed-time cue, now records the actual
+    // body clearing the sill and the immutable defeated-guardian crossing.
+    const gateX=sourceDefeat.guardianExitX;
+    const departed={...newFloor,tick:467,lastGuardianCrossing:{
+      runToken:sourceDefeat.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+      cap:sourceDefeat.platforms[0],exitX:gateX,
+      crossingX:gateX+13000,halfWidth:body.halfWidth,
+      halfHeight:body.halfHeight,
+      guardian:sourceDefeat.enemies[0]},
+      player:{...newFloor.player,x:gateX+160000}};
+    world.update(departed,.05,.2,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission',
+      'actual source departure releases the PREBUILT, hidden shaft without a second cold build');
+    world.noteFrameSubmitted(departed,{},.05);
+    world.update(departed,.05,.25,{quality:'low'});
     assert.ok(world.diagnostics().deferredDistantArrival.structuralFade>0,
-      'successfully returned source frame begins the ACTUAL F9 shaft reveal');
-    assert.ok(shellMaterials.every(m=>m.opacity>0 && m.opacity<1),
-      'new shaft arrives gradually rather than a hard scene replacement');
+      'a genuine successfully returned new-world render begins the material reveal');
+    assert.ok(shellMaterials.every(m=>m.opacity>0 && m.opacity<1));
+    assert.equal(world.diagnostics().vistaLayers,0,
+      'canyon panorama must remain delayed until the real shaft is substantially present');
+    for(let i=0;i<6;i++){
+      world.noteFrameSubmitted(departed,{},.05);
+      world.update(departed,.05,.3+i*.05,{quality:'low'});
+    }
+    assert.ok(world.diagnostics().deferredDistantArrival.structuralFade>=.35);
     assert.equal(world.diagnostics().vistaLayers,3,
-      'the original panorama returns only after a SECOND successful Three.js source frame submission');
-    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-vista-submission');
-    world.noteFrameSubmitted(newFloor,{});
-    world.update(newFloor,.05,.2,{quality:'low'});
+      'source-owned original vista uploads after the already-present Void shaft actually becomes visible');
+    world.noteFrameSubmitted(departed,{},.05);
+    world.update(departed,.05,.7,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'fading-remote-arrival',
-      'authentic distant citadels reappear in their own third submitted-frame stage');
+      'distant original architecture remains a separate returned-frame upload stage');
   }finally{world.dispose();}
 });
 
@@ -566,8 +592,17 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       {...passage,handoffSubmittedFrames:1,handoffDisplaySeconds:.05});
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
-      'awaiting-actual-first-render',
-      'the new opaque monumental shaft cannot replace the original first doorway');
+      'awaiting-structural-release',
+      'the authentic first-frame Void structure is PREBUILT but held invisible behind the same original gateway');
+    const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
+    assert.ok(hiddenShaft);
+    const shaftOpacity=[];
+    hiddenShaft.traverse(object=>{
+      if(object.isMesh && object.material?.name==='SourceEarnedIncomingFloorNineShaft')
+        shaftOpacity.push(object.material.opacity);
+    });
+    assert.ok(shaftOpacity.length>0 && shaftOpacity.every(opacity=>opacity===0),
+      'old bronze must remain the visible scene despite successor geometry already existing');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
@@ -585,8 +620,17 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
     }
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalArch);
-    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined);
-    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-actual-first-render');
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
+      'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release');
+    const earlyShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
+    const earlyOpacity=[];
+    earlyShaft.traverse(o=>{
+      if(o.isMesh && o.material?.name==='SourceEarnedIncomingFloorNineShaft')
+        earlyOpacity.push(o.material.opacity);
+    });
+    assert.ok(earlyOpacity.length>0 && earlyOpacity.every(opacity=>opacity===0),
+      'eight returned frames cannot override the original source-earned bronze gateway');
     // A far or wrong-run hero must release the old doorway without prolonging
     // deferred architecture or changing canonical F9 platform materials.
     const departed={...later,tick:476,

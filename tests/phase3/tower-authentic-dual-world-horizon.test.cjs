@@ -84,7 +84,11 @@ test('one source-authentic gateway departure drives both the deferred world and 
     'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   const biome=fs.readFileSync(path.join(root,
     'public/infinite-tower-climb/visuals/biome-threshold.mjs'),'utf8');
-  assert.match(world,/holdIncomingStructuralShell\(snapshot,passageWitness,\s*retainedEarnedCap,arrival,sourceOldGateway\)/);
+  assert.match(world,/observedPrebuiltVoidShaftRelease\(snapshot,passageWitness,\s*retainedEarnedCap,arrival,sourceOldGateway\)/);
+  const sourceGuard=fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs'),'utf8');
+  assert.match(sourceGuard,/export function holdIncomingStructuralShell\(/);
+  assert.match(sourceGuard,/export function observedPrebuiltVoidShaftRelease\(/);
   assert.match(world,/const sourceOldGateway=[\s\S]{0,180}observedSourceGatewayDeparturePresence\(snapshot,retainedEarnedCap\)/);
   assert.match(biome,/observedSourceGatewayDeparturePresence\(frame,retainedCap\)/);
   assert.match(world,/for\(const p of snapshot\.platforms\|\|\[\]\)\{/);
