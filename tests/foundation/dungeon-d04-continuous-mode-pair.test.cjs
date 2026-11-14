@@ -194,10 +194,13 @@ test('slow-frame forensic collector rejects contradictory or missing D04 emissio
  const valid={frameId:4,observedRafMs:16,advanceToSubmissionMs:160,
   d04VisualAdvanceMs:80,d04RetainedAdvanceMs:20,d04EffectEmissionMs:60,
   afterVisualToSubmissionMs:80,beforeRendererMs:60,rendererMs:20};
- b.samples[3].recentSlowSubmissionPhases=[valid,
-  {...valid,frameId:5,d04EffectEmissionMs:95},
-  {...valid,frameId:6,d04RetainedAdvanceMs:-1},
-  {...valid,frameId:7,d04EffectEmissionMs:undefined}];
+ // Attach all four records only after real frame 6. A future frame ID
+ // is rejected for a DIFFERENT reason and would hide this phase-split bug.
+ b.samples[5].recentSlowSubmissionPhases=[
+  {...valid,frameId:3},
+  {...valid,frameId:4,d04EffectEmissionMs:95},
+  {...valid,frameId:5,d04RetainedAdvanceMs:-1},
+  {...valid,frameId:6,d04EffectEmissionMs:undefined}];
  const e=verdict(arm('legacy'),b).framePressure.preview.slowPhaseEvidence;
  assert.equal(e.uniqueVerifiedSlowFrames,1,
   'only the measured, same-frame 20ms aging plus 60ms emission may be attributed');
