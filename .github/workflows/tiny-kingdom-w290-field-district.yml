@@ -1,0 +1,32 @@
+name: Tiny Kingdom W290 Original Farm-District Rendering
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w290-field-district-contract.cjs
+      - scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - .github/workflows/tiny-kingdom-w290-field-district.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  planted-original-field-and-worker-safety:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full inline Tiny Kingdom renderer syntax and physical geometry source contracts
+        run: |
+          node scripts/tiny-kingdom-w290-field-district-contract.cjs
+          node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
+          node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
+          node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - name: Confirm production source build
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build

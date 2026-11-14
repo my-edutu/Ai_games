@@ -1,0 +1,47 @@
+name: Tiny Kingdom W127 Original Courier Camera Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w127-real-courier-route-camera.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w127-courier-camera.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w127-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  authentic-loaded-courier:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      # The real Playwright game server imports compiled replay modules.
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real original escrowed courier, desktop and 390px WebGL, camera and authority invariant
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w127-real-courier-route-camera.spec.cjs --workers=1
+      - name: Retain actual screenshot, raw video and page error evidence even on failure
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w127-genuine-courier-route-camera
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

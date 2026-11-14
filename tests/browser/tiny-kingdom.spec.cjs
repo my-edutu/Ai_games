@@ -542,7 +542,8 @@ test('Tiny Kingdom material channels allocate exactly ten floats per vertex with
   }));
   expect(a.materials.surfaceShaderVersion).toBe('procedural-063');
   expect(a.materials.vertexStride).toBe(10);
-  expect(a.materials.materials).toHaveLength(9);
+  expect(a.materials.materials.slice(0,9)).toEqual(['GENERAL','GRASS','WATER','ROAD','FOLIAGE','STONE','WOOD','ROOF','PLASTER']);
+  expect(a.materials.materials.slice(9,11)).toEqual(['WINDOW_GLOW','LANTERN_GLOW']);
   expect(a.scene.count).toBe(2);
   expect(b.render.lastFrameTriangles).toBeGreaterThan(10000);
   expect(b.auth).toBe(before);

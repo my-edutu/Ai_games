@@ -1,0 +1,46 @@
+name: Tiny Kingdom W180 Real Home Nourishment Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w180-home-nourishment.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
+      - '.github/workflows/tiny-kingdom-w180-home-nourishment.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w180-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-home-market:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Check that the actual W180 test is discoverable
+        run: npx playwright test tests/browser/tiny-kingdom-w180-home-nourishment.spec.cjs --list --config=tests/browser/tiny-kingdom-standalone.config.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Real 40-day food, movement, physical contacts and 390px WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w180-home-nourishment.spec.cjs --workers=1 --config=tests/browser/tiny-kingdom-standalone.config.cjs
+      - name: Preserve video and state traces even if gameplay gate fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w180-genuine-home-and-market
+          path: |
+            artifacts/tiny-kingdom-w180/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

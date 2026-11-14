@@ -1,0 +1,68 @@
+name: Tiny Kingdom W126 Grainward Living District Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w126-grainward-contract.cjs'
+      - 'scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs'
+      - 'scripts/tiny-kingdom-w182-farm-season-spine-contract.cjs'
+      - 'scripts/tiny-kingdom-w211-scene-spine-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126-grainward.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w126-grainward.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-grainward-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  grainward-source-safety:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: V8 playable parse and real per-home/civic RED-GREEN contract
+        run: |
+          node scripts/tiny-kingdom-w126-grainward-contract.cjs
+          node scripts/tiny-kingdom-w131-grainward-street-assembly-contract.cjs
+          node scripts/tiny-kingdom-w182-farm-season-spine-contract.cjs
+          node scripts/tiny-kingdom-w211-scene-spine-contract.cjs
+  grainward-real-webgl:
+    needs: grainward-source-safety
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      # Playwright's configured local server imports compiled replay modules;
+      # without build, browser tests fail BEFORE any genuine WebGL executes.
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Authentic 1024/390 overview, farm workday, original market, Day120 and save/replay
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126-grainward.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w126-grainward-real-webgl
+          path: |
+            artifacts/tiny-kingdom-w126-grainward/
+            test-results/
+          retention-days: 14

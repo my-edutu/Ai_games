@@ -1,19 +1,1670 @@
+# W232 runner-network recovery: installing Ubuntu apt packages via Playwright
+# fails when GitHub's Ubuntu mirrors cannot resolve (2026-11-11 W231).
+# Download the Chromium browser without rerunning apt on each parallel job.
+# This is NOT a rendering or gameplay acceptance, and requires browser proof.
 name: Tiny Kingdom GPU Evidence
 
 on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/**'
-      - 'tests/browser/tiny-kingdom.spec.cjs'
+      # W45: 1.37 MB evidence history and visual scorecard text updates do
+      # not alter the playable renderer. Avoid launching 20 GPU jobs just
+      # because an honest PASS/FAIL link was refreshed. Real source, image,
+      # asset, JS and CSS changes still trigger the full suite as before.
+      - '!public/tiny-kingdom/progress.html'
+      - '!public/tiny-kingdom/experience.html'
+      - 'tests/browser/tiny-kingdom*.spec.cjs'
+      - 'scripts/tiny-kingdom-gpu-evidence.cjs'
+      - 'scripts/tiny-kingdom-g154-scene-packer-contract.cjs'
+      - 'scripts/tiny-kingdom-w95-boot-order-contract.cjs'
+      - 'scripts/tiny-kingdom-w98-upper-room-contract.cjs'
+      - 'scripts/tiny-kingdom-w99-freight-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w100-receiving-hall-contract.cjs'
+      - 'scripts/tiny-kingdom-w101-cottage-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w102-social-articulation-contract.cjs'
+      - 'scripts/tiny-kingdom-w103-corridor-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w105-draw-cadence-contract.cjs'
+      - 'scripts/tiny-kingdom-w107-burgage-joinery-contract.cjs'
+      - 'scripts/tiny-kingdom-w108-citizen-projection-contract.cjs'
+      - 'scripts/tiny-kingdom-w109-gpu-scene-governor-contract.cjs'
+      - 'scripts/tiny-kingdom-w112-spatial-crop-contract.cjs'
+      - 'scripts/tiny-kingdom-w114-night-households-contract.cjs'
+      - 'scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs'
+      - 'scripts/tiny-kingdom-w164-forge-smoke-material-contract.cjs'
+      - 'scripts/tiny-kingdom-w166-traveler-gpu-contract.cjs'
+      - 'scripts/tiny-kingdom-w167-work-contact-priority.cjs'
+      - 'scripts/tiny-kingdom-w168-founding-overview-contract.cjs'
+      - 'scripts/tiny-kingdom-w169-physical-eye-clearance-contract.cjs'
+      - 'scripts/tiny-kingdom-w171-static-pack-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w172-landscape-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w174-ground-atlas-dirty-contract.cjs'
+      - 'scripts/tiny-kingdom-w179-home-block-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
+      - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
+      - 'scripts/tiny-kingdom-w209-projected-founder-lod-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs'
       - '.github/workflows/tiny-kingdom-gpu-evidence.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Preserve evidence from the latest exact source; cancel superseded PR jobs
+# rather than indefinitely queueing 30 parallel GPU installations per edit.
+concurrency:
+  # A later branch commit must not cancel an already running exact-SHA film.
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-gpu-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+# W115: Playwright 1.55 rejects GitHub ubuntu-latest (26.04); pin supported 24.04.
+# Software-rendered captures do NOT establish physical GPU performance.
 jobs:
-  capture:
-    runs-on: ubuntu-latest
+  w104-real-homecoming-first-frame-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W104 full-playable-JS syntax and truthful physical camera selection
+        run: node scripts/tiny-kingdom-w104-homecoming-camera-contract.cjs && node scripts/tiny-kingdom-w105-draw-cadence-contract.cjs && node scripts/tiny-kingdom-w106-market-court-contract.cjs && node scripts/tiny-kingdom-w107-burgage-joinery-contract.cjs && node scripts/tiny-kingdom-w108-citizen-projection-contract.cjs && node scripts/tiny-kingdom-w109-gpu-scene-governor-contract.cjs && node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs && node scripts/tiny-kingdom-w167-work-contact-priority.cjs && node scripts/tiny-kingdom-w168-founding-overview-contract.cjs && node scripts/tiny-kingdom-w169-physical-eye-clearance-contract.cjs && node scripts/tiny-kingdom-w171-static-pack-camera-contract.cjs && node scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs && node scripts/tiny-kingdom-w209-projected-founder-lod-contract.cjs && node scripts/tiny-kingdom-w172-landscape-camera-contract.cjs && node scripts/tiny-kingdom-w174-ground-atlas-dirty-contract.cjs && node scripts/tiny-kingdom-w179-home-block-residency-contract.cjs && node scripts/tiny-kingdom-w186-social-index-contract.cjs && node scripts/tiny-kingdom-w114-night-households-contract.cjs && node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
+  # W83: source-following original granary-to-market medieval carriageway
+  # and the real barn loading porch, with NO added citizen or navigation edge.
+  # Verify rendered desktop and 390px WebGL, full real Day-120 growth,
+  # snapshots, GL, every real building/citizen and strict triangle budget.
+  # This is a safety floor, never an experience-look/feel/play proof.
+  w83-real-farm-market-street:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: W94/W95 check genuine first-frame boot order before costly GPU setup
+        run: node scripts/tiny-kingdom-w94-boot-contract.cjs && node scripts/tiny-kingdom-w95-boot-order-contract.cjs && node scripts/tiny-kingdom-w96-market-shutters-contract.cjs && node scripts/tiny-kingdom-w98-upper-room-contract.cjs && node scripts/tiny-kingdom-w99-freight-road-contract.cjs && node scripts/tiny-kingdom-w100-receiving-hall-contract.cjs && node scripts/tiny-kingdom-w101-cottage-residency-contract.cjs && node scripts/tiny-kingdom-w102-social-articulation-contract.cjs && node scripts/tiny-kingdom-w103-corridor-camera-contract.cjs
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W83/W84 true service street plus credible ventilated grain-loft, desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w83-farm-market-continuity.spec.cjs tests/browser/tiny-kingdom-w84-granary-loft.spec.cjs tests/browser/tiny-kingdom-w85-gpu-dynamic-ring.spec.cjs tests/browser/tiny-kingdom-w86-resident-multi-draw.spec.cjs tests/browser/tiny-kingdom-w87-market-to-home.spec.cjs tests/browser/tiny-kingdom-w88-conservative-culling.spec.cjs tests/browser/tiny-kingdom-w89-physical-courier-contact.spec.cjs tests/browser/tiny-kingdom-w90-physical-daybreak-flight.spec.cjs tests/browser/tiny-kingdom-w91-resident-ambient-animation.spec.cjs tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs tests/browser/tiny-kingdom-w93-independent-actor-stream.spec.cjs tests/browser/tiny-kingdom-w94-first-frame.spec.cjs tests/browser/tiny-kingdom-w96-resident-market-shutters.spec.cjs tests/browser/tiny-kingdom-w97-true-supply-trail.spec.cjs tests/browser/tiny-kingdom-w98-lived-jetty.spec.cjs tests/browser/tiny-kingdom-w99-freight-road-residency.spec.cjs tests/browser/tiny-kingdom-w100-receiving-arcade.spec.cjs tests/browser/tiny-kingdom-w101-resident-cottage-door.spec.cjs tests/browser/tiny-kingdom-w102-social-articulation.spec.cjs tests/browser/tiny-kingdom-w103-physical-corridor-camera.spec.cjs tests/browser/tiny-kingdom-w106-market-exchange.spec.cjs tests/browser/tiny-kingdom-w108-citizen-projection.spec.cjs tests/browser/tiny-kingdom-w109-hardware-raster.spec.cjs tests/browser/tiny-kingdom-w111-resident-crop-field.spec.cjs tests/browser/tiny-kingdom-w112-spatial-crop.spec.cjs tests/browser/tiny-kingdom-w114-resident-night-homes.spec.cjs tests/browser/tiny-kingdom-w116-real-market-handoff.spec.cjs tests/browser/tiny-kingdom-w125-medieval-population.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w83-original-granary-to-market-world
+          path: |
+            artifacts/tiny-kingdom-w83/
+            artifacts/tiny-kingdom-w84/
+            artifacts/tiny-kingdom-w85/
+            artifacts/tiny-kingdom-w86/
+            artifacts/tiny-kingdom-w87/
+            artifacts/tiny-kingdom-w88/
+            artifacts/tiny-kingdom-w98/
+            artifacts/tiny-kingdom-w99/
+            artifacts/tiny-kingdom-w100/
+            artifacts/tiny-kingdom-w101/
+            artifacts/tiny-kingdom-w102/
+            artifacts/tiny-kingdom-w103/
+            artifacts/tiny-kingdom-w112/
+            artifacts/tiny-kingdom-w114/
+            test-results/
+          retention-days: 14
+  # W81: real 120-day town roof reconstruction must reclaim triangles without
+  # hiding original houses, workers or receipts, at 1024px and mobile 390px.
+  # Software WebGL performance is diagnostic only, never hardware FPS.
+  w81-authentic-roof-structure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W81 real inhabited 3D clay roofs and original 120-day mobile WebGL town
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w81-artisan-roof-geometry.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w81-original-physical-roof-rebuild
+          path: |
+            artifacts/tiny-kingdom-w81/
+            test-results/
+          retention-days: 14
+  # W79/W80: authentic original market court, real courier camera continuity
+  # and stage-to-receipt witness on desktop + 390px.
+  # Source-only geometry checks are not a look/feel/play acceptance pass.
+  w79-open-market:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W79/W80 actual market and uninterrupted genuine 390px delivery-to-receipt
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w79-open-market-gateway.spec.cjs tests/browser/tiny-kingdom-w80-continuous-market-journey.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w79-real-market-construction
+          path: |
+            artifacts/tiny-kingdom-w79/
+            artifacts/tiny-kingdom-w80/
+            test-results/
+          retention-days: 14
+  # W78: original stationary civic/farm/market is retained while real grown
+  # cottages receive independent GPU updates. Both widths simulate 120 days.
+  w78-real-civic-cluster-independence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W78 authentic 120-day original civic + housing buffers and mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w78-independent-civic-street.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w78-stationary-civic-real-growth
+          path: |
+            artifacts/tiny-kingdom-w78/
+            test-results/
+          retention-days: 14
+  # W77: the SAME original inhabited blocks reuse WebGL storage after real
+  # construction and across 390px camera views; no missing people or houses.
+  w77-inplace-real-home-growth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W77 original 120-day home growth, bounded storage and mobile truth
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w77-house-cluster-buffer-growth.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w77-real-inhabited-home-growth
+          path: |
+            artifacts/tiny-kingdom-w77/
+            test-results/
+          retention-days: 14
+  # W76: actual original cottage meshes reside in independently bounded
+  # spatial blocks. Verify the SAME 1024px / 390px world before/after forced
+  # alternative renderer, no hidden villagers, no triangle or replay changes.
+  w76-real-inhabited-home-clusters:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W76 exact complete cottage clusters across desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w76-home-cluster-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w76-physical-home-cluster-integrity
+          path: |
+            artifacts/tiny-kingdom-w76/
+            test-results/
+          retention-days: 14
+  # W75: all actual finished-job props persist exactly within the
+  # authoritative 1.5h evidence window, with an honest bounded fallback.
+  w75-recorded-production-residency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W75 real completed production persists with equal 1024px/390px triangles
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w75-recorded-work-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w75-real-completed-work-residency
+          path: |
+            artifacts/tiny-kingdom-w75/
+            test-results/
+          retention-days: 14
+  # W74: genuine selected courier through the actual market uprights,
+  # preserving fixed-step economy, all houses/people and 390px controls.
+  w74-real-market-camera-repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W74 full real courier and market sightline on desktop and portrait
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w74-live-market-post-repair.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w74-authentic-post-free-courier
+          path: |
+            artifacts/tiny-kingdom-w74/
+            test-results/
+          retention-days: 14
+  # W73: compact physical draw ranges on the original resident valley.
+  # A GPU raster cost saving remains unproven until matching actual workdays.
+  w73-conservative-original-scenery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W73 actual town static WebGL draw batching and 390px completeness
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w73-conservative-scenic-batching.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w73-bounded-scenic-submissions
+          path: |
+            artifacts/tiny-kingdom-w73/
+            test-results/
+          retention-days: 14
+  # W72: filmed W68 homecoming abruptly cut to aerial at morning; ensure the
+  # real selected person returns via eased physical camera, no staged actor
+  # or altered fixed-step autonomous world.
+  w72-real-daybreak-camera:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W72 original cottage-to-morning camera on 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w72-daybreak-camera-return.spec.cjs tests/browser/tiny-kingdom-w59-homecoming-continuity.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w72-authentic-morning-transition
+          path: |
+            artifacts/tiny-kingdom-w72/
+            artifacts/tiny-kingdom-w59/
+            test-results/
+          retention-days: 14
+  # W71: retain authentic physical stock on the GPU only when counts change,
+  # without removing real citizens or goods; verify desktop and 390px,
+  # forced GPU layer and original SwiftShader-compatible fallback.
+  w71-resident-village-economy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W71 real village market and granary, retained physical WebGL plus honest fallback
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w71-economy-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w71-live-market-gpu-residency
+          path: |
+            artifacts/tiny-kingdom-w71/
+            test-results/
+          retention-days: 14
+  # W70: GPU elapsed time measured only through optional hardware WebGL
+  # timer queries; unsupported software browsers must report NOT AVAILABLE.
+  # A green job proves honest nonblocking instrumentation, never FPS parity.
+  w70-gpu-timer-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W70 truthful GPU timer availability, nonblocking query lifecycle and 390px safety
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w70-physical-gpu-time.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w70-actual-gpu-availability
+          path: |
+            artifacts/tiny-kingdom-w70/
+            test-results/
+          retention-days: 14
+  # W69: honest WebGL CPU breakdown and bounded moving-geometry residency.
+  # These tests do not claim a visual or FPS transformation. They establish
+  # which authentic citizen/economy stages consume frame time on desktop/mobile.
+  w69-rendering-spine-profile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W69 real dynamic-stream reuse, workers, frame stages and 390px safety
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w69-world-vertex-stream.spec.cjs tests/browser/tiny-kingdom-w186-authentic-social-index.spec.cjs tests/browser/tiny-kingdom-w195-street-pointer-continuity.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w69-rendering-bottleneck-evidence
+          path: |
+            artifacts/tiny-kingdom-w69/
+            artifacts/tiny-kingdom-w186/
+            artifacts/tiny-kingdom-w195/
+            test-results/
+          retention-days: 14
+  # W68: test the original genuinely inhabited town at 1024px and 390px;
+  # every actual cottage receives static side-wall materiality, and 120-day
+  # growth must keep all real residents and structures with no false production.
+  w68-lived-street-materiality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: W164 RED-first real forge-smoke material integrity
+        run: node scripts/tiny-kingdom-w164-forge-smoke-material-contract.cjs
+      - name: W166 original authentic commuting gait / live-contact invariants
+        run: node scripts/tiny-kingdom-w166-traveler-gpu-contract.cjs
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W68 authentic grown burgages, garden masonry, replay-safe mobile WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w68-lived-street-materiality.spec.cjs tests/browser/tiny-kingdom-w68-readable-live-shift.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w68-real-growing-streets
+          path: |
+            artifacts/tiny-kingdom-w68/
+            test-results/
+          retention-days: 14
+  # W64: same inhabited-workday scene, visible original grain movement and
+  # organic cultivated rows; protect true crop/worker state and 390px WebGL.
+  w64-live-growing-field:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W64 real growing field wind, worker continuity, GL and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w64-living-field-wind.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w64-original-wheat-wind
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w64/
+          retention-days: 14
+  # W63 integrated citizen/visual workday: a real near worker and all
+  # compact Day-120 residents receive animated cloth, never fake NPCs.
+  w63-real-draped-clothing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W63 genuine workwear geometry, simulation immutability, 390px WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w63-lived-wool-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w63-real-citizen-wool
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w63/
+          retention-days: 14
+  # W62: real village chimney emission is tied to actual night residents,
+  # never a pseudo-random house subset; assert both dusk and dawn at 390px.
+  w62-real-household-hearth-cycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W62 actual smoke and home occupation, night to day, desktop/mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w62-true-hearth-cycle.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w62-true-household-hearths
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w62/
+          retention-days: 14
+  # W60: physical closed oak leaf at a real resting household, plus a
+  # stable, roof/foliage-cleared spectator camera on 1024px and 390px.
+  w60-true-cottage-rest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W60 real closed door, camera clarity, 390px, and unaltered world
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w60-true-closed-home.spec.cjs tests/browser/tiny-kingdom-w101-resident-cottage-door.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w60-true-cottage-rest
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w60/
+            artifacts/tiny-kingdom-w101/
+          retention-days: 14
+  # W59: an authentic homecoming must make a complete, readable
+  # dusk-to-dawn scene on desktop and mobile, without fake simulation.
+  w59-lived-homecoming-continuity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W59 real door rest and daybreak on 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w59-homecoming-continuity.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w59-homecoming-continuity
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w59/
+          retention-days: 14
+  # W58: human-scale, external sightline to the REAL W57 hinged door
+  # during a returning citizen's genuine journey. This is correctness
+  # evidence, not proof that the art/gameplay meets the experience gate.
+  w58-authentic-threshold-witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W58 true dusk arrival, external cottage view and 390px WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w58-threshold-witness.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w58-threshold-witness
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w58/
+          retention-days: 14
+  # W57: explicit original 3D door contact, only when a true citizen has
+  # walked to its assigned home. Night arrival, PC and 390px are exercised
+  # on the actual WebGL game and checked against unchanged saved authority.
+  w57-real-cottage-homecoming:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W57 true homecoming and hinged cottage doors on desktop/390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w57-lived-homecoming-doors.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w57-real-homecoming
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w57/
+          retention-days: 14
+  w54-genuine-workday-world-first:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W54 genuine moving workday world-first 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w54-genuine-workday-ui
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w54/
+          retention-days: 14
+  w53-world-first-experience:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W53 live village observer world-first 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w53-world-first-observation.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w53-world-first-ui
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w53/
+          retention-days: 14
+  # W52: test-first real GPU residency of original tree/building sunlight,
+  # while every actual moving citizen keeps a live physical ground contact.
+  w52-real-solar-shadow-gpu-residency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W52 real sunlight GPU buffer and fresh citizen shadows at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w52-resident-solar-shadows.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w52-real-solar-shadow-residency
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w52/
+          retention-days: 14
+  # W51: renderer-level static sun-shadow reuse, actual moving citizen
+  # contact, reset/restore invalidation and strictly bounded 390px resources.
+  w51-solar-shadow-residency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Run real workday shadow residency and 390px WebGL replay safety
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w51-static-solar-shadow-cache.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w51-solar-shadows
+          path: test-results/
+          retention-days: 14
+  # W50 — the existing actor and real economic activity stay readable
+  # in world-space when watched on desktop and 390px. No invented citizen.
+  w50-real-world-work-label:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Observe genuine actor/world labels at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w50-live-world-label.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w50-human-scale-work-label
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w50/
+          retention-days: 14
+  # W49: actual loaded producer carts and the original market freight bays
+  # must be accounted for in real camera selection and 390px gameplay.
+  w49-physical-freight-camera:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Observe real moving freight at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w49-physical-freight-camera.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w49-genuine-courier-visibility
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w49/
+          retention-days: 14
+  # W48: prove a REAL incomplete farmer shift exposes the actual worker in
+  # standing crop, with a wrist-mounted sickle and 390px accessible framing.
+  # Still only a technical floor; moving A/B and harsh critics decide quality.
+  w48-authentic-harvest-visibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Genuine active harvest and legible close-up on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w48-readable-harvest-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w48-real-farmer-visibility
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w48/
+          retention-days: 14
+  # W47: natural human-scale commute belongs to the real autonomous society.
+  # Independent browser gate: genuine travel stance/swing with rolling boots,
+  # real planted jobs, unchanged snapshots, and 390px rendering.
+  w47-real-commuter-gait:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Genuine heel-to-toe citizen locomotion on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w47-natural-gait.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w47-real-citizen-gait
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w47/
+          retention-days: 14
+  # W46: witness-only opt-in audio must be driven by physical smith cycles.
+  # A full WebGL/mobile regression verifies no invented work or economy delta.
+  w46-genuine-forge-audio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Muted-by-default physical smith sound and mobile integrity
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w46-genuine-forge-audio.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w46-real-forge-audio
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w46/
+          retention-days: 14
+  # W45 RED-first: the open human-scale work courtyard is an actual authored
+  # 3D place with genuine smith work and 390px evidence, never cosmetic claims.
+  w45-open-forge-court:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Genuine anvil-clear guild court and smith at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w45-open-forge-court.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w45-open-guild-court
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w45/
+          retention-days: 14
+  # W44 RED-first: genuine forge apprentice is NOT a static sightseeing point.
+  # A real smith must be observable performing their actual authorized work.
+  w44-real-forge-witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Real smith-follow camera and physical work at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w44-forge-witness.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w44-real-forge-witness
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w44/
+          retention-days: 14
+  # W43 RED/green: a real, unteleported guild smith must face and
+  # physically address the actual anvil; desktop and 390px film and authority.
+  w43-real-forge-anvil-acting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # Playwright's shared web servers import compiled replay packages.
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W43 actual smith facing and hammer contact, 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w43-physical-anvil-acting.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w43-genuine-anvil-workday
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w43/
+          retention-days: 14
+  # W41 RED-first: real smith must reach the original outdoor forge and be
+  # filmed there, with unchanged authority across desktop/mobile cameras.
+  w41-forge-workday:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W41 real autonomous smith at original outdoor forge, desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w41-forge-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w41-genuine-forge-workday
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w41/
+          retention-days: 14
+  # W40 continues the original real farm-to-market workday on Day-120.
+  w40-day120-viewport-actor-budget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W40 real Day-120 desktop and 390px character-budget evidence
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w40-viewport-character-lod.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w40-viewport-workday
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w40/
+          retention-days: 14
+  # W39 live growth: no out-of-date smaller-settlement GPU generations.
+  # Independent RED-before / GREEN-after on the same true 120-day world.
+  w39-growing-settlement-gpu-lifetime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W39 original settlement GPU-generation lifecycle, Day-120, 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w39-growth-gpu-reuse.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w39-gpu-residency
+          path: test-results/
+          retention-days: 14
+  # W36 real filmed courier: bounded physical camera, actual unloading and
+  # credited receipt at both desktop and 390px. NO simulated delivery.
+  w36-courier-documentary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Actual escrowed courier and market receipt stay filmable at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w36-courier-documentary.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w36-courier-documentary
+          path: test-results/
+          retention-days: 14
+  w34-real-consignment-unloading:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Genuine escrowed cargo movement and receipt with 390px WebGL proof
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w34-physical-consignment.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w34-physical-consignment
+          path: test-results/
+          retention-days: 14
+  w33-embodied-workday:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Real citizen head/shoulder labor, deterministic autonomy and 390px motion evidence
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w33-embodied-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w33-embodied-workday
+          path: test-results/
+          retention-days: 14
+  # W31 physically projected citizen selection: one honest visible actor, real
+  # desktop/390px pointer interaction and unchanged authoritative snapshot.
+  w31-real-citizen-picking:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W31/W32 actual citizen selection and physical orbit on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w31-real-citizen-picking.spec.cjs tests/browser/tiny-kingdom-w32-physical-citizen-orbit.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w31-real-citizen-picking
+          path: test-results/
+          retention-days: 14
+  # W30 real physically planted boot contract: 1024px and 390px.
+  w30-world-footfall:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W30 real citizen walking contact desktop and mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w30-world-contact-footfall.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w30-world-footfall
+          path: test-results/
+          retention-days: 14
+  # W25 same-seed actual worker-led housing builds on one software WebGL
+  # runner, earlier W24 exact git object versus new W25. CPU wall timings and
+  # real screenshots only; NEVER assert quality or GPU hardware FPS.
+  w25-growth-profile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Source-matched W24 vs W25 true house-build frame timing and real 390px pictures
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w25-growth-profile.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w25-matched-growth-profile
+          path: artifacts/tiny-kingdom/
+          retention-days: 14
+  # W25: physical civic quarter is retained in its own GPU VBO through
+  # real settlement growth; never replace it with an impostor.
+  w25-civic-residency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W25 original physical civic quarters remain GPU resident while real builders add homes
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w25-civic-residency.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w25-civic-residency
+          path: test-results/
+          retention-days: 14
+  # W24: genuine viewport-aware perspective at 390px, no moved/hidden citizens,
+  # original roofs/posts intact and snapshots byte-identical after camera.
+  w24-portrait-world-lens:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Real 390px market panorama, unchanged autonomous villagers and desktop optics
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w24-portrait-world-lens.spec.cjs tests/browser/tiny-kingdom-w26-wall-clock-camera.spec.cjs tests/browser/tiny-kingdom-w27-physical-projection.spec.cjs tests/browser/tiny-kingdom-w28-market-roof-frame.spec.cjs tests/browser/tiny-kingdom-w29-true-market-arrival.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w24-portrait-lens
+          path: test-results/
+          retention-days: 14
+  # W22: one worker's continuous physical task is a genuine visible action,
+  # not a looping boot slide or a static tool pointing at a fake station.
+  # Independent of legacy all-catalogue browser failures.
+  w22-grounded-real-labor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Genuine autonomous worksite planted boots and two-hand animated contact, desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w22-grounded-labor-cadence.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w22-grounded-labor
+          path: test-results/
+          retention-days: 14
+  # W15 ground-under-actual-homes is independently bounded. The enormous
+  # legacy catalogue suite can time out without hiding this vertical gate.
+  w15-ground-atlas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W15 real growing homes reuse immutable albedo without synthetic buildings
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w15-ground-atlas-residency.spec.cjs --workers=1
+      - name: W16 RED-first lived market roads, resident foundations and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w16-lived-ground.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w15-ground-residency
+          path: test-results/
+          retention-days: 14
+  # W21 lived-in-workday documentary camera gate. The selected, physically
+  # filmable worker must be the worker the observer actually sees on desktop
+  # and portrait, without rewriting a simulation event or hidden structure.
+  w21-real-workday-camera:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Real worker selected equals real camera shown at desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w21-workday-director-camera.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w21-workday-camera
+          path: test-results/
+          retention-days: 14
+  # W17 mobile moving-film regression, kept short and independent of the
+  # catalogue's slower legacy browser assertions.  This is a rendering/camera
+  # correctness floor, never an independent LOOK/FEEL/PLAY quality verdict.
+  w17-market-journey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W17 real market panorama and connected Day1/Day120 mobile workday lens
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w17-market-journey-lens.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w17-mobile-market-lens
+          path: test-results/
+          retention-days: 14
+  # Independent short-running W04/W05 browser gate. The legacy full GPU
+  # suite exceeds its time limit and contains known older failures; it must
+  # not hide a genuine harvested-field / autonomy regression.
+  w04-real-harvest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Actual farmer harvest, crop vertex deformation, fixed pace, replay and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w04-real-harvest-aftermath.spec.cjs --workers=1
+      - name: W07 RED-first - preserve a physically open inhabited medieval market court
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w07-inhabited-market-square.spec.cjs --workers=1
+      - name: W08 physically traced actual loaded courier route, exact economy and mobile proof
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w08-authentic-courier-traces.spec.cjs --workers=1
+      - name: W09 RED - actually escrow working citizens' loads until physical unloading
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w09-real-goods-escrow.spec.cjs --workers=1
+      - name: W10 physically stocked original 3D market stalls, no fake goods, 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w10-truthful-market-stalls.spec.cjs --workers=1
+      - name: W11 immersive human-height market camera with true pedestrian controls at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w11-immersive-street.spec.cjs --workers=1
+      - name: W12 one command dock and no lost keyboard or touch input at software FPS
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w12-pedestrian-input.spec.cjs --workers=1
+      - name: W14 RED-first live citizen-mesh camera residency and true authority at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w14-live-motion-residency.spec.cjs --workers=1
+      - name: W13 observed true field production to physical receiving with camera, 390px, immutable authority
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w13-real-market-journey.spec.cjs --workers=1
+      - name: W06 RED-before - actual Day-120 market visibility at 1024px and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w06-readable-market-path.spec.cjs --workers=1
+      - name: W05 live farm cut-row plots, physically tied sheaves, replay and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w05-lived-harvest-field.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w05-harvest-witness
+          path: test-results/
+          retention-days: 14
+
+  # W67 keeps the SAME genuine harvest worker/field on screen without
+  # hiding crops, moving the actor or inventing food; real GPU and 390px.
+  w67-actual-field-witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W67 actual farming hands and crop-depth clear camera in 1024px/390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w67-actual-field-witness.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w67-actual-field-witness
+          path: |
+            artifacts/tiny-kingdom-w67/
+            test-results/
+          retention-days: 14
+  # W66: exactly sourced genuine residents and wool before/after W65.
+  # RED/GREEN browser and filmed experience remain independently required.
+  w66-resident-workday:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W66 exact W65 source match, real desktop and 390px GPU and replay truth
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w66-resident-mesh-workday.spec.cjs tests/browser/tiny-kingdom-w65-sculptor-residency.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w66-resident-workday
+          path: |
+            artifacts/tiny-kingdom-w66/
+            test-results/
+          retention-days: 14
+  # W65: same authentic population, identical five-ring face/limb contours
+  # but shared bounded polar topology for lower CPU mesh generation cost.
+  # These tests are a correctness floor, not experience acceptance.
+  w65-dynamic-sculptor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Exact original citizen shell vertex order, real desktop/390px and immutable seeded world
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w65-sculptor-residency.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w65-dynamic-sculptor
+          path: |
+            artifacts/tiny-kingdom-w65/
+            test-results/
+          retention-days: 14
+  w56-grown-lived-burgage:
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +1673,59 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W56 grown authentic homes, structural porch geometry, replay and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w56-lived-burgage.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w56-lived-burgage
+          path: artifacts/tiny-kingdom-w56/
+          retention-days: 14
+  w55-original-grain-fields:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: W55 real crop field, performance budget and mobile touch legibility
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w55-living-grain.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w55-living-grain
+          path: artifacts/tiny-kingdom-w55/
+          retention-days: 14
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # Playwright's configured webServer imports dist/packages/replay; an
+      # unbuilt checkout makes the W02 browser test fail before it ever runs.
+      - name: Build browser webServer dependencies
+        run: npm run build
+      - run: npx playwright install chromium
       - name: Capture WebGL capability and frame
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -35,3 +1738,134 @@ jobs:
           name: tiny-kingdom-gpu-evidence
           path: artifacts/tiny-kingdom/
           retention-days: 14
+      - name: G154 spatial scene packing preserves every original triangle and material
+        run: node scripts/tiny-kingdom-g154-scene-packer-contract.cjs
+      - name: W02 real granary inventory, food-view safety and mobile interaction
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-w02-granary-inventory.spec.cjs --workers=1
+      - name: W03 real village-first documentary entry across desktop and mobile
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-w03-lived-village-entry.spec.cjs --workers=1
+      - name: G150–G155 real market composition, continuous pedestrian circuit, home rendering and 390px framing
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npm run build
+          npx playwright test tests/browser/tiny-kingdom-g150-market-visit.spec.cjs tests/browser/tiny-kingdom-g151-market-composition.spec.cjs tests/browser/tiny-kingdom-g152-market-legibility.spec.cjs tests/browser/tiny-kingdom-g153-house-geometry-cache.spec.cjs tests/browser/tiny-kingdom-g154-night-market.spec.cjs tests/browser/tiny-kingdom-g155-market-circuit.spec.cjs --workers=1
+      - name: G163 real Day-120 articulated citizen population at 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-g163-lived-population.spec.cjs --workers=1
+      - name: G165 real production-to-market documentary at Day-120 on 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-g165-lived-supply-journey.spec.cjs --workers=1
+      - name: Cinematic lighting, mobile HUD and real WebGL art-direction regression
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          npx playwright test tests/browser/tiny-kingdom-visual-direction.spec.cjs --workers=1
+      - name: Focused Tiny Kingdom render, autonomy and live-workday contracts
+        env:
+          CI: '1'
+        run: |
+          npm run build
+          npx playwright test tests/browser/tiny-kingdom-g066-compact-houses.spec.cjs tests/browser/tiny-kingdom-g067-dynamic-gpu-buffer.spec.cjs tests/browser/tiny-kingdom-g068-camera-lock.spec.cjs tests/browser/tiny-kingdom-g069-render-profile.spec.cjs tests/browser/tiny-kingdom-g070-festival-static.spec.cjs tests/browser/tiny-kingdom-g071-sunrise-emission.spec.cjs tests/browser/tiny-kingdom-g072-triangle-writer.spec.cjs tests/browser/tiny-kingdom-g073-ellipsoid-emission.spec.cjs tests/browser/tiny-kingdom-g074-static-typed-cache.spec.cjs tests/browser/tiny-kingdom-g075-shadow-gradient.spec.cjs tests/browser/tiny-kingdom-g076-box-corners.spec.cjs tests/browser/tiny-kingdom-g077-landscape-cache.spec.cjs tests/browser/tiny-kingdom-g078-landscape-buffer.spec.cjs tests/browser/tiny-kingdom-g079-gamma-pass.spec.cjs tests/browser/tiny-kingdom-g080-grass-distance.spec.cjs tests/browser/tiny-kingdom-g081-compact-side-windows.spec.cjs tests/browser/tiny-kingdom-g082-shingle-stagger.spec.cjs tests/browser/tiny-kingdom-g083-reference-capture.spec.cjs tests/browser/tiny-kingdom-g084-compact-half-timber.spec.cjs tests/browser/tiny-kingdom-g085-meadow-noise-lod.spec.cjs tests/browser/tiny-kingdom-g086-compact-facing.spec.cjs tests/browser/tiny-kingdom-g087-roof-dormers.spec.cjs tests/browser/tiny-kingdom-g088-roof-palette.spec.cjs tests/browser/tiny-kingdom-g089-meadow-farfield.spec.cjs tests/browser/tiny-kingdom-g089-forest-budget.spec.cjs tests/browser/tiny-kingdom-g090-lived-workday.spec.cjs tests/browser/tiny-kingdom-g091-active-labor.spec.cjs tests/browser/tiny-kingdom-g092-live-shift.spec.cjs tests/browser/tiny-kingdom-g093-occupational-cinema.spec.cjs tests/browser/tiny-kingdom-g094-inhabited-street.spec.cjs tests/browser/tiny-kingdom-g095-market-quarter.spec.cjs tests/browser/tiny-kingdom-g096-lived-highstreet.spec.cjs tests/browser/tiny-kingdom-g097-market-carriers.spec.cjs tests/browser/tiny-kingdom-g098-supply-delivery.spec.cjs tests/browser/tiny-kingdom-g099-market-handoff.spec.cjs tests/browser/tiny-kingdom-g105-scenic-visibility.spec.cjs tests/browser/tiny-kingdom-g106-cinematic-visibility.spec.cjs tests/browser/tiny-kingdom-g107-guildhall-district.spec.cjs tests/browser/tiny-kingdom-g108-street-morphology.spec.cjs tests/browser/tiny-kingdom-g109-lived-cinema.spec.cjs tests/browser/tiny-kingdom-g111-ground-surface.spec.cjs tests/browser/tiny-kingdom-g112-live-lighting.spec.cjs tests/browser/tiny-kingdom-g113-street-walk.spec.cjs tests/browser/tiny-kingdom-g114-street-visibility.spec.cjs tests/browser/tiny-kingdom-g115-street-encounter.spec.cjs tests/browser/tiny-kingdom-g116-street-crowd.spec.cjs tests/browser/tiny-kingdom-g117-visible-worksites.spec.cjs tests/browser/tiny-kingdom-g118-human-proportions.spec.cjs tests/browser/tiny-kingdom-g119-worksite-choreography.spec.cjs tests/browser/tiny-kingdom-g121-builder-stage.spec.cjs tests/browser/tiny-kingdom-g122-facing-work.spec.cjs tests/browser/tiny-kingdom-g123-oriented-society.spec.cjs tests/browser/tiny-kingdom-g124-seasonal-landscape-residency.spec.cjs tests/browser/tiny-kingdom-g125-physical-reach.spec.cjs tests/browser/tiny-kingdom-g126-day120-facing.spec.cjs tests/browser/tiny-kingdom-g127-open-worksite.spec.cjs tests/browser/tiny-kingdom-g128-architectural-materials.spec.cjs tests/browser/tiny-kingdom-g129-baked-software-tier.spec.cjs tests/browser/tiny-kingdom-g130-mobile-worldview.spec.cjs tests/browser/tiny-kingdom-g131-camera-lod.spec.cjs tests/browser/tiny-kingdom-g132-worksite-director.spec.cjs tests/browser/tiny-kingdom-g134-civic-residency.spec.cjs tests/browser/tiny-kingdom-g135-visible-workday-camera.spec.cjs tests/browser/tiny-kingdom-g140-settlement-residency.spec.cjs tests/browser/tiny-kingdom-g141-day-night-society.spec.cjs tests/browser/tiny-kingdom-g142-physical-homecoming.spec.cjs tests/browser/tiny-kingdom-g143-homecoming-lanterns.spec.cjs tests/browser/tiny-kingdom-g144-grounded-homecoming.spec.cjs tests/browser/tiny-kingdom-g149-market-life.spec.cjs --workers=1
+
+  # W123 exact original populated world, no-staged-person GPU parity at both widths.
+  w123-foreground-detailed-actor-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # Playwright's shared webServer imports compiled replay from dist.
+      # Without this the visual parity test never reaches a browser.
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Original 3D near-citizen geometry parity on desktop and 390px
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w123-foreground-resident.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w123-real-foreground-parity
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w123/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # W173: genuine already-simulated closed cottage after software FPS misses
+  # its opening; same physical street lens tracks REAL moving delivery carts.
+  # This is a playable camera correctness gate, never AAA/hardware FPS proof.
+  w173-real-closed-home-and-live-cart:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: W187 exact original physical roof-ray parity in bounded index
+        run: node scripts/tiny-kingdom-w187-camera-ray-broadphase-contract.cjs
+      - run: npx playwright install chromium
+      - name: Truthful closed cottage witness and original mobile street geometry
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w173-lived-door-camera.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w173-actual-closed-door-and-live-cart
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w173/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # W183: source-bound actual roof-safe dawn camera and real W182 crop VBO
+  # contract. The separate W72/W90 browser jobs still own genuine game frames.
+  # This job proves JS contracts only, never FPS or a visual milestone.
+  w183-physical-dawn-frame-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Original drawn-frame transition and actual retained crop storage
+        run: |
+          node scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs
+          node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs

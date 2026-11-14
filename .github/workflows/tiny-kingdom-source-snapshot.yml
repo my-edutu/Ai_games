@@ -4,24 +4,129 @@ on:
     branches: [feat/tiny-kingdom-gauntlet-3d]
     paths:
       - '.github/workflows/tiny-kingdom-source-snapshot.yml'
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs'
+      - 'scripts/tiny-kingdom-w249-real-harvest-hand-contact-contract.cjs'
+      - 'scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs'
+      - 'scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w252-field-visibility-contract.cjs'
+      - 'scripts/tiny-kingdom-w253-original-growing-field-contract.cjs'
+      - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs'
+      - 'scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs'
+      - 'scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs'
+      - 'scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs'
+      - 'scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs'
+      - 'scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs'
+      - 'scripts/tiny-kingdom-w188-home-season-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w302-retained-civic-contract.cjs'
+      - 'scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs'
+      - 'scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs'
+      - 'scripts/tiny-kingdom-w192-graded-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs'
+      - 'scripts/tiny-kingdom-w242-original-workshop-contract.cjs'
+      - 'scripts/tiny-kingdom-w243-original-compact-human-contract.cjs'
+      - 'scripts/tiny-kingdom-w244-real-farm-gate-and-forest-contract.cjs'
+      - 'scripts/tiny-kingdom-w245-authentic-farm-scene-budget-contract.cjs'
+      - 'scripts/tiny-kingdom-w112-spatial-crop-contract.cjs'
+      - 'scripts/tiny-kingdom-w246-camera-survey-admission-contract.cjs'
+      - 'scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs'
+      - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs'
+      - '.github/workflows/tiny-kingdom-source-snapshot.yml'
   workflow_dispatch:
 permissions:
   contents: read
+# Preserve running exact-source evidence; replace only obsolete pending PR runs.
+concurrency:
+  group: tiny-kingdom-source-snapshot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   snapshot:
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - name: Archive exact reviewed source
+      - name: W188 real seasonal home-cache source contract and full game syntax
+        run: node scripts/tiny-kingdom-w188-home-season-residency-contract.cjs
+      - name: W302 retained original civic GPU mesh, one typed source and fallback
+        run: node scripts/tiny-kingdom-w302-retained-civic-contract.cjs
+      - name: W189 conservative full-geometry packing and W183 submitted camera contract
+        run: |
+          node scripts/tiny-kingdom-w189-linear-scene-pack-contract.cjs
+          node scripts/tiny-kingdom-w183-daybreak-physical-flight-contract.cjs
+      - name: W190 exact 35-home navigation-grid and equal-count restore parity
+        run: node scripts/tiny-kingdom-w190-nav-node-residency-contract.cjs
+      - name: W191 original 4cm LOS residency, authentic construction and save/restore
+        run: node scripts/tiny-kingdom-w191-navigation-sightline-contract.cjs
+      - name: W192 graded physical village roads with real contact seams and untouched economy
+        run: node scripts/tiny-kingdom-w192-graded-road-contract.cjs
+      - name: W193 joined real oak-and-stone original village bridge geometry
+        run: node scripts/tiny-kingdom-w193-authentic-bridge-contract.cjs
+      - name: W240 actual arcade roof camera and open receiving sightlines
+        run: |
+          node scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs
+          node scripts/tiny-kingdom-w240-authentic-market-camera-contract.cjs
+      - name: W242 existing high-street two-storey workshop geometry and authority guard
+        run: node scripts/tiny-kingdom-w242-original-workshop-contract.cjs
+      - name: W243 genuine compact-human craniofacial silhouette and live IK wrist contract
+        run: node scripts/tiny-kingdom-w243-original-compact-human-contract.cjs
+      - name: W244 real field gate aperture and original near/mid forest resource contract
+        run: node scripts/tiny-kingdom-w244-real-farm-gate-and-forest-contract.cjs
+      - name: W245 real-field complete plot residency and farmer-priority scene budget
+        run: node scripts/tiny-kingdom-w245-authentic-farm-scene-budget-contract.cjs
+      - name: W246 physical-first camera survey and W112 complete crop plot GPU-source contract
+        run: |
+          node scripts/tiny-kingdom-w246-camera-survey-admission-contract.cjs
+          node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs
+      - name: W248 genuine lot-grounding atlas source contract
+        run: node scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs
+      - name: W249 original farmer IK blade to real crop contact and phase guard
+        run: node scripts/tiny-kingdom-w249-real-harvest-hand-contact-contract.cjs
+      - name: W250 shared adult working anatomy, animated wool and terrain-rolling feet
+        run: node scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs
+      - name: W251 authentic open-air field workcourt and actual farmer camera clearance
+        run: node scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs
+      - name: W252 honest fence ray obstruction and crop-clear live workday lens
+        run: node scripts/tiny-kingdom-w252-field-visibility-contract.cjs
+      - name: W253 original farm crop canopy and original persistent field ground atlas
+        run: node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
+      - name: W254 true open-sky market-receiving wing geometry and physical collision
+        run: node scripts/tiny-kingdom-w254-open-receiving-market-contract.cjs
+      - name: W264 original connected stone freight verge and unobstructed human-height street
+        run: node scripts/tiny-kingdom-w264-grainward-stone-corridor-contract.cjs
+      - name: W255 original source real contact sacks and physically earned market camera
+        run: node scripts/tiny-kingdom-w255-receipt-documentary-contract.cjs
+      - name: W256 genuine escrowed market-hand and live-receiving legibility contract
+        run: node scripts/tiny-kingdom-w256-receiving-human-scale-contract.cjs
+      - name: W257 real artisanal market-bay structural mass and authentic market-open contract
+        run: node scripts/tiny-kingdom-w257-artisan-market-shell-contract.cjs
+      - name: W258 original market-and-occupied-burgage source contract
+        run: node scripts/tiny-kingdom-w258-lived-market-skyline-contract.cjs
+      - name: W259 original merchant skyline and physically legible real courier contract
+        run: node scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs
+      - name: W260 original two-sided planted field and physically occlusion-reviewed freight lens
+        run: node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
+      - name: Archive exact Tiny Kingdom source for standalone native WebGL review
         run: |
           git rev-parse HEAD > source-sha.txt
-          git archive --format=tar HEAD | gzip -1 > tiny-kingdom-source.tgz
+          tar -czf tiny-kingdom-source.tgz \
+            AGENTS.md package.json package-lock.json playwright.config.cjs \
+            public/tiny-kingdom games/tiny-ai-civilization \
+            scripts/tiny-kingdom* tests/browser/tiny-kingdom*
       - uses: actions/upload-artifact@v4
         with:
-          name: tiny-kingdom-source-${{ github.sha }}
+          name: tiny-kingdom-source-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             source-sha.txt
             tiny-kingdom-source.tgz

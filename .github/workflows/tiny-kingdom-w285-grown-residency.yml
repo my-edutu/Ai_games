@@ -1,0 +1,48 @@
+name: Tiny Kingdom W285 Grown-Settlement Real Work GPU Residency
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w285-grown-district-residency-contract.cjs
+      - scripts/tiny-kingdom-w284-physical-home-view-contract.cjs
+      - .github/workflows/tiny-kingdom-w285-grown-residency.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w285-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  truthful-grown-town-source-and-running-game:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Test original eight shutter leaves and earned-work residency on actual grown-town threshold
+        run: node scripts/tiny-kingdom-w285-grown-district-residency-contract.cjs
+      - name: Revalidate genuine household physical manual camera provenance
+        run: node scripts/tiny-kingdom-w284-physical-home-view-contract.cjs
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Run real Day-120 desktop and 390px SwiftShader grown-town comparison
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs --workers=1 --reporter=line
+      - name: Preserve real screenshots, runtime stats and failure trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w285-real-grown-town
+          path: |
+            artifacts/tiny-kingdom-w285/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

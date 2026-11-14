@@ -1,0 +1,120 @@
+name: Tiny Kingdom W129 Living Market District Evidence
+
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w106-market-court-contract.cjs'
+      - 'scripts/tiny-kingdom-w129-lived-market-contract.cjs'
+      - 'scripts/tiny-kingdom-w197-compact-stone-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs'
+      - 'scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w310-ground-market-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w313-open-market-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w311-real-worker-viewport-occlusion-contract.cjs'
+      - 'scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs'
+      - 'scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs'
+      - 'scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs'
+      - 'scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs'
+      - 'scripts/tiny-kingdom-w205-open-receiving-front-contract.cjs'
+      - 'scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs'
+      - 'scripts/tiny-kingdom-w207-market-roof-and-worn-court-contract.cjs'
+      - 'scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs'
+      - 'scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs'
+      - 'scripts/tiny-kingdom-w299-original-market-gable-contract.cjs'
+      - 'scripts/tiny-kingdom-w304-market-sightline-contract.cjs'
+      - 'scripts/tiny-kingdom-w305-arcade-material-contract.cjs'
+      - 'scripts/tiny-kingdom-w306-real-economic-survey-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w306-real-economic-survey.spec.cjs'
+      - 'scripts/tiny-kingdom-w300-cached-static-append-contract.cjs'
+      - 'scripts/tiny-kingdom-w301-roofline-contract.cjs'
+      - 'scripts/tiny-kingdom-w210-street-boundary-contract.cjs'
+      - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w129-market.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w129-market-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  original-market-source:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W129 actual stall roofs, source topology and preserved W106 geometry budget
+        run: |
+          node scripts/tiny-kingdom-w129-lived-market-contract.cjs
+          node scripts/tiny-kingdom-w106-market-court-contract.cjs
+          node scripts/tiny-kingdom-w129-ground-contact-contract.cjs
+          node scripts/tiny-kingdom-w304-market-sightline-contract.cjs
+          node scripts/tiny-kingdom-w305-arcade-material-contract.cjs
+          node scripts/tiny-kingdom-w306-real-economic-survey-contract.cjs
+          node scripts/tiny-kingdom-w197-compact-stone-residency-contract.cjs
+          node scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs
+          node scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs
+          node scripts/tiny-kingdom-w310-ground-market-camera-contract.cjs
+          node scripts/tiny-kingdom-w313-open-market-residency-contract.cjs
+          node scripts/tiny-kingdom-w311-real-worker-viewport-occlusion-contract.cjs
+          node scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs
+          node scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs
+          node scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs
+          node scripts/tiny-kingdom-w203-local-orbit-plan-contract.cjs
+          node scripts/tiny-kingdom-w204-real-market-receipt-contract.cjs
+          node scripts/tiny-kingdom-w205-open-receiving-front-contract.cjs
+          node scripts/tiny-kingdom-w206-raised-market-workday-contract.cjs
+          node scripts/tiny-kingdom-w207-market-roof-and-worn-court-contract.cjs
+          node scripts/tiny-kingdom-w208-original-market-arcade-and-wagonway-contract.cjs
+          node scripts/tiny-kingdom-w292-original-receiving-court-contract.cjs
+          node scripts/tiny-kingdom-w299-original-market-gable-contract.cjs
+          node scripts/tiny-kingdom-w300-cached-static-append-contract.cjs
+          node scripts/tiny-kingdom-w301-roofline-contract.cjs
+          node scripts/tiny-kingdom-w210-street-boundary-contract.cjs
+
+  original-market-webgl:
+    needs: original-market-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      # The real Playwright game server imports compiled replay modules.
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: W129 genuine WebGL 1024/390, four true stalls, navigation and 120-day replay
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs tests/browser/tiny-kingdom-w306-real-economic-survey.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w129-original-market-roofs-and-setts
+          path: |
+            artifacts/tiny-kingdom-w129-market/
+            artifacts/tiny-kingdom-w204/
+            artifacts/tiny-kingdom-w306-survey/
+            test-results/
+          retention-days: 14

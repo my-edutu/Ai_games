@@ -1,0 +1,51 @@
+name: Tiny Kingdom W281 Original Housing Dirty-Region Spine
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w281-home-partitions.spec.cjs
+      - scripts/tiny-kingdom-w315-growth-residency-contract.cjs
+      - scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
+      - scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
+      - scripts/tiny-kingdom-w318-civic-gpu-allocation-fallback-contract.cjs
+      - scripts/tiny-kingdom-w319-civic-road-buffer-reuse-contract.cjs
+      - scripts/tiny-kingdom-w320-cooperative-simulation-contract.cjs
+      - scripts/tiny-kingdom-w321-input-fair-simulation-contract.cjs
+      - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
+      - .github/workflows/tiny-kingdom-w281-home-partitions.yml
+  workflow_dispatch:
+jobs:
+  original-house-dirty-regions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: W315 actual civic-route dependency + original growth source contracts
+        run: |
+          node scripts/tiny-kingdom-w315-growth-residency-contract.cjs
+          node scripts/tiny-kingdom-w316-civic-core-residency-contract.cjs
+          node scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
+          node scripts/tiny-kingdom-w318-civic-gpu-allocation-fallback-contract.cjs
+          node scripts/tiny-kingdom-w319-civic-road-buffer-reuse-contract.cjs
+          node scripts/tiny-kingdom-w320-cooperative-simulation-contract.cjs
+          node scripts/tiny-kingdom-w321-input-fair-simulation-contract.cjs
+          node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w281-home-partitions.spec.cjs --workers=1
+        env:
+          CI: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w281-original-housing
+          path: |
+            artifacts/tiny-kingdom-w281/
+            test-results/
+          retention-days: 14

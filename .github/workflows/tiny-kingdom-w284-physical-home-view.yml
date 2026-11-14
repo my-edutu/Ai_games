@@ -1,0 +1,20 @@
+name: Tiny Kingdom W284 Physical Household Camera
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w284-physical-home-view-contract.cjs
+      - .github/workflows/tiny-kingdom-w284-physical-home-view.yml
+jobs:
+  genuine-household-sightline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W284 physical recorded-home view and actual manual control
+        run: node scripts/tiny-kingdom-w284-physical-home-view-contract.cjs
+      - name: W200 existing original cottage frontage and geometry proof
+        run: node scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs

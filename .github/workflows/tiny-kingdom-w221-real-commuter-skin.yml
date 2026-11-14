@@ -1,0 +1,49 @@
+name: Tiny Kingdom W221 Real Commuter 13-Joint Rendering
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w221-real-commuter-skin.yml'
+      - 'tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w221-commuter-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-gpu-commuters:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Original commuter GPU joint contract and fallback
+        run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
+      - name: Verify complete game builds
+        run: npm run build
+      - name: Install real Chromium WebGL software test environment
+        run: npx playwright install --with-deps chromium
+      - name: Record actual 1024px and 390px real-commuter GPU motion and same-state CPU fallback
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs --workers=1 --reporter=line
+      - name: Preserve genuine game footage and JSON, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w221-original-real-commuters
+          path: |
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

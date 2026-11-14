@@ -1,0 +1,47 @@
+name: Tiny Kingdom W125 Genuine Farm Market Household Film
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
+      - 'scripts/tiny-kingdom-w270-presentation-hotpath.cjs'
+      - 'scripts/tiny-kingdom-w125-unbroken-economic-film.cjs'
+      - '.github/workflows/tiny-kingdom-w125-economic-chain.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-w125-real-economic-chain-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  complete-uncut-economic-chain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: W270 genuine game renderer actor, worksite and credited cargo hotpath contracts
+        run: node scripts/tiny-kingdom-w270-presentation-hotpath.cjs
+      - name: W125 original-source test-first farmer market home ledger
+        run: node scripts/tiny-kingdom-w125-market-household-contract.cjs
+      - run: npx playwright install --with-deps chromium
+      - name: Unedited real-time browser video of accelerated authentic fixed-step desktop and mobile economy
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          TINY_W125_FILM_DAYS: '80'
+        run: node scripts/tiny-kingdom-w125-unbroken-economic-film.cjs
+      - name: Preserve original videos, screenshots and strict evidence regardless of outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w125-real-complete-economic-chain
+          path: artifacts/tiny-kingdom-w125-economic-chain/
+          retention-days: 14
+          if-no-files-found: warn
