@@ -727,13 +727,16 @@ export function createWarden(options = {}) {
     // Eyes sit above (not exclusively on the vertical front of) the mask;
     // the camera reads one clear gaze direction even at 320px.
     const socket=ball(head,dark,[side*.205,.25,.215],[.22,.125,.205]);
+    socket.name=`rooted guardian upper optical socket ${side}`;
     socket.rotation.x=-.25;
     const optic=ball(head,red,[side*.205,.308,.287],[.153,.085,.126]);
+    optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
     const brow=rounded(head,claw,[side*.195,.349,.242],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
     const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
+    cheek.name=`rooted guardian cheek armor ${side}`;
     cheek.rotation.y=side*.24;
     ring(head,bronze,[side*.345,-.067,.18],.057,.014);
   }
