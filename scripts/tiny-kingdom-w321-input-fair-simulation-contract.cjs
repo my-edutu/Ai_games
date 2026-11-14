@@ -22,17 +22,17 @@ assert.equal(ctx.interactiveSimulationBudget(),4);
 ctx.streetHeld.clear();
 const step=ctx.FIXED_STEP;
 function drain(budget){
- let elapsed=0,n=0,debt=step*80;
+ let elapsed=0,n=0,debt=step*90;
  while(debt>=step){
   const run=ctx.drainRenderTickBacklogTimeboxed(debt,()=>{n++;elapsed+=3},64,budget,()=>elapsed);
   assert.ok(run.executed>0);debt=run.remaining;
-  assert.ok(n<=80,'must not fabricate fixed steps');
+  assert.ok(n<=90,'must not fabricate fixed steps');
  }
  return {n,debt};
 }
 const regular=drain(16),interactive=drain(4);
-assert.equal(regular.n,80,'normal cooperative path preserves every tick');
-assert.equal(interactive.n,80,'camera-active path preserves every tick');
+assert.equal(regular.n,90,'normal cooperative path preserves every tick');
+assert.equal(interactive.n,90,'camera-active path preserves every tick');
 assert.ok(Math.abs(regular.debt-interactive.debt)<1e-9);
 let count=0,clock=0;
 const gesture=ctx.drainRenderTickBacklogTimeboxed(step*50,()=>{count++;clock+=3},64,ctx.interactiveSimulationBudget(),()=>clock);
@@ -49,4 +49,4 @@ assert.match(script,/cooperativeSoftware\?drainRenderTickBacklogTimeboxed/);
 assert.match(script,/:drainRenderTickBacklog\(accumulator,step,64\)/);
 assert.match(script,/if\(drained.pendingTicks\)\{renderBacklogFrames\+\+;scheduleSoftwareDebtDrain\(\)\}/);
 assert.match(script,/if\(frozen\)resetSoftwareDebtDrain\(\)/);
-console.log('W321 actual-source PASS: 4ms input-aware software simulation vs ordinary 16ms; all earned fixed ticks retained; camera responsiveness and hardware FPS still NOT PROVEN.');
+console.log('W321 actual-source PASS: 4ms input-aware software simulation vs ordinary 16ms; all 90 earned fixed ticks retained; camera responsiveness and hardware FPS still NOT PROVEN.');
