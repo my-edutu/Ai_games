@@ -100,6 +100,24 @@ export function verifiedReleaseFoleyActor(cue){
   cue.targetId.length<=128?cue.actorId:null;
 }
 /**
+ * A named Warden warning is an observed future danger window owned by the
+ * SAME unique Warden in consecutive public snapshots. Never synthesize that
+ * authored cue from an anonymous telegraph or a stale/replayed cast.
+ * Generic unowned threat-warning audio remains neutral and separate.
+ */
+export function verifiedWardenWarningFoleyActor(cue){
+ if(cue?.kind!=='boss-warning-rising'&&cue?.kind!=='boss-warning-final')return null;
+ return cue.audio===cue.kind&&cue.visual==='warning'&&
+  cue.verified===true&&cue.proof==='authority-warning-window'&&
+  typeof cue.actorId==='string'&&cue.actorId.length>0&&
+  cue.actorId.length<=128&&cue.targetId===null&&
+  Number.isSafeInteger(cue.tick)&&cue.tick>=0&&
+  Number.isSafeInteger(cue.detail?.attackTick)&&
+  cue.detail.attackTick>cue.tick&&
+  (cue.kind!=='boss-warning-final'||cue.detail.attackTick===cue.tick+1)?
+  cue.actorId:null;
+}
+/**
  * An audio retry must not borrow a different run, tick, action or victim's
  * authoritative cue ID. A verified flag is not a substitute for an identity
  * matching the public snapshot planner's actual immutable event tuple.
@@ -118,7 +136,8 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const actor=verifiedSwingFoleyActor(cue);
  const victim=verifiedDamageFoleyVictim(cue);
  const releaseActor=verifiedReleaseFoleyActor(cue);
- if(actor===null&&victim===null&&releaseActor===null)return false;
+ const warningActor=verifiedWardenWarningFoleyActor(cue);
+ if(actor===null&&victim===null&&releaseActor===null&&warningActor===null)return false;
  // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
  // The public planner includes that target in its immutable swing ID even
  // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
@@ -128,7 +147,7 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
   (typeof aimedTarget!=='string'||aimedTarget.length<1||
    aimedTarget.length>128))return false;
  // Injury still has an anonymous perpetrator; release remains an action.
- const source=actor??releaseActor??'-';
+ const source=actor??releaseActor??warningActor??'-';
  const target=victim??(releaseActor!==null?cue.targetId:aimedTarget)??'-';
  return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
 }
@@ -288,7 +307,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   const authorityBoundAudio=cue.audio==='whoosh'||
    cue.audio==='impact'||cue.audio==='fatal-impact'||
    cue.audio==='ranged-release'||cue.audio==='spell-release'||
-   cue.audio==='warden-release';
+   cue.audio==='warden-release'||
+   cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final';
   if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
    dropped++;return false;
   }
