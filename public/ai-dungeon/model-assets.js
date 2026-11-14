@@ -2121,6 +2121,14 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
   markBoth('missing-original-walking-clip');
   return;
  }
+ // A certified source-linked hip+knee swing used BOTH original skinned
+ // shoes. Later toe-knuckle corrections on EITHER shoe would invalidate the
+ // existing final proof. This is sole-pose ownership, not a foot lock.
+ if(actor.sourceSwingLinkedCurrentFrameProofs?.left||
+    actor.sourceSwingLinkedCurrentFrameProofs?.right){
+  markBoth('original-linked-leg-owns-swing');
+  return;
+ }
  const axis=originalSourceSwingToesAxis;
  const read=()=>Object.fromEntries(['left','right'].map(s=>{
   const heel=sourceSkinnedSoleWorld(patches[s].heel);
@@ -2569,8 +2577,10 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  }
  // Record only real skinned-source candidate outcomes. An attempted toe
  // lift is NOT a planted foot and must not be reported as accepted motion.
- const bestMeasuredLift=Math.max(0,...trials.map(t=>
-  (t.after?.[side]?.toeY??swing.toeY)-swing.toeY));
+ const bestMeasuredLift=Math.max(0,...trials.map(t=>{
+  const toe=t.after?.[side]?.toeY;
+  return Number.isFinite(toe)?toe-swing.toeY:0;
+ }));
  actor.sourceSwingLinkedProbeFrames=Math.min(1000000,
   (actor.sourceSwingLinkedProbeFrames||0)+1);
  actor.sourceSwingLinkedLastProbe={sourceInstanceId:actor.assetRoot.uuid,
@@ -3631,6 +3641,11 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
  const previous=actor.sourceStanceSlideSample;
  actor.sourceStanceSlideSample=null;
  actor.sourceStanceSlideReliefProof=null;
+ // A later visual-pivot XZ shift would move both original shoes AFTER the
+ // paired hip+knee verified their loaded opposite foot. Preserve the single
+ // authoritative post-mixer two-shoe pose on this rAF, not a second rescue.
+ if(actor.sourceSwingLinkedCurrentFrameProofs?.left||
+    actor.sourceSwingLinkedCurrentFrameProofs?.right)return;
  const valid=actor.fullBody?.mode==='move'&&actor.fullBody?.owner?.locomotion===true&&
   actor.activeImportedClipName==='Walking_A'&&actor.u.hp>0&&
   actor.root?.visible===true&&visible===true&&!reducedMotion&&
