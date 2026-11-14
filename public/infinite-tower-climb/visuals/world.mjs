@@ -3883,6 +3883,9 @@ export function createTowerWorld(){
       submittedFrames:deferredDistantArrival.submittedFrames,
       proof:deferredDistantArrival.proof,
       structureDeferred:deferredDistantArrival.structureDeferred === true,
+      // First-frame destination is a real source-owned mesh group, not a score.
+      actualFirstFrameVoidBearings:deferredDistantArrival.actualFirstFrameVoidBearings === true,
+      actualFirstFrameVoidBearingIndex:deferredDistantArrival.actualFirstFrameVoidBearingIndex ?? null,
       structureBuildMs:deferredDistantArrival.structureBuildMs,
       structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
       isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
