@@ -3937,10 +3937,9 @@ const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER
 const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),forgeSmokeAnchor:gl.getUniformLocation(program,'forgeSmokeAnchor'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]'),shadowTransition:gl.getUniformLocation(program,'shadowTransition'),
  villageLanterns:gl.getUniformLocation(program,'villageLanterns[0]'),
  commuterLanterns:gl.getUniformLocation(program,'commuterLanterns[0]')};
-if(uniforms.villageLanterns!==null)
- gl.uniform4fv(uniforms.villageLanterns,compileAuthenticVillageLights());
-if(uniforms.commuterLanterns!==null)
- gl.uniform4fv(uniforms.commuterLanterns,carriedVillageLampData);
+// The genuine lamp source and terrain are declared later in this script.
+// Upload only after full world initialization, on the first real frame.
+let villageStaticLightUploaded=false;
 const shadowPrevPositionLoc=gl.getAttribLocation(program,'shadowPrevPosition'),shadowPrevColorLoc=gl.getAttribLocation(program,'shadowPrevColor');const skinJointAttribute=gl.getAttribLocation(program,'skinJoint');const workingSkinSupported=gpuAvailable&&skinJointAttribute>=0&&uniforms.workSkinActive!==null&&uniforms.workBone!==null;let workingSkinCapable=workingSkinSupported;const buffer=gl.createBuffer();let settlementBuffer=null,landscapeBuffer=null;let staticGpuUploads=0,landscapeGpuUploads=0;
 // G067: reuse both driver-side storage and CPU staging for the changing
 // citizen/effects VBO; only grow in bounded 65536-float chunks when needed.
@@ -27229,6 +27228,11 @@ if(follow&&!daybreakReturn){
  }
  }
 }advanceDaybreakReturn();if(liveWorkday)updateLiveWorkdayUI();else if(document.body.dataset.workday==='homecoming')updateHomecomingUI();else if(!grainJourney)updateDeliveryHUD();advanceVillageDocumentary();if(cinematic)yaw+=wallDt*.05;progressCameraReturn(wallDt);const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.6)*renderQuality().scale;if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);gl.viewport(0,0,canvas.width,canvas.height)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);drawAtmosphere(atmosphere);
+// Upload only when the complete real terrain and modelled lamp source exist.
+if(!villageStaticLightUploaded&&uniforms.villageLanterns!==null){
+ gl.uniform4fv(uniforms.villageLanterns,compileAuthenticVillageLights());
+ villageStaticLightUploaded=true;
+}
 // Exact current real night commuters, with bounded shader-only warm light.
 if(uniforms.commuterLanterns!==null)
  gl.uniform4fv(uniforms.commuterLanterns,selectAuthenticCarriedLights());
