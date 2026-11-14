@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,chooseOriginalSourceSwingToeJointRelief,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingAnkleNetClearance,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,chooseOriginalSourceSwingToeJointRelief,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1575,7 +1575,26 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
    otherBeforeHeelY:otherBeforeHeel,otherBeforeToeY:otherBeforeToe,
    otherAfterHeelY:otherAfterHeel,otherAfterToeY:otherAfterToe
   });
-  if(!held)return 0;
+  if(!held||!confirmOriginalSourceSwingAnkleNetClearance({
+   beforeToeY:toeY,afterToeY:afterToe,beforeHeelY:heelY,afterHeelY:afterHeel,
+   floorTopY:-.02,appliedAngleRad:previous
+  })){
+   // A previously witnessed angle may still be an ineffective isolated
+   // twitch against a deeply buried ORIGINAL toe. Do not keep its pose
+   // or source frame proof; allow the subsequently sampled full leg instead.
+   if(held){
+    actor.sourceSwingToeIneffectiveFrames=Math.min(1000000,
+     (actor.sourceSwingToeIneffectiveFrames||0)+1);
+    actor.sourceSwingToeIneffectiveLast={
+     sourceInstanceId:actor.assetRoot.uuid,sourceClip:'Walking_A',
+     side:mount.side,continuityHold:true,
+     beforeToeY:toeY,afterToeY:afterToe,
+     originalBurialMeters:Math.max(0,-.02-toeY),
+     remainingBurialMeters:Math.max(0,-.02-afterToe)
+    };
+   }
+   return 0;
+  }
   actor.sourceSwingToeLiftProof={
    source:'same-original-GLB-foot-skinned-vertices',
    continuitySource:held.source,sourceInstanceId:actor.assetRoot.uuid,
@@ -1635,7 +1654,28 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
   beforeToeY:toeY,afterToeY,beforeHeelY:heelY,afterHeelY,
   floorTopY:-.02,appliedAngleRad:finalAngle-angle
  });
- if(lift===null)return 0;
+ // The exact f235c439 mobile source toe moved 9.261mm under 80mrad of
+ // isolated ankle rotation, but remained 97.573mm buried in dungeon stone.
+ // A positive tiny toe delta is not an animated clearance. Fail closed and
+ // let the paired original upper/lower leg remeasure the same source skin.
+ if(lift===null||!confirmOriginalSourceSwingAnkleNetClearance({
+  beforeToeY:toeY,afterToeY,beforeHeelY:heelY,afterHeelY,
+  floorTopY:-.02,appliedAngleRad:finalAngle-angle
+ })){
+  if(lift!==null){
+   actor.sourceSwingToeIneffectiveFrames=Math.min(1000000,
+    (actor.sourceSwingToeIneffectiveFrames||0)+1);
+   actor.sourceSwingToeIneffectiveLast={
+    sourceInstanceId:actor.assetRoot.uuid,sourceClip:'Walking_A',
+    side:mount.side,continuityHold:false,
+    beforeToeY:toeY,afterToeY,
+    originalBurialMeters:Math.max(0,-.02-toeY),
+    remainingBurialMeters:Math.max(0,-.02-afterToeY),
+    attemptedAngleRad:finalAngle-angle
+   };
+  }
+  return 0;
+ }
  const calf=planOriginalSourceSwingCalfForMountedFoot(actor,mount,original,
   finalAngle,afterToeY,afterHeelY,lift,patch);
  // Only real accepted events allocate this one bounded observation.
@@ -4082,6 +4122,8 @@ function inspectSourceRigDeformation(actors){
     sourceStanceSlideCarryFrames:actor.sourceStanceCarryFrames||0,
     sourceStanceSlideCarryPeakMeters:actor.sourceStanceCarryPeakMeters||0,
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
+    sourceSwingToeIneffectiveFrames:actor.sourceSwingToeIneffectiveFrames||0,
+    sourceSwingToeIneffectiveLast:actor.sourceSwingToeIneffectiveLast??null,
     // This counter is only a verified original-GLB same-angle continuation;
     // it cannot be interpreted as new contact or a successful foot plant.
     sourceSwingToeContinuityFrames:actor.sourceSwingToeContinuityFrames||0,
