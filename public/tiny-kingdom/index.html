@@ -2263,8 +2263,8 @@ function workSkinFramePalette(entry,p,slot,detail){
  const liveRoot={x:p.x,z:p.z,ground:terrain(p.x,p.z),
   // The live full-detail sculpt faces its genuine job focus while working,
   // not an obsolete travel waypoint. Off-duty bodies face the real route.
-  angle:detail&&!rig.working&&!rig.hauling?
-   realForegroundFacing(p):realWorkerFacing(p),
+  angle:rig.working||rig.hauling?realWorkerFacing(p):
+   detail?realForegroundFacing(p):realCommuterFacing(p),
   scale:entry.scale};
  if(![liveRoot.x,liveRoot.z,liveRoot.ground,liveRoot.angle,
   liveRoot.scale].every(Number.isFinite))
