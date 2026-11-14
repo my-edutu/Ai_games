@@ -31,6 +31,9 @@ function check(resident){
   CIVIC_CACHE_FLOAT_BUDGET:4000,CIVIC_CACHE_MAX_ENTRIES:4,
   civicSceneryCache:new Map(),civicCacheEvictions:0,
   civicGpuUploads:0,civicGpuDisposals:0,
+  civicCoreBuffer:null,activeCivicCoreKey:'',
+  civicRoadBufferRecycles:0,civicRoadBufferSubUploads:0,
+  civicRoadBufferReallocations:0,civicRoadBytesUploaded:0,
   gl:{ARRAY_BUFFER:1,STATIC_DRAW:2,createBuffer:()=>({id:7}),
    bufferData:(target,typed,usage)=>{
     assert.equal(target,1);assert.equal(usage,2);
