@@ -2928,11 +2928,19 @@ export function createTowerWorld(){
       arrival.vistaBuiltAtSubmitted=arrival.submittedFrames;
       arrival.state='awaiting-vista-submission';
     }
+    // The preceding native 1x source film retained the original bronze gate,
+    // yet the opaque incoming violet shaft was uploaded while that SAME gate
+    // still had nonzero 3D material opacity. A single source-verified old-door
+    // presence now owns BOTH material retirement and incoming structural
+    // construction. A cheap source query; no extra draw, scene, collider,
+    // client-created win, queued timer or full-world duplication.
+    const sourceOldGateway=!options.stale && retainedEarnedCap
+      ?observedSourceGatewayDeparturePresence(snapshot,retainedEarnedCap):null;
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-actual-first-render' &&
         arrival.submittedFrames>=1 && !options.stale &&
         !holdIncomingStructuralShell(snapshot,passageWitness,
-          retainedEarnedCap,arrival)) {
+          retainedEarnedCap,arrival,sourceOldGateway)) {
       if (arrival.structureDeferred) {
         // Genuine 1x immutable source film 43300014722: the old bronze cap
         // survives as a real GPU mesh, yet a cold, fully rebuilt violet
