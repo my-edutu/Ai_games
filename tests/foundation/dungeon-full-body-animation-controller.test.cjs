@@ -5342,3 +5342,64 @@ test('RED: original source calf may not twitch for 1.94mm lift while toe remains
  assert.match(renderer,/ineffective-original-source-calf-clearance/,
   'rejected real-skin calf step must appear in source-rig diagnostics');
 });
+
+
+// Original source WebGL #43568544679 and earlier #43558143343 showed
+// deeply buried SWING toes with an airborne heel, no certified planted
+// loaded shoe, and repeated unproductive one-bone knee/toe twitches.
+// A coherent reversible upperleg+lowerleg probe may be considered only if
+// both original skinned shoes improve, not because a joint rotated.
+test('RED: original Walking_A linked hip-knee swing clears measured stone burial without moving opposite sole',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ assert.equal(typeof choose,'function','paired licensed source thigh/calf witness required');
+ const left={heelY:-.021,toeY:-.023,heelXZ:[-4.01,-6.85],toeXZ:[-4.19,-6.9]};
+ const right={heelY:.18,toeY:-.085,heelXZ:[-3.8,-7.1],toeXZ:[-4.02,-7.15]};
+ const before={left,right};
+ const improved={left:{...left,heelY:-.0205,toeY:-.0225,
+  heelXZ:[-4.009,-6.85],toeXZ:[-4.189,-6.9]},
+  right:{...right,heelY:.172,toeY:-.064,
+   heelXZ:[-3.79,-7.11],toeXZ:[-3.99,-7.15]}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.038,frameAge:.033,frameInterval:.0333,
+  floorTopY:-.02,side:'right',before};
+ const trial={upperRad:.09,lowerRad:-.06,after:improved};
+ const accepted=choose({...owner,trials:[trial]});
+ assert.equal(accepted?.side,'right');
+ assert.equal(accepted?.upperRad,.09);
+ assert.equal(accepted?.lowerRad,-.06);
+ assert.ok(accepted?.liftMeters>.02&&accepted?.fractionCleared>.3);
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.oppositeShoePreserved,true);
+ assert.equal(choose({...owner,trials:[{...trial,after:{
+  left:{...improved.left,toeY:left.toeY+.008},right:improved.right}}]}),null,
+  'source opposite heel/toe cannot drift to create fake clearance');
+ assert.equal(choose({...owner,trials:[{...trial,after:{
+  left:improved.left,right:{...improved.right,toeY:-.079}}}]}),null,
+  'mere knee articulation that lifts <15% of buried toe is not enough');
+ for(const bad of [
+  {sourceWeight:.81},{frameInterval:.15},{frameAge:.31},
+  {mode:'attack'},{sourceClipName:'Idle'},{sourceBindVerified:false},
+  {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
+  {sourceInstanceSame:false},{ownerLocomotion:false},{reducedMotion:true},
+  {teleport:true},{interrupted:true},{rootTravel:0},{alive:false},
+  {trials:[{...trial,lowerRad:.06}]},
+  {trials:[{...trial,upperRad:.24}]},
+  {trials:[{...trial,after:{left:improved.left,right:{...improved.right,
+   heelY:.11}}}]}
+ ])assert.equal(choose({...owner,...bad,trials:bad.trials??[trial]}),null,
+  'never authorize a fake step, unverified source joint or unsupported shoe');
+});
+
+test('RED: live source-rig linked correction is reversible, measured after mixer and exposed as non-contact proof',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/stageOriginalSourceSwingLinkedLegAfterMixer\(/);
+ assert.match(renderer,/chooseOriginalSourceSwingLinkedLegTrial\(/);
+ assert.match(renderer,/sourceSwingLinkedCurrentFrameProofs/);
+ assert.match(renderer,/upper\.last\.multiply\(upperDelta\)/);
+ assert.match(renderer,/lower\.last\.multiply\(lowerDelta\)/);
+ assert.match(renderer,/oppositeShoePreserved/);
+});
