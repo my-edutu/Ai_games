@@ -1024,7 +1024,7 @@ test('a live authoritative Warden warning keeps all eight threatened-cell glyphs
  const unrelatedCounter=cue({id:'1:1:11:counter:-:warden',
   kind:'counter',visual:'counter',audio:'counter',
   proof:'authority-counter-and-HP',actorId:null,targetId:'warden',
-  priority:7,from:null,to:{x:4,z:4}});
+  priority:7,from:null,to:{x:2,z:2}});
  try{
   assert.equal(stage.emit(warning),true);
   assert.equal(stage.stats().instancesByPool.signal,8);
