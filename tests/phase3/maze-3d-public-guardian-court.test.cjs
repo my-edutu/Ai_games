@@ -1370,7 +1370,7 @@ test('Pass358 actual four guardian standards emerge from public court only for e
     w.update(s);
     const pieces=standards();
     assert.ok(pieces.length===4&&pieces.every(Boolean),'the two real actor endpoints keep four physical connected shells');
-    assert.ok(pieces.every(p=>p.parent.position.y===-.78),'the linked stage starts physically recessed, not as four permanent spectator walls');
+    assert.ok(pieces.every(p=>p.parent.parent.position.y===-.78),'the linked stage starts physically recessed, not as four permanent spectator walls');
     const notice=envelope(pieces);
     w.animate(.2,{guardianCell:8,guardianBeat:.07,reducedMotion:false});
     assert.deepEqual(envelope(pieces),notice,'pre-brace public notice cannot falsely release full-height mechanics');
@@ -1386,7 +1386,7 @@ test('Pass358 actual four guardian standards emerge from public court only for e
     const reduced=envelope(pieces);
     w.animate(1.4,{guardianCell:8,guardianBeat:.9,reducedMotion:true});
     assert.deepEqual(envelope(pieces),reduced,'reduced motion holds one existing stationary, truthful warning silhouette');
-    assert.ok(pieces.every(p=>p.parent.position.y===.04),'reduced-motion captive standards preserve the previous fixed height');
+    assert.ok(pieces.every(p=>p.parent.parent.position.y===.04),'reduced-motion captive standards preserve the previous fixed height');
     w.update({...s,visibleCells:[6,7,11]});
     assert.ok(standards().every(p=>!p),'a hidden guardian has no special physical stage or secret preview');
     w.update({...s,doors:[{a:7,b:8,open:false}]});
