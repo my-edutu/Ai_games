@@ -3458,13 +3458,28 @@ export function createTowerWorld(){
           const healthRatio=Number.isFinite(guardian.health)&&
             Number.isFinite(guardian.maxHealth)&&guardian.maxHealth>0
             ? THREE.MathUtils.clamp(guardian.health/guardian.maxHealth,0,1):1;
-          const target=unlocked?1:(1-healthRatio)*.72;
+          const winch=snapshot.guardianGateActuation;
+          const genuineWinch=unlocked&&
+            winch?.floor===snapshot.floor&&winch.guardianId===guardian.id&&
+            Number.isSafeInteger(winch.defeatTick)&&
+            Number.isSafeInteger(winch.openAtTick)&&
+            winch.openAtTick>winch.defeatTick&&
+            winch.openAtTick-winch.defeatTick<=80&&
+            snapshot.tick>=winch.defeatTick;
+          const winchProgress=genuineWinch
+            ?THREE.MathUtils.clamp((snapshot.tick-winch.defeatTick)/
+              (winch.openAtTick-winch.defeatTick),0,1):1;
+          // Seventy-two percent of the bronze leaves move as actual HP
+          // drops; the last 28% follows the 20-Hz defeated-guardian winch.
+          // The matching source collider remains solid until full clearance.
+          const target=unlocked?(genuineWinch?.72+.28*winchProgress:1):
+            (1-healthRatio)*.72;
           // A living, physically walking climber can arrive at the
           // AUTHENTICALLY defeated gate faster than presentation easing.
           // Clear the source-open leaves by physical arrival, while keeping
           // the ordinary slow HP-driven counterweights for distant viewers.
           // Never anticipate defeat or bypass the real collider/rules.
-          const arrivalOpen=unlocked&&Number.isFinite(snapshot.player?.x)&&
+          const arrivalOpen=unlocked&&(!genuineWinch||winchProgress>=1)&&Number.isFinite(snapshot.player?.x)&&
             Number.isFinite(p.width)&&p.width>0
             ? THREE.MathUtils.clamp((p.width*.36-
               Math.abs(snapshot.player.x-anchorX))/(p.width*.24),0,1):0;
@@ -3476,8 +3491,9 @@ export function createTowerWorld(){
             const step=Math.min(Math.max(dt,0),.25)*1.8;
             gate.progress+=Math.sign(target-gate.progress)*Math.min(Math.abs(target-gate.progress),step);
           }
-          if(unlocked&&!options.stale)gate.progress=Math.max(gate.progress,arrivalOpen);
-          gate.unlocked=unlocked;
+          if(unlocked&&!options.stale)gate.progress=Math.max(gate.progress,
+            arrivalOpen,genuineWinch?target:0);
+          gate.unlocked=unlocked&&(!genuineWinch||winchProgress>=1);
           for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
           for(const {side,carriage} of gate.counterweights){
             // Slide each mass within its actual vertical steel guide. The old
