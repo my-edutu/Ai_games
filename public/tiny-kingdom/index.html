@@ -5378,6 +5378,7 @@ const CIVIC_CACHE_FLOAT_BUDGET=civicGpuResidencyEnabled?
 const civicSceneryCache=new Map();
 let civicCacheBuilds=0,civicCacheReuses=0,civicCacheEvictions=0,civicActiveKey='';
 let civicBuffer=null,civicChunkRanges=[],civicGpuUploads=0,civicGpuDisposals=0;
+let civicGpuResidencyFailures=0;
 function activeCivicMesh(){return civicGpuResidencyEnabled?(civicSceneryCache.get(civicActiveKey)?.vertices||[]):[]}
 function clearCivicSceneryCache(){
  clearCivicCoreCache();
@@ -5395,7 +5396,8 @@ function civicCacheStats(){
   builds:civicCacheBuilds,reuses:civicCacheReuses,evictions:civicCacheEvictions,
   activeTriangles:(civicSceneryCache.get(civicActiveKey)?.vertices.length||0)/30,
   gpuResident:Boolean(gpuAvailable&&civicBuffer),gpuUploads:civicGpuUploads,
-  gpuDisposals:civicGpuDisposals,gpuTriangles:activeCivicMesh().length/30};
+  gpuDisposals:civicGpuDisposals,allocationFallbacks:civicGpuResidencyFailures,
+  gpuTriangles:activeCivicMesh().length/30};
 }
 let cachedStaticAppendCalls=0,cachedStaticAppendFloats=0;
 let cachedTypedRangeCopies=0,cachedTypedRangeFloats=0;
@@ -5454,7 +5456,19 @@ function rememberCivicScenery(key,source,stats){
  let buffer=null,ranges=[];
  if(civicGpuResidencyEnabled){
   const packed=packLinearResidentScenery(retained,'civic')||packSpatialScenery(retained);
-  buffer=gl.createBuffer();bindGeometry(buffer);
+  buffer=gl.createBuffer();
+  if(!buffer){
+   // Failed WebGL allocation must not discard real roads or render an old
+   // civic quarter. Keep the entire original CPU source in the frame; the
+   // separately retained farm/market core remains drawn without a new upload.
+   const stale=civicSceneryCache.get(key);
+   if(stale?.buffer){releaseGeometryBuffer(stale.buffer);civicGpuDisposals++}
+   civicSceneryCache.delete(key);
+   civicBuffer=null;civicChunkRanges=[];
+   civicGpuResidencyFailures++;
+   return false;
+  }
+  bindGeometry(buffer);
   gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);
   civicGpuUploads++;ranges=packed.ranges;
  }

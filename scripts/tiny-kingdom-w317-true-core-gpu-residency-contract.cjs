@@ -41,6 +41,7 @@ function exercise(hardware){
  };
  vm.runInNewContext(original,env,{timeout:2500});
  const evalCore=s=>vm.runInNewContext(s,env,{timeout:2500});
+ evalCore('activeCivicCoreKey="spring"');
  assert.equal(evalCore('rememberCivicCore("spring",0)'),true);
  assert.equal(gpuCalls.created,hardware?1:0);
  env.data=[];
@@ -59,6 +60,7 @@ function exercise(hardware){
  }
  // A new climate must retain a separately, genuinely seasonal GPU source.
  env.data=Array.from({length:300},(_,i)=>i/8);
+ evalCore('activeCivicCoreKey="autumn"');
  assert.equal(evalCore('rememberCivicCore("autumn",0)'),true);
  assert.equal(gpuCalls.uploads,hardware?2:0);
  evalCore('clearCivicCoreCache()');
