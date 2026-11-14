@@ -1557,19 +1557,24 @@ export function createMazeWorld(options = {}) {
               // their WHOLE attached ceramic shell outside the playable
               // lane and lift it only for the genuine witnessed brace.
               // Same mesh dimensions, public clock and original GPU pools.
+              // Retain the original strict >=.78-world-unit clear aisle:
+              // the reverse brace hinge would otherwise pull the entire
+              // folded fan inward. Outboard attached sail (.57), spar (.44)
+              // and crest (.64) counter that real swing while the sentinel
+              // base remains at the original rooted court-side point.
               const restTilt=alongX?side*1.28:-side*1.28;
               const sail=mesh(sailPivot,bevel,seaGlass,
-                alongX?0:side*.26,.36,alongX?side*.26:0,
+                alongX?0:side*.57,.36,alongX?side*.57:0,
                 alongX?.56:.24,.94,alongX?.24:.56,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
               const spar=mesh(sailPivot,box,darkMetal,
-                alongX?0:side*.09,.38,alongX?side*.09:0,
+                alongX?0:side*.44,.38,alongX?side*.44:0,
                 alongX?.48:.075,.70,alongX?.075:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
               const crest=mesh(sailPivot,bevel,lightStone,
-                alongX?0:side*.29,.82,alongX?side*.29:0,
+                alongX?0:side*.64,.45,alongX?side*.64:0,
                 alongX?.48:.27,.14,alongX?.27:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
