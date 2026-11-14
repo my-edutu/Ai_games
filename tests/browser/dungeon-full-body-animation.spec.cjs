@@ -662,6 +662,34 @@ for(const view of [
     probes:t.nativeLegOwnership?.sourceStanceKneeProbeOutcomes??null,
     proofs:t.nativeLegOwnership?.sourceStanceKneeCurrentFrameProofs??null}))},null,2))
  });
+ // Independently measured original imported source transition: neither a
+ // unit fixture nor a proposed planted sole proves a playable fade.
+ // When the actual desktop/mobile nine-tick GLB witnesses an accelerated
+ // move, require genuine travel, source identity and both original legs.
+ await test.info().attach('original-source-full-skeleton-travel-fade',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'actual-source-GLB-corrective-crossfade-never-an-authority-step',
+   frames:trace.map(t=>({tick:t.tick,
+    sourceClip:t.nativeLegOwnership?.clipName??null,
+    sourceWeight:t.nativeLegOwnership?.originalSourceWeight??null,
+    fade:t.nativeLegOwnership?.originalRealTravelFade??null}))},null,2))
+ });
+ for(const frame of trace){
+  const fade=frame.nativeLegOwnership?.originalRealTravelFade;
+  if(!fade)continue;
+  expect(fade.syntheticContact).toBe(false);
+  expect([.12,.23]).toContain(fade.seconds);
+  if(fade.seconds===.12){
+   expect(fade.sourceClipName).toBe('Walking_A');
+   expect(['Idle','Guard','Block_A','Defend']).toContain(fade.previousSourceClipName);
+   expect(fade.witnessedRootMovement).toBe(true);
+   expect(fade.rootTravelMeters).toBeGreaterThanOrEqual(.012);
+   expect(fade.rootTravelMeters).toBeLessThanOrEqual(.24);
+   expect(fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.008);
+   expect(fade.frameIntervalSeconds).toBeLessThanOrEqual(.24);
+  }
+ }
  // Genuine original-GLB linked leg trial is a FULL chain, not an
  // isolated rotating toe or guessed contact. All accepted real-frame
  // proofs must preserve the untouched source-weighted opposite shoe.
