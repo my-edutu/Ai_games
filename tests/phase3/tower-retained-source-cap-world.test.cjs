@@ -757,7 +757,7 @@ test('real Three world retains the identical old bronze gate across a nine-tick 
   } finally { world.dispose(); }
 });
 
-test('source-earned new-floor FIRST scene includes actual Void load path and closest exterior bay without duplicate cold shaft',async()=>{
+test('source-earned Floor9 keeps its original HP-opened bronze sightline free of the incoming opaque nearest pylon until actual departure',async()=>{
   const [{createTowerWorld}]=await loaded;
   const before=old(),after=next(),world=createTowerWorld();
   const immutable=JSON.stringify([before,after]);
@@ -771,16 +771,21 @@ test('source-earned new-floor FIRST scene includes actual Void load path and clo
     assert.ok(bearing?.isGroup,'actual F9 frame must contain source-gated structural destination');
     assert.ok(bearing.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
       'existing authored Void inner bearing geometry appears alongside original gateway');
-    assert.ok(bearing.getObjectByName('SourceEarnedVoidExteriorButtress')?.isGroup,
-      'the original nearest exterior buttress anchors the same visible threshold');
+    assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
+      'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
+    assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
+      'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
     assert.ok(meshes>0 && meshes<=12,
       'early threshold structure stays a bounded real static batch, not full cold shaft');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
     const pending=world.diagnostics().deferredDistantArrival;
     assert.equal(pending?.actualFirstFrameVoidBearings,true);
-    assert.ok(pending.actualFirstFrameVoidBearingIndex===0 ||
-              pending.actualFirstFrameVoidBearingIndex===1);
+    assert.equal(pending.actualFirstFrameVoidBearingIndex,null,
+      'the nearest pylon must be reserved, not inserted into the first door-camera ray');
+    assert.ok(pending.deferredPhysicalButtressIndex===0 ||
+              pending.deferredPhysicalButtressIndex===1,
+      'source-authored nearest exterior support is identified for deferred world assembly');
     assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined);
     // Genuine source-grounded departure releases the remaining *authored*
     // shaft, but may never reconstruct or double the already visible bay.
@@ -790,12 +795,16 @@ test('source-earned new-floor FIRST scene includes actual Void load path and clo
     world.update(departed,.05,.9,{quality:'low'});
     assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame'),bearing,
       'same GPU structural owner continues through the new shaft upload');
-    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
-      'noninteractive rest of the authored shaft still arrives on source departure');
+    const newShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
+    assert.ok(newShaft,'incoming original support loads only after the real gateway is left behind');
+    assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
+      'the actual new exterior buttresses must still be constructed after departure');
     const copies=[];world.group.traverse(o=>{
       if(o.name==='VoidOpenCoreLoadPath')copies.push(o);
     });
     assert.equal(copies.length,1,'deferred heavy construction cannot double the core');
+    assert.equal(world.group.getObjectByName('platform:f9:ground')!==undefined,true,
+      'same source-owned new-floor platform must remain truly walkable throughout the handoff');
     assert.equal(JSON.stringify([before,after]),immutable);
   }finally{world.dispose();}
 });
