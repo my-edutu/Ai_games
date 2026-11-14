@@ -1077,3 +1077,50 @@ test('D04 original HP impact must retain its observed victim cell and positive d
   }finally{engine.dispose()}
  }
 });
+
+
+test('strict original fatal and nonfatal sounds require the actual post-injury public HP witness',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {isCanonicalVerifiedCombatFoleyCue,createOriginalCombatFoley}=
+  await load('original-combat-foley.js');
+ const previous=snap(10);
+ for(const [remainingHp,kind] of [[18,'damage'],[0,'damage-fatal']]){
+  const now=snap(11,{units:[hero(),foe({hp:remainingHp,action:'hurt',actionTick:11})]});
+  const actual=planPhysicalFeedback(previous,now).find(c=>c.kind===kind);
+  assert.ok(actual,'only a genuinely observed public HP transition establishes the candidate');
+  assert.equal(actual.detail.remainingHp,remainingHp,
+   'strict original impact needs post-damage HP, not merely damage/max HP');
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(actual),true,
+   'both real nonfatal wounds and actual deaths remain authorized');
+  const swapped=kind==='damage'?'damage-fatal':'damage';
+  const invalid=[
+   {...actual,kind:swapped,audio:swapped==='damage-fatal'?'fatal-impact':'impact',
+    id:actual.id.replace(':'+kind+':',':'+swapped+':')},
+   {...actual,detail:{...actual.detail,remainingHp:kind==='damage'?0:18}},
+   {...actual,detail:{...actual.detail,remainingHp:undefined}},
+   {...actual,detail:{...actual.detail,remainingHp:-1}},
+   {...actual,detail:{...actual.detail,remainingHp:actual.detail.maxHp}},
+   {...actual,detail:{...actual.detail,remainingHp:actual.detail.maxHp+1}}
+  ];
+  for(const forged of invalid){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(forged),false,
+    'a self-consistent event ID cannot turn a surviving victim into fatal sound or vice versa');
+   const f=fakeAudio();f.ctx.state='running';
+   const engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+   try{
+    assert.equal(engine.enable(),true);
+    assert.equal(engine.emit(forged),false,'invalid casualty evidence must remain silent');
+    assert.equal(engine.stats().activeVoices,0);
+    assert.equal(engine.stats().confirmedCueIds,0);
+    assert.deepEqual(engine.stats().recentOriginalStarts,[]);
+   }finally{engine.dispose()}
+  }
+  const f=fakeAudio();f.ctx.state='running';
+  const engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(engine.enable(),true);
+   assert.equal(engine.emit(actual),true,'genuine public injury still sounds once');
+   assert.equal(engine.emit(actual),false,'deduplication still rejects replay');
+  }finally{engine.dispose()}
+ }
+});
