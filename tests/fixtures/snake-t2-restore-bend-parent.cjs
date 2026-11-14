@@ -89,6 +89,39 @@ function restoreBendParent(source) {
   if(s<0||e<s||old.indexOf(p,s+1)>=0||old.indexOf(q,e+1)>=0)
     throw new Error('T2 exact-source pigment bracket missing or ambiguous');
   old=old.slice(0,s)+oldPigment+old.slice(e+q.length);
+  // Reverse the exact later T4 progressive GPU-buffer allocation before
+  // comparing against the immutable df113 T2 control. The old Git blob digest
+  // remains unchanged; require BOTH intermediate hashes and original digest.
+  const sealed=(chunk,sha)=>crypto.createHash('sha256').update(chunk).digest('hex')===sha;
+  const gpuHead='  // Complete GPU buffers previously reserved all 8192 possible rings at first\n';
+  const gpuTail='  // BEGIN R36 INDEX STATE\n';
+  const h=old.indexOf(gpuHead),t=old.indexOf(gpuTail,h+gpuHead.length);
+  if(h<0||t<=h||old.indexOf(gpuHead,h+1)>=0||
+    !sealed(old.slice(h,t),'715189f9282d9de943e192a30739f805dfeb93314f8d4bc279c638173ff523a6'))
+    throw new Error('T4 native GPU initial buffer source drift');
+  const oldGpu=`  let activeRadial = RADIAL, activeRing = RING, lowDetail = false;
+  const positions = new Float32Array(MAX_RINGS * RING * 3);
+  const normals = new Float32Array(MAX_RINGS * RING * 3);
+  const uvs = new Float32Array(MAX_RINGS * RING * 2);
+  const indices = new Uint32Array(MAX_RINGS * RADIAL * 6);
+  const bodyGeometry = ownGeometry(new THREE.BufferGeometry());
+  const positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
+  const normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+  const uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
+  const indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
+`;
+  old=old.slice(0,h)+oldGpu+old.slice(t);
+  const grow='  function reserveBodyRings(needed) {\n',write='  function writeRing(';
+  const g=old.indexOf(grow),w=old.indexOf(write,g+grow.length);
+  if(g<0||w<=g||old.indexOf(grow,g+1)>=0||
+    !sealed(old.slice(g,w),'1cfacacd2cdb22399527e0668c23967647f7b0c5401eb054207cc4b8a0e7a37e'))
+    throw new Error('T4 native GPU growth source drift');
+  old=old.slice(0,g)+old.slice(w);
+  const afterGrow='    reserveBodyRings(ringCount + 1);\n';
+  const counter='      // CPU backing / first GPU allocation bytes, NOT measured displayed FPS.\n      bodyCapacityRings: ringCapacity, bodyReallocations,\n';
+  if(old.split(afterGrow).length!==2||old.split(counter).length!==2)
+    throw new Error('T4 native GPU call/counter source drift');
+  old=old.replace(afterGrow,'').replace(counter,'');
   if(blob(old)!==previousBlob)throw new Error('Original exact Git source hash mismatch');
   return old;
 }
