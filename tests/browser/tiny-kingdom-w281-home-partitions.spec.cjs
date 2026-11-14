@@ -83,3 +83,41 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.screenshot({path:'artifacts/tiny-kingdom-w281/real-housing-'+viewport.width+'.png'});
  });
 }
+
+
+test('W324 true 390px camera orbit reuses live citizen two-bone pose without changing the saved world',async({page})=>{
+ test.setTimeout(240000);
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setViewportSize({width:390,height:844});
+ await page.setContent(HTML);
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>90000,null,{timeout:110000});
+ const original=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;g.setSpeed(0);
+  // This is the real adult, authentic job and actual IK exposed by the
+  // production game, not a mocked pose or staged courier.
+  g.getRigPose(0);
+  return {audit:g.getCitizenRigCacheAudit(),world:JSON.stringify(g.exportSnapshot()),
+   view:g.getCamera()};
+ });
+ for(let i=0;i<4;i++){
+  await page.evaluate(({yaw,i})=>{
+   const g=window.__tinyKingdom;
+   g.setCamera({yaw:yaw+(i+1)*.07});
+   g.getRigPose(0);
+  },{yaw:original.view.yaw,i});
+ }
+ const after=await page.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {audit:g.getCitizenRigCacheAudit(),world:JSON.stringify(g.exportSnapshot()),
+   gl:document.querySelector('#world').getContext('webgl')?.getError(),
+   overflow:document.documentElement.scrollWidth-innerWidth};
+ });
+ expect(after.audit.cameraOnlyPoseReuses).toBeGreaterThan(original.audit.cameraOnlyPoseReuses);
+ expect(after.audit.builds).toBe(original.audit.builds);
+ expect(after.world).toBe(original.world);
+ expect(after.gl).toBe(0);
+ expect(after.overflow).toBeLessThanOrEqual(0);
+ expect(errors).toEqual([]);
+ fs.mkdirSync('artifacts/tiny-kingdom-w281',{recursive:true});
+ await page.screenshot({path:'artifacts/tiny-kingdom-w281/w324-genuine-orbit-390.png'});
+});
