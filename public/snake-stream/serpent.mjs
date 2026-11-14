@@ -257,16 +257,23 @@ export function createSerpent(THREE) {
   // One draw call for every contiguous body piece. Indices are written only
   // between rings belonging to the same path, never across a portal gap.
   const RADIAL = 20, RING = RADIAL + 1, MAX_RINGS = 8192;
+  // Complete GPU buffers previously reserved all 8192 possible rings at first
+  // paint: 9 MiB of vertex/index storage for ~88 visible overview rings.
+  // Keep the SAME ring math, triangles, public portal breaks and hard maximum,
+  // but allocate a useful 512-ring body initially. Bounded doubling is only
+  // needed when a genuine longer public snake outgrows this actual capacity.
+  // Never try to resize a live WebGL BufferAttribute: Three.js prohibits it.
+  let ringCapacity = 512, bodyReallocations = 0;
   let activeRadial = RADIAL, activeRing = RING, lowDetail = false;
-  const positions = new Float32Array(MAX_RINGS * RING * 3);
-  const normals = new Float32Array(MAX_RINGS * RING * 3);
-  const uvs = new Float32Array(MAX_RINGS * RING * 2);
-  const indices = new Uint32Array(MAX_RINGS * RADIAL * 6);
-  const bodyGeometry = ownGeometry(new THREE.BufferGeometry());
-  const positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
-  const normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
-  const uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
-  const indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
+  let positions = new Float32Array(ringCapacity * RING * 3);
+  let normals = new Float32Array(ringCapacity * RING * 3);
+  let uvs = new Float32Array(ringCapacity * RING * 2);
+  let indices = new Uint32Array(ringCapacity * RADIAL * 6);
+  let bodyGeometry = ownGeometry(new THREE.BufferGeometry());
+  let positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
+  let normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+  let uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
+  let indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
   // BEGIN R36 INDEX STATE
   // A changing pose need not re-upload an unchanged body index topology.
   // Break positions preserve separated portal fragments and ring cap boundaries.
@@ -580,8 +587,45 @@ export function createSerpent(THREE) {
     sample.dx = da*p1.x + db*m1x + dc*p2.x + dd*m2x;
     sample.dz = da*p1.z + db*m1z + dc*p2.z + dd*m2z;
   }
+  function reserveBodyRings(needed) {
+    if (needed <= ringCapacity) return;
+    const nextCapacity = Math.min(MAX_RINGS, Math.max(needed, ringCapacity * 2));
+    const expand = (old, length) => {
+      const next = new old.constructor(length);
+      next.set(old);
+      return next;
+    };
+    positions = expand(positions, nextCapacity * RING * 3);
+    normals = expand(normals, nextCapacity * RING * 3);
+    uvs = expand(uvs, nextCapacity * RING * 2);
+    indices = expand(indices, nextCapacity * RADIAL * 6);
+    // Three's WebGLAttributes cannot resize a registered GPU buffer in place.
+    // Dispose the actual previous geometry on the same frame so repeated
+    // growth cannot retain dead buffers, shaders or vertex-array objects.
+    const old = bodyGeometry;
+    bodyGeometry = ownGeometry(new THREE.BufferGeometry());
+    positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
+    normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+    uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
+    indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
+    bodyGeometry.setAttribute('position', positionAttribute);
+    bodyGeometry.setAttribute('normal', normalAttribute);
+    bodyGeometry.setAttribute('uv', uvAttribute);
+    bodyGeometry.setIndex(indexAttribute);
+    body.geometry = bodyGeometry;
+    geometries.delete(old);
+    old.dispose();
+    ringCapacity = nextCapacity;
+    bodyReallocations++;
+    // Fresh GPU attributes must upload every used byte and portal-break index,
+    // even when the last public pose happened to be stable or reduced-motion.
+    uploadedIndexCount = uploadedRadial = -1;
+    uploadedBreaks.length = 0;
+    lastReducedBodySignature = null;
+  }
   function writeRing(x, z, dx, dz, radius, distance, y, connect, lateral = 0, camber = 0) {
     if (ringCount >= MAX_RINGS) { truncated = true; return false; }
+    reserveBodyRings(ringCount + 1);
     // BEGIN R36 CONTINUITY MARK
     if (!connect) currentBreaks.push(ringCount);
     // END R36 CONTINUITY MARK
@@ -938,6 +982,8 @@ export function createSerpent(THREE) {
       geometries: geometries.size, materials: materials.size, textures: textures.size,
       bodyRings: ringCount, bodyVertices: ringCount * activeRing, detail: lowDetail ? 'low' : 'high', bodyTriangles: indexCount / 3,
       paths: pathCount, maxBodyRings: MAX_RINGS, truncated, disposed,
+      // CPU backing / first GPU allocation bytes, NOT measured displayed FPS.
+      bodyCapacityRings: ringCapacity, bodyReallocations,
       gaze: { horizontal: gazeX, vertical: gazeY },
       // BEGIN R36 DIAGNOSTIC COUNTERS
       indexUploadRequests, indexReuseFrames,

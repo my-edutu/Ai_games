@@ -1,10 +1,21 @@
 {
-  "updatedAt": "2026-11-13",
-  "status": "T0 UNSIGNED / T1 BUILDING visually SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (new stable-shot cache candidate native-only)",
-  "detail": "Exact d803 source Chromium #43505303842: original strict 1/17 genuine complete desktop WebGL submissions, 751x415 raster, 754 GPU queue skips, one cache build/one cache hit, 17 pressure-direct frames, browser 52/95. General native #43505303729 726/795, offline reproduction success. T4 complete-fence stable-camera cache recovery RED 0/3 on immutable d803 parent -> GREEN 3/3 candidate; wider source-exact 51/71 parent -> 54/71 candidate with same 17 inherited failures, TypeScript, 900 authority/recovery and 10k headless PASS. NO same-new-head Chromium visual or performance proof, full green CI or independent quality acceptance. Never merge/deploy.",
+  "updatedAt": "2026-11-14",
+  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (progressive body buffers native proven only)",
+  "detail": "Exact a99 parent strict Chromium #43522211760: 1/17 actual full WebGL submissions, 751x415, 754 queue skips; 53/95 browser, native CI inherited failing. T4 source-exact 8192-ring to 512 initial, full original mesh/texture/quality retained; 9,437,184 -> 589,824 native buffer bytes; 260-body 2048 ring bound and retired GPU geometry dispose. RED parent 0/2 -> GREEN candidate 2/2, related 9/9, TS and 900 authoritative self-test pass, 10,000 seeded ticks with no invariant failures, seven source/candidate geometry hashes identical. New-head WebGL/physical FPS unmeasured, T1 full scene remains rejected.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "NOT ACCEPTED: authentic d803 world remains a rectangular tiled court; strict full-scene 1-second WebGL remains 1/17 with 754 queue skips. Native certified camera cache recovery is BUILDING only; real new-head WebGL footage/physical presents pending.",
+  "latestCaption": "UNACCEPTED original-head screenshot: rectangular tiled court and small hero remain. T4 native buffer reservation fix does not establish displayed FPS or a visual transformation; strict 1/17 same-head remains stop-ship.",
   "reviews": [
+    {
+      "area": "2026-11-14 T4 progressive actual high-detail serpent GPU body storage (NATIVE ONLY, HARD RED)",
+      "sourceHead": "a99a79e268ac6cd00e24875a68d64dcb1238fbbb",
+      "serpentParentBlob": "2418288cd8a7c7e8712c6e70953cefaa45e66525",
+      "serpentCandidateBlob": "0ec3f9c5eed3482e606d569abc3fb71d154e9737",
+      "testBlob": "881bb509f3e085c8cfaf0601121aa6c13f7f1c77",
+      "browser": "Original real a99 #43522211760: 1/17 complete / 751x415 / 754 skips; no new-head Chromium yet",
+      "native": "RED 0/2 -> GREEN 2/2; related 9/9; TypeScript, 900 authority and 10000 seeded ticks PASS; identical seven drawn-source native geometry hashes",
+      "buffers": "9,437,184 baseline bytes -> 589,824 first 512 rings, 2,359,296 at 2048 rings for 260-body; no geometry/content/quality reduction",
+      "verdict": "T0 UNSIGNED, T1 BUILDING visually self-rejected, T2/T3 BUILDING, T4 HARD RED; not accepted; independent critic pending"
+    },
     {
       "area": "2026-11-13 T4 completed-current-shot GPU-fence cache recovery (native-verified, full-game performance UNACCEPTED)",
       "sourceHead": "d80360437f04e5e65d6c1a270a1386b623d8f05d",
