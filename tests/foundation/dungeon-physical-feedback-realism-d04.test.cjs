@@ -952,3 +952,48 @@ test('D04 revoking an interrupted Warden release hides its GPU signal draw and u
   assert.equal(stage.hasDrawableCue(release.id),false);
  }finally{stage.dispose()}
 });
+
+
+test('D04 ranger and cultist releases require current unique public action witnesses, not stale drawn actors',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const make=(id,kind,action)=>({id,kind,faction:kind==='ranger'?'party':'enemy',
+  x:2,z:2,hp:24,action,actionTick:11});
+ const ranger=make('ranger','ranger','attack');
+ const cultist=make('cultist','cultist','cast');
+ const bodies=new Map([ranger,cultist].map(u=>[u.id,{u:{...u},authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}}]));
+ let current={run:1,floor:1,tick:11,units:[{...ranger},{...cultist}]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>bodies.get(id),getCurrentSnapshot:()=>current});
+ const release=(id,kind)=>cue({id:'1:1:11:release:'+id+':victim',
+  sceneKey:'1:1',tick:11,kind:kind==='ranger'?'ranged-release':'spell-release',
+  visual:kind==='ranger'?'launch':'cast',audio:kind==='ranger'?'ranged-release':'spell-release',
+  proof:'authority-action',verified:true,actorId:id,targetId:'victim',
+  from:{x:2,z:2},to:{x:4,z:2},duration:.28});
+ const shot=release('ranger','ranger'),spell=release('cultist','cultist');
+ const check=(snapshot,c,isValid,why)=>{
+  stage.reset();current=snapshot;
+  assert.equal(stage.hasAuthenticatedReleasePose(c),isValid,why+' (audio)');
+  assert.equal(stage.emit(c),isValid,why+' (visual)');
+  if(!isValid)assert.equal(stage.stats().active,0,'rejected release leaves no flight');
+ };
+ try{
+  check(current,shot,true,'same-tick ranger action and visible performer may launch');
+  check(current,spell,true,'same-tick cultist cast and visible performer may launch');
+  check({...current,tick:12},shot,false,'a new public tick revokes yesterday\'s cached shooter');
+  check({...current,tick:12},spell,false,'a new public tick revokes yesterday\'s cached caster');
+  check({...current,units:[{...ranger,action:'idle',actionTick:12},cultist]},
+   shot,false,'publicly ended attack revokes cached attack pose');
+  check({...current,units:[ranger,{...ranger},cultist]},shot,false,
+   'duplicate public source identity must not choose an arbitrary shooter');
+  check({...current,units:[{...ranger,x:3},cultist]},shot,false,
+   'public moved source cannot use old muzzle position');
+  check({...current,units:[{...ranger,hp:0},cultist]},shot,false,
+   'dead public shooter cannot launch from a cached living rig');
+  check({...current,run:2},spell,false,'old-floor cast cannot borrow a new run');
+  check({...current,units:[ranger,{...cultist,actionTick:12}]},
+   spell,false,'newer public cast tick revokes old spell');
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
+});
