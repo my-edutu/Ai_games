@@ -3644,6 +3644,10 @@ void main(){
   c*=.75+.38*noise3(vWorld*3.5);
   c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
  }else if(vMaterial>4.5&&vMaterial<5.5){
+  // W313: keep full physically shaded materials on hardware; on software
+  // use the identical baked original architectural atlas, not duplicate
+  // expensive 3D noise at every stone/wood/clay/plaster fragment.
+  if(groundAtlasFast<.5){
   // G054 dressed stone: offset rectangular courses, recessed mortar,
   // block-to-block mineral tint and bevel-lit edges rather than flat chalk.
   vec2 uv=abs(n.y)>.67?vWorld.xz:(abs(n.x)>abs(n.z)?vWorld.zy:vWorld.xy);
@@ -3658,10 +3662,20 @@ void main(){
   float pores=noise3(vWorld*7.);
   c*=mix(.42,.93,mortar)*(.84+.20*bevel);
   c*=mix(.79,1.19,blockShade)*mix(.92,1.08,pores);
+  }else c*=.85;
  }else if(vMaterial>5.5&&vMaterial<6.5){
+  // W313: keep full physically shaded materials on hardware; on software
+  // use the identical baked original architectural atlas, not duplicate
+  // expensive 3D noise at every stone/wood/clay/plaster fragment.
+  if(groundAtlasFast<.5){
   float fibers=.5+.5*sin(vWorld.y*45.+noise3(vWorld*2.5)*3.);
   c*=.90+.16*mix(fibers,noise3(vWorld*7.),.45);
+  }else c*=.96;
  }else if(vMaterial>6.5&&vMaterial<7.5){
+  // W313: keep full physically shaded materials on hardware; on software
+  // use the identical baked original architectural atlas, not duplicate
+  // expensive 3D noise at every stone/wood/clay/plaster fragment.
+  if(groundAtlasFast<.5){
   // G054 roof tiling: staggered overlapping earthen shingles with distinct
   // tile pigment and sunken seams; procedural and copyright-clean.
   vec2 shingle=vWorld.xz*vec2(2.35,3.25);
@@ -3674,7 +3688,12 @@ void main(){
   float soot=noise3(vWorld*vec3(2.9,3.2,2.8));
   c*=mix(.51,1.,joint)*mix(.79,1.17,tileTone)*(.79+.23*soot+.09*overlap);
   c=mix(c,c*vec3(.79,.83,.81),max(0.,soot-.65)*.24);
+  }else c*=.81;
  }else if(vMaterial>7.5&&vMaterial<8.5){
+  // W313: keep full physically shaded materials on hardware; on software
+  // use the identical baked original architectural atlas, not duplicate
+  // expensive 3D noise at every stone/wood/clay/plaster fragment.
+  if(groundAtlasFast<.5){
   // G057: limewashed Tudor plaster is neither bare stone nor woven cloth.
   // Fine aggregate, imperfect trowel colour and vertical rain runoff are
   // stable in world space. Only explicitly tagged plaster receives these.
@@ -3684,6 +3703,7 @@ void main(){
   float runoff=smoothstep(.60,.83,rainStreak)*(.22+.38*weatherWetness);
   c*=mix(.86,1.11,chalkGrain)*mix(.96,1.04,limePores);
   c*=mix(vec3(1.),vec3(.73,.79,.74),runoff);
+  }else c*=.96;
  }
  // G128: every real village wall/roof/road now shares one original baked
  // architectural material language. No new triangles, replacement actors,
@@ -11330,6 +11350,7 @@ function getMarketGatewayAudit(){
 }
 let marketQuarterStats={stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
    reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
+   openRearScreenPanels:0,openRearScreenGaps:0,
    carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
  entryArchZ:MARKET_ENTRY_ARCH.z,entryPathStones:0,totalTriangles:0,cached:false};
 let marketStockTriangles=0;
@@ -12228,6 +12249,36 @@ function grainwardArtisanShopEnvelope(stall,index,profile){
   navigationChanged:false,newCollidablePosts:0,
   addedDrawCalls:0,noNewGpuBuffers:true};
 }
+// W313: light, genuinely open oak-lattice rear joinery in the SAME
+// four original market shops. The retained display counter still supports
+// authoritative inventory, and physical camera bounds share these boards.
+function originalMarketOpenRearScreenPlan(stall){
+ const y=terrain(stall.x,stall.z),rear=stall.z-stall.face*.84;
+ const slats=[];
+ for(const offset of [-1.04,0,1.04])
+  slats.push({x:stall.x+offset,z:rear,width:.105,depth:.11,
+   bottom:y+.17,top:y+.84,role:'upright'});
+ for(const level of [.26,.58])
+  slats.push({x:stall.x,z:rear,width:2.46,depth:.11,
+   bottom:y+level,top:y+level+.085,role:'cross-rail'});
+ return slats;
+}
+function renderOpenRearTradeScreen(stall,timber,trim){
+ const rearSlats=originalMarketOpenRearScreenPlan(stall),face=stall.face;
+ for(const slat of rearSlats){
+  const xa=slat.x-slat.width*.5,xb=slat.x+slat.width*.5;
+  const lo=slat.bottom,hi=slat.top;
+  const front=slat.z+face*slat.depth*.5;
+  const rear=slat.z-face*slat.depth*.5;
+  const tone=slat.role==='upright'?timber:trim;
+  const fa=[xa,lo,front],fb=[xb,lo,front],fc=[xb,hi,front],fd=[xa,hi,front];
+  const ba=[xa,lo,rear],bb=[xb,lo,rear],bc=[xb,hi,rear],bd=[xa,hi,rear];
+  if(face>0){quad(fa,fb,fc,fd,tone);quad(bd,bc,bb,ba,tone);}
+  else{quad(fd,fc,fb,fa,tone);quad(ba,bb,bc,bd,tone);}
+ }
+ marketQuarterStats.openRearScreenPanels+=rearSlats.length;
+ marketQuarterStats.openRearScreenGaps+=2;
+}
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
  const profile=marketStallProfile(index);
@@ -12250,8 +12301,9 @@ function marketStall(s,index){
   box(x,y+.99,z+face*.54,w-.37,.11,.58,rgb(0xaa8059));
   box(x,y+.77,z+face*.68,w-.32,.13,.11,trim);
   box(x,y+.20,z-face*.67,w-.25,.13,.32,timber);
-  // Half-height BACK screen, never a fake new business/occupied building.
-  box(x,y+.17,z-face*.84,w-.40,.67,.11,rgb(0x8d6b4d));
+  // Reconstruct the actual shop rear as open joinery, not a solid chest.
+  // Full original wood display top and spendable inventory remain.
+  renderOpenRearTradeScreen(s,timber,trim);
   // The former bare tent now has a proper plaster-and-timber rear gable.
   // The merchant/receiving face is untouched and completely open.
   materialScope(MATERIAL.PLASTER,()=>{
@@ -21886,8 +21938,9 @@ function physicalStreetLevelStallVolumes(){
    y+.99,y+1.10);
   // Real broad rear wooden trade screen: this filled most of W309's
   // supposedly unobstructed 1024px workday camera.
-  add('market-stall-screen',x,z-face*.84,(2.85-.40)/2,.11/2,
-   y+.17,y+.84);
+  for(const slat of originalMarketOpenRearScreenPlan(stall))
+   add('market-stall-screen',slat.x,slat.z,
+    slat.width*.5,slat.depth*.5,slat.bottom,slat.top);
   if(profile.structural){
    // Real occupied-looking upper tradehouse mass, above the OPEN counter.
    add('market-stall-upper-wall',x,z-face*.61,2.37/2,.58/2,
