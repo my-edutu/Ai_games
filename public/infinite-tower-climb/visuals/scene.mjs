@@ -5107,22 +5107,41 @@ export function createTowerScene(canvas, settings = {}) {
       // No second render, held pose, gameplay or authoritative movement.
       const crossing = snapshot?.lastGuardianCrossing;
       const liveBody = snapshot?.player;
+      const originalDoorway = world.retainedFilmHandoff?.(snapshot) ?? null;
+      const immutableCrossing = crossing?.runToken === snapshot?.runToken &&
+        crossing.fromFloor === 8 && crossing.toFloor === 9 &&
+        crossing.guardian?.kind === 'guardian' &&
+        crossing.guardian.active === false &&
+        Number.isSafeInteger(crossing.guardian.health) &&
+        crossing.guardian.health <= 0 &&
+        crossing.cap?.id === 'f8:cap' &&
+        [snapshot.tick, crossing.sourceTick, crossing.exitX,
+          crossing.cap.y, crossing.cap.height, liveBody?.halfHeight]
+          .every(Number.isSafeInteger) &&
+        snapshot.tick >= crossing.sourceTick &&
+        snapshot.tick-crossing.sourceTick <= 55;
+      // Native original desktop crossed at source tick475; first F9 returned
+      // on that SAME validated browser receipt, while lastGuardianCrossing
+      // was not yet published. Capture its actual submitted lens and physical
+      // gateway geometry without asserting an imaginary immutable event.
+      const firstGroundedReceipt = crossing == null &&
+        originalDoorway?.verifiedObservedFloorAdvance === true &&
+        originalDoorway.guardianGateRetained === true &&
+        originalDoorway.runToken === snapshot?.runToken &&
+        originalDoorway.floor === 9 &&
+        Number.isSafeInteger(originalDoorway.sourceTick) &&
+        Number.isSafeInteger(originalDoorway.thresholdX) &&
+        Number.isSafeInteger(originalDoorway.oldRoofY) &&
+        Number.isSafeInteger(snapshot?.tick) &&
+        snapshot.tick >= originalDoorway.sourceTick &&
+        snapshot.tick-originalDoorway.sourceTick <= 12;
+      const realDoorwayAnchor = immutableCrossing?crossing.sourceTick:
+        firstGroundedReceipt?originalDoorway.sourceTick:null;
       if (!options.stale && snapshot?.lifecycle === 'running' &&
           snapshot.floor === 9 && snapshot.theme === 'void' &&
-          crossing?.runToken === snapshot.runToken &&
-          crossing.fromFloor === 8 && crossing.toFloor === 9 &&
-          crossing.guardian?.kind === 'guardian' &&
-          crossing.guardian.active === false &&
-          Number.isSafeInteger(crossing.guardian.health) &&
-          crossing.guardian.health <= 0 &&
-          crossing.cap?.id === 'f8:cap' &&
-          [snapshot.tick, crossing.sourceTick, crossing.exitX,
-            crossing.cap.y, crossing.cap.height, liveBody?.halfHeight]
-            .every(Number.isSafeInteger) &&
-          liveBody.health > 0 && liveBody.halfHeight > 0 &&
-          snapshot.tick >= crossing.sourceTick &&
-          snapshot.tick - crossing.sourceTick <= 55) {
-        const episode = String(snapshot.runToken) + ':' + crossing.sourceTick;
+          liveBody?.health > 0 && liveBody.halfHeight > 0 &&
+          (immutableCrossing || firstGroundedReceipt)) {
+        const episode = String(snapshot.runToken) + ':' + realDoorwayAnchor;
         if (physicalDoorwayAuditEpisode !== episode) {
           physicalDoorwayAuditEpisode = episode;
           physicalDoorwaySubmissionAudit.length = 0;
@@ -5130,9 +5149,11 @@ export function createTowerScene(canvas, settings = {}) {
         // One witness per genuine source tick, not every 60-Hz video frame.
         if (physicalDoorwaySubmissionAudit.length < 56 &&
             physicalDoorwaySubmissionAudit.at(-1)?.sourceTick !== snapshot.tick) {
-          const retained = world.retainedFilmHandoff?.(snapshot) ?? null;
+          const retained = originalDoorway;
           const pose = guardianTraversalGatePose(
-            crossing.exitX, crossing.cap.y + crossing.cap.height,
+            immutableCrossing?crossing.exitX:originalDoorway.thresholdX,
+             immutableCrossing?crossing.cap.y + crossing.cap.height:
+               originalDoorway.oldRoofY,
             snapshot.chunkBaseY, snapshot.worldWidth);
           const heroWorld = climber.group.position.clone();
           heroWorld.y += liveBody.halfHeight / SCALE;
@@ -5157,7 +5178,11 @@ export function createTowerScene(canvas, settings = {}) {
                 climber.group.position, camera.aspect, zoom) : null;
           physicalDoorwaySubmissionAudit.push({
             sourceTick: snapshot.tick,
-            crossingTick: crossing.sourceTick, runToken: snapshot.runToken,
+            crossingTick: immutableCrossing?crossing.sourceTick:null,
+             observedOriginalReceiptTick:firstGroundedReceipt?realDoorwayAnchor:null,
+             evidenceKind:immutableCrossing?'immutable-defeated-guardian':
+               'verified-original-grounded-source-receipt',
+             runToken: snapshot.runToken,
             floor: snapshot.floor, cameraMode: options.camera,
             returnedWebglMs: Number(rendererReturnedAt.toFixed(2)),
             renderReturnCostMs: Number((rendererReturnedAt - sceneReadyAt).toFixed(2)),
@@ -5170,7 +5195,7 @@ export function createTowerScene(canvas, settings = {}) {
             cameraAzimuth: Number(Math.atan2(
               camera.position.x, camera.position.z).toFixed(4)),
             opticalFov: Number(camera.fov.toFixed(3)),
-            evidence: 'Returned source-owned Three.js camera projection; not proof of native WebM pixels or visual quality',
+            evidence: 'Actual returned 3D camera; provisional receipt is not immutable victory, projected NDC is not native painted pixels, FPS or acceptance',
           });
         }
       }
