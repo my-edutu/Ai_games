@@ -30,7 +30,7 @@ const key=(climate='spring',light='day')=>
   JSON.stringify(light)+')',context,{timeout:500});
 const founding=key();
 assert.equal(key(),founding);
-city.push([70,70,2]);
+city.push([-30,-20,2]);
 assert.equal(key(),founding,'distant real home must NOT rebuild the farm/market civic mesh');
 const oldBuilds=context.civicRoadMemo.recomputations;
 assert.ok(oldBuilds>=1,'initial genuine founder civic routes were inspected');
