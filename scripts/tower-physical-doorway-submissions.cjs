@@ -46,6 +46,7 @@ function summarizePhysicalDoorwaySubmissions(observations, limit = 56) {
       if (!episode.has(frame.sourceTick) && episode.size < limit)
         episode.set(frame.sourceTick, {
           ...frame,
+          episodeAnchorTick:anchorTick,
           evidenceClassification: hasRecord
             ? 'immutable-source-crossing-record'
             : 'verified-grounded-source-receipt-only',
@@ -90,7 +91,7 @@ function summarizePhysicalDoorwaySubmissions(observations, limit = 56) {
     state:'RETURNED_WEBGL_PROJECTIONS_ONLY', nativeVerdict:'NOT EVALUATED',
     firstEpisode:episode, observedEpisodeCount:episodes.size,
     returnedFrameCount:frames.length,
-    firstReturnedSourceGapTicks:firstFrame.sourceTick-firstFrame.crossingTick,
+    firstReturnedSourceGapTicks:firstFrame.sourceTick-firstFrame.episodeAnchorTick,
     retainedOriginalGpuFrames:originalRetained,
     originalGroundedReceiptFrames,
     immutableGuardianRecordFrames,
