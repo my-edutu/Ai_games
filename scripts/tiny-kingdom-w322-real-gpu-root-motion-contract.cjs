@@ -68,6 +68,14 @@ assert(Math.abs(actual.at(-1).segments[1][1][0]-
  (person.x-rig.legs[0].knee[2]*Math.SQRT1_2))>.01 ||
  Math.abs(actual.at(-1).segments[1][1][2]-person.z)>.01,
  'real worker joint must show rotation, not unaltered stale coordinates');
+// Working full-detail skin must follow the actual job contact, not a stale
+// destination waypoint when the citizen is swinging a physical tool.
+rig.working=true;rig.acting={lean:0,crouch:0};
+person.path=[[3,9]];person.focus=[4,4];person.phase+=.5;
+compose(entry,person,'detailedBonePalette',true);
+assert(Math.abs(actual.at(-1).segments[1][1][0]-(3+rig.legs[0].knee[2]))<1e-6,
+ 'actual worksite focus must rotate the GPU-skinned body/tools like original villager()');
+rig.working=false;
 // Exact unchanged world must reuse existing bounded palette, not resculpt it.
 const before=actual.length;
 compose(entry,person,'compactBonePalette',false);
