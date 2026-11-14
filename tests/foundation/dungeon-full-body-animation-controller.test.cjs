@@ -5646,3 +5646,32 @@ test('RED: imported licensed full-skeleton walk catches up to witnessed sparse r
  ])assert.equal(fade({...original,...mutation}),.23,
    'no fake catchup on unknown/unsafe source or impossible cadence: '+JSON.stringify(mutation));
 });
+
+
+// 14 Nov exact original 390px CC0 nine-tick WebGL: mobile tick 8 inherited
+// source Idle -> Walking_A despite genuine .44m root displacement over
+// 1.7667 seconds. The existing 1.2s artificial clip-fade cutoff returns
+// .23s while the previous .44m/.63s steps use a coupled .09s full-body fade.
+// This is SOURCE playback ownership only, not a contact or stride invention.
+// Verified full skeleton, 41 inverse-bound joints and attached handslot remain.
+test('RED: genuine 390px long source frame must complete Walking_A full-body ownership without pretending to plant',async()=>{
+ const {planImportedRealTravelCrossfade:fade}=await load();
+ const witness={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  ownerLocomotion:true,groundedMoving:true,
+  groundedTravel:.43999999999999995,frameInterval:1.7667000000000073,
+  alive:true,visible:true,teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(fade(witness),.09,
+  'the actual mobile original .44m/1.77s full-skeleton walk should not linger in Idle');
+ assert.equal(fade({...witness,previousMode:'guard'}),.09);
+ assert.equal(fade({...witness,frameInterval:1.2}),.09);
+ for(const change of [
+  {groundedTravel:.3},{groundedTravel:.55},{groundedTravel:.005},
+  {frameInterval:1.95},{frameInterval:0},{frameInterval:3},
+  {frameInterval:1.83,groundedTravel:.42},
+  {mode:'hurt'},{mode:'attack'},{mode:'cast'},{mode:'defeat'},
+  {sourceClipName:'Idle'},{previousMode:'attack'},
+  {ownerLocomotion:false},{groundedMoving:false},{visible:false},
+  {reducedMotion:true},{teleport:true},{interrupted:true},{alive:false}
+ ])assert.equal(fade({...witness,...change}),.23,
+  'invalid, physically unobserved or interrupted imported walk retains .23s crossfade: '+JSON.stringify(change));
+});
