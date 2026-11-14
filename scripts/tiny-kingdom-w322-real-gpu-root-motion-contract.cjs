@@ -37,6 +37,7 @@ const context=vm.createContext({people:[person],state:{t:18},
  citizenRigPose:()=>rig,citizenEmbodiedPose:()=>body,
  terrain:height,
  realForegroundFacing:p=>Math.atan2(p.path[0][0]-p.x,p.path[0][1]-p.z),
+ realCommuterFacing:p=>Math.atan2(p.path[0][0]-p.x,p.path[0][1]-p.z),
  realWorkerFacing:p=>Math.atan2(p.focus[0]-p.x,p.focus[1]-p.z),
  retainWorkerSkinPalette:(entry,segments,slot)=>{
   actual.push({slot,segments:JSON.parse(JSON.stringify(segments))});
@@ -68,6 +69,15 @@ assert(Math.abs(actual.at(-1).segments[1][1][0]-
  (person.x-rig.legs[0].knee[2]*Math.SQRT1_2))>.01 ||
  Math.abs(actual.at(-1).segments[1][1][2]-person.z)>.01,
  'real worker joint must show rotation, not unaltered stale coordinates');
+// A real moving compact villager faces its next actual route waypoint,
+// NOT a former job focus (which can point in the opposite direction).
+const next=person.path[0];
+const travelAngle=Math.atan2(next[0]-person.x,next[1]-person.z);
+const knee=rig.legs[0].knee;
+const expectedTravelKneeX=person.x+Math.cos(travelAngle)*knee[0]+
+ Math.sin(travelAngle)*knee[2];
+assert(Math.abs(actual.at(-1).segments[1][1][0]-expectedTravelKneeX)<1e-6,
+ 'original compact commuter must face real route instead of stale profession focus');
 // Working full-detail skin must follow the actual job contact, not a stale
 // destination waypoint when the citizen is swinging a physical tool.
 rig.working=true;rig.acting={lean:0,crouch:0};
