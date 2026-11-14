@@ -51,6 +51,71 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   const position = new THREE.Vector3(), normal = new THREE.Vector3();
   oldFloor.updateWorldMatrix(true,true);
   inverse.copy(oldFloor.matrixWorld).invert();
+  // Clip the ACTUAL original source triangles against a finite 3D gateway
+  // aperture. A roof-spanning steel bearing often has vertices outside the
+  // visible envelope even while its real face crosses the bronze doorway.
+  // Rejecting the entire original triangle on ANY outside vertex removed
+  // that load path in both native viewport recordings. Cutting at these
+  // physical planes preserves the original surface, normals and UVs without
+  // inventing a replacement portal, platform, actor or collision.
+  const tangentSin=Math.sin(target),tangentCos=Math.cos(target);
+  const sectorSlope=Math.tan(.46);
+  const radialOf=v=>v.x*tangentSin+v.z*tangentCos;
+  const tangentOf=v=>v.x*tangentCos-v.z*tangentSin;
+  const aperturePlanes=[
+    v=>radialOf(v)-12.7,
+    v=>39-radialOf(v),
+    v=>radialOf(v)*sectorSlope-tangentOf(v),
+    v=>radialOf(v)*sectorSlope+tangentOf(v),
+    v=>v.y-(roof-85),
+    v=>roof+40-v.y
+  ];
+  function interpolateSourceVertex(a,b,t){
+    const v={};
+    for(const k of ['x','y','z','nx','ny','nz','u','v'])
+      v[k]=a[k]+(b[k]-a[k])*t;
+    const normalLength=Math.hypot(v.nx,v.ny,v.nz);
+    if(normalLength>1e-8){
+      v.nx/=normalLength;v.ny/=normalLength;v.nz/=normalLength;
+    }
+    return v;
+  }
+  function clipOriginalTriangle(vertices){
+    let polygon=vertices;
+    // Exact original triangles wholly inside the aperture retain their
+    // existing coordinates and triangles without extra shader work.
+    if(aperturePlanes.every(plane=>vertices.every(v=>plane(v)>=-1e-7)))
+      return [vertices];
+    for(const plane of aperturePlanes){
+      if(polygon.length<3)return [];
+      const trimmed=[];
+      for(let j=0;j<polygon.length;j++){
+        const a=polygon[j],b=polygon[(j+1)%polygon.length];
+        const da=plane(a),db=plane(b);
+        const inA=da>=-1e-7,inB=db>=-1e-7;
+        if(inA)trimmed.push(a);
+        if(inA!==inB){
+          const alpha=Math.max(0,Math.min(1,da/(da-db)));
+          trimmed.push(interpolateSourceVertex(a,b,alpha));
+        }
+      }
+      polygon=trimmed;
+    }
+    if(polygon.length<3)return [];
+    const triangles=[];
+    for(let j=1;j<polygon.length-1;j++){
+      const tri=[polygon[0],polygon[j],polygon[j+1]];
+      // Clipping plane coincidences can create zero-area fans.
+      const a=tri[0],b=tri[1],c=tri[2];
+      const ab=[b.x-a.x,b.y-a.y,b.z-a.z],ac=[c.x-a.x,c.y-a.y,c.z-a.z];
+      const area2=Math.hypot(
+        ab[1]*ac[2]-ab[2]*ac[1],
+        ab[2]*ac[0]-ab[0]*ac[2],
+        ab[0]*ac[1]-ab[1]*ac[0]);
+      if(area2>1e-7)triangles.push(tri);
+    }
+    return triangles;
+  }
   const batches = [];
   // Traverse non-gameplay structural source nodes AND the original static
   // rigid batches. The source cap and actual gate are independently retained
@@ -84,40 +149,43 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
       }
       normalMatrix.getNormalMatrix(composed);
       for(let i=0;i<count;i+=3){
-        const positions=[],normals=[],uvs=[];
-        let score=0,accepted=true,minY=Infinity,maxY=-Infinity;
+        const corners=[];
+        let valid=true;
         for(let j=0;j<3;j++){
           const index=indices?indices.getX(i+j):i+j;
           position.fromBufferAttribute(p,index).applyMatrix4(composed);
-          const radius=Math.hypot(position.x,position.z);
-          const delta=Math.atan2(Math.sin(Math.atan2(position.x,position.z)-target),
-            Math.cos(Math.atan2(position.x,position.z)-target));
-          if (![position.x,position.y,position.z,radius,delta].every(Number.isFinite) ||
-              radius<12.7 || radius>39 || Math.abs(delta)>.46 ||
-              // Retain original bearings that CROSS the old/new roof seam.
-              // The former every-vertex short slice silently deleted their
-              // upright faces and caused the native clockwork skyline to pop.
-              // Remote shaft walls still fail this hard 125m source envelope.
-              position.y<roof-85 || position.y>roof+40) {
-            accepted=false;break;
-          }
           normal.fromBufferAttribute(n,index).applyMatrix3(normalMatrix).normalize();
-          positions.push(position.x,position.y,position.z);
-          normals.push(normal.x,normal.y,normal.z);
-          uvs.push(uv.getX(index),uv.getY(index));
-          minY=Math.min(minY,position.y);
-          maxY=Math.max(maxY,position.y);
-          // Rank genuine source triangle footprint and actual vertical
-          // interval, not a distant endpoint of a long load-bearing post.
-          score+=Math.pow(delta/.46,2)*1.8+
-            Math.pow((radius-25)/14,2);
+          const vertex={x:position.x,y:position.y,z:position.z,
+            nx:normal.x,ny:normal.y,nz:normal.z,
+            u:uv.getX(index),v:uv.getY(index)};
+          if(!Object.values(vertex).every(Number.isFinite)){valid=false;break;}
+          corners.push(vertex);
         }
-        if(accepted && minY<=roof+21 && maxY>=roof-32){
-          const nearestY=Math.max(minY,Math.min(roof+3,maxY));
-          const triangle={score:score/3+
-            Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs};
-          group.triangles.push(triangle);
-          if(triangle.score<group.best)group.best=triangle.score;
+        if(!valid)continue;
+        // Source-authored finite faces that intersect the gateway volume
+        // remain actual source triangles, only split at that volume's edges.
+        for(const piece of clipOriginalTriangle(corners)){
+          let minY=Infinity,maxY=-Infinity,score=0;
+          const positions=[],normals=[],uvs=[];
+          for(const v of piece){
+            const radius=Math.hypot(v.x,v.z);
+            const delta=Math.atan2(Math.sin(Math.atan2(v.x,v.z)-target),
+              Math.cos(Math.atan2(v.x,v.z)-target));
+            positions.push(v.x,v.y,v.z);
+            normals.push(v.nx,v.ny,v.nz);
+            uvs.push(v.u,v.v);
+            minY=Math.min(minY,v.y);
+            maxY=Math.max(maxY,v.y);
+            score+=Math.pow(delta/.46,2)*1.8+
+              Math.pow((radius-25)/14,2);
+          }
+          if(minY<=roof+21 && maxY>=roof-32){
+            const nearestY=Math.max(minY,Math.min(roof+3,maxY));
+            const triangle={score:score/3+
+              Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs};
+            group.triangles.push(triangle);
+            if(triangle.score<group.best)group.best=triangle.score;
+          }
         }
       }
     }
