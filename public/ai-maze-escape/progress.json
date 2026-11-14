@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T23:01:58.000Z",
+  "updatedAt": "2026-11-14T23:18:07.621Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass373: exact-SHA Pass372 WebGL CI failed 1/180 focused tests before native capture because theatre light was combined into the formerly isolated protected publicGuardianLanternReach import. Restored the original import and kept the new light separately; no tests, threshold, camera, physical world or gameplay rules changed. A new strict exact-HEAD node/6-reset/browser WebGL run and 320/390/844/1280 original SHA-verified visual comparison are PENDING, with no Nintendo-quality art win claimed."
+    "summary": "Pass374: Pass373 original exact-SHA WebGL succeeded (180/180 focused Node, 7/7 browser, real six-run strict <100); 37/37 native PNG hashes plus 3/3 gate and 6/6 pressure checked. Full-frame Pip–Thornback at 320/390/844/1280 still visually crowded; candidate cool guardian counterlight is too subtle. REJECT and roll back only candidate scene/helper/test, preserving physical wall100, safety and strict tests. Rollback's new exact-HEAD CI/captures PENDING. Official Nintendo bar not met; no independent agents."
   },
   "captures": [
     {

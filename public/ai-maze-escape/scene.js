@@ -6,7 +6,6 @@ import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
-import { publicGuardianTheatreLightStrength } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
@@ -100,17 +99,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   rim.position.set(8, 5, -20); scene.add(rim);
   const lanternLight = new THREE.PointLight('#ffcb79', 2.1, 4, 2);
   scene.add(lanternLight);
-  // Pass372: a real TWO-SIDED stage-light relationship, not another floor prop.
-  // Pip's ACTUAL glove lantern stays the warm key; Thornback's already-visible,
-  // reciprocally connected, unsealed body earns one cool rim, behind the actor
-  // relative to the proven +X/+Z camera. This separates both full bodies from
-  // the ivory/teal wall100 court without removing an actual wall or collider.
-  // The ONE retained shadowless light adds no mesh, material, buffer, or
-  // recurring WebGL resource; unseen/gated/ended threats cannot illuminate it.
-  const guardianTheatreLight = new THREE.PointLight('#8ce8da', 0, 5.4, 1.6);
-  guardianTheatreLight.name = 'Witnessed guardian theatre counterlight';
-  guardianTheatreLight.castShadow = false;
-  scene.add(guardianTheatreLight);
   // Original physical lantern search volume: only real, mutually visible and
   // directly connected Pip/Thornback cells may light one another. Not a new
   // attack, warning billboard, route cue, shadow or authoritative action.
@@ -740,22 +728,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     lanternLight.distance = !result && explorerLantern
       && closestThreat?.strength>.35
       ? publicGuardianLanternReach(s,closestThreat.cell,CELL_SIZE,4) : 4;
-    // One authoritative PUBLIC duel, one physical, jointly readable light pair:
-    // the existing real held lantern warms Pip from its animated wrist;
-    // Thornback receives an opposite cool edge only while its original
-    // witnessed open-lane guardian encounter remains current. Near/far, gated,
-    // remembered-only and terminal states reset the light in this render frame.
-    // The source clock adds a still brace-to-release tonal arc (no fake strike,
-    // flash, hit, private-state cue or frame-time scene-object allocation).
-    const actualGuardianTheatreStrength = !result && closestThreatModel?.parent
-      && closestThreat ? publicGuardianTheatreLightStrength(
-        s, closestThreat.cell, closestThreat.strength,
-        closestThreat.encounterBeat) : 0;
-    guardianTheatreLight.intensity = actualGuardianTheatreStrength * 3.8;
-    if (actualGuardianTheatreStrength > 0) {
-      guardianTheatreLight.position.set(closestThreat.x + .8,
-        closestThreat.y + 1.55, closestThreat.z - 1.15);
-    }
     // The self-contained lantern glow signals a truly PUBLIC nearby threat.
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
@@ -1669,9 +1641,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         witnessedPressureSurveyLinks: pressureSurveySightline?.links??0,
         witnessedLanternWarningVisible: lanternWarning.visible,
         publicLanternRadiusWorld: lanternLight.distance,
-        // Exact-source browser artifact reports the CURRENT real physical rim.
-        // Renderer numbers never replace an unaltered full-frame visual critique.
-        witnessedGuardianTheatreLightIntensity: guardianTheatreLight.intensity,
         // Read the real Three.js light and articulated cage after the actual
         // WebGL render. Diagnostics cannot substitute for native image review.
         lanternPhysicalLightDistanceWorld: explorerLantern
