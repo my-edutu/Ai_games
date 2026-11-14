@@ -985,6 +985,52 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   return null;
  }
+ // A dry ranger draw / unmatched cultist cast is a genuine ATTEMPT, not a
+ // projectile, hit or manufactured spell. It has no visual slot, but cannot
+ // sound from an old actor whose public action or visible body has gone.
+ // Recheck the unique current authority source AND rendered physical source
+ // both when admitted and when the genuine WebGL frame is acknowledged.
+ // This probe is strictly read-only: no geometry, FX, audio or authority work.
+ function hasAuthenticatedSourceOnlyAction(cue){
+  const ranged=cue?.kind==='ranged-unmatched',cast=cue?.kind==='cast-unmatched';
+  if(disposed||!(ranged||cast)||cue.visual!=='none'||
+   cue.audio!==(ranged?'draw':'cast-dry')||cue.verified!==false||
+   cue.proof!=='authority-action'||cue.targetId!==null||cue.to!==null||
+   typeof cue.actorId!=='string'||cue.actorId.length<1||
+   cue.actorId.length>128||!cell(cue.from)||
+   cue.id!==cue.sceneKey+':'+cue.tick+':'+cue.kind+':'+cue.actorId+':-'||
+   typeof getCurrentSnapshot!=='function')return false;
+  let current=null;
+  try{current=getCurrentSnapshot()}catch{return false}
+  if(!current||!Number.isSafeInteger(current.tick)||
+   current.tick!==cue.tick||!Number.isSafeInteger(current.run)||
+   !Number.isSafeInteger(current.floor)||
+   current.run+':'+current.floor!==cue.sceneKey||
+   !Array.isArray(current.units))return false;
+  let source=null;
+  // The planner's action scan is 96, but its unique-ID integrity scan is
+  // 256. A duplicate after the action window must still invalidate sound.
+  for(let i=0;i<Math.min(current.units.length,256);i++){
+   const unit=current.units[i];
+   if(unit?.id!==cue.actorId)continue;
+   if(source)return false;
+   source=unit;
+  }
+  const expectedAction=ranged?'attack':'cast';
+  const legalKind=ranged?source?.kind==='ranger':
+   source?.kind==='mystic'||source?.kind==='cultist';
+  if(!source||!legalKind||!Number.isFinite(source.hp)||source.hp<=0||
+   source.x!==cue.from.x||source.z!==cue.from.z||
+   source.action!==expectedAction||source.actionTick!==cue.tick)return false;
+  let rendered=null;
+  try{rendered=actorById(cue.actorId)}catch{return false}
+  const u=rendered?.u;
+  if(!u||u.id!==source.id||u.kind!==source.kind||
+   u.faction!==source.faction||u.hp!==source.hp||
+   u.x!==source.x||u.z!==source.z||
+   u.action!==expectedAction||u.actionTick!==cue.tick)return false;
+  return sampleActor(cue.actorId,cue.from)!==null;
+ }
  function hasAuthenticatedReleasePose(cue){
   if(disposed||cue?.proof!=='authority-action')return false;
   const type=cue.kind==='ranged-release'?'projectile':
@@ -1107,5 +1153,5 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   geometryCount:pools.size,materialCount:pools.size,reducedMotion,reducedFlash,
   instancesByPool:Object.fromEntries([...pools].map(([n,p])=>[n,p.slots.filter(Boolean).length]))
  })}
- return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,measuredSwingSpeed,hasAuthenticatedReleasePose,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,retireStaleCue,reset,dispose,stats});
+ return Object.freeze({emit,advance,hasAuthenticatedSwingPose,hasAuthenticatedSwingAction,measuredSwingSpeed,hasAuthenticatedReleasePose,hasAuthenticatedSourceOnlyAction,hasAuthenticatedBodyPose,hasLiveCue,hasDrawableCue,retireStaleCue,reset,dispose,stats});
 }
