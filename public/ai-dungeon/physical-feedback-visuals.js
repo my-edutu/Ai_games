@@ -296,6 +296,33 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // at that authority tick; never launch from a remembered empty grid cell.
   // Once admitted, a projectile is independent of later caster animation.
   const kineticRelease=type==='projectile'||type==='spell';
+  if(kineticRelease&&typeof getCurrentSnapshot==='function'){
+   // A retained actor.u/render rig may lag public authority by a tick.
+   // Neither an old firing pose nor a remembered target authorizes a
+   // fresh missile or delayed foley. Match the planner's 96-unit bound
+   // and demand ONE live source at the original action tick and cell.
+   let current=null;
+   try{current=getCurrentSnapshot()}catch{return null}
+   if(!current||!Number.isSafeInteger(current.tick)||current.tick!==cue.tick||
+     !Number.isSafeInteger(current.run)||!Number.isSafeInteger(current.floor)||
+     current.run+':'+current.floor!==cue.sceneKey||
+     !Array.isArray(current.units))return null;
+   let source=null;
+   for(let i=0;i<Math.min(current.units.length,96);i++){
+    const candidate=current.units[i];
+    if(candidate?.id!==id)continue;
+    if(source)return null; // Ambiguous identities cannot choose a muzzle.
+    source=candidate;
+   }
+   const drawn=actor?.u;
+   const action=type==='projectile'?'attack':'cast';
+   if(!source||!drawn||source.id!==id||
+     !Number.isInteger(source.hp)||source.hp<=0||
+     source.kind!==drawn.kind||source.faction!==drawn.faction||
+     source.hp!==drawn.hp||source.x!==at.x||source.z!==at.z||
+     drawn.x!==source.x||drawn.z!==source.z||
+     source.action!==action||source.actionTick!==cue.tick)return null;
+  }
   if(kineticRelease){
    const u=actor?.u;
    const releasePose=type==='projectile'?
