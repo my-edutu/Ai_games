@@ -15,10 +15,12 @@ const tier=vm.runInNewContext(src.slice(forestStart,forestEnd)+'\nforestDetailTi
 assert.equal(tier(0,0),'near');
 assert.equal(tier(22,0),'mid','central near wood remains expressive, mid wood keeps 3D canopy');
 assert.equal(tier(36,0),'far');
+assert.equal(tier(20.15,-8.96),'near','actual harvested field service grove gains true near crown');
+assert.equal(tier(22.74,-9.65),'near','actual granary approach carries real near trees');
 const trees=src.slice(src.indexOf('function tree('),src.indexOf('// W110:',src.indexOf('function tree(')));
 assert.match(trees,/detailTier!=='near'/,'middle-distance crowns need bounded 3D roofline silhouette policy');
 assert.match(trees,/detailTier==='near'\?2:0/,'far/mid decorative tiny crown satellites should not cost frames');
-assert.match(trees,/false,true,detailTier!=='near'/,'main and center crown keep complete 3D surfaces');
+assert.match(trees,/false,true,detailTier==='far'\?'far':detailTier!=='near'/,'original near, mid and far crowns retain complete bounded 3D surfaces');
 assert.match(trees,/detailTier==='near'\?5:3/,'visible near leaves retain richer wind-responsive blade anatomy');
 assert.match(trees,/forestVisualStats\.deciduous\+\+/);
 assert.match(trees,/forestVisualStats\.conifers\+\+/);

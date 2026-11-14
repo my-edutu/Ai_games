@@ -9413,11 +9413,18 @@ const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangle
 // G089B: stable world-space forest importance, zero gameplay authority impact.
 // Near crowns remain exact, distant trunks/cones/crown cores all remain visible.
 let forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
- reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
+ workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
 // W244: physical original near 3D forest and intact middle/far crown masses.
 // Only subpixel satellite leaves/sprays are reduced in distant woodland;
 // every existing tree, root, trunk and all actual actors remain rendered.
-function forestDetailTier(x,z){const r=Math.hypot(x,z);return r<19?'near':r<29?'mid':'far'}
+// W327 Phase 1: spend near-canopy detail on the actual farmer-to-granary
+// working corridor rather than only the village origin. This world-fixed
+// decision is baked ONCE in the existing seasonal VBO; every seeded tree,
+// actual work route, collider, house and authoritative world state survive.
+function forestDetailTier(x,z){
+ const r=Math.hypot(x,z),workingFieldEdge=Math.hypot(x-23,z+9)<4.1;
+ return workingFieldEdge||r<19?'near':r<29?'mid':'far';
+}
 function coniferNeedleSpray(root,tip,width,dark,light){
  const dx=tip[0]-root[0],dy=tip[1]-root[1],dz=tip[2]-root[2];
  const len=Math.hypot(dx,dz)||1,perpX=-dz/len,perpZ=dx/len;
@@ -9477,7 +9484,7 @@ function coniferTierCanopy(x,y,z,r,h,col,seed){
    i%3===1?col:sunlit);
 }
 function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true,coarse=false){
- const segments=fine?6:coarse?7:9,
+ const segments=fine?6:coarse==='far'?5:coarse?7:9,
   latitudes=(fine?[.32,.74]:coarse?[.29,.76]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,contour=woodlandCrownContour(seed,lat,az);
@@ -9531,6 +9538,8 @@ function tree(x,z,s=1){
  const detailTier=forestDetailTier(x,z);
  forestLodStats.renderedTrees++;
  forestLodStats[detailTier+'Trees']++;
+ if(detailTier==='near'&&Math.hypot(x-23,z+9)<4.1)
+  forestLodStats.workingFieldEdgeNearTrees++;
  const y=terrain(x,z),v=Math.sin(x*1.71+z*3.14),season=climateAt(state.t).season;
  const deciduous=v>.12,signature=Math.sin(x*2.73-z*1.81);
  const leanX=.12*Math.sin(x*3.2+z)*s,leanZ=.11*Math.cos(z*2.7-x)*s;
@@ -9551,7 +9560,8 @@ function tree(x,z,s=1){
   const startFloats=data.length;
   const lobeCount=style===1?5:style===2?3:4;
   // Preserve every actual far tree and 3D canopy, use 28 vs 54 triangles per main lobe.
-  if(detailTier!=='near')forestLodStats.reclaimedTriangles+=(lobeCount+1)*26;
+  if(detailTier!=='near')forestLodStats.reclaimedTriangles+=
+   (lobeCount+1)*(detailTier==='far'?34:26);
   for(let i=0;i<lobeCount;i++){
    const angle=i*2.39996+signature*.36,reach=(.75+.12*Math.sin(x*.81+i))*speciesWidth*s;
    const lift=(.42+.14*i)*speciesHeight*s;
@@ -9564,7 +9574,7 @@ function tree(x,z,s=1){
    materialScope(MATERIAL.FOLIAGE,()=>{
     crownLobe(center[0],center[1],center[2],radius*.89*speciesWidth,
      (.55+.058*i)*s*speciesHeight,radius*.90, rgb(leafPalette[i%3]),x*.31+z*.19+i*2.1,
-     false,true,detailTier!=='near');
+     false,true,detailTier==='far'?'far':detailTier!=='near');
     // Smaller outlying crowns are attached to branch tips. The position,
     // material and orientation are derived only from persistent coordinates.
     for(let rim=0;rim<(detailTier==='near'?2:0);rim++){
@@ -9601,7 +9611,7 @@ function tree(x,z,s=1){
   // The central crown binds the irregular secondary masses into one tree.
   materialScope(MATERIAL.FOLIAGE,()=>crownLobe(fork[0],fork[1]+.61*s*speciesHeight,fork[2],
     .62*s*speciesWidth,.69*s*speciesHeight,.67*s,rgb(leafPalette[(style+1)%3]),x*.71-z*.13,
-   false,true,detailTier!=='near'));
+   false,true,detailTier==='far'?'far':detailTier!=='near'));
   forestVisualStats.broadleafAddedTriangles+=(data.length-startFloats)/30;
  }else{
   forestVisualStats.conifers++;
@@ -27208,7 +27218,7 @@ currentMaterial=MATERIAL.FOLIAGE;
  forestVisualStats.deciduous=0;forestVisualStats.conifers=0;
  forestVisualStats.needleBoughs=0;forestVisualStats.needleFanTriangles=0;
  forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
-  reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
+  workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
  forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();forestVisualStats.broadleafLobes=0;forestVisualStats.individualLeaves=0;forestVisualStats.broadleafAddedTriangles=0;forestVisualStats.broadleafSpecies=[0,0,0];forestVisualStats.microCrownLobes=0;forestVisualStats.rimLeafSprays=0;
  for(const t of trees){
   const overlapsFarm=farmTreeClearance(t.x,t.z);
