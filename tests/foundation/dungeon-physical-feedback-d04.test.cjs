@@ -780,3 +780,55 @@ test('D04 authored Warden warning foley requires its unique canonical future dan
   }finally{foley.dispose()}
  }
 });
+
+test('D04 authored warning audio requires actual bounded danger-cell evidence and correct warning stage',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const boss={id:'warden',kind:'warden',faction:'enemy',x:3,z:3,
+  hp:75,maxHp:90,action:'idle',actionTick:20};
+ const withDanger=(tick,shape,attackTick)=>snap(tick,{
+  units:[hero(),boss],bossWarning:{warning:true,shape,attackTick,
+   turnsUntilImpact:attackTick-tick,cells:[{x:4,z:3},{x:5,z:3}]}
+ });
+ // The source planner, not a fabricated hand-written warning, supplies
+ // genuine three-beat NOVA and two-beat RIFT candidates.
+ for(const [prior,current,kind] of [
+  [withDanger(19,'NOVA',22),withDanger(20,'NOVA',22),'boss-warning-rising'],
+  [withDanger(20,'RIFT_CROSS',22),withDanger(21,'RIFT_CROSS',22),'boss-warning-final']
+ ]){
+  const authentic=planPhysicalFeedback(prior,current).find(c=>c.kind===kind);
+  assert.ok(authentic,'the real source planner must supply a warning');
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(authentic),true,
+   'coherent actual danger cells must retain their original warning audio');
+  const data=authentic.detail;
+  const malformed=[
+   {...authentic,detail:{...data,cells:[]}},
+   {...authentic,detail:{...data,cells:[{x:-1,z:3}]}},
+   {...authentic,detail:{...data,cells:[{x:200,z:200}]}},
+   {...authentic,detail:{...data,footprintKey:''}},
+   {...authentic,detail:{...data,footprintKey:'259,259'}},
+   {...authentic,detail:{...data,footprintKey:'773,772'}},
+   {...authentic,detail:{...data,attackTick:authentic.tick+4}},
+   {...authentic,kind:'boss-warning-rising',audio:'boss-warning-rising',
+    id:authentic.id.replace('boss-warning-final','boss-warning-rising'),
+    detail:{...data,attackTick:authentic.tick+1}}
+  ];
+  if(data.attackTick-authentic.tick===2){
+   malformed.push({...authentic,detail:{...data,attackTick:authentic.tick+3,
+    shape:'RIFT_CROSS'}});
+  }
+  for(const bad of malformed){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(bad),false,
+    'staged Warden warning without trustworthy threat cells is not verified');
+   const {ctx}=fakeAudio();ctx.state='running';
+   const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+   try{
+    assert.equal(foley.enable(),true);
+    assert.equal(foley.emit(bad),false,'false warning cannot play original sound');
+    assert.equal(foley.stats().activeVoices,0);
+    assert.equal(foley.stats().confirmedCueIds,0);
+    assert.deepEqual(foley.stats().recentOriginalStarts,[]);
+   }finally{foley.dispose()}
+  }
+ }
+});
