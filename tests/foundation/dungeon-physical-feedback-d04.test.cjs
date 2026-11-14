@@ -896,3 +896,77 @@ test('strict original block and observed dodge sound require canonical public pr
   }finally{foley.dispose()}
  }
 });
+
+
+test('strict original decisive interrupt, defeat and recovery sounds require the matching public-event witness',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const prior=snap(10);
+ const ordinary=snap(11,{events:[
+  {kind:'interrupt',tick:11,text:'anonymous interruption'},
+  {kind:'defeat',tick:11,text:'anonymous terminal event'}
+ ]});
+ const witnessed=planPhysicalFeedback(prior,ordinary);
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:4,z:4,
+  hp:70,maxHp:90,action:'idle',actionTick:10,recoveryUntilTick:12};
+ const oldBoss=snap(10,{units:[hero(),foe(),warden]});
+ const newBoss=snap(11,{units:[hero(),foe(),{...warden,action:'cast',actionTick:11}],
+  events:[{kind:'opening',tick:11,text:'recovering warden'}],
+  guardianWard:false});
+ const recovery=planPhysicalFeedback(oldBoss,newBoss).find(c=>c.kind==='opening');
+ const authentic=[witnessed.find(c=>c.kind==='interrupt'),
+  witnessed.find(c=>c.kind==='defeat'),recovery];
+ assert.ok(authentic.every(Boolean),'all positives must be generated from actual public snapshots');
+ assert.equal(recovery.audio,'recovery');
+ assert.equal(recovery.actorId,'warden');
+ for(const valid of authentic){
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(valid),true,
+   valid.kind+' requires original public semantic proof, not a raw sound recipe');
+  const {ctx}=fakeAudio();ctx.state='running';
+  const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(f.enable(),true);
+   assert.equal(f.emit(valid),true,'actual '+valid.kind+' remains audible');
+   assert.equal(f.emit(valid),false,'the same event must be one-shot');
+   assert.equal(f.stats().confirmedCueIds,1);
+  }finally{f.dispose()}
+  const invalid=[
+   {...valid,verified:false},
+   {...valid,proof:'unverified-prose'},
+   {...valid,actorId:valid.actorId===null?'invented-attacker':'another-warden'},
+   {...valid,targetId:'invented-victim'},
+   {...valid,id:valid.id+':replay'},
+   {...valid,visual:'hit'},
+   {...valid,from:{x:2,z:2}},
+   {...valid,to:{x:3,z:3}}
+  ];
+  if(valid.kind==='opening')invalid.push(
+   {...valid,from:null},
+   {...valid,proof:'authority-event'},
+   {...valid,audio:'counter'}
+  );
+  for(const forged of invalid){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(forged),false,
+    'forged '+valid.kind+' cannot authorize high-priority foley');
+   const {ctx}=fakeAudio();ctx.state='running';
+   const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+   try{
+    assert.equal(f.enable(),true);
+    assert.equal(f.emit(forged),false,'false '+valid.kind+' must remain silent');
+    assert.equal(f.stats().activeVoices,0);
+    assert.equal(f.stats().confirmedCueIds,0);
+    assert.deepEqual(f.stats().recentOriginalStarts,[]);
+   }finally{f.dispose()}
+  }
+ }
+ for(const audio of ['interrupt','defeat','recovery']){
+  const {ctx}=fakeAudio();ctx.state='running';
+  const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(f.enable(),true);
+   assert.equal(f.emit({audio,priority:10,verified:true}),false,
+    'a raw victory or interrupt sound is not a public Dungeon event');
+   assert.equal(f.stats().activeVoices,0);
+  }finally{f.dispose()}
+ }
+});
