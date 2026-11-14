@@ -33,9 +33,10 @@ assert.equal(stats.arcadeRoofUndersides,8,'four actual sheltered plaster roof ba
 assert.equal(stats.arcadeTimberFaces,10,'two long fascia and three restrained ties per arcade');
 assert.equal(stats.arcadeScaffoldBeams,0,'bulky hanging octagonal beam scaffolds eliminated');
 assert.equal(faces.filter(f=>f.material===materials.PLASTER).length,8);
-assert.equal(faces.filter(f=>f.material===materials.ROOF).length,8);
+assert.equal(faces.filter(f=>f.material===materials.ROOF).length,64);
+assert.equal(stats.arcadeRoofTileFaces,64,'genuine tiled roof courses, not plain pigment');
 assert.equal(faces.filter(f=>f.material===materials.WOOD).length,10);
-assert(stats.grainwardArcadeTriangles>=40&&stats.grainwardArcadeTriangles<=80,
+assert(stats.grainwardArcadeTriangles>=150&&stats.grainwardArcadeTriangles<=220,
  'bounded full original arcades reduce real triangle workload');
 for(const face of faces)
  for(const point of face.points)
