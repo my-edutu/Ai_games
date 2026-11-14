@@ -245,3 +245,53 @@ test('original source gateway, scene, world, framing and audit integrate the rea
   assert.match(c,/observedRecordedGuardianDoorstepHandoff\(snapshot\)/);
   assert.match(a,/recordedDoorstepContinuityAccepted/);
 });
+
+
+// Real source-pinned 8fdfc848 danger footage: guardian HP0 tick441, real
+// crossing tick475, desktop FIRST rendered successor tick481 at a genuine
+// 64.8m airborne rise. The previous 55m handoff ceiling silently rejected
+// the only returned old-gate optical continuity, while portrait at tick477
+// retained it. This fixture preserves actual source positions and cadence;
+// the validator cannot synthesize an actor, floor, or intermediate source tick.
+test('recorded tick475 Floor9 airborne rise at first desktop WebGL receipt retains the original physical bronze gate',async()=>{
+  const {observedRecordedGuardianAirborneHandoff,
+    observedSourceEarnedAirborneHandoff,createTowerGuardianPassage}=await source;
+  const THREE=await import('../../node_modules/three/build/three.module.js');
+  const {pointFor}=await import('../../public/infinite-tower-climb/visuals/coordinates.mjs');
+  const [record,base]=witnessed();
+  const observedRecord={...record,sourceTick:475,
+    previousX:314796,crossingX:321096,
+    previousHealth:1,exitX:gate};
+  const source481={...base,tick:481,lastGuardianCrossing:observedRecord,
+    player:{...base.player,x:339996,y:top+height+64800,health:4,
+      grounded:false,groundedPlatformId:null,state:'airborne',vy:78000}};
+  const immutable=JSON.stringify(source481);
+  const before=observedRecordedGuardianAirborneHandoff(source481);
+  assert.ok(before,
+    'actual +64.8m 6-tick airborne successor must not discard the immutable original doorway');
+  assert.equal(before.floor,8);
+  assert.equal(before.tick,474);
+  assert.equal(observedSourceEarnedAirborneHandoff(before,source481),true);
+  const passage=createTowerGuardianPassage(THREE);
+  try{
+    assert.equal(passage.begin(before,source481,
+      pointFor(gate,top+20000,source481.chunkBaseY,source481.worldWidth,27.78)),true);
+    assert.equal(passage.diagnostics().continuousGroundedHandoff,true);
+    assert.equal(passage.diagnostics().innerDoorAssemblyVisible,true);
+  }finally{passage.dispose();}
+  assert.equal(JSON.stringify(source481),immutable,'gameplay snapshots are immutable');
+  // A bounded physical window, not an unlimited ghost-gateway lifetime.
+  for(const invalid of [
+    {...source481,runToken:'other-run'},
+    {...source481,tick:488},
+    {...source481,player:{...source481.player,y:top+height+92000}},
+    {...source481,player:{...source481.player,x:gate+95000}},
+    {...source481,player:{...source481.player,grounded:true}},
+    {...source481,player:{...source481.player,state:'standing'}},
+    {...source481,player:{...source481.player,vy:NaN}},
+    {...source481,lastGuardianCrossing:{...observedRecord,
+      guardian:{...record.guardian,health:1,active:true}}},
+  ])assert.equal(observedRecordedGuardianAirborneHandoff(invalid),null);
+  // A physically impossible 64.8m ascent in only two source ticks is vetoed.
+  assert.equal(observedRecordedGuardianAirborneHandoff({...source481,tick:477}),null);
+});
