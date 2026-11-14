@@ -899,7 +899,7 @@ function observedEarnedGatewayGroundedStride(state:TowerState,
      !Number.isSafeInteger(w.sourceTick) ||
      !Number.isSafeInteger(obs.tick) || obs.tick!==state.tick ||
      obs.tick-w.sourceTick<0 || obs.tick-w.sourceTick>=10 ||
-     !p.grounded || p.state!=='standing' ||
+     !p.grounded || state.player.state!=='standing' ||
      p.groundedPlatformId!=='f9:ground' || p.health<=0 ||
      w.halfWidth!==state.player.halfWidth ||
      w.halfHeight!==state.player.halfHeight ||
@@ -915,14 +915,14 @@ function observedEarnedGatewayGroundedStride(state:TowerState,
      !Number.isSafeInteger(ground.height) ||
      ground.width<=0 || ground.height<=0 ||
      w.crossingY-w.halfHeight!==ground.y+ground.height ||
-     p.position.y-p.halfHeight!==ground.y+ground.height ||
+     p.position.y-state.player.halfHeight!==ground.y+ground.height ||
      p.position.x<w.crossingX-5000 ||
-     p.position.x-p.halfWidth<ground.x ||
-     p.position.x+p.halfWidth>ground.x+ground.width)
+     p.position.x-state.player.halfWidth<ground.x ||
+     p.position.x+state.player.halfWidth>ground.x+ground.width)
      return null;
   // Preserve the original forward stride, but brake BEFORE the real ground
   // edge; source physics supplies acceleration, friction and solid contact.
-  const safeRight=ground.x+ground.width-p.halfWidth-10000;
+  const safeRight=ground.x+ground.width-state.player.halfWidth-10000;
   if(safeRight<=w.crossingX) return null;
   const goal=Math.min(w.crossingX+28000,safeRight);
   const friction=Math.max(1,state.config.groundFriction);
