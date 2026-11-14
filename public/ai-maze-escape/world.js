@@ -1764,7 +1764,18 @@ export function createMazeWorld(options = {}) {
           // only omit decorative exterior layers there. The foundational
           // stone, actual impassable edges, stairs, gate and playable floor
           // remain intact. A private/unknown trap must NEVER affect geometry.
-          if ((dx > 0 || dz > 0) && !pressureSightline && !guardianCourtCell && !c.blocked && !c.trap
+          // Authentically witnessed Pip–Thornback scenes need a clear silhouette
+          // against the OUTSIDE wall as well as along the court. Prior
+          // guardian cutaways quieted indoor ornaments but left the giant
+          // exterior stacked buttresses, tide dials and hanging ferns on the
+          // still-public second ring. These are nonfunctional dressings on
+          // a REAL fully solid load foundation. Omit that entire exterior
+          // ornament family only for a currently witnessed, publicly
+          // disclosed, same-tier guardian quiet-ring tile; retain the wall,
+          // foundation, stairs, doors, traps and physical AI/collision.
+          // Hidden/ended/reset encounters retain ordinary full facades.
+          if ((dx > 0 || dz > 0) && !pressureSightline && !guardianCourtCell
+            && !guardianQuietRingCell && !c.blocked && !c.trap
             && !c.checkpoint && !c.clue && c.cell !== s.exitCell
             && !s.keys.some(key => key.cell === c.cell)) {
             const ribY = -floorY / 2 - .97;
