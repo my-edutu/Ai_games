@@ -111,6 +111,11 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   expect(live.actualComposition?.projectedWorkerHeightFraction)
    .toBeGreaterThan(size.width===390?.105:.12);
   expect(live.actualComposition?.foregroundSceneCover).toBeLessThan(.42);
+  // W311: a small fraction of the whole frame can still contain a giant
+  // market counter exactly across the worker's original face and work hands.
+  // This is a real WebGL camera-frame condition, not an invented production.
+  expect(live.actualComposition?.foregroundActorCoreCover).toBeDefined();
+  expect(live.actualComposition.foregroundActorCoreCover).toBeLessThan(.28);
   expect(live.actualComposition?.handBlockers).toBeLessThanOrEqual(2);
   fs.writeFileSync(out+'/'+size.width+'-real-workday.json',JSON.stringify({documentary,live},null,2));
   await page.screenshot({path:out+'/'+size.width+'-real-workday.png'});
