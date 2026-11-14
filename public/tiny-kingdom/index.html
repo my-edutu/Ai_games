@@ -3228,6 +3228,34 @@ const GPU_TIMER_PENDING_MAX=4,GPU_TIMER_SAMPLE_MAX=48;
 const gpuTimerExtension=gpuAvailable&&!swiftGpu?
  gl.getExtension('EXT_disjoint_timer_query'):null;
 const gpuTimerPending=[],gpuTimerSamples=[];
+const GPU_TIMER_SCENE_LIMIT=6,gpuTimerSceneSamples=new Map();
+let gpuTimerSceneEvictions=0;
+// W323: physical GPU queries from distinct days, modes or resolutions must
+// not be pooled into a misleading acceptance percentile. Six bounded buckets.
+function rememberGpuTimerSceneSample(scene,ms){
+ if(typeof scene!=='string'||!scene||!Number.isFinite(ms)||ms<0||ms>=60000)
+  throw Error('Invalid actual GPU timing scene');
+ let samples=gpuTimerSceneSamples.get(scene);
+ if(samples)gpuTimerSceneSamples.delete(scene);
+ else{
+  samples=[];
+  if(gpuTimerSceneSamples.size>=GPU_TIMER_SCENE_LIMIT){
+   gpuTimerSceneSamples.delete(gpuTimerSceneSamples.keys().next().value);
+   gpuTimerSceneEvictions++;
+  }
+ }
+ samples.push(ms);
+ if(samples.length>GPU_TIMER_SAMPLE_MAX)samples.shift();
+ gpuTimerSceneSamples.set(scene,samples);
+ return samples.length;
+}
+function summarizeGpuTimerSceneSamples(scene){
+ const sorted=(gpuTimerSceneSamples.get(scene)||[]).slice().sort((a,b)=>a-b);
+ const at=p=>sorted.length?sorted[Math.ceil(sorted.length*p)-1]:null;
+ return {scene,samples:sorted.length,p50Ms:at(.5),p95Ms:at(.95),
+  p99Ms:at(.99),worstMs:sorted.length?sorted[sorted.length-1]:null};
+}
+
 let gpuTimerDisabled=false,gpuTimerDropped=0,gpuTimerDisjoints=0,
  gpuTimerFailures=0,gpuTimerCompleted=0;
 function abandonGpuTimerQueries(){
@@ -3243,6 +3271,7 @@ function pollGpuFrameTimer(){
   if(gl.getParameter(gpuTimerExtension.GPU_DISJOINT_EXT)){
    // All outstanding measurements cross an invalid GPU timing interval.
    gpuTimerDisjoints++;abandonGpuTimerQueries();gpuTimerSamples.length=0;
+   gpuTimerSceneSamples.clear();
    return;
   }
   while(gpuTimerPending.length){
@@ -3258,6 +3287,7 @@ function pollGpuFrameTimer(){
     gpuTimerSamples.push(ms);
     if(gpuTimerSamples.length>GPU_TIMER_SAMPLE_MAX)gpuTimerSamples.shift();
     gpuTimerCompleted++;
+    rememberGpuTimerSceneSample(pending.scene,ms);
      // Old queries from another day, view, phone or quality level must not
      // drive the present viewport's GPU-bound resolution controller.
      if(pending.scene===hardwareGpuSceneKey())
@@ -3292,8 +3322,7 @@ function endGpuFrameTimer(query){
  }
 }
 function getGpuFrameTimerAudit(){
- const sorted=gpuTimerSamples.slice().sort((a,b)=>a-b);
- const percentile=p=>sorted.length?sorted[Math.ceil(sorted.length*p)-1]:null;
+ const scoped=summarizeGpuTimerSceneSamples(hardwareGpuSceneKey());
  const status=!gpuAvailable?'no-webgl':swiftGpu?'software-renderer':
   gpuTimerDisabled?'context-failed':
   gpuTimerExtension?'available':'extension-unavailable';
@@ -3302,9 +3331,16 @@ function getGpuFrameTimerAudit(){
   softwareWebGL:swiftGpu,available:status==='available',
   maxPending:GPU_TIMER_PENDING_MAX,pending:gpuTimerPending.length,
   maxSamples:GPU_TIMER_SAMPLE_MAX,samples:gpuTimerSamples.length,
+  sameSceneSamples:scoped.samples,scene:scoped.scene,
+  retainedCoarseScenes:gpuTimerSceneSamples.size,
+  maxRetainedCoarseScenes:GPU_TIMER_SCENE_LIMIT,
+  sceneEvictions:gpuTimerSceneEvictions,
+  onlySameDayModeViewportScaleCompared:true,
+  cameraPoseAndHardwareFpsNotEstablished:true,
   completed:gpuTimerCompleted,dropped:gpuTimerDropped,
   disjointIntervals:gpuTimerDisjoints,failures:gpuTimerFailures,
-  p50Ms:percentile(.50),p95Ms:percentile(.95),p99Ms:percentile(.99),
+  p50Ms:scoped.p50Ms,p95Ms:scoped.p95Ms,p99Ms:scoped.p99Ms,
+  worstMs:scoped.worstMs,
   lastGpuMs:gpuTimerSamples.length?gpuTimerSamples[gpuTimerSamples.length-1]:null,
   blockingRead:false,cpuWallFpsClaim:false,hardwareFpsClaim:false};
 }
