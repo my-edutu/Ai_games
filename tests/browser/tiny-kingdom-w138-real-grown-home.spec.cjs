@@ -91,8 +91,10 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
  // renderer uninterrupted wall-clock time to show real citizens at work.
  // This is genuine gameplay after a valid restore, NOT a scripted movie.
  async function filmMatureWorld(viewport){
+  const filmDir=info.outputPath('grown-films');
+  fs.mkdirSync(filmDir,{recursive:true});
   const context=await page.context().browser().newContext({
-   viewport,recordVideo:{dir:info.outputPath('grown-films'),size:viewport}
+   viewport,recordVideo:{dir:filmDir,size:viewport}
   });
   const filmPage=await context.newPage();
   const filmErrors=[];
