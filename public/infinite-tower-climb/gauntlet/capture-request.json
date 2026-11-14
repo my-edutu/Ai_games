@@ -1,4 +1,37 @@
 {
+  "p0ActuallySubmittedOriginalGatewayOpticalExitFinalCapture20261114": {
+    "stage": "P0 OPEN — source-owned physical original bronze gateway still visually NOT EVALUATED",
+    "immutableBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "realProductionSource": "4aaccd3e70903333a8e5de3dcfd7be9d194cd087",
+    "exactTestSource": "db9dfda0327b2f0997a970007c1f62e799e19135",
+    "browserCandidate": "This evidence commit's exact github.sha; never a floating PR68 head",
+    "sourceBranch": "feat/tower-transformation-gauntlet-20261101",
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "requiredViews": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "realScenes": [
+      "ascent continuous>=60s",
+      "floor7 moving-platform obstacle>=60s",
+      "floor8 real guardian/crusher defeat->bronze original gate->floor9 ascent>=60s",
+      "true outcome/intermission/restart>=60s"
+    ],
+    "criticalProof": "Source tick441 guardian zero HP and tick451 genuine grounded F8->9 threshold. In original 25fps 6907 source live video at ~24.5–25.5s scene jumped all bronze Clockwork to purple Void. Compare *unchanged 1x native full motion* from frozen 1731 baseline vs candidate (same seed, tier, conditions), real skinned body, actual original arch and old world, genuinely returned WebGL transparent old gateway/material and authoritative event/native PTS alignment. The old group must stay physically visible then fade via actual next-floor climb, and can naturally dispose only after one returned GPU frame with all original material alpha0; no source-only assumed submission. Strict event native checks, real restart, device safety and blind criticism remain unpassed until proven.",
+    "oldCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43537587011 — 8 source-native films, 7/8 recording jobs success; 0/2 valid full-body gateway crossing and candidate outcome event-probe failed",
+    "diagnosticIntermediateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43538863899 — source 9c993ec2 predates the later returned-zero-alpha frame correction; diagnostics only, NOT acceptance for final candidate",
+    "codeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43538967502 — exact code db9dfda pending/queued when request written; no CI pass asserted",
+    "review": "docs/reviews/2026-11-14-tower-pr68-source-original-gate-visible-retirement.md",
+    "independentCritics": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED",
+    "constraints": "PR #68 open draft PR58 base, baseline immutable; no merge, deployment, force push, draft promotion or unrelated game files"
+  },
   "p0SourceOwnedOriginalGatewayVisibleRetirementRecapture20261114": {
     "stage": "P0 OPEN — genuine 1x game film after original-gateway retirement redesign",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
