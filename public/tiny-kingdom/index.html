@@ -9906,10 +9906,24 @@ function solveWorkArmIK(shoulder,target,side){
 // scene geometry, job timing, or motion is approximated or dropped.
 let citizenRigEpoch=-1,citizenRigTime=NaN,citizenRigCache=new WeakMap();
 let citizenRigEntries=0,citizenRigBuilds=0,citizenRigHits=0,citizenRigResets=0;
+// W324 Phase 1: a camera orbit changes projection, NOT the authoritative
+// body, hands, grounded boots, work targets or fixed-step clock. Keep the
+// genuine per-citizen solved IK pose for that exact real state and only
+// re-solve a person when their actual state/route/occupation changes.
+let cameraOnlyPoseReuses=0,citizenRigIdentityMisses=0;
+function citizenRigAuthoritativeKey(p){
+ const waypoint=p.path?.length?p.path[0]:p.target;
+ return [state.t,people.length,p.name,p.job,p.activity,p.x,p.z,
+  p.phase,p.workTimer,p.energy,p.hunger,p.food,p.money,
+  p.target?.[0],p.target?.[1],waypoint?.[0],waypoint?.[1],
+  p.delivery?.id,p.delivery?.stage,p.delivery?.amount,
+  p.focus?.[0],p.focus?.[1],p.homeIndex].join('|');
+}
 function getCitizenRigCacheAudit(){
  return {source:'same-authoritative-tick-two-bone-articulation',
   entries:citizenRigEntries,maxEntries:people.length,
   builds:citizenRigBuilds,hits:citizenRigHits,resets:citizenRigResets,
+  cameraOnlyPoseReuses,citizenRigIdentityMisses,
   epoch:citizenRigEpoch,time:citizenRigTime,
   allCitizensPreserved:true,altersAuthority:false};
 }
@@ -9954,15 +9968,26 @@ function getSocialEncounterAudit(){
   createdFriendships:0,changesNavigation:false,altersAuthority:false};
 }
 function citizenRigPose(p){
- if(citizenRigEpoch!==presentationEpoch||citizenRigTime!==state.t){
+ // Camera motion can invalidate visible LOD, but cannot advance genuine
+ // labor IK. New fixed steps and save/restore object identities remain
+ // authoritative; an exceptional same-time edit gets a per-person key.
+ if(citizenRigTime!==state.t){
   citizenRigCache=new WeakMap();citizenRigEntries=0;
-  citizenRigEpoch=presentationEpoch;citizenRigTime=state.t;
-  citizenRigResets++;
+  citizenRigTime=state.t;citizenRigResets++;
  }
+ citizenRigEpoch=presentationEpoch;
  const eligible=p&&people.includes(p);
+ const identity=eligible?citizenRigAuthoritativeKey(p):null;
  if(eligible){
   const hit=citizenRigCache.get(p);
-  if(hit){citizenRigHits++;return hit}
+  if(hit&&hit.identity===identity){
+   citizenRigHits++;
+   if(hit.cameraEpoch!==presentationEpoch){
+    cameraOnlyPoseReuses++;hit.cameraEpoch=presentationEpoch;
+   }
+   return hit.pose;
+  }
+  if(hit)citizenRigIdentityMisses++;
  }
  const social=getPhysicalGreeting(p);
  const action=p.activity.toLowerCase();
@@ -10109,7 +10134,8 @@ function citizenRigPose(p){
      hauling?courierCartGripTarget(1):
      working?groundedWorkTarget(p,acting.beat):null}};
  if(eligible){
-  citizenRigCache.set(p,pose);citizenRigEntries++;citizenRigBuilds++;
+  citizenRigCache.set(p,{identity,pose,cameraEpoch:presentationEpoch});
+  citizenRigEntries++;citizenRigBuilds++;
  }
  return pose;
 }

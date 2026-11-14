@@ -100,11 +100,11 @@ assert.equal(actual.length,before,'repeat draw without world movement must reuse
 const commuterDraw=fragment('function drawResidentCommuters(', 'function getResidentCommuterAudit(');
 const workerDraw=fragment('function drawWorkingResidentMesh(', 'function getWorkingResidentAudit(');
 const foregroundDraw=fragment('function drawForegroundResidentMesh(', 'function setForegroundResidentEnabledForTesting(');
-assert.match(commuterDraw,/gl\\.uniform1f\\(uniforms\\.commuterEnabled,skin\\?0:1\\)/,
+assert.match(commuterDraw,/gl\.uniform1f\(uniforms\.commuterEnabled,skin\?0:1\)/,
  'whole commuter batch must disable double root when all real actors are joint-skinned');
-assert.match(workerDraw,/gl\\.uniform1f\\(uniforms\\.workSkinActive,1\\);[\\s\\S]*?gl\\.uniform1f\\(uniforms\\.commuterEnabled,0\\);/,
+assert.match(workerDraw,/gl\.uniform1f\(uniforms\.workSkinActive,1\);[\s\S]*?gl\.uniform1f\(uniforms\.commuterEnabled,0\);/,
  'true profession worker GPU joints already own the complete authoritative world root');
-assert.match(foregroundDraw,/gl\\.uniform1f\\(uniforms\\.commuterEnabled,entry\\.skinned\\?0:1\\)/,
+assert.match(foregroundDraw,/gl\.uniform1f\(uniforms\.commuterEnabled,entry\.skinned\?0:1\)/,
  'mixed foreground adult draw must keep CPU fallback root while not double-moving GPU joint meshes');
 // Never rewrite simulated person for an animation-only fix.
 assert.equal(person.x,3);assert.equal(person.z,4);
