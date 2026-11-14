@@ -155,14 +155,32 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       world.update(second,.1,6+i*.1,{quality:'low'});
     }
     resourceCheckpoint('twenty-real-submissions');
+    // This static standing-source fixture has NOT physically departed the
+    // threshold. The real GPU arch must still exist after twenty submissions,
+    // even though an obsolete 1.65-second cleanup test expected early removal.
+    // A failed equality on a THREE.Group recursively formats thousands of
+    // cyclic meshes and can stall the entire hosted runner: compare booleans.
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===genuine,true,
+      'a source-stationary body cannot retire the old gateway at two seconds');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalGate,true,
+      'retain the same original, not a replacement doorway');
+    assert.equal(world.diagnostics().retainedSourceCap?.submittedFrames,20);
+    // Exercise the actual finite 30-return / 2.8-second GPU resource
+    // backstop, not an invented player departure or an unsubmitted frame.
+    // This protects resource bounds; forced retirement is NOT film approval.
+    for(let i=0;i<10;i++){
+      world.noteFrameSubmitted(second,{},.1);
+      world.update(second,.1,8+i*.1,{quality:'low'});
+    }
+    resourceCheckpoint('thirty-real-submissions');
     resourceCheckpoint('final-retirement-assertions-begin');
-    assert.equal(world.group.getObjectByName('platform:f8:cap'),undefined,
-      'the bounded old floor must retire on submitted-frame display time');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
-      'old unlocked gate and its GPU resources must retire with old cap');
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===undefined,true,
+      'bounded original roof must retire after the published 30-return limit');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===undefined,true,
+      'same original unlocked gate and its GPU resources retire with the roof');
     assert.equal(world.diagnostics().retainedSourceCap,null);
-    assert.equal(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery'),undefined,
-      'source gallery resources are retired on genuine departure/cleanup');
+    assert.equal(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')===undefined,true,
+      'owned source gallery resources retire with the cap');
     assert.equal(JSON.stringify([first,second]),original,
       'the old/new authoritative source must be immutable');
     resourceCheckpoint('final-retirement-assertions-end');
