@@ -21,6 +21,7 @@ on:
       - scripts/tiny-kingdom-w324-rig-camera-cache-contract.cjs
       - scripts/tiny-kingdom-w325-real-grain-headroom-contract.cjs
       - scripts/tiny-kingdom-w326-original-field-row-residency-contract.cjs
+      - scripts/tiny-kingdom-w338-original-farm-draw-batching-contract.cjs
       - scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
       - scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
@@ -55,6 +56,7 @@ jobs:
           node scripts/tiny-kingdom-w324-rig-camera-cache-contract.cjs
           node scripts/tiny-kingdom-w325-real-grain-headroom-contract.cjs
           node scripts/tiny-kingdom-w326-original-field-row-residency-contract.cjs
+          node scripts/tiny-kingdom-w338-original-farm-draw-batching-contract.cjs
           node scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
           node scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
           node scripts/tiny-kingdom-w305-arcade-material-contract.cjs
