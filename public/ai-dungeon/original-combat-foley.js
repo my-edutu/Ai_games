@@ -100,10 +100,47 @@ export function verifiedReleaseFoleyActor(cue){
   cue.targetId.length<=128?cue.actorId:null;
 }
 /**
- * A named Warden warning is an observed future danger window owned by the
- * SAME unique Warden in consecutive public snapshots. Never synthesize that
- * authored cue from an anonymous telegraph or a stale/replayed cast.
- * Generic unowned threat-warning audio remains neutral and separate.
+ * Authored warning audio requires a coherent public threat footprint, not
+ * merely a plausible actor ID. Full canonical danger cells are sorted and
+ * bounded (<=300); the public planner supplies <=8 drawable marker cells.
+ * Verify those markers belong to the full footprint and that the warning's
+ * stage matches the remaining authority beats. The live snapshot witness
+ * remains the controller's responsibility, never the sound engine's claim.
+ */
+function coherentWardenWarningFootprint(cue){
+ const detail=cue?.detail;
+ if(!detail||!Number.isSafeInteger(detail.attackTick)||
+  !Number.isSafeInteger(cue.tick)||cue.tick<0)return false;
+ const remaining=detail.attackTick-cue.tick;
+ if(remaining<1||remaining>3||
+  (remaining===3&&detail.shape!=='NOVA'&&detail.shape!=='ECLIPSE_SWEEP')||
+  (cue.kind==='boss-warning-final')!==(remaining===1))return false;
+ const markers=detail.cells,key=detail.footprintKey;
+ if(!Array.isArray(markers)||markers.length<1||markers.length>8||
+  typeof key!=='string'||key.length<1||key.length>1800)return false;
+ const numbers=key.split(',');
+ if(numbers.length<1||numbers.length>300)return false;
+ const sourceCells=new Set();
+ let previous=-1;
+ for(const part of numbers){
+  if(!/^(?:0|[1-9]\d{0,4})$/.test(part))return false;
+  const value=Number(part);
+  if(value>65535||value<=previous)return false;
+  previous=value;sourceCells.add(value);
+ }
+ const selected=new Set();
+ for(const marker of markers){
+  if(!marker||!Number.isInteger(marker.x)||!Number.isInteger(marker.z)||
+   marker.x<0||marker.z<0||marker.x>=256||marker.z>=256)return false;
+  const value=marker.z*256+marker.x;
+  if(selected.has(value)||!sourceCells.has(value))return false;
+  selected.add(value);
+ }
+ return true;
+}
+/**
+ * A named Warden warning comes from the same unique Warden in consecutive
+ * public snapshots. Anonymous warnings stay neutral and unowned.
  */
 export function verifiedWardenWarningFoleyActor(cue){
  if(cue?.kind!=='boss-warning-rising'&&cue?.kind!=='boss-warning-final')return null;
@@ -111,11 +148,7 @@ export function verifiedWardenWarningFoleyActor(cue){
   cue.verified===true&&cue.proof==='authority-warning-window'&&
   typeof cue.actorId==='string'&&cue.actorId.length>0&&
   cue.actorId.length<=128&&cue.targetId===null&&
-  Number.isSafeInteger(cue.tick)&&cue.tick>=0&&
-  Number.isSafeInteger(cue.detail?.attackTick)&&
-  cue.detail.attackTick>cue.tick&&
-  (cue.kind!=='boss-warning-final'||cue.detail.attackTick===cue.tick+1)?
-  cue.actorId:null;
+  coherentWardenWarningFootprint(cue)?cue.actorId:null;
 }
 /**
  * An audio retry must not borrow a different run, tick, action or victim's
