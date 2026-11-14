@@ -56,3 +56,34 @@ test('unavailable graphics remain truthful and fully inspectable forensic diagno
   // genuine external captures; only frequent in-game HUD refresh becomes cheap.
   assert.match(scene, /world:\s*world\.diagnostics\(\)/);
 });
+
+test('fast liveness preserves source/render truth without cloning forensic history or sorting sample percentiles', async () => {
+  const { createRenderProgress } = await import(
+    pathToFileURL(path('visuals/render-progress.mjs')).href);
+  const progress = createRenderProgress();
+  assert.equal(progress.liveness(20).state, 'waiting');
+  const source = { runToken: 'real-test-episode', tick: 475, floor: 9, lifecycle: 'running' };
+  progress.received(source, 100, 1000);
+  assert.equal(progress.liveness(101).state, 'starting');
+  progress.submitted(source, 116, 1016, {
+    sceneUpdateMs: 4, rendererReturnMs: 7, worldRebuildMs: 2, totalSubmissionMs: 13
+  });
+  const live = progress.liveness(120);
+  assert.equal(live.state, 'current');
+  assert.equal(live.submittedFrames, 1);
+  assert.deepEqual({ tick:live.lastSubmitted.tick,floor:live.lastSubmitted.floor },
+    {tick:475,floor:9});
+  assert.equal(Object.hasOwn(live, 'sourceTransitions'), false);
+  assert.equal(Object.hasOwn(live, 'frameMs'), false);
+  const forensic = progress.diagnostics(120);
+  assert.equal(forensic.submittedFrames, 1);
+  assert.equal(forensic.sourceTransitions.length, 2);
+  assert.equal(forensic.sourceTransitions[1].renderWorkMs.rendererReturn, 7);
+  assert.equal(forensic.sourceTransitionProof,
+    'browser-acceptance-and-renderer-return-only-NOT-native-video');
+  progress.setVisible(false, 125);
+  assert.equal(progress.liveness(130).state, 'hidden');
+  progress.setVisible(true, 135);
+  progress.reset(140);
+  assert.equal(progress.liveness(141).state, 'starting');
+});
