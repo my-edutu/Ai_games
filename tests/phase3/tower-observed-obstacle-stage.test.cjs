@@ -27,6 +27,7 @@ fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-clim
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(threeUrl))
   .replace("'./coordinates.mjs'",JSON.stringify(coordUrl))
   .replace("'./crossfloor-arrival.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href))
+  .replace("'./original-clockwork-architecture-palette.mjs'", JSON.stringify(pathToFileURL(require.resolve('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs')).href))
   .replace("'./source-physical-arrival-palette.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href))
   .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl))
