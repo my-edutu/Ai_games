@@ -34,6 +34,7 @@ function exercise(hardware){
   climateAt:()=>({season:0}),
   prepareResidentFarmFields:()=>true,
   farmFieldResidentSeason:0,farmFieldResidentDisabled:true,
+  state:{t:7},
   guildhallVisualStats:{roof:1},farmScene:{grain:1},
   craftCounters:{forge:1},marketQuarterStats:{stalls:4},
   currentMaterial:7,
