@@ -1309,3 +1309,51 @@ test('Pass346 physical guardian fins recline out of the actor lane and rise only
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass348 original guardian shell frame has true through-space and still physically responds to witnessed events',async()=>{
+  const {createMazeWorld}=await load();
+  const {Box3,Vector3,Raycaster}=await import(three);
+  const state=original(),unchanged=JSON.stringify(state);
+  const w=createMazeWorld({balanced:true}),initial=w.stats();
+  const fins=()=>[6,8].flatMap(cell=>[-1,1].map(side=>
+    w.group.getObjectByName('Published guardian Tideglass full shell-fan '+cell+' '+side)));
+  const ray=(mesh,x,y)=>{
+    mesh.updateWorldMatrix(true,false);
+    const start=mesh.localToWorld(new Vector3(x,y,2));
+    const end=mesh.localToWorld(new Vector3(x,y,-2));
+    return new Raycaster(start,end.sub(start).normalize(),0,5).intersectObject(mesh).length;
+  };
+  try{
+    w.update(state);
+    const panels=fins();
+    assert.ok(panels.length===4&&panels.every(Boolean),'four full-size original moving endpoint frames');
+    assert.ok(panels.every(p=>p.geometry.type==='ExtrudeGeometry'
+      && p.geometry.parameters.shapes.holes.length===1),'solid original shell has one real opening');
+    assert.ok(panels.every(p=>ray(p,0,0)===0),'central void reveals the real court, not an alpha-blended wall');
+    assert.ok(panels.every(p=>ray(p,-.36,0)>0),'the broad rooted rim remains genuinely opaque geometry');
+    w.group.updateMatrixWorld(true);
+    const rest=panels.map(p=>new Box3().setFromObject(p).max.y);
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    w.group.updateMatrixWorld(true);
+    assert.ok(panels.every((p,i)=>new Box3().setFromObject(p).max.y>rest[i]+.30),
+      'published brace still lifts original full-size mechanical silhouettes');
+    w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    w.group.updateMatrixWorld(true);
+    assert.ok(panels.every((p,i)=>Math.abs(new Box3().setFromObject(p).max.y-rest[i])<.08),
+      'published shell release still folds full frames before true 90% moment');
+    w.update({...state,visibleCells:[6,7,11]});
+    assert.ok(fins().every(p=>!p),'hidden real threat cannot retain its display');
+    w.update({...state,doors:[{a:7,b:8,open:false}]});
+    assert.ok(fins().every(p=>!p),'closed real door cannot create a false guardian passage');
+    for(let i=0;i<6;i++){
+      w.update({...state,runToken:'pass348-shell-reset-'+i});
+      assert.ok(fins().every(Boolean));
+      assert.ok(w.stats().geometryCount<100,'unchanged six-reset geometry ceiling');
+      assert.equal(w.stats().materialCount,initial.materialCount);
+    }
+    assert.equal(JSON.stringify(state),unchanged,'no authoritative state mutation');
+  }finally{
+    w.dispose();assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

@@ -417,6 +417,30 @@ export function createMazeWorld(options = {}) {
   outline.moveTo(-.46, -.46); outline.lineTo(.46, -.46); outline.lineTo(.46, .46); outline.lineTo(-.46, .46); outline.closePath();
   const bevel = geometry(new THREE.ExtrudeGeometry(outline, { depth: .92, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: .04, bevelThickness: .04, curveSegments: 1 }));
   bevel.translate(0, 0, -.46);
+  // Pass348: genuine 390px brace revealed four opaque warning paddles masking
+  // Pip/Thornback. Preserve the SAME substantial full-size rooted hinges,
+  // shafts, crests, material clock and actor lane, but sculpt the moving body
+  // into a single continuous Tideglass shell frame with a TRUE through-hole.
+  // No transparency trick, private state, fake route, per-frame geometry or
+  // speculative danger. The real release still retracts this entire frame.
+  const guardianShellOutline = new THREE.Shape();
+  guardianShellOutline.moveTo(-.38,-.46);
+  guardianShellOutline.quadraticCurveTo(-.51,-.21,-.43,.11);
+  guardianShellOutline.quadraticCurveTo(-.31,.47,.12,.47);
+  guardianShellOutline.quadraticCurveTo(.43,.47,.44,.26);
+  guardianShellOutline.quadraticCurveTo(.49,-.13,.29,-.43);
+  guardianShellOutline.lineTo(-.38,-.46);
+  const guardianShellOpening = new THREE.Path();
+  guardianShellOpening.moveTo(-.14,-.26);
+  guardianShellOpening.quadraticCurveTo(.09,-.38,.23,-.12);
+  guardianShellOpening.quadraticCurveTo(.32,.14,.12,.27);
+  guardianShellOpening.quadraticCurveTo(-.11,.28,-.19,.07);
+  guardianShellOpening.quadraticCurveTo(-.25,-.11,-.14,-.26);
+  guardianShellOutline.holes.push(guardianShellOpening);
+  const guardianOpenShell = geometry(new THREE.ExtrudeGeometry(guardianShellOutline,
+    {depth:.55,bevelEnabled:true,bevelSegments:1,steps:1,
+      bevelSize:.025,bevelThickness:.025,curveSegments:5}));
+  guardianOpenShell.translate(0,0,-.275);
   const cylinder = geometry(new THREE.CylinderGeometry(1, 1, 1, 12));
   const cone = geometry(new THREE.ConeGeometry(1, 1, 8));
   const sphere = geometry(new THREE.IcosahedronGeometry(1, 1));
@@ -1563,7 +1587,7 @@ export function createMazeWorld(options = {}) {
               // and crest (.64) counter that real swing while the sentinel
               // base remains at the original rooted court-side point.
               const restTilt=alongX?side*1.28:-side*1.28;
-              const sail=mesh(sailPivot,bevel,seaGlass,
+              const sail=mesh(sailPivot,guardianOpenShell,seaGlass,
                 alongX?0:side*.57,.36,alongX?side*.57:0,
                 alongX?.56:.24,.94,alongX?.24:.56,
                 alongX?restTilt:0,0,alongX?0:restTilt);
