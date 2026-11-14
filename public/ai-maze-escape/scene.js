@@ -1092,21 +1092,26 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             aspect,closestThreat.strength,pose,closestThreat,desiredTarget,portraitCameraOffset);
           desiredTarget.x+=balance.x;
           desiredTarget.z+=balance.z;
-          // A real, full-frame 390px guardian chronology still packs BOTH
-          // physical bodies against the upper mission/architecture band,
-          // leaving much of the lower portrait to inactive masonry. During an
-          // actually witnessed, strongly engaged public duel, look slightly
-          // ABOVE their grounded pair so the real Pip/Thornback movement sits
-          // nearer the centre of the 3D viewport, clear of the mission chip.
-          // The next shared full-body fitter retains the original strict
-          // +/- .95 projection limits; no actor or collision moves, no hidden
-          // cell is selected, and manual/reduced-motion/gate/pressure shots
-          // retain their preexisting camera behaviour.
+          // A full-frame 390px guardian chronology leaves both living actors high
+          // during the decisive shell-release, with too much inert lower court.
+          // After the already PUBLIC threat unfolds its actual armor, stage the
+          // visible resolution nearer portrait centre. Preserve the original
+          // physically witnessed brace and its SOLID retaining wall first-hit
+          // sightline, then let the existing camera ease into this second shot.
+          // Strict +/- .95 real-mesh fitting and manual/reduced-motion/gate
+          // and pressure priorities remain authoritative. No actor, gameplay,
+          // known map, collider or hidden-state rule is altered.
           if(cameraMode==='follow' && !settings.reducedMotion
-            && closestThreat.strength>.70) {
+            && closestThreat.strength>.70
+            && Number.isFinite(closestThreat.encounterBeat)) {
             const witness=clamp((closestThreat.strength-.70)/.10,0,1);
-            const performance=clamp((closestThreat.encounterBeat-.08)/.35,0,1);
-            desiredTarget.y+=1.18*witness*(.70+.30*performance);
+            // Keep the verified actual brace sightline (including its opaque
+            // public guardian wall) fixed. Only AFTER the real armor-shell
+            // release begins does the camera settle lower on both living
+            // actors. This is earned encounter resolution, never a fabricated
+            // prediction, a move or a new vision source.
+            const shellRelease=clamp((closestThreat.encounterBeat-.70)/.20,0,1);
+            desiredTarget.y+=1.18*witness*shellRelease;
           }
           targetHeight = publicPortraitGuardianHalfHeight(
             aspect,targetHeight,closestThreat.strength,pose,closestThreat,
