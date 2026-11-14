@@ -1300,6 +1300,28 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
   bottom:210px!important;
  }
 }
+/* W312: genuine workday, not tap-to-inspect, owns the lower caption.
+   Original 390px video showed the live worker's shift obscured by Supply.
+   Reserve the whole caption + progress band, with an 8px+ gap, even if
+   the separate citizen-inspection overlay was never opened. Preserve an
+   accessible 44px Supply button and the user-opened real receipt trail. */
+@media(max-width:520px){
+ body[data-command="world"][data-workday="live"]:not([data-street="on"]):not([data-hud="cinema"]) #world-ribbon,
+ body[data-command="world"][data-workday="delivery"]:not([data-street="on"]):not([data-hud="cinema"]) #world-ribbon{
+  position:fixed!important;top:auto!important;
+  bottom:clamp(202px,26vh,270px)!important;
+  left:50%!important;right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(376px,calc(100vw - 16px))!important;
+  max-width:calc(100vw - 16px)!important;
+  min-height:44px!important;
+  display:flex!important;
+ }
+ body[data-command="world"][data-workday="live"]:not([data-hud="cinema"]) #world-trace-toggle,
+ body[data-command="world"][data-workday="delivery"]:not([data-hud="cinema"]) #world-trace-toggle{
+  min-height:44px!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
