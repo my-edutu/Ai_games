@@ -976,8 +976,6 @@ export function createTowerWorld(){
   }
   function finishBatches(){
     const boundaries=new Set([particles,vistaGroup,...platforms.values()].map(e=>e?.root||e).filter(Boolean));
-    // Stable first-frame destination must remain an independently owned,
-    // low-draw rigid batch, not be merged away with a later arriving shaft.
     if(stagedVoidArchitecture?.root){
       batchRigid(stagedVoidArchitecture.root);
       boundaries.add(stagedVoidArchitecture.root);
@@ -1134,12 +1132,8 @@ export function createTowerWorld(){
     instanced(root,sphere(),materials.gateTrim,studs);
     return root;
   }
-  // The full Void shaft is deliberately GPU-deferred at a genuine HP-zero
-  // Floor8→9 crossing. The ORIGINAL F9 load-bearing core and one nearest
-  // exterior buttress are not distant spectacle: keep their EXISTING authored
-  // geometry in the FIRST successor frame with the real bronze threshold.
-  // The deferred build reuses these exact nodes instead of building clones.
-  // No collision, platform, original doorway, hero pose or source rule changes.
+  // Reuse authored Void bearing geometry across the first source-earned scene
+  // and the later cold-built noninteractive shaft, never a duplicate proxy.
   function buildVoidOpenCoreLoadPath(height,parent=floorGroup) {
     const root=parent;
       // REAL F8->9 native 1x footage (4faa852b, 25-27s) still replaces the
@@ -1169,9 +1163,43 @@ export function createTowerWorld(){
         strut.name='VoidOpenCoreRearDiagonalStay';strut.userData.structural=true;
         const roofTie=beam(core,[side*8.4,height+9,-8.1],
           [side*8.4,height+10,8.1],.23,materials.metal);
-        roofTie.name='VoidOpenCoreCrownTie';roofTie.userData.structura    } else if(theme==='void' && height>30) {
-      if(!stagedVoidArchitecture)buildVoidOpenCoreLoadPath(height,root);
-true;
+        roofTie.name='VoidOpenCoreCrownTie';roofTie.userData.structural=true;
+      }
+      const posts=instanced(core,bevel(),materials.stone,supports);
+      posts.name='VoidOpenCoreRearLoadPosts';posts.userData.structural=true;
+  }
+  function buildVoidOpenBearingPylon(body,p,shoulder) {
+        // The violet outer buttresses previously formed three enormous
+        // opaque shafts across the new-floor and retained-door camera rays.
+        // Rebuild them as supported arches with rear bearing posts, low
+        // exterior stanchions and upper tension members. The authentic F9
+        // platform/hazard geometry remains untouched and fully opaque.
+        const baseY=-15,topY=shoulder+3,corner=p.R*.71;
+        const foundation=lathe(body,[[0,p.bottom],[p.R*.74,p.bottom],
+          [p.R*.95,p.bottom+2],[p.R*.94,-19],
+          [p.R*.76,baseY],[0,baseY]],materials.stone);
+        foundation.name='VoidOpenButtressFooting';
+        foundation.userData.structural=true;
+        const roof=lathe(body,[[p.R*.45,topY-1],[p.R*.59,topY-.5],
+          [p.R*.59,topY+1],[p.R*.45,topY+1.5]],materials.stone);
+        roof.name='VoidOpenButtressCrown';roof.userData.structural=true;
+        const uprights=[];
+        for(const sx of [-1,1])for(const sz of [-1,1]){
+          const tip=sz<0?topY:Math.min(10,topY-9);
+          uprights.push({p:[sx*corner,(baseY+tip)/2,sz*corner],
+            s:[.53,tip-baseY,.53]});
+        }
+        const piers=instanced(body,bevel(),materials.stone,uprights);
+        piers.name='VoidOpenButtressRearPiersAndFrontStanchions';
+        piers.userData.structural=true;
+        for(const sx of [-1,1]){
+          const upperTie=beam(body,[sx*corner,topY-2,-corner],
+            [sx*corner,topY,corner],.22,materials.metal);
+          upperTie.name='VoidOpenButtressRoofTensionTie';
+          upperTie.userData.structural=true;
+          const knee=beam(body,[sx*corner,baseY+.3,-corner],
+            [sx*corner*.68,baseY+9,-corner],.22,materials.copper);
+          knee.name='VoidOpenButtressRearKnee';knee.userData.structural=true;
         }
         for(const edge of [-1,1]){
           const crownBeam=block(body,materials.metal,
@@ -1199,9 +1227,6 @@ true;
     const frame=new THREE.Group();
     frame.name='SourceEarnedVoidLandingBearingFrame';
     floorGroup.add(frame);
-    // Both are the unchanged existing F9 architectural builders. Moving
-    // their exact meshes into the first submitted scene gives the retained
-    // original Clockwork doorway a real adjacent destination and depth.
     buildVoidOpenCoreLoadPath(height,frame);
     const bearing=pylons[nearest], body=new THREE.Group();
     radial(body,bearing.a,bearing.r,0);frame.add(body);
@@ -1248,37 +1273,7 @@ true;
         collar.userData.structural=true;
       }
     } else if(theme==='void' && height>30) {
-      // REAL F8->9 native 1x footage (4faa852b, 25-27s) still replaces the
-      // opened bronze threshold with a solid purple central wall. This is
-      // original non-colliding architectural geometry, not a gameplay core.
-      // Preserve a heavyweight foundation and inhabited crown, but engineer
-      // a permanently OPEN central observation bay at actual climbing height.
-      // It has rear load stays and roof-to-ground bracing, not an alpha-faded
-      // full-height cylinder or a synthetic passage/actor/collider.
-      const base=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
-        [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
-      base.name='VoidOpenCoreFoundation';base.userData.structural=true;
-      const crown=lathe(root,[[0,height+10],[10.6,height+10],
-        [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
-      crown.name='VoidOpenCoreSupportedCrown';crown.userData.structural=true;
-      const core=new THREE.Group();core.name='VoidOpenCoreLoadPath';
-      core.position.z=-3;root.add(core);
-      const supports=[];
-      for(const side of [-1,1]) {
-        supports.push({p:[side*8.4,(9+height+10)*.5,-8.1],
-          s:[.74,height+1,.74]});
-        // Front legs stop below the real 18-40m action band, leaving a
-        // substantial real daylight window to the original HP-open arch.
-        supports.push({p:[side*8.4,10,8.1],s:[.82,2,.82]});
-        const strut=beam(core,[side*8.4,11,-8.1],
-          [side*8.4,height+9,-6.7],.26,materials.metal);
-        strut.name='VoidOpenCoreRearDiagonalStay';strut.userData.structural=true;
-        const roofTie=beam(core,[side*8.4,height+9,-8.1],
-          [side*8.4,height+10,8.1],.23,materials.metal);
-        roofTie.name='VoidOpenCoreCrownTie';roofTie.userData.structural=true;
-      }
-      const posts=instanced(core,bevel(),materials.stone,supports);
-      posts.name='VoidOpenCoreRearLoadPosts';posts.userData.structural=true;
+      if(!stagedVoidArchitecture)buildVoidOpenCoreLoadPath(height,root);
     } else {
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
@@ -1286,8 +1281,8 @@ true;
     const capStructure=clockworkCapActionClearSpan(theme,height);
     const pylons=capStructure.pylons;
     for(const [i,p]of pylons.entries()){
-      // This real nearest doorway-bearing bay already lives in the first
-      // original-source successor frame; never generate a double buttress.
+      // This existing nearest buttress was already constructed alongside the
+      // source-retained original gateway; do not create another one later.
       if(theme==='void' && height>30 &&
          stagedVoidArchitecture?.pylonIndex===i)continue;
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
