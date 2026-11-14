@@ -6,7 +6,15 @@
 // were still uploading. Keep one bounded resolution ramp through the SAME
 // genuine source run, regardless of subsequent authentic airborne movement.
 // Nothing buffers/replays poses, changes authority, HUD, DOM, or other tiers.
-const INITIAL_SCALES = Object.freeze([0.72, 0.82, 0.90, 0.96]);
+// 25fps source-pinned F8->F9 footage exposed a >600ms first F9 WebGL
+// return. Changing .72 -> .82 -> .90 -> .96 -> 1 every submitted frame
+// reallocates the actual WebGL drawing buffer up to FIVE times at the same
+// critical cold-upload boundary. One reduced-size epoch, ONE restoration;
+// do not pretend renderer-return CPU time is GPU time or device FPS.
+const COLD_SCALE = .72;
+const MIN_RETURNED_FRAMES = 4;
+const MAX_RETURNED_FRAMES = 8;
+const CHEAP_WEBGL_RETURN_MS = 180;
 
 function liveFrame(snapshot, options) {
   return snapshot?.lifecycle === 'running' && snapshot.floor === 9 &&
@@ -60,11 +68,12 @@ function eligibleStart(snapshot, passage, retained, options) {
 }
 
 export function createTowerColdFloorResolution() {
-  let bound = null, submittedFrames = 0, finished = null;
+  let bound = null, submittedFrames = 0, fastReturnStreak = 0, finished = null;
 
   function reset() {
     bound = null;
     submittedFrames = 0;
+    fastReturnStreak = 0;
   }
 
   // The optional retained witness is returned by the existing real Three
@@ -84,7 +93,7 @@ export function createTowerColdFloorResolution() {
         return 1;
       }
       bound.lastTick = snapshot.tick;
-      return INITIAL_SCALES[submittedFrames] ?? 1;
+      return COLD_SCALE;
     }
     const sourceTick = eligibleStart(snapshot, passage, retained, options);
     if (sourceTick === null ||
@@ -93,11 +102,19 @@ export function createTowerColdFloorResolution() {
     bound = {runToken:snapshot.runToken, floor:9,
       sourceTick, lastTick:snapshot.tick};
     submittedFrames = 0;
-    return INITIAL_SCALES[0];
+    fastReturnStreak = 0;
+    return COLD_SCALE;
   }
 
-  function submitted(snapshot) {
-    if (!bound || submittedFrames >= INITIAL_SCALES.length ||
+  // A return is a real renderer.render() completion; a source tick or stalled
+  // browser poll never advances this display-only quality budget. The first
+  // four submitted frames remain a single .72 drawing-buffer allocation.
+  // After that, two consecutive *measured* inexpensive returns may restore
+  // original resolution, or eight returns force a bounded restoration.
+  // Missing/invalid costs never qualify as fast. No source gameplay is read
+  // forward, replayed, frozen or invented.
+  function submitted(snapshot, rendererReturnMs = NaN) {
+    if (!bound || submittedFrames >= MAX_RETURNED_FRAMES ||
         snapshot?.lifecycle !== 'running' ||
         snapshot.runToken !== bound.runToken ||
         snapshot.floor !== bound.floor ||
@@ -106,10 +123,15 @@ export function createTowerColdFloorResolution() {
         snapshot.tick < bound.lastTick ||
         snapshot.tick - bound.sourceTick > 96) return false;
     submittedFrames++;
-    if (submittedFrames >= INITIAL_SCALES.length) {
-      finished = {runToken:bound.runToken, sourceTick:bound.sourceTick};
-      // Do not accidentally start a second cold rescue if the same genuine
-      // handoff is still active when the fourth WebGL frame returns.
+    if (Number.isFinite(rendererReturnMs) && rendererReturnMs >= 0 &&
+        rendererReturnMs <= CHEAP_WEBGL_RETURN_MS)
+      fastReturnStreak = Math.min(2, fastReturnStreak + 1);
+    else fastReturnStreak = 0;
+    if (submittedFrames >= MAX_RETURNED_FRAMES ||
+        (submittedFrames >= MIN_RETURNED_FRAMES && fastReturnStreak >= 2)) {
+      finished = { runToken: bound.runToken, sourceTick: bound.sourceTick };
+      // The next actual frame restores the existing resolution with exactly
+      // one resize. Never start another epoch for this physical crossing.
       bound = null;
     }
     return true;
@@ -117,13 +139,16 @@ export function createTowerColdFloorResolution() {
 
   function diagnostics() {
     return {
-      active: bound !== null && submittedFrames < INITIAL_SCALES.length,
+      active: bound !== null,
       submittedFrames,
-      scale: INITIAL_SCALES[submittedFrames] ?? 1,
+      scale: bound ? COLD_SCALE : 1,
+      fastReturnStreak,
+      maxFrames: MAX_RETURNED_FRAMES,
+      maxScaleTransitionsPerEarnedEpisode: 2,
       sourceTick: bound?.sourceTick ?? null,
       lastTick: bound?.lastTick ?? null,
       finishedSourceTick: finished?.sourceTick ?? null,
-      evidence: 'Returned-WebGL resolution policy, not device FPS or native-pixel acceptance'
+      evidence: 'Source-owned WebGL-return framebuffer policy, NOT device FPS, GPU completion or native-pixel quality'
     };
   }
   return {observe, submitted, reset, diagnostics};
