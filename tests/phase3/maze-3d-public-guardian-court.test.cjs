@@ -1357,3 +1357,52 @@ test('Pass348 original guardian shell frame has true through-space and still phy
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass360 source-bound guardian sealed masonry is a continuous low stage sill with NO legacy tall pier forest',async()=>{
+  const {createMazeWorld}=await load();
+  const {Matrix4,Quaternion,Vector3}=await import(three);
+  const s=original();
+  s.visibleCells.push(5,9);
+  s.cells.push(...[5,9].map(cell=>({cell,blocked:true,neighbors:[]})));
+  const truth=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const inspect=()=>{
+    let sills=0,legacyGuardianPiers=0;
+    const matrix=new Matrix4(),point=new Vector3(),quat=new Quaternion(),size=new Vector3();
+    w.group.traverse(mesh=>{
+      if(!mesh.isInstancedMesh)return;
+      for(let i=0;i<mesh.count;i++){
+        mesh.getMatrixAt(i,matrix);matrix.decompose(point,quat,size);
+        if(mesh.material?.color?.getHexString()==='28574f'){
+          if(Math.abs(size.y-.26)<.00001 &&
+            ((Math.abs(size.x-2.32)<.00001&&Math.abs(size.z-.39)<.00001)
+            ||(Math.abs(size.z-2.32)<.00001&&Math.abs(size.x-.39)<.00001)))sills++;
+          if(Math.abs(size.y-.40)<.00001&&Math.abs(size.x-.24)<.00001
+            &&Math.abs(size.z-.24)<.00001)legacyGuardianPiers++;
+        }
+      }
+    });
+    return {sills,legacyGuardianPiers};
+  };
+  try{
+    w.update(s);
+    assert.equal(w.stats().guardianSightlineParapets,2);
+    assert.deepEqual(inspect(),{sills:2,legacyGuardianPiers:0},
+      'every real published guardian solid side is one opaque low sill, not two obstructing piers');
+    assert.equal(JSON.stringify(s),truth,'world never mutates public or private navigation');
+    assert.equal(w.stats().geometryCount,budget.geometryCount);
+    assert.equal(w.stats().materialCount,budget.materialCount);
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.deepEqual(inspect(),{sills:0,legacyGuardianPiers:0},
+      'sealed guardian route revokes only the earned low architecture');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'guardian-sill-six-run-'+i});
+      assert.equal(inspect().sills,2);
+      assert.ok(w.stats().geometryCount<100,'unchanged strict reset geometry budget');
+    }
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
