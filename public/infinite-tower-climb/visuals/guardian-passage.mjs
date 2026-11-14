@@ -1058,6 +1058,7 @@ export function createTowerGuardianPassage(THREE) {
   // untouched during stale reads, but retire the route instantly when the
   // real body leaves the ground, run or floor. No guessed future footsteps.
   function trackSuccessor(source, stale=false) {
+    invalidateDiagnostics();
     if(disposed || stale || !group.visible ||
       stage!=='handoff' || !continuousGroundedHandoff ||
       inlayMode!=='successor-ground') return false;
@@ -1103,8 +1104,9 @@ export function createTowerGuardianPassage(THREE) {
   // Fail-safe for permanent WebGL failure without a false indefinite gate.
   const handoffNeverSubmittedTimeoutSeconds = 6;
   const duration = 2.9;
-  const clamp = v => Math.max(0, Math.min(1, v));
+  // Memoize one complete forensic report per actual source / Three passage\n  // mutation; ordinary world/camera callers share its identical immutable\n  // read-only snapshot instead of copying nested arrays 15+ times per frame.\n  // A new gate, tick, submitted render, staged beat, or restart invalidates it.\n  let diagnosticsCache = null;\n  function invalidateDiagnostics() { diagnosticsCache = null; }\n  const clamp = v => Math.max(0, Math.min(1, v));
   function clear() {
+    invalidateDiagnostics();
     group.visible = false;
     memoryFrame.visible = false;
     innerDoorAssembly.visible = false;
@@ -1171,6 +1173,7 @@ export function createTowerGuardianPassage(THREE) {
     posePowerBreak(0,false);
   }
   function lock(source, anchor) {
+    invalidateDiagnostics();
     const observed = observedLockedGuardianCap(source);
     if (!observed || disposed || !anchor ||
         ![anchor.x,anchor.y,anchor.z,anchor.angle].every(Number.isFinite))
@@ -1209,6 +1212,7 @@ export function createTowerGuardianPassage(THREE) {
     return true;
   }
   function unlock(source, anchor) {
+    invalidateDiagnostics();
     const earned = observedUnlockedGuardianCap(source);
     if (!earned || disposed || !anchor ||
       ![anchor.x, anchor.y, anchor.z, anchor.angle].every(Number.isFinite))
@@ -1262,6 +1266,7 @@ export function createTowerGuardianPassage(THREE) {
     return true;
   }
   function begin(previous, source, anchor, guardianAnchor = null) {
+    invalidateDiagnostics();
     if (!observedGuardianPassage(previous, source)) return false;
     if (disposed || !source || !anchor || source.lifecycle !== 'running' ||
       !Number.isSafeInteger(source.tick) || !Number.isSafeInteger(source.floor) ||
@@ -1333,6 +1338,7 @@ export function createTowerGuardianPassage(THREE) {
     return true;
   }
   function update(dt = 0, options = {}) {
+    invalidateDiagnostics();
     if (disposed || !group.visible) return;
     if (!options.stale) {
       const advance = Math.min(.5, Math.max(0, Number.isFinite(dt) ? dt : 0));
@@ -1422,6 +1428,7 @@ export function createTowerGuardianPassage(THREE) {
     return clamp(1 - age / 1.35);
   }
   function noteFrameSubmitted(source, options = {}) {
+    invalidateDiagnostics();
     // Called ONLY after successful real Three.js submission, never when the
     // HTTP payload is accepted. This is not a display, GPU-present or video
     // proof. Stale/restarted/wrong-floor frames never authorize a handoff.
@@ -1464,7 +1471,12 @@ export function createTowerGuardianPassage(THREE) {
     });
   }
   function diagnostics() {
-    return { sourceBound: true, active: group.visible, stage, runToken,
+    if (diagnosticsCache) return diagnosticsCache;
+    const live = liveWitness();
+    return diagnosticsCache = {
+      // Stage/run/floor/tick are drawn from the same immutable live source
+      // witness as the world-facing lightweight contract.
+      ...live, sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
       handoffSubmittedFrames,
       handoffDisplaySeconds: Number(handoffDisplaySeconds.toFixed(4)),
@@ -1538,6 +1550,7 @@ export function createTowerGuardianPassage(THREE) {
       geometries: ownedGeometry.length, shadows: 0, disposed };
   }
   function dispose() {
+    invalidateDiagnostics();
     if (disposed) return;
     disposed = true;
     clear();

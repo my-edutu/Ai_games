@@ -2860,9 +2860,9 @@ export function createTowerScene(canvas, settings = {}) {
         passage.lock(next, pointFor(guardianGateAnchorX(next, cap),
           cap.y + cap.height + 20000, next.chunkBaseY,
           next.worldWidth, 27.78));
-      } else if (passage.liveWitness().stage === 'guardian-locked' ||
+      } else if (passage.diagnostics().stage === 'guardian-locked' ||
           (next.lifecycle !== 'running' &&
-          passage.liveWitness().stage === 'earned-open')) {
+          passage.diagnostics().stage === 'earned-open')) {
         passage.clear();
       }
     }
@@ -2878,15 +2878,15 @@ export function createTowerScene(canvas, settings = {}) {
     // only when the authoritative record is absent or not safely matched.
     // This cannot authorize a floor, collider, HP loss or extra movement.
     const recordedGroundedGatewayPrevious = !options.stale &&
-      passage.liveWitness().stage !== 'handoff'
+      passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianHandoff(next) : null;
     const recordedAirborneGatewayPrevious = !options.stale &&
       !recordedGroundedGatewayPrevious &&
-      passage.liveWitness().stage !== 'handoff'
+      passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianAirborneHandoff(next) : null;
     const recordedDoorstepGatewayPrevious = !options.stale &&
       !recordedGroundedGatewayPrevious && !recordedAirborneGatewayPrevious &&
-      passage.liveWitness().stage !== 'handoff'
+      passage.diagnostics().stage !== 'handoff'
       ? observedRecordedGuardianDoorstepHandoff(next) : null;
     const recordedGatewayPrevious = recordedGroundedGatewayPrevious ||
       recordedAirborneGatewayPrevious || recordedDoorstepGatewayPrevious;
@@ -2957,7 +2957,7 @@ export function createTowerScene(canvas, settings = {}) {
         // Expose the real source-to-owner decision in capture diagnostics;
         // staging is not a successful render or a native pixel proof.
         const continuousGroundedHandoff =
-          started && passage.liveWitness().continuousGroundedHandoff===true;
+          started && passage.diagnostics().continuousGroundedHandoff===true;
         const originalGateStaged = continuousGroundedHandoff
           ? world.stageGroundedCapContinuation(gatewayPrevious,next)===true
           : false;
@@ -3032,10 +3032,8 @@ export function createTowerScene(canvas, settings = {}) {
     }
   }
 
-  let passageLiveFrame = null;
   function update(dt) {
     if (!snapshot) return;
-    passageLiveFrame=passage.liveWitness();
     // update() runs only with a valid context. Snapshot/theme changes accepted
     // during interruption therefore cannot allocate replacement GPU resources.
     if (reflectionDirty) {
@@ -3052,7 +3050,7 @@ export function createTowerScene(canvas, settings = {}) {
     }
     // The real old cap/door, environmental horizon and camera share the
     // existing source-verified submitted-frame passage clock.
-    world.update(snapshot, dt, elapsed, options, passageLiveFrame);
+    world.update(snapshot, dt, elapsed, options, passage.diagnostics());
     // Only the actually selected/occupied source moving deck gets an extra
     // non-colliding mechanical undercarriage; duplicate render frames do not
     // advance it, and live guardians retain visual priority.
@@ -3305,7 +3303,6 @@ export function createTowerScene(canvas, settings = {}) {
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     finale.update(snapshot, climber.group.position, elapsed, options);
     passage.update(dt, options);
-    passageLiveFrame=passage.liveWitness();
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
       attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);
@@ -3551,7 +3548,7 @@ export function createTowerScene(canvas, settings = {}) {
     const liveExit = !overview && !options.stale &&
       snapshot.lifecycle === 'running' && p.health > 0
       ? observedUnlockedGuardianCap(snapshot) : null;
-    const earnedPassageStage = liveExit ? passageLiveFrame : null;
+    const earnedPassageStage = liveExit ? passage.diagnostics() : null;
     const sourceEarnedWalk = !overview && !options.reducedMotion &&
       !options.stale && liveExit &&
       earnedPassageStage?.active &&
@@ -3582,7 +3579,7 @@ export function createTowerScene(canvas, settings = {}) {
       ? observedLockedGuardianCap(snapshot) : null;
     const sourceLastStand = !overview && !options.reducedMotion &&
       !options.stale && liveLastStand &&
-      passageLiveFrame.stage === 'guardian-locked'
+      passage.diagnostics().stage === 'guardian-locked'
       ? observedLiveGuardianLastStandShot(snapshot, liveLastStand, camera.aspect, zoom)
       : null;
     // The grounded source 8→9 handoff retains the same real threshold, but
@@ -3591,12 +3588,12 @@ export function createTowerScene(canvas, settings = {}) {
     // genuinely supported on Floor9 and physically close to the old doorway.
     const sourceGroundedHandoffShot = !overview && !options.stale &&
       !options.reducedMotion && snapshot.lifecycle === 'running'
-      ? observedGroundedHandoffShot(snapshot, passageLiveFrame,
+      ? observedGroundedHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
     const sourceAirborneHandoffShot = !overview && !options.stale &&
       !options.reducedMotion && snapshot.lifecycle === 'running' &&
       typeof observedAirborneHandoffShot === 'function'
-      ? observedAirborneHandoffShot(snapshot, passageLiveFrame,
+      ? observedAirborneHandoffShot(snapshot, passage.diagnostics(),
           camera.aspect, zoom) : null;
     // Preserve the truthful old bronze gate in the *first actually submitted*
     // Floor 9 shot even when its shorter decorative passage animation expired.
@@ -3626,11 +3623,11 @@ export function createTowerScene(canvas, settings = {}) {
     const jointThresholdShot = !overview && !options.stale &&
       !options.reducedMotion && snapshot.lifecycle === 'running' &&
       (sourceGroundedHandoffShot || sourceAirborneHandoffShot)
-      ? observedEarnedCrossfloorJointShot(snapshot, passageLiveFrame,
+      ? observedEarnedCrossfloorJointShot(snapshot, passage.diagnostics(),
           climber.group.position, camera.aspect, zoom) : null;
     const realCapStage = sourceEarnedWalk || sourceAirborneWalk
       ? earnedPassageStage : sourceLastStand || sourceGroundedHandoffShot ||
-        sourceAirborneHandoffShot ? passageLiveFrame
+        sourceAirborneHandoffShot ? passage.diagnostics()
           : coldArchLens ? {focusPosition:coldArchLens.gateway} : null;
     // The source-qualified next-floor camera request must also reach the
     // real visual rescue below. Before this, the follow lens tracked the
@@ -3711,8 +3708,8 @@ export function createTowerScene(canvas, settings = {}) {
     // Actor, guardian and destination safety still outrank this optional
     // composition. No separate camera, cut or gameplay control is created.
     const sourceWalkProgress = liveExit &&
-      passageLiveFrame.stage === 'earned-open' && !options.reducedMotion
-      ? passageLiveFrame.inlayProgress : 0;
+      passage.diagnostics().stage === 'earned-open' && !options.reducedMotion
+      ? passage.diagnostics().inlayProgress : 0;
     const walkwayLead = Math.max(0, Math.min(.34,
       (sourceWalkProgress - .18) / .65 * .34));
     const physicalEscort = Math.max(releaseWeight, walkwayLead);
@@ -4332,7 +4329,7 @@ export function createTowerScene(canvas, settings = {}) {
     earnedGatewayEscortLastGain = 0;
     const earnedStage = !overview && !options.stale &&
       (!!liveExit || !!sourceGroundedHandoffShot || !!sourceAirborneHandoffShot)
-      ? passageLiveFrame : null;
+      ? passage.diagnostics() : null;
     const gatewayEarned = !!earnedStage?.active &&
       ((earnedStage.stage === 'earned-open' && !!liveExit) ||
        (earnedStage.stage === 'handoff' &&
@@ -5008,7 +5005,7 @@ export function createTowerScene(canvas, settings = {}) {
     // Before the first renderer return, keep the prior warm horizon; then
     // transition ALL environmental channels together with the grounded arch.
     // Do not overwrite physical dangers, hero/boss lighting, or user camera.
-    const thresholdLight=observedGroundedBiomeThreshold(snapshot,passageLiveFrame,options,
+    const thresholdLight=observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options,
       world.retainedFilmHandoff?.(snapshot) ?? null);
     const oldWeight=thresholdLight?.oldWeight ?? 0;
     if(thresholdLight || lastBiomeHandoffOldWeight>0){
@@ -5082,7 +5079,7 @@ export function createTowerScene(canvas, settings = {}) {
       // first real airborne follow frames, instead of reallocating a
       // full-size GPU target in the middle of the doorway shot.
       const retainedColdArrival = world.retainedFilmHandoff?.(snapshot) ?? null;
-      const nextColdScale = coldFloorPolicy.observe(snapshot,passageLiveFrame ?? passage.liveWitness(),
+      const nextColdScale = coldFloorPolicy.observe(snapshot,passage.diagnostics(),
         {stale:options.stale,camera:options.camera,quality:options.quality,reducedMotion:options.reducedMotion},
         retainedColdArrival);
       if (nextColdScale !== coldFloorScale) {
