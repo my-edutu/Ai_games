@@ -148,6 +148,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   Math.abs(previousLowerRad)>=.045&&Math.abs(previousLowerRad)<=.11&&
   Math.sign(previousUpperRad)===-Math.sign(previousLowerRad);
  let best=null;
+ const certifiedChoices=[];
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
   // 140/105mrad is reserved for a physically observed >=50ms source frame,
@@ -194,7 +195,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    Math.abs(upperRad)<Math.abs(best.upperRad)-.000001||
    (Math.abs(Math.abs(upperRad)-Math.abs(best.upperRad))<=.000001&&
     Math.abs(lowerRad)<Math.abs(best.lowerRad)-.000001));
-  if(!best||(freshFast?gentler:lift>best.liftMeters))best={
+  const candidate={
    side,upperRad,lowerRad,liftMeters:lift,fractionCleared:cleared,
    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
@@ -202,6 +203,23 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    linkedContinuity:prior?'same-certified-source-frame':'safe-first-source-frame',
    source:'measured-original-skinned-linked-leg'
   };
+  if(prior)certifiedChoices.push(candidate);
+  if(!best||(freshFast?gentler:lift>best.liftMeters))best=candidate;
+ }
+ // Prior-frame original-sole evidence allows a larger arc, but not arbitrary
+ // frame-to-frame knee hunting for an extra 1–2mm of toe lift. Choose the
+ // smallest joint change among candidates within 2mm of the BEST measured
+ // toe recovery. A larger independently measured clearance gain still wins.
+ // This uses at most the same four reversible source-skinned probes and
+ // changes no authoritative movement, source clip, bind pose or foot contact.
+ if(prior&&certifiedChoices.length>1){
+  const bestLift=Math.max(...certifiedChoices.map(c=>c.liftMeters));
+  const near=certifiedChoices.filter(c=>c.liftMeters>=bestLift-.002);
+  const slew=c=>Math.abs(c.upperRad-previousUpperRad)+
+   Math.abs(c.lowerRad-previousLowerRad);
+  best=near.reduce((a,c)=>!a||slew(c)<slew(a)-.0000001||
+   (Math.abs(slew(c)-slew(a))<=.0000001&&
+    c.liftMeters>a.liftMeters)?c:a,null);
  }
  return best;
 }
