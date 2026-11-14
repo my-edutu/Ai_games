@@ -21,23 +21,31 @@ const context={
  terrain:()=>0,
  marketStallProfile:i=>({structural:i<2,eave:[4.20,3.98,3.25,3.04][i]})
 };
-vm.runInNewContext(source.slice(start,end),context,{timeout:1000});
+const plan=source.indexOf('function originalMarketOpenRearScreenPlan(');
+const planEnd=source.indexOf('function marketStall(s,index)',plan);
+assert(plan>=0&&planEnd>plan,'the running game's honest thin timber back-screen plan');
+vm.runInNewContext(source.slice(plan,planEnd)+source.slice(start,end),
+ context,{timeout:1000});
 const boxes=context.physicalStreetLevelStallVolumes();
-assert.equal(boxes.length,22,'4 real stalls require both counters, a rear screen, elevated wall(s) and the real sign');
+assert.equal(boxes.length,38,'four real traders: original counters, five thin rear boards each, authentic lofts and signs');
 assert(boxes.every(b=>Number.isFinite(b.x)&&Number.isFinite(b.z)&&
  b.rx>0&&b.rz>0&&b.top>b.bottom),'market camera bounds must all be physical');
 const screens=boxes.filter(b=>b.kind==='market-stall-screen');
-assert.equal(screens.length,4,'retain every original opaque lower trading screen');
+assert.equal(screens.length,20,'each of four original stalls now uses five real open rear boards');
 for(const [i,stall] of stalls.entries()){
- const back=screens[i];
- assert.equal(back.x,stall.x);
- assert(Math.abs(back.z-(stall.z-stall.face*.84))<1e-8,
-  'actual wooden rear panels follow authentic faces');
- assert(Math.abs(back.rx-1.225)<1e-8);
- assert(Math.abs(back.bottom-.17)<1e-8&&Math.abs(back.top-.84)<1e-8);
+ const planRows=context.originalMarketOpenRearScreenPlan(stall);
+ assert.equal(planRows.length,5);
+ const visible=screens.filter(row=>Math.abs(row.z-(stall.z-stall.face*.84))<1e-8);
+ assert.equal(visible.length,5);
+ for(const slat of planRows)assert(visible.some(row=>
+  Math.abs(row.x-slat.x)<1e-8&&Math.abs(row.rx-slat.width*.5)<1e-8&&
+  Math.abs(row.bottom-slat.bottom)<1e-8&&Math.abs(row.top-slat.top)<1e-8),
+  'camera must see the exact real boards, not a fabricated opaque wall');
+ assert(planRows.reduce((sum,row)=>sum+row.width*(row.top-row.bottom),0)<1.06,
+  'literal empty gaps must replace the previous giant solid rear plank');
 }
 const upper=boxes.filter(b=>b.kind==='market-stall-upper-wall');
 assert.equal(upper.length,6,'two original enclosed upper tradehouses and four original artisan side walls');
 assert(!source.includes('new FakeCitizen('));
 assert(source.includes('bottom:194px!important;'), '390px compact Supply control cannot cover real work caption');
-console.log('W310 exact original market ground-level geometry and 390px workday composition source PASS; live-frame visibility remains separate.');
+console.log('W310/W313 source PASS: original open market has truthful physical camera slat bounds; 390px live-frame visibility remains separate.');
