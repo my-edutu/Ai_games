@@ -488,9 +488,19 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function allocate(pool,priority){
   let index=pool.slots.findIndex(x=>x===null);
   if(index>=0)return index;
-  let least=0;
-  for(let i=1;i<pool.max;i++)if(pool.slots[i].priority<pool.slots[least].priority)least=i;
-  if(pool.slots[least].priority>=priority)return -1;
+  // A Warden floor marker names an authoritative, CURRENT danger cell.
+  // Pool priority alone must not let a transient body ring erase one of
+  // eight live threatened tiles. The legitimate matching release explicitly
+  // closes spent warnings before allocation; stale warnings may be displaced.
+  // Check only on saturation (eight fixed signal slots), never every frame.
+  let least=-1;
+  for(let i=0;i<pool.max;i++){
+   const slot=pool.slots[i];
+   if(pool.name==='signal'&&slot?.cue?.visual==='warning'&&
+    warningStillLive(slot.cue))continue;
+   if(least<0||slot.priority<pool.slots[least].priority)least=i;
+  }
+  if(least<0||pool.slots[least].priority>=priority)return -1;
   preempted++;return least;
  }
  // The lower-priority Warden release must not be hidden by eight older
