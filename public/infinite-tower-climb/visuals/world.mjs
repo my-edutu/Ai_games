@@ -1292,15 +1292,21 @@ export function createTowerWorld(){
         Math.sin(pylons[i].a-routeAngle),Math.cos(pylons[i].a-routeAngle)));
       return offset(index)<offset(best)?index:best;
     },0);
+    // Original normal-speed desktop/portrait candidate b16a8378 still
+    // shows the new Void exterior mass occupying the original bronze doorway
+    // depth at the exact 8->9 transition. Instead of staging that near opaque
+    // pylon INTO the first earned frame, retain the existing actual old gate
+    // and bearing gallery with the new Void REAR core support only. All
+    // original new-floor exterior piers are assembled after source departure
+    // by the existing deferred, renderer-submitted architecture job. No
+    // synthetic portal, gameplay floor, collision or false source event.
+    // Ordinary unearned Floor9 construction remains untouched.
     const frame=new THREE.Group();
     frame.name='SourceEarnedVoidLandingBearingFrame';
     floorGroup.add(frame);
     buildVoidOpenCoreLoadPath(height,frame);
-    const bearing=pylons[nearest], body=new THREE.Group();
-    radial(body,bearing.a,bearing.r,0);frame.add(body);
-    body.name='SourceEarnedVoidExteriorButtress';
-    buildVoidOpenBearingPylon(body,bearing,bearing.top-8);
-    return {root:frame,pylonIndex:nearest,runToken:snapshot.runToken};
+    return {root:frame,pylonIndex:null,deferredPylonIndex:nearest,
+      runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
@@ -3034,6 +3040,7 @@ export function createTowerWorld(){
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       actualFirstFrameVoidBearings:stagedVoidArchitecture!==null,
       actualFirstFrameVoidBearingIndex:stagedVoidArchitecture?.pylonIndex??null,
+      deferredPhysicalButtressIndex:stagedVoidArchitecture?.deferredPylonIndex??null,
       vistaBuildMs:null, deferredBuildMs:null,
     };
   }
