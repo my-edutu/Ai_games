@@ -283,11 +283,15 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
     if(swingOnsets.length>=MAX_ORIGINAL_SWING_ONSETS_PER_WINDOW){dropped++;return false}
    }
    const priority=clamp(cue?.priority,0,10,1);
+  // Decide which weaker voice MAY be replaced, but do not stop it yet.
+  // WebAudio can throw during source allocation, wiring or start(). A failed
+  // high-priority candidate must not mute an already legitimate sound.
+  let replacementIndex=-1;
   if(active.length>=MAX_ORIGINAL_COMBAT_VOICES){
    let weakest=0;
    for(let i=1;i<active.length;i++)if(active[i].priority<active[weakest].priority)weakest=i;
    if(active[weakest].priority>=priority){dropped++;return false}
-   stopVoice(active[weakest]);active.splice(weakest,1);
+   replacementIndex=weakest;
   }
   // Only a genuine witnessed swing can supply this read-only renderer
   // measurement. Slower measured AIR passage is slightly quieter; even
@@ -333,6 +337,15 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
     if(source===n)source.start(t,noiseOffset);
     else source.start(t);
     source.stop(stopAt);
+   }
+   // Commit priority replacement only AFTER all sources were successfully
+   // scheduled. The retiring voice is stopped synchronously in the same JS
+   // task, before admission to the bounded eight-voice live registry.
+   // A partial scheduling failure is cleaned up by the catch block, while
+   // the older voice and its valid cooldown/evidence remain untouched.
+   if(replacementIndex!==-1){
+    stopVoice(active[replacementIndex]);
+    active.splice(replacementIndex,1);
    }
    active.push(voice);
    if(requireVerifiedContact){
