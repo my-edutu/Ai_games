@@ -30,7 +30,7 @@ const injury=(tick=8,targetId='revenant')=>({
  id:'1:1:'+tick+':damage:-:'+targetId,sceneKey:'1:1',tick,
  kind:'damage',visual:'hit',audio:'impact',proof:'observed-hp-drop',
  verified:true,actorId:null,targetId,from:null,to:{x:3,z:2},
- detail:{damage:12,maxHp:20},priority:6,severity:.6
+ detail:{damage:12,maxHp:20,remainingHp:8},priority:6,severity:.6
 });
 
 test('D04 strict foley cannot play one witnessed attack twice after its cooldown',async()=>{
