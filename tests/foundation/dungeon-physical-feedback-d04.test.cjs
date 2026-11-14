@@ -937,7 +937,7 @@ test('strict original decisive interrupt, defeat and recovery sounds require the
    {...valid,targetId:'invented-victim'},
    {...valid,id:valid.id+':replay'},
    {...valid,visual:'hit'},
-   {...valid,from:{x:2,z:2}},
+   {...valid,from:valid.kind==='opening'?{x:300,z:2}:{x:2,z:2}},
    {...valid,to:{x:3,z:3}}
   ];
   if(valid.kind==='opening')invalid.push(
