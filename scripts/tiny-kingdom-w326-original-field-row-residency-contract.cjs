@@ -37,7 +37,10 @@ ctx.gl={TRIANGLES:4,drawArrays(mode,first,count){
 }};
 ctx.bindGeometry=b=>assert(b?.id);
 vm.createContext(ctx);
-vm.runInContext(html.slice(a,b)+html.slice(c,d)+html.slice(e,f),ctx);
+const ga=html.indexOf('function drawnFarmFieldGeometry('),
+ gb=html.indexOf('function addSceneGeometryStats(',ga);
+assert(ga>0&&gb>ga,'original real-GPU material audit');
+vm.runInContext(html.slice(a,b)+html.slice(c,d)+html.slice(e,f)+html.slice(ga,gb),ctx);
 const evalSource=code=>vm.runInContext(code,ctx,{timeout:1200});
 const near=evalSource('buildOriginalCropMesh(2,false)');
 const far=evalSource('buildOriginalCropMesh(2,true)');
@@ -54,11 +57,15 @@ let view=evalSource('drawResidentFarmFields([1,2,10],{x0:-1,x1:2,z0:9,z1:12},100
 assert.equal(view.visiblePlots,1);assert.equal(view.visibleRows,1);
 assert.equal(view.culledRows,4);assert.equal(view.triangles,2);
 assert.deepEqual(ctx.draws.map(d=>d.count),[6]);
+assert.equal(evalSource('drawnFarmFieldGeometry()').reduce((n,mesh)=>n+mesh.length,0),
+ view.triangles*30,'the visual geometry audit observes only the one actual GPU-issued row');
 ctx.draws=[];
 view=evalSource('drawResidentFarmFields([1,2,10],null,1000)');
 assert.equal(view.visiblePlots,2);assert.equal(view.visibleRows,5);
 assert.equal(view.triangles,10);
 assert.deepEqual(ctx.draws.map(d=>d.count),[12,18]);
+assert.equal(evalSource('drawnFarmFieldGeometry()').reduce((n,mesh)=>n+mesh.length,0),
+ view.triangles*30,'full farm source/GPU geometry audit remains exact');
 ctx.draws=[];
 view=evalSource('drawResidentFarmFields([1,2,10],null,4)');
 assert.equal(view.triangles,5);

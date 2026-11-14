@@ -5995,16 +5995,27 @@ function inspectMeshGeometry(vertices){
 // Never alter production, workers, farming state, or real renderer selection.
 function drawnFarmFieldGeometry(){
  if(!gpuAvailable||!farmFieldNear||!farmFieldFar)return [];
- return farmFieldLastDrawnPlots.map(row=>{
+ const portions=[];
+ for(const row of farmFieldLastDrawnPlots){
   const asset=row.mode==='near'?farmFieldNear:farmFieldFar;
-  const range=asset.ranges?.[row.plot];
-  if(!range||!Number.isInteger(range.first)||!Number.isInteger(range.count)||
-     range.first<0||range.count<0||range.count%3!==0||
-     range.count/3!==row.triangles||
-     (range.first+range.count)*10>asset.mesh.length)
+  const parent=asset.ranges?.[row.plot],ranges=row.drawRanges||[parent];
+  if(!parent||!Array.isArray(ranges)||!ranges.length)
+   throw Error('Real planted farm draw has no original range');
+  let counted=0;
+  for(const range of ranges){
+   if(!range||!Number.isInteger(range.first)||!Number.isInteger(range.count)||
+      range.first<parent.first||range.count<=0||range.count%3!==0||
+      range.first+range.count>parent.first+parent.count||
+      (range.first+range.count)*10>asset.mesh.length)
     throw Error('Real submitted farm geometry differs from its audited draw range');
-  return asset.mesh.subarray(range.first*10,(range.first+range.count)*10);
- });
+   counted+=range.count;
+   portions.push(asset.mesh.subarray(range.first*10,(range.first+range.count)*10));
+  }
+  // Only GPU-issued original row geometry is assessed for normals and budget.
+  if(counted/3!==row.triangles)
+   throw Error('Real submitted farm geometry differs from its audited draw range');
+ }
+ return portions;
 }
 function addSceneGeometryStats(target,mesh){
  const part=inspectMeshGeometry(mesh);
@@ -15456,7 +15467,9 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    request.rowPairs.map(row=>row[mode]):[range];
   bindGeometry(mesh.buffer);
   let first=-1,count=0,shown=0,stems=0;
+  const drawRanges=[];
   const submit=()=>{if(count){gl.drawArrays(gl.TRIANGLES,first,count);
+   drawRanges.push({first,count});
    farmFieldDrawCalls++;drawCalls++;count=0;}};
   // Contiguous authentic field rows coalesce to one retained-GPU call.
   for(const piece of pieces){
@@ -15469,7 +15482,7 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   submit();triangles+=shown;
   const rowCount=request.rowPairs?request.rowPairs.length:range.rowCount||1;
   visibleRows+=rowCount;
-  drawn.push({plot:i,mode,triangles:shown,stems,visibleRows:rowCount,
+  drawn.push({plot:i,mode,triangles:shown,stems,drawRanges,visibleRows:rowCount,
    totalRows:FARMSTEAD.fields[i][4],distance:request.distance,
    realWork:request.realWork});
  }
