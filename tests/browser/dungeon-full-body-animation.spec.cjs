@@ -21,7 +21,8 @@ const attack=()=>witness((u,before)=>
  u.faction==='party'&&u.hp>0&&u.action==='attack'&&
  before.units.some(old=>old.id===u.id&&old.actionTick!==u.actionTick));
 const travel=()=>witness((u,before)=>
- u.faction==='party'&&u.hp>0&&before.units.some(old=>old.id===u.id&&
+ u.faction==='party'&&u.hp>0&&u.action==='move'&&
+ before.units.some(old=>old.id===u.id&&
  (old.x!==u.x||old.z!==u.z)));
 
 async function loadStage(page,snapshot){
@@ -158,13 +159,29 @@ test('real authority movement drives bounded support on original leg bones witho
  const event=travel(),stage=await loadStage(page,event.before);
  const beforeRig=await nativeRigProof(page);
  const beforeFrame=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0);
+ const originalRigCode=fs.readFileSync(require('node:path').join(__dirname,
+  '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
+ const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
+  Buffer.from(originalRigCode).toString('base64'));
+ const beforeActor=beforeRig.actors.find(a=>a.id===event.actor.id);
+ expect(beforeActor?.sourceActionSample,'the real original actor must exist before the step').toBeTruthy();
  stage.set(event.after);
+ // A newly delivered public snapshot is not necessarily painted on the FIRST
+ // rAF. Poll the actual original skin/root until the requested, legal
+ // DungeonRuntime.step movement has reached the WebGL source instance.
+ // Never treat a global frame counter, server move label or a zero-distance
+ // source-clip twitch as a successful travelling root.
+ await expect.poll(async()=>{
+  const audit=await page.evaluate(()=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+  const current=audit?.actors?.find(a=>a.id===event.actor.id);
+  const measured=measureSourceJointTravel(beforeActor,current);
+  return measured?.comparable===true&&
+   current?.sourceActionSample?.clipName==='Walking_A'?
+   measured.rootTravelMeters:0;
+ },{timeout:22000,intervals:[90,140,200,300]}).toBeGreaterThan(.008);
  // The imported Walking_A legitimately owns all native leg bones once
  // its source clip reaches full weight. Additive rigGaitPeakRad can be exactly
  // ZERO: requiring a procedural twitch would reject correct source ownership.
- // Wait for a genuine rendered frame, then check actual native source joints.
- await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.frame??0),
-  {timeout:22000,intervals:[70,90,110,140]}).toBeGreaterThan(beforeFrame);
  const d=await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__);
  expect(d.authored3D.fullBodyFootSupportPeakRad).toBeLessThanOrEqual(.063);
  // Additive hips/ankles and authentic footsteps must have the same phase.
@@ -175,11 +192,6 @@ test('real authority movement drives bounded support on original leg bones witho
  const walkingRig=await nativeRigProof(page);
  // The native rig must have advanced real WebGL frames, not only a route mock.
  expect(d.frame).toBeGreaterThan(beforeFrame);
- const originalRigCode=fs.readFileSync(require('node:path').join(__dirname,
-  '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel}=await import('data:text/javascript;base64,'+
-  Buffer.from(originalRigCode).toString('base64'));
- const beforeActor=beforeRig.actors.find(a=>a.id===event.actor.id);
  const walkingActor=walkingRig.actors.find(a=>a.id===event.actor.id);
  const jointTrajectory=measureSourceJointTravel(beforeActor,walkingActor);
  expect(jointTrajectory.comparable,'same original GLB and both source ankles').toBe(true);
