@@ -1357,3 +1357,48 @@ test('Pass348 original guardian shell frame has true through-space and still phy
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('Pass364 four real endpoint signal standards frame the actor lane at its published outer corners',async()=>{
+  const {createMazeWorld}=await load();
+  const s=original(),pristine=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),baseline=w.stats();
+  const footing=(cell,side)=>w.group.getObjectByName(
+    'Published guardian Tideglass sentinel footing '+cell+' '+side);
+  try{
+    w.update(s);
+    for(const side of [-1,1]){
+      const hero=footing(6,side),thornback=footing(8,side);
+      assert.ok(hero?.isGroup&&thornback?.isGroup,
+        'all four original joined endpoint assemblies remain present');
+      assert.ok(Math.abs(hero.position.x+.70)<1e-8
+        &&Math.abs(thornback.position.x-.70)<1e-8,
+        'real known corridor places the hero and guardian assemblies outward, away from both actors');
+      assert.equal(hero.position.z,side*1.04);
+      assert.equal(thornback.position.z,side*1.04);
+      assert.ok(Math.max(Math.abs(hero.position.x),Math.abs(thornback.position.x))<1.2,
+        'all four solid footings stay on their actual published 2.4m stage tiles');
+    }
+    assert.equal(w.stats().geometryCount,baseline.geometryCount);
+    assert.equal(w.stats().materialCount,baseline.materialCount);
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    for(const cell of [6,8])for(const side of [-1,1])
+      assert.ok(footing(cell,side).getObjectByName(
+        'Published guardian Tideglass full shell-fan '+cell+' '+side),
+        'the existing full sized public warning remains mechanically joined');
+    w.update({...s,threats:[]});
+    assert.equal(footing(6,1),undefined,'unwitnessed threat cannot retain corner theatre');
+    w.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(footing(8,-1),undefined,'gated path may not pretend to be an open stage');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'guardian-four-corners-'+i});
+      assert.ok(footing(6,1)&&footing(8,-1));
+      assert.ok(w.stats().geometryCount<100,'strict six-run geometry ceiling unchanged');
+    }
+    assert.equal(JSON.stringify(s),pristine,'presentation never mutates AI/public state');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

@@ -1570,7 +1570,31 @@ export function createMazeWorld(options = {}) {
             for(const side of [-1,1]) {
               const foot=new THREE.Group();
               foot.name='Published guardian Tideglass sentinel footing '+c.cell+' '+side;
-              foot.position.set(alongX?0:side*1.04,0,alongX?side*1.04:0);
+              // Stage-wide composition: the genuine four rooted warning standards
+              // belong at the OUTER four corners of the known Pip/Thornback
+              // causeway, not immediately across the two actors' shoulders.
+              // Move the full connected foot/shaft/crown/hinged fan outward
+              // along the actual public actor-to-actor axis; retain both
+              // existing .04m floor warning rails and the original >=1.04m
+              // side clearance. Every post stays within its own 2.4m public
+              // tile and is purely presentation, never a collision or route.
+              // The other endpoint is only a currently published threat in
+              // the same real open causeway; no remembered/private target.
+              const opponent = c.cell===s.currentCell
+                ? s.threats.find(t=>Number.isSafeInteger(t?.cell)
+                  && t.cell!==c.cell && guardianCauseway.has(t.cell)
+                  && (alongX
+                    ? Math.floor(t.cell/s.width)===Math.floor(c.cell/s.width)
+                    : t.cell%s.width===c.cell%s.width))?.cell
+                : s.currentCell;
+              const endDirection=Number.isSafeInteger(opponent)
+                ? Math.sign(alongX
+                  ? c.cell%s.width-opponent%s.width
+                  : Math.floor(c.cell/s.width)-Math.floor(opponent/s.width))
+                : 0;
+              const endRecess=.70*endDirection;
+              foot.position.set(alongX?endRecess:side*1.04,0,
+                alongX?side*1.04:endRecess);
               signal.add(foot);
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
