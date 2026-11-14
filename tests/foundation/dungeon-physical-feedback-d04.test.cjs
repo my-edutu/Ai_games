@@ -418,7 +418,8 @@ test('D04 diagnoses actual slow post-visual WebGL submissions without mistaking 
   assert.equal(s.limits.maxSlowSubmissionPhases,MAX_RECENT_SLOW_SUBMISSION_PHASES);
   assert.deepEqual(s.recentSlowSubmissionPhases[0],{
    frameId:1,observedRafMs:16,advanceToSubmissionMs:150,
-   d04VisualAdvanceMs:20,afterVisualToSubmissionMs:130,
+   d04VisualAdvanceMs:20,d04RetainedAdvanceMs:20,d04EffectEmissionMs:0,
+   afterVisualToSubmissionMs:130,
    beforeRendererMs:105,rendererMs:25
   });
   c.acknowledgePresentedFrame(1,.025);
@@ -535,6 +536,13 @@ test('D04 slow-phase evidence includes real cue admission after the retained vis
   assert.equal(phase.advanceToSubmissionMs,140);
   assert.equal(phase.d04VisualAdvanceMs,80,
    '20ms pooled aging AND 60ms actual effect emission belong to D04');
+  assert.equal(phase.d04RetainedAdvanceMs,20,
+   'slow-frame evidence separates retained-pool aging from new cue emission');
+  assert.equal(phase.d04EffectEmissionMs,60,
+   'the cost of admitting the real attempted sword cue belongs to D04, not the renderer');
+  assert.equal(phase.d04RetainedAdvanceMs+phase.d04EffectEmissionMs,
+   phase.d04VisualAdvanceMs,
+   'the split is an exact partition of D04 work, never additional elapsed time');
   assert.equal(phase.afterVisualToSubmissionMs,60,
    'already-charged D04 emission must not be blamed on non-D04 work');
   assert.equal(phase.beforeRendererMs,40);
