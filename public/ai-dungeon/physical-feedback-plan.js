@@ -83,6 +83,24 @@ export function selectPhysicalWarningMarkers(cells){
  return Object.freeze(selected);
 }
 const validId = n => typeof n==='string' && n.length>0 && n.length<=128;
+/**
+ * A public actor ID can justify physical presentation only if it names ONE
+ * witness within D04's bounded 256-unit observation window. Map's default
+ * last-write-wins behavior could otherwise fabricate HP deltas or choose a
+ * sword source from a duplicated ID. Do not mutate authoritative snapshots.
+ */
+function indexUniquePublicActors(units){
+ const index=new Map(),ambiguous=new Set();
+ for(const unit of units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)){
+  const id=unit?.id;
+  if(!validId(id)||ambiguous.has(id))continue;
+  if(index.has(id)){
+   index.delete(id);
+   ambiguous.add(id);
+  }else index.set(id,unit);
+ }
+ return index;
+}
 const sameIdUnit = (u,v) => u && v && u.kind===v.kind && u.faction===v.faction;
 const point = u => u && validCoord(u.x) && validCoord(u.z) ? {x:u.x,z:u.z}:null;
 /**
@@ -173,9 +191,11 @@ function immutableCue(s,kind,tick,{actorId=null,targetId=null,from=null,to=null,
   detail:detail?Object.freeze({...detail}):null
  });
 }
-function fallbackDamageBeats(before,next){
+function fallbackDamageBeats(before,next,current){
  const beats=[];
  for(const u of next.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)){
+  // A duplicated current ID has no uniquely established injured body.
+  if(current.get(u?.id)!==u)continue;
   const prior=before.get(u?.id);
   if(!positiveHealthDrop(prior,u)||!point(u))continue;
   beats.push({id:u.id,kind:u.kind,faction:u.faction,damage:prior.hp-u.hp,
@@ -202,10 +222,8 @@ export function planPhysicalFeedback(previous,next,{
  // Only this read-only identity index extends beyond the 96-unit action
  // window. Real HP deltas need the same prior/current IDs even when a large
  // roster places the injured body later in either snapshot. Max 256 entries.
- const oldUnits=new Map(previous.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)
-  .filter(u=>validId(u?.id)).map(u=>[u.id,u]));
- const currentUnits=new Map(next.units.slice(0,PHYSICAL_FEEDBACK_MAX_DAMAGE_UNIT_SCAN)
-  .filter(u=>validId(u?.id)).map(u=>[u.id,u]));
+ const oldUnits=indexUniquePublicActors(previous.units);
+ const currentUnits=indexUniquePublicActors(next.units);
  const proposed=[],seen=new Set();
  const push=(kind,tick,fields)=>{
   const c=immutableCue(next,kind,tick,fields);
@@ -235,7 +253,7 @@ export function planPhysicalFeedback(previous,next,{
     const adjacent=observedEventAtAdjacentTick(previous,next,e.tick);
     const defenders=(adjacent?next.units.slice(0,96):[]).filter(u=>{
      const prior=oldUnits.get(u?.id);
-     return validId(u?.id)&&u.faction==='party'&&u.action==='guard'&&
+     return validId(u?.id)&&currentUnits.get(u.id)===u&&u.faction==='party'&&u.action==='guard'&&
       u.guardTick===e.tick&&point(u)&&positiveHealthDrop(prior,u);
     });
     // The public block event does not identify a defender or a source.
@@ -285,7 +303,7 @@ export function planPhysicalFeedback(previous,next,{
      u?.kind==='warden'&&u?.faction==='enemy'&&u.hp>0);
     if(livingWardens.length!==1)break;
     const candidates=livingWardens.filter(u=>
-     validId(u?.id)&&point(u)&&sameIdUnit(oldUnits.get(u.id),u)&&
+     validId(u?.id)&&currentUnits.get(u.id)===u&&point(u)&&sameIdUnit(oldUnits.get(u.id),u)&&
      u.action==='cast'&&u.actionTick===e.tick&&
      validTick(u.recoveryUntilTick)&&u.recoveryUntilTick>=e.tick&&
      u.recoveryUntilTick<=e.tick+2);
@@ -309,7 +327,8 @@ export function planPhysicalFeedback(previous,next,{
      u?.kind==='warden'&&u?.faction==='enemy');
     if(priorWardens.length!==1||currentWardens.length!==1)break;
     const prior=priorWardens[0],current=currentWardens[0];
-    if(prior.id===current.id &&
+    if(prior.id===current.id && oldUnits.get(prior.id)===prior&&
+     currentUnits.get(current.id)===current&&
      observedEventAtAdjacentTick(previous,next,e.tick) &&
      positiveHealthDrop(prior,current) &&
      validTick(prior.recoveryUntilTick) && prior.recoveryUntilTick>=e.tick)
@@ -336,6 +355,8 @@ export function planPhysicalFeedback(previous,next,{
    u?.kind==='warden'&&u.faction==='enemy'&&u.hp>0);
   const boss=liveWardens.length===1&&priorWardens.length===1&&
    liveWardens[0].id===priorWardens[0].id&&validId(liveWardens[0].id)&&
+   oldUnits.get(priorWardens[0].id)===priorWardens[0]&&
+   currentUnits.get(liveWardens[0].id)===liveWardens[0]&&
    point(liveWardens[0])&&sameIdUnit(priorWardens[0],liveWardens[0])?
    liveWardens[0]:null;
   if(boss){
@@ -362,7 +383,7 @@ export function planPhysicalFeedback(previous,next,{
  if(gap===1){
   for(const u of next.units.slice(0,96)){
    const prior=oldUnits.get(u?.id);
-   if(!validId(u?.id)||u.hp<=0||!point(u)||
+   if(!validId(u?.id)||currentUnits.get(u.id)!==u||u.hp<=0||!point(u)||
     !wasNewAction(prior,u,previous.tick,next.tick))continue;
    if(u.action==='guard'){
     push('guard',u.actionTick,{actorId:u.id,from:point(u),verified:true});continue;
@@ -411,7 +432,7 @@ export function planPhysicalFeedback(previous,next,{
   // erase an injury witnessed in the bounded D04 256-unit HP window.
   // The original 96-unit ACTION scan and 18-injury/24-total cue ceilings
   // remain unchanged, and the prior identity map is reused (no third map).
-  const beats=fallbackDamageBeats(oldUnits,next);
+  const beats=fallbackDamageBeats(oldUnits,next,currentUnits);
   let annotations=null;
   if(typeof deriveDamageBeats==='function'){
    try{
