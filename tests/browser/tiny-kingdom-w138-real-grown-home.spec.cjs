@@ -143,6 +143,24 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
      expect(before.toggleWidth).toBeGreaterThanOrEqual(44);
      expect(before.toggleHeight).toBeGreaterThanOrEqual(44);
      expect(before.expanded).toBe('false');
+     // W336 RED gate: the active ORIGINAL Day-121 human and economy viewer
+     // must have 44px minimum touch targets for every VISIBLE action.
+     // Desktop is unchanged; hidden commands remain in the Command desk.
+     const mobileTouch=await filmPage.evaluate(()=>{
+      const rectangles=selector=>Array.from(document.querySelectorAll(selector))
+       .filter(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+        return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0;})
+       .map(el=>({name:el.id||el.textContent.trim().slice(0,18),
+        width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}));
+      return {scenic:rectangles('.world-tour button'),
+       commands:rectangles('.bottom button')};
+     });
+     expect(mobileTouch.scenic.length).toBeGreaterThan(0);
+     expect(mobileTouch.commands.length).toBeGreaterThanOrEqual(4);
+     for(const action of [...mobileTouch.scenic,...mobileTouch.commands]){
+      expect(action.width).toBeGreaterThanOrEqual(44);
+      expect(action.height).toBeGreaterThanOrEqual(44);
+     }
      await filmPage.locator('#world-trace-toggle').click();
      const opened=await filmPage.evaluate(()=>{
       const button=document.getElementById('world-trace-toggle');
