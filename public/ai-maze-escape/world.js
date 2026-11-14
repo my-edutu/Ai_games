@@ -1574,13 +1574,10 @@ export function createMazeWorld(options = {}) {
               signal.add(foot);
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
-              // The four real guardian-side shell standards are RETRACTABLE hardware,
-              // not permanently tall scenery. At rest their linked full-body
-              // ceramic frames descend into the existing solid court plinths;
-              // only the witnessed brace lifts them above Pip and Thornback.
-              // Their previous full brace height, hinge roots and free aisle
-              // stay untouched, and there is no new collider, GPU class or AI cue.
-              const lift=new THREE.Group();lift.position.y=-.78;foot.add(lift);
+              // Retain the original stone lift root and its stationary reduced-motion
+              // contract; the actual tall shell, not this landmark footing,
+              // retracts into the original grounded Tideglass plinth.
+              const lift=new THREE.Group();lift.position.y=.04;foot.add(lift);
               const pillar=mesh(lift,bevel,lightStone,0,.35,0,.20,.60,.20);
               pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
               const crown=mesh(lift,bevel,seaGlass,0,.72,0,.39,.18,.37);
@@ -1600,6 +1597,14 @@ export function createMazeWorld(options = {}) {
               sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
               sailPivot.position.y=.72;
               lift.add(sailPivot);
+              // Recess the complete physical shell into the real stone
+              // pedestal at neutral. Brace raises the WHOLE openwork shape,
+              // structural spar and ivory crest, not just the warning lens.
+              // Group-only hierarchy reuses every original pooled GPU mesh.
+              const shellCarriage=new THREE.Group();
+              shellCarriage.name='Published guardian Tideglass captive shell carriage '+c.cell+' '+side;
+              shellCarriage.position.y=-.62;
+              sailPivot.add(shellCarriage);
               // Pass319: genuine full-resolution 390px guardian frames show
               // four broad bright paddles competing with Pip and Thornback.
               // Preserve the same four actual warning mechanisms but sculpt
@@ -1619,22 +1624,22 @@ export function createMazeWorld(options = {}) {
               // and crest (.64) counter that real swing while the sentinel
               // base remains at the original rooted court-side point.
               const restTilt=alongX?side*1.28:-side*1.28;
-              const sail=mesh(sailPivot,guardianOpenShell,seaGlass,
+              const sail=mesh(shellCarriage,guardianOpenShell,seaGlass,
                 alongX?0:side*.57,.36,alongX?side*.57:0,
                 alongX?.56:.24,.94,alongX?.24:.56,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
-              const spar=mesh(sailPivot,box,darkMetal,
+              const spar=mesh(shellCarriage,box,darkMetal,
                 alongX?0:side*.44,.38,alongX?side*.44:0,
                 alongX?.48:.075,.70,alongX?.075:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
-              const crest=mesh(sailPivot,bevel,lightStone,
+              const crest=mesh(shellCarriage,bevel,lightStone,
                 alongX?0:side*.64,.45,alongX?side*.64:0,
                 alongX?.48:.27,.14,alongX?.27:.48,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
-              sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
+              sentinels.push({lift,crown,lens,sailPivot,shellCarriage,sail,crest,side});
             }
           }
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
@@ -3562,12 +3567,16 @@ export function createMazeWorld(options = {}) {
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
-        // Two distinct physical heights: a low, receded shell silhouette
-        // during notice/withdrawal versus the SAME original high brace top.
-        // Full 1.24m captive lift travel is earned only by the current PUBLIC
-        // reciprocal guardian beat; hidden/ended/retreated state returns to
-        // subfloor rest. Static reduced motion preserves its old .04 pose.
-        beacon.lift.position.y=reduced ? .04 : -.78+action*1.24;
+        // The original rooted stone post still lifts exactly .42m on the
+        // witnessed brace. Its motion and static reduced-state match all
+        // previously enforced physical guardian contracts.
+        beacon.lift.position.y=reduced ? .04 : .04+action*.42;
+        // The connected FULL ceramic/metal shell sits on a separately
+        // captive carriage, not another floating ornament. It emerges by
+        // .62m ONLY on the real public brace, then descends on release,
+        // hidden/nonreciprocal threat or terminal reset. Reduced motion
+        // retains one stable lowered shell with the original stationary post.
+        beacon.shellCarriage.position.y=-.62+(reduced?0:action*.62);
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
