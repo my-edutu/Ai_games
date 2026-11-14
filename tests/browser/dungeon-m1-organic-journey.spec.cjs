@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
-const {createOrderedReplayFeed}=require('./dungeon-m1-ordered-feed.cjs');
+const {createOrderedReplayFeed,describeOrganicCheckpoint}=require('./dungeon-m1-ordered-feed.cjs');
 const BASELINE='281735d0910c6b2443648af976003d50412ee324',SEED='gauntlet-corpus-v1-0';
 const VIEW=process.env.DUNGEON_M1_VIEWPORT==='mobile'?'mobile':'desktop';
 const SIZE=VIEW==='mobile'?{width:390,height:844}:{width:1440,height:832};
@@ -125,14 +125,21 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
   if(data.length===0)return;
   if(!filmOutput.write(data))
    await new Promise((resolve,reject)=>{
-    filmOutput.once('drain',resolve);filmOutput.once('error',reject);
+    // Remove the alternate listener when 'drain' wins. A multi-minute
+    // 1440px original WebM otherwise accumulated 11+ stale error listeners.
+    const cleanup=()=>{filmOutput.off('error',onError);
+     filmOutput.off('drain',onDrain)};
+    const onDrain=()=>{cleanup();resolve()};
+    const onError=err=>{cleanup();reject(err)};
+    filmOutput.once('drain',onDrain);filmOutput.once('error',onError);
    });
   savedBytes+=data.length;savedChunks++;
  });
  const recording=await beginRecording(page,VIEW==='desktop'),started=Date.now();
  // Preserve independent live original PCM signal evidence, not just WebM
  // track count (which cannot establish actual audible or synchronized sound).
- let pcmRequested=false;
+ let pcmRequested=false,stageError=null,unfinishedCheckpoint=null;
+ try{
  for(const stage of ['combat','warden','floor','defeat','restart']){
   const index=milestones[stage],expected=snapshots[index];
   if(stage==='warden'){
@@ -140,6 +147,8 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    // never inventing boss damage, sound, or an accelerated authority tick.
    const preImpact=Math.max((milestones.combat??0)+1,index-2);
    if(preImpact<index){
+    unfinishedCheckpoint={stage:'warden-pre-impact',index:preImpact,
+     checksum:snapshots[preImpact].checksum};
     feed.allowThrough(preImpact);
     await expect.poll(()=>page.evaluate(()=>
      window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
@@ -155,6 +164,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     return true;
    });
   }
+  unfinishedCheckpoint={stage,index,checksum:expected.checksum};
   feed.allowThrough(index);
   // The *rendered frame's* checksum must match the source milestone.
   // An unrelated next frame is NOT evidence of a recorded Warden contact.
@@ -194,10 +204,47 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    triangles:proof.triangles,soundstage:proof.soundstage,sourceRig:sourceRig.summary});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
   await page.waitForTimeout(420);
+  unfinishedCheckpoint=null;
+ }
+ }catch(error){
+  // Evidence failure remains a FAILURE: finish the actual WebM and record
+  // the last source tick/visible checksum before rejecting this same test.
+  // Do not fast-forward, reset authority, fake a Warden hit or label a
+  // partial film 'natural restart'.
+  stageError=error;
  }
  const feedMetrics=feed.metrics();
- expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
- expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
+ if(!stageError){
+  expect(feedMetrics.uniqueDelivered,'every authentic authority tick delivered').toBe(snapshots.length);
+  expect(feedMetrics.lastDeliveredIndex,'natural restart delivered').toBe(snapshots.length-1);
+ }
+ let failureObservation=null,failureSourceRig=null,stageFailure=null;
+ if(stageError){
+  try{
+   failureObservation=await page.evaluate(()=>{
+    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
+     publicChecksum:window.__DUNGEON_PUBLIC_STATE__?.checksum??null,
+     frameDelivery:d?.frameDelivery??null};
+   });
+   const rig=await page.evaluate(()=>
+    window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
+   failureSourceRig=rig?{summary:rig.summary,
+    cast:rig.actors?.map(a=>({kind:a.kind,id:a.id,mode:a.mode,
+     sourceAction:a.sourceActionSample,bindReferenceComplete:a.bindReferenceComplete,
+     maxStretchFraction:a.maxStretchFraction,
+     originalWeaponGripSocket:a.sourceWeaponGrip?.socketName??null}))}:null;
+  }catch(observationError){
+   failureObservation={unavailable:String(observationError)};
+  }
+  if(unfinishedCheckpoint){
+   stageFailure=describeOrganicCheckpoint({
+    stage:unfinishedCheckpoint.stage,expectedIndex:unfinishedCheckpoint.index,
+    expectedChecksum:unfinishedCheckpoint.checksum,
+    renderedChecksum:failureObservation?.renderedState?.checksum??null,
+    renderedFrame:failureObservation?.frame??0,feed});
+  }
+ }
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
  await new Promise((resolve,reject)=>{
   if(sinkError)return reject(Error(sinkError));
@@ -241,9 +288,20 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    synchronizedWithVideo:'UNVERIFIED until temporal media comparison'},
   audibleSynchronizedSound:'UNVERIFIED: decode WebM and align hit timestamp with original PCM',
   matchedLockedBaseline:false,blindCritics:0,looks:'UNVERIFIED',feels:'UNVERIFIED',plays:'UNVERIFIED',
-  milestoneFrameProof,observations,pageErrors:errors};
+  milestoneFrameProof,observations,pageErrors:errors,
+  // An incomplete five-stage original journey is explicit negative evidence,
+  // even when a partial genuine WebM and valid earlier chapters exist.
+  acceptance:stageError?'FAILED_UNREACHED_OR_UNRENDERED_CHECKPOINT':
+   'ALL_FIVE_STAGES_EXACTLY_RENDERED',
+  checkpointFailure:stageFailure,
+  failureObservation,failureSourceRig,
+  failureDetails:stageError?String(stageError.stack||stageError).slice(0,6500):null};
  fs.writeFileSync(stem+'.json',JSON.stringify(receipt,null,2));
- await page.locator('#world').screenshot({path:stem+'-real-restart.png',timeout:90000});
+ // Never mislabel a Warden timeout as a natural restart screenshot.
+ const finalImage=stageError?stem+'-failure-actual-canvas.png':
+  stem+'-real-restart.png';
+ await page.locator('#world').screenshot({path:finalImage,timeout:90000});
+ if(stageError)throw stageError;
  expect(errors).toEqual([]);
  expect(observations.some(o=>o.frame>0)).toBe(true);
  // Capturing a film is NOT evidence of transformed looks, feels or plays.
