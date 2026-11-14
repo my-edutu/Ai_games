@@ -41,7 +41,9 @@ const context=vm.createContext({people:[person],state:{t:18},
  realWorkerFacing:p=>Math.atan2(p.focus[0]-p.x,p.focus[1]-p.z),
  retainWorkerSkinPalette:(entry,segments,slot)=>{
   actual.push({slot,segments:JSON.parse(JSON.stringify(segments))});
-  return new Float32Array(208);
+  // Production retainWorkerSkinPalette stores the typed array on entry[slot].
+  // A mock that only returns it makes every unchanged frame look uncached.
+  return entry[slot]??(entry[slot]=new Float32Array(208));
  }});
 vm.runInContext(source,context,{timeout:2000});
 const compose=vm.runInContext('workSkinFramePalette',context);

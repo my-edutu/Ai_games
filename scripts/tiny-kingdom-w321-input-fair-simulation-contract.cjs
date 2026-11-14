@@ -46,7 +46,7 @@ assert.match(script,/SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS/);
 assert.match(script,/const inputPriority=softwareCameraGestureActive\(\)/);
 assert.match(script,/const cooperativeSoftware=swiftGpu\|\|!gpuAvailable/);
 assert.match(script,/cooperativeSoftware\?drainRenderTickBacklogTimeboxed/);
-assert.match(script,/:drainRenderTickBacklog\(accumulator,step,64\)/);
+assert.match(script,/:\s*drainRenderTickBacklog\(accumulator,step,64\)/);
 assert.match(script,/if\(drained.pendingTicks\)\{renderBacklogFrames\+\+;scheduleSoftwareDebtDrain\(\)\}/);
 assert.match(script,/if\(frozen\)resetSoftwareDebtDrain\(\)/);
 console.log('W321 actual-source PASS: 4ms input-aware software simulation vs ordinary 16ms; all 90 earned fixed ticks retained; camera responsiveness and hardware FPS still NOT PROVEN.');
