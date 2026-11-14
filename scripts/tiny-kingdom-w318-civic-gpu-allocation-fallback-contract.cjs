@@ -17,6 +17,8 @@ function exercise(allocate){
  const ctx={data:Array.from({length:300},(_,i)=>i/10),Float32Array,Number,Map,
   civicGpuResidencyEnabled:true,CIVIC_CACHE_MAX_ENTRIES:5,CIVIC_CACHE_FLOAT_BUDGET:8000000,
   civicCacheEvictions:0,civicGpuDisposals:0,civicGpuUploads:0,civicGpuResidencyFailures:0,
+  civicRoadBufferRecycles:0,civicRoadBufferSubUploads:0,
+  civicRoadBufferReallocations:0,civicRoadBytesUploaded:0,
   civicBuffer:{id:'stale-road'},civicChunkRanges:[{first:0,count:3}],
   civicCoreBuffer:{id:'genuine-farm-market-core'},activeCivicCoreKey:'spring',
   civicSceneryCache:new Map([['road-A',{
