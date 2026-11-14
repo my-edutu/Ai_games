@@ -264,10 +264,17 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
     world.update(within,.05,.1,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true,
       'the original door is still valid inside the authenticated cold 48-tick window');
-    const outside={...after,tick:500};
-    world.update(outside,.05,.15,{quality:'low'});
+    // A previously published 48-tick camera handoff is not the current
+    // 60-tick source-owned optical lifetime. The original arch remains
+    // genuine while the SAME authenticated new-floor climber stays nearby.
+    const withinBound={...after,tick:500};
+    world.update(withinBound,.05,.15,{quality:'low'});
+    assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true,
+      'the source-backed original arch remains eligible inside its 60-tick bound');
+    const outside={...after,tick:515};
+    world.update(outside,.05,.20,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap,null,
-      'source-earned original cap must retire after 48 authoritative ticks');
+      'the old GPU owner must retire past 60 authoritative ticks even without returned frames');
   }finally{world.dispose();}
 });
 
