@@ -128,6 +128,56 @@ test('roof-spanning original bronze bearing retains real continuous height witho
   }finally{clean(result,old);}
 });
 
+
+test('the actual old gateway may preserve source-original flanking load paths that a narrow portal aperture would erase',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  const inside=placed(THREE,at);
+  const flank=placed(THREE,at+.66);
+  flank.position.set(Math.sin(at+.66)*45,roof-9,Math.cos(at+.66)*45);
+  // Both elements are real existing Clockwork geometry, not newly authored
+  // Floor9 pieces. The broader HISTORICAL gallery remains source-clipped.
+  old.add(inside,flank);
+  let narrow=null,wide=null;
+  try{
+    narrow=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{maxFaces:24,maxBatches:3});
+    wide=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        maxFaces:24,maxBatches:3,includeOriginalFlanks:true});
+    assert.ok(narrow && wide);
+    assert.equal(narrow.root.children.length,1,
+      'the original small gateway envelope does not retain its visible external bearing');
+    assert.equal(wide.root.children.length,2,
+      'the source-owned historical gateway retains both its bearing and flanking architecture');
+    assert.ok(wide.faces>narrow.faces && wide.faces<=24);
+    assert.ok(wide.bytes<=24*96);
+    let external=false;
+    for(const child of wide.root.children) {
+      const pos=child.geometry.getAttribute('position');
+      for(let i=0;i<pos.count;i++) {
+        const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+        const radial=Math.hypot(x,z);
+        const delta=Math.atan2(Math.sin(Math.atan2(x,z)-at),
+          Math.cos(Math.atan2(x,z)-at));
+        if(radial>41 && Math.abs(delta)>.55)external=true;
+        assert.ok(radial<=54.001 && y>=roof-105.001 && y<=roof+54.001,
+          'retained source triangles remain inside a finite source-authored 3D volume');
+      }
+      assert.equal(child.material.name,'OriginalClockworkGallerySourceSurface');
+      assert.equal(child.castShadow,false);
+    }
+    assert.ok(external,'the original external source load path was genuinely sampled');
+    assert.equal(flank.parent,old);
+  }finally{
+    for(const result of [narrow,wide])if(result)
+      for(const child of result.root.children){
+        child.geometry.dispose();child.material.dispose();
+      }
+    clean(null,old);
+  }
+});
+
 test('playable platforms, boss gateway and ambient silhouettes cannot be copied into historical structural gallery',async()=>{
   const [THREE,world]=await loaded;
   const old=new THREE.Group();
