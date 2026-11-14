@@ -11,7 +11,7 @@ exact('function selectAuthenticCarriedLights(');
 exact('function getVillageNightLightingAudit()');
 exact('uniform vec4 villageLanterns[4]');
 exact('uniform vec4 commuterLanterns[2]');
-exact('const lamplight =');
+exact('float lamplight =');
 exact('if(sunStrength<.47');
 exact('gl.uniform4fv(uniforms.villageLanterns');
 exact('gl.uniform4fv(uniforms.commuterLanterns');
