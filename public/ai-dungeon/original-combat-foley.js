@@ -164,6 +164,12 @@ export function chooseOriginalNoisePhaseOffset(duration,nowSeconds,voices=[]){
 export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContact=false}={}){
  let started=false,enabled=false,disposed=false,bus=null,limiter=null,noiseBuffer=null;
  let played=0,dropped=0,stopped=0,peakVoices=0,deviceFailures=0;
+ // A bounded event-ID cache cannot alone prevent a very old authoritative
+ // attack from becoming audible again after long-session cache rotation.
+ // Strict canonical swing/HP witnesses use the same five-tick public planner
+ // horizon. The watermark advances only after WebAudio scheduling succeeds
+ // and is cleared on scene reset; neutral audition recipes are unchanged.
+ let canonicalSceneKey=null,highestCanonicalTick=-1;
  const active=[],lastPlayed=new Map(),lastVerifiedDamage=new Map(),damageOnsets=[],
    lastVerifiedSwing=new Map(),swingOnsets=[],confirmedCueIds=new Set(),
     recentOriginalStarts=[];
@@ -243,9 +249,11 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   // and only independently observed victim HP loss can make impact audio.
   // The default remains compatible with standalone sound auditions that
   // deliberately pass generic recipe names without authoritative snapshots.
+  const canonicalWitness=requireVerifiedContact&&
+   isCanonicalVerifiedCombatFoleyCue(cue);
   if(requireVerifiedContact&&
     (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
-    !isCanonicalVerifiedCombatFoleyCue(cue)){
+    !canonicalWitness){
    dropped++;return false;
   }
   // Per-actor time cooldown alone permits replaying the EXACT same attack
@@ -258,6 +266,14 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
    !confirmedCue){dropped++;return false}
   if(confirmedCue&&confirmedCueIds.has(cue.id)){dropped++;return false}
+  // Even after the 128-ID ring rotates, never resurrect an old swing or
+  // HP-only impact that the public five-tick planner could no longer emit.
+  // Delayed cues within that authority horizon remain eligible; an explicit
+  // scene reset clears the watermark. A failed WebAudio start must not
+  // consume this proof or advance the tick.
+  if(canonicalWitness&&canonicalSceneKey!==null&&
+    (cue.sceneKey!==canonicalSceneKey||
+     cue.tick<highestCanonicalTick-5)){dropped++;return false}
   cleanup();
   const t=now(),victim=verifiedDamageFoleyVictim(cue),
     swinger=verifiedSwingFoleyActor(cue);
@@ -362,11 +378,15 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
      tick:Number.isSafeInteger(cue?.tick)?cue.tick:null,
      scheduledContextMs:Math.round(t*1000),
      startedSources:sources.length,
-     verifiedCanonicalCue:isCanonicalVerifiedCombatFoleyCue(cue),
+     verifiedCanonicalCue:canonicalWitness,
      sampleSynchronized:false
     }));
     if(recentOriginalStarts.length>MAX_ORIGINAL_RECORDED_STARTS)
      recentOriginalStarts.shift();
+   }
+   if(canonicalWitness){
+    if(canonicalSceneKey===null)canonicalSceneKey=cue.sceneKey;
+    highestCanonicalTick=Math.max(highestCanonicalTick,cue.tick);
    }
    if(confirmedCue){
     confirmedCueIds.add(cue.id);
@@ -393,6 +413,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   }
  }
  function flush(){for(const v of active)stopVoice(v);active.length=0;
+  canonicalSceneKey=null;highestCanonicalTick=-1;
   lastPlayed.clear();lastVerifiedDamage.clear();damageOnsets.length=0;
    lastVerifiedSwing.clear();swingOnsets.length=0;confirmedCueIds.clear();
    recentOriginalStarts.length=0;}
