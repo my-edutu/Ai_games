@@ -56,6 +56,54 @@ function next(){
       width:480000,height:cap.height}],
     enemies:[],player:{...body,groundedPlatformId:'f9:ground'}};
 }
+test('one real returned Floor8 renderer frame prepares bounded original gallery BEFORE the cold Floor9 rebuild and transfers exact same-owned geometry',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const first=old(),second=next(),world=createTowerWorld();
+  try{
+    world.update(first,.05,0,{quality:'low'});
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false);
+    // This is the only original 3D source submission; no future-floor
+    // snapshot or synthetic victory/frame is fabricated.
+    world.noteFrameSubmitted(first,{quality:'low'},.05);
+    const pre=world.diagnostics().originalClockworkGalleryPrebuild;
+    assert.equal(pre.state,'prepared-after-real-floor-eight-frame');
+    assert.ok(pre.faces>0 && pre.faces<=4096);
+    assert.ok(pre.batches>0 && pre.batches<=10);
+    assert.equal(pre.bytes,pre.faces*96);
+    assert.equal(pre.stillOwnedByPrebuild,true);
+    world.noteFrameSubmitted(first,{quality:'low'},.05);
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.sourceTick,450,
+      'duplicate authentic F8 submissions may not rescan or allocate a second cache');
+    assert.equal(world.stageGroundedCapContinuation(first,second),true);
+    world.update(second,.05,.05,{quality:'low'});
+    const carried=world.diagnostics();
+    assert.equal(carried.originalClockworkGalleryPrebuild.state,
+      'reused-on-real-floor-nine-rebuild');
+    assert.equal(carried.originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false,
+      'source cache ownership moves to the SAME original bronze gate cap');
+    assert.equal(carried.retainedSourceCap.originalGalleryTriangles,pre.faces);
+    assert.equal(carried.retainedSourceCap.originalGalleryBytes,pre.bytes);
+    assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')?.isGroup);
+  }finally{world.dispose();}
+});
+test('prepared old gateway gallery is discarded on changed run or invalid source, never attached as a ghost victory',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const world=createTowerWorld();
+  try{
+    const original=old();
+    world.update(original,.05,0,{quality:'low'});
+    world.noteFrameSubmitted(original,{quality:'low'},.05);
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,true);
+    world.update({...original,runToken:'new-run',tick:1,
+      player:{...original.player}},.05,.1,{quality:'low'});
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false,
+      'new-run floor rebuild releases the old unsubmitted CPU resources');
+    const after={...next(),runToken:'new-run'};
+    world.update(after,.05,.15,{quality:'low'});
+    assert.equal(world.diagnostics().retainedSourceCap,null);
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false);
+  }finally{world.dispose();}
+});
 test('same earned doorway retains the ORIGINAL old cap real geometry over the Floor9 render rebuild then disposes it',async()=>{
   const [{createTowerWorld},{observedGroundedGuardianHandoff}]=await loaded;
   const first=old(),second=next();

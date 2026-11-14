@@ -2256,6 +2256,69 @@ export function createTowerWorld(){
   // transform, not the entire old floor or any old physics. No source wins,
   // support, collision, replay or synthetic portal may be created here.
   let pendingEarnedCap = null, retainedEarnedCap = null;
+  // Preassemble ONLY the source-original static Clockwork bearing gallery
+  // after a real Floor8 WebGL submission, not in the expensive first F9
+  // rebuild. This is detached CPU-side Three geometry, not an invisible
+  // rendered future floor, predicted crossing, or second physics world.
+  // One immutable run/floor/roof/material owner, bounded by the EXISTING
+  // gallery face/batch limits and disposed on restart or different floor.
+  let preparedThresholdGallery = null;
+  let thresholdGalleryPreparation = {state:'not-prepared'};
+  function discardPreparedThresholdGallery() {
+    const cached = preparedThresholdGallery;
+    if (!cached) return;
+    for (const geometry of cached.gallery.geometries) geometry.dispose();
+    for (const material of cached.gallery.materials) material.dispose();
+    preparedThresholdGallery = null;
+    thresholdGalleryPreparation = {
+      state:'disposed-unconsumed',runToken:cached.runToken,
+      sourceTick:cached.sourceTick,faces:cached.gallery.faces,
+      bytes:cached.gallery.bytes
+    };
+  }
+  function prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options={}) {
+    if (disposed || options.stale || options.quality!=='low' ||
+        snapshot?.lifecycle!=='running' || snapshot.floor!==8 ||
+        snapshot.theme!=='clockwork' || !(snapshot.player?.health>0) ||
+        typeof snapshot.runToken!=='string' || !snapshot.runToken ||
+        !Number.isSafeInteger(snapshot.tick) || !Number.isSafeInteger(snapshot.worldWidth) ||
+        !Array.isArray(snapshot.platforms) || !Array.isArray(snapshot.enemies) ||
+        key!==`${snapshot.runToken}:8:clockwork:low` || !floorGroup) return false;
+    const cap=snapshot.platforms.find(p=>p?.id==='f8:cap');
+    if (!cap || ![cap.x,cap.y,cap.width,cap.height,snapshot.guardianExitX]
+        .every(Number.isSafeInteger) || cap.width<=0 || cap.height<=0 ||
+        snapshot.guardianExitX!==cap.x+Math.floor(cap.width*.76) ||
+        !platforms.get('f8:cap')?.guardianGate?.frame?.isGroup ||
+        !snapshot.enemies.some(e=>e?.kind==='guardian' &&
+          e.floor===8 && Number.isFinite(e.health) && e.health>=0)) return false;
+    const thresholdX=snapshot.guardianExitX,roofY=cap.y+cap.height;
+    if (preparedThresholdGallery &&
+        preparedThresholdGallery.oldFloor===floorGroup &&
+        preparedThresholdGallery.runToken===snapshot.runToken &&
+        preparedThresholdGallery.thresholdX===thresholdX &&
+        preparedThresholdGallery.roofY===roofY &&
+        preparedThresholdGallery.worldWidth===snapshot.worldWidth) return false;
+    discardPreparedThresholdGallery();
+    const started=performance.now();
+    const gallery=extractOriginalClockworkThresholdGallery(
+      THREE,floorGroup,thresholdX,roofY,snapshot.chunkBaseY,
+      snapshot.worldWidth);
+    if(!gallery)return false;
+    preparedThresholdGallery={
+      gallery,oldFloor:floorGroup,runToken:snapshot.runToken,
+      sourceTick:snapshot.tick,thresholdX,roofY,
+      worldWidth:snapshot.worldWidth,capId:cap.id,capX:cap.x,
+      capWidth:cap.width
+    };
+    thresholdGalleryPreparation={
+      state:'prepared-after-real-floor-eight-frame',runToken:snapshot.runToken,
+      sourceTick:snapshot.tick,faces:gallery.faces,bytes:gallery.bytes,
+      batches:gallery.root.children.length,
+      cpuPrepareMs:+(performance.now()-started).toFixed(2),
+      guarantee:'Detached original source triangles, never synthetic F9 geometry or a gameplay event'
+    };
+    return true;
+  }
   const RETAINED_CAP_SECONDS = 2.8;
   function retireEarnedCap() {
     if (!retainedEarnedCap) return;
@@ -2453,9 +2516,39 @@ export function createTowerWorld(){
         existingMesh.renderOrder = 2;
       }
     }
-    const gallery = extractOriginalClockworkThresholdGallery(THREE,
-      floorGroup,requested.thresholdX,requested.oldRoofY,
-      requested.previousBaseY,requested.worldWidth);
+    // Retain the SAME connected original structural pixels, but do not
+    // synchronously rescan all Floor8 triangles during the cold first F9
+    // render if a genuine prior Clockwork frame already prepared them.
+    // Match original GPU floor owner, immutable run, exact cap and roof.
+    const cached=preparedThresholdGallery;
+    const cachedMatches=!!cached && cached.oldFloor===floorGroup &&
+      cached.runToken===next.runToken &&
+      cached.thresholdX===requested.thresholdX &&
+      cached.roofY===requested.oldRoofY &&
+      cached.worldWidth===requested.worldWidth &&
+      cached.capId===requested.oldCapId &&
+      cached.capX===requested.oldCapX &&
+      cached.capWidth===requested.oldCapWidth;
+    let gallery;
+    if(cachedMatches){
+      gallery=cached.gallery;
+      preparedThresholdGallery=null; // consumed by retained-cap GPU owner
+      thresholdGalleryPreparation={
+        ...thresholdGalleryPreparation,state:'reused-on-real-floor-nine-rebuild',
+        reusedAtSourceTick:next.tick
+      };
+    }else{
+      discardPreparedThresholdGallery();
+      gallery=extractOriginalClockworkThresholdGallery(THREE,
+        floorGroup,requested.thresholdX,requested.oldRoofY,
+        requested.previousBaseY,requested.worldWidth);
+      thresholdGalleryPreparation={
+        state:'cold-fallback-original-source-rebuild',
+        sourceTick:next.tick,runToken:next.runToken,
+        faces:gallery?.faces??0,bytes:gallery?.bytes??0,
+        reason:'No exact same-run previously submitted Clockwork geometry'
+      };
+    }
     if(gallery){
       for(const geometry of gallery.geometries) floorGeometries.add(geometry);
       for(const material of gallery.materials) floorMaterials.add(material);
@@ -2693,6 +2786,7 @@ export function createTowerWorld(){
   // getter avoids the expensive complete scene traverse in the hot render path.
   let lastRebuildWitness = null;
   function clearFloor(){
+    discardPreparedThresholdGallery();
     deferredDistantArrival = null;
     lastRebuildWitness = null;
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
@@ -2816,6 +2910,10 @@ export function createTowerWorld(){
     // frame and failed GPU submissions cannot spend this visual clock.
     const shown = Number.isFinite(renderedDt)
       ? Math.min(.1,Math.max(0,renderedDt)) : 0;
+    // Only returned WebGL Floor8 observations may preassemble source-authored
+    // roof-bearing geometry. A stale poll, skipped source tick or speculative
+    // future Floor9 never starts a preparation job.
+    prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options);
     const held=retainedEarnedCap;
     if (held && !options.stale && snapshot &&
         snapshot.runToken===held.runToken &&
@@ -3660,6 +3758,8 @@ export function createTowerWorld(){
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
+    originalClockworkGalleryPrebuild:{...thresholdGalleryPreparation,
+      stillOwnedByPrebuild:preparedThresholdGallery!==null},
     retainedSourceCap:retainedEarnedCap?{
       visible:retainedEarnedCap.root.visible,
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
