@@ -970,3 +970,59 @@ test('strict original decisive interrupt, defeat and recovery sounds require the
   }finally{f.dispose()}
  }
 });
+
+
+test('D04 unmatched dry-release source foley cannot outlive its real performer across frame submission',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ for(const [kind,action,audio,id] of [
+  ['ranger','attack','draw','ranger'],
+  ['cultist','cast','cast-dry','cultist']
+ ]){
+  for(const phase of ['revoked-before-admission','revoked-before-submission','live']){
+   let monotonic=1,sourceStillVisible=true;
+   const heard=[],probes=[];
+   const visuals={
+    emit(){return false},advance(){},reset(){},dispose(){},
+    hasAuthenticatedSourceOnlyAction(cue){
+     probes.push({kind:cue.kind,audio:cue.audio,sourceStillVisible});
+     return sourceStillVisible;
+    },
+    stats(){return {active:0}}
+   };
+   const foley={
+    enable(){return true},emit(cue){heard.push(cue);return true},
+    flush(){},cleanup(){},disable(){},dispose(){},
+    stats(){return {activeVoices:0}}
+   };
+   const controller=createPhysicalCombatFeedback({
+    visualAdapter:visuals,audioAdapter:foley,requirePresentedFrame:true,
+    clock:()=>monotonic
+   });
+   const unit=hero({id,kind,faction:kind==='cultist'?'enemy':'party',
+    action:'idle',actionTick:10,targetId:null});
+   const before=snap(10,{units:[unit,foe()]});
+   const after=snap(11,{units:[{...unit,action,actionTick:11},foe()]});
+   try{
+    const actions=planPhysicalFeedback(before,after,{resolveContact:()=>null});
+    assert.equal(actions.length,1,kind+' must come from a genuine public action');
+    assert.equal(actions[0].audio,audio);
+    assert.equal(actions[0].verified,false,
+     'an unmatched release is an observed attempt, never verified contact');
+    controller.acceptSnapshot(before);
+    assert.equal(controller.enableAudioFromGesture(),true);
+    assert.equal(controller.acceptSnapshot(after),1);
+    if(phase==='revoked-before-admission')sourceStillVisible=false;
+    monotonic+=.016;controller.advance(.016,.016);
+    if(phase==='revoked-before-submission')sourceStillVisible=false;
+    monotonic+=.004;controller.acknowledgePresentedFrame(1,.002);
+    assert.deepEqual(heard.map(c=>c.audio),
+     phase==='live'?[audio]:[],
+     kind+' '+phase+' must not produce detached original dry foley');
+    assert.ok(probes.length>=1,
+     'the source must be checked independently of its action event ID');
+    assert.ok(controller.stats().awaitingPresentation<=32);
+   }finally{controller.dispose()}
+  }
+ }
+});
