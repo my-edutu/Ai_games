@@ -24,6 +24,87 @@ const MODES=Object.freeze(['idle','move','guard','cast','attack','evade','hurt',
 export const FULL_BODY_ANIMATION_MODES=MODES;
 
 /**
+ * Linked source UPPERLEG + LOWERLEG swing trial, not IK or a foot plant.
+ *
+ * Original CC0 Walking_A can bury a weighted swinging toe tens of mm while
+ * its heel is airborne. Repeated isolated lowerleg and toe turns lifted it
+ * only 1.94–6.28 mm in genuine desktop/mobile GLB recordings. Test an
+ * anatomically linked, opposite-signed hip/knee pose against BOTH original
+ * skinned heel/toe patches in the SAME source frame. Returning a candidate
+ * merely permits a final, independent skinned re-read in the renderer.
+ *
+ * Source bind lengths and animated quaternion-track axes must be proved by
+ * the caller. This never emits contact, shifts a root, or modifies authority.
+ */
+export function chooseOriginalSourceSwingLinkedLegTrial({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceChainVerified=false,
+ sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
+ sourceBindVerified=false,ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false,
+ rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ floorTopY=NaN,side='',before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||sourceWeight<.92||
+  sourceWeight>1.001||!finite(sourceWeight)||sourceInstanceSame!==true||
+  sourceChainVerified!==true||sourceUpperTrackVerified!==true||
+  sourceLowerTrackVerified!==true||sourceBindVerified!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.008||frameInterval>.1||
+  Math.abs(floorTopY+.02)>.005||
+  !['left','right'].includes(side)||!Array.isArray(trials)||
+  trials.length===0||trials.length>4)return null;
+ const other=side==='left'?'right':'left';
+ const validShoe=shoe=>shoe&&
+  [shoe.heelY,shoe.toeY].every(finite)&&
+  [shoe.heelXZ,shoe.toeXZ].every(a=>
+   Array.isArray(a)&&a.length===2&&a.every(finite));
+ if(!validShoe(before?.[side])||!validShoe(before?.[other]))return null;
+ const swing=before[side],loaded=before[other],depth=floorTopY-swing.toeY;
+ // An airborne heel with a buried toe is an obstacle, NEVER a stance.
+ if(swing.heelY-floorTopY<.10||swing.heelY-floorTopY>.34||
+  depth<.025||depth>.12||
+  ![loaded.heelY,loaded.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ const shift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ let best=null;
+ for(const trial of trials){
+  const {upperRad,lowerRad,after}=trial??{};
+  if(![upperRad,lowerRad].every(finite)||
+   Math.abs(upperRad)<.075||Math.abs(upperRad)>.105||
+   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>.075||
+   Math.sign(upperRad)===Math.sign(lowerRad)||
+   !validShoe(after?.[side])||!validShoe(after?.[other]))continue;
+  const shoe=after[side],support=after[other];
+  const lift=shoe.toeY-swing.toeY,cleared=lift/depth;
+  // An actual linked chain must materially REMOVE the source burial.
+  // Opposite shoe cannot slide, pitch, or hover to buy that improvement.
+  if(lift<Math.max(.012,depth*.15)||lift>.055||
+   cleared<.15||shoe.toeY>floorTopY+.05||
+   shoe.heelY-floorTopY<.08||shoe.heelY-floorTopY>.35||
+   Math.abs(shoe.heelY-swing.heelY)>.035||
+   shift(shoe.heelXZ,swing.heelXZ)>.07||
+   shift(shoe.toeXZ,swing.toeXZ)>.07||
+   Math.abs(support.heelY-loaded.heelY)>.003||
+   Math.abs(support.toeY-loaded.toeY)>.003||
+   shift(support.heelXZ,loaded.heelXZ)>.004||
+   shift(support.toeXZ,loaded.toeXZ)>.004)continue;
+  if(!best||lift>best.liftMeters)best={
+   side,upperRad,lowerRad,liftMeters:lift,fractionCleared:cleared,
+   beforeToeY:swing.toeY,afterToeY:shoe.toeY,
+   beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
+   contactLocked:false,oppositeShoePreserved:true,
+   source:'measured-original-skinned-linked-leg'
+  };
+ }
+ return best;
+}
+
+
+/**
  * Actual pinned TacticalSlash rigs contain both a horizontal melee clip
  * and a distinct 41-joint two-handed ranged release. Selecting the generic
  * first "attack" clip for a Ranger wrongly performs sword-body mechanics.
