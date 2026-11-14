@@ -142,10 +142,21 @@ function verifiedAim(unit,snapshot,resolveContact){
  if(!resolved || resolved.targetId!==unit.targetId ||
   !Number.isFinite(resolved.distance) || resolved.distance<1 ||
   resolved.distance>4)return null;
- const target=snapshot.units.find(u=>u?.id===resolved.targetId &&
-  u.faction!==unit.faction && (u.hp>0 ||
-  u.hp===0&&u.action==='hurt'&&u.actionTick===unit.actionTick));
- if(!target || !point(target) || !point(unit) || overlap(target,unit))return null;
+ // An aim resolver certifies the requested ID/lane, not which of several
+ // duplicated public bodies owns that ID. Fail closed even if only one of
+ // the duplicates is alive or on the opposing side; selecting array-first
+ // would make a visually targeted arrow/spell claim without unique identity.
+ // This replaces the existing single target scan, with no new index or pool.
+ let target=null;
+ for(const candidate of snapshot.units){
+  if(candidate?.id!==resolved.targetId)continue;
+  if(target)return null;
+  target=candidate;
+ }
+ if(!target||target.faction===unit.faction||
+  !(target.hp>0||target.hp===0&&target.action==='hurt'&&
+    target.actionTick===unit.actionTick)||
+  !point(target)||!point(unit)||overlap(target,unit))return null;
  return target;
 }
 const cueId=(s,kind,tick,actorId,targetId)=>`${sceneKey(s)}:${tick}:${kind}:${actorId||'-'}:${targetId||'-'}`;
