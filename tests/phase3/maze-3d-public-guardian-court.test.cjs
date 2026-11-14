@@ -1374,7 +1374,7 @@ test('Pass360 source-bound guardian sealed masonry is a continuous low stage sil
       for(let i=0;i<mesh.count;i++){
         mesh.getMatrixAt(i,matrix);matrix.decompose(point,quat,size);
         if(mesh.material?.color?.getHexString()==='28574f'){
-          if(Math.abs(size.y-.26)<.00001 &&
+          if(Math.abs(size.y-.34)<.00001 &&
             ((Math.abs(size.x-2.32)<.00001&&Math.abs(size.z-.39)<.00001)
             ||(Math.abs(size.z-2.32)<.00001&&Math.abs(size.x-.39)<.00001)))sills++;
           if(Math.abs(size.y-.40)<.00001&&Math.abs(size.x-.24)<.00001

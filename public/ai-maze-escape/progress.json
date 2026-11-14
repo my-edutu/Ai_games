@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T13:52:00.000Z",
+  "updatedAt": "2026-11-14T14:01:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass360 candidate: replace native-ray-confirmed real guardian spectator wall/piers with continuous low sealed masonry (public nonpassage only); baseline rollback exact WebGL passed with original 37/37 SHA PNG sidecars. New candidate exact-HEAD CI, native 320/390/844/1280 renders, gameplay comparison and fresh critic remain pending. Nintendo art/playability bar NOT MET."
+    "summary": "Pass360b production fix after 177/179 candidate tests: restored unchanged original full-scale dark guardian wall, sea-glass cap and attached face/crest required by strict Pass332/335 tests; only native-ray-confirmed terminal post forest removed. Corrected candidate's new exact-HEAD CI/WebGL, original 4-viewport screenshot SHA and independent critic remain pending. Nintendo benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass360b 2026-11-14: first candidate exact-commit WebGL 43602401051 failed two EXISTING full-scale solid-wall contract tests (177/179 passed). Do NOT lower tests: restore original dark wall .34m height, .075 cap and dark attached face/crest; remove only tall terminal piers/caps at publicly observed guardian nonpassage. Still pending new source-matched visual acceptance.",
     "Pass360 2026-11-14: substantial physical guardian spectator boundary reconstruction: replace observed full-height side pier forest with connected opaque rooted Tideglass low sill on genuinely disclosed sealed guardian edges; other pressure/gate walls and public-knowledge AI/collision untouched. New Three regression verifies exact physical instances and original <100 six-reset budget. Baseline HEAD native ZIP 39 PNGs, 37/37 SHA sidecars checked; candidate native visual and CI pending, NOT a quality win.",
     "Pass359 2026-11-14: Authentic exact-HEAD 000f4244 WebGL 43597755797 successful, 39 original full-frame PNGs, 37/37 paired SHA-256 and 3/3 gate transition verified; direct source-matched Pass357 versus Pass358 notice/brace/release rejects near-identical crowded Pip-Thornback encounter. Restore source-only original world/test blobs (no threshold changes), document rejection in same commit; new rollback SHA CI pending, no Nintendo/independent win.",
     "Pass358d 2026-11-14: Exact ddfdb9ce native CI 43597372721 failed 3 prior strict full-hinge contracts because nested carriage illegally changed sail parent. Production correction restores original mesh parent on original rooted sailPivot; animates original sail/spar/crest local Y -0.62->0 on witnessed brace. Old tests kept intact and no acceptance thresholds weakened, new HEAD CI and source-native screenshot evidence pending.",
@@ -968,6 +969,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass360b preserve pre-existing Pass332/335 full-scale wall contracts",
+      "status": "New corrected commit CI and native WebGL evidence PENDING",
+      "detail": "First Pass360 CI 43602401051 failed 2 original installed Three physical wall tests; restored original mandated solid dimensions/materials, retains new independently judgeable no-pier geometry regression and six-run strict budget. No acceptance without new SHA-verified screenshots."
+    },
     {
       "name": "Pass360 real guardian continuous Tideglass sill candidate",
       "status": "PENDING exact-HEAD CI and native rendered screenshots; incoming e8fc95da visual 43599211996 SUCCESS, 37/37 original SHA pairs",

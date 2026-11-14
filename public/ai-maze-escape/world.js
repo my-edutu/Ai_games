@@ -608,25 +608,32 @@ export function createMazeWorld(options = {}) {
 
     // Pass360: the source-matched 390x844 *physical ray* hit the opaque
     // 2.32m-long guardian wall on PUBLIC cell100, then one of its 0.40m
-    // terminal piers. The fence-like forest at the foreground is actual
+    // terminal piers. The fencing and terminal piers at the foreground are actual
     // geometry, not distant decoration. Rebuild the entire WITNESSED,
     // mutually NONPASSABLE guardian screen as one rooted, low continuous
     // mineral sill: the stone body remains solid all the way across the
-    // original boundary, but its repetitive terminal piers, tall caps and
-    // floating face rails no longer cut through Pip and Thornback.
+    // original boundary, but its redundant terminal piers no longer cut across Pip and Thornback.
+    // Preserve the established full solid masonry body, broad sea-glass
+    // cap and qualified dark face/crest: older strict wall tests matter.
     // Caller already requires both PUBLIC endpoints, current reciprocity
     // rejection, same level, no key/gate and genuine witnessed duel.
     // No collision, navigation, pressure mechanism, map knowledge or
     // camera target is inferred from this view; all shapes are pooled.
     if (guardianStage) {
-      block(darkJade, x, .13, z,
-        horizontal ? 2.32 : .39, .26, horizontal ? .39 : 2.32, cell);
-      add(box, seaGlass, x, .273, z,
-        horizontal ? 2.34 : .43, .038, horizontal ? .43 : 2.34, cell);
-      // A single flat engraved crest signals sealed stone without a
-      // row of posts or visually suggesting a traversable open doorway.
-      add(box, inlay, x, .296, z,
-        horizontal ? 2.05 : .075, .012, horizontal ? .075 : 2.05, cell);
+      // Preserve existing full-width opaque 0.34m stone, original broad
+      // sea-glass cap and established face/crest contracts. Remove only
+      // the extra terminal pier FOREST proven to interrupt native sightlines.
+      // Original full-scale wall solidity and side-wall identity are intact.
+      block(darkJade, x, .17, z,
+        horizontal ? 2.32 : .39, .34, horizontal ? .39 : 2.32, cell);
+      add(box, seaGlass, x, .355, z,
+        horizontal ? 2.34 : .44, .075, horizontal ? .44 : 2.34, cell);
+      if (!pressureStage) {
+        add(box, darkMetal, x, .20, z,
+          horizontal ? 2.14 : .43, .22, horizontal ? .43 : 2.14, cell);
+        add(box, inlay, x, .325, z,
+          horizontal ? 2.08 : .08, .042, horizontal ? .08 : 2.08, cell);
+      }
       return;
     }
     // Unrelated known gate and pressure wall geometry remains unchanged.
