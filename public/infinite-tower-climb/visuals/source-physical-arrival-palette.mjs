@@ -85,14 +85,17 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
 // One physically occupied ORIGINAL bronze arch, never a fabricated successor
 // portal. Keep it solid until the recorded body has CLEARED its opening; after
 // that, optical retirement is limited by BOTH genuine 3D departure and
-// successful renderer submissions. A browser poll, timestamp jump or fake
-// victory cannot use this to spend an unseen original doorway.
+// successful renderer submissions. In 1x footage the source climber can be
+// halfway up the successor tower when the old GPU's 1.65s disposal timer
+// fires: that deleted the original door at nonzero opacity. Permit a bounded
+// 3s / 60-return retirement tail so its existing materials may actually fade
+// to zero with genuine source ascent; never count a browser poll as a frame.
 export function observedSourceGatewayDeparturePresence(source,held) {
   if(held?.guardianGateRetained!==true ||
      !valid(held?.submittedFrames) || held.submittedFrames<0 ||
-     held.submittedFrames>10 ||
+     held.submittedFrames>60 ||
      !Number.isFinite(held.visibleSeconds) ||
-     held.visibleSeconds<0 || held.visibleSeconds>=1.65 ||
+     held.visibleSeconds<0 || held.visibleSeconds>=3 ||
      !valid(held.thresholdX)) return null;
   const physical=observedSourcePhysicalArrivalPalette(source,held);
   if(!physical?.sourceBound)return null;
