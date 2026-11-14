@@ -201,6 +201,32 @@ function verifiedBodyDodgeFoleyCue(cue){
   Math.abs(cue.from.x-cue.to.x)+Math.abs(cue.from.z-cue.to.z)===1;
 }
 /**
+ * Source-only support and unmatched release sounds are still PUBLIC ACTIONS.
+ * The planner intentionally marks unmatched attempts unverified: an absent
+ * legal target is not an arrow impact or cast contact. Production foley may
+ * sound that attempt only with its actor, cell, scene and canonical event ID.
+ * A bare 'draw' or 'cast-dry' recipe cannot be used to invent a release.
+ */
+function isCanonicalSourceOnlyFoleyCue(cue){
+ if(typeof cue?.sceneKey!=='string'||
+  !/^(?:0|[1-9]\d*):[1-9]\d*$/.test(cue.sceneKey)||
+  !Number.isSafeInteger(cue.tick)||cue.tick<0||
+  typeof cue.actorId!=='string'||cue.actorId.length<1||
+  cue.actorId.length>128||cue.targetId!==null||cue.to!==null||
+  !validOriginalFoleyCell(cue.from)||cue.proof!=='authority-action')return false;
+ const [runText,floorText]=cue.sceneKey.split(':');
+ if(!Number.isSafeInteger(Number(runText))||
+  !Number.isSafeInteger(Number(floorText)))return false;
+ const support=cue.verified===true&&(
+  cue.kind==='guard'&&cue.audio==='guard'&&cue.visual==='utility'||
+  cue.kind==='cast-utility'&&cue.audio==='utility'&&cue.visual==='utility');
+ const unmatched=cue.verified===false&&(
+  cue.kind==='ranged-unmatched'&&cue.audio==='draw'&&cue.visual==='none'||
+  cue.kind==='cast-unmatched'&&cue.audio==='cast-dry'&&cue.visual==='none');
+ return (support||unmatched)&&
+  cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${cue.actorId}:-`;
+}
+/**
  * A counter stinger is a public witnessed Warden HP-loss opportunity, not
  * evidence of a particular sword or attacker. The planner requires the
  * actual adjacent recovery window and HP decline; foley checks its immutable
@@ -436,6 +462,11 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   // deliberately pass generic recipe names without authoritative snapshots.
   const canonicalWitness=requireVerifiedContact&&
    isCanonicalVerifiedCombatFoleyCue(cue);
+  // Explicitly observed source-only attempts may play restrained dry foley.
+  // They never become verified projectiles, spell contacts or HP losses.
+  const sourceOnlyWitness=requireVerifiedContact&&
+   isCanonicalSourceOnlyFoleyCue(cue);
+  const authorizedWitness=canonicalWitness||sourceOnlyWitness;
   // A ranger launch, cultist cast or Warden strike is also a witnessed
   // ACTION, not an arbitrary named recipe. Never let a malformed release
   // (or a forged target/actor ID) bypass the strict production sound gate.
@@ -448,15 +479,17 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final'||
    cue.audio==='boss-warning'||cue.audio==='threat-warning'||
    cue.audio==='block'||cue.audio==='evade'||cue.audio==='counter'||
-   cue.audio==='interrupt'||cue.audio==='defeat'||cue.audio==='recovery';
-  if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
+   cue.audio==='interrupt'||cue.audio==='defeat'||cue.audio==='recovery'||
+   cue.audio==='draw'||cue.audio==='cast-dry'||cue.audio==='guard'||
+   cue.audio==='utility';
+  if(requireVerifiedContact&&authorityBoundAudio&&!authorizedWitness){
    dropped++;return false;
   }
   // Per-actor time cooldown alone permits replaying the EXACT same attack
   // or HP-loss event once 75/85ms has passed. A received authoritative cue
   // ID is one-shot, independently of unrelated later ticks or sound density.
   // No receipt is consumed when the sound was muted, evicted or failed to start.
-  const confirmedCue= requireVerifiedContact&&cue?.verified===true&&
+  const confirmedCue=requireVerifiedContact&&authorizedWitness&&
    typeof cue.id==='string'&&cue.id.length>0&&cue.id.length<=256;
   if(requireVerifiedContact&&
    (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
@@ -467,7 +500,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   // Delayed cues within that authority horizon remain eligible; an explicit
   // scene reset clears the watermark. A failed WebAudio start must not
   // consume this proof or advance the tick.
-  if(canonicalWitness&&canonicalSceneKey!==null&&
+  if(authorizedWitness&&canonicalSceneKey!==null&&
     (cue.sceneKey!==canonicalSceneKey||
      cue.tick<highestCanonicalTick-5)){dropped++;return false}
   cleanup();
@@ -576,13 +609,15 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
      // Estimate only; never compare to decoded WebM PCM without clock calibration.
      estimatedOutputPerformanceMs:estimatedOutputPerformanceMs(t),
      startedSources:sources.length,
-     verifiedCanonicalCue:canonicalWitness,
+     verifiedCanonicalCue:canonicalWitness||
+      (sourceOnlyWitness&&cue.verified===true),
+     observedUnconfirmedAttempt:sourceOnlyWitness&&cue.verified===false,
      sampleSynchronized:false
     }));
     if(recentOriginalStarts.length>MAX_ORIGINAL_RECORDED_STARTS)
      recentOriginalStarts.shift();
    }
-   if(canonicalWitness){
+   if(authorizedWitness){
     if(canonicalSceneKey===null)canonicalSceneKey=cue.sceneKey;
     highestCanonicalTick=Math.max(highestCanonicalTick,cue.tick);
    }
