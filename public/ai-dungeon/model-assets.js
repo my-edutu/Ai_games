@@ -2532,7 +2532,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  const certified=chooseOriginalSourceSwingLinkedLegTrial({...owner,trials:[{
   upperRad:selected.upperRad,lowerRad:selected.lowerRad,after
  }]});
- if(!certified){
+ // Authorize only the final post-application original skinned BOTH-shoe sample.
+ if(!certified||certified.oppositeShoePreserved!==true||
+  certified.contactLocked!==false){
   upper.bone.quaternion.copy(upperOriginal);
   lower.bone.quaternion.copy(lowerOriginal);
   upper.bone.updateWorldMatrix(true,true);
@@ -2554,6 +2556,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
 }
 
 function stageRigLegsAfterMixer(actor,since,reducedMotion){
+ // This original GLB two-shoe receipt belongs exclusively to this mixer frame.
+ // Initialize before early returns or the first accepted connected-leg trial.
+ actor.sourceSwingLinkedCurrentFrameProofs={left:null,right:null};
  actor.sourceSwingThighCurrentFrameProofs={left:null,right:null};
  actor.sourceStanceKneeCurrentFrameProofs={left:null,right:null};
  actor.sourceStanceKneeProbeOutcomes={left:null,right:null};

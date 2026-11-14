@@ -3913,7 +3913,7 @@ test('RED: the authentic post-ankle source thigh may improve a still buried toe 
   'stale, foreign, unsafe, or unmeasured source-foot revisions fail closed');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const begin=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
- const end=renderer.indexOf('function stageRigLegsAfterMixer(',begin);
+ const end=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(',begin);
  assert.ok(begin>0&&end>begin,'same real imported rig stage is still present');
  const stage=renderer.slice(begin,end);
  assert.match(stage,/reconcileOriginalSourceSwingToeProofWithThigh\(/,
@@ -4006,7 +4006,7 @@ test('verified opposite original stance shoe may coexist with a same-frame swing
   'unmatched clip, actor, floor or unmeasured loaded shoe must never release swing trial');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const start=renderer.indexOf('function stageOriginalSourceSwingThighAfterMixer(');
- const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const end=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(',start);
  const stage=renderer.slice(start,end);
  assert.match(stage,/verifyOriginalSourceOppositeStanceForSwingThigh\(/,
   'live original skinned opposite loaded shoe needs explicit same-frame evidence');
@@ -5402,4 +5402,24 @@ test('RED: live source-rig linked correction is reversible, measured after mixer
  assert.match(renderer,/upper\.last\.multiply\(upperDelta\)/);
  assert.match(renderer,/lower\.last\.multiply\(lowerDelta\)/);
  assert.match(renderer,/oppositeShoePreserved/);
+});
+
+test('original linked upper+lower current-frame proof resets and final skinned opposite shoe remains verified',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const frame=renderer.indexOf('function stageRigLegsAfterMixer(');
+ assert.ok(frame>0);
+ assert.match(renderer.slice(frame,frame+400),
+  /actor\\.sourceSwingLinkedCurrentFrameProofs=\\{left:null,right:null\\}/,
+  'a stale or undefined linked witness must never survive an original mixer frame');
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ assert.ok(start>0&&end>start);
+ const method=renderer.slice(start,end);
+ assert.match(method,/const after=read\\(\\)/);
+ assert.match(method,/chooseOriginalSourceSwingLinkedLegTrial\\(\\{\\.\\.\\.owner,trials:\\[\\{/);
+ assert.match(method,/certified\\.oppositeShoePreserved!==true/);
+ assert.match(method,/certified\\.contactLocked!==false/);
+ assert.ok(method.indexOf('if(!certified||')<method.indexOf('upper.last.multiply(upperDelta)'),
+  'no source quaternion delta may persist without final independently measured both-shoe safety');
+ assert.match(method,/actor\\.sourceSwingLinkedCurrentFrameProofs\\[side\\]/);
 });
