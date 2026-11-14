@@ -147,8 +147,11 @@ for(const phase of ['allocate','start']){
   const fixture=failingPreemptionFixture();
   const engine=createOriginalCombatFoley(fixture.ctx,{requireVerifiedContact:true});
   assert.equal(engine.enable(),true);
+  // The strict preview rightly rejects fabricated block/evade identities.
+  // Fill the preemption mix with non-body-local audition recipes instead;
+  // this test measures WebAudio replacement failure, not action proof.
   const low=['draw','cast-dry','utility','guard',
-   'evade','recovery','interrupt','block'];
+   'recovery','interrupt','defeat','threat-warning'];
   for(const [i,audio] of low.entries())
    assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio);
   const before=engine.stats();
