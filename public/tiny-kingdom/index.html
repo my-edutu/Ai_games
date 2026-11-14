@@ -2610,8 +2610,13 @@ function realForegroundFacing(p){
 // Hysteresis avoids unnecessary JS regeneration at a camera LOD boundary.
 // W296: live full-body foot/hand GPU skin covers medium-shot pedestrians
 // without re-baking their sculpted original vertex data every camera tick.
-const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.27;
-const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.325;
+// W332: keep more genuine *medium-shot* unselected non-contact adults
+// on their existing full-detail 13-joint GPU rig. The world and face/coat/boot
+// meshes are unchanged; the authoritative gait still drives the joint matrix.
+// Close hero, earned food, carrying wrists, active jobs and unloading never
+// enter this path. Hysteresis avoids visible CPU/GPU flip on manual orbit.
+const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.39;
+const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.45;
 function physicallySmallWalkingSkinWindow(heightFraction,previouslySkinned){
  return Number.isFinite(heightFraction)&&heightFraction>=0&&
   heightFraction<(previouslySkinned?
@@ -2641,6 +2646,15 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  // Preserve full live CPU wrist IK for the original VERIFIED meal only.
  if(passive&&typeof verifiedHouseholdMealEvidence==='function'&&
   Boolean(verifiedHouseholdMealEvidence(p)))return false;
+ // A named REAL buyer's sack must remain attached to their live CPU wrist,
+ // even if their nighttime route uses the normal homecoming gait.
+ if(action==='Returning home at dusk'&&Number.isFinite(p.provisions)&&
+    p.provisions>0)return false;
+ // The explicit close-up inspection mode owns full-resolution contact and
+ // foot articulation for its selected human, never a static GPU pose.
+ if(typeof document!=='undefined'&&
+    document.body?.dataset?.citizenInspect==='on'&&i===selectedCitizen)
+  return false;
  const projected=projectRealCitizenDetail(p,frame);
  const prior=foregroundResidentCache.get(i);
  const held=Boolean(prior?.skinned&&typeof prior.key==='string'&&
@@ -2926,6 +2940,9 @@ function getForegroundResidentAudit(){
     /^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(row.p.activity||'')).length,
   walkingSkinScreenWindow:{enter:FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT,
    retain:FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT},
+  mediumShotNonContactOriginalGpuSkin:true,
+  realProvisionWristAndVerifiedMealStayLive:true,
+  explicitCloseupInspectStaysLive:true,
   physicallySkinnedPassiveResidents:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&
     ['Resting at home','Waiting for a safe route','Finding a home']
@@ -2962,7 +2979,7 @@ function getForegroundSkinAudit(){
   followedAndLargeWorkerCPUContactsPreserved:true,
   deliveryAndMarketUnloadingOriginalHandsPreserved:true,
   passiveSkinnedWithoutReceiptMeal:true,
-  passiveSkinMaxHeightFraction:.115,
+  passiveSkinMaxHeightFraction:FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT,
   authorityChanged:false,physicalFpsUnmeasured:true};
 }
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
