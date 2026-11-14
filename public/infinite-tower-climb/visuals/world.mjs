@@ -3634,9 +3634,16 @@ export function createTowerWorld(){
     const immutable=observedSourceEarnedColdFrameContinuation(snapshot,held);
     const priorGrounded=!immutable &&
       observedStagedOriginalCapBeforeRecordedCrossing(snapshot,held);
-    if(!immutable && !priorGrounded)return null;
+    // The old doorway's REAL material lifetime can outlast the first-eight-
+    // frame cold-rebuild witness. Keep the same original 3D arch eligible for
+    // the one continuous follow camera only while that physically authenticated
+    // gateway is still visibly present. Never resurrect a retired GPU owner.
+    const visibleOriginalGateway=
+      observedSourceGatewayDeparturePresence(snapshot,held)?.opacity>.035;
+    if(!immutable && !priorGrounded && !visibleOriginalGateway)return null;
     return {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
       crossingTick:held.crossingTick,
+      guardianGateRetained:held.guardianGateRetained===true,
       thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
       oldCapId:held.oldCapId,oldCapX:held.oldCapX,
       oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,
