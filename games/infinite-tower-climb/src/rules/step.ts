@@ -42,7 +42,13 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
       events.push({tick:state.tick,type:'guardian-gate',
         data:{floor:state.floor,reason:'guardian-alive'}});
   }else holdAtGuardian(state,events)
-}else if(physicalPassage&&cap&&
+ }else if(physicalPassage&&cap&&defeatedGuardian&&
+  state.guardianGateActuation?.floor===state.floor&&
+  state.guardianGateActuation.guardianId===defeatedGuardian.id&&
+  state.tick<state.guardianGateActuation.openAtTick){
+  // Source-driven bronze winch still holds the physical lock plane.
+  // Real AI, jaws, health and contact remain live. No delayed client win.
+ }else if(physicalPassage&&cap&&
   (!defeatedGuardian||!state.player.grounded||state.player.groundedPlatformId!==cap.id||
     state.player.position.x<guardianArenaClearanceX(cap,state.player.halfWidth))){
   // The real body, including its trailing edge, must pass the inner
@@ -65,7 +71,7 @@ export function applyTowerAction(input:TowerState,actionInput:Partial<TowerActio
     crossingX:state.player.position.x,
     groundedPlatformId:state.player.groundedPlatformId
   } : undefined;
-  const nextFloor=state.floor+1;let next=generateTowerChunk(state.config,state.seed,nextFloor,rng);if(state.influence.modifiers.nextTheme){const{checksum:_,...base}=next;next={...base,theme:state.influence.modifiers.nextTheme,checksum:checksum({...base,theme:state.influence.modifiers.nextTheme})};state.influence.modifiers.nextTheme=undefined}const validation=validateTowerChunk(next,state.config);if(!validation.valid){state=makeTowerTerminal(state,'integrity-quarantine','technical');events.push({tick:state.tick,type:'technical-terminal',data:{reason:'invalid-generated-chunk',issues:validation.issues}})}else{const content=generateTowerContent(next,state.config,state.seed,rng);if(next.guardian&&state.influence.modifiers.guardianHealthBonus>0&&state.influence.modifiers.guardianModifierUntilFloor>=nextFloor){for(const enemy of content.enemies)if(enemy.kind==='guardian'){enemy.health+=state.influence.modifiers.guardianHealthBonus;enemy.maxHealth+=state.influence.modifiers.guardianHealthBonus}state.influence.modifiers.guardianHealthBonus=0;state.influence.modifiers.guardianModifierUntilFloor=0}state.floor=nextFloor;state.stats.floorsCleared++;state.stats.checkpoints++;// The genuinely defeated guardian's full-body cap crossing is a continuous
+  const nextFloor=state.floor+1;let next=generateTowerChunk(state.config,state.seed,nextFloor,rng);if(state.influence.modifiers.nextTheme){const{checksum:_,...base}=next;next={...base,theme:state.influence.modifiers.nextTheme,checksum:checksum({...base,theme:state.influence.modifiers.nextTheme})};state.influence.modifiers.nextTheme=undefined}const validation=validateTowerChunk(next,state.config);if(!validation.valid){state=makeTowerTerminal(state,'integrity-quarantine','technical');events.push({tick:state.tick,type:'technical-terminal',data:{reason:'invalid-generated-chunk',issues:validation.issues}})}else{const content=generateTowerContent(next,state.config,state.seed,rng);if(next.guardian&&state.influence.modifiers.guardianHealthBonus>0&&state.influence.modifiers.guardianModifierUntilFloor>=nextFloor){for(const enemy of content.enemies)if(enemy.kind==='guardian'){enemy.health+=state.influence.modifiers.guardianHealthBonus;enemy.maxHealth+=state.influence.modifiers.guardianHealthBonus}state.influence.modifiers.guardianHealthBonus=0;state.influence.modifiers.guardianModifierUntilFloor=0}state.floor=nextFloor;state.guardianGateActuation=undefined;state.stats.floorsCleared++;state.stats.checkpoints++;// The genuinely defeated guardian's full-body cap crossing is a continuous
 // physical route into the next floor, NOT a horizontal teleport to the
 // default left-hand spawn. The new ground spans the actual world width;
 // preserve the proven source X and safe forward walking impulse. No invented
