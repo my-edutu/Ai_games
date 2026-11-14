@@ -5707,6 +5707,10 @@ test('RED: real 33ms source swing permits measured paired 110/90mrad candidate w
   sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
   teleport:false,reducedMotion:false,interrupted:false,
   rootTravel:.045,frameAge:.033,frameInterval:.0334,
+  // This is a hypothetical NEXT-frame strong-probe unit fixture; the
+  // independently accepted original source-rig first pose is represented
+  // explicitly, not inferred from stale footage or an authority step.
+  previousLinkedCertified:true,previousUpperRad:.09,previousLowerRad:-.075,
   floorTopY:-.02,side:'left',before:original};
  const after={
   left:{...original.left,heelY:.158,toeY:-.1011,
@@ -5828,7 +5832,7 @@ test('RED: real 390px Walking_A source-linked hip and knee clearance ramps inste
   'a fresh previous-frame verified original GLB shoe may deepen the linked bend');
  assert.equal(next?.lowerRad,.095);
  assert.equal(choose({...valid,previousLinkedCertified:true,
-  previousUpperRad:.09,previousLowerRad:-.075})?.upperRad,.09,
+  previousUpperRad:.09,previousLowerRad:-.075}),null,
   'a reverse-sign historical pose cannot jump across two original knees');
  assert.equal(choose({...valid,previousLinkedCertified:true,
   previousUpperRad:NaN,previousLowerRad:0})?.upperRad,-.09,
