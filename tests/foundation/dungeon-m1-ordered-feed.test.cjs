@@ -49,13 +49,17 @@ test('original WebGL checkpoint reports missing delivered ticks rather than a fa
 
 test('a genuine 1,569-tick floor-to-natural-defeat original WebGL chapter receives an honest bounded render-delivery budget',()=>{
  const {planOrganicCheckpointWait}=require('../browser/dungeon-m1-ordered-feed.cjs');
- // 2026-11-14 exact HEAD 764c4ef: full source has defeat index 1706;
+ // 2026-11-14 exact HEAD f30b3a0: full source has defeat index 1706;
  // native desktop reached index 883 and mobile 1199 within old 420-second
  // ceiling. Neither source snapshot nor rendered checksum may be fabricated.
- assert.equal(planOrganicCheckpointWait({fromIndex:137,toIndex:1706}),1075200);
+ // The completed 14 November exact-head mobile journey passed, but the
+ // same desktop source stopped at index 1410/1706 after its 1,075.2s wait:
+ // software WebGL needs an evidence budget grounded in observed delivery.
+ // Never skip source snapshots or relax the rendered-checksum assertion.
+ assert.equal(planOrganicCheckpointWait({fromIndex:137,toIndex:1706}),1525650);
  assert.equal(planOrganicCheckpointWait({fromIndex:3,toIndex:59}),420000);
  assert.equal(planOrganicCheckpointWait({fromIndex:1706,toIndex:1720}),420000);
- assert.equal(planOrganicCheckpointWait({fromIndex:0,toIndex:1e8}),1100000);
+ assert.equal(planOrganicCheckpointWait({fromIndex:0,toIndex:1e8}),1600000);
  for(const input of [{fromIndex:59,toIndex:3},{fromIndex:-1,toIndex:1706},
   {fromIndex:0,toIndex:NaN},{fromIndex:0,toIndex:1.5}])
   assert.throws(()=>planOrganicCheckpointWait(input),/source indices/);
