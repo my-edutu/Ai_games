@@ -138,6 +138,8 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
     const gl=document.getElementById('world').getContext('webgl');
     return {metrics:g.metrics(),camera:g.getCamera(),
      frame:g.getFrameProfile(),geometry:g.getGeometryAudit(),
+     nightLights:g.getVillageNightLightingAudit(),
+     carryingLights:g.getHomecomingLanternAudit(),
      realWorkers:g.getActiveWorksites(),citizens:g.getState().people.map(p=>p.name),
      renderer:g.renderer(),error:gl?.getError()??-1,
      horizontalOverflow:document.documentElement.scrollWidth-innerWidth};
@@ -145,6 +147,16 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
    expect(final.metrics.day).toBeGreaterThanOrEqual(120);
    expect(final.geometry.totalTriangles).toBeLessThan(160000);
    expect(final.citizens).toEqual(evidence.originalCitizenNames);
+   // W330: the exact four authored market/street lanterns and ONLY real
+   // genuine returning citizens illuminate the 120-day night. No extras.
+   expect(final.nightLights.streetLamps).toHaveLength(4);
+   expect(final.nightLights.maxStreetLamps).toBe(4);
+   expect(final.nightLights.maxMovingLamps).toBe(2);
+   expect(final.nightLights.actualCarryingCitizens).toBe(final.carryingLights.count);
+   expect(final.nightLights.selectedLights).toBeLessThanOrEqual(2);
+   expect(final.nightLights.selectedLights).toBeLessThanOrEqual(final.carryingLights.count);
+   expect(final.nightLights.addsTriangles).toBe(0);
+   expect(final.nightLights.changesSavedState).toBe(false);
    expect(final.error).toBe(0);
    expect(final.horizontalOverflow).toBeLessThanOrEqual(0);
    expect(filmErrors).toEqual([]);
