@@ -20,7 +20,7 @@ No additional effects, render passes, reserved instances, audio voices, buffers 
 
 - Requirement: keep genuine warning cells readable under effect pressure, while preserving legitimate warning closure.
 - Source boundary: only D04 visual renderer and its native contract were changed.
-- Native verification: [implementation-run Actions](https://github.com/my-edutu/Ai_games/actions/runs/43538843846) (check current result; do not infer green from source commit).
+- Native verification: [implementation-run Actions 43538843846](https://github.com/my-edutu/Ai_games/actions/runs/43538843846) completed its **contracts** job successfully: 315/315 tests passed, followed by a successful TypeScript production build (2026-11-14). This does not constitute browser acceptance.
 - Browser verification: existing [run 43532337107](https://github.com/my-edutu/Ai_games/actions/runs/43532337107) failed `AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED` with multi-second renderer stalls. Its recordings predate this patch and do not verify this individual contention change. The new CI browser job may be blocked or fail for the same independent reason.
 - Unverified: 3 matched moving viewpoints, desktop/mobile full combat sequence, Warden release/recovery/counter, real decoded audio-to-visual alignment and 20-minute resource soak.
 
