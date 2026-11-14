@@ -338,7 +338,7 @@ for(const view of [
  const stage=await loadStage(page,sequence.states[0]);
  const code=fs.readFileSync(require('node:path').join(__dirname,
   '../../public/ai-dungeon/native-rig-deformation-plan.js'),'utf8');
- const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity,auditOriginalSourceFootFacing}=await import('data:text/javascript;base64,'+
+ const {measureSourceJointTravel,measureSourceSoleGripContinuity,assessSourceSoleFrameWindow,measureSourceSolePatchContinuity,auditOriginalSourceFootFacing,reconcileOriginalSourceContactWitness}=await import('data:text/javascript;base64,'+
   Buffer.from(code).toString('base64'));
  const trace=[],stanceWindows=[],fastWalkWindows=[],sourcePatchWindows=[],rafWindows=[];
  let previous=null,probedMotion=0;
@@ -518,7 +518,20 @@ for(const view of [
    beforeFrame,afterFrame,beforeTick:snap.tick,afterTick:snap.tick,visible:true,
    floorTopY:-.02,floorEvidence:'authored-cube-floor-top'});
   expect(sourcePatch.ikAccepted).toBe(false);
-  sourcePatchWindows.push({tick:snap.tick,beforeFrame,afterFrame,measurement:sourcePatch,
+  // At actual 390px frame 86->87 a stationary SINGLE weighted left sole
+  // vertex looked planted, yet its licensed HEEL was airborne. Compare that
+  // exact same-clone rendered pair against BOTH skinned outsole endpoints.
+  const correlated=reconcileOriginalSourceContactWitness(stanceWindow,sourcePatch,{
+   sameOriginalActor:Boolean(actor.sourceInstanceId&&
+    actor.sourceInstanceId===sameTickActor?.sourceInstanceId),
+   sameFramePair:afterFrame===beforeFrame+1,
+   sourceClipName:actor.nativeLegOwnership?.clipName??''
+  });
+  expect(correlated?.ikAccepted??false).toBe(false);
+  expect(correlated?.provenFootPlant??false).toBe(false);
+  sourcePatchWindows.push({tick:snap.tick,beforeFrame,afterFrame,
+   measurement:sourcePatch,correlatedSourceContact:correlated,
+   singleVertexOnlySides:correlated?.singleVertexOnlySides??[],
    first:actor.sourceSolePatchWorld,last:sameTickActor?.sourceSolePatchWorld??null});
   stanceWindows.push({tick:snap.tick,beforeFrame,afterFrame,
    beforeMode:actor.mode,afterMode:sameTickActor?.mode??null,
@@ -1154,6 +1167,11 @@ for(const view of [
   usablePairs:sourcePatchWindows.filter(w=>w.measurement.comparable).length,
   possibleTwoPointContact:sourcePatchWindows.filter(w=>
    w.measurement.potentialContactSides?.length>0).length,
+  correlatedOriginalSourcePairs:sourcePatchWindows.filter(w=>w.correlatedSourceContact).length,
+  misleadingSingleVertexPlantCount:sourcePatchWindows.filter(w=>
+   w.singleVertexOnlySides.length>0).length,
+  corroboratedNotCertifiedContactCount:sourcePatchWindows.filter(w=>
+   w.correlatedSourceContact?.corroboratedSides.length>0).length,
   aboveFloor:sourcePatchWindows.filter(w=>
    w.measurement.classification==='source-patches-above-floor').length,
   sourcePatchWindows,
