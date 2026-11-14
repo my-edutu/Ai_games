@@ -19751,6 +19751,34 @@ function getLiveWorkdayView(){
 // The existing photographer can now choose the more readable of at most 12
 // physically working people. It never creates, hides or moves any citizen.
 let realWorkdaySelectionAudit=null;
+let liveWorkShotRetryAt=0,liveWorkShotDeferred=0;
+// W337 Phase 1: a readable workday requires a REAL physical camera eye,
+// worker torso, IK hands, freight and projected body scale. The director uses
+// one predicate for selecting, transferring and auditing a live subject.
+// No authority or geometry is moved, faded, hidden or invented for filming.
+function genuineWorkdayShotDecision(shot,portrait){
+ if(!shot||shot.eyeCollision?.clear!==true||shot.blockers!==0)
+  return {safe:false,readable:false,reason:'physical-eye-or-roof'};
+ const body=shot.projectedWorkerHeightFraction,
+  scene=shot.foregroundSceneCover,core=shot.foregroundActorCoreCover,
+  cargo=shot.foregroundCargoCover??0,
+  vegetation=shot.foregroundVegetationCover??0,
+  hands=shot.handBlockers??2,blocked=shot.blockedBodyRays??7,
+  bystanders=shot.foregroundCitizenBlockers??1,
+  proximity=shot.cameraProximityWarnings??1,
+  face=shot.facingAlignment??-1;
+ if(![body,scene,core,cargo,vegetation].every(Number.isFinite))
+  return {safe:false,readable:false,reason:'missing-projection'};
+ const safe=body>=(portrait?.15:.13)&&
+  scene<.32&&core<.24&&cargo<.20&&vegetation<.36&&
+  hands<=1&&blocked<=2&&bystanders===0&&proximity===0&&
+  (shot.vegetationFaceBlockers??1)===0;
+ const readable=safe&&body>=(portrait?.26:.23)&&
+  scene<.20&&core<.15&&cargo<.13&&vegetation<.28&&
+  hands===0&&face>.12&&(shot.projectedWorksitePosts??0)<=1;
+ return {safe,readable,reason:!safe?'actual-obstruction-or-small-actor':
+  readable?'real-body-and-hands-visible':'partial-physical-view'};
+}
 // Read-only W13 film progression; never part of world save or seeded rules.
 let villageDocumentary=null;
 let grainJourney=null;
@@ -19764,14 +19792,11 @@ function chooseFilmableWorker(rows,excluded=-1){
   const shot=planCitizenCamera(worker,builderStageAngle(worker),true);
   const remaining=workDuration(worker)-worker.workTimer;
   const front=shot.facingAlignment??-1;
-  const clear=shot.workFacingMode!=='obstructed'&&
-   shot.blockers===0&&shot.handBlockers<=1&&
-   shot.foregroundCitizenBlockers===0&&
-   shot.foregroundSceneCover<.20&&
-   shot.foregroundActorCoreCover<.16&&shot.foregroundVegetationCover<.30&&
-   shot.vegetationFaceBlockers===0&&front>.12&&
-   shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.18:.21);
-  const score=(clear?3000:0)+front*600+
+  const evidence=genuineWorkdayShotDecision(shot,canvas.clientWidth<=520);
+  const clear=evidence.readable&&shot.workFacingMode!=='obstructed';
+  // One physically clear, human-scale ORIGINAL actor must outrank an
+  // apparently attractive but roof-blocked face/hand close-up.
+  const score=(clear?8500:evidence.safe?2600:-6000)+front*600+
    Math.min(.42,shot.projectedWorkerHeightFraction)*2200-
    shot.foregroundSceneCover*2100-shot.foregroundActorCoreCover*5200-
    shot.foregroundVegetationCover*2500-shot.vegetationFaceBlockers*850-
@@ -19787,7 +19812,9 @@ function chooseFilmableWorker(rows,excluded=-1){
   mode:canvas.clientWidth<500?'mobile':'desktop',
   examined:bounded.length,
   actor:best.person.name,job:best.person.job,
-  visibleFront:best.clear,faceAlignment:best.shot.facingAlignment,
+  visibleFront:best.clear,
+  physicalDecision:genuineWorkdayShotDecision(best.shot,canvas.clientWidth<=520),
+  faceAlignment:best.shot.facingAlignment,
   foregroundCover:best.shot.foregroundSceneCover,
   actorForegroundCover:best.shot.foregroundActorCoreCover,
   vegetationCover:best.shot.foregroundVegetationCover,
@@ -19803,6 +19830,8 @@ function chooseFilmableWorker(rows,excluded=-1){
     LIVE_WORKER_MIN_SHOT_MS-(performance.now()-liveWorkerPresentedAt))):0,
    citizen:people[selectedCitizen]?.name||null,
    liveWorkers:getActiveWorksites().length,
+   unsafePortraitSwitchesDeferred:liveWorkShotDeferred,
+   portraitRetryRemainingMs:Math.max(0,Math.round(liveWorkShotRetryAt-performance.now())),
    selection:realWorkdaySelectionAudit?{...realWorkdaySelectionAudit}:null,
    lastSwitchHour:Number.isFinite(liveWorkSwitchHour)?liveWorkSwitchHour:null};
  }
@@ -19819,6 +19848,10 @@ function chooseFilmableWorker(rows,excluded=-1){
   // subject through a readable real-time camera shot without freezing work.
   if(performance.now()-liveWorkerPresentedAt<LIVE_WORKER_MIN_SHOT_MS)return false;
   if(state.t-liveWorkSwitchHour<.09)return false;
+  // When all real workers are behind dense roof timber, defer expensive
+  // repeated surveys instead of running dozens of ray/projection passes
+  // on EVERY slow WebGL frame. No simulation tick or job is deferred.
+  if(performance.now()<liveWorkShotRetryAt)return false;
   const candidates=people.map((person,index)=>({person,index}))
    .filter(row=>row.index!==selectedCitizen&&isWorkingAtSite(row.person));
   if(!candidates.length)return false;
@@ -19831,8 +19864,17 @@ function chooseFilmableWorker(rows,excluded=-1){
   const eligible=sustained.length?sustained:candidates;
   // When one honest shift ends, favour the next visibly readable real job
   // instead of automatically choosing the nearest hidden market silhouette.
-  const next=chooseFilmableWorker(eligible)||eligible[0],
-   distance=nearest(next);
+  const physicalMobileWorkerCut=canvas.clientWidth>0&&canvas.clientWidth<=520;
+  const next=chooseFilmableWorker(eligible)||(physicalMobileWorkerCut?null:eligible[0]);
+  if(physicalMobileWorkerCut&&
+    (!next||!genuineWorkdayShotDecision(next.shot,true).safe)){
+   liveWorkShotDeferred++;
+   liveWorkShotRetryAt=performance.now()+1200;
+   return false;
+  }
+  if(!next)return false;
+  const distance=nearest(next);
+  liveWorkShotRetryAt=0;
   selectedCitizen=next.index;liveWorkCursor=next.index;
   liveWorkSwitchHour=state.t;liveWorkTransitions++;
   liveWorkerPresentedAt=performance.now();
@@ -19844,7 +19886,6 @@ function chooseFilmableWorker(rows,excluded=-1){
   // after the selected autonomous worker switched nearby. At 390px even a
   // 2m sideways glide can hide their face behind timber for several seconds.
   // An explicit scene cut is honest: workers never teleport, only the camera.
-  const physicalMobileWorkerCut=canvas.clientWidth>0&&canvas.clientWidth<=520;
   if(distance>8||physicalMobileWorkerCut||
      window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    // A cut to the next authentic shift should show the EXACT physical
@@ -25064,14 +25105,11 @@ function anchorSelectedWorkdayCamera(row){
  // instead of the selected autonomous worker. Admit only a real exterior
  // eye with validated geometry and useful body-scale evidence. Mark its
  // partial status truthfully; do not label an obscured view "clear".
- const physicallyUsable=shot.eyeCollision?.clear===true&&
-  shot.blockers===0&&shot.handBlockers<=2&&
-  shot.foregroundSceneCover<.42&&shot.foregroundVegetationCover<.42&&
-  shot.vegetationFaceBlockers===0&&
-  shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.105:.12);
+ const admission=genuineWorkdayShotDecision(shot,canvas.clientWidth<=520);
+ const physicallyUsable=admission.safe;
  if(!person||person!==row.person||!isWorkingAtSite(person)||
     ![shot.yaw,shot.pitch,shot.zoom].every(Number.isFinite)||
-    !(row.clear||physicallyUsable))return false;
+    !physicallyUsable)return false;
  yaw=shot.yaw;pitch=shot.pitch;zoom=shot.zoom;
  focusPoint=[person.x,person.z];
  lastFollowShot=shot;
@@ -25081,7 +25119,7 @@ function anchorSelectedWorkdayCamera(row){
  liveShotPlanCache={citizen:person.name,job:person.job,
   // A readably framed real person is not necessarily a fully clear face;
   // keep this distinction for evaluation and never invent production.
-  documentaryFullyClear:Boolean(row.clear),
+  documentaryFullyClear:Boolean(row.clear&&admission.readable),
   mode:'workday',deliveryId:null,stage:null,homecomingEntryBand:0,
   activity:person.activity,citySize:city.length,
   cityTopology:cameraArchitectureTopologyKey(),requestedYaw:shot.yaw,
@@ -25098,7 +25136,7 @@ function watchLiveWorkday(){
   eligible.filter(row=>row.index!==selectedCitizen):eligible;
  const transitioning=liveWorkday&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  const oldShot=transitioning?{yaw,pitch,zoom,focus:focusPoint.slice()}:null;
- if(!liveWorkday){liveWorkCommandBefore=commandView;liveWorkTransitions=0;liveWorkCuts=0;}
+ if(!liveWorkday){liveWorkCommandBefore=commandView;liveWorkTransitions=0;liveWorkCuts=0;liveWorkShotRetryAt=0;liveWorkShotDeferred=0;}
  liveWorkday=true;workdaySelected=-1;
  actionCameraZoom=null;actionCameraPitch=null;
  document.body.dataset.workday='live';
