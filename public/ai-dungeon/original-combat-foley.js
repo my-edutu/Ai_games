@@ -163,6 +163,18 @@ export function verifiedWardenWarningFoleyActor(cue){
  * shield position never grants an attacker, a hit on another body, or a target.
  * The public planner remains responsible for the actual snapshot witness.
  */
+/**
+ * Anonymous public threat cues never identify an attacker or even a named
+ * Warden. Generic telegraphs and unowned real Warden warning windows remain
+ * neutral, not a body-local release or proof of damage.
+ */
+function verifiedAnonymousThreatFoleyCue(cue){
+ return cue?.kind==='threat-warning'&&cue.audio==='threat-warning'&&
+  cue.visual==='none'&&cue.verified===true&&
+  (cue.proof==='authority-event'||
+   cue.proof==='authority-warning-unattributed')&&
+  cue.actorId===null&&cue.targetId===null&&cue.from===null&&cue.to===null;
+}
 function verifiedBodyBlockFoleyCue(cue){
  if(cue?.kind!=='block'||cue.audio!=='block'||cue.visual!=='block'||
   cue.verified!==true||cue.targetId!==null||cue.to!==null)return false;
@@ -238,10 +250,12 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const warningActor=verifiedWardenWarningFoleyActor(cue);
  const bodyBlock=verifiedBodyBlockFoleyCue(cue);
  const bodyDodge=verifiedBodyDodgeFoleyCue(cue);
+ const anonymousThreat=verifiedAnonymousThreatFoleyCue(cue);
  const counterVictim=verifiedEarnedCounterFoleyVictim(cue);
  const semanticWitness=verifiedDecisiveOrRecoveryFoleyCue(cue);
  if(actor===null&&victim===null&&releaseActor===null&&warningActor===null&&
-  counterVictim===null&&!bodyBlock&&!bodyDodge&&!semanticWitness)return false;
+  counterVictim===null&&!bodyBlock&&!bodyDodge&&!semanticWitness&&
+  !anonymousThreat)return false;
  // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
  // The public planner includes that target in its immutable swing ID even
  // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
@@ -432,6 +446,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    cue.audio==='ranged-release'||cue.audio==='spell-release'||
    cue.audio==='warden-release'||
    cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final'||
+   cue.audio==='boss-warning'||cue.audio==='threat-warning'||
    cue.audio==='block'||cue.audio==='evade'||cue.audio==='counter'||
    cue.audio==='interrupt'||cue.audio==='defeat'||cue.audio==='recovery';
   if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
