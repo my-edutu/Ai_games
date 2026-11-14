@@ -149,22 +149,31 @@ for(const phase of ['allocate','start']){
   assert.equal(engine.enable(),true);
   // This tests transactional WebAudio preemption, not a bypass for
   // fictitious decisive, interrupt or Warden-recovery authority.
-  // Five neutral audition recipes plus three 55ms-later repeats fill eight
-  // live voices before the shortest 155ms original voice can expire.
+  // Five canonical source-only public actions plus three 55ms-later
+  // attempts fill the existing eight-voice mix. They are NOT untrusted raw
+  // recipe auditions: strict production source validation remains enforced.
   const neutral=['draw','cast-dry','utility','guard','threat-warning'];
-  neutral.forEach((audio,i)=>{
-   // An anonymous alert now requires the real public event-shaped neutral
-   // warning witness; preemption fixtures may not use fabricated Warden audio.
-   const cue=audio==='threat-warning'?{
-    audio,kind:'threat-warning',id:'1:1:1:threat-warning:-:-',
-    sceneKey:'1:1',tick:1,visual:'none',actorId:null,targetId:null,
+  const lowCue=(audio,tick,seq)=>{
+   if(audio==='threat-warning')return {
+    audio,kind:'threat-warning',id:'1:1:'+tick+':threat-warning:-:-',
+    sceneKey:'1:1',tick,visual:'none',actorId:null,targetId:null,
     from:null,to:null,verified:true,proof:'authority-event',priority:1
-   }:{audio,id:'low-'+i,priority:1};
-   assert.equal(engine.emit(cue),true,audio);
-  });
+   };
+   const kind=audio==='draw'?'ranged-unmatched':
+    audio==='cast-dry'?'cast-unmatched':
+    audio==='utility'?'cast-utility':'guard';
+   const actorId='low-'+seq;
+   return {audio,kind,id:'1:1:'+tick+':'+kind+':'+actorId+':-',
+    sceneKey:'1:1',tick,visual:audio==='draw'||audio==='cast-dry'?
+     'none':'utility',actorId,targetId:null,from:{x:2,z:2},to:null,
+    verified:audio==='utility'||audio==='guard',
+    proof:'authority-action',priority:1};
+  };
+  neutral.forEach((audio,i)=>
+   assert.equal(engine.emit(lowCue(audio,1,i)),true,audio));
   fixture.ctx.currentTime=.055;
   ['draw','cast-dry','utility'].forEach((audio,i)=>
-   assert.equal(engine.emit({audio,id:'low-repeat-'+i,priority:1}),true,audio));
+   assert.equal(engine.emit(lowCue(audio,2,i+5)),true,audio));
   const before=engine.stats();
   assert.equal(before.activeVoices,MAX_ORIGINAL_COMBAT_VOICES);
   const starts=fixture.getSourceStarts();
