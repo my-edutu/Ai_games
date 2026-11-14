@@ -1,3 +1,19 @@
+## W310 · CURRENT Phase 1 milestone · original farm → real courier → real market → occupied homes · 14 November 2026
+
+**PR:** [draft #64](https://github.com/my-edutu/Ai_games/pull/64), exact candidate `a512ba191dd1c052f740c28a8afdbafd04d2203f`, pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Source only branch; no merging. These same five workstreams remain owned across runs, not five disconnected tiny fixes.
+
+| Priority / workstream | Observed exact running blocker and present value | Visible and measured done condition |
+| --- | --- | --- |
+| 1 · Rendering spine / profiled CPU-driver-GPU | Earlier real software-WebGL cold-stage spikes and ~1.7 baseline FPS are diagnostic, not native performance; no reliable matched physical GPU p95. | Same-world Day1/workday/Day121 p50/p95/p99 CPU/driver/GPU, bounded uploads/draws/memory and sustained ≥30fps p95≤33.3ms on documented real desktop/mobile |
+| 2 · Readable autonomous labour / full-body work | W309 real 1024px scene hid Selene behind genuine merchant chest even while the planner asserted "clear" at cover .077; W310 adds exact original ground-market sightline bounds, visual success pending. | Uncut natural worker shift visibly shows actual harvesting, laden walk, market handoff, purchase, cottage meal; physical hands, adult body, gestures visible and authentic |
+| 3 · Coherent original medieval district / visible scale | Current trade/cottage geometry remains faceted and visually cluttered; no commercial reference match. | Strong blinded G088/new town overview + close-up + populated Day121 differences at matched seeds/angles, recognizably credible contiguous farm, granary, shops and inhabited homes |
+| 4 · 390px camera/UI / zero hidden geometry | W309 Edric is partly visible but Supply bar intersects real workday activity caption. W310 repositions existing control without reducing accessible economic evidence. | Real 390px touch, orbit/follow, real caption fully visible and actionable controls ≥44px, no mesh clipping, no lost manual input or GL/page errors |
+| 5 · Independent acceptance / whole-world safety | Last grown-town budget close to 160,000 triangles; native hardware, long-soak and blind fresh critics not verified. W310 exact-head WebGL CI queued. | 120-day deterministic+restore, long growth soak, no >160k at any verified view, stable CPU/GPU memory, genuine same-authority uncut A/B, independent LOOK/FEEL/PLAY reviews and separate commercial grade |
+
+**Scorecard A vs G088:** LOOK/FEEL/PLAY **NOT PROVEN**. **Scorecard B commercial:** **FAIL**. No claim of visual improvement until current-source screenshots/motion prove it. Continue Phase 1; next inspect W310 genuine browser artifact and implement follow-up only for a *measured* failure in the same farmer–market–home chain.
+
+---
+
 ## W292 · one active integrated Phase 1 milestone / five blocking workstreams · 13 November 2026
 
 DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64) ONLY; source [e4313afe](https://github.com/my-edutu/Ai_games/commit/e4313afefcff0c64f95012d239e1b61dd5f314b4); frozen baseline `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Genuinely recorded W291 1024/390 workday shows original 6×7 aligned grey receiving-market foreground, even after scattered outer paving. W292 repairs that actual site with 42 physically spaced slabs, 24 earth panels and 14 preserved drain sections; W292 exact-source visual verdict PENDING. No phase promotion, no new FPS claim, no merger.
