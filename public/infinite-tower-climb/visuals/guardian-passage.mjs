@@ -1,4 +1,5 @@
 import { pointFor, SCALE, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
+import { towerPassageLiveWitness } from './passage-live-witness.mjs';
 
 // The original bronze guardian lock is an OUTSIDE mechanism at radius 27.78,
 // while the skinned grounded climber walks at radius 25 on the actual cap deck
@@ -1446,6 +1447,22 @@ export function createTowerGuardianPassage(THREE) {
     if (!weight) return focusPosition;
     return defeatFocus.copy(focusPosition).lerp(guardianWorld, weight);
   }
+  // One bounded source-frame witness shared by ordinary camera, 3D world,
+  // material, fog, framebuffer and gateway controllers. Deep diagnostics
+  // (geometry counts, arrays and rich nested records) are for the explicit
+  // forensic endpoint only, never the RAF / 20Hz state-poll hot path.
+  function liveWitness() {
+    return towerPassageLiveWitness({
+      active:group.visible,stage,runToken,floor,sourceTick,
+      ageSeconds:age,durationSeconds:duration,
+      handoffSubmittedFrames,handoffDisplaySeconds,
+      handoffVisibleWindowSeconds,continuousGroundedHandoff,
+      exteriorMemoryFrameVisible:memoryFrame.visible,
+      innerDoorAssemblyVisible:innerDoorAssembly.visible,
+      sourceMeasuredApproachOpen:approachOpen,
+      inlayProgress,inlaySourceTick,focus:focusPosition
+    });
+  }
   function diagnostics() {
     return { sourceBound: true, active: group.visible, stage, runToken,
       floor, sourceTick, ageSeconds: age, defeatAgeSeconds: defeatAge,
@@ -1528,5 +1545,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, lock, unlock, begin, trackSuccessor, update, noteFrameSubmitted, clear, cameraWeight, focusPoint, diagnostics, dispose };
+  return { group, lock, unlock, begin, trackSuccessor, update, noteFrameSubmitted, clear, cameraWeight, focusPoint, liveWitness, diagnostics, dispose };
 }
