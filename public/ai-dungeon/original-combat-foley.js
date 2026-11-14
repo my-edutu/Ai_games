@@ -73,6 +73,25 @@ export function verifiedDamageFoleyVictim(cue){
   cue.targetId.length>0&&cue.targetId.length<=128&&
   (cue.audio==='impact'||cue.audio==='fatal-impact')?cue.targetId:null;
 }
+/**
+ * The public HP planner emits a victim-only, adjacent observed delta with an
+ * actual cell and coherent severity. Sound does not prove which weapon caused
+ * the wound. This additional STRICT admission gate prevents a canonical ID
+ * and 'verified' flag from laundering a detached/zero-damage impact into
+ * original audio. It never mutates the public HP witness.
+ *
+ * Non-strict standalone procedural auditions retain their existing recipes
+ * and polyphonic mix behaviour.
+ */
+function coherentCanonicalHPFoleyEvidence(cue){
+ const damage=cue?.detail?.damage,maxHp=cue?.detail?.maxHp;
+ return cue?.visual==='hit'&&cue.from===null&&
+  validOriginalFoleyCell(cue.to)&&
+  Number.isSafeInteger(damage)&&damage>0&&
+  Number.isSafeInteger(maxHp)&&maxHp>0&&damage<=maxHp&&
+  Number.isFinite(cue.severity)&&cue.severity>0&&cue.severity<=1&&
+  Math.abs(cue.severity-damage/maxHp)<=1e-9;
+}
 /** A real public swing ATTEMPT is not an impact or attacker-victim claim. */
 export function verifiedSwingFoleyActor(cue){
  return cue?.kind==='swing'&&cue.audio==='whoosh'&&cue.visual==='trail'&&
@@ -272,6 +291,7 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
   !Number.isSafeInteger(floor)||floor<1)return false;
  const actor=verifiedSwingFoleyActor(cue);
  const victim=verifiedDamageFoleyVictim(cue);
+ if(victim!==null&&!coherentCanonicalHPFoleyEvidence(cue))return false;
  const releaseActor=verifiedReleaseFoleyActor(cue);
  const warningActor=verifiedWardenWarningFoleyActor(cue);
  const bodyBlock=verifiedBodyBlockFoleyCue(cue);
