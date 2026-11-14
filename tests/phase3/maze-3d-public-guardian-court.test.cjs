@@ -1254,3 +1254,50 @@ test('Pass342 a public pressure-proximity overlap no longer resurrects giant orn
     assert.equal(world.stats().materialCount,0);
   }
 });
+  
+test('Pass346 physical guardian fins recline out of the actor lane and rise only on publicly witnessed brace',async()=>{
+  const {createMazeWorld}=await load();
+  const {Box3}=await import(three);
+  const s=original(),source=JSON.stringify(s);
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const panels=()=>[6,8].flatMap(cell=>[-1,1].map(side=>({
+    side,mesh:w.group.getObjectByName('Published guardian Tideglass full shell-fan '+cell+' '+side)
+  })));
+  const tops=()=>{w.group.updateMatrixWorld(true);
+    return panels().map(({mesh})=>new Box3().setFromObject(mesh).max.y)};
+  try{
+    w.update(s);
+    assert.ok(panels().every(({mesh,side})=>mesh
+      && Math.abs(mesh.rotation.x-side*1.28)<1e-8
+      && mesh.parent.rotation.x===0),
+      'four original large fins physically rest reclined OUTWARD, not hidden or scaled away');
+    const folded=tops();
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    const active=tops();
+    assert.ok(panels().every(({mesh,side})=>mesh.parent.rotation.x*side<-.78),
+      'actual public brace pivots all four ORIGINAL joined fins toward upright');
+    assert.ok(active.every((y,i)=>y>folded[i]+.30),
+      'the genuine Three.js world-space panels rise substantially, not merely flash');
+    w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(tops().every((y,i)=>y<active[i]-.10),
+      'guardian release reclines the physical mechanism');
+    w.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+    assert.deepEqual(tops(),folded,'unknown attacker cannot retain a raised cue');
+    w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.deepEqual(tops(),folded,'reduced motion holds one static physical pose');
+    assert.equal(w.stats().geometryCount,budget.geometryCount);
+    assert.equal(w.stats().materialCount,budget.materialCount);
+    w.update({...s,visibleCells:[6,7,11]});
+    assert.ok(panels().every(({mesh})=>!mesh),'an unseen guardian cannot create public stage props');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'pass346-folding-reset-'+i});
+      assert.ok(panels().every(({mesh})=>!!mesh));
+      assert.ok(w.stats().geometryCount<100,'unchanged strict six-run resource gate');
+    }
+    assert.equal(JSON.stringify(s),source,'no AI authority or published topology mutation');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});

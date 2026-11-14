@@ -1552,17 +1552,26 @@ export function createMazeWorld(options = {}) {
               // Their already-authoritative public brace still sweeps them
               // farther outward; they are not gates, threat predictors or
               // colliders. The existing pooled GPU classes are unchanged.
+              // The real 390px notice/release showed four permanently tall
+              // rectangular fins competing with Pip and Thornback. Rest
+              // their WHOLE attached ceramic shell outside the playable
+              // lane and lift it only for the genuine witnessed brace.
+              // Same mesh dimensions, public clock and original GPU pools.
+              const restTilt=alongX?side*1.28:-side*1.28;
               const sail=mesh(sailPivot,bevel,seaGlass,
                 alongX?0:side*.26,.36,alongX?side*.26:0,
-                alongX?.56:.24,.94,alongX?.24:.56);
+                alongX?.56:.24,.94,alongX?.24:.56,
+                alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
               const spar=mesh(sailPivot,box,darkMetal,
                 alongX?0:side*.09,.38,alongX?side*.09:0,
-                alongX?.48:.075,.70,alongX?.075:.48);
+                alongX?.48:.075,.70,alongX?.075:.48,
+                alongX?restTilt:0,0,alongX?0:restTilt);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
               const crest=mesh(sailPivot,bevel,lightStone,
                 alongX?0:side*.29,.82,alongX?side*.29:0,
-                alongX?.48:.27,.14,alongX?.27:.48);
+                alongX?.48:.27,.14,alongX?.27:.48,
+                alongX?restTilt:0,0,alongX?0:restTilt);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
@@ -3495,8 +3504,11 @@ export function createMazeWorld(options = {}) {
         // outside margin in the witnessed brace and folds on real release.
         // No fabricated guardian strike or collision is implied. In reduced
         // motion it remains rigid but retains the truthful amber warning.
+        // Raise the genuinely folded physical fin against the authored
+        // outboard rest tilt on the real brace; recline at release, hidden,
+        // terminal or reduced-motion. Never promise a new passage/attack.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
-          :(signal.axis==='x'?beacon.side:-beacon.side)*.88*action;
+          :(signal.axis==='x'?-beacon.side:beacon.side)*.88*action;
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
