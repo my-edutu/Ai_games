@@ -2582,6 +2582,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  // Retain exactly four reversible trials and fail back to symmetric sampling
  // on ambiguity; zero unmeasured foot contact or extra WebGL draw calls.
  const slowArc=interval>=.05&&weight>=.95;
+ // Four reversible real two-shoe probes: start +/-90/75, then use
+ // skin-guided 105/85 and 110/90 only if the real source toe benefits.
+ // This must never be reported as IK, an authorized plant or a new step.
  const starterAngles=slowArc?
   [[.12,-.09],[-.12,.09]]:[[.09,-.075],[-.09,.075]];
  const fallbackAngles=slowArc?

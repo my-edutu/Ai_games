@@ -776,20 +776,20 @@ for(const view of [
   if(proof.witnessedFrameIntervalSeconds<.05){
    const previouslyWitnessed=proof.linkedContinuity==='same-certified-source-frame';
    expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(
-    previouslyWitnessed?.115001:.095001);
+    previouslyWitnessed?.115001:.110001);
    expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(
-    previouslyWitnessed?.095001:.080001);
+    previouslyWitnessed?.095001:.090001);
   }
   // The measured dual-shoe source frame sets its own fast/slow arc cap;
   // the original 33ms source-bound trial is NOT an unverified long-frame cue.
   // fully weighted original walking frame, never by inventing a foot plant.
-  const extended=Math.abs(proof.upperRad)>.105001||
-   Math.abs(proof.lowerRad)>.075001;
+  const extended=Math.abs(proof.upperRad)>.095001||
+   Math.abs(proof.lowerRad)>.080001;
   if(extended){
    const slowSource=proof.witnessedFrameIntervalSeconds>=.05&&
     proof.witnessedSourceWeight>=.95;
-   // Actual 33ms source-GLB fast frames can now test <=115/95mrad
-   // linked arcs, but may only be committed after two-shoe proof.
+   // A new 33ms original-rig frame may use at most 110/90mrad with actual
+   // two-shoe proof; larger fast arcs need a certified prior frame.
    expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(
     slowSource?.145001:.115001);
    expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(

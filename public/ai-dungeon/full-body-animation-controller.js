@@ -96,7 +96,7 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  if(!best)return null;
  const slow=frameInterval>=.05&&sourceWeight>=.95;
  const arcs=slow?[[.14,-.105],[.145,-.11]]:
-  [[.11,-.09],[.115,-.095]];
+  [[.105,-.085],[.11,-.09]];
  return arcs.map(a=>a.map(angle=>angle*best.sign));
 }
 
@@ -160,8 +160,8 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    // ceiling excluded the measured 110/90mrad coupled probe before either
    // skinned outsole could establish whether it clears stone. These remain
    // smaller than the already-gated 145/110mrad slow-frame limit.
-   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:(prior?.115:.095))||
-   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:(prior?.095:.08))||
+   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:(prior?.115:.11))||
+   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:(prior?.095:.09))||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    // An observed 16-49ms source frame cannot jump across the signed
    // hip/knee axis or exceed one consecutive source-joint arc increment.
@@ -184,7 +184,17 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    Math.abs(support.toeY-loaded.toeY)>.003||
    shift(support.heelXZ,loaded.heelXZ)>.004||
    shift(support.toeXZ,loaded.toeXZ)>.004)continue;
-  if(!best||lift>best.liftMeters)best={
+  // An unproven fast source frame owns the smallest physically sufficient
+  // original hip/knee pose. The real desktop 90/75mrad shoe read missed
+  // 15% toe recovery; a measured intermediate 105/85mrad may clear it
+  // without a sudden 115mrad jump. Real skinned soles decide, not angles.
+  // Only a prior certified same-rig frame can choose larger fast-frame lift.
+  const freshFast=!slowArc&&!prior;
+  const gentler=best&&(
+   Math.abs(upperRad)<Math.abs(best.upperRad)-.000001||
+   (Math.abs(Math.abs(upperRad)-Math.abs(best.upperRad))<=.000001&&
+    Math.abs(lowerRad)<Math.abs(best.lowerRad)-.000001));
+  if(!best||(freshFast?gentler:lift>best.liftMeters))best={
    side,upperRad,lowerRad,liftMeters:lift,fractionCleared:cleared,
    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,

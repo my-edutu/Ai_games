@@ -5769,7 +5769,7 @@ test('RED: original mobile source-shoe evidence chooses bounded stronger paired 
   ownerLocomotion:true,sourceInstanceSame:true,alive:true,visible:true,
   teleport:false,reducedMotion:false,interrupted:false,
   floorTopY:-.02,frameInterval:.0166,side:'right',before,trials};
- assert.deepEqual(plan(input),[[-.11,.09],[-.115,.095]],
+ assert.deepEqual(plan(input),[[-.105,.085],[-.11,.09]],
   'both remaining trials should search the actually improving original hip/knee sign');
  assert.deepEqual(plan({...input,frameInterval:.08}),[[-.14,.105],[-.145,.11]],
   'source slow frames retain their existing <=145/110mrad limit');
