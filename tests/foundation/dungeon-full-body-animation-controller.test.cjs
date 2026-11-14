@@ -5466,3 +5466,43 @@ test('RED: verified slow native swing frame may still clear a buried toe with bo
   'eligibility must be measured from the actual original mixer frame');
  assert.match(renderer.slice(begin,end),/const after=read\(\)/);
 });
+
+
+// Real f235c439 390px Chromium source-rig tick 6: the original Swing toe
+// starts 106.835mm below stone and an 80mrad isolated ankle correction lifts
+// only 9.261mm (8.67% of burial), leaving 97.573mm still inside the stone.
+// Do not count this as a useful physical performance or prevent the validated
+// original hip+knee stage from testing the genuinely skinned full leg.
+test('RED: deep original 390px swing rejects ineffective ankle twitch so the connected source leg can be evaluated',async()=>{
+ const {confirmOriginalSourceSwingAnkleNetClearance:useful}=await load();
+ assert.equal(typeof useful,'function',
+  'demand an original skinned ankle efficacy gate, independent of positive motion');
+ const measured={
+  beforeToeY:-.12683476458948081,afterToeY:-.11757347126222353,
+  beforeHeelY:.0917196605170863,afterHeelY:.08511812801723287,
+  floorTopY:-.02,appliedAngleRad:-.08
+ };
+ assert.equal(useful(measured),false,
+  'real 9.261mm lift / 106.835mm original toe burial cannot earn an 80mrad twitch');
+ assert.equal(useful({...measured,afterToeY:-.111}),true,
+  '>=10% of the original burial from a genuinely measured source ankle may remain');
+ assert.equal(useful({...measured,beforeToeY:-.043,afterToeY:-.036}),true,
+  'shallow original burial retains validated restrained ankle relief');
+ assert.equal(useful({...measured,afterToeY:-.128}),false,
+  'a backward original toe rotation is never useful clearance');
+ for(const bad of [
+  {afterToeY:NaN},{beforeHeelY:-.02},{afterHeelY:-.01},
+  {appliedAngleRad:0},{appliedAngleRad:.5},{floorTopY:.2}
+ ])assert.equal(useful({...measured,...bad}),false,
+  'untrusted original joint, heel, or floor must fail closed');
+ const sourceModel=fs.readFileSync(path.join(root,
+  'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(sourceModel,/if\(lift===null\|\|!confirmOriginalSourceSwingAnkleNetClearance\(\{/,
+  'real THREE post-mixer FINAL ankle remeasure must run useful-clearance gate');
+ assert.match(sourceModel,/if\(!held\|\|!confirmOriginalSourceSwingAnkleNetClearance\(\{/,
+  'previous-frame correction cannot bypass efficacy via continuity');
+ assert.match(sourceModel,/stageOriginalSourceSwingLinkedLegAfterMixer\(actor,side,reducedMotion\)/,
+  'an ineffective ankle must leave current-frame source proof empty for the original linked leg');
+ assert.match(sourceModel,/actor\.sourceSwingToeCurrentFrameProofs\[mount\.side\]=actor\.sourceSwingToeLiftProof/,
+  'only a useful measured original source ankle may obstruct subsequent full-leg sampling');
+});
