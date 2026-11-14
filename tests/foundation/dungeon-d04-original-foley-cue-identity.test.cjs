@@ -151,3 +151,48 @@ test('original source start telemetry is capped and rejected actions never becom
  assert.equal(engine.stats().recentOriginalStarts.length,0);
  engine.dispose();
 });
+
+test('strict D04 original source-start receipt bridges a real AudioContext output timestamp only as an estimate',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const {ctx}=fixture();
+ ctx.currentTime=7;
+ // Both output fields use the Web Audio getOutputTimestamp clock domains.
+ // This is a host-clock estimate, NOT decoded PCM onset or A/V sync proof.
+ ctx.getOutputTimestamp=()=>({contextTime:6.98,performanceTime:1000});
+ const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(engine.enable(),true);
+  assert.equal(engine.emit(swing(30)),true);
+  const [receipt]=engine.stats().recentOriginalStarts;
+  assert.equal(receipt.cueId,swing(30).id);
+  assert.equal(receipt.scheduledContextMs,7000);
+  assert.equal(receipt.estimatedOutputPerformanceMs,1020);
+  assert.equal(receipt.sampleSynchronized,false);
+  assert.ok(engine.stats().activeVoices<=8);
+ }finally{engine.dispose()}
+});
+
+test('invalid, stale, unsupported and throwing output timestamp probes never counterfeit a source-start clock',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ for(const getTimestamp of [
+  undefined,
+  ()=>({contextTime:7000,performanceTime:1000}),
+  ()=>({contextTime:6.98,performanceTime:Infinity}),
+  ()=>({contextTime:-1,performanceTime:1000}),
+  ()=>{throw Error('output device timestamp not available')}
+ ]){
+  const {ctx}=fixture();
+  ctx.currentTime=7;
+  if(getTimestamp)ctx.getOutputTimestamp=getTimestamp;
+  const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(engine.enable(),true);
+   assert.equal(engine.emit(swing(30)),true);
+   const [receipt]=engine.stats().recentOriginalStarts;
+   assert.equal(receipt.estimatedOutputPerformanceMs,null);
+   assert.equal(receipt.sampleSynchronized,false);
+   assert.equal(receipt.startedSources,1);
+   assert.ok(engine.stats().activeVoices<=8);
+  }finally{engine.dispose()}
+ }
+});
