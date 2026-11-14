@@ -832,3 +832,67 @@ test('D04 authored warning audio requires actual bounded danger-cell evidence an
   }
  }
 });
+
+
+test('strict original block and observed dodge sound require canonical public proofs',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const old=snap(10);
+ const anonymousBlock=planPhysicalFeedback(old,snap(11,{events:[
+  {kind:'block',tick:11,text:'unknown shield contact'}
+ ]})).find(c=>c.kind==='block');
+ const guardedBlock=planPhysicalFeedback(old,snap(11,{units:[
+  hero({hp:25,action:'guard',actionTick:11,guardTick:11}),
+  foe({action:'attack',actionTick:11})
+ ],events:[{kind:'block',tick:11,text:'real guarded collision'}]}))
+  .find(c=>c.kind==='block');
+ const moved=snap(11,{units:[hero({x:2,z:3,action:'move',actionTick:11}),foe()],
+  events:[{kind:'evade',tick:11,text:'vanguard slipped away from the marked shadow hex'}]});
+ const dodge=planPhysicalFeedback(old,moved).find(c=>c.kind==='evade');
+ assert.ok(anonymousBlock&&guardedBlock&&dodge,
+  'all positive examples must originate from the actual public planner');
+ assert.equal(anonymousBlock.actorId,null,'anonymous block must never name a defender');
+ assert.equal(guardedBlock.actorId,'vanguard');
+ assert.deepEqual(dodge.from,{x:2,z:2});
+ assert.deepEqual(dodge.to,{x:2,z:3});
+ const negative=[
+  {...anonymousBlock,verified:false},
+  {...anonymousBlock,proof:'invented-block'},
+  {...anonymousBlock,actorId:'invented-shield'},
+  {...anonymousBlock,id:anonymousBlock.id+':spoof'},
+  {...guardedBlock,proof:'authority-event'},
+  {...guardedBlock,actorId:'another-actor'},
+  {...guardedBlock,from:{x:300,z:0}},
+  {...dodge,verified:false},
+  {...dodge,proof:'authority-event'},
+  {...dodge,targetId:'revenant'},
+  {...dodge,from:null},
+  {...dodge,to:{x:2,z:4}},
+  {...dodge,id:dodge.id+':replay'}
+ ];
+ for(const genuine of [anonymousBlock,guardedBlock,dodge]){
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(genuine),true,
+   'only genuine planner block/step evidence may authorize original foley');
+  const {ctx}=fakeAudio();ctx.state='running';
+  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(foley.enable(),true);
+   assert.equal(foley.emit(genuine),true,'genuine contact/step still sounds');
+   assert.equal(foley.emit(genuine),false,'one public event never sounds twice');
+   assert.equal(foley.stats().confirmedCueIds,1);
+  }finally{foley.dispose()}
+ }
+ for(const forged of negative){
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(forged),false,
+   'forged block or dodge cannot gain canonical public attribution');
+  const {ctx}=fakeAudio();ctx.state='running';
+  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(foley.enable(),true);
+   assert.equal(foley.emit(forged),false,'forged block/dodge must remain silent');
+   assert.equal(foley.stats().activeVoices,0);
+   assert.equal(foley.stats().confirmedCueIds,0);
+   assert.deepEqual(foley.stats().recentOriginalStarts,[]);
+  }finally{foley.dispose()}
+ }
+});
