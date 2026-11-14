@@ -378,3 +378,54 @@ test('runtime original sourceSolePatchWorld diagnostic must yield real two-point
  assert.equal(evidence.ikAccepted,false);
  assert.equal(measure(first,{...last,sourceSolePatchWorld:null},meta).comparable,false);
 });
+
+
+test('RED: real 390px single-vertex apparent stance cannot become a source foot plant without BOTH weighted outsole endpoints',async()=>{
+ const {reconcileOriginalSourceContactWitness:reconcile}=await load();
+ const measuredSingle={
+  comparable:true,source:'two-consecutive-original-WebGL-skin-frames',
+  beforeFrame:86,afterFrame:87,tick:6,rootTravelMeters:.0489,
+  potentialPlantSides:['left'],classification:'potential-plant'};
+ // Exact original 390px source footage: a low skinned LEFT vertex barely
+ // moved, but its imported heel remained airborne and the RIGHT shoe slid
+ // ~70mm while the real root advanced only 48.9mm. The independent same-GLB
+ // original two-point heel/toe patch found ZERO actual contact candidates.
+ const measuredPatch={
+  comparable:true,source:'original-source-skinned-two-point-shoe-patch-and-authored-floor',
+  beforeFrame:86,afterFrame:87,tick:6,rootTravelMeters:.0489,
+  floorTopY:-.020,potentialContactSides:[],
+  heelWorldDeltaMeters:{left:.0144,right:.0692},
+  toeWorldDeltaMeters:{left:.0069,right:.0709}};
+ const owner={sameOriginalActor:true,sameFramePair:true,sourceClipName:'Walking_A'};
+ const rejected=reconcile(measuredSingle,measuredPatch,owner);
+ assert.equal(rejected?.classification,'unwitnessed-two-point-contact');
+ assert.deepEqual(rejected?.singleVertexOnlySides,['left']);
+ assert.deepEqual(rejected?.corroboratedSides,[]);
+ assert.equal(rejected?.provenFootPlant,false);
+ assert.equal(rejected?.ikAccepted,false);
+ const matching={...measuredPatch,potentialContactSides:['left']};
+ const eligible=reconcile(measuredSingle,matching,owner);
+ assert.equal(eligible?.classification,'two-point-contact-candidate-for-independent-review');
+ assert.deepEqual(eligible?.corroboratedSides,['left']);
+ assert.deepEqual(eligible?.singleVertexOnlySides,[]);
+ assert.equal(eligible?.provenFootPlant,false,
+  'even independent source two-point evidence over one frame is NOT a world-space stance certificate');
+ assert.equal(eligible?.ikAccepted,false);
+ for(const [caseName,patch,single,opts] of [
+  ['other-frame',{...matching,afterFrame:88},measuredSingle,owner],
+  ['other-tick',{...matching,tick:7},measuredSingle,owner],
+  ['untrusted-clip',matching,measuredSingle,{...owner,sourceClipName:'Idle'}],
+  ['another-clone',matching,measuredSingle,{...owner,sameOriginalActor:false}],
+  ['different-capture',matching,measuredSingle,{...owner,sameFramePair:false}],
+  ['no-skin',{...matching,comparable:false},measuredSingle,owner],
+  ['no-root',{...matching,rootTravelMeters:.52},measuredSingle,owner],
+  ['missing-floor',{...matching,floorTopY:NaN},measuredSingle,owner],
+  ['not-source',{...matching,source:'faked-pose'},measuredSingle,owner]
+ ])assert.equal(reconcile(single,patch,opts),null,
+  caseName+' must not manufacture trusted original source evidence');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(browser,/reconcileOriginalSourceContactWitness\(/,
+  'genuine 1440px and 390px same-frame browser videos must correlate both source shoe readers');
+ assert.match(browser,/singleVertexOnlySides/,
+  'misleading single weighted vertex cannot be silently reported as a planted foot');
+});
