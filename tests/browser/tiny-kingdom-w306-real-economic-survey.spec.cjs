@@ -68,6 +68,7 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
     before=JSON.stringify(g.exportSnapshot()),
     candidate=g.advanceRealEconomicSurvey();
    return {ticks,actualWorkers,candidate,
+    frameBefore:g.getFrameProfile().totalFrames,
     unchanged:before===JSON.stringify(g.exportSnapshot())};
   });
   expect(documentary.actualWorkers.length).toBeGreaterThan(0);
@@ -76,7 +77,11 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   expect(documentary.candidate.actualWorker).toBe(true);
   expect(documentary.actualWorkers).toContain(documentary.candidate.citizen);
   expect(documentary.unchanged).toBe(true);
-  await page.waitForTimeout(750);
+  // Capture only after the REAL 3D renderer submitted a worker-follow view,
+  // not a still image from the previous houses shot on slow SwiftShader.
+  await page.waitForFunction(previous=>
+   window.__tinyKingdom.getFrameProfile().totalFrames>previous,
+   documentary.frameBefore,{timeout:150000});
   const live=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {audit:g.getRealEconomicSurveyAudit(),view:g.getLiveWorkdayView(),
