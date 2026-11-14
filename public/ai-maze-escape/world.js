@@ -2066,9 +2066,16 @@ export function createMazeWorld(options = {}) {
             block(lightStone,ex,.33,ez,.20,.34,.20,c.cell);
           }
         } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
-          !pressureSightline && (guardianCauseway.has(c.cell)
+          // Public pressure proximity must not restore the noisy masonry
+          // on a disclosed, SOLID guardian spectator wall. Its actual jaws,
+          // traps, gates, collision and unknown-side edges remain untouched.
+          // Only ordinary, witnessed walls in the quiet ring may share the
+          // same-height continuous Tideglass facade under overlapping cues.
+          (guardianCauseway.has(c.cell)
             || guardianForecourtShoulders.has(c.cell)
-            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell);
+            || guardianOuterCourt.ordinary.has(c.cell))
+          && (!pressureSightline || (guardianQuietRingCell && !c.blocked)),
+          guardianQuietRingCell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
