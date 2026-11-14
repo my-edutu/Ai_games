@@ -1026,3 +1026,54 @@ test('D04 unmatched dry-release source foley cannot outlive its real performer a
   }
  }
 });
+
+
+test('D04 original HP impact must retain its observed victim cell and positive damage proof',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=
+  await load('original-combat-foley.js');
+ const prior=snap(10);
+ for(const hp of [19,0]){
+  const current=snap(11,{units:[hero(),foe({hp,action:'hurt',actionTick:11})]});
+  const actual=planPhysicalFeedback(prior,current).find(c=>c.kind.startsWith('damage'));
+  assert.ok(actual,'use a genuine public HP-loss transition, not a fabricated sound cue');
+  assert.equal(actual.actorId,null,'public injury never identifies its attacker');
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(actual),true,
+   'a real observed victim and positive injury must still authorize sound');
+  const bad=[
+   {...actual,visual:'none'},
+   {...actual,from:{x:2,z:2}},
+   {...actual,to:null},
+   {...actual,to:{x:-1,z:2}},
+   {...actual,to:{x:256,z:2}},
+   {...actual,detail:null},
+   {...actual,detail:{...actual.detail,damage:0}},
+   {...actual,detail:{...actual.detail,damage:-4}},
+   {...actual,detail:{...actual.detail,damage:actual.detail.maxHp+1}},
+   {...actual,detail:{...actual.detail,maxHp:0}},
+   {...actual,detail:{...actual.detail,maxHp:30.5}},
+   {...actual,severity:0},
+   {...actual,severity:1.01}
+  ];
+  for(const altered of bad){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(altered),false,
+    'forged position, intensity or missing real HP evidence cannot authorize impact');
+   const {ctx}=fakeAudio();ctx.state='running';
+   const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+   try{
+    assert.equal(engine.enable(),true);
+    assert.equal(engine.emit(altered),false);
+    assert.equal(engine.stats().activeVoices,0);
+    assert.equal(engine.stats().confirmedCueIds,0);
+    assert.equal(engine.stats().verifiedDamageOnsets,0);
+   }finally{engine.dispose()}
+  }
+  const {ctx}=fakeAudio();ctx.state='running';
+  const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(engine.enable(),true);
+   assert.equal(engine.emit(actual),true,'authentic HP loss remains audible on a submitted frame');
+   assert.equal(engine.stats().verifiedDamageOnsets,1);
+  }finally{engine.dispose()}
+ }
+});
