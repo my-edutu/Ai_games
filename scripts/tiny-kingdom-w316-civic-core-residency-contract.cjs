@@ -68,7 +68,12 @@ function world(){
    if(name==='farmMarketStreet')env.farmMarketStreetStats={routes:env.routeMode};
   };
  });
- vm.runInNewContext(original,env,{timeout:2500});
+ // W332: execute the REAL four physical streetlight anchors instead of
+ // a fabricated fixture global; they entered the actual district in W330.
+ const lightStart=script.indexOf('const VILLAGE_LIGHT_ANCHORS=');
+ const lightEnd=script.indexOf('function compileAuthenticVillageLights(',lightStart);
+ assert.ok(lightStart>=0&&lightEnd>lightStart,'original four streetlamps');
+ vm.runInNewContext(script.slice(lightStart,lightEnd)+'\n'+original,env,{timeout:2500});
  return {env,calls,draw:(route=1,season='spring')=>{
   env.routeMode=route;env.season=season;env.data=[];
   vm.runInNewContext('updateResidentCivicDistrict('+JSON.stringify(season)+',"day")',env,
