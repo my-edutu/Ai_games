@@ -141,6 +141,6 @@ test('real F9 world uses shared original successor corridor materials on near ro
   assert.match(world,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,lastSnapshot\?\.runToken\)/);
   assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof\)/);
   assert.match(world,/p.kind==='moving'\?materials.mint/);
-  assert.match(world,/if\(!arrivalRoutePalette\)/);
+  assert.match(world,/if\(sharedPhysicalRoof && !arrivalRoutePalette\)/);
   assert.doesNotMatch(world,/materials\.crystal\.color\.lerp\(/);
 });
