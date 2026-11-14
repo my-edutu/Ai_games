@@ -31,6 +31,7 @@ const source = fs.readFileSync(srcPath, 'utf8')
  .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
   .replace("'./original-clockwork-architecture-palette.mjs'", JSON.stringify(pathToFileURL(require.resolve('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs')).href))
+  .replace("'./source-earned-bearing-run.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs')).href))
   .replace("'./source-physical-arrival-palette.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href));
 const localPath = path.join(fixtureDir, 'world.mjs');
 fs.writeFileSync(localPath, source);
