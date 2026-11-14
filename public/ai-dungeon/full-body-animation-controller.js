@@ -2848,10 +2848,19 @@ export function planImportedRealTravelCrossfade({
   sourceClipName!=='Walking_A'||ownerLocomotion!==true||
   groundedMoving!==true||alive!==true||visible!==true||
   teleport||reducedMotion||interrupted||
-  ![groundedTravel,frameInterval].every(finite)||
-  groundedTravel<.012||groundedTravel>.24||
-  frameInterval<.008||frameInterval>.24)return .23;
- return .12;
+  ![groundedTravel,frameInterval].every(finite))return .23;
+ // Source-only rescue for a genuinely displaced actor on a sparse WebGL
+ // frame. The original desktop/mobile 41-bone GLB witness travelled
+ // .44-.54m over .467-.917s while the first Walking_A source fade was
+ // still .23s. Demand BOTH bounded distance and credible average velocity;
+ // a teleport, paused frame or unrelated action cannot earn this.
+ if(groundedTravel>=.24&&groundedTravel<=.54&&
+  frameInterval>=.24&&frameInterval<=1.2&&
+  groundedTravel/frameInterval>=.25&&
+  groundedTravel/frameInterval<=2.5)return .09;
+ if(groundedTravel>=.012&&groundedTravel<=.24&&
+  frameInterval>=.008&&frameInterval<=.24)return .12;
+ return .23;
 }
 
 export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,

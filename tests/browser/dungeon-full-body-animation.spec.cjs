@@ -679,8 +679,30 @@ for(const view of [
   const fade=frame.nativeLegOwnership?.originalRealTravelFade;
   if(!fade)continue;
   expect(fade.syntheticContact).toBe(false);
-  expect([.12,.23]).toContain(fade.seconds);
+  expect(fade.contactLocked).toBe(false);
+  expect([.09,.12,.23]).toContain(fade.seconds);
+  if(fade.reason==='interrupted-source-switch'){
+   expect(fade.seconds).toBe(.09);
+   expect(fade.interrupted).toBe(true);
+  }else if(fade.seconds===.09){
+   expect(fade.reason).toBe('sparse-original-travel');
+   expect(fade.interrupted).toBe(false);
+   expect(fade.sourceClipName).toBe('Walking_A');
+   expect(['Idle','Guard'].includes(fade.previousSourceClipName)).toBe(true);
+   expect(fade.witnessedRootMovement).toBe(true);
+   expect(fade.rootTravelMeters).toBeGreaterThanOrEqual(.24);
+   expect(fade.rootTravelMeters).toBeLessThanOrEqual(.54);
+   expect(fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.24);
+   expect(fade.frameIntervalSeconds).toBeLessThanOrEqual(1.2);
+   expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.25);
+   expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeLessThanOrEqual(2.5);
+  }else if(fade.seconds===.23){
+   expect(fade.reason).toBe('ordinary-source-transition');
+   expect(fade.interrupted).toBe(false);
+  }
   if(fade.seconds===.12){
+   expect(fade.reason).toBe('witnessed-original-travel');
+   expect(fade.interrupted).toBe(false);
    expect(fade.sourceClipName).toBe('Walking_A');
    expect(typeof fade.previousSourceClipName==='string'&&fade.previousSourceClipName.length>0).toBe(true);
    expect(fade.witnessedRootMovement).toBe(true);

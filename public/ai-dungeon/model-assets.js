@@ -3025,11 +3025,18 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
    actor.sourceRealTravelFadeReceipt=action==='move'?{
     sourceClipName:clip.name,previousSourceClipName:previous.getClip?.()?.name??null,
     seconds:crossfadeSeconds,
+    // .09 can be the old legal attack->move interruption OR a NEW,
+    // bounded sparse Idle/Guard->Walking_A catch-up. Never conflate them.
+    reason:actor.fullBody?.interrupted?'interrupted-source-switch':
+     crossfadeSeconds===.09?'sparse-original-travel':
+     crossfadeSeconds===.12?'witnessed-original-travel':
+     'ordinary-source-transition',
+    interrupted:Boolean(actor.fullBody?.interrupted),
     rootTravelMeters:current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):null,
     frameIntervalSeconds:sourceFrameInterval,
     witnessedRootMovement:actor.fullBody?.owner?.locomotion===true&&
      actor.groundedPerformance?.moving===true,
-    syntheticContact:false
+    syntheticContact:false,contactLocked:false
    }:null;
    // Three.js fades the previous source clip's WEIGHT over elapsed mixer time.
    // On a genuine stopped-to-idle arrival, freeze only its last planted
