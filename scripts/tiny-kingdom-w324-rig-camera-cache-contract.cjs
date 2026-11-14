@@ -44,4 +44,6 @@ assert.match(html,/citizenRigCache\.set\(p,\{identity,pose,cameraEpoch:presentat
  'bounded WeakMap must retain original full two-bone IK pose and epoch');
 assert.match(html,/if\(hit\.cameraEpoch!==presentationEpoch\)/,
  'camera-only savings must be measurable in the original runtime');
+assert.match(html,/if\(!replacedExistingRig\)citizenRigEntries\+\+/,
+ 'same-person work/route updates must never inflate the bounded citizen count');
 console.log('W324 source PASS: real same-tick camera-only IK reuse; live walk/work/receipt state invalidates, no new actors/authority, no FPS claim.');

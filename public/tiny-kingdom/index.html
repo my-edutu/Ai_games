@@ -9978,6 +9978,7 @@ function citizenRigPose(p){
  citizenRigEpoch=presentationEpoch;
  const eligible=p&&people.includes(p);
  const identity=eligible?citizenRigAuthoritativeKey(p):null;
+ let replacedExistingRig=false;
  if(eligible){
   const hit=citizenRigCache.get(p);
   if(hit&&hit.identity===identity){
@@ -9987,7 +9988,7 @@ function citizenRigPose(p){
    }
    return hit.pose;
   }
-  if(hit)citizenRigIdentityMisses++;
+  if(hit){citizenRigIdentityMisses++;replacedExistingRig=true;}
  }
  const social=getPhysicalGreeting(p);
  const action=p.activity.toLowerCase();
@@ -10135,7 +10136,10 @@ function citizenRigPose(p){
      working?groundedWorkTarget(p,acting.beat):null}};
  if(eligible){
   citizenRigCache.set(p,{identity,pose,cameraEpoch:presentationEpoch});
-  citizenRigEntries++;citizenRigBuilds++;
+  // Updating the SAME actual citizen at unchanged world time must not
+  // make the bounded live-person cache audit exceed the true population.
+  if(!replacedExistingRig)citizenRigEntries++;
+  citizenRigBuilds++;
  }
  return pose;
 }
