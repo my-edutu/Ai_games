@@ -12,6 +12,7 @@ import { observedSourceEarnedColdFrameContinuation,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette,
   observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
+import { sourceOwnedOriginalArchitectureCoverage } from './shared-threshold-architecture.mjs';
 
 export function observedGroundedBiomeThreshold(frame, passage, options = {}, retainedCap = null) {
   // Anchor the horizon to the SAME real distance-from-bronze-sill as the
@@ -34,6 +35,15 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
     Number.isFinite(retainedCap?.visibleSeconds) &&
     retainedCap.visibleSeconds<2.8
     ?Math.min(1,Math.max(0,oldGate.opacity)):0;
+  // The actual retained original gallery and shared bronze roof sometimes
+  // outlive the opened gate leaf. The horizon must not jump to fully violet
+  // while those ORIGINAL meshes still have materially visible coverage.
+  // Read exactly the same bounded, source-owned optical envelope that caps
+  // the real incoming structural shaft; no independent fade clock.
+  const originalArchitectureOldWeight=
+    sourceOwnedOriginalArchitectureCoverage(frame,retainedCap);
+  const coherentOriginalOldWeight=Math.max(
+    originalArchOldWeight,originalArchitectureOldWeight);
   // The visually first F9 frame may arrive after the nonauthoritative passage
   // animation cue expired. The ACTUAL old cap still has source-and-GPU proof:
   // ease sky/fog/lights from warm bronze instead of instant full-void purple.
@@ -46,12 +56,12 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
     const smooth=progress*progress*(3-2*progress);
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
       oldWeight:Math.max(1-smooth,spatial?.oldWeight??0,
-        originalArchOldWeight),progress,sourceBound:true,
+        coherentOriginalOldWeight),progress,sourceBound:true,
       limitation:'Actual same-run old-cap geometry and submitted frame clock; native pixels NOT EVALUATED'};
   }
   if(spatial && (!passage || passage.stage!=='handoff')){
     return {from:'clockwork',to:'void',sourceTick:frame.tick,
-      oldWeight:Math.max(spatial.oldWeight,originalArchOldWeight),progress:spatial.progress,
+      oldWeight:Math.max(spatial.oldWeight,coherentOriginalOldWeight),progress:spatial.progress,
       sourceBound:true,
       limitation:'The real crossed sill and source distance color the drawn horizon, not native-film acceptance'};
   }
@@ -60,7 +70,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   // owns the living body's material/lighting environment in that case.
   const spatialFallback=()=>spatial?{
     from:'clockwork',to:'void',sourceTick:frame.tick,
-    oldWeight:Math.max(spatial.oldWeight,originalArchOldWeight),progress:spatial.progress,sourceBound:true,
+    oldWeight:Math.max(spatial.oldWeight,coherentOriginalOldWeight),progress:spatial.progress,sourceBound:true,
     limitation:'Actual source body distance to original earned doorway, NOT native film acceptance'
   }:null;
   const p=frame?.player;
@@ -93,7 +103,7 @@ export function observedGroundedBiomeThreshold(frame, passage, options = {}, ret
   return {
     from:'clockwork',to:'void',sourceTick:frame.tick,
     oldWeight:Math.max(1-smooth,spatial?.oldWeight??0,
-      originalArchOldWeight),progress,
+      coherentOriginalOldWeight),progress,
     sourceBound:true,
     limitation:'Submitted-frame clock and source-backed arch only; NOT proof of native pixels, physical passage or preference',
   };

@@ -8,6 +8,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
+import { sourceAlignedIncomingShaftOpacity } from './shared-threshold-architecture.mjs';
 import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
 
 
@@ -3141,8 +3142,17 @@ export function createTowerWorld(){
        Number.isSafeInteger(job.structureBuiltAtSubmitted) &&
        job.submittedFrames>job.structureBuiltAtSubmitted &&
        job.structuralFade<1){
-      job.structuralFade=options.reducedMotion?1:
+      // The real old bronze deck, gateway AND deep gallery share a single
+      // physical 3D threshold. A separately fading violet shaft used to
+      // outrun that old architecture on dropped software-WebGL frames,
+      // producing the filmed instant bronze-to-violet world replacement.
+      // Complete only as quickly as the source-owned old geometry actually
+      // recedes on successful submitted frames. No frame, platform or
+      // gateway is invented, and a retired historical owner cannot pin F9.
+      const nominalShaftFade=options.reducedMotion?1:
         Math.min(1,job.structuralFade+shown/.8);
+      job.structuralFade=options.reducedMotion?1:
+        sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade);
       for(const {material,originalOpacity} of job.structuralMaterials)
         material.opacity=originalOpacity*job.structuralFade;
       if(job.structuralFade>=1){
