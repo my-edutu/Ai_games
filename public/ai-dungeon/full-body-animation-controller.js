@@ -1216,6 +1216,94 @@ export function chooseOriginalSourceSwingToeJointRelief({
  return best;
 }
 
+
+/**
+ * Last bounded phase of a source-owned, connected ORIGINAL full-leg swing.
+ * The licensed Walking_A upperleg+lowerleg (and both real skinned shoes) must
+ * ALREADY have passed the preceding physical witness; a direct toes[l/r]
+ * child may then improve its remaining buried toe, without invalidating the
+ * original full-leg proof or moving the opposite weight-bearing shoe.
+ *
+ * Candidates are measured from the actually APPLIED linked-leg pose.
+ * A new final skinned two-shoe read after application is still mandatory.
+ * This is NOT IK, sole planting, a game move or an artificial hit.
+ */
+export function chooseOriginalSourceSwingLinkedToeFinisher({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceToeChainVerified=false,
+ sourceToeTrackVerified=false,ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false,
+ rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ side='',floorTopY=NaN,linkedProof=null,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.92||sourceWeight>1.001||
+  sourceInstanceSame!==true||sourceToeChainVerified!==true||
+  sourceToeTrackVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.008||frameInterval>.15||
+  Math.abs(floorTopY+.02)>.005||!['left','right'].includes(side)||
+  !Array.isArray(trials)||trials.length<1||trials.length>2||
+  !linkedProof||linkedProof.source!=='measured-original-skinned-linked-leg'||
+  linkedProof.sourceClip!=='Walking_A'||linkedProof.side!==side||
+  typeof linkedProof.sourceInstanceId!=='string'||
+  !linkedProof.sourceInstanceId||
+  linkedProof.contactLocked!==false||
+  linkedProof.oppositeShoePreserved!==true)return null;
+ const opposite=side==='left'?'right':'left';
+ const valid=p=>p&&[p.heelY,p.toeY].every(finite)&&
+  [p.heelXZ,p.toeXZ].every(v=>Array.isArray(v)&&
+   v.length===2&&v.every(finite));
+ if(!valid(before?.[side])||!valid(before?.[opposite])||
+  !valid(linkedProof.after?.[side])||
+  !valid(linkedProof.after?.[opposite]))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // Reject a stale or partially reposed source skeleton before probing toes.
+ for(const part of ['left','right']){
+  const current=before[part],certified=linkedProof.after[part];
+  if(Math.abs(current.heelY-certified.heelY)>.001||
+   Math.abs(current.toeY-certified.toeY)>.001||
+   drift(current.heelXZ,certified.heelXZ)>.002||
+   drift(current.toeXZ,certified.toeXZ)>.002)return null;
+ }
+ const swing=before[side],support=before[opposite];
+ const burial=floorTopY-swing.toeY;
+ if(swing.heelY-floorTopY<.10||swing.heelY-floorTopY>.35||
+  burial<.025||burial>.12||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ let best=null;
+ for(const t of trials){
+  const angle=t?.angleRad,next=t?.after?.[side],other=t?.after?.[opposite];
+  if(!finite(angle)||Math.abs(angle)<.10||Math.abs(angle)>.160001||
+   !valid(next)||!valid(other))continue;
+  const lift=next.toeY-swing.toeY;
+  // The genuine earlier isolated 100mrad toe test gained ~6mm while still
+  // deeply submerged: reject an equally ineffective subsequent toe twitch.
+  // A FULL linked hip-knee-toe chain must actually add >=10mm and >=15% of
+  // measured residual burial; this remains a PARTIAL source clearance proof.
+  if(lift<Math.max(.010,burial*.15)||lift>.04||
+   next.toeY>floorTopY+.008||
+   Math.abs(next.heelY-swing.heelY)>.004||
+   drift(next.heelXZ,swing.heelXZ)>.008||
+   drift(next.toeXZ,swing.toeXZ)>.012||
+   Math.abs(other.heelY-support.heelY)>.002||
+   Math.abs(other.toeY-support.toeY)>.002||
+   drift(other.heelXZ,support.heelXZ)>.003||
+   drift(other.toeXZ,support.toeXZ)>.003)continue;
+  if(!best||lift>best.liftMeters)best=Object.freeze({
+   angleRad:angle,side,liftMeters:lift,
+   beforeToeY:swing.toeY,afterToeY:next.toeY,
+   beforeHeelY:swing.heelY,afterHeelY:next.heelY,
+   linkedSourceRetained:true,oppositeFootVerified:true,contactLocked:false,
+   source:'actual-original-linked-full-leg-plus-toes-shoe-trial'
+  });
+ }
+ return best;
+}
+
 export function planOriginalSourceSwingThighHold({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  sourceThighAxisVerified=false,sourceChainVerified=false,
