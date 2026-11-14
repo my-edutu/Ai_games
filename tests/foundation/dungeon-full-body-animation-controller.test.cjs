@@ -5555,11 +5555,11 @@ test('RED: source-linked slow-frame full leg may trial a bounded stronger hip+kn
  // variable was a stale structural test, not an animation acceptance gate.
  assert.match(connected,/const starterAngles=/);
  assert.match(connected,/const fallbackAngles=/);
- assert.match(connected,/for\\(const angles of starterAngles\\)sample\\(angles\\)/);
- assert.match(connected,/planOriginalSourceSwingLinkedLegFollowups\\(\\{/);
- assert.match(connected,/for\\(const angles of measuredFollowups\\?\\?fallbackAngles\\)sample\\(angles\\)/);
- assert.match(connected,/trials\\.length/);
- assert.match(connected,/actor\\.sourceSwingLinkedLastProbe=/);
+ assert.ok(connected.includes('for(const angles of starterAngles)sample(angles)'));
+ assert.ok(connected.includes('planOriginalSourceSwingLinkedLegFollowups({'));
+ assert.ok(connected.includes('for(const angles of measuredFollowups??fallbackAngles)sample(angles)'));
+ assert.ok(connected.includes('trials.length'));
+ assert.ok(connected.includes('actor.sourceSwingLinkedLastProbe='));
  assert.match(connected,/interval>=\.05&&weight>=\.95/);
  assert.match(connected,/\[\.14,-\.105\]/);
  assert.match(connected,/const after=read\(\)/);
