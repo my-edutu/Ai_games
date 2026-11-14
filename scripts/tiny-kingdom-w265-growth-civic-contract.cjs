@@ -32,7 +32,9 @@ assert.equal(key(),founding);
 city.push([70,70,2]);
 assert.equal(key(),founding,'distant real home must NOT rebuild the farm/market civic mesh');
 const oldBuilds=context.civicRoadMemo.recomputations;
-assert.ok(oldBuilds>=2,'actual lot topology was inspected');
+assert.ok(oldBuilds>=1,'initial genuine founder civic routes were inspected');
+assert.equal(context.civicRoadMemo.remoteGrowthSkips,1,
+ 'verified distant home is still rendered independently but avoids redundant civic routing');
 city[12]=[4,5,1];
 const grown=key();
 assert.notEqual(grown,founding,'new real home NEAR the actual route must invalidate civic VBO');
