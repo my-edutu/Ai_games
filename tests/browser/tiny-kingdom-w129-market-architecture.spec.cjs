@@ -32,6 +32,11 @@ async function inspect(page){
 function assertWorld(a){
  expect(a.renderer).toBe('webgl');
  expect(a.market.stalls).toBe(4);
+ // W313: verify the *rendered* 1024px, 390px and Day-121 civic scene
+ // retains the same four true stalls but substitutes deliberately open
+ // original rear oak railwork for opaque large wooden screen boxes.
+ expect(a.market.openRearScreenPanels).toBe(20);
+ expect(a.market.openRearScreenGaps).toBe(8);
  // W305: scene-level WebGL, at desktop, 390px and grown Day-121, must
  // actually contain BOTH complete original roofed shop corridors and their
  // physical lime soffit, not just a successful source-only geometry mock.
@@ -122,6 +127,18 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.evaluate(()=>window.__tinyKingdom.setCamera({focus:[12,0],yaw:2.35,pitch:.72,zoom:30}));
   await page.waitForTimeout(600);
   await page.screenshot({path:dir+'/'+viewport.width+'-day1-service-street.png'});
+  // Genuine playable reverse side of the original grain merchant: panels
+  // are the authoritative physical camera's matching five slim rear boards.
+  // No actors or simulated transactions staged for this camera angle.
+  const beforeRear=await page.evaluate(()=>
+   window.__tinyKingdom.getFrameProfile().totalFrames);
+  await page.evaluate(()=>window.__tinyKingdom.setCamera({
+   focus:[-5.4,2.25],yaw:Math.PI,pitch:.18,zoom:7.5
+  }));
+  await page.waitForFunction(before=>
+   window.__tinyKingdom.getFrameProfile().totalFrames>before,
+   beforeRear,{timeout:120000});
+  await page.screenshot({path:dir+'/'+viewport.width+'-day1-real-open-grain-shop-rear.png'});
  });
 }
 test('W129 120-day real town growth, preserved market, replay and geometry safety',
