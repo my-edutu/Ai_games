@@ -2950,8 +2950,29 @@ export function createTowerScene(canvas, settings = {}) {
         // authenticated grounded doorway crossing instead of cutting straight
         // to an unrelated violet scene. Never retain a whole old floor or
         // allow this presentation request to grant floor progression.
-        if (started && passage.diagnostics().continuousGroundedHandoff)
-          world.stageGroundedCapContinuation(gatewayPrevious, next);
+        // A previously observed old Clockwork GPU world is either staged
+        // with the immutable HP-zero gateway OR explicitly vetoed. The last
+        // original desktop film projected both hero and gate safely but
+        // actually retained ZERO old-gateway GPU frames after a 64.8m jump.
+        // Expose the real source-to-owner decision in capture diagnostics;
+        // staging is not a successful render or a native pixel proof.
+        const continuousGroundedHandoff =
+          started && passage.diagnostics().continuousGroundedHandoff===true;
+        const originalGateStaged = continuousGroundedHandoff
+          ? world.stageGroundedCapContinuation(gatewayPrevious,next)===true
+          : false;
+        if (next.floor===9 && gatewaySourceAudit) {
+          gatewaySourceAudit={
+            ...gatewaySourceAudit,
+            passageBeginAccepted:started,
+            sourceContinuityQualified:continuousGroundedHandoff,
+            originalGateStagingAttempted:continuousGroundedHandoff,
+            originalGateStagingAccepted:originalGateStaged,
+            oldSourceEvidenceTick:gatewayPrevious?.tick ?? null,
+            firstObservedSuccessorTick:next.tick,
+            evidenceLimit:'CPU staging only; returned WebGL gate owner and native pixels require separate verification'
+          };
+        }
       }
     }
     // Maintain one honest visual path beyond the defeated guardian: the same
