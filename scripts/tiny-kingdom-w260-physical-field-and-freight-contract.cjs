@@ -23,7 +23,7 @@ for(const season of [0,1,2,3])for(const compact of [false,true]){
  const old=v.data.length;v.farmScene={stalks:0,seedHeads:0,stalkTriangles:0};
  v.crop(19.1,.2,101,season,compact);
  const triangles=(v.data.length-old)/30;
- const expected=season===3?4:(compact?16:26);
+ const expected=season===3?4:(compact?12:20);
  assert.equal(triangles,expected,'actual grain retains both-sided sunlit leaves and its entire head');
  assert.equal(v.farmScene.stalks,1);
  assert.equal(v.farmScene.seedHeads,season===3?0:1);
@@ -50,4 +50,4 @@ assert.match(camera,/\.21\s*:\s*\.24/,'loaded courier has a large real documente
 assert.match(camera,/physicalFollowEyeClearance/);
 assert.match(camera,/foregroundVegetationProjection/);
 assert.doesNotMatch(src.slice(a,b)+camera,/Math\.random\(|state\.food\s*[+\-=]|people\.push\(|city\.push\(/);
-console.log('W260 source PASS: same real 668 grain crowns, near 26/far 16 two-sided triangles, noninvented cargo-camera physical review. Genuine A/B and hardware FPS still NOT PROVEN.');
+console.log('W260 source PASS: same real 668 grain crowns, near 20/far 12 two-sided triangles, noninvented cargo-camera physical review. Genuine A/B and hardware FPS still NOT PROVEN.');

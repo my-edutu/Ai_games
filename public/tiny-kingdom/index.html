@@ -14289,13 +14289,13 @@ function authenticGrainHeadProfile(x,z,index,season){
  // continuous planted stand with bowed heads, broader leaf blades and a
  // natural green-to-gold canopy. The same exact 668 seeded stems, seasonal
  // source meshes, field roots and work contacts remain authoritative.
- return {height:(season===3?.26:season===0?.88:season===1?1.41:1.30)*(.83+a*.34),
+ return {height:(season===3?.26:season===0?.80:season===1?1.18:1.17)*(.83+a*.34),
   headBend:(ripe?.086:.044)+b*(ripe?.153:.069),
   stemLeanX:Math.sin(azimuth)*(.055+a*.09),
   stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
   headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
   earLength:(.20+d*.08)*(season===0?.73:1),
-  leafReach:.195+d*.12,livingSeason:season!==3,
+  leafReach:.16+d*.09,livingSeason:season!==3,
   rootedAt:[x,z],authorityModified:false};
 }
 function farmStalk(x,z,index,season,compact=false){
@@ -14343,8 +14343,8 @@ function farmStalk(x,z,index,season,compact=false){
      attach[2]+flank];
     tri(attach,mid,end,leaf);tri(end,mid,attach,reverseLeaf);
    }
-   for(let g=0;g<3;g++){
-    const p=at(.76+g*.076),kernel=(.095-g*.018)*(.88+sig3*.22);
+   for(let g=0;g<2;g++){
+    const p=at(.79+g*.106),kernel=(.097-g*.021)*(.88+sig3*.22);
     for(const side of [-1,1]){
      const span=side*kernel;
      tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
@@ -14356,7 +14356,7 @@ function farmStalk(x,z,index,season,compact=false){
   }else{
    // Detailed original farmer view: eight two-sided curved broad leaf
    // triangles, twelve mature grain-kernel triangles, two awns. Remain
-   // exactly 26 triangles per genuine planted stem (16 in far LOD).
+   // exactly 20 triangles per genuine planted stem (12 in far LOD).
    for(const side of [-1,1]){
     const attach=at(side===1?.36:.53),reach=lived.leafReach*side;
     const flank=side===1?.15:-.13;
@@ -14369,23 +14369,18 @@ function farmStalk(x,z,index,season,compact=false){
     tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
     tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
    }
-   for(let g=0;g<4;g++){
-    const p=at(.74+g*.058),kernel=(.083-g*.011)*(.90+sig3*.24);
+   for(let g=0;g<3;g++){
+    const p=at(.755+g*.078),kernel=(.089-g*.014)*(.90+sig3*.24);
     for(const side of [-1,1]){
      const span=side*kernel;
      tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
       [p[0]+span*az,p[1]+.019,p[2]-span*ax],
       [p[0]+ax*.023+span*.10,p[1]+.087,p[2]+az*.023+span*.10],head);
-     if(g%2===1)tri(
-      [p[0]-az*.012,p[1]-.014,p[2]+ax*.012],
-      [p[0]+ax*.020,p[1]+.013,p[2]+az*.020],
-      [p[0]+side*kernel*.77*ax,p[1]+.084,
-       p[2]+side*kernel*.77*az],head);
     }
    }
   }
   const awn=season===0?.112:.15;
-  for(const side of [-1,1]){
+  if(!compact)for(const side of [-1,1]){
    tri([tip[0]+side*.013,tip[1]-.052,tip[2]],
     [tip[0]+side*(.049+sig4*.016),tip[1]+awn,
      tip[2]+side*.038],

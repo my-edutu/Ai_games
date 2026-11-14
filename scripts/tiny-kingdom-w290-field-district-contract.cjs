@@ -24,7 +24,7 @@ for(const season of [0,1,2,3])for(const compact of [true,false]){
  ctx.data=[];ctx.farmScene={rows:0,stalks:0,seedHeads:0,stalkTriangles:0};
  ctx.plant(19.1,.2,101,season,compact);
  triangles=ctx.data.length/30;
- assert.equal(triangles,season===3?4:compact?16:26,
+ assert.equal(triangles,season===3?4:compact?12:20,
   'all original visible genuine stems have identical bounded triangle contracts');
  assert.equal(ctx.farmScene.stalkTriangles,triangles);
  assert.equal(ctx.farmScene.stalks,1);
@@ -38,4 +38,4 @@ assert.equal(ctx.farmScene.rows,1);
 assert.equal(ctx.data.length/30,Math.ceil((24.65-16.45)/.70)*6+
  Math.ceil(Math.ceil((24.65-16.45)/.70)/3)*2,
  'continuous earth furrow preserves its bounded original geometry topology');
-console.log('W290 original field massing source PASS: real roots, 4/16/26 triangles per stem, contiguous terrain-following furrow, no invented grain. Running game remains independently gated.');
+console.log('W290 original field massing source PASS: real roots, 4/12/20 triangles per stem, contiguous terrain-following furrow, no invented grain. Running game remains independently gated.');
