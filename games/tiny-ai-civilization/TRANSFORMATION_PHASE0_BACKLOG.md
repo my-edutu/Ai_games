@@ -1,3 +1,19 @@
+## W335 · 14 November 2026 · ONE active Phase 1 farmer → real courier → market → home milestone
+
+Only OPEN DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64), **executable source `3e3473c7d48aa4d3bf597b8f32861efc49cf7061`**, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. W334 personally inspected Day121 390px video shows real Hugo behind a foreground timber stall around 8s; opaque empty Supply ribbon still wide. W335 physically reanchors each newly selected authentic nearby 390px worker and collapses closed Supply button without hiding the opened actual supply/economy chain. New running film and physical GPU acceptance pending.
+
+| Priority / owner | Actual current W335 blocker & expected visible effect | Measured done criterion |
+| --- | --- | --- |
+| 1 · retained render spine / CPU-driver-GPU | Prior software ~1.7–1.8 FPS, modern hardware unknown; rare 16-eye W334 fallback adds unprofiled CPU. | Same-workload native mobile/desktop Day1/workday/Day121 30+ sustained fps and p95≤33.3ms, bounded uploads/resources, under 160k triangles |
+| 2 · real worker/professions + camera / human silhouette | W334 actor demonstrably hidden under market canopy; W335 anchors actual selected worker even if within 8m. | Uncut actual hand/foot contact with farm cutting, carried courier unloading, credit, market and consumed household meal, physically visible at 390px |
+| 3 · original contiguous medieval environment / architecture | W334 footage genuinely too faceted, toy-like characters and large timber occlusion | Authentic connected farm, granary, receiving stalls, inhabited credible homes, high-confidence blinded same-authority original G088 and candidate visual/experience win |
+| 4 · true mobile camera + UI / accessibility | Supply consumed most lower band; portrait controlled workday was hard to read. W335 collapses CLOSED supply to 44px touch button, keeps entire opened ledger and explicit live subject cuts. | On real 390px Playwright/video Supply toggles/expands, actor remains visible, meaningful full body/hands, pause/save/restore/follow reliable |
+| 5 · deterministic long soak, critics, physical acceptance | W335 exact-head evidence pending; independent critics and physical hardware inaccessible | Byte-identical 120-day + growth soak, no missing assets, native devices documented, ≥4/5 truly independent blind LOOK/FEEL/PLAY reviewers, separate B commercial score |
+
+**A: LOOK/FEEL/PLAY NOT PROVEN; B: commercial reference FAIL.** Phase 1 remains active; no advance based on source fixtures, roof pixels or green CI. Next inspect W335 [W138 actual grown-town video](https://github.com/my-edutu/Ai_games/actions/runs/43631448475) and [W281 contracts](https://github.com/my-edutu/Ai_games/actions/runs/43631448408), then build further coherent physical environment and expressive 3D workers. Never merge.
+
+---
+
 ## W334 · ACTIVE Phase 1 checkpoint · 14 November 2026
 
 **No phase promotion.** Open draft #64 W334 executable `a5768cc9ad6008717071641023484c6b11331c3e`; frozen source G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Persistent five blockers below are still the same multi-run workstreams. Real W333 390px workday occluded by timber architecture; W334 camera alternative new running result NOT PROVEN.
