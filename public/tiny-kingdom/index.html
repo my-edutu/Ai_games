@@ -1281,6 +1281,15 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
  }
 }
 
+/* W310: in real 390px workday footage the existing compact Supply control
+   crossed the genuine citizen's activity caption. Lift the same accessible
+   economic control above that caption, without hiding the actor or changing
+   the caption/progress text. The full receipt ledger remains user-openable. */
+@media(max-width:520px){
+ body[data-command="world"][data-workday="live"] #world-ribbon{
+  bottom:194px!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -21819,6 +21828,51 @@ function getCameraArchitectureResidencyAudit(){
   physicalViewEntries:cameraOcclusionViewRoofs?1:0,
   originalOcclusionOrder:true,presentationOnly:true,authorityChanged:false};
 }
+// W310: the real trader's counter, wooden rear screen, upper wattle and
+// carved sign occupy foreground pixels BELOW the roof. The W309 true game
+// filmed a chest instead of Selene because only the elevated market roof was
+// visible to physical camera rays. Mirror the ORIGINAL emitted stalls only:
+// these volumes neither add collision/nav geometry nor hide any market mesh.
+function physicalStreetLevelStallVolumes(){
+ const volumes=[];
+ const add=(kind,x,z,rx,rz,bottom,top)=>{
+  if(![x,z,rx,rz,bottom,top].every(Number.isFinite)||
+     rx<=0||rz<=0||top<=bottom)
+   throw Error('W310 invalid physical market stall camera bounds');
+  volumes.push({x,z,rx,rz,bottom,visualBottom:bottom,top,kind});
+ };
+ for(const [index,stall] of MARKET_STALLS.entries()){
+  const {x,z,face}=stall,y=terrain(x,z),
+   profile=marketStallProfile(index);
+  // Exact lower trading-table footprint and front counter as emitted by
+  // marketStall(); these are real solid oak, not an open roof volume.
+  add('market-stall-counter',x,z,(2.85-.18)/2,(2.14-.28)/2,
+   y+.84,y+.96);
+  add('market-stall-counter',x,z+face*.54,(2.85-.37)/2,.58/2,
+   y+.99,y+1.10);
+  // Real broad rear wooden trade screen: this filled most of W309's
+  // supposedly unobstructed 1024px workday camera.
+  add('market-stall-screen',x,z-face*.84,(2.85-.40)/2,.11/2,
+   y+.17,y+.84);
+  if(profile.structural){
+   // Real occupied-looking upper tradehouse mass, above the OPEN counter.
+   add('market-stall-upper-wall',x,z-face*.61,2.37/2,.58/2,
+    y+2.075,y+profile.eave);
+  }else{
+   // Only the high plaster RETURNS of both original artisan stalls.
+   // Leave every buyer's ground-floor approach physically open.
+   const rear=z-face*.844,z0=rear+face*.085,z1=z-face*.055;
+   for(const side of [-1,1])
+    add('market-stall-upper-wall',x+side*1.185,(z0+z1)/2,
+     .035,Math.abs(z1-z0)/2,
+     y+Math.max(1.12,profile.eave-1.12),y+profile.eave-.16);
+  }
+  // Original carved oak sign, directly over the real merchant counter.
+  add('market-stall-sign',x,z+face*1.03,1.20/2,.12/2,
+   y+1.78,y+2.16);
+ }
+ return volumes;
+}
 function followCameraRoofs(){
  // Real G096 video showed a worker hidden for seconds by a market linen roof.
  // Track actual emitted buildings AND elevated canvas roofs in camera collision.
@@ -21858,6 +21912,9 @@ function followCameraRoofs(){
     bottom:base+profile.eave-.46,top:base+profile.peak+.10,
     visualBottom:base+profile.eave-.46,kind:'market-stall'});
   }
+ // The lower chest, screen, upper walls and sign are visible at eye level,
+ // not transparent simply because the old collision survey saw only roofs.
+ roofs.push(...physicalStreetLevelStallVolumes());
  const my=terrain(0,5);
  roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
   visualBottom:my+.12,kind:'village-market'});
@@ -21901,6 +21958,7 @@ function cameraOcclusionModel(){
  return {roofTotal:roofs.length,hall:count('hall'),belfries:count('belfry'),
   tallHomes:roofs.filter(r=>r.kind==='home'&&r.tall).length,
   stalls:count('market-stall'),
+  trueStreetLevelStallVolumes:roofs.filter(r=>r.kind.startsWith('market-stall-')).length,
   streetShops:count('street-shop'),arcades:count('arcade'),
   receivingHallRoofBands:count('receiving-hall-roof'),
   receivingHallPosts:count('receiving-hall-post'),
@@ -22150,6 +22208,8 @@ function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
 const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','granary','belfry']);
 const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
  'market-stall','village-market','arcade','street-shop',
+ 'market-stall-counter','market-stall-screen',
+ 'market-stall-upper-wall','market-stall-sign',
  'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
  'market-arcade-roof','receiving-hall-post','granary-porch-roof','granary-porch-post',
  ...WORKDAY_SOLID_BUILDING_KINDS

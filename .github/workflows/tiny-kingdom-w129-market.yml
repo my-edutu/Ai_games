@@ -9,6 +9,7 @@ on:
       - 'scripts/tiny-kingdom-w197-compact-stone-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs'
       - 'scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs'
+      - 'scripts/tiny-kingdom-w310-ground-market-camera-contract.cjs'
       - 'scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs'
       - 'scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs'
       - 'scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs'
@@ -65,6 +66,7 @@ jobs:
           node scripts/tiny-kingdom-w197-compact-stone-residency-contract.cjs
           node scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs
           node scripts/tiny-kingdom-w199-real-pelvis-workday-camera-contract.cjs
+          node scripts/tiny-kingdom-w310-ground-market-camera-contract.cjs
           node scripts/tiny-kingdom-w200-real-home-exterior-contract.cjs
           node scripts/tiny-kingdom-w201-real-grain-chain-contract.cjs
           node scripts/tiny-kingdom-w202-moving-view-residency-contract.cjs
