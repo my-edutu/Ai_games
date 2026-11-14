@@ -26398,9 +26398,15 @@ function civicStreetDependencySignature(){
  return civicRoadMemo.signature;
 }
 function getCivicRoadDirtyAudit(){
- const {topology,signature,...stats}=civicRoadMemo;
+ // Keep only bounded numerical evidence. The live saved home lot identities
+ // and complete original road coordinates remain internal dependency keys,
+ // not a per-frame megabyte-scale inspection payload.
+ const {topology,signature,priorLots,founderHomes,roadPaths,...stats}=
+  civicRoadMemo;
  return {...stats,source:'true-freight-home-road-dirty-region',
-  cityLots:city.length,fullTownRendered:true,extraGpuBuffers:0,
+  cityLots:city.length,certifiedHomeLots:priorLots?.length||0,
+  certifiedRoadPaths:roadPaths?.length||0,
+  fullTownRendered:true,extraGpuBuffers:0,
   authorityChanged:false,hardwarePerformance:'NOT MEASURED'};
 }
 function liveCivicTopologyKey(climate,light){
