@@ -10,7 +10,7 @@ const start=script.indexOf('function rememberCivicScenery(');
 const end=script.indexOf('// G140: resident original settlement VBOs',start);
 assert.ok(start>0&&end>start,'actual production civic GPU writer required');
 const original=script.slice(start,end);
-assert.match(script,/if\\(civicGpuResidencyEnabled&&stored\\)data.length=civicStart/,
+assert.match(script,/if\(civicGpuResidencyEnabled&&stored\)data.length=civicStart/,
  'game must remove civic CPU mesh only after a genuine successful GPU upload');
 function exercise(allocate){
  const calls={upload:0,release:0};
