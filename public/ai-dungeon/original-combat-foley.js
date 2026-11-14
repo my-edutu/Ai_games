@@ -259,11 +259,25 @@ function isCanonicalSourceOnlyFoleyCue(cue){
  * victim-only cue and cell without trusting an arbitrary named recipe.
  */
 function verifiedEarnedCounterFoleyVictim(cue){
+ const detail=cue?.detail;
+ const damage=detail?.damage,maxHp=detail?.maxHp,
+  remainingHp=detail?.remainingHp,recoveryUntilTick=detail?.recoveryUntilTick;
  return cue?.kind==='counter'&&cue.audio==='counter'&&
-  cue.visual==='counter'&&cue.proof==='authority-counter-and-HP'&&
+  cue.visual==='counter'&&cue.verified===true&&
+  cue.proof==='authority-counter-and-HP'&&
   cue.actorId===null&&cue.from===null&&
   typeof cue.targetId==='string'&&cue.targetId.length>0&&
-  cue.targetId.length<=128&&validOriginalFoleyCell(cue.to)?
+  cue.targetId.length<=128&&validOriginalFoleyCell(cue.to)&&
+  // A success stinger requires a coherent observed Warden HP decrease
+  // while the prior recovery remained available on the exact event tick.
+  // No string ID or chosen intensity alone proves a real counterattack.
+  Number.isSafeInteger(damage)&&damage>0&&
+  Number.isSafeInteger(maxHp)&&maxHp>0&&damage<=maxHp&&
+  Number.isSafeInteger(remainingHp)&&remainingHp>=0&&
+  remainingHp+damage<=maxHp&&
+  Number.isSafeInteger(recoveryUntilTick)&&recoveryUntilTick>=cue.tick&&
+  Number.isFinite(cue.severity)&&cue.severity>0&&cue.severity<=1&&
+  Math.abs(cue.severity-damage/maxHp)<=1e-9?
   cue.targetId:null;
 }
 

@@ -334,7 +334,12 @@ export function planPhysicalFeedback(previous,next,{
      validTick(prior.recoveryUntilTick) && prior.recoveryUntilTick>=e.tick)
      push('counter',e.tick,{targetId:current.id,to:point(current),
       severity:(prior.hp-current.hp)/current.maxHp,verified:true,
-      proof:'authority-counter-and-HP'});
+      proof:'authority-counter-and-HP',
+      // Read-only adjacent public HP/recovery witness, never an attacker.
+      // The standalone original-sound gate can now reject an internally
+      // contradictory success stinger rather than trusting its cue ID alone.
+      detail:{damage:prior.hp-current.hp,maxHp:current.maxHp,
+       remainingHp:current.hp,recoveryUntilTick:prior.recoveryUntilTick}});
     break;
    }
    case 'defeat': push('defeat',e.tick,{verified:true,proof:'authority-event'});break;
