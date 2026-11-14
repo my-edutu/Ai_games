@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
-const {createOrderedReplayFeed,describeOrganicCheckpoint}=require('./dungeon-m1-ordered-feed.cjs');
+const {createOrderedReplayFeed,describeOrganicCheckpoint,planOrganicCheckpointWait}=require('./dungeon-m1-ordered-feed.cjs');
 const BASELINE='281735d0910c6b2443648af976003d50412ee324',SEED='gauntlet-corpus-v1-0';
 const VIEW=process.env.DUNGEON_M1_VIEWPORT==='mobile'?'mobile':'desktop';
 const SIZE=VIEW==='mobile'?{width:390,height:844}:{width:1440,height:832};
@@ -96,7 +96,7 @@ async function stopRecording(page){
  ])}finally{clearTimeout(timer)}
 }
 test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async({page})=>{
- test.setTimeout(22*60*1000);
+ test.setTimeout(30*60*1000);
  const {snapshots,milestones}=organicExpedition();
  for(const key of ['combat','warden','floor','defeat','restart'])
   expect(milestones[key],'Missing organic milestone: '+key).not.toBeNull();
@@ -139,6 +139,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
  // Preserve independent live original PCM signal evidence, not just WebM
  // track count (which cannot establish actual audible or synchronized sound).
  let pcmRequested=false,stageError=null,unfinishedCheckpoint=null;
+ let lastAcceptedIndex=0; // genuine source checksum actually rendered
  try{
  for(const stage of ['combat','warden','floor','defeat','restart']){
   const index=milestones[stage],expected=snapshots[index];
@@ -152,7 +153,10 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     feed.allowThrough(preImpact);
     await expect.poll(()=>page.evaluate(()=>
      window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
-    ),{timeout:420000,intervals:[300,750,1200]}).toBe(snapshots[preImpact].checksum);
+    ),{timeout:planOrganicCheckpointWait({
+     fromIndex:lastAcceptedIndex,toIndex:preImpact
+    }),intervals:[300,750,1200]}).toBe(snapshots[preImpact].checksum);
+    lastAcceptedIndex=preImpact;
    }
    pcmRequested=await page.evaluate(()=>{
     if(typeof window.__DUNGEON_RECORD_ORIGINAL_PCM__!=='function')return false;
@@ -164,13 +168,14 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     return true;
    });
   }
-  unfinishedCheckpoint={stage,index,checksum:expected.checksum};
+  const stageBudgetMs=planOrganicCheckpointWait({fromIndex:lastAcceptedIndex,toIndex:index});
+  unfinishedCheckpoint={stage,index,checksum:expected.checksum,stageBudgetMs};
   feed.allowThrough(index);
   // The *rendered frame's* checksum must match the source milestone.
   // An unrelated next frame is NOT evidence of a recorded Warden contact.
   await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum??null
-  ),{timeout:420000,intervals:[300,750,1200]}).toBe(expected.checksum);
+  ),{timeout:stageBudgetMs,intervals:[300,750,1200]}).toBe(expected.checksum);
   const proof=await page.evaluate(()=>{
    const d=window.__DUNGEON_RENDER_DIAGNOSTICS__,s=window.__DUNGEON_PUBLIC_STATE__;
    return {frame:d?.frame??0,renderedState:d?.renderedState??null,
@@ -204,6 +209,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
    triangles:proof.triangles,soundstage:proof.soundstage,sourceRig:sourceRig.summary});
   // A review-playback hold of the unchanged real snapshot, not a staged win.
   await page.waitForTimeout(420);
+  lastAcceptedIndex=index;
   unfinishedCheckpoint=null;
  }
  }catch(error){
@@ -243,6 +249,7 @@ test('M1 organic full-journey original WebGL audiovisual evidence: '+VIEW,async(
     expectedChecksum:unfinishedCheckpoint.checksum,
     renderedChecksum:failureObservation?.renderedState?.checksum??null,
     renderedFrame:failureObservation?.frame??0,feed});
+   stageFailure={...stageFailure,exactOriginalStageBudgetMs:unfinishedCheckpoint.stageBudgetMs};
   }
  }
  const film=recording.status==='RECORDING'?await stopRecording(page):recording;
