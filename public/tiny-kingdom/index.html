@@ -24053,6 +24053,19 @@ function getCourierPostCameraAudit(){
   lastRepair:courierPostRepairLast?{...courierPostRepairLast}:null,
   authorityChanged:false};
 }
+// W333: physical, portrait-only rescue of a genuine documentary subject.
+// A full scene can appear "mostly clear" while a roof/post fills the worker's
+// central body and hands. Accept only the already-surveyed collision-free
+// destination and do no projection work in normal, clear-camera frames.
+const PORTRAIT_CORE_BAD=.22,PORTRAIT_CORE_CLEAR=.075,
+ PORTRAIT_CORE_TRANSITION=.11;
+let portraitCoreRescues=0,portraitCoreExtraSurveys=0;
+function shouldRescuePortraitWorkerCore(width,observing,present,planned,transition){
+ return Number.isFinite(width)&&width>0&&width<=520&&Boolean(observing)&&
+  [present,planned,transition].every(v=>Number.isFinite(v)&&v>=0&&v<=1)&&
+  present>=PORTRAIT_CORE_BAD&&planned<=PORTRAIT_CORE_CLEAR&&
+  transition>=PORTRAIT_CORE_TRANSITION;
+}
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
  liveShotPlanCache=null;
@@ -24136,7 +24149,10 @@ function workdayCameraCompositionAudit(){
   viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   projectedWorksitePosts:lastFollowShot?.projectedWorksitePosts??null,
   cameraSurveyBuilds:liveShotPlanBuilds,
-  cameraSurveyReuses:liveShotPlanReuses};
+  cameraSurveyReuses:liveShotPlanReuses,
+  portraitWorkerCoreRescues:portraitCoreRescues,
+  portraitWorkerExtraSceneSurveys:portraitCoreExtraSurveys,
+  portraitCorePhysicalTargetRequired:true};
 }
 function setCitizenFollow(enabled){
  if(!enabled&&grainJourney){
@@ -27213,7 +27229,8 @@ if(follow&&!daybreakReturn){
   const postBlocked=Boolean(presentPost&&presentPost.centerCover>.10);
   const clearPostDestination=!observeMarketHandoff||
    Boolean(destinationPost&&destinationPost.centerCover<.035);
-  const foregroundBlocked=foregroundSceneProjection(eye,plan.target,roofs).cover>.42||
+  const currentWorkerForeground=foregroundSceneProjection(eye,plan.target,roofs);
+  const foregroundBlocked=currentWorkerForeground.cover>.42||
    foregroundVegetationProjection(eye,plan.target).faceBlockers>0||
    (postBlocked&&clearPostDestination);
   const clearDestination=plan.foregroundSceneCover<.18&&
@@ -27239,13 +27256,30 @@ if(follow&&!daybreakReturn){
   const mustRepairPost=Boolean(midwayPost&&
    evaluateCourierPostRepairPolicy(presentPost.centerCover,
     destinationPost.centerCover,midwayPost.centerCover));
+  // At 390px a real post may hide the complete worker torso while its
+  // area occupies less than the broad 42% scene obstruction threshold.
+  // Inspect the transition ONLY when the current ACTUAL body core is badly
+  // obscured and the already-surveyed physical destination is clear.
+  const portraitCoreCandidate=canvas.clientWidth>0&&canvas.clientWidth<=520&&
+   observingAction&&currentWorkerForeground.actorCoreCover>=PORTRAIT_CORE_BAD&&
+   (plan.foregroundActorCoreCover??1)<=PORTRAIT_CORE_CLEAR;
+  let midwayCoreCover=0;
+  if(portraitCoreCandidate){
+   midwayCoreCover=foregroundSceneProjection(nextEye,plan.target,roofs).actorCoreCover;
+   portraitCoreExtraSurveys++;
+  }
+  const portraitCoreRepair=shouldRescuePortraitWorkerCore(
+   canvas.clientWidth,observingAction,currentWorkerForeground.actorCoreCover,
+   plan.foregroundActorCoreCover??1,midwayCoreCover);
   const repairGeneral=(obstructed||(foregroundBlocked&&clearDestination))&&
    plan.blockers===0&&
    (followRayBlockers(nextEye,target,roofs)>0||
     (clearDestination&&(foregroundSceneProjection(nextEye,plan.target,roofs).cover>.42||
     foregroundVegetationProjection(nextEye,plan.target).faceBlockers>0)));
-  if((repairEye||mustRepairPost||repairGeneral)&&plan.blockers===0&&
-     plannedEyeClear){
+  if((repairEye||mustRepairPost||repairGeneral||portraitCoreRepair)&&
+     plan.blockers===0&&plannedEyeClear){
+   // Change only the observer's eye, never the worker, cargo, roofs or world.
+   if(portraitCoreRepair)portraitCoreRescues++;
    focusPoint=[citizen.x,citizen.z];
    yaw=plan.yaw;pitch=plan.pitch;zoom=plan.zoom;
    if(mustRepairPost){
