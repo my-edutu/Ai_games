@@ -982,6 +982,14 @@ for(const view of [
    expect(calfProof.sourceInstanceId).toBe(t.sourceId);
    expect(calfProof.sourceClip).toBe('Walking_A');
    // One true 390px source knee trial lifted 5.696mm at .2rad; the\n   // connected .06rad/frame result may start as an independently measured\n   // ~1mm step. The source heel remains independently validated below.\n   expect(calfProof.afterToeY-calfProof.beforeToeY).toBeGreaterThan(.000999);
+   // A real original calf bend is a viewer-facing joint performance. It
+   // cannot claim a useful correction by moving 1.94mm while an airborne
+   // source toe remains 36mm inside the stone (prior genuine desktop WebGL).
+   const beforeDepth=Math.max(0,-.02-calfProof.beforeToeY);
+   const afterDepth=Math.max(0,-.02-calfProof.afterToeY);
+   if(beforeDepth>.035&&afterDepth>.025)
+    expect(calfProof.afterToeY-calfProof.beforeToeY)
+     .toBeGreaterThanOrEqual(beforeDepth*.10-.000001);
    expect(calfProof.afterHeelY).toBeGreaterThan(-.02+.055);
    // This is a cumulative source-joint angle, NOT one frame of slew.
    // Each accepted mixer frame is bounded by 0.06rad and the imported

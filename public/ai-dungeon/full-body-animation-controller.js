@@ -571,6 +571,40 @@ export function planOriginalSourceSwingCalfAssist({
  */
 /** A missed original measured knee frame retires its old signed correction.
  * Same-side accepted frame preserves the existing 0.18rad cap. No joint edits. */
+/**
+ * Final, original-GLB SKINNED outsole proof for a new connected knee
+ * correction. The candidate .2rad source probe can promise 9mm lift while
+ * its real, slew-limited .06rad application lifts only ~1.94mm; original
+ * 1440px Walking_A frames actually left 36mm of toe submerged. Such a
+ * knee bend visibly twitches without meaningfully escaping the stone.
+ *
+ * Reject only a deeply embedded swing toe still >25mm under the floor
+ * after the live trial unless the actual same-frame heel-safe skinned toe
+ * recovered >=10% of its original intrusion. Near-floor source relief is
+ * retained. This never guesses a target, foot plant, IK, attack or collision
+ * and changes neither mixer keys nor the authoritative character position.
+ */
+export function confirmOriginalSourceSwingCalfNetClearance({
+ floorTopY=NaN,beforeToeY=NaN,afterToeY=NaN,
+ beforeHeelY=NaN,afterHeelY=NaN,appliedAngleRad=NaN
+}={}){
+ if(![floorTopY,beforeToeY,afterToeY,beforeHeelY,afterHeelY,
+  appliedAngleRad].every(finite)||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(appliedAngleRad)<.0001||Math.abs(appliedAngleRad)>.180001)return false;
+ const toeIntrusion=floorTopY-beforeToeY;
+ const actualLift=afterToeY-beforeToeY;
+ const initialHeel=beforeHeelY-floorTopY;
+ const finalHeel=afterHeelY-floorTopY;
+ if(toeIntrusion<=.01||toeIntrusion>.16||
+  actualLift<.001||actualLift>.075||
+  initialHeel<.055||initialHeel>.36||
+  finalHeel<.055||finalHeel>.36||
+  Math.abs(afterHeelY-beforeHeelY)>.06)return false;
+ const stillDeep=toeIntrusion>.035&&floorTopY-afterToeY>.025;
+ return !stillDeep||actualLift+0.000001>=toeIntrusion*.10;
+}
+
 export function retireOriginalSourceCalfMemory(priorAngleRad,side,currentFrameMask){
  if(!Number.isFinite(priorAngleRad)||Math.abs(priorAngleRad)>.180001||
   !['left','right'].includes(side)||!Number.isInteger(currentFrameMask)||
