@@ -337,7 +337,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const depthSamples = Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES));
   const cacheSamples = colorSamples.filter(count => count <= 4 && depthSamples.includes(count)).sort((a, b) => b - a)[0] || 0;
   let staticTarget = null;
-  let displayTarget = null;
   let staticKey = '';
   let lastCssLayout = '';
   let cachedCssLayout = '';
@@ -360,12 +359,17 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let pressureMissDirectFrames = 0;
   let currentGpuQueue = null;
   let cacheActive = false;
-  // Keep HDR/MSAA color and depth for cache rebuilds. Bake display color once,
-  // then copy only color/depth each frame while animated geometry stays live.
+  // Keep the ORIGINAL complete HDR+depth view, but do not render it through a
+  // SECOND offscreen RGBA8 tone-map target.  Instead, the genuine live scene
+  // composites that HDR/depth view and applies the exact prior ACES, sRGB and
+  // fog color operations in its existing depth-writing quad. This removes one
+  // full-resolution GPU pass, render target and texture on cache MISSES while
+  // retaining all water, shadows, 3D scenery, serpent and live cues. A cache
+  // HIT still draws the entire live scene once; no gate submission is faked.
   const cacheGeometry = new THREE.BufferGeometry();
   cacheGeometry.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
   cacheGeometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
-  const cacheBakeMaterial = new THREE.ShaderMaterial({
+  const cacheMaterial = new THREE.ShaderMaterial({
     uniforms: {
       cachedColor: { value: null }, cachedDepth: { value: null },
       toneMappingExposure: { value: renderer.toneMappingExposure },
@@ -384,9 +388,10 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       void main() {
         float depth = texture2D(cachedDepth, cacheUv).r;
         if (depth >= 1.0) discard;
+        gl_FragDepth = depth;
         gl_FragColor = texture2D(cachedColor, cacheUv);
-        // Offscreen targets disable automatic tone mapping/output conversion.
-        // Use the pinned renderer's exact ACES and SRGB functions explicitly.
+        // Identical math and order to the previous HDR -> RGBA8 display bake.
+        // Do NOT tonemap or fog the live serpent, water, or special effects.
         gl_FragColor.rgb = ACESFilmicToneMapping(gl_FragColor.rgb);
         gl_FragColor = sRGBTransferOETF(gl_FragColor);
         float viewDepth = cameraRange.x * cameraRange.y / (cameraRange.y - depth * (cameraRange.y - cameraRange.x));
@@ -394,42 +399,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
       }
     `,
-    toneMapped: false, depthTest: false, depthWrite: false,
-    blending: THREE.NoBlending,
-  });
-  const cacheMaterial = new THREE.ShaderMaterial({
-    uniforms: { cachedColor: { value: null }, cachedDepth: { value: null } },
-    vertexShader: cacheBakeMaterial.vertexShader,
-    fragmentShader: `
-      uniform sampler2D cachedColor;
-      uniform sampler2D cachedDepth;
-      varying vec2 cacheUv;
-      void main() {
-        float depth = texture2D(cachedDepth, cacheUv).r;
-        if (depth >= 1.0) discard;
-        gl_FragDepth = depth;
-        gl_FragColor = texture2D(cachedColor, cacheUv);
-      }
-    `,
-    // cachedColor already contains display bytes; do not tone map or encode twice.
     toneMapped: false, depthTest: true, depthWrite: true, depthFunc: THREE.AlwaysDepth,
     blending: THREE.NoBlending,
   });
-  const cacheScene = new THREE.Scene();
-  cacheScene.background = scene.background;
-  const cacheQuad = new THREE.Mesh(cacheGeometry, cacheMaterial);
-  cacheQuad.frustumCulled = false;
-  cacheScene.add(cacheQuad);
-  // BEGIN R46 SINGLE-PASS CACHE QUAD
-  // Original cache color/depth and z shader; no new GPU resource.
   const liveCacheQuad = new THREE.Mesh(cacheGeometry, cacheMaterial);
   liveCacheQuad.frustumCulled = false;
   liveCacheQuad.renderOrder = -10000;
   liveCacheQuad.layers.set(DYNAMIC_LAYER);
   liveCacheQuad.visible = false;
   scene.add(liveCacheQuad);
-  // END R46 SINGLE-PASS CACHE QUAD
-  const cacheCamera = new THREE.Camera();
 
   function invalidateStaticCache({ preserveView = false } = {}) {
     // Only a measured quality/raster reduction can preserve the same static
@@ -527,33 +505,23 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // Any different view still rebuilds at the real current output dimensions.
     if (!cacheHit && (!staticTarget || staticTarget.width !== cacheSize.x || staticTarget.height !== cacheSize.y)) {
       staticTarget?.dispose();
-      displayTarget?.dispose();
       staticTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
         type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
         depthBuffer: true, stencilBuffer: false,
         depthTexture: new THREE.DepthTexture(cacheSize.x, cacheSize.y, THREE.UnsignedIntType),
         samples: cacheSamples,
       });
-      // Raw encoded bytes deliberately use NoColorSpace so sampling never decodes
-      // them back to linear. RGBA8 matches the displayed canvas precision.
-      displayTarget = new THREE.WebGLRenderTarget(cacheSize.x, cacheSize.y, {
-        type: THREE.UnsignedByteType, colorSpace: THREE.NoColorSpace,
-        minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
-        depthBuffer: false, stencilBuffer: false, samples: 0,
-      });
-      cacheBakeMaterial.uniforms.cachedColor.value = staticTarget.texture;
-      cacheBakeMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
-      cacheMaterial.uniforms.cachedColor.value = displayTarget.texture;
+      cacheMaterial.uniforms.cachedColor.value = staticTarget.texture;
       cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
       invalidateStaticCache();
     }
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
     const oldFog = scene.fog;
-    cacheBakeMaterial.uniforms.cameraRange.value.set(camera.near, camera.far);
-    cacheBakeMaterial.uniforms.fogRange.value.set(oldFog.near, oldFog.far);
-    cacheBakeMaterial.uniforms.fogColor.value.copy(oldFog.color).convertLinearToSRGB();
-    cacheBakeMaterial.uniforms.toneMappingExposure.value = renderer.toneMappingExposure;
+    cacheMaterial.uniforms.cameraRange.value.set(camera.near, camera.far);
+    cacheMaterial.uniforms.fogRange.value.set(oldFog.near, oldFog.far);
+    cacheMaterial.uniforms.fogColor.value.copy(oldFog.color).convertLinearToSRGB();
+    cacheMaterial.uniforms.toneMappingExposure.value = renderer.toneMappingExposure;
     const oldAutoClear = renderer.autoClear;
     try {
       // A quality downgrade may make shadow-map resolution dirty; the old
@@ -563,15 +531,11 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         camera.layers.set(STATIC_LAYER);
         renderer.setRenderTarget(staticTarget);
         renderer.autoClear = true;
-        // Three applies fog after tone mapping/output conversion in the direct path.
-        // Defer it to the display-color bake so distant scenery keeps that ordering.
+        // Defer fog and color transform to the live cached-depth quad: preserve
+        // original fog ordering without baking another full-screen target.
         scene.fog = null;
         renderer.render(scene, camera);
         scene.fog = oldFog;
-        renderer.setRenderTarget(displayTarget);
-        cacheQuad.material = cacheBakeMaterial;
-        renderer.render(cacheScene, cacheCamera);
-        cacheQuad.material = cacheMaterial;
         staticKey = key;
         cachedCssLayout = lastCssLayout;
         cacheBuilds++;
@@ -591,7 +555,6 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
         retainedHigherRasterCompositions++;
       // END R46 ONE-PASS CACHE COMPOSITION
     } finally {
-      cacheQuad.material = cacheMaterial;
       // BEGIN R46 CACHE QUAD RESTORE
       liveCacheQuad.visible = false;
       // END R46 CACHE QUAD RESTORE
@@ -936,13 +899,9 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     contactMaterial.dispose();
     contacts.dispose();
     staticTarget?.dispose();
-    displayTarget?.dispose();
     staticTarget = null;
-    displayTarget = null;
     cacheGeometry.dispose();
-    cacheBakeMaterial.dispose();
     cacheMaterial.dispose();
-    cacheScene.clear();
     // BEGIN R46 CACHE QUAD RELEASE
     scene.remove(liveCacheQuad);
     // END R46 CACHE QUAD RELEASE

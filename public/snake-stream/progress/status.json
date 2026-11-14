@@ -1,10 +1,19 @@
 {
   "updatedAt": "2026-11-14",
-  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (progressive body buffers native proven only)",
-  "detail": "Exact a99 parent strict Chromium #43522211760: 1/17 actual full WebGL submissions, 751x415, 754 queue skips; 53/95 browser, native CI inherited failing. T4 source-exact 8192-ring to 512 initial, full original mesh/texture/quality retained; 9,437,184 -> 589,824 native buffer bytes; 260-body 2048 ring bound and retired GPU geometry dispose. RED parent 0/2 -> GREEN candidate 2/2, related 9/9, TS and 900 authoritative self-test pass, 10,000 seeded ticks with no invariant failures, seven source/candidate geometry hashes identical. New-head WebGL/physical FPS unmeasured, T1 full scene remains rejected.",
+  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (HDR compositor native-only candidate)",
+  "detail": "PR #52 immutable original 914ced1: strict authentic Chromium #43551506787 1/17 real complete WebGL submissions at 751x415 with 648 GPU skips; browser 52/95, native 728/800. Detached exact-source T4 candidate removes redundant full-raster display-bake pass and target from original HDR/depth cache: 3 to 2 renderer operations on cache rebuild (source code only), preserving world, original ACES/sRGB/fog order, depth, serpent, water, authority, gate and raster. Cache-hit shader cost changes; WebGL equality, performance and genuine device presents unmeasured. New RED 0/2 -> GREEN 2/2, focused 6/6, build+TS+900 authority pass, 8 seed native runs each reached 45 body. Broader 88/97 on both parent and candidate with historical failures. T1 remains visually rejected; independent acceptance pending.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "UNACCEPTED original-head screenshot: rectangular tiled court and small hero remain. T4 native buffer reservation fix does not establish displayed FPS or a visual transformation; strict 1/17 same-head remains stop-ship.",
+  "latestCaption": "UNACCEPTED authentic 914 original-head scene: rectangular tiled court and small serpent; 1/17 strict complete WebGL submissions. Native-only two-pass candidate has NOT passed candidate-matched Chromium or physical FPS.",
   "reviews": [
+    {
+      "area": "2026-11-14 T4 original HDR/depth and true live 3D compositor (NATIVE ONLY; WebGL HARD RED)",
+      "sourceHead": "914ced131dc57f45fbc79b4b4b054f3aa3709d2d",
+      "rendererParentBlob": "042db2f10b25b224a8c801aebe4466369b3f1f62",
+      "rendererCandidateBlob": "43d5728447c462604e67b5c606613d8e727e0a1d",
+      "browser": "Authentic original 914 #43551506787 1/17 strict complete full renderer, 751x415, 648 queue skips; no candidate-matched Chromium",
+      "native": "RED parent 0/2 -> GREEN 2/2; focused 6/6, TS/build and authoritative 900-tick pass, 8 headless victory runs length45; broad 88/97 original AND candidate",
+      "verdict": "T0 UNSIGNED, T1 BUILDING visually self-rejected, T2/T3 BUILDING, T4 HARD RED; original strict threshold retained; shader and device evidence pending"
+    },
     {
       "area": "2026-11-14 T4 progressive actual high-detail serpent GPU body storage (NATIVE ONLY, HARD RED)",
       "sourceHead": "a99a79e268ac6cd00e24875a68d64dcb1238fbbb",

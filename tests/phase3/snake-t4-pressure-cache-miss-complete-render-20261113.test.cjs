@@ -28,22 +28,26 @@ test('healthy, unsupported and failed GPU fence evidence cannot change normal ca
   }
 });
 
-test('real renderer bypasses triple-pass offscreen rebuild BEFORE target allocation when stressed, not cache hits',()=>{
+test('real renderer bypasses offscreen rebuild BEFORE target allocation under proven pressure while preserving certified caches',()=>{
   assert.match(rendererSrc,/function renderPresentation\(\)/);
   assert.match(rendererSrc,/const cacheHit = [\s\S]*?key === staticKey/);
   const decision = rendererSrc.indexOf('shouldRenderFullSceneOnCacheMiss({ queue: currentGpuQueue, cacheHit');
   const creation = rendererSrc.indexOf('new THREE.WebGLRenderTarget(',rendererSrc.indexOf('function renderPresentation('));
   assert.ok(decision > 0 && decision < creation, 'GPU pressure cache miss must avoid allocating HDR/depth buffers');
-  assert.match(rendererSrc,/shouldRenderFullSceneOnCacheMiss\(\{ queue: currentGpuQueue, cacheHit, shadowDirty: renderer\.shadowMap\.needsUpdate \}\)/);
-  assert.match(rendererSrc.slice(decision,creation),/invalidateStaticCache\(\);[\s\S]*?pressureDirectFrames\+\+;[\s\S]*?renderer\.render\(scene, camera\);[\s\S]*?return;/);
+  assert.match(rendererSrc,/shouldRenderFullSceneOnCacheMiss\(\{\s*queue: currentGpuQueue, cacheHit,\s*shadowDirty: renderer\.shadowMap\.needsUpdate\s*\}\)/);
+  assert.match(rendererSrc.slice(decision,creation),/pressureDirectFrames\+\+;[\s\S]*?renderer\.render\(scene, camera\);[\s\S]*?return;/);
+  assert.doesNotMatch(rendererSrc.slice(decision,creation),/invalidateStaticCache\(\);/, 'a pressure cache MISS must preserve any valid previous HDR cache');
   assert.match(rendererSrc,/currentGpuQueue = gpuQueue;/);
   assert.match(rendererSrc,/pressureDirectFrames/);
   assert.match(rendererSrc,/renderPresentation\(\);/);
 });
 
-test('cache-hits and healthy devices still retain the original full static bake plus live serpent/water pass',()=>{
-  assert.match(rendererSrc,/renderer\.setRenderTarget\(staticTarget\);[\s\S]*?renderer\.render\(scene, camera\);[\s\S]*?renderer\.setRenderTarget\(displayTarget\);[\s\S]*?renderer\.render\(cacheScene, cacheCamera\)/);
+test('cache-hits and healthy GPUs retain the original complete static HDR/depth then live serpent/water draw, without the redundant encoded-display pass',()=>{
+  assert.match(rendererSrc,/renderer\.setRenderTarget\(staticTarget\);[\s\S]*?renderer\.render\(scene, camera\);/);
   assert.match(rendererSrc,/camera\.layers\.set\(DYNAMIC_LAYER\);[\s\S]*?liveCacheQuad\.visible = true;[\s\S]*?renderer\.render\(scene, camera\)/);
+  assert.match(rendererSrc,/cacheMaterial\.uniforms\.cachedColor\.value = staticTarget\.texture;/);
+  assert.match(rendererSrc,/cacheMaterial\.uniforms\.cachedDepth\.value = staticTarget\.depthTexture;/);
+  assert.doesNotMatch(rendererSrc,/renderer\.render\(cacheScene, cacheCamera\)|\bdisplayTarget\b/);
   assert.match(rendererSrc,/frameGate\.submitted\(\);/);
   assert.doesNotMatch(rendererSrc,/frameGate\.submitted\(\s*\d+/);
 });

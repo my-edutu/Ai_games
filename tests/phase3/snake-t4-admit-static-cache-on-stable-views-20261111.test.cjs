@@ -18,7 +18,12 @@ test('a settled complete garden scene enters cache composition on its first elig
 });
 test('cache rebuild captures original full static environment, then composes original live serpent, water, contacts and cues', () => {
   assert.match(render, /camera\.layers\.set\(STATIC_LAYER\);[\s\S]*?renderer\.setRenderTarget\(staticTarget\);[\s\S]*?renderer\.render\(scene, camera\)/);
-  assert.match(render, /renderer\.render\(cacheScene, cacheCamera\)/);
+  // The HDR/depth shader now performs the original ACES/sRGB/fog transform
+  // INSIDE the existing depth-writing live composition, not an extra
+  // GPU render into a second encoded RGBA8 texture.
+  assert.match(render, /cacheMaterial\.uniforms\.cachedColor\.value = staticTarget\.texture/);
+  assert.match(render, /cacheMaterial\.uniforms\.cachedDepth\.value = staticTarget\.depthTexture/);
+  assert.doesNotMatch(render, /renderer\.render\(cacheScene, cacheCamera\)/);
   assert.match(render, /camera\.layers\.set\(DYNAMIC_LAYER\);[\s\S]*?liveCacheQuad\.visible = true;[\s\S]*?renderer\.render\(scene, camera\)/);
   assert.match(render, /liveCacheQuad\.visible = false/);
 });
