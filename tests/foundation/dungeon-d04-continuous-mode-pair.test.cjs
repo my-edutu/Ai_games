@@ -211,3 +211,28 @@ test('slow-frame forensic collector rejects contradictory or missing D04 emissio
  assert.equal(e.causedByD04,null);
  assert.equal(e.sampleSynchronized,false);
 });
+
+test('actual HP sound with occluded shards cannot be counted as visibly admitted in matched gameplay',()=>{
+ const cue={kind:'damage',tick:4,scene:'1:1',
+  cueId:'1:1:4:damage:-:enemy-1-0',visual:true,
+  decision:'delivered',audio:true,frameId:5,
+  observedClockMs:120,submittedClockMs:260,observationToSubmissionMs:140};
+ const evaluate=receipt=>{
+  const b=arm('d04');
+  b.samples[4].recentDeliveryReceipts=[receipt];
+  return verdict(arm('legacy'),b).previewDamageReceipts.timely;
+ };
+ assert.equal(evaluate({...cue,visualDrawableAtSubmission:false}),0,
+  'a legitimate original HP sound cannot prove the occluded shard was displayed');
+ assert.equal(evaluate({...cue,visualDrawableAtSubmission:null}),0,
+  'unknown drawable status cannot earn visible frame credit');
+ assert.equal(evaluate(cue),0,
+  'legacy receipts with no drawable witness must fail closed');
+ assert.equal(evaluate({...cue,visualDrawableAtSubmission:true,audio:false}),0,
+  'a delivered receipt without successful foley must not borrow visual credit');
+ assert.equal(evaluate({...cue,visualDrawableAtSubmission:true}),1,
+  'a cue-exact timely drawable submitted HP effect retains diagnostic credit');
+ assert.equal(evaluate({...cue,visualDrawableAtSubmission:true,
+  decision:'visual-only-submitted',audio:false}),1,
+  'mute must not revoke a genuine silent visual-only frame witness');
+});
