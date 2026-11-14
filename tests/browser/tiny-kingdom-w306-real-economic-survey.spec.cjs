@@ -58,6 +58,41 @@ for(const size of [{width:1024,height:640},{width:390,height:844}]){
   expect(grown.survey.last.districtHomeCount).toBeLessThanOrEqual(8);
   expect(grown.survey.last.zoom).toBeLessThanOrEqual(size.width===390?45:33);
   expect(grown.survey.last.inspectedHomeLots.length).toBe(grown.survey.last.districtHomeCount);
+  // W308: do not select a pretend staged harvest. Advance the ORIGINAL seeded
+  // world until a real worksite is occupied, then observe that exact citizen.
+  const documentary=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   let ticks=0;
+   while(g.getActiveWorksites().length===0&&ticks<7200){g.step(1/30);ticks++}
+   const actualWorkers=g.getActiveWorksites().map(w=>w.citizen),
+    before=JSON.stringify(g.exportSnapshot()),
+    candidate=g.advanceRealEconomicSurvey();
+   return {ticks,actualWorkers,candidate,
+    unchanged:before===JSON.stringify(g.exportSnapshot())};
+  });
+  expect(documentary.actualWorkers.length).toBeGreaterThan(0);
+  expect(documentary.candidate.accepted).toBe(true);
+  expect(documentary.candidate.stage).toBe('workday');
+  expect(documentary.candidate.actualWorker).toBe(true);
+  expect(documentary.actualWorkers).toContain(documentary.candidate.citizen);
+  expect(documentary.unchanged).toBe(true);
+  await page.waitForTimeout(750);
+  const live=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {audit:g.getRealEconomicSurveyAudit(),view:g.getLiveWorkdayView(),
+    workerNames:g.getActiveWorksites().map(w=>w.citizen),
+    gl:document.getElementById('world').getContext('webgl')?.getError(),
+    overflow:document.documentElement.scrollWidth-innerWidth,
+    triangles:g.renderStats().lastFrameTriangles};
+  });
+  expect(live.audit.stage).toBe('workday');
+  expect(live.view.citizen).toBe(documentary.candidate.citizen);
+  expect(live.workerNames).toContain(live.view.citizen);
+  expect(live.gl).toBe(0);
+  expect(live.triangles).toBeLessThan(160000);
+  expect(live.overflow).toBeLessThanOrEqual(0);
+  fs.writeFileSync(out+'/'+size.width+'-real-workday.json',JSON.stringify({documentary,live},null,2));
+  await page.screenshot({path:out+'/'+size.width+'-real-workday.png'});
   expect(errors).toEqual([]);
  });
 }

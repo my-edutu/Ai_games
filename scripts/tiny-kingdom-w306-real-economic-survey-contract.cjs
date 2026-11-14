@@ -40,8 +40,40 @@ assert.equal(early.grownHomes,1);
 assert.equal(early.districtSource,'inhabited-core');
 assert(early.districtHomeCount>=4,'one newly built isolated house must not become an empty-land tour');
 assert(early.zoom<=33,'real house scale, not distant empty meadow');
+const mockControl={dataset:{},textContent:'',setAttribute(name,value){this[name]=value}};
+const observed=[];
+Object.assign(ctx,{
+ people:[{name:'Bram',job:'farmer',x:17,z:-3,activity:'Harvesting grain'}],
+ selectedCitizen:0,city:homes.slice(0,12),presentationEpoch:0,
+ watchLiveWorkday:()=>({citizen:'Bram',active:true,activity:'Harvesting grain'}),
+ document:{getElementById:id=>id==='camera-survey'?mockControl:null},
+ showToast:value=>observed.push(value),setCommandView:()=>{}
+});
+vm.runInContext('realEconomicSurveyIndex=2',ctx);
+const real=vm.runInContext('advanceRealEconomicSurvey()',ctx);
+assert.equal(real.accepted,true);
+assert.equal(real.stage,'workday');
+assert.equal(real.citizen,'Bram');
+assert.equal(real.activity,'Harvesting grain');
+assert.equal(real.activeProduction,true);
+assert.equal(real.actualWorker,true);
+assert.equal(real.authorityChanged,false);
+assert.equal(mockControl.dataset.stage,'workday');
+assert.equal(mockControl['aria-label'],'Continue real economic survey to farm');
+const audit=vm.runInContext('getRealEconomicSurveyAudit()',ctx);
+assert.equal(audit.last.citizen,'Bram');
+assert.equal(audit.last.inspectedHomeLots.length,0);
+ctx.watchLiveWorkday=()=>null;
+vm.runInContext('realEconomicSurveyIndex=2',ctx);
+const rejected=vm.runInContext('advanceRealEconomicSurvey()',ctx);
+assert.equal(rejected.accepted,false);
+assert.equal(rejected.reason,'no-real-worker-now');
+assert.equal(vm.runInContext('realEconomicSurveyIndex',ctx),2,
+ 'camera tour must not advance when no real work is observable');
+assert.equal(mockControl.dataset.stage,'workday',
+ 'failure does not invent a new citizen or alter the previous genuine shot');
 assert.equal(JSON.stringify(homes),original);
 assert(html.includes('id="camera-survey"'));
 assert(html.includes("button('camera-survey',advanceRealEconomicSurvey)"));
 assert(html.includes('getRealEconomicSurveyAudit,advanceRealEconomicSurvey'));
-console.log('W306 source PASS: genuine connected farm/market/grown-home sightlines, no simulated activity invented');
+console.log('W308 source PASS: genuine farm/market/homes to actual worker, no invented shift, empty work refusal and authority isolation. Browser motion unproven.');
