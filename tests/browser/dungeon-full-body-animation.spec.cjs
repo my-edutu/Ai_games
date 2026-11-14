@@ -771,6 +771,15 @@ for(const view of [
   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
    proof.before?.[side]?.toeY+.011999);
   expect(Math.sign(proof.upperRad)).not.toBe(Math.sign(proof.lowerRad));
+  expect(['safe-first-source-frame','same-certified-source-frame']).toContain(
+   proof.linkedContinuity);
+  if(proof.witnessedFrameIntervalSeconds<.05){
+   const previouslyWitnessed=proof.linkedContinuity==='same-certified-source-frame';
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(
+    previouslyWitnessed?.115001:.095001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(
+    previouslyWitnessed?.095001:.080001);
+  }
   // The measured dual-shoe source frame sets its own fast/slow arc cap;
   // the original 33ms source-bound trial is NOT an unverified long-frame cue.
   // fully weighted original walking frame, never by inventing a foot plant.
