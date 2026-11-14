@@ -2858,6 +2858,17 @@ export function planImportedRealTravelCrossfade({
   frameInterval>=.24&&frameInterval<=1.2&&
   groundedTravel/frameInterval>=.25&&
   groundedTravel/frameInterval<=2.5)return .09;
+ // Actual 390px licensed GLB source tick 8: .44m of living root travel
+ // arrived after a 1.7667s displayed software-WebGL interval. Rejecting
+ // this *known* full-body walk left the source mixer requesting 230ms Idle
+ // blending despite that displacement. A narrower low-FPS window may
+ // hand all 41 original keyed joints over together, only with real travel
+ // >=420mm at plausible >=.23m/s and a matching current source owner.
+ // This is a clip crossfade, never a step, IK target, hit or ground contact.
+ if(groundedTravel>=.42&&groundedTravel<=.54&&
+  frameInterval>1.2&&frameInterval<=1.9&&
+  groundedTravel/frameInterval>=.23&&
+  groundedTravel/frameInterval<=.5)return .09;
  if(groundedTravel>=.012&&groundedTravel<=.24&&
   frameInterval>=.008&&frameInterval<=.24)return .12;
  return .23;
