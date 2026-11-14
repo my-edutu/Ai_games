@@ -27,3 +27,10 @@ Source code + focused test commits exist, but **the new production candidate has
 **Largest remaining gap:** consistent full-body crossing of the SAME original bronze arch in a continuous 3D clockwork-to-Void shot. If removing the incoming opaque close pylon still hard-cuts, rebuild actual coincident floor8/floor9 doorway depth and coherent camera/foreground together; no more isolated fade patches.
 
 **Independent blind real reviewers:** LOOKS 0/5, FEELS 0/5, PLAYS 0/5. **Actual hardware p50/p95/p99/memory:** NOT EVALUATED. **Verdict:** NOT EVALUATED. No merge/deploy/force-push, no PR58 edit, no draft promotion, no baseline movement, no unrelated games.
+
+## Follow-up: exact immutable new-source evidence request
+
+- Production implementation: [c53b8c07](https://github.com/my-edutu/Ai_games/commit/c53b8c07d77d3085b652d936bc88e60754665a7e).
+- Latest requested original baseline/candidate 9-job capture: [43586495971](https://github.com/my-edutu/Ai_games/actions/runs/43586495971), candidate pinned **exactly** to `ca53f7f4615845d0c6325a7e13ac72fea1e709ed`, immutable baseline `1731b380851162741761c5569e2bc152a0869ca9`. Nine jobs were queued at inspection, no new original footage yet evaluated.
+- Technical [43586495943](https://github.com/my-edutu/Ai_games/actions/runs/43586495943) pending, no post-change green claim. Earlier production-commit technical [43586078489](https://github.com/my-edutu/Ai_games/actions/runs/43586078489) cancelled before completion by concurrency; **not** a pass or a demonstrated product defect. Earlier test-only [43585987512](https://github.com/my-edutu/Ai_games/actions/runs/43585987512) saw a runner stop during the changed real-world Three fixture; no assertion-level red proof is claimed.
+- Await unedited source-matched new native 1x recordings before any new visual verdict. Independent critics remain 0/5 per pillar and actual-device frame-time/memory NOT EVALUATED.
