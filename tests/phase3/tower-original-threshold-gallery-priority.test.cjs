@@ -142,3 +142,52 @@ test('playable platforms, boss gateway and ambient silhouettes cannot be copied 
       'never create a duplicate walkable source deck, boss gate or hazard');
   }finally{clean(null,old);}
 });
+
+
+test('genuine long bronze bearing faces crossing a gateway envelope are boundedly clipped, not silently lost',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group(), carrying=new THREE.Group();
+  carrying.rotation.y=at;
+  carrying.position.set(Math.sin(at)*25,roof+3,Math.cos(at)*25);
+  // One original 35m tangential metal crossbeam spans the true gate sightline.
+  // Many original indexed triangles cross the physical aperture, but one
+  // endpoint lies outside the conservative visibility sector. Old all-vertex
+  // rejection erased those faces. The new geometry must be source-clipped,
+  // never fabricated at the opposite end of the structure.
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(35,3,2),
+    new THREE.MeshStandardMaterial({color:0x947052,roughness:.76}));
+  beam.name='OriginalClockworkLongRoofCrossbeam';
+  beam.userData.structural=true;
+  beam.position.x=8;
+  carrying.add(beam);old.add(carrying);
+  let result;
+  try {
+    result=world.extractOriginalClockworkThresholdGallery(
+      THREE,old,EXIT_X,ROOF_Y,BASE_Y,WIDTH,{maxFaces:24,maxBatches:2});
+    assert.ok(result && result.faces>=4 && result.faces<=24,
+      'preserve original roof crossbeam faces crossing the real sightline');
+    assert.ok(result.bytes<=24*96 && result.root.children.length<=2);
+    const positions=result.root.children[0].geometry.getAttribute('position');
+    const uvs=result.root.children[0].geometry.getAttribute('uv');
+    const normals=result.root.children[0].geometry.getAttribute('normal');
+    const side=Math.tan(.46);
+    let clippedBoundary=false;
+    for(let i=0;i<positions.count;i++){
+      const x=positions.getX(i), y=positions.getY(i), z=positions.getZ(i);
+      const radial=x*Math.sin(at)+z*Math.cos(at);
+      const tangent=x*Math.cos(at)-z*Math.sin(at);
+      assert.ok(radial>=12.7-1e-4 && radial<=39+1e-4);
+      assert.ok(Math.abs(tangent)<=radial*side+1e-4,
+        'no triangle may extend beyond bounded old-world gateway aperture');
+      assert.ok(y>=roof-85-1e-4 && y<=roof+40+1e-4);
+      assert.ok(Number.isFinite(uvs.getX(i)) && Number.isFinite(uvs.getY(i)),
+        'source UV interpolates across genuine clipped original triangle');
+      assert.ok(Number.isFinite(normals.getX(i)) && Number.isFinite(normals.getZ(i)));
+      if(Math.abs(Math.abs(tangent)-radial*side)<1e-3)clippedBoundary=true;
+    }
+    assert.ok(clippedBoundary,
+      'retained original 3D beam must terminate on the physical sector clipping plane');
+    assert.equal(carrying.parent,old,'source floor mesh and transforms must remain unchanged');
+    assert.equal(beam.material.name,'','original source material must not be modified');
+  }finally{clean(result,old);}
+});
