@@ -27,6 +27,10 @@ Direct execution of the updated, fetched production classifier against source-sh
 
 This change does **NOT** alter playable game physics, real 3D world, source snapshots, actor movement, collisions, guardian health, floor advancement, restart, web browser video or fabricated assets. It repairs the false-negative first-frame evidence blocker and identifies the correct next architectural target.
 
+### Red/green workflow detail and source-gap correction
+
+The [test-first exact-source workflow](https://github.com/my-edutu/Ai_games/actions/runs/43622359217) genuinely FAILED in Phase3 partition 2 on the newly added grounded receipt cases. The [first repaired implementation's workflow](https://github.com/my-edutu/Ai_games/actions/runs/43622422238) exposed a further genuine contract issue: after accepting a null immutable crossing the auditor still subtracted `firstFrame.crossingTick` from `sourceTick`, yielding **475** instead of the true **zero-tick first returned source gap**. Corrected the age calculation to use the same validated typed receipt/immutable anchor that selected the episode; [source-gap correction commit](https://github.com/my-edutu/Ai_games/commit/6f0de286b33ed04ea06b09d8e35f5c01bff4dc84). Executing the updated fetched production module directly now returns firstEpisode `run:475`, first gap `0`, 1 retained original GPU receipt frame, 0 immutable victory-record frames; invalid 13-tick receipts are rejected. Full workflow green is still **pending** at this review amendment.
+
 ## Next primary P0 build
 
 On fresh exact-source native candidate capture, compare the classified returned original gate with the *actual* painted video first and identify where old bronze depth/camera continuity is lost between Three return and compositor/native frame. Investigate render-to-present latency and opaque world depth/framing together, not another isolated fade/material adjustment. Preserve authentic Floor 9 onward, result/intermission/restart evidence. Complete technical CI. The original filmed hard cut is still rejected until fixed in **both** viewports.
