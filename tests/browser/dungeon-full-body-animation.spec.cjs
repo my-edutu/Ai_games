@@ -662,6 +662,39 @@ for(const view of [
     probes:t.nativeLegOwnership?.sourceStanceKneeProbeOutcomes??null,
     proofs:t.nativeLegOwnership?.sourceStanceKneeCurrentFrameProofs??null}))},null,2))
  });
+ // Genuine original-GLB linked leg trial is a FULL chain, not an
+ // isolated rotating toe or guessed contact. All accepted real-frame
+ // proofs must preserve the untouched source-weighted opposite shoe.
+ await test.info().attach('original-source-linked-hip-knee-dual-shoe',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   source:'real-licensed-Walking_A-original-skinned-both-shoes',
+   plantedFootCertified:false,
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    acceptedFrames:t.nativeLegOwnership?.sourceSwingLinkedAcceptedFrames??0,
+    proofs:t.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs??null,
+    skinnedShoes:t.sourceSolePatchWorld??null}))},null,2))
+ });
+ for(const frame of trace)for(const side of ['left','right']){
+  const proof=frame.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs?.[side];
+  if(!proof)continue;
+  expect(proof.sourceInstanceId).toBe(frame.sourceId);
+  expect(proof.sourceClip).toBe('Walking_A');
+  expect(proof.contactLocked).toBe(false);
+  expect(proof.oppositeShoePreserved).toBe(true);
+  expect(proof.liftMeters).toBeGreaterThanOrEqual(.012);
+  expect(proof.fractionCleared).toBeGreaterThanOrEqual(.15);
+  expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
+   proof.before?.[side]?.toeY+.011999);
+  expect(Math.sign(proof.upperRad)).not.toBe(Math.sign(proof.lowerRad));
+  expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.105001);
+  expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.075001);
+  const opposite=side==='left'?'right':'left';
+  for(const end of ['toe','heel']){
+   expect(Math.abs(proof.after?.[opposite]?.[end+'Y']-
+    proof.before?.[opposite]?.[end+'Y'])).toBeLessThanOrEqual(.003001);
+  }
+ }
  // Original upper-leg correction is a measured source-rig trial; never
  // promote a one-frame positive toe delta into a moving planted-foot claim.
  await test.info().attach('original-source-thigh-airborne-shoe-witness',{
