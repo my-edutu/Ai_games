@@ -273,9 +273,16 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   // deliberately pass generic recipe names without authoritative snapshots.
   const canonicalWitness=requireVerifiedContact&&
    isCanonicalVerifiedCombatFoleyCue(cue);
-  if(requireVerifiedContact&&
-    (cue.audio==='whoosh'||cue.audio==='impact'||cue.audio==='fatal-impact')&&
-    !canonicalWitness){
+  // A ranger launch, cultist cast or Warden strike is also a witnessed
+  // ACTION, not an arbitrary named recipe. Never let a malformed release
+  // (or a forged target/actor ID) bypass the strict production sound gate.
+  // Neutral utility/dry recipes retain their separate event-only contract;
+  // standalone synthesis auditions remain explicitly permissive.
+  const authorityBoundAudio=cue.audio==='whoosh'||
+   cue.audio==='impact'||cue.audio==='fatal-impact'||
+   cue.audio==='ranged-release'||cue.audio==='spell-release'||
+   cue.audio==='warden-release';
+  if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
    dropped++;return false;
   }
   // Per-actor time cooldown alone permits replaying the EXACT same attack
