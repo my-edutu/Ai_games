@@ -51,6 +51,45 @@ test('strict production foley cannot play a whoosh from an unverified action or 
  assert.equal(f.stats().activeVoices,2);
  f.dispose();
 });
+// A real sword can have a uniquely witnessed AIM without confirmed contact.
+// The planner includes that public target in its canonical event ID. Original
+// sound must follow the measured, submitted attempt, NOT demand an un-aimed ID.
+// Node fake-source starts are contract proof only, never actual browser PCM.
+test('D04 aimed public sword attempt retains its canonical air whoosh without minting impact',async()=>{
+ const {planPhysicalFeedback}=await import(pathToFileURL(path.join(__dirname,
+  '../../public/ai-dungeon/physical-feedback-plan.js')).href);
+ const {createOriginalCombatFoley,isCanonicalVerifiedCombatFoleyCue}=await load();
+ const hero={id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,hp:30,maxHp:30,
+  action:'idle',actionTick:7,targetId:null};
+ const foe={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:20,maxHp:20,
+  action:'idle',actionTick:7,targetId:null};
+ const previous={tick:7,run:1,floor:1,map:Array.from({length:9},()=>'.'.repeat(9)),
+  units:[hero,foe],events:[]};
+ const next={...previous,tick:8,units:[{...hero,action:'attack',actionTick:8,
+  targetId:'revenant'},foe]};
+ const cues=planPhysicalFeedback(previous,next,{
+  resolveContact:u=>({targetId:u.targetId,distance:1})});
+ assert.equal(cues.length,1,'no HP drop, no invented injury');
+ const attempt=cues[0];
+ assert.equal(attempt.kind,'swing');
+ assert.equal(attempt.targetId,'revenant','public aimed target is not hit proof');
+ assert.equal(attempt.id,'1:1:8:swing:vanguard:revenant');
+ assert.equal(isCanonicalVerifiedCombatFoleyCue(attempt),true,
+  'authentic targeted attempt must pass strict sound identity');
+ assert.equal(isCanonicalVerifiedCombatFoleyCue({...attempt,targetId:'forged'}),false,
+  'changed aim without changed canonical ID is not a witnessed action');
+ assert.equal(isCanonicalVerifiedCombatFoleyCue({...attempt,targetId:{id:'revenant'}}),false,
+  'non-string aim cannot borrow another canonical cue');
+ const {ctx,sources}=fixture();
+ const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ assert.equal(engine.enable(),true);
+ assert.equal(engine.emit(attempt),true,'legitimate aimed sword must make original air foley');
+ assert.ok(sources.length>0);
+ assert.equal(engine.stats().verifiedDamageOnsets,0,'aim is not HP damage');
+ assert.equal(engine.emit(attempt),false,'same attempt never plays twice');
+ engine.dispose();
+});
+
 test('strict production foley never turns an invented attacker into real HP impact sound',async()=>{
  const {createOriginalCombatFoley}=await load(),{ctx,sources}=fixture();
  const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
