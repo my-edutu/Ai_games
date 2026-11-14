@@ -172,3 +172,61 @@ for(const phase of ['allocate','start']){
   engine.dispose();
  });
 }
+
+
+// An old witnessed swing must not be reconstructed as fresh sound when the
+// bounded event-ID cache rotates during a long real session. Public D04
+// snapshots accept at most a five-tick authority gap, not arbitrary replay
+// from much older ticks. These fake WebAudio checks do NOT prove PCM timing.
+test('D04 evicted one-shot swing ID cannot replay after later verified ticks',async()=>{
+ const {createOriginalCombatFoley,MAX_ORIGINAL_CONFIRMED_CUE_IDS}=await load();
+ const f=fixture(),engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+ assert.equal(engine.enable(),true);
+ assert.equal(engine.emit(swing(7,'original')),true);
+ for(let i=0;i<MAX_ORIGINAL_CONFIRMED_CUE_IDS+12;i++){
+  f.ctx.currentTime=(i+1)*.1;
+  assert.equal(engine.emit(swing(30+i,'new-'+i)),true,
+   'new genuine public attempts remain independently audible');
+ }
+ const priorStarts=f.started.length;
+ f.ctx.currentTime+=.1;
+ assert.equal(engine.emit(swing(7,'original')),false,
+  'evicted ID must not become a newly authorized historical attack');
+ assert.equal(f.started.length,priorStarts,
+  'rejected replay must allocate no audio source');
+ assert.ok(engine.stats().confirmedCueIds<=MAX_ORIGINAL_CONFIRMED_CUE_IDS);
+ assert.equal(engine.emit(swing(30+MAX_ORIGINAL_CONFIRMED_CUE_IDS+12,'fresh')),true);
+ engine.dispose();
+});
+
+test('D04 strict foley permits five-tick delayed witnesses but rejects older injury replay',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const f=fixture(),engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+ engine.enable();
+ assert.equal(engine.emit(swing(200,'first')),true);
+ f.ctx.currentTime=.10;
+ assert.equal(engine.emit(injury(195,'in-window')),true,
+  'five-tick public backlog remains eligible on a timely submitted frame');
+ f.ctx.currentTime=.20;
+ const before=f.started.length;
+ assert.equal(engine.emit(injury(194,'stale')),false,
+  'six-tick-old public injury cannot manufacture new impact foley');
+ assert.equal(f.started.length,before);
+ engine.reset();
+ f.ctx.currentTime=.30;
+ assert.equal(engine.emit(injury(194,'new-session')),true,
+  'explicit scene reset discards the old tick watermark');
+ engine.dispose();
+});
+
+test('D04 failed WebAudio allocation does not advance historical tick rejection',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const f=failingPreemptionFixture();
+ const engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+ engine.enable();
+ f.failNext('allocate');
+ assert.equal(engine.emit(swing(900,'failed')),false);
+ assert.equal(engine.emit(swing(5,'legitimate')),true,
+  'a never-delivered future cue cannot poison later source admission');
+ engine.dispose();
+});
