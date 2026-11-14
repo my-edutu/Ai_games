@@ -9,7 +9,7 @@ const { TowerPresentationController } = require('../dist/games/infinite-tower-cl
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'public', 'infinite-tower-climb');
 const THREE_ROOT = path.join(ROOT, 'node_modules', 'three', 'build');
-const STREAM_CONFIG = Object.freeze({ maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36, resultHoldTicks: 48, guardianSecondWind: true, guardianArenaHazards: true, guardianInterval: 8, upgradeInterval: 4 });
+const STREAM_CONFIG = Object.freeze({ maxTicks: 20000, noProgressTicks: 3000, intermissionTicks: 36, resultHoldTicks: 48, guardianSecondWind: true, guardianArenaHazards: true, guardianGateActuationTicks: 28, guardianInterval: 8, upgradeInterval: 4 });
 
 function createSession(seed = 'tower-stream-reference', config = STREAM_CONFIG, policy = 'autonomous') {
   const runtime = TowerRuntime.create(config, seed, { policy });
