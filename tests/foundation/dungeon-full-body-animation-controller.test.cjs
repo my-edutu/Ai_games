@@ -5303,3 +5303,42 @@ test('RED: deeply submerged original toe must earn meaningful relative clearance
    'the complete original-source ownership and weighted-shoe gates remain mandatory');
  }
 });
+
+
+// RED from genuine exact-head original desktop Walking_A source-rig WebGL
+// Actions #43558143343, artifact #14100135975, consecutive native rAF
+// patch frames. The licensed thigh->calf->foot hierarchy and knee bind
+// geometry were valid, yet a 60mrad original calf overlay lifted a skinned
+// swing toe only 1.94mm against 38.07mm stone penetration. Eight accepted
+// samples reported success while leaving the toe ~36.13mm submerged.
+// This must not be presented as physically effective knee clearance.
+test('RED: original source calf may not twitch for 1.94mm lift while toe remains 36mm submerged',async()=>{
+ const {confirmOriginalSourceSwingCalfNetClearance:confirm}=await load();
+ assert.equal(typeof confirm,'function','live controller must provide same-skin calf efficacy gate');
+ const measured={
+  floorTopY:-.02,
+  beforeToeY:-.05806764880294435,
+  afterToeY:-.05612610918194619,
+  beforeHeelY:.18642603163511656,
+  afterHeelY:.19811109818369063,
+  appliedAngleRad:.06
+ };
+ assert.equal(confirm(measured),false,
+  '1.94mm / 38.07mm original toe burial (5.1%) is a futile visible knee bend');
+ assert.equal(confirm({...measured,afterToeY:-.0528}),true,
+  'same skinned toe recovering >10% of its depth may earn a bounded knee bend');
+ assert.equal(confirm({...measured,beforeToeY:-.044,afterToeY:-.041}),true,
+  'shallow 24mm initial burial may retain small verified source-hinge relief');
+ for(const bad of [
+  {afterToeY:-.060},{afterToeY:NaN},{afterHeelY:.28},
+  {beforeToeY:-.5},{beforeHeelY:-.020},
+  {floorTopY:.2},{appliedAngleRad:.25},
+  {appliedAngleRad:0}
+ ])assert.equal(confirm({...measured,...bad}),false,
+  'unmeasured, inverted, unsafe or unsupported source calf must reject');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/confirmOriginalSourceSwingCalfNetClearance\(/,
+  'actual Three.js live source-knee commit must consult independent final net clearance');
+ assert.match(renderer,/ineffective-original-source-calf-clearance/,
+  'rejected real-skin calf step must appear in source-rig diagnostics');
+});
