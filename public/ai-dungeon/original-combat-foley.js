@@ -574,7 +574,13 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    clamp(.84+.16*(handSpeed-.9)/7.1,.84,1):1;
   const duration=clamp(profile.duration,.05,.7),severity=clamp(cue?.severity,0,1),
    peak=Math.min(.12,profile.peak*(.83+.19*severity)*airLevel),
-   material=MATERIALS[cue?.detail?.materialRole]??MATERIALS.neutral;
+   // Optional public material metadata selects a timbre only. Object
+   // prototypes are NOT materials: inherited "constructor"/"__proto__"
+   // would supply undefined coefficients and silence otherwise valid HP foley.
+   // Fall back to neutral without changing injury proof or the voice budget.
+   materialRole=cue?.detail?.materialRole,
+   material=typeof materialRole==='string'&&
+    Object.hasOwn(MATERIALS,materialRole)?MATERIALS[materialRole]:MATERIALS.neutral;
   // Offset each simultaneously active noise texture to avoid coherent peaks.
   // No new buffer, voice, listener or per-sample work is introduced.
   const noiseOffset=chooseOriginalNoisePhaseOffset(noiseBuffer?.duration,t,active);
