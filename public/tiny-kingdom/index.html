@@ -26774,10 +26774,14 @@ function render(now){requestAnimationFrame(render);
  const dt=Math.min(.18,wallDt),simulationDt=simulationFrameDelta(wallDt);timer=now;
  if(streetWalk)advanceStreetViewClock(wallDt);const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){
   accumulator+=simulationDt*speed*1.35;
-  const softwareInteractive=(swiftGpu||!gpuAvailable)&&softwareCameraGestureActive();
-  const drained=drainRenderTickBacklogTimeboxed(
+  // Physical GPUs keep the original bounded 64-step authority path;
+  // only measured slow software renderers defer work across input events.
+  const cooperativeSoftware=swiftGpu||!gpuAvailable;
+  const softwareInteractive=cooperativeSoftware&&softwareCameraGestureActive();
+  const drained=cooperativeSoftware?drainRenderTickBacklogTimeboxed(
    accumulator,step,64,softwareInteractive?
-   SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS);
+   SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS):
+   drainRenderTickBacklog(accumulator,step,64);
   if(softwareInteractive){simulationInputPrioritySlices++;
    simulationInputPriorityTicks+=drained.executed;}
   accumulator=drained.remaining;
