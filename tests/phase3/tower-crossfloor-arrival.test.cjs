@@ -273,3 +273,46 @@ test('portrait first GPU submission keeps the actual previously rendered bronze 
    [{...source,lastGuardianCrossing:{...w,guardian:{...w.guardian,active:true,health:1}}},queued],
  ]) assert.equal(admit(s,q),false);
 });
+
+
+test('first exact-source Floor9 GPU receipt keeps original cap ONLY after a physically witnessed defeated guardian crossing',async()=>{
+ const {observedQueuedOriginalCapFromGroundedReceipt:admit,
+   observedStagedOriginalCapBeforeRecordedCrossing:stage}=await loaded;
+ const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+ const exitX=cap.x+Math.floor(cap.width*.76);
+ const held={runToken:'same-run',floor:9,tick:475,sourceTick:475,
+   crossingTick:null,guardianGateRetained:true,
+   oldCapId:cap.id,oldCapX:cap.x,oldCapWidth:cap.width,
+   oldRoofY:3224000,thresholdX:exitX,nextBaseY:3240000,
+   worldWidth:480000,submittedFrames:0,visibleSeconds:0,
+   verifiedObservedFloorAdvance:true,
+   observedCrossingX:exitX+19400,observedCrossingY:3238000,
+   observedHalfWidth:9000,observedHalfHeight:14000};
+ const first={runToken:'same-run',floor:9,theme:'void',tick:475,
+   lifecycle:'running',chunkBaseY:3240000,worldWidth:480000,
+   lastGuardianCrossing:null,
+   platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}],
+   player:{x:exitX+19400,y:3238000,halfWidth:9000,halfHeight:14000,
+     health:5,grounded:true,groundedPlatformId:'f9:ground',
+     state:'standing',vy:0}};
+ const original=JSON.stringify([first,held]);
+ assert.equal(admit(first,held),true,
+   'a first F9 WebGL frame can return on the same already VERIFIED source receipt');
+ assert.equal(stage(first,held),true,
+   'its already-rendered original cap is physical geometry, not a fabricated victory');
+ assert.equal(JSON.stringify([first,held]),original);
+ for(const [source,owner] of [
+   [first,{...held,verifiedObservedFloorAdvance:false}],
+   [first,{...held,observedCrossingX:exitX-1}],
+   [first,{...held,observedCrossingY:3238001}],
+   [first,{...held,runToken:'another-run'}],
+   [first,{...held,sourceTick:476}],
+   [{...first,player:{...first.player,x:exitX-1000}},held],
+   [{...first,player:{...first.player,groundedPlatformId:'invented'}},held],
+   [{...first,platforms:[{...first.platforms[0],y:3212001}]},held],
+   [{...first,lastGuardianCrossing:{runToken:'false-claim'}},held],
+   [{...first,lifecycle:'result'},held],
+   [{...first,floor:10},held],
+ ])assert.equal(stage(source,owner),false,
+   'unproven same-tick or contradicted source must not retain the original GPU doorway');
+});
