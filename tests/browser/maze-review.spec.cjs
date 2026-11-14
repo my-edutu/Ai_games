@@ -826,11 +826,16 @@ test('a real close public encounter frames both autonomous actors and saves date
       // uncropped WebGL first-hit, not an off-camera synthetic material.
       // This wall is genuinely mutually impassable; the separately linked
       // public pressure trigger must retain its own real physical edge.
-      const guardRail=rayAt(.50,.66);
-      // Pass340: source-authentic Pass339 changed the ACTUAL camera projection:
-      // (.50,.66) now first hits the opaque cell100 body; its 2.34m crest
-      // projects above that pixel. Scan native full-frame WebGL nearby instead
-      // of requiring an off-ray cap, without shrinking, faking or removing it.
+      // Pass349 ORIGINAL 390x844 source-bound brace capture moved the first
+      // wall-body ray to (.53,.66) after the genuinely larger articulated
+      // Thornback face changed the shared camera's physical actor envelope:
+      // (.50,.66) now hits public cell118's REAL on-screen canopy. The
+      // captured native uncropped FULL frame itself proves (.53,.66) FIRST
+      // intersects actual dark cell100 wall body, while (.56,.64) intersects
+      // the original full-sized 2.34m cap. Preserve strict material,
+      // dimensions and unaltered first-hit assertions; never invent a wall
+      // behind an off-ray pixel or change framing thresholds to pass CI.
+      const guardRail=rayAt(.53,.66);
       expect(guardRail[0]?.cell,'real body must be first visible geometry at the original uncropped pixel').toBe(100);
       expect(guardRail[0]?.color,'the actual first visible sealed wall must be dark mineral').toBe('28574f');
       const railCap=foregroundPicks.flatMap(p=>p.hits).find(hit=>hit.cell===100
