@@ -191,10 +191,20 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
             score+=Math.pow(delta/.46,2)*1.8+
               Math.pow((radius-25)/14,2);
           }
-          if(minY<=roof+21 && maxY>=roof-32){
+          // The broad original-source flanking envelope must genuinely
+          // preserve the lower machines and overhead bearing structure.
+          // The old narrow near-roof eligibility silently discarded ALL
+          // authentic faces below roof-32 or above roof+21 even when the
+          // six physical planes and resource budget had accepted them.
+          const band=maxY<roof-24?'lower':
+            minY>roof+24?'upper':'contact';
+          const inVerticalEnvelope=includeOriginalFlanks
+            ? minY<=roof+upperReach && maxY>=roof-lowerReach
+            : minY<=roof+21 && maxY>=roof-32;
+          if(inVerticalEnvelope){
             const nearestY=Math.max(minY,Math.min(roof+3,maxY));
             const triangle={score:score/3+
-              Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs};
+              Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs,band};
             group.triangles.push(triangle);
             if(triangle.score<group.best)group.best=triangle.score;
           }
@@ -213,21 +223,45 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   const selected=batches.slice(0,maxBatches);
   const picked=selected.map(()=>[]);
   let remaining=maxFaces;
-  // Give each physically nearby original structural material a small
-  // guaranteed share. Remaining faces go to the globally nearest geometry.
+  const chosen=new Set();
+  const sorted=selected.flatMap((batch,j)=>batch.triangles.map(triangle=>({j,triangle})))
+    .sort((a,b)=>a.triangle.score-b.triangle.score);
+  function takeOriginal(entry){
+    if(remaining<=0 || chosen.has(entry.triangle))return false;
+    chosen.add(entry.triangle);
+    picked[entry.j].push(entry.triangle);
+    remaining--;
+    return true;
+  }
+  // The historical 3D threshold is a ROOM, not a bronze ring at roof height.
+  // Reserve a bounded part of the SAME original triangle budget for real
+  // deep/overhead Clockwork machinery before nearby roof faces saturate it.
+  // No mesh creation or synthetic faces: all choices come from the already
+  // gathered, clipped old-floor source. Ordinary/narrow extraction is intact.
+  if(includeOriginalFlanks && maxFaces>=12){
+    const lowerTarget=Math.floor(maxFaces*.22);
+    const upperTarget=Math.floor(maxFaces*.18);
+    for(const [band,target] of [['lower',lowerTarget],['upper',upperTarget]]){
+      let taken=0;
+      for(const entry of sorted){
+        if(taken>=target)break;
+        if(entry.triangle.band===band && takeOriginal(entry))taken++;
+      }
+    }
+  }
+  // Give each nearby ORIGINAL material a guaranteed share; the vertical
+  // reservations already count toward that same batch's share.
   const firstShare=Math.min(32,Math.floor(maxFaces/selected.length));
   for(let j=0;j<selected.length;j++){
-    const count=Math.min(firstShare,selected[j].triangles.length);
-    picked[j].push(...selected[j].triangles.slice(0,count));
-    remaining-=count;
+    for(const triangle of selected[j].triangles){
+      if(picked[j].length>=firstShare || remaining<=0)break;
+      takeOriginal({j,triangle});
+    }
   }
-  const rest=[];
-  for(let j=0;j<selected.length;j++)
-    for(const triangle of selected[j].triangles.slice(picked[j].length))
-      rest.push({j,triangle});
-  rest.sort((a,b)=>a.triangle.score-b.triangle.score);
-  for(let i=0;i<remaining && i<rest.length;i++)
-    picked[rest[i].j].push(rest[i].triangle);
+  for(const entry of sorted){
+    if(remaining<=0)break;
+    takeOriginal(entry);
+  }
   const geometries=[],materials=[];
   let faces=0;
   for(let j=0;j<selected.length;j++){
