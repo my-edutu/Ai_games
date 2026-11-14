@@ -107,7 +107,8 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  sourceBindVerified=false,ownerLocomotion=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
- floorTopY=NaN,side='',before=null,trials=[]
+ floorTopY=NaN,side='',before=null,trials=[],
+ previousLinkedCertified=false,previousUpperRad=0,previousLowerRad=0
 }={}){
  if(mode!=='move'||sourceClipName!=='Walking_A'||sourceWeight<.92||
   sourceWeight>1.001||!finite(sourceWeight)||sourceInstanceSame!==true||
@@ -134,6 +135,18 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   ![loaded.heelY,loaded.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
  const shift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // A 16-49ms original WebGL frame must first earn a restrained genuine
+ // 90/75mrad linked-leg improvement. Archived 390px source shoes showed
+ // this already lifts the toe 17.914mm while keeping the loaded shoe fixed;
+ // selecting 115/95mrad on the FIRST frame needlessly snaps both joints.
+ // A subsequent SAME-CLONE, SAME-CLIP, legally contiguous certified source
+ // frame may increase the measured bend by at most 45mrad hip/40mrad knee.
+ // Never infer a previous source pose from a server move label or a counter.
+ const prior=previousLinkedCertified===true&&
+  [previousUpperRad,previousLowerRad].every(finite)&&
+  Math.abs(previousUpperRad)>=.075&&Math.abs(previousUpperRad)<=.145&&
+  Math.abs(previousLowerRad)>=.045&&Math.abs(previousLowerRad)<=.11&&
+  Math.sign(previousUpperRad)===-Math.sign(previousLowerRad);
  let best=null;
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
@@ -147,9 +160,15 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    // ceiling excluded the measured 110/90mrad coupled probe before either
    // skinned outsole could establish whether it clears stone. These remain
    // smaller than the already-gated 145/110mrad slow-frame limit.
-   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:.115)||
-   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:.095)||
+   Math.abs(upperRad)<.075||Math.abs(upperRad)>(slowArc?.145:(prior?.115:.095))||
+   Math.abs(lowerRad)<.045||Math.abs(lowerRad)>(slowArc?.11:(prior?.095:.08))||
    Math.sign(upperRad)===Math.sign(lowerRad)||
+   // An observed 16-49ms source frame cannot jump across the signed
+   // hip/knee axis or exceed one consecutive source-joint arc increment.
+   (!slowArc&&prior&&
+    (Math.sign(upperRad)!==Math.sign(previousUpperRad)||
+     Math.abs(upperRad-previousUpperRad)>.045001||
+     Math.abs(lowerRad-previousLowerRad)>.040001))||
    !validShoe(after?.[side])||!validShoe(after?.[other]))continue;
   const shoe=after[side],support=after[other];
   const lift=shoe.toeY-swing.toeY,cleared=lift/depth;
@@ -170,6 +189,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
    contactLocked:false,oppositeShoePreserved:true,
+   linkedContinuity:prior?'same-certified-source-frame':'safe-first-source-frame',
    source:'measured-original-skinned-linked-leg'
   };
  }
