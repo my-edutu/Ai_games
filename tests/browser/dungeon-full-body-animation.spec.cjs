@@ -1040,6 +1040,17 @@ for(const view of [
    expect(proof?.sourceClip).toBe('Walking_A');
    expect(proof?.sourceInstanceId).toBe(t.sourceId);
    expect(proof?.liftMeters).toBeGreaterThan(.001);
+   // f235c439 actual 390px original source ankle bent 80mrad yet cleared
+   // only 9.261mm of a 106.835mm burial, leaving 97.573mm in stone.
+   // A measured source toe moving upward is NOT proof of useful clearance.
+   // Deep still-buried source shoes must now earn >=10mm AND >=10% depth
+   // before an ankle or continuation can own the displayed full-body pose.
+   const originalBurial=Math.max(0,-.02-proof.beforeToeY);
+   const remainingBurial=Math.max(0,-.02-proof.afterToeY);
+   if(originalBurial>.055&&remainingBurial>.025){
+    expect(proof.afterToeY-proof.beforeToeY).toBeGreaterThanOrEqual(
+     Math.max(.010,originalBurial*.10)-.000001);
+   }
    expect(proof?.afterToeY).toBeGreaterThan(proof?.beforeToeY);
    expect(proof?.afterHeelY).toBeGreaterThan(-.02+.045);
    // Verified ±0.2 source ankle trials allow ≤0.22rad at ≤0.08rad/frame.
