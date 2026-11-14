@@ -5538,6 +5538,11 @@ function recallSettlementSeason(key){
  if(!gpuAvailable||!settlementSeasonCache.has(key))return false;
  const entry=settlementSeasonCache.get(key);
  const civic=civicSceneryCache.get(entry.civicKey);
+ // W317: a seasonal housing buffer can have a separate road-only civic
+ // VBO. Never display it while the complete original farm/market civic
+ // core VBO has been evicted. The fallback cold-build restores ALL buildings.
+ const seasonalCore=civic?.coreGpuKey?
+  civicCoreCache.get(civic.coreGpuKey):null;
  // A recalled settlement must point at the EXACT originally cached home
  // partitions; never display last season's buildings during a new climate.
  // A saved seasonal town can be revisited after genuine new homes were built
@@ -5549,14 +5554,23 @@ function recallSettlementSeason(key){
  const homeKeysExact=recallHomeClusterKeys(entry.homeKeys);
  if(!homeKeysExact&&!homeClustersEnabled())return false;
  // A seasonal housing GPU buffer must never recall a missing civic quarter.
- if(civicGpuResidencyEnabled&&!civic?.buffer)return false;
+ if(civicGpuResidencyEnabled&&(!civic?.buffer||
+    (civic.coreGpuKey&&!seasonalCore?.buffer)))return false;
  if(civicGpuResidencyEnabled){
   civicBuffer=civic.buffer;civicChunkRanges=civic.ranges;
+  civicCoreBuffer=null;civicCoreChunkRanges=[];
+  if(seasonalCore){
+   civicCoreBuffer=seasonalCore.buffer;
+   civicCoreChunkRanges=seasonalCore.ranges;
+  }
+  activeCivicCoreKey=civic.coreGpuKey||'';
   civicSceneryCache.delete(entry.civicKey);civicSceneryCache.set(entry.civicKey,civic);
  }
  settlementSeasonCache.delete(key);settlementSeasonCache.set(key,entry);
  scenicMeshCache=entry.mesh;scenicMeshKey=key;
- scenicMeshTriangles=(entry.mesh.length+landscapeMeshCache.length+homeClusterFloats()+(civicGpuResidencyEnabled?(civic?.vertices.length||0):0))/30;
+ scenicMeshTriangles=(entry.mesh.length+landscapeMeshCache.length+
+  homeClusterFloats()+(civicGpuResidencyEnabled?(civic?.vertices.length||0):0)+
+  activeCivicCoreMesh().length)/30;
  settlementBuffer=entry.buffer;settlementChunkRanges=entry.ranges;
  Object.assign(villageVisualLod,entry.lod,{
   compactRoofPaletteCounts:entry.lod.compactRoofPaletteCounts.slice()});
@@ -5579,7 +5593,8 @@ function recallSettlementSeason(key){
   entry.street={...streetMorphologyStats,
    archetypes:streetMorphologyStats.archetypes.slice()};
   scenicMeshTriangles=(scenicMeshCache.length+landscapeMeshCache.length+
-   activeCivicMesh().length+homeClusterFloats())/30;
+   activeCivicMesh().length+activeCivicCoreMesh().length+
+   homeClusterFloats())/30;
   independentHousingRefreshes++;
   if(city.length>storedHomeCount)independentHousingGrowthSkips++;
   settlementSeasonGrowthReuses++;
