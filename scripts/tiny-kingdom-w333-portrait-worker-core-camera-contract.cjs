@@ -3,7 +3,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 const f=source.match(/function shouldRescuePortraitWorkerCore\([\s\S]*?\n\}/);
 assert(f,'real camera decision must exist in shipped game');
-const check=vm.runInNewContext(f[0]+
+const policy=source.match(/const PORTRAIT_CORE_BAD=[\s\S]*?;\n/);
+assert(policy,'committed renderer must expose the real portrait safety thresholds');
+const check=vm.runInNewContext(policy[0]+f[0]+
  '\nshouldRescuePortraitWorkerCore;',Object.create(null));
 const yes=(...args)=>assert.equal(check(...args),true);
 const no=(...args)=>assert.equal(check(...args),false);
