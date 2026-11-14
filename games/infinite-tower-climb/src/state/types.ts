@@ -32,7 +32,9 @@ export interface TowerGuardianCrossingWitness{
  exitX:number;previousX:number;previousY:number;previousHealth:number;
  crossingX:number;crossingY:number;halfWidth:number;halfHeight:number;worldWidth:number;
 }
-export interface TowerState{lastGuardianCrossing?:TowerGuardianCrossingWitness;schemaVersion:1;runId:string;seed:string;config:TowerConfig;tick:number;lifecycle:TowerLifecycle;intermissionRemaining:number;floor:number;height:number;meaningfulEventTick:number;chunks:TowerChunk[];player:TowerPlayer;enemies:TowerEnemy[];projectiles:TowerProjectile[];pickups:TowerPickup[];build:TowerBuild;pendingUpgradeOffers:TowerUpgradeOffer[];lastUpgradeId?:string;influence:TowerInfluenceState;stats:TowerStats;ai:TowerAiState;result?:TowerResult}
+// One source-owned mechanical winch after an authentic zero-health guardian.
+export interface TowerGuardianGateActuation{floor:number;guardianId:string;defeatTick:number;openAtTick:number}
+export interface TowerState{guardianGateActuation?:TowerGuardianGateActuation;lastGuardianCrossing?:TowerGuardianCrossingWitness;schemaVersion:1;runId:string;seed:string;config:TowerConfig;tick:number;lifecycle:TowerLifecycle;intermissionRemaining:number;floor:number;height:number;meaningfulEventTick:number;chunks:TowerChunk[];player:TowerPlayer;enemies:TowerEnemy[];projectiles:TowerProjectile[];pickups:TowerPickup[];build:TowerBuild;pendingUpgradeOffers:TowerUpgradeOffer[];lastUpgradeId?:string;influence:TowerInfluenceState;stats:TowerStats;ai:TowerAiState;result?:TowerResult}
 export interface TowerEvent{seq:number;tick:number;type:string;data?:Record<string,unknown>}
 export interface PhysicsContact{kind:'land'|'head'|'wall'|'hazard';entityId:string;normal:Vec2}
 export interface PhysicsStepResult{state:TowerState;contacts:PhysicsContact[];integrityFailure?:string}
