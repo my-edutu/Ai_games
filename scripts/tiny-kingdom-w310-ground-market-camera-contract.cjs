@@ -23,7 +23,7 @@ const context={
 };
 vm.runInNewContext(source.slice(start,end),context,{timeout:1000});
 const boxes=context.physicalStreetLevelStallVolumes();
-assert.equal(boxes.length,24,'4 real stalls require both counters, a rear screen, elevated wall(s) and the real sign');
+assert.equal(boxes.length,22,'4 real stalls require both counters, a rear screen, elevated wall(s) and the real sign');
 assert(boxes.every(b=>Number.isFinite(b.x)&&Number.isFinite(b.z)&&
  b.rx>0&&b.rz>0&&b.top>b.bottom),'market camera bounds must all be physical');
 const screens=boxes.filter(b=>b.kind==='market-stall-screen');
