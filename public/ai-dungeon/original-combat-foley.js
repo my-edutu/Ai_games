@@ -157,6 +157,38 @@ export function verifiedWardenWarningFoleyActor(cue){
  * No attacker is inferred for HP-only injury; '-' is a sentinel, not a source.
  * Verified release cues are checked as ACTION evidence, never contact.
  */
+/**
+ * A block sound is either an anonymous public collision event, or a uniquely
+ * guarded body with an adjacent observed HP decrease. A readable body-local
+ * shield position never grants an attacker, a hit on another body, or a target.
+ * The public planner remains responsible for the actual snapshot witness.
+ */
+function verifiedBodyBlockFoleyCue(cue){
+ if(cue?.kind!=='block'||cue.audio!=='block'||cue.visual!=='block'||
+  cue.verified!==true||cue.targetId!==null||cue.to!==null)return false;
+ if(cue.proof==='authority-event')
+  return cue.actorId===null&&cue.from===null;
+ return cue.proof==='authority-block-unique-guarded-hp'&&
+  typeof cue.actorId==='string'&&cue.actorId.length>0&&
+  cue.actorId.length<=128&&validOriginalFoleyCell(cue.from);
+}
+/**
+ * A dodge sound is authored only for a real public one-cell step confirmed
+ * by the semantic evasion planner. It never asserts a pursuer or injury.
+ */
+function validOriginalFoleyCell(cell){
+ return cell&&Number.isInteger(cell.x)&&Number.isInteger(cell.z)&&
+  cell.x>=0&&cell.z>=0&&cell.x<256&&cell.z<256;
+}
+function verifiedBodyDodgeFoleyCue(cue){
+ return cue?.kind==='evade'&&cue.audio==='evade'&&cue.visual==='evade'&&
+  cue.verified===true&&cue.proof==='authority-event-and-observed-step'&&
+  typeof cue.actorId==='string'&&cue.actorId.length>0&&
+  cue.actorId.length<=128&&cue.targetId===null&&
+  validOriginalFoleyCell(cue.from)&&validOriginalFoleyCell(cue.to)&&
+  Math.abs(cue.from.x-cue.to.x)+Math.abs(cue.from.z-cue.to.z)===1;
+}
+
 export function isCanonicalVerifiedCombatFoleyCue(cue){
  if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
   cue.id.length>256||typeof cue.sceneKey!=='string'||
@@ -170,7 +202,10 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const victim=verifiedDamageFoleyVictim(cue);
  const releaseActor=verifiedReleaseFoleyActor(cue);
  const warningActor=verifiedWardenWarningFoleyActor(cue);
- if(actor===null&&victim===null&&releaseActor===null&&warningActor===null)return false;
+ const bodyBlock=verifiedBodyBlockFoleyCue(cue);
+ const bodyDodge=verifiedBodyDodgeFoleyCue(cue);
+ if(actor===null&&victim===null&&releaseActor===null&&warningActor===null&&
+  !bodyBlock&&!bodyDodge)return false;
  // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
  // The public planner includes that target in its immutable swing ID even
  // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
@@ -180,7 +215,8 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
   (typeof aimedTarget!=='string'||aimedTarget.length<1||
    aimedTarget.length>128))return false;
  // Injury still has an anonymous perpetrator; release remains an action.
- const source=actor??releaseActor??warningActor??'-';
+ const source=actor??releaseActor??warningActor??
+  (bodyBlock||bodyDodge?cue.actorId:null)??'-';
  const target=victim??(releaseActor!==null?cue.targetId:aimedTarget)??'-';
  return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
 }
@@ -358,7 +394,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    cue.audio==='impact'||cue.audio==='fatal-impact'||
    cue.audio==='ranged-release'||cue.audio==='spell-release'||
    cue.audio==='warden-release'||
-   cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final';
+   cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final'||
+   cue.audio==='block'||cue.audio==='evade';
   if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
    dropped++;return false;
   }
