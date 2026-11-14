@@ -126,6 +126,38 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
     if(g.getActiveWorksites().length)g.watchLiveWorkday();
    });
    await filmPage.waitForTimeout(2400);
+   // Real 390px disclosure interaction, not a fake screenshot. Source-grounded
+   // mobile user must still access the complete authentic supply chain.
+   if(viewport.width===390){
+    const before=await filmPage.evaluate(()=>{
+     const ribbon=document.getElementById('world-ribbon');
+     const button=document.getElementById('world-trace-toggle');
+     return {mode:document.body.dataset.workday,
+      width:ribbon.getBoundingClientRect().width,
+      toggleWidth:button.getBoundingClientRect().width,
+      toggleHeight:button.getBoundingClientRect().height,
+      expanded:button.getAttribute('aria-expanded')};
+    });
+    if(before.mode==='live'){
+     expect(before.width).toBeLessThan(140);
+     expect(before.toggleWidth).toBeGreaterThanOrEqual(44);
+     expect(before.toggleHeight).toBeGreaterThanOrEqual(44);
+     expect(before.expanded).toBe('false');
+     await filmPage.locator('#world-trace-toggle').click();
+     const opened=await filmPage.evaluate(()=>{
+      const button=document.getElementById('world-trace-toggle');
+      const trail=document.getElementById('world-supply-trail');
+      return {expanded:button.getAttribute('aria-expanded'),
+       visible:trail.getBoundingClientRect().height>0,
+       width:document.getElementById('world-ribbon').getBoundingClientRect().width};
+     });
+     expect(opened.expanded).toBe('true');
+     expect(opened.visible).toBe(true);
+     expect(opened.width).toBeGreaterThan(before.width);
+     await filmPage.locator('#world-trace-toggle').click();
+     expect(await filmPage.locator('#world-trace-toggle').getAttribute('aria-expanded')).toBe('false');
+    }
+   }
    await info.attach('W138-real-grown-'+viewport.width+'-workday.png',{
     body:await filmPage.screenshot(),contentType:'image/png'});
    await filmPage.evaluate(()=>{
