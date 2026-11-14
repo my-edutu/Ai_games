@@ -17,19 +17,39 @@ function summarizePhysicalDoorwaySubmissions(observations, limit = 56) {
     const audit = observation?.observedPhysicalDoorwaySubmissionAudit;
     if (!Array.isArray(audit?.frames)) continue;
     for (const frame of audit.frames) {
+      // The native candidate's FIRST real F9 WebGL return may precede
+      // publication of lastGuardianCrossing. Scene then reports the separately
+      // validated same-run, source-grounded old-cap receipt (not a victory
+      // record). The old classifier rejected this genuine returned frame and
+      // incorrectly declared NO_RETAINED_BROWSER_AUDIT for both viewports.
+      // Admit ONLY that exact read-only source-evidence type, never an
+      // arbitrary null crossing or a predicted guardian defeat.
       if (!frame || frame.floor !== 9 ||
           typeof frame.runToken !== 'string' || !frame.runToken ||
-          !Number.isSafeInteger(frame.crossingTick) ||
-          !Number.isSafeInteger(frame.sourceTick) ||
-          frame.sourceTick < frame.crossingTick ||
-          frame.sourceTick - frame.crossingTick > 55) continue;
+          !Number.isSafeInteger(frame.sourceTick)) continue;
+      const hasRecord = Number.isSafeInteger(frame.crossingTick);
+      const groundedReceipt = !hasRecord &&
+        frame.crossingTick == null &&
+        frame.evidenceKind === 'verified-original-grounded-source-receipt' &&
+        Number.isSafeInteger(frame.observedOriginalReceiptTick);
+      if (!hasRecord && !groundedReceipt) continue;
+      const anchorTick = hasRecord
+        ? frame.crossingTick : frame.observedOriginalReceiptTick;
+      const ageTicks = frame.sourceTick - anchorTick;
+      if (ageTicks < 0 || ageTicks > (hasRecord ? 55 : 12)) continue;
       // Never combine a second passage after restart with the first episode.
-      const key = frame.runToken + ':' + frame.crossingTick;
+      // An actual immutable record, when subsequently available, shares the
+      // same crossing tick but retains its STRONGER distinct evidence kind.
+      const key = frame.runToken + ':' + anchorTick;
       if (!episodes.has(key)) episodes.set(key, new Map());
       const episode = episodes.get(key);
       if (!episode.has(frame.sourceTick) && episode.size < limit)
         episode.set(frame.sourceTick, {
-          ...frame, readAtMs: Number.isFinite(observation.atMs)
+          ...frame,
+          evidenceClassification: hasRecord
+            ? 'immutable-source-crossing-record'
+            : 'verified-grounded-source-receipt-only',
+          readAtMs: Number.isFinite(observation.atMs)
             ? observation.atMs : null,
           heroNdc: Array.isArray(frame.heroNdc) ? [...frame.heroNdc] : null,
           originalGateNdc: Array.isArray(frame.originalGateNdc)
@@ -48,6 +68,10 @@ function summarizePhysicalDoorwaySubmissions(observations, limit = 56) {
   const frames = [...tickMap.values()].sort((a,b)=>a.sourceTick-b.sourceTick);
   const firstFrame=frames[0];
   const originalRetained=frames.filter(f=>f.retainedOriginalGpu===true).length;
+  const originalGroundedReceiptFrames=frames.filter(f=>
+    f.evidenceClassification==='verified-grounded-source-receipt-only').length;
+  const immutableGuardianRecordFrames=frames.filter(f=>
+    f.evidenceClassification==='immutable-source-crossing-record').length;
   const bothInProjectedFrame=frames.filter(f=>f.bothInProjectedSafeFrame===true).length;
   const coreBlocked=frames.filter(f=>f.heroCoreClear===false ||
     f.originalGateCoreClear===false).length;
@@ -68,6 +92,11 @@ function summarizePhysicalDoorwaySubmissions(observations, limit = 56) {
     returnedFrameCount:frames.length,
     firstReturnedSourceGapTicks:firstFrame.sourceTick-firstFrame.crossingTick,
     retainedOriginalGpuFrames:originalRetained,
+    originalGroundedReceiptFrames,
+    immutableGuardianRecordFrames,
+    guardianVictoryProof:immutableGuardianRecordFrames > 0
+      ? 'IMMUTABLE_CROSSING_RECORD_OBSERVED'
+      : 'NOT EVALUATED — receipt alone never certifies guardian defeat',
     bothInProjectedSafeFrameCount:bothInProjectedFrame,
     originalGatewayOutOfSafeCameraCount:gatewayNotFramed,
     heroOutOfSafeCameraCount:heroNotFramed,
