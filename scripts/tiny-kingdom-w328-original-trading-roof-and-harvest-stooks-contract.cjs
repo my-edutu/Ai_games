@@ -3,7 +3,7 @@
 // assertion. Strictly presentational original farm and market work corridor.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const script=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const script=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/i)?.[1];
 assert(script,'production inline game missing');
 new vm.Script(script,{filename:'tiny-kingdom-index.js'});
 const start=html.indexOf('function grainwardMarketArcadePlan(){'),
@@ -18,7 +18,7 @@ const ctx={data,Math,MARKET_STALLS:[{x:-5.4,z:2.25},{x:4.45,z:2.95},{x:4.30,z:8.
  quad:(a,b,c,d,color)=>{for(const pt of [a,b,c,d])assert(pt.every(Number.isFinite));faces.push({material:ctx.current,pts:[a,b,c,d]});data.length+=60;}
 };
 vm.createContext(ctx);
-vm.runInContext(marketCode+'\\ngrainwardTradeArcade();',ctx);
+vm.runInContext(marketCode+'\ngrainwardTradeArcade();',ctx);
 assert.equal(stats.grainwardArcadeSpans,2);
 assert.equal(stats.arcadeRoofTileFaces,64);
 assert.equal(stats.arcadeRoofUndersides,8);
@@ -40,11 +40,11 @@ const grain={Math,data:mesh,farmScene,MATERIAL:{FOLIAGE:1,WOOD:2},
  box:()=>{mesh.length+=360},
  taperedBranch:()=>{throw Error('old toy stalk tubes must be gone')},
  cone:()=>{throw Error('old cone spike must be gone')}};
-vm.createContext(grain);vm.runInContext(grainCode+'\\ngrainShocks();',grain);
+vm.createContext(grain);vm.runInContext(grainCode+'\ngrainShocks();',grain);
 assert.equal(farmScene.bundles,4);
 assert.equal(farmScene.grainShockStems,28);
 assert.equal(farmScene.grainShockTriangles,160);
 assert(farmScene.grainShockTriangles+stats.grainwardArcadeTriangles<500,
  'original live work corridor should recover headroom rather than inflate the 160k budget');
-assert(!/people\\.push\\(|city\\.push\\(|Math\\.random\\(/.test(marketCode+grainCode));
+assert(!/people\.push\(|city\.push\(|Math\.random\(/.test(marketCode+grainCode));
 console.log('W328 actual game geometry PASS: 64 joined clay roof tiles, open 2 merchant arcades; 4 original 7-sheaf bound harvest stooks; no new actors, economy or GPU buffers. Live A/B and hardware FPS NOT PROVEN');
