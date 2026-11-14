@@ -77,6 +77,7 @@ assert(Math.abs(actual.at(-1).segments[1][1][0]-(3+rig.legs[0].knee[2]))<1e-6,
  'actual worksite focus must rotate the GPU-skinned body/tools like original villager()');
 rig.working=false;
 // Exact unchanged world must reuse existing bounded palette, not resculpt it.
+compose(entry,person,'compactBonePalette',false);
 const before=actual.length;
 compose(entry,person,'compactBonePalette',false);
 assert.equal(actual.length,before,'repeat draw without world movement must reuse original 208-float palette');
