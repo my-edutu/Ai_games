@@ -130,6 +130,8 @@ test('authentic 475-tick autonomous danger capture does not jump over earned gro
   assert.equal(arrived.lastGuardianCrossing?.sourceTick,475);
   assert.equal(arrived.player.grounded,true);
   assert.equal(arrived.player.groundedPlatformId,'f9:ground');
+  assert.equal(arrived.ai.recentHeights.length,1,
+    'newly generated Floor Nine must not inherit 32 stale grounded heights from the old guardian arena');
   const realRoof=arrived.chunks.find(c=>c.floor===9).platforms
     .find(p=>p.id==='f9:ground');
   assert.equal(arrived.player.position.y-arrived.player.halfHeight,
