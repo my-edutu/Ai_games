@@ -50,8 +50,18 @@ for(const field of ['cache.cityTopology===cameraArchitectureTopologyKey()',
  'now-cache.at<1100','cache.citySize===city.length']){
  assert(planner.includes(field),'actual-frame planner must enforce '+field);
 }
-assert(anchor.includes('shot.blockers!==0')&&
- anchor.includes('shot.vegetationFaceBlockers>0')&&
- anchor.includes('!isWorkingAtSite(person)'),
- 'only unobstructed genuine employed citizens may own the camera');
+// W309: the former strict face-only admission discarded genuine physically
+// surveyed viewpoints, reverting to a stale market yaw behind freight walls.
+// A partly occluded real-worker shot may be retained ONLY when its camera eye
+// and roof rays have been checked and body/hand visibility is bounded.
+// The world, worksite and actor remain real and cannot be hidden for filming.
+assert(anchor.includes('shot.eyeCollision?.clear===true')&&
+ anchor.includes('shot.blockers===0')&&
+ anchor.includes('shot.handBlockers<=2')&&
+ anchor.includes('shot.vegetationFaceBlockers===0')&&
+ anchor.includes('shot.foregroundSceneCover<.42')&&
+ anchor.includes('shot.projectedWorkerHeightFraction>')&&
+ anchor.includes('!isWorkingAtSite(person)')&&
+ anchor.includes('documentaryFullyClear:Boolean(row.clear)'),
+ 'only genuine working citizens with a physically unobstructed exterior eye and inspectable on-screen bodies may own the camera');
 console.log('W199 original-source workday IK + exact physical camera cache PASS; no FPS, image, independent critic or replay claim.');
