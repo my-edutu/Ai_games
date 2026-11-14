@@ -771,15 +771,20 @@ for(const view of [
   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
    proof.before?.[side]?.toeY+.011999);
   expect(Math.sign(proof.upperRad)).not.toBe(Math.sign(proof.lowerRad));
-  // A larger connected hip-knee arc is legal only in a witnessed >=50ms
+  // The measured dual-shoe source frame sets its own fast/slow arc cap;
+  // the original 33ms source-bound trial is NOT an unverified long-frame cue.
   // fully weighted original walking frame, never by inventing a foot plant.
   const extended=Math.abs(proof.upperRad)>.105001||
    Math.abs(proof.lowerRad)>.075001;
   if(extended){
-   expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.05);
-   expect(proof.witnessedSourceWeight).toBeGreaterThanOrEqual(.95);
-   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.145001);
-   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.110001);
+   const slowSource=proof.witnessedFrameIntervalSeconds>=.05&&
+    proof.witnessedSourceWeight>=.95;
+   // Actual 33ms source-GLB fast frames can now test <=115/95mrad
+   // linked arcs, but may only be committed after two-shoe proof.
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(
+    slowSource?.145001:.115001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(
+    slowSource?.110001:.095001);
   }else{
    expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.105001);
    expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.075001);
