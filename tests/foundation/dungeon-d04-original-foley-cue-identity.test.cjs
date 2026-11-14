@@ -31,7 +31,7 @@ const injury=(tick=8,targetId='revenant',fatal=false)=>({
  sceneKey:'1:1',tick,kind:fatal?'damage-fatal':'damage',visual:'hit',
  audio:fatal?'fatal-impact':'impact',proof:'observed-hp-drop',
  verified:true,actorId:null,targetId,from:null,to:{x:3,z:2},
- detail:{damage:12,maxHp:20},priority:6,severity:.6
+ detail:{damage:12,maxHp:20,remainingHp:fatal?0:8},priority:6,severity:.6
 });
 
 test('D04 strict original foley refuses a swing with a borrowed event identity',async()=>{
