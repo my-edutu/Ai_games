@@ -203,6 +203,26 @@ function verifiedEarnedCounterFoleyVictim(cue){
   cue.targetId:null;
 }
 
+/**
+ * Decisive, interrupt and Warden-recovery sounds require distinct semantic
+ * public witnesses. Anonymous defeat/interrupt events cannot invent bodies,
+ * successful strikes or HP loss. A Warden recovery names only its publicly
+ * observed performer; even a valid cell is not proof of physical contact.
+ * The D04 planner alone is responsible for observing the actual snapshots.
+ */
+function verifiedDecisiveOrRecoveryFoleyCue(cue){
+ if(cue?.verified!==true||cue.targetId!==null||cue.to!==null)return false;
+ if(cue.kind==='interrupt'||cue.kind==='defeat')
+  return cue.audio===cue.kind&&cue.visual===(cue.kind==='interrupt'?'interrupt':'outcome')&&
+   cue.proof==='authority-event'&&cue.actorId===null&&cue.from===null;
+ if(cue.kind==='opening')
+  return cue.audio==='recovery'&&cue.visual==='opening'&&
+   cue.proof==='authority-opening-recovery-window'&&
+   typeof cue.actorId==='string'&&cue.actorId.length>0&&
+   cue.actorId.length<=128&&validOriginalFoleyCell(cue.from);
+ return false;
+}
+
 export function isCanonicalVerifiedCombatFoleyCue(cue){
  if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
   cue.id.length>256||typeof cue.sceneKey!=='string'||
@@ -219,8 +239,9 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const bodyBlock=verifiedBodyBlockFoleyCue(cue);
  const bodyDodge=verifiedBodyDodgeFoleyCue(cue);
  const counterVictim=verifiedEarnedCounterFoleyVictim(cue);
+ const semanticWitness=verifiedDecisiveOrRecoveryFoleyCue(cue);
  if(actor===null&&victim===null&&releaseActor===null&&warningActor===null&&
-  counterVictim===null&&!bodyBlock&&!bodyDodge)return false;
+  counterVictim===null&&!bodyBlock&&!bodyDodge&&!semanticWitness)return false;
  // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
  // The public planner includes that target in its immutable swing ID even
  // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
@@ -231,7 +252,7 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
    aimedTarget.length>128))return false;
  // Injury still has an anonymous perpetrator; release remains an action.
  const source=actor??releaseActor??warningActor??
-  (bodyBlock||bodyDodge?cue.actorId:null)??'-';
+  (bodyBlock||bodyDodge||semanticWitness&&cue.kind==='opening'?cue.actorId:null)??'-';
  const target=victim??counterVictim??
   (releaseActor!==null?cue.targetId:aimedTarget)??'-';
  return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
@@ -411,7 +432,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    cue.audio==='ranged-release'||cue.audio==='spell-release'||
    cue.audio==='warden-release'||
    cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final'||
-   cue.audio==='block'||cue.audio==='evade'||cue.audio==='counter';
+   cue.audio==='block'||cue.audio==='evade'||cue.audio==='counter'||
+   cue.audio==='interrupt'||cue.audio==='defeat'||cue.audio==='recovery';
   if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
    dropped++;return false;
   }
