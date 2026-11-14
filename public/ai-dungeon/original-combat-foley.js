@@ -188,6 +188,20 @@ function verifiedBodyDodgeFoleyCue(cue){
   validOriginalFoleyCell(cue.from)&&validOriginalFoleyCell(cue.to)&&
   Math.abs(cue.from.x-cue.to.x)+Math.abs(cue.from.z-cue.to.z)===1;
 }
+/**
+ * A counter stinger is a public witnessed Warden HP-loss opportunity, not
+ * evidence of a particular sword or attacker. The planner requires the
+ * actual adjacent recovery window and HP decline; foley checks its immutable
+ * victim-only cue and cell without trusting an arbitrary named recipe.
+ */
+function verifiedEarnedCounterFoleyVictim(cue){
+ return cue?.kind==='counter'&&cue.audio==='counter'&&
+  cue.visual==='counter'&&cue.proof==='authority-counter-and-HP'&&
+  cue.actorId===null&&cue.from===null&&
+  typeof cue.targetId==='string'&&cue.targetId.length>0&&
+  cue.targetId.length<=128&&validOriginalFoleyCell(cue.to)?
+  cue.targetId:null;
+}
 
 export function isCanonicalVerifiedCombatFoleyCue(cue){
  if(cue?.verified!==true||typeof cue.id!=='string'||cue.id.length<1||
@@ -204,8 +218,9 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  const warningActor=verifiedWardenWarningFoleyActor(cue);
  const bodyBlock=verifiedBodyBlockFoleyCue(cue);
  const bodyDodge=verifiedBodyDodgeFoleyCue(cue);
+ const counterVictim=verifiedEarnedCounterFoleyVictim(cue);
  if(actor===null&&victim===null&&releaseActor===null&&warningActor===null&&
-  !bodyBlock&&!bodyDodge)return false;
+  counterVictim===null&&!bodyBlock&&!bodyDodge)return false;
  // A witnessed sword ATTEMPT can carry a uniquely verified aim target.
  // The public planner includes that target in its immutable swing ID even
  // though an aimed blade DOES NOT prove a collision or loss of HP. Previously
@@ -217,7 +232,8 @@ export function isCanonicalVerifiedCombatFoleyCue(cue){
  // Injury still has an anonymous perpetrator; release remains an action.
  const source=actor??releaseActor??warningActor??
   (bodyBlock||bodyDodge?cue.actorId:null)??'-';
- const target=victim??(releaseActor!==null?cue.targetId:aimedTarget)??'-';
+ const target=victim??counterVictim??
+  (releaseActor!==null?cue.targetId:aimedTarget)??'-';
  return cue.id===`${cue.sceneKey}:${cue.tick}:${cue.kind}:${source}:${target}`;
 }
 
@@ -395,7 +411,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    cue.audio==='ranged-release'||cue.audio==='spell-release'||
    cue.audio==='warden-release'||
    cue.audio==='boss-warning-rising'||cue.audio==='boss-warning-final'||
-   cue.audio==='block'||cue.audio==='evade';
+   cue.audio==='block'||cue.audio==='evade'||cue.audio==='counter';
   if(requireVerifiedContact&&authorityBoundAudio&&!canonicalWitness){
    dropped++;return false;
   }
