@@ -15656,6 +15656,9 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    visiblePlots:0,culledPlots:0};
  let drawCalls=0,triangles=0,culledPlots=0,closest=Infinity;
  let atLeastOneNear=false,visibleRows=0,culledRows=0;
+ // Retain every genuinely visible source-row command before submitting it.
+ // All actual wheat roots, near/far tiers and authoritative work remain intact.
+ const rowDrawCommands=[];
  const requests=[];
  for(let i=0;i<FARMSTEAD.fields.length;i++){
   const nearRange=farmFieldNear.ranges[i],farRange=farmFieldFar.ranges[i];
@@ -15712,10 +15715,10 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   const mesh=mode==='near'?farmFieldNear:farmFieldFar;
   const range=mesh.ranges[i],pieces=request.rowPairs?
    request.rowPairs.map(row=>row[mode]):[range];
-  bindGeometry(mesh.buffer);
   let first=-1,count=0,shown=0,stems=0;
   const drawRanges=[];
-  const submit=()=>{if(count){gl.drawArrays(gl.TRIANGLES,first,count);
+  const submit=()=>{if(count){
+   rowDrawCommands.push({buffer:mesh.buffer,first,count});
    drawRanges.push({first,count});
    farmFieldDrawCalls++;drawCalls++;count=0;}};
   // Contiguous authentic field rows coalesce to one retained-GPU call.
@@ -15733,6 +15736,58 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    totalRows:FARMSTEAD.fields[i][4],distance:request.distance,
    realWork:request.realWork});
  }
+
+ // Phase 1 retained-field driver spine: issue the original selected planted
+ // rows, with no synthetic crops or changes to the authoritative world.
+ // Only physical WebGL drivers exposing WEBGL_multi_draw batch calls; software
+ // and unsupported hardware submit every previous source range in exact order.
+ // Hard cap each native call at 256 source rows, with bounded reusable tuples.
+ let driverCalls=0,multiDrawBatches=0,fieldBufferBinds=0;
+ const nativeBatch=typeof scenicMultiDrawExtension!=='undefined'&&
+  scenicMultiDrawExtension&&typeof swiftGpu!=='undefined'&&!swiftGpu&&
+  typeof scenicMultiDrawOverride!=='undefined'&&
+  scenicMultiDrawOverride!==false&&
+  typeof scenicMultiDrawExtension.multiDrawArraysWEBGL==='function';
+ if(nativeBatch&&rowDrawCommands.length>1){
+  // All farm materials use opaque depth-tested triangles. Group by the
+  // ALREADY resident source VBO: every real row keeps its original indices,
+  // material and near/far quality; the camera never silently deletes plots.
+  const grouped=new Map();
+  for(const command of rowDrawCommands){
+   if(!grouped.has(command.buffer))grouped.set(command.buffer,[]);
+   grouped.get(command.buffer).push(command);
+  }
+  const maxRowsPerBatch=256;
+  const firsts=new Int32Array(maxRowsPerBatch);
+  const counts=new Int32Array(maxRowsPerBatch);
+  for(const [gpuBuffer,rows] of grouped){
+   bindGeometry(gpuBuffer);fieldBufferBinds++;
+   for(let offset=0;offset<rows.length;offset+=maxRowsPerBatch){
+    const n=Math.min(maxRowsPerBatch,rows.length-offset);
+    if(n===1){
+     gl.drawArrays(gl.TRIANGLES,rows[offset].first,rows[offset].count);
+    }else{
+     for(let j=0;j<n;j++){
+      firsts[j]=rows[offset+j].first;
+      counts[j]=rows[offset+j].count;
+     }
+     scenicMultiDrawExtension.multiDrawArraysWEBGL(
+      gl.TRIANGLES,firsts,0,counts,0,n);
+     multiDrawBatches++;
+    }
+    driverCalls++;
+   }
+  }
+ }else{
+  let boundBuffer=null;
+  for(const command of rowDrawCommands){
+   if(command.buffer!==boundBuffer){
+    bindGeometry(command.buffer);fieldBufferBinds++;boundBuffer=command.buffer;
+   }
+   gl.drawArrays(gl.TRIANGLES,command.first,command.count);
+   driverCalls++;
+  }
+ }
  farmFieldLod=atLeastOneNear?'near':'far';
  farmFieldLastDistance=closest;
  farmFieldLastTriangles=triangles;
@@ -15745,9 +15800,12 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   minimumShortfall:choice.shortfall,originalPlotsPreserved:true,
   droppedPlotsForBudget:choice.droppedPlots,
   outsideFrustum:culledPlots,visibleRows,culledRows,rowDrawCalls:drawCalls,
+  driverCalls,multiDrawBatches,fieldBufferBinds,
+  driverMode:multiDrawBatches?'native-multi-draw':'original-draw-arrays',
   originalPlantedRows:FARMSTEAD.fields.reduce((n,f)=>n+f[4],0),
   realWorkersInView:requests.filter(r=>r.realWork).length};
- return {drawCalls,triangles,mode:farmFieldLod,distance:closest,
+ return {drawCalls,driverCalls,multiDrawBatches,fieldBufferBinds,
+  triangles,mode:farmFieldLod,distance:closest,
   visiblePlots:drawn.length,culledPlots,drawnPlots:drawn,visibleRows,culledRows,
   budget: {...farmFieldSceneBudgetAudit}};
 }
