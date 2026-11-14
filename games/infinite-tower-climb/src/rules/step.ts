@@ -115,5 +115,21 @@ state.player.groundedPlatformId=groundedGatewayArrival?entryGround!.id:undefined
      worldWidth:state.config.worldWidth
    };
  }else state.lastGuardianCrossing=undefined;
- state.player.checkpoint={...state.player.position};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id),...(guardianPassage?{guardianPassage,gatewayArrivalX}:{})}})}}}
+ state.player.checkpoint={...state.player.position};state.player.checkpointFloor=nextFloor;state.player.health=Math.min(state.player.maxHealth,state.player.health+1);state.player.invulnerableTicks=12;state.chunks.push(next);state.chunks=state.chunks.filter(c=>c.floor>=nextFloor-state.config.visibleChunkCount+1);state.enemies=content.enemies;state.pickups=content.pickups;state.projectiles=[];state.ai.targetPlatformId=undefined;
+// A genuine defeated-guardian crossing creates a NEW traversable floor and
+// a NEW physical support epoch. The 32-tick height-stagnation window from
+// the old arena contains real guardian-winch wait/duel frames, NOT a stuck
+// Floor Nine climber. Preserving that window made the autonomous policy
+// trigger its emergency stuck-recovery JUMP on the very first F9 tick,
+// overruling the grounded gateway stride in both original 1x films.
+// Retire only this *old-floor* observation history after source-authenticated
+// floor movement and next-floor ground contact. Runtime.step will record
+// the first real successor height as usual. Do not bypass enemies, hazards,
+// physics, collision, source input or the normal later-floor stuck detector;
+// unflagged/historical and unsupported crossings remain byte-identical.
+if(guardianPassage && groundedGatewayArrival &&
+   state.config.guardianArenaHazards===true &&
+   state.config.guardianSecondWind===true)
+  state.ai.recentHeights=[];
+state.meaningfulEventTick=state.tick;if(nextFloor%state.config.upgradeInterval===0)state.pendingUpgradeOffers=offerTowerUpgrades(state,rng,nextFloor);events.push({tick:state.tick,type:'floor-complete',data:{floor:nextFloor,theme:next.theme,guardian:next.guardian,upgradeOffers:state.pendingUpgradeOffers.map(x=>x.id),...(guardianPassage?{guardianPassage,gatewayArrivalX}:{})}})}}}
   return{state,events,accepted:true}}
