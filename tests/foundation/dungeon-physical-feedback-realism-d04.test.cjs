@@ -997,3 +997,55 @@ test('D04 ranger and cultist releases require current unique public action witne
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+test('a live authoritative Warden warning keeps all eight threatened-cell glyphs under unrelated signal-pool pressure',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
+ const {T,scene}=three();
+ const cells=Array.from({length:8},(_,i)=>({x:2+i,z:3}));
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:2,z:2,
+  hp:45,action:'cast',actionTick:12};
+ let latest={run:1,floor:1,tick:11,units:[warden],
+  bossWarning:{warning:true,attackTick:12,turnsUntilImpact:1,
+   shape:'RIFT_CROSS',cells}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  getCurrentSnapshot:()=>latest,
+  actorById:id=>id==='warden'?{
+   u:warden,authored:false,
+   root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}
+  }:null
+ });
+ const warning=cue({id:'1:1:11:boss-warning:warden:-',
+  kind:'boss-warning',visual:'warning',audio:'boss-warning',
+  actorId:'warden',targetId:null,proof:'authority-warning-window',
+  priority:5,from:{x:2,z:2},to:null,
+  detail:{cells,attackTick:12,shape:'RIFT_CROSS',
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}});
+ const unrelatedCounter=cue({id:'1:1:11:counter:-:warden',
+  kind:'counter',visual:'counter',audio:'counter',
+  proof:'authority-counter-and-HP',actorId:null,targetId:'warden',
+  priority:7,from:null,to:{x:4,z:4}});
+ try{
+  assert.equal(stage.emit(warning),true);
+  assert.equal(stage.stats().instancesByPool.signal,8);
+  assert.equal(stage.stats().activeDrawCalls,1);
+  assert.equal(stage.emit(unrelatedCounter),false,
+   'unrelated higher-priority body glyph cannot steal a confirmed live hazard cell');
+  assert.equal(stage.stats().instancesByPool.signal,8,
+   'all eight current public danger-cell markers remain drawable');
+  assert.equal(stage.stats().preempted,0,
+   'a valid hazard must not be counted as displaced cosmetic art');
+  // Actual release closes only the matching spent hazard; it may then
+  // consume the reclaimed slot. No reserved instances or new draw calls.
+  latest={...latest,tick:12,bossWarning:null};
+  const release=cue({id:'1:1:12:warden-release:warden:-',
+   tick:12,kind:'warden-release',visual:'warden',audio:'warden-release',
+   proof:'authority-action',actorId:'warden',targetId:null,
+   priority:7,from:{x:2,z:2},to:null});
+  assert.equal(stage.emit(release),true,
+   'genuine release still retires its spent warning and gets a body glyph');
+  assert.equal(stage.stats().instancesByPool.signal,1);
+  assert.ok(stage.stats().retiredWarningMarkers>=8);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
+});
