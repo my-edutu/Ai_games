@@ -255,6 +255,23 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    lastVerifiedSwing=new Map(),swingOnsets=[],confirmedCueIds=new Set(),
     recentOriginalStarts=[];
  const now=()=>clamp(ctx?.currentTime,0,1e12,0);
+ // Optional Web Audio output timestamp bridges the AudioContext clock to the
+ // host performance clock. This is an ESTIMATE, never decoded PCM or proof
+ // that a sample reached the speaker/video encoder. Failure is telemetry-only.
+ function estimatedOutputPerformanceMs(scheduledContextSeconds){
+  if(typeof ctx?.getOutputTimestamp!=='function')return null;
+  try{
+   const stamp=ctx.getOutputTimestamp();
+   if(!Number.isFinite(stamp?.contextTime)||stamp.contextTime<0||
+    !Number.isFinite(stamp?.performanceTime)||stamp.performanceTime<0||
+    !Number.isFinite(scheduledContextSeconds)||scheduledContextSeconds<0||
+    Math.abs(scheduledContextSeconds-stamp.contextTime)>1)return null;
+   const projected=stamp.performanceTime+
+    (scheduledContextSeconds-stamp.contextTime)*1000;
+   return Number.isFinite(projected)&&projected>=0?
+    Math.round(projected):null;
+  }catch{return null}
+ }
  const usable=()=>ctx&&typeof ctx.createGain==='function'&&
   typeof ctx.createBuffer==='function'&&typeof ctx.createBufferSource==='function'&&
   typeof ctx.createBiquadFilter==='function'&&typeof ctx.createOscillator==='function';
@@ -466,6 +483,8 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
       cue.sceneKey:null,
      tick:Number.isSafeInteger(cue?.tick)?cue.tick:null,
      scheduledContextMs:Math.round(t*1000),
+     // Estimate only; never compare to decoded WebM PCM without clock calibration.
+     estimatedOutputPerformanceMs:estimatedOutputPerformanceMs(t),
      startedSources:sources.length,
      verifiedCanonicalCue:canonicalWitness,
      sampleSynchronized:false
