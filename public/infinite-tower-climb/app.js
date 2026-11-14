@@ -3,6 +3,7 @@ import { createTowerAudio } from './visuals/audio.mjs';
 import { createHUD } from './visuals/hud.mjs';
 import { nextTowerStatePollDelay } from './visuals/live-state-cadence.mjs';
 import { createPresentedPhaseLatch } from './visuals/presented-phase-latch.mjs';
+import { createTowerLiveHudDiagnostics } from './visuals/live-hud-diagnostics.mjs';
 
 const params = new URLSearchParams(location.search);
 const enabled = name => ['1', 'true'].includes(params.get(name));
@@ -42,7 +43,7 @@ try {
       // retained in the source-only accessibility path below.
       const committed = presentedPhase.submitted(exactSnapshot);
       if (!committed || closed || suspended) return;
-      const d = window.__TOWER_RENDER_DIAGNOSTICS__?.() || {};
+      const d = createTowerLiveHudDiagnostics(view, audio, request, presentedPhase);
       hud.update(committed, { ...d, sourceScene: committed.scene });
     },
   });
@@ -70,7 +71,7 @@ async function poll() {
     presentedPhase.accept(data);
     view?.accept(data);
     audio.accept(data);
-    const diagnostics = window.__TOWER_RENDER_DIAGNOSTICS__();
+    const diagnostics = createTowerLiveHudDiagnostics(view, audio, request, presentedPhase);
     const renderState = diagnostics.renderProgress?.state;
     const faultState = diagnostics.renderFault?.state;
     const graphicsFault = faultState === 'retrying' || faultState === 'failed';
