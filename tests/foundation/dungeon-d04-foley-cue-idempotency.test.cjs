@@ -152,8 +152,16 @@ for(const phase of ['allocate','start']){
   // Five neutral audition recipes plus three 55ms-later repeats fill eight
   // live voices before the shortest 155ms original voice can expire.
   const neutral=['draw','cast-dry','utility','guard','threat-warning'];
-  neutral.forEach((audio,i)=>
-   assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio));
+  neutral.forEach((audio,i)=>{
+   // An anonymous alert now requires the real public event-shaped neutral
+   // warning witness; preemption fixtures may not use fabricated Warden audio.
+   const cue=audio==='threat-warning'?{
+    audio,kind:'threat-warning',id:'1:1:1:threat-warning:-:-',
+    sceneKey:'1:1',tick:1,visual:'none',actorId:null,targetId:null,
+    from:null,to:null,verified:true,proof:'authority-event',priority:1
+   }:{audio,id:'low-'+i,priority:1};
+   assert.equal(engine.emit(cue),true,audio);
+  });
   fixture.ctx.currentTime=.055;
   ['draw','cast-dry','utility'].forEach((audio,i)=>
    assert.equal(engine.emit({audio,id:'low-repeat-'+i,priority:1}),true,audio));
