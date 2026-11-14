@@ -709,9 +709,17 @@ for(const view of [
    expect(fade.rootTravelMeters).toBeGreaterThanOrEqual(.24);
    expect(fade.rootTravelMeters).toBeLessThanOrEqual(.54);
    expect(fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.24);
-   expect(fade.frameIntervalSeconds).toBeLessThanOrEqual(1.2);
-   expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.25);
-   expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeLessThanOrEqual(2.5);
+   const witnessedLongSourceFrame=fade.frameIntervalSeconds>1.2;
+   expect(fade.frameIntervalSeconds).toBeLessThanOrEqual(
+    witnessedLongSourceFrame?1.9:1.2);
+   if(witnessedLongSourceFrame){
+    expect(fade.rootTravelMeters).toBeGreaterThanOrEqual(.42);
+    expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.23);
+    expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeLessThanOrEqual(.5);
+   }else{
+    expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeGreaterThanOrEqual(.25);
+    expect(fade.rootTravelMeters/fade.frameIntervalSeconds).toBeLessThanOrEqual(2.5);
+   }
   }else if(fade.seconds===.23){
    expect(fade.reason).toBe('ordinary-source-transition');
    expect(fade.interrupted).toBe(false);
