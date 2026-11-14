@@ -63,9 +63,11 @@ test('wrong run, undefeated guardian, false ground or old GPU never authorize or
     [{...source,player:{...source.player,health:0}},held],
     [source,{...held,guardianGateRetained:false}],
     [source,{...held,oldRoofY:9999}],
-    [source,{...held,submittedFrames:11}],
-    [source,{...held,visibleSeconds:1.7}]
+    [source,{...held,submittedFrames:61}],
+    [source,{...held,visibleSeconds:3}]
   ])assert.equal(samplePresence(s,h),null);
+  assert.equal(samplePresence(source,{...held,submittedFrames:11,visibleSeconds:1.7})?.sourceBound,true,
+    'late valid source epoch can still own its original materials until the real departure');
 });
 test('actual old gateway/clad cap use one source-controlled, bounded original-material transition',()=>{
   const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
