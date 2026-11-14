@@ -44,19 +44,20 @@ yes({}, {visible:false});yes({activity:'Exploring the valley'});
  no({}, {verifiedMeal:true});no({provisions:.8},{verifiedMeal:true});
  no({activity:'Traveling home with provisions',provisions:.8});
 no({delivery:{id:'Bram:32'}});no({}, {unload:true});no({}, {working:true});
-// W296's actual 27%-enter/32.5%-hold ORIGINAL commuter full-body
-// GPU joint rig now covers readable mid-shots. A selected worker, receipt,
-// real tool contact or earned household meal still uses live CPU hands.
+// W332's actual 39%-enter/45%-hold original 13-joint medium-shot
+// GPU rig covers only unselected, NON-CONTACT citizens. Selected workers,
+// earned food, true tools and verified meals still need live CPU hands.
 yes({}, {height:.16});yes({}, {height:.21});
-yes({}, {height:.269});no({}, {height:.270});
+yes({}, {height:.389});no({}, {height:.390});
 yes({}, {height:.30,cached:true});
-yes({}, {height:.324,cached:true});
-no({}, {height:.325,cached:true});
+yes({}, {height:.449,cached:true});
+no({}, {height:.450,cached:true});
 no({}, {skin:false});no({}, {gpu:false});
 no({}, {follow:true,selectedIndex:2});no({}, {documentary:true,selectedIndex:2});
 no({activity:'Unloading grain'});no({activity:'Collecting household provisions'});
 no({activity:'Forging a hinge'});no({phase:NaN});
-no({}, {height:.33,visible:true});
+yes({}, {height:.33,visible:true});
+no({}, {height:.46,visible:true});
 const fn=html.slice(html.indexOf('function getForegroundSkinAudit('),
  html.indexOf('let actorGpuStaging=',html.indexOf('function getForegroundSkinAudit(')));
 assert(fn.includes('passiveSkinnedWithoutReceiptMeal:true'));

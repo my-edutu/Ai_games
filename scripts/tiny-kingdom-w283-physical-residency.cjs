@@ -9,15 +9,16 @@ const section=(start,end)=>{
 const gpu=section('const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=', 'function isForegroundWalkingSkinCandidate(');
 const ctx={Number,Math};
 vm.runInNewContext(gpu+';this.gate=physicallySmallWalkingSkinWindow;',ctx);
-// W296 admits faithful 13-joint commuter rigs to the original 27% body
-// height, then retains them to 32.5%; no false filmed close-hand contact.
+// W332 admits unselected NON-CONTACT authentic full-body 13-joint
+// citizen rigs to 39% of the vertical field and holds to 45%.
+// Real labor, freight hands, follow hero and credited meal remain CPU live.
 assert.equal(ctx.gate(.17,false),true);
-assert.equal(ctx.gate(.269,false),true);
-assert.equal(ctx.gate(.270,false),false);
-assert.equal(ctx.gate(.295,false),false);
-assert.equal(ctx.gate(.295,true),true);
-assert.equal(ctx.gate(.324,true),true);
-assert.equal(ctx.gate(.325,true),false);
+assert.equal(ctx.gate(.389,false),true);
+assert.equal(ctx.gate(.390,false),false);
+assert.equal(ctx.gate(.395,false),false);
+assert.equal(ctx.gate(.395,true),true);
+assert.equal(ctx.gate(.449,true),true);
+assert.equal(ctx.gate(.450,true),false);
 assert.equal(ctx.gate(NaN,true),false);
 assert.equal(ctx.gate(-1,true),false);
 const blockers={clear:false},actor={

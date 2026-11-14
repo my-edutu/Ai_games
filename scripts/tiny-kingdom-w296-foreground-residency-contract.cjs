@@ -18,7 +18,8 @@ assert(!workWindow(.32,false,true),'portrait-sized foreground hero still needs l
 assert(!workWindow(.22,false,false),'driver with no skin must preserve original large-worker CPU behavior');
 assert(walkingWindow(.255,false),'real mid-shot non-working commuter should use full detailed original GPU rig');
 assert(walkingWindow(.31,true),'real previously admitted commuter should not continuously re-upload at close orbit');
-assert(!walkingWindow(.37,true),'larger person must still use original live CPU sculpt');
+assert(walkingWindow(.37,true),'W332 original full 13-joint medium-shot body remains resident');
+assert(!walkingWindow(.46,true),'truly large actor must still use original live CPU sculpt');
 const selection=source('function foregroundResidentBudgetAdmits(', 'function prepareForegroundResidents(');
 const accepts=evalWindow(selection,'foregroundResidentBudgetAdmits');
 assert(accepts(120000,0,760000));assert(accepts(180000,570000,760000));
