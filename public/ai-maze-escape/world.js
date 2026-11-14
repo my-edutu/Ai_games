@@ -870,6 +870,32 @@ export function createMazeWorld(options = {}) {
     const relief = guardianBulwark ? inlay : tidalCourt ? inlay : clayCourt ? lightStone : jade;
     const point = (u, y, v) => ({ x: x + (horizontal ? u : v), y, z: z + (horizontal ? v : u) });
     const slab = (mat, u, y, v, a, b, c) => { const p = point(u, y, v); block(mat, p.x, p.y, p.z, horizontal ? a : c, b, horizontal ? c : a, cell); };
+    // A genuine, CURRENTLY witnessed Pip–Thornback court earns a physically
+    // quieter, SINGLE-TONE original Tideglass perimeter, not fourteen repeating
+    // miniature bricks, mosaic crests, pennants and windcatcher towers per bay.
+    // This is STILL a complete opaque, solid impassable wall: same full width,
+    // same outer cap, same height and same original navigation/collision.
+    // All panels belong to the known wall's own cell and are pooled; ordinary
+    // unknown-side walls and real pressure/gate architecture are untouched.
+    if (guardianBulwark) {
+      slab(deepStone, 0, .09, 0, length + .08, .18, .46);
+      slab(darkJade, 0, .47, 0, length, .80, thickness);
+      slab(darkJade, 0, h - .11, 0, length + .02, .13, .36);
+      slab(inlay, 0, h, 0, length + .1, .13, .43);
+      // Two *blind* sculpted sea-glass bays: large contiguous solid color
+      // masses and rooted stone jambs. No open portal, false shortcut or glow.
+      for (const side of [-1, 1]) {
+        slab(deepStone, 0, .47, side * .178, 1.96, .60, .046);
+        slab(seaGlass, 0, .47, side * .208, 1.72, .43, .042);
+        slab(darkJade, 0, .47, side * .236, 1.42, .29, .042);
+        slab(jade, 0, .47, side * .259, 1.12, .14, .035);
+        for (const sign of [-1, 1]) {
+          slab(deepStone, sign * .94, .47, side * .213, .12, .66, .08);
+          slab(inlay, sign * .94, .81, side * .235, .20, .075, .09);
+        }
+      }
+      return;
+    }
     slab(deepStone, 0, .09, 0, length + .08, .18, .46);
     for (let row = 0; row < 3; row++) {
       const count = row % 2 ? 4 : 3, w = length / count;
