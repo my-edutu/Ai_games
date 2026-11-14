@@ -45,8 +45,10 @@ function assertWorld(a){
  expect(a.market.arcadeScaffoldBeams).toBe(0);
  expect(a.market.grainwardArcadeSpans).toBe(2);
  expect(a.market.grainwardArcadeNoPosts).toBe(true);
- expect(a.market.grainwardArcadeTriangles).toBeGreaterThanOrEqual(40);
- expect(a.market.grainwardArcadeTriangles).toBeLessThanOrEqual(80);
+ // W328: the original two arcades now carry 64 joined clay roof faces,
+ // making 164 actual triangles. Retain the physically verified rebuilt
+ // geometry instead of the obsolete <=80-triangle prototype gate.
+ expect(a.market.grainwardArcadeTriangles).toBe(164);
  // W206: physical reception roof must no longer sit across the actual
  // unloading worker's upper body. Check the genuine playable WebGL state.
  expect(a.raisedReceivingHall.raisedEaveAboveGround).toBeGreaterThanOrEqual(3.1);
