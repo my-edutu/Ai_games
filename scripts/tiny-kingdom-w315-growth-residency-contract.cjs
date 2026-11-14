@@ -50,6 +50,13 @@ assert.notEqual(changedFounder,firstKey,'founder relocation invalidates civic la
 assert.ok(env.civicRoadMemo.changedDependencies>=3);
 assert.equal(env.civicRoadMemo.remoteGrowthSkips,1);
 assert.equal(env.civicRoadMemo.checks,6);
+const audit=vm.runInNewContext('getCivicRoadDirtyAudit()',env,{timeout:500});
+assert.equal(audit.remoteGrowthSkips,1);
+assert.equal(audit.cityLots,14,'real original home count remains visible');
+assert.equal(audit.certifiedHomeLots,14);
+assert.equal(audit.certifiedRoadPaths,3);
+assert.ok(!('priorLots' in audit)&&!('roadPaths' in audit),
+ 'the read-only public audit must not duplicate the entire live home/road graph');
 assert.ok(html.includes('getCivicRoadDirtyAudit'),
  'audit exposed to live game for scene-aware profiling');
 console.log('W315 contract PASS: original remote growth skips authoritative route searches; near growth, relocation and founding layout still invalidate, no actor/home elision. No hardware/FPS claim.');
