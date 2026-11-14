@@ -9,6 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
+import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
 
 
 /**
@@ -2977,6 +2978,66 @@ export function createTowerWorld(){
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
     sceneFocus=0;sceneFocusKind='ascent';
   }
+
+  // Architectural continuity is an authored structural part of ONE real
+  // 3D scene. It is never a fictitious gameplay doorway or HUD vignette.
+  // The observed guardian victory and grounded same-run Floor9 crossing
+  // must already have retained the exact original bronze arch before ANY
+  // of these gallery braces can be assembled.
+  function buildEarnedClockworkVoidBearingRoute(snapshot) {
+    const plan=plannedEarnedClockworkVoidBearings(snapshot,retainedEarnedCap);
+    if(!plan || !floorGroup) return false;
+    const supportRoot=new THREE.Group();
+    supportRoot.name='SourceEarnedClockworkVoidBearingGallery';
+    supportRoot.userData={source:plan.source,roofId:plan.roofId,
+      stepId:plan.stepId,nonInteractive:true,stations:plan.nodes.length};
+    floorGroup.add(supportRoot);
+    // Three genuinely different forged material phases, not a saturated
+    // new-world swap. Reuse original authored box geometry with fixed
+    // instancing; bounded to three draw calls / no shadows / no texture fetch.
+    const palette=[
+      mat(0x986e43,.38,.66),
+      mat(0x716151,.42,.68),
+      mat(0x544a63,.44,.69)
+    ];
+    const stageParts=[[],[],[]];
+    plan.nodes.forEach((station,i)=>{
+      const a=station.angle,y=station.sceneY,top=y+station.height;
+      const parts=stageParts[i];
+      // Inner pillars live inside the radius-22.4 core wall; the outer
+      // pillars stay outside the radius-27.18 real traversable rim. The
+      // hero's radius-25 runway and authentic moving decks remain clear.
+      for(const r of [21.6,28.25]){
+        parts.push(at(a,r,y+station.height*.5,[.30,station.height,.34]));
+        parts.push(at(a,r,top-.24,[.52,.48,.52]));
+      }
+      // Original 3D compression tie above the standing hero. Its overhead
+      // diagonal/longitudinal continuity explains where the bronze cap
+      // weight goes as the route enters the darker successor structure.
+      parts.push(at(a,24.91,top,[.36,.26,7.3]));
+      for(const r of [21.6,28.25]){
+        parts.push(at(a,r,top-.95,[.46,1.72,.40]));
+        if(i>0) {
+          const prev=plan.nodes[i-1];
+          const mean=(prev.angle+a)*.5;
+          const length=r*Math.abs(a-prev.angle);
+          parts.push(at(mean,r,top-.36,[length+.18,.20,.26]));
+        }
+      }
+    });
+    for(let i=0;i<3;i++){
+      const items=stageParts[i],material=palette[i];
+      material.name=['SourceEarnedBronzeBearing','SourceEarnedForgedBearing',
+        'SourceEarnedVoidBearing'][i];
+      floorMaterials.add(material);
+      if(!items.length)continue;
+      const batch=instanced(supportRoot,rounded(),material,items);
+      batch.name='original-authored-structural-bearings-'+i;
+      batch.castShadow=false;batch.receiveShadow=false;
+    }
+    return true;
+  }
+
   function rebuild(snapshot, requestedQuality='normal'){
     // The live browser can still be showing an OLD living-guardian packet when
     // immutable 20Hz source has already defeated that guardian and crossed
@@ -3068,6 +3129,7 @@ export function createTowerWorld(){
           typeof e.id==='string' && !!e.id && Number.isFinite(e.health));
       buildPlatform(p,snapshot.worldWidth,sourceGateCap);
     }
+    buildEarnedClockworkVoidBearingRoute(snapshot);
     for(const h of snapshot.hazards||[])buildHazard(h,snapshot.worldWidth);
     for(const r of rotors)r.o.traverse(o=>{if(o.isMesh)o.userData.ambientDetail=true;});
     // The large structural masses cast the route shadows. Tiny bolts, foliage,

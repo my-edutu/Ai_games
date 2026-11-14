@@ -1,0 +1,18 @@
+# P0 — Authenticated Clockwork–Void structural load path, not another fade
+**Stage: P0 OPEN. Verdict: NOT EVALUATED.**
+Draft PR #68 on PR #58; frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` unchanged.
+
+## Exact original evidence inspected
+[Current pinned native campaign 43630797210](https://github.com/my-edutu/Ai_games/actions/runs/43630797210) used candidate `503f0acc61ea9d52ea26a494cbb11432168290e6`. All eight original normal-speed videos recorded and all eight source timelines paired. Technical CI for that source [43630797208](https://github.com/my-edutu/Ai_games/actions/runs/43630797208) passed 10/10, but the strict event-aligned native doorway pair FAILED **0/2 viewports**.
+
+The original desktop clip still shows the bronze cap and gateway around 25–26 s, then an unrelated violet world after ~26 s. Real guardian victory and grounded Floor9 crossing at tick475; source tick491 first true post-gate jump, tick507 physical first elevated step landing. Read-only returned-F9 old-gateway mesh presence and camera projection alone do not establish raster continuity. The browser→first-render-return ~633 ms and returned-render→drawn-floor cue ~636 ms were captured on GitHub-hosted software WebGL, not physical-device FPS.
+
+## Cohesive 3D code change
+The real old bronze arch previously faded beside physically disconnected successor platform and shaft sets. Add ONE authored, fixed-resource, noninteractive load-bearing gallery bridging the exact **retained original** guardian threshold, actual Floor9 collision-aligned roof and genuine first elevated `f9:gateway-step`. Three support bays straddle the authentic annular route (interior radial 21.6, exterior 28.25; player lane ~25), with above-head beams and longitudinal ties, grading physically from bronze through forged alloy into Void. Uses three recycled instanced mesh batches, no extra shadow maps or textures, no physics actor/collider/win/portal/source ticks. A pure source validator vetoes missing original retained gate, wrong run, unearned crossing, mismatched roof, missing step or contradictory immutable guardian record. No blanket world opacity change, UI art or fake exit.
+
+This is a *candidate authored 3D structure* connected to a real route, not an assertion that the original mesh extraction or film now passes. If it increases occlusion, draw cost or obscures the guardian, the next original footage must veto it.
+
+## Verifiability and current limits
+Local focused source tests were red before new module, then green for genuine anchor and denial cases (3/3). **Final integrated exact-code CI, new 1x original capture, full outcome/restart visual playback and device measurements must be checked after commit; do not claim pass now.** Previous original strict doorway 0/2 remains rejected. Independently blind LOOKS 0/5 · FEELS 0/5 · PLAYS 0/5. Supported-device p50/p95/p99 and memory NOT EVALUATED.
+
+**Next highest-impact action:** inspect true source-to-native 22–31s full-body original gate crossing for *both* viewports; verify the 3 new physical 3D bays render against the same original bronze gate and actual moving/elevated step without occluding hero, and native clocks are source-aligned. If still cut, P0 must reconstruct first returned render/compositor-to-painted-frame latency and camera/world continuity as one defect. Do not move P0 forward or promote PR.
