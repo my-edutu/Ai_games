@@ -207,7 +207,15 @@ function hasStrictInjuryReceipt(s,m){
   if(!r||!['damage','damage-fatal'].includes(r.kind)||
    r.tick!==m.scene.tick||r.scene!==sceneKey(m.scene)||
    !m.victimIds.some(id=>r.cueId===sceneKey(m.scene)+':'+m.scene.tick+':'+r.kind+':-:'+id))return false;
-  return r.visual===true&&r.decision==='delivered'&&safe(r.frameId)&&
+  // The strict genuine-game classifier distinguishes drawable HP visuals
+  // from legitimate HP-only sound when pooled shards are occluded. Preserve
+  // that distinction in paired diagnostics: original audio onset is NOT
+  // proof that retained injury art was visible on the submitted frame.
+  // Muted visual-only receipts remain eligible, with no fake foley credit.
+  const admitted=(r.decision==='delivered'&&r.audio===true)||
+   (r.decision==='visual-only-submitted'&&r.audio===false);
+  return r.visual===true&&r.visualDrawableAtSubmission===true&&
+   admitted&&safe(r.frameId)&&
    finite(r.observedClockMs)&&finite(r.submittedClockMs)&&
    finite(r.observationToSubmissionMs)&&r.observationToSubmissionMs<=400&&
    r.observationToSubmissionMs>=0&&r.submittedClockMs>=r.observedClockMs&&
