@@ -1149,9 +1149,14 @@ export function createMazeWorld(options = {}) {
     // speculative camera reveal. The actual stage and its second disclosed
     // ring keep all stone, seals, stairs, pressure devices and collisions.
     // Only redundant non-functional tall dressings yield to full-body acting.
+    // A publicly witnessed guardian owns a coherent THREE-cell sightline,
+    // not only its central tiles. The third ring can still carry roofed
+    // windcatchers that sit directly behind Pip/Thornback in real portraits.
+    // This is cosmetic removal of optional high decoration on currently
+    // visible, same-height stone; real walls, gates and hazards are unchanged.
     const guardianQuietRing=guardianCauseway.has(s.currentCell)
       ? new Set([...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
-        ...guardianForeground]) : new Set();
+        ...guardianPeripheralWalls]) : new Set();
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -2068,7 +2073,8 @@ export function createMazeWorld(options = {}) {
         } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
           !pressureSightline && (guardianCauseway.has(c.cell)
             || guardianForecourtShoulders.has(c.cell)
-            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell);
+            || guardianOuterCourt.ordinary.has(c.cell)
+            || (guardianPeripheralWalls.has(c.cell) && guardianQuietRingCell)), guardianQuietRingCell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
@@ -2138,7 +2144,11 @@ export function createMazeWorld(options = {}) {
         // original opaque foundation, walls and collision, but no longer
         // towers over the physical Pip–Thornback performance. Replace ONLY
         // decorative blocked-cell ornament with a sealed mineral reef.
-        if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell))
+        if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell)
+          // A third-ring PUBLIC mineral backdrop must not erupt into a tall
+          // roofed relic behind the living duel. This remains an opaque,
+          // physically sealed blocked cell, NEVER a fake playable route.
+          || (guardianPeripheralWalls.has(c.cell) && guardianQuietRingCell))
           && !pressureSightline) {
           if(guardianOuterCourt.sealed.has(c.cell))guardianOuterCourtSealedTiles++;
           guardianBlockedReliefTiles++;
