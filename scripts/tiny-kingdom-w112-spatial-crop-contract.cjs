@@ -36,12 +36,15 @@ const env={
    (nz>=0?b.maxZ:b.minZ)*nz+d>=-.45);
  }
 };
-env.ripeningField=(bounds,index,season,compact)=>{
+env.ripeningField=(bounds,index,season,compact,onRowComplete)=>{
  const [x0,x1,z0,z1]=bounds;
- // Four triangles near, two far; unique world-bounds per ORIGINAL field.
- for(let k=0;k<(compact?2:4);k++)
-  for(const [x,y,z] of [[x0+.1,.1,z0],[x1-.1,1,z1],[x1-.1,.1,z0]])
-   env.data.push(x,y,z,0,1,0,1,1,1,4);
+ // W326: the SAME 4 near/2 far triangles now belong to two rooted rows.
+ for(let row=0;row<2;row++){
+  for(let k=0;k<(compact?1:2);k++)
+   for(const [x,y,z] of [[x0+.1,.1,z0+row],[x1-.1,1,z1-1+row],[x1-.1,.1,z0+row]])
+    env.data.push(x,y,z,0,1,0,1,1,1,4);
+  onRowComplete?.(row);
+ }
  env.farmScene.stalks++;
 };
 const code=html.slice(first,last);

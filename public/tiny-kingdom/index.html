@@ -14391,7 +14391,7 @@ function farmStalk(x,z,index,season,compact=false){
  farmScene.stalks++;
  farmScene.stalkTriangles+=(data.length-first)/30;
 }
-function ripeningField(bounds,plotIndex,season,compact=false){
+function ripeningField(bounds,plotIndex,season,compact=false,onRowComplete=null){
  const [x0,x1,z0,z1,rows,columns]=bounds,span=(z1-z0)/rows;
  for(let row=0;row<rows;row++){
   const zz=z0+(row+.5)*span;
@@ -14421,6 +14421,8 @@ function ripeningField(bounds,plotIndex,season,compact=false){
       id*2+1,season,compact);
    }
   });
+  // Complete the actual planted row; no seeded root or original mesh is skipped.
+  if(onRowComplete)onRowComplete(row);
  }
 }
 // W64 read-only CPU witness of the GPU-rooted grain envelope.
@@ -15234,14 +15236,32 @@ function disposeResidentFarmFields(){
 function buildOriginalCropMesh(season,compact){
  const previousData=data,previousMaterial=currentMaterial;
  let mesh;
- const plotRanges=[];
+ const plotRanges=[],rowRanges=[];
  try{
   data=[];
   for(let i=0;i<FARMSTEAD.fields.length;i++){
    const start=data.length,field=FARMSTEAD.fields[i];
    // All furrows and every genuine seeded grain stem retain the exact
    // W111 source order. Pack each original contiguous plot as a draw range.
-   ripeningField(field,i,season,compact);
+   let rowStart=start;const firstRow=rowRanges.length;
+   ripeningField(field,i,season,compact,row=>{
+    if(row!==rowRanges.length-firstRow)throw Error('W326 original row order drift');
+    const end=data.length;let minX=Infinity,minY=Infinity,minZ=Infinity;
+    let maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
+    if(end===rowStart||(end-rowStart)%30)throw Error('W326 invalid true planted row');
+    for(let v=rowStart;v<end;v+=10){
+     const x=data[v],y=data[v+1],z=data[v+2];
+     if(![x,y,z].every(Number.isFinite))throw Error('W326 nonfinite planted row');
+     minX=Math.min(minX,x);minY=Math.min(minY,y);minZ=Math.min(minZ,z);
+     maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);maxZ=Math.max(maxZ,z);
+    }
+    rowRanges.push({plot:i,row,first:rowStart/10,count:(end-rowStart)/10,
+     stems:field[5]*2,minX:minX-.65,minY:minY-.65,minZ:minZ-.65,
+     maxX:maxX+.65,maxY:maxY+.65,maxZ:maxZ+.65});
+    rowStart=end;
+   });
+   if(rowStart!==data.length||rowRanges.length-firstRow!==field[4])
+    throw Error('W326 incomplete original planted field');
    if((data.length-start)%30||data.length===start)
     throw Error('W112 empty or malformed original plot');
    let minX=Infinity,minY=Infinity,minZ=Infinity;
@@ -15258,15 +15278,17 @@ function buildOriginalCropMesh(season,compact){
    // as houses and roads: visible crops are never silently eliminated.
    const margin=.65;
    plotRanges.push({plot:i,first:start/10,count:(data.length-start)/10,
+    firstRow,rowCount:field[4],
     minX:minX-margin,minY:minY-margin,minZ:minZ-margin,
     maxX:maxX+margin,maxY:maxY+margin,maxZ:maxZ+margin,
     stems:2*field[4]*field[5]});
   }
   mesh=new Float32Array(data);
-  mesh.plotRanges=plotRanges;
+  mesh.plotRanges=plotRanges;mesh.rowRanges=rowRanges;
  }finally{data=previousData;currentMaterial=previousMaterial}
  if(mesh.length%30||mesh.length>FARM_FIELD_MESH_FLOAT_LIMIT||
-   plotRanges.reduce((n,p)=>n+p.count,0)!==mesh.length/10)
+   plotRanges.reduce((n,p)=>n+p.count,0)!==mesh.length/10||
+   rowRanges.reduce((n,p)=>n+p.count,0)!==mesh.length/10)
   throw Error('W112 field mesh exceeds bounded complete storage');
  return mesh;
 }
@@ -15375,7 +15397,7 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   return {drawCalls:0,triangles:0,mode:'complete-civic-fallback',
    visiblePlots:0,culledPlots:0};
  let drawCalls=0,triangles=0,culledPlots=0,closest=Infinity;
- let atLeastOneNear=false;
+ let atLeastOneNear=false,visibleRows=0,culledRows=0;
  const requests=[];
  for(let i=0;i<FARMSTEAD.fields.length;i++){
   const nearRange=farmFieldNear.ranges[i],farRange=farmFieldFar.ranges[i];
@@ -15383,7 +15405,7 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   // true animated AABB touches the view in either legitimate tier.
   if(planes&&!sceneChunkInFrustum(nearRange,planes)&&
     !sceneChunkInFrustum(farRange,planes)){
-   culledPlots++;continue;
+   culledPlots++;culledRows+=FARMSTEAD.fields[i][4];continue;
   }
   const centerX=(nearRange.minX+nearRange.maxX)*.5,
    centerY=(nearRange.minY+nearRange.maxY)*.5,
@@ -15395,13 +15417,32 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   // The browser has the authoritative people list; the isolated original
   // resident-VBO contract intentionally has no simulation actor fixture.
   // In that harness retain every original plot as idle, never pretend work.
+  let rowPairs=null;
+  if(Array.isArray(farmFieldNear.mesh.rowRanges)&&
+    Array.isArray(farmFieldFar.mesh.rowRanges)&&
+    Number.isInteger(nearRange.firstRow)&&Number.isInteger(farRange.firstRow)){
+   rowPairs=[];
+   for(let row=0;row<originalField[4];row++){
+    const near=farmFieldNear.mesh.rowRanges[nearRange.firstRow+row];
+    const far=farmFieldFar.mesh.rowRanges[farRange.firstRow+row];
+    if(!near||!far||near.plot!==i||far.plot!==i||near.row!==row||far.row!==row)
+     throw Error('W326 original planted rows diverged');
+    if(!planes||sceneChunkInFrustum(near,planes)||sceneChunkInFrustum(far,planes))
+     rowPairs.push({near,far});
+    else culledRows++;
+   }
+   if(!rowPairs.length){culledPlots++;continue}
+  }
   const actualWorkers=typeof people==='undefined'?[]:people;
   const realWork=actualWorkers.some(p=>p.job==='farmer'&&isWorkingAtSite(p)&&
    p.x>=originalField[0]-.7&&p.x<=originalField[1]+.7&&
    p.z>=originalField[2]-.7&&p.z<=originalField[3]+.7);
-  requests.push({plot:i,distance,realWork,
+  requests.push({plot:i,distance,realWork,rowPairs,
    wantsNear:farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far')==='near',
-   nearTriangles:nearRange.count/3,farTriangles:farRange.count/3});
+   nearTriangles:rowPairs?
+    rowPairs.reduce((n,r)=>n+r.near.count/3,0):nearRange.count/3,
+   farTriangles:rowPairs?
+    rowPairs.reduce((n,r)=>n+r.far.count/3,0):farRange.count/3});
  }
  const choice=chooseBudgetedFarmPlotModes(requests,
   Number.isFinite(triangleBudget)?Math.max(0,triangleBudget):Number.MAX_SAFE_INTEGER);
@@ -15411,12 +15452,26 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   farmFieldPlotLods[i]=mode;
   if(mode==='near')atLeastOneNear=true;
   const mesh=mode==='near'?farmFieldNear:farmFieldFar;
-  const range=mesh.ranges[i];
+  const range=mesh.ranges[i],pieces=request.rowPairs?
+   request.rowPairs.map(row=>row[mode]):[range];
   bindGeometry(mesh.buffer);
-  gl.drawArrays(gl.TRIANGLES,range.first,range.count);
-  farmFieldDrawCalls++;drawCalls++;triangles+=range.count/3;
-  drawn.push({plot:i,mode,triangles:range.count/3,stems:range.stems,
-   distance:request.distance,realWork:request.realWork});
+  let first=-1,count=0,shown=0,stems=0;
+  const submit=()=>{if(count){gl.drawArrays(gl.TRIANGLES,first,count);
+   farmFieldDrawCalls++;drawCalls++;count=0;}};
+  // Contiguous authentic field rows coalesce to one retained-GPU call.
+  for(const piece of pieces){
+   if(!Number.isInteger(piece.first)||!Number.isInteger(piece.count)||
+     piece.count<=0||piece.count%3)throw Error('W326 malformed original row draw');
+   if(count&&piece.first!==first+count)submit();
+   if(!count)first=piece.first;
+   count+=piece.count;shown+=piece.count/3;stems+=piece.stems;
+  }
+  submit();triangles+=shown;
+  const rowCount=request.rowPairs?request.rowPairs.length:range.rowCount||1;
+  visibleRows+=rowCount;
+  drawn.push({plot:i,mode,triangles:shown,stems,visibleRows:rowCount,
+   totalRows:FARMSTEAD.fields[i][4],distance:request.distance,
+   realWork:request.realWork});
  }
  farmFieldLod=atLeastOneNear?'near':'far';
  farmFieldLastDistance=closest;
@@ -15429,9 +15484,11 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
   usedTriangles:triangles,sceneBudgetBreached:choice.overBudget,
   minimumShortfall:choice.shortfall,originalPlotsPreserved:true,
   droppedPlotsForBudget:choice.droppedPlots,
-  outsideFrustum:culledPlots,realWorkersInView:requests.filter(r=>r.realWork).length};
+  outsideFrustum:culledPlots,visibleRows,culledRows,rowDrawCalls:drawCalls,
+  originalPlantedRows:FARMSTEAD.fields.reduce((n,f)=>n+f[4],0),
+  realWorkersInView:requests.filter(r=>r.realWork).length};
  return {drawCalls,triangles,mode:farmFieldLod,distance:closest,
-  visiblePlots:drawn.length,culledPlots,drawnPlots:drawn,
+  visiblePlots:drawn.length,culledPlots,drawnPlots:drawn,visibleRows,culledRows,
   budget: {...farmFieldSceneBudgetAudit}};
 }
 function getFarmFieldResidencyAudit(){

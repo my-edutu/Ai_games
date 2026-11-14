@@ -15,6 +15,7 @@ on:
       - scripts/tiny-kingdom-w323-gpu-timer-scene-contract.cjs
       - scripts/tiny-kingdom-w324-rig-camera-cache-contract.cjs
       - scripts/tiny-kingdom-w325-real-grain-headroom-contract.cjs
+      - scripts/tiny-kingdom-w326-original-field-row-residency-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - .github/workflows/tiny-kingdom-w281-home-partitions.yml
   workflow_dispatch:
@@ -41,6 +42,7 @@ jobs:
           node scripts/tiny-kingdom-w323-gpu-timer-scene-contract.cjs
           node scripts/tiny-kingdom-w324-rig-camera-cache-contract.cjs
           node scripts/tiny-kingdom-w325-real-grain-headroom-contract.cjs
+          node scripts/tiny-kingdom-w326-original-field-row-residency-contract.cjs
           node scripts/tiny-kingdom-w265-growth-civic-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
