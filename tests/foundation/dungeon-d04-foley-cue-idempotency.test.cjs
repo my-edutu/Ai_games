@@ -147,15 +147,15 @@ for(const phase of ['allocate','start']){
   const fixture=failingPreemptionFixture();
   const engine=createOriginalCombatFoley(fixture.ctx,{requireVerifiedContact:true});
   assert.equal(engine.enable(),true);
-  const low=['draw','ranged-release','spell-release','cast-dry',
-   'utility','guard','evade','recovery'];
+  const low=['draw','cast-dry','utility','guard',
+   'evade','recovery','interrupt','block'];
   for(const [i,audio] of low.entries())
    assert.equal(engine.emit({audio,id:'low-'+i,priority:1}),true,audio);
   const before=engine.stats();
   assert.equal(before.activeVoices,MAX_ORIGINAL_COMBAT_VOICES);
   const starts=fixture.getSourceStarts();
   fixture.failNext(phase);
-  const high={audio:'warden-release',id:'high-priority',priority:9};
+  const high={...witnessedRelease(900,'warden-release'),priority:9};
   assert.equal(engine.emit(high),false,'failed WebAudio cannot report delivery');
   assert.equal(engine.stats().activeVoices,MAX_ORIGINAL_COMBAT_VOICES,
    'failed candidate must preserve all eight legitimate ongoing voices');
