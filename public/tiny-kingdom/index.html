@@ -5461,7 +5461,10 @@ function rememberCivicScenery(key,source,stats){
  const previous=civicSceneryCache.get(key);
  if(previous?.buffer&&previous.buffer!==buffer){releaseGeometryBuffer(previous.buffer);civicGpuDisposals++}
  civicSceneryCache.delete(key);
- civicSceneryCache.set(key,{vertices:retained,stats,buffer,ranges});
+ civicSceneryCache.set(key,{vertices:retained,stats,buffer,ranges,
+  // Road-only scenery may never be recalled without its full original core.
+  coreGpuKey:civicGpuResidencyEnabled&&civicCoreBuffer?
+   activeCivicCoreKey:null});
  civicBuffer=buffer;civicChunkRanges=ranges;
  while(civicSceneryCache.size>CIVIC_CACHE_MAX_ENTRIES||
   civicCacheStats().cachedFloats>CIVIC_CACHE_FLOAT_BUDGET){
@@ -26425,8 +26428,21 @@ const CIVIC_CORE_FLOAT_BUDGET=
 const civicCoreCache=new Map();
 let civicCoreCachedFloats=0,civicCoreBuilds=0,civicCoreReuses=0,
  civicCoreEvictions=0,civicCoreSkippedOversize=0;
+// W317 Phase 1: the ORIGINAL complete farm, granary, hall, forge and market
+// retain their OWN seasonal hardware VBO across real household-road growth.
+// Software keeps the exact old combined geometry. No actors/buildings omitted.
+let civicCoreBuffer=null,civicCoreChunkRanges=[],activeCivicCoreKey='';
+let civicCoreGpuUploads=0,civicCoreGpuDisposals=0;
+function activeCivicCoreMesh(){
+ const entry=civicCoreCache.get(activeCivicCoreKey);
+ return civicGpuResidencyEnabled&&entry?.buffer?entry.vertices:[];
+}
 function clearCivicCoreCache(){
+ for(const entry of civicCoreCache.values())if(entry.buffer){
+  releaseGeometryBuffer(entry.buffer);civicCoreGpuDisposals++;
+ }
  civicCoreCache.clear();civicCoreCachedFloats=0;
+ civicCoreBuffer=null;civicCoreChunkRanges=[];activeCivicCoreKey='';
 }
 function civicCoreResidencyKey(climate,light){
  return climate+':'+(gpuAvailable?'shader-light':light)+
@@ -26439,7 +26455,11 @@ function getCivicCoreResidencyAudit(){
   maxEntries:CIVIC_CORE_MAX_ENTRIES,cachedFloats:civicCoreCachedFloats,
   cachedBytes:civicCoreCachedFloats*Float32Array.BYTES_PER_ELEMENT,
   floatBudget:CIVIC_CORE_FLOAT_BUDGET,
-  fullOriginalGeometryPreserved:true,newGpuBuffers:0,
+  fullOriginalGeometryPreserved:true,
+  gpuResident:Boolean(civicGpuResidencyEnabled&&civicCoreBuffer),
+  gpuUploads:civicCoreGpuUploads,gpuDisposals:civicCoreGpuDisposals,
+  gpuTriangles:activeCivicCoreMesh().length/30,
+  newGpuBuffers:civicCoreGpuUploads-civicCoreGpuDisposals,
   modifiesCitizens:false,modifiesEconomy:false,modifiesNavigation:false,
   affectsSavedReplay:false,hardwareFps:'NOT MEASURED'};
 }
@@ -26455,10 +26475,29 @@ function rememberCivicCore(key,sourceStart){
  for(let i=0;i<count;i++)vertices[i]=data[sourceStart+i];
  const stats={guildhall:{...guildhallVisualStats},farm:{...farmScene},
   craft:{...craftCounters},market:{...marketQuarterStats}};
+ // Upload EXACT original material/vertex sequence once per retained core.
+ let buffer=null,ranges=[];
+ if(civicGpuResidencyEnabled){
+  const packed=packLinearResidentScenery(vertices,'civic-core')||
+   packSpatialScenery(vertices);
+  buffer=gl.createBuffer();
+  if(buffer){
+   bindGeometry(buffer);
+   gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);
+   ranges=packed.ranges;civicCoreGpuUploads++;
+  }
+ }
  const previous=civicCoreCache.get(key);
- if(previous)civicCoreCachedFloats-=previous.vertices.length;
+ if(previous){
+  civicCoreCachedFloats-=previous.vertices.length;
+  if(previous.buffer){releaseGeometryBuffer(previous.buffer);civicCoreGpuDisposals++}
+ }
  civicCoreCache.delete(key);
- civicCoreCache.set(key,{vertices,stats,finalMaterial:currentMaterial});
+ civicCoreCache.set(key,{vertices,stats,finalMaterial:currentMaterial,
+  buffer,ranges});
+ if(civicGpuResidencyEnabled&&buffer){
+  civicCoreBuffer=buffer;civicCoreChunkRanges=ranges;
+ }
  civicCoreCachedFloats+=vertices.length;
  while(civicCoreCache.size>CIVIC_CORE_MAX_ENTRIES||
        civicCoreCachedFloats>CIVIC_CORE_FLOAT_BUDGET){
@@ -26466,6 +26505,12 @@ function rememberCivicCore(key,sourceStart){
   const retired=civicCoreCache.get(oldest);
   civicCoreCachedFloats-=retired.vertices.length;
   civicCoreCache.delete(oldest);
+  if(retired.buffer){
+   releaseGeometryBuffer(retired.buffer);civicCoreGpuDisposals++;
+   if(civicCoreBuffer===retired.buffer){
+    civicCoreBuffer=null;civicCoreChunkRanges=[];
+   }
+  }
   civicCoreEvictions++;
  }
  return civicCoreCache.has(key);
@@ -26477,7 +26522,12 @@ function recallCivicCore(key){
  // farm geometry. Never suppress a farmer, crop, cargo or current worker pose.
  if(gpuAvailable&&farmFieldResidentSeason!==climateAt(state.t).season&&
     !farmFieldResidentDisabled)prepareResidentFarmFields(climateAt(state.t).season);
- appendCivicCachedVertices(entry.vertices);
+ if(civicGpuResidencyEnabled&&entry.buffer){
+  civicCoreBuffer=entry.buffer;civicCoreChunkRanges=entry.ranges;
+ }else{
+  civicCoreBuffer=null;civicCoreChunkRanges=[];
+  appendCivicCachedVertices(entry.vertices);
+ }
  guildhallVisualStats={...entry.stats.guildhall};
  farmScene={...entry.stats.farm};
  Object.assign(craftCounters,entry.stats.craft);
@@ -26492,8 +26542,13 @@ let civicGrowthRefreshes=0;
 function updateResidentCivicDistrict(nextTerrainKey,daylightStage){
 const civicKey=liveCivicTopologyKey(nextTerrainKey,daylightStage);
 civicActiveKey=civicKey;
+const unchangedCoreKey=civicCoreResidencyKey(nextTerrainKey,daylightStage);
+activeCivicCoreKey=unchangedCoreKey;
 const residentCivic=civicSceneryCache.get(civicKey);
-if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
+const storedCoreReady=!residentCivic?.coreGpuKey||
+ Boolean(civicCoreCache.get(residentCivic.coreGpuKey)?.buffer);
+if(residentCivic&&storedCoreReady&&
+   (!civicGpuResidencyEnabled||residentCivic.buffer)){
  // The static civic cache may be recalled after a genuine seasonal transition.
  // Rebuild the exact-season field VBO before drawing the cached town. On GPU
  // allocation failure we invalidate the cached civic and let the complete
@@ -26502,16 +26557,20 @@ if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
    !farmFieldResidentDisabled)prepareResidentFarmFields(climateAt(state.t).season);
  if(civicGpuResidencyEnabled){
   civicBuffer=residentCivic.buffer;civicChunkRanges=residentCivic.ranges;
+  const originalCore=residentCivic.coreGpuKey?
+   civicCoreCache.get(residentCivic.coreGpuKey):null;
+  civicCoreBuffer=originalCore?.buffer||null;
+  civicCoreChunkRanges=originalCore?.ranges||[];
  }else appendCivicCachedVertices(residentCivic.vertices);
  restoreCivicStats(residentCivic.stats);civicCacheReuses++;
  civicSceneryCache.delete(civicKey);civicSceneryCache.set(civicKey,residentCivic);
 }else{
+ civicCoreBuffer=null;civicCoreChunkRanges=[];
  civicCacheBuilds++;
  const civicStart=data.length;
  // Keep original geometry order: 1) old farm/civic/receiving market,
  // 2) real currently dependent household + freight streets,
  // 3) the existing finishing fixtures. Only group (1) is retained here.
- const unchangedCoreKey=civicCoreResidencyKey(nextTerrainKey,daylightStage);
  if(!recallCivicCore(unchangedCoreKey)){
   const coreStart=data.length;
   hall(0,-1); // Guildhall owns its roof, gables, windows and porch.
@@ -26520,7 +26579,11 @@ if(residentCivic&&(!civicGpuResidencyEnabled||residentCivic.buffer)){
   fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
   riverBridge();hillsideSanctuary();forgeWorkshop();
   market(0,5);marketQuarter();
-  rememberCivicCore(unchangedCoreKey,coreStart);
+  const residentOriginalCore=rememberCivicCore(unchangedCoreKey,coreStart);
+  // CPU mesh only leaves the road-upload after a REAL complete GPU
+  // allocation. On SwiftShader/Canvas2D, keep every original triangle.
+  if(civicGpuResidencyEnabled&&residentOriginalCore&&civicCoreBuffer)
+   data.length=coreStart;
  }
  // These two streets depend on actual traversable paths and founding homes:
  // rebuild them whenever nearby ORIGINAL construction changes civic topology.
@@ -27175,7 +27238,8 @@ const planes=gpuAvailable?sceneFrustumPlanes(m):null;
 // crop detail. All original buildings, residents, freight and dynamic jobs
 // retain their real geometry; never make those disappear to pass a limit.
 const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
- activeCivicMesh().length+homeClusterFloats()+data.length+
+ activeCivicMesh().length+activeCivicCoreMesh().length+
+ homeClusterFloats()+data.length+
  (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
@@ -27201,6 +27265,12 @@ if(gpuAvailable){
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
  scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
  scenicVisibilityStats.homes=drawHomeClusters(planes);
+ scenicVisibilityStats.civicCore=civicCoreBuffer?
+  drawVisibleStaticChunks(civicCoreBuffer,civicCoreChunkRanges,planes):
+  {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
+   drawCalls:0,strictDrawCalls:0,bridgedTriangles:0,bridgedChunks:0,
+   issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
+   invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
  scenicVisibilityStats.civic=civicBuffer?
   drawVisibleStaticChunks(civicBuffer,civicChunkRanges,planes):
   {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
@@ -27209,23 +27279,29 @@ if(gpuAvailable){
     invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
  scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
   scenicVisibilityStats.settlement.visibleTriangles+scenicVisibilityStats.civic.visibleTriangles+
+  scenicVisibilityStats.civicCore.visibleTriangles+
   scenicVisibilityStats.homes.visibleTriangles+fieldLodDraw.triangles;
  scenicVisibilityStats.totalCulledTriangles=scenicVisibilityStats.landscape.culledTriangles+
   scenicVisibilityStats.settlement.culledTriangles+scenicVisibilityStats.civic.culledTriangles+
+  scenicVisibilityStats.civicCore.culledTriangles+
   scenicVisibilityStats.homes.culledTriangles;
  scenicVisibilityStats.totalDrawCalls=scenicVisibilityStats.landscape.drawCalls+
   scenicVisibilityStats.settlement.drawCalls+scenicVisibilityStats.civic.drawCalls+
+  scenicVisibilityStats.civicCore.drawCalls+
   scenicVisibilityStats.homes.drawCalls+fieldLodDraw.drawCalls;
  scenicVisibilityStats.totalDriverCalls=scenicVisibilityStats.landscape.driverCalls+
   scenicVisibilityStats.settlement.driverCalls+scenicVisibilityStats.civic.driverCalls+
+  scenicVisibilityStats.civicCore.driverCalls+
   scenicVisibilityStats.homes.driverCalls+fieldLodDraw.drawCalls;
  scenicVisibilityStats.totalMultiDrawBatches=scenicVisibilityStats.landscape.multiDrawBatches+
   scenicVisibilityStats.settlement.multiDrawBatches+scenicVisibilityStats.civic.multiDrawBatches+
+  scenicVisibilityStats.civicCore.multiDrawBatches+
   scenicVisibilityStats.homes.multiDrawBatches;
  scenicVisibilityStats.totalBridgedTriangles=
   scenicVisibilityStats.landscape.bridgedTriangles+
   scenicVisibilityStats.settlement.bridgedTriangles+
   scenicVisibilityStats.civic.bridgedTriangles+
+  scenicVisibilityStats.civicCore.bridgedTriangles+
   scenicVisibilityStats.homes.bridgedTriangles;
  scenicVisibilityStats.totalIssuedTriangles=scenicVisibilityStats.totalSubmittedTriangles+
   scenicVisibilityStats.totalBridgedTriangles;
@@ -27233,6 +27309,7 @@ if(gpuAvailable){
   scenicVisibilityStats.landscape.savedDrawCalls+
   scenicVisibilityStats.settlement.savedDrawCalls+
   scenicVisibilityStats.civic.savedDrawCalls+
+  scenicVisibilityStats.civicCore.savedDrawCalls+
   scenicVisibilityStats.homes.savedDrawCalls;
  scenicVisibilityStats.batchMode=(staticBatchBridgeOverride===null?!swiftGpu:
   staticBatchBridgeOverride)?'conservative':'strict';
