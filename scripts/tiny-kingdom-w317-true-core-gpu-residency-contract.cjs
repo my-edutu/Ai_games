@@ -67,6 +67,20 @@ function exercise(hardware){
  assert.equal(evalCore('getCivicCoreResidencyAudit().cachedFloats'),0);
  return gpuCalls;
 }
+// A returning season must never recall its road-only buffer if the genuine
+// unchanged farm/granary/market core was evicted; never silently omit buildings.
+const seasonStart=script.indexOf('function recallSettlementSeason(');
+const seasonEnd=script.indexOf('function uploadGrowingSettlement(',seasonStart);
+assert.ok(seasonStart>=0&&seasonEnd>seasonStart,'real season recall present');
+const seasonSource=script.slice(seasonStart,seasonEnd);
+assert.match(seasonSource,/civic\.coreGpuKey/,
+ 'seasonal scene recall must explicitly check the original core dependency');
+assert.match(seasonSource,/civicCoreCache\.get\(civic\.coreGpuKey\)/,
+ 'seasonal scene must validate that matching original core VBO remains resident');
+assert.match(seasonSource,/civicCoreBuffer\s*=\s*seasonalCore\.buffer/,
+ 'seasonal recall must restore original core VBO before rendering the street');
+assert.match(seasonSource,/activeCivicCoreMesh\(\)\.length/,
+ 'seasonal visual geometry budget includes the complete original civic core');
 const hardware=exercise(true),software=exercise(false);
 assert.match(script,/scenicVisibilityStats\.civicCore\s*=\s*civicCoreBuffer\s*\?[\s\S]*?drawVisibleStaticChunks/,
  'real playable WebGL must issue the genuine complete original core draw');
