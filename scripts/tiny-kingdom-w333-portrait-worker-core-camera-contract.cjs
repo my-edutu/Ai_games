@@ -14,10 +14,11 @@ no(1024,true,.41,.025,.23);no(0,true,.41,.025,.23);
 no(390,false,.41,.025,.23);no(390,true,.14,.025,.23);
 no(390,true,.41,.15,.23);no(390,true,.41,.025,.05);
 no(390,true,Infinity,.025,.23);no(390,true,.41,NaN,.23);
+// W334 reuses the exact current-eye scene projection rather than scanning twice.
 for(const token of [
- 'const currentWorkerForeground=foregroundSceneProjection(eye,plan.target,roofs)',
+ 'portraitCurrentScene||',
  'const portraitCoreCandidate=canvas.clientWidth>0&&canvas.clientWidth<=520',
- 'portraitCoreRepair)&&',
+ 'portraitCoreRepair||',
  'plan.blockers===0&&plannedEyeClear',
  'if(portraitCoreRepair)portraitCoreRescues++',
  'portraitWorkerCoreRescues:portraitCoreRescues',

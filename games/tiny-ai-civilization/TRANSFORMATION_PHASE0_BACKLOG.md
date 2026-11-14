@@ -1,3 +1,19 @@
+## W334 · ACTIVE Phase 1 checkpoint · 14 November 2026
+
+**No phase promotion.** Open draft #64 W334 executable `a5768cc9ad6008717071641023484c6b11331c3e`; frozen source G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Persistent five blockers below are still the same multi-run workstreams. Real W333 390px workday occluded by timber architecture; W334 camera alternative new running result NOT PROVEN.
+
+| Priority / workstream | Current blocker and W334 action | Done condition |
+| --- | --- | --- |
+| 1 Rendering / CPU-GPU spine | ~1.7–1.8 prior software FPS, native frame-time unknown; 16-eye bounded rare W334 camera survey has unmeasured CPU cost | Matched true hardware Day1, handoff, Day121 desktop/mobile ≥30 sustained FPS, p95≤33.3ms, bounded draw/alloc/memory, 160k cap |
+| 2 Physical worker animation / real economy | W333 mobile worker hidden by timber around 8s; W334 seeks physically clear hand/body view, no fake transactions | Uninterrupted farmer cutting → loaded courier → real unloading/market receipt → verified cottage inhabitant, readable face/IK hands without occlusion |
+| 3 Environment / original connected district | Grown-town still angular despite authentic markets and houses | Whole-place credible farm/granary/market/occupied homes with real before/after Day1/day121 actor-matched video and independent quality improvement |
+| 4 390px camera, touch and UI | W333 portrait obstruction FAIL, Supply ribbon intrusive; W334 unverified fallback | Source-matched mobile worker visibly on camera, 44px accessible controls, unobstructed orbit/follow, no loss/teleport or page errors |
+| 5 Acceptance / independent review / longevity | All experience gates unproven; real hardware and independent judges unavailable | 120-day byte-identical replay, long growth soak, physical device memory/FPS, separate blinded LOOK/FEEL/PLAY review and commercial reference score |
+
+**Scorecard A:** LOOK/FEEL/PLAY **NOT PROVEN**. **Scorecard B:** commercial **FAIL**. Next check: W334 real 390px uncut physical camera and source CI; if fails, revise same integrated workstream, not roof pigment. Never merge.
+
+---
+
 ## W310 · CURRENT Phase 1 milestone · original farm → real courier → real market → occupied homes · 14 November 2026
 
 **PR:** [draft #64](https://github.com/my-edutu/Ai_games/pull/64), exact candidate `a512ba191dd1c052f740c28a8afdbafd04d2203f`, pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Source only branch; no merging. These same five workstreams remain owned across runs, not five disconnected tiny fixes.
