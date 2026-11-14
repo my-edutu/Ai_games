@@ -84,11 +84,18 @@ export function verifiedDamageFoleyVictim(cue){
  * and polyphonic mix behaviour.
  */
 function coherentCanonicalHPFoleyEvidence(cue){
- const damage=cue?.detail?.damage,maxHp=cue?.detail?.maxHp;
+ const damage=cue?.detail?.damage,maxHp=cue?.detail?.maxHp,
+  remainingHp=cue?.detail?.remainingHp;
  return cue?.visual==='hit'&&cue.from===null&&
   validOriginalFoleyCell(cue.to)&&
   Number.isSafeInteger(damage)&&damage>0&&
   Number.isSafeInteger(maxHp)&&maxHp>0&&damage<=maxHp&&
+  // Observed post-hit health distinguishes a genuine death from an
+  // ordinary wound. No inferred striker or terminal sound based solely on
+  // the impact's severity, recipe, or a rewritten canonical event ID.
+  Number.isSafeInteger(remainingHp)&&remainingHp>=0&&
+  remainingHp+damage<=maxHp&&
+  (cue.kind==='damage-fatal')===(remainingHp===0)&&
   Number.isFinite(cue.severity)&&cue.severity>0&&cue.severity<=1&&
   Math.abs(cue.severity-damage/maxHp)<=1e-9;
 }
