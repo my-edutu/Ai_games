@@ -99,3 +99,104 @@ test('original sound audition can still play a neutral warning without pretendin
   assert.equal(engine.emit({audio:'threat-warning'}),true);
  }finally{engine.dispose()}
 });
+
+
+// Source-only public actions must be audible as ACTIONS, not guessed contact.
+// These contracts use the actual D04 planner; fake WebAudio sources do not
+// establish audible browser timing, visual presentation or sampled PCM.
+async function plannedSourceOnly(kind){
+ const {planPhysicalFeedback}=await planner();
+ const action=kind==='guard'?'guard':kind==='cast-utility'?'cast':
+  kind==='ranged-unmatched'?'attack':'cast';
+ const performerKind=kind==='cast-utility'||kind==='cast-unmatched'?
+  'mystic':kind==='ranged-unmatched'?'ranger':'vanguard';
+ const unit={id:'performer',kind:performerKind,faction:'party',
+  hp:30,maxHp:30,x:2,z:3,targetId:null,action:'idle',actionTick:7};
+ const updated={...unit,action,actionTick:8,targetId:'missing'};
+ const events=kind==='cast-utility'?
+  [{tick:8,kind:'healing',text:'source performed support'}]:[];
+ const cues=planPhysicalFeedback(scene(7,{units:[unit]}),
+  scene(8,{units:[updated],events}),{resolveContact:()=>null});
+ return cues.find(c=>c.kind===kind);
+}
+test('observed guard, utility and unmatched attempted releases play once without invented contact',async()=>{
+ const {createOriginalCombatFoley}=await foley();
+ for(const kind of ['guard','cast-utility','ranged-unmatched','cast-unmatched']){
+  const cue=await plannedSourceOnly(kind);
+  assert.ok(cue,kind+' must originate from public planner');
+  assert.equal(cue.targetId,null,'no inferred target');
+  assert.equal(cue.to,null,'no invented contact position');
+  assert.equal(cue.proof,'authority-action');
+  assert.equal(cue.verified,kind==='guard'||kind==='cast-utility');
+  const {ctx,starts}=audioFixture();
+  const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(engine.enable(),true);
+   assert.equal(engine.emit(cue),true,'actual source-only action must remain audible: '+kind);
+   const count=starts.length;
+   assert.ok(count>0);
+   ctx.currentTime=.35;
+   assert.equal(engine.emit(cue),false,'one authority action must make only one onset: '+kind);
+   assert.equal(starts.length,count);
+   assert.equal(engine.stats().confirmedCueIds,1);
+   assert.ok(engine.stats().activeVoices<=8);
+   const receipt=engine.stats().recentOriginalStarts.at(-1);
+   assert.equal(receipt.sampleSynchronized,false);
+   assert.equal(receipt.cueId,cue.id);
+  }finally{engine.dispose()}
+ }
+});
+test('orphaned dry, draw, guard and utility recipes cannot sound or poison real cue budgets',async()=>{
+ const {createOriginalCombatFoley}=await foley();
+ for(const kind of ['guard','cast-utility','ranged-unmatched','cast-unmatched']){
+  const cue=await plannedSourceOnly(kind);
+  const bad=[
+   {audio:cue.audio,id:'raw-audio-recipe'},
+   {...cue,id:cue.id+':wrong'},
+   {...cue,actorId:'fake-performer'},
+   {...cue,actorId:null},
+   {...cue,from:{x:999,z:2}},
+   {...cue,to:{x:4,z:3}},
+   {...cue,targetId:'made-up-hit'},
+   {...cue,visual:'hit'},
+   {...cue,proof:'observed-hp-drop'},
+   {...cue,verified:!cue.verified}
+  ];
+  const {ctx,starts}=audioFixture();
+  const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+  try{
+   assert.equal(engine.enable(),true);
+   for(const forged of bad)
+    assert.equal(engine.emit(forged),false,
+     'unwitnessed '+kind+' cannot schedule sound: '+JSON.stringify(forged));
+   assert.equal(starts.length,0);
+   assert.equal(engine.stats().confirmedCueIds,0);
+   assert.equal(engine.stats().recentOriginalStarts.length,0);
+   assert.equal(engine.emit(cue),true,'bad recipes may not starve real action');
+  }finally{engine.dispose()}
+ }
+});
+test('observed but unconfirmed ranged miss cannot replay after ID history rotates',async()=>{
+ const {createOriginalCombatFoley,MAX_ORIGINAL_CONFIRMED_CUE_IDS}=await foley();
+ const authentic=await plannedSourceOnly('ranged-unmatched');
+ const {ctx,starts}=audioFixture();
+ const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(engine.enable(),true);
+  assert.equal(engine.emit(authentic),true);
+  for(let i=0;i<MAX_ORIGINAL_CONFIRMED_CUE_IDS+4;i++){
+   ctx.currentTime=(i+1)*.12;
+   const tick=30+i,actorId='fighter-'+i;
+   assert.equal(engine.emit({
+    sceneKey:'1:1',tick,kind:'swing',visual:'trail',audio:'whoosh',
+    id:'1:1:'+tick+':swing:'+actorId+':-',verified:true,actorId,
+    targetId:null,priority:4,proof:'authority-attempt-not-hit'
+   }),true);
+  }
+  const prior=starts.length;
+  ctx.currentTime+=.15;
+  assert.equal(engine.emit(authentic),false,'old unconfirmed action is not fresh');
+  assert.equal(starts.length,prior);
+  assert.ok(engine.stats().confirmedCueIds<=MAX_ORIGINAL_CONFIRMED_CUE_IDS);
+ }finally{engine.dispose()}
+});
