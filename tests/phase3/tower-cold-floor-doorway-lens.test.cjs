@@ -17,7 +17,7 @@ async function fixture() {
       runToken,fromFloor:8,toFloor:9,sourceTick:451,
       cap,guardian:{kind:'guardian',active:false,health:0},
       exitX,crossingX,halfWidth:p.halfWidth,halfHeight:p.halfHeight}};
-  const held={runToken,floor:9,oldCapId:cap.id,oldCapX:cap.x,
+  const held={guardianGateRetained:true,runToken,floor:9,oldCapId:cap.id,oldCapX:cap.x,
     oldCapWidth:cap.width,oldRoofY:82000,thresholdX:exitX,
     sourceTick:454,crossingTick:451,submittedFrames:1,visibleSeconds:.16};
   const hero=await coordinates.then(c=>c.pointFor(p.x,p.y,
@@ -49,15 +49,16 @@ test('no false or detached source, dead guardian, wrong run, distant body, stale
     [ {...source,runToken:'other'},held,hero ],
     [ {...source,theme:'clockwork'},held,hero ],
     [ {...source,floor:10},held,hero ],
-    [ {...source,tick:505},held,hero ],
+    [ {...source,tick:530},held,hero ],
     [ {...source,player:{...source.player,health:0}},held,hero ],
     [ {...source,player:{...source.player,x:held.thresholdX+100000}},held,hero ],
     [ {...source,lastGuardianCrossing:{...source.lastGuardianCrossing,
       guardian:{kind:'guardian',active:true,health:1}}},held,hero ],
     [ {...source,platforms:[]},held,hero ],
     [ source,{...held,oldCapX:0},hero ],
-    [ source,{...held,submittedFrames:9},hero ],
-    [ source,{...held,visibleSeconds:1.5},hero ],
+    [ source,{...held,guardianGateRetained:false},hero ],
+    [ source,{...held,submittedFrames:61},hero ],
+    [ source,{...held,visibleSeconds:3},hero ],
     [ source,held,{...hero,x:hero.x+12} ]
   ];
   for(const [s,h,v] of cases)assert.equal(shot(s,h,v,390/844),null);
@@ -71,9 +72,24 @@ test('source-backed late portrait submissions still frame the SAME original phys
   assert.equal(frame?.coldOriginalArch,true);
   assert.equal(frame?.sourceTick,source.tick);
   assert.ok(frame.radius>=62,'portrait keeps both real subjects within its physically safe exterior radius');
-  assert.equal(shot(source,{...late,visibleSeconds:1.26},hero,390/844),null,
-    'old geometry cannot be prolonged past its bounded submitted-frame sightline');
-  assert.equal(shot(source,{...late,submittedFrames:9},hero,390/844),null);
+  const lateSubmitted={...held,submittedFrames:12,visibleSeconds:1.8};
+  for (const aspect of [960/600,390/844]) {
+    const result=shot(source,lateSubmitted,hero,aspect);
+    assert.equal(result?.coldOriginalArch,true,
+      'camera must not abandon still-visible source-held bronze doorway on late valid GPU returns');
+    assert.equal(result?.sourceTick,source.tick);
+  }
+  assert.equal(shot(source,{...late,visibleSeconds:3},hero,390/844),null,
+    'GPU material lifetime is bounded, and camera follows the same exact hard veto');
+  assert.equal(shot(source,{...late,submittedFrames:61},hero,390/844),null);
+  const rising={...source,tick:source.tick+10,player:{
+    ...source.player,y:source.player.y+100000,grounded:false,
+    groundedPlatformId:null,state:'airborne',vy:140}};
+  const raised=await coordinates.then(c=>c.pointFor(rising.player.x,rising.player.y,
+    rising.chunkBaseY,rising.worldWidth,25));
+  assert.equal(shot(rising,{...held,submittedFrames:12,visibleSeconds:1.8},raised,390/844),null,
+    'once the real roof is optically retired and far below the body, no old-gate framing');
+
 });
 test('production bridge consumes the genuine retained GPU witness in one camera, no teleport',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
@@ -87,4 +103,11 @@ test('production bridge consumes the genuine retained GPU witness in one camera,
   assert.match(scene,/opticalHandoff && p\.state==='airborne' && p\.grounded===false/);
   assert.match(scene,/protectRouteSightlines\(camera,/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
+});
+
+test('scene camera receives the source-owned optical gateway witness beyond the old eight-frame receipt',()=>{
+  const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/const visibleOriginalGateway=.*observedSourceGatewayDeparturePresence\(snapshot,held\)/s);
+  assert.match(world,/guardianGateRetained:held\.guardianGateRetained===true/);
+  assert.match(world,/if\(!immutable && !priorGrounded && !visibleOriginalGateway\)return null/);
 });
