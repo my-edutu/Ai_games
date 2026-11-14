@@ -3482,12 +3482,16 @@ export function createMazeWorld(options = {}) {
     // characters and the witnessed warning read as one coherent encounter.
     const rise=reduced ? (witnessedLane&&guardianBeat>0?1:0)
       : Math.max(0,Math.min(1,(guardianBeat-.08)/.34));
-    const recover=reduced?0:Math.max(0,Math.min(1,(guardianBeat-.74)/.26));
+    // Actual 390px shell-release still showed four suspended fins overtaking
+    // Pip and Thornback. Hold the real brace, then clear ALL connected fins
+    // and floor leaves by the genuine .90 public shell-release beat. No
+    // invented attack, map disclosure, collision or gameplay-state change.
+    const recover=reduced?0:Math.max(0,Math.min(1,(guardianBeat-.65)/.25));
     // The native three-beat guardian test caught a too-late release: the
     // raised stage hardware remained almost half-deployed at a true 90%
     // shell-release frame. Retract the existing truthful public warning
     // faster (not merely loosen the physical-action contract).
-    const signalStrength=rise*(1-.90*recover);
+    const signalStrength=rise*(1-.98*recover);
     for(const signal of guardianTideSignals) {
       const col=signal.cell%snapshot.width,row=Math.floor(signal.cell/snapshot.width);
       const onLane=witnessedLane && ((alongX && signal.axis==='x'

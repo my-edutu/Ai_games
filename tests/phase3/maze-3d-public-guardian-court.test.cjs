@@ -1279,8 +1279,16 @@ test('Pass346 physical guardian fins recline out of the actor lane and rise only
     assert.ok(active.every((y,i)=>y>folded[i]+.30),
       'the genuine Three.js world-space panels rise substantially, not merely flash');
     w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
-    assert.ok(tops().every((y,i)=>y<active[i]-.10),
+    const released=tops();
+    assert.ok(released.every((y,i)=>y<active[i]-.10),
       'guardian release reclines the physical mechanism');
+    assert.ok(released.every((y,i)=>Math.abs(y-folded[i])<.08),
+      'at public 90% shell release each complete 3D fin must clear to its original folded height, not linger over both actors');
+    for (const cell of [6,8]) for (const side of [-1,1]) {
+      const hinge=w.group.getObjectByName('Published guardian Tideglass margin hinge '+cell+' '+side);
+      assert.ok(hinge&&Math.abs(hinge.rotation.x)<.04,
+        'the connected full-width physical floor warning also settles before the witnessed release');
+    }
     w.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
     assert.deepEqual(tops(),folded,'unknown attacker cannot retain a raised cue');
     w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
