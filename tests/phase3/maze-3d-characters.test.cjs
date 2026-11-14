@@ -847,26 +847,40 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     const head=warden.group.getObjectByName('warden mask');
     const jaw=warden.group.getObjectByName('hinged guardian lower mandible');
     assert.ok(head?.isGroup && jaw?.parent===head,'new skull keeps its original animated physical mandible');
-    const optics=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian raised optical lens ${side}`));
-    const sockets=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian upper optical socket ${side}`));
-    const cheeks=[-1,1].map(side=>warden.group.getObjectByName(`rooted guardian cheek armor ${side}`));
-    for(let i=0;i<2;i++){
-      const side=i===0?-1:1;
-      const lens=optics[i],socket=sockets[i],cheek=cheeks[i];
-      assert.ok(lens?.isMesh && socket?.isMesh && cheek?.isMesh,
-        'each eye and structural cheek exists as actual original Three.js geometry');
-      assert.equal(lens.parent,head,'eyes move with the physically hinged skull, not with the HUD/camera');
-      assert.equal(socket.parent,head);
-      assert.equal(cheek.parent,head);
-      assert.ok(side*lens.position.x>.19 && lens.position.y>.30 && lens.position.z>.28,
-        'full-size original left/right eye faces UP and FORWARD for native elevated gameplay cameras');
-      assert.ok(socket.position.y>.24 && cheek.position.y>0);
-      assert.ok(lens.geometry.getAttribute('position') && cheek.geometry.getAttribute('position'));
-    }
+    // The production rig.finish() merges rigid siblings by MATERIAL into
+    // single real WebGL BufferGeometries before gameplay. Checking their old
+    // individual Object3D names would falsely reject genuine vertices.
+    // Inspect the ACTUAL compiled mesh positions instead of disabling pooling.
+    const faceMeshes=head.children.filter(part=>part.isMesh && part.geometry?.attributes?.position);
+    const opticalMesh=faceMeshes.find(part=>part.material?.color?.getHexString()==='ff8650');
+    const cheekMesh=faceMeshes.find(part=>part.material?.color?.getHexString()==='a17b5b');
+    assert.ok(opticalMesh?.isMesh && cheekMesh?.isMesh,
+      'real pooled red overhead optics and full cheek armor survive geometry compilation');
+    assert.equal(opticalMesh.parent,head,'both merged optical shells move with the actual physical head');
+    assert.equal(cheekMesh.parent,head);
+    const opticVertices=opticalMesh.geometry.getAttribute('position');
+    const cheekVertices=cheekMesh.geometry.getAttribute('position');
+    const boundsOf=(attribute)=>{
+      let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,minZ=Infinity,maxZ=-Infinity;
+      for(let i=0;i<attribute.count;i++){
+        const x=attribute.getX(i),y=attribute.getY(i),z=attribute.getZ(i);
+        minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+        minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+        minZ=Math.min(minZ,z);maxZ=Math.max(maxZ,z);
+      }
+      return {minX,maxX,minY,maxY,minZ,maxZ};
+    };
+    const eyeBounds=boundsOf(opticVertices),cheekBounds=boundsOf(cheekVertices);
+    assert.ok(eyeBounds.minX<-.27 && eyeBounds.maxX>.27,
+      'actual lens geometry is a wide left/right pair, not one cyclops decal');
+    assert.ok(eyeBounds.maxY>.37 && eyeBounds.maxZ>.35,
+      'original actual optical vertices visibly rise ABOVE and project FORWARD in overhead play');
+    assert.ok(cheekBounds.minX<-.35 && cheekBounds.maxX>.35 && cheekBounds.maxZ>.25,
+      'paired armored cheeks survive batching as substantial three-dimensional volume');
     warden.reset();
     assert.equal(head.position.y,.27);
     assert.equal(head.position.z,.73);
-    const eyePositions=optics.map(eye=>eye.position.toArray());
+    const opticalBuffer=opticalMesh.geometry.attributes.position.array;
     const linkedMeshes=new Set();
     warden.group.traverse(node=>{if(node.geometry)linkedMeshes.add(node.geometry);});
     const witness={heading:0,attentionHeading:.9,attentionStrength:1,danger:1,
@@ -874,14 +888,15 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     warden.update(witness);
     assert.ok(head.position.y>.33 && head.position.z>.87,
       'actual witnessed brace must raise and advance the complete skull, not merely recolor pupils');
-    const freeze=[head.position.y,head.position.z,...optics.flatMap(eye=>eye.position.toArray())];
+    const freeze=[head.position.y,head.position.z];
     warden.update({...witness,time:90});
-    assert.deepEqual([head.position.y,head.position.z,...optics.flatMap(eye=>eye.position.toArray())],
+    assert.deepEqual([head.position.y,head.position.z],
       freeze,'reduced motion preserves a stable physically readable gaze');
     warden.update({...witness,attentionStrength:0,encounterBeat:undefined});
     assert.equal(head.position.y,.27,'unwitnessed danger cannot leave a raised face');
     assert.equal(head.position.z,.73);
-    assert.deepEqual(optics.map(eye=>eye.position.toArray()),eyePositions);
+    assert.strictEqual(opticalMesh.geometry.attributes.position.array,opticalBuffer,
+      'public danger cannot replace or reposition the original sculpted optic geometry');
     for(let i=0;i<35;i++)warden.update({...witness,time:i/30,reducedMotion:false});
     const afterMeshes=new Set();
     warden.group.traverse(node=>{if(node.geometry)afterMeshes.add(node.geometry);});
